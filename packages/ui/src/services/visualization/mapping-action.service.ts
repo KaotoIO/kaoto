@@ -189,6 +189,20 @@ export class MappingActionService {
   }
 
   /**
+   * Wraps the target field with a {@link ForEachItem} whose select expression is `current-group()`.
+   * Only meaningful inside a `for-each-group` context.
+   * @param nodeData - The target field node to wrap.
+   */
+  static applyForEachCurrentGroup(nodeData: ForEachCapableNodeData) {
+    const fieldItem = MappingActionService.getOrCreateFieldItem(nodeData);
+    MappingService.wrapWithForEach(fieldItem);
+    const forEachItem = fieldItem.parent;
+    if (forEachItem instanceof ForEachItem) {
+      forEachItem.expression = 'current-group()';
+    }
+  }
+
+  /**
    * Adds a {@link ForEachItem} as a child inside the target field's mapping item or inside an existing for-each.
    * This creates an "inner" for-each where the for-each is nested
    * inside the field element rather than wrapping it.
@@ -211,12 +225,41 @@ export class MappingActionService {
   }
 
   /**
-   * Adds a {@link ChooseItem} with when/otherwise branches as a child inside the target field's mapping item.
-   * This creates an "inner" choose-when-otherwise where the choose structure is nested
-   * inside the field element rather than wrapping it.
+   * Adds a {@link ForEachGroupItem} as a child inside the target field's mapping item or inside an existing for-each/for-each-group.
    * Creates the field item first if it does not yet exist.
-   * @param nodeData - The target field node to add the inner choose-when-otherwise to.
+   * @param nodeData - The target field node or for-each node to add the inner for-each-group to.
    */
+  static applyInnerForEachGroup(nodeData: ForEachCapableNodeData | TargetNodeData) {
+    if (MappingActionService.isMappingNode(nodeData)) {
+      const mapping = (nodeData as MappingNodeData).mapping;
+      if (mapping instanceof ForEachItem || mapping instanceof ForEachGroupItem) {
+        MappingService.addInnerForEachGroup(mapping);
+        return;
+      }
+    }
+
+    const fieldItem = MappingActionService.getOrCreateFieldItem(nodeData);
+    MappingService.addInnerForEachGroup(fieldItem);
+  }
+
+  /**
+   * Adds an inner {@link ForEachItem} with `current-group()` as its select expression.
+   * Only meaningful inside a `for-each-group` context.
+   * @param nodeData - The target node to add the inner for-each current-group() to.
+   */
+  static applyInnerForEachCurrentGroup(nodeData: ForEachCapableNodeData | TargetNodeData) {
+    if (MappingActionService.isMappingNode(nodeData)) {
+      const mapping = (nodeData as MappingNodeData).mapping;
+      if (mapping instanceof ForEachItem || mapping instanceof ForEachGroupItem) {
+        MappingService.addInnerForEach(mapping).expression = 'current-group()';
+        return;
+      }
+    }
+
+    const fieldItem = MappingActionService.getOrCreateFieldItem(nodeData);
+    MappingService.addInnerForEach(fieldItem).expression = 'current-group()';
+  }
+
   static applyInnerChooseWhenOtherwise(nodeData: TargetNodeData) {
     const fieldItem = MappingActionService.getOrCreateFieldItem(nodeData);
     const field = fieldItem instanceof FieldItem ? fieldItem.field : undefined;
@@ -456,6 +499,18 @@ export class MappingActionService {
     return MappingService.createFieldItem(parentItem, fieldNodeData.field);
   }
 
+  private static allowForEachCurrentGroup(nodeData: TargetNodeData): boolean {
+    let current: TargetNodeData | undefined = nodeData;
+    while (current) {
+      if (current instanceof MappingNodeData) {
+        if (current.mapping instanceof ForEachGroupItem) return true;
+        if (current.mapping instanceof ForEachItem && current.mapping.expression === 'current-group()') return false;
+      }
+      current = 'parent' in current ? (current.parent as TargetNodeData) : undefined;
+    }
+    return false;
+  }
+
   private static isFieldNode(n: TargetNodeData): n is FieldItemNodeData | TargetFieldNodeData {
     return n instanceof FieldItemNodeData || n instanceof TargetFieldNodeData;
   }
@@ -506,13 +561,20 @@ export class MappingActionService {
       testId: 'transformation-actions-sort',
       getLabel: (n) => {
         const mapping = n.mapping;
-        if ((mapping instanceof ForEachItem || mapping instanceof ForEachGroupItem) && mapping.sortItems?.length > 0) {
+        if (mapping instanceof ForEachItem && mapping.sortItems?.length > 0) {
           return 'Edit Sort';
         }
         return 'Configure Sort';
       },
       apply: (_n, { openModal }) => openModal(MappingActionKind.Sort),
-      isAllowed: MappingActionService.mappingIsOneOf(ForEachItem, ForEachGroupItem),
+      isAllowed: MappingActionService.mappingIsOneOf(ForEachItem),
+    },
+    {
+      key: MappingActionKind.ForEachGroupConfig,
+      testId: 'transformation-actions-foreach-group-config',
+      getLabel: () => 'Configure for-each-group',
+      apply: (_n, { openModal }) => openModal(MappingActionKind.ForEachGroupConfig),
+      isAllowed: MappingActionService.mappingIsOneOf(ForEachGroupItem),
     },
     {
       key: MappingActionKind.Comment,
@@ -583,11 +645,23 @@ export class MappingActionService {
         MappingActionService.applyForEachGroup(n as TargetFieldNodeData | FieldItemNodeData | AddMappingNodeData);
         onUpdate();
       },
-      // TODO enable when https://github.com/KaotoIO/kaoto/issues/2866 is implemented
-      // isAllowed: (n) =>
-      //   n instanceof AddMappingNodeData ||
-      //   (MappingActionService.isFieldNode(n) && VisualizationUtilService.isCollectionField(n)),
-      isAllowed: () => false,
+      isAllowed: (n) =>
+        n instanceof AddMappingNodeData ||
+        (MappingActionService.isFieldNode(n) && VisualizationUtilService.isCollectionField(n)),
+    },
+    {
+      key: MappingActionKind.ForEachCurrentGroup,
+      testId: 'transformation-actions-foreach-current-group',
+      getLabel: () => 'Wrap with "for-each current-group()"',
+      apply: (n, { onUpdate }) => {
+        MappingActionService.applyForEachCurrentGroup(n as ForEachCapableNodeData);
+        onUpdate();
+      },
+      isAllowed: (n) => {
+        if (n instanceof AddMappingNodeData) return false;
+        if (!MappingActionService.isFieldNode(n) || !VisualizationUtilService.isCollectionField(n)) return false;
+        return MappingActionService.allowForEachCurrentGroup(n);
+      },
     },
     {
       key: MappingActionKind.If,
@@ -625,6 +699,36 @@ export class MappingActionService {
         n instanceof AddMappingNodeData ||
         (MappingActionService.isFieldNode(n) && VisualizationUtilService.isTerminalField(n)) ||
         MappingActionService.mappingIsOneOf(ForEachItem, ForEachGroupItem)(n),
+    },
+    {
+      key: MappingActionKind.InnerForEachGroup,
+      testId: 'transformation-actions-foreachgroup-inner',
+      getLabel: () => 'Inner "for-each-group"',
+      apply: (n, { onUpdate }) => {
+        MappingActionService.applyInnerForEachGroup(n);
+        onUpdate();
+      },
+      isAllowed: (n) =>
+        n instanceof AddMappingNodeData ||
+        (MappingActionService.isFieldNode(n) && VisualizationUtilService.isTerminalField(n)) ||
+        MappingActionService.mappingIsOneOf(ForEachItem, ForEachGroupItem)(n),
+    },
+    {
+      key: MappingActionKind.InnerForEachCurrentGroup,
+      testId: 'transformation-actions-foreach-current-group-inner',
+      getLabel: () => 'Inner "for-each current-group()"',
+      apply: (n, { onUpdate }) => {
+        MappingActionService.applyInnerForEachCurrentGroup(n);
+        onUpdate();
+      },
+      isAllowed: (n) => {
+        if (n instanceof AddMappingNodeData) return false;
+        const nodeTypeAllowed =
+          (MappingActionService.isFieldNode(n) && VisualizationUtilService.isTerminalField(n)) ||
+          MappingActionService.mappingIsOneOf(ForEachItem, ForEachGroupItem)(n);
+        if (!nodeTypeAllowed) return false;
+        return MappingActionService.allowForEachCurrentGroup(n);
+      },
     },
     {
       key: MappingActionKind.InnerChoose,

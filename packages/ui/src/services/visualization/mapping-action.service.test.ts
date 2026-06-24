@@ -353,6 +353,36 @@ describe('MappingActionService', () => {
       });
     });
 
+    describe('applyForEachCurrentGroup()', () => {
+      it('should wrap with for-each and set expression to current-group()', () => {
+        const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        expect(shipOrderChildren[3].title).toEqual('Item');
+
+        MappingActionService.applyForEachGroup(shipOrderChildren[3] as TargetFieldNodeData);
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        const updatedDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(updatedDocChildren[0]);
+        const forEachGroupNode = shipOrderChildren[3] as MappingNodeData;
+        expect(forEachGroupNode.title).toEqual('for-each-group');
+
+        const forEachGroupChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachGroupNode);
+        const itemInsideGroup = forEachGroupChildren[0] as FieldItemNodeData;
+        expect(itemInsideGroup.title).toEqual('Item');
+
+        MappingActionService.applyForEachCurrentGroup(itemInsideGroup);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        const finalDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const finalShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(finalDocChildren[0]);
+        const finalForEachGroupNode = finalShipOrderChildren[3] as MappingNodeData;
+        const finalGroupChildren = VisualizationService.generateNonDocumentNodeDataChildren(finalForEachGroupNode);
+        const forEachNode = finalGroupChildren[0] as MappingNodeData;
+        expect(forEachNode.title).toEqual('for-each');
+        expect((forEachNode.mapping as ForEachItem).expression).toEqual('current-group()');
+      });
+    });
+
     describe('applyInnerForEach()', () => {
       it('should add inner for-each', () => {
         let docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
@@ -437,6 +467,144 @@ describe('MappingActionService', () => {
         const nestedForEach = nestedChildren.find((child) => child.title === 'for-each');
         expect(nestedForEach).toBeDefined();
         expect((nestedForEach as MappingNodeData).mapping.parent).toBe((topLevelForEach[0] as MappingNodeData).mapping);
+      });
+    });
+
+    describe('applyInnerForEachGroup()', () => {
+      it('should add inner for-each-group', () => {
+        let docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        expect(shipOrderChildren[0].title).toEqual('OrderId');
+        MappingActionService.applyInnerForEachGroup(shipOrderChildren[0] as TargetFieldNodeData);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        expect(shipOrderChildren[0].title).toEqual('OrderId');
+        const orderIdChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[0]);
+        expect(orderIdChildren.length).toBeGreaterThanOrEqual(1);
+        const forEachGroupChild = orderIdChildren.find((child) => child.title === 'for-each-group');
+        expect(forEachGroupChild).toBeDefined();
+        expect(forEachGroupChild?.title).toEqual('for-each-group');
+      });
+
+      it('should nest inner for-each-group when applied to an existing for-each node', () => {
+        let docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+
+        MappingActionService.applyInnerForEach(shipOrderChildren[0] as TargetFieldNodeData);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        const orderIdChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[0]);
+        const forEachNode = orderIdChildren.find((child) => child.title === 'for-each');
+
+        MappingActionService.applyInnerForEachGroup(forEachNode as TargetNodeData);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        const updatedOrderIdChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[0]);
+
+        const topLevelForEach = updatedOrderIdChildren.filter((child) => child.title === 'for-each');
+        expect(topLevelForEach).toHaveLength(1);
+
+        const nestedChildren = VisualizationService.generateNonDocumentNodeDataChildren(topLevelForEach[0]);
+        const nestedForEachGroup = nestedChildren.find((child) => child.title === 'for-each-group');
+        expect(nestedForEachGroup).toBeDefined();
+        expect((nestedForEachGroup as MappingNodeData).mapping instanceof ForEachGroupItem).toBeTruthy();
+      });
+    });
+
+    describe('applyInnerForEachCurrentGroup()', () => {
+      it('should add inner for-each with expression current-group() inside for-each-group', () => {
+        const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        expect(shipOrderChildren[3].title).toEqual('Item');
+
+        MappingActionService.applyForEachGroup(shipOrderChildren[3] as TargetFieldNodeData);
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        let updatedDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(updatedDocChildren[0]);
+        const forEachGroupNode = shipOrderChildren[3] as MappingNodeData;
+        expect(forEachGroupNode.title).toEqual('for-each-group');
+
+        MappingActionService.applyInnerForEachCurrentGroup(forEachGroupNode);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        updatedDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(updatedDocChildren[0]);
+        const updatedGroupNode = shipOrderChildren[3] as MappingNodeData;
+        const groupChildren = VisualizationService.generateNonDocumentNodeDataChildren(updatedGroupNode);
+        const forEachNode = groupChildren.find((child) => child.title === 'for-each');
+        expect(forEachNode).toBeDefined();
+        expect((forEachNode as MappingNodeData).mapping instanceof ForEachItem).toBeTruthy();
+        expect(((forEachNode as MappingNodeData).mapping as ForEachItem).expression).toEqual('current-group()');
+      });
+
+      it('should not be allowed outside for-each-group context', () => {
+        const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        expect(shipOrderChildren[3].title).toEqual('Item');
+
+        MappingActionService.applyForEach(shipOrderChildren[3] as TargetFieldNodeData);
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        const updatedDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const updatedShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(
+          updatedDocChildren[0],
+        );
+        const forEachNode = updatedShipOrderChildren[3] as MappingNodeData;
+        expect(forEachNode.title).toEqual('for-each');
+        expect(MappingActionService.getAllowedActions(forEachNode)).not.toContain(
+          MappingActionKind.InnerForEachCurrentGroup,
+        );
+      });
+
+      it('should be allowed on for-each-group node', () => {
+        const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        expect(shipOrderChildren[3].title).toEqual('Item');
+
+        MappingActionService.applyForEachGroup(shipOrderChildren[3] as TargetFieldNodeData);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        const updatedDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const updatedShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(
+          updatedDocChildren[0],
+        );
+        const forEachGroupNode = updatedShipOrderChildren[3] as MappingNodeData;
+        expect(forEachGroupNode.title).toEqual('for-each-group');
+        expect(MappingActionService.getAllowedActions(forEachGroupNode)).toContain(
+          MappingActionKind.InnerForEachCurrentGroup,
+        );
+      });
+
+      it('should not be allowed inside existing for-each current-group()', () => {
+        const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        expect(shipOrderChildren[3].title).toEqual('Item');
+
+        MappingActionService.applyForEachGroup(shipOrderChildren[3] as TargetFieldNodeData);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        let updatedDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        let updatedShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(updatedDocChildren[0]);
+        const forEachGroupNode = updatedShipOrderChildren[3] as MappingNodeData;
+
+        MappingActionService.applyInnerForEachCurrentGroup(forEachGroupNode);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        updatedDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        updatedShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(updatedDocChildren[0]);
+        const forEachGroupNode2 = updatedShipOrderChildren[3] as MappingNodeData;
+        const groupChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachGroupNode2);
+        const forEachCurrentGroupNode = groupChildren.find((child) => child.title === 'for-each') as MappingNodeData;
+        expect((forEachCurrentGroupNode.mapping as ForEachItem).expression).toEqual('current-group()');
+
+        expect(MappingActionService.getAllowedActions(forEachCurrentGroupNode)).not.toContain(
+          MappingActionKind.InnerForEachCurrentGroup,
+        );
       });
     });
 
@@ -1208,8 +1376,7 @@ describe('MappingActionService', () => {
         expect(addMappingNode.title).toEqual('Item');
         expect(addMappingNode.id).toContain('add-mapping-fx-Item');
         expect(MappingActionService.getAllowedActions(addMappingNode)).toContain(MappingActionKind.ForEach);
-        // TODO enable when https://github.com/KaotoIO/kaoto/issues/2866 is implemented
-        // expect(MappingActionService.getAllowedActions(addMappingNode)).toContain(MappingActionKind.ForEachGroup);
+        expect(MappingActionService.getAllowedActions(addMappingNode)).toContain(MappingActionKind.ForEachGroup);
         expect(MappingActionService.getAllowedActions(addMappingNode)).toContain(MappingActionKind.If);
         expect(MappingActionService.getAllowedActions(addMappingNode)).toContain(MappingActionKind.Choose);
         expect(MappingActionService.getAllowedActions(addMappingNode)).toContain(MappingActionKind.ContextMenu);
@@ -1257,7 +1424,7 @@ describe('MappingActionService', () => {
         expect(MappingActionService.getAllowedActions(primitiveDocNode)).toContain(MappingActionKind.ContextMenu);
       });
 
-      it('should allow ContextMenu and Sort but exclude ValueSelector for for-each-group nodes', () => {
+      it('should allow ContextMenu and ForEachGroupConfig but exclude Sort and ValueSelector for for-each-group nodes', () => {
         const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
         const itemNode = shipOrderChildren[3] as MappingNodeData;
@@ -1280,7 +1447,10 @@ describe('MappingActionService', () => {
         expect(forEachGroupNode.title).toEqual('for-each-group');
         expect(forEachGroupNode.mapping instanceof ForEachGroupItem).toBeTruthy();
         expect(MappingActionService.getAllowedActions(forEachGroupNode)).toContain(MappingActionKind.ContextMenu);
-        expect(MappingActionService.getAllowedActions(forEachGroupNode)).toContain(MappingActionKind.Sort);
+        expect(MappingActionService.getAllowedActions(forEachGroupNode)).toContain(
+          MappingActionKind.ForEachGroupConfig,
+        );
+        expect(MappingActionService.getAllowedActions(forEachGroupNode)).not.toContain(MappingActionKind.Sort);
         expect(MappingActionService.getAllowedActions(forEachGroupNode)).not.toContain(MappingActionKind.ValueSelector);
 
         const forEachGroupChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachGroupNode);
@@ -1288,6 +1458,73 @@ describe('MappingActionService', () => {
         expect(fieldInsideForEachGroup.title).toEqual('Item');
         expect(MappingActionService.getAllowedActions(fieldInsideForEachGroup)).toContain(
           MappingActionKind.ContextMenu,
+        );
+      });
+
+      it('should allow ForEachCurrentGroup for collection fields inside for-each-group', () => {
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+
+        MappingActionService.applyForEachGroup(shipOrderChildren[4] as AddMappingNodeData);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        const updatedDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const updatedShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(
+          updatedDocChildren[0],
+        );
+
+        const forEachGroupNode = updatedShipOrderChildren[4] as MappingNodeData;
+        expect(forEachGroupNode.title).toEqual('for-each-group');
+        const forEachGroupChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachGroupNode);
+        const fieldInsideForEachGroup = forEachGroupChildren[0] as FieldItemNodeData;
+        expect(fieldInsideForEachGroup.title).toEqual('Item');
+        expect(MappingActionService.getAllowedActions(fieldInsideForEachGroup)).toContain(
+          MappingActionKind.ForEachCurrentGroup,
+        );
+      });
+
+      it('should not allow ForEachCurrentGroup for fields outside for-each-group', () => {
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+
+        const itemNode = shipOrderChildren[3] as MappingNodeData;
+        const forEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(itemNode);
+        const fieldInsideForEach = forEachChildren[0] as FieldItemNodeData;
+        expect(fieldInsideForEach.title).toEqual('Item');
+        expect(MappingActionService.getAllowedActions(fieldInsideForEach)).not.toContain(
+          MappingActionKind.ForEachCurrentGroup,
+        );
+      });
+
+      it('should not allow ForEachCurrentGroup when already inside for-each current-group()', () => {
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+
+        MappingActionService.applyForEachGroup(shipOrderChildren[4] as AddMappingNodeData);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        let updatedDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        let updatedShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(updatedDocChildren[0]);
+        const forEachGroupNode = updatedShipOrderChildren[4] as MappingNodeData;
+        const forEachGroupChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachGroupNode);
+        const fieldInsideGroup = forEachGroupChildren[0] as FieldItemNodeData;
+
+        MappingActionService.applyForEachCurrentGroup(fieldInsideGroup);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        updatedDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        updatedShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(updatedDocChildren[0]);
+        const forEachGroupNode2 = updatedShipOrderChildren[4] as MappingNodeData;
+        const groupChildren2 = VisualizationService.generateNonDocumentNodeDataChildren(forEachGroupNode2);
+        const forEachCurrentGroupNode = groupChildren2[0] as MappingNodeData;
+        expect(forEachCurrentGroupNode.title).toEqual('for-each');
+        expect((forEachCurrentGroupNode.mapping as ForEachItem).expression).toEqual('current-group()');
+
+        const innerChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachCurrentGroupNode);
+        const fieldInsideCurrentGroup = innerChildren[0] as FieldItemNodeData;
+        expect(fieldInsideCurrentGroup.title).toEqual('Item');
+        expect(MappingActionService.getAllowedActions(fieldInsideCurrentGroup)).not.toContain(
+          MappingActionKind.ForEachCurrentGroup,
         );
       });
     });

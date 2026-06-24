@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { ForEachGroupItem, ForEachItem, MappingItem } from '../../../../models/datamapper/mapping';
 import { MappingActionKind } from '../../../../models/datamapper/mapping-action';
 import { CommentModal } from './Comment/CommentModal';
+import { ForEachGroupModal } from './ForEachGroup/ForEachGroupModal';
 import { ModalAction } from './modal-action';
 import { SortModal } from './Sort/SortModal';
 
@@ -11,10 +12,7 @@ export function useMappingActionModals(mapping: MappingItem | undefined, onUpdat
   const [isSortOpen, setIsSortOpen] = useState(false);
   const closeSort = useCallback(() => setIsSortOpen(false), []);
 
-  const sortableMapping = useMemo(
-    () => (mapping instanceof ForEachItem || mapping instanceof ForEachGroupItem ? mapping : undefined),
-    [mapping],
-  );
+  const sortableMapping = useMemo(() => (mapping instanceof ForEachItem ? mapping : undefined), [mapping]);
 
   const renderSort = useCallback(() => {
     if (!sortableMapping || !isSortOpen) return null;
@@ -30,11 +28,29 @@ export function useMappingActionModals(mapping: MappingItem | undefined, onUpdat
     return <CommentModal isOpen onClose={closeComment} mapping={mapping} onUpdate={onUpdate} />;
   }, [mapping, isCommentOpen, closeComment, onUpdate]);
 
+  /** ForEachGroupConfig */
+  const forEachGroupMapping = useMemo(() => (mapping instanceof ForEachGroupItem ? mapping : undefined), [mapping]);
+
+  const [isForEachGroupConfigOpen, setIsForEachGroupConfigOpen] = useState(false);
+  const closeForEachGroupConfig = useCallback(() => setIsForEachGroupConfigOpen(false), []);
+
+  const renderForEachGroupConfig = useCallback(() => {
+    if (!forEachGroupMapping || !isForEachGroupConfigOpen) return null;
+    return (
+      <ForEachGroupModal isOpen onClose={closeForEachGroupConfig} mapping={forEachGroupMapping} onUpdate={onUpdate} />
+    );
+  }, [forEachGroupMapping, isForEachGroupConfigOpen, closeForEachGroupConfig, onUpdate]);
+
   return useMemo(
     () => [
       { kind: MappingActionKind.Sort, open: () => setIsSortOpen(true), render: renderSort },
       { kind: MappingActionKind.Comment, open: () => setIsCommentOpen(true), render: renderComment },
+      {
+        kind: MappingActionKind.ForEachGroupConfig,
+        open: () => setIsForEachGroupConfigOpen(true),
+        render: renderForEachGroupConfig,
+      },
     ],
-    [renderSort, renderComment],
+    [renderSort, renderComment, renderForEachGroupConfig],
   );
 }

@@ -322,27 +322,45 @@ export class MappingService {
    * @param parent - the parent item to add the for-each inside
    * @param existingChildren - optional existing children to move inside the for-each
    */
-  static addInnerForEach(parent: MappingItem, existingChildren?: MappingItem[]) {
-    const forEachItem = new ForEachItem(parent);
+  static addInnerForEach(parent: MappingItem, existingChildren?: MappingItem[]): ForEachItem {
+    return MappingService.addInnerIterationItem(parent, new ForEachItem(parent), existingChildren);
+  }
+
+  /**
+   * Adds a {@link ForEachGroupItem} as a child inside the parent item.
+   * Same placement logic as {@link addInnerForEach} but creates a for-each-group node.
+   *
+   * @param parent - the parent item to add the for-each-group inside
+   * @param existingChildren - optional existing children to move inside the for-each-group
+   */
+  static addInnerForEachGroup(parent: MappingItem, existingChildren?: MappingItem[]): ForEachGroupItem {
+    return MappingService.addInnerIterationItem(parent, new ForEachGroupItem(parent), existingChildren);
+  }
+
+  private static addInnerIterationItem<T extends MappingItem>(
+    parent: MappingItem,
+    item: T,
+    existingChildren?: MappingItem[],
+  ): T {
     const ensureBodyPlaceholder = () => {
-      if (forEachItem.children.length === 0) {
-        forEachItem.children.push(MappingService.createValueSelector(forEachItem));
+      if (item.children.length === 0) {
+        item.children.push(MappingService.createValueSelector(item));
       }
     };
 
     // If parent is already a ForEachItem, nest inside it
     if (parent instanceof ForEachItem || parent instanceof ForEachGroupItem) {
-      // Move existing children (except ValueSelector) into the new for-each
+      // Move existing children (except ValueSelector) into the new item
       const childrenToMove = existingChildren ?? parent.children.filter((c) => !(c instanceof ValueSelector));
-      childrenToMove.forEach((child) => {
-        child.parent = forEachItem;
-        forEachItem.children.push(child);
-      });
+      for (const child of childrenToMove) {
+        child.parent = item;
+        item.children.push(child);
+      }
 
-      // Replace parent's children with the for-each and any ValueSelectors
+      // Replace parent's children with the new item and any ValueSelectors
       const valueSelectors = parent.children.filter((c) => c instanceof ValueSelector);
       ensureBodyPlaceholder();
-      parent.children = [...valueSelectors, forEachItem];
+      parent.children = [...valueSelectors, item];
     } else {
       // Parent is a FieldItem or other type
       // Check if there are already ForEachItem children
@@ -353,21 +371,22 @@ export class MappingService {
         const valueSelectors = parent.children.filter((c) => c instanceof ValueSelector);
         const otherChildren = parent.children.filter((c) => !(c instanceof ValueSelector));
         ensureBodyPlaceholder();
-        parent.children = [...valueSelectors, ...otherChildren, forEachItem];
+        parent.children = [...valueSelectors, ...otherChildren, item];
       } else {
         // First for-each: move existing children (except ValueSelector) into it
         const childrenToMove = existingChildren ?? parent.children.filter((c) => !(c instanceof ValueSelector));
-        childrenToMove.forEach((child) => {
-          child.parent = forEachItem;
-          forEachItem.children.push(child);
-        });
+        for (const child of childrenToMove) {
+          child.parent = item;
+          item.children.push(child);
+        }
 
-        // Replace parent's children with the for-each and any ValueSelectors
+        // Replace parent's children with the new item and any ValueSelectors
         const valueSelectors = parent.children.filter((c) => c instanceof ValueSelector);
         ensureBodyPlaceholder();
-        parent.children = [...valueSelectors, forEachItem];
+        parent.children = [...valueSelectors, item];
       }
     }
+    return item;
   }
 
   /**
