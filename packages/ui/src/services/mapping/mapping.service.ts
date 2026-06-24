@@ -745,6 +745,27 @@ export class MappingService {
   }
 
   /**
+   * Recursively traverses the {@link MappingTree} and collects all {@link VariableItem} instances.
+   * @param mappingTree - the mapping tree to traverse
+   * @returns flat list of all variables from all nesting levels
+   */
+
+  static getAllVariables(mappingTree: MappingTree): VariableItem[] {
+    const result: VariableItem[] = [];
+    const collect = (children: MappingItem[]) => {
+      for (const child of children) {
+        if (child instanceof VariableItem) {
+          result.push(child);
+        }
+        collect(child.children);
+      }
+    };
+
+    collect(mappingTree.children);
+    return result;
+  }
+
+  /**
    * Variables are prepended (unshift) to children, matching the XSLT requirement
    * that `xsl:variable` declarations precede other instructions.
    * @param parent - the parent container
