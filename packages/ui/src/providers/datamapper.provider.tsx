@@ -27,7 +27,7 @@ import {
   IDocument,
   PrimitiveDocument,
 } from '../models/datamapper/document';
-import { MappingTree } from '../models/datamapper/mapping';
+import { MappingTree, VariableItem } from '../models/datamapper/mapping';
 import { NS_XML_SCHEMA, NS_XPATH_FUNCTIONS, NS_XSL } from '../models/datamapper/standard-namespaces';
 import { CanvasView } from '../models/datamapper/view';
 import { DocumentService } from '../services/document/document.service';
@@ -59,6 +59,7 @@ export interface IDataMapperContext {
   refreshMappingTree(): void;
   resetMappingTree(): void;
   setMappingTree(mappings: MappingTree): void;
+  variables: VariableItem[];
 
   alerts: SendAlertProps[];
   sendAlert: (alert: SendAlertProps) => void;
@@ -312,6 +313,8 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     setAlerts((prev) => prev.filter((a) => a !== option));
   }, []);
 
+  const variables = useMemo(() => MappingService.getAllVariables(mappingTree), [mappingTree]);
+
   const value = useMemo(() => {
     return {
       isLoading,
@@ -334,6 +337,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       refreshMappingTree,
       resetMappingTree,
       setMappingTree,
+      variables,
       alerts,
       sendAlert,
       debug,
@@ -354,6 +358,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     mappingTree,
     refreshMappingTree,
     resetMappingTree,
+    variables,
     alerts,
     sendAlert,
     debug,

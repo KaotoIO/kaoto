@@ -893,6 +893,72 @@ describe('MappingService', () => {
     });
   });
 
+  describe('getAllVariables()', () => {
+    it('should return empty array for tree without variables', () => {
+      const emptyTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      expect(MappingService.getAllVariables(emptyTree)).toEqual([]);
+    });
+
+    it('should return empty array when tree has children but no variables', () => {
+      expect(MappingService.getAllVariables(tree)).toEqual([]);
+    });
+
+    it('should collect variables from root level', () => {
+      const parent = tree.children[0];
+      const var1 = MappingService.addVariable(parent, 'var1');
+      const var2 = MappingService.addVariable(parent, 'var2');
+      const result = MappingService.getAllVariables(tree);
+      expect(result).toHaveLength(2);
+      expect(result).toContain(var1);
+      expect(result).toContain(var2);
+    });
+
+    it('should collect variables nested in ForEachItem', () => {
+      const forEachItem = tree.children[0].children[3] as ForEachItem;
+      const variable = MappingService.addVariable(forEachItem, 'loopVar');
+      const result = MappingService.getAllVariables(tree);
+      expect(result).toHaveLength(1);
+      expect(result).toContain(variable);
+    });
+
+    it('should collect variables nested in IfItem', () => {
+      const ifItem = tree.children[0].children[1] as IfItem;
+      const variable = MappingService.addVariable(ifItem, 'condVar');
+      const result = MappingService.getAllVariables(tree);
+      expect(result).toHaveLength(1);
+      expect(result).toContain(variable);
+    });
+
+    it('should collect variables nested in WhenItem and OtherwiseItem', () => {
+      const parent = tree.children[0];
+      const chooseItem = new ChooseItem(parent);
+      parent.children.push(chooseItem);
+      const whenItem = MappingService.addWhen(chooseItem);
+      const otherwiseItem = MappingService.addOtherwise(chooseItem);
+      const whenVar = MappingService.addVariable(whenItem, 'whenVar');
+      const elseVar = MappingService.addVariable(otherwiseItem, 'elseVar');
+      const result = MappingService.getAllVariables(tree);
+      expect(result).toHaveLength(2);
+      expect(result).toContain(whenVar);
+      expect(result).toContain(elseVar);
+    });
+
+    it('should collect variables from multiple nesting levels', () => {
+      const parent = tree.children[0];
+      const rootVar = MappingService.addVariable(parent, 'rootVar');
+      const forEachItem = tree.children[0].children.find((c) => c instanceof ForEachItem) as ForEachItem;
+      const nestedVar = MappingService.addVariable(forEachItem, 'nestedVar');
+      const result = MappingService.getAllVariables(tree);
+      expect(result).toHaveLength(2);
+      expect(result).toContain(rootVar);
+      expect(result).toContain(nestedVar);
+    });
+  });
+
   describe('container auto-mapping', () => {
     let sourceRoot: IField;
     let targetRoot: IField;
