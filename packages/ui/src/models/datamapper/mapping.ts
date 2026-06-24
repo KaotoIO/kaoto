@@ -239,6 +239,13 @@ export enum GroupingStrategy {
   GROUP_ENDING_WITH = 'group-ending-with',
 }
 
+export const GROUPING_STRATEGY_LABELS: Record<GroupingStrategy, string> = {
+  [GroupingStrategy.GROUP_BY]: 'Group By',
+  [GroupingStrategy.GROUP_ADJACENT]: 'Group Adjacent',
+  [GroupingStrategy.GROUP_STARTING_WITH]: 'Group Starting With',
+  [GroupingStrategy.GROUP_ENDING_WITH]: 'Group Ending With',
+};
+
 /**
  * Represents an `xsl:for-each-group` instruction.
  * {@link expression} selects the population to group; {@link groupingStrategy}

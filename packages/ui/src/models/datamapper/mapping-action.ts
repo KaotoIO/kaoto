@@ -22,6 +22,10 @@ export enum MappingActionKind {
   Sort = 'sort',
   Variable = 'variable',
   RenameVariable = 'renameVariable',
+  ForEachGroupConfig = 'forEachGroupConfig',
+  ForEachCurrentGroup = 'forEachCurrentGroup',
+  InnerForEachGroup = 'innerForEachGroup',
+  InnerForEachCurrentGroup = 'innerForEachCurrentGroup',
 }
 
 /**

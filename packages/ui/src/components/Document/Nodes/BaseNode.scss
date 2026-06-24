@@ -55,6 +55,13 @@
       align-items: center;
       justify-content: center;
     }
+
+    .pf-v6-c-label {
+      &__content,
+      &__text {
+        overflow: visible;
+      }
+    }
   }
 
   // Selected row styling - blue font color and bold (overrides leaf node grey)
