@@ -9,8 +9,8 @@ import {
 } from '../../models/datamapper/xpath';
 import { DocumentUtilService } from '../document/document-util.service';
 import { getPrefixForNamespaceURI } from '../namespace-util';
-import { XPATH_2_0_FUNCTIONS } from './2.0/xpath-2.0-functions';
 import { XPath2Parser } from './2.0/xpath-2.0-parser';
+import { XPATH_3_1_FUNCTIONS } from './3.1/xpath-3.1-functions';
 import { monacoXPathLanguageMetadata } from './monaco-language';
 import { CstVisitor } from './syntaxtree/xpath-syntaxtree-cst-visitor';
 import {
@@ -36,7 +36,7 @@ import { FunctionGroup, ValidatedXPathParseResult, XPathParserResult } from './x
  */
 export class XPathService {
   static readonly parser = new XPath2Parser();
-  static readonly functions = XPATH_2_0_FUNCTIONS;
+  static readonly functions = XPATH_3_1_FUNCTIONS;
 
   /**
    * Parses an XPath expression string into a parser result
