@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { dirname, join } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 import { normalizePath } from 'vite';
 
 const require = createRequire(import.meta.url);
@@ -42,9 +42,29 @@ export const getCatalogFiles = () => {
   const catalogFiles = [];
   getFilesRecursively(camelCatalogPath, catalogFiles);
 
+  const additionalMappings = [];
+  try {
+    const packageJsonPath = require.resolve('@kaoto/camel-catalog/package.json');
+    const packageRoot = normalizePath(dirname(packageJsonPath));
+    const xpathDir = join(packageRoot, 'dist', 'xpath-functions');
+    if (existsSync(xpathDir)) {
+      const xpathFiles = [];
+      getFilesRecursively(xpathDir, xpathFiles);
+      for (const file of xpathFiles.filter((f) => f.endsWith('.json'))) {
+        additionalMappings.push({
+          urlPath: 'xpath-functions/' + normalizePath(relative(xpathDir, file)),
+          filePath: file,
+        });
+      }
+    }
+  } catch {
+    /* xpath-functions not available in this camel-catalog version */
+  }
+
   return {
     basePath: camelCatalogPath,
     files: catalogFiles.filter((file) => file.endsWith('.json') || file.endsWith('.xsd')),
+    additionalMappings,
   };
 };
 

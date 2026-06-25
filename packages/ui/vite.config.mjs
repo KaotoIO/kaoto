@@ -11,10 +11,10 @@ import { getLastCommitInfo } from './scripts/get-last-commit-info.mjs';
 
 const outDir = './dist';
 const lastCommitInfo = await getLastCommitInfo();
-const { basePath, files: catalogFiles } = getCatalogFiles();
+const { basePath, files: catalogFiles, additionalMappings } = getCatalogFiles();
 
 export default defineConfig({
-  plugins: [react(), camelCatalogPlugin(basePath, catalogFiles)],
+  plugins: [react(), camelCatalogPlugin(basePath, catalogFiles, additionalMappings)],
   define: {
     __GIT_HASH: JSON.stringify(lastCommitInfo.hash),
     __GIT_DATE: JSON.stringify(lastCommitInfo.date),

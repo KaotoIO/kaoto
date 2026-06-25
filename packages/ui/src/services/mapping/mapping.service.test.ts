@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import { DocumentDefinitionType, DocumentType, IDocument, IField } from '../../models/datamapper/document';
 import {
   ChooseItem,
@@ -31,6 +33,25 @@ import { XPathService } from '../xpath/xpath.service';
 import { FieldMatchingService } from './field-matching.service';
 import { MappingService } from './mapping.service';
 import { MappingSerializerService } from './mapping-serializer.service';
+
+const { mockFunctionCatalog } = vi.hoisted(() => ({
+  mockFunctionCatalog: {
+    String: [
+      {
+        name: 'concat',
+        displayName: 'Concatenate',
+        description: 'Concatenates strings',
+        returnType: 'string',
+        arguments: [],
+      },
+    ],
+  },
+}));
+
+vi.mock('../xpath/xpath-function-catalog', () => ({
+  loadXPathFunctionCatalog: vi.fn().mockResolvedValue(mockFunctionCatalog),
+  convertXPathFunctionCatalog: vi.fn(),
+}));
 
 describe('MappingService', () => {
   let sourceDoc: XmlSchemaDocument;
@@ -684,8 +705,9 @@ describe('MappingService', () => {
   });
 
   describe('wrapWithFunction()', () => {
-    it('should wrap with xpath function', () => {
-      const concatFx = XPathService.functions.String.find((f) => f.name === 'concat');
+    it('should wrap with xpath function', async () => {
+      const functions = await XPathService.getXPathFunctionDefinitions();
+      const concatFx = functions.String.find((f) => f.name === 'concat');
       const valueSelector = new ValueSelector(tree);
       valueSelector.expression = '/path/to/field';
       MappingService.wrapWithFunction(valueSelector, concatFx!);

@@ -11,9 +11,10 @@ import { normalizePath } from 'vite';
  *
  * @param {string} basePath - root path of the catalog package on disk
  * @param {string[]} catalogFiles - absolute paths to each catalog file
+ * @param {Array<{urlPath: string, filePath: string}>} [additionalMappings] - extra URL-to-file mappings (e.g. xpath-functions)
  * @returns {import('vite').Plugin}
  */
-export function camelCatalogPlugin(basePath, catalogFiles) {
+export function camelCatalogPlugin(basePath, catalogFiles, additionalMappings = []) {
   const CATALOG_PREFIX = '/camel-catalog/';
 
   /** @type {Map<string, string>} URL path -> absolute filesystem path */
@@ -21,6 +22,9 @@ export function camelCatalogPlugin(basePath, catalogFiles) {
   for (const file of catalogFiles) {
     const relativePath = normalizePath(relative(basePath, file));
     fileMap.set(CATALOG_PREFIX + relativePath, file);
+  }
+  for (const { urlPath, filePath } of additionalMappings) {
+    fileMap.set(CATALOG_PREFIX + urlPath, filePath);
   }
 
   return {
