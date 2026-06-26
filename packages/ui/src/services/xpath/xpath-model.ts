@@ -21,20 +21,28 @@ export interface XPathParser {
 }
 
 /**
- * Categories of XPath functions
+ * Categories of XPath functions.
+ * Keys are used as identifiers, values as display names in the UI.
  */
-export enum FunctionGroup {
-  String = 'String',
-  SubstringMatching = 'Substring Matching',
-  PatternMatching = 'Pattern Matching',
-  Numeric = 'Numeric',
-  DateAndTime = 'Date and Time',
-  Boolean = 'Boolean',
-  QName = 'QName',
-  Node = 'Node',
-  Sequence = 'Sequence',
-  Context = 'Context',
-}
+export const FUNCTION_GROUPS = {
+  String: 'String',
+  SubstringMatching: 'Substring Matching',
+  PatternMatching: 'Pattern Matching',
+  Numeric: 'Numeric',
+  DateAndTime: 'Date and Time',
+  Boolean: 'Boolean',
+  QName: 'QName',
+  Node: 'Node',
+  Sequence: 'Sequence',
+  Context: 'Context',
+  Math: 'Math',
+  MapFunctions: 'Map',
+  ArrayFunctions: 'Array',
+  HigherOrder: 'Higher-Order',
+  XSLT: 'XSLT',
+} as const;
+
+export type FunctionGroup = keyof typeof FUNCTION_GROUPS;
 
 /**
  * Contains validation results for an XPath expression including parser results, errors, and warnings

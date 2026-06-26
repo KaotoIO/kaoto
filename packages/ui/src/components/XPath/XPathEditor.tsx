@@ -4,6 +4,7 @@ import * as monaco from 'monaco-editor';
 import { FunctionComponent, useEffect, useRef, useState } from 'react';
 
 import { IExpressionHolder } from '../../models/datamapper';
+import { monacoXPathLanguageMetadata } from '../../services/xpath/monaco-language';
 import { XPathService } from '../../services/xpath/xpath.service';
 import { xpathEditorConstrufctionOption, xpathEditorTheme } from './monaco-options';
 
@@ -15,7 +16,12 @@ type XPathEditorProps = {
 export const XPathEditor: FunctionComponent<XPathEditorProps> = ({ mapping, onChange }) => {
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
   const monacoEl = useRef(null);
-  const xpathLanguage = XPathService.getMonacoXPathLanguageMetadata();
+  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const onChangeRef = useRef(onChange);
+
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
 
   useEffect(() => {
     const previousExpression = editor?.getModel()?.getValue();
@@ -23,51 +29,41 @@ export const XPathEditor: FunctionComponent<XPathEditorProps> = ({ mapping, onCh
   }, [editor, mapping.expression]);
 
   useEffect(() => {
-    if (monacoEl) {
-      setEditor((editor) => {
-        if (editor) return editor;
+    if (!monacoEl.current || editorRef.current) return;
 
-        monaco.languages.register({ id: xpathLanguage.id });
-        monaco.languages.setMonarchTokensProvider(xpathLanguage.id, xpathLanguage.tokensProvider);
-        monaco.languages.setLanguageConfiguration(xpathLanguage.id, xpathLanguage.languageConfiguration);
-        monaco.languages.registerCompletionItemProvider(xpathLanguage.id, xpathLanguage.completionItemProvider);
-        monaco.languages.registerHoverProvider(xpathLanguage.id, {
-          provideHover: (model, position, token, context) => {
-            console.log(`#### ${model}, ${position}, ${token}, ${context}`);
-            return { contents: [{ value: 'test' }] };
-          },
-        });
-        const themeName = 'datamapperTheme';
-        monaco.editor.defineTheme(themeName, xpathEditorTheme);
+    const xpathLanguage = monacoXPathLanguageMetadata;
+    monaco.languages.register({ id: xpathLanguage.id });
+    monaco.languages.setMonarchTokensProvider(xpathLanguage.id, xpathLanguage.tokensProvider);
+    monaco.languages.setLanguageConfiguration(xpathLanguage.id, xpathLanguage.languageConfiguration);
+    monaco.languages.registerCompletionItemProvider(xpathLanguage.id, xpathLanguage.completionItemProvider);
+    const themeName = 'datamapperTheme';
+    monaco.editor.defineTheme(themeName, xpathEditorTheme);
 
-        const newEditor = monaco.editor.create(monacoEl.current!, {
-          ...xpathEditorConstrufctionOption,
-          theme: themeName,
-          value: mapping.expression,
-          minimap: {
-            enabled: false,
-          },
-        });
-        newEditor.onDidChangeModelContent((_e) => onChange(newEditor.getModel()?.getValue()));
-        return newEditor;
-      });
-    }
+    const newEditor = monaco.editor.create(monacoEl.current!, {
+      ...xpathEditorConstrufctionOption,
+      theme: themeName,
+      value: mapping.expression,
+      minimap: {
+        enabled: false,
+      },
+    });
+    newEditor.onDidChangeModelContent((_e) => onChangeRef.current(newEditor.getModel()?.getValue()));
+    editorRef.current = newEditor;
+    setEditor(newEditor);
+
+    XPathService.getMonacoXPathLanguageMetadata()
+      .then((metadata) => {
+        monaco.languages.setMonarchTokensProvider(metadata.id, metadata.tokensProvider);
+      })
+      .catch(() => {});
 
     return () => {
-      if (!monacoEl) {
-        editor?.dispose();
-        setEditor(null);
-      }
+      editorRef.current?.dispose();
+      editorRef.current = null;
+      setEditor(null);
     };
-  }, [
-    editor,
-    mapping.expression,
-    onChange,
-    xpathLanguage.completionItemProvider,
-    xpathLanguage.id,
-    xpathLanguage.languageConfiguration,
-    xpathLanguage.tokensProvider,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return <div className="xpath-editor" data-testid="xpath-editor" ref={monacoEl}></div>;
 };

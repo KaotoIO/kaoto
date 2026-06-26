@@ -9,7 +9,6 @@ import {
 } from '../../models/datamapper/xpath';
 import { DocumentUtilService } from '../document/document-util.service';
 import { getPrefixForNamespaceURI } from '../namespace-util';
-import { XPATH_2_0_FUNCTIONS } from './2.0/xpath-2.0-functions';
 import { XPath2Parser } from './2.0/xpath-2.0-parser';
 import { monacoXPathLanguageMetadata } from './monaco-language';
 import { CstVisitor } from './syntaxtree/xpath-syntaxtree-cst-visitor';
@@ -26,6 +25,7 @@ import {
   XPathNodeType,
 } from './syntaxtree/xpath-syntaxtree-model';
 import { XPathUtil } from './syntaxtree/xpath-syntaxtree-util';
+import { loadXPathFunctionCatalog } from './xpath-function-catalog';
 import { FunctionGroup, ValidatedXPathParseResult, XPathParserResult } from './xpath-model';
 
 /**
@@ -36,7 +36,6 @@ import { FunctionGroup, ValidatedXPathParseResult, XPathParserResult } from './x
  */
 export class XPathService {
   static readonly parser = new XPath2Parser();
-  static readonly functions = XPATH_2_0_FUNCTIONS;
 
   /**
    * Parses an XPath expression string into a parser result
@@ -77,26 +76,24 @@ export class XPathService {
   }
 
   /**
-   * Gets all XPath function definitions grouped by function category
-   * @returns record of function definitions organized by function group
+   * Fetches and returns all XPath function definitions grouped by function category.
+   * The catalog is loaded from @kaoto/camel-catalog and cached after first fetch.
    */
-  static getXPathFunctionDefinitions(): Record<FunctionGroup, IFunctionDefinition[]> {
-    return XPathService.functions;
-  }
-
-  private static getXPathFunctionNames(): string[] {
-    return Object.values(XPathService.getXPathFunctionDefinitions()).reduce((acc, functions) => {
-      acc.push(...functions.map((f) => f.name));
-      return acc;
-    }, [] as string[]);
+  static async getXPathFunctionDefinitions(): Promise<Record<FunctionGroup, IFunctionDefinition[]>> {
+    return loadXPathFunctionCatalog('3.1');
   }
 
   /**
-   * Gets Monaco editor language metadata for XPath with function names
-   * @returns Monaco language metadata configuration
+   * Gets Monaco editor language metadata for XPath with function names.
+   * Fetches the function catalog on first call to populate token names.
    */
-  static getMonacoXPathLanguageMetadata() {
-    monacoXPathLanguageMetadata.tokensProvider.actions = XPathService.getXPathFunctionNames();
+  static async getMonacoXPathLanguageMetadata() {
+    const functions = await XPathService.getXPathFunctionDefinitions();
+    const functionNames = Object.values(functions).reduce((acc, funcs) => {
+      acc.push(...funcs.map((f) => f.name));
+      return acc;
+    }, [] as string[]);
+    monacoXPathLanguageMetadata.tokensProvider.actions = functionNames;
     return monacoXPathLanguageMetadata;
   }
 

@@ -1,6 +1,7 @@
 import './XPathEditorLayout.scss';
 
 import {
+  Alert,
   Button,
   Grid,
   GridItem,
@@ -18,11 +19,12 @@ import { AngleDownIcon, AngleRightIcon } from '@patternfly/react-icons';
 import { FunctionComponent, MouseEvent, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { EditorNodeData, FunctionNodeData, IExpressionHolder, MappingItem } from '../../models/datamapper';
+import { IFunctionDefinition } from '../../models/datamapper/mapping';
 import { DataMapperDndContext, DataMapperDndProvider } from '../../providers/datamapper-dnd.provider';
 import { DataMapperDnDMonitor } from '../../providers/dnd/DataMapperDndMonitor';
 import { ExpressionEditorDnDHandler } from '../../providers/dnd/ExpressionEditorDnDHandler';
 import { XPathService } from '../../services/xpath/xpath.service';
-import { FunctionGroup } from '../../services/xpath/xpath-model';
+import { FUNCTION_GROUPS, FunctionGroup } from '../../services/xpath/xpath-model';
 import { DraggableContainer, DroppableContainer } from '../Document/NodeContainer';
 import { SourcePanel } from '../View/SourcePanel';
 import { XPathEditor } from './XPathEditor';
@@ -55,7 +57,16 @@ export const XPathEditorLayout: FunctionComponent<XPathEditorLayoutProps> = ({
     },
     [mapping, onUpdate],
   );
-  const functionDefinitions = XPathService.getXPathFunctionDefinitions();
+  const [functionDefinitions, setFunctionDefinitions] = useState<Record<FunctionGroup, IFunctionDefinition[]>>(
+    {} as Record<FunctionGroup, IFunctionDefinition[]>,
+  );
+  const [functionLoadError, setFunctionLoadError] = useState(false);
+
+  useEffect(() => {
+    XPathService.getXPathFunctionDefinitions()
+      .then(setFunctionDefinitions)
+      .catch(() => setFunctionLoadError(true));
+  }, []);
 
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
   const handleTabClick = (_event: MouseEvent, tabIndex: string | number) => {
@@ -63,10 +74,7 @@ export const XPathEditorLayout: FunctionComponent<XPathEditorLayoutProps> = ({
   };
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchValue, setSearchValue] = useState('');
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
-    // Initialize with all groups expanded
-    return new Set(Object.keys(functionDefinitions));
-  });
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => new Set(Object.keys(FUNCTION_GROUPS)));
 
   const handleOnSearchChange = useCallback((_event: unknown, value: string) => {
     setSearchValue(value);
@@ -118,6 +126,15 @@ export const XPathEditorLayout: FunctionComponent<XPathEditorLayoutProps> = ({
               data-testid="xpath-editor-tab-function"
             >
               <TabContent id="functions" className="xpath-editor--full-height xpath-editor__tab">
+                {functionLoadError && (
+                  <Alert
+                    variant="danger"
+                    isInline
+                    isPlain
+                    title="Failed to load function catalog"
+                    data-testid="function-catalog-error"
+                  />
+                )}
                 <SearchInput
                   data-testid="functions-menu-search-input"
                   ref={searchInputRef}
@@ -147,7 +164,7 @@ export const XPathEditorLayout: FunctionComponent<XPathEditorLayoutProps> = ({
                               icon={isExpanded ? <AngleDownIcon /> : <AngleRightIcon />}
                               data-testid={`function-group-toggle-${value}`}
                             >
-                              {value}
+                              {FUNCTION_GROUPS[value as FunctionGroup]}
                             </Button>
                           }
                         >

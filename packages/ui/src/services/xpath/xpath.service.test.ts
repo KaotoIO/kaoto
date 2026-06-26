@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import { PathExpression, PathSegment } from '../../models/datamapper';
 import {
   BODY_DOCUMENT_ID,
@@ -11,6 +13,39 @@ import { getCartXsd, getShipOrderXsd } from '../../stubs/datamapper/data-mapper'
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { LiteralNode, XPathNodeType } from './syntaxtree/xpath-syntaxtree-model';
 import { XPathUtil } from './syntaxtree/xpath-syntaxtree-util';
+const { mockFunctionDefs } = vi.hoisted(() => {
+  const GROUPS = [
+    'String',
+    'SubstringMatching',
+    'PatternMatching',
+    'Numeric',
+    'DateAndTime',
+    'Boolean',
+    'QName',
+    'Node',
+    'Sequence',
+    'Context',
+    'Math',
+    'MapFunctions',
+    'ArrayFunctions',
+    'HigherOrder',
+    'XSLT',
+  ];
+  return {
+    mockFunctionDefs: Object.fromEntries(
+      GROUPS.map((group) => [
+        group,
+        [{ name: group.toLowerCase(), displayName: group, description: '', returnType: 'string', arguments: [] }],
+      ]),
+    ),
+  };
+});
+
+vi.mock('./xpath-function-catalog', () => ({
+  loadXPathFunctionCatalog: vi.fn().mockResolvedValue(mockFunctionDefs),
+  convertXPathFunctionCatalog: vi.fn().mockReturnValue(mockFunctionDefs),
+}));
+
 import { XPathService } from './xpath.service';
 
 describe('XPathService', () => {
@@ -772,13 +807,13 @@ describe('XPathService', () => {
     });
   });
 
-  it('getXPathFunctionDefinitions()', () => {
-    const functionDefs = XPathService.getXPathFunctionDefinitions();
+  it('getXPathFunctionDefinitions()', async () => {
+    const functionDefs = await XPathService.getXPathFunctionDefinitions();
     expect(Object.keys(functionDefs).length).toBeGreaterThan(9);
   });
 
-  it('getMonacoXPathLanguageMetadata()', () => {
-    const metadata = XPathService.getMonacoXPathLanguageMetadata();
+  it('getMonacoXPathLanguageMetadata()', async () => {
+    const metadata = await XPathService.getMonacoXPathLanguageMetadata();
     expect(metadata.id).toEqual('xpath');
   });
 

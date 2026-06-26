@@ -1,6 +1,74 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { Mock } from 'vitest';
 
+const { mockFunctionCatalog } = vi.hoisted(() => ({
+  mockFunctionCatalog: {
+    String: [
+      {
+        name: 'string-length',
+        displayName: 'String Length',
+        description: 'Returns string length',
+        returnType: 'integer',
+        arguments: [],
+      },
+      {
+        name: 'concat',
+        displayName: 'Concatenate',
+        description: 'Concatenates strings',
+        returnType: 'string',
+        arguments: [],
+      },
+      {
+        name: 'translate',
+        displayName: 'Translate',
+        description: 'Translates characters',
+        returnType: 'string',
+        arguments: [],
+      },
+    ],
+    SubstringMatching: [
+      {
+        name: 'substring',
+        displayName: 'Substring',
+        description: 'Returns substring',
+        returnType: 'string',
+        arguments: [],
+      },
+      {
+        name: 'substring-before',
+        displayName: 'Substring Before',
+        description: 'Returns substring before',
+        returnType: 'string',
+        arguments: [],
+      },
+      {
+        name: 'substring-after',
+        displayName: 'Substring After',
+        description: 'Returns substring after',
+        returnType: 'string',
+        arguments: [],
+      },
+    ],
+    Numeric: [
+      { name: 'number', displayName: 'Number', description: 'Returns number', returnType: 'double', arguments: [] },
+    ],
+    Boolean: [
+      {
+        name: 'boolean',
+        displayName: 'Boolean',
+        description: 'Returns boolean',
+        returnType: 'boolean',
+        arguments: [],
+      },
+    ],
+  },
+}));
+
+vi.mock('../../services/xpath/xpath-function-catalog', () => ({
+  loadXPathFunctionCatalog: vi.fn().mockResolvedValue(mockFunctionCatalog),
+  convertXPathFunctionCatalog: vi.fn(),
+}));
+
 import { BODY_DOCUMENT_ID, IExpressionHolder, MappingItem, MappingTree, ValueSelector } from '../../models/datamapper';
 import { DocumentDefinitionType, DocumentType } from '../../models/datamapper/document';
 import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
@@ -77,6 +145,7 @@ describe('XPathEditorLayout - Search Field', () => {
     act(() => {
       fireEvent.click(tab);
     });
+    await screen.findByTestId('function-group-toggle-String');
 
     const searchInput = screen.getByTestId('functions-menu-search-input').querySelector('input');
     expect(searchInput).toBeInTheDocument();
@@ -95,13 +164,13 @@ describe('XPathEditorLayout - Collapsible MenuGroups', () => {
   const onUpdate = vi.fn();
   const setup = () => setupComponent(mapping, onUpdate);
 
-  beforeEach(() => {
-    // Switch to the Function tab before each test
+  beforeEach(async () => {
     setup();
     const tab = screen.getByTestId('xpath-editor-tab-function');
     act(() => {
       fireEvent.click(tab);
     });
+    await screen.findByTestId('function-group-toggle-String');
   });
 
   it('renders function groups with toggle buttons', () => {
@@ -179,5 +248,25 @@ describe('XPathEditorLayout - Collapsible MenuGroups', () => {
 
     // Function should be visible again
     expect(screen.getByText('Concatenate')).toBeInTheDocument();
+  });
+});
+
+describe('XPathEditorLayout - Function catalog error', () => {
+  it('shows error alert when function catalog fails to load', async () => {
+    const { loadXPathFunctionCatalog } = await import('../../services/xpath/xpath-function-catalog');
+    (loadXPathFunctionCatalog as Mock).mockRejectedValue(new Error('fetch failed'));
+
+    const mapping = createTestMapping();
+    setupComponent(mapping, vi.fn());
+
+    const tab = screen.getByTestId('xpath-editor-tab-function');
+    act(() => {
+      fireEvent.click(tab);
+    });
+
+    const errorAlert = await screen.findByTestId('function-catalog-error');
+    expect(errorAlert).toBeInTheDocument();
+
+    (loadXPathFunctionCatalog as Mock).mockResolvedValue(mockFunctionCatalog);
   });
 });
