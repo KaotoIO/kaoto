@@ -8,9 +8,11 @@ on:
 jobs:
   trigger-vscode-tests:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Trigger vscode-kaoto tests
-        uses: convictional/trigger-workflow-and-wait@v1.6.5
+        uses: convictional/trigger-workflow-and-wait@f69fa9eedd3c62a599220f4d5745230e237904be
         with:
           owner: KaotoIO
           repo: vscode-kaoto
