@@ -1,7 +1,6 @@
 import { setValue } from '@kaoto/forms';
 import { renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
-import { vi } from 'vitest';
 
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';

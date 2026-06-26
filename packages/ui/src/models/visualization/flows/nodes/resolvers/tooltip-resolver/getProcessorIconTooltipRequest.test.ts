@@ -1,5 +1,3 @@
-import { vi } from 'vitest';
-
 import { getProcessorIconTooltipRequest } from './getProcessorIconTooltipRequest';
 import { ProcessorIconTooltipResolver } from './processor-icon-tooltip-resolver';
 

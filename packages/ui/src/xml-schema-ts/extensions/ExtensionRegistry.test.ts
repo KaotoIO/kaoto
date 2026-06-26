@@ -1,5 +1,3 @@
-import { vi } from 'vitest';
-
 import { QName } from '../QName';
 import { XmlSchemaObject } from '../XmlSchemaObject';
 import { ExtensionDeserializer } from './ExtensionDeserializer';

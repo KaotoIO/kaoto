@@ -3,7 +3,6 @@ vi.mock('./utils/color-scheme', () => ({
 }));
 
 import { act, render } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import App from './App';
 import { ColorScheme } from './models';

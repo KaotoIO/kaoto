@@ -1,4 +1,4 @@
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { CatalogKind } from '../../../../../catalog-kind';
 import { getIconRequest } from './getIconRequest';

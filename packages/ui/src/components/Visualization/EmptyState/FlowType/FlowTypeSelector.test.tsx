@@ -1,5 +1,4 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { CamelRouteResource, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
 import { KaotoSchemaDefinition } from '../../../../models/kaoto-schema';

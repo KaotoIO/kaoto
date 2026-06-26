@@ -1,5 +1,4 @@
 import { DagreGroupsLayout, ModelKind, Visualization } from '@patternfly/react-topology';
-import { vi } from 'vitest';
 
 import { CustomGroupWithSelection } from '../Custom';
 import { CustomEdge } from '../Custom/Edge/CustomEdge';

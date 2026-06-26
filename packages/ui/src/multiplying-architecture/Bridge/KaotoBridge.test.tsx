@@ -1,7 +1,6 @@
 import { ChannelType } from '@kie-tools-core/editor/dist/api';
 import { render } from '@testing-library/react';
 import { ComponentProps } from 'react';
-import { vi } from 'vitest';
 
 import { KaotoBridge } from './KaotoBridge';
 

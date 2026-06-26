@@ -1,6 +1,5 @@
 import { BaseEdge, BaseGraph, BaseNode, ElementContext, VisualizationProvider } from '@patternfly/react-topology';
 import { act, render, screen } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { TestProvidersWrapper } from '../../../../stubs';
 import { ControllerService } from '../../Canvas/controller.service';

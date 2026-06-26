@@ -1,6 +1,5 @@
 import { renderHook } from '@testing-library/react';
 import { ReactNode } from 'react';
-import { vi } from 'vitest';
 
 import { CatalogTilesContext } from './catalog-tiles.provider';
 import { useCatalogTiles } from './use-catalog-tiles.hook';

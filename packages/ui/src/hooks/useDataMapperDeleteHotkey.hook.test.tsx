@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import hotkeys from 'hotkeys-js';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { IDocument } from '../models/datamapper';
 import { MappingActionKind } from '../models/datamapper/mapping-action';

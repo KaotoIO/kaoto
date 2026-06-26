@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { DocumentDefinitionType, DocumentType } from '../../models/datamapper/document';
 import { MappingTree } from '../../models/datamapper/mapping';

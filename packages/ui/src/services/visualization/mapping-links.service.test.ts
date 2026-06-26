@@ -1,5 +1,3 @@
-import { vi } from 'vitest';
-
 import {
   BaseField,
   BODY_DOCUMENT_ID,

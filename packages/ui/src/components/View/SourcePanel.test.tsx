@@ -1,5 +1,4 @@
 import { act, render, screen } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';

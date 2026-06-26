@@ -1,5 +1,4 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { BaseVisualEntity, IVisualizationNode } from '../models/visualization/base-visual-entity';
 import { IVisibleFlows } from '../utils/init-visible-flows';

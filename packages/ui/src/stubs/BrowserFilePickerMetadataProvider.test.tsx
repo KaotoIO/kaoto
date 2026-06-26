@@ -1,6 +1,5 @@
 import { act, render, screen } from '@testing-library/react';
 import { useContext } from 'react';
-import { vi } from 'vitest';
 
 import { CatalogKind, StepUpdateAction } from '../models';
 import {

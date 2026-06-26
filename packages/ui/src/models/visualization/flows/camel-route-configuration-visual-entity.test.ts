@@ -1,6 +1,5 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, RouteConfigurationDefinition } from '@kaoto/camel-catalog/types';
-import { vi } from 'vitest';
 
 import { routeConfigurationStub } from '../../../stubs/route-configuration';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';

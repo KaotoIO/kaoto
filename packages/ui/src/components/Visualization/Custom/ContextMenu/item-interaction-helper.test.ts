@@ -1,5 +1,4 @@
 import { ButtonVariant } from '@patternfly/react-core';
-import { vi } from 'vitest';
 
 import { createVisualizationNode } from '../../../../models';
 import { SourceSchemaType } from '../../../../models/camel/source-schema-type';

@@ -1,5 +1,4 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { Types } from '../../../models/datamapper';
 import { IField } from '../../../models/datamapper/document';

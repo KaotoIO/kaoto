@@ -1,5 +1,4 @@
 import { cloneDeep } from 'lodash';
-import { vi } from 'vitest';
 
 import { camelRouteJson } from '../../stubs/camel-route';
 import { SourceSchemaType } from '../camel';

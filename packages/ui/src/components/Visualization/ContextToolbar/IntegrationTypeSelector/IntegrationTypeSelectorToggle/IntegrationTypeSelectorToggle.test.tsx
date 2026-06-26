@@ -1,5 +1,4 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { configureSourceSchemaTypes, TestProvidersWrapper, TestRuntimeProviderWrapper } from '../../../../../stubs';
 import { IntegrationTypeSelectorToggle } from './IntegrationTypeSelectorToggle';

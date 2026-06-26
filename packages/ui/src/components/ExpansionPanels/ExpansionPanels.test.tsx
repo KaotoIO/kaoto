@@ -1,6 +1,5 @@
 import { act, render, screen } from '@testing-library/react';
 import { useContext, useEffect } from 'react';
-import { vi } from 'vitest';
 
 import { ExpansionContext } from './ExpansionContext';
 import { ExpansionPanel } from './ExpansionPanel';

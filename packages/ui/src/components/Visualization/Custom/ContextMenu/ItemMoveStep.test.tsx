@@ -1,6 +1,6 @@
 import { AngleDoubleDownIcon, AngleDoubleUpIcon } from '@patternfly/react-icons';
 import { fireEvent, render } from '@testing-library/react';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { AddStepMode, createVisualizationNode } from '../../../../models';
 import { EntityType } from '../../../../models/entities';

@@ -1,5 +1,5 @@
 import { Edge, EdgeModel } from '@patternfly/react-topology';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { CatalogModalContextValue } from '../../../dynamic-catalog/catalog-modal.provider';
 import { AddStepMode, IVisualizationNode } from '../../../models/visualization/base-visual-entity';

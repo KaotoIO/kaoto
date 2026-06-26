@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { DocumentNodeData } from '../../../models/datamapper/visualization';
 import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';

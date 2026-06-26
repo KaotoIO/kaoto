@@ -1,5 +1,3 @@
-import { vi } from 'vitest';
-
 import { LocalStorageKeys } from '../local-storage-keys';
 import { LocalStorageSettingsAdapter } from './localstorage-settings-adapter';
 import { CanvasLayoutDirection, ColorScheme, NodeLabelType, NodeToolbarTrigger, SettingsModel } from './settings.model';

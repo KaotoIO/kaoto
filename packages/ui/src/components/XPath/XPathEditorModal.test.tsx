@@ -1,5 +1,4 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { BODY_DOCUMENT_ID, IExpressionHolder, MappingItem, MappingTree, ValueSelector } from '../../models/datamapper';
 import { DocumentDefinitionType, DocumentType } from '../../models/datamapper/document';

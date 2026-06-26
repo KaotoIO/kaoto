@@ -1,4 +1,4 @@
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { SourceSchemaType } from '../models/camel/source-schema-type';
 import { IClipboardCopyObject } from '../models/visualization/clipboard';

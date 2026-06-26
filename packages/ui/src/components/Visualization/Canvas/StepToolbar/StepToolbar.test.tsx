@@ -1,5 +1,4 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { IVisualizationNode } from '../../../../models';
 import { useDeleteGroup } from '../../Custom/hooks/delete-group.hook';

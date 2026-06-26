@@ -13,7 +13,7 @@ import { I18nService } from '@kie-tools-core/i18n/dist/envelope/I18nService';
 import { KeyboardShortcutsService } from '@kie-tools-core/keyboard-shortcuts/dist/envelope/KeyboardShortcutsService';
 import { OperatingSystem } from '@kie-tools-core/operating-system/dist/OperatingSystem';
 import { RefObject } from 'react';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { CatalogKind, StepUpdateAction } from '../models';
 import { AbstractSettingsAdapter, ColorScheme, DefaultSettingsAdapter } from '../models/settings';

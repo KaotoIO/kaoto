@@ -1,7 +1,7 @@
 import { useVisualizationController } from '@patternfly/react-topology';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { toBlob } from 'html-to-image';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { TestProvidersWrapper } from '../../../../stubs';
 import { FlowExportImage } from './FlowExportImage';

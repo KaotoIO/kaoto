@@ -1,7 +1,6 @@
 import { DraggableObject } from '@patternfly/react-drag-drop';
 import { act, createEvent, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent } from 'react';
-import { vi } from 'vitest';
 
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../../models/datamapper/document';
 import { ChooseItem, FieldItem, ForEachItem, MappingTree, SortItem } from '../../../../models/datamapper/mapping';

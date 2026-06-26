@@ -1,7 +1,7 @@
 import { GRAPH_LAYOUT_END_EVENT, useEventListener } from '@patternfly/react-topology';
 import { act, render, waitFor } from '@testing-library/react';
 import { toBlob } from 'html-to-image';
-import { Mock, MockInstance, vi } from 'vitest';
+import type { Mock, MockInstance } from 'vitest';
 
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
 import { TestProvidersWrapper } from '../../../../stubs';

@@ -2,7 +2,6 @@ import { CamelYamlDsl, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { JSONSchema4 } from 'json-schema';
-import { vi } from 'vitest';
 
 import { CamelRouteResource } from '../../../../../models/camel/camel-route-resource';
 import { EntityType } from '../../../../../models/entities';

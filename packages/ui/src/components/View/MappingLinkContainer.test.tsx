@@ -1,5 +1,4 @@
 import { render } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { IMappingLink, MappingLineStyle } from '../../models/datamapper';
 import { MappingLinksContainer } from './MappingLinkContainer';

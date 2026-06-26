@@ -1,5 +1,4 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { IField } from '../../../models/datamapper/document';
 import { ChoiceSelectionModal } from './ChoiceSelectionModal';

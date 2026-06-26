@@ -1,6 +1,5 @@
 import { renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
-import { vi } from 'vitest';
 
 import { ITile } from '../../../../components/Catalog/Catalog.models';
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';

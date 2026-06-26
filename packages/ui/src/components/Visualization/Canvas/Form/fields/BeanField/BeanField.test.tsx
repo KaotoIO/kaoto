@@ -4,7 +4,7 @@ import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
 import { KaotoFormPageObject } from '@kaoto/forms/testing';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { FunctionComponent, ReactElement } from 'react';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { useEntityContext } from '../../../../../../hooks/useEntityContext/useEntityContext';
 import { CamelCatalogService, CatalogKind, KaotoSchemaDefinition } from '../../../../../../models';

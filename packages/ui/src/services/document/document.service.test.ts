@@ -1,5 +1,3 @@
-import { vi } from 'vitest';
-
 import {
   BODY_DOCUMENT_ID,
   DocumentDefinition,

@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { ReloadContext } from '../../providers';
 import { errorMessage, useReloadContext } from './useReloadContext';

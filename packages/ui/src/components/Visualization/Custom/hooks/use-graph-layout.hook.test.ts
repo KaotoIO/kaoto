@@ -1,6 +1,6 @@
 import { useVisualizationController } from '@patternfly/react-topology';
 import { renderHook } from '@testing-library/react';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { LayoutType } from '../../Canvas/canvas.models';
 import { useGraphLayout } from './use-graph-layout.hook';

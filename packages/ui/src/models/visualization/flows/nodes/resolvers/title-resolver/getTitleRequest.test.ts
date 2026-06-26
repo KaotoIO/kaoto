@@ -1,5 +1,3 @@
-import { vi } from 'vitest';
-
 import { CatalogKind } from '../../../../../catalog-kind';
 import { getTitleRequest } from './getTitleRequest';
 import { NodeTitleResolver } from './node-title-resolver';

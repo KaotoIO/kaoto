@@ -1,5 +1,4 @@
 import { act, fireEvent, render } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { CamelRouteResource } from '../../../../models/camel';
 import { EntityType } from '../../../../models/entities';

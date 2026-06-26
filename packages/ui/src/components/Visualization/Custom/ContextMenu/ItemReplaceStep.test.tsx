@@ -1,5 +1,4 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { createVisualizationNode, DefinedComponent, IVisualizationNode } from '../../../../models';

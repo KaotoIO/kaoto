@@ -1,7 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FunctionComponent, PropsWithChildren } from 'react';
-import { vi } from 'vitest';
 
 import { IField } from '../../../models/datamapper/document';
 import { DocumentNodeData, FieldNodeData } from '../../../models/datamapper/visualization';

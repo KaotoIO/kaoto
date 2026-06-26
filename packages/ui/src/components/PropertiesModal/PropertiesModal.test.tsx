@@ -2,7 +2,6 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { screen, waitFor } from '@testing-library/dom';
 import { act, render } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { CatalogContext } from '../../dynamic-catalog/catalog.provider';
 import { IDynamicCatalogRegistry } from '../../dynamic-catalog/models';

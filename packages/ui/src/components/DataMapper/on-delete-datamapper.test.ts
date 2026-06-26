@@ -1,5 +1,3 @@
-import { vi } from 'vitest';
-
 import { createVisualizationNode } from '../../models';
 import { IMetadataApi } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';

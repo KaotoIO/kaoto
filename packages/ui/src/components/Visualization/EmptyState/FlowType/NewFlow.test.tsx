@@ -1,6 +1,5 @@
 import { CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
 import { act, fireEvent, render } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { CamelRouteResource, SourceSchemaType } from '../../../../models/camel';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';

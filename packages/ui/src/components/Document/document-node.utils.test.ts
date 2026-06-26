@@ -1,5 +1,4 @@
 import { KeyboardEvent } from 'react';
-import { vi } from 'vitest';
 
 import { handleNodeKeyDown } from './document-node.utils';
 

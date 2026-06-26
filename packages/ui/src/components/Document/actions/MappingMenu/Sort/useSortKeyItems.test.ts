@@ -1,5 +1,4 @@
 import { renderHook } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { useDataMapper } from '../../../../../hooks/useDataMapper';
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../../../models/datamapper/document';

@@ -1,6 +1,5 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, To } from '@kaoto/camel-catalog/types';
-import { vi } from 'vitest';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
 import { DynamicCatalog } from '../../../dynamic-catalog/dynamic-catalog';

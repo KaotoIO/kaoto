@@ -2,7 +2,6 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { act, render, screen } from '@testing-library/react';
 import { ReactNode } from 'react';
-import { vi } from 'vitest';
 
 import { useRuntimeContext } from '../hooks/useRuntimeContext/useRuntimeContext';
 import { SourceSchemaType } from '../models/camel';

@@ -1,5 +1,3 @@
-import { vi } from 'vitest';
-
 import { promiseTimeout } from './promise-timeout';
 
 describe('promiseTimeout', () => {

@@ -1,5 +1,3 @@
-import { vi } from 'vitest';
-
 import { mockRandomValues } from '../../../stubs';
 import { IVisualizationNodeData } from '../base-visual-entity';
 import { CamelInterceptFromVisualEntity } from './camel-intercept-from-visual-entity';

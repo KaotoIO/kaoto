@@ -1,6 +1,6 @@
 import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren, useContext } from 'react';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { ITile } from '../components/Catalog';
 import { CatalogKind, DefinedComponent } from '../models';

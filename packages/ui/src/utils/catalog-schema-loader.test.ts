@@ -1,5 +1,4 @@
 import { CatalogDefinitionEntry } from '@kaoto/camel-catalog/types';
-import { vi } from 'vitest';
 
 import { CatalogSchemaLoader } from './catalog-schema-loader';
 

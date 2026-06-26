@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren, SetStateAction } from 'react';
 import { MemoryRouter } from 'react-router-dom';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { IVisualizationNode } from '../../models';
 import { SourceSchemaType } from '../../models/camel';

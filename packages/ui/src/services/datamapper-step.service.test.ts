@@ -1,5 +1,5 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { CatalogKind, createVisualizationNode, IVisualizationNode } from '../models';
 import { CamelCatalogService } from '../models/visualization/flows/camel-catalog.service';

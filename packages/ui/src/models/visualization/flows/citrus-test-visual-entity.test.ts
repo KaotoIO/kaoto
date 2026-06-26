@@ -1,7 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { cloneDeep } from 'lodash';
-import { vi } from 'vitest';
 
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { citrusTestJson } from '../../../stubs/citrus-test';

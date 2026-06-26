@@ -1,6 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
-import { vi } from 'vitest';
 
 import {
   BODY_DOCUMENT_ID,

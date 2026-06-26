@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { FieldContextMenu, MenuGroup } from './FieldContextMenu';
 

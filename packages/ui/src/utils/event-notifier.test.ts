@@ -1,5 +1,3 @@
-import { vi } from 'vitest';
-
 import { EventNotifier } from './event-notifier';
 
 describe('EventNotifier', () => {

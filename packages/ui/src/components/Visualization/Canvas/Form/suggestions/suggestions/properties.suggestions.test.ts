@@ -1,5 +1,3 @@
-import { vi } from 'vitest';
-
 import { IMetadataApi } from '../../../../../../providers';
 import { getPropertiesSuggestionProvider } from './properties.suggestions';
 

@@ -1,6 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { VirtuosoMockContext } from 'react-virtuoso';
-import { vi } from 'vitest';
 
 import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';

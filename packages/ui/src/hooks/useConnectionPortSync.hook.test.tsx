@@ -1,6 +1,6 @@
 import { act, render, renderHook } from '@testing-library/react';
 import React from 'react';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { DocumentTreeState, useDocumentTreeStore } from '../store/document-tree.store';
 import { useConnectionPortSync } from './useConnectionPortSync.hook';

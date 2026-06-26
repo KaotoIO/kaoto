@@ -1,5 +1,4 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { useSourceCodeStore } from '../../../../store';
 import { defaultTooltipText, FlowClipboard, successTooltipText } from './FlowClipboard';

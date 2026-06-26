@@ -1,5 +1,4 @@
 import { act, render } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { LocalStorageKeys } from '../models';
 import { EventNotifier } from '../utils/event-notifier';

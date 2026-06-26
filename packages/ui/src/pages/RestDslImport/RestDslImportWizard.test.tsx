@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { RestDslImportWizard } from './RestDslImportWizard';
 import { useRestDslImportWizard } from './useRestDslImportWizard';

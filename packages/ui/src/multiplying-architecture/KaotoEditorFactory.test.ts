@@ -1,7 +1,6 @@
 vi.mock('./KaotoEditorApp');
 vi.mock('react-router-dom');
 import { EditorInitArgs, KogitoEditorEnvelopeContextType } from '@kie-tools-core/editor/dist/api';
-import { vi } from 'vitest';
 
 import { CanvasLayoutDirection, ColorScheme, ISettingsModel, NodeLabelType, NodeToolbarTrigger } from '../models';
 import { KaotoEditorApp } from './KaotoEditorApp';

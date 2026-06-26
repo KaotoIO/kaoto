@@ -1,6 +1,5 @@
 import { act, render } from '@testing-library/react';
 import hotkeys from 'hotkeys-js';
-import { vi } from 'vitest';
 
 import { KeyboardShortcutsProvider } from './keyboard-shortcuts.provider';
 
