@@ -825,5 +825,127 @@ describe('FieldOverrideModal', () => {
         expect(onAttachMock).not.toHaveBeenCalled();
       });
     });
+
+    it('should show spinner and disable button while uploading schema', async () => {
+      vi.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValue(['types.xsd']);
+      (mockApi.getResourceContent as Mock).mockImplementation(
+        () => new Promise((resolve) => setTimeout(() => resolve('<xs:schema/>'), 100)),
+      );
+
+      renderWithContext();
+
+      const uploadButton = screen.getByTestId('upload-schema-button');
+
+      // Button should be enabled initially
+      expect(uploadButton).not.toBeDisabled();
+
+      act(() => {
+        fireEvent.click(uploadButton);
+      });
+
+      // After file selection, spinner should appear and button should be disabled
+      await waitFor(() => {
+        const spinner = screen.getByLabelText('Uploading schema files');
+        expect(spinner).toBeInTheDocument();
+        expect(uploadButton).toBeDisabled();
+      });
+
+      // Wait for upload to complete
+      await waitFor(() => {
+        expect(screen.queryByLabelText('Uploading schema files')).not.toBeInTheDocument();
+        expect(uploadButton).not.toBeDisabled();
+      });
+    });
+
+    it('should not show spinner while file picker dialog is open', async () => {
+      vi.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockImplementation(
+        () => new Promise((resolve) => setTimeout(() => resolve(['types.xsd']), 200)),
+      );
+
+      renderWithContext();
+
+      const uploadButton = screen.getByTestId('upload-schema-button');
+
+      act(() => {
+        fireEvent.click(uploadButton);
+      });
+
+      // Spinner should not appear while file picker is open
+      expect(screen.queryByLabelText('Uploading schema files')).not.toBeInTheDocument();
+      expect(uploadButton).not.toBeDisabled();
+    });
+
+    it('should clear loading state when upload fails', async () => {
+      vi.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValue(['bad.xsd']);
+      (mockApi.getResourceContent as Mock).mockRejectedValue(new Error('Network error'));
+
+      renderWithContext();
+
+      const uploadButton = screen.getByTestId('upload-schema-button');
+
+      await act(async () => {
+        fireEvent.click(uploadButton);
+      });
+
+      // Loading state should be cleared even after error
+      await waitFor(() => {
+        expect(screen.queryByLabelText('Uploading schema files')).not.toBeInTheDocument();
+        expect(uploadButton).not.toBeDisabled();
+      });
+
+      // Error message should be displayed
+      await waitFor(() => {
+        expect(screen.getByText(/Failed to upload/)).toBeInTheDocument();
+      });
+    });
+
+    it('should clear loading state when validation fails', async () => {
+      vi.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValue(['invalid.txt']);
+
+      renderWithContext();
+
+      const uploadButton = screen.getByTestId('upload-schema-button');
+
+      await act(async () => {
+        fireEvent.click(uploadButton);
+      });
+
+      // Loading state should not appear for validation errors (fails before loading starts)
+      expect(screen.queryByLabelText('Uploading schema files')).not.toBeInTheDocument();
+      expect(uploadButton).not.toBeDisabled();
+
+      // Validation error should be displayed
+      await waitFor(() => {
+        expect(screen.getByText(/Unknown file extension/)).toBeInTheDocument();
+      });
+    });
+
+    it('should clear loading state when schema attachment fails', async () => {
+      vi.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValue(['bad.xsd']);
+      (mockApi.getResourceContent as Mock).mockResolvedValue('<xs:schema/>');
+
+      const onAttachMock = vi.fn().mockImplementation(() => {
+        throw new Error('Invalid schema structure');
+      });
+
+      renderWithContext({ onAttach: onAttachMock });
+
+      const uploadButton = screen.getByTestId('upload-schema-button');
+
+      await act(async () => {
+        fireEvent.click(uploadButton);
+      });
+
+      // Loading state should be cleared after attachment error
+      await waitFor(() => {
+        expect(screen.queryByLabelText('Uploading schema files')).not.toBeInTheDocument();
+        expect(uploadButton).not.toBeDisabled();
+      });
+
+      // Error message should be displayed
+      await waitFor(() => {
+        expect(screen.getByText(/Invalid schema: Invalid schema structure/)).toBeInTheDocument();
+      });
+    });
   });
 });

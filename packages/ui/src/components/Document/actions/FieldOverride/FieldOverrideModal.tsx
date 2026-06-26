@@ -16,6 +16,7 @@ import {
   Select,
   SelectList,
   SelectOption,
+  Spinner,
   Split,
   SplitItem,
 } from '@patternfly/react-core';
@@ -64,6 +65,7 @@ export const FieldOverrideModal: FunctionComponent<FieldOverrideModalProps> = ({
   const [isSelectOpen, setIsSelectOpen] = useState(false);
   const [uploadedSchemas, setUploadedSchemas] = useState<Record<string, string>>({});
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isUploadingSchema, setIsUploadingSchema] = useState(false);
 
   const selectedCandidate = selectedKey ? (candidates[selectedKey] ?? null) : null;
 
@@ -144,6 +146,8 @@ export const FieldOverrideModal: FunctionComponent<FieldOverrideModalProps> = ({
 
       if (newPaths.length === 0) return;
 
+      setIsUploadingSchema(true);
+
       const newSchemas = await readSchemaFiles(newPaths);
       if (!newSchemas || Object.keys(newSchemas).length === 0) return;
 
@@ -159,6 +163,8 @@ export const FieldOverrideModal: FunctionComponent<FieldOverrideModalProps> = ({
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       setUploadError(`Failed to upload: ${message}`);
+    } finally {
+      setIsUploadingSchema(false);
     }
   }, [api, uploadedSchemas, field, readSchemaFiles, onAttach, reloadCandidates, overrideMode]);
 
@@ -296,13 +302,14 @@ export const FieldOverrideModal: FunctionComponent<FieldOverrideModalProps> = ({
             {/* Removal of individual schema files from this modal is intentionally not supported — files are managed via the document-level attach/detach flow */}
             <SchemaFileList existingFiles={existingFiles} pendingUploads={[]} onRemove={() => {}} />
             <Button
-              icon={<FileImportIcon />}
+              icon={isUploadingSchema ? <Spinner size="sm" aria-label="Uploading schema files" /> : <FileImportIcon />}
               onClick={handleSchemaUpload}
+              isDisabled={isUploadingSchema}
               aria-label="Upload schema file"
               data-testid="upload-schema-button"
               variant="secondary"
             >
-              Upload Schema
+              {isUploadingSchema ? 'Uploading Schema...' : 'Upload Schema'}
             </Button>
             <FormHelperText>
               <HelperText>

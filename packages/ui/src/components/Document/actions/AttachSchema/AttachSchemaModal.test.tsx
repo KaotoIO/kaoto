@@ -1129,5 +1129,140 @@ describe('AttachSchemaModal', () => {
       expect(modal).toBeInTheDocument();
       expect(modal!.textContent).toContain('Parameter: myParam');
     });
+
+    describe('Loading state', () => {
+      it('should disable button and show loading text after file selection', async () => {
+        // Mock slow document creation to capture loading state
+        let resolveCreate: (value: unknown) => void;
+        const createPromise = new Promise((resolve) => {
+          resolveCreate = resolve;
+        });
+        vi.spyOn(DocumentService, 'createDocument').mockReturnValue(createPromise as Promise<never>);
+        mockReadFileAsString.mockResolvedValue(getShipOrderXsd());
+
+        render(
+          <BrowserFilePickerMetadataProvider>
+            <DataMapperProvider>
+              <AttachSchemaModal
+                isModalOpen={true}
+                onModalClose={vi.fn()}
+                documentType={DocumentType.SOURCE_BODY}
+                documentId={BODY_DOCUMENT_ID}
+                documentReferenceId={BODY_DOCUMENT_ID}
+                actionName="Attach"
+                documentTypeLabel="Source"
+              />
+            </DataMapperProvider>
+          </BrowserFilePickerMetadataProvider>,
+        );
+
+        const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
+
+        // Button should be enabled initially with normal text
+        expect(importButton).not.toBeDisabled();
+        expect(importButton.textContent).toBe('Upload schema file(s)');
+
+        act(() => {
+          fireEvent.click(importButton);
+        });
+
+        const fileInput = await screen.findByTestId('attach-schema-file-input');
+        const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
+
+        await act(async () => {
+          fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
+          // Give time for state updates
+          await new Promise((resolve) => setTimeout(resolve, 50));
+        });
+
+        // After file selection, button should show loading state
+        expect(importButton).toBeDisabled();
+        expect(importButton.textContent).toContain('Uploading schema file(s)...');
+        expect(screen.getByLabelText('Uploading schema file(s)')).toBeInTheDocument();
+
+        // Resolve the document creation
+        act(() => {
+          resolveCreate!({ validationStatus: 'success', document: {}, documentDefinition: {} });
+        });
+
+        // Wait for processing to complete
+        await waitFor(() => {
+          expect(screen.queryByLabelText('Uploading schema file(s)')).not.toBeInTheDocument();
+          expect(importButton).not.toBeDisabled();
+          expect(importButton.textContent).toBe('Upload schema file(s)');
+        });
+      });
+
+      it('should not show loading state while file picker is open', async () => {
+        mockReadFileAsString.mockResolvedValue(getShipOrderXsd());
+
+        render(
+          <BrowserFilePickerMetadataProvider>
+            <DataMapperProvider>
+              <AttachSchemaModal
+                isModalOpen={true}
+                onModalClose={vi.fn()}
+                documentType={DocumentType.SOURCE_BODY}
+                documentId={BODY_DOCUMENT_ID}
+                documentReferenceId={BODY_DOCUMENT_ID}
+                actionName="Attach"
+                documentTypeLabel="Source"
+              />
+            </DataMapperProvider>
+          </BrowserFilePickerMetadataProvider>,
+        );
+
+        const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
+
+        act(() => {
+          fireEvent.click(importButton);
+        });
+
+        // Loading state should not appear immediately when file picker opens
+        expect(screen.queryByLabelText('Uploading schema file(s)')).not.toBeInTheDocument();
+        expect(importButton).not.toBeDisabled();
+        expect(importButton.textContent).toBe('Upload schema file(s)');
+      });
+
+      it('should clear loading state even if processing fails', async () => {
+        mockReadFileAsString.mockRejectedValue(new Error('File read error'));
+
+        render(
+          <BrowserFilePickerMetadataProvider>
+            <DataMapperProvider>
+              <AttachSchemaModal
+                isModalOpen={true}
+                onModalClose={vi.fn()}
+                documentType={DocumentType.SOURCE_BODY}
+                documentId={BODY_DOCUMENT_ID}
+                documentReferenceId={BODY_DOCUMENT_ID}
+                actionName="Attach"
+                documentTypeLabel="Source"
+              />
+            </DataMapperProvider>
+          </BrowserFilePickerMetadataProvider>,
+        );
+
+        const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
+
+        act(() => {
+          fireEvent.click(importButton);
+        });
+
+        const fileInput = await screen.findByTestId('attach-schema-file-input');
+        const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
+
+        await act(async () => {
+          fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
+        });
+
+        // Wait for error handling and loading state to clear
+        await waitFor(() => {
+          expect(screen.queryByLabelText('Uploading schema file(s)')).not.toBeInTheDocument();
+          expect(importButton).not.toBeDisabled();
+          expect(importButton.textContent).toBe('Upload schema file(s)');
+        });
+      });
+    });
   });
 });
