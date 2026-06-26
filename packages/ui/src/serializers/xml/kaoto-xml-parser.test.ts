@@ -21,10 +21,9 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { parse } from 'yaml';
 
-import { CamelCatalogService, CatalogKind } from '../../models';
 import { doTryCamelRouteJson, doTryCamelRouteXml } from '../../stubs';
 import { beanWithConstructorAandProperties, beanWithConstructorAandPropertiesXML } from '../../stubs/beans';
-import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../stubs/test-load-catalog';
 import { isXML, KaotoXmlParser } from './kaoto-xml-parser';
 
 describe('XmlParser', () => {
@@ -36,12 +35,12 @@ describe('XmlParser', () => {
   beforeAll(async () => {
     parser = new KaotoXmlParser();
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+    setupDynamicCatalogRegistry(catalogsMap);
   });
 
-  it('parses XML with a single route correctly', () => {
+  it('parses XML with a single route correctly', async () => {
     const xml = `<camel><routes><route><from uri="direct:start" /></route></routes></camel>`;
-    const result = parser.parseXML(xml);
+    const result = await parser.parseXML(xml);
 
     expect(result).toBeDefined();
     expect(result).toEqual([
@@ -53,9 +52,9 @@ describe('XmlParser', () => {
     ]);
   });
 
-  it('parses XML with multiple routes correctly', () => {
+  it('parses XML with multiple routes correctly', async () => {
     const xml = `<routes><route id="test"><from uri="direct:first" /></route><route><from uri="direct:second" /></route></routes>`;
-    const result = parser.parseXML(xml);
+    const result = await parser.parseXML(xml);
     expect(result).toEqual([
       {
         route: { id: 'test', from: { uri: 'direct:first', steps: [] } },
@@ -68,9 +67,9 @@ describe('XmlParser', () => {
     ]);
   });
 
-  it('returns an empty array for XML with no routes', () => {
+  it('returns an empty array for XML with no routes', async () => {
     const xml = `<routes></routes>`;
-    const result = parser.parseXML(xml);
+    const result = await parser.parseXML(xml);
     expect(result).toEqual([]);
   });
 
@@ -84,24 +83,24 @@ describe('XmlParser', () => {
     expect(isXML(xml)).toBe(false);
   });
 
-  it('parses XML with doTry correctly', () => {
-    const result = parser.parseXML(doTryCamelRouteXml);
+  it('parses XML with doTry correctly', async () => {
+    const result = await parser.parseXML(doTryCamelRouteXml);
     expect(result).toEqual([doTryCamelRouteJson]);
   });
 
-  it('parse beans correctly', () => {
-    const result = parser.parseXML(beanWithConstructorAandPropertiesXML);
+  it('parse beans correctly', async () => {
+    const result = await parser.parseXML(beanWithConstructorAandPropertiesXML);
     expect(result).toEqual([beanWithConstructorAandProperties]);
   });
 
-  it.each(xmlFiles)('XML to YAML comparison parses and compares %s correctly', (xmlFile) => {
+  it.each(xmlFiles)('XML to YAML comparison parses and compares %s correctly', async (xmlFile) => {
     const xmlFilePath = path.join(xmlDir, xmlFile);
     const yamlFilePath = path.join(yamlDir, xmlFile.replace('.xml', '.yaml'));
 
     const xmlContent = fs.readFileSync(xmlFilePath, 'utf-8');
     const expectedYamlContent = fs.readFileSync(yamlFilePath, 'utf-8');
     const expectedYaml = parse(expectedYamlContent);
-    const result = parser.parseXML(xmlContent);
+    const result = await parser.parseXML(xmlContent);
 
     expect(result).toEqual(expectedYaml);
   });

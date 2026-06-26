@@ -17,8 +17,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
-import { CamelCatalogService, CatalogKind } from '../../../models';
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
 import { BeansXmlSerializer } from './beans-xml-serializer';
 import { getDocument, testSerializer } from './serializer-test-utils';
 
@@ -26,10 +25,10 @@ describe('BeanXmlParser', () => {
   const doc = getDocument();
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+    setupDynamicCatalogRegistry(catalogsMap);
   });
 
-  it('parse bean constructors properly', () => {
+  it('parse bean constructors properly', async () => {
     const entity = {
       name: 'beanFromProps',
       type: 'com.acme.MyBean',
@@ -51,12 +50,12 @@ describe('BeanXmlParser', () => {
   </properties>
 </bean>`;
 
-    const bean = BeansXmlSerializer.serialize(entity, doc);
+    const bean = await BeansXmlSerializer.serialize(entity, doc);
     expect(bean).toBeDefined();
     testSerializer(expected, bean!);
   });
 
-  it('parse bean properties properly', () => {
+  it('parse bean properties properly', async () => {
     const bean = {
       name: 'beanFromProps',
       type: 'com.acme.MyBean',
@@ -65,7 +64,7 @@ describe('BeanXmlParser', () => {
       properties: { field1: 'f1_p', field2: { nested1: 'p2', nested2: { nested3: 'value' } } },
     };
 
-    const result = BeansXmlSerializer.serialize(bean, doc);
+    const result = await BeansXmlSerializer.serialize(bean, doc);
     const expected = `<bean name="beanFromProps" 
       type="com.acme.MyBean" builderClass="com.acme.MyBeanBuilder" builderMethod="createMyBean">
   <properties>

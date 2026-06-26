@@ -1,8 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
-import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
-import { CatalogKind } from '../catalog-kind';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../stubs/test-load-catalog';
 import { EntityType } from '../entities';
 import { CamelCatalogService } from '../visualization/flows';
 import { CamelXMLRouteResource } from './camel-xml-route-resource';
@@ -15,7 +14,7 @@ describe('CamelXMLRouteResource', () => {
     const resource = new CamelXMLRouteResource(xml);
 
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+    setupDynamicCatalogRegistry(catalogsMap);
 
     await resource.initialize();
 
@@ -28,7 +27,7 @@ describe('CamelXMLRouteResource', () => {
 
   it('reports XML and serializes back to XML', async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+    setupDynamicCatalogRegistry(catalogsMap);
     const resource = new CamelXMLRouteResource(xml);
     await resource.initialize();
 
@@ -108,7 +107,7 @@ describe('CamelXMLRouteResource', () => {
 
   it('includes Beans entities in toString() output', async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+    setupDynamicCatalogRegistry(catalogsMap);
     const beansXml = `<camel><bean type="com.example.MyBean"/></camel>`;
     const resource = new CamelXMLRouteResource(beansXml);
     await resource.initialize();
