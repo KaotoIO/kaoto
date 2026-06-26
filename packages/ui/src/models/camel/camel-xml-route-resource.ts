@@ -71,7 +71,7 @@ export class CamelXMLRouteResource extends CamelRouteResource {
     await super.initialize();
   }
 
-  override toString(): string {
+  override async toSourceCode(): Promise<string> {
     const entities: EntityDefinition[] = this.getEntities().filter(
       (entity) => entity.type === EntityType.Beans,
     ) as EntityDefinition[];

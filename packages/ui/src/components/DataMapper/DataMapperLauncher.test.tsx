@@ -3,7 +3,7 @@ import { FunctionComponent, PropsWithChildren, SetStateAction } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import type { Mock } from 'vitest';
 
-import { IVisualizationNode } from '../../models';
+import { IVisualizationNode, KaotoResource } from '../../models';
 import { SourceSchemaType } from '../../models/camel';
 import { DocumentDefinitionType } from '../../models/datamapper';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
@@ -146,24 +146,18 @@ describe('DataMapperLauncher', () => {
     shouldSaveSchema: false,
   };
 
-  const mockCamelResource = {
+  const mockCamelResource: KaotoResource = {
     initialize: vi.fn(),
     getVisualEntities: vi.fn().mockReturnValue([]),
     getEntities: vi.fn().mockReturnValue([]),
     addNewEntity: vi.fn(),
     removeEntity: vi.fn(),
-    updateEntity: vi.fn(),
+    toSourceCode: vi.fn(),
     toJSON: vi.fn(),
-    sortEntities: vi.fn(),
     getType: vi.fn().mockReturnValue(SourceSchemaType.Route),
-    setComments: vi.fn(),
-    getComments: vi.fn().mockReturnValue([]),
     supportsMultipleVisualEntities: vi.fn().mockReturnValue(false),
-    createEntityFromStepCatalog: vi.fn(),
     getCanvasEntityList: vi.fn().mockReturnValue([]),
     supportedEntities: [],
-    getSerializerType: vi.fn(),
-    setSerializer: vi.fn(),
     getCompatibleComponents: vi.fn().mockReturnValue([]),
     getCompatibleRuntimes: vi.fn().mockReturnValue([]),
   };

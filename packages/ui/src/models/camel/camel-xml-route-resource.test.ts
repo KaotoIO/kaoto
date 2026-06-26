@@ -32,13 +32,16 @@ describe('CamelXMLRouteResource', () => {
     const resource = new CamelXMLRouteResource(xml);
     await resource.initialize();
 
-    expect(resource.toString()).toContain('<route');
-    expect(resource.toString()).toContain('uri="direct:start"');
+    const code = await resource.toSourceCode();
+
+    expect(code).toContain('<route');
+    expect(code).toContain('uri="direct:start"');
   });
 
   it('excludes YAML-only entities from the canvas list', async () => {
     const resource = new CamelXMLRouteResource(xml);
     const names = resource.supportedEntities.map((e) => e.type);
+
     expect(names).toContain(EntityType.Route);
     expect(names).not.toContain(EntityType.OnException);
     expect(names).not.toContain(EntityType.Intercept);
@@ -47,28 +50,30 @@ describe('CamelXMLRouteResource', () => {
   it('extracts leading comments, the XML declaration, and root element definitions on construction', async () => {
     const source = `<?xml version="1.0" encoding="UTF-8"?>\n<!-- Comment 1 -->\n<camel xmlns="http://camel.apache.org/schema/spring"></camel>`;
     const resource = new CamelXMLRouteResource(source);
-    expect(resource.toString()).toContain('<?xml version="1.0" encoding="UTF-8"?>');
-    expect(resource.toString()).toContain('<!-- Comment 1 -->');
-    expect(resource.toString()).toContain('xmlns="http://camel.apache.org/schema/spring"');
+    const code = await resource.toSourceCode();
+
+    expect(code).toContain('<?xml version="1.0" encoding="UTF-8"?>');
+    expect(code).toContain('<!-- Comment 1 -->');
+    expect(code).toContain('xmlns="http://camel.apache.org/schema/spring"');
   });
 
   it('produces no XML declaration prefix when the source has none', async () => {
     const resource = new CamelXMLRouteResource(xml);
-    const output = resource.toString();
+    const output = await resource.toSourceCode();
     expect(output.startsWith('<?xml')).toBe(false);
   });
 
   it('XML declaration is followed by a newline when present', async () => {
     const source = `<?xml version="1.0" encoding="UTF-8"?>\n<camel></camel>`;
     const resource = new CamelXMLRouteResource(source);
-    const output = resource.toString();
+    const output = await resource.toSourceCode();
     expect(output).toMatch(/^<\?xml version="1\.0" encoding="UTF-8"\?>\n/);
   });
 
   it('extracts multiple leading comments and includes all in toString()', async () => {
     const source = `<!-- First comment -->\n<!-- Second comment -->\n<camel></camel>`;
     const resource = new CamelXMLRouteResource(source);
-    const output = resource.toString();
+    const output = await resource.toSourceCode();
     expect(output).toContain('<!-- First comment -->');
     expect(output).toContain('<!-- Second comment -->');
   });
@@ -78,14 +83,14 @@ describe('CamelXMLRouteResource', () => {
     const source = `<camel><!-- inline comment --></camel>`;
     const resource = new CamelXMLRouteResource(source);
     // toString() should not prepend any comment
-    const output = resource.toString();
+    const output = await resource.toSourceCode();
     expect(output).not.toMatch(/^<!--/);
   });
 
   it('preserves a multiline leading comment across a round-trip', async () => {
     const source = `<!-- line1\nline2\nline3 -->\n<camel></camel>`;
     const resource = new CamelXMLRouteResource(source);
-    const output = resource.toString();
+    const output = await resource.toSourceCode();
     expect(output).toContain('<!-- line1');
     expect(output).toContain('line2');
     expect(output).toContain('line3 -->');
@@ -97,7 +102,8 @@ describe('CamelXMLRouteResource', () => {
 
   it('toString() returns a string when constructed from empty input', async () => {
     const resource = new CamelXMLRouteResource('');
-    expect(typeof resource.toString()).toBe('string');
+    const output = await resource.toSourceCode();
+    expect(typeof output).toBe('string');
   });
 
   it('includes Beans entities in toString() output', async () => {
@@ -106,7 +112,7 @@ describe('CamelXMLRouteResource', () => {
     const beansXml = `<camel><bean type="com.example.MyBean"/></camel>`;
     const resource = new CamelXMLRouteResource(beansXml);
     await resource.initialize();
-    const output = resource.toString();
+    const output = await resource.toSourceCode();
     expect(typeof output).toBe('string');
   });
 });

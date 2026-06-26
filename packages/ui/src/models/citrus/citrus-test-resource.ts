@@ -177,7 +177,7 @@ export class CitrusTestResource implements KaotoResource {
   /**
    * Converts this resource to a string representation in YAML format.
    */
-  toString(): string {
+  async toSourceCode(): Promise<string> {
     return stringify(this.toJSON(), { schema: 'yaml-1.1' }) || '';
   }
 

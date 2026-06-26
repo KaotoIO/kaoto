@@ -240,7 +240,7 @@ export class CamelRouteResource implements KaotoResource, BeansAwareResource {
     return this.entities.map((entity) => entity.toJSON());
   }
 
-  toString(): string {
+  async toSourceCode(): Promise<string> {
     const code = stringify(this.toJSON(), { schema: 'yaml-1.1' }) || '';
     return insertYamlComments(code, this.comments);
   }

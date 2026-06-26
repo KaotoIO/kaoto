@@ -165,7 +165,7 @@ describe('EntitiesProvider', () => {
 
     await act(async () => {});
 
-    act(() => {
+    await act(async () => {
       result.current?.visualEntities[0].updateModel('route.from.parameters.bindingMode', 'off');
       result.current?.updateSourceCodeFromEntities();
     });
@@ -173,13 +173,13 @@ describe('EntitiesProvider', () => {
     expect(notifierSpy).toHaveBeenCalledWith('entities:updated', camelRouteYaml_1_1_updated);
   });
 
-  it('should notify subscribers when the entities are updated', () => {
+  it('should notify subscribers when the entities are updated', async () => {
     mockRandomValues();
 
     const notifierSpy = vi.spyOn(eventNotifier, 'next');
     const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: buildWrapper() });
 
-    act(() => {
+    await act(async () => {
       result.current?.camelResource.addNewEntity();
       result.current?.updateSourceCodeFromEntities();
     });
@@ -235,11 +235,11 @@ describe('EntitiesProvider', () => {
     expect(result.current?.visualEntities).toHaveLength(2);
   });
 
-  it('should refresh entities and notify subscribers', () => {
+  it('should refresh entities and notify subscribers', async () => {
     const notifierSpy = vi.spyOn(eventNotifier, 'next');
     const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: buildWrapper() });
 
-    act(() => {
+    await act(async () => {
       result.current?.updateEntitiesFromCamelResource();
     });
 
@@ -250,7 +250,7 @@ describe('EntitiesProvider', () => {
     );
   });
 
-  it(`should store code's comments`, () => {
+  it(`should store code's comments`, async () => {
     const code = `# This is a comment
 #     An indented comment
 
@@ -275,7 +275,9 @@ describe('EntitiesProvider', () => {
       eventNotifier.next('code:updated', { code });
     });
 
-    expect(result.current?.camelResource.toString()).toContain(
+    const output = await result.current?.camelResource.toSourceCode();
+
+    expect(output).toContain(
       `# This is a comment
 #     An indented comment`,
     );

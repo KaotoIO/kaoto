@@ -19,7 +19,7 @@ describe('FlowExportDocument.tsx', () => {
     // Materialize the new entities into source so the wrapper's re-initialize()
     // (which rebuilds entities from source) preserves them — mirrors how runtime
     // recreates the resource from serialized code on `code:updated`.
-    camelResource = new CamelRouteResource(parse(camelResource.toString()) as CamelYamlDsl);
+    camelResource = new CamelRouteResource(parse(await camelResource.toSourceCode()) as CamelYamlDsl);
   });
 
   afterEach(() => vi.clearAllMocks());

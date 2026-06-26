@@ -17,7 +17,7 @@ describe('VisibleFlowsProvider', () => {
     // Materialize the new entity into source so the wrapper's re-initialize()
     // (which rebuilds entities from source) preserves it — mirrors how runtime
     // recreates the resource from serialized code on `code:updated`.
-    const camelResource = new CamelRouteResource(parse(baseResource.toString()) as CamelYamlDsl);
+    const camelResource = new CamelRouteResource(parse(await baseResource.toSourceCode()) as CamelYamlDsl);
 
     const { Provider } = await TestProvidersWrapper({ camelResource });
 

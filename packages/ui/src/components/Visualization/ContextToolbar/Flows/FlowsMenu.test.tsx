@@ -18,7 +18,7 @@ describe('FlowsMenu.tsx', () => {
     // Materialize the new entities into source so the wrapper's re-initialize()
     // (which rebuilds entities from source) preserves them — mirrors how runtime
     // recreates the resource from serialized code on `code:updated`.
-    camelResource = new CamelRouteResource(parse(camelResource.toString()) as CamelYamlDsl);
+    camelResource = new CamelRouteResource(parse(await camelResource.toSourceCode()) as CamelYamlDsl);
   });
 
   it('should open the flows list when clicking the dropdown', async () => {
@@ -97,7 +97,9 @@ describe('FlowsMenu.tsx', () => {
   it('should render the route id when a single route is visible', async () => {
     let singleFlowCamelResource = new CamelRouteResource();
     singleFlowCamelResource.addNewEntity(EntityType.Route);
-    singleFlowCamelResource = new CamelRouteResource(parse(singleFlowCamelResource.toString()) as CamelYamlDsl);
+    singleFlowCamelResource = new CamelRouteResource(
+      parse(await singleFlowCamelResource.toSourceCode()) as CamelYamlDsl,
+    );
 
     const { Provider } = await TestProvidersWrapper({
       camelResource: singleFlowCamelResource,

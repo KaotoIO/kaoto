@@ -64,8 +64,9 @@ export const EntitiesProvider: FunctionComponent<PropsWithChildren> = ({ childre
   }, [kaotoResource]);
 
   const updateSourceCodeFromEntities = useCallback(() => {
-    const code = kaotoResource.toString();
-    eventNotifier.next('entities:updated', code);
+    kaotoResource.toSourceCode().then((code) => {
+      eventNotifier.next('entities:updated', code);
+    });
   }, [kaotoResource, eventNotifier]);
 
   const updateEntitiesFromCamelResource = useCallback(() => {
