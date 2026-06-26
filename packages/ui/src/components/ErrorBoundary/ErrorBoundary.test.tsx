@@ -1,6 +1,5 @@
 import { act, fireEvent, render } from '@testing-library/react';
 import { useState } from 'react';
-import { vi } from 'vitest';
 
 import { ErrorBoundary } from './ErrorBoundary';
 

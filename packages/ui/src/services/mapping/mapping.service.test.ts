@@ -1,5 +1,3 @@
-import { vi } from 'vitest';
-
 import { DocumentDefinitionType, DocumentType, IDocument, IField } from '../../models/datamapper/document';
 import {
   ChooseItem,

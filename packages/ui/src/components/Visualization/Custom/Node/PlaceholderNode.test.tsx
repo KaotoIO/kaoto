@@ -1,6 +1,5 @@
 import { BaseGraph, ElementContext, VisualizationProvider } from '@patternfly/react-topology';
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { createVisualizationNode, IVisualizationNode, IVisualizationNodeData } from '../../../../models';
 import { PlaceholderType } from '../../../../models/placeholder.constants';

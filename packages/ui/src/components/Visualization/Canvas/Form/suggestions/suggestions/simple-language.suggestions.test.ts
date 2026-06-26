@@ -1,6 +1,5 @@
 import { CatalogLibrary } from '@kaoto/camel-catalog/catalog-index.d.ts';
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { vi } from 'vitest';
 
 import { CamelCatalogService, CatalogKind } from '../../../../../../models';
 import { IMetadataApi } from '../../../../../../providers';

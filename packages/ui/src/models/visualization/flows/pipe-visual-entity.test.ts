@@ -1,7 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, Pipe } from '@kaoto/camel-catalog/types';
 import { cloneDeep } from 'lodash';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { pipeJson } from '../../../stubs/pipe';

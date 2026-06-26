@@ -1,5 +1,5 @@
 import { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { MappingTree } from '../../models/datamapper/mapping';
 import { NodeData } from '../../models/datamapper/visualization';

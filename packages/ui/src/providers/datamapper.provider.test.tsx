@@ -1,6 +1,5 @@
 import { render, renderHook, screen, waitFor } from '@testing-library/react';
 import { act, useContext, useEffect } from 'react';
-import { vi } from 'vitest';
 
 import { useDataMapper } from '../hooks/useDataMapper';
 import { SendAlertProps } from '../models/datamapper';

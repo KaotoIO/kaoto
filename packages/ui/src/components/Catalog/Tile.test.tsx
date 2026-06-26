@@ -1,5 +1,4 @@
 import { act, fireEvent, render } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { ITile } from './Catalog.models';
 import { Tile } from './Tile';

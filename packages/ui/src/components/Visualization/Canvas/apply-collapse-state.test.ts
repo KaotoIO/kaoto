@@ -1,6 +1,6 @@
 import type { Controller } from '@patternfly/react-topology';
 import { Dimensions, ModelKind } from '@patternfly/react-topology';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { applyCollapseState } from './apply-collapse-state';
 import { CanvasDefaults } from './canvas.defaults';

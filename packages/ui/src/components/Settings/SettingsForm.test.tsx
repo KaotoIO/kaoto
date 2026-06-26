@@ -1,7 +1,7 @@
 import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { AbstractSettingsAdapter, DefaultSettingsAdapter } from '../../models/settings';
 import { ReloadContext, SettingsProvider } from '../../providers';

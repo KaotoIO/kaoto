@@ -1,5 +1,4 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { longTileList } from '../../stubs';
 import { BaseCatalog } from './BaseCatalog';

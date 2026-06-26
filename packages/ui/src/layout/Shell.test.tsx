@@ -1,5 +1,5 @@
 import { act, render, screen } from '@testing-library/react';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { useLocalStorage } from '../hooks/local-storage.hook';
 import { Shell } from './Shell';

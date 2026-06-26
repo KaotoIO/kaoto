@@ -1,6 +1,5 @@
 import { render } from '@testing-library/react';
 import { ReactNode } from 'react';
-import { vi } from 'vitest';
 
 import { IMetadataApi, MetadataContext } from '../../../../../providers';
 import { getPropertiesSuggestionProvider } from './suggestions/properties.suggestions';

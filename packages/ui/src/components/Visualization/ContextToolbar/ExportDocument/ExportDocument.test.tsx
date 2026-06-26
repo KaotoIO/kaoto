@@ -1,6 +1,5 @@
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { CamelRouteResource } from '../../../../models/camel';
 import { EntityType } from '../../../../models/entities';

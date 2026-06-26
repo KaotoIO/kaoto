@@ -1,5 +1,3 @@
-import { vi } from 'vitest';
-
 import { DynamicCatalog } from './dynamic-catalog';
 import { ICatalogProvider } from './models';
 

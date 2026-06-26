@@ -1,5 +1,3 @@
-import { vi } from 'vitest';
-
 import { IField } from '../../../models/datamapper/document';
 import { FieldItem, MappingTree } from '../../../models/datamapper/mapping';
 import {

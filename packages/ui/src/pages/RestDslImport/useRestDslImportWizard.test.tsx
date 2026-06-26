@@ -1,7 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import { OpenApi } from 'openapi-v3';
 import { FunctionComponent, PropsWithChildren } from 'react';
-import { vi } from 'vitest';
 
 import { CamelRouteResource } from '../../models/camel/camel-route-resource';
 import { KaotoResource } from '../../models/kaoto-resource';

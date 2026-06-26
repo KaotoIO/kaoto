@@ -1,5 +1,4 @@
 import { fireEvent, render } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { EntityType } from '../../../../models/entities';
 import { generateEntityContextMenu } from './generateEntityContextMenu';

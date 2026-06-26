@@ -1,6 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
-import { vi } from 'vitest';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';

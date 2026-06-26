@@ -1,5 +1,3 @@
-import { vi } from 'vitest';
-
 import { ColorScheme } from '../models';
 import { DARK_MODE_PATTERN_FLY_CLASS_NAME, isDarkModeEnabled, setColorScheme } from './color-scheme';
 

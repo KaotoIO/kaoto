@@ -1,7 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, Rest } from '@kaoto/camel-catalog/types';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { CamelCatalogService } from '../../models';
 import { CamelResourceFactory } from '../../models/camel/camel-resource-factory';

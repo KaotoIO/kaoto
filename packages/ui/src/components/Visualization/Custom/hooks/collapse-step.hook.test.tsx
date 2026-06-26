@@ -1,7 +1,7 @@
 import type { Controller, ElementModel, Graph, GraphElement, Node } from '@patternfly/react-topology';
 import { Dimensions } from '@patternfly/react-topology';
 import { renderHook } from '@testing-library/react';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { useCollapseStep } from './collapse-step.hook';

@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
-import { Mock } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { KaotoResourceProvider } from '../../providers/kaoto-resource.provider';
 import { SourceCodeSync } from '../../providers/source-code-sync';

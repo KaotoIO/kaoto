@@ -1,6 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { vi } from 'vitest';
 
 import { ValidationResult, ValidationStatus } from '../../models';
 import { XsltDocumentRenameInput } from './XsltDocumentRenameInput';

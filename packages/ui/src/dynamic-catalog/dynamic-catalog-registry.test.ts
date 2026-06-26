@@ -1,5 +1,4 @@
 import { KaotoFunction } from '@kaoto/camel-catalog/types';
-import { vi } from 'vitest';
 
 import {
   ICamelComponentDefinition,

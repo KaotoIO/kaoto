@@ -16,7 +16,6 @@
 
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
-import { vi } from 'vitest';
 
 import { CamelCatalogService, CamelRouteVisualEntity, CatalogKind } from '../../../models';
 import { EntityOrderingService } from '../../../models/camel/entity-ordering.service';

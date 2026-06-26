@@ -1,5 +1,4 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { getProcessorIconTooltipRequest } from '../models/visualization/flows/nodes/resolvers/tooltip-resolver/getProcessorIconTooltipRequest';
 import { useProcessorTooltips } from './use-processor-tooltips.hook';

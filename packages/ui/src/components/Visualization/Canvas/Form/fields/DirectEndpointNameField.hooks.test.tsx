@@ -1,5 +1,4 @@
 import { act, renderHook } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { EntitiesContextResult } from '../../../../../providers/entities.provider';
 import { VisibleFlowsContextResult } from '../../../../../providers/visible-flows.provider';

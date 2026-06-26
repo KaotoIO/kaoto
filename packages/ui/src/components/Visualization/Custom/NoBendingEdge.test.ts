@@ -1,5 +1,5 @@
 import { getTopCollapsedParent, Point } from '@patternfly/react-topology';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { NoBendpointsEdge } from './NoBendingEdge';
 

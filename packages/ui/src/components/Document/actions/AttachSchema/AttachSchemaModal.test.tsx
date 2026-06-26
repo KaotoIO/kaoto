@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MockedFunction } from 'vitest';
+import type { MockedFunction } from 'vitest';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { BODY_DOCUMENT_ID, DocumentType } from '../../../../models/datamapper/document';

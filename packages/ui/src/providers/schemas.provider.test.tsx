@@ -1,7 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogDefinition } from '@kaoto/camel-catalog/types';
 import { act, render, screen } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { KaotoSchemaDefinition } from '../models';
 import { TestRuntimeProviderWrapper } from '../stubs';

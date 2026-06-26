@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import { toBlob } from 'html-to-image';
 import { FunctionComponent, PropsWithChildren } from 'react';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { CamelRouteResource } from '../../../../models/camel';
 import { DocumentationService } from '../../../../services/documentation.service';

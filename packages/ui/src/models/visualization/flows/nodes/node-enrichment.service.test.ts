@@ -1,4 +1,4 @@
-import { MockInstance, vi } from 'vitest';
+import type { MockInstance } from 'vitest';
 
 import { CatalogKind } from '../../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../../kaoto-schema';

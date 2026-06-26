@@ -1,5 +1,4 @@
 import { renderHook } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';

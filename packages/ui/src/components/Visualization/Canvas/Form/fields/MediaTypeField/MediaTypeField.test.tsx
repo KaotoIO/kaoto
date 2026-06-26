@@ -1,6 +1,5 @@
 import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { KaotoSchemaDefinition } from '../../../../../../models';
 import { DefaultSettingsAdapter } from '../../../../../../models/settings';

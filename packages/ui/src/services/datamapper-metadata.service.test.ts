@@ -1,5 +1,3 @@
-import { vi } from 'vitest';
-
 import { BODY_DOCUMENT_ID, DocumentDefinition, DocumentDefinitionType, DocumentType } from '../models/datamapper';
 import {
   IChoiceSelection,

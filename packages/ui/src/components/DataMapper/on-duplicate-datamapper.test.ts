@@ -1,5 +1,3 @@
-import { vi } from 'vitest';
-
 import { IVisualizationNode } from '../../models';
 import { SourceSchemaType } from '../../models/camel/source-schema-type';
 import { DocumentDefinitionType } from '../../models/datamapper';

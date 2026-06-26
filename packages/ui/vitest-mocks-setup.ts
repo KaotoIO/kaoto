@@ -1,5 +1,5 @@
 import React from 'react';
-import { vi } from 'vitest';
+
 
 // This file contains all vi.mock() calls and runs before other setup files
 // to ensure mocks are properly hoisted

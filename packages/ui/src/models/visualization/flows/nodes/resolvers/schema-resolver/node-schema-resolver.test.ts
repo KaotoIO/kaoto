@@ -1,5 +1,3 @@
-import { vi } from 'vitest';
-
 import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
 import { ICamelProcessorDefinition } from '../../../../../camel/camel-processors-catalog';
 import { CatalogKind } from '../../../../../catalog-kind';

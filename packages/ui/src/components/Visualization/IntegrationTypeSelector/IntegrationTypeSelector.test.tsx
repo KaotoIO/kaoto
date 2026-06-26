@@ -1,7 +1,7 @@
 import { MenuToggle, MenuToggleElement } from '@patternfly/react-core';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { Ref } from 'react';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { sourceSchemaConfig, SourceSchemaType } from '../../../models/camel';
 import { EntitiesContext, EntitiesContextResult } from '../../../providers/entities.provider';

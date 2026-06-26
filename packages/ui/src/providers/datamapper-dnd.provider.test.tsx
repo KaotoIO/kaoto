@@ -2,7 +2,7 @@ import { DndContext, DragEndEvent } from '@dnd-kit/core';
 import { AlertVariant } from '@patternfly/react-core';
 import { act, render } from '@testing-library/react';
 import { ReactNode } from 'react';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { useDataMapper } from '../hooks/useDataMapper';
 import { MappingTree } from '../models/datamapper/mapping';

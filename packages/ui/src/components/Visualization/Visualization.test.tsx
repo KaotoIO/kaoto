@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import type { ReactElement } from 'react';
-import { vi } from 'vitest';
 
 import { useVisibleVizNodes } from '../../hooks/use-visible-viz-nodes';
 import { IVisualizationNode } from '../../models/visualization/base-visual-entity';

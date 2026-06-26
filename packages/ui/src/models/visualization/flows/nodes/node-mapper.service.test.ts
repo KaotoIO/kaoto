@@ -1,5 +1,3 @@
-import { vi } from 'vitest';
-
 import { DATAMAPPER_ID_PREFIX } from '../../../../utils';
 import { BaseNodeMapper } from './mappers/base-node-mapper';
 import { ChoiceNodeMapper } from './mappers/choice-node-mapper';

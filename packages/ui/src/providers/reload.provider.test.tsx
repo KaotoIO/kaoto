@@ -1,6 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
 import { useContext } from 'react';
-import { vi } from 'vitest';
 
 import { ReloadContext, ReloadProvider } from './reload.provider';
 

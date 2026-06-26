@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import hotkeys from 'hotkeys-js';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { IVisualizationNode } from '../../../../models';
 import { useDeleteGroup } from './delete-group.hook';

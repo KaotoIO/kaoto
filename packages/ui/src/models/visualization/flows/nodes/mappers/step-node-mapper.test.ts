@@ -1,5 +1,4 @@
 import { RouteDefinition } from '@kaoto/camel-catalog/types';
-import { vi } from 'vitest';
 import { parse } from 'yaml';
 
 import { DATAMAPPER_ID_PREFIX } from '../../../../../utils';

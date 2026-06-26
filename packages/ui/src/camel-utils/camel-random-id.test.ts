@@ -1,5 +1,3 @@
-import { vi } from 'vitest';
-
 import { getCamelRandomId, getHexaDecimalRandomId } from './camel-random-id';
 
 describe('camel-random-id', () => {

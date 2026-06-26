@@ -1,5 +1,3 @@
-import { vi } from 'vitest';
-
 import { ValidationStatus } from '../../models';
 import { CamelRouteResource } from '../../models/camel';
 import { camelRouteJson } from '../../stubs';

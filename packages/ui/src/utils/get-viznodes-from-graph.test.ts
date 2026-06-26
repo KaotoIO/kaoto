@@ -15,7 +15,6 @@
  */
 
 import { Graph, Model } from '@patternfly/react-topology';
-import { vi } from 'vitest';
 
 import { ControllerService } from '../components/Visualization/Canvas/controller.service';
 import { FlowService } from '../components/Visualization/Canvas/flow.service';

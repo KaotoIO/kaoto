@@ -1,5 +1,4 @@
 import { act, renderHook } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { useSourceCodeStore } from '../store';
 import { EventNotifier } from '../utils';

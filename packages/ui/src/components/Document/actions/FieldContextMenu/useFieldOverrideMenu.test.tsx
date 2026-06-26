@@ -1,6 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
-import { vi } from 'vitest';
 
 import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../../../../models/datamapper/document';
 import { DocumentTree } from '../../../../models/datamapper/document-tree';

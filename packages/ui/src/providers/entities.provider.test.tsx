@@ -1,6 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
 import { PropsWithChildren, useContext } from 'react';
-import { vi } from 'vitest';
 import { parse } from 'yaml';
 
 import { CamelRouteResource } from '../models/camel/camel-route-resource';

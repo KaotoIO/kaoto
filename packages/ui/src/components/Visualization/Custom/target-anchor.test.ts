@@ -1,5 +1,4 @@
 import { Node, Point, Rect } from '@patternfly/react-topology';
-import { vi } from 'vitest';
 
 import { TargetAnchor } from './target-anchor';
 

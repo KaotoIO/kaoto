@@ -1,5 +1,4 @@
 import { cloneDeep } from 'lodash';
-import { vi } from 'vitest';
 
 import { mockRandomValues } from '../../stubs';
 import { kameletJson } from '../../stubs/kamelet-route';

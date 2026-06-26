@@ -1,5 +1,5 @@
 import { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { DocumentType, IField } from '../../models/datamapper/document';
 import { IExpressionHolder, IFunctionDefinition, MappingItem, MappingTree } from '../../models/datamapper/mapping';

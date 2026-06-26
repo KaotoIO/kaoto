@@ -1,4 +1,4 @@
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { VisibleFlowAction, VisibleFlowsReducer, VisualFlowsApi } from './flows-visibility';
 

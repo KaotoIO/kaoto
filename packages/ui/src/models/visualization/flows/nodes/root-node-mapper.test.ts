@@ -1,5 +1,3 @@
-import { vi } from 'vitest';
-
 import { noopNodeMapper } from './mappers/testing/noop-node-mapper';
 import { RootNodeMapper } from './root-node-mapper';
 

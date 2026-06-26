@@ -1,6 +1,6 @@
 import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { FunctionComponent, PropsWithChildren } from 'react';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { CamelRouteResource } from '../models/camel/camel-route-resource';
 import { KaotoResource } from '../models/kaoto-resource';

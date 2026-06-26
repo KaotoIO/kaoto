@@ -3,7 +3,7 @@ import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { ElementModel, GraphElement, Model, VisualizationProvider } from '@patternfly/react-topology';
 import { render } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import {
   CamelCatalogService,

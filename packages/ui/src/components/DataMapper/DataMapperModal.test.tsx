@@ -9,7 +9,6 @@ import {
   TouchEvent,
   useCallback,
 } from 'react';
-import { vi } from 'vitest';
 
 import { DataMapperModal } from './DataMapperModal';
 

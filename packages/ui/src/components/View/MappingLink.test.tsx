@@ -1,5 +1,4 @@
 import { fireEvent, render } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import { MappingLineStyle } from '../../models/datamapper';
 import { useDocumentTreeStore } from '../../store';

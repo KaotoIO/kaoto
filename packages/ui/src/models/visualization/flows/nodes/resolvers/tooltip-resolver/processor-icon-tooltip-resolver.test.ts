@@ -1,4 +1,4 @@
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
 import { CatalogKind } from '../../../../../catalog-kind';

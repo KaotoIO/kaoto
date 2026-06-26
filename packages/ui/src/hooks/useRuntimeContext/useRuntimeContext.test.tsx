@@ -1,7 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { act, renderHook } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { SourceSchemaType } from '../../models/camel';
 import { KaotoResource } from '../../models/kaoto-resource';

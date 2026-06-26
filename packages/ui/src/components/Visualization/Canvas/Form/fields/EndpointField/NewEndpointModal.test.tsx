@@ -2,7 +2,7 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { Mock, vi } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { CatalogModalContext } from '../../../../../../dynamic-catalog/catalog-modal.provider';
 import { CatalogKind, KaotoSchemaDefinition } from '../../../../../../models';

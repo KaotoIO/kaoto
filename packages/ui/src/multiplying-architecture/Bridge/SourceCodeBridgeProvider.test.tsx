@@ -1,6 +1,5 @@
 import { act, render } from '@testing-library/react';
 import { FunctionComponent, useRef } from 'react';
-import { vi } from 'vitest';
 
 import { SourceCodeSync } from '../../providers/source-code-sync';
 import { useSourceCodeStore } from '../../store';

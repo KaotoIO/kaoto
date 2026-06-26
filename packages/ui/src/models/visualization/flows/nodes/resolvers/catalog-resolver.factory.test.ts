@@ -1,5 +1,3 @@
-import { vi } from 'vitest';
-
 import { DynamicCatalogRegistry } from '../../../../../dynamic-catalog/dynamic-catalog-registry';
 import { CatalogKind } from '../../../../catalog-kind';
 import { CatalogResolverFactory } from './catalog-resolver.factory';
