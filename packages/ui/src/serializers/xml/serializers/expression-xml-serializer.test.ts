@@ -17,8 +17,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
-import { CamelCatalogService, CatalogKind } from '../../../models';
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
 import { ExpressionXmlSerializer } from './expression-xml-serializer';
 import { getDocument, testSerializer } from './serializer-test-utils';
 
@@ -27,10 +26,10 @@ describe('ExpressionSerialisation tests', () => {
   const doc = getDocument();
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+    setupDynamicCatalogRegistry(catalogsMap);
   });
 
-  it('serialize simple expression', () => {
+  it('serialize simple expression', async () => {
     const entity = {
       constant: {
         expression: 'a=b',
@@ -38,21 +37,21 @@ describe('ExpressionSerialisation tests', () => {
     };
     const expected = `<when><constant>a=b</constant></when>`;
     const element = doc.createElement('when');
-    ExpressionXmlSerializer.serialize('expression', entity, oneOf, doc, element);
+    await ExpressionXmlSerializer.serialize('expression', entity, oneOf, doc, element);
     testSerializer(expected, element);
   });
 
-  it('serialize simple expression with empty expression', () => {
+  it('serialize simple expression with empty expression', async () => {
     const entity = {
       constant: {},
     };
     const expected = `<when><constant/></when>`;
     const element = doc.createElement('when');
-    ExpressionXmlSerializer.serialize('expression', entity, oneOf, doc, element);
+    await ExpressionXmlSerializer.serialize('expression', entity, oneOf, doc, element);
     testSerializer(expected, element);
   });
 
-  it('serialize simple expression with empty expression different format', () => {
+  it('serialize simple expression with empty expression different format', async () => {
     const entity = {
       expression: {
         constant: {},
@@ -60,11 +59,11 @@ describe('ExpressionSerialisation tests', () => {
     };
     const expected = `<when><constant/></when>`;
     const element = doc.createElement('when');
-    ExpressionXmlSerializer.serialize('expression', entity, oneOf, doc, element);
+    await ExpressionXmlSerializer.serialize('expression', entity, oneOf, doc, element);
     testSerializer(expected, element);
   });
 
-  it('serialize simple expression with expression different format', () => {
+  it('serialize simple expression with expression different format', async () => {
     const entity = {
       expression: {
         simple: { expression: 'a=b' },
@@ -72,22 +71,22 @@ describe('ExpressionSerialisation tests', () => {
     };
     const expected = `<when><simple>a=b</simple></when>`;
     const element = doc.createElement('when');
-    ExpressionXmlSerializer.serialize('expression', entity, oneOf, doc, element);
+    await ExpressionXmlSerializer.serialize('expression', entity, oneOf, doc, element);
     testSerializer(expected, element);
   });
 
-  it('serialize simple expression with text definition', () => {
+  it('serialize simple expression with text definition', async () => {
     const entity = {
       simple: 'a=b',
     };
 
     const expected = `<when><simple>a=b</simple></when>`;
     const element = doc.createElement('when');
-    ExpressionXmlSerializer.serialize('expression', entity, oneOf, doc, element);
+    await ExpressionXmlSerializer.serialize('expression', entity, oneOf, doc, element);
     testSerializer(expected, element);
   });
 
-  it('serialize expression with attributes', () => {
+  it('serialize expression with attributes', async () => {
     const entity = {
       csimple: {
         expression: '${body}',
@@ -96,11 +95,11 @@ describe('ExpressionSerialisation tests', () => {
     };
     const expected = `<when><csimple resultType="String">\${body}</csimple></when>`;
     const element = doc.createElement('when');
-    ExpressionXmlSerializer.serialize('expression', entity, oneOf, doc, element);
+    await ExpressionXmlSerializer.serialize('expression', entity, oneOf, doc, element);
     testSerializer(expected, element);
   });
 
-  it('serialize expression with namespace', () => {
+  it('serialize expression with namespace', async () => {
     const entity = {
       csimple: {
         expression: '${body}',
@@ -110,12 +109,12 @@ describe('ExpressionSerialisation tests', () => {
     const expected = `<when><csimple>\${body}</csimple></when>`;
     const element = doc.createElement('when');
     const routeParent = doc.createElement('route');
-    ExpressionXmlSerializer.serialize('expression', entity, oneOf, doc, element, routeParent);
+    await ExpressionXmlSerializer.serialize('expression', entity, oneOf, doc, element, routeParent);
     testSerializer(expected, element);
     expect(routeParent.getAttribute('xmlns:ns1')).toBe('http://example.com/ns1');
   });
 
-  it('serialize expression with different key', () => {
+  it('serialize expression with different key', async () => {
     const entity = {
       completionPredicate: {
         constant: { expression: 'predicate' },
@@ -123,18 +122,18 @@ describe('ExpressionSerialisation tests', () => {
     };
     const expected = `<aggregate><completionPredicate><constant>predicate</constant></completionPredicate></aggregate>`;
     const element = doc.createElement('aggregate');
-    ExpressionXmlSerializer.serialize('completionPredicate', entity, oneOf, doc, element);
+    await ExpressionXmlSerializer.serialize('completionPredicate', entity, oneOf, doc, element);
     testSerializer(expected, element);
   });
 
-  it('serialize expression with unknown type', () => {
+  it('serialize expression with unknown type', async () => {
     const entity = {
       unknown: {
         expression: 'unknown',
       },
     };
     const element = doc.createElement('when');
-    ExpressionXmlSerializer.serialize('expression', entity, oneOf, doc, element);
+    await ExpressionXmlSerializer.serialize('expression', entity, oneOf, doc, element);
     expect(element.children).toHaveLength(0);
   });
 });

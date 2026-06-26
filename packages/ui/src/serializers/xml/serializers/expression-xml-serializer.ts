@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-import { CamelCatalogService, CatalogKind } from '../../../models';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
+import { CatalogKind } from '../../../models';
 import { setNamespaces } from '../utils/xml-utils';
 
 type Expression = { expression: string; [key: string]: unknown };
 
 export class ExpressionXmlSerializer {
-  static serialize(
+  static async serialize(
     key: string,
     stepWithExpression: unknown,
     oneOf: string[] | undefined,
@@ -42,7 +43,7 @@ export class ExpressionXmlSerializer {
 
     let expression: Element;
     if (key === 'expression') {
-      expression = ExpressionXmlSerializer.createExpressionElement(
+      expression = await ExpressionXmlSerializer.createExpressionElement(
         expressionType,
         expressionDefinition,
         doc,
@@ -52,21 +53,22 @@ export class ExpressionXmlSerializer {
       //for cases like correlationExpression etc...
       expression = doc.createElement(key);
       expression.append(
-        ExpressionXmlSerializer.createExpressionElement(expressionType, expressionDefinition, doc, routeParent),
+        await ExpressionXmlSerializer.createExpressionElement(expressionType, expressionDefinition, doc, routeParent),
       );
     }
 
     element.appendChild(expression);
   }
 
-  static createExpressionElement(
+  static async createExpressionElement(
     expressionType: string,
     expressionObject: Expression | string,
     doc: Document,
     routeParent?: Element,
-  ): Element {
+  ): Promise<Element> {
     const expressionElement = doc.createElement(expressionType);
-    const properties = CamelCatalogService.getComponent(CatalogKind.Processor, expressionType)?.properties;
+    const expressionDefinition = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Processor, expressionType);
+    const properties = expressionDefinition?.properties;
 
     expressionElement.textContent =
       typeof expressionObject === 'string' ? expressionObject : expressionObject.expression;
