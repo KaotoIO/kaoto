@@ -23,7 +23,7 @@ import {
   VIRTUOSO_OVERSCAN,
 } from '../ExpansionPanels/panel-dimensions';
 import { DeleteParameterButton } from './actions/DeleteParameterButton';
-import { RenameParameterButton } from './actions/RenameParameterButton';
+import { RenameButton } from './actions/RenameButton';
 import { DocumentHeader } from './BaseDocument';
 import { ParameterInputPlaceholder } from './ParameterInputPlaceholder';
 import { SourceDocumentNodeWithContextMenu } from './SourceDocumentNode';
@@ -183,12 +183,11 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
   const parameterActions = useMemo(
     () => [
       ...edgeMarkers,
-      <RenameParameterButton
+      <RenameButton
         key="rename"
-        parameterName={parameterName}
-        onRenameClick={() => {
-          onStartRename(parameterName);
-        }}
+        itemName={`parameter-${parameterName}`}
+        label="parameter"
+        onRenameClick={() => onStartRename(parameterName)}
       />,
       <DeleteParameterButton key="delete" parameterName={parameterName} parameterReferenceId={documentReferenceId} />,
     ],

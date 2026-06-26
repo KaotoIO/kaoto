@@ -7,7 +7,7 @@ import { DocumentNodeData } from '../../../models/datamapper/visualization';
 import { AttachSchemaButton } from './AttachSchema';
 import { DeleteParameterButton } from './DeleteParameterButton';
 import { DetachSchemaButton } from './DetachSchemaButton';
-import { RenameParameterButton } from './RenameParameterButton';
+import { RenameButton } from './RenameButton';
 
 type DocumentActionsProps = {
   className?: string;
@@ -48,7 +48,7 @@ export const DocumentActions: FunctionComponent<DocumentActionsProps> = ({ class
       {documentType === DocumentType.PARAM && (
         <>
           <ActionListItem>
-            <RenameParameterButton parameterName={documentId} onRenameClick={onRenameClick} />
+            <RenameButton itemName={`parameter-${documentId}`} label="parameter" onRenameClick={onRenameClick} />
           </ActionListItem>
           <ActionListItem>
             <DeleteParameterButton parameterName={documentId} parameterReferenceId={documentReferenceId} />
