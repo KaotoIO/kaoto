@@ -9,6 +9,7 @@ import {
   ModalFooter,
   ModalHeader,
   Radio,
+  Spinner,
   Stack,
   StackItem,
 } from '@patternfly/react-core';
@@ -57,6 +58,7 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
   );
   const [filePaths, setFilePaths] = useState<string[]>([]);
   const [createDocumentResult, setCreateDocumentResult] = useState<CreateDocumentResult | null>(null);
+  const [isUploadingSchema, setIsUploadingSchema] = useState(false);
 
   const fileNamePattern = useMemo(() => {
     if (documentType === DocumentType.SOURCE_BODY) {
@@ -99,24 +101,35 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
   );
 
   const onFileUpload = useCallback(async () => {
-    const { paths: newPaths, error } = await pickAndValidateSchemaFiles(api, fileNamePattern, documentType, filePaths);
+    try {
+      const { paths: newPaths, error } = await pickAndValidateSchemaFiles(
+        api,
+        fileNamePattern,
+        documentType,
+        filePaths,
+      );
 
-    if (error) {
-      setCreateDocumentResult({ validationStatus: 'error', errors: [{ message: error }] });
-      return;
-    }
-
-    if (newPaths.length === 0) return;
-
-    const combined = [...filePaths];
-    for (const p of newPaths) {
-      if (!combined.includes(p)) {
-        combined.push(p);
+      if (error) {
+        setCreateDocumentResult({ validationStatus: 'error', errors: [{ message: error }] });
+        return;
       }
-    }
 
-    setFilePaths(combined);
-    await validateAndCreateDocument(combined);
+      if (newPaths.length === 0) return;
+
+      setIsUploadingSchema(true);
+
+      const combined = [...filePaths];
+      for (const p of newPaths) {
+        if (!combined.includes(p)) {
+          combined.push(p);
+        }
+      }
+
+      setFilePaths(combined);
+      await validateAndCreateDocument(combined);
+    } finally {
+      setIsUploadingSchema(false);
+    }
   }, [api, fileNamePattern, documentType, filePaths, validateAndCreateDocument]);
 
   const onRemoveFile = useCallback(
@@ -238,11 +251,14 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
               <InputGroupItem>
                 <Button
                   data-testid="attach-schema-modal-btn-file"
-                  icon={<FileImportIcon />}
+                  icon={
+                    isUploadingSchema ? <Spinner size="sm" aria-label="Uploading schema file(s)" /> : <FileImportIcon />
+                  }
                   variant="secondary"
                   onClick={onFileUpload}
+                  isDisabled={isUploadingSchema}
                 >
-                  Upload schema file(s)
+                  {isUploadingSchema ? 'Uploading schema file(s)...' : 'Upload schema file(s)'}
                 </Button>
               </InputGroupItem>
               {filePaths.length > 0 && (
