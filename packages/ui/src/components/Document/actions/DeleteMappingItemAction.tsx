@@ -1,19 +1,11 @@
-import {
-  ActionListItem,
-  Button,
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  ModalVariant,
-} from '@patternfly/react-core';
+import { ActionListItem } from '@patternfly/react-core';
 import { TrashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback } from 'react';
 
-import { useToggle } from '../../../hooks/useToggle';
 import { InstructionItem } from '../../../models/datamapper/mapping';
 import { TargetNodeData, VariableNodeData } from '../../../models/datamapper/visualization';
 import { MappingActionService } from '../../../services/visualization/mapping-action.service';
+import { ConfirmActionButton } from './ConfirmActionButton';
 
 type DeleteItemProps = {
   nodeData: TargetNodeData;
@@ -21,56 +13,41 @@ type DeleteItemProps = {
 };
 
 export const DeleteMappingItemAction: FunctionComponent<DeleteItemProps> = ({ nodeData, onDelete }) => {
-  const { state: isModalOpen, toggleOn: openModal, toggleOff: closeModal } = useToggle(false);
-
   const onConfirmDelete = useCallback(() => {
     MappingActionService.deleteMappingItem(nodeData);
     onDelete();
-    closeModal();
-  }, [closeModal, nodeData, onDelete]);
+  }, [nodeData, onDelete]);
+
   const displayName = nodeData instanceof VariableNodeData ? nodeData.displayTitle : nodeData.title;
   const title = `Delete ${displayName} mapping`;
-  let warningMessage = undefined;
-  if (
-    nodeData.mapping &&
+  const warningMessage =
     nodeData.mapping instanceof InstructionItem &&
     nodeData.mapping.children.length > 0 &&
     nodeData.mapping.children[0].children.length > 0
-  ) {
-    warningMessage = `Deleting a ${displayName} mapping will also remove all its child mappings.`;
-  }
+      ? `Deleting a ${displayName} mapping will also remove all its child mappings.`
+      : undefined;
+
+  const description = (
+    <>
+      <p>{title}?</p>
+      {warningMessage && <p>{warningMessage}</p>}
+    </>
+  );
 
   return (
     <ActionListItem key="delete-item">
-      <Button
+      <ConfirmActionButton
         icon={<TrashIcon />}
-        variant="plain"
         title={title}
-        aria-label={title}
-        data-testid="delete-mapping-btn"
-        onClick={openModal}
+        triggerTestId="delete-mapping-btn"
+        modalTestId="delete-mapping-modal"
+        confirmTestId="delete-mapping-confirm-btn"
+        cancelTestId="delete-mapping-cancel-btn"
+        modalTitle={title}
+        description={description}
+        titleIconVariant={warningMessage ? 'warning' : undefined}
+        onConfirm={onConfirmDelete}
       />
-      <Modal
-        variant={ModalVariant.small}
-        isOpen={isModalOpen}
-        title={title}
-        onClose={closeModal}
-        data-testid="delete-mapping-modal"
-      >
-        <ModalHeader title={title} titleIconVariant={warningMessage ? 'warning' : undefined} />
-        <ModalBody>
-          <p>{title}?</p>
-          {warningMessage && <p>{warningMessage}</p>}
-        </ModalBody>
-        <ModalFooter>
-          <Button key="confirm" variant="primary" onClick={onConfirmDelete} data-testid="delete-mapping-confirm-btn">
-            Confirm
-          </Button>
-          <Button key="cancel" variant="link" onClick={closeModal} data-testid="delete-mapping-cancel-btn">
-            Cancel
-          </Button>
-        </ModalFooter>
-      </Modal>
     </ActionListItem>
   );
 };

@@ -13,14 +13,14 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { AlertVariant, Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core';
+import { AlertVariant } from '@patternfly/react-core';
 import { ExportIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback } from 'react';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
-import { useToggle } from '../../../hooks/useToggle';
 import { DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
 import { DocumentService } from '../../../services/document/document.service';
+import { ConfirmActionButton } from './ConfirmActionButton';
 
 type DeleteSchemaProps = {
   documentType: DocumentType;
@@ -35,8 +35,6 @@ export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({
 }) => {
   const { sendAlert, updateDocument } = useDataMapper();
 
-  const { state: isModalOpen, toggleOn: openModal, toggleOff: closeModal } = useToggle(false);
-
   const onConfirmDelete = useCallback(() => {
     const result = DocumentService.createPrimitiveDocument(documentType, DocumentDefinitionType.Primitive, documentId);
 
@@ -49,40 +47,19 @@ export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({
     } else {
       updateDocument(result.document, result.documentDefinition, documentReferenceId);
     }
-
-    closeModal();
-  }, [documentType, documentId, closeModal, sendAlert, updateDocument, documentReferenceId]);
+  }, [documentType, documentId, sendAlert, updateDocument, documentReferenceId]);
 
   return (
-    <>
-      <Button
-        icon={<ExportIcon />}
-        variant="plain"
-        title="Detach schema"
-        aria-label="Detach schema"
-        data-testid={`detach-schema-${documentType}-${documentId}-button`}
-        onClick={openModal}
-      />
-
-      <Modal variant={ModalVariant.small} isOpen={isModalOpen} data-testid="detach-schema-modal" onClose={closeModal}>
-        <ModalHeader title="Detach schema" />
-        <ModalBody>
-          Detach correlated schema and make it back to be a primitive value? Related mappings will be also removed.
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            key="confirm"
-            variant="primary"
-            data-testid="detach-schema-modal-confirm-btn"
-            onClick={onConfirmDelete}
-          >
-            Confirm
-          </Button>
-          <Button key="cancel" variant="link" data-testid="detach-schema-modal-cancel-btn" onClick={closeModal}>
-            Cancel
-          </Button>
-        </ModalFooter>
-      </Modal>
-    </>
+    <ConfirmActionButton
+      icon={<ExportIcon />}
+      title="Detach schema"
+      triggerTestId={`detach-schema-${documentType}-${documentId}-button`}
+      modalTestId="detach-schema-modal"
+      confirmTestId="detach-schema-modal-confirm-btn"
+      cancelTestId="detach-schema-modal-cancel-btn"
+      modalTitle="Detach schema"
+      description="Detach correlated schema and make it back to be a primitive value? Related mappings will be also removed."
+      onConfirm={onConfirmDelete}
+    />
   );
 };
