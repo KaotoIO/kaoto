@@ -66,6 +66,17 @@ describe('PropertiesModal', () => {
     } as unknown as IDynamicCatalogRegistry;
   });
 
+  const renderModal = async (tile: ITile) => {
+    const { baseElement } = await act(async () =>
+      render(
+        <CatalogContext.Provider value={mockCatalogRegistry}>
+          <PropertiesModal tile={tile} isModalOpen onClose={vi.fn()} />
+        </CatalogContext.Provider>,
+      ),
+    );
+    return { baseElement };
+  };
+
   describe('Component tile', () => {
     const tile: ITile = {
       type: CatalogKind.Component,
@@ -78,14 +89,7 @@ describe('PropertiesModal', () => {
     };
 
     it('renders component properties table correctly', async () => {
-      // modal uses React portals so baseElement needs to be used here
-      const { baseElement } = await act(async () =>
-        render(
-          <CatalogContext.Provider value={mockCatalogRegistry}>
-            <PropertiesModal tile={tile} isModalOpen onClose={vi.fn()} />
-          </CatalogContext.Provider>,
-        ),
-      );
+      const { baseElement } = await renderModal(tile);
       await waitFor(() => expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument());
       // info
       expect(baseElement.getElementsByClassName('pf-v6-c-modal-box__title-text').item(0)).toHaveTextContent('Atom');
@@ -181,14 +185,7 @@ describe('PropertiesModal', () => {
     };
 
     it('renders property modal correctly', async () => {
-      // modal uses React portals so baseElement needs to be used here
-      const { baseElement } = await act(async () =>
-        render(
-          <CatalogContext.Provider value={mockCatalogRegistry}>
-            <PropertiesModal tile={tile} isModalOpen onClose={vi.fn()} />
-          </CatalogContext.Provider>,
-        ),
-      );
+      const { baseElement } = await renderModal(tile);
       await waitFor(() => expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument());
       // info
       expect(baseElement.getElementsByClassName('pf-v6-c-modal-box__title-text').item(0)).toHaveTextContent('Asterisk');
@@ -211,14 +208,7 @@ describe('PropertiesModal', () => {
     };
 
     it('renders property modal correctly', async () => {
-      // modal uses React portals so baseElement needs to be used here
-      const { baseElement } = await act(async () =>
-        render(
-          <CatalogContext.Provider value={mockCatalogRegistry}>
-            <PropertiesModal tile={tile} isModalOpen onClose={vi.fn()} />
-          </CatalogContext.Provider>,
-        ),
-      );
+      const { baseElement } = await renderModal(tile);
       await waitFor(() => expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument());
       // info
       expect(baseElement.getElementsByClassName('pf-v6-c-modal-box__title-text').item(0)).toHaveTextContent('Api Key');
@@ -253,14 +243,7 @@ describe('PropertiesModal', () => {
     };
 
     it('renders property modal correctly', async () => {
-      // modal uses React portals so baseElement needs to be used here
-      const { baseElement } = await act(async () =>
-        render(
-          <CatalogContext.Provider value={mockCatalogRegistry}>
-            <PropertiesModal tile={tile} isModalOpen onClose={vi.fn()} />
-          </CatalogContext.Provider>,
-        ),
-      );
+      const { baseElement } = await renderModal(tile);
       await waitFor(() => expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument());
       // info
       expect(baseElement.getElementsByClassName('pf-v6-c-modal-box__title-text').item(0)).toHaveTextContent(
@@ -285,14 +268,7 @@ describe('PropertiesModal', () => {
     };
 
     it('renders property modal correctly', async () => {
-      // modal uses React portals so baseElement needs to be used here
-      const { baseElement } = await act(async () =>
-        render(
-          <CatalogContext.Provider value={mockCatalogRegistry}>
-            <PropertiesModal tile={tile} isModalOpen onClose={vi.fn()} />
-          </CatalogContext.Provider>,
-        ),
-      );
+      const { baseElement } = await renderModal(tile);
       await waitFor(() => expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument());
       // info
       expect(baseElement.getElementsByClassName('pf-v6-c-modal-box__title-text').item(0)).toHaveTextContent(
@@ -340,14 +316,7 @@ describe('PropertiesModal', () => {
     };
 
     it('renders property modal correctly', async () => {
-      // modal uses React portals so baseElement needs to be used here
-      const { baseElement } = await act(async () =>
-        render(
-          <CatalogContext.Provider value={mockCatalogRegistry}>
-            <PropertiesModal tile={tile} isModalOpen onClose={vi.fn()} />
-          </CatalogContext.Provider>,
-        ),
-      );
+      const { baseElement } = await renderModal(tile);
       await waitFor(() => expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument());
       // info
       expect(baseElement.getElementsByClassName('pf-v6-c-modal-box__title-text').item(0)).toHaveTextContent(
@@ -370,14 +339,7 @@ describe('PropertiesModal', () => {
     };
 
     it('renders property modal correctly', async () => {
-      // modal uses React portals so baseElement needs to be used here
-      const { baseElement } = await act(async () =>
-        render(
-          <CatalogContext.Provider value={mockCatalogRegistry}>
-            <PropertiesModal tile={tile} isModalOpen onClose={vi.fn()} />
-          </CatalogContext.Provider>,
-        ),
-      );
+      const { baseElement } = await renderModal(tile);
       await waitFor(() => expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument());
       // info
       expect(baseElement.getElementsByClassName('pf-v6-c-modal-box__title-text').item(0)).toHaveTextContent('Print');
@@ -408,14 +370,7 @@ describe('PropertiesModal', () => {
     };
 
     it('renders property modal correctly', async () => {
-      // modal uses React portals so baseElement needs to be used here
-      const { baseElement } = await act(async () =>
-        render(
-          <CatalogContext.Provider value={mockCatalogRegistry}>
-            <PropertiesModal tile={tile} isModalOpen onClose={vi.fn()} />
-          </CatalogContext.Provider>,
-        ),
-      );
+      const { baseElement } = await renderModal(tile);
       await waitFor(() => expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument());
       // info
       expect(baseElement.getElementsByClassName('pf-v6-c-modal-box__title-text').item(0)).toHaveTextContent('Iterate');

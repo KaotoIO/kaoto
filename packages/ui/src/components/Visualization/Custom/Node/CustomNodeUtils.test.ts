@@ -1,9 +1,15 @@
+import { ElementModel, GraphElement } from '@patternfly/react-topology';
 import { waitFor } from '@testing-library/react';
 import type { Mock } from 'vitest';
 
 import { PlaceholderType } from '../../../../models/placeholder.constants';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { IOnCopyAddon } from '../../../registers/interactions/node-interaction-addon.model';
+import { EntitiesContextResult } from '../../../../providers/entities.provider';
+import {
+  INodeInteractionAddonContext,
+  IOnCopyAddon,
+} from '../../../registers/interactions/node-interaction-addon.model';
+import { CanvasNode } from '../../Canvas/canvas.models';
 import { NoBendpointsEdge } from '../NoBendingEdge';
 import { checkNodeDropCompatibility, getNodeDragAndDropDirection, handleValidNodeDrop } from './CustomNodeUtils';
 
@@ -286,16 +292,18 @@ describe('CustomNodeUtils', () => {
   describe('handleValidNodeDrop', () => {
     const noopGetOnCopyAddons = () => [] as IOnCopyAddon[];
 
-    const createMockDraggedElement = (vizNode: IVisualizationNode) => ({
-      getData: vi.fn().mockReturnValue({ vizNode }),
-      getController: vi.fn().mockReturnValue({
-        fromModel: vi.fn(),
-      }),
-    });
+    const createMockDraggedElement = (vizNode: IVisualizationNode): GraphElement<ElementModel, CanvasNode['data']> =>
+      ({
+        getData: vi.fn().mockReturnValue({ vizNode }),
+        getController: vi.fn().mockReturnValue({
+          fromModel: vi.fn(),
+        }),
+      }) as unknown as GraphElement<ElementModel, CanvasNode['data']>;
 
-    const createMockDropResultNode = (vizNode: IVisualizationNode) => ({
-      getData: vi.fn().mockReturnValue({ vizNode }),
-    });
+    const createMockDropResultNode = (vizNode: IVisualizationNode): GraphElement<ElementModel, unknown> =>
+      ({
+        getData: vi.fn().mockReturnValue({ vizNode }),
+      }) as unknown as GraphElement<ElementModel, unknown>;
 
     const createMockEntitiesContext = () => ({
       camelResource: { removeEntity: vi.fn() },
@@ -313,10 +321,10 @@ describe('CustomNodeUtils', () => {
       const entitiesContext = createMockEntitiesContext();
 
       handleValidNodeDrop(
-        draggedElement as never,
-        dropResult as never,
-        entitiesContext as never,
-        { getRegisteredInteractionAddons: noopGetOnCopyAddons } as never,
+        draggedElement,
+        dropResult,
+        entitiesContext as unknown as EntitiesContextResult,
+        { getRegisteredInteractionAddons: noopGetOnCopyAddons } as unknown as INodeInteractionAddonContext,
       );
 
       expect(vizNode2.pasteBaseEntityStep).not.toHaveBeenCalled();
@@ -331,10 +339,10 @@ describe('CustomNodeUtils', () => {
       const entitiesContext = createMockEntitiesContext();
 
       handleValidNodeDrop(
-        draggedElement as never,
-        dropResult as never,
-        entitiesContext as never,
-        { getRegisteredInteractionAddons: noopGetOnCopyAddons } as never,
+        draggedElement,
+        dropResult,
+        entitiesContext as unknown as EntitiesContextResult,
+        { getRegisteredInteractionAddons: noopGetOnCopyAddons } as unknown as INodeInteractionAddonContext,
       );
 
       expect(vizNode2.pasteBaseEntityStep).not.toHaveBeenCalled();
@@ -349,10 +357,10 @@ describe('CustomNodeUtils', () => {
       const entitiesContext = createMockEntitiesContext();
 
       handleValidNodeDrop(
-        draggedElement as never,
-        dropResult as never,
-        entitiesContext as never,
-        { getRegisteredInteractionAddons: noopGetOnCopyAddons } as never,
+        draggedElement,
+        dropResult,
+        entitiesContext as unknown as EntitiesContextResult,
+        { getRegisteredInteractionAddons: noopGetOnCopyAddons } as unknown as INodeInteractionAddonContext,
       );
 
       expect(vizNode2.pasteBaseEntityStep).toHaveBeenCalledWith('test-content', AddStepMode.AppendStep);
@@ -372,10 +380,10 @@ describe('CustomNodeUtils', () => {
       const entitiesContext = createMockEntitiesContext();
 
       handleValidNodeDrop(
-        draggedElement as never,
-        dropResult as never,
-        entitiesContext as never,
-        { getRegisteredInteractionAddons: noopGetOnCopyAddons } as never,
+        draggedElement,
+        dropResult,
+        entitiesContext as unknown as EntitiesContextResult,
+        { getRegisteredInteractionAddons: noopGetOnCopyAddons } as unknown as INodeInteractionAddonContext,
       );
 
       expect(vizNode2.removeChild).toHaveBeenCalled();
@@ -397,10 +405,10 @@ describe('CustomNodeUtils', () => {
       const entitiesContext = createMockEntitiesContext();
 
       handleValidNodeDrop(
-        draggedElement as never,
-        dropResult as never,
-        entitiesContext as never,
-        { getRegisteredInteractionAddons: noopGetOnCopyAddons } as never,
+        draggedElement,
+        dropResult,
+        entitiesContext as unknown as EntitiesContextResult,
+        { getRegisteredInteractionAddons: noopGetOnCopyAddons } as unknown as INodeInteractionAddonContext,
       );
 
       expect(vizNode2.pasteBaseEntityStep).toHaveBeenCalledWith('test-content', AddStepMode.AppendStep);
@@ -426,10 +434,10 @@ describe('CustomNodeUtils', () => {
       const entitiesContext = createMockEntitiesContext();
 
       handleValidNodeDrop(
-        draggedElement as never,
-        dropResult as never,
-        entitiesContext as never,
-        { getRegisteredInteractionAddons: noopGetOnCopyAddons } as never,
+        draggedElement,
+        dropResult,
+        entitiesContext as unknown as EntitiesContextResult,
+        { getRegisteredInteractionAddons: noopGetOnCopyAddons } as unknown as INodeInteractionAddonContext,
       );
 
       expect(choiceVizNode.pasteBaseEntityStep).toHaveBeenCalledWith(
@@ -466,10 +474,10 @@ describe('CustomNodeUtils', () => {
       const entitiesContext = createMockEntitiesContext();
 
       handleValidNodeDrop(
-        draggedElement as never,
-        dropResult as never,
-        entitiesContext as never,
-        { getRegisteredInteractionAddons: noopGetOnCopyAddons } as never,
+        draggedElement,
+        dropResult,
+        entitiesContext as unknown as EntitiesContextResult,
+        { getRegisteredInteractionAddons: noopGetOnCopyAddons } as unknown as INodeInteractionAddonContext,
       );
 
       expect(otherwiseContainer.removeChild).toHaveBeenCalled();
@@ -496,14 +504,14 @@ describe('CustomNodeUtils', () => {
       const draggedElement = createMockDraggedElement(vizNode1);
       const edge = new NoBendpointsEdge();
       const mockTarget = { getData: vi.fn().mockReturnValue({ vizNode: vizNode2 }) };
-      vi.spyOn(edge, 'getTarget').mockReturnValue(mockTarget as never);
+      vi.spyOn(edge, 'getTarget').mockReturnValue(mockTarget as unknown as ReturnType<typeof edge.getTarget>);
       const entitiesContext = createMockEntitiesContext();
 
       handleValidNodeDrop(
-        draggedElement as never,
-        edge as never,
-        entitiesContext as never,
-        { getRegisteredInteractionAddons: noopGetOnCopyAddons } as never,
+        draggedElement,
+        edge,
+        entitiesContext as unknown as EntitiesContextResult,
+        { getRegisteredInteractionAddons: noopGetOnCopyAddons } as unknown as INodeInteractionAddonContext,
       );
 
       expect(vizNode2.pasteBaseEntityStep).toHaveBeenCalledWith('test-content', AddStepMode.PrependStep);

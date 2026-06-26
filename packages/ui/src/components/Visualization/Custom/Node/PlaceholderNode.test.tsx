@@ -1,10 +1,18 @@
-import { BaseGraph, BaseNode, ElementContext, VisualizationProvider } from '@patternfly/react-topology';
+import {
+  BaseGraph,
+  BaseNode,
+  ElementContext,
+  ElementModel,
+  GraphElement,
+  VisualizationProvider,
+} from '@patternfly/react-topology';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 
 import { createVisualizationNode, IVisualizationNode, IVisualizationNodeData } from '../../../../models';
 import { PlaceholderType } from '../../../../models/placeholder.constants';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { ControllerService } from '../../../../testing-api';
+import { CanvasNode } from '../../Canvas/canvas.models';
 import { PlaceholderNode, PlaceholderNodeObserver } from './PlaceholderNode';
 
 /**
@@ -20,8 +28,13 @@ const { mockOnReplaceNode, mockOnInsertStep, MockElementContext, MockBaseEdge, M
   const { createContext } = require('react');
   const MockElementContext = createContext(null);
 
+  interface MockData {
+    vizNode?: IVisualizationNodeData;
+    [key: string]: unknown;
+  }
+
   class MockBaseElement {
-    _data: Record<string, unknown> = {};
+    _data: MockData = {};
     _type = '';
     _bounds = { x: 0, y: 0, width: 90, height: 75 };
     _id = 'mock-element-id';
@@ -32,10 +45,10 @@ const { mockOnReplaceNode, mockOnInsertStep, MockElementContext, MockBaseEdge, M
     setType(type: string) {
       this._type = type;
     }
-    getData() {
+    getData(): MockData {
       return this._data;
     }
-    setData(data: Record<string, unknown>) {
+    setData(data: MockData) {
       this._data = data;
     }
     getId() {
@@ -183,11 +196,11 @@ describe('PlaceholderNode', () => {
 
   it('should throw an error if not used on Node elements', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    const edgeElement = new MockBaseEdge();
+    const edgeElement = new MockBaseEdge() as unknown as GraphElement<ElementModel, CanvasNode['data']>;
 
     expect(() => {
       act(() => {
-        render(<PlaceholderNodeObserver element={edgeElement as never} />);
+        render(<PlaceholderNodeObserver element={edgeElement} />);
       });
     }).toThrow('PlaceholderNode must be used only on Node elements');
   });
@@ -206,7 +219,7 @@ describe('PlaceholderNode', () => {
     const wrapper = render(
       <Provider>
         <MockElementContext.Provider value={element}>
-          <PlaceholderNodeObserver element={element as never} />
+          <PlaceholderNodeObserver element={element as unknown as GraphElement<ElementModel, CanvasNode['data']>} />
         </MockElementContext.Provider>
       </Provider>,
     );
@@ -228,7 +241,7 @@ describe('PlaceholderNode', () => {
     vi.spyOn(vizNode, 'getId').mockReturnValue('route-1234');
 
     const parentElement = new BaseGraph();
-    const element = new MockBaseNode();
+    const element = new MockBaseNode() as unknown as GraphElement<ElementModel, CanvasNode['data']>;
     const controller = ControllerService.createController();
     parentElement.setController(controller);
     element.setController(controller);
@@ -241,8 +254,8 @@ describe('PlaceholderNode', () => {
     render(
       <Provider>
         <VisualizationProvider controller={controller}>
-          <ElementContext.Provider value={element as never}>
-            <PlaceholderNode element={element as never} />
+          <ElementContext.Provider value={element}>
+            <PlaceholderNode element={element} />
           </ElementContext.Provider>
         </VisualizationProvider>
       </Provider>,
@@ -255,7 +268,7 @@ describe('PlaceholderNode', () => {
   describe('isSpecialChildPlaceholder', () => {
     const setupWithVizNode = async (vizNodeData: Partial<IVisualizationNodeData>) => {
       const parentElement = new BaseGraph();
-      const element = new BaseNode();
+      const element = new BaseNode() as unknown as GraphElement<ElementModel, CanvasNode['data']>;
       const controller = ControllerService.createController();
       parentElement.setController(controller);
       element.setController(controller);
@@ -273,8 +286,8 @@ describe('PlaceholderNode', () => {
 
       return render(
         <Provider>
-          <ElementContext.Provider value={element as never}>
-            <PlaceholderNodeObserver element={element as never} />
+          <ElementContext.Provider value={element}>
+            <PlaceholderNodeObserver element={element} />
           </ElementContext.Provider>
         </Provider>,
       );

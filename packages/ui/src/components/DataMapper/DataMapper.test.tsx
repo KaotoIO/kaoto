@@ -1,5 +1,6 @@
+import { fail } from 'node:assert';
+
 import { render, screen, waitFor } from '@testing-library/react';
-import { fail } from 'assert';
 import { VirtuosoMockContext } from 'react-virtuoso';
 
 import { IVisualizationNode } from '../../models';
@@ -63,35 +64,6 @@ describe('DataMapperPage', () => {
   };
 
   beforeEach(() => {
-    // Mock RAF to execute immediately for tests that don't use fake timers
-    const rafMock = (cb: FrameRequestCallback) => {
-      cb(0);
-      return 0;
-    };
-    const cafMock = () => {};
-
-    // Use Object.defineProperty for more persistent mocks that survive async callbacks
-    Object.defineProperty(globalThis, 'requestAnimationFrame', {
-      writable: true,
-      configurable: true,
-      value: rafMock,
-    });
-    Object.defineProperty(globalThis, 'cancelAnimationFrame', {
-      writable: true,
-      configurable: true,
-      value: cafMock,
-    });
-    Object.defineProperty(window, 'requestAnimationFrame', {
-      writable: true,
-      configurable: true,
-      value: rafMock,
-    });
-    Object.defineProperty(window, 'cancelAnimationFrame', {
-      writable: true,
-      configurable: true,
-      value: cafMock,
-    });
-
     metadata = defaultMetadata;
     fileContents = {};
   });

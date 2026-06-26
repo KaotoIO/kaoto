@@ -3,6 +3,7 @@ import { renderHook } from '@testing-library/react';
 import { useDataMapper } from '../../../../../hooks/useDataMapper';
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../../../models/datamapper/document';
 import { ForEachItem, MappingTree } from '../../../../../models/datamapper/mapping';
+import { IDataMapperContext } from '../../../../../providers/datamapper.provider';
 import { TestUtil } from '../../../../../stubs/datamapper/data-mapper';
 import { useSortKeyItems } from './useSortKeyItems';
 
@@ -21,7 +22,7 @@ describe('useSortKeyItems', () => {
       sourceBodyDocument: sourceDoc,
       sourceParameterMap: new Map(),
       mappingTree,
-    } as never);
+    } as Partial<IDataMapperContext> as IDataMapperContext);
   });
 
   it('should return empty items when expression is empty', () => {
