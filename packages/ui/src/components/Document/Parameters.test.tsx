@@ -9,37 +9,6 @@ import { ExpansionPanels } from '../ExpansionPanels/ExpansionPanels';
 import { ParametersSection } from './Parameters';
 
 describe('ParametersSection', () => {
-  beforeEach(() => {
-    // Mock RAF to execute immediately for tests that don't use fake timers
-    const rafMock = (cb: FrameRequestCallback) => {
-      cb(0);
-      return 0;
-    };
-    const cafMock = () => {};
-
-    // Use Object.defineProperty for more persistent mocks that survive async callbacks
-    Object.defineProperty(globalThis, 'requestAnimationFrame', {
-      writable: true,
-      configurable: true,
-      value: rafMock,
-    });
-    Object.defineProperty(globalThis, 'cancelAnimationFrame', {
-      writable: true,
-      configurable: true,
-      value: cafMock,
-    });
-    Object.defineProperty(window, 'requestAnimationFrame', {
-      writable: true,
-      configurable: true,
-      value: rafMock,
-    });
-    Object.defineProperty(window, 'cancelAnimationFrame', {
-      writable: true,
-      configurable: true,
-      value: cafMock,
-    });
-  });
-
   // Helper to wrap components with VirtuosoMockContext for testing
   const renderWithVirtuoso = (component: React.ReactElement) => {
     return render(component, {

@@ -7,6 +7,7 @@ import { DocumentNodeData } from '../../../../models/datamapper/visualization';
 import { MappingLinksProvider } from '../../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../../providers/datamapper.provider';
 import { ChoiceSelectionService } from '../../../../services/document/choice-selection.service';
+import { XmlSchemaField } from '../../../../services/document/xml-schema/xml-schema-document.model';
 import { TreeParsingService } from '../../../../services/visualization/tree-parsing.service';
 import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
 import { SourceDocumentNodeWithContextMenu } from '../../SourceDocumentNode';
@@ -21,48 +22,26 @@ describe('useChoiceContextMenu', () => {
   const createChoiceFieldNode = (selectMember = false) => {
     const document = TestUtil.createSourceOrderDoc();
     const parentField = document.fields[0];
-    const choiceField = {
-      name: 'contactChoice',
-      displayName: 'Contact Choice',
-      type: Types.Container,
-      wrapperKind: 'choice' as const,
-      namedTypeFragmentRefs: [],
-      parent: parentField,
-      ownerDocument: document,
-      fields: [] as Record<string, unknown>[],
-      selectedMemberIndex: selectMember ? 1 : undefined,
-    };
-    const members = [
-      {
-        name: 'email',
-        displayName: 'Email',
-        type: Types.String,
-        fields: [],
-        namedTypeFragmentRefs: [],
-        parent: choiceField,
-        ownerDocument: document,
-      },
-      {
-        name: 'phone',
-        displayName: 'Phone',
-        type: Types.String,
-        fields: [],
-        namedTypeFragmentRefs: [],
-        parent: choiceField,
-        ownerDocument: document,
-      },
-      {
-        name: 'fax',
-        displayName: 'Fax',
-        type: Types.String,
-        fields: [],
-        namedTypeFragmentRefs: [],
-        parent: choiceField,
-        ownerDocument: document,
-      },
-    ];
-    choiceField.fields = members;
-    parentField.fields.push(choiceField as never);
+    const choiceField = new XmlSchemaField(parentField, 'contactChoice', false);
+    choiceField.displayName = 'Contact Choice';
+    choiceField.type = Types.Container;
+    choiceField.wrapperKind = 'choice';
+    choiceField.selectedMemberIndex = selectMember ? 1 : undefined;
+
+    const emailField = new XmlSchemaField(choiceField, 'email', false);
+    emailField.displayName = 'Email';
+    emailField.type = Types.String;
+
+    const phoneField = new XmlSchemaField(choiceField, 'phone', false);
+    phoneField.displayName = 'Phone';
+    phoneField.type = Types.String;
+
+    const faxField = new XmlSchemaField(choiceField, 'fax', false);
+    faxField.displayName = 'Fax';
+    faxField.type = Types.String;
+
+    choiceField.fields = [emailField, phoneField, faxField];
+    parentField.fields.push(choiceField);
 
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
@@ -76,28 +55,20 @@ describe('useChoiceContextMenu', () => {
   const createLargeChoiceFieldNode = (size = 11) => {
     const document = TestUtil.createSourceOrderDoc();
     const parentField = document.fields[0];
-    const choiceField = {
-      name: 'largeChoice',
-      displayName: 'Large Choice',
-      type: Types.Container,
-      wrapperKind: 'choice' as const,
-      namedTypeFragmentRefs: [],
-      parent: parentField,
-      ownerDocument: document,
-      fields: [] as Record<string, unknown>[],
-      selectedMemberIndex: undefined,
-    };
-    const members = Array.from({ length: size }, (_, i) => ({
-      name: `member${i}`,
-      displayName: `Member ${i}`,
-      type: Types.String,
-      fields: [],
-      namedTypeFragmentRefs: [],
-      parent: choiceField,
-      ownerDocument: document,
-    }));
+    const choiceField = new XmlSchemaField(parentField, 'largeChoice', false);
+    choiceField.displayName = 'Large Choice';
+    choiceField.type = Types.Container;
+    choiceField.wrapperKind = 'choice';
+    choiceField.selectedMemberIndex = undefined;
+
+    const members = Array.from({ length: size }, (_, i) => {
+      const member = new XmlSchemaField(choiceField, `member${i}`, false);
+      member.displayName = `Member ${i}`;
+      member.type = Types.String;
+      return member;
+    });
     choiceField.fields = members;
-    parentField.fields.push(choiceField as never);
+    parentField.fields.push(choiceField);
 
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
@@ -256,18 +227,12 @@ describe('useChoiceContextMenu', () => {
   it('should show empty menu for choice wrapper with no members and no selection', () => {
     const document = TestUtil.createSourceOrderDoc();
     const parentField = document.fields[0];
-    const choiceField = {
-      name: 'emptyChoice',
-      displayName: 'Empty Choice',
-      type: Types.Container,
-      wrapperKind: 'choice' as const,
-      namedTypeFragmentRefs: [],
-      parent: parentField,
-      ownerDocument: document,
-      fields: [],
-      selectedMemberIndex: undefined,
-    };
-    parentField.fields.push(choiceField as never);
+    const choiceField = new XmlSchemaField(parentField, 'emptyChoice', false);
+    choiceField.displayName = 'Empty Choice';
+    choiceField.type = Types.Container;
+    choiceField.wrapperKind = 'choice';
+    choiceField.selectedMemberIndex = undefined;
+    parentField.fields.push(choiceField);
 
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
@@ -378,70 +343,38 @@ describe('useChoiceContextMenu', () => {
     const createNestedChoiceFieldNode = (selectInner = false) => {
       const document = TestUtil.createSourceOrderDoc();
       const parentField = document.fields[0];
-      const outerChoiceField = {
-        name: 'outerChoice',
-        displayName: 'Outer Choice',
-        type: Types.Container,
-        wrapperKind: 'choice' as const,
-        namedTypeFragmentRefs: [],
-        parent: parentField,
-        ownerDocument: document,
-        fields: [] as Record<string, unknown>[],
-        selectedMemberIndex: undefined as number | undefined,
-      };
-      const innerChoiceField = {
-        name: 'innerChoice',
-        displayName: 'Inner Choice',
-        type: Types.Container,
-        wrapperKind: 'choice' as const,
-        namedTypeFragmentRefs: [],
-        parent: outerChoiceField,
-        ownerDocument: document,
-        fields: [] as Record<string, unknown>[],
-        selectedMemberIndex: selectInner ? 0 : undefined,
-      };
-      const innerMembers = [
-        {
-          name: 'innerA',
-          displayName: 'InnerA',
-          type: Types.String,
-          fields: [],
-          namedTypeFragmentRefs: [],
-          parent: innerChoiceField,
-          ownerDocument: document,
-        },
-        {
-          name: 'innerB',
-          displayName: 'InnerB',
-          type: Types.String,
-          fields: [],
-          namedTypeFragmentRefs: [],
-          parent: innerChoiceField,
-          ownerDocument: document,
-        },
-        {
-          name: 'innerC',
-          displayName: 'InnerC',
-          type: Types.String,
-          fields: [],
-          namedTypeFragmentRefs: [],
-          parent: innerChoiceField,
-          ownerDocument: document,
-        },
-      ];
-      innerChoiceField.fields = innerMembers;
-      const plainMember = {
-        name: 'plain',
-        displayName: 'Plain',
-        type: Types.String,
-        fields: [],
-        namedTypeFragmentRefs: [],
-        parent: outerChoiceField,
-        ownerDocument: document,
-      };
-      outerChoiceField.fields = [innerChoiceField, plainMember];
+      const outerChoiceField = new XmlSchemaField(parentField, 'outerChoice', false);
+      outerChoiceField.displayName = 'Outer Choice';
+      outerChoiceField.type = Types.Container;
+      outerChoiceField.wrapperKind = 'choice';
       outerChoiceField.selectedMemberIndex = 0;
-      parentField.fields.push(outerChoiceField as never);
+
+      const innerChoiceField = new XmlSchemaField(outerChoiceField, 'innerChoice', false);
+      innerChoiceField.displayName = 'Inner Choice';
+      innerChoiceField.type = Types.Container;
+      innerChoiceField.wrapperKind = 'choice';
+      innerChoiceField.selectedMemberIndex = selectInner ? 0 : undefined;
+
+      const innerAField = new XmlSchemaField(innerChoiceField, 'innerA', false);
+      innerAField.displayName = 'InnerA';
+      innerAField.type = Types.String;
+
+      const innerBField = new XmlSchemaField(innerChoiceField, 'innerB', false);
+      innerBField.displayName = 'InnerB';
+      innerBField.type = Types.String;
+
+      const innerCField = new XmlSchemaField(innerChoiceField, 'innerC', false);
+      innerCField.displayName = 'InnerC';
+      innerCField.type = Types.String;
+
+      innerChoiceField.fields = [innerAField, innerBField, innerCField];
+
+      const plainMember = new XmlSchemaField(outerChoiceField, 'plain', false);
+      plainMember.displayName = 'Plain';
+      plainMember.type = Types.String;
+
+      outerChoiceField.fields = [innerChoiceField, plainMember];
+      parentField.fields.push(outerChoiceField);
 
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);

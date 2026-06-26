@@ -4,6 +4,7 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { CamelRouteResource } from '../../models/camel/camel-route-resource';
 import { KaotoResource } from '../../models/kaoto-resource';
+import { AbstractSettingsAdapter } from '../../models/settings/settings.model';
 import { EntitiesContextResult, SettingsContext } from '../../providers';
 import { TestProvidersWrapper } from '../../stubs/TestProvidersWrapper';
 import { useRestDslImportWizard } from './useRestDslImportWizard';
@@ -30,7 +31,8 @@ describe('useRestDslImportWizard', () => {
 
   const mockSettingsContext = {
     getSettings: () => ({ rest: { apicurioRegistryUrl: '', customMediaTypes: [] } }),
-  } as never;
+    saveSettings: () => {},
+  } as unknown as AbstractSettingsAdapter;
 
   describe('handleSchemaLoaded', () => {
     it('parses valid OpenAPI spec and updates state', () => {

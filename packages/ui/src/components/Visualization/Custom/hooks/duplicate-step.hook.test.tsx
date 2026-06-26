@@ -6,6 +6,7 @@ import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.p
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { AddStepMode } from '../../../../models/visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows/camel-route-visual-entity';
+import { VisualFlowsApi } from '../../../../models/visualization/flows/support/flows-visibility';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { VisibleFlowsContext, VisibleFlowsContextResult } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';
@@ -110,7 +111,7 @@ describe('useDuplicateStep', () => {
     allFlowsVisible: true,
     visualFlowsApi: {
       toggleFlowVisible: vi.fn(),
-    } as never,
+    } as unknown as VisualFlowsApi,
   };
 
   const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (

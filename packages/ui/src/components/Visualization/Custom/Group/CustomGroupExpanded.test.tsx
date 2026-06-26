@@ -1,5 +1,5 @@
 import * as ReactTopology from '@patternfly/react-topology';
-import { BaseEdge, BaseGraph, BaseNode, ElementContext, VisualizationProvider } from '@patternfly/react-topology';
+import { BaseEdge, BaseGraph, BaseNode, ElementContext, Rect, VisualizationProvider } from '@patternfly/react-topology';
 import { act, render, screen } from '@testing-library/react';
 import React from 'react';
 import type { Mock } from 'vitest';
@@ -252,7 +252,7 @@ describe('CustomGroupExpanded', () => {
     vi.spyOn(element, 'getData').mockReturnValue({ vizNode: groupVizNode });
     vi.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
     vi.spyOn(element, 'getId').mockReturnValue('node-choice-1');
-    vi.spyOn(element, 'getBounds').mockReturnValue({ x: 0, y: 0, width: 100, height: 50 } as never);
+    vi.spyOn(element, 'getBounds').mockReturnValue(new Rect(0, 0, 100, 50));
 
     await renderInContext(<CustomGroupExpanded element={element} />);
 
