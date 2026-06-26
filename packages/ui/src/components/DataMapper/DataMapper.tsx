@@ -18,12 +18,7 @@ import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useStat
 import { DataMapperControl } from '../../components/DataMapper/DataMapperControl';
 import { Loading } from '../../components/Loading';
 import { IVisualizationNode } from '../../models';
-import {
-  DocumentDefinition,
-  DocumentDefinitionType,
-  DocumentInitializationModel,
-  DocumentType,
-} from '../../models/datamapper/document';
+import { DocumentDefinition, DocumentInitializationModel, DocumentType } from '../../models/datamapper/document';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
 import { EntitiesContext, MetadataContext } from '../../providers';
 import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
@@ -44,6 +39,8 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
   const metadataId = vizNode && DataMapperStepService.getDataMapperMetadataId(vizNode);
   const [metadata, setMetadata] = useState<IDataMapperMetadata>();
   const [documentInitializationModel, setDocumentInitializationModel] = useState<DocumentInitializationModel>();
+  const [sourceBodyDefinition, setSourceBodyDefinition] = useState<DocumentDefinition>();
+  const [isSourceBodyUsed, setIsSourceBodyUsed] = useState<boolean>(false);
   const [initialXsltFile, setInitialXsltFile] = useState<string>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const dndHandler = useMemo(() => new SourceTargetDnDHandler(), []);
@@ -66,6 +63,7 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
       setMetadata(meta);
       const initModel = await DataMapperMetadataService.loadDocuments(ctx, meta);
       setDocumentInitializationModel(initModel);
+      setSourceBodyDefinition(initModel?.sourceBody);
       const mappingFile = await DataMapperMetadataService.loadMappingFile(ctx, meta);
       setInitialXsltFile(mappingFile);
     };
@@ -80,11 +78,8 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
         case DocumentType.SOURCE_BODY:
           DataMapperMetadataService.updateSourceBodyMetadata(ctx, metadataId, metadata, definition);
           if (vizNode) {
-            DataMapperStepService.setUseJsonBody(
-              vizNode,
-              definition.definitionType === DocumentDefinitionType.JSON_SCHEMA,
-              entitiesContext,
-            );
+            setSourceBodyDefinition(definition);
+            DataMapperStepService.setSourceBody(vizNode, definition, isSourceBodyUsed, entitiesContext);
           }
           break;
         case DocumentType.TARGET_BODY:
@@ -100,7 +95,7 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
           );
       }
     },
-    [ctx, metadata, metadataId, vizNode, entitiesContext],
+    [ctx, metadata, metadataId, vizNode, entitiesContext, isSourceBodyUsed],
   );
 
   const onDeleteParameter = useCallback(
@@ -120,11 +115,15 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
   );
 
   const onUpdateMappings = useCallback(
-    (xsltFile: string) => {
+    (xsltFile: string, nextIsSourceBodyUsed: boolean) => {
       if (!metadata) return;
       DataMapperMetadataService.updateMappingFile(ctx, metadata, xsltFile);
+      setIsSourceBodyUsed(nextIsSourceBodyUsed);
+      if (vizNode) {
+        DataMapperStepService.setSourceBody(vizNode, sourceBodyDefinition, nextIsSourceBodyUsed, entitiesContext);
+      }
     },
-    [ctx, metadata],
+    [ctx, metadata, vizNode, sourceBodyDefinition, entitiesContext],
   );
 
   const onUpdateNamespaceMap = useCallback(
