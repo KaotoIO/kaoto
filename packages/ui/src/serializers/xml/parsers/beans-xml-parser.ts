@@ -16,15 +16,17 @@
 
 import { BeanFactory } from '@kaoto/camel-catalog/types';
 
-import { CamelCatalogService, CatalogKind } from '../../../models';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
+import { CatalogKind } from '../../../models';
 import { extractAttributesFromXmlElement } from '../utils/xml-utils';
 
 export class BeansXmlParser {
   beans: BeanFactory[] = [];
 
-  static transformBeanFactory(beanElement: Element): BeanFactory {
+  static async transformBeanFactory(beanElement: Element): Promise<BeanFactory> {
     // Initialize the bean object
-    const properties = CamelCatalogService.getComponent(CatalogKind.Processor, 'beanFactory')?.properties;
+    const beanFactoryDefinition = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Processor, 'beanFactory');
+    const properties = beanFactoryDefinition?.properties;
     const bean: BeanFactory = extractAttributesFromXmlElement(beanElement, properties) as unknown as BeanFactory;
 
     // Special case for 'name/id' and 'type/class'
@@ -82,15 +84,15 @@ export class BeansXmlParser {
   }
 
   // This might required support for nested beans, if not change to static
-  transformBeansSection(beansSection: Element): BeanFactory[] {
+  async transformBeansSection(beansSection: Element): Promise<BeanFactory[]> {
     // Process all bean elements and populate beanFactories
     this.beans = [];
     const beanElements = Array.from(beansSection.children);
 
-    beanElements.forEach((beanElement) => {
-      const processedBean = BeansXmlParser.transformBeanFactory(beanElement);
+    for (const beanElement of beanElements) {
+      const processedBean = await BeansXmlParser.transformBeanFactory(beanElement);
       this.beans.push(processedBean);
-    });
+    }
 
     return this.beans;
   }
