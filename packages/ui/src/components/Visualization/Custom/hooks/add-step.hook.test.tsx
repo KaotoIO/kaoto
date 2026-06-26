@@ -7,7 +7,7 @@ import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.p
 import { StepUpdateAction } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { EntityType } from '../../../../models/entities';
-import { AddStepMode } from '../../../../models/visualization/base-visual-entity';
+import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { IMetadataApi, MetadataContext } from '../../../../providers/metadata.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
@@ -17,6 +17,8 @@ describe('useAddStep', () => {
   let camelResource: CamelRouteResource;
   let getCompatibleComponentsSpy: Mock;
   let updateEntitiesFromCamelResourceSpy: Mock;
+  let vizNode: IVisualizationNode;
+  let addBaseEntityStepSpy!: ReturnType<typeof vi.spyOn>;
 
   const mockCatalogModalContext = {
     setIsModalOpen: vi.fn(),
@@ -62,6 +64,17 @@ describe('useAddStep', () => {
         </CatalogModalContext.Provider>
       </Provider>
     );
+
+    vizNode = createVisualizationNode('test', {
+      name: EntityType.Route,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
+    addBaseEntityStepSpy = vi.spyOn(vizNode, 'addBaseEntityStep');
+    getCompatibleComponentsSpy.mockReturnValue(mockCompatibleComponents);
   });
 
   afterEach(() => {
@@ -69,14 +82,6 @@ describe('useAddStep', () => {
   });
 
   it('should return onAddStep function', () => {
-    const vizNode = createVisualizationNode('test', {
-      name: EntityType.Route,
-      isPlaceholder: false,
-      isGroup: false,
-      iconUrl: '',
-      title: '',
-      description: '',
-    });
     const { result } = renderHook(() => useAddStep(vizNode, AddStepMode.AppendStep), { wrapper });
 
     expect(result.current.onAddStep).toBeDefined();
@@ -84,14 +89,6 @@ describe('useAddStep', () => {
   });
 
   it('should maintain stable reference when dependencies do not change', () => {
-    const vizNode = createVisualizationNode('test', {
-      name: EntityType.Route,
-      isPlaceholder: false,
-      isGroup: false,
-      iconUrl: '',
-      title: '',
-      description: '',
-    });
     const { result, rerender } = renderHook(() => useAddStep(vizNode, AddStepMode.AppendStep), { wrapper });
 
     const firstResult = result.current;
@@ -101,29 +98,12 @@ describe('useAddStep', () => {
   });
 
   it('should use AppendStep mode as default when mode is not provided', () => {
-    const vizNode = createVisualizationNode('test', {
-      name: EntityType.Route,
-      isPlaceholder: false,
-      isGroup: false,
-      iconUrl: '',
-      title: '',
-      description: '',
-    });
     const { result } = renderHook(() => useAddStep(vizNode), { wrapper });
 
     expect(result.current.onAddStep).toBeDefined();
   });
 
   it('should return early when entitiesContext is null', async () => {
-    const vizNode = createVisualizationNode('test', {
-      name: EntityType.Route,
-      isPlaceholder: false,
-      isGroup: false,
-      iconUrl: '',
-      title: '',
-      description: '',
-    });
-
     // Create a wrapper that provides null entities context
     const { Provider: NullEntitiesProvider } = await TestProvidersWrapper({
       camelResource,
@@ -148,17 +128,6 @@ describe('useAddStep', () => {
   });
 
   it('should get compatible components and open catalog modal', async () => {
-    const vizNode = createVisualizationNode('test', {
-      name: EntityType.Route,
-      isPlaceholder: false,
-      isGroup: false,
-      iconUrl: '',
-      title: '',
-      description: '',
-    });
-    const addBaseEntityStepSpy = vi.spyOn(vizNode, 'addBaseEntityStep');
-
-    getCompatibleComponentsSpy.mockReturnValue(mockCompatibleComponents);
     mockCatalogModalContext.getNewComponent.mockResolvedValue(mockDefinedComponent);
 
     const { result } = renderHook(() => useAddStep(vizNode, AddStepMode.AppendStep), { wrapper });
@@ -177,17 +146,6 @@ describe('useAddStep', () => {
   });
 
   it('should work with PrependStep mode', async () => {
-    const vizNode = createVisualizationNode('test', {
-      name: EntityType.Route,
-      isPlaceholder: false,
-      isGroup: false,
-      iconUrl: '',
-      title: '',
-      description: '',
-    });
-    const addBaseEntityStepSpy = vi.spyOn(vizNode, 'addBaseEntityStep');
-
-    getCompatibleComponentsSpy.mockReturnValue(mockCompatibleComponents);
     mockCatalogModalContext.getNewComponent.mockResolvedValue(mockDefinedComponent);
 
     const { result } = renderHook(() => useAddStep(vizNode, AddStepMode.PrependStep), { wrapper });
@@ -198,44 +156,11 @@ describe('useAddStep', () => {
     expect(addBaseEntityStepSpy).toHaveBeenCalledWith(mockDefinedComponent, AddStepMode.PrependStep);
   });
 
-  it('should return early when catalog modal returns no component', async () => {
-    const vizNode = createVisualizationNode('test', {
-      name: EntityType.Route,
-      isPlaceholder: false,
-      isGroup: false,
-      iconUrl: '',
-      title: '',
-      description: '',
-    });
-    const addBaseEntityStepSpy = vi.spyOn(vizNode, 'addBaseEntityStep');
-
-    getCompatibleComponentsSpy.mockReturnValue(mockCompatibleComponents);
-    mockCatalogModalContext.getNewComponent.mockResolvedValue(null);
-
-    const { result } = renderHook(() => useAddStep(vizNode, AddStepMode.AppendStep), { wrapper });
-
-    await result.current.onAddStep();
-
-    expect(getCompatibleComponentsSpy).toHaveBeenCalledWith(AddStepMode.AppendStep, vizNode.data);
-    expect(mockCatalogModalContext.getNewComponent).toHaveBeenCalledWith(mockCompatibleComponents);
-    expect(addBaseEntityStepSpy).not.toHaveBeenCalled();
-    expect(updateEntitiesFromCamelResourceSpy).not.toHaveBeenCalled();
-    expect(mockMetadataContext.onStepUpdated).not.toHaveBeenCalled();
-  });
-
-  it('should return early when catalog modal returns undefined', async () => {
-    const vizNode = createVisualizationNode('test', {
-      name: EntityType.Route,
-      isPlaceholder: false,
-      isGroup: false,
-      iconUrl: '',
-      title: '',
-      description: '',
-    });
-    const addBaseEntityStepSpy = vi.spyOn(vizNode, 'addBaseEntityStep');
-
-    getCompatibleComponentsSpy.mockReturnValue(mockCompatibleComponents);
-    mockCatalogModalContext.getNewComponent.mockResolvedValue(undefined);
+  it.each([
+    ['null', null],
+    ['undefined', undefined],
+  ])('should return early when catalog modal returns %s', async (_label, returnValue) => {
+    mockCatalogModalContext.getNewComponent.mockResolvedValue(returnValue);
 
     const { result } = renderHook(() => useAddStep(vizNode, AddStepMode.AppendStep), { wrapper });
 
@@ -247,17 +172,6 @@ describe('useAddStep', () => {
   });
 
   it('should handle missing metadata context gracefully', async () => {
-    const vizNode = createVisualizationNode('test', {
-      name: EntityType.Route,
-      isPlaceholder: false,
-      isGroup: false,
-      iconUrl: '',
-      title: '',
-      description: '',
-    });
-    const addBaseEntityStepSpy = vi.spyOn(vizNode, 'addBaseEntityStep');
-
-    getCompatibleComponentsSpy.mockReturnValue(mockCompatibleComponents);
     mockCatalogModalContext.getNewComponent.mockResolvedValue(mockDefinedComponent);
 
     const { Provider, updateEntitiesFromCamelResourceSpy: localUpdateSpy } = await TestProvidersWrapper({

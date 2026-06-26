@@ -37,6 +37,7 @@ import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.mo
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { MappingSerializerService } from '../mapping/mapping-serializer.service';
 import { XPathService } from '../xpath/xpath.service';
+import { ValidatedXPathParseResult } from '../xpath/xpath-model';
 import { MappingLinksService } from './mapping-links.service';
 
 describe('MappingLinksService', () => {
@@ -542,10 +543,9 @@ describe('MappingLinksService', () => {
 
   describe('when XPath validation fails', () => {
     it('should return empty links for invalid XPath expressions', () => {
-      const validateSpy = vi.spyOn(XPathService, 'validate').mockReturnValue({
-        getExprNode: () => null,
-        dataMapperErrors: [],
-      } as never);
+      const mockValidationResult = new ValidatedXPathParseResult();
+      // No parserResult → getExprNode() returns undefined (treated as invalid)
+      const validateSpy = vi.spyOn(XPathService, 'validate').mockReturnValue(mockValidationResult);
 
       const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
       expect(links).toHaveLength(0);

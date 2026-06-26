@@ -1,4 +1,4 @@
-import { DocumentDefinitionType, DocumentType } from './document';
+import { DocumentDefinitionType, DocumentType, IField } from './document';
 import {
   ChooseItem,
   ForEachGroupItem,
@@ -69,7 +69,7 @@ describe('mapping.ts', () => {
   describe('ChooseItem', () => {
     it('doClone() should create a new ChooseItem with the same field', () => {
       const field = { id: 'testField', name: 'testField', isAttribute: false, fields: [], type: 'string' };
-      const item = new ChooseItem(tree, field as never);
+      const item = new ChooseItem(tree, field as unknown as IField);
       const cloned = item.clone() as ChooseItem;
 
       expect(cloned).not.toBe(item);

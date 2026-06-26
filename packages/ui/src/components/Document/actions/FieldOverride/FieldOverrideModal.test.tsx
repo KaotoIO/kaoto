@@ -4,8 +4,9 @@ import type { Mock } from 'vitest';
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType, IField } from '../../../../models/datamapper/document';
 import { MappingTree } from '../../../../models/datamapper/mapping';
-import { FieldOverrideVariant, IFieldTypeInfo, Types } from '../../../../models/datamapper/types';
+import { FieldOverrideVariant, IFieldSubstituteInfo, IFieldTypeInfo, Types } from '../../../../models/datamapper/types';
 import { IMetadataApi, MetadataContext } from '../../../../providers';
+import { IDataMapperContext } from '../../../../providers/datamapper.provider';
 import { DataMapperMetadataService } from '../../../../services/datamapper-metadata.service';
 import { FieldOverrideService } from '../../../../services/document/field-override.service';
 import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
@@ -29,7 +30,7 @@ describe('FieldOverrideModal', () => {
     vi.mocked(useDataMapper).mockReturnValue({
       mappingTree: testMappingTree,
       updateDocument: vi.fn(),
-    } as never);
+    } as Partial<IDataMapperContext> as IDataMapperContext);
 
     testField = testTargetDoc.fields[0];
     testField.typeOverride = FieldOverrideVariant.NONE;
@@ -397,7 +398,7 @@ describe('FieldOverrideModal', () => {
       vi.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
       const getSubstitutionSpy = vi
         .spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates')
-        .mockReturnValue(mockSubstitutionCandidates as never);
+        .mockReturnValue(mockSubstitutionCandidates as Record<string, IFieldSubstituteInfo>);
 
       render(
         <FieldOverrideModal
@@ -420,7 +421,7 @@ describe('FieldOverrideModal', () => {
     it('should show substitution placeholder when mode is switched', () => {
       vi.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
       vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue(
-        mockSubstitutionCandidates as never,
+        mockSubstitutionCandidates as Record<string, IFieldSubstituteInfo>,
       );
 
       render(
@@ -444,7 +445,7 @@ describe('FieldOverrideModal', () => {
       const onSaveMock = vi.fn();
       vi.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
       vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue(
-        mockSubstitutionCandidates as never,
+        mockSubstitutionCandidates as Record<string, IFieldSubstituteInfo>,
       );
 
       render(
@@ -499,7 +500,7 @@ describe('FieldOverrideModal', () => {
 
       vi.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockTypeCandidates);
       vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue(
-        mockSubstitutionCandidates as never,
+        mockSubstitutionCandidates as Record<string, IFieldSubstituteInfo>,
       );
 
       render(
@@ -541,7 +542,7 @@ describe('FieldOverrideModal', () => {
 
       vi.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
       vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue(
-        mockSubstitutionCandidates as never,
+        mockSubstitutionCandidates as Record<string, IFieldSubstituteInfo>,
       );
 
       render(
@@ -568,7 +569,7 @@ describe('FieldOverrideModal', () => {
 
       vi.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
       vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue(
-        mockSubstitutionCandidates as never,
+        mockSubstitutionCandidates as Record<string, IFieldSubstituteInfo>,
       );
 
       render(
@@ -590,7 +591,7 @@ describe('FieldOverrideModal', () => {
 
       vi.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
       vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue(
-        mockSubstitutionCandidates as never,
+        mockSubstitutionCandidates as Record<string, IFieldSubstituteInfo>,
       );
 
       render(
@@ -623,7 +624,7 @@ describe('FieldOverrideModal', () => {
 
       vi.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockTypeCandidates);
       vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue(
-        mockSubstitutionCandidates as never,
+        mockSubstitutionCandidates as Record<string, IFieldSubstituteInfo>,
       );
 
       render(
@@ -647,7 +648,7 @@ describe('FieldOverrideModal', () => {
 
       vi.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
       vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue(
-        mockSubstitutionCandidates as never,
+        mockSubstitutionCandidates as Record<string, IFieldSubstituteInfo>,
       );
 
       render(
