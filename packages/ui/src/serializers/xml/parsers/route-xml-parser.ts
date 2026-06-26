@@ -24,23 +24,23 @@ import {
 import { StepParser } from './step-parser';
 
 export class RouteXmlParser {
-  static parseRouteConfigurationElement(routeConfigElement: Element, elementName: string): unknown {
+  static async parseRouteConfigurationElement(routeConfigElement: Element, elementName: string): Promise<unknown> {
     return {
-      [elementName]: StepParser.parseElement(routeConfigElement),
+      [elementName]: await StepParser.parseElement(routeConfigElement),
     };
   }
 
-  static parseRouteConfiguration(routeConfigElement: Element): RouteConfigurationDefinition {
+  static async parseRouteConfiguration(routeConfigElement: Element): Promise<RouteConfigurationDefinition> {
     return StepParser.parseElement(routeConfigElement, (element: Element) => {
       return this.parseRouteConfigurationElement(element, element.tagName);
-    }) as RouteConfigurationDefinition;
+    }) as Promise<RouteConfigurationDefinition>;
   }
 
-  static parse(routeElement: Element): RouteDefinition {
+  static async parse(routeElement: Element): Promise<RouteDefinition> {
     const fromElement: Element = routeElement.getElementsByTagName('from')[0];
 
-    const from = StepParser.parseElement(fromElement) as FromDefinition;
-    const routeDef = StepParser.parseElement(routeElement) as { [key: string]: unknown };
+    const from = (await StepParser.parseElement(fromElement)) as FromDefinition;
+    const routeDef = (await StepParser.parseElement(routeElement)) as { [key: string]: unknown };
 
     from.steps = routeDef.steps as ProcessorDefinition[] | [];
     routeDef.steps = undefined;
