@@ -22,7 +22,7 @@ describe('CanvasSideBar', () => {
     baseResource.addNewEntity(EntityType.Route);
     // Materialize the route into source so the wrapper's re-initialize() reproduces
     // it — mirrors how runtime recreates the resource from serialized code.
-    const camelResource = new CamelRouteResource(parse(baseResource.toString()) as CamelYamlDsl);
+    const camelResource = new CamelRouteResource(parse(await baseResource.toSourceCode()) as CamelYamlDsl);
     await camelResource.initialize();
     const visualEntity = camelResource.getVisualEntities()[0];
     selectedNode = FlowService.getFlowDiagram('test', await visualEntity.toVizNode()).nodes[0];

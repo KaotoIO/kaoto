@@ -113,7 +113,7 @@ export abstract class CamelKResource implements KaotoResource {
     return ['Main', 'Quarkus', 'Spring Boot'];
   }
 
-  toString(): string {
+  async toSourceCode(): Promise<string> {
     return stringify(this.toJSON(), { schema: 'yaml-1.1' }) || '';
   }
 }

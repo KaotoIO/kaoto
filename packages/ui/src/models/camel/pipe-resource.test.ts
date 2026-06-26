@@ -87,6 +87,8 @@ describe('PipeResource', () => {
   it('serializes to YAML without a serializer', async () => {
     const resource = new PipeResource(pipeJson);
     await resource.initialize();
-    expect(resource.toString()).toContain('apiVersion: camel.apache.org/v1');
+    const output = await resource.toSourceCode();
+
+    expect(output).toContain('apiVersion: camel.apache.org/v1');
   });
 });

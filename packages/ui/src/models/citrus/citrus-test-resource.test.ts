@@ -199,20 +199,20 @@ describe('CitrusTestResource', () => {
   });
 
   describe('toString', () => {
-    it('should delegate to serializer serialize method', () => {
+    it('should delegate to serializer serialize method', async () => {
       const resource = new CitrusTestResource(citrusTestJson);
       resource.initialize();
-      const serialized = resource.toString();
+      const serialized = await resource.toSourceCode();
 
       expect(typeof serialized).toBe('string');
       expect(serialized.length).toBeGreaterThan(0);
     });
 
-    it('should serialize to YAML', () => {
+    it('should serialize to YAML', async () => {
       const resource = new CitrusTestResource(citrusTestJson);
       resource.initialize();
 
-      const yamlOutput = resource.toString();
+      const yamlOutput = await resource.toSourceCode();
       expect(yamlOutput).toContain('actions:');
     });
   });
@@ -285,10 +285,12 @@ describe('CitrusTestResource', () => {
     });
   });
 
-  it('serializes to YAML without a serializer', () => {
+  it('serializes to YAML without a serializer', async () => {
     const resource = new CitrusTestResource({ name: 't', actions: [] });
     resource.initialize();
-    expect(typeof resource.toString()).toBe('string');
+    const output = await resource.toSourceCode();
+
+    expect(typeof output).toBe('string');
   });
 
   describe('initialize() with array input', () => {
@@ -340,11 +342,13 @@ describe('CitrusTestResource', () => {
   });
 
   describe('toString() edge cases', () => {
-    it('returns the YAML for {} when there are no entities', () => {
+    it('returns the YAML for {} when there are no entities', async () => {
       const resource = new CitrusTestResource();
       resource.initialize();
       // stringify({}) produces '{}\n'
-      expect(resource.toString()).toBe('{}\n');
+      const output = await resource.toSourceCode();
+
+      expect(output).toBe('{}\n');
     });
   });
 

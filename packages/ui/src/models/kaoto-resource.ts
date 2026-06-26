@@ -22,7 +22,7 @@ export interface KaotoResource {
   removeEntity(ids?: string[]): void;
   supportsMultipleVisualEntities(): boolean;
   toJSON(): unknown;
-  toString(): string;
+  toSourceCode(): Promise<string>;
   getType(): SourceSchemaType;
   getCanvasEntityList(): BaseVisualEntityDefinition;
 
