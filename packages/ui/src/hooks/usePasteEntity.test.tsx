@@ -5,6 +5,7 @@ import type { Mock } from 'vitest';
 import { CamelRouteResource } from '../models/camel/camel-route-resource';
 import { SourceSchemaType } from '../models/camel/source-schema-type';
 import { IClipboardCopyObject } from '../models/visualization/clipboard';
+import { CamelRouteVisualEntity } from '../models/visualization/flows/camel-route-visual-entity';
 import { VisualFlowsApi } from '../models/visualization/flows/support/flows-visibility';
 import {
   ACTION_ID_CANCEL,
@@ -203,7 +204,9 @@ describe('usePasteEntity', () => {
     it('should prompt for replacement when pasting to single-entity resource with existing entity', async () => {
       vi.spyOn(navigator.permissions, 'query').mockResolvedValueOnce({ state: 'granted' } as PermissionStatus);
       vi.spyOn(ClipboardManager, 'paste').mockResolvedValue(copiedRouteContent);
-      vi.spyOn(camelResource, 'getVisualEntities').mockReturnValue([{ id: 'existing-entity' }] as never);
+      vi.spyOn(camelResource, 'getVisualEntities').mockReturnValue([
+        { id: 'existing-entity' } as unknown as CamelRouteVisualEntity,
+      ]);
       mockActionConfirmationContext.actionConfirmation.mockResolvedValue(ACTION_ID_CONFIRM);
       addNewEntitySpy.mockReturnValue('new-route-id');
 
@@ -229,7 +232,9 @@ describe('usePasteEntity', () => {
     it('should not paste when user cancels replacement', async () => {
       vi.spyOn(navigator.permissions, 'query').mockResolvedValueOnce({ state: 'granted' } as PermissionStatus);
       vi.spyOn(ClipboardManager, 'paste').mockResolvedValue(copiedRouteContent);
-      vi.spyOn(camelResource, 'getVisualEntities').mockReturnValue([{ id: 'existing-entity' }] as never);
+      vi.spyOn(camelResource, 'getVisualEntities').mockReturnValue([
+        { id: 'existing-entity' } as unknown as CamelRouteVisualEntity,
+      ]);
       mockActionConfirmationContext.actionConfirmation.mockResolvedValue(ACTION_ID_CANCEL);
 
       const { result } = renderHook(() => usePasteEntity(), { wrapper });
@@ -352,7 +357,9 @@ describe('usePasteEntity', () => {
       supportsMultipleVisualEntitiesSpy.mockReturnValue(false);
       vi.spyOn(navigator.permissions, 'query').mockResolvedValueOnce({ state: 'granted' } as PermissionStatus);
       vi.spyOn(ClipboardManager, 'paste').mockResolvedValue(copiedRouteContent);
-      vi.spyOn(camelResource, 'getVisualEntities').mockReturnValue([{ id: 'existing-entity' }] as never);
+      vi.spyOn(camelResource, 'getVisualEntities').mockReturnValue([
+        { id: 'existing-entity' } as unknown as CamelRouteVisualEntity,
+      ]);
 
       const { result } = renderHook(() => usePasteEntity(), { wrapper: wrapperWithoutActionConfirmation });
 

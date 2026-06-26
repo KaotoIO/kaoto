@@ -56,8 +56,8 @@ describe('MultiValuePropertyEditor', () => {
 
     readMultiValueSpy.mockReturnValue({ jobParameters: { name: 'daily' } });
     getMultiValueSerializedDefinitionSpy.mockReturnValue({
-      parameters: { 'job.name': 'updated' } as never,
-    });
+      parameters: { 'job.name': 'updated' },
+    } as unknown as Record<string, string>);
   });
 
   it('should render the transformed model and disabled state', () => {
@@ -104,8 +104,8 @@ describe('MultiValuePropertyEditor', () => {
   it('should delete property key when value is empty string', () => {
     readMultiValueSpy.mockReturnValue({ jobParameters: { name: 'daily' } });
     getMultiValueSerializedDefinitionSpy.mockReturnValue({
-      parameters: { 'job.description': 'test' } as never,
-    });
+      parameters: { 'job.description': 'test' },
+    } as unknown as Record<string, string>);
 
     renderComponent({
       model: { parameters: { 'job.name': 'daily', 'job.description': 'test' } },

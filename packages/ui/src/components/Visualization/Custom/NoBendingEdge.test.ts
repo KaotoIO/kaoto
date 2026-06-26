@@ -1,4 +1,4 @@
-import { getTopCollapsedParent, Point } from '@patternfly/react-topology';
+import { getTopCollapsedParent, Graph, Node, Point } from '@patternfly/react-topology';
 import type { Mock } from 'vitest';
 
 import { NoBendpointsEdge } from './NoBendingEdge';
@@ -24,13 +24,13 @@ describe('NoBendpointsEdge', () => {
 
   const setupSelfLoop = (layout: string, parentType: string) => {
     const parent = mockParent(parentType, { x: 10, y: 20 }, { width: 100, height: 50 });
-    const mockNode = {};
+    const mockNode = {} as unknown as Node;
     mockGetTopCollapsedParent.mockReturnValue(parent);
-    vi.spyOn(edge, 'getSource').mockReturnValue(mockNode as never);
-    vi.spyOn(edge, 'getTarget').mockReturnValue(mockNode as never);
+    vi.spyOn(edge, 'getSource').mockReturnValue(mockNode);
+    vi.spyOn(edge, 'getTarget').mockReturnValue(mockNode);
     vi.spyOn(edge, 'getGraph').mockReturnValue({
       getLayout: () => layout,
-    } as never);
+    } as unknown as Graph);
   };
 
   beforeEach(() => {
@@ -99,10 +99,10 @@ describe('NoBendpointsEdge', () => {
 
   describe('non-self-loop', () => {
     it('getStartPoint should delegate to super', () => {
-      const mockSource = { id: 'source' };
-      const mockTarget = { id: 'target' };
-      vi.spyOn(edge, 'getSource').mockReturnValue(mockSource as never);
-      vi.spyOn(edge, 'getTarget').mockReturnValue(mockTarget as never);
+      const mockSource = { id: 'source' } as unknown as Node;
+      const mockTarget = { id: 'target' } as unknown as Node;
+      vi.spyOn(edge, 'getSource').mockReturnValue(mockSource);
+      vi.spyOn(edge, 'getTarget').mockReturnValue(mockTarget);
 
       const superStartPoint = new Point(0, 0);
       vi.spyOn(Object.getPrototypeOf(NoBendpointsEdge.prototype), 'getStartPoint').mockReturnValue(superStartPoint);
@@ -111,10 +111,10 @@ describe('NoBendpointsEdge', () => {
     });
 
     it('getEndPoint should delegate to super', () => {
-      const mockSource = { id: 'source' };
-      const mockTarget = { id: 'target' };
-      vi.spyOn(edge, 'getSource').mockReturnValue(mockSource as never);
-      vi.spyOn(edge, 'getTarget').mockReturnValue(mockTarget as never);
+      const mockSource = { id: 'source' } as unknown as Node;
+      const mockTarget = { id: 'target' } as unknown as Node;
+      vi.spyOn(edge, 'getSource').mockReturnValue(mockSource);
+      vi.spyOn(edge, 'getTarget').mockReturnValue(mockTarget);
 
       const superEndPoint = new Point(5, 5);
       vi.spyOn(Object.getPrototypeOf(NoBendpointsEdge.prototype), 'getEndPoint').mockReturnValue(superEndPoint);

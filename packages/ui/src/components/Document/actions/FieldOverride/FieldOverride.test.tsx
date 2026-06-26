@@ -4,6 +4,7 @@ import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../../models/datamapper/document';
 import { MappingTree } from '../../../../models/datamapper/mapping';
 import { FieldOverrideVariant, IFieldTypeInfo, Types } from '../../../../models/datamapper/types';
+import { IDataMapperContext } from '../../../../providers/datamapper.provider';
 import { FieldOverrideService } from '../../../../services/document/field-override.service';
 import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
 import { QName } from '../../../../xml-schema-ts/QName';
@@ -70,7 +71,7 @@ describe('FieldOverride', () => {
     vi.mocked(useDataMapper).mockReturnValue({
       mappingTree: testMappingTree,
       updateDocument: mockUpdateDocument,
-    } as never);
+    } as Partial<IDataMapperContext> as IDataMapperContext);
   });
 
   it('should pass field to FieldOverrideModal when open', () => {
