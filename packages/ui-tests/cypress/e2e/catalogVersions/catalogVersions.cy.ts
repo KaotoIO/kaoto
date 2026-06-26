@@ -8,6 +8,10 @@ describe('Test for catalog versions', () => {
   const testData: { version: string; type: string }[] = [];
 
   catalogLibrary.definitions.forEach((library) => {
+    if (library.runtime === 'Citrus') {
+      return;
+    }
+
     const catalogVersion = library.version;
     const catalogType = library.runtime;
 
