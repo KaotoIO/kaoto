@@ -5,7 +5,7 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { EntityType } from '../../../../models/entities';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
-import { EntitiesContext } from '../../../../providers/entities.provider';
+import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
 import { getVisualizationNodesFromGraph } from '../../../../utils/get-viznodes-from-graph';
 import { setValue } from '../../../../utils/set-value';
 import { useEnableAllSteps } from './enable-all-steps.hook';
@@ -28,17 +28,20 @@ const mockSetValue = setValue as MockedFunction<typeof setValue>;
 
 describe('useEnableAllSteps', () => {
   const camelResource = new CamelRouteResource();
-  camelResource.initialize();
   let mockGraph: Node<ElementModel, unknown>;
+  let mockEntitiesContext: EntitiesContextResult;
 
-  const mockEntitiesContext = {
-    camelResource,
-    entities: camelResource.getEntities(),
-    visualEntities: camelResource.getVisualEntities(),
-    currentSchemaType: camelResource.getType(),
-    updateSourceCodeFromEntities: vi.fn(),
-    updateEntitiesFromCamelResource: vi.fn(),
-  };
+  beforeAll(async () => {
+    await camelResource.initialize();
+    mockEntitiesContext = {
+      camelResource,
+      entities: camelResource.getEntities(),
+      visualEntities: camelResource.getVisualEntities(),
+      currentSchemaType: camelResource.getType(),
+      updateSourceCodeFromEntities: vi.fn(),
+      updateEntitiesFromCamelResource: vi.fn(),
+    };
+  });
 
   beforeEach(() => {
     mockGraph = {
@@ -150,7 +153,7 @@ describe('useEnableAllSteps', () => {
     expect(filterFunction?.(disabledNode)).toBe(true);
   });
 
-  it('should enable all disabled steps when onEnableAllSteps is called', () => {
+  it('should enable all disabled steps when onEnableAllSteps is called', async () => {
     const disabledNode1 = createVisualizationNode('disabled-step-1', {
       name: EntityType.Route,
       disabled: true,
@@ -181,7 +184,7 @@ describe('useEnableAllSteps', () => {
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
-    result.current.onEnableAllSteps();
+    await result.current.onEnableAllSteps();
 
     expect(mockSetValue).toHaveBeenCalledTimes(2);
     expect(mockSetValue).toHaveBeenCalledWith(mockDefinition1, 'disabled', false);
@@ -191,7 +194,7 @@ describe('useEnableAllSteps', () => {
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
   });
 
-  it('should handle nodes with empty definition objects', () => {
+  it('should handle nodes with empty definition objects', async () => {
     const disabledNode = createVisualizationNode('disabled-step', {
       name: EntityType.Route,
       isPlaceholder: false,
@@ -208,14 +211,14 @@ describe('useEnableAllSteps', () => {
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
-    result.current.onEnableAllSteps();
+    await result.current.onEnableAllSteps();
 
     expect(mockSetValue).toHaveBeenCalledWith(mockDefinition, 'disabled', false);
     expect(disabledNode.updateModel).toHaveBeenCalledWith(mockDefinition);
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
   });
 
-  it('should handle nodes with undefined definition', () => {
+  it('should handle nodes with undefined definition', async () => {
     const disabledNode = createVisualizationNode('disabled-step', {
       name: EntityType.Route,
       isPlaceholder: false,
@@ -231,19 +234,19 @@ describe('useEnableAllSteps', () => {
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
-    result.current.onEnableAllSteps();
+    await result.current.onEnableAllSteps();
 
     expect(mockSetValue).toHaveBeenCalledWith({}, 'disabled', false);
     expect(disabledNode.updateModel).toHaveBeenCalledWith({});
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
   });
 
-  it('should not call updateEntitiesFromCamelResource when no disabled steps', () => {
+  it('should not call updateEntitiesFromCamelResource when no disabled steps', async () => {
     mockGetVisualizationNodesFromGraph.mockReturnValue([]);
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
-    result.current.onEnableAllSteps();
+    await result.current.onEnableAllSteps();
 
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
   });

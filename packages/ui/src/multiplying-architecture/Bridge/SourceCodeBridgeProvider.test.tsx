@@ -85,7 +85,7 @@ describe('SourceCodeBridgeProvider', () => {
     expect(mockOnNewEdit).toHaveBeenCalledTimes(1);
   });
 
-  it('should unsubscribe from events on unmount', () => {
+  it('should unsubscribe from events on unmount', async () => {
     const eventNotifierInstance = EventNotifier.getInstance();
     const unsubscribeFromEntitiesMock = vi.fn();
     const unsubscribeFromSourceCodeMock = vi.fn();
@@ -99,7 +99,7 @@ describe('SourceCodeBridgeProvider', () => {
       </SourceCodeBridgeProvider>,
     );
 
-    act(() => {
+    await act(async () => {
       unmount();
     });
 
@@ -147,7 +147,7 @@ const EnvelopeProviderTestingBed: FunctionComponent = () => {
       <button
         type="button"
         onClick={() => {
-          envelopeRef.current?.setContent(
+          void envelopeRef.current?.setContent(
             'test.camel.yaml',
             `- from:
             uri: "timer:foo"

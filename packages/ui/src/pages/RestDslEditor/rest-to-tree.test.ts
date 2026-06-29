@@ -16,7 +16,7 @@ const getRestEntities = (camelResource: KaotoResource): BaseVisualEntity[] =>
 describe('restToTree', () => {
   let camelResource: KaotoResource;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     camelResource = CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-3496
@@ -48,7 +48,7 @@ describe('restToTree', () => {
     host: localhost
     port: "8080"
     `);
-    camelResource.initialize();
+    await camelResource.initialize();
   });
 
   it('should convert rest to tree', () => {
@@ -111,7 +111,7 @@ describe('restToTree', () => {
     expect(treeNodes).toEqual(expectedTreeNodes);
   });
 
-  it('should handle rest entity with method without id', () => {
+  it('should handle rest entity with method without id', async () => {
     camelResource = CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-9999
@@ -120,7 +120,7 @@ describe('restToTree', () => {
         to:
           uri: direct:create
     `);
-    camelResource.initialize();
+    await camelResource.initialize();
 
     const treeNodes = restToTree(getRestEntities(camelResource));
 

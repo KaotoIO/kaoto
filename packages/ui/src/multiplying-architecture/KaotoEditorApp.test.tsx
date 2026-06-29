@@ -177,8 +177,8 @@ describe('KaotoEditorApp', () => {
     expect(editorRef.current!.setTheme).toHaveBeenCalledWith(EditorTheme.DARK);
   });
 
-  it('sendReady', () => {
-    kaotoEditorApp.sendReady();
+  it('sendReady', async () => {
+    await kaotoEditorApp.sendReady();
 
     expect(envelopeContext.channelApi.notifications.kogitoEditor_ready.send).toHaveBeenCalled();
   });
@@ -238,8 +238,8 @@ describe('KaotoEditorApp', () => {
     expect(envelopeContext.channelApi.requests.saveResourceContent).toHaveBeenCalledWith('path', 'content');
   });
 
-  it('should set the color theme upon opening the editor', () => {
-    kaotoEditorApp.af_onOpen();
+  it('should set the color theme upon opening the editor', async () => {
+    await kaotoEditorApp.af_onOpen();
 
     expect(setColorScheme).toHaveBeenCalledWith(ColorScheme.Auto);
   });

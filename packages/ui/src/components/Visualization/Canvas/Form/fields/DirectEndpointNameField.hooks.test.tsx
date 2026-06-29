@@ -49,7 +49,7 @@ describe('DirectEndpointNameField hooks', () => {
       expect(result.current.items.find((item) => item.name === 'start')?.description).toContain('route-start');
     });
 
-    it('handles typeahead callbacks', () => {
+    it('handles typeahead callbacks', async () => {
       const onChange = vi.fn();
       const { result } = renderHook(() =>
         useDirectEndpointNameOptions({
@@ -59,9 +59,15 @@ describe('DirectEndpointNameField hooks', () => {
         }),
       );
 
-      act(() => result.current.onTypeaheadChange({ name: 'orders', value: 'orders' }));
-      act(() => result.current.onCleanInput());
-      act(() => result.current.onCreateOption(undefined, 'new-route'));
+      await act(async () => {
+        result.current.onTypeaheadChange({ name: 'orders', value: 'orders' });
+      });
+      await act(async () => {
+        result.current.onCleanInput();
+      });
+      await act(async () => {
+        result.current.onCreateOption(undefined, 'new-route');
+      });
 
       expect(onChange).toHaveBeenNthCalledWith(1, 'orders');
       expect(onChange).toHaveBeenNthCalledWith(2, undefined);
@@ -71,7 +77,7 @@ describe('DirectEndpointNameField hooks', () => {
   });
 
   describe('useCreateDirectRoute', () => {
-    it('creates a route for a new direct name', () => {
+    it('creates a route for a new direct name', async () => {
       const onChange = vi.fn();
       const addNewEntity = vi.fn().mockReturnValue('new-route-id');
       const toggleFlowVisible = vi.fn();
@@ -97,7 +103,9 @@ describe('DirectEndpointNameField hooks', () => {
 
       expect(result.current.canCreateRoute).toBe(true);
 
-      act(() => result.current.onCreateRoute());
+      await act(async () => {
+        result.current.onCreateRoute();
+      });
 
       expect(addNewEntity).toHaveBeenCalledWith('route', {
         from: { uri: 'direct', parameters: { name: 'new-route' }, steps: [] },

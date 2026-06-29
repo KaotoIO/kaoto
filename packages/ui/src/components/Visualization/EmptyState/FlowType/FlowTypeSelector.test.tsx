@@ -50,7 +50,7 @@ describe('FlowTypeSelector.tsx', () => {
       render(<FlowTypeSelectorWithContext />);
     });
 
-    waitFor(() => {
+    await waitFor(() => {
       const toggle = screen.queryByTestId('viz-dsl-list-dropdown');
       expect(toggle).toBeInTheDocument();
     });
@@ -68,7 +68,7 @@ describe('FlowTypeSelector.tsx', () => {
       fireEvent.click(toggle);
     });
 
-    waitFor(() => {
+    await waitFor(() => {
       expect(onSelect).toHaveBeenCalled();
     });
   });
@@ -77,7 +77,7 @@ describe('FlowTypeSelector.tsx', () => {
     const wrapper = render(<FlowTypeSelectorWithContext currentSchemaType={SourceSchemaType.KameletBinding} />);
     const toggle = await wrapper.findByTestId('dsl-list-btn');
 
-    waitFor(() => {
+    await waitFor(() => {
       expect(toggle).toBeDisabled();
     });
   });

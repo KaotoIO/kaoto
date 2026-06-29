@@ -21,10 +21,10 @@ describe('BeansEntityHandler', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let model: any;
     let beansHandler: BeansEntityHandler;
-    beforeEach(() => {
+    beforeEach(async () => {
       model = cloneDeep(routeStub.camelRouteJson);
       const camelRouteResource = new CamelRouteResource(model);
-      camelRouteResource.initialize();
+      await camelRouteResource.initialize();
       beansHandler = new BeansEntityHandler(camelRouteResource);
     });
 
@@ -75,10 +75,10 @@ describe('BeansEntityHandler', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let model: any;
     let beansHandler: BeansEntityHandler;
-    beforeEach(() => {
+    beforeEach(async () => {
       model = cloneDeep(kameletStub.kameletJson);
       const kameletResource = new KameletResource(model);
-      kameletResource.initialize();
+      await kameletResource.initialize();
       beansHandler = new BeansEntityHandler(kameletResource);
     });
 
@@ -140,9 +140,9 @@ describe('BeansEntityHandler', () => {
       expect(beansHandler.stripReferenceQuote('#myBean')).toBeUndefined();
     });
 
-    it('if CamelResource is not the supported one', () => {
+    it('if CamelResource is not the supported one', async () => {
       const camelResource = new PipeResource({});
-      camelResource.initialize();
+      await camelResource.initialize();
       const beansHandler = new BeansEntityHandler(camelResource);
       expect(beansHandler.isSupported()).toBeFalsy();
       expect(beansHandler.stripReferenceQuote('#myBean')).toBeUndefined();

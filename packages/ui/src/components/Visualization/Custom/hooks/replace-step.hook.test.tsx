@@ -78,7 +78,7 @@ describe('useReplaceStep', () => {
 
   beforeEach(async () => {
     camelResource = new CamelRouteResource();
-    camelResource.initialize();
+    await camelResource.initialize();
     mockVizNode = createVisualizationNode('test-step', {
       name: EntityType.Route,
       isPlaceholder: false,

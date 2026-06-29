@@ -17,9 +17,9 @@ describe('routeIdValidator', () => {
     expect(RouteIdValidator.isNameValidCheck(name)).toEqual(result);
   });
 
-  it('should return sucess if the name is unique', () => {
+  it('should return sucess if the name is unique', async () => {
     const resource = new CamelRouteResource([camelRouteJson]);
-    resource.initialize();
+    await resource.initialize();
     const visualEntities = resource.getVisualEntities();
     vi.spyOn(visualEntities[0], 'getId').mockReturnValue('flow-1234');
 
@@ -28,9 +28,9 @@ describe('routeIdValidator', () => {
     expect(result.errMessages).toHaveLength(0);
   });
 
-  it('should return an error if the name is not unique', () => {
+  it('should return an error if the name is not unique', async () => {
     const resource = new CamelRouteResource([camelRouteJson]);
-    resource.initialize();
+    await resource.initialize();
     const visualEntities = resource.getVisualEntities();
     vi.spyOn(visualEntities[0], 'getId').mockReturnValue('flow-1234');
 
@@ -40,9 +40,9 @@ describe('routeIdValidator', () => {
     expect(result.errMessages).toEqual(['Name must be unique']);
   });
 
-  it('should return an error if the name is not a valid URI', () => {
+  it('should return an error if the name is not a valid URI', async () => {
     const resource = new CamelRouteResource([camelRouteJson]);
-    resource.initialize();
+    await resource.initialize();
     const visualEntities = resource.getVisualEntities();
     vi.spyOn(visualEntities[0], 'getId').mockReturnValue('flow-1234');
 
@@ -52,9 +52,9 @@ describe('routeIdValidator', () => {
     expect(result.errMessages).toEqual(['Name should only contain lowercase letters, numbers, and dashes']);
   });
 
-  it('should return an error if the name is not unique neither a valid URI', () => {
+  it('should return an error if the name is not unique neither a valid URI', async () => {
     const resource = new CamelRouteResource([camelRouteJson]);
-    resource.initialize();
+    await resource.initialize();
     const visualEntities = resource.getVisualEntities();
     vi.spyOn(visualEntities[0], 'getId').mockReturnValue('The amazing Route');
 

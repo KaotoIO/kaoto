@@ -9,17 +9,17 @@ import { CitrusTestResource } from './citrus-test-resource';
 import { Test } from './entities/Test';
 
 describe('CitrusTestResource', () => {
-  it('should initialize Citrus test if no args is specified', () => {
+  it('should initialize Citrus test if no args is specified', async () => {
     const resource = new CitrusTestResource();
-    resource.initialize();
+    await resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.Test);
     expect(resource.getEntities()).toEqual([]);
     expect(resource.getVisualEntities()).toHaveLength(0);
   });
 
-  it('should initialize Citrus test', () => {
+  it('should initialize Citrus test', async () => {
     const resource = new CitrusTestResource(citrusTestJson);
-    resource.initialize();
+    await resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.Test);
     expect(resource.getEntities()).toEqual([]);
     expect(resource.getVisualEntities()).toHaveLength(1);
@@ -30,18 +30,18 @@ describe('CitrusTestResource', () => {
   });
 
   describe('addNewEntity', () => {
-    it('should add new entity and return its ID', () => {
+    it('should add new entity and return its ID', async () => {
       const resource = new CitrusTestResource();
-      resource.initialize();
+      await resource.initialize();
       const id = resource.addNewEntity();
 
       expect(resource.getVisualEntities()).toHaveLength(1);
       expect(resource.getVisualEntities()[0].id).toEqual(id);
     });
 
-    it('should add new entities at the end of the list and return its ID', () => {
+    it('should add new entities at the end of the list and return its ID', async () => {
       const resource = new CitrusTestResource();
-      resource.initialize();
+      await resource.initialize();
       resource.addNewEntity();
       const id = resource.addNewEntity(EntityType.Test);
 
@@ -49,9 +49,9 @@ describe('CitrusTestResource', () => {
       expect(resource.getVisualEntities()[1].id).toEqual(id);
     });
 
-    it('should add the given entities at the end of the list and return its ID', () => {
+    it('should add the given entities at the end of the list and return its ID', async () => {
       const resource = new CitrusTestResource();
-      resource.initialize();
+      await resource.initialize();
       resource.addNewEntity();
       const id = resource.addNewEntity(EntityType.Test, FlowTemplateService.getFlowTemplate(SourceSchemaType.Test)[0]);
 
@@ -60,63 +60,63 @@ describe('CitrusTestResource', () => {
     });
   });
 
-  it('should return the right type', () => {
+  it('should return the right type', async () => {
     const resource = new CitrusTestResource();
-    resource.initialize();
+    await resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.Test);
   });
 
-  it('should not allow consumers to have multiple visual entities', () => {
+  it('should not allow consumers to have multiple visual entities', async () => {
     const resource = new CitrusTestResource();
-    resource.initialize();
+    await resource.initialize();
     expect(resource.supportsMultipleVisualEntities()).toBe(false);
   });
 
-  it('should return visual entities', () => {
+  it('should return visual entities', async () => {
     const resource = new CitrusTestResource(citrusTestJson);
-    resource.initialize();
+    await resource.initialize();
     expect(resource.getVisualEntities()).toHaveLength(1);
     expect(resource.getVisualEntities()[0]).toBeInstanceOf(CitrusTestVisualEntity);
     expect(resource.getEntities()).toHaveLength(0);
   });
 
-  it('should return entities', () => {
+  it('should return entities', async () => {
     const resource = new CitrusTestResource(citrusTestJson);
-    resource.initialize();
+    await resource.initialize();
     expect(resource.getEntities()).toHaveLength(0);
     expect(resource.getVisualEntities()).toHaveLength(1);
   });
 
   describe('toJSON', () => {
-    it('should return JSON', () => {
+    it('should return JSON', async () => {
       const resource = new CitrusTestResource(citrusTestJson);
-      resource.initialize();
+      await resource.initialize();
       expect(resource.toJSON()).toMatchSnapshot();
     });
   });
 
   describe('removeEntity', () => {
-    it('should not do anything if the ID is not provided', () => {
+    it('should not do anything if the ID is not provided', async () => {
       const resource = new CitrusTestResource(citrusTestJson);
-      resource.initialize();
+      await resource.initialize();
 
       resource.removeEntity();
 
       expect(resource.getVisualEntities()).toHaveLength(1);
     });
 
-    it('should not do anything when providing a non existing ID', () => {
+    it('should not do anything when providing a non existing ID', async () => {
       const resource = new CitrusTestResource(citrusTestJson);
-      resource.initialize();
+      await resource.initialize();
 
       resource.removeEntity(['non-existing-id']);
 
       expect(resource.getVisualEntities()).toHaveLength(1);
     });
 
-    it('should allow to remove an entity', () => {
+    it('should allow to remove an entity', async () => {
       const resource = new CitrusTestResource(citrusTestJson);
-      resource.initialize();
+      await resource.initialize();
       resource.addNewEntity();
       expect(resource.getVisualEntities()).toHaveLength(2);
 
@@ -127,9 +127,9 @@ describe('CitrusTestResource', () => {
       expect(resource.getVisualEntities()).toHaveLength(1);
     });
 
-    it('should remove multiple entities when multiple IDs are provided', () => {
+    it('should remove multiple entities when multiple IDs are provided', async () => {
       const resource = new CitrusTestResource(citrusTestJson);
-      resource.initialize();
+      await resource.initialize();
       resource.addNewEntity();
       const entitiesToRemove = resource.getVisualEntities().map((e) => e.id);
 
@@ -138,9 +138,9 @@ describe('CitrusTestResource', () => {
       expect(resource.getVisualEntities()).toHaveLength(0);
     });
 
-    it('should NOT create a new entity after deleting them all', () => {
+    it('should NOT create a new entity after deleting them all', async () => {
       const resource = new CitrusTestResource(citrusTestJson);
-      resource.initialize();
+      await resource.initialize();
       const citrusTestEntity = resource.getVisualEntities()[0];
 
       resource.removeEntity([citrusTestEntity.id]);
@@ -150,9 +150,9 @@ describe('CitrusTestResource', () => {
   });
 
   describe('getCanvasEntityList', () => {
-    it('should return all entities', () => {
+    it('should return all entities', async () => {
       const resource = new CitrusTestResource(citrusTestJson);
-      resource.initialize();
+      await resource.initialize();
 
       const entityList = resource.getCanvasEntityList();
 
@@ -160,9 +160,9 @@ describe('CitrusTestResource', () => {
       expect(entityList.groups).toEqual({});
     });
 
-    it('should return consistent entity list structure on multiple calls', () => {
+    it('should return consistent entity list structure on multiple calls', async () => {
       const resource = new CitrusTestResource(citrusTestJson);
-      resource.initialize();
+      await resource.initialize();
 
       const firstCall = resource.getCanvasEntityList();
       const secondCall = resource.getCanvasEntityList();
@@ -170,9 +170,9 @@ describe('CitrusTestResource', () => {
       expect(firstCall).toStrictEqual(secondCall);
     });
 
-    it('should include entity titles and descriptions from catalog', () => {
+    it('should include entity titles and descriptions from catalog', async () => {
       const resource = new CitrusTestResource(citrusTestJson);
-      resource.initialize();
+      await resource.initialize();
 
       const entityList = resource.getCanvasEntityList();
 
@@ -184,9 +184,9 @@ describe('CitrusTestResource', () => {
       expect(testEntity.name).toBe(EntityType.Test);
     });
 
-    it('should properly group entities', () => {
+    it('should properly group entities', async () => {
       const resource = new CitrusTestResource();
-      resource.initialize();
+      await resource.initialize();
 
       const entityList = resource.getCanvasEntityList();
 
@@ -201,7 +201,7 @@ describe('CitrusTestResource', () => {
   describe('toString', () => {
     it('should delegate to serializer serialize method', async () => {
       const resource = new CitrusTestResource(citrusTestJson);
-      resource.initialize();
+      await resource.initialize();
       const serialized = await resource.toSourceCode();
 
       expect(typeof serialized).toBe('string');
@@ -210,7 +210,7 @@ describe('CitrusTestResource', () => {
 
     it('should serialize to YAML', async () => {
       const resource = new CitrusTestResource(citrusTestJson);
-      resource.initialize();
+      await resource.initialize();
 
       const yamlOutput = await resource.toSourceCode();
       expect(yamlOutput).toContain('actions:');
@@ -218,26 +218,26 @@ describe('CitrusTestResource', () => {
   });
 
   describe('getCompatibleRuntimes', () => {
-    it('should return the correct list of compatible runtimes', () => {
+    it('should return the correct list of compatible runtimes', async () => {
       const resource = new CitrusTestResource();
-      resource.initialize();
+      await resource.initialize();
       const compatibleRuntimes = resource.getCompatibleRuntimes();
 
       expect(compatibleRuntimes).toEqual(['Citrus']);
     });
 
-    it('should return the same list regardless of resource content', () => {
+    it('should return the same list regardless of resource content', async () => {
       const emptyResource = new CitrusTestResource();
-      emptyResource.initialize();
+      await emptyResource.initialize();
       const resourceWithTest = new CitrusTestResource(citrusTestJson);
-      resourceWithTest.initialize();
+      await resourceWithTest.initialize();
 
       expect(emptyResource.getCompatibleRuntimes()).toEqual(resourceWithTest.getCompatibleRuntimes());
     });
 
-    it('should return an array with one runtime name', () => {
+    it('should return an array with one runtime name', async () => {
       const resource = new CitrusTestResource();
-      resource.initialize();
+      await resource.initialize();
       const compatibleRuntimes = resource.getCompatibleRuntimes();
 
       expect(compatibleRuntimes).toEqual(['Citrus']);
@@ -245,9 +245,9 @@ describe('CitrusTestResource', () => {
   });
 
   describe('getCompatibleComponents', () => {
-    it('should get compatible types', () => {
+    it('should get compatible types', async () => {
       const resource = new CitrusTestResource(citrusTestJson);
-      resource.initialize();
+      await resource.initialize();
       const tileFilter = resource.getCompatibleComponents(AddStepMode.ReplaceStep, {
         name: 'print',
         path: 'actions.0',
@@ -287,40 +287,40 @@ describe('CitrusTestResource', () => {
 
   it('serializes to YAML without a serializer', async () => {
     const resource = new CitrusTestResource({ name: 't', actions: [] });
-    resource.initialize();
+    await resource.initialize();
     const output = await resource.toSourceCode();
 
     expect(typeof output).toBe('string');
   });
 
   describe('initialize() with array input', () => {
-    it('parses an array of raw test entities', () => {
+    it('parses an array of raw test entities', async () => {
       const secondTest = { name: 'second-test', actions: [{ echo: { message: 'hi' } }] };
       const resource = new CitrusTestResource([citrusTestJson, secondTest]);
-      resource.initialize();
+      await resource.initialize();
       expect(resource.getVisualEntities()).toHaveLength(2);
     });
 
-    it('skips null entries inside the array', () => {
+    it('skips null entries inside the array', async () => {
       const resource = new CitrusTestResource([null as unknown as Test, citrusTestJson]);
-      resource.initialize();
+      await resource.initialize();
       // null is filtered by getEntity() returning undefined
       expect(resource.getVisualEntities()).toHaveLength(1);
     });
 
-    it('skips nested array entries inside the raw array', () => {
+    it('skips nested array entries inside the raw array', async () => {
       const resource = new CitrusTestResource([[] as unknown as Test, citrusTestJson]);
-      resource.initialize();
+      await resource.initialize();
       expect(resource.getVisualEntities()).toHaveLength(1);
     });
   });
 
   describe('getEntity() wraps unknown raw items in NonVisualEntity', () => {
-    it('places an unrecognised raw object into non-visual entities', () => {
+    it('places an unrecognised raw object into non-visual entities', async () => {
       // An object without both 'name' and 'actions' does not satisfy isCitrusTest
       const unknownObj = { foo: 'bar', baz: 'qux' } as unknown as Test;
       const resource = new CitrusTestResource(unknownObj);
-      resource.initialize();
+      await resource.initialize();
       // The unknown object ends up as a NonVisualEntity (not a visual entity)
       expect(resource.getVisualEntities()).toHaveLength(0);
       expect(resource.getEntities()).toHaveLength(1);
@@ -328,15 +328,15 @@ describe('CitrusTestResource', () => {
   });
 
   describe('toJSON() edge cases', () => {
-    it('returns {} when no entities are present (before initialize)', () => {
+    it('returns {} when no entities are present (before initialize)', async () => {
       const resource = new CitrusTestResource();
       // deliberately do NOT call initialize()
       expect(resource.toJSON()).toEqual({});
     });
 
-    it('returns {} after initialize with no rawEntities', () => {
+    it('returns {} after initialize with no rawEntities', async () => {
       const resource = new CitrusTestResource();
-      resource.initialize();
+      await resource.initialize();
       expect(resource.toJSON()).toEqual({});
     });
   });
@@ -344,7 +344,7 @@ describe('CitrusTestResource', () => {
   describe('toString() edge cases', () => {
     it('returns the YAML for {} when there are no entities', async () => {
       const resource = new CitrusTestResource();
-      resource.initialize();
+      await resource.initialize();
       // stringify({}) produces '{}\n'
       const output = await resource.toSourceCode();
 
@@ -353,9 +353,9 @@ describe('CitrusTestResource', () => {
   });
 
   describe('addNewEntity() branch: unsupported non-Test entity type', () => {
-    it('falls through to create a CitrusTestVisualEntity when entity type is not in supportedEntities', () => {
+    it('falls through to create a CitrusTestVisualEntity when entity type is not in supportedEntities', async () => {
       const resource = new CitrusTestResource();
-      resource.initialize();
+      await resource.initialize();
       // EntityType.Route is not a supported Citrus entity type
       const id = resource.addNewEntity(EntityType.Route);
       expect(id).not.toBe('');

@@ -118,7 +118,7 @@ describe('BaseCatalog', () => {
       screen.getAllByRole('listitem').filter((li) => li.classList.contains('catalog-data-list-item')),
     ).toHaveLength(20);
 
-    waitFor(() => {
+    await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Go to next page' })).toBeDisabled();
     });
   });

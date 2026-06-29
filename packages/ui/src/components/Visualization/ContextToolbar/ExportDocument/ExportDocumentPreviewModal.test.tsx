@@ -26,13 +26,16 @@ vi.mock('../../Canvas/flow.service');
 
 describe('ExportDocumentPreviewModal', () => {
   const camelResource = new CamelRouteResource([camelRouteJson]);
-  camelResource.initialize();
   let onCloseSpy: Mock;
   let wrapper: FunctionComponent<PropsWithChildren>;
   let originalCreateObjectURL: typeof URL.createObjectURL;
   let originalRevokeObjectURL: typeof URL.revokeObjectURL;
   let clickSpy: MockInstance;
   let eventListenerCallback: ((event?: Event) => void) | null = null;
+
+  beforeAll(async () => {
+    await camelResource.initialize();
+  });
 
   beforeEach(async () => {
     onCloseSpy = vi.fn();

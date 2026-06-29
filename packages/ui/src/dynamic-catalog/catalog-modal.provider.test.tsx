@@ -88,12 +88,10 @@ describe('CatalogModalProvider', () => {
   describe('getNewComponent', () => {
     it('should open modal and fetch tiles when getNewComponent is called', async () => {
       const wrapper = createWrapper();
-      render(<div>Test</div>, { wrapper });
-
-      const { result } = renderWithProviders();
+      const { result } = renderHook(() => useContext(CatalogModalContext), { wrapper });
 
       let componentPromise: Promise<DefinedComponent | undefined>;
-      act(() => {
+      await act(async () => {
         componentPromise = result.current!.getNewComponent();
       });
 
@@ -105,7 +103,7 @@ describe('CatalogModalProvider', () => {
       expect(screen.getByRole('dialog')).toBeInTheDocument();
 
       // Close modal to resolve promise
-      act(() => {
+      await act(async () => {
         const closeButton = screen.getByLabelText('Close');
         closeButton.click();
       });
@@ -115,13 +113,25 @@ describe('CatalogModalProvider', () => {
     });
 
     it('should return all tiles when no filter is provided', async () => {
+      const TestComponent = () => {
+        const { getNewComponent } = useContext(CatalogModalContext)!;
+        return (
+          <button
+            onClick={async () => {
+              await getNewComponent();
+            }}
+          >
+            Open Catalog
+          </button>
+        );
+      };
+
       const wrapper = createWrapper();
-      render(<div>Test</div>, { wrapper });
+      render(<TestComponent />, { wrapper });
 
-      const { result } = renderWithProviders();
-
-      act(() => {
-        result.current!.getNewComponent();
+      const button = screen.getByText('Open Catalog');
+      await act(async () => {
+        fireEvent.click(button);
       });
 
       await waitFor(() => {
@@ -136,13 +146,25 @@ describe('CatalogModalProvider', () => {
     });
 
     it('should filter tiles when catalogFilter is provided', async () => {
+      const TestComponent = () => {
+        const { getNewComponent } = useContext(CatalogModalContext)!;
+        return (
+          <button
+            onClick={async () => {
+              await getNewComponent((tile: ITile) => tile.type === CatalogKind.Component);
+            }}
+          >
+            Open Catalog
+          </button>
+        );
+      };
+
       const wrapper = createWrapper();
-      render(<div>Test</div>, { wrapper });
+      render(<TestComponent />, { wrapper });
 
-      const { result } = renderWithProviders();
-
-      act(() => {
-        result.current!.getNewComponent((tile: ITile) => tile.type === CatalogKind.Component);
+      const button = screen.getByText('Open Catalog');
+      await act(async () => {
+        fireEvent.click(button);
       });
 
       await waitFor(() => {
@@ -160,15 +182,25 @@ describe('CatalogModalProvider', () => {
       const mockDefinition = { component: { name: 'amqp' } };
       (mockCatalogRegistry.getEntity as Mock).mockResolvedValue(mockDefinition);
 
+      let selectedComponent: DefinedComponent | undefined;
+      const TestComponent = () => {
+        const { getNewComponent } = useContext(CatalogModalContext)!;
+        return (
+          <button
+            onClick={async () => {
+              selectedComponent = await getNewComponent();
+            }}
+          >
+            Open Catalog
+          </button>
+        );
+      };
+
       const wrapper = createWrapper();
-      render(<div>Test</div>, { wrapper });
+      render(<TestComponent />, { wrapper });
 
-      const { result } = renderWithProviders();
-
-      let componentPromise: Promise<DefinedComponent | undefined>;
-      act(() => {
-        componentPromise = result.current!.getNewComponent();
-      });
+      const button = screen.getByText('Open Catalog');
+      fireEvent.click(button);
 
       await waitFor(() => {
         expect(screen.getByTestId('tile-header-amqp')).toBeInTheDocument();
@@ -176,9 +208,13 @@ describe('CatalogModalProvider', () => {
 
       // Click on a tile
       const amqpTile = screen.getByTestId('tile-header-amqp');
-      fireEvent.click(amqpTile);
+      await act(async () => {
+        fireEvent.click(amqpTile);
+      });
 
-      const selectedComponent = await componentPromise!;
+      await waitFor(() => {
+        expect(selectedComponent).toBeDefined();
+      });
 
       expect(selectedComponent).toEqual({
         name: 'amqp',
@@ -195,24 +231,37 @@ describe('CatalogModalProvider', () => {
       const mockDefinition = { metadata: { name: 'sink' } };
       (mockCatalogRegistry.getEntity as Mock).mockResolvedValue(mockDefinition);
 
+      const TestComponent = () => {
+        const { getNewComponent } = useContext(CatalogModalContext)!;
+        return (
+          <button
+            onClick={async () => {
+              await getNewComponent();
+            }}
+          >
+            Open Catalog
+          </button>
+        );
+      };
+
       const wrapper = createWrapper();
-      render(<div>Test</div>, { wrapper });
+      render(<TestComponent />, { wrapper });
 
-      const { result } = renderWithProviders();
-
-      let componentPromise: Promise<DefinedComponent | undefined>;
-      act(() => {
-        componentPromise = result.current!.getNewComponent();
-      });
+      const button = screen.getByText('Open Catalog');
+      fireEvent.click(button);
 
       await waitFor(() => {
         expect(screen.getByTestId('tile-header-sink')).toBeInTheDocument();
       });
 
       const kameletTile = screen.getByTestId('tile-header-sink');
-      fireEvent.click(kameletTile);
+      await act(async () => {
+        fireEvent.click(kameletTile);
+      });
 
-      await componentPromise!;
+      await waitFor(() => {
+        expect(mockCatalogRegistry.getEntity).toHaveBeenCalled();
+      });
 
       expect(mockCatalogRegistry.getEntity).toHaveBeenCalledWith(CatalogKind.Kamelet, 'sink', {
         forceFresh: true,
@@ -220,15 +269,29 @@ describe('CatalogModalProvider', () => {
     });
 
     it('should resolve with undefined when modal is closed without selection', async () => {
+      let selectedComponent: DefinedComponent | undefined = {
+        name: 'test',
+        type: CatalogKind.Component,
+        definition: {},
+      };
+      const TestComponent = () => {
+        const { getNewComponent } = useContext(CatalogModalContext)!;
+        return (
+          <button
+            onClick={async () => {
+              selectedComponent = await getNewComponent();
+            }}
+          >
+            Open Catalog
+          </button>
+        );
+      };
+
       const wrapper = createWrapper();
-      render(<div>Test</div>, { wrapper });
+      render(<TestComponent />, { wrapper });
 
-      const { result } = renderWithProviders();
-
-      let componentPromise: Promise<DefinedComponent | undefined>;
-      act(() => {
-        componentPromise = result.current!.getNewComponent();
-      });
+      const button = screen.getByText('Open Catalog');
+      fireEvent.click(button);
 
       await waitFor(() => {
         expect(screen.getByText('Catalog')).toBeInTheDocument();
@@ -236,23 +299,38 @@ describe('CatalogModalProvider', () => {
 
       // Close modal
       const closeButton = screen.getByLabelText('Close');
-      fireEvent.click(closeButton);
+      await act(async () => {
+        fireEvent.click(closeButton);
+      });
 
-      const selectedComponent = await componentPromise!;
-      expect(selectedComponent).toBeUndefined();
+      await waitFor(() => {
+        expect(selectedComponent).toBeUndefined();
+      });
     });
 
     it('should handle fetchTiles error gracefully', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       const fetchTilesError = () => Promise.reject(new Error('Failed to fetch tiles'));
 
+      const TestComponent = () => {
+        const { getNewComponent } = useContext(CatalogModalContext)!;
+        return (
+          <button
+            onClick={async () => {
+              await getNewComponent();
+            }}
+          >
+            Open Catalog
+          </button>
+        );
+      };
+
       const wrapper = createWrapper(fetchTilesError);
-      render(<div>Test</div>, { wrapper });
+      render(<TestComponent />, { wrapper });
 
-      const { result } = renderWithProviders(fetchTilesError);
-
-      act(() => {
-        result.current!.getNewComponent();
+      const button = screen.getByText('Open Catalog');
+      await act(async () => {
+        fireEvent.click(button);
       });
 
       await waitFor(() => {
@@ -272,54 +350,92 @@ describe('CatalogModalProvider', () => {
         .mockResolvedValueOnce(mockDefinition1)
         .mockResolvedValueOnce(mockDefinition2);
 
-      const wrapper = createWrapper();
-      render(<div>Test</div>, { wrapper });
+      let firstComponent: DefinedComponent | undefined;
+      let secondComponent: DefinedComponent | undefined;
+      const TestComponent = () => {
+        const { getNewComponent } = useContext(CatalogModalContext)!;
+        return (
+          <>
+            <button
+              onClick={async () => {
+                firstComponent = await getNewComponent();
+              }}
+            >
+              Open First
+            </button>
+            <button
+              onClick={async () => {
+                secondComponent = await getNewComponent();
+              }}
+            >
+              Open Second
+            </button>
+          </>
+        );
+      };
 
-      const { result } = renderWithProviders();
+      const wrapper = createWrapper();
+      render(<TestComponent />, { wrapper });
 
       // First call
-      let firstPromise: Promise<DefinedComponent | undefined>;
-      act(() => {
-        firstPromise = result.current!.getNewComponent();
-      });
+      const firstButton = screen.getByText('Open First');
+      fireEvent.click(firstButton);
 
       await waitFor(() => {
         expect(screen.getByTestId('tile-header-amqp')).toBeInTheDocument();
       });
 
       const amqpTile = screen.getByTestId('tile-header-amqp');
-      fireEvent.click(amqpTile);
+      await act(async () => {
+        fireEvent.click(amqpTile);
+      });
 
-      const firstComponent = await firstPromise!;
+      await waitFor(() => {
+        expect(firstComponent).toBeDefined();
+      });
       expect(firstComponent?.name).toBe('amqp');
 
       // Second call
-      let secondPromise: Promise<DefinedComponent | undefined>;
-      act(() => {
-        secondPromise = result.current!.getNewComponent();
-      });
+      const secondButton = screen.getByText('Open Second');
+      fireEvent.click(secondButton);
 
       await waitFor(() => {
         expect(screen.getByTestId('tile-header-log')).toBeInTheDocument();
       });
 
       const logTile = screen.getByTestId('tile-header-log');
-      fireEvent.click(logTile);
+      await act(async () => {
+        fireEvent.click(logTile);
+      });
 
-      const secondComponent = await secondPromise!;
+      await waitFor(() => {
+        expect(secondComponent).toBeDefined();
+      });
       expect(secondComponent?.name).toBe('log');
     });
 
     it('should filter by multiple criteria', async () => {
-      const wrapper = createWrapper();
-      render(<div>Test</div>, { wrapper });
-
-      const { result } = renderWithProviders();
-
-      act(() => {
-        result.current!.getNewComponent(
-          (tile: ITile) => tile.type === CatalogKind.Processor || tile.tags.includes('messaging'),
+      const TestComponent = () => {
+        const { getNewComponent } = useContext(CatalogModalContext)!;
+        return (
+          <button
+            onClick={async () => {
+              await getNewComponent(
+                (tile: ITile) => tile.type === CatalogKind.Processor || tile.tags.includes('messaging'),
+              );
+            }}
+          >
+            Open Catalog
+          </button>
         );
+      };
+
+      const wrapper = createWrapper();
+      render(<TestComponent />, { wrapper });
+
+      const button = screen.getByText('Open Catalog');
+      await act(async () => {
+        fireEvent.click(button);
       });
 
       await waitFor(() => {
@@ -338,22 +454,34 @@ describe('CatalogModalProvider', () => {
       const mockDefinition = { component: { name: 'amqp' } };
       (mockCatalogRegistry.getEntity as Mock).mockResolvedValue(mockDefinition);
 
+      let selectedComponent: DefinedComponent | undefined;
+      const TestComponent = () => {
+        const { getNewComponent } = useContext(CatalogModalContext)!;
+        return (
+          <button
+            onClick={async () => {
+              selectedComponent = await getNewComponent();
+            }}
+          >
+            Open Catalog
+          </button>
+        );
+      };
+
       const wrapper = createWrapper();
-      render(<div>Test</div>, { wrapper });
+      render(<TestComponent />, { wrapper });
 
-      const { result } = renderWithProviders();
-
-      let componentPromise: Promise<DefinedComponent | undefined>;
-      act(() => {
-        componentPromise = result.current!.getNewComponent();
-      });
+      const button = screen.getByText('Open Catalog');
+      fireEvent.click(button);
 
       await waitFor(() => {
         expect(screen.getByRole('dialog')).toBeInTheDocument();
       });
 
       const amqpTile = screen.getByTestId('tile-header-amqp');
-      fireEvent.click(amqpTile);
+      await act(async () => {
+        fireEvent.click(amqpTile);
+      });
 
       // Modal should close
       await waitFor(() => {
@@ -361,8 +489,9 @@ describe('CatalogModalProvider', () => {
       });
 
       // Promise should be resolved
-      const selectedComponent = await componentPromise!;
-      expect(selectedComponent).toBeDefined();
+      await waitFor(() => {
+        expect(selectedComponent).toBeDefined();
+      });
       expect(selectedComponent?.name).toBe('amqp');
     });
   });

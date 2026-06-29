@@ -5,7 +5,7 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
-import { EntitiesContext } from '../../../../providers/entities.provider';
+import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
 import { useDisableStep } from './disable-step.hook';
 
 vi.mock('@kaoto/forms', () => ({
@@ -14,17 +14,20 @@ vi.mock('@kaoto/forms', () => ({
 
 describe('useDisableStep', () => {
   const camelResource = new CamelRouteResource();
-  camelResource.initialize();
   let mockVizNode: IVisualizationNode;
+  let mockEntitiesContext: EntitiesContextResult;
 
-  const mockEntitiesContext = {
-    camelResource,
-    entities: camelResource.getEntities(),
-    visualEntities: camelResource.getVisualEntities(),
-    currentSchemaType: camelResource.getType(),
-    updateSourceCodeFromEntities: vi.fn(),
-    updateEntitiesFromCamelResource: vi.fn(),
-  };
+  beforeAll(async () => {
+    await camelResource.initialize();
+    mockEntitiesContext = {
+      camelResource,
+      entities: camelResource.getEntities(),
+      visualEntities: camelResource.getVisualEntities(),
+      currentSchemaType: camelResource.getType(),
+      updateSourceCodeFromEntities: vi.fn(),
+      updateEntitiesFromCamelResource: vi.fn(),
+    };
+  });
 
   beforeEach(() => {
     mockVizNode = createVisualizationNode('test-step', {

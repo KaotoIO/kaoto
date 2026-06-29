@@ -142,7 +142,7 @@ describe('Canvas', () => {
 
   it('should be able to delete the routes', async () => {
     const camelResource = new CamelRouteResource([camelRouteJson]);
-    camelResource.initialize();
+    await camelResource.initialize();
     const routeEntities = camelResource.getVisualEntities();
     const vizNode = await routeEntities[0].toVizNode();
     const removeSpy = vi.spyOn(camelResource, 'removeEntity');
@@ -202,7 +202,7 @@ describe('Canvas', () => {
 
   it('should be able to delete the kamelets', async () => {
     const kameletResource = new KameletResource(kameletJson);
-    kameletResource.initialize();
+    await kameletResource.initialize();
     const kameletEntities = kameletResource.getVisualEntities();
     const vizNode = await kameletEntities[0].toVizNode();
     const removeSpy = vi.spyOn(kameletResource, 'removeEntity');

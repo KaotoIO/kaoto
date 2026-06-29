@@ -24,7 +24,7 @@ describe('RestTreeToolbar', () => {
   });
 
   describe('Add RestConfiguration button', () => {
-    it('should be disabled when RestConfiguration already exists', () => {
+    it('should be disabled when RestConfiguration already exists', async () => {
       const camelResource = CamelResourceFactory.createCamelResource(`
 - restConfiguration:
     host: localhost
@@ -32,7 +32,7 @@ describe('RestTreeToolbar', () => {
 - rest:
     id: rest-1234
       `);
-      camelResource.initialize();
+      await camelResource.initialize();
 
       const entities = getRestEntities(camelResource.getEntities());
 
@@ -53,12 +53,12 @@ describe('RestTreeToolbar', () => {
       expect(addRestConfigButton).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('should be enabled when no RestConfiguration exists', () => {
+    it('should be enabled when no RestConfiguration exists', async () => {
       const camelResource = CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
       `);
-      camelResource.initialize();
+      await camelResource.initialize();
 
       const entities = getRestEntities(camelResource.getEntities());
 
@@ -98,7 +98,7 @@ describe('RestTreeToolbar', () => {
   });
 
   describe('Add Rest button', () => {
-    it('should always be enabled', () => {
+    it('should always be enabled', async () => {
       const entities: BaseVisualEntity[] = [];
 
       render(
@@ -118,14 +118,14 @@ describe('RestTreeToolbar', () => {
       expect(addRestButton).not.toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('should be enabled even with entities present', () => {
+    it('should be enabled even with entities present', async () => {
       const camelResource = CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
 - restConfiguration:
     host: localhost
       `);
-      camelResource.initialize();
+      await camelResource.initialize();
 
       const entities = getRestEntities(camelResource.getEntities());
 
@@ -165,7 +165,7 @@ describe('RestTreeToolbar', () => {
   });
 
   describe('Add Method button', () => {
-    it('should be disabled when nothing is selected', () => {
+    it('should be disabled when nothing is selected', async () => {
       const entities: BaseVisualEntity[] = [];
 
       render(
@@ -185,13 +185,13 @@ describe('RestTreeToolbar', () => {
       expect(addMethodButton).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('should be disabled when RestConfiguration is selected', () => {
+    it('should be disabled when RestConfiguration is selected', async () => {
       const camelResource = CamelResourceFactory.createCamelResource(`
 - restConfiguration:
     host: localhost
     port: "8080"
       `);
-      camelResource.initialize();
+      await camelResource.initialize();
 
       const entities = getRestEntities(camelResource.getEntities());
       const restConfigEntity = entities[0] as CamelRestConfigurationVisualEntity;
@@ -214,7 +214,7 @@ describe('RestTreeToolbar', () => {
       expect(addMethodButton).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('should be enabled when Rest entity root is selected', () => {
+    it('should be enabled when Rest entity root is selected', async () => {
       const camelResource = CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
@@ -224,7 +224,7 @@ describe('RestTreeToolbar', () => {
         to:
           uri: direct:test
       `);
-      camelResource.initialize();
+      await camelResource.initialize();
 
       const entities = getRestEntities(camelResource.getEntities());
 
@@ -246,7 +246,7 @@ describe('RestTreeToolbar', () => {
       expect(addMethodButton).not.toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('should be enabled when a Rest method is selected', () => {
+    it('should be enabled when a Rest method is selected', async () => {
       const camelResource = CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
@@ -256,7 +256,7 @@ describe('RestTreeToolbar', () => {
         to:
           uri: direct:test
       `);
-      camelResource.initialize();
+      await camelResource.initialize();
 
       const entities = getRestEntities(camelResource.getEntities());
 
@@ -278,7 +278,7 @@ describe('RestTreeToolbar', () => {
       expect(addMethodButton).not.toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('should be disabled when a non-Rest path is selected', () => {
+    it('should be disabled when a non-Rest path is selected', async () => {
       const camelResource = CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
@@ -292,7 +292,7 @@ describe('RestTreeToolbar', () => {
     from:
       uri: direct:test
       `);
-      camelResource.initialize();
+      await camelResource.initialize();
 
       const entities = getRestEntities(camelResource.getEntities());
 
@@ -316,7 +316,7 @@ describe('RestTreeToolbar', () => {
   });
 
   describe('Delete button', () => {
-    it('should be disabled when nothing is selected', () => {
+    it('should be disabled when nothing is selected', async () => {
       const entities: BaseVisualEntity[] = [];
 
       render(
@@ -336,12 +336,12 @@ describe('RestTreeToolbar', () => {
       expect(deleteButton).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('should be enabled when an element is selected', () => {
+    it('should be enabled when an element is selected', async () => {
       const camelResource = CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
       `);
-      camelResource.initialize();
+      await camelResource.initialize();
 
       const entities = getRestEntities(camelResource.getEntities());
 
@@ -368,7 +368,7 @@ describe('RestTreeToolbar', () => {
 - rest:
     id: rest-1234
       `);
-      camelResource.initialize();
+      await camelResource.initialize();
 
       const entities = getRestEntities(camelResource.getEntities());
 
@@ -394,7 +394,7 @@ describe('RestTreeToolbar', () => {
 - rest:
     id: rest-1234
       `);
-      camelResource.initialize();
+      await camelResource.initialize();
 
       const entities = getRestEntities(camelResource.getEntities());
 
@@ -422,7 +422,7 @@ describe('RestTreeToolbar', () => {
 - rest:
     id: rest-1234
       `);
-      camelResource.initialize();
+      await camelResource.initialize();
 
       const entities = getRestEntities(camelResource.getEntities());
 
@@ -454,7 +454,7 @@ describe('RestTreeToolbar', () => {
 - rest:
     id: rest-1234
       `);
-      camelResource.initialize();
+      await camelResource.initialize();
 
       const entities = getRestEntities(camelResource.getEntities());
 

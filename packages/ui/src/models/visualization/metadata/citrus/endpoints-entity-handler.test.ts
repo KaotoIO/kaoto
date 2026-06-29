@@ -19,13 +19,13 @@ describe('EndpointsEntityHandler', () => {
     let endpointsHandler: EndpointsEntityHandler;
     let testModel: Test;
 
-    beforeEach(() => {
+    beforeEach(async () => {
       testModel = {
         name: 'test',
         actions: [],
       };
       testResource = new CitrusTestResource(testModel);
-      testResource.initialize();
+      await testResource.initialize();
       endpointsHandler = new EndpointsEntityHandler(testResource);
     });
 

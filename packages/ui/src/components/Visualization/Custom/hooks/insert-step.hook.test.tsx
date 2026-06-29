@@ -9,7 +9,7 @@ import { AddStepMode, IVisualizationNode } from '../../../../models/visualizatio
 import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
 import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
-import { EntitiesContext } from '../../../../providers/entities.provider';
+import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
 import { useInsertStep } from './insert-step.hook';
 
 const mockController = {
@@ -22,17 +22,20 @@ vi.mock('@patternfly/react-topology', () => ({
 
 describe('useInsertStep', () => {
   const camelResource = new CamelRouteResource();
-  camelResource.initialize();
   let mockVizNode: IVisualizationNode;
+  let mockEntitiesContext: EntitiesContextResult;
 
-  const mockEntitiesContext = {
-    camelResource,
-    entities: camelResource.getEntities(),
-    visualEntities: camelResource.getVisualEntities(),
-    currentSchemaType: camelResource.getType(),
-    updateSourceCodeFromEntities: vi.fn(),
-    updateEntitiesFromCamelResource: vi.fn(),
-  };
+  beforeAll(async () => {
+    await camelResource.initialize();
+    mockEntitiesContext = {
+      camelResource,
+      entities: camelResource.getEntities(),
+      visualEntities: camelResource.getVisualEntities(),
+      currentSchemaType: camelResource.getType(),
+      updateSourceCodeFromEntities: vi.fn(),
+      updateEntitiesFromCamelResource: vi.fn(),
+    };
+  });
 
   const mockCatalogModalContext = {
     setIsModalOpen: vi.fn(),

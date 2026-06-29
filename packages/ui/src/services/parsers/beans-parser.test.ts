@@ -5,9 +5,9 @@ import { BeansParser } from './beans-parser';
 
 describe('BeansParser', () => {
   describe('parseBeansEntity()', () => {
-    it('should parse BeansEntity', () => {
+    it('should parse BeansEntity', async () => {
       const resource = CamelResourceFactory.createCamelResource(beansYaml);
-      resource.initialize();
+      await resource.initialize();
       const beansEntity = resource.getEntities()[0] as BeansEntity;
       const parsedTable = BeansParser.parseBeansEntity(beansEntity, 'Beans');
       expect(parsedTable.title).toBe('Beans');
@@ -25,9 +25,9 @@ describe('BeansParser', () => {
       expect(parsedTable.data[0][4]).toBe('p1v');
     });
 
-    it('should parse BeansEntity without properties', () => {
+    it('should parse BeansEntity without properties', async () => {
       const resource = CamelResourceFactory.createCamelResource(beansYaml);
-      resource.initialize();
+      await resource.initialize();
       const beansEntity = resource.getEntities()[0] as BeansEntity;
       beansEntity.parent.beans.forEach((bean) => (bean.properties = {}));
       const parsedTable = BeansParser.parseBeansEntity(beansEntity, 'Beans');
@@ -45,9 +45,9 @@ describe('BeansParser', () => {
       expect(parsedTable.data[1][4]).toBe('');
     });
 
-    it('should parse BeanEntity with parameters', () => {
+    it('should parse BeanEntity with parameters', async () => {
       const resource = CamelResourceFactory.createCamelResource(beansWithParamsYaml);
-      resource.initialize();
+      await resource.initialize();
       const beansEntity = resource.getEntities()[0] as BeansEntity;
       const parsedTable = BeansParser.parseBeansEntity(beansEntity, 'Beans');
       expect(parsedTable.data).toHaveLength(7);

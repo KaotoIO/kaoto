@@ -9,7 +9,7 @@ import { CamelRouteVisualEntity } from '../../../../models/visualization/flows/c
 import { VisualFlowsApi } from '../../../../models/visualization/flows/support/flows-visibility';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { VisibleFlowsContext, VisibleFlowsContextResult } from '../../../../providers';
-import { EntitiesContext } from '../../../../providers/entities.provider';
+import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
 import { camelRouteJson } from '../../../../stubs/camel-route';
 import { updateIds } from '../../../../utils/update-ids';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
@@ -83,15 +83,19 @@ describe('useDuplicateStep', () => {
   vizNode.setParentNode(routeVizNode);
 
   const camelResource = new CamelRouteResource();
-  camelResource.initialize();
-  const mockEntitiesContext = {
-    camelResource,
-    entities: camelResource.getEntities(),
-    visualEntities: camelResource.getVisualEntities(),
-    currentSchemaType: camelResource.getType(),
-    updateSourceCodeFromEntities: vi.fn(),
-    updateEntitiesFromCamelResource: vi.fn(),
-  };
+  let mockEntitiesContext: EntitiesContextResult;
+
+  beforeAll(async () => {
+    await camelResource.initialize();
+    mockEntitiesContext = {
+      camelResource,
+      entities: camelResource.getEntities(),
+      visualEntities: camelResource.getVisualEntities(),
+      currentSchemaType: camelResource.getType(),
+      updateSourceCodeFromEntities: vi.fn(),
+      updateEntitiesFromCamelResource: vi.fn(),
+    };
+  });
 
   // Mock CatalogModalContext
   const mockCatalogModalContext = {

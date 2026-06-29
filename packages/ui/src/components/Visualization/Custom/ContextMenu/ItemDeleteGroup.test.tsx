@@ -70,7 +70,7 @@ describe('ItemDeleteGroup', () => {
 
   it('should call removeEntity if deletion is confirmed', async () => {
     const camelResource = new CamelRouteResource();
-    camelResource.initialize();
+    await camelResource.initialize();
     const removeEntitySpy = vi.spyOn(camelResource, 'removeEntity');
     const entityId = camelResource.addNewEntity(EntityType.Route);
     vizNode = await camelResource.getVisualEntities()[0].toVizNode();

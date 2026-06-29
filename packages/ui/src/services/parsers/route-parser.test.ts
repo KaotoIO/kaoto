@@ -22,15 +22,23 @@ import { routeConfigurationFullYaml } from '../../stubs/route-configuration-full
 import { RouteParser } from './route-parser';
 
 describe('RouteParser', () => {
-  beforeAll(() => {
+  let rcEntity: CamelRouteConfigurationVisualEntity;
+  let routeEntity: CamelRouteVisualEntity;
+
+  beforeAll(async () => {
     mockRandomValues();
+
+    const resource = CamelResourceFactory.createCamelResource(camelRouteYaml);
+    await resource.initialize();
+    routeEntity = resource.getVisualEntities()[0] as CamelRouteVisualEntity;
+
+    const rcResource = CamelResourceFactory.createCamelResource(routeConfigurationFullYaml);
+    await rcResource.initialize();
+    rcEntity = rcResource.getVisualEntities()[0] as CamelRouteConfigurationVisualEntity;
   });
 
   describe('parseRouteEntity()', () => {
     it('should parse route', () => {
-      const resource = CamelResourceFactory.createCamelResource(camelRouteYaml);
-      resource.initialize();
-      const routeEntity = resource.getVisualEntities()[0] as CamelRouteVisualEntity;
       const parsed = RouteParser.parseRouteEntity(routeEntity);
 
       expect(parsed.title).toBe('route-8888');
@@ -50,10 +58,6 @@ describe('RouteParser', () => {
       expect(parsed.data[0][4]).toBe('tutorial');
     });
   });
-
-  const rcResource = CamelResourceFactory.createCamelResource(routeConfigurationFullYaml);
-  rcResource.initialize();
-  const rcEntity = rcResource.getVisualEntities()[0] as CamelRouteConfigurationVisualEntity;
 
   describe('parseRouteConfigurationEntity()', () => {
     it('should parse route configuration', () => {

@@ -48,7 +48,7 @@ vi.mock('./XsltDocumentRenameInput', async () => {
 
     useEffectHook(() => {
       if (isEditing) {
-        validator(currentValue).then((result: { status: string; errMessages: string[] }) => {
+        void validator(currentValue).then((result: { status: string; errMessages: string[] }) => {
           setIsValid(result.status === 'success');
           setValidationError((result.errMessages[0] || null) as SetStateAction<null>);
         });

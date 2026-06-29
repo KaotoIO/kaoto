@@ -71,36 +71,36 @@ describe('BrowserFilePickerMetadataProvider', () => {
   });
 
   describe('askUserForFileSelection', () => {
-    it('should set accept pattern for SCHEMA_FILE_NAME_PATTERN_SOURCE_BODY', () => {
+    it('should set accept pattern for SCHEMA_FILE_NAME_PATTERN_SOURCE_BODY', async () => {
       const { api, fileInput } = renderWithProvider();
 
-      act(() => {
-        api.askUserForFileSelection(SCHEMA_FILE_NAME_PATTERN_XML);
-      });
+      const selectionPromise = api.askUserForFileSelection(SCHEMA_FILE_NAME_PATTERN_XML);
 
       expect(fileInput.accept).toBe(SCHEMA_FILE_ACCEPT_PATTERN_XML);
+
+      void selectionPromise;
     });
 
-    it('should set accept pattern for SCHEMA_FILE_NAME_PATTERN', () => {
+    it('should set accept pattern for SCHEMA_FILE_NAME_PATTERN', async () => {
       const { api, fileInput } = renderWithProvider();
 
-      act(() => {
-        api.askUserForFileSelection(SCHEMA_FILE_NAME_PATTERN);
-      });
+      const selectionPromise = api.askUserForFileSelection(SCHEMA_FILE_NAME_PATTERN);
 
       expect(fileInput.accept).toBe(SCHEMA_FILE_ACCEPT_PATTERN);
+
+      void selectionPromise;
     });
 
-    it('should trigger file input click', () => {
+    it('should trigger file input click', async () => {
       const { api, fileInput } = renderWithProvider();
       const clickSpy = vi.fn();
       fileInput.click = clickSpy;
 
-      act(() => {
-        api.askUserForFileSelection(SCHEMA_FILE_NAME_PATTERN);
-      });
+      const selectionPromise = api.askUserForFileSelection(SCHEMA_FILE_NAME_PATTERN);
 
       expect(clickSpy).toHaveBeenCalledTimes(1);
+
+      void selectionPromise;
     });
 
     it('should resolve with file names when files are selected', async () => {
@@ -110,16 +110,11 @@ describe('BrowserFilePickerMetadataProvider', () => {
 
       const { api, fileInput } = renderWithProvider();
 
-      let resolvedFiles: string[] | string | undefined;
-      act(() => {
-        api.askUserForFileSelection(SCHEMA_FILE_NAME_PATTERN).then((files) => {
-          resolvedFiles = files;
-        });
-      });
+      const filesPromise = api.askUserForFileSelection(SCHEMA_FILE_NAME_PATTERN);
 
       await triggerFileSelect(fileInput, [mockFile1, mockFile2]);
 
-      expect(resolvedFiles).toEqual(['test1.json', 'test2.xml']);
+      await expect(filesPromise).resolves.toEqual(['test1.json', 'test2.xml']);
       expect(mockReadFileAsString).toHaveBeenCalledTimes(2);
     });
   });

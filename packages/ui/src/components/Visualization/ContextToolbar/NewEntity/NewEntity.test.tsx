@@ -218,7 +218,7 @@ describe('NewEntity', () => {
 
     it('should handle empty groups gracefully', async () => {
       const mockResource = new CamelRouteResource([camelRouteJson]);
-      mockResource.initialize();
+      await mockResource.initialize();
 
       // Mock empty groups scenario
       const originalGetCanvasEntityList = mockResource.getCanvasEntityList;
