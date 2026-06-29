@@ -57,7 +57,7 @@ export const usePasteEntity = () => {
       }
     };
 
-    validate();
+    void validate();
   }, [checkClipboardCompatibility]);
 
   /**

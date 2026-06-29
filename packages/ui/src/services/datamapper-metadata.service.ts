@@ -122,7 +122,7 @@ export class DataMapperMetadataService {
         },
         {} as Record<string, Promise<DocumentDefinition>>,
       );
-      Promise.allSettled([sourceBodyPromise, targetBodyPromise, ...Object.values(paramPromises)]).then(() => {
+      void Promise.allSettled([sourceBodyPromise, targetBodyPromise, ...Object.values(paramPromises)]).then(() => {
         resolve(answer);
       });
     });
@@ -147,7 +147,7 @@ export class DataMapperMetadataService {
               .catch((error) => console.log(`Could not read a file "${path}": ${error}`)),
           )
         : [];
-      Promise.allSettled(fileReadingPromises).then(() => {
+      void Promise.allSettled(fileReadingPromises).then(() => {
         const answer = new DocumentDefinition(
           documentType,
           definitionType,
@@ -229,7 +229,7 @@ export class DataMapperMetadataService {
           })
         : [];
     return new Promise((resolve) => {
-      Promise.allSettled(filePromises).then(() => resolve(answer));
+      void Promise.allSettled(filePromises).then(() => resolve(answer));
     });
   }
 
@@ -283,7 +283,7 @@ export class DataMapperMetadataService {
     name: string,
   ) {
     delete metadata.sourceParameters[name];
-    api.setMetadata(metadataId, metadata);
+    await api.setMetadata(metadataId, metadata);
   }
 
   /**

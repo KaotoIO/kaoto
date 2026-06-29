@@ -69,7 +69,7 @@ export const useReplaceStep = (vizNode: IVisualizationNode) => {
     entitiesContext.updateEntitiesFromCamelResource();
 
     /** Notify VS Code host about the new step */
-    metadataContext?.onStepUpdated?.(StepUpdateAction.Replace, definedComponent.type, definedComponent.name);
+    void metadataContext?.onStepUpdated?.(StepUpdateAction.Replace, definedComponent.type, definedComponent.name);
   }, [
     catalogModalContext,
     entitiesContext,

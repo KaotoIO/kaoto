@@ -15,9 +15,9 @@ export default function useDeleteHotkey(selectedVizNode: IVisualizationNode | un
     const { canRemoveStep, canRemoveFlow } = selectedVizNode.getNodeInteraction();
     if (!canRemoveStep && !canRemoveFlow) return;
 
-    if (canRemoveStep) onDeleteStep();
+    if (canRemoveStep) void onDeleteStep();
 
-    if (canRemoveFlow) onDeleteGroup();
+    if (canRemoveFlow) void onDeleteGroup();
 
     clearSelected();
   }, [onDeleteStep, onDeleteGroup, selectedVizNode, clearSelected]);

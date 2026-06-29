@@ -38,7 +38,7 @@ export const SettingsForm: FunctionComponent = () => {
       reloadPage();
 
       if (!hasPendingCatalogUrlChange) {
-        navigate(Links.Home);
+        void navigate(Links.Home);
       }
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : 'Unable to save settings');
@@ -78,7 +78,7 @@ export const SettingsForm: FunctionComponent = () => {
       </CardBody>
 
       <CardFooter>
-        <Button data-testid="settings-form-save-btn" variant="primary" onClick={onSave}>
+        <Button data-testid="settings-form-save-btn" variant="primary" onClick={() => void onSave()}>
           Save
         </Button>
       </CardFooter>

@@ -83,7 +83,7 @@ const ImportWizardFooter: FunctionComponent<ImportWizardFooterProps> = ({
             type="button"
             onClick={(event) => {
               event.preventDefault();
-              onGoToDesigner(event);
+              void onGoToDesigner(event);
             }}
           >
             Go to Designer
@@ -240,7 +240,7 @@ export const RestDslImportWizard: FunctionComponent<RestDslImportWizardProps> = 
             />
           </FormGroup>
           <div className="rest-dsl-import-actions">
-            <Button variant="secondary" onClick={wizard.handleParseOpenApiSpec}>
+            <Button variant="secondary" onClick={() => void wizard.handleParseOpenApiSpec()}>
               Parse Specification
             </Button>
             {wizard.importStatus?.type === 'error' && (

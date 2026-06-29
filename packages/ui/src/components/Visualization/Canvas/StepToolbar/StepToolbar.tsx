@@ -72,7 +72,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             variant="control"
             title="Duplicate"
             onClick={(event) => {
-              onDuplicate();
+              void onDuplicate();
               event.stopPropagation();
             }}
           />
@@ -86,7 +86,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             variant="control"
             title="Move before"
             onClick={(event) => {
-              onMoveBefore();
+              void onMoveBefore();
               event.stopPropagation();
             }}
           />
@@ -100,7 +100,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             variant="control"
             title="Move after"
             onClick={(event) => {
-              onMoveAfter();
+              void onMoveAfter();
               event.stopPropagation();
             }}
           />
@@ -114,7 +114,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             variant="control"
             title="Add branch"
             onClick={(event) => {
-              onInsertSpecial();
+              void onInsertSpecial();
               event.stopPropagation();
             }}
           />
@@ -127,7 +127,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             variant="control"
             title={isDisabled ? 'Enable step' : 'Disable step'}
             onClick={(event) => {
-              onToggleDisableNode();
+              void onToggleDisableNode();
               event.stopPropagation();
             }}
           >
@@ -143,7 +143,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             variant="control"
             title="Enable all"
             onClick={(event) => {
-              onEnableAllSteps();
+              void onEnableAllSteps();
               event.stopPropagation();
             }}
           />
@@ -157,7 +157,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             variant="control"
             title="Replace step"
             onClick={(event) => {
-              onReplaceNode();
+              void onReplaceNode();
               event.stopPropagation();
             }}
           />
@@ -187,7 +187,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             state="attention"
             title="Delete step"
             onClick={(event) => {
-              onDeleteStep();
+              void onDeleteStep();
               event.stopPropagation();
             }}
           />
@@ -202,7 +202,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             state="attention"
             title="Delete group"
             onClick={(event) => {
-              onDeleteGroup();
+              void onDeleteGroup();
               event.stopPropagation();
             }}
           />

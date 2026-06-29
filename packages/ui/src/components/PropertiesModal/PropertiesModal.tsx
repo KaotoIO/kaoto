@@ -86,7 +86,7 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
       }
     };
 
-    fetchTabs();
+    void fetchTabs();
   }, [catalogRegistry, props.tile.name, props.tile.type]);
 
   const handleTabClick = (_event: unknown, tabIndex: string | number) => {
