@@ -10,8 +10,8 @@ export class XmlSchemaAttributeGroup
   implements XmlSchemaNamed, XmlSchemaAttributeGroupMember
 {
   private anyAttribute: XmlSchemaAnyAttribute | null = null;
-  private attributes: XmlSchemaAttributeGroupMember[] = [];
-  private namedDelegate: XmlSchemaNamedImpl;
+  private readonly attributes: XmlSchemaAttributeGroupMember[] = [];
+  private readonly namedDelegate: XmlSchemaNamedImpl;
 
   /**
    * Creates new XmlSchemaAttributeGroup

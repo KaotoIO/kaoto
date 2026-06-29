@@ -17,7 +17,7 @@ export class XmlSchemaSimpleContentRestriction extends XmlSchemaContent {
    * Contains XmlSchemaAttribute and XmlSchemaAttributeGroupRef. Collection of attributes for the simple
    * type.
    */
-  private attributes: XmlSchemaAttributeOrGroupRef[] = [];
+  private readonly attributes: XmlSchemaAttributeOrGroupRef[] = [];
 
   /* Derived from the type specified by the base value. */
   private baseType: XmlSchemaSimpleType | null = null;
@@ -26,7 +26,7 @@ export class XmlSchemaSimpleContentRestriction extends XmlSchemaContent {
   private baseTypeName: QName | null = null;
 
   /* One or more of the facet classes: */
-  private facets: XmlSchemaFacet[] = [];
+  private readonly facets: XmlSchemaFacet[] = [];
 
   /* Allows an XmlSchemaAnyAttribute to be used for the attribute value. */
 

@@ -30,7 +30,7 @@ export class XmlSchemaElement
    */
   private block: XmlSchemaDerivationMethod;
 
-  private constraints: XmlSchemaIdentityConstraint[] = [];
+  private readonly constraints: XmlSchemaIdentityConstraint[] = [];
 
   /**
    * Provides the default value of the element if its content is a simple type or the element's content is
@@ -61,7 +61,7 @@ export class XmlSchemaElement
    */
   private substitutionGroup: QName | null = null;
 
-  private namedDelegate: XmlSchemaNamedWithFormImpl;
+  private readonly namedDelegate: XmlSchemaNamedWithFormImpl;
 
   /**
    * Creates new XmlSchemaElement

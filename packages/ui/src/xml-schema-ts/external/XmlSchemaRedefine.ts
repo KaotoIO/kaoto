@@ -12,11 +12,11 @@ import { XmlSchemaExternal } from './XmlSchemaExternal';
  * Consortium (W3C) redefine element.
  */
 export class XmlSchemaRedefine extends XmlSchemaExternal {
-  private attributeGroups = new Map<QName, XmlSchemaAttributeGroup>();
-  private groups = new Map<QName, XmlSchemaGroup>();
-  private schemaTypes = new Map<QName, XmlSchemaType>();
+  private readonly attributeGroups = new Map<QName, XmlSchemaAttributeGroup>();
+  private readonly groups = new Map<QName, XmlSchemaGroup>();
+  private readonly schemaTypes = new Map<QName, XmlSchemaType>();
 
-  private items: XmlSchemaObject[] = [];
+  private readonly items: XmlSchemaObject[] = [];
 
   /**
    * Creates new XmlSchemaRedefine

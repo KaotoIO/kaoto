@@ -20,8 +20,8 @@ export class XmlSchemaAttribute
   private schemaType: XmlSchemaSimpleType | null = null;
   private schemaTypeName: QName | null = null;
   private use: XmlSchemaUse;
-  private namedDelegate: XmlSchemaNamedWithFormImpl;
-  private ref: XmlSchemaRef<XmlSchemaAttribute>;
+  private readonly namedDelegate: XmlSchemaNamedWithFormImpl;
+  private readonly ref: XmlSchemaRef<XmlSchemaAttribute>;
 
   /**
    * Create a new attribute.

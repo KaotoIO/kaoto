@@ -15,7 +15,7 @@ export class XmlSchemaAttributeGroupRef
   extends XmlSchemaAttributeOrGroupRef
   implements XmlSchemaAttributeGroupMember, XmlSchemaItemWithRef<XmlSchemaAttributeGroup>
 {
-  private ref: XmlSchemaRef<XmlSchemaAttributeGroup>;
+  private readonly ref: XmlSchemaRef<XmlSchemaAttributeGroup>;
 
   /**
    * Create an attribute group reference.

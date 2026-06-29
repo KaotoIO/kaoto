@@ -9,7 +9,7 @@ export class XmlSchemaType extends XmlSchemaAnnotated implements XmlSchemaNamed 
   private finalDerivation: XmlSchemaDerivationMethod;
   private finalResolved?: XmlSchemaDerivationMethod;
   private _isMixed = false;
-  private namedDelegate: XmlSchemaNamedImpl;
+  private readonly namedDelegate: XmlSchemaNamedImpl;
 
   constructor(schema: XmlSchema, topLevel: boolean) {
     super();

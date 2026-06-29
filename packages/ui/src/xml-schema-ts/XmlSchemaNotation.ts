@@ -6,7 +6,7 @@ import { XmlSchemaAnnotated } from './XmlSchemaAnnotated';
 export class XmlSchemaNotation extends XmlSchemaAnnotated implements XmlSchemaNamed {
   private system: string | null = null;
   private publicNotation: string | null = null;
-  private namedDelegate: XmlSchemaNamedImpl;
+  private readonly namedDelegate: XmlSchemaNamedImpl;
 
   /**
    * Creates new XmlSchemaNotation

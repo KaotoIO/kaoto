@@ -92,7 +92,7 @@ export function VisibleFlowsReducer(state: IVisibleFlows, action: VisibleFlowAct
 }
 
 export class VisualFlowsApi {
-  private dispatch: React.Dispatch<VisibleFlowAction>;
+  private readonly dispatch: React.Dispatch<VisibleFlowAction>;
 
   constructor(dispatch: React.Dispatch<VisibleFlowAction>) {
     this.dispatch = dispatch;
