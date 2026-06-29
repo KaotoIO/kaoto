@@ -2,7 +2,7 @@ import { ValidationResult, ValidationStatus } from '../../models';
 import { BaseVisualEntity } from '../../models/visualization/base-visual-entity';
 
 export class RouteIdValidator {
-  private static URI_REGEXP = /^[a-z\d]([-a-z\d]*[a-z\d])?(\.[a-z\d]([-a-z\d]*[a-z\d])?)*$/gm;
+  private static readonly URI_REGEXP = /^[a-z\d]([-a-z\d]*[a-z\d])?(\.[a-z\d]([-a-z\d]*[a-z\d])?)*$/gm;
 
   /**
    * Verifies that the provided name is valid

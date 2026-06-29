@@ -12,7 +12,7 @@ export class XmlSchemaNamedImpl implements XmlSchemaNamed {
   protected refTwin?: XmlSchemaRefBase;
   // Store the name as a QName for the convenience of QName fans.
   private qname: QName | null = null;
-  private topLevel: boolean = false;
+  private readonly topLevel: boolean = false;
 
   /**
    * Create a new named object.

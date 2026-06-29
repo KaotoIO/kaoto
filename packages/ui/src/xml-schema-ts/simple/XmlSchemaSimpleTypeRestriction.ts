@@ -6,7 +6,7 @@ import { XmlSchemaSimpleTypeContent } from './XmlSchemaSimpleTypeContent';
 export class XmlSchemaSimpleTypeRestriction extends XmlSchemaSimpleTypeContent {
   private baseType?: XmlSchemaSimpleType;
   private baseTypeName: QName | null = null;
-  private facets: XmlSchemaFacet[] = [];
+  private readonly facets: XmlSchemaFacet[] = [];
 
   getBaseType() {
     return this.baseType;

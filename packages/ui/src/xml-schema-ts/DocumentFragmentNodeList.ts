@@ -1,6 +1,6 @@
 export class DocumentFragmentNodeList implements NodeList {
-  private nodes: Node[] = [];
-  private fragment?: DocumentFragment;
+  private readonly nodes: Node[] = [];
+  private readonly fragment?: DocumentFragment;
   length: number;
 
   /**

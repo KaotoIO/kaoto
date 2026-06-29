@@ -68,17 +68,6 @@ describe('DataMapperPage', () => {
     fileContents = {};
   });
 
-  it('should render initial XSLT mappings', async () => {
-    fileContents[metadata.xsltPath] = getShipOrderToShipOrderXslt();
-    renderWithVirtuoso(
-      <MetadataProvider api={api}>
-        <DataMapper vizNode={vizNode} />
-      </MetadataProvider>,
-    );
-    await screen.findByTestId('source-parameters-header');
-    // TODO assert mappings are restored even without loading schema... But how? Lines are not drawn...
-  });
-
   it('should render initial XSLT mappings with initial documents', async () => {
     fileContents['ShipOrder.xsd'] = getShipOrderXsd();
     fileContents[metadata.xsltPath] = getShipOrderToShipOrderXslt();
@@ -112,7 +101,6 @@ describe('DataMapperPage', () => {
     });
     /** We cannot rely on expect.assertions(6) since when there's a failure, an extra expectation is run */
     expect(executed).toBeTruthy();
-    // TODO assert mappings are restored even without loading schema... But how? Lines are not drawn...
   });
 
   it('should not render toolbar menu in embedded mode', async () => {

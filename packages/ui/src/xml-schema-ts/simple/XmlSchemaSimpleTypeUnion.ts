@@ -7,7 +7,7 @@ import type { XmlSchemaSimpleType } from './XmlSchemaSimpleType';
 import { XmlSchemaSimpleTypeContent } from './XmlSchemaSimpleTypeContent';
 
 export class XmlSchemaSimpleTypeUnion extends XmlSchemaSimpleTypeContent {
-  private baseTypes: XmlSchemaSimpleType[] = [];
+  private readonly baseTypes: XmlSchemaSimpleType[] = [];
   private memberTypesSource: string | null = null;
   private memberTypesQNames: QName[] = [];
 

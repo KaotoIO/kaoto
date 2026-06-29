@@ -9,7 +9,7 @@ import type { XmlSchemaNamedWithForm } from './XmlSchemaNamedWithForm';
  */
 export class XmlSchemaNamedWithFormImpl extends XmlSchemaNamedImpl implements XmlSchemaNamedWithForm {
   private form = XmlSchemaForm.NONE;
-  private element = false;
+  private readonly element: boolean;
   private wireName: QName | null = null;
 
   /**

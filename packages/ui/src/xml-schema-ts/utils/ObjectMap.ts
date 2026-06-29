@@ -5,7 +5,7 @@ import { SchemaKey } from '../SchemaKey';
  * The Map which uses a class instance as a key where if the stringified key matches then it's considered same.
  */
 abstract class ObjectMap<K, V> {
-  private delegate = new Map<string, V>();
+  private readonly delegate = new Map<string, V>();
 
   get(key: K) {
     return this.delegate.get(this.keyToString(key));
@@ -51,8 +51,8 @@ abstract class ObjectMap<K, V> {
 
 class KeysBridge<K> implements IterableIterator<K> {
   constructor(
-    private delegateKeys: IterableIterator<string>,
-    private stringToKey: (stringifiedKey: string) => K,
+    private readonly delegateKeys: IterableIterator<string>,
+    private readonly stringToKey: (stringifiedKey: string) => K,
   ) {}
 
   [Symbol.iterator](): IterableIterator<K> {
@@ -72,8 +72,8 @@ class KeysBridge<K> implements IterableIterator<K> {
 
 class EntriesBridge<K, V> implements IterableIterator<[K, V]> {
   constructor(
-    private delegateEntries: IterableIterator<[string, V]>,
-    private stringToKey: (stringifiedKey: string) => K,
+    private readonly delegateEntries: IterableIterator<[string, V]>,
+    private readonly stringToKey: (stringifiedKey: string) => K,
   ) {}
 
   [Symbol.iterator](): IterableIterator<[K, V]> {

@@ -12,7 +12,7 @@ export class XmlSchemaGroup
   implements XmlSchemaNamed, XmlSchemaChoiceMember, XmlSchemaSequenceMember, XmlSchemaAllMember
 {
   private particle: XmlSchemaGroupParticle | null = null;
-  private namedDelegate: XmlSchemaNamedImpl;
+  private readonly namedDelegate: XmlSchemaNamedImpl;
 
   constructor(parent: XmlSchema) {
     super();

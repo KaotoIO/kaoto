@@ -13,9 +13,9 @@ import { RouteTemplateBeansEntity } from './routeTemplateBeansEntity';
  * This class is to absorb a little bit of difference between beans such as {@link BeanFactory}.
  */
 export class BeansEntityHandler {
-  private type: 'beans' | 'routeTemplateBean' | undefined;
-  private beansAware: BeansAwareResource | RouteTemplateBeansAwareResource | undefined;
-  constructor(private camelResource?: KaotoResource) {
+  private readonly type: 'beans' | 'routeTemplateBean' | undefined;
+  private readonly beansAware: BeansAwareResource | RouteTemplateBeansAwareResource | undefined;
+  constructor(private readonly camelResource?: KaotoResource) {
     if (!this.camelResource) return;
     if ((this.camelResource as unknown as BeansAwareResource).createBeansEntity !== undefined) {
       this.beansAware = this.camelResource as unknown as BeansAwareResource;

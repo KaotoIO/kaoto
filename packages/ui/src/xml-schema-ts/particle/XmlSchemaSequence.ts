@@ -12,7 +12,7 @@ export class XmlSchemaSequence
   extends XmlSchemaGroupParticle
   implements XmlSchemaChoiceMember, XmlSchemaSequenceMember
 {
-  private items: XmlSchemaSequenceMember[] = [];
+  private readonly items: XmlSchemaSequenceMember[] = [];
 
   /**
    * The elements contained within the compositor. Collection of XmlSchemaElement, XmlSchemaGroupRef,

@@ -9,7 +9,7 @@ import { XmlSchemaSequenceMember } from './XmlSchemaSequenceMember';
  * This can contain any of (element|group|choice|sequence|any)*.
  */
 export class XmlSchemaChoice extends XmlSchemaGroupParticle implements XmlSchemaChoiceMember, XmlSchemaSequenceMember {
-  private items: XmlSchemaChoiceMember[] = [];
+  private readonly items: XmlSchemaChoiceMember[] = [];
 
   public getItems() {
     return this.items;

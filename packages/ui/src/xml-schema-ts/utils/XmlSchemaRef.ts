@@ -5,7 +5,7 @@ import { XmlSchemaRefBase } from './XmlSchemaRefBase';
 
 export class XmlSchemaRef<T extends XmlSchemaNamed> extends XmlSchemaRefBase {
   private targetObject: XmlSchemaNamed | null = null;
-  private targetType: XmlSchemaNamedType;
+  private readonly targetType: XmlSchemaNamedType;
 
   constructor(parent: XmlSchema, targetType: XmlSchemaNamedType) {
     super();

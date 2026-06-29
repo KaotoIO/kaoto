@@ -5,7 +5,7 @@ import { PrefixCollector } from './PrefixCollector';
 export class NodeNamespaceContext implements NamespacePrefixList {
   private prefixes?: string[];
 
-  private constructor(private declarations: Record<string, string>) {}
+  private constructor(private readonly declarations: Record<string, string>) {}
 
   static getNamespaceContext(pNode: Node): NodeNamespaceContext {
     const declarations: Record<string, string> = {};
