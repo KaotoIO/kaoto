@@ -31,7 +31,7 @@ export const useAddStep = (
     entitiesContext.updateEntitiesFromCamelResource();
 
     /** Notify VS Code host about the new step */
-    void metadataContext?.onStepUpdated?.(StepUpdateAction.Add, definedComponent.type, definedComponent.name);
+    await metadataContext?.onStepUpdated?.(StepUpdateAction.Add, definedComponent.type, definedComponent.name);
   }, [catalogModalContext, entitiesContext, metadataContext, mode, vizNode]);
 
   const value = useMemo(

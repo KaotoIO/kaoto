@@ -15,8 +15,8 @@ export function FlowClipboard() {
   const status = isCopied ? 'success' : undefined;
   const tooltipText = isCopied ? successTooltipText : defaultTooltipText;
 
-  const onClick = () => {
-    void navigator.clipboard.writeText(useSourceCodeStore.getState().sourceCode);
+  const onClick = async () => {
+    await navigator.clipboard.writeText(useSourceCodeStore.getState().sourceCode);
     setIsCopied(true);
 
     setTimeout(() => {

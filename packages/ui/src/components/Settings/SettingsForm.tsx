@@ -34,11 +34,11 @@ export const SettingsForm: FunctionComponent = () => {
 
   const onSave = async () => {
     try {
-      await settingsAdapter.saveSettings(settings);
+      settingsAdapter.saveSettings(settings);
       reloadPage();
 
       if (!hasPendingCatalogUrlChange) {
-        void navigate(Links.Home);
+        await navigate(Links.Home);
       }
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : 'Unable to save settings');
@@ -78,7 +78,13 @@ export const SettingsForm: FunctionComponent = () => {
       </CardBody>
 
       <CardFooter>
-        <Button data-testid="settings-form-save-btn" variant="primary" onClick={() => void onSave()}>
+        <Button
+          data-testid="settings-form-save-btn"
+          variant="primary"
+          onClick={async () => {
+            await onSave();
+          }}
+        >
           Save
         </Button>
       </CardFooter>

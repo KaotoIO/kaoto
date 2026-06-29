@@ -72,7 +72,9 @@ describe('SettingsForm', () => {
   it('should display error alert when save fails', async () => {
     // Mock saveSettings to throw an error
     const errorMessage = 'Failed to save settings to storage';
-    settingsAdapter.saveSettings = vi.fn().mockRejectedValue(new Error(errorMessage));
+    settingsAdapter.saveSettings = vi.fn().mockImplementation(() => {
+      throw new Error(errorMessage);
+    });
 
     await act(async () => {
       const button = screen.getByTestId('settings-form-save-btn');

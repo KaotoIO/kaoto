@@ -144,9 +144,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   useEffect(() => {
     let resizeTimeout: number | undefined;
 
-    if (!selectedIds[0]) {
-      setSelectedNode(undefined);
-    } else {
+    if (selectedIds[0]) {
       const selectedNode = controller.getNodeById(selectedIds[0]);
       if (selectedNode) {
         setSelectedNode(selectedNode as unknown as CanvasNode);
@@ -163,6 +161,8 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
           clearTimeout(resizeTimeout);
         }
       };
+    } else {
+      setSelectedNode(undefined);
     }
   }, [selectedIds, controller]);
 
@@ -201,8 +201,8 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
         id: 'topology-control-bar-catalog-button',
         icon: <CatalogIcon />,
         tooltip: 'Open Catalog',
-        callback: action(() => {
-          void catalogModalContext.getNewComponent();
+        callback: action(async () => {
+          await catalogModalContext.getNewComponent();
         }),
       });
     }
