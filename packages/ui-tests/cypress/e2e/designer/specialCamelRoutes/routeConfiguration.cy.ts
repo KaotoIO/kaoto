@@ -7,7 +7,7 @@ describe('Test for root route configuration container', () => {
     cy.selectCamelRouteType('Configuration', 'routeConfiguration');
 
     // Open routeConfiguration configuration tab, using the first routeConfiguration node
-    cy.get(`g[data-grouplabel^="routeConfiguration-"]`).eq(0).click({ force: true });
+    cy.openGroupConfigurationTab('routeConfiguration');
     cy.selectFormTab('All');
     cy.interactWithConfigInputObject('description', 'routeConfigurationDescription');
     cy.closeStepConfigurationTab();
@@ -19,7 +19,7 @@ describe('Test for root route configuration container', () => {
     cy.selectCamelRouteType('Configuration', 'routeConfiguration');
 
     // Open routeConfiguration configuration tab, using the first routeConfiguration node
-    cy.get(`g[data-grouplabel^="routeConfiguration-"]`).eq(0).click({ force: true });
+    cy.openGroupConfigurationTab('routeConfiguration');
 
     cy.selectFormTab('All');
 

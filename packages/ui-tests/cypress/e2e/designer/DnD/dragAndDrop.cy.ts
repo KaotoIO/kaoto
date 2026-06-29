@@ -11,7 +11,7 @@ describe('Canvas nodes Drag and Drop', () => {
     cy.openDesignPage();
     cy.DnDOnEdge('route.from.steps.0.setHeader', 'camel-route|route.from.steps.1.marshal >>> route.from.steps.2.to');
 
-    cy.get('[data-testid="Source Code"]').click({ force: true });
+    cy.get('[data-testid="Source Code"]').click();
     cy.openSourceCode();
     cy.compareFileWithMonacoEditor('flows/camelRoute/basic-updated.yaml');
   });
@@ -21,7 +21,7 @@ describe('Canvas nodes Drag and Drop', () => {
     cy.openDesignPage();
     cy.DnDOnNode('route.from.steps.0.setHeader', 'camel-route|route.from.steps.3.placeholder');
 
-    cy.get('[data-testid="Source Code"]').click({ force: true });
+    cy.get('[data-testid="Source Code"]').click();
     cy.openSourceCode();
     cy.compareFileWithMonacoEditor('flows/camelRoute/basic-updated2.yaml');
   });
@@ -39,7 +39,7 @@ describe('Canvas nodes Drag and Drop', () => {
 
     cy.DnDOnEdge('route.from.steps.0.setHeader', 'camel-route|route.from.steps.1.marshal >>> route.from.steps.2.to');
 
-    cy.get('[data-testid="Source Code"]').click({ force: true });
+    cy.get('[data-testid="Source Code"]').click();
     cy.openSourceCode();
     cy.compareFileWithMonacoEditor('flows/camelRoute/basic-configured-updated.yaml');
   });
@@ -50,7 +50,7 @@ describe('Canvas nodes Drag and Drop', () => {
 
     cy.DnDOnEdge('route.from.steps.0.setHeader', 'route-4321|route.from.steps.0.marshal >>> route.from.steps.1.log');
 
-    cy.get('[data-testid="Source Code"]').click({ force: true });
+    cy.get('[data-testid="Source Code"]').click();
     cy.openSourceCode();
     cy.compareFileWithMonacoEditor('flows/camelRoute/multiflowDnD-updated.yaml');
   });
@@ -64,7 +64,7 @@ describe('Canvas nodes Drag and Drop', () => {
 
     cy.DnDOnNode('route.from.steps.0.choice.when.0', 'route.from.steps.0.choice.when.1');
 
-    cy.get('[data-testid="Source Code"]').click({ force: true });
+    cy.get('[data-testid="Source Code"]').click();
     cy.openSourceCode();
     cy.compareFileWithMonacoEditor('flows/camelRoute/complex-dnd.yaml');
   });
@@ -75,7 +75,7 @@ describe('Canvas nodes Drag and Drop', () => {
 
     cy.DnDOnNode('route.from.steps.0.setHeader', 'route-4321|route.from.steps.2.placeholder');
 
-    cy.get('[data-testid="Source Code"]').click({ force: true });
+    cy.get('[data-testid="Source Code"]').click();
     cy.openSourceCode();
     cy.compareFileWithMonacoEditor('flows/camelRoute/multiflowDnD-updated2.yaml');
   });
@@ -86,7 +86,7 @@ describe('Canvas nodes Drag and Drop', () => {
 
     cy.DnDOnNode('route-1|route.from.steps.0.choice.when.0|drag-handle', 'route-2|route.from.steps.0.choice.when.0');
 
-    cy.get('[data-testid="Source Code"]').click({ force: true });
+    cy.get('[data-testid="Source Code"]').click();
     cy.openSourceCode();
     cy.compareFileWithMonacoEditor('flows/camelRoute/complexMultiFlow-when-moved.yaml');
   });
@@ -100,7 +100,7 @@ describe('Canvas nodes Drag and Drop', () => {
       'doTry-route|route.from.steps.0.setHeader >>> route.from.steps.1.marshal',
     );
 
-    cy.get('[data-testid="Source Code"]').click({ force: true });
+    cy.get('[data-testid="Source Code"]').click();
     cy.openSourceCode();
     cy.compareFileWithMonacoEditor('flows/camelRoute/doTry-on-edge-moved.yaml');
   });

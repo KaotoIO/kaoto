@@ -55,7 +55,7 @@ describe('Tests for Design page', () => {
     cy.openDesignPage();
 
     // CHECK that delete menu does not exist for the from node
-    cy.get(`[data-nodelabel="timer"]`).parent().eq(0).rightclick({ force: true });
+    cy.get(`[data-nodelabel="timer"]`).parent().eq(0).rightclick();
     cy.get(`[data-testid="context-menu-item-delete"]`).should('not.exist');
 
     cy.checkNodeExist('timer', 1);
