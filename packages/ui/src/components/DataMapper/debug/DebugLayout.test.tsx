@@ -75,9 +75,9 @@ describe('DebugLayout', () => {
     const targetDocuments = screen.queryAllByTestId(/^document-doc-targetBody-.*/);
     const targetFields = screen.queryAllByTestId(/^node-target-.*/);
     const targetNodes = [...targetDocuments, ...targetFields];
-    expect(targetNodes.length).toEqual(21);
-    expect(mappingLinks.length).toEqual(11);
-    expect(mappingLinks.filter((link) => link.isSelected).length).toEqual(0);
+    expect(targetNodes).toHaveLength(21);
+    expect(mappingLinks).toHaveLength(11);
+    expect(mappingLinks.filter((link) => link.isSelected)).toHaveLength(0);
     const connectionPortsLog = mockDebug.mock.calls.filter((call) => call[0].startsWith('Connection Ports: ['));
     expect(connectionPortsLog.length).toBeGreaterThan(0);
   });
@@ -164,11 +164,11 @@ describe('DebugLayout', () => {
         type: 'text/plain',
       });
       const fileInput = screen.getByTestId('dm-debug-import-mappings-file-input');
-      expect(spyOnMappingTree!.children.length).toBe(0);
+      expect(spyOnMappingTree!.children).toHaveLength(0);
       act(() => {
         fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
       });
-      await waitFor(() => expect(spyOnMappingTree!.children.length).toBe(1));
+      await waitFor(() => expect(spyOnMappingTree!.children).toHaveLength(1));
 
       mainMenuButton = screen.getByTestId('dm-debug-main-menu-button');
       act(() => {

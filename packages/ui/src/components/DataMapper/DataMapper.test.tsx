@@ -266,7 +266,7 @@ describe('DataMapperPage', () => {
       const createFileCalls = saveResourceContentSpy.mock.calls.filter(
         (call) => call[0] === 'kaoto-datamapper-1234.xsl' && call[1] === EMPTY_XSL,
       );
-      expect(createFileCalls.length).toBe(0);
+      expect(createFileCalls).toHaveLength(0);
     });
 
     saveResourceContentSpy.mockRestore();

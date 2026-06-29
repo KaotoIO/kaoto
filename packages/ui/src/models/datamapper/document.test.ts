@@ -22,7 +22,7 @@ describe('BaseField.adopt()', () => {
 
     expect(adopted.wrapperKind).toBe('choice');
     expect(adopted.selectedMemberIndex).toBe(1);
-    expect(adopted.fields.length).toBe(2);
+    expect(adopted.fields).toHaveLength(2);
     expect(adopted.fields[0].name).toBe('memberA');
     expect(adopted.fields[1].name).toBe('memberB');
   });
@@ -44,7 +44,7 @@ describe('BaseField.adopt()', () => {
 
     expect(merged.wrapperKind).toBe('choice');
     expect(merged.selectedMemberIndex).toBe(2);
-    expect(merged.fields.length).toBe(1);
+    expect(merged.fields).toHaveLength(1);
     expect(merged.fields[0].name).toBe('memberX');
   });
 
@@ -64,7 +64,7 @@ describe('BaseField.adopt()', () => {
 
     expect(merged.wrapperKind).toBe('choice');
     expect(merged.selectedMemberIndex).toBe(0);
-    expect(merged.fields.length).toBe(1);
+    expect(merged.fields).toHaveLength(1);
     expect(merged.fields[0].name).toBe('memberKeep');
   });
 });
@@ -88,7 +88,7 @@ describe('BaseField.adopt() - abstract metadata', () => {
 
     expect(adopted.wrapperKind).toBe('abstract');
     expect(adopted.isAbstractType).toBe(true);
-    expect(adopted.fields.length).toBe(1);
+    expect(adopted.fields).toHaveLength(1);
     expect(adopted.fields[0].name).toBe('candidateA');
   });
 
@@ -146,7 +146,7 @@ describe('XmlSchemaField.adopt()', () => {
 
     expect(adopted.wrapperKind).toBe('choice');
     expect(adopted.selectedMemberIndex).toBe(1);
-    expect(adopted.fields.length).toBe(2);
+    expect(adopted.fields).toHaveLength(2);
     expect(adopted.fields[0].name).toBe('memberA');
     expect(adopted.fields[1].name).toBe('memberB');
   });
@@ -166,7 +166,7 @@ describe('XmlSchemaField.adopt()', () => {
 
     expect(adopted.wrapperKind).toBe('abstract');
     expect(adopted.isAbstractType).toBe(true);
-    expect(adopted.fields.length).toBe(2);
+    expect(adopted.fields).toHaveLength(2);
     expect(adopted.fields[0].name).toBe('candidateA');
     expect(adopted.fields[1].name).toBe('candidateB');
   });

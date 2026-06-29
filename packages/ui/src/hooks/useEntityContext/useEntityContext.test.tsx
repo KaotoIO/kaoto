@@ -25,6 +25,6 @@ describe('useEntityContext', () => {
   it('should return EntityContext', () => {
     const { result } = renderHook(() => useEntityContext(), { wrapper });
 
-    expect(result.current).not.toBe(null);
+    expect(result.current).not.toBeNull();
   });
 });

@@ -76,7 +76,7 @@ describe('DocumentUtilService - JSON Schema', () => {
 
       DocumentUtilService.adoptTypeFragment(field, fragment);
 
-      expect(field.fields.length).toBe(2);
+      expect(field.fields).toHaveLength(2);
       expect(field.fields[0].key).toBe('child1');
       expect(field.fields[1].key).toBe('child2');
     });

@@ -80,7 +80,7 @@ describe('MappingLinksService : JSON', () => {
           new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
         ),
       );
-      expect(links.length).toEqual(13);
+      expect(links).toHaveLength(13);
       expect(links[0].sourceNodePath).toMatch('fj-string-AccountId');
       expect(links[0].targetNodePath).toMatch('fj-string-OrderId');
       expect(links[1].sourceNodePath).toMatch('param:OrderSequence');

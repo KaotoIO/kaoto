@@ -22,6 +22,6 @@ describe('useKaotoResourceContext', () => {
   it('should return EntityContext', () => {
     const { result } = renderHook(() => useKaotoResourceContext(), { wrapper });
 
-    expect(result.current).not.toBe(null);
+    expect(result.current).not.toBeNull();
   });
 });

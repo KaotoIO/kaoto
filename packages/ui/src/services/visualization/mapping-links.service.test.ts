@@ -60,7 +60,7 @@ describe('MappingLinksService', () => {
   describe('extractMappingLinks()', () => {
     it('should return IMappingLink[]', () => {
       const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
-      expect(links.length).toEqual(11);
+      expect(links).toHaveLength(11);
       expect(links[0].sourceNodePath).toMatch('OrderId');
       expect(links[0].targetNodePath).toMatch('OrderId');
       expect(links[1].sourceNodePath).toMatch('OrderPerson');
@@ -103,7 +103,7 @@ describe('MappingLinksService', () => {
       tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
       MappingSerializerService.deserialize(getX12837PXslt(), targetDoc, tree, paramsMap);
       const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
-      expect(links.length).toEqual(14);
+      expect(links).toHaveLength(14);
       expect(links[0].sourceNodePath).toMatch('fx-GS-02');
       expect(links[0].targetNodePath).toMatch('fx-From');
       expect(links[1].sourceNodePath).toMatch('fx-GS-03');
@@ -158,13 +158,13 @@ describe('MappingLinksService', () => {
     it('should generate mapping links for multiple for-each on a same target collection', () => {
       MappingSerializerService.deserialize(getShipOrderToShipOrderMultipleForEachXslt(), targetDoc, tree, paramsMap);
       const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
-      expect(links.length).toEqual(10);
+      expect(links).toHaveLength(10);
     });
 
     it('should generate mapping links for multiple field item on a same target collection', () => {
       MappingSerializerService.deserialize(getShipOrderToShipOrderCollectionIndexXslt(), targetDoc, tree, paramsMap);
       const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
-      expect(links.length).toEqual(8);
+      expect(links).toHaveLength(8);
     });
 
     it('should generate mapping links for JSON documents', () => {
@@ -244,7 +244,7 @@ describe('MappingLinksService', () => {
 
       const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
 
-      expect(links.length).toEqual(7);
+      expect(links).toHaveLength(7);
       expect(links[0].sourceNodePath).toMatch('OrderPerson');
       expect(links[0].targetNodePath).toMatch('OrderPerson');
       expect(links[1].sourceNodePath).toMatch('ShipTo');
@@ -329,7 +329,7 @@ describe('MappingLinksService', () => {
       emailItem.children.push(valueSelector);
 
       const links = MappingLinksService.extractMappingLinks(choiceTree, paramsMap, sourceDoc);
-      expect(links.length).toEqual(1);
+      expect(links).toHaveLength(1);
       expect(links[0].targetNodePath).toEqual(
         `targetBody:Body://${rootItem.id}/${personItem.id}/outer-choice/inner-choice/${emailItem.id}`,
       );
@@ -375,7 +375,7 @@ describe('MappingLinksService', () => {
       emailItem.children.push(valueSelector);
 
       const links = MappingLinksService.extractMappingLinks(choiceTree, paramsMap, sourceDoc);
-      expect(links.length).toEqual(1);
+      expect(links).toHaveLength(1);
       expect(links[0].targetNodePath).toEqual(`targetBody:Body://${rootItem.id}/${personItem.id}/${emailField.id}`);
     });
 
@@ -417,7 +417,7 @@ describe('MappingLinksService', () => {
       emailItem.children.push(valueSelector);
 
       const links = MappingLinksService.extractMappingLinks(choiceTree, paramsMap, sourceDoc);
-      expect(links.length).toEqual(1);
+      expect(links).toHaveLength(1);
       expect(links[0].targetNodePath).toEqual(
         `targetBody:Body://${rootItem.id}/${personItem.id}/inner-choice/${emailItem.id}`,
       );
@@ -468,7 +468,7 @@ describe('MappingLinksService', () => {
       orderIdItem.children.push(valueSelector);
 
       const links = MappingLinksService.extractMappingLinks(abstractTree, paramsMap, zooDoc);
-      expect(links.length).toEqual(1);
+      expect(links).toHaveLength(1);
       expect(links[0].sourceNodePath).toContain(catField.id);
       expect(links[0].sourceNodePath).toContain(indoorField.id);
       expect(links[0].sourceNodePath).not.toContain(abstractAnimalField.id);
@@ -501,7 +501,7 @@ describe('MappingLinksService', () => {
       indoorItem.children.push(valueSelector);
 
       const links = MappingLinksService.extractMappingLinks(zooTree, paramsMap, sourceDoc);
-      expect(links.length).toEqual(1);
+      expect(links).toHaveLength(1);
       expect(links[0].targetNodePath).toContain(catField.id);
       expect(links[0].targetNodePath).toContain(indoorField.id);
       expect(links[0].targetNodePath).not.toContain(abstractAnimalField.id);
@@ -535,7 +535,7 @@ describe('MappingLinksService', () => {
       indoorItem.children.push(valueSelector);
 
       const links = MappingLinksService.extractMappingLinks(zooTree, paramsMap, sourceDoc);
-      expect(links.length).toEqual(1);
+      expect(links).toHaveLength(1);
       expect(links[0].targetNodePath).toContain(abstractAnimalField.id);
     });
   });
@@ -575,7 +575,7 @@ describe('MappingLinksService', () => {
     it('should classify links inside InstructionItem as REGULAR', () => {
       const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
       const itemChildLinks = links.filter((l) => /for-each-.*fx-(Title|Quantity|Price)/.exec(l.targetNodePath));
-      expect(itemChildLinks.length).toBe(3);
+      expect(itemChildLinks).toHaveLength(3);
       itemChildLinks.forEach((link) => {
         expect(link.lineStyle).toBe(MappingLineStyle.REGULAR);
       });
@@ -606,7 +606,7 @@ describe('MappingLinksService', () => {
       }
 
       const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
-      expect(links.length).toBe(4);
+      expect(links).toHaveLength(4);
       links.forEach((link) => {
         expect(link.lineStyle).toBe(MappingLineStyle.COMPLETE);
       });
@@ -642,7 +642,7 @@ describe('MappingLinksService', () => {
       });
 
       const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
-      expect(links.length).toBe(4);
+      expect(links).toHaveLength(4);
       links.forEach((link) => {
         expect(link.lineStyle).toBe(MappingLineStyle.COMPLETE);
       });
@@ -674,7 +674,7 @@ describe('MappingLinksService', () => {
       }
 
       const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
-      expect(links.length).toBe(3);
+      expect(links).toHaveLength(3);
       links.forEach((link) => {
         expect(link.lineStyle).toBe(MappingLineStyle.PARTIAL);
       });
@@ -711,7 +711,7 @@ describe('MappingLinksService', () => {
         }
 
         const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
-        expect(links.length).toBe(4);
+        expect(links).toHaveLength(4);
         links.forEach((link) => {
           expect(link.lineStyle).toBe(MappingLineStyle.PARTIAL);
         });
@@ -755,7 +755,7 @@ describe('MappingLinksService', () => {
         });
 
         const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
-        expect(links.length).toBe(4);
+        expect(links).toHaveLength(4);
         links.forEach((link) => {
           expect(link.lineStyle).toBe(MappingLineStyle.PARTIAL);
         });
@@ -783,7 +783,7 @@ describe('MappingLinksService', () => {
       shipToItem.children.push(vs);
 
       const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
-      expect(links.length).toBe(1);
+      expect(links).toHaveLength(1);
       expect(links[0].lineStyle).toBe(MappingLineStyle.PARTIAL);
     });
   });

@@ -89,7 +89,7 @@ describe('DataMapperProvider', () => {
       </DataMapperProvider>,
     );
     await waitFor(() => tree);
-    expect(tree!.children.length).toEqual(0);
+    expect(tree!.children).toHaveLength(0);
   });
 
   it('refreshSourceParameters should re-create the SourceParameters instance', async () => {
@@ -513,7 +513,7 @@ describe('DataMapperProvider', () => {
       expect(variables[0].getAttribute('name')).toEqual('Account-x');
       expect(variables[1].getAttribute('name')).toEqual('Cart-x');
       expect(variables[2].getAttribute('name')).toEqual('mapped-xml');
-      expect(variables.length).toEqual(3);
+      expect(variables).toHaveLength(3);
     });
   });
 

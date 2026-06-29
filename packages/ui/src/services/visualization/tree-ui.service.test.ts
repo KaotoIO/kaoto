@@ -190,7 +190,7 @@ describe('TreeUIService', () => {
       const level3Node = level2WithChildren!.children[0];
       expect(level3Node).toBeDefined();
       expect(level3Node.isParsed).toBe(false);
-      expect(level3Node.children.length).toBe(0);
+      expect(level3Node.children).toHaveLength(0);
 
       // Toggle the unparsed node - this should trigger parsing
       TreeUIService.toggleNode(documentId, level3Node.path);
@@ -214,7 +214,7 @@ describe('TreeUIService', () => {
       TreeUIService.toggleNode(documentId, firstChild.path);
 
       // Children count should not change (no re-parsing happens)
-      expect(firstChild.children.length).toBe(childrenCountBefore);
+      expect(firstChild.children).toHaveLength(childrenCountBefore);
     });
 
     it('should do nothing if document ID is not found', () => {
@@ -350,13 +350,13 @@ describe('TreeUIService', () => {
     const initialExpansionState = { ...store.expansionState[documentId] };
 
     const initialKeys = Object.keys(initialExpansionState);
-    expect(initialKeys.length).toEqual(13);
+    expect(initialKeys).toHaveLength(13);
 
     const expandedPaths = Object.entries(initialExpansionState).reduce((acc, [path, isExpanded]) => {
       if (isExpanded) acc.push(path);
       return acc;
     }, [] as string[]);
-    expect(expandedPaths.length).toEqual(3);
+    expect(expandedPaths).toHaveLength(3);
 
     // Toggle all initially expanded nodes
     for (const nodePath of expandedPaths) {

@@ -583,7 +583,7 @@ describe('DocumentTreeNode', () => {
 
       expect(node.children).toBeDefined();
       expect(Array.isArray(node.children)).toBe(true);
-      expect(node.children.length).toBe(0);
+      expect(node.children).toHaveLength(0);
     });
   });
 });

@@ -16,7 +16,7 @@ describe('MetadataEditor.tsx', () => {
   test('Details disabled if empty', async () => {
     render(<MetadataEditor name="beans" schema={mockSchema.beans} metadata={[]} onChangeModel={() => {}} />);
     const inputs = screen.getAllByRole('textbox').filter((input) => input.getAttribute('name') === '#.name');
-    expect(inputs.length).toBe(1);
+    expect(inputs).toHaveLength(1);
     expect(inputs[0]).toBeDisabled();
     const addPropBtn = screen.getByTestId('#.properties__add');
     expect(addPropBtn).toBeDisabled();
@@ -34,7 +34,7 @@ describe('MetadataEditor.tsx', () => {
     const row = screen.getByTestId('metadata-row-0');
     fireEvent.click(row);
     const inputs = screen.getAllByRole('textbox').filter((input) => input.getAttribute('name') === '#.name');
-    expect(inputs.length).toBe(1);
+    expect(inputs).toHaveLength(1);
     expect(inputs[0]).toBeEnabled();
     const addPropBtn = screen.getByTestId('#.properties__add');
     expect(addPropBtn).toBeEnabled();
@@ -103,7 +103,7 @@ describe('MetadataEditor.tsx', () => {
     );
     const deleteBtn = screen.getByTestId('metadata-delete-0-btn');
     fireEvent.click(deleteBtn);
-    expect(changed.length).toBe(1);
+    expect(changed).toHaveLength(1);
     expect(changed[0].name).toBe('bean2');
   });
 

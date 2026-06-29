@@ -6,7 +6,7 @@ describe('sortTags()', () => {
     const tiles: ITile[] = [];
     const filterTags: string[] = [];
     const { sortedTags, overflowIndex } = sortTags(tiles, filterTags);
-    expect(sortedTags.length).toBe(0);
+    expect(sortedTags).toHaveLength(0);
     expect(overflowIndex).toBe(0);
   });
 
@@ -14,7 +14,7 @@ describe('sortTags()', () => {
     const tiles: ITile[] = [];
     const filterTags = ['eip'];
     const { sortedTags, overflowIndex } = sortTags(tiles, filterTags);
-    expect(sortedTags.length).toBe(0);
+    expect(sortedTags).toHaveLength(0);
     expect(overflowIndex).toBe(0);
   });
 
@@ -37,7 +37,7 @@ describe('sortTags()', () => {
     ];
     let filterTags: string[] = [];
     const { sortedTags, overflowIndex } = sortTags(tiles, filterTags);
-    expect(sortedTags.length).toBe(4);
+    expect(sortedTags).toHaveLength(4);
     expect(sortedTags[0]).toEqual('aaa-proc');
     expect(overflowIndex).toBe(2);
     filterTags = ['eip'];

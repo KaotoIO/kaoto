@@ -7,12 +7,12 @@ describe('KameletBindingResource', () => {
     const resource = new KameletBindingResource(kameletBindingJson);
     await resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.KameletBinding);
-    expect(resource.getVisualEntities().length).toEqual(1);
+    expect(resource.getVisualEntities()).toHaveLength(1);
     const vis = resource.getVisualEntities()[0];
     expect(vis.pipe.spec!.source!.ref!.name).toEqual('webhook-source');
     expect(vis.pipe.spec!.steps![0].ref?.name).toEqual('delay-action');
     expect(vis.pipe.spec!.sink!.ref!.name).toEqual('log-sink');
-    expect(resource.getEntities().length).toEqual(2);
+    expect(resource.getEntities()).toHaveLength(2);
   });
 
   describe('getCompatibleRuntimes', () => {
@@ -47,7 +47,7 @@ describe('KameletBindingResource', () => {
     await resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.KameletBinding);
     expect(resource.getEntities()).toEqual([]);
-    expect(resource.getVisualEntities().length).toEqual(1);
+    expect(resource.getVisualEntities()).toHaveLength(1);
     const vis = resource.getVisualEntities()[0];
     expect(vis.pipe.spec!.source).toBeUndefined();
     expect(vis.pipe.spec!.steps).toBeUndefined();

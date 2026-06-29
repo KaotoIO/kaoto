@@ -43,7 +43,7 @@ describe('MappingLink', () => {
       </svg>,
     );
     const circles = getAllByRole('presentation');
-    expect(circles.length).toBe(2);
+    expect(circles).toHaveLength(2);
   });
 
   it('renders LinePath with correct testid', () => {

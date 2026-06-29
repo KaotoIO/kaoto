@@ -24,9 +24,9 @@ describe('TopmostArrayTable.tsx', () => {
     const deleteBtn = screen.queryByTestId('metadata-delete-0-btn');
     expect(deleteBtn).not.toBeInTheDocument();
     const btns = screen.getAllByTestId('metadata-add-beans-btn');
-    expect(btns.length).toBe(2);
+    expect(btns).toHaveLength(2);
     fireEvent.click(btns[1]);
-    expect(changedModel.length).toBe(1);
+    expect(changedModel).toHaveLength(1);
     expect(selected).toBe(0);
   });
 
@@ -46,7 +46,7 @@ describe('TopmostArrayTable.tsx', () => {
     );
     const btn = screen.getByTestId('metadata-delete-0-btn');
     fireEvent.click(btn);
-    expect(changedModel.length).toBe(1);
+    expect(changedModel).toHaveLength(1);
     expect(selected).toBe(0);
   });
 });

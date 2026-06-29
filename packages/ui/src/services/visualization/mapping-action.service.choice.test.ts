@@ -106,14 +106,14 @@ describe('MappingActionService / choice field mappings', () => {
 
       MappingActionService.engageMapping(tree, choiceNode, targetFieldNode);
 
-      expect(tree.children.length).toEqual(1);
+      expect(tree.children).toHaveLength(1);
       const targetFieldItem = tree.children[0];
       expect(targetFieldItem).toBeInstanceOf(FieldItem);
-      expect(targetFieldItem.children.length).toEqual(1);
+      expect(targetFieldItem.children).toHaveLength(1);
 
       const chooseItem = targetFieldItem.children[0] as ChooseItem;
       expect(chooseItem).toBeInstanceOf(ChooseItem);
-      expect(chooseItem.when.length).toEqual(2);
+      expect(chooseItem.when).toHaveLength(2);
       expect(chooseItem.otherwise).toBeInstanceOf(OtherwiseItem);
     });
 
@@ -166,7 +166,7 @@ describe('MappingActionService / choice field mappings', () => {
 
       const chooseItem = fieldItemNode.mapping.children.find((c) => c instanceof ChooseItem) as ChooseItem;
       expect(chooseItem).toBeInstanceOf(ChooseItem);
-      expect(chooseItem.when.length).toEqual(2);
+      expect(chooseItem.when).toHaveLength(2);
       expect(chooseItem.otherwise).toBeInstanceOf(OtherwiseItem);
       const valueSelectorAfter = fieldItemNode.mapping.children.some((c) => c instanceof ValueSelector);
       expect(valueSelectorAfter).toBe(false);
@@ -181,7 +181,7 @@ describe('MappingActionService / choice field mappings', () => {
 
       const chooseItem = tree.children[0].children[0] as ChooseItem;
       expect(chooseItem).toBeInstanceOf(ChooseItem);
-      expect(chooseItem.when.length).toEqual(0);
+      expect(chooseItem.when).toHaveLength(0);
       expect(chooseItem.otherwise).toBeInstanceOf(OtherwiseItem);
     });
 
@@ -197,10 +197,10 @@ describe('MappingActionService / choice field mappings', () => {
 
       MappingActionService.engageMapping(tree, choiceNode, targetFieldNode);
 
-      expect(tree.children.length).toEqual(1);
+      expect(tree.children).toHaveLength(1);
       const targetFieldItem = tree.children[0];
       expect(targetFieldItem).toBeInstanceOf(FieldItem);
-      expect(targetFieldItem.children.length).toEqual(1);
+      expect(targetFieldItem.children).toHaveLength(1);
       expect(targetFieldItem.children[0]).toBeInstanceOf(ValueSelector);
       expect(targetFieldItem.children[0]).not.toBeInstanceOf(ChooseItem);
     });
@@ -215,7 +215,7 @@ describe('MappingActionService / choice field mappings', () => {
 
       const targetFieldItem = tree.children[0];
       const chooseItems = targetFieldItem.children.filter((c) => c instanceof ChooseItem);
-      expect(chooseItems.length).toEqual(1);
+      expect(chooseItems).toHaveLength(1);
     });
   });
 
@@ -421,7 +421,7 @@ describe('MappingActionService / choice field mappings', () => {
       const directNestedNode = testDocumentChildren.find((c) => c.title === 'DirectNestedChoiceElement')!;
       const directNestedChildren = VisualizationService.generateNonDocumentNodeDataChildren(directNestedNode);
 
-      expect(directNestedChildren.length).toEqual(1);
+      expect(directNestedChildren).toHaveLength(1);
       const outerChoice = directNestedChildren[0] as TargetChoiceFieldNodeData;
       expect(outerChoice).toBeInstanceOf(TargetChoiceFieldNodeData);
 
@@ -498,18 +498,18 @@ describe('MappingActionService / choice field mappings', () => {
 
       MappingActionService.engageMapping(tree, choiceNode, targetFieldNode);
 
-      expect(tree.children.length).toEqual(1);
+      expect(tree.children).toHaveLength(1);
       const targetFieldItem = tree.children[0];
       expect(targetFieldItem).toBeInstanceOf(FieldItem);
-      expect(targetFieldItem.children.length).toEqual(1);
+      expect(targetFieldItem.children).toHaveLength(1);
 
       const forEachItem = targetFieldItem.children[0];
       expect(forEachItem).toBeInstanceOf(ForEachItem);
-      expect(forEachItem.children.length).toEqual(1);
+      expect(forEachItem.children).toHaveLength(1);
 
       const chooseItem = forEachItem.children[0] as ChooseItem;
       expect(chooseItem).toBeInstanceOf(ChooseItem);
-      expect(chooseItem.when.length).toEqual(2);
+      expect(chooseItem.when).toHaveLength(2);
       expect(chooseItem.otherwise).toBeInstanceOf(OtherwiseItem);
     });
 
@@ -551,15 +551,15 @@ describe('MappingActionService / choice field mappings', () => {
 
       MappingActionService.engageMapping(tree, choiceNode, targetFieldNode);
 
-      expect(tree.children.length).toEqual(1);
+      expect(tree.children).toHaveLength(1);
       const targetFieldItem = tree.children[0];
       expect(targetFieldItem).toBeInstanceOf(FieldItem);
-      expect(targetFieldItem.children.length).toEqual(1);
+      expect(targetFieldItem.children).toHaveLength(1);
 
       const chooseItem = targetFieldItem.children[0];
       expect(chooseItem).toBeInstanceOf(ChooseItem);
       expect(chooseItem).not.toBeInstanceOf(ForEachItem);
-      expect((chooseItem as ChooseItem).when.length).toEqual(2);
+      expect((chooseItem as ChooseItem).when).toHaveLength(2);
     });
 
     it('should create only ChooseItem when mapping non-collection choice wrapper to collection field', () => {
@@ -570,10 +570,10 @@ describe('MappingActionService / choice field mappings', () => {
 
       MappingActionService.engageMapping(tree, choiceNode, targetFieldNode);
 
-      expect(tree.children.length).toEqual(1);
+      expect(tree.children).toHaveLength(1);
       const targetFieldItem = tree.children[0];
       expect(targetFieldItem).toBeInstanceOf(FieldItem);
-      expect(targetFieldItem.children.length).toEqual(1);
+      expect(targetFieldItem.children).toHaveLength(1);
 
       const chooseItem = targetFieldItem.children[0];
       expect(chooseItem).toBeInstanceOf(ChooseItem);
@@ -591,7 +591,7 @@ describe('MappingActionService / choice field mappings', () => {
 
       const targetFieldItem = tree.children[0];
       const forEachItems = targetFieldItem.children.filter((c) => c instanceof ForEachItem);
-      expect(forEachItems.length).toEqual(1);
+      expect(forEachItems).toHaveLength(1);
     });
   });
 });

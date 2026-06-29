@@ -68,7 +68,7 @@ describe('AttachSchemaModal', () => {
     });
 
     await waitFor(() => {
-      expect(mockReadFileAsString.mock.calls.length).toEqual(1);
+      expect(mockReadFileAsString.mock.calls).toHaveLength(1);
     });
   });
 
@@ -113,7 +113,7 @@ describe('AttachSchemaModal', () => {
     });
 
     await waitFor(() => {
-      expect(mockReadFileAsString.mock.calls.length).toEqual(1);
+      expect(mockReadFileAsString.mock.calls).toHaveLength(1);
     });
   });
 
@@ -554,7 +554,7 @@ describe('AttachSchemaModal', () => {
       await waitFor(() => {
         const rootElementSelect = screen.getByTestId('attach-schema-root-element-select');
         const options = rootElementSelect.querySelectorAll('[role="option"]');
-        expect(options.length).toEqual(1);
+        expect(options).toHaveLength(1);
         expect(screen.getByText('ShipOrder')).toBeInTheDocument();
       });
     });
@@ -610,7 +610,7 @@ describe('AttachSchemaModal', () => {
       await waitFor(() => {
         const rootElementSelect = screen.getByTestId('attach-schema-root-element-select');
         const options = rootElementSelect.querySelectorAll('[role="option"]');
-        expect(options.length).toEqual(1);
+        expect(options).toHaveLength(1);
         expect(screen.getByText('Invoice')).toBeInTheDocument();
       });
     });

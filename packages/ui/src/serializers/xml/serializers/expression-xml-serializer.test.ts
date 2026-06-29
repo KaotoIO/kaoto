@@ -135,6 +135,6 @@ describe('ExpressionSerialisation tests', () => {
     };
     const element = doc.createElement('when');
     ExpressionXmlSerializer.serialize('expression', entity, oneOf, doc, element);
-    expect(element.children.length).toBe(0);
+    expect(element.children).toHaveLength(0);
   });
 });

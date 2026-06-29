@@ -70,8 +70,8 @@ describe('ParametersSection', () => {
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );
-    expect(mockUpdateDocument.mock.calls.length).toEqual(0);
-    expect(mockDeleteParameter.mock.calls.length).toEqual(0);
+    expect(mockUpdateDocument.mock.calls).toHaveLength(0);
+    expect(mockDeleteParameter.mock.calls).toHaveLength(0);
     const addButton = await screen.findByTestId('add-parameter-button');
     act(() => {
       fireEvent.click(addButton);
@@ -84,8 +84,8 @@ describe('ParametersSection', () => {
     act(() => {
       fireEvent.click(submitButton);
     });
-    expect(mockUpdateDocument.mock.calls.length).toEqual(1);
-    expect(mockDeleteParameter.mock.calls.length).toEqual(0);
+    expect(mockUpdateDocument.mock.calls).toHaveLength(1);
+    expect(mockDeleteParameter.mock.calls).toHaveLength(0);
     expect(mockUpdateDocument.mock.calls[0][0]['name']).toEqual('testparam1');
 
     const renameButton = screen.getByTestId('rename-parameter-testparam1-button');
@@ -108,8 +108,8 @@ describe('ParametersSection', () => {
     act(() => {
       fireEvent.click(confirmButton);
     });
-    expect(mockUpdateDocument.mock.calls.length).toEqual(1);
-    expect(mockDeleteParameter.mock.calls.length).toEqual(1);
+    expect(mockUpdateDocument.mock.calls).toHaveLength(1);
+    expect(mockDeleteParameter.mock.calls).toHaveLength(1);
     expect(mockDeleteParameter.mock.calls[0][0]).toEqual('testparam2');
     await screen.findByTestId('add-parameter-button');
     const notexist = screen.queryByTestId('delete-parameter-testparam2-button');
@@ -130,8 +130,8 @@ describe('ParametersSection', () => {
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );
-    expect(mockUpdateDocument.mock.calls.length).toEqual(0);
-    expect(mockDeleteParameter.mock.calls.length).toEqual(0);
+    expect(mockUpdateDocument.mock.calls).toHaveLength(0);
+    expect(mockDeleteParameter.mock.calls).toHaveLength(0);
     const addButton = await screen.findByTestId('add-parameter-button');
     act(() => {
       fireEvent.click(addButton);

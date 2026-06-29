@@ -14,7 +14,7 @@ describe('CitrusTestResource', () => {
     resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.Test);
     expect(resource.getEntities()).toEqual([]);
-    expect(resource.getVisualEntities().length).toEqual(0);
+    expect(resource.getVisualEntities()).toHaveLength(0);
   });
 
   it('should initialize Citrus test', () => {
@@ -22,7 +22,7 @@ describe('CitrusTestResource', () => {
     resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.Test);
     expect(resource.getEntities()).toEqual([]);
-    expect(resource.getVisualEntities().length).toEqual(1);
+    expect(resource.getVisualEntities()).toHaveLength(1);
     const vis = resource.getVisualEntities()[0];
     expect(vis.test).toBeDefined();
     expect(vis.test.actions).toBeDefined();

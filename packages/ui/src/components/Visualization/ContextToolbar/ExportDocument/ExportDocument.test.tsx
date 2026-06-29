@@ -60,7 +60,7 @@ describe('FlowExportDocument.tsx', () => {
 
     await waitFor(async () => {
       const tables = await wrapper.findAllByTestId('export-document-preview-body');
-      expect(tables.length).toEqual(1);
+      expect(tables).toHaveLength(1);
     });
   });
 });

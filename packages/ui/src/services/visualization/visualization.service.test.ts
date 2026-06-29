@@ -112,18 +112,18 @@ describe('VisualizationService', () => {
       const doc = result.document!;
       const docNode = new DocumentNodeData(doc);
       const docChildren = VisualizationService.generateStructuredDocumentChildren(docNode);
-      expect(docChildren.length).toEqual(1);
+      expect(docChildren).toHaveLength(1);
 
       const product = docChildren[0];
       expect(product.title).toEqual('Product');
       const productChildren = VisualizationService.generateNonDocumentNodeDataChildren(product);
-      expect(productChildren.length).toEqual(2);
+      expect(productChildren).toHaveLength(2);
 
       const nameField = productChildren.find((child) => child.title === 'name') as FieldNodeData;
       expect(nameField).toBeDefined();
       const nameChildren = VisualizationService.generateNonDocumentNodeDataChildren(nameField);
 
-      expect(nameChildren.length).toEqual(2);
+      expect(nameChildren).toHaveLength(2);
       const langAttr = nameChildren.find((child) => child.title === 'lang');
       expect(langAttr).toBeDefined();
       const formatAttr = nameChildren.find((child) => child.title === 'format');
@@ -133,7 +133,7 @@ describe('VisualizationService', () => {
       expect(priceField).toBeDefined();
       const priceChildren = VisualizationService.generateNonDocumentNodeDataChildren(priceField);
 
-      expect(priceChildren.length).toEqual(3);
+      expect(priceChildren).toHaveLength(3);
       const discountAttr = priceChildren.find((child) => child.title === 'discount');
       expect(discountAttr).toBeDefined();
       const currencyAttr = priceChildren.find((child) => child.title === 'currency');
@@ -155,13 +155,13 @@ describe('VisualizationService', () => {
       const doc = result.document!;
       const docNode = new DocumentNodeData(doc);
       const docChildren = VisualizationService.generateStructuredDocumentChildren(docNode);
-      expect(docChildren.length).toEqual(1);
+      expect(docChildren).toHaveLength(1);
 
       const request = docChildren[0];
       expect(request.title).toEqual('Request');
       const requestChildren = VisualizationService.generateNonDocumentNodeDataChildren(request);
 
-      expect(requestChildren.length).toEqual(3);
+      expect(requestChildren).toHaveLength(3);
 
       const nameField = requestChildren.find((child) => child.title === 'name');
       expect(nameField).toBeDefined();
@@ -185,19 +185,19 @@ describe('VisualizationService', () => {
       const doc = result.document!;
       const docNode = new DocumentNodeData(doc);
       const docChildren = VisualizationService.generateStructuredDocumentChildren(docNode);
-      expect(docChildren.length).toEqual(1);
+      expect(docChildren).toHaveLength(1);
 
       const root = docChildren[0];
       expect(root.title).toEqual('Root');
       const rootChildren = VisualizationService.generateNonDocumentNodeDataChildren(root);
-      expect(rootChildren.length).toEqual(2);
+      expect(rootChildren).toHaveLength(2);
 
       const personField = rootChildren.find((child) => child.title === 'person') as FieldNodeData;
       expect(personField).toBeDefined();
       const personChildren = VisualizationService.generateNonDocumentNodeDataChildren(personField);
 
       // name, street, city, choice wrapper, createdBy, createdDate, @id, @version, @status
-      expect(personChildren.length).toEqual(9);
+      expect(personChildren).toHaveLength(9);
 
       const nameField = personChildren.find((child) => child.title === 'name');
       expect(nameField).toBeDefined();
@@ -277,7 +277,7 @@ describe('VisualizationService', () => {
 
     const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
     const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
-    expect(shipOrderChildren.length).toEqual(6);
+    expect(shipOrderChildren).toHaveLength(6);
     expect(shipOrderChildren[0].title).toEqual('OrderId');
     expect(shipOrderChildren[1].title).toEqual('OrderPerson');
     expect(shipOrderChildren[2].title).toEqual('ShipTo');
@@ -288,11 +288,11 @@ describe('VisualizationService', () => {
     const forEach1Node = shipOrderChildren[3] as MappingNodeData;
     expect((forEach1Node.mapping as ForEachItem).expression).toEqual('/ns0:ShipOrder/Item');
     const forEach1Children = VisualizationService.generateNonDocumentNodeDataChildren(forEach1Node);
-    expect(forEach1Children.length).toEqual(1);
+    expect(forEach1Children).toHaveLength(1);
     expect(forEach1Children[0].title).toEqual('Item');
     expect(VisualizationUtilService.isCollectionField(forEach1Children[0])).toBeTruthy();
     const forEach1ItemChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEach1Children[0]);
-    expect(forEach1ItemChildren.length).toEqual(4);
+    expect(forEach1ItemChildren).toHaveLength(4);
     expect(forEach1ItemChildren[0].title).toEqual('Title');
     const title1Selector = (forEach1ItemChildren[0] as FieldItemNodeData).mapping.children[0] as ValueSelector;
     expect(title1Selector.expression).toEqual('Title');
@@ -300,11 +300,11 @@ describe('VisualizationService', () => {
     const forEach2Node = shipOrderChildren[4] as MappingNodeData;
     expect((forEach2Node.mapping as ForEachItem).expression).toEqual('$sourceParam1/ns0:ShipOrder/Item');
     const forEach2Children = VisualizationService.generateNonDocumentNodeDataChildren(forEach2Node);
-    expect(forEach2Children.length).toEqual(1);
+    expect(forEach2Children).toHaveLength(1);
     expect(forEach2Children[0].title).toEqual('Item');
     expect(VisualizationUtilService.isCollectionField(forEach2Children[0])).toBeTruthy();
     const forEach2ItemChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEach2Children[0]);
-    expect(forEach2ItemChildren.length).toEqual(4);
+    expect(forEach2ItemChildren).toHaveLength(4);
     expect(forEach2ItemChildren[0].title).toEqual('Title');
     const title2Selector = (forEach2ItemChildren[0] as FieldItemNodeData).mapping.children[0] as ValueSelector;
     expect(title2Selector.expression).toEqual('Title');
@@ -327,7 +327,7 @@ describe('VisualizationService', () => {
 
     const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
     const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
-    expect(shipOrderChildren.length).toEqual(6);
+    expect(shipOrderChildren).toHaveLength(6);
     expect(shipOrderChildren[0].title).toEqual('OrderId');
     expect(shipOrderChildren[1].title).toEqual('OrderPerson');
     expect(shipOrderChildren[2].title).toEqual('ShipTo');
@@ -339,13 +339,13 @@ describe('VisualizationService', () => {
     expect(shipOrderChildren[5].title).toEqual('Item');
 
     const item1Children = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[3]);
-    expect(item1Children.length).toEqual(4);
+    expect(item1Children).toHaveLength(4);
     expect(item1Children[0].title).toEqual('Title');
     const title1Selector = (item1Children[0] as FieldItemNodeData).mapping.children[0] as ValueSelector;
     expect(title1Selector.expression).toEqual('/ns0:ShipOrder/Item[0]/Title');
 
     const item2Children = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[4]);
-    expect(item2Children.length).toEqual(4);
+    expect(item2Children).toHaveLength(4);
     expect(item2Children[0].title).toEqual('Title');
     const title2Selector = (item2Children[0] as FieldItemNodeData).mapping.children[0] as ValueSelector;
     expect(title2Selector.expression).toEqual('/ns0:ShipOrder/Item[1]/Title');
@@ -373,14 +373,14 @@ describe('VisualizationService', () => {
       expect(outerIfNode.mapping).toBeInstanceOf(IfItem);
 
       const outerIfChildren = VisualizationService.generateNonDocumentNodeDataChildren(outerIfNode);
-      expect(outerIfChildren.length).toEqual(1);
+      expect(outerIfChildren).toHaveLength(1);
 
       const innerIfNode = outerIfChildren[0] as MappingNodeData;
       expect(innerIfNode.title).toEqual('if');
       expect(innerIfNode.mapping).toBeInstanceOf(IfItem);
 
       const innerIfChildren = VisualizationService.generateNonDocumentNodeDataChildren(innerIfNode);
-      expect(innerIfChildren.length).toEqual(1);
+      expect(innerIfChildren).toHaveLength(1);
       expect(innerIfChildren[0].title).toEqual('OrderPerson');
       expect(innerIfChildren[0]).toBeInstanceOf(FieldItemNodeData);
     });
@@ -395,14 +395,14 @@ describe('VisualizationService', () => {
       expect(shipToIfNode.mapping).toBeInstanceOf(IfItem);
 
       const ifChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipToIfNode);
-      expect(ifChildren.length).toEqual(1);
+      expect(ifChildren).toHaveLength(1);
 
       const chooseNode = ifChildren[0] as MappingNodeData;
       expect(chooseNode.title).toEqual('choose');
       expect(chooseNode.mapping).toBeInstanceOf(ChooseItem);
 
       const chooseChildren = VisualizationService.generateNonDocumentNodeDataChildren(chooseNode);
-      expect(chooseChildren.length).toEqual(2);
+      expect(chooseChildren).toHaveLength(2);
       expect(chooseChildren[0].title).toEqual('when');
       expect(chooseChildren[1].title).toEqual('otherwise');
     });
@@ -417,18 +417,18 @@ describe('VisualizationService', () => {
       expect(itemIfNode.mapping).toBeInstanceOf(IfItem);
 
       const ifChildren = VisualizationService.generateNonDocumentNodeDataChildren(itemIfNode);
-      expect(ifChildren.length).toEqual(1);
+      expect(ifChildren).toHaveLength(1);
 
       const forEachNode = ifChildren[0] as MappingNodeData;
       expect(forEachNode.title).toEqual('for-each');
       expect(forEachNode.mapping).toBeInstanceOf(ForEachItem);
 
       const forEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachNode);
-      expect(forEachChildren.length).toEqual(1);
+      expect(forEachChildren).toHaveLength(1);
       expect(forEachChildren[0].title).toEqual('Item');
 
       const itemChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachChildren[0]);
-      expect(itemChildren.length).toEqual(4);
+      expect(itemChildren).toHaveLength(4);
       expect(itemChildren[0].title).toEqual('Title');
 
       const noteIfNode = itemChildren[1] as MappingNodeData;
@@ -436,7 +436,7 @@ describe('VisualizationService', () => {
       expect(noteIfNode.mapping).toBeInstanceOf(IfItem);
 
       const noteIfChildren = VisualizationService.generateNonDocumentNodeDataChildren(noteIfNode);
-      expect(noteIfChildren.length).toEqual(1);
+      expect(noteIfChildren).toHaveLength(1);
       expect(noteIfChildren[0].title).toEqual('Note');
 
       expect(itemChildren[2].title).toEqual('Quantity');

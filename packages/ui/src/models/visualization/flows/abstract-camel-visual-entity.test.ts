@@ -144,13 +144,13 @@ describe('AbstractCamelVisualEntity', () => {
     it('should return an `undefined` if the path is `undefined`', () => {
       const result = abstractVisualEntity.getNodeValidationText(undefined);
 
-      expect(result).toEqual(undefined);
+      expect(result).toBeUndefined();
     });
 
     it('should return an `undefined` if the path is empty', () => {
       const result = abstractVisualEntity.getNodeValidationText('');
 
-      expect(result).toEqual(undefined);
+      expect(result).toBeUndefined();
     });
 
     it('should return a validation text relying on the `validateNodeStatus` method', () => {

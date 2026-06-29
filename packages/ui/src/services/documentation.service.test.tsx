@@ -69,7 +69,7 @@ describe('DocumentationService', () => {
     it('should generate route and beans documentation entities', async () => {
       const documentationEntities = await createDocumentationEntitiesFromYaml(camelRouteYaml + beansYaml);
 
-      expect(documentationEntities.length).toEqual(2);
+      expect(documentationEntities).toHaveLength(2);
       expect(documentationEntities[0].isVisualEntity).toBeTruthy();
       expect(documentationEntities[0].isVisible).toBeTruthy();
       expect(documentationEntities[0].label).toEqual('route-8888');
@@ -83,7 +83,7 @@ describe('DocumentationService', () => {
     it('should generate kamelet documentation entities', async () => {
       const documentationEntities = await createDocumentationEntitiesFromYaml(kameletYaml);
 
-      expect(documentationEntities.length).toEqual(2);
+      expect(documentationEntities).toHaveLength(2);
       expect(documentationEntities[0].isVisualEntity).toBeTruthy();
       expect(documentationEntities[0].label).toEqual('Steps');
       expect(documentationEntities[0].entity!.type).toEqual('kamelet');
@@ -95,7 +95,7 @@ describe('DocumentationService', () => {
     it('should generate pipe documentation entities', async () => {
       const documentationEntities = await createDocumentationEntitiesFromYaml(pipeYaml);
 
-      expect(documentationEntities.length).toEqual(3);
+      expect(documentationEntities).toHaveLength(3);
       expect(documentationEntities[0].isVisualEntity).toBeTruthy();
       expect(documentationEntities[0].label).toEqual('Steps');
       expect(documentationEntities[0].entity!.type).toEqual('pipe');
@@ -114,7 +114,7 @@ describe('DocumentationService', () => {
       await camelResource.initialize();
       const documentationEntities = createDocumentationEntitiesFromCamelResource(camelResource);
 
-      expect(documentationEntities.length).toEqual(2);
+      expect(documentationEntities).toHaveLength(2);
       expect(documentationEntities[0].isVisualEntity).toBeFalsy();
       expect(documentationEntities[0].label).toEqual('restConfiguration-1234');
       expect(documentationEntities[0].entity!.type).toEqual('restConfiguration');
@@ -126,7 +126,7 @@ describe('DocumentationService', () => {
     it('should generate route configuration documentation entities', async () => {
       const documentationEntities = await createDocumentationEntitiesFromYaml(routeConfigurationFullYaml);
 
-      expect(documentationEntities.length).toEqual(1);
+      expect(documentationEntities).toHaveLength(1);
       expect(documentationEntities[0].isVisualEntity).toBeTruthy();
       expect(documentationEntities[0].label).toEqual('routeConfiguration-1956');
       expect(documentationEntities[0].entity!.type).toEqual('routeConfiguration');
@@ -271,7 +271,7 @@ describe('DocumentationService', () => {
 
       const jszip = new JSZip();
       const unzipped = await jszip.loadAsync(zipfile!);
-      expect(Object.keys(unzipped.files).length).toEqual(2);
+      expect(Object.keys(unzipped.files)).toHaveLength(2);
       expect(unzipped.files['route.png']).toBeDefined();
       expect(unzipped.files['route.md']).toBeDefined();
       const routeMd = await unzipped.files['route.md'].async('string');

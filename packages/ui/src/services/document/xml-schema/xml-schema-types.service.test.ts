@@ -802,7 +802,7 @@ describe('XmlSchemaTypesService', () => {
 
       const members = XmlSchemaTypesService.getSubstitutionGroupMembers(headElement!, doc.xmlSchemaCollection);
 
-      expect(members.length).toBe(4);
+      expect(members).toHaveLength(4);
       const names = members.map((el) => el.getName());
       expect(names).toEqual(['Cat', 'Dog', 'Fish', 'Kitten']);
       expect(names).not.toContain('Feline');
@@ -817,7 +817,7 @@ describe('XmlSchemaTypesService', () => {
 
       const members = XmlSchemaTypesService.getSubstitutionGroupMembers(felineElement!, doc.xmlSchemaCollection);
 
-      expect(members.length).toBe(1);
+      expect(members).toHaveLength(1);
       expect(members[0].getName()).toBe('Kitten');
     });
 
@@ -851,7 +851,7 @@ describe('XmlSchemaTypesService', () => {
         namespaceMap,
       );
 
-      expect(Object.keys(candidates).length).toBe(4);
+      expect(Object.keys(candidates)).toHaveLength(4);
       expect(
         Object.entries(candidates).some(
           ([key, info]) => key === 'sub:Cat' && info.qname.getLocalPart() === 'Cat' && info.type === Types.Container,
@@ -898,7 +898,7 @@ describe('XmlSchemaTypesService', () => {
         namespaceMap,
       );
 
-      expect(Object.keys(candidates).length).toBe(4);
+      expect(Object.keys(candidates)).toHaveLength(4);
       expect(
         Object.entries(candidates).some(
           ([key, info]) => key === 'sub:Cat' && info.qname.getLocalPart() === 'Cat' && info.type === Types.Container,
@@ -1028,7 +1028,7 @@ describe('XmlSchemaTypesService', () => {
         namespaceMap,
       );
 
-      expect(Object.keys(candidates).length).toBe(4);
+      expect(Object.keys(candidates)).toHaveLength(4);
       const keys = Object.keys(candidates);
       expect(keys.every((k) => k.includes(':'))).toBe(true);
       expect(new Set(keys).size).toBe(keys.length);

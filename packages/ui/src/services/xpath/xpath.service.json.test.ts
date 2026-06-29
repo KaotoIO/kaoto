@@ -5,16 +5,16 @@ describe('XPathService / JSON', () => {
   describe('parse()', () => {
     it('should parse JSON representation', () => {
       let result = XPathService.parse("$Account-x/fn:map/fn:string[@key='AccountId']");
-      expect(result.lexErrors.length).toEqual(0);
-      expect(result.parseErrors.length).toEqual(0);
+      expect(result.lexErrors).toHaveLength(0);
+      expect(result.parseErrors).toHaveLength(0);
       expect(result.cst).toBeDefined();
       expect(result.exprNode).toBeDefined();
 
       result = XPathService.parse(
         "upper-case(concat('ORD-', $Account-x/fn:map/fn:string[@key='AccountId'], '-', $OrderSequence))",
       );
-      expect(result.lexErrors.length).toEqual(0);
-      expect(result.parseErrors.length).toEqual(0);
+      expect(result.lexErrors).toHaveLength(0);
+      expect(result.parseErrors).toHaveLength(0);
       expect(result.cst).toBeDefined();
       expect(result.exprNode).toBeDefined();
     });
@@ -37,9 +37,9 @@ describe('XPathService / JSON', () => {
   describe('extractFieldPaths()', () => {
     it('extract JSON representation', () => {
       const paths = XPathService.extractFieldPaths("$Account-x/fn:map/fn:string[@key='AccountId']");
-      expect(paths.length).toEqual(1);
+      expect(paths).toHaveLength(1);
       expect(paths[0].isRelative).toEqual(false);
-      expect(paths[0].pathSegments.length).toEqual(2);
+      expect(paths[0].pathSegments).toHaveLength(2);
       expect(paths[0].pathSegments[0].isAttribute).toEqual(false);
       expect(paths[0].pathSegments[0].prefix).toEqual('fn');
       expect(paths[0].pathSegments[0].name).toEqual('map');
@@ -50,7 +50,7 @@ describe('XPathService / JSON', () => {
       expect(paths[0].pathSegments[1].predicates).toBeDefined();
 
       const seg2Predicates = paths[0].pathSegments[1].predicates;
-      expect(seg2Predicates.length).toEqual(1);
+      expect(seg2Predicates).toHaveLength(1);
       const leftPath = seg2Predicates[0].left as PathExpression;
       expect(leftPath.pathSegments[0].isAttribute).toBeTruthy();
       expect(leftPath.pathSegments[0].name).toEqual('key');
@@ -62,9 +62,9 @@ describe('XPathService / JSON', () => {
       const paths = XPathService.extractFieldPaths(
         "upper-case(concat('ORD-', $Account-x/fn:map/fn:string[@key='AccountId'], '-', $OrderSequence))",
       );
-      expect(paths.length).toEqual(2);
+      expect(paths).toHaveLength(2);
       expect(paths[0].isRelative).toEqual(false);
-      expect(paths[0].pathSegments.length).toEqual(2);
+      expect(paths[0].pathSegments).toHaveLength(2);
       expect(paths[0].pathSegments[0].isAttribute).toEqual(false);
       expect(paths[0].pathSegments[0].prefix).toEqual('fn');
       expect(paths[0].pathSegments[0].name).toEqual('map');
@@ -75,7 +75,7 @@ describe('XPathService / JSON', () => {
       expect(paths[0].pathSegments[1].predicates).toBeDefined();
 
       const seg2Predicates = paths[0].pathSegments[1].predicates;
-      expect(seg2Predicates.length).toEqual(1);
+      expect(seg2Predicates).toHaveLength(1);
       const leftPath = seg2Predicates[0].left as PathExpression;
       expect(leftPath.pathSegments[0].isAttribute).toBeTruthy();
       expect(leftPath.pathSegments[0].name).toEqual('key');

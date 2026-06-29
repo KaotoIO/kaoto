@@ -41,7 +41,7 @@ describe('xslt-item-handlers registry', () => {
   });
 
   it('allHandlers count matches the number of exported handler classes', () => {
-    expect(allHandlers.length).toBe(exportedHandlerClasses.length);
+    expect(allHandlers).toHaveLength(exportedHandlerClasses.length);
   });
 
   it('every handler with itemClass is registered in serializeHandlers', () => {
@@ -254,7 +254,7 @@ describe('ForEachItemHandler sort serialization', () => {
     const el = handler.serialize(parent, item);
 
     const sortElements = el.getElementsByTagNameNS(NS_XSL, 'sort');
-    expect(sortElements.length).toBe(2);
+    expect(sortElements).toHaveLength(2);
     expect(sortElements[0].getAttribute('select')).toBe('Title');
     expect(sortElements[0].hasAttribute('order')).toBe(false);
     expect(sortElements[1].getAttribute('select')).toBe('Price');
@@ -271,7 +271,7 @@ describe('ForEachItemHandler sort serialization', () => {
     const el = handler.serialize(parent, item);
 
     const sortElements = el.getElementsByTagNameNS(NS_XSL, 'sort');
-    expect(sortElements.length).toBe(0);
+    expect(sortElements).toHaveLength(0);
   });
 });
 
@@ -294,7 +294,7 @@ describe('ForEachGroupItemHandler sort serialization', () => {
     const el = handler.serialize(parent, item);
 
     const sortElements = el.getElementsByTagNameNS(NS_XSL, 'sort');
-    expect(sortElements.length).toBe(1);
+    expect(sortElements).toHaveLength(1);
     expect(sortElements[0].getAttribute('select')).toBe('@date');
     expect(sortElements[0].getAttribute('order')).toBe('descending');
   });

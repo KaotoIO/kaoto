@@ -14,11 +14,11 @@ describe('ObjectMap', () => {
       expect(keys.next().value.getNamespace()).toEqual('c');
       keys = map.keys();
       const keysArray = Array.from(keys);
-      expect(keysArray.length).toEqual(2);
+      expect(keysArray).toHaveLength(2);
       const values = map.values();
-      expect(Array.from(values).length).toEqual(2);
+      expect(Array.from(values)).toHaveLength(2);
       const entries = map.entries();
-      expect(Array.from(entries).length).toEqual(2);
+      expect(Array.from(entries)).toHaveLength(2);
     });
   });
 

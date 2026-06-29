@@ -40,10 +40,10 @@ describe('DocumentUtilService', () => {
   describe('getFieldStack()', () => {
     it('should return field stack', () => {
       const stack = DocumentUtilService.getFieldStack(sourceDoc.fields[0].fields[1]);
-      expect(stack.length).toEqual(1);
+      expect(stack).toHaveLength(1);
       expect(stack[0].name).toEqual('ShipOrder');
       const stackWithSelf = DocumentUtilService.getFieldStack(sourceDoc.fields[0].fields[1], true);
-      expect(stackWithSelf.length).toEqual(2);
+      expect(stackWithSelf).toHaveLength(2);
       expect(stackWithSelf[0].name).toEqual('OrderPerson');
     });
 
@@ -77,7 +77,7 @@ describe('DocumentUtilService', () => {
       expect(refField.type).toEqual(Types.Container);
       expect(refField.minOccurs).toEqual(1);
       expect(refField.maxOccurs).toEqual(1);
-      expect(refField.fields.length).toEqual(1);
+      expect(refField.fields).toHaveLength(1);
       const refChildField = refField.fields[0];
       expect(refChildField.name).toEqual('testField');
       expect(refChildField.type).toEqual(Types.String);
@@ -244,7 +244,7 @@ describe('DocumentUtilService', () => {
 
       DocumentUtilService.adoptTypeFragment(field, fragment);
 
-      expect(field.fields.length).toBe(2);
+      expect(field.fields).toHaveLength(2);
     });
 
     it('should not throw when a namedTypeFragmentRef inside a fragment does not exist in namedTypeFragments', () => {

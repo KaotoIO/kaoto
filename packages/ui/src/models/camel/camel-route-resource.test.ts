@@ -19,8 +19,8 @@ describe('CamelRouteResource', () => {
     const resource = new CamelRouteResource([camelRouteJson]);
     await resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.Route);
-    expect(resource.getVisualEntities().length).toEqual(1);
-    expect(resource.getEntities().length).toEqual(0);
+    expect(resource.getVisualEntities()).toHaveLength(1);
+    expect(resource.getEntities()).toHaveLength(0);
   });
 
   it('should initialize Camel Route if no args is specified', async () => {
