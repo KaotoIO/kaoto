@@ -81,12 +81,12 @@ describe('Test toolbar on hover actions', () => {
 
     cy.openGroupConfigurationTab('choice');
 
-    cy.get(`[data-testid="choice|step-toolbar-button-collapse"]`).click({ force: true });
+    cy.get(`[data-testid="choice|step-toolbar-button-collapse"]`).click();
     cy.checkNodeExist('when', 0);
     cy.checkNodeExist('otherwise', 0);
     cy.checkNodeExist('log', 0);
 
-    cy.get(`[data-testid="choice|step-toolbar-button-collapse"]`).click({ force: true });
+    cy.get(`[data-testid="choice|step-toolbar-button-collapse"]`).click();
     cy.checkNodeExist('when', 5);
     cy.checkNodeExist('otherwise', 2);
     cy.checkNodeExist('log', 1);
@@ -98,7 +98,7 @@ describe('Test toolbar on hover actions', () => {
 
     cy.openGroupConfigurationTab('choice');
 
-    cy.get(`[data-testid="choice|step-toolbar-button-collapse"]`).click({ force: true });
+    cy.get(`[data-testid="choice|step-toolbar-button-collapse"]`).click();
     cy.checkNodeExist('when', 0);
     cy.checkNodeExist('otherwise', 0);
 

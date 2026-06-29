@@ -29,14 +29,11 @@ describe('Tests for Multi Value serialization', () => {
 
     cy.filterFields('Job Parameters');
     cy.expandWrappedSection('#.parameters-Advanced');
-    cy.get('[data-testid="#.parameters.jobParameters__remove__testJob"]').not(':hidden').first().click({ force: true });
+    cy.get('[data-testid="#.parameters.jobParameters__remove__testJob"]').not(':hidden').first().click();
 
     cy.filterFields('Trigger Parameters');
     cy.expandWrappedSection('#.parameters-Advanced');
-    cy.get('[data-testid="#.parameters.triggerParameters__remove__testTrigger"]')
-      .not(':hidden')
-      .first()
-      .click({ force: true });
+    cy.get('[data-testid="#.parameters.triggerParameters__remove__testTrigger"]').not(':hidden').first().click();
 
     cy.openSourceCode();
     cy.checkCodeSpanLine('job.testJob: testJob', 0);

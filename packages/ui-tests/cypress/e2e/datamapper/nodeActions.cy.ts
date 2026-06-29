@@ -35,7 +35,6 @@ describe('Test for DataMapper : datamapper node actions', { browser: '!firefox' 
       '- to:',
       'uri: log:test',
     ];
-    cy.get('[data-testid="Source Code"]').click({ force: true });
     cy.openSourceCode();
     cy.checkMultiLineContent(yamlRoute);
   });
