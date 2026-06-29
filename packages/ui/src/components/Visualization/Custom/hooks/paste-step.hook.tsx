@@ -68,7 +68,7 @@ export const usePasteStep = (vizNode: IVisualizationNode, mode: AddStepMode) => 
       }
     };
 
-    validate();
+    void validate();
   }, [checkClipboardCompatibility]);
 
   const onPasteStep = useCallback(async () => {

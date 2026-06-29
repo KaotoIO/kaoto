@@ -76,7 +76,7 @@ export const XsltDocumentRenameInput: FunctionComponent<IXsltDocumentRenameInput
       }
     };
 
-    runValidation();
+    void runValidation();
 
     return () => {
       isCurrent = false;
@@ -134,7 +134,7 @@ export const XsltDocumentRenameInput: FunctionComponent<IXsltDocumentRenameInput
   const onKeyDown: KeyboardEventHandler<HTMLInputElement> = useCallback(
     (event) => {
       if (event.key === 'Enter') {
-        saveValue();
+        void saveValue();
       }
       if (event.key === 'Escape') {
         cancelValue();
@@ -146,7 +146,7 @@ export const XsltDocumentRenameInput: FunctionComponent<IXsltDocumentRenameInput
 
   const onSave: MouseEventHandler<HTMLButtonElement> = useCallback(
     (event) => {
-      saveValue();
+      void saveValue();
       event.stopPropagation();
     },
     [saveValue],

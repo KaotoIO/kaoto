@@ -34,7 +34,7 @@ export const useProcessorTooltips = (processorNames: readonly string[]) => {
       }
     };
 
-    fetchTooltips();
+    void fetchTooltips();
 
     return () => {
       cancelled = true;

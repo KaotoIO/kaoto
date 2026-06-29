@@ -42,7 +42,7 @@ export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> 
 
   useEffect(() => {
     if (registryUrl) {
-      fetchArtifacts();
+      void fetchArtifacts();
     }
   }, [fetchArtifacts, registryUrl]);
 
@@ -100,7 +100,7 @@ export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> 
   const handleSelectArtifact = useCallback(
     (artifactId: string) => {
       setSelectedId(artifactId);
-      handleLoadArtifact(artifactId);
+      void handleLoadArtifact(artifactId);
     },
     [handleLoadArtifact],
   );

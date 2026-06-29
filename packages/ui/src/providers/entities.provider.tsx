@@ -64,7 +64,7 @@ export const EntitiesProvider: FunctionComponent<PropsWithChildren> = ({ childre
   }, [kaotoResource]);
 
   const updateSourceCodeFromEntities = useCallback(() => {
-    kaotoResource.toSourceCode().then((code) => {
+    void kaotoResource.toSourceCode().then((code) => {
       eventNotifier.next('entities:updated', code);
     });
   }, [kaotoResource, eventNotifier]);

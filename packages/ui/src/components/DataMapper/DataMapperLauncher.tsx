@@ -73,7 +73,7 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
       const exists = await metadata.isResourceExist(xsltDocumentName);
       setXsltFileExists(exists);
     };
-    checkFile();
+    void checkFile();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -144,7 +144,7 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
   );
 
   const onClick = useCallback(() => {
-    navigate(`${Links.DataMapper}/${vizNode?.getNodeDefinition()?.id}`);
+    void navigate(`${Links.DataMapper}/${vizNode?.getNodeDefinition()?.id}`);
   }, [navigate, vizNode]);
 
   if (!isDefined(metadata)) {

@@ -69,7 +69,7 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
       const mappingFile = await DataMapperMetadataService.loadMappingFile(ctx, meta);
       setInitialXsltFile(mappingFile);
     };
-    initialize().then(() => setIsLoading(false));
+    void initialize().then(() => setIsLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -78,7 +78,7 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
       if (!metadataId || !metadata) return;
       switch (definition.documentType) {
         case DocumentType.SOURCE_BODY:
-          DataMapperMetadataService.updateSourceBodyMetadata(ctx, metadataId, metadata, definition);
+          void DataMapperMetadataService.updateSourceBodyMetadata(ctx, metadataId, metadata, definition);
           if (vizNode) {
             DataMapperStepService.setUseJsonBody(
               vizNode,
@@ -88,10 +88,10 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
           }
           break;
         case DocumentType.TARGET_BODY:
-          DataMapperMetadataService.updateTargetBodyMetadata(ctx, metadataId, metadata, definition);
+          void DataMapperMetadataService.updateTargetBodyMetadata(ctx, metadataId, metadata, definition);
           break;
         case DocumentType.PARAM:
-          DataMapperMetadataService.updateSourceParameterMetadata(
+          void DataMapperMetadataService.updateSourceParameterMetadata(
             ctx,
             metadataId,
             metadata,
@@ -106,7 +106,7 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
   const onDeleteParameter = useCallback(
     (name: string) => {
       if (!metadataId || !metadata) return;
-      DataMapperMetadataService.deleteSourceParameterMetadata(ctx, metadataId, metadata, name);
+      void DataMapperMetadataService.deleteSourceParameterMetadata(ctx, metadataId, metadata, name);
     },
     [ctx, metadata, metadataId],
   );
@@ -114,7 +114,7 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
   const onRenameParameter = useCallback(
     (oldName: string, newName: string) => {
       if (!metadataId || !metadata) return;
-      DataMapperMetadataService.renameSourceParameterMetadata(ctx, metadataId, metadata, oldName, newName);
+      void DataMapperMetadataService.renameSourceParameterMetadata(ctx, metadataId, metadata, oldName, newName);
     },
     [ctx, metadata, metadataId],
   );
@@ -122,7 +122,7 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
   const onUpdateMappings = useCallback(
     (xsltFile: string) => {
       if (!metadata) return;
-      DataMapperMetadataService.updateMappingFile(ctx, metadata, xsltFile);
+      void DataMapperMetadataService.updateMappingFile(ctx, metadata, xsltFile);
     },
     [ctx, metadata],
   );
@@ -130,7 +130,7 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
   const onUpdateNamespaceMap = useCallback(
     (namespaceMap: Record<string, string>) => {
       if (!metadataId || !metadata) return;
-      DataMapperMetadataService.setNamespaceMap(ctx, metadataId, metadata, namespaceMap);
+      void DataMapperMetadataService.setNamespaceMap(ctx, metadataId, metadata, namespaceMap);
     },
     [ctx, metadata, metadataId],
   );

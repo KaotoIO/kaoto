@@ -202,7 +202,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
         icon: <CatalogIcon />,
         tooltip: 'Open Catalog',
         callback: action(() => {
-          catalogModalContext.getNewComponent();
+          void catalogModalContext.getNewComponent();
         }),
       });
     }
