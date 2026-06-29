@@ -182,7 +182,7 @@ describe('MappingLinksService', () => {
 
     it('should generate mapping links for JSON source body', () => {
       const jsonSourceDoc = TestUtil.createJSONSourceBodyOrderDoc();
-      expect(jsonSourceDoc.getReferenceId({})).toEqual('');
+      expect(jsonSourceDoc.getReferenceId({})).toBe('');
 
       const emptyParamsMap = new Map<string, IDocument>();
       tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
@@ -331,7 +331,7 @@ describe('MappingLinksService', () => {
 
       const links = MappingLinksService.extractMappingLinks(choiceTree, paramsMap, sourceDoc);
       expect(links).toHaveLength(1);
-      expect(links[0].targetNodePath).toEqual(
+      expect(links[0].targetNodePath).toBe(
         `targetBody:Body://${rootItem.id}/${personItem.id}/outer-choice/inner-choice/${emailItem.id}`,
       );
       expect(emailItem.nodePath.toString()).not.toContain('outer-choice');
@@ -377,7 +377,7 @@ describe('MappingLinksService', () => {
 
       const links = MappingLinksService.extractMappingLinks(choiceTree, paramsMap, sourceDoc);
       expect(links).toHaveLength(1);
-      expect(links[0].targetNodePath).toEqual(`targetBody:Body://${rootItem.id}/${personItem.id}/${emailField.id}`);
+      expect(links[0].targetNodePath).toBe(`targetBody:Body://${rootItem.id}/${personItem.id}/${emailField.id}`);
     });
 
     it('should only include unselected choice wrapper segments when mixed', () => {
@@ -419,7 +419,7 @@ describe('MappingLinksService', () => {
 
       const links = MappingLinksService.extractMappingLinks(choiceTree, paramsMap, sourceDoc);
       expect(links).toHaveLength(1);
-      expect(links[0].targetNodePath).toEqual(
+      expect(links[0].targetNodePath).toBe(
         `targetBody:Body://${rootItem.id}/${personItem.id}/inner-choice/${emailItem.id}`,
       );
     });

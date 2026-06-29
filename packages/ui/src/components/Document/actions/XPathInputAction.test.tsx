@@ -31,7 +31,7 @@ describe('XPathInputAction', () => {
     act(() => {
       fireEvent.change(input, { target: { value: '/ShipOrder' } });
     });
-    expect(mapping.expression).toEqual('/ShipOrder');
+    expect(mapping.expression).toBe('/ShipOrder');
     expect(onUpdateMock.mock.calls).toHaveLength(1);
   });
 

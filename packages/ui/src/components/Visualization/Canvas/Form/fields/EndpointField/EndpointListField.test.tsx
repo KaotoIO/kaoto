@@ -275,7 +275,7 @@ describe('EndpointListField', () => {
       });
 
       expect(testModel.endpoints).toHaveLength(1);
-      expect(testModel.endpoints![0].http.client.name).toEqual('httpClient');
+      expect(testModel.endpoints![0].http.client.name).toBe('httpClient');
     });
 
     it('should close modal when cancel is clicked', async () => {
@@ -385,7 +385,7 @@ describe('EndpointListField', () => {
       expect(mockActionConfirmationModalContext.actionConfirmation).toHaveBeenCalled();
 
       expect(testModel.endpoints).toHaveLength(1);
-      expect(testModel.endpoints![0].http.client.name).toEqual('newHttpClient');
+      expect(testModel.endpoints![0].http.client.name).toBe('newHttpClient');
     });
 
     it('should not show confirmation modal when update arbitrary properties', async () => {
@@ -435,7 +435,7 @@ describe('EndpointListField', () => {
       expect(mockActionConfirmationModalContext.actionConfirmation).not.toHaveBeenCalled();
 
       expect(testModel.endpoints).toHaveLength(1);
-      expect(testModel.endpoints![0].http.client.requestUrl).toEqual('http://localhost:9999');
+      expect(testModel.endpoints![0].http.client.requestUrl).toBe('http://localhost:9999');
     });
 
     it('should not update endpoint when rename is cancelled', async () => {

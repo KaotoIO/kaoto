@@ -218,8 +218,8 @@ describe('EntitiesProvider', () => {
       expect(firstCamelResource).toBe(secondCamelResource);
     });
 
-    expect(firstCamelResource).not.toBeUndefined();
-    expect(secondCamelResource).not.toBeUndefined();
+    expect(firstCamelResource).toBeDefined();
+    expect(secondCamelResource).toBeDefined();
   });
 
   it('should refresh entities', () => {

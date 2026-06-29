@@ -14,7 +14,7 @@ describe('CamelInterceptSendToEndpointVisualEntity', () => {
         interceptSendToEndpoint: { id: 'a-reference', uri: 'direct:a-reference' },
       });
 
-      expect(interceptSendToEndpointVisualEntity.getId()).toEqual('a-reference');
+      expect(interceptSendToEndpointVisualEntity.getId()).toBe('a-reference');
     });
 
     it('should allow to create an instance out of the object definition without id', () => {
@@ -49,7 +49,7 @@ describe('CamelInterceptSendToEndpointVisualEntity', () => {
     const interceptSendToEndpointVisualEntity = new CamelInterceptSendToEndpointVisualEntity({
       interceptSendToEndpoint: { id: 'id', uri: 'direct:a-reference' },
     });
-    expect(interceptSendToEndpointVisualEntity.getId()).toEqual('id');
+    expect(interceptSendToEndpointVisualEntity.getId()).toBe('id');
   });
 
   it('should set the id', () => {
@@ -57,8 +57,8 @@ describe('CamelInterceptSendToEndpointVisualEntity', () => {
       interceptSendToEndpoint: 'a-reference',
     });
     interceptSendToEndpointVisualEntity.setId('new-id');
-    expect(interceptSendToEndpointVisualEntity.getId()).toEqual('new-id');
-    expect(interceptSendToEndpointVisualEntity.interceptSendToEndpointDef.interceptSendToEndpoint.id).toEqual('new-id');
+    expect(interceptSendToEndpointVisualEntity.getId()).toBe('new-id');
+    expect(interceptSendToEndpointVisualEntity.interceptSendToEndpointDef.interceptSendToEndpoint.id).toBe('new-id');
   });
 
   describe('getNodeInteraction', () => {

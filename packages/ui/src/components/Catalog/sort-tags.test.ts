@@ -38,11 +38,11 @@ describe('sortTags()', () => {
     let filterTags: string[] = [];
     const { sortedTags, overflowIndex } = sortTags(tiles, filterTags);
     expect(sortedTags).toHaveLength(4);
-    expect(sortedTags[0]).toEqual('aaa-proc');
+    expect(sortedTags[0]).toBe('aaa-proc');
     expect(overflowIndex).toBe(2);
     filterTags = ['eip'];
     const { sortedTags: t1, overflowIndex: i1 } = sortTags(tiles, filterTags);
-    expect(t1[0]).toEqual('eip');
+    expect(t1[0]).toBe('eip');
     expect(i1).toBe(3);
   });
 });

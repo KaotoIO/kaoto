@@ -44,7 +44,7 @@ describe('RenameParameterButton', () => {
       </DataMapperProvider>,
     );
     const renameBtn = await screen.findByTestId('rename-parameter-testparam1-button');
-    expect(parameterMap!.size).toEqual(1);
+    expect(parameterMap!.size).toBe(1);
     act(() => {
       fireEvent.click(renameBtn);
     });

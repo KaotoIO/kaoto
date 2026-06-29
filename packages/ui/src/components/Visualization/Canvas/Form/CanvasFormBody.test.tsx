@@ -88,17 +88,13 @@ describe('CanvasFormBody', () => {
       await formPageObject.selectTypeaheadItem('simple');
       await formPageObject.inputText('Expression', '${header.foo}');
 
-      expect((camelRoute.from.steps[0].setHeader!.simple as { expression: string }).expression).toEqual(
-        '${header.foo}',
-      );
-      expect(camelRoute.from.steps[0].setHeader!.name).toEqual('foo');
+      expect((camelRoute.from.steps[0].setHeader!.simple as { expression: string }).expression).toBe('${header.foo}');
+      expect(camelRoute.from.steps[0].setHeader!.name).toBe('foo');
 
       await formPageObject.inputText('Name', 'bar');
 
-      expect((camelRoute.from.steps[0].setHeader!.simple as { expression: string }).expression).toEqual(
-        '${header.foo}',
-      );
-      expect(camelRoute.from.steps[0].setHeader!.name).toEqual('bar');
+      expect((camelRoute.from.steps[0].setHeader!.simple as { expression: string }).expression).toBe('${header.foo}');
+      expect(camelRoute.from.steps[0].setHeader!.name).toBe('bar');
     });
 
     it('main form => expression', async () => {
@@ -143,16 +139,14 @@ describe('CanvasFormBody', () => {
       await formPageObject.inputText('Name', 'bar');
 
       expect(camelRoute.from.steps[0].setHeader!.simple).toBeUndefined();
-      expect(camelRoute.from.steps[0].setHeader!.name).toEqual('bar');
+      expect(camelRoute.from.steps[0].setHeader!.name).toBe('bar');
 
       await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
       await formPageObject.selectTypeaheadItem('simple');
       await formPageObject.inputText('Expression', '${header.foo}');
 
-      expect((camelRoute.from.steps[0].setHeader!.simple as { expression: string }).expression).toEqual(
-        '${header.foo}',
-      );
-      expect(camelRoute.from.steps[0].setHeader!.name).toEqual('bar');
+      expect((camelRoute.from.steps[0].setHeader!.simple as { expression: string }).expression).toBe('${header.foo}');
+      expect(camelRoute.from.steps[0].setHeader!.name).toBe('bar');
     });
   });
 
@@ -205,11 +199,11 @@ describe('CanvasFormBody', () => {
 
       await formPageObject.inputText('Id', 'avro-id', { index: 1 });
 
-      expect((camelRoute.from.steps[0].marshal!.avro as { id: string }).id).toEqual('avro-id');
-      expect(camelRoute.from.steps[0].marshal!.id).toEqual('ms');
+      expect((camelRoute.from.steps[0].marshal!.avro as { id: string }).id).toBe('avro-id');
+      expect(camelRoute.from.steps[0].marshal!.id).toBe('ms');
 
       await formPageObject.inputText('Id', 'modified', { index: 0 });
-      expect(camelRoute.from.steps[0].marshal!.id).toEqual('modified');
+      expect(camelRoute.from.steps[0].marshal!.id).toBe('modified');
     });
 
     it('main form => dataformat', async () => {
@@ -252,14 +246,14 @@ describe('CanvasFormBody', () => {
       const formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.showAllFields();
       await formPageObject.inputText('Id', 'modified', { index: 0 });
-      expect(camelRoute.from.steps[0].marshal!.id).toEqual('modified');
+      expect(camelRoute.from.steps[0].marshal!.id).toBe('modified');
 
       await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
       await formPageObject.selectTypeaheadItem('avro');
       await formPageObject.inputText('Id', 'avro-id', { index: 1 });
 
-      expect((camelRoute.from.steps[0].marshal!.avro as { id: string }).id).toEqual('avro-id');
-      expect(camelRoute.from.steps[0].marshal!.id).toEqual('modified');
+      expect((camelRoute.from.steps[0].marshal!.avro as { id: string }).id).toBe('avro-id');
+      expect(camelRoute.from.steps[0].marshal!.id).toBe('modified');
     });
   });
 
@@ -313,14 +307,14 @@ describe('CanvasFormBody', () => {
       await formPageObject.inputText('Distribution Ratio', '3.5');
       expect(
         (camelRoute.from.steps[0].loadBalance!.weightedLoadBalancer as { distributionRatio: string }).distributionRatio,
-      ).toEqual('3.5');
-      expect(camelRoute.from.steps[0].loadBalance!.id).toEqual('lb');
+      ).toBe('3.5');
+      expect(camelRoute.from.steps[0].loadBalance!.id).toBe('lb');
 
       await formPageObject.inputText('Id', 'modified', { index: 0 });
       expect(
         (camelRoute.from.steps[0].loadBalance!.weightedLoadBalancer as { distributionRatio: string }).distributionRatio,
-      ).toEqual('3.5');
-      expect(camelRoute.from.steps[0].loadBalance!.id).toEqual('modified');
+      ).toBe('3.5');
+      expect(camelRoute.from.steps[0].loadBalance!.id).toBe('modified');
     });
 
     it('main form => loadbalancer', async () => {
@@ -363,7 +357,7 @@ describe('CanvasFormBody', () => {
       const formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.showAllFields();
       await formPageObject.inputText('Id', 'modified', { index: 0 });
-      expect(camelRoute.from.steps[0].loadBalance!.id).toEqual('modified');
+      expect(camelRoute.from.steps[0].loadBalance!.id).toBe('modified');
 
       await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
       await formPageObject.selectTypeaheadItem('weighted load balancer');
@@ -371,8 +365,8 @@ describe('CanvasFormBody', () => {
       await formPageObject.inputText('Distribution Ratio', '3.5');
       expect(
         (camelRoute.from.steps[0].loadBalance!.weightedLoadBalancer as { distributionRatio: string }).distributionRatio,
-      ).toEqual('3.5');
-      expect(camelRoute.from.steps[0].loadBalance!.id).toEqual('modified');
+      ).toBe('3.5');
+      expect(camelRoute.from.steps[0].loadBalance!.id).toBe('modified');
     });
   });
 

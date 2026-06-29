@@ -60,7 +60,7 @@ describe('Expression parser', () => {
     ).documentElement;
     const props = CamelCatalogService.getComponent(CatalogKind.Processor, 'when')?.properties;
     const result = ExpressionParser.parse(parentElement, props?.expression, 'when');
-    expect(result).not.toBeDefined();
+    expect(result).toBeUndefined();
   });
 
   it('should trim whitespace and newlines from expression text content', () => {

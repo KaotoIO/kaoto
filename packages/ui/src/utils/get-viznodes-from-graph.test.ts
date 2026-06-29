@@ -51,10 +51,10 @@ describe('getVisualizationNodesFromGraph', () => {
     const vizNodes = getVisualizationNodesFromGraph(visualizationController.getGraph());
 
     expect(vizNodes).toHaveLength(5);
-    expect(vizNodes[0].getNodeLabel()).toEqual('route-8888');
-    expect(vizNodes[1].getNodeLabel()).toEqual('timer');
-    expect(vizNodes[2].getNodeLabel()).toEqual('log');
-    expect(vizNodes[3].getNodeLabel()).toEqual('direct');
+    expect(vizNodes[0].getNodeLabel()).toBe('route-8888');
+    expect(vizNodes[1].getNodeLabel()).toBe('timer');
+    expect(vizNodes[2].getNodeLabel()).toBe('log');
+    expect(vizNodes[3].getNodeLabel()).toBe('direct');
     expect(vizNodes[4].data.isPlaceholder).toBe(true);
   });
 
@@ -77,9 +77,9 @@ describe('getVisualizationNodesFromGraph', () => {
     const vizNodes = getVisualizationNodesFromGraph(visualizationController.getGraph(), predicate);
 
     expect(vizNodes).toHaveLength(4);
-    expect(vizNodes[0].getNodeLabel()).toEqual('route-8888');
-    expect(vizNodes[1].getNodeLabel()).toEqual('log');
-    expect(vizNodes[2].getNodeLabel()).toEqual('direct');
+    expect(vizNodes[0].getNodeLabel()).toBe('route-8888');
+    expect(vizNodes[1].getNodeLabel()).toBe('log');
+    expect(vizNodes[2].getNodeLabel()).toBe('direct');
     expect(vizNodes[3].data.isPlaceholder).toBe(true);
   });
 
@@ -104,7 +104,7 @@ describe('getVisualizationNodesFromGraph', () => {
     const vizNodes = getVisualizationNodesFromGraph(visualizationController.getGraph(), predicate);
 
     expect(vizNodes).toHaveLength(2);
-    expect(vizNodes[0].getNodeLabel()).toEqual('log');
-    expect(vizNodes[1].getNodeLabel()).toEqual('direct');
+    expect(vizNodes[0].getNodeLabel()).toBe('log');
+    expect(vizNodes[1].getNodeLabel()).toBe('direct');
   });
 });

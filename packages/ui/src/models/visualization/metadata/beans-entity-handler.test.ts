@@ -32,8 +32,8 @@ describe('BeansEntityHandler', () => {
       expect(model.beans).toBeUndefined();
       expect(beansHandler.isSupported()).toBeTruthy();
       const beanSchema = beansHandler.getBeanSchema();
-      expect(beanSchema!.properties!.builderClass.title).toEqual('Builder Class');
-      expect(beanSchema!.properties!.script.title).toEqual('Script');
+      expect(beanSchema!.properties!.builderClass.title).toBe('Builder Class');
+      expect(beanSchema!.properties!.script.title).toBe('Script');
       const beansSchema = beansHandler.getBeansSchema();
       expect(beansSchema!.items as KaotoSchemaDefinition['schema']).toMatchSnapshot();
       expect(beansHandler.getBeansEntity()).toBeUndefined();
@@ -41,20 +41,20 @@ describe('BeansEntityHandler', () => {
     });
 
     it('reference quote', () => {
-      expect(beansHandler.getReferenceQuote()).toEqual('#');
-      expect(beansHandler.getReferenceFromName('myBean')).toEqual('#myBean');
-      expect(beansHandler.stripReferenceQuote('#myBean')).toEqual('myBean');
+      expect(beansHandler.getReferenceQuote()).toBe('#');
+      expect(beansHandler.getReferenceFromName('myBean')).toBe('#myBean');
+      expect(beansHandler.stripReferenceQuote('#myBean')).toBe('myBean');
     });
 
     it('create and delete bean entity', () => {
       beansHandler.createBeansEntity();
-      expect(beansHandler.getBeansEntity()?.type).toEqual('beans');
+      expect(beansHandler.getBeansEntity()?.type).toBe('beans');
       expect(beansHandler.getBeansModel()).toEqual([]);
       beansHandler.setBeansModel([
         { name: 'myBean1', type: 'myType1', properties: { p: 'v' } },
         { name: 'myBean2', type: 'myType2', properties: { p: 'v' } },
       ]);
-      expect(beansHandler.getBeansModel()?.length).toEqual(2);
+      expect(beansHandler.getBeansModel()?.length).toBe(2);
       const nameAndType = beansHandler.getAllBeansNameAndType();
       expect(nameAndType).toHaveLength(2);
       expect(nameAndType).toEqual([
@@ -62,7 +62,7 @@ describe('BeansEntityHandler', () => {
         { name: 'myBean2', type: 'myType2' },
       ]);
       beansHandler.addNewBean({ name: 'myBean3', type: 'myType3' });
-      expect(beansHandler.getBeansModel()?.length).toEqual(3);
+      expect(beansHandler.getBeansModel()?.length).toBe(3);
       const entity = beansHandler.getBeansEntity();
       expect(entity).toBeDefined();
       beansHandler.deleteBeansEntity(entity!);
@@ -87,9 +87,9 @@ describe('BeansEntityHandler', () => {
       expect(beansHandler.isSupported()).toBeTruthy();
       const beanSchema = beansHandler.getBeanSchema();
       expect(beanSchema?.properties!.builderClass).toBeDefined();
-      expect(beanSchema?.properties!.script.title).toEqual('Script');
+      expect(beanSchema?.properties!.script.title).toBe('Script');
       const beansSchema = beansHandler.getBeansSchema();
-      expect((beansSchema?.items as KaotoSchemaDefinition['schema']).properties!.scriptLanguage.title).toEqual(
+      expect((beansSchema?.items as KaotoSchemaDefinition['schema']).properties!.scriptLanguage.title).toBe(
         'Script Language',
       );
       expect((beansSchema?.items as KaotoSchemaDefinition['schema']).properties!.builderClass).toBeDefined();
@@ -98,20 +98,20 @@ describe('BeansEntityHandler', () => {
     });
 
     it('reference quote', () => {
-      expect(beansHandler.getReferenceQuote()).toEqual('#bean:{{}}');
-      expect(beansHandler.getReferenceFromName('myBean')).toEqual('#bean:{{myBean}}');
-      expect(beansHandler.stripReferenceQuote('#bean:{{myBean}}')).toEqual('myBean');
+      expect(beansHandler.getReferenceQuote()).toBe('#bean:{{}}');
+      expect(beansHandler.getReferenceFromName('myBean')).toBe('#bean:{{myBean}}');
+      expect(beansHandler.stripReferenceQuote('#bean:{{myBean}}')).toBe('myBean');
     });
 
     it('create and delete bean entity', () => {
       beansHandler.createBeansEntity();
-      expect(beansHandler.getBeansEntity()?.type).toEqual('beans');
+      expect(beansHandler.getBeansEntity()?.type).toBe('beans');
       expect(beansHandler.getBeansModel()).toEqual([]);
       beansHandler.setBeansModel([
         { name: 'myBean1', type: 'myType1', properties: { p: 'v' } },
         { name: 'myBean2', type: 'myType2', properties: { p: 'v' } },
       ]);
-      expect(beansHandler.getBeansModel()?.length).toEqual(2);
+      expect(beansHandler.getBeansModel()?.length).toBe(2);
       const nameAndType = beansHandler.getAllBeansNameAndType();
       expect(nameAndType).toHaveLength(2);
       expect(nameAndType).toEqual([
@@ -119,7 +119,7 @@ describe('BeansEntityHandler', () => {
         { name: 'myBean2', type: 'myType2' },
       ]);
       beansHandler.addNewBean({ name: 'myBean3', type: 'myType3' });
-      expect(beansHandler.getBeansModel()?.length).toEqual(3);
+      expect(beansHandler.getBeansModel()?.length).toBe(3);
       const entity = beansHandler.getBeansEntity();
       expect(entity).toBeDefined();
       beansHandler.deleteBeansEntity(entity!);

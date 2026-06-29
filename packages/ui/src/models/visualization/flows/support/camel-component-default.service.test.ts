@@ -23,7 +23,7 @@ describe('CamelComponentDefaultService', () => {
         name: 'choice',
       } as DefinedComponent) as any;
       expect(choiceDefault).toBeDefined();
-      expect(choiceDefault.choice.when[0].expression.simple.expression).toEqual('${header.foo} == 1');
+      expect(choiceDefault.choice.when[0].expression.simple.expression).toBe('${header.foo} == 1');
       expect(choiceDefault.choice.when[0].steps[0].log).toBeDefined();
     });
 
@@ -34,7 +34,7 @@ describe('CamelComponentDefaultService', () => {
         name: 'when',
       } as DefinedComponent) as any;
       expect(whenDefault).toBeDefined();
-      expect(whenDefault.expression.simple.expression).toEqual('${header.foo} == 1');
+      expect(whenDefault.expression.simple.expression).toBe('${header.foo} == 1');
       expect(whenDefault.steps[0].log).toBeDefined();
     });
 
@@ -74,7 +74,7 @@ describe('CamelComponentDefaultService', () => {
       } as DefinedComponent) as any;
       expect(logDefault.log).toBeDefined();
       expect(logDefault.log.id as string).toMatch(/^log-/);
-      expect(logDefault.log.message).toEqual('${body}');
+      expect(logDefault.log.message).toBe('${body}');
     });
 
     it('should return the default value for a log component', () => {
@@ -84,7 +84,7 @@ describe('CamelComponentDefaultService', () => {
       } as DefinedComponent) as any;
       expect(logDefault.to).toBeDefined();
       expect(logDefault.to.id as string).toMatch(/^to-/);
-      expect(logDefault.to.uri).toEqual('log:InfoLogger');
+      expect(logDefault.to.uri).toBe('log:InfoLogger');
     });
 
     it('should return the default value for a doCatch processor', () => {
@@ -168,7 +168,7 @@ describe('CamelComponentDefaultService', () => {
       } as DefinedComponent) as any;
       expect(removeHeadersDefault.removeHeaders).toBeDefined();
       expect(removeHeadersDefault.removeHeaders.id as string).toMatch(/^removeHeaders-/);
-      expect(removeHeadersDefault.removeHeaders.pattern).toEqual('*');
+      expect(removeHeadersDefault.removeHeaders.pattern).toBe('*');
     });
 
     it('should return the default value for a DataMapper step with failOnNullBody set to false', () => {
@@ -180,8 +180,8 @@ describe('CamelComponentDefaultService', () => {
       expect(datamapperDefault.step.id as string).toMatch(/^kaoto-datamapper-/);
       expect(datamapperDefault.step.steps).toHaveLength(1);
       expect(datamapperDefault.step.steps[0].to).toBeDefined();
-      expect(datamapperDefault.step.steps[0].to.uri).toEqual('xslt-saxon');
-      expect(datamapperDefault.step.steps[0].to.parameters.failOnNullBody).toEqual(false);
+      expect(datamapperDefault.step.steps[0].to.uri).toBe('xslt-saxon');
+      expect(datamapperDefault.step.steps[0].to.parameters.failOnNullBody).toBe(false);
     });
 
     it.each(['get', 'post', 'put', 'delete', 'patch', 'head'])(
@@ -193,7 +193,7 @@ describe('CamelComponentDefaultService', () => {
         } as DefinedComponent) as any;
         expect(verbDefault.id as string).toMatch(new RegExp(`^${verb}-`));
         expect(verbDefault.to).toBeDefined();
-        expect(verbDefault.to.uri).toEqual('direct');
+        expect(verbDefault.to.uri).toBe('direct');
         expect(verbDefault.to.id as string).toMatch(/^to-/);
       },
     );

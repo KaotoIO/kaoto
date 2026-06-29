@@ -20,7 +20,7 @@ describe('testLoadCatalog()', () => {
     const answer = await testLoadCitrusCatalog(citrusLibrary!);
     expect(answer).toBeDefined();
     expect(answer.catalogDefinition).toBeDefined();
-    expect(answer.catalogDefinition.runtime).toEqual('Citrus');
+    expect(answer.catalogDefinition.runtime).toBe('Citrus');
     expect(answer.actionsCatalogMap).toBeDefined();
     expect(answer.containersCatalogMap).toBeDefined();
     expect(answer.endpointsCatalogMap).toBeDefined();

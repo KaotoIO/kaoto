@@ -59,7 +59,7 @@ describe('AttachSchemaModal', () => {
     await waitFor(() => {
       const fileItem = screen.getByTestId('attach-schema-file-item-ShipOrder.xsd');
       expect(fileItem).toBeInTheDocument();
-      expect(fileItem.textContent).toEqual('ShipOrder.xsd');
+      expect(fileItem.textContent).toBe('ShipOrder.xsd');
     });
 
     const commitButton = await screen.findByTestId('attach-schema-modal-btn-attach');
@@ -107,7 +107,7 @@ describe('AttachSchemaModal', () => {
     });
 
     const commitButton = (await screen.findByTestId('attach-schema-modal-btn-attach')) as HTMLInputElement;
-    expect(commitButton.disabled).toEqual(false);
+    expect(commitButton.disabled).toBe(false);
     act(() => {
       fireEvent.click(commitButton);
     });
@@ -223,7 +223,7 @@ describe('AttachSchemaModal', () => {
     });
 
     const commitButton = (await screen.findByTestId('attach-schema-modal-btn-attach')) as HTMLInputElement;
-    expect(commitButton.disabled).toEqual(true);
+    expect(commitButton.disabled).toBe(true);
 
     await waitFor(() => {
       const helperText = screen.getByTestId('attach-schema-error-0');
@@ -264,7 +264,7 @@ describe('AttachSchemaModal', () => {
     });
 
     const commitButton = (await screen.findByTestId('attach-schema-modal-btn-attach')) as HTMLInputElement;
-    expect(commitButton.disabled).toEqual(true);
+    expect(commitButton.disabled).toBe(true);
 
     await waitFor(() => {
       const helperText = screen.getByTestId('attach-schema-error-0');
@@ -309,7 +309,7 @@ describe('AttachSchemaModal', () => {
     await waitFor(() => {});
 
     const commitButton = (await screen.findByTestId('attach-schema-modal-btn-attach')) as HTMLInputElement;
-    expect(commitButton.disabled).toEqual(true);
+    expect(commitButton.disabled).toBe(true);
 
     await waitFor(() => {
       const helperText = screen.getByTestId('attach-schema-error-0');
@@ -495,7 +495,7 @@ describe('AttachSchemaModal', () => {
       });
 
       const input = await findRootElementInput();
-      expect(input.value).toEqual('Order');
+      expect(input.value).toBe('Order');
 
       act(() => {
         fireEvent.focus(input);
@@ -545,7 +545,7 @@ describe('AttachSchemaModal', () => {
       });
 
       const input = await findRootElementInput();
-      expect(input.value).toEqual('ShipOrder');
+      expect(input.value).toBe('ShipOrder');
 
       act(() => {
         fireEvent.focus(input);
@@ -596,7 +596,7 @@ describe('AttachSchemaModal', () => {
       });
 
       const input = await findRootElementInput();
-      expect(input.value).toEqual('Order');
+      expect(input.value).toBe('Order');
 
       act(() => {
         fireEvent.focus(input);
@@ -605,7 +605,7 @@ describe('AttachSchemaModal', () => {
       act(() => {
         fireEvent.change(input, { target: { value: 'Invoice' } });
       });
-      expect(input.value).toEqual('Invoice');
+      expect(input.value).toBe('Invoice');
 
       await waitFor(() => {
         const rootElementSelect = screen.getByTestId('attach-schema-root-element-select');
@@ -681,8 +681,8 @@ describe('AttachSchemaModal', () => {
       await waitFor(() => {
         const rootElementQName = DocumentService.getRootElementQName(dataMapperContext!.targetBodyDocument);
         expect(rootElementQName).toBeDefined();
-        expect(rootElementQName?.getLocalPart()).toEqual('Invoice');
-        expect(rootElementQName?.getNamespaceURI()).toEqual('io.kaoto.datamapper.test.multiple');
+        expect(rootElementQName?.getLocalPart()).toBe('Invoice');
+        expect(rootElementQName?.getNamespaceURI()).toBe('io.kaoto.datamapper.test.multiple');
       });
     });
 
@@ -774,7 +774,7 @@ describe('AttachSchemaModal', () => {
 
       await waitFor(async () => {
         const inputEl = await findRootElementInput();
-        expect(inputEl.value).toEqual('Invoice');
+        expect(inputEl.value).toBe('Invoice');
       });
 
       const removeButton = await screen.findByTestId('attach-schema-file-remove-ShipOrder.xsd');
@@ -789,7 +789,7 @@ describe('AttachSchemaModal', () => {
 
       await waitFor(async () => {
         const inputEl = await findRootElementInput();
-        expect(inputEl.value).toEqual('Invoice');
+        expect(inputEl.value).toBe('Invoice');
       });
     });
   });
@@ -1105,7 +1105,7 @@ describe('AttachSchemaModal', () => {
       );
 
       const commitButton = (await screen.findByTestId('attach-schema-modal-btn-attach')) as HTMLInputElement;
-      expect(commitButton.disabled).toEqual(true);
+      expect(commitButton.disabled).toBe(true);
     });
 
     it('should show parameter document type label', async () => {

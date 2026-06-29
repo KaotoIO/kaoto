@@ -43,7 +43,7 @@ describe('CamelCatalogService', () => {
     it('should return the component', () => {
       const component = CamelCatalogService.getComponent(CatalogKind.Component, 'timer');
 
-      expect(component?.component.name).toEqual('timer');
+      expect(component?.component.name).toBe('timer');
       expect(component).toEqual((componentCatalogMap as Record<string, unknown>).timer);
     });
 

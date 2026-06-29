@@ -9,7 +9,7 @@ describe('camel-random-id', () => {
     vi.spyOn(globalThis, 'crypto', 'get').mockImplementationOnce(
       () => ({ getRandomValues: () => [19508888] }) as unknown as Crypto,
     );
-    expect(getCamelRandomId('route', 6)).toEqual('route-195088');
+    expect(getCamelRandomId('route', 6)).toBe('route-195088');
   });
 
   it('should return a random number using Date.now() if crypto module is not available', () => {
@@ -22,7 +22,7 @@ describe('camel-random-id', () => {
 
     const result = getCamelRandomId('route');
 
-    expect(result).toEqual('route-888');
+    expect(result).toBe('route-888');
   });
 
   it('should return a random number using msCrypto if crypto module is not available', () => {

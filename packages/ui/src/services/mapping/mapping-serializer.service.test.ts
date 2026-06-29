@@ -82,117 +82,117 @@ describe('MappingSerializerService', () => {
         sourceParameterMap,
       ));
       expect(Object.keys(mappingTree.namespaceMap)).toHaveLength(1);
-      expect(mappingTree.namespaceMap['ns0']).toEqual('io.kaoto.datamapper.poc.test');
+      expect(mappingTree.namespaceMap['ns0']).toBe('io.kaoto.datamapper.poc.test');
       expect(mappingTree.children).toHaveLength(1);
       const shipOrderFieldItem = mappingTree.children[0] as FieldItem;
-      expect(shipOrderFieldItem.field.name).toEqual('ShipOrder');
+      expect(shipOrderFieldItem.field.name).toBe('ShipOrder');
       expect(shipOrderFieldItem.field.type).toEqual(Types.Container);
       expect(shipOrderFieldItem.field.isAttribute).toBeFalsy();
-      expect(shipOrderFieldItem.field.namespaceURI).toEqual('io.kaoto.datamapper.poc.test');
-      expect(shipOrderFieldItem.field.maxOccurs).toEqual(1);
+      expect(shipOrderFieldItem.field.namespaceURI).toBe('io.kaoto.datamapper.poc.test');
+      expect(shipOrderFieldItem.field.maxOccurs).toBe(1);
       expect(shipOrderFieldItem.children).toHaveLength(4);
 
       const orderIdFieldItem = shipOrderFieldItem.children[0] as FieldItem;
-      expect(orderIdFieldItem.field.name).toEqual('OrderId');
+      expect(orderIdFieldItem.field.name).toBe('OrderId');
       expect(orderIdFieldItem.field.type).not.toEqual(Types.Container);
       expect(orderIdFieldItem.field.isAttribute).toBeTruthy();
-      expect(orderIdFieldItem.field.namespaceURI).toEqual('');
-      expect(orderIdFieldItem.field.maxOccurs).toEqual(1);
+      expect(orderIdFieldItem.field.namespaceURI).toBe('');
+      expect(orderIdFieldItem.field.maxOccurs).toBe(1);
       expect(orderIdFieldItem.children).toHaveLength(1);
       let selector = orderIdFieldItem.children[0] as ValueSelector;
-      expect(selector.expression).toEqual('/ns0:ShipOrder/@OrderId');
+      expect(selector.expression).toBe('/ns0:ShipOrder/@OrderId');
 
       const ifItem = shipOrderFieldItem.children[1] as IfItem;
-      expect(ifItem.expression).toEqual("/ns0:ShipOrder/ns0:OrderPerson != ''");
+      expect(ifItem.expression).toBe("/ns0:ShipOrder/ns0:OrderPerson != ''");
       expect(ifItem.children).toHaveLength(1);
       const orderPersonFieldItem = ifItem.children[0] as FieldItem;
-      expect(orderPersonFieldItem.field.name).toEqual('OrderPerson');
+      expect(orderPersonFieldItem.field.name).toBe('OrderPerson');
       expect(shipOrderFieldItem.field.type).toEqual(Types.Container);
       expect(orderPersonFieldItem.field.isAttribute).toBeFalsy();
-      expect(orderPersonFieldItem.field.namespaceURI).toEqual('io.kaoto.datamapper.poc.test');
-      expect(orderPersonFieldItem.field.maxOccurs).toEqual(1);
+      expect(orderPersonFieldItem.field.namespaceURI).toBe('io.kaoto.datamapper.poc.test');
+      expect(orderPersonFieldItem.field.maxOccurs).toBe(1);
       expect(orderPersonFieldItem.children).toHaveLength(1);
       selector = orderPersonFieldItem.children[0] as ValueSelector;
-      expect(selector.expression).toEqual('/ns0:ShipOrder/ns0:OrderPerson');
+      expect(selector.expression).toBe('/ns0:ShipOrder/ns0:OrderPerson');
 
       const shipToFieldItem = shipOrderFieldItem.children[2] as FieldItem;
-      expect(shipToFieldItem.field.name).toEqual('ShipTo');
+      expect(shipToFieldItem.field.name).toBe('ShipTo');
       expect(shipToFieldItem.field.isAttribute).toBeFalsy();
       expect(shipToFieldItem.field.type).toEqual(Types.Container);
-      expect(shipToFieldItem.field.namespaceURI).toEqual('');
-      expect(shipToFieldItem.field.maxOccurs).toEqual(1);
+      expect(shipToFieldItem.field.namespaceURI).toBe('');
+      expect(shipToFieldItem.field.maxOccurs).toBe(1);
       expect(shipToFieldItem.children).toHaveLength(1);
       selector = shipToFieldItem.children[0] as ValueSelector;
-      expect(selector.expression).toEqual('/ns0:ShipOrder/ShipTo');
+      expect(selector.expression).toBe('/ns0:ShipOrder/ShipTo');
 
       const forEachItem = shipOrderFieldItem.children[3] as ForEachItem;
-      expect(forEachItem.expression).toEqual('/ns0:ShipOrder/Item');
+      expect(forEachItem.expression).toBe('/ns0:ShipOrder/Item');
       expect(forEachItem.children).toHaveLength(1);
       const itemFieldItem = forEachItem.children[0] as FieldItem;
-      expect(itemFieldItem.field.name).toEqual('Item');
+      expect(itemFieldItem.field.name).toBe('Item');
       expect(itemFieldItem.field.type).toEqual(Types.Container);
       expect(itemFieldItem.field.isAttribute).toBeFalsy();
-      expect(itemFieldItem.field.namespaceURI).toEqual('');
-      expect(itemFieldItem.field.maxOccurs).toEqual('unbounded');
+      expect(itemFieldItem.field.namespaceURI).toBe('');
+      expect(itemFieldItem.field.maxOccurs).toBe('unbounded');
       expect(itemFieldItem.children).toHaveLength(4);
 
       const titleFieldItem = itemFieldItem.children[0] as FieldItem;
-      expect(titleFieldItem.field.name).toEqual('Title');
+      expect(titleFieldItem.field.name).toBe('Title');
       expect(titleFieldItem.field.isAttribute).toBeFalsy();
       expect(titleFieldItem.field.type).not.toEqual(Types.Container);
-      expect(titleFieldItem.field.namespaceURI).toEqual('');
-      expect(titleFieldItem.field.maxOccurs).toEqual(1);
+      expect(titleFieldItem.field.namespaceURI).toBe('');
+      expect(titleFieldItem.field.maxOccurs).toBe(1);
       expect(titleFieldItem.children).toHaveLength(1);
       selector = titleFieldItem.children[0] as ValueSelector;
-      expect(selector.expression).toEqual('Title');
+      expect(selector.expression).toBe('Title');
 
       const chooseItem = itemFieldItem.children[1] as ChooseItem;
       expect(chooseItem.children).toHaveLength(2);
 
       const whenItem = chooseItem.children[0] as WhenItem;
-      expect(whenItem.expression).toEqual("Note != ''");
+      expect(whenItem.expression).toBe("Note != ''");
       expect(whenItem.children).toHaveLength(1);
       let noteFieldItem = whenItem.children[0] as FieldItem;
-      expect(noteFieldItem.field.name).toEqual('Note');
+      expect(noteFieldItem.field.name).toBe('Note');
       expect(noteFieldItem.field.type).not.toEqual(Types.Container);
       expect(noteFieldItem.field.isAttribute).toBeFalsy();
-      expect(noteFieldItem.field.namespaceURI).toEqual('');
-      expect(noteFieldItem.field.maxOccurs).toEqual(1);
+      expect(noteFieldItem.field.namespaceURI).toBe('');
+      expect(noteFieldItem.field.maxOccurs).toBe(1);
       expect(noteFieldItem.children).toHaveLength(1);
       selector = noteFieldItem.children[0] as ValueSelector;
-      expect(selector.expression).toEqual('Note');
+      expect(selector.expression).toBe('Note');
 
       const otherwiseItem = chooseItem.children[1] as OtherwiseItem;
       expect(otherwiseItem.children).toHaveLength(1);
       noteFieldItem = otherwiseItem.children[0] as FieldItem;
-      expect(noteFieldItem.field.name).toEqual('Note');
+      expect(noteFieldItem.field.name).toBe('Note');
       expect(noteFieldItem.field.type).not.toEqual(Types.Container);
       expect(noteFieldItem.field.isAttribute).toBeFalsy();
-      expect(noteFieldItem.field.namespaceURI).toEqual('');
-      expect(noteFieldItem.field.maxOccurs).toEqual(1);
+      expect(noteFieldItem.field.namespaceURI).toBe('');
+      expect(noteFieldItem.field.maxOccurs).toBe(1);
       expect(noteFieldItem.children).toHaveLength(1);
       selector = noteFieldItem.children[0] as ValueSelector;
-      expect(selector.expression).toEqual('Title');
+      expect(selector.expression).toBe('Title');
 
       const quantityFieldItem = itemFieldItem.children[2] as FieldItem;
-      expect(quantityFieldItem.field.name).toEqual('Quantity');
+      expect(quantityFieldItem.field.name).toBe('Quantity');
       expect(quantityFieldItem.field.type).not.toEqual(Types.Container);
       expect(quantityFieldItem.field.isAttribute).toBeFalsy();
-      expect(quantityFieldItem.field.namespaceURI).toEqual('');
-      expect(quantityFieldItem.field.maxOccurs).toEqual(1);
+      expect(quantityFieldItem.field.namespaceURI).toBe('');
+      expect(quantityFieldItem.field.maxOccurs).toBe(1);
       expect(quantityFieldItem.children).toHaveLength(1);
       selector = quantityFieldItem.children[0] as ValueSelector;
-      expect(selector.expression).toEqual('Quantity');
+      expect(selector.expression).toBe('Quantity');
 
       const priceFieldItem = itemFieldItem.children[3] as FieldItem;
-      expect(priceFieldItem.field.name).toEqual('Price');
+      expect(priceFieldItem.field.name).toBe('Price');
       expect(priceFieldItem.field.type).not.toEqual(Types.Container);
       expect(priceFieldItem.field.isAttribute).toBeFalsy();
-      expect(priceFieldItem.field.namespaceURI).toEqual('');
-      expect(priceFieldItem.field.maxOccurs).toEqual(1);
+      expect(priceFieldItem.field.namespaceURI).toBe('');
+      expect(priceFieldItem.field.maxOccurs).toBe(1);
       expect(priceFieldItem.children).toHaveLength(1);
       selector = priceFieldItem.children[0] as ValueSelector;
-      expect(selector.expression).toEqual('Price');
+      expect(selector.expression).toBe('Price');
     });
 
     it('should deserialize a raw text node as a literal ValueSelector', () => {
@@ -209,7 +209,7 @@ describe('MappingSerializerService', () => {
       );
       expect(result.children).toHaveLength(1);
       const selector = result.children[0] as ValueSelector;
-      expect(selector.expression).toEqual('TEST');
+      expect(selector.expression).toBe('TEST');
       expect(selector.isLiteral).toBeTruthy();
     });
 
@@ -227,7 +227,7 @@ describe('MappingSerializerService', () => {
       );
       expect(result.children).toHaveLength(1);
       const selector = result.children[0] as ValueSelector;
-      expect(selector.expression).toEqual('TEST');
+      expect(selector.expression).toBe('TEST');
       expect(selector.isLiteral).toBeTruthy();
     });
 
@@ -255,9 +255,9 @@ describe('MappingSerializerService', () => {
         sourceParameterMap,
       ));
       const forEachItem = mappingTree.children[0].children[0] as ForEachItem;
-      expect(forEachItem.expression).toEqual('');
+      expect(forEachItem.expression).toBe('');
       const itemSelector = forEachItem.children[0].children[0] as ValueSelector;
-      expect(itemSelector.expression).toEqual('/ns0:ShipOrder/Item');
+      expect(itemSelector.expression).toBe('/ns0:ShipOrder/Item');
     });
 
     it('should deserialize a mapping on cached type fragment', () => {
@@ -280,7 +280,7 @@ describe('MappingSerializerService', () => {
       const itemsFieldItem = mappingTree.children[0].children[0] as FieldItem;
       expect(itemsFieldItem.children).toHaveLength(1);
       const forEachItem = itemsFieldItem.children[0] as ForEachItem;
-      expect(forEachItem.expression).toEqual('/X12_850/PO1Loop');
+      expect(forEachItem.expression).toBe('/X12_850/PO1Loop');
 
       expect(itemsFieldItem.field.namedTypeFragmentRefs).toHaveLength(0);
       expect(itemsFieldItem.field.fields).toHaveLength(1);
@@ -297,15 +297,15 @@ describe('MappingSerializerService', () => {
       ));
       expect(mappingTree.children[0].children).toHaveLength(2);
       const forEach1 = mappingTree.children[0].children[0] as ForEachItem;
-      expect(forEach1.expression).toEqual('/ns0:ShipOrder/Item');
+      expect(forEach1.expression).toBe('/ns0:ShipOrder/Item');
       expect(forEach1.children).toHaveLength(1);
       const item1 = forEach1.children[0] as FieldItem;
-      expect(item1.field.name).toEqual('Item');
+      expect(item1.field.name).toBe('Item');
       const forEach2 = mappingTree.children[0].children[1] as ForEachItem;
-      expect(forEach2.expression).toEqual('$sourceParam1/ns0:ShipOrder/Item');
+      expect(forEach2.expression).toBe('$sourceParam1/ns0:ShipOrder/Item');
       expect(forEach2.children).toHaveLength(1);
       const item2 = forEach1.children[0] as FieldItem;
-      expect(item2.field.name).toEqual('Item');
+      expect(item2.field.name).toBe('Item');
     });
 
     it('should clone UnknownMappingItem with a deep copy of the element', () => {
@@ -335,13 +335,13 @@ describe('MappingSerializerService', () => {
       ({ mappingTree } = MappingSerializerService.deserialize(xslt, targetDoc, mappingTree, sourceParameterMap));
       expect(mappingTree.children).toHaveLength(1);
       const shipOrderItem = mappingTree.children[0] as FieldItem;
-      expect(shipOrderItem.field.name).toEqual('ShipOrder');
+      expect(shipOrderItem.field.name).toBe('ShipOrder');
       expect(shipOrderItem.children).toHaveLength(1);
       const unknownItem = shipOrderItem.children[0] as UnknownMappingItem;
       expect(unknownItem).toBeInstanceOf(UnknownMappingItem);
-      expect(unknownItem.name).toEqual('unknown');
-      expect(unknownItem.element.localName).toEqual('apply-templates');
-      expect(unknownItem.element.getAttribute('select')).toEqual('/ns0:ShipOrder/Item');
+      expect(unknownItem.name).toBe('unknown');
+      expect(unknownItem.element.localName).toBe('apply-templates');
+      expect(unknownItem.element.getAttribute('select')).toBe('/ns0:ShipOrder/Item');
       expect(unknownItem.children).toHaveLength(0);
     });
 
@@ -389,7 +389,7 @@ describe('MappingSerializerService', () => {
       ));
       const xslt = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
       const xsltDocument = domParser.parseFromString(xslt, 'text/xml');
-      expect(xsltDocument.documentElement.getAttribute('xmlns:ns0')).toEqual('io.kaoto.datamapper.poc.test');
+      expect(xsltDocument.documentElement.getAttribute('xmlns:ns0')).toBe('io.kaoto.datamapper.poc.test');
       const orderIdSelect = xsltDocument
         .evaluate(
           '/xsl:stylesheet/xsl:template/ShipOrder/xsl:attribute[@name="OrderId"]/xsl:value-of/@select',
@@ -398,7 +398,7 @@ describe('MappingSerializerService', () => {
           XPathResult.ORDERED_NODE_ITERATOR_TYPE,
         )
         .iterateNext();
-      expect(orderIdSelect?.nodeValue).toEqual('/ns0:ShipOrder/@OrderId');
+      expect(orderIdSelect?.nodeValue).toBe('/ns0:ShipOrder/@OrderId');
       const ifTest = xsltDocument
         .evaluate(
           '/xsl:stylesheet/xsl:template/ShipOrder/xsl:if/@test',
@@ -407,7 +407,7 @@ describe('MappingSerializerService', () => {
           XPathResult.ORDERED_NODE_ITERATOR_TYPE,
         )
         .iterateNext();
-      expect(ifTest?.nodeValue).toEqual("/ns0:ShipOrder/ns0:OrderPerson != ''");
+      expect(ifTest?.nodeValue).toBe("/ns0:ShipOrder/ns0:OrderPerson != ''");
       const orderPersonSelect = xsltDocument
         .evaluate(
           '/xsl:stylesheet/xsl:template/ShipOrder/xsl:if/OrderPerson/xsl:value-of/@select',
@@ -416,7 +416,7 @@ describe('MappingSerializerService', () => {
           XPathResult.ORDERED_NODE_ITERATOR_TYPE,
         )
         .iterateNext();
-      expect(orderPersonSelect?.nodeValue).toEqual('/ns0:ShipOrder/ns0:OrderPerson');
+      expect(orderPersonSelect?.nodeValue).toBe('/ns0:ShipOrder/ns0:OrderPerson');
       const shipToSelect = xsltDocument
         .evaluate(
           '/xsl:stylesheet/xsl:template/ShipOrder/xsl:copy-of/@select',
@@ -425,7 +425,7 @@ describe('MappingSerializerService', () => {
           XPathResult.ORDERED_NODE_ITERATOR_TYPE,
         )
         .iterateNext();
-      expect(shipToSelect?.nodeValue).toEqual('/ns0:ShipOrder/ShipTo');
+      expect(shipToSelect?.nodeValue).toBe('/ns0:ShipOrder/ShipTo');
       const forEachSelect = xsltDocument
         .evaluate(
           '/xsl:stylesheet/xsl:template/ShipOrder/xsl:for-each/@select',
@@ -434,7 +434,7 @@ describe('MappingSerializerService', () => {
           XPathResult.ORDERED_NODE_ITERATOR_TYPE,
         )
         .iterateNext();
-      expect(forEachSelect?.nodeValue).toEqual('/ns0:ShipOrder/Item');
+      expect(forEachSelect?.nodeValue).toBe('/ns0:ShipOrder/Item');
       const titleSelect = xsltDocument
         .evaluate(
           '/xsl:stylesheet/xsl:template/ShipOrder/xsl:for-each/Item/Title/xsl:value-of/@select',
@@ -443,7 +443,7 @@ describe('MappingSerializerService', () => {
           XPathResult.ORDERED_NODE_ITERATOR_TYPE,
         )
         .iterateNext();
-      expect(titleSelect?.nodeValue).toEqual('Title');
+      expect(titleSelect?.nodeValue).toBe('Title');
       const chooseWhenTest = xsltDocument
         .evaluate(
           '/xsl:stylesheet/xsl:template/ShipOrder/xsl:for-each/Item/xsl:choose/xsl:when/@test',
@@ -452,7 +452,7 @@ describe('MappingSerializerService', () => {
           XPathResult.ORDERED_NODE_ITERATOR_TYPE,
         )
         .iterateNext();
-      expect(chooseWhenTest?.nodeValue).toEqual("Note != ''");
+      expect(chooseWhenTest?.nodeValue).toBe("Note != ''");
       const chooseWhenSelect = xsltDocument
         .evaluate(
           '/xsl:stylesheet/xsl:template/ShipOrder/xsl:for-each/Item/xsl:choose/xsl:when/Note/xsl:value-of/@select',
@@ -461,7 +461,7 @@ describe('MappingSerializerService', () => {
           XPathResult.ORDERED_NODE_ITERATOR_TYPE,
         )
         .iterateNext();
-      expect(chooseWhenSelect?.nodeValue).toEqual('Note');
+      expect(chooseWhenSelect?.nodeValue).toBe('Note');
       const chooseOtherwiseSelect = xsltDocument
         .evaluate(
           '/xsl:stylesheet/xsl:template/ShipOrder/xsl:for-each/Item/xsl:choose/xsl:otherwise/Note/xsl:value-of/@select',
@@ -470,7 +470,7 @@ describe('MappingSerializerService', () => {
           XPathResult.ORDERED_NODE_ITERATOR_TYPE,
         )
         .iterateNext();
-      expect(chooseOtherwiseSelect?.nodeValue).toEqual('Title');
+      expect(chooseOtherwiseSelect?.nodeValue).toBe('Title');
     });
 
     it('should set exclude-result-prefixes to prevent namespace leakage into the output', () => {
@@ -485,7 +485,7 @@ describe('MappingSerializerService', () => {
       const stylesheet = domParser.parseFromString(xslt, 'text/xml').documentElement;
       // `ns0` is declared only for matching the source document via XPath, so it
       // must be excluded from the result to avoid leaking a redundant declaration.
-      expect(stylesheet.getAttribute('xmlns:ns0')).toEqual('io.kaoto.datamapper.poc.test');
+      expect(stylesheet.getAttribute('xmlns:ns0')).toBe('io.kaoto.datamapper.poc.test');
       expect(stylesheet.getAttribute('exclude-result-prefixes')?.split(' ')).toContain('ns0');
     });
 
@@ -512,7 +512,7 @@ describe('MappingSerializerService', () => {
           XPathResult.ORDERED_NODE_ITERATOR_TYPE,
         )
         .iterateNext();
-      expect(applyTemplates?.nodeValue).toEqual('/ns0:ShipOrder/Item');
+      expect(applyTemplates?.nodeValue).toBe('/ns0:ShipOrder/Item');
       const sort = xsltDocument
         .evaluate(
           '/xsl:stylesheet/xsl:template/ShipOrder/xsl:apply-templates/xsl:sort/@select',
@@ -521,7 +521,7 @@ describe('MappingSerializerService', () => {
           XPathResult.ORDERED_NODE_ITERATOR_TYPE,
         )
         .iterateNext();
-      expect(sort?.nodeValue).toEqual('Title');
+      expect(sort?.nodeValue).toBe('Title');
       const withParam = xsltDocument
         .evaluate(
           '/xsl:stylesheet/xsl:template/ShipOrder/xsl:apply-templates/xsl:with-param/@name',
@@ -530,7 +530,7 @@ describe('MappingSerializerService', () => {
           XPathResult.ORDERED_NODE_ITERATOR_TYPE,
         )
         .iterateNext();
-      expect(withParam?.nodeValue).toEqual('prefix');
+      expect(withParam?.nodeValue).toBe('prefix');
     });
 
     it('should preserve original order when UnknownMappingItem appears after a FieldItem', () => {
@@ -550,9 +550,9 @@ describe('MappingSerializerService', () => {
         XPathResult.ORDERED_NODE_ITERATOR_TYPE,
       );
       const first = children.iterateNext() as Element;
-      expect(first.nodeName).toEqual('xsl:attribute');
+      expect(first.nodeName).toBe('xsl:attribute');
       const second = children.iterateNext() as Element;
-      expect(second.nodeName).toEqual('xsl:apply-templates');
+      expect(second.nodeName).toBe('xsl:apply-templates');
     });
 
     it('should preserve original order when UnknownMappingItem appears before a FieldItem', () => {
@@ -572,9 +572,9 @@ describe('MappingSerializerService', () => {
         XPathResult.ORDERED_NODE_ITERATOR_TYPE,
       );
       const first = children.iterateNext() as Element;
-      expect(first.nodeName).toEqual('xsl:apply-templates');
+      expect(first.nodeName).toBe('xsl:apply-templates');
       const second = children.iterateNext() as Element;
-      expect(second.nodeName).toEqual('xsl:attribute');
+      expect(second.nodeName).toBe('xsl:attribute');
     });
 
     it('should serialize mappings with respecting Document field order', () => {
@@ -596,15 +596,15 @@ describe('MappingSerializerService', () => {
         XPathResult.ORDERED_NODE_ITERATOR_TYPE,
       );
       const xslAttribute = shipOrderSelect.iterateNext() as Element;
-      expect(xslAttribute.nodeName).toEqual('xsl:attribute');
+      expect(xslAttribute.nodeName).toBe('xsl:attribute');
       const xslIf = shipOrderSelect.iterateNext() as Element;
-      expect(xslIf.nodeName).toEqual('xsl:if');
-      expect(xslIf.getAttribute('test')).toEqual("/ns0:ShipOrder/ns0:OrderPerson != ''");
+      expect(xslIf.nodeName).toBe('xsl:if');
+      expect(xslIf.getAttribute('test')).toBe("/ns0:ShipOrder/ns0:OrderPerson != ''");
       const copyOf = shipOrderSelect.iterateNext() as Element;
-      expect(copyOf.nodeName).toEqual('xsl:copy-of');
+      expect(copyOf.nodeName).toBe('xsl:copy-of');
       const xslForEach = shipOrderSelect.iterateNext() as Element;
-      expect(xslForEach.nodeName).toEqual('xsl:for-each');
-      expect(xslForEach.getAttribute('select')).toEqual('/ns0:ShipOrder/Item');
+      expect(xslForEach.nodeName).toBe('xsl:for-each');
+      expect(xslForEach.getAttribute('select')).toBe('/ns0:ShipOrder/Item');
     });
 
     it('should serialize mapping with comment', () => {
@@ -630,7 +630,7 @@ describe('MappingSerializerService', () => {
         }
       }
       expect(commentNode).toBeTruthy();
-      expect((commentNode as Comment).data.trim()).toEqual('This is a test comment');
+      expect((commentNode as Comment).data.trim()).toBe('This is a test comment');
     });
 
     it('should serialize mapping with nested comments', () => {
@@ -660,7 +660,7 @@ describe('MappingSerializerService', () => {
       ));
       expect(mappingTree.children).toHaveLength(1);
       const shipOrderItem = mappingTree.children[0];
-      expect(shipOrderItem.comment).toEqual('This is a test comment');
+      expect(shipOrderItem.comment).toBe('This is a test comment');
     });
 
     it('should preserve comments through serialize/deserialize cycle', () => {
@@ -692,11 +692,11 @@ describe('MappingSerializerService', () => {
 
       // Verify comments are preserved
       const shipOrderItem2 = mappingTree2.children[0];
-      expect(shipOrderItem2.comment).toEqual('Root comment');
+      expect(shipOrderItem2.comment).toBe('Root comment');
       const ifItem2 = shipOrderItem2.children[1] as IfItem;
-      expect(ifItem2.comment).toEqual('Condition comment');
+      expect(ifItem2.comment).toBe('Condition comment');
       const forEachItem2 = shipOrderItem2.children[3] as ForEachItem;
-      expect(forEachItem2.comment).toEqual('Loop comment');
+      expect(forEachItem2.comment).toBe('Loop comment');
     });
 
     it('should deserialize complex XSL with multiple comments at different levels', () => {
@@ -710,21 +710,21 @@ describe('MappingSerializerService', () => {
 
       expect(mappingTree.children).toHaveLength(1);
       const shipOrderItem = mappingTree.children[0] as FieldItem;
-      expect(shipOrderItem.comment).toEqual('Main ShipOrder mapping');
+      expect(shipOrderItem.comment).toBe('Main ShipOrder mapping');
 
       // Check OrderId attribute comment
-      expect(shipOrderItem.children[0].comment).toEqual('Order ID attribute');
+      expect(shipOrderItem.children[0].comment).toBe('Order ID attribute');
 
       // Check if item comment
       const ifItem = shipOrderItem.children[1] as IfItem;
-      expect(ifItem.comment).toEqual('Conditional mapping for OrderPerson');
+      expect(ifItem.comment).toBe('Conditional mapping for OrderPerson');
 
       // Check ShipTo comment
-      expect(shipOrderItem.children[2].comment).toEqual('Ship To information');
+      expect(shipOrderItem.children[2].comment).toBe('Ship To information');
 
       // Check for-each comment
       const forEachItem = shipOrderItem.children[3] as ForEachItem;
-      expect(forEachItem.comment).toEqual('Loop through items');
+      expect(forEachItem.comment).toBe('Loop through items');
     });
 
     it('should handle XSL without comments gracefully', () => {
@@ -753,8 +753,8 @@ describe('MappingSerializerService', () => {
       expect(shipOrderItem.children).toHaveLength(2);
       const variableItem = shipOrderItem.children[0] as VariableItem;
       expect(variableItem).toBeInstanceOf(VariableItem);
-      expect(variableItem.name).toEqual('orderRef');
-      expect(variableItem.expression).toEqual('/ns0:ShipOrder/@OrderId');
+      expect(variableItem.name).toBe('orderRef');
+      expect(variableItem.expression).toBe('/ns0:ShipOrder/@OrderId');
     });
 
     it('should filter reserved variable names during deserialization', () => {
@@ -773,9 +773,9 @@ describe('MappingSerializerService', () => {
       expect(shipOrderItem.children).toHaveLength(1);
       const variableItem = shipOrderItem.children[0] as VariableItem;
       expect(variableItem).toBeInstanceOf(VariableItem);
-      expect(variableItem.name).toEqual('myVar');
+      expect(variableItem.name).toBe('myVar');
       expect(messages).toHaveLength(2);
-      expect(messages[0].variant).toEqual('danger');
+      expect(messages[0].variant).toBe('danger');
       expect(messages[0].title).toContain('reserved variable name');
     });
 
@@ -795,9 +795,9 @@ describe('MappingSerializerService', () => {
       expect(shipOrderItem.children).toHaveLength(1);
       const variableItem = shipOrderItem.children[0] as VariableItem;
       expect(variableItem).toBeInstanceOf(VariableItem);
-      expect(variableItem.name).toEqual('myVar');
+      expect(variableItem.name).toBe('myVar');
       expect(messages).toHaveLength(1);
-      expect(messages[0].variant).toEqual('danger');
+      expect(messages[0].variant).toBe('danger');
       expect(messages[0].title).toContain('without a name');
     });
 
@@ -815,8 +815,8 @@ describe('MappingSerializerService', () => {
       expect(itemFieldItem.children).toHaveLength(2);
       const variableItem = itemFieldItem.children[0] as VariableItem;
       expect(variableItem).toBeInstanceOf(VariableItem);
-      expect(variableItem.name).toEqual('itemTitle');
-      expect(variableItem.expression).toEqual('Title');
+      expect(variableItem.name).toBe('itemTitle');
+      expect(variableItem.expression).toBe('Title');
     });
 
     it('should round-trip a simple variable', () => {
@@ -837,7 +837,7 @@ describe('MappingSerializerService', () => {
           XPathResult.ORDERED_NODE_ITERATOR_TYPE,
         )
         .iterateNext();
-      expect(variableName?.nodeValue).toEqual('orderRef');
+      expect(variableName?.nodeValue).toBe('orderRef');
       const variableSelect = xsltDocument
         .evaluate(
           '/xsl:stylesheet/xsl:template/ShipOrder/xsl:variable/@select',
@@ -846,7 +846,7 @@ describe('MappingSerializerService', () => {
           XPathResult.ORDERED_NODE_ITERATOR_TYPE,
         )
         .iterateNext();
-      expect(variableSelect?.nodeValue).toEqual('/ns0:ShipOrder/@OrderId');
+      expect(variableSelect?.nodeValue).toBe('/ns0:ShipOrder/@OrderId');
     });
 
     it('should sort variables before other children during serialization', () => {
@@ -866,9 +866,9 @@ describe('MappingSerializerService', () => {
         XPathResult.ORDERED_NODE_ITERATOR_TYPE,
       );
       const first = children.iterateNext() as Element;
-      expect(first.nodeName).toEqual('xsl:variable');
+      expect(first.nodeName).toBe('xsl:variable');
       const second = children.iterateNext() as Element;
-      expect(second.nodeName).toEqual('xsl:attribute');
+      expect(second.nodeName).toBe('xsl:attribute');
     });
 
     it('should deserialize external XSL file with comments correctly', () => {
@@ -883,13 +883,13 @@ describe('MappingSerializerService', () => {
 
       expect(mappingTree.children).toHaveLength(1);
       const shipOrderItem = mappingTree.children[0];
-      expect(shipOrderItem.comment).toEqual('Mapping created on 2024-01-15');
+      expect(shipOrderItem.comment).toBe('Mapping created on 2024-01-15');
 
       const orderIdAttr = shipOrderItem.children[0];
-      expect(orderIdAttr.comment).toEqual('Maps order ID from source');
+      expect(orderIdAttr.comment).toBe('Maps order ID from source');
 
       const ifItem = shipOrderItem.children[1] as IfItem;
-      expect(ifItem.comment).toEqual('TODO: Add validation for OrderPerson');
+      expect(ifItem.comment).toBe('TODO: Add validation for OrderPerson');
     });
 
     it('should serialize stably when two InstructionItems resolve to empty fields', () => {

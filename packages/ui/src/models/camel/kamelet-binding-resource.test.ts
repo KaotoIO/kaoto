@@ -9,9 +9,9 @@ describe('KameletBindingResource', () => {
     expect(resource.getType()).toEqual(SourceSchemaType.KameletBinding);
     expect(resource.getVisualEntities()).toHaveLength(1);
     const vis = resource.getVisualEntities()[0];
-    expect(vis.pipe.spec!.source!.ref!.name).toEqual('webhook-source');
-    expect(vis.pipe.spec!.steps![0].ref?.name).toEqual('delay-action');
-    expect(vis.pipe.spec!.sink!.ref!.name).toEqual('log-sink');
+    expect(vis.pipe.spec!.source!.ref!.name).toBe('webhook-source');
+    expect(vis.pipe.spec!.steps![0].ref?.name).toBe('delay-action');
+    expect(vis.pipe.spec!.sink!.ref!.name).toBe('log-sink');
     expect(resource.getEntities()).toHaveLength(2);
   });
 

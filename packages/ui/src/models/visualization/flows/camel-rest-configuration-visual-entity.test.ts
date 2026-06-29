@@ -66,7 +66,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
   it('should return node label', () => {
     const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
 
-    expect(entity.getNodeLabel()).toEqual('restConfiguration');
+    expect(entity.getNodeLabel()).toBe('restConfiguration');
   });
 
   it('should return entity current definition', () => {
@@ -98,7 +98,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
 
       entity.updateModel(undefined, value);
 
-      expect(restConfigurationDef.restConfiguration.bindingMode).toEqual('off');
+      expect(restConfigurationDef.restConfiguration.bindingMode).toBe('off');
     });
 
     it('should reset the restConfiguration object if it is not defined', () => {
@@ -167,7 +167,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
       };
       const entity = new CamelRestConfigurationVisualEntity({ restConfiguration: invalidRestConfigurationDef });
 
-      expect(entity.getNodeValidationText()).toEqual(`'/useXForwardHeaders' must be boolean,
+      expect(entity.getNodeValidationText()).toBe(`'/useXForwardHeaders' must be boolean,
 '/apiVendorExtension' must be boolean,
 '/skipBindingOnErrorCode' must be boolean,
 '/clientRequestValidation' must be boolean,
@@ -204,7 +204,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
       const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
       const vizNode = await entity.toVizNode();
 
-      expect(vizNode.getNodeTitle()).toEqual('Rest Configuration');
+      expect(vizNode.getNodeTitle()).toBe('Rest Configuration');
     });
   });
 

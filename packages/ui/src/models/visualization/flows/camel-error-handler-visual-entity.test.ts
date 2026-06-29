@@ -43,7 +43,7 @@ describe('CamelErrorHandlerVisualEntity', () => {
       const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
 
       expect(entity.id).toMatch(ERROR_HANDLER_ID_REGEXP);
-      expect((errorHandlerDef.errorHandler.noErrorHandler as NoErrorHandler).id).toEqual('noErrorHandlerId');
+      expect((errorHandlerDef.errorHandler.noErrorHandler as NoErrorHandler).id).toBe('noErrorHandlerId');
     });
   });
 
@@ -110,7 +110,7 @@ describe('CamelErrorHandlerVisualEntity', () => {
 
       entity.updateModel(undefined, value);
 
-      expect((errorHandlerDef.errorHandler.noErrorHandler as NoErrorHandler).id).toEqual('noErrorHandlerId');
+      expect((errorHandlerDef.errorHandler.noErrorHandler as NoErrorHandler).id).toBe('noErrorHandlerId');
     });
 
     it('should reset the errorHandler object if it is not defined', () => {
@@ -180,7 +180,7 @@ describe('CamelErrorHandlerVisualEntity', () => {
     const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
     const vizNode = await entity.toVizNode();
 
-    expect(vizNode.getNodeTitle()).toEqual('Error Handler');
+    expect(vizNode.getNodeTitle()).toBe('Error Handler');
   });
 
   it('should serialize the errorHandler definition', () => {

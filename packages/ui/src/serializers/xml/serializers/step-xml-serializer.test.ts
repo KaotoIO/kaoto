@@ -228,7 +228,7 @@ describe('step-xml-serializer tests', () => {
       delete catalogsMap.modelCatalogMap['doTry'].properties.doCatch;
       delete catalogsMap.modelCatalogMap['doTry'].properties.doFinally;
 
-      expect(catalogsMap.modelCatalogMap['doTry'].properties.doCatch).not.toBeDefined();
+      expect(catalogsMap.modelCatalogMap['doTry'].properties.doCatch).toBeUndefined();
       CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
     });
 

@@ -330,7 +330,7 @@ describe('CamelRouteResource', () => {
   it('should allow consumers to have multiple visual entities', async () => {
     const resource = new CamelRouteResource();
     await resource.initialize();
-    expect(resource.supportsMultipleVisualEntities()).toEqual(true);
+    expect(resource.supportsMultipleVisualEntities()).toBe(true);
   });
 
   it('should return visual entities', async () => {
@@ -769,7 +769,7 @@ describe('CamelRouteResource', () => {
       const resource = new CamelRouteResource(json);
       await resource.initialize();
       const firstEntity = resource.getVisualEntities()[0] ?? resource.getEntities()[0];
-      expect(firstEntity.toJSON()).not.toBeUndefined();
+      expect(firstEntity.toJSON()).toBeDefined();
     });
   });
 

@@ -153,13 +153,13 @@ describe('FlowService', () => {
       const { nodes, edges } = FlowService.getFlowDiagram('test', routeNode);
 
       expect(nodes).toHaveLength(3);
-      expect(nodes[0].data?.vizNode?.data.path).toEqual('route.from');
-      expect(nodes[1].data?.vizNode?.data.path).toEqual('route.from.steps.0.placeholder');
-      expect(nodes[2].data?.vizNode?.data.path).toEqual('route');
+      expect(nodes[0].data?.vizNode?.data.path).toBe('route.from');
+      expect(nodes[1].data?.vizNode?.data.path).toBe('route.from.steps.0.placeholder');
+      expect(nodes[2].data?.vizNode?.data.path).toBe('route');
 
       expect(edges).toHaveLength(1);
-      expect(edges[0].source).toEqual('test|route.from');
-      expect(edges[0].target).toEqual('test|route.from.steps.0.placeholder');
+      expect(edges[0].source).toBe('test|route.from');
+      expect(edges[0].target).toBe('test|route.from.steps.0.placeholder');
 
       const group = nodes[nodes.length - 1];
       expect(group.children).toEqual(['test|route.from', 'test|route.from.steps.0.placeholder']);
@@ -186,19 +186,19 @@ describe('FlowService', () => {
       const { nodes, edges } = FlowService.getFlowDiagram('test', routeNode);
 
       expect(nodes).toHaveLength(4);
-      expect(nodes[0].id).toEqual('test|route.from');
-      expect(nodes[1].id).toEqual('test|route.from.steps.0.to');
-      expect(nodes[2].id).toEqual('test|route.from.steps.1.placeholder');
-      expect(nodes[3].id).toEqual('test|route');
+      expect(nodes[0].id).toBe('test|route.from');
+      expect(nodes[1].id).toBe('test|route.from.steps.0.to');
+      expect(nodes[2].id).toBe('test|route.from.steps.1.placeholder');
+      expect(nodes[3].id).toBe('test|route');
 
       expect(edges).toHaveLength(2);
-      expect(edges[0].id).toEqual('test|route.from >>> route.from.steps.0.to');
-      expect(edges[0].source).toEqual('test|route.from');
-      expect(edges[0].target).toEqual('test|route.from.steps.0.to');
+      expect(edges[0].id).toBe('test|route.from >>> route.from.steps.0.to');
+      expect(edges[0].source).toBe('test|route.from');
+      expect(edges[0].target).toBe('test|route.from.steps.0.to');
 
-      expect(edges[1].id).toEqual('test|route.from.steps.0.to >>> route.from.steps.1.placeholder');
-      expect(edges[1].source).toEqual('test|route.from.steps.0.to');
-      expect(edges[1].target).toEqual('test|route.from.steps.1.placeholder');
+      expect(edges[1].id).toBe('test|route.from.steps.0.to >>> route.from.steps.1.placeholder');
+      expect(edges[1].source).toBe('test|route.from.steps.0.to');
+      expect(edges[1].target).toBe('test|route.from.steps.1.placeholder');
     });
   });
 });

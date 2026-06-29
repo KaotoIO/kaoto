@@ -108,7 +108,7 @@ describe('CamelResourceFactory.createCamelResource', () => {
     expect(resource.getType()).toEqual(SourceSchemaType.KameletBinding);
     expect(resource.getVisualEntities()).toHaveLength(1);
     const vis = resource.getVisualEntities()[0] as PipeVisualEntity;
-    expect(vis.pipe.spec?.source?.ref?.name).toEqual('webhook-source');
+    expect(vis.pipe.spec?.source?.ref?.name).toBe('webhook-source');
   });
 
   it('should create a Pipe', async () => {
@@ -117,7 +117,7 @@ describe('CamelResourceFactory.createCamelResource', () => {
     expect(resource.getType()).toEqual(SourceSchemaType.Pipe);
     expect(resource.getVisualEntities()).toHaveLength(1);
     const vis = resource.getVisualEntities()[0] as PipeVisualEntity;
-    expect(vis.pipe.spec?.source?.ref?.name).toEqual('webhook-source');
+    expect(vis.pipe.spec?.source?.ref?.name).toBe('webhook-source');
   });
 
   it('should create a Citrus test resource', async () => {

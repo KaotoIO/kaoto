@@ -14,7 +14,7 @@ describe('CamelInterceptVisualEntity', () => {
         intercept: { id: 'a-reference', disabled: false },
       });
 
-      expect(interceptVisualEntity.getId()).toEqual('a-reference');
+      expect(interceptVisualEntity.getId()).toBe('a-reference');
     });
 
     it('should allow to create an instance out of the object definition without id', () => {
@@ -45,14 +45,14 @@ describe('CamelInterceptVisualEntity', () => {
     const interceptVisualEntity = new CamelInterceptVisualEntity({
       intercept: { id: 'id', disabled: false },
     });
-    expect(interceptVisualEntity.getId()).toEqual('id');
+    expect(interceptVisualEntity.getId()).toBe('id');
   });
 
   it('should set the id', () => {
     const interceptVisualEntity = new CamelInterceptVisualEntity({ intercept: { id: 'a-reference', disabled: false } });
     interceptVisualEntity.setId('new-id');
-    expect(interceptVisualEntity.getId()).toEqual('new-id');
-    expect(interceptVisualEntity.interceptDef.intercept.id).toEqual('new-id');
+    expect(interceptVisualEntity.getId()).toBe('new-id');
+    expect(interceptVisualEntity.interceptDef.intercept.id).toBe('new-id');
   });
 
   describe('getNodeInteraction', () => {

@@ -41,10 +41,10 @@ describe('DocumentUtilService', () => {
     it('should return field stack', () => {
       const stack = DocumentUtilService.getFieldStack(sourceDoc.fields[0].fields[1]);
       expect(stack).toHaveLength(1);
-      expect(stack[0].name).toEqual('ShipOrder');
+      expect(stack[0].name).toBe('ShipOrder');
       const stackWithSelf = DocumentUtilService.getFieldStack(sourceDoc.fields[0].fields[1], true);
       expect(stackWithSelf).toHaveLength(2);
-      expect(stackWithSelf[0].name).toEqual('OrderPerson');
+      expect(stackWithSelf[0].name).toBe('OrderPerson');
     });
 
     it('should return empty array for PrimitiveDocument', () => {
@@ -73,13 +73,13 @@ describe('DocumentUtilService', () => {
       testDoc.fields[0].fields.push(refField);
       DocumentUtilService.resolveTypeFragment(refField);
 
-      expect(refField.name).toEqual('testRefField');
+      expect(refField.name).toBe('testRefField');
       expect(refField.type).toEqual(Types.Container);
-      expect(refField.minOccurs).toEqual(1);
-      expect(refField.maxOccurs).toEqual(1);
+      expect(refField.minOccurs).toBe(1);
+      expect(refField.maxOccurs).toBe(1);
       expect(refField.fields).toHaveLength(1);
       const refChildField = refField.fields[0];
-      expect(refChildField.name).toEqual('testField');
+      expect(refChildField.name).toBe('testField');
       expect(refChildField.type).toEqual(Types.String);
     });
 
@@ -99,8 +99,8 @@ describe('DocumentUtilService', () => {
       const route = resolvedRoutes.fields.find((f) => f.name === 'route');
       // https://github.com/KaotoIO/kaoto/issues/2457
       // occurrences must be taken from the referrer as opposed to the other attributes
-      expect(route?.minOccurs).toEqual(0);
-      expect(route?.maxOccurs).toEqual('unbounded');
+      expect(route?.minOccurs).toBe(0);
+      expect(route?.maxOccurs).toBe('unbounded');
     });
 
     it('should not overwrite originalField if already set', () => {

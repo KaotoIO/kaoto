@@ -73,7 +73,7 @@ describe('simulate old catalog', () => {
     delete catalogsMap.modelCatalogMap['get'].properties.param;
     delete catalogsMap.modelCatalogMap['get'].properties.responseMessage;
     delete catalogsMap.modelCatalogMap['get'].properties.security;
-    expect(catalogsMap.modelCatalogMap['get'].properties.param).not.toBeDefined();
+    expect(catalogsMap.modelCatalogMap['get'].properties.param).toBeUndefined();
 
     CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
   });

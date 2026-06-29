@@ -42,7 +42,7 @@ describe('DeleteParameterButton', () => {
       </DataMapperProvider>,
     );
     const deleteBtn = await screen.findByTestId('delete-parameter-testparam1-button');
-    expect(parameterMap!.size).toEqual(1);
+    expect(parameterMap!.size).toBe(1);
     act(() => {
       fireEvent.click(deleteBtn);
     });
@@ -50,6 +50,6 @@ describe('DeleteParameterButton', () => {
     act(() => {
       fireEvent.click(confirmBtn);
     });
-    expect(parameterMap!.size).toEqual(0);
+    expect(parameterMap!.size).toBe(0);
   });
 });

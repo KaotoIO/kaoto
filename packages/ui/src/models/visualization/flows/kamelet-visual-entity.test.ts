@@ -67,8 +67,8 @@ describe('KameletVisualEntity', () => {
 
   it('should set the id to the name if provided', () => {
     const kameletVisualEntity = new KameletVisualEntity(kameletDef);
-    expect(kameletVisualEntity.id).toEqual('My Kamelet');
-    expect(kameletVisualEntity.kamelet.metadata.name).toEqual('My Kamelet');
+    expect(kameletVisualEntity.id).toBe('My Kamelet');
+    expect(kameletVisualEntity.kamelet.metadata.name).toBe('My Kamelet');
   });
 
   it('should set a random id if the kamelet name is not provided', () => {
@@ -76,26 +76,26 @@ describe('KameletVisualEntity', () => {
 
     kameletDef.metadata.name = undefined as unknown as IKameletMetadata['name'];
     const kameletVisualEntity = new KameletVisualEntity(kameletDef);
-    expect(kameletVisualEntity.id).toEqual('kamelet-1234');
-    expect(kameletVisualEntity.kamelet.metadata.name).toEqual('kamelet-1234');
+    expect(kameletVisualEntity.id).toBe('kamelet-1234');
+    expect(kameletVisualEntity.kamelet.metadata.name).toBe('kamelet-1234');
   });
 
   it('should set the id', () => {
     const kameletVisualEntity = new KameletVisualEntity(kameletDef);
     kameletVisualEntity.setId('new-id');
-    expect(kameletVisualEntity.id).toEqual('new-id');
-    expect(kameletVisualEntity.kamelet.metadata.name).toEqual('new-id');
+    expect(kameletVisualEntity.id).toBe('new-id');
+    expect(kameletVisualEntity.kamelet.metadata.name).toBe('new-id');
   });
 
   describe('getNodeLabel', () => {
     it('should return the ID as node label when querying the ROOT_PATH by default', () => {
       const kamelet = new KameletVisualEntity(kameletDef);
-      expect(kamelet.getNodeLabel(KameletVisualEntity.ROOT_PATH)).toEqual('My Kamelet');
+      expect(kamelet.getNodeLabel(KameletVisualEntity.ROOT_PATH)).toBe('My Kamelet');
     });
 
     it('should return the description as node label when querying the ROOT_PATH', () => {
       const kamelet = new KameletVisualEntity(kameletDef);
-      expect(kamelet.getNodeLabel(KameletVisualEntity.ROOT_PATH, NodeLabelType.Description)).toEqual(
+      expect(kamelet.getNodeLabel(KameletVisualEntity.ROOT_PATH, NodeLabelType.Description)).toBe(
         'My Kamelet Description',
       );
     });
@@ -103,12 +103,12 @@ describe('KameletVisualEntity', () => {
     it('should fallback to the id as node label when there is no description available', () => {
       kameletDef.spec.definition.description = undefined;
       const kamelet = new KameletVisualEntity(kameletDef);
-      expect(kamelet.getNodeLabel(KameletVisualEntity.ROOT_PATH, NodeLabelType.Description)).toEqual('My Kamelet');
+      expect(kamelet.getNodeLabel(KameletVisualEntity.ROOT_PATH, NodeLabelType.Description)).toBe('My Kamelet');
     });
 
     it('should return the node label when querying a different path', () => {
       const kamelet = new KameletVisualEntity(kameletDef);
-      expect(kamelet.getNodeLabel('template.from')).toEqual('timer');
+      expect(kamelet.getNodeLabel('template.from')).toBe('timer');
     });
   });
 
@@ -141,7 +141,7 @@ describe('KameletVisualEntity', () => {
       }
     }
     const kamelet = new KameletVisualEntityTest(kameletDef);
-    expect(kamelet.getRootUri()).toEqual('timer');
+    expect(kamelet.getRootUri()).toBe('timer');
   });
 
   describe('toVizNode', () => {
@@ -157,7 +157,7 @@ describe('KameletVisualEntity', () => {
       const kamelet = new KameletVisualEntity(kameletDef);
       const vizNode = await kamelet.toVizNode();
 
-      expect(vizNode.getNodeTitle()).toEqual('Kamelet');
+      expect(vizNode.getNodeTitle()).toBe('Kamelet');
     });
   });
 });

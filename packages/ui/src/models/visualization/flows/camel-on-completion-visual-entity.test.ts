@@ -16,7 +16,7 @@ describe('CamelOnCompletionVisualEntity', () => {
         onCompletion: { id: 'a-reference', mode: 'AfterConsumer' },
       });
 
-      expect(onCompletionVisualEntity.getId()).toEqual('a-reference');
+      expect(onCompletionVisualEntity.getId()).toBe('a-reference');
     });
 
     it('should allow to create an instance out of the object definition without id', () => {
@@ -47,7 +47,7 @@ describe('CamelOnCompletionVisualEntity', () => {
     const onCompletionVisualEntity = new CamelOnCompletionVisualEntity({
       onCompletion: { id: 'id', mode: 'AfterConsumer' },
     });
-    expect(onCompletionVisualEntity.getId()).toEqual('id');
+    expect(onCompletionVisualEntity.getId()).toBe('id');
   });
 
   it('should set the id', () => {
@@ -55,8 +55,8 @@ describe('CamelOnCompletionVisualEntity', () => {
       onCompletion: { id: 'id', mode: 'AfterConsumer' },
     });
     onCompletionVisualEntity.setId('new-id');
-    expect(onCompletionVisualEntity.getId()).toEqual('new-id');
-    expect(onCompletionVisualEntity.onCompletionDef.onCompletion.id).toEqual('new-id');
+    expect(onCompletionVisualEntity.getId()).toBe('new-id');
+    expect(onCompletionVisualEntity.onCompletionDef.onCompletion.id).toBe('new-id');
   });
 
   describe('getNodeInteraction', () => {

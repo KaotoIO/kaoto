@@ -82,11 +82,11 @@ describe('camelComponentToTab', () => {
 
     expect(tab).toHaveLength(2);
     expect(tab[0].tables).toHaveLength(1);
-    expect(tab[0].rootName).toEqual('Component Options (1)');
+    expect(tab[0].rootName).toBe('Component Options (1)');
     expect(tab[1].tables).toHaveLength(2);
-    expect(tab[1].rootName).toEqual('Endpoint Options (2)');
-    expect(tab[1].tables[0].caption).toEqual('path parameters (1)');
-    expect(tab[1].tables[1].caption).toEqual('query parameters (1)');
+    expect(tab[1].rootName).toBe('Endpoint Options (2)');
+    expect(tab[1].tables[0].caption).toBe('path parameters (1)');
+    expect(tab[1].tables[1].caption).toBe('query parameters (1)');
   });
 
   it('should return also header tab', () => {
@@ -111,7 +111,7 @@ describe('camelComponentToTab', () => {
     expect(tab[0].tables).toHaveLength(1);
     expect(tab[1].tables).toHaveLength(2);
     expect(tab[2].tables).toHaveLength(1);
-    expect(tab[2].rootName).toEqual('Message Headers (1)');
+    expect(tab[2].rootName).toBe('Message Headers (1)');
   });
 
   it('should return also api tab', () => {
@@ -135,7 +135,7 @@ describe('camelComponentToTab', () => {
     expect(tab[0].tables).toHaveLength(1);
     expect(tab[1].tables).toHaveLength(2);
     expect(tab[2].tables).toHaveLength(1);
-    expect(tab[2].rootName).toEqual('APIs (1)');
+    expect(tab[2].rootName).toBe('APIs (1)');
   });
 
   it('should return properties and component properties tabs only even though optional properties exist but they are empty', () => {
@@ -188,7 +188,7 @@ describe('camelProcessorToTab', () => {
 
     expect(tab).toHaveLength(1);
     expect(tab[0].tables).toHaveLength(1);
-    expect(tab[0].rootName).toEqual('Options (1)');
+    expect(tab[0].rootName).toBe('Options (1)');
   });
 
   it('should return empty tab', () => {
@@ -236,7 +236,7 @@ describe('kameletToTab', () => {
 
     expect(tab).toHaveLength(1);
     expect(tab[0].tables).toHaveLength(1);
-    expect(tab[0].rootName).toEqual('Options (2)');
+    expect(tab[0].rootName).toBe('Options (2)');
   });
 
   it('should return empty tab', () => {

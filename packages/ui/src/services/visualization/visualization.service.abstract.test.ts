@@ -119,7 +119,7 @@ describe('VisualizationService / abstract fields', () => {
       const children = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
       expect(children).toHaveLength(1);
       expect(children[0]).toBeInstanceOf(AbstractFieldNodeData);
-      expect(children[0].title).toEqual('Cat');
+      expect(children[0].title).toBe('Cat');
     });
 
     it('should create TargetAbstractFieldNodeData with selected candidate for target abstract fields', () => {
@@ -132,7 +132,7 @@ describe('VisualizationService / abstract fields', () => {
       const children = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
       expect(children).toHaveLength(1);
       expect(children[0]).toBeInstanceOf(TargetAbstractFieldNodeData);
-      expect(children[0].title).toEqual('Dog');
+      expect(children[0].title).toBe('Dog');
     });
 
     it('should still report isAbstractField for selected abstract candidates', () => {
@@ -177,8 +177,8 @@ describe('VisualizationService / abstract fields', () => {
       const abstractNode = new AbstractFieldNodeData(sourceDocNode, abstractField);
       const children = VisualizationService.generateNonDocumentNodeDataChildren(abstractNode);
       expect(children).toHaveLength(2);
-      expect(children[0].title).toEqual('Cat');
-      expect(children[1].title).toEqual('Dog');
+      expect(children[0].title).toBe('Cat');
+      expect(children[1].title).toBe('Dog');
     });
 
     it('should fall back to all candidates when selectedMemberIndex is out of bounds', () => {
@@ -186,8 +186,8 @@ describe('VisualizationService / abstract fields', () => {
       const abstractNode = new AbstractFieldNodeData(sourceDocNode, abstractField);
       const children = VisualizationService.generateNonDocumentNodeDataChildren(abstractNode);
       expect(children).toHaveLength(2);
-      expect(children[0].title).toEqual('Cat');
-      expect(children[1].title).toEqual('Dog');
+      expect(children[0].title).toBe('Cat');
+      expect(children[1].title).toBe('Dog');
     });
 
     describe('XSD integration: abstract wrapper expandability from FieldSubstitution.xsd', () => {
@@ -279,7 +279,7 @@ describe('VisualizationService / abstract fields', () => {
         const selectedNode = zooChildren.find((c) => VisualizationUtilService.isAbstractField(c))!;
         expect(selectedNode).toBeInstanceOf(AbstractFieldNodeData);
         expect((selectedNode as AbstractFieldNodeData).abstractField).toBe(abstractAnimalField);
-        expect(selectedNode.title).toEqual('Cat');
+        expect(selectedNode.title).toBe('Cat');
       });
 
       it('selected abstract should expand to show children of the selected candidate, not sibling candidates', () => {
@@ -348,34 +348,32 @@ describe('VisualizationService / abstract fields', () => {
     it('should return candidate names joined with | in parentheses', () => {
       const abstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }, { name: 'Fish' }]);
       const abstractNode = new AbstractFieldNodeData(sourceDocNode, abstractField);
-      expect(VisualizationService.getAbstractMemberLabel(abstractNode)).toEqual('(Cat | Dog | Fish)');
+      expect(VisualizationService.getAbstractMemberLabel(abstractNode)).toBe('(Cat | Dog | Fish)');
     });
 
     it('should return "(no candidates)" for abstract with no candidates', () => {
       const abstractField = createMockAbstractField([]);
       const abstractNode = new AbstractFieldNodeData(sourceDocNode, abstractField);
-      expect(VisualizationService.getAbstractMemberLabel(abstractNode)).toEqual('(no candidates)');
+      expect(VisualizationService.getAbstractMemberLabel(abstractNode)).toBe('(no candidates)');
     });
 
     it('should truncate long candidate lists showing first 3 and count', () => {
       const candidates = Array.from({ length: 10 }, (_, i) => ({ name: `animal${i}` }));
       const abstractField = createMockAbstractField(candidates);
       const abstractNode = new AbstractFieldNodeData(sourceDocNode, abstractField);
-      expect(VisualizationService.getAbstractMemberLabel(abstractNode)).toEqual(
-        '(animal0 | animal1 | animal2 | +7 more)',
-      );
+      expect(VisualizationService.getAbstractMemberLabel(abstractNode)).toBe('(animal0 | animal1 | animal2 | +7 more)');
     });
 
     it('should handle single candidate without truncation', () => {
       const abstractField = createMockAbstractField([{ name: 'Cat' }]);
       const abstractNode = new AbstractFieldNodeData(sourceDocNode, abstractField);
-      expect(VisualizationService.getAbstractMemberLabel(abstractNode)).toEqual('(Cat)');
+      expect(VisualizationService.getAbstractMemberLabel(abstractNode)).toBe('(Cat)');
     });
 
     it('should handle exactly 3 candidates without truncation', () => {
       const abstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }, { name: 'Fish' }]);
       const abstractNode = new AbstractFieldNodeData(sourceDocNode, abstractField);
-      expect(VisualizationService.getAbstractMemberLabel(abstractNode)).toEqual('(Cat | Dog | Fish)');
+      expect(VisualizationService.getAbstractMemberLabel(abstractNode)).toBe('(Cat | Dog | Fish)');
     });
   });
 
@@ -383,7 +381,7 @@ describe('VisualizationService / abstract fields', () => {
     it('should return candidate label for unselected abstract wrapper (no abstractField)', () => {
       const abstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }]);
       const abstractNode = new AbstractFieldNodeData(sourceDocNode, abstractField);
-      expect(VisualizationService.createNodeTitle(abstractNode)).toEqual('(Cat | Dog)');
+      expect(VisualizationService.createNodeTitle(abstractNode)).toBe('(Cat | Dog)');
     });
 
     it('should return nodeData.title for selected abstract candidate (abstractField set)', () => {
@@ -393,7 +391,7 @@ describe('VisualizationService / abstract fields', () => {
       const children = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
       const selectedNode = children[0] as AbstractFieldNodeData;
       expect(selectedNode.abstractField).toBeDefined();
-      expect(VisualizationService.createNodeTitle(selectedNode)).toEqual('Cat');
+      expect(VisualizationService.createNodeTitle(selectedNode)).toBe('Cat');
     });
 
     it('should return nodeData.title for regular FieldNodeData', () => {
@@ -404,7 +402,7 @@ describe('VisualizationService / abstract fields', () => {
     it('should return candidate label for unselected TargetAbstractFieldNodeData', () => {
       const abstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }]);
       const abstractNode = new TargetAbstractFieldNodeData(targetDocNode, abstractField);
-      expect(VisualizationService.createNodeTitle(abstractNode)).toEqual('(Cat | Dog)');
+      expect(VisualizationService.createNodeTitle(abstractNode)).toBe('(Cat | Dog)');
     });
   });
 
@@ -444,7 +442,7 @@ describe('VisualizationService / abstract fields', () => {
         (c) => c instanceof FieldItem && c.field === candidateField,
       ) as FieldItem;
       expect(candidateItem).toBeDefined();
-      expect(candidateItem.field.name).toEqual('Cat');
+      expect(candidateItem.field.name).toBe('Cat');
     });
 
     it('generateNonDocumentNodeDataChildren should find mappings for fields inside unselected abstract wrapper', () => {
@@ -494,8 +492,8 @@ describe('VisualizationService / abstract fields', () => {
 
       const children = VisualizationService.generateNonDocumentNodeDataChildren(innerAbstractNode);
       expect(children).toHaveLength(2);
-      expect(children[0].title).toEqual('Kitten');
-      expect(children[1].title).toEqual('Puppy');
+      expect(children[0].title).toBe('Kitten');
+      expect(children[1].title).toBe('Puppy');
     });
 
     it('should walk up through mixed wrapper kinds (abstract inside choice) to find mapping ancestor', () => {
@@ -521,8 +519,8 @@ describe('VisualizationService / abstract fields', () => {
 
       const children = VisualizationService.generateNonDocumentNodeDataChildren(abstractNode);
       expect(children).toHaveLength(2);
-      expect(children[0].title).toEqual('Kitten');
-      expect(children[1].title).toEqual('Puppy');
+      expect(children[0].title).toBe('Kitten');
+      expect(children[1].title).toBe('Puppy');
     });
   });
 
