@@ -10,7 +10,14 @@ import tseslint from 'typescript-eslint';
 
 export default [
   { files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'] },
-  { languageOptions: { globals: globals.browser } },
+  { 
+    languageOptions: { 
+      globals: globals.browser,
+      parserOptions: {
+        project: true,
+      },
+    } 
+  },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
   // Enable type-aware linting (required for prefer-readonly / typescript:S2933).
@@ -39,6 +46,7 @@ export default [
     rules: {
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/no-unused-expressions': 'off',
+      '@typescript-eslint/no-floating-promises': 'error',
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
     },
