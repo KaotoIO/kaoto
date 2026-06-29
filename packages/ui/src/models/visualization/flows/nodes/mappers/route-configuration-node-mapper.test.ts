@@ -24,9 +24,9 @@ describe('RouteConfigurationNodeMapper', () => {
       entityDef,
     );
 
-    expect(vizNode.data.name).toEqual('routeConfiguration');
+    expect(vizNode.data.name).toBe('routeConfiguration');
     expect(vizNode.data.path).toEqual(path);
-    expect(vizNode.data.isGroup).toEqual(true);
+    expect(vizNode.data.isGroup).toBe(true);
   });
 
   it('should return one placeholder per branch type when routeConfiguration is empty', async () => {

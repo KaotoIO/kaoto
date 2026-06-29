@@ -55,10 +55,10 @@ describe('XmlSchemaDocumentService', () => {
     const fields: XmlSchemaField[] = [];
     XmlSchemaDocumentService.populateElement(document, fields, shipOrder);
     expect(fields.length > 0).toBeTruthy();
-    expect(fields[0].name).toEqual('ShipOrder');
-    expect(fields[0].fields[3].name).toEqual('Item');
+    expect(fields[0].name).toBe('ShipOrder');
+    expect(fields[0].fields[3].name).toBe('Item');
     const itemTitleField = fields[0].fields[3].fields[0];
-    expect(itemTitleField.name).toEqual('Title');
+    expect(itemTitleField.name).toBe('Title');
     expect(itemTitleField.type).not.toEqual(Types.Container);
   });
 
@@ -105,8 +105,8 @@ describe('XmlSchemaDocumentService', () => {
     expect(choiceElement.fields).toHaveLength(1);
     const choiceWrapper = choiceElement.fields[0];
     expect(choiceWrapper.wrapperKind).toBe('choice');
-    expect(choiceWrapper.name).toEqual('__choice__');
-    expect(choiceWrapper.displayName).toEqual('choice');
+    expect(choiceWrapper.name).toBe('__choice__');
+    expect(choiceWrapper.displayName).toBe('choice');
 
     // Choice1, Choice2, and Group1 (xs:sequence -> Group1Element1, Group1Element2 flattened)
     expect(choiceWrapper.fields).toHaveLength(4);
@@ -140,7 +140,7 @@ describe('XmlSchemaDocumentService', () => {
     const root = document.fields[0];
     const choiceWrapper = root.fields.find((f) => f.wrapperKind === 'choice');
     expect(choiceWrapper).toBeDefined();
-    expect(choiceWrapper!.maxOccurs).toEqual('unbounded');
+    expect(choiceWrapper!.maxOccurs).toBe('unbounded');
     expect(choiceWrapper!.maxOccursExplicit).toBe(true);
     expect(choiceWrapper!.fields).toHaveLength(2);
   });
@@ -198,7 +198,7 @@ describe('XmlSchemaDocumentService', () => {
     const aggregate = document.fields[0];
     expect(aggregate.fields).toHaveLength(0);
     expect(aggregate.namedTypeFragmentRefs).toHaveLength(1);
-    expect(aggregate.namedTypeFragmentRefs[0]).toEqual('{http://camel.apache.org/schema/spring}aggregateDefinition');
+    expect(aggregate.namedTypeFragmentRefs[0]).toBe('{http://camel.apache.org/schema/spring}aggregateDefinition');
     const aggregateDef = document.namedTypeFragments[aggregate.namedTypeFragmentRefs[0]];
 
     // Many fields; fewer direct children now that xs:choice compositors are wrapped
@@ -235,49 +235,49 @@ describe('XmlSchemaDocumentService', () => {
     expect(document).toBeDefined();
     expect(document.fields).toHaveLength(1);
     const product = document.fields[0];
-    expect(product.name).toEqual('Product');
+    expect(product.name).toBe('Product');
     expect(product.fields).toHaveLength(2);
 
     const nameField = product.fields[0];
-    expect(nameField.name).toEqual('name');
+    expect(nameField.name).toBe('name');
     expect(nameField.namedTypeFragmentRefs).toHaveLength(1);
     const extendedStringRef = nameField.namedTypeFragmentRefs[0];
     const extendedStringType = document.namedTypeFragments[extendedStringRef];
     expect(extendedStringType.fields).toHaveLength(2);
-    expect(extendedStringType.fields[0].name).toEqual('lang');
+    expect(extendedStringType.fields[0].name).toBe('lang');
     expect(extendedStringType.fields[0].isAttribute).toBeTruthy();
-    expect(extendedStringType.fields[1].name).toEqual('format');
+    expect(extendedStringType.fields[1].name).toBe('format');
     expect(extendedStringType.fields[1].isAttribute).toBeTruthy();
 
     const priceField = product.fields[1];
-    expect(priceField.name).toEqual('price');
+    expect(priceField.name).toBe('price');
     expect(priceField.namedTypeFragmentRefs).toHaveLength(1);
 
     const priceTypeRef = priceField.namedTypeFragmentRefs[0];
-    expect(priceTypeRef).toEqual('{http://www.example.com/SIMPLE}PriceType');
+    expect(priceTypeRef).toBe('{http://www.example.com/SIMPLE}PriceType');
     const priceType = document.namedTypeFragments[priceTypeRef];
     expect(priceType.fields).toHaveLength(3);
-    expect(priceType.fields[0].name).toEqual('currency');
+    expect(priceType.fields[0].name).toBe('currency');
     expect(priceType.fields[0].isAttribute).toBeTruthy();
-    expect(priceType.fields[1].name).toEqual('taxIncluded');
+    expect(priceType.fields[1].name).toBe('taxIncluded');
     expect(priceType.fields[1].isAttribute).toBeTruthy();
-    expect(priceType.fields[2].name).toEqual('discount');
+    expect(priceType.fields[2].name).toBe('discount');
     expect(priceType.fields[2].isAttribute).toBeTruthy();
     expect(priceType.namedTypeFragmentRefs).toHaveLength(0);
 
     const basePrice = document.namedTypeFragments['{http://www.example.com/SIMPLE}BasePrice'];
     expect(basePrice).toBeDefined();
     expect(basePrice.fields).toHaveLength(2);
-    expect(basePrice.fields[0].name).toEqual('currency');
+    expect(basePrice.fields[0].name).toBe('currency');
     expect(basePrice.fields[0].namedTypeFragmentRefs).toHaveLength(1);
 
     const currencyTypeRef = basePrice.fields[0].namedTypeFragmentRefs[0];
-    expect(currencyTypeRef).toEqual('{http://www.example.com/SIMPLE}CurrencyType');
+    expect(currencyTypeRef).toBe('{http://www.example.com/SIMPLE}CurrencyType');
     const currencyType = document.namedTypeFragments[currencyTypeRef];
     expect(currencyType.type).toEqual(Types.Decimal);
 
     expect(basePrice.fields[0].isAttribute).toBeTruthy();
-    expect(basePrice.fields[1].name).toEqual('taxIncluded');
+    expect(basePrice.fields[1].name).toBe('taxIncluded');
     expect(basePrice.fields[1].isAttribute).toBeTruthy();
   });
 
@@ -295,23 +295,23 @@ describe('XmlSchemaDocumentService', () => {
     expect(document).toBeDefined();
     expect(document.fields).toHaveLength(1);
     const request = document.fields[0];
-    expect(request.name).toEqual('Request');
+    expect(request.name).toBe('Request');
 
     expect(request.fields).toHaveLength(3);
-    expect(request.fields[0].name).toEqual('timestamp'); // from Message
-    expect(request.fields[1].name).toEqual('user'); // from BaseRequest
-    expect(request.fields[2].name).toEqual('name'); // from Request
+    expect(request.fields[0].name).toBe('timestamp'); // from Message
+    expect(request.fields[1].name).toBe('user'); // from BaseRequest
+    expect(request.fields[2].name).toBe('name'); // from Request
 
     const baseRequestFragment = document.namedTypeFragments['{http://www.example.com/TEST}BaseRequest'];
     expect(baseRequestFragment).toBeDefined();
     expect(baseRequestFragment.fields).toHaveLength(2);
-    expect(baseRequestFragment.fields[0].name).toEqual('timestamp'); // from Message
-    expect(baseRequestFragment.fields[1].name).toEqual('user'); // from BaseRequest
+    expect(baseRequestFragment.fields[0].name).toBe('timestamp'); // from Message
+    expect(baseRequestFragment.fields[1].name).toBe('user'); // from BaseRequest
 
     const messageFragment = document.namedTypeFragments['{http://www.example.com/TEST}Message'];
     expect(messageFragment).toBeDefined();
     expect(messageFragment.fields).toHaveLength(1);
-    expect(messageFragment.fields[0].name).toEqual('timestamp');
+    expect(messageFragment.fields[0].name).toBe('timestamp');
   });
 
   it('should create XML schema document with routes as a root element', () => {
@@ -355,8 +355,8 @@ describe('XmlSchemaDocumentService', () => {
     expect(result.validationStatus).toBe('success');
     const doc = result.document as XmlSchemaDocument;
     expect(doc.documentType).toEqual(DocumentType.SOURCE_BODY);
-    expect(doc.documentId).toEqual('Body');
-    expect(doc.name).toEqual('Body');
+    expect(doc.documentId).toBe('Body');
+    expect(doc.name).toBe('Body');
     expect(doc.fields).toHaveLength(1);
   });
 
@@ -388,13 +388,13 @@ describe('XmlSchemaDocumentService', () => {
     expect(document.fields).toHaveLength(1);
 
     const root = document.fields[0];
-    expect(root.name).toEqual('Root');
+    expect(root.name).toBe('Root');
     expect(root.fields).toHaveLength(2);
 
     const person = root.fields[0];
-    expect(person.name).toEqual('person');
+    expect(person.name).toBe('person');
     expect(person.namedTypeFragmentRefs).toHaveLength(1);
-    expect(person.namedTypeFragmentRefs[0]).toEqual('{http://www.example.com/test}PersonType');
+    expect(person.namedTypeFragmentRefs[0]).toBe('{http://www.example.com/test}PersonType');
 
     const personType = document.namedTypeFragments[person.namedTypeFragmentRefs[0]];
     expect(personType).toBeDefined();
@@ -430,21 +430,21 @@ describe('XmlSchemaDocumentService', () => {
 
     const idAttr = personType.fields.find((f) => f.name === 'id' && f.isAttribute);
     expect(idAttr).toBeDefined();
-    expect(idAttr!.minOccurs).toEqual(1); // required
-    expect(idAttr!.maxOccurs).toEqual(1);
+    expect(idAttr!.minOccurs).toBe(1); // required
+    expect(idAttr!.maxOccurs).toBe(1);
 
     const versionAttr = personType.fields.find((f) => f.name === 'version' && f.isAttribute);
     expect(versionAttr).toBeDefined();
-    expect(versionAttr!.minOccurs).toEqual(0); // optional
-    expect(versionAttr!.maxOccurs).toEqual(1);
+    expect(versionAttr!.minOccurs).toBe(0); // optional
+    expect(versionAttr!.maxOccurs).toBe(1);
 
     const statusAttr = personType.fields.find((f) => f.name === 'status' && f.isAttribute);
     expect(statusAttr).toBeDefined();
-    expect(statusAttr!.minOccurs).toEqual(0); // prohibited
-    expect(statusAttr!.maxOccurs).toEqual(0);
+    expect(statusAttr!.minOccurs).toBe(0); // prohibited
+    expect(statusAttr!.maxOccurs).toBe(0);
 
     const restricted = root.fields[1];
-    expect(restricted.name).toEqual('restricted');
+    expect(restricted.name).toBe('restricted');
     expect(restricted.namedTypeFragmentRefs).toHaveLength(1);
 
     const restrictedType = document.namedTypeFragments[restricted.namedTypeFragmentRefs[0]];
@@ -470,11 +470,11 @@ describe('XmlSchemaDocumentService', () => {
 
     const namespaceMap = { simple: 'http://www.example.com/SIMPLE' };
     const expression = priceField!.getExpression(namespaceMap);
-    expect(expression).toEqual('simple:price');
+    expect(expression).toBe('simple:price');
 
     const emptyMap = {};
     const expressionNoNs = priceField!.getExpression(emptyMap);
-    expect(expressionNoNs).toEqual('price');
+    expect(expressionNoNs).toBe('price');
 
     const priceTypeRef = priceField!.namedTypeFragmentRefs[0];
     const priceType = document.namedTypeFragments[priceTypeRef];
@@ -482,9 +482,9 @@ describe('XmlSchemaDocumentService', () => {
     expect(discountAttr).toBeDefined();
 
     let attrExpression = discountAttr?.getExpression({});
-    expect(attrExpression).toEqual('@discount');
+    expect(attrExpression).toBe('@discount');
     attrExpression = discountAttr!.getExpression(namespaceMap);
-    expect(attrExpression).toEqual('@discount');
+    expect(attrExpression).toBe('@discount');
   });
 
   it('should expose xsi:nil as a child field for nillable elements', () => {
@@ -520,8 +520,8 @@ describe('XmlSchemaDocumentService', () => {
 
     const nilField = root.fields.find((field) => field.isAttribute && field.name === 'nil');
     expect(nilField).toBeDefined();
-    expect(nilField!.displayName).toEqual('xsi:nil');
-    expect(nilField!.namespacePrefix).toEqual('xsi');
+    expect(nilField!.displayName).toBe('xsi:nil');
+    expect(nilField!.namespacePrefix).toBe('xsi');
     expect(nilField!.namespaceURI).toEqual(NS_XML_SCHEMA_INSTANCE);
   });
 
@@ -541,19 +541,19 @@ describe('XmlSchemaDocumentService', () => {
     expect(document.fields).toHaveLength(1);
 
     const priceField = document.fields[0];
-    expect(priceField.name).toEqual('Price');
+    expect(priceField.name).toBe('Price');
     expect(priceField.namedTypeFragmentRefs).toHaveLength(1);
 
     const euroPriceRef = priceField.namedTypeFragmentRefs[0];
-    expect(euroPriceRef).toEqual('{http://www.example.com/RESTRICT}EuroPrice');
+    expect(euroPriceRef).toBe('{http://www.example.com/RESTRICT}EuroPrice');
     const euroPriceType = document.namedTypeFragments[euroPriceRef];
     expect(euroPriceType).toBeDefined();
     expect(euroPriceType.fields).toHaveLength(2);
-    expect(euroPriceType.fields[0].name).toEqual('currency');
+    expect(euroPriceType.fields[0].name).toBe('currency');
     expect(euroPriceType.fields[0].isAttribute).toBeTruthy();
-    expect(euroPriceType.fields[0].minOccurs).toEqual(1);
-    expect(euroPriceType.fields[0].defaultValue).toEqual('EUR');
-    expect(euroPriceType.fields[1].name).toEqual('taxIncluded');
+    expect(euroPriceType.fields[0].minOccurs).toBe(1);
+    expect(euroPriceType.fields[0].defaultValue).toBe('EUR');
+    expect(euroPriceType.fields[1].name).toBe('taxIncluded');
     expect(euroPriceType.fields[1].isAttribute).toBeTruthy();
 
     expect(euroPriceType.namedTypeFragmentRefs).toHaveLength(0);
@@ -561,9 +561,9 @@ describe('XmlSchemaDocumentService', () => {
     const basePriceType = document.namedTypeFragments['{http://www.example.com/RESTRICT}BasePrice'];
     expect(basePriceType).toBeDefined();
     expect(basePriceType.fields).toHaveLength(2);
-    expect(basePriceType.fields[0].name).toEqual('currency');
+    expect(basePriceType.fields[0].name).toBe('currency');
     expect(basePriceType.fields[0].isAttribute).toBeTruthy();
-    expect(basePriceType.fields[1].name).toEqual('taxIncluded');
+    expect(basePriceType.fields[1].name).toBe('taxIncluded');
     expect(basePriceType.fields[1].isAttribute).toBeTruthy();
   });
 
@@ -583,47 +583,47 @@ describe('XmlSchemaDocumentService', () => {
     expect(document.fields).toHaveLength(1);
 
     const addressField = document.fields[0];
-    expect(addressField.name).toEqual('Address');
+    expect(addressField.name).toBe('Address');
     expect(addressField.namedTypeFragmentRefs).toHaveLength(1);
 
     const simpleAddressRef = addressField.namedTypeFragmentRefs[0];
-    expect(simpleAddressRef).toEqual('{http://www.example.com/RESTRICT}SimpleAddress');
+    expect(simpleAddressRef).toBe('{http://www.example.com/RESTRICT}SimpleAddress');
     const simpleAddressType = document.namedTypeFragments[simpleAddressRef];
     expect(simpleAddressType).toBeDefined();
     expect(simpleAddressType.fields).toHaveLength(6);
-    expect(simpleAddressType.fields[0].name).toEqual('id');
+    expect(simpleAddressType.fields[0].name).toBe('id');
     expect(simpleAddressType.fields[0].isAttribute).toBeTruthy();
-    expect(simpleAddressType.fields[0].minOccurs).toEqual(1);
-    expect(simpleAddressType.fields[1].name).toEqual('type');
+    expect(simpleAddressType.fields[0].minOccurs).toBe(1);
+    expect(simpleAddressType.fields[1].name).toBe('type');
     expect(simpleAddressType.fields[1].isAttribute).toBeTruthy();
-    expect(simpleAddressType.fields[2].name).toEqual('street');
+    expect(simpleAddressType.fields[2].name).toBe('street');
     expect(simpleAddressType.fields[2].isAttribute).toBeFalsy();
-    expect(simpleAddressType.fields[3].name).toEqual('city');
+    expect(simpleAddressType.fields[3].name).toBe('city');
     expect(simpleAddressType.fields[3].isAttribute).toBeFalsy();
-    expect(simpleAddressType.fields[4].name).toEqual('zip');
+    expect(simpleAddressType.fields[4].name).toBe('zip');
     expect(simpleAddressType.fields[4].isAttribute).toBeFalsy();
-    expect(simpleAddressType.fields[5].name).toEqual('country');
+    expect(simpleAddressType.fields[5].name).toBe('country');
     expect(simpleAddressType.fields[5].isAttribute).toBeFalsy();
-    expect(simpleAddressType.fields[5].maxOccurs).toEqual(0);
+    expect(simpleAddressType.fields[5].maxOccurs).toBe(0);
 
     expect(simpleAddressType.namedTypeFragmentRefs).toHaveLength(0);
 
     const baseAddressType = document.namedTypeFragments['{http://www.example.com/RESTRICT}BaseAddress'];
     expect(baseAddressType).toBeDefined();
     expect(baseAddressType.fields).toHaveLength(6);
-    expect(baseAddressType.fields[0].name).toEqual('id');
+    expect(baseAddressType.fields[0].name).toBe('id');
     expect(baseAddressType.fields[0].isAttribute).toBeTruthy();
-    expect(baseAddressType.fields[1].name).toEqual('type');
+    expect(baseAddressType.fields[1].name).toBe('type');
     expect(baseAddressType.fields[1].isAttribute).toBeTruthy();
-    expect(baseAddressType.fields[2].name).toEqual('street');
+    expect(baseAddressType.fields[2].name).toBe('street');
     expect(baseAddressType.fields[2].isAttribute).toBeFalsy();
-    expect(baseAddressType.fields[3].name).toEqual('city');
+    expect(baseAddressType.fields[3].name).toBe('city');
     expect(baseAddressType.fields[3].isAttribute).toBeFalsy();
-    expect(baseAddressType.fields[4].name).toEqual('zip');
+    expect(baseAddressType.fields[4].name).toBe('zip');
     expect(baseAddressType.fields[4].isAttribute).toBeFalsy();
-    expect(baseAddressType.fields[5].name).toEqual('country');
+    expect(baseAddressType.fields[5].name).toBe('country');
     expect(baseAddressType.fields[5].isAttribute).toBeFalsy();
-    expect(baseAddressType.fields[5].maxOccurs).toEqual(1);
+    expect(baseAddressType.fields[5].maxOccurs).toBe(1);
   });
 
   it('should parse RestrictionInheritance.xsd with nested content models', () => {
@@ -642,46 +642,46 @@ describe('XmlSchemaDocumentService', () => {
     expect(document.fields).toHaveLength(1);
 
     const dataField = document.fields[0];
-    expect(dataField.name).toEqual('Data');
+    expect(dataField.name).toBe('Data');
     expect(dataField.namedTypeFragmentRefs).toHaveLength(1);
 
     const restrictedTypeRef = dataField.namedTypeFragmentRefs[0];
-    expect(restrictedTypeRef).toEqual('{http://www.example.com/INHERIT}RestrictedType');
+    expect(restrictedTypeRef).toBe('{http://www.example.com/INHERIT}RestrictedType');
     const restrictedType = document.namedTypeFragments[restrictedTypeRef];
     expect(restrictedType).toBeDefined();
 
     expect(restrictedType.fields).toHaveLength(5);
-    expect(restrictedType.fields[0].name).toEqual('version');
+    expect(restrictedType.fields[0].name).toBe('version');
     expect(restrictedType.fields[0].isAttribute).toBeTruthy();
-    expect(restrictedType.fields[1].name).toEqual('id');
+    expect(restrictedType.fields[1].name).toBe('id');
     expect(restrictedType.fields[1].isAttribute).toBeTruthy();
-    expect(restrictedType.fields[2].name).toEqual('timestamp');
+    expect(restrictedType.fields[2].name).toBe('timestamp');
     expect(restrictedType.fields[2].isAttribute).toBeFalsy();
-    expect(restrictedType.fields[3].name).toEqual('required');
+    expect(restrictedType.fields[3].name).toBe('required');
     expect(restrictedType.fields[3].isAttribute).toBeFalsy();
-    expect(restrictedType.fields[4].name).toEqual('optional');
+    expect(restrictedType.fields[4].name).toBe('optional');
     expect(restrictedType.fields[4].isAttribute).toBeFalsy();
 
     const baseType = document.namedTypeFragments['{http://www.example.com/INHERIT}BaseType'];
     expect(baseType).toBeDefined();
     expect(baseType.fields).toHaveLength(5);
-    expect(baseType.fields[0].name).toEqual('version');
+    expect(baseType.fields[0].name).toBe('version');
     expect(baseType.fields[0].isAttribute).toBeTruthy();
-    expect(baseType.fields[1].name).toEqual('id');
+    expect(baseType.fields[1].name).toBe('id');
     expect(baseType.fields[1].isAttribute).toBeTruthy();
-    expect(baseType.fields[2].name).toEqual('timestamp');
+    expect(baseType.fields[2].name).toBe('timestamp');
     expect(baseType.fields[2].isAttribute).toBeFalsy();
-    expect(baseType.fields[3].name).toEqual('required');
+    expect(baseType.fields[3].name).toBe('required');
     expect(baseType.fields[3].isAttribute).toBeFalsy();
-    expect(baseType.fields[4].name).toEqual('optional');
+    expect(baseType.fields[4].name).toBe('optional');
     expect(baseType.fields[4].isAttribute).toBeFalsy();
 
     const grandparentType = document.namedTypeFragments['{http://www.example.com/INHERIT}GrandparentType'];
     expect(grandparentType).toBeDefined();
     expect(grandparentType.fields).toHaveLength(2);
-    expect(grandparentType.fields[0].name).toEqual('version');
+    expect(grandparentType.fields[0].name).toBe('version');
     expect(grandparentType.fields[0].isAttribute).toBeTruthy();
-    expect(grandparentType.fields[1].name).toEqual('timestamp');
+    expect(grandparentType.fields[1].name).toBe('timestamp');
     expect(grandparentType.fields[1].isAttribute).toBeFalsy();
   });
 
@@ -701,41 +701,41 @@ describe('XmlSchemaDocumentService', () => {
     expect(document.fields).toHaveLength(1);
 
     const dataField = document.fields[0];
-    expect(dataField.name).toEqual('Data');
+    expect(dataField.name).toBe('Data');
     expect(dataField.namedTypeFragmentRefs).toHaveLength(1);
 
     const childTypeRef = dataField.namedTypeFragmentRefs[0];
-    expect(childTypeRef).toEqual('{http://www.example.com/MULTI}ChildType');
+    expect(childTypeRef).toBe('{http://www.example.com/MULTI}ChildType');
     const childType = document.namedTypeFragments[childTypeRef];
     expect(childType).toBeDefined();
 
     expect(childType.fields).toHaveLength(6);
-    expect(childType.fields[0].name).toEqual('grandparentAttr');
+    expect(childType.fields[0].name).toBe('grandparentAttr');
     expect(childType.fields[0].isAttribute).toBeTruthy();
-    expect(childType.fields[1].name).toEqual('parentAttr');
+    expect(childType.fields[1].name).toBe('parentAttr');
     expect(childType.fields[1].isAttribute).toBeTruthy();
-    expect(childType.fields[2].name).toEqual('childAttr');
+    expect(childType.fields[2].name).toBe('childAttr');
     expect(childType.fields[2].isAttribute).toBeTruthy();
-    expect(childType.fields[3].name).toEqual('grandparentField');
+    expect(childType.fields[3].name).toBe('grandparentField');
     expect(childType.fields[3].isAttribute).toBeFalsy();
-    expect(childType.fields[4].name).toEqual('parentField');
+    expect(childType.fields[4].name).toBe('parentField');
     expect(childType.fields[4].isAttribute).toBeFalsy();
-    expect(childType.fields[5].name).toEqual('childField');
+    expect(childType.fields[5].name).toBe('childField');
     expect(childType.fields[5].isAttribute).toBeFalsy();
 
     const parentType = document.namedTypeFragments['{http://www.example.com/MULTI}ParentType'];
     expect(parentType).toBeDefined();
     expect(parentType.fields).toHaveLength(4);
-    expect(parentType.fields[0].name).toEqual('grandparentAttr');
-    expect(parentType.fields[1].name).toEqual('parentAttr');
-    expect(parentType.fields[2].name).toEqual('grandparentField');
-    expect(parentType.fields[3].name).toEqual('parentField');
+    expect(parentType.fields[0].name).toBe('grandparentAttr');
+    expect(parentType.fields[1].name).toBe('parentAttr');
+    expect(parentType.fields[2].name).toBe('grandparentField');
+    expect(parentType.fields[3].name).toBe('parentField');
 
     const grandparentType = document.namedTypeFragments['{http://www.example.com/MULTI}GrandparentType'];
     expect(grandparentType).toBeDefined();
     expect(grandparentType.fields).toHaveLength(2);
-    expect(grandparentType.fields[0].name).toEqual('grandparentAttr');
-    expect(grandparentType.fields[1].name).toEqual('grandparentField');
+    expect(grandparentType.fields[0].name).toBe('grandparentAttr');
+    expect(grandparentType.fields[1].name).toBe('grandparentField');
   });
 
   it('should handle multi-level restriction inheritance', () => {
@@ -754,37 +754,37 @@ describe('XmlSchemaDocumentService', () => {
     expect(document.fields).toHaveLength(1);
 
     const dataField = document.fields[0];
-    expect(dataField.name).toEqual('Data');
+    expect(dataField.name).toBe('Data');
     expect(dataField.namedTypeFragmentRefs).toHaveLength(1);
 
     const strictEuroPriceRef = dataField.namedTypeFragmentRefs[0];
-    expect(strictEuroPriceRef).toEqual('{http://www.example.com/MULTIRESTRICT}StrictEuroPrice');
+    expect(strictEuroPriceRef).toBe('{http://www.example.com/MULTIRESTRICT}StrictEuroPrice');
     const strictEuroPriceType = document.namedTypeFragments[strictEuroPriceRef];
     expect(strictEuroPriceType).toBeDefined();
 
     expect(strictEuroPriceType.fields).toHaveLength(2);
-    expect(strictEuroPriceType.fields[0].name).toEqual('currency');
+    expect(strictEuroPriceType.fields[0].name).toBe('currency');
     expect(strictEuroPriceType.fields[0].isAttribute).toBeTruthy();
-    expect(strictEuroPriceType.fields[0].defaultValue).toEqual('EUR');
-    expect(strictEuroPriceType.fields[1].name).toEqual('taxIncluded');
+    expect(strictEuroPriceType.fields[0].defaultValue).toBe('EUR');
+    expect(strictEuroPriceType.fields[1].name).toBe('taxIncluded');
     expect(strictEuroPriceType.fields[1].isAttribute).toBeTruthy();
-    expect(strictEuroPriceType.fields[1].defaultValue).toEqual('true');
+    expect(strictEuroPriceType.fields[1].defaultValue).toBe('true');
 
     const euroPriceType = document.namedTypeFragments['{http://www.example.com/MULTIRESTRICT}EuroPrice'];
     expect(euroPriceType).toBeDefined();
     expect(euroPriceType.fields).toHaveLength(2);
-    expect(euroPriceType.fields[0].name).toEqual('currency');
+    expect(euroPriceType.fields[0].name).toBe('currency');
     expect(euroPriceType.fields[0].isAttribute).toBeTruthy();
-    expect(euroPriceType.fields[0].defaultValue).toEqual('EUR');
-    expect(euroPriceType.fields[1].name).toEqual('taxIncluded');
+    expect(euroPriceType.fields[0].defaultValue).toBe('EUR');
+    expect(euroPriceType.fields[1].name).toBe('taxIncluded');
     expect(euroPriceType.fields[1].isAttribute).toBeTruthy();
 
     const basePriceType = document.namedTypeFragments['{http://www.example.com/MULTIRESTRICT}BasePrice'];
     expect(basePriceType).toBeDefined();
     expect(basePriceType.fields).toHaveLength(2);
-    expect(basePriceType.fields[0].name).toEqual('currency');
+    expect(basePriceType.fields[0].name).toBe('currency');
     expect(basePriceType.fields[0].isAttribute).toBeTruthy();
-    expect(basePriceType.fields[1].name).toEqual('taxIncluded');
+    expect(basePriceType.fields[1].name).toBe('taxIncluded');
     expect(basePriceType.fields[1].isAttribute).toBeTruthy();
   });
 
@@ -839,9 +839,9 @@ describe('XmlSchemaDocumentService', () => {
 
     const currencyAttr = euroPriceType.fields.find((f) => f.name === 'currency' && f.isAttribute);
     expect(currencyAttr).toBeDefined();
-    expect(currencyAttr!.defaultValue).toEqual('EUR');
-    expect(currencyAttr!.minOccurs).toEqual(1); // REQUIRED
-    expect(currencyAttr!.maxOccurs).toEqual(1);
+    expect(currencyAttr!.defaultValue).toBe('EUR');
+    expect(currencyAttr!.minOccurs).toBe(1); // REQUIRED
+    expect(currencyAttr!.maxOccurs).toBe(1);
 
     const taxIncludedAttr = euroPriceType.fields.find((f) => f.name === 'taxIncluded' && f.isAttribute);
     expect(taxIncludedAttr).toBeDefined();
@@ -864,11 +864,11 @@ describe('XmlSchemaDocumentService', () => {
     const product = document.fields[0];
     const nameField = XmlSchemaDocumentUtilService.getChildField(product, 'name', 'http://www.example.com/SIMPLE');
     expect(nameField).toBeDefined();
-    expect(nameField!.name).toEqual('name');
+    expect(nameField!.name).toBe('name');
 
     const priceField = XmlSchemaDocumentUtilService.getChildField(product, 'price', 'http://www.example.com/SIMPLE');
     expect(priceField).toBeDefined();
-    expect(priceField!.name).toEqual('price');
+    expect(priceField!.name).toBe('price');
 
     const nonExistent = XmlSchemaDocumentUtilService.getChildField(
       product,
@@ -896,41 +896,41 @@ describe('XmlSchemaDocumentService', () => {
     expect(document).toBeDefined();
 
     const productField = document.fields[0];
-    expect(productField.name).toEqual('Product');
+    expect(productField.name).toBe('Product');
 
     const extendedProductRef = productField.namedTypeFragmentRefs[0];
-    expect(extendedProductRef).toEqual('{http://www.example.com/CONFLICT}ExtendedProduct');
+    expect(extendedProductRef).toBe('{http://www.example.com/CONFLICT}ExtendedProduct');
     const extendedProduct = document.namedTypeFragments[extendedProductRef];
     expect(extendedProduct).toBeDefined();
 
     const fields = extendedProduct.fields;
     expect(fields).toHaveLength(3);
 
-    expect(fields[0].name).toEqual('name');
+    expect(fields[0].name).toBe('name');
     expect(fields[0].isAttribute).toBeFalsy();
-    expect(fields[0].defaultValue).toEqual('Unknown');
-    expect(fields[0].minOccurs).toEqual(0);
-    expect(fields[0].maxOccurs).toEqual(1);
+    expect(fields[0].defaultValue).toBe('Unknown');
+    expect(fields[0].minOccurs).toBe(0);
+    expect(fields[0].maxOccurs).toBe(1);
 
-    expect(fields[1].name).toEqual('price');
+    expect(fields[1].name).toBe('price');
     expect(fields[1].isAttribute).toBeFalsy();
-    expect(fields[1].minOccurs).toEqual(1);
-    expect(fields[1].maxOccurs).toEqual(1);
+    expect(fields[1].minOccurs).toBe(1);
+    expect(fields[1].maxOccurs).toBe(1);
 
-    expect(fields[2].name).toEqual('description');
+    expect(fields[2].name).toBe('description');
     expect(fields[2].isAttribute).toBeFalsy();
-    expect(fields[2].minOccurs).toEqual(0);
+    expect(fields[2].minOccurs).toBe(0);
 
     const baseProduct = document.namedTypeFragments['{http://www.example.com/CONFLICT}BaseProduct'];
     expect(baseProduct).toBeDefined();
     expect(baseProduct.fields).toHaveLength(2);
-    expect(baseProduct.fields[0].name).toEqual('name');
-    expect(baseProduct.fields[0].defaultValue).toEqual('Unknown');
-    expect(baseProduct.fields[0].minOccurs).toEqual(0);
-    expect(baseProduct.fields[0].maxOccurs).toEqual(1);
-    expect(baseProduct.fields[1].name).toEqual('price');
-    expect(baseProduct.fields[1].minOccurs).toEqual(1);
-    expect(baseProduct.fields[1].maxOccurs).toEqual(1);
+    expect(baseProduct.fields[0].name).toBe('name');
+    expect(baseProduct.fields[0].defaultValue).toBe('Unknown');
+    expect(baseProduct.fields[0].minOccurs).toBe(0);
+    expect(baseProduct.fields[0].maxOccurs).toBe(1);
+    expect(baseProduct.fields[1].name).toBe('price');
+    expect(baseProduct.fields[1].minOccurs).toBe(1);
+    expect(baseProduct.fields[1].maxOccurs).toBe(1);
   });
 
   it('should handle simpleType inheritance with extension and restriction', () => {
@@ -957,18 +957,18 @@ describe('XmlSchemaDocumentService', () => {
     const extendedValueType = document.namedTypeFragments[extendedValueTypeRef];
     expect(extendedValueType).toBeDefined();
     expect(extendedValueType.fields).toHaveLength(2);
-    expect(extendedValueType.fields[0].name).toEqual('lang');
+    expect(extendedValueType.fields[0].name).toBe('lang');
     expect(extendedValueType.fields[0].isAttribute).toBeTruthy();
-    expect(extendedValueType.fields[1].name).toEqual('format');
+    expect(extendedValueType.fields[1].name).toBe('format');
     expect(extendedValueType.fields[1].isAttribute).toBeTruthy();
 
     const restrictedValueTypeRef = '{http://www.example.com/SIMPLEINHERIT}RestrictedValueType';
     const restrictedValueType = document.namedTypeFragments[restrictedValueTypeRef];
     expect(restrictedValueType).toBeDefined();
     expect(restrictedValueType.fields).toHaveLength(1);
-    expect(restrictedValueType.fields[0].name).toEqual('lang');
+    expect(restrictedValueType.fields[0].name).toBe('lang');
     expect(restrictedValueType.fields[0].isAttribute).toBeTruthy();
-    expect(restrictedValueType.fields[0].defaultValue).toEqual('en');
+    expect(restrictedValueType.fields[0].defaultValue).toBe('en');
   });
 
   it('should respect root element choice for schemas with element references (issue #2876)', () => {
@@ -1009,15 +1009,15 @@ describe('XmlSchemaDocumentService', () => {
       expect(document).toBeDefined();
 
       const mainElement = document.fields[0];
-      expect(mainElement.name).toEqual('Main');
+      expect(mainElement.name).toBe('Main');
       expect(mainElement.namedTypeFragmentRefs).toHaveLength(1);
 
       const commonTypeRef = mainElement.namedTypeFragmentRefs[0];
       const commonType = document.namedTypeFragments[commonTypeRef];
       expect(commonType).toBeDefined();
       expect(commonType.fields).toHaveLength(2);
-      expect(commonType.fields[0].name).toEqual('field1');
-      expect(commonType.fields[1].name).toEqual('field2');
+      expect(commonType.fields[0].name).toBe('field1');
+      expect(commonType.fields[1].name).toBe('field2');
     });
 
     it('should resolve xs:include with simple filename in subdirectory', () => {
@@ -1075,10 +1075,10 @@ describe('XmlSchemaDocumentService', () => {
       expect(document).toBeDefined();
 
       const rootElement = document.fields[0];
-      expect(rootElement.name).toEqual('Root');
+      expect(rootElement.name).toBe('Root');
       expect(rootElement.fields).toHaveLength(2);
-      expect(rootElement.fields[0].name).toEqual('partA');
-      expect(rootElement.fields[1].name).toEqual('partB');
+      expect(rootElement.fields[0].name).toBe('partA');
+      expect(rootElement.fields[1].name).toBe('partB');
     });
   });
 
@@ -1099,7 +1099,7 @@ describe('XmlSchemaDocumentService', () => {
       expect(document).toBeDefined();
 
       const rootElement = document.fields[0];
-      expect(rootElement.name).toEqual('Root');
+      expect(rootElement.name).toBe('Root');
       expect(rootElement.fields.length).toBeGreaterThan(0);
 
       const importedField = rootElement.fields.find((f) => f.name === 'imported');
@@ -1174,7 +1174,7 @@ describe('XmlSchemaDocumentService', () => {
     expect(result.validationStatus).toBe('success');
     const document = result.document as XmlSchemaDocument;
     expect(document).toBeDefined();
-    expect(document.fields[0].name).toEqual('Root');
+    expect(document.fields[0].name).toBe('Root');
 
     const statusAttr = document.fields[0].fields.find((f) => f.name === 'Status' && f.isAttribute);
     expect(statusAttr).toBeDefined();

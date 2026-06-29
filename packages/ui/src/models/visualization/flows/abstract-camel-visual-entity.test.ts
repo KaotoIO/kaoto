@@ -69,19 +69,19 @@ describe('AbstractCamelVisualEntity', () => {
     it('should return an empty string if the path is `undefined`', () => {
       const result = abstractVisualEntity.getNodeLabel();
 
-      expect(result).toEqual('');
+      expect(result).toBe('');
     });
 
     it('should return an empty string if the path is empty', () => {
       const result = abstractVisualEntity.getNodeLabel('');
 
-      expect(result).toEqual('');
+      expect(result).toBe('');
     });
 
     it('should return the ID as a node label by default', () => {
       const result = abstractVisualEntity.getNodeLabel('route');
 
-      expect(result).toEqual('route-8888');
+      expect(result).toBe('route-8888');
     });
 
     it('should return the description as a node label', () => {
@@ -91,7 +91,7 @@ describe('AbstractCamelVisualEntity', () => {
 
       const result = abstractVisualEntity.getNodeLabel('route', NodeLabelType.Description);
 
-      expect(result).toEqual('description');
+      expect(result).toBe('description');
     });
 
     it('should return the ID as a node label if description is empty', () => {
@@ -101,7 +101,7 @@ describe('AbstractCamelVisualEntity', () => {
 
       const result = abstractVisualEntity.getNodeLabel('route', NodeLabelType.Description);
 
-      expect(result).toEqual('route-8888');
+      expect(result).toBe('route-8888');
     });
   });
 
@@ -110,16 +110,16 @@ describe('AbstractCamelVisualEntity', () => {
       const result = abstractVisualEntity.getNodeInteraction(
         createMockNodeData({ name: 'from', processorName: 'from', title: 'From' }),
       );
-      expect(result.canHavePreviousStep).toEqual(false);
-      expect(result.canHaveNextStep).toEqual(false);
+      expect(result.canHavePreviousStep).toBe(false);
+      expect(result.canHaveNextStep).toBe(false);
     });
 
     it('should allow processors to have previous/next steps', () => {
       const result = abstractVisualEntity.getNodeInteraction(
         createMockNodeData({ name: 'to', processorName: 'to', title: 'To' }),
       );
-      expect(result.canHavePreviousStep).toEqual(true);
-      expect(result.canHaveNextStep).toEqual(true);
+      expect(result.canHavePreviousStep).toBe(true);
+      expect(result.canHaveNextStep).toBe(true);
     });
 
     it.each([
@@ -160,7 +160,7 @@ describe('AbstractCamelVisualEntity', () => {
 
       const result = abstractVisualEntity.getNodeValidationText('route.from');
 
-      expect(result).toEqual('1 required parameter is not yet configured: [ uri ]');
+      expect(result).toBe('1 required parameter is not yet configured: [ uri ]');
     });
   });
 
@@ -647,7 +647,7 @@ describe('AbstractCamelVisualEntity', () => {
 
       // Choice has when and otherwise placeholders as children, so it remains a group (isGroup true)
       expect(choiceNode?.data.isGroup).toBe(true);
-      expect(choiceNode?.getChildren()?.length).toEqual(2);
+      expect(choiceNode?.getChildren()?.length).toBe(2);
     });
   });
 });

@@ -68,15 +68,15 @@ describe('CitrusTestVisualEntity', () => {
     it('should use test name as id when test is provided', () => {
       const entity = new CitrusTestVisualEntity({ name: 'my-test', actions: [] });
 
-      expect(entity.id).toEqual('my-test');
-      expect(entity.test.name).toEqual('my-test');
+      expect(entity.id).toBe('my-test');
+      expect(entity.test.name).toBe('my-test');
     });
   });
 
   describe('getRootPath', () => {
     it('should return the root path', () => {
       expect(citrusTestEntity.getRootPath()).toEqual(CitrusTestVisualEntity.ROOT_PATH);
-      expect(citrusTestEntity.getRootPath()).toEqual('test');
+      expect(citrusTestEntity.getRootPath()).toBe('test');
     });
   });
 
@@ -99,23 +99,23 @@ describe('CitrusTestVisualEntity', () => {
   describe('setId', () => {
     it('should change the id', () => {
       citrusTestEntity.setId('myTest-12345');
-      expect(citrusTestEntity.getId()).toEqual('myTest-12345');
+      expect(citrusTestEntity.getId()).toBe('myTest-12345');
     });
   });
 
   describe('getNodeLabel', () => {
     it('should return an empty string if path is not provided', () => {
-      expect(citrusTestEntity.getNodeLabel()).toEqual('');
+      expect(citrusTestEntity.getNodeLabel()).toBe('');
     });
 
     it('should return the test ID for root path', () => {
       const label = citrusTestEntity.getNodeLabel('test');
-      expect(label).toEqual('sample-test');
+      expect(label).toBe('sample-test');
     });
 
     it('should get the label from given node path', () => {
       const label = citrusTestEntity.getNodeLabel('actions.0.print');
-      expect(label).toEqual('print');
+      expect(label).toBe('print');
     });
   });
 
@@ -278,13 +278,13 @@ describe('CitrusTestVisualEntity', () => {
       citrusTestEntity.test.name = 'my-test';
       citrusTestEntity.updateModel(CitrusTestVisualEntity.ROOT_PATH, {});
 
-      expect(citrusTestEntity.id).toEqual('my-test');
+      expect(citrusTestEntity.id).toBe('my-test');
     });
 
     it('should update the model at the specified path', () => {
       citrusTestEntity.updateModel('actions.0.print', { message: 'Updated message' });
 
-      expect(citrusTestEntity.test.actions[0].print?.message).toEqual('Updated message');
+      expect(citrusTestEntity.test.actions[0].print?.message).toBe('Updated message');
     });
   });
 
@@ -770,11 +770,11 @@ describe('CitrusTestVisualEntity', () => {
         iconUrl: '',
         processorIconTooltip: '',
       });
-      expect(result.canHavePreviousStep).toEqual(false);
-      expect(result.canReplaceStep).toEqual(false);
-      expect(result.canRemoveStep).toEqual(false);
-      expect(result.canHaveNextStep).toEqual(true);
-      expect(result.canRemoveFlow).toEqual(true);
+      expect(result.canHavePreviousStep).toBe(false);
+      expect(result.canReplaceStep).toBe(false);
+      expect(result.canRemoveStep).toBe(false);
+      expect(result.canHaveNextStep).toBe(true);
+      expect(result.canRemoveFlow).toBe(true);
     });
 
     it('should allow processors to have previous/next steps', () => {
@@ -788,8 +788,8 @@ describe('CitrusTestVisualEntity', () => {
         iconUrl: '',
         processorIconTooltip: '',
       });
-      expect(result.canHavePreviousStep).toEqual(true);
-      expect(result.canHaveNextStep).toEqual(true);
+      expect(result.canHavePreviousStep).toBe(true);
+      expect(result.canHaveNextStep).toBe(true);
     });
 
     it.each(['print', 'delay', 'send', 'receive'])(
@@ -861,7 +861,7 @@ describe('CitrusTestVisualEntity', () => {
       const result = entity.getNodeValidationText('actions.0.print');
 
       expect(spy).toHaveBeenCalledWith('actions.0.print');
-      expect(result).toEqual('1 required parameter is not yet configured: [ message ]');
+      expect(result).toBe('1 required parameter is not yet configured: [ message ]');
     });
   });
 
@@ -917,21 +917,21 @@ describe('CitrusTestVisualEntity', () => {
     it('should use the test ID as the group label', async () => {
       const vizNode = await citrusTestEntity.toVizNode();
 
-      expect(vizNode.getNodeLabel()).toEqual('sample-test');
+      expect(vizNode.getNodeLabel()).toBe('sample-test');
     });
 
     it('should use the test description as the group label if available', async () => {
       citrusTestEntity.test.description = 'This is a test description';
       const vizNode = await citrusTestEntity.toVizNode();
 
-      expect(vizNode.getNodeLabel(NodeLabelType.Description)).toEqual('sample-test');
+      expect(vizNode.getNodeLabel(NodeLabelType.Description)).toBe('sample-test');
     });
 
     it('should use the path name as the node label', async () => {
       const vizNode = await citrusTestEntity.toVizNode();
       const printNode = vizNode.getChildren()?.[0];
 
-      expect(printNode?.getNodeLabel()).toEqual('print');
+      expect(printNode?.getNodeLabel()).toBe('print');
     });
 
     it('should populate the viz node chain with simple actions', async () => {
@@ -946,30 +946,30 @@ describe('CitrusTestVisualEntity', () => {
       /** group node */
       expect(vizNode.data.path).toEqual(CitrusTestVisualEntity.ROOT_PATH);
       expect(vizNode.data.isGroup).toBeTruthy();
-      expect(vizNode.getNodeLabel()).toEqual('test-1234');
+      expect(vizNode.getNodeLabel()).toBe('test-1234');
       /** Since this is the root node, there's no previous action */
       expect(vizNode.getPreviousNode()).toBeUndefined();
       expect(vizNode.getNextNode()).toBeUndefined();
 
       /** print action */
-      expect(printNode.data.path).toEqual('actions.0.print');
+      expect(printNode.data.path).toBe('actions.0.print');
       expect(printNode.data.isGroup).toBeFalsy();
-      expect(printNode.getNodeLabel()).toEqual('print');
+      expect(printNode.getNodeLabel()).toBe('print');
       /** Since this is the first child node, there's no previous action */
       expect(printNode.getPreviousNode()).toBeUndefined();
       expect(printNode.getNextNode()).toBeDefined();
 
       /** delay action */
-      expect(delayNode.data.path).toEqual('actions.1.delay');
+      expect(delayNode.data.path).toBe('actions.1.delay');
       expect(delayNode.data.isGroup).toBeFalsy();
-      expect(delayNode.getNodeLabel()).toEqual('delay');
+      expect(delayNode.getNodeLabel()).toBe('delay');
       /** Since this is the last child node, there's no next action */
       expect(delayNode.getPreviousNode()).toBeDefined();
       expect(delayNode.getNextNode()).toBeDefined();
 
       /** Placeholder at the very end */
       const placeHolderNode = vizNode.getChildren()![2];
-      expect(placeHolderNode.data.path).toEqual('actions.2.placeholder');
+      expect(placeHolderNode.data.path).toBe('actions.2.placeholder');
       expect(placeHolderNode.getNextNode()).toBeUndefined();
     });
 
@@ -993,23 +993,23 @@ describe('CitrusTestVisualEntity', () => {
       /** group node */
       expect(vizNode.data.path).toEqual(CitrusTestVisualEntity.ROOT_PATH);
       expect(vizNode.data.isGroup).toBeTruthy();
-      expect(vizNode.getNodeLabel()).toEqual('test-1234');
+      expect(vizNode.getNodeLabel()).toBe('test-1234');
       /** Since this is the root node, there's no previous action */
       expect(vizNode.getPreviousNode()).toBeUndefined();
       expect(vizNode.getNextNode()).toBeUndefined();
 
       /** print action */
-      expect(printNode.data.path).toEqual('actions.0.print');
+      expect(printNode.data.path).toBe('actions.0.print');
       expect(printNode.data.isGroup).toBeFalsy();
-      expect(printNode.getNodeLabel()).toEqual('print');
+      expect(printNode.getNodeLabel()).toBe('print');
       /** Since this is the first child node, there's no previous action */
       expect(printNode.getPreviousNode()).toBeUndefined();
       expect(printNode.getNextNode()).toBeDefined();
 
       /** iterate action */
-      expect(iterateNode.data.path).toEqual('actions.1.iterate');
+      expect(iterateNode.data.path).toBe('actions.1.iterate');
       expect(iterateNode.data.isGroup).toBeTruthy();
-      expect(iterateNode.getNodeLabel()).toEqual('iterate');
+      expect(iterateNode.getNodeLabel()).toBe('iterate');
       /** Since this is the last child node, there's no next action */
       expect(iterateNode.getPreviousNode()).toBeDefined();
       expect(iterateNode.getNextNode()).toBeDefined();
@@ -1017,7 +1017,7 @@ describe('CitrusTestVisualEntity', () => {
 
       /** Placeholder at the very end */
       const placeHolderNode = vizNode.getChildren()![2];
-      expect(placeHolderNode.data.path).toEqual('actions.2.placeholder');
+      expect(placeHolderNode.data.path).toBe('actions.2.placeholder');
       expect(placeHolderNode.getNextNode()).toBeUndefined();
     });
 
@@ -1039,15 +1039,15 @@ describe('CitrusTestVisualEntity', () => {
       /** group node */
       expect(vizNode.data.path).toEqual(CitrusTestVisualEntity.ROOT_PATH);
       expect(vizNode.data.isGroup).toBeTruthy();
-      expect(vizNode.getNodeLabel()).toEqual('test-1234');
+      expect(vizNode.getNodeLabel()).toBe('test-1234');
       /** Since this is the root node, there's no previous action */
       expect(vizNode.getPreviousNode()).toBeUndefined();
       expect(vizNode.getNextNode()).toBeUndefined();
 
       /** iterate action */
-      expect(iterateNode.data.path).toEqual('actions.0.iterate');
+      expect(iterateNode.data.path).toBe('actions.0.iterate');
       expect(iterateNode.data.isGroup).toBeTruthy();
-      expect(iterateNode.getNodeLabel()).toEqual('iterate');
+      expect(iterateNode.getNodeLabel()).toBe('iterate');
       /** Since this is the last child node, there's no next action */
       expect(iterateNode.getPreviousNode()).toBeUndefined();
       expect(iterateNode.getNextNode()).toBeDefined();
@@ -1055,12 +1055,12 @@ describe('CitrusTestVisualEntity', () => {
       /** Placeholder child */
       const placeholderNode = iterateNode.getChildren()![0];
       expect(placeholderNode).toBeDefined();
-      expect(placeholderNode.data.path).toEqual('actions.0.iterate.actions.0.placeholder');
+      expect(placeholderNode.data.path).toBe('actions.0.iterate.actions.0.placeholder');
       expect(placeholderNode.data.isPlaceholder).toBeTruthy();
 
       /** Placeholder at the very end */
       const placeHolderNode = vizNode.getChildren()![1];
-      expect(placeHolderNode.data.path).toEqual('actions.1.placeholder');
+      expect(placeHolderNode.data.path).toBe('actions.1.placeholder');
       expect(placeHolderNode.getNextNode()).toBeUndefined();
     });
 
@@ -1085,15 +1085,15 @@ describe('CitrusTestVisualEntity', () => {
       /** group node */
       expect(vizNode.data.path).toEqual(CitrusTestVisualEntity.ROOT_PATH);
       expect(vizNode.data.isGroup).toBeTruthy();
-      expect(vizNode.getNodeLabel()).toEqual('test-1234');
+      expect(vizNode.getNodeLabel()).toBe('test-1234');
       /** Since this is the root node, there's no previous action */
       expect(vizNode.getPreviousNode()).toBeUndefined();
       expect(vizNode.getNextNode()).toBeUndefined();
 
       /** soap action */
-      expect(soapNode.data.path).toEqual('actions.0.soap-assertFault');
+      expect(soapNode.data.path).toBe('actions.0.soap-assertFault');
       expect(soapNode.data.isGroup).toBeTruthy();
-      expect(soapNode.getNodeLabel()).toEqual('soap-assertFault');
+      expect(soapNode.getNodeLabel()).toBe('soap-assertFault');
       /** Since this is the last child node, there's no next action */
       expect(soapNode.getPreviousNode()).toBeUndefined();
       expect(soapNode.getNextNode()).toBeDefined();
@@ -1101,7 +1101,7 @@ describe('CitrusTestVisualEntity', () => {
 
       /** Placeholder at the very end */
       const placeHolderNode = vizNode.getChildren()![1];
-      expect(placeHolderNode.data.path).toEqual('actions.1.placeholder');
+      expect(placeHolderNode.data.path).toBe('actions.1.placeholder');
       expect(placeHolderNode.getNextNode()).toBeUndefined();
     });
 
@@ -1125,15 +1125,15 @@ describe('CitrusTestVisualEntity', () => {
       /** group node */
       expect(vizNode.data.path).toEqual(CitrusTestVisualEntity.ROOT_PATH);
       expect(vizNode.data.isGroup).toBeTruthy();
-      expect(vizNode.getNodeLabel()).toEqual('test-1234');
+      expect(vizNode.getNodeLabel()).toBe('test-1234');
       /** Since this is the root node, there's no previous action */
       expect(vizNode.getPreviousNode()).toBeUndefined();
       expect(vizNode.getNextNode()).toBeUndefined();
 
       /** soap action */
-      expect(soapNode.data.path).toEqual('actions.0.soap-assertFault');
+      expect(soapNode.data.path).toBe('actions.0.soap-assertFault');
       expect(soapNode.data.isGroup).toBeTruthy();
-      expect(soapNode.getNodeLabel()).toEqual('soap-assertFault');
+      expect(soapNode.getNodeLabel()).toBe('soap-assertFault');
       /** Since this is the last child node, there's no next action */
       expect(soapNode.getPreviousNode()).toBeUndefined();
       expect(soapNode.getNextNode()).toBeDefined();
@@ -1141,12 +1141,12 @@ describe('CitrusTestVisualEntity', () => {
       /** Placeholder child */
       const placeholderNode = soapNode.getChildren()![0];
       expect(placeholderNode).toBeDefined();
-      expect(placeholderNode.data.path).toEqual('actions.0.soap.assertFault.when.placeholder');
+      expect(placeholderNode.data.path).toBe('actions.0.soap.assertFault.when.placeholder');
       expect(placeholderNode.data.isPlaceholder).toBeTruthy();
 
       /** Placeholder at the very end */
       const placeHolderNode = vizNode.getChildren()![1];
-      expect(placeHolderNode.data.path).toEqual('actions.1.placeholder');
+      expect(placeHolderNode.data.path).toBe('actions.1.placeholder');
       expect(placeHolderNode.getNextNode()).toBeUndefined();
     });
 
@@ -1167,15 +1167,15 @@ describe('CitrusTestVisualEntity', () => {
       /** group node */
       expect(vizNode.data.path).toEqual(CitrusTestVisualEntity.ROOT_PATH);
       expect(vizNode.data.isGroup).toBeTruthy();
-      expect(vizNode.getNodeLabel()).toEqual('test-1234');
+      expect(vizNode.getNodeLabel()).toBe('test-1234');
       /** Since this is the root node, there's no previous action */
       expect(vizNode.getPreviousNode()).toBeUndefined();
       expect(vizNode.getNextNode()).toBeUndefined();
 
       /** parallel action */
-      expect(parallelNode.data.path).toEqual('actions.0.parallel');
+      expect(parallelNode.data.path).toBe('actions.0.parallel');
       expect(parallelNode.data.isGroup).toBeTruthy();
-      expect(parallelNode.getNodeLabel()).toEqual('parallel');
+      expect(parallelNode.getNodeLabel()).toBe('parallel');
       /** Since this is the last child node, there's no next action */
       expect(parallelNode.getPreviousNode()).toBeUndefined();
       expect(parallelNode.getNextNode()).toBeDefined();
@@ -1183,7 +1183,7 @@ describe('CitrusTestVisualEntity', () => {
 
       /** Placeholder at the very end */
       const placeHolderNode = vizNode.getChildren()![1];
-      expect(placeHolderNode.data.path).toEqual('actions.1.placeholder');
+      expect(placeHolderNode.data.path).toBe('actions.1.placeholder');
       expect(placeHolderNode.getNextNode()).toBeUndefined();
     });
 
@@ -1204,15 +1204,15 @@ describe('CitrusTestVisualEntity', () => {
       /** group node */
       expect(vizNode.data.path).toEqual(CitrusTestVisualEntity.ROOT_PATH);
       expect(vizNode.data.isGroup).toBeTruthy();
-      expect(vizNode.getNodeLabel()).toEqual('test-1234');
+      expect(vizNode.getNodeLabel()).toBe('test-1234');
       /** Since this is the root node, there's no previous action */
       expect(vizNode.getPreviousNode()).toBeUndefined();
       expect(vizNode.getNextNode()).toBeUndefined();
 
       /** parallel action */
-      expect(parallelNode.data.path).toEqual('actions.0.parallel');
+      expect(parallelNode.data.path).toBe('actions.0.parallel');
       expect(parallelNode.data.isGroup).toBeTruthy();
-      expect(parallelNode.getNodeLabel()).toEqual('parallel');
+      expect(parallelNode.getNodeLabel()).toBe('parallel');
       /** Since this is the last child node, there's no next action */
       expect(parallelNode.getPreviousNode()).toBeUndefined();
       expect(parallelNode.getNextNode()).toBeDefined();
@@ -1220,12 +1220,12 @@ describe('CitrusTestVisualEntity', () => {
       /** Placeholder child */
       const placeholderNode = parallelNode.getChildren()![0];
       expect(placeholderNode).toBeDefined();
-      expect(placeholderNode.data.path).toEqual('actions.0.parallel.actions.0.placeholder');
+      expect(placeholderNode.data.path).toBe('actions.0.parallel.actions.0.placeholder');
       expect(placeholderNode.data.isPlaceholder).toBeTruthy();
 
       /** Placeholder at the very end */
       const placeHolderNode = vizNode.getChildren()![1];
-      expect(placeHolderNode.data.path).toEqual('actions.1.placeholder');
+      expect(placeHolderNode.data.path).toBe('actions.1.placeholder');
       expect(placeHolderNode.getNextNode()).toBeUndefined();
     });
 
@@ -1250,22 +1250,22 @@ describe('CitrusTestVisualEntity', () => {
       /** group node */
       expect(vizNode.data.path).toEqual(CitrusTestVisualEntity.ROOT_PATH);
       expect(vizNode.data.isGroup).toBeTruthy();
-      expect(vizNode.getNodeLabel()).toEqual('test-1234');
+      expect(vizNode.getNodeLabel()).toBe('test-1234');
       /** Since this is the root node, there's no previous action */
       expect(vizNode.getPreviousNode()).toBeUndefined();
       expect(vizNode.getNextNode()).toBeUndefined();
 
       /** parallel action */
-      expect(camelNode.data.path).toEqual('actions.0.camel-jbang-cmd-receive');
+      expect(camelNode.data.path).toBe('actions.0.camel-jbang-cmd-receive');
       expect(camelNode.data.isGroup).toBeFalsy();
-      expect(camelNode.getNodeLabel()).toEqual('jbang-cmd-receive');
+      expect(camelNode.getNodeLabel()).toBe('jbang-cmd-receive');
       /** Since this is the last child node, there's no next action */
       expect(camelNode.getPreviousNode()).toBeUndefined();
       expect(camelNode.getNextNode()).toBeDefined();
 
       /** Placeholder at the very end */
       const placeHolderNode = vizNode.getChildren()![1];
-      expect(placeHolderNode.data.path).toEqual('actions.1.placeholder');
+      expect(placeHolderNode.data.path).toBe('actions.1.placeholder');
       expect(placeHolderNode.getNextNode()).toBeUndefined();
     });
   });

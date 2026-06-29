@@ -55,7 +55,7 @@ describe('CitrusTestSchemaService', () => {
       };
 
       const result = CitrusTestSchemaService.getTestActionName(actionModel);
-      expect(result).toEqual('print');
+      expect(result).toBe('print');
     });
   });
 
@@ -71,9 +71,9 @@ describe('CitrusTestSchemaService', () => {
       const groups = CitrusTestSchemaService.getTestActionGroups(actionDefinition);
       expect(groups).toHaveLength(2);
       expect(groups[0]).toHaveProperty('name');
-      expect(groups[0].name).toEqual('camel');
+      expect(groups[0].name).toBe('camel');
       expect(groups[1]).toHaveProperty('name');
-      expect(groups[1].name).toEqual('camel-jbang');
+      expect(groups[1].name).toBe('camel-jbang');
     });
   });
 

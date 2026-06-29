@@ -53,8 +53,8 @@ describe('CatalogHelper', () => {
 
     const entry = findCatalog(SourceSchemaType.Route, catalogLibrary);
     expect(entry).toBeDefined();
-    expect(entry?.name).toEqual('Camel Main 1.0.0.redhat-00001');
-    expect(entry?.runtime).toEqual('Main');
+    expect(entry?.name).toBe('Camel Main 1.0.0.redhat-00001');
+    expect(entry?.runtime).toBe('Main');
   });
 
   it('should find matching Camel catalog latest version', () => {
@@ -75,15 +75,15 @@ describe('CatalogHelper', () => {
 
     const entry = findCatalog(SourceSchemaType.Route, catalogLibrary);
     expect(entry).toBeDefined();
-    expect(entry?.name).toEqual('Camel Main 1.0.3.redhat-00003');
-    expect(entry?.runtime).toEqual('Main');
+    expect(entry?.name).toBe('Camel Main 1.0.3.redhat-00003');
+    expect(entry?.runtime).toBe('Main');
   });
 
   it('should find Citrus catalog', () => {
     const entry = findCatalog(SourceSchemaType.Test, catalogLibrary);
     expect(entry).toBeDefined();
-    expect(entry?.name).toEqual('Citrus 1.0.0');
-    expect(entry?.runtime).toEqual('Citrus');
+    expect(entry?.name).toBe('Citrus 1.0.0');
+    expect(entry?.runtime).toBe('Citrus');
   });
 
   it('should find matching Citrus catalog latest version', () => {
@@ -104,7 +104,7 @@ describe('CatalogHelper', () => {
 
     const entry = findCatalog(SourceSchemaType.Test, catalogLibrary);
     expect(entry).toBeDefined();
-    expect(entry?.name).toEqual('Citrus 1.0.3');
-    expect(entry?.runtime).toEqual('Citrus');
+    expect(entry?.name).toBe('Citrus 1.0.3');
+    expect(entry?.runtime).toBe('Citrus');
   });
 });

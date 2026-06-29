@@ -118,7 +118,7 @@ describe('SubstitutionSelectionModal', () => {
       />,
     );
     const input = getTypeaheadInput();
-    expect(input.getAttribute('placeholder')).toEqual('Select a substitute...');
+    expect(input.getAttribute('placeholder')).toBe('Select a substitute...');
   });
 
   it('should show pre-selected substitute name in typeahead input', () => {
@@ -139,7 +139,7 @@ describe('SubstitutionSelectionModal', () => {
       />,
     );
     const input = getTypeaheadInput();
-    expect(input.getAttribute('value')).toEqual('Phone');
+    expect(input.getAttribute('value')).toBe('Phone');
   });
 
   it('should disable Save button when no substitute is selected', () => {
@@ -341,7 +341,7 @@ describe('SubstitutionSelectionModal', () => {
       fireEvent.click(screen.getByText('Email'));
     });
 
-    expect(input.getAttribute('value')).toEqual('Email');
+    expect(input.getAttribute('value')).toBe('Email');
   });
 
   it('should handle empty candidates map', () => {
@@ -362,7 +362,7 @@ describe('SubstitutionSelectionModal', () => {
     );
 
     const input = getTypeaheadInput();
-    expect(input.getAttribute('placeholder')).toEqual('Select a substitute...');
+    expect(input.getAttribute('placeholder')).toBe('Select a substitute...');
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
   });
 
@@ -383,7 +383,7 @@ describe('SubstitutionSelectionModal', () => {
     );
 
     const input = getTypeaheadInput();
-    expect(input.getAttribute('placeholder')).toEqual('Select a substitute...');
+    expect(input.getAttribute('placeholder')).toBe('Select a substitute...');
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
   });
 });

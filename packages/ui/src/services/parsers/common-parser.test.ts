@@ -13,18 +13,18 @@ describe('CommonParser', () => {
     it('should parse from', () => {
       const parsedFrom = CommonParser.parseFrom(camelRouteEntity.entityDef.route.from);
       expect(parsedFrom).toHaveLength(10);
-      expect(parsedFrom[0].uri).toEqual('timer');
+      expect(parsedFrom[0].uri).toBe('timer');
     });
 
     it('should parse from with datamapper step', () => {
       const parsedFrom = CommonParser.parseFrom(datamapperRouteDefinitionStub.from);
 
       expect(parsedFrom).toHaveLength(2);
-      expect(parsedFrom[1].id).toEqual('kaoto-datamapper-1234');
-      expect(parsedFrom[1].name).toEqual('Kaoto DataMapper');
-      expect(parsedFrom[1].uri).toEqual('');
+      expect(parsedFrom[1].id).toBe('kaoto-datamapper-1234');
+      expect(parsedFrom[1].name).toBe('Kaoto DataMapper');
+      expect(parsedFrom[1].uri).toBe('');
       expect(Object.keys(parsedFrom[1].parameters)).toHaveLength(1);
-      expect(parsedFrom[1].parameters['XSLT file name']).toEqual('transform.xsl');
+      expect(parsedFrom[1].parameters['XSLT file name']).toBe('transform.xsl');
     });
   });
 
@@ -32,20 +32,20 @@ describe('CommonParser', () => {
     it('should parse steps', () => {
       const parsedSteps = CommonParser.parseSteps(camelRouteEntity.entityDef.route.from.steps);
       expect(parsedSteps).toHaveLength(9);
-      expect(parsedSteps[0].uri).toEqual('');
-      expect(parsedSteps[0].name).toEqual('set-header');
+      expect(parsedSteps[0].uri).toBe('');
+      expect(parsedSteps[0].name).toBe('set-header');
     });
   });
 
   describe('parseComponentStep()', () => {
     it('should parse component step', () => {
       const parsedStep = CommonParser.parseComponentStep('from', camelRouteEntity.entityDef.route.from);
-      expect(parsedStep.name).toEqual('from');
-      expect(parsedStep.uri).toEqual('timer');
+      expect(parsedStep.name).toBe('from');
+      expect(parsedStep.uri).toBe('timer');
       expect(Object.keys(parsedStep.parameters)).toHaveLength(1);
       const [paramKey, paramValue] = Object.entries(parsedStep.parameters)[0];
-      expect(paramKey).toEqual('timerName');
-      expect(paramValue).toEqual('tutorial');
+      expect(paramKey).toBe('timerName');
+      expect(paramValue).toBe('tutorial');
     });
   });
 
@@ -54,8 +54,8 @@ describe('CommonParser', () => {
       const step = camelRouteEntity.entityDef.route.from.steps[0];
       const [stepType, stepModel] = Object.entries(step)[0];
       const parsedStep = CommonParser.parseProcessorStep(stepType, stepModel);
-      expect(parsedStep.name).toEqual('set-header');
-      expect(parsedStep.uri).toEqual('');
+      expect(parsedStep.name).toBe('set-header');
+      expect(parsedStep.uri).toBe('');
     });
   });
 
@@ -64,8 +64,8 @@ describe('CommonParser', () => {
       const step = camelRouteEntity.entityDef.route.from.steps[0];
       const params = CommonParser.parseParameters(Object.values(step)[0]);
       expect(Object.keys(params)).toHaveLength(2);
-      expect(params['simple']).toEqual('${random(2)}');
-      expect(params['name']).toEqual('myChoice');
+      expect(params['simple']).toBe('${random(2)}');
+      expect(params['name']).toBe('myChoice');
     });
   });
 });

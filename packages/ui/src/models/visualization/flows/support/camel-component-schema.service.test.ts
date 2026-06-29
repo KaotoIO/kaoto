@@ -131,14 +131,14 @@ describe('CamelComponentSchemaService', () => {
 
       expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Pattern, 'to');
       expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Kamelet, 'kafka-not-secured-sink');
-      expect(result.properties?.parameters['x-component-name']).toEqual('kamelet:kafka-not-secured-sink');
+      expect(result.properties?.parameters['x-component-name']).toBe('kamelet:kafka-not-secured-sink');
       expect(result).toMatchSnapshot();
     });
 
     it('should include the component name in endpoint parameters schema metadata', () => {
       const result = CamelComponentSchemaService.getSchema({ processorName: 'to', componentName: 'log' });
 
-      expect(result.properties?.parameters['x-component-name']).toEqual('log');
+      expect(result.properties?.parameters['x-component-name']).toBe('log');
     });
   });
 
@@ -222,7 +222,7 @@ describe('CamelComponentSchemaService', () => {
         toLogDefinition,
       );
 
-      expect(result.uri).toEqual('timer');
+      expect(result.uri).toBe('timer');
       expect(result.parameters).toEqual({});
     });
 
@@ -297,7 +297,7 @@ describe('CamelComponentSchemaService', () => {
         {},
       );
 
-      expect(label).toEqual('timer');
+      expect(label).toBe('timer');
     });
 
     it.each([
@@ -398,7 +398,7 @@ describe('CamelComponentSchemaService', () => {
         NodeLabelType.Id,
       );
 
-      expect(label).toEqual('to-1234');
+      expect(label).toBe('to-1234');
     });
 
     it('should favor `description` when asked for the label', () => {
@@ -408,7 +408,7 @@ describe('CamelComponentSchemaService', () => {
         NodeLabelType.Description,
       );
 
-      expect(label).toEqual('My Logger');
+      expect(label).toBe('My Logger');
     });
   });
 
@@ -539,7 +539,7 @@ describe('CamelComponentSchemaService', () => {
         componentName: 'timer',
       });
 
-      expect(iconName).toEqual('timer');
+      expect(iconName).toBe('timer');
     });
 
     it('should return the kamelet name if provided', () => {
@@ -548,7 +548,7 @@ describe('CamelComponentSchemaService', () => {
         componentName: 'kamelet:beer-source',
       });
 
-      expect(iconName).toEqual('kamelet:beer-source');
+      expect(iconName).toBe('kamelet:beer-source');
     });
 
     it('should return the processor name if the component name is not provided', () => {
@@ -556,7 +556,7 @@ describe('CamelComponentSchemaService', () => {
         processorName: 'log',
       });
 
-      expect(iconName).toEqual('log');
+      expect(iconName).toBe('log');
     });
 
     it('should return an empty string if the component cannot be found', () => {
@@ -565,7 +565,7 @@ describe('CamelComponentSchemaService', () => {
         componentName: 'unknown-component',
       });
 
-      expect(iconName).toEqual('');
+      expect(iconName).toBe('');
     });
 
     it('should return an empty string if the processor cannot be found', () => {
@@ -573,7 +573,7 @@ describe('CamelComponentSchemaService', () => {
         processorName: 'non-existing-processor' as keyof ProcessorDefinition,
       });
 
-      expect(iconName).toEqual('');
+      expect(iconName).toBe('');
     });
   });
 
@@ -586,25 +586,25 @@ describe('CamelComponentSchemaService', () => {
     it('should return the kamelet component name', () => {
       const uri = 'kamelet:beer-source';
       const componentName = CamelComponentSchemaService.getComponentNameFromUri(uri);
-      expect(componentName).toEqual('kamelet:beer-source');
+      expect(componentName).toBe('kamelet:beer-source');
     });
 
     it('should return the kamelet component name when having query parameters', () => {
       const uri = 'kamelet:beer-source?foo=bar';
       const componentName = CamelComponentSchemaService.getComponentNameFromUri(uri);
-      expect(componentName).toEqual('kamelet:beer-source');
+      expect(componentName).toBe('kamelet:beer-source');
     });
 
     it('should return the component name from the uri', () => {
       const uri = 'timer:foo?delay=1000&period=1000';
       const componentName = CamelComponentSchemaService.getComponentNameFromUri(uri);
-      expect(componentName).toEqual('timer');
+      expect(componentName).toBe('timer');
     });
 
     it('should return the component name from the uri', () => {
       const uri = 'timer';
       const componentName = CamelComponentSchemaService.getComponentNameFromUri(uri);
-      expect(componentName).toEqual('timer');
+      expect(componentName).toBe('timer');
     });
   });
 

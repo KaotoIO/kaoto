@@ -10,8 +10,8 @@ describe('ObjectMap', () => {
       map.set(new SchemaKey('a', 'b'), new XmlSchema());
       map.set(new SchemaKey('c', 'd'), new XmlSchema());
       let keys = map.keys();
-      expect(keys.next().value.getNamespace()).toEqual('a');
-      expect(keys.next().value.getNamespace()).toEqual('c');
+      expect(keys.next().value.getNamespace()).toBe('a');
+      expect(keys.next().value.getNamespace()).toBe('c');
       keys = map.keys();
       const keysArray = Array.from(keys);
       expect(keysArray).toHaveLength(2);

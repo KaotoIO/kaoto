@@ -29,7 +29,7 @@ describe('VisualizationNode', () => {
   });
 
   it('should create a node with the given id', () => {
-    expect(node.id).toEqual('test');
+    expect(node.id).toBe('test');
   });
 
   describe('getNodeTitle', () => {
@@ -47,7 +47,7 @@ describe('VisualizationNode', () => {
         iconUrl: '',
       });
 
-      expect(node.getNodeTitle()).toEqual('Direct Component');
+      expect(node.getNodeTitle()).toBe('Direct Component');
     });
 
     it('should return the ID as title if data.title is empty', () => {
@@ -62,7 +62,7 @@ describe('VisualizationNode', () => {
         iconUrl: '',
       });
 
-      expect(node.getNodeTitle()).toEqual('test');
+      expect(node.getNodeTitle()).toBe('test');
     });
   });
 
@@ -78,7 +78,7 @@ describe('VisualizationNode', () => {
       iconUrl: '',
     });
 
-    expect(node.getId()).toEqual('route-8888');
+    expect(node.getId()).toBe('route-8888');
   });
 
   it('should return the node schema from the underlying BaseVisualCamelEntity', () => {
@@ -164,7 +164,7 @@ describe('VisualizationNode', () => {
       const label = node.getNodeLabel(NodeLabelType.Id);
 
       expect(getNodeLabelSpy).toHaveBeenCalledWith(node.data.path, NodeLabelType.Id);
-      expect(label).toEqual('test-label');
+      expect(label).toBe('test-label');
     });
 
     it('should return the id when the underlying BaseVisualCamelEntity is not defined', () => {
@@ -437,9 +437,9 @@ describe('VisualizationNode', () => {
       /** Refresh the Viz Node */
       node = await camelRouteVisualEntityStub.toVizNode();
 
-      expect(node.getChildren()?.[0].getNodeLabel()).toEqual('timer');
-      expect(node.getChildren()?.[1].getNodeLabel()).toEqual('choice');
-      expect(node.getChildren()?.[2].getNodeLabel()).toEqual('direct');
+      expect(node.getChildren()?.[0].getNodeLabel()).toBe('timer');
+      expect(node.getChildren()?.[1].getNodeLabel()).toBe('choice');
+      expect(node.getChildren()?.[2].getNodeLabel()).toBe('direct');
       expect(node.getChildren()).toHaveLength(4);
       expect(node.getChildren()?.[3].data.isPlaceholder).toBe(true);
       expect(fromNode!.getChildren()).toHaveLength(0);
@@ -480,7 +480,7 @@ describe('VisualizationNode', () => {
       const validationText = node.getNodeValidationText();
 
       expect(getNodeValidationTextSpy).toHaveBeenCalledWith(node.data.path);
-      expect(validationText).toEqual('test-validation-text');
+      expect(validationText).toBe('test-validation-text');
     });
   });
 
@@ -518,7 +518,7 @@ describe('VisualizationNode', () => {
       const copiedContent = node.getCopiedContent();
 
       expect(getCopiedContentSpy).toHaveBeenCalledWith(node.data.path);
-      expect(copiedContent).toEqual('test-copied-content');
+      expect(copiedContent).toBe('test-copied-content');
     });
   });
 
@@ -591,11 +591,11 @@ describe('VisualizationNode', () => {
       /** Refresh the Viz Node */
       node = await camelRouteVisualEntityStub.toVizNode();
 
-      expect(node.getChildren()?.[0].getNodeLabel()).toEqual('timer');
-      expect(node.getChildren()?.[1].getNodeLabel()).toEqual('set-header');
-      expect(node.getChildren()?.[2].getNodeLabel()).toEqual('log');
-      expect(node.getChildren()?.[3].getNodeLabel()).toEqual('choice');
-      expect(node.getChildren()?.[4].getNodeLabel()).toEqual('direct');
+      expect(node.getChildren()?.[0].getNodeLabel()).toBe('timer');
+      expect(node.getChildren()?.[1].getNodeLabel()).toBe('set-header');
+      expect(node.getChildren()?.[2].getNodeLabel()).toBe('log');
+      expect(node.getChildren()?.[3].getNodeLabel()).toBe('choice');
+      expect(node.getChildren()?.[4].getNodeLabel()).toBe('direct');
       expect(node.getChildren()).toHaveLength(6);
       expect(node.getChildren()?.[5].data.isPlaceholder).toBe(true);
       expect(fromNode!.getChildren()).toHaveLength(0);

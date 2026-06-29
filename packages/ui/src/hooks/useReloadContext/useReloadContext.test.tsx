@@ -19,6 +19,6 @@ describe('useReloadContext', () => {
   it('should return ReloadContext', () => {
     const { result } = renderHook(() => useReloadContext(), { wrapper });
 
-    expect(result.current).not.toBeUndefined();
+    expect(result.current).toBeDefined();
   });
 });

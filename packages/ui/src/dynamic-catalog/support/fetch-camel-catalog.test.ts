@@ -75,41 +75,41 @@ describe('fetchCamelCatalog', () => {
     setCatalogKeySpy.mock.calls.forEach((call: (ArrayLike<unknown> | { [s: string]: unknown })[]) => {
       if (Object.keys(call[1])[0].includes(`${relativeBasePath}/camel-catalog-aggregate-components`)) {
         expect(call[0]).toEqual(CatalogKind.Component);
-        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        expect(Object.values(call[1])[0]).toBe('dummy-data');
         count++;
       } else if (Object.keys(call[1])[0].includes(`${relativeBasePath}/camel-catalog-aggregate-models`)) {
         expect(call[0]).toEqual(CatalogKind.Processor);
-        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        expect(Object.values(call[1])[0]).toBe('dummy-data');
         count++;
       } else if (Object.keys(call[1])[0].includes(`${relativeBasePath}/camel-catalog-aggregate-patterns`)) {
         expect(call[0]).toEqual(CatalogKind.Pattern);
-        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        expect(Object.values(call[1])[0]).toBe('dummy-data');
         count++;
       } else if (Object.keys(call[1])[0].includes(`${relativeBasePath}/camel-catalog-aggregate-entities`)) {
         expect(call[0]).toEqual(CatalogKind.Entity);
-        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        expect(Object.values(call[1])[0]).toBe('dummy-data');
         count++;
       } else if (Object.keys(call[1])[0].includes(`${relativeBasePath}/camel-catalog-aggregate-languages`)) {
         expect(call[0]).toEqual(CatalogKind.Language);
-        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        expect(Object.values(call[1])[0]).toBe('dummy-data');
         count++;
       } else if (Object.keys(call[1])[0].includes(`${relativeBasePath}/camel-catalog-aggregate-dataformats`)) {
         expect(call[0]).toEqual(CatalogKind.Dataformat);
-        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        expect(Object.values(call[1])[0]).toBe('dummy-data');
         count++;
       } else if (Object.keys(call[1])[0].includes(`${relativeBasePath}/camel-catalog-aggregate-loadbalancers`)) {
         expect(call[0]).toEqual(CatalogKind.Loadbalancer);
-        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        expect(Object.values(call[1])[0]).toBe('dummy-data');
         count++;
       } else if (Object.keys(call[1])[0].includes(`${relativeBasePath}/kamelet-boundaries`)) {
         expect(call[0]).toEqual(CatalogKind.Kamelet);
-        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        expect(Object.values(call[1])[0]).toBe('dummy-data');
         expect(Object.keys(call[1])[1]).toContain(`${relativeBasePath}/kamelets-aggregate`);
-        expect(Object.values(call[1])[1]).toEqual('dummy-data');
+        expect(Object.values(call[1])[1]).toBe('dummy-data');
         count++;
       } else if (Object.keys(call[1])[0].includes(`${relativeBasePath}/camel-catalog-aggregate-functions`)) {
         expect(call[0]).toEqual(CatalogKind.Function);
-        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        expect(Object.values(call[1])[0]).toBe('dummy-data');
         count++;
       } else {
         throw new Error(`Unexpected setCatalogKey call: ${JSON.stringify(call)}`);

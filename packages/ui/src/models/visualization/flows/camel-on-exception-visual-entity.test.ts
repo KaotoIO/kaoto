@@ -27,8 +27,8 @@ describe('CamelOnExceptionVisualEntity', () => {
       const onExceptionDef: { onException: OnException } = { onException: { id: 'onExceptionId' } };
       const entity = new CamelOnExceptionVisualEntity(onExceptionDef);
 
-      expect(entity.id).toEqual('onExceptionId');
-      expect(onExceptionDef.onException.id).toEqual('onExceptionId');
+      expect(entity.id).toBe('onExceptionId');
+      expect(onExceptionDef.onException.id).toBe('onExceptionId');
     });
 
     it('should set id to generated id if onExceptionDef.onException.id is not defined', () => {

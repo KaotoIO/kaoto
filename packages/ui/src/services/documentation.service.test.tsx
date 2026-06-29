@@ -72,12 +72,12 @@ describe('DocumentationService', () => {
       expect(documentationEntities).toHaveLength(2);
       expect(documentationEntities[0].isVisualEntity).toBeTruthy();
       expect(documentationEntities[0].isVisible).toBeTruthy();
-      expect(documentationEntities[0].label).toEqual('route-8888');
-      expect(documentationEntities[0].entity!.type).toEqual('route');
+      expect(documentationEntities[0].label).toBe('route-8888');
+      expect(documentationEntities[0].entity!.type).toBe('route');
       expect(documentationEntities[1].isVisualEntity).toBeFalsy();
       expect(documentationEntities[1].isVisible).toBeTruthy();
-      expect(documentationEntities[1].label).toEqual('Beans');
-      expect(documentationEntities[1].entity!.type).toEqual('beans');
+      expect(documentationEntities[1].label).toBe('Beans');
+      expect(documentationEntities[1].entity!.type).toBe('beans');
     });
 
     it('should generate kamelet documentation entities', async () => {
@@ -85,11 +85,11 @@ describe('DocumentationService', () => {
 
       expect(documentationEntities).toHaveLength(2);
       expect(documentationEntities[0].isVisualEntity).toBeTruthy();
-      expect(documentationEntities[0].label).toEqual('Steps');
-      expect(documentationEntities[0].entity!.type).toEqual('kamelet');
+      expect(documentationEntities[0].label).toBe('Steps');
+      expect(documentationEntities[0].entity!.type).toBe('kamelet');
       expect(documentationEntities[1].isVisualEntity).toBeFalsy();
-      expect(documentationEntities[1].label).toEqual('Metadata');
-      expect(documentationEntities[1].entity!.type).toEqual('metadata');
+      expect(documentationEntities[1].label).toBe('Metadata');
+      expect(documentationEntities[1].entity!.type).toBe('metadata');
     });
 
     it('should generate pipe documentation entities', async () => {
@@ -97,14 +97,14 @@ describe('DocumentationService', () => {
 
       expect(documentationEntities).toHaveLength(3);
       expect(documentationEntities[0].isVisualEntity).toBeTruthy();
-      expect(documentationEntities[0].label).toEqual('Steps');
-      expect(documentationEntities[0].entity!.type).toEqual('pipe');
+      expect(documentationEntities[0].label).toBe('Steps');
+      expect(documentationEntities[0].entity!.type).toBe('pipe');
       expect(documentationEntities[1].isVisualEntity).toBeFalsy();
-      expect(documentationEntities[1].label).toEqual('Metadata');
-      expect(documentationEntities[1].entity!.type).toEqual('metadata');
+      expect(documentationEntities[1].label).toBe('Metadata');
+      expect(documentationEntities[1].entity!.type).toBe('metadata');
       expect(documentationEntities[2].isVisualEntity).toBeFalsy();
-      expect(documentationEntities[2].label).toEqual('Error Handler');
-      expect(documentationEntities[2].entity!.type).toEqual('pipeErrorHandler');
+      expect(documentationEntities[2].label).toBe('Error Handler');
+      expect(documentationEntities[2].entity!.type).toBe('pipeErrorHandler');
     });
 
     it('should generate rest documentation entities', async () => {
@@ -116,11 +116,11 @@ describe('DocumentationService', () => {
 
       expect(documentationEntities).toHaveLength(2);
       expect(documentationEntities[0].isVisualEntity).toBeFalsy();
-      expect(documentationEntities[0].label).toEqual('restConfiguration-1234');
-      expect(documentationEntities[0].entity!.type).toEqual('restConfiguration');
+      expect(documentationEntities[0].label).toBe('restConfiguration-1234');
+      expect(documentationEntities[0].entity!.type).toBe('restConfiguration');
       expect(documentationEntities[1].isVisualEntity).toBeFalsy();
-      expect(documentationEntities[1].label).toEqual('rest-1234');
-      expect(documentationEntities[1].entity!.type).toEqual('rest');
+      expect(documentationEntities[1].label).toBe('rest-1234');
+      expect(documentationEntities[1].entity!.type).toBe('rest');
     });
 
     it('should generate route configuration documentation entities', async () => {
@@ -128,8 +128,8 @@ describe('DocumentationService', () => {
 
       expect(documentationEntities).toHaveLength(1);
       expect(documentationEntities[0].isVisualEntity).toBeTruthy();
-      expect(documentationEntities[0].label).toEqual('routeConfiguration-1956');
-      expect(documentationEntities[0].entity!.type).toEqual('routeConfiguration');
+      expect(documentationEntities[0].label).toBe('routeConfiguration-1956');
+      expect(documentationEntities[0].entity!.type).toBe('routeConfiguration');
     });
   });
 

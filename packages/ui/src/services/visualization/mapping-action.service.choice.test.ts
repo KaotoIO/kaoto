@@ -125,8 +125,8 @@ describe('MappingActionService / choice field mappings', () => {
       MappingActionService.engageMapping(tree, choiceNode, targetFieldNode);
 
       const chooseItem = tree.children[0].children[0] as ChooseItem;
-      expect(chooseItem.when[0].expression).toEqual('/ns0:email');
-      expect(chooseItem.when[1].expression).toEqual('/ns0:phone');
+      expect(chooseItem.when[0].expression).toBe('/ns0:email');
+      expect(chooseItem.when[1].expression).toBe('/ns0:phone');
     });
 
     it('each WhenItem ValueSelector expression should be the XPath of the corresponding choice member', () => {
@@ -139,8 +139,8 @@ describe('MappingActionService / choice field mappings', () => {
       const chooseItem = tree.children[0].children[0] as ChooseItem;
       const emailSelector = chooseItem.when[0].children.find((c) => c instanceof ValueSelector) as ValueSelector;
       const phoneSelector = chooseItem.when[1].children.find((c) => c instanceof ValueSelector) as ValueSelector;
-      expect(emailSelector.expression).toEqual('/ns0:email');
-      expect(phoneSelector.expression).toEqual('/ns0:phone');
+      expect(emailSelector.expression).toBe('/ns0:email');
+      expect(phoneSelector.expression).toBe('/ns0:phone');
     });
 
     it('should create ChooseItem when dropping choice source onto an existing FieldItemNodeData target', () => {
@@ -253,7 +253,7 @@ describe('MappingActionService / choice field mappings', () => {
         (c) => c instanceof FieldItem && c.field === memberField,
       ) as FieldItem;
       expect(memberItem).toBeDefined();
-      expect(memberItem.field.name).toEqual('contactEmail');
+      expect(memberItem.field.name).toBe('contactEmail');
     });
 
     it('generateNonDocumentNodeDataChildren should find mappings for fields inside unselected choice wrapper', () => {
@@ -374,7 +374,7 @@ describe('MappingActionService / choice field mappings', () => {
 
       const valueSelector = emailAddressItem.children.find((c) => c instanceof ValueSelector) as ValueSelector;
       expect(valueSelector).toBeDefined();
-      expect(valueSelector.expression).not.toEqual('');
+      expect(valueSelector.expression).not.toBe('');
 
       const freshTargetDocNode2 = new TargetDocumentNodeData(targetDoc, tree);
       const freshParentNode2 = new FieldItemNodeData(freshTargetDocNode2, parentItem);
@@ -426,7 +426,7 @@ describe('MappingActionService / choice field mappings', () => {
       expect(outerChoice).toBeInstanceOf(TargetChoiceFieldNodeData);
 
       const outerChoiceChildren = VisualizationService.generateNonDocumentNodeDataChildren(outerChoice);
-      expect(outerChoiceChildren[0].title).toEqual('Direct1');
+      expect(outerChoiceChildren[0].title).toBe('Direct1');
       const innerChoice = outerChoiceChildren.find(
         (c) => c instanceof TargetChoiceFieldNodeData,
       ) as TargetChoiceFieldNodeData;
@@ -535,12 +535,12 @@ describe('MappingActionService / choice field mappings', () => {
 
       const forEachItem = tree.children[0].children[0] as ForEachItem;
       const chooseItem = forEachItem.children[0] as ChooseItem;
-      expect(chooseItem.when[0].expression).toEqual('/ns0:email');
-      expect(chooseItem.when[1].expression).toEqual('/ns0:phone');
+      expect(chooseItem.when[0].expression).toBe('/ns0:email');
+      expect(chooseItem.when[1].expression).toBe('/ns0:phone');
       const emailSelector = chooseItem.when[0].children.find((c) => c instanceof ValueSelector) as ValueSelector;
       const phoneSelector = chooseItem.when[1].children.find((c) => c instanceof ValueSelector) as ValueSelector;
-      expect(emailSelector.expression).toEqual('/ns0:email');
-      expect(phoneSelector.expression).toEqual('/ns0:phone');
+      expect(emailSelector.expression).toBe('/ns0:email');
+      expect(phoneSelector.expression).toBe('/ns0:phone');
     });
 
     it('should create only ChooseItem (no ForEachItem) when mapping collection choice wrapper to non-collection field (S1)', () => {

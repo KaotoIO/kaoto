@@ -33,21 +33,21 @@ describe('RouteParser', () => {
       const routeEntity = resource.getVisualEntities()[0] as CamelRouteVisualEntity;
       const parsed = RouteParser.parseRouteEntity(routeEntity);
 
-      expect(parsed.title).toEqual('route-8888');
+      expect(parsed.title).toBe('route-8888');
       expect(parsed.description).toBeUndefined();
-      expect(parsed.headingLevel).toEqual('h1');
+      expect(parsed.headingLevel).toBe('h1');
       expect(parsed.headers).toHaveLength(5);
-      expect(parsed.headers[0]).toEqual('Step ID');
-      expect(parsed.headers[1]).toEqual('Step');
-      expect(parsed.headers[2]).toEqual('URI');
-      expect(parsed.headers[3]).toEqual('Parameter Name');
-      expect(parsed.headers[4]).toEqual('Value');
+      expect(parsed.headers[0]).toBe('Step ID');
+      expect(parsed.headers[1]).toBe('Step');
+      expect(parsed.headers[2]).toBe('URI');
+      expect(parsed.headers[3]).toBe('Parameter Name');
+      expect(parsed.headers[4]).toBe('Value');
       expect(parsed.data).toHaveLength(11);
       expect(parsed.data[0][0]).toBeUndefined();
-      expect(parsed.data[0][1]).toEqual('from');
-      expect(parsed.data[0][2]).toEqual('timer');
-      expect(parsed.data[0][3]).toEqual('timerName');
-      expect(parsed.data[0][4]).toEqual('tutorial');
+      expect(parsed.data[0][1]).toBe('from');
+      expect(parsed.data[0][2]).toBe('timer');
+      expect(parsed.data[0][3]).toBe('timerName');
+      expect(parsed.data[0][4]).toBe('tutorial');
     });
   });
 
@@ -61,31 +61,31 @@ describe('RouteParser', () => {
 
       expect(parsed).toHaveLength(7);
 
-      expect(parsed[0].title).toEqual('routeConfiguration-1956');
+      expect(parsed[0].title).toBe('routeConfiguration-1956');
       expect(parsed[0].description).toBeUndefined();
-      expect(parsed[0].headingLevel).toEqual('h1');
+      expect(parsed[0].headingLevel).toBe('h1');
       expect(parsed[0].headers).toHaveLength(2);
-      expect(parsed[0].headers[0]).toEqual('Parameter Name');
-      expect(parsed[0].headers[1]).toEqual('Parameter Value');
+      expect(parsed[0].headers[0]).toBe('Parameter Name');
+      expect(parsed[0].headers[1]).toBe('Parameter Value');
       expect(parsed[0].data).toHaveLength(0);
 
-      expect(parsed[1].title).toEqual('defaultErrorHandler');
-      expect(parsed[1].headingLevel).toEqual('h2');
+      expect(parsed[1].title).toBe('defaultErrorHandler');
+      expect(parsed[1].headingLevel).toBe('h2');
 
-      expect(parsed[2].title).toEqual('Intercept');
-      expect(parsed[2].headingLevel).toEqual('h2');
+      expect(parsed[2].title).toBe('Intercept');
+      expect(parsed[2].headingLevel).toBe('h2');
 
-      expect(parsed[3].title).toEqual('Intercept From');
-      expect(parsed[3].headingLevel).toEqual('h2');
+      expect(parsed[3].title).toBe('Intercept From');
+      expect(parsed[3].headingLevel).toBe('h2');
 
-      expect(parsed[4].title).toEqual('Intercept Send To Endpoint');
-      expect(parsed[4].headingLevel).toEqual('h2');
+      expect(parsed[4].title).toBe('Intercept Send To Endpoint');
+      expect(parsed[4].headingLevel).toBe('h2');
 
-      expect(parsed[5].title).toEqual('On Completion');
-      expect(parsed[5].headingLevel).toEqual('h2');
+      expect(parsed[5].title).toBe('On Completion');
+      expect(parsed[5].headingLevel).toBe('h2');
 
-      expect(parsed[6].title).toEqual('On Exception');
-      expect(parsed[6].headingLevel).toEqual('h2');
+      expect(parsed[6].title).toBe('On Exception');
+      expect(parsed[6].headingLevel).toBe('h2');
     });
   });
 
@@ -96,14 +96,14 @@ describe('RouteParser', () => {
       });
       const parsed = RouteParser.parseErrorHandlerEntity(entity) as ParsedTable;
 
-      expect(parsed.title).toEqual('errorHandler-1234');
-      expect(parsed.description).toEqual('');
+      expect(parsed.title).toBe('errorHandler-1234');
+      expect(parsed.description).toBe('');
       expect(parsed.headers).toHaveLength(2);
-      expect(parsed.headers[0]).toEqual('Parameter Name');
-      expect(parsed.headers[1]).toEqual('Parameter Value');
+      expect(parsed.headers[0]).toBe('Parameter Name');
+      expect(parsed.headers[1]).toBe('Parameter Value');
       expect(parsed.data).toHaveLength(1);
-      expect(parsed.data[0][0]).toEqual('defaultErrorHandler.level');
-      expect(parsed.data[0][1]).toEqual('ERROR');
+      expect(parsed.data[0][0]).toBe('defaultErrorHandler.level');
+      expect(parsed.data[0][1]).toBe('ERROR');
     });
   });
 
@@ -114,23 +114,23 @@ describe('RouteParser', () => {
       });
       const parsed = RouteParser.parseInterceptEntity(entity) as ParsedTable;
 
-      expect(parsed.title).toEqual('Intercept');
-      expect(parsed.description).toEqual('');
-      expect(parsed.headingLevel).toEqual('h1');
+      expect(parsed.title).toBe('Intercept');
+      expect(parsed.description).toBe('');
+      expect(parsed.headingLevel).toBe('h1');
       expect(parsed.headers).toHaveLength(6);
-      expect(parsed.headers[0]).toEqual('ID');
-      expect(parsed.headers[1]).toEqual('Step ID');
-      expect(parsed.headers[2]).toEqual('Step');
-      expect(parsed.headers[3]).toEqual('URI');
-      expect(parsed.headers[4]).toEqual('Parameter Name');
-      expect(parsed.headers[5]).toEqual('Value');
+      expect(parsed.headers[0]).toBe('ID');
+      expect(parsed.headers[1]).toBe('Step ID');
+      expect(parsed.headers[2]).toBe('Step');
+      expect(parsed.headers[3]).toBe('URI');
+      expect(parsed.headers[4]).toBe('Parameter Name');
+      expect(parsed.headers[5]).toBe('Value');
       expect(parsed.data).toHaveLength(1);
-      expect(parsed.data[0][0]).toEqual('intercept-2829');
-      expect(parsed.data[0][1]).toEqual('to-4106');
-      expect(parsed.data[0][2]).toEqual('to');
-      expect(parsed.data[0][3]).toEqual('activemq');
-      expect(parsed.data[0][4]).toEqual('description');
-      expect(parsed.data[0][5]).toEqual('some desc intercept activemq');
+      expect(parsed.data[0][0]).toBe('intercept-2829');
+      expect(parsed.data[0][1]).toBe('to-4106');
+      expect(parsed.data[0][2]).toBe('to');
+      expect(parsed.data[0][3]).toBe('activemq');
+      expect(parsed.data[0][4]).toBe('description');
+      expect(parsed.data[0][5]).toBe('some desc intercept activemq');
     });
   });
 
@@ -141,23 +141,23 @@ describe('RouteParser', () => {
       });
       const parsed = RouteParser.parseInterceptFromEntity(entity) as ParsedTable;
 
-      expect(parsed.title).toEqual('interceptFrom-1234');
-      expect(parsed.description).toEqual('');
-      expect(parsed.headingLevel).toEqual('h1');
+      expect(parsed.title).toBe('interceptFrom-1234');
+      expect(parsed.description).toBe('');
+      expect(parsed.headingLevel).toBe('h1');
       expect(parsed.headers).toHaveLength(6);
-      expect(parsed.headers[0]).toEqual('ID');
-      expect(parsed.headers[1]).toEqual('Step ID');
-      expect(parsed.headers[2]).toEqual('Step');
-      expect(parsed.headers[3]).toEqual('URI');
-      expect(parsed.headers[4]).toEqual('Parameter Name');
-      expect(parsed.headers[5]).toEqual('Value');
+      expect(parsed.headers[0]).toBe('ID');
+      expect(parsed.headers[1]).toBe('Step ID');
+      expect(parsed.headers[2]).toBe('Step');
+      expect(parsed.headers[3]).toBe('URI');
+      expect(parsed.headers[4]).toBe('Parameter Name');
+      expect(parsed.headers[5]).toBe('Value');
       expect(parsed.data).toHaveLength(1);
-      expect(parsed.data[0][0]).toEqual('interceptFrom-3077');
-      expect(parsed.data[0][1]).toEqual('to-4830');
-      expect(parsed.data[0][2]).toEqual('to');
-      expect(parsed.data[0][3]).toEqual('activemq6');
-      expect(parsed.data[0][4]).toEqual('');
-      expect(parsed.data[0][5]).toEqual('');
+      expect(parsed.data[0][0]).toBe('interceptFrom-3077');
+      expect(parsed.data[0][1]).toBe('to-4830');
+      expect(parsed.data[0][2]).toBe('to');
+      expect(parsed.data[0][3]).toBe('activemq6');
+      expect(parsed.data[0][4]).toBe('');
+      expect(parsed.data[0][5]).toBe('');
     });
   });
 
@@ -169,23 +169,23 @@ describe('RouteParser', () => {
       });
       const parsed = RouteParser.parseInterceptSendToEndpointEntity(entity) as ParsedTable;
 
-      expect(parsed.title).toEqual('Intercept Send To Endpoint');
-      expect(parsed.description).toEqual('');
-      expect(parsed.headingLevel).toEqual('h1');
+      expect(parsed.title).toBe('Intercept Send To Endpoint');
+      expect(parsed.description).toBe('');
+      expect(parsed.headingLevel).toBe('h1');
       expect(parsed.headers).toHaveLength(6);
-      expect(parsed.headers[0]).toEqual('ID');
-      expect(parsed.headers[1]).toEqual('Step ID');
-      expect(parsed.headers[2]).toEqual('Step');
-      expect(parsed.headers[3]).toEqual('URI');
-      expect(parsed.headers[4]).toEqual('Parameter Name');
-      expect(parsed.headers[5]).toEqual('Value');
+      expect(parsed.headers[0]).toBe('ID');
+      expect(parsed.headers[1]).toBe('Step ID');
+      expect(parsed.headers[2]).toBe('Step');
+      expect(parsed.headers[3]).toBe('URI');
+      expect(parsed.headers[4]).toBe('Parameter Name');
+      expect(parsed.headers[5]).toBe('Value');
       expect(parsed.data).toHaveLength(2);
-      expect(parsed.data[0][0]).toEqual('interceptSendToEndpoint-1407');
-      expect(parsed.data[0][1]).toEqual('');
-      expect(parsed.data[0][2]).toEqual('');
-      expect(parsed.data[0][3]).toEqual('');
-      expect(parsed.data[0][4]).toEqual('uri');
-      expect(parsed.data[0][5]).toEqual('direct:dummy');
+      expect(parsed.data[0][0]).toBe('interceptSendToEndpoint-1407');
+      expect(parsed.data[0][1]).toBe('');
+      expect(parsed.data[0][2]).toBe('');
+      expect(parsed.data[0][3]).toBe('');
+      expect(parsed.data[0][4]).toBe('uri');
+      expect(parsed.data[0][5]).toBe('direct:dummy');
     });
   });
 
@@ -196,23 +196,23 @@ describe('RouteParser', () => {
       });
       const parsed = RouteParser.parseOnCompletionEntity(entity) as ParsedTable;
 
-      expect(parsed.title).toEqual('onCompletion-1234');
-      expect(parsed.description).toEqual('');
-      expect(parsed.headingLevel).toEqual('h1');
+      expect(parsed.title).toBe('onCompletion-1234');
+      expect(parsed.description).toBe('');
+      expect(parsed.headingLevel).toBe('h1');
       expect(parsed.headers).toHaveLength(6);
-      expect(parsed.headers[0]).toEqual('ID');
-      expect(parsed.headers[1]).toEqual('Step ID');
-      expect(parsed.headers[2]).toEqual('Step');
-      expect(parsed.headers[3]).toEqual('URI');
-      expect(parsed.headers[4]).toEqual('Parameter Name');
-      expect(parsed.headers[5]).toEqual('Value');
+      expect(parsed.headers[0]).toBe('ID');
+      expect(parsed.headers[1]).toBe('Step ID');
+      expect(parsed.headers[2]).toBe('Step');
+      expect(parsed.headers[3]).toBe('URI');
+      expect(parsed.headers[4]).toBe('Parameter Name');
+      expect(parsed.headers[5]).toBe('Value');
       expect(parsed.data).toHaveLength(1);
-      expect(parsed.data[0][0]).toEqual('onCompletion-3828');
-      expect(parsed.data[0][1]).toEqual('to-2313');
-      expect(parsed.data[0][2]).toEqual('to');
-      expect(parsed.data[0][3]).toEqual('asterisk');
-      expect(parsed.data[0][4]).toEqual('');
-      expect(parsed.data[0][5]).toEqual('');
+      expect(parsed.data[0][0]).toBe('onCompletion-3828');
+      expect(parsed.data[0][1]).toBe('to-2313');
+      expect(parsed.data[0][2]).toBe('to');
+      expect(parsed.data[0][3]).toBe('asterisk');
+      expect(parsed.data[0][4]).toBe('');
+      expect(parsed.data[0][5]).toBe('');
     });
   });
 
@@ -223,23 +223,23 @@ describe('RouteParser', () => {
       });
       const parsed = RouteParser.parseOnExceptionEntity(entity) as ParsedTable;
 
-      expect(parsed.title).toEqual('onException-1234');
-      expect(parsed.description).toEqual('');
-      expect(parsed.headingLevel).toEqual('h1');
+      expect(parsed.title).toBe('onException-1234');
+      expect(parsed.description).toBe('');
+      expect(parsed.headingLevel).toBe('h1');
       expect(parsed.headers).toHaveLength(6);
-      expect(parsed.headers[0]).toEqual('ID');
-      expect(parsed.headers[1]).toEqual('Step ID');
-      expect(parsed.headers[2]).toEqual('Step');
-      expect(parsed.headers[3]).toEqual('URI');
-      expect(parsed.headers[4]).toEqual('Parameter Name');
-      expect(parsed.headers[5]).toEqual('Value');
+      expect(parsed.headers[0]).toBe('ID');
+      expect(parsed.headers[1]).toBe('Step ID');
+      expect(parsed.headers[2]).toBe('Step');
+      expect(parsed.headers[3]).toBe('URI');
+      expect(parsed.headers[4]).toBe('Parameter Name');
+      expect(parsed.headers[5]).toBe('Value');
       expect(parsed.data).toHaveLength(1);
-      expect(parsed.data[0][0]).toEqual('onException-2301');
-      expect(parsed.data[0][1]).toEqual('to-3485');
-      expect(parsed.data[0][2]).toEqual('to');
-      expect(parsed.data[0][3]).toEqual('arangodb');
-      expect(parsed.data[0][4]).toEqual('');
-      expect(parsed.data[0][5]).toEqual('');
+      expect(parsed.data[0][0]).toBe('onException-2301');
+      expect(parsed.data[0][1]).toBe('to-3485');
+      expect(parsed.data[0][2]).toBe('to');
+      expect(parsed.data[0][3]).toBe('arangodb');
+      expect(parsed.data[0][4]).toBe('');
+      expect(parsed.data[0][5]).toBe('');
     });
   });
 });

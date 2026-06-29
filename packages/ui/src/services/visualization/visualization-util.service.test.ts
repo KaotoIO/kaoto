@@ -196,7 +196,7 @@ describe('VisualizationUtilService', () => {
       const field = createMockField(sourceDoc.fields[0], { wrapperKind: 'choice', selectedMemberIndex: 0 });
       const result = VisualizationUtilService.resolveOutermostSelectedWrapper(field);
       expect(result.outermost).toBe(field);
-      expect(result.depth).toEqual(1);
+      expect(result.depth).toBe(1);
     });
 
     it('should walk up through selected parent wrappers', () => {
@@ -208,7 +208,7 @@ describe('VisualizationUtilService', () => {
       });
       const result = VisualizationUtilService.resolveOutermostSelectedWrapper(inner);
       expect(result.outermost).toBe(outer);
-      expect(result.depth).toEqual(2);
+      expect(result.depth).toBe(2);
     });
 
     it('should walk up through three levels of selected wrappers', () => {
@@ -225,7 +225,7 @@ describe('VisualizationUtilService', () => {
       });
       const result = VisualizationUtilService.resolveOutermostSelectedWrapper(inner);
       expect(result.outermost).toBe(outermost);
-      expect(result.depth).toEqual(3);
+      expect(result.depth).toBe(3);
     });
 
     it('should stop at parent without selectedMemberIndex', () => {
@@ -237,20 +237,20 @@ describe('VisualizationUtilService', () => {
       });
       const result = VisualizationUtilService.resolveOutermostSelectedWrapper(inner);
       expect(result.outermost).toBe(inner);
-      expect(result.depth).toEqual(1);
+      expect(result.depth).toBe(1);
     });
 
     it('should return depth 1 and undefined for undefined input', () => {
       const result = VisualizationUtilService.resolveOutermostSelectedWrapper(undefined);
       expect(result.outermost).toBeUndefined();
-      expect(result.depth).toEqual(1);
+      expect(result.depth).toBe(1);
     });
   });
 
   describe('getSelectedChoiceDepth', () => {
     it('should return 0 for non-choice nodes', () => {
       const fieldNode = new FieldNodeData(sourceDocNode, sourceDoc.fields[0]);
-      expect(VisualizationUtilService.getSelectedChoiceDepth(fieldNode)).toEqual(0);
+      expect(VisualizationUtilService.getSelectedChoiceDepth(fieldNode)).toBe(0);
     });
 
     it('should return 0 for unselected choice nodes', () => {
@@ -260,7 +260,7 @@ describe('VisualizationUtilService', () => {
         fields: [],
       } as unknown as IField;
       const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
-      expect(VisualizationUtilService.getSelectedChoiceDepth(choiceNode)).toEqual(0);
+      expect(VisualizationUtilService.getSelectedChoiceDepth(choiceNode)).toBe(0);
     });
 
     it('should return 1 for simple selected choice', () => {
@@ -272,7 +272,7 @@ describe('VisualizationUtilService', () => {
       } as unknown as IField;
       const choiceNode = new ChoiceFieldNodeData(sourceDocNode, sourceDoc.fields[0]);
       choiceNode.choiceField = wrapper;
-      expect(VisualizationUtilService.getSelectedChoiceDepth(choiceNode)).toEqual(1);
+      expect(VisualizationUtilService.getSelectedChoiceDepth(choiceNode)).toBe(1);
     });
 
     it('should return 3 for triple-nested selected choice', () => {
@@ -292,7 +292,7 @@ describe('VisualizationUtilService', () => {
       });
       const choiceNode = new ChoiceFieldNodeData(sourceDocNode, sourceDoc.fields[0]);
       choiceNode.choiceField = inner;
-      expect(VisualizationUtilService.getSelectedChoiceDepth(choiceNode)).toEqual(3);
+      expect(VisualizationUtilService.getSelectedChoiceDepth(choiceNode)).toBe(3);
     });
   });
 

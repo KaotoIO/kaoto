@@ -79,18 +79,18 @@ describe('MappingActionService', () => {
         expect(docChildren).toHaveLength(1);
         let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
         expect(shipOrderChildren).toHaveLength(4);
-        expect(shipOrderChildren[0].title).toEqual('OrderId');
+        expect(shipOrderChildren[0].title).toBe('OrderId');
         MappingActionService.applyIf(shipOrderChildren[0] as TargetNodeData);
 
         expect(tree.children[0].name).toContain('fx-ShipOrder');
-        expect(tree.children[0].children[0].name).toEqual('if');
+        expect(tree.children[0].children[0].name).toBe('if');
         targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
         docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
-        expect(shipOrderChildren[0].title).toEqual('if');
+        expect(shipOrderChildren[0].title).toBe('if');
         const ifChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[0]);
         expect(ifChildren).toHaveLength(1);
-        expect(ifChildren[0].title).toEqual('OrderId');
+        expect(ifChildren[0].title).toBe('OrderId');
       });
 
       it('should add If on primitive target body', () => {
@@ -110,7 +110,7 @@ describe('MappingActionService', () => {
         expect(targetDocChildren).toHaveLength(1);
         const ifItem = (targetDocChildren[0] as MappingNodeData).mapping;
         expect(ifItem instanceof IfItem).toBeTruthy();
-        expect(ifItem.name).toEqual('if');
+        expect(ifItem.name).toBe('if');
 
         targetDocChildren = VisualizationService.generatePrimitiveDocumentChildren(targetDocNode);
         const ifChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
@@ -125,31 +125,31 @@ describe('MappingActionService', () => {
         expect(docChildren).toHaveLength(1);
         let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
         expect(shipOrderChildren).toHaveLength(4);
-        expect(shipOrderChildren[1].title).toEqual('OrderPerson');
+        expect(shipOrderChildren[1].title).toBe('OrderPerson');
         MappingActionService.applyChooseWhenOtherwise(shipOrderChildren[1] as TargetNodeData);
 
         expect(tree.children[0].name).toContain('fx-ShipOrder');
-        expect(tree.children[0].children[0].name).toEqual('choose');
+        expect(tree.children[0].children[0].name).toBe('choose');
         targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
         docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
 
-        expect(shipOrderChildren[1].title).toEqual('choose');
+        expect(shipOrderChildren[1].title).toBe('choose');
         const chooseChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[1]);
         expect(chooseChildren).toHaveLength(2);
 
-        expect(chooseChildren[0].title).toEqual('when');
+        expect(chooseChildren[0].title).toBe('when');
         const whenChildren = VisualizationService.generateNonDocumentNodeDataChildren(chooseChildren[0]);
         expect(whenChildren).toHaveLength(1);
         const whenOrderPerson = whenChildren[0] as MappingNodeData;
-        expect(whenOrderPerson.title).toEqual('OrderPerson');
+        expect(whenOrderPerson.title).toBe('OrderPerson');
         expect(whenOrderPerson.mapping.parent instanceof WhenItem).toBeTruthy();
 
-        expect(chooseChildren[1].title).toEqual('otherwise');
+        expect(chooseChildren[1].title).toBe('otherwise');
         const otherwiseChildren = VisualizationService.generateNonDocumentNodeDataChildren(chooseChildren[1]);
         expect(otherwiseChildren).toHaveLength(1);
         const otherwiseOrderPerson = otherwiseChildren[0] as MappingNodeData;
-        expect(otherwiseOrderPerson.title).toEqual('OrderPerson');
+        expect(otherwiseOrderPerson.title).toBe('OrderPerson');
         expect(otherwiseOrderPerson.mapping.parent instanceof OtherwiseItem).toBeTruthy();
       });
 
@@ -170,7 +170,7 @@ describe('MappingActionService', () => {
         expect(targetDocChildren).toHaveLength(1);
         const chooseItem = (targetDocChildren[0] as MappingNodeData).mapping;
         expect(chooseItem instanceof ChooseItem).toBeTruthy();
-        expect(chooseItem.name).toEqual('choose');
+        expect(chooseItem.name).toBe('choose');
 
         targetDocChildren = VisualizationService.generatePrimitiveDocumentChildren(targetDocNode);
         const chooseChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
@@ -319,16 +319,16 @@ describe('MappingActionService', () => {
         expect(docChildren).toHaveLength(1);
         let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
         expect(shipOrderChildren).toHaveLength(4);
-        expect(shipOrderChildren[3].title).toEqual('Item');
+        expect(shipOrderChildren[3].title).toBe('Item');
         MappingActionService.applyForEach(shipOrderChildren[3] as TargetFieldNodeData);
 
         targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
         docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
-        expect(shipOrderChildren[3].title).toEqual('for-each');
+        expect(shipOrderChildren[3].title).toBe('for-each');
         const forEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[3]);
         expect(forEachChildren).toHaveLength(1);
-        expect(forEachChildren[0].title).toEqual('Item');
+        expect(forEachChildren[0].title).toBe('Item');
       });
     });
 
@@ -338,16 +338,16 @@ describe('MappingActionService', () => {
         expect(docChildren).toHaveLength(1);
         let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
         expect(shipOrderChildren).toHaveLength(4);
-        expect(shipOrderChildren[3].title).toEqual('Item');
+        expect(shipOrderChildren[3].title).toBe('Item');
         MappingActionService.applyForEachGroup(shipOrderChildren[3] as TargetFieldNodeData);
 
         targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
         docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
-        expect(shipOrderChildren[3].title).toEqual('for-each-group');
+        expect(shipOrderChildren[3].title).toBe('for-each-group');
         const forEachGroupChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[3]);
         expect(forEachGroupChildren).toHaveLength(1);
-        expect(forEachGroupChildren[0].title).toEqual('Item');
+        expect(forEachGroupChildren[0].title).toBe('Item');
       });
     });
 
@@ -355,18 +355,18 @@ describe('MappingActionService', () => {
       it('should wrap with for-each and set expression to current-group()', () => {
         const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
-        expect(shipOrderChildren[3].title).toEqual('Item');
+        expect(shipOrderChildren[3].title).toBe('Item');
 
         MappingActionService.applyForEachGroup(shipOrderChildren[3] as TargetFieldNodeData);
         targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
         const updatedDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(updatedDocChildren[0]);
         const forEachGroupNode = shipOrderChildren[3] as MappingNodeData;
-        expect(forEachGroupNode.title).toEqual('for-each-group');
+        expect(forEachGroupNode.title).toBe('for-each-group');
 
         const forEachGroupChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachGroupNode);
         const itemInsideGroup = forEachGroupChildren[0] as FieldItemNodeData;
-        expect(itemInsideGroup.title).toEqual('Item');
+        expect(itemInsideGroup.title).toBe('Item');
 
         MappingActionService.applyForEachCurrentGroup(itemInsideGroup);
 
@@ -376,8 +376,8 @@ describe('MappingActionService', () => {
         const finalForEachGroupNode = finalShipOrderChildren[3] as MappingNodeData;
         const finalGroupChildren = VisualizationService.generateNonDocumentNodeDataChildren(finalForEachGroupNode);
         const forEachNode = finalGroupChildren[0] as MappingNodeData;
-        expect(forEachNode.title).toEqual('for-each');
-        expect((forEachNode.mapping as ForEachItem).expression).toEqual('current-group()');
+        expect(forEachNode.title).toBe('for-each');
+        expect((forEachNode.mapping as ForEachItem).expression).toBe('current-group()');
       });
     });
 
@@ -387,25 +387,25 @@ describe('MappingActionService', () => {
         expect(docChildren).toHaveLength(1);
         let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
         expect(shipOrderChildren).toHaveLength(4);
-        expect(shipOrderChildren[0].title).toEqual('OrderId');
+        expect(shipOrderChildren[0].title).toBe('OrderId');
         MappingActionService.applyInnerForEach(shipOrderChildren[0] as TargetFieldNodeData);
 
         targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
         docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
-        expect(shipOrderChildren[0].title).toEqual('OrderId');
+        expect(shipOrderChildren[0].title).toBe('OrderId');
         const orderIdChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[0]);
         // Should have at least one child which is the for-each
         expect(orderIdChildren.length).toBeGreaterThanOrEqual(1);
         const forEachChild = orderIdChildren.find((child) => child.title === 'for-each');
         expect(forEachChild).toBeDefined();
-        expect(forEachChild?.title).toEqual('for-each');
+        expect(forEachChild?.title).toBe('for-each');
       });
 
       it('should add multiple inner for-each as siblings when applied to the same field', () => {
         let docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
-        expect(shipOrderChildren[0].title).toEqual('OrderId');
+        expect(shipOrderChildren[0].title).toBe('OrderId');
 
         // Add first inner for-each
         MappingActionService.applyInnerForEach(shipOrderChildren[0] as TargetFieldNodeData);
@@ -437,7 +437,7 @@ describe('MappingActionService', () => {
       it('should nest inner for-each when applied to an existing for-each node', () => {
         let docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
-        expect(shipOrderChildren[0].title).toEqual('OrderId');
+        expect(shipOrderChildren[0].title).toBe('OrderId');
 
         // Add first inner for-each
         MappingActionService.applyInnerForEach(shipOrderChildren[0] as TargetFieldNodeData);
@@ -472,18 +472,18 @@ describe('MappingActionService', () => {
       it('should add inner for-each-group', () => {
         let docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
-        expect(shipOrderChildren[0].title).toEqual('OrderId');
+        expect(shipOrderChildren[0].title).toBe('OrderId');
         MappingActionService.applyInnerForEachGroup(shipOrderChildren[0] as TargetFieldNodeData);
 
         targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
         docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
-        expect(shipOrderChildren[0].title).toEqual('OrderId');
+        expect(shipOrderChildren[0].title).toBe('OrderId');
         const orderIdChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[0]);
         expect(orderIdChildren.length).toBeGreaterThanOrEqual(1);
         const forEachGroupChild = orderIdChildren.find((child) => child.title === 'for-each-group');
         expect(forEachGroupChild).toBeDefined();
-        expect(forEachGroupChild?.title).toEqual('for-each-group');
+        expect(forEachGroupChild?.title).toBe('for-each-group');
       });
 
       it('should nest inner for-each-group when applied to an existing for-each node', () => {
@@ -519,14 +519,14 @@ describe('MappingActionService', () => {
       it('should add inner for-each with expression current-group() inside for-each-group', () => {
         const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
-        expect(shipOrderChildren[3].title).toEqual('Item');
+        expect(shipOrderChildren[3].title).toBe('Item');
 
         MappingActionService.applyForEachGroup(shipOrderChildren[3] as TargetFieldNodeData);
         targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
         let updatedDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(updatedDocChildren[0]);
         const forEachGroupNode = shipOrderChildren[3] as MappingNodeData;
-        expect(forEachGroupNode.title).toEqual('for-each-group');
+        expect(forEachGroupNode.title).toBe('for-each-group');
 
         MappingActionService.applyInnerForEachCurrentGroup(forEachGroupNode);
 
@@ -538,13 +538,13 @@ describe('MappingActionService', () => {
         const forEachNode = groupChildren.find((child) => child.title === 'for-each');
         expect(forEachNode).toBeDefined();
         expect((forEachNode as MappingNodeData).mapping instanceof ForEachItem).toBeTruthy();
-        expect(((forEachNode as MappingNodeData).mapping as ForEachItem).expression).toEqual('current-group()');
+        expect(((forEachNode as MappingNodeData).mapping as ForEachItem).expression).toBe('current-group()');
       });
 
       it('should not be allowed outside for-each-group context', () => {
         const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
-        expect(shipOrderChildren[3].title).toEqual('Item');
+        expect(shipOrderChildren[3].title).toBe('Item');
 
         MappingActionService.applyForEach(shipOrderChildren[3] as TargetFieldNodeData);
         targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
@@ -553,7 +553,7 @@ describe('MappingActionService', () => {
           updatedDocChildren[0],
         );
         const forEachNode = updatedShipOrderChildren[3] as MappingNodeData;
-        expect(forEachNode.title).toEqual('for-each');
+        expect(forEachNode.title).toBe('for-each');
         expect(MappingActionService.getAllowedActions(forEachNode)).not.toContain(
           MappingActionKind.InnerForEachCurrentGroup,
         );
@@ -562,7 +562,7 @@ describe('MappingActionService', () => {
       it('should be allowed on for-each-group node', () => {
         const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
-        expect(shipOrderChildren[3].title).toEqual('Item');
+        expect(shipOrderChildren[3].title).toBe('Item');
 
         MappingActionService.applyForEachGroup(shipOrderChildren[3] as TargetFieldNodeData);
 
@@ -572,7 +572,7 @@ describe('MappingActionService', () => {
           updatedDocChildren[0],
         );
         const forEachGroupNode = updatedShipOrderChildren[3] as MappingNodeData;
-        expect(forEachGroupNode.title).toEqual('for-each-group');
+        expect(forEachGroupNode.title).toBe('for-each-group');
         expect(MappingActionService.getAllowedActions(forEachGroupNode)).toContain(
           MappingActionKind.InnerForEachCurrentGroup,
         );
@@ -581,7 +581,7 @@ describe('MappingActionService', () => {
       it('should not be allowed inside existing for-each current-group()', () => {
         const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
-        expect(shipOrderChildren[3].title).toEqual('Item');
+        expect(shipOrderChildren[3].title).toBe('Item');
 
         MappingActionService.applyForEachGroup(shipOrderChildren[3] as TargetFieldNodeData);
 
@@ -598,7 +598,7 @@ describe('MappingActionService', () => {
         const forEachGroupNode2 = updatedShipOrderChildren[3] as MappingNodeData;
         const groupChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachGroupNode2);
         const forEachCurrentGroupNode = groupChildren.find((child) => child.title === 'for-each') as MappingNodeData;
-        expect((forEachCurrentGroupNode.mapping as ForEachItem).expression).toEqual('current-group()');
+        expect((forEachCurrentGroupNode.mapping as ForEachItem).expression).toBe('current-group()');
 
         expect(MappingActionService.getAllowedActions(forEachCurrentGroupNode)).not.toContain(
           MappingActionKind.InnerForEachCurrentGroup,
@@ -612,31 +612,31 @@ describe('MappingActionService', () => {
         expect(docChildren).toHaveLength(1);
         let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
         expect(shipOrderChildren).toHaveLength(4);
-        expect(shipOrderChildren[1].title).toEqual('OrderPerson');
+        expect(shipOrderChildren[1].title).toBe('OrderPerson');
         MappingActionService.applyInnerChooseWhenOtherwise(shipOrderChildren[1] as TargetFieldNodeData);
 
         targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
         docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
-        expect(shipOrderChildren[1].title).toEqual('OrderPerson');
+        expect(shipOrderChildren[1].title).toBe('OrderPerson');
         const orderPersonChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[1]);
         // Should have at least one child which is the choose
         expect(orderPersonChildren.length).toBeGreaterThanOrEqual(1);
         const chooseChild = orderPersonChildren.find((child) => child.title === 'choose');
         expect(chooseChild).toBeDefined();
-        expect(chooseChild?.title).toEqual('choose');
+        expect(chooseChild?.title).toBe('choose');
 
         // Verify choose has when and otherwise branches
         const chooseChildren = VisualizationService.generateNonDocumentNodeDataChildren(chooseChild!);
         expect(chooseChildren).toHaveLength(2);
-        expect(chooseChildren[0].title).toEqual('when');
-        expect(chooseChildren[1].title).toEqual('otherwise');
+        expect(chooseChildren[0].title).toBe('when');
+        expect(chooseChildren[1].title).toBe('otherwise');
       });
 
       it('should add when with ValueSelector (not FieldItem) to inner choose', () => {
         let docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
-        expect(shipOrderChildren[1].title).toEqual('OrderPerson');
+        expect(shipOrderChildren[1].title).toBe('OrderPerson');
         MappingActionService.applyInnerChooseWhenOtherwise(shipOrderChildren[1] as TargetFieldNodeData);
 
         targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
@@ -659,9 +659,9 @@ describe('MappingActionService', () => {
 
         // Should have 3 children now: 2 when + 1 otherwise
         expect(chooseChildren).toHaveLength(3);
-        expect(chooseChildren[0].title).toEqual('when');
-        expect(chooseChildren[1].title).toEqual('when');
-        expect(chooseChildren[2].title).toEqual('otherwise');
+        expect(chooseChildren[0].title).toBe('when');
+        expect(chooseChildren[1].title).toBe('when');
+        expect(chooseChildren[2].title).toBe('otherwise');
 
         // Verify the new when branch contains a ValueSelector, not a FieldItem
         const newWhenChildren = VisualizationService.generateNonDocumentNodeDataChildren(chooseChildren[1]);
@@ -672,7 +672,7 @@ describe('MappingActionService', () => {
       it('should add when with ValueSelector to inner choose nested inside inner for-each', () => {
         let docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
-        expect(shipOrderChildren[0].title).toEqual('OrderId');
+        expect(shipOrderChildren[0].title).toBe('OrderId');
 
         // First add inner for-each
         MappingActionService.applyInnerForEach(shipOrderChildren[0] as TargetFieldNodeData);
@@ -708,9 +708,9 @@ describe('MappingActionService', () => {
 
         // Should have 3 children: 2 when + 1 otherwise
         expect(chooseChildren).toHaveLength(3);
-        expect(chooseChildren[0].title).toEqual('when');
-        expect(chooseChildren[1].title).toEqual('when');
-        expect(chooseChildren[2].title).toEqual('otherwise');
+        expect(chooseChildren[0].title).toBe('when');
+        expect(chooseChildren[1].title).toBe('when');
+        expect(chooseChildren[2].title).toBe('otherwise');
 
         // Verify the new when branch contains a ValueSelector, not a FieldItem
         const newWhenChildren = VisualizationService.generateNonDocumentNodeDataChildren(chooseChildren[1]);
@@ -725,19 +725,19 @@ describe('MappingActionService', () => {
         expect(docChildren).toHaveLength(1);
         let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
         expect(shipOrderChildren).toHaveLength(4);
-        expect(shipOrderChildren[0].title).toEqual('OrderId');
+        expect(shipOrderChildren[0].title).toBe('OrderId');
         MappingActionService.applyInnerIf(shipOrderChildren[0] as TargetFieldNodeData);
 
         targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
         docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
-        expect(shipOrderChildren[0].title).toEqual('OrderId');
+        expect(shipOrderChildren[0].title).toBe('OrderId');
         const orderIdChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[0]);
         // Should have at least one child which is the if
         expect(orderIdChildren.length).toBeGreaterThanOrEqual(1);
         const ifChild = orderIdChildren.find((child) => child.title === 'if');
         expect(ifChild).toBeDefined();
-        expect(ifChild?.title).toEqual('if');
+        expect(ifChild?.title).toBe('if');
       });
 
       it('should add nested inner if inside an existing IfItem', () => {
@@ -768,7 +768,7 @@ describe('MappingActionService', () => {
         const nestedIfChildren = VisualizationService.generateNonDocumentNodeDataChildren(updatedIfChild!);
         const nestedIf = nestedIfChildren.find((child) => child.title === 'if');
         expect(nestedIf).toBeDefined();
-        expect(nestedIf?.title).toEqual('if');
+        expect(nestedIf?.title).toBe('if');
       });
     });
 
@@ -816,7 +816,7 @@ describe('MappingActionService', () => {
         MappingActionService.engageMapping(tree, sourceShipOrderChildren[1] as FieldNodeData, targetDocNode);
 
         const expressionItem = VisualizationService.getExpressionItemForNode(targetDocNode);
-        expect(expressionItem?.expression).toEqual('/ns0:ShipOrder/ns0:OrderPerson');
+        expect(expressionItem?.expression).toBe('/ns0:ShipOrder/ns0:OrderPerson');
       });
     });
 
@@ -852,14 +852,14 @@ describe('MappingActionService', () => {
         targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
         const ifItem = tree.children[0].children[0] as IfItem;
-        expect(ifItem.expression).toEqual('');
+        expect(ifItem.expression).toBe('');
         MappingActionService.engageMapping(
           tree,
           sourceShipOrderChildren[1] as FieldNodeData,
           targetShipOrderChildren[1] as TargetNodeData,
         );
 
-        expect(ifItem.expression).toEqual('/ns0:ShipOrder/ns0:OrderPerson');
+        expect(ifItem.expression).toBe('/ns0:ShipOrder/ns0:OrderPerson');
       });
 
       it('should engage mapping to a Document', () => {
@@ -869,7 +869,7 @@ describe('MappingActionService', () => {
 
         expect(tree.children[0] instanceof ValueSelector).toBeTruthy();
         const selector = tree.children[0] as ValueSelector;
-        expect(selector.expression).toEqual('/ns0:ShipOrder');
+        expect(selector.expression).toBe('/ns0:ShipOrder');
       });
 
       it('should engage mapping to a field', () => {
@@ -888,7 +888,7 @@ describe('MappingActionService', () => {
         expect(tree.children[0].children[0] instanceof FieldItem).toBeTruthy();
         expect(tree.children[0].children[0].children[0] instanceof ValueSelector).toBeTruthy();
         const selector = tree.children[0].children[0].children[0] as ValueSelector;
-        expect(selector.expression).toEqual('/ns0:ShipOrder/ns0:OrderPerson');
+        expect(selector.expression).toBe('/ns0:ShipOrder/ns0:OrderPerson');
       });
 
       it("should engage regular mapping even if it's dropped to a for-each wrapped collection field", () => {
@@ -906,8 +906,8 @@ describe('MappingActionService', () => {
         const forEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEach);
         MappingActionService.engageMapping(tree, sourceItem, forEachChildren[0] as TargetFieldNodeData);
 
-        expect((forEach.mapping as ForEachItem).expression).toEqual('');
-        expect(((forEachChildren[0] as FieldItemNodeData).mapping.children[0] as ValueSelector).expression).toEqual(
+        expect((forEach.mapping as ForEachItem).expression).toBe('');
+        expect(((forEachChildren[0] as FieldItemNodeData).mapping.children[0] as ValueSelector).expression).toBe(
           '/ns0:ShipOrder/Item',
         );
       });
@@ -920,12 +920,12 @@ describe('MappingActionService', () => {
         let targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
         let forEachItem = (targetShipOrderChildren[3] as MappingNodeData).mapping as ForEachItem;
         expect(forEachItem.children).toHaveLength(1);
-        expect(forEachItem.expression).toEqual('');
+        expect(forEachItem.expression).toBe('');
         let targetForEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(
           targetShipOrderChildren[3],
         );
         let itemItem = targetForEachChildren[0] as TargetFieldNodeData;
-        expect((itemItem.mapping?.children[0] as ValueSelector).expression).toEqual('/ns0:ShipOrder/Item');
+        expect((itemItem.mapping?.children[0] as ValueSelector).expression).toBe('/ns0:ShipOrder/Item');
         MappingActionService.deleteMappingItem(targetForEachChildren[0] as TargetNodeData);
 
         targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
@@ -933,11 +933,11 @@ describe('MappingActionService', () => {
         forEachItem = (targetShipOrderChildren[3] as MappingNodeData).mapping as ForEachItem;
         expect(forEachItem).toBeDefined();
         expect(forEachItem.children).toHaveLength(1);
-        expect(forEachItem.expression).toEqual('');
+        expect(forEachItem.expression).toBe('');
         targetForEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetShipOrderChildren[3]);
         itemItem = targetForEachChildren[0] as TargetFieldNodeData;
         expect(itemItem.mapping).toBeDefined();
-        expect(itemItem.mapping?.children.length).toEqual(0);
+        expect(itemItem.mapping?.children.length).toBe(0);
       });
 
       it('should not remove for-each targeted field item when descendent is removed', () => {
@@ -964,9 +964,9 @@ describe('MappingActionService', () => {
         targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
         targetForEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetShipOrderChildren[3]);
         targetItemChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetForEachChildren[0]);
-        expect(
-          ((targetItemChildren[0] as TargetFieldNodeData).mapping?.children[0] as ValueSelector).expression,
-        ).toEqual('/ns0:ShipOrder/Item/Title');
+        expect(((targetItemChildren[0] as TargetFieldNodeData).mapping?.children[0] as ValueSelector).expression).toBe(
+          '/ns0:ShipOrder/Item/Title',
+        );
         MappingActionService.deleteMappingItem(targetItemChildren[0] as TargetNodeData);
 
         targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
@@ -974,7 +974,7 @@ describe('MappingActionService', () => {
         const forEachItem = (targetShipOrderChildren[3] as MappingNodeData).mapping as ForEachItem;
         expect(forEachItem).toBeDefined();
         expect(forEachItem.children).toHaveLength(1);
-        expect(forEachItem.expression).toEqual('');
+        expect(forEachItem.expression).toBe('');
         targetForEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetShipOrderChildren[3]);
         targetItemChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetForEachChildren[0]);
         expect((targetItemChildren[0] as TargetFieldNodeData).mapping?.children[0] as ValueSelector).toBeUndefined();
@@ -1010,7 +1010,7 @@ describe('MappingActionService', () => {
         MappingActionService.engageMapping(adtTree, comp02Node as FieldNodeData, adtOutDocNode);
 
         const expressionItem = VisualizationService.getExpressionItemForNode(adtOutDocNode);
-        expect(expressionItem?.expression).toEqual('/HL7/PID/field_01/comp_02');
+        expect(expressionItem?.expression).toBe('/HL7/PID/field_01/comp_02');
       });
 
       it('should generate correct XPath for attributes with xs:extension', () => {
@@ -1047,7 +1047,7 @@ describe('MappingActionService', () => {
         MappingActionService.engageMapping(tree, currencyAttr as FieldNodeData, targetDocNode);
 
         const expressionItem = VisualizationService.getExpressionItemForNode(targetDocNode);
-        expect(expressionItem?.expression).toEqual('/ns0:Product/ns0:price/@currency');
+        expect(expressionItem?.expression).toBe('/ns0:Product/ns0:price/@currency');
       });
     });
 
@@ -1068,13 +1068,13 @@ describe('MappingActionService', () => {
 
         const forEachItem = shipOrderFieldItem.children.find((c) => c instanceof ForEachItem) as ForEachItem;
         expect(forEachItem).toBeDefined();
-        expect(forEachItem.expression).toEqual('/ns0:ShipOrder/Item');
+        expect(forEachItem.expression).toBe('/ns0:ShipOrder/Item');
 
         expect(forEachItem.children.some((c) => c instanceof FieldItem)).toBeFalsy();
 
         const copyOf = forEachItem.children.find((c) => c instanceof ValueSelector) as ValueSelector;
         expect(copyOf).toBeDefined();
-        expect(copyOf.expression).toEqual('.');
+        expect(copyOf.expression).toBe('.');
       });
 
       it('should place ForEachItem with inner FieldItem when collections have different names', () => {
@@ -1108,7 +1108,7 @@ describe('MappingActionService', () => {
 
         const innerFieldItem = forEachItem.children.find((c) => c instanceof FieldItem) as FieldItem;
         expect(innerFieldItem).toBeDefined();
-        expect(innerFieldItem.field.name).toEqual('Item');
+        expect(innerFieldItem.field.name).toBe('Item');
 
         expect(innerFieldItem.children.length).toBeGreaterThan(0);
         const titleMapping = innerFieldItem.children.find(
@@ -1186,12 +1186,12 @@ describe('MappingActionService', () => {
         const anyTypeDocChildren = VisualizationService.generateStructuredDocumentChildren(anyTypeDocNode);
         const envelopeChildren = VisualizationService.generateNonDocumentNodeDataChildren(anyTypeDocChildren[0]);
         const payloadField = envelopeChildren[0] as FieldNodeData;
-        expect(payloadField.title).toEqual('Payload');
+        expect(payloadField.title).toBe('Payload');
 
         const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         const targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
         const targetItem = targetShipOrderChildren[3] as TargetFieldNodeData;
-        expect(targetItem.title).toEqual('Item');
+        expect(targetItem.title).toBe('Item');
 
         MappingActionService.engageMapping(tree, payloadField, targetItem);
 
@@ -1282,7 +1282,7 @@ describe('MappingActionService', () => {
       expect(targetOrgNameField.mapping).toBeDefined();
       let valueSelector = targetOrgNameField.mapping?.children[0] as ValueSelector;
       expect(valueSelector).toBeDefined();
-      expect(valueSelector.expression).toEqual('../../Name');
+      expect(valueSelector.expression).toBe('../../Name');
 
       targetPersonNameField = targetContactChildren.find(
         (child) => (child as TargetFieldNodeData).field?.name === 'PersonName',
@@ -1290,7 +1290,7 @@ describe('MappingActionService', () => {
       expect(targetPersonNameField.mapping).toBeDefined();
       valueSelector = targetPersonNameField.mapping?.children[0] as ValueSelector;
       expect(valueSelector).toBeDefined();
-      expect(valueSelector.expression).toEqual('../Name');
+      expect(valueSelector.expression).toBe('../Name');
 
       targetEmailField = targetContactChildren.find(
         (child) => (child as TargetFieldNodeData).field?.name === 'Email',
@@ -1298,7 +1298,7 @@ describe('MappingActionService', () => {
       expect(targetEmailField.mapping).toBeDefined();
       valueSelector = targetEmailField.mapping?.children[0] as ValueSelector;
       expect(valueSelector).toBeDefined();
-      expect(valueSelector.expression).toEqual('.');
+      expect(valueSelector.expression).toBe('.');
     });
   });
 
@@ -1353,25 +1353,25 @@ describe('MappingActionService', () => {
 
         expect(shipOrderChildren).toHaveLength(5);
         const orderIdNode = shipOrderChildren[0] as FieldItemNodeData;
-        expect(orderIdNode.title).toEqual('OrderId');
+        expect(orderIdNode.title).toBe('OrderId');
         expect(MappingActionService.getAllowedActions(orderIdNode)).toContain(MappingActionKind.ContextMenu);
 
         const ifNode = shipOrderChildren[1] as MappingNodeData;
-        expect(ifNode.title).toEqual('if');
+        expect(ifNode.title).toBe('if');
         expect(MappingActionService.getAllowedActions(ifNode)).toContain(MappingActionKind.ContextMenu);
 
         const shipToNode = shipOrderChildren[2] as TargetFieldNodeData;
-        expect(shipToNode.title).toEqual('ShipTo');
+        expect(shipToNode.title).toBe('ShipTo');
         expect(MappingActionService.getAllowedActions(shipToNode)).toContain(MappingActionKind.ContextMenu);
 
         const forEachNode = shipOrderChildren[3] as MappingNodeData;
-        expect(forEachNode.title).toEqual('for-each');
+        expect(forEachNode.title).toBe('for-each');
         expect(MappingActionService.getAllowedActions(forEachNode)).toContain(MappingActionKind.ContextMenu);
         expect(MappingActionService.getAllowedActions(forEachNode)).toContain(MappingActionKind.Sort);
 
         expect(shipOrderChildren[4] instanceof AddMappingNodeData).toBeTruthy();
         const addMappingNode = shipOrderChildren[4] as AddMappingNodeData;
-        expect(addMappingNode.title).toEqual('Item');
+        expect(addMappingNode.title).toBe('Item');
         expect(addMappingNode.id).toContain('add-mapping-fx-Item');
         expect(MappingActionService.getAllowedActions(addMappingNode)).toContain(MappingActionKind.ForEach);
         expect(MappingActionService.getAllowedActions(addMappingNode)).toContain(MappingActionKind.ForEachGroup);
@@ -1405,7 +1405,7 @@ describe('MappingActionService', () => {
         const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
         const orderIdNode = shipOrderChildren[0] as FieldItemNodeData;
-        expect(orderIdNode.title).toEqual('OrderId');
+        expect(orderIdNode.title).toBe('OrderId');
         expect(MappingActionService.getAllowedActions(orderIdNode)).toContain(MappingActionKind.Delete);
       });
 
@@ -1426,11 +1426,11 @@ describe('MappingActionService', () => {
         const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
         const itemNode = shipOrderChildren[3] as MappingNodeData;
-        expect(itemNode.title).toEqual('for-each');
+        expect(itemNode.title).toBe('for-each');
 
         const forEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(itemNode);
         const fieldInsideForEach = forEachChildren[0] as FieldItemNodeData;
-        expect(fieldInsideForEach.title).toEqual('Item');
+        expect(fieldInsideForEach.title).toBe('Item');
         expect(MappingActionService.getAllowedActions(fieldInsideForEach)).toContain(MappingActionKind.ContextMenu);
 
         MappingActionService.applyForEachGroup(shipOrderChildren[4] as AddMappingNodeData);
@@ -1442,7 +1442,7 @@ describe('MappingActionService', () => {
         );
 
         const forEachGroupNode = updatedShipOrderChildren[4] as MappingNodeData;
-        expect(forEachGroupNode.title).toEqual('for-each-group');
+        expect(forEachGroupNode.title).toBe('for-each-group');
         expect(forEachGroupNode.mapping instanceof ForEachGroupItem).toBeTruthy();
         expect(MappingActionService.getAllowedActions(forEachGroupNode)).toContain(MappingActionKind.ContextMenu);
         expect(MappingActionService.getAllowedActions(forEachGroupNode)).toContain(
@@ -1453,7 +1453,7 @@ describe('MappingActionService', () => {
 
         const forEachGroupChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachGroupNode);
         const fieldInsideForEachGroup = forEachGroupChildren[0] as FieldItemNodeData;
-        expect(fieldInsideForEachGroup.title).toEqual('Item');
+        expect(fieldInsideForEachGroup.title).toBe('Item');
         expect(MappingActionService.getAllowedActions(fieldInsideForEachGroup)).toContain(
           MappingActionKind.ContextMenu,
         );
@@ -1472,10 +1472,10 @@ describe('MappingActionService', () => {
         );
 
         const forEachGroupNode = updatedShipOrderChildren[4] as MappingNodeData;
-        expect(forEachGroupNode.title).toEqual('for-each-group');
+        expect(forEachGroupNode.title).toBe('for-each-group');
         const forEachGroupChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachGroupNode);
         const fieldInsideForEachGroup = forEachGroupChildren[0] as FieldItemNodeData;
-        expect(fieldInsideForEachGroup.title).toEqual('Item');
+        expect(fieldInsideForEachGroup.title).toBe('Item');
         expect(MappingActionService.getAllowedActions(fieldInsideForEachGroup)).toContain(
           MappingActionKind.ForEachCurrentGroup,
         );
@@ -1488,7 +1488,7 @@ describe('MappingActionService', () => {
         const itemNode = shipOrderChildren[3] as MappingNodeData;
         const forEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(itemNode);
         const fieldInsideForEach = forEachChildren[0] as FieldItemNodeData;
-        expect(fieldInsideForEach.title).toEqual('Item');
+        expect(fieldInsideForEach.title).toBe('Item');
         expect(MappingActionService.getAllowedActions(fieldInsideForEach)).not.toContain(
           MappingActionKind.ForEachCurrentGroup,
         );
@@ -1515,12 +1515,12 @@ describe('MappingActionService', () => {
         const forEachGroupNode2 = updatedShipOrderChildren[4] as MappingNodeData;
         const groupChildren2 = VisualizationService.generateNonDocumentNodeDataChildren(forEachGroupNode2);
         const forEachCurrentGroupNode = groupChildren2[0] as MappingNodeData;
-        expect(forEachCurrentGroupNode.title).toEqual('for-each');
-        expect((forEachCurrentGroupNode.mapping as ForEachItem).expression).toEqual('current-group()');
+        expect(forEachCurrentGroupNode.title).toBe('for-each');
+        expect((forEachCurrentGroupNode.mapping as ForEachItem).expression).toBe('current-group()');
 
         const innerChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachCurrentGroupNode);
         const fieldInsideCurrentGroup = innerChildren[0] as FieldItemNodeData;
-        expect(fieldInsideCurrentGroup.title).toEqual('Item');
+        expect(fieldInsideCurrentGroup.title).toBe('Item');
         expect(MappingActionService.getAllowedActions(fieldInsideCurrentGroup)).not.toContain(
           MappingActionKind.ForEachCurrentGroup,
         );
@@ -1570,7 +1570,7 @@ describe('MappingActionService', () => {
         const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
 
         const orderIdNode = shipOrderChildren[0] as FieldItemNodeData;
-        expect(orderIdNode.title).toEqual('OrderId');
+        expect(orderIdNode.title).toBe('OrderId');
         expect(MappingActionService.getAllowedActions(orderIdNode)).not.toContain(MappingActionKind.Variable);
       });
 
@@ -1580,11 +1580,11 @@ describe('MappingActionService', () => {
         const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
 
         const ifNode = shipOrderChildren[1] as MappingNodeData;
-        expect(ifNode.title).toEqual('if');
+        expect(ifNode.title).toBe('if');
         expect(MappingActionService.getAllowedActions(ifNode)).toContain(MappingActionKind.Variable);
 
         const forEachNode = shipOrderChildren[3] as MappingNodeData;
-        expect(forEachNode.title).toEqual('for-each');
+        expect(forEachNode.title).toBe('for-each');
         expect(MappingActionService.getAllowedActions(forEachNode)).toContain(MappingActionKind.Variable);
       });
 
@@ -1657,7 +1657,7 @@ describe('MappingActionService', () => {
         expect(shipOrderMappingItem.children).toHaveLength(5);
         expect(shipOrderMappingItem.children[4] instanceof FieldItem).toBeTruthy();
         const itemItem = shipOrderMappingItem.children[4] as FieldItem;
-        expect(itemItem.field.name).toEqual('Item');
+        expect(itemItem.field.name).toBe('Item');
       });
     });
 
@@ -1669,7 +1669,7 @@ describe('MappingActionService', () => {
 
         expect(shipOrderChildren[4] instanceof AddMappingNodeData).toBeTruthy();
         const addMappingNode = shipOrderChildren[4] as AddMappingNodeData;
-        expect(addMappingNode.title).toEqual('Item');
+        expect(addMappingNode.title).toBe('Item');
 
         const shipOrderMappingItem = targetDocNode.mappingTree.children[0];
         const childCountBefore = shipOrderMappingItem.children.length;
@@ -1690,7 +1690,7 @@ describe('MappingActionService', () => {
         expect(ifNode).toBeDefined();
         const ifChildren = VisualizationService.generateNonDocumentNodeDataChildren(ifNode);
         expect(ifChildren).toHaveLength(1);
-        expect(ifChildren[0].title).toEqual('Item');
+        expect(ifChildren[0].title).toBe('Item');
       });
     });
 
@@ -1702,7 +1702,7 @@ describe('MappingActionService', () => {
 
         expect(shipOrderChildren[4] instanceof AddMappingNodeData).toBeTruthy();
         const addMappingNode = shipOrderChildren[4] as AddMappingNodeData;
-        expect(addMappingNode.title).toEqual('Item');
+        expect(addMappingNode.title).toBe('Item');
 
         const shipOrderMappingItem = targetDocNode.mappingTree.children[0];
         const childCountBefore = shipOrderMappingItem.children.length;
@@ -1722,8 +1722,8 @@ describe('MappingActionService', () => {
         expect(chooseNode).toBeDefined();
         const chooseChildren = VisualizationService.generateNonDocumentNodeDataChildren(chooseNode!);
         expect(chooseChildren).toHaveLength(2);
-        expect(chooseChildren[0].title).toEqual('when');
-        expect(chooseChildren[1].title).toEqual('otherwise');
+        expect(chooseChildren[0].title).toBe('when');
+        expect(chooseChildren[1].title).toBe('otherwise');
       });
     });
 
@@ -1775,7 +1775,7 @@ describe('MappingActionService', () => {
         const menuItems = MappingActionService.getMappingContextMenuItems(shipOrderNode);
         const variableAction = menuItems.find((item) => item.key === MappingActionKind.Variable);
         expect(variableAction).toBeDefined();
-        expect(variableAction!.getLabel(shipOrderNode)).toEqual('Add variable');
+        expect(variableAction!.getLabel(shipOrderNode)).toBe('Add variable');
 
         variableAction!.apply(shipOrderNode, { onUpdate: vi.fn(), openModal: vi.fn() });
         expect(useDocumentTreeStore.getState().addingVariableToNodePath).toEqual(shipOrderNode.path.toString());
@@ -1792,7 +1792,7 @@ describe('MappingActionService', () => {
         const menuItems = MappingActionService.getMappingContextMenuItems(variableNode);
         const renameAction = menuItems.find((item) => item.key === MappingActionKind.RenameVariable);
         expect(renameAction).toBeDefined();
-        expect(renameAction!.getLabel(variableNode)).toEqual('Rename variable');
+        expect(renameAction!.getLabel(variableNode)).toBe('Rename variable');
 
         renameAction!.apply(variableNode, { onUpdate: vi.fn(), openModal: vi.fn() });
         expect(useDocumentTreeStore.getState().renamingVariableId).toEqual(variable.id);
@@ -1830,8 +1830,8 @@ describe('MappingActionService', () => {
     it('should include UnknownMappingNodeData in field children when mapping contains an unrecognized XSL element', () => {
       const shipOrderItem = tree.children[0];
       expect(shipOrderItem.children[0]).toBeInstanceOf(UnknownMappingItem);
-      expect((shipOrderItem.children[0] as UnknownMappingItem).name).toEqual('unknown');
-      expect((shipOrderItem.children[0] as UnknownMappingItem).element.localName).toEqual('apply-templates');
+      expect((shipOrderItem.children[0] as UnknownMappingItem).name).toBe('unknown');
+      expect((shipOrderItem.children[0] as UnknownMappingItem).element.localName).toBe('apply-templates');
 
       const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
       const shipOrderNode = docChildren[0] as FieldItemNodeData;
@@ -1839,7 +1839,7 @@ describe('MappingActionService', () => {
 
       const unknownNode = shipOrderChildren.find((n) => n instanceof UnknownMappingNodeData) as UnknownMappingNodeData;
       expect(unknownNode).toBeDefined();
-      expect(unknownNode.title).toEqual('unknown');
+      expect(unknownNode.title).toBe('unknown');
       expect(unknownNode.mapping).toBeInstanceOf(UnknownMappingItem);
     });
 
@@ -1873,7 +1873,7 @@ describe('MappingActionService', () => {
 
       const unknownNode = children.find((n) => n instanceof UnknownMappingNodeData) as UnknownMappingNodeData;
       expect(unknownNode).toBeDefined();
-      expect(unknownNode.mapping.element.localName).toEqual('apply-templates');
+      expect(unknownNode.mapping.element.localName).toBe('apply-templates');
     });
   });
 

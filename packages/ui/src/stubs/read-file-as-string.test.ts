@@ -6,6 +6,6 @@ describe('readFileAsString()', () => {
       type: 'text/plain',
     });
     const answer = await readFileAsString(file);
-    expect(answer).toEqual('foo');
+    expect(answer).toBe('foo');
   });
 });

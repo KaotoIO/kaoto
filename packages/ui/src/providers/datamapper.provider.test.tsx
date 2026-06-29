@@ -153,7 +153,7 @@ describe('DataMapperProvider', () => {
     });
 
     expect(originalMap.get('newTestParam')).toBeDefined();
-    expect(originalMap.get('testParam')).not.toBeDefined();
+    expect(originalMap.get('testParam')).toBeUndefined();
   });
 
   it("updateDocument() should also update MappingTree.documentDefinitionType if it's target body", async () => {
@@ -494,25 +494,25 @@ describe('DataMapperProvider', () => {
       expect(result.current!.targetBodyDocument.definitionType).toEqual(DocumentDefinitionType.JSON_SCHEMA);
 
       const root = result.current?.mappingTree.children[0];
-      expect(root?.children.length).toEqual(4);
+      expect(root?.children.length).toBe(4);
       const forEachItem = root?.children[3].children[0];
       expect(forEachItem instanceof ForEachItem).toBeTruthy();
-      expect((forEachItem as ForEachItem).expression).toEqual('$Cart-x/fn:array/fn:map');
+      expect((forEachItem as ForEachItem).expression).toBe('$Cart-x/fn:array/fn:map');
 
-      expect(forEachItem?.children[0].children.length).toEqual(3);
+      expect(forEachItem?.children[0].children.length).toBe(3);
       const title = forEachItem?.children[0].children[0].children[0] as ValueSelector;
-      expect(title.expression).toEqual("fn:string[@key='Title']");
+      expect(title.expression).toBe("fn:string[@key='Title']");
       const quantity = forEachItem?.children[0].children[1].children[0] as ValueSelector;
-      expect(quantity.expression).toEqual("fn:number[@key='Quantity']");
+      expect(quantity.expression).toBe("fn:number[@key='Quantity']");
       const price = forEachItem?.children[0].children[2].children[0] as ValueSelector;
-      expect(price.expression).toEqual("fn:number[@key='Price']");
+      expect(price.expression).toBe("fn:number[@key='Price']");
 
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(latestXslt, 'application/xml');
       const variables = xmlDoc.getElementsByTagName('xsl:variable');
-      expect(variables[0].getAttribute('name')).toEqual('Account-x');
-      expect(variables[1].getAttribute('name')).toEqual('Cart-x');
-      expect(variables[2].getAttribute('name')).toEqual('mapped-xml');
+      expect(variables[0].getAttribute('name')).toBe('Account-x');
+      expect(variables[1].getAttribute('name')).toBe('Cart-x');
+      expect(variables[2].getAttribute('name')).toBe('mapped-xml');
       expect(variables).toHaveLength(3);
     });
   });
@@ -729,7 +729,7 @@ describe('DataMapperProvider', () => {
 
       const { result } = renderHook(() => useDataMapper(), { wrapper });
 
-      expect(result.current.mappingTree.namespaceMap['fn']).toEqual('http://www.w3.org/2005/xpath-functions');
+      expect(result.current.mappingTree.namespaceMap['fn']).toBe('http://www.w3.org/2005/xpath-functions');
     });
 
     it('should preserve fn namespace after document updates', async () => {
@@ -754,7 +754,7 @@ describe('DataMapperProvider', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.mappingTree.namespaceMap['fn']).toEqual('http://www.w3.org/2005/xpath-functions');
+        expect(result.current.mappingTree.namespaceMap['fn']).toBe('http://www.w3.org/2005/xpath-functions');
       });
     });
 
@@ -770,7 +770,7 @@ describe('DataMapperProvider', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.mappingTree.namespaceMap['fn']).toEqual('http://www.w3.org/2005/xpath-functions');
+        expect(result.current.mappingTree.namespaceMap['fn']).toBe('http://www.w3.org/2005/xpath-functions');
       });
     });
   });

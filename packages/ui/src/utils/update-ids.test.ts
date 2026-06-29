@@ -19,7 +19,7 @@ describe('updateIds', () => {
     const input = 'stringValue';
     const result = updateIds(input);
 
-    expect(result).toEqual('stringValue');
+    expect(result).toBe('stringValue');
     expect(getCamelRandomId).not.toHaveBeenCalled();
   });
 
@@ -43,16 +43,16 @@ describe('updateIds', () => {
     };
     const result = updateIds(input);
 
-    expect(result.definition.id).toEqual('random-setHeaders');
-    expect(result.definition.headers[0].id).toEqual('random-test-node1');
-    expect(result.definition.headers[1].id).toEqual('random-test-node2');
+    expect(result.definition.id).toBe('random-setHeaders');
+    expect(result.definition.headers[0].id).toBe('random-test-node1');
+    expect(result.definition.headers[1].id).toBe('random-test-node2');
   });
 
   it('should update the id of a single object', () => {
     const input = { definition: { id: 'node1', name: 'testNode' } };
     const result = updateIds(input);
 
-    expect(result.definition.id).toEqual('random-node1');
+    expect(result.definition.id).toBe('random-node1');
     expect(getCamelRandomId).toHaveBeenCalledWith('node1');
   });
 
@@ -70,9 +70,9 @@ describe('updateIds', () => {
     };
     const result = updateIds(input);
 
-    expect(result.definition.id).toEqual('random-node1');
-    expect(result.definition.child.id).toEqual('random-node2');
-    expect(result.definition.child.grandchild.id).toEqual('random-node3');
+    expect(result.definition.id).toBe('random-node1');
+    expect(result.definition.child.id).toBe('random-node2');
+    expect(result.definition.child.grandchild.id).toBe('random-node3');
     expect(getCamelRandomId).toHaveBeenCalledWith('node1');
     expect(getCamelRandomId).toHaveBeenCalledWith('node2');
     expect(getCamelRandomId).toHaveBeenCalledWith('node3');

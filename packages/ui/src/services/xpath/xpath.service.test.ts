@@ -58,8 +58,8 @@ describe('XPathService', () => {
       expect(result.exprNode).toBeDefined();
       let literals = XPathUtil.getAllNodesOfType<LiteralNode>(result.exprNode!, XPathNodeType.Literal);
       expect(literals).toHaveLength(1);
-      expect(literals[0].value).toEqual(128);
-      expect(literals[0].literalType).toEqual('integer');
+      expect(literals[0].value).toBe(128);
+      expect(literals[0].literalType).toBe('integer');
 
       result = XPathService.parse('0.1');
       expect(result.lexErrors).toHaveLength(0);
@@ -68,7 +68,7 @@ describe('XPathService', () => {
       literals = XPathUtil.getAllNodesOfType<LiteralNode>(result.exprNode!, XPathNodeType.Literal);
       expect(literals).toHaveLength(1);
       expect(literals[0].value).toEqual(0.1);
-      expect(literals[0].literalType).toEqual('decimal');
+      expect(literals[0].literalType).toBe('decimal');
 
       result = XPathService.parse('4268.22752E11');
       expect(result.lexErrors).toHaveLength(0);
@@ -76,8 +76,8 @@ describe('XPathService', () => {
       expect(result.exprNode).toBeDefined();
       literals = XPathUtil.getAllNodesOfType<LiteralNode>(result.exprNode!, XPathNodeType.Literal);
       expect(literals).toHaveLength(1);
-      expect(literals[0].value).toEqual(4268.22752e11);
-      expect(literals[0].literalType).toEqual('double');
+      expect(literals[0].value).toBe(4268.22752e11);
+      expect(literals[0].literalType).toBe('double');
     });
 
     it('should parse xpath with relative parent reference inside for-each', () => {
@@ -288,20 +288,20 @@ describe('XPathService', () => {
       expect(paths[0].isRelative).toBeFalsy();
       expect(paths[0].documentReferenceName).toBeUndefined();
       expect(paths[0].pathSegments).toHaveLength(3);
-      expect(paths[0].pathSegments[0].name).toEqual('aaa');
-      expect(paths[0].pathSegments[1].name).toEqual('bbb');
-      expect(paths[0].pathSegments[2].name).toEqual('ccc');
+      expect(paths[0].pathSegments[0].name).toBe('aaa');
+      expect(paths[0].pathSegments[1].name).toBe('bbb');
+      expect(paths[0].pathSegments[2].name).toBe('ccc');
     });
 
     it('should extract param field from AST', () => {
       const paths = XPathService.extractFieldPaths('$param1/aaa/bbb/ccc');
       expect(paths).toHaveLength(1);
       expect(paths[0].isRelative).toBeFalsy();
-      expect(paths[0].documentReferenceName).toEqual('param1');
+      expect(paths[0].documentReferenceName).toBe('param1');
       expect(paths[0].pathSegments).toHaveLength(3);
-      expect(paths[0].pathSegments[0].name).toEqual('aaa');
-      expect(paths[0].pathSegments[1].name).toEqual('bbb');
-      expect(paths[0].pathSegments[2].name).toEqual('ccc');
+      expect(paths[0].pathSegments[0].name).toBe('aaa');
+      expect(paths[0].pathSegments[1].name).toBe('bbb');
+      expect(paths[0].pathSegments[2].name).toBe('ccc');
     });
 
     it('should extract fields from function calls', () => {
@@ -310,9 +310,9 @@ describe('XPathService', () => {
       expect(paths[0].isRelative).toBeFalsy();
       expect(paths[0].documentReferenceName).toBeUndefined();
       expect(paths[0].pathSegments).toHaveLength(3);
-      expect(paths[0].pathSegments[0].name).toEqual('aaa');
-      expect(paths[0].pathSegments[1].name).toEqual('bbb');
-      expect(paths[0].pathSegments[2].name).toEqual('ddd');
+      expect(paths[0].pathSegments[0].name).toBe('aaa');
+      expect(paths[0].pathSegments[1].name).toBe('bbb');
+      expect(paths[0].pathSegments[2].name).toBe('ddd');
     });
 
     it('should extract fields from nested function calls', () => {
@@ -324,22 +324,22 @@ describe('XPathService', () => {
       expect(paths[0].isRelative).toBeFalsy();
       expect(paths[0].documentReferenceName).toBeUndefined();
       expect(paths[0].pathSegments).toHaveLength(3);
-      expect(paths[0].pathSegments[0].name).toEqual('aaa');
-      expect(paths[0].pathSegments[1].name).toEqual('bbb');
-      expect(paths[0].pathSegments[2].name).toEqual('ccc');
+      expect(paths[0].pathSegments[0].name).toBe('aaa');
+      expect(paths[0].pathSegments[1].name).toBe('bbb');
+      expect(paths[0].pathSegments[2].name).toBe('ccc');
 
       expect(paths[1].isRelative).toBeTruthy();
       expect(paths[1].documentReferenceName).toBeUndefined();
       expect(paths[1].pathSegments).toHaveLength(3);
-      expect(paths[1].pathSegments[0].name).toEqual('aaa');
-      expect(paths[1].pathSegments[1].name).toEqual('bbb');
-      expect(paths[1].pathSegments[2].name).toEqual('ddd');
+      expect(paths[1].pathSegments[0].name).toBe('aaa');
+      expect(paths[1].pathSegments[1].name).toBe('bbb');
+      expect(paths[1].pathSegments[2].name).toBe('ddd');
 
       expect(paths[2].isRelative).toBeFalsy();
-      expect(paths[2].documentReferenceName).toEqual('param1');
+      expect(paths[2].documentReferenceName).toBe('param1');
       expect(paths[2].pathSegments).toHaveLength(2);
-      expect(paths[2].pathSegments[0].name).toEqual('eee');
-      expect(paths[2].pathSegments[1].name).toEqual('fff');
+      expect(paths[2].pathSegments[0].name).toBe('eee');
+      expect(paths[2].pathSegments[1].name).toBe('fff');
     });
 
     it('should extract field paths with relative parent reference', () => {
@@ -350,7 +350,7 @@ describe('XPathService', () => {
       expect(paths).toHaveLength(1);
       expect(paths[0].isRelative).toBeTruthy();
       expect(paths[0].pathSegments).toHaveLength(2);
-      expect(paths[0].pathSegments[1].name).toEqual('Name');
+      expect(paths[0].pathSegments[1].name).toBe('Name');
     });
 
     it('should extract field path with ContextItemExpr (.)', () => {
@@ -361,7 +361,7 @@ describe('XPathService', () => {
       expect(paths).toHaveLength(1);
       expect(paths[0].isRelative).toBeFalsy();
       expect(paths[0].pathSegments).toHaveLength(3);
-      expect(paths[0].pathSegments[2].name).toEqual('Email');
+      expect(paths[0].pathSegments[2].name).toBe('Email');
     });
 
     it('should extract primitive source body', () => {
@@ -380,14 +380,14 @@ describe('XPathService', () => {
       expect(paths[0].isRelative).toBeTruthy();
       expect(paths[0].documentReferenceName).toBeUndefined();
       expect(paths[0].pathSegments).toHaveLength(2);
-      expect(paths[0].pathSegments[0].name).toEqual('PO1');
-      expect(paths[0].pathSegments[1].name).toEqual('PO1-04');
+      expect(paths[0].pathSegments[0].name).toBe('PO1');
+      expect(paths[0].pathSegments[1].name).toBe('PO1-04');
 
       expect(paths[1].isRelative).toBeTruthy();
       expect(paths[1].documentReferenceName).toBeUndefined();
       expect(paths[1].pathSegments).toHaveLength(2);
-      expect(paths[1].pathSegments[0].name).toEqual('PO1');
-      expect(paths[1].pathSegments[1].name).toEqual('PO1-02');
+      expect(paths[1].pathSegments[0].name).toBe('PO1');
+      expect(paths[1].pathSegments[1].name).toBe('PO1-02');
     });
 
     it('should extract indexed collection', () => {
@@ -402,7 +402,7 @@ describe('XPathService', () => {
 
       const mainPath = paths.find((p) => p.pathSegments.length === 1 && p.pathSegments[0].name === 'Sub');
       expect(mainPath).toBeDefined();
-      expect(mainPath?.pathSegments[0].predicates.length).toEqual(1);
+      expect(mainPath?.pathSegments[0].predicates.length).toBe(1);
     });
 
     it('should generate context item expression for empty relative path', () => {
@@ -411,7 +411,7 @@ describe('XPathService', () => {
       emptyRelativePath.pathSegments = [];
 
       const xpathString = XPathService.toXPathString(emptyRelativePath);
-      expect(xpathString).toEqual('.');
+      expect(xpathString).toBe('.');
     });
 
     it('should extract field paths from empty parenthesized expression', () => {
@@ -423,8 +423,8 @@ describe('XPathService', () => {
       const paths = XPathService.extractFieldPaths('((/aaa/bbb))');
       expect(paths).toHaveLength(1);
       expect(paths[0].pathSegments).toHaveLength(2);
-      expect(paths[0].pathSegments[0].name).toEqual('aaa');
-      expect(paths[0].pathSegments[1].name).toEqual('bbb');
+      expect(paths[0].pathSegments[0].name).toBe('aaa');
+      expect(paths[0].pathSegments[1].name).toBe('bbb');
     });
 
     it('should extract field paths from context item in parentheses', () => {
@@ -433,8 +433,8 @@ describe('XPathService', () => {
       const paths = XPathService.extractFieldPaths('(.)', contextPath);
       expect(paths).toHaveLength(1);
       expect(paths[0].pathSegments).toHaveLength(2);
-      expect(paths[0].pathSegments[0].name).toEqual('Root');
-      expect(paths[0].pathSegments[1].name).toEqual('Element');
+      expect(paths[0].pathSegments[0].name).toBe('Root');
+      expect(paths[0].pathSegments[1].name).toBe('Element');
     });
 
     it('should extract field paths with predicates containing PathExpression', () => {
@@ -449,7 +449,7 @@ describe('XPathService', () => {
       expect(paths).toHaveLength(1);
       expect(paths[0].isRelative).toBeTruthy();
       expect(paths[0].pathSegments).toHaveLength(1);
-      expect(paths[0].pathSegments[0].name).toEqual('aaa');
+      expect(paths[0].pathSegments[0].name).toBe('aaa');
     });
 
     it('should extract path with current() without context path i.e. from root', () => {
@@ -457,13 +457,13 @@ describe('XPathService', () => {
       expect(paths).toHaveLength(1);
       expect(paths[0].isRelative).toBeTruthy();
       expect(paths[0].pathSegments).toHaveLength(1);
-      expect(paths[0].pathSegments[0].name).toEqual('Price');
+      expect(paths[0].pathSegments[0].name).toBe('Price');
 
       paths = XPathService.extractFieldPaths('current()/../Price');
       expect(paths).toHaveLength(1);
       expect(paths[0].isRelative).toBeTruthy();
       expect(paths[0].pathSegments).toHaveLength(2);
-      expect(paths[0].pathSegments[1].name).toEqual('Price');
+      expect(paths[0].pathSegments[1].name).toBe('Price');
     });
 
     it('should extract path with current() with context path', () => {
@@ -473,13 +473,13 @@ describe('XPathService', () => {
       expect(paths).toHaveLength(1);
       expect(paths[0].isRelative).toBeTruthy();
       expect(paths[0].pathSegments).toHaveLength(1);
-      expect(paths[0].pathSegments[0].name).toEqual('Price');
+      expect(paths[0].pathSegments[0].name).toBe('Price');
 
       paths = XPathService.extractFieldPaths('current()/../Price', contextPath);
       expect(paths).toHaveLength(1);
       expect(paths[0].isRelative).toBeTruthy();
       expect(paths[0].pathSegments).toHaveLength(2);
-      expect(paths[0].pathSegments[1].name).toEqual('Price');
+      expect(paths[0].pathSegments[1].name).toBe('Price');
     });
 
     describe('should extract field paths with reserved keyword', () => {
@@ -487,92 +487,92 @@ describe('XPathService', () => {
         const paths = XPathService.extractFieldPaths('/note/to');
         expect(paths).toHaveLength(1);
         expect(paths[0].pathSegments).toHaveLength(2);
-        expect(paths[0].pathSegments[0].name).toEqual('note');
-        expect(paths[0].pathSegments[1].name).toEqual('to');
+        expect(paths[0].pathSegments[0].name).toBe('note');
+        expect(paths[0].pathSegments[1].name).toBe('to');
       });
 
       it('item', () => {
         const paths = XPathService.extractFieldPaths('/items/item/title');
         expect(paths).toHaveLength(1);
         expect(paths[0].pathSegments).toHaveLength(3);
-        expect(paths[0].pathSegments[0].name).toEqual('items');
-        expect(paths[0].pathSegments[1].name).toEqual('item');
-        expect(paths[0].pathSegments[2].name).toEqual('title');
+        expect(paths[0].pathSegments[0].name).toBe('items');
+        expect(paths[0].pathSegments[1].name).toBe('item');
+        expect(paths[0].pathSegments[2].name).toBe('title');
       });
 
       it('to as a variable name', () => {
         const paths = XPathService.extractFieldPaths('$to/address');
         expect(paths).toHaveLength(1);
-        expect(paths[0].documentReferenceName).toEqual('to');
+        expect(paths[0].documentReferenceName).toBe('to');
         expect(paths[0].pathSegments).toHaveLength(1);
-        expect(paths[0].pathSegments[0].name).toEqual('address');
+        expect(paths[0].pathSegments[0].name).toBe('address');
       });
 
       it('in predicate', () => {
         let paths = XPathService.extractFieldPaths("/items/item[to='me']");
         expect(paths).toHaveLength(1);
         expect(paths[0].pathSegments).toHaveLength(2);
-        expect(paths[0].pathSegments[0].name).toEqual('items');
-        expect(paths[0].pathSegments[1].name).toEqual('item');
+        expect(paths[0].pathSegments[0].name).toBe('items');
+        expect(paths[0].pathSegments[1].name).toBe('item');
         expect(paths[0].pathSegments[1].predicates).toHaveLength(1);
         let predicate = paths[0].pathSegments[1].predicates[0];
         expect(predicate.left).toBeInstanceOf(PathExpression);
-        expect((predicate.left as PathExpression).pathSegments[0].name).toEqual('to');
-        expect(predicate.right).toEqual('me');
+        expect((predicate.left as PathExpression).pathSegments[0].name).toBe('to');
+        expect(predicate.right).toBe('me');
 
         paths = XPathService.extractFieldPaths("/items/item[item='some']");
         expect(paths).toHaveLength(1);
         expect(paths[0].pathSegments).toHaveLength(2);
-        expect(paths[0].pathSegments[0].name).toEqual('items');
-        expect(paths[0].pathSegments[1].name).toEqual('item');
+        expect(paths[0].pathSegments[0].name).toBe('items');
+        expect(paths[0].pathSegments[1].name).toBe('item');
         expect(paths[0].pathSegments[1].predicates).toHaveLength(1);
         predicate = paths[0].pathSegments[1].predicates[0];
         expect(predicate.left).toBeInstanceOf(PathExpression);
-        expect((predicate.left as PathExpression).pathSegments[0].name).toEqual('item');
-        expect(predicate.right).toEqual('some');
+        expect((predicate.left as PathExpression).pathSegments[0].name).toBe('item');
+        expect(predicate.right).toBe('some');
 
         paths = XPathService.extractFieldPaths("/items/item[@to='me']");
         expect(paths).toHaveLength(1);
         expect(paths[0].pathSegments).toHaveLength(2);
-        expect(paths[0].pathSegments[0].name).toEqual('items');
-        expect(paths[0].pathSegments[1].name).toEqual('item');
+        expect(paths[0].pathSegments[0].name).toBe('items');
+        expect(paths[0].pathSegments[1].name).toBe('item');
         expect(paths[0].pathSegments[1].predicates).toHaveLength(1);
         predicate = paths[0].pathSegments[1].predicates[0];
         expect(predicate.left).toBeInstanceOf(PathExpression);
-        expect((predicate.left as PathExpression).pathSegments[0].name).toEqual('to');
+        expect((predicate.left as PathExpression).pathSegments[0].name).toBe('to');
         expect((predicate.left as PathExpression).pathSegments[0].isAttribute).toBeTruthy();
-        expect(predicate.right).toEqual('me');
+        expect(predicate.right).toBe('me');
 
         paths = XPathService.extractFieldPaths("/items/item[@item='some']");
         expect(paths).toHaveLength(1);
         expect(paths[0].pathSegments).toHaveLength(2);
-        expect(paths[0].pathSegments[0].name).toEqual('items');
-        expect(paths[0].pathSegments[1].name).toEqual('item');
+        expect(paths[0].pathSegments[0].name).toBe('items');
+        expect(paths[0].pathSegments[1].name).toBe('item');
         expect(paths[0].pathSegments[1].predicates).toHaveLength(1);
         predicate = paths[0].pathSegments[1].predicates[0];
         expect(predicate.left).toBeInstanceOf(PathExpression);
-        expect((predicate.left as PathExpression).pathSegments[0].name).toEqual('item');
+        expect((predicate.left as PathExpression).pathSegments[0].name).toBe('item');
         expect((predicate.left as PathExpression).pathSegments[0].isAttribute).toBeTruthy();
-        expect(predicate.right).toEqual('some');
+        expect(predicate.right).toBe('some');
       });
 
       it('for as an attribute', () => {
         const paths = XPathService.extractFieldPaths('/items/@for');
         expect(paths).toHaveLength(1);
         expect(paths[0].pathSegments).toHaveLength(2);
-        expect(paths[0].pathSegments[0].name).toEqual('items');
-        expect(paths[0].pathSegments[1].name).toEqual('for');
+        expect(paths[0].pathSegments[0].name).toBe('items');
+        expect(paths[0].pathSegments[1].name).toBe('for');
         expect(paths[0].pathSegments[1].isAttribute).toBeTruthy();
       });
 
       it('multiple', () => {
         const paths = XPathService.extractFieldPaths('$item/items/item/node');
         expect(paths).toHaveLength(1);
-        expect(paths[0].documentReferenceName).toEqual('item');
+        expect(paths[0].documentReferenceName).toBe('item');
         expect(paths[0].pathSegments).toHaveLength(3);
-        expect(paths[0].pathSegments[0].name).toEqual('items');
-        expect(paths[0].pathSegments[1].name).toEqual('item');
-        expect(paths[0].pathSegments[2].name).toEqual('node');
+        expect(paths[0].pathSegments[0].name).toBe('items');
+        expect(paths[0].pathSegments[1].name).toBe('item');
+        expect(paths[0].pathSegments[2].name).toBe('node');
       });
     });
 
@@ -584,14 +584,14 @@ describe('XPathService', () => {
         expect(paths).toHaveLength(2);
 
         // First path: order/status (used in condition)
-        expect(paths[0].documentReferenceName).toEqual('order');
+        expect(paths[0].documentReferenceName).toBe('order');
         expect(paths[0].pathSegments).toHaveLength(1);
-        expect(paths[0].pathSegments[0].name).toEqual('status');
+        expect(paths[0].pathSegments[0].name).toBe('status');
 
         // Second path: order/totalPrice (used in both then and else branches)
-        expect(paths[1].documentReferenceName).toEqual('order');
+        expect(paths[1].documentReferenceName).toBe('order');
         expect(paths[1].pathSegments).toHaveLength(1);
-        expect(paths[1].pathSegments[0].name).toEqual('totalPrice');
+        expect(paths[1].pathSegments[0].name).toBe('totalPrice');
       });
 
       it('should extract fields from nested if-else', () => {
@@ -601,11 +601,11 @@ describe('XPathService', () => {
         expect(paths).toHaveLength(2);
 
         // price field
-        expect(paths[0].documentReferenceName).toEqual('price');
+        expect(paths[0].documentReferenceName).toBe('price');
         expect(paths[0].pathSegments).toHaveLength(0);
 
         // vip field
-        expect(paths[1].documentReferenceName).toEqual('vip');
+        expect(paths[1].documentReferenceName).toBe('vip');
         expect(paths[1].pathSegments).toHaveLength(0);
       });
     });
@@ -616,7 +616,7 @@ describe('XPathService', () => {
       const pe = new PathExpression();
       pe.documentReferenceName = 'Account-x';
       const xpath = XPathService.toXPathString(pe);
-      expect(xpath).toEqual('$Account-x');
+      expect(xpath).toBe('$Account-x');
     });
 
     it('should generate XPath with predicates', () => {
@@ -627,21 +627,21 @@ describe('XPathService', () => {
         new PathSegment('Element', false, '', [new Predicate(key, PredicateOperator.Equal, 'value')]),
       );
       const xpath = XPathService.toXPathString(pe);
-      expect(xpath).toEqual("/Element[@key='value']");
+      expect(xpath).toBe("/Element[@key='value']");
     });
 
     it('should generate XPath with namespace prefix', () => {
       const pe = new PathExpression();
       pe.pathSegments.push(new PathSegment('Element', false, 'ns0'));
       const xpath = XPathService.toXPathString(pe);
-      expect(xpath).toEqual('/ns0:Element');
+      expect(xpath).toBe('/ns0:Element');
     });
 
     it('should generate XPath with attribute', () => {
       const pe = new PathExpression();
       pe.pathSegments.push(new PathSegment('attr', true, 'ns0'));
       const xpath = XPathService.toXPathString(pe);
-      expect(xpath).toEqual('/ns0:@attr');
+      expect(xpath).toBe('/ns0:@attr');
     });
 
     it('should generate context item expression for empty relative path', () => {
@@ -650,7 +650,7 @@ describe('XPathService', () => {
       emptyRelativePath.pathSegments = [];
 
       const xpathString = XPathService.toXPathString(emptyRelativePath);
-      expect(xpathString).toEqual('.');
+      expect(xpathString).toBe('.');
     });
 
     it('should generate XPath with multiple predicates using and', () => {
@@ -668,7 +668,7 @@ describe('XPathService', () => {
         ]),
       );
       const xpath = XPathService.toXPathString(pe);
-      expect(xpath).toEqual("/Element[@key1='value1' and @key2='value2']");
+      expect(xpath).toBe("/Element[@key1='value1' and @key2='value2']");
     });
 
     it('should generate XPath with PathExpression in predicate', () => {
@@ -680,7 +680,7 @@ describe('XPathService', () => {
         new PathSegment('Element', false, '', [new Predicate(predicatePath, PredicateOperator.Equal, 'value')]),
       );
       const xpath = XPathService.toXPathString(pe);
-      expect(xpath).toEqual("/Element[OtherElement='value']");
+      expect(xpath).toBe("/Element[OtherElement='value']");
     });
 
     it('should generate relative XPath with document reference and slash separator', () => {
@@ -689,11 +689,11 @@ describe('XPathService', () => {
       pe.documentReferenceName = 'param1';
       pe.pathSegments.push(new PathSegment('Element'));
       let xpath = XPathService.toXPathString(pe);
-      expect(xpath).toEqual('Element');
+      expect(xpath).toBe('Element');
 
       pe.isRelative = false;
       xpath = XPathService.toXPathString(pe);
-      expect(xpath).toEqual('$param1/Element');
+      expect(xpath).toBe('$param1/Element');
     });
   });
 
@@ -716,9 +716,9 @@ describe('XPathService', () => {
 
       const absolutePath = XPathService.toAbsolutePath(relativePath);
       expect(absolutePath.pathSegments).toHaveLength(3);
-      expect(absolutePath.pathSegments[0].name).toEqual('Root');
-      expect(absolutePath.pathSegments[1].name).toEqual('Parent');
-      expect(absolutePath.pathSegments[2].name).toEqual('Sibling');
+      expect(absolutePath.pathSegments[0].name).toBe('Root');
+      expect(absolutePath.pathSegments[1].name).toBe('Parent');
+      expect(absolutePath.pathSegments[2].name).toBe('Sibling');
     });
 
     it('should handle multiple parent references', () => {
@@ -730,8 +730,8 @@ describe('XPathService', () => {
 
       const absolutePath = XPathService.toAbsolutePath(relativePath);
       expect(absolutePath.pathSegments).toHaveLength(2);
-      expect(absolutePath.pathSegments[0].name).toEqual('A');
-      expect(absolutePath.pathSegments[1].name).toEqual('D');
+      expect(absolutePath.pathSegments[0].name).toBe('A');
+      expect(absolutePath.pathSegments[1].name).toBe('D');
     });
 
     it('should propagate documentReferenceName from nested context paths', () => {
@@ -746,11 +746,11 @@ describe('XPathService', () => {
       relativePath.pathSegments.push(new PathSegment('Field'));
 
       const absolutePath = XPathService.toAbsolutePath(relativePath);
-      expect(absolutePath.documentReferenceName).toEqual('param1');
+      expect(absolutePath.documentReferenceName).toBe('param1');
       expect(absolutePath.pathSegments).toHaveLength(3);
-      expect(absolutePath.pathSegments[0].name).toEqual('Root');
-      expect(absolutePath.pathSegments[1].name).toEqual('Nested');
-      expect(absolutePath.pathSegments[2].name).toEqual('Field');
+      expect(absolutePath.pathSegments[0].name).toBe('Root');
+      expect(absolutePath.pathSegments[1].name).toBe('Nested');
+      expect(absolutePath.pathSegments[2].name).toBe('Field');
     });
   });
 
@@ -760,7 +760,7 @@ describe('XPathService', () => {
       source.pathSegments.push(new PathSegment('Field'));
 
       const result = XPathService.addSource('', source);
-      expect(result).toEqual('/Field');
+      expect(result).toBe('/Field');
     });
 
     it('should add source to existing expression with comma', () => {
@@ -768,7 +768,7 @@ describe('XPathService', () => {
       source.pathSegments.push(new PathSegment('Field2'));
 
       const result = XPathService.addSource('/Field1', source);
-      expect(result).toEqual('/Field1, /Field2');
+      expect(result).toBe('/Field1, /Field2');
     });
   });
 
@@ -779,7 +779,7 @@ describe('XPathService', () => {
 
   it('getMonacoXPathLanguageMetadata()', () => {
     const metadata = XPathService.getMonacoXPathLanguageMetadata();
-    expect(metadata.id).toEqual('xpath');
+    expect(metadata.id).toBe('xpath');
   });
 
   describe('toPathExpression()', () => {

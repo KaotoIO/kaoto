@@ -57,14 +57,14 @@ describe('ChoiceSelectionModal', () => {
     const choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }]);
     render(<ChoiceSelectionModal isOpen={true} choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
     const input = getTypeaheadInput();
-    expect(input.getAttribute('placeholder')).toEqual('Select a member...');
+    expect(input.getAttribute('placeholder')).toBe('Select a member...');
   });
 
   it('should show pre-selected member name in typeahead input', () => {
     const choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }], 1);
     render(<ChoiceSelectionModal isOpen={true} choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
     const input = getTypeaheadInput();
-    expect(input.getAttribute('value')).toEqual('phone');
+    expect(input.getAttribute('value')).toBe('phone');
   });
 
   it('should disable Save button when no member is selected', () => {
@@ -175,7 +175,7 @@ describe('ChoiceSelectionModal', () => {
     render(<ChoiceSelectionModal isOpen={true} choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
 
     const input = getTypeaheadInput();
-    expect(input.getAttribute('value')).toEqual('email');
+    expect(input.getAttribute('value')).toBe('email');
   });
 
   it('should handle choiceField with undefined fields', () => {
@@ -188,7 +188,7 @@ describe('ChoiceSelectionModal', () => {
     render(<ChoiceSelectionModal isOpen={true} choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
 
     const input = getTypeaheadInput();
-    expect(input.getAttribute('placeholder')).toEqual('Select a member...');
+    expect(input.getAttribute('placeholder')).toBe('Select a member...');
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
   });
 
@@ -212,6 +212,6 @@ describe('ChoiceSelectionModal', () => {
       fireEvent.click(screen.getByText('Email'));
     });
 
-    expect(input.getAttribute('value')).toEqual('Email');
+    expect(input.getAttribute('value')).toBe('Email');
   });
 });

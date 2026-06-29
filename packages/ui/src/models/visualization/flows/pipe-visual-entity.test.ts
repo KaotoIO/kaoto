@@ -137,12 +137,12 @@ describe('Pipe', () => {
 
     it('should change the id', () => {
       pipeVisualEntity.setId('pipe-12345');
-      expect(pipeVisualEntity.getId()).toEqual('pipe-12345');
+      expect(pipeVisualEntity.getId()).toBe('pipe-12345');
     });
 
     it('should update pipe metadata name when setting id', () => {
       pipeVisualEntity.setId('pipe-12345');
-      expect(pipeVisualEntity.pipe.metadata!.name).toEqual('pipe-12345');
+      expect(pipeVisualEntity.pipe.metadata!.name).toBe('pipe-12345');
     });
   });
 
@@ -528,7 +528,7 @@ describe('Pipe', () => {
 
       const result = pipeVisualEntity.getNodeValidationText('steps.0');
 
-      expect(result).toEqual('1 required parameter is not yet configured: [ milliseconds ]');
+      expect(result).toBe('1 required parameter is not yet configured: [ milliseconds ]');
     });
   });
 
@@ -546,21 +546,21 @@ describe('Pipe', () => {
       const stepNode = sourceNode.getNextNode()!;
       const sinkNode = stepNode.getNextNode()!;
 
-      expect(sourceNode.id).toEqual('source');
-      expect(stepNode.id).toEqual('steps.0');
-      expect(sinkNode.id).toEqual('sink');
+      expect(sourceNode.id).toBe('source');
+      expect(stepNode.id).toBe('steps.0');
+      expect(sinkNode.id).toBe('sink');
     });
 
     it('should use the uri as the node label', async () => {
       const vizNode = await pipeVisualEntity.toVizNode();
 
-      expect(vizNode.getNodeLabel()).toEqual('webhook-binding');
+      expect(vizNode.getNodeLabel()).toBe('webhook-binding');
     });
 
     it('should set the title to `Pipe`', async () => {
       const vizNode = await pipeVisualEntity.toVizNode();
 
-      expect(vizNode.getNodeTitle()).toEqual('Pipe');
+      expect(vizNode.getNodeTitle()).toBe('Pipe');
     });
 
     it('should get the titles from children nodes', async () => {
@@ -570,9 +570,9 @@ describe('Pipe', () => {
       const stepNode = vizNode.getChildren()![1];
       const sinkNode = vizNode.getChildren()![2];
 
-      expect(sourceNode.getNodeTitle()).toEqual('Webhook Source');
-      expect(stepNode.getNodeTitle()).toEqual('Delay Action');
-      expect(sinkNode.getNodeTitle()).toEqual('Log Sink');
+      expect(sourceNode.getNodeTitle()).toBe('Webhook Source');
+      expect(stepNode.getNodeTitle()).toBe('Delay Action');
+      expect(sinkNode.getNodeTitle()).toBe('Log Sink');
     });
 
     it('should set the node labels when the uri is not available', async () => {
@@ -582,33 +582,33 @@ describe('Pipe', () => {
       const sourceNode = vizNode.getChildren()![0];
       const sinkNode = sourceNode.getNextNode();
 
-      expect(sourceNode.getNodeLabel()).toEqual('source');
-      expect(sinkNode!.getNodeLabel()).toEqual('sink');
+      expect(sourceNode.getNodeLabel()).toBe('source');
+      expect(sinkNode!.getNodeLabel()).toBe('sink');
     });
 
     it('should populate the viz node chain with the steps', async () => {
       const vizNode = await pipeVisualEntity.toVizNode();
 
       expect(vizNode.data.path).toEqual(PipeVisualEntity.ROOT_PATH);
-      expect(vizNode.getNodeLabel()).toEqual('webhook-binding');
+      expect(vizNode.getNodeLabel()).toBe('webhook-binding');
       expect(vizNode.getPreviousNode()).toBeUndefined();
       expect(vizNode.getNextNode()).toBeUndefined();
       expect(vizNode.getChildren()).toBeDefined();
 
       const source = vizNode.getChildren()![0];
-      expect(source.getNodeLabel()).toEqual('webhook-source');
+      expect(source.getNodeLabel()).toBe('webhook-source');
       expect(source.getPreviousNode()).toBeUndefined();
       expect(source.getNextNode()).toBeDefined();
 
       const steps0 = source.getNextNode()!;
-      expect(steps0.data.path).toEqual('steps.0');
-      expect(steps0.getNodeLabel()).toEqual('delay-action');
+      expect(steps0.data.path).toBe('steps.0');
+      expect(steps0.getNodeLabel()).toBe('delay-action');
       expect(steps0.getPreviousNode()).toBe(source);
       expect(steps0.getNextNode()).toBeDefined();
 
       const sink = steps0.getNextNode()!;
-      expect(sink.data.path).toEqual('sink');
-      expect(sink.getNodeLabel()).toEqual('log-sink');
+      expect(sink.data.path).toBe('sink');
+      expect(sink.getNodeLabel()).toBe('log-sink');
       expect(sink.getPreviousNode()).toBe(steps0);
       expect(sink.getNextNode()).toBeUndefined();
     });

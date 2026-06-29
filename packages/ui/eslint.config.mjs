@@ -13,6 +13,7 @@ export default [
     plugins: { vitest },
     rules: {
       'vitest/prefer-to-have-length': 'error',
+      'vitest/prefer-to-be': 'error',
     },
   },
   {

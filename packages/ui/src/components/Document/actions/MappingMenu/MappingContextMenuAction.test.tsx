@@ -66,7 +66,7 @@ describe('MappingContextMenuAction', () => {
       fireEvent.click(selectorItem.getElementsByTagName('button')[0]);
     });
     await waitFor(() =>
-      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toEqual('false'),
+      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toBe('false'),
     );
     expect(onUpdateMock.mock.calls).toHaveLength(1);
     expect(spyOnApply.mock.calls).toHaveLength(1);
@@ -90,7 +90,7 @@ describe('MappingContextMenuAction', () => {
       fireEvent.click(ifItem.getElementsByTagName('button')[0]);
     });
     await waitFor(() =>
-      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toEqual('false'),
+      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toBe('false'),
     );
     expect(onUpdateMock.mock.calls).toHaveLength(1);
     expect(spyOnApply.mock.calls).toHaveLength(1);
@@ -114,7 +114,7 @@ describe('MappingContextMenuAction', () => {
       fireEvent.click(chooseItem.getElementsByTagName('button')[0]);
     });
     await waitFor(() =>
-      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toEqual('false'),
+      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toBe('false'),
     );
     expect(onUpdateMock.mock.calls).toHaveLength(1);
     expect(spyOnApply.mock.calls).toHaveLength(1);
@@ -134,7 +134,7 @@ describe('MappingContextMenuAction', () => {
       fireEvent.click(whenItem.getElementsByTagName('button')[0]);
     });
     await waitFor(() =>
-      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toEqual('false'),
+      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toBe('false'),
     );
 
     expect(onUpdateMock.mock.calls).toHaveLength(1);
@@ -155,7 +155,7 @@ describe('MappingContextMenuAction', () => {
       fireEvent.click(otherwiseItem.getElementsByTagName('button')[0]);
     });
     await waitFor(() =>
-      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toEqual('false'),
+      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toBe('false'),
     );
 
     expect(onUpdateMock.mock.calls).toHaveLength(1);
@@ -180,7 +180,7 @@ describe('MappingContextMenuAction', () => {
       fireEvent.click(foreachItem.getElementsByTagName('button')[0]);
     });
     await waitFor(() =>
-      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toEqual('false'),
+      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toBe('false'),
     );
     expect(onUpdateMock.mock.calls).toHaveLength(1);
     expect(spyOnApply.mock.calls).toHaveLength(1);
@@ -239,7 +239,7 @@ describe('MappingContextMenuAction', () => {
 
     act(() => {
       const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
-      expect(actionToggle.textContent).toEqual('Add Conditional Mapping');
+      expect(actionToggle.textContent).toBe('Add Conditional Mapping');
       fireEvent.click(actionToggle);
     });
 

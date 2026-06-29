@@ -55,7 +55,7 @@ describe('ParametersSection', () => {
     });
     expect(mockUpdateDocument.mock.calls).toHaveLength(1);
     expect(mockDeleteParameter.mock.calls).toHaveLength(0);
-    expect(mockUpdateDocument.mock.calls[0][0]['name']).toEqual('testparam1');
+    expect(mockUpdateDocument.mock.calls[0][0]['name']).toBe('testparam1');
 
     const renameButton = screen.getByTestId('rename-parameter-testparam1-button');
     act(() => {
@@ -79,7 +79,7 @@ describe('ParametersSection', () => {
     });
     expect(mockUpdateDocument.mock.calls).toHaveLength(1);
     expect(mockDeleteParameter.mock.calls).toHaveLength(1);
-    expect(mockDeleteParameter.mock.calls[0][0]).toEqual('testparam2');
+    expect(mockDeleteParameter.mock.calls[0][0]).toBe('testparam2');
     await screen.findByTestId('add-parameter-button');
     const notexist = screen.queryByTestId('delete-parameter-testparam2-button');
     expect(notexist).toBeFalsy();

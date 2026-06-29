@@ -18,7 +18,7 @@ describe('RootElementSelect', () => {
   it('should render with selected option', async () => {
     const options = createOptions(['Order', 'Invoice', 'Shipment']);
     render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={vi.fn()} />);
-    expect(getInput().value).toEqual('Order');
+    expect(getInput().value).toBe('Order');
   });
 
   it('should reflect new selectedOption on re-render', async () => {
@@ -26,21 +26,21 @@ describe('RootElementSelect', () => {
     const { rerender } = render(
       <RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={vi.fn()} />,
     );
-    expect(getInput().value).toEqual('Order');
+    expect(getInput().value).toBe('Order');
 
     const updatedOptions = createOptions(['Shipment']);
     rerender(
       <RootElementSelect rootElementOptions={updatedOptions} selectedOption={updatedOptions[0]} onChange={vi.fn()} />,
     );
     await waitFor(() => {
-      expect(getInput().value).toEqual('Shipment');
+      expect(getInput().value).toBe('Shipment');
     });
   });
 
   it('should default to first option when selectedOption is undefined', async () => {
     const options = createOptions(['Order', 'Invoice']);
     render(<RootElementSelect rootElementOptions={options} selectedOption={undefined} onChange={vi.fn()} />);
-    expect(getInput().value).toEqual('Order');
+    expect(getInput().value).toBe('Order');
   });
 
   it('should call onChange with the matching RootElementOption when user selects', async () => {
@@ -62,7 +62,7 @@ describe('RootElementSelect', () => {
     const { rerender } = render(
       <RootElementSelect rootElementOptions={options} selectedOption={options[1]} onChange={vi.fn()} />,
     );
-    expect(getInput().value).toEqual('Invoice');
+    expect(getInput().value).toBe('Invoice');
 
     const remainingOptions = createOptions(['Order', 'Invoice']);
     rerender(
@@ -73,7 +73,7 @@ describe('RootElementSelect', () => {
       />,
     );
     await waitFor(() => {
-      expect(getInput().value).toEqual('Invoice');
+      expect(getInput().value).toBe('Invoice');
     });
   });
 
@@ -82,7 +82,7 @@ describe('RootElementSelect', () => {
     const { rerender } = render(
       <RootElementSelect rootElementOptions={options} selectedOption={options[1]} onChange={vi.fn()} />,
     );
-    expect(getInput().value).toEqual('Invoice');
+    expect(getInput().value).toBe('Invoice');
 
     const remainingOptions = createOptions(['Order', 'Shipment']);
     rerender(
@@ -93,7 +93,7 @@ describe('RootElementSelect', () => {
       />,
     );
     await waitFor(() => {
-      expect(getInput().value).toEqual('Order');
+      expect(getInput().value).toBe('Order');
     });
   });
 
@@ -104,7 +104,7 @@ describe('RootElementSelect', () => {
     ];
     const onChange = vi.fn();
     render(<RootElementSelect rootElementOptions={options} selectedOption={options[1]} onChange={onChange} />);
-    expect(getInput().value).toEqual('Root');
+    expect(getInput().value).toBe('Root');
 
     openDropdown();
     const listbox = screen.getByRole('listbox');
@@ -196,13 +196,13 @@ describe('RootElementSelect', () => {
     act(() => {
       fireEvent.change(getInput(), { target: { value: 'Inv' } });
     });
-    expect(getInput().value).toEqual('Inv');
+    expect(getInput().value).toBe('Inv');
 
     act(() => {
       fireEvent.blur(getInput(), { relatedTarget: document.body });
     });
     await waitFor(() => {
-      expect(getInput().value).toEqual('Order');
+      expect(getInput().value).toBe('Order');
     });
   });
 });

@@ -69,7 +69,7 @@ describe('CitrusTestResource', () => {
   it('should not allow consumers to have multiple visual entities', () => {
     const resource = new CitrusTestResource();
     resource.initialize();
-    expect(resource.supportsMultipleVisualEntities()).toEqual(false);
+    expect(resource.supportsMultipleVisualEntities()).toBe(false);
   });
 
   it('should return visual entities', () => {

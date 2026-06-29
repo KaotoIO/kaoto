@@ -51,7 +51,7 @@ describe('DocumentService', () => {
       expect(result.documentDefinition?.documentType).toBe(DocumentType.SOURCE_BODY);
       expect(result.documentDefinition?.definitionType).toBe(DocumentDefinitionType.XML_SCHEMA);
       expect(result.rootElementOptions).toBeDefined();
-      expect(result.rootElementOptions?.length).toEqual(1);
+      expect(result.rootElementOptions?.length).toBe(1);
     });
 
     it('should create XML schema document with multiple root elements', async () => {
@@ -168,7 +168,7 @@ describe('DocumentService', () => {
       );
       expect(result.validationStatus).toBe('success');
       expect(result.document instanceof PrimitiveDocument).toBeTruthy();
-      expect(result.document?.documentId).toEqual('test');
+      expect(result.document?.documentId).toBe('test');
       expect(result.documentDefinition).toBeDefined();
       expect(result.documentDefinition?.documentType).toBe(DocumentType.SOURCE_BODY);
       expect(result.documentDefinition?.definitionType).toBe(DocumentDefinitionType.Primitive);
@@ -183,7 +183,7 @@ describe('DocumentService', () => {
       );
       expect(result.validationStatus).toBe('success');
       expect(result.document instanceof PrimitiveDocument).toBeTruthy();
-      expect(result.document?.documentId).toEqual('test');
+      expect(result.document?.documentId).toBe('test');
       expect(result.documentDefinition).toBeDefined();
       expect(result.documentDefinition?.documentType).toBe(DocumentType.PARAM);
       expect(result.documentDefinition?.definitionType).toBe(DocumentDefinitionType.Primitive);
@@ -227,7 +227,7 @@ describe('DocumentService', () => {
 
       const result = DocumentService.getCompatibleField(tgtDoc, srcEmailField);
 
-      expect(result?.name).toEqual('email');
+      expect(result?.name).toBe('email');
     });
 
     it('should find a compatible field when the matching field is inside a nested choice compositor', () => {
@@ -249,7 +249,7 @@ describe('DocumentService', () => {
 
       const result = DocumentService.getCompatibleField(tgtDoc, srcTargetField);
 
-      expect(result?.name).toEqual('payload');
+      expect(result?.name).toBe('payload');
     });
 
     it('should find email in the correct choice compositor when matched by positional index', () => {
@@ -278,7 +278,7 @@ describe('DocumentService', () => {
 
       const result = DocumentService.getCompatibleField(tgtDoc, srcEmailField);
 
-      expect(result?.name).toEqual('email');
+      expect(result?.name).toBe('email');
     });
 
     it('should return undefined when the source choice index has no corresponding choice in the target', () => {
@@ -312,7 +312,7 @@ describe('DocumentService', () => {
     it('', () => {
       const pathSegments = [new PathSegment('ShipOrder', false, 'kaoto'), new PathSegment('ShipTo')];
       const field = DocumentService.getFieldFromPathSegments(namespaces, sourceDoc, pathSegments);
-      expect(field?.name).toEqual('ShipTo');
+      expect(field?.name).toBe('ShipTo');
     });
 
     it('should find a field nested directly inside a choice compositor', () => {
@@ -327,7 +327,7 @@ describe('DocumentService', () => {
       const pathSegments = [new PathSegment('ShipOrder', false, 'kaoto'), new PathSegment('email')];
       const result = DocumentService.getFieldFromPathSegments(namespaces, doc, pathSegments);
 
-      expect(result?.name).toEqual('email');
+      expect(result?.name).toBe('email');
     });
 
     it('should find a field nested inside a nested choice compositor', () => {
@@ -345,7 +345,7 @@ describe('DocumentService', () => {
       const pathSegments = [new PathSegment('ShipOrder', false, 'kaoto'), new PathSegment('target')];
       const result = DocumentService.getFieldFromPathSegments(namespaces, doc, pathSegments);
 
-      expect(result?.name).toEqual('target');
+      expect(result?.name).toBe('target');
     });
 
     it('should find a field nested directly inside an abstract wrapper', () => {
@@ -360,7 +360,7 @@ describe('DocumentService', () => {
       const pathSegments = [new PathSegment('ShipOrder', false, 'kaoto'), new PathSegment('Cat')];
       const result = DocumentService.getFieldFromPathSegments(namespaces, doc, pathSegments);
 
-      expect(result?.name).toEqual('Cat');
+      expect(result?.name).toBe('Cat');
     });
 
     it('should find a field nested inside nested abstract wrappers', () => {
@@ -378,7 +378,7 @@ describe('DocumentService', () => {
       const pathSegments = [new PathSegment('ShipOrder', false, 'kaoto'), new PathSegment('target')];
       const result = DocumentService.getFieldFromPathSegments(namespaces, doc, pathSegments);
 
-      expect(result?.name).toEqual('target');
+      expect(result?.name).toBe('target');
     });
 
     it('should find a field inside an abstract wrapper nested in a choice compositor', () => {
@@ -396,7 +396,7 @@ describe('DocumentService', () => {
       const pathSegments = [new PathSegment('ShipOrder', false, 'kaoto'), new PathSegment('Cat')];
       const result = DocumentService.getFieldFromPathSegments(namespaces, doc, pathSegments);
 
-      expect(result?.name).toEqual('Cat');
+      expect(result?.name).toBe('Cat');
     });
 
     it('should navigate through multiple levels of unresolved namedTypeFragmentRefs', () => {
@@ -423,7 +423,7 @@ describe('DocumentService', () => {
       ];
       const result = DocumentService.getFieldFromPathSegments(namespaces, doc, pathSegments);
 
-      expect(result?.name).toEqual('leafField');
+      expect(result?.name).toBe('leafField');
     });
   });
 
@@ -885,21 +885,21 @@ describe('DocumentService', () => {
         DocumentDefinitionType.Primitive,
         'sourceTest',
       );
-      expect(sourceResult.document?.documentId).toEqual('sourceTest');
+      expect(sourceResult.document?.documentId).toBe('sourceTest');
 
       const targetResult = DocumentService.createPrimitiveDocument(
         DocumentType.TARGET_BODY,
         DocumentDefinitionType.Primitive,
         'targetTest',
       );
-      expect(targetResult.document?.documentId).toEqual('targetTest');
+      expect(targetResult.document?.documentId).toBe('targetTest');
 
       const paramResult = DocumentService.createPrimitiveDocument(
         DocumentType.PARAM,
         DocumentDefinitionType.Primitive,
         'paramTest',
       );
-      expect(paramResult.document?.documentId).toEqual('paramTest');
+      expect(paramResult.document?.documentId).toBe('paramTest');
     });
 
     it('should create proper DocumentDefinition for primitives', () => {

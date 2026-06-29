@@ -224,7 +224,7 @@ describe('FlowsList.tsx', () => {
       fireEvent.click(toggleFlowId);
     });
 
-    expect(resId).toEqual('route-1234');
+    expect(resId).toBe('route-1234');
   });
 
   it('should render the appropriate Eye icon', async () => {
@@ -314,7 +314,7 @@ describe('FlowsList.tsx', () => {
     });
 
     expect(renameSpy).toHaveBeenCalledWith('route-1234', 'new-name');
-    expect(camelResource.getVisualEntities()[1].id).toEqual('new-name');
+    expect(camelResource.getVisualEntities()[1].id).toBe('new-name');
     expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalledTimes(1);
   });
 

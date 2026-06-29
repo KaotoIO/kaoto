@@ -171,14 +171,14 @@ describe('camelComponentToTable', () => {
     expect(table.headers).toContain(PropertiesHeaders.Type);
 
     expect(table.rows).toHaveLength(1);
-    expect(table.rows[0].name).toEqual('brokerURL');
-    expect(table.rows[0].description).toEqual('url');
+    expect(table.rows[0].name).toBe('brokerURL');
+    expect(table.rows[0].description).toBe('url');
     expect(table.rows[0].default).toBeUndefined();
-    expect(table.rows[0].type).toEqual('String');
-    expect(table.rows[0].rowAdditionalInfo.required).toEqual(false);
-    expect(table.rows[0].rowAdditionalInfo.group).toEqual('producer');
-    expect(table.rows[0].rowAdditionalInfo.autowired).toEqual(false);
-    expect(table.rows[0].rowAdditionalInfo.enum).toBeUndefined;
+    expect(table.rows[0].type).toBe('String');
+    expect(table.rows[0].rowAdditionalInfo.required).toBe(false);
+    expect(table.rows[0].rowAdditionalInfo.group).toBe('producer');
+    expect(table.rows[0].rowAdditionalInfo.autowired).toBe(false);
+    expect(table.rows[0].rowAdditionalInfo.enum).toBeUndefined();
   });
 
   it('should return a properties IPropertiesTable with the correct values with filter', () => {
@@ -193,13 +193,13 @@ describe('camelComponentToTable', () => {
     expect(table.headers).toContain(PropertiesHeaders.Type);
 
     expect(table.rows).toHaveLength(1);
-    expect(table.rows[0].name).toEqual('hostname');
-    expect(table.rows[0].description).toEqual('The hostname of the asterisk server');
+    expect(table.rows[0].name).toBe('hostname');
+    expect(table.rows[0].description).toBe('The hostname of the asterisk server');
     expect(table.rows[0].default).toBeUndefined();
-    expect(table.rows[0].type).toEqual('String');
-    expect(table.rows[0].rowAdditionalInfo.required).toEqual(false);
-    expect(table.rows[0].rowAdditionalInfo.group).toEqual('common');
-    expect(table.rows[0].rowAdditionalInfo.autowired).toEqual(true);
+    expect(table.rows[0].type).toBe('String');
+    expect(table.rows[0].rowAdditionalInfo.required).toBe(false);
+    expect(table.rows[0].rowAdditionalInfo.group).toBe('common');
+    expect(table.rows[0].rowAdditionalInfo.autowired).toBe(true);
     expect(table.rows[0].rowAdditionalInfo.enum).toHaveLength(2);
   });
 
@@ -214,13 +214,13 @@ describe('camelComponentToTable', () => {
     expect(table.rows).toHaveLength(0);
     table = camelComponentPropertiesToTable(componentDef.headers!);
     expect(table.rows).toHaveLength(1);
-    expect(table.rows[0].name).toEqual('CamelAsteriskEventName');
-    expect(table.rows[0].description).toEqual('Header asterisk');
+    expect(table.rows[0].name).toBe('CamelAsteriskEventName');
+    expect(table.rows[0].description).toBe('Header asterisk');
     expect(table.rows[0].default).toBeUndefined();
-    expect(table.rows[0].type).toEqual('ExceptionHandler');
-    expect(table.rows[0].rowAdditionalInfo.required).toEqual(false);
-    expect(table.rows[0].rowAdditionalInfo.group).toEqual('producer');
-    expect(table.rows[0].rowAdditionalInfo.autowired).toEqual(true);
+    expect(table.rows[0].type).toBe('ExceptionHandler');
+    expect(table.rows[0].rowAdditionalInfo.required).toBe(false);
+    expect(table.rows[0].rowAdditionalInfo.group).toBe('producer');
+    expect(table.rows[0].rowAdditionalInfo.autowired).toBe(true);
   });
 
   it('should return a apis IPropertiesTable with the correct values', () => {
@@ -231,23 +231,23 @@ describe('camelComponentToTable', () => {
     expect(table.headers).toContain(PropertiesHeaders.Type);
 
     expect(table.rows).toHaveLength(4);
-    expect(table.rows[0].name).toEqual('client');
-    expect(table.rows[0].description).toEqual('Client api');
-    expect(table.rows[0].type).toEqual('Both');
-    expect(table.rows[0].rowAdditionalInfo).toBeUndefined;
-    expect(table.rows[0].children?.length).toEqual(1);
-    expect(table.rows[1].name).toEqual('client2');
-    expect(table.rows[1].description).toEqual('Client2 api');
-    expect(table.rows[1].type).toEqual('Both');
-    expect(table.rows[1].children?.length).toEqual(0);
-    expect(table.rows[2].name).toEqual('server');
-    expect(table.rows[2].description).toEqual('Server api');
-    expect(table.rows[2].type).toEqual('Consumer');
-    expect(table.rows[1].children?.length).toEqual(0);
-    expect(table.rows[3].name).toEqual('server2');
-    expect(table.rows[3].description).toEqual('Server2 api');
-    expect(table.rows[3].type).toEqual('Producer');
-    expect(table.rows[1].children?.length).toEqual(0);
+    expect(table.rows[0].name).toBe('client');
+    expect(table.rows[0].description).toBe('Client api');
+    expect(table.rows[0].type).toBe('Both');
+    expect(table.rows[0].rowAdditionalInfo).toBeDefined();
+    expect(table.rows[0].children?.length).toBe(1);
+    expect(table.rows[1].name).toBe('client2');
+    expect(table.rows[1].description).toBe('Client2 api');
+    expect(table.rows[1].type).toBe('Both');
+    expect(table.rows[1].children?.length).toBe(0);
+    expect(table.rows[2].name).toBe('server');
+    expect(table.rows[2].description).toBe('Server api');
+    expect(table.rows[2].type).toBe('Consumer');
+    expect(table.rows[1].children?.length).toBe(0);
+    expect(table.rows[3].name).toBe('server2');
+    expect(table.rows[3].description).toBe('Server2 api');
+    expect(table.rows[3].type).toBe('Producer');
+    expect(table.rows[1].children?.length).toBe(0);
   });
 
   it('should return a apis IPropertiesTable with the correct values with filter', () => {
@@ -266,10 +266,10 @@ describe('camelComponentToTable', () => {
       { filterKey: 'description', filterValue: 'Server api' },
     );
     expect(table.rows).toHaveLength(1);
-    expect(table.rows[0].name).toEqual('server');
-    expect(table.rows[0].description).toEqual('Server api');
-    expect(table.rows[0].type).toEqual('Consumer');
-    expect(table.rows[0].rowAdditionalInfo).toBeUndefined;
+    expect(table.rows[0].name).toBe('server');
+    expect(table.rows[0].description).toBe('Server api');
+    expect(table.rows[0].type).toBe('Consumer');
+    expect(table.rows[0].rowAdditionalInfo).toBeDefined();
   });
 });
 
@@ -307,13 +307,13 @@ describe('camelProcessorToTable', () => {
     expect(table.headers).toContain(PropertiesHeaders.Description);
 
     expect(table.rows).toHaveLength(1);
-    expect(table.rows[0].name).toEqual('instanceClassName');
+    expect(table.rows[0].name).toBe('instanceClassName');
     expect(table.rows[0].default).toBeUndefined();
-    expect(table.rows[0].type).toEqual('String');
-    expect(table.rows[0].description).toEqual('Class name to use for marshal and unmarshalling');
-    expect(table.rows[0].rowAdditionalInfo.required).toEqual(true);
-    expect(table.rows[0].rowAdditionalInfo.group).toBeUndefined;
-    expect(table.rows[0].rowAdditionalInfo.autowired).toEqual(true);
+    expect(table.rows[0].type).toBe('String');
+    expect(table.rows[0].description).toBe('Class name to use for marshal and unmarshalling');
+    expect(table.rows[0].rowAdditionalInfo.required).toBe(true);
+    expect(table.rows[0].rowAdditionalInfo.group).toBeUndefined();
+    expect(table.rows[0].rowAdditionalInfo.autowired).toBe(true);
     expect(table.rows[0].rowAdditionalInfo.enum).toHaveLength(2);
   });
 
@@ -328,13 +328,13 @@ describe('camelProcessorToTable', () => {
 
     table = camelProcessorPropertiesToTable(processDef.properties, { filterKey: 'kind', filterValue: 'attribute' });
     expect(table.rows).toHaveLength(1);
-    expect(table.rows[0].name).toEqual('instanceClassName');
+    expect(table.rows[0].name).toBe('instanceClassName');
     expect(table.rows[0].default).toBeUndefined();
-    expect(table.rows[0].type).toEqual('String');
-    expect(table.rows[0].description).toEqual('Class name to use for marshal and unmarshalling');
-    expect(table.rows[0].rowAdditionalInfo.required).toEqual(true);
-    expect(table.rows[0].rowAdditionalInfo.group).toBeUndefined;
-    expect(table.rows[0].rowAdditionalInfo.autowired).toEqual(true);
+    expect(table.rows[0].type).toBe('String');
+    expect(table.rows[0].description).toBe('Class name to use for marshal and unmarshalling');
+    expect(table.rows[0].rowAdditionalInfo.required).toBe(true);
+    expect(table.rows[0].rowAdditionalInfo.group).toBeUndefined();
+    expect(table.rows[0].rowAdditionalInfo.autowired).toBe(true);
     expect(table.rows[0].rowAdditionalInfo.enum).toHaveLength(2);
   });
 });
@@ -373,15 +373,15 @@ describe('citrusComponentToPropertiesTable', () => {
     expect(table.headers).toContain(PropertiesHeaders.Description);
 
     expect(table.rows).toHaveLength(2);
-    expect(table.rows[0].name).toEqual('prop1');
-    expect(table.rows[0].type).toEqual('string');
-    expect(table.rows[0].description).toEqual('The property 1 description.');
-    expect(table.rows[0].rowAdditionalInfo.required).toEqual(true);
+    expect(table.rows[0].name).toBe('prop1');
+    expect(table.rows[0].type).toBe('string');
+    expect(table.rows[0].description).toBe('The property 1 description.');
+    expect(table.rows[0].rowAdditionalInfo.required).toBe(true);
 
-    expect(table.rows[1].name).toEqual('prop2');
-    expect(table.rows[1].type).toEqual('string');
-    expect(table.rows[1].description).toEqual('The property 2 description.');
-    expect(table.rows[1].rowAdditionalInfo.required).toEqual(false);
+    expect(table.rows[1].name).toBe('prop2');
+    expect(table.rows[1].type).toBe('string');
+    expect(table.rows[1].description).toBe('The property 2 description.');
+    expect(table.rows[1].rowAdditionalInfo.required).toBe(false);
   });
 });
 
@@ -421,21 +421,21 @@ describe('kameletToTable', () => {
     expect(table.headers).toContain(PropertiesHeaders.Example);
 
     expect(table.rows).toHaveLength(2);
-    expect(table.rows[0].property).toEqual('schedule');
-    expect(table.rows[0].name).toEqual('Cron Schedule');
-    expect(table.rows[0].description).toEqual('A cron example');
-    expect(table.rows[0].type).toEqual('number');
+    expect(table.rows[0].property).toBe('schedule');
+    expect(table.rows[0].name).toBe('Cron Schedule');
+    expect(table.rows[0].description).toBe('A cron example');
+    expect(table.rows[0].type).toBe('number');
     expect(table.rows[0].default).toBeUndefined();
     expect(table.rows[0].example).toBeUndefined();
-    expect(table.rows[0].rowAdditionalInfo.required).toEqual(true);
+    expect(table.rows[0].rowAdditionalInfo.required).toBe(true);
 
-    expect(table.rows[1].property).toEqual('message');
-    expect(table.rows[1].name).toEqual('Message');
-    expect(table.rows[1].description).toEqual('The message to generate');
-    expect(table.rows[1].type).toEqual('string');
-    expect(table.rows[1].default).toEqual('hello');
-    expect(table.rows[1].example).toEqual('secretsmanager.amazonaws.com');
-    expect(table.rows[1].rowAdditionalInfo.required).toEqual(false);
+    expect(table.rows[1].property).toBe('message');
+    expect(table.rows[1].name).toBe('Message');
+    expect(table.rows[1].description).toBe('The message to generate');
+    expect(table.rows[1].type).toBe('string');
+    expect(table.rows[1].default).toBe('hello');
+    expect(table.rows[1].example).toBe('secretsmanager.amazonaws.com');
+    expect(table.rows[1].rowAdditionalInfo.required).toBe(false);
   });
 
   it('should return a IPropertiesTable with the correct values with filter', () => {
@@ -468,13 +468,13 @@ describe('kameletToTable', () => {
 
     table = kameletToPropertiesTable(kameletDef, { filterKey: 'type', filterValue: 'number' });
     expect(table.rows).toHaveLength(1);
-    expect(table.rows[0].property).toEqual('schedule');
-    expect(table.rows[0].name).toEqual('Cron Schedule');
-    expect(table.rows[0].description).toEqual('A cron example');
-    expect(table.rows[0].type).toEqual('number');
+    expect(table.rows[0].property).toBe('schedule');
+    expect(table.rows[0].name).toBe('Cron Schedule');
+    expect(table.rows[0].description).toBe('A cron example');
+    expect(table.rows[0].type).toBe('number');
     expect(table.rows[0].default).toBeUndefined();
     expect(table.rows[0].example).toBeUndefined();
-    expect(table.rows[0].rowAdditionalInfo.required).toEqual(true);
+    expect(table.rows[0].rowAdditionalInfo.required).toBe(true);
   });
 
   it('should return empty IPropertiesTable if no properties exists', () => {
@@ -526,12 +526,12 @@ describe('kameletToTable', () => {
     expect(table.headers).toContain(PropertiesHeaders.Example);
 
     expect(table.rows).toHaveLength(1);
-    expect(table.rows[0].property).toEqual('schedule');
-    expect(table.rows[0].name).toEqual('Cron Schedule');
-    expect(table.rows[0].description).toEqual('A cron example');
-    expect(table.rows[0].type).toEqual('number');
+    expect(table.rows[0].property).toBe('schedule');
+    expect(table.rows[0].name).toBe('Cron Schedule');
+    expect(table.rows[0].description).toBe('A cron example');
+    expect(table.rows[0].type).toBe('number');
     expect(table.rows[0].default).toBeUndefined();
-    expect(table.rows[0].rowAdditionalInfo.required).toEqual(false);
+    expect(table.rows[0].rowAdditionalInfo.required).toBe(false);
   });
 });
 

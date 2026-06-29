@@ -25,8 +25,8 @@ describe('camelComponentToTile', () => {
 
     const tile = await camelComponentToTile(componentDef);
 
-    expect(tile.name).toEqual('my-component');
-    expect(tile.description).toEqual('My Component Description');
+    expect(tile.name).toBe('my-component');
+    expect(tile.description).toBe('My Component Description');
   });
 
   it('should populate the headerTags', async () => {
@@ -52,7 +52,7 @@ describe('camelComponentToTile', () => {
     const tile = await camelComponentToTile(componentDef);
 
     expect(tile.tags).toEqual(['label1', 'label2']);
-    expect(tile.version).toEqual('4.0.0');
+    expect(tile.version).toBe('4.0.0');
   });
 
   it('should populate the provider', async () => {
@@ -64,7 +64,7 @@ describe('camelComponentToTile', () => {
 
     const tile = await camelComponentToTile(componentDef);
 
-    expect(tile.provider).toEqual('my-provider');
+    expect(tile.provider).toBe('my-provider');
   });
 
   it('should populate tags with `consumerOnly` and `producerOnly` when applicable', async () => {
@@ -107,8 +107,8 @@ describe('camelProcessorToTile', () => {
 
     const tile = await camelProcessorToTile(processorDef);
 
-    expect(tile.name).toEqual('my-processor');
-    expect(tile.description).toEqual('My Processor Description');
+    expect(tile.name).toBe('my-processor');
+    expect(tile.description).toBe('My Processor Description');
   });
 
   it('should populate the headerTags', async () => {
@@ -149,7 +149,7 @@ describe('camelProcessorToTile', () => {
 
     const tile = await camelProcessorToTile(processorDef);
 
-    expect(tile.provider).toEqual('my-provider');
+    expect(tile.provider).toBe('my-provider');
   });
 });
 
@@ -166,8 +166,8 @@ describe('camelEntityToTile', () => {
 
     const tile = await camelEntityToTile(processorDef);
 
-    expect(tile.name).toEqual('my-entity');
-    expect(tile.description).toEqual('My Entity Description');
+    expect(tile.name).toBe('my-entity');
+    expect(tile.description).toBe('My Entity Description');
   });
 });
 
@@ -183,9 +183,9 @@ describe('citrusComponentToTile', () => {
 
     const tile = await citrusComponentToTile(componentDef);
 
-    expect(tile.name).toEqual('my-action');
-    expect(tile.title).toEqual('My Action');
-    expect(tile.description).toEqual('This is the description');
+    expect(tile.name).toBe('my-action');
+    expect(tile.title).toBe('My Action');
+    expect(tile.description).toBe('This is the description');
   });
 
   it('should return a tile with defaults', async () => {
@@ -196,8 +196,8 @@ describe('citrusComponentToTile', () => {
 
     const tile = await citrusComponentToTile(componentDef);
 
-    expect(tile.name).toEqual('my-container');
-    expect(tile.title).toEqual('my-container');
+    expect(tile.name).toBe('my-container');
+    expect(tile.title).toBe('my-container');
     expect(tile.description).toBeUndefined();
   });
 });
@@ -224,8 +224,8 @@ describe('kameletToTile', () => {
 
     const tile = await kameletToTile(kameletDef);
 
-    expect(tile.name).toEqual('my-kamelet');
-    expect(tile.description).toEqual('My Kamelet Description');
+    expect(tile.name).toBe('my-kamelet');
+    expect(tile.description).toBe('My Kamelet Description');
   });
 
   it('should populate the tags for type', async () => {
@@ -288,7 +288,7 @@ describe('kameletToTile', () => {
 
     const tile = await kameletToTile(kameletDef);
 
-    expect(tile.version).toEqual('1.0.0');
+    expect(tile.version).toBe('1.0.0');
   });
 
   it('should populate the headerTags', async () => {

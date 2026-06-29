@@ -453,8 +453,8 @@ describe('Route EIPs xml parsing with the simulated old catalog', () => {
     delete catalogsMap.modelCatalogMap['intercept'].properties.onWhen;
     delete catalogsMap.modelCatalogMap['onWhen'];
 
-    expect(catalogsMap.modelCatalogMap['doTry'].properties.doCatch).not.toBeDefined();
-    expect(catalogsMap.modelCatalogMap['onWhen']).not.toBeDefined();
+    expect(catalogsMap.modelCatalogMap['doTry'].properties.doCatch).toBeUndefined();
+    expect(catalogsMap.modelCatalogMap['onWhen']).toBeUndefined();
     CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
 
     transformElement = (element: string) => {

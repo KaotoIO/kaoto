@@ -40,16 +40,16 @@ describe('mappingSerializerJsonAddon', () => {
       expect(template.children).toHaveLength(1);
       const valueOf = template.children[0];
       expect(valueOf.namespaceURI).toEqual(NS_XSL);
-      expect(valueOf.localName).toEqual('value-of');
-      expect(valueOf.getAttribute('select')).toEqual(`xml-to-json($${TO_JSON_TARGET_VARIABLE})`);
+      expect(valueOf.localName).toBe('value-of');
+      expect(valueOf.getAttribute('select')).toBe(`xml-to-json($${TO_JSON_TARGET_VARIABLE})`);
 
       expect(stylesheet.children).toHaveLength(3);
       const output = stylesheet.children[0];
-      expect(output.getAttribute('method')).toEqual('text');
+      expect(output.getAttribute('method')).toBe('text');
 
       const variable = stylesheet.children[1];
       expect(variable.namespaceURI).toEqual(NS_XSL);
-      expect(variable.localName).toEqual('variable');
+      expect(variable.localName).toBe('variable');
       expect(variable.getAttribute('name')).toEqual(TO_JSON_TARGET_VARIABLE);
     });
 
@@ -68,7 +68,7 @@ describe('mappingSerializerJsonAddon', () => {
 
       expect(stylesheet.children).toHaveLength(2);
       const output = stylesheet.children[0];
-      expect(output.getAttribute('method')).toEqual('xml');
+      expect(output.getAttribute('method')).toBe('xml');
     });
 
     it('should not populate a variable in JSON target case when no mappings', () => {
@@ -86,7 +86,7 @@ describe('mappingSerializerJsonAddon', () => {
 
       expect(stylesheet.children).toHaveLength(2);
       const output = stylesheet.children[0];
-      expect(output.getAttribute('method')).toEqual('xml');
+      expect(output.getAttribute('method')).toBe('xml');
     });
   });
 
@@ -103,7 +103,7 @@ describe('mappingSerializerJsonAddon', () => {
       expect(stylesheet.children).toHaveLength(2);
       const variable = stylesheet.children[1];
       expect(variable.getAttribute('name')).toEqual(paramName + FROM_JSON_SOURCE_SUFFIX);
-      expect(variable.getAttribute('select')).toEqual(`json-to-xml($${paramName})`);
+      expect(variable.getAttribute('select')).toBe(`json-to-xml($${paramName})`);
     });
 
     it('should not populate a variable if not JSON param', () => {
@@ -142,50 +142,50 @@ describe('mappingSerializerJsonAddon', () => {
       let fieldItem = new FieldItem(mappings, mapField);
       let created = MappingSerializerJsonAddon.populateFieldItem(root!, fieldItem);
       expect(created!.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
-      expect(created!.localName).toEqual('map');
+      expect(created!.localName).toBe('map');
       expect(created!.getAttribute('key')).toBeNull();
 
       mapField = new JsonSchemaField(doc, 'SomeParent', Types.Container);
       fieldItem = new FieldItem(mappings, mapField);
       created = MappingSerializerJsonAddon.populateFieldItem(root!, fieldItem);
       expect(created!.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
-      expect(created!.localName).toEqual('map');
-      expect(created!.getAttribute('key')).toEqual('SomeParent');
+      expect(created!.localName).toBe('map');
+      expect(created!.getAttribute('key')).toBe('SomeParent');
 
       const arrayField = new JsonSchemaField(doc, 'SomeArray', Types.Array);
       fieldItem = new FieldItem(mappings, arrayField);
       created = MappingSerializerJsonAddon.populateFieldItem(root!, fieldItem);
       expect(created!.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
-      expect(created!.localName).toEqual('array');
-      expect(created!.getAttribute('key')).toEqual('SomeArray');
+      expect(created!.localName).toBe('array');
+      expect(created!.getAttribute('key')).toBe('SomeArray');
 
       const stringField = new JsonSchemaField(doc, 'SomeString', Types.String);
       fieldItem = new FieldItem(mappings, stringField);
       created = MappingSerializerJsonAddon.populateFieldItem(root!, fieldItem);
       expect(created!.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
-      expect(created!.localName).toEqual('string');
-      expect(created!.getAttribute('key')).toEqual('SomeString');
+      expect(created!.localName).toBe('string');
+      expect(created!.getAttribute('key')).toBe('SomeString');
 
       const numberField = new JsonSchemaField(doc, 'SomeNumber', Types.Numeric);
       fieldItem = new FieldItem(mappings, numberField);
       created = MappingSerializerJsonAddon.populateFieldItem(root!, fieldItem);
       expect(created!.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
-      expect(created!.localName).toEqual('number');
-      expect(created!.getAttribute('key')).toEqual('SomeNumber');
+      expect(created!.localName).toBe('number');
+      expect(created!.getAttribute('key')).toBe('SomeNumber');
 
       const booleanField = new JsonSchemaField(doc, 'SomeBoolean', Types.Boolean);
       fieldItem = new FieldItem(mappings, booleanField);
       created = MappingSerializerJsonAddon.populateFieldItem(root!, fieldItem);
       expect(created!.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
-      expect(created!.localName).toEqual('boolean');
-      expect(created!.getAttribute('key')).toEqual('SomeBoolean');
+      expect(created!.localName).toBe('boolean');
+      expect(created!.getAttribute('key')).toBe('SomeBoolean');
 
       const integerField = new JsonSchemaField(doc, 'SomeInteger', Types.Integer);
       fieldItem = new FieldItem(mappings, integerField);
       created = MappingSerializerJsonAddon.populateFieldItem(root!, fieldItem);
       expect(created!.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
-      expect(created!.localName).toEqual('number');
-      expect(created!.getAttribute('key')).toEqual('SomeInteger');
+      expect(created!.localName).toBe('number');
+      expect(created!.getAttribute('key')).toBe('SomeInteger');
     });
 
     it('should not populate a FieldItem if not JSON field', () => {
@@ -214,19 +214,19 @@ describe('mappingSerializerJsonAddon', () => {
       const mapField = MappingSerializerJsonAddon.getOrCreateJsonField(mapElement, doc);
       expect(mapField instanceof JsonSchemaField).toBeTruthy();
       let mapJsonField = mapField as JsonSchemaField;
-      expect(mapJsonField.key).toEqual('');
+      expect(mapJsonField.key).toBe('');
       expect(mapJsonField.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
       expect(mapJsonField.type).toEqual(Types.Container);
       mapElement.setAttribute('key', 'SomeMap');
       mapJsonField = MappingSerializerJsonAddon.getOrCreateJsonField(mapElement, doc) as JsonSchemaField;
-      expect(mapJsonField.key).toEqual('SomeMap');
+      expect(mapJsonField.key).toBe('SomeMap');
 
       const arrayElement = document.createElementNS(NS_XPATH_FUNCTIONS, 'array');
       arrayElement.setAttribute('key', 'SomeArray');
       const arrayField = MappingSerializerJsonAddon.getOrCreateJsonField(arrayElement, doc);
       expect(arrayField instanceof JsonSchemaField).toBeTruthy();
       const arrayJsonField = arrayField as JsonSchemaField;
-      expect(arrayJsonField.key).toEqual('SomeArray');
+      expect(arrayJsonField.key).toBe('SomeArray');
       expect(arrayJsonField.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
       expect(arrayJsonField.type).toEqual(Types.Array);
 
@@ -235,7 +235,7 @@ describe('mappingSerializerJsonAddon', () => {
       const stringField = MappingSerializerJsonAddon.getOrCreateJsonField(stringElement, doc);
       expect(stringField instanceof JsonSchemaField).toBeTruthy();
       const stringJsonField = stringField as JsonSchemaField;
-      expect(stringJsonField.key).toEqual('SomeString');
+      expect(stringJsonField.key).toBe('SomeString');
       expect(stringJsonField.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
       expect(stringJsonField.type).toEqual(Types.String);
 
@@ -244,7 +244,7 @@ describe('mappingSerializerJsonAddon', () => {
       const numberField = MappingSerializerJsonAddon.getOrCreateJsonField(numberElement, doc);
       expect(numberField instanceof JsonSchemaField).toBeTruthy();
       const numberJsonField = numberField as JsonSchemaField;
-      expect(numberJsonField.key).toEqual('SomeNumber');
+      expect(numberJsonField.key).toBe('SomeNumber');
       expect(numberJsonField.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
       expect(numberJsonField.type).toEqual(Types.Numeric);
 
@@ -253,7 +253,7 @@ describe('mappingSerializerJsonAddon', () => {
       const booleanField = MappingSerializerJsonAddon.getOrCreateJsonField(booleanElement, doc);
       expect(booleanField instanceof JsonSchemaField).toBeTruthy();
       const booleanJsonField = booleanField as JsonSchemaField;
-      expect(booleanJsonField.key).toEqual('SomeBoolean');
+      expect(booleanJsonField.key).toBe('SomeBoolean');
       expect(booleanJsonField.namespaceURI).toEqual(NS_XPATH_FUNCTIONS);
       expect(booleanJsonField.type).toEqual(Types.Boolean);
     });

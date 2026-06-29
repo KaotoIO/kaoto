@@ -100,7 +100,7 @@ describe('ActionConfirmationModalProvider', () => {
     expect(modalDialog.textContent).toContain('Additional text is added in the modal description');
     act(() => {
       const cancelButton = wrapper.getByTestId('action-confirmation-modal-btn-cancel');
-      expect(cancelButton.textContent).toEqual('Cancel');
+      expect(cancelButton.textContent).toBe('Cancel');
       fireEvent.click(cancelButton);
     });
     await waitFor(() => {
@@ -113,11 +113,11 @@ describe('ActionConfirmationModalProvider', () => {
     });
     act(() => {
       const deleteStepAndFileButton = wrapper.getByTestId('action-confirmation-modal-btn-del-step-and-file');
-      expect(deleteStepAndFileButton.textContent).toEqual('Delete the step, and delete the file(s)');
+      expect(deleteStepAndFileButton.textContent).toBe('Delete the step, and delete the file(s)');
       fireEvent.click(deleteStepAndFileButton);
     });
     await waitFor(() => {
-      expect(actionConfirmationResult).toEqual('del-step-and-file');
+      expect(actionConfirmationResult).toBe('del-step-and-file');
     });
 
     act(() => {
@@ -126,11 +126,11 @@ describe('ActionConfirmationModalProvider', () => {
     });
     act(() => {
       const deleteStepOnlyButton = wrapper.getByTestId('action-confirmation-modal-btn-del-step-only');
-      expect(deleteStepOnlyButton.textContent).toEqual('Delete the step, but keep the file(s)');
+      expect(deleteStepOnlyButton.textContent).toBe('Delete the step, but keep the file(s)');
       fireEvent.click(deleteStepOnlyButton);
     });
     await waitFor(() => {
-      expect(actionConfirmationResult).toEqual('del-step-only');
+      expect(actionConfirmationResult).toBe('del-step-only');
     });
   });
 });

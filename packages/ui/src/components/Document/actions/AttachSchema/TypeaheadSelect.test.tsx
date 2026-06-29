@@ -18,7 +18,7 @@ const getToggleButton = () =>
 describe('TypeaheadSelect', () => {
   it('should display selected option label when dropdown is closed', () => {
     render(<TypeaheadSelect value="invoice-key" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);
-    expect(getInput().value).toEqual('Invoice');
+    expect(getInput().value).toBe('Invoice');
   });
 
   it('should open dropdown on focus regardless of current value', () => {
@@ -84,12 +84,12 @@ describe('TypeaheadSelect', () => {
     act(() => {
       fireEvent.change(getInput(), { target: { value: 'Inv' } });
     });
-    expect(getInput().value).toEqual('Inv');
+    expect(getInput().value).toBe('Inv');
 
     act(() => {
       fireEvent.blur(getInput(), { relatedTarget: document.body });
     });
-    expect(getInput().value).toEqual('Order');
+    expect(getInput().value).toBe('Order');
   });
 
   it('should display label instead of value in dropdown', () => {
@@ -146,12 +146,12 @@ describe('TypeaheadSelect', () => {
     act(() => {
       fireEvent.change(getInput(), { target: { value: 'Inv' } });
     });
-    expect(getInput().value).toEqual('Inv');
+    expect(getInput().value).toBe('Inv');
 
     act(() => {
       fireEvent.click(screen.getByLabelText('Clear expression'));
     });
-    expect(getInput().value).toEqual('');
+    expect(getInput().value).toBe('');
     expect(screen.getByText('Order')).toBeInTheDocument();
     expect(screen.getByText('Invoice')).toBeInTheDocument();
   });

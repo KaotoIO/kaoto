@@ -72,13 +72,13 @@ describe('CamelRouteConfigurationVisualEntity', () => {
       .mockReturnValueOnce('label');
     const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
 
-    expect(entity.getNodeLabel()).toEqual('label');
+    expect(entity.getNodeLabel()).toBe('label');
     expect(superGetNodeLabelSpy).toHaveBeenCalled();
   });
 
   it('should return "Add configuration" for placeholder path', () => {
     const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
-    expect(entity.getNodeLabel('routeConfiguration.placeholder')).toEqual('Add configuration');
+    expect(entity.getNodeLabel('routeConfiguration.placeholder')).toBe('Add configuration');
   });
 
   it('should return entity current definition', () => {
@@ -275,7 +275,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
       const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
       const vizNode = await entity.toVizNode();
 
-      expect(vizNode.getNodeTitle()).toEqual('Route Configuration');
+      expect(vizNode.getNodeTitle()).toBe('Route Configuration');
     });
   });
 

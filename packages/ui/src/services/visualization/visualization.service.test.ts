@@ -115,7 +115,7 @@ describe('VisualizationService', () => {
       expect(docChildren).toHaveLength(1);
 
       const product = docChildren[0];
-      expect(product.title).toEqual('Product');
+      expect(product.title).toBe('Product');
       const productChildren = VisualizationService.generateNonDocumentNodeDataChildren(product);
       expect(productChildren).toHaveLength(2);
 
@@ -158,7 +158,7 @@ describe('VisualizationService', () => {
       expect(docChildren).toHaveLength(1);
 
       const request = docChildren[0];
-      expect(request.title).toEqual('Request');
+      expect(request.title).toBe('Request');
       const requestChildren = VisualizationService.generateNonDocumentNodeDataChildren(request);
 
       expect(requestChildren).toHaveLength(3);
@@ -188,7 +188,7 @@ describe('VisualizationService', () => {
       expect(docChildren).toHaveLength(1);
 
       const root = docChildren[0];
-      expect(root.title).toEqual('Root');
+      expect(root.title).toBe('Root');
       const rootChildren = VisualizationService.generateNonDocumentNodeDataChildren(root);
       expect(rootChildren).toHaveLength(2);
 
@@ -278,43 +278,43 @@ describe('VisualizationService', () => {
     const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
     const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
     expect(shipOrderChildren).toHaveLength(6);
-    expect(shipOrderChildren[0].title).toEqual('OrderId');
-    expect(shipOrderChildren[1].title).toEqual('OrderPerson');
-    expect(shipOrderChildren[2].title).toEqual('ShipTo');
-    expect(shipOrderChildren[3].title).toEqual('for-each');
-    expect(shipOrderChildren[4].title).toEqual('for-each');
-    expect(shipOrderChildren[5].title).toEqual('Item');
+    expect(shipOrderChildren[0].title).toBe('OrderId');
+    expect(shipOrderChildren[1].title).toBe('OrderPerson');
+    expect(shipOrderChildren[2].title).toBe('ShipTo');
+    expect(shipOrderChildren[3].title).toBe('for-each');
+    expect(shipOrderChildren[4].title).toBe('for-each');
+    expect(shipOrderChildren[5].title).toBe('Item');
 
     const forEach1Node = shipOrderChildren[3] as MappingNodeData;
-    expect((forEach1Node.mapping as ForEachItem).expression).toEqual('/ns0:ShipOrder/Item');
+    expect((forEach1Node.mapping as ForEachItem).expression).toBe('/ns0:ShipOrder/Item');
     const forEach1Children = VisualizationService.generateNonDocumentNodeDataChildren(forEach1Node);
     expect(forEach1Children).toHaveLength(1);
-    expect(forEach1Children[0].title).toEqual('Item');
+    expect(forEach1Children[0].title).toBe('Item');
     expect(VisualizationUtilService.isCollectionField(forEach1Children[0])).toBeTruthy();
     const forEach1ItemChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEach1Children[0]);
     expect(forEach1ItemChildren).toHaveLength(4);
-    expect(forEach1ItemChildren[0].title).toEqual('Title');
+    expect(forEach1ItemChildren[0].title).toBe('Title');
     const title1Selector = (forEach1ItemChildren[0] as FieldItemNodeData).mapping.children[0] as ValueSelector;
-    expect(title1Selector.expression).toEqual('Title');
+    expect(title1Selector.expression).toBe('Title');
 
     const forEach2Node = shipOrderChildren[4] as MappingNodeData;
-    expect((forEach2Node.mapping as ForEachItem).expression).toEqual('$sourceParam1/ns0:ShipOrder/Item');
+    expect((forEach2Node.mapping as ForEachItem).expression).toBe('$sourceParam1/ns0:ShipOrder/Item');
     const forEach2Children = VisualizationService.generateNonDocumentNodeDataChildren(forEach2Node);
     expect(forEach2Children).toHaveLength(1);
-    expect(forEach2Children[0].title).toEqual('Item');
+    expect(forEach2Children[0].title).toBe('Item');
     expect(VisualizationUtilService.isCollectionField(forEach2Children[0])).toBeTruthy();
     const forEach2ItemChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEach2Children[0]);
     expect(forEach2ItemChildren).toHaveLength(4);
-    expect(forEach2ItemChildren[0].title).toEqual('Title');
+    expect(forEach2ItemChildren[0].title).toBe('Title');
     const title2Selector = (forEach2ItemChildren[0] as FieldItemNodeData).mapping.children[0] as ValueSelector;
-    expect(title2Selector.expression).toEqual('Title');
+    expect(title2Selector.expression).toBe('Title');
 
     expect(shipOrderChildren[5] instanceof AddMappingNodeData).toBeTruthy();
     const addMappingNode = shipOrderChildren[5] as AddMappingNodeData;
-    expect(addMappingNode.title).toEqual('Item');
+    expect(addMappingNode.title).toBe('Item');
     expect(addMappingNode.id).toContain('add-mapping-fx-Item');
-    expect(addMappingNode.field.name).toEqual('Item');
-    expect(addMappingNode.field.maxOccurs).toEqual('unbounded');
+    expect(addMappingNode.field.name).toBe('Item');
+    expect(addMappingNode.field.maxOccurs).toBe('unbounded');
   });
 
   it('should generate for multiple indexed collection mappings on a same collection target field', () => {
@@ -328,34 +328,34 @@ describe('VisualizationService', () => {
     const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
     const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
     expect(shipOrderChildren).toHaveLength(6);
-    expect(shipOrderChildren[0].title).toEqual('OrderId');
-    expect(shipOrderChildren[1].title).toEqual('OrderPerson');
-    expect(shipOrderChildren[2].title).toEqual('ShipTo');
-    expect(shipOrderChildren[3].title).toEqual('Item');
+    expect(shipOrderChildren[0].title).toBe('OrderId');
+    expect(shipOrderChildren[1].title).toBe('OrderPerson');
+    expect(shipOrderChildren[2].title).toBe('ShipTo');
+    expect(shipOrderChildren[3].title).toBe('Item');
     expect(VisualizationUtilService.isCollectionField(shipOrderChildren[3])).toBeTruthy();
-    expect(shipOrderChildren[4].title).toEqual('Item');
+    expect(shipOrderChildren[4].title).toBe('Item');
     expect(VisualizationUtilService.isCollectionField(shipOrderChildren[4])).toBeTruthy();
     expect(shipOrderChildren[3].id).not.toEqual(shipOrderChildren[4].id);
-    expect(shipOrderChildren[5].title).toEqual('Item');
+    expect(shipOrderChildren[5].title).toBe('Item');
 
     const item1Children = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[3]);
     expect(item1Children).toHaveLength(4);
-    expect(item1Children[0].title).toEqual('Title');
+    expect(item1Children[0].title).toBe('Title');
     const title1Selector = (item1Children[0] as FieldItemNodeData).mapping.children[0] as ValueSelector;
-    expect(title1Selector.expression).toEqual('/ns0:ShipOrder/Item[0]/Title');
+    expect(title1Selector.expression).toBe('/ns0:ShipOrder/Item[0]/Title');
 
     const item2Children = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[4]);
     expect(item2Children).toHaveLength(4);
-    expect(item2Children[0].title).toEqual('Title');
+    expect(item2Children[0].title).toBe('Title');
     const title2Selector = (item2Children[0] as FieldItemNodeData).mapping.children[0] as ValueSelector;
-    expect(title2Selector.expression).toEqual('/ns0:ShipOrder/Item[1]/Title');
+    expect(title2Selector.expression).toBe('/ns0:ShipOrder/Item[1]/Title');
 
     expect(shipOrderChildren[5] instanceof AddMappingNodeData).toBeTruthy();
     const addMappingNode = shipOrderChildren[5] as AddMappingNodeData;
-    expect(addMappingNode.title).toEqual('Item');
+    expect(addMappingNode.title).toBe('Item');
     expect(addMappingNode.id).toContain('add-mapping-fx-Item');
-    expect(addMappingNode.field.name).toEqual('Item');
-    expect(addMappingNode.field.maxOccurs).toEqual('unbounded');
+    expect(addMappingNode.field.name).toBe('Item');
+    expect(addMappingNode.field.maxOccurs).toBe('unbounded');
   });
 
   describe('with nested conditional mappings', () => {
@@ -376,12 +376,12 @@ describe('VisualizationService', () => {
       expect(outerIfChildren).toHaveLength(1);
 
       const innerIfNode = outerIfChildren[0] as MappingNodeData;
-      expect(innerIfNode.title).toEqual('if');
+      expect(innerIfNode.title).toBe('if');
       expect(innerIfNode.mapping).toBeInstanceOf(IfItem);
 
       const innerIfChildren = VisualizationService.generateNonDocumentNodeDataChildren(innerIfNode);
       expect(innerIfChildren).toHaveLength(1);
-      expect(innerIfChildren[0].title).toEqual('OrderPerson');
+      expect(innerIfChildren[0].title).toBe('OrderPerson');
       expect(innerIfChildren[0]).toBeInstanceOf(FieldItemNodeData);
     });
 
@@ -398,13 +398,13 @@ describe('VisualizationService', () => {
       expect(ifChildren).toHaveLength(1);
 
       const chooseNode = ifChildren[0] as MappingNodeData;
-      expect(chooseNode.title).toEqual('choose');
+      expect(chooseNode.title).toBe('choose');
       expect(chooseNode.mapping).toBeInstanceOf(ChooseItem);
 
       const chooseChildren = VisualizationService.generateNonDocumentNodeDataChildren(chooseNode);
       expect(chooseChildren).toHaveLength(2);
-      expect(chooseChildren[0].title).toEqual('when');
-      expect(chooseChildren[1].title).toEqual('otherwise');
+      expect(chooseChildren[0].title).toBe('when');
+      expect(chooseChildren[1].title).toBe('otherwise');
     });
 
     it('should generate if inside for-each', () => {
@@ -420,27 +420,27 @@ describe('VisualizationService', () => {
       expect(ifChildren).toHaveLength(1);
 
       const forEachNode = ifChildren[0] as MappingNodeData;
-      expect(forEachNode.title).toEqual('for-each');
+      expect(forEachNode.title).toBe('for-each');
       expect(forEachNode.mapping).toBeInstanceOf(ForEachItem);
 
       const forEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachNode);
       expect(forEachChildren).toHaveLength(1);
-      expect(forEachChildren[0].title).toEqual('Item');
+      expect(forEachChildren[0].title).toBe('Item');
 
       const itemChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachChildren[0]);
       expect(itemChildren).toHaveLength(4);
-      expect(itemChildren[0].title).toEqual('Title');
+      expect(itemChildren[0].title).toBe('Title');
 
       const noteIfNode = itemChildren[1] as MappingNodeData;
-      expect(noteIfNode.title).toEqual('if');
+      expect(noteIfNode.title).toBe('if');
       expect(noteIfNode.mapping).toBeInstanceOf(IfItem);
 
       const noteIfChildren = VisualizationService.generateNonDocumentNodeDataChildren(noteIfNode);
       expect(noteIfChildren).toHaveLength(1);
-      expect(noteIfChildren[0].title).toEqual('Note');
+      expect(noteIfChildren[0].title).toBe('Note');
 
-      expect(itemChildren[2].title).toEqual('Quantity');
-      expect(itemChildren[3].title).toEqual('Price');
+      expect(itemChildren[2].title).toBe('Quantity');
+      expect(itemChildren[3].title).toBe('Price');
     });
   });
 

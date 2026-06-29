@@ -83,13 +83,13 @@ describe('CamelRestVisualEntity', () => {
       .mockReturnValueOnce('label');
     const entity = new CamelRestVisualEntity(restDef);
 
-    expect(entity.getNodeLabel()).toEqual('label');
+    expect(entity.getNodeLabel()).toBe('label');
     expect(superGetNodeLabelSpy).toHaveBeenCalled();
   });
 
   it('should return "verb" for placeholder path', () => {
     const entity = new CamelRestVisualEntity(restDef);
-    expect(entity.getNodeLabel('rest.placeholder')).toEqual('verb');
+    expect(entity.getNodeLabel('rest.placeholder')).toBe('verb');
   });
 
   it('should return entity current definition', () => {
@@ -216,7 +216,7 @@ describe('CamelRestVisualEntity', () => {
   it('should return root path', () => {
     const entity = new CamelRestVisualEntity(restDef);
 
-    expect(entity.getRootPath()).toEqual('rest');
+    expect(entity.getRootPath()).toBe('rest');
   });
 
   describe('updateModel', () => {
@@ -236,7 +236,7 @@ describe('CamelRestVisualEntity', () => {
 
       entity.updateModel(undefined, value);
 
-      expect(restDef.rest.bindingMode).toEqual('auto');
+      expect(restDef.rest.bindingMode).toBe('auto');
     });
 
     it('should reset the rest object if it is not defined', () => {
@@ -393,7 +393,7 @@ describe('CamelRestVisualEntity', () => {
       const toLocal = restDefWithGet.rest.get?.[0].to as Exclude<To2, string>;
 
       expect(toLocal).toBeDefined();
-      expect(toLocal?.uri).toEqual('direct');
+      expect(toLocal?.uri).toBe('direct');
     });
 
     it('should not add step when path is undefined', () => {
