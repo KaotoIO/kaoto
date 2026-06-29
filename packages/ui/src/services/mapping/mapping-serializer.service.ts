@@ -16,6 +16,7 @@ import {
   MappingItem,
   MappingParentType,
   MappingTree,
+  OtherwiseItem,
   UnknownMappingItem,
   ValueSelector,
   ValueType,
@@ -46,23 +47,47 @@ export class MappingSerializerService {
     return left.parent.fields.indexOf(left) - right.parent.fields.indexOf(right);
   }
 
-  private static sortMappingItem(left: MappingItem, right: MappingItem) {
-    if (left instanceof VariableItem && right instanceof VariableItem) return 0;
-    if (left instanceof VariableItem) return -1;
+  private static getMappingItemFields(item: MappingItem): IField[] {
+    if (item instanceof FieldItem) return [item.field];
+    if (item instanceof InstructionItem) return MappingService.getInstructionFields(item);
+    return [];
+  }
+
+  private static hasAttributeField(fields: IField[]): boolean {
+    return fields.some((f) => f.isAttribute);
+  }
+
+  private static compareSpecialMappingItems(left: MappingItem, right: MappingItem): number | null {
+    if (left instanceof VariableItem) return right instanceof VariableItem ? 0 : -1;
     if (right instanceof VariableItem) return 1;
     if (left instanceof UnknownMappingItem || right instanceof UnknownMappingItem) return 0;
-    const leftFields =
-      left instanceof FieldItem ? [left.field] : MappingService.getInstructionFields(left as InstructionItem);
-    const rightFields =
-      right instanceof FieldItem ? [right.field] : MappingService.getInstructionFields(right as InstructionItem);
-    if (leftFields.length === 0 && rightFields.length === 0) return 0;
-    if (leftFields.length === 0) return 1;
+    if (left instanceof OtherwiseItem) return right instanceof OtherwiseItem ? 0 : 1;
+    if (right instanceof OtherwiseItem) return -1;
+    if (left instanceof InstructionItem && right instanceof InstructionItem) return 0;
+    return null;
+  }
+
+  private static compareMappingItemFields(leftFields: IField[], rightFields: IField[]) {
+    if (leftFields.length === 0) return rightFields.length === 0 ? 0 : 1;
     if (rightFields.length === 0) return -1;
-    if (leftFields.some((f) => f.isAttribute)) return -1;
-    if (rightFields.some((f) => f.isAttribute)) return 1;
-    const leftFirst = leftFields.sort(MappingSerializerService.sortFields)[0];
-    const rightFirst = rightFields.sort(MappingSerializerService.sortFields)[0];
+
+    const leftHasAttribute = MappingSerializerService.hasAttributeField(leftFields);
+    const rightHasAttribute = MappingSerializerService.hasAttributeField(rightFields);
+    if (leftHasAttribute !== rightHasAttribute) return leftHasAttribute ? -1 : 1;
+
+    const leftFirst = [...leftFields].sort(MappingSerializerService.sortFields)[0];
+    const rightFirst = [...rightFields].sort(MappingSerializerService.sortFields)[0];
     return leftFirst.parent.fields.indexOf(leftFirst) - rightFirst.parent.fields.indexOf(rightFirst);
+  }
+
+  private static sortMappingItem(left: MappingItem, right: MappingItem) {
+    const specialComparison = MappingSerializerService.compareSpecialMappingItems(left, right);
+    if (specialComparison !== null) return specialComparison;
+
+    const leftFields = MappingSerializerService.getMappingItemFields(left);
+    const rightFields = MappingSerializerService.getMappingItemFields(right);
+
+    return MappingSerializerService.compareMappingItemFields(leftFields, rightFields);
   }
 
   /**
