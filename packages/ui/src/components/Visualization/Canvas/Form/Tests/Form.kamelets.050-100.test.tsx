@@ -1,3 +1,4 @@
+// NOSONAR typescript:S2187 - Tests are defined in FormTest function
 import { CatalogKind } from '../../../../../models';
 import { FormTest } from './FormTest';
 
