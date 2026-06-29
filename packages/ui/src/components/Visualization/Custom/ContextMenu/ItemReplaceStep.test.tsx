@@ -8,7 +8,7 @@ import {
   ACTION_ID_CONFIRM,
   ActionConfirmationModalContext,
 } from '../../../../providers/action-confirmation-modal.provider';
-import { EntitiesContext } from '../../../../providers/entities.provider';
+import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
 import {
   IInteractionType,
   IOnDeleteAddon,
@@ -28,15 +28,19 @@ describe('ItemReplaceStep', () => {
   });
 
   const camelResource = new CamelRouteResource();
-  camelResource.initialize();
-  const mockEntitiesContext = {
-    camelResource,
-    entities: camelResource.getEntities(),
-    visualEntities: camelResource.getVisualEntities(),
-    currentSchemaType: camelResource.getType(),
-    updateSourceCodeFromEntities: vi.fn(),
-    updateEntitiesFromCamelResource: vi.fn(),
-  };
+  let mockEntitiesContext: EntitiesContextResult;
+
+  beforeAll(async () => {
+    await camelResource.initialize();
+    mockEntitiesContext = {
+      camelResource,
+      entities: camelResource.getEntities(),
+      visualEntities: camelResource.getVisualEntities(),
+      currentSchemaType: camelResource.getType(),
+      updateSourceCodeFromEntities: vi.fn(),
+      updateEntitiesFromCamelResource: vi.fn(),
+    };
+  });
 
   const mockReplaceModalContext = {
     actionConfirmation: vi.fn(),

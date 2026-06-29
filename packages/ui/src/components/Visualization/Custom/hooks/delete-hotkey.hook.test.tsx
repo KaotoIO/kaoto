@@ -71,55 +71,55 @@ describe('useDeleteHotkey', () => {
     expect(mockHotkeys.unbind).toHaveBeenCalledWith('Delete, backspace');
   });
 
-  it('should do nothing if no node selected', () => {
+  it('should do nothing if no node selected', async () => {
     const handler = setupHotkey(undefined);
 
     const preventDefault = vi.fn();
-    act(() => handler({ preventDefault } as unknown as KeyboardEvent));
+    await act(async () => handler({ preventDefault } as unknown as KeyboardEvent));
 
     expect(onDeleteStep).not.toHaveBeenCalled();
     expect(onDeleteGroup).not.toHaveBeenCalled();
     expect(clearSelected).not.toHaveBeenCalled();
   });
 
-  it('should call onDeleteStep and clearSelected when canRemoveStep=true', () => {
+  it('should call onDeleteStep and clearSelected when canRemoveStep=true', async () => {
     const handler = setupHotkey(makeNode({ canRemoveStep: true }));
 
     const preventDefault = vi.fn();
-    act(() => handler({ preventDefault } as unknown as KeyboardEvent));
+    await act(async () => handler({ preventDefault } as unknown as KeyboardEvent));
 
     expect(onDeleteStep).toHaveBeenCalled();
     expect(onDeleteGroup).not.toHaveBeenCalled();
     expect(clearSelected).toHaveBeenCalled();
   });
 
-  it('should call onDeleteGroup and clearSelected when canRemoveFlow=true', () => {
+  it('should call onDeleteGroup and clearSelected when canRemoveFlow=true', async () => {
     const handler = setupHotkey(makeNode({ canRemoveFlow: true }));
 
     const preventDefault = vi.fn();
-    act(() => handler({ preventDefault } as unknown as KeyboardEvent));
+    await act(async () => handler({ preventDefault } as unknown as KeyboardEvent));
 
     expect(onDeleteStep).not.toHaveBeenCalled();
     expect(onDeleteGroup).toHaveBeenCalled();
     expect(clearSelected).toHaveBeenCalled();
   });
 
-  it('should do nothing when node cannot be removed', () => {
+  it('should do nothing when node cannot be removed', async () => {
     const handler = setupHotkey(makeNode({ canRemoveStep: false, canRemoveFlow: false }));
 
     const preventDefault = vi.fn();
-    act(() => handler({ preventDefault } as unknown as KeyboardEvent));
+    await act(async () => handler({ preventDefault } as unknown as KeyboardEvent));
 
     expect(onDeleteStep).not.toHaveBeenCalled();
     expect(onDeleteGroup).not.toHaveBeenCalled();
     expect(clearSelected).not.toHaveBeenCalled();
   });
 
-  it('should call preventDefault on event', () => {
+  it('should call preventDefault on event', async () => {
     const handler = setupHotkey(makeNode({ canRemoveStep: true }));
 
     const preventDefault = vi.fn();
-    act(() => handler({ preventDefault } as unknown as KeyboardEvent));
+    await act(async () => handler({ preventDefault } as unknown as KeyboardEvent));
 
     expect(preventDefault).toHaveBeenCalled();
   });

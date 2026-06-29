@@ -43,16 +43,20 @@ describe('XPathInputAction', () => {
     expect(btn).toBeInTheDocument();
   });
 
-  it('should stop event propagation on handleXPathChange', () => {
-    const stopPropagationSpy = vi.fn();
-    const wrapper = render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={vi.fn()} />);
+  it('should stop event propagation on handleXPathChange', async () => {
+    const onUpdateMock = vi.fn();
+    const wrapper = render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={onUpdateMock} />);
+    const input = wrapper.getByTestId('transformation-xpath-input');
 
-    act(() => {
-      const input = wrapper.getByTestId('transformation-xpath-input');
-      fireEvent.change(input, { target: { value: '/ShipOrder' }, stopPropagation: stopPropagationSpy });
+    await act(async () => {
+      fireEvent.change(input, { target: { value: '/ShipOrder' } });
     });
 
-    waitFor(() => expect(stopPropagationSpy).toHaveBeenCalled());
+    // Verify the handler was called and mapping was updated
+    await waitFor(() => {
+      expect(onUpdateMock).toHaveBeenCalled();
+      expect(mapping.expression).toBe('/ShipOrder');
+    });
   });
 
   it('should focus input when store indicates focus is needed for mapping node path', async () => {

@@ -51,7 +51,7 @@ describe('useAddStep', () => {
 
   beforeEach(async () => {
     camelResource = new CamelRouteResource();
-    camelResource.initialize();
+    await camelResource.initialize();
     getCompatibleComponentsSpy = vi.spyOn(camelResource, 'getCompatibleComponents');
 
     const { Provider, updateEntitiesFromCamelResourceSpy: updateSpy } = await TestProvidersWrapper({ camelResource });

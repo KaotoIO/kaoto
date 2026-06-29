@@ -44,7 +44,7 @@ describe('usePasteEntity', () => {
 
   beforeEach(async () => {
     camelResource = new CamelRouteResource();
-    camelResource.initialize();
+    await camelResource.initialize();
     addNewEntitySpy = vi.spyOn(camelResource, 'addNewEntity');
     removeEntitySpy = vi.spyOn(camelResource, 'removeEntity');
     vi.spyOn(camelResource, 'getType').mockReturnValue(SourceSchemaType.Route);

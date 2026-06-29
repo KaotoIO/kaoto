@@ -7,7 +7,7 @@ import { EntityType } from '../../../../models/entities';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { ACTION_ID_CANCEL, ACTION_ID_CONFIRM, ActionConfirmationModalContext } from '../../../../providers';
-import { EntitiesContext } from '../../../../providers/entities.provider';
+import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
 import {
   IInteractionType,
   INodeInteractionAddonContext,
@@ -26,17 +26,20 @@ vi.mock('../ContextMenu/item-interaction-helper', () => ({
 
 describe('useDeleteStep', () => {
   const camelResource = new CamelRouteResource();
-  camelResource.initialize();
   let mockVizNode: IVisualizationNode;
+  let mockEntitiesContext: EntitiesContextResult;
 
-  const mockEntitiesContext = {
-    camelResource,
-    entities: camelResource.getEntities(),
-    visualEntities: camelResource.getVisualEntities(),
-    currentSchemaType: camelResource.getType(),
-    updateSourceCodeFromEntities: vi.fn(),
-    updateEntitiesFromCamelResource: vi.fn(),
-  };
+  beforeAll(async () => {
+    await camelResource.initialize();
+    mockEntitiesContext = {
+      camelResource,
+      entities: camelResource.getEntities(),
+      visualEntities: camelResource.getVisualEntities(),
+      currentSchemaType: camelResource.getType(),
+      updateSourceCodeFromEntities: vi.fn(),
+      updateEntitiesFromCamelResource: vi.fn(),
+    };
+  });
 
   const mockActionConfirmationModalContext = {
     actionConfirmation: vi.fn(),

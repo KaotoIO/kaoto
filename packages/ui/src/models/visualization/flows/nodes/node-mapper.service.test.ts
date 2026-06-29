@@ -11,11 +11,11 @@ import { NodeMapperService } from './node-mapper.service';
 import { RootNodeMapper } from './root-node-mapper';
 
 describe('NodeMapperService', () => {
-  it('should initialize the root node mapper', () => {
+  it('should initialize the root node mapper', async () => {
     const registerDefaultMapperSpy = vi.spyOn(RootNodeMapper.prototype, 'registerDefaultMapper');
     const registerMapperSpy = vi.spyOn(RootNodeMapper.prototype, 'registerMapper');
 
-    NodeMapperService.getVizNode('path', { processorName: 'log' }, {});
+    await NodeMapperService.getVizNode('path', { processorName: 'log' }, {});
 
     expect(registerDefaultMapperSpy).toHaveBeenCalledWith(expect.any(BaseNodeMapper));
     expect(registerMapperSpy).toHaveBeenCalledWith('circuitBreaker', expect.any(CircuitBreakerNodeMapper));

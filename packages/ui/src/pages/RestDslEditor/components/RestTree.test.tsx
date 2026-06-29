@@ -12,7 +12,7 @@ describe('RestTree', () => {
     vi.clearAllMocks();
   });
 
-  it('should render tree structure with RestConfiguration, Rest entities, and methods', () => {
+  it('should render tree structure with RestConfiguration, Rest entities, and methods', async () => {
     const camelResource = CamelResourceFactory.createCamelResource(`
 - restConfiguration:
     host: localhost
@@ -37,7 +37,7 @@ describe('RestTree', () => {
         to:
           uri: direct:deleteItem
     `);
-    camelResource.initialize();
+    await camelResource.initialize();
 
     const entities = getRestEntities(camelResource.getEntities());
     render(<RestTree entities={entities} onSelect={mockOnSelect} />);
@@ -57,7 +57,7 @@ describe('RestTree', () => {
     expect(screen.getByText('/items/{id}')).toBeInTheDocument();
   });
 
-  it('should fire selection callback with correct entityId and modelPath when node clicked', () => {
+  it('should fire selection callback with correct entityId and modelPath when node clicked', async () => {
     const camelResource = CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
@@ -67,7 +67,7 @@ describe('RestTree', () => {
         to:
           uri: direct:test
     `);
-    camelResource.initialize();
+    await camelResource.initialize();
 
     const entities = getRestEntities(camelResource.getEntities());
     render(<RestTree entities={entities} onSelect={mockOnSelect} />);
@@ -91,7 +91,7 @@ describe('RestTree', () => {
     });
   });
 
-  it('should handle empty entities array gracefully', () => {
+  it('should handle empty entities array gracefully', async () => {
     const entities: BaseVisualEntity[] = [];
 
     render(<RestTree entities={entities} onSelect={mockOnSelect} />);
@@ -101,12 +101,12 @@ describe('RestTree', () => {
     expect(screen.queryAllByRole('treeitem')).toHaveLength(0);
   });
 
-  it('should render children prop (toolbar area)', () => {
+  it('should render children prop (toolbar area)', async () => {
     const camelResource = CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
     `);
-    camelResource.initialize();
+    await camelResource.initialize();
 
     const entities = getRestEntities(camelResource.getEntities());
 
@@ -119,7 +119,7 @@ describe('RestTree', () => {
     expect(screen.getByText('Toolbar Content')).toBeInTheDocument();
   });
 
-  it('should highlight selected Rest entity node', () => {
+  it('should highlight selected Rest entity node', async () => {
     const camelResource = CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
@@ -129,7 +129,7 @@ describe('RestTree', () => {
         to:
           uri: direct:test
     `);
-    camelResource.initialize();
+    await camelResource.initialize();
 
     const entities = getRestEntities(camelResource.getEntities());
     const selected = { entityId: 'rest-1234', modelPath: 'rest' };
@@ -146,7 +146,7 @@ describe('RestTree', () => {
     expect(activeNode).toBeInTheDocument();
   });
 
-  it('should highlight selected method node', () => {
+  it('should highlight selected method node', async () => {
     const camelResource = CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
@@ -161,7 +161,7 @@ describe('RestTree', () => {
         to:
           uri: direct:orders
     `);
-    camelResource.initialize();
+    await camelResource.initialize();
 
     const entities = getRestEntities(camelResource.getEntities());
     const selected = { entityId: 'rest-1234', modelPath: 'rest.post.0' };
@@ -174,12 +174,12 @@ describe('RestTree', () => {
     expect(activeNode).toBeInTheDocument();
   });
 
-  it('should handle undefined selected prop', () => {
+  it('should handle undefined selected prop', async () => {
     const camelResource = CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
     `);
-    camelResource.initialize();
+    await camelResource.initialize();
 
     const entities = getRestEntities(camelResource.getEntities());
 
@@ -189,7 +189,7 @@ describe('RestTree', () => {
     expect(screen.getByText('rest-1234')).toBeInTheDocument();
   });
 
-  it('should update selection when selected prop changes', () => {
+  it('should update selection when selected prop changes', async () => {
     const camelResource = CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
@@ -199,7 +199,7 @@ describe('RestTree', () => {
         to:
           uri: direct:test
     `);
-    camelResource.initialize();
+    await camelResource.initialize();
 
     const entities = getRestEntities(camelResource.getEntities());
     const initialSelected = { entityId: 'rest-1234', modelPath: 'rest' };
@@ -220,7 +220,7 @@ describe('RestTree', () => {
     expect(activeNode).toBeInTheDocument();
   });
 
-  it('should display "not specified" when method path is undefined', () => {
+  it('should display "not specified" when method path is undefined', async () => {
     const camelResource = CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
@@ -229,7 +229,7 @@ describe('RestTree', () => {
         to:
           uri: direct:test
     `);
-    camelResource.initialize();
+    await camelResource.initialize();
 
     const entities = getRestEntities(camelResource.getEntities());
     render(<RestTree entities={entities} onSelect={mockOnSelect} />);
@@ -237,7 +237,7 @@ describe('RestTree', () => {
     expect(screen.getByText('not specified')).toBeInTheDocument();
   });
 
-  it('should display "not specified" when method path is empty', () => {
+  it('should display "not specified" when method path is empty', async () => {
     const camelResource = CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
@@ -247,7 +247,7 @@ describe('RestTree', () => {
         to:
           uri: direct:test
     `);
-    camelResource.initialize();
+    await camelResource.initialize();
 
     const entities = getRestEntities(camelResource.getEntities());
     render(<RestTree entities={entities} onSelect={mockOnSelect} />);

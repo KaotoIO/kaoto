@@ -5,9 +5,13 @@ import { datamapperRouteDefinitionStub } from '../../stubs/datamapper/data-mappe
 import { CommonParser } from './common-parser';
 
 describe('CommonParser', () => {
-  const resource = CamelResourceFactory.createCamelResource(camelRouteYaml);
-  resource.initialize();
-  const camelRouteEntity = resource.getVisualEntities()[0] as CamelRouteVisualEntity;
+  let camelRouteEntity: CamelRouteVisualEntity;
+
+  beforeAll(async () => {
+    const resource = CamelResourceFactory.createCamelResource(camelRouteYaml);
+    await resource.initialize();
+    camelRouteEntity = resource.getVisualEntities()[0] as CamelRouteVisualEntity;
+  });
 
   describe('parseFrom()', () => {
     it('should parse from', () => {

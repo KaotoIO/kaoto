@@ -187,7 +187,7 @@ describe('useRestDslImportWizard', () => {
       },
     ]);
 
-    camelResource.initialize();
+    await camelResource.initialize();
     const { Provider, updateEntitiesFromCamelResourceSpy } = await TestProvidersWrapper({ camelResource });
     const addNewEntitySpy = vi.spyOn(camelResource, 'addNewEntity');
 
@@ -247,7 +247,7 @@ describe('useRestDslImportWizard', () => {
         },
       },
     ]);
-    camelResource.initialize();
+    await camelResource.initialize();
 
     const { Provider, updateEntitiesFromCamelResourceSpy } = await TestProvidersWrapper({ camelResource });
     const addNewEntitySpy = vi.spyOn(camelResource, 'addNewEntity');
