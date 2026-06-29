@@ -200,6 +200,10 @@ export class CamelComponentDefaultService {
           step:
             id: ${getHexaDecimalRandomId('kaoto-datamapper')}
             steps:
+              - setBody:
+                  id: ${getCamelRandomId('kaoto-datamapper-set-body')}
+                  simple:
+                    expression: '\${null}'
               - to:
                   id: ${getCamelRandomId('kaoto-datamapper-xslt')}
                   uri: ${XSLT_COMPONENT_NAME}

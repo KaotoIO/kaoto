@@ -2,6 +2,8 @@ import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import type { Mock } from 'vitest';
 
 import { CatalogKind, createVisualizationNode, IVisualizationNode } from '../models';
+import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../models/datamapper/document';
+import { MappingTree, ValueSelector } from '../models/datamapper/mapping';
 import { CamelCatalogService } from '../models/visualization/flows/camel-catalog.service';
 import { EntitiesContextResult } from '../providers';
 import { XSLT_COMPONENT_NAME, XsltComponentDef } from '../utils';
@@ -459,6 +461,256 @@ describe('DataMapperStepService', () => {
 
       expect(updateModelSpy).not.toHaveBeenCalled();
       expect(mockEntitiesContext.updateSourceCodeFromEntities).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('setSourceBody', () => {
+    let vizNode: IVisualizationNode;
+
+    beforeEach(() => {
+      vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+      });
+    });
+
+    it('should configure json body and managed setBody when source body is JSON and body is not used', () => {
+      const model = {
+        id: 'step-id',
+        steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl`, parameters: {} } } as ProcessorDefinition],
+      };
+
+      jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
+
+      const sourceBodyDocument = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.JSON_SCHEMA,
+        'Body',
+      );
+
+      DataMapperStepService.setSourceBody(vizNode, sourceBodyDocument, false, mockEntitiesContext);
+
+      expect(updateModelSpy).toHaveBeenCalled();
+      expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+      expect((model.steps[0] as any).setBody).toBeDefined();
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+      expect((model.steps[0] as any).setBody.simple.expression).toEqual('${null}');
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+      expect(((model.steps[1] as any).to as any)?.parameters?.useJsonBody).toBe(true);
+    });
+
+    it('should remove managed setBody and keep useJsonBody when body is used', () => {
+      const model = {
+        id: 'step-id',
+        steps: [
+          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+          { setBody: { id: 'set-body-id', simple: { expression: '${null}' } } } as any,
+          { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl`, parameters: {} } } as ProcessorDefinition,
+        ],
+      };
+
+      jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
+
+      const sourceBodyDocument = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.JSON_SCHEMA,
+        'Body',
+      );
+
+      DataMapperStepService.setSourceBody(vizNode, sourceBodyDocument, true, mockEntitiesContext);
+
+      expect(updateModelSpy).toHaveBeenCalled();
+      expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
+      expect(model.steps).toHaveLength(1);
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+      expect(((model.steps[0] as any).to as any)?.parameters?.useJsonBody).toBe(true);
+    });
+  });
+
+  describe('isSourceBodyUsed', () => {
+    it('should return false for an empty mapping tree', () => {
+      const tree = new MappingTree(DocumentType.TARGET_BODY, 'Body', DocumentDefinitionType.Primitive);
+      expect(DataMapperStepService.isSourceBodyUsed(tree)).toBe(false);
+    });
+
+    it('should return false when all expressions reference parameters (have documentReferenceName)', () => {
+      const tree = new MappingTree(DocumentType.TARGET_BODY, 'Body', DocumentDefinitionType.XML_SCHEMA);
+      const selector = new ValueSelector(tree);
+      selector.expression = '$myParam/field';
+      tree.children.push(selector);
+      expect(DataMapperStepService.isSourceBodyUsed(tree)).toBe(false);
+    });
+
+    it('should return true when an expression references the source body (no documentReferenceName)', () => {
+      const tree = new MappingTree(DocumentType.TARGET_BODY, 'Body', DocumentDefinitionType.XML_SCHEMA);
+      const selector = new ValueSelector(tree);
+      selector.expression = '/rootElement/field';
+      tree.children.push(selector);
+      expect(DataMapperStepService.isSourceBodyUsed(tree)).toBe(true);
+    });
+  });
+
+  describe('syncSetBodyNullStep', () => {
+    let vizNode: IVisualizationNode;
+
+    beforeEach(() => {
+      vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+      });
+    });
+
+    it('should insert setBody with ${null} expression at index 0 when body is not used and no managed setBody exists', () => {
+      const model = {
+        id: 'step-id',
+        steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition],
+      };
+      jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.syncSetBodyNullStep(vizNode, false, mockEntitiesContext);
+
+      expect(updateModelSpy).toHaveBeenCalledWith(model);
+      expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
+      expect(model.steps).toHaveLength(2);
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+      expect((model.steps[0] as any).setBody).toBeDefined();
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+      expect((model.steps[0] as any).setBody.simple.expression).toEqual('${null}');
+    });
+
+    it('should not insert setBody(null) when body is used', () => {
+      const model = {
+        id: 'step-id',
+        steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition],
+      };
+      jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.syncSetBodyNullStep(vizNode, true, mockEntitiesContext);
+
+      expect(updateModelSpy).not.toHaveBeenCalled();
+      expect(model.steps).toHaveLength(1);
+    });
+
+    it('should remove setBody(null) when body becomes used', () => {
+      const model = {
+        id: 'step-id',
+        steps: [
+          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+          { setBody: { id: 'set-body-id', simple: { expression: '${null}' } } } as any,
+          { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
+        ],
+      };
+      jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.syncSetBodyNullStep(vizNode, true, mockEntitiesContext);
+
+      expect(updateModelSpy).toHaveBeenCalledWith(model);
+      expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
+      expect(model.steps).toHaveLength(1);
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+      expect((model.steps[0] as any).to).toBeDefined();
+    });
+
+    it('should remove setBody with ${null} expression when body becomes used', () => {
+      const model = {
+        id: 'step-id',
+        steps: [
+          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+          { setBody: { id: 'set-body-id', simple: { expression: '${null}' } } } as any,
+          { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
+        ],
+      };
+      jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.syncSetBodyNullStep(vizNode, true, mockEntitiesContext);
+
+      expect(updateModelSpy).toHaveBeenCalledWith(model);
+      expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
+      expect(model.steps).toHaveLength(1);
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+      expect((model.steps[0] as any).to).toBeDefined();
+    });
+
+    it('should not remove a non-null setBody step when body becomes used', () => {
+      const model = {
+        id: 'step-id',
+        steps: [
+          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+          { setBody: { id: 'set-body-id', simple: { expression: '${body}' } } } as any,
+          { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
+        ],
+      };
+      jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.syncSetBodyNullStep(vizNode, true, mockEntitiesContext);
+
+      expect(updateModelSpy).not.toHaveBeenCalled();
+      expect(model.steps).toHaveLength(2);
+    });
+
+    it('should not duplicate managed setBody when it already exists', () => {
+      const model = {
+        id: 'step-id',
+        steps: [
+          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+          { setBody: { id: 'set-body-id', simple: { expression: '${null}' } } } as any,
+          { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
+        ],
+      };
+      jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.syncSetBodyNullStep(vizNode, false, mockEntitiesContext);
+
+      expect(updateModelSpy).not.toHaveBeenCalled();
+      expect(model.steps).toHaveLength(2);
+    });
+
+    it('should normalize an existing non-managed setBody step to empty constant instead of adding another one', () => {
+      const model = {
+        id: 'step-id',
+        steps: [
+          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+          { setBody: { id: 'set-body-id', expression: { simple: { expression: '${body}' } } } } as any,
+          { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
+        ],
+      };
+      jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.syncSetBodyNullStep(vizNode, false, mockEntitiesContext);
+
+      expect(updateModelSpy).toHaveBeenCalledWith(model);
+      expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
+      expect(model.steps).toHaveLength(2);
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+      expect((model.steps[0] as any)?.setBody?.simple?.expression).toEqual('${null}');
+    });
+
+    it('should do nothing when steps is undefined', () => {
+      const model = { id: 'step-id' };
+      jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.syncSetBodyNullStep(vizNode, false, mockEntitiesContext);
+
+      expect(updateModelSpy).not.toHaveBeenCalled();
     });
   });
 });
