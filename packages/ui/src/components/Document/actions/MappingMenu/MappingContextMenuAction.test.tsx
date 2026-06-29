@@ -68,8 +68,8 @@ describe('MappingContextMenuAction', () => {
     await waitFor(() =>
       expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toEqual('false'),
     );
-    expect(onUpdateMock.mock.calls.length).toEqual(1);
-    expect(spyOnApply.mock.calls.length).toEqual(1);
+    expect(onUpdateMock.mock.calls).toHaveLength(1);
+    expect(spyOnApply.mock.calls).toHaveLength(1);
   });
 
   it('should apply If', async () => {
@@ -92,8 +92,8 @@ describe('MappingContextMenuAction', () => {
     await waitFor(() =>
       expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toEqual('false'),
     );
-    expect(onUpdateMock.mock.calls.length).toEqual(1);
-    expect(spyOnApply.mock.calls.length).toEqual(1);
+    expect(onUpdateMock.mock.calls).toHaveLength(1);
+    expect(spyOnApply.mock.calls).toHaveLength(1);
   });
 
   it('should apply choose', async () => {
@@ -116,8 +116,8 @@ describe('MappingContextMenuAction', () => {
     await waitFor(() =>
       expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toEqual('false'),
     );
-    expect(onUpdateMock.mock.calls.length).toEqual(1);
-    expect(spyOnApply.mock.calls.length).toEqual(1);
+    expect(onUpdateMock.mock.calls).toHaveLength(1);
+    expect(spyOnApply.mock.calls).toHaveLength(1);
   });
 
   it('should apply when', async () => {
@@ -137,8 +137,8 @@ describe('MappingContextMenuAction', () => {
       expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toEqual('false'),
     );
 
-    expect(onUpdateMock.mock.calls.length).toEqual(1);
-    expect(spyOnApply.mock.calls.length).toEqual(1);
+    expect(onUpdateMock.mock.calls).toHaveLength(1);
+    expect(spyOnApply.mock.calls).toHaveLength(1);
   });
 
   it('should apply otherwise', async () => {
@@ -158,8 +158,8 @@ describe('MappingContextMenuAction', () => {
       expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toEqual('false'),
     );
 
-    expect(onUpdateMock.mock.calls.length).toEqual(1);
-    expect(spyOnApply.mock.calls.length).toEqual(1);
+    expect(onUpdateMock.mock.calls).toHaveLength(1);
+    expect(spyOnApply.mock.calls).toHaveLength(1);
   });
 
   it('should apply for-each', async () => {
@@ -182,8 +182,8 @@ describe('MappingContextMenuAction', () => {
     await waitFor(() =>
       expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toEqual('false'),
     );
-    expect(onUpdateMock.mock.calls.length).toEqual(1);
-    expect(spyOnApply.mock.calls.length).toEqual(1);
+    expect(onUpdateMock.mock.calls).toHaveLength(1);
+    expect(spyOnApply.mock.calls).toHaveLength(1);
   });
 
   it('should stop event propagation upon context menu toggle', async () => {

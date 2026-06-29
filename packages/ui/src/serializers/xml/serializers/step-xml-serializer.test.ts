@@ -144,7 +144,7 @@ describe('step-xml-serializer tests', () => {
 
       const result = StepXmlSerializer.serialize('route', parentStep, getDocument());
       expect(result.tagName).toBe('route');
-      expect(result.children.length).toBe(2);
+      expect(result.children).toHaveLength(2);
       expect(result.children[0].tagName).toBe('to');
       expect(result.children[0].getAttribute('uri')).toBe('direct:first');
       expect(result.children[1].tagName).toBe('to');
@@ -310,8 +310,8 @@ describe('step-xml-serializer tests', () => {
     expect(result.getAttribute('compensation')).toBe('direct:compensation');
     expect(result.getAttribute('completion')).toBe('direct:completion');
     // Should not have nested elements when attributes are in catalog
-    expect(result.getElementsByTagName('compensation').length).toBe(0);
-    expect(result.getElementsByTagName('completion').length).toBe(0);
+    expect(result.getElementsByTagName('compensation')).toHaveLength(0);
+    expect(result.getElementsByTagName('completion')).toHaveLength(0);
   });
 
   it('should serialize saga with nested elements when not attributes in old catalog', async () => {

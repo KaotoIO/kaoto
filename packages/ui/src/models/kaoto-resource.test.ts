@@ -63,7 +63,7 @@ describe('CamelResourceFactory.createCamelResource', () => {
     await resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.KameletBinding);
     expect(resource.getEntities()).toEqual([]);
-    expect(resource.getVisualEntities().length).toEqual(1);
+    expect(resource.getVisualEntities()).toHaveLength(1);
   });
 
   it('should create an empty PipeResource if no args is specified', async () => {
@@ -71,7 +71,7 @@ describe('CamelResourceFactory.createCamelResource', () => {
     await resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.Pipe);
     expect(resource.getEntities()).toEqual([]);
-    expect(resource.getVisualEntities().length).toEqual(1);
+    expect(resource.getVisualEntities()).toHaveLength(1);
     const vis = resource.getVisualEntities()[0] as PipeVisualEntity;
     expect(vis.pipe.spec?.source).toBeUndefined();
     expect(vis.pipe.spec?.steps).toBeUndefined();
@@ -82,7 +82,7 @@ describe('CamelResourceFactory.createCamelResource', () => {
     const resource = CamelResourceFactory.createCamelResource(camelRouteYaml);
     await resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.Route);
-    expect(resource.getVisualEntities().length).toEqual(1);
+    expect(resource.getVisualEntities()).toHaveLength(1);
     const vis = resource.getVisualEntities()[0] as CamelRouteVisualEntity;
     expect(vis.entityDef.route.from?.uri).toBeDefined();
   });
@@ -92,21 +92,21 @@ describe('CamelResourceFactory.createCamelResource', () => {
     const resource = CamelResourceFactory.createCamelResource(JSON.stringify(integrationJson));
     await resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.Integration);
-    expect(resource.getVisualEntities().length).toEqual(2);
+    expect(resource.getVisualEntities()).toHaveLength(2);
   });
 
   it('should create a Kamelet', async () => {
     const resource = CamelResourceFactory.createCamelResource(JSON.stringify(kameletJson));
     await resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.Kamelet);
-    expect(resource.getVisualEntities().length).toEqual(1);
+    expect(resource.getVisualEntities()).toHaveLength(1);
   });
 
   it('should create a KameletBindingPipe', async () => {
     const resource = CamelResourceFactory.createCamelResource(JSON.stringify(kameletBindingJson));
     await resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.KameletBinding);
-    expect(resource.getVisualEntities().length).toEqual(1);
+    expect(resource.getVisualEntities()).toHaveLength(1);
     const vis = resource.getVisualEntities()[0] as PipeVisualEntity;
     expect(vis.pipe.spec?.source?.ref?.name).toEqual('webhook-source');
   });
@@ -115,7 +115,7 @@ describe('CamelResourceFactory.createCamelResource', () => {
     const resource = CamelResourceFactory.createCamelResource(JSON.stringify(pipeJson));
     await resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.Pipe);
-    expect(resource.getVisualEntities().length).toEqual(1);
+    expect(resource.getVisualEntities()).toHaveLength(1);
     const vis = resource.getVisualEntities()[0] as PipeVisualEntity;
     expect(vis.pipe.spec?.source?.ref?.name).toEqual('webhook-source');
   });
@@ -124,7 +124,7 @@ describe('CamelResourceFactory.createCamelResource', () => {
     const resource = CamelResourceFactory.createCamelResource(citrusTestYaml);
     await resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.Test);
-    expect(resource.getVisualEntities().length).toEqual(1);
+    expect(resource.getVisualEntities()).toHaveLength(1);
     const vis = resource.getVisualEntities()[0] as CitrusTestVisualEntity;
     expect(vis.test).toBeDefined();
   });

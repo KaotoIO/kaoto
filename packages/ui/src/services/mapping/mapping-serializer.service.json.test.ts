@@ -64,22 +64,22 @@ describe('MappingSerializerService / JSON', () => {
         mappingTree,
         sourceParameterMap,
       ));
-      expect(targetDoc.fields[0].fields[3].fields[0].fields.length).toEqual(3);
+      expect(targetDoc.fields[0].fields[3].fields[0].fields).toHaveLength(3);
       const namespaces = mappingTree.namespaceMap;
-      expect(mappingTree.children.length).toBe(1);
+      expect(mappingTree.children).toHaveLength(1);
       const root = mappingTree.children[0] as FieldItem;
       expect(root.field.name).toEqual('map');
       expect(root.field.type).toEqual(Types.Container);
-      expect(root.field.predicates.length).toEqual(0);
+      expect(root.field.predicates).toHaveLength(0);
       expect(root.field.getExpression(namespaces)).toEqual('fn:map');
-      expect(root.children.length).toBe(4);
+      expect(root.children).toHaveLength(4);
 
       const orderId = root.children[0] as FieldItem;
       const orderIdJsonField = orderId.field as JsonSchemaField;
       expect(orderIdJsonField.key).toEqual('OrderId');
       expect(orderId.field.type).toEqual(Types.String);
       expect(orderId.field.getExpression(namespaces)).toEqual("fn:string[@key='OrderId']");
-      expect(orderId.children.length).toBe(1);
+      expect(orderId.children).toHaveLength(1);
       const orderIdValue = orderId.children[0] as ValueSelector;
       expect(orderIdValue.expression).toEqual(
         "upper-case(concat('ORD-', $Account-x/fn:map/fn:string[@key='AccountId'], '-', $OrderSequence))",
@@ -96,14 +96,14 @@ describe('MappingSerializerService / JSON', () => {
       expect(shipToJsonField.key).toEqual('ShipTo');
       expect(shipToJsonField.type).toEqual(Types.Container);
       expect(shipToJsonField.getExpression(namespaces)).toEqual("fn:map[@key='ShipTo']");
-      expect(shipTo.children.length).toBe(5);
+      expect(shipTo.children).toHaveLength(5);
 
       const shipToName = shipTo.children[0] as FieldItem;
       const shipToNameJsonField = shipToName.field as JsonSchemaField;
       expect(shipToNameJsonField.key).toEqual('Name');
       expect(shipToNameJsonField.type).toEqual(Types.String);
       expect(shipToNameJsonField.getExpression(namespaces)).toEqual("fn:string[@key='Name']");
-      expect(shipToName.children.length).toBe(1);
+      expect(shipToName.children).toHaveLength(1);
       const shipToNameValue = shipToName.children[0] as ValueSelector;
       expect(shipToNameValue.expression).toEqual("$Account-x/fn:map/fn:string[@key='Name']");
 
@@ -112,7 +112,7 @@ describe('MappingSerializerService / JSON', () => {
       expect(shipToStreetJsonField.key).toEqual('Street');
       expect(shipToStreetJsonField.type).toEqual(Types.String);
       expect(shipToStreetJsonField.getExpression(namespaces)).toEqual("fn:string[@key='Street']");
-      expect(shipToStreet.children.length).toBe(1);
+      expect(shipToStreet.children).toHaveLength(1);
       const shipToStreetValue = shipToStreet.children[0] as ValueSelector;
       expect(shipToStreetValue.expression).toEqual("$Account-x/fn:map/fn:map[@key='Address']/fn:string[@key='Street']");
 
@@ -121,7 +121,7 @@ describe('MappingSerializerService / JSON', () => {
       expect(shipToCityJsonField.key).toEqual('City');
       expect(shipToCityJsonField.type).toEqual(Types.String);
       expect(shipToCityJsonField.getExpression(namespaces)).toEqual("fn:string[@key='City']");
-      expect(shipToCity.children.length).toBe(1);
+      expect(shipToCity.children).toHaveLength(1);
       const shipToCityValue = shipToCity.children[0] as ValueSelector;
       expect(shipToCityValue.expression).toEqual("$Account-x/fn:map/fn:map[@key='Address']/fn:string[@key='City']");
 
@@ -130,7 +130,7 @@ describe('MappingSerializerService / JSON', () => {
       expect(shipToStateJsonField.key).toEqual('State');
       expect(shipToStateJsonField.type).toEqual(Types.String);
       expect(shipToStateJsonField.getExpression(namespaces)).toEqual("fn:string[@key='State']");
-      expect(shipToState.children.length).toBe(1);
+      expect(shipToState.children).toHaveLength(1);
       const shipToStateValue = shipToState.children[0] as ValueSelector;
       expect(shipToStateValue.expression).toEqual("$Account-x/fn:map/fn:map[@key='Address']/fn:string[@key='State']");
 
@@ -139,7 +139,7 @@ describe('MappingSerializerService / JSON', () => {
       expect(shipToCountryJsonField.key).toEqual('Country');
       expect(shipToCountryJsonField.type).toEqual(Types.String);
       expect(shipToCountryJsonField.getExpression(namespaces)).toEqual("fn:string[@key='Country']");
-      expect(shipToCountry.children.length).toBe(1);
+      expect(shipToCountry.children).toHaveLength(1);
       const shipToCountryValue = shipToCountry.children[0] as ValueSelector;
       expect(shipToCountryValue.expression).toEqual(
         "$Account-x/fn:map/fn:map[@key='Address']/fn:string[@key='Country']",
@@ -150,11 +150,11 @@ describe('MappingSerializerService / JSON', () => {
       expect(itemJsonField.key).toEqual('Item');
       expect(itemJsonField.type).toEqual(Types.Array);
       expect(itemJsonField.getExpression(namespaces)).toEqual("fn:array[@key='Item']");
-      expect(item.children.length).toBe(1);
+      expect(item.children).toHaveLength(1);
 
       const forEach = item.children[0] as ForEachItem;
       expect(forEach.expression).toEqual('$Cart-x/fn:array/fn:map');
-      expect(forEach.children.length).toBe(1);
+      expect(forEach.children).toHaveLength(1);
 
       const forEachItem = forEach.children[0] as FieldItem;
       const forEachItemJsonField = forEachItem.field as JsonSchemaField;
@@ -162,14 +162,14 @@ describe('MappingSerializerService / JSON', () => {
       expect(forEachItemJsonField.type).toEqual(Types.Container);
       expect(forEachItemJsonField.maxOccurs).toEqual(Number.MAX_SAFE_INTEGER);
       expect(forEachItemJsonField.getExpression(namespaces)).toEqual('fn:map');
-      expect(forEachItem.children.length).toBe(3);
+      expect(forEachItem.children).toHaveLength(3);
 
       const title = forEachItem.children[0] as FieldItem;
       const titleJsonField = title.field as JsonSchemaField;
       expect(titleJsonField.key).toEqual('Title');
       expect(titleJsonField.type).toEqual(Types.String);
       expect(titleJsonField.getExpression(namespaces)).toEqual("fn:string[@key='Title']");
-      expect(title.children.length).toBe(1);
+      expect(title.children).toHaveLength(1);
       const titleValue = title.children[0] as ValueSelector;
       expect(titleValue.expression).toEqual("fn:string[@key='Title']");
 
@@ -178,7 +178,7 @@ describe('MappingSerializerService / JSON', () => {
       expect(quantityJsonField.key).toEqual('Quantity');
       expect(quantityJsonField.type).toEqual(Types.Integer);
       expect(quantityJsonField.getExpression(namespaces)).toEqual("fn:number[@key='Quantity']");
-      expect(quantity.children.length).toBe(1);
+      expect(quantity.children).toHaveLength(1);
       const quantityValue = quantity.children[0] as ValueSelector;
       expect(quantityValue.expression).toEqual("fn:number[@key='Quantity']");
 
@@ -187,7 +187,7 @@ describe('MappingSerializerService / JSON', () => {
       expect(priceJsonField.key).toEqual('Price');
       expect(priceJsonField.type).toEqual(Types.Numeric);
       expect(priceJsonField.getExpression(namespaces)).toEqual("fn:number[@key='Price']");
-      expect(price.children.length).toBe(1);
+      expect(price.children).toHaveLength(1);
       const priceValue = price.children[0] as ValueSelector;
       expect(priceValue.expression).toEqual("fn:number[@key='Price']");
     });

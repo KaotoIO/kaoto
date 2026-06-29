@@ -4,14 +4,14 @@ describe('XPath 2.0 parser', () => {
   describe('Lexer', () => {
     it('should tokenize', () => {
       let tokens = XPath2Parser.lexer.tokenize('/shiporder/orderperson');
-      expect(tokens.errors.length).toEqual(0);
-      expect(tokens.tokens.length).toEqual(4);
+      expect(tokens.errors).toHaveLength(0);
+      expect(tokens.tokens).toHaveLength(4);
       tokens = XPath2Parser.lexer.tokenize('/shiporder/orderperson/');
-      expect(tokens.errors.length).toEqual(0);
-      expect(tokens.tokens.length).toEqual(5);
+      expect(tokens.errors).toHaveLength(0);
+      expect(tokens.tokens).toHaveLength(5);
       tokens = XPath2Parser.lexer.tokenize('/from/me/to/you');
-      expect(tokens.errors.length).toEqual(0);
-      expect(tokens.tokens.length).toEqual(8);
+      expect(tokens.errors).toHaveLength(0);
+      expect(tokens.tokens).toHaveLength(8);
     });
   });
 
@@ -19,14 +19,14 @@ describe('XPath 2.0 parser', () => {
     it('should parse', () => {
       const parser = new XPath2Parser();
       let result = parser.parseXPath('/shiporder/orderperson');
-      expect(result.lexErrors.length).toEqual(0);
-      expect(result.parseErrors.length).toEqual(0);
+      expect(result.lexErrors).toHaveLength(0);
+      expect(result.parseErrors).toHaveLength(0);
       result = parser.parseXPath('/shiporder/orderperson/');
-      expect(result.lexErrors.length).toEqual(0);
-      expect(result.parseErrors.length).toEqual(0);
+      expect(result.lexErrors).toHaveLength(0);
+      expect(result.parseErrors).toHaveLength(0);
       result = parser.parseXPath('/from/me/to/you');
-      expect(result.lexErrors.length).toEqual(0);
-      expect(result.parseErrors.length).toEqual(0);
+      expect(result.lexErrors).toHaveLength(0);
+      expect(result.parseErrors).toHaveLength(0);
     });
   });
 });

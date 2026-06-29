@@ -32,7 +32,7 @@ describe('XPathInputAction', () => {
       fireEvent.change(input, { target: { value: '/ShipOrder' } });
     });
     expect(mapping.expression).toEqual('/ShipOrder');
-    expect(onUpdateMock.mock.calls.length).toEqual(1);
+    expect(onUpdateMock.mock.calls).toHaveLength(1);
   });
 
   it('should show error popover button if xpath has a parse error', async () => {

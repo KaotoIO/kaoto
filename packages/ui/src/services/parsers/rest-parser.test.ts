@@ -24,12 +24,12 @@ describe('RestParser', () => {
       expect(parsed.title).toEqual('rest-1234 [Path : /api/v3]');
       expect(parsed.description).toBeUndefined();
       expect(parsed.headingLevel).toEqual('h1');
-      expect(parsed.headers.length).toEqual(4);
+      expect(parsed.headers).toHaveLength(4);
       expect(parsed.headers[0]).toEqual('Method');
       expect(parsed.headers[1]).toEqual('ID');
       expect(parsed.headers[2]).toEqual('Path');
       expect(parsed.headers[3]).toEqual('Route');
-      expect(parsed.data.length).toEqual(20);
+      expect(parsed.data).toHaveLength(20);
       expect(parsed.data[0][0]).toEqual('GET');
       expect(parsed.data[0][1]).toEqual('findPetsByStatus');
       expect(parsed.data[0][2]).toEqual('/pet/findByStatus');
@@ -40,9 +40,9 @@ describe('RestParser', () => {
       const restEntity = new CamelRestVisualEntity(restStub);
       const parsed = RestParser.parseRestEntity(restEntity);
 
-      expect(parsed.headers.length).toEqual(1);
+      expect(parsed.headers).toHaveLength(1);
       expect(parsed.headers[0]).toEqual('Open API Specification');
-      expect(parsed.data.length).toEqual(1);
+      expect(parsed.data).toHaveLength(1);
       expect(parsed.data[0][0]).toEqual('https://api.example.com/openapi.json');
     });
   });
@@ -55,10 +55,10 @@ describe('RestParser', () => {
       expect(parsed.title).toEqual('restConfiguration-1234');
       expect(parsed.description).toEqual('');
       expect(parsed.headingLevel).toEqual('h1');
-      expect(parsed.headers.length).toEqual(2);
+      expect(parsed.headers).toHaveLength(2);
       expect(parsed.headers[0]).toEqual('Parameter Name');
       expect(parsed.headers[1]).toEqual('Parameter Value');
-      expect(parsed.data.length).toEqual(6);
+      expect(parsed.data).toHaveLength(6);
       expect(parsed.data[0][0]).toEqual('apiComponent');
       expect(parsed.data[0][1]).toEqual('openapi');
     });

@@ -17,12 +17,12 @@ describe('CstVisitor', () => {
 
       expect(root).toBeDefined();
       expect(root.type).toBe(XPathNodeType.Expr);
-      expect(root.expressions.length).toBe(1);
+      expect(root.expressions).toHaveLength(1);
 
       const pathExpr = root.expressions[0] as PathExprNode;
       expect(pathExpr.type).toBe(XPathNodeType.PathExpr);
       expect(pathExpr.isAbsolute).toBe(true);
-      expect(pathExpr.steps.length).toBe(3);
+      expect(pathExpr.steps).toHaveLength(3);
       expect(pathExpr.steps[0].nodeTest?.localName).toBe('aaa');
       expect(pathExpr.steps[1].nodeTest?.localName).toBe('bbb');
       expect(pathExpr.steps[2].nodeTest?.localName).toBe('ccc');
@@ -34,7 +34,7 @@ describe('CstVisitor', () => {
 
       const pathExpr = root.expressions[0] as PathExprNode;
       expect(pathExpr.isAbsolute).toBe(false);
-      expect(pathExpr.steps.length).toBe(2);
+      expect(pathExpr.steps).toHaveLength(2);
     });
 
     it('should handle attribute selectors', () => {
@@ -42,7 +42,7 @@ describe('CstVisitor', () => {
       const root = CstVisitor.visit(cst);
 
       const pathExpr = root.expressions[0] as PathExprNode;
-      expect(pathExpr.steps.length).toBe(2);
+      expect(pathExpr.steps).toHaveLength(2);
       expect(pathExpr.steps[0].isAttribute).toBe(false);
       expect(pathExpr.steps[1].isAttribute).toBe(true);
       expect(pathExpr.steps[1].nodeTest?.localName).toBe('attr');
@@ -64,7 +64,7 @@ describe('CstVisitor', () => {
       const root = CstVisitor.visit(cst);
 
       const pathExpr = root.expressions[0] as PathExprNode;
-      expect(pathExpr.steps.length).toBe(2);
+      expect(pathExpr.steps).toHaveLength(2);
       expect(pathExpr.steps[0].reverseStep?.isParentReference).toBe(true);
       expect(pathExpr.steps[1].nodeTest?.localName).toBe('parent');
     });
@@ -74,7 +74,7 @@ describe('CstVisitor', () => {
       const root = CstVisitor.visit(cst);
 
       const pathExpr = root.expressions[0] as PathExprNode;
-      expect(pathExpr.steps[1].predicates.length).toBe(1);
+      expect(pathExpr.steps[1].predicates).toHaveLength(1);
 
       const predicate = pathExpr.steps[1].predicates[0];
       expect(predicate.type).toBe(XPathNodeType.Predicate);
@@ -85,7 +85,7 @@ describe('CstVisitor', () => {
       const root = CstVisitor.visit(cst);
 
       const pathExpr = root.expressions[0] as PathExprNode;
-      expect(pathExpr.steps.length).toBe(2);
+      expect(pathExpr.steps).toHaveLength(2);
       expect(pathExpr.steps[0].filterExpr?.primary.type).toBe(XPathNodeType.VarRef);
     });
 
@@ -94,7 +94,7 @@ describe('CstVisitor', () => {
       const root = CstVisitor.visit(cst);
 
       const pathExpr = root.expressions[0] as PathExprNode;
-      expect(pathExpr.steps.length).toBe(2);
+      expect(pathExpr.steps).toHaveLength(2);
       expect(pathExpr.steps[0].filterExpr?.primary.type).toBe(XPathNodeType.ContextItemExpr);
     });
 
@@ -103,13 +103,13 @@ describe('CstVisitor', () => {
       const root = CstVisitor.visit(cst);
 
       const pathExpr = root.expressions[0] as PathExprNode;
-      expect(pathExpr.steps.length).toBe(1);
+      expect(pathExpr.steps).toHaveLength(1);
       expect(pathExpr.steps[0].filterExpr?.primary.type).toBe(XPathNodeType.FunctionCall);
 
       const funcCall = pathExpr.steps[0].filterExpr?.primary;
       if (funcCall?.type === XPathNodeType.FunctionCall) {
         expect(funcCall.localName).toBe('concat');
-        expect(funcCall.arguments.length).toBe(2);
+        expect(funcCall.arguments).toHaveLength(2);
       }
     });
 
@@ -156,7 +156,7 @@ describe('CstVisitor', () => {
       const cst = XPathService.parse('/path1, /path2').cst;
       const root = CstVisitor.visit(cst);
 
-      expect(root.expressions.length).toBe(2);
+      expect(root.expressions).toHaveLength(2);
       expect((root.expressions[0] as PathExprNode).steps[0].nodeTest?.localName).toBe('path1');
       expect((root.expressions[1] as PathExprNode).steps[0].nodeTest?.localName).toBe('path2');
     });
@@ -177,7 +177,7 @@ describe('CstVisitor', () => {
       const root = CstVisitor.visit(cst);
 
       const pathExpr = root.expressions[0] as PathExprNode;
-      expect(pathExpr.steps.length).toBe(4);
+      expect(pathExpr.steps).toHaveLength(4);
       expect(pathExpr.steps[0].filterExpr?.primary.type).toBe(XPathNodeType.FunctionCall);
     });
 
@@ -186,7 +186,7 @@ describe('CstVisitor', () => {
         const cst = XPathService.parse('price * quantity').cst;
         const root = CstVisitor.visit(cst);
 
-        expect(root.expressions.length).toBe(1);
+        expect(root.expressions).toHaveLength(1);
         const arithmeticExpr = root.expressions[0];
         expect(arithmeticExpr.type).toBe(XPathNodeType.ArithmeticExpr);
 
@@ -301,11 +301,11 @@ describe('CstVisitor', () => {
           expect(arithmeticExpr.right.type).toBe(XPathNodeType.PathExpr);
 
           if (arithmeticExpr.left.type === XPathNodeType.PathExpr) {
-            expect(arithmeticExpr.left.steps.length).toBe(3);
+            expect(arithmeticExpr.left.steps).toHaveLength(3);
             expect(arithmeticExpr.left.steps[2].nodeTest?.localName).toBe('price');
           }
           if (arithmeticExpr.right.type === XPathNodeType.PathExpr) {
-            expect(arithmeticExpr.right.steps.length).toBe(3);
+            expect(arithmeticExpr.right.steps).toHaveLength(3);
             expect(arithmeticExpr.right.steps[2].nodeTest?.localName).toBe('quantity');
           }
         }
@@ -678,7 +678,7 @@ describe('extractAllPathExprsFromCST edge cases', () => {
     expect(astAdd).toBeDefined();
 
     const pathNodesAdd = XPathUtil.getAllNodesOfType<PathExprNode>(astAdd!, XPathNodeType.PathExpr);
-    expect(pathNodesAdd.length).toBe(2);
+    expect(pathNodesAdd).toHaveLength(2);
   });
 
   it('should extract paths from nested arithmetic in binary expression', () => {
@@ -753,8 +753,8 @@ describe('extractAllPathExprsFromCST edge cases', () => {
     expect(astPath).toBeDefined();
 
     const pathNodesPath = XPathUtil.getAllNodesOfType<PathExprNode>(astPath!, XPathNodeType.PathExpr);
-    expect(pathNodesPath.length).toBe(1);
-    expect(pathNodesPath[0].steps.length).toBe(2);
+    expect(pathNodesPath).toHaveLength(1);
+    expect(pathNodesPath[0].steps).toHaveLength(2);
   });
 
   it('should extract paths from generic node children', () => {
@@ -810,7 +810,7 @@ describe('Direct method testing for processSingleArithmeticOperand coverage', ()
     expect(cst).toBeDefined();
     const ast = CstVisitor.visit(cst);
     expect(ast).toBeDefined();
-    expect(ast.expressions.length).toBe(1);
+    expect(ast.expressions).toHaveLength(1);
 
     // Should be a simple PathExpr, not ArithmeticExpr
     expect(ast.expressions[0].type).toBe(XPathNodeType.PathExpr);
@@ -948,8 +948,8 @@ describe('Refactored helper methods coverage', () => {
     if (!ast) return;
 
     const pathNodes = XPathUtil.getAllNodesOfType<PathExprNode>(ast, XPathNodeType.PathExpr);
-    expect(pathNodes.length).toBe(1);
-    expect(pathNodes[0].steps.length).toBe(1);
+    expect(pathNodes).toHaveLength(1);
+    expect(pathNodes[0].steps).toHaveLength(1);
     expect(pathNodes[0].steps[0].nodeTest?.localName).toBe('simpleField');
   });
 

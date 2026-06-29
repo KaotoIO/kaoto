@@ -269,7 +269,7 @@ describe('BeanField', () => {
         return acc;
       }, {} as IVisibleFlows);
       const entities = DocumentationService.getDocumentationEntities(entitiesContext!.camelResource, visibleFlows);
-      expect(entities.length).toBe(2);
+      expect(entities).toHaveLength(2);
       expect(entities.find((e) => e.entity instanceof BeansEntity)).toBeDefined();
     });
   });

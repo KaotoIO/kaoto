@@ -77,7 +77,7 @@ describe('NodeNamespaceContext', () => {
       expect(prefixes).toContain('a');
       expect(prefixes).toContain('b');
       expect(prefixes).toContain('c');
-      expect(prefixes.length).toBe(3);
+      expect(prefixes).toHaveLength(3);
     });
 
     it('should cache prefixes array on subsequent calls', () => {
@@ -256,7 +256,7 @@ describe('NodeNamespaceContext', () => {
       expect(prefixes).toContain('a');
       expect(prefixes).toContain('b');
       expect(prefixes).toContain('c');
-      expect(prefixes.length).toBe(3);
+      expect(prefixes).toHaveLength(3);
     });
 
     it('should return empty array for undeclared namespace URI', () => {
@@ -290,7 +290,7 @@ describe('NodeNamespaceContext', () => {
       const prefixes = context.getPrefixes('http://default.example.com');
       expect(prefixes).toContain('');
       expect(prefixes).toContain('ns');
-      expect(prefixes.length).toBe(2);
+      expect(prefixes).toHaveLength(2);
     });
   });
 
@@ -331,7 +331,7 @@ describe('NodeNamespaceContext', () => {
       expect(context.getNamespaceURI('')).toBe('http://camel.apache.org/schema/spring');
       expect(context.getNamespaceURI('xsi')).toBe('http://www.w3.org/2001/XMLSchema-instance');
       expect(context.getNamespaceURI('cxf')).toBe('http://camel.apache.org/schema/cxf');
-      expect(context.getDeclaredPrefixes().length).toBe(3);
+      expect(context.getDeclaredPrefixes()).toHaveLength(3);
     });
 
     it('should maintain correct context for deeply nested elements', () => {
@@ -355,7 +355,7 @@ describe('NodeNamespaceContext', () => {
       expect(context.getNamespaceURI('level2')).toBe('http://level2.example.com');
       expect(context.getNamespaceURI('level3')).toBe('http://level3.example.com');
       expect(context.getNamespaceURI('level4')).toBe('http://level4.example.com');
-      expect(context.getDeclaredPrefixes().length).toBe(4);
+      expect(context.getDeclaredPrefixes()).toHaveLength(4);
     });
   });
 });

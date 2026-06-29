@@ -31,7 +31,7 @@ describe('DeleteMappingItemAction', () => {
     act(() => {
       fireEvent.click(cancelBtn);
     });
-    expect(onDeleteMock.mock.calls.length).toBe(0);
+    expect(onDeleteMock.mock.calls).toHaveLength(0);
     act(() => {
       fireEvent.click(deleteBtn);
     });
@@ -39,7 +39,7 @@ describe('DeleteMappingItemAction', () => {
     act(() => {
       fireEvent.click(confirmBtn);
     });
-    expect(onDeleteMock.mock.calls.length).toBe(1);
+    expect(onDeleteMock.mock.calls).toHaveLength(1);
   });
 
   it('should show warning when there are child mappings', async () => {
@@ -75,6 +75,6 @@ describe('DeleteMappingItemAction', () => {
     act(() => {
       fireEvent.click(confirmBtn);
     });
-    expect(onDeleteMock.mock.calls.length).toBe(1);
+    expect(onDeleteMock.mock.calls).toHaveLength(1);
   });
 });

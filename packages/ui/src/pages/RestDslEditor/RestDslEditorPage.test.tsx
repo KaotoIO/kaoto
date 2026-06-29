@@ -134,7 +134,7 @@ describe('RestDslEditorPage', () => {
       });
 
       const entities = getRestEntities(camelResource);
-      expect(entities.length).toBe(initialCount + 1);
+      expect(entities).toHaveLength(initialCount + 1);
       expect(entities.find((e) => e.type === EntityType.RestConfiguration)).toBeDefined();
     });
 
@@ -153,8 +153,8 @@ describe('RestDslEditorPage', () => {
       });
 
       const entities = getRestEntities(camelResource);
-      expect(entities.length).toBe(initialCount + 1);
-      expect(entities.filter((e) => e.type === EntityType.Rest).length).toBe(2);
+      expect(entities).toHaveLength(initialCount + 1);
+      expect(entities.filter((e) => e.type === EntityType.Rest)).toHaveLength(2);
     });
 
     it('should add REST method', async () => {
@@ -202,7 +202,7 @@ describe('RestDslEditorPage', () => {
       });
 
       const entities = getRestEntities(camelResource);
-      expect(entities.length).toBe(initialCount - 1);
+      expect(entities).toHaveLength(initialCount - 1);
       expect(entities.find((e) => e.id === 'rest-1')).toBeUndefined();
     });
   });
@@ -222,7 +222,7 @@ describe('RestDslEditorPage', () => {
       await clickToolbarActionUtil('Add Configuration');
 
       await waitFor(() => {
-        expect(getRestEntities(camelResource).length).toBe(initialCount + 1);
+        expect(getRestEntities(camelResource)).toHaveLength(initialCount + 1);
       });
 
       await waitFor(() => {
@@ -245,7 +245,7 @@ describe('RestDslEditorPage', () => {
       await clickToolbarActionUtil('Add Service');
 
       await waitFor(() => {
-        expect(getRestEntities(camelResource).length).toBe(2);
+        expect(getRestEntities(camelResource)).toHaveLength(2);
       });
 
       await waitFor(() => {

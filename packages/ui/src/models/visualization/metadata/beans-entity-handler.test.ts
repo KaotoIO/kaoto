@@ -56,7 +56,7 @@ describe('BeansEntityHandler', () => {
       ]);
       expect(beansHandler.getBeansModel()?.length).toEqual(2);
       const nameAndType = beansHandler.getAllBeansNameAndType();
-      expect(nameAndType.length).toEqual(2);
+      expect(nameAndType).toHaveLength(2);
       expect(nameAndType).toEqual([
         { name: 'myBean1', type: 'myType1' },
         { name: 'myBean2', type: 'myType2' },
@@ -113,7 +113,7 @@ describe('BeansEntityHandler', () => {
       ]);
       expect(beansHandler.getBeansModel()?.length).toEqual(2);
       const nameAndType = beansHandler.getAllBeansNameAndType();
-      expect(nameAndType.length).toEqual(2);
+      expect(nameAndType).toHaveLength(2);
       expect(nameAndType).toEqual([
         { name: 'myBean1', type: 'myType1' },
         { name: 'myBean2', type: 'myType2' },

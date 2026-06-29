@@ -75,31 +75,31 @@ describe('VisualizationService / JSON', () => {
 
   it('should engage JSON mapping', () => {
     const cartChildren = VisualizationService.generateStructuredDocumentChildren(cartDocNode);
-    expect(cartChildren.length).toEqual(1);
+    expect(cartChildren).toHaveLength(1);
     expect(cartChildren[0].title).toEqual('array');
     const cartArrayChildren = VisualizationService.generateNonDocumentNodeDataChildren(cartChildren[0]);
-    expect(cartArrayChildren.length).toEqual(1);
+    expect(cartArrayChildren).toHaveLength(1);
     expect(cartArrayChildren[0].title).toEqual('map');
     const cartItemChildren = VisualizationService.generateNonDocumentNodeDataChildren(cartArrayChildren[0]);
-    expect(cartItemChildren.length).toEqual(4);
+    expect(cartItemChildren).toHaveLength(4);
 
     const accountChildren = VisualizationService.generateStructuredDocumentChildren(accountDocNode);
-    expect(accountChildren.length).toEqual(1);
+    expect(accountChildren).toHaveLength(1);
     expect(accountChildren[0].title).toEqual('map');
     const accountMapChildren = VisualizationService.generateNonDocumentNodeDataChildren(accountChildren[0]);
-    expect(accountMapChildren.length).toEqual(3);
+    expect(accountMapChildren).toHaveLength(3);
 
     let targetChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
-    expect(targetChildren.length).toEqual(1);
+    expect(targetChildren).toHaveLength(1);
     expect(targetChildren[0].title).toEqual('map');
     let targetMapChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetChildren[0]);
-    expect(targetMapChildren.length).toEqual(4);
+    expect(targetMapChildren).toHaveLength(4);
 
     let itemArrayChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetMapChildren[3]);
-    expect(itemArrayChildren.length).toEqual(1);
+    expect(itemArrayChildren).toHaveLength(1);
     expect(itemArrayChildren[0].title).toEqual('map');
 
-    expect(mappingTree.children.length).toEqual(0);
+    expect(mappingTree.children).toHaveLength(0);
     expect(accountMapChildren[1].title).toEqual('string [@key = Name]');
     expect(targetMapChildren[1].title).toEqual('string [@key = OrderPerson]');
     MappingActionService.engageMapping(
@@ -154,14 +154,14 @@ describe('VisualizationService / JSON', () => {
       mappingTree,
       sourceParameterMap,
     ));
-    expect(mappingTree.children.length).toEqual(1);
+    expect(mappingTree.children).toHaveLength(1);
 
     targetDocNode = new TargetDocumentNodeData(targetDoc, mappingTree);
     const targetChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
-    expect(targetChildren.length).toEqual(1);
+    expect(targetChildren).toHaveLength(1);
     expect(targetChildren[0].title).toEqual('map');
     const targetMapChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetChildren[0]);
-    expect(targetMapChildren.length).toEqual(4);
+    expect(targetMapChildren).toHaveLength(4);
 
     const orderIdSelector = (targetMapChildren[0] as TargetFieldNodeData).mapping!.children[0] as ValueSelector;
     expect(orderIdSelector.expression).toEqual(
@@ -185,7 +185,7 @@ describe('VisualizationService / JSON', () => {
     expect(countrySelector.expression).toEqual("$Account-x/fn:map/fn:map[@key='Address']/fn:string[@key='Country']");
 
     const itemArrayChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetMapChildren[3]);
-    expect(itemArrayChildren.length).toEqual(2);
+    expect(itemArrayChildren).toHaveLength(2);
     const forEach = (itemArrayChildren[0] as MappingNodeData).mapping as ForEachItem;
     expect(forEach.expression).toEqual('$Cart-x/fn:array/fn:map');
     const forEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(itemArrayChildren[0]);
@@ -214,12 +214,12 @@ describe('VisualizationService / JSON', () => {
     const camelYamlDoc = result.document!;
     targetDocNode = new TargetDocumentNodeData(camelYamlDoc, mappingTree);
     const targetChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
-    expect(targetChildren.length).toEqual(1);
+    expect(targetChildren).toHaveLength(1);
     const topmostArray = targetChildren[0] as TargetFieldNodeData;
     expect(topmostArray.title).toEqual('array');
 
     const topmostArrayItem = VisualizationService.generateNonDocumentNodeDataChildren(topmostArray);
-    expect(topmostArrayItem.length).toEqual(1);
+    expect(topmostArrayItem).toHaveLength(1);
     const topmostArrayMap = topmostArrayItem[0] as TargetFieldNodeData;
     expect(topmostArrayMap.title).toEqual('map');
 
@@ -228,7 +228,7 @@ describe('VisualizationService / JSON', () => {
 
     const beansArray = entities.find((entity) => entity.title === 'array [@key = beans]') as TargetFieldNodeData;
     const beansArrayChildren = VisualizationService.generateNonDocumentNodeDataChildren(beansArray);
-    expect(beansArrayChildren.length).toEqual(1);
+    expect(beansArrayChildren).toHaveLength(1);
 
     const beansEntity = beansArrayChildren[0] as TargetFieldNodeData;
     expect(beansEntity.title).toEqual('map');

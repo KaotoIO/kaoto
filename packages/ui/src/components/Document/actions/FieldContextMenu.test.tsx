@@ -61,7 +61,7 @@ describe('FieldContextMenu', () => {
     const { container } = render(<FieldContextMenu groups={[emptyGroup, overrideGroup]} />);
 
     expect(screen.getByText('Override Field...')).toBeInTheDocument();
-    expect(container.querySelectorAll('[role="separator"]').length).toBe(0);
+    expect(container.querySelectorAll('[role="separator"]')).toHaveLength(0);
   });
 
   it('should render dividers between non-empty groups', () => {
@@ -70,7 +70,7 @@ describe('FieldContextMenu', () => {
 
     const { container } = render(<FieldContextMenu groups={[group1, group2]} />);
 
-    expect(container.querySelectorAll('.pf-v6-c-divider, [role="separator"]').length).toBe(1);
+    expect(container.querySelectorAll('.pf-v6-c-divider, [role="separator"]')).toHaveLength(1);
   });
 
   describe('Choice wrapper context menu (Case A)', () => {

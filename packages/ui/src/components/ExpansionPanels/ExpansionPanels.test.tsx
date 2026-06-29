@@ -223,7 +223,7 @@ describe('ExpansionPanels', () => {
       expect(gridTemplate).toBeTruthy();
       // Grid template should have both panels
       const heights = parseHeights(gridTemplate);
-      expect(heights.length).toBe(2);
+      expect(heights).toHaveLength(2);
     });
 
     it('should assign ORDER_LAST (1000) to panel with lastPanelId prop', async () => {
@@ -250,7 +250,7 @@ describe('ExpansionPanels', () => {
 
       // Panels should be present in grid template
       const heights = parseHeights(gridTemplate);
-      expect(heights.length).toBe(2);
+      expect(heights).toHaveLength(2);
     });
   });
 
@@ -554,7 +554,7 @@ describe('ExpansionPanels', () => {
       expect(gridTemplate).toBeTruthy();
 
       const heights = parseHeights(gridTemplate);
-      expect(heights.length).toBe(3);
+      expect(heights).toHaveLength(3);
     });
 
     it('should distribute space proportionally when enough space is available', async () => {
@@ -657,7 +657,7 @@ describe('ExpansionPanels', () => {
       expect(gridTemplate).toBeTruthy();
       // All three panels should be present and redistributed to fit
       const heights = parseHeights(gridTemplate);
-      expect(heights.length).toBe(3);
+      expect(heights).toHaveLength(3);
       // Total should not exceed container height
       const totalHeight = heights.reduce((sum, h) => sum + h, 0);
       expect(totalHeight).toBeLessThanOrEqual(600);
@@ -713,7 +713,7 @@ describe('ExpansionPanels', () => {
       const heights = parseHeights(gridTemplate);
 
       // panel-1 should have received the freed space from panel-2
-      expect(heights.length).toBe(1);
+      expect(heights).toHaveLength(1);
       expect(heights[0]).toBeGreaterThanOrEqual(300);
     });
 
@@ -735,7 +735,7 @@ describe('ExpansionPanels', () => {
       expect(gridTemplate).toBeTruthy();
       // Should not crash, collapsed panel remains
       const heights = parseHeights(gridTemplate);
-      expect(heights.length).toBe(1);
+      expect(heights).toHaveLength(1);
     });
   });
 
@@ -763,7 +763,7 @@ describe('ExpansionPanels', () => {
       expect(gridTemplate).toBeTruthy();
       // Grid template should have 3 panel heights
       const heights = parseHeights(gridTemplate);
-      expect(heights.length).toBe(3);
+      expect(heights).toHaveLength(3);
     });
   });
 

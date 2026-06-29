@@ -40,7 +40,7 @@ describe('DetachSchemaButton', () => {
       </DataMapperProvider>,
     );
     const detachBtn = await screen.findByTestId('detach-schema-sourceBody-Body-button');
-    expect(sourceDoc!.fields.length).toBe(1);
+    expect(sourceDoc!.fields).toHaveLength(1);
     act(() => {
       fireEvent.click(detachBtn);
     });
@@ -49,7 +49,7 @@ describe('DetachSchemaButton', () => {
       fireEvent.click(confirmBtn);
     });
     await screen.findByTestId('detachtest');
-    expect(sourceDoc!.fields.length).toBe(0);
+    expect(sourceDoc!.fields).toHaveLength(0);
     expect(sourceDoc! instanceof PrimitiveDocument);
   });
 

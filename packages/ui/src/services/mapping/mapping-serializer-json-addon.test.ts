@@ -37,13 +37,13 @@ describe('mappingSerializerJsonAddon', () => {
       );
       MappingSerializerJsonAddon.populateJsonTargetBase(mappings, template);
 
-      expect(template.children.length).toBe(1);
+      expect(template.children).toHaveLength(1);
       const valueOf = template.children[0];
       expect(valueOf.namespaceURI).toEqual(NS_XSL);
       expect(valueOf.localName).toEqual('value-of');
       expect(valueOf.getAttribute('select')).toEqual(`xml-to-json($${TO_JSON_TARGET_VARIABLE})`);
 
-      expect(stylesheet.children.length).toBe(3);
+      expect(stylesheet.children).toHaveLength(3);
       const output = stylesheet.children[0];
       expect(output.getAttribute('method')).toEqual('text');
 
@@ -64,9 +64,9 @@ describe('mappingSerializerJsonAddon', () => {
       const root = MappingSerializerJsonAddon.populateJsonTargetBase(mappings, template);
 
       expect(root).toBeNull();
-      expect(template.children.length).toBe(0);
+      expect(template.children).toHaveLength(0);
 
-      expect(stylesheet.children.length).toBe(2);
+      expect(stylesheet.children).toHaveLength(2);
       const output = stylesheet.children[0];
       expect(output.getAttribute('method')).toEqual('xml');
     });
@@ -82,9 +82,9 @@ describe('mappingSerializerJsonAddon', () => {
       const root = MappingSerializerJsonAddon.populateJsonTargetBase(mappings, template);
 
       expect(root).toBeNull();
-      expect(template.children.length).toBe(0);
+      expect(template.children).toHaveLength(0);
 
-      expect(stylesheet.children.length).toBe(2);
+      expect(stylesheet.children).toHaveLength(2);
       const output = stylesheet.children[0];
       expect(output.getAttribute('method')).toEqual('xml');
     });
@@ -100,7 +100,7 @@ describe('mappingSerializerJsonAddon', () => {
       );
       MappingSerializerJsonAddon.populateJsonToXmlVariable(doc, stylesheet, paramName);
 
-      expect(stylesheet.children.length).toBe(2);
+      expect(stylesheet.children).toHaveLength(2);
       const variable = stylesheet.children[1];
       expect(variable.getAttribute('name')).toEqual(paramName + FROM_JSON_SOURCE_SUFFIX);
       expect(variable.getAttribute('select')).toEqual(`json-to-xml($${paramName})`);
@@ -114,7 +114,7 @@ describe('mappingSerializerJsonAddon', () => {
         new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, paramName),
       );
       MappingSerializerJsonAddon.populateJsonToXmlVariable(doc, stylesheet, paramName);
-      expect(stylesheet.children.length).toBe(1);
+      expect(stylesheet.children).toHaveLength(1);
     });
   });
 

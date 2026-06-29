@@ -48,7 +48,7 @@ describe('XmlSchemaCollection', () => {
     expect(shipOrderElement!.getMaxOccurs()).toEqual(1);
     const shipOrderComplexType = shipOrderElement!.getSchemaType() as XmlSchemaComplexType;
     const shipOrderAttributes = shipOrderComplexType.getAttributes();
-    expect(shipOrderAttributes.length).toBe(1);
+    expect(shipOrderAttributes).toHaveLength(1);
     const orderIdAttr = shipOrderAttributes[0] as XmlSchemaAttribute;
     expect(orderIdAttr.getName()).toEqual('OrderId');
     expect(orderIdAttr.getWireName()?.getNamespaceURI()).toBe('');
@@ -60,7 +60,7 @@ describe('XmlSchemaCollection', () => {
 
     const shipOrderSequence = shipOrderComplexType.getParticle() as XmlSchemaSequence;
     const shipOrderSequenceMembers = shipOrderSequence.getItems();
-    expect(shipOrderSequenceMembers.length).toBe(3);
+    expect(shipOrderSequenceMembers).toHaveLength(3);
 
     const orderPerson = shipOrderSequenceMembers[0] as XmlSchemaElement;
     expect(orderPerson.getSchemaType() instanceof XmlSchemaSimpleType).toBeTruthy();
@@ -75,7 +75,7 @@ describe('XmlSchemaCollection', () => {
     const shipToSchemaType = shipTo.getSchemaType() as XmlSchemaComplexType;
     const shipToSequence = shipToSchemaType.getParticle() as XmlSchemaSequence;
     const shipToSequenceMenbers = shipToSequence.getItems();
-    expect(shipToSequenceMenbers.length).toBe(4);
+    expect(shipToSequenceMenbers).toHaveLength(4);
     expect(shipTo.getSchemaTypeName()).toBeNull();
     expect(shipTo.getName()).toEqual('ShipTo');
     expect(shipTo.getWireName()?.getNamespaceURI()).toEqual('');
@@ -88,7 +88,7 @@ describe('XmlSchemaCollection', () => {
     const itemSchemaType = item.getSchemaType() as XmlSchemaComplexType;
     const itemSequence = itemSchemaType.getParticle() as XmlSchemaSequence;
     const itemSequenceMembers = itemSequence.getItems();
-    expect(itemSequenceMembers.length).toEqual(4);
+    expect(itemSequenceMembers).toHaveLength(4);
     const itemNote = itemSequenceMembers[1] as XmlSchemaElement;
     expect(itemNote.getMinOccurs()).toEqual(0);
     const itemQuantity = itemSequenceMembers[2] as XmlSchemaElement;
@@ -107,7 +107,7 @@ describe('XmlSchemaCollection', () => {
     const testDocumentElement = elements.get(new QName('io.kaoto.datamapper.poc.test', 'TestDocument'));
     const testDocumentComplexType = testDocumentElement!.getSchemaType() as XmlSchemaComplexType;
     const testDocumentAttributes = testDocumentComplexType.getAttributes();
-    expect(testDocumentAttributes.length).toBe(1);
+    expect(testDocumentAttributes).toHaveLength(1);
     const attrGroupRef = (testDocumentAttributes[0] as XmlSchemaAttributeGroupRef).getRef();
     expect(attrGroupRef.getTarget()).toBeTruthy();
   });
@@ -121,7 +121,7 @@ describe('XmlSchemaCollection', () => {
     const element1ComplexType = element1!.getSchemaType() as XmlSchemaComplexType;
     const element1Sequence = element1ComplexType.getParticle() as XmlSchemaSequence;
     const element1SequenceMembers = element1Sequence.getItems();
-    expect(element1SequenceMembers.length).toEqual(1);
+    expect(element1SequenceMembers).toHaveLength(1);
     const element1Simple1 = element1SequenceMembers[0] as XmlSchemaElement;
     expect(element1Simple1.getWireName()?.getNamespaceURI()).toEqual('');
     expect(element1Simple1.getWireName()?.getLocalPart()).toEqual('Element1Simple1');
@@ -137,9 +137,9 @@ describe('XmlSchemaCollection', () => {
       .getContentModel()
       ?.getContent() as XmlSchemaComplexContentExtension;
     expect(aggregateComplexContent.getBaseTypeName()?.getLocalPart()).toEqual('output');
-    expect(aggregateComplexContent.getAttributes().length).toEqual(22);
+    expect(aggregateComplexContent.getAttributes()).toHaveLength(22);
     const particle = aggregateComplexContent.getParticle() as XmlSchemaSequence;
-    expect(particle.getItems().length).toEqual(6);
+    expect(particle.getItems()).toHaveLength(6);
   });
 
   it('should parse ShipOrderEmptyFirstLine.xsd', () => {
@@ -200,7 +200,7 @@ describe('XmlSchemaCollection', () => {
     expect(restrictionParticle).toBeDefined();
 
     const restrictionElements = restrictionParticle.getItems();
-    expect(restrictionElements.length).toEqual(3);
+    expect(restrictionElements).toHaveLength(3);
 
     const requiredElement = restrictionElements[1] as XmlSchemaElement;
     expect(requiredElement).toBeDefined();
@@ -331,7 +331,7 @@ describe('XmlSchemaCollection', () => {
 
       const particle = extension.getParticle() as XmlSchemaSequence;
       expect(particle).toBeTruthy();
-      expect(particle.getItems().length).toBe(2);
+      expect(particle.getItems()).toHaveLength(2);
 
       const employeeIdElem = particle.getItems()[0] as XmlSchemaElement;
       expect(employeeIdElem.getWireName()?.getLocalPart()).toBe('employeeId');
@@ -339,7 +339,7 @@ describe('XmlSchemaCollection', () => {
       const deptElem = particle.getItems()[1] as XmlSchemaElement;
       expect(deptElem.getWireName()?.getLocalPart()).toBe('department');
 
-      expect(extension.getAttributes().length).toBe(1);
+      expect(extension.getAttributes()).toHaveLength(1);
       const hireDateAttr = extension.getAttributes()[0] as XmlSchemaAttribute;
       expect(hireDateAttr.getName()).toBe('hireDate');
     });

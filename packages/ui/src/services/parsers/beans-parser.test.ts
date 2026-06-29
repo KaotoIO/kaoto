@@ -11,8 +11,8 @@ describe('BeansParser', () => {
       const beansEntity = resource.getEntities()[0] as BeansEntity;
       const parsedTable = BeansParser.parseBeansEntity(beansEntity, 'Beans');
       expect(parsedTable.title).toEqual('Beans');
-      expect(parsedTable.data.length).toEqual(3);
-      expect(parsedTable.headers.length).toEqual(5);
+      expect(parsedTable.data).toHaveLength(3);
+      expect(parsedTable.headers).toHaveLength(5);
       expect(parsedTable.headers[0]).toEqual('Name');
       expect(parsedTable.headers[1]).toEqual('Type');
       expect(parsedTable.headers[2]).toEqual('Property Name');
@@ -32,7 +32,7 @@ describe('BeansParser', () => {
       beansEntity.parent.beans.forEach((bean) => (bean.properties = {}));
       const parsedTable = BeansParser.parseBeansEntity(beansEntity, 'Beans');
       expect(parsedTable.title).toEqual('Beans');
-      expect(parsedTable.data.length).toEqual(2);
+      expect(parsedTable.data).toHaveLength(2);
       expect(parsedTable.data[0][0]).toEqual('myBean');
       expect(parsedTable.data[0][1]).toEqual('io.kaoto.MyBean');
       expect(parsedTable.data[0][2]).toEqual('');
@@ -50,7 +50,7 @@ describe('BeansParser', () => {
       resource.initialize();
       const beansEntity = resource.getEntities()[0] as BeansEntity;
       const parsedTable = BeansParser.parseBeansEntity(beansEntity, 'Beans');
-      expect(parsedTable.data.length).toEqual(7);
+      expect(parsedTable.data).toHaveLength(7);
       expect(parsedTable.data[0][0]).toEqual('test');
       expect(parsedTable.data[0][1]).toEqual('java.util.Timer');
       expect(parsedTable.data[0][2]).toEqual('foo');

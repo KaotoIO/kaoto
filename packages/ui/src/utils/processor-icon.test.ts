@@ -20,12 +20,12 @@ describe('getProcessorIcon', () => {
   it('should return null for not specified processors', () => {
     const result = getProcessorIcon('unknown' as keyof ProcessorDefinition);
 
-    expect(result).toBe(null);
+    expect(result).toBeNull();
   });
 
   it('should return null for setHeader processor', () => {
     const result = getProcessorIcon('setHeader' as keyof ProcessorDefinition);
 
-    expect(result).toBe(null);
+    expect(result).toBeNull();
   });
 });

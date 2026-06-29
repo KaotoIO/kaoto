@@ -822,7 +822,7 @@ describe('XmlSchemaDocumentUtilService', () => {
 
       const options = XmlSchemaDocumentUtilService.collectRootElementOptions(result.document!.xmlSchemaCollection);
 
-      expect(options.length).toBe(2);
+      expect(options).toHaveLength(2);
       expect(options).toContainEqual({
         namespaceUri: 'kaoto.datamapper.test',
         name: 'account',
@@ -849,7 +849,7 @@ describe('XmlSchemaDocumentUtilService', () => {
 
       const options = XmlSchemaDocumentUtilService.collectRootElementOptions(result.document!.xmlSchemaCollection);
 
-      expect(options.length).toBe(2);
+      expect(options).toHaveLength(2);
       expect(options).toContainEqual({
         namespaceUri: '',
         name: 'account',
@@ -875,7 +875,7 @@ describe('XmlSchemaDocumentUtilService', () => {
 
       const options = XmlSchemaDocumentUtilService.collectRootElementOptions(result.document!.xmlSchemaCollection);
 
-      expect(options.length).toBe(3);
+      expect(options).toHaveLength(3);
       expect(options).toContainEqual({
         namespaceUri: 'io.kaoto.datamapper.test.multiple',
         name: 'Order',

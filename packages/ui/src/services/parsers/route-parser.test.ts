@@ -36,13 +36,13 @@ describe('RouteParser', () => {
       expect(parsed.title).toEqual('route-8888');
       expect(parsed.description).toBeUndefined();
       expect(parsed.headingLevel).toEqual('h1');
-      expect(parsed.headers.length).toEqual(5);
+      expect(parsed.headers).toHaveLength(5);
       expect(parsed.headers[0]).toEqual('Step ID');
       expect(parsed.headers[1]).toEqual('Step');
       expect(parsed.headers[2]).toEqual('URI');
       expect(parsed.headers[3]).toEqual('Parameter Name');
       expect(parsed.headers[4]).toEqual('Value');
-      expect(parsed.data.length).toEqual(11);
+      expect(parsed.data).toHaveLength(11);
       expect(parsed.data[0][0]).toBeUndefined();
       expect(parsed.data[0][1]).toEqual('from');
       expect(parsed.data[0][2]).toEqual('timer');
@@ -59,15 +59,15 @@ describe('RouteParser', () => {
     it('should parse route configuration', () => {
       const parsed = RouteParser.parseRouteConfigurationEntity(rcEntity);
 
-      expect(parsed.length).toEqual(7);
+      expect(parsed).toHaveLength(7);
 
       expect(parsed[0].title).toEqual('routeConfiguration-1956');
       expect(parsed[0].description).toBeUndefined();
       expect(parsed[0].headingLevel).toEqual('h1');
-      expect(parsed[0].headers.length).toEqual(2);
+      expect(parsed[0].headers).toHaveLength(2);
       expect(parsed[0].headers[0]).toEqual('Parameter Name');
       expect(parsed[0].headers[1]).toEqual('Parameter Value');
-      expect(parsed[0].data.length).toEqual(0);
+      expect(parsed[0].data).toHaveLength(0);
 
       expect(parsed[1].title).toEqual('defaultErrorHandler');
       expect(parsed[1].headingLevel).toEqual('h2');
@@ -98,10 +98,10 @@ describe('RouteParser', () => {
 
       expect(parsed.title).toEqual('errorHandler-1234');
       expect(parsed.description).toEqual('');
-      expect(parsed.headers.length).toEqual(2);
+      expect(parsed.headers).toHaveLength(2);
       expect(parsed.headers[0]).toEqual('Parameter Name');
       expect(parsed.headers[1]).toEqual('Parameter Value');
-      expect(parsed.data.length).toEqual(1);
+      expect(parsed.data).toHaveLength(1);
       expect(parsed.data[0][0]).toEqual('defaultErrorHandler.level');
       expect(parsed.data[0][1]).toEqual('ERROR');
     });
@@ -117,14 +117,14 @@ describe('RouteParser', () => {
       expect(parsed.title).toEqual('Intercept');
       expect(parsed.description).toEqual('');
       expect(parsed.headingLevel).toEqual('h1');
-      expect(parsed.headers.length).toEqual(6);
+      expect(parsed.headers).toHaveLength(6);
       expect(parsed.headers[0]).toEqual('ID');
       expect(parsed.headers[1]).toEqual('Step ID');
       expect(parsed.headers[2]).toEqual('Step');
       expect(parsed.headers[3]).toEqual('URI');
       expect(parsed.headers[4]).toEqual('Parameter Name');
       expect(parsed.headers[5]).toEqual('Value');
-      expect(parsed.data.length).toEqual(1);
+      expect(parsed.data).toHaveLength(1);
       expect(parsed.data[0][0]).toEqual('intercept-2829');
       expect(parsed.data[0][1]).toEqual('to-4106');
       expect(parsed.data[0][2]).toEqual('to');
@@ -144,14 +144,14 @@ describe('RouteParser', () => {
       expect(parsed.title).toEqual('interceptFrom-1234');
       expect(parsed.description).toEqual('');
       expect(parsed.headingLevel).toEqual('h1');
-      expect(parsed.headers.length).toEqual(6);
+      expect(parsed.headers).toHaveLength(6);
       expect(parsed.headers[0]).toEqual('ID');
       expect(parsed.headers[1]).toEqual('Step ID');
       expect(parsed.headers[2]).toEqual('Step');
       expect(parsed.headers[3]).toEqual('URI');
       expect(parsed.headers[4]).toEqual('Parameter Name');
       expect(parsed.headers[5]).toEqual('Value');
-      expect(parsed.data.length).toEqual(1);
+      expect(parsed.data).toHaveLength(1);
       expect(parsed.data[0][0]).toEqual('interceptFrom-3077');
       expect(parsed.data[0][1]).toEqual('to-4830');
       expect(parsed.data[0][2]).toEqual('to');
@@ -172,14 +172,14 @@ describe('RouteParser', () => {
       expect(parsed.title).toEqual('Intercept Send To Endpoint');
       expect(parsed.description).toEqual('');
       expect(parsed.headingLevel).toEqual('h1');
-      expect(parsed.headers.length).toEqual(6);
+      expect(parsed.headers).toHaveLength(6);
       expect(parsed.headers[0]).toEqual('ID');
       expect(parsed.headers[1]).toEqual('Step ID');
       expect(parsed.headers[2]).toEqual('Step');
       expect(parsed.headers[3]).toEqual('URI');
       expect(parsed.headers[4]).toEqual('Parameter Name');
       expect(parsed.headers[5]).toEqual('Value');
-      expect(parsed.data.length).toEqual(2);
+      expect(parsed.data).toHaveLength(2);
       expect(parsed.data[0][0]).toEqual('interceptSendToEndpoint-1407');
       expect(parsed.data[0][1]).toEqual('');
       expect(parsed.data[0][2]).toEqual('');
@@ -199,14 +199,14 @@ describe('RouteParser', () => {
       expect(parsed.title).toEqual('onCompletion-1234');
       expect(parsed.description).toEqual('');
       expect(parsed.headingLevel).toEqual('h1');
-      expect(parsed.headers.length).toEqual(6);
+      expect(parsed.headers).toHaveLength(6);
       expect(parsed.headers[0]).toEqual('ID');
       expect(parsed.headers[1]).toEqual('Step ID');
       expect(parsed.headers[2]).toEqual('Step');
       expect(parsed.headers[3]).toEqual('URI');
       expect(parsed.headers[4]).toEqual('Parameter Name');
       expect(parsed.headers[5]).toEqual('Value');
-      expect(parsed.data.length).toEqual(1);
+      expect(parsed.data).toHaveLength(1);
       expect(parsed.data[0][0]).toEqual('onCompletion-3828');
       expect(parsed.data[0][1]).toEqual('to-2313');
       expect(parsed.data[0][2]).toEqual('to');
@@ -226,14 +226,14 @@ describe('RouteParser', () => {
       expect(parsed.title).toEqual('onException-1234');
       expect(parsed.description).toEqual('');
       expect(parsed.headingLevel).toEqual('h1');
-      expect(parsed.headers.length).toEqual(6);
+      expect(parsed.headers).toHaveLength(6);
       expect(parsed.headers[0]).toEqual('ID');
       expect(parsed.headers[1]).toEqual('Step ID');
       expect(parsed.headers[2]).toEqual('Step');
       expect(parsed.headers[3]).toEqual('URI');
       expect(parsed.headers[4]).toEqual('Parameter Name');
       expect(parsed.headers[5]).toEqual('Value');
-      expect(parsed.data.length).toEqual(1);
+      expect(parsed.data).toHaveLength(1);
       expect(parsed.data[0][0]).toEqual('onException-2301');
       expect(parsed.data[0][1]).toEqual('to-3485');
       expect(parsed.data[0][2]).toEqual('to');

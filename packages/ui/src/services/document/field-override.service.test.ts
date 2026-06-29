@@ -146,7 +146,7 @@ describe('FieldOverrideService', () => {
       const candidates = FieldOverrideService.getSafeOverrideCandidates(nameField, {});
 
       expect(typeof candidates).toBe('object');
-      expect(Object.keys(candidates).length).toBe(0);
+      expect(Object.keys(candidates)).toHaveLength(0);
     });
   });
 
@@ -219,7 +219,7 @@ describe('FieldOverrideService', () => {
       const candidates = FieldOverrideService.getAllOverrideCandidates(malformedDoc, {});
 
       expect(typeof candidates).toBe('object');
-      expect(Object.keys(candidates).length).toBe(0);
+      expect(Object.keys(candidates)).toHaveLength(0);
     });
   });
 
@@ -874,7 +874,7 @@ describe('FieldOverrideService', () => {
 
       expect(abstractAnimalField.name).toBe('AbstractAnimal');
       expect(abstractAnimalField.selectedMemberIndex).toBeUndefined();
-      expect(abstractAnimalField.fields.length).toBe(originalFieldCount);
+      expect(abstractAnimalField.fields).toHaveLength(originalFieldCount);
       expect(doc.definition.fieldSubstitutions ?? []).toHaveLength(0);
     });
 

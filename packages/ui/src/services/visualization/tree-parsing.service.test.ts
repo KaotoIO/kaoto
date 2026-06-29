@@ -84,7 +84,7 @@ describe('TreeParsingService', () => {
       TreeParsingService.parseTree(primitiveTree);
 
       // The 'if' instruction item should appear as a content root
-      expect(primitiveTree.contentRoots.length).toBe(1);
+      expect(primitiveTree.contentRoots).toHaveLength(1);
       expect(primitiveTree.contentRoots[0].nodeData).toBeInstanceOf(MappingNodeData);
       expect(primitiveTree.contentRoots[0].nodeData.title).toBe('if');
 

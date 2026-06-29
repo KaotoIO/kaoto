@@ -93,7 +93,7 @@ describe('VisualizationService / abstract fields', () => {
       };
       const parentNode = new FieldNodeData(sourceDocNode, parentField as (typeof sourceDoc.fields)[0]);
       const children = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
-      expect(children.length).toEqual(1);
+      expect(children).toHaveLength(1);
       expect(children[0]).toBeInstanceOf(AbstractFieldNodeData);
     });
 
@@ -105,7 +105,7 @@ describe('VisualizationService / abstract fields', () => {
       };
       const parentNode = new TargetFieldNodeData(targetDocNode, parentField as (typeof targetDoc.fields)[0]);
       const children = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
-      expect(children.length).toEqual(1);
+      expect(children).toHaveLength(1);
       expect(children[0]).toBeInstanceOf(TargetAbstractFieldNodeData);
     });
 
@@ -117,7 +117,7 @@ describe('VisualizationService / abstract fields', () => {
       };
       const parentNode = new FieldNodeData(sourceDocNode, parentField as (typeof sourceDoc.fields)[0]);
       const children = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
-      expect(children.length).toEqual(1);
+      expect(children).toHaveLength(1);
       expect(children[0]).toBeInstanceOf(AbstractFieldNodeData);
       expect(children[0].title).toEqual('Cat');
     });
@@ -130,7 +130,7 @@ describe('VisualizationService / abstract fields', () => {
       };
       const parentNode = new TargetFieldNodeData(targetDocNode, parentField as (typeof targetDoc.fields)[0]);
       const children = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
-      expect(children.length).toEqual(1);
+      expect(children).toHaveLength(1);
       expect(children[0]).toBeInstanceOf(TargetAbstractFieldNodeData);
       expect(children[0].title).toEqual('Dog');
     });
@@ -166,7 +166,7 @@ describe('VisualizationService / abstract fields', () => {
       };
       const parentNode = new FieldNodeData(sourceDocNode, parentField as (typeof sourceDoc.fields)[0]);
       const children = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
-      expect(children.length).toEqual(1);
+      expect(children).toHaveLength(1);
       expect(children[0]).toBeInstanceOf(AbstractFieldNodeData);
     });
   });
@@ -176,7 +176,7 @@ describe('VisualizationService / abstract fields', () => {
       const abstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }]);
       const abstractNode = new AbstractFieldNodeData(sourceDocNode, abstractField);
       const children = VisualizationService.generateNonDocumentNodeDataChildren(abstractNode);
-      expect(children.length).toEqual(2);
+      expect(children).toHaveLength(2);
       expect(children[0].title).toEqual('Cat');
       expect(children[1].title).toEqual('Dog');
     });
@@ -185,7 +185,7 @@ describe('VisualizationService / abstract fields', () => {
       const abstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }], 99);
       const abstractNode = new AbstractFieldNodeData(sourceDocNode, abstractField);
       const children = VisualizationService.generateNonDocumentNodeDataChildren(abstractNode);
-      expect(children.length).toEqual(2);
+      expect(children).toHaveLength(2);
       expect(children[0].title).toEqual('Cat');
       expect(children[1].title).toEqual('Dog');
     });
@@ -493,7 +493,7 @@ describe('VisualizationService / abstract fields', () => {
       const innerAbstractNode = new TargetAbstractFieldNodeData(outerAbstractNode, innerAbstractField);
 
       const children = VisualizationService.generateNonDocumentNodeDataChildren(innerAbstractNode);
-      expect(children.length).toEqual(2);
+      expect(children).toHaveLength(2);
       expect(children[0].title).toEqual('Kitten');
       expect(children[1].title).toEqual('Puppy');
     });
@@ -520,7 +520,7 @@ describe('VisualizationService / abstract fields', () => {
       const abstractNode = new TargetAbstractFieldNodeData(choiceNode, abstractField);
 
       const children = VisualizationService.generateNonDocumentNodeDataChildren(abstractNode);
-      expect(children.length).toEqual(2);
+      expect(children).toHaveLength(2);
       expect(children[0].title).toEqual('Kitten');
       expect(children[1].title).toEqual('Puppy');
     });

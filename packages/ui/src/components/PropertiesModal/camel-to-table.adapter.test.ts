@@ -170,7 +170,7 @@ describe('camelComponentToTable', () => {
     expect(table.headers).toContain(PropertiesHeaders.Default);
     expect(table.headers).toContain(PropertiesHeaders.Type);
 
-    expect(table.rows.length).toEqual(1);
+    expect(table.rows).toHaveLength(1);
     expect(table.rows[0].name).toEqual('brokerURL');
     expect(table.rows[0].description).toEqual('url');
     expect(table.rows[0].default).toBeUndefined();
@@ -192,7 +192,7 @@ describe('camelComponentToTable', () => {
     expect(table.headers).toContain(PropertiesHeaders.Default);
     expect(table.headers).toContain(PropertiesHeaders.Type);
 
-    expect(table.rows.length).toEqual(1);
+    expect(table.rows).toHaveLength(1);
     expect(table.rows[0].name).toEqual('hostname');
     expect(table.rows[0].description).toEqual('The hostname of the asterisk server');
     expect(table.rows[0].default).toBeUndefined();
@@ -211,9 +211,9 @@ describe('camelComponentToTable', () => {
     expect(table.headers).toContain(PropertiesHeaders.Default);
     expect(table.headers).toContain(PropertiesHeaders.Type);
 
-    expect(table.rows.length).toEqual(0);
+    expect(table.rows).toHaveLength(0);
     table = camelComponentPropertiesToTable(componentDef.headers!);
-    expect(table.rows.length).toEqual(1);
+    expect(table.rows).toHaveLength(1);
     expect(table.rows[0].name).toEqual('CamelAsteriskEventName');
     expect(table.rows[0].description).toEqual('Header asterisk');
     expect(table.rows[0].default).toBeUndefined();
@@ -230,7 +230,7 @@ describe('camelComponentToTable', () => {
     expect(table.headers).toContain(PropertiesHeaders.Description);
     expect(table.headers).toContain(PropertiesHeaders.Type);
 
-    expect(table.rows.length).toEqual(4);
+    expect(table.rows).toHaveLength(4);
     expect(table.rows[0].name).toEqual('client');
     expect(table.rows[0].description).toEqual('Client api');
     expect(table.rows[0].type).toEqual('Both');
@@ -259,13 +259,13 @@ describe('camelComponentToTable', () => {
     expect(table.headers).toContain(PropertiesHeaders.Name);
     expect(table.headers).toContain(PropertiesHeaders.Description);
     expect(table.headers).toContain(PropertiesHeaders.Type);
-    expect(table.rows.length).toEqual(0);
+    expect(table.rows).toHaveLength(0);
 
     table = camelComponentApisToTable(
       { apis: componentDef.apis!, apiProperties: componentDef.apiProperties! },
       { filterKey: 'description', filterValue: 'Server api' },
     );
-    expect(table.rows.length).toEqual(1);
+    expect(table.rows).toHaveLength(1);
     expect(table.rows[0].name).toEqual('server');
     expect(table.rows[0].description).toEqual('Server api');
     expect(table.rows[0].type).toEqual('Consumer');
@@ -306,7 +306,7 @@ describe('camelProcessorToTable', () => {
     expect(table.headers).toContain(PropertiesHeaders.Type);
     expect(table.headers).toContain(PropertiesHeaders.Description);
 
-    expect(table.rows.length).toEqual(1);
+    expect(table.rows).toHaveLength(1);
     expect(table.rows[0].name).toEqual('instanceClassName');
     expect(table.rows[0].default).toBeUndefined();
     expect(table.rows[0].type).toEqual('String');
@@ -324,10 +324,10 @@ describe('camelProcessorToTable', () => {
     expect(table.headers).toContain(PropertiesHeaders.Default);
     expect(table.headers).toContain(PropertiesHeaders.Type);
     expect(table.headers).toContain(PropertiesHeaders.Description);
-    expect(table.rows.length).toEqual(0);
+    expect(table.rows).toHaveLength(0);
 
     table = camelProcessorPropertiesToTable(processDef.properties, { filterKey: 'kind', filterValue: 'attribute' });
-    expect(table.rows.length).toEqual(1);
+    expect(table.rows).toHaveLength(1);
     expect(table.rows[0].name).toEqual('instanceClassName');
     expect(table.rows[0].default).toBeUndefined();
     expect(table.rows[0].type).toEqual('String');
@@ -372,7 +372,7 @@ describe('citrusComponentToPropertiesTable', () => {
     expect(table.headers).toContain(PropertiesHeaders.Type);
     expect(table.headers).toContain(PropertiesHeaders.Description);
 
-    expect(table.rows.length).toEqual(2);
+    expect(table.rows).toHaveLength(2);
     expect(table.rows[0].name).toEqual('prop1');
     expect(table.rows[0].type).toEqual('string');
     expect(table.rows[0].description).toEqual('The property 1 description.');
@@ -420,7 +420,7 @@ describe('kameletToTable', () => {
     expect(table.headers).toContain(PropertiesHeaders.Default);
     expect(table.headers).toContain(PropertiesHeaders.Example);
 
-    expect(table.rows.length).toEqual(2);
+    expect(table.rows).toHaveLength(2);
     expect(table.rows[0].property).toEqual('schedule');
     expect(table.rows[0].name).toEqual('Cron Schedule');
     expect(table.rows[0].description).toEqual('A cron example');
@@ -464,10 +464,10 @@ describe('kameletToTable', () => {
     expect(table.headers).toContain(PropertiesHeaders.Type);
     expect(table.headers).toContain(PropertiesHeaders.Default);
     expect(table.headers).toContain(PropertiesHeaders.Example);
-    expect(table.rows.length).toEqual(0);
+    expect(table.rows).toHaveLength(0);
 
     table = kameletToPropertiesTable(kameletDef, { filterKey: 'type', filterValue: 'number' });
-    expect(table.rows.length).toEqual(1);
+    expect(table.rows).toHaveLength(1);
     expect(table.rows[0].property).toEqual('schedule');
     expect(table.rows[0].name).toEqual('Cron Schedule');
     expect(table.rows[0].description).toEqual('A cron example');
@@ -496,7 +496,7 @@ describe('kameletToTable', () => {
     expect(table.headers).toContain(PropertiesHeaders.Default);
     expect(table.headers).toContain(PropertiesHeaders.Example);
 
-    expect(table.rows.length).toEqual(0);
+    expect(table.rows).toHaveLength(0);
   });
 
   it('should return properties with required false if no required array exists', () => {
@@ -525,7 +525,7 @@ describe('kameletToTable', () => {
     expect(table.headers).toContain(PropertiesHeaders.Default);
     expect(table.headers).toContain(PropertiesHeaders.Example);
 
-    expect(table.rows.length).toEqual(1);
+    expect(table.rows).toHaveLength(1);
     expect(table.rows[0].property).toEqual('schedule');
     expect(table.rows[0].name).toEqual('Cron Schedule');
     expect(table.rows[0].description).toEqual('A cron example');

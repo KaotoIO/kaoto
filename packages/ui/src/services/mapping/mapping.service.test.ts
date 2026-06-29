@@ -53,10 +53,10 @@ describe('MappingService', () => {
   describe('filterMappingsForField()', () => {
     it('should filter mappings', () => {
       let filtered = MappingService.filterMappingsForField(tree.children, targetDoc.fields[0]);
-      expect(filtered.length).toEqual(1);
+      expect(filtered).toHaveLength(1);
       expect((filtered[0] as FieldItem).field).toEqual(targetDoc.fields[0]);
       filtered = MappingService.filterMappingsForField(tree.children, targetDoc.fields[0].fields[0]);
-      expect(filtered.length).toEqual(0);
+      expect(filtered).toHaveLength(0);
     });
 
     it('should filter fields inside nested if', () => {
@@ -69,19 +69,19 @@ describe('MappingService', () => {
       const orderPersonField = targetDoc.fields[0].fields[1];
 
       const shipOrderFiltered = MappingService.filterMappingsForField(tree.children, shipOrderField);
-      expect(shipOrderFiltered.length).toEqual(1);
+      expect(shipOrderFiltered).toHaveLength(1);
 
       const shipOrderFieldItem = shipOrderFiltered[0] as FieldItem;
       const orderPersonFiltered = MappingService.filterMappingsForField(shipOrderFieldItem.children, orderPersonField);
-      expect(orderPersonFiltered.length).toEqual(1);
+      expect(orderPersonFiltered).toHaveLength(1);
       expect(orderPersonFiltered[0]).toBeInstanceOf(IfItem);
 
       const outerIfItem = orderPersonFiltered[0] as IfItem;
-      expect(outerIfItem.children.length).toEqual(1);
+      expect(outerIfItem.children).toHaveLength(1);
       expect(outerIfItem.children[0]).toBeInstanceOf(IfItem);
 
       const innerIfItem = outerIfItem.children[0] as IfItem;
-      expect(innerIfItem.children.length).toEqual(1);
+      expect(innerIfItem.children).toHaveLength(1);
       expect(innerIfItem.children[0]).toBeInstanceOf(FieldItem);
       expect((innerIfItem.children[0] as FieldItem).field).toEqual(orderPersonField);
     });
@@ -97,22 +97,22 @@ describe('MappingService', () => {
 
       const shipOrderField = tree.children[0] as FieldItem;
       const shipToFiltered = MappingService.filterMappingsForField(shipOrderField.children, shipToField);
-      expect(shipToFiltered.length).toEqual(1);
+      expect(shipToFiltered).toHaveLength(1);
       expect(shipToFiltered[0]).toBeInstanceOf(IfItem);
 
       const ifItem = shipToFiltered[0] as IfItem;
-      expect(ifItem.children.length).toEqual(1);
+      expect(ifItem.children).toHaveLength(1);
       expect(ifItem.children[0]).toBeInstanceOf(ChooseItem);
 
       const chooseItem = ifItem.children[0] as ChooseItem;
       const whenItem = chooseItem.when[0];
-      expect(whenItem.children.length).toEqual(1);
+      expect(whenItem.children).toHaveLength(1);
       expect(whenItem.children[0]).toBeInstanceOf(FieldItem);
 
       const shipToFieldItem = whenItem.children[0] as FieldItem;
       expect(shipToFieldItem.field).toEqual(shipToField);
       const nameFiltered = MappingService.filterMappingsForField(shipToFieldItem.children, shipToNameField);
-      expect(nameFiltered.length).toEqual(1);
+      expect(nameFiltered).toHaveLength(1);
       expect(nameFiltered[0]).toBeInstanceOf(FieldItem);
       expect((nameFiltered[0] as FieldItem).field.name).toEqual('Name');
     });
@@ -128,24 +128,24 @@ describe('MappingService', () => {
 
       const shipOrderField = tree.children[0] as FieldItem;
       const itemFiltered = MappingService.filterMappingsForField(shipOrderField.children, itemField);
-      expect(itemFiltered.length).toEqual(1);
+      expect(itemFiltered).toHaveLength(1);
       expect(itemFiltered[0]).toBeInstanceOf(IfItem);
 
       const outerIfItem = itemFiltered[0] as IfItem;
-      expect(outerIfItem.children.length).toEqual(1);
+      expect(outerIfItem.children).toHaveLength(1);
       expect(outerIfItem.children[0]).toBeInstanceOf(ForEachItem);
 
       const forEachItem = outerIfItem.children[0] as ForEachItem;
-      expect(forEachItem.children.length).toEqual(1);
+      expect(forEachItem.children).toHaveLength(1);
       expect(forEachItem.children[0]).toBeInstanceOf(FieldItem);
 
       const itemFieldItem = forEachItem.children[0] as FieldItem;
       const noteFiltered = MappingService.filterMappingsForField(itemFieldItem.children, noteField);
-      expect(noteFiltered.length).toEqual(1);
+      expect(noteFiltered).toHaveLength(1);
       expect(noteFiltered[0]).toBeInstanceOf(IfItem);
 
       const innerIfItem = noteFiltered[0] as IfItem;
-      expect(innerIfItem.children.length).toEqual(1);
+      expect(innerIfItem.children).toHaveLength(1);
       expect(innerIfItem.children[0]).toBeInstanceOf(FieldItem);
       expect((innerIfItem.children[0] as FieldItem).field).toEqual(noteField);
     });
@@ -153,21 +153,21 @@ describe('MappingService', () => {
 
   describe('removeAllMappingsForDocument()', () => {
     it('should remove mappings for target document', () => {
-      expect(tree.children.length).toEqual(1);
+      expect(tree.children).toHaveLength(1);
       MappingService.removeAllMappingsForDocument(tree, DocumentType.TARGET_BODY, targetDoc.documentId);
-      expect(tree.children.length).toEqual(0);
+      expect(tree.children).toHaveLength(0);
     });
 
     it('should remove mappings for source document', () => {
-      expect(tree.children.length).toEqual(1);
+      expect(tree.children).toHaveLength(1);
       MappingService.removeAllMappingsForDocument(tree, DocumentType.SOURCE_BODY, sourceDoc.documentId);
-      expect(tree.children.length).toEqual(0);
+      expect(tree.children).toHaveLength(0);
     });
 
     it('should not remove mappings unrelated to the removed param', () => {
-      expect(tree.children.length).toEqual(1);
+      expect(tree.children).toHaveLength(1);
       MappingService.removeAllMappingsForDocument(tree, DocumentType.PARAM, 'sourceParam1');
-      expect(tree.children.length).toEqual(1);
+      expect(tree.children).toHaveLength(1);
     });
 
     it('should remove mappings related to the removed param in case of XML schema', () => {
@@ -176,9 +176,9 @@ describe('MappingService', () => {
       tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
       MappingSerializerService.deserialize(getConditionalMappingsToShipOrderXslt(), targetDoc, tree, paramsMap);
 
-      expect(tree.children.length).toEqual(1);
+      expect(tree.children).toHaveLength(1);
       MappingService.removeAllMappingsForDocument(tree, DocumentType.PARAM, 'cart');
-      expect(tree.children.length).toEqual(0);
+      expect(tree.children).toHaveLength(0);
     });
 
     it('should remove mappings related to the removed param in case of JSON schema', () => {
@@ -187,12 +187,12 @@ describe('MappingService', () => {
       tree = new MappingTree(targetJSONDoc.documentType, targetJSONDoc.documentId, DocumentDefinitionType.JSON_SCHEMA);
       MappingSerializerService.deserialize(getConditionalMappingsToShipOrderJsonXslt(), targetJSONDoc, tree, paramsMap);
 
-      expect(tree.children[0].children[0].children.length).toEqual(1);
+      expect(tree.children[0].children[0].children).toHaveLength(1);
       const forEach = tree.children[0].children[0].children[0] as ForEachItem;
       expect(forEach.expression).toEqual('$cart-x/fn:array/fn:map');
 
       MappingService.removeAllMappingsForDocument(tree, DocumentType.PARAM, 'cart-x');
-      expect(tree.children.length).toEqual(0);
+      expect(tree.children).toHaveLength(0);
     });
 
     it('should remove mappings related to the removed param in case of JSON schema, but not the other', () => {
@@ -201,14 +201,14 @@ describe('MappingService', () => {
       tree = new MappingTree(targetJSONDoc.documentType, targetJSONDoc.documentId, DocumentDefinitionType.JSON_SCHEMA);
       MappingSerializerService.deserialize(getMultipleForEachJsonXslt(), targetJSONDoc, tree, paramsMap);
 
-      expect(tree.children[0].children[0].children.length).toEqual(2);
+      expect(tree.children[0].children[0].children).toHaveLength(2);
       let forEach1 = tree.children[0].children[0].children[0] as ForEachItem;
       const forEach2 = tree.children[0].children[0].children[1] as ForEachItem;
       expect(forEach1.expression).toEqual('$cart-x/fn:array/fn:map');
       expect(forEach2.expression).toEqual('$cart2-x/fn:array/fn:map');
 
       MappingService.removeAllMappingsForDocument(tree, DocumentType.PARAM, 'cart-x');
-      expect(tree.children[0].children[0].children.length).toEqual(1);
+      expect(tree.children[0].children[0].children).toHaveLength(1);
       forEach1 = tree.children[0].children[0].children[0] as ForEachItem;
       expect(forEach1.expression).toEqual('$cart2-x/fn:array/fn:map');
     });
@@ -220,9 +220,9 @@ describe('MappingService', () => {
       MappingSerializerService.deserialize(getShipOrderToShipOrderMultipleForEachXslt(), targetDoc, tree, paramsMap);
 
       const validateForEach = (forEachItem: ForEachItem) => {
-        expect(forEachItem.children.length).toEqual(1);
+        expect(forEachItem.children).toHaveLength(1);
         const item = forEachItem.children[0] as FieldItem;
-        expect(item.children.length).toEqual(4);
+        expect(item.children).toHaveLength(4);
         const title = item.children[0] as FieldItem;
         expect((title.children[0] as ValueSelector).expression).toEqual('Title');
         const note = item.children[1] as FieldItem;
@@ -233,7 +233,7 @@ describe('MappingService', () => {
         expect((price.children[0] as ValueSelector).expression).toEqual('Price');
       };
 
-      expect(tree.children[0].children.length).toEqual(2);
+      expect(tree.children[0].children).toHaveLength(2);
       const bodyForEach = tree.children[0].children[0] as ForEachItem;
       let paramForEach = tree.children[0].children[1] as ForEachItem;
       expect(bodyForEach.expression).toEqual('/ns0:ShipOrder/Item');
@@ -242,7 +242,7 @@ describe('MappingService', () => {
       validateForEach(paramForEach);
 
       MappingService.removeAllMappingsForDocument(tree, DocumentType.SOURCE_BODY);
-      expect(tree.children[0].children.length).toEqual(1);
+      expect(tree.children[0].children).toHaveLength(1);
       [paramForEach] = tree.children[0].children as ForEachItem[];
       expect(paramForEach.expression).toEqual('$sourceParam1/ns0:ShipOrder/Item');
       validateForEach(paramForEach);
@@ -260,7 +260,7 @@ describe('MappingService', () => {
 
       MappingService.removeAllMappingsForDocument(tree, DocumentType.SOURCE_BODY);
 
-      expect(tree.children[0].children.length).toEqual(2);
+      expect(tree.children[0].children).toHaveLength(2);
       expect(tree.children[0].children[0]).toBe(bodyForEach);
       expect(tree.children[0].children[1]).toBe(paramForEach);
     });
@@ -272,22 +272,22 @@ describe('MappingService', () => {
       MappingSerializerService.deserialize(getShipOrderToShipOrderMultipleForEachXslt(), targetDoc, tree, paramsMap);
 
       const bodyForEach = tree.children[0].children[0] as ForEachItem;
-      expect(bodyForEach.children[0].children.length).toEqual(4);
+      expect(bodyForEach.children[0].children).toHaveLength(4);
       const bodyForEachTitleSelector = bodyForEach.children[0].children[0].children[0] as ValueSelector;
       expect(bodyForEachTitleSelector.expression).toEqual('Title');
       bodyForEachTitleSelector.expression = '$sourceParam1/ns0:ShipOrder/Item[0]/Title';
 
       const paramForEach = tree.children[0].children[1] as ForEachItem;
-      expect(paramForEach.children[0].children.length).toEqual(4);
+      expect(paramForEach.children[0].children).toHaveLength(4);
       const paramForEachTitleSelector = paramForEach.children[0].children[0].children[0] as ValueSelector;
       expect(paramForEachTitleSelector.expression).toEqual('Title');
       paramForEachTitleSelector.expression = '/ns0:ShipOrder/Item[0]/Title';
 
       MappingService.removeAllMappingsForDocument(tree, DocumentType.SOURCE_BODY);
 
-      expect(tree.children[0].children.length).toEqual(1);
+      expect(tree.children[0].children).toHaveLength(1);
       expect(tree.children[0].children[0]).toBe(paramForEach);
-      expect(paramForEach.children[0].children.length).toEqual(3);
+      expect(paramForEach.children[0].children).toHaveLength(3);
     });
 
     it('should handle XPath extractFieldPaths throwing in hasStaleSourceDocument', () => {
@@ -312,7 +312,7 @@ describe('MappingService', () => {
       const itemItem = forEachItem.children[0];
       itemItem.children = [];
       MappingService.removeAllMappingsForDocument(tree, DocumentType.PARAM, 'newParam');
-      expect(forEachItem.children.length).toEqual(1);
+      expect(forEachItem.children).toHaveLength(1);
       expect(forEachItem.children[0]).toBe(itemItem);
     });
   });
@@ -333,7 +333,7 @@ describe('MappingService', () => {
 
     it('should rename simple mappings for XML document', () => {
       MappingSerializerService.deserialize(getCartToShipOrderXslt(), targetDoc, tree, paramsMap);
-      expect(tree.children.length).toEqual(1);
+      expect(tree.children).toHaveLength(1);
       const linksBefore = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
       MappingService.renameParameterInMappings(tree, 'cart', 'newTargetParam');
 
@@ -341,7 +341,7 @@ describe('MappingService', () => {
       const newSourceParameterMap = updateDoc(paramsMap, 'cart', 'newTargetParam');
 
       const linksAfter = MappingLinksService.extractMappingLinks(tree, newSourceParameterMap, sourceDoc);
-      expect(linksBefore.length).toEqual(linksAfter.length);
+      expect(linksBefore).toHaveLength(linksAfter.length);
       for (const link of linksAfter) {
         expect(link.sourceNodePath.startsWith('param:newTargetParam')).toBeTruthy();
       }
@@ -349,7 +349,7 @@ describe('MappingService', () => {
 
     it('should rename conditional mappings for XML document', () => {
       MappingSerializerService.deserialize(getConditionalMappingsToShipOrderXslt(), targetDoc, tree, paramsMap);
-      expect(tree.children.length).toEqual(1);
+      expect(tree.children).toHaveLength(1);
       const linksBefore = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
       MappingService.renameParameterInMappings(tree, 'cart', 'newTargetParam');
 
@@ -357,7 +357,7 @@ describe('MappingService', () => {
       const newSourceParameterMap = updateDoc(paramsMap, 'cart', 'newTargetParam');
 
       const linksAfter = MappingLinksService.extractMappingLinks(tree, newSourceParameterMap, sourceDoc);
-      expect(linksBefore.length).toEqual(linksAfter.length);
+      expect(linksBefore).toHaveLength(linksAfter.length);
       for (const link of linksAfter) {
         expect(link.sourceNodePath.startsWith('param:newTargetParam')).toBeTruthy();
       }
@@ -373,7 +373,7 @@ describe('MappingService', () => {
       );
       MappingSerializerService.deserialize(getCartToShipOrderJsonXslt(), targetJSONDoc, mappingTree, jsonParamsMap);
 
-      expect(mappingTree.children.length).toEqual(1);
+      expect(mappingTree.children).toHaveLength(1);
       const linksBefore = MappingLinksService.extractMappingLinks(mappingTree, jsonParamsMap, sourceDoc);
       MappingService.renameParameterInMappings(mappingTree, 'cart', 'newTargetParam');
 
@@ -381,7 +381,7 @@ describe('MappingService', () => {
       const newSourceParameterMap = updateDoc(jsonParamsMap, 'cart', 'newTargetParam');
 
       const linksAfter = MappingLinksService.extractMappingLinks(mappingTree, newSourceParameterMap, sourceDoc);
-      expect(linksBefore.length).toEqual(linksAfter.length);
+      expect(linksBefore).toHaveLength(linksAfter.length);
       for (const link of linksAfter) {
         expect(link.sourceNodePath.startsWith('param:newTargetParam')).toBeTruthy();
       }
@@ -402,7 +402,7 @@ describe('MappingService', () => {
         jsonParamsMap,
       );
 
-      expect(mappingTree.children.length).toEqual(1);
+      expect(mappingTree.children).toHaveLength(1);
       const linksBefore = MappingLinksService.extractMappingLinks(mappingTree, jsonParamsMap, sourceDoc);
       MappingService.renameParameterInMappings(mappingTree, 'cart', 'newTargetParam');
 
@@ -410,7 +410,7 @@ describe('MappingService', () => {
       const newSourceParameterMap = updateDoc(jsonParamsMap, 'cart', 'newTargetParam');
 
       const linksAfter = MappingLinksService.extractMappingLinks(mappingTree, newSourceParameterMap, sourceDoc);
-      expect(linksBefore.length).toEqual(linksAfter.length);
+      expect(linksBefore).toHaveLength(linksAfter.length);
       for (const link of linksAfter) {
         expect(link.sourceNodePath.startsWith('param:newTargetParam')).toBeTruthy();
       }
@@ -419,30 +419,30 @@ describe('MappingService', () => {
 
   describe('removeStaleMappingsForDocument()', () => {
     it('should remove mappings for removed source field', () => {
-      expect(tree.children[0].children.length).toEqual(4);
+      expect(tree.children[0].children).toHaveLength(4);
       const orderPersonField = sourceDoc.fields[0].fields[1];
       expect(orderPersonField.name).toEqual('OrderPerson');
       sourceDoc.fields[0].fields.splice(1, 1);
       MappingService.removeStaleMappingsForDocument(tree, sourceDoc);
-      expect(tree.children[0].children.length).toEqual(3);
+      expect(tree.children[0].children).toHaveLength(3);
     });
 
     it('should remove mappings for removed target field', () => {
-      expect(tree.children[0].children.length).toEqual(4);
+      expect(tree.children[0].children).toHaveLength(4);
       const orderIdField = targetDoc.fields[0].fields[0];
       expect(orderIdField.name).toEqual('OrderId');
       targetDoc.fields[0].fields.splice(0, 1);
       MappingService.removeStaleMappingsForDocument(tree, targetDoc);
-      expect(tree.children[0].children.length).toEqual(3);
+      expect(tree.children[0].children).toHaveLength(3);
     });
 
     it('should not remove mappings when unrelated field is removed', () => {
-      expect(tree.children[0].children.length).toEqual(4);
+      expect(tree.children[0].children).toHaveLength(4);
       const shipToCountryField = targetDoc.fields[0].fields[2].fields[3];
       expect(shipToCountryField.name).toEqual('Country');
       targetDoc.fields[0].fields[2].fields.splice(3, 1);
       MappingService.removeStaleMappingsForDocument(tree, targetDoc);
-      expect(tree.children[0].children.length).toEqual(4);
+      expect(tree.children[0].children).toHaveLength(4);
     });
 
     it('should not remove for-each mapping contents (source)', () => {
@@ -451,19 +451,19 @@ describe('MappingService', () => {
       const shipOrderItem = tree.children[0];
       const forEachItem = shipOrderItem.children[3];
       expect(forEachItem.parent).toEqual(shipOrderItem);
-      expect(forEachItem.children.length).toEqual(1);
+      expect(forEachItem.children).toHaveLength(1);
 
       const itemItem = forEachItem.children[0];
       expect(itemItem.parent).toEqual(forEachItem);
-      expect(itemItem.children.length).toEqual(4);
+      expect(itemItem.children).toHaveLength(4);
       const titleItem = itemItem.children[0];
       expect(titleItem.parent).toEqual(itemItem);
-      expect(titleItem.children.length).toEqual(1);
+      expect(titleItem.children).toHaveLength(1);
       expect((titleItem.children[0] as ValueSelector).expression).toEqual('Title');
 
       const chooseItem = itemItem.children[1];
       expect(chooseItem.parent).toEqual(itemItem);
-      expect(chooseItem.children.length).toEqual(2);
+      expect(chooseItem.children).toHaveLength(2);
       const whenItem = chooseItem.children[0] as WhenItem;
       expect(whenItem.parent).toEqual(chooseItem);
       expect(whenItem.expression).toEqual("Note != ''");
@@ -474,16 +474,16 @@ describe('MappingService', () => {
 
       const quantityItem = itemItem.children[2];
       expect(quantityItem.parent).toEqual(itemItem);
-      expect(quantityItem.children.length).toEqual(1);
+      expect(quantityItem.children).toHaveLength(1);
       expect((quantityItem.children[0] as ValueSelector).expression).toEqual('Quantity');
 
       const priceItem = itemItem.children[3];
       expect(priceItem.parent).toEqual(itemItem);
-      expect(priceItem.children.length).toEqual(1);
+      expect(priceItem.children).toHaveLength(1);
       expect((priceItem.children[0] as ValueSelector).expression).toEqual('Price');
 
       const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
-      expect(links.length).toEqual(11);
+      expect(links).toHaveLength(11);
       links.forEach((link) => expect(link.sourceNodePath.includes(sourceDoc.fields[0].id)).toBeTruthy());
     });
 
@@ -493,19 +493,19 @@ describe('MappingService', () => {
       const shipOrderItem = tree.children[0];
       const forEachItem = shipOrderItem.children[3];
       expect(forEachItem.parent).toEqual(shipOrderItem);
-      expect(forEachItem.children.length).toEqual(1);
+      expect(forEachItem.children).toHaveLength(1);
 
       const itemItem = forEachItem.children[0];
       expect(itemItem.parent).toEqual(forEachItem);
-      expect(itemItem.children.length).toEqual(4);
+      expect(itemItem.children).toHaveLength(4);
       const titleItem = itemItem.children[0];
       expect(titleItem.parent).toEqual(itemItem);
-      expect(titleItem.children.length).toEqual(1);
+      expect(titleItem.children).toHaveLength(1);
       expect((titleItem.children[0] as ValueSelector).expression).toEqual('Title');
 
       const chooseItem = itemItem.children[1];
       expect(chooseItem.parent).toEqual(itemItem);
-      expect(chooseItem.children.length).toEqual(2);
+      expect(chooseItem.children).toHaveLength(2);
       const whenItem = chooseItem.children[0] as WhenItem;
       expect(whenItem.parent).toEqual(chooseItem);
       expect(whenItem.expression).toEqual("Note != ''");
@@ -516,16 +516,16 @@ describe('MappingService', () => {
 
       const quantityItem = itemItem.children[2];
       expect(quantityItem.parent).toEqual(itemItem);
-      expect(quantityItem.children.length).toEqual(1);
+      expect(quantityItem.children).toHaveLength(1);
       expect((quantityItem.children[0] as ValueSelector).expression).toEqual('Quantity');
 
       const priceItem = itemItem.children[3];
       expect(priceItem.parent).toEqual(itemItem);
-      expect(priceItem.children.length).toEqual(1);
+      expect(priceItem.children).toHaveLength(1);
       expect((priceItem.children[0] as ValueSelector).expression).toEqual('Price');
 
       const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
-      expect(links.length).toEqual(11);
+      expect(links).toHaveLength(11);
       links.forEach((link) => expect(link.targetNodePath.includes(targetDoc.fields[0].id)).toBeTruthy());
     });
 
@@ -537,10 +537,10 @@ describe('MappingService', () => {
       itemItem.children = [];
       MappingService.removeStaleMappingsForDocument(tree, sourceDoc);
       expect(forEachItem.parent).toEqual(shipOrderItem);
-      expect(forEachItem.children.length).toEqual(1);
+      expect(forEachItem.children).toHaveLength(1);
 
       const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
-      expect(links.length).toEqual(1);
+      expect(links).toHaveLength(1);
       expect(links[0].sourceNodePath.includes(sourceDoc.fields[0].id)).toBeTruthy();
     });
 
@@ -552,15 +552,15 @@ describe('MappingService', () => {
       itemItem.children = [];
       MappingService.removeStaleMappingsForDocument(tree, targetDoc);
       expect(forEachItem.parent).toEqual(shipOrderItem);
-      expect(forEachItem.children.length).toEqual(1);
+      expect(forEachItem.children).toHaveLength(1);
 
       const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
-      expect(links.length).toEqual(1);
+      expect(links).toHaveLength(1);
       expect(links[0].targetNodePath.includes(targetDoc.fields[0].id)).toBeTruthy();
     });
 
     it('should ignore mappings with XPath parse errors and remove valid stale source field mappings', () => {
-      expect(tree.children[0].children.length).toEqual(4);
+      expect(tree.children[0].children).toHaveLength(4);
 
       const orderIdFieldItem = tree.children[0].children[0] as FieldItem;
       const valueSelector = orderIdFieldItem.children[0] as ValueSelector;
@@ -575,13 +575,13 @@ describe('MappingService', () => {
 
       MappingService.removeStaleMappingsForDocument(tree, sourceDoc);
 
-      expect(tree.children[0].children.length).toEqual(3);
+      expect(tree.children[0].children).toHaveLength(3);
       expect((tree.children[0].children[0].children[0] as ValueSelector).expression).toBe('invalid[[xpath]]syntax');
       expect(tree.children[0].children[1].name).toContain('ShipTo');
     });
 
     it('should ignore mappings with XPath parse errors and remove valid stale target field mappings', () => {
-      expect(tree.children[0].children.length).toEqual(4);
+      expect(tree.children[0].children).toHaveLength(4);
 
       const ifConditionItem = tree.children[0].children[1] as IfItem;
       ifConditionItem.expression = 'invalid[[xpath]]syntax';
@@ -592,7 +592,7 @@ describe('MappingService', () => {
 
       MappingService.removeStaleMappingsForDocument(tree, targetDoc);
 
-      expect(tree.children[0].children.length).toEqual(3);
+      expect(tree.children[0].children).toHaveLength(3);
       expect(tree.children[0].children[0]).toBe(ifConditionItem);
       expect(ifConditionItem.expression).toEqual('invalid[[xpath]]syntax');
     });
@@ -618,7 +618,7 @@ describe('MappingService', () => {
       const mapping = parent.children[0];
       const childrenBefore = parent.children.length;
       MappingService.addIf(parent, mapping);
-      expect(parent.children.length).toEqual(childrenBefore + 1);
+      expect(parent.children).toHaveLength(childrenBefore + 1);
       const ifItem = parent.children[parent.children.length - 1];
       expect(ifItem instanceof IfItem).toBeTruthy();
       expect(ifItem.children[0]).toBe(mapping);
@@ -628,7 +628,7 @@ describe('MappingService', () => {
       const parent = tree.children[0];
       const childrenBefore = parent.children.length;
       MappingService.addIf(parent);
-      expect(parent.children.length).toEqual(childrenBefore + 1);
+      expect(parent.children).toHaveLength(childrenBefore + 1);
       const ifItem = parent.children[parent.children.length - 1];
       expect(ifItem instanceof IfItem).toBeTruthy();
       expect(ifItem.children[0] instanceof ValueSelector).toBeTruthy();
@@ -638,9 +638,9 @@ describe('MappingService', () => {
   describe('addChooseWhenOtherwise()', () => {
     it('should add conditions', () => {
       const orderIdFieldItem = tree.children[0].children[0];
-      expect(orderIdFieldItem.children.length).toEqual(1);
+      expect(orderIdFieldItem.children).toHaveLength(1);
       MappingService.addChooseWhenOtherwise(orderIdFieldItem, orderIdFieldItem.children[0]);
-      expect(orderIdFieldItem.children.length).toEqual(1);
+      expect(orderIdFieldItem.children).toHaveLength(1);
       const chooseItem = orderIdFieldItem.children[0];
       expect(chooseItem instanceof ChooseItem).toBeTruthy();
       expect(chooseItem.children[0] instanceof WhenItem).toBeTruthy();
@@ -651,7 +651,7 @@ describe('MappingService', () => {
       const parent = tree.children[0];
       const childrenBefore = parent.children.length;
       MappingService.addChooseWhenOtherwise(parent);
-      expect(parent.children.length).toEqual(childrenBefore + 1);
+      expect(parent.children).toHaveLength(childrenBefore + 1);
       const chooseItem = parent.children[parent.children.length - 1];
       expect(chooseItem instanceof ChooseItem).toBeTruthy();
       const whenItem = chooseItem.children[0];
@@ -705,9 +705,9 @@ describe('MappingService', () => {
 
   describe('mapToDocument()', () => {
     it('should add ValueSelector', () => {
-      expect(tree.children.length).toEqual(1);
+      expect(tree.children).toHaveLength(1);
       MappingService.mapToDocument(tree, sourceDoc.fields[0]);
-      expect(tree.children.length).toEqual(2);
+      expect(tree.children).toHaveLength(2);
       expect(tree.children[1] instanceof ValueSelector).toBeTruthy();
       const selector = tree.children[1] as ValueSelector;
       expect(selector.expression).toEqual('/ns0:ShipOrder');
@@ -747,20 +747,20 @@ describe('MappingService', () => {
 
   describe('deleteMappingItem()', () => {
     it('should delete', () => {
-      expect(tree.children[0].children.length).toEqual(4);
+      expect(tree.children[0].children).toHaveLength(4);
       const orderIdValueSelector = tree.children[0].children[0].children[0] as ValueSelector;
       MappingService.deleteMappingItem(orderIdValueSelector);
-      expect(tree.children[0].children.length).toEqual(3);
+      expect(tree.children[0].children).toHaveLength(3);
     });
 
     it('should delete the empty root field item when it has no children', () => {
       MappingSerializerService.deserialize(getConditionalMappingsToShipOrderXslt(), targetDoc, tree, paramsMap);
 
-      expect(tree.children[0].children.length).toEqual(1);
+      expect(tree.children[0].children).toHaveLength(1);
       const forEachItem = tree.children[0].children[0] as ForEachItem;
       expect(forEachItem.expression).toEqual('$cart/ns0:Cart/Item');
       MappingService.deleteMappingItem(forEachItem);
-      expect(tree.children.length).toEqual(0);
+      expect(tree.children).toHaveLength(0);
     });
 
     it('should delete VariableItem from FieldItem parent', () => {
@@ -768,7 +768,7 @@ describe('MappingService', () => {
       const variable = MappingService.addVariable(parent, 'myVar');
       const childrenBefore = parent.children.length;
       MappingService.deleteMappingItem(variable);
-      expect(parent.children.length).toEqual(childrenBefore - 1);
+      expect(parent.children).toHaveLength(childrenBefore - 1);
       expect(parent.children).not.toContain(variable);
     });
 
@@ -777,7 +777,7 @@ describe('MappingService', () => {
       const variable = MappingService.addVariable(forEachItem, 'loopVar');
       const childrenBefore = forEachItem.children.length;
       MappingService.deleteMappingItem(variable);
-      expect(forEachItem.children.length).toEqual(childrenBefore - 1);
+      expect(forEachItem.children).toHaveLength(childrenBefore - 1);
       expect(forEachItem.children).not.toContain(variable);
     });
 
@@ -786,7 +786,7 @@ describe('MappingService', () => {
       const variable = MappingService.addVariable(ifItem, 'condVar');
       const childrenBefore = ifItem.children.length;
       MappingService.deleteMappingItem(variable);
-      expect(ifItem.children.length).toEqual(childrenBefore - 1);
+      expect(ifItem.children).toHaveLength(childrenBefore - 1);
       expect(ifItem.children).not.toContain(variable);
     });
   });
@@ -796,7 +796,7 @@ describe('MappingService', () => {
       const parent = tree.children[0];
       const childrenBefore = parent.children.length;
       const variable = MappingService.addVariable(parent, 'myVar');
-      expect(parent.children.length).toEqual(childrenBefore + 1);
+      expect(parent.children).toHaveLength(childrenBefore + 1);
       expect(variable).toBeInstanceOf(VariableItem);
       expect(variable.name).toEqual('myVar');
       expect(variable.expression).toEqual('');
@@ -856,7 +856,7 @@ describe('MappingService', () => {
       const variable = MappingService.addVariable(parent, 'myVar');
       const childrenBefore = parent.children.length;
       MappingService.removeVariable(variable);
-      expect(parent.children.length).toEqual(childrenBefore - 1);
+      expect(parent.children).toHaveLength(childrenBefore - 1);
       expect(parent.children).not.toContain(variable);
     });
 
@@ -866,9 +866,9 @@ describe('MappingService', () => {
       const nestedFieldItem = new FieldItem(shipOrderItem, targetDoc.fields[0].fields[0]);
       shipOrderItem.children.push(nestedFieldItem);
       const variable = MappingService.addVariable(nestedFieldItem, 'myVar');
-      expect(nestedFieldItem.children.length).toEqual(1);
+      expect(nestedFieldItem.children).toHaveLength(1);
       MappingService.removeVariable(variable);
-      expect(shipOrderItem.children.length).toEqual(0);
+      expect(shipOrderItem.children).toHaveLength(0);
     });
 
     it('should preserve sibling children when removing variable', () => {
@@ -877,7 +877,7 @@ describe('MappingService', () => {
       const var1 = MappingService.addVariable(parent, 'var1');
       MappingService.addVariable(parent, 'var2');
       MappingService.removeVariable(var1);
-      expect(parent.children.length).toEqual(childrenBefore + 1);
+      expect(parent.children).toHaveLength(childrenBefore + 1);
       expect(parent.children[0]).toBeInstanceOf(VariableItem);
       expect((parent.children[0] as VariableItem).name).toEqual('var2');
     });
@@ -1014,7 +1014,7 @@ describe('MappingService', () => {
       MappingService.generateAutoChildMappings(sourceShipTo, targetShipTo, shipToItem);
 
       const childFieldItems = shipToItem.children.filter((c) => c instanceof FieldItem);
-      expect(childFieldItems.length).toBe(4);
+      expect(childFieldItems).toHaveLength(4);
       childFieldItems.forEach((fi) => {
         const vs = fi.children.find((c) => c instanceof ValueSelector);
         expect(vs).toBeDefined();
@@ -1065,7 +1065,7 @@ describe('MappingService', () => {
       MappingService.applyContainerMapping(sourceShipTo, targetShipTo, shipToItem);
 
       const childFieldItems = shipToItem.children.filter((c) => c instanceof FieldItem);
-      expect(childFieldItems.length).toBe(4);
+      expect(childFieldItems).toHaveLength(4);
       vi.restoreAllMocks();
     });
 

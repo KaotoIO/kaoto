@@ -63,7 +63,7 @@ describe('EndpointsEntityHandler', () => {
       ];
 
       const definedEndpoints = endpointsHandler.getDefinedEndpointsNameAndType();
-      expect(definedEndpoints.length).toBe(2);
+      expect(definedEndpoints).toHaveLength(2);
       expect(definedEndpoints[0]).toEqual({ name: 'httpClient', type: 'http.client' });
       expect(definedEndpoints[1]).toEqual({ name: 'jmsQueue', type: 'jms.asynchronous' });
     });
@@ -93,7 +93,7 @@ describe('EndpointsEntityHandler', () => {
       ];
 
       const allEndpoints = endpointsHandler.getAllEndpointsNameAndType();
-      expect(allEndpoints.length).toBe(2);
+      expect(allEndpoints).toHaveLength(2);
       expect(allEndpoints[0]).toEqual({ name: 'httpClient', type: 'http.client' });
       expect(allEndpoints[1]).toEqual({ name: 'jmsQueue', type: 'jms' });
     });

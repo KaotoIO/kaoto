@@ -52,7 +52,7 @@ describe('XPathUtil', () => {
       if (!ast) return;
 
       const pathNodes = XPathUtil.getAllNodesOfType<PathExprNode>(ast, XPathNodeType.PathExpr);
-      expect(pathNodes.length).toBe(2);
+      expect(pathNodes).toHaveLength(2);
       expect(pathNodes[0].type).toBe(XPathNodeType.PathExpr);
       expect(pathNodes[1].type).toBe(XPathNodeType.PathExpr);
     });
@@ -63,7 +63,7 @@ describe('XPathUtil', () => {
       if (!ast) return;
 
       const stepNodes = XPathUtil.getAllNodesOfType<StepExprNode>(ast, XPathNodeType.StepExpr);
-      expect(stepNodes.length).toBe(3);
+      expect(stepNodes).toHaveLength(3);
       expect(stepNodes[0].nodeTest?.localName).toBe('root');
       expect(stepNodes[1].nodeTest?.localName).toBe('child1');
       expect(stepNodes[2].nodeTest?.localName).toBe('child2');
@@ -75,7 +75,7 @@ describe('XPathUtil', () => {
       if (!ast) return;
 
       const literalNodes = XPathUtil.getAllNodesOfType<LiteralNode>(ast, XPathNodeType.Literal);
-      expect(literalNodes.length).toBe(3);
+      expect(literalNodes).toHaveLength(3);
       expect(literalNodes[0].value).toBe('hello');
       expect(literalNodes[1].value).toBe('world');
       expect(literalNodes[2].value).toBe(42);
@@ -87,7 +87,7 @@ describe('XPathUtil', () => {
       if (!ast) return;
 
       const funcNodes = XPathUtil.getAllNodesOfType<FunctionCallNode>(ast, XPathNodeType.FunctionCall);
-      expect(funcNodes.length).toBe(1);
+      expect(funcNodes).toHaveLength(1);
       expect(funcNodes[0].localName).toBe('concat');
     });
 
@@ -97,7 +97,7 @@ describe('XPathUtil', () => {
       if (!ast) return;
 
       const funcNodes = XPathUtil.getAllNodesOfType(ast, XPathNodeType.FunctionCall);
-      expect(funcNodes.length).toBe(0);
+      expect(funcNodes).toHaveLength(0);
     });
 
     it('should find predicates in path expressions', () => {
@@ -106,7 +106,7 @@ describe('XPathUtil', () => {
       if (!ast) return;
 
       const predicateNodes = XPathUtil.getAllNodesOfType(ast, XPathNodeType.Predicate);
-      expect(predicateNodes.length).toBe(1);
+      expect(predicateNodes).toHaveLength(1);
     });
 
     it('should find PathExpr nodes inside ArithmeticExpr', () => {
@@ -183,7 +183,7 @@ describe('XPathUtil', () => {
       if (!ast) return;
 
       const chain = XPathUtil.getParentChain(ast);
-      expect(chain.length).toBe(1);
+      expect(chain).toHaveLength(1);
       expect(chain[0]).toBe(ast);
     });
 
