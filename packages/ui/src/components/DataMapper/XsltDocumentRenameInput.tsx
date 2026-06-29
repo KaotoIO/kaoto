@@ -133,21 +133,25 @@ export const XsltDocumentRenameInput: FunctionComponent<IXsltDocumentRenameInput
 
   const onKeyDown: KeyboardEventHandler<HTMLInputElement> = useCallback(
     (event) => {
+      event.stopPropagation();
       if (event.key === 'Enter') {
-        void saveValue();
+        saveValue().catch(() => {
+          // errors are handled inside saveValue
+        });
       }
       if (event.key === 'Escape') {
         cancelValue();
       }
-      event.stopPropagation();
     },
     [cancelValue, saveValue],
   );
 
   const onSave: MouseEventHandler<HTMLButtonElement> = useCallback(
     (event) => {
-      void saveValue();
       event.stopPropagation();
+      saveValue().catch(() => {
+        // errors are handled inside saveValue
+      });
     },
     [saveValue],
   );

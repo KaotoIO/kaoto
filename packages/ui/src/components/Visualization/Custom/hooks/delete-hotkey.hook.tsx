@@ -9,15 +9,15 @@ export default function useDeleteHotkey(selectedVizNode: IVisualizationNode | un
   const { onDeleteStep } = useDeleteStep(selectedVizNode);
   const { onDeleteGroup } = useDeleteGroup(selectedVizNode);
 
-  const handleKeyDown = useCallback(() => {
+  const handleKeyDown = useCallback(async () => {
     if (!selectedVizNode) return;
 
     const { canRemoveStep, canRemoveFlow } = selectedVizNode.getNodeInteraction();
     if (!canRemoveStep && !canRemoveFlow) return;
 
-    if (canRemoveStep) void onDeleteStep();
+    if (canRemoveStep) await onDeleteStep();
 
-    if (canRemoveFlow) void onDeleteGroup();
+    if (canRemoveFlow) await onDeleteGroup();
 
     clearSelected();
   }, [onDeleteStep, onDeleteGroup, selectedVizNode, clearSelected]);
@@ -25,7 +25,9 @@ export default function useDeleteHotkey(selectedVizNode: IVisualizationNode | un
   useEffect(() => {
     hotkeys('Delete, backspace', (event) => {
       event.preventDefault();
-      handleKeyDown();
+      handleKeyDown().catch(() => {
+        // errors are handled inside handleKeyDown
+      });
     });
 
     return () => {

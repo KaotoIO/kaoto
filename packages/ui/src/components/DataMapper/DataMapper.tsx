@@ -74,11 +74,11 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
   }, []);
 
   const onUpdateDocument = useCallback(
-    (definition: DocumentDefinition) => {
+    async (definition: DocumentDefinition) => {
       if (!metadataId || !metadata) return;
       switch (definition.documentType) {
         case DocumentType.SOURCE_BODY:
-          void DataMapperMetadataService.updateSourceBodyMetadata(ctx, metadataId, metadata, definition);
+          await DataMapperMetadataService.updateSourceBodyMetadata(ctx, metadataId, metadata, definition);
           if (vizNode) {
             DataMapperStepService.setUseJsonBody(
               vizNode,
@@ -88,10 +88,10 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
           }
           break;
         case DocumentType.TARGET_BODY:
-          void DataMapperMetadataService.updateTargetBodyMetadata(ctx, metadataId, metadata, definition);
+          await DataMapperMetadataService.updateTargetBodyMetadata(ctx, metadataId, metadata, definition);
           break;
         case DocumentType.PARAM:
-          void DataMapperMetadataService.updateSourceParameterMetadata(
+          await DataMapperMetadataService.updateSourceParameterMetadata(
             ctx,
             metadataId,
             metadata,
@@ -104,33 +104,33 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
   );
 
   const onDeleteParameter = useCallback(
-    (name: string) => {
+    async (name: string) => {
       if (!metadataId || !metadata) return;
-      void DataMapperMetadataService.deleteSourceParameterMetadata(ctx, metadataId, metadata, name);
+      await DataMapperMetadataService.deleteSourceParameterMetadata(ctx, metadataId, metadata, name);
     },
     [ctx, metadata, metadataId],
   );
 
   const onRenameParameter = useCallback(
-    (oldName: string, newName: string) => {
+    async (oldName: string, newName: string) => {
       if (!metadataId || !metadata) return;
-      void DataMapperMetadataService.renameSourceParameterMetadata(ctx, metadataId, metadata, oldName, newName);
+      await DataMapperMetadataService.renameSourceParameterMetadata(ctx, metadataId, metadata, oldName, newName);
     },
     [ctx, metadata, metadataId],
   );
 
   const onUpdateMappings = useCallback(
-    (xsltFile: string) => {
+    async (xsltFile: string) => {
       if (!metadata) return;
-      void DataMapperMetadataService.updateMappingFile(ctx, metadata, xsltFile);
+      await DataMapperMetadataService.updateMappingFile(ctx, metadata, xsltFile);
     },
     [ctx, metadata],
   );
 
   const onUpdateNamespaceMap = useCallback(
-    (namespaceMap: Record<string, string>) => {
+    async (namespaceMap: Record<string, string>) => {
       if (!metadataId || !metadata) return;
-      void DataMapperMetadataService.setNamespaceMap(ctx, metadataId, metadata, namespaceMap);
+      await DataMapperMetadataService.setNamespaceMap(ctx, metadataId, metadata, namespaceMap);
     },
     [ctx, metadata, metadataId],
   );

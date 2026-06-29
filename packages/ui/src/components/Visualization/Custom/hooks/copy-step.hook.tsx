@@ -23,7 +23,7 @@ export const useCopyStep = (vizNode: IVisualizationNode) => {
 
     /** Copy the node model */
     if (copiedNodeContent) {
-      void ClipboardManager.copy(copiedNodeContent);
+      await ClipboardManager.copy(copiedNodeContent);
     }
   }, [nodeInteractionAddonContext, vizNode]);
 

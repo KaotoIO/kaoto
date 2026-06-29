@@ -143,8 +143,8 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
     [xsltDocumentName, metadata, entitiesContext, vizNode],
   );
 
-  const onClick = useCallback(() => {
-    void navigate(`${Links.DataMapper}/${vizNode?.getNodeDefinition()?.id}`);
+  const onClick = useCallback(async () => {
+    await navigate(`${Links.DataMapper}/${vizNode?.getNodeDefinition()?.id}`);
   }, [navigate, vizNode]);
 
   if (!isDefined(metadata)) {
