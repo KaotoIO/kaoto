@@ -1,12 +1,17 @@
 import 'cypress-file-upload';
 
 Cypress.Commands.add('waitForEditorToLoad', () => {
+  cy.get('.pf-v6-c-code-editor__code').should('be.visible');
+  cy.get('.pf-v6-c-code-editor .monaco-editor').should('be.visible');
+
   cy.window().should((win) => {
     const models = win.monaco?.editor?.getModels?.();
     if (!models?.length) {
       throw new Error('Waiting for Monaco editor models to load');
     }
   });
+
+  cy.get('.pf-v6-c-code-editor .monaco-editor textarea').should('exist');
 });
 
 Cypress.Commands.add('editorAddText', (line, text) => {
