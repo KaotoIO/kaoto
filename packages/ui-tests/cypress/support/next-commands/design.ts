@@ -219,18 +219,13 @@ Cypress.Commands.add('selectCamelRouteType', (type: string, subType?: string) =>
 });
 
 Cypress.Commands.add('retryClickDropdown', (dropdownSelector: string, listSelector: string) => {
-  cy.wrap(null).then(() => {
-    cy.get(dropdownSelector).click({ force: true });
-    cy.wait(200).then(() => {
-      cy.get('body').then(($body) => {
-        if ($body.find(listSelector).length === 0) {
-          cy.log('Dropdown list not visible, retrying click...');
-          cy.get(dropdownSelector).click({ force: true });
-          cy.wait(200);
-        }
-      });
-    });
-  });
+  cy.get(dropdownSelector).click({ force: true });
+  // The toggle is a stateful flip (clicking an open menu closes it again), so the previous
+  // fixed-delay probe + blind re-click could close a menu that merely opened slowly — the
+  // cold-start, Chrome-only failure. Instead wait for the toggle to report expanded
+  // (aria-expanded is set by the PatternFly MenuToggle) and the list to render.
+  cy.get(dropdownSelector).should('have.attr', 'aria-expanded', 'true');
+  cy.get(listSelector).should('exist');
 });
 
 Cypress.Commands.add('switchCodeToXml', () => {
