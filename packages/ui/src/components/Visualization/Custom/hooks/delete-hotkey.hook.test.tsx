@@ -58,12 +58,16 @@ describe('useDeleteHotkey', () => {
       capturedHandler = handler;
     });
 
-    renderHook(() => useDeleteHotkey(node, clearSelected));
+    renderHook(() => {
+      useDeleteHotkey(node, clearSelected);
+    });
     return capturedHandler!;
   }
 
   it('should bind and unbind hotkeys on mount/unmount', () => {
-    const { unmount } = renderHook(() => useDeleteHotkey(undefined, clearSelected));
+    const { unmount } = renderHook(() => {
+      useDeleteHotkey(undefined, clearSelected);
+    });
 
     expect(mockHotkeys).toHaveBeenCalledWith('Delete, backspace', expect.any(Function));
 
@@ -75,7 +79,9 @@ describe('useDeleteHotkey', () => {
     const handler = setupHotkey(undefined);
 
     const preventDefault = vi.fn();
-    await act(async () => handler({ preventDefault } as unknown as KeyboardEvent));
+    await act(async () => {
+      handler({ preventDefault } as unknown as KeyboardEvent);
+    });
 
     expect(onDeleteStep).not.toHaveBeenCalled();
     expect(onDeleteGroup).not.toHaveBeenCalled();
@@ -86,7 +92,9 @@ describe('useDeleteHotkey', () => {
     const handler = setupHotkey(makeNode({ canRemoveStep: true }));
 
     const preventDefault = vi.fn();
-    await act(async () => handler({ preventDefault } as unknown as KeyboardEvent));
+    await act(async () => {
+      handler({ preventDefault } as unknown as KeyboardEvent);
+    });
 
     expect(onDeleteStep).toHaveBeenCalled();
     expect(onDeleteGroup).not.toHaveBeenCalled();
@@ -97,7 +105,9 @@ describe('useDeleteHotkey', () => {
     const handler = setupHotkey(makeNode({ canRemoveFlow: true }));
 
     const preventDefault = vi.fn();
-    await act(async () => handler({ preventDefault } as unknown as KeyboardEvent));
+    await act(async () => {
+      handler({ preventDefault } as unknown as KeyboardEvent);
+    });
 
     expect(onDeleteStep).not.toHaveBeenCalled();
     expect(onDeleteGroup).toHaveBeenCalled();
@@ -108,7 +118,9 @@ describe('useDeleteHotkey', () => {
     const handler = setupHotkey(makeNode({ canRemoveStep: false, canRemoveFlow: false }));
 
     const preventDefault = vi.fn();
-    await act(async () => handler({ preventDefault } as unknown as KeyboardEvent));
+    await act(async () => {
+      handler({ preventDefault } as unknown as KeyboardEvent);
+    });
 
     expect(onDeleteStep).not.toHaveBeenCalled();
     expect(onDeleteGroup).not.toHaveBeenCalled();
@@ -119,7 +131,9 @@ describe('useDeleteHotkey', () => {
     const handler = setupHotkey(makeNode({ canRemoveStep: true }));
 
     const preventDefault = vi.fn();
-    await act(async () => handler({ preventDefault } as unknown as KeyboardEvent));
+    await act(async () => {
+      handler({ preventDefault } as unknown as KeyboardEvent);
+    });
 
     expect(preventDefault).toHaveBeenCalled();
   });

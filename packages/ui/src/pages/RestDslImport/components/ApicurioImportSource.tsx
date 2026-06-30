@@ -122,7 +122,9 @@ export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> 
           aria-label="Search Apicurio artifacts"
           placeholder="Search OpenAPI artifacts"
           value={searchTerm}
-          onChange={(_event, value) => setSearchTerm(value)}
+          onChange={(_event, value) => {
+            setSearchTerm(value);
+          }}
         />
         <Button variant="secondary" onClick={fetchArtifacts} isDisabled={isLoading}>
           Refresh
@@ -142,7 +144,9 @@ export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> 
                   </span>
                 }
                 isChecked={selectedId === artifact.id}
-                onChange={() => handleSelectArtifact(artifact.id)}
+                onChange={() => {
+                  handleSelectArtifact(artifact.id);
+                }}
               />
             </ListItem>
           ))}

@@ -484,7 +484,9 @@ describe('MappingService', () => {
 
       const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
       expect(links).toHaveLength(11);
-      links.forEach((link) => expect(link.sourceNodePath.includes(sourceDoc.fields[0].id)).toBeTruthy());
+      links.forEach((link) => {
+        expect(link.sourceNodePath.includes(sourceDoc.fields[0].id)).toBeTruthy();
+      });
     });
 
     it('should not remove for-each mapping contents (target)', () => {
@@ -526,7 +528,9 @@ describe('MappingService', () => {
 
       const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
       expect(links).toHaveLength(11);
-      links.forEach((link) => expect(link.targetNodePath.includes(targetDoc.fields[0].id)).toBeTruthy());
+      links.forEach((link) => {
+        expect(link.targetNodePath.includes(targetDoc.fields[0].id)).toBeTruthy();
+      });
     });
 
     it("should not remove for-each targeted field when it doesn't have children (source)", () => {

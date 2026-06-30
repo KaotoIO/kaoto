@@ -37,8 +37,12 @@ export const MappingLink: FunctionComponent<LineProps> = ({
   const controlPoint1X = x1 + (x2 - x1) * 0.1;
   const controlPoint2X = x1 + (x2 - x1) * 0.9;
 
-  const onMouseEnter = useCallback(() => setIsOver(true), []);
-  const onMouseLeave = useCallback(() => setIsOver(false), []);
+  const onMouseEnter = useCallback(() => {
+    setIsOver(true);
+  }, []);
+  const onMouseLeave = useCallback(() => {
+    setIsOver(false);
+  }, []);
   const onLineClick = useCallback(() => {
     toggleSelectedNode(targetNodePath, false);
   }, [toggleSelectedNode, targetNodePath]);

@@ -72,7 +72,9 @@ describe('XmlSchemaNamedImpl', () => {
     it('should throw error when setting empty string as name', () => {
       const named = new XmlSchemaNamedImpl(schema, false);
 
-      expect(() => named.setName('')).toThrow('Attempt to set empty name.');
+      expect(() => {
+        named.setName('');
+      }).toThrow('Attempt to set empty name.');
     });
 
     it('should allow changing name', () => {
@@ -186,7 +188,9 @@ describe('XmlSchemaNamedImpl', () => {
 
       named.setRefObject(refBase);
 
-      expect(() => named.setName('newName')).toThrow("Attempt to set name on object with ref='xxx'");
+      expect(() => {
+        named.setName('newName');
+      }).toThrow("Attempt to set name on object with ref='xxx'");
     });
 
     it('should allow setting name when ref is null', () => {
@@ -204,7 +208,9 @@ describe('XmlSchemaNamedImpl', () => {
       const refBase = new MockRefBase();
       refBase.setTargetQName(new QName('http://test.example.com', 'refTarget'));
 
-      expect(() => named.setRefObject(refBase)).not.toThrow();
+      expect(() => {
+        named.setRefObject(refBase);
+      }).not.toThrow();
     });
 
     it('should allow setting name to null when ref exists', () => {
@@ -214,7 +220,9 @@ describe('XmlSchemaNamedImpl', () => {
 
       named.setRefObject(refBase);
 
-      expect(() => named.setName(null)).not.toThrow();
+      expect(() => {
+        named.setName(null);
+      }).not.toThrow();
     });
   });
 

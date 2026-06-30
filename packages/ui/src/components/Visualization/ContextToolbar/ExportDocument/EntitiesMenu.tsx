@@ -87,7 +87,9 @@ export const EntitiesMenu: FunctionComponent<IEntitiesMenu> = ({ documentationEn
     >
       <EntitiesList
         documentationEntities={documentationEntities}
-        onToggleVisibility={(index) => onToggleEntityVisibility(index)}
+        onToggleVisibility={(index) => {
+          onToggleEntityVisibility(index);
+        }}
         onToggleAll={onToggleAll}
       />
     </Select>

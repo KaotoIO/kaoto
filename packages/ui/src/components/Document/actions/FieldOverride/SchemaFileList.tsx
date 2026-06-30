@@ -76,7 +76,9 @@ export const SchemaFileList: FunctionComponent<SchemaFileListProps> = memo(
                     variant="plain"
                     aria-label={`Remove ${displayName}`}
                     data-testid={`remove-schema-item-${displayName}`}
-                    onClick={() => onRemove(filePath)}
+                    onClick={() => {
+                      onRemove(filePath);
+                    }}
                     icon={<TrashIcon />}
                   />
                 </DataListAction>

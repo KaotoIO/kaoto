@@ -71,7 +71,9 @@ export const ArrayBadgesField: FunctionComponent<ArrayBadgesFieldProps> = ({
               <TextInput
                 id={`${propName}-input`}
                 value={inputValue}
-                onChange={(_event, value) => setInputValue(value)}
+                onChange={(_event, value) => {
+                  setInputValue(value);
+                }}
                 placeholder={placeholder}
                 isDisabled={disabled}
                 aria-label={schema.title ?? propName}
@@ -92,7 +94,14 @@ export const ArrayBadgesField: FunctionComponent<ArrayBadgesFieldProps> = ({
             <div className="array-badges-field">
               <LabelGroup>
                 {sortedItems.map((item) => (
-                  <Label key={item} onClose={() => removeItem(item)} color="blue" isDisabled={disabled}>
+                  <Label
+                    key={item}
+                    onClose={() => {
+                      removeItem(item);
+                    }}
+                    color="blue"
+                    isDisabled={disabled}
+                  >
                     {item}
                   </Label>
                 ))}

@@ -131,14 +131,12 @@ describe('UriImportSource', () => {
     fetchSpy.mockImplementation(
       () =>
         new Promise((resolve) =>
-          setTimeout(
-            () =>
-              resolve({
-                ok: true,
-                text: vi.fn().mockResolvedValue('openapi: 3.0.0'),
-              } as unknown as Response),
-            100,
-          ),
+          setTimeout(() => {
+            resolve({
+              ok: true,
+              text: vi.fn().mockResolvedValue('openapi: 3.0.0'),
+            } as unknown as Response);
+          }, 100),
         ),
     );
 

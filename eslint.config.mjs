@@ -10,13 +10,13 @@ import tseslint from 'typescript-eslint';
 
 export default [
   { files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'] },
-  { 
-    languageOptions: { 
+  {
+    languageOptions: {
       globals: globals.browser,
       parserOptions: {
         project: true,
       },
-    } 
+    },
   },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
@@ -47,6 +47,7 @@ export default [
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/no-unused-expressions': 'off',
       '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/no-confusing-void-expression': 'error',
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
     },

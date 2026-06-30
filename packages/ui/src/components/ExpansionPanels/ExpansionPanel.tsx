@@ -104,7 +104,9 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
     // The parent ExpansionPanels container listens for transitionend and flushes the queue
     // This ensures mapping lines are recalculated when browser layout is fully settled
     if (onLayoutChange) {
-      context.queueLayoutChange(() => onLayoutChange(id));
+      context.queueLayoutChange(() => {
+        onLayoutChange(id);
+      });
     }
   };
 
@@ -189,14 +191,18 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
     // This ensures mapping lines are recalculated with correct container bounds
     // when panels are dynamically added/removed or on initial render
     if (onLayoutChange) {
-      context.queueLayoutChange(() => onLayoutChange(id));
+      context.queueLayoutChange(() => {
+        onLayoutChange(id);
+      });
     }
 
     return () => {
       // Queue layout change callback before unregistering
       // When panel is removed, grid redistributes and mapping lines need to update
       if (onLayoutChange) {
-        context.queueLayoutChange(() => onLayoutChange(id));
+        context.queueLayoutChange(() => {
+          onLayoutChange(id);
+        });
       }
       context.unregister(id);
     };
@@ -208,7 +214,9 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
   // Register layout callback to receive broadcasts when any panel's layout changes
   useEffect(() => {
     if (onLayoutChange) {
-      context.registerLayoutCallback(id, () => onLayoutChange(id));
+      context.registerLayoutCallback(id, () => {
+        onLayoutChange(id);
+      });
     }
 
     return () => {

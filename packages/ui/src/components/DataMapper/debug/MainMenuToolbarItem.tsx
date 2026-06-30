@@ -33,7 +33,12 @@ export const MainMenuToolbarItem: FunctionComponent = () => {
           <ResetMappingsDropdownItem onComplete={toggleOff} key={'reset-mappings'} />
         </DropdownList>
       </Dropdown>
-      <ExportMappingFileModal isOpen={isExportFileModalOpen} onClose={() => setIsExportFileModalOpen(false)} />
+      <ExportMappingFileModal
+        isOpen={isExportFileModalOpen}
+        onClose={() => {
+          setIsExportFileModalOpen(false);
+        }}
+      />
     </ToolbarItem>
   );
 };

@@ -22,7 +22,9 @@ export const CatalogTagsPanel: FunctionComponent<ICatalogTagsPanelProps> = (prop
               type="button"
               className={className}
               data-testid={'tag-' + tag}
-              onMouseDown={(ev) => ev.preventDefault()}
+              onMouseDown={(ev) => {
+                ev.preventDefault();
+              }}
               onClick={(ev) => {
                 ev.stopPropagation(); // ignore root click, e.g. click on tile
                 props.onTagClick(ev, tag);

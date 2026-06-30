@@ -185,7 +185,9 @@ describe('EndpointField', () => {
       await renderField({ endpoint: undefined }, testModel);
 
       // Open the dropdown
-      await waitFor(() => expect(screen.getByLabelText('Endpoint toggle')).toBeInTheDocument());
+      await waitFor(() => {
+        expect(screen.getByLabelText('Endpoint toggle')).toBeInTheDocument();
+      });
       const toggle = screen.getByLabelText('Endpoint toggle');
 
       await act(async () => {
@@ -211,7 +213,9 @@ describe('EndpointField', () => {
       await renderField({ endpoint: undefined }, testModel, onPropertyChange);
 
       // Open the dropdown
-      await waitFor(() => expect(screen.getByLabelText('Endpoint toggle')).toBeInTheDocument());
+      await waitFor(() => {
+        expect(screen.getByLabelText('Endpoint toggle')).toBeInTheDocument();
+      });
       const toggle = screen.getByLabelText('Endpoint toggle');
 
       await act(async () => {
@@ -297,7 +301,9 @@ describe('EndpointField', () => {
       const { getInput } = await renderField({ endpoint: undefined }, testModel, onPropertyChange);
 
       // Open the dropdown
-      await waitFor(() => expect(screen.getByLabelText('Endpoint toggle')).toBeInTheDocument());
+      await waitFor(() => {
+        expect(screen.getByLabelText('Endpoint toggle')).toBeInTheDocument();
+      });
       const toggle = screen.getByLabelText('Endpoint toggle');
 
       await act(async () => {
@@ -345,7 +351,9 @@ describe('EndpointField', () => {
       expect(input).toHaveValue('httpClient');
 
       // Find and click the clear button
-      await waitFor(() => expect(screen.getByRole('button', { name: /clear/i })).toBeInTheDocument());
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /clear/i })).toBeInTheDocument();
+      });
       const clearButton = screen.getByRole('button', { name: /clear/i });
 
       await act(async () => {
@@ -389,7 +397,9 @@ describe('EndpointField', () => {
       expect(input).toHaveValue('httpClient');
 
       // Open dropdown and select different endpoint
-      await waitFor(() => expect(screen.getByLabelText('Endpoint toggle')).toBeInTheDocument());
+      await waitFor(() => {
+        expect(screen.getByLabelText('Endpoint toggle')).toBeInTheDocument();
+      });
       const toggle = screen.getByLabelText('Endpoint toggle');
 
       await act(async () => {
@@ -451,7 +461,9 @@ describe('EndpointField', () => {
       await renderField({ endpoint: undefined }, testModel);
 
       // Open the dropdown
-      await waitFor(() => expect(screen.getByLabelText('Endpoint toggle')).toBeInTheDocument());
+      await waitFor(() => {
+        expect(screen.getByLabelText('Endpoint toggle')).toBeInTheDocument();
+      });
       const toggle = screen.getByLabelText('Endpoint toggle');
 
       await act(async () => {
@@ -485,7 +497,9 @@ describe('EndpointField', () => {
       await renderField({ endpoint: undefined }, testModel);
 
       // Open the dropdown
-      await waitFor(() => expect(screen.getByLabelText('Endpoint toggle')).toBeInTheDocument());
+      await waitFor(() => {
+        expect(screen.getByLabelText('Endpoint toggle')).toBeInTheDocument();
+      });
       const toggle = screen.getByLabelText('Endpoint toggle');
 
       await act(async () => {

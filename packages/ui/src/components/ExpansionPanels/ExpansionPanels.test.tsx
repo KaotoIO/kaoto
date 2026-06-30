@@ -84,7 +84,9 @@ const clickElement = async (element: HTMLElement) => {
 
 const clickElements = async (labels: string[]) => {
   await act(() => {
-    labels.forEach((label) => screen.getByText(label).click());
+    labels.forEach((label) => {
+      screen.getByText(label).click();
+    });
     return delay(10);
   });
 };
@@ -153,7 +155,9 @@ const createTestPanelWithCallback = (callbackRef: { current: boolean }) => {
           callbackRef.current = true;
         };
         context.registerLayoutCallback(id, callback);
-        return () => context.unregisterLayoutCallback(id);
+        return () => {
+          context.unregisterLayoutCallback(id);
+        };
       }
     }, [context, id]);
 

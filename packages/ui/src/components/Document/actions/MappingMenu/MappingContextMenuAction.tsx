@@ -88,7 +88,9 @@ export const MappingContextMenuAction: FunctionComponent<MappingContextMenuProps
           onSelect={onSelectAction}
           toggle={renderToggle}
           isOpen={isActionMenuOpen}
-          onOpenChange={(isOpen: boolean) => setIsActionMenuOpen(isOpen)}
+          onOpenChange={(isOpen: boolean) => {
+            setIsActionMenuOpen(isOpen);
+          }}
           popperProps={DEFAULT_POPPER_PROPS}
           zIndex={100}
         >

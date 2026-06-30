@@ -496,7 +496,9 @@ describe('CamelRouteResource', () => {
       await resource.initialize();
       const beansEntity = new BeansEntity({ beans: [] });
 
-      expect(() => resource.deleteBeansEntity(beansEntity)).not.toThrow();
+      expect(() => {
+        resource.deleteBeansEntity(beansEntity);
+      }).not.toThrow();
       expect(resource.getEntities()).toHaveLength(0);
     });
 

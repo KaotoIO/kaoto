@@ -33,7 +33,9 @@ describe('usePrevious', () => {
   });
 
   it('should return undefined if no previous value exists', () => {
-    const { result } = renderHook(() => usePrevious(undefined));
+    const { result } = renderHook(() => {
+      usePrevious(undefined);
+    });
     expect(result.current).toBeUndefined();
   });
 });

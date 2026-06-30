@@ -566,21 +566,27 @@ export class MappingActionService {
         }
         return 'Configure Sort';
       },
-      apply: (_n, { openModal }) => openModal(MappingActionKind.Sort),
+      apply: (_n, { openModal }) => {
+        openModal(MappingActionKind.Sort);
+      },
       isAllowed: MappingActionService.mappingIsOneOf(ForEachItem),
     },
     {
       key: MappingActionKind.ForEachGroupConfig,
       testId: 'transformation-actions-foreach-group-config',
       getLabel: () => 'Configure for-each-group',
-      apply: (_n, { openModal }) => openModal(MappingActionKind.ForEachGroupConfig),
+      apply: (_n, { openModal }) => {
+        openModal(MappingActionKind.ForEachGroupConfig);
+      },
       isAllowed: MappingActionService.mappingIsOneOf(ForEachGroupItem),
     },
     {
       key: MappingActionKind.Comment,
       testId: 'transformation-actions-comment',
       getLabel: (n) => (n.mapping instanceof MappingItem && n.mapping.comment ? 'Edit Comment' : 'Add Comment'),
-      apply: (_n, { openModal }) => openModal(MappingActionKind.Comment),
+      apply: (_n, { openModal }) => {
+        openModal(MappingActionKind.Comment);
+      },
       isAllowed: (n) => n.mapping instanceof MappingItem,
     },
     {

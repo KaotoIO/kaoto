@@ -38,7 +38,9 @@ export function withFieldContextMenu<P extends WithTreeNode>(
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
     const menuRef = useRef<HTMLDivElement>(null);
 
-    const closeMenu = useCallback(() => setIsMenuOpen(false), []);
+    const closeMenu = useCallback(() => {
+      setIsMenuOpen(false);
+    }, []);
 
     useEffect(() => {
       if (!isMenuOpen) return;

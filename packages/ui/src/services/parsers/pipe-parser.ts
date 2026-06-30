@@ -12,7 +12,7 @@ export class PipeParser {
 
     entity.pipe.spec?.source && PipeParser.populateStep(parsedTable, 'source', entity.pipe.spec.source);
     entity.pipe.spec?.steps?.forEach((step) => {
-      return PipeParser.populateStep(parsedTable, 'step', step);
+      PipeParser.populateStep(parsedTable, 'step', step);
     });
     entity.pipe.spec?.sink && PipeParser.populateStep(parsedTable, 'sink', entity.pipe.spec.sink);
 

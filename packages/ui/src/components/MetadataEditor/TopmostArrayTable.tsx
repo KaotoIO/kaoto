@@ -63,7 +63,9 @@ export function TopmostArrayTable(props: TopmostArrayTableProps) {
                   data-testid={'metadata-add-' + props.name + '-btn'}
                   icon={<PlusCircleIcon />}
                   variant="link"
-                  onClick={() => handleAddNew()}
+                  onClick={() => {
+                    handleAddNew();
+                  }}
                 />
               </Td>
             </Tr>
@@ -78,7 +80,9 @@ export function TopmostArrayTable(props: TopmostArrayTableProps) {
                       data-testid={'metadata-add-' + props.name + '-btn'}
                       icon={<PlusCircleIcon />}
                       variant="link"
-                      onClick={() => handleAddNew()}
+                      onClick={() => {
+                        handleAddNew();
+                      }}
                     >
                       Add new
                     </Button>
@@ -91,7 +95,9 @@ export function TopmostArrayTable(props: TopmostArrayTableProps) {
                   key={index}
                   data-testid={'metadata-row-' + index}
                   isSelectable
-                  onRowClick={() => props.onSelected(index)}
+                  onRowClick={() => {
+                    props.onSelected(index);
+                  }}
                   isRowSelected={props.selected === index}
                 >
                   {props.itemSchema.required?.map((name: string) => (
@@ -105,7 +111,9 @@ export function TopmostArrayTable(props: TopmostArrayTableProps) {
                       data-testid={'metadata-delete-' + index + '-btn'}
                       icon={<TrashIcon />}
                       variant="link"
-                      onClick={() => handleTrashClick(index)}
+                      onClick={() => {
+                        handleTrashClick(index);
+                      }}
                     />
                   </Td>
                 </Tr>

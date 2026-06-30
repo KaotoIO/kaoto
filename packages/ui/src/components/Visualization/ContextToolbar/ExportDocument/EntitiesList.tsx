@@ -81,7 +81,9 @@ export const EntitiesList: FunctionComponent<IEntitiesList> = ({
         key={`entity-option-all`}
         entityLabel="all"
         isVisible={allEntitiesVisible}
-        onToggleVisibility={() => onToggleAll()}
+        onToggleVisibility={() => {
+          onToggleAll();
+        }}
       />
       <Divider />
       <SelectGroup className="entities-select-list">

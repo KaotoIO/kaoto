@@ -377,8 +377,16 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
                 variant={option.variant}
                 title={option.title}
                 timeout={true}
-                onTimeout={() => closeAlert(option)}
-                actionClose={<AlertActionCloseButton onClose={() => closeAlert(option)} />}
+                onTimeout={() => {
+                  closeAlert(option);
+                }}
+                actionClose={
+                  <AlertActionCloseButton
+                    onClose={() => {
+                      closeAlert(option);
+                    }}
+                  />
+                }
               >
                 {option.description && <>{option.description}</>}
               </Alert>

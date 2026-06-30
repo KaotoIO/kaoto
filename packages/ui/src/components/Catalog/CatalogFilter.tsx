@@ -102,7 +102,9 @@ export const CatalogFilter: FunctionComponent<CatalogFilterProps> = (props) => {
                 data-testid={`${tileGroup.name}-catalog-tab`}
                 buttonId={`toggle-group-button-${tileGroup.name}`}
                 isSelected={props.activeGroups.includes(tileGroup.name)}
-                onChange={(_event, selected: boolean) => toggleActiveGroup(selected, tileGroup.name)}
+                onChange={(_event, selected: boolean) => {
+                  toggleActiveGroup(selected, tileGroup.name);
+                }}
               />
             ))}
           </ToggleGroup>
@@ -154,7 +156,9 @@ export const CatalogFilter: FunctionComponent<CatalogFilterProps> = (props) => {
             id={tag + index}
             data-testid={`button-catalog-tag-${tag}`}
             color={props.filterTags.includes(tag) ? 'blue' : 'grey'}
-            onClick={() => onToggleTag(tag)}
+            onClick={() => {
+              onToggleTag(tag);
+            }}
             variant={props.filterTags.includes(tag) ? 'filled' : 'outline'}
           >
             {props.filterTags.includes(tag) ? <b>{tag}</b> : <>{tag}</>}

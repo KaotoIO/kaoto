@@ -81,7 +81,9 @@ export const collectDirectEndpointNames = (value: unknown, names: Set<string>) =
   }
 
   if (Array.isArray(value)) {
-    value.forEach((item) => collectDirectEndpointNames(item, names));
+    value.forEach((item) => {
+      collectDirectEndpointNames(item, names);
+    });
     return;
   }
 
@@ -102,7 +104,9 @@ export const collectDirectEndpointNames = (value: unknown, names: Set<string>) =
     }
   }
 
-  Object.values(objectValue).forEach((item) => collectDirectEndpointNames(item, names));
+  Object.values(objectValue).forEach((item) => {
+    collectDirectEndpointNames(item, names);
+  });
 };
 
 const getRouteIdsByDirectName = (visualEntities?: DirectEndpointEntityLike[]) => {
@@ -142,7 +146,9 @@ export const useDirectEndpointNameOptions = ({
 }: UseDirectEndpointNameOptionsParams) => {
   const existingDirectNames = useMemo(() => {
     const names = new Set<string>();
-    visualEntities?.forEach((entity) => collectDirectEndpointNames(entity.toJSON(), names));
+    visualEntities?.forEach((entity) => {
+      collectDirectEndpointNames(entity.toJSON(), names);
+    });
     return [...names].sort((first, second) => first.localeCompare(second));
   }, [visualEntities]);
 
@@ -180,7 +186,9 @@ export const useDirectEndpointNameOptions = ({
     [onChange],
   );
 
-  const onCleanInput = useCallback(() => onChange(undefined), [onChange]);
+  const onCleanInput = useCallback(() => {
+    onChange(undefined);
+  }, [onChange]);
 
   const onCreateOption = useCallback(
     (_value?: string, filterValue?: string) => {

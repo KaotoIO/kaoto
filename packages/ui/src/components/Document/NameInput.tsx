@@ -51,7 +51,9 @@ export const NameInput = forwardRef<HTMLInputElement, NameInputProps>(
           type="text"
           className={`name-input__field name-input__field--${cssClass}`}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => {
+            onChange(e.target.value);
+          }}
           onKeyDown={onKeyDown}
           placeholder={placeholder}
         />

@@ -42,7 +42,9 @@ describe('color-scheme utilities', () => {
     it('does nothing if the HTML element is not found', () => {
       document.querySelector = vi.fn().mockReturnValue(null);
 
-      expect(() => setColorScheme(ColorScheme.Light)).not.toThrow();
+      expect(() => {
+        setColorScheme(ColorScheme.Light);
+      }).not.toThrow();
     });
   });
 

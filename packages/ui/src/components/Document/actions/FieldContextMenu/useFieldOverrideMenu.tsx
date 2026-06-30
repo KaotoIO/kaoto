@@ -29,7 +29,9 @@ export function useFieldOverrideMenu(nodeData: NodeData): MenuContributor {
     setIsModalOpen(true);
   }, []);
 
-  const closeModal = useCallback(() => setIsModalOpen(false), []);
+  const closeModal = useCallback(() => {
+    setIsModalOpen(false);
+  }, []);
 
   const handleResetOverride = useCallback(() => {
     const revertTarget = abstractWrapperField ?? field;

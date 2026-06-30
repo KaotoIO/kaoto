@@ -90,7 +90,9 @@ describe('PropertiesModal', () => {
 
     it('renders component properties table correctly', async () => {
       const { baseElement } = await renderModal(tile);
-      await waitFor(() => expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument());
+      await waitFor(() => {
+        expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument();
+      });
       // info
       expect(baseElement.getElementsByClassName('pf-v6-c-modal-box__title-text').item(0)).toHaveTextContent('Atom');
       expect(screen.getByTestId('properties-modal-description')).toHaveTextContent('Poll Atom RSS feeds.');
@@ -186,7 +188,9 @@ describe('PropertiesModal', () => {
 
     it('renders property modal correctly', async () => {
       const { baseElement } = await renderModal(tile);
-      await waitFor(() => expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument());
+      await waitFor(() => {
+        expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument();
+      });
       // info
       expect(baseElement.getElementsByClassName('pf-v6-c-modal-box__title-text').item(0)).toHaveTextContent('Asterisk');
       expect(screen.getByTestId('properties-modal-description')).toHaveTextContent(
@@ -209,7 +213,9 @@ describe('PropertiesModal', () => {
 
     it('renders property modal correctly', async () => {
       const { baseElement } = await renderModal(tile);
-      await waitFor(() => expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument());
+      await waitFor(() => {
+        expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument();
+      });
       // info
       expect(baseElement.getElementsByClassName('pf-v6-c-modal-box__title-text').item(0)).toHaveTextContent('Api Key');
       expect(screen.getByTestId('properties-modal-description')).toHaveTextContent(
@@ -244,7 +250,9 @@ describe('PropertiesModal', () => {
 
     it('renders property modal correctly', async () => {
       const { baseElement } = await renderModal(tile);
-      await waitFor(() => expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument());
+      await waitFor(() => {
+        expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument();
+      });
       // info
       expect(baseElement.getElementsByClassName('pf-v6-c-modal-box__title-text').item(0)).toHaveTextContent(
         'ASN.1 File',
@@ -269,7 +277,9 @@ describe('PropertiesModal', () => {
 
     it('renders property modal correctly', async () => {
       const { baseElement } = await renderModal(tile);
-      await waitFor(() => expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument());
+      await waitFor(() => {
+        expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument();
+      });
       // info
       expect(baseElement.getElementsByClassName('pf-v6-c-modal-box__title-text').item(0)).toHaveTextContent(
         'AWS DynamoDB Streams Source',
@@ -317,7 +327,9 @@ describe('PropertiesModal', () => {
 
     it('renders property modal correctly', async () => {
       const { baseElement } = await renderModal(tile);
-      await waitFor(() => expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument());
+      await waitFor(() => {
+        expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument();
+      });
       // info
       expect(baseElement.getElementsByClassName('pf-v6-c-modal-box__title-text').item(0)).toHaveTextContent(
         'NATS Sink',
@@ -340,7 +352,9 @@ describe('PropertiesModal', () => {
 
     it('renders property modal correctly', async () => {
       const { baseElement } = await renderModal(tile);
-      await waitFor(() => expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument());
+      await waitFor(() => {
+        expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument();
+      });
       // info
       expect(baseElement.getElementsByClassName('pf-v6-c-modal-box__title-text').item(0)).toHaveTextContent('Print');
       expect(screen.getByTestId('properties-modal-description')).toHaveTextContent('The print test action.');
@@ -371,7 +385,9 @@ describe('PropertiesModal', () => {
 
     it('renders property modal correctly', async () => {
       const { baseElement } = await renderModal(tile);
-      await waitFor(() => expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument());
+      await waitFor(() => {
+        expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument();
+      });
       // info
       expect(baseElement.getElementsByClassName('pf-v6-c-modal-box__title-text').item(0)).toHaveTextContent('Iterate');
       expect(screen.getByTestId('properties-modal-description')).toHaveTextContent('The iterate test container.');

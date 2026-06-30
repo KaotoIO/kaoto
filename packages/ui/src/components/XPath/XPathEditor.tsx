@@ -48,7 +48,9 @@ export const XPathEditor: FunctionComponent<XPathEditorProps> = ({ mapping, onCh
             enabled: false,
           },
         });
-        newEditor.onDidChangeModelContent((_e) => onChange(newEditor.getModel()?.getValue()));
+        newEditor.onDidChangeModelContent((_e) => {
+          onChange(newEditor.getModel()?.getValue());
+        });
         return newEditor;
       });
     }

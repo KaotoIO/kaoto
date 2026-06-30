@@ -21,7 +21,9 @@ function buildInlineSubstitutionActions(
 ): MenuAction[] {
   return Object.entries(candidates).map(([qname, info]) => ({
     label: info.displayName,
-    onClick: () => onSelect(qname),
+    onClick: () => {
+      onSelect(qname);
+    },
     icon: selectedQName === qname ? <CheckIcon /> : <Choices />,
     testId: `substitution-menu-item-${qname}`,
   }));

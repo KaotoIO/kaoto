@@ -101,7 +101,9 @@ export const SortKey: FunctionComponent<SortKeyProps> = ({ index, sortItem, mapp
     (toggleRef: Ref<MenuToggleElement>) => (
       <MenuToggle
         ref={toggleRef}
-        onClick={() => setIsCaseOrderOpen((prev) => !prev)}
+        onClick={() => {
+          setIsCaseOrderOpen((prev) => !prev);
+        }}
         isExpanded={isCaseOrderOpen}
         isFullWidth
         data-testid={`sort-case-order-toggle-${index}`}
@@ -116,7 +118,9 @@ export const SortKey: FunctionComponent<SortKeyProps> = ({ index, sortItem, mapp
     (toggleRef: Ref<MenuToggleElement>) => (
       <MenuToggle
         ref={toggleRef}
-        onClick={() => setIsStableOpen((prev) => !prev)}
+        onClick={() => {
+          setIsStableOpen((prev) => !prev);
+        }}
         isExpanded={isStableOpen}
         isFullWidth
         data-testid={`sort-stable-toggle-${index}`}
@@ -165,7 +169,9 @@ export const SortKey: FunctionComponent<SortKeyProps> = ({ index, sortItem, mapp
           aria-label={`Advanced properties for sort key ${position}`}
           data-testid={`sort-advanced-${index}`}
           title="Advanced properties"
-          onClick={() => setIsAdvancedOpen((prev) => !prev)}
+          onClick={() => {
+            setIsAdvancedOpen((prev) => !prev);
+          }}
           className={
             clsx(
               isAdvancedOpen && 'sort-modal__settings-active',
@@ -178,7 +184,9 @@ export const SortKey: FunctionComponent<SortKeyProps> = ({ index, sortItem, mapp
           variant="plain"
           aria-label={`Remove sort key ${position}`}
           data-testid={`sort-remove-${index}`}
-          onClick={() => onRemove(index)}
+          onClick={() => {
+            onRemove(index);
+          }}
           icon={<TrashIcon />}
         />
         {isXpathEditorOpen && xpathProxyRef.current && (
@@ -209,7 +217,9 @@ export const SortKey: FunctionComponent<SortKeyProps> = ({ index, sortItem, mapp
           >
             <TypeaheadInput
               value={sortItem.lang}
-              onChange={(value) => handleAdvancedChange('lang', value)}
+              onChange={(value) => {
+                handleAdvancedChange('lang', value);
+              }}
               options={LANG_INPUT_OPTIONS}
               id={`sort-lang-${index}`}
               data-testid={`sort-lang-${index}`}
@@ -234,7 +244,9 @@ export const SortKey: FunctionComponent<SortKeyProps> = ({ index, sortItem, mapp
           >
             <TypeaheadInput
               value={sortItem.dataType}
-              onChange={(value) => handleAdvancedChange('dataType', value)}
+              onChange={(value) => {
+                handleAdvancedChange('dataType', value);
+              }}
               options={DATA_TYPE_OPTIONS}
               id={`sort-data-type-${index}`}
               data-testid={`sort-data-type-${index}`}
@@ -323,7 +335,9 @@ export const SortKey: FunctionComponent<SortKeyProps> = ({ index, sortItem, mapp
               id={`sort-collation-${index}`}
               data-testid={`sort-collation-${index}`}
               value={sortItem.collation}
-              onChange={(_event, value) => handleAdvancedChange('collation', value)}
+              onChange={(_event, value) => {
+                handleAdvancedChange('collation', value);
+              }}
               placeholder="Collation URI"
               aria-label={`Collation for sort key ${position}`}
             />

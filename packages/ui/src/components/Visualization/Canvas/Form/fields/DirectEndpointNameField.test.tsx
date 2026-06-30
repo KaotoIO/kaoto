@@ -75,7 +75,9 @@ describe('DirectEndpointNameField', () => {
     expect(button).toBeDisabled();
 
     fireEvent.change(input, { target: { value: 'new-endpoint' } });
-    await waitFor(() => expect(button).toBeEnabled());
+    await waitFor(() => {
+      expect(button).toBeEnabled();
+    });
   });
 
   it('creates a new route with direct from and typed name', async () => {
@@ -97,7 +99,9 @@ describe('DirectEndpointNameField', () => {
     const button = screen.getByRole('button', { name: 'Create Route' });
 
     fireEvent.change(input, { target: { value: 'new-route' } });
-    await waitFor(() => expect(button).toBeEnabled());
+    await waitFor(() => {
+      expect(button).toBeEnabled();
+    });
     fireEvent.click(button);
 
     expect(addNewEntitySpy).toHaveBeenCalledWith(EntityType.Route, {

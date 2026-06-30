@@ -73,7 +73,9 @@ describe('TreeUIService', () => {
       const documentId = sourceDocNode.id;
       const firstChildPath = tree.root.children[0]?.path;
 
-      expect(() => TreeUIService.toggleNode(documentId, firstChildPath)).not.toThrow();
+      expect(() => {
+        TreeUIService.toggleNode(documentId, firstChildPath);
+      }).not.toThrow();
     });
 
     it('should create tree for primitive document', () => {

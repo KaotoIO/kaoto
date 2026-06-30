@@ -100,7 +100,9 @@ export const ActionConfirmationModalContextProvider: FunctionComponent<PropsWith
           <Button
             key={actionId}
             variant={option.variant}
-            onClick={() => handleAction(actionId)}
+            onClick={() => {
+              handleAction(actionId);
+            }}
             data-testid={`action-confirmation-modal-btn-${actionId}`}
             isDanger={option.isDanger}
           >

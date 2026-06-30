@@ -69,7 +69,9 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
       const mappingFile = await DataMapperMetadataService.loadMappingFile(ctx, meta);
       setInitialXsltFile(mappingFile);
     };
-    void initialize().then(() => setIsLoading(false));
+    void initialize().then(() => {
+      setIsLoading(false);
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -96,7 +96,9 @@ export const ForEachGroupModal: FunctionComponent<ForEachGroupModalProps> = ({
     (toggleRef: Ref<MenuToggleElement>) => (
       <MenuToggle
         ref={toggleRef}
-        onClick={() => setIsStrategyOpen((prev) => !prev)}
+        onClick={() => {
+          setIsStrategyOpen((prev) => !prev);
+        }}
         isExpanded={isStrategyOpen}
         data-testid="for-each-group-strategy-toggle"
       >

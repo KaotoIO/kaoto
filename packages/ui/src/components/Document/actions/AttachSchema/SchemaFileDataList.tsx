@@ -105,7 +105,9 @@ export const SchemaFileDataList: FunctionComponent<SchemaFileDataListProps> = ({
             buttonId={`toggle-filter-${status}`}
             data-testid={`attach-schema-filter-${status}`}
             isSelected={activeFilters.has(status)}
-            onChange={() => toggleFilter(status)}
+            onChange={() => {
+              toggleFilter(status);
+            }}
           />
         ))}
       </ToggleGroup>
@@ -161,7 +163,9 @@ export const SchemaFileDataList: FunctionComponent<SchemaFileDataListProps> = ({
                       variant="plain"
                       aria-label={`Remove ${displayName}`}
                       data-testid={`attach-schema-file-remove-${displayName}`}
-                      onClick={() => onRemoveFile(item.filePath!)}
+                      onClick={() => {
+                        onRemoveFile(item.filePath!);
+                      }}
                       icon={<TrashIcon />}
                     />
                   </DataListAction>

@@ -355,7 +355,9 @@ describe('DynamicCatalog', () => {
     });
 
     it('should allow clearing an empty cache without errors', () => {
-      expect(() => catalog.clearCache()).not.toThrow();
+      expect(() => {
+        catalog.clearCache();
+      }).not.toThrow();
     });
 
     it('should clear multiple cached entries', async () => {

@@ -134,7 +134,9 @@ export const ExportDocumentPreviewModal: FunctionComponent<IExportDocumentPrevie
                   <FormGroup label="Visible Entities">
                     <EntitiesMenu
                       documentationEntities={documentationEntities}
-                      onUpdate={(docEntities) => onUpdateDocumentationEntities(docEntities)}
+                      onUpdate={(docEntities) => {
+                        onUpdateDocumentationEntities(docEntities);
+                      }}
                     />
                   </FormGroup>
                 </ToolbarItem>
@@ -149,7 +151,9 @@ export const ExportDocumentPreviewModal: FunctionComponent<IExportDocumentPrevie
                       aria-label="Download File Name"
                       type="text"
                       value={downloadFileName}
-                      onChange={(_event, value) => setDownloadFileName(value)}
+                      onChange={(_event, value) => {
+                        setDownloadFileName(value);
+                      }}
                     />
                   </FormGroup>
                 </ToolbarItem>

@@ -122,7 +122,11 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
     }, [nodeData, handleUpdate]);
 
     const handleKeyDown = useCallback(
-      (event: KeyboardEvent) => handleNodeKeyDown(event, () => toggleSelectedNode(nodePathString, false)),
+      (event: KeyboardEvent) => {
+        handleNodeKeyDown(event, () => {
+          toggleSelectedNode(nodePathString, false);
+        });
+      },
       [nodePathString, toggleSelectedNode],
     );
 

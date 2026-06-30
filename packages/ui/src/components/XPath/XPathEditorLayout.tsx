@@ -142,7 +142,9 @@ export const XPathEditorLayout: FunctionComponent<XPathEditorLayoutProps> = ({
                             <Button
                               aria-expanded={isExpanded}
                               variant="plain"
-                              onClick={() => toggleGroup(value)}
+                              onClick={() => {
+                                toggleGroup(value);
+                              }}
                               className="xpath-editor__tab__functions-list__group-toggle"
                               icon={isExpanded ? <AngleDownIcon /> : <AngleRightIcon />}
                               data-testid={`function-group-toggle-${value}`}

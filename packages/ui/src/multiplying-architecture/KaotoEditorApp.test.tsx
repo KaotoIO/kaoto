@@ -296,7 +296,12 @@ describe('KaotoEditorApp', () => {
   it('should return empty array when getSuggestions times out', async () => {
     const mockContext = {} as SuggestionRequestContext;
     (envelopeContext.channelApi.requests.getSuggestions as Mock).mockImplementation(
-      () => new Promise((resolve) => setTimeout(() => resolve([{ label: 'test' }]), 3000)),
+      () =>
+        new Promise((resolve) =>
+          setTimeout(() => {
+            resolve([{ label: 'test' }]);
+          }, 3000),
+        ),
     );
 
     const result = await kaotoEditorApp.getSuggestions('topic', 'word', mockContext);

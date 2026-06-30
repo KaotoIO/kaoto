@@ -111,7 +111,9 @@ describe('RenderingProvider', () => {
   function ProviderConsumer(props: { anchorTag: string; registerComponents: IRegisteredComponent[] }) {
     const { registerComponent, getRegisteredComponents } = useContext(RenderingAnchorContext);
 
-    props.registerComponents.forEach((regComponent) => registerComponent(regComponent));
+    props.registerComponents.forEach((regComponent) => {
+      registerComponent(regComponent);
+    });
 
     const components = getRegisteredComponents('form-header', vizNode);
 

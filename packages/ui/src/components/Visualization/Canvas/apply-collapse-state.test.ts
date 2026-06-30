@@ -167,7 +167,9 @@ describe('applyCollapseState', () => {
     } as unknown as Controller;
 
     // Should not throw
-    expect(() => applyCollapseState(controller)).not.toThrow();
+    expect(() => {
+      applyCollapseState(controller);
+    }).not.toThrow();
     expect(controller.getElements).toHaveBeenCalled();
   });
 

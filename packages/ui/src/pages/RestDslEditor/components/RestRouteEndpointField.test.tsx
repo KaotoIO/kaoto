@@ -59,7 +59,12 @@ describe('RestRouteEndpointField', () => {
     });
 
     // Wait for Suspense to resolve
-    await waitFor(() => expect(screen.queryByText('Loading...')).not.toBeInTheDocument(), { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
 
     return {
       getInput: () => screen.getByRole('textbox', { name: 'Endpoint Name' }),
@@ -192,7 +197,9 @@ describe('RestRouteEndpointField', () => {
       expect(input).toHaveValue('orders');
 
       // Find and click the clear button
-      await waitFor(() => expect(screen.getByRole('button', { name: /clear/i })).toBeInTheDocument());
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /clear/i })).toBeInTheDocument();
+      });
       const clearButton = screen.getByRole('button', { name: /clear/i });
 
       await act(async () => {
@@ -216,7 +223,9 @@ describe('RestRouteEndpointField', () => {
       getInput(); // Ensure component is loaded
 
       // Open the dropdown
-      await waitFor(() => expect(screen.getByLabelText('Endpoint Name toggle')).toBeInTheDocument());
+      await waitFor(() => {
+        expect(screen.getByLabelText('Endpoint Name toggle')).toBeInTheDocument();
+      });
       const toggle = screen.getByLabelText('Endpoint Name toggle');
 
       await act(async () => {

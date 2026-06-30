@@ -125,7 +125,9 @@ export const EndpointListField: FunctionComponent<FieldProps> = ({ propName, req
                     data-testid={'endpoint-edit-' + index + '-btn'}
                     icon={<EditIcon />}
                     variant="link"
-                    onClick={() => handleEdit(index)}
+                    onClick={() => {
+                      handleEdit(index);
+                    }}
                   />
                   <Button
                     title={`Delete ${item.name}`}

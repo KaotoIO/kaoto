@@ -170,7 +170,11 @@ export const XsltDocumentRenameInput: FunctionComponent<IXsltDocumentRenameInput
   return (
     <>
       {isEditing ? (
-        <Form onSubmit={(e) => e.preventDefault()}>
+        <Form
+          onSubmit={(e) => {
+            e.preventDefault();
+          }}
+        >
           <FormGroup fieldId="xslt-document-rename-value" data-testid={props['data-testid'] + '--form'}>
             <InputGroup>
               <InputGroupItem isFill>

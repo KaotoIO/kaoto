@@ -115,7 +115,9 @@ const CatalogSelectorField: FunctionComponent<ICatalogSelectorField> = ({
         toggle={
           <MenuToggle
             ref={toggleRef}
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={() => {
+              setIsOpen(!isOpen);
+            }}
             isExpanded={isOpen}
             isDisabled={disabled}
             isFullWidth

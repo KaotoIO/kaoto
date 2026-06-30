@@ -18,7 +18,12 @@ vi.mock('../../components/SourceCode', () => ({
   SourceCode: ({ code, onCodeChange }: { code: string; onCodeChange: (code: string) => void }) => (
     <div data-testid="source-code-component">
       <div data-testid="code-content">{code}</div>
-      <button data-testid="change-code-button" onClick={() => onCodeChange('new code')}>
+      <button
+        data-testid="change-code-button"
+        onClick={() => {
+          onCodeChange('new code');
+        }}
+      >
         Change Code
       </button>
     </div>

@@ -57,7 +57,9 @@ describe('Canvas', () => {
       await vi.runAllTimersAsync();
     });
 
-    await waitFor(async () => expect(screen.getByText('Reset View')).toBeInTheDocument());
+    await waitFor(async () => {
+      expect(screen.getByText('Reset View')).toBeInTheDocument();
+    });
     expect(result?.asFragment()).toMatchSnapshot();
   });
 
@@ -282,7 +284,9 @@ describe('Canvas', () => {
         await vi.runAllTimersAsync();
       });
 
-      await waitFor(async () => expect(screen.getByText('Open Catalog')).toBeInTheDocument());
+      await waitFor(async () => {
+        expect(screen.getByText('Open Catalog')).toBeInTheDocument();
+      });
       expect(result?.asFragment()).toMatchSnapshot();
     });
 
@@ -306,7 +310,9 @@ describe('Canvas', () => {
         await vi.runAllTimersAsync();
       });
 
-      await waitFor(async () => expect(screen.queryByText('Open Catalog')).not.toBeInTheDocument());
+      await waitFor(async () => {
+        expect(screen.queryByText('Open Catalog')).not.toBeInTheDocument();
+      });
       expect(result?.asFragment()).toMatchSnapshot();
     });
   });
@@ -336,7 +342,9 @@ describe('Canvas', () => {
         await vi.runAllTimersAsync();
       });
 
-      await waitFor(async () => expect(screen.getByTestId('visualization-empty-state')).toBeInTheDocument());
+      await waitFor(async () => {
+        expect(screen.getByTestId('visualization-empty-state')).toBeInTheDocument();
+      });
       expect(result?.asFragment()).toMatchSnapshot();
     });
 
@@ -361,7 +369,9 @@ describe('Canvas', () => {
         await vi.runAllTimersAsync();
       });
 
-      await waitFor(async () => expect(screen.getByTestId('visualization-empty-state')).toBeInTheDocument());
+      await waitFor(async () => {
+        expect(screen.getByTestId('visualization-empty-state')).toBeInTheDocument();
+      });
       expect(result?.container).toMatchSnapshot();
     });
 
@@ -490,7 +500,9 @@ describe('Canvas', () => {
         await vi.runAllTimersAsync();
       });
 
-      await waitFor(() => expect(screen.getByText('Horizontal Layout')).toBeInTheDocument());
+      await waitFor(() => {
+        expect(screen.getByText('Horizontal Layout')).toBeInTheDocument();
+      });
 
       const horizontalButton = screen.getByText('Horizontal Layout').closest('button')!;
       expect(horizontalButton).toBeInTheDocument();
@@ -530,7 +542,9 @@ describe('Canvas', () => {
         await vi.runAllTimersAsync();
       });
 
-      await waitFor(() => expect(screen.getByText('Vertical Layout')).toBeInTheDocument());
+      await waitFor(() => {
+        expect(screen.getByText('Vertical Layout')).toBeInTheDocument();
+      });
 
       const verticalButton = screen.getByText('Vertical Layout').closest('button')!;
       expect(verticalButton).toBeInTheDocument();
