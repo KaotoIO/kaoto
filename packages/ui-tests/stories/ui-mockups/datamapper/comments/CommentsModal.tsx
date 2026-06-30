@@ -59,7 +59,9 @@ export const CommentsModal: FunctionComponent<CommentsModalProps> = ({
           name="comment-area"
           aria-label="Comment input area"
           value={comment}
-          onChange={(_event, value) => setComment(value)}
+          onChange={(_event, value) => {
+            setComment(value);
+          }}
           placeholder="Enter your comment..."
           data-testid="comment-area"
         />

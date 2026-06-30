@@ -74,7 +74,9 @@ async function tileWithIconUrl(base: Omit<ITile, 'iconUrl'>, catalogKind: Catalo
 
 const Template: StoryFn<typeof PropertiesModal> = (args, context) => {
   const [isModalOpen, setIsModalOpen] = useState(true);
-  const handleClose = () => setIsModalOpen(!isModalOpen);
+  const handleClose = () => {
+    setIsModalOpen(!isModalOpen);
+  };
   const loaded = context.loaded as { tile?: ITile } | undefined;
   const tile = loaded?.tile ?? args.tile;
   return <PropertiesModal {...args} tile={tile} onClose={handleClose} isModalOpen={isModalOpen} />;

@@ -95,7 +95,9 @@ export const AbstractTreeMock: FunctionComponent<AbstractTreeMockProps> = ({
       showChoicesIcon={false}
       expandable={hasChildren}
       isExpanded={isExpanded}
-      onToggle={() => toggleExpansion(fieldNode.id)}
+      onToggle={() => {
+        toggleExpansion(fieldNode.id);
+      }}
       data-testid={dataTestId || `node-${fieldNode.id}`}
     >
       {fieldNode.children?.map((child) => (
@@ -153,7 +155,7 @@ const AbstractNodeRenderer: FunctionComponent<AbstractNodeRendererProps> = ({
   'data-testid': dataTestId,
 }) => {
   const isCollection = abstractNode.maxOccurs === -1 || abstractNode.maxOccurs > 1;
-  const instances = substitutions[abstractNode.id] ?? [];
+  const instances = useMemo(() => substitutions[abstractNode.id] ?? [], [substitutions, abstractNode.id]);
   const instructionList = instructions?.[abstractNode.id] ?? [];
   const hasInstructions = instructionList.length > 0;
   const hasInstances = instances.length > 0;
@@ -183,25 +185,37 @@ const AbstractNodeRenderer: FunctionComponent<AbstractNodeRendererProps> = ({
       items.push({
         key: 'wrap-for-each',
         label: 'Wrap with "for-each"',
-        onClick: () => handleAddInstructionWithFields(abstractNode.id, 'for-each'),
+        onClick: () => {
+          handleAddInstructionWithFields(abstractNode.id, 'for-each');
+        },
       });
     }
     items.push({
       key: 'wrap-if',
       label: 'Wrap with "if"',
-      onClick: () => handleAddInstructionWithFields(abstractNode.id, 'if'),
+      onClick: () => {
+        handleAddInstructionWithFields(abstractNode.id, 'if');
+      },
     });
     items.push({
       key: 'wrap-choose',
       label: 'Wrap with "choose-when-otherwise"',
-      onClick: () => handleAddInstructionWithFields(abstractNode.id, 'choose'),
+      onClick: () => {
+        handleAddInstructionWithFields(abstractNode.id, 'choose');
+      },
     });
     return items;
   }, [abstractNode.id, isCollection, handleAddInstructionWithFields]);
 
   const abstractRowDocItems = useMemo(
     (): DocMenuItem[] => [
-      { key: 'select-sub', label: 'Select Substitution', onClick: () => setIsSubstituteModalOpen(true) },
+      {
+        key: 'select-sub',
+        label: 'Select Substitution',
+        onClick: () => {
+          setIsSubstituteModalOpen(true);
+        },
+      },
     ],
     [],
   );
@@ -209,7 +223,13 @@ const AbstractNodeRenderer: FunctionComponent<AbstractNodeRendererProps> = ({
   const abstractRowMappingItems = useMemo((): MappingMenuItem[] => {
     const items = buildWrapActions();
     if (isCollection) {
-      items.push({ key: 'dup-field', label: 'Duplicate Field', onClick: () => onDuplicate(abstractNode.id) });
+      items.push({
+        key: 'dup-field',
+        label: 'Duplicate Field',
+        onClick: () => {
+          onDuplicate(abstractNode.id);
+        },
+      });
     }
     return items;
   }, [abstractNode.id, isCollection, buildWrapActions, onDuplicate]);
@@ -236,7 +256,9 @@ const AbstractNodeRenderer: FunctionComponent<AbstractNodeRendererProps> = ({
           {
             key: 'clear-sub',
             label: 'Clear Substitution',
-            onClick: () => onClearSubstitution(abstractNode.id, inst.instanceId),
+            onClick: () => {
+              onClearSubstitution(abstractNode.id, inst.instanceId);
+            },
           },
         ];
         const mappingItems: MappingMenuItem[] = [...buildWrapActions()];
@@ -244,7 +266,9 @@ const AbstractNodeRenderer: FunctionComponent<AbstractNodeRendererProps> = ({
           mappingItems.push({
             key: 'dup-field',
             label: 'Duplicate Field',
-            onClick: () => onDuplicate(abstractNode.id, inst.instanceId),
+            onClick: () => {
+              onDuplicate(abstractNode.id, inst.instanceId);
+            },
           });
         }
 
@@ -261,10 +285,18 @@ const AbstractNodeRenderer: FunctionComponent<AbstractNodeRendererProps> = ({
             isCollection={isCollection}
             expandable={hasChildren}
             isExpanded={isExpanded}
-            onToggle={() => toggleExpansion(nodeKey)}
+            onToggle={() => {
+              toggleExpansion(nodeKey);
+            }}
             docMenuItems={docItems}
             mappingMenuItems={mappingItems}
-            onRemove={isCollection ? () => onRemoveInstance(abstractNode.id, inst.instanceId) : undefined}
+            onRemove={
+              isCollection
+                ? () => {
+                    onRemoveInstance(abstractNode.id, inst.instanceId);
+                  }
+                : undefined
+            }
             data-testid={`substituted-${inst.instanceId}`}
           >
             {candidate.children?.map((child) => (
@@ -306,7 +338,9 @@ const AbstractNodeRenderer: FunctionComponent<AbstractNodeRendererProps> = ({
   const substituteModal = isSubstituteModalOpen && (
     <AddFieldCandidateModal
       isOpen={isSubstituteModalOpen}
-      onClose={() => setIsSubstituteModalOpen(false)}
+      onClose={() => {
+        setIsSubstituteModalOpen(false);
+      }}
       onConfirm={handleSelectSubstitute}
       abstractNode={abstractNode}
     />
@@ -377,13 +411,27 @@ const UnsubstitutedInstanceRow: FunctionComponent<UnsubstitutedInstanceRowProps>
   );
 
   const docItems = useMemo(
-    (): DocMenuItem[] => [{ key: 'select-sub', label: 'Select Substitution', onClick: () => setIsModalOpen(true) }],
+    (): DocMenuItem[] => [
+      {
+        key: 'select-sub',
+        label: 'Select Substitution',
+        onClick: () => {
+          setIsModalOpen(true);
+        },
+      },
+    ],
     [],
   );
 
   const mappingItems = useMemo((): MappingMenuItem[] => {
     const items = buildWrapActions();
-    items.push({ key: 'dup-field', label: 'Duplicate Field', onClick: () => onDuplicate(abstractNode.id, instanceId) });
+    items.push({
+      key: 'dup-field',
+      label: 'Duplicate Field',
+      onClick: () => {
+        onDuplicate(abstractNode.id, instanceId);
+      },
+    });
     return items;
   }, [abstractNode.id, instanceId, buildWrapActions, onDuplicate]);
 
@@ -397,13 +445,17 @@ const UnsubstitutedInstanceRow: FunctionComponent<UnsubstitutedInstanceRowProps>
         isCollection={isCollection}
         docMenuItems={docItems}
         mappingMenuItems={mappingItems}
-        onRemove={() => onRemoveInstance(abstractNode.id, instanceId)}
+        onRemove={() => {
+          onRemoveInstance(abstractNode.id, instanceId);
+        }}
         data-testid={`unsubstituted-${instanceId}`}
       />
       {isModalOpen && (
         <AddFieldCandidateModal
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => {
+            setIsModalOpen(false);
+          }}
           onConfirm={handleSelectSubstitute}
           abstractNode={abstractNode}
         />

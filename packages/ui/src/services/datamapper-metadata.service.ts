@@ -209,7 +209,7 @@ export class DataMapperMetadataService {
     await api.setMetadata(metadataId, metadata);
   }
 
-  private static doCreateDocumentMetadata(
+  private static async doCreateDocumentMetadata(
     api: IMetadataApi,
     definition: DocumentDefinition,
   ): Promise<IDocumentMetadata> {
@@ -230,11 +230,10 @@ export class DataMapperMetadataService {
             });
           })
         : [];
-    return new Promise((resolve) => {
-      void Promise.allSettled(filePromises).then(() => {
-        resolve(answer);
-      });
-    });
+
+    await Promise.allSettled(filePromises);
+
+    return answer;
   }
 
   /**

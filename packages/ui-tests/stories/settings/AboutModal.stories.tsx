@@ -9,7 +9,9 @@ export default {
 
 const Template: StoryFn<typeof KaotoAboutModal> = (args) => {
   const [isModalOpen, setIsModalOpen] = useState(true);
-  const handleClose = () => setIsModalOpen(!isModalOpen);
+  const handleClose = () => {
+    setIsModalOpen(!isModalOpen);
+  };
   return <KaotoAboutModal {...args} handleCloseModal={handleClose} isModalOpen={isModalOpen} />;
 };
 

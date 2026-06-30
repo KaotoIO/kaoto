@@ -69,7 +69,9 @@ export const AddFieldCandidateModal: FunctionComponent<AddFieldCandidateModalPro
         <Radio
           isChecked={selected === candidate.id}
           name="add-field-candidate"
-          onChange={() => setSelected(candidate.id)}
+          onChange={() => {
+            setSelected(candidate.id);
+          }}
           label={label}
           id={`add-field-radio-${candidate.id}`}
         />
@@ -93,8 +95,12 @@ export const AddFieldCandidateModal: FunctionComponent<AddFieldCandidateModalPro
             <SearchInput
               placeholder="Filter candidates..."
               value={searchFilter}
-              onChange={(_event, value) => setSearchFilter(value)}
-              onClear={() => setSearchFilter('')}
+              onChange={(_event, value) => {
+                setSearchFilter(value);
+              }}
+              onClear={() => {
+                setSearchFilter('');
+              }}
             />
           </div>
         )}

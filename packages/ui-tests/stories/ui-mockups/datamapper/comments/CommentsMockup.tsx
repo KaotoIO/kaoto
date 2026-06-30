@@ -90,7 +90,9 @@ export const CommentsMockup: FunctionComponent = () => {
 
     updatePositions();
     window.addEventListener('resize', updatePositions);
-    return () => window.removeEventListener('resize', updatePositions);
+    return () => {
+      window.removeEventListener('resize', updatePositions);
+    };
   }, [expandedNodes, mappingLines]);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -119,7 +121,9 @@ export const CommentsMockup: FunctionComponent = () => {
               <BaseNode
                 isExpandable
                 isExpanded={expandedNodes.has('source-root')}
-                onExpandChange={() => toggleNode('source-root')}
+                onExpandChange={() => {
+                  toggleNode('source-root');
+                }}
                 isDraggable={false}
                 iconType={Types.Container}
                 title={
@@ -174,7 +178,9 @@ export const CommentsMockup: FunctionComponent = () => {
               <BaseNode
                 isExpandable
                 isExpanded={expandedNodes.has('target-root')}
-                onExpandChange={() => toggleNode('target-root')}
+                onExpandChange={() => {
+                  toggleNode('target-root');
+                }}
                 isDraggable={false}
                 iconType={Types.Container}
                 title={
@@ -220,7 +226,13 @@ export const CommentsMockup: FunctionComponent = () => {
                         {comment && (
                           <ActionListItem>
                             <Tooltip content={'Comment : ' + (comment ? comment : 'No comment')}>
-                              <Button variant="plain" icon={<DocumentComment />} onClick={() => setIsModalOpen(true)} />
+                              <Button
+                                variant="plain"
+                                icon={<DocumentComment />}
+                                onClick={() => {
+                                  setIsModalOpen(true);
+                                }}
+                              />
                             </Tooltip>
                           </ActionListItem>
                         )}
@@ -239,7 +251,9 @@ export const CommentsMockup: FunctionComponent = () => {
                               />
                             )}
                             isOpen={isMenuOpen}
-                            onOpenChange={(isOpen: boolean) => setIsMenuOpen(isOpen)}
+                            onOpenChange={(isOpen: boolean) => {
+                              setIsMenuOpen(isOpen);
+                            }}
                           >
                             <DropdownList>
                               <DropdownItem>Add selector expression</DropdownItem>

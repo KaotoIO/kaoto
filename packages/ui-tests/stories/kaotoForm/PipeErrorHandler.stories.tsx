@@ -11,7 +11,7 @@ export default {
   component: PipeErrorHandlerPage,
 } as Meta<typeof PipeErrorHandlerPage>;
 const formTabsValue: CanvasFormTabsContextResult = {} as CanvasFormTabsContextResult;
-const getErrorHandlerModel = () => {};
+const getErrorHandlerModel = () => ({});
 const onChangeModel = () => {};
 
 const camelResource = new PipeResource();
