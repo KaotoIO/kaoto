@@ -74,7 +74,7 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
     controller.fromModel(model, false);
 
     const rafId = requestAnimationFrame(() => {
-      void action(() => {
+      action(() => {
         const graph = controller.getGraph();
         graph.reset();
         graph.fit(0);

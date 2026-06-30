@@ -64,7 +64,7 @@ describe('useCollapseStep', () => {
   it('should collapse node, set dimensions and update the state when onCollapseNode is called', async () => {
     const { result } = renderHook(() => useCollapseStep(mockElement));
 
-    await result.current.onCollapseNode();
+    result.current.onCollapseNode();
 
     expect(mockElement.setDimensions).toHaveBeenCalledWith(
       new Dimensions(CanvasDefaults.DEFAULT_NODE_WIDTH, CanvasDefaults.DEFAULT_NODE_HEIGHT),
@@ -81,7 +81,7 @@ describe('useCollapseStep', () => {
     const { result } = renderHook(() => useCollapseStep(mockElement));
     mockController.getState = vi.fn().mockReturnValue({ collapsedIds: ['mock-node-id'] });
 
-    await result.current.onCollapseNode();
+    result.current.onCollapseNode();
 
     expect(mockElement.setDimensions).toHaveBeenCalledWith(
       new Dimensions(CanvasDefaults.DEFAULT_NODE_WIDTH, CanvasDefaults.DEFAULT_NODE_HEIGHT),
@@ -98,7 +98,7 @@ describe('useCollapseStep', () => {
     const { result } = renderHook(() => useCollapseStep(mockElement));
     mockElement.getData = vi.fn().mockReturnValue(undefined);
 
-    await result.current.onCollapseNode();
+    result.current.onCollapseNode();
 
     expect(mockElement.setDimensions).toHaveBeenCalledWith(
       new Dimensions(CanvasDefaults.DEFAULT_NODE_WIDTH, CanvasDefaults.DEFAULT_NODE_HEIGHT),
@@ -115,7 +115,7 @@ describe('useCollapseStep', () => {
     const { result } = renderHook(() => useCollapseStep(mockElement));
     mockController.getState = vi.fn().mockReturnValue({ collapsedIds: ['mock-node-id'] });
 
-    await result.current.onExpandNode();
+    result.current.onExpandNode();
 
     expect(mockElement.setDimensions).not.toHaveBeenCalled();
     expect(mockElement.setCollapsed).toHaveBeenCalledWith(false);
@@ -159,7 +159,7 @@ describe('useCollapseStep', () => {
     const { result } = renderHook(() => useCollapseStep(mockElement));
 
     // Collapse the node
-    await result.current.onCollapseNode();
+    result.current.onCollapseNode();
 
     expect(mockController.setState).toHaveBeenCalledWith({ collapsedIds: ['mock-node-id'] });
 
@@ -168,7 +168,7 @@ describe('useCollapseStep', () => {
     mockController.setState = vi.fn();
 
     // Try to collapse again - should not update state
-    await result.current.onCollapseNode();
+    result.current.onCollapseNode();
 
     expect(mockController.setState).not.toHaveBeenCalled();
   });
@@ -178,7 +178,7 @@ describe('useCollapseStep', () => {
     mockController.getState = vi.fn().mockReturnValue({ collapsedIds: [] });
 
     // Expand a node that is not collapsed
-    await result.current.onExpandNode();
+    result.current.onExpandNode();
 
     expect(mockElement.setCollapsed).toHaveBeenCalledWith(false);
     expect(mockController.setState).toHaveBeenCalledWith({ collapsedIds: [] });
@@ -191,7 +191,7 @@ describe('useCollapseStep', () => {
     const { result } = renderHook(() => useCollapseStep(mockElement));
 
     // Collapse this node - should add to existing collapsed nodes
-    await result.current.onCollapseNode();
+    result.current.onCollapseNode();
 
     expect(mockController.setState).toHaveBeenCalledWith({
       collapsedIds: ['other-node-1', 'other-node-2', 'mock-node-id'],
@@ -206,7 +206,7 @@ describe('useCollapseStep', () => {
     const { result } = renderHook(() => useCollapseStep(mockElement));
 
     // Expand this node - should remove only this node
-    await result.current.onExpandNode();
+    result.current.onExpandNode();
 
     expect(mockController.setState).toHaveBeenCalledWith({
       collapsedIds: ['other-node-1', 'other-node-2'],
@@ -217,7 +217,7 @@ describe('useCollapseStep', () => {
     const { result } = renderHook(() => useCollapseStep(mockElement));
 
     // Rapid collapse
-    await result.current.onCollapseNode();
+    result.current.onCollapseNode();
     expect(mockElement.setCollapsed).toHaveBeenCalledWith(true);
 
     // Update state to reflect collapse
@@ -226,7 +226,7 @@ describe('useCollapseStep', () => {
     (mockElement.setCollapsed as Mock).mockClear();
 
     // Rapid expand
-    await result.current.onExpandNode();
+    result.current.onExpandNode();
     expect(mockElement.setCollapsed).toHaveBeenCalledWith(false);
     expect(mockController.setState).toHaveBeenCalledWith({ collapsedIds: [] });
   });
@@ -240,7 +240,7 @@ describe('useCollapseStep', () => {
 
     const { result } = renderHook(() => useCollapseStep(mockElement));
 
-    await result.current.onCollapseNode();
+    result.current.onCollapseNode();
 
     expect(mockElement.setCollapsed).toHaveBeenCalledWith(true);
     expect(mockController.setState).not.toHaveBeenCalled();
@@ -252,7 +252,7 @@ describe('useCollapseStep', () => {
 
     const { result } = renderHook(() => useCollapseStep(mockElement));
 
-    await result.current.onCollapseNode();
+    result.current.onCollapseNode();
 
     // Verify the original array was not mutated
     expect(initialState).toEqual(['node-1', 'node-2']);

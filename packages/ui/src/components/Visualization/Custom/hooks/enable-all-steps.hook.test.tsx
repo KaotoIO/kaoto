@@ -184,7 +184,7 @@ describe('useEnableAllSteps', () => {
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
-    await result.current.onEnableAllSteps();
+    result.current.onEnableAllSteps();
 
     expect(mockSetValue).toHaveBeenCalledTimes(2);
     expect(mockSetValue).toHaveBeenCalledWith(mockDefinition1, 'disabled', false);
@@ -211,7 +211,7 @@ describe('useEnableAllSteps', () => {
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
-    await result.current.onEnableAllSteps();
+    result.current.onEnableAllSteps();
 
     expect(mockSetValue).toHaveBeenCalledWith(mockDefinition, 'disabled', false);
     expect(disabledNode.updateModel).toHaveBeenCalledWith(mockDefinition);
@@ -234,7 +234,7 @@ describe('useEnableAllSteps', () => {
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
-    await result.current.onEnableAllSteps();
+    result.current.onEnableAllSteps();
 
     expect(mockSetValue).toHaveBeenCalledWith({}, 'disabled', false);
     expect(disabledNode.updateModel).toHaveBeenCalledWith({});
@@ -246,7 +246,7 @@ describe('useEnableAllSteps', () => {
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
-    await result.current.onEnableAllSteps();
+    result.current.onEnableAllSteps();
 
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
   });

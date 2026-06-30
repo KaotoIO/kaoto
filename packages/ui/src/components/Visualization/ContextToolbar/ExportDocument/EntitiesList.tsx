@@ -94,7 +94,9 @@ export const EntitiesList: FunctionComponent<IEntitiesList> = ({
               entityLabel={docEntity.label}
               isVisible={docEntity.isVisible}
               entityIndex={index}
-              onToggleVisibility={(index) => index !== undefined && onToggleVisibility(index)}
+              onToggleVisibility={(index) => {
+                if (index !== undefined) onToggleVisibility(index);
+              }}
             />
           ))}
         </SelectList>

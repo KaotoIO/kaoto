@@ -248,7 +248,12 @@ export const RestDslImportWizard: FunctionComponent<RestDslImportWizardProps> = 
             />
           </FormGroup>
           <div className="rest-dsl-import-actions">
-            <Button variant="secondary" onClick={() => void wizard.handleParseOpenApiSpec()}>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                wizard.handleParseOpenApiSpec();
+              }}
+            >
               Parse Specification
             </Button>
             {wizard.importStatus?.type === 'error' && (
