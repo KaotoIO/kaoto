@@ -362,6 +362,60 @@ describe('StepToolbar', () => {
     });
   });
 
+  describe('Event propagation', () => {
+    it('should stop click propagation to the parent for async actions (delete step)', async () => {
+      const parentOnClick = vi.fn();
+      const mockOnDeleteStep = vi.fn().mockResolvedValue(undefined);
+      mockUseDeleteStep.mockReturnValue({ onDeleteStep: mockOnDeleteStep });
+      mockGetNodeInteraction.mockReturnValue({
+        ...defaultNodeInteraction,
+        canRemoveStep: true,
+      });
+
+      await act(async () => {
+        render(
+          <div onClick={parentOnClick}>
+            <StepToolbar vizNode={mockVizNode} />
+          </div>,
+        );
+      });
+
+      const deleteButton = screen.getByTestId('Test Node|step-toolbar-button-delete');
+      await act(async () => {
+        fireEvent.click(deleteButton);
+      });
+
+      expect(mockOnDeleteStep).toHaveBeenCalledTimes(1);
+      expect(parentOnClick).not.toHaveBeenCalled();
+    });
+
+    it('should stop click propagation to the parent for async actions (add special child)', async () => {
+      const parentOnClick = vi.fn();
+      const mockOnInsertStep = vi.fn().mockResolvedValue(undefined);
+      mockUseInsertStep.mockReturnValue({ onInsertStep: mockOnInsertStep });
+      mockGetNodeInteraction.mockReturnValue({
+        ...defaultNodeInteraction,
+        canHaveSpecialChildren: true,
+      });
+
+      await act(async () => {
+        render(
+          <div onClick={parentOnClick}>
+            <StepToolbar vizNode={mockVizNode} />
+          </div>,
+        );
+      });
+
+      const addSpecialButton = screen.getByTestId('Test Node|step-toolbar-button-add-special');
+      await act(async () => {
+        fireEvent.click(addSpecialButton);
+      });
+
+      expect(mockOnInsertStep).toHaveBeenCalledTimes(1);
+      expect(parentOnClick).not.toHaveBeenCalled();
+    });
+  });
+
   describe('Multiple buttons rendering', () => {
     it('should render all available buttons when all interactions are enabled', async () => {
       const mockOnCollapseToggle = vi.fn();
