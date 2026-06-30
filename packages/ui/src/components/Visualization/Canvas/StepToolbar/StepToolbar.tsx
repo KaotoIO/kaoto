@@ -72,8 +72,8 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             variant="control"
             title="Duplicate"
             onClick={async (event) => {
-              await onDuplicate();
               event.stopPropagation();
+              await onDuplicate();
             }}
           />
         )}
@@ -86,8 +86,8 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             variant="control"
             title="Move before"
             onClick={async (event) => {
-              await onMoveBefore();
               event.stopPropagation();
+              await onMoveBefore();
             }}
           />
         )}
@@ -100,8 +100,8 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             variant="control"
             title="Move after"
             onClick={async (event) => {
-              await onMoveAfter();
               event.stopPropagation();
+              await onMoveAfter();
             }}
           />
         )}
@@ -114,8 +114,8 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             variant="control"
             title="Add branch"
             onClick={async (event) => {
-              await onInsertSpecial();
               event.stopPropagation();
+              await onInsertSpecial();
             }}
           />
         )}
@@ -126,9 +126,9 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             data-testid={`${label}|step-toolbar-button-disable`}
             variant="control"
             title={isDisabled ? 'Enable step' : 'Disable step'}
-            onClick={async (event) => {
-              onToggleDisableNode();
+            onClick={(event) => {
               event.stopPropagation();
+              onToggleDisableNode();
             }}
           >
             {isDisabled ? <CheckIcon /> : <BanIcon />}
@@ -142,9 +142,9 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             data-testid={`${label}|step-toolbar-button-enable-all`}
             variant="control"
             title="Enable all"
-            onClick={async (event) => {
-              onEnableAllSteps();
+            onClick={(event) => {
               event.stopPropagation();
+              onEnableAllSteps();
             }}
           />
         )}
@@ -157,8 +157,8 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             variant="control"
             title="Replace step"
             onClick={async (event) => {
-              await onReplaceNode();
               event.stopPropagation();
+              await onReplaceNode();
             }}
           />
         )}
@@ -170,8 +170,8 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             variant="control"
             title={isCollapsed ? 'Expand step' : 'Collapse step'}
             onClick={(event) => {
-              onCollapseToggle();
               event.stopPropagation();
+              onCollapseToggle();
             }}
           >
             {isCollapsed ? <ExpandArrowsAltIcon /> : <CompressArrowsAltIcon />}
@@ -187,8 +187,8 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             state="attention"
             title="Delete step"
             onClick={async (event) => {
-              await onDeleteStep();
               event.stopPropagation();
+              await onDeleteStep();
             }}
           />
         )}
@@ -202,8 +202,8 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             state="attention"
             title="Delete group"
             onClick={async (event) => {
-              await onDeleteGroup();
               event.stopPropagation();
+              await onDeleteGroup();
             }}
           />
         )}
