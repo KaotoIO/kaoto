@@ -3,6 +3,14 @@
 
 .custom-node {
   @include custom.highligth {
+    &[data-selected='true'] {
+      --custom-node-BorderColor: var(--pf-t--global--color--brand--default);
+    }
+
+    &[data-warning='true'] {
+      --custom-node-BorderColor: var(--pf-t--global--border--color--status--danger--default);
+    }
+
     &__container {
       @include custom.container;
 
@@ -30,6 +38,10 @@
 
       &__draggable {
         @include dnd.cursor-grab;
+
+        &:active {
+          cursor: grabbing;
+        }
       }
 
       // Drag preview under the pointer (already dragging — use grabbing, not grab).
@@ -81,15 +93,29 @@
 
     &__label {
       @include custom.label {
-        background-color: var(--custom-node-BackgroundColor);
-        padding: 0 calc(var(--pf-t--global--spacer--xs) * 0.75);
-        border-radius: calc(var(--custom-node-BorderRadius) * 0.4);
+        &__text {
+          display: inline-flex;
+          align-items: center;
+          max-width: 100%;
+          cursor: pointer;
 
-        &__error {
-          color: var(--custom-node-BorderColor);
+          span:not([data-warning='true']) {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            padding: 2px;
+          }
 
-          & > span:first-of-type {
-            margin-right: var(--pf-t--global--spacer--xs);
+          background-color: var(--custom-node-BackgroundColor);
+          padding: 0 calc(var(--pf-t--global--spacer--xs) * 0.75);
+          border-radius: calc(var(--custom-node-BorderRadius) * 0.4);
+
+          &__error {
+            color: var(--custom-node-BorderColor);
+
+            & > span:first-of-type {
+              margin-right: var(--pf-t--global--spacer--xs);
+            }
           }
         }
       }

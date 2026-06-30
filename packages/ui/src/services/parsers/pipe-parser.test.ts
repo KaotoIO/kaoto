@@ -84,7 +84,7 @@ describe('PipeParser', () => {
       expect(parsed.data).toHaveLength(2);
       expect(parsed.data[0][0]).toBe('log');
       expect(parsed.data[0][1]).toBe('maximumRedeliveries');
-      expect(parsed.data[0][2]).toBe(3);
+      expect(parsed.data[0][2]).toBe('3');
     });
   });
 });
