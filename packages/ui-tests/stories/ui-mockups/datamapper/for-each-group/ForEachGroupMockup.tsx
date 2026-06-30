@@ -184,7 +184,9 @@ const MockGroupingModal: FunctionComponent<MockGroupingModalProps> = ({ isOpen, 
                   label={STRATEGY_LABELS[s]}
                   value={s}
                   isChecked={selectedStrategy === s}
-                  onChange={() => setSelectedStrategy(s)}
+                  onChange={() => {
+                    setSelectedStrategy(s);
+                  }}
                 />
               ))}
             </div>
@@ -244,14 +246,18 @@ const MockCollectionFieldMenu: FunctionComponent<MockCollectionFieldMenuProps> =
     <ActionListItem>
       <Dropdown
         isOpen={isOpen}
-        onOpenChange={(open) => setIsOpen(open)}
+        onOpenChange={(open) => {
+          setIsOpen(open);
+        }}
         onSelect={handleSelect}
         toggle={(toggleRef: Ref<MenuToggleElement>) => (
           <MenuToggle
             ref={toggleRef}
             icon={<EllipsisVIcon />}
             variant="plain"
-            onClick={(_e: MouseEvent) => setIsOpen(!isOpen)}
+            onClick={(_e: MouseEvent) => {
+              setIsOpen(!isOpen);
+            }}
             isExpanded={isOpen}
             aria-label="Transformation Action list"
             style={{ height: INPUT_HEIGHT, padding: '0 0.25rem' }}
@@ -295,14 +301,20 @@ const MockInnerCollectionFieldMenu: FunctionComponent<MockInnerCollectionFieldMe
     <ActionListItem>
       <Dropdown
         isOpen={isOpen}
-        onOpenChange={(open) => setIsOpen(open)}
-        onSelect={() => setIsOpen(false)}
+        onOpenChange={(open) => {
+          setIsOpen(open);
+        }}
+        onSelect={() => {
+          setIsOpen(false);
+        }}
         toggle={(toggleRef: Ref<MenuToggleElement>) => (
           <MenuToggle
             ref={toggleRef}
             icon={<EllipsisVIcon />}
             variant="plain"
-            onClick={(_e: MouseEvent) => setIsOpen(!isOpen)}
+            onClick={(_e: MouseEvent) => {
+              setIsOpen(!isOpen);
+            }}
             isExpanded={isOpen}
             aria-label="Transformation Action list"
             style={{ height: INPUT_HEIGHT, padding: '0 0.25rem' }}
@@ -352,14 +364,18 @@ const MockForEachGroupMenu: FunctionComponent<MockForEachGroupMenuProps> = ({ in
     <ActionListItem>
       <Dropdown
         isOpen={isOpen}
-        onOpenChange={(open) => setIsOpen(open)}
+        onOpenChange={(open) => {
+          setIsOpen(open);
+        }}
         onSelect={handleSelect}
         toggle={(toggleRef: Ref<MenuToggleElement>) => (
           <MenuToggle
             ref={toggleRef}
             icon={<EllipsisVIcon />}
             variant="plain"
-            onClick={(_e: MouseEvent) => setIsOpen(!isOpen)}
+            onClick={(_e: MouseEvent) => {
+              setIsOpen(!isOpen);
+            }}
             isExpanded={isOpen}
             aria-label="for-each-group actions"
             style={{ height: INPUT_HEIGHT, padding: '0 0.25rem' }}
@@ -409,8 +425,12 @@ export const ForEachGroupMockup: FunctionComponent<ForEachGroupMockupProps> = ({
   const [forEachGroupExpanded, setForEachGroupExpanded] = useState(true);
   const [innerForEachExpanded, setInnerForEachExpanded] = useState(true);
   const [itemExpanded, setItemExpanded] = useState(true);
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
   const tooltipContent = (
     <div>
@@ -474,7 +494,9 @@ export const ForEachGroupMockup: FunctionComponent<ForEachGroupMockupProps> = ({
           isExpandable
           isExpanded={shipOrderExpanded}
           isCollection
-          onToggle={() => setShipOrderExpanded(!shipOrderExpanded)}
+          onToggle={() => {
+            setShipOrderExpanded(!shipOrderExpanded);
+          }}
         />
 
         {shipOrderExpanded && (
@@ -495,7 +517,9 @@ export const ForEachGroupMockup: FunctionComponent<ForEachGroupMockupProps> = ({
                   title={forEachGroupLabel}
                   isExpandable
                   isExpanded={forEachGroupExpanded}
-                  onToggle={() => setForEachGroupExpanded(!forEachGroupExpanded)}
+                  onToggle={() => {
+                    setForEachGroupExpanded(!forEachGroupExpanded);
+                  }}
                   actions={
                     <>
                       <MockExpressionInput value={selectExpression} placeholder="Add Select XPath Expression" />
@@ -514,7 +538,9 @@ export const ForEachGroupMockup: FunctionComponent<ForEachGroupMockupProps> = ({
                           title={forEachLabel}
                           isExpandable
                           isExpanded={innerForEachExpanded}
-                          onToggle={() => setInnerForEachExpanded(!innerForEachExpanded)}
+                          onToggle={() => {
+                            setInnerForEachExpanded(!innerForEachExpanded);
+                          }}
                           actions={
                             <>
                               <MockExpressionInput value="current-group()" />
@@ -530,7 +556,9 @@ export const ForEachGroupMockup: FunctionComponent<ForEachGroupMockupProps> = ({
                               isExpandable
                               isExpanded={itemExpanded}
                               isCollection
-                              onToggle={() => setItemExpanded(!itemExpanded)}
+                              onToggle={() => {
+                                setItemExpanded(!itemExpanded);
+                              }}
                             />
                             {itemExpanded && (
                               <>

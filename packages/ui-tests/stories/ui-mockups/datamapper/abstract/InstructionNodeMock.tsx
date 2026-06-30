@@ -184,24 +184,32 @@ export const InstructionNodeMock: FunctionComponent<InstructionNodeMockProps> = 
         items.push({
           key: 'wrap-for-each',
           label: 'Wrap with "for-each"',
-          onClick: () => handleWrapField('for-each', slot),
+          onClick: () => {
+            handleWrapField('for-each', slot);
+          },
         });
       }
       items.push({
         key: 'wrap-if',
         label: 'Wrap with "if"',
-        onClick: () => handleWrapField('if', slot),
+        onClick: () => {
+          handleWrapField('if', slot);
+        },
       });
       items.push({
         key: 'wrap-choose',
         label: 'Wrap with "choose-when-otherwise"',
-        onClick: () => handleWrapField('choose', slot),
+        onClick: () => {
+          handleWrapField('choose', slot);
+        },
       });
       if (isCollection) {
         items.push({
           key: 'dup-field',
           label: 'Duplicate Field',
-          onClick: () => handleDuplicateField(slot),
+          onClick: () => {
+            handleDuplicateField(slot);
+          },
         });
       }
       return items;
@@ -228,20 +236,42 @@ export const InstructionNodeMock: FunctionComponent<InstructionNodeMockProps> = 
   );
 
   const placeholderDocItems = useMemo(
-    (): DocMenuItem[] => [{ key: 'select-sub', label: 'Select Substitution', onClick: () => setModalTarget('new') }],
+    (): DocMenuItem[] => [
+      {
+        key: 'select-sub',
+        label: 'Select Substitution',
+        onClick: () => {
+          setModalTarget('new');
+        },
+      },
+    ],
     [],
   );
 
   const buildPlaceholderMappingItems = useMemo((): MappingMenuItem[] => {
     const items: MappingMenuItem[] = [];
     if (isCollection) {
-      items.push({ key: 'wrap-for-each', label: 'Wrap with "for-each"', onClick: () => handleWrapField('for-each') });
+      items.push({
+        key: 'wrap-for-each',
+        label: 'Wrap with "for-each"',
+        onClick: () => {
+          handleWrapField('for-each');
+        },
+      });
     }
-    items.push({ key: 'wrap-if', label: 'Wrap with "if"', onClick: () => handleWrapField('if') });
+    items.push({
+      key: 'wrap-if',
+      label: 'Wrap with "if"',
+      onClick: () => {
+        handleWrapField('if');
+      },
+    });
     items.push({
       key: 'wrap-choose',
       label: 'Wrap with "choose-when-otherwise"',
-      onClick: () => handleWrapField('choose'),
+      onClick: () => {
+        handleWrapField('choose');
+      },
     });
     if (isCollection) {
       items.push({
@@ -260,7 +290,12 @@ export const InstructionNodeMock: FunctionComponent<InstructionNodeMockProps> = 
     <div className="node__container" data-testid={`instruction-${instruction.id}`}>
       <section className="abstract-tree__instruction-node" style={{ '--node-rank': rank } as React.CSSProperties}>
         {hasChildren ? (
-          <Icon className="abstract-tree__field-expand" onClick={() => setIsExpanded(!isExpanded)}>
+          <Icon
+            className="abstract-tree__field-expand"
+            onClick={() => {
+              setIsExpanded(!isExpanded);
+            }}
+          >
             {isExpanded ? <ChevronDown /> : <ChevronRight />}
           </Icon>
         ) : (
@@ -273,7 +308,9 @@ export const InstructionNodeMock: FunctionComponent<InstructionNodeMockProps> = 
           <TextInput
             type="text"
             value={expression}
-            onChange={(_e, val) => setExpression(val)}
+            onChange={(_e, val) => {
+              setExpression(val);
+            }}
             placeholder={instruction.kind === 'for-each' ? 'select expression' : 'test expression'}
             className="abstract-tree__instruction-input"
           />
@@ -303,12 +340,22 @@ export const InstructionNodeMock: FunctionComponent<InstructionNodeMockProps> = 
                 </DropdownItem>
               )}
               {canAddInstruction && (
-                <DropdownItem key="add-for-each" onClick={() => handleAddChildInstruction('for-each')}>
+                <DropdownItem
+                  key="add-for-each"
+                  onClick={() => {
+                    handleAddChildInstruction('for-each');
+                  }}
+                >
                   Add for-each
                 </DropdownItem>
               )}
               {canAddInstruction && (
-                <DropdownItem key="add-choose" onClick={() => handleAddChildInstruction('choose')}>
+                <DropdownItem
+                  key="add-choose"
+                  onClick={() => {
+                    handleAddChildInstruction('choose');
+                  }}
+                >
                   Add choose-when-otherwise
                 </DropdownItem>
               )}
@@ -325,25 +372,40 @@ export const InstructionNodeMock: FunctionComponent<InstructionNodeMockProps> = 
               {instruction.kind === 'if' && onDuplicateIf && (
                 <DropdownItem
                   key="duplicate-if"
-                  onClick={() =>
-                    onDuplicateIf(childFields.filter((slot) => slot.candidate).map((slot) => slot.candidate!.id))
-                  }
+                  onClick={() => {
+                    onDuplicateIf(childFields.filter((slot) => slot.candidate).map((slot) => slot.candidate!.id));
+                  }}
                 >
                   Duplicate &quot;if&quot;
                 </DropdownItem>
               )}
               {onWrapWith && isCollection && (
-                <DropdownItem key="wrap-for-each" onClick={() => onWrapWith('for-each')}>
+                <DropdownItem
+                  key="wrap-for-each"
+                  onClick={() => {
+                    onWrapWith('for-each');
+                  }}
+                >
                   Wrap with &quot;for-each&quot;
                 </DropdownItem>
               )}
               {onWrapWith && (
-                <DropdownItem key="wrap-if" onClick={() => onWrapWith('if')}>
+                <DropdownItem
+                  key="wrap-if"
+                  onClick={() => {
+                    onWrapWith('if');
+                  }}
+                >
                   Wrap with &quot;if&quot;
                 </DropdownItem>
               )}
               {onWrapWith && (
-                <DropdownItem key="wrap-choose" onClick={() => onWrapWith('choose')}>
+                <DropdownItem
+                  key="wrap-choose"
+                  onClick={() => {
+                    onWrapWith('choose');
+                  }}
+                >
                   Wrap with &quot;choose-when-otherwise&quot;
                 </DropdownItem>
               )}
@@ -362,7 +424,9 @@ export const InstructionNodeMock: FunctionComponent<InstructionNodeMockProps> = 
               isAbstract
               docMenuItems={placeholderDocItems}
               mappingMenuItems={buildPlaceholderMappingItems}
-              onRemove={() => setPlaceholderDismissed(true)}
+              onRemove={() => {
+                setPlaceholderDismissed(true);
+              }}
             />
           )}
           {childFields.map((slot) =>
@@ -376,11 +440,15 @@ export const InstructionNodeMock: FunctionComponent<InstructionNodeMockProps> = 
                   {
                     key: 'clear-sub',
                     label: 'Clear Substitution',
-                    onClick: () => handleClearSubstitution(slot.slotId),
+                    onClick: () => {
+                      handleClearSubstitution(slot.slotId);
+                    },
                   },
                 ]}
                 mappingMenuItems={buildFieldMappingItems(slot)}
-                onRemove={() => handleRemoveField(slot.slotId)}
+                onRemove={() => {
+                  handleRemoveField(slot.slotId);
+                }}
               />
             ) : (
               <FieldRow
@@ -390,10 +458,18 @@ export const InstructionNodeMock: FunctionComponent<InstructionNodeMockProps> = 
                 typeOrCandidates={getAbstractDisplayName(abstractNode!)}
                 isAbstract
                 docMenuItems={[
-                  { key: 'select-sub', label: 'Select Substitution', onClick: () => setModalTarget(slot.slotId) },
+                  {
+                    key: 'select-sub',
+                    label: 'Select Substitution',
+                    onClick: () => {
+                      setModalTarget(slot.slotId);
+                    },
+                  },
                 ]}
                 mappingMenuItems={buildFieldMappingItems(slot)}
-                onRemove={() => handleRemoveField(slot.slotId)}
+                onRemove={() => {
+                  handleRemoveField(slot.slotId);
+                }}
               />
             ),
           )}
@@ -402,7 +478,9 @@ export const InstructionNodeMock: FunctionComponent<InstructionNodeMockProps> = 
               key={child.id}
               instruction={child}
               rank={rank + 1}
-              onRemove={() => handleRemoveChild(child.id)}
+              onRemove={() => {
+                handleRemoveChild(child.id);
+              }}
               onDuplicateIf={
                 child.kind === 'if'
                   ? (fieldIds) => {
@@ -443,7 +521,9 @@ export const InstructionNodeMock: FunctionComponent<InstructionNodeMockProps> = 
       {modalTarget !== null && abstractNode && (
         <AddFieldCandidateModal
           isOpen={modalTarget !== null}
-          onClose={() => setModalTarget(null)}
+          onClose={() => {
+            setModalTarget(null);
+          }}
           onConfirm={handleModalConfirm}
           abstractNode={abstractNode}
         />

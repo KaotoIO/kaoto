@@ -31,7 +31,9 @@ const OptionItem: FunctionComponent<OptionItemProps> = ({ member, isSelected, on
       <Radio
         isChecked={isSelected}
         name="choice-selection"
-        onChange={() => onSelect(member.id)}
+        onChange={() => {
+          onSelect(member.id);
+        }}
         label={
           <div className="choice-option__label">
             <span className="choice-option__name">{displayName}</span>

@@ -25,6 +25,7 @@ export const VariableInputPlaceholder: FunctionComponent<VariableInputPlaceholde
     if (initialName !== '') {
       inputRef.current?.select();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const validation: 'default' | 'success' | 'error' = useMemo(() => {
@@ -49,7 +50,9 @@ export const VariableInputPlaceholder: FunctionComponent<VariableInputPlaceholde
                 ref={inputRef}
                 className={`variable-input-placeholder__input variable-input-placeholder__input--${validation}`}
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  setName(e.target.value);
+                }}
                 placeholder="variable name"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && validation === 'success') onConfirm(name);
@@ -64,7 +67,9 @@ export const VariableInputPlaceholder: FunctionComponent<VariableInputPlaceholde
                 icon={<CheckIcon />}
                 variant="link"
                 isDisabled={validation !== 'success'}
-                onClick={() => onConfirm(name)}
+                onClick={() => {
+                  onConfirm(name);
+                }}
                 aria-label="Confirm variable name"
                 data-testid="variable-name-confirm-btn"
               />

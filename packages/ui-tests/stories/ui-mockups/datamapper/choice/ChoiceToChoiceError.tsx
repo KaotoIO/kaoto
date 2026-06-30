@@ -21,7 +21,13 @@ export const ChoiceToChoiceError: FunctionComponent<ChoiceToChoiceErrorProps> = 
         <Alert
           variant="danger"
           title="Cannot map choice to choice"
-          actionClose={<AlertActionCloseButton onClose={() => setShowError(false)} />}
+          actionClose={
+            <AlertActionCloseButton
+              onClose={() => {
+                setShowError(false);
+              }}
+            />
+          }
           style={{ marginBottom: '1rem' }}
         >
           <p>

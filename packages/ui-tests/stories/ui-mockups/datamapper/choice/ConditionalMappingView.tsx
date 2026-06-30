@@ -61,7 +61,9 @@ export const ConditionalMappingView: FunctionComponent<ConditionalMappingViewPro
 
     updatePositions();
     window.addEventListener('resize', updatePositions);
-    return () => window.removeEventListener('resize', updatePositions);
+    return () => {
+      window.removeEventListener('resize', updatePositions);
+    };
   }, [expandedNodes, mappingLines]);
 
   const toggleNode = (nodeId: string) => {
@@ -89,7 +91,9 @@ export const ConditionalMappingView: FunctionComponent<ConditionalMappingViewPro
               <BaseNode
                 isExpandable
                 isExpanded={expandedNodes.has('source-root')}
-                onExpandChange={() => toggleNode('source-root')}
+                onExpandChange={() => {
+                  toggleNode('source-root');
+                }}
                 isDraggable={false}
                 iconType={Types.Container}
                 title={
@@ -107,7 +111,9 @@ export const ConditionalMappingView: FunctionComponent<ConditionalMappingViewPro
                     <Icon
                       className="choice-node__expand"
                       style={{ cursor: 'pointer' }}
-                      onClick={() => toggleNode('source-choice')}
+                      onClick={() => {
+                        toggleNode('source-choice');
+                      }}
                     >
                       {expandedNodes.has('source-choice') ? <ChevronDown /> : <ChevronRight />}
                     </Icon>
@@ -155,7 +161,9 @@ export const ConditionalMappingView: FunctionComponent<ConditionalMappingViewPro
                           <BaseNode
                             isExpandable
                             isExpanded={expandedNodes.has('source-address')}
-                            onExpandChange={() => toggleNode('source-address')}
+                            onExpandChange={() => {
+                              toggleNode('source-address');
+                            }}
                             isDraggable={false}
                             iconType={Types.Container}
                             title={<span className="node__spacer">address</span>}
@@ -216,7 +224,9 @@ export const ConditionalMappingView: FunctionComponent<ConditionalMappingViewPro
               <BaseNode
                 isExpandable
                 isExpanded={expandedNodes.has('target-root')}
-                onExpandChange={() => toggleNode('target-root')}
+                onExpandChange={() => {
+                  toggleNode('target-root');
+                }}
                 isDraggable={false}
                 iconType={Types.Container}
                 title={
@@ -240,7 +250,9 @@ export const ConditionalMappingView: FunctionComponent<ConditionalMappingViewPro
                       <Icon
                         className="node__spacer"
                         style={{ cursor: 'pointer' }}
-                        onClick={() => toggleNode('target-choose')}
+                        onClick={() => {
+                          toggleNode('target-choose');
+                        }}
                       >
                         {expandedNodes.has('target-choose') ? <ChevronDown /> : <ChevronRight />}
                       </Icon>
@@ -363,7 +375,13 @@ const WhenNode: FunctionComponent<WhenNodeProps> = ({ id, test, rank, fields }) 
     <div className="node__container" style={{ marginLeft: `calc(${rank} * 0.85rem)` }}>
       <div className="node__header">
         <div className="node__row" style={{ display: 'flex', alignItems: 'center', height: '2rem' }} id={id}>
-          <Icon className="node__spacer" style={{ cursor: 'pointer' }} onClick={() => setIsExpanded(!isExpanded)}>
+          <Icon
+            className="node__spacer"
+            style={{ cursor: 'pointer' }}
+            onClick={() => {
+              setIsExpanded(!isExpanded);
+            }}
+          >
             {isExpanded ? <ChevronDown /> : <ChevronRight />}
           </Icon>
           <Label isCompact color="grey">
@@ -435,7 +453,13 @@ const OtherwiseNode: FunctionComponent<OtherwiseNodeProps> = ({ id, rank, fields
     <div className="node__container" style={{ marginLeft: `calc(${rank} * 0.85rem)` }}>
       <div className="node__header">
         <div className="node__row" style={{ display: 'flex', alignItems: 'center', height: '2rem' }} id={id}>
-          <Icon className="node__spacer" style={{ cursor: 'pointer' }} onClick={() => setIsExpanded(!isExpanded)}>
+          <Icon
+            className="node__spacer"
+            style={{ cursor: 'pointer' }}
+            onClick={() => {
+              setIsExpanded(!isExpanded);
+            }}
+          >
             {isExpanded ? <ChevronDown /> : <ChevronRight />}
           </Icon>
           <Label isCompact color="grey">

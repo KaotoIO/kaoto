@@ -99,7 +99,9 @@ export const VariableMockup: FunctionComponent<VariableMockupProps> = ({ step })
 
     updatePositions();
     window.addEventListener('resize', updatePositions);
-    return () => window.removeEventListener('resize', updatePositions);
+    return () => {
+      window.removeEventListener('resize', updatePositions);
+    };
   }, [
     variables,
     isAddingTargetVar,
@@ -240,7 +242,9 @@ export const VariableMockup: FunctionComponent<VariableMockupProps> = ({ step })
               <BaseNode
                 isExpandable
                 isExpanded={isTargetExpanded}
-                onExpandChange={() => setIsTargetExpanded((p) => !p)}
+                onExpandChange={() => {
+                  setIsTargetExpanded((p) => !p);
+                }}
                 isDraggable={false}
                 iconType={Types.Container}
                 title={<span className="node__spacer">Invoice</span>}
@@ -256,7 +260,9 @@ export const VariableMockup: FunctionComponent<VariableMockupProps> = ({ step })
                     <BaseNode
                       isExpandable
                       isExpanded={isSubtotalExpanded}
-                      onExpandChange={() => setIsSubtotalExpanded((p) => !p)}
+                      onExpandChange={() => {
+                        setIsSubtotalExpanded((p) => !p);
+                      }}
                       isDraggable={false}
                       iconType={Types.Decimal}
                       title={<span className="node__spacer">Subtotals</span>}
@@ -280,7 +286,9 @@ export const VariableMockup: FunctionComponent<VariableMockupProps> = ({ step })
                             <div className="variable-node__actions">
                               <Dropdown
                                 isOpen={isForEachMenuOpen}
-                                onOpenChange={(isOpen) => setIsForEachMenuOpen(isOpen)}
+                                onOpenChange={(isOpen) => {
+                                  setIsForEachMenuOpen(isOpen);
+                                }}
                                 toggle={(toggleRef: Ref<HTMLButtonElement>) => (
                                   <MenuToggle
                                     icon={<EllipsisVIcon />}
@@ -320,8 +328,12 @@ export const VariableMockup: FunctionComponent<VariableMockupProps> = ({ step })
                                 <div className="node__header">
                                   <VariableInputPlaceholder
                                     initialName={variable.name}
-                                    onConfirm={(name) => handleRenameVar(variable.id, name)}
-                                    onCancel={() => setRenamingVarInTargetId(null)}
+                                    onConfirm={(name) => {
+                                      handleRenameVar(variable.id, name);
+                                    }}
+                                    onCancel={() => {
+                                      setRenamingVarInTargetId(null);
+                                    }}
                                   />
                                 </div>
                               </div>
@@ -345,7 +357,9 @@ export const VariableMockup: FunctionComponent<VariableMockupProps> = ({ step })
                                       </Tooltip>
                                       <Dropdown
                                         isOpen={targetVarMenuOpenId === variable.id}
-                                        onOpenChange={(isOpen) => setTargetVarMenuOpenId(isOpen ? variable.id : null)}
+                                        onOpenChange={(isOpen) => {
+                                          setTargetVarMenuOpenId(isOpen ? variable.id : null);
+                                        }}
                                         toggle={(toggleRef: Ref<HTMLButtonElement>) => (
                                           <MenuToggle
                                             icon={<EllipsisVIcon />}
@@ -395,7 +409,9 @@ export const VariableMockup: FunctionComponent<VariableMockupProps> = ({ step })
                               <div className="node__header">
                                 <VariableInputPlaceholder
                                   onConfirm={handleAddVar}
-                                  onCancel={() => setIsAddingTargetVar(false)}
+                                  onCancel={() => {
+                                    setIsAddingTargetVar(false);
+                                  }}
                                 />
                               </div>
                             </div>

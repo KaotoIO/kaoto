@@ -136,7 +136,9 @@ export const TypeOverrideModal: FunctionComponent<ITypeOverrideModalProps> = ({
               <Radio
                 isChecked={typeSource === 'standard'}
                 name="type-source"
-                onChange={() => setTypeSource('standard')}
+                onChange={() => {
+                  setTypeSource('standard');
+                }}
                 label="XML Schema standard types"
                 id="standard-types"
                 body={
@@ -159,7 +161,9 @@ export const TypeOverrideModal: FunctionComponent<ITypeOverrideModalProps> = ({
               <Radio
                 isChecked={typeSource === 'schema'}
                 name="type-source"
-                onChange={() => setTypeSource('schema')}
+                onChange={() => {
+                  setTypeSource('schema');
+                }}
                 label="Types from attached schemas"
                 id="schema-types"
                 body={

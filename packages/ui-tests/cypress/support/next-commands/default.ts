@@ -387,7 +387,7 @@ Cypress.Commands.add('assertValueCopiedToClipboard', (value) => {
       // Return the promise so Cypress awaits the clipboard read before the command resolves.
       // Otherwise the read floats and may resolve against a later copy's content, throwing an
       // uncaught AssertionError (the Chromium-only "deeply equal" failure seen in CI).
-      return await win.navigator?.clipboard?.read().then(async (text: ClipboardItems) => {
+      return win.navigator?.clipboard?.read().then(async (text: ClipboardItems) => {
         for (const item of text) {
           if (item.types.includes('web text/kaoto')) {
             const blob = await item.getType('web text/kaoto');

@@ -69,9 +69,13 @@ export const FieldRow: FunctionComponent<FieldRowProps> = ({
 
   useEffect(() => {
     if (!docMenuOpen) return;
-    const close = () => setDocMenuOpen(false);
+    const close = () => {
+      setDocMenuOpen(false);
+    };
     document.addEventListener('click', close);
-    return () => document.removeEventListener('click', close);
+    return () => {
+      document.removeEventListener('click', close);
+    };
   }, [docMenuOpen]);
 
   const handleContextMenu = useCallback(

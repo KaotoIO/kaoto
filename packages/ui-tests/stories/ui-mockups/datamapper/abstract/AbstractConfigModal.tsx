@@ -50,7 +50,9 @@ const CandidateItem: FunctionComponent<CandidateItemProps> = ({ candidate, isSel
         <Radio
           isChecked={isSelected}
           name="candidate-selection"
-          onChange={() => onSelect(candidate.id)}
+          onChange={() => {
+            onSelect(candidate.id);
+          }}
           label={label}
           id={`radio-${candidate.id}`}
           data-testid={`radio-${candidate.id}`}
@@ -58,7 +60,9 @@ const CandidateItem: FunctionComponent<CandidateItemProps> = ({ candidate, isSel
       ) : (
         <Checkbox
           isChecked={isSelected}
-          onChange={() => onSelect(candidate.id)}
+          onChange={() => {
+            onSelect(candidate.id);
+          }}
           label={label}
           id={`checkbox-${candidate.id}`}
           data-testid={`checkbox-${candidate.id}`}
@@ -167,8 +171,12 @@ export const AbstractConfigModal: FunctionComponent<AbstractConfigModalProps> = 
             <SearchInput
               placeholder="Filter candidates..."
               value={searchFilter}
-              onChange={(_event, value) => setSearchFilter(value)}
-              onClear={() => setSearchFilter('')}
+              onChange={(_event, value) => {
+                setSearchFilter(value);
+              }}
+              onClear={() => {
+                setSearchFilter('');
+              }}
               data-testid={`${dataTestId}-search`}
             />
           </div>

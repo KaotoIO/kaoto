@@ -144,7 +144,9 @@ export const InteractiveWorkflow: StoryFn = () => {
             cursor: 'pointer',
             borderRadius: '4px',
           }}
-          onContextMenu={(e) => handleContextMenu(e, mockFields.anyTypeField)}
+          onContextMenu={(e) => {
+            handleContextMenu(e, mockFields.anyTypeField);
+          }}
         >
           <span style={{ marginRight: '8px' }}>
             <Draggable />
@@ -171,7 +173,9 @@ export const InteractiveWorkflow: StoryFn = () => {
             cursor: 'pointer',
             borderRadius: '4px',
           }}
-          onContextMenu={(e) => handleContextMenu(e, mockFields.baseTypeField)}
+          onContextMenu={(e) => {
+            handleContextMenu(e, mockFields.baseTypeField);
+          }}
         >
           <span style={{ marginRight: '8px' }}>
             <Draggable />
@@ -198,7 +202,9 @@ export const InteractiveWorkflow: StoryFn = () => {
             cursor: 'pointer',
             borderRadius: '4px',
           }}
-          onContextMenu={(e) => handleContextMenu(e, mockFields.regularField)}
+          onContextMenu={(e) => {
+            handleContextMenu(e, mockFields.regularField);
+          }}
         >
           <span style={{ marginRight: '8px' }}>
             <Draggable />
@@ -228,7 +234,9 @@ export const InteractiveWorkflow: StoryFn = () => {
             bottom: 0,
             zIndex: 999,
           }}
-          onClick={() => setShowMenu(false)}
+          onClick={() => {
+            setShowMenu(false);
+          }}
         >
           <div
             style={{
@@ -236,7 +244,9 @@ export const InteractiveWorkflow: StoryFn = () => {
               left: menuPosition.x,
               top: menuPosition.y,
             }}
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
           >
             <FieldContextMenu
               fieldName={selectedField.name}
@@ -246,7 +256,9 @@ export const InteractiveWorkflow: StoryFn = () => {
               onOverrideType={handleOverrideType}
               onForceOverrideType={handleForceOverrideType}
               onResetOverride={handleReset}
-              onClose={() => setShowMenu(false)}
+              onClose={() => {
+                setShowMenu(false);
+              }}
             />
           </div>
         </div>
@@ -262,7 +274,9 @@ export const InteractiveWorkflow: StoryFn = () => {
           xmlSchemaTypes={availableTypes.xmlSchemaTypes}
           customTypes={availableTypes.customTypes}
           onConfirm={handleConfirm}
-          onCancel={() => setShowModal(false)}
+          onCancel={() => {
+            setShowModal(false);
+          }}
           onAttachSchema={handleAttachSchema}
         />
       )}
