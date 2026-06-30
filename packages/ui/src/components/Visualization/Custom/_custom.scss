@@ -24,14 +24,6 @@
   --custom-node-Shadow: var(--pf-t--global--box-shadow--md);
   --custom-node-border-width: 5px;
 
-  &[data-selected='true'] {
-    --custom-node-BorderColor: var(--pf-t--global--color--brand--default);
-  }
-
-  &[data-warning='true'] {
-    --custom-node-BorderColor: var(--pf-t--global--border--color--status--danger--default);
-  }
-
   foreignObject:first-of-type {
     overflow: visible;
   }
@@ -59,20 +51,7 @@
 @mixin label {
   text-align: center;
 
-  & &__text {
-    display: inline-flex;
-    align-items: center;
-    max-width: 100%;
-    cursor: pointer;
-
-    span:not([data-warning='true']) {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    @content;
-  }
+  @content;
 }
 
 @mixin drag-node {

@@ -2,6 +2,14 @@
 
 .placeholder-node {
   @include custom.highligth {
+    &[data-selected='true'] {
+      --custom-node-BorderColor: var(--pf-t--global--color--brand--default);
+    }
+
+    &[data-warning='true'] {
+      --custom-node-BorderColor: var(--pf-t--global--border--color--status--danger--default);
+    }
+
     &__container {
       @include custom.container;
 
@@ -37,10 +45,23 @@
 
     &__label {
       @include custom.label {
-        background-color: var(--custom-node-BackgroundColor);
-        padding: 0 calc(var(--pf-t--global--spacer--xs) * 0.75);
-        border-radius: calc(var(--custom-node-BorderRadius) * 0.4);
-        font-style: italic;
+        &__text {
+          display: inline-flex;
+          align-items: center;
+          max-width: 100%;
+          cursor: pointer;
+
+          span:not([data-warning='true']) {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+
+          background-color: var(--custom-node-BackgroundColor);
+          padding: 0 calc(var(--pf-t--global--spacer--xs) * 0.75);
+          border-radius: calc(var(--custom-node-BorderRadius) * 0.4);
+          font-style: italic;
+        }
       }
     }
   }

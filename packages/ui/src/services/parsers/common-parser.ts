@@ -171,7 +171,7 @@ export class CommonParser {
       .filter(([key]) => !excluded.includes(key))
       .forEach(([key, value]) => {
         if (typeof value !== 'object') {
-          answer[prefix ? `${prefix}.${key}` : key] = value;
+          answer[prefix ? `${prefix}.${key}` : key] = String(value);
           return;
         }
         if (CommonParser.EXPRESSION_PARAMETERS.includes(key)) {
