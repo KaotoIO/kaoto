@@ -239,7 +239,7 @@ describe('KaotoEditorApp', () => {
   });
 
   it('should set the color theme upon opening the editor', async () => {
-    await kaotoEditorApp.af_onOpen();
+    kaotoEditorApp.af_onOpen();
 
     expect(setColorScheme).toHaveBeenCalledWith(ColorScheme.Auto);
   });

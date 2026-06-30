@@ -541,9 +541,9 @@ describe('VisualizationNode', () => {
         description: '',
         iconUrl: '',
       });
-      const copiedContent = node.pasteBaseEntityStep(clipboardContent, AddStepMode.InsertChildStep);
-
-      expect(copiedContent).toBeUndefined();
+      expect(() => {
+        node.pasteBaseEntityStep(clipboardContent, AddStepMode.InsertChildStep);
+      }).not.toThrow();
     });
 
     it('should delegate to the BaseVisualCamelEntity to paste the step', () => {

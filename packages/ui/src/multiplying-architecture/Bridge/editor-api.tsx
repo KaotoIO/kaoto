@@ -58,7 +58,10 @@ export const useEditorApi = () => {
   const editorApi: SourceCodeBridgeProviderRef = useMemo(
     () => ({
       /* Callback is exposed to the Channel to set the content of the file into the current Editor. */
-      setContent: (path: string, content: string) => Promise.resolve(setContent(path, content)),
+      setContent: (path: string, content: string) => {
+        setContent(path, content);
+        return Promise.resolve();
+      },
 
       /**
        * Callback is exposed to the Channel to retrieve the current value of the Editor. It returns the value of
@@ -66,8 +69,14 @@ export const useEditorApi = () => {
        */
       getContent: () => Promise.resolve(sourceCodeRef.current),
       getPreview: () => Promise.resolve(undefined),
-      undo: (): Promise<void> => Promise.resolve(undo()),
-      redo: (): Promise<void> => Promise.resolve(redo()),
+      undo: (): Promise<void> => {
+        undo();
+        return Promise.resolve();
+      },
+      redo: (): Promise<void> => {
+        redo();
+        return Promise.resolve();
+      },
       validate: () => Promise.resolve([]),
       setTheme: () => Promise.resolve(),
     }),
