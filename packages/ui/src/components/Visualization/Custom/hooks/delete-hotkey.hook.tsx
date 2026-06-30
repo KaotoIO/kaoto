@@ -15,19 +15,21 @@ export default function useDeleteHotkey(selectedVizNode: IVisualizationNode | un
     const { canRemoveStep, canRemoveFlow } = selectedVizNode.getNodeInteraction();
     if (!canRemoveStep && !canRemoveFlow) return;
 
-    if (canRemoveStep) await onDeleteStep();
+    try {
+      if (canRemoveStep) await onDeleteStep();
 
-    if (canRemoveFlow) await onDeleteGroup();
+      if (canRemoveFlow) await onDeleteGroup();
 
-    clearSelected();
+      clearSelected();
+    } catch (error) {
+      console.error('Failed to delete node:', error);
+    }
   }, [onDeleteStep, onDeleteGroup, selectedVizNode, clearSelected]);
 
   useEffect(() => {
     hotkeys('Delete, backspace', (event) => {
       event.preventDefault();
-      handleKeyDown().catch(() => {
-        // errors are handled inside handleKeyDown
-      });
+      void handleKeyDown();
     });
 
     return () => {
