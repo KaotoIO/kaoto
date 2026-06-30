@@ -28,7 +28,9 @@ function buildInlineMemberActions(
 ): MenuAction[] {
   return members.map((member, index) => ({
     label: getFieldDisplayName(member),
-    onClick: () => onSelect(index),
+    onClick: () => {
+      onSelect(index);
+    },
     icon: selectedIndex === index ? <CheckIcon /> : <Choices />,
     testId: `choice-menu-item-${index}`,
   }));

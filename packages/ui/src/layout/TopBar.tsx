@@ -79,7 +79,9 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
                 </MenuToggle>
               )}
               isOpen={isOpen}
-              onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
+              onOpenChange={(isOpen: boolean) => {
+                setIsOpen(isOpen);
+              }}
               popperProps={DEFAULT_POPPER_PROPS}
             >
               <a href="https://kaoto.io/workshop/" target="_blank" rel="noopener noreferrer">

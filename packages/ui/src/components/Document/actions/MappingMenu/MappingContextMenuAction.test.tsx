@@ -65,9 +65,9 @@ describe('MappingContextMenuAction', () => {
     act(() => {
       fireEvent.click(selectorItem.getElementsByTagName('button')[0]);
     });
-    await waitFor(() =>
-      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toBe('false'),
-    );
+    await waitFor(() => {
+      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toBe('false');
+    });
     expect(onUpdateMock.mock.calls).toHaveLength(1);
     expect(spyOnApply.mock.calls).toHaveLength(1);
   });
@@ -89,9 +89,9 @@ describe('MappingContextMenuAction', () => {
     act(() => {
       fireEvent.click(ifItem.getElementsByTagName('button')[0]);
     });
-    await waitFor(() =>
-      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toBe('false'),
-    );
+    await waitFor(() => {
+      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toBe('false');
+    });
     expect(onUpdateMock.mock.calls).toHaveLength(1);
     expect(spyOnApply.mock.calls).toHaveLength(1);
   });
@@ -113,9 +113,9 @@ describe('MappingContextMenuAction', () => {
     act(() => {
       fireEvent.click(chooseItem.getElementsByTagName('button')[0]);
     });
-    await waitFor(() =>
-      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toBe('false'),
-    );
+    await waitFor(() => {
+      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toBe('false');
+    });
     expect(onUpdateMock.mock.calls).toHaveLength(1);
     expect(spyOnApply.mock.calls).toHaveLength(1);
   });
@@ -133,9 +133,9 @@ describe('MappingContextMenuAction', () => {
     act(() => {
       fireEvent.click(whenItem.getElementsByTagName('button')[0]);
     });
-    await waitFor(() =>
-      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toBe('false'),
-    );
+    await waitFor(() => {
+      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toBe('false');
+    });
 
     expect(onUpdateMock.mock.calls).toHaveLength(1);
     expect(spyOnApply.mock.calls).toHaveLength(1);
@@ -154,9 +154,9 @@ describe('MappingContextMenuAction', () => {
     act(() => {
       fireEvent.click(otherwiseItem.getElementsByTagName('button')[0]);
     });
-    await waitFor(() =>
-      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toBe('false'),
-    );
+    await waitFor(() => {
+      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toBe('false');
+    });
 
     expect(onUpdateMock.mock.calls).toHaveLength(1);
     expect(spyOnApply.mock.calls).toHaveLength(1);
@@ -179,9 +179,9 @@ describe('MappingContextMenuAction', () => {
     act(() => {
       fireEvent.click(foreachItem.getElementsByTagName('button')[0]);
     });
-    await waitFor(() =>
-      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toBe('false'),
-    );
+    await waitFor(() => {
+      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toBe('false');
+    });
     expect(onUpdateMock.mock.calls).toHaveLength(1);
     expect(spyOnApply.mock.calls).toHaveLength(1);
   });
@@ -203,7 +203,9 @@ describe('MappingContextMenuAction', () => {
       fireEvent(actionToggle, clickEvent);
     });
 
-    await waitFor(() => expect(stopPropagationSpy).toHaveBeenCalled());
+    await waitFor(() => {
+      expect(stopPropagationSpy).toHaveBeenCalled();
+    });
   });
 
   it('should stop event propagation upon selecting a menu option', async () => {
@@ -227,7 +229,9 @@ describe('MappingContextMenuAction', () => {
       fireEvent(selectorButton, clickEvent);
     });
 
-    await waitFor(() => expect(stopPropagationSpy).toHaveBeenCalled());
+    await waitFor(() => {
+      expect(stopPropagationSpy).toHaveBeenCalled();
+    });
   });
 
   it('should render Add Conditional Mapping dropdown for the add mapping placeholder', async () => {
@@ -249,7 +253,9 @@ describe('MappingContextMenuAction', () => {
       fireEvent.click(forEachButton[0]);
     });
 
-    await waitFor(() => expect(onUpdateSpy).toHaveBeenCalled());
+    await waitFor(() => {
+      expect(onUpdateSpy).toHaveBeenCalled();
+    });
   });
 
   it('should apply If from the Add Conditional Mapping dropdown for the add mapping placeholder', async () => {
@@ -271,7 +277,9 @@ describe('MappingContextMenuAction', () => {
       fireEvent.click(ifButton[0]);
     });
 
-    await waitFor(() => expect(onUpdateSpy).toHaveBeenCalled());
+    await waitFor(() => {
+      expect(onUpdateSpy).toHaveBeenCalled();
+    });
     expect(spyOnApply).toHaveBeenCalledWith(nodeData);
   });
 
@@ -294,7 +302,9 @@ describe('MappingContextMenuAction', () => {
       fireEvent.click(chooseButton[0]);
     });
 
-    await waitFor(() => expect(onUpdateSpy).toHaveBeenCalled());
+    await waitFor(() => {
+      expect(onUpdateSpy).toHaveBeenCalled();
+    });
     expect(spyOnApply).toHaveBeenCalledWith(nodeData);
   });
 

@@ -99,7 +99,9 @@ describe('useDataMapperDeleteHotkey', () => {
     });
 
     it('should delete mapping when valid target node is selected and Delete is allowed', () => {
-      renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
+      renderHook(() => {
+        useDataMapperDeleteHotkey(mockOnUpdate);
+      });
 
       const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
       const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
@@ -110,7 +112,9 @@ describe('useDataMapperDeleteHotkey', () => {
     });
 
     it('should clear selection after deletion', () => {
-      renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
+      renderHook(() => {
+        useDataMapperDeleteHotkey(mockOnUpdate);
+      });
 
       const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
       const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
@@ -121,7 +125,9 @@ describe('useDataMapperDeleteHotkey', () => {
     });
 
     it('should call onUpdate callback after deletion', () => {
-      renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
+      renderHook(() => {
+        useDataMapperDeleteHotkey(mockOnUpdate);
+      });
 
       const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
       const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
@@ -140,7 +146,9 @@ describe('useDataMapperDeleteHotkey', () => {
         clearSelection: mockClearSelection,
       });
 
-      renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
+      renderHook(() => {
+        useDataMapperDeleteHotkey(mockOnUpdate);
+      });
 
       const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
       const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
@@ -162,7 +170,9 @@ describe('useDataMapperDeleteHotkey', () => {
       mockFindNodeByPath.mockReturnValue(mockTreeNode);
       mockGetAllowedActions.mockReturnValue([MappingActionKind.If, MappingActionKind.Choose]);
 
-      renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
+      renderHook(() => {
+        useDataMapperDeleteHotkey(mockOnUpdate);
+      });
 
       const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
       const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
@@ -184,7 +194,9 @@ describe('useDataMapperDeleteHotkey', () => {
       mockFindNodeByPath.mockReturnValue(null);
       mockGetAllowedActions.mockReturnValue([MappingActionKind.Delete]);
 
-      renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
+      renderHook(() => {
+        useDataMapperDeleteHotkey(mockOnUpdate);
+      });
 
       const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
       const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
@@ -206,7 +218,9 @@ describe('useDataMapperDeleteHotkey', () => {
       mockFindNodeByPath.mockReturnValue(undefined);
       mockGetAllowedActions.mockReturnValue([MappingActionKind.Delete]);
 
-      renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
+      renderHook(() => {
+        useDataMapperDeleteHotkey(mockOnUpdate);
+      });
 
       const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
       const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
@@ -228,7 +242,9 @@ describe('useDataMapperDeleteHotkey', () => {
       mockFindNodeByPath.mockReturnValue(mockTreeNode);
       mockGetAllowedActions.mockReturnValue([MappingActionKind.Delete]);
 
-      renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
+      renderHook(() => {
+        useDataMapperDeleteHotkey(mockOnUpdate);
+      });
 
       const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
       const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
@@ -243,7 +259,9 @@ describe('useDataMapperDeleteHotkey', () => {
 
   describe('tree lookup', () => {
     it('should not call getTree during render', () => {
-      renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
+      renderHook(() => {
+        useDataMapperDeleteHotkey(mockOnUpdate);
+      });
 
       expect(mockGetTree).not.toHaveBeenCalled();
     });
@@ -258,7 +276,9 @@ describe('useDataMapperDeleteHotkey', () => {
       mockFindNodeByPath.mockReturnValue(mockTreeNode);
       mockGetAllowedActions.mockReturnValue([MappingActionKind.Delete]);
 
-      renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
+      renderHook(() => {
+        useDataMapperDeleteHotkey(mockOnUpdate);
+      });
 
       const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
       const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
@@ -276,7 +296,9 @@ describe('useDataMapperDeleteHotkey', () => {
 
       mockGetTree.mockReturnValue(undefined);
 
-      renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
+      renderHook(() => {
+        useDataMapperDeleteHotkey(mockOnUpdate);
+      });
 
       const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
       const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
@@ -290,7 +312,9 @@ describe('useDataMapperDeleteHotkey', () => {
 
   describe('hotkey registration', () => {
     it('should register hotkeys with delete and backspace keys', () => {
-      renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
+      renderHook(() => {
+        useDataMapperDeleteHotkey(mockOnUpdate);
+      });
 
       expect(mockHotkeys).toHaveBeenCalled();
       const keyString = mockHotkeys.mock.calls[0][0] as string;
@@ -302,7 +326,9 @@ describe('useDataMapperDeleteHotkey', () => {
 
   describe('cleanup and unmount', () => {
     it('should unbind hotkeys on unmount', () => {
-      const { unmount } = renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
+      const { unmount } = renderHook(() => {
+        useDataMapperDeleteHotkey(mockOnUpdate);
+      });
 
       unmount();
 

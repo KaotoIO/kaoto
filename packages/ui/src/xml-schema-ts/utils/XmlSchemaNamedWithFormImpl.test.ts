@@ -110,9 +110,9 @@ describe('XmlSchemaNamedWithFormImpl', () => {
     it('should throw error when setting null form', () => {
       const element = new XmlSchemaNamedWithFormImpl(schema, false, true);
 
-      expect(() => element.setForm(null as unknown as XmlSchemaForm)).toThrow(
-        'form may not be null. Pass XmlSchemaForm.NONE to use schema default.',
-      );
+      expect(() => {
+        element.setForm(null as unknown as XmlSchemaForm);
+      }).toThrow('form may not be null. Pass XmlSchemaForm.NONE to use schema default.');
     });
 
     it('should update wire name when form changes', () => {

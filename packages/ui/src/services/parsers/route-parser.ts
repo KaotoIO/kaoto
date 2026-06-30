@@ -107,9 +107,9 @@ export class RouteParser {
       headers: RouteParser.HEADERS_OBJECT_WITH_STEPS,
     });
 
-    interceptArray.forEach((intercept) =>
-      RouteParser.populateObjectWithSteps(parsedTable, intercept as ObjectWithSteps),
-    );
+    interceptArray.forEach((intercept) => {
+      RouteParser.populateObjectWithSteps(parsedTable, intercept as ObjectWithSteps);
+    });
 
     return parsedTable;
   }
@@ -177,7 +177,9 @@ export class RouteParser {
       headers: RouteParser.HEADERS_OBJECT_WITH_STEPS,
     });
 
-    interceptFromArray.forEach((interceptFrom) => RouteParser.populateUriOrObjectWithSteps(parsedTable, interceptFrom));
+    interceptFromArray.forEach((interceptFrom) => {
+      RouteParser.populateUriOrObjectWithSteps(parsedTable, interceptFrom);
+    });
 
     return parsedTable;
   }
@@ -212,9 +214,9 @@ export class RouteParser {
       headers: RouteParser.HEADERS_OBJECT_WITH_STEPS,
     });
 
-    interceptSendToEndpointArray.forEach((interceptSendToEndpoint) =>
-      RouteParser.populateUriOrObjectWithSteps(parsedTable, interceptSendToEndpoint),
-    );
+    interceptSendToEndpointArray.forEach((interceptSendToEndpoint) => {
+      RouteParser.populateUriOrObjectWithSteps(parsedTable, interceptSendToEndpoint);
+    });
 
     return parsedTable;
   }
@@ -242,9 +244,9 @@ export class RouteParser {
       headers: RouteParser.HEADERS_OBJECT_WITH_STEPS,
     });
 
-    onCompletionArray.forEach((onCompletion) =>
-      RouteParser.populateObjectWithSteps(parsedTable, onCompletion as ObjectWithSteps),
-    );
+    onCompletionArray.forEach((onCompletion) => {
+      RouteParser.populateObjectWithSteps(parsedTable, onCompletion as ObjectWithSteps);
+    });
 
     return parsedTable;
   }
@@ -272,9 +274,9 @@ export class RouteParser {
       headers: RouteParser.HEADERS_OBJECT_WITH_STEPS,
     });
 
-    onExceptionArray.forEach((onException) =>
-      RouteParser.populateObjectWithSteps(parsedTable, onException as ObjectWithSteps),
-    );
+    onExceptionArray.forEach((onException) => {
+      RouteParser.populateObjectWithSteps(parsedTable, onException as ObjectWithSteps);
+    });
 
     return parsedTable;
   }

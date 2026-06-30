@@ -60,7 +60,11 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = memo(
     const field = VisualizationUtilService.getField(nodeData);
 
     const handleKeyDown = useCallback(
-      (event: KeyboardEvent) => handleNodeKeyDown(event, () => toggleSelectedNode(nodePathString, true)),
+      (event: KeyboardEvent) => {
+        handleNodeKeyDown(event, () => {
+          toggleSelectedNode(nodePathString, true);
+        });
+      },
       [nodePathString, toggleSelectedNode],
     );
 

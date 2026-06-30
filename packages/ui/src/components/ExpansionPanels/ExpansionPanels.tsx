@@ -68,7 +68,9 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
    * not the transient queue (layoutChangeQueueRef).
    */
   const executeAllLayoutCallbacks = useCallback(() => {
-    panelCallbacksRef.current.forEach((callback) => callback());
+    panelCallbacksRef.current.forEach((callback) => {
+      callback();
+    });
   }, []);
 
   /**
@@ -156,7 +158,9 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
   const flushLayoutCallbacks = useCallback(() => {
     const callbacks = [...layoutChangeQueueRef.current];
     layoutChangeQueueRef.current = [];
-    callbacks.forEach((callback) => callback());
+    callbacks.forEach((callback) => {
+      callback();
+    });
   }, []);
 
   const register = useCallback(

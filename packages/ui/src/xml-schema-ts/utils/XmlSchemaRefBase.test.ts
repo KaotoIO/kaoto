@@ -93,9 +93,9 @@ describe('XmlSchemaRefBase', () => {
 
       // Try to change ref - should fail
       const qname2 = new QName('http://test.example.com', 'secondRef');
-      expect(() => refBase.setTargetQName(qname2)).toThrow(
-        'It is invalid to set the ref= name for an item that has a name.',
-      );
+      expect(() => {
+        refBase.setTargetQName(qname2);
+      }).toThrow('It is invalid to set the ref= name for an item that has a name.');
     });
 
     it('should allow setting ref when named object is anonymous', () => {
@@ -104,7 +104,9 @@ describe('XmlSchemaRefBase', () => {
 
       const qname = new QName('http://test.example.com', 'refTarget');
 
-      expect(() => refBase.setTargetQName(qname)).not.toThrow();
+      expect(() => {
+        refBase.setTargetQName(qname);
+      }).not.toThrow();
       expect(refBase.getTargetQName()).toBe(qname);
     });
 
@@ -116,7 +118,9 @@ describe('XmlSchemaRefBase', () => {
       refBase.setNamedObject(named);
       const qname = new QName('http://test.example.com', 'refTarget');
 
-      expect(() => refBase.setTargetQName(qname)).not.toThrow();
+      expect(() => {
+        refBase.setTargetQName(qname);
+      }).not.toThrow();
     });
 
     it('should allow changing ref when already set', () => {
@@ -138,7 +142,9 @@ describe('XmlSchemaRefBase', () => {
 
       // Should not throw when setting ref on anonymous object
       const qname = new QName('http://test.example.com', 'refTarget');
-      expect(() => refBase.setTargetQName(qname)).not.toThrow();
+      expect(() => {
+        refBase.setTargetQName(qname);
+      }).not.toThrow();
     });
 
     it('should enforce name/ref exclusivity when changing ref', () => {
@@ -154,9 +160,9 @@ describe('XmlSchemaRefBase', () => {
 
       // Try to change ref - should fail
       const qname2 = new QName('http://test.example.com', 'secondRef');
-      expect(() => refBase.setTargetQName(qname2)).toThrow(
-        'It is invalid to set the ref= name for an item that has a name.',
-      );
+      expect(() => {
+        refBase.setTargetQName(qname2);
+      }).toThrow('It is invalid to set the ref= name for an item that has a name.');
     });
   });
 
@@ -212,9 +218,9 @@ describe('XmlSchemaRefBase', () => {
 
       // Try to set ref again - should fail
       const newQname = new QName('http://test.example.com', 'newRef');
-      expect(() => refBase.setTargetQName(newQname)).toThrow(
-        'It is invalid to set the ref= name for an item that has a name.',
-      );
+      expect(() => {
+        refBase.setTargetQName(newQname);
+      }).toThrow('It is invalid to set the ref= name for an item that has a name.');
     });
 
     it('should allow changing ref after name is cleared', () => {
@@ -230,14 +236,18 @@ describe('XmlSchemaRefBase', () => {
 
       // Should fail to change ref with name
       const qname2 = new QName('http://test.example.com', 'ref2');
-      expect(() => refBase.setTargetQName(qname2)).toThrow();
+      expect(() => {
+        refBase.setTargetQName(qname2);
+      }).toThrow();
 
       // Clear name
       named.setName(null);
 
       // Should succeed to change ref now
       const qname3 = new QName('http://test.example.com', 'ref3');
-      expect(() => refBase.setTargetQName(qname3)).not.toThrow();
+      expect(() => {
+        refBase.setTargetQName(qname3);
+      }).not.toThrow();
       expect(refBase.getTargetQName()).toBe(qname3);
     });
 

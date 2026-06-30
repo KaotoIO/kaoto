@@ -18,8 +18,22 @@ vi.mock('@patternfly/react-drag-drop', () => ({
     onDrop?: (event: unknown, newItems: DraggableObject[]) => void;
   }) => (
     <div data-testid="drag-drop-sort">
-      {onDrag && <button data-testid="mock-drag-trigger" onClick={() => onDrag()} />}
-      {onDrop && <button data-testid="mock-drop-trigger" onClick={() => onDrop(undefined, [...items].reverse())} />}
+      {onDrag && (
+        <button
+          data-testid="mock-drag-trigger"
+          onClick={() => {
+            onDrag();
+          }}
+        />
+      )}
+      {onDrop && (
+        <button
+          data-testid="mock-drop-trigger"
+          onClick={() => {
+            onDrop(undefined, [...items].reverse());
+          }}
+        />
+      )}
       {items.map((item) => (
         <div key={item.id}>{item.content}</div>
       ))}

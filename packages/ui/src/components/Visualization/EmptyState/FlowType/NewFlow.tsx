@@ -54,7 +54,9 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
       </FlowTypeSelector>
       <ConfirmIntegrationTypeChangeModal
         proposedFlowType={proposedFlowType}
-        onClose={() => setProposedFlowType(undefined)}
+        onClose={() => {
+          setProposedFlowType(undefined);
+        }}
       />
     </>
   );

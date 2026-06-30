@@ -56,7 +56,9 @@ export const NewEntity: FunctionComponent = () => {
   return (
     <MenuContainer
       isOpen={isOpen}
-      onOpenChange={(isOpen) => setIsOpen(isOpen)}
+      onOpenChange={(isOpen) => {
+        setIsOpen(isOpen);
+      }}
       menu={
         <Menu ref={menuRef} containsFlyout onSelect={onSelect}>
           <MenuContent>

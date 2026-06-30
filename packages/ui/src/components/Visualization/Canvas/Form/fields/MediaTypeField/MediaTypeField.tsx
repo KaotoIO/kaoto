@@ -134,7 +134,9 @@ export const MediaTypeField: FunctionComponent<FieldProps> = ({ propName, requir
   const toggle = (toggleRef: Ref<MenuToggleElement>) => (
     <MenuToggle
       ref={toggleRef}
-      onClick={() => setIsOpen((current) => !current)}
+      onClick={() => {
+        setIsOpen((current) => !current);
+      }}
       isExpanded={isOpen}
       isFullWidth
       isDisabled={disabled}
@@ -157,7 +159,9 @@ export const MediaTypeField: FunctionComponent<FieldProps> = ({ propName, requir
         isOpen={isOpen}
         selected={selectedValues}
         onSelect={onSelect}
-        onOpenChange={(nextOpen) => setIsOpen(nextOpen)}
+        onOpenChange={(nextOpen) => {
+          setIsOpen(nextOpen);
+        }}
         toggle={toggle}
       >
         <SelectList className="media-type-field-list">
@@ -172,7 +176,9 @@ export const MediaTypeField: FunctionComponent<FieldProps> = ({ propName, requir
           <TextInput
             aria-label="Custom media type"
             value={customValue}
-            onChange={(_event, nextValue) => setCustomValue(nextValue)}
+            onChange={(_event, nextValue) => {
+              setCustomValue(nextValue);
+            }}
             onKeyDown={onCustomKeyDown}
             placeholder="Add custom media type"
             isDisabled={disabled}

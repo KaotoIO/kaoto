@@ -168,7 +168,9 @@ describe('DebugLayout', () => {
       act(() => {
         fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
       });
-      await waitFor(() => expect(spyOnMappingTree!.children).toHaveLength(1));
+      await waitFor(() => {
+        expect(spyOnMappingTree!.children).toHaveLength(1);
+      });
 
       mainMenuButton = screen.getByTestId('dm-debug-main-menu-button');
       act(() => {

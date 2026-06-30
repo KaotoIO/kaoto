@@ -42,7 +42,9 @@ export const EndpointPropertiesField: FunctionComponent<FieldProps> = ({ propNam
               text="Standard"
               buttonId="standard"
               isSelected={activeView === 'standard'}
-              onChange={() => setActiveView('standard')}
+              onChange={() => {
+                setActiveView('standard');
+              }}
               data-testid={`${propName}-standard-toggle`}
             />
             <ToggleGroupItem
@@ -50,7 +52,9 @@ export const EndpointPropertiesField: FunctionComponent<FieldProps> = ({ propNam
               text="Custom"
               buttonId="custom"
               isSelected={activeView === 'custom'}
-              onChange={() => setActiveView('custom')}
+              onChange={() => {
+                setActiveView('custom');
+              }}
               data-testid={`${propName}-custom-toggle`}
             />
           </ToggleGroup>

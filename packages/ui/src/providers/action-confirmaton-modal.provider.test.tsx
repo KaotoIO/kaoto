@@ -31,7 +31,9 @@ describe('ActionConfirmationModalProvider', () => {
     fireEvent.click(confirmButton);
 
     // Wait for actionConfirmation promise to resolve
-    await waitFor(() => expect(actionConfirmationResult).toEqual(ACTION_ID_CONFIRM));
+    await waitFor(() => {
+      expect(actionConfirmationResult).toEqual(ACTION_ID_CONFIRM);
+    });
   });
 
   it('calls actionConfirmation with false when Cancel button is clicked', async () => {
@@ -48,7 +50,9 @@ describe('ActionConfirmationModalProvider', () => {
     fireEvent.click(cancelButton);
 
     // Wait for actionConfirmation promise to resolve
-    await waitFor(() => expect(actionConfirmationResult).toEqual(ACTION_ID_CANCEL));
+    await waitFor(() => {
+      expect(actionConfirmationResult).toEqual(ACTION_ID_CANCEL);
+    });
   });
 
   it('should allow consumers to update the modal title and text', () => {

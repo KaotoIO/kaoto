@@ -57,7 +57,9 @@ export const UriImportSource: FunctionComponent<UriImportSourceProps> = ({ onSch
           id="rest-openapi-spec-uri"
           aria-label="Open API specification URI"
           value={uri}
-          onChange={(_event, value) => setUri(value)}
+          onChange={(_event, value) => {
+            setUri(value);
+          }}
           placeholder="https://example.com/openapi.yaml"
         />
         <Button variant="secondary" onClick={handleFetch} isDisabled={!uri.trim() || isLoading} isLoading={isLoading}>

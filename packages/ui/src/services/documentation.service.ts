@@ -47,9 +47,9 @@ export class DocumentationService {
     documentationEntities.forEach((entity) => {
       const parsedTables = DocumentationService.parseEntity(entity);
       parsedTables &&
-        (Array.isArray(parsedTables) ? parsedTables : [parsedTables]).forEach((table) =>
-          DocumentationService.populateParsedTable(markdown, table),
-        );
+        (Array.isArray(parsedTables) ? parsedTables : [parsedTables]).forEach((table) => {
+          DocumentationService.populateParsedTable(markdown, table);
+        });
     });
     return tsMarkdown(markdown);
   }

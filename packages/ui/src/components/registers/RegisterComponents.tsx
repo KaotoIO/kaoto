@@ -28,7 +28,9 @@ export const RegisterComponents: FunctionComponent<PropsWithChildren> = ({ child
     },
   ]);
 
-  componentsToRegister.current.forEach((regComponent) => registerComponent(regComponent));
+  componentsToRegister.current.forEach((regComponent) => {
+    registerComponent(regComponent);
+  });
 
   return <>{children}</>;
 };

@@ -74,7 +74,11 @@ describe('SourcePanel', () => {
       await vi.advanceTimersByTimeAsync(200);
       await vi.runAllTimersAsync();
       // Wait for any queued RAF callbacks
-      await new Promise((resolve) => queueMicrotask(() => resolve(undefined)));
+      await new Promise((resolve) => {
+        queueMicrotask(() => {
+          resolve(undefined);
+        });
+      });
     });
 
     // The panel should now be collapsed (data-expanded=false)
@@ -83,7 +87,11 @@ describe('SourcePanel', () => {
 
     // Clean up
     unmount();
-    await new Promise((resolve) => queueMicrotask(() => resolve(undefined))); // Wait for cleanup RAF calls
+    await new Promise((resolve) => {
+      queueMicrotask(() => {
+        resolve(undefined);
+      });
+    }); // Wait for cleanup RAF calls
 
     // Restore original RAF
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

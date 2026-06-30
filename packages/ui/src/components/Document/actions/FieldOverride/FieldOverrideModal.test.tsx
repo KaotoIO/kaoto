@@ -830,7 +830,12 @@ describe('FieldOverrideModal', () => {
     it('should show spinner and disable button while uploading schema', async () => {
       vi.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValue(['types.xsd']);
       (mockApi.getResourceContent as Mock).mockImplementation(
-        () => new Promise((resolve) => setTimeout(() => resolve('<xs:schema/>'), 100)),
+        () =>
+          new Promise((resolve) =>
+            setTimeout(() => {
+              resolve('<xs:schema/>');
+            }, 100),
+          ),
       );
 
       renderWithContext();
@@ -860,7 +865,12 @@ describe('FieldOverrideModal', () => {
 
     it('should not show spinner while file picker dialog is open', async () => {
       vi.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockImplementation(
-        () => new Promise((resolve) => setTimeout(() => resolve(['types.xsd']), 200)),
+        () =>
+          new Promise((resolve) =>
+            setTimeout(() => {
+              resolve(['types.xsd']);
+            }, 200),
+          ),
       );
 
       renderWithContext();

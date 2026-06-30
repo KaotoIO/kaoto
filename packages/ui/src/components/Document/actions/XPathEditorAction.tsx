@@ -13,7 +13,9 @@ type XPathEditorProps = {
 };
 export const XPathEditorAction: FunctionComponent<XPathEditorProps> = ({ nodeData, mapping, onUpdate }) => {
   const [isEditorOpen, setIsEditorOpen] = useState<boolean>(false);
-  const launchXPathEditor = useCallback(() => setIsEditorOpen(true), []);
+  const launchXPathEditor = useCallback(() => {
+    setIsEditorOpen(true);
+  }, []);
   const closeXPathEditor = useCallback(() => {
     setIsEditorOpen(false);
   }, []);

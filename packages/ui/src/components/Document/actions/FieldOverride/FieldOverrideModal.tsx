@@ -252,7 +252,9 @@ export const FieldOverrideModal: FunctionComponent<FieldOverrideModalProps> = ({
                   label="Override Type"
                   isChecked={overrideMode === 'type'}
                   isDisabled={hasExistingOverride && overrideMode !== 'type'}
-                  onChange={() => handleModeChange('type')}
+                  onChange={() => {
+                    handleModeChange('type');
+                  }}
                 />
               </SplitItem>
               <SplitItem>
@@ -262,7 +264,9 @@ export const FieldOverrideModal: FunctionComponent<FieldOverrideModalProps> = ({
                   label="Substitute Element"
                   isChecked={overrideMode === 'substitution'}
                   isDisabled={hasExistingOverride && overrideMode !== 'substitution'}
-                  onChange={() => handleModeChange('substitution')}
+                  onChange={() => {
+                    handleModeChange('substitution');
+                  }}
                 />
               </SplitItem>
             </Split>
@@ -274,7 +278,9 @@ export const FieldOverrideModal: FunctionComponent<FieldOverrideModalProps> = ({
               isOpen={isSelectOpen}
               selected={selectedKey}
               onSelect={handleTypeSelect}
-              onOpenChange={(isOpen) => setIsSelectOpen(isOpen)}
+              onOpenChange={(isOpen) => {
+                setIsSelectOpen(isOpen);
+              }}
               toggle={renderToggle}
               maxMenuHeight="240px"
               popperProps={{

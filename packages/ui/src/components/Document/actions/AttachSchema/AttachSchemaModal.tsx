@@ -299,7 +299,9 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
                   data-testid="attach-schema-modal-option-xml"
                   isChecked={selectedSchemaType === DocumentDefinitionType.XML_SCHEMA}
                   isDisabled={filePaths.length > 0}
-                  onChange={() => setSelectedSchemaType(DocumentDefinitionType.XML_SCHEMA)}
+                  onChange={() => {
+                    setSelectedSchemaType(DocumentDefinitionType.XML_SCHEMA);
+                  }}
                 />
               </InputGroupItem>
               {showJsonSchemaOption && (
@@ -312,7 +314,9 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
                     data-testid="attach-schema-modal-option-json"
                     isChecked={selectedSchemaType === DocumentDefinitionType.JSON_SCHEMA}
                     isDisabled={filePaths.length > 0}
-                    onChange={() => setSelectedSchemaType(DocumentDefinitionType.JSON_SCHEMA)}
+                    onChange={() => {
+                      setSelectedSchemaType(DocumentDefinitionType.JSON_SCHEMA);
+                    }}
                   />
                 </InputGroupItem>
               )}

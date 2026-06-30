@@ -10,7 +10,9 @@ import { SortModal } from './Sort/SortModal';
 export function useMappingActionModals(mapping: MappingItem | undefined, onUpdate: () => void): ModalAction[] {
   /** Sort */
   const [isSortOpen, setIsSortOpen] = useState(false);
-  const closeSort = useCallback(() => setIsSortOpen(false), []);
+  const closeSort = useCallback(() => {
+    setIsSortOpen(false);
+  }, []);
 
   const sortableMapping = useMemo(() => (mapping instanceof ForEachItem ? mapping : undefined), [mapping]);
 
@@ -21,7 +23,9 @@ export function useMappingActionModals(mapping: MappingItem | undefined, onUpdat
 
   /** Comment */
   const [isCommentOpen, setIsCommentOpen] = useState(false);
-  const closeComment = useCallback(() => setIsCommentOpen(false), []);
+  const closeComment = useCallback(() => {
+    setIsCommentOpen(false);
+  }, []);
 
   const renderComment = useCallback(() => {
     if (!mapping || !isCommentOpen) return null;
@@ -32,7 +36,9 @@ export function useMappingActionModals(mapping: MappingItem | undefined, onUpdat
   const forEachGroupMapping = useMemo(() => (mapping instanceof ForEachGroupItem ? mapping : undefined), [mapping]);
 
   const [isForEachGroupConfigOpen, setIsForEachGroupConfigOpen] = useState(false);
-  const closeForEachGroupConfig = useCallback(() => setIsForEachGroupConfigOpen(false), []);
+  const closeForEachGroupConfig = useCallback(() => {
+    setIsForEachGroupConfigOpen(false);
+  }, []);
 
   const renderForEachGroupConfig = useCallback(() => {
     if (!forEachGroupMapping || !isForEachGroupConfigOpen) return null;
@@ -43,11 +49,25 @@ export function useMappingActionModals(mapping: MappingItem | undefined, onUpdat
 
   return useMemo(
     () => [
-      { kind: MappingActionKind.Sort, open: () => setIsSortOpen(true), render: renderSort },
-      { kind: MappingActionKind.Comment, open: () => setIsCommentOpen(true), render: renderComment },
+      {
+        kind: MappingActionKind.Sort,
+        open: () => {
+          setIsSortOpen(true);
+        },
+        render: renderSort,
+      },
+      {
+        kind: MappingActionKind.Comment,
+        open: () => {
+          setIsCommentOpen(true);
+        },
+        render: renderComment,
+      },
       {
         kind: MappingActionKind.ForEachGroupConfig,
-        open: () => setIsForEachGroupConfigOpen(true),
+        open: () => {
+          setIsForEachGroupConfigOpen(true);
+        },
         render: renderForEachGroupConfig,
       },
     ],

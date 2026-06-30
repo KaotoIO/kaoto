@@ -14,8 +14,20 @@ vi.mock('@kaoto/forms', async () => ({
         <div data-testid={`object-field-${props.propName}`}>ObjectField: {props.propName}</div>
         <div data-testid="model-context-provider-disabled">{String(disabled)}</div>
         <div data-testid="model-context-provider-model">{JSON.stringify(value)}</div>
-        <button onClick={() => onChange({ jobParameters: { name: 'updated' } })}>Trigger property change</button>
-        <button onClick={() => onChange({ jobParameters: { name: '' } })}>Delete property</button>
+        <button
+          onClick={() => {
+            onChange({ jobParameters: { name: 'updated' } });
+          }}
+        >
+          Trigger property change
+        </button>
+        <button
+          onClick={() => {
+            onChange({ jobParameters: { name: '' } });
+          }}
+        >
+          Delete property
+        </button>
       </div>
     );
   },

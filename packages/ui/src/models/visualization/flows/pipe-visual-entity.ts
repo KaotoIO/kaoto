@@ -235,7 +235,9 @@ export class PipeVisualEntity implements BaseVisualEntity {
     const sinkNode = await this.getVizNodeFromStep(this.pipe.spec!.sink, 'sink');
 
     pipeGroupNode.addChild(sourceNode);
-    stepNodes.forEach((stepNode) => pipeGroupNode.addChild(stepNode));
+    stepNodes.forEach((stepNode) => {
+      pipeGroupNode.addChild(stepNode);
+    });
     pipeGroupNode.addChild(sinkNode);
 
     /** If there are no steps, we link the `source` and the `sink` together */

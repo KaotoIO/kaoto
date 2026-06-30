@@ -186,7 +186,9 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
       <RenameParameterButton
         key="rename"
         parameterName={parameterName}
-        onRenameClick={() => onStartRename(parameterName)}
+        onRenameClick={() => {
+          onStartRename(parameterName);
+        }}
       />,
       <DeleteParameterButton key="delete" parameterName={parameterName} parameterReferenceId={documentReferenceId} />,
     ],
@@ -284,7 +286,9 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({
     // Trigger layout change to update mapping lines when parameters are hidden/shown
     if (onLayoutChange) {
       // Use setTimeout to ensure state has updated before triggering layout change
-      setTimeout(() => onLayoutChange(), 0);
+      setTimeout(() => {
+        onLayoutChange();
+      }, 0);
     }
   }, [onLayoutChange]);
 

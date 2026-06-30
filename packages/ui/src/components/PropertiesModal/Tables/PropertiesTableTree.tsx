@@ -35,11 +35,12 @@ export const PropertiesTableTree: FunctionComponent<IPropertiesTableTreeProps> =
     const isExpanded = expandedNodeId.includes(rowIndex);
 
     const treeRow: TdProps['treeRow'] = {
-      onCollapse: () =>
+      onCollapse: () => {
         setExpandedNodeId((prevExpanded) => {
           const otherExpandedNodeNames = prevExpanded.filter((row_unique_id) => row_unique_id !== rowIndex);
           return isExpanded ? otherExpandedNodeNames : [...otherExpandedNodeNames, rowIndex];
-        }),
+        });
+      },
       rowIndex,
       props: {
         isExpanded,

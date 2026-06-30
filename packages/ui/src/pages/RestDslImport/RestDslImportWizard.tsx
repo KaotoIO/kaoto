@@ -166,9 +166,9 @@ export const RestDslImportWizard: FunctionComponent<RestDslImportWizardProps> = 
       label={`${operation.method.toUpperCase()} ${operation.path}${operation.routeExists ? ' - Route exists' : ''}`}
       isChecked={operation.routeExists ? false : operation.selected}
       isDisabled={operation.routeExists}
-      onChange={(_event, checked) =>
-        wizard.handleToggleOperation(operation.operationId, operation.method, operation.path, checked)
-      }
+      onChange={(_event, checked) => {
+        wizard.handleToggleOperation(operation.operationId, operation.method, operation.path, checked);
+      }}
     />
   );
 
@@ -198,7 +198,9 @@ export const RestDslImportWizard: FunctionComponent<RestDslImportWizardProps> = 
               name="rest-openapi-import-source"
               label="Upload file"
               isChecked={wizard.importSource === 'file'}
-              onChange={() => wizard.handleImportSourceChange('file')}
+              onChange={() => {
+                wizard.handleImportSourceChange('file');
+              }}
             />
             {wizard.importSource === 'file' && <FileImportSource onSchemaLoaded={wizard.handleSchemaLoaded} />}
 
@@ -207,7 +209,9 @@ export const RestDslImportWizard: FunctionComponent<RestDslImportWizardProps> = 
               name="rest-openapi-import-source"
               label="Import from URI"
               isChecked={wizard.importSource === 'uri'}
-              onChange={() => wizard.handleImportSourceChange('uri')}
+              onChange={() => {
+                wizard.handleImportSourceChange('uri');
+              }}
             />
             {wizard.importSource === 'uri' && <UriImportSource onSchemaLoaded={wizard.handleSchemaLoaded} />}
 
@@ -216,7 +220,9 @@ export const RestDslImportWizard: FunctionComponent<RestDslImportWizardProps> = 
               name="rest-openapi-import-source"
               label="Import from Apicurio"
               isChecked={wizard.importSource === 'apicurio'}
-              onChange={() => wizard.handleImportSourceChange('apicurio')}
+              onChange={() => {
+                wizard.handleImportSourceChange('apicurio');
+              }}
             />
             {wizard.importSource === 'apicurio' && (
               <ApicurioImportSource
@@ -234,7 +240,9 @@ export const RestDslImportWizard: FunctionComponent<RestDslImportWizardProps> = 
               id="rest-openapi-spec"
               aria-label="rest-openapi-spec"
               value={wizard.openApiSpecText}
-              onChange={(_event, value) => wizard.setOpenApiSpecText(value)}
+              onChange={(_event, value) => {
+                wizard.setOpenApiSpecText(value);
+              }}
               resizeOrientation="vertical"
               rows={6}
             />
@@ -252,13 +260,17 @@ export const RestDslImportWizard: FunctionComponent<RestDslImportWizardProps> = 
               id="rest-openapi-create-rest"
               label="Create Rest DSL operations"
               isChecked={wizard.importCreateRest}
-              onChange={(_event, checked) => wizard.setImportCreateRest(checked)}
+              onChange={(_event, checked) => {
+                wizard.setImportCreateRest(checked);
+              }}
             />
             <Checkbox
               id="rest-openapi-create-routes"
               label="Create routes with direct endpoints"
               isChecked={wizard.importCreateRoutes}
-              onChange={(_event, checked) => wizard.setImportCreateRoutes(checked)}
+              onChange={(_event, checked) => {
+                wizard.setImportCreateRoutes(checked);
+              }}
             />
           </div>
           {wizard.importOperations.length > 0 && (
@@ -267,7 +279,9 @@ export const RestDslImportWizard: FunctionComponent<RestDslImportWizardProps> = 
                 id="rest-openapi-select-all"
                 label="Select all operations"
                 isChecked={wizard.importSelectAll}
-                onChange={(_event, checked) => wizard.handleToggleSelectAllOperations(checked)}
+                onChange={(_event, checked) => {
+                  wizard.handleToggleSelectAllOperations(checked);
+                }}
               />
               <div className="rest-dsl-import-list-scroll">
                 {wizard.importOperations.map((operation) => (

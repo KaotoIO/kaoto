@@ -144,7 +144,9 @@ export class DataMapperMetadataService {
               .then((value) => {
                 if (value) definitionFiles[path] = value;
               })
-              .catch((error) => console.log(`Could not read a file "${path}": ${error}`)),
+              .catch((error) => {
+                console.log(`Could not read a file "${path}": ${error}`);
+              }),
           )
         : [];
       void Promise.allSettled(fileReadingPromises).then(() => {
@@ -223,13 +225,15 @@ export class DataMapperMetadataService {
     const filePromises =
       api.shouldSaveSchema && definition.definitionFiles
         ? Object.entries(definition.definitionFiles).map(([path, content]) => {
-            return api
-              .saveResourceContent(path, content)
-              .catch((error) => console.log(`Could not save a file "${path}": ${error}`));
+            return api.saveResourceContent(path, content).catch((error) => {
+              console.log(`Could not save a file "${path}": ${error}`);
+            });
           })
         : [];
     return new Promise((resolve) => {
-      void Promise.allSettled(filePromises).then(() => resolve(answer));
+      void Promise.allSettled(filePromises).then(() => {
+        resolve(answer);
+      });
     });
   }
 

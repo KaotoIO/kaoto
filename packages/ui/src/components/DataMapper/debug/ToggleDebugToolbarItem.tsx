@@ -16,7 +16,9 @@ export const ToggleDebugToolbarItem: FunctionComponent = () => {
           buttonId="enable-debug-mode"
           data-testid="enable-debug-mode-btn"
           isSelected={debug}
-          onChange={() => setDebug(!debug)}
+          onChange={() => {
+            setDebug(!debug);
+          }}
         ></ToggleGroupItem>
       </ToggleGroup>
     </ToolbarItem>

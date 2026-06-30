@@ -20,7 +20,9 @@ export const IntegrationTypeSelector: FunctionComponent<PropsWithChildren> = () 
       <IntegrationTypeSelectorToggle onSelect={checkBeforeAddNewFlow} />
       <ConfirmIntegrationTypeChangeModal
         proposedFlowType={proposedFlowType}
-        onClose={() => setProposedFlowType(undefined)}
+        onClose={() => {
+          setProposedFlowType(undefined);
+        }}
       />
     </>
   );
