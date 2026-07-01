@@ -82,7 +82,7 @@ export class RestXmlParser {
   // Transform the <param> elements inside each verb
   static async parseParams(verbElement: Element): Promise<Param[]> {
     return Promise.all(
-      Array.from(verbElement.getElementsByTagName('param')).map(
+      Array.from(verbElement.getElementsByTagName('param' as string)).map(
         (paramElement) => StepParser.parseElement(paramElement) as Promise<Param>,
       ),
     );
