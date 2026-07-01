@@ -177,7 +177,7 @@ export class StepParser {
     name: string,
     element: Element,
     properties: ICamelProcessorProperty,
-    transformer = (el: Element) => this.parseElement(el),
+    transformer: ElementTransformer = (el: Element) => this.parseElement(el),
   ): Promise<unknown[]> {
     const arrayElementName = ARRAY_TYPE_NAMES.get(name) ?? name;
     let children;
@@ -193,7 +193,7 @@ export class StepParser {
 
     return Promise.all(
       Array.from(children).map((el) =>
-        properties.javaType === 'java.util.List<java.lang.String>' ? el.textContent : transformer(el),
+        properties.javaType === 'java.util.List<java.lang.String>' ? Promise.resolve(el.textContent) : transformer(el),
       ),
     );
   }
