@@ -10,7 +10,7 @@ import { VisualFlowsApi } from '../../../../models/visualization/flows/support/f
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { VisibleFlowsContext, VisibleFlowsContextResult } from '../../../../providers';
 import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
-import { camelRouteJson } from '../../../../stubs/camel-route';
+import { camelRouteJson, createMockEntitiesContext } from '../../../../stubs';
 import { updateIds } from '../../../../utils/update-ids';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { useDuplicateStep } from './duplicate-step.hook';
@@ -86,15 +86,7 @@ describe('useDuplicateStep', () => {
   let mockEntitiesContext: EntitiesContextResult;
 
   beforeAll(async () => {
-    await camelResource.initialize();
-    mockEntitiesContext = {
-      camelResource,
-      entities: camelResource.getEntities(),
-      visualEntities: camelResource.getVisualEntities(),
-      currentSchemaType: camelResource.getType(),
-      updateSourceCodeFromEntities: vi.fn(),
-      updateEntitiesFromCamelResource: vi.fn(),
-    };
+    mockEntitiesContext = await createMockEntitiesContext(camelResource);
   });
 
   // Mock CatalogModalContext

@@ -11,6 +11,7 @@ import { CamelComponentSchemaService } from '../../../../models/visualization/fl
 import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
+import { createMockEntitiesContext } from '../../../../stubs';
 import { ClipboardManager } from '../../../../utils/ClipboardManager';
 import { usePasteStep } from './paste-step.hook';
 
@@ -36,17 +37,9 @@ describe('usePasteStep', () => {
   let mockEntitiesContext: EntitiesContextResult;
 
   beforeAll(async () => {
-    await camelResource.initialize();
+    mockEntitiesContext = await createMockEntitiesContext(camelResource);
     getCompatibleComponentsSpy = vi.spyOn(camelResource, 'getCompatibleComponents');
     getTypeSpy = vi.spyOn(camelResource, 'getType').mockReturnValue(SourceSchemaType.Route);
-    mockEntitiesContext = {
-      camelResource,
-      entities: camelResource.getEntities(),
-      visualEntities: camelResource.getVisualEntities(),
-      currentSchemaType: camelResource.getType(),
-      updateSourceCodeFromEntities: vi.fn(),
-      updateEntitiesFromCamelResource: vi.fn(),
-    };
   });
 
   // Mock CatalogModalContext
