@@ -20,25 +20,35 @@ import path from 'node:path';
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
-import { CamelCatalogService, CatalogKind } from '../../../models';
-import { restWithVerbsStup } from '../../../stubs/rest';
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
+import { restWithSecurityRequirementsStub, restWithVerbsStup } from '../../../stubs/rest';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
 import { RestXmlParser } from './rest-xml-parser';
 
 describe('Rest XML Parser', () => {
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+    setupDynamicCatalogRegistry(catalogsMap);
   });
 
-  it('should parse rest verbs correctly', () => {
+  it('should parse rest verbs correctly', async () => {
     const xmlFilePath = path.join(__dirname, '../../../stubs/xml/rest.xml');
     const xml = fs.readFileSync(xmlFilePath, 'utf-8');
 
     const doc = new DOMParser().parseFromString(xml, 'application/xml');
     const restElement = doc.getElementsByTagName('rest')[0];
-    const result = RestXmlParser.parse(restElement);
+    const result = await RestXmlParser.parse(restElement);
 
     expect(result).toEqual(restWithVerbsStup);
+  });
+
+  it('should parse securityRequirements correctly', async () => {
+    const xmlFilePath = path.join(__dirname, '../../../stubs/xml/rest-with-security-requirements.xml');
+    const xml = fs.readFileSync(xmlFilePath, 'utf-8');
+
+    const doc = new DOMParser().parseFromString(xml, 'application/xml');
+    const restElement = doc.getElementsByTagName('rest')[0];
+    const result = await RestXmlParser.parse(restElement);
+
+    expect(result).toEqual(restWithSecurityRequirementsStub);
   });
 });

@@ -20,9 +20,8 @@ import path from 'node:path';
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
-import { CamelCatalogService, CatalogKind } from '../../../models';
 import { restWithVerbsStup } from '../../../stubs/rest';
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
 import { RestXmlSerializer } from './rest-xml-serializer';
 import { getDocument, testSerializer, testSerializerWithObjectComparison } from './serializer-test-utils';
 
@@ -30,10 +29,10 @@ describe('RestXmlParser tests with latest catalog', () => {
   const doc = getDocument();
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+    setupDynamicCatalogRegistry(catalogsMap);
   });
 
-  it('serialize param', () => {
+  it('serialize param', async () => {
     const entity = {
       get: [
         {
@@ -49,16 +48,16 @@ describe('RestXmlParser tests with latest catalog', () => {
        <param name="name" type="query" required="true"/>
        <param name="name2" type="query" defaultValue="blah" required="true"/>
     </get></rest>`;
-    const rest = RestXmlSerializer.serialize(entity, doc);
+    const rest = await RestXmlSerializer.serialize(entity, doc);
     expect(rest).toBeDefined();
     testSerializer(expected, rest);
   });
 
-  it('serialize full rest', () => {
+  it('serialize full rest', async () => {
     const xmlFilePath = path.join(__dirname, '../../../stubs/xml/rest.xml');
     const expected = fs.readFileSync(xmlFilePath, 'utf-8');
 
-    const rest = RestXmlSerializer.serialize(restWithVerbsStup, doc);
+    const rest = await RestXmlSerializer.serialize(restWithVerbsStup, doc);
     expect(rest).toBeDefined();
     testSerializer(expected, rest);
   });
@@ -75,10 +74,10 @@ describe('simulate old catalog', () => {
     delete catalogsMap.modelCatalogMap['get'].properties.security;
     expect(catalogsMap.modelCatalogMap['get'].properties.param).toBeUndefined();
 
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+    setupDynamicCatalogRegistry(catalogsMap);
   });
 
-  it('serialize param', () => {
+  it('serialize param', async () => {
     const entity = {
       get: [
         {
@@ -94,17 +93,17 @@ describe('simulate old catalog', () => {
        <param name="name" type="query" required="true"/>
        <param name="name2" type="query" defaultValue="blah" required="true"/>
     </get></rest>`;
-    const rest = RestXmlSerializer.serialize(entity, doc);
+    const rest = await RestXmlSerializer.serialize(entity, doc);
     expect(rest).toBeDefined();
     testSerializer(expected, rest);
     testSerializerWithObjectComparison(expected, rest);
   });
 
-  it('serialize full rest', () => {
+  it('serialize full rest', async () => {
     const xmlFilePath = path.join(__dirname, '../../../stubs/xml/rest.xml');
     const expected = fs.readFileSync(xmlFilePath, 'utf-8');
 
-    const rest = RestXmlSerializer.serialize(restWithVerbsStup, doc);
+    const rest = await RestXmlSerializer.serialize(restWithVerbsStup, doc);
     expect(rest).toBeDefined();
     testSerializerWithObjectComparison(expected, rest);
   });

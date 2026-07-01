@@ -8,7 +8,7 @@ import { AddStepMode, IVisualizationNode } from '../../../../models/visualizatio
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows/camel-route-visual-entity';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
-import { camelRouteJson, camelRouteJsonWithDM } from '../../../../stubs/camel-route';
+import { camelRouteJson, camelRouteJsonWithDM, createMockEntitiesContext } from '../../../../stubs';
 import { getPotentialPath } from '../../../../utils/get-potential-path';
 import { getVisualizationNodesFromGraph } from '../../../../utils/get-viznodes-from-graph';
 import { NodeInteractionAddonProvider } from '../../../registers/interactions/node-interaction-addon.provider';
@@ -48,15 +48,7 @@ describe('useMoveStep', () => {
   let mockEntitiesContext: EntitiesContextResult;
 
   beforeAll(async () => {
-    await camelResource.initialize();
-    mockEntitiesContext = {
-      camelResource,
-      entities: camelResource.getEntities(),
-      visualEntities: camelResource.getVisualEntities(),
-      currentSchemaType: camelResource.getType(),
-      updateSourceCodeFromEntities: vi.fn(),
-      updateEntitiesFromCamelResource: vi.fn(),
-    };
+    mockEntitiesContext = await createMockEntitiesContext(camelResource);
   });
 
   const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (

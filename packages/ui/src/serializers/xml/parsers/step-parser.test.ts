@@ -17,7 +17,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, DoTry } from '@kaoto/camel-catalog/types';
 
-import { CamelCatalogService, CatalogKind, ICamelProcessorProperty } from '../../../models';
+import { ICamelProcessorProperty } from '../../../models';
 import {
   aggregateEntity,
   choiceEntity,
@@ -58,7 +58,7 @@ import {
   splitXml,
   throttleXml,
 } from '../../../stubs/eip-xml-snippets';
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
 import { getDocument } from '../serializers/serializer-test-utils';
 import { getElementFromXml } from './route-xml-parser.test';
 import { StepParser } from './step-parser';
@@ -76,11 +76,11 @@ describe('parser basics', () => {
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+    setupDynamicCatalogRegistry(catalogsMap);
   });
 
   describe('parseSteps', () => {
-    it('should parse simple processor steps', () => {
+    it('should parse simple processor steps', async () => {
       const parent = mockDocument.createElement('route');
       const log = mockDocument.createElement('log');
       log.setAttribute('message', 'Hello');
@@ -88,68 +88,68 @@ describe('parser basics', () => {
 
       const processorKeys = ['log'];
 
-      const result = StepParser.parseSteps(parent, processorKeys);
+      const result = await StepParser.parseSteps(parent, processorKeys);
 
       expect(result).toHaveLength(1);
       expect(result[0]).toHaveProperty('log');
       expect(result[0].log).toHaveProperty('message', 'Hello');
     });
 
-    it('should skip elements in SKIP_KEYS', () => {
+    it('should skip elements in SKIP_KEYS', async () => {
       const parent = mockDocument.createElement('route');
       const doCatch = mockDocument.createElement('doCatch');
       parent.appendChild(doCatch);
 
       const processorKeys = ['doCatch'];
 
-      const result = StepParser.parseSteps(parent, processorKeys);
+      const result = await StepParser.parseSteps(parent, processorKeys);
 
       expect(result).toHaveLength(0);
     });
   });
 
-  it('should return a valid processor model for log', () => {
+  it('should return a valid processor model for log', async () => {
     const element = getDocument().createElement('log');
-    const result = StepParser.getProcessorModel(element);
+    const result = await StepParser.getProcessorModel(element);
 
     expect(result.processorName).toBe('log');
     expect(result.processorModel).toBeDefined();
   });
 
-  it('should handle onWhen elements properly', () => {
+  it('should handle onWhen elements properly', async () => {
     const element = getDocument().createElement('onWhen');
-    const result = StepParser.getProcessorModel(element);
+    const result = await StepParser.getProcessorModel(element);
 
     expect(result.processorName).toBe('onWhen');
     expect(result.processorModel).toBeDefined();
   });
 
   describe('parseElement', () => {
-    it('should parse element with attributes', () => {
+    it('should parse element with attributes', async () => {
       const element = mockDocument.createElement('log');
       element.setAttribute('message', 'test');
 
-      const result = StepParser.parseElement(element);
+      const result = await StepParser.parseElement(element);
       expect(result).toHaveProperty('message', 'test');
     });
 
-    it('should handle undefined element', () => {
-      const result = StepParser.parseElement(undefined as unknown as Element);
+    it('should handle undefined element', async () => {
+      const result = await StepParser.parseElement(undefined as unknown as Element);
       expect(result).toEqual({});
     });
 
-    it('should parse element with expression', () => {
+    it('should parse element with expression', async () => {
       const element = mockDocument.createElement('choice');
       const when = mockDocument.createElement('when');
       element.appendChild(when);
 
-      const result = StepParser.parseElement(element);
+      const result = await StepParser.parseElement(element);
       expect(result).toHaveProperty('when');
     });
   });
 
   describe('parseElementType', () => {
-    it('should parse object type element', () => {
+    it('should parse object type element', async () => {
       const element = mockDocument.createElement('choice');
       const when = mockDocument.createElement('when');
       element.appendChild(when);
@@ -159,12 +159,12 @@ describe('parser basics', () => {
         oneOf: ['when'],
       } as unknown as ICamelProcessorProperty;
 
-      const result = StepParser.parseElementType('when', element, properties);
+      const result = await StepParser.parseElementType('when', element, properties);
       expect(result).toBeDefined();
       expect(result?.key).toBe('when');
     });
 
-    it('should parse array type element', () => {
+    it('should parse array type element', async () => {
       const element = mockDocument.createElement('choice');
       const when1 = mockDocument.createElement('when');
       const when2 = mockDocument.createElement('when');
@@ -176,14 +176,14 @@ describe('parser basics', () => {
         oneOf: ['when'],
       } as unknown as ICamelProcessorProperty;
 
-      const result = StepParser.parseElementType('when', element, properties);
+      const result = await StepParser.parseElementType('when', element, properties);
       expect(result).toBeDefined();
       expect(Array.isArray(result?.value)).toBe(true);
     });
   });
 
   describe('decorateDoTry', () => {
-    it('should properly decorate doTry element with doCatch and doFinally', () => {
+    it('should properly decorate doTry element with doCatch and doFinally', async () => {
       const doTryElement = mockDocument.createElement('doTry');
       const doCatch = mockDocument.createElement('doCatch');
       const doFinally = mockDocument.createElement('doFinally');
@@ -193,18 +193,18 @@ describe('parser basics', () => {
 
       const processor = {} as DoTry;
 
-      StepParser.decorateDoTry(doTryElement, processor);
+      await StepParser.decorateDoTry(doTryElement, processor);
 
       expect(processor.doCatch).toBeDefined();
       expect(Array.isArray(processor.doCatch)).toBe(true);
       expect(processor.doFinally).toBeDefined();
     });
 
-    it('should handle doTry without doCatch or doFinally', () => {
+    it('should handle doTry without doCatch or doFinally', async () => {
       const doTryElement = mockDocument.createElement('doTry');
       const processor = {} as DoTry;
 
-      StepParser.decorateDoTry(doTryElement, processor);
+      await StepParser.decorateDoTry(doTryElement, processor);
 
       expect(processor.doCatch).toEqual([]);
       expect(processor.doFinally).toBeUndefined();
@@ -212,38 +212,38 @@ describe('parser basics', () => {
   });
 
   describe('special cases', () => {
-    it('should handle intercept elements', () => {
+    it('should handle intercept elements', async () => {
       const interceptElement = mockDocument.createElement('interceptFrom');
       const whenElement = mockDocument.createElement('onWhen');
       interceptElement.appendChild(whenElement);
 
-      const result = StepParser.parseElement(interceptElement) as { onWhen?: unknown };
+      const result = (await StepParser.parseElement(interceptElement)) as { onWhen?: unknown };
       expect(result.onWhen).toBeDefined();
     });
 
-    it('should handle intercept elements', () => {
+    it('should handle intercept elements', async () => {
       const interceptElement = getDocument(
         '<intercept id="intercept1"><onWhen><simple>${in.body} contains \'Hello\'</simple></onWhen><to uri="mock:intercepted"/></intercept>',
       ).documentElement;
 
-      const result = StepParser.parseElement(interceptElement) as { onWhen?: unknown };
+      const result = (await StepParser.parseElement(interceptElement)) as { onWhen?: unknown };
       expect(result.onWhen).toBeDefined();
     });
 
-    it('should handle intercept elements without when element', () => {
+    it('should handle intercept elements without when element', async () => {
       const interceptElement = mockDocument.createElement('interceptFrom');
       const processor = {};
 
-      StepParser['decorateIntercept'](interceptElement, processor);
+      await StepParser['decorateIntercept'](interceptElement, processor);
 
       expect(processor).toEqual({});
     });
 
-    it('should handle missing catalog entries', () => {
+    it('should handle missing catalog entries', async () => {
       const unknownElement = mockDocument.createElement('unknownProcessor');
       unknownElement.setAttribute('someAttr', 'value');
 
-      const result = StepParser.parseElement(unknownElement) as { someAttr?: string };
+      const result = (await StepParser.parseElement(unknownElement)) as { someAttr?: string };
       expect(result.someAttr).toBe('value');
     });
 
@@ -269,7 +269,7 @@ describe('parser basics', () => {
       expect(processor).toEqual({});
     });
 
-    it('should read compensation/completion uri from nested elements (legacy Camel < 4.20 format)', () => {
+    it('should read compensation/completion uri from nested elements (legacy Camel < 4.20 format)', async () => {
       const sagaXml = `
         <saga>
           <compensation uri="direct:compensate"/>
@@ -277,7 +277,7 @@ describe('parser basics', () => {
         </saga>`;
       const element = getElementFromXml(sagaXml);
 
-      const result = StepParser.parseElement(element) as { compensation?: string; completion?: string };
+      const result = (await StepParser.parseElement(element)) as { compensation?: string; completion?: string };
 
       expect(result.compensation).toBe('direct:compensate');
       expect(result.completion).toBe('direct:complete');
@@ -305,7 +305,7 @@ describe('parser basics', () => {
   });
 
   describe('parseElementsArray', () => {
-    it('should parse array of string elements', () => {
+    it('should parse array of string elements', async () => {
       const parent = mockDocument.createElement('parent');
       const child1 = mockDocument.createElement('item');
       const child2 = mockDocument.createElement('item');
@@ -318,11 +318,11 @@ describe('parser basics', () => {
         javaType: 'java.util.List<java.lang.String>',
       } as unknown as ICamelProcessorProperty;
 
-      const result = StepParser.parseElementsArray('item', parent, properties);
+      const result = await StepParser.parseElementsArray('item', parent, properties);
       expect(result).toEqual(['value1', 'value2']);
     });
 
-    it('should use transformer if provided', () => {
+    it('should use transformer if provided', async () => {
       const parent = mockDocument.createElement('parent');
       const child = mockDocument.createElement('item');
       parent.appendChild(child);
@@ -330,7 +330,7 @@ describe('parser basics', () => {
       const transformer = vi.fn().mockReturnValue({ transformed: true });
       const properties = {} as unknown as ICamelProcessorProperty;
 
-      StepParser.parseElementsArray('item', parent, properties, transformer);
+      await StepParser.parseElementsArray('item', parent, properties, transformer);
       expect(transformer).toHaveBeenCalledWith(child);
     });
   });
@@ -340,10 +340,10 @@ describe('ProcessorParser', () => {
   beforeAll(async () => {
     vi.resetAllMocks();
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+    setupDynamicCatalogRegistry(catalogsMap);
   });
 
-  it('transforms onException element correctly', () => {
+  it('transforms onException element correctly', async () => {
     const onExceptionElement = getElementFromXml(`
     <onException>
       <exception>java.lang.Exception</exception>
@@ -354,7 +354,7 @@ describe('ProcessorParser', () => {
     </onException>
   `);
 
-    const result = StepParser.parseElement(onExceptionElement);
+    const result = await StepParser.parseElement(onExceptionElement);
     expect(result).toEqual({
       exception: ['java.lang.Exception'],
       handled: { constant: { expression: 'true' } },
@@ -362,20 +362,20 @@ describe('ProcessorParser', () => {
     });
   });
 
-  it('transforms onCompletion element correctly', () => {
+  it('transforms onCompletion element correctly', async () => {
     const onCompletionElement = getElementFromXml(`
     <onCompletion>
       <to uri="mock:completion"/>
     </onCompletion>
   `);
 
-    const result = StepParser.parseElement(onCompletionElement);
+    const result = await StepParser.parseElement(onCompletionElement);
     expect(result).toEqual({
       steps: [{ to: { uri: 'mock:completion' } }],
     });
   });
 
-  it('transforms choice element correctly', () => {
+  it('transforms choice element correctly', async () => {
     const choiceElement = getElementFromXml(`
     <choice>
       <when>
@@ -388,7 +388,7 @@ describe('ProcessorParser', () => {
     </choice>
   `);
 
-    const result = StepParser.parseElement(choiceElement);
+    const result = await StepParser.parseElement(choiceElement);
     expect(result).toEqual({
       when: [
         {
@@ -404,11 +404,11 @@ describe('ProcessorParser', () => {
 });
 
 describe('Route EIPs xml parsing', () => {
-  let transformElement: (element: string) => unknown;
+  let transformElement: (element: string) => Promise<unknown>;
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+    setupDynamicCatalogRegistry(catalogsMap);
 
     transformElement = (element: string) => {
       const xmlDoc = getElementFromXml(element);
@@ -437,14 +437,14 @@ describe('Route EIPs xml parsing', () => {
     { name: 'throttle', xml: throttleXml, entity: throttleEntity },
   ];
 
-  it.each(testCases)('Parse $name', ({ xml, entity }) => {
-    const result = transformElement(xml);
+  it.each(testCases)('Parse $name', async ({ xml, entity }) => {
+    const result = await transformElement(xml);
     expect(result).toEqual(entity);
   });
 });
 
 describe('Route EIPs xml parsing with the simulated old catalog', () => {
-  let transformElement: (element: string) => unknown;
+  let transformElement: (element: string) => Promise<unknown>;
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
@@ -455,7 +455,7 @@ describe('Route EIPs xml parsing with the simulated old catalog', () => {
 
     expect(catalogsMap.modelCatalogMap['doTry'].properties.doCatch).toBeUndefined();
     expect(catalogsMap.modelCatalogMap['onWhen']).toBeUndefined();
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+    setupDynamicCatalogRegistry(catalogsMap);
 
     transformElement = (element: string) => {
       const xmlDoc = getElementFromXml(element);
@@ -463,25 +463,25 @@ describe('Route EIPs xml parsing with the simulated old catalog', () => {
     };
   });
 
-  it('should handle onWhen elements properly', () => {
+  it('should handle onWhen elements properly', async () => {
     const element = getDocument().createElement('onWhen');
-    const result = StepParser.getProcessorModel(element);
+    const result = await StepParser.getProcessorModel(element);
 
     expect(result.processorName).toBe('when');
     expect(result.processorModel).toBeDefined();
   });
 
-  it('test test doTry', () => {
-    const result = transformElement(doTryXml);
+  it('test test doTry', async () => {
+    const result = await transformElement(doTryXml);
     expect(result).toEqual(doTryEntity);
   });
 
-  it('should handle intercept elements', () => {
+  it('should handle intercept elements', async () => {
     const interceptElement = getDocument(
       '<intercept id="intercept1"><when><simple>${in.body} contains \'Hello\'</simple></when><to uri="mock:intercepted"/></intercept>',
     ).documentElement;
 
-    const result = StepParser.parseElement(interceptElement) as { when?: unknown };
+    const result = (await StepParser.parseElement(interceptElement)) as { when?: unknown };
     expect(result.when).toBeDefined();
   });
 });

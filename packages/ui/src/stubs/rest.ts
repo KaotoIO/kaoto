@@ -22,12 +22,20 @@ export const restWithVerbsStup = {
       ],
     },
   },
+  securityRequirements: undefined,
   get: [
     {
       path: '/hello',
       param: [
-        { name: 'name', type: 'query', required: 'true' },
-        { name: 'name2', type: 'query', required: 'true', defaultValue: 'blah' },
+        { name: 'name', type: 'query', required: 'true', allowableValues: undefined, examples: undefined },
+        {
+          name: 'name2',
+          type: 'query',
+          required: 'true',
+          defaultValue: 'blah',
+          allowableValues: undefined,
+          examples: undefined,
+        },
       ],
       security: [{ key: 'hello', scopes: 'scope' }],
       responseMessage: [
@@ -49,8 +57,52 @@ export const restWithVerbsStup = {
       ],
       to: { uri: 'direct:hello' },
     },
-    // <post path=\"/bye\"><to uri=\"mock:update\"/></post></rest></camel>"
-    { path: '/bye', consumes: 'application/json', to: { uri: 'direct:bye' } },
+    {
+      path: '/bye',
+      consumes: 'application/json',
+      param: undefined,
+      responseMessage: undefined,
+      security: undefined,
+      to: { uri: 'direct:bye' },
+    },
   ],
-  post: [{ path: '/bye', to: { uri: 'mock:update' } }],
+  post: [
+    {
+      path: '/bye',
+      param: undefined,
+      responseMessage: undefined,
+      security: undefined,
+      to: { uri: 'mock:update' },
+    },
+  ],
+};
+
+export const restWithSecurityRequirementsStub = {
+  path: '/api',
+  securityDefinitions: {
+    apiKey: {
+      key: 'api_key',
+      name: 'api_key',
+      inHeader: 'true',
+    },
+    oauth2: {
+      key: 'oauth2',
+      flow: 'application',
+      tokenUrl: 'https://oauth.example.com/token',
+      scopes: [
+        { key: 'read', value: 'Read access' },
+        { key: 'write', value: 'Write access' },
+      ],
+    },
+  },
+  securityRequirements: [{ key: 'api_key' }, { key: 'oauth2', scopes: 'read,write' }],
+  get: [
+    {
+      path: '/users',
+      param: undefined,
+      responseMessage: undefined,
+      security: undefined,
+      to: { uri: 'direct:getUsers' },
+    },
+  ],
 };
