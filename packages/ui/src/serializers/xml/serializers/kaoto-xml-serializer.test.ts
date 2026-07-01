@@ -17,12 +17,12 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
-import { CamelCatalogService, CamelRouteVisualEntity, CatalogKind } from '../../../models';
+import { CamelRouteVisualEntity } from '../../../models';
 import { EntityOrderingService } from '../../../models/camel/entity-ordering.service';
 import { EntityType } from '../../../models/entities';
 import { CamelErrorHandlerVisualEntity } from '../../../models/visualization/flows/camel-error-handler-visual-entity';
 import { BeansEntity } from '../../../models/visualization/metadata';
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
 import { EntityDefinition } from './entitiy-definition';
 import { KaotoXmlSerializer } from './kaoto-xml-serializer';
 import { normalizeXml } from './serializer-test-utils';
@@ -35,10 +35,10 @@ describe('ToXMLConverter', () => {
     domParser = new DOMParser();
     xmlSerializer = new XMLSerializer();
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+    setupDynamicCatalogRegistry(catalogsMap);
   });
 
-  it('Convert single route entity to XML correctly', () => {
+  it('Convert single route entity to XML correctly', async () => {
     const doc = domParser.parseFromString(
       `<camel xmlns="http://camel.apache.org/schema/spring"><route id="route-1"><from uri="direct:start"/><to uri="direct:end"/></route></camel>`,
       'application/xml',
@@ -54,11 +54,11 @@ describe('ToXMLConverter', () => {
       },
     };
 
-    const result = KaotoXmlSerializer.serialize([entity as unknown as CamelRouteVisualEntity]);
+    const result = await KaotoXmlSerializer.serialize([entity as unknown as CamelRouteVisualEntity]);
     expect(xmlSerializer.serializeToString(result)).toEqual(xmlSerializer.serializeToString(doc));
   });
 
-  it('Convert error handler to XML correctly', () => {
+  it('Convert error handler to XML correctly', async () => {
     const doc = domParser.parseFromString(
       `<camel xmlns="http://camel.apache.org/schema/spring"><errorHandler><deadLetterChannel deadLetterUri="mock:dead"><redeliveryPolicy maximumRedeliveries="3" redeliveryDelay="250"/></deadLetterChannel></errorHandler></camel>`,
       'application/xml',
@@ -74,11 +74,11 @@ describe('ToXMLConverter', () => {
       },
     };
 
-    const result = KaotoXmlSerializer.serialize([entity as unknown as CamelErrorHandlerVisualEntity]);
+    const result = await KaotoXmlSerializer.serialize([entity as unknown as CamelErrorHandlerVisualEntity]);
     expect(xmlSerializer.serializeToString(result)).toEqual(xmlSerializer.serializeToString(doc));
   });
 
-  it('Convert beans ', () => {
+  it('Convert beans ', async () => {
     const doc = domParser.parseFromString(
       `<camel xmlns="http://camel.apache.org/schema/spring">
 <bean name="test" type="bean" destroyMethod="destroy" factoryBean="ff" builderClass="com.example.MyBean">
@@ -106,12 +106,12 @@ describe('ToXMLConverter', () => {
       },
     };
 
-    const result = KaotoXmlSerializer.serialize([entity as unknown as BeansEntity]);
+    const result = await KaotoXmlSerializer.serialize([entity as unknown as BeansEntity]);
     expect(xmlSerializer.serializeToString(result)).toEqual(normalizeXml(xmlSerializer.serializeToString(doc)));
   });
 
   describe('Entity ordering in XML serialization', () => {
-    it('should serialize entities in XML schema order', () => {
+    it('should serialize entities in XML schema order', async () => {
       const mixedEntities = [
         {
           type: EntityType.Route,
@@ -145,7 +145,7 @@ describe('ToXMLConverter', () => {
         },
       ];
 
-      const result = KaotoXmlSerializer.serialize(mixedEntities as EntityDefinition[]);
+      const result = await KaotoXmlSerializer.serialize(mixedEntities as EntityDefinition[]);
       const xmlString = xmlSerializer.serializeToString(result);
       const resultDoc = domParser.parseFromString(xmlString, 'application/xml');
       const children = Array.from(resultDoc.documentElement.children);
@@ -156,7 +156,7 @@ describe('ToXMLConverter', () => {
       expect(children[3].tagName).toBe('route');
     });
 
-    it('should preserve order within same entity types during serialization', () => {
+    it('should preserve order within same entity types during serialization', async () => {
       const multipleRoutes = [
         {
           type: EntityType.Route,
@@ -187,7 +187,7 @@ describe('ToXMLConverter', () => {
         },
       ] as unknown as EntityDefinition[];
 
-      const result = KaotoXmlSerializer.serialize(multipleRoutes);
+      const result = await KaotoXmlSerializer.serialize(multipleRoutes);
       const xmlString = xmlSerializer.serializeToString(result);
       const resultDoc = domParser.parseFromString(xmlString, 'application/xml');
       const routeElements = Array.from(resultDoc.querySelectorAll('route'));
@@ -197,7 +197,7 @@ describe('ToXMLConverter', () => {
       expect(routeElements[2].getAttribute('id')).toBe('route-2');
     });
 
-    it('should use EntityOrderingService for sorting entities', () => {
+    it('should use EntityOrderingService for sorting entities', async () => {
       const sortSpy = vi.spyOn(EntityOrderingService, 'sortEntitiesForSerialization');
 
       const entities = [
@@ -212,14 +212,14 @@ describe('ToXMLConverter', () => {
         },
       ] as unknown as EntityDefinition[];
 
-      KaotoXmlSerializer.serialize(entities);
+      await KaotoXmlSerializer.serialize(entities);
 
       expect(sortSpy).toHaveBeenCalledWith(entities);
 
       sortSpy.mockRestore();
     });
 
-    it('should handle complex mixed entity ordering with preserved internal order', () => {
+    it('should handle complex mixed entity ordering with preserved internal order', async () => {
       const complexMixedEntities = [
         {
           type: EntityType.RouteConfiguration,
@@ -262,7 +262,7 @@ describe('ToXMLConverter', () => {
         },
       ] as unknown as EntityDefinition[];
 
-      const result = KaotoXmlSerializer.serialize(complexMixedEntities);
+      const result = await KaotoXmlSerializer.serialize(complexMixedEntities);
       const xmlString = xmlSerializer.serializeToString(result);
       const resultDoc = domParser.parseFromString(xmlString, 'application/xml');
       const children = Array.from(resultDoc.documentElement.children);
@@ -278,7 +278,7 @@ describe('ToXMLConverter', () => {
       expect(children[4].getAttribute('id')).toBe('route-2');
     });
 
-    it('should handle beans element placement correctly', () => {
+    it('should handle beans element placement correctly', async () => {
       const entitiesWithBeans = [
         {
           type: EntityType.Route,
@@ -308,7 +308,7 @@ describe('ToXMLConverter', () => {
         },
       ] as unknown as EntityDefinition[];
 
-      const result = KaotoXmlSerializer.serialize(entitiesWithBeans);
+      const result = await KaotoXmlSerializer.serialize(entitiesWithBeans);
       const xmlString = xmlSerializer.serializeToString(result);
       const resultDoc = domParser.parseFromString(xmlString, 'application/xml');
       const children = Array.from(resultDoc.documentElement.children);
@@ -321,7 +321,7 @@ describe('ToXMLConverter', () => {
       expect(beanElement.getAttribute('name')).toBe('testBean');
     });
 
-    it('should maintain existing behavior for single entity types', () => {
+    it('should maintain existing behavior for single entity types', async () => {
       const singleRouteEntity = [
         {
           type: EntityType.Route,
@@ -334,7 +334,7 @@ describe('ToXMLConverter', () => {
         },
       ];
 
-      const result = KaotoXmlSerializer.serialize(singleRouteEntity as EntityDefinition[]);
+      const result = await KaotoXmlSerializer.serialize(singleRouteEntity as EntityDefinition[]);
       const xmlString = xmlSerializer.serializeToString(result);
       const resultDoc = domParser.parseFromString(xmlString, 'application/xml');
 

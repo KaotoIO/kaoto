@@ -17,8 +17,9 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
-import { CamelCatalogService, CatalogKind } from '../../../models';
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
+import { CatalogKind } from '../../../models';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
 import { ExpressionParser } from './expression-parser';
 
 describe('Expression parser', () => {
@@ -26,10 +27,10 @@ describe('Expression parser', () => {
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+    setupDynamicCatalogRegistry(catalogsMap);
   });
 
-  it('should parse simple expression', () => {
+  it('should parse simple expression', async () => {
     const expression = xmlParser.parseFromString(
       `
           <simple>{in.body} contains 'Hello'</simple>
@@ -37,33 +38,33 @@ describe('Expression parser', () => {
       'application/xml',
     ).documentElement;
 
-    const result = ExpressionParser.parse(expression);
+    const result = await ExpressionParser.parse(expression);
     expect(result).toEqual({ simple: { expression: "{in.body} contains 'Hello'" } });
   });
 
-  it('should parse expression type element', () => {
+  it('should parse expression type element', async () => {
     const parentElement = xmlParser.parseFromString(
       `<choice><when><xpath>/order/customer</xpath></when></choice>
       `,
       'application/xml',
     ).documentElement;
-    const props = CamelCatalogService.getComponent(CatalogKind.Processor, 'when')?.properties;
-    const result = ExpressionParser.parse(parentElement, props?.expression, 'when');
+    const props = (await DynamicCatalogRegistry.get().getEntity(CatalogKind.Processor, 'when'))?.properties;
+    const result = await ExpressionParser.parse(parentElement, props?.expression, 'when');
     expect(result).toEqual({ xpath: { expression: '/order/customer' } });
   });
 
-  it('should not parse made up expression', () => {
+  it('should not parse made up expression', async () => {
     const parentElement = xmlParser.parseFromString(
       `<choice><when><nonExistent>/order/customer</nonExistent></when></choice>
       `,
       'application/xml',
     ).documentElement;
-    const props = CamelCatalogService.getComponent(CatalogKind.Processor, 'when')?.properties;
-    const result = ExpressionParser.parse(parentElement, props?.expression, 'when');
+    const props = (await DynamicCatalogRegistry.get().getEntity(CatalogKind.Processor, 'when'))?.properties;
+    const result = await ExpressionParser.parse(parentElement, props?.expression, 'when');
     expect(result).toBeUndefined();
   });
 
-  it('should trim whitespace and newlines from expression text content', () => {
+  it('should trim whitespace and newlines from expression text content', async () => {
     const expression = xmlParser.parseFromString(
       `
           <simple>
@@ -73,7 +74,7 @@ describe('Expression parser', () => {
       'application/xml',
     ).documentElement;
 
-    const result = ExpressionParser.parse(expression);
+    const result = await ExpressionParser.parse(expression);
     expect(result).toEqual({ simple: { expression: '${header.foo} == 1' } });
   });
 });

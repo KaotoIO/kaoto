@@ -67,7 +67,8 @@ export class CamelXMLRouteResource extends CamelRouteResource {
 
   override async initialize(): Promise<void> {
     const parser = new KaotoXmlParser();
-    this.setRawEntities(parser.parseXML(this.code) as CamelYamlDsl);
+    const rawEntities = (await parser.parseXML(this.code)) as unknown as CamelYamlDsl;
+    this.setRawEntities(rawEntities);
     await super.initialize();
   }
 
@@ -77,7 +78,7 @@ export class CamelXMLRouteResource extends CamelRouteResource {
     ) as EntityDefinition[];
     entities.push(...(this.getVisualEntities() as EntityDefinition[]));
 
-    const xmlDocument = KaotoXmlSerializer.serialize(entities, this.rootElementDefinitions);
+    const xmlDocument = await KaotoXmlSerializer.serialize(entities, this.rootElementDefinitions);
     const xmlString = this.xmlSerializer.serializeToString(xmlDocument);
     const formatted = xmlFormat(xmlString);
     return this.getXmlDeclaration() + insertXmlComments(formatted, this.comments);

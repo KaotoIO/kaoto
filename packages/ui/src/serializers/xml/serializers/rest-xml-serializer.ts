@@ -16,7 +16,8 @@
 
 import { Rest } from '@kaoto/camel-catalog/types';
 
-import { CamelCatalogService, CatalogKind } from '../../../models';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
+import { CatalogKind } from '../../../models';
 import { REST_DSL_VERBS, REST_ELEMENT_NAME } from '../../../models/special-processors.constants';
 import { StepXmlSerializer } from './step-xml-serializer';
 
@@ -24,38 +25,40 @@ export class RestXmlSerializer {
   //properties that are missing in the catalog (up to 4.9)
   private static readonly MISSING_PROPERTIES = ['param', 'security', 'responseMessage'];
 
-  static serialize(rest: { [key: string]: unknown }, doc: Document): Element {
-    const element = StepXmlSerializer.serialize(REST_ELEMENT_NAME, rest, doc);
+  static async serialize(rest: { [key: string]: unknown }, doc: Document): Promise<Element> {
+    const element = await StepXmlSerializer.serialize(REST_ELEMENT_NAME, rest, doc);
 
     let restObject = rest as unknown as Rest;
     if (rest.rest) restObject = rest.rest as unknown as Rest;
 
-    this.handleSecurityDefinitions(element, restObject, doc);
+    await this.handleSecurityDefinitions(element, restObject, doc);
 
-    REST_DSL_VERBS.forEach((verb) => {
+    for (const verb of REST_DSL_VERBS) {
       const verbKey = verb as keyof Rest;
       if (restObject[verbKey]) {
-        (restObject[verbKey] as { [key: string]: unknown }[]).forEach((verbInstance: { [key: string]: unknown }) => {
-          const verbElement = StepXmlSerializer.serialize(verb, verbInstance, doc, element);
-          this.handleMissingProperties(verbElement, verbInstance, doc);
+        for (const verbInstance of restObject[verbKey] as { [key: string]: unknown }[]) {
+          const verbElement = await StepXmlSerializer.serialize(verb, verbInstance, doc, element);
+          await this.handleMissingProperties(verbElement, verbInstance, doc);
           element.appendChild(verbElement);
-        });
+        }
       }
-    });
+    }
 
     return element;
   }
-  private static handleMissingProperties(element: Element, rest: { [key: string]: unknown }, doc: Document) {
+
+  private static async handleMissingProperties(element: Element, rest: { [key: string]: unknown }, doc: Document) {
     for (const prop of this.MISSING_PROPERTIES) {
       if (!rest[prop] || this.containsMissingProperty(prop, element)) continue;
       // if the property is in catalog, it's already handled by step serializer
-      if (CamelCatalogService.getComponent(CatalogKind.Processor, prop)?.properties[prop]) continue;
+      const propDefinition = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Processor, prop);
+      if (propDefinition?.properties[prop]) continue;
 
-      (rest[prop] as unknown[]).forEach((propInstance) => {
+      for (const propInstance of rest[prop] as unknown[]) {
         element.appendChild(
-          StepXmlSerializer.serialize(prop, propInstance as { [key: string]: unknown }, doc, element),
+          await StepXmlSerializer.serialize(prop, propInstance as { [key: string]: unknown }, doc, element),
         );
-      });
+      }
     }
   }
 
@@ -63,7 +66,7 @@ export class RestXmlSerializer {
     return Array.from(element.children).some((child) => child.tagName === prop);
   }
 
-  private static handleSecurityDefinitions(element: Element, rest: Rest, doc: Document) {
+  private static async handleSecurityDefinitions(element: Element, rest: Rest, doc: Document) {
     if (!rest.securityDefinitions) return;
 
     let securityDefinitionsElement = element.getElementsByTagName('securityDefinitions')[0];
@@ -71,11 +74,11 @@ export class RestXmlSerializer {
       securityDefinitionsElement = doc.createElement('securityDefinitions');
     }
 
-    Object.entries(rest.securityDefinitions).forEach(([key, value]) => {
-      const securityElement = StepXmlSerializer.serialize(key, value as { [key: string]: unknown }, doc, element);
+    for (const [key, value] of Object.entries(rest.securityDefinitions)) {
+      const securityElement = await StepXmlSerializer.serialize(key, value as { [key: string]: unknown }, doc, element);
 
       if (securityElement) securityDefinitionsElement.appendChild(securityElement);
-    });
+    }
 
     element.appendChild(securityDefinitionsElement);
   }
