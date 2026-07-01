@@ -136,7 +136,11 @@ export class RestXmlParser {
     const properties = restDefinition?.properties;
 
     if (securityRequirements) {
-      await StepParser.parseElementsArray('security', restElement, properties!.securityRequirements);
+      return (await StepParser.parseElementsArray(
+        'security',
+        securityRequirements,
+        properties!.securityRequirements,
+      )) as unknown as RestSecurity[];
     }
     return undefined;
   }

@@ -20,7 +20,7 @@ import path from 'node:path';
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
-import { restWithVerbsStup } from '../../../stubs/rest';
+import { restWithSecurityRequirementsStub, restWithVerbsStup } from '../../../stubs/rest';
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
 import { RestXmlParser } from './rest-xml-parser';
 
@@ -39,5 +39,16 @@ describe('Rest XML Parser', () => {
     const result = await RestXmlParser.parse(restElement);
 
     expect(result).toEqual(restWithVerbsStup);
+  });
+
+  it('should parse securityRequirements correctly', async () => {
+    const xmlFilePath = path.join(__dirname, '../../../stubs/xml/rest-with-security-requirements.xml');
+    const xml = fs.readFileSync(xmlFilePath, 'utf-8');
+
+    const doc = new DOMParser().parseFromString(xml, 'application/xml');
+    const restElement = doc.getElementsByTagName('rest')[0];
+    const result = await RestXmlParser.parse(restElement);
+
+    expect(result).toEqual(restWithSecurityRequirementsStub);
   });
 });

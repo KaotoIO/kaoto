@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import fs from 'node:fs';
+import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
@@ -26,11 +26,11 @@ import { beanWithConstructorAandProperties, beanWithConstructorAandPropertiesXML
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../stubs/test-load-catalog';
 import { isXML, KaotoXmlParser } from './kaoto-xml-parser';
 
-describe('XmlParser', () => {
+describe('XmlParser', async () => {
   let parser: KaotoXmlParser;
   const xmlDir = path.join(__dirname, '../../stubs/xml');
   const yamlDir = path.join(__dirname, '../../stubs/yaml');
-  const xmlFiles = fs.readdirSync(xmlDir).filter((file) => file.endsWith('.xml'));
+  const xmlFiles = (await readdir(xmlDir)).filter((file) => file.endsWith('.xml'));
 
   beforeAll(async () => {
     parser = new KaotoXmlParser();
@@ -94,11 +94,15 @@ describe('XmlParser', () => {
   });
 
   it.each(xmlFiles)('XML to YAML comparison parses and compares %s correctly', async (xmlFile) => {
+    expect.assertions(1);
     const xmlFilePath = path.join(xmlDir, xmlFile);
     const yamlFilePath = path.join(yamlDir, xmlFile.replace('.xml', '.yaml'));
 
-    const xmlContent = fs.readFileSync(xmlFilePath, 'utf-8');
-    const expectedYamlContent = fs.readFileSync(yamlFilePath, 'utf-8');
+    const [xmlContent, expectedYamlContent] = await Promise.all([
+      readFile(xmlFilePath, 'utf-8'),
+      readFile(yamlFilePath, 'utf-8'),
+    ]);
+
     const expectedYaml = parse(expectedYamlContent);
     const result = await parser.parseXML(xmlContent);
 
