@@ -8,6 +8,7 @@ import { IVisualizationNode } from '../../../../models/visualization/base-visual
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { ACTION_ID_CANCEL, ACTION_ID_CONFIRM, ActionConfirmationModalContext } from '../../../../providers';
 import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
+import { createMockEntitiesContext } from '../../../../stubs';
 import {
   IInteractionType,
   INodeInteractionAddonContext,
@@ -30,15 +31,7 @@ describe('useDeleteStep', () => {
   let mockEntitiesContext: EntitiesContextResult;
 
   beforeAll(async () => {
-    await camelResource.initialize();
-    mockEntitiesContext = {
-      camelResource,
-      entities: camelResource.getEntities(),
-      visualEntities: camelResource.getVisualEntities(),
-      currentSchemaType: camelResource.getType(),
-      updateSourceCodeFromEntities: vi.fn(),
-      updateEntitiesFromCamelResource: vi.fn(),
-    };
+    mockEntitiesContext = await createMockEntitiesContext(camelResource);
   });
 
   const mockActionConfirmationModalContext = {
