@@ -6,6 +6,7 @@ import { CamelRouteResource } from '../../../../models/camel/camel-route-resourc
 import { EntityType } from '../../../../models/entities';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
+import { createMockEntitiesContext } from '../../../../stubs';
 import { getVisualizationNodesFromGraph } from '../../../../utils/get-viznodes-from-graph';
 import { setValue } from '../../../../utils/set-value';
 import { useEnableAllSteps } from './enable-all-steps.hook';
@@ -32,15 +33,7 @@ describe('useEnableAllSteps', () => {
   let mockEntitiesContext: EntitiesContextResult;
 
   beforeAll(async () => {
-    await camelResource.initialize();
-    mockEntitiesContext = {
-      camelResource,
-      entities: camelResource.getEntities(),
-      visualEntities: camelResource.getVisualEntities(),
-      currentSchemaType: camelResource.getType(),
-      updateSourceCodeFromEntities: vi.fn(),
-      updateEntitiesFromCamelResource: vi.fn(),
-    };
+    mockEntitiesContext = await createMockEntitiesContext(camelResource);
   });
 
   beforeEach(() => {

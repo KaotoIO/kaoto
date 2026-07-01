@@ -1,4 +1,5 @@
 export * from './camel-route';
+export * from './create-mock-entities-context';
 export * from './kamelet-binding-route';
 export * from './kamelet-route';
 export * from './mock-random-values';

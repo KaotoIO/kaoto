@@ -9,6 +9,7 @@ import {
   ActionConfirmationModalContext,
 } from '../../../../providers/action-confirmation-modal.provider';
 import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
+import { createMockEntitiesContext } from '../../../../stubs';
 import {
   IInteractionType,
   IOnDeleteAddon,
@@ -31,15 +32,7 @@ describe('ItemReplaceStep', () => {
   let mockEntitiesContext: EntitiesContextResult;
 
   beforeAll(async () => {
-    await camelResource.initialize();
-    mockEntitiesContext = {
-      camelResource,
-      entities: camelResource.getEntities(),
-      visualEntities: camelResource.getVisualEntities(),
-      currentSchemaType: camelResource.getType(),
-      updateSourceCodeFromEntities: vi.fn(),
-      updateEntitiesFromCamelResource: vi.fn(),
-    };
+    mockEntitiesContext = await createMockEntitiesContext(camelResource);
   });
 
   const mockReplaceModalContext = {
