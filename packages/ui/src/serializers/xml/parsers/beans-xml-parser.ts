@@ -21,8 +21,6 @@ import { CatalogKind } from '../../../models';
 import { extractAttributesFromXmlElement } from '../utils/xml-utils';
 
 export class BeansXmlParser {
-  beans: BeanFactory[] = [];
-
   static async transformBeanFactory(beanElement: Element): Promise<BeanFactory> {
     // Initialize the bean object
     const beanFactoryDefinition = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Processor, 'beanFactory');
@@ -86,15 +84,15 @@ export class BeansXmlParser {
   // This might required support for nested beans, if not change to static
   async transformBeansSection(beansSection: Element): Promise<BeanFactory[]> {
     // Process all bean elements and populate beanFactories
-    this.beans = [];
+    const beanFactories: BeanFactory[] = [];
     const beanElements = Array.from(beansSection.children);
 
     for (const beanElement of beanElements) {
       const processedBean = await BeansXmlParser.transformBeanFactory(beanElement);
-      this.beans.push(processedBean);
+      beanFactories.push(processedBean);
     }
 
-    return this.beans;
+    return beanFactories;
   }
 
   private static parseScript(beanElement: Element): string | undefined {
