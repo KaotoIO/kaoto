@@ -1,0 +1,16 @@
+<rest path="/api">
+    <securityDefinitions>
+        <apiKey key="api_key" name="api_key" inHeader="true"/>
+        <oauth2 key="oauth2" tokenUrl="https://oauth.example.com/token" flow="application">
+            <scopes key="read" value="Read access"/>
+            <scopes key="write" value="Write access"/>
+        </oauth2>
+    </securityDefinitions>
+    <securityRequirements>
+        <security key="api_key"/>
+        <security key="oauth2" scopes="read,write"/>
+    </securityRequirements>
+    <get path="/users">
+        <to uri="direct:getUsers"/>
+    </get>
+</rest>

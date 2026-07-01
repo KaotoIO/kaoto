@@ -1,0 +1,24 @@
+- rest:
+    path: '/api'
+    securityDefinitions:
+      apiKey:
+        key: api_key
+        name: api_key
+        inHeader: 'true'
+      oauth2:
+        key: oauth2
+        flow: application
+        tokenUrl: https://oauth.example.com/token
+        scopes:
+          - key: read
+            value: Read access
+          - key: write
+            value: Write access
+    securityRequirements:
+      - key: api_key
+      - key: oauth2
+        scopes: read,write
+    get:
+      - path: '/users'
+        to:
+          uri: direct:getUsers
