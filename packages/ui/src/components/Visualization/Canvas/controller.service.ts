@@ -12,8 +12,10 @@ import {
 
 import { CustomGroupWithSelection, CustomNodeWithSelection, NoBendpointsEdge } from '../Custom';
 import { CustomEdge } from '../Custom/Edge/CustomEdge';
+import TopologyEdge from '../Custom/Edge/TopologyEdge';
 import { CustomGraphWithSelection } from '../Custom/Graph/CustomGraph';
 import { PlaceholderNode } from '../Custom/Node/PlaceholderNode';
+import { TopologyNode } from '../Custom/Node/TopologyNode';
 import { LayoutType } from './canvas.models';
 
 export class ControllerService {
@@ -52,6 +54,10 @@ export class ControllerService {
         return CustomGroupWithSelection;
       case 'node-placeholder':
         return PlaceholderNode;
+      case 'topology-edge':
+        return TopologyEdge;
+      case 'topology-node':
+        return TopologyNode;
       default:
         switch (kind) {
           case ModelKind.graph:

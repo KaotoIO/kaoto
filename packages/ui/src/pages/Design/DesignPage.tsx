@@ -2,7 +2,7 @@ import './DesignPage.scss';
 
 import { FunctionComponent, ReactNode, useContext } from 'react';
 
-import { Visualization } from '../../components/Visualization';
+import { DesignerVisualization } from '../../components/Visualization';
 import { CatalogModalProvider } from '../../dynamic-catalog/catalog-modal.provider';
 import { ActionConfirmationModalContextProvider } from '../../providers/action-confirmation-modal.provider';
 import { EntitiesContext } from '../../providers/entities.provider';
@@ -14,7 +14,7 @@ export const DesignPage: FunctionComponent<{ fallback?: ReactNode; contextToolba
   return (
     <CatalogModalProvider>
       <ActionConfirmationModalContextProvider>
-        <Visualization
+        <DesignerVisualization
           className="canvas-page"
           entities={visualEntities}
           fallback={props.fallback}

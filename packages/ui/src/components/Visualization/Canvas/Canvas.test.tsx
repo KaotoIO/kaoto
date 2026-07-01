@@ -15,6 +15,7 @@ import { VisibleFlowsContextResult } from '../../../providers/visible-flows.prov
 import { TestProvidersWrapper, TestRuntimeProviderWrapper } from '../../../stubs';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { kameletJson } from '../../../stubs/kamelet-route';
+import { buildDesignerCanvasModel } from '../designer-canvas-model';
 import { Canvas } from './Canvas';
 import { LayoutType } from './canvas.models';
 import { ControllerService } from './controller.service';
@@ -24,6 +25,17 @@ vi.mock('./apply-collapse-state', () => ({
 }));
 
 import { applyCollapseState } from './apply-collapse-state';
+
+function canvasPropsFromVizNodes(vizNodes: IVisualizationNode[], entitiesCount: number) {
+  const { nodes, edges } = buildDesignerCanvasModel(vizNodes);
+  return {
+    nodes,
+    edges,
+    entitiesCount,
+    visibleEntitiesCount: vizNodes.length,
+    applyCollapseOnUpdate: true,
+  };
+}
 
 describe('Canvas', () => {
   const entity = new CamelRouteVisualEntity(camelRouteJson);
@@ -47,7 +59,7 @@ describe('Canvas', () => {
       result = render(
         <Provider>
           <VisualizationProvider controller={ControllerService.createController()}>
-            <Canvas vizNodes={[vizNode]} entitiesCount={1} />
+            <Canvas {...canvasPropsFromVizNodes([vizNode], 1)} />
           </VisualizationProvider>
         </Provider>,
       );
@@ -74,7 +86,7 @@ describe('Canvas', () => {
       render(
         <Provider>
           <VisualizationProvider controller={controller}>
-            <Canvas vizNodes={[vizNode]} entitiesCount={1} />
+            <Canvas {...canvasPropsFromVizNodes([vizNode], 1)} />
           </VisualizationProvider>
         </Provider>,
       );
@@ -114,7 +126,7 @@ describe('Canvas', () => {
       setVizNodesState = setVizNodes;
       return (
         <VisualizationProvider controller={controller}>
-          <Canvas vizNodes={vizNodes} entitiesCount={1} />
+          <Canvas {...canvasPropsFromVizNodes(vizNodes, 1)} />
         </VisualizationProvider>
       );
     };
@@ -160,7 +172,7 @@ describe('Canvas', () => {
         <ActionConfirmationModalContextProvider>
           <Provider>
             <VisualizationProvider controller={ControllerService.createController()}>
-              <Canvas vizNodes={[vizNode]} entitiesCount={1} />
+              <Canvas {...canvasPropsFromVizNodes([vizNode], 1)} />
             </VisualizationProvider>
           </Provider>
         </ActionConfirmationModalContextProvider>,
@@ -220,7 +232,7 @@ describe('Canvas', () => {
         <ActionConfirmationModalContextProvider>
           <Provider>
             <VisualizationProvider controller={ControllerService.createController()}>
-              <Canvas vizNodes={[vizNode]} entitiesCount={1} />
+              <Canvas {...canvasPropsFromVizNodes([vizNode], 1)} />
             </VisualizationProvider>
           </Provider>
         </ActionConfirmationModalContextProvider>,
@@ -273,7 +285,7 @@ describe('Canvas', () => {
           <CatalogModalContext.Provider value={{ getNewComponent: vi.fn(), checkCompatibility: vi.fn() }}>
             <Provider>
               <VisualizationProvider controller={ControllerService.createController()}>
-                <Canvas vizNodes={[vizNode]} entitiesCount={1} />
+                <Canvas {...canvasPropsFromVizNodes([vizNode], 1)} />
               </VisualizationProvider>
             </Provider>
           </CatalogModalContext.Provider>,
@@ -300,7 +312,7 @@ describe('Canvas', () => {
         result = render(
           <Provider>
             <VisualizationProvider controller={ControllerService.createController()}>
-              <Canvas vizNodes={[vizNode]} entitiesCount={1} />
+              <Canvas {...canvasPropsFromVizNodes([vizNode], 1)} />
             </VisualizationProvider>
           </Provider>,
         );
@@ -331,7 +343,7 @@ describe('Canvas', () => {
           <RuntimeProvider>
             <Provider>
               <VisualizationProvider controller={ControllerService.createController()}>
-                <Canvas vizNodes={[]} entitiesCount={0} />
+                <Canvas nodes={[]} edges={[]} entitiesCount={0} visibleEntitiesCount={0} />
               </VisualizationProvider>
             </Provider>
           </RuntimeProvider>,
@@ -358,7 +370,7 @@ describe('Canvas', () => {
           <RuntimeProvider>
             <Provider>
               <VisualizationProvider controller={ControllerService.createController()}>
-                <Canvas vizNodes={[]} entitiesCount={1} />
+                <Canvas nodes={[]} edges={[]} entitiesCount={1} visibleEntitiesCount={0} />
               </VisualizationProvider>
             </Provider>
           </RuntimeProvider>,
@@ -384,7 +396,7 @@ describe('Canvas', () => {
           <RuntimeProvider>
             <Provider>
               <VisualizationProvider controller={ControllerService.createController()}>
-                <Canvas vizNodes={[]} entitiesCount={1} isVizNodesResolving />
+                <Canvas nodes={[]} edges={[]} entitiesCount={1} visibleEntitiesCount={0} isModelResolving />
               </VisualizationProvider>
             </Provider>
           </RuntimeProvider>,
@@ -446,7 +458,7 @@ describe('Canvas', () => {
             <SettingsProvider adapter={settingsAdapter}>
               <Provider>
                 <VisualizationProvider controller={controller}>
-                  <Canvas vizNodes={[vizNode]} entitiesCount={1} />
+                  <Canvas {...canvasPropsFromVizNodes([vizNode], 1)} />
                 </VisualizationProvider>
               </Provider>
             </SettingsProvider>,
@@ -489,7 +501,7 @@ describe('Canvas', () => {
           <SettingsProvider adapter={settingsAdapter}>
             <Provider>
               <VisualizationProvider controller={ControllerService.createController()}>
-                <Canvas vizNodes={[vizNode]} entitiesCount={1} />
+                <Canvas {...canvasPropsFromVizNodes([vizNode], 1)} />
               </VisualizationProvider>
             </Provider>
           </SettingsProvider>,
@@ -531,7 +543,7 @@ describe('Canvas', () => {
           <SettingsProvider adapter={settingsAdapter}>
             <Provider>
               <VisualizationProvider controller={ControllerService.createController()}>
-                <Canvas vizNodes={[vizNode]} entitiesCount={1} />
+                <Canvas {...canvasPropsFromVizNodes([vizNode], 1)} />
               </VisualizationProvider>
             </Provider>
           </SettingsProvider>,
@@ -571,7 +583,7 @@ describe('Canvas', () => {
             <SettingsProvider adapter={settingsAdapter}>
               <Provider>
                 <VisualizationProvider controller={ControllerService.createController()}>
-                  <Canvas vizNodes={[vizNode]} entitiesCount={1} />
+                  <Canvas {...canvasPropsFromVizNodes([vizNode], 1)} />
                 </VisualizationProvider>
               </Provider>
             </SettingsProvider>,
