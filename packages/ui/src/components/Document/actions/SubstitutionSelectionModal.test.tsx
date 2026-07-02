@@ -9,7 +9,7 @@ import { SubstitutionSelectionModal } from './SubstitutionSelectionModal';
 describe('SubstitutionSelectionModal', () => {
   const createMockAbstractField = (
     candidates: Array<{ qname: string; displayName: string; namespaceURI?: string; localPart?: string }>,
-    selectedMemberIndex?: number,
+    selectedMemberQName?: QName,
   ): { abstractField: IField; candidatesMap: Record<string, IFieldSubstituteInfo> } => {
     const fields = candidates.map((c) => ({
       name: c.localPart || c.qname.split(':')[1] || c.qname,
@@ -37,7 +37,7 @@ describe('SubstitutionSelectionModal', () => {
         displayName: 'Test Abstract',
         wrapperKind: 'abstract',
         fields,
-        selectedMemberIndex,
+        selectedMemberQName,
       } as unknown as IField,
       candidatesMap,
     };
@@ -127,7 +127,7 @@ describe('SubstitutionSelectionModal', () => {
         { qname: 'ns:Email', displayName: 'Email', localPart: 'Email', namespaceURI: 'http://example.com' },
         { qname: 'ns:Phone', displayName: 'Phone', localPart: 'Phone', namespaceURI: 'http://example.com' },
       ],
-      1,
+      new QName('http://example.com', 'Phone'),
     );
     render(
       <SubstitutionSelectionModal
@@ -165,7 +165,7 @@ describe('SubstitutionSelectionModal', () => {
         { qname: 'ns:Email', displayName: 'Email', localPart: 'Email', namespaceURI: 'http://example.com' },
         { qname: 'ns:Phone', displayName: 'Phone', localPart: 'Phone', namespaceURI: 'http://example.com' },
       ],
-      0,
+      new QName('http://example.com', 'Email'),
     );
     render(
       <SubstitutionSelectionModal
@@ -208,7 +208,7 @@ describe('SubstitutionSelectionModal', () => {
         { qname: 'ns:Email', displayName: 'Email', localPart: 'Email', namespaceURI: 'http://example.com' },
         { qname: 'ns:Phone', displayName: 'Phone', localPart: 'Phone', namespaceURI: 'http://example.com' },
       ],
-      1,
+      new QName('http://example.com', 'Phone'),
     );
     render(
       <SubstitutionSelectionModal
@@ -370,7 +370,7 @@ describe('SubstitutionSelectionModal', () => {
     const { abstractField, candidatesMap } = createMockAbstractField([
       { qname: 'ns:Email', displayName: 'Email', localPart: 'Email', namespaceURI: 'http://example.com' },
     ]);
-    abstractField.selectedMemberIndex = undefined;
+    abstractField.selectedMemberQName = undefined;
 
     render(
       <SubstitutionSelectionModal

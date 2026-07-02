@@ -93,7 +93,7 @@ export class SchemaPathService {
    * for matching against persisted definitions. Choice wrappers emit `{choice:N}` segments.
    * Abstract wrappers are collapsed: when the next field in the stack is a child of the
    * wrapper, the wrapper segment is skipped; otherwise the selected candidate (via
-   * `selectedMemberIndex`) replaces the wrapper segment.
+   * `selectedMemberQName`) replaces the wrapper segment.
    *
    * Note: mutates `namespaceMap` by registering prefixes for encountered namespace URIs.
    */
@@ -113,8 +113,8 @@ export class SchemaPathService {
       } else if (f.wrapperKind === 'abstract' && i < lastIndex) {
         i++;
         segments.push(SchemaPathService.buildElementSegment(fieldStack[i], namespaceMap));
-      } else if (f.wrapperKind === 'abstract' && f.selectedMemberIndex !== undefined) {
-        const selectedMember = f.fields?.[f.selectedMemberIndex];
+      } else if (f.wrapperKind === 'abstract') {
+        const selectedMember = DocumentUtilService.getSelectedMember(f);
         if (selectedMember) {
           ensureNamespaceRegistered(
             selectedMember.namespaceURI,

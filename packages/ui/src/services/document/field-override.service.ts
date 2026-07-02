@@ -24,7 +24,7 @@ import { XmlSchemaTypesService } from './xml-schema/xml-schema-types.service';
  *
  * **Design constraint:** Field Type Override and Field Substitution are mutually exclusive.
  * A field can have at most one active: either a Field Type Override (`SAFE`/`FORCE`) or a
- * Field Substitution (`SUBSTITUTION` / `selectedMemberIndex`), never both. The {@link FieldOverrideModal}
+ * Field Substitution (`SUBSTITUTION` / `selectedMemberQName`), never both. The {@link FieldOverrideModal}
  * enforces this by disabling the inactive radio when an override exists. Service methods
  * `applyFieldTypeOverride` and `applyFieldSubstitution` also guard against conflicting state.
  * For abstract wrappers, `withFieldContextMenu` redirects UI actions to the wrapper
@@ -260,7 +260,7 @@ export class FieldOverrideService {
 
     if (
       field.typeOverride === FieldOverrideVariant.SUBSTITUTION ||
-      (field.wrapperKind === 'abstract' && field.selectedMemberIndex !== undefined)
+      (field.wrapperKind === 'abstract' && field.selectedMemberQName !== undefined)
     ) {
       return;
     }
@@ -449,13 +449,7 @@ export class FieldOverrideService {
       document.definition.fieldSubstitutions.push(entry);
     }
     if (field.wrapperKind === 'abstract') {
-      const candidateName = candidate.qname.getLocalPart();
-      const candidateIndex = field.fields.findIndex(
-        (f) => f.name === candidateName && f.namespaceURI === candidate.qname.getNamespaceURI(),
-      );
-      if (candidateIndex >= 0) {
-        field.selectedMemberIndex = candidateIndex;
-      }
+      field.selectedMemberQName = candidate.qname;
     } else {
       const livePath = SchemaPathService.build(field, namespaceMap);
       DocumentUtilService.applySubstitutionToField(field, candidate);
@@ -488,7 +482,7 @@ export class FieldOverrideService {
       (s) => s.schemaPath !== originalPath,
     );
     if (field.wrapperKind === 'abstract') {
-      field.selectedMemberIndex = undefined;
+      field.selectedMemberQName = undefined;
     } else if (field.typeOverride === FieldOverrideVariant.SUBSTITUTION) {
       DocumentUtilService.restoreOriginalField(field);
       DocumentUtilService.invalidateDescendants(document, originalPath);

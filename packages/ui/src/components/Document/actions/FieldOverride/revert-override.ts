@@ -12,7 +12,7 @@ export function revertOverride(
   namespaceMap: Record<string, string>,
   updateDocument: (document: IDocument, definition: DocumentDefinition, previousRefId: string) => void,
 ): void {
-  const hasAbstractSubstitution = field.wrapperKind === 'abstract' && field.selectedMemberIndex !== undefined;
+  const hasAbstractSubstitution = field.wrapperKind === 'abstract' && field.selectedMemberQName !== undefined;
   if (field.typeOverride === FieldOverrideVariant.NONE && !hasAbstractSubstitution) return;
 
   const document = field.ownerDocument;

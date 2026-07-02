@@ -1,5 +1,6 @@
 import { Types } from '../models/datamapper';
 import { TestUtil } from '../stubs/datamapper/data-mapper';
+import { QName } from '../xml-schema-ts/QName';
 import { XmlSchemaField } from './document/xml-schema/xml-schema-document.model';
 import { SchemaPathSegment, SchemaPathService } from './schema-path.service';
 
@@ -379,11 +380,11 @@ describe('SchemaPathService', () => {
       expect(path).toBe('/ns0:ShipOrder/ns0:AbstractElement');
     });
 
-    it('should show selected candidate name when terminal abstract has selectedMemberIndex', () => {
+    it('should show selected candidate name when terminal abstract has selectedMemberQName', () => {
       const document = TestUtil.createSourceOrderDoc();
       const root = document.fields[0];
       const abstractField = makeAbstractField(root, ['Cat', 'Dog']);
-      abstractField.selectedMemberIndex = 1;
+      abstractField.selectedMemberQName = new QName('io.kaoto.datamapper.poc.test', 'Dog');
       root.fields.push(abstractField);
 
       const path = SchemaPathService.formatDisplayPath(abstractField, namespaceMap);

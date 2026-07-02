@@ -95,6 +95,7 @@ export class XmlSchemaField extends BaseField {
     adopted.namedTypeFragmentRefs = this.namedTypeFragmentRefs;
     adopted.wrapperKind = this.wrapperKind;
     adopted.selectedMemberIndex = this.selectedMemberIndex;
+    adopted.selectedMemberQName = this.selectedMemberQName;
     adopted.isAbstractType = this.isAbstractType;
     adopted.description = this.description;
     adopted.fields = this.fields.map((child) => child.adopt(adopted) as XmlSchemaField);

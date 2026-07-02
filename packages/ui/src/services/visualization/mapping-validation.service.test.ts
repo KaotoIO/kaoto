@@ -23,6 +23,7 @@ import {
   VariableNodeData,
 } from '../../models/datamapper/visualization';
 import { TestUtil } from '../../stubs/datamapper/data-mapper';
+import { QName } from '../../xml-schema-ts/QName';
 import { JsonSchemaDocument, JsonSchemaField } from '../document/json-schema/json-schema-document.model';
 import { XmlSchemaDocument, XmlSchemaField } from '../document/xml-schema/xml-schema-document.model';
 import { MappingValidationService } from './mapping-validation.service';
@@ -162,7 +163,7 @@ describe('MappingValidationService', () => {
     describe('abstract validation', () => {
       it('should reject any source to unselected abstract target', () => {
         const source = createMockField({ type: Types.String });
-        const target = createMockField({ wrapperKind: 'abstract', selectedMemberIndex: undefined });
+        const target = createMockField({ wrapperKind: 'abstract', selectedMemberQName: undefined });
         const result = MappingValidationService.validateFieldPair(source, target);
         expect(result.isValid).toBe(false);
         expect(result.errorMessage).toContain('unselected abstract element');
@@ -170,7 +171,7 @@ describe('MappingValidationService', () => {
 
       it('should allow source to target with selected abstract member', () => {
         const source = createMockField({ type: Types.String });
-        const target = createMockField({ wrapperKind: 'abstract', selectedMemberIndex: 0 });
+        const target = createMockField({ wrapperKind: 'abstract', selectedMemberQName: new QName(null, 'MockMember') });
         const result = MappingValidationService.validateFieldPair(source, target);
         expect(result.isValid).toBe(true);
       });
@@ -424,7 +425,7 @@ describe('MappingValidationService', () => {
 
     it('should reject cross-side drop to unselected abstract target with errorMessage', () => {
       const sourceField = createMockField({ type: Types.String });
-      const targetField = createMockField({ wrapperKind: 'abstract', selectedMemberIndex: undefined });
+      const targetField = createMockField({ wrapperKind: 'abstract', selectedMemberQName: undefined });
       const fromNode = new FieldNodeData(sourceDocNode, sourceField);
       const toNode = new TargetFieldNodeData(targetDocNode, targetField);
       const result = MappingValidationService.validateMappingPair(fromNode, toNode);

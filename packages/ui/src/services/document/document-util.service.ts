@@ -48,6 +48,26 @@ export class DocumentUtilService {
   }
 
   /**
+   * Resolves the currently selected member from a wrapper field.
+   * Choice wrappers use positional selection ({@link IField.selectedMemberIndex}).
+   * Abstract wrappers use name-based selection ({@link IField.selectedMemberQName})
+   * because their candidate set is open-ended and must survive wrapper child rebuilds.
+   */
+  static getSelectedMember(field: IField): IField | undefined {
+    if (field.wrapperKind === 'choice') {
+      return field.selectedMemberIndex === undefined ? undefined : field.fields?.[field.selectedMemberIndex];
+    }
+    if (field.wrapperKind === 'abstract' && field.selectedMemberQName) {
+      return field.fields?.find(
+        (child) =>
+          child.name === field.selectedMemberQName!.getLocalPart() &&
+          child.namespaceURI === field.selectedMemberQName!.getNamespaceURI(),
+      );
+    }
+    return undefined;
+  }
+
+  /**
    * Resolve type fragments from reference and populate into the document tree so that it could be expanded in the UI.
    *
    *  @TODO is it safe to change field type dynamically even on XML field? we might eventually need to readahead field type
@@ -136,7 +156,7 @@ export class DocumentUtilService {
   /**
    * Performs an in-place mutation of a non-abstract field, overwriting its wire name, type,
    * namespace, and fragment refs with the substitute element's metadata.
-   * Only used for non-abstract fields — abstract wrapper fields use `selectedMemberIndex`
+   * Only used for non-abstract fields — abstract wrapper fields use `selectedMemberQName`
    * instead. See {@link processFieldSubstitution} for the branching logic.
    *
    * @param field - The field to apply the substitution to
@@ -166,7 +186,7 @@ export class DocumentUtilService {
    * Two distinct paths exist depending on the target field:
    * - **Abstract wrapper fields** (`wrapperKind='abstract'`): the wrapper already holds all concrete
    *   substitution candidates as children (populated by the parser). Applying a substitution
-   *   finds the matching candidate by name and sets `selectedMemberIndex` on the wrapper —
+   *   finds the matching candidate by name and sets `selectedMemberQName` on the wrapper —
    *   the field tree is not mutated.
    * - **Non-abstract fields**: the field is directly mutated via {@link applySubstitutionToField},
    *   which replaces the field's name, type, namespace, and children with the substitute
@@ -189,12 +209,11 @@ export class DocumentUtilService {
     if (field.wrapperKind === 'abstract') {
       const info = resolveSubstituteFn(document, substitution, namespaceMap);
       if (!info) return;
-      const candidateName = info.qname.getLocalPart();
-      const candidateIndex = field.fields.findIndex(
-        (f) => f.name === candidateName && f.namespaceURI === info.qname.getNamespaceURI(),
+      const candidate = field.fields.some(
+        (f) => f.name === info.qname.getLocalPart() && f.namespaceURI === info.qname.getNamespaceURI(),
       );
-      if (candidateIndex >= 0) {
-        field.selectedMemberIndex = candidateIndex;
+      if (candidate) {
+        field.selectedMemberQName = info.qname;
       }
       return;
     }
