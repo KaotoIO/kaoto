@@ -1,7 +1,7 @@
 import { CamelRouteVisualEntity } from '@kaoto/kaoto/testing';
 import { parse } from 'yaml';
 
-const storybookCamelRoute = `
+export const storybookCamelRoute = `
 - route:
     id: route-2067
     from:
