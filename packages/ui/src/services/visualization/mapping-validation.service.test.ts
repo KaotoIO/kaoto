@@ -6,7 +6,7 @@ import {
   IField,
   PrimitiveDocument,
 } from '../../models/datamapper/document';
-import { FieldItem, MappingTree } from '../../models/datamapper/mapping';
+import { FieldItem, MappingTree, VariableItem } from '../../models/datamapper/mapping';
 import { Types } from '../../models/datamapper/types';
 import {
   AbstractFieldNodeData,
@@ -16,6 +16,7 @@ import {
   FieldItemNodeData,
   FieldNodeData,
   NodeData,
+  SourceVariableNodeData,
   TargetAbstractFieldNodeData,
   TargetDocumentNodeData,
   TargetFieldNodeData,
@@ -433,6 +434,85 @@ describe('MappingValidationService', () => {
       expect(result.errorMessage).toBeDefined();
       expect(result.sourceNode).toBe(fromNode);
       expect(result.targetNode).toBe(toNode);
+    });
+
+    it('should accept root-level variable for any target', () => {
+      const variable = new VariableItem(tree, 'rootVar');
+      tree.children.push(variable);
+      const sourceNode = new SourceVariableNodeData(variable);
+      const targetField = createMockField({ type: Types.String });
+      const toNode = new TargetFieldNodeData(targetDocNode, targetField);
+      const result = MappingValidationService.validateMappingPair(sourceNode, toNode);
+      expect(result.isValid).toBe(true);
+    });
+
+    it('should accept nested variable for a following sibling target', () => {
+      const targetField = targetDoc.fields[0].fields[0];
+      const rootFieldItem = new FieldItem(tree, targetDoc.fields[0]);
+      tree.children.push(rootFieldItem);
+      const variable = new VariableItem(rootFieldItem, 'scopedVar');
+      rootFieldItem.children.push(variable);
+      const siblingFieldItem = new FieldItem(rootFieldItem, targetField);
+      rootFieldItem.children.push(siblingFieldItem);
+
+      const sourceNode = new SourceVariableNodeData(variable);
+      const targetFieldNode = new TargetFieldNodeData(targetDocNode, targetField, siblingFieldItem);
+      const result = MappingValidationService.validateMappingPair(sourceNode, targetFieldNode);
+      expect(result.isValid).toBe(true);
+    });
+
+    it('should reject nested variable for a preceding sibling target', () => {
+      const targetField = targetDoc.fields[0].fields[0];
+      const rootFieldItem = new FieldItem(tree, targetDoc.fields[0]);
+      tree.children.push(rootFieldItem);
+      const siblingFieldItem = new FieldItem(rootFieldItem, targetField);
+      rootFieldItem.children.push(siblingFieldItem);
+      const variable = new VariableItem(rootFieldItem, 'scopedVar');
+      rootFieldItem.children.push(variable);
+
+      const sourceNode = new SourceVariableNodeData(variable);
+      const targetFieldNode = new TargetFieldNodeData(targetDocNode, targetField, siblingFieldItem);
+      const result = MappingValidationService.validateMappingPair(sourceNode, targetFieldNode);
+      expect(result.isValid).toBe(false);
+      expect(result.errorMessage).toContain('not in scope');
+    });
+
+    it('should reject variable for target in a different container', () => {
+      const targetFields = targetDoc.fields[0].fields;
+      const containerA = new FieldItem(tree, targetFields[0]);
+      tree.children.push(containerA);
+      const variable = new VariableItem(containerA, 'localVar');
+      containerA.children.push(variable);
+      const containerB = new FieldItem(tree, targetFields[1]);
+      tree.children.push(containerB);
+
+      const sourceNode = new SourceVariableNodeData(variable);
+      const targetFieldNode = new TargetFieldNodeData(targetDocNode, targetFields[1], containerB);
+      const result = MappingValidationService.validateMappingPair(sourceNode, targetFieldNode);
+      expect(result.isValid).toBe(false);
+      expect(result.errorMessage).toContain('not in scope');
+    });
+
+    it('should reject variable dropped onto unselected choice target', () => {
+      const variable = new VariableItem(tree, 'rootVar');
+      tree.children.push(variable);
+      const sourceNode = new SourceVariableNodeData(variable);
+      const choiceField = createMockField({ type: Types.Container, wrapperKind: 'choice' });
+      const toNode = new TargetFieldNodeData(targetDocNode, choiceField);
+      const result = MappingValidationService.validateMappingPair(sourceNode, toNode);
+      expect(result.isValid).toBe(false);
+      expect(result.errorMessage).toContain('unselected choice');
+    });
+
+    it('should reject variable dropped onto unselected abstract target', () => {
+      const variable = new VariableItem(tree, 'rootVar');
+      tree.children.push(variable);
+      const sourceNode = new SourceVariableNodeData(variable);
+      const abstractField = createMockField({ type: Types.Container, wrapperKind: 'abstract' });
+      const toNode = new TargetFieldNodeData(targetDocNode, abstractField);
+      const result = MappingValidationService.validateMappingPair(sourceNode, toNode);
+      expect(result.isValid).toBe(false);
+      expect(result.errorMessage).toContain('unselected abstract');
     });
 
     it('should return valid when source is a PrimitiveDocument node and target is a field', () => {

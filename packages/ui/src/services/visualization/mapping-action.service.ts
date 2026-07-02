@@ -22,6 +22,7 @@ import {
   FieldItemNodeData,
   MappingNodeData,
   SourceNodeDataType,
+  SourceVariableNodeData,
   TargetAbstractFieldNodeData,
   TargetChoiceFieldNodeData,
   TargetDocumentNodeData,
@@ -316,35 +317,57 @@ export class MappingActionService {
    * @param targetNode - The target node being mapped to.
    */
   static engageMapping(mappingTree: MappingTree, sourceNode: SourceNodeDataType, targetNode: TargetNodeData) {
+    if (sourceNode instanceof SourceVariableNodeData) {
+      MappingActionService.engageVariableMapping(sourceNode, targetNode, mappingTree);
+      return;
+    }
+
     const sourceField = 'document' in sourceNode ? (sourceNode.document as PrimitiveDocument) : sourceNode.field;
 
-    if (
-      sourceNode instanceof ChoiceFieldNodeData &&
-      (targetNode instanceof TargetFieldNodeData || targetNode instanceof FieldItemNodeData)
-    ) {
-      if (sourceNode.choiceField) {
-        const item = MappingActionService.getOrCreateFieldItem(targetNode);
-        MappingService.mapToField(sourceNode.field, item);
-      } else if (
-        VisualizationUtilService.isCollectionField(sourceNode) &&
-        VisualizationUtilService.isCollectionField(targetNode)
-      ) {
-        MappingActionService.createForEachWithChooseFromChoice(sourceNode.field, targetNode);
-      } else {
-        MappingActionService.createChooseFromChoice(sourceNode.field, targetNode);
-      }
+    if (sourceNode instanceof ChoiceFieldNodeData && MappingActionService.isFieldNode(targetNode)) {
+      MappingActionService.engageChoiceMapping(sourceNode, targetNode, sourceField);
       return;
     }
 
     if (MappingActionService.tryEngageContainerMapping(sourceNode, targetNode)) return;
 
-    if (targetNode instanceof TargetFieldNodeData || targetNode instanceof FieldItemNodeData) {
+    if (MappingActionService.isFieldNode(targetNode)) {
       const item = MappingActionService.getOrCreateFieldItem(targetNode);
       MappingService.mapToField(sourceField, item);
     } else if (targetNode instanceof MappingNodeData) {
       MappingService.mapToCondition(targetNode.mapping, sourceField);
     } else if (targetNode instanceof TargetDocumentNodeData) {
       MappingService.mapToDocument(mappingTree, sourceField);
+    }
+  }
+
+  private static engageVariableMapping(
+    sourceNode: SourceVariableNodeData,
+    targetNode: TargetNodeData,
+    mappingTree: MappingTree,
+  ) {
+    // TODO(#2362-content-form): CONTAINER for condition/document targets not yet handled
+    const valueType = sourceNode.variable.children.length > 0 ? ValueType.CONTAINER : ValueType.VALUE;
+    const pathExpr = MappingService.variablePathExpression(sourceNode.variable.name);
+    const target = MappingActionService.resolveTarget(targetNode, mappingTree);
+    if (target) MappingService.applyMapping(pathExpr, target, valueType);
+  }
+
+  private static engageChoiceMapping(
+    sourceNode: ChoiceFieldNodeData,
+    targetNode: TargetFieldNodeData | FieldItemNodeData,
+    sourceField: IField,
+  ) {
+    if (sourceNode.choiceField) {
+      const item = MappingActionService.getOrCreateFieldItem(targetNode);
+      MappingService.mapToField(sourceField, item);
+    } else if (
+      VisualizationUtilService.isCollectionField(sourceNode) &&
+      VisualizationUtilService.isCollectionField(targetNode)
+    ) {
+      MappingActionService.createForEachWithChooseFromChoice(sourceNode.field, targetNode);
+    } else {
+      MappingActionService.createChooseFromChoice(sourceNode.field, targetNode);
     }
   }
 
@@ -484,6 +507,23 @@ export class MappingActionService {
     }
     MappingService.addOtherwise(chooseItem);
     return chooseItem;
+  }
+
+  /**
+   * Resolves the {@link MappingItem} or {@link MappingTree} that a target node maps to.
+   * Used by {@link engageMapping} to decouple source-type dispatch from target-type dispatch.
+   * Returns `undefined` for unhandled target types (e.g. unrecognized wrappers).
+   */
+  private static resolveTarget(
+    targetNode: TargetNodeData,
+    mappingTree: MappingTree,
+  ): MappingItem | MappingTree | undefined {
+    if (targetNode instanceof TargetDocumentNodeData) return mappingTree;
+    if (targetNode instanceof TargetFieldNodeData || targetNode instanceof FieldItemNodeData) {
+      return MappingActionService.getOrCreateFieldItem(targetNode);
+    }
+    if (targetNode instanceof MappingNodeData) return targetNode.mapping;
+    return undefined;
   }
 
   private static getOrCreateFieldItem(nodeData: TargetNodeData): MappingItem {
@@ -767,17 +807,15 @@ export class MappingActionService {
       apply: (n) => {
         useDocumentTreeStore.getState().setAddingVariableTo(n.path.toString());
       },
-      // TODO enable when https://github.com/KaotoIO/kaoto/issues/2846 is implemented
-      // isAllowed: (n) => {
-      //   if (n instanceof VariableNodeData) return false;
-      //   if (n instanceof TargetDocumentNodeData) return false;
-      //   if (MappingActionService.isFieldNode(n)) return DocumentService.hasChildren(n.field);
-      //   return (
-      //     MappingActionService.isMappingNode(n) &&
-      //     !MappingActionService.mappingIsOneOf(ValueSelector, ChooseItem, UnknownMappingItem)(n)
-      //   );
-      // },
-      isAllowed: () => false,
+      isAllowed: (n) => {
+        if (n instanceof VariableNodeData) return false;
+        if (n instanceof TargetDocumentNodeData) return false;
+        if (MappingActionService.isFieldNode(n)) return DocumentService.hasChildren(n.field);
+        return (
+          MappingActionService.isMappingNode(n) &&
+          !MappingActionService.mappingIsOneOf(ValueSelector, ChooseItem, UnknownMappingItem)(n)
+        );
+      },
     },
     {
       key: MappingActionKind.RenameVariable,
@@ -788,9 +826,7 @@ export class MappingActionService {
           useDocumentTreeStore.getState().setRenamingVariable(n.mapping.id);
         }
       },
-      // TODO enable when https://github.com/KaotoIO/kaoto/issues/2846 is implemented
-      // isAllowed: (n) => n instanceof VariableNodeData,
-      isAllowed: () => false,
+      isAllowed: (n) => n instanceof VariableNodeData,
     },
   ];
 

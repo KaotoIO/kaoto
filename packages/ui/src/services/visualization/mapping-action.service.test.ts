@@ -27,6 +27,7 @@ import {
   FieldItemNodeData,
   FieldNodeData,
   MappingNodeData,
+  SourceVariableNodeData,
   TargetDocumentNodeData,
   TargetFieldNodeData,
   TargetNodeData,
@@ -1170,6 +1171,46 @@ describe('MappingActionService', () => {
       });
     });
 
+    describe('engageMapping() with SourceVariableNodeData', () => {
+      it('should create VALUE mapping for select-form variable to document', () => {
+        const variable = new VariableItem(tree, 'myVar');
+        tree.children.push(variable);
+        const sourceNode = new SourceVariableNodeData(variable);
+
+        MappingActionService.engageMapping(tree, sourceNode, targetDocNode);
+
+        const vs = tree.children.find((c) => c instanceof ValueSelector) as ValueSelector;
+        expect(vs).toBeDefined();
+        expect(vs.expression).toBe('$myVar');
+      });
+
+      it('should create CONTAINER mapping for content-form variable to document', () => {
+        const variable = new VariableItem(tree, 'contentVar');
+        variable.children.push(new FieldItem(variable, targetDoc.fields[0]));
+        tree.children.push(variable);
+        const sourceNode = new SourceVariableNodeData(variable);
+
+        MappingActionService.engageMapping(tree, sourceNode, targetDocNode);
+
+        const vs = tree.children.find((c) => c instanceof ValueSelector) as ValueSelector;
+        expect(vs).toBeDefined();
+        expect(vs.expression).toBe('$contentVar');
+      });
+
+      it('should create mapping for variable to a target field', () => {
+        const sourceNode = new SourceVariableNodeData(new VariableItem(tree, 'myVar'));
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+
+        MappingActionService.engageMapping(tree, sourceNode, targetShipOrderChildren[1] as TargetNodeData);
+
+        const rootFieldItem = tree.children[0] as FieldItem;
+        expect(rootFieldItem).toBeInstanceOf(FieldItem);
+        const vs = rootFieldItem.children[0].children[0] as ValueSelector;
+        expect(vs.expression).toBe('$myVar');
+      });
+    });
+
     describe('xs:anyType container mapping', () => {
       it('should create copy-of with CONTAINER_NODE when xs:anyType source is mapped to a container target', () => {
         const anyTypeDef = new DocumentDefinition(
@@ -1541,8 +1582,7 @@ describe('MappingActionService', () => {
     });
 
     describe('Variable action availability', () => {
-      // TODO enable when https://github.com/KaotoIO/kaoto/issues/2846 is implemented
-      it.skip('should include Variable for container FieldItemNodeData and TargetFieldNodeData', () => {
+      it('should include Variable for container FieldItemNodeData and TargetFieldNodeData', () => {
         const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
 
@@ -1574,8 +1614,7 @@ describe('MappingActionService', () => {
         expect(MappingActionService.getAllowedActions(orderIdNode)).not.toContain(MappingActionKind.Variable);
       });
 
-      // TODO enable when https://github.com/KaotoIO/kaoto/issues/2846 is implemented
-      it.skip('should include Variable for ForEachItem and IfItem MappingNodeData', () => {
+      it('should include Variable for ForEachItem and IfItem MappingNodeData', () => {
         const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
 
@@ -1616,8 +1655,7 @@ describe('MappingActionService', () => {
     });
 
     describe('RenameVariable action availability', () => {
-      // TODO enable when https://github.com/KaotoIO/kaoto/issues/2846 is implemented
-      it.skip('should include RenameVariable only for VariableNodeData', () => {
+      it('should include RenameVariable only for VariableNodeData', () => {
         const variable = new VariableItem(tree, 'testVar');
         tree.children.push(variable);
         const variableNode = new VariableNodeData(targetDocNode, variable);
@@ -1768,8 +1806,7 @@ describe('MappingActionService', () => {
     });
 
     describe('Variable and RenameVariable action apply callbacks', () => {
-      // TODO enable when https://github.com/KaotoIO/kaoto/issues/2846 is implemented
-      it.skip('Variable apply should call setAddingVariableTo with node path', () => {
+      it('Variable apply should call setAddingVariableTo with node path', () => {
         const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         const shipOrderNode = targetDocChildren[0] as FieldItemNodeData;
         const menuItems = MappingActionService.getMappingContextMenuItems(shipOrderNode);
@@ -1783,8 +1820,7 @@ describe('MappingActionService', () => {
         useDocumentTreeStore.getState().setAddingVariableTo(null);
       });
 
-      // TODO enable when https://github.com/KaotoIO/kaoto/issues/2846 is implemented
-      it.skip('RenameVariable apply should call setRenamingVariable with variable id', () => {
+      it('RenameVariable apply should call setRenamingVariable with variable id', () => {
         const variable = new VariableItem(tree, 'testVar');
         tree.children.push(variable);
         const variableNode = new VariableNodeData(targetDocNode, variable);

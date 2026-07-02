@@ -117,6 +117,21 @@ export class XPathService {
     return XPathService.extractFieldPathsFromExprNode(parsed.exprNode, contextPath);
   }
 
+  /**
+   * Extracts all variable names referenced in an XPath expression.
+   * Uses two-phase detection:
+   *   1. AST walk via {@link extractFieldPaths} — catches `$x` and `$x/path`
+   *   2. Regex fallback — catches `$x` inside function calls that the AST walker skips
+   * @returns deduplicated array of variable names (without the `$` prefix)
+   */
+  static extractVariableNames(expression: string, contextPath?: PathExpression): string[] {
+    const fromAst = XPathService.extractFieldPaths(expression, contextPath)
+      .filter((p) => p.documentReferenceName)
+      .map((p) => p.documentReferenceName!);
+    const fromRegex = Array.from(expression.matchAll(/\$(\w+)/g)).map((m) => m[1]);
+    return Array.from(new Set([...fromAst, ...fromRegex]));
+  }
+
   private static isNonRelevantFilterExpr(pathNode: PathExprNode): boolean {
     if (pathNode.steps.length !== 1 || !pathNode.steps[0].filterExpr) {
       return false;

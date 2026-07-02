@@ -1,4 +1,5 @@
 import { IField, PrimitiveDocument } from '../../models/datamapper/document';
+import { MappingParentType, MappingTree, VariableItem } from '../../models/datamapper/mapping';
 import { Types } from '../../models/datamapper/types';
 import {
   AbstractFieldNodeData,
@@ -9,6 +10,7 @@ import {
   MappingNodeData,
   NodeData,
   SourceNodeDataType,
+  SourceVariableNodeData,
   TargetAbstractFieldNodeData,
   TargetDocumentNodeData,
   TargetFieldNodeData,
@@ -111,33 +113,56 @@ export class MappingValidationService {
    * @returns A {@link ValidationResult} describing whether the pair is mappable.
    */
   static validateMappingPair(fromNode: NodeData, toNode: NodeData): ValidationResult {
-    if ((fromNode.isSource && toNode.isSource) || (!fromNode.isSource && !toNode.isSource)) {
+    if (fromNode.isSource === toNode.isSource) {
       return { isValid: false };
     }
 
     const sourceNode = (fromNode.isSource ? fromNode : toNode) as SourceNodeDataType;
     const targetNode = (fromNode.isSource ? toNode : fromNode) as TargetNodeData;
 
+    const nodeError = MappingValidationService.validateNodeTypes(sourceNode, targetNode);
+    if (nodeError !== undefined) return { ...nodeError, sourceNode, targetNode };
+
+    const targetField = MappingValidationService.resolveTargetField(targetNode);
+    if (targetField === null) return { isValid: true, sourceNode, targetNode };
+    if (targetField === undefined) return { isValid: false, sourceNode, targetNode };
+
+    const sourceField =
+      'document' in sourceNode ? (sourceNode.document as PrimitiveDocument) : (sourceNode as { field: IField }).field;
+    return { ...MappingValidationService.validateFieldPair(sourceField, targetField), sourceNode, targetNode };
+  }
+
+  private static validateNodeTypes(
+    sourceNode: SourceNodeDataType,
+    targetNode: TargetNodeData,
+  ): ValidationResult | undefined {
     if (sourceNode instanceof ChoiceFieldNodeData && !sourceNode.choiceField) {
       const choiceError = MappingValidationService.validateSourceChoiceWrapper(sourceNode, targetNode);
-      if (choiceError) return { ...choiceError, sourceNode, targetNode };
+      if (choiceError) return choiceError;
     }
 
-    if (targetNode instanceof TargetDocumentNodeData) {
-      return { isValid: true, sourceNode, targetNode };
-    }
-    if (targetNode instanceof MappingNodeData && !(targetNode instanceof FieldItemNodeData)) {
-      return { isValid: true, sourceNode, targetNode };
-    }
-    if (!(targetNode instanceof TargetFieldNodeData || targetNode instanceof FieldItemNodeData)) {
-      return { isValid: false, sourceNode, targetNode };
+    if (sourceNode instanceof SourceVariableNodeData) {
+      const targetField = MappingValidationService.resolveTargetField(targetNode);
+      if (targetField) {
+        for (const rule of [
+          MappingValidationService.validateChoiceRules,
+          MappingValidationService.validateAbstractRules,
+        ]) {
+          const result = rule(targetField, targetField);
+          if (!result.isValid) return result;
+        }
+      }
+      return MappingValidationService.validateVariableScope(sourceNode.variable, targetNode) ?? { isValid: true };
     }
 
-    const sourceField = 'document' in sourceNode ? (sourceNode.document as PrimitiveDocument) : sourceNode.field;
-    const targetField = targetNode.field;
+    return undefined;
+  }
 
-    const fieldValidation = MappingValidationService.validateFieldPair(sourceField, targetField);
-    return { ...fieldValidation, sourceNode, targetNode };
+  private static resolveTargetField(targetNode: TargetNodeData): IField | null | undefined {
+    if (targetNode instanceof TargetDocumentNodeData) return null;
+    if (targetNode instanceof MappingNodeData && !(targetNode instanceof FieldItemNodeData)) return null;
+    if (targetNode instanceof TargetFieldNodeData || targetNode instanceof FieldItemNodeData) return targetNode.field;
+    return undefined;
   }
 
   private static readonly pairValidationRules: ReadonlyArray<(source: IField, target: IField) => ValidationResult> = [
@@ -223,6 +248,83 @@ export class MappingValidationService {
         isValid: false,
         errorMessage: 'Cannot map a choice containing complex elements. Map individual members instead.',
       };
+    }
+    return undefined;
+  }
+
+  /**
+   * Checks whether a variable is in scope for the given target node.
+   *
+   * XSLT scope rule: `xsl:variable` is visible only to **following siblings** and their
+   * descendants within the same parent element. A target mapping that precedes the variable
+   * declaration in the same parent is therefore out of scope.
+   *
+   * Two-step check:
+   * 1. Container check — target's mapping path must start with `varParent.nodePath`
+   *    (target is a descendant of the same container that owns the variable).
+   * 2. Sibling-order check — the direct child of `varParent` that contains (or is) the
+   *    target must appear **after** the variable in `varParent.children`.
+   *
+   * Root-level variables (`variable.parent instanceof MappingTree`) skip both checks —
+   * they are always in scope everywhere.
+   */
+  private static outOfScope(variableName: string): ValidationResult {
+    return { isValid: false, errorMessage: `Variable "$${variableName}" is not in scope for this target field.` };
+  }
+
+  private static validateVariableScope(
+    variable: VariableItem,
+    targetNode: TargetNodeData,
+  ): ValidationResult | undefined {
+    const varParent = variable.parent;
+    if (!varParent) return MappingValidationService.outOfScope(variable.name);
+    if (varParent instanceof MappingTree) return undefined;
+
+    const targetMappingPath = MappingValidationService.resolveTargetMappingPath(targetNode);
+    if (!targetMappingPath) return MappingValidationService.outOfScope(variable.name);
+
+    const scopeBoundary = varParent.nodePath.toString();
+    if (!targetMappingPath.startsWith(scopeBoundary)) return MappingValidationService.outOfScope(variable.name);
+
+    return MappingValidationService.checkSiblingOrder(variable, varParent, targetMappingPath, scopeBoundary);
+  }
+
+  private static checkSiblingOrder(
+    variable: VariableItem,
+    varParent: MappingParentType,
+    targetMappingPath: string,
+    scopeBoundary: string,
+  ): ValidationResult | undefined {
+    const rest = targetMappingPath.slice(scopeBoundary.length);
+    const siblingId = rest.split('/').find((s) => s.length > 0);
+    if (!siblingId) return undefined;
+
+    if (!varParent?.children) return undefined;
+    const varIndex = varParent.children.indexOf(variable);
+    const siblingIndex = varParent.children.findIndex((c) => c.id === siblingId);
+    if (siblingIndex !== -1 && siblingIndex <= varIndex) {
+      return MappingValidationService.outOfScope(variable.name);
+    }
+    return undefined;
+  }
+
+  /**
+   * Returns the nodePath string of the nearest mapped ancestor for the given target node.
+   * For already-mapped nodes, returns the node's own mapping nodePath.
+   * For unmapped fields, walks up the visual parent chain until a mapped node is found.
+   * Returns `undefined` if no mapping context exists (e.g. the document root is not mapped).
+   */
+  private static resolveTargetMappingPath(targetNode: TargetNodeData): string | undefined {
+    if (targetNode.mapping && !(targetNode.mapping instanceof MappingTree)) {
+      return targetNode.mapping.nodePath.toString();
+    }
+    // Unmapped field — walk visual parent chain
+    let parent = 'parent' in targetNode ? (targetNode as TargetFieldNodeData).parent : undefined;
+    while (parent) {
+      if (parent.mapping && !(parent.mapping instanceof MappingTree)) {
+        return parent.mapping.nodePath.toString();
+      }
+      parent = 'parent' in parent ? (parent as TargetFieldNodeData).parent : undefined;
     }
     return undefined;
   }

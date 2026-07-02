@@ -7,8 +7,8 @@ import {
   IDocument,
   IField,
 } from '../../models/datamapper/document';
-import { FieldItem, MappingTree, ValueSelector, ValueType } from '../../models/datamapper/mapping';
-import { MappingLineStyle } from '../../models/datamapper/visualization';
+import { FieldItem, MappingTree, ValueSelector, ValueType, VariableItem } from '../../models/datamapper/mapping';
+import { MappingLineStyle, variableNodePath, VARIABLES_DOCUMENT_ID } from '../../models/datamapper/visualization';
 import { useDocumentTreeStore } from '../../store';
 import { mockRandomValues } from '../../stubs';
 import {
@@ -785,6 +785,112 @@ describe('MappingLinksService', () => {
       const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
       expect(links).toHaveLength(1);
       expect(links[0].lineStyle).toBe(MappingLineStyle.PARTIAL);
+    });
+  });
+
+  describe('variable reference links', () => {
+    it('should generate Var:// link for $varName expression', () => {
+      const rootField = targetDoc.fields[0];
+      const targetField = rootField.fields[0];
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const variable = new VariableItem(manualTree, 'myVar');
+      manualTree.children.push(variable);
+      const rootItem = new FieldItem(manualTree, rootField);
+      manualTree.children.push(rootItem);
+      const fieldItem = new FieldItem(rootItem, targetField);
+      rootItem.children.push(fieldItem);
+      const vs = new ValueSelector(fieldItem);
+      vs.expression = '$myVar';
+      fieldItem.children.push(vs);
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const varLinks = links.filter((l) => l.sourceDocumentId === VARIABLES_DOCUMENT_ID);
+      expect(varLinks).toHaveLength(1);
+      expect(varLinks[0].sourceNodePath).toBe(`Var:${VARIABLES_DOCUMENT_ID}://${variable.id}`);
+    });
+
+    it('should not generate Var:// link for parameter references', () => {
+      const rootField = targetDoc.fields[0];
+      const targetField = rootField.fields[0];
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const rootItem = new FieldItem(manualTree, rootField);
+      manualTree.children.push(rootItem);
+      const fieldItem = new FieldItem(rootItem, targetField);
+      rootItem.children.push(fieldItem);
+      const paramName = Array.from(paramsMap.values())[0].getReferenceId(manualTree.namespaceMap);
+      const vs = new ValueSelector(fieldItem);
+      vs.expression = `$${paramName}`;
+      fieldItem.children.push(vs);
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const varLinks = links.filter((l) => l.sourceDocumentId === VARIABLES_DOCUMENT_ID);
+      expect(varLinks).toHaveLength(0);
+    });
+
+    it('should generate only Var:// link when variable shadows a parameter with the same name', () => {
+      const rootField = targetDoc.fields[0];
+      const targetField = rootField.fields[0];
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const paramName = Array.from(paramsMap.values())[0].getReferenceId(manualTree.namespaceMap);
+      const variable = new VariableItem(manualTree, paramName);
+      manualTree.children.push(variable);
+      const rootItem = new FieldItem(manualTree, rootField);
+      manualTree.children.push(rootItem);
+      const fieldItem = new FieldItem(rootItem, targetField);
+      rootItem.children.push(fieldItem);
+      const vs = new ValueSelector(fieldItem);
+      vs.expression = `$${paramName}`;
+      fieldItem.children.push(vs);
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const varLinks = links.filter((l) => l.sourceDocumentId === VARIABLES_DOCUMENT_ID);
+      const fieldLinks = links.filter((l) => l.sourceDocumentId !== VARIABLES_DOCUMENT_ID);
+      expect(varLinks).toHaveLength(1);
+      expect(varLinks[0].sourceNodePath).toBe(variableNodePath(variable.id));
+      expect(fieldLinks).toHaveLength(0);
+    });
+
+    it('should generate multiple Var:// links for compound expression', () => {
+      const rootField = targetDoc.fields[0];
+      const targetField = rootField.fields[0];
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const variable1 = new VariableItem(manualTree, 'a');
+      const variable2 = new VariableItem(manualTree, 'b');
+      manualTree.children.push(variable1, variable2);
+      const rootItem = new FieldItem(manualTree, rootField);
+      manualTree.children.push(rootItem);
+      const fieldItem = new FieldItem(rootItem, targetField);
+      rootItem.children.push(fieldItem);
+      const vs = new ValueSelector(fieldItem);
+      vs.expression = 'concat($a, $b)';
+      fieldItem.children.push(vs);
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const varLinks = links.filter((l) => l.sourceDocumentId === VARIABLES_DOCUMENT_ID);
+      expect(varLinks).toHaveLength(2);
+      expect(varLinks.map((l) => l.sourceNodePath).sort()).toEqual(
+        [variableNodePath(variable1.id), variableNodePath(variable2.id)].sort(),
+      );
     });
   });
 });

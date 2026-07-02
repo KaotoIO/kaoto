@@ -2,10 +2,10 @@ import './VariableInputPlaceholder.scss';
 
 import { FunctionComponent, useCallback } from 'react';
 
-import { MappingParentType } from '../../models/datamapper/mapping';
-import { NameValidation, NameValidationStatus } from '../../models/datamapper/visualization';
-import { VisualizationService } from '../../services/visualization/visualization.service';
-import { NameInputPlaceholder } from './NameInputPlaceholder';
+import { MappingParentType } from '../../../models/datamapper/mapping';
+import { NameValidation, NameValidationStatus } from '../../../models/datamapper/visualization';
+import { VisualizationService } from '../../../services/visualization/visualization.service';
+import { NameInputPlaceholder } from '../NameInputPlaceholder';
 
 type VariableInputPlaceholderProps = {
   initialName?: string;

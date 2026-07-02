@@ -54,7 +54,12 @@ export interface TargetNodeData extends NodeData {
 }
 
 /** Union of all valid source-side node types. */
-export type SourceNodeDataType = DocumentNodeData | FieldNodeData | ChoiceFieldNodeData | AbstractFieldNodeData;
+export type SourceNodeDataType =
+  | DocumentNodeData
+  | FieldNodeData
+  | ChoiceFieldNodeData
+  | AbstractFieldNodeData
+  | SourceVariableNodeData;
 /** Union of all valid target-side node types. */
 export type TargetNodeDataType =
   | TargetDocumentNodeData
@@ -68,7 +73,11 @@ export type TargetNodeDataType =
  */
 export class DocumentNodeData implements NodeData {
   static getId(document: IDocument): string {
-    return `doc-${document.documentType}-${document.documentId}`;
+    return DocumentNodeData.formatNodeId(document.documentType, document.documentId);
+  }
+
+  static formatNodeId(documentType: DocumentType, documentId: string): string {
+    return `doc-${documentType}-${documentId}`;
   }
 
   constructor(document: IDocument) {
@@ -336,6 +345,34 @@ export class FunctionNodeData implements NodeData {
   isDocument: boolean = false;
   path: NodePath;
   title: string;
+}
+
+/**
+ * Visualization node for an `xsl:variable` item on the source side.
+ * Represents a draggable `$varName` reference in the source panel.
+ * Follows the same pattern as {@link FunctionNodeData} — no `document` or `field`,
+ * just a synthetic node whose DnD produces a `$varName` XPath expression.
+ * Always on the source side (`isSource: true`, `isPrimitive: true`).
+ */
+export const VARIABLES_DOCUMENT_ID = '_variables';
+
+export function variableNodePath(varId: string): string {
+  return `Var:${VARIABLES_DOCUMENT_ID}://${varId}`;
+}
+
+export class SourceVariableNodeData implements NodeData {
+  constructor(public variable: VariableItem) {
+    this.id = `var-${variable.id}`;
+    this.title = `$${variable.name}`;
+    this.path = new SimpleNodePath(variableNodePath(variable.id));
+  }
+
+  id: string;
+  title: string;
+  path: NodePath;
+  isSource = true;
+  isPrimitive = true;
+  isDocument = false;
 }
 
 export enum MappingLineStyle {

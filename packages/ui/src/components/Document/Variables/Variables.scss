@@ -1,0 +1,21 @@
+.variable-row-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.variable-row-scope-hint {
+  font-size: var(--pf-t--global--font--size--sm);
+  font-style: italic;
+  color: var(--pf-t--global--text--color--subtle);
+  white-space: nowrap;
+}
+
+.variable-row-actions {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-right: 0.5rem;
+}

@@ -13,11 +13,11 @@ describe('ConfirmActionButton', () => {
     cancelTestId: 'delete-item-modal-cancel-btn',
     modalTitle: 'Delete item',
     description: 'Are you sure you want to delete this item?',
-    onConfirm: jest.fn(),
+    onConfirm: vi.fn(),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render the trigger button with correct testid, title and aria-label', () => {
@@ -47,7 +47,7 @@ describe('ConfirmActionButton', () => {
   });
 
   it('should call onConfirm and close modal when confirm button is clicked', () => {
-    const onConfirm = jest.fn();
+    const onConfirm = vi.fn();
     render(<ConfirmActionButton {...defaultProps} onConfirm={onConfirm} />);
 
     act(() => {
@@ -62,7 +62,7 @@ describe('ConfirmActionButton', () => {
   });
 
   it('should close modal without calling onConfirm when cancel button is clicked', () => {
-    const onConfirm = jest.fn();
+    const onConfirm = vi.fn();
     render(<ConfirmActionButton {...defaultProps} onConfirm={onConfirm} />);
 
     act(() => {
