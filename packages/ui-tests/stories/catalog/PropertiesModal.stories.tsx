@@ -8,23 +8,29 @@ import {
   KaotoResourceProvider,
   RuntimeProvider,
   SchemasLoaderProvider,
+  SourceCodeSync,
 } from '@kaoto/kaoto/testing';
 import { Meta, StoryFn, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 
 const ContextDecorator = (Story: StoryFn) => (
-  <KaotoResourceProvider>
-    <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH} runtimeCatalogName="" testingCatalogName="">
-      <SchemasLoaderProvider>
-        <CatalogLoaderProvider>
-          <CatalogTilesProvider>
-            {/* @ts-expect-error Storybook Decorator AnnotatedStoryFn */}
-            <Story />
-          </CatalogTilesProvider>
-        </CatalogLoaderProvider>
-      </SchemasLoaderProvider>
-    </RuntimeProvider>
-  </KaotoResourceProvider>
+  <SourceCodeSync initialSourceCode="">
+    <KaotoResourceProvider>
+      <RuntimeProvider
+        catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
+        runtimeCatalogName=""
+        testingCatalogName=""
+      >
+        <SchemasLoaderProvider>
+          <CatalogLoaderProvider>
+            <CatalogTilesProvider>
+              <Story />
+            </CatalogTilesProvider>
+          </CatalogLoaderProvider>
+        </SchemasLoaderProvider>
+      </RuntimeProvider>
+    </KaotoResourceProvider>
+  </SourceCodeSync>
 );
 
 const aggregateTileBase = {
