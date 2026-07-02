@@ -1,5 +1,6 @@
 import {
   BODY_DOCUMENT_ID,
+  DocumentNodeData,
   DocumentType,
   FieldItem,
   IDocument,
@@ -16,8 +17,12 @@ import {
   PrimitiveDocument,
   ValueSelector,
   ValueType,
+  VariableItem,
+  variableNodePath,
+  VARIABLES_DOCUMENT_ID,
 } from '../../models/datamapper';
 import { DocumentService } from '../document/document.service';
+import { MappingService } from '../mapping/mapping.service';
 import { XPathService } from '../xpath/xpath.service';
 
 /**
@@ -102,6 +107,12 @@ export class MappingLinksService {
     const results: { field: IField; document: IDocument }[] = [];
     for (const xpath of fieldPaths) {
       const absolutePath = XPathService.toAbsolutePath(xpath);
+      if (
+        absolutePath.documentReferenceName &&
+        MappingService.resolveVariableInScope(absolutePath.documentReferenceName, expressionHolder)
+      ) {
+        continue;
+      }
       const document = DocumentService.resolveSourceDocument(absolutePath, namespaces, sourceBody, sourceParameterMap);
       if (!document) continue;
       const result = DocumentService.getFieldFromPathSegments(namespaces, document, absolutePath.pathSegments);
@@ -110,6 +121,21 @@ export class MappingLinksService {
       }
     }
     return results;
+  }
+
+  private static resolveVariableReferences(expressionHolder: IExpressionHolder & MappingItem): VariableItem[] {
+    const sourceXPath = expressionHolder.expression;
+    const validationResult = XPathService.validate(sourceXPath);
+    if (!validationResult.getExprNode() || validationResult.dataMapperErrors.length > 0) return [];
+
+    const allVarNames = XPathService.extractVariableNames(sourceXPath, expressionHolder.parent.contextPath);
+
+    const resolved: VariableItem[] = [];
+    for (const name of allVarNames) {
+      const variable = MappingService.resolveVariableInScope(name, expressionHolder);
+      if (variable) resolved.push(variable);
+    }
+    return resolved;
   }
 
   private static doExtractMappingLinks(
@@ -121,16 +147,16 @@ export class MappingLinksService {
     selectedNodeIsSource: boolean,
     lineStyle: MappingLineStyle = MappingLineStyle.REGULAR,
   ) {
+    const targetDocNodeId = DocumentNodeData.formatNodeId(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
     const resolvedFields = MappingLinksService.resolveSourceFields(
       sourceExpressionItem,
       sourceParameterMap,
       sourceBody,
     );
-    return resolvedFields.reduce((acc, { field, document }) => {
+    const links = resolvedFields.reduce((acc, { field, document }) => {
       const sourceNodePath = MappingLinksService.computeVisualSourceNodePath(field);
       const sourceNodePathString = sourceNodePath.toString();
-      const sourceDocumentId = `doc-${document.documentType}-${document.documentId}`;
-      const targetDocumentId = `doc-${DocumentType.TARGET_BODY}-${BODY_DOCUMENT_ID}`;
+      const sourceDocNodeId = DocumentNodeData.getId(document);
       const isSelected = MappingLinksService.isLinkSelected(
         sourceNodePathString,
         targetNodePath,
@@ -140,13 +166,35 @@ export class MappingLinksService {
       acc.push({
         sourceNodePath: sourceNodePathString,
         targetNodePath: targetNodePath,
-        sourceDocumentId,
-        targetDocumentId,
+        sourceDocumentId: sourceDocNodeId,
+        targetDocumentId: targetDocNodeId,
         isSelected,
         lineStyle,
       });
       return acc;
     }, [] as IMappingLink[]);
+
+    const varRefs = MappingLinksService.resolveVariableReferences(sourceExpressionItem);
+    for (const variable of varRefs) {
+      const sourceNodePathString = variableNodePath(variable.id);
+      const sourceDocNodeId = VARIABLES_DOCUMENT_ID;
+      const isSelected = MappingLinksService.isLinkSelected(
+        sourceNodePathString,
+        targetNodePath,
+        selectedNodePath,
+        selectedNodeIsSource,
+      );
+      links.push({
+        sourceNodePath: sourceNodePathString,
+        targetNodePath: targetNodePath,
+        sourceDocumentId: sourceDocNodeId,
+        targetDocumentId: targetDocNodeId,
+        isSelected,
+        lineStyle,
+      });
+    }
+
+    return links;
   }
 
   private static isLinkSelected(

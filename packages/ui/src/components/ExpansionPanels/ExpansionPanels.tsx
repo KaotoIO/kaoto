@@ -475,7 +475,7 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
     };
   }, [fitPanelsToContainer]);
 
-  // Listen to CSS transition end and flush layout change queue
+  // Listen to CSS transition end and sync all layout callbacks
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -484,9 +484,12 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
       // Only respond to grid-template-rows transitions on this container
       if (e.target !== container || e.propertyName !== 'grid-template-rows') return;
 
-      // Wait for browser to complete layout calculations with double RAF
+      // Execute all registered callbacks directly (not via the queue).
+      // The queue may have been drained early by a panel registration's double-RAF
+      // fallback, which fires ~32ms into the 150ms transition. Using the callback
+      // registry ensures ports are always re-synced at their final positions.
       requestAnimationFrame(() => {
-        requestAnimationFrame(flushLayoutCallbacks);
+        requestAnimationFrame(executeAllLayoutCallbacks);
       });
     };
 
@@ -495,7 +498,7 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
     return () => {
       container.removeEventListener('transitionend', handleTransitionEnd);
     };
-  }, [flushLayoutCallbacks]);
+  }, [executeAllLayoutCallbacks]);
 
   // No spacer needed - panels stack naturally in order
 

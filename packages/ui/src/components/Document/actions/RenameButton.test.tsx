@@ -4,7 +4,7 @@ import { RenameButton } from './RenameButton';
 
 describe('RenameButton', () => {
   it('should render with correct testId and labels', () => {
-    const onRenameClick = jest.fn();
+    const onRenameClick = vi.fn();
     render(<RenameButton itemName="my-item" label="variable" onRenameClick={onRenameClick} />);
 
     const btn = screen.getByTestId('rename-my-item-button');
@@ -14,7 +14,7 @@ describe('RenameButton', () => {
   });
 
   it('should call onRenameClick when clicked', () => {
-    const onRenameClick = jest.fn();
+    const onRenameClick = vi.fn();
     render(<RenameButton itemName="my-item" label="variable" onRenameClick={onRenameClick} />);
 
     act(() => {

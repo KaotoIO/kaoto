@@ -313,6 +313,8 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     setAlerts((prev) => prev.filter((a) => a !== option));
   }, []);
 
+  // Show all variables regardless of scope depth — they are defined via target-side context menu
+  // (scope-restricted DnD validation is tracked in a separate issue)
   const variables = useMemo(() => MappingService.getAllVariables(mappingTree), [mappingTree]);
 
   const value = useMemo(() => {

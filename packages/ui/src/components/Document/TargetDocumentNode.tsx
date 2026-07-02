@@ -26,7 +26,7 @@ import { handleNodeKeyDown } from './document-node.utils';
 import { NodeContainer } from './NodeContainer';
 import { BaseNode } from './Nodes/BaseNode';
 import { NodeTitle } from './NodeTitle/NodeTitle';
-import { VariableInputPlaceholder } from './VariableInputPlaceholder';
+import { VariableInputPlaceholder } from './Variables/VariableInputPlaceholder';
 
 type DocumentNodeProps = {
   treeNode: DocumentTreeNode;
@@ -81,6 +81,7 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
     const handleVariableConfirm = useCallback(
       (name: string) => {
         if (isRenamingThisVariable && nodeData instanceof VariableNodeData) {
+          MappingService.renameVariableReferences(nodeData.mapping, name);
           MappingService.updateVariable(nodeData.mapping, name, nodeData.mapping.expression);
         } else {
           const parent = MappingActionService.getOrCreateParentMapping(nodeData);

@@ -1,5 +1,7 @@
 import { DocumentType } from './document';
+import { MappingTree, VariableItem } from './mapping';
 import { NodePath } from './nodepath';
+import { SourceVariableNodeData, VARIABLES_DOCUMENT_ID } from './visualization';
 
 describe('visualization.ts', () => {
   describe('NodeIdentifier', () => {
@@ -32,6 +34,20 @@ describe('visualization.ts', () => {
       const expression = 'sourceBody:docId://g/h/i';
       const id = new NodePath(expression);
       expect(id.toString()).toEqual(expression);
+    });
+  });
+
+  describe('SourceVariableNodeData', () => {
+    it('should set id, title, and path from variable name', () => {
+      const tree = new MappingTree(DocumentType.TARGET_BODY, 'body', 'XML_SCHEMA' as never);
+      const variable = new VariableItem(tree, 'tax');
+      const nodeData = new SourceVariableNodeData(variable);
+      expect(nodeData.id).toBe(`var-${variable.id}`);
+      expect(nodeData.title).toBe('$tax');
+      expect(nodeData.path.toString()).toBe(`Var:${VARIABLES_DOCUMENT_ID}://${variable.id}`);
+      expect(nodeData.isSource).toBe(true);
+      expect(nodeData.isPrimitive).toBe(true);
+      expect(nodeData.isDocument).toBe(false);
     });
   });
 });

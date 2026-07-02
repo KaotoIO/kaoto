@@ -187,7 +187,9 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
         key="rename"
         itemName={`parameter-${parameterName}`}
         label="parameter"
-        onRenameClick={() => onStartRename(parameterName)}
+        onRenameClick={() => {
+          onStartRename(parameterName);
+        }}
       />,
       <DeleteParameterButton key="delete" parameterName={parameterName} parameterReferenceId={documentReferenceId} />,
     ],

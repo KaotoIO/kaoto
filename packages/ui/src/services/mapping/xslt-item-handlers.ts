@@ -354,7 +354,18 @@ export class ForEachGroupItemHandler implements XsltItemHandler<ForEachGroupItem
   }
 }
 
-/** Handles {@link VariableItem} — maps to `xsl:variable` with a `select` XPath expression. */
+/**
+ * Handles {@link VariableItem} — maps to `xsl:variable` with a `select` XPath expression.
+ *
+ * TODO(#2362-content-form): Currently only the `select` attribute form is supported:
+ *   `<xsl:variable name="x" select="..."/>`
+ * The content form (variable with child elements instead of a select attribute) is not yet
+ * supported. When implementing content-form support:
+ *   - `serialize`: omit the `select` attribute and serialize `mapping.children` as child elements
+ *   - `deserialize`: when no `select` attribute is present, deserialize child elements recursively
+ *   - `VariableItem` model: add a flag or union to distinguish scalar vs node-set variables
+ *   - `SourceVariableNodeData` in `engageMapping`: handle container drop differently
+ */
 export class VariableItemHandler implements XsltItemHandler<VariableItem> {
   readonly itemClass = VariableItem;
   readonly xsltElementNames = ['variable'];
@@ -362,6 +373,7 @@ export class VariableItemHandler implements XsltItemHandler<VariableItem> {
   serialize(parent: Element, mapping: VariableItem): Element {
     const xslVariable = parent.ownerDocument.createElementNS(NS_XSL, 'variable');
     xslVariable.setAttribute('name', mapping.name);
+    // TODO(#2362-content-form): if mapping has children (content form), serialize them instead
     xslVariable.setAttribute('select', mapping.expression);
     parent.appendChild(xslVariable);
     return xslVariable;
@@ -398,6 +410,8 @@ export class VariableItemHandler implements XsltItemHandler<VariableItem> {
       };
     }
     const variableItem = new VariableItem(parentMapping, varName);
+    // TODO(#2362-content-form): if element has no `select` attribute but has child elements,
+    // deserialize children recursively into variableItem.children instead
     variableItem.expression = element.getAttribute('select') || '';
     return { mappingItem: variableItem, fieldItem: null };
   }

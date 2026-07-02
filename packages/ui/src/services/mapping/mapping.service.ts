@@ -19,6 +19,7 @@ import {
   WhenItem,
 } from '../../models/datamapper/mapping';
 import { Types } from '../../models/datamapper/types';
+import { PathExpression } from '../../models/datamapper/xpath';
 import { DocumentService } from '../document/document.service';
 import { XmlSchemaField } from '../document/xml-schema/xml-schema-document.model';
 import { ensureNamespaceRegistered } from '../namespace-util';
@@ -579,6 +580,55 @@ export class MappingService {
   }
 
   /**
+   * Single-dispatch target application of a pre-built {@link PathExpression}.
+   *
+   * Separates the two orthogonal concerns in mapping:
+   * - **Source → PathExpression**: caller's responsibility (namespace registration, field stack, etc.)
+   * - **PathExpression → Target**: this method's responsibility
+   *
+   * This eliminates the N×M explosion of `mapSourceTypeToTargetType` methods.
+   * Adding a new source type only requires building a `PathExpression`; no new `mapTo*` overloads needed.
+   *
+   * @param pathExpr - the pre-built source path expression
+   * @param target - where to apply: {@link MappingTree} (document root), or any {@link MappingItem}
+   * @param valueType - value type for field-target {@link ValueSelector}; defaults to VALUE
+   */
+  static applyMapping(
+    pathExpr: PathExpression,
+    target: MappingItem | MappingTree,
+    valueType: ValueType = ValueType.VALUE,
+  ): void {
+    if (target instanceof MappingTree) {
+      let vs = target.children.find((c) => c instanceof ValueSelector) as ValueSelector;
+      if (!vs) {
+        vs = MappingService.createValueSelector(target);
+        target.children.push(vs);
+      }
+      vs.expression = XPathService.addSource(vs.expression, pathExpr);
+    } else if (target instanceof ForEachItem) {
+      target.expression = XPathService.toXPathString(pathExpr);
+    } else if (isExpressionHolder(target)) {
+      target.expression = XPathService.addSource(target.expression, pathExpr);
+    } else {
+      const vs = MappingService.ensureValueSelector(target, valueType);
+      vs.valueType = valueType;
+      vs.expression = XPathService.addSource(vs.expression, pathExpr);
+    }
+  }
+
+  /**
+   * Builds an absolute {@link PathExpression} for a variable reference (`$varName`).
+   * No namespace registration needed — variable names are local NCNames with no namespace URI.
+   * @param variableName - the variable name without the `$` prefix
+   */
+  static variablePathExpression(variableName: string): PathExpression {
+    const pathExpr = new PathExpression();
+    pathExpr.isRelative = false;
+    pathExpr.documentReferenceName = variableName;
+    return pathExpr;
+  }
+
+  /**
    * {@link ForEachItem} replaces the expression entirely (it is a loop source),
    * while other condition types append the source via {@link XPathService.addSource}.
    * @param condition - the condition item to map the source to
@@ -591,11 +641,7 @@ export class MappingService {
       source,
       condition.parent.contextPath,
     );
-    if (condition instanceof ForEachItem) {
-      condition.expression = XPathService.toXPathString(pathExpression);
-    } else if (isExpressionHolder(condition)) {
-      condition.expression = XPathService.addSource(condition.expression, pathExpression);
-    }
+    MappingService.applyMapping(pathExpression, condition);
   }
 
   /**
@@ -605,14 +651,9 @@ export class MappingService {
    * @param source - the source field or primitive document to map from
    */
   static mapToDocument(mappingTree: MappingTree, source: PrimitiveDocument | IField) {
-    let valueSelector = mappingTree.children.find((mapping) => mapping instanceof ValueSelector) as ValueSelector;
-    if (!valueSelector) {
-      valueSelector = MappingService.createValueSelector(mappingTree);
-      mappingTree.children.push(valueSelector);
-    }
     MappingService.registerNamespaceFromField(mappingTree, source);
     const path = XPathService.toPathExpression(mappingTree.namespaceMap, source);
-    valueSelector.expression = XPathService.addSource(valueSelector.expression, path);
+    MappingService.applyMapping(path, mappingTree);
   }
 
   /**
@@ -764,10 +805,27 @@ export class MappingService {
   }
 
   /**
-   * Recursively traverses the {@link MappingTree} and collects all {@link VariableItem} instances.
+   * Recursively traverses the {@link MappingTree} and collects ALL {@link VariableItem} instances
+   * at any nesting depth. Used for operations that need to find all variables regardless of scope,
+   * such as reference cleanup ({@link removeVariableReferences}).
    * @param mappingTree - the mapping tree to traverse
    * @returns flat list of all variables from all nesting levels
    */
+  static resolveVariableInScope(name: string, context: MappingItem): VariableItem | undefined {
+    let current: MappingItem = context;
+    while (true) {
+      const parent: MappingParentType = current.parent;
+      if (!parent?.children) break;
+      const idx = parent.children.indexOf(current);
+      for (let i = idx - 1; i >= 0; i--) {
+        const sibling = parent.children[i];
+        if (sibling instanceof VariableItem && sibling.name === name) return sibling;
+      }
+      if (parent instanceof MappingTree) break;
+      current = parent;
+    }
+    return undefined;
+  }
 
   static getAllVariables(mappingTree: MappingTree): VariableItem[] {
     const result: VariableItem[] = [];
@@ -810,6 +868,121 @@ export class MappingService {
   }
 
   /**
+   * Removes expression holders referencing `$variableName` from the variable's
+   * XSLT scope: only following siblings of the variable and their descendants.
+   * Also prunes empty {@link FieldItem} chains left behind.
+   * Call before {@link removeVariable}.
+   */
+  static removeVariableReferences(variable: VariableItem): void {
+    const parent = variable.parent;
+    if (!parent?.children) return;
+    const idx = parent.children.indexOf(variable);
+    if (idx === -1) return;
+    const siblings = parent.children.slice(idx + 1);
+    const cleaned: MappingItem[] = [];
+    for (let i = 0; i < siblings.length; i++) {
+      const sibling = siblings[i];
+      if (sibling instanceof VariableItem && sibling.name === variable.name) {
+        if (MappingService.expressionReferencesVariable(sibling, variable.name)) {
+          sibling.expression = '';
+        }
+        cleaned.push(...siblings.slice(i));
+        break;
+      }
+      if (!MappingService.shouldRemoveItem(sibling, variable.name)) {
+        cleaned.push(sibling);
+      }
+    }
+    parent.children = [...parent.children.slice(0, idx + 1), ...cleaned];
+  }
+
+  private static shouldRemoveItem(item: MappingItem, variableName: string): boolean {
+    let shadowed = false;
+    item.children = item.children.reduce((acc, child) => {
+      if (child instanceof VariableItem && child.name === variableName) {
+        shadowed = true;
+        if (MappingService.expressionReferencesVariable(child, variableName)) {
+          child.expression = '';
+        }
+        acc.push(child);
+        return acc;
+      }
+      if (shadowed) {
+        acc.push(child);
+        return acc;
+      }
+      if (MappingService.shouldRemoveItem(child, variableName)) {
+        return acc;
+      }
+      acc.push(child);
+      return acc;
+    }, [] as MappingItem[]);
+
+    if (isExpressionHolder(item) && MappingService.expressionReferencesVariable(item, variableName)) {
+      if (item instanceof VariableItem) {
+        item.expression = '';
+        return false;
+      }
+      return true;
+    }
+    return !(item.parent instanceof InstructionItem) && item instanceof FieldItem && item.children.length === 0;
+  }
+
+  /**
+   * Replaces `$oldName` with `$newName` in all expressions within the variable's
+   * XSLT scope: only following siblings and their descendants.
+   * Call before {@link updateVariable}.
+   */
+  static renameVariableReferences(variable: VariableItem, newName: string): void {
+    const oldName = variable.name;
+    for (const sibling of MappingService.followingSiblings(variable)) {
+      if (sibling instanceof VariableItem && sibling.name === oldName) {
+        MappingService.renameInExpression(sibling, oldName, newName);
+        break;
+      }
+      MappingService.doRenameVariableReferences(sibling, oldName, newName);
+    }
+  }
+
+  private static doRenameVariableReferences(item: MappingItem, oldName: string, newName: string): void {
+    let shadowed = false;
+    for (const child of item.children) {
+      if (child instanceof VariableItem && child.name === oldName) {
+        MappingService.renameInExpression(child, oldName, newName);
+        shadowed = true;
+        continue;
+      }
+      if (!shadowed) {
+        MappingService.doRenameVariableReferences(child, oldName, newName);
+      }
+    }
+    if (isExpressionHolder(item) && MappingService.expressionReferencesVariable(item, oldName)) {
+      MappingService.renameInExpression(item, oldName, newName);
+    }
+  }
+
+  private static renameInExpression(item: IExpressionHolder, oldName: string, newName: string): void {
+    const escaped = oldName.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+    item.expression = item.expression.replace(new RegExp(String.raw`\$${escaped}(?!\w)`, 'g'), `$${newName}`);
+  }
+
+  private static followingSiblings(variable: VariableItem): MappingItem[] {
+    const parent = variable.parent;
+    if (!parent?.children) return [];
+    const idx = parent.children.indexOf(variable);
+    if (idx === -1) return [];
+    return parent.children.slice(idx + 1);
+  }
+
+  private static expressionReferencesVariable(item: IExpressionHolder & MappingItem, variableName: string): boolean {
+    try {
+      return XPathService.extractVariableNames(item.expression, item.contextPath).includes(variableName);
+    } catch {
+      return false;
+    }
+  }
+
+  /**
    * In-place update of name and expression on an existing {@link VariableItem}.
    * @param variable - the variable item to update
    * @param name - the new variable name
@@ -846,6 +1019,9 @@ export class MappingService {
     const isInstructionItem = item instanceof InstructionItem;
     const isVariableItem = item instanceof VariableItem;
     const isParentFieldItem = 'parent' in item && item.parent instanceof FieldItem;
+    if (isVariableItem) {
+      MappingService.removeVariableReferences(item as VariableItem);
+    }
     if (isInstructionItem || isVariableItem || isParentFieldItem) {
       MappingService.deleteFromParent(item);
     }

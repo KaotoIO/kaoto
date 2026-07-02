@@ -793,6 +793,20 @@ describe('MappingService', () => {
       expect(ifItem.children).toHaveLength(childrenBefore - 1);
       expect(ifItem.children).not.toContain(variable);
     });
+
+    it('should remove variable references when deleting a VariableItem', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const targetField = targetDoc.fields[0].fields[0];
+      const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
+      const variable = MappingService.addVariable(shipOrderItem, 'myVar');
+      const vs = new ValueSelector(fieldItem);
+      vs.expression = '$myVar';
+      fieldItem.children.push(vs);
+      expect(fieldItem.children).toContain(vs);
+      MappingService.deleteMappingItem(variable);
+      expect(shipOrderItem.children).not.toContain(variable);
+      expect(fieldItem.children).not.toContain(vs);
+    });
   });
 
   describe('addVariable()', () => {
@@ -960,6 +974,268 @@ describe('MappingService', () => {
       expect(result).toHaveLength(2);
       expect(result).toContain(rootVar);
       expect(result).toContain(nestedVar);
+    });
+  });
+
+  describe('removeVariableReferences()', () => {
+    it('should remove ValueSelector referencing the variable and prune empty FieldItem chain', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const targetField = targetDoc.fields[0].fields[0]; // first child of ShipOrder
+      const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
+      const variable = MappingService.addVariable(tree, 'taxRate');
+
+      // Simulate mapping: add a ValueSelector with $taxRate expression
+      const vs = new ValueSelector(fieldItem);
+      vs.expression = '$taxRate';
+      fieldItem.children.push(vs);
+
+      expect(shipOrderItem.children).toContain(fieldItem);
+      expect(fieldItem.children).toContain(vs);
+
+      MappingService.removeVariableReferences(variable);
+
+      expect(fieldItem.children).not.toContain(vs);
+      expect(shipOrderItem.children).not.toContain(fieldItem);
+      expect(tree.children).toContain(variable);
+    });
+
+    it('should not remove expressions that do not reference the deleted variable', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const targetField = targetDoc.fields[0].fields[0];
+      const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
+
+      const vs = new ValueSelector(fieldItem);
+      vs.expression = '$otherVar';
+      fieldItem.children.push(vs);
+
+      const variable = MappingService.addVariable(tree, 'taxRate');
+      MappingService.removeVariableReferences(variable);
+
+      expect(fieldItem.children).toContain(vs);
+      expect(shipOrderItem.children).toContain(fieldItem);
+    });
+
+    it('should remove variable references inside ForEachItem children', () => {
+      const forEachItem = tree.children[0].children[3] as ForEachItem;
+      const childFieldItem = forEachItem.children.find((c) => c instanceof FieldItem) as FieldItem;
+      if (!childFieldItem) return;
+
+      const vs = new ValueSelector(childFieldItem);
+      vs.expression = '$loopVar';
+      childFieldItem.children.push(vs);
+
+      const childrenBefore = childFieldItem.children.length;
+      const variable = MappingService.addVariable(tree, 'loopVar');
+      MappingService.removeVariableReferences(variable);
+
+      expect(childFieldItem.children).toHaveLength(childrenBefore - 1);
+      expect(childFieldItem.children).not.toContain(vs);
+    });
+
+    it('should not remove references shadowed by a same-name variable in inner scope', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const targetField = targetDoc.fields[0].fields[0];
+      const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
+
+      const localVar = MappingService.addVariable(shipOrderItem, 'x');
+      const vs = new ValueSelector(fieldItem);
+      vs.expression = '$x';
+      fieldItem.children.push(vs);
+
+      const globalVar = MappingService.addVariable(tree, 'x');
+      MappingService.removeVariableReferences(globalVar);
+
+      expect(fieldItem.children).toContain(vs);
+      expect(vs.expression).toBe('$x');
+      expect(shipOrderItem.children).toContain(localVar);
+    });
+
+    it('should remove a direct following sibling that references the variable', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const variable = MappingService.addVariable(shipOrderItem, 'myVar');
+      const vs = new ValueSelector(shipOrderItem);
+      vs.expression = '$myVar';
+      shipOrderItem.children.push(vs);
+
+      expect(shipOrderItem.children).toContain(vs);
+      MappingService.removeVariableReferences(variable);
+      expect(shipOrderItem.children).not.toContain(vs);
+    });
+
+    it('should preserve VariableItem declaration but clear its expression when it references the deleted variable', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const varA = new VariableItem(shipOrderItem, 'a');
+      varA.expression = '1';
+      const varB = new VariableItem(shipOrderItem, 'b');
+      varB.expression = '$a + 1';
+      shipOrderItem.children.unshift(varA, varB);
+
+      MappingService.removeVariableReferences(varA);
+
+      expect(shipOrderItem.children).toContain(varB);
+      expect(varB.expression).toBe('');
+    });
+
+    it('should stop at sibling-level same-name variable redeclaration', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const targetField = targetDoc.fields[0].fields[0];
+
+      const varX1 = new VariableItem(shipOrderItem, 'x');
+      varX1.expression = '1';
+      const varX2 = new VariableItem(shipOrderItem, 'x');
+      varX2.expression = '2';
+      const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
+      const vs = new ValueSelector(fieldItem);
+      vs.expression = '$x';
+      fieldItem.children.push(vs);
+      shipOrderItem.children.unshift(varX1, varX2);
+
+      MappingService.removeVariableReferences(varX1);
+
+      expect(shipOrderItem.children).toContain(varX2);
+      expect(shipOrderItem.children).toContain(fieldItem);
+      expect(fieldItem.children).toContain(vs);
+      expect(vs.expression).toBe('$x');
+    });
+
+    it('should clear redeclaring variable expression that references the deleted variable', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const targetField = targetDoc.fields[0].fields[0];
+
+      const varX1 = new VariableItem(shipOrderItem, 'x');
+      varX1.expression = '1';
+      const varX2 = new VariableItem(shipOrderItem, 'x');
+      varX2.expression = '$x + 1';
+      const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
+      const vs = new ValueSelector(fieldItem);
+      vs.expression = '$x';
+      fieldItem.children.push(vs);
+      shipOrderItem.children.unshift(varX1, varX2);
+
+      MappingService.removeVariableReferences(varX1);
+
+      expect(varX2.expression).toBe('');
+      expect(vs.expression).toBe('$x');
+    });
+
+    it('should preserve redeclaring variable expression that does not reference the deleted variable', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const targetField = targetDoc.fields[0].fields[0];
+
+      const varX1 = new VariableItem(shipOrderItem, 'x');
+      varX1.expression = '1';
+      const varX2 = new VariableItem(shipOrderItem, 'x');
+      varX2.expression = '5';
+      const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
+      const vs = new ValueSelector(fieldItem);
+      vs.expression = '$x';
+      fieldItem.children.push(vs);
+      shipOrderItem.children.unshift(varX1, varX2);
+
+      MappingService.removeVariableReferences(varX1);
+
+      expect(varX2.expression).toBe('5');
+      expect(vs.expression).toBe('$x');
+    });
+  });
+
+  describe('renameVariableReferences()', () => {
+    it('should rename $oldName to $newName in expressions', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const targetField = targetDoc.fields[0].fields[0];
+      const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
+      const variable = MappingService.addVariable(shipOrderItem, 'myVar');
+      const vs = new ValueSelector(fieldItem);
+      vs.expression = '$myVar';
+      fieldItem.children.push(vs);
+
+      MappingService.renameVariableReferences(variable, 'renamedVar');
+
+      expect(vs.expression).toBe('$renamedVar');
+    });
+
+    it('should not rename partial matches', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const targetField = targetDoc.fields[0].fields[0];
+      const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
+      const variable = MappingService.addVariable(shipOrderItem, 'my');
+      const vs = new ValueSelector(fieldItem);
+      vs.expression = '$myVar + $my';
+      fieldItem.children.push(vs);
+
+      MappingService.renameVariableReferences(variable, 'other');
+
+      expect(vs.expression).toBe('$myVar + $other');
+    });
+
+    it('should rename multiple occurrences in compound expressions', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const targetField = targetDoc.fields[0].fields[0];
+      const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
+      const variable = MappingService.addVariable(shipOrderItem, 'x');
+      const vs = new ValueSelector(fieldItem);
+      vs.expression = '$x + $x';
+      fieldItem.children.push(vs);
+
+      MappingService.renameVariableReferences(variable, 'y');
+
+      expect(vs.expression).toBe('$y + $y');
+    });
+
+    it('should not rename references shadowed by a same-name variable in inner scope', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const targetField = targetDoc.fields[0].fields[0];
+      const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
+
+      MappingService.addVariable(shipOrderItem, 'x');
+      const vs = new ValueSelector(fieldItem);
+      vs.expression = '$x';
+      fieldItem.children.push(vs);
+
+      const globalVar = MappingService.addVariable(tree, 'x');
+      MappingService.renameVariableReferences(globalVar, 'y');
+
+      expect(vs.expression).toBe('$x');
+    });
+
+    it('should stop at sibling-level same-name variable redeclaration', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const targetField = targetDoc.fields[0].fields[0];
+
+      const varX1 = new VariableItem(shipOrderItem, 'x');
+      varX1.expression = '1';
+      const varX2 = new VariableItem(shipOrderItem, 'x');
+      varX2.expression = '2';
+      const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
+      const vs = new ValueSelector(fieldItem);
+      vs.expression = '$x';
+      fieldItem.children.push(vs);
+      shipOrderItem.children.unshift(varX1, varX2);
+
+      MappingService.renameVariableReferences(varX1, 'y');
+
+      expect(vs.expression).toBe('$x');
+      expect(varX2.name).toBe('x');
+    });
+
+    it('should rename reference in redeclaring variable expression but not beyond', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const targetField = targetDoc.fields[0].fields[0];
+
+      const varX1 = new VariableItem(shipOrderItem, 'x');
+      varX1.expression = '1';
+      const varX2 = new VariableItem(shipOrderItem, 'x');
+      varX2.expression = '$x + 1';
+      const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
+      const vs = new ValueSelector(fieldItem);
+      vs.expression = '$x';
+      fieldItem.children.push(vs);
+      shipOrderItem.children.unshift(varX1, varX2);
+
+      MappingService.renameVariableReferences(varX1, 'y');
+
+      expect(varX2.expression).toBe('$y + 1');
+      expect(vs.expression).toBe('$x');
     });
   });
 

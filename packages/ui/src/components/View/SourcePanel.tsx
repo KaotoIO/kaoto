@@ -13,6 +13,7 @@ import { useDocumentTreeStore } from '../../store/document-tree.store';
 import { DocumentHeader } from '../Document/BaseDocument';
 import { ParametersSection } from '../Document/Parameters';
 import { SourceDocumentNodeWithContextMenu } from '../Document/SourceDocumentNode';
+import { VariablesSection } from '../Document/Variables';
 import { ExpansionPanel } from '../ExpansionPanels/ExpansionPanel';
 import { ExpansionPanels } from '../ExpansionPanels/ExpansionPanels';
 import {
@@ -95,7 +96,10 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
 
   return (
     <div id="panel-source" className="source-panel">
-      <ExpansionPanels firstPanelId="parameters-header" lastPanelId="source-body">
+      <ExpansionPanels firstPanelId="variables" lastPanelId="source-body">
+        {/* Variables section - xsl:variable items as draggable source references */}
+        <VariablesSection isReadOnly={isReadOnly} onLayoutChange={syncConnectionPorts} />
+
         {/* Parameters section - self-contained component that manages all parameter state */}
         <ParametersSection isReadOnly={isReadOnly} onLayoutChange={syncConnectionPorts} actionItems={actionItems} />
 

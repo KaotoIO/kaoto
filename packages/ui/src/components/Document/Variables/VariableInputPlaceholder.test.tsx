@@ -1,9 +1,9 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { Mock } from 'vitest';
 
-import { DocumentDefinitionType, DocumentType } from '../../models/datamapper/document';
-import { MappingTree } from '../../models/datamapper/mapping';
-import { MappingService } from '../../services/mapping/mapping.service';
+import { DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
+import { MappingTree } from '../../../models/datamapper/mapping';
+import { MappingService } from '../../../services/mapping/mapping.service';
 import { VariableInputPlaceholder } from './VariableInputPlaceholder';
 
 describe('VariableInputPlaceholder', () => {

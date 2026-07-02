@@ -44,16 +44,16 @@ export const MappingLinksContainer: FunctionComponent = () => {
   const lineCoordList: LineProps[] = mappingLinks
     .map(({ sourceNodePath, targetNodePath, sourceDocumentId, targetDocumentId, isSelected, lineStyle }) => {
       const sourcePort = getNearestVisiblePort(sourceNodePath, {
-        nodesConnectionPorts: nodesConnectionPorts[sourceDocumentId],
-        nodesConnectionPortsArray: nodesConnectionPortsArray[sourceDocumentId],
-        expansionState: expansionState[sourceDocumentId],
-        expansionStateArray: expansionStateArray[sourceDocumentId],
+        nodesConnectionPorts: nodesConnectionPorts[sourceDocumentId] ?? {},
+        nodesConnectionPortsArray: nodesConnectionPortsArray[sourceDocumentId] ?? [],
+        expansionState: expansionState[sourceDocumentId] ?? {},
+        expansionStateArray: expansionStateArray[sourceDocumentId] ?? [],
       });
       const targetPort = getNearestVisiblePort(targetNodePath, {
-        nodesConnectionPorts: nodesConnectionPorts[targetDocumentId],
-        nodesConnectionPortsArray: nodesConnectionPortsArray[targetDocumentId],
-        expansionState: expansionState[targetDocumentId],
-        expansionStateArray: expansionStateArray[targetDocumentId],
+        nodesConnectionPorts: nodesConnectionPorts[targetDocumentId] ?? {},
+        nodesConnectionPortsArray: nodesConnectionPortsArray[targetDocumentId] ?? [],
+        expansionState: expansionState[targetDocumentId] ?? {},
+        expansionStateArray: expansionStateArray[targetDocumentId] ?? [],
       });
       const isSourceEdge = sourcePort.connectionTarget === 'edge';
       const isTargetEdge = targetPort.connectionTarget === 'edge';
