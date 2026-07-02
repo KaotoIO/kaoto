@@ -1572,6 +1572,73 @@ describe('DocumentUtilService', () => {
     });
   });
 
+  describe('getSelectedMember()', () => {
+    it('should return selected member by index for choice wrappers', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const choiceField = new XmlSchemaField(doc.fields[0], '__choice__', false);
+      choiceField.wrapperKind = 'choice';
+      const member0 = new XmlSchemaField(choiceField, 'email', false);
+      const member1 = new XmlSchemaField(choiceField, 'phone', false);
+      choiceField.fields = [member0, member1];
+      choiceField.selectedMemberIndex = 1;
+
+      const result = DocumentUtilService.getSelectedMember(choiceField);
+
+      expect(result).toBe(member1);
+    });
+
+    it('should return selected member by QName for abstract wrappers', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const abstractField = new XmlSchemaField(doc.fields[0], 'AbstractAnimal', false);
+      abstractField.wrapperKind = 'abstract';
+      const cat = new XmlSchemaField(abstractField, 'Cat', false);
+      cat.namespaceURI = 'http://example.com/test';
+      const dog = new XmlSchemaField(abstractField, 'Dog', false);
+      dog.namespaceURI = 'http://example.com/test';
+      abstractField.fields = [cat, dog];
+      abstractField.selectedMemberQName = new QName('http://example.com/test', 'Cat');
+
+      const result = DocumentUtilService.getSelectedMember(abstractField);
+
+      expect(result).toBe(cat);
+    });
+
+    it('should return undefined when no selection for abstract wrapper', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const abstractField = new XmlSchemaField(doc.fields[0], 'AbstractAnimal', false);
+      abstractField.wrapperKind = 'abstract';
+      const cat = new XmlSchemaField(abstractField, 'Cat', false);
+      abstractField.fields = [cat];
+
+      const result = DocumentUtilService.getSelectedMember(abstractField);
+
+      expect(result).toBeUndefined();
+    });
+
+    it('should return undefined when QName does not match any child', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const abstractField = new XmlSchemaField(doc.fields[0], 'AbstractAnimal', false);
+      abstractField.wrapperKind = 'abstract';
+      const cat = new XmlSchemaField(abstractField, 'Cat', false);
+      cat.namespaceURI = 'http://example.com/test';
+      abstractField.fields = [cat];
+      abstractField.selectedMemberQName = new QName('http://example.com/test', 'Dog');
+
+      const result = DocumentUtilService.getSelectedMember(abstractField);
+
+      expect(result).toBeUndefined();
+    });
+
+    it('should return undefined for non-wrapper fields', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const normalField = new XmlSchemaField(doc.fields[0], 'normalField', false);
+
+      const result = DocumentUtilService.getSelectedMember(normalField);
+
+      expect(result).toBeUndefined();
+    });
+  });
+
   describe('processOverrides() with substitutions', () => {
     const namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test', xs: NS_XML_SCHEMA };
 

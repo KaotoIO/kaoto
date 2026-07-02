@@ -16,6 +16,7 @@ import {
   TargetFieldNodeData,
 } from '../../models/datamapper/visualization';
 import { getFieldSubstitutionXsd, TestUtil } from '../../stubs/datamapper/data-mapper';
+import { QName } from '../../xml-schema-ts/QName';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { MappingActionService } from './mapping-action.service';
@@ -39,7 +40,7 @@ describe('VisualizationService / abstract fields', () => {
 
   function createMockAbstractField(
     candidates: { name: string; children?: { name: string }[] }[],
-    selectedMemberIndex?: number,
+    selectedMemberQName?: QName,
   ) {
     const baseField = sourceDoc.fields[0];
     const candidateFields = candidates.map((c) => ({
@@ -58,7 +59,7 @@ describe('VisualizationService / abstract fields', () => {
       name: 'AbstractElement',
       displayName: 'AbstractElement',
       wrapperKind: 'abstract' as const,
-      selectedMemberIndex,
+      selectedMemberQName,
       fields: candidateFields,
     } as unknown as typeof baseField;
   }
@@ -110,7 +111,10 @@ describe('VisualizationService / abstract fields', () => {
     });
 
     it('should create AbstractFieldNodeData with selected candidate for source abstract fields', () => {
-      const abstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }, { name: 'Fish' }], 0);
+      const abstractField = createMockAbstractField(
+        [{ name: 'Cat' }, { name: 'Dog' }, { name: 'Fish' }],
+        new QName('io.kaoto.datamapper.poc.test', 'Cat'),
+      );
       const parentField = {
         ...sourceDoc.fields[0],
         fields: [abstractField],
@@ -123,7 +127,10 @@ describe('VisualizationService / abstract fields', () => {
     });
 
     it('should create TargetAbstractFieldNodeData with selected candidate for target abstract fields', () => {
-      const abstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }, { name: 'Fish' }], 1);
+      const abstractField = createMockAbstractField(
+        [{ name: 'Cat' }, { name: 'Dog' }, { name: 'Fish' }],
+        new QName('io.kaoto.datamapper.poc.test', 'Dog'),
+      );
       const parentField = {
         ...targetDoc.fields[0],
         fields: [abstractField],
@@ -136,7 +143,10 @@ describe('VisualizationService / abstract fields', () => {
     });
 
     it('should still report isAbstractField for selected abstract candidates', () => {
-      const abstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }], 0);
+      const abstractField = createMockAbstractField(
+        [{ name: 'Cat' }, { name: 'Dog' }],
+        new QName('io.kaoto.datamapper.poc.test', 'Cat'),
+      );
       const parentField = {
         ...sourceDoc.fields[0],
         fields: [abstractField],
@@ -147,7 +157,10 @@ describe('VisualizationService / abstract fields', () => {
     });
 
     it('should set abstractField reference for selected abstract candidates', () => {
-      const abstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }], 0);
+      const abstractField = createMockAbstractField(
+        [{ name: 'Cat' }, { name: 'Dog' }],
+        new QName('io.kaoto.datamapper.poc.test', 'Cat'),
+      );
       const parentField = {
         ...sourceDoc.fields[0],
         fields: [abstractField],
@@ -158,8 +171,8 @@ describe('VisualizationService / abstract fields', () => {
       expect(abstractNode.abstractField).toBe(abstractField);
     });
 
-    it('should use abstract field itself when selectedMemberIndex is out of bounds', () => {
-      const abstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }], 99);
+    it('should use abstract field itself when selectedMemberQName matches no candidate', () => {
+      const abstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }], new QName('', 'nonexistent'));
       const parentField = {
         ...sourceDoc.fields[0],
         fields: [abstractField],
@@ -181,8 +194,8 @@ describe('VisualizationService / abstract fields', () => {
       expect(children[1].title).toBe('Dog');
     });
 
-    it('should fall back to all candidates when selectedMemberIndex is out of bounds', () => {
-      const abstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }], 99);
+    it('should fall back to all candidates when selectedMemberQName matches no candidate', () => {
+      const abstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }], new QName('', 'nonexistent'));
       const abstractNode = new AbstractFieldNodeData(sourceDocNode, abstractField);
       const children = VisualizationService.generateNonDocumentNodeDataChildren(abstractNode);
       expect(children).toHaveLength(2);
@@ -269,7 +282,7 @@ describe('VisualizationService / abstract fields', () => {
         const document = result.document as XmlSchemaDocument;
         const zooField = document.fields[0];
         const abstractAnimalField = zooField.fields.find((f) => f.name === 'AbstractAnimal')!;
-        abstractAnimalField.selectedMemberIndex = 0;
+        abstractAnimalField.selectedMemberQName = new QName('http://www.example.com/SUBSTITUTION', 'Cat');
 
         const docNode = new DocumentNodeData(document);
         const docChildren = VisualizationService.generateStructuredDocumentChildren(docNode);
@@ -294,7 +307,7 @@ describe('VisualizationService / abstract fields', () => {
         const document = result.document as XmlSchemaDocument;
         const zooField = document.fields[0];
         const abstractAnimalField = zooField.fields.find((f) => f.name === 'AbstractAnimal')!;
-        abstractAnimalField.selectedMemberIndex = 0;
+        abstractAnimalField.selectedMemberQName = new QName('http://www.example.com/SUBSTITUTION', 'Cat');
 
         const docNode = new DocumentNodeData(document);
         const docChildren = VisualizationService.generateStructuredDocumentChildren(docNode);
@@ -324,7 +337,7 @@ describe('VisualizationService / abstract fields', () => {
         const document = result.document as XmlSchemaDocument;
         const zooField = document.fields[0];
         const abstractAnimalField = zooField.fields.find((f) => f.name === 'AbstractAnimal')!;
-        abstractAnimalField.selectedMemberIndex = 0;
+        abstractAnimalField.selectedMemberQName = new QName('http://www.example.com/SUBSTITUTION', 'Cat');
 
         const docNode = new DocumentNodeData(document);
         const docChildren = VisualizationService.generateStructuredDocumentChildren(docNode);
@@ -385,7 +398,10 @@ describe('VisualizationService / abstract fields', () => {
     });
 
     it('should return nodeData.title for selected abstract candidate (abstractField set)', () => {
-      const abstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }], 0);
+      const abstractField = createMockAbstractField(
+        [{ name: 'Cat' }, { name: 'Dog' }],
+        new QName('io.kaoto.datamapper.poc.test', 'Cat'),
+      );
       const parentField = { ...sourceDoc.fields[0], fields: [abstractField] };
       const parentNode = new FieldNodeData(sourceDocNode, parentField as (typeof sourceDoc.fields)[0]);
       const children = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
@@ -526,7 +542,10 @@ describe('VisualizationService / abstract fields', () => {
 
   describe('mapping through selected target abstract wrapper', () => {
     it('engageMapping to a selected abstract candidate creates FieldItem for the candidate', () => {
-      const abstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }], 0);
+      const abstractField = createMockAbstractField(
+        [{ name: 'Cat' }, { name: 'Dog' }],
+        new QName('io.kaoto.datamapper.poc.test', 'Cat'),
+      );
       const parentField = {
         ...targetDoc.fields[0],
         fields: [abstractField],
@@ -554,7 +573,7 @@ describe('VisualizationService / abstract fields', () => {
     it('re-rendered tree generates children for a mapped selected abstract candidate', () => {
       const abstractField = createMockAbstractField(
         [{ name: 'Cat', children: [{ name: 'catName' }] }, { name: 'Dog' }],
-        0,
+        new QName('io.kaoto.datamapper.poc.test', 'Cat'),
       );
       const parentField = {
         ...targetDoc.fields[0],

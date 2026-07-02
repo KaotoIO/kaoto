@@ -31,6 +31,7 @@ import {
   getX12850ForEachXslt,
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
+import { QName } from '../../xml-schema-ts/QName';
 import { DocumentUtilService } from '../document/document-util.service';
 import { JsonSchemaDocumentService } from '../document/json-schema/json-schema-document.service';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
@@ -439,9 +440,8 @@ describe('MappingLinksService', () => {
       const abstractAnimalField = zooField.fields.find(
         (f: IField) => f.wrapperKind === 'abstract' && f.name === 'AbstractAnimal',
       )!;
-      const catIndex = abstractAnimalField.fields.findIndex((f: IField) => f.name === 'Cat');
-      abstractAnimalField.selectedMemberIndex = catIndex;
-      const catField = abstractAnimalField.fields[catIndex];
+      abstractAnimalField.selectedMemberQName = new QName(NS_SUBSTITUTION, 'Cat');
+      const catField = abstractAnimalField.fields.find((f: IField) => f.name === 'Cat')!;
       DocumentUtilService.resolveTypeFragment(catField);
       const indoorField = catField.fields.find((f: IField) => f.name === 'indoor')!;
       return { document, zooField, abstractAnimalField, catField, indoorField };
@@ -516,7 +516,7 @@ describe('MappingLinksService', () => {
         catField,
         indoorField,
       } = createZooDoc(DocumentType.TARGET_BODY);
-      abstractAnimalField.selectedMemberIndex = undefined;
+      abstractAnimalField.selectedMemberQName = undefined;
 
       const zooTree = new MappingTree(
         zooTargetDoc.documentType,

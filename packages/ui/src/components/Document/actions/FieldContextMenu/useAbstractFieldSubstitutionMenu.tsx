@@ -6,6 +6,7 @@ import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { IField } from '../../../../models/datamapper/document';
 import { IFieldSubstituteInfo } from '../../../../models/datamapper/types';
 import { NodeData } from '../../../../models/datamapper/visualization';
+import { DocumentUtilService } from '../../../../services/document/document-util.service';
 import { FieldOverrideService } from '../../../../services/document/field-override.service';
 import { MenuAction, MenuGroup } from '../FieldContextMenu';
 import { SubstitutionSelectionModal } from '../SubstitutionSelectionModal';
@@ -81,8 +82,8 @@ export function useAbstractFieldSubstitutionMenu(nodeData: NodeData): MenuContri
   }, [abstractWrapperField, mappingTree.namespaceMap]);
 
   const selectedQName = useMemo(() => {
-    if (abstractWrapperField?.selectedMemberIndex === undefined) return undefined;
-    const selectedField = abstractWrapperField.fields[abstractWrapperField.selectedMemberIndex];
+    if (!abstractWrapperField) return undefined;
+    const selectedField = DocumentUtilService.getSelectedMember(abstractWrapperField);
     if (!selectedField) return undefined;
     return findCandidateQName(candidates, selectedField);
   }, [abstractWrapperField, candidates]);

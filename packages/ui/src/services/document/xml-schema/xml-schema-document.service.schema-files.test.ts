@@ -623,4 +623,77 @@ describe('XmlSchemaDocumentService / schema file management', () => {
       expect(catField).toBeDefined();
     });
   });
+
+  describe('rebuildAbstractWrapperChildren', () => {
+    const NS_SUBSTITUTION = 'http://www.example.com/SUBSTITUTION';
+
+    const additionalXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:sub="http://www.example.com/SUBSTITUTION"
+  targetNamespace="http://www.example.com/SUBSTITUTION"
+  elementFormDefault="qualified">
+  <xs:import namespace="http://www.example.com/SUBSTITUTION" schemaLocation="FieldSubstitution.xsd"/>
+  <xs:element name="Bird" substitutionGroup="sub:AbstractAnimal" type="sub:Animal_t"/>
+</xs:schema>`;
+
+    function createAbstractAnimalDocument(): XmlSchemaDocument {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'FieldSubstitution.xsd': getFieldSubstitutionXsd() },
+        { namespaceUri: NS_SUBSTITUTION, name: 'AbstractAnimal' },
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      return result.document as XmlSchemaDocument;
+    }
+
+    it('should include new substitution group candidates after addSchemaFiles', () => {
+      const document = createAbstractAnimalDocument();
+      const rootField = document.fields[0];
+      expect(rootField.wrapperKind).toBe('abstract');
+      expect(rootField.name).toBe('AbstractAnimal');
+
+      const initialChildNames = rootField.fields.map((f) => f.name);
+      expect(initialChildNames).not.toContain('Bird');
+
+      XmlSchemaDocumentService.addSchemaFiles(document, { 'additional.xsd': additionalXsd });
+
+      const updatedChildNames = rootField.fields.map((f) => f.name);
+      expect(updatedChildNames).toContain('Bird');
+    });
+
+    it('should reuse existing IField objects when rebuilding abstract wrapper children', () => {
+      const document = createAbstractAnimalDocument();
+      const rootField = document.fields[0];
+      expect(rootField.wrapperKind).toBe('abstract');
+
+      const existingByName = new Map(rootField.fields.map((f) => [f.name, f] as const));
+      expect(existingByName.size).toBeGreaterThan(0);
+
+      XmlSchemaDocumentService.addSchemaFiles(document, { 'additional.xsd': additionalXsd });
+
+      for (const child of rootField.fields) {
+        const previousRef = existingByName.get(child.name);
+        if (previousRef) {
+          expect(child).toBe(previousRef);
+        }
+      }
+    });
+
+    it('should preserve selectedMemberQName after abstract wrapper rebuild', () => {
+      const document = createAbstractAnimalDocument();
+      const rootField = document.fields[0];
+      expect(rootField.wrapperKind).toBe('abstract');
+
+      const catQName = new QName(NS_SUBSTITUTION, 'Cat');
+      rootField.selectedMemberQName = catQName;
+
+      XmlSchemaDocumentService.addSchemaFiles(document, { 'additional.xsd': additionalXsd });
+
+      expect(rootField.selectedMemberQName).toBeDefined();
+      expect(rootField.selectedMemberQName!.getNamespaceURI()).toBe(NS_SUBSTITUTION);
+      expect(rootField.selectedMemberQName!.getLocalPart()).toBe('Cat');
+    });
+  });
 });

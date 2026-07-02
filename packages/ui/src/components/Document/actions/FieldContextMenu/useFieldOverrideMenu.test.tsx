@@ -43,8 +43,7 @@ describe('useFieldOverrideMenu', () => {
     const document = result.document;
     const abstractAnimalField = document.fields[0].fields.find((f) => f.wrapperKind === 'abstract')!;
     if (selectCandidate) {
-      const catIndex = abstractAnimalField.fields.findIndex((f) => f.name === 'Cat');
-      abstractAnimalField.selectedMemberIndex = catIndex;
+      abstractAnimalField.selectedMemberQName = new QName(NS_SUBSTITUTION, 'Cat');
     }
 
     const documentNodeData = new DocumentNodeData(document);

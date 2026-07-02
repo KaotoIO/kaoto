@@ -277,6 +277,53 @@ export class XmlSchemaDocumentService {
     collection.getSchemaResolver().addFiles(additionalFiles);
     XmlSchemaDocumentUtilService.loadXmlSchemaFiles(collection, additionalFiles);
     XmlSchemaDocumentService.populateNamedTypeFragments(document);
+    XmlSchemaDocumentService.rebuildAbstractWrapperChildren(document);
+  }
+
+  /**
+   * Rebuilds the children of abstract wrapper fields after schema attachment.
+   * Abstract wrapper candidates are open-ended — new candidates can appear in
+   * separate schema files. This re-queries {@link XmlSchemaTypesService.getSubstitutionGroupMembers}
+   * and updates `.fields` while reusing existing `IField` objects where possible
+   * to preserve FieldItem references in the visualization layer.
+   * Choice wrapper children are not rebuilt because their members are inline and static.
+   */
+  private static rebuildAbstractWrapperChildren(document: XmlSchemaDocument): void {
+    for (const field of document.fields) {
+      XmlSchemaDocumentService.rebuildAbstractWrapperField(field as XmlSchemaField, document.xmlSchemaCollection);
+    }
+    for (const fragment of Object.values(document.namedTypeFragments)) {
+      for (const field of fragment.fields) {
+        XmlSchemaDocumentService.rebuildAbstractWrapperField(field as XmlSchemaField, document.xmlSchemaCollection);
+      }
+    }
+  }
+
+  private static rebuildAbstractWrapperField(field: XmlSchemaField, collection: XmlSchemaCollection): void {
+    if (field.wrapperKind === 'abstract') {
+      const headQName = new QName(field.namespaceURI, field.name);
+      const headElement = collection.getElementByQName(headQName);
+      if (headElement) {
+        const members = XmlSchemaTypesService.getSubstitutionGroupMembers(headElement, collection);
+        const existingByKey = new Map(field.fields.map((f) => [`${f.namespaceURI}|${f.name}`, f]));
+        const newFields: XmlSchemaField[] = [];
+        for (const member of members) {
+          const memberName = member.getWireName()!.getLocalPart()!;
+          const memberNs = member.getWireName()!.getNamespaceURI();
+          const key = `${memberNs}|${memberName}`;
+          const existing = existingByKey.get(key);
+          if (existing) {
+            newFields.push(existing as XmlSchemaField);
+          } else {
+            XmlSchemaDocumentService.populateElement(field, newFields, member);
+          }
+        }
+        field.fields = newFields;
+      }
+    }
+    for (const child of field.fields) {
+      XmlSchemaDocumentService.rebuildAbstractWrapperField(child as XmlSchemaField, collection);
+    }
   }
 
   /**

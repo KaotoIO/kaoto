@@ -281,15 +281,15 @@ describe('ChoiceSelectionService', () => {
         const abstractField = findAbstractField(choiceField);
 
         FieldOverrideService.applyFieldSubstitution(abstractField, 'ca:Email', nsMap);
-        const emailIndex = abstractField.selectedMemberIndex;
-        expect(emailIndex).toBeDefined();
+        const emailQName = abstractField.selectedMemberQName;
+        expect(emailQName).toBeDefined();
         expect(doc.definition.fieldSubstitutions).toHaveLength(1);
 
         ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
 
         // Substitution stays in both definition and live field — consistent state
         expect(doc.definition.fieldSubstitutions).toHaveLength(1);
-        expect(abstractField.selectedMemberIndex).toBe(emailIndex);
+        expect(abstractField.selectedMemberQName).toBe(emailQName);
       });
 
       it('should preserve descendant abstract substitution when clearing choice selection', () => {
@@ -300,15 +300,15 @@ describe('ChoiceSelectionService', () => {
 
         ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
         FieldOverrideService.applyFieldSubstitution(abstractField, 'ca:SMS', nsMap);
-        const smsIndex = abstractField.selectedMemberIndex;
-        expect(smsIndex).toBeDefined();
+        const smsQName = abstractField.selectedMemberQName;
+        expect(smsQName).toBeDefined();
         expect(doc.definition.fieldSubstitutions).toHaveLength(1);
 
         ChoiceSelectionService.clearChoiceSelection(doc, choiceField, nsMap);
 
         // Substitution preserved
         expect(doc.definition.fieldSubstitutions).toHaveLength(1);
-        expect(abstractField.selectedMemberIndex).toBe(smsIndex);
+        expect(abstractField.selectedMemberQName).toBe(smsQName);
       });
 
       it('should allow reverting abstract substitution after parent choice selection (issue #3234)', () => {
@@ -318,14 +318,14 @@ describe('ChoiceSelectionService', () => {
         const abstractField = findAbstractField(choiceField);
 
         FieldOverrideService.applyFieldSubstitution(abstractField, 'ca:Email', nsMap);
-        expect(abstractField.selectedMemberIndex).toBeDefined();
+        expect(abstractField.selectedMemberQName).toBeDefined();
 
         ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
 
         // Substitution is preserved, so revert should work
         FieldOverrideService.revertFieldSubstitution(abstractField, nsMap);
 
-        expect(abstractField.selectedMemberIndex).toBeUndefined();
+        expect(abstractField.selectedMemberQName).toBeUndefined();
         expect(doc.definition.fieldSubstitutions ?? []).toHaveLength(0);
       });
 
@@ -343,8 +343,7 @@ describe('ChoiceSelectionService', () => {
 
         expect(doc.definition.fieldSubstitutions).toHaveLength(1);
         expect(doc.definition.fieldSubstitutions![0].name).toBe('ca:SMS');
-        const smsIndex = abstractField.fields.findIndex((f) => f.name === 'SMS');
-        expect(abstractField.selectedMemberIndex).toBe(smsIndex);
+        expect(abstractField.selectedMemberQName?.getLocalPart()).toBe('SMS');
       });
 
       it('should allow revert after switching substitution across choice changes', () => {
@@ -359,7 +358,7 @@ describe('ChoiceSelectionService', () => {
 
         FieldOverrideService.revertFieldSubstitution(abstractField, nsMap);
 
-        expect(abstractField.selectedMemberIndex).toBeUndefined();
+        expect(abstractField.selectedMemberQName).toBeUndefined();
         expect(doc.definition.fieldSubstitutions).toHaveLength(0);
       });
     });
@@ -458,14 +457,14 @@ describe('ChoiceSelectionService', () => {
 
         // Select substitution
         FieldOverrideService.applyFieldSubstitution(abstractField, 'ca:Email', nsMap);
-        const emailIndex = abstractField.selectedMemberIndex;
+        const emailQName = abstractField.selectedMemberQName;
 
         // Switch choice away and back
         ChoiceSelectionService.setChoiceSelection(doc, choiceField, 1, nsMap);
         ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
 
         // Substitution survived
-        expect(abstractField.selectedMemberIndex).toBe(emailIndex);
+        expect(abstractField.selectedMemberQName).toBe(emailQName);
         expect(doc.definition.fieldSubstitutions).toHaveLength(1);
         expect(doc.definition.fieldSubstitutions![0].name).toBe('ca:Email');
       });
@@ -477,7 +476,7 @@ describe('ChoiceSelectionService', () => {
         const abstractField = findAbstractField(choiceField);
 
         FieldOverrideService.applyFieldSubstitution(abstractField, 'ca:SMS', nsMap);
-        const smsIndex = abstractField.selectedMemberIndex;
+        const smsQName = abstractField.selectedMemberQName;
 
         // Multiple choice changes
         ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
@@ -486,7 +485,7 @@ describe('ChoiceSelectionService', () => {
         ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
 
         // Substitution survived all transitions
-        expect(abstractField.selectedMemberIndex).toBe(smsIndex);
+        expect(abstractField.selectedMemberQName).toBe(smsQName);
         expect(doc.definition.fieldSubstitutions).toHaveLength(1);
       });
     });

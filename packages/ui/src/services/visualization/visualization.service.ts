@@ -125,7 +125,7 @@ export class VisualizationService {
   /**
    * Creates a {@link ChoiceFieldNodeData} or {@link TargetChoiceFieldNodeData} for a choice wrapper field.
    *
-   * When no member is selected (`field.selectedMemberIndex === undefined`), the returned node's
+   * When no member is selected ({@link DocumentUtilService.getSelectedMember} returns `undefined`), the returned node's
    * `field` is the choice wrapper itself and `choiceField` is `undefined`. {@link createNodeTitle}
    * recognises this state and returns the member label string (e.g. `"(email | phone)"`), while
    * {@link NodeTitle} renders it alongside a `<Label>choice</Label>` badge.
@@ -140,10 +140,9 @@ export class VisualizationService {
     mappings: MappingItem[] | undefined,
     spec: WrapperSpec,
   ): NodeData {
-    const selectedMember =
-      field.selectedMemberIndex === undefined ? undefined : field.fields?.[field.selectedMemberIndex];
+    const selectedMember = DocumentUtilService.getSelectedMember(field);
 
-    if (selectedMember?.wrapperKind && selectedMember.selectedMemberIndex !== undefined) {
+    if (selectedMember?.wrapperKind && DocumentUtilService.getSelectedMember(selectedMember) !== undefined) {
       const innerSpec = selectedMember.wrapperKind === 'choice' ? CHOICE_WRAPPER : ABSTRACT_WRAPPER;
       return VisualizationService.doGenerateNodeDataFromWrapperField(parent, selectedMember, mappings, innerSpec);
     }
@@ -235,8 +234,7 @@ export class VisualizationService {
       DocumentUtilService.resolveTypeFragment(field);
       return field.fields;
     }
-    const selectedMember =
-      field.selectedMemberIndex === undefined ? undefined : field.fields?.[field.selectedMemberIndex];
+    const selectedMember = DocumentUtilService.getSelectedMember(field);
     return selectedMember ? [field] : field.fields;
   }
 

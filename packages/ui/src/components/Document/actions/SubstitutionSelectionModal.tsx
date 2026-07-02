@@ -3,6 +3,7 @@ import { FunctionComponent, useMemo } from 'react';
 
 import { IField } from '../../../models/datamapper/document';
 import { IFieldSubstituteInfo } from '../../../models/datamapper/types';
+import { DocumentUtilService } from '../../../services/document/document-util.service';
 import { findCandidateQName } from './FieldContextMenu/menu-utils';
 import { MemberSelectionModal } from './MemberSelectionModal';
 
@@ -33,11 +34,10 @@ export const SubstitutionSelectionModal: FunctionComponent<SubstitutionSelection
   );
 
   const selectedValue = useMemo(() => {
-    if (abstractField.selectedMemberIndex === undefined) return null;
-    const selectedField = abstractField.fields[abstractField.selectedMemberIndex];
+    const selectedField = DocumentUtilService.getSelectedMember(abstractField);
     if (!selectedField) return null;
     return findCandidateQName(candidates, selectedField) ?? null;
-  }, [abstractField.selectedMemberIndex, abstractField.fields, candidates]);
+  }, [abstractField, candidates]);
 
   return (
     <MemberSelectionModal<string>

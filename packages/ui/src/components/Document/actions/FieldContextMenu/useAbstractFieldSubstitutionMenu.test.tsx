@@ -10,6 +10,7 @@ import { FieldOverrideService } from '../../../../services/document/field-overri
 import { XmlSchemaDocumentService } from '../../../../services/document/xml-schema/xml-schema-document.service';
 import { TreeParsingService } from '../../../../services/visualization/tree-parsing.service';
 import { getFieldSubstitutionXsd } from '../../../../stubs/datamapper/data-mapper';
+import { QName } from '../../../../xml-schema-ts/QName';
 import { SourceDocumentNodeWithContextMenu } from '../../SourceDocumentNode';
 
 const NS_SUBSTITUTION = 'http://www.example.com/SUBSTITUTION';
@@ -38,8 +39,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
     const abstractAnimalField = document.fields[0];
 
     if (selectMember) {
-      const catIndex = abstractAnimalField.fields.findIndex((f) => f.name === 'Cat');
-      abstractAnimalField.selectedMemberIndex = catIndex;
+      abstractAnimalField.selectedMemberQName = new QName(NS_SUBSTITUTION, 'Cat');
     }
 
     const documentNodeData = new DocumentNodeData(document);

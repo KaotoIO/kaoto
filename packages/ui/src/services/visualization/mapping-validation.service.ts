@@ -242,7 +242,7 @@ export class MappingValidationService {
   }
 
   private static validateAbstractRules(_source: IField, target: IField): ValidationResult {
-    if (target.wrapperKind === 'abstract' && target.selectedMemberIndex === undefined) {
+    if (target.wrapperKind === 'abstract' && target.selectedMemberQName === undefined) {
       return {
         isValid: false,
         errorMessage: 'Cannot map to an unselected abstract element. Please select a concrete candidate first.',

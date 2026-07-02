@@ -125,8 +125,15 @@ export interface IField {
   predicates: Predicate[];
   /** Discriminator for synthetic wrapper fields: `'choice'` for xs:choice compositors, `'abstract'` for abstract element wrappers */
   wrapperKind?: WrapperKind;
-  /** Index of selected member (0-based), undefined = show all */
+  /** Index of selected member (0-based), undefined = show all. Used by choice wrappers. */
   selectedMemberIndex?: number;
+  /**
+   * QName of the selected substitution candidate. Used by abstract wrappers only.
+   * Abstract wrappers use name-based selection because their candidate set is open-ended —
+   * new candidates can appear when additional schemas are attached, which would invalidate
+   * positional indices. QName-based selection is stable across wrapper child rebuilds.
+   */
+  selectedMemberQName?: QName;
   /** Whether the field's declared type is an abstract xs:complexType */
   isAbstractType?: boolean;
   /** Optional description extracted from xs:annotation/xs:documentation for tooltip/help text */
@@ -324,6 +331,7 @@ export class BaseField implements IField {
   predicates: Predicate[] = [];
   wrapperKind?: WrapperKind;
   selectedMemberIndex?: number;
+  selectedMemberQName?: QName;
   isAbstractType?: boolean;
   originalField?: IOriginalFieldState;
   description?: string;
@@ -337,6 +345,7 @@ export class BaseField implements IField {
     }
     if (this.wrapperKind !== undefined) existing.wrapperKind = this.wrapperKind;
     if (this.selectedMemberIndex !== undefined) existing.selectedMemberIndex = this.selectedMemberIndex;
+    if (this.selectedMemberQName !== undefined) existing.selectedMemberQName = this.selectedMemberQName;
     if (this.isAbstractType !== undefined) existing.isAbstractType = this.isAbstractType;
     if (this.description !== undefined) existing.description = this.description;
     for (const child of this.fields) child.adopt(existing);
@@ -364,6 +373,7 @@ export class BaseField implements IField {
     adopted.namedTypeFragmentRefs = this.namedTypeFragmentRefs;
     adopted.wrapperKind = this.wrapperKind;
     adopted.selectedMemberIndex = this.selectedMemberIndex;
+    adopted.selectedMemberQName = this.selectedMemberQName;
     adopted.isAbstractType = this.isAbstractType;
     adopted.description = this.description;
     adopted.fields = this.fields.map((child) => child.adopt(adopted));

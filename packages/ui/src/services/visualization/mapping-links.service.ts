@@ -254,11 +254,9 @@ export class MappingLinksService {
   }
 
   private static isSelectedWrapperField(node: IParentType): boolean {
-    return (
-      MappingLinksService.isWrapperField(node) &&
-      'selectedMemberIndex' in node &&
-      node.selectedMemberIndex !== undefined
-    );
+    if (!MappingLinksService.isWrapperField(node)) return false;
+    if (node.wrapperKind === 'abstract') return node.selectedMemberQName !== undefined;
+    return node.selectedMemberIndex !== undefined;
   }
 
   private static isSelectedWrapperMember(field: IField): boolean {
@@ -268,7 +266,7 @@ export class MappingLinksService {
   /**
    * Collects the IDs of consecutive `wrapperKind` ancestor wrapper
    * fields, ordered from outermost to innermost. Only includes **unselected**
-   * wrappers (`selectedMemberIndex` is `undefined`) because selected wrappers are
+   * wrappers (no member selected) because selected wrappers are
    * not rendered as visual nodes — the selected member replaces them in the tree.
    * Returns an empty array when the field has no unselected wrapper ancestors.
    */

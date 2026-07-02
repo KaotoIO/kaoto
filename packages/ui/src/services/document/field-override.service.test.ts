@@ -717,8 +717,8 @@ describe('FieldOverrideService', () => {
       expect(doc.definition.fieldSubstitutions![0].name).toBe('sub:Cat');
       expect(abstractAnimalField.wrapperKind).toBe('abstract');
       expect(abstractAnimalField.name).toBe('AbstractAnimal');
-      const catIndex = abstractAnimalField.fields.findIndex((f) => f.name === 'Cat');
-      expect(abstractAnimalField.selectedMemberIndex).toBe(catIndex);
+      expect(abstractAnimalField.selectedMemberQName?.getLocalPart()).toBe('Cat');
+      expect(abstractAnimalField.selectedMemberQName?.getNamespaceURI()).toBe(NS_SUBSTITUTION);
     });
 
     it('should revert substitution and restore original field state', () => {
@@ -728,13 +728,13 @@ describe('FieldOverrideService', () => {
       const originalFieldCount = abstractAnimalField.fields.length;
 
       FieldOverrideService.applyFieldSubstitution(abstractAnimalField, 'sub:Cat', namespaceMap);
-      expect(abstractAnimalField.selectedMemberIndex).toBeDefined();
+      expect(abstractAnimalField.selectedMemberQName).toBeDefined();
 
       FieldOverrideService.revertFieldSubstitution(abstractAnimalField, namespaceMap);
 
       expect(abstractAnimalField.name).toBe('AbstractAnimal');
       expect(abstractAnimalField.wrapperKind).toBe('abstract');
-      expect(abstractAnimalField.selectedMemberIndex).toBeUndefined();
+      expect(abstractAnimalField.selectedMemberQName).toBeUndefined();
       expect(abstractAnimalField.fields).toHaveLength(originalFieldCount);
       expect(doc.definition.fieldSubstitutions).toHaveLength(0);
     });
@@ -761,12 +761,12 @@ describe('FieldOverrideService', () => {
 
       FieldOverrideService.applyFieldSubstitution(abstractAnimalField, 'sub:Cat', namespaceMap);
       expect(doc.definition.fieldSubstitutions).toHaveLength(1);
-      expect(abstractAnimalField.selectedMemberIndex).toBeDefined();
+      expect(abstractAnimalField.selectedMemberQName).toBeDefined();
 
       FieldOverrideService.revertFieldSubstitution(abstractAnimalField, namespaceMap);
 
       expect(doc.definition.fieldSubstitutions).toHaveLength(0);
-      expect(abstractAnimalField.selectedMemberIndex).toBeUndefined();
+      expect(abstractAnimalField.selectedMemberQName).toBeUndefined();
     });
 
     it('should do nothing on apply when document is not XmlSchemaDocument', () => {
@@ -823,8 +823,8 @@ describe('FieldOverrideService', () => {
       expect(doc.definition.fieldSubstitutions).toHaveLength(1);
       expect(doc.definition.fieldSubstitutions![0].name).toBe('sub:Dog');
       expect(abstractAnimalField.name).toBe('AbstractAnimal');
-      const dogIndex = abstractAnimalField.fields.findIndex((f) => f.name === 'Dog');
-      expect(abstractAnimalField.selectedMemberIndex).toBe(dogIndex);
+      expect(abstractAnimalField.selectedMemberQName?.getLocalPart()).toBe('Dog');
+      expect(abstractAnimalField.selectedMemberQName?.getNamespaceURI()).toBe(NS_SUBSTITUTION);
     });
 
     it('should register missing namespace and prefix the key when namespace is not in map', () => {
@@ -836,7 +836,7 @@ describe('FieldOverrideService', () => {
 
       expect(namespaceMap['ns0']).toBe(NS_SUBSTITUTION);
       expect(doc.definition.fieldSubstitutions![0].name).toBe('ns0:Cat');
-      expect(abstractAnimalField.selectedMemberIndex).toBeDefined();
+      expect(abstractAnimalField.selectedMemberQName).toBeDefined();
       expect(abstractAnimalField.name).toBe('AbstractAnimal');
     });
 
@@ -849,7 +849,8 @@ describe('FieldOverrideService', () => {
 
       expect(abstractAnimalField.name).toBe('AbstractAnimal');
       const fishIndex = abstractAnimalField.fields.findIndex((f) => f.name === 'Fish');
-      expect(abstractAnimalField.selectedMemberIndex).toBe(fishIndex);
+      expect(abstractAnimalField.selectedMemberQName?.getLocalPart()).toBe('Fish');
+      expect(abstractAnimalField.selectedMemberQName?.getNamespaceURI()).toBe(NS_SUBSTITUTION);
       const fishField = abstractAnimalField.fields[fishIndex];
       expect(fishField.fields.some((f) => f.name === 'freshwater')).toBe(true);
     });
@@ -867,13 +868,13 @@ describe('FieldOverrideService', () => {
       FieldOverrideService.applyFieldSubstitution(abstractAnimalField, catKey, namespaceMap);
 
       expect(doc.definition.fieldSubstitutions).toHaveLength(1);
-      const catIndex = abstractAnimalField.fields.findIndex((f) => f.name === 'Cat');
-      expect(abstractAnimalField.selectedMemberIndex).toBe(catIndex);
+      expect(abstractAnimalField.selectedMemberQName?.getLocalPart()).toBe('Cat');
+      expect(abstractAnimalField.selectedMemberQName?.getNamespaceURI()).toBe(NS_SUBSTITUTION);
 
       FieldOverrideService.revertFieldSubstitution(abstractAnimalField, namespaceMap);
 
       expect(abstractAnimalField.name).toBe('AbstractAnimal');
-      expect(abstractAnimalField.selectedMemberIndex).toBeUndefined();
+      expect(abstractAnimalField.selectedMemberQName).toBeUndefined();
       expect(abstractAnimalField.fields).toHaveLength(originalFieldCount);
       expect(doc.definition.fieldSubstitutions ?? []).toHaveLength(0);
     });
@@ -919,8 +920,8 @@ describe('FieldOverrideService', () => {
       expect(doc.definition.fieldSubstitutions![0].name).toBe('Cat');
       expect(abstractAnimalField.wrapperKind).toBe('abstract');
       expect(abstractAnimalField.name).toBe('AbstractAnimal');
-      const catIndex = abstractAnimalField.fields.findIndex((f) => f.name === 'Cat');
-      expect(abstractAnimalField.selectedMemberIndex).toBe(catIndex);
+      expect(abstractAnimalField.selectedMemberQName?.getLocalPart()).toBe('Cat');
+      expect(abstractAnimalField.selectedMemberQName?.getNamespaceURI()).toBe('');
     });
 
     it('should revert Cat substitution and restore blank-namespace field', () => {
@@ -933,7 +934,7 @@ describe('FieldOverrideService', () => {
 
       expect(abstractAnimalField.name).toBe('AbstractAnimal');
       expect(abstractAnimalField.wrapperKind).toBe('abstract');
-      expect(abstractAnimalField.selectedMemberIndex).toBeUndefined();
+      expect(abstractAnimalField.selectedMemberQName).toBeUndefined();
       expect(abstractAnimalField.fields).toHaveLength(originalFieldCount);
       expect(doc.definition.fieldSubstitutions).toHaveLength(0);
     });
@@ -958,8 +959,8 @@ describe('FieldOverrideService', () => {
       expect(doc.definition.fieldSubstitutions).toHaveLength(1);
       expect(doc.definition.fieldSubstitutions![0].name).toBe('Dog');
       expect(abstractAnimalField.name).toBe('AbstractAnimal');
-      const dogIndex = abstractAnimalField.fields.findIndex((f) => f.name === 'Dog');
-      expect(abstractAnimalField.selectedMemberIndex).toBe(dogIndex);
+      expect(abstractAnimalField.selectedMemberQName?.getLocalPart()).toBe('Dog');
+      expect(abstractAnimalField.selectedMemberQName?.getNamespaceURI()).toBe('');
     });
   });
 });
