@@ -559,4 +559,48 @@ describe('step-xml-serializer tests', () => {
     expect(result.tagName).toBe('log');
     expect(result.getAttribute('message')).toBe('nested');
   });
+
+  it('serializes unknown type with an object-valued child as a nested element', async () => {
+    // Exercises the typeof value === 'object' branch in serializeUnknownType (line 102-103):
+    // when a processor has no catalog definition and one of its values is itself an object,
+    // it must be recursed into as a child element rather than stringified as an attribute.
+    const unknownStep = {
+      primitiveAttr: 'hello',
+      nestedObj: { innerAttr: 'world' },
+    };
+
+    const result = await StepXmlSerializer.serialize(
+      'unknownProcessor',
+      unknownStep as unknown as ElementType,
+      getDocument(),
+    );
+
+    expect(result.tagName).toBe('unknownProcessor');
+    expect(result.getAttribute('primitiveAttr')).toBe('hello');
+    const nested = result.getElementsByTagName('nestedObj')[0];
+    expect(nested).toBeDefined();
+    expect(nested.getAttribute('innerAttr')).toBe('world');
+  });
+
+  it('wraps allowableValues children inside a parent element when childName differs from key', async () => {
+    // Exercises the childName !== key branch in serializeArrayType (lines 164-166):
+    // ARRAY_TYPE_NAMES maps 'allowableValues' → 'value', so the array items are serialized
+    // as <value> children wrapped inside an <allowableValues> container element.
+    // `param` is the real catalog processor that exposes this property.
+    const paramStep = {
+      name: 'myParam',
+      allowableValues: ['one', 'two', 'three'],
+    };
+
+    const result = await StepXmlSerializer.serialize('param', paramStep as unknown as ElementType, getDocument());
+
+    expect(result.tagName).toBe('param');
+    const container = result.getElementsByTagName('allowableValues')[0];
+    expect(container).toBeDefined();
+    const valueEls = container.getElementsByTagName('value');
+    expect(valueEls).toHaveLength(3);
+    expect(valueEls[0].textContent).toBe('one');
+    expect(valueEls[1].textContent).toBe('two');
+    expect(valueEls[2].textContent).toBe('three');
+  });
 });

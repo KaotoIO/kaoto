@@ -17,7 +17,7 @@
 import { DoTry } from '@kaoto/camel-catalog/types';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
-import { CatalogKind, ICamelProcessorProperty } from '../../../models';
+import { CatalogKind, ICamelComponentDefinition, ICamelProcessorProperty } from '../../../models';
 import { CamelComponentSchemaService } from '../../../models/visualization/flows/support/camel-component-schema.service';
 import { CamelUriHelper, ParsedParameters } from '../../../utils';
 import { ARRAY_TYPE_NAMES, PROCESSOR_NAMES } from '../utils/xml-utils';
@@ -217,61 +217,45 @@ export class StepXmlSerializer {
   static async createUriFromParameters(step: ElementType): Promise<string> {
     const uri = step.uri as string;
     const camelElementLookup = CamelComponentSchemaService.getCamelComponentLookup('from', step);
-    if (camelElementLookup.componentName === undefined) {
-      return uri;
+    if (camelElementLookup.componentName === undefined) return uri;
+
+    const catalogResult = await CamelComponentSchemaService.resolveCatalogLookup(camelElementLookup.componentName);
+
+    if (catalogResult?.catalogKind === CatalogKind.Kamelet && catalogResult.definition !== undefined) {
+      // Kamelets don't use syntax-based URI building
+      return step.parameters && Object.keys(step.parameters).length > 0
+        ? CamelUriHelper.getUriStringFromParameters(uri, '', step.parameters as ParsedParameters)
+        : uri;
     }
 
-    const componentName = camelElementLookup.componentName;
-    if (componentName.startsWith('kamelet:')) {
-      const kameletName = componentName.replace('kamelet:', '');
-      const kameletDefinition = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Kamelet, kameletName);
-      if (kameletDefinition) {
-        // Kamelets don't use syntax-based URI building
-        if (step.parameters && Object.keys(step.parameters).length > 0) {
-          return CamelUriHelper.getUriStringFromParameters(uri, '', step.parameters as ParsedParameters);
-        }
-        return uri;
-      }
-      // fallback to kamelet component
-      const kameletComponentDefinition = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Component, 'kamelet');
-      if (kameletComponentDefinition?.component.syntax !== undefined) {
-        const requiredParameters: string[] = [];
-        const defaultValues: ParsedParameters = {};
-        Object.entries(kameletComponentDefinition.properties ?? {}).forEach(([key, value]) => {
-          if (value.required) requiredParameters.push(key);
-          if (value.defaultValue) defaultValues[key] = value.defaultValue;
-        });
-        return CamelUriHelper.getUriStringFromParameters(
-          uri,
-          kameletComponentDefinition.component.syntax,
-          step.parameters as ParsedParameters,
-          { requiredParameters, defaultValues },
-        );
-      }
-    } else {
-      const componentDefinition = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Component, componentName);
-      if (componentDefinition?.component.syntax !== undefined) {
-        const requiredParameters: string[] = [];
-        const defaultValues: ParsedParameters = {};
-        Object.entries(componentDefinition.properties ?? {}).forEach(([key, value]) => {
-          if (value.required) requiredParameters.push(key);
-          if (value.defaultValue) defaultValues[key] = value.defaultValue;
-        });
-        return CamelUriHelper.getUriStringFromParameters(
-          uri,
-          componentDefinition.component.syntax,
-          step.parameters as ParsedParameters,
-          { requiredParameters, defaultValues },
-        );
-      }
+    const componentDefinition = catalogResult?.definition as ICamelComponentDefinition | undefined;
+    if (componentDefinition?.component.syntax !== undefined) {
+      return this.buildUriFromComponentDefinition(uri, step.parameters as ParsedParameters, componentDefinition);
     }
 
     // This fallback applies only when the component does not define a syntax (e.g., for Kamelets or Components without syntax).
-    if (step.parameters && Object.keys(step.parameters).length > 0) {
-      return CamelUriHelper.getUriStringFromParameters(uri, '', step.parameters as ParsedParameters);
-    }
+    return step.parameters && Object.keys(step.parameters).length > 0
+      ? CamelUriHelper.getUriStringFromParameters(uri, '', step.parameters as ParsedParameters)
+      : uri;
+  }
 
-    return uri;
+  private static buildUriFromComponentDefinition(
+    uri: string,
+    parameters: ParsedParameters | undefined,
+    componentDefinition: ICamelComponentDefinition,
+  ): string {
+    const { requiredParameters, defaultValues } = Object.entries(componentDefinition.properties ?? {}).reduce(
+      (acc, [key, value]) => {
+        if (value.required) acc.requiredParameters.push(key);
+        if (value.defaultValue !== undefined) acc.defaultValues[key] = value.defaultValue;
+        return acc;
+      },
+      { requiredParameters: [] as string[], defaultValues: {} as ParsedParameters },
+    );
+    return CamelUriHelper.getUriStringFromParameters(uri, componentDefinition.component.syntax!, parameters, {
+      requiredParameters,
+      defaultValues,
+    });
   }
 
   private static async serializeAttribute(

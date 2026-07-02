@@ -319,9 +319,7 @@ export class CamelComponentSchemaService {
       );
 
       if (catalogLookup.definition !== undefined && componentSchema !== undefined) {
-        if (!schema.properties) {
-          schema.properties = {};
-        }
+        schema.properties ??= {};
         if (!schema.properties.parameters) {
           schema.properties.parameters = { type: 'object', properties: {} };
         }
