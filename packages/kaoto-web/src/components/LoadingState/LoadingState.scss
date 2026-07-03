@@ -1,0 +1,19 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+
+.cs--loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-07;
+  min-block-size: 200px;
+
+  &--overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba($layer, 0.8);
+    z-index: 9999;
+  }
+}
+
+// Made with Bob
