@@ -1,0 +1,93 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/type' as *;
+@use '@carbon/react/scss/breakpoint' as *;
+@use '@carbon/react/scss/theme' as *;
+
+@mixin carbon-content-overrides() {
+  // These Carbon overrides are pending outcome of issue #19877
+  // https://github.com/carbon-design-system/carbon/issues/19877
+
+  // :where used to allow padding to be overridden later
+  :where(.cds--content) {
+    // Padding is really not needed in the content and can get in the way
+    // of page headers footers etc.
+    // This is especially true on pages using Carbon CSS Grid
+    // which has its own padding and margin. On mobile devices this can makes
+    // for a lot of whitespace on the left and right of the page
+    padding: 0;
+  }
+
+  .cds--side-nav:not(.cds--side-nav--expanded) ~ .cds--content {
+    margin-inline-start: 0;
+  }
+}
+
+.cs--page-layout {
+  @include carbon-content-overrides;
+}
+
+@mixin default-project-type() {
+  * {
+    /*
+    text-wrap-style: balance aims to improve typography by creating more visually appealing text blocks.
+    When text is balanced, the browser attempts to distribute text more evenly across lines,
+    avoiding situations where you have very long lines followed by very short lines (orphans).
+    */
+    text-wrap-style: balance;
+  }
+
+  h1,
+  dd {
+    @include type-style('heading-07');
+
+    margin-block-end: $spacing-08;
+  }
+
+  h3 {
+    margin-block-end: $spacing-05;
+  }
+
+  p,
+  dt {
+    margin-block-end: $spacing-05;
+    margin-inline-end: $spacing-08;
+  }
+
+  dt {
+    @include type-style('label-02');
+  }
+}
+
+:where(.cs--page-layout__content) {
+  // low specificity to make it easier to override defaults
+  @include default-type;
+
+  // after Carbon default type
+  @include default-project-type;
+}
+
+.cs--page-layout__content {
+  // These following styles size the content area and move the scroll
+  // from the body to this content area
+  block-size: calc(100vh - $spacing-09);
+  max-block-size: calc(100vh - $spacing-08);
+  padding-block-start: $spacing-05;
+
+  /*
+  This is our main content area for which we should ensure all of our content is displayed
+  within the vertical scrolling area.
+
+  If you desire horizontal and vertical scrolling, such as within a diagramming component/canvas,
+  you should manage scrolling withing the component/canvas.
+  */
+  overflow: hidden auto; /* no horizontal scroll, vertical only unless manged elsewhere */
+  scrollbar-color: $background-active $layer;
+}
+
+.cs--page-layout :has(.cs--page-layout__content-header) {
+  padding-block-start: 0;
+}
+
+.cs--page-layout__content-header {
+  margin-block-end: $spacing-05;
+}
