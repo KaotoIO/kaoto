@@ -25,6 +25,14 @@ import { ExpressionXmlSerializer } from './expression-xml-serializer';
 
 export type ElementType = { [key: string]: unknown; steps?: ElementType[] };
 
+/**
+ * Value of a property whose catalog `kind` is `attribute`. Such properties map to JAXB
+ * `@XmlAttribute` and are therefore always serialized as scalars in XML. Even object-typed
+ * bean references (e.g. aggregationStrategy, executorService) are represented as `#`-prefixed
+ * strings in the model, never as nested objects.
+ */
+export type AttributeValue = string | number | boolean | undefined;
+
 export class StepXmlSerializer {
   static async serializeObjectProperties(
     element: Element,
@@ -40,7 +48,7 @@ export class StepXmlSerializer {
           break;
 
         case 'attribute':
-          await this.serializeAttribute(element, key, processor, props, processor[key]);
+          await this.serializeAttribute(element, key, processor, props, processor[key] as AttributeValue);
           break;
 
         case 'expression':
@@ -263,7 +271,7 @@ export class StepXmlSerializer {
     key: string,
     processor: ElementType | string,
     props: ICamelProcessorProperty,
-    attributeValue: unknown,
+    attributeValue: AttributeValue,
   ): Promise<void> {
     if (typeof processor === 'string') {
       if (props.required) element.setAttribute(key, processor);
