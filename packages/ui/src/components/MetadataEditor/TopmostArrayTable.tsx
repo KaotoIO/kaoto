@@ -92,7 +92,7 @@ export const TopmostArrayTable = (props: TopmostArrayTableProps) => {
             ) : (
               props.model.map((item, index) => (
                 <Tr
-                  key={index}
+                  key={`${item[props.itemSchema.required?.[0]]}-${index}`}
                   data-testid={'metadata-row-' + index}
                   isSelectable
                   onRowClick={() => {

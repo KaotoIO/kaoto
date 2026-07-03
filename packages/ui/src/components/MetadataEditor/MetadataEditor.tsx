@@ -60,7 +60,7 @@ export const MetadataEditor: FunctionComponent<MetadataEditorProps> = (props) =>
     <Split hasGutter>
       <SplitItem className="metadata-editor-modal-list-view">
         <TopmostArrayTable
-          model={preparedModel !== null ? preparedModel : props.metadata}
+          model={preparedModel === null ? props.metadata : preparedModel}
           itemSchema={getFormSchema()}
           name={props.name}
           selected={selected}

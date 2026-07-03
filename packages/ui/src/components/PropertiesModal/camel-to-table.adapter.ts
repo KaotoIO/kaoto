@@ -79,7 +79,11 @@ export const camelComponentPropertiesToTable = (
 };
 
 const getApiType = (consumerOnly: boolean, producerOnly: boolean): string => {
-  return consumerOnly && producerOnly ? 'Both' : consumerOnly ? 'Consumer' : producerOnly ? 'Producer' : 'Both';
+  if (consumerOnly) {
+    return producerOnly ? 'Both' : 'Consumer';
+  }
+
+  return producerOnly ? 'Producer' : 'Both';
 };
 
 interface ICamelComponentApisToTableProps {
