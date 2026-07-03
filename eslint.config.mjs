@@ -28,6 +28,7 @@ export default [
       'packages/ui/src/**/*.{ts,tsx}',
       'packages/ui-tests/cypress/**/*.{ts,tsx}',
       'packages/ui-tests/stories/**/*.{ts,tsx}',
+      'packages/kaoto-web/src/**/*.{ts,tsx}',
     ],
     languageOptions: {
       parserOptions: {
