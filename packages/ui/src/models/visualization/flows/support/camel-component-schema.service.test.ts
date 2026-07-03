@@ -7,10 +7,9 @@ import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
 import { DATAMAPPER_ID_PREFIX, XSLT_COMPONENT_NAME } from '../../../../utils';
 import { ICamelComponentDefinition } from '../../../camel/camel-components-catalog';
 import { IKameletDefinition } from '../../../camel/kamelets-catalog';
-import { SourceSchemaType } from '../../../camel/source-schema-type';
 import { CatalogKind } from '../../../catalog-kind';
 import { NodeLabelType } from '../../../settings/settings.model';
-import { IClipboardCopyObject } from '../../clipboard';
+import { IClipboardContent } from '../../clipboard';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelComponentSchemaService } from './camel-component-schema.service';
 import { CamelProcessorStepsProperties, ICamelElementLookupResult } from './camel-component-types';
@@ -610,8 +609,7 @@ describe('CamelComponentSchemaService', () => {
 
   describe('getNodeDefinitionValue', () => {
     it('should return Node definition for a simple processor', () => {
-      const clipboadContent: IClipboardCopyObject = {
-        type: SourceSchemaType.Route,
+      const clipboadContent: IClipboardContent = {
         name: 'log',
         definition: {
           id: 'log-3245',
@@ -623,8 +621,7 @@ describe('CamelComponentSchemaService', () => {
     });
 
     it('should return Node definition for a Special processor', () => {
-      const clipboadContent: IClipboardCopyObject = {
-        type: SourceSchemaType.Route,
+      const clipboadContent: IClipboardContent = {
         name: 'when',
         definition: {
           id: 'when-2765',

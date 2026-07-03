@@ -10,7 +10,7 @@ import { CatalogKind } from '../../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../../kaoto-schema';
 import { NodeLabelType } from '../../../settings/settings.model';
 import { REST_DSL_VERBS } from '../../../special-processors.constants';
-import { IClipboardCopyObject } from '../../clipboard';
+import { IClipboardContent } from '../../clipboard';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelProcessorStepsProperties, ICamelElementLookupResult } from './camel-component-types';
 
@@ -268,7 +268,7 @@ export class CamelComponentSchemaService {
   /**
    * Get the definition for a given component and property
    */
-  static getNodeDefinitionValue(clipboardContent: IClipboardCopyObject): ProcessorDefinition {
+  static getNodeDefinitionValue(clipboardContent: IClipboardContent): ProcessorDefinition {
     const { name, definition: defaultValue } = clipboardContent;
 
     if (this.SPECIAL_CHILD_PROCESSORS.includes(name)) {

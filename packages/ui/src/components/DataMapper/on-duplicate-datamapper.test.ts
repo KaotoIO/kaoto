@@ -1,8 +1,7 @@
 import { IVisualizationNode } from '../../models';
-import { SourceSchemaType } from '../../models/camel/source-schema-type';
 import { DocumentDefinitionType } from '../../models/datamapper';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
-import { IClipboardCopyObject } from '../../models/visualization/clipboard';
+import { IClipboardContent } from '../../models/visualization/clipboard';
 import { IMetadataApi } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { DataMapperStepService } from '../../services/datamapper-step.service';
@@ -49,8 +48,7 @@ describe('onDuplicateDataMapper', () => {
     mockApi.getMetadata.mockResolvedValue(originalMetadata);
     mockApi.getResourceContent.mockResolvedValue(xsltContent);
 
-    const content: IClipboardCopyObject = {
-      type: SourceSchemaType.Route,
+    const content: IClipboardContent = {
       name: 'step',
       definition: {
         id: newStepId,
@@ -84,8 +82,7 @@ describe('onDuplicateDataMapper', () => {
   });
 
   it('should handle missing new step ID gracefully', async () => {
-    const content: IClipboardCopyObject = {
-      type: SourceSchemaType.Route,
+    const content: IClipboardContent = {
       name: 'step',
       definition: {},
     };
@@ -98,8 +95,7 @@ describe('onDuplicateDataMapper', () => {
   it('should create empty metadata and set XSLT URI to empty when original metadata is not found', async () => {
     mockApi.getMetadata.mockResolvedValue(undefined);
 
-    const content: IClipboardCopyObject = {
-      type: SourceSchemaType.Route,
+    const content: IClipboardContent = {
       name: 'step',
       definition: {
         id: newStepId,
@@ -127,8 +123,7 @@ describe('onDuplicateDataMapper', () => {
     mockApi.getMetadata.mockResolvedValue(originalMetadata);
     mockApi.getResourceContent.mockResolvedValue(undefined);
 
-    const content: IClipboardCopyObject = {
-      type: SourceSchemaType.Route,
+    const content: IClipboardContent = {
       name: 'step',
       definition: {
         id: newStepId,

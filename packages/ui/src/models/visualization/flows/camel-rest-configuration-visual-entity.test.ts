@@ -3,7 +3,6 @@ import { CatalogLibrary, RestConfiguration } from '@kaoto/camel-catalog/types';
 
 import { restConfigurationSchema, restConfigurationStub } from '../../../stubs/rest-configuration';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
-import { SourceSchemaType } from '../../camel/source-schema-type';
 import { CatalogKind } from '../../catalog-kind';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRestConfigurationVisualEntity } from './camel-rest-configuration-visual-entity';
@@ -212,7 +211,6 @@ describe('CamelRestConfigurationVisualEntity', () => {
     const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
 
     expect(entity.getCopiedContent()).toEqual({
-      type: SourceSchemaType.Route,
       name: 'restConfiguration',
       definition: restConfigurationDef.restConfiguration,
     });

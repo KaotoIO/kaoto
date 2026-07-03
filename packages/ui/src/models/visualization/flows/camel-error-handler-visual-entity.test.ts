@@ -2,7 +2,6 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, ErrorHandlerDeserializer, NoErrorHandler } from '@kaoto/camel-catalog/types';
 
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
-import { SourceSchemaType } from '../../camel/source-schema-type';
 import { CatalogKind } from '../../catalog-kind';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelErrorHandlerVisualEntity } from './camel-error-handler-visual-entity';
@@ -141,7 +140,6 @@ describe('CamelErrorHandlerVisualEntity', () => {
     const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
 
     expect(entity.getCopiedContent()).toEqual({
-      type: SourceSchemaType.Route,
       name: 'errorHandler',
       definition: errorHandlerDef.errorHandler,
     });

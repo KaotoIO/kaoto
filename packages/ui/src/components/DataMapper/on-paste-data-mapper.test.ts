@@ -1,8 +1,7 @@
 import { IVisualizationNode } from '../../models';
-import { SourceSchemaType } from '../../models/camel/source-schema-type';
 import { DocumentDefinitionType } from '../../models/datamapper';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
-import { IClipboardCopyObject } from '../../models/visualization/clipboard';
+import { IClipboardContent } from '../../models/visualization/clipboard';
 import { IMetadataApi } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { XSLT_COMPONENT_NAME } from '../../utils';
@@ -37,7 +36,7 @@ describe('onPasteDataMapper', () => {
     await onPasteDataMapper(mockApi, {
       targetVizNode: mockVizNode,
       originalContent: undefined,
-      updatedContent: {} as IClipboardCopyObject,
+      updatedContent: {} as IClipboardContent,
     });
 
     expect(mockApi.getMetadata).not.toHaveBeenCalled();
@@ -46,7 +45,7 @@ describe('onPasteDataMapper', () => {
   it('should return early when updatedContent is undefined', async () => {
     await onPasteDataMapper(mockApi, {
       targetVizNode: mockVizNode,
-      originalContent: {} as IClipboardCopyObject,
+      originalContent: {} as IClipboardContent,
       updatedContent: undefined,
     });
 
@@ -54,16 +53,14 @@ describe('onPasteDataMapper', () => {
   });
 
   it('should return early when originalContent is not a DataMapper node', async () => {
-    const originalContent: IClipboardCopyObject = {
-      type: SourceSchemaType.Route,
+    const originalContent: IClipboardContent = {
       name: 'to',
       definition: {
         to: { uri: 'direct:test' },
       },
     };
 
-    const updatedContent: IClipboardCopyObject = {
-      type: SourceSchemaType.Route,
+    const updatedContent: IClipboardContent = {
       name: 'to',
       definition: {
         to: { uri: 'direct:test' },
@@ -80,8 +77,7 @@ describe('onPasteDataMapper', () => {
   });
 
   it('should return early when no DataMapper IDs are found', async () => {
-    const originalContent: IClipboardCopyObject = {
-      type: SourceSchemaType.Route,
+    const originalContent: IClipboardContent = {
       name: 'step',
       definition: {
         step: {
@@ -90,8 +86,7 @@ describe('onPasteDataMapper', () => {
       },
     };
 
-    const updatedContent: IClipboardCopyObject = {
-      type: SourceSchemaType.Route,
+    const updatedContent: IClipboardContent = {
       name: 'step',
       definition: {
         step: {
@@ -122,8 +117,7 @@ describe('onPasteDataMapper', () => {
     mockApi.getMetadata.mockResolvedValue(originalMetadata);
     mockApi.getResourceContent.mockResolvedValue(xsltContent);
 
-    const originalContent: IClipboardCopyObject = {
-      type: SourceSchemaType.Route,
+    const originalContent: IClipboardContent = {
       name: originalStepId,
       definition: {
         id: originalStepId,
@@ -131,8 +125,7 @@ describe('onPasteDataMapper', () => {
       },
     };
 
-    const updatedContent: IClipboardCopyObject = {
-      type: SourceSchemaType.Route,
+    const updatedContent: IClipboardContent = {
       name: newStepId,
       definition: {
         id: newStepId,
@@ -165,8 +158,7 @@ describe('onPasteDataMapper', () => {
   it('should create empty metadata and update XSLT URI when original metadata is not found', async () => {
     mockApi.getMetadata.mockResolvedValue(undefined);
 
-    const originalContent: IClipboardCopyObject = {
-      type: SourceSchemaType.Route,
+    const originalContent: IClipboardContent = {
       name: originalStepId,
       definition: {
         id: originalStepId,
@@ -174,8 +166,7 @@ describe('onPasteDataMapper', () => {
       },
     };
 
-    const updatedContent: IClipboardCopyObject = {
-      type: SourceSchemaType.Route,
+    const updatedContent: IClipboardContent = {
       name: newStepId,
       definition: {
         id: newStepId,
@@ -207,8 +198,7 @@ describe('onPasteDataMapper', () => {
     mockApi.getMetadata.mockResolvedValue(originalMetadata);
     mockApi.getResourceContent.mockResolvedValue(undefined);
 
-    const originalContent: IClipboardCopyObject = {
-      type: SourceSchemaType.Route,
+    const originalContent: IClipboardContent = {
       name: originalStepId,
       definition: {
         id: originalStepId,
@@ -216,8 +206,7 @@ describe('onPasteDataMapper', () => {
       },
     };
 
-    const updatedContent: IClipboardCopyObject = {
-      type: SourceSchemaType.Route,
+    const updatedContent: IClipboardContent = {
       name: newStepId,
       definition: {
         id: newStepId,
@@ -256,8 +245,7 @@ describe('onPasteDataMapper', () => {
       .mockResolvedValueOnce('<xsl:stylesheet>1</xsl:stylesheet>')
       .mockResolvedValueOnce('<xsl:stylesheet>2</xsl:stylesheet>');
 
-    const originalContent: IClipboardCopyObject = {
-      type: SourceSchemaType.Route,
+    const originalContent: IClipboardContent = {
       name: 'choice',
       definition: {
         choice: {
@@ -279,8 +267,7 @@ describe('onPasteDataMapper', () => {
       },
     };
 
-    const updatedContent: IClipboardCopyObject = {
-      type: SourceSchemaType.Route,
+    const updatedContent: IClipboardContent = {
       name: 'choice',
       definition: {
         choice: {

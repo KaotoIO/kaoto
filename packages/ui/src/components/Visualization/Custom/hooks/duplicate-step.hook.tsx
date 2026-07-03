@@ -66,7 +66,7 @@ export const useDuplicateStep = (vizNode: IVisualizationNode) => {
     }
 
     // check for root containers only in case of Route Entity
-    if (vizNodeContent.type === SourceSchemaType.Route && !isDefined(parentVizNode)) {
+    if (entitiesContext.camelResource.getType() === SourceSchemaType.Route && !isDefined(parentVizNode)) {
       return true;
     }
 
@@ -90,7 +90,7 @@ export const useDuplicateStep = (vizNode: IVisualizationNode) => {
 
     if (!updatedVizNodeContent) return;
 
-    if (vizNodeContent.type === SourceSchemaType.Route && !isDefined(parentVizNode)) {
+    if (entitiesContext.camelResource.getType() === SourceSchemaType.Route && !isDefined(parentVizNode)) {
       const originalEntityId = vizNode.getId();
       const newId = entitiesContext.camelResource.addNewEntity(
         updatedVizNodeContent.name as EntityType,
