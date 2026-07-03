@@ -80,7 +80,7 @@ export class FlowService {
   private static getCanvasNode(vizNodeParam: IVisualizationNode): CanvasNode {
     /** Join the parent if exist to form a group */
     const parentNode =
-      vizNodeParam.getParentNode()?.getChildren() !== undefined ? vizNodeParam.getParentNode()?.id : undefined;
+      vizNodeParam.getParentNode()?.getChildren() === undefined ? undefined : vizNodeParam.getParentNode()?.id;
 
     const canvasNode = this.getNode(vizNodeParam.id, {
       parentNode,

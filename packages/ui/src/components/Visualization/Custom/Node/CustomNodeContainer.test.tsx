@@ -81,23 +81,6 @@ describe('CustomNodeContainer', () => {
     expect(screen.queryByTitle('5')).not.toBeInTheDocument();
   });
 
-  it('should not render child count when isCollapsed is false', () => {
-    const vizNode = createMockVizNode();
-
-    render(
-      <CustomNodeContainer
-        {...defaultContainerProps}
-        vizNode={vizNode}
-        childCount={0}
-        ProcessorIcon={null}
-        processorDescription=""
-        isDisabled={false}
-      />,
-    );
-
-    expect(screen.queryByTitle('5')).not.toBeInTheDocument();
-  });
-
   it('should not render child count when childCount is 0', () => {
     const vizNode = createMockVizNode();
 
