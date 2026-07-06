@@ -1,13 +1,12 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
-import type { Mock } from 'vitest';
 
+import { DynamicCatalogRegistry } from '../dynamic-catalog/dynamic-catalog-registry';
 import { CatalogKind, createVisualizationNode, IVisualizationNode } from '../models';
-import { CamelCatalogService } from '../models/visualization/flows/camel-catalog.service';
 import { EntitiesContextResult } from '../providers';
 import { XSLT_COMPONENT_NAME, XsltComponentDef } from '../utils';
 import { DataMapperStepService } from './datamapper-step.service';
 
-vi.mock('../models/visualization/flows/camel-catalog.service');
+vi.mock('../dynamic-catalog/dynamic-catalog-registry');
 
 describe('DataMapperStepService', () => {
   let mockEntitiesContext: Mocked<EntitiesContextResult>;
@@ -157,8 +156,17 @@ describe('DataMapperStepService', () => {
   });
 
   describe('supportsJsonBody', () => {
-    it('should return true when useJsonBody parameter exists in catalog', () => {
-      (CamelCatalogService.getComponent as Mock).mockReturnValue({
+    let mockGetEntity: ReturnType<typeof vi.fn>;
+
+    beforeEach(() => {
+      mockGetEntity = vi.fn();
+      vi.mocked(DynamicCatalogRegistry.get).mockReturnValue({ getEntity: mockGetEntity } as unknown as ReturnType<
+        typeof DynamicCatalogRegistry.get
+      >);
+    });
+
+    it('should return true when useJsonBody parameter exists in catalog', async () => {
+      mockGetEntity.mockResolvedValue({
         properties: {
           useJsonBody: {
             type: 'boolean',
@@ -167,14 +175,14 @@ describe('DataMapperStepService', () => {
         },
       });
 
-      const result = DataMapperStepService.supportsJsonBody();
+      const result = await DataMapperStepService.supportsJsonBody();
 
       expect(result).toBe(true);
-      expect(CamelCatalogService.getComponent).toHaveBeenCalledWith(CatalogKind.Component, 'xslt-saxon');
+      expect(mockGetEntity).toHaveBeenCalledWith(CatalogKind.Component, 'xslt-saxon');
     });
 
-    it('should return false when useJsonBody parameter does not exist in catalog', () => {
-      (CamelCatalogService.getComponent as Mock).mockReturnValue({
+    it('should return false when useJsonBody parameter does not exist in catalog', async () => {
+      mockGetEntity.mockResolvedValue({
         properties: {
           otherParam: {
             type: 'string',
@@ -182,25 +190,25 @@ describe('DataMapperStepService', () => {
         },
       });
 
-      const result = DataMapperStepService.supportsJsonBody();
+      const result = await DataMapperStepService.supportsJsonBody();
 
       expect(result).toBe(false);
     });
 
-    it('should return false when component is not found', () => {
-      (CamelCatalogService.getComponent as Mock).mockReturnValue(undefined);
+    it('should return false when component is not found', async () => {
+      mockGetEntity.mockResolvedValue(undefined);
 
-      const result = DataMapperStepService.supportsJsonBody();
+      const result = await DataMapperStepService.supportsJsonBody();
 
       expect(result).toBe(false);
     });
 
-    it('should return false when component has no properties', () => {
-      (CamelCatalogService.getComponent as Mock).mockReturnValue({
+    it('should return false when component has no properties', async () => {
+      mockGetEntity.mockResolvedValue({
         properties: undefined,
       });
 
-      const result = DataMapperStepService.supportsJsonBody();
+      const result = await DataMapperStepService.supportsJsonBody();
 
       expect(result).toBe(false);
     });

@@ -22,6 +22,11 @@ import { AttachSchemaModal } from './AttachSchemaModal';
 vi.mock('../../../../stubs/read-file-as-string');
 const mockReadFileAsString = readFileAsString as MockedFunction<typeof readFileAsString>;
 
+async function findRootElementInput() {
+  const container = await screen.findByTestId('attach-schema-root-element');
+  return container.querySelector('input') as HTMLInputElement;
+}
+
 describe('AttachSchemaModal', () => {
   afterAll(() => {
     mockReadFileAsString.mockReset();
@@ -85,6 +90,7 @@ describe('AttachSchemaModal', () => {
             documentReferenceId={BODY_DOCUMENT_ID}
             actionName="Attach"
             documentTypeLabel="Target"
+            jsonAllowed
           />
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
@@ -363,6 +369,7 @@ describe('AttachSchemaModal', () => {
             documentReferenceId={BODY_DOCUMENT_ID}
             actionName="Attach"
             documentTypeLabel="Target"
+            jsonAllowed
           />
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
@@ -453,11 +460,6 @@ describe('AttachSchemaModal', () => {
   });
 
   describe('Root Element Selection', () => {
-    async function findRootElementInput() {
-      const container = await screen.findByTestId('attach-schema-root-element');
-      return container.querySelector('input') as HTMLInputElement;
-    }
-
     it('should show root element selector when multiple elements are available', async () => {
       mockReadFileAsString.mockResolvedValue(getMultipleElementsXsd());
       render(

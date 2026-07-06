@@ -5,6 +5,7 @@ import { DynamicCatalogRegistry } from '../dynamic-catalog/dynamic-catalog-regis
 import {
   CamelComponentsProvider,
   CamelDataformatProvider,
+  CamelFunctionProvider,
   CamelLanguageProvider,
   CamelLoadbalancerProvider,
   CamelProcessorsProvider,
@@ -214,5 +215,9 @@ export const setupDynamicCatalogRegistry = (catalogsMap: Awaited<ReturnType<type
   DynamicCatalogRegistry.get().setCatalog(
     CatalogKind.Loadbalancer,
     new DynamicCatalog(new CamelLoadbalancerProvider(catalogsMap.loadbalancerCatalog)),
+  );
+  DynamicCatalogRegistry.get().setCatalog(
+    CatalogKind.Function,
+    new DynamicCatalog(new CamelFunctionProvider(catalogsMap.functionsCatalogMap)),
   );
 };

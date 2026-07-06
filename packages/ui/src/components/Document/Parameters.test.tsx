@@ -161,7 +161,7 @@ describe('ParametersSection', () => {
     });
 
     const attachButton = screen.getByTestId('attach-schema-param-testparam1-button');
-    act(() => {
+    await act(async () => {
       fireEvent.click(attachButton);
     });
     const importButton = screen.getByTestId('attach-schema-modal-btn-file');
@@ -229,7 +229,7 @@ describe('ParametersSection', () => {
     });
 
     const attachButton = screen.getByTestId('attach-schema-param-testparam1-button');
-    act(() => {
+    await act(async () => {
       fireEvent.click(attachButton);
     });
     const importButton = screen.getByTestId('attach-schema-modal-btn-file');

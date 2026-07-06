@@ -26,7 +26,6 @@ import {
   SCHEMA_FILE_NAME_PATTERN_XML,
 } from '../../../../models/datamapper/document';
 import { MetadataContext } from '../../../../providers';
-import { DataMapperStepService } from '../../../../services/datamapper-step.service';
 import { DocumentService } from '../../../../services/document/document.service';
 import { createSchemaFileItems, getFileExtension, isJsonExtension, pickAndValidateSchemaFiles } from '../utils';
 import { RootElementSelect } from './RootElementSelect';
@@ -40,6 +39,7 @@ type AttachSchemaModalProps = {
   documentReferenceId: string;
   actionName: string;
   documentTypeLabel: string;
+  jsonAllowed?: boolean;
 };
 
 export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
@@ -50,6 +50,7 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
   documentReferenceId,
   actionName,
   documentTypeLabel,
+  jsonAllowed = false,
 }) => {
   const api = useContext(MetadataContext)!;
   const { mappingTree, setIsLoading, updateDocument } = useDataMapper();
@@ -60,19 +61,7 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
   const [createDocumentResult, setCreateDocumentResult] = useState<CreateDocumentResult | null>(null);
   const [isUploadingSchema, setIsUploadingSchema] = useState(false);
 
-  const fileNamePattern = useMemo(() => {
-    if (documentType === DocumentType.SOURCE_BODY) {
-      return DataMapperStepService.supportsJsonBody() ? SCHEMA_FILE_NAME_PATTERN : SCHEMA_FILE_NAME_PATTERN_XML;
-    }
-    return SCHEMA_FILE_NAME_PATTERN;
-  }, [documentType]);
-
-  const showJsonSchemaOption = useMemo(() => {
-    if (documentType === DocumentType.SOURCE_BODY) {
-      return DataMapperStepService.supportsJsonBody();
-    }
-    return true;
-  }, [documentType]);
+  const fileNamePattern = jsonAllowed ? SCHEMA_FILE_NAME_PATTERN : SCHEMA_FILE_NAME_PATTERN_XML;
 
   const validateAndCreateDocument = useCallback(
     async (allPaths: string[]) => {
@@ -304,7 +293,7 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
                   }}
                 />
               </InputGroupItem>
-              {showJsonSchemaOption && (
+              {jsonAllowed && (
                 <InputGroupItem>
                   <Radio
                     id="option-json-schema"

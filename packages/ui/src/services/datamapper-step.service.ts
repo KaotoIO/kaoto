@@ -1,8 +1,8 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 
+import { DynamicCatalogRegistry } from '../dynamic-catalog/dynamic-catalog-registry';
 import { IVisualizationNode } from '../models';
 import { CatalogKind } from '../models/catalog-kind';
-import { CamelCatalogService } from '../models/visualization/flows/camel-catalog.service';
 import { EntitiesContextResult } from '../providers';
 import { isXSLTComponent, XSLT_COMPONENT_NAME } from '../utils';
 import type { XsltComponentDef } from '../utils/is-xslt-component';
@@ -80,8 +80,8 @@ export class DataMapperStepService {
    * This is determined by checking if the useJsonBody parameter exists in the component catalog.
    * @returns True if the xslt-saxon component supports JSON body, false otherwise
    */
-  static supportsJsonBody(): boolean {
-    const component = CamelCatalogService.getComponent(CatalogKind.Component, 'xslt-saxon');
+  static async supportsJsonBody(): Promise<boolean> {
+    const component = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Component, 'xslt-saxon');
     return component?.properties?.['useJsonBody'] !== undefined;
   }
 
@@ -105,9 +105,7 @@ export class DataMapperStepService {
       return;
     }
 
-    if (!xsltStep.to.parameters) {
-      xsltStep.to.parameters = {};
-    }
+    xsltStep.to.parameters ??= {};
 
     if (isUseJsonBody) {
       xsltStep.to.parameters.useJsonBody = true;

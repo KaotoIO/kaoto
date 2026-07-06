@@ -58,34 +58,36 @@ describe('utils', () => {
   });
 
   describe('validateFileExtension', () => {
-    it('should return undefined for valid XML extension on SOURCE_BODY', () => {
-      expect(validateFileExtension('.xsd', DocumentType.SOURCE_BODY)).toBeUndefined();
+    it('should return undefined for valid XML extension on SOURCE_BODY', async () => {
+      vi.spyOn(DataMapperStepService, 'supportsJsonBody').mockResolvedValue(false);
+      await expect(validateFileExtension('.xsd', DocumentType.SOURCE_BODY)).resolves.toBeUndefined();
     });
 
-    it('should return error for JSON on SOURCE_BODY when not supported', () => {
-      vi.spyOn(DataMapperStepService, 'supportsJsonBody').mockReturnValue(false);
-      const result = validateFileExtension('.json', DocumentType.SOURCE_BODY);
+    it('should return error for JSON on SOURCE_BODY when not supported', async () => {
+      vi.spyOn(DataMapperStepService, 'supportsJsonBody').mockResolvedValue(false);
+      const result = await validateFileExtension('.json', DocumentType.SOURCE_BODY);
       expect(result).toContain('JSON source body is not supported');
     });
 
-    it('should return undefined for JSON on SOURCE_BODY when supported', () => {
-      vi.spyOn(DataMapperStepService, 'supportsJsonBody').mockReturnValue(true);
-      expect(validateFileExtension('.json', DocumentType.SOURCE_BODY)).toBeUndefined();
+    it('should return undefined for JSON on SOURCE_BODY when supported', async () => {
+      vi.spyOn(DataMapperStepService, 'supportsJsonBody').mockResolvedValue(true);
+      await expect(validateFileExtension('.json', DocumentType.SOURCE_BODY)).resolves.toBeUndefined();
     });
 
-    it('should return error for unknown extension on SOURCE_BODY', () => {
-      const result = validateFileExtension('.txt', DocumentType.SOURCE_BODY);
+    it('should return error for unknown extension on SOURCE_BODY', async () => {
+      vi.spyOn(DataMapperStepService, 'supportsJsonBody').mockResolvedValue(false);
+      const result = await validateFileExtension('.txt', DocumentType.SOURCE_BODY);
       expect(result).toContain("Unknown file extension '.txt'");
       expect(result).toContain('Only XML schema file');
     });
 
-    it('should return undefined for valid extensions on TARGET_BODY', () => {
-      expect(validateFileExtension('.xsd', DocumentType.TARGET_BODY)).toBeUndefined();
-      expect(validateFileExtension('.json', DocumentType.TARGET_BODY)).toBeUndefined();
+    it('should return undefined for valid extensions on TARGET_BODY', async () => {
+      await expect(validateFileExtension('.xsd', DocumentType.TARGET_BODY)).resolves.toBeUndefined();
+      await expect(validateFileExtension('.json', DocumentType.TARGET_BODY)).resolves.toBeUndefined();
     });
 
-    it('should return error for unknown extension on TARGET_BODY', () => {
-      const result = validateFileExtension('.txt', DocumentType.TARGET_BODY);
+    it('should return error for unknown extension on TARGET_BODY', async () => {
+      const result = await validateFileExtension('.txt', DocumentType.TARGET_BODY);
       expect(result).toContain("Unknown file extension '.txt'");
       expect(result).toContain('Either XML schema');
     });

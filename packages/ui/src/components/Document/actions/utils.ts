@@ -24,9 +24,11 @@ export function isJsonExtension(ext: string): boolean {
   return VALID_JSON_EXTENSIONS.includes(ext);
 }
 
-export function validateFileExtension(ext: string, documentType: DocumentType): string | undefined {
+/** Public for tests only */
+export async function validateFileExtension(ext: string, documentType: DocumentType): Promise<string | undefined> {
   if (documentType === DocumentType.SOURCE_BODY) {
-    if (isJsonExtension(ext) && !DataMapperStepService.supportsJsonBody()) {
+    const doesDatamapperSupportsJsonBody = await DataMapperStepService.supportsJsonBody();
+    if (isJsonExtension(ext) && !doesDatamapperSupportsJsonBody) {
       return 'JSON source body is not supported. The xslt-saxon component requires the useJsonBody parameter which is not available in this Camel version. Please use parameter for JSON source.';
     }
     if (!isXmlExtension(ext) && !isJsonExtension(ext)) {
@@ -155,7 +157,7 @@ export async function pickAndValidateSchemaFiles(
   // Validate file extensions for all selected files
   for (const filePath of newPaths) {
     const ext = getFileExtension(filePath);
-    const extensionError = validateFileExtension(ext, documentType);
+    const extensionError = await validateFileExtension(ext, documentType);
     if (extensionError) {
       return { paths: [], error: extensionError };
     }
