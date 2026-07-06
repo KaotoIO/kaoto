@@ -49,11 +49,11 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
     setIsWarningModalOpen(false);
   }, []);
 
-  const handleWarningModal = useCallback(() => {
+  const handleWarningModal = useCallback(async () => {
     if (actionName === 'Update') {
       onWarningModalOpen();
     } else {
-      void onAttachSchemaModalOpen();
+      await onAttachSchemaModalOpen();
     }
   }, [actionName, onAttachSchemaModalOpen, onWarningModalOpen]);
 
