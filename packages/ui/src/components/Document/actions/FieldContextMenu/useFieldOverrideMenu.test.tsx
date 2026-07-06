@@ -185,8 +185,13 @@ describe('useFieldOverrideMenu', () => {
       expect(screen.getByText(/Field Override:/)).toBeInTheDocument();
     });
 
+    // Find the typeahead toggle button for the type selector and open it
+    const typeToggle = screen
+      .getByTestId('type-select')
+      .closest('.pf-v6-c-menu-toggle')!
+      .querySelector('.pf-v6-c-menu-toggle__button') as HTMLButtonElement;
     act(() => {
-      fireEvent.click(screen.getByRole('button', { name: 'Select a new type...' }));
+      fireEvent.click(typeToggle);
     });
 
     const intOption = screen.getAllByText('int').find((el) => el.closest('[role="option"]'));

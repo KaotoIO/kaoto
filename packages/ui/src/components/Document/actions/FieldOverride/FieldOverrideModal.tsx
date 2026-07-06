@@ -6,22 +6,17 @@ import {
   HelperText,
   HelperTextItem,
   Icon,
-  MenuToggle,
-  MenuToggleElement,
   ModalBody,
   ModalFooter,
   ModalHeader,
   ModalVariant,
   Radio,
-  Select,
-  SelectList,
-  SelectOption,
   Spinner,
   Split,
   SplitItem,
 } from '@patternfly/react-core';
 import { FileImportIcon, WrenchIcon } from '@patternfly/react-icons';
-import { FunctionComponent, MouseEvent, Ref, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { IField, SCHEMA_FILE_NAME_PATTERN_XML } from '../../../../models/datamapper/document';
@@ -30,6 +25,7 @@ import { MetadataContext } from '../../../../providers';
 import { formatQNameWithPrefix } from '../../../../services/namespace-util';
 import { SchemaPathService } from '../../../../services/schema-path.service';
 import { DataMapperModal } from '../../../DataMapper/DataMapperModal';
+import { TypeaheadSelect, TypeaheadSelectOption } from '../AttachSchema/TypeaheadSelect';
 import { getFileName, pickAndValidateSchemaFiles } from '../utils';
 import { CandidateDisplay, getOverrideCandidates, OverrideMode } from './override-util';
 import { SchemaFileList } from './SchemaFileList';
@@ -62,12 +58,9 @@ export const FieldOverrideModal: FunctionComponent<FieldOverrideModalProps> = ({
   const [overrideMode, setOverrideMode] = useState<OverrideMode>(initialMode);
   const [selectedKey, setSelectedKey] = useState<string | null>(initialCandidates.selectedKey);
   const [candidates, setCandidates] = useState<Record<string, CandidateDisplay>>(initialCandidates.candidates);
-  const [isSelectOpen, setIsSelectOpen] = useState(false);
   const [uploadedSchemas, setUploadedSchemas] = useState<Record<string, string>>({});
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isUploadingSchema, setIsUploadingSchema] = useState(false);
-
-  const selectedCandidate = selectedKey ? (candidates[selectedKey] ?? null) : null;
 
   const existingFiles = Object.keys(field?.ownerDocument?.definition?.definitionFiles ?? {});
 
@@ -94,18 +87,15 @@ export const FieldOverrideModal: FunctionComponent<FieldOverrideModalProps> = ({
     return () => {
       setUploadError(null);
       setSelectedKey(null);
-      setIsSelectOpen(false);
       setUploadedSchemas({});
     };
   }, []);
 
   const handleTypeSelect = useCallback(
-    (_event: MouseEvent | undefined, value: string | number | undefined) => {
-      const key = value as string;
-      if (key in candidates) {
-        setSelectedKey(key);
+    (value: string) => {
+      if (value in candidates) {
+        setSelectedKey(value);
       }
-      setIsSelectOpen(false);
     },
     [candidates],
   );
@@ -173,34 +163,26 @@ export const FieldOverrideModal: FunctionComponent<FieldOverrideModalProps> = ({
     if (overrideMode === 'substitution') {
       onSave({ mode: 'substitution', selectedKey });
     } else {
-      const selectedType = candidates[selectedKey] as IFieldTypeInfo | undefined;
+      const selectedType = candidates[selectedKey]?.rawTypeInfo;
       if (selectedType) {
         onSave({ mode: 'type', selectedType, selectedKey });
       }
     }
   }, [selectedKey, overrideMode, candidates, onSave]);
 
-  const handleToggleSelect = useCallback(() => {
-    setIsSelectOpen((prev) => !prev);
-  }, []);
-
   const isSubstitutionMode = overrideMode === 'substitution';
   const selectLabel = isSubstitutionMode ? 'Substitute Element' : 'New Type';
   const selectPlaceholder = isSubstitutionMode ? 'Select a substitute element...' : 'Select a new type...';
 
-  const renderToggle = useCallback(
-    (toggleRef: Ref<MenuToggleElement>) => (
-      <MenuToggle ref={toggleRef} onClick={handleToggleSelect} isExpanded={isSelectOpen} isFullWidth>
-        {selectedCandidate?.displayName || selectPlaceholder}
-      </MenuToggle>
-    ),
-    [handleToggleSelect, isSelectOpen, selectedCandidate?.displayName, selectPlaceholder],
-  );
-
-  const sortedCandidates = useMemo(
-    () => Object.entries(candidates).sort(([, a], [, b]) => a.displayName.localeCompare(b.displayName)),
-    [candidates],
-  );
+  const typeaheadOptions = useMemo<TypeaheadSelectOption[]>(() => {
+    return Object.entries(candidates)
+      .sort(([, a], [, b]) => a.displayName.localeCompare(b.displayName))
+      .map(([key, candidate]) => ({
+        value: key,
+        label: candidate.displayName,
+        ...(candidate.namespaceURI && { description: `Namespace URI: ${candidate.namespaceURI}` }),
+      }));
+  }, [candidates]);
 
   const hasExistingOverride = field?.typeOverride !== FieldOverrideVariant.NONE || isAbstractWrapper;
 
@@ -273,35 +255,16 @@ export const FieldOverrideModal: FunctionComponent<FieldOverrideModalProps> = ({
           </FormGroup>
 
           <FormGroup label={selectLabel} fieldId="type-select" isRequired>
-            <Select
+            <TypeaheadSelect
               id="type-select"
-              isOpen={isSelectOpen}
-              selected={selectedKey}
-              onSelect={handleTypeSelect}
-              onOpenChange={(isOpen) => {
-                setIsSelectOpen(isOpen);
-              }}
-              toggle={renderToggle}
-              maxMenuHeight="240px"
-              popperProps={{
-                preventOverflow: true,
-              }}
-            >
-              <SelectList>
-                {sortedCandidates.map(([key, candidate]) => (
-                  <SelectOption key={key} value={key}>
-                    {candidate.displayName}
-                  </SelectOption>
-                ))}
-              </SelectList>
-            </Select>
-            {selectedCandidate?.description && (
-              <FormHelperText>
-                <HelperText>
-                  <HelperTextItem>{selectedCandidate.description}</HelperTextItem>
-                </HelperText>
-              </FormHelperText>
-            )}
+              data-testid="type-select"
+              value={selectedKey ?? ''}
+              onChange={handleTypeSelect}
+              options={typeaheadOptions}
+              placeholder={selectPlaceholder}
+              ariaLabel={selectLabel}
+              popperProps={{ width: 'trigger' }}
+            />
           </FormGroup>
 
           <FormGroup label="Document Schema Files" fieldId="schema-upload">

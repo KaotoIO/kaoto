@@ -163,4 +163,69 @@ describe('TypeaheadSelect', () => {
     });
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
   });
+
+  it('should not close when blur target is inside the listbox', () => {
+    render(<TypeaheadSelect value="order-key" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);
+    act(() => {
+      fireEvent.focus(getInput());
+    });
+
+    // Blur to one of the PF listbox option buttons — handleBlur should detect relatedTarget inside [role="listbox"]
+    const options = screen.getAllByRole('option');
+    act(() => {
+      fireEvent.blur(getInput(), { relatedTarget: options[0] });
+    });
+
+    // Dropdown should stay open because relatedTarget is inside the listbox
+    expect(screen.getAllByRole('listbox').length).toBeGreaterThan(0);
+  });
+
+  it('should fall back to value when option has no label', () => {
+    const noLabelOptions: TypeaheadSelectOption[] = [{ value: 'raw-value', description: 'some description' }];
+    render(
+      <TypeaheadSelect value="raw-value" onChange={vi.fn()} options={noLabelOptions} data-testid="select-input" />,
+    );
+    // selectedLabel should fall back to value when label is undefined
+    expect(getInput().value).toBe('raw-value');
+  });
+
+  it('should display value in dropdown when option has no label', () => {
+    const noLabelOptions: TypeaheadSelectOption[] = [{ value: 'raw-value', description: 'some description' }];
+    render(
+      <TypeaheadSelect value="other-value" onChange={vi.fn()} options={noLabelOptions} data-testid="select-input" />,
+    );
+    act(() => {
+      fireEvent.focus(getInput());
+    });
+    expect(screen.getByText('raw-value')).toBeInTheDocument();
+  });
+
+  it('should not call onChange when dropdown opens without selecting an option', () => {
+    const onChange = vi.fn();
+    render(<TypeaheadSelect value="order-key" onChange={onChange} options={OPTIONS} data-testid="select-input" />);
+    act(() => {
+      fireEvent.focus(getInput());
+    });
+    // Opening the dropdown alone must not trigger onChange
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('should keep dropdown open when typing while already open', () => {
+    render(<TypeaheadSelect value="order-key" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);
+    act(() => {
+      fireEvent.focus(getInput());
+    });
+    expect(screen.getAllByRole('listbox').length).toBeGreaterThan(0);
+
+    // Type while dropdown is already open — it should remain open
+    act(() => {
+      fireEvent.change(getInput(), { target: { value: 'O' } });
+    });
+    expect(screen.getAllByRole('listbox').length).toBeGreaterThan(0);
+  });
+
+  it('should not render clear button when no value is displayed', () => {
+    render(<TypeaheadSelect value="" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);
+    expect(screen.queryByLabelText('Clear expression')).not.toBeInTheDocument();
+  });
 });

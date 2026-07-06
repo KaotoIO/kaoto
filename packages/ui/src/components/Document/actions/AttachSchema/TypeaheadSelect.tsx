@@ -2,6 +2,7 @@ import {
   Button,
   MenuToggle,
   MenuToggleElement,
+  PopperOptions,
   Select,
   SelectList,
   SelectOption,
@@ -15,7 +16,7 @@ import { FunctionComponent, Ref, useCallback, useMemo, useRef, useState } from '
 export interface TypeaheadSelectOption {
   value: string;
   label?: string;
-  description: string;
+  description?: string;
 }
 
 interface TypeaheadSelectProps {
@@ -27,6 +28,7 @@ interface TypeaheadSelectProps {
   placeholder?: string;
   ariaLabel?: string;
   className?: string;
+  popperProps?: PopperOptions;
 }
 
 /**
@@ -43,6 +45,7 @@ export const TypeaheadSelect: FunctionComponent<TypeaheadSelectProps> = ({
   placeholder,
   ariaLabel,
   className,
+  popperProps,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [filterText, setFilterText] = useState('');
@@ -59,7 +62,7 @@ export const TypeaheadSelect: FunctionComponent<TypeaheadSelectProps> = ({
     if (!filterText) return options;
     const lower = filterText.toLowerCase();
     return options.filter(
-      (opt) => (opt.label ?? opt.value).toLowerCase().includes(lower) || opt.description.toLowerCase().includes(lower),
+      (opt) => (opt.label ?? opt.value).toLowerCase().includes(lower) || opt.description?.toLowerCase().includes(lower),
     );
   }, [options, filterText]);
 
@@ -151,7 +154,7 @@ export const TypeaheadSelect: FunctionComponent<TypeaheadSelectProps> = ({
       onOpenChange={setIsOpen}
       toggle={toggle}
       maxMenuHeight="240px"
-      popperProps={{ preventOverflow: true }}
+      popperProps={{ preventOverflow: true, ...popperProps }}
     >
       <SelectList>
         {filteredOptions.map((opt, idx) => (
