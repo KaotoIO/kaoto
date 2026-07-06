@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Properties Suggestions > should return suggestions from the catalog 1`] = `
+exports[`Properties Suggestions > should return suggestions for word="''" inputValue="'foo example'" 1`] = `
 [
   {
     "description": "The message body",
@@ -631,7 +631,7 @@ exports[`Properties Suggestions > should return suggestions from the catalog 1`]
 ]
 `;
 
-exports[`Properties Suggestions > should return suggestions when \`word\` it is not specified 1`] = `
+exports[`Properties Suggestions > should return suggestions for word="''" inputValue="'test example'" 1`] = `
 [
   {
     "description": "The message body",
@@ -1262,7 +1262,7 @@ exports[`Properties Suggestions > should return suggestions when \`word\` it is 
 ]
 `;
 
-exports[`Properties Suggestions > should return suggestions when \`word\` it is specified 1`] = `
+exports[`Properties Suggestions > should return suggestions for word="'test'" inputValue="'test example'" 1`] = `
 [
   {
     "description": "The variable with the given name",
@@ -1284,7 +1284,7 @@ exports[`Properties Suggestions > should return suggestions when \`word\` it is 
 ]
 `;
 
-exports[`Properties Suggestions > should use \`foo\` if word is empty 1`] = `
+exports[`Properties Suggestions > should return suggestions from the catalog 1`] = `
 [
   {
     "description": "The message body",

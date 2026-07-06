@@ -26,38 +26,22 @@ describe('Properties Suggestions', () => {
     expect(applies).toBe(expected);
   });
 
-  it('should use `foo` if word is empty', async () => {
-    const word = '';
-    const suggestions = await getSimpleLanguageSuggestionProvider().getSuggestions(word, {
-      inputValue: 'foo example',
-      cursorPosition: 0,
-      propertyName: 'foo-property',
-    });
+  it.each([
+    { word: '', inputValue: 'foo example', propertyName: 'foo-property' },
+    { word: 'test', inputValue: 'test example', propertyName: 'test-property' },
+    { word: '', inputValue: 'test example', propertyName: 'test-property' },
+  ] as const)(
+    'should return suggestions for word="$word" inputValue="$inputValue"',
+    async ({ word, inputValue, propertyName }) => {
+      const suggestions = await getSimpleLanguageSuggestionProvider().getSuggestions(word, {
+        inputValue,
+        cursorPosition: 0,
+        propertyName,
+      });
 
-    expect(suggestions).toMatchSnapshot();
-  });
-
-  it('should return suggestions when `word` it is specified', async () => {
-    const word = 'test';
-    const suggestions = await getSimpleLanguageSuggestionProvider().getSuggestions(word, {
-      inputValue: 'test example',
-      cursorPosition: 0,
-      propertyName: 'test-property',
-    });
-
-    expect(suggestions).toMatchSnapshot();
-  });
-
-  it('should return suggestions when `word` it is not specified', async () => {
-    const word = '';
-    const suggestions = await getSimpleLanguageSuggestionProvider().getSuggestions(word, {
-      inputValue: 'test example',
-      cursorPosition: 0,
-      propertyName: 'test-property',
-    });
-
-    expect(suggestions).toMatchSnapshot();
-  });
+      expect(suggestions).toMatchSnapshot();
+    },
+  );
 
   it('should use the DynamicCatalogRegistry to query available functions', async () => {
     const registrySpy = vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity');
