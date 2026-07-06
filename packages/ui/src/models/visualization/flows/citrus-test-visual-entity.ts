@@ -10,6 +10,7 @@ import { CITRUS_TEST_ROOT_ENTITY_NAME } from '../../citrus/citrus-catalog-index'
 import { Test, TestAction, TestActions } from '../../citrus/entities/Test';
 import { EntityType } from '../../entities';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
+import { NodeLabelType } from '../../settings';
 import {
   AddStepMode,
   BaseVisualEntity,
@@ -135,11 +136,25 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
    * @param path - The path to the node in the visualization tree
    * @returns The display label for the node
    */
-  getNodeLabel(path?: string): string {
+  getNodeLabel(path?: string, labelType?: NodeLabelType): string {
     if (!path) return '';
 
     if (path === this.getRootPath()) {
+      const description: string | undefined = this.test.description;
+      if (labelType === NodeLabelType.Description && description) {
+        return description;
+      }
+
       return this.id;
+    }
+
+    // Check if we should return description for child actions
+    if (labelType === NodeLabelType.Description) {
+      const actionModel: TestAction = getValue(this.test, this.toModelPath(path));
+      const description = actionModel?.description;
+      if (description) {
+        return description;
+      }
     }
 
     const name = path.split('.').pop() || '';

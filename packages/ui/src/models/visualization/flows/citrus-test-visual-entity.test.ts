@@ -113,9 +113,55 @@ describe('CitrusTestVisualEntity', () => {
       expect(label).toBe('sample-test');
     });
 
+    it('should return the description as a node label', () => {
+      const testDefinition = cloneDeep(citrusTestJson);
+      testDefinition.description = 'Test description';
+      citrusTestEntity = new CitrusTestVisualEntity(testDefinition);
+
+      const result = citrusTestEntity.getNodeLabel('test', NodeLabelType.Description);
+
+      expect(result).toBe('Test description');
+    });
+
+    it('should return the ID as a node label if description is empty', () => {
+      const testDefinition = cloneDeep(citrusTestJson);
+      testDefinition.description = '';
+      citrusTestEntity = new CitrusTestVisualEntity(testDefinition);
+
+      const result = citrusTestEntity.getNodeLabel('test', NodeLabelType.Description);
+
+      expect(result).toBe('sample-test');
+    });
+
     it('should get the label from given node path', () => {
       const label = citrusTestEntity.getNodeLabel('actions.0.print');
       expect(label).toBe('print');
+    });
+
+    it('should return the description for a child action when available', () => {
+      const testDefinition = cloneDeep(citrusTestJson);
+      setValue(testDefinition, 'actions.0.print.description', 'Print greeting message');
+      citrusTestEntity = new CitrusTestVisualEntity(testDefinition);
+
+      const result = citrusTestEntity.getNodeLabel('actions.0.print', NodeLabelType.Description);
+
+      expect(result).toBe('Print greeting message');
+    });
+
+    it('should return the default label for a child action when description is not available', () => {
+      const result = citrusTestEntity.getNodeLabel('actions.0.print', NodeLabelType.Description);
+
+      expect(result).toBe('print');
+    });
+
+    it('should return the default label for a child action when labelType is not Description', () => {
+      const testDefinition = cloneDeep(citrusTestJson);
+      setValue(testDefinition, 'actions.0.print.description', 'Print greeting message');
+      citrusTestEntity = new CitrusTestVisualEntity(testDefinition);
+
+      const result = citrusTestEntity.getNodeLabel('actions.0.print');
+
+      expect(result).toBe('print');
     });
   });
 
@@ -924,7 +970,7 @@ describe('CitrusTestVisualEntity', () => {
       citrusTestEntity.test.description = 'This is a test description';
       const vizNode = await citrusTestEntity.toVizNode();
 
-      expect(vizNode.getNodeLabel(NodeLabelType.Description)).toBe('sample-test');
+      expect(vizNode.getNodeLabel(NodeLabelType.Description)).toBe('This is a test description');
     });
 
     it('should use the path name as the node label', async () => {
