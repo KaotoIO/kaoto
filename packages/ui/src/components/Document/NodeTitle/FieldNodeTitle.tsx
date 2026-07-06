@@ -21,6 +21,7 @@ export const FieldNodeTitle: FunctionComponent<FieldNodeTitleProps> = ({ classNa
   const isChoiceWrapper = VisualizationUtilService.isUnselectedChoiceField(nodeData);
   const isSelectedChoiceWrapper = VisualizationUtilService.isSelectedNestedChoice(nodeData);
   const isAbstractWrapper = VisualizationUtilService.isUnselectedAbstractField(nodeData);
+  const isSequenceWrapper = VisualizationUtilService.isSequenceField(nodeData);
   const hasNoCandidates = isAbstractWrapper && (nodeData.field.fields ?? []).length === 0;
   const optionalField = nodeData.field.minOccurs === 0;
   const repeatingField0 = nodeData.field.minOccurs >= 0 && nodeData.field.maxOccurs === 'unbounded';
@@ -39,17 +40,20 @@ export const FieldNodeTitle: FunctionComponent<FieldNodeTitleProps> = ({ classNa
           {hasNoCandidates ? 'abstract (no candidates)' : 'abstract'}
         </Label>
       )}
-      <span
-        className={clsx(
-          'node-title__text',
-          isChoiceWrapper && 'node-title__text__choice',
-          isAbstractWrapper && 'node-title__text__abstract',
-          className,
-        )}
-        data-rank={rank}
-      >
-        {title}
-      </span>
+      {isSequenceWrapper && <Label>sequence</Label>}
+      {!isSequenceWrapper && (
+        <span
+          className={clsx(
+            'node-title__text',
+            isChoiceWrapper && 'node-title__text__choice',
+            isAbstractWrapper && 'node-title__text__abstract',
+            className,
+          )}
+          data-rank={rank}
+        >
+          {title}
+        </span>
+      )}
       {optionalField && !repeatingField0 && (
         <OptIcon className="node__spacer datamapper-marker-field" aria-label="Optional" />
       )}

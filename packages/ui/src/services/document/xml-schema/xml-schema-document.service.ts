@@ -924,9 +924,34 @@ export class XmlSchemaDocumentService {
     fields.push(choiceField);
     ownerDoc.totalFieldCount++;
     for (const member of choice.getItems()) {
-      XmlSchemaDocumentService.populateSequenceMember(choiceField, choiceField.fields, member, visitedGroupRefs);
+      if (member instanceof XmlSchemaSequence) {
+        XmlSchemaDocumentService.populateSequenceInChoice(choiceField, choiceField.fields, member, visitedGroupRefs);
+      } else {
+        XmlSchemaDocumentService.populateSequenceMember(choiceField, choiceField.fields, member, visitedGroupRefs);
+      }
     }
     choiceField.displayName = 'choice';
+  }
+
+  private static populateSequenceInChoice(
+    parent: XmlSchemaParentType,
+    fields: XmlSchemaField[],
+    sequence: XmlSchemaSequence,
+    visitedGroupRefs?: Set<string>,
+  ) {
+    const ownerDoc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
+    const seqField = new XmlSchemaField(parent, '__sequence__', false);
+    seqField.wrapperKind = 'sequence';
+    seqField.minOccurs = sequence.getMinOccurs();
+    seqField.maxOccurs = sequence.getMaxOccurs();
+    seqField.minOccursExplicit = sequence.isMinOccursExplicit();
+    seqField.maxOccursExplicit = sequence.isMaxOccursExplicit();
+    seqField.displayName = 'sequence';
+    fields.push(seqField);
+    ownerDoc.totalFieldCount++;
+    for (const item of sequence.getItems()) {
+      XmlSchemaDocumentService.populateSequenceMember(seqField, seqField.fields, item, visitedGroupRefs);
+    }
   }
 
   /**

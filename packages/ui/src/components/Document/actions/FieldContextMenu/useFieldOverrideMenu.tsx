@@ -41,7 +41,7 @@ export function useFieldOverrideMenu(nodeData: NodeData): MenuContributor {
   }, [abstractWrapperField, field, mappingTree.namespaceMap, updateDocument]);
 
   const groups = useMemo((): MenuGroup[] => {
-    if (field?.wrapperKind === 'choice') return [];
+    if (field?.wrapperKind === 'choice' || field?.wrapperKind === 'sequence') return [];
     return [
       { actions: [{ label: 'Override Field...', onClick: handleOverrideType, testId: 'field-override' }] },
       hasFieldOverride

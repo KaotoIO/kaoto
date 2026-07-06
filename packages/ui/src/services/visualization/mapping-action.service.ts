@@ -28,6 +28,7 @@ import {
   TargetDocumentNodeData,
   TargetFieldNodeData,
   TargetNodeData,
+  TargetSequenceFieldNodeData,
   VariableNodeData,
 } from '../../models/datamapper/visualization';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
@@ -277,7 +278,7 @@ export class MappingActionService {
   static applyInnerIf(nodeData: TargetNodeData) {
     // If applying to an IfItem node, use the mapping directly
     if (MappingActionService.isMappingNode(nodeData)) {
-      const mapping = (nodeData as MappingNodeData).mapping;
+      const mapping = nodeData.mapping;
       if (mapping instanceof IfItem) {
         MappingService.addInnerIf(mapping);
         return;
@@ -535,6 +536,9 @@ export class MappingActionService {
     if (fieldNodeData instanceof TargetAbstractFieldNodeData && !fieldNodeData.abstractField) {
       return MappingActionService.getOrCreateFieldItem(fieldNodeData.parent);
     }
+    if (fieldNodeData instanceof TargetSequenceFieldNodeData) {
+      return MappingActionService.getOrCreateFieldItem(fieldNodeData.parent);
+    }
     const parentItem = MappingActionService.getOrCreateFieldItem(fieldNodeData.parent);
     return MappingService.createFieldItem(parentItem, fieldNodeData.field);
   }
@@ -546,7 +550,7 @@ export class MappingActionService {
         if (current.mapping instanceof ForEachGroupItem) return true;
         if (current.mapping instanceof ForEachItem && current.mapping.expression === 'current-group()') return false;
       }
-      current = 'parent' in current ? (current.parent as TargetNodeData) : undefined;
+      current = 'parent' in current ? current.parent : undefined;
     }
     return false;
   }

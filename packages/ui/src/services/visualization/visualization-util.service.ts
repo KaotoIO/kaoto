@@ -5,8 +5,10 @@ import {
   FieldItemNodeData,
   FieldNodeData,
   NodeData,
+  SequenceFieldNodeData,
   TargetAbstractFieldNodeData,
   TargetChoiceFieldNodeData,
+  TargetSequenceFieldNodeData,
 } from '../../models/datamapper/visualization';
 import { DocumentService } from '../document/document.service';
 
@@ -146,6 +148,14 @@ export class VisualizationUtilService {
     nodeData: NodeData,
   ): nodeData is AbstractFieldNodeData | TargetAbstractFieldNodeData {
     return VisualizationUtilService.isAbstractField(nodeData) && !nodeData.abstractField;
+  }
+
+  /**
+   * Returns `true` if the node is a sequence wrapper field, on either source or target side.
+   * @param nodeData - The node to test.
+   */
+  static isSequenceField(nodeData: NodeData): nodeData is SequenceFieldNodeData | TargetSequenceFieldNodeData {
+    return nodeData instanceof SequenceFieldNodeData || nodeData instanceof TargetSequenceFieldNodeData;
   }
 
   /**

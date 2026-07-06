@@ -17,8 +17,9 @@ export type IParentType = IDocument | IField;
  * Discriminator for synthetic wrapper fields that group selectable candidates.
  * - `'choice'` — xs:choice compositor wrapping mutually exclusive element alternatives
  * - `'abstract'` — abstract element wrapper holding concrete substitution group members
+ * - `'sequence'` — xs:sequence compositor inside xs:choice, grouping elements that must appear together as one choice option
  */
-export type WrapperKind = 'choice' | 'abstract';
+export type WrapperKind = 'choice' | 'abstract' | 'sequence';
 
 /**
  * Immutable snapshot of a field's identity and structure taken lazily on first expansion

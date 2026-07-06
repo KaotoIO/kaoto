@@ -130,6 +130,19 @@
                         </xs:choice>
                     </xs:complexType>
                 </xs:element>
+                <!-- xs:sequence directly inside xs:choice — elements grouped as one option -->
+                <xs:element name="SequenceInChoiceElement">
+                    <xs:complexType>
+                        <xs:choice>
+                            <xs:element name="dataValue" type="xs:string"/>
+                            <xs:element name="numericValue" type="xs:decimal"/>
+                            <xs:sequence>
+                                <xs:element name="key" type="xs:string"/>
+                                <xs:element name="value" type="xs:string"/>
+                            </xs:sequence>
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
                 <xs:element name="ContainerChoiceElement">
                     <xs:complexType>
                         <xs:choice>

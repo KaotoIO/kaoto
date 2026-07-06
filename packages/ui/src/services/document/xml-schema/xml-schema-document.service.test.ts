@@ -116,6 +116,43 @@ describe('XmlSchemaDocumentService', () => {
     expect(choiceWrapper.fields.find((f) => f.name === 'Group1Element2')).toBeDefined();
   });
 
+  it('should wrap xs:sequence inside xs:choice as a sequence wrapper field', () => {
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'testDocument.xsd': getTestDocumentXsd(),
+      },
+    );
+    const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+    expect(result.validationStatus).toBe('success');
+    const document = result.document as XmlSchemaDocument;
+    const testDoc = XmlSchemaDocumentUtilService.getFirstElement(document.xmlSchemaCollection)!;
+    const fields: XmlSchemaField[] = [];
+    XmlSchemaDocumentService.populateElement(document, fields, testDoc);
+
+    const testDocument = fields[0];
+    const seqInChoiceElement = testDocument.fields.find((f) => f.name === 'SequenceInChoiceElement')!;
+    expect(seqInChoiceElement).toBeDefined();
+
+    const choiceWrapper = seqInChoiceElement.fields[0];
+    expect(choiceWrapper.wrapperKind).toBe('choice');
+
+    // dataValue, numericValue, and a sequence wrapper (not flattened)
+    expect(choiceWrapper.fields).toHaveLength(3);
+    expect(choiceWrapper.fields.find((f) => f.name === 'dataValue')).toBeDefined();
+    expect(choiceWrapper.fields.find((f) => f.name === 'numericValue')).toBeDefined();
+
+    const seqWrapper = choiceWrapper.fields.find((f) => f.wrapperKind === 'sequence')!;
+    expect(seqWrapper).toBeDefined();
+    expect(seqWrapper.name).toBe('__sequence__');
+    expect(seqWrapper.displayName).toBe('sequence');
+    expect(seqWrapper.fields).toHaveLength(2);
+    expect(seqWrapper.fields.find((f) => f.name === 'key')).toBeDefined();
+    expect(seqWrapper.fields.find((f) => f.name === 'value')).toBeDefined();
+  });
+
   it('should preserve maxOccurs from xs:choice on the choice wrapper', () => {
     const xsdContent = `<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">

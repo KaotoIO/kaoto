@@ -59,13 +59,15 @@ export type SourceNodeDataType =
   | FieldNodeData
   | ChoiceFieldNodeData
   | AbstractFieldNodeData
+  | SequenceFieldNodeData
   | SourceVariableNodeData;
 /** Union of all valid target-side node types. */
 export type TargetNodeDataType =
   | TargetDocumentNodeData
   | TargetFieldNodeData
   | TargetChoiceFieldNodeData
-  | TargetAbstractFieldNodeData;
+  | TargetAbstractFieldNodeData
+  | TargetSequenceFieldNodeData;
 
 /**
  * Visualization node for a source or target document root.
@@ -214,6 +216,17 @@ export class TargetAbstractFieldNodeData extends TargetFieldNodeData {
   /** The abstract wrapper field when a member is selected; `undefined` for the unselected wrapper itself. */
   abstractField?: IField;
 }
+
+/**
+ * Visualization node for a source xs:sequence wrapper field inside an xs:choice.
+ * Sequence wrappers have no selection mechanism — they always render all children.
+ */
+export class SequenceFieldNodeData extends FieldNodeData {}
+
+/**
+ * Target-side counterpart of {@link SequenceFieldNodeData}.
+ */
+export class TargetSequenceFieldNodeData extends TargetFieldNodeData {}
 
 /**
  * Visualization node for a mapping item (e.g. `if`, `choose`, `forEach`, `valueSelector`).

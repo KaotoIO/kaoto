@@ -281,6 +281,70 @@ describe('DocumentService', () => {
       expect(result?.name).toBe('email');
     });
 
+    it('should find a compatible field inside a sequence wrapper nested in a choice compositor', () => {
+      const srcDoc = TestUtil.createSourceOrderDoc();
+      const tgtDoc = TestUtil.createTargetOrderDoc();
+
+      const srcShipOrderField = srcDoc.fields[0];
+      const srcChoice = new XmlSchemaField(srcShipOrderField, 'choice', false);
+      srcChoice.wrapperKind = 'choice';
+      const srcSeq = new XmlSchemaField(srcChoice, '__sequence__', false);
+      srcSeq.wrapperKind = 'sequence';
+      const srcKeyField = new XmlSchemaField(srcSeq, 'key', false);
+      srcSeq.fields = [srcKeyField];
+      srcChoice.fields = [srcSeq];
+      srcShipOrderField.fields.push(srcChoice);
+
+      const tgtShipOrderField = tgtDoc.fields[0];
+      const tgtChoice = new XmlSchemaField(tgtShipOrderField, 'choice', false);
+      tgtChoice.wrapperKind = 'choice';
+      const tgtSeq = new XmlSchemaField(tgtChoice, '__sequence__', false);
+      tgtSeq.wrapperKind = 'sequence';
+      const tgtKeyField = new XmlSchemaField(tgtSeq, 'key', false);
+      tgtSeq.fields = [tgtKeyField];
+      tgtChoice.fields = [tgtSeq];
+      tgtShipOrderField.fields.push(tgtChoice);
+
+      const result = DocumentService.getCompatibleField(tgtDoc, srcKeyField);
+
+      expect(result?.name).toBe('key');
+    });
+
+    it('should match sequence wrappers by positional index', () => {
+      const srcDoc = TestUtil.createSourceOrderDoc();
+      const tgtDoc = TestUtil.createTargetOrderDoc();
+
+      const srcShipOrderField = srcDoc.fields[0];
+      const srcChoice = new XmlSchemaField(srcShipOrderField, 'choice', false);
+      srcChoice.wrapperKind = 'choice';
+      const srcSeq0 = new XmlSchemaField(srcChoice, '__sequence__', false);
+      srcSeq0.wrapperKind = 'sequence';
+      srcSeq0.fields = [new XmlSchemaField(srcSeq0, 'alpha', false)];
+      const srcSeq1 = new XmlSchemaField(srcChoice, '__sequence__', false);
+      srcSeq1.wrapperKind = 'sequence';
+      const srcBetaField = new XmlSchemaField(srcSeq1, 'beta', false);
+      srcSeq1.fields = [srcBetaField];
+      srcChoice.fields = [srcSeq0, srcSeq1];
+      srcShipOrderField.fields.push(srcChoice);
+
+      const tgtShipOrderField = tgtDoc.fields[0];
+      const tgtChoice = new XmlSchemaField(tgtShipOrderField, 'choice', false);
+      tgtChoice.wrapperKind = 'choice';
+      const tgtSeq0 = new XmlSchemaField(tgtChoice, '__sequence__', false);
+      tgtSeq0.wrapperKind = 'sequence';
+      tgtSeq0.fields = [new XmlSchemaField(tgtSeq0, 'alpha', false)];
+      const tgtSeq1 = new XmlSchemaField(tgtChoice, '__sequence__', false);
+      tgtSeq1.wrapperKind = 'sequence';
+      const tgtBetaField = new XmlSchemaField(tgtSeq1, 'beta', false);
+      tgtSeq1.fields = [tgtBetaField];
+      tgtChoice.fields = [tgtSeq0, tgtSeq1];
+      tgtShipOrderField.fields.push(tgtChoice);
+
+      const result = DocumentService.getCompatibleField(tgtDoc, srcBetaField);
+
+      expect(result?.name).toBe('beta');
+    });
+
     it('should return undefined when the source choice index has no corresponding choice in the target', () => {
       const srcDoc = TestUtil.createSourceOrderDoc();
       const tgtDoc = TestUtil.createTargetOrderDoc();
