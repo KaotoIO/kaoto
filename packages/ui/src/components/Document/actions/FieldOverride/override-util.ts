@@ -1,5 +1,5 @@
 import { IField } from '../../../../models/datamapper/document';
-import { FieldOverrideVariant } from '../../../../models/datamapper/types';
+import { FieldOverrideVariant, IFieldSubstituteInfo, IFieldTypeInfo } from '../../../../models/datamapper/types';
 import { FieldOverrideService } from '../../../../services/document/field-override.service';
 import { formatQNameWithPrefix, formatWithPrefix } from '../../../../services/namespace-util';
 
@@ -44,7 +44,12 @@ export function getOverrideDisplayInfo(
 export type OverrideMode = 'type' | 'substitution';
 
 /** Minimal display shape shared by type and substitution candidates */
-export type CandidateDisplay = { displayName: string; description?: string };
+export type CandidateDisplay = {
+  displayName: string;
+  namespaceURI: string;
+  /** Populated only for type-mode candidates; undefined for substitution candidates */
+  rawTypeInfo?: IFieldTypeInfo;
+};
 
 /** Derive the pre-selected key when opening the modal for a field with an existing override. */
 export function derivePreselectedKey(
@@ -76,11 +81,30 @@ export function getOverrideCandidates(
   field: IField,
   mode: OverrideMode,
   namespaceMap: Record<string, string>,
-): { candidates: Record<string, CandidateDisplay>; selectedKey: string | null } {
-  const candidates =
-    mode === 'substitution'
-      ? FieldOverrideService.getFieldSubstitutionCandidates(field, namespaceMap)
-      : FieldOverrideService.getSafeOverrideCandidates(field, namespaceMap);
+): {
+  candidates: Record<string, CandidateDisplay>;
+  selectedKey: string | null;
+} {
+  const isSubstitution = mode === 'substitution';
+
+  const rawCandidates = isSubstitution
+    ? FieldOverrideService.getFieldSubstitutionCandidates(field, namespaceMap)
+    : FieldOverrideService.getSafeOverrideCandidates(field, namespaceMap);
+
+  const candidates: Record<string, CandidateDisplay> = {};
+
+  for (const [key, value] of Object.entries(rawCandidates)) {
+    const namespaceURI = isSubstitution
+      ? (value as IFieldSubstituteInfo).qname.getNamespaceURI()
+      : (value as IFieldTypeInfo).typeQName.getNamespaceURI();
+
+    candidates[key] = {
+      displayName: value.displayName,
+      namespaceURI,
+      rawTypeInfo: isSubstitution ? undefined : (value as IFieldTypeInfo),
+    };
+  }
+
   const selectedKey = derivePreselectedKey(field, mode, namespaceMap, candidates);
   return { candidates, selectedKey };
 }

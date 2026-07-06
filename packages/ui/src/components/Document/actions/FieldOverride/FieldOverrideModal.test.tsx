@@ -49,6 +49,16 @@ describe('FieldOverrideModal', () => {
     vi.restoreAllMocks();
   });
 
+  /** Returns the MenuToggle chevron button that opens/closes the typeahead dropdown. */
+  const getMenuToggle = () =>
+    screen
+      .getByTestId('type-select')
+      .closest('.pf-v6-c-menu-toggle')!
+      .querySelector('.pf-v6-c-menu-toggle__button') as HTMLButtonElement;
+
+  /** Returns the typeahead text input. */
+  const getTypeSelectInput = () => screen.getByTestId('type-select').querySelector('input') as HTMLInputElement;
+
   it('should render modal when isOpen is true', () => {
     render(
       <FieldOverrideModal onClose={vi.fn()} onSave={vi.fn()} onAttach={vi.fn()} onRemove={vi.fn()} field={testField} />,
@@ -71,12 +81,11 @@ describe('FieldOverrideModal', () => {
       <FieldOverrideModal onClose={vi.fn()} onSave={vi.fn()} onAttach={vi.fn()} onRemove={vi.fn()} field={testField} />,
     );
 
-    const toggle = screen.getByRole('button', { name: 'Select a new type...' });
     act(() => {
-      fireEvent.click(toggle);
+      fireEvent.click(getMenuToggle());
     });
 
-    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByRole('listbox')).toBeInTheDocument();
   });
 
   it('should update selected type when a type is selected from dropdown', async () => {
@@ -103,9 +112,8 @@ describe('FieldOverrideModal', () => {
       <FieldOverrideModal onClose={vi.fn()} onSave={vi.fn()} onAttach={vi.fn()} onRemove={vi.fn()} field={testField} />,
     );
 
-    const toggle = screen.getByRole('button', { name: 'Select a new type...' });
     act(() => {
-      fireEvent.click(toggle);
+      fireEvent.click(getMenuToggle());
     });
 
     const stringOptions = screen.getAllByText('string');
@@ -118,13 +126,9 @@ describe('FieldOverrideModal', () => {
     });
 
     await waitFor(() => {
-      // After selection, the toggle should show the selected type name
-      const toggle = screen.getByRole('button', { name: /string/i });
-      expect(toggle).toBeInTheDocument();
+      // After selection, the input should show the selected type label
+      expect(getTypeSelectInput().value).toBe('string');
     });
-
-    // Verify the placeholder text is no longer visible
-    expect(screen.queryByText('Select a new type...')).not.toBeInTheDocument();
   });
 
   it('should enable Save button when a type is selected', async () => {
@@ -144,9 +148,8 @@ describe('FieldOverrideModal', () => {
       <FieldOverrideModal onClose={vi.fn()} onSave={vi.fn()} onAttach={vi.fn()} onRemove={vi.fn()} field={testField} />,
     );
 
-    const toggle = screen.getByRole('button', { name: 'Select a new type...' });
     act(() => {
-      fireEvent.click(toggle);
+      fireEvent.click(getMenuToggle());
     });
 
     const stringOptions = screen.getAllByText('string');
@@ -220,9 +223,8 @@ describe('FieldOverrideModal', () => {
       />,
     );
 
-    const toggle = screen.getByRole('button', { name: 'Select a new type...' });
     act(() => {
-      fireEvent.click(toggle);
+      fireEvent.click(getMenuToggle());
     });
 
     const stringOptions = screen.getAllByText('string');
@@ -315,10 +317,11 @@ describe('FieldOverrideModal', () => {
     expect(saveButton).toBeDisabled();
   });
 
-  it('should display type description when available', async () => {
+  it('should display namespace URI as description when available', async () => {
+    const NS_XS = 'http://www.w3.org/2001/XMLSchema';
     const mockCandidates: Record<string, IFieldTypeInfo> = {
       'xs:string': {
-        typeQName: new QName('http://www.w3.org/2001/XMLSchema', 'string'),
+        typeQName: new QName(NS_XS, 'string'),
         displayName: 'string',
         description: 'A text string type',
         type: Types.String,
@@ -332,22 +335,13 @@ describe('FieldOverrideModal', () => {
       <FieldOverrideModal onClose={vi.fn()} onSave={vi.fn()} onAttach={vi.fn()} onRemove={vi.fn()} field={testField} />,
     );
 
-    const toggle = screen.getByRole('button', { name: 'Select a new type...' });
     act(() => {
-      fireEvent.click(toggle);
+      fireEvent.click(getMenuToggle());
     });
 
-    const stringOptions = screen.getAllByText('string');
-    const stringOption = stringOptions.find((el) => el.closest('[role="option"]'));
-    if (!stringOption) {
-      throw new Error('String option not found');
-    }
-    act(() => {
-      fireEvent.click(stringOption);
-    });
-
+    // Namespace URI is shown as description in the dropdown; type description is not rendered
     await waitFor(() => {
-      expect(screen.getByText('A text string type')).toBeInTheDocument();
+      expect(screen.getByText(`Namespace URI: ${NS_XS}`)).toBeInTheDocument();
     });
   });
 
@@ -379,7 +373,7 @@ describe('FieldOverrideModal', () => {
       <FieldOverrideModal onClose={vi.fn()} onSave={vi.fn()} onAttach={vi.fn()} onRemove={vi.fn()} field={testField} />,
     );
 
-    expect(screen.getByRole('button', { name: 'xs:int' })).toBeInTheDocument();
+    expect(getTypeSelectInput().value).toBe('xs:int');
   });
 
   describe('Substitution mode', () => {
@@ -410,7 +404,7 @@ describe('FieldOverrideModal', () => {
         />,
       );
 
-      const substitutionRadio = screen.getByLabelText('Substitute Element');
+      const substitutionRadio = screen.getByRole('radio', { name: 'Substitute Element' });
       act(() => {
         fireEvent.click(substitutionRadio);
       });
@@ -435,10 +429,10 @@ describe('FieldOverrideModal', () => {
       );
 
       act(() => {
-        fireEvent.click(screen.getByLabelText('Substitute Element'));
+        fireEvent.click(screen.getByRole('radio', { name: 'Substitute Element' }));
       });
 
-      expect(screen.getByRole('button', { name: 'Select a substitute element...' })).toBeInTheDocument();
+      expect(getTypeSelectInput()).toHaveAttribute('placeholder', 'Select a substitute element...');
     });
 
     it('should call onSave with substitution payload when saving in substitution mode', async () => {
@@ -460,13 +454,12 @@ describe('FieldOverrideModal', () => {
 
       // Switch to substitution mode
       act(() => {
-        fireEvent.click(screen.getByLabelText('Substitute Element'));
+        fireEvent.click(screen.getByRole('radio', { name: 'Substitute Element' }));
       });
 
       // Open dropdown and select Cat
-      const toggle = screen.getByRole('button', { name: 'Select a substitute element...' });
       act(() => {
-        fireEvent.click(toggle);
+        fireEvent.click(getMenuToggle());
       });
 
       const catOption = screen.getAllByText('Cat').find((el) => el.closest('[role="option"]'));
@@ -514,9 +507,8 @@ describe('FieldOverrideModal', () => {
       );
 
       // Select a type in type mode
-      const typeToggle = screen.getByRole('button', { name: 'Select a new type...' });
       act(() => {
-        fireEvent.click(typeToggle);
+        fireEvent.click(getMenuToggle());
       });
       const stringOption = screen.getAllByText('string').find((el) => el.closest('[role="option"]'));
       if (!stringOption) throw new Error('string option not found');
@@ -530,11 +522,11 @@ describe('FieldOverrideModal', () => {
 
       // Switch to substitution mode — selection should reset, Save should be disabled
       act(() => {
-        fireEvent.click(screen.getByLabelText('Substitute Element'));
+        fireEvent.click(screen.getByRole('radio', { name: 'Substitute Element' }));
       });
 
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
-      expect(screen.getByRole('button', { name: 'Select a substitute element...' })).toBeInTheDocument();
+      expect(getTypeSelectInput()).toHaveAttribute('placeholder', 'Select a substitute element...');
     });
 
     it('should start in substitution mode when field has existing substitution', () => {
@@ -556,8 +548,8 @@ describe('FieldOverrideModal', () => {
       );
 
       // Should auto-select substitution radio and show substitution placeholder
-      expect(screen.getByLabelText('Substitute Element')).toBeChecked();
-      expect(screen.getByRole('button', { name: 'Select a substitute element...' })).toBeInTheDocument();
+      expect(screen.getByRole('radio', { name: 'Substitute Element' })).toBeChecked();
+      expect(getTypeSelectInput()).toHaveAttribute('placeholder', 'Select a substitute element...');
     });
 
     it('should pre-select the active substitute element when field has existing substitution', () => {
@@ -582,8 +574,8 @@ describe('FieldOverrideModal', () => {
         />,
       );
 
-      // The active substitute 'sub:Cat' should be pre-selected in the dropdown toggle
-      expect(screen.getByRole('button', { name: 'Cat' })).toBeInTheDocument();
+      // The active substitute 'sub:Cat' should be pre-selected in the input
+      expect(getTypeSelectInput().value).toBe('Cat');
     });
 
     it('should disable Override Type radio when field has existing substitution', () => {
@@ -605,9 +597,9 @@ describe('FieldOverrideModal', () => {
       );
 
       // Substitution mode is active, so Override Type radio should be disabled
-      expect(screen.getByLabelText('Override Type')).toBeDisabled();
+      expect(screen.getByRole('radio', { name: 'Override Type' })).toBeDisabled();
       // The active mode radio should remain enabled
-      expect(screen.getByLabelText('Substitute Element')).not.toBeDisabled();
+      expect(screen.getByRole('radio', { name: 'Substitute Element' })).not.toBeDisabled();
     });
 
     it('should disable Substitute Element radio when field has existing type override', () => {
@@ -638,9 +630,9 @@ describe('FieldOverrideModal', () => {
       );
 
       // Type mode is active, so Substitute Element radio should be disabled
-      expect(screen.getByLabelText('Substitute Element')).toBeDisabled();
+      expect(screen.getByRole('radio', { name: 'Substitute Element' })).toBeDisabled();
       // The active mode radio should remain enabled
-      expect(screen.getByLabelText('Override Type')).not.toBeDisabled();
+      expect(screen.getByRole('radio', { name: 'Override Type' })).not.toBeDisabled();
     });
 
     it('should not disable radios when field has no existing override', () => {
@@ -662,8 +654,8 @@ describe('FieldOverrideModal', () => {
       );
 
       // Both radios should be enabled when there's no override
-      expect(screen.getByLabelText('Override Type')).not.toBeDisabled();
-      expect(screen.getByLabelText('Substitute Element')).not.toBeDisabled();
+      expect(screen.getByRole('radio', { name: 'Override Type' })).not.toBeDisabled();
+      expect(screen.getByRole('radio', { name: 'Substitute Element' })).not.toBeDisabled();
     });
   });
 
@@ -956,6 +948,258 @@ describe('FieldOverrideModal', () => {
       // Error message should be displayed
       await waitFor(() => {
         expect(screen.getByText(/Invalid schema: Invalid schema structure/)).toBeInTheDocument();
+      });
+    });
+
+    it('should skip reading a file already present in uploadedSchemas', async () => {
+      const getResourceContentMock = mockApi.getResourceContent as Mock;
+
+      // First upload succeeds
+      vi.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValueOnce(['types.xsd']);
+      getResourceContentMock.mockResolvedValueOnce('<xs:schema/>');
+
+      const onAttachMock = vi.fn();
+      renderWithContext({ onAttach: onAttachMock });
+
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('upload-schema-button'));
+      });
+      await waitFor(() => {
+        expect(onAttachMock).toHaveBeenCalledTimes(1);
+      });
+
+      // Second upload of same file — getResourceContent should NOT be called again
+      vi.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValueOnce(['types.xsd']);
+      getResourceContentMock.mockClear();
+
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('upload-schema-button'));
+      });
+
+      await waitFor(() => {
+        expect(getResourceContentMock).not.toHaveBeenCalled();
+      });
+    });
+
+    it('should skip reading a file already in existingFiles', async () => {
+      const getResourceContentMock = mockApi.getResourceContent as Mock;
+
+      // 'shipOrder.xsd' is already in existingFiles (from testTargetDoc definition)
+      vi.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValue(['shipOrder.xsd']);
+      getResourceContentMock.mockClear();
+
+      renderWithContext();
+
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('upload-schema-button'));
+      });
+
+      // File is already in existingFiles — getResourceContent should not be called
+      expect(getResourceContentMock).not.toHaveBeenCalled();
+    });
+
+    it('should do nothing when file picker returns empty selection', async () => {
+      vi.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValue([]);
+      const onAttachMock = vi.fn();
+      renderWithContext({ onAttach: onAttachMock });
+
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('upload-schema-button'));
+      });
+
+      expect(onAttachMock).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should not call onSave when Save is clicked with no selection', () => {
+      vi.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
+      const onSaveMock = vi.fn();
+
+      render(
+        <FieldOverrideModal
+          onClose={vi.fn()}
+          onSave={onSaveMock}
+          onAttach={vi.fn()}
+          onRemove={vi.fn()}
+          field={testField}
+        />,
+      );
+
+      // Save button is disabled when no key is selected, but click it anyway to confirm guard
+      const saveButton = screen.getByRole('button', { name: 'Save' });
+      expect(saveButton).toBeDisabled();
+      act(() => {
+        fireEvent.click(saveButton);
+      });
+      expect(onSaveMock).not.toHaveBeenCalled();
+    });
+
+    it('should retain the original selection when typing a non-candidate value into the filter input', async () => {
+      const mockCandidates: Record<string, IFieldTypeInfo> = {
+        'xs:string': {
+          typeQName: new QName('http://www.w3.org/2001/XMLSchema', 'string'),
+          displayName: 'string',
+          type: Types.String,
+          isBuiltIn: true,
+        },
+      };
+
+      vi.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockCandidates);
+      const onSaveMock = vi.fn();
+
+      render(
+        <FieldOverrideModal
+          onClose={vi.fn()}
+          onSave={onSaveMock}
+          onAttach={vi.fn()}
+          onRemove={vi.fn()}
+          field={testField}
+        />,
+      );
+
+      // Select a valid type first
+      act(() => {
+        fireEvent.click(getMenuToggle());
+      });
+      const stringOption = screen.getAllByText('string').find((el) => el.closest('[role="option"]'));
+      if (!stringOption) throw new Error('string option not found');
+      act(() => {
+        fireEvent.click(stringOption);
+      });
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled();
+      });
+
+      // Typing into the filter input only updates filterText in TypeaheadSelect;
+      // it never calls onChange, so selectedKey stays 'xs:string'.
+      const input = screen.getByTestId('type-select').querySelector('input') as HTMLInputElement;
+      act(() => {
+        fireEvent.focus(input);
+        fireEvent.change(input, { target: { value: 'unknown-key' } });
+      });
+
+      // Save should still fire with the original valid selection intact
+      act(() => {
+        fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+      });
+      expect(onSaveMock).toHaveBeenCalledWith({
+        mode: 'type',
+        selectedType: mockCandidates['xs:string'],
+        selectedKey: 'xs:string',
+      });
+    });
+
+    it('should start in substitution mode when field wrapperKind is abstract', () => {
+      const abstractField = { ...testField, wrapperKind: 'abstract' as const, typeOverride: FieldOverrideVariant.NONE };
+
+      vi.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
+      vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue({});
+
+      render(
+        <FieldOverrideModal
+          onClose={vi.fn()}
+          onSave={vi.fn()}
+          onAttach={vi.fn()}
+          onRemove={vi.fn()}
+          field={abstractField}
+        />,
+      );
+
+      // Abstract wrapper fields always start in substitution mode
+      expect(screen.getByRole('radio', { name: 'Substitute Element' })).toBeChecked();
+    });
+
+    it('should show Remove Override button for abstract wrapper field', () => {
+      const abstractField = { ...testField, wrapperKind: 'abstract' as const, typeOverride: FieldOverrideVariant.NONE };
+
+      vi.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
+      vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue({});
+
+      render(
+        <FieldOverrideModal
+          onClose={vi.fn()}
+          onSave={vi.fn()}
+          onAttach={vi.fn()}
+          onRemove={vi.fn()}
+          field={abstractField}
+        />,
+      );
+
+      // Abstract wrapper is treated as having an existing override
+      expect(screen.getByRole('button', { name: 'Remove Override' })).toBeInTheDocument();
+    });
+
+    it('should build typeahead options with only namespace URI as description', async () => {
+      const NS_XS = 'http://www.w3.org/2001/XMLSchema';
+      testMappingTree.namespaceMap = { xs: NS_XS };
+
+      const mockCandidates: Record<string, IFieldTypeInfo> = {
+        'xs:int': {
+          typeQName: new QName(NS_XS, 'int'),
+          displayName: 'int',
+          type: Types.Integer,
+          isBuiltIn: true,
+          description: 'Integer scalar type',
+        },
+      };
+
+      vi.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockCandidates);
+
+      render(
+        <FieldOverrideModal
+          onClose={vi.fn()}
+          onSave={vi.fn()}
+          onAttach={vi.fn()}
+          onRemove={vi.fn()}
+          field={testField}
+        />,
+      );
+
+      act(() => {
+        fireEvent.click(getMenuToggle());
+      });
+
+      // The description rendered in the SelectOption should show only the namespace URI
+      await waitFor(() => {
+        expect(screen.getByText(`Namespace URI: ${NS_XS}`)).toBeInTheDocument();
+        expect(screen.queryByText(/Integer scalar type/)).not.toBeInTheDocument();
+      });
+    });
+
+    it('should build typeahead options with only namespaceURI when description is absent', async () => {
+      const NS_XS = 'http://www.w3.org/2001/XMLSchema';
+      testMappingTree.namespaceMap = { xs: NS_XS };
+
+      const mockCandidates: Record<string, IFieldTypeInfo> = {
+        'xs:int': {
+          typeQName: new QName(NS_XS, 'int'),
+          displayName: 'int',
+          type: Types.Integer,
+          isBuiltIn: true,
+          // no description
+        },
+      };
+
+      vi.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockCandidates);
+
+      render(
+        <FieldOverrideModal
+          onClose={vi.fn()}
+          onSave={vi.fn()}
+          onAttach={vi.fn()}
+          onRemove={vi.fn()}
+          field={testField}
+        />,
+      );
+
+      act(() => {
+        fireEvent.click(getMenuToggle());
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText(`Namespace URI: ${NS_XS}`)).toBeInTheDocument();
       });
     });
   });

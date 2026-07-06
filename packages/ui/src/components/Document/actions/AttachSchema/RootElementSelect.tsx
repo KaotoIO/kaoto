@@ -23,7 +23,7 @@ export const RootElementSelect: FunctionComponent<RootElementSelectProps> = ({
       rootElementOptions.map((opt) => ({
         value: toOptionKey(opt),
         label: opt.name,
-        description: opt.namespaceUri ? `Namespace URI: ${opt.namespaceUri}` : '',
+        ...(opt.namespaceUri && { description: `Namespace URI: ${opt.namespaceUri}` }),
       })),
     [rootElementOptions],
   );
