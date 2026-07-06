@@ -78,7 +78,7 @@ export const EntitiesList: FunctionComponent<IEntitiesList> = ({
   return (
     <>
       <EntityOption
-        key={`entity-option-all`}
+        key="entity-option-all"
         entityLabel="all"
         isVisible={allEntitiesVisible}
         onToggleVisibility={() => {

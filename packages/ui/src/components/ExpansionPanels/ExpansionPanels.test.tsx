@@ -162,7 +162,7 @@ const createTestPanelWithCallback = (callbackRef: { current: boolean }) => {
     }, [context, id]);
 
     return (
-      <ExpansionPanel id={id} summary={<div>Test Panel</div>} defaultExpanded={true}>
+      <ExpansionPanel id={id} summary={<div>Test Panel</div>} defaultExpanded>
         Content
       </ExpansionPanel>
     );

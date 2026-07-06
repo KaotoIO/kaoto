@@ -21,5 +21,5 @@ export const DataMapperMonitor = () => {
     });
   }, [selectedNodePath, selectedNodeIsSource, mappingTree, sourceBodyDocument, sourceParameterMap]);
 
-  return <></>;
+  return null;
 };

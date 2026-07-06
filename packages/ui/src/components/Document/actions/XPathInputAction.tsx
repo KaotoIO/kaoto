@@ -116,7 +116,7 @@ export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ nodeData,
                       </Icon>
                     )
                   }
-                ></Button>
+                />
               </Popover>
             </InputGroupItem>
           )}

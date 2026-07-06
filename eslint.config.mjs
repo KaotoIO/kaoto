@@ -70,6 +70,18 @@ export default [
       'react/react-in-jsx-scope': 'off',
       'react/display-name': 'off',
       'react/prop-types': 'off',
+      'react/jsx-boolean-value': ['error', 'never'],
+      'react/jsx-curly-brace-presence': ['error', { props: 'never', children: 'never' }],
+      'react/no-unstable-nested-components': 'error',
+      'react/function-component-definition': [
+        'error',
+        {
+          namedComponents: 'arrow-function',
+          unnamedComponents: 'arrow-function',
+        },
+      ],
+      'react/jsx-no-useless-fragment': ['error', { allowExpressions: true }],
+      'react/self-closing-comp': 'error',
     },
   },
   eslintConfigPrettier,

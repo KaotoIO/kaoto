@@ -108,7 +108,7 @@ describe('RenderingProvider', () => {
     expect(anotherComponent).toBeNull();
   });
 
-  function ProviderConsumer(props: { anchorTag: string; registerComponents: IRegisteredComponent[] }) {
+  const ProviderConsumer = (props: { anchorTag: string; registerComponents: IRegisteredComponent[] }) => {
     const { registerComponent, getRegisteredComponents } = useContext(RenderingAnchorContext);
 
     props.registerComponents.forEach((regComponent) => {
@@ -124,5 +124,5 @@ describe('RenderingProvider', () => {
         ))}
       </div>
     );
-  }
+  };
 });

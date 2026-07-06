@@ -85,7 +85,7 @@ export const BrowserFilePickerMetadataProvider: FunctionComponent<PropsWithChild
       <input
         type="file"
         style={{ display: 'none' }}
-        data-testid={`attach-schema-file-input`}
+        data-testid="attach-schema-file-input"
         onChange={onImport}
         ref={fileInputRef}
       />

@@ -20,7 +20,7 @@ describe('CommentModal', () => {
 
   describe('Modal Visibility', () => {
     it('should render modal when isOpen is true', () => {
-      render(<CommentModal isOpen={true} onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
+      render(<CommentModal isOpen onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
       expect(screen.getByTestId('comment-modal')).toBeInTheDocument();
     });
 
@@ -32,17 +32,17 @@ describe('CommentModal', () => {
 
   describe('Adding New Comment', () => {
     it('should display "Add Comment" title when mapping has no comment', () => {
-      render(<CommentModal isOpen={true} onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
+      render(<CommentModal isOpen onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
       expect(screen.getByText('Add Comment')).toBeInTheDocument();
     });
 
     it('should display Create button when adding new comment', () => {
-      render(<CommentModal isOpen={true} onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
+      render(<CommentModal isOpen onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
       expect(screen.getByTestId('create-comment-btn')).toBeInTheDocument();
     });
 
     it('should create comment and call onUpdate when Create is clicked', () => {
-      render(<CommentModal isOpen={true} onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
+      render(<CommentModal isOpen onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
 
       const textarea = screen.getByTestId('comment-textarea');
       act(() => {
@@ -66,24 +66,24 @@ describe('CommentModal', () => {
     });
 
     it('should display "Edit Comment" title when mapping has a comment', () => {
-      render(<CommentModal isOpen={true} onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
+      render(<CommentModal isOpen onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
       expect(screen.getByText('Edit Comment')).toBeInTheDocument();
     });
 
     it('should populate textarea with existing comment', () => {
-      render(<CommentModal isOpen={true} onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
+      render(<CommentModal isOpen onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
       const textarea = screen.getByTestId('comment-textarea') as HTMLTextAreaElement;
       expect(textarea.value).toBe('Existing comment');
     });
 
     it('should display Update and Delete buttons when editing with showDeleteButton=true', () => {
-      render(<CommentModal isOpen={true} onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
+      render(<CommentModal isOpen onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
       expect(screen.getByTestId('update-comment-btn')).toBeInTheDocument();
       expect(screen.getByTestId('delete-comment-btn')).toBeInTheDocument();
     });
 
     it('should update comment and call onUpdate when Update is clicked', () => {
-      render(<CommentModal isOpen={true} onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
+      render(<CommentModal isOpen onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
 
       const textarea = screen.getByTestId('comment-textarea');
       act(() => {
@@ -101,7 +101,7 @@ describe('CommentModal', () => {
     });
 
     it('should delete comment and call onUpdate when Delete is clicked', () => {
-      render(<CommentModal isOpen={true} onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
+      render(<CommentModal isOpen onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
 
       const deleteBtn = screen.getByTestId('delete-comment-btn');
       act(() => {
@@ -122,7 +122,7 @@ describe('CommentModal', () => {
     it('should show Confirm button instead of Update/Delete when showDeleteButton=false', () => {
       render(
         <CommentModal
-          isOpen={true}
+          isOpen
           onClose={onCloseMock}
           mapping={mapping}
           onUpdate={onUpdateMock}
@@ -138,7 +138,7 @@ describe('CommentModal', () => {
     it('should update comment when Confirm is clicked with showDeleteButton=false', () => {
       render(
         <CommentModal
-          isOpen={true}
+          isOpen
           onClose={onCloseMock}
           mapping={mapping}
           onUpdate={onUpdateMock}
@@ -163,7 +163,7 @@ describe('CommentModal', () => {
 
   describe('Cancel Functionality', () => {
     it('should call onClose when Cancel is clicked', () => {
-      render(<CommentModal isOpen={true} onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
+      render(<CommentModal isOpen onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
 
       const cancelBtn = screen.getByTestId('cancel-comment-btn');
       act(() => {
@@ -175,7 +175,7 @@ describe('CommentModal', () => {
     });
 
     it('should not update mapping when Cancel is clicked', () => {
-      render(<CommentModal isOpen={true} onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
+      render(<CommentModal isOpen onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
 
       const textarea = screen.getByTestId('comment-textarea');
       act(() => {
@@ -195,7 +195,7 @@ describe('CommentModal', () => {
     it('should update textarea when mapping.comment changes', () => {
       mapping.comment = 'Initial comment';
       const { rerender } = render(
-        <CommentModal isOpen={true} onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />,
+        <CommentModal isOpen onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />,
       );
 
       const textarea = screen.getByTestId('comment-textarea') as HTMLTextAreaElement;
@@ -203,14 +203,14 @@ describe('CommentModal', () => {
 
       // Change mapping comment
       mapping.comment = 'Updated comment';
-      rerender(<CommentModal isOpen={true} onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
+      rerender(<CommentModal isOpen onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
 
       expect(textarea.value).toBe('Updated comment');
     });
 
     it('should update textarea when modal reopens with different mapping', () => {
       const { rerender } = render(
-        <CommentModal isOpen={true} onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />,
+        <CommentModal isOpen onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />,
       );
 
       // Close modal
@@ -218,7 +218,7 @@ describe('CommentModal', () => {
 
       // Change mapping and reopen
       mapping.comment = 'New comment';
-      rerender(<CommentModal isOpen={true} onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
+      rerender(<CommentModal isOpen onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
 
       const textarea = screen.getByTestId('comment-textarea') as HTMLTextAreaElement;
       expect(textarea.value).toBe('New comment');

@@ -32,7 +32,7 @@ import {
   PencilAltIcon,
   TrashIcon,
 } from '@patternfly/react-icons';
-import { CSSProperties, FunctionComponent, MouseEvent, ReactNode, Ref, useEffect, useState } from 'react';
+import { CSSProperties, FunctionComponent, MouseEvent, ReactNode, Ref, useCallback, useEffect, useState } from 'react';
 
 export type GroupingStrategy = 'group-by' | 'group-adjacent' | 'group-starting-with' | 'group-ending-with';
 
@@ -159,6 +159,54 @@ const MockTrashButton: FunctionComponent<{ ariaLabel: string }> = ({ ariaLabel }
   </ActionListItem>
 );
 
+const CollectionMenuToggle: FunctionComponent<{
+  toggleRef: Ref<MenuToggleElement>;
+  isOpen: boolean;
+  onClick: (e: MouseEvent) => void;
+}> = ({ toggleRef, isOpen, onClick }) => (
+  <MenuToggle
+    ref={toggleRef}
+    icon={<EllipsisVIcon />}
+    variant="plain"
+    onClick={onClick}
+    isExpanded={isOpen}
+    aria-label="Transformation Action list"
+    style={{ height: INPUT_HEIGHT, padding: '0 0.25rem' }}
+  />
+);
+
+const InnerCollectionMenuToggle: FunctionComponent<{
+  toggleRef: Ref<MenuToggleElement>;
+  isOpen: boolean;
+  onClick: (e: MouseEvent) => void;
+}> = ({ toggleRef, isOpen, onClick }) => (
+  <MenuToggle
+    ref={toggleRef}
+    icon={<EllipsisVIcon />}
+    variant="plain"
+    onClick={onClick}
+    isExpanded={isOpen}
+    aria-label="Transformation Action list"
+    style={{ height: INPUT_HEIGHT, padding: '0 0.25rem' }}
+  />
+);
+
+const ForEachGroupMenuToggle: FunctionComponent<{
+  toggleRef: Ref<MenuToggleElement>;
+  isOpen: boolean;
+  onClick: (e: MouseEvent) => void;
+}> = ({ toggleRef, isOpen, onClick }) => (
+  <MenuToggle
+    ref={toggleRef}
+    icon={<EllipsisVIcon />}
+    variant="plain"
+    onClick={onClick}
+    isExpanded={isOpen}
+    aria-label="for-each-group actions"
+    style={{ height: INPUT_HEIGHT, padding: '0 0.25rem' }}
+  />
+);
+
 interface MockGroupingModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -242,6 +290,19 @@ const MockCollectionFieldMenu: FunctionComponent<MockCollectionFieldMenuProps> =
     setIsOpen(false);
   };
 
+  const renderToggle = useCallback(
+    (toggleRef: Ref<MenuToggleElement>) => (
+      <CollectionMenuToggle
+        toggleRef={toggleRef}
+        isOpen={isOpen}
+        onClick={(_e: MouseEvent) => {
+          setIsOpen(!isOpen);
+        }}
+      />
+    ),
+    [isOpen],
+  );
+
   return (
     <ActionListItem>
       <Dropdown
@@ -250,19 +311,7 @@ const MockCollectionFieldMenu: FunctionComponent<MockCollectionFieldMenuProps> =
           setIsOpen(open);
         }}
         onSelect={handleSelect}
-        toggle={(toggleRef: Ref<MenuToggleElement>) => (
-          <MenuToggle
-            ref={toggleRef}
-            icon={<EllipsisVIcon />}
-            variant="plain"
-            onClick={(_e: MouseEvent) => {
-              setIsOpen(!isOpen);
-            }}
-            isExpanded={isOpen}
-            aria-label="Transformation Action list"
-            style={{ height: INPUT_HEIGHT, padding: '0 0.25rem' }}
-          />
-        )}
+        toggle={renderToggle}
         popperProps={{ position: 'end', preventOverflow: true }}
         zIndex={100}
       >
@@ -297,6 +346,19 @@ const MockInnerCollectionFieldMenu: FunctionComponent<MockInnerCollectionFieldMe
     if (initialOpen) setIsOpen(true);
   }, [initialOpen]);
 
+  const renderToggle = useCallback(
+    (toggleRef: Ref<MenuToggleElement>) => (
+      <InnerCollectionMenuToggle
+        toggleRef={toggleRef}
+        isOpen={isOpen}
+        onClick={(_e: MouseEvent) => {
+          setIsOpen(!isOpen);
+        }}
+      />
+    ),
+    [isOpen],
+  );
+
   return (
     <ActionListItem>
       <Dropdown
@@ -307,19 +369,7 @@ const MockInnerCollectionFieldMenu: FunctionComponent<MockInnerCollectionFieldMe
         onSelect={() => {
           setIsOpen(false);
         }}
-        toggle={(toggleRef: Ref<MenuToggleElement>) => (
-          <MenuToggle
-            ref={toggleRef}
-            icon={<EllipsisVIcon />}
-            variant="plain"
-            onClick={(_e: MouseEvent) => {
-              setIsOpen(!isOpen);
-            }}
-            isExpanded={isOpen}
-            aria-label="Transformation Action list"
-            style={{ height: INPUT_HEIGHT, padding: '0 0.25rem' }}
-          />
-        )}
+        toggle={renderToggle}
         popperProps={{ position: 'end', preventOverflow: true }}
         zIndex={100}
       >
@@ -360,6 +410,19 @@ const MockForEachGroupMenu: FunctionComponent<MockForEachGroupMenuProps> = ({ in
     setIsOpen(false);
   };
 
+  const renderToggle = useCallback(
+    (toggleRef: Ref<MenuToggleElement>) => (
+      <ForEachGroupMenuToggle
+        toggleRef={toggleRef}
+        isOpen={isOpen}
+        onClick={(_e: MouseEvent) => {
+          setIsOpen(!isOpen);
+        }}
+      />
+    ),
+    [isOpen],
+  );
+
   return (
     <ActionListItem>
       <Dropdown
@@ -368,19 +431,7 @@ const MockForEachGroupMenu: FunctionComponent<MockForEachGroupMenuProps> = ({ in
           setIsOpen(open);
         }}
         onSelect={handleSelect}
-        toggle={(toggleRef: Ref<MenuToggleElement>) => (
-          <MenuToggle
-            ref={toggleRef}
-            icon={<EllipsisVIcon />}
-            variant="plain"
-            onClick={(_e: MouseEvent) => {
-              setIsOpen(!isOpen);
-            }}
-            isExpanded={isOpen}
-            aria-label="for-each-group actions"
-            style={{ height: INPUT_HEIGHT, padding: '0 0.25rem' }}
-          />
-        )}
+        toggle={renderToggle}
         popperProps={{ position: 'end', preventOverflow: true }}
         zIndex={100}
       >

@@ -8,12 +8,106 @@ import { FunctionComponent, MouseEvent, Ref, useCallback, useEffect, useMemo, us
 
 import { VariableInputPlaceholder } from './VariableInputPlaceholder';
 
+const ForEachMenuToggle: FunctionComponent<{
+  toggleRef: Ref<HTMLButtonElement>;
+  isForEachMenuOpen: boolean;
+  onClick: (e: MouseEvent) => void;
+}> = ({ toggleRef, isForEachMenuOpen, onClick }) => (
+  <MenuToggle
+    icon={<EllipsisVIcon />}
+    ref={toggleRef}
+    onClick={onClick}
+    variant="plain"
+    isExpanded={isForEachMenuOpen}
+    aria-label="for-each actions"
+  />
+);
+
+const VariableMenuToggle: FunctionComponent<{
+  toggleRef: Ref<HTMLButtonElement>;
+  isExpanded: boolean;
+  onClick: (e: MouseEvent) => void;
+}> = ({ toggleRef, isExpanded, onClick }) => (
+  <MenuToggle
+    icon={<EllipsisVIcon />}
+    ref={toggleRef}
+    onClick={onClick}
+    variant="plain"
+    isExpanded={isExpanded}
+    aria-label="Variable actions"
+  />
+);
+
 interface MockVariable {
   id: string;
   name: string;
   expression: string;
   nodePath: string;
 }
+
+const TargetVariableRow: FunctionComponent<{
+  variable: MockVariable;
+  showVarExpression: boolean;
+  isMenuOpen: boolean;
+  onOpenChange: (isOpen: boolean) => void;
+  onToggle: () => void;
+  onStartRename: () => void;
+  onDelete: () => void;
+}> = ({ variable, showVarExpression, isMenuOpen, onOpenChange, onToggle, onStartRename, onDelete }) => {
+  const renderToggle = useCallback(
+    (toggleRef: Ref<HTMLButtonElement>) => (
+      <VariableMenuToggle
+        toggleRef={toggleRef}
+        isExpanded={isMenuOpen}
+        onClick={(e: MouseEvent) => {
+          e.stopPropagation();
+          onToggle();
+        }}
+      />
+    ),
+    [isMenuOpen, onToggle],
+  );
+
+  return (
+    <div className="node__container">
+      <div id={`tgt-${variable.id}`} className="node__header">
+        <div className="tgt-variable-row">
+          <Label isCompact>$</Label>
+          <span style={{ marginLeft: '0.25rem' }}>{variable.name}</span>
+          {showVarExpression && (
+            <input className="tgt-xpath-input" value={variable.expression} readOnly aria-label="XPath expression" />
+          )}
+          <div className="variable-node__actions">
+            <Tooltip content="Edit XPath expression">
+              <Button variant="plain" icon={<PencilAltIcon />} aria-label="Edit XPath" />
+            </Tooltip>
+            <Dropdown isOpen={isMenuOpen} onOpenChange={onOpenChange} toggle={renderToggle}>
+              <DropdownList>
+                <DropdownItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onStartRename();
+                  }}
+                >
+                  Rename variable...
+                </DropdownItem>
+              </DropdownList>
+            </Dropdown>
+            <Button
+              variant="plain"
+              icon={<TrashIcon />}
+              aria-label="Delete variable"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 interface MappingLine {
   sourceId: string;
@@ -129,6 +223,20 @@ export const VariableMockup: FunctionComponent<VariableMockupProps> = ({ step })
     setVariables((prev) => prev.filter((v) => v.id !== id));
     setTargetVarMenuOpenId(null);
   }, []);
+
+  const renderForEachToggle = useCallback(
+    (toggleRef: Ref<HTMLButtonElement>) => (
+      <ForEachMenuToggle
+        toggleRef={toggleRef}
+        isForEachMenuOpen={isForEachMenuOpen}
+        onClick={(e: MouseEvent) => {
+          e.stopPropagation();
+          setIsForEachMenuOpen(!isForEachMenuOpen);
+        }}
+      />
+    ),
+    [isForEachMenuOpen],
+  );
 
   return (
     <div ref={containerRef} className="variable-mockup-view">
@@ -289,19 +397,7 @@ export const VariableMockup: FunctionComponent<VariableMockupProps> = ({ step })
                                 onOpenChange={(isOpen) => {
                                   setIsForEachMenuOpen(isOpen);
                                 }}
-                                toggle={(toggleRef: Ref<HTMLButtonElement>) => (
-                                  <MenuToggle
-                                    icon={<EllipsisVIcon />}
-                                    ref={toggleRef}
-                                    onClick={(e: MouseEvent) => {
-                                      e.stopPropagation();
-                                      setIsForEachMenuOpen(!isForEachMenuOpen);
-                                    }}
-                                    variant="plain"
-                                    isExpanded={isForEachMenuOpen}
-                                    aria-label="for-each actions"
-                                  />
-                                )}
+                                toggle={renderForEachToggle}
                               >
                                 <DropdownList>
                                   <DropdownItem
@@ -338,69 +434,25 @@ export const VariableMockup: FunctionComponent<VariableMockupProps> = ({ step })
                                 </div>
                               </div>
                             ) : (
-                              <div key={variable.id} className="node__container">
-                                <div id={`tgt-${variable.id}`} className="node__header">
-                                  <div className="tgt-variable-row">
-                                    <Label isCompact>$</Label>
-                                    <span style={{ marginLeft: '0.25rem' }}>{variable.name}</span>
-                                    {showVarExpression && (
-                                      <input
-                                        className="tgt-xpath-input"
-                                        value={variable.expression}
-                                        readOnly
-                                        aria-label="XPath expression"
-                                      />
-                                    )}
-                                    <div className="variable-node__actions">
-                                      <Tooltip content="Edit XPath expression">
-                                        <Button variant="plain" icon={<PencilAltIcon />} aria-label="Edit XPath" />
-                                      </Tooltip>
-                                      <Dropdown
-                                        isOpen={targetVarMenuOpenId === variable.id}
-                                        onOpenChange={(isOpen) => {
-                                          setTargetVarMenuOpenId(isOpen ? variable.id : null);
-                                        }}
-                                        toggle={(toggleRef: Ref<HTMLButtonElement>) => (
-                                          <MenuToggle
-                                            icon={<EllipsisVIcon />}
-                                            ref={toggleRef}
-                                            onClick={(e: MouseEvent) => {
-                                              e.stopPropagation();
-                                              setTargetVarMenuOpenId(
-                                                targetVarMenuOpenId === variable.id ? null : variable.id,
-                                              );
-                                            }}
-                                            variant="plain"
-                                            isExpanded={targetVarMenuOpenId === variable.id}
-                                            aria-label="Variable actions"
-                                          />
-                                        )}
-                                      >
-                                        <DropdownList>
-                                          <DropdownItem
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              setRenamingVarInTargetId(variable.id);
-                                              setTargetVarMenuOpenId(null);
-                                            }}
-                                          >
-                                            Rename variable...
-                                          </DropdownItem>
-                                        </DropdownList>
-                                      </Dropdown>
-                                      <Button
-                                        variant="plain"
-                                        icon={<TrashIcon />}
-                                        aria-label="Delete variable"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleDeleteVar(variable.id);
-                                        }}
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
+                              <TargetVariableRow
+                                key={variable.id}
+                                variable={variable}
+                                showVarExpression={showVarExpression}
+                                isMenuOpen={targetVarMenuOpenId === variable.id}
+                                onOpenChange={(isOpen) => {
+                                  setTargetVarMenuOpenId(isOpen ? variable.id : null);
+                                }}
+                                onToggle={() => {
+                                  setTargetVarMenuOpenId(targetVarMenuOpenId === variable.id ? null : variable.id);
+                                }}
+                                onStartRename={() => {
+                                  setRenamingVarInTargetId(variable.id);
+                                  setTargetVarMenuOpenId(null);
+                                }}
+                                onDelete={() => {
+                                  handleDeleteVar(variable.id);
+                                }}
+                              />
                             ),
                           )}
 

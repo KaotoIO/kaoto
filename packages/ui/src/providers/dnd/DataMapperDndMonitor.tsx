@@ -37,5 +37,5 @@ export const DataMapperDnDMonitor: FunctionComponent = () => {
     },
   });
 
-  return <></>;
+  return null;
 };

@@ -97,7 +97,7 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
   const title: ReactElement = (
     <div className="properties-modal__title-div">
       {props.tile.iconUrl && (
-        <img src={props.tile.iconUrl} alt={`${props.tile.type} icon`} className={'properties-modal__title-image'} />
+        <img src={props.tile.iconUrl} alt={`${props.tile.type} icon`} className="properties-modal__title-image" />
       )}
       <h1 className="properties-modal__title">{props.tile.title}</h1>
     </div>
@@ -109,7 +109,7 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
       <br />
       <Tabs activeKey={activeTabKey} onSelect={handleTabClick} aria-label="Properties tabs" isBox role="region">
         {tabs.map((tab, tab_index) => (
-          <Tab data-testid={'tab-' + tab_index} key={tab.rootName} eventKey={tab_index} title={tab.rootName}></Tab>
+          <Tab data-testid={'tab-' + tab_index} key={tab.rootName} eventKey={tab_index} title={tab.rootName} />
         ))}
       </Tabs>
     </div>

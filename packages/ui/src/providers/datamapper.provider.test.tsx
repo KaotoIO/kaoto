@@ -49,11 +49,11 @@ describe('DataMapperProvider', () => {
           done = true;
         }
       }, [mappingTree, refreshMappingTree]);
-      return <div data-testid="testdiv"></div>;
+      return <div data-testid="testdiv" />;
     };
     render(
       <DataMapperProvider>
-        <TestRefreshMappingTree></TestRefreshMappingTree>
+        <TestRefreshMappingTree />
       </DataMapperProvider>,
     );
     await screen.findByTestId('testdiv');
@@ -81,11 +81,11 @@ describe('DataMapperProvider', () => {
           tree = mappingTree;
         }
       }, [mappingTree, refreshMappingTree, resetMappingTree]);
-      return <div data-testid="testdiv"></div>;
+      return <div data-testid="testdiv" />;
     };
     render(
       <DataMapperProvider>
-        <TestRefreshMappingTree></TestRefreshMappingTree>
+        <TestRefreshMappingTree />
       </DataMapperProvider>,
     );
     await waitFor(() => tree);
@@ -108,7 +108,7 @@ describe('DataMapperProvider', () => {
           done = true;
         }
       }, [refreshSourceParameters, sourceParameterMap]);
-      return <div data-testid="testdiv"></div>;
+      return <div data-testid="testdiv" />;
     };
     render(
       <DataMapperProvider>

@@ -22,7 +22,7 @@ export const DataMapperNotYetInBrowserPage: FunctionComponent = () => {
   return (
     <Panel>
       <PanelHeader>
-        <Brand src={icon_component_datamapper} alt="Kaoto DataMapper icon"></Brand>
+        <Brand src={icon_component_datamapper} alt="Kaoto DataMapper icon" />
         <Title headingLevel="h1">The Kaoto DataMapper cannot be configured</Title>
       </PanelHeader>
       <PanelMain>

@@ -76,7 +76,7 @@ describe('FieldOverride', () => {
 
   it('should pass field to FieldOverrideModal when open', () => {
     const field = testTargetDoc.fields[0];
-    render(<FieldOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
+    render(<FieldOverride isOpen field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
 
     const mockFieldOverrideModal = vi.mocked(FieldOverrideModal);
     const lastCall = mockFieldOverrideModal.mock.calls[mockFieldOverrideModal.mock.calls.length - 1];
@@ -93,7 +93,7 @@ describe('FieldOverride', () => {
 
   it('should call applyFieldTypeOverride and updateDocument on save', () => {
     const field = testTargetDoc.fields[0];
-    render(<FieldOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
+    render(<FieldOverride isOpen field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
 
     const mockFieldOverrideModal = vi.mocked(FieldOverrideModal);
     const lastCall = mockFieldOverrideModal.mock.calls[mockFieldOverrideModal.mock.calls.length - 1];
@@ -115,7 +115,7 @@ describe('FieldOverride', () => {
   it('should not call addSchemaFilesForTypeOverride on save', () => {
     const field = testTargetDoc.fields[0];
 
-    render(<FieldOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
+    render(<FieldOverride isOpen field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
 
     const mockFieldOverrideModal = vi.mocked(FieldOverrideModal);
     const lastCall = mockFieldOverrideModal.mock.calls[mockFieldOverrideModal.mock.calls.length - 1];
@@ -131,7 +131,7 @@ describe('FieldOverride', () => {
     const field = testTargetDoc.fields[0];
     const schemas = { 'custom.xsd': '<xs:schema/>' };
 
-    render(<FieldOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
+    render(<FieldOverride isOpen field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
 
     const mockFieldOverrideModal = vi.mocked(FieldOverrideModal);
     const lastCall = mockFieldOverrideModal.mock.calls[mockFieldOverrideModal.mock.calls.length - 1];
@@ -148,7 +148,7 @@ describe('FieldOverride', () => {
 
   it('should call applyFieldSubstitution on save with substitution mode', () => {
     const field = testTargetDoc.fields[0];
-    render(<FieldOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
+    render(<FieldOverride isOpen field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
 
     const mockFieldOverrideModal = vi.mocked(FieldOverrideModal);
     const lastCall = mockFieldOverrideModal.mock.calls[mockFieldOverrideModal.mock.calls.length - 1];
@@ -170,7 +170,7 @@ describe('FieldOverride', () => {
   it('should call revertFieldTypeOverride and updateDocument on remove', () => {
     const field = testTargetDoc.fields[0];
     field.typeOverride = FieldOverrideVariant.SAFE;
-    render(<FieldOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
+    render(<FieldOverride isOpen field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
 
     const mockFieldOverrideModal = vi.mocked(FieldOverrideModal);
     const lastCall = mockFieldOverrideModal.mock.calls[mockFieldOverrideModal.mock.calls.length - 1];
@@ -186,7 +186,7 @@ describe('FieldOverride', () => {
 
   it('should pass onClose to FieldOverrideModal', () => {
     const field = testTargetDoc.fields[0];
-    render(<FieldOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
+    render(<FieldOverride isOpen field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
 
     const mockFieldOverrideModal = vi.mocked(FieldOverrideModal);
     const lastCall = mockFieldOverrideModal.mock.calls[mockFieldOverrideModal.mock.calls.length - 1];

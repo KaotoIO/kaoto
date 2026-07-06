@@ -45,7 +45,7 @@ export const VisualizationEmptyState: FunctionComponent<IVisualizationEmptyState
                 onClick={() => {
                   visibleFlowsContext.visualFlowsApi?.showFlows();
                 }}
-                data-testid={'show-all-routes-button'}
+                data-testid="show-all-routes-button"
                 variant="control"
                 icon={<EyeIcon />}
               >

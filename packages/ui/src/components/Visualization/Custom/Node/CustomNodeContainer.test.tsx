@@ -35,8 +35,8 @@ describe('CustomNodeContainer', () => {
         vizNode={vizNode}
         childCount={1}
         ProcessorIcon={null}
-        processorDescription={''}
-        isDisabled={true}
+        processorDescription=""
+        isDisabled
       />,
     );
 
@@ -50,10 +50,10 @@ describe('CustomNodeContainer', () => {
       <CustomNodeContainer
         {...defaultContainerProps}
         vizNode={vizNode}
-        isCollapsed={true}
+        isCollapsed
         childCount={5}
         ProcessorIcon={null}
-        processorDescription={''}
+        processorDescription=""
         isDisabled={false}
       />,
     );
@@ -90,7 +90,7 @@ describe('CustomNodeContainer', () => {
         vizNode={vizNode}
         childCount={0}
         ProcessorIcon={null}
-        processorDescription={''}
+        processorDescription=""
         isDisabled={false}
       />,
     );
@@ -107,7 +107,7 @@ describe('CustomNodeContainer', () => {
         vizNode={vizNode}
         childCount={0}
         ProcessorIcon={null}
-        processorDescription={''}
+        processorDescription=""
         isDisabled={false}
       />,
     );
@@ -144,7 +144,7 @@ describe('CustomNodeContainer', () => {
         vizNode={vizNode}
         childCount={0}
         ProcessorIcon={null}
-        processorDescription={''}
+        processorDescription=""
         isDisabled={false}
       />,
     );
@@ -161,8 +161,8 @@ describe('CustomNodeContainer', () => {
         vizNode={vizNode}
         childCount={0}
         ProcessorIcon={null}
-        processorDescription={''}
-        isDisabled={true}
+        processorDescription=""
+        isDisabled
       />,
     );
 
@@ -178,7 +178,7 @@ describe('CustomNodeContainer', () => {
         vizNode={vizNode}
         childCount={0}
         ProcessorIcon={null}
-        processorDescription={''}
+        processorDescription=""
         isDisabled={false}
       />,
     );
@@ -195,7 +195,7 @@ describe('CustomNodeContainer', () => {
         vizNode={vizNode}
         childCount={0}
         ProcessorIcon={null}
-        processorDescription={''}
+        processorDescription=""
         isDisabled={false}
       />,
     );
@@ -214,7 +214,7 @@ describe('CustomNodeContainer', () => {
         childCount={3}
         ProcessorIcon={MockProcessorIcon}
         processorDescription="Processor desc"
-        isDisabled={true}
+        isDisabled
       />,
     );
 
@@ -231,9 +231,9 @@ describe('CustomNodeContainer', () => {
       <CustomNodeContainer
         {...defaultContainerProps}
         vizNode={vizNode}
-        isCollapsed={true}
+        isCollapsed
         childCount={1}
-        hasGroupChildren={true}
+        hasGroupChildren
         ProcessorIcon={null}
         processorDescription={undefined}
         isDisabled={false}

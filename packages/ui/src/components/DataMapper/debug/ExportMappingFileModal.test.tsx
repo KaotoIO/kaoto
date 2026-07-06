@@ -67,7 +67,7 @@ describe('ExportMappingFileModal', () => {
   it('should render when isOpen is true', () => {
     render(
       <TestProviders>
-        <ExportMappingFileModal isOpen={true} onClose={mockOnClose} />
+        <ExportMappingFileModal isOpen onClose={mockOnClose} />
       </TestProviders>,
     );
 
@@ -77,7 +77,7 @@ describe('ExportMappingFileModal', () => {
   it('should display modal title', () => {
     render(
       <TestProviders>
-        <ExportMappingFileModal isOpen={true} onClose={mockOnClose} />
+        <ExportMappingFileModal isOpen onClose={mockOnClose} />
       </TestProviders>,
     );
 
@@ -87,7 +87,7 @@ describe('ExportMappingFileModal', () => {
   it('should render code editor wrapper', () => {
     render(
       <TestProviders>
-        <ExportMappingFileModal isOpen={true} onClose={mockOnClose} />
+        <ExportMappingFileModal isOpen onClose={mockOnClose} />
       </TestProviders>,
     );
 
@@ -99,7 +99,7 @@ describe('ExportMappingFileModal', () => {
   it('should render close button', () => {
     render(
       <TestProviders>
-        <ExportMappingFileModal isOpen={true} onClose={mockOnClose} />
+        <ExportMappingFileModal isOpen onClose={mockOnClose} />
       </TestProviders>,
     );
 
@@ -111,7 +111,7 @@ describe('ExportMappingFileModal', () => {
   it('should call onClose when close button is clicked', () => {
     render(
       <TestProviders>
-        <ExportMappingFileModal isOpen={true} onClose={mockOnClose} />
+        <ExportMappingFileModal isOpen onClose={mockOnClose} />
       </TestProviders>,
     );
 
@@ -127,7 +127,7 @@ describe('ExportMappingFileModal', () => {
   it('should call onClose when modal is closed via backdrop or escape', () => {
     render(
       <TestProviders>
-        <ExportMappingFileModal isOpen={true} onClose={mockOnClose} />
+        <ExportMappingFileModal isOpen onClose={mockOnClose} />
       </TestProviders>,
     );
 
@@ -145,7 +145,7 @@ describe('ExportMappingFileModal', () => {
   it('should serialize and display empty mappings when no mappings exist', async () => {
     render(
       <TestProviders>
-        <ExportMappingFileModal isOpen={true} onClose={mockOnClose} />
+        <ExportMappingFileModal isOpen onClose={mockOnClose} />
       </TestProviders>,
     );
 
@@ -174,7 +174,7 @@ describe('ExportMappingFileModal', () => {
     render(
       <TestProviders>
         <TestLoader>
-          <ExportMappingFileModal isOpen={true} onClose={mockOnClose} />
+          <ExportMappingFileModal isOpen onClose={mockOnClose} />
         </TestLoader>
       </TestProviders>,
     );
@@ -188,7 +188,7 @@ describe('ExportMappingFileModal', () => {
   it('should have code editor with XML language', () => {
     render(
       <TestProviders>
-        <ExportMappingFileModal isOpen={true} onClose={mockOnClose} />
+        <ExportMappingFileModal isOpen onClose={mockOnClose} />
       </TestProviders>,
     );
 
@@ -200,7 +200,7 @@ describe('ExportMappingFileModal', () => {
   it('should have code editor with download enabled', () => {
     render(
       <TestProviders>
-        <ExportMappingFileModal isOpen={true} onClose={mockOnClose} />
+        <ExportMappingFileModal isOpen onClose={mockOnClose} />
       </TestProviders>,
     );
 
@@ -227,7 +227,7 @@ describe('ExportMappingFileModal', () => {
     const { rerender } = render(
       <TestProviders>
         <TestLoader>
-          <ExportMappingFileModal isOpen={true} onClose={mockOnClose} />
+          <ExportMappingFileModal isOpen onClose={mockOnClose} />
         </TestLoader>
       </TestProviders>,
     );
@@ -240,7 +240,7 @@ describe('ExportMappingFileModal', () => {
     rerender(
       <TestProviders>
         <TestLoader>
-          <ExportMappingFileModal isOpen={true} onClose={mockOnClose} />
+          <ExportMappingFileModal isOpen onClose={mockOnClose} />
         </TestLoader>
       </TestProviders>,
     );
@@ -253,7 +253,7 @@ describe('ExportMappingFileModal', () => {
   it('should have modal with large variant', () => {
     render(
       <TestProviders>
-        <ExportMappingFileModal isOpen={true} onClose={mockOnClose} />
+        <ExportMappingFileModal isOpen onClose={mockOnClose} />
       </TestProviders>,
     );
 
@@ -265,7 +265,7 @@ describe('ExportMappingFileModal', () => {
   it('should render code editor with word wrap enabled', () => {
     render(
       <TestProviders>
-        <ExportMappingFileModal isOpen={true} onClose={mockOnClose} />
+        <ExportMappingFileModal isOpen onClose={mockOnClose} />
       </TestProviders>,
     );
 
@@ -277,7 +277,7 @@ describe('ExportMappingFileModal', () => {
   it('should render code editor with sizeToFit dimensions', () => {
     render(
       <TestProviders>
-        <ExportMappingFileModal isOpen={true} onClose={mockOnClose} />
+        <ExportMappingFileModal isOpen onClose={mockOnClose} />
       </TestProviders>,
     );
 
@@ -325,7 +325,7 @@ describe('ExportMappingFileModal', () => {
     it('should call editor.layout() when editor mounts', () => {
       render(
         <TestProviders>
-          <ExportMappingFileModal isOpen={true} onClose={mockOnClose} />
+          <ExportMappingFileModal isOpen onClose={mockOnClose} />
         </TestProviders>,
       );
 
@@ -344,7 +344,7 @@ describe('ExportMappingFileModal', () => {
     it('should call editor.focus() when editor mounts', () => {
       render(
         <TestProviders>
-          <ExportMappingFileModal isOpen={true} onClose={mockOnClose} />
+          <ExportMappingFileModal isOpen onClose={mockOnClose} />
         </TestProviders>,
       );
 
@@ -363,7 +363,7 @@ describe('ExportMappingFileModal', () => {
     it('should call monaco.editor.getModels()[0].updateOptions with tabSize: 2', () => {
       render(
         <TestProviders>
-          <ExportMappingFileModal isOpen={true} onClose={mockOnClose} />
+          <ExportMappingFileModal isOpen onClose={mockOnClose} />
         </TestProviders>,
       );
 
@@ -384,7 +384,7 @@ describe('ExportMappingFileModal', () => {
     it('should call all three operations in sequence when editor mounts', () => {
       render(
         <TestProviders>
-          <ExportMappingFileModal isOpen={true} onClose={mockOnClose} />
+          <ExportMappingFileModal isOpen onClose={mockOnClose} />
         </TestProviders>,
       );
 
@@ -415,7 +415,7 @@ describe('ExportMappingFileModal', () => {
     it('should handle onEditorDidMount callback being called multiple times', () => {
       render(
         <TestProviders>
-          <ExportMappingFileModal isOpen={true} onClose={mockOnClose} />
+          <ExportMappingFileModal isOpen onClose={mockOnClose} />
         </TestProviders>,
       );
 

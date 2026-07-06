@@ -223,7 +223,8 @@ export const Step7_Complete: StoryFn = () => (
       The fully configured structure. <code>for-each-group</code> iterates over the source collection and groups items
       by the configured expression. Inside it, <code>for-each current-group()</code> iterates over each group&apos;s
       items, and the user maps individual fields (Title, Quantity) from the expanded Item node. The generated XSLT uses{' '}
-      <code>xsl:for-each-group</code> with the chosen strategy attribute (e.g. <code>{'group-by="Category"'}</code>).
+      <code>xsl:for-each-group</code> with the chosen strategy attribute (e.g.{' '}
+      <code>group-by=&quot;Category&quot;</code>).
     </p>
     <div style={STORY_COMPONENT_BOX}>
       <ForEachGroupMockup

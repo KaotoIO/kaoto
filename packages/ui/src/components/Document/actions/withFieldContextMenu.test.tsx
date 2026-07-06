@@ -48,12 +48,7 @@ describe('withFieldContextMenu', () => {
     const { documentNodeData, fieldNode } = createFieldNode();
 
     render(
-      <SourceDocumentNodeWithContextMenu
-        treeNode={fieldNode}
-        documentId={documentNodeData.id}
-        isReadOnly={true}
-        rank={1}
-      />,
+      <SourceDocumentNodeWithContextMenu treeNode={fieldNode} documentId={documentNodeData.id} isReadOnly rank={1} />,
       { wrapper },
     );
 

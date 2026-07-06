@@ -55,7 +55,7 @@ describe('DocumentHeader', () => {
           document={document}
           documentType={DocumentType.TARGET_BODY}
           isReadOnly={false}
-          enableDnD={true}
+          enableDnD
         />
       </DataMapperProvider>,
     );

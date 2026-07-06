@@ -63,7 +63,7 @@ describe('ItemReplaceStep', () => {
     const wrapper = render(
       <EntitiesContext.Provider value={mockEntitiesContext}>
         <ActionConfirmationModalContext.Provider value={mockReplaceModalContext}>
-          <ItemReplaceStep vizNode={vizNode} loadActionConfirmationModal={true} />
+          <ItemReplaceStep vizNode={vizNode} loadActionConfirmationModal />
         </ActionConfirmationModalContext.Provider>
       </EntitiesContext.Provider>,
     );

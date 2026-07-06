@@ -51,7 +51,7 @@ export const ExportMappingFileModal: FunctionComponent<ExportMappingFileModalPro
       <ModalBody>
         <CodeEditor
           isReadOnly={false}
-          isDownloadEnabled={true}
+          isDownloadEnabled
           code={serializedMappings}
           language={Language.xml}
           onEditorDidMount={onEditorDidMount}

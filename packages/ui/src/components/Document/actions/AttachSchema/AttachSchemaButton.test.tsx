@@ -44,7 +44,7 @@ describe('AttachSchemaButton', () => {
             <AttachSchemaButton
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
-              hasSchema={true}
+              hasSchema
               documentReferenceId={BODY_DOCUMENT_ID}
             />
           </MappingLinksProvider>
@@ -74,7 +74,7 @@ describe('AttachSchemaButton', () => {
             <AttachSchemaButton
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
-              hasSchema={true}
+              hasSchema
               documentReferenceId={BODY_DOCUMENT_ID}
             />
           </MappingLinksProvider>
@@ -117,7 +117,7 @@ describe('AttachSchemaButton', () => {
             <AttachSchemaButton
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
-              hasSchema={true}
+              hasSchema
               documentReferenceId={BODY_DOCUMENT_ID}
             />
           </MappingLinksProvider>

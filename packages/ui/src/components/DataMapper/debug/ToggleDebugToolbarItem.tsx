@@ -19,7 +19,7 @@ export const ToggleDebugToolbarItem: FunctionComponent = () => {
           onChange={() => {
             setDebug(!debug);
           }}
-        ></ToggleGroupItem>
+        />
       </ToggleGroup>
     </ToolbarItem>
   );

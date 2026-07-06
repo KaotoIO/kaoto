@@ -25,7 +25,7 @@ describe('ExpressionField', () => {
     const { container } = render(
       <ModelContextProvider model={{ id: 'setHeader-1361' }} onPropertyChange={vi.fn()}>
         <SchemaProvider schema={setHeaderExpressionSchema}>
-          <ExpressionField propName={ROOT_PATH} required={true} />
+          <ExpressionField propName={ROOT_PATH} required />
         </SchemaProvider>
       </ModelContextProvider>,
     );
@@ -47,7 +47,7 @@ describe('ExpressionField', () => {
         >
           <SchemaDefinitionsProvider schema={setHeaderExpressionSchema} omitFields={[]}>
             <SchemaProvider schema={setHeaderExpressionSchema}>
-              <ExpressionField propName={ROOT_PATH} required={true} />
+              <ExpressionField propName={ROOT_PATH} required />
             </SchemaProvider>
           </SchemaDefinitionsProvider>
         </ModelContextProvider>
@@ -71,7 +71,7 @@ describe('ExpressionField', () => {
         >
           <SchemaDefinitionsProvider schema={setHeaderExpressionSchema} omitFields={[]}>
             <SchemaProvider schema={setHeaderExpressionSchema}>
-              <ExpressionField propName={ROOT_PATH} required={true} />
+              <ExpressionField propName={ROOT_PATH} required />
             </SchemaProvider>
           </SchemaDefinitionsProvider>
         </ModelContextProvider>
@@ -105,7 +105,7 @@ describe('ExpressionField', () => {
         >
           <SchemaDefinitionsProvider schema={setHeaderExpressionSchema} omitFields={[]}>
             <SchemaProvider schema={setHeaderExpressionSchema}>
-              <ExpressionField propName={ROOT_PATH} required={true} />
+              <ExpressionField propName={ROOT_PATH} required />
             </SchemaProvider>
           </SchemaDefinitionsProvider>
         </ModelContextProvider>
@@ -139,7 +139,7 @@ describe('ExpressionField', () => {
         >
           <SchemaDefinitionsProvider schema={setHeaderExpressionSchema} omitFields={[]}>
             <SchemaProvider schema={setHeaderExpressionSchema}>
-              <ExpressionField propName={ROOT_PATH} required={true} />
+              <ExpressionField propName={ROOT_PATH} required />
             </SchemaProvider>
           </SchemaDefinitionsProvider>
         </ModelContextProvider>
@@ -169,7 +169,7 @@ describe('ExpressionField', () => {
         onPropertyChange={onPropertyChangeSpy}
       >
         <SchemaProvider schema={setHeaderExpressionSchema}>
-          <ExpressionField propName={ROOT_PATH} required={true} />
+          <ExpressionField propName={ROOT_PATH} required />
         </SchemaProvider>
       </ModelContextProvider>,
     );
@@ -196,7 +196,7 @@ describe('ExpressionField', () => {
         onPropertyChange={onPropertyChangeSpy}
       >
         <SchemaProvider schema={setHeaderExpressionSchema}>
-          <ExpressionField propName={ROOT_PATH} required={true} />
+          <ExpressionField propName={ROOT_PATH} required />
         </SchemaProvider>
       </ModelContextProvider>,
     );

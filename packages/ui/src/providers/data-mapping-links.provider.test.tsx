@@ -20,7 +20,7 @@ describe('DataMappingLinksProvider', () => {
   it('should fail if not within DataMapperProvider', () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const thrower = () => {
-      render(<MappingLinksProvider></MappingLinksProvider>);
+      render(<MappingLinksProvider />);
     };
     expect(thrower).toThrow();
     consoleSpy.mockRestore();

@@ -129,7 +129,7 @@ export const ActionConfirmationModalContextProvider: FunctionComponent<PropsWith
 
       {isModalOpen && (
         <Modal isOpen variant={ModalVariant.small} onClose={handleCloseModal} ouiaId="ActionConfirmationModal">
-          <ModalHeader title={title} titleIconVariant={'warning'} />
+          <ModalHeader title={title} titleIconVariant="warning" />
           <ModalBody>
             {textParagraphs.length === 1
               ? textParagraphs[0]

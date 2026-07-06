@@ -53,7 +53,7 @@ describe('SubstitutionSelectionModal', () => {
     ]);
     render(
       <SubstitutionSelectionModal
-        isOpen={true}
+        isOpen
         abstractField={abstractField}
         candidates={candidatesMap}
         onSelect={vi.fn()}
@@ -73,7 +73,7 @@ describe('SubstitutionSelectionModal', () => {
     } as unknown as IField;
     render(
       <SubstitutionSelectionModal
-        isOpen={true}
+        isOpen
         abstractField={abstractField}
         candidates={candidatesMap}
         onSelect={vi.fn()}
@@ -93,7 +93,7 @@ describe('SubstitutionSelectionModal', () => {
     } as unknown as IField;
     render(
       <SubstitutionSelectionModal
-        isOpen={true}
+        isOpen
         abstractField={abstractField}
         candidates={candidatesMap}
         onSelect={vi.fn()}
@@ -110,7 +110,7 @@ describe('SubstitutionSelectionModal', () => {
     ]);
     render(
       <SubstitutionSelectionModal
-        isOpen={true}
+        isOpen
         abstractField={abstractField}
         candidates={candidatesMap}
         onSelect={vi.fn()}
@@ -131,7 +131,7 @@ describe('SubstitutionSelectionModal', () => {
     );
     render(
       <SubstitutionSelectionModal
-        isOpen={true}
+        isOpen
         abstractField={abstractField}
         candidates={candidatesMap}
         onSelect={vi.fn()}
@@ -149,7 +149,7 @@ describe('SubstitutionSelectionModal', () => {
     ]);
     render(
       <SubstitutionSelectionModal
-        isOpen={true}
+        isOpen
         abstractField={abstractField}
         candidates={candidatesMap}
         onSelect={vi.fn()}
@@ -169,7 +169,7 @@ describe('SubstitutionSelectionModal', () => {
     );
     render(
       <SubstitutionSelectionModal
-        isOpen={true}
+        isOpen
         abstractField={abstractField}
         candidates={candidatesMap}
         onSelect={vi.fn()}
@@ -187,7 +187,7 @@ describe('SubstitutionSelectionModal', () => {
     ]);
     render(
       <SubstitutionSelectionModal
-        isOpen={true}
+        isOpen
         abstractField={abstractField}
         candidates={candidatesMap}
         onSelect={vi.fn()}
@@ -212,7 +212,7 @@ describe('SubstitutionSelectionModal', () => {
     );
     render(
       <SubstitutionSelectionModal
-        isOpen={true}
+        isOpen
         abstractField={abstractField}
         candidates={candidatesMap}
         onSelect={onSelect}
@@ -235,7 +235,7 @@ describe('SubstitutionSelectionModal', () => {
     ]);
     render(
       <SubstitutionSelectionModal
-        isOpen={true}
+        isOpen
         abstractField={abstractField}
         candidates={candidatesMap}
         onSelect={onSelect}
@@ -272,7 +272,7 @@ describe('SubstitutionSelectionModal', () => {
     ]);
     render(
       <SubstitutionSelectionModal
-        isOpen={true}
+        isOpen
         abstractField={abstractField}
         candidates={candidatesMap}
         onSelect={onSelect}
@@ -293,7 +293,7 @@ describe('SubstitutionSelectionModal', () => {
     ]);
     render(
       <SubstitutionSelectionModal
-        isOpen={true}
+        isOpen
         abstractField={abstractField}
         candidates={candidatesMap}
         onSelect={vi.fn()}
@@ -320,7 +320,7 @@ describe('SubstitutionSelectionModal', () => {
     ]);
     render(
       <SubstitutionSelectionModal
-        isOpen={true}
+        isOpen
         abstractField={abstractField}
         candidates={candidatesMap}
         onSelect={vi.fn()}
@@ -353,7 +353,7 @@ describe('SubstitutionSelectionModal', () => {
     } as unknown as IField;
     render(
       <SubstitutionSelectionModal
-        isOpen={true}
+        isOpen
         abstractField={abstractField}
         candidates={{}}
         onSelect={vi.fn()}
@@ -374,7 +374,7 @@ describe('SubstitutionSelectionModal', () => {
 
     render(
       <SubstitutionSelectionModal
-        isOpen={true}
+        isOpen
         abstractField={abstractField}
         candidates={candidatesMap}
         onSelect={vi.fn()}

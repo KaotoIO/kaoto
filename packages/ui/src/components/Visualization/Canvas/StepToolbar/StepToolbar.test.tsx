@@ -284,7 +284,7 @@ describe('StepToolbar', () => {
       const mockOnCollapseToggle = vi.fn();
 
       await act(async () => {
-        render(<StepToolbar vizNode={mockVizNode} onCollapseToggle={mockOnCollapseToggle} isCollapsed={true} />);
+        render(<StepToolbar vizNode={mockVizNode} onCollapseToggle={mockOnCollapseToggle} isCollapsed />);
       });
 
       const collapseButton = screen.getByTestId('Test Node|step-toolbar-button-collapse');

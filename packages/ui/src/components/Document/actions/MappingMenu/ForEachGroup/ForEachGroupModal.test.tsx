@@ -110,7 +110,7 @@ describe('ForEachGroupModal', () => {
   });
 
   it('should render when isOpen is true', () => {
-    render(<ForEachGroupModal isOpen={true} onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
     expect(screen.getByTestId('for-each-group-modal')).toBeInTheDocument();
   });
 
@@ -120,34 +120,34 @@ describe('ForEachGroupModal', () => {
   });
 
   it('should display for-each-group expression in description', () => {
-    render(<ForEachGroupModal isOpen={true} onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
     expect(screen.getByText('for-each-group: /Orders/Order')).toBeInTheDocument();
   });
 
   it('should display current grouping strategy in dropdown', () => {
-    render(<ForEachGroupModal isOpen={true} onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
     expect(screen.getByTestId('for-each-group-strategy-toggle')).toHaveTextContent('Group By');
   });
 
   it('should display current grouping expression in input', () => {
-    render(<ForEachGroupModal isOpen={true} onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
     const input = screen.getByTestId('for-each-group-expression').querySelector('input') as HTMLInputElement;
     expect(input.value).toBe('Category');
   });
 
   it('should disable Save when grouping expression is empty', () => {
     forEachGroupItem.groupingExpression = '';
-    render(<ForEachGroupModal isOpen={true} onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
     expect(screen.getByTestId('for-each-group-save-btn')).toBeDisabled();
   });
 
   it('should enable Save when grouping expression is non-empty', () => {
-    render(<ForEachGroupModal isOpen={true} onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
     expect(screen.getByTestId('for-each-group-save-btn')).toBeEnabled();
   });
 
   it('should disable Save when grouping expression is cleared', () => {
-    render(<ForEachGroupModal isOpen={true} onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
 
     const input = screen.getByTestId('for-each-group-expression').querySelector('input') as HTMLInputElement;
     act(() => {
@@ -158,7 +158,7 @@ describe('ForEachGroupModal', () => {
   });
 
   it('should change grouping strategy via dropdown', () => {
-    render(<ForEachGroupModal isOpen={true} onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
 
     act(() => {
       fireEvent.click(screen.getByTestId('for-each-group-strategy-toggle'));
@@ -172,7 +172,7 @@ describe('ForEachGroupModal', () => {
   });
 
   it('should update grouping expression input', () => {
-    render(<ForEachGroupModal isOpen={true} onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
 
     const input = screen.getByTestId('for-each-group-expression').querySelector('input') as HTMLInputElement;
     act(() => {
@@ -185,7 +185,7 @@ describe('ForEachGroupModal', () => {
   it('should save grouping strategy and expression to mapping on Save', async () => {
     const onUpdate = vi.fn();
     const onClose = vi.fn();
-    render(<ForEachGroupModal isOpen={true} onClose={onClose} mapping={forEachGroupItem} onUpdate={onUpdate} />);
+    render(<ForEachGroupModal isOpen onClose={onClose} mapping={forEachGroupItem} onUpdate={onUpdate} />);
 
     act(() => {
       fireEvent.click(screen.getByTestId('for-each-group-strategy-toggle'));
@@ -216,7 +216,7 @@ describe('ForEachGroupModal', () => {
   it('should not modify mapping on Cancel', async () => {
     const onUpdate = vi.fn();
     const onClose = vi.fn();
-    render(<ForEachGroupModal isOpen={true} onClose={onClose} mapping={forEachGroupItem} onUpdate={onUpdate} />);
+    render(<ForEachGroupModal isOpen onClose={onClose} mapping={forEachGroupItem} onUpdate={onUpdate} />);
 
     const input = screen.getByTestId('for-each-group-expression').querySelector('input') as HTMLInputElement;
     act(() => {
@@ -236,7 +236,7 @@ describe('ForEachGroupModal', () => {
   });
 
   it('should open XPath editor for grouping expression', () => {
-    render(<ForEachGroupModal isOpen={true} onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
     expect(screen.queryByTestId('xpath-editor-modal')).not.toBeInTheDocument();
 
     act(() => {
@@ -249,7 +249,7 @@ describe('ForEachGroupModal', () => {
 
   it('should apply XPath editor expression to grouping expression', async () => {
     const onUpdate = vi.fn();
-    render(<ForEachGroupModal isOpen={true} onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={onUpdate} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={onUpdate} />);
 
     act(() => {
       fireEvent.click(screen.getByTestId('for-each-group-edit-expression'));
@@ -272,7 +272,7 @@ describe('ForEachGroupModal', () => {
   });
 
   it('should close XPath editor on close callback', () => {
-    render(<ForEachGroupModal isOpen={true} onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
 
     act(() => {
       fireEvent.click(screen.getByTestId('for-each-group-edit-expression'));
@@ -287,7 +287,7 @@ describe('ForEachGroupModal', () => {
 
   it('should start with no sort keys when mapping has none', () => {
     forEachGroupItem.sortItems = [];
-    render(<ForEachGroupModal isOpen={true} onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
     expect(screen.queryByTestId('sort-expression-0')).not.toBeInTheDocument();
   });
 
@@ -298,7 +298,7 @@ describe('ForEachGroupModal', () => {
     sort2.expression = 'Price';
     forEachGroupItem.sortItems = [sort1, sort2];
 
-    render(<ForEachGroupModal isOpen={true} onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
 
     const getInput = (idx: number) =>
       screen.getByTestId(`sort-expression-${idx}`).querySelector('input') as HTMLInputElement;
@@ -308,7 +308,7 @@ describe('ForEachGroupModal', () => {
 
   it('should add a sort key', () => {
     forEachGroupItem.sortItems = [];
-    render(<ForEachGroupModal isOpen={true} onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
 
     act(() => {
       fireEvent.click(screen.getByTestId('sort-add-key'));
@@ -321,7 +321,7 @@ describe('ForEachGroupModal', () => {
     sort.expression = 'Title';
     forEachGroupItem.sortItems = [sort];
 
-    render(<ForEachGroupModal isOpen={true} onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
     expect(screen.getByTestId('sort-expression-0')).toBeInTheDocument();
 
     act(() => {
@@ -333,7 +333,7 @@ describe('ForEachGroupModal', () => {
   it('should save sort items to mapping on Save', async () => {
     forEachGroupItem.sortItems = [];
     const onUpdate = vi.fn();
-    render(<ForEachGroupModal isOpen={true} onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={onUpdate} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={onUpdate} />);
 
     act(() => {
       fireEvent.click(screen.getByTestId('sort-add-key'));
@@ -360,7 +360,7 @@ describe('ForEachGroupModal', () => {
   it('should filter out empty sort expressions on Save', async () => {
     forEachGroupItem.sortItems = [];
     const onUpdate = vi.fn();
-    render(<ForEachGroupModal isOpen={true} onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={onUpdate} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={onUpdate} />);
 
     act(() => {
       fireEvent.click(screen.getByTestId('sort-add-key'));
@@ -392,7 +392,7 @@ describe('ForEachGroupModal', () => {
     sort.expression = 'Title';
     forEachGroupItem.sortItems = [sort];
     const onClose = vi.fn();
-    render(<ForEachGroupModal isOpen={true} onClose={onClose} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={onClose} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
 
     act(() => {
       fireEvent.click(screen.getByTestId('mock-drag-trigger'));
@@ -412,7 +412,7 @@ describe('ForEachGroupModal', () => {
     forEachGroupItem.sortItems = [sort1, sort2];
 
     const onUpdate = vi.fn();
-    render(<ForEachGroupModal isOpen={true} onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={onUpdate} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={onUpdate} />);
 
     act(() => {
       fireEvent.click(screen.getByTestId('mock-drop-trigger'));

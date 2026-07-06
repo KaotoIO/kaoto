@@ -105,8 +105,8 @@ export const EndpointListField: FunctionComponent<FieldProps> = ({ propName, req
 
   return (
     <>
-      <FieldWrapper propName={propName} required={required} title={''} type="string">
-        <Table aria-label={'endpoint-table'} variant={TableVariant.compact} borders>
+      <FieldWrapper propName={propName} required={required} title="" type="string">
+        <Table aria-label="endpoint-table" variant={TableVariant.compact} borders>
           <Thead>
             <Tr>
               <Th>Name</Th>

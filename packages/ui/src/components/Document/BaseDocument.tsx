@@ -155,7 +155,7 @@ export const DocumentHeader: FunctionComponent<DocumentHeaderProps> = ({
         />
       )}
       {enableDnD ? (
-        <NodeContainer nodeData={nodeData} enableDnD={true}>
+        <NodeContainer nodeData={nodeData} enableDnD>
           {headerContent}
         </NodeContainer>
       ) : (
