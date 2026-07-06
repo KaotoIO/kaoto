@@ -1,6 +1,7 @@
 import { Suggestion, SuggestionProvider } from '@kaoto/forms';
 
-import { CamelCatalogService, CatalogKind } from '../../../../../../models';
+import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
+import { CatalogKind } from '../../../../../../models';
 import { IMetadataApi } from '../../../../../../providers';
 
 const SIMPLE_LANGUAGE_ACTIVATED_FIELDS = new Set([
@@ -17,7 +18,7 @@ export const getSimpleLanguageSuggestionProvider = (metadata?: IMetadataApi['get
       const normalizedWord = word === '' ? 'name' : word;
       const normalizedWordLowercase = normalizedWord.toLowerCase();
 
-      const simpleLangFunctions = CamelCatalogService.getComponent(CatalogKind.Function, 'simple') ?? {};
+      const simpleLangFunctions = (await DynamicCatalogRegistry.get().getEntity(CatalogKind.Function, 'simple')) ?? {};
       const {
         body,
         ['variable.name']: variableName,

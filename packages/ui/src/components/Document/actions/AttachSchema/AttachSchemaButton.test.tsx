@@ -26,12 +26,14 @@ describe('AttachSchemaButton', () => {
     expect(modal).toBeNull();
 
     const attachButton = await screen.findByTestId('attach-schema-sourceBody-Body-button');
-    act(() => {
+    await act(async () => {
       fireEvent.click(attachButton);
     });
 
-    modal = screen.queryByTestId('attach-schema-modal');
-    expect(modal).toBeInTheDocument();
+    await waitFor(() => {
+      modal = screen.queryByTestId('attach-schema-modal');
+      expect(modal).toBeInTheDocument();
+    });
   });
 
   it('should open update schema warning modal when schema is already attached', async () => {

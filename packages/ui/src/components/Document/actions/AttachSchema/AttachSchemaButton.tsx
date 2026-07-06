@@ -3,6 +3,7 @@ import { ImportIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useMemo, useState } from 'react';
 
 import { DocumentType } from '../../../../models/datamapper';
+import { DataMapperStepService } from '../../../../services/datamapper-step.service';
 import { AttachSchemaModal } from './AttachSchemaModal';
 import { UpdateSchemaWarningModal } from './UpdateSchemaWarningModal';
 
@@ -21,7 +22,7 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isWarningModalOpen, setIsWarningModalOpen] = useState<boolean>(false);
-
+  const [jsonAllowed, setJsonAllowed] = useState<boolean>(false);
   const actionName = hasSchema ? 'Update' : 'Attach';
 
   const documentTypeLabel = useMemo(() => {
@@ -29,10 +30,12 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
     return documentType === DocumentType.SOURCE_BODY ? 'Source' : 'Target';
   }, [documentId, documentType]);
 
-  const onAttachSchemaModalOpen = useCallback(() => {
+  const onAttachSchemaModalOpen = useCallback(async () => {
+    const supportsJsonBody = await DataMapperStepService.supportsJsonBody();
+    setJsonAllowed(documentType !== DocumentType.SOURCE_BODY || supportsJsonBody);
     setIsWarningModalOpen(false);
     setIsModalOpen(true);
-  }, []);
+  }, [documentType]);
 
   const onModalClose = useCallback(() => {
     setIsModalOpen(false);
@@ -50,7 +53,7 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
     if (actionName === 'Update') {
       onWarningModalOpen();
     } else {
-      onAttachSchemaModalOpen();
+      void onAttachSchemaModalOpen();
     }
   }, [actionName, onAttachSchemaModalOpen, onWarningModalOpen]);
 
@@ -81,6 +84,7 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
         documentReferenceId={documentReferenceId}
         actionName={actionName}
         documentTypeLabel={documentTypeLabel}
+        jsonAllowed={jsonAllowed}
       />
     </>
   );

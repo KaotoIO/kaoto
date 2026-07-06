@@ -1,15 +1,16 @@
 import { CatalogLibrary } from '@kaoto/camel-catalog/catalog-index.d.ts';
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 
-import { CamelCatalogService, CatalogKind } from '../../../../../../models';
+import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
+import { CatalogKind } from '../../../../../../models';
 import { IMetadataApi } from '../../../../../../providers';
-import { getFirstCatalogMap } from '../../../../../../stubs/test-load-catalog';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../../../../stubs/test-load-catalog';
 import { getSimpleLanguageSuggestionProvider } from './simple-language.suggestions';
 
 describe('Properties Suggestions', () => {
   beforeEach(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Function, catalogsMap.functionsCatalogMap);
+    setupDynamicCatalogRegistry(catalogsMap);
   });
 
   it.each([
@@ -58,8 +59,8 @@ describe('Properties Suggestions', () => {
     expect(suggestions).toMatchSnapshot();
   });
 
-  it('should use the CamelCatalogService to query available functions', async () => {
-    const catalogSpy = vi.spyOn(CamelCatalogService, 'getComponent');
+  it('should use the DynamicCatalogRegistry to query available functions', async () => {
+    const registrySpy = vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity');
     const word = '';
     await getSimpleLanguageSuggestionProvider().getSuggestions(word, {
       inputValue: 'test example',
@@ -67,7 +68,7 @@ describe('Properties Suggestions', () => {
       propertyName: 'test-property',
     });
 
-    expect(catalogSpy).toHaveBeenCalledWith(CatalogKind.Function, 'simple');
+    expect(registrySpy).toHaveBeenCalledWith(CatalogKind.Function, 'simple');
   });
 
   it('should return suggestions from the catalog', async () => {
@@ -82,7 +83,7 @@ describe('Properties Suggestions', () => {
   });
 
   it('should generate basic functions if the catalog is not available', async () => {
-    vi.spyOn(CamelCatalogService, 'getComponent').mockReturnValueOnce(undefined);
+    vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity').mockResolvedValueOnce(undefined);
     const suggestions = await getSimpleLanguageSuggestionProvider().getSuggestions('test', {
       inputValue: 'test example',
       cursorPosition: 0,
