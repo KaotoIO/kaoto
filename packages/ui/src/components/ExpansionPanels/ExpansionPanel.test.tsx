@@ -220,7 +220,7 @@ describe('ExpansionPanel', () => {
             unregisterLayoutCallback: mockUnregisterLayoutCallback,
           }}
         >
-          <ExpansionPanel id="test-panel" summary={<div>Test Summary</div>} defaultExpanded={true}>
+          <ExpansionPanel id="test-panel" summary={<div>Test Summary</div>} defaultExpanded>
             <div>Test Content</div>
           </ExpansionPanel>
         </ExpansionContext.Provider>,

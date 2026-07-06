@@ -19,7 +19,7 @@ import {
 } from '@patternfly/react-core';
 import { EllipsisVIcon, ExternalLinkAltIcon, FireIcon, GithubIcon } from '@patternfly/react-icons';
 import { BarsIcon } from '@patternfly/react-icons/dist/js/icons/bars-icon';
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 
 import camelLogo from '../assets/camel-logo.svg';
@@ -37,14 +37,24 @@ const displayObject: MastheadProps['display'] = {
   default: 'inline',
 };
 
+const TopBarMenuToggle: FunctionComponent<{
+  toggleRef: React.Ref<MenuToggleElement>;
+  onClick: () => void;
+  isOpen: boolean;
+}> = ({ toggleRef, onClick, isOpen }) => (
+  <MenuToggle ref={toggleRef} onClick={onClick} variant="plain" isExpanded={isOpen}>
+    <EllipsisVIcon />
+  </MenuToggle>
+);
+
 export const TopBar: FunctionComponent<ITopBar> = (props) => {
   const logoLink = useComponentLink(Links.Home);
   const [isOpen, setIsOpen] = React.useState(false);
   const [isAboutModalOpen, setIsAboutModalOpen] = React.useState(false);
 
-  const onToggle = () => {
-    setIsOpen(!isOpen);
-  };
+  const onToggle = useCallback(() => {
+    setIsOpen((prev) => !prev);
+  }, []);
 
   const onSelect = (event: React.MouseEvent<Element, MouseEvent> | undefined) => {
     event?.stopPropagation();
@@ -54,6 +64,13 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
   const toggleAboutModal = () => {
     setIsAboutModalOpen(!isAboutModalOpen);
   };
+
+  const renderToggle = useCallback(
+    (toggleRef: React.Ref<MenuToggleElement>) => (
+      <TopBarMenuToggle toggleRef={toggleRef} onClick={onToggle} isOpen={isOpen} />
+    ),
+    [onToggle, isOpen],
+  );
 
   return (
     <>
@@ -73,11 +90,7 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
           <ToolbarItem className="shell__link">
             <Dropdown
               onSelect={onSelect}
-              toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-                <MenuToggle ref={toggleRef} onClick={onToggle} variant="plain" isExpanded={isOpen}>
-                  <EllipsisVIcon />
-                </MenuToggle>
-              )}
+              toggle={renderToggle}
               isOpen={isOpen}
               onOpenChange={(isOpen: boolean) => {
                 setIsOpen(isOpen);

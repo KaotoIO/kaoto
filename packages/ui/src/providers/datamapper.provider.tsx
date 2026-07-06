@@ -376,7 +376,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
                 key={option.key ?? `alert-key-${index}`}
                 variant={option.variant}
                 title={option.title}
-                timeout={true}
+                timeout
                 onTimeout={() => {
                   closeAlert(option);
                 }}

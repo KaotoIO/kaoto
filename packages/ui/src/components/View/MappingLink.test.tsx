@@ -58,7 +58,7 @@ describe('MappingLink', () => {
   it('applies selected class when isSelected is true', () => {
     const { getByTestId } = render(
       <svg>
-        <MappingLink {...defaultProps} isSelected={true} />
+        <MappingLink {...defaultProps} isSelected />
       </svg>,
     );
     expect(getByTestId('mapping-link-selected-10-20-100-200').classList).toContain('mapping-link--selected');

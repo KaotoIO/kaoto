@@ -21,14 +21,12 @@ import { ToggleDebugToolbarItem } from './ToggleDebugToolbarItem';
 
 export const ContextToolbar: FunctionComponent = () => {
   return (
-    <Toolbar id="data-toolbar" role={'complementary'}>
+    <Toolbar id="data-toolbar" role="complementary">
       <ToolbarContent>
-        {
-          <ToolbarGroup variant="action-group" gap={{ default: 'gapMd' }}>
-            <MainMenuToolbarItem />
-            <ToggleDebugToolbarItem />
-          </ToolbarGroup>
-        }
+        <ToolbarGroup variant="action-group" gap={{ default: 'gapMd' }}>
+          <MainMenuToolbarItem />
+          <ToggleDebugToolbarItem />
+        </ToolbarGroup>
       </ToolbarContent>
     </Toolbar>
   );

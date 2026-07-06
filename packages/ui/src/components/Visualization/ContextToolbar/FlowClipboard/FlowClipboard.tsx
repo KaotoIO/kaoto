@@ -10,7 +10,7 @@ export const successTooltipText = 'Content added to clipboard';
 
 export const defaultTooltipText = 'Copy to clipboard';
 
-export function FlowClipboard() {
+export const FlowClipboard = () => {
   const [isCopied, setIsCopied] = useState(false);
   const status = isCopied ? 'success' : undefined;
   const tooltipText = isCopied ? successTooltipText : defaultTooltipText;
@@ -39,4 +39,4 @@ export function FlowClipboard() {
       data-copied={isCopied}
     />
   );
-}
+};

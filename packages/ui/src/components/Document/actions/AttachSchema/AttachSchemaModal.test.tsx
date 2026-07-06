@@ -38,7 +38,7 @@ describe('AttachSchemaModal', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <AttachSchemaModal
-            isModalOpen={true}
+            isModalOpen
             onModalClose={vi.fn()}
             documentType={DocumentType.SOURCE_BODY}
             documentId={BODY_DOCUMENT_ID}
@@ -83,7 +83,7 @@ describe('AttachSchemaModal', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <AttachSchemaModal
-            isModalOpen={true}
+            isModalOpen
             onModalClose={vi.fn()}
             documentType={DocumentType.TARGET_BODY}
             documentId={BODY_DOCUMENT_ID}
@@ -129,7 +129,7 @@ describe('AttachSchemaModal', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <AttachSchemaModal
-            isModalOpen={true}
+            isModalOpen
             onModalClose={vi.fn()}
             documentType={DocumentType.SOURCE_BODY}
             documentId={BODY_DOCUMENT_ID}
@@ -165,7 +165,7 @@ describe('AttachSchemaModal', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <AttachSchemaModal
-            isModalOpen={true}
+            isModalOpen
             onModalClose={vi.fn()}
             documentType={DocumentType.SOURCE_BODY}
             documentId={BODY_DOCUMENT_ID}
@@ -203,7 +203,7 @@ describe('AttachSchemaModal', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <AttachSchemaModal
-            isModalOpen={true}
+            isModalOpen
             onModalClose={vi.fn()}
             documentType={DocumentType.SOURCE_BODY}
             documentId={BODY_DOCUMENT_ID}
@@ -244,7 +244,7 @@ describe('AttachSchemaModal', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <AttachSchemaModal
-            isModalOpen={true}
+            isModalOpen
             onModalClose={vi.fn()}
             documentType={DocumentType.SOURCE_BODY}
             documentId={BODY_DOCUMENT_ID}
@@ -287,7 +287,7 @@ describe('AttachSchemaModal', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <AttachSchemaModal
-            isModalOpen={true}
+            isModalOpen
             onModalClose={vi.fn()}
             documentType={DocumentType.TARGET_BODY}
             documentId={BODY_DOCUMENT_ID}
@@ -332,7 +332,7 @@ describe('AttachSchemaModal', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <AttachSchemaModal
-            isModalOpen={true}
+            isModalOpen
             onModalClose={onModalClose}
             documentType={DocumentType.SOURCE_BODY}
             documentId={BODY_DOCUMENT_ID}
@@ -362,7 +362,7 @@ describe('AttachSchemaModal', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <AttachSchemaModal
-            isModalOpen={true}
+            isModalOpen
             onModalClose={vi.fn()}
             documentType={DocumentType.TARGET_BODY}
             documentId={BODY_DOCUMENT_ID}
@@ -401,7 +401,7 @@ describe('AttachSchemaModal', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <AttachSchemaModal
-            isModalOpen={true}
+            isModalOpen
             onModalClose={vi.fn()}
             documentType={DocumentType.SOURCE_BODY}
             documentId={BODY_DOCUMENT_ID}
@@ -424,7 +424,7 @@ describe('AttachSchemaModal', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <AttachSchemaModal
-            isModalOpen={true}
+            isModalOpen
             onModalClose={vi.fn()}
             documentType={DocumentType.TARGET_BODY}
             documentId={BODY_DOCUMENT_ID}
@@ -466,7 +466,7 @@ describe('AttachSchemaModal', () => {
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
             <AttachSchemaModal
-              isModalOpen={true}
+              isModalOpen
               onModalClose={vi.fn()}
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
@@ -518,7 +518,7 @@ describe('AttachSchemaModal', () => {
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
             <AttachSchemaModal
-              isModalOpen={true}
+              isModalOpen
               onModalClose={vi.fn()}
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
@@ -567,7 +567,7 @@ describe('AttachSchemaModal', () => {
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
             <AttachSchemaModal
-              isModalOpen={true}
+              isModalOpen
               onModalClose={vi.fn()}
               documentType={DocumentType.TARGET_BODY}
               documentId={BODY_DOCUMENT_ID}
@@ -625,7 +625,7 @@ describe('AttachSchemaModal', () => {
         dataMapperContext = useDataMapper();
         return (
           <AttachSchemaModal
-            isModalOpen={true}
+            isModalOpen
             onModalClose={vi.fn()}
             documentType={DocumentType.TARGET_BODY}
             documentId={BODY_DOCUMENT_ID}
@@ -694,7 +694,7 @@ describe('AttachSchemaModal', () => {
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
             <AttachSchemaModal
-              isModalOpen={true}
+              isModalOpen
               onModalClose={vi.fn()}
               documentType={DocumentType.TARGET_BODY}
               documentId={BODY_DOCUMENT_ID}
@@ -733,7 +733,7 @@ describe('AttachSchemaModal', () => {
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
             <AttachSchemaModal
-              isModalOpen={true}
+              isModalOpen
               onModalClose={vi.fn()}
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
@@ -805,7 +805,7 @@ describe('AttachSchemaModal', () => {
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
             <AttachSchemaModal
-              isModalOpen={true}
+              isModalOpen
               onModalClose={vi.fn()}
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
@@ -855,7 +855,7 @@ describe('AttachSchemaModal', () => {
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
             <AttachSchemaModal
-              isModalOpen={true}
+              isModalOpen
               onModalClose={vi.fn()}
               documentType={DocumentType.TARGET_BODY}
               documentId={BODY_DOCUMENT_ID}
@@ -902,7 +902,7 @@ describe('AttachSchemaModal', () => {
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
             <AttachSchemaModal
-              isModalOpen={true}
+              isModalOpen
               onModalClose={vi.fn()}
               documentType={DocumentType.TARGET_BODY}
               documentId={BODY_DOCUMENT_ID}
@@ -951,7 +951,7 @@ describe('AttachSchemaModal', () => {
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
             <AttachSchemaModal
-              isModalOpen={true}
+              isModalOpen
               onModalClose={vi.fn()}
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
@@ -994,7 +994,7 @@ describe('AttachSchemaModal', () => {
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
             <AttachSchemaModal
-              isModalOpen={true}
+              isModalOpen
               onModalClose={vi.fn()}
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
@@ -1043,7 +1043,7 @@ describe('AttachSchemaModal', () => {
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
             <AttachSchemaModal
-              isModalOpen={true}
+              isModalOpen
               onModalClose={vi.fn()}
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
@@ -1094,7 +1094,7 @@ describe('AttachSchemaModal', () => {
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
             <AttachSchemaModal
-              isModalOpen={true}
+              isModalOpen
               onModalClose={vi.fn()}
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
@@ -1115,7 +1115,7 @@ describe('AttachSchemaModal', () => {
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
             <AttachSchemaModal
-              isModalOpen={true}
+              isModalOpen
               onModalClose={vi.fn()}
               documentType={DocumentType.PARAM}
               documentId="myParam"
@@ -1146,7 +1146,7 @@ describe('AttachSchemaModal', () => {
           <BrowserFilePickerMetadataProvider>
             <DataMapperProvider>
               <AttachSchemaModal
-                isModalOpen={true}
+                isModalOpen
                 onModalClose={vi.fn()}
                 documentType={DocumentType.SOURCE_BODY}
                 documentId={BODY_DOCUMENT_ID}
@@ -1202,7 +1202,7 @@ describe('AttachSchemaModal', () => {
           <BrowserFilePickerMetadataProvider>
             <DataMapperProvider>
               <AttachSchemaModal
-                isModalOpen={true}
+                isModalOpen
                 onModalClose={vi.fn()}
                 documentType={DocumentType.SOURCE_BODY}
                 documentId={BODY_DOCUMENT_ID}
@@ -1233,7 +1233,7 @@ describe('AttachSchemaModal', () => {
           <BrowserFilePickerMetadataProvider>
             <DataMapperProvider>
               <AttachSchemaModal
-                isModalOpen={true}
+                isModalOpen
                 onModalClose={vi.fn()}
                 documentType={DocumentType.SOURCE_BODY}
                 documentId={BODY_DOCUMENT_ID}

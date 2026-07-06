@@ -178,8 +178,8 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
           onClose={handleCloseCommentModal}
           mapping={mapping}
           onUpdate={onUpdate}
-          showDeleteButton={true}
-          withFormGroup={true}
+          showDeleteButton
+          withFormGroup
         />
       )}
     </section>

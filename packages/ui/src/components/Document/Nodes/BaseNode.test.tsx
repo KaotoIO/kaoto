@@ -186,8 +186,8 @@ describe('BaseNode', () => {
           nodeData={createMockNodeData()}
           title="Title"
           data-testid="test-node"
-          isExpandable={true}
-          isExpanded={true}
+          isExpandable
+          isExpanded
           onExpandChange={() => {}}
         />,
       );
@@ -201,7 +201,7 @@ describe('BaseNode', () => {
           nodeData={createMockNodeData()}
           title="Title"
           data-testid="test-node"
-          isExpandable={true}
+          isExpandable
           isExpanded={false}
           onExpandChange={() => {}}
         />,
@@ -217,8 +217,8 @@ describe('BaseNode', () => {
           nodeData={createMockNodeData()}
           title="Title"
           data-testid="test-node"
-          isExpandable={true}
-          isExpanded={true}
+          isExpandable
+          isExpanded
           onExpandChange={onExpandChange}
         />,
       );
@@ -337,8 +337,8 @@ describe('BaseNode', () => {
           nodeData={createMockNodeData({ type: Types.Array, isCollection: true })}
           title="Title"
           data-testid="test-node"
-          isExpandable={true}
-          isExpanded={true}
+          isExpandable
+          isExpanded
           onExpandChange={() => {}}
         />,
       );

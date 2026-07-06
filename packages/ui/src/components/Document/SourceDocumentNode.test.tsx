@@ -669,7 +669,7 @@ describe('SourceDocumentNode', () => {
         });
       });
 
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={true} rank={0} />, {
+      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly rank={0} />, {
         wrapper,
       });
 

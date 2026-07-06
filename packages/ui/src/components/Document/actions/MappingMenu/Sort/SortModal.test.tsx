@@ -106,7 +106,7 @@ describe('SortModal', () => {
   });
 
   it('should render when isOpen is true', () => {
-    render(<SortModal isOpen={true} onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
     expect(screen.getByTestId('sort-modal')).toBeInTheDocument();
   });
 
@@ -116,7 +116,7 @@ describe('SortModal', () => {
   });
 
   it('should display for-each expression in subtitle', () => {
-    render(<SortModal isOpen={true} onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
     expect(screen.getByText('for-each: /items/item')).toBeInTheDocument();
   });
 
@@ -129,7 +129,7 @@ describe('SortModal', () => {
     sort2.order = 'descending';
     forEachItem.sortItems = [sort1, sort2];
 
-    render(<SortModal isOpen={true} onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
 
     expect(getExpressionInput(0).value).toBe('Title');
     expect(getExpressionInput(1).value).toBe('Price');
@@ -139,13 +139,13 @@ describe('SortModal', () => {
   });
 
   it('should start with one empty sort key when no existing sort items', () => {
-    render(<SortModal isOpen={true} onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
     expect(screen.getByTestId('sort-expression-0')).toBeInTheDocument();
     expect(screen.queryByTestId('sort-expression-1')).not.toBeInTheDocument();
   });
 
   it('should add a new sort key', () => {
-    render(<SortModal isOpen={true} onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
     act(() => {
       fireEvent.click(screen.getByTestId('sort-add-key'));
     });
@@ -157,7 +157,7 @@ describe('SortModal', () => {
     sort.expression = 'Title';
     forEachItem.sortItems = [sort];
 
-    render(<SortModal isOpen={true} onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
     expect(screen.getByTestId('sort-expression-0')).toBeInTheDocument();
 
     act(() => {
@@ -169,7 +169,7 @@ describe('SortModal', () => {
   it('should save sort items to mapping on Save', async () => {
     const onUpdate = vi.fn();
     const onClose = vi.fn();
-    render(<SortModal isOpen={true} onClose={onClose} mapping={forEachItem} onUpdate={onUpdate} />);
+    render(<SortModal isOpen onClose={onClose} mapping={forEachItem} onUpdate={onUpdate} />);
 
     act(() => {
       fireEvent.change(getExpressionInput(0), { target: { value: 'Title' } });
@@ -193,7 +193,7 @@ describe('SortModal', () => {
     forEachItem.sortItems = [];
     const onUpdate = vi.fn();
     const onClose = vi.fn();
-    render(<SortModal isOpen={true} onClose={onClose} mapping={forEachItem} onUpdate={onUpdate} />);
+    render(<SortModal isOpen onClose={onClose} mapping={forEachItem} onUpdate={onUpdate} />);
 
     act(() => {
       fireEvent.change(getExpressionInput(0), { target: { value: 'something' } });
@@ -212,7 +212,7 @@ describe('SortModal', () => {
 
   it('should filter out empty expressions on Save', async () => {
     const onUpdate = vi.fn();
-    render(<SortModal isOpen={true} onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
 
     act(() => {
       fireEvent.click(screen.getByTestId('sort-add-key'));
@@ -238,7 +238,7 @@ describe('SortModal', () => {
     sort.expression = 'Title';
     forEachItem.sortItems = [sort];
 
-    render(<SortModal isOpen={true} onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
 
     const orderBtn = screen.getByTestId('sort-order-0');
     expect(orderBtn).toHaveAttribute('aria-label', 'Sort order 1: ascending');
@@ -252,7 +252,7 @@ describe('SortModal', () => {
 
   it('should not call onClose when drag just ended', () => {
     const onClose = vi.fn();
-    render(<SortModal isOpen={true} onClose={onClose} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={onClose} mapping={forEachItem} onUpdate={vi.fn()} />);
 
     act(() => {
       fireEvent.click(screen.getByTestId('mock-drag-trigger'));
@@ -272,7 +272,7 @@ describe('SortModal', () => {
     forEachItem.sortItems = [sort1, sort2];
 
     const onUpdate = vi.fn();
-    render(<SortModal isOpen={true} onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
 
     expect(getExpressionInput(0).value).toBe('Title');
     expect(getExpressionInput(1).value).toBe('Price');
@@ -297,7 +297,7 @@ describe('SortModal', () => {
     sort.expression = 'Title';
     forEachItem.sortItems = [sort];
 
-    render(<SortModal isOpen={true} onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
     expect(screen.queryByTestId('xpath-editor-modal')).not.toBeInTheDocument();
 
     act(() => {
@@ -313,7 +313,7 @@ describe('SortModal', () => {
     sort.expression = 'Title';
     forEachItem.sortItems = [sort];
 
-    render(<SortModal isOpen={true} onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
 
     act(() => {
       fireEvent.click(screen.getByTestId('sort-edit-xpath-0'));
@@ -332,7 +332,7 @@ describe('SortModal', () => {
     forEachItem.sortItems = [sort];
 
     const onUpdate = vi.fn();
-    render(<SortModal isOpen={true} onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
 
     act(() => {
       fireEvent.click(screen.getByTestId('sort-edit-xpath-0'));
@@ -360,7 +360,7 @@ describe('SortModal', () => {
     sort.expression = 'Title';
     forEachItem.sortItems = [sort];
 
-    render(<SortModal isOpen={true} onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
     expect(screen.queryByTestId('sort-advanced-panel-0')).not.toBeInTheDocument();
 
     act(() => {
@@ -382,7 +382,7 @@ describe('SortModal', () => {
     forEachItem.sortItems = [sort];
 
     const onUpdate = vi.fn();
-    render(<SortModal isOpen={true} onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
 
     act(() => {
       fireEvent.click(screen.getByTestId('sort-save-btn'));
@@ -403,7 +403,7 @@ describe('SortModal', () => {
     sort.caseOrder = 'upper-first';
     forEachItem.sortItems = [sort];
 
-    render(<SortModal isOpen={true} onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
 
     act(() => {
       fireEvent.change(getExpressionInput(0), { target: { value: 'Price' } });
@@ -423,7 +423,7 @@ describe('SortModal', () => {
     sort.stable = 'yes';
     forEachItem.sortItems = [sort];
 
-    render(<SortModal isOpen={true} onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
 
     act(() => {
       fireEvent.click(screen.getByTestId('sort-order-0'));
@@ -443,7 +443,7 @@ describe('SortModal', () => {
     sort.lang = 'en';
     forEachItem.sortItems = [sort];
 
-    render(<SortModal isOpen={true} onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
 
     const advancedBtn = screen.getByTestId('sort-advanced-0');
     expect(advancedBtn).toHaveClass('sort-modal__settings-configured');
@@ -455,7 +455,7 @@ describe('SortModal', () => {
     forEachItem.sortItems = [sort];
 
     const onUpdate = vi.fn();
-    render(<SortModal isOpen={true} onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
 
     act(() => {
       fireEvent.click(screen.getByTestId('sort-advanced-0'));
@@ -482,7 +482,7 @@ describe('SortModal', () => {
     forEachItem.sortItems = [sort];
 
     const onUpdate = vi.fn();
-    render(<SortModal isOpen={true} onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
 
     act(() => {
       fireEvent.click(screen.getByTestId('sort-advanced-0'));
@@ -509,7 +509,7 @@ describe('SortModal', () => {
     forEachItem.sortItems = [sort];
 
     const onUpdate = vi.fn();
-    render(<SortModal isOpen={true} onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
 
     act(() => {
       fireEvent.click(screen.getByTestId('sort-advanced-0'));
@@ -539,7 +539,7 @@ describe('SortModal', () => {
     forEachItem.sortItems = [sort];
 
     const onUpdate = vi.fn();
-    render(<SortModal isOpen={true} onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
 
     act(() => {
       fireEvent.click(screen.getByTestId('sort-advanced-0'));
@@ -568,7 +568,7 @@ describe('SortModal', () => {
     sort.expression = 'Title';
     forEachItem.sortItems = [sort];
 
-    render(<SortModal isOpen={true} onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
 
     const advancedBtn = screen.getByTestId('sort-advanced-0');
     expect(advancedBtn).not.toHaveClass('sort-modal__settings-configured');

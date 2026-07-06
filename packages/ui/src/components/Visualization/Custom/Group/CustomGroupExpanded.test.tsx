@@ -207,7 +207,7 @@ describe('CustomGroupExpanded', () => {
 
     await renderInContext(
       <SettingsProvider adapter={onSelectionAdapter}>
-        <CustomGroupExpanded element={element} selected={true} />
+        <CustomGroupExpanded element={element} selected />
       </SettingsProvider>,
     );
 

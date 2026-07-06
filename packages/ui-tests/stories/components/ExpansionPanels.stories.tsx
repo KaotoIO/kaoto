@@ -42,7 +42,7 @@ const DataMapperLikeTemplate: StoryFn<typeof ExpansionPanels> = () => {
         <ExpansionPanel
           id="parameters-header"
           summary={<PanelHeader title="Parameters" count={5} />}
-          defaultExpanded={true}
+          defaultExpanded
           defaultHeight={180}
           minHeight={80}
         >
@@ -60,7 +60,7 @@ const DataMapperLikeTemplate: StoryFn<typeof ExpansionPanels> = () => {
         <ExpansionPanel
           id="non-collapsible"
           summary={<PanelHeader title="Non-collapsible-param" count={5} />}
-          defaultExpanded={true}
+          defaultExpanded
           defaultHeight={180}
           minHeight={80}
           collapsible={false}
@@ -79,7 +79,7 @@ const DataMapperLikeTemplate: StoryFn<typeof ExpansionPanels> = () => {
         <ExpansionPanel
           id="source-body"
           summary={<PanelHeader title="Body" count={150} />}
-          defaultExpanded={true}
+          defaultExpanded
           defaultHeight={400}
           minHeight={100}
         >

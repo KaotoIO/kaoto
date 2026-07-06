@@ -106,13 +106,13 @@ export const EndpointField: FunctionComponent<FieldProps> = ({ propName, require
           onCleanInput={onCleanInput}
           onCreate={onSelect}
           disabled={disabled}
-          allowCustomInput={true}
+          allowCustomInput
         />
       </FieldWrapper>
 
       {isOpen && (
         <NewEndpointModal
-          mode={'Create'}
+          mode="Create"
           endpointsSchema={endpointsSchema}
           onConfirm={handleCreate}
           onCancel={handleCancel}

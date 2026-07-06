@@ -27,7 +27,7 @@ import {
 import { CatalogSchemaLoader } from './utils/catalog-schema-loader';
 import { setColorScheme } from './utils/color-scheme';
 
-function App() {
+const App = () => {
   const controller = useMemo(() => ControllerService.createController(), []);
   const settingsAdapter = new LocalStorageSettingsAdapter();
   let catalogUrl = CatalogSchemaLoader.DEFAULT_CATALOG_PATH;
@@ -87,6 +87,6 @@ function App() {
       </SourceCodeLocalStorageProvider>
     </SettingsProvider>
   );
-}
+};
 
 export default App;

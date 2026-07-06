@@ -27,7 +27,7 @@ describe('ChoiceSelectionModal', () => {
 
   it('should render modal with choice field displayName in title', () => {
     const choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }]);
-    render(<ChoiceSelectionModal isOpen={true} choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
+    render(<ChoiceSelectionModal isOpen choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
     expect(screen.getByText('Choice: Test Choice')).toBeInTheDocument();
   });
 
@@ -38,7 +38,7 @@ describe('ChoiceSelectionModal', () => {
       wrapperKind: 'choice',
       fields: [{ name: 'optA', displayName: 'optA', fields: [] }],
     } as unknown as IField;
-    render(<ChoiceSelectionModal isOpen={true} choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
+    render(<ChoiceSelectionModal isOpen choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
     expect(screen.getByText('Choice: rawChoice')).toBeInTheDocument();
   });
 
@@ -49,40 +49,40 @@ describe('ChoiceSelectionModal', () => {
       wrapperKind: 'choice',
       fields: [],
     } as unknown as IField;
-    render(<ChoiceSelectionModal isOpen={true} choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
+    render(<ChoiceSelectionModal isOpen choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
     expect(screen.getByText('Choice: Choice')).toBeInTheDocument();
   });
 
   it('should show placeholder when no member is pre-selected', () => {
     const choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }]);
-    render(<ChoiceSelectionModal isOpen={true} choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
+    render(<ChoiceSelectionModal isOpen choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
     const input = getTypeaheadInput();
     expect(input.getAttribute('placeholder')).toBe('Select a member...');
   });
 
   it('should show pre-selected member name in typeahead input', () => {
     const choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }], 1);
-    render(<ChoiceSelectionModal isOpen={true} choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
+    render(<ChoiceSelectionModal isOpen choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
     const input = getTypeaheadInput();
     expect(input.getAttribute('value')).toBe('phone');
   });
 
   it('should disable Save button when no member is selected', () => {
     const choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }]);
-    render(<ChoiceSelectionModal isOpen={true} choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
+    render(<ChoiceSelectionModal isOpen choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
   });
 
   it('should enable Save button when a member is pre-selected', () => {
     const choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }], 0);
-    render(<ChoiceSelectionModal isOpen={true} choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
+    render(<ChoiceSelectionModal isOpen choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
     expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled();
   });
 
   it('should call onClose when Cancel is clicked', () => {
     const onClose = vi.fn();
     const choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }]);
-    render(<ChoiceSelectionModal isOpen={true} choiceField={choiceField} onSelect={vi.fn()} onClose={onClose} />);
+    render(<ChoiceSelectionModal isOpen choiceField={choiceField} onSelect={vi.fn()} onClose={onClose} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
@@ -93,7 +93,7 @@ describe('ChoiceSelectionModal', () => {
     const onSelect = vi.fn();
     const onClose = vi.fn();
     const choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }], 1);
-    render(<ChoiceSelectionModal isOpen={true} choiceField={choiceField} onSelect={onSelect} onClose={onClose} />);
+    render(<ChoiceSelectionModal isOpen choiceField={choiceField} onSelect={onSelect} onClose={onClose} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
 
@@ -108,7 +108,7 @@ describe('ChoiceSelectionModal', () => {
       { name: 'email', displayName: 'Email' },
       { name: 'phone', displayName: 'Phone' },
     ]);
-    render(<ChoiceSelectionModal isOpen={true} choiceField={choiceField} onSelect={onSelect} onClose={onClose} />);
+    render(<ChoiceSelectionModal isOpen choiceField={choiceField} onSelect={onSelect} onClose={onClose} />);
 
     const input = getTypeaheadInput();
     act(() => {
@@ -134,7 +134,7 @@ describe('ChoiceSelectionModal', () => {
   it('should not call onSelect when Save is clicked without selection', () => {
     const onSelect = vi.fn();
     const choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }]);
-    render(<ChoiceSelectionModal isOpen={true} choiceField={choiceField} onSelect={onSelect} onClose={vi.fn()} />);
+    render(<ChoiceSelectionModal isOpen choiceField={choiceField} onSelect={onSelect} onClose={vi.fn()} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
 
@@ -147,7 +147,7 @@ describe('ChoiceSelectionModal', () => {
       { name: 'phone', displayName: 'Phone' },
       { name: 'fax', displayName: 'Fax' },
     ]);
-    render(<ChoiceSelectionModal isOpen={true} choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
+    render(<ChoiceSelectionModal isOpen choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
 
     const input = getTypeaheadInput();
     act(() => {
@@ -172,7 +172,7 @@ describe('ChoiceSelectionModal', () => {
       ],
       selectedMemberIndex: 0,
     } as unknown as IField;
-    render(<ChoiceSelectionModal isOpen={true} choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
+    render(<ChoiceSelectionModal isOpen choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
 
     const input = getTypeaheadInput();
     expect(input.getAttribute('value')).toBe('email');
@@ -185,7 +185,7 @@ describe('ChoiceSelectionModal', () => {
       wrapperKind: 'choice',
       fields: undefined,
     } as unknown as IField;
-    render(<ChoiceSelectionModal isOpen={true} choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
+    render(<ChoiceSelectionModal isOpen choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
 
     const input = getTypeaheadInput();
     expect(input.getAttribute('placeholder')).toBe('Select a member...');
@@ -197,7 +197,7 @@ describe('ChoiceSelectionModal', () => {
       { name: 'email', displayName: 'Email' },
       { name: 'phone', displayName: 'Phone' },
     ]);
-    render(<ChoiceSelectionModal isOpen={true} choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
+    render(<ChoiceSelectionModal isOpen choiceField={choiceField} onSelect={vi.fn()} onClose={vi.fn()} />);
 
     const input = getTypeaheadInput();
     act(() => {

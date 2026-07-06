@@ -25,7 +25,7 @@ const Template: StoryFn<typeof InlineEdit> = (args) => {
       <CardBody>
         <InlineEdit {...args} value={args.value ?? localValue} onChange={args.onChange ?? setLocalValue} />
       </CardBody>
-      <CardFooter></CardFooter>
+      <CardFooter />
     </Card>
   );
 };

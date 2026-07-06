@@ -44,7 +44,7 @@ export const renderRowData = (
           ''
         )
       }
-      {<span>{row[header]?.toString()}</span>}
+      <span>{row[header]?.toString()}</span>
       {
         //prefix with group for name cell if needed
         header == PropertiesHeaders.Name && row.rowAdditionalInfo.group ? (

@@ -15,7 +15,7 @@ export interface MemberSelectionModalProps<T> {
   onClose: () => void;
 }
 
-export function MemberSelectionModal<T>({
+export const MemberSelectionModal = <T,>({
   isOpen,
   title,
   placeholder,
@@ -24,7 +24,7 @@ export function MemberSelectionModal<T>({
   selectedValue,
   onSelect,
   onClose,
-}: Readonly<MemberSelectionModalProps<T>>) {
+}: Readonly<MemberSelectionModalProps<T>>) => {
   const [value, setValue] = useState<T | null>(selectedValue);
 
   useEffect(() => {
@@ -72,4 +72,4 @@ export function MemberSelectionModal<T>({
       </ModalFooter>
     </DataMapperModal>
   );
-}
+};

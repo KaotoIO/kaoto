@@ -55,9 +55,7 @@ export const CatalogPage: FunctionComponent = () => {
   return (
     <>
       <Catalog tiles={tiles} onTileClick={onTileClick} />
-      {modalTile && (
-        <PropertiesModal tile={modalTile} isModalOpen={isModalOpen} onClose={handleOnClose}></PropertiesModal>
-      )}
+      {modalTile && <PropertiesModal tile={modalTile} isModalOpen={isModalOpen} onClose={handleOnClose} />}
     </>
   );
 };

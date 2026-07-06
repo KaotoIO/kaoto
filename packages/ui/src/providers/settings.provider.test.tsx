@@ -20,7 +20,7 @@ describe('SettingsProvider', () => {
   });
 });
 
-function TestProvider() {
+const TestProvider = () => {
   const settingsContext = useContext(SettingsContext);
   const [settings, setSettings] = useState<SettingsModel | null>(null);
 
@@ -29,4 +29,4 @@ function TestProvider() {
   }, [settingsContext]);
 
   return <p data-testid="settings">{JSON.stringify(settings)}</p>;
-}
+};

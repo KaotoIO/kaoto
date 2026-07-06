@@ -10,5 +10,5 @@ export const CanvasMonitor: FunctionComponent = () => {
     console.debug('Connection Ports: [' + nodePaths.map((p) => p + '\n').toString() + ']');
   }, [nodesConnectionPorts]);
 
-  return <></>;
+  return null;
 };

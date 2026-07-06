@@ -31,7 +31,7 @@ type TopmostArrayTableProps = {
  * @param props
  * @constructor
  */
-export function TopmostArrayTable(props: TopmostArrayTableProps) {
+export const TopmostArrayTable = (props: TopmostArrayTableProps) => {
   function handleTrashClick(index: number) {
     const newMetadata = props.model ? props.model.slice() : [];
     newMetadata.length !== 0 && newMetadata.splice(index, 1);
@@ -53,7 +53,7 @@ export function TopmostArrayTable(props: TopmostArrayTableProps) {
           <Thead>
             <Tr>
               {props.itemSchema.required?.map((name: string) => (
-                <Th modifier={'nowrap'} key={name}>
+                <Th modifier="nowrap" key={name}>
                   {name.toUpperCase()}
                 </Th>
               ))}
@@ -124,4 +124,4 @@ export function TopmostArrayTable(props: TopmostArrayTableProps) {
       </InnerScrollContainer>
     </OuterScrollContainer>
   );
-}
+};

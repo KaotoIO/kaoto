@@ -266,7 +266,7 @@ describe('ParametersSection', () => {
         <DataMapperProvider>
           <MappingLinksProvider>
             <ExpansionPanels>
-              <ParametersSection isReadOnly={true} />
+              <ParametersSection isReadOnly />
             </ExpansionPanels>
           </MappingLinksProvider>
         </DataMapperProvider>
@@ -850,7 +850,7 @@ describe('ParametersSection', () => {
           <DataMapperProvider>
             <MappingLinksProvider>
               <ExpansionPanels>
-                <ParametersSection isReadOnly={true} />
+                <ParametersSection isReadOnly />
               </ExpansionPanels>
             </MappingLinksProvider>
           </DataMapperProvider>

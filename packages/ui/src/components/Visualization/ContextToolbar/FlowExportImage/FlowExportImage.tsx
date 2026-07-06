@@ -8,7 +8,7 @@ import { VisibleFlowsContext } from '../../../../providers/visible-flows.provide
 import { useGraphLayout } from '../../Custom/hooks/use-graph-layout.hook';
 import { HiddenCanvas } from './HiddenCanvas';
 
-export function FlowExportImage() {
+export const FlowExportImage = () => {
   const [isExporting, setIsExporting] = useState(false);
   const { visualEntities } = useEntityContext();
   const { visibleFlows } = useContext(VisibleFlowsContext)!;
@@ -40,4 +40,4 @@ export function FlowExportImage() {
       )}
     </>
   );
-}
+};

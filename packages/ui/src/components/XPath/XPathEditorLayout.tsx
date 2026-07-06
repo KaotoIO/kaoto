@@ -105,7 +105,7 @@ export const XPathEditorLayout: FunctionComponent<XPathEditorLayoutProps> = ({
               data-testid="xpath-editor-tab-field"
             >
               <TabContent id="fields" className="xpath-editor--full-height xpath-editor__tab">
-                <SourcePanel isReadOnly={true} />
+                <SourcePanel isReadOnly />
               </TabContent>
             </Tab>
 

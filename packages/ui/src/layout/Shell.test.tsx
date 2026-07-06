@@ -9,7 +9,7 @@ vi.mock('../hooks/local-storage.hook', () => ({
 }));
 
 vi.mock('./Navigation', () => ({
-  Navigation: ({ isNavOpen }: { isNavOpen: boolean }) => <div data-testid="navigation" data-is-open={isNavOpen}></div>,
+  Navigation: ({ isNavOpen }: { isNavOpen: boolean }) => <div data-testid="navigation" data-is-open={isNavOpen} />,
 }));
 
 vi.mock('./TopBar', () => ({
