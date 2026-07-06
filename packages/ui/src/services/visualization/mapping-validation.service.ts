@@ -9,12 +9,14 @@ import {
   FieldItemNodeData,
   MappingNodeData,
   NodeData,
+  SequenceFieldNodeData,
   SourceNodeDataType,
   SourceVariableNodeData,
   TargetAbstractFieldNodeData,
   TargetDocumentNodeData,
   TargetFieldNodeData,
   TargetNodeData,
+  TargetSequenceFieldNodeData,
   UnknownMappingNodeData,
 } from '../../models/datamapper/visualization';
 import { DocumentService } from '../document/document.service';
@@ -77,6 +79,7 @@ export class MappingValidationService {
     if (node instanceof AddMappingNodeData) return false;
     if ((node instanceof AbstractFieldNodeData || node instanceof TargetAbstractFieldNodeData) && !node.abstractField)
       return false;
+    if (node instanceof SequenceFieldNodeData || node instanceof TargetSequenceFieldNodeData) return false;
     if (node instanceof DocumentNodeData && !node.isPrimitive) return false;
     return true;
   }
@@ -168,6 +171,7 @@ export class MappingValidationService {
   private static readonly pairValidationRules: ReadonlyArray<(source: IField, target: IField) => ValidationResult> = [
     MappingValidationService.validateChoiceRules,
     MappingValidationService.validateAbstractRules,
+    MappingValidationService.validateSequenceRules,
     MappingValidationService.validateContainerRules,
   ];
 
@@ -348,6 +352,16 @@ export class MappingValidationService {
       return {
         isValid: false,
         errorMessage: 'Cannot map to an unselected abstract element. Please select a concrete candidate first.',
+      };
+    }
+    return { isValid: true };
+  }
+
+  private static validateSequenceRules(_source: IField, target: IField): ValidationResult {
+    if (target.wrapperKind === 'sequence') {
+      return {
+        isValid: false,
+        errorMessage: 'Cannot map to a sequence group. Map its individual children instead.',
       };
     }
     return { isValid: true };

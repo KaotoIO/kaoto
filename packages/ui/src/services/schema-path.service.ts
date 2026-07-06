@@ -7,7 +7,8 @@ import { XPathService } from './xpath/xpath.service';
 export type SchemaPathSegment =
   | { kind: 'element'; segment: string }
   | { kind: 'choice'; index: number }
-  | { kind: 'abstract'; index: number };
+  | { kind: 'abstract'; index: number }
+  | { kind: 'sequence'; index: number };
 
 /**
  * Service for schema path string operations: parsing, building, and navigation.
@@ -37,6 +38,7 @@ export type SchemaPathSegment =
 export class SchemaPathService {
   private static readonly CHOICE_SEGMENT_REGEX = /^\{choice:(\d+)}$/;
   private static readonly ABSTRACT_SEGMENT_REGEX = /^\{abstract:(\d+)}$/;
+  private static readonly SEQUENCE_SEGMENT_REGEX = /^\{sequence:(\d+)}$/;
   /**
    * Parses a schema path string into an array of typed segments.
    *
@@ -55,6 +57,11 @@ export class SchemaPathService {
       const abstractMatch = SchemaPathService.ABSTRACT_SEGMENT_REGEX.exec(part);
       if (abstractMatch) {
         segments.push({ kind: 'abstract', index: Number.parseInt(abstractMatch[1], 10) });
+        continue;
+      }
+      const sequenceMatch = SchemaPathService.SEQUENCE_SEGMENT_REGEX.exec(part);
+      if (sequenceMatch) {
+        segments.push({ kind: 'sequence', index: Number.parseInt(sequenceMatch[1], 10) });
         continue;
       }
       segments.push({ kind: 'element', segment: part });
@@ -106,7 +113,9 @@ export class SchemaPathService {
     const lastIndex = fieldStack.length - 1;
     for (let i = 0; i <= lastIndex; i++) {
       const f = fieldStack[i];
-      if (f.wrapperKind === 'choice') {
+      if (f.wrapperKind === 'sequence') {
+        continue;
+      } else if (f.wrapperKind === 'choice') {
         segments.push(
           `{choice:${SchemaPathService.getSiblingIndex(f, (sibling) => sibling.wrapperKind === 'choice')}}`,
         );

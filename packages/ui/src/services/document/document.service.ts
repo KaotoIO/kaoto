@@ -324,13 +324,14 @@ export class DocumentService {
     const fieldStack = DocumentUtilService.getFieldStack(field, true);
     for (const right of fieldStack.slice().reverse()) {
       const parent: IParentType = left ?? document;
-      if (right.wrapperKind === 'choice') {
-        const rightChoices: IField[] = right.parent.fields.filter((f) => f.wrapperKind === 'choice');
-        const leftChoices: IField[] = parent.fields.filter((f) => f.wrapperKind === 'choice');
-        const choiceIndex: number = rightChoices.indexOf(right);
-        const choiceFound: IField | undefined = choiceIndex >= 0 ? leftChoices[choiceIndex] : undefined;
-        if (!choiceFound) return undefined;
-        left = choiceFound;
+      if (right.wrapperKind === 'choice' || right.wrapperKind === 'sequence') {
+        const kind = right.wrapperKind;
+        const rightWrappers: IField[] = right.parent.fields.filter((f) => f.wrapperKind === kind);
+        const leftWrappers: IField[] = parent.fields.filter((f) => f.wrapperKind === kind);
+        const wrapperIndex: number = rightWrappers.indexOf(right);
+        const wrapperFound: IField | undefined = wrapperIndex >= 0 ? leftWrappers[wrapperIndex] : undefined;
+        if (!wrapperFound) return undefined;
+        left = wrapperFound;
         continue;
       }
       const found = DocumentService.findCompatibleFieldInParent(parent, right);

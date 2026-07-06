@@ -16,10 +16,12 @@ import {
   FieldItemNodeData,
   FieldNodeData,
   NodeData,
+  SequenceFieldNodeData,
   SourceVariableNodeData,
   TargetAbstractFieldNodeData,
   TargetDocumentNodeData,
   TargetFieldNodeData,
+  TargetSequenceFieldNodeData,
   UnknownMappingNodeData,
   VariableNodeData,
 } from '../../models/datamapper/visualization';
@@ -180,6 +182,23 @@ describe('MappingValidationService', () => {
       it('should allow source to non-abstract target', () => {
         const source = createMockField({ type: Types.String });
         const target = createMockField({});
+        const result = MappingValidationService.validateFieldPair(source, target);
+        expect(result.isValid).toBe(true);
+      });
+    });
+
+    describe('sequence validation', () => {
+      it('should reject any source to sequence wrapper target', () => {
+        const source = createMockField({ type: Types.String });
+        const target = createMockField({ wrapperKind: 'sequence' });
+        const result = MappingValidationService.validateFieldPair(source, target);
+        expect(result.isValid).toBe(false);
+        expect(result.errorMessage).toContain('sequence group');
+      });
+
+      it('should allow source to non-sequence target', () => {
+        const source = createMockField({ type: Types.String });
+        const target = createMockField({ type: Types.String });
         const result = MappingValidationService.validateFieldPair(source, target);
         expect(result.isValid).toBe(true);
       });
@@ -598,6 +617,18 @@ describe('MappingValidationService', () => {
 
     it('should return false for non-primitive DocumentNodeData', () => {
       expect(MappingValidationService.isDraggable(sourceDocNode)).toBe(false);
+    });
+
+    it('should return false for SequenceFieldNodeData', () => {
+      const field = createMockField({ wrapperKind: 'sequence' });
+      const node = new SequenceFieldNodeData(sourceDocNode, field);
+      expect(MappingValidationService.isDraggable(node)).toBe(false);
+    });
+
+    it('should return false for TargetSequenceFieldNodeData', () => {
+      const field = createMockField({ wrapperKind: 'sequence' });
+      const node = new TargetSequenceFieldNodeData(targetDocNode, field);
+      expect(MappingValidationService.isDraggable(node)).toBe(false);
     });
 
     it('should return true for VariableNodeData', () => {

@@ -24,11 +24,13 @@ import {
   NameValidation,
   NameValidationStatus,
   NodeData,
+  SequenceFieldNodeData,
   TargetAbstractFieldNodeData,
   TargetChoiceFieldNodeData,
   TargetDocumentNodeData,
   TargetFieldNodeData,
   TargetNodeData,
+  TargetSequenceFieldNodeData,
   UnknownMappingNodeData,
   VariableNodeData,
 } from '../../models/datamapper/visualization';
@@ -63,6 +65,14 @@ const ABSTRACT_WRAPPER: WrapperSpec = {
   },
   isTargetWrapper: (node) => node instanceof TargetAbstractFieldNodeData,
   hasWrapperRef: (node) => !!(node as TargetAbstractFieldNodeData).abstractField,
+};
+
+const SEQUENCE_WRAPPER: WrapperSpec = {
+  createSourceNode: (parent, field) => new SequenceFieldNodeData(parent, field),
+  createTargetNode: (parent, field, mapping) => new TargetSequenceFieldNodeData(parent, field, mapping),
+  setWrapperRef: () => {},
+  isTargetWrapper: (node) => node instanceof TargetSequenceFieldNodeData,
+  hasWrapperRef: () => false,
 };
 
 // Regex patterns for DnD ID generation
@@ -187,6 +197,10 @@ export class VisualizationService {
         acc.push(VisualizationService.doGenerateNodeDataFromWrapperField(parent, field, mappings, ABSTRACT_WRAPPER));
         return acc;
       }
+      if (field.wrapperKind === 'sequence') {
+        acc.push(VisualizationService.doGenerateNodeDataFromWrapperField(parent, field, mappings, SEQUENCE_WRAPPER));
+        return acc;
+      }
 
       const mappingsForField = mappings ? MappingService.filterMappingsForField(mappings, field) : [];
       if (mappingsForField.length === 0) {
@@ -239,10 +253,10 @@ export class VisualizationService {
   }
 
   private static isUnselectedTargetWrapper(node: NodeData): boolean {
-    return (
-      (node instanceof TargetChoiceFieldNodeData && !node.choiceField) ||
-      (node instanceof TargetAbstractFieldNodeData && !node.abstractField)
-    );
+    if (node instanceof TargetChoiceFieldNodeData && !node.choiceField) return true;
+    if (node instanceof TargetAbstractFieldNodeData && !node.abstractField) return true;
+    if (node instanceof TargetSequenceFieldNodeData) return true;
+    return false;
   }
 
   /**
@@ -280,6 +294,13 @@ export class VisualizationService {
         parent,
         VisualizationService.resolveWrapperNodeFields(parent.field),
         VisualizationService.resolveWrapperNodeMappings(parent, ABSTRACT_WRAPPER),
+      );
+    }
+    if (parent instanceof SequenceFieldNodeData || parent instanceof TargetSequenceFieldNodeData) {
+      return VisualizationService.doGenerateNodeDataFromFields(
+        parent,
+        VisualizationService.resolveWrapperNodeFields(parent.field),
+        VisualizationService.resolveWrapperNodeMappings(parent, SEQUENCE_WRAPPER),
       );
     }
     if (parent instanceof FieldNodeData || parent instanceof FieldItemNodeData) {
