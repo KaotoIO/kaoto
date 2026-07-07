@@ -843,8 +843,9 @@ export class MappingService {
   }
 
   /**
-   * Variables are prepended (unshift) to children, matching the XSLT requirement
-   * that `xsl:variable` declarations precede other instructions.
+   * Inserts the new variable after any existing {@link VariableItem} children, keeping all
+   * variable declarations grouped at the front ahead of other instructions — consistent with
+   * the XSLT requirement that `xsl:variable` declarations precede other instructions.
    * @param parent - the parent container
    * @param name - the variable name
    * @param expression - optional initial XPath expression
@@ -855,7 +856,8 @@ export class MappingService {
     if (expression) {
       variable.expression = expression;
     }
-    parent.children.unshift(variable);
+    const lastVariableIndex = parent.children.reduce((idx, child, i) => (child instanceof VariableItem ? i : idx), -1);
+    parent.children.splice(lastVariableIndex + 1, 0, variable);
     return variable;
   }
 

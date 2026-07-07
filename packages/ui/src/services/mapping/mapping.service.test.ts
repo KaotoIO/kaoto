@@ -859,12 +859,22 @@ describe('MappingService', () => {
       expect(otherwiseItem.children).toContain(variable);
     });
 
-    it('should insert variable at the beginning of children', () => {
+    it('should insert variable before non-variable children', () => {
       const parent = tree.children[0];
       const firstChildBefore = parent.children[0];
       MappingService.addVariable(parent, 'myVar');
       expect(parent.children[0]).toBeInstanceOf(VariableItem);
       expect(parent.children[1]).toBe(firstChildBefore);
+    });
+
+    it('should insert second variable after the first variable', () => {
+      const parent = tree.children[0];
+      const firstChildBefore = parent.children[0];
+      MappingService.addVariable(parent, 'var1');
+      MappingService.addVariable(parent, 'var2');
+      expect((parent.children[0] as VariableItem).name).toBe('var1');
+      expect((parent.children[1] as VariableItem).name).toBe('var2');
+      expect(parent.children[2]).toBe(firstChildBefore);
     });
   });
 
