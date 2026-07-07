@@ -29,7 +29,9 @@ export default function useDeleteHotkey(selectedVizNode: IVisualizationNode | un
   useEffect(() => {
     hotkeys('Delete, backspace', (event) => {
       event.preventDefault();
-      void handleKeyDown();
+      handleKeyDown().catch((error) => {
+        console.error('Failed to handle delete hotkey:', error);
+      });
     });
 
     return () => {

@@ -81,9 +81,9 @@ const ImportWizardFooter: FunctionComponent<ImportWizardFooterProps> = ({
           <Button
             variant="secondary"
             type="button"
-            onClick={(event) => {
+            onClick={async (event) => {
               event.preventDefault();
-              void onGoToDesigner(event);
+              await onGoToDesigner(event);
             }}
           >
             Go to Designer

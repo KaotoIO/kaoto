@@ -22,14 +22,18 @@ export const SourceCodeBridgeProvider = forwardRef<SourceCodeBridgeProviderRef, 
      */
     useEffect(() => {
       const unsubscribeFromEntities = eventNotifier.subscribe('entities:updated', (newContent: string) => {
-        void onNewEdit(newContent);
+        onNewEdit(newContent).catch((error) => {
+          console.error('Failed to apply edit:', error);
+        });
         sourceCodeRef.current = newContent;
       });
 
       const unsubscribeFromSourceCode = eventNotifier.subscribe('code:updated', ({ code: newContent }) => {
         /** Ignore the first change, from an empty string to the file content  */
         if (sourceCodeRef.current !== '') {
-          void onNewEdit(newContent);
+          onNewEdit(newContent).catch((error) => {
+            console.error('Failed to apply edit:', error);
+          });
         }
         sourceCodeRef.current = newContent;
       });

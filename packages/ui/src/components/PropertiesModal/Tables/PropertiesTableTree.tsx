@@ -12,6 +12,13 @@ interface IPropertiesTableTreeProps {
 
 export const PropertiesTableTree: FunctionComponent<IPropertiesTableTreeProps> = (props) => {
   const [expandedNodeId, setExpandedNodeId] = useState<number[]>([]);
+
+  const handleCollapse = (rowIndex: number, isExpanded: boolean) => {
+    setExpandedNodeId((prevExpanded) => {
+      const otherExpandedNodeNames = prevExpanded.filter((row_unique_id) => row_unique_id !== rowIndex);
+      return isExpanded ? otherExpandedNodeNames : [...otherExpandedNodeNames, rowIndex];
+    });
+  };
   /** 
     source: https://www.patternfly.org/components/table#tree-table
     Recursive function which flattens the data into an array of flattened TreeRowWrapper components
@@ -36,10 +43,7 @@ export const PropertiesTableTree: FunctionComponent<IPropertiesTableTreeProps> =
 
     const treeRow: TdProps['treeRow'] = {
       onCollapse: () => {
-        setExpandedNodeId((prevExpanded) => {
-          const otherExpandedNodeNames = prevExpanded.filter((row_unique_id) => row_unique_id !== rowIndex);
-          return isExpanded ? otherExpandedNodeNames : [...otherExpandedNodeNames, rowIndex];
-        });
+        handleCollapse(rowIndex, isExpanded);
       },
       rowIndex,
       props: {

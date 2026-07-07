@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import { readdir, readFile } from 'node:fs/promises';
+import { readdirSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
@@ -26,11 +27,11 @@ import { beanWithConstructorAandProperties, beanWithConstructorAandPropertiesXML
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../stubs/test-load-catalog';
 import { isXML, KaotoXmlParser } from './kaoto-xml-parser';
 
-describe('XmlParser', async () => {
+describe('XmlParser', () => {
   let parser: KaotoXmlParser;
   const xmlDir = path.join(__dirname, '../../stubs/xml');
   const yamlDir = path.join(__dirname, '../../stubs/yaml');
-  const xmlFiles = (await readdir(xmlDir)).filter((file) => file.endsWith('.xml'));
+  const xmlFiles = readdirSync(xmlDir).filter((file) => file.endsWith('.xml'));
 
   beforeAll(async () => {
     parser = new KaotoXmlParser();

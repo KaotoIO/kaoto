@@ -297,6 +297,29 @@ describe('CatalogTilesProvider', () => {
     expect(cachedTiles?.length).toBeGreaterThan(0);
   });
 
+  it('logs an error and still renders children when fetching tiles fails', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const componentCatalog = mockRegistry.getCatalog(CatalogKind.Component);
+    vi.spyOn(componentCatalog!, 'getAll').mockRejectedValue(new Error('catalog boom'));
+
+    await act(async () => {
+      render(
+        <CatalogContext.Provider value={mockRegistry}>
+          <CatalogTilesProvider>
+            <span data-testid="still-here">Loaded</span>
+          </CatalogTilesProvider>
+        </CatalogContext.Provider>,
+      );
+    });
+
+    expect(screen.getByTestId('still-here')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to fetch tiles:', expect.any(Error));
+    });
+
+    consoleErrorSpy.mockRestore();
+  });
+
   it('should populate tiles upon loading', async () => {
     const componentCatalog = mockRegistry.getCatalog(CatalogKind.Component);
     const patternCatalog = mockRegistry.getCatalog(CatalogKind.Pattern);
