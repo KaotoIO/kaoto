@@ -26,7 +26,7 @@ import {
   useHover,
 } from '@patternfly/react-topology';
 import clsx from 'clsx';
-import { FunctionComponent, useContext, useMemo, useRef } from 'react';
+import { FunctionComponent, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
@@ -73,9 +73,24 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
     const ProcessorIcon = getProcessorIcon(processorName);
     const processorDescription = groupVizNode?.data?.processorIconTooltip ?? '';
     const isDisabled = !!groupVizNode?.getNodeDefinition()?.disabled;
-    const validationText = groupVizNode?.getNodeValidationText();
+    const [validationText, setValidationText] = useState<string | undefined>(undefined);
     const doesHaveWarnings = !isDisabled && !!validationText;
     const { childCount, hasGroupChildren } = getVizNodeChildrenInfo(groupVizNode);
+    useEffect(() => {
+      let cancelled = false;
+      groupVizNode
+        ?.getNodeValidationText()
+        .then((text) => {
+          if (!cancelled) setValidationText(text);
+        })
+        .catch((error) => {
+          console.error('Failed to get node validation text:', error);
+        });
+      return () => {
+        cancelled = true;
+      };
+    }, [groupVizNode]);
+
     const [isGHover, gHoverRef] = useHover<SVGGElement>(CanvasDefaults.HOVER_DELAY_IN, CanvasDefaults.HOVER_DELAY_OUT);
     const [isToolbarHover, toolbarHoverRef] = useHover<SVGForeignObjectElement>(
       CanvasDefaults.HOVER_DELAY_IN,
