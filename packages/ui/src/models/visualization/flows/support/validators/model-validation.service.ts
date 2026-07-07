@@ -29,11 +29,11 @@ function isEmptyOrNotArray(value: unknown): boolean {
  * property file.
  */
 export class ModelValidationService {
-  static validateNodeStatus(schema: KaotoSchemaDefinition['schema'], definition: unknown): string {
+  static async validateNodeStatus(schema: KaotoSchemaDefinition['schema'], definition: unknown): Promise<string> {
     if (!schema) return '';
     let message = '';
 
-    const validationResult = this.validateRequiredProperties(schema, definition, '', schema.definitions);
+    const validationResult = await this.validateRequiredProperties(schema, definition, '', schema.definitions);
     const missingProperties = validationResult
       .filter((result) => result.type === 'missingRequired')
       .map((result) => result.propertyName);
@@ -48,40 +48,40 @@ export class ModelValidationService {
     return message;
   }
 
-  private static validateRequiredProperties(
+  private static async validateRequiredProperties(
     schema: KaotoSchemaDefinition['schema'],
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     model: any,
     parentPath: string,
     definitions?: Record<string, KaotoSchemaDefinition['schema']>,
-  ): IValidationResult[] {
+  ): Promise<IValidationResult[]> {
     const answer = [] as IValidationResult[];
 
     const resolvedSchema = schema;
     if (Array.isArray(resolvedSchema.anyOf)) {
       let parsedModel = model;
-      resolvedSchema.anyOf.forEach((anyOfSchema) => {
+      for (const anyOfSchema of resolvedSchema.anyOf) {
         if (isDefined(anyOfSchema.format) && anyOfSchema.format === 'expression') {
-          parsedModel = ExpressionService.parseExpressionModel(model);
+          parsedModel = await ExpressionService.parseExpressionModel(model);
         }
-        answer.push(...this.validateRequiredProperties(anyOfSchema, parsedModel, parentPath, definitions));
-      });
+        answer.push(...(await this.validateRequiredProperties(anyOfSchema, parsedModel, parentPath, definitions)));
+      }
     }
 
     if (Array.isArray(resolvedSchema.oneOf)) {
-      resolvedSchema.oneOf.forEach((oneOfSchema) =>
-        answer.push(...this.validateRequiredProperties(oneOfSchema, model, parentPath, definitions)),
-      );
+      for (const oneOfSchema of resolvedSchema.oneOf) {
+        answer.push(...(await this.validateRequiredProperties(oneOfSchema, model, parentPath, definitions)));
+      }
     }
 
     if (!schema.properties && schema.$ref) {
       // resolve the ref
       const resolvedSchema = resolveSchemaWithRef(schema, definitions!);
-      answer.push(...this.validateRequiredProperties(resolvedSchema, model, parentPath, definitions));
+      answer.push(...(await this.validateRequiredProperties(resolvedSchema, model, parentPath, definitions)));
     }
 
     if (schema.properties) {
-      Object.entries(schema.properties).forEach(([propertyName, propertyValue]) => {
+      for (const [propertyName, propertyValue] of Object.entries(schema.properties)) {
         const propertySchema = propertyValue as KaotoSchemaDefinition['schema'];
         const path = parentPath ? `${parentPath}.${propertyName}` : propertyName;
 
@@ -99,20 +99,22 @@ export class ModelValidationService {
             propertyName: propertyName,
             message: `Missing required property ${propertyName}`,
           });
-          return;
+          continue;
         }
         if (model?.[propertyName] && propertySchema.$ref) {
           const resolvedPropertySchema = resolveSchemaWithRef(propertySchema, definitions!);
           answer.push(
-            ...this.validateRequiredProperties(resolvedPropertySchema, model[propertyName], path, definitions),
+            ...(await this.validateRequiredProperties(resolvedPropertySchema, model[propertyName], path, definitions)),
           );
         }
         if (propertySchema.type === 'object') {
           if (model) {
-            answer.push(...this.validateRequiredProperties(propertySchema, model[propertyName], path, definitions));
+            answer.push(
+              ...(await this.validateRequiredProperties(propertySchema, model[propertyName], path, definitions)),
+            );
           }
         }
-      });
+      }
     }
 
     return answer;

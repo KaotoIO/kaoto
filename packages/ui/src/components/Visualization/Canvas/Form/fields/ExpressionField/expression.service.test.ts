@@ -1,6 +1,8 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
+import { DynamicCatalog } from '../../../../../../dynamic-catalog/dynamic-catalog';
+import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
 import { CamelCatalogService, CatalogKind, KaotoSchemaDefinition } from '../../../../../../models';
 import { getFirstCatalogMap } from '../../../../../../stubs/test-load-catalog';
 import { ExpressionService } from './expression.service';
@@ -9,7 +11,14 @@ describe('ExpressionService', () => {
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     const languageCatalog = catalogsMap.languageCatalog;
-    CamelCatalogService.setCatalogKey(CatalogKind.Language, languageCatalog);
+
+    // Set up DynamicCatalogRegistry with a catalog backed by the language catalog map
+    const mockProvider = {
+      id: 'language-mock',
+      fetch: async (key: string) => languageCatalog[key],
+      fetchAll: async () => languageCatalog,
+    };
+    DynamicCatalogRegistry.get().setCatalog(CatalogKind.Language, new DynamicCatalog(mockProvider));
   });
 
   describe('getExpressionsSchema', () => {
@@ -189,8 +198,8 @@ describe('ExpressionService', () => {
     ],
   ];
 
-  it.each(expressionsArray)('should parse %s', (parentModel, expected) => {
-    const result = ExpressionService.parseExpressionModel(parentModel);
+  it.each(expressionsArray)('should parse %s', async (parentModel, expected) => {
+    const result = await ExpressionService.parseExpressionModel(parentModel);
 
     expect(result).toEqual(expected);
   });
@@ -201,20 +210,20 @@ describe('ExpressionService', () => {
       CamelCatalogService.setCatalogKey(CatalogKind.Language, languageCatalog);
     });
 
-    it('should update the target model expression if supported', () => {
+    it('should update the target model expression if supported', async () => {
       const sourceModel = { simple: { expression: 'sourceExpr' } };
       const targetModel = { csimple: { expression: undefined } };
 
-      ExpressionService.updateExpressionFromModel(sourceModel, targetModel);
+      await ExpressionService.updateExpressionFromModel(sourceModel, targetModel);
 
       expect(targetModel.csimple.expression).toBe('sourceExpr');
     });
 
-    it('should not update the target model if language does not support expression', () => {
+    it('should not update the target model if language does not support expression', async () => {
       const sourceModel = { simple: { expression: 'sourceExpr' } };
       const targetModel = { bean: { expression: undefined } };
 
-      ExpressionService.updateExpressionFromModel(sourceModel, targetModel);
+      await ExpressionService.updateExpressionFromModel(sourceModel, targetModel);
 
       expect(targetModel.bean.expression).toBeUndefined();
     });
