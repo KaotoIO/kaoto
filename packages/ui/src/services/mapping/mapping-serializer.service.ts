@@ -24,6 +24,7 @@ import {
 } from '../../models/datamapper/mapping';
 import { DeserializeItemResult, DeserializeResult, MappingItemClass } from '../../models/datamapper/serialization';
 import { NS_XSL } from '../../models/datamapper/standard-namespaces';
+import { FieldOverrideVariant } from '../../models/datamapper/types';
 import { SendAlertProps } from '../../models/datamapper/visualization';
 import { XmlSchemaDocumentUtilService } from '../document/xml-schema/xml-schema-document-util.service';
 import { MappingService } from './mapping.service';
@@ -281,6 +282,24 @@ export class MappingSerializerService {
     }
   }
 
+  private static isUserCreatedField(field: IField): boolean {
+    if (field.typeOverride === FieldOverrideVariant.SUBSTITUTION) return true;
+
+    let current: IParentType = field.parent;
+    while ('ownerDocument' in current) {
+      const f = current;
+      if (f.wrapperKind === 'abstract' && f.selectedMemberQName !== undefined) return true;
+      if (f.wrapperKind === 'choice' && f.selectedMemberIndex !== undefined) return true;
+      if (f.wrapperKind) {
+        current = f.parent;
+        continue;
+      }
+      break;
+    }
+
+    return false;
+  }
+
   private static restoreElementNode(
     element: Element,
     parentField: IParentType,
@@ -293,6 +312,15 @@ export class MappingSerializerService {
         : MappingSerializerService.restoreNonXslElement(element, parentField, parentMapping);
 
     if (!result?.mappingItem) return;
+
+    if (result.mappingItem instanceof FieldItem) {
+      const hasContent = Array.from(element.childNodes).some(
+        (node) => node.nodeType === Node.ELEMENT_NODE || (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()),
+      );
+      if (!hasContent || MappingSerializerService.isUserCreatedField(result.mappingItem.field)) {
+        result.mappingItem.isUserCreated = true;
+      }
+    }
 
     parentMapping.children.push(result.mappingItem);
 

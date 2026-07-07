@@ -19,9 +19,14 @@ import {
 import { NS_XSL } from '../../models/datamapper/standard-namespaces';
 import { Types } from '../../models/datamapper/types';
 import {
+  getFieldSubstitutionToFieldSubstitutionXslt,
+  getFieldSubstitutionXsd,
   getForEachSortToShipOrderXslt,
   getInvoice850Xsd,
   getRawTextNodeXslt,
+  getSchemaTestToSchemaTestXslt,
+  getSchemaTestXsd,
+  getShipOrderEmptyMappingXslt,
   getShipOrderManuallyEditedXslt,
   getShipOrderToShipOrderCollectionIndexXslt,
   getShipOrderToShipOrderInvalidForEachXslt,
@@ -1122,6 +1127,168 @@ describe('MappingSerializerService', () => {
       ).toBe(true);
       const ifItem = mappingTree.children[0].children[0] as IfItem;
       expect(ifItem).toBeInstanceOf(IfItem);
+    });
+  });
+
+  describe('isUserCreated reconstruction during deserialization', () => {
+    const SUB_NS = 'http://www.example.com/SUBSTITUTION';
+    const TEST_NS = 'http://www.example.com/test';
+
+    it('should set isUserCreated=true for fields inside an abstract wrapper with a selected substitute', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.TARGET_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'FieldSubstitution.xsd': getFieldSubstitutionXsd() },
+        undefined,
+        undefined,
+        undefined,
+        [{ schemaPath: '/sub:Zoo/{abstract:0}', name: 'sub:Dog', originalName: 'sub:AbstractAnimal' }],
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition, {
+        sub: SUB_NS,
+      });
+      const zooDoc = result.document!;
+
+      const mappingTree = new MappingTree(
+        DocumentType.TARGET_BODY,
+        BODY_DOCUMENT_ID,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const { mappingTree: deserialized } = MappingSerializerService.deserialize(
+        getFieldSubstitutionToFieldSubstitutionXslt(),
+        zooDoc,
+        mappingTree,
+        new Map(),
+      );
+
+      const zooFieldItem = deserialized.children[0] as FieldItem;
+      expect(zooFieldItem).toBeInstanceOf(FieldItem);
+      expect(zooFieldItem.field.name).toBe('Zoo');
+      expect(zooFieldItem.isUserCreated).toBe(false);
+
+      const dogFieldItem = zooFieldItem.children[0] as FieldItem;
+      expect(dogFieldItem).toBeInstanceOf(FieldItem);
+      expect(dogFieldItem.field.name).toBe('Dog');
+      expect(dogFieldItem.isUserCreated).toBe(true);
+
+      const nameFieldItem = dogFieldItem.children[0] as FieldItem;
+      expect(nameFieldItem).toBeInstanceOf(FieldItem);
+      expect(nameFieldItem.field.name).toBe('name');
+      expect(nameFieldItem.isUserCreated).toBe(false);
+
+      const breedFieldItem = dogFieldItem.children[1] as FieldItem;
+      expect(breedFieldItem).toBeInstanceOf(FieldItem);
+      expect(breedFieldItem.field.name).toBe('breed');
+      expect(breedFieldItem.isUserCreated).toBe(false);
+    });
+
+    it('should set isUserCreated=true for fields inside a choice wrapper with a selected member', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.TARGET_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'SchemaTest.xsd': getSchemaTestXsd() },
+        undefined,
+        undefined,
+        [{ schemaPath: '/test:Root/test:person/{choice:0}', selectedMemberIndex: 1 }],
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition, {
+        test: TEST_NS,
+      });
+      const testDoc = result.document!;
+
+      const mappingTree = new MappingTree(
+        DocumentType.TARGET_BODY,
+        BODY_DOCUMENT_ID,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const { mappingTree: deserialized } = MappingSerializerService.deserialize(
+        getSchemaTestToSchemaTestXslt(),
+        testDoc,
+        mappingTree,
+        new Map(),
+      );
+
+      const rootFieldItem = deserialized.children[0] as FieldItem;
+      expect(rootFieldItem).toBeInstanceOf(FieldItem);
+      expect(rootFieldItem.field.name).toBe('Root');
+      expect(rootFieldItem.isUserCreated).toBe(false);
+
+      const personFieldItem = rootFieldItem.children[0] as FieldItem;
+      expect(personFieldItem).toBeInstanceOf(FieldItem);
+      expect(personFieldItem.field.name).toBe('person');
+      expect(personFieldItem.isUserCreated).toBe(false);
+
+      const faxFieldItem = personFieldItem.children[0] as FieldItem;
+      expect(faxFieldItem).toBeInstanceOf(FieldItem);
+      expect(faxFieldItem.field.name).toBe('fax');
+      expect(faxFieldItem.isUserCreated).toBe(true);
+    });
+
+    it('should set isUserCreated=true for empty terminal elements and attributes', () => {
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      ({ mappingTree } = MappingSerializerService.deserialize(
+        getShipOrderEmptyMappingXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      ));
+      const shipOrderFieldItem = mappingTree.children[0] as FieldItem;
+      expect(shipOrderFieldItem).toBeInstanceOf(FieldItem);
+      expect(shipOrderFieldItem.isUserCreated).toBe(false);
+
+      const orderIdFieldItem = shipOrderFieldItem.children[0] as FieldItem;
+      expect(orderIdFieldItem).toBeInstanceOf(FieldItem);
+      expect(orderIdFieldItem.field.name).toBe('OrderId');
+      expect(orderIdFieldItem.field.isAttribute).toBe(true);
+      expect(orderIdFieldItem.isUserCreated).toBe(true);
+
+      const orderPersonFieldItem = shipOrderFieldItem.children[1] as FieldItem;
+      expect(orderPersonFieldItem).toBeInstanceOf(FieldItem);
+      expect(orderPersonFieldItem.field.name).toBe('OrderPerson');
+      expect(orderPersonFieldItem.isUserCreated).toBe(false);
+
+      const itemFieldItem = shipOrderFieldItem.children[2] as FieldItem;
+      expect(itemFieldItem).toBeInstanceOf(FieldItem);
+      expect(itemFieldItem.field.name).toBe('Item');
+      expect(itemFieldItem.isUserCreated).toBe(true);
+    });
+
+    it('should keep isUserCreated=false for transitive fields without overrides', () => {
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      ({ mappingTree } = MappingSerializerService.deserialize(
+        getShipOrderToShipOrderXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      ));
+      const shipOrderFieldItem = mappingTree.children[0] as FieldItem;
+      expect(shipOrderFieldItem).toBeInstanceOf(FieldItem);
+      expect(shipOrderFieldItem.isUserCreated).toBe(false);
+
+      const orderIdFieldItem = shipOrderFieldItem.children[0] as FieldItem;
+      expect(orderIdFieldItem).toBeInstanceOf(FieldItem);
+      expect(orderIdFieldItem.isUserCreated).toBe(false);
+    });
+
+    it('should copy isUserCreated via doClone()', () => {
+      const mappingTree = new MappingTree(
+        DocumentType.TARGET_BODY,
+        BODY_DOCUMENT_ID,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const field = targetDoc.fields[0];
+      const fieldItem = new FieldItem(mappingTree, field);
+      fieldItem.isUserCreated = true;
+
+      const cloned = fieldItem.clone() as FieldItem;
+      expect(cloned.isUserCreated).toBe(true);
+
+      const fieldItem2 = new FieldItem(mappingTree, field);
+      expect(fieldItem2.isUserCreated).toBe(false);
+      const cloned2 = fieldItem2.clone() as FieldItem;
+      expect(cloned2.isUserCreated).toBe(false);
     });
   });
 });

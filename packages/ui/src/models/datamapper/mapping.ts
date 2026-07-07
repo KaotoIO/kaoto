@@ -76,6 +76,20 @@ export abstract class MappingItem {
  * in the generated XSLT template.
  */
 export class FieldItem extends MappingItem {
+  /**
+   * Distinguishes user-placed FieldItems from transitive ones created automatically
+   * during mapping operations.
+   *
+   * Set to true by: "Add Mapping" on AddMappingNode, "Select substitute"
+   * (abstract wrapper), "Select member" (choice wrapper).
+   * Remains false for: transitive creation via {@link MappingActionService.getOrCreateFieldItem}
+   * during drag-and-drop mapping.
+   *
+   * Preserved by {@link doClone} — "Duplicate" inherits the original's value.
+   * Reconstructed during deserialization from document-level field substitution,
+   * choice selection state, and empty terminal detection. Consumed by pruning
+   * and deletability logic.
+   */
   isUserCreated = false;
 
   constructor(

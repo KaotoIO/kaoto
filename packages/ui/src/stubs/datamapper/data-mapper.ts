@@ -343,6 +343,15 @@ export function getOrderInfoXsd(): string {
 export function getEnvelopeXsd(): string {
   return readStubFile('./xml/Envelope.xsd');
 }
+export function getShipOrderEmptyMappingXslt(): string {
+  return readStubFile('./xml/ShipOrderEmptyMapping.xsl');
+}
+export function getFieldSubstitutionToFieldSubstitutionXslt(): string {
+  return readStubFile('./xml/FieldSubstitutionToFieldSubstitution.xsl');
+}
+export function getSchemaTestToSchemaTestXslt(): string {
+  return readStubFile('./xml/SchemaTestToSchemaTest.xsl');
+}
 
 export class TestUtil {
   static createSourceOrderDoc() {
