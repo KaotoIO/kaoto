@@ -8,12 +8,12 @@ import { RestDslImportWizard } from './RestDslImportWizard';
 export const RestDslImportPage: FunctionComponent = () => {
   const navigate = useNavigate();
 
-  const handleClose = useCallback(() => {
-    void navigate(Links.RestEditor);
+  const handleClose = useCallback(async () => {
+    await navigate(Links.RestEditor);
   }, [navigate]);
 
-  const handleGoToDesigner = useCallback(() => {
-    void navigate(Links.Home);
+  const handleGoToDesigner = useCallback(async () => {
+    await navigate(Links.Home);
   }, [navigate]);
 
   return (

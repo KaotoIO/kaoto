@@ -21,7 +21,7 @@ export class KaotoEditorFactory implements EditorFactory<Editor, KaotoEditorChan
     const settingsAdapter = new DefaultSettingsAdapter(settings);
     this.updateCatalogUrl(settingsAdapter, initArgs);
 
-    return Promise.resolve(new KaotoEditorApp(envelopeContext, initArgs, settingsAdapter));
+    return new KaotoEditorApp(envelopeContext, initArgs, settingsAdapter);
   }
 
   /**

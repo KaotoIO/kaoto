@@ -137,4 +137,20 @@ describe('useDeleteHotkey', () => {
 
     expect(preventDefault).toHaveBeenCalled();
   });
+
+  it('logs the error and does not clear the selection when deletion fails', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    onDeleteStep.mockRejectedValue(new Error('delete boom'));
+    const handler = setupHotkey(makeNode({ canRemoveStep: true }));
+
+    const preventDefault = vi.fn();
+    await act(async () => {
+      handler({ preventDefault } as unknown as KeyboardEvent);
+    });
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to delete node:', expect.any(Error));
+    expect(clearSelected).not.toHaveBeenCalled();
+
+    consoleErrorSpy.mockRestore();
+  });
 });

@@ -42,7 +42,9 @@ export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> 
 
   useEffect(() => {
     if (registryUrl) {
-      void fetchArtifacts();
+      fetchArtifacts().catch((error) => {
+        console.error('Failed to fetch artifacts:', error);
+      });
     }
   }, [fetchArtifacts, registryUrl]);
 
@@ -100,7 +102,9 @@ export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> 
   const handleSelectArtifact = useCallback(
     (artifactId: string) => {
       setSelectedId(artifactId);
-      void handleLoadArtifact(artifactId);
+      handleLoadArtifact(artifactId).catch((error) => {
+        console.error('Failed to load artifact:', error);
+      });
     },
     [handleLoadArtifact],
   );

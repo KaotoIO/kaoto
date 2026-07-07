@@ -1,4 +1,4 @@
-import { act, render } from '@testing-library/react';
+import { act, render, waitFor } from '@testing-library/react';
 import { FunctionComponent, useRef } from 'react';
 
 import { SourceCodeSync } from '../../providers/source-code-sync';
@@ -27,7 +27,7 @@ describe('SourceCodeBridgeProvider', () => {
   });
 
   it('should call onNewEdit when the entities:updated event is emitted', () => {
-    const mockOnNewEdit = vi.fn();
+    const mockOnNewEdit = vi.fn().mockResolvedValue(undefined);
 
     render(
       <SourceCodeBridgeProvider onNewEdit={mockOnNewEdit}>
@@ -43,7 +43,7 @@ describe('SourceCodeBridgeProvider', () => {
   });
 
   it('should ignore the first code:updated event', () => {
-    const mockOnNewEdit = vi.fn();
+    const mockOnNewEdit = vi.fn().mockResolvedValue(undefined);
 
     render(
       <SourceCodeBridgeProvider onNewEdit={mockOnNewEdit}>
@@ -59,7 +59,7 @@ describe('SourceCodeBridgeProvider', () => {
   });
 
   it('should call onNewEdit when the code:updated event if there is source code available', () => {
-    const mockOnNewEdit = vi.fn();
+    const mockOnNewEdit = vi.fn().mockResolvedValue(undefined);
 
     render(
       <SourceCodeBridgeProvider onNewEdit={mockOnNewEdit}>
@@ -83,6 +83,28 @@ describe('SourceCodeBridgeProvider', () => {
 
     expect(mockOnNewEdit).toHaveBeenCalledWith(mockCamelRoute);
     expect(mockOnNewEdit).toHaveBeenCalledTimes(1);
+  });
+
+  it('logs an error and still updates the source ref when onNewEdit rejects', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const mockOnNewEdit = vi.fn().mockRejectedValue(new Error('edit boom'));
+
+    render(
+      <SourceCodeBridgeProvider onNewEdit={mockOnNewEdit}>
+        <p>Complaint letter</p>
+      </SourceCodeBridgeProvider>,
+    );
+
+    await act(async () => {
+      EventNotifier.getInstance().next('entities:updated', mockCamelRoute);
+    });
+
+    expect(mockOnNewEdit).toHaveBeenCalledWith(mockCamelRoute);
+    await waitFor(() => {
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to apply edit:', expect.any(Error));
+    });
+
+    consoleErrorSpy.mockRestore();
   });
 
   it('should unsubscribe from events on unmount', async () => {
@@ -125,7 +147,7 @@ describe('SourceCodeBridgeProvider', () => {
   });
 
   it('does not call onNewEdit for the empty initial code emitted on mount', () => {
-    const mockOnNewEdit = vi.fn();
+    const mockOnNewEdit = vi.fn().mockResolvedValue(undefined);
 
     render(
       <SourceCodeSync>

@@ -159,7 +159,7 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     const index = parentChildren.findIndex((node) => node.id === this.id);
 
     if (index !== undefined && index > -1) {
-      this.setParentNode(undefined);
+      this.setParentNode();
       parentChildren.splice(index, 1);
     }
   }
@@ -177,13 +177,11 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   }
 
   protected getRootNode(): IVisualizationNode {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    let rootNode: IVisualizationNode | undefined = this;
+    return this.findRoot(this);
+  }
 
-    while (rootNode?.getPreviousNode() !== undefined || rootNode?.getParentNode() !== undefined) {
-      rootNode = rootNode.getPreviousNode() ?? rootNode.getParentNode();
-    }
-
-    return rootNode!;
+  private findRoot(node: IVisualizationNode): IVisualizationNode {
+    const nextNode = node.getPreviousNode() ?? node.getParentNode();
+    return nextNode ? this.findRoot(nextNode) : node;
   }
 }

@@ -29,7 +29,11 @@ export const RegisterNodeInteractionAddons: FunctionComponent<PropsWithChildren>
       type: IInteractionType.ON_DELETE,
       activationFn: datamapperActivationFn,
       callback: ({ vizNode, modalAnswer }) => {
-        void (metadataApi && onDeleteDataMapper(metadataApi, vizNode, modalAnswer));
+        if (metadataApi) {
+          onDeleteDataMapper(metadataApi, vizNode, modalAnswer).catch((error) => {
+            console.error('Failed to delete DataMapper mapping:', error);
+          });
+        }
       },
       modalCustomization: {
         additionalText: 'Do you also want to delete the associated Kaoto DataMapper mapping file (XSLT)?',

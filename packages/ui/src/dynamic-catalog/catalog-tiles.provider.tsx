@@ -104,7 +104,9 @@ export const CatalogTilesProvider: FunctionComponent<PropsWithChildren> = (props
   const getTiles = useCallback(() => tilesRef.current, []);
 
   useEffect(() => {
-    void fetchTiles();
+    fetchTiles().catch((error) => {
+      console.error('Failed to fetch tiles:', error);
+    });
   }, [fetchTiles]);
 
   const value = useMemo(
