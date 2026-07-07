@@ -8,11 +8,14 @@ import type { Mock } from 'vitest';
 
 import { CatalogContext, CatalogTilesContext } from '../../../../../../dynamic-catalog';
 import { CatalogModalProvider } from '../../../../../../dynamic-catalog/catalog-modal.provider';
+import { DynamicCatalog } from '../../../../../../dynamic-catalog/dynamic-catalog';
+import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
 import { IDynamicCatalogRegistry } from '../../../../../../dynamic-catalog/models';
+import { CitrusTestEndpointsProvider } from '../../../../../../dynamic-catalog/providers/citrus-components.provider';
 import { CatalogKind } from '../../../../../../models/catalog-kind';
 import { CitrusTestResource } from '../../../../../../models/citrus/citrus-test-resource';
 import { Test } from '../../../../../../models/citrus/entities/Test';
-import { CamelCatalogService } from '../../../../../../models/visualization/flows';
+import { EndpointsEntityHandler } from '../../../../../../models/visualization/metadata/citrus/endpoints-entity-handler';
 import { TestProvidersWrapper } from '../../../../../../stubs';
 import { getFirstCitrusCatalogMap } from '../../../../../../stubs/test-load-catalog';
 import { ITile } from '../../../../../Catalog';
@@ -51,7 +54,14 @@ describe('EndpointField', () => {
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCitrusCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.TestEndpoint, catalogsMap.endpointsCatalogMap);
+    DynamicCatalogRegistry.get().setCatalog(
+      CatalogKind.TestEndpoint,
+      new DynamicCatalog(new CitrusTestEndpointsProvider(catalogsMap.endpointsCatalogMap)),
+    );
+  });
+
+  afterAll(() => {
+    DynamicCatalogRegistry.get().clearRegistry();
   });
 
   const PROP_NAME = 'endpoint';
@@ -510,6 +520,23 @@ describe('EndpointField', () => {
       await waitFor(() => {
         expect(screen.getByText('dynamicJmsEndpoint')).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('error handling', () => {
+    it('should log error when getEndpointsSchema rejects', async () => {
+      const schemaError = new Error('schema fetch failed');
+      vi.spyOn(EndpointsEntityHandler.prototype, 'getEndpointsSchema').mockRejectedValueOnce(schemaError);
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      const testModel: Test = { name: 'test', actions: [] };
+      await renderField({ endpoint: undefined }, testModel);
+
+      await waitFor(() => {
+        expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to fetch endpoints schema:', schemaError);
+      });
+
+      consoleErrorSpy.mockRestore();
     });
   });
 

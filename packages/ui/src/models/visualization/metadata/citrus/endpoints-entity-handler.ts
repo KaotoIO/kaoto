@@ -1,19 +1,19 @@
 import { isDefined } from '@kaoto/forms';
 
+import { DynamicCatalogRegistry } from '../../../../dynamic-catalog/dynamic-catalog-registry';
 import { getValue } from '../../../../utils';
 import { CatalogKind } from '../../../catalog-kind';
 import { CitrusTestResource } from '../../../citrus/citrus-test-resource';
 import { Test } from '../../../citrus/entities/Test';
 import { KaotoSchemaDefinition } from '../../../kaoto-schema';
-import { CamelCatalogService } from '../../flows/camel-catalog.service';
 
 export class EndpointsEntityHandler {
   constructor(readonly testResource?: CitrusTestResource | undefined) {
     if (!this.testResource) return;
   }
 
-  getEndpointsSchema(): KaotoSchemaDefinition['schema'] | undefined {
-    const endpointsCatalog = CamelCatalogService.getCatalogByKey(CatalogKind.TestEndpoint) ?? {};
+  async getEndpointsSchema(): Promise<KaotoSchemaDefinition['schema'] | undefined> {
+    const endpointsCatalog = (await DynamicCatalogRegistry.get().getCatalog(CatalogKind.TestEndpoint)?.getAll()) ?? {};
     const endpoints: KaotoSchemaDefinition['schema'][] = [];
     for (const endpointKey in endpointsCatalog) {
       const endpointDefinition = endpointsCatalog[endpointKey];

@@ -13,10 +13,6 @@ import { ICitrusComponentDefinition } from '../../citrus/citrus-catalog';
 export class CamelCatalogService {
   private static catalogs: ComponentsCatalog = {};
 
-  static getCatalogByKey<CATALOG_KEY extends CatalogKind>(catalogKey: CATALOG_KEY): ComponentsCatalog[CATALOG_KEY] {
-    return this.catalogs[catalogKey];
-  }
-
   static setCatalogKey<CATALOG_KEY extends CatalogKind>(
     catalogKey: CATALOG_KEY,
     catalog?: ComponentsCatalog[CATALOG_KEY],

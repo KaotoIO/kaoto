@@ -3,8 +3,9 @@ import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { KaotoForm } from '@kaoto/forms';
 import { render } from '@testing-library/react';
 
-import { CamelCatalogService, CatalogKind, KaotoSchemaDefinition } from '../../../../../models';
-import { getFirstCatalogMap } from '../../../../../stubs/test-load-catalog';
+import { DynamicCatalogRegistry } from '../../../../../dynamic-catalog/dynamic-catalog-registry';
+import { CatalogKind, KaotoSchemaDefinition } from '../../../../../models';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../../../stubs/test-load-catalog';
 import { getSchemasSlice } from './get-schemas-slices';
 
 export const FormTest = (target: {
@@ -15,17 +16,19 @@ export const FormTest = (target: {
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    setupDynamicCatalogRegistry(catalogsMap);
 
-    CamelCatalogService.setCatalogKey(CatalogKind.Component, catalogsMap.componentCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Pattern, catalogsMap.patternCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, catalogsMap.kameletsCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Language, catalogsMap.languageCatalog);
-
-    schemas = getSchemasSlice(CamelCatalogService.getCatalogByKey(target.kind), target.range);
+    const catalogMap = {
+      [CatalogKind.Component]: catalogsMap.componentCatalogMap,
+      [CatalogKind.Pattern]: catalogsMap.patternCatalogMap,
+      [CatalogKind.Kamelet]: catalogsMap.kameletsCatalogMap,
+    }[target.kind];
+    schemas = getSchemasSlice(catalogMap, target.range);
     vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterAll(() => {
+    DynamicCatalogRegistry.get().clearRegistry();
     vi.clearAllMocks();
   });
 

@@ -1,17 +1,26 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
+import { DynamicCatalog } from '../../../../dynamic-catalog/dynamic-catalog';
+import { DynamicCatalogRegistry } from '../../../../dynamic-catalog/dynamic-catalog-registry';
+import { CitrusTestEndpointsProvider } from '../../../../dynamic-catalog/providers/citrus-components.provider';
 import { getFirstCitrusCatalogMap } from '../../../../stubs/test-load-catalog';
 import { CatalogKind } from '../../../catalog-kind';
 import { CitrusTestResource } from '../../../citrus/citrus-test-resource';
 import { Test } from '../../../citrus/entities/Test.d';
-import { CamelCatalogService } from '../../flows';
 import { EndpointsEntityHandler } from './endpoints-entity-handler';
 
 describe('EndpointsEntityHandler', () => {
   beforeAll(async () => {
     const catalogsMap = await getFirstCitrusCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.TestEndpoint, catalogsMap.endpointsCatalogMap);
+    DynamicCatalogRegistry.get().setCatalog(
+      CatalogKind.TestEndpoint,
+      new DynamicCatalog(new CitrusTestEndpointsProvider(catalogsMap.endpointsCatalogMap)),
+    );
+  });
+
+  afterAll(() => {
+    DynamicCatalogRegistry.get().clearRegistry();
   });
 
   describe('with valid CitrusTestResource', () => {
@@ -29,8 +38,8 @@ describe('EndpointsEntityHandler', () => {
       endpointsHandler = new EndpointsEntityHandler(testResource);
     });
 
-    it('should get endpoints schema', () => {
-      const schema = endpointsHandler.getEndpointsSchema();
+    it('should get endpoints schema', async () => {
+      const schema = await endpointsHandler.getEndpointsSchema();
       expect(schema).toBeDefined();
       expect(schema!.oneOf).toBeDefined();
       expect(Array.isArray(schema!.oneOf)).toBeTruthy();
@@ -301,10 +310,10 @@ describe('EndpointsEntityHandler', () => {
   });
 
   describe('without CitrusTestResource', () => {
-    it('should get endpoints schema even without resource', () => {
+    it('should get endpoints schema even without resource', async () => {
       const endpointsHandler = new EndpointsEntityHandler(undefined);
 
-      const schema = endpointsHandler.getEndpointsSchema();
+      const schema = await endpointsHandler.getEndpointsSchema();
       expect(schema).toBeDefined();
       expect(schema!.oneOf).toBeDefined();
     });

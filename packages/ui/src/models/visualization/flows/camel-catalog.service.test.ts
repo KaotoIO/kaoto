@@ -31,14 +31,6 @@ describe('CamelCatalogService', () => {
     CamelCatalogService.clearCatalogs();
   });
 
-  describe('getCatalogByKey', () => {
-    it('should return the catalog', () => {
-      const result = CamelCatalogService.getCatalogByKey(CatalogKind.Component);
-
-      expect(result).toEqual(componentCatalogMap);
-    });
-  });
-
   describe('getComponent', () => {
     it('should return the component', () => {
       const component = CamelCatalogService.getComponent(CatalogKind.Component, 'timer');

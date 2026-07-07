@@ -2,8 +2,9 @@ import { FieldProps, FieldWrapper, useFieldValue } from '@kaoto/forms';
 import { Button } from '@patternfly/react-core';
 import { EditIcon, PlusCircleIcon, TrashIcon } from '@patternfly/react-icons';
 import { Table, TableVariant, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
-import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
+import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
+import { KaotoSchemaDefinition } from '../../../../../../models';
 import { CitrusTestResource } from '../../../../../../models/citrus/citrus-test-resource';
 import { EndpointsEntityHandler } from '../../../../../../models/visualization/metadata/citrus/endpoints-entity-handler';
 import { ACTION_ID_CANCEL, ActionConfirmationModalContext, EntitiesContext } from '../../../../../../providers';
@@ -15,7 +16,15 @@ export const EndpointListField: FunctionComponent<FieldProps> = ({ propName, req
   const entitiesContext = useContext(EntitiesContext);
   const testResource = entitiesContext?.camelResource as CitrusTestResource | undefined;
   const endpointsHandler = useMemo(() => new EndpointsEntityHandler(testResource), [testResource]);
-  const endpointsSchema = useMemo(() => endpointsHandler.getEndpointsSchema(), [endpointsHandler]);
+  const [endpointsSchema, setEndpointsSchema] = useState<KaotoSchemaDefinition['schema'] | undefined>(undefined);
+  useEffect(() => {
+    endpointsHandler
+      .getEndpointsSchema()
+      .then(setEndpointsSchema)
+      .catch((error) => {
+        console.error('Failed to fetch endpoints schema:', error);
+      });
+  }, [endpointsHandler]);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [operation, setOperation] = useState<string>('Create');
   const [editModel, setEditModel] = useState<Record<string, unknown> | undefined>(undefined);
