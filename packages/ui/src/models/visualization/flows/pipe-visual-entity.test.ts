@@ -509,24 +509,24 @@ describe('Pipe', () => {
   });
 
   describe('getNodeValidationText', () => {
-    it('should return an `undefined` if the path is `undefined`', () => {
-      const result = pipeVisualEntity.getNodeValidationText();
+    it('should return an `undefined` if the path is `undefined`', async () => {
+      const result = await pipeVisualEntity.getNodeValidationText();
 
       expect(result).toBeUndefined();
     });
 
-    it('should return an `undefined` if the path is empty', () => {
-      const result = pipeVisualEntity.getNodeValidationText('');
+    it('should return an `undefined` if the path is empty', async () => {
+      const result = await pipeVisualEntity.getNodeValidationText('');
 
       expect(result).toBeUndefined();
     });
 
-    it('should return a validation text relying on the `validateNodeStatus` method', () => {
+    it('should return a validation text relying on the `validateNodeStatus` method', async () => {
       const missingParametersModel = cloneDeep(pipeJson);
       missingParametersModel.spec!.steps![0].properties = {};
       pipeVisualEntity = new PipeVisualEntity(missingParametersModel);
 
-      const result = pipeVisualEntity.getNodeValidationText('steps.0');
+      const result = await pipeVisualEntity.getNodeValidationText('steps.0');
 
       expect(result).toBe('1 required parameter is not yet configured: [ milliseconds ]');
     });

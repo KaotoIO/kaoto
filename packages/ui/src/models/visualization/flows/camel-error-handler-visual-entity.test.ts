@@ -147,10 +147,10 @@ describe('CamelErrorHandlerVisualEntity', () => {
     });
   });
 
-  it('should return undefined validation text', () => {
+  it('should return undefined validation text', async () => {
     const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
 
-    expect(entity.getNodeValidationText()).toBeUndefined();
+    expect(await entity.getNodeValidationText()).toBeUndefined();
   });
 
   describe('toVizNode', () => {

@@ -334,12 +334,12 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     };
   }
 
-  getNodeValidationText(path?: string | undefined): string | undefined {
+  async getNodeValidationText(path?: string | undefined): Promise<string | undefined> {
     const schema = this.getNodeSchema(path);
     const definition = this.getNodeDefinition(path);
     if (!schema || !definition) return undefined;
 
-    return ModelValidationService.validateNodeStatus(schema, definition);
+    return await ModelValidationService.validateNodeStatus(schema, definition);
   }
 
   getGroupIcons(): { icon: string; title: string }[] {

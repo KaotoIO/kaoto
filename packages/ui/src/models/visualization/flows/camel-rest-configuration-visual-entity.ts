@@ -122,7 +122,7 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualEntity {
     };
   }
 
-  getNodeValidationText(): string | undefined {
+  async getNodeValidationText(): Promise<string | undefined> {
     const schema = this.getNodeSchema();
     if (!schema) return undefined;
 
