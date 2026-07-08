@@ -11,6 +11,7 @@ import {
   CamelProcessorsProvider,
 } from '../dynamic-catalog/providers/camel-components.provider';
 import { CamelKameletsProvider } from '../dynamic-catalog/providers/camel-kamelets.provider';
+import { CitrusTestEndpointsProvider } from '../dynamic-catalog/providers/citrus-components.provider';
 import {
   CamelCatalogIndex,
   CitrusCatalogIndex,
@@ -219,5 +220,22 @@ export const setupDynamicCatalogRegistry = (catalogsMap: Awaited<ReturnType<type
   DynamicCatalogRegistry.get().setCatalog(
     CatalogKind.Function,
     new DynamicCatalog(new CamelFunctionProvider(catalogsMap.functionsCatalogMap)),
+  );
+};
+
+/**
+ * Helper to populate DynamicCatalogRegistry with the Citrus TestEndpoint catalog for testing.
+ * Use this in beforeAll/beforeEach to avoid duplicating catalog setup across tests.
+ *
+ * @example
+ * beforeAll(async () => {
+ *   const catalogsMap = await getFirstCitrusCatalogMap(catalogLibrary);
+ *   setupCitrusDynamicCatalogRegistry(catalogsMap);
+ * });
+ */
+export const setupCitrusDynamicCatalogRegistry = (catalogsMap: Awaited<ReturnType<typeof testLoadCitrusCatalog>>) => {
+  DynamicCatalogRegistry.get().setCatalog(
+    CatalogKind.TestEndpoint,
+    new DynamicCatalog(new CitrusTestEndpointsProvider(catalogsMap.endpointsCatalogMap)),
   );
 };

@@ -8,16 +8,12 @@ import type { Mock } from 'vitest';
 
 import { CatalogContext, CatalogTilesContext } from '../../../../../../dynamic-catalog';
 import { CatalogModalProvider } from '../../../../../../dynamic-catalog/catalog-modal.provider';
-import { DynamicCatalog } from '../../../../../../dynamic-catalog/dynamic-catalog';
 import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
 import { IDynamicCatalogRegistry } from '../../../../../../dynamic-catalog/models';
-import { CitrusTestEndpointsProvider } from '../../../../../../dynamic-catalog/providers/citrus-components.provider';
-import { CatalogKind } from '../../../../../../models/catalog-kind';
 import { CitrusTestResource } from '../../../../../../models/citrus/citrus-test-resource';
 import { Test } from '../../../../../../models/citrus/entities/Test';
-import { EndpointsEntityHandler } from '../../../../../../models/visualization/metadata/citrus/endpoints-entity-handler';
 import { TestProvidersWrapper } from '../../../../../../stubs';
-import { getFirstCitrusCatalogMap } from '../../../../../../stubs/test-load-catalog';
+import { getFirstCitrusCatalogMap, setupCitrusDynamicCatalogRegistry } from '../../../../../../stubs/test-load-catalog';
 import { ITile } from '../../../../../Catalog';
 import { EndpointField } from './EndpointField';
 
@@ -54,10 +50,7 @@ describe('EndpointField', () => {
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCitrusCatalogMap(catalogLibrary as CatalogLibrary);
-    DynamicCatalogRegistry.get().setCatalog(
-      CatalogKind.TestEndpoint,
-      new DynamicCatalog(new CitrusTestEndpointsProvider(catalogsMap.endpointsCatalogMap)),
-    );
+    setupCitrusDynamicCatalogRegistry(catalogsMap);
   });
 
   afterAll(() => {
@@ -212,72 +205,70 @@ describe('EndpointField', () => {
     });
   });
 
-  describe('create endpoint', () => {
-    it('should create new endpoint', async () => {
-      const onPropertyChange = vi.fn();
-      const testModel: Test = {
-        name: 'test',
-        actions: [],
-      };
+  it('should create new endpoint', async () => {
+    const onPropertyChange = vi.fn();
+    const testModel: Test = {
+      name: 'test',
+      actions: [],
+    };
 
-      await renderField({ endpoint: undefined }, testModel, onPropertyChange);
+    await renderField({ endpoint: undefined }, testModel, onPropertyChange);
 
-      // Open the dropdown
-      await waitFor(() => {
-        expect(screen.getByLabelText('Endpoint toggle')).toBeInTheDocument();
-      });
-      const toggle = screen.getByLabelText('Endpoint toggle');
+    // Open the dropdown
+    await waitFor(() => {
+      expect(screen.getByLabelText('Endpoint toggle')).toBeInTheDocument();
+    });
+    const toggle = screen.getByLabelText('Endpoint toggle');
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+    await act(async () => {
+      fireEvent.click(toggle);
+    });
 
-      // Create new endpoint
-      await waitFor(() => {
-        expect(screen.getByRole('option', { name: 'option create-new-with-name' })).toBeInTheDocument();
-      });
+    // Create new endpoint
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'option create-new-with-name' })).toBeInTheDocument();
+    });
 
-      await act(async () => {
-        const createNew = screen.getByRole('option', { name: 'option create-new-with-name' });
-        fireEvent.click(createNew);
-      });
+    await act(async () => {
+      const createNew = screen.getByRole('option', { name: 'option create-new-with-name' });
+      fireEvent.click(createNew);
+    });
 
-      // Modal should appear
-      await waitFor(() => {
-        expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
-        // Modal should be in Create mode
-        expect(screen.getByText('Create endpoint')).toBeInTheDocument();
-      });
+    // Modal should appear
+    await waitFor(() => {
+      expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
+      // Modal should be in Create mode
+      expect(screen.getByText('Create endpoint')).toBeInTheDocument();
+    });
 
-      // Select endpoint from catalog
-      await waitFor(() => {
-        expect(screen.getByTestId('tile-header-http-client')).toBeInTheDocument();
-      });
+    // Select endpoint from catalog
+    await waitFor(() => {
+      expect(screen.getByTestId('tile-header-http-client')).toBeInTheDocument();
+    });
 
-      // Click on a tile
-      const httpClientTile = screen.getByTestId('tile-header-http-client');
-      await act(async () => {
-        fireEvent.click(httpClientTile);
-      });
+    // Click on a tile
+    const httpClientTile = screen.getByTestId('tile-header-http-client');
+    await act(async () => {
+      fireEvent.click(httpClientTile);
+    });
 
-      const nameInput = screen.getByLabelText('Name');
-      await act(async () => {
-        fireEvent.change(nameInput, { target: { value: 'httpClient' } });
-      });
+    const nameInput = screen.getByLabelText('Name');
+    await act(async () => {
+      fireEvent.change(nameInput, { target: { value: 'httpClient' } });
+    });
 
-      const url = screen.getByLabelText('RequestUrl');
-      await act(async () => {
-        fireEvent.change(url, { target: { value: 'http://localhost:8080' } });
-      });
+    const url = screen.getByLabelText('RequestUrl');
+    await act(async () => {
+      fireEvent.change(url, { target: { value: 'http://localhost:8080' } });
+    });
 
-      const confirmButton = screen.getByTestId('endpoint-modal-confirm-btn');
-      await act(async () => {
-        fireEvent.click(confirmButton);
-      });
+    const confirmButton = screen.getByTestId('endpoint-modal-confirm-btn');
+    await act(async () => {
+      fireEvent.click(confirmButton);
+    });
 
-      await waitFor(() => {
-        expect(onPropertyChange).toHaveBeenCalledWith(PROP_NAME, 'httpClient');
-      });
+    await waitFor(() => {
+      expect(onPropertyChange).toHaveBeenCalledWith(PROP_NAME, 'httpClient');
     });
   });
 
@@ -523,35 +514,88 @@ describe('EndpointField', () => {
     });
   });
 
-  describe('error handling', () => {
-    it('should log error when getEndpointsSchema rejects', async () => {
-      const schemaError = new Error('schema fetch failed');
-      vi.spyOn(EndpointsEntityHandler.prototype, 'getEndpointsSchema').mockRejectedValueOnce(schemaError);
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('should handle object values by stringifying them', async () => {
+    const testModel: Test = {
+      name: 'test',
+      actions: [],
+    };
 
-      const testModel: Test = { name: 'test', actions: [] };
-      await renderField({ endpoint: undefined }, testModel);
+    const objectValue = { uri: 'http://localhost:8080' };
+    const { getInput } = await renderField({ endpoint: objectValue }, testModel);
 
-      await waitFor(() => {
-        expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to fetch endpoints schema:', schemaError);
-      });
-
-      consoleErrorSpy.mockRestore();
-    });
+    const input = getInput();
+    expect(input).toHaveValue(JSON.stringify(objectValue));
   });
 
-  describe('object values', () => {
-    it('should handle object values by stringifying them', async () => {
-      const testModel: Test = {
-        name: 'test',
-        actions: [],
-      };
+  it('should throw TypeError when camelResource is not a CitrusTestResource', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { Provider } = await TestProvidersWrapper(); // uses CamelRouteResource by default
 
-      const objectValue = { uri: 'http://localhost:8080' };
-      const { getInput } = await renderField({ endpoint: objectValue }, testModel);
+    expect(() => {
+      act(() => {
+        render(
+          <Provider>
+            <SchemaProvider schema={schema}>
+              <ModelContextProvider model={{}} onPropertyChange={vi.fn()}>
+                <EndpointField propName={PROP_NAME} />
+              </ModelContextProvider>
+            </SchemaProvider>
+          </Provider>,
+        );
+      });
+    }).toThrow('EndpointField must be used only with CitrusTestResource');
+  });
 
-      const input = getInput();
-      expect(input).toHaveValue(JSON.stringify(objectValue));
+  it('should restore the previous endpoint reference when cancel is clicked', async () => {
+    const onPropertyChange = vi.fn();
+    const testModel: Test = {
+      name: 'test',
+      actions: [],
+      endpoints: [
+        {
+          http: {
+            client: {
+              name: 'httpClient',
+              requestUrl: 'http://localhost:8080',
+            },
+          },
+        },
+      ],
+    };
+
+    await renderField({ endpoint: 'httpClient' }, testModel, onPropertyChange);
+
+    // Open dropdown and select "create new" option to open the modal
+    await waitFor(() => {
+      expect(screen.getByLabelText('Endpoint toggle')).toBeInTheDocument();
     });
+
+    await act(async () => {
+      fireEvent.click(screen.getByLabelText('Endpoint toggle'));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'option create-new-with-name' })).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('option', { name: 'option create-new-with-name' }));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
+    });
+
+    // Cancel the modal
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('endpoint-modal-cancel-btn'));
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('NewEndpointModal')).not.toBeInTheDocument();
+    });
+
+    // onChange should be called with the original endpoint reference to restore it
+    expect(onPropertyChange).toHaveBeenCalledWith(PROP_NAME, 'httpClient');
   });
 });

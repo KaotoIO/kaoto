@@ -1,11 +1,8 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
-import { DynamicCatalog } from '../../../../dynamic-catalog/dynamic-catalog';
 import { DynamicCatalogRegistry } from '../../../../dynamic-catalog/dynamic-catalog-registry';
-import { CitrusTestEndpointsProvider } from '../../../../dynamic-catalog/providers/citrus-components.provider';
-import { getFirstCitrusCatalogMap } from '../../../../stubs/test-load-catalog';
-import { CatalogKind } from '../../../catalog-kind';
+import { getFirstCitrusCatalogMap, setupCitrusDynamicCatalogRegistry } from '../../../../stubs/test-load-catalog';
 import { CitrusTestResource } from '../../../citrus/citrus-test-resource';
 import { Test } from '../../../citrus/entities/Test.d';
 import { EndpointsEntityHandler } from './endpoints-entity-handler';
@@ -13,10 +10,7 @@ import { EndpointsEntityHandler } from './endpoints-entity-handler';
 describe('EndpointsEntityHandler', () => {
   beforeAll(async () => {
     const catalogsMap = await getFirstCitrusCatalogMap(catalogLibrary as CatalogLibrary);
-    DynamicCatalogRegistry.get().setCatalog(
-      CatalogKind.TestEndpoint,
-      new DynamicCatalog(new CitrusTestEndpointsProvider(catalogsMap.endpointsCatalogMap)),
-    );
+    setupCitrusDynamicCatalogRegistry(catalogsMap);
   });
 
   afterAll(() => {
@@ -36,13 +30,6 @@ describe('EndpointsEntityHandler', () => {
       testResource = new CitrusTestResource(testModel);
       await testResource.initialize();
       endpointsHandler = new EndpointsEntityHandler(testResource);
-    });
-
-    it('should get endpoints schema', async () => {
-      const schema = await endpointsHandler.getEndpointsSchema();
-      expect(schema).toBeDefined();
-      expect(schema!.oneOf).toBeDefined();
-      expect(Array.isArray(schema!.oneOf)).toBeTruthy();
     });
 
     it('should return empty array when no endpoints are defined', () => {
@@ -306,16 +293,6 @@ describe('EndpointsEntityHandler', () => {
 
       const definedEndpoints = endpointsHandler.getDefinedEndpointsNameAndType();
       expect(definedEndpoints[0]).toEqual({ name: 'emptyTypeEndpoint', type: '' });
-    });
-  });
-
-  describe('without CitrusTestResource', () => {
-    it('should get endpoints schema even without resource', async () => {
-      const endpointsHandler = new EndpointsEntityHandler(undefined);
-
-      const schema = await endpointsHandler.getEndpointsSchema();
-      expect(schema).toBeDefined();
-      expect(schema!.oneOf).toBeDefined();
     });
   });
 });

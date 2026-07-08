@@ -1,40 +1,14 @@
 import { isDefined } from '@kaoto/forms';
 
-import { DynamicCatalogRegistry } from '../../../../dynamic-catalog/dynamic-catalog-registry';
 import { getValue } from '../../../../utils';
-import { CatalogKind } from '../../../catalog-kind';
 import { CitrusTestResource } from '../../../citrus/citrus-test-resource';
 import { Test } from '../../../citrus/entities/Test';
-import { KaotoSchemaDefinition } from '../../../kaoto-schema';
 
 export class EndpointsEntityHandler {
-  constructor(readonly testResource?: CitrusTestResource | undefined) {
-    if (!this.testResource) return;
-  }
+  constructor(private readonly testResource: CitrusTestResource) {}
 
-  async getEndpointsSchema(): Promise<KaotoSchemaDefinition['schema'] | undefined> {
-    const endpointsCatalog = (await DynamicCatalogRegistry.get().getCatalog(CatalogKind.TestEndpoint)?.getAll()) ?? {};
-    const endpoints: KaotoSchemaDefinition['schema'][] = [];
-    for (const endpointKey in endpointsCatalog) {
-      const endpointDefinition = endpointsCatalog[endpointKey];
-      const schema = endpointsCatalog[endpointKey].propertiesSchema as KaotoSchemaDefinition['schema'];
-      if (schema) {
-        schema.name = endpointKey;
-        schema.title = endpointDefinition.title;
-        endpoints.push(schema);
-      }
-    }
-
-    const sortedEndpoints = [...endpoints];
-    sortedEndpoints.sort((a, b) => a.name?.localeCompare(b.name));
-
-    return {
-      oneOf: sortedEndpoints,
-    };
-  }
-
-  getTestEntity(): Test | undefined {
-    return this.testResource?.toJSON() as Test | undefined;
+  getTestEntity(): Test {
+    return this.testResource.toJSON() as Test;
   }
 
   getEndpoints(): Record<string, unknown>[] {

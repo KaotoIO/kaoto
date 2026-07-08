@@ -1,28 +1,22 @@
 import { FieldProps, FieldWrapper, SchemaContext, Typeahead, TypeaheadItem, useFieldValue } from '@kaoto/forms';
-import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
 
-import { KaotoSchemaDefinition } from '../../../../../../models';
+import { useEntityContext } from '../../../../../../hooks/useEntityContext/useEntityContext';
 import { CitrusTestResource } from '../../../../../../models/citrus/citrus-test-resource';
 import { EndpointsEntityHandler } from '../../../../../../models/visualization/metadata/citrus/endpoints-entity-handler';
-import { EntitiesContext } from '../../../../../../providers';
 import { NewEndpointModal } from './NewEndpointModal';
 
 export const EndpointField: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { schema } = useContext(SchemaContext);
   const { value = '', onChange, disabled } = useFieldValue<string | undefined>(propName);
-  const entitiesContext = useContext(EntitiesContext);
-  const testResource = entitiesContext?.camelResource as CitrusTestResource | undefined;
   const endpointReference = value;
+  const { camelResource: testResource } = useEntityContext();
+  if (!(testResource instanceof CitrusTestResource)) {
+    throw new TypeError('EndpointField must be used only with CitrusTestResource');
+  }
+
   const endpointsHandler = useMemo(() => new EndpointsEntityHandler(testResource), [testResource]);
-  const [endpointsSchema, setEndpointsSchema] = useState<KaotoSchemaDefinition['schema'] | undefined>(undefined);
-  useEffect(() => {
-    endpointsHandler
-      .getEndpointsSchema()
-      .then(setEndpointsSchema)
-      .catch((error) => {
-        console.error('Failed to fetch endpoints schema:', error);
-      });
-  }, [endpointsHandler]);
+  const endpointsSchema = testResource?.getEndpointsSchema();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [lastUpdated, setLastUpdated] = useState<number>(Date.now());
 
