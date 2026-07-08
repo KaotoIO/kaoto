@@ -234,16 +234,16 @@ describe('MappingContextMenuAction', () => {
     });
   });
 
-  it('should render Add Conditional Mapping dropdown for the add mapping placeholder', async () => {
+  it('should render Add Mapping Instruction dropdown for the add mapping placeholder', async () => {
     const onUpdateSpy = vi.fn();
     const nodeData = new AddMappingNodeData(documentNodeData, targetDoc.fields[0].fields[3]);
     const wrapper = render(
-      <MappingContextMenuAction nodeData={nodeData} dropdownLabel="Add Conditional Mapping" onUpdate={onUpdateSpy} />,
+      <MappingContextMenuAction nodeData={nodeData} dropdownLabel="Add Mapping Instruction" onUpdate={onUpdateSpy} />,
     );
 
     act(() => {
       const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
-      expect(actionToggle.textContent).toBe('Add Conditional Mapping');
+      expect(actionToggle.textContent).toBe('Add Mapping Instruction');
       fireEvent.click(actionToggle);
     });
 
@@ -258,12 +258,12 @@ describe('MappingContextMenuAction', () => {
     });
   });
 
-  it('should apply If from the Add Conditional Mapping dropdown for the add mapping placeholder', async () => {
+  it('should apply If from the Add Mapping Instruction dropdown for the add mapping placeholder', async () => {
     const onUpdateSpy = vi.fn();
     const nodeData = new AddMappingNodeData(documentNodeData, targetDoc.fields[0].fields[3]);
     const spyOnApply = vi.spyOn(MappingActionService, 'applyIf');
     const wrapper = render(
-      <MappingContextMenuAction nodeData={nodeData} dropdownLabel="Add Conditional Mapping" onUpdate={onUpdateSpy} />,
+      <MappingContextMenuAction nodeData={nodeData} dropdownLabel="Add Mapping Instruction" onUpdate={onUpdateSpy} />,
     );
 
     act(() => {
@@ -283,12 +283,12 @@ describe('MappingContextMenuAction', () => {
     expect(spyOnApply).toHaveBeenCalledWith(nodeData);
   });
 
-  it('should apply Choose from the Add Conditional Mapping dropdown for the add mapping placeholder', async () => {
+  it('should apply Choose from the Add Mapping Instruction dropdown for the add mapping placeholder', async () => {
     const onUpdateSpy = vi.fn();
     const nodeData = new AddMappingNodeData(documentNodeData, targetDoc.fields[0].fields[3]);
     const spyOnApply = vi.spyOn(MappingActionService, 'applyChooseWhenOtherwise');
     const wrapper = render(
-      <MappingContextMenuAction nodeData={nodeData} dropdownLabel="Add Conditional Mapping" onUpdate={onUpdateSpy} />,
+      <MappingContextMenuAction nodeData={nodeData} dropdownLabel="Add Mapping Instruction" onUpdate={onUpdateSpy} />,
     );
 
     act(() => {

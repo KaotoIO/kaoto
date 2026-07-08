@@ -457,26 +457,21 @@ describe('MappingActionService / choice field mappings', () => {
       );
       const testTargetDocNode = new TargetDocumentNodeData(testTargetDoc, testTree);
 
+      // Navigate to DirectNestedChoiceElement via IField tree
+      // (unconfigured target wrappers hide children, so we construct nodes manually)
       const docChildren = VisualizationService.generateStructuredDocumentChildren(testTargetDocNode);
       const testDocumentNode = docChildren[0];
       const testDocumentChildren = VisualizationService.generateNonDocumentNodeDataChildren(testDocumentNode);
       const directNestedNode = testDocumentChildren.find((c) => c.title === 'DirectNestedChoiceElement')!;
-      const directNestedChildren = VisualizationService.generateNonDocumentNodeDataChildren(directNestedNode);
 
-      expect(directNestedChildren).toHaveLength(1);
-      const outerChoice = directNestedChildren[0] as TargetChoiceFieldNodeData;
-      expect(outerChoice).toBeInstanceOf(TargetChoiceFieldNodeData);
+      const directNestedField = (directNestedNode as TargetFieldNodeData).field;
+      const outerChoiceField = directNestedField.fields.find((f) => f.wrapperKind === 'choice')!;
+      const innerChoiceField = outerChoiceField.fields.find((f) => f.wrapperKind === 'choice')!;
+      const nestedDirect1Field = innerChoiceField.fields.find((f) => f.name === 'NestedDirect1')!;
 
-      const outerChoiceChildren = VisualizationService.generateNonDocumentNodeDataChildren(outerChoice);
-      expect(outerChoiceChildren[0].title).toBe('Direct1');
-      const innerChoice = outerChoiceChildren.find(
-        (c) => c instanceof TargetChoiceFieldNodeData,
-      ) as TargetChoiceFieldNodeData;
-      expect(innerChoice).toBeDefined();
-
-      const innerChoiceChildren = VisualizationService.generateNonDocumentNodeDataChildren(innerChoice);
-      const nestedDirect1 = innerChoiceChildren.find((c) => c.title === 'NestedDirect1')! as TargetFieldNodeData;
-      expect(nestedDirect1).toBeDefined();
+      const outerChoice = new TargetChoiceFieldNodeData(directNestedNode as TargetFieldNodeData, outerChoiceField);
+      const innerChoice = new TargetChoiceFieldNodeData(outerChoice, innerChoiceField);
+      const nestedDirect1 = new TargetFieldNodeData(innerChoice, nestedDirect1Field);
 
       const sourceDocChildren2 = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
       const sourceFieldNode2 = sourceDocChildren2[0] as FieldNodeData;

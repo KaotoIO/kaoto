@@ -24,6 +24,10 @@ div.node-title-container {
   overflow: hidden;
   min-width: 0;
 
+  > .pf-v6-c-label {
+    flex-shrink: 0;
+  }
+
   &__abstract {
     margin-left: calc(0.875rem + 2 * var(--pf-t--global--spacer--sm));
   }
