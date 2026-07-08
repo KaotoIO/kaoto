@@ -221,7 +221,7 @@ export class VisualizationService {
       return acc;
     }, answer);
 
-    if (mappings && !VisualizationService.isUnselectedTargetWrapper(parent)) {
+    if (mappings && !VisualizationService.isUnconfiguredTargetWrapper(parent, mappings)) {
       const rendered = new Set(result.filter((n): n is TargetNodeData => 'mapping' in n).map((n) => n.mapping));
       for (const m of mappings) {
         if (
@@ -243,6 +243,22 @@ export class VisualizationService {
     return nodes.some((node) => 'mapping' in node && node.mapping === mapping);
   }
 
+  /**
+   * Resolves the child fields to render for a wrapper node (choice or abstract).
+   *
+   * Target-side gate: unconfigured target wrappers return `[]` — children are
+   * hidden until the user picks a member/substitute via the context menu.
+   * The gate is driven by FieldItem presence ({@link isUnconfiguredTargetWrapper}),
+   * not the IField selection property (`selectedMemberIndex`/`selectedMemberQName`),
+   * because FieldItem is the authoritative target-side mapping state.
+   * The IField property is shared with source-side where the gate does not apply.
+   *
+   * FieldItem states for wrapper fields:
+   * - Bare schema-driven: no FieldItem exists — wrapper is unconfigured
+   * - Inside instruction: FieldItem with `field` = wrapper IField
+   * - After selection: FieldItem with `field` = selected candidate/member,
+   *   `isUserCreated` preserved from creation
+   */
   private static resolveWrapperNodeFields(field: IField): IField[] {
     if (!field.wrapperKind) {
       DocumentUtilService.resolveTypeFragment(field);
@@ -252,11 +268,40 @@ export class VisualizationService {
     return selectedMember ? [field] : field.fields;
   }
 
-  private static isUnselectedTargetWrapper(node: NodeData): boolean {
-    if (node instanceof TargetChoiceFieldNodeData && !node.choiceField) return true;
-    if (node instanceof TargetAbstractFieldNodeData && !node.abstractField) return true;
-    if (node instanceof TargetSequenceFieldNodeData) return true;
+  /**
+   * Returns `true` when a target-side wrapper has no FieldItem anywhere in
+   * the resolved mappings. The gate hides wrapper children until the user
+   * picks a substitute/member via the context menu or a mapping is created
+   * through the wrapper.
+   *
+   * Checks for ANY FieldItem (not just direct-child references) because
+   * `getOrCreateFieldItem` skips unselected wrappers — a FieldItem for a
+   * nested descendant (e.g. choice→choice→field) appears as a sibling in
+   * the mapping parent, not under the wrapper itself.
+   */
+  private static isUnconfiguredTargetWrapper(parent: NodeData, mappings: MappingItem[] | undefined): boolean {
+    if (parent.isSource) return false;
+    if (!VisualizationService.isTargetWrapper(parent)) return false;
+    if (!mappings) return true;
+    const wrapperField = (parent as TargetFieldNodeData).field;
+    return !mappings.some(
+      (m) =>
+        m instanceof FieldItem && (m.field === wrapperField || DocumentService.isDescendant(wrapperField, m.field)),
+    );
+  }
+
+  private static isTargetWrapper(node: NodeData): boolean {
+    if (node instanceof TargetChoiceFieldNodeData) return node.field.wrapperKind === 'choice';
+    if (node instanceof TargetAbstractFieldNodeData) return node.field.wrapperKind === 'abstract';
     return false;
+  }
+
+  private static resolveWrapperSpec(node: NodeData): { node: FieldNodeData; spec: WrapperSpec } | null {
+    if (node instanceof ChoiceFieldNodeData || node instanceof TargetChoiceFieldNodeData)
+      return { node, spec: CHOICE_WRAPPER };
+    if (node instanceof AbstractFieldNodeData || node instanceof TargetAbstractFieldNodeData)
+      return { node, spec: ABSTRACT_WRAPPER };
+    return null;
   }
 
   /**
@@ -269,7 +314,7 @@ export class VisualizationService {
       return 'mapping' in parent ? (parent as TargetNodeData).mapping?.children : undefined;
     }
     let ancestor: TargetNodeData = (parent as TargetFieldNodeData).parent;
-    while (VisualizationService.isUnselectedTargetWrapper(ancestor)) {
+    while (VisualizationService.isTargetWrapper(ancestor)) {
       ancestor = (ancestor as TargetFieldNodeData).parent;
     }
     return ancestor.mapping?.children;
@@ -282,18 +327,15 @@ export class VisualizationService {
    * @returns An array of child {@link NodeData} instances.
    */
   static generateNonDocumentNodeDataChildren(parent: NodeData): NodeData[] {
-    if (parent instanceof ChoiceFieldNodeData || parent instanceof TargetChoiceFieldNodeData) {
+    const wrapperMatch = VisualizationService.resolveWrapperSpec(parent);
+    if (wrapperMatch) {
+      const { node, spec } = wrapperMatch;
+      const mappings = VisualizationService.resolveWrapperNodeMappings(node, spec);
+      if (VisualizationService.isUnconfiguredTargetWrapper(node, mappings)) return [];
       return VisualizationService.doGenerateNodeDataFromFields(
-        parent,
-        VisualizationService.resolveWrapperNodeFields(parent.field),
-        VisualizationService.resolveWrapperNodeMappings(parent, CHOICE_WRAPPER),
-      );
-    }
-    if (parent instanceof AbstractFieldNodeData || parent instanceof TargetAbstractFieldNodeData) {
-      return VisualizationService.doGenerateNodeDataFromFields(
-        parent,
-        VisualizationService.resolveWrapperNodeFields(parent.field),
-        VisualizationService.resolveWrapperNodeMappings(parent, ABSTRACT_WRAPPER),
+        node,
+        VisualizationService.resolveWrapperNodeFields(node.field),
+        mappings,
       );
     }
     if (parent instanceof SequenceFieldNodeData || parent instanceof TargetSequenceFieldNodeData) {
@@ -338,7 +380,12 @@ export class VisualizationService {
         isPrimitiveDocument && nodeData.mapping.children.some((m) => !(m instanceof ValueSelector));
       if (isPrimitiveDocumentWithConditionItem) return true;
     }
-    if (nodeData instanceof FieldNodeData) return DocumentService.hasChildren(nodeData.field);
+    if (nodeData instanceof FieldNodeData) {
+      if (VisualizationService.isTargetWrapper(nodeData)) {
+        return (nodeData as TargetFieldNodeData).mapping instanceof FieldItem;
+      }
+      return DocumentService.hasChildren(nodeData.field);
+    }
     if (nodeData instanceof FieldItemNodeData)
       return (
         DocumentService.hasChildren(nodeData.field) ||
@@ -394,17 +441,18 @@ export class VisualizationService {
 
   /**
    * Returns the member label string (e.g. `"(email | phone | fax)"`) for a choice wrapper field.
-   * Nested choice members are labeled `'choice'` when there is only one nested choice sibling,
-   * or `'choice1'`, `'choice2'`, ... when there are multiple.
+   * Nested choice members are dissolved into their inner member names so the label
+   * reads `"(InnerA | InnerB | Plain)"` instead of `"(choice | Plain)"`.
    * @param field - The choice wrapper field whose members should be described.
    */
   static getChoiceMemberLabel(field: IField): string {
     const members = field.fields ?? [];
-    const nestedChoiceCount = members.filter((m) => m.wrapperKind === 'choice').length;
-    let choiceIndex = 0;
-    const labels = members.map((m) => {
-      if (m.wrapperKind !== 'choice') return m.displayName ?? m.name;
-      return nestedChoiceCount > 1 ? `choice${++choiceIndex}` : 'choice';
+    const labels = members.flatMap((m) => {
+      if (m.wrapperKind === 'choice' || m.wrapperKind === 'abstract') {
+        const innerLabels = (m.fields ?? []).map((inner) => inner.displayName ?? inner.name);
+        return innerLabels.length > 0 ? innerLabels : [m.displayName ?? m.name];
+      }
+      return [m.displayName ?? m.name];
     });
     if (labels.length === 0) return '(empty)';
     const maxVisible = 3;
@@ -442,6 +490,9 @@ export class VisualizationService {
       (nodeData instanceof ChoiceFieldNodeData || nodeData instanceof TargetChoiceFieldNodeData) &&
       !nodeData.choiceField
     ) {
+      return VisualizationService.getChoiceMemberLabel(nodeData.field);
+    }
+    if (nodeData instanceof FieldNodeData && VisualizationUtilService.isSelectedNestedChoice(nodeData)) {
       return VisualizationService.getChoiceMemberLabel(nodeData.field);
     }
     if (

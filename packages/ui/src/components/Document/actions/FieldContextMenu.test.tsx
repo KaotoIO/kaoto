@@ -93,7 +93,7 @@ describe('FieldContextMenu', () => {
       };
 
       const clearGroup: MenuGroup = {
-        actions: [{ label: 'Show All Choice Options', onClick: onClear, testId: 'clear-choice' }],
+        actions: [{ label: 'Clear selection', onClick: onClear, testId: 'clear-choice' }],
       };
 
       return [membersGroup, clearGroup];
@@ -107,7 +107,7 @@ describe('FieldContextMenu', () => {
       expect(screen.getByText('Email')).toBeInTheDocument();
       expect(screen.getByText('Phone')).toBeInTheDocument();
       expect(screen.getByText('Fax')).toBeInTheDocument();
-      expect(screen.getByText('Show All Choice Options')).toBeInTheDocument();
+      expect(screen.getByText('Clear selection')).toBeInTheDocument();
     });
 
     it('should show check icon for selected member', () => {
@@ -142,14 +142,14 @@ describe('FieldContextMenu', () => {
       expect(onClose).toHaveBeenCalled();
     });
 
-    it('should call onClearChoice and onClose when Show All Choice Options is clicked', () => {
+    it('should call onClearChoice and onClose when Clear selection is clicked', () => {
       const onClear = vi.fn();
       const onClose = vi.fn();
       const groups = buildChoiceMemberGroups(['Email', 'Phone'], undefined, vi.fn(), onClear);
 
       render(<FieldContextMenu groups={groups} onClose={onClose} />);
 
-      fireEvent.click(screen.getByText('Show All Choice Options'));
+      fireEvent.click(screen.getByText('Clear selection'));
 
       expect(onClear).toHaveBeenCalled();
       expect(onClose).toHaveBeenCalled();
@@ -162,7 +162,7 @@ describe('FieldContextMenu', () => {
         actions: [{ label: 'Select Member...', onClick: onOpenModal, testId: 'open-choice-modal' }],
       };
       const clearGroup: MenuGroup = {
-        actions: [{ label: 'Show All Choice Options', onClick: vi.fn(), testId: 'clear-choice' }],
+        actions: [{ label: 'Clear selection', onClick: vi.fn(), testId: 'clear-choice' }],
       };
 
       render(<FieldContextMenu groups={[modalGroup, clearGroup]} onClose={onClose} />);
@@ -180,33 +180,33 @@ describe('FieldContextMenu', () => {
 
       render(<FieldContextMenu groups={groups} />);
 
-      expect(screen.getByText('Show All Choice Options')).toBeInTheDocument();
+      expect(screen.getByText('Clear selection')).toBeInTheDocument();
       expect(screen.queryByText('Email')).not.toBeInTheDocument();
     });
   });
 
   describe('Selected choice context menu (Case B)', () => {
-    it('should show Show All Choice Options above Override Field', () => {
+    it('should show Clear selection above Override Field', () => {
       const clearGroup: MenuGroup = {
-        actions: [{ label: 'Show All Choice Options', onClick: vi.fn(), testId: 'clear-choice' }],
+        actions: [{ label: 'Clear selection', onClick: vi.fn(), testId: 'clear-choice' }],
       };
 
       render(<FieldContextMenu groups={[clearGroup, overrideGroup]} />);
 
-      expect(screen.getByText('Show All Choice Options')).toBeInTheDocument();
+      expect(screen.getByText('Clear selection')).toBeInTheDocument();
       expect(screen.getByText('Override Field...')).toBeInTheDocument();
     });
 
-    it('should call onClearChoice when Show All Choice Options is clicked', () => {
+    it('should call onClearChoice when Clear selection is clicked', () => {
       const onClear = vi.fn();
       const onClose = vi.fn();
       const clearGroup: MenuGroup = {
-        actions: [{ label: 'Show All Choice Options', onClick: onClear, testId: 'clear-choice' }],
+        actions: [{ label: 'Clear selection', onClick: onClear, testId: 'clear-choice' }],
       };
 
       render(<FieldContextMenu groups={[clearGroup, overrideGroup]} onClose={onClose} />);
 
-      fireEvent.click(screen.getByText('Show All Choice Options'));
+      fireEvent.click(screen.getByText('Clear selection'));
 
       expect(onClear).toHaveBeenCalled();
       expect(onClose).toHaveBeenCalled();

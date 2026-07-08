@@ -56,7 +56,7 @@ export const AddMappingNode: FunctionComponent<{ nodeData: AddMappingNodeData; r
             </ActionListItem>
             <MappingContextMenuAction
               nodeData={nodeData}
-              dropdownLabel="Add Conditional Mapping"
+              dropdownLabel="Add Mapping Instruction"
               onUpdate={refreshMappingTree}
             />
           </ActionListGroup>

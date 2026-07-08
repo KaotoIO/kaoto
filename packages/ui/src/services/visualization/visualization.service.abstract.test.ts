@@ -493,7 +493,7 @@ describe('VisualizationService / abstract fields', () => {
   });
 
   describe('nested unselected target abstract wrappers', () => {
-    it('should walk up through nested unselected abstract wrappers to find mapping ancestor', () => {
+    it('unconfigured nested abstract wrappers should hide children', () => {
       const innerAbstractField = createMockAbstractField([{ name: 'Kitten' }, { name: 'Puppy' }]);
       const outerAbstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }]);
       const parentField = {
@@ -507,12 +507,10 @@ describe('VisualizationService / abstract fields', () => {
       const innerAbstractNode = new TargetAbstractFieldNodeData(outerAbstractNode, innerAbstractField);
 
       const children = VisualizationService.generateNonDocumentNodeDataChildren(innerAbstractNode);
-      expect(children).toHaveLength(2);
-      expect(children[0].title).toBe('Kitten');
-      expect(children[1].title).toBe('Puppy');
+      expect(children).toHaveLength(0);
     });
 
-    it('should walk up through mixed wrapper kinds (abstract inside choice) to find mapping ancestor', () => {
+    it('unconfigured abstract inside choice should hide children', () => {
       const abstractField = createMockAbstractField([{ name: 'Kitten' }, { name: 'Puppy' }]);
       const baseField = sourceDoc.fields[0];
       const choiceField = {
@@ -534,9 +532,33 @@ describe('VisualizationService / abstract fields', () => {
       const abstractNode = new TargetAbstractFieldNodeData(choiceNode, abstractField);
 
       const children = VisualizationService.generateNonDocumentNodeDataChildren(abstractNode);
-      expect(children).toHaveLength(2);
-      expect(children[0].title).toBe('Kitten');
-      expect(children[1].title).toBe('Puppy');
+      expect(children).toHaveLength(0);
+    });
+
+    it('should not open unconfigured wrapper when sibling field has a FieldItem', () => {
+      const abstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }]);
+      const siblingField = {
+        ...targetDoc.fields[0],
+        name: 'siblingElement',
+        displayName: 'siblingElement',
+        fields: [],
+      };
+      const parentField = {
+        ...targetDoc.fields[0],
+        fields: [abstractField, siblingField],
+      };
+      const localTargetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+      const parentNode = new TargetFieldNodeData(localTargetDocNode, parentField as (typeof targetDoc.fields)[0]);
+
+      const siblingFieldItem = new FieldItem(tree, siblingField as unknown as (typeof targetDoc.fields)[0]);
+      const parentFieldItem = new FieldItem(tree, parentField as (typeof targetDoc.fields)[0]);
+      parentFieldItem.children.push(siblingFieldItem);
+      parentNode.mapping = parentFieldItem;
+
+      const abstractNode = new TargetAbstractFieldNodeData(parentNode, abstractField);
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(abstractNode);
+      expect(children).toHaveLength(0);
     });
   });
 
