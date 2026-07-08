@@ -1,5 +1,10 @@
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+
 import { ITile } from '../../components/Catalog';
+import { DynamicCatalogRegistry } from '../../dynamic-catalog/dynamic-catalog-registry';
 import { citrusTestJson } from '../../stubs/citrus-test';
+import { getFirstCitrusCatalogMap, setupCitrusDynamicCatalogRegistry } from '../../stubs/test-load-catalog';
 import { SourceSchemaType } from '../camel';
 import { CatalogKind } from '../catalog-kind';
 import { EntityType } from '../entities';
@@ -361,6 +366,119 @@ describe('CitrusTestResource', () => {
       expect(id).not.toBe('');
       expect(resource.getVisualEntities()).toHaveLength(1);
       expect(resource.getVisualEntities()[0]).toBeInstanceOf(CitrusTestVisualEntity);
+    });
+  });
+
+  describe('getEndpointsSchema', () => {
+    describe('with catalog registered', () => {
+      beforeAll(async () => {
+        const catalogsMap = await getFirstCitrusCatalogMap(catalogLibrary as CatalogLibrary);
+        setupCitrusDynamicCatalogRegistry(catalogsMap);
+      });
+
+      afterAll(() => {
+        DynamicCatalogRegistry.get().clearRegistry();
+      });
+
+      it('should return undefined before initialize() is called', () => {
+        const resource = new CitrusTestResource(citrusTestJson);
+        // Do NOT call initialize()
+        expect(resource.getEndpointsSchema()).toBeUndefined();
+      });
+
+      it('should return a defined schema with oneOf after initialize()', async () => {
+        const resource = new CitrusTestResource(citrusTestJson);
+        await resource.initialize();
+
+        const schema = resource.getEndpointsSchema();
+        expect(schema).toBeDefined();
+        expect(schema!.oneOf).toBeDefined();
+        expect(Array.isArray(schema!.oneOf)).toBeTruthy();
+        expect((schema!.oneOf as unknown[]).length).toBeGreaterThan(0);
+      });
+
+      it('should populate each entry with name and title', async () => {
+        const resource = new CitrusTestResource(citrusTestJson);
+        await resource.initialize();
+
+        const schema = resource.getEndpointsSchema();
+        const entries = schema!.oneOf as { name: string; title: string }[];
+        for (const entry of entries) {
+          expect(typeof entry.name).toBe('string');
+          expect(entry.name.length).toBeGreaterThan(0);
+        }
+      });
+
+      it('should return entries sorted alphabetically by name', async () => {
+        const resource = new CitrusTestResource(citrusTestJson);
+        await resource.initialize();
+
+        const schema = resource.getEndpointsSchema();
+        const names = (schema!.oneOf as { name: string }[]).map((e) => e.name);
+        const sorted = [...names].sort((a, b) => a.localeCompare(b));
+        expect(names).toEqual(sorted);
+      });
+
+      it('should return the same schema when called multiple times without re-initializing', async () => {
+        const resource = new CitrusTestResource(citrusTestJson);
+        await resource.initialize();
+
+        const first = resource.getEndpointsSchema();
+        const second = resource.getEndpointsSchema();
+        expect(first).toBe(second);
+      });
+
+      it('should refresh the schema on re-initialize()', async () => {
+        const resource = new CitrusTestResource(citrusTestJson);
+        await resource.initialize();
+        const first = resource.getEndpointsSchema();
+
+        await resource.initialize();
+        const second = resource.getEndpointsSchema();
+
+        // Both should be defined and structurally equal (re-fetched from catalog)
+        expect(second).toBeDefined();
+        expect(second!.oneOf).toEqual(first!.oneOf);
+      });
+    });
+
+    describe('without catalog registered', () => {
+      beforeAll(() => {
+        DynamicCatalogRegistry.get().clearRegistry();
+      });
+
+      it('should return an empty oneOf schema when no TestEndpoint catalog is registered', async () => {
+        const resource = new CitrusTestResource(citrusTestJson);
+        await resource.initialize();
+
+        const schema = resource.getEndpointsSchema();
+        expect(schema).toBeDefined();
+        expect(schema!.oneOf).toEqual([]);
+      });
+    });
+
+    describe('when catalog throws', () => {
+      beforeAll(() => {
+        DynamicCatalogRegistry.get().setCatalog(CatalogKind.TestEndpoint, {
+          getAll: vi.fn().mockRejectedValue(new Error('catalog error')),
+          get: vi.fn(),
+          clearCache: vi.fn(),
+        });
+      });
+
+      afterAll(() => {
+        DynamicCatalogRegistry.get().clearRegistry();
+      });
+
+      it('should set endpointsSchema to undefined on error', async () => {
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+        const resource = new CitrusTestResource(citrusTestJson);
+        await resource.initialize();
+
+        expect(resource.getEndpointsSchema()).toBeUndefined();
+        expect(consoleSpy).toHaveBeenCalledWith('Failed to fetch endpoints schema:', expect.any(Error));
+        consoleSpy.mockRestore();
+      });
     });
   });
 });

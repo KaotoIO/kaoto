@@ -2,11 +2,13 @@ import { isDefined } from '@kaoto/forms';
 import { stringify } from 'yaml';
 
 import { ITile, TileFilter } from '../../components/Catalog';
+import { DynamicCatalogRegistry } from '../../dynamic-catalog/dynamic-catalog-registry';
 import { EntityOrderingService } from '../camel/entity-ordering.service';
 import { SourceSchemaType } from '../camel/source-schema-type';
 import { CatalogKind } from '../catalog-kind';
 import { BaseEntity, EntityType } from '../entities';
 import { BaseVisualEntityDefinition, KaotoResource } from '../kaoto-resource';
+import { KaotoSchemaDefinition } from '../kaoto-schema';
 import {
   AddStepMode,
   BaseVisualCamelEntityConstructor,
@@ -41,9 +43,14 @@ export class CitrusTestResource implements KaotoResource {
   }[] = [{ type: EntityType.Test, group: '', Entity: CitrusTestVisualEntity }];
   private entities: BaseEntity[] = [];
   private resolvedEntities: BaseVisualEntityDefinition | undefined;
+  private endpointsSchema: KaotoSchemaDefinition['schema'] | undefined;
 
   get supportedEntities() {
     return CitrusTestResource.SUPPORTED_ENTITIES;
+  }
+
+  getEndpointsSchema(): KaotoSchemaDefinition['schema'] | undefined {
+    return this.endpointsSchema;
   }
 
   /**
@@ -69,6 +76,9 @@ export class CitrusTestResource implements KaotoResource {
     }, [] as BaseEntity[]);
 
     this.entities = EntityOrderingService.sortEntitiesForSerialization(parsedEntities);
+
+    // Fetch and cache endpoints schema
+    await this.fetchEndpointsSchema();
   }
 
   /**
@@ -218,6 +228,34 @@ export class CitrusTestResource implements KaotoResource {
    * @param rawItem - The raw item to convert
    * @returns A BaseCamelEntity instance or undefined if the item is invalid
    */
+  private async fetchEndpointsSchema(): Promise<void> {
+    try {
+      const endpointsCatalog =
+        (await DynamicCatalogRegistry.get().getCatalog(CatalogKind.TestEndpoint)?.getAll()) ?? {};
+      const endpoints: KaotoSchemaDefinition['schema'][] = [];
+
+      for (const endpointKey in endpointsCatalog) {
+        const endpointDefinition = endpointsCatalog[endpointKey];
+        const schema = endpointsCatalog[endpointKey].propertiesSchema as KaotoSchemaDefinition['schema'];
+        if (schema) {
+          schema.name = endpointKey;
+          schema.title = endpointDefinition.title;
+          endpoints.push(schema);
+        }
+      }
+
+      const sortedEndpoints = [...endpoints];
+      sortedEndpoints.sort((a, b) => a.name?.localeCompare(b.name ?? '') ?? 0);
+
+      this.endpointsSchema = {
+        oneOf: sortedEndpoints,
+      };
+    } catch (error) {
+      console.error('Failed to fetch endpoints schema:', error);
+      this.endpointsSchema = undefined;
+    }
+  }
+
   private getEntity(rawItem: unknown): BaseEntity | undefined {
     if (!isDefined(rawItem) || Array.isArray(rawItem)) {
       return undefined;

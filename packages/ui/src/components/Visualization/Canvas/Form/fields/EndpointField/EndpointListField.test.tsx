@@ -8,17 +8,13 @@ import type { Mock } from 'vitest';
 
 import { CatalogContext, CatalogTilesContext } from '../../../../../../dynamic-catalog';
 import { CatalogModalProvider } from '../../../../../../dynamic-catalog/catalog-modal.provider';
-import { DynamicCatalog } from '../../../../../../dynamic-catalog/dynamic-catalog';
 import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
 import { IDynamicCatalogRegistry } from '../../../../../../dynamic-catalog/models';
-import { CitrusTestEndpointsProvider } from '../../../../../../dynamic-catalog/providers/citrus-components.provider';
-import { CatalogKind } from '../../../../../../models/catalog-kind';
 import { CitrusTestResource } from '../../../../../../models/citrus/citrus-test-resource';
 import { Test } from '../../../../../../models/citrus/entities/Test';
-import { EndpointsEntityHandler } from '../../../../../../models/visualization/metadata/citrus/endpoints-entity-handler';
 import { ACTION_ID_CANCEL, ACTION_ID_CONFIRM, ActionConfirmationModalContext } from '../../../../../../providers';
 import { TestProvidersWrapper } from '../../../../../../stubs';
-import { getFirstCitrusCatalogMap } from '../../../../../../stubs/test-load-catalog';
+import { getFirstCitrusCatalogMap, setupCitrusDynamicCatalogRegistry } from '../../../../../../stubs/test-load-catalog';
 import { ITile } from '../../../../../Catalog';
 import { EndpointListField } from './EndpointListField';
 
@@ -55,10 +51,7 @@ describe('EndpointListField', () => {
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCitrusCatalogMap(catalogLibrary as CatalogLibrary);
-    DynamicCatalogRegistry.get().setCatalog(
-      CatalogKind.TestEndpoint,
-      new DynamicCatalog(new CitrusTestEndpointsProvider(catalogsMap.endpointsCatalogMap)),
-    );
+    setupCitrusDynamicCatalogRegistry(catalogsMap);
   });
 
   afterAll(() => {
@@ -695,55 +688,53 @@ describe('EndpointListField', () => {
     });
   });
 
-  describe('multiple endpoints', () => {
-    it('should render multiple endpoints with correct indices', async () => {
-      const testModel: Test = {
-        name: 'test',
-        actions: [],
-        endpoints: [
-          {
-            http: {
-              client: {
-                name: 'endpoint1',
-                requestUrl: 'http://localhost:8080',
-              },
+  it('should render multiple endpoints with correct indices', async () => {
+    const testModel: Test = {
+      name: 'test',
+      actions: [],
+      endpoints: [
+        {
+          http: {
+            client: {
+              name: 'endpoint1',
+              requestUrl: 'http://localhost:8080',
             },
           },
-          {
-            jms: {
-              asynchronous: {
-                name: 'endpoint2',
-                connectionFactory: 'jmsConnectionFactory',
-                destination: 'queue1',
-              },
+        },
+        {
+          jms: {
+            asynchronous: {
+              name: 'endpoint2',
+              connectionFactory: 'jmsConnectionFactory',
+              destination: 'queue1',
             },
           },
-          {
-            direct: {
-              asynchronous: {
-                name: 'endpoint3',
-                queue: 'queue3',
-              },
+        },
+        {
+          direct: {
+            asynchronous: {
+              name: 'endpoint3',
+              queue: 'queue3',
             },
           },
-        ],
-      };
+        },
+      ],
+    };
 
-      await renderField({ endpoints: testModel.endpoints }, testModel);
+    await renderField({ endpoints: testModel.endpoints }, testModel);
 
-      // All endpoints should be visible
-      expect(screen.getByText('endpoint1')).toBeInTheDocument();
-      expect(screen.getByText('endpoint2')).toBeInTheDocument();
-      expect(screen.getByText('endpoint3')).toBeInTheDocument();
+    // All endpoints should be visible
+    expect(screen.getByText('endpoint1')).toBeInTheDocument();
+    expect(screen.getByText('endpoint2')).toBeInTheDocument();
+    expect(screen.getByText('endpoint3')).toBeInTheDocument();
 
-      // Each should have edit and delete buttons
-      expect(screen.getByTestId('endpoint-edit-0-btn')).toBeInTheDocument();
-      expect(screen.getByTestId('endpoint-edit-1-btn')).toBeInTheDocument();
-      expect(screen.getByTestId('endpoint-edit-2-btn')).toBeInTheDocument();
-      expect(screen.getByTestId('endpoint-delete-0-btn')).toBeInTheDocument();
-      expect(screen.getByTestId('endpoint-delete-1-btn')).toBeInTheDocument();
-      expect(screen.getByTestId('endpoint-delete-2-btn')).toBeInTheDocument();
-    });
+    // Each should have edit and delete buttons
+    expect(screen.getByTestId('endpoint-edit-0-btn')).toBeInTheDocument();
+    expect(screen.getByTestId('endpoint-edit-1-btn')).toBeInTheDocument();
+    expect(screen.getByTestId('endpoint-edit-2-btn')).toBeInTheDocument();
+    expect(screen.getByTestId('endpoint-delete-0-btn')).toBeInTheDocument();
+    expect(screen.getByTestId('endpoint-delete-1-btn')).toBeInTheDocument();
+    expect(screen.getByTestId('endpoint-delete-2-btn')).toBeInTheDocument();
   });
 
   describe('handle create or edit', () => {
@@ -805,83 +796,124 @@ describe('EndpointListField', () => {
       });
     });
 
-    describe('create operation', () => {
-      it('should open modal in Create mode when Add button is clicked', async () => {
-        const testModel: Test = {
-          name: 'test',
-          actions: [],
-          endpoints: [],
-        };
+    it('should open modal in Create mode when Add button is clicked', async () => {
+      const testModel: Test = {
+        name: 'test',
+        actions: [],
+        endpoints: [],
+      };
 
-        await renderField({ endpoints: [] }, testModel);
+      await renderField({ endpoints: [] }, testModel);
 
-        const addButton = screen.getByTestId('create-new-endpoint-btn');
-        await act(async () => {
-          fireEvent.click(addButton);
-        });
+      const addButton = screen.getByTestId('create-new-endpoint-btn');
+      await act(async () => {
+        fireEvent.click(addButton);
+      });
 
-        await waitFor(() => {
-          expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
-          expect(screen.getByText('Create endpoint')).toBeInTheDocument();
-        });
+      await waitFor(() => {
+        expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
+        expect(screen.getByText('Create endpoint')).toBeInTheDocument();
       });
     });
 
-    describe('update operation', () => {
-      it('should close modal on cancel', async () => {
-        const testModel: Test = {
-          name: 'test',
-          actions: [],
-          endpoints: [
-            {
-              http: {
-                client: {
-                  name: 'httpClient',
-                  requestUrl: 'http://localhost:8080',
-                },
+    it('should close modal on cancel', async () => {
+      const testModel: Test = {
+        name: 'test',
+        actions: [],
+        endpoints: [
+          {
+            http: {
+              client: {
+                name: 'httpClient',
+                requestUrl: 'http://localhost:8080',
               },
             },
-          ],
-        };
+          },
+        ],
+      };
 
-        await renderField({ endpoints: testModel.endpoints }, testModel);
+      await renderField({ endpoints: testModel.endpoints }, testModel);
 
-        const editButton = screen.getByTestId('endpoint-edit-0-btn');
-        await act(async () => {
-          fireEvent.click(editButton);
-        });
-
-        await waitFor(() => {
-          expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
-        });
-
-        // Cancel to close modal
-        const cancelButton = screen.getByTestId('endpoint-modal-cancel-btn');
-        await act(async () => {
-          fireEvent.click(cancelButton);
-        });
-
-        await waitFor(() => {
-          expect(screen.queryByTestId('NewEndpointModal')).not.toBeInTheDocument();
-        });
+      const editButton = screen.getByTestId('endpoint-edit-0-btn');
+      await act(async () => {
+        fireEvent.click(editButton);
       });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
+      });
+
+      // Cancel to close modal
+      const cancelButton = screen.getByTestId('endpoint-modal-cancel-btn');
+      await act(async () => {
+        fireEvent.click(cancelButton);
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('NewEndpointModal')).not.toBeInTheDocument();
+      });
+    });
+
+    it('should not call onChange when the confirmed model has no name property', async () => {
+      const onPropertyChange = vi.fn();
+      const testModel: Test = {
+        name: 'test',
+        actions: [],
+        endpoints: [],
+      };
+
+      await renderField({ endpoints: [] }, testModel, onPropertyChange);
+
+      // Open create modal
+      const addButton = screen.getByTestId('create-new-endpoint-btn');
+      await act(async () => {
+        fireEvent.click(addButton);
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
+      });
+
+      // Select a tile type but do not fill the Name field, leaving it empty
+      await waitFor(() => {
+        expect(screen.getByTestId('tile-header-http-client')).toBeInTheDocument();
+      });
+
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('tile-header-http-client'));
+      });
+
+      // Confirm without filling in a name — the guard in handleCreateOrEdit returns early
+      const confirmButton = screen.getByTestId('endpoint-modal-confirm-btn');
+      await act(async () => {
+        fireEvent.click(confirmButton);
+      });
+
+      // onChange must not have been called because name was absent
+      expect(onPropertyChange).not.toHaveBeenCalled();
+      // Modal should still be open (not closed) since the guard returned early
+      expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
     });
   });
 
-  describe('error handling', () => {
-    it('should log error when getEndpointsSchema rejects', async () => {
-      const schemaError = new Error('schema fetch failed');
-      vi.spyOn(EndpointsEntityHandler.prototype, 'getEndpointsSchema').mockRejectedValueOnce(schemaError);
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('should throw TypeError when camelResource is not a CitrusTestResource', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { Provider } = await TestProvidersWrapper(); // uses CamelRouteResource by default
 
-      const testModel: Test = { name: 'test', actions: [] };
-      await renderField({ endpoints: [] }, testModel);
-
-      await waitFor(() => {
-        expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to fetch endpoints schema:', schemaError);
+    expect(() => {
+      act(() => {
+        render(
+          <Provider>
+            <ActionConfirmationModalContext.Provider value={mockActionConfirmationModalContext}>
+              <SchemaProvider schema={schema}>
+                <ModelContextProvider model={{}} onPropertyChange={vi.fn()}>
+                  <EndpointListField propName={PROP_NAME} />
+                </ModelContextProvider>
+              </SchemaProvider>
+            </ActionConfirmationModalContext.Provider>
+          </Provider>,
+        );
       });
-
-      consoleErrorSpy.mockRestore();
-    });
+    }).toThrow('EndpointListField must be used only with CitrusTestResource');
   });
 });

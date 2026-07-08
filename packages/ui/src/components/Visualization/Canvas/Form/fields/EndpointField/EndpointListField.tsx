@@ -2,29 +2,24 @@ import { FieldProps, FieldWrapper, useFieldValue } from '@kaoto/forms';
 import { Button } from '@patternfly/react-core';
 import { EditIcon, PlusCircleIcon, TrashIcon } from '@patternfly/react-icons';
 import { Table, TableVariant, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
-import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
 
-import { KaotoSchemaDefinition } from '../../../../../../models';
+import { useEntityContext } from '../../../../../../hooks/useEntityContext/useEntityContext';
 import { CitrusTestResource } from '../../../../../../models/citrus/citrus-test-resource';
 import { EndpointsEntityHandler } from '../../../../../../models/visualization/metadata/citrus/endpoints-entity-handler';
-import { ACTION_ID_CANCEL, ActionConfirmationModalContext, EntitiesContext } from '../../../../../../providers';
+import { ACTION_ID_CANCEL, ActionConfirmationModalContext } from '../../../../../../providers';
 import { getValue } from '../../../../../../utils';
 import { NewEndpointModal } from './NewEndpointModal';
 
 export const EndpointListField: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { onChange } = useFieldValue<Record<string, unknown>[]>(propName);
-  const entitiesContext = useContext(EntitiesContext);
-  const testResource = entitiesContext?.camelResource as CitrusTestResource | undefined;
+  const { camelResource: testResource } = useEntityContext();
+  if (!(testResource instanceof CitrusTestResource)) {
+    throw new TypeError('EndpointListField must be used only with CitrusTestResource');
+  }
+
   const endpointsHandler = useMemo(() => new EndpointsEntityHandler(testResource), [testResource]);
-  const [endpointsSchema, setEndpointsSchema] = useState<KaotoSchemaDefinition['schema'] | undefined>(undefined);
-  useEffect(() => {
-    endpointsHandler
-      .getEndpointsSchema()
-      .then(setEndpointsSchema)
-      .catch((error) => {
-        console.error('Failed to fetch endpoints schema:', error);
-      });
-  }, [endpointsHandler]);
+  const endpointsSchema = testResource.getEndpointsSchema();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [operation, setOperation] = useState<string>('Create');
   const [editModel, setEditModel] = useState<Record<string, unknown> | undefined>(undefined);
