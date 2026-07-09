@@ -81,7 +81,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
     expect(screen.getByText('Kitten')).toBeInTheDocument();
   });
 
-  it('should show "Clear substitution" when a member is selected', () => {
+  it('should show "Clear substitution" and "Select Substitute..." when a member is selected', () => {
     const { documentNodeData, abstractNode } = createAbstractFieldNode(true);
 
     render(
@@ -99,6 +99,31 @@ describe('useAbstractFieldSubstitutionMenu', () => {
     });
 
     expect(screen.getByText('Clear substitution')).toBeInTheDocument();
+    expect(screen.getByText('Select Substitute...')).toBeInTheDocument();
+  });
+
+  it('should open substitution modal when clicking "Select Substitute..." on selected abstract', () => {
+    const { documentNodeData, abstractNode } = createAbstractFieldNode(true);
+
+    render(
+      <SourceDocumentNodeWithContextMenu
+        treeNode={abstractNode}
+        documentId={documentNodeData.id}
+        isReadOnly={false}
+        rank={1}
+      />,
+      { wrapper },
+    );
+
+    act(() => {
+      fireEvent.contextMenu(screen.getByTestId(`node-source-${abstractNode.nodeData.id}`));
+    });
+
+    act(() => {
+      fireEvent.click(screen.getByText('Select Substitute...'));
+    });
+
+    expect(screen.getByText('Select substitute for AbstractAnimal')).toBeInTheDocument();
   });
 
   it('should call applyFieldSubstitution when clicking a substitution candidate', () => {

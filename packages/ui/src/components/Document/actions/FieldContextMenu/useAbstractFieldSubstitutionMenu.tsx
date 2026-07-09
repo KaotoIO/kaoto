@@ -11,9 +11,9 @@ import { FieldOverrideService } from '../../../../services/document/field-overri
 import { SchemaPathService } from '../../../../services/schema-path.service';
 import { MappingActionService } from '../../../../services/visualization/mapping-action.service';
 import { MenuAction, MenuGroup } from '../FieldContextMenu';
-import { SubstitutionSelectionModal } from '../SubstitutionSelectionModal';
+import { WrapperSelectionModal } from '../WrapperSelectionModal';
 import { buildSelectSelfAction, findCandidateQName, resolveAbstractFieldInfo } from './menu-utils';
-import { MenuContributor } from './types';
+import { MemberSelection, MenuContributor } from './types';
 
 const INLINE_SUBSTITUTION_LIMIT = 10;
 
@@ -153,9 +153,16 @@ export function useAbstractFieldSubstitutionMenu(nodeData: NodeData): MenuContri
     testId: 'clear-substitution',
   };
 
-  const selectSelfAction = isSubstitutionCandidate
-    ? buildSelectSelfAction(field, parentAbstractField, handleSelectSelfAsCandidate, 'select-substitution-member')
-    : undefined;
+  const selectSelfAction =
+    isSubstitutionCandidate && !isSelectedSubstitution
+      ? buildSelectSelfAction(field, parentAbstractField, handleSelectSelfAsCandidate, 'select-substitution-member')
+      : undefined;
+
+  const changeSubstituteAction: MenuAction = {
+    label: 'Select Substitute...',
+    onClick: handleOpenSubstitutionModal,
+    testId: 'change-substitution',
+  };
 
   let menuGroups: MenuGroup[];
   if (isAbstractWrapper) {
@@ -169,7 +176,7 @@ export function useAbstractFieldSubstitutionMenu(nodeData: NodeData): MenuContri
     );
   } else {
     const substitutionActions: MenuAction[] = [];
-    if (isSelectedSubstitution) substitutionActions.push(clearSubstitutionAction);
+    if (isSelectedSubstitution) substitutionActions.push(clearSubstitutionAction, changeSubstituteAction);
     if (selectSelfAction) substitutionActions.push(selectSelfAction);
     menuGroups = [{ actions: substitutionActions }];
   }
@@ -178,15 +185,40 @@ export function useAbstractFieldSubstitutionMenu(nodeData: NodeData): MenuContri
     setIsSubstitutionModalOpen(false);
   }, []);
 
+  const modalCandidates = useMemo(
+    () =>
+      Object.entries(candidates).map(([qname, info]) => ({
+        key: qname,
+        label: info.displayName,
+        typeBadge: info.type,
+        selection: { memberIndex: 0, substituteQName: qname },
+      })),
+    [candidates],
+  );
+
+  const handleModalSelect = useCallback(
+    (selection: MemberSelection) => {
+      if (selection.substituteQName) {
+        handleSelectSubstitution(selection.substituteQName);
+      }
+    },
+    [handleSelectSubstitution],
+  );
+
+  const fieldName = abstractWrapperField?.displayName || abstractWrapperField?.name || 'Abstract';
+
   return {
     groups: menuGroups,
     modals:
       isSubstitutionModalOpen && abstractWrapperField ? (
-        <SubstitutionSelectionModal
+        <WrapperSelectionModal
           isOpen={isSubstitutionModalOpen}
-          abstractField={abstractWrapperField}
-          candidates={candidates}
-          onSelect={handleSelectSubstitution}
+          title={`Select substitute for ${fieldName}`}
+          description={`Choose a concrete element for ${fieldName}`}
+          testId="substitution-selection-modal"
+          candidates={modalCandidates}
+          selectedKey={selectedQName ?? null}
+          onSelect={handleModalSelect}
           onClose={closeSubstitutionModal}
         />
       ) : null,

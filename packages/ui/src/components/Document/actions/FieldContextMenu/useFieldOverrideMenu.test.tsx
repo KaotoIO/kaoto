@@ -256,7 +256,7 @@ describe('useFieldOverrideMenu', () => {
   });
 
   describe('abstract field substitution', () => {
-    it('should show Reset Override for a selected abstract field substitution', () => {
+    it('should not show Override Field or Reset Override for a selected abstract field', () => {
       const { documentNodeData, abstractNode } = createAbstractFieldNode();
       expect(abstractNode.nodeData).toBeInstanceOf(AbstractFieldNodeData);
       expect((abstractNode.nodeData as AbstractFieldNodeData).abstractField).toBeDefined();
@@ -275,11 +275,11 @@ describe('useFieldOverrideMenu', () => {
         fireEvent.contextMenu(screen.getByTestId(`node-source-${abstractNode.nodeData.id}`));
       });
 
-      expect(screen.getByText('Override Field...')).toBeInTheDocument();
-      expect(screen.getByText('Reset Override')).toBeInTheDocument();
+      expect(screen.queryByText('Override Field...')).not.toBeInTheDocument();
+      expect(screen.queryByText('Reset Override')).not.toBeInTheDocument();
     });
 
-    it('should not show Reset Override for an unselected abstract field', () => {
+    it('should not show Override Field for an unselected abstract field', () => {
       const { documentNodeData, abstractNode } = createAbstractFieldNode(false);
 
       render(
@@ -296,35 +296,8 @@ describe('useFieldOverrideMenu', () => {
         fireEvent.contextMenu(screen.getByTestId(`node-source-${abstractNode.nodeData.id}`));
       });
 
-      expect(screen.getByText('Override Field...')).toBeInTheDocument();
+      expect(screen.queryByText('Override Field...')).not.toBeInTheDocument();
       expect(screen.queryByText('Reset Override')).not.toBeInTheDocument();
-    });
-
-    it('should call revertFieldSubstitution when clicking Reset Override on a selected abstract field', () => {
-      const { documentNodeData, abstractNode, abstractAnimalField } = createAbstractFieldNode();
-
-      const revertSpy = vi.spyOn(FieldOverrideService, 'revertFieldSubstitution');
-
-      render(
-        <SourceDocumentNodeWithContextMenu
-          treeNode={abstractNode}
-          documentId={documentNodeData.id}
-          isReadOnly={false}
-          rank={1}
-        />,
-        { wrapper },
-      );
-
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-source-${abstractNode.nodeData.id}`));
-      });
-
-      act(() => {
-        fireEvent.click(screen.getByText('Reset Override'));
-      });
-
-      expect(revertSpy).toHaveBeenCalledWith(abstractAnimalField, expect.any(Object));
-      revertSpy.mockRestore();
     });
   });
 });

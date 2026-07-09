@@ -74,6 +74,8 @@ export class SchemaPathService {
    * Choice wrapper fields produce `{choice:N}` segments, abstract wrapper fields
    * produce `{abstract:N}` segments, and regular fields produce XPath-style element segments.
    *
+   * Note: may mutate `namespaceMap` by registering prefixes for encountered namespace URIs.
+   *
    * @param field - The field to build the path for
    * @param namespaceMap - Namespace prefix to URI mapping for segment generation
    * @returns Schema path string (e.g. `/ns0:Root/{choice:0}`, `/ns0:Root/{abstract:0}`)
@@ -151,6 +153,7 @@ export class SchemaPathService {
   }
 
   private static buildElementSegment(field: IField, namespaceMap: Record<string, string>): string {
+    ensureNamespaceRegistered(field.namespaceURI, namespaceMap, field.namespacePrefix ?? undefined);
     const nsPrefix = getPrefixForNamespaceURI(field.namespaceURI, namespaceMap);
     const segment = new PathSegment(field.name, field.isAttribute, nsPrefix, field.predicates);
     const pathExpr = new PathExpression(undefined, true);
