@@ -4,6 +4,7 @@ import { ChangeEvent, createRef, FunctionComponent, useCallback } from 'react';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { MappingSerializerService } from '../../../services/mapping/mapping-serializer.service';
+import { WrapperAutoDetectionService } from '../../../services/mapping/wrapper-auto-detection.service';
 import { readFileAsString } from '../../../stubs/read-file-as-string';
 
 type ImportMappingFileDropdownItemProps = {
@@ -31,6 +32,11 @@ export const ImportMappingFileDropdownItem: FunctionComponent<ImportMappingFileD
             targetBodyDocument,
             mappingTree,
             sourceParameterMap,
+          );
+          WrapperAutoDetectionService.autoDetectWrapperSelections(
+            mappingTree,
+            targetBodyDocument,
+            mappingTree.namespaceMap,
           );
           for (const msg of messages) {
             sendAlert(msg);
