@@ -1,5 +1,4 @@
 import { Choices } from '@carbon/icons-react';
-import { TypeaheadItem } from '@kaoto/forms';
 import { CheckIcon } from '@patternfly/react-icons';
 import { useCallback, useMemo, useState } from 'react';
 
@@ -14,16 +13,11 @@ import { MappingActionService } from '../../../../services/visualization/mapping
 import { VisualizationService } from '../../../../services/visualization/visualization.service';
 import { VisualizationUtilService } from '../../../../services/visualization/visualization-util.service';
 import { MenuAction, MenuGroup } from '../FieldContextMenu';
-import { MemberSelectionModal } from '../MemberSelectionModal';
-import { buildSelectSelfAction } from './menu-utils';
-import { MenuContributor } from './types';
+import { WrapperSelectionModal } from '../WrapperSelectionModal';
+import { buildSelectSelfAction, dissolveChoiceMembers } from './menu-utils';
+import { MemberSelection, MenuContributor, WrapperCandidate } from './types';
 
 const INLINE_CHOICE_LIMIT = 10;
-
-interface MemberSelection {
-  memberIndex: number;
-  substituteQName?: string;
-}
 
 function getFieldDisplayName(field: IField): string {
   return field.wrapperKind === 'choice'
@@ -31,45 +25,17 @@ function getFieldDisplayName(field: IField): string {
     : field.displayName || field.name;
 }
 
-/**
- * Dissolves abstract members into their substitution candidates so the user
- * picks a concrete type directly. Non-abstract members pass through unchanged.
- */
-function dissolveMembers(
-  members: IField[],
-  namespaceMap: Record<string, string>,
-): { label: string; selection: MemberSelection }[] {
-  const result: { label: string; selection: MemberSelection }[] = [];
-  members.forEach((member, index) => {
-    if (member.wrapperKind === 'abstract') {
-      const candidates = FieldOverrideService.getFieldSubstitutionCandidates(member, namespaceMap);
-      for (const [qname, info] of Object.entries(candidates)) {
-        result.push({
-          label: info.displayName,
-          selection: { memberIndex: index, substituteQName: qname },
-        });
-      }
-    } else {
-      result.push({
-        label: getFieldDisplayName(member),
-        selection: { memberIndex: index },
-      });
-    }
-  });
-  return result;
-}
-
 function buildInlineMemberActions(
-  dissolvedMembers: { label: string; selection: MemberSelection }[],
-  selectedIndex: number | undefined,
+  dissolvedMembers: WrapperCandidate[],
+  selectedKey: string | null,
   onSelect: (selection: MemberSelection) => void,
 ): MenuAction[] {
-  return dissolvedMembers.map(({ label, selection }) => ({
+  return dissolvedMembers.map(({ key, label, selection }) => ({
     label,
     onClick: () => {
       onSelect(selection);
     },
-    icon: selectedIndex === selection.memberIndex ? <CheckIcon /> : <Choices />,
+    icon: selectedKey === key ? <CheckIcon /> : <Choices />,
     testId: selection.substituteQName
       ? 'choice-menu-item-' + selection.memberIndex + '-' + selection.substituteQName
       : 'choice-menu-item-' + selection.memberIndex,
@@ -124,23 +90,23 @@ function resolveChoiceNodeInfo(nodeData: NodeData): ChoiceNodeInfo {
 }
 
 function buildChoiceWrapperMenuGroups(
-  dissolved: { label: string; selection: MemberSelection }[],
-  selectedIndex: number | undefined,
+  dissolved: WrapperCandidate[],
+  selectedKey: string | null,
   selectSelfAction: MenuAction | undefined,
   clearChoiceAction: MenuAction,
   handleSelectChoiceMember: (selection: MemberSelection) => void,
   handleOpenChoiceModal: () => void,
 ): MenuGroup[] {
-  if (dissolved.length === 0 && selectedIndex === undefined) {
+  if (dissolved.length === 0 && selectedKey === null) {
     return selectSelfAction ? [{ actions: [selectSelfAction] }] : [];
   }
 
   const membersGroup: MenuGroup =
     dissolved.length <= INLINE_CHOICE_LIMIT
-      ? { actions: buildInlineMemberActions(dissolved, selectedIndex, handleSelectChoiceMember) }
+      ? { actions: buildInlineMemberActions(dissolved, selectedKey, handleSelectChoiceMember) }
       : { actions: [{ label: 'Select Member...', onClick: handleOpenChoiceModal, testId: 'open-choice-modal' }] };
 
-  const hasSelection = selectedIndex !== undefined;
+  const hasSelection = selectedKey !== null;
   return [
     { actions: selectSelfAction ? [selectSelfAction] : [] },
     membersGroup,
@@ -169,7 +135,7 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
 
   const dissolved = useMemo(() => {
     const members = activeChoiceWrapperForMembers?.fields ?? [];
-    return dissolveMembers(members, mappingTree.namespaceMap);
+    return dissolveChoiceMembers(members, mappingTree.namespaceMap);
   }, [activeChoiceWrapperForMembers?.fields, mappingTree.namespaceMap]);
 
   const applyChoiceSelection = useCallback(
@@ -277,22 +243,41 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
         )
       : undefined;
 
+  const changeMemberAction: MenuAction = {
+    label: 'Select Member...',
+    onClick: handleOpenChoiceModal,
+    testId: 'change-choice-member',
+  };
+
+  const selectedModalKey = useMemo<string | null>(() => {
+    const idx = activeChoiceWrapperForMembers?.selectedMemberIndex;
+    if (idx === undefined) return null;
+    const member = activeChoiceWrapperForMembers?.fields[idx];
+    const substituteQName = member?.selectedMemberQName?.toString();
+    return (
+      dissolved.find((d) => d.selection.memberIndex === idx && d.selection.substituteQName === substituteQName)?.key ??
+      null
+    );
+  }, [activeChoiceWrapperForMembers, dissolved]);
+
   let menuGroups: MenuGroup[];
   if (isChoiceWrapper) {
     menuGroups = buildChoiceWrapperMenuGroups(
       dissolved,
-      activeChoiceWrapperForMembers?.selectedMemberIndex,
+      selectedModalKey,
       selectSelfAction,
       clearChoiceAction,
       handleSelectChoiceMember,
       handleOpenChoiceModal,
     );
     if (isNestedSelectedChoice) {
-      menuGroups.push({ actions: [clearChoiceAction] });
+      menuGroups.push({ actions: [clearChoiceAction, changeMemberAction] });
     }
   } else {
     const choiceActions: MenuAction[] = [];
-    if (isSelectedChoice) choiceActions.push(clearChoiceAction);
+    if (isSelectedChoice) {
+      choiceActions.push(clearChoiceAction, changeMemberAction);
+    }
     if (selectSelfAction) choiceActions.push(selectSelfAction);
     menuGroups = [{ actions: choiceActions }];
   }
@@ -301,33 +286,19 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
     setIsChoiceModalOpen(false);
   }, []);
 
-  const modalItems: TypeaheadItem<MemberSelection>[] = useMemo(
-    () => dissolved.map(({ label, selection }) => ({ name: label, value: selection })),
-    [dissolved],
-  );
-
-  const selectedModalValue = useMemo<MemberSelection | null>(() => {
-    const idx = activeChoiceWrapperForMembers?.selectedMemberIndex;
-    if (idx === undefined) return null;
-    const member = activeChoiceWrapperForMembers?.fields[idx];
-    const substituteQName = member?.selectedMemberQName?.toString();
-    return (
-      dissolved.find((d) => d.selection.memberIndex === idx && d.selection.substituteQName === substituteQName)
-        ?.selection ?? null
-    );
-  }, [activeChoiceWrapperForMembers, dissolved]);
+  const fieldName = activeChoiceWrapperForMembers?.displayName || activeChoiceWrapperForMembers?.name || 'Choice';
 
   return {
     groups: menuGroups,
     modals:
       isChoiceModalOpen && activeChoiceWrapperForMembers ? (
-        <MemberSelectionModal<MemberSelection>
+        <WrapperSelectionModal
           isOpen={isChoiceModalOpen}
-          title={`Select member for ${activeChoiceWrapperForMembers.displayName || activeChoiceWrapperForMembers.name}`}
-          placeholder="Search members..."
+          title={`Select member for ${fieldName}`}
+          description={`Choose a member for ${fieldName}`}
           testId="choice-selection-modal"
-          items={modalItems}
-          selectedValue={selectedModalValue}
+          candidates={dissolved}
+          selectedKey={selectedModalKey}
           onSelect={handleSelectChoiceMember}
           onClose={closeChoiceModal}
         />

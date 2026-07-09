@@ -41,14 +41,16 @@ export function useFieldOverrideMenu(nodeData: NodeData): MenuContributor {
   }, [abstractWrapperField, field, mappingTree.namespaceMap, updateDocument]);
 
   const groups = useMemo((): MenuGroup[] => {
-    if (field?.wrapperKind === 'choice' || field?.wrapperKind === 'sequence') return [];
+    if (field?.wrapperKind === 'choice' || field?.wrapperKind === 'sequence' || field?.wrapperKind === 'abstract')
+      return [];
+    if (abstractWrapperField) return [];
     return [
       { actions: [{ label: 'Override Field...', onClick: handleOverrideType, testId: 'field-override' }] },
       hasFieldOverride
         ? { actions: [{ label: 'Reset Override', onClick: handleResetOverride, testId: 'field-reset-override' }] }
         : { actions: [] },
     ];
-  }, [field?.wrapperKind, hasFieldOverride, handleOverrideType, handleResetOverride]);
+  }, [abstractWrapperField, field?.wrapperKind, hasFieldOverride, handleOverrideType, handleResetOverride]);
 
   return {
     groups,

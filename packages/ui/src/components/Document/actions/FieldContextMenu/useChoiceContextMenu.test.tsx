@@ -113,7 +113,7 @@ describe('useChoiceContextMenu', () => {
     expect(screen.queryByText('Clear selection')).not.toBeInTheDocument();
   });
 
-  it('should show Clear selection and Override for selected choice (Case B)', () => {
+  it('should show Clear selection, Select Member... and Override for selected choice (Case B)', () => {
     const { documentNodeData, choiceNode } = createChoiceFieldNode(true);
 
     render(
@@ -131,7 +131,32 @@ describe('useChoiceContextMenu', () => {
     });
 
     expect(screen.getByText('Clear selection')).toBeInTheDocument();
+    expect(screen.getByText('Select Member...')).toBeInTheDocument();
     expect(screen.getByText('Override Field...')).toBeInTheDocument();
+  });
+
+  it('should open choice modal with current selection when clicking Select Member... on selected choice', () => {
+    const { documentNodeData, choiceNode } = createChoiceFieldNode(true);
+
+    render(
+      <SourceDocumentNodeWithContextMenu
+        treeNode={choiceNode}
+        documentId={documentNodeData.id}
+        isReadOnly={false}
+        rank={1}
+      />,
+      { wrapper },
+    );
+
+    act(() => {
+      fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
+    });
+
+    act(() => {
+      fireEvent.click(screen.getByText('Select Member...'));
+    });
+
+    expect(screen.getByText('Select member for Contact Choice')).toBeInTheDocument();
   });
 
   it('should call setChoiceSelection when clicking a choice member', () => {
