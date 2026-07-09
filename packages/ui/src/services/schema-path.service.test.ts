@@ -14,6 +14,13 @@ describe('SchemaPathService', () => {
     return choiceField;
   }
 
+  function makeSequenceField(parent: XmlSchemaField, childNames: string[]) {
+    const seqField = new XmlSchemaField(parent, '__sequence__', false);
+    seqField.wrapperKind = 'sequence';
+    seqField.fields = childNames.map((n) => new XmlSchemaField(seqField, n, false));
+    return seqField;
+  }
+
   function makeAbstractField(parent: XmlSchemaField, candidateNames: string[]) {
     const abstractField = new XmlSchemaField(parent, 'AbstractElement', false);
     abstractField.wrapperKind = 'abstract';
@@ -76,6 +83,16 @@ describe('SchemaPathService', () => {
 
     it('should return empty array for root-only path', () => {
       expect(SchemaPathService.parse('/')).toEqual([]);
+    });
+
+    it('should parse a path with a sequence segment', () => {
+      const result = SchemaPathService.parse('/ns0:Root/{choice:0}/{sequence:1}/ns0:Child');
+      expect(result).toEqual<SchemaPathSegment[]>([
+        { kind: 'element', segment: 'ns0:Root' },
+        { kind: 'choice', index: 0 },
+        { kind: 'sequence', index: 1 },
+        { kind: 'element', segment: 'ns0:Child' },
+      ]);
     });
   });
 
@@ -408,6 +425,19 @@ describe('SchemaPathService', () => {
 
       const path = SchemaPathService.formatDisplayPath(choiceField, namespaceMap);
       expect(path).toBe('/ns0:ShipOrder/{choice:0}');
+    });
+
+    it('should omit sequence wrapper from display path', () => {
+      const document = TestUtil.createSourceOrderDoc();
+      const root = document.fields[0];
+      const choiceField = makeChoiceField(root, []);
+      const seqField = makeSequenceField(choiceField, ['key', 'value']);
+      choiceField.fields.push(seqField);
+      root.fields.push(choiceField);
+
+      const keyField = seqField.fields[0];
+      const path = SchemaPathService.formatDisplayPath(keyField, namespaceMap);
+      expect(path).toBe('/ns0:ShipOrder/{choice:0}/key');
     });
   });
 });

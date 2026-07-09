@@ -21,6 +21,7 @@ import {
   TargetDocumentNodeData,
   TargetFieldNodeData,
   TargetNodeData,
+  TargetSequenceFieldNodeData,
 } from '../../models/datamapper/visualization';
 import { getTestDocumentXsd, TestUtil } from '../../stubs/datamapper/data-mapper';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
@@ -396,6 +397,47 @@ describe('MappingActionService / choice field mappings', () => {
 
       expect((freshEmailAddressNode as FieldItemNodeData).path.pathSegments).toContain(nestedChoiceField.id);
       expect(emailAddressItem.nodePath.pathSegments).not.toContain(nestedChoiceField.id);
+    });
+  });
+
+  describe('mapping through sequence wrapper inside choice', () => {
+    it('getOrCreateFieldItem should skip sequence wrapper and create FieldItem under grandparent', () => {
+      const localTargetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+      const seqField = {
+        ...targetDoc.fields[0],
+        name: '__sequence__',
+        displayName: 'sequence',
+        wrapperKind: 'sequence' as const,
+        fields: [] as unknown[],
+      } as unknown as (typeof targetDoc.fields)[0];
+      const childField = {
+        ...targetDoc.fields[0],
+        name: 'seqChild',
+        displayName: 'seqChild',
+        fields: [],
+        parent: seqField,
+      } as unknown as (typeof targetDoc.fields)[0];
+      seqField.fields = [childField];
+      const parentField = {
+        ...targetDoc.fields[0],
+        fields: [seqField],
+      };
+      const parentFieldNode = new TargetFieldNodeData(localTargetDocNode, parentField as (typeof targetDoc.fields)[0]);
+
+      const seqNode = new TargetSequenceFieldNodeData(parentFieldNode, seqField);
+      const childNode = new TargetFieldNodeData(seqNode, childField);
+
+      const sourceDocChildren = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
+      const sourceFieldNode = sourceDocChildren[0] as FieldNodeData;
+      const sourceChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceFieldNode);
+
+      MappingActionService.engageMapping(tree, sourceChildren[0] as FieldNodeData, childNode);
+
+      const parentItem = tree.children[0];
+      expect(parentItem).toBeInstanceOf(FieldItem);
+      const childItem = parentItem.children.find((c) => c instanceof FieldItem && c.field === childField) as FieldItem;
+      expect(childItem).toBeDefined();
+      expect(childItem.field.name).toBe('seqChild');
     });
   });
 
