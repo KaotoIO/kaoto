@@ -455,6 +455,17 @@ describe('MappingValidationService', () => {
       expect(result.targetNode).toBe(toNode);
     });
 
+    it('should reject variable dropped onto sequence wrapper target', () => {
+      const variable = new VariableItem(tree, 'rootVar');
+      tree.children.push(variable);
+      const sourceNode = new SourceVariableNodeData(variable);
+      const seqField = createMockField({ wrapperKind: 'sequence', type: Types.Container });
+      const toNode = new TargetSequenceFieldNodeData(targetDocNode, seqField);
+      const result = MappingValidationService.validateMappingPair(sourceNode, toNode);
+      expect(result.isValid).toBe(false);
+      expect(result.errorMessage).toContain('sequence group');
+    });
+
     it('should accept root-level variable for any target', () => {
       const variable = new VariableItem(tree, 'rootVar');
       tree.children.push(variable);

@@ -150,6 +150,7 @@ export class MappingValidationService {
         for (const rule of [
           MappingValidationService.validateChoiceRules,
           MappingValidationService.validateAbstractRules,
+          MappingValidationService.validateSequenceRules,
         ]) {
           const result = rule(targetField, targetField);
           if (!result.isValid) return result;
