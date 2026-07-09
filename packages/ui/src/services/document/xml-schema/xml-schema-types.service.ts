@@ -1,4 +1,4 @@
-import { IDocument, IField } from '../../../models/datamapper/document';
+import { IDocument, IField, IParentType } from '../../../models/datamapper/document';
 import { IFieldSubstitution } from '../../../models/datamapper/metadata';
 import { NS_XML_SCHEMA } from '../../../models/datamapper/standard-namespaces';
 import {
@@ -24,6 +24,7 @@ import { QName } from '../../../xml-schema-ts/QName';
 import { XmlSchemaSimpleContent } from '../../../xml-schema-ts/simple/XmlSchemaSimpleContent';
 import { XmlSchemaSimpleTypeRestriction } from '../../../xml-schema-ts/simple/XmlSchemaSimpleTypeRestriction';
 import { ensureNamespaceRegistered, formatQNameWithPrefix, parseQNameString } from '../../namespace-util';
+import { DocumentUtilService } from '../document-util.service';
 import { XmlSchemaDocument } from './xml-schema-document.model';
 import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
 
@@ -849,6 +850,68 @@ export class XmlSchemaTypesService {
       }
     }
     return allElements;
+  }
+
+  /**
+   * Reverse-lookup: given an element name and namespace, find the substitution group head
+   * field among the direct children of `parentField`.
+   *
+   * Walks up the substitution chain from the substitute element via `getSubstitutionGroup()`
+   * instead of enumerating all members of every potential head — O(chainLength × children)
+   * vs the previous O(children × allElements).
+   *
+   * Skips wrapper fields and already-substituted fields. Does NOT enforce `maxOccurs` —
+   * that policy belongs to the caller.
+   *
+   * @returns The matching head field and resolved substitute info, or `undefined`
+   */
+  static findSubstitutionGroupHead(
+    parentField: IParentType,
+    elementName: string,
+    elementNamespace: string,
+    collection: XmlSchemaCollection,
+  ): { headField: IField; info: IFieldSubstituteInfo } | undefined {
+    const substituteElement = collection.getElementByQName(new QName(elementNamespace, elementName));
+    if (!substituteElement) return undefined;
+
+    const wireName = substituteElement.getWireName();
+    if (!wireName?.getLocalPart()) return undefined;
+
+    const resolvedParent = 'parent' in parentField ? DocumentUtilService.resolveTypeFragment(parentField) : parentField;
+
+    const visited = new Set<string>();
+    let current: XmlSchemaElement | null = substituteElement;
+    while (current) {
+      const headQName = current.getSubstitutionGroup();
+      if (!headQName) return undefined;
+
+      const headQNameString = headQName.toString();
+      if (visited.has(headQNameString)) return undefined;
+      visited.add(headQNameString);
+
+      const headField = resolvedParent.fields.find(
+        (f) =>
+          !f.wrapperKind &&
+          f.typeOverride !== FieldOverrideVariant.SUBSTITUTION &&
+          f.name === headQName.getLocalPart() &&
+          f.namespaceURI === headQName.getNamespaceURI(),
+      );
+
+      if (headField) {
+        return {
+          headField,
+          info: {
+            qname: wireName,
+            displayName: wireName.getLocalPart()!,
+            ...XmlSchemaTypesService.resolveElementTypeInfo(substituteElement, collection),
+          },
+        };
+      }
+
+      current = collection.getElementByQName(headQName);
+    }
+
+    return undefined;
   }
 
   /**

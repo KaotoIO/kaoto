@@ -26,6 +26,8 @@ import { DeserializeItemResult, DeserializeResult, MappingItemClass } from '../.
 import { NS_XSL } from '../../models/datamapper/standard-namespaces';
 import { FieldOverrideVariant } from '../../models/datamapper/types';
 import { SendAlertProps } from '../../models/datamapper/visualization';
+import { DocumentUtilService } from '../document/document-util.service';
+import { FieldOverrideService } from '../document/field-override.service';
 import { XmlSchemaDocumentUtilService } from '../document/xml-schema/xml-schema-document-util.service';
 import { MappingService } from './mapping.service';
 import { MappingSerializerJsonAddon } from './mapping-serializer-json-addon';
@@ -391,6 +393,13 @@ export class MappingSerializerService {
     const name = item.localName;
     const existing = XmlSchemaDocumentUtilService.getChildField(parentField, name, namespace);
     if (existing) return existing;
+
+    const substitutionMatch = FieldOverrideService.findSubstitutionGroupHead(parentField, name, namespace);
+    if (substitutionMatch?.headField.maxOccurs === 1) {
+      DocumentUtilService.applySubstitutionToField(substitutionMatch.headField, substitutionMatch.info);
+      return substitutionMatch.headField;
+    }
+
     const field = new BaseField(
       parentField,
       'ownerDocument' in parentField ? parentField.ownerDocument : parentField,

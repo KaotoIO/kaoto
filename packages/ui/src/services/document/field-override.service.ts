@@ -1,4 +1,10 @@
-import { DocumentDefinition, IDocument, IField, PrimitiveDocument } from '../../models/datamapper/document';
+import {
+  DocumentDefinition,
+  IDocument,
+  IField,
+  IParentType,
+  PrimitiveDocument,
+} from '../../models/datamapper/document';
 import { IFieldSubstitution, IFieldTypeOverride } from '../../models/datamapper/metadata';
 import { FieldOverrideVariant, IFieldSubstituteInfo, IFieldTypeInfo, Types } from '../../models/datamapper/types';
 import { ensureNamespaceRegistered, formatQNameWithPrefix, formatWithPrefix } from '../namespace-util';
@@ -394,6 +400,28 @@ export class FieldOverrideService {
       field,
       field.ownerDocument.xmlSchemaCollection,
       namespaceMap,
+    );
+  }
+
+  /**
+   * Reverse-lookup: given an element name and namespace, find the substitution group head
+   * field among the direct children of `parentField`.
+   *
+   * Delegates to {@link XmlSchemaTypesService.findSubstitutionGroupHead} for XML Schema documents.
+   * Returns `undefined` for non-XML documents or when no match is found.
+   */
+  static findSubstitutionGroupHead(
+    parentField: IParentType,
+    elementName: string,
+    elementNamespace: string,
+  ): { headField: IField; info: IFieldSubstituteInfo } | undefined {
+    const document = 'ownerDocument' in parentField ? parentField.ownerDocument : parentField;
+    if (!(document instanceof XmlSchemaDocument) || !document.xmlSchemaCollection) return undefined;
+    return XmlSchemaTypesService.findSubstitutionGroupHead(
+      parentField,
+      elementName,
+      elementNamespace,
+      document.xmlSchemaCollection,
     );
   }
 

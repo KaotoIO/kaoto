@@ -33,6 +33,7 @@ import { CanvasView } from '../models/datamapper/view';
 import { DocumentService } from '../services/document/document.service';
 import { MappingService } from '../services/mapping/mapping.service';
 import { MappingSerializerService } from '../services/mapping/mapping-serializer.service';
+import { WrapperAutoDetectionService } from '../services/mapping/wrapper-auto-detection.service';
 
 export interface IDataMapperContext {
   isLoading: boolean;
@@ -160,6 +161,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
         freshTree,
         latestSourceParameterMap,
       );
+      WrapperAutoDetectionService.autoDetectWrapperSelections(loaded, latestTargetBodyDocument, effectiveNamespaceMap);
       setMappingTree(loaded);
       for (const msg of messages) {
         sendAlert(msg);

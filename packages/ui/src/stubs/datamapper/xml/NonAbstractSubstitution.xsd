@@ -1,0 +1,28 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.example.com/NONABSTRACT"
+           xmlns="http://www.example.com/NONABSTRACT"
+           elementFormDefault="qualified">
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="HeadElement"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="HeadElement" type="HeadType"/>
+  <xs:element name="SubElement" type="SubType" substitutionGroup="HeadElement"/>
+  <xs:complexType name="HeadType">
+    <xs:sequence>
+      <xs:element name="base" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="SubType">
+    <xs:complexContent>
+      <xs:extension base="HeadType">
+        <xs:sequence>
+          <xs:element name="extra" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+</xs:schema>

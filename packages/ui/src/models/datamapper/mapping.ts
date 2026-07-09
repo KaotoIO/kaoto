@@ -86,9 +86,9 @@ export class FieldItem extends MappingItem {
    * during drag-and-drop mapping.
    *
    * Preserved by {@link doClone} — "Duplicate" inherits the original's value.
-   * Reconstructed during deserialization from document-level field substitution,
-   * choice selection state, and empty terminal detection. Consumed by pruning
-   * and deletability logic.
+   * Auto-detected during deserialization by {@link WrapperAutoDetectionService} from
+   * wrapper selections, substitution state, and empty terminal detection.
+   * Consumed by pruning and deletability logic.
    */
   isUserCreated = false;
 
