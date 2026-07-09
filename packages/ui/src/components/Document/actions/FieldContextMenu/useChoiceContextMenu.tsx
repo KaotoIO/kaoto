@@ -10,12 +10,12 @@ import { ChoiceSelectionService } from '../../../../services/document/choice-sel
 import { DocumentUtilService } from '../../../../services/document/document-util.service';
 import { FieldOverrideService } from '../../../../services/document/field-override.service';
 import { SchemaPathService } from '../../../../services/schema-path.service';
+import { MappingActionService } from '../../../../services/visualization/mapping-action.service';
 import { VisualizationService } from '../../../../services/visualization/visualization.service';
 import { VisualizationUtilService } from '../../../../services/visualization/visualization-util.service';
 import { MenuAction, MenuGroup } from '../FieldContextMenu';
 import { MemberSelectionModal } from '../MemberSelectionModal';
 import { buildSelectSelfAction } from './menu-utils';
-import { applyTargetSelection, clearTargetSelection } from './target-field-item-utils';
 import { MenuContributor } from './types';
 
 const INLINE_CHOICE_LIMIT = 10;
@@ -194,7 +194,7 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
           const candidateField = selection.substituteQName
             ? (DocumentUtilService.getSelectedMember(selectedMember) ?? selectedMember)
             : selectedMember;
-          applyTargetSelection(nodeData as TargetNodeData, candidateField);
+          MappingActionService.applyTargetSelection(nodeData as TargetNodeData, candidateField);
         }
       }
 
@@ -221,7 +221,7 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
 
   const applyClearChoice = useCallback(
     (wrapper: IField) => {
-      if (isTargetSide) clearTargetSelection(nodeData as TargetNodeData, wrapper);
+      if (isTargetSide) MappingActionService.clearTargetSelection(nodeData as TargetNodeData, wrapper);
 
       clearDescendantSelections(wrapper);
 

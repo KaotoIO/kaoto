@@ -9,10 +9,10 @@ import { NodeData, TargetNodeData } from '../../../../models/datamapper/visualiz
 import { DocumentUtilService } from '../../../../services/document/document-util.service';
 import { FieldOverrideService } from '../../../../services/document/field-override.service';
 import { SchemaPathService } from '../../../../services/schema-path.service';
+import { MappingActionService } from '../../../../services/visualization/mapping-action.service';
 import { MenuAction, MenuGroup } from '../FieldContextMenu';
 import { SubstitutionSelectionModal } from '../SubstitutionSelectionModal';
 import { buildSelectSelfAction, findCandidateQName, resolveAbstractFieldInfo } from './menu-utils';
-import { applyTargetSelection, clearTargetSelection } from './target-field-item-utils';
 import { MenuContributor } from './types';
 
 const INLINE_SUBSTITUTION_LIMIT = 10;
@@ -98,7 +98,7 @@ export function useAbstractFieldSubstitutionMenu(nodeData: NodeData): MenuContri
 
       if (isTargetSide) {
         const selectedMember = DocumentUtilService.getSelectedMember(field);
-        if (selectedMember) applyTargetSelection(nodeData as TargetNodeData, selectedMember);
+        if (selectedMember) MappingActionService.applyTargetSelection(nodeData as TargetNodeData, selectedMember);
       }
 
       const doc = field.ownerDocument;
@@ -110,7 +110,7 @@ export function useAbstractFieldSubstitutionMenu(nodeData: NodeData): MenuContri
 
   const applyClearSubstitution = useCallback(
     (field: IField) => {
-      if (isTargetSide) clearTargetSelection(nodeData as TargetNodeData, field);
+      if (isTargetSide) MappingActionService.clearTargetSelection(nodeData as TargetNodeData, field);
 
       const doc = field.ownerDocument;
       const schemaPath = SchemaPathService.build(field, mappingTree.namespaceMap);

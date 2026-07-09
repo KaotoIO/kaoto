@@ -383,6 +383,25 @@ export class MappingActionService {
     fieldItem.isUserCreated = true;
   }
 
+  static applyTargetSelection(nodeData: TargetNodeData, selectedField: IField): void {
+    const existingMapping = nodeData.mapping;
+    if (existingMapping instanceof FieldItem) {
+      MappingService.updateFieldItemField(existingMapping, selectedField);
+    } else {
+      const parentItem = MappingActionService.getOrCreateFieldItem((nodeData as TargetFieldNodeData).parent);
+      const fieldItem = MappingService.createFieldItem(parentItem, selectedField);
+      fieldItem.isUserCreated = true;
+    }
+  }
+
+  static clearTargetSelection(nodeData: TargetNodeData, wrapperField: IField): void {
+    const existingMapping = nodeData.mapping;
+    if (existingMapping instanceof FieldItem) {
+      existingMapping.children = [];
+      MappingService.updateFieldItemField(existingMapping, wrapperField);
+    }
+  }
+
   static getOrCreateParentMapping(nodeData: TargetNodeData): MappingParentType | undefined {
     if (nodeData instanceof TargetDocumentNodeData) return nodeData.mappingTree;
     if (
@@ -527,7 +546,7 @@ export class MappingActionService {
     return undefined;
   }
 
-  private static getOrCreateFieldItem(nodeData: TargetNodeData): MappingItem {
+  static getOrCreateFieldItem(nodeData: TargetNodeData): MappingItem {
     if (nodeData.mapping) return nodeData.mapping as MappingItem;
     const fieldNodeData = nodeData as TargetFieldNodeData;
     if (fieldNodeData instanceof TargetChoiceFieldNodeData && !fieldNodeData.choiceField) {
