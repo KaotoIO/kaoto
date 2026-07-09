@@ -2,7 +2,7 @@ import { CreateDocumentResult, DocumentType } from '../../../models/datamapper/d
 import { IMetadataApi } from '../../../providers/metadata.provider';
 import { DataMapperMetadataService } from '../../../services/datamapper-metadata.service';
 import { DataMapperStepService } from '../../../services/datamapper-step.service';
-import { SchemaFileItem } from './AttachSchema/SchemaFileDataList';
+import { SchemaFileItem, SchemaFileMessage } from './AttachSchema/SchemaFileDataList';
 
 const VALID_XML_EXTENSIONS = ['.xml', '.xsd'];
 const VALID_JSON_EXTENSIONS = ['.json'];
@@ -70,16 +70,16 @@ export function createSchemaFileItems(
     const fileWarnings = createDocumentResult.warnings?.filter((w) => matches(w.filePath)) ?? [];
 
     if (fileErrors.length > 0) {
-      items.push({
-        filePath: fp,
-        status: 'error',
-        messages: [...fileErrors.map((e) => e.message), ...fileWarnings.map((w) => w.message)],
-      });
+      const messages: SchemaFileMessage[] = [
+        ...fileErrors.map((e) => ({ text: e.message, severity: 'error' as const })),
+        ...fileWarnings.map((w) => ({ text: w.message, severity: 'warning' as const })),
+      ];
+      items.push({ filePath: fp, status: 'error', messages });
     } else if (fileWarnings.length > 0) {
       items.push({
         filePath: fp,
         status: 'warning',
-        messages: fileWarnings.map((w) => w.message),
+        messages: fileWarnings.map((w) => ({ text: w.message, severity: 'warning' as const })),
       });
     } else {
       items.push({ filePath: fp, status: 'success', messages: [] });
@@ -87,10 +87,10 @@ export function createSchemaFileItems(
   }
 
   for (const e of createDocumentResult.errors?.filter((e) => !e.filePath) ?? []) {
-    items.push({ status: 'error', messages: [e.message] });
+    items.push({ status: 'error', messages: [{ text: e.message, severity: 'error' }] });
   }
   for (const w of createDocumentResult.warnings?.filter((w) => !w.filePath) ?? []) {
-    items.push({ status: 'warning', messages: [w.message] });
+    items.push({ status: 'warning', messages: [{ text: w.message, severity: 'warning' }] });
   }
 
   items.sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status]);

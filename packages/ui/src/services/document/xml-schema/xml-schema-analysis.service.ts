@@ -176,6 +176,25 @@ export class XmlSchemaAnalysisService {
     return null;
   }
 
+  private static formatIncludeCycleFrom(start: string, cycleBody: string[]): string {
+    const startIndex = cycleBody.indexOf(start);
+    const rotated = [...cycleBody.slice(startIndex), ...cycleBody.slice(0, startIndex), start];
+    return rotated.join('->');
+  }
+
+  private static getIncludeCycleKey(cycleBody: string[]): string {
+    if (cycleBody.length === 0) {
+      return '';
+    }
+
+    const rotations = cycleBody.map((_node, index) => {
+      const rotated = [...cycleBody.slice(index), ...cycleBody.slice(0, index)];
+      return rotated.join('->');
+    });
+
+    return rotations.slice().sort((a, b) => a.localeCompare(b))[0];
+  }
+
   private static detectCircularIncludes(
     fileInfos: Map<string, SchemaFileInfo>,
     edges: DependencyEdge[],
@@ -189,10 +208,26 @@ export class XmlSchemaAnalysisService {
       }
     }
 
-    const errors: ReportMessage[] = [];
+    const warnings: ReportMessage[] = [];
+    const reportedCycles = new Set<string>();
     const visited = new Set<string>();
     const inStack = new Set<string>();
     const stack: string[] = [];
+
+    const reportCycle = (cycleBody: string[]) => {
+      const cycleKey = XmlSchemaAnalysisService.getIncludeCycleKey(cycleBody);
+      if (!cycleKey || reportedCycles.has(cycleKey)) {
+        return;
+      }
+
+      reportedCycles.add(cycleKey);
+      for (const filePath of cycleBody) {
+        warnings.push({
+          filePath,
+          message: `Circular xs:include detected: ${XmlSchemaAnalysisService.formatIncludeCycleFrom(filePath, cycleBody)}`,
+        });
+      }
+    };
 
     const dfs = (node: string) => {
       visited.add(node);
@@ -202,10 +237,8 @@ export class XmlSchemaAnalysisService {
       for (const neighbor of includeAdj.get(node) ?? []) {
         if (inStack.has(neighbor)) {
           const cycleStart = stack.indexOf(neighbor);
-          const cycle = stack.slice(cycleStart);
-          cycle.push(neighbor);
-          const circularInclude = cycle.map((p) => `"${p}"`).join(' -> ');
-          errors.push({ message: `Circular xs:include detected: ${circularInclude}` });
+          const cycleBody = stack.slice(cycleStart);
+          reportCycle(cycleBody);
         } else if (!visited.has(neighbor)) {
           dfs(neighbor);
         }
@@ -221,7 +254,7 @@ export class XmlSchemaAnalysisService {
       }
     }
 
-    return errors;
+    return warnings;
   }
 
   private static detectCircularImports(
@@ -353,7 +386,21 @@ export class XmlSchemaAnalysisService {
       files.push(filePath);
       nsByNamespace.set(info.targetNamespace, files);
     }
+
     const warnings: ReportMessage[] = [];
+    const reportDuplicate = (ns: string, files: string[]) => {
+      for (const file of files) {
+        const fileList = files
+          .filter((f) => f !== file)
+          .map((f) => `"${f}"`)
+          .join(', ');
+        warnings.push({
+          message: `Multiple other schemas share targetNamespace "${ns}": ${fileList}`,
+          filePath: file,
+        });
+      }
+    };
+
     for (const [ns, files] of nsByNamespace) {
       if (files.length <= 1) continue;
 
@@ -364,8 +411,7 @@ export class XmlSchemaAnalysisService {
       const connectedViaIncludes = includeEdges.some((e) => allFilesWithNs.has(e.from) && allFilesWithNs.has(e.to));
       if (connectedViaIncludes) continue;
 
-      const fileList = files.map((f) => `"${f}"`).join(', ');
-      warnings.push({ message: `Multiple schemas share targetNamespace "${ns}": ${fileList}` });
+      reportDuplicate(ns, files);
     }
     return warnings;
   }
