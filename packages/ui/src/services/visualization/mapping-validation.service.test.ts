@@ -21,6 +21,7 @@ import {
   TargetAbstractFieldNodeData,
   TargetDocumentNodeData,
   TargetFieldNodeData,
+  TargetNodeData,
   TargetSequenceFieldNodeData,
   UnknownMappingNodeData,
   VariableNodeData,
@@ -96,18 +97,11 @@ describe('MappingValidationService', () => {
         const target = createMockField({ wrapperKind: 'choice', selectedMemberIndex: undefined });
         const result = MappingValidationService.validateFieldPair(source, target);
         expect(result.isValid).toBe(false);
-        expect(result.errorMessage).toContain('unselected choice');
+        expect(result.errorMessage).toContain('Select a choice member before mapping');
       });
 
       it('should reject source-choice to unselected choice target', () => {
         const source = createMockField({ wrapperKind: 'choice', selectedMemberIndex: undefined });
-        const target = createMockField({ wrapperKind: 'choice', selectedMemberIndex: undefined });
-        const result = MappingValidationService.validateFieldPair(source, target);
-        expect(result.isValid).toBe(false);
-      });
-
-      it('should reject source-choice-member to unselected choice target', () => {
-        const source = createMockField({});
         const target = createMockField({ wrapperKind: 'choice', selectedMemberIndex: undefined });
         const result = MappingValidationService.validateFieldPair(source, target);
         expect(result.isValid).toBe(false);
@@ -123,27 +117,6 @@ describe('MappingValidationService', () => {
       it('should allow source-choice to target-non-choice field', () => {
         const source = createMockField({ wrapperKind: 'choice' });
         const target = createMockField({});
-        const result = MappingValidationService.validateFieldPair(source, target);
-        expect(result.isValid).toBe(true);
-      });
-
-      it('should allow source-choice-member to target-regular', () => {
-        const source = createMockField({});
-        const target = createMockField({ type: Types.String });
-        const result = MappingValidationService.validateFieldPair(source, target);
-        expect(result.isValid).toBe(true);
-      });
-
-      it('should allow source-regular to target-choice-member', () => {
-        const source = createMockField({ type: Types.String });
-        const target = createMockField({});
-        const result = MappingValidationService.validateFieldPair(source, target);
-        expect(result.isValid).toBe(true);
-      });
-
-      it('should allow source-regular to target-regular', () => {
-        const source = createMockField({ type: Types.String });
-        const target = createMockField({ type: Types.String });
         const result = MappingValidationService.validateFieldPair(source, target);
         expect(result.isValid).toBe(true);
       });
@@ -169,19 +142,12 @@ describe('MappingValidationService', () => {
         const target = createMockField({ wrapperKind: 'abstract', selectedMemberQName: undefined });
         const result = MappingValidationService.validateFieldPair(source, target);
         expect(result.isValid).toBe(false);
-        expect(result.errorMessage).toContain('unselected abstract element');
+        expect(result.errorMessage).toContain('Configure the abstract field before mapping');
       });
 
       it('should allow source to target with selected abstract member', () => {
         const source = createMockField({ type: Types.String });
         const target = createMockField({ wrapperKind: 'abstract', selectedMemberQName: new QName(null, 'MockMember') });
-        const result = MappingValidationService.validateFieldPair(source, target);
-        expect(result.isValid).toBe(true);
-      });
-
-      it('should allow source to non-abstract target', () => {
-        const source = createMockField({ type: Types.String });
-        const target = createMockField({});
         const result = MappingValidationService.validateFieldPair(source, target);
         expect(result.isValid).toBe(true);
       });
@@ -194,13 +160,6 @@ describe('MappingValidationService', () => {
         const result = MappingValidationService.validateFieldPair(source, target);
         expect(result.isValid).toBe(false);
         expect(result.errorMessage).toContain('sequence group');
-      });
-
-      it('should allow source to non-sequence target', () => {
-        const source = createMockField({ type: Types.String });
-        const target = createMockField({ type: Types.String });
-        const result = MappingValidationService.validateFieldPair(source, target);
-        expect(result.isValid).toBe(true);
       });
     });
 
@@ -395,6 +354,55 @@ describe('MappingValidationService', () => {
       expect(result.errorMessage).toContain('container');
     });
 
+    it('should reject drop onto FieldItemNodeData with unconfigured choice field', () => {
+      const sourceField = createMockField({ type: Types.String });
+      const choiceField = createMockField({ wrapperKind: 'choice', selectedMemberIndex: undefined });
+      const targetFieldNode = new TargetFieldNodeData(targetDocNode, choiceField);
+      const fieldItem = new FieldItem(tree, choiceField);
+      const fromNode = new FieldNodeData(sourceDocNode, sourceField);
+      const toNode = new FieldItemNodeData(targetFieldNode, fieldItem);
+      const result = MappingValidationService.validateMappingPair(fromNode, toNode);
+      expect(result.isValid).toBe(false);
+      expect(result.errorMessage).toContain('Select a choice member before mapping');
+    });
+
+    it('should accept drop onto FieldItemNodeData with selected choice field', () => {
+      const sourceField = createMockField({ type: Types.String });
+      const choiceField = createMockField({ wrapperKind: 'choice', selectedMemberIndex: 0 });
+      const targetFieldNode = new TargetFieldNodeData(targetDocNode, choiceField);
+      const fieldItem = new FieldItem(tree, choiceField);
+      const fromNode = new FieldNodeData(sourceDocNode, sourceField);
+      const toNode = new FieldItemNodeData(targetFieldNode, fieldItem);
+      const result = MappingValidationService.validateMappingPair(fromNode, toNode);
+      expect(result.isValid).toBe(true);
+    });
+
+    it('should reject drop onto FieldItemNodeData with unconfigured abstract field', () => {
+      const sourceField = createMockField({ type: Types.String });
+      const abstractField = createMockField({ wrapperKind: 'abstract', selectedMemberQName: undefined });
+      const targetFieldNode = new TargetFieldNodeData(targetDocNode, abstractField);
+      const fieldItem = new FieldItem(tree, abstractField);
+      const fromNode = new FieldNodeData(sourceDocNode, sourceField);
+      const toNode = new FieldItemNodeData(targetFieldNode, fieldItem);
+      const result = MappingValidationService.validateMappingPair(fromNode, toNode);
+      expect(result.isValid).toBe(false);
+      expect(result.errorMessage).toContain('Configure the abstract field before mapping');
+    });
+
+    it('should accept drop onto FieldItemNodeData with substituted abstract field', () => {
+      const sourceField = createMockField({ type: Types.String });
+      const abstractField = createMockField({
+        wrapperKind: 'abstract',
+        selectedMemberQName: new QName(null, 'ConcreteType'),
+      });
+      const targetFieldNode = new TargetFieldNodeData(targetDocNode, abstractField);
+      const fieldItem = new FieldItem(tree, abstractField);
+      const fromNode = new FieldNodeData(sourceDocNode, sourceField);
+      const toNode = new FieldItemNodeData(targetFieldNode, fieldItem);
+      const result = MappingValidationService.validateMappingPair(fromNode, toNode);
+      expect(result.isValid).toBe(true);
+    });
+
     it('should reject unselected choice source dropped onto document root', () => {
       const choiceField = createMockField({ wrapperKind: 'choice', type: Types.Container });
       const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
@@ -451,6 +459,31 @@ describe('MappingValidationService', () => {
       const result = MappingValidationService.validateMappingPair(fromNode, toNode);
       expect(result.isValid).toBe(false);
       expect(result.errorMessage).toBeDefined();
+      expect(result.sourceNode).toBe(fromNode);
+      expect(result.targetNode).toBe(toNode);
+    });
+
+    it('should accept cross-side drop to substituted abstract target', () => {
+      const sourceField = createMockField({ type: Types.String });
+      const targetField = createMockField({
+        wrapperKind: 'abstract',
+        selectedMemberQName: new QName(null, 'ConcreteType'),
+      });
+      const fromNode = new FieldNodeData(sourceDocNode, sourceField);
+      const toNode = new TargetFieldNodeData(targetDocNode, targetField);
+      const result = MappingValidationService.validateMappingPair(fromNode, toNode);
+      expect(result.isValid).toBe(true);
+      expect(result.sourceNode).toBe(fromNode);
+      expect(result.targetNode).toBe(toNode);
+    });
+
+    it('should accept cross-side drop to selected choice target', () => {
+      const sourceField = createMockField({ type: Types.String });
+      const targetField = createMockField({ wrapperKind: 'choice', selectedMemberIndex: 0 });
+      const fromNode = new FieldNodeData(sourceDocNode, sourceField);
+      const toNode = new TargetFieldNodeData(targetDocNode, targetField);
+      const result = MappingValidationService.validateMappingPair(fromNode, toNode);
+      expect(result.isValid).toBe(true);
       expect(result.sourceNode).toBe(fromNode);
       expect(result.targetNode).toBe(toNode);
     });
@@ -523,6 +556,23 @@ describe('MappingValidationService', () => {
       expect(result.errorMessage).toContain('not in scope');
     });
 
+    it('should accept nested variable for an unmapped following sibling via parent walk', () => {
+      const parentField = targetDoc.fields[0];
+      const childField = parentField.fields[0];
+      const rootFieldItem = new FieldItem(tree, parentField);
+      tree.children.push(rootFieldItem);
+      const variable = new VariableItem(rootFieldItem, 'scopedVar');
+      rootFieldItem.children.push(variable);
+      const siblingFieldItem = new FieldItem(rootFieldItem, childField);
+      rootFieldItem.children.push(siblingFieldItem);
+
+      const sourceNode = new SourceVariableNodeData(variable);
+      const parentFieldNode = new TargetFieldNodeData(targetDocNode, parentField, rootFieldItem);
+      const childFieldNode = new TargetFieldNodeData(parentFieldNode, childField);
+      const result = MappingValidationService.validateMappingPair(sourceNode, childFieldNode);
+      expect(result.isValid).toBe(true);
+    });
+
     it('should reject variable dropped onto unselected choice target', () => {
       const variable = new VariableItem(tree, 'rootVar');
       tree.children.push(variable);
@@ -531,7 +581,7 @@ describe('MappingValidationService', () => {
       const toNode = new TargetFieldNodeData(targetDocNode, choiceField);
       const result = MappingValidationService.validateMappingPair(sourceNode, toNode);
       expect(result.isValid).toBe(false);
-      expect(result.errorMessage).toContain('unselected choice');
+      expect(result.errorMessage).toContain('Select a choice member before mapping');
     });
 
     it('should reject variable dropped onto unselected abstract target', () => {
@@ -542,7 +592,59 @@ describe('MappingValidationService', () => {
       const toNode = new TargetFieldNodeData(targetDocNode, abstractField);
       const result = MappingValidationService.validateMappingPair(sourceNode, toNode);
       expect(result.isValid).toBe(false);
-      expect(result.errorMessage).toContain('unselected abstract');
+      expect(result.errorMessage).toContain('Configure the abstract field before mapping');
+    });
+
+    it('should accept variable dropped onto selected choice target', () => {
+      const variable = new VariableItem(tree, 'rootVar');
+      tree.children.push(variable);
+      const sourceNode = new SourceVariableNodeData(variable);
+      const choiceField = createMockField({ type: Types.Container, wrapperKind: 'choice', selectedMemberIndex: 0 });
+      const toNode = new TargetFieldNodeData(targetDocNode, choiceField);
+      const result = MappingValidationService.validateMappingPair(sourceNode, toNode);
+      expect(result.isValid).toBe(true);
+    });
+
+    it('should accept variable dropped onto substituted abstract target', () => {
+      const variable = new VariableItem(tree, 'rootVar');
+      tree.children.push(variable);
+      const sourceNode = new SourceVariableNodeData(variable);
+      const abstractField = createMockField({
+        type: Types.Container,
+        wrapperKind: 'abstract',
+        selectedMemberQName: new QName(null, 'ConcreteType'),
+      });
+      const toNode = new TargetFieldNodeData(targetDocNode, abstractField);
+      const result = MappingValidationService.validateMappingPair(sourceNode, toNode);
+      expect(result.isValid).toBe(true);
+    });
+
+    it('should accept nested variable for a deeply unmapped descendant via multi-level parent walk', () => {
+      const grandparentField = targetDoc.fields[0];
+      const parentField = grandparentField.fields[0];
+      const childField = parentField.fields?.[0] ?? createMockField({ type: Types.String });
+      const grandparentFieldItem = new FieldItem(tree, grandparentField);
+      tree.children.push(grandparentFieldItem);
+      const variable = new VariableItem(grandparentFieldItem, 'deepVar');
+      grandparentFieldItem.children.push(variable);
+      const siblingFieldItem = new FieldItem(grandparentFieldItem, parentField);
+      grandparentFieldItem.children.push(siblingFieldItem);
+
+      const sourceNode = new SourceVariableNodeData(variable);
+      const grandparentNode = new TargetFieldNodeData(targetDocNode, grandparentField, grandparentFieldItem);
+      const parentNode = new TargetFieldNodeData(grandparentNode, parentField);
+      const childNode = new TargetFieldNodeData(parentNode, childField);
+      const result = MappingValidationService.validateMappingPair(sourceNode, childNode);
+      expect(result.isValid).toBe(true);
+    });
+
+    it('should reject cross-side drop when target resolves to unknown node type', () => {
+      const sourceField = createMockField({ type: Types.String });
+      const fromNode = new FieldNodeData(sourceDocNode, sourceField);
+      const unknownTarget = { isSource: false, mappingTree: tree } as unknown as TargetNodeData;
+      const result = MappingValidationService.validateMappingPair(fromNode, unknownTarget as unknown as NodeData);
+      expect(result.isValid).toBe(false);
+      expect(result.errorMessage).toBeUndefined();
     });
 
     it('should return valid when source is a PrimitiveDocument node and target is a field', () => {

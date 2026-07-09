@@ -338,21 +338,31 @@ export class MappingValidationService {
     return field.type === Types.Container;
   }
 
+  /**
+   * Mapping to an unconfigured choice wrapper would produce invalid XSLT — there is
+   * no concrete member to emit. Once a member is selected the wrapper becomes concrete
+   * and the mapping is allowed.
+   */
   private static validateChoiceRules(_source: IField, target: IField): ValidationResult {
     if (target.wrapperKind === 'choice' && target.selectedMemberIndex === undefined) {
       return {
         isValid: false,
-        errorMessage: 'Cannot map to an unselected choice. Please select a specific choice member first.',
+        errorMessage: 'Select a choice member before mapping',
       };
     }
     return { isValid: true };
   }
 
+  /**
+   * Mapping to an unconfigured abstract wrapper would produce invalid XSLT — there is
+   * no concrete element to emit. Once a substitute is selected the wrapper becomes concrete
+   * and the mapping is allowed.
+   */
   private static validateAbstractRules(_source: IField, target: IField): ValidationResult {
     if (target.wrapperKind === 'abstract' && target.selectedMemberQName === undefined) {
       return {
         isValid: false,
-        errorMessage: 'Cannot map to an unselected abstract element. Please select a concrete candidate first.',
+        errorMessage: 'Configure the abstract field before mapping',
       };
     }
     return { isValid: true };
