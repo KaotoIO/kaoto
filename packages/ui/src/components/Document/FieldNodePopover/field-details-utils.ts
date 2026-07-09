@@ -28,7 +28,11 @@ export const formatTypeQName = (typeQName: QName | null): string => {
   return namespaceURI ? `${localPart} (${namespaceURI})` : localPart;
 };
 
-export const prepareFieldDetails = (field: IField, namespaceMap: Record<string, string> = {}): LabelValuePair[] => {
+export const prepareFieldDetails = (
+  field: IField,
+  namespaceMap: Record<string, string> = {},
+  cardinalityField: IField = field,
+): LabelValuePair[] => {
   const overrideDisplay = getOverrideDisplayInfo(field, namespaceMap);
 
   const rows = [
@@ -36,11 +40,17 @@ export const prepareFieldDetails = (field: IField, namespaceMap: Record<string, 
     { label: 'Type', value: formatTypeQName(field.typeQName) },
     {
       label: 'Min Occurs',
-      value: field.minOccurs !== null && field.minOccurs !== undefined ? String(field.minOccurs) : null,
+      value:
+        cardinalityField.minOccurs !== null && cardinalityField.minOccurs !== undefined
+          ? String(cardinalityField.minOccurs)
+          : null,
     },
     {
       label: 'Max Occurs',
-      value: field.maxOccurs !== null && field.maxOccurs !== undefined ? String(field.maxOccurs) : null,
+      value:
+        cardinalityField.maxOccurs !== null && cardinalityField.maxOccurs !== undefined
+          ? String(cardinalityField.maxOccurs)
+          : null,
     },
     { label: 'Namespace', value: field.namespaceURI },
     { label: 'Attribute', value: field.isAttribute ? 'yes' : null },

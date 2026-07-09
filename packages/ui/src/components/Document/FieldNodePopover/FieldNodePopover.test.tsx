@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { IField } from '../../../models/datamapper/document';
-import { DocumentNodeData, FieldNodeData } from '../../../models/datamapper/visualization';
+import { ChoiceFieldNodeData, DocumentNodeData, FieldNodeData } from '../../../models/datamapper/visualization';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { VisualizationUtilService } from '../../../services/visualization/visualization-util.service';
 import { TestUtil } from '../../../stubs/datamapper/data-mapper';
@@ -78,6 +78,32 @@ describe('FieldNodePopover', () => {
       expect(screen.getByText('Min Occurs:')).toBeInTheDocument();
     });
     expect(screen.getByText('Max Occurs:')).toBeInTheDocument();
+  });
+
+  it('should display inherited choice wrapper cardinality for selected choice fields', async () => {
+    const user = userEvent.setup();
+    const shipOrderDoc = TestUtil.createSourceOrderDoc();
+    const documentNodeData = new DocumentNodeData(shipOrderDoc);
+    const baseField = shipOrderDoc.fields[0];
+    const selectedChoiceMember = { ...baseField, minOccurs: 1, maxOccurs: 1 } as unknown as IField;
+    const choiceWrapper = {
+      ...baseField,
+      minOccurs: 0,
+      maxOccurs: 'unbounded',
+      wrapperKind: 'choice',
+    } as unknown as IField;
+    const choiceNodeData = new ChoiceFieldNodeData(documentNodeData, selectedChoiceMember);
+    choiceNodeData.choiceField = choiceWrapper;
+
+    render(<FieldNodePopover nodeData={choiceNodeData} />, { wrapper });
+
+    const button = screen.getByRole('button');
+    await user.click(button);
+
+    await waitFor(() => {
+      expect(screen.getByText('Max Occurs:')).toBeInTheDocument();
+    });
+    expect(screen.getByText('unbounded')).toBeInTheDocument();
   });
 
   it('should not display popover when enabled is false', () => {

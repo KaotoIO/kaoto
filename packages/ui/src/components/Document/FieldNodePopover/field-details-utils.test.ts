@@ -222,6 +222,22 @@ describe('field-details-utils', () => {
       expect(result).toContainEqual({ label: 'Max Occurs', value: 'unbounded' });
     });
 
+    it('should use the cardinality field for occurrence details', () => {
+      const field = createMockField({
+        minOccurs: 1,
+        maxOccurs: 1,
+      });
+      const choiceWrapper = createMockField({
+        minOccurs: 0,
+        maxOccurs: 'unbounded',
+        wrapperKind: 'choice',
+      });
+      const result = prepareFieldDetails(field, {}, choiceWrapper);
+
+      expect(result).toContainEqual({ label: 'Min Occurs', value: '0' });
+      expect(result).toContainEqual({ label: 'Max Occurs', value: 'unbounded' });
+    });
+
     it('should call getOverrideDisplayInfo with field and namespaceMap', () => {
       const field = createMockField();
       const namespaceMap = { 'http://example.com': 'ex' };

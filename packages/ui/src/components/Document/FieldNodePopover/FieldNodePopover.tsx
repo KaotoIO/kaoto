@@ -37,7 +37,9 @@ export const FieldNodePopover: FunctionComponent<FieldNodePopoverProps> = ({
     return null;
   }
 
-  const detailItems = prepareFieldDetails(field, namespaceMap);
+  const cardinalityField =
+    VisualizationUtilService.isSelectedChoiceField(nodeData) && nodeData.choiceField ? nodeData.choiceField : field;
+  const detailItems = prepareFieldDetails(field, namespaceMap, cardinalityField);
 
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
