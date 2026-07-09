@@ -35,6 +35,9 @@ export class VisualizationUtilService {
     if (VisualizationUtilService.isChoiceField(nodeData)) {
       return !!nodeData.choiceField && DocumentService.isCollectionField(nodeData.choiceField);
     }
+    if (VisualizationUtilService.isAbstractField(nodeData)) {
+      return !!nodeData.abstractField && DocumentService.isCollectionField(nodeData.abstractField);
+    }
     return false;
   }
 

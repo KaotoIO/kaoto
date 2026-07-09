@@ -123,6 +123,26 @@ describe('VisualizationUtilService', () => {
     it('should return false for DocumentNodeData', () => {
       expect(VisualizationUtilService.isCollectionField(sourceDocNode)).toBe(false);
     });
+
+    it('should return true for selected abstract field when wrapper is collection', () => {
+      const wrapperField = createMockField(sourceDoc.fields[0], {
+        maxOccurs: 'unbounded',
+      });
+      const substituteField = createMockField(sourceDoc.fields[0], { name: 'Cat', maxOccurs: 1 });
+      const abstractNode = new AbstractFieldNodeData(sourceDocNode, substituteField);
+      abstractNode.abstractField = wrapperField;
+      expect(VisualizationUtilService.isCollectionField(abstractNode)).toBe(true);
+    });
+
+    it('should return false for selected abstract field when wrapper is not collection', () => {
+      const wrapperField = createMockField(sourceDoc.fields[0], {
+        maxOccurs: 1,
+      });
+      const substituteField = createMockField(sourceDoc.fields[0], { name: 'Cat', maxOccurs: 1 });
+      const abstractNode = new AbstractFieldNodeData(sourceDocNode, substituteField);
+      abstractNode.abstractField = wrapperField;
+      expect(VisualizationUtilService.isCollectionField(abstractNode)).toBe(false);
+    });
   });
 
   describe('isAttributeField', () => {

@@ -198,8 +198,9 @@ export class MappingService {
     }, [] as MappingItem[]);
   }
 
-  private static updateFieldItemField(item: FieldItem, newField: IField): FieldItem {
-    const updated = MappingService.createFieldItem(item.parent, newField);
+  static updateFieldItemField(item: FieldItem, newField: IField): FieldItem {
+    const updated = new FieldItem(item.parent, newField);
+    updated.isUserCreated = item.isUserCreated;
     MappingService.adaptChildren(item, updated);
     item.parent.children = item.parent.children.map((child) => (child === item ? updated : child));
     return updated;
