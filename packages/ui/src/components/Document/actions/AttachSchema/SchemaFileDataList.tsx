@@ -20,10 +20,15 @@ import { FunctionComponent, useCallback, useMemo, useState } from 'react';
 
 import { getFileName } from '../utils';
 
+export interface SchemaFileMessage {
+  text: string;
+  severity: 'error' | 'warning';
+}
+
 export interface SchemaFileItem {
   filePath?: string;
   status: 'success' | 'warning' | 'error';
-  messages: string[];
+  messages: SchemaFileMessage[];
 }
 
 type SchemaFileDataListProps = {
@@ -119,7 +124,7 @@ export const SchemaFileDataList: FunctionComponent<SchemaFileDataListProps> = ({
       >
         {filteredItems.map((item, idx) => {
           const key = item.filePath ?? `global-${item.status}-${idx}`;
-          const displayName = item.filePath ? getFileName(item.filePath) : item.messages[0];
+          const displayName = item.filePath ? getFileName(item.filePath) : (item.messages[0]?.text ?? '');
           const labelId = item.filePath ? `file-${displayName}` : `global-${item.status}-msg-${idx}`;
 
           return (
@@ -144,8 +149,8 @@ export const SchemaFileDataList: FunctionComponent<SchemaFileDataListProps> = ({
                       {item.filePath && item.messages.length > 0 && (
                         <HelperText>
                           {item.messages.map((msg, msgIdx) => (
-                            <HelperTextItem key={`${item.filePath}-msg-${msgIdx}`} variant={item.status}>
-                              {msg}
+                            <HelperTextItem key={`${item.filePath}-msg-${msgIdx}`} variant={msg.severity}>
+                              {msg.text}
                             </HelperTextItem>
                           ))}
                         </HelperText>
