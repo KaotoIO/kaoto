@@ -4,6 +4,7 @@ import {
   DocumentDefinitionType,
   DocumentType,
   IDocument,
+  PrimitiveDocument,
 } from '../../models/datamapper/document';
 import {
   ChooseItem,
@@ -12,6 +13,7 @@ import {
   IfItem,
   MappingTree,
   ValueSelector,
+  ValueType,
   VariableItem,
 } from '../../models/datamapper/mapping';
 import {
@@ -612,6 +614,81 @@ describe('VisualizationService', () => {
       const result = VisualizationService.validateParameterName('my param', new Map());
       expect(result.status).toEqual(NameValidationStatus.ERROR);
       expect(result.error).toContain('valid QName');
+    });
+  });
+
+  describe('isInlineValueSelector()', () => {
+    it('should return true for VALUE ValueSelector', () => {
+      const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
+      const vs = new ValueSelector(fieldItem, ValueType.VALUE);
+      expect(VisualizationService.isInlineValueSelector(vs)).toBe(true);
+    });
+
+    it('should return true for ATTRIBUTE ValueSelector', () => {
+      const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
+      const vs = new ValueSelector(fieldItem, ValueType.ATTRIBUTE);
+      expect(VisualizationService.isInlineValueSelector(vs)).toBe(true);
+    });
+
+    it('should return true for CONTAINER ValueSelector', () => {
+      const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
+      const vs = new ValueSelector(fieldItem, ValueType.CONTAINER);
+      expect(VisualizationService.isInlineValueSelector(vs)).toBe(true);
+    });
+
+    it('should return false for CONTAINER_NODE ValueSelector', () => {
+      const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
+      const vs = new ValueSelector(fieldItem, ValueType.CONTAINER_NODE);
+      expect(VisualizationService.isInlineValueSelector(vs)).toBe(false);
+    });
+
+    it('should return false for non-ValueSelector MappingItem', () => {
+      const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
+      expect(VisualizationService.isInlineValueSelector(fieldItem)).toBe(false);
+    });
+  });
+
+  describe('copy-of tree-node rendering', () => {
+    it('should show CONTAINER_NODE copy-of as tree node in hasChildren', () => {
+      const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
+      tree.children.push(fieldItem);
+      const vs = new ValueSelector(fieldItem, ValueType.CONTAINER_NODE);
+      fieldItem.children.push(vs);
+      targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+      const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+      expect(VisualizationService.hasChildren(docChildren[0])).toBe(true);
+    });
+
+    it('should not show inline VALUE ValueSelector as tree node child', () => {
+      const shipOrderFI = new FieldItem(tree, targetDoc.fields[0]);
+      tree.children.push(shipOrderFI);
+      const orderPersonField = targetDoc.fields[0].fields[0];
+      const orderPersonFI = new FieldItem(shipOrderFI, orderPersonField);
+      shipOrderFI.children.push(orderPersonFI);
+      const vs = new ValueSelector(orderPersonFI, ValueType.VALUE);
+      orderPersonFI.children.push(vs);
+      targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+      const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+      const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+      const orderPersonNode = shipOrderChildren.find((c) => c.title === orderPersonField.name) as FieldItemNodeData;
+      expect(VisualizationService.hasChildren(orderPersonNode)).toBe(false);
+    });
+
+    it('should show CONTAINER_NODE copy-of as tree node in primitive document children', () => {
+      const primitiveTargetDoc = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+      );
+      const primitiveTree = new MappingTree(
+        primitiveTargetDoc.documentType,
+        primitiveTargetDoc.documentId,
+        DocumentDefinitionType.Primitive,
+      );
+      const vs = new ValueSelector(primitiveTree, ValueType.CONTAINER_NODE);
+      primitiveTree.children.push(vs);
+      const primitiveDocNode = new TargetDocumentNodeData(primitiveTargetDoc, primitiveTree);
+      const children = VisualizationService.generatePrimitiveDocumentChildren(primitiveDocNode);
+      const copyOfNode = children.find((c) => c instanceof MappingNodeData && c.mapping instanceof ValueSelector);
+      expect(copyOfNode).toBeDefined();
     });
   });
 });

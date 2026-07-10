@@ -11,6 +11,7 @@ import {
   MappingTree,
   UnknownMappingItem,
   ValueSelector,
+  ValueType,
   VariableItem,
 } from '../../models/datamapper/mapping';
 import {
@@ -114,7 +115,7 @@ export class VisualizationService {
   static generatePrimitiveDocumentChildren(document: DocumentNodeData): NodeData[] {
     if (!(document instanceof TargetDocumentNodeData) || !document.mapping?.children) return [];
     return document.mapping.children
-      .filter((child) => !(child instanceof ValueSelector))
+      .filter((child) => !VisualizationService.isInlineValueSelector(child))
       .map((child) => VisualizationService.createNodeDataFromMappingItem(document, child));
   }
 
@@ -181,7 +182,8 @@ export class VisualizationService {
     if (mappings) {
       let filterPriorityMappingItem = (m: MappingItem) => m instanceof UnknownMappingItem || m instanceof VariableItem;
       if (parent.isPrimitive) {
-        filterPriorityMappingItem = (m: MappingItem) => m instanceof UnknownMappingItem || m instanceof ValueSelector;
+        filterPriorityMappingItem = (m: MappingItem) =>
+          m instanceof UnknownMappingItem || VisualizationService.isInlineValueSelector(m);
       }
       for (const m of mappings.filter(filterPriorityMappingItem)) {
         answer.push(VisualizationService.createNodeDataFromMappingItem(parent as TargetNodeData, m));
@@ -227,7 +229,7 @@ export class VisualizationService {
         if (
           !rendered.has(m) &&
           !(m instanceof FieldItem) &&
-          !(m instanceof ValueSelector) &&
+          !VisualizationService.isInlineValueSelector(m) &&
           !(m instanceof VariableItem) &&
           !(m instanceof UnknownMappingItem)
         ) {
@@ -377,7 +379,7 @@ export class VisualizationService {
       if (DocumentService.hasFields(nodeData.document)) return true;
       const isPrimitiveDocument = nodeData instanceof TargetDocumentNodeData && nodeData.isPrimitive;
       const isPrimitiveDocumentWithConditionItem =
-        isPrimitiveDocument && nodeData.mapping.children.some((m) => !(m instanceof ValueSelector));
+        isPrimitiveDocument && nodeData.mapping.children.some((m) => !VisualizationService.isInlineValueSelector(m));
       if (isPrimitiveDocumentWithConditionItem) return true;
     }
     if (nodeData instanceof FieldNodeData) {
@@ -389,7 +391,7 @@ export class VisualizationService {
     if (nodeData instanceof FieldItemNodeData)
       return (
         DocumentService.hasChildren(nodeData.field) ||
-        nodeData.mapping.children.some((m) => !(m instanceof ValueSelector))
+        nodeData.mapping.children.some((m) => !VisualizationService.isInlineValueSelector(m))
       );
     if (nodeData instanceof MappingNodeData) return nodeData.mapping.children.length > 0;
     return false;
@@ -419,9 +421,16 @@ export class VisualizationService {
     return VisualizationService.getFieldValueSelector(nodeData);
   }
 
+  static isInlineValueSelector(item: MappingItem): item is ValueSelector {
+    if (!(item instanceof ValueSelector)) return false;
+    return item.valueType !== ValueType.CONTAINER_NODE;
+  }
+
   private static getFieldValueSelector(nodeData: TargetNodeData) {
     if (nodeData.mapping instanceof FieldItem || nodeData.mapping instanceof MappingTree) {
-      return nodeData.mapping.children.find((c) => c instanceof ValueSelector) as ValueSelector;
+      return nodeData.mapping.children.find((c) => VisualizationService.isInlineValueSelector(c)) as
+        | ValueSelector
+        | undefined;
     }
   }
 

@@ -62,6 +62,14 @@ export class MappingActionService {
     return nodeData.mapping?.children.some((c) => c instanceof ValueSelector) ?? false;
   }
 
+  static hasValueOfSelector(nodeData: TargetNodeData) {
+    return (
+      nodeData.mapping?.children.some(
+        (c) => c instanceof ValueSelector && (c.valueType === ValueType.VALUE || c.valueType === ValueType.ATTRIBUTE),
+      ) ?? false
+    );
+  }
+
   /**
    * Removes the mapping item associated with the node from the mapping tree.
    * No-op if the node has no mapping.
@@ -309,6 +317,34 @@ export class MappingActionService {
     }
   }
 
+  static applyValueOfSelector(nodeData: TargetNodeData) {
+    const mapping =
+      nodeData instanceof TargetFieldNodeData && !nodeData.mapping
+        ? MappingActionService.getOrCreateFieldItem(nodeData)
+        : nodeData.mapping;
+    if (!mapping) return;
+    const hasExisting = mapping.children.some(
+      (c) => c instanceof ValueSelector && (c.valueType === ValueType.VALUE || c.valueType === ValueType.ATTRIBUTE),
+    );
+    if (hasExisting) return;
+    const valueType =
+      nodeData instanceof TargetFieldNodeData && nodeData.field.isAttribute ? ValueType.ATTRIBUTE : ValueType.VALUE;
+    const valueSelector = new ValueSelector(mapping, valueType);
+    mapping.children.push(valueSelector);
+    useDocumentTreeStore.getState().requestXPathInputFocus(mapping.nodePath.toString());
+  }
+
+  static applyCopyOfSelector(nodeData: TargetNodeData) {
+    const mapping =
+      nodeData instanceof TargetFieldNodeData && !nodeData.mapping
+        ? MappingActionService.getOrCreateFieldItem(nodeData)
+        : nodeData.mapping;
+    if (!mapping) return;
+    const copyOfSelector = new ValueSelector(mapping, ValueType.CONTAINER_NODE);
+    mapping.children.push(copyOfSelector);
+    useDocumentTreeStore.getState().requestXPathInputFocus(mapping.nodePath.toString());
+  }
+
   /**
    * Creates a mapping connection from a source node to a target node in the mapping tree.
    * Handles choice-to-field mappings (auto-generating choose/when/otherwise) as well as
@@ -334,6 +370,7 @@ export class MappingActionService {
 
     if (MappingActionService.isFieldNode(targetNode)) {
       const item = MappingActionService.getOrCreateFieldItem(targetNode);
+      MappingActionService.removeParentContainerCopyOf(item);
       MappingService.mapToField(sourceField, item);
     } else if (targetNode instanceof MappingNodeData) {
       MappingService.mapToCondition(targetNode.mapping, sourceField);
@@ -481,11 +518,11 @@ export class MappingActionService {
     const forEachItem = new ForEachItem(parentOfItem);
     MappingService.mapToCondition(forEachItem, sourceField);
 
+    const innerFieldItem = MappingService.createFieldItem(forEachItem, targetField);
     if (FieldMatchingService.canUseCopyOf(sourceField, targetField)) {
       const valueType = MappingService.getContainerValueType(sourceField, targetField);
-      MappingService.mapToFieldWithValueType(sourceField, forEachItem, valueType);
+      MappingService.mapToFieldWithValueType(sourceField, innerFieldItem, valueType);
     } else {
-      const innerFieldItem = MappingService.createFieldItem(forEachItem, targetField);
       MappingService.generateAutoChildMappings(sourceField, targetField, innerFieldItem);
     }
 
@@ -560,6 +597,14 @@ export class MappingActionService {
     }
     const parentItem = MappingActionService.getOrCreateFieldItem(fieldNodeData.parent);
     return MappingService.createFieldItem(parentItem, fieldNodeData.field);
+  }
+
+  private static removeParentContainerCopyOf(item: MappingItem): void {
+    const parent = item.parent;
+    if (!(parent instanceof MappingItem)) return;
+    parent.children = parent.children.filter(
+      (c) => !(c instanceof ValueSelector && c.valueType === ValueType.CONTAINER),
+    );
   }
 
   private static allowForEachCurrentGroup(nodeData: TargetNodeData): boolean {
@@ -655,9 +700,9 @@ export class MappingActionService {
     {
       key: MappingActionKind.ValueSelector,
       testId: 'transformation-actions-selector',
-      getLabel: () => 'Add selector expression',
+      getLabel: () => 'Add value selector (value-of)',
       apply: (n, { onUpdate }) => {
-        MappingActionService.applyValueSelector(n);
+        MappingActionService.applyValueOfSelector(n);
         onUpdate();
       },
       isAllowed: (n) => {
@@ -671,7 +716,27 @@ export class MappingActionService {
           UnknownMappingItem,
         )(n);
       },
-      isDisabled: (n) => MappingActionService.hasValueSelector(n),
+      isDisabled: (n) => MappingActionService.hasValueOfSelector(n),
+    },
+    {
+      key: MappingActionKind.CopyOfSelector,
+      testId: 'transformation-actions-copy-of',
+      getLabel: () => 'Add copy selector (copy-of)',
+      apply: (n, { onUpdate }) => {
+        MappingActionService.applyCopyOfSelector(n);
+        onUpdate();
+      },
+      isAllowed: (n) => {
+        if (n instanceof AddMappingNodeData) return false;
+        if (!MappingActionService.isMappingNode(n)) return true;
+        return !MappingActionService.mappingIsOneOf(
+          ValueSelector,
+          ForEachItem,
+          ForEachGroupItem,
+          ChooseItem,
+          UnknownMappingItem,
+        )(n);
+      },
     },
     {
       key: MappingActionKind.When,

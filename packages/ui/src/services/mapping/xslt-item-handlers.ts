@@ -31,10 +31,7 @@ export class ValueSelectorHandler implements XsltItemHandler<ValueSelector> {
     const doc = parent.ownerDocument;
     if (mapping.valueType === ValueType.CONTAINER || mapping.valueType === ValueType.CONTAINER_NODE) {
       const copyOf = doc.createElementNS(NS_XSL, 'copy-of');
-      // For CONTAINER_NODE, append /node() to select only children (xs:anyType scenarios)
-      const selectExpression =
-        mapping.valueType === ValueType.CONTAINER_NODE ? `${mapping.expression}/node()` : mapping.expression;
-      copyOf.setAttribute('select', selectExpression);
+      copyOf.setAttribute('select', mapping.expression);
       parent.appendChild(copyOf);
       return copyOf;
     }
@@ -51,11 +48,9 @@ export class ValueSelectorHandler implements XsltItemHandler<ValueSelector> {
   ): DeserializeItemResult<ValueSelector> {
     switch (element.localName) {
       case 'copy-of': {
-        const rawSelect = element.getAttribute('select') || '';
-        const isNodeCopy = rawSelect.endsWith('/node()');
-        const valueType = isNodeCopy ? ValueType.CONTAINER_NODE : ValueType.CONTAINER;
+        const valueType = parentMapping instanceof FieldItem ? ValueType.CONTAINER_NODE : ValueType.CONTAINER;
         const selector = new ValueSelector(parentMapping, valueType);
-        selector.expression = isNodeCopy ? rawSelect.slice(0, -7) : rawSelect;
+        selector.expression = element.getAttribute('select') || '';
         return { mappingItem: selector, fieldItem: null };
       }
       case 'text': {
@@ -94,7 +89,10 @@ export class FieldItemHandler implements XsltItemHandler<FieldItem> {
       (c) => c instanceof ValueSelector && c.valueType === ValueType.CONTAINER,
     );
     const hasChildFieldItems = mapping.children.some((c) => c instanceof FieldItem);
-    if (hasContainerCopyOf && !hasChildFieldItems) return parent;
+    const hasValueOf = mapping.children.some(
+      (c) => c instanceof ValueSelector && (c.valueType === ValueType.VALUE || c.valueType === ValueType.ATTRIBUTE),
+    );
+    if (hasContainerCopyOf && !hasChildFieldItems && !hasValueOf) return parent;
 
     const jsonElement = MappingSerializerJsonAddon.populateFieldItem(parent, mapping);
     if (jsonElement) return jsonElement;

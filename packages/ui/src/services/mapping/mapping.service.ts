@@ -679,6 +679,9 @@ export class MappingService {
     const valueSelector = MappingService.ensureValueSelector(targetFieldItem, valueType);
     valueSelector.valueType = valueType;
     MappingService.applySourceExpression(source, targetFieldItem, valueSelector);
+    if (valueType === ValueType.CONTAINER_NODE && !valueSelector.expression.endsWith('/node()')) {
+      valueSelector.expression = `${valueSelector.expression}/node()`;
+    }
   }
 
   private static ensureValueSelector(targetFieldItem: MappingItem, valueType?: ValueType): ValueSelector {

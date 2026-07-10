@@ -8,6 +8,7 @@ import type { TargetNodeData } from './visualization';
 export enum MappingActionKind {
   ContextMenu = 'conditionMenu',
   ValueSelector = 'valueSelector',
+  CopyOfSelector = 'copyOfSelector',
   If = 'if',
   Choose = 'choose',
   ForEach = 'forEach',
