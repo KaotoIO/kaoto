@@ -55,7 +55,7 @@ describe('MappingContextMenuAction', () => {
       new FieldItem(mappingTree, targetDoc.fields[0]),
     );
     const onUpdateMock = vi.fn();
-    const spyOnApply = vi.spyOn(MappingActionService, 'applyValueSelector');
+    const spyOnApply = vi.spyOn(MappingActionService, 'applyValueOfSelector');
     render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     act(() => {

@@ -316,15 +316,27 @@ export class SortItem {
   }
 }
 
-/** Distinguishes how a {@link ValueSelector} produces its output in the generated XSLT. */
+/**
+ * Distinguishes how a {@link ValueSelector} produces its output in the generated XSLT
+ * and how it is rendered in the visualization tree.
+ *
+ * Rendering rules:
+ * - `VALUE` / `ATTRIBUTE` — always rendered **inline** (XPath input on the field row).
+ * - `CONTAINER` — always rendered **inline**. Used for 1-to-1 container copy-of
+ *   from DnD. `FieldItemHandler` skips target element creation so `xsl:copy-of`
+ *   appears directly under the parent XSLT element.
+ * - `CONTAINER_NODE` — always rendered as a dedicated **tree node**. Used for
+ *   explicit copy-of added from the context menu or xs:anyType mappings. Target
+ *   element is always created, with `xsl:copy-of` nested inside it.
+ */
 export enum ValueType {
-  /** Emits a text value via `xsl:value-of`. */
+  /** Emits a text value via `xsl:value-of`. Always rendered inline. */
   VALUE = 'value',
-  /** Emits a structured element container via `xsl:copy-of`. */
+  /** Emits `xsl:copy-of`. Always inline — `FieldItemHandler` skips target element creation. */
   CONTAINER = 'container',
-  /** Emits container children only via `xsl:copy-of select="path/node()"` (for xs:anyType scenarios). */
+  /** Emits `xsl:copy-of` inside a target element. Always rendered as a tree node. */
   CONTAINER_NODE = 'container_node',
-  /** Emits an XML attribute. */
+  /** Emits an XML attribute. Always rendered inline. */
   ATTRIBUTE = 'attribute',
 }
 
@@ -332,6 +344,10 @@ export enum ValueType {
  * Leaf node that supplies the value for a target {@link FieldItem}.
  * Serializes as `xsl:value-of` for scalar values and attributes,
  * or `xsl:copy-of` for container nodes, depending on {@link valueType}.
+ *
+ * A ValueSelector may render either inline on its parent field row or as a
+ * dedicated tree node in the target visualization. The rendering mode is
+ * determined solely by {@link valueType} — see {@link ValueType}.
  */
 export class ValueSelector extends MappingItem implements IExpressionHolder {
   constructor(

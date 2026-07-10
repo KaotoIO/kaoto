@@ -6,7 +6,7 @@
   <xs:complexType name="TypeA">
     <xs:sequence>
       <xs:element name="fieldA1" type="xs:string"/>
-      <xs:element name="fieldA2" type="xs:int"/>
+      <xs:element name="fieldA2" type="xs:integer"/>
     </xs:sequence>
   </xs:complexType>
 </xs:schema>

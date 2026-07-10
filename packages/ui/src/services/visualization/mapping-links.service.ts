@@ -66,7 +66,8 @@ export class MappingLinksService {
         if (
           item instanceof FieldItem &&
           !(item.field.ownerDocument instanceof PrimitiveDocument) &&
-          child instanceof ValueSelector
+          child instanceof ValueSelector &&
+          child.valueType !== ValueType.CONTAINER_NODE
         ) {
           const links = MappingLinksService.doExtractMappingLinks(
             child,
@@ -222,7 +223,11 @@ export class MappingLinksService {
     const childFieldItems = item.children.filter((c): c is FieldItem => c instanceof FieldItem);
 
     const vs = item.children.find((c) => c instanceof ValueSelector) as ValueSelector | undefined;
-    if (childFieldItems.length === 0 && vs?.valueType === ValueType.CONTAINER) {
+    if (
+      childFieldItems.length === 0 &&
+      vs &&
+      (vs.valueType === ValueType.CONTAINER || vs.valueType === ValueType.CONTAINER_NODE)
+    ) {
       return MappingLineStyle.COPY_OF;
     }
 
