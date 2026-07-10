@@ -10,7 +10,7 @@ import {
   Radio,
   SearchInput,
 } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useMemo, useRef, useState } from 'react';
+import { FunctionComponent, useCallback, useMemo, useState } from 'react';
 
 import { DataMapperModal } from '../../DataMapper/DataMapperModal';
 import { MemberSelection, WrapperCandidate } from './FieldContextMenu/types';
@@ -46,7 +46,6 @@ export const WrapperSelectionModal: FunctionComponent<WrapperSelectionModalProps
 }) => {
   const [selected, setSelected] = useState<string | undefined>(selectedKey ?? undefined);
   const [searchFilter, setSearchFilter] = useState('');
-  const listRef = useRef<HTMLDivElement>(null);
 
   const showSearch = candidates.length > SEARCH_THRESHOLD;
 
@@ -92,7 +91,7 @@ export const WrapperSelectionModal: FunctionComponent<WrapperSelectionModalProps
             />
           </div>
         )}
-        <div ref={listRef} className="wrapper-selection-modal__candidate-list" data-testid={testId}>
+        <div className="wrapper-selection-modal__candidate-list" data-testid={testId}>
           {filteredCandidates.map((candidate) => (
             <div key={candidate.key} className="wrapper-selection-modal__candidate-item">
               <Radio
