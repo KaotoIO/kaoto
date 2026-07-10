@@ -5,9 +5,11 @@ import { useCallback, useMemo, useState } from 'react';
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { IField } from '../../../../models/datamapper/document';
 import { IFieldSubstituteInfo } from '../../../../models/datamapper/types';
-import { NodeData } from '../../../../models/datamapper/visualization';
+import { NodeData, TargetNodeData } from '../../../../models/datamapper/visualization';
 import { DocumentUtilService } from '../../../../services/document/document-util.service';
 import { FieldOverrideService } from '../../../../services/document/field-override.service';
+import { SchemaPathService } from '../../../../services/schema-path.service';
+import { MappingActionService } from '../../../../services/visualization/mapping-action.service';
 import { MenuAction, MenuGroup } from '../FieldContextMenu';
 import { SubstitutionSelectionModal } from '../SubstitutionSelectionModal';
 import { buildSelectSelfAction, findCandidateQName, resolveAbstractFieldInfo } from './menu-utils';
@@ -88,24 +90,36 @@ export function useAbstractFieldSubstitutionMenu(nodeData: NodeData): MenuContri
     return findCandidateQName(candidates, selectedField);
   }, [abstractWrapperField, candidates]);
 
+  const isTargetSide = !nodeData.isSource;
+
   const applySubstitution = useCallback(
     (field: IField, qname: string) => {
       FieldOverrideService.applyFieldSubstitution(field, qname, mappingTree.namespaceMap);
+
+      if (isTargetSide) {
+        const selectedMember = DocumentUtilService.getSelectedMember(field);
+        if (selectedMember) MappingActionService.applyTargetSelection(nodeData as TargetNodeData, selectedMember);
+      }
+
       const doc = field.ownerDocument;
       const previousRefId = doc.getReferenceId(mappingTree.namespaceMap);
       updateDocument(doc, doc.definition, previousRefId);
     },
-    [mappingTree.namespaceMap, updateDocument],
+    [isTargetSide, mappingTree.namespaceMap, nodeData, updateDocument],
   );
 
   const applyClearSubstitution = useCallback(
     (field: IField) => {
-      FieldOverrideService.revertFieldSubstitution(field, mappingTree.namespaceMap);
+      if (isTargetSide) MappingActionService.clearTargetSelection(nodeData as TargetNodeData, field);
+
       const doc = field.ownerDocument;
+      const schemaPath = SchemaPathService.build(field, mappingTree.namespaceMap);
+      DocumentUtilService.invalidateDescendants(doc, schemaPath);
+      FieldOverrideService.revertFieldSubstitution(field, mappingTree.namespaceMap);
       const previousRefId = doc.getReferenceId(mappingTree.namespaceMap);
       updateDocument(doc, doc.definition, previousRefId);
     },
-    [mappingTree.namespaceMap, updateDocument],
+    [isTargetSide, mappingTree.namespaceMap, nodeData, updateDocument],
   );
 
   // Case A: select a substitute from this node's own wrapper candidate list
@@ -134,7 +148,7 @@ export function useAbstractFieldSubstitutionMenu(nodeData: NodeData): MenuContri
   }, [parentAbstractField, candidateQName, applySubstitution]);
 
   const clearSubstitutionAction: MenuAction = {
-    label: 'Show All Substitution Options',
+    label: 'Clear substitution',
     onClick: handleClearSubstitution,
     testId: 'clear-substitution',
   };
