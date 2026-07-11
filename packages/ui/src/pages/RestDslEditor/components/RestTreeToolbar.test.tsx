@@ -1,5 +1,5 @@
 import { SuggestionRegistryProvider } from '@kaoto/forms';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { CamelResourceFactory } from '../../../models/camel/camel-resource-factory';
 import { BaseVisualEntity } from '../../../models/visualization/base-visual-entity';
@@ -447,6 +447,39 @@ describe('RestTreeToolbar', () => {
       fireEvent.click(cancelButton);
 
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    it('should return focus to the Actions trigger when the modal closes', async () => {
+      const camelResource = CamelResourceFactory.createCamelResource(`
+- rest:
+    id: rest-1234
+      `);
+      await camelResource.initialize();
+
+      const entities = getRestEntities(camelResource.getEntities());
+
+      render(
+        <TestWrapper>
+          <RestTreeToolbar
+            entities={entities}
+            selectedElement={{ entityId: 'rest-1234', modelPath: 'rest' }}
+            onAddRestConfiguration={mockOnAddRestConfiguration}
+            onAddRest={mockOnAddRest}
+            onAddMethod={mockOnAddMethod}
+            onDelete={mockOnDelete}
+          />
+        </TestWrapper>,
+      );
+
+      await clickToolbarActionUtil('Add Operation');
+
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Actions' })).toHaveFocus();
+      });
     });
 
     it('should receive onAddMethod callback prop', async () => {
