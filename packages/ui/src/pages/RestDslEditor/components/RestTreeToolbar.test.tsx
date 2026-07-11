@@ -506,7 +506,9 @@ describe('RestTreeToolbar', () => {
               selectedElement={{ entityId: 'rest-1234', modelPath: 'rest' }}
               onAddRestConfiguration={mockOnAddRestConfiguration}
               onAddRest={mockOnAddRest}
-              onAddMethod={() => setGeneration((previous) => previous + 1)}
+              onAddMethod={() => {
+                setGeneration((previous) => previous + 1);
+              }}
               onDelete={mockOnDelete}
             />
           </TestWrapper>
