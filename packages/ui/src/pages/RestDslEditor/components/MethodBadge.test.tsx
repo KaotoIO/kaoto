@@ -32,4 +32,10 @@ describe('MethodBadge', () => {
     render(<MethodBadge type="patch" />);
     expect(screen.getByText('PATCH')).toBeInTheDocument();
   });
+
+  it('does not render a focusable element since the badge is decorative', () => {
+    const { container } = render(<MethodBadge type="get" />);
+
+    expect(container.querySelector('button')).toBeNull();
+  });
 });
