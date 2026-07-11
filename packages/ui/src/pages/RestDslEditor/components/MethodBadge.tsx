@@ -1,6 +1,6 @@
 import './MethodBadge.scss';
 
-import { OperationalTag } from '@carbon/react';
+import { Tag } from '@carbon/react';
 import { FunctionComponent } from 'react';
 
 type MethodBadgeProps = {
@@ -11,9 +11,11 @@ type MethodBadgeProps = {
 /**
  * Displays a colored badge for HTTP method types.
  * Each method type is assigned a specific color for visual distinction.
+ * The badge is purely decorative, so it renders a non-interactive Tag that
+ * doesn't receive keyboard focus.
  */
 export const MethodBadge: FunctionComponent<MethodBadgeProps> = ({ type }) => {
-  let badgeType = 'gray';
+  let badgeType: 'blue' | 'cyan' | 'green' | 'red' | 'teal' | 'gray' = 'gray';
 
   switch (type) {
     case 'get':
@@ -37,7 +39,9 @@ export const MethodBadge: FunctionComponent<MethodBadgeProps> = ({ type }) => {
 
   return (
     <div className="method-badge">
-      <OperationalTag size="md" text={type.toUpperCase()} type={badgeType} />
+      <Tag size="md" type={badgeType}>
+        {type.toUpperCase()}
+      </Tag>
     </div>
   );
 };
