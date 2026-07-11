@@ -46,12 +46,20 @@ export const RestTreeToolbar: FunctionComponent<RestTreeToolbarProps> = ({
    * trigger, following the ARIA modal dialog pattern. The modal is conditionally
    * rendered, so ComposedModal cannot restore focus on its own; the timeout
    * mirrors Carbon's launcherButtonRef timing. MenuButton forwards its ref to
-   * the container element, hence the trigger button lookup.
+   * the container element, hence the trigger button lookup. Adding an operation
+   * can remount the toolbar before the timeout runs (the REST tree rebuilds),
+   * which nulls the ref — fall back to the rendered toolbar in that case.
    */
   const closeAddMethodModal = useCallback(() => {
     toggleOffAddMethodModal();
     setTimeout(() => {
-      menuButtonContainerRef.current?.querySelector('button')?.focus();
+      // Restore focus only when the modal actually dropped it to the body;
+      // if something else already owns focus, don't steal it.
+      const active = document.activeElement;
+      if (active && active !== document.body) return;
+
+      const container = menuButtonContainerRef.current ?? document.querySelector('.rest-tree-toolbar');
+      container?.querySelector('button')?.focus();
     });
   }, [toggleOffAddMethodModal]);
 

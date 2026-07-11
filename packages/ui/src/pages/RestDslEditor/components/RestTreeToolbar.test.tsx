@@ -1,5 +1,7 @@
 import { SuggestionRegistryProvider } from '@kaoto/forms';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { KaotoFormPageObject } from '@kaoto/forms/testing';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { useState } from 'react';
 
 import { CamelResourceFactory } from '../../../models/camel/camel-resource-factory';
 import { BaseVisualEntity } from '../../../models/visualization/base-visual-entity';
@@ -476,6 +478,51 @@ describe('RestTreeToolbar', () => {
       expect(screen.getByRole('dialog')).toBeInTheDocument();
 
       fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Actions' })).toHaveFocus();
+      });
+    });
+
+    it('returns focus to the Actions trigger even when adding remounts the toolbar', async () => {
+      const camelResource = CamelResourceFactory.createCamelResource(`
+- rest:
+    id: rest-1234
+      `);
+      await camelResource.initialize();
+
+      const entities = getRestEntities(camelResource.getEntities());
+
+      // Adding an operation rebuilds the REST tree in the page, remounting the
+      // toolbar before the focus-return timeout runs. The key bump reproduces
+      // that remount.
+      const RemountHarness = () => {
+        const [generation, setGeneration] = useState(0);
+        return (
+          <TestWrapper>
+            <RestTreeToolbar
+              key={generation}
+              entities={entities}
+              selectedElement={{ entityId: 'rest-1234', modelPath: 'rest' }}
+              onAddRestConfiguration={mockOnAddRestConfiguration}
+              onAddRest={mockOnAddRest}
+              onAddMethod={() => setGeneration((previous) => previous + 1)}
+              onDelete={mockOnDelete}
+            />
+          </TestWrapper>
+        );
+      };
+
+      render(<RemountHarness />);
+
+      await clickToolbarActionUtil('Add Operation');
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+      const formPageObject = new KaotoFormPageObject(screen, act);
+      await formPageObject.showAllFields();
+      await formPageObject.inputText('Path', '/orders');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Add' }));
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Actions' })).toHaveFocus();
