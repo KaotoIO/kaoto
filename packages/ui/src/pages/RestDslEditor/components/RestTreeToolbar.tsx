@@ -1,6 +1,6 @@
 import { Add, TrashCan } from '@carbon/icons-react';
 import { MenuButton, MenuItem, MenuItemDivider } from '@carbon/react';
-import { FunctionComponent, useMemo } from 'react';
+import { FunctionComponent, useCallback, useMemo, useRef } from 'react';
 
 import { useToggle } from '../../../hooks/useToggle';
 import { BaseVisualEntity } from '../../../models';
@@ -37,8 +37,23 @@ export const RestTreeToolbar: FunctionComponent<RestTreeToolbarProps> = ({
   const {
     state: isAddMethodModalOpen,
     toggleOn: openAddMethodModal,
-    toggleOff: closeAddMethodModal,
+    toggleOff: toggleOffAddMethodModal,
   } = useToggle(false);
+  const menuButtonContainerRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * Closes the Add Operation modal and returns keyboard focus to the "Actions"
+   * trigger, following the ARIA modal dialog pattern. The modal is conditionally
+   * rendered, so ComposedModal cannot restore focus on its own; the timeout
+   * mirrors Carbon's launcherButtonRef timing. MenuButton forwards its ref to
+   * the container element, hence the trigger button lookup.
+   */
+  const closeAddMethodModal = useCallback(() => {
+    toggleOffAddMethodModal();
+    setTimeout(() => {
+      menuButtonContainerRef.current?.querySelector('button')?.focus();
+    });
+  }, [toggleOffAddMethodModal]);
 
   /** Checks if a REST configuration already exists */
   const hasRestConfiguration = useMemo(
@@ -65,7 +80,7 @@ export const RestTreeToolbar: FunctionComponent<RestTreeToolbarProps> = ({
 
   return (
     <div className="rest-tree-toolbar">
-      <MenuButton kind="tertiary" label="Actions" data-testid="rest-tree-toolbar-menu">
+      <MenuButton ref={menuButtonContainerRef} kind="tertiary" label="Actions" data-testid="rest-tree-toolbar-menu">
         <MenuItem
           label="Add Configuration"
           renderIcon={Add}
