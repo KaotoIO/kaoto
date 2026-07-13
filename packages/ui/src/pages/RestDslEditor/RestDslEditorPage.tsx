@@ -3,7 +3,7 @@ import './RestDslEditorPage.scss';
 import { CodeSnippet } from '@carbon/react';
 import { Rest } from '@kaoto/camel-catalog/types';
 import { CanvasFormTabsProvider, FilteredFieldProvider, getCamelRandomId, KaotoForm } from '@kaoto/forms';
-import { FunctionComponent, Suspense, useCallback, useMemo, useState } from 'react';
+import { FunctionComponent, Suspense, useCallback, useMemo, useRef, useState } from 'react';
 
 import { Loading } from '../../components/Loading';
 import { ResizableSplitPanels } from '../../components/ResizableSplitPanels/ResizableSplitPanels';
@@ -11,11 +11,13 @@ import { SuggestionRegistrar } from '../../components/Visualization/Canvas/Form/
 import { useEntityContext } from '../../hooks/useEntityContext/useEntityContext';
 import { EntityType } from '../../models/entities';
 import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';
+import { AddMethodFormModel } from './components/add-method-schema';
+import { AddMethodModal } from './components/AddMethodModal';
 import { getRestEntities } from './components/get-rest-entities';
 import { RestDslFormHeader } from './components/RestDslFormHeader';
 import { restFormFieldFactory } from './components/restFormFieldFactory';
 import { IRestTreeSelection, RestTree } from './components/RestTree';
-import { RestTreeToolbar, RestTreeToolbarProps } from './components/RestTreeToolbar';
+import { RestTreeToolbar } from './components/RestTreeToolbar';
 
 const DEFAULT_TREE_PANEL_WIDTH_PERCENT = 30;
 const DEFAULT_REST_METHOD_URI = 'direct';
@@ -35,6 +37,21 @@ export const RestDslEditorPage: FunctionComponent = () => {
   const model = selectedEntity?.getNodeDefinition(selectedElement?.modelPath);
 
   const [treeVersion, setTreeVersion] = useState(0);
+
+  const [isAddMethodModalOpen, setIsAddMethodModalOpen] = useState(false);
+  const [addMethodModalKey, setAddMethodModalKey] = useState(0);
+  const launcherButtonRef = useRef<HTMLButtonElement>(null);
+
+  /** Opens the Add Operation modal, resetting its form each time */
+  const openAddMethodModal = useCallback(() => {
+    setAddMethodModalKey((key) => key + 1);
+    setIsAddMethodModalOpen(true);
+  }, []);
+
+  /** Closes the Add Operation modal */
+  const closeAddMethodModal = useCallback(() => {
+    setIsAddMethodModalOpen(false);
+  }, []);
 
   /** Handles changes to individual properties in the form editor */
   const handleOnChangeIndividualProp = useCallback(
@@ -71,8 +88,8 @@ export const RestDslEditorPage: FunctionComponent = () => {
   }, [camelResource, updateEntitiesFromCamelResource]);
 
   /** Adds a new REST method to the selected REST service */
-  const handleAddMethod: RestTreeToolbarProps['onAddMethod'] = useCallback(
-    (model) => {
+  const handleAddMethod = useCallback(
+    (model: AddMethodFormModel) => {
       if (!selectedEntity || !(selectedEntity instanceof CamelRestVisualEntity)) return;
 
       const restDefinition = selectedEntity.toJSON().rest;
@@ -115,66 +132,86 @@ export const RestDslEditorPage: FunctionComponent = () => {
   }, [selectedEntity, selectedElement, updateEntitiesFromCamelResource, camelResource]);
 
   return (
-    <ResizableSplitPanels
-      defaultLeftWidth={DEFAULT_TREE_PANEL_WIDTH_PERCENT}
-      leftPanel={
-        <RestTree
-          entities={restRelatedEntities}
-          selected={selectedElement}
-          onSelect={setSelectedElement}
-          key={treeVersion}
-        >
-          <RestTreeToolbar
+    <>
+      <ResizableSplitPanels
+        defaultLeftWidth={DEFAULT_TREE_PANEL_WIDTH_PERCENT}
+        leftPanel={
+          <RestTree
             entities={restRelatedEntities}
-            selectedElement={selectedElement}
-            onAddRestConfiguration={handleAddRestConfiguration}
-            onAddRest={handleAddRest}
-            onAddMethod={handleAddMethod}
-            onDelete={handleDelete}
-          />
-        </RestTree>
-      }
-      rightPanel={
-        <div className="rest-right-panel">
-          {!selectedElement?.entityId && <div>Select an entity from the list to edit its configuration</div>}
-          {selectedElement && (
-            <>
-              <div className="form-rest-title">
-                <span>Edit </span>
-                <span>{selectedElement.entityId} </span>
-                {selectedElement.modelPath.startsWith('rest.') && (
-                  <>
-                    <span>/ {selectedElement.modelPath.split('.')[1]?.toUpperCase()} /</span>
-                    <CodeSnippet feedback="Copied to clipboard" type="inline">
-                      {(model as Rest)?.path}
-                    </CodeSnippet>
-                  </>
+            selected={selectedElement}
+            onSelect={setSelectedElement}
+            key={treeVersion}
+          >
+            <RestTreeToolbar
+              entities={restRelatedEntities}
+              selectedElement={selectedElement}
+              launcherButtonRef={launcherButtonRef}
+              onAddRestConfiguration={handleAddRestConfiguration}
+              onAddRest={handleAddRest}
+              onAddMethodClick={openAddMethodModal}
+              onDelete={handleDelete}
+            />
+          </RestTree>
+        }
+        rightPanel={
+          <div className="rest-right-panel">
+            {!selectedElement?.entityId && <div>Select an entity from the list to edit its configuration</div>}
+            {selectedElement && (
+              <>
+                <div className="form-rest-title">
+                  <span>Edit </span>
+                  <span>{selectedElement.entityId} </span>
+                  {selectedElement.modelPath.startsWith('rest.') && (
+                    <>
+                      <span>/ {selectedElement.modelPath.split('.')[1]?.toUpperCase()} /</span>
+                      <CodeSnippet feedback="Copied to clipboard" type="inline">
+                        {(model as Rest)?.path}
+                      </CodeSnippet>
+                    </>
+                  )}
+                </div>
+                {!schema || Object.keys(schema).length === 0 ? (
+                  <Loading>Loading schemas...</Loading>
+                ) : (
+                  <Suspense fallback={<Loading>Loading form...</Loading>}>
+                    <CanvasFormTabsProvider tab="All">
+                      <FilteredFieldProvider key={`${selectedElement.entityId}__${selectedElement.modelPath}`}>
+                        <RestDslFormHeader />
+                        <SuggestionRegistrar>
+                          <KaotoForm
+                            key={`${selectedElement.entityId}__${selectedElement.modelPath}`}
+                            schema={schema}
+                            onChangeProp={handleOnChangeIndividualProp}
+                            model={model}
+                            customFieldsFactory={restFormFieldFactory}
+                          />
+                        </SuggestionRegistrar>
+                      </FilteredFieldProvider>
+                    </CanvasFormTabsProvider>
+                  </Suspense>
                 )}
-              </div>
-              {!schema || Object.keys(schema).length === 0 ? (
-                <Loading>Loading schemas...</Loading>
-              ) : (
-                <Suspense fallback={<Loading>Loading form...</Loading>}>
-                  <CanvasFormTabsProvider tab="All">
-                    <FilteredFieldProvider key={`${selectedElement.entityId}__${selectedElement.modelPath}`}>
-                      <RestDslFormHeader />
-                      <SuggestionRegistrar>
-                        <KaotoForm
-                          key={`${selectedElement.entityId}__${selectedElement.modelPath}`}
-                          schema={schema}
-                          onChangeProp={handleOnChangeIndividualProp}
-                          model={model}
-                          customFieldsFactory={restFormFieldFactory}
-                        />
-                      </SuggestionRegistrar>
-                    </FilteredFieldProvider>
-                  </CanvasFormTabsProvider>
-                </Suspense>
-              )}
-            </>
-          )}
-        </div>
-      }
-    />
+              </>
+            )}
+          </div>
+        }
+      />
+
+      {/*
+       * Render the modal only after it has first been opened (addMethodModalKey > 0).
+       * ComposedModal restores focus to launcherButtonRef whenever it is mounted while
+       * closed, so mounting it eagerly would steal focus to the Actions trigger on page
+       * load. Once mounted it stays mounted (page sibling, not under the keyed RestTree),
+       * so Carbon restores focus natively on Cancel, Escape and Add.
+       */}
+      {addMethodModalKey > 0 && (
+        <AddMethodModal
+          key={addMethodModalKey}
+          open={isAddMethodModalOpen}
+          launcherButtonRef={launcherButtonRef}
+          onClose={closeAddMethodModal}
+          onAddMethod={handleAddMethod}
+        />
+      )}
+    </>
   );
 };

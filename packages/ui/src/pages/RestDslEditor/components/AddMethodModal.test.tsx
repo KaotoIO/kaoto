@@ -16,7 +16,7 @@ describe('AddMethodModal', () => {
   const setupModal = async (options: { expandFields?: boolean } = {}) => {
     const { expandFields = false } = options;
 
-    renderWithProviders(<AddMethodModal onClose={mockOnClose} onAddMethod={mockOnAddMethod} />);
+    renderWithProviders(<AddMethodModal open onClose={mockOnClose} onAddMethod={mockOnAddMethod} />);
 
     const formPageObject = new KaotoFormPageObject(screen, act);
 
@@ -38,7 +38,7 @@ describe('AddMethodModal', () => {
   });
 
   it('should render modal with correct title and structure', () => {
-    renderWithProviders(<AddMethodModal onClose={mockOnClose} onAddMethod={mockOnAddMethod} />);
+    renderWithProviders(<AddMethodModal open onClose={mockOnClose} onAddMethod={mockOnAddMethod} />);
 
     expect(screen.getByText('Add REST Method')).toBeInTheDocument();
     expect(screen.getByRole('dialog')).toBeInTheDocument();
