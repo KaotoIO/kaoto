@@ -1,3 +1,4 @@
+export * from '../../custom-mode/custom-mode-visual-entity';
 export * from './camel-catalog.service';
 export * from './camel-route-visual-entity';
 export * from './citrus-test-visual-entity';

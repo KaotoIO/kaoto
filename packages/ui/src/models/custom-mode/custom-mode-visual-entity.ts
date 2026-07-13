@@ -1,3 +1,5 @@
+import { isDefined } from '@kaoto/forms';
+
 import { getCamelRandomId } from '../../camel-utils/camel-random-id';
 import { DefinedComponent } from '../camel/camel-catalog-index';
 import { EntityType } from '../entities';
@@ -12,78 +14,114 @@ import {
   NodeInteraction,
 } from '../visualization/base-visual-entity';
 import { IClipboardCopyObject } from '../visualization/clipboard';
+import { CustomModeSchemaService } from '../visualization/flows/support/custom-mode-schema.service';
+import { createVisualizationNode } from '../visualization/visualization-node';
+import { CustomInstructionsNode, CustomInstructionsParser } from './custom-instructions-parser';
 import { CustomMode } from './custom-mode-types';
 
-/**
- * Minimal shell for Epic 1. Methods required by BaseVisualEntity but not yet
- * implemented return safe no-op values. toVizNode() is implemented in Epic 2.
- */
 export class CustomModeVisualEntity implements BaseVisualEntity {
-  readonly type = EntityType.CustomMode;
   id: string;
+  readonly type = EntityType.CustomMode;
+  static readonly ROOT_PATH = 'customMode';
+
+  private parsedNodes: CustomInstructionsNode[] = [];
+  private parsedNodesDirty = false;
 
   constructor(private readonly mode: CustomMode) {
-    this.id = getCamelRandomId('custom-mode');
+    if (isDefined(mode?.slug) && mode.slug !== '') {
+      this.id = mode.slug;
+    } else {
+      this.id = getCamelRandomId('custom-mode');
+      this.mode.slug = this.id;
+    }
+    this.parsedNodes = CustomInstructionsParser.parse(mode?.customInstructions ?? '');
+  }
+
+  static isApplicable(entity: unknown): entity is CustomMode {
+    if (!isDefined(entity) || Array.isArray(entity) || typeof entity !== 'object') return false;
+    return 'slug' in entity && 'name' in entity && 'groups' in entity;
+  }
+
+  getRootPath(): string {
+    return CustomModeVisualEntity.ROOT_PATH;
   }
 
   getId(): string {
     return this.id;
   }
 
-  setId(id: string): void {
-    this.id = id;
+  setId(slug: string): void {
+    this.id = slug;
+    this.mode.slug = slug;
   }
 
-  toJSON(): CustomMode {
-    return this.mode;
+  getNodeLabel(path?: string, _labelType?: NodeLabelType): string {
+    if (!path) return '';
+    if (path === this.getRootPath()) return this.mode.name || this.id;
+    if (path.startsWith(`${this.getRootPath()}.customInstructions.`)) {
+      return path.split('.').pop() ?? '';
+    }
+    return '';
   }
 
-  getRootPath(): string {
-    return 'customMode';
-  }
-
-  getNodeLabel(_path?: string, _labelType?: NodeLabelType): string {
-    return this.mode.slug;
-  }
-
-  getNodeSchema(_path?: string): KaotoSchemaDefinition['schema'] | undefined {
+  getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined {
+    if (!path) return undefined;
+    if (path === this.getRootPath()) return CustomModeSchemaService.getRootSchema();
+    if (path.startsWith(`${this.getRootPath()}.customInstructions.`)) {
+      return CustomModeSchemaService.getNodeSchema(path.split('.').pop() ?? '');
+    }
     return undefined;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getNodeDefinition(_path?: string): any {
-    return this.mode;
-  }
-
-  getOmitFormFields(): string[] {
-    return [];
-  }
-
-  updateModel(_path: string | undefined, _value: unknown): void {
-    // no-op — Epic 2
-  }
-
-  addStep(_options: {
-    definedComponent: DefinedComponent;
-    mode: AddStepMode;
-    data: IVisualizationNodeData;
-    targetProperty?: string;
-    insertAtStart?: boolean;
-  }): void {
-    // no-op — Epic 2
-  }
-
-  getCopiedContent(_path?: string): IClipboardCopyObject | undefined {
+  getNodeDefinition(path?: string): any {
+    if (!path) return undefined;
+    if (path === this.getRootPath()) {
+      const { customInstructions: _ci, ...rest } = this.mode as CustomMode & { customInstructions?: string };
+      return rest;
+    }
+    if (path.startsWith(`${this.getRootPath()}.customInstructions.`)) {
+      const index = Number(path.replace(`${this.getRootPath()}.customInstructions.`, '').split('.')[0]);
+      return Number.isInteger(index) ? this.parsedNodes[index] : undefined;
+    }
     return undefined;
   }
 
-  pasteStep(_options: {
-    clipboardContent: IClipboardCopyObject;
-    mode: AddStepMode;
-    data: IVisualizationNodeData;
-    insertAtStart?: boolean;
-  }): void {
-    // no-op — Epic 2
+  getOmitFormFields(): string[] {
+    return ['customInstructions'];
+  }
+
+  updateModel(path: string | undefined, value: unknown): void {
+    if (!path) return;
+    if (path === this.getRootPath()) {
+      Object.assign(this.mode, value);
+      this.id = isDefined(this.mode.slug) && this.mode.slug !== '' ? this.mode.slug : this.id;
+      return;
+    }
+    if (path.startsWith(`${this.getRootPath()}.customInstructions.`)) {
+      const index = Number(path.replace(`${this.getRootPath()}.customInstructions.`, '').split('.')[0]);
+      if (Number.isInteger(index) && isDefined(this.parsedNodes[index])) {
+        this.parsedNodes[index] = value as CustomInstructionsNode;
+        this.parsedNodesDirty = true;
+      }
+    }
+  }
+
+  toJSON(): CustomMode {
+    if (this.parsedNodesDirty) {
+      this.mode.customInstructions = CustomInstructionsParser.serialize(this.parsedNodes);
+      this.parsedNodesDirty = false;
+    }
+    return this.mode;
+  }
+
+  getNodeInteraction(data: IVisualizationNodeData): NodeInteraction {
+    const isModeNode = data.path === this.getRootPath() && !data.isGroup;
+    return { ...DISABLED_NODE_INTERACTION, canRemoveFlow: isModeNode };
+  }
+
+  getNodeValidationText(_path?: string): string | undefined {
+    return undefined;
   }
 
   canDragNode(_path?: string): boolean {
@@ -94,19 +132,102 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
     return false;
   }
 
-  removeStep(_path?: string): void {
-    // no-op — Epic 2
-  }
-
-  getNodeInteraction(_data: IVisualizationNodeData): NodeInteraction {
-    return DISABLED_NODE_INTERACTION;
-  }
-
-  getNodeValidationText(_path?: string): string | undefined {
+  getCopiedContent(_path?: string): IClipboardCopyObject | undefined {
     return undefined;
   }
 
+  /** No-op — deferred to drag-and-drop epic. */
+  addStep(_options: {
+    definedComponent: DefinedComponent;
+    mode: AddStepMode;
+    data: IVisualizationNodeData;
+    targetProperty?: string;
+    insertAtStart?: boolean;
+  }): void {
+    // TODO: drag-and-drop epic
+  }
+
+  /** No-op — deferred to drag-and-drop epic. */
+  removeStep(_path?: string): void {
+    // TODO: drag-and-drop epic
+  }
+
+  /** No-op — deferred to drag-and-drop epic. */
+  pasteStep(_options: {
+    clipboardContent: IClipboardCopyObject;
+    mode: AddStepMode;
+    data: IVisualizationNodeData;
+    insertAtStart?: boolean;
+  }): void {
+    // TODO: drag-and-drop epic
+  }
+
   async toVizNode(): Promise<IVisualizationNode> {
-    throw new Error('CustomModeVisualEntity.toVizNode() — not implemented until Epic 2');
+    // 1. Mode group node — visual container
+    const modeGroupNode = createVisualizationNode(this.id, {
+      name: this.type,
+      path: this.getRootPath(),
+      entity: this,
+      isPlaceholder: false,
+      isGroup: true,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
+
+    // 2. Mode node — first child, opens the metadata form
+    const modeNode = createVisualizationNode(`${this.id}-mode`, {
+      name: this.type,
+      path: this.getRootPath(),
+      entity: this,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: this.mode.name || this.id,
+      description: this.mode.description || '',
+    });
+    modeGroupNode.addChild(modeNode);
+
+    // 3. customInstructions sibling nodes (stub: parsedNodes is always [] until Epic 7)
+    const siblings: IVisualizationNode[] = [modeNode];
+    for (let i = 0; i < this.parsedNodes.length; i++) {
+      const node = this.parsedNodes[i];
+      const path = `${this.getRootPath()}.customInstructions.${i}.${node.nodeType}`;
+      const vizNode = createVisualizationNode(path, {
+        name: node.nodeType,
+        path,
+        entity: this,
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: node.nodeType,
+        description: '',
+      });
+      modeGroupNode.addChild(vizNode);
+      siblings.push(vizNode);
+    }
+
+    // 4. Placeholder
+    const placeholderPath = `${this.getRootPath()}.customInstructions.${this.parsedNodes.length}.placeholder`;
+    const placeholderNode = createVisualizationNode(placeholderPath, {
+      name: 'placeholder',
+      path: placeholderPath,
+      entity: this,
+      isPlaceholder: true,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
+    modeGroupNode.addChild(placeholderNode);
+    siblings.push(placeholderNode);
+
+    // 5. Wire prev/next links across the flat sequence
+    for (let i = 0; i < siblings.length - 1; i++) {
+      siblings[i].setNextNode(siblings[i + 1]);
+      siblings[i + 1].setPreviousNode(siblings[i]);
+    }
+
+    return modeGroupNode;
   }
 }
