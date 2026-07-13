@@ -16,6 +16,7 @@ interface IEntitySchemaConfig {
   [SourceSchemaType.Pipe]: ISourceSchema;
   [SourceSchemaType.KameletBinding]: ISourceSchema;
   [SourceSchemaType.Integration]: ISourceSchema;
+  [SourceSchemaType.CustomMode]: ISourceSchema;
 }
 
 class SourceSchemaConfig {
@@ -59,6 +60,12 @@ class SourceSchemaConfig {
       schema: undefined,
       multipleRoute: true,
       description: 'An integration defines a Camel route in a CRD file.',
+    },
+    [SourceSchemaType.CustomMode]: {
+      name: 'Custom Mode',
+      schema: undefined,
+      multipleRoute: true,
+      description: 'Defines a Bob custom mode, including its role, instructions, and tool permissions.',
     },
   };
 

@@ -19,6 +19,7 @@ export const enum EntityType {
   Metadata = 'metadata',
   PipeErrorHandler = 'pipeErrorHandler',
   NonVisualEntity = 'nonVisualEntity',
+  CustomMode = 'customMode',
 }
 
 export interface BaseEntity {

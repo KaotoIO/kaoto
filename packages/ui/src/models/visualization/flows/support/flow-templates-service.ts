@@ -2,6 +2,7 @@ import { parse } from 'yaml';
 
 import { SourceSchemaType } from '../../../camel/source-schema-type';
 import { testTemplate } from '../templates/citrus';
+import { customModeTemplate } from '../templates/custom-mode';
 import { kameletTemplate } from '../templates/kamelet';
 import { pipeTemplate } from '../templates/pipe';
 import { routeTemplate } from '../templates/route';
@@ -24,6 +25,9 @@ export class FlowTemplateService {
 
       case SourceSchemaType.Kamelet:
         return kameletTemplate();
+
+      case SourceSchemaType.CustomMode:
+        return customModeTemplate();
 
       default:
         return '';

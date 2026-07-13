@@ -1,3 +1,4 @@
+import { CustomModeResource } from '../custom-mode/custom-mode-resource';
 import { CamelResourceFactory } from './camel-resource-factory';
 import { CamelRouteResource } from './camel-route-resource';
 import { CamelXMLRouteResource } from './camel-xml-route-resource';
@@ -67,6 +68,22 @@ describe('CamelResourceFactory', () => {
       const resource = CamelResourceFactory.createCamelResource('- from:\n    uri: direct:start\n    steps: []\n');
       expect(resource).toBeInstanceOf(CamelRouteResource);
       expect(resource).not.toBeInstanceOf(CamelXMLRouteResource);
+    });
+    it('returns CustomModeResource for custom_modes.yaml path', () => {
+      const resource = CamelResourceFactory.createCamelResource(undefined, { path: 'custom_modes.yaml' });
+      expect(resource).toBeInstanceOf(CustomModeResource);
+    });
+
+    it('returns CustomModeResource for path-prefixed custom_modes.yaml', () => {
+      const resource = CamelResourceFactory.createCamelResource(undefined, { path: '/configs/custom_modes.yaml' });
+      expect(resource).toBeInstanceOf(CustomModeResource);
+    });
+
+    it('returns CustomModeResource for yaml with customModes array (no path)', () => {
+      const yaml =
+        'customModes:\n  - slug: plan\n    name: Plan\n    description: ""\n    roleDefinition: ""\n    whenToUse: ""\n    groups: []\n';
+      const resource = CamelResourceFactory.createCamelResource(yaml);
+      expect(resource).toBeInstanceOf(CustomModeResource);
     });
   });
 });

@@ -6,7 +6,7 @@ import { CamelCatalogService, CatalogKind } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel';
 import { configureSourceSchemaTypes, TestProvidersWrapper } from '../../../../stubs';
 import { camelRouteJson } from '../../../../stubs/camel-route';
-import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../../stubs/test-load-catalog';
 import { NewEntity } from './NewEntity';
 
 describe('NewEntity', () => {
@@ -17,6 +17,7 @@ describe('NewEntity', () => {
   beforeEach(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
+    setupDynamicCatalogRegistry(catalogsMap);
   });
 
   it('component renders', async () => {
