@@ -29,6 +29,7 @@ describe('getResourceTypeFromPath', () => {
     ['my-it.citrus.yml', SourceSchemaType.Test],
     ['my.citrus.it.xml', SourceSchemaType.Test],
     ['my-it.citrus.xml', SourceSchemaType.Test],
+    ['custom_modes.yaml', SourceSchemaType.CustomMode],
     ['yaml', undefined],
     ['yml', undefined],
     ['my.json', undefined],

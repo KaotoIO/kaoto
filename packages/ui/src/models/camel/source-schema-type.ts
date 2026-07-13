@@ -5,6 +5,7 @@ export enum SourceSchemaType {
   Kamelet = 'Kamelet',
   Pipe = 'Pipe',
   Test = 'Test',
+  CustomMode = 'CustomMode',
 }
 
 export const getResourceTypeFromPath = (path?: string): SourceSchemaType | undefined => {
@@ -32,6 +33,8 @@ export const getResourceTypeFromPath = (path?: string): SourceSchemaType | undef
     path?.endsWith('citrus.it.yml')
   ) {
     return SourceSchemaType.Test;
+  } else if (path === 'custom_modes.yaml' || path?.endsWith('/custom_modes.yaml')) {
+    return SourceSchemaType.CustomMode;
   } else if (path?.endsWith('.xml') || path?.endsWith('.yaml') || path?.endsWith('.yml')) {
     return SourceSchemaType.Route;
   }

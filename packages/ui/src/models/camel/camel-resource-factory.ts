@@ -5,6 +5,7 @@ import { isXML } from '../../serializers/xml/kaoto-xml-parser';
 import { parseYamlComments } from '../../utils/yaml-comments';
 import { CitrusTestResourceFactory } from '../citrus/citrus-test-resource-factory';
 import { Test } from '../citrus/entities/Test';
+import { CustomModeResourceFactory } from '../custom-mode/custom-mode-resource-factory';
 import { KaotoResource } from '../kaoto-resource';
 import { CamelKResourceFactory } from './camel-k-resource-factory';
 import { CamelRouteResource } from './camel-route-resource';
@@ -35,6 +36,11 @@ export class CamelResourceFactory {
     const testResource = CitrusTestResourceFactory.getCitrusTestResource(parsedCode as Test, pathResourceType);
     if (testResource) {
       return testResource;
+    }
+
+    const customModeResource = CustomModeResourceFactory.getCustomModeResource(parsedCode, pathResourceType);
+    if (customModeResource) {
+      return customModeResource;
     }
 
     const resource = CamelKResourceFactory.getCamelKResource(

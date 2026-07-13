@@ -1,8 +1,15 @@
-import { CamelYamlDsl, RouteConfigurationDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import {
+  CamelYamlDsl,
+  CatalogLibrary,
+  RouteConfigurationDefinition,
+  RouteDefinition,
+} from '@kaoto/camel-catalog/types';
 
 import { beansJson } from '../../stubs/beans';
 import { camelFromJson } from '../../stubs/camel-from';
 import { camelRouteJson, camelRouteYaml } from '../../stubs/camel-route';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../stubs/test-load-catalog';
 import { EntityType } from '../entities';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../visualization/flows/camel-route-visual-entity';
@@ -632,6 +639,24 @@ describe('CamelRouteResource', () => {
 
       // Route should be in common (empty group)
       expect(entityList.common).toEqual([expect.objectContaining({ name: EntityType.Route })]);
+    });
+
+    it('returns catalog titles after initialize()', async () => {
+      const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+      setupDynamicCatalogRegistry(catalogsMap);
+
+      const resource = new CamelRouteResource();
+      await resource.initialize();
+      const list = resource.getCanvasEntityList();
+      const route = list.common.find((e) => e.name === EntityType.Route);
+      expect(route).toBeDefined();
+      expect(route!.title).not.toBe('');
+    });
+
+    it('returns empty structure before initialize()', () => {
+      const resource = new CamelRouteResource();
+      const list = resource.getCanvasEntityList();
+      expect(list).toEqual({ common: [], groups: {} });
     });
   });
 
