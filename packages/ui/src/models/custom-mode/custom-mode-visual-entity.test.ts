@@ -1,54 +1,230 @@
 import { EntityType } from '../entities';
+import { AddStepMode } from '../visualization/base-visual-entity';
 import { CustomMode } from './custom-mode-types';
 import { CustomModeVisualEntity } from './custom-mode-visual-entity';
 
-const sampleMode: CustomMode = {
-  slug: 'plan',
-  name: 'Plan',
-  description: 'Planning mode',
-  roleDefinition: 'You plan things.',
-  whenToUse: 'When planning.',
+const makeMode = (overrides?: Partial<CustomMode>): CustomMode => ({
+  slug: 'test-mode',
+  name: 'Test Mode',
+  description: 'A test mode',
+  roleDefinition: 'You are a test assistant.',
+  whenToUse: 'Use this for testing.',
   groups: ['read'],
-};
+  ...overrides,
+});
 
 describe('CustomModeVisualEntity', () => {
   let entity: CustomModeVisualEntity;
 
   beforeEach(() => {
-    entity = new CustomModeVisualEntity(sampleMode);
+    entity = new CustomModeVisualEntity(makeMode());
   });
 
-  it('has a non-empty id', () => {
-    expect(entity.id).toBeTruthy();
+  describe('constructor', () => {
+    it('sets id from mode slug', () => {
+      expect(entity.id).toBe('test-mode');
+    });
+
+    it('sets type to EntityType.CustomMode', () => {
+      expect(entity.type).toBe(EntityType.CustomMode);
+    });
+
+    it('generates a fallback id when slug is missing and writes it back to mode.slug', () => {
+      const e = new CustomModeVisualEntity(makeMode({ slug: undefined as unknown as string }));
+      expect(e.id).toMatch(/^custom-mode-/);
+      expect(e.toJSON().slug).toBe(e.id);
+    });
   });
 
-  it('has type EntityType.CustomMode', () => {
-    expect(entity.type).toBe(EntityType.CustomMode);
+  describe('getRootPath', () => {
+    it('returns customMode', () => {
+      expect(entity.getRootPath()).toBe('customMode');
+    });
   });
 
-  it('toJSON returns the raw CustomMode object', () => {
-    expect(entity.toJSON()).toEqual(sampleMode);
+  describe('getId / setId', () => {
+    it('getId returns the entity id', () => {
+      expect(entity.getId()).toBe('test-mode');
+    });
+
+    it('setId updates id and mode.slug', () => {
+      entity.setId('new-slug');
+      expect(entity.id).toBe('new-slug');
+      expect(entity.toJSON().slug).toBe('new-slug');
+    });
   });
 
-  it('getId returns the same id as the id property', () => {
-    expect(entity.getId()).toBe(entity.id);
+  describe('getNodeLabel', () => {
+    it('returns mode name for root path', () => {
+      expect(entity.getNodeLabel('customMode')).toBe('Test Mode');
+    });
+
+    it('falls back to id when name is empty', () => {
+      const e = new CustomModeVisualEntity(makeMode({ name: '' }));
+      expect(e.getNodeLabel('customMode')).toBe('test-mode');
+    });
+
+    it('returns last segment for customInstructions paths', () => {
+      expect(entity.getNodeLabel('customMode.customInstructions.0.section')).toBe('section');
+    });
+
+    it('returns empty string for unrecognised paths', () => {
+      expect(entity.getNodeLabel('something.else')).toBe('');
+      expect(entity.getNodeLabel(undefined)).toBe('');
+    });
   });
 
-  it('setId updates the id', () => {
-    entity.setId('my-id');
-    expect(entity.id).toBe('my-id');
-    expect(entity.getId()).toBe('my-id');
+  describe('getNodeSchema', () => {
+    it('returns root schema for customMode path', () => {
+      const schema = entity.getNodeSchema('customMode');
+      expect(schema).toBeDefined();
+      expect(schema!.type).toBe('object');
+      expect(schema!.properties).toHaveProperty('slug');
+      expect(schema!.properties).toHaveProperty('groups');
+    });
+
+    it('returns undefined for customInstructions child paths (stub)', () => {
+      expect(entity.getNodeSchema('customMode.customInstructions.0.section')).toBeUndefined();
+    });
+
+    it('returns undefined for unrecognised paths', () => {
+      expect(entity.getNodeSchema('other')).toBeUndefined();
+      expect(entity.getNodeSchema(undefined)).toBeUndefined();
+    });
   });
 
-  it('getRootPath returns "customMode"', () => {
-    expect(entity.getRootPath()).toBe('customMode');
+  describe('getNodeDefinition', () => {
+    it('returns mode object without customInstructions for root path', () => {
+      const def = entity.getNodeDefinition('customMode') as CustomMode;
+      expect(def.slug).toBe('test-mode');
+      expect((def as unknown as Record<string, unknown>).customInstructions).toBeUndefined();
+    });
+
+    it('returns undefined for unrecognised paths', () => {
+      expect(entity.getNodeDefinition('other')).toBeUndefined();
+      expect(entity.getNodeDefinition(undefined)).toBeUndefined();
+    });
   });
 
-  it('getOmitFormFields returns empty array', () => {
-    expect(entity.getOmitFormFields()).toEqual([]);
+  describe('getOmitFormFields', () => {
+    it('includes customInstructions', () => {
+      expect(entity.getOmitFormFields()).toContain('customInstructions');
+    });
   });
 
-  it('getNodeLabel returns slug', () => {
-    expect(entity.getNodeLabel()).toBe('plan');
+  describe('updateModel', () => {
+    it('updates mode fields and keeps id in sync when slug changes', () => {
+      entity.updateModel('customMode', { slug: 'updated-slug', name: 'Updated' });
+      expect(entity.id).toBe('updated-slug');
+      expect(entity.toJSON().name).toBe('Updated');
+    });
+
+    it('updates name without touching slug', () => {
+      entity.updateModel('customMode', { name: 'Only Name Changed' });
+      expect(entity.id).toBe('test-mode');
+      expect(entity.toJSON().name).toBe('Only Name Changed');
+    });
+
+    it('is a no-op for unrecognised paths', () => {
+      entity.updateModel('other.path', { name: 'Should Not Apply' });
+      expect(entity.toJSON().name).toBe('Test Mode');
+    });
+
+    it('is a no-op when path is undefined', () => {
+      entity.updateModel(undefined, { name: 'Should Not Apply' });
+      expect(entity.toJSON().name).toBe('Test Mode');
+    });
+  });
+
+  describe('toJSON', () => {
+    it('returns the underlying CustomMode object', () => {
+      const json = entity.toJSON();
+      expect(json.slug).toBe('test-mode');
+      expect(json.groups).toEqual(['read']);
+    });
+  });
+
+  describe('getNodeInteraction', () => {
+    it('canRemoveFlow true only for mode node (isGroup false, root path)', () => {
+      const interaction = entity.getNodeInteraction({ path: 'customMode', isGroup: false } as never);
+      expect(interaction.canRemoveFlow).toBe(true);
+      expect(interaction.canRemoveStep).toBe(false);
+      expect(interaction.canHaveChildren).toBe(false);
+      expect(interaction.canBeDisabled).toBe(false);
+    });
+
+    it('canRemoveFlow false for group node (isGroup true, root path)', () => {
+      const interaction = entity.getNodeInteraction({ path: 'customMode', isGroup: true } as never);
+      expect(interaction.canRemoveFlow).toBe(false);
+    });
+
+    it('all false for customInstructions siblings', () => {
+      const interaction = entity.getNodeInteraction({
+        path: 'customMode.customInstructions.0.section',
+        isGroup: false,
+      } as never);
+      expect(interaction.canRemoveFlow).toBe(false);
+      expect(interaction.canRemoveStep).toBe(false);
+    });
+  });
+
+  describe('canDragNode / canDropOnNode / getCopiedContent', () => {
+    it('always returns false / undefined', () => {
+      expect(entity.canDragNode()).toBe(false);
+      expect(entity.canDragNode('customMode')).toBe(false);
+      expect(entity.canDropOnNode()).toBe(false);
+      expect(entity.getCopiedContent('customMode')).toBeUndefined();
+    });
+  });
+
+  describe('addStep / removeStep / pasteStep', () => {
+    it('addStep is a no-op', () => {
+      expect(() => {
+        entity.addStep({ definedComponent: {} as never, mode: AddStepMode.AppendStep, data: {} as never });
+      }).not.toThrow();
+    });
+
+    it('removeStep is a no-op', () => {
+      expect(() => {
+        entity.removeStep('customMode.customInstructions.0.section');
+      }).not.toThrow();
+    });
+
+    it('pasteStep is a no-op', () => {
+      expect(() => {
+        entity.pasteStep({ clipboardContent: {} as never, mode: AddStepMode.AppendStep, data: {} as never });
+      }).not.toThrow();
+    });
+  });
+
+  describe('toVizNode', () => {
+    it('returns a mode group node with isGroup true', async () => {
+      const groupNode = await entity.toVizNode();
+      expect(groupNode.data.isGroup).toBe(true);
+      expect(groupNode.data.path).toBe('customMode');
+    });
+
+    it('mode group node has two children: mode node and placeholder', async () => {
+      const groupNode = await entity.toVizNode();
+      expect(groupNode.getChildren()).toHaveLength(2);
+    });
+
+    it('first child is the mode node (isGroup false, same path)', async () => {
+      const modeNode = (await entity.toVizNode()).getChildren()![0];
+      expect(modeNode.data.isGroup).toBe(false);
+      expect(modeNode.data.path).toBe('customMode');
+    });
+
+    it('last child is the placeholder', async () => {
+      const children = (await entity.toVizNode()).getChildren()!;
+      expect(children[children.length - 1].data.isPlaceholder).toBe(true);
+    });
+
+    it('mode node and placeholder are linked via prev/next', async () => {
+      const children = (await entity.toVizNode()).getChildren()!;
+      const [modeNode, placeholder] = children;
+      expect(modeNode.getNextNode()).toBe(placeholder);
+      expect(placeholder.getPreviousNode()).toBe(modeNode);
+    });
   });
 });
