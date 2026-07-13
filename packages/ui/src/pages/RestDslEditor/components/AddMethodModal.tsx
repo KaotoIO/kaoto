@@ -1,6 +1,6 @@
 import { Button, ComposedModal, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
 import { CanvasFormTabsProvider, isDefined, KaotoForm, KaotoFormApi } from '@kaoto/forms';
-import { FunctionComponent, useCallback, useRef, useState } from 'react';
+import { FunctionComponent, RefObject, useCallback, useRef, useState } from 'react';
 
 import { customFieldsFactoryfactory } from '../../../components/Visualization/Canvas/Form/fields/custom-fields-factory';
 import { ADD_METHOD_SCHEMA, AddMethodFormModel } from './add-method-schema';
@@ -9,6 +9,8 @@ import { ADD_METHOD_SCHEMA, AddMethodFormModel } from './add-method-schema';
  * Props for the AddMethodModal component.
  */
 interface AddMethodModalProps {
+  open: boolean;
+  launcherButtonRef?: RefObject<HTMLButtonElement | null>;
   onClose: () => void;
   onAddMethod: (model: AddMethodFormModel) => void;
 }
@@ -17,7 +19,12 @@ interface AddMethodModalProps {
  * Modal dialog for adding a new REST method to a REST service.
  * Displays a form with fields for HTTP method type, path, and optional ID.
  */
-export const AddMethodModal: FunctionComponent<AddMethodModalProps> = ({ onClose, onAddMethod }) => {
+export const AddMethodModal: FunctionComponent<AddMethodModalProps> = ({
+  open,
+  launcherButtonRef,
+  onClose,
+  onAddMethod,
+}) => {
   const [formModel, setFormModel] = useState<Partial<AddMethodFormModel>>({
     method: 'get',
   });
@@ -38,7 +45,13 @@ export const AddMethodModal: FunctionComponent<AddMethodModalProps> = ({ onClose
   };
 
   return (
-    <ComposedModal open size="sm" onClose={onClose} data-testid="add-method-modal">
+    <ComposedModal
+      open={open}
+      launcherButtonRef={launcherButtonRef}
+      size="sm"
+      onClose={onClose}
+      data-testid="add-method-modal"
+    >
       <ModalHeader title="Add REST Method" />
 
       <ModalBody>

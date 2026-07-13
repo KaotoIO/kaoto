@@ -1,13 +1,10 @@
 import { Add, TrashCan } from '@carbon/icons-react';
 import { MenuButton, MenuItem, MenuItemDivider } from '@carbon/react';
-import { FunctionComponent, useCallback, useMemo, useRef } from 'react';
+import { FunctionComponent, RefObject, useLayoutEffect, useMemo, useRef } from 'react';
 
-import { useToggle } from '../../../hooks/useToggle';
 import { BaseVisualEntity } from '../../../models';
 import { CamelRestConfigurationVisualEntity } from '../../../models/visualization/flows/camel-rest-configuration-visual-entity';
 import { CamelRestVisualEntity } from '../../../models/visualization/flows/camel-rest-visual-entity';
-import { AddMethodFormModel } from './add-method-schema';
-import { AddMethodModal } from './AddMethodModal';
 import { IRestTreeSelection } from './RestTree';
 
 /**
@@ -16,9 +13,10 @@ import { IRestTreeSelection } from './RestTree';
 export interface RestTreeToolbarProps {
   entities: BaseVisualEntity[];
   selectedElement?: IRestTreeSelection;
+  launcherButtonRef?: RefObject<HTMLButtonElement | null>;
   onAddRestConfiguration: () => void;
   onAddRest: () => void;
-  onAddMethod: (model: AddMethodFormModel) => void;
+  onAddMethodClick: () => void;
   onDelete: () => void;
 }
 
@@ -29,39 +27,27 @@ export interface RestTreeToolbarProps {
 export const RestTreeToolbar: FunctionComponent<RestTreeToolbarProps> = ({
   entities,
   selectedElement,
+  launcherButtonRef,
   onAddRestConfiguration,
   onAddRest,
-  onAddMethod,
+  onAddMethodClick,
   onDelete,
 }) => {
-  const {
-    state: isAddMethodModalOpen,
-    toggleOn: openAddMethodModal,
-    toggleOff: toggleOffAddMethodModal,
-  } = useToggle(false);
   const menuButtonContainerRef = useRef<HTMLDivElement>(null);
 
   /**
-   * Closes the Add Operation modal and returns keyboard focus to the "Actions"
-   * trigger, following the ARIA modal dialog pattern. The modal is conditionally
-   * rendered, so ComposedModal cannot restore focus on its own; the timeout
-   * mirrors Carbon's launcherButtonRef timing. MenuButton forwards its ref to
-   * the container element, hence the trigger button lookup. Adding an operation
-   * can remount the toolbar before the timeout runs (the REST tree rebuilds),
-   * which nulls the ref — fall back to the rendered toolbar in that case.
+   * The page owns the AddMethodModal and uses launcherButtonRef to restore focus
+   * to the "Actions" trigger when the modal closes. MenuButton forwards its ref to
+   * the container element, so point the page-owned launcher ref at the actual
+   * trigger button on every render. Adding an operation rebuilds the REST tree and
+   * remounts this toolbar; the new instance re-points the stable page-owned ref at
+   * the new button, which lets Carbon restore focus natively across all paths.
    */
-  const closeAddMethodModal = useCallback(() => {
-    toggleOffAddMethodModal();
-    setTimeout(() => {
-      // Restore focus only when the modal actually dropped it to the body;
-      // if something else already owns focus, don't steal it.
-      const active = document.activeElement;
-      if (active && active !== document.body) return;
-
-      const container = menuButtonContainerRef.current ?? document.querySelector('.rest-tree-toolbar');
-      container?.querySelector('button')?.focus();
-    });
-  }, [toggleOffAddMethodModal]);
+  useLayoutEffect(() => {
+    if (launcherButtonRef) {
+      launcherButtonRef.current = menuButtonContainerRef.current?.querySelector('button') ?? null;
+    }
+  });
 
   /** Checks if a REST configuration already exists */
   const hasRestConfiguration = useMemo(
@@ -100,14 +86,13 @@ export const RestTreeToolbar: FunctionComponent<RestTreeToolbarProps> = ({
         <MenuItem
           label="Add Operation"
           renderIcon={Add}
-          onClick={openAddMethodModal}
+          onClick={onAddMethodClick}
           disabled={!selectedRestEntity}
           data-testid="add-rest-operation-btn"
         />
         <MenuItemDivider />
         <MenuItem kind="danger" label="Delete" renderIcon={TrashCan} onClick={onDelete} disabled={!selectedElement} />
       </MenuButton>
-      {isAddMethodModalOpen && <AddMethodModal onClose={closeAddMethodModal} onAddMethod={onAddMethod} />}
     </div>
   );
 };

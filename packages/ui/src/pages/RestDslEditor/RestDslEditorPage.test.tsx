@@ -320,4 +320,63 @@ describe('RestDslEditorPage', () => {
       });
     });
   });
+
+  describe('Add Operation modal focus management', () => {
+    /** Opens the Add Operation modal for a selected REST service */
+    const openAddMethodModal = async () => {
+      await renderPage(`
+- rest:
+    id: rest-1
+    path: /api
+      `);
+
+      await selectTreeNode('rest-1');
+      await clickToolbarActionUtil('Add Operation');
+
+      await waitFor(() => {
+        expect(screen.getByText('Add REST Method')).toBeTruthy();
+      });
+    };
+
+    it('returns focus to the Actions trigger when the modal is cancelled', async () => {
+      await openAddMethodModal();
+
+      act(() => {
+        fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+      });
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Actions' })).toHaveFocus();
+      });
+    });
+
+    it('returns focus to the Actions trigger when the modal is dismissed with Escape', async () => {
+      await openAddMethodModal();
+
+      act(() => {
+        fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape', code: 'Escape' });
+      });
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Actions' })).toHaveFocus();
+      });
+    });
+
+    it('returns focus to the Actions trigger after adding an operation rebuilds the tree', async () => {
+      await openAddMethodModal();
+
+      // Authoring a real operation bumps treeVersion and remounts the toolbar;
+      // focus must still return to the (new) Actions trigger.
+      await addRestMethod('/orders');
+
+      await waitFor(() => {
+        const tree = screen.getByRole('tree');
+        expect(within(tree).getByText('/orders')).toBeTruthy();
+      });
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Actions' })).toHaveFocus();
+      });
+    });
+  });
 });

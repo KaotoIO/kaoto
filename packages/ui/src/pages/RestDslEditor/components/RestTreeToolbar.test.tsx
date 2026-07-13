@@ -1,7 +1,4 @@
-import { SuggestionRegistryProvider } from '@kaoto/forms';
-import { KaotoFormPageObject } from '@kaoto/forms/testing';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { useState } from 'react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import { CamelResourceFactory } from '../../../models/camel/camel-resource-factory';
 import { BaseVisualEntity } from '../../../models/visualization/base-visual-entity';
@@ -10,15 +7,10 @@ import { clickToolbarActionUtil } from '../test-utils';
 import { getRestEntities } from './get-rest-entities';
 import { RestTreeToolbar } from './RestTreeToolbar';
 
-// Wrapper component to provide required context
-const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <SuggestionRegistryProvider>{children}</SuggestionRegistryProvider>
-);
-
 describe('RestTreeToolbar', () => {
   const mockOnAddRestConfiguration = vi.fn();
   const mockOnAddRest = vi.fn();
-  const mockOnAddMethod = vi.fn();
+  const mockOnAddMethodClick = vi.fn();
   const mockOnDelete = vi.fn();
 
   beforeEach(() => {
@@ -43,7 +35,7 @@ describe('RestTreeToolbar', () => {
           entities={entities}
           onAddRestConfiguration={mockOnAddRestConfiguration}
           onAddRest={mockOnAddRest}
-          onAddMethod={mockOnAddMethod}
+          onAddMethodClick={mockOnAddMethodClick}
           onDelete={mockOnDelete}
         />,
       );
@@ -69,7 +61,7 @@ describe('RestTreeToolbar', () => {
           entities={entities}
           onAddRestConfiguration={mockOnAddRestConfiguration}
           onAddRest={mockOnAddRest}
-          onAddMethod={mockOnAddMethod}
+          onAddMethodClick={mockOnAddMethodClick}
           onDelete={mockOnDelete}
         />,
       );
@@ -89,7 +81,7 @@ describe('RestTreeToolbar', () => {
           entities={entities}
           onAddRestConfiguration={mockOnAddRestConfiguration}
           onAddRest={mockOnAddRest}
-          onAddMethod={mockOnAddMethod}
+          onAddMethodClick={mockOnAddMethodClick}
           onDelete={mockOnDelete}
         />,
       );
@@ -108,7 +100,7 @@ describe('RestTreeToolbar', () => {
           entities={entities}
           onAddRestConfiguration={mockOnAddRestConfiguration}
           onAddRest={mockOnAddRest}
-          onAddMethod={mockOnAddMethod}
+          onAddMethodClick={mockOnAddMethodClick}
           onDelete={mockOnDelete}
         />,
       );
@@ -136,7 +128,7 @@ describe('RestTreeToolbar', () => {
           entities={entities}
           onAddRestConfiguration={mockOnAddRestConfiguration}
           onAddRest={mockOnAddRest}
-          onAddMethod={mockOnAddMethod}
+          onAddMethodClick={mockOnAddMethodClick}
           onDelete={mockOnDelete}
         />,
       );
@@ -156,7 +148,7 @@ describe('RestTreeToolbar', () => {
           entities={entities}
           onAddRestConfiguration={mockOnAddRestConfiguration}
           onAddRest={mockOnAddRest}
-          onAddMethod={mockOnAddMethod}
+          onAddMethodClick={mockOnAddMethodClick}
           onDelete={mockOnDelete}
         />,
       );
@@ -175,7 +167,7 @@ describe('RestTreeToolbar', () => {
           entities={entities}
           onAddRestConfiguration={mockOnAddRestConfiguration}
           onAddRest={mockOnAddRest}
-          onAddMethod={mockOnAddMethod}
+          onAddMethodClick={mockOnAddMethodClick}
           onDelete={mockOnDelete}
         />,
       );
@@ -204,7 +196,7 @@ describe('RestTreeToolbar', () => {
           selectedElement={{ entityId: restConfigEntity.id, modelPath: 'restConfiguration' }}
           onAddRestConfiguration={mockOnAddRestConfiguration}
           onAddRest={mockOnAddRest}
-          onAddMethod={mockOnAddMethod}
+          onAddMethodClick={mockOnAddMethodClick}
           onDelete={mockOnDelete}
         />,
       );
@@ -236,7 +228,7 @@ describe('RestTreeToolbar', () => {
           selectedElement={{ entityId: 'rest-1234', modelPath: 'rest' }}
           onAddRestConfiguration={mockOnAddRestConfiguration}
           onAddRest={mockOnAddRest}
-          onAddMethod={mockOnAddMethod}
+          onAddMethodClick={mockOnAddMethodClick}
           onDelete={mockOnDelete}
         />,
       );
@@ -268,7 +260,7 @@ describe('RestTreeToolbar', () => {
           selectedElement={{ entityId: 'rest-1234', modelPath: 'rest.get.0' }}
           onAddRestConfiguration={mockOnAddRestConfiguration}
           onAddRest={mockOnAddRest}
-          onAddMethod={mockOnAddMethod}
+          onAddMethodClick={mockOnAddMethodClick}
           onDelete={mockOnDelete}
         />,
       );
@@ -304,7 +296,7 @@ describe('RestTreeToolbar', () => {
           selectedElement={{ entityId: 'route-1234', modelPath: 'route' }}
           onAddRestConfiguration={mockOnAddRestConfiguration}
           onAddRest={mockOnAddRest}
-          onAddMethod={mockOnAddMethod}
+          onAddMethodClick={mockOnAddMethodClick}
           onDelete={mockOnDelete}
         />,
       );
@@ -314,6 +306,30 @@ describe('RestTreeToolbar', () => {
 
       const addMethodButton = screen.getByText('Add Operation').closest('li');
       expect(addMethodButton).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('should fire onAddMethodClick when clicked', async () => {
+      const camelResource = CamelResourceFactory.createCamelResource(`
+- rest:
+    id: rest-1234
+      `);
+      await camelResource.initialize();
+
+      const entities = getRestEntities(camelResource.getEntities());
+
+      render(
+        <RestTreeToolbar
+          entities={entities}
+          selectedElement={{ entityId: 'rest-1234', modelPath: 'rest' }}
+          onAddRestConfiguration={mockOnAddRestConfiguration}
+          onAddRest={mockOnAddRest}
+          onAddMethodClick={mockOnAddMethodClick}
+          onDelete={mockOnDelete}
+        />,
+      );
+
+      await clickToolbarActionUtil('Add Operation');
+      expect(mockOnAddMethodClick).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -326,7 +342,7 @@ describe('RestTreeToolbar', () => {
           entities={entities}
           onAddRestConfiguration={mockOnAddRestConfiguration}
           onAddRest={mockOnAddRest}
-          onAddMethod={mockOnAddMethod}
+          onAddMethodClick={mockOnAddMethodClick}
           onDelete={mockOnDelete}
         />,
       );
@@ -353,7 +369,7 @@ describe('RestTreeToolbar', () => {
           selectedElement={{ entityId: 'rest-1234', modelPath: 'rest' }}
           onAddRestConfiguration={mockOnAddRestConfiguration}
           onAddRest={mockOnAddRest}
-          onAddMethod={mockOnAddMethod}
+          onAddMethodClick={mockOnAddMethodClick}
           onDelete={mockOnDelete}
         />,
       );
@@ -380,183 +396,13 @@ describe('RestTreeToolbar', () => {
           selectedElement={{ entityId: 'rest-1234', modelPath: 'rest' }}
           onAddRestConfiguration={mockOnAddRestConfiguration}
           onAddRest={mockOnAddRest}
-          onAddMethod={mockOnAddMethod}
+          onAddMethodClick={mockOnAddMethodClick}
           onDelete={mockOnDelete}
         />,
       );
 
       await clickToolbarActionUtil('Delete');
       expect(mockOnDelete).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe('AddMethodModal', () => {
-    it('should open when Add Method button is clicked', async () => {
-      const camelResource = CamelResourceFactory.createCamelResource(`
-- rest:
-    id: rest-1234
-      `);
-      await camelResource.initialize();
-
-      const entities = getRestEntities(camelResource.getEntities());
-
-      render(
-        <TestWrapper>
-          <RestTreeToolbar
-            entities={entities}
-            selectedElement={{ entityId: 'rest-1234', modelPath: 'rest' }}
-            onAddRestConfiguration={mockOnAddRestConfiguration}
-            onAddRest={mockOnAddRest}
-            onAddMethod={mockOnAddMethod}
-            onDelete={mockOnDelete}
-          />
-        </TestWrapper>,
-      );
-
-      await clickToolbarActionUtil('Add Operation');
-
-      expect(screen.getByRole('dialog')).toBeInTheDocument();
-      expect(screen.getByText('Add REST Method')).toBeInTheDocument();
-    });
-
-    it('should close when cancel button is clicked', async () => {
-      const camelResource = CamelResourceFactory.createCamelResource(`
-- rest:
-    id: rest-1234
-      `);
-      await camelResource.initialize();
-
-      const entities = getRestEntities(camelResource.getEntities());
-
-      render(
-        <TestWrapper>
-          <RestTreeToolbar
-            entities={entities}
-            selectedElement={{ entityId: 'rest-1234', modelPath: 'rest' }}
-            onAddRestConfiguration={mockOnAddRestConfiguration}
-            onAddRest={mockOnAddRest}
-            onAddMethod={mockOnAddMethod}
-            onDelete={mockOnDelete}
-          />
-        </TestWrapper>,
-      );
-
-      await clickToolbarActionUtil('Add Operation');
-
-      expect(screen.getByRole('dialog')).toBeInTheDocument();
-
-      const cancelButton = screen.getByRole('button', { name: 'Cancel' });
-      fireEvent.click(cancelButton);
-
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    });
-
-    it('should return focus to the Actions trigger when the modal closes', async () => {
-      const camelResource = CamelResourceFactory.createCamelResource(`
-- rest:
-    id: rest-1234
-      `);
-      await camelResource.initialize();
-
-      const entities = getRestEntities(camelResource.getEntities());
-
-      render(
-        <TestWrapper>
-          <RestTreeToolbar
-            entities={entities}
-            selectedElement={{ entityId: 'rest-1234', modelPath: 'rest' }}
-            onAddRestConfiguration={mockOnAddRestConfiguration}
-            onAddRest={mockOnAddRest}
-            onAddMethod={mockOnAddMethod}
-            onDelete={mockOnDelete}
-          />
-        </TestWrapper>,
-      );
-
-      await clickToolbarActionUtil('Add Operation');
-
-      expect(screen.getByRole('dialog')).toBeInTheDocument();
-
-      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Actions' })).toHaveFocus();
-      });
-    });
-
-    it('returns focus to the Actions trigger even when adding remounts the toolbar', async () => {
-      const camelResource = CamelResourceFactory.createCamelResource(`
-- rest:
-    id: rest-1234
-      `);
-      await camelResource.initialize();
-
-      const entities = getRestEntities(camelResource.getEntities());
-
-      // Adding an operation rebuilds the REST tree in the page, remounting the
-      // toolbar before the focus-return timeout runs. The key bump reproduces
-      // that remount.
-      const RemountHarness = () => {
-        const [generation, setGeneration] = useState(0);
-        return (
-          <TestWrapper>
-            <RestTreeToolbar
-              key={generation}
-              entities={entities}
-              selectedElement={{ entityId: 'rest-1234', modelPath: 'rest' }}
-              onAddRestConfiguration={mockOnAddRestConfiguration}
-              onAddRest={mockOnAddRest}
-              onAddMethod={() => {
-                setGeneration((previous) => previous + 1);
-              }}
-              onDelete={mockOnDelete}
-            />
-          </TestWrapper>
-        );
-      };
-
-      render(<RemountHarness />);
-
-      await clickToolbarActionUtil('Add Operation');
-      expect(screen.getByRole('dialog')).toBeInTheDocument();
-
-      const formPageObject = new KaotoFormPageObject(screen, act);
-      await formPageObject.showAllFields();
-      await formPageObject.inputText('Path', '/orders');
-
-      fireEvent.click(screen.getByRole('button', { name: 'Add' }));
-
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Actions' })).toHaveFocus();
-      });
-    });
-
-    it('should receive onAddMethod callback prop', async () => {
-      const camelResource = CamelResourceFactory.createCamelResource(`
-- rest:
-    id: rest-1234
-      `);
-      await camelResource.initialize();
-
-      const entities = getRestEntities(camelResource.getEntities());
-
-      render(
-        <TestWrapper>
-          <RestTreeToolbar
-            entities={entities}
-            selectedElement={{ entityId: 'rest-1234', modelPath: 'rest' }}
-            onAddRestConfiguration={mockOnAddRestConfiguration}
-            onAddRest={mockOnAddRest}
-            onAddMethod={mockOnAddMethod}
-            onDelete={mockOnDelete}
-          />
-        </TestWrapper>,
-      );
-
-      await clickToolbarActionUtil('Add Operation');
-
-      expect(screen.getByRole('dialog')).toBeInTheDocument();
-      expect(screen.getByText('Add REST Method')).toBeInTheDocument();
     });
   });
 });
