@@ -19,18 +19,12 @@ import { isDefined } from '@kaoto/forms';
 import { stringify } from 'yaml';
 
 import { TileFilter } from '../../components/Catalog';
-import { DynamicCatalogRegistry } from '../../dynamic-catalog/dynamic-catalog-registry';
 import { insertYamlComments } from '../../utils/yaml-comments';
 import { CatalogKind } from '../catalog-kind';
 import { BaseEntity, EntityType } from '../entities';
-import {
-  BaseVisualEntityDefinition,
-  BaseVisualEntityDefinitionItem,
-  BeansAwareResource,
-  KaotoResource,
-} from '../kaoto-resource';
+import { BaseVisualEntityDefinition, BeansAwareResource, KaotoResource } from '../kaoto-resource';
 import { AddStepMode, BaseVisualCamelEntityConstructor } from '../visualization/base-visual-entity';
-import { CamelRouteVisualEntity } from '../visualization/flows';
+import { CamelCatalogService, CamelRouteVisualEntity } from '../visualization/flows';
 import { CamelErrorHandlerVisualEntity } from '../visualization/flows/camel-error-handler-visual-entity';
 import { CamelInterceptFromVisualEntity } from '../visualization/flows/camel-intercept-from-visual-entity';
 import { CamelInterceptSendToEndpointVisualEntity } from '../visualization/flows/camel-intercept-send-to-endpoint-visual-entity';
@@ -133,47 +127,19 @@ export class CamelRouteResource implements KaotoResource, BeansAwareResource {
   async initialize(): Promise<void> {
     if (!this.rawEntities) {
       this.entities = [];
-    } else {
-      const entities = Array.isArray(this.rawEntities) ? this.rawEntities : [this.rawEntities];
-      const parsedEntities = entities.reduce((acc, rawItem) => {
-        const entity = this.getEntity(rawItem);
-        if (isDefined(entity) && typeof entity === 'object') {
-          acc.push(entity);
-        }
-        return acc;
-      }, [] as BaseEntity[]);
-
-      this.entities = EntityOrderingService.sortEntitiesForSerialization(parsedEntities);
+      return;
     }
 
-    // Pre-populate entity list from async catalog
-    const entries = await Promise.all(
-      this.supportedEntities
-        .filter(({ isVisualEntity }) => isVisualEntity)
-        .map(async ({ type, group }) => {
-          const def = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Entity, type);
-          return {
-            type,
-            group,
-            title: def?.model.title ?? String(type),
-            description: def?.model.description ?? '',
-          };
-        }),
-    );
+    const entities = Array.isArray(this.rawEntities) ? this.rawEntities : [this.rawEntities];
+    const parsedEntities = entities.reduce((acc, rawItem) => {
+      const entity = this.getEntity(rawItem);
+      if (isDefined(entity) && typeof entity === 'object') {
+        acc.push(entity);
+      }
+      return acc;
+    }, [] as BaseEntity[]);
 
-    this.resolvedEntities = entries.reduce(
-      (acc, { type, group, title, description }) => {
-        const entityDefinition: BaseVisualEntityDefinitionItem = { name: type, title, description };
-        if (group === '') {
-          acc.common.push(entityDefinition);
-        } else {
-          acc.groups[group] ??= [];
-          acc.groups[group].push(entityDefinition);
-        }
-        return acc;
-      },
-      { common: [], groups: {} } as BaseVisualEntityDefinition,
-    );
+    this.entities = EntityOrderingService.sortEntitiesForSerialization(parsedEntities);
   }
 
   protected setRawEntities(rawEntities?: CamelYamlDsl): void {
@@ -181,7 +147,30 @@ export class CamelRouteResource implements KaotoResource, BeansAwareResource {
   }
 
   getCanvasEntityList(): BaseVisualEntityDefinition {
-    return this.resolvedEntities ?? { common: [], groups: {} };
+    this.resolvedEntities = this.supportedEntities
+      .filter(({ isVisualEntity }) => isVisualEntity)
+      .reduce(
+        (acc, { type, group }) => {
+          const catalogEntity = CamelCatalogService.getComponent(CatalogKind.Entity, type);
+          const entityDefinition = {
+            name: type,
+            title: catalogEntity?.model.title || type,
+            description: catalogEntity?.model.description || '',
+          };
+
+          if (group === '') {
+            acc.common.push(entityDefinition);
+            return acc;
+          }
+
+          acc.groups[group] ??= [];
+          acc.groups[group].push(entityDefinition);
+          return acc;
+        },
+        { common: [], groups: {} } as BaseVisualEntityDefinition,
+      );
+
+    return this.resolvedEntities;
   }
 
   addNewEntity(entityType?: EntityType, entityTemplate?: unknown, insertAfterEntityId?: string): string {
