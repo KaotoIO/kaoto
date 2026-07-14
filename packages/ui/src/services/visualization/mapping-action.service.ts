@@ -420,6 +420,22 @@ export class MappingActionService {
     fieldItem.isUserCreated = true;
   }
 
+  /**
+   * Duplicates an {@link IfItem}, preserving child field mappings and value selectors
+   * but clearing the condition expression. Sibling conditionals must have different
+   * conditions — forcing the user to enter a new one prevents copy-paste errors and
+   * matches XSLT best practices for conditional branching.
+   */
+  static duplicateIf(nodeData: TargetNodeData): void {
+    const ifItem = nodeData.mapping as IfItem;
+    const parent = ifItem.parent;
+    const cloned = ifItem.clone() as IfItem;
+    cloned.parent = parent;
+    cloned.expression = '';
+    const index = parent.children.indexOf(ifItem);
+    parent.children.splice(index + 1, 0, cloned);
+  }
+
   static applyTargetSelection(nodeData: TargetNodeData, selectedField: IField): void {
     const existingMapping = nodeData.mapping;
     if (existingMapping instanceof FieldItem) {
@@ -915,6 +931,31 @@ export class MappingActionService {
         }
       },
       isAllowed: (n) => n instanceof VariableNodeData,
+    },
+    {
+      key: MappingActionKind.Duplicate,
+      testId: 'transformation-actions-duplicate',
+      getLabel: (n) => {
+        if (MappingActionService.isMappingNode(n) && n.mapping instanceof IfItem) {
+          return 'Duplicate "if"';
+        }
+        return 'Duplicate';
+      },
+      apply: (n, { onUpdate }) => {
+        if (MappingActionService.isMappingNode(n) && n.mapping instanceof IfItem) {
+          MappingActionService.duplicateIf(n);
+        } else if (MappingActionService.isFieldNode(n)) {
+          const parentItem = MappingActionService.getOrCreateFieldItem(n.parent);
+          const fieldItem = MappingService.createFieldItem(parentItem, n.field);
+          fieldItem.isUserCreated = true;
+        }
+        onUpdate();
+      },
+      isAllowed: (n) => {
+        if (MappingActionService.isMappingNode(n) && n.mapping instanceof IfItem) return true;
+        if (MappingActionService.isFieldNode(n)) return VisualizationUtilService.isCollectionField(n);
+        return false;
+      },
     },
   ];
 
