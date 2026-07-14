@@ -319,6 +319,39 @@ describe('RestDslEditorPage', () => {
         expect(screen.getByText('Select an entity from the list to edit its configuration')).toBeTruthy();
       });
     });
+
+    it('should update tree and form when deleting a right-clicked method', async () => {
+      const { updateEntitiesFromCamelResourceSpy } = await renderPage(`
+- rest:
+    id: rest-1
+    get:
+      - id: get-1
+        path: /users
+        to:
+          uri: direct:getUsers
+      - id: get-2
+        path: /orders
+        to:
+          uri: direct:getOrders
+      `);
+
+      act(() => {
+        fireEvent.contextMenu(screen.getByText('/users'), { clientX: 120, clientY: 80 });
+      });
+
+      const deleteAction = await screen.findByRole('menuitem', { name: /Delete/ });
+      act(() => {
+        fireEvent.click(deleteAction);
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText('/users')).toBeNull();
+      });
+
+      expect(screen.getByText('/orders')).toBeTruthy();
+      expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
+      expect(screen.getByText('Select an entity from the list to edit its configuration')).toBeTruthy();
+    });
   });
 
   describe('Add Operation modal focus management', () => {
