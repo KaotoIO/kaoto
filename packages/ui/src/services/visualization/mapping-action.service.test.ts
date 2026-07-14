@@ -2077,6 +2077,132 @@ describe('MappingActionService', () => {
         useDocumentTreeStore.getState().setRenamingVariable(null);
       });
     });
+
+    describe('Duplicate', () => {
+      it('should include Duplicate for IfItem MappingNodeData', () => {
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        const ifNode = shipOrderChildren[1] as MappingNodeData;
+        expect(ifNode.title).toBe('if');
+        expect(MappingActionService.getAllowedActions(ifNode)).toContain(MappingActionKind.Duplicate);
+      });
+
+      it('should include Duplicate for collection FieldItemNodeData', () => {
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        const addMappingNode = shipOrderChildren[4] as AddMappingNodeData;
+        MappingActionService.addMapping(addMappingNode);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        const updatedDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const updatedShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(
+          updatedDocChildren[0],
+        );
+        const addedNode = updatedShipOrderChildren.find(
+          (n) => n instanceof FieldItemNodeData && n.title === 'Item',
+        ) as FieldItemNodeData;
+        expect(addedNode).toBeDefined();
+        expect(MappingActionService.getAllowedActions(addedNode)).toContain(MappingActionKind.Duplicate);
+      });
+
+      it('should not include Duplicate for non-collection FieldItemNodeData', () => {
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        const orderIdNode = shipOrderChildren[0] as FieldItemNodeData;
+        expect(orderIdNode.title).toBe('OrderId');
+        expect(MappingActionService.getAllowedActions(orderIdNode)).not.toContain(MappingActionKind.Duplicate);
+      });
+
+      it('should not include Duplicate for non-IfItem MappingNodeData', () => {
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        const forEachNode = shipOrderChildren[3] as MappingNodeData;
+        expect(forEachNode.title).toBe('for-each');
+        expect(MappingActionService.getAllowedActions(forEachNode)).not.toContain(MappingActionKind.Duplicate);
+      });
+
+      it('should create a new FieldItem with isUserCreated when duplicating a collection field', () => {
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        const addMappingNode = shipOrderChildren[4] as AddMappingNodeData;
+        MappingActionService.addMapping(addMappingNode);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        const updatedDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const updatedShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(
+          updatedDocChildren[0],
+        );
+        const addedNode = updatedShipOrderChildren.find(
+          (n) => n instanceof FieldItemNodeData && n.title === 'Item',
+        ) as FieldItemNodeData;
+        expect(addedNode).toBeDefined();
+
+        const shipOrderMappingItem = targetDocNode.mappingTree.children[0];
+        const childCountBefore = shipOrderMappingItem.children.length;
+
+        const menuItems = MappingActionService.getMappingContextMenuItems(addedNode);
+        const duplicateAction = menuItems.find((item) => item.key === MappingActionKind.Duplicate);
+        expect(duplicateAction).toBeDefined();
+        duplicateAction!.apply(addedNode, { onUpdate: vi.fn(), openModal: vi.fn() });
+
+        expect(shipOrderMappingItem.children).toHaveLength(childCountBefore + 1);
+        const newChild = shipOrderMappingItem.children[childCountBefore] as FieldItem;
+        expect(newChild instanceof FieldItem).toBeTruthy();
+        expect(newChild.field.name).toBe('Item');
+        expect(newChild.isUserCreated).toBe(true);
+      });
+
+      it('should clone IfItem with empty expression when duplicating "if"', () => {
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        const ifNode = shipOrderChildren[1] as MappingNodeData;
+        expect(ifNode.title).toBe('if');
+        const originalIf = ifNode.mapping as IfItem;
+        const originalExpression = originalIf.expression;
+        const originalChildCount = originalIf.children.length;
+        const parent = originalIf.parent;
+        const indexBefore = parent.children.indexOf(originalIf);
+
+        const menuItems = MappingActionService.getMappingContextMenuItems(ifNode);
+        const duplicateAction = menuItems.find((item) => item.key === MappingActionKind.Duplicate);
+        expect(duplicateAction).toBeDefined();
+        duplicateAction!.apply(ifNode, { onUpdate: vi.fn(), openModal: vi.fn() });
+
+        const clonedIf = parent.children[indexBefore + 1] as IfItem;
+        expect(clonedIf instanceof IfItem).toBeTruthy();
+        expect(clonedIf).not.toBe(originalIf);
+        expect(clonedIf.expression).toBe('');
+        expect(originalIf.expression).toBe(originalExpression);
+        expect(clonedIf.children).toHaveLength(originalChildCount);
+        expect(clonedIf.parent).toBe(parent);
+      });
+
+      it('should return dynamic label based on node type', () => {
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+
+        const ifNode = shipOrderChildren[1] as MappingNodeData;
+        const ifMenuItems = MappingActionService.getMappingContextMenuItems(ifNode);
+        const ifDuplicateAction = ifMenuItems.find((item) => item.key === MappingActionKind.Duplicate);
+        expect(ifDuplicateAction).toBeDefined();
+        expect(ifDuplicateAction!.getLabel(ifNode)).toBe('Duplicate "if"');
+
+        const addMappingNode = shipOrderChildren[4] as AddMappingNodeData;
+        MappingActionService.addMapping(addMappingNode);
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        const updatedDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const updatedShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(
+          updatedDocChildren[0],
+        );
+        const addedNode = updatedShipOrderChildren.find(
+          (n) => n instanceof FieldItemNodeData && n.title === 'Item',
+        ) as FieldItemNodeData;
+        const fieldMenuItems = MappingActionService.getMappingContextMenuItems(addedNode);
+        const fieldDuplicateAction = fieldMenuItems.find((item) => item.key === MappingActionKind.Duplicate);
+        expect(fieldDuplicateAction).toBeDefined();
+        expect(fieldDuplicateAction!.getLabel(addedNode)).toBe('Duplicate');
+      });
+    });
   });
 
   describe('getAllowedActions() delete', () => {
