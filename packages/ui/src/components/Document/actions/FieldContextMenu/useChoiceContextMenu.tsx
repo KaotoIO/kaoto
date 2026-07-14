@@ -4,17 +4,17 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { IField } from '../../../../models/datamapper/document';
-import { NodeData, TargetNodeData } from '../../../../models/datamapper/visualization';
-import { ChoiceSelectionService } from '../../../../services/document/choice-selection.service';
+import { FieldItemNodeData, NodeData, TargetNodeData } from '../../../../models/datamapper/visualization';
 import { DocumentUtilService } from '../../../../services/document/document-util.service';
 import { FieldOverrideService } from '../../../../services/document/field-override.service';
+import { WrapperSelectionService } from '../../../../services/document/wrapper-selection.service';
 import { SchemaPathService } from '../../../../services/schema-path.service';
 import { MappingActionService } from '../../../../services/visualization/mapping-action.service';
 import { VisualizationService } from '../../../../services/visualization/visualization.service';
 import { VisualizationUtilService } from '../../../../services/visualization/visualization-util.service';
 import { MenuAction, MenuGroup } from '../FieldContextMenu';
 import { WrapperSelectionModal } from '../WrapperSelectionModal';
-import { buildSelectSelfAction, dissolveChoiceMembers } from './menu-utils';
+import { buildSelectSelfAction, dissolveChoiceMembers, findCandidateQName, resolveCandidateField } from './menu-utils';
 import { MemberSelection, MenuContributor, WrapperCandidate } from './types';
 
 const INLINE_CHOICE_LIMIT = 10;
@@ -42,51 +42,175 @@ function buildInlineMemberActions(
   }));
 }
 
-interface ChoiceNodeInfo {
-  isChoiceWrapper: boolean;
-  isSelectedChoice: boolean;
-  isChoiceMember: boolean;
-  activeChoiceWrapperForMembers: IField | undefined;
-  choiceWrapperField: IField | undefined;
-  choiceMemberField: IField | undefined;
-  parentChoiceWrapperField: IField | undefined;
-  choiceMemberIndex: number | undefined;
+function applyPerInstanceChoiceSelection(
+  nodeData: NodeData,
+  wrapper: IField,
+  selection: MemberSelection,
+  namespaceMap: { [prefix: string]: string },
+): void {
+  let candidateField: IField | undefined = wrapper.fields[selection.memberIndex];
+  if (selection.substituteQName && candidateField) {
+    candidateField = resolveCandidateField(candidateField, selection.substituteQName, {}, undefined, namespaceMap);
+  }
+  if (candidateField) {
+    MappingActionService.applyTargetSelection(nodeData as TargetNodeData, candidateField);
+  }
 }
 
-function resolveChoiceNodeInfo(nodeData: NodeData): ChoiceNodeInfo {
-  const field = VisualizationUtilService.getField(nodeData);
-  const isChoiceWrapper = field?.wrapperKind === 'choice';
-  const isSelectedChoice = VisualizationUtilService.isSelectedChoiceField(nodeData);
+function applyDocumentLevelChoiceSelection(
+  nodeData: NodeData,
+  wrapper: IField,
+  selection: MemberSelection,
+  namespaceMap: { [prefix: string]: string },
+  isTargetSide: boolean,
+): void {
+  const doc = wrapper.ownerDocument;
+  WrapperSelectionService.setChoiceSelection(doc, wrapper, selection.memberIndex, namespaceMap);
 
-  const choiceMemberField =
-    VisualizationUtilService.isChoiceField(nodeData) && nodeData.choiceField ? nodeData.choiceField : field;
-  const choiceMemberParent =
-    choiceMemberField?.parent && 'wrapperKind' in choiceMemberField.parent ? choiceMemberField.parent : undefined;
-  const isChoiceMember = choiceMemberParent?.wrapperKind === 'choice';
-  const parentChoiceWrapperField = isChoiceMember ? choiceMemberParent : undefined;
-  const choiceMemberIndex =
-    isChoiceMember && parentChoiceWrapperField && choiceMemberField
-      ? parentChoiceWrapperField.fields.indexOf(choiceMemberField)
-      : undefined;
-
-  let choiceWrapperField: IField | undefined;
-  if (isSelectedChoice) {
-    choiceWrapperField = VisualizationUtilService.resolveOutermostSelectedWrapper(nodeData.choiceField).outermost;
-  } else if (isChoiceWrapper) {
-    choiceWrapperField = field;
+  if (selection.substituteQName) {
+    const abstractMember = wrapper.fields[selection.memberIndex];
+    if (abstractMember) {
+      FieldOverrideService.applyFieldSubstitution(abstractMember, selection.substituteQName, namespaceMap);
+    }
   }
-  const activeChoiceWrapperForMembers = isSelectedChoice && isChoiceWrapper ? field : choiceWrapperField;
 
-  return {
-    isChoiceWrapper,
-    isSelectedChoice,
-    isChoiceMember,
-    activeChoiceWrapperForMembers,
-    choiceWrapperField,
-    choiceMemberField,
-    parentChoiceWrapperField,
-    choiceMemberIndex,
-  };
+  if (isTargetSide) {
+    const selectedMember = DocumentUtilService.getSelectedMember(wrapper);
+    if (selectedMember) {
+      const candidateField = selection.substituteQName
+        ? (DocumentUtilService.getSelectedMember(selectedMember) ?? selectedMember)
+        : selectedMember;
+      MappingActionService.applyTargetSelection(nodeData as TargetNodeData, candidateField);
+    }
+  }
+}
+
+function clearDocumentLevelChoiceSelection(
+  nodeData: NodeData,
+  wrapper: IField,
+  namespaceMap: { [prefix: string]: string },
+  isTargetSide: boolean,
+  clearDescendantSelections: (field: IField) => void,
+): void {
+  if (isTargetSide) MappingActionService.clearTargetSelection(nodeData as TargetNodeData, wrapper);
+  clearDescendantSelections(wrapper);
+  const doc = wrapper.ownerDocument;
+  const schemaPath = SchemaPathService.build(wrapper, namespaceMap);
+  DocumentUtilService.invalidateDescendants(doc, schemaPath);
+  WrapperSelectionService.clearChoiceSelection(doc, wrapper, namespaceMap);
+}
+
+function clearChoiceSelectionOnField(
+  nodeData: NodeData,
+  wrapper: IField,
+  namespaceMap: { [prefix: string]: string },
+  isTargetSide: boolean,
+  clearDescendantSelections: (field: IField) => void,
+): void {
+  if (isTargetSide && wrapper.maxOccurs !== 1) {
+    MappingActionService.clearPerInstanceWrapperSelection(nodeData as TargetNodeData, wrapper);
+    return;
+  }
+  clearDocumentLevelChoiceSelection(nodeData, wrapper, namespaceMap, isTargetSide, clearDescendantSelections);
+}
+
+function resolveMemberSelectedKey(
+  nodeData: NodeData,
+  choiceWrapperMemberField: IField | undefined,
+  dissolved: WrapperCandidate[],
+  namespaceMap: Record<string, string>,
+): string | null {
+  if (!(nodeData instanceof FieldItemNodeData)) return null;
+  const memberField = nodeData.field;
+  const wrapper = choiceWrapperMemberField;
+  if (!wrapper) return null;
+  const idx = wrapper.fields.indexOf(memberField);
+  if (idx < 0) {
+    const memberParent = memberField.parent && 'wrapperKind' in memberField.parent ? memberField.parent : undefined;
+    if (memberParent) {
+      const parentIdx = wrapper.fields.indexOf(memberParent as IField);
+      const candidates = FieldOverrideService.getFieldSubstitutionCandidates(memberParent as IField, namespaceMap);
+      const substituteQName = findCandidateQName(candidates, memberField);
+      return (
+        dissolved.find((d) => d.selection.memberIndex === parentIdx && d.selection.substituteQName === substituteQName)
+          ?.key ?? null
+      );
+    }
+    return null;
+  }
+  return dissolved.find((d) => d.selection.memberIndex === idx && !d.selection.substituteQName)?.key ?? null;
+}
+
+function dispatchChoiceSelection(
+  nodeData: NodeData,
+  wrapper: IField,
+  selection: MemberSelection,
+  namespaceMap: { [prefix: string]: string },
+  isTargetSide: boolean,
+): void {
+  if (isTargetSide && wrapper.maxOccurs !== 1) {
+    applyPerInstanceChoiceSelection(nodeData, wrapper, selection, namespaceMap);
+    return;
+  }
+  applyDocumentLevelChoiceSelection(nodeData, wrapper, selection, namespaceMap, isTargetSide);
+}
+
+function resolveChoiceWrapper(
+  isChoiceWrapperMember: boolean,
+  choiceWrapperMemberField: IField | undefined,
+  fallback: IField | undefined,
+): IField | undefined {
+  return isChoiceWrapperMember ? choiceWrapperMemberField : fallback;
+}
+
+function resolveSelectedModalKey(
+  isChoiceWrapperMember: boolean,
+  memberSelectedKey: string | null,
+  activeChoiceWrapperForMembers: IField | undefined,
+  dissolved: WrapperCandidate[],
+): string | null {
+  if (isChoiceWrapperMember) return memberSelectedKey;
+  const idx = activeChoiceWrapperForMembers?.selectedMemberIndex;
+  if (idx === undefined) return null;
+  const member = activeChoiceWrapperForMembers?.fields[idx];
+  const substituteQName = member?.selectedMemberQName?.toString();
+  return (
+    dissolved.find((d) => d.selection.memberIndex === idx && d.selection.substituteQName === substituteQName)?.key ??
+    null
+  );
+}
+
+interface ChoiceMenuGroupsConfig {
+  isChoiceWrapper: boolean;
+  isChoiceWrapperMember: boolean;
+  isNestedSelectedChoice: boolean;
+  isSelectedChoice: boolean;
+  dissolved: WrapperCandidate[];
+  selectedModalKey: string | null;
+  selectSelfAction: MenuAction | undefined;
+  clearChoiceAction: MenuAction;
+  changeMemberAction: MenuAction;
+  onSelectChoiceMember: (selection: MemberSelection) => void;
+  onOpenChoiceModal: () => void;
+}
+
+function buildMenuGroupsForChoiceNode(config: ChoiceMenuGroupsConfig): MenuGroup[] {
+  if (config.isChoiceWrapper || config.isChoiceWrapperMember) {
+    const groups = buildChoiceWrapperMenuGroups(
+      config.dissolved,
+      config.selectedModalKey,
+      config.isChoiceWrapperMember ? undefined : config.selectSelfAction,
+      config.clearChoiceAction,
+      config.onSelectChoiceMember,
+      config.onOpenChoiceModal,
+    );
+    if (config.isNestedSelectedChoice) groups.push({ actions: [config.clearChoiceAction, config.changeMemberAction] });
+    return groups;
+  }
+  const choiceActions: MenuAction[] = [];
+  if (config.isSelectedChoice) choiceActions.push(config.clearChoiceAction, config.changeMemberAction);
+  if (config.selectSelfAction) choiceActions.push(config.selectSelfAction);
+  return [{ actions: choiceActions }];
 }
 
 function buildChoiceWrapperMenuGroups(
@@ -121,12 +245,14 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
     isChoiceWrapper,
     isSelectedChoice,
     isChoiceMember,
+    isChoiceWrapperMember,
     activeChoiceWrapperForMembers,
-    choiceWrapperField,
+    effectiveChoiceWrapper,
+    choiceWrapperMemberField,
     choiceMemberField,
     parentChoiceWrapperField,
     choiceMemberIndex,
-  } = resolveChoiceNodeInfo(nodeData);
+  } = VisualizationUtilService.resolveChoiceNodeInfo(nodeData);
 
   const isNestedSelectedChoice = isSelectedChoice && isChoiceWrapper;
   const isTargetSide = !nodeData.isSource;
@@ -134,36 +260,14 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
   const [isChoiceModalOpen, setIsChoiceModalOpen] = useState(false);
 
   const dissolved = useMemo(() => {
-    const members = activeChoiceWrapperForMembers?.fields ?? [];
+    const members = effectiveChoiceWrapper?.fields ?? [];
     return dissolveChoiceMembers(members, mappingTree.namespaceMap);
-  }, [activeChoiceWrapperForMembers?.fields, mappingTree.namespaceMap]);
+  }, [effectiveChoiceWrapper?.fields, mappingTree.namespaceMap]);
 
   const applyChoiceSelection = useCallback(
     (wrapper: IField, selection: MemberSelection) => {
+      dispatchChoiceSelection(nodeData, wrapper, selection, mappingTree.namespaceMap, isTargetSide);
       const doc = wrapper.ownerDocument;
-      ChoiceSelectionService.setChoiceSelection(doc, wrapper, selection.memberIndex, mappingTree.namespaceMap);
-
-      if (selection.substituteQName) {
-        const abstractMember = wrapper.fields[selection.memberIndex];
-        if (abstractMember) {
-          FieldOverrideService.applyFieldSubstitution(
-            abstractMember,
-            selection.substituteQName,
-            mappingTree.namespaceMap,
-          );
-        }
-      }
-
-      if (isTargetSide) {
-        const selectedMember = DocumentUtilService.getSelectedMember(wrapper);
-        if (selectedMember) {
-          const candidateField = selection.substituteQName
-            ? (DocumentUtilService.getSelectedMember(selectedMember) ?? selectedMember)
-            : selectedMember;
-          MappingActionService.applyTargetSelection(nodeData as TargetNodeData, candidateField);
-        }
-      }
-
       const previousRefId = doc.getReferenceId(mappingTree.namespaceMap);
       updateDocument(doc, doc.definition, previousRefId);
     },
@@ -172,29 +276,15 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
 
   const clearDescendantSelections = useCallback(
     (field: IField) => {
-      const member = DocumentUtilService.getSelectedMember(field);
-      if (!member) return;
-      if (member.wrapperKind === 'choice' && member.selectedMemberIndex !== undefined) {
-        clearDescendantSelections(member);
-        member.selectedMemberIndex = undefined;
-      }
-      if (member.wrapperKind === 'abstract' && member.selectedMemberQName) {
-        FieldOverrideService.revertFieldSubstitution(member, mappingTree.namespaceMap);
-      }
+      WrapperSelectionService.clearDescendantWrapperSelections(field, mappingTree.namespaceMap);
     },
     [mappingTree.namespaceMap],
   );
 
   const applyClearChoice = useCallback(
     (wrapper: IField) => {
-      if (isTargetSide) MappingActionService.clearTargetSelection(nodeData as TargetNodeData, wrapper);
-
-      clearDescendantSelections(wrapper);
-
+      clearChoiceSelectionOnField(nodeData, wrapper, mappingTree.namespaceMap, isTargetSide, clearDescendantSelections);
       const doc = wrapper.ownerDocument;
-      const schemaPath = SchemaPathService.build(wrapper, mappingTree.namespaceMap);
-      DocumentUtilService.invalidateDescendants(doc, schemaPath);
-      ChoiceSelectionService.clearChoiceSelection(doc, wrapper, mappingTree.namespaceMap);
       const previousRefId = doc.getReferenceId(mappingTree.namespaceMap);
       updateDocument(doc, doc.definition, previousRefId);
     },
@@ -204,17 +294,44 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
   // Case A: select a member from this node's own wrapper member list
   const handleSelectChoiceMember = useCallback(
     (selection: MemberSelection) => {
-      if (!activeChoiceWrapperForMembers) return;
-      applyChoiceSelection(activeChoiceWrapperForMembers, selection);
+      const wrapper = resolveChoiceWrapper(
+        isChoiceWrapperMember,
+        choiceWrapperMemberField,
+        activeChoiceWrapperForMembers,
+      );
+      if (!wrapper) return;
+      applyChoiceSelection(wrapper, selection);
     },
-    [activeChoiceWrapperForMembers, applyChoiceSelection],
+    [isChoiceWrapperMember, choiceWrapperMemberField, activeChoiceWrapperForMembers, applyChoiceSelection],
   );
 
-  // Case A/B: clear selection on this node's wrapper (or the selected wrapper)
+  // Case A/B: clear selection on this node's active wrapper, cascading to parent when empty
   const handleClearChoice = useCallback(() => {
-    if (!choiceWrapperField) return;
-    applyClearChoice(choiceWrapperField);
-  }, [choiceWrapperField, applyClearChoice]);
+    const wrapper = resolveChoiceWrapper(
+      isChoiceWrapperMember,
+      choiceWrapperMemberField,
+      activeChoiceWrapperForMembers,
+    );
+    if (!wrapper) return;
+
+    if (wrapper.selectedMemberIndex === undefined && isNestedSelectedChoice) {
+      const f = VisualizationUtilService.getField(nodeData);
+      const parent = f?.parent;
+      if (parent && 'wrapperKind' in parent && parent.wrapperKind === 'choice') {
+        applyClearChoice(parent as IField);
+        return;
+      }
+    }
+
+    applyClearChoice(wrapper);
+  }, [
+    isChoiceWrapperMember,
+    choiceWrapperMemberField,
+    activeChoiceWrapperForMembers,
+    isNestedSelectedChoice,
+    nodeData,
+    applyClearChoice,
+  ]);
 
   const handleOpenChoiceModal = useCallback(() => {
     setIsChoiceModalOpen(true);
@@ -249,49 +366,48 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
     testId: 'change-choice-member',
   };
 
-  const selectedModalKey = useMemo<string | null>(() => {
-    const idx = activeChoiceWrapperForMembers?.selectedMemberIndex;
-    if (idx === undefined) return null;
-    const member = activeChoiceWrapperForMembers?.fields[idx];
-    const substituteQName = member?.selectedMemberQName?.toString();
-    return (
-      dissolved.find((d) => d.selection.memberIndex === idx && d.selection.substituteQName === substituteQName)?.key ??
-      null
-    );
-  }, [activeChoiceWrapperForMembers, dissolved]);
+  const memberSelectedKey = useMemo<string | null>(
+    () =>
+      isChoiceWrapperMember
+        ? resolveMemberSelectedKey(nodeData, choiceWrapperMemberField, dissolved, mappingTree.namespaceMap)
+        : null,
+    [isChoiceWrapperMember, nodeData, choiceWrapperMemberField, dissolved, mappingTree.namespaceMap],
+  );
 
-  let menuGroups: MenuGroup[];
-  if (isChoiceWrapper) {
-    menuGroups = buildChoiceWrapperMenuGroups(
-      dissolved,
-      selectedModalKey,
-      selectSelfAction,
-      clearChoiceAction,
-      handleSelectChoiceMember,
-      handleOpenChoiceModal,
-    );
-    if (isNestedSelectedChoice) {
-      menuGroups.push({ actions: [clearChoiceAction, changeMemberAction] });
-    }
-  } else {
-    const choiceActions: MenuAction[] = [];
-    if (isSelectedChoice) {
-      choiceActions.push(clearChoiceAction, changeMemberAction);
-    }
-    if (selectSelfAction) choiceActions.push(selectSelfAction);
-    menuGroups = [{ actions: choiceActions }];
-  }
+  const selectedModalKey = useMemo<string | null>(
+    () => resolveSelectedModalKey(isChoiceWrapperMember, memberSelectedKey, activeChoiceWrapperForMembers, dissolved),
+    [isChoiceWrapperMember, memberSelectedKey, activeChoiceWrapperForMembers, dissolved],
+  );
+
+  const menuGroups = buildMenuGroupsForChoiceNode({
+    isChoiceWrapper,
+    isChoiceWrapperMember,
+    isNestedSelectedChoice,
+    isSelectedChoice,
+    dissolved,
+    selectedModalKey,
+    selectSelfAction,
+    clearChoiceAction,
+    changeMemberAction,
+    onSelectChoiceMember: handleSelectChoiceMember,
+    onOpenChoiceModal: handleOpenChoiceModal,
+  });
 
   const closeChoiceModal = useCallback(() => {
     setIsChoiceModalOpen(false);
   }, []);
 
-  const fieldName = activeChoiceWrapperForMembers?.displayName || activeChoiceWrapperForMembers?.name || 'Choice';
+  const effectiveWrapper = resolveChoiceWrapper(
+    isChoiceWrapperMember,
+    choiceWrapperMemberField,
+    activeChoiceWrapperForMembers,
+  );
+  const fieldName = effectiveWrapper?.displayName || effectiveWrapper?.name || 'Choice';
 
   return {
     groups: menuGroups,
     modals:
-      isChoiceModalOpen && activeChoiceWrapperForMembers ? (
+      isChoiceModalOpen && effectiveWrapper ? (
         <WrapperSelectionModal
           isOpen={isChoiceModalOpen}
           title={`Select member for ${fieldName}`}

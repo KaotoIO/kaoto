@@ -10,6 +10,26 @@
         <xs:element ref="AbstractLabel"/>
         <xs:element ref="AbstractCount"/>
         <xs:element name="capacity" type="xs:int"/>
+        <xs:element name="Equipment">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Primary">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element ref="AbstractVehicle"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="Options">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element ref="AbstractVehicle" maxOccurs="unbounded"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -108,4 +128,35 @@
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="SmallIntCount" type="SmallInt_t" substitutionGroup="AbstractCount"/>
+
+  <xs:element name="AbstractVehicle" type="Vehicle_t" abstract="true"/>
+  <xs:element name="Car" type="Car_t" substitutionGroup="AbstractVehicle"/>
+  <xs:element name="Truck" type="Truck_t" substitutionGroup="AbstractVehicle"/>
+  <xs:element name="Bus" type="Bus_t" substitutionGroup="AbstractVehicle"/>
+  <xs:element name="Van" type="Van_t" substitutionGroup="AbstractVehicle"/>
+  <xs:element name="Motorcycle" type="Motorcycle_t" substitutionGroup="AbstractVehicle"/>
+  <xs:element name="Bicycle" type="Bicycle_t" substitutionGroup="AbstractVehicle"/>
+  <xs:element name="Scooter" type="Scooter_t" substitutionGroup="AbstractVehicle"/>
+  <xs:element name="Tram" type="Tram_t" substitutionGroup="AbstractVehicle"/>
+  <xs:element name="Ferry" type="Ferry_t" substitutionGroup="AbstractVehicle"/>
+  <xs:element name="Helicopter" type="Helicopter_t" substitutionGroup="AbstractVehicle"/>
+  <xs:element name="Airplane" type="Airplane_t" substitutionGroup="AbstractVehicle"/>
+
+  <xs:complexType name="Vehicle_t">
+    <xs:sequence>
+      <xs:element name="model" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Car_t"><xs:complexContent><xs:extension base="Vehicle_t"><xs:sequence><xs:element name="doors" type="xs:int"/></xs:sequence></xs:extension></xs:complexContent></xs:complexType>
+  <xs:complexType name="Truck_t"><xs:complexContent><xs:extension base="Vehicle_t"><xs:sequence><xs:element name="payload" type="xs:int"/></xs:sequence></xs:extension></xs:complexContent></xs:complexType>
+  <xs:complexType name="Bus_t"><xs:complexContent><xs:extension base="Vehicle_t"><xs:sequence><xs:element name="seats" type="xs:int"/></xs:sequence></xs:extension></xs:complexContent></xs:complexType>
+  <xs:complexType name="Van_t"><xs:complexContent><xs:extension base="Vehicle_t"><xs:sequence><xs:element name="cargo" type="xs:boolean"/></xs:sequence></xs:extension></xs:complexContent></xs:complexType>
+  <xs:complexType name="Motorcycle_t"><xs:complexContent><xs:extension base="Vehicle_t"><xs:sequence><xs:element name="cc" type="xs:int"/></xs:sequence></xs:extension></xs:complexContent></xs:complexType>
+  <xs:complexType name="Bicycle_t"><xs:complexContent><xs:extension base="Vehicle_t"><xs:sequence><xs:element name="gears" type="xs:int"/></xs:sequence></xs:extension></xs:complexContent></xs:complexType>
+  <xs:complexType name="Scooter_t"><xs:complexContent><xs:extension base="Vehicle_t"><xs:sequence><xs:element name="electric" type="xs:boolean"/></xs:sequence></xs:extension></xs:complexContent></xs:complexType>
+  <xs:complexType name="Tram_t"><xs:complexContent><xs:extension base="Vehicle_t"><xs:sequence><xs:element name="route" type="xs:string"/></xs:sequence></xs:extension></xs:complexContent></xs:complexType>
+  <xs:complexType name="Ferry_t"><xs:complexContent><xs:extension base="Vehicle_t"><xs:sequence><xs:element name="capacity" type="xs:int"/></xs:sequence></xs:extension></xs:complexContent></xs:complexType>
+  <xs:complexType name="Helicopter_t"><xs:complexContent><xs:extension base="Vehicle_t"><xs:sequence><xs:element name="rotors" type="xs:int"/></xs:sequence></xs:extension></xs:complexContent></xs:complexType>
+  <xs:complexType name="Airplane_t"><xs:complexContent><xs:extension base="Vehicle_t"><xs:sequence><xs:element name="wingspan" type="xs:int"/></xs:sequence></xs:extension></xs:complexContent></xs:complexType>
+
 </xs:schema>

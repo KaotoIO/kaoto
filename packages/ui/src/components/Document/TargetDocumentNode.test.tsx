@@ -24,6 +24,7 @@ import { MappingLinksProvider } from '../../providers/data-mapping-links.provide
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { MappingService } from '../../services/mapping/mapping.service';
 import { MappingActionService } from '../../services/visualization/mapping-action.service';
+import { MappingActionRegistryService } from '../../services/visualization/mapping-action-registry.service';
 import { TreeParsingService } from '../../services/visualization/tree-parsing.service';
 import { TreeUIService } from '../../services/visualization/tree-ui.service';
 import { VisualizationService } from '../../services/visualization/visualization.service';
@@ -774,7 +775,7 @@ describe('TargetDocumentNode', () => {
       const tree = new DocumentTree(documentNodeData);
 
       const getAllowedActionsSpy = vi
-        .spyOn(MappingActionService, 'getAllowedActions')
+        .spyOn(MappingActionRegistryService, 'getAllowedActions')
         .mockReturnValue([MappingActionKind.ValueSelector]);
       const applyValueSelectorSpy = vi.spyOn(MappingActionService, 'applyValueSelector');
 
@@ -804,7 +805,7 @@ describe('TargetDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      const getAllowedActionsSpy = vi.spyOn(MappingActionService, 'getAllowedActions').mockReturnValue([]);
+      const getAllowedActionsSpy = vi.spyOn(MappingActionRegistryService, 'getAllowedActions').mockReturnValue([]);
       const applyValueSelectorSpy = vi.spyOn(MappingActionService, 'applyValueSelector');
 
       act(() => {

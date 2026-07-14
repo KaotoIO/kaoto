@@ -13,7 +13,7 @@ import { MappingItem } from '../../../../models/datamapper/mapping';
 import { IMappingActionCallbacks } from '../../../../models/datamapper/mapping-action';
 import { TargetNodeData } from '../../../../models/datamapper/visualization';
 import { DEFAULT_POPPER_PROPS } from '../../../../models/popper-default';
-import { MappingActionService } from '../../../../services/visualization/mapping-action.service';
+import { MappingActionRegistryService } from '../../../../services/visualization/mapping-action-registry.service';
 import { useMappingActionModals } from './useMappingActionModals';
 
 type MappingContextMenuProps = {
@@ -28,7 +28,7 @@ export const MappingContextMenuAction: FunctionComponent<MappingContextMenuProps
   onUpdate,
 }) => {
   const [isActionMenuOpen, setIsActionMenuOpen] = useState<boolean>(false);
-  const menuItems = useMemo(() => MappingActionService.getMappingContextMenuItems(nodeData), [nodeData]);
+  const menuItems = useMemo(() => MappingActionRegistryService.getMappingContextMenuItems(nodeData), [nodeData]);
 
   const mappingItem = nodeData.mapping instanceof MappingItem ? nodeData.mapping : undefined;
 

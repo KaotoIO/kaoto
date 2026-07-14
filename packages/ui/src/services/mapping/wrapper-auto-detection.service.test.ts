@@ -228,13 +228,16 @@ describe('WrapperAutoDetectionService', () => {
       const xslt = makeXslt(
         { ns0: NS_CHOICE_ABSTRACT },
         `    <ns0:Notification>
-      <ns0:id>123</ns0:id>
-      <ns0:Webhook><ns0:url>http://example.com</ns0:url></ns0:Webhook>
+      <ns0:Short>
+        <ns0:id>123</ns0:id>
+        <ns0:Webhook><ns0:url>http://example.com</ns0:url></ns0:Webhook>
+      </ns0:Short>
     </ns0:Notification>`,
       );
 
       const mappingTree = deserializeAndAutoDetect(xslt, targetDoc);
-      const choiceWrapper = targetDoc.fields[0].fields.find((f) => f.wrapperKind === 'choice');
+      const short = targetDoc.fields[0].fields.find((f) => f.name === 'Short');
+      const choiceWrapper = short!.fields.find((f) => f.wrapperKind === 'choice');
       expect(choiceWrapper).toBeDefined();
       expect(choiceWrapper!.selectedMemberIndex).toBeDefined();
 
@@ -242,7 +245,10 @@ describe('WrapperAutoDetectionService', () => {
       expect(choiceWrapper!.selectedMemberIndex).toBe(choiceWrapper!.fields.indexOf(webhookMember!));
 
       const notifFieldItem = mappingTree.children[0] as FieldItem;
-      const webhookFieldItem = notifFieldItem.children.find(
+      const shortFieldItem = notifFieldItem.children.find(
+        (c) => c instanceof FieldItem && c.field.name === 'Short',
+      ) as FieldItem;
+      const webhookFieldItem = shortFieldItem.children.find(
         (c) => c instanceof FieldItem && c.field.name === 'Webhook',
       ) as FieldItem;
       expect(webhookFieldItem.isUserCreated).toBe(true);
@@ -259,14 +265,17 @@ describe('WrapperAutoDetectionService', () => {
       const xslt = makeXslt(
         { ns0: NS_CHOICE_ABSTRACT },
         `    <ns0:Notification>
-      <xsl:if test="true()">
-        <ns0:Webhook><ns0:url>http://example.com</ns0:url></ns0:Webhook>
-      </xsl:if>
+      <ns0:Short>
+        <xsl:if test="true()">
+          <ns0:Webhook><ns0:url>http://example.com</ns0:url></ns0:Webhook>
+        </xsl:if>
+      </ns0:Short>
     </ns0:Notification>`,
       );
 
       deserializeAndAutoDetect(xslt, targetDoc);
-      const choiceWrapper = targetDoc.fields[0].fields.find((f) => f.wrapperKind === 'choice');
+      const short = targetDoc.fields[0].fields.find((f) => f.name === 'Short');
+      const choiceWrapper = short!.fields.find((f) => f.wrapperKind === 'choice');
       expect(choiceWrapper!.selectedMemberIndex).toBeUndefined();
     });
   });
@@ -279,14 +288,17 @@ describe('WrapperAutoDetectionService', () => {
       const xslt = makeXslt(
         { ns0: NS_CHOICE_ABSTRACT },
         `    <ns0:Notification>
-      <ns0:id>123</ns0:id>
-      <ns0:Email><ns0:content>hello</ns0:content><ns0:subject>test</ns0:subject></ns0:Email>
+      <ns0:Short>
+        <ns0:id>123</ns0:id>
+        <ns0:Email><ns0:content>hello</ns0:content><ns0:subject>test</ns0:subject></ns0:Email>
+      </ns0:Short>
     </ns0:Notification>`,
       );
 
       deserializeAndAutoDetect(xslt, targetDoc);
 
-      const choiceWrapper = targetDoc.fields[0].fields.find((f) => f.wrapperKind === 'choice');
+      const short = targetDoc.fields[0].fields.find((f) => f.name === 'Short');
+      const choiceWrapper = short!.fields.find((f) => f.wrapperKind === 'choice');
       expect(choiceWrapper).toBeDefined();
       expect(choiceWrapper!.selectedMemberIndex).toBeDefined();
 
@@ -425,7 +437,8 @@ describe('WrapperAutoDetectionService', () => {
       const targetDoc = createTargetDoc(getChoiceWithAbstractXsd(), 'ChoiceWithAbstract.xsd', {
         rootElementChoice: NOTIFICATION_ROOT,
       });
-      const choiceWrapper = targetDoc.fields[0].fields.find((f) => f.wrapperKind === 'choice');
+      const short = targetDoc.fields[0].fields.find((f) => f.name === 'Short');
+      const choiceWrapper = short!.fields.find((f) => f.wrapperKind === 'choice');
       expect(choiceWrapper).toBeDefined();
       const webhook = choiceWrapper!.fields.find((f) => f.name === 'Webhook');
       expect(webhook).toBeDefined();
@@ -468,7 +481,7 @@ describe('WrapperAutoDetectionService', () => {
         { 'ChoiceWithAbstract.xsd': getChoiceWithAbstractXsd() },
         NOTIFICATION_ROOT,
         undefined,
-        [{ schemaPath: '/ns0:Notification/{choice:0}', selectedMemberIndex: 0 }],
+        [{ schemaPath: '/ns0:Notification/ns0:Short/{choice:0}', selectedMemberIndex: 0 }],
       );
       const targetDoc = createTargetDoc(getChoiceWithAbstractXsd(), 'ChoiceWithAbstract.xsd', {
         definition: def,
@@ -477,13 +490,16 @@ describe('WrapperAutoDetectionService', () => {
       const xslt = makeXslt(
         { ns0: NS_CHOICE_ABSTRACT },
         `    <ns0:Notification>
-      <ns0:id>123</ns0:id>
-      <ns0:Webhook><ns0:url>http://example.com</ns0:url></ns0:Webhook>
+      <ns0:Short>
+        <ns0:id>123</ns0:id>
+        <ns0:Webhook><ns0:url>http://example.com</ns0:url></ns0:Webhook>
+      </ns0:Short>
     </ns0:Notification>`,
       );
 
       deserializeAndAutoDetect(xslt, targetDoc, nsMap);
-      const choiceWrapper = targetDoc.fields[0].fields.find((f) => f.wrapperKind === 'choice');
+      const short = targetDoc.fields[0].fields.find((f) => f.name === 'Short');
+      const choiceWrapper = short!.fields.find((f) => f.wrapperKind === 'choice');
       expect(choiceWrapper).toBeDefined();
       expect(choiceWrapper!.selectedMemberIndex).toBe(0);
     });
@@ -497,16 +513,19 @@ describe('WrapperAutoDetectionService', () => {
       const xslt = makeXslt(
         { ns0: NS_CHOICE_ABSTRACT },
         `    <ns0:Notification>
-      <xsl:choose>
-        <xsl:when test="true()">
-          <ns0:Webhook><ns0:url>http://example.com</ns0:url></ns0:Webhook>
-        </xsl:when>
-      </xsl:choose>
+      <ns0:Short>
+        <xsl:choose>
+          <xsl:when test="true()">
+            <ns0:Webhook><ns0:url>http://example.com</ns0:url></ns0:Webhook>
+          </xsl:when>
+        </xsl:choose>
+      </ns0:Short>
     </ns0:Notification>`,
       );
 
       deserializeAndAutoDetect(xslt, targetDoc);
-      const choiceWrapper = targetDoc.fields[0].fields.find((f) => f.wrapperKind === 'choice');
+      const short = targetDoc.fields[0].fields.find((f) => f.name === 'Short');
+      const choiceWrapper = short!.fields.find((f) => f.wrapperKind === 'choice');
       expect(choiceWrapper).toBeDefined();
       expect(choiceWrapper!.selectedMemberIndex).toBeUndefined();
     });
@@ -517,7 +536,8 @@ describe('WrapperAutoDetectionService', () => {
       const targetDoc = createTargetDoc(getChoiceWithAbstractXsd(), 'ChoiceWithAbstract.xsd', {
         rootElementChoice: NOTIFICATION_ROOT,
       });
-      const choiceWrapper = targetDoc.fields[0].fields.find((f) => f.wrapperKind === 'choice')!;
+      const short = targetDoc.fields[0].fields.find((f) => f.name === 'Short')!;
+      const choiceWrapper = short.fields.find((f) => f.wrapperKind === 'choice')!;
       const webhook = choiceWrapper.fields.find((f) => f.name === 'Webhook')!;
       const duplicate = new BaseField(choiceWrapper, targetDoc, 'Webhook');
       duplicate.namespaceURI = webhook.namespaceURI;
@@ -631,7 +651,8 @@ describe('WrapperAutoDetectionService', () => {
         BODY_DOCUMENT_ID,
         DocumentDefinitionType.XML_SCHEMA,
       );
-      const field = targetDoc.fields[0].fields.find((f) => f.name === 'id')!;
+      const short = targetDoc.fields[0].fields.find((f) => f.name === 'Short')!;
+      const field = short.fields.find((f) => f.name === 'id')!;
       const fi = new FieldItem(mappingTree, field);
       fi.isUserCreated = true;
       const cloned = fi.clone();
@@ -647,7 +668,8 @@ describe('WrapperAutoDetectionService', () => {
         BODY_DOCUMENT_ID,
         DocumentDefinitionType.XML_SCHEMA,
       );
-      const field = targetDoc.fields[0].fields.find((f) => f.name === 'id')!;
+      const short = targetDoc.fields[0].fields.find((f) => f.name === 'Short')!;
+      const field = short.fields.find((f) => f.name === 'id')!;
       const fi = new FieldItem(mappingTree, field);
       const cloned = fi.clone();
       expect((cloned as FieldItem).isUserCreated).toBe(false);

@@ -158,6 +158,40 @@
                         </xs:choice>
                     </xs:complexType>
                 </xs:element>
+                <xs:element name="LargeChoiceElement">
+                    <xs:complexType>
+                        <xs:choice>
+                            <xs:element name="OptionA" type="xs:string"/>
+                            <xs:element name="OptionB" type="xs:string"/>
+                            <xs:element name="OptionC" type="xs:string"/>
+                            <xs:element name="OptionD" type="xs:string"/>
+                            <xs:element name="OptionE" type="xs:string"/>
+                            <xs:element name="OptionF" type="xs:string"/>
+                            <xs:element name="OptionG" type="xs:string"/>
+                            <xs:element name="OptionH" type="xs:string"/>
+                            <xs:element name="OptionI" type="xs:string"/>
+                            <xs:element name="OptionJ" type="xs:string"/>
+                            <xs:element name="OptionK" type="xs:string"/>
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="LargeCollectionChoiceElement">
+                    <xs:complexType>
+                        <xs:choice maxOccurs="unbounded">
+                            <xs:element name="MultiA" type="xs:string"/>
+                            <xs:element name="MultiB" type="xs:string"/>
+                            <xs:element name="MultiC" type="xs:string"/>
+                            <xs:element name="MultiD" type="xs:string"/>
+                            <xs:element name="MultiE" type="xs:string"/>
+                            <xs:element name="MultiF" type="xs:string"/>
+                            <xs:element name="MultiG" type="xs:string"/>
+                            <xs:element name="MultiH" type="xs:string"/>
+                            <xs:element name="MultiI" type="xs:string"/>
+                            <xs:element name="MultiJ" type="xs:string"/>
+                            <xs:element name="MultiK" type="xs:string"/>
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
                 <xs:element name="AllElement">
                     <xs:complexType>
                         <xs:all>

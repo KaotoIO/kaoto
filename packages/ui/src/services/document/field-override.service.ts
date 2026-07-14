@@ -26,7 +26,7 @@ import { XmlSchemaTypesService } from './xml-schema/xml-schema-types.service';
  * code duplication and improving maintainability by eliminating if-XML/if-JSON patterns
  * scattered across multiple services.
  *
- * Note: Choice selection operations have been moved to {@link ChoiceSelectionService}.
+ * Note: Choice selection operations have been moved to {@link WrapperSelectionService}.
  *
  * **Design constraint:** Field Type Override and Field Substitution are mutually exclusive.
  * A field can have at most one active: either a Field Type Override (`SAFE`/`FORCE`) or a

@@ -4,6 +4,7 @@ import { useCallback, useEffect } from 'react';
 import { MappingActionKind } from '../models/datamapper/mapping-action';
 import { DocumentNodeData, TargetDocumentNodeData } from '../models/datamapper/visualization';
 import { MappingActionService } from '../services/visualization/mapping-action.service';
+import { MappingActionRegistryService } from '../services/visualization/mapping-action-registry.service';
 import { TreeUIService } from '../services/visualization/tree-ui.service';
 import { useDocumentTreeStore } from '../store/document-tree.store';
 import { useDataMapper } from './useDataMapper';
@@ -37,7 +38,7 @@ export function useDataMapperDeleteHotkey(onUpdate: () => void) {
     if (!selectedNode) return;
 
     // Check if deletion is allowed for this node
-    const allowedActions = new Set(MappingActionService.getAllowedActions(selectedNode));
+    const allowedActions = new Set(MappingActionRegistryService.getAllowedActions(selectedNode));
     if (!allowedActions.has(MappingActionKind.Delete)) return;
 
     // Delete the mapping

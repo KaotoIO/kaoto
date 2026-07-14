@@ -5,7 +5,7 @@ import { FunctionComponent, KeyboardEvent, MouseEvent, useCallback } from 'react
 
 import { MappingActionKind } from '../../../models/datamapper/mapping-action';
 import { TargetNodeData } from '../../../models/datamapper/visualization';
-import { MappingActionService } from '../../../services/visualization/mapping-action.service';
+import { MappingActionRegistryService } from '../../../services/visualization/mapping-action-registry.service';
 import { VisualizationService } from '../../../services/visualization/visualization.service';
 import { DeleteMappingItemAction } from './DeleteMappingItemAction';
 import { MappingContextMenuAction } from './MappingMenu/MappingContextMenuAction';
@@ -20,7 +20,7 @@ type TargetNodeActionsProps = {
 
 export const TargetNodeActions: FunctionComponent<TargetNodeActionsProps> = ({ className, nodeData, onUpdate }) => {
   const expressionItem = VisualizationService.getExpressionItemForNode(nodeData);
-  const allowedActions = new Set(MappingActionService.getAllowedActions(nodeData));
+  const allowedActions = new Set(MappingActionRegistryService.getAllowedActions(nodeData));
 
   const handleStopPropagation = useCallback((event: MouseEvent | KeyboardEvent) => {
     if (!(event.currentTarget as HTMLElement).contains(event.target as Node)) return;

@@ -5,21 +5,19 @@ import {
   ForEachGroupItem,
   ForEachItem,
   IfItem,
+  InstructionItem,
   MappingItem,
   MappingParentType,
   MappingTree,
-  OtherwiseItem,
-  UnknownMappingItem,
   ValueSelector,
   ValueType,
-  WhenItem,
 } from '../../models/datamapper/mapping';
-import { IMappingAction, IMappingContextMenuAction, MappingActionKind } from '../../models/datamapper/mapping-action';
 import { Types } from '../../models/datamapper/types';
 import {
   AddMappingNodeData,
   ChoiceFieldNodeData,
   FieldItemNodeData,
+  ForEachCapableNodeData,
   MappingNodeData,
   SourceNodeDataType,
   SourceVariableNodeData,
@@ -29,7 +27,6 @@ import {
   TargetFieldNodeData,
   TargetNodeData,
   TargetSequenceFieldNodeData,
-  VariableNodeData,
 } from '../../models/datamapper/visualization';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
 import { DocumentService } from '../document/document.service';
@@ -37,21 +34,19 @@ import { FieldMatchingService } from '../mapping/field-matching.service';
 import { MappingService } from '../mapping/mapping.service';
 import { VisualizationUtilService } from './visualization-util.service';
 
-type ForEachCapableNodeData = TargetFieldNodeData | FieldItemNodeData | AddMappingNodeData;
-
 /**
- * Static service for mapping mutations and the action registry in the
- * DataMapper visualization layer.
+ * Static service for mapping mutations in the DataMapper visualization layer.
  *
  * Owns every operation that modifies the {@link MappingTree} — applying
  * conditions (`if`, `choose/when/otherwise`, `for-each`), engaging and
- * deleting mappings, and adding value selectors — as well as the
- * registry-based capability checks that determine which actions are
- * available for a given target node.
+ * deleting mappings, and adding value selectors.
  *
  * Depends on {@link MappingService} for low-level mapping tree manipulation
  * and on {@link VisualizationUtilService} for node-type inspection,
  * but has no dependency on {@link VisualizationService}.
+ *
+ * The action registry that determines which actions are available for a
+ * given target node lives in {@link MappingActionRegistryService}.
  */
 export class MappingActionService {
   /**
@@ -221,7 +216,7 @@ export class MappingActionService {
    */
   static applyInnerForEach(nodeData: ForEachCapableNodeData | TargetNodeData) {
     // If applying to a ForEachItem or ForEachGroupItem node, use the mapping directly
-    if (MappingActionService.isMappingNode(nodeData)) {
+    if (VisualizationUtilService.isMappingNode(nodeData)) {
       const mapping = (nodeData as MappingNodeData).mapping;
       if (mapping instanceof ForEachItem || mapping instanceof ForEachGroupItem) {
         MappingService.addInnerForEach(mapping);
@@ -240,7 +235,7 @@ export class MappingActionService {
    * @param nodeData - The target field node or for-each node to add the inner for-each-group to.
    */
   static applyInnerForEachGroup(nodeData: ForEachCapableNodeData | TargetNodeData) {
-    if (MappingActionService.isMappingNode(nodeData)) {
+    if (VisualizationUtilService.isMappingNode(nodeData)) {
       const mapping = (nodeData as MappingNodeData).mapping;
       if (mapping instanceof ForEachItem || mapping instanceof ForEachGroupItem) {
         MappingService.addInnerForEachGroup(mapping);
@@ -258,7 +253,7 @@ export class MappingActionService {
    * @param nodeData - The target node to add the inner for-each current-group() to.
    */
   static applyInnerForEachCurrentGroup(nodeData: ForEachCapableNodeData | TargetNodeData) {
-    if (MappingActionService.isMappingNode(nodeData)) {
+    if (VisualizationUtilService.isMappingNode(nodeData)) {
       const mapping = (nodeData as MappingNodeData).mapping;
       if (mapping instanceof ForEachItem || mapping instanceof ForEachGroupItem) {
         MappingService.addInnerForEach(mapping).expression = 'current-group()';
@@ -285,7 +280,7 @@ export class MappingActionService {
    */
   static applyInnerIf(nodeData: TargetNodeData) {
     // If applying to an IfItem node, use the mapping directly
-    if (MappingActionService.isMappingNode(nodeData)) {
+    if (VisualizationUtilService.isMappingNode(nodeData)) {
       const mapping = nodeData.mapping;
       if (mapping instanceof IfItem) {
         MappingService.addInnerIf(mapping);
@@ -361,14 +356,14 @@ export class MappingActionService {
 
     const sourceField = 'document' in sourceNode ? (sourceNode.document as PrimitiveDocument) : sourceNode.field;
 
-    if (sourceNode instanceof ChoiceFieldNodeData && MappingActionService.isFieldNode(targetNode)) {
+    if (sourceNode instanceof ChoiceFieldNodeData && VisualizationUtilService.isFieldNode(targetNode)) {
       MappingActionService.engageChoiceMapping(sourceNode, targetNode, sourceField);
       return;
     }
 
     if (MappingActionService.tryEngageContainerMapping(sourceNode, targetNode)) return;
 
-    if (MappingActionService.isFieldNode(targetNode)) {
+    if (VisualizationUtilService.isFieldNode(targetNode)) {
       const item = MappingActionService.getOrCreateFieldItem(targetNode);
       MappingActionService.removeParentContainerCopyOf(item);
       MappingService.mapToField(sourceField, item);
@@ -415,9 +410,7 @@ export class MappingActionService {
    * @param nodeData - The placeholder node representing the "add mapping" action.
    */
   static addMapping(nodeData: AddMappingNodeData) {
-    const parentItem = MappingActionService.getOrCreateFieldItem(nodeData.parent);
-    const fieldItem = MappingService.createFieldItem(parentItem, nodeData.field);
-    fieldItem.isUserCreated = true;
+    MappingActionService.createUserFieldItem(nodeData.parent, nodeData.field);
   }
 
   /**
@@ -436,6 +429,23 @@ export class MappingActionService {
     parent.children.splice(index + 1, 0, cloned);
   }
 
+  static duplicateFieldNode(nodeData: FieldItemNodeData | TargetFieldNodeData): void {
+    MappingActionService.createUserFieldItem(nodeData.parent, nodeData.field);
+  }
+
+  private static createUserFieldItem(parent: TargetNodeData, field: IField): FieldItem {
+    const parentItem = MappingActionService.getOrCreateFieldItem(parent);
+    const fieldItem = MappingService.createFieldItem(parentItem, field);
+    fieldItem.isUserCreated = true;
+    return fieldItem;
+  }
+
+  /**
+   * Creates or updates a per-instance member selection for a wrapper field. Unlike the
+   * document-level selection (`selectedMemberQName`/`selectedMemberIndex`), this operates
+   * on individual FieldItems. New FieldItems are marked `isUserCreated` so they survive
+   * stale-mapping cleanup even before child mappings are created.
+   */
   static applyTargetSelection(nodeData: TargetNodeData, selectedField: IField): void {
     const existingMapping = nodeData.mapping;
     if (existingMapping instanceof FieldItem) {
@@ -447,12 +457,44 @@ export class MappingActionService {
     }
   }
 
+  /**
+   * When the FieldItem lives inside an InstructionItem (xsl:if, xsl:when, etc.), it is
+   * reverted to the wrapper field rather than removed. This preserves the instruction
+   * structure while still producing the correct "unconfigured" visual state — because
+   * {@link VisualizationService.isUnconfiguredTargetWrapper} only inspects direct children
+   * of the nearest non-wrapper ancestor mapping, a FieldItem nested inside an instruction
+   * is invisible to that check. Without an instruction, the FieldItem must be removed so
+   * `isUnconfiguredTargetWrapper` returns true; keeping it would bypass that gate and
+   * render all candidates below a wrapper that has no expand arrow.
+   */
   static clearTargetSelection(nodeData: TargetNodeData, wrapperField: IField): void {
     const existingMapping = nodeData.mapping;
     if (existingMapping instanceof FieldItem) {
       existingMapping.children = [];
-      MappingService.updateFieldItemField(existingMapping, wrapperField);
+      if (existingMapping.parent instanceof InstructionItem) {
+        MappingService.updateFieldItemField(existingMapping, wrapperField);
+      } else {
+        existingMapping.parent.children = existingMapping.parent.children.filter((child) => child !== existingMapping);
+      }
     }
+  }
+
+  /**
+   * Reverts a per-instance wrapper selection without removing the FieldItem.
+   * Unlike {@link clearTargetSelection}, which may remove the FieldItem entirely
+   * (when not inside an InstructionItem), this method always keeps the slot and
+   * reverts its field back to `wrapperField`. Used by collection (maxOccurs>1)
+   * abstract and choice wrappers where each FieldItem represents an independent
+   * instance that should be preserved.
+   */
+  static clearPerInstanceWrapperSelection(nodeData: TargetNodeData, wrapperField: IField): void {
+    const existingMapping = nodeData.mapping;
+    if (existingMapping instanceof FieldItem) {
+      existingMapping.children = [];
+      MappingService.updateFieldItemField(existingMapping, wrapperField);
+      return;
+    }
+    MappingActionService.clearTargetSelection(nodeData, wrapperField);
   }
 
   static getOrCreateParentMapping(nodeData: TargetNodeData): MappingParentType | undefined {
@@ -599,19 +641,48 @@ export class MappingActionService {
     return undefined;
   }
 
+  /**
+   * Ensures a {@link FieldItem} exists in the {@link MappingTree} for the given
+   * visualization node, creating the full ancestor chain as needed.
+   *
+   * The visualization tree includes schema-structural nodes (xs:sequence,
+   * unselected xs:choice/abstract wrappers) that have no XSLT element
+   * counterpart. This method and {@link getOrCreateParentFieldItem} skip
+   * those nodes so the mapping tree reflects only the actual XML output
+   * structure. The split between the two methods exists because wrapper
+   * skipping must only happen during ancestor resolution — the entry-point
+   * node itself is always materialized (except xs:sequence, which is purely
+   * structural at every level).
+   */
   static getOrCreateFieldItem(nodeData: TargetNodeData): MappingItem {
     if (nodeData.mapping) return nodeData.mapping as MappingItem;
     const fieldNodeData = nodeData as TargetFieldNodeData;
+    if (fieldNodeData instanceof TargetSequenceFieldNodeData) {
+      return MappingActionService.getOrCreateParentFieldItem(fieldNodeData.parent);
+    }
+    const parentItem = MappingActionService.getOrCreateParentFieldItem(fieldNodeData.parent);
+    return MappingService.createFieldItem(parentItem, fieldNodeData.field);
+  }
+
+  /**
+   * Recursively resolves or creates ancestor {@link FieldItem}s for a node's
+   * parent chain, skipping schema-structural nodes that produce no XML element:
+   * unselected xs:choice wrappers, unselected abstract wrappers, and
+   * xs:sequence containers.
+   */
+  private static getOrCreateParentFieldItem(nodeData: TargetNodeData): MappingItem {
+    if (nodeData.mapping) return nodeData.mapping as MappingItem;
+    const fieldNodeData = nodeData as TargetFieldNodeData;
     if (fieldNodeData instanceof TargetChoiceFieldNodeData && !fieldNodeData.choiceField) {
-      return MappingActionService.getOrCreateFieldItem(fieldNodeData.parent);
+      return MappingActionService.getOrCreateParentFieldItem(fieldNodeData.parent);
     }
     if (fieldNodeData instanceof TargetAbstractFieldNodeData && !fieldNodeData.abstractField) {
-      return MappingActionService.getOrCreateFieldItem(fieldNodeData.parent);
+      return MappingActionService.getOrCreateParentFieldItem(fieldNodeData.parent);
     }
     if (fieldNodeData instanceof TargetSequenceFieldNodeData) {
-      return MappingActionService.getOrCreateFieldItem(fieldNodeData.parent);
+      return MappingActionService.getOrCreateParentFieldItem(fieldNodeData.parent);
     }
-    const parentItem = MappingActionService.getOrCreateFieldItem(fieldNodeData.parent);
+    const parentItem = MappingActionService.getOrCreateParentFieldItem(fieldNodeData.parent);
     return MappingService.createFieldItem(parentItem, fieldNodeData.field);
   }
 
@@ -620,368 +691,6 @@ export class MappingActionService {
     if (!(parent instanceof MappingItem)) return;
     parent.children = parent.children.filter(
       (c) => !(c instanceof ValueSelector && c.valueType === ValueType.CONTAINER),
-    );
-  }
-
-  private static allowForEachCurrentGroup(nodeData: TargetNodeData): boolean {
-    let current: TargetNodeData | undefined = nodeData;
-    while (current) {
-      if (current instanceof MappingNodeData) {
-        if (current.mapping instanceof ForEachGroupItem) return true;
-        if (current.mapping instanceof ForEachItem && current.mapping.expression === 'current-group()') return false;
-      }
-      current = 'parent' in current ? current.parent : undefined;
-    }
-    return false;
-  }
-
-  private static isFieldNode(n: TargetNodeData): n is FieldItemNodeData | TargetFieldNodeData {
-    return n instanceof FieldItemNodeData || n instanceof TargetFieldNodeData;
-  }
-
-  private static isMappingNode(n: TargetNodeData): n is MappingNodeData {
-    return n instanceof MappingNodeData;
-  }
-
-  private static mappingIsOneOf(...types: Array<abstract new (...args: never[]) => MappingItem>) {
-    return (n: TargetNodeData): boolean =>
-      MappingActionService.isMappingNode(n) && types.some((t) => n.mapping instanceof t);
-  }
-
-  private static isContextMenuAction(def: IMappingAction): def is IMappingContextMenuAction {
-    return 'getLabel' in def;
-  }
-
-  private static readonly ACTION_REGISTRY: (IMappingAction | IMappingContextMenuAction)[] = [
-    {
-      key: MappingActionKind.ContextMenu,
-      isAllowed: (n) => {
-        if (n instanceof AddMappingNodeData) return true;
-        if (n instanceof TargetDocumentNodeData) return n.isPrimitive;
-        if (MappingActionService.isFieldNode(n)) return true;
-        return (
-          MappingActionService.isMappingNode(n) &&
-          !MappingActionService.mappingIsOneOf(ValueSelector, WhenItem, OtherwiseItem, UnknownMappingItem)(n)
-        );
-      },
-    },
-    {
-      key: MappingActionKind.Delete,
-      isAllowed: (n) => {
-        if (n instanceof AddMappingNodeData) return false;
-        if (n instanceof FieldItemNodeData)
-          // A workaround until https://github.com/KaotoIO/kaoto/issues/3242 is solved
-          return (
-            (n.mapping instanceof FieldItem && n.mapping.isUserCreated && n.mapping.parent instanceof FieldItem) ||
-            MappingActionService.hasValueSelector(n)
-          );
-        if (MappingActionService.isFieldNode(n) || n instanceof TargetDocumentNodeData)
-          return MappingActionService.hasValueSelector(n);
-        return MappingActionService.isMappingNode(n);
-      },
-    },
-    {
-      key: MappingActionKind.Sort,
-      testId: 'transformation-actions-sort',
-      getLabel: (n) => {
-        const mapping = n.mapping;
-        if (mapping instanceof ForEachItem && mapping.sortItems?.length > 0) {
-          return 'Edit Sort';
-        }
-        return 'Configure Sort';
-      },
-      apply: (_n, { openModal }) => {
-        openModal(MappingActionKind.Sort);
-      },
-      isAllowed: MappingActionService.mappingIsOneOf(ForEachItem),
-    },
-    {
-      key: MappingActionKind.ForEachGroupConfig,
-      testId: 'transformation-actions-foreach-group-config',
-      getLabel: () => 'Configure for-each-group',
-      apply: (_n, { openModal }) => {
-        openModal(MappingActionKind.ForEachGroupConfig);
-      },
-      isAllowed: MappingActionService.mappingIsOneOf(ForEachGroupItem),
-    },
-    {
-      key: MappingActionKind.Comment,
-      testId: 'transformation-actions-comment',
-      getLabel: (n) => (n.mapping instanceof MappingItem && n.mapping.comment ? 'Edit Comment' : 'Add Comment'),
-      apply: (_n, { openModal }) => {
-        openModal(MappingActionKind.Comment);
-      },
-      isAllowed: (n) => n.mapping instanceof MappingItem,
-    },
-    {
-      key: MappingActionKind.ValueSelector,
-      testId: 'transformation-actions-selector',
-      getLabel: () => 'Add value selector (value-of)',
-      apply: (n, { onUpdate }) => {
-        MappingActionService.applyValueOfSelector(n);
-        onUpdate();
-      },
-      isAllowed: (n) => {
-        if (n instanceof AddMappingNodeData) return false;
-        if (!MappingActionService.isMappingNode(n)) return true;
-        return !MappingActionService.mappingIsOneOf(
-          ValueSelector,
-          ForEachItem,
-          ForEachGroupItem,
-          ChooseItem,
-          UnknownMappingItem,
-        )(n);
-      },
-      isDisabled: (n) => MappingActionService.hasValueOfSelector(n),
-    },
-    {
-      key: MappingActionKind.CopyOfSelector,
-      testId: 'transformation-actions-copy-of',
-      getLabel: () => 'Add copy selector (copy-of)',
-      apply: (n, { onUpdate }) => {
-        MappingActionService.applyCopyOfSelector(n);
-        onUpdate();
-      },
-      isAllowed: (n) => {
-        if (n instanceof AddMappingNodeData) return false;
-        if (!MappingActionService.isMappingNode(n)) return true;
-        return !MappingActionService.mappingIsOneOf(
-          ValueSelector,
-          ForEachItem,
-          ForEachGroupItem,
-          ChooseItem,
-          UnknownMappingItem,
-        )(n);
-      },
-    },
-    {
-      key: MappingActionKind.When,
-      testId: 'transformation-actions-when',
-      getLabel: () => 'Add "when"',
-      apply: (n, { onUpdate }) => {
-        MappingActionService.applyWhen(n);
-        onUpdate();
-      },
-      isAllowed: MappingActionService.mappingIsOneOf(ChooseItem),
-    },
-    {
-      key: MappingActionKind.Otherwise,
-      testId: 'transformation-actions-otherwise',
-      getLabel: () => 'Add "otherwise"',
-      apply: (n, { onUpdate }) => {
-        MappingActionService.applyOtherwise(n);
-        onUpdate();
-      },
-      isAllowed: (n) =>
-        MappingActionService.isMappingNode(n) && n.mapping instanceof ChooseItem && !n.mapping.otherwise,
-    },
-    {
-      key: MappingActionKind.ForEach,
-      testId: 'transformation-actions-foreach',
-      getLabel: () => 'Wrap with "for-each"',
-      apply: (n, { onUpdate }) => {
-        MappingActionService.applyForEach(n as TargetFieldNodeData | FieldItemNodeData | AddMappingNodeData);
-        onUpdate();
-      },
-      isAllowed: (n) =>
-        n instanceof AddMappingNodeData ||
-        (MappingActionService.isFieldNode(n) && VisualizationUtilService.isCollectionField(n)),
-    },
-    {
-      key: MappingActionKind.ForEachGroup,
-      testId: 'transformation-actions-foreachgroup',
-      getLabel: () => 'Wrap with "for-each-group"',
-      apply: (n, { onUpdate }) => {
-        MappingActionService.applyForEachGroup(n as TargetFieldNodeData | FieldItemNodeData | AddMappingNodeData);
-        onUpdate();
-      },
-      isAllowed: (n) =>
-        n instanceof AddMappingNodeData ||
-        (MappingActionService.isFieldNode(n) && VisualizationUtilService.isCollectionField(n)),
-    },
-    {
-      key: MappingActionKind.ForEachCurrentGroup,
-      testId: 'transformation-actions-foreach-current-group',
-      getLabel: () => 'Wrap with "for-each current-group()"',
-      apply: (n, { onUpdate }) => {
-        MappingActionService.applyForEachCurrentGroup(n as ForEachCapableNodeData);
-        onUpdate();
-      },
-      isAllowed: (n) => {
-        if (n instanceof AddMappingNodeData) return false;
-        if (!MappingActionService.isFieldNode(n) || !VisualizationUtilService.isCollectionField(n)) return false;
-        return MappingActionService.allowForEachCurrentGroup(n);
-      },
-    },
-    {
-      key: MappingActionKind.If,
-      testId: 'transformation-actions-if',
-      getLabel: () => 'Wrap with "if"',
-      apply: (n, { onUpdate }) => {
-        MappingActionService.applyIf(n);
-        onUpdate();
-      },
-      isAllowed: (n) =>
-        !MappingActionService.isMappingNode(n) ||
-        !MappingActionService.mappingIsOneOf(ValueSelector, WhenItem, OtherwiseItem, IfItem, ChooseItem)(n),
-    },
-    {
-      key: MappingActionKind.Choose,
-      testId: 'transformation-actions-choose',
-      getLabel: () => 'Wrap with "choose-when-otherwise"',
-      apply: (n, { onUpdate }) => {
-        MappingActionService.applyChooseWhenOtherwise(n);
-        onUpdate();
-      },
-      isAllowed: (n) =>
-        !MappingActionService.isMappingNode(n) ||
-        !MappingActionService.mappingIsOneOf(ValueSelector, WhenItem, OtherwiseItem, IfItem, ChooseItem)(n),
-    },
-    {
-      key: MappingActionKind.InnerForEach,
-      testId: 'transformation-actions-foreach-inner',
-      getLabel: () => 'Inner "for-each"',
-      apply: (n, { onUpdate }) => {
-        MappingActionService.applyInnerForEach(n);
-        onUpdate();
-      },
-      isAllowed: (n) =>
-        n instanceof AddMappingNodeData ||
-        (MappingActionService.isFieldNode(n) && VisualizationUtilService.isTerminalField(n)) ||
-        MappingActionService.mappingIsOneOf(ForEachItem, ForEachGroupItem)(n),
-    },
-    {
-      key: MappingActionKind.InnerForEachGroup,
-      testId: 'transformation-actions-foreachgroup-inner',
-      getLabel: () => 'Inner "for-each-group"',
-      apply: (n, { onUpdate }) => {
-        MappingActionService.applyInnerForEachGroup(n);
-        onUpdate();
-      },
-      isAllowed: (n) =>
-        n instanceof AddMappingNodeData ||
-        (MappingActionService.isFieldNode(n) && VisualizationUtilService.isTerminalField(n)) ||
-        MappingActionService.mappingIsOneOf(ForEachItem, ForEachGroupItem)(n),
-    },
-    {
-      key: MappingActionKind.InnerForEachCurrentGroup,
-      testId: 'transformation-actions-foreach-current-group-inner',
-      getLabel: () => 'Inner "for-each current-group()"',
-      apply: (n, { onUpdate }) => {
-        MappingActionService.applyInnerForEachCurrentGroup(n);
-        onUpdate();
-      },
-      isAllowed: (n) => {
-        if (n instanceof AddMappingNodeData) return false;
-        const nodeTypeAllowed =
-          (MappingActionService.isFieldNode(n) && VisualizationUtilService.isTerminalField(n)) ||
-          MappingActionService.mappingIsOneOf(ForEachItem, ForEachGroupItem)(n);
-        if (!nodeTypeAllowed) return false;
-        return MappingActionService.allowForEachCurrentGroup(n);
-      },
-    },
-    {
-      key: MappingActionKind.InnerChoose,
-      testId: 'transformation-actions-choose-inner',
-      getLabel: () => 'Inner "choose-when-otherwise"',
-      apply: (n, { onUpdate }) => {
-        MappingActionService.applyInnerChooseWhenOtherwise(n);
-        onUpdate();
-      },
-      isAllowed: (n) =>
-        (MappingActionService.isFieldNode(n) && VisualizationUtilService.isTerminalField(n)) ||
-        MappingActionService.mappingIsOneOf(ForEachItem, ForEachGroupItem)(n),
-    },
-    {
-      key: MappingActionKind.InnerIf,
-      testId: 'transformation-actions-if-inner',
-      getLabel: () => 'Inner "if"',
-      apply: (n, { onUpdate }) => {
-        MappingActionService.applyInnerIf(n);
-        onUpdate();
-      },
-      isAllowed: (n) =>
-        (MappingActionService.isFieldNode(n) && VisualizationUtilService.isTerminalField(n)) ||
-        MappingActionService.mappingIsOneOf(ForEachItem, ForEachGroupItem, IfItem)(n),
-    },
-    {
-      key: MappingActionKind.Variable,
-      testId: 'transformation-actions-variable',
-      getLabel: () => 'Add variable',
-      apply: (n) => {
-        useDocumentTreeStore.getState().setAddingVariableTo(n.path.toString());
-      },
-      isAllowed: (n) => {
-        if (n instanceof VariableNodeData) return false;
-        if (n instanceof TargetDocumentNodeData) return false;
-        if (MappingActionService.isFieldNode(n)) return DocumentService.hasChildren(n.field);
-        return (
-          MappingActionService.isMappingNode(n) &&
-          !MappingActionService.mappingIsOneOf(ValueSelector, ChooseItem, UnknownMappingItem)(n)
-        );
-      },
-    },
-    {
-      key: MappingActionKind.RenameVariable,
-      testId: 'transformation-actions-rename-variable',
-      getLabel: () => 'Rename variable',
-      apply: (n) => {
-        if (n instanceof VariableNodeData) {
-          useDocumentTreeStore.getState().setRenamingVariable(n.mapping.id);
-        }
-      },
-      isAllowed: (n) => n instanceof VariableNodeData,
-    },
-    {
-      key: MappingActionKind.Duplicate,
-      testId: 'transformation-actions-duplicate',
-      getLabel: (n) => {
-        if (MappingActionService.isMappingNode(n) && n.mapping instanceof IfItem) {
-          return 'Duplicate "if"';
-        }
-        return 'Duplicate';
-      },
-      apply: (n, { onUpdate }) => {
-        if (MappingActionService.isMappingNode(n) && n.mapping instanceof IfItem) {
-          MappingActionService.duplicateIf(n);
-        } else if (MappingActionService.isFieldNode(n)) {
-          const parentItem = MappingActionService.getOrCreateFieldItem(n.parent);
-          const fieldItem = MappingService.createFieldItem(parentItem, n.field);
-          fieldItem.isUserCreated = true;
-        }
-        onUpdate();
-      },
-      isAllowed: (n) => {
-        if (MappingActionService.isMappingNode(n) && n.mapping instanceof IfItem) return true;
-        if (MappingActionService.isFieldNode(n)) return VisualizationUtilService.isCollectionField(n);
-        return false;
-      },
-    },
-  ];
-
-  /**
-   * Returns the set of {@link MappingActionKind} values permitted for the given
-   * target node. Callers should convert the result to a `Set` for O(1) membership
-   * tests when rendering multiple action controls.
-   *
-   * @param nodeData - The target node whose capabilities are evaluated.
-   * @returns An array of allowed action identifiers for this node.
-   */
-  static getAllowedActions(nodeData: TargetNodeData): MappingActionKind[] {
-    return MappingActionService.ACTION_REGISTRY.filter((def) => def.isAllowed(nodeData)).map((def) => def.key);
-  }
-
-  /**
-   * Returns the context menu action definitions that are allowed for the given
-   * target node. Each returned entry carries its label, testId, and apply callback.
-   *
-   * @param nodeData - The target node whose menu items are evaluated.
-   * @returns An array of allowed context menu action definitions.
-   */
-  static getMappingContextMenuItems(nodeData: TargetNodeData): IMappingContextMenuAction[] {
-    return MappingActionService.ACTION_REGISTRY.filter(
-      (def): def is IMappingContextMenuAction =>
-        MappingActionService.isContextMenuAction(def) && def.isAllowed(nodeData),
     );
   }
 }

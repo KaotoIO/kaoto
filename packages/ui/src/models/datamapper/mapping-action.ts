@@ -2,7 +2,7 @@ import type { TargetNodeData } from './visualization';
 
 /**
  * Enumeration of actions that can be performed on a target mapping node.
- * Used as keys returned by {@link MappingActionService.getAllowedActions} to
+ * Used as keys returned by {@link MappingActionRegistryService.getAllowedActions} to
  * drive which UI controls are rendered for a given node.
  */
 export enum MappingActionKind {

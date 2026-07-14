@@ -75,6 +75,8 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
   const choiceDepth = VisualizationUtilService.getSelectedChoiceDepth(nodeData);
   const isAbstractField = VisualizationUtilService.isAbstractField(nodeData);
   const isSelectedAbstract = VisualizationUtilService.isSelectedAbstractField(nodeData);
+  const isAbstractWrapperMember = VisualizationUtilService.isAbstractWrapperMember(nodeData);
+  const isChoiceWrapperMember = VisualizationUtilService.isChoiceWrapperMember(nodeData);
   const isAttributeField = VisualizationUtilService.isAttributeField(nodeData);
   const isDraggable = MappingValidationService.isDraggable(nodeData);
   const isSource = nodeData.isSource;
@@ -146,6 +148,15 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
           className="node__spacer"
           status={isSelectedAbstract ? 'success' : undefined}
           data-testid="abstract-field-icon"
+        >
+          <Choices />
+        </Icon>
+      )}
+      {(isAbstractWrapperMember || isChoiceWrapperMember) && (
+        <Icon
+          className="node__spacer"
+          status={field?.wrapperKind ? undefined : 'success'}
+          data-testid={field?.wrapperKind ? 'abstract-field-icon' : 'wrapper-member-icon'}
         >
           <Choices />
         </Icon>

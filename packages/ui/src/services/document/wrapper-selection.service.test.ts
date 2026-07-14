@@ -4,8 +4,8 @@ import { FieldOverrideVariant } from '../../models/datamapper/types';
 import { getChoiceWithAbstractXsd } from '../../stubs/datamapper/data-mapper';
 import { XmlSchemaCollection } from '../../xml-schema-ts';
 import { SchemaPathService } from '../schema-path.service';
-import { ChoiceSelectionService } from './choice-selection.service';
 import { FieldOverrideService } from './field-override.service';
+import { WrapperSelectionService } from './wrapper-selection.service';
 import { XmlSchemaDocument, XmlSchemaField } from './xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema/xml-schema-document.service';
 
@@ -27,8 +27,10 @@ function createChoiceWithAbstractDoc() {
 
 function findChoiceField(doc: XmlSchemaDocument): XmlSchemaField {
   const root = doc.fields[0];
-  const choice = root.fields.find((f) => f.wrapperKind === 'choice');
-  if (!choice) throw new Error('Choice field not found in Notification');
+  const short = root.fields.find((f) => f.name === 'Short');
+  if (!short) throw new Error('Short field not found in Notification');
+  const choice = short.fields.find((f) => f.wrapperKind === 'choice');
+  if (!choice) throw new Error('Choice field not found in Short');
   return choice;
 }
 
@@ -46,7 +48,7 @@ function findDescendantLeaf(field: IField): IField {
   return current;
 }
 
-describe('ChoiceSelectionService', () => {
+describe('WrapperSelectionService', () => {
   let document: XmlSchemaDocument;
   let namespaceMap: Record<string, string>;
 
@@ -112,7 +114,7 @@ describe('ChoiceSelectionService', () => {
     it('should set selection on choice field', () => {
       const choice = document.fields[0].fields[0];
 
-      ChoiceSelectionService.setChoiceSelection(document, choice, 1, namespaceMap);
+      WrapperSelectionService.setChoiceSelection(document, choice, 1, namespaceMap);
 
       expect(choice.selectedMemberIndex).toBe(1);
     });
@@ -120,7 +122,7 @@ describe('ChoiceSelectionService', () => {
     it('should set selection with index 0', () => {
       const choice = document.fields[0].fields[0];
 
-      ChoiceSelectionService.setChoiceSelection(document, choice, 0, namespaceMap);
+      WrapperSelectionService.setChoiceSelection(document, choice, 0, namespaceMap);
 
       expect(choice.selectedMemberIndex).toBe(0);
       expect(document.definition.choiceSelections?.[0].selectedMemberIndex).toBe(0);
@@ -130,7 +132,7 @@ describe('ChoiceSelectionService', () => {
       const choice = document.fields[0].fields[0];
       const expectedPath = SchemaPathService.build(choice, namespaceMap);
 
-      ChoiceSelectionService.setChoiceSelection(document, choice, 1, namespaceMap);
+      WrapperSelectionService.setChoiceSelection(document, choice, 1, namespaceMap);
 
       expect(document.definition.choiceSelections).toBeDefined();
       expect(document.definition.choiceSelections?.length).toBe(1);
@@ -143,8 +145,8 @@ describe('ChoiceSelectionService', () => {
     it('should update existing selection in definition', () => {
       const choice = document.fields[0].fields[0];
 
-      ChoiceSelectionService.setChoiceSelection(document, choice, 1, namespaceMap);
-      ChoiceSelectionService.setChoiceSelection(document, choice, 2, namespaceMap);
+      WrapperSelectionService.setChoiceSelection(document, choice, 1, namespaceMap);
+      WrapperSelectionService.setChoiceSelection(document, choice, 2, namespaceMap);
 
       expect(document.definition.choiceSelections?.length).toBe(1);
       expect(document.definition.choiceSelections?.[0].selectedMemberIndex).toBe(2);
@@ -154,7 +156,7 @@ describe('ChoiceSelectionService', () => {
       const nonChoiceField = document.fields[0].fields[1];
 
       expect(() => {
-        ChoiceSelectionService.setChoiceSelection(document, nonChoiceField, 0, namespaceMap);
+        WrapperSelectionService.setChoiceSelection(document, nonChoiceField, 0, namespaceMap);
       }).toThrow('Field is not a choice compositor');
     });
 
@@ -162,7 +164,7 @@ describe('ChoiceSelectionService', () => {
       const choice = document.fields[0].fields[0];
 
       expect(() => {
-        ChoiceSelectionService.setChoiceSelection(document, choice, 99, namespaceMap);
+        WrapperSelectionService.setChoiceSelection(document, choice, 99, namespaceMap);
       }).toThrow('Invalid member index');
     });
 
@@ -170,7 +172,7 @@ describe('ChoiceSelectionService', () => {
       const choice = document.fields[0].fields[0];
 
       expect(() => {
-        ChoiceSelectionService.setChoiceSelection(document, choice, -1, namespaceMap);
+        WrapperSelectionService.setChoiceSelection(document, choice, -1, namespaceMap);
       }).toThrow('Invalid member index');
     });
 
@@ -179,8 +181,8 @@ describe('ChoiceSelectionService', () => {
       const container = document.fields[0].fields[1];
       const containerChoice = container.fields[0];
 
-      ChoiceSelectionService.setChoiceSelection(document, containerChoice, 0, namespaceMap);
-      ChoiceSelectionService.setChoiceSelection(document, parentChoice, 1, namespaceMap);
+      WrapperSelectionService.setChoiceSelection(document, containerChoice, 0, namespaceMap);
+      WrapperSelectionService.setChoiceSelection(document, parentChoice, 1, namespaceMap);
 
       // Container choice is in a sibling subtree — its path does not start with parentChoice's path
       expect(document.definition.choiceSelections?.length).toBe(2);
@@ -191,10 +193,10 @@ describe('ChoiceSelectionService', () => {
       const emailMember = parentChoice.fields[0];
       const nestedChoice = emailMember.fields[0];
 
-      ChoiceSelectionService.setChoiceSelection(document, nestedChoice, 0, namespaceMap);
+      WrapperSelectionService.setChoiceSelection(document, nestedChoice, 0, namespaceMap);
       expect(document.definition.choiceSelections?.length).toBe(1);
 
-      ChoiceSelectionService.setChoiceSelection(document, parentChoice, 1, namespaceMap);
+      WrapperSelectionService.setChoiceSelection(document, parentChoice, 1, namespaceMap);
 
       // Both parent and nested selections preserved
       expect(document.definition.choiceSelections?.length).toBe(2);
@@ -205,18 +207,18 @@ describe('ChoiceSelectionService', () => {
   describe('clearChoiceSelection()', () => {
     it('should clear selection from choice field', () => {
       const choice = document.fields[0].fields[0];
-      ChoiceSelectionService.setChoiceSelection(document, choice, 1, namespaceMap);
+      WrapperSelectionService.setChoiceSelection(document, choice, 1, namespaceMap);
 
-      ChoiceSelectionService.clearChoiceSelection(document, choice, namespaceMap);
+      WrapperSelectionService.clearChoiceSelection(document, choice, namespaceMap);
 
       expect(choice.selectedMemberIndex).toBeUndefined();
     });
 
     it('should remove selection from document definition', () => {
       const choice = document.fields[0].fields[0];
-      ChoiceSelectionService.setChoiceSelection(document, choice, 1, namespaceMap);
+      WrapperSelectionService.setChoiceSelection(document, choice, 1, namespaceMap);
 
-      ChoiceSelectionService.clearChoiceSelection(document, choice, namespaceMap);
+      WrapperSelectionService.clearChoiceSelection(document, choice, namespaceMap);
 
       expect(document.definition.choiceSelections).toEqual([]);
     });
@@ -226,7 +228,7 @@ describe('ChoiceSelectionService', () => {
       choice.selectedMemberIndex = undefined;
 
       expect(() => {
-        ChoiceSelectionService.clearChoiceSelection(document, choice, namespaceMap);
+        WrapperSelectionService.clearChoiceSelection(document, choice, namespaceMap);
       }).not.toThrow();
 
       expect(choice.selectedMemberIndex).toBeUndefined();
@@ -236,7 +238,7 @@ describe('ChoiceSelectionService', () => {
       const nonChoiceField = document.fields[0].fields[1];
 
       expect(() => {
-        ChoiceSelectionService.clearChoiceSelection(document, nonChoiceField, namespaceMap);
+        WrapperSelectionService.clearChoiceSelection(document, nonChoiceField, namespaceMap);
       }).toThrow('Field is not a choice compositor');
     });
 
@@ -245,11 +247,11 @@ describe('ChoiceSelectionService', () => {
       const container = document.fields[0].fields[1];
       const containerChoice = container.fields[0];
 
-      ChoiceSelectionService.setChoiceSelection(document, parentChoice, 0, namespaceMap);
-      ChoiceSelectionService.setChoiceSelection(document, containerChoice, 1, namespaceMap);
+      WrapperSelectionService.setChoiceSelection(document, parentChoice, 0, namespaceMap);
+      WrapperSelectionService.setChoiceSelection(document, containerChoice, 1, namespaceMap);
       expect(document.definition.choiceSelections?.length).toBe(2);
 
-      ChoiceSelectionService.clearChoiceSelection(document, parentChoice, namespaceMap);
+      WrapperSelectionService.clearChoiceSelection(document, parentChoice, namespaceMap);
 
       expect(document.definition.choiceSelections?.length).toBe(1);
       expect(document.definition.choiceSelections?.[0].schemaPath).toContain('Container');
@@ -260,11 +262,11 @@ describe('ChoiceSelectionService', () => {
       const emailMember = parentChoice.fields[0];
       const nestedChoice = emailMember.fields[0];
 
-      ChoiceSelectionService.setChoiceSelection(document, parentChoice, 0, namespaceMap);
-      ChoiceSelectionService.setChoiceSelection(document, nestedChoice, 1, namespaceMap);
+      WrapperSelectionService.setChoiceSelection(document, parentChoice, 0, namespaceMap);
+      WrapperSelectionService.setChoiceSelection(document, nestedChoice, 1, namespaceMap);
       expect(document.definition.choiceSelections?.length).toBe(2);
 
-      ChoiceSelectionService.clearChoiceSelection(document, parentChoice, namespaceMap);
+      WrapperSelectionService.clearChoiceSelection(document, parentChoice, namespaceMap);
 
       // Nested selection preserved
       expect(document.definition.choiceSelections?.length).toBe(1);
@@ -285,7 +287,7 @@ describe('ChoiceSelectionService', () => {
         expect(emailQName).toBeDefined();
         expect(doc.definition.fieldSubstitutions).toHaveLength(1);
 
-        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+        WrapperSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
 
         // Substitution stays in both definition and live field — consistent state
         expect(doc.definition.fieldSubstitutions).toHaveLength(1);
@@ -298,13 +300,13 @@ describe('ChoiceSelectionService', () => {
         const choiceField = findChoiceField(doc);
         const abstractField = findAbstractField(choiceField);
 
-        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+        WrapperSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
         FieldOverrideService.applyFieldSubstitution(abstractField, 'ca:SMS', nsMap);
         const smsQName = abstractField.selectedMemberQName;
         expect(smsQName).toBeDefined();
         expect(doc.definition.fieldSubstitutions).toHaveLength(1);
 
-        ChoiceSelectionService.clearChoiceSelection(doc, choiceField, nsMap);
+        WrapperSelectionService.clearChoiceSelection(doc, choiceField, nsMap);
 
         // Substitution preserved
         expect(doc.definition.fieldSubstitutions).toHaveLength(1);
@@ -320,7 +322,7 @@ describe('ChoiceSelectionService', () => {
         FieldOverrideService.applyFieldSubstitution(abstractField, 'ca:Email', nsMap);
         expect(abstractField.selectedMemberQName).toBeDefined();
 
-        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+        WrapperSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
 
         // Substitution is preserved, so revert should work
         FieldOverrideService.revertFieldSubstitution(abstractField, nsMap);
@@ -336,7 +338,7 @@ describe('ChoiceSelectionService', () => {
         const abstractField = findAbstractField(choiceField);
 
         FieldOverrideService.applyFieldSubstitution(abstractField, 'ca:Email', nsMap);
-        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+        WrapperSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
 
         // Switch from Email to SMS
         FieldOverrideService.applyFieldSubstitution(abstractField, 'ca:SMS', nsMap);
@@ -353,7 +355,7 @@ describe('ChoiceSelectionService', () => {
         const abstractField = findAbstractField(choiceField);
 
         FieldOverrideService.applyFieldSubstitution(abstractField, 'ca:Email', nsMap);
-        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+        WrapperSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
         FieldOverrideService.applyFieldSubstitution(abstractField, 'ca:SMS', nsMap);
 
         FieldOverrideService.revertFieldSubstitution(abstractField, nsMap);
@@ -387,7 +389,7 @@ describe('ChoiceSelectionService', () => {
           { schemaPath: leafPath, type: 'xs:int', originalType: 'xs:string', variant: FieldOverrideVariant.SAFE },
         ];
 
-        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+        WrapperSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
 
         expect(doc.definition.fieldTypeOverrides).toHaveLength(1);
         expect(leafField.typeOverride).toBe(FieldOverrideVariant.SAFE);
@@ -398,7 +400,7 @@ describe('ChoiceSelectionService', () => {
         const nsMap = { ca: NS_CHOICE_ABSTRACT };
         const choiceField = findChoiceField(doc);
 
-        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+        WrapperSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
 
         const firstMember = choiceField.fields[0];
         const leafField = findDescendantLeaf(firstMember);
@@ -418,7 +420,7 @@ describe('ChoiceSelectionService', () => {
           { schemaPath: leafPath, type: 'xs:int', originalType: 'xs:string', variant: FieldOverrideVariant.SAFE },
         ];
 
-        ChoiceSelectionService.clearChoiceSelection(doc, choiceField, nsMap);
+        WrapperSelectionService.clearChoiceSelection(doc, choiceField, nsMap);
 
         expect(doc.definition.fieldTypeOverrides).toHaveLength(1);
         expect(leafField.typeOverride).toBe(FieldOverrideVariant.SAFE);
@@ -434,15 +436,15 @@ describe('ChoiceSelectionService', () => {
         const nestedChoice = emailMember.fields[0]; // [work, personal]
 
         // Select nested choice inside email
-        ChoiceSelectionService.setChoiceSelection(doc, parentChoice, 0, nsMap);
-        ChoiceSelectionService.setChoiceSelection(doc, nestedChoice, 1, nsMap);
+        WrapperSelectionService.setChoiceSelection(doc, parentChoice, 0, nsMap);
+        WrapperSelectionService.setChoiceSelection(doc, nestedChoice, 1, nsMap);
         expect(nestedChoice.selectedMemberIndex).toBe(1);
 
         // Switch parent away from email
-        ChoiceSelectionService.setChoiceSelection(doc, parentChoice, 2, nsMap);
+        WrapperSelectionService.setChoiceSelection(doc, parentChoice, 2, nsMap);
 
         // Switch parent back to email
-        ChoiceSelectionService.setChoiceSelection(doc, parentChoice, 0, nsMap);
+        WrapperSelectionService.setChoiceSelection(doc, parentChoice, 0, nsMap);
 
         // Nested selection survived the round-trip
         expect(nestedChoice.selectedMemberIndex).toBe(1);
@@ -460,8 +462,8 @@ describe('ChoiceSelectionService', () => {
         const emailQName = abstractField.selectedMemberQName;
 
         // Switch choice away and back
-        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 1, nsMap);
-        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+        WrapperSelectionService.setChoiceSelection(doc, choiceField, 1, nsMap);
+        WrapperSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
 
         // Substitution survived
         expect(abstractField.selectedMemberQName).toBe(emailQName);
@@ -479,10 +481,10 @@ describe('ChoiceSelectionService', () => {
         const smsQName = abstractField.selectedMemberQName;
 
         // Multiple choice changes
-        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
-        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 1, nsMap);
-        ChoiceSelectionService.clearChoiceSelection(doc, choiceField, nsMap);
-        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+        WrapperSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+        WrapperSelectionService.setChoiceSelection(doc, choiceField, 1, nsMap);
+        WrapperSelectionService.clearChoiceSelection(doc, choiceField, nsMap);
+        WrapperSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
 
         // Substitution survived all transitions
         expect(abstractField.selectedMemberQName).toBe(smsQName);
@@ -508,7 +510,7 @@ describe('ChoiceSelectionService', () => {
         });
         expect(doc.definition.fieldSubstitutions).toHaveLength(2);
 
-        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+        WrapperSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
 
         // Both substitutions preserved
         expect(doc.definition.fieldSubstitutions).toHaveLength(2);
@@ -519,10 +521,11 @@ describe('ChoiceSelectionService', () => {
         const nsMap = { ca: NS_CHOICE_ABSTRACT };
         const choiceField = findChoiceField(doc);
 
-        // Manually add a type override for a sibling field (id field, outside the choice)
         const root = doc.fields[0];
-        const idField = root.fields.find((f) => f.name === 'id');
-        if (!idField) throw new Error('id field not found');
+        const short = root.fields.find((f) => f.name === 'Short');
+        if (!short) throw new Error('Short field not found in Notification');
+        const idField = short.fields.find((f) => f.name === 'id');
+        if (!idField) throw new Error('id field not found in Short');
         const idPath = SchemaPathService.build(idField, nsMap);
         idField.typeOverride = FieldOverrideVariant.SAFE;
         idField.originalField = {
@@ -538,7 +541,7 @@ describe('ChoiceSelectionService', () => {
           { schemaPath: idPath, type: 'xs:int', originalType: 'xs:string', variant: FieldOverrideVariant.SAFE },
         ];
 
-        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+        WrapperSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
 
         // Sibling type override should be preserved
         expect(doc.definition.fieldTypeOverrides).toHaveLength(1);

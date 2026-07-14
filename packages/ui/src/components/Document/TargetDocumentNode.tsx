@@ -13,6 +13,7 @@ import {
 } from '../../models/datamapper/visualization';
 import { MappingService } from '../../services/mapping/mapping.service';
 import { MappingActionService } from '../../services/visualization/mapping-action.service';
+import { MappingActionRegistryService } from '../../services/visualization/mapping-action-registry.service';
 import { TreeUIService } from '../../services/visualization/tree-ui.service';
 import { VisualizationService } from '../../services/visualization/visualization.service';
 import { VisualizationUtilService } from '../../services/visualization/visualization-util.service';
@@ -110,7 +111,7 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
     );
 
     const handleDoubleClickField = useCallback(() => {
-      const allowValueSelector = MappingActionService.getAllowedActions(nodeData).includes(
+      const allowValueSelector = MappingActionRegistryService.getAllowedActions(nodeData).includes(
         MappingActionKind.ValueSelector,
       );
 
