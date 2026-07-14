@@ -1,3 +1,5 @@
+import { parse } from 'yaml';
+
 import { IKameletDefinition } from '../../models/camel/kamelets-catalog';
 import { FileTypes, FileTypesResponse } from '../../models/file-types';
 import { ICatalogProvider } from '../models';
@@ -20,7 +22,13 @@ export class CamelKameletsProvider implements ICatalogProvider<IKameletDefinitio
     const remoteResources = (await this.client(FileTypes.Kamelets)) ?? [];
     const remoteKamelets = remoteResources.reduce(
       (acc, { filename, content }) => {
-        acc[filename] = JSON.parse(content) as IKameletDefinition;
+        try {
+          const remoteKamelet = parse(content) as IKameletDefinition;
+          acc[filename] = remoteKamelet;
+        } catch (error) {
+          console.error(`Error parsing ${filename}`, error);
+        }
+
         return acc;
       },
       {} as Record<string, IKameletDefinition>,

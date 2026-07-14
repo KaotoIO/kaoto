@@ -79,17 +79,17 @@ export const camelEntityToTile = async (processorDef: ICamelProcessorDefinition)
 
 export const kameletToTile = async (kameletDef: IKameletDefinition): Promise<ITile> => {
   const headerTags: string[] = ['Kamelet'];
-  if (kameletDef.metadata.annotations['camel.apache.org/kamelet.support.level']) {
+  if (kameletDef.metadata.annotations?.['camel.apache.org/kamelet.support.level']) {
     headerTags.push(kameletDef.metadata.annotations['camel.apache.org/kamelet.support.level']);
   }
 
   const tags: string[] = [];
-  if (kameletDef.metadata.labels['camel.apache.org/kamelet.type']) {
+  if (kameletDef.metadata.labels?.['camel.apache.org/kamelet.type']) {
     tags.push(kameletDef.metadata.labels['camel.apache.org/kamelet.type']);
   }
 
   let version = undefined;
-  if (kameletDef.metadata.annotations['camel.apache.org/catalog.version']) {
+  if (kameletDef.metadata.annotations?.['camel.apache.org/catalog.version']) {
     version = kameletDef.metadata.annotations['camel.apache.org/catalog.version'];
   }
 
