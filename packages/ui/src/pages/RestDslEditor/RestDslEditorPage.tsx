@@ -140,6 +140,7 @@ export const RestDslEditorPage: FunctionComponent = () => {
             entities={restRelatedEntities}
             selected={selectedElement}
             onSelect={setSelectedElement}
+            onDelete={handleDelete}
             key={treeVersion}
           >
             <RestTreeToolbar
