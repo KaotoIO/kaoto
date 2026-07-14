@@ -4,7 +4,13 @@ import { FunctionComponent, MouseEvent, Ref, useCallback, useContext, useState }
 import { sourceSchemaConfig, SourceSchemaType } from '../../../models/camel';
 import { EntitiesContext } from '../../../providers/entities.provider';
 
-const DSL_LIST = [SourceSchemaType.Route, SourceSchemaType.Kamelet, SourceSchemaType.Pipe, SourceSchemaType.Test];
+const DSL_LIST = [
+  SourceSchemaType.Route,
+  SourceSchemaType.Kamelet,
+  SourceSchemaType.Pipe,
+  SourceSchemaType.Test,
+  SourceSchemaType.CustomMode,
+];
 
 interface IntegrationTypeOption {
   description: string;

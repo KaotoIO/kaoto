@@ -15,6 +15,7 @@ export const configureSourceSchemaTypes = (): void => {
     { type: SourceSchemaType.Test, name: 'Test', description: 'Test desc' },
     { type: SourceSchemaType.Integration, name: 'Integration', description: 'Integration desc' },
     { type: SourceSchemaType.KameletBinding, name: 'kameletBinding', description: 'KameletBinding desc' },
+    { type: SourceSchemaType.CustomMode, name: 'Custom Mode', description: 'Custom Mode desc' },
   ];
 
   for (const { type, name, description } of types) {
