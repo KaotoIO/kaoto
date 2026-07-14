@@ -10,6 +10,7 @@ import {
   UnknownMappingItem,
   ValueSelector,
   ValueType,
+  VariableItem,
 } from '../../models/datamapper/mapping';
 import { NS_XSL } from '../../models/datamapper/standard-namespaces';
 import {
@@ -623,5 +624,195 @@ describe('UnknownMappingItemHandler', () => {
     expect(result.mappingItem).toBeInstanceOf(UnknownMappingItem);
     expect((result.mappingItem as UnknownMappingItem).element.localName).toBe('some-unknown');
     expect(result.fieldItem).toBeNull();
+  });
+
+  describe('VariableItemHandler', () => {
+    const handler = new handlerModule.VariableItemHandler();
+    const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+
+    describe('serialize', () => {
+      it('should serialize variable with expression (no children)', () => {
+        const variable = new VariableItem(mappingTree, 'myVar');
+        variable.expression = '/Order/Id';
+
+        const xslt = MappingSerializerService.createNew();
+        const el = handler.serialize(xslt.documentElement, variable);
+
+        expect(el.localName).toBe('variable');
+        expect(el.getAttribute('name')).toBe('myVar');
+        expect(el.getAttribute('select')).toBe('/Order/Id');
+        expect(el.childNodes).toHaveLength(0);
+      });
+
+      it('should serialize empty variable with select=""', () => {
+        const variable = new VariableItem(mappingTree, 'emptyVar');
+        // No expression set, no children
+
+        const xslt = MappingSerializerService.createNew();
+        const el = handler.serialize(xslt.documentElement, variable);
+
+        expect(el.localName).toBe('variable');
+        expect(el.getAttribute('name')).toBe('emptyVar');
+        expect(el.getAttribute('select')).toBe('');
+        expect(el.hasAttribute('select')).toBe(true);
+      });
+
+      it('should serialize variable with children (no select attribute)', () => {
+        const variable = new VariableItem(mappingTree, 'complexVar');
+        variable.expression = '/Order/Id'; // This should be ignored when children exist
+
+        // Add a child to simulate variable with content
+        const childIf = new IfItem(variable);
+        childIf.expression = 'true()';
+        variable.children.push(childIf);
+
+        const xslt = MappingSerializerService.createNew();
+        const el = handler.serialize(xslt.documentElement, variable);
+
+        expect(el.localName).toBe('variable');
+        expect(el.getAttribute('name')).toBe('complexVar');
+        expect(el.hasAttribute('select')).toBe(false);
+        // Children would be serialized by the parent serializer
+      });
+    });
+
+    describe('deserialize', () => {
+      it('should deserialize variable with select attribute', () => {
+        const xslt = new DOMParser().parseFromString(
+          `<xsl:stylesheet xmlns:xsl="${NS_XSL}"><xsl:variable name="testVar" select="/Order/Total"/></xsl:stylesheet>`,
+          'application/xml',
+        );
+        const element = xslt.documentElement.firstElementChild!;
+        const result = handler.deserialize(element, mappingTree as unknown as IParentType, mappingTree);
+
+        expect(result).toBeTruthy();
+        expect(result!.mappingItem).toBeInstanceOf(VariableItem);
+        const variable = result!.mappingItem as VariableItem;
+        expect(variable.name).toBe('testVar');
+        expect(variable.expression).toBe('/Order/Total');
+        expect(result!.fieldItem).toBeNull();
+        expect(result!.messages).toBeUndefined();
+      });
+
+      it('should deserialize variable with empty select attribute', () => {
+        const xslt = new DOMParser().parseFromString(
+          `<xsl:stylesheet xmlns:xsl="${NS_XSL}"><xsl:variable name="unconfigured" select=""/></xsl:stylesheet>`,
+          'application/xml',
+        );
+        const element = xslt.documentElement.firstElementChild!;
+        const result = handler.deserialize(element, mappingTree as unknown as IParentType, mappingTree);
+
+        expect(result).toBeTruthy();
+        const variable = result!.mappingItem as VariableItem;
+        expect(variable.name).toBe('unconfigured');
+        expect(variable.expression).toBe('');
+      });
+
+      it('should deserialize variable with child content (no select)', () => {
+        const xslt = new DOMParser().parseFromString(
+          `<xsl:stylesheet xmlns:xsl="${NS_XSL}">
+            <xsl:variable name="complexVar">
+              <value>123</value>
+            </xsl:variable>
+          </xsl:stylesheet>`,
+          'application/xml',
+        );
+        const element = xslt.documentElement.firstElementChild!;
+        const result = handler.deserialize(element, mappingTree as unknown as IParentType, mappingTree);
+
+        expect(result).toBeTruthy();
+        const variable = result!.mappingItem as VariableItem;
+        expect(variable.name).toBe('complexVar');
+        expect(variable.expression).toBe('');
+        expect(result!.messages).toBeUndefined();
+      });
+
+      it('should not treat whitespace-only text nodes as children', () => {
+        // A self-closing element parsed from a formatted document gets whitespace text nodes.
+        // Those must not be treated as "has children", or the select expression would be silently dropped.
+        const xslt = new DOMParser().parseFromString(
+          `<xsl:stylesheet xmlns:xsl="${NS_XSL}">
+            <xsl:variable name="wsVar" select="/Order/Total"/>
+          </xsl:stylesheet>`,
+          'application/xml',
+        );
+        // firstElementChild is the xsl:variable — it has surrounding whitespace text nodes
+        const element = xslt.documentElement.firstElementChild!;
+        const result = handler.deserialize(element, mappingTree as unknown as IParentType, mappingTree);
+
+        expect(result).toBeTruthy();
+        const variable = result!.mappingItem as VariableItem;
+        expect(variable.name).toBe('wsVar');
+        expect(variable.expression).toBe('/Order/Total');
+        expect(result!.messages).toBeUndefined();
+      });
+
+      it('should warn when variable has both select and children (invalid XSLT)', () => {
+        const xslt = new DOMParser().parseFromString(
+          `<xsl:stylesheet xmlns:xsl="${NS_XSL}">
+          <xsl:variable name="invalidVar" select="/Order/Id">
+            <value>should not be here</value>
+          </xsl:variable>
+        </xsl:stylesheet>`,
+          'application/xml',
+        );
+        const element = xslt.documentElement.firstElementChild!;
+        const result = handler.deserialize(element, mappingTree as unknown as IParentType, mappingTree);
+
+        expect(result).toBeTruthy();
+        const variable = result!.mappingItem as VariableItem;
+        expect(variable.name).toBe('invalidVar');
+        expect(variable.expression).toBe(''); // Expression should be ignored when children exist
+        expect(result!.messages).toBeDefined();
+        expect(result!.messages).toHaveLength(1);
+        expect(result!.messages![0].variant).toBe('warning');
+        expect(result!.messages![0].title).toContain('both select attribute and child content');
+      });
+
+      it('should skip variable without name', () => {
+        const xslt = new DOMParser().parseFromString(
+          `<xsl:stylesheet xmlns:xsl="${NS_XSL}"><xsl:variable select="/Order/Id"/></xsl:stylesheet>`,
+          'application/xml',
+        );
+        const element = xslt.documentElement.firstElementChild!;
+        const result = handler.deserialize(element, mappingTree as unknown as IParentType, mappingTree);
+
+        expect(result).toBeTruthy();
+        expect(result!.mappingItem).toBeUndefined();
+        expect(result!.messages).toBeDefined();
+        expect(result!.messages).toHaveLength(1);
+        expect(result!.messages![0].variant).toBe('danger');
+        expect(result!.messages![0].title).toContain('without a name');
+      });
+    });
+
+    describe('round-trip', () => {
+      it('should round-trip variable with expression', () => {
+        const variable = new VariableItem(mappingTree, 'roundTripVar');
+        variable.expression = '/Order/Customer/Name';
+
+        const xslt = MappingSerializerService.createNew();
+        const serialized = handler.serialize(xslt.documentElement, variable);
+        const deserialized = handler.deserialize(serialized, mappingTree as unknown as IParentType, mappingTree);
+
+        expect(deserialized!.mappingItem).toBeInstanceOf(VariableItem);
+        const result = deserialized!.mappingItem as VariableItem;
+        expect(result.name).toBe('roundTripVar');
+        expect(result.expression).toBe('/Order/Customer/Name');
+      });
+
+      it('should round-trip empty variable', () => {
+        const variable = new VariableItem(mappingTree, 'emptyRoundTrip');
+
+        const xslt = MappingSerializerService.createNew();
+        const serialized = handler.serialize(xslt.documentElement, variable);
+        const deserialized = handler.deserialize(serialized, mappingTree as unknown as IParentType, mappingTree);
+
+        expect(deserialized!.mappingItem).toBeInstanceOf(VariableItem);
+        const result = deserialized!.mappingItem as VariableItem;
+        expect(result.name).toBe('emptyRoundTrip');
+        expect(result.expression).toBe('');
+      });
+    });
   });
 });
