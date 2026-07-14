@@ -9,7 +9,7 @@ import { DocumentType } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { MappingActionKind } from '../../models/datamapper/mapping-action';
 import { TargetDocumentNodeData } from '../../models/datamapper/visualization';
-import { MappingActionService } from '../../services/visualization/mapping-action.service';
+import { MappingActionRegistryService } from '../../services/visualization/mapping-action-registry.service';
 import { TreeUIService } from '../../services/visualization/tree-ui.service';
 import { VisualizationService } from '../../services/visualization/visualization.service';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
@@ -111,7 +111,7 @@ export const TargetPanel: FunctionComponent = () => {
   // Actions for target body document
   const documentActions = useMemo(() => {
     const actions = [...edgeMarkers];
-    const allowedActions = new Set(MappingActionService.getAllowedActions(targetBodyNodeData));
+    const allowedActions = new Set(MappingActionRegistryService.getAllowedActions(targetBodyNodeData));
 
     // XPath actions for primitive target body with mapping
     if (expressionItem) {

@@ -4,12 +4,14 @@ import {
   DocumentDefinitionType,
   DocumentType,
 } from '../../models/datamapper/document';
-import { FieldItem, MappingTree } from '../../models/datamapper/mapping';
+import { FieldItem, ForEachItem, IfItem, MappingTree } from '../../models/datamapper/mapping';
 import {
   AbstractFieldNodeData,
+  AddMappingNodeData,
   DocumentNodeData,
   FieldItemNodeData,
   FieldNodeData,
+  MappingNodeData,
   TargetAbstractFieldNodeData,
   TargetChoiceFieldNodeData,
   TargetDocumentNodeData,
@@ -19,6 +21,7 @@ import { getFieldSubstitutionXsd, TestUtil } from '../../stubs/datamapper/data-m
 import { QName } from '../../xml-schema-ts/QName';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
+import { MappingService } from '../mapping/mapping.service';
 import { MappingActionService } from './mapping-action.service';
 import { VisualizationService } from './visualization.service';
 import { VisualizationUtilService } from './visualization-util.service';
@@ -562,6 +565,102 @@ describe('VisualizationService / abstract fields', () => {
     });
   });
 
+  describe('S11: maxOccurs>1 collection rendering at parent level', () => {
+    let abstractField: ReturnType<typeof createMockAbstractField>;
+
+    beforeEach(() => {
+      abstractField = createMockAbstractField([
+        { name: 'Cat', children: [{ name: 'catName' }] },
+        { name: 'Dog' },
+        { name: 'Fish' },
+        { name: 'Kitten' },
+      ]);
+      abstractField.maxOccurs = 'unbounded';
+    });
+
+    function generateFreshParentChildren(localTree: MappingTree) {
+      const parentField = {
+        ...targetDoc.fields[0],
+        fields: [abstractField],
+      };
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentField as (typeof targetDoc.fields)[0]);
+      if (localTree.children.length > 0) {
+        freshParentNode.mapping = localTree.children[0] as FieldItem;
+      }
+      return VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+    }
+
+    it('maxOccurs>1 with one mapped member renders FieldItemNodeData + AddMappingNodeData at parent level', () => {
+      const parentField = {
+        ...targetDoc.fields[0],
+        fields: [abstractField],
+      };
+      const parentFieldItem = new FieldItem(tree, parentField as (typeof targetDoc.fields)[0]);
+      const catFieldItem = new FieldItem(parentFieldItem, abstractField.fields[0]);
+      parentFieldItem.children.push(catFieldItem);
+      tree.children.push(parentFieldItem);
+
+      const children = generateFreshParentChildren(tree);
+      expect(children).toHaveLength(2);
+      expect(children[0]).toBeInstanceOf(FieldItemNodeData);
+      expect(children[0].title).toBe('Cat');
+      expect((children[0] as FieldItemNodeData).wrapperField).toBe(abstractField);
+      expect(children[1]).toBeInstanceOf(AddMappingNodeData);
+    });
+
+    it('maxOccurs>1 with multiple mapped members renders only those + AddMappingNodeData', () => {
+      const parentField = {
+        ...targetDoc.fields[0],
+        fields: [abstractField],
+      };
+      const parentFieldItem = new FieldItem(tree, parentField as (typeof targetDoc.fields)[0]);
+      const catFieldItem = new FieldItem(parentFieldItem, abstractField.fields[0]);
+      const fishFieldItem = new FieldItem(parentFieldItem, abstractField.fields[2]);
+      parentFieldItem.children.push(catFieldItem, fishFieldItem);
+      tree.children.push(parentFieldItem);
+
+      const children = generateFreshParentChildren(tree);
+      const childNames = children.filter((c) => c instanceof FieldItemNodeData).map((c) => c.title);
+      expect(childNames).toContain('Cat');
+      expect(childNames).toContain('Fish');
+      expect(childNames).not.toContain('Dog');
+      expect(childNames).not.toContain('Kitten');
+      expect(children[children.length - 1]).toBeInstanceOf(AddMappingNodeData);
+    });
+
+    it('maxOccurs>1 with no mapped members renders bare wrapper (initial state)', () => {
+      const children = generateFreshParentChildren(tree);
+      expect(children).toHaveLength(1);
+      expect(children[0]).toBeInstanceOf(TargetAbstractFieldNodeData);
+    });
+
+    it('maxOccurs=1 without mapping should return wrapper node with no children (unconfigured target)', () => {
+      abstractField.maxOccurs = 1;
+      const parentField = {
+        ...targetDoc.fields[0],
+        fields: [abstractField],
+      };
+      const localTargetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+      const parentFieldNode = new TargetFieldNodeData(localTargetDocNode, parentField as (typeof targetDoc.fields)[0]);
+      const parentChildren = VisualizationService.generateNonDocumentNodeDataChildren(parentFieldNode);
+      expect(parentChildren).toHaveLength(1);
+      expect(parentChildren[0]).toBeInstanceOf(TargetAbstractFieldNodeData);
+      const abstractNode = parentChildren[0] as TargetAbstractFieldNodeData;
+      const abstractChildren = VisualizationService.generateNonDocumentNodeDataChildren(abstractNode);
+      expect(abstractChildren).toHaveLength(0);
+    });
+
+    it('source-side maxOccurs>1 should still return all candidates', () => {
+      const sourceAbstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }, { name: 'Fish' }]);
+      sourceAbstractField.maxOccurs = 'unbounded';
+      const abstractNode = new AbstractFieldNodeData(sourceDocNode, sourceAbstractField);
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(abstractNode);
+      expect(children).toHaveLength(3);
+      expect(children.map((c) => c.title)).toEqual(['Cat', 'Dog', 'Fish']);
+    });
+  });
+
   describe('mapping through selected target abstract wrapper', () => {
     it('engageMapping to a selected abstract candidate creates FieldItem for the candidate', () => {
       const abstractField = createMockAbstractField(
@@ -626,6 +725,311 @@ describe('VisualizationService / abstract fields', () => {
 
       const candidateChildren = VisualizationService.generateNonDocumentNodeDataChildren(freshAbstractNode);
       expect(candidateChildren.map((c) => c.title)).toEqual(['catName']);
+    });
+  });
+
+  describe('maxOccurs>1 per-instance from the start', () => {
+    let abstractField: ReturnType<typeof createMockAbstractField>;
+    let parentFieldItem: FieldItem;
+    let localTree: MappingTree;
+
+    beforeEach(() => {
+      abstractField = createMockAbstractField(
+        [{ name: 'Cat', children: [{ name: 'catName' }] }, { name: 'Dog' }],
+        new QName('io.kaoto.datamapper.poc.test', 'Cat'),
+      );
+      abstractField.maxOccurs = 'unbounded';
+      const parentField = {
+        ...targetDoc.fields[0],
+        fields: [abstractField],
+      };
+      localTree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+      parentFieldItem = new FieldItem(localTree, parentField as (typeof targetDoc.fields)[0]);
+      const catFieldItem = new FieldItem(parentFieldItem, abstractField.fields[0]);
+      parentFieldItem.children.push(catFieldItem);
+      localTree.children.push(parentFieldItem);
+    });
+
+    it('should show per-instance FieldItems with wrapperField at parent level', () => {
+      const duplicateFieldItem = new FieldItem(parentFieldItem, abstractField.fields[0]);
+      duplicateFieldItem.isUserCreated = true;
+      parentFieldItem.children.push(duplicateFieldItem);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
+      freshParentNode.mapping = parentFieldItem;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+      const catChildren = children.filter((c) => c.title === 'Cat');
+      expect(catChildren).toHaveLength(2);
+      for (const child of catChildren) {
+        expect(child).toBeInstanceOf(FieldItemNodeData);
+        expect((child as FieldItemNodeData).wrapperField).toBe(abstractField);
+      }
+      expect(children[children.length - 1]).toBeInstanceOf(AddMappingNodeData);
+    });
+  });
+
+  describe('wrapper-pointing FieldItem shown as unsubstituted instance', () => {
+    let abstractField: ReturnType<typeof createMockAbstractField>;
+    let parentFieldItem: FieldItem;
+    let localTree: MappingTree;
+
+    beforeEach(() => {
+      abstractField = createMockAbstractField([{ name: 'Cat', children: [{ name: 'catName' }] }, { name: 'Dog' }]);
+      abstractField.maxOccurs = 'unbounded';
+      const parentField = {
+        ...targetDoc.fields[0],
+        fields: [abstractField],
+      };
+      localTree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+      parentFieldItem = new FieldItem(localTree, parentField as (typeof targetDoc.fields)[0]);
+      localTree.children.push(parentFieldItem);
+    });
+
+    it('should show both substituted FieldItem and unsubstituted wrapper instance at parent level', () => {
+      const catFieldItem = new FieldItem(parentFieldItem, abstractField.fields[0]);
+      parentFieldItem.children.push(catFieldItem);
+
+      const wrapperFieldItem = new FieldItem(parentFieldItem, abstractField);
+      parentFieldItem.children.push(wrapperFieldItem);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
+      freshParentNode.mapping = parentFieldItem;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+      const fieldItemChildren = children.filter((c) => c instanceof FieldItemNodeData);
+      expect(fieldItemChildren).toHaveLength(2);
+
+      const catChild = fieldItemChildren.find((c) => c.title === 'Cat');
+      expect(catChild).toBeInstanceOf(FieldItemNodeData);
+      expect((catChild as FieldItemNodeData).mapping.field.name).toBe('Cat');
+      expect((catChild as FieldItemNodeData).wrapperField).toBe(abstractField);
+
+      const wrapperChild = fieldItemChildren.find((c) => c.title === 'AbstractElement');
+      expect(wrapperChild).toBeInstanceOf(FieldItemNodeData);
+      expect((wrapperChild as FieldItemNodeData).mapping.field).toBe(abstractField);
+      expect((wrapperChild as FieldItemNodeData).wrapperField).toBe(abstractField);
+
+      expect(children[children.length - 1]).toBeInstanceOf(AddMappingNodeData);
+    });
+
+    it('unsubstituted instance should have parent field node as parent', () => {
+      const wrapperFieldItem = new FieldItem(parentFieldItem, abstractField);
+      parentFieldItem.children.push(wrapperFieldItem);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
+      freshParentNode.mapping = parentFieldItem;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+      const wrapperChild = children.find((c) => c instanceof FieldItemNodeData && c.field.wrapperKind === 'abstract');
+      expect(wrapperChild).toBeDefined();
+      expect((wrapperChild as FieldItemNodeData).parent).toBe(freshParentNode);
+    });
+
+    it('wrapper-pointing FieldItem appears alongside substituted members', () => {
+      const wrapperFieldItem = new FieldItem(parentFieldItem, abstractField);
+      parentFieldItem.children.push(wrapperFieldItem);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
+      freshParentNode.mapping = parentFieldItem;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+      const fieldItemChildren = children.filter((c) => c instanceof FieldItemNodeData);
+      expect(fieldItemChildren).toHaveLength(1);
+      expect((fieldItemChildren[0] as FieldItemNodeData).field).toBe(abstractField);
+    });
+  });
+
+  describe('Bug regression: wrap-with-if on substituted abstract member', () => {
+    let abstractField: ReturnType<typeof createMockAbstractField>;
+    let parentFieldItem: FieldItem;
+    let localTree: MappingTree;
+
+    beforeEach(() => {
+      abstractField = createMockAbstractField(
+        [{ name: 'Cat', children: [{ name: 'catName' }] }, { name: 'Dog' }],
+        new QName('io.kaoto.datamapper.poc.test', 'Cat'),
+      );
+      const parentField = {
+        ...targetDoc.fields[0],
+        fields: [abstractField],
+      };
+      localTree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+      parentFieldItem = new FieldItem(localTree, parentField as (typeof targetDoc.fields)[0]);
+      const catFieldItem = new FieldItem(parentFieldItem, abstractField.fields[0]);
+      parentFieldItem.children.push(catFieldItem);
+      localTree.children.push(parentFieldItem);
+    });
+
+    it('should not produce ghost TargetAbstractFieldNodeData after wrapping a substituted member with if', () => {
+      const catFieldItem = parentFieldItem.children[0] as FieldItem;
+      MappingService.wrapWithIf(catFieldItem);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
+      freshParentNode.mapping = parentFieldItem;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+      const ghostNodes = children.filter((c) => c instanceof TargetAbstractFieldNodeData);
+      expect(ghostNodes).toHaveLength(0);
+    });
+
+    it('FieldItemNodeData inside IfItem should have wrapperField set', () => {
+      const catFieldItem = parentFieldItem.children[0] as FieldItem;
+      MappingService.wrapWithIf(catFieldItem);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
+      freshParentNode.mapping = parentFieldItem;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+      const ifNode = children.find((c) => c instanceof MappingNodeData && c.mapping instanceof IfItem);
+      expect(ifNode).toBeDefined();
+
+      const ifChildren = VisualizationService.generateNonDocumentNodeDataChildren(ifNode!);
+      const catNode = ifChildren.find((c) => c instanceof FieldItemNodeData && c.title === 'Cat') as FieldItemNodeData;
+      expect(catNode).toBeDefined();
+      expect(catNode.wrapperField).toBe(abstractField);
+      expect(VisualizationUtilService.isAbstractWrapperMember(catNode)).toBe(true);
+    });
+  });
+
+  describe('Bug regression: duplicate on unsubstituted abstract wrapper', () => {
+    let abstractField: ReturnType<typeof createMockAbstractField>;
+    let parentFieldItem: FieldItem;
+    let localTree: MappingTree;
+
+    beforeEach(() => {
+      abstractField = createMockAbstractField([
+        { name: 'Cat', children: [{ name: 'catName' }] },
+        { name: 'Dog' },
+        { name: 'Fish' },
+        { name: 'Kitten' },
+      ]);
+      abstractField.maxOccurs = 'unbounded';
+      const parentField = {
+        ...targetDoc.fields[0],
+        fields: [abstractField],
+      };
+      localTree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+      parentFieldItem = new FieldItem(localTree, parentField as (typeof targetDoc.fields)[0]);
+      localTree.children.push(parentFieldItem);
+    });
+
+    it('createNodeTitle should return candidate list label for unsubstituted FieldItemNodeData', () => {
+      const wrapperFieldItem = new FieldItem(parentFieldItem, abstractField);
+      parentFieldItem.children.push(wrapperFieldItem);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
+      freshParentNode.mapping = parentFieldItem;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+      const wrapperNode = children.find(
+        (c) => c instanceof FieldItemNodeData && c.field.wrapperKind === 'abstract',
+      ) as FieldItemNodeData;
+      expect(wrapperNode).toBeDefined();
+      expect(VisualizationService.createNodeTitle(wrapperNode)).toBe('(Cat | Dog | Fish | +1 more)');
+    });
+
+    it('createNodeTitle should return candidate list label for AddMappingNodeData with abstract wrapper field', () => {
+      const wrapperFieldItem = new FieldItem(parentFieldItem, abstractField);
+      parentFieldItem.children.push(wrapperFieldItem);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
+      freshParentNode.mapping = parentFieldItem;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+      const addNode = children.find((c) => c instanceof AddMappingNodeData) as AddMappingNodeData;
+      expect(addNode).toBeDefined();
+      expect(VisualizationService.createNodeTitle(addNode)).toBe('(Cat | Dog | Fish | +1 more)');
+    });
+  });
+
+  describe('Bug regression: wrap-with-for-each on substituted abstract member (maxOccurs>1)', () => {
+    let abstractField: ReturnType<typeof createMockAbstractField>;
+    let parentFieldItem: FieldItem;
+    let localTree: MappingTree;
+
+    beforeEach(() => {
+      abstractField = createMockAbstractField(
+        [{ name: 'Cat', children: [{ name: 'catName' }] }, { name: 'Dog' }],
+        new QName('io.kaoto.datamapper.poc.test', 'Cat'),
+      );
+      abstractField.maxOccurs = 'unbounded';
+      const parentField = {
+        ...targetDoc.fields[0],
+        fields: [abstractField],
+      };
+      localTree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+      parentFieldItem = new FieldItem(localTree, parentField as (typeof targetDoc.fields)[0]);
+      const catFieldItem = new FieldItem(parentFieldItem, abstractField.fields[0]);
+      parentFieldItem.children.push(catFieldItem);
+      localTree.children.push(parentFieldItem);
+    });
+
+    it('should not produce ghost TargetAbstractFieldNodeData after wrapping with for-each', () => {
+      const catFieldItem = parentFieldItem.children[0] as FieldItem;
+      MappingService.wrapWithForEach(catFieldItem);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
+      freshParentNode.mapping = parentFieldItem;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+      const ghostNodes = children.filter((c) => c instanceof TargetAbstractFieldNodeData);
+      expect(ghostNodes).toHaveLength(0);
+    });
+
+    it('should show MappingNodeData for ForEachItem', () => {
+      const catFieldItem = parentFieldItem.children[0] as FieldItem;
+      MappingService.wrapWithForEach(catFieldItem);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
+      freshParentNode.mapping = parentFieldItem;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+      const forEachNode = children.find((c) => c instanceof MappingNodeData && c.mapping instanceof ForEachItem);
+      expect(forEachNode).toBeDefined();
+    });
+
+    it('should show AddMappingNodeData as last child', () => {
+      const catFieldItem = parentFieldItem.children[0] as FieldItem;
+      MappingService.wrapWithForEach(catFieldItem);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
+      freshParentNode.mapping = parentFieldItem;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+      expect(children[children.length - 1]).toBeInstanceOf(AddMappingNodeData);
+    });
+
+    it('FieldItemNodeData inside ForEachItem should have wrapperField set', () => {
+      const catFieldItem = parentFieldItem.children[0] as FieldItem;
+      MappingService.wrapWithForEach(catFieldItem);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
+      freshParentNode.mapping = parentFieldItem;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+      const forEachNode = children.find((c) => c instanceof MappingNodeData && c.mapping instanceof ForEachItem);
+      expect(forEachNode).toBeDefined();
+
+      const forEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachNode!);
+      const catNode = forEachChildren.find(
+        (c) => c instanceof FieldItemNodeData && c.title === 'Cat',
+      ) as FieldItemNodeData;
+      expect(catNode).toBeDefined();
+      expect(catNode.wrapperField).toBe(abstractField);
+      expect(VisualizationUtilService.isAbstractWrapperMember(catNode)).toBe(true);
     });
   });
 });

@@ -69,6 +69,9 @@ export type TargetNodeDataType =
   | TargetAbstractFieldNodeData
   | TargetSequenceFieldNodeData;
 
+/** Target node types that support for-each wrapping. */
+export type ForEachCapableNodeData = TargetFieldNodeData | FieldItemNodeData | AddMappingNodeData;
+
 /**
  * Visualization node for a source or target document root.
  * Its `title` is set to the document's `documentId`.
@@ -262,6 +265,7 @@ export class FieldItemNodeData extends MappingNodeData {
   constructor(
     public parent: TargetNodeData,
     public mapping: FieldItem,
+    public wrapperField?: IField,
   ) {
     super(parent, mapping);
     this.title = mapping.field.displayName;

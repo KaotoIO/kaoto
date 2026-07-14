@@ -6,6 +6,7 @@ import { IDocument } from '../models/datamapper';
 import { MappingActionKind } from '../models/datamapper/mapping-action';
 import { DocumentNodeData, TargetDocumentNodeData } from '../models/datamapper/visualization';
 import { MappingActionService } from '../services/visualization/mapping-action.service';
+import { MappingActionRegistryService } from '../services/visualization/mapping-action-registry.service';
 import { TreeUIService } from '../services/visualization/tree-ui.service';
 import { useDocumentTreeStore } from '../store/document-tree.store';
 import { useDataMapper } from './useDataMapper';
@@ -14,6 +15,7 @@ import { useDataMapperDeleteHotkey } from './useDataMapperDeleteHotkey.hook';
 // Mock dependencies
 vi.mock('hotkeys-js');
 vi.mock('./useDataMapper');
+vi.mock('../services/visualization/mapping-action-registry.service');
 vi.mock('../services/visualization/mapping-action.service');
 vi.mock('../services/visualization/tree-ui.service');
 
@@ -57,7 +59,7 @@ describe('useDataMapperDeleteHotkey', () => {
     } as any);
 
     // Mock MappingActionService
-    (MappingActionService.getAllowedActions as Mock) = mockGetAllowedActions;
+    (MappingActionRegistryService.getAllowedActions as Mock) = mockGetAllowedActions;
     (MappingActionService.deleteMappingItem as Mock) = mockDeleteMappingItem;
 
     // Mock TreeUIService

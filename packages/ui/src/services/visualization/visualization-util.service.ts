@@ -1,13 +1,16 @@
 import { IField } from '../../models/datamapper/document';
 import {
   AbstractFieldNodeData,
+  AddMappingNodeData,
   ChoiceFieldNodeData,
   FieldItemNodeData,
   FieldNodeData,
+  MappingNodeData,
   NodeData,
   SequenceFieldNodeData,
   TargetAbstractFieldNodeData,
   TargetChoiceFieldNodeData,
+  TargetFieldNodeData,
   TargetSequenceFieldNodeData,
 } from '../../models/datamapper/visualization';
 import { DocumentService } from '../document/document.service';
@@ -17,9 +20,10 @@ import { DocumentService } from '../document/document.service';
  * DataMapper visualization layer.
  *
  * Provides node-type checks (`is*Field`) and field extraction helpers that
- * both {@link VisualizationService} (node data generation) and
- * {@link MappingActionService} (mapping mutations) depend on, without either
- * service needing to know about the other.
+ * both {@link VisualizationService} (node data generation),
+ * {@link MappingActionService} (mapping mutations), and
+ * {@link MappingActionRegistryService} (action registry) depend on,
+ * without any of those services needing to know about each other.
  */
 export class VisualizationUtilService {
   /**
@@ -31,6 +35,9 @@ export class VisualizationUtilService {
    */
   static isCollectionField(nodeData: NodeData) {
     if (!(nodeData instanceof FieldNodeData || nodeData instanceof FieldItemNodeData)) return false;
+    if (nodeData instanceof FieldItemNodeData && nodeData.wrapperField) {
+      return DocumentService.isCollectionField(nodeData.wrapperField);
+    }
     if (DocumentService.isCollectionField(nodeData.field)) return true;
     if (VisualizationUtilService.isChoiceField(nodeData)) {
       return !!nodeData.choiceField && DocumentService.isCollectionField(nodeData.choiceField);
@@ -73,11 +80,21 @@ export class VisualizationUtilService {
 
   /**
    * Returns `true` if the node is a choice field without a selected member — i.e. the wrapper
-   * is showing all choice options. Used by the context menu to decide which actions to offer.
+   * is showing all choice options. Also matches target-only unselected wrapper instances:
+   * a {@link FieldItemNodeData} whose field still points at the wrapper itself, or an
+   * {@link AddMappingNodeData} for a choice wrapper field.
    * @param nodeData - The node to test.
    */
-  static isUnselectedChoiceField(nodeData: NodeData): nodeData is ChoiceFieldNodeData | TargetChoiceFieldNodeData {
-    return VisualizationUtilService.isChoiceField(nodeData) && !nodeData.choiceField;
+  static isUnselectedChoiceField(nodeData: NodeData): boolean {
+    if (VisualizationUtilService.isChoiceField(nodeData) && !nodeData.choiceField) return true;
+    if (
+      nodeData instanceof FieldItemNodeData &&
+      nodeData.wrapperField?.wrapperKind === 'choice' &&
+      nodeData.field === nodeData.wrapperField
+    )
+      return true;
+    if (nodeData instanceof AddMappingNodeData && nodeData.field.wrapperKind === 'choice') return true;
+    return false;
   }
 
   /**
@@ -144,13 +161,39 @@ export class VisualizationUtilService {
   }
 
   /**
-   * Returns `true` if the node is an abstract field without a selected substitution member
+   * Returns `true` if the node is an abstract field without a selected substitution member.
+   * Also matches target-only unsubstituted wrapper instances: a {@link FieldItemNodeData}
+   * whose field still points at the wrapper itself, or an {@link AddMappingNodeData} for
+   * an abstract wrapper field.
    * @param nodeData - The node to test.
    */
-  static isUnselectedAbstractField(
-    nodeData: NodeData,
-  ): nodeData is AbstractFieldNodeData | TargetAbstractFieldNodeData {
-    return VisualizationUtilService.isAbstractField(nodeData) && !nodeData.abstractField;
+  static isUnselectedAbstractField(nodeData: NodeData): boolean {
+    if (VisualizationUtilService.isAbstractField(nodeData) && !nodeData.abstractField) return true;
+    if (
+      nodeData instanceof FieldItemNodeData &&
+      nodeData.wrapperField?.wrapperKind === 'abstract' &&
+      nodeData.field === nodeData.wrapperField
+    )
+      return true;
+    if (nodeData instanceof AddMappingNodeData && nodeData.field.wrapperKind === 'abstract') return true;
+    return false;
+  }
+
+  /**
+   * Identifies a per-instance member of a maxOccurs>1 abstract wrapper — a FieldItem
+   * that holds an independent substitution selection, as opposed to the document-level
+   * `selectedMemberQName` model used for maxOccurs=1. Target-side only by construction:
+   * both `FieldItemNodeData` and `TargetAbstractFieldNodeData` are target-only types.
+   */
+  static isAbstractWrapperMember(nodeData: NodeData): boolean {
+    if (!(nodeData instanceof FieldItemNodeData)) return false;
+    return nodeData.parent instanceof TargetAbstractFieldNodeData || nodeData.wrapperField?.wrapperKind === 'abstract';
+  }
+
+  /** Choice-wrapper counterpart of {@link isAbstractWrapperMember}. */
+  static isChoiceWrapperMember(nodeData: NodeData): boolean {
+    if (!(nodeData instanceof FieldItemNodeData)) return false;
+    return nodeData.parent instanceof TargetChoiceFieldNodeData || nodeData.wrapperField?.wrapperKind === 'choice';
   }
 
   /**
@@ -192,4 +235,78 @@ export class VisualizationUtilService {
     }
     return undefined;
   }
+
+  static isFieldNode(nodeData: NodeData): nodeData is FieldItemNodeData | TargetFieldNodeData {
+    return nodeData instanceof FieldItemNodeData || nodeData instanceof TargetFieldNodeData;
+  }
+
+  static isMappingNode(nodeData: NodeData): nodeData is MappingNodeData {
+    return nodeData instanceof MappingNodeData;
+  }
+
+  /**
+   * Resolves the full choice context for a given node — which wrapper it belongs to,
+   * whether it's a selected member, a per-instance wrapper member, etc. Pure read,
+   * no side effects. Used by {@link useChoiceContextMenu} to determine what menu
+   * actions to offer.
+   */
+  static resolveChoiceNodeInfo(nodeData: NodeData): ChoiceNodeInfo {
+    const field = VisualizationUtilService.getField(nodeData);
+    const isChoiceWrapper = field?.wrapperKind === 'choice';
+    const isSelectedChoice = VisualizationUtilService.isSelectedChoiceField(nodeData);
+
+    const choiceMemberField =
+      VisualizationUtilService.isChoiceField(nodeData) && nodeData.choiceField ? nodeData.choiceField : field;
+    const choiceMemberParent =
+      choiceMemberField?.parent && 'wrapperKind' in choiceMemberField.parent ? choiceMemberField.parent : undefined;
+    const isChoiceMember = choiceMemberParent?.wrapperKind === 'choice';
+    const parentChoiceWrapperField = isChoiceMember ? choiceMemberParent : undefined;
+    const choiceMemberIndex =
+      isChoiceMember && parentChoiceWrapperField && choiceMemberField
+        ? parentChoiceWrapperField.fields.indexOf(choiceMemberField)
+        : undefined;
+
+    let choiceWrapperField: IField | undefined;
+    if (isSelectedChoice) {
+      choiceWrapperField = VisualizationUtilService.resolveOutermostSelectedWrapper(nodeData.choiceField).outermost;
+    } else if (isChoiceWrapper) {
+      choiceWrapperField = field;
+    }
+    const activeChoiceWrapperForMembers = isSelectedChoice && isChoiceWrapper ? field : choiceWrapperField;
+
+    const isChoiceWrapperMember = VisualizationUtilService.isChoiceWrapperMember(nodeData);
+    const choiceWrapperMemberField =
+      isChoiceWrapperMember && nodeData instanceof FieldItemNodeData
+        ? (nodeData.wrapperField ?? ((nodeData.parent as TargetChoiceFieldNodeData).field as IField))
+        : undefined;
+    const effectiveChoiceWrapper = isChoiceWrapperMember ? choiceWrapperMemberField : activeChoiceWrapperForMembers;
+
+    return {
+      isChoiceWrapper,
+      isSelectedChoice,
+      isChoiceMember,
+      isChoiceWrapperMember,
+      activeChoiceWrapperForMembers,
+      effectiveChoiceWrapper,
+      choiceWrapperField,
+      choiceWrapperMemberField,
+      choiceMemberField,
+      parentChoiceWrapperField,
+      choiceMemberIndex,
+    };
+  }
+}
+
+export interface ChoiceNodeInfo {
+  isChoiceWrapper: boolean;
+  isSelectedChoice: boolean;
+  isChoiceMember: boolean;
+  isChoiceWrapperMember: boolean;
+  activeChoiceWrapperForMembers: IField | undefined;
+  effectiveChoiceWrapper: IField | undefined;
+  choiceWrapperField: IField | undefined;
+  choiceWrapperMemberField: IField | undefined;
+  choiceMemberField: IField | undefined;
+  parentChoiceWrapperField: IField | undefined;
+  choiceMemberIndex: number | undefined;
 }

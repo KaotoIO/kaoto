@@ -12,6 +12,7 @@ import { MappingLineStyle, variableNodePath, VARIABLES_DOCUMENT_ID } from '../..
 import { useDocumentTreeStore } from '../../store';
 import { mockRandomValues } from '../../stubs';
 import {
+  getChoiceWithAbstractXsd,
   getContactsXsd,
   getFieldSubstitutionXsd,
   getInvoice850Xsd,
@@ -424,6 +425,59 @@ describe('MappingLinksService', () => {
         `targetBody:Body://${rootItem.id}/${personItem.id}/inner-choice/${emailItem.id}`,
       );
     });
+
+    it('should not include inner wrapper segments for fields inside per-instance unbounded choice-with-abstract', () => {
+      const targetDefinition = new DocumentDefinition(
+        DocumentType.TARGET_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'ChoiceWithAbstract.xsd': getChoiceWithAbstractXsd() },
+      );
+      targetDefinition.rootElementChoice = {
+        namespaceUri: 'http://www.example.com/CHOICE_ABSTRACT',
+        name: 'Notification',
+      };
+      const choiceAbsDoc = XmlSchemaDocumentService.createXmlSchemaDocument(targetDefinition).document!;
+
+      const rootField = choiceAbsDoc.fields[0];
+      DocumentUtilService.resolveTypeFragment(rootField);
+      const largeField = rootField.fields.find((f: IField) => f.name === 'Large')!;
+      DocumentUtilService.resolveTypeFragment(largeField);
+      const unboundedChoiceField = largeField.fields.find(
+        (f: IField) => f.wrapperKind === 'choice' && f.maxOccurs !== 1,
+      )!;
+      const abstractField = unboundedChoiceField.fields.find((f: IField) => f.wrapperKind === 'abstract')!;
+      const emailField = abstractField.fields.find((f: IField) => f.name === 'Email')!;
+      DocumentUtilService.resolveTypeFragment(emailField);
+      const subjectField = emailField.fields.find((f: IField) => f.name === 'subject')!;
+
+      const choiceAbsTree = new MappingTree(
+        choiceAbsDoc.documentType,
+        choiceAbsDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      choiceAbsTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+
+      const rootItem = new FieldItem(choiceAbsTree, rootField);
+      choiceAbsTree.children.push(rootItem);
+      const largeItem = new FieldItem(rootItem, largeField);
+      rootItem.children.push(largeItem);
+      const emailItem = new FieldItem(largeItem, emailField);
+      largeItem.children.push(emailItem);
+      const subjectItem = new FieldItem(emailItem, subjectField);
+      emailItem.children.push(subjectItem);
+      const valueSelector = new ValueSelector(subjectItem);
+      valueSelector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
+      subjectItem.children.push(valueSelector);
+
+      const links = MappingLinksService.extractMappingLinks(choiceAbsTree, paramsMap, sourceDoc);
+      expect(links).toHaveLength(1);
+      expect(links[0].targetNodePath).toBe(
+        `targetBody:Body://${rootItem.id}/${largeItem.id}/${emailItem.id}/${subjectItem.id}`,
+      );
+      expect(links[0].targetNodePath).not.toContain(abstractField.id);
+      expect(links[0].targetNodePath).not.toContain(unboundedChoiceField.id);
+    });
   });
 
   describe('abstract field mapping paths', () => {
@@ -508,7 +562,7 @@ describe('MappingLinksService', () => {
       expect(links[0].targetNodePath).not.toContain(abstractAnimalField.id);
     });
 
-    it('should include unselected abstract wrapper segments in target paths', () => {
+    it('should skip maxOccurs>1 unselected abstract wrapper segments from target paths', () => {
       const {
         document: zooTargetDoc,
         zooField,
@@ -537,7 +591,8 @@ describe('MappingLinksService', () => {
 
       const links = MappingLinksService.extractMappingLinks(zooTree, paramsMap, sourceDoc);
       expect(links).toHaveLength(1);
-      expect(links[0].targetNodePath).toContain(abstractAnimalField.id);
+      expect(links[0].targetNodePath).not.toContain(abstractAnimalField.id);
+      expect(links[0].targetNodePath).toContain(catField.id);
     });
   });
 

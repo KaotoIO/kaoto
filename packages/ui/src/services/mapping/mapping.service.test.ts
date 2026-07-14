@@ -616,6 +616,41 @@ describe('MappingService', () => {
     });
   });
 
+  describe('removeStaleMappingsForDocument() with isUserCreated FieldItem', () => {
+    it('should retain isUserCreated FieldItem even when it has no children', () => {
+      const parentItem = tree.children[0] as FieldItem;
+      const targetField = targetDoc.fields[0].fields[0];
+      const userCreatedItem = new FieldItem(parentItem, targetField);
+      userCreatedItem.isUserCreated = true;
+      parentItem.children.push(userCreatedItem);
+
+      const childrenBefore = parentItem.children.length;
+      MappingService.removeStaleMappingsForDocument(tree, targetDoc);
+      expect(parentItem.children).toHaveLength(childrenBefore);
+      const retained = parentItem.children.find(
+        (c) => c instanceof FieldItem && c.field === targetField && c.isUserCreated,
+      );
+      expect(retained).toBeDefined();
+    });
+
+    it('should remove non-isUserCreated FieldItem with no children', () => {
+      const parentItem = tree.children[0] as FieldItem;
+      const targetField = targetDoc.fields[0].fields[0];
+      const regularItem = new FieldItem(parentItem, targetField);
+      regularItem.isUserCreated = false;
+      regularItem.children = [];
+      parentItem.children.push(regularItem);
+
+      const childrenBefore = parentItem.children.length;
+      MappingService.removeStaleMappingsForDocument(tree, targetDoc);
+      const stillPresent = parentItem.children.find(
+        (c) => c instanceof FieldItem && c.field === targetField && !c.isUserCreated && c.children.length === 0,
+      );
+      expect(stillPresent).toBeUndefined();
+      expect(parentItem.children.length).toBeLessThan(childrenBefore);
+    });
+  });
+
   describe('addIf()', () => {
     it('should add if with mapping', () => {
       const parent = tree.children[0];

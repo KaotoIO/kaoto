@@ -1,6 +1,6 @@
 import { IField } from '../../../../models/datamapper/document';
 import { IFieldSubstituteInfo } from '../../../../models/datamapper/types';
-import { NodeData } from '../../../../models/datamapper/visualization';
+import { FieldItemNodeData, NodeData, TargetAbstractFieldNodeData } from '../../../../models/datamapper/visualization';
 import { FieldOverrideService } from '../../../../services/document/field-override.service';
 import { VisualizationService } from '../../../../services/visualization/visualization.service';
 import { VisualizationUtilService } from '../../../../services/visualization/visualization-util.service';
@@ -32,8 +32,33 @@ export function findCandidateQName(
   return entry?.[0];
 }
 
+/**
+ * Resolves the concrete IField from the wrapper's children by QName. Returns the actual
+ * document-tree field instance (not schema metadata) so callers can pass it directly to
+ * {@link MappingService.updateFieldItemField}. Uses `cachedCandidates` when the wrapper
+ * matches `knownWrapper` to avoid re-querying the schema collection on each call.
+ */
+export function resolveCandidateField(
+  wrapperField: IField,
+  qname: string,
+  cachedCandidates: Record<string, IFieldSubstituteInfo>,
+  knownWrapper: IField | undefined,
+  namespaceMap: Record<string, string>,
+): IField | undefined {
+  const resolvedCandidates =
+    wrapperField === knownWrapper
+      ? cachedCandidates
+      : FieldOverrideService.getFieldSubstitutionCandidates(wrapperField, namespaceMap);
+  const candidate = resolvedCandidates[qname];
+  if (!candidate) return undefined;
+  return wrapperField.fields?.find(
+    (f) => f.name === candidate.qname.getLocalPart() && f.namespaceURI === candidate.qname.getNamespaceURI(),
+  );
+}
+
 export interface AbstractFieldInfo {
   isAbstractWrapper: boolean;
+  isAbstractWrapperMember: boolean;
   isSelectedSubstitution: boolean;
   isSubstitutionCandidate: boolean;
   abstractWrapperField: IField | undefined;
@@ -45,6 +70,7 @@ export interface AbstractFieldInfo {
 export function resolveAbstractFieldInfo(nodeData: NodeData, namespaceMap: Record<string, string>): AbstractFieldInfo {
   const field = VisualizationUtilService.getField(nodeData);
   const isAbstractWrapper = field?.wrapperKind === 'abstract';
+  const isAbstractWrapperMember = VisualizationUtilService.isAbstractWrapperMember(nodeData);
   const isSelectedSubstitution = VisualizationUtilService.isAbstractField(nodeData);
 
   const candidateParent = field?.parent && 'wrapperKind' in field.parent ? field.parent : undefined;
@@ -62,10 +88,13 @@ export function resolveAbstractFieldInfo(nodeData: NodeData, namespaceMap: Recor
     abstractWrapperField = field;
   } else if (isSelectedSubstitution) {
     abstractWrapperField = nodeData.abstractField;
+  } else if (isAbstractWrapperMember && nodeData instanceof FieldItemNodeData) {
+    abstractWrapperField = nodeData.wrapperField ?? (nodeData.parent as TargetAbstractFieldNodeData).field;
   }
 
   return {
     isAbstractWrapper,
+    isAbstractWrapperMember,
     isSelectedSubstitution,
     isSubstitutionCandidate,
     abstractWrapperField,

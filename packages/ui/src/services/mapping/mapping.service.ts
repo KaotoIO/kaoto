@@ -188,6 +188,7 @@ export class MappingService {
       }
       if (
         (compatibleField && child.children.length > 0) ||
+        (compatibleField && child instanceof FieldItem && child.isUserCreated) ||
         child.parent instanceof InstructionItem ||
         child instanceof InstructionItem ||
         child instanceof ValueSelector

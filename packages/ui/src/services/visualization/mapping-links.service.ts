@@ -343,6 +343,9 @@ export class MappingLinksService {
     const segments: string[] = [];
     let current = field.parent;
     while (MappingLinksService.isWrapperField(current)) {
+      if ((current as IField).maxOccurs !== 1) {
+        return [];
+      }
       if (!MappingLinksService.isSelectedWrapperField(current)) {
         segments.push(current.id);
       }

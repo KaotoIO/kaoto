@@ -8,25 +8,32 @@ import {
   ChooseItem,
   FieldItem,
   ForEachItem,
+  IfItem,
   MappingTree,
   OtherwiseItem,
   ValueSelector,
 } from '../../models/datamapper/mapping';
 import {
+  AbstractFieldNodeData,
+  AddMappingNodeData,
   ChoiceFieldNodeData,
   DocumentNodeData,
   FieldItemNodeData,
   FieldNodeData,
+  MappingNodeData,
+  TargetAbstractFieldNodeData,
   TargetChoiceFieldNodeData,
   TargetDocumentNodeData,
   TargetFieldNodeData,
   TargetNodeData,
 } from '../../models/datamapper/visualization';
 import { getTestDocumentXsd, TestUtil } from '../../stubs/datamapper/data-mapper';
-import { ChoiceSelectionService } from '../document/choice-selection.service';
+import { QName } from '../../xml-schema-ts/QName';
 import { DocumentService } from '../document/document.service';
+import { WrapperSelectionService } from '../document/wrapper-selection.service';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
+import { MappingService } from '../mapping/mapping.service';
 import { MappingActionService } from './mapping-action.service';
 import { VisualizationService } from './visualization.service';
 import { VisualizationUtilService } from './visualization-util.service';
@@ -504,6 +511,100 @@ describe('VisualizationService / choice fields', () => {
       expect(outerMembers).toHaveLength(2);
       expect(outerMembers[0]).toBeInstanceOf(ChoiceFieldNodeData);
       expect(outerMembers[1].title).toBe('regularField');
+    });
+  });
+
+  describe('choice with abstract member', () => {
+    function createChoiceWithAbstractMember(outerSelectedIndex?: number, innerSelectedQName?: QName) {
+      const baseField = sourceDoc.fields[0];
+      const abstractCandidates = [
+        { ...baseField, name: 'Email', displayName: 'Email', fields: [] },
+        { ...baseField, name: 'SMS', displayName: 'SMS', fields: [] },
+      ];
+      const abstractMember = {
+        ...baseField,
+        name: 'AbstractMessage',
+        displayName: 'AbstractMessage',
+        wrapperKind: 'abstract' as const,
+        selectedMemberQName: innerSelectedQName,
+        fields: abstractCandidates,
+      };
+      const regularMember = {
+        ...baseField,
+        name: 'Webhook',
+        displayName: 'Webhook',
+        fields: [],
+      };
+      const outerChoice = {
+        ...baseField,
+        name: '__choice__',
+        displayName: 'choice',
+        wrapperKind: 'choice' as const,
+        selectedMemberIndex: outerSelectedIndex,
+        fields: [abstractMember, regularMember],
+      } as unknown as typeof baseField;
+      return { outerChoice, abstractMember, regularMember, abstractCandidates };
+    }
+
+    it('selecting abstract member without substitution should create AbstractFieldNodeData', () => {
+      const { outerChoice } = createChoiceWithAbstractMember(0);
+      const parentField = { ...sourceDoc.fields[0], fields: [outerChoice] };
+      const parentNode = new FieldNodeData(sourceDocNode, parentField as (typeof sourceDoc.fields)[0]);
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
+      expect(children).toHaveLength(1);
+      expect(children[0]).toBeInstanceOf(AbstractFieldNodeData);
+      expect(children[0]).not.toBeInstanceOf(ChoiceFieldNodeData);
+      const abstractNode = children[0] as AbstractFieldNodeData;
+      expect(abstractNode.abstractField).toBeUndefined();
+      expect(abstractNode.title).toBe('AbstractMessage');
+    });
+
+    it('target side: selecting abstract member without substitution should create TargetAbstractFieldNodeData', () => {
+      const { outerChoice } = createChoiceWithAbstractMember(0);
+      const parentField = { ...targetDoc.fields[0], fields: [outerChoice] };
+      const parentNode = new TargetFieldNodeData(targetDocNode, parentField as (typeof targetDoc.fields)[0]);
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
+      expect(children).toHaveLength(1);
+      expect(children[0]).toBeInstanceOf(TargetAbstractFieldNodeData);
+      expect(children[0]).not.toBeInstanceOf(TargetChoiceFieldNodeData);
+      const abstractNode = children[0] as TargetAbstractFieldNodeData;
+      expect(abstractNode.abstractField).toBeUndefined();
+    });
+
+    it('selecting abstract member with substitution should create AbstractFieldNodeData with abstractField set', () => {
+      const { outerChoice, abstractMember } = createChoiceWithAbstractMember(
+        0,
+        new QName('io.kaoto.datamapper.poc.test', 'Email'),
+      );
+      const parentField = { ...sourceDoc.fields[0], fields: [outerChoice] };
+      const parentNode = new FieldNodeData(sourceDocNode, parentField as (typeof sourceDoc.fields)[0]);
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
+      expect(children).toHaveLength(1);
+      expect(children[0]).toBeInstanceOf(AbstractFieldNodeData);
+      expect(children[0].title).toBe('Email');
+      expect((children[0] as AbstractFieldNodeData).abstractField).toBe(abstractMember);
+    });
+
+    it('clearing substitution should revert to AbstractFieldNodeData without abstractField', () => {
+      const { outerChoice, abstractMember } = createChoiceWithAbstractMember(
+        0,
+        new QName('io.kaoto.datamapper.poc.test', 'Email'),
+      );
+      const parentField = { ...sourceDoc.fields[0], fields: [outerChoice] };
+      const parentNode = new FieldNodeData(sourceDocNode, parentField as (typeof sourceDoc.fields)[0]);
+
+      const before = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
+      expect(before[0]).toBeInstanceOf(AbstractFieldNodeData);
+      expect(before[0].title).toBe('Email');
+
+      abstractMember.selectedMemberQName = undefined;
+
+      const after = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
+      expect(after).toHaveLength(1);
+      expect(after[0]).toBeInstanceOf(AbstractFieldNodeData);
+      expect(after[0]).not.toBeInstanceOf(ChoiceFieldNodeData);
+      expect((after[0] as AbstractFieldNodeData).abstractField).toBeUndefined();
+      expect(after[0].title).toBe('AbstractMessage');
     });
   });
 
@@ -1173,7 +1274,7 @@ describe('VisualizationService / choice fields', () => {
       // Simulate user selecting inner choice A (index 0) via context menu
       const outerChoiceField = outerChoiceNode.field;
       const nsMap = testTree.namespaceMap;
-      ChoiceSelectionService.setChoiceSelection(testTargetDoc, outerChoiceField, 0, nsMap);
+      WrapperSelectionService.setChoiceSelection(testTargetDoc, outerChoiceField, 0, nsMap);
 
       // Re-render from scratch
       const freshDocNode = new TargetDocumentNodeData(testTargetDoc, testTree);
@@ -1198,6 +1299,262 @@ describe('VisualizationService / choice fields', () => {
       // Inner choice children should be hidden (unconfigured target wrapper)
       const innerChoiceChildren = VisualizationService.generateNonDocumentNodeDataChildren(innerChoiceNode);
       expect(innerChoiceChildren).toHaveLength(0);
+    });
+  });
+
+  describe('maxOccurs>1 per-instance from the start', () => {
+    let choiceField: ReturnType<typeof createMockChoiceField>;
+    let parentFieldItem: FieldItem;
+    let localTree: MappingTree;
+
+    beforeEach(() => {
+      choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }], undefined, 'unbounded');
+      const parentField = {
+        ...targetDoc.fields[0],
+        fields: [choiceField],
+      };
+      localTree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+      parentFieldItem = new FieldItem(localTree, parentField as (typeof targetDoc.fields)[0]);
+      const emailFieldItem = new FieldItem(parentFieldItem, choiceField.fields[0]);
+      parentFieldItem.children.push(emailFieldItem);
+      localTree.children.push(parentFieldItem);
+    });
+
+    it('should show per-instance FieldItems with wrapperField at parent level', () => {
+      const duplicateFieldItem = new FieldItem(parentFieldItem, choiceField.fields[0]);
+      duplicateFieldItem.isUserCreated = true;
+      parentFieldItem.children.push(duplicateFieldItem);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
+      freshParentNode.mapping = parentFieldItem;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+      const emailChildren = children.filter((c) => c.title === 'email');
+      expect(emailChildren).toHaveLength(2);
+      for (const child of emailChildren) {
+        expect(child).toBeInstanceOf(FieldItemNodeData);
+        expect((child as FieldItemNodeData).wrapperField).toBe(choiceField);
+      }
+      expect(children[children.length - 1]).toBeInstanceOf(AddMappingNodeData);
+    });
+  });
+
+  describe('wrapper-pointing FieldItem shown as unsubstituted choice instance', () => {
+    let choiceField: ReturnType<typeof createMockChoiceField>;
+    let parentFieldItem: FieldItem;
+    let localTree: MappingTree;
+
+    beforeEach(() => {
+      choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }], undefined, 'unbounded');
+      const parentField = {
+        ...targetDoc.fields[0],
+        fields: [choiceField],
+      };
+      localTree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+      parentFieldItem = new FieldItem(localTree, parentField as (typeof targetDoc.fields)[0]);
+      localTree.children.push(parentFieldItem);
+    });
+
+    it('should show both selected member FieldItem and unsubstituted wrapper instance at parent level', () => {
+      const emailFieldItem = new FieldItem(parentFieldItem, choiceField.fields[0]);
+      parentFieldItem.children.push(emailFieldItem);
+
+      const wrapperFieldItem = new FieldItem(parentFieldItem, choiceField);
+      parentFieldItem.children.push(wrapperFieldItem);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
+      freshParentNode.mapping = parentFieldItem;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+      const fieldItemChildren = children.filter((c) => c instanceof FieldItemNodeData);
+      expect(fieldItemChildren).toHaveLength(2);
+
+      const emailChild = fieldItemChildren.find((c) => c.title === 'email');
+      expect(emailChild).toBeInstanceOf(FieldItemNodeData);
+      expect((emailChild as FieldItemNodeData).mapping.field.name).toBe('email');
+      expect((emailChild as FieldItemNodeData).wrapperField).toBe(choiceField);
+
+      const wrapperChild = fieldItemChildren.find((c) => c.title === 'choice');
+      expect(wrapperChild).toBeInstanceOf(FieldItemNodeData);
+      expect((wrapperChild as FieldItemNodeData).mapping.field).toBe(choiceField);
+      expect((wrapperChild as FieldItemNodeData).wrapperField).toBe(choiceField);
+
+      expect(children[children.length - 1]).toBeInstanceOf(AddMappingNodeData);
+    });
+
+    it('unsubstituted instance should have parent field node as parent', () => {
+      const wrapperFieldItem = new FieldItem(parentFieldItem, choiceField);
+      parentFieldItem.children.push(wrapperFieldItem);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
+      freshParentNode.mapping = parentFieldItem;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+      const wrapperChild = children.find((c) => c instanceof FieldItemNodeData && c.field.wrapperKind === 'choice');
+      expect(wrapperChild).toBeDefined();
+      expect((wrapperChild as FieldItemNodeData).parent).toBe(freshParentNode);
+    });
+
+    it('createNodeTitle should return pipe-connected label for unselected FieldItemNodeData on choice wrapper', () => {
+      const wrapperFieldItem = new FieldItem(parentFieldItem, choiceField);
+      parentFieldItem.children.push(wrapperFieldItem);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
+      freshParentNode.mapping = parentFieldItem;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+      const wrapperNode = children.find(
+        (c) => c instanceof FieldItemNodeData && c.field.wrapperKind === 'choice',
+      ) as FieldItemNodeData;
+      expect(wrapperNode).toBeDefined();
+      expect(VisualizationService.createNodeTitle(wrapperNode)).toBe('(email | phone)');
+    });
+
+    it('createNodeTitle should return pipe-connected label for AddMappingNodeData on choice wrapper', () => {
+      const wrapperFieldItem = new FieldItem(parentFieldItem, choiceField);
+      parentFieldItem.children.push(wrapperFieldItem);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
+      freshParentNode.mapping = parentFieldItem;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+      const addNode = children.find((c) => c instanceof AddMappingNodeData) as AddMappingNodeData;
+      expect(addNode).toBeDefined();
+      expect(VisualizationService.createNodeTitle(addNode)).toBe('(email | phone)');
+    });
+  });
+
+  describe('Bug regression: wrap-with-for-each on choice member (maxOccurs>1)', () => {
+    let choiceField: ReturnType<typeof createMockChoiceField>;
+    let parentFieldItem: FieldItem;
+    let localTree: MappingTree;
+
+    beforeEach(() => {
+      choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }], undefined, 'unbounded');
+      const parentField = {
+        ...targetDoc.fields[0],
+        fields: [choiceField],
+      };
+      localTree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+      parentFieldItem = new FieldItem(localTree, parentField as (typeof targetDoc.fields)[0]);
+      const emailFieldItem = new FieldItem(parentFieldItem, choiceField.fields[0]);
+      parentFieldItem.children.push(emailFieldItem);
+      localTree.children.push(parentFieldItem);
+    });
+
+    it('should not produce ghost TargetChoiceFieldNodeData after wrapping with for-each', () => {
+      const emailFieldItem = parentFieldItem.children[0] as FieldItem;
+      MappingService.wrapWithForEach(emailFieldItem);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
+      freshParentNode.mapping = parentFieldItem;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+      const ghostNodes = children.filter((c) => c instanceof TargetChoiceFieldNodeData);
+      expect(ghostNodes).toHaveLength(0);
+    });
+
+    it('should show MappingNodeData for ForEachItem', () => {
+      const emailFieldItem = parentFieldItem.children[0] as FieldItem;
+      MappingService.wrapWithForEach(emailFieldItem);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
+      freshParentNode.mapping = parentFieldItem;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+      const forEachNode = children.find((c) => c instanceof MappingNodeData && c.mapping instanceof ForEachItem);
+      expect(forEachNode).toBeDefined();
+    });
+
+    it('should show AddMappingNodeData as last child', () => {
+      const emailFieldItem = parentFieldItem.children[0] as FieldItem;
+      MappingService.wrapWithForEach(emailFieldItem);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
+      freshParentNode.mapping = parentFieldItem;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+      expect(children[children.length - 1]).toBeInstanceOf(AddMappingNodeData);
+    });
+  });
+
+  describe('Bug regression: root-level IfItem wrapping choice member', () => {
+    let choiceField: ReturnType<typeof createMockChoiceField>;
+    let localTree: MappingTree;
+
+    beforeEach(() => {
+      choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }], undefined, 'unbounded');
+      const ownerDoc = choiceField.ownerDocument;
+      ownerDoc.fields.push(choiceField);
+      localTree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+    });
+
+    afterEach(() => {
+      const ownerDoc = choiceField.ownerDocument;
+      ownerDoc.fields.pop();
+    });
+
+    it('FieldItemNodeData inside root-level IfItem should have wrapperField set', () => {
+      const emailFieldItem = new FieldItem(localTree, choiceField.fields[0]);
+      localTree.children.push(emailFieldItem);
+      MappingService.wrapWithIf(emailFieldItem);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const children = VisualizationService.generateStructuredDocumentChildren(freshTargetDocNode);
+      const ifNode = children.find((c) => c instanceof MappingNodeData && c.mapping instanceof IfItem);
+      expect(ifNode).toBeDefined();
+
+      const ifChildren = VisualizationService.generateNonDocumentNodeDataChildren(ifNode!);
+      const emailNode = ifChildren.find(
+        (c) => c instanceof FieldItemNodeData && c.title === 'email',
+      ) as FieldItemNodeData;
+      expect(emailNode).toBeDefined();
+      expect(emailNode.wrapperField).toBe(choiceField);
+    });
+  });
+
+  describe('Bug regression: shared InstructionItem across sibling collection wrappers', () => {
+    it('should render InstructionItem only once when it spans two sibling wrappers', () => {
+      const choiceA = createMockChoiceField([{ name: 'emailA' }], undefined, 'unbounded');
+      const choiceB = createMockChoiceField([{ name: 'emailB' }], undefined, 'unbounded');
+      (choiceB as unknown as Record<string, unknown>).name = '__choice__B';
+      const parentField = {
+        ...targetDoc.fields[0],
+        fields: [choiceA, choiceB],
+      };
+      const localTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const parentFieldItem = new FieldItem(localTree, parentField as (typeof targetDoc.fields)[0]);
+      localTree.children.push(parentFieldItem);
+
+      const fieldItemA = new FieldItem(parentFieldItem, choiceA.fields[0]);
+      const fieldItemB = new FieldItem(parentFieldItem, choiceB.fields[0]);
+      parentFieldItem.children.push(fieldItemA);
+      parentFieldItem.children.push(fieldItemB);
+      MappingService.wrapWithIf(fieldItemA);
+      const ifItem = parentFieldItem.children.find((c) => c instanceof IfItem) as IfItem;
+      ifItem.children.push(fieldItemB);
+      fieldItemB.parent = ifItem;
+      parentFieldItem.children = parentFieldItem.children.filter((c) => c !== fieldItemB);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
+      freshParentNode.mapping = parentFieldItem;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+      const ifNodes = children.filter((c) => c instanceof MappingNodeData && c.mapping instanceof IfItem);
+      expect(ifNodes).toHaveLength(1);
     });
   });
 });

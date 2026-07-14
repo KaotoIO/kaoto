@@ -5,6 +5,7 @@ import { IDocument, IField } from '../../models/datamapper/document';
 import {
   FieldItem,
   IExpressionHolder,
+  InstructionItem,
   isExpressionHolder,
   MappingItem,
   MappingParentType,
@@ -44,8 +45,9 @@ interface WrapperSpec {
   createSourceNode: (parent: NodeData, field: IField) => FieldNodeData;
   createTargetNode: (parent: TargetNodeData, field: IField, mapping?: FieldItem) => TargetFieldNodeData;
   setWrapperRef: (node: FieldNodeData, wrapperField: IField) => void;
-  isTargetWrapper: (node: NodeData) => boolean;
+  isTargetInstance: (node: NodeData) => boolean;
   hasWrapperRef: (node: NodeData) => boolean;
+  isUnconfiguredTarget: (node: NodeData, mappings: MappingItem[] | undefined) => boolean;
 }
 
 const CHOICE_WRAPPER: WrapperSpec = {
@@ -54,8 +56,23 @@ const CHOICE_WRAPPER: WrapperSpec = {
   setWrapperRef: (node, wrapperField) => {
     (node as ChoiceFieldNodeData | TargetChoiceFieldNodeData).choiceField = wrapperField;
   },
-  isTargetWrapper: (node) => node instanceof TargetChoiceFieldNodeData,
+  isTargetInstance: (node) => node instanceof TargetChoiceFieldNodeData,
   hasWrapperRef: (node) => !!(node as TargetChoiceFieldNodeData).choiceField,
+  isUnconfiguredTarget: (node, mappings) => {
+    if (node.isSource) return false;
+    if (!(node instanceof TargetChoiceFieldNodeData)) return false;
+    if (node.choiceField && node.mapping instanceof FieldItem) return false;
+    if (!mappings) return true;
+    const wrapperField = node.field;
+    return !mappings.some(
+      (m) =>
+        (m instanceof FieldItem && (m.field === wrapperField || DocumentService.isDescendant(wrapperField, m.field))) ||
+        (m instanceof InstructionItem &&
+          MappingService.getInstructionFields(m).some(
+            (f) => f === wrapperField || DocumentService.isDescendant(wrapperField, f),
+          )),
+    );
+  },
 };
 
 const ABSTRACT_WRAPPER: WrapperSpec = {
@@ -64,16 +81,32 @@ const ABSTRACT_WRAPPER: WrapperSpec = {
   setWrapperRef: (node, wrapperField) => {
     (node as AbstractFieldNodeData | TargetAbstractFieldNodeData).abstractField = wrapperField;
   },
-  isTargetWrapper: (node) => node instanceof TargetAbstractFieldNodeData,
+  isTargetInstance: (node) => node instanceof TargetAbstractFieldNodeData,
   hasWrapperRef: (node) => !!(node as TargetAbstractFieldNodeData).abstractField,
+  isUnconfiguredTarget: (node, mappings) => {
+    if (node.isSource) return false;
+    if (!(node instanceof TargetAbstractFieldNodeData)) return false;
+    if (node.abstractField && node.mapping instanceof FieldItem) return false;
+    if (!mappings) return true;
+    const wrapperField = node.field;
+    return !mappings.some(
+      (m) =>
+        (m instanceof FieldItem && (m.field === wrapperField || DocumentService.isDescendant(wrapperField, m.field))) ||
+        (m instanceof InstructionItem &&
+          MappingService.getInstructionFields(m).some(
+            (f) => f === wrapperField || DocumentService.isDescendant(wrapperField, f),
+          )),
+    );
+  },
 };
 
 const SEQUENCE_WRAPPER: WrapperSpec = {
   createSourceNode: (parent, field) => new SequenceFieldNodeData(parent, field),
   createTargetNode: (parent, field, mapping) => new TargetSequenceFieldNodeData(parent, field, mapping),
   setWrapperRef: () => {},
-  isTargetWrapper: (node) => node instanceof TargetSequenceFieldNodeData,
+  isTargetInstance: (node) => node instanceof TargetSequenceFieldNodeData,
   hasWrapperRef: () => false,
+  isUnconfiguredTarget: () => false,
 };
 
 // Regex patterns for DnD ID generation
@@ -150,12 +183,14 @@ export class VisualizationService {
     field: IField,
     mappings: MappingItem[] | undefined,
     spec: WrapperSpec,
-  ): NodeData {
+  ): NodeData | null {
     const selectedMember = DocumentUtilService.getSelectedMember(field);
 
-    if (selectedMember?.wrapperKind && DocumentUtilService.getSelectedMember(selectedMember) !== undefined) {
+    if (selectedMember?.wrapperKind) {
       const innerSpec = selectedMember.wrapperKind === 'choice' ? CHOICE_WRAPPER : ABSTRACT_WRAPPER;
-      return VisualizationService.doGenerateNodeDataFromWrapperField(parent, selectedMember, mappings, innerSpec);
+      if (innerSpec !== spec || DocumentUtilService.getSelectedMember(selectedMember) !== undefined) {
+        return VisualizationService.doGenerateNodeDataFromWrapperField(parent, selectedMember, mappings, innerSpec);
+      }
     }
 
     const nodeField = selectedMember ?? field;
@@ -168,9 +203,44 @@ export class VisualizationService {
     const mappingsForMember =
       selectedMember && mappings ? MappingService.filterMappingsForField(mappings, selectedMember) : [];
     const mapping = mappingsForMember.find((m) => m instanceof FieldItem) as FieldItem;
+    if (mappingsForMember.length > 0 && !mapping) return null;
     const node = spec.createTargetNode(parent as TargetNodeData, nodeField, mapping);
     if (selectedMember) spec.setWrapperRef(node, field);
     return node;
+  }
+
+  private static generateCollectionWrapperNodes(
+    parent: NodeData,
+    field: IField,
+    mappings: MappingItem[],
+    renderedNodes: NodeData[],
+  ): NodeData[] {
+    const wrapperSpec = field.wrapperKind === 'choice' ? CHOICE_WRAPPER : ABSTRACT_WRAPPER;
+    const wrapperFieldItems = mappings.filter(
+      (m): m is FieldItem =>
+        m instanceof FieldItem && (m.field === field || DocumentService.isDescendant(field, m.field)),
+    );
+    const wrapperInstructionItems = mappings.filter(
+      (m): m is InstructionItem =>
+        m instanceof InstructionItem &&
+        !VisualizationService.isExistingMapping(renderedNodes as TargetNodeData[], m) &&
+        MappingService.getInstructionFields(m).some((f) => f === field || DocumentService.isDescendant(field, f)),
+    );
+    if (wrapperFieldItems.length === 0 && wrapperInstructionItems.length === 0) {
+      const node = VisualizationService.doGenerateNodeDataFromWrapperField(parent, field, mappings, wrapperSpec);
+      return node ? [node] : [];
+    }
+    const nodes: NodeData[] = [];
+    const allItems: MappingItem[] = [...wrapperFieldItems, ...wrapperInstructionItems];
+    for (const item of allItems.sort((left, right) => MappingService.sortMappingItem(left, right))) {
+      if (item instanceof FieldItem) {
+        nodes.push(new FieldItemNodeData(parent as TargetNodeData, item, field));
+      } else {
+        nodes.push(VisualizationService.createNodeDataFromMappingItem(parent as TargetNodeData, item));
+      }
+    }
+    nodes.push(new AddMappingNodeData(parent as TargetNodeData, field));
+    return nodes;
   }
 
   private static doGenerateNodeDataFromFields(
@@ -179,70 +249,112 @@ export class VisualizationService {
     mappings?: MappingItem[],
   ): NodeData[] {
     const answer: NodeData[] = [];
-    if (mappings) {
-      let filterPriorityMappingItem = (m: MappingItem) => m instanceof UnknownMappingItem || m instanceof VariableItem;
-      if (parent.isPrimitive) {
-        filterPriorityMappingItem = (m: MappingItem) =>
-          m instanceof UnknownMappingItem || VisualizationService.isInlineValueSelector(m);
-      }
-      for (const m of mappings.filter(filterPriorityMappingItem)) {
+    VisualizationService.collectPriorityMappings(answer, parent, mappings);
+
+    for (const field of fields) {
+      if (VisualizationService.processWrapperField(answer, parent, field, mappings)) continue;
+      VisualizationService.processRegularField(answer, parent, field, mappings);
+    }
+
+    VisualizationService.collectUnrenderedMappings(answer, parent, mappings);
+    return answer;
+  }
+
+  private static collectPriorityMappings(
+    answer: NodeData[],
+    parent: NodeData,
+    mappings: MappingItem[] | undefined,
+  ): void {
+    if (!mappings) return;
+    let filterPriorityMappingItem = (m: MappingItem) => m instanceof UnknownMappingItem || m instanceof VariableItem;
+    if (parent.isPrimitive) {
+      filterPriorityMappingItem = (m: MappingItem) =>
+        m instanceof UnknownMappingItem || VisualizationService.isInlineValueSelector(m);
+    }
+    for (const m of mappings.filter(filterPriorityMappingItem)) {
+      answer.push(VisualizationService.createNodeDataFromMappingItem(parent as TargetNodeData, m));
+    }
+  }
+
+  private static processRegularField(
+    answer: NodeData[],
+    parent: NodeData,
+    field: IField,
+    mappings: MappingItem[] | undefined,
+  ): void {
+    const mappingsForField = mappings ? MappingService.filterMappingsForField(mappings, field) : [];
+    if (mappingsForField.length === 0) {
+      const fieldNodeData = parent.isSource
+        ? new FieldNodeData(parent, field)
+        : new TargetFieldNodeData(parent as TargetNodeData, field);
+      answer.push(fieldNodeData);
+      return;
+    }
+    for (const mapping of mappingsForField
+      .filter((mapping) => !VisualizationService.isExistingMapping(answer as TargetNodeData[], mapping))
+      .sort((left, right) => MappingService.sortMappingItem(left, right))) {
+      answer.push(VisualizationService.createNodeDataFromMappingItem(parent as TargetNodeData, mapping));
+    }
+    if (DocumentService.isCollectionField(field)) {
+      answer.push(new AddMappingNodeData(parent as TargetNodeData, field));
+    }
+  }
+
+  private static collectUnrenderedMappings(
+    answer: NodeData[],
+    parent: NodeData,
+    mappings: MappingItem[] | undefined,
+  ): void {
+    if (!mappings || VisualizationService.isUnconfiguredTargetWrapper(parent, mappings)) return;
+    const rendered = new Set(answer.filter((n): n is TargetNodeData => 'mapping' in n).map((n) => n.mapping));
+    for (const m of mappings) {
+      if (
+        !rendered.has(m) &&
+        !(m instanceof FieldItem) &&
+        !VisualizationService.isInlineValueSelector(m) &&
+        !(m instanceof VariableItem) &&
+        !(m instanceof UnknownMappingItem)
+      ) {
         answer.push(VisualizationService.createNodeDataFromMappingItem(parent as TargetNodeData, m));
       }
     }
-
-    const result = fields.reduce((acc, field) => {
-      if (field.wrapperKind === 'choice') {
-        acc.push(VisualizationService.doGenerateNodeDataFromWrapperField(parent, field, mappings, CHOICE_WRAPPER));
-        return acc;
-      }
-      if (field.wrapperKind === 'abstract') {
-        acc.push(VisualizationService.doGenerateNodeDataFromWrapperField(parent, field, mappings, ABSTRACT_WRAPPER));
-        return acc;
-      }
-      if (field.wrapperKind === 'sequence') {
-        acc.push(VisualizationService.doGenerateNodeDataFromWrapperField(parent, field, mappings, SEQUENCE_WRAPPER));
-        return acc;
-      }
-
-      const mappingsForField = mappings ? MappingService.filterMappingsForField(mappings, field) : [];
-      if (mappingsForField.length === 0) {
-        const fieldNodeData = parent.isSource
-          ? new FieldNodeData(parent, field)
-          : new TargetFieldNodeData(parent as TargetNodeData, field);
-        acc.push(fieldNodeData);
-      } else {
-        for (const mapping of mappingsForField
-          .filter((mapping) => !VisualizationService.isExistingMapping(acc as TargetNodeData[], mapping))
-          .sort((left, right) => MappingService.sortMappingItem(left, right))) {
-          acc.push(VisualizationService.createNodeDataFromMappingItem(parent as TargetNodeData, mapping));
-        }
-        if (DocumentService.isCollectionField(field)) {
-          acc.push(new AddMappingNodeData(parent as TargetNodeData, field));
-        }
-      }
-      return acc;
-    }, answer);
-
-    if (mappings && !VisualizationService.isUnconfiguredTargetWrapper(parent, mappings)) {
-      const rendered = new Set(result.filter((n): n is TargetNodeData => 'mapping' in n).map((n) => n.mapping));
-      for (const m of mappings) {
-        if (
-          !rendered.has(m) &&
-          !(m instanceof FieldItem) &&
-          !VisualizationService.isInlineValueSelector(m) &&
-          !(m instanceof VariableItem) &&
-          !(m instanceof UnknownMappingItem)
-        ) {
-          result.push(VisualizationService.createNodeDataFromMappingItem(parent as TargetNodeData, m));
-        }
-      }
-    }
-
-    return result;
   }
 
   private static isExistingMapping(nodes: TargetNodeData[], mapping: MappingItem) {
     return nodes.some((node) => 'mapping' in node && node.mapping === mapping);
+  }
+
+  private static processWrapperField(
+    answer: NodeData[],
+    parent: NodeData,
+    field: IField,
+    mappings: MappingItem[] | undefined,
+  ): boolean {
+    if (
+      (field.wrapperKind === 'choice' || field.wrapperKind === 'abstract') &&
+      field.maxOccurs !== 1 &&
+      !parent.isSource &&
+      mappings
+    ) {
+      answer.push(...VisualizationService.generateCollectionWrapperNodes(parent, field, mappings, answer));
+      return true;
+    }
+    if (field.wrapperKind === 'choice') {
+      const node = VisualizationService.doGenerateNodeDataFromWrapperField(parent, field, mappings, CHOICE_WRAPPER);
+      if (node) answer.push(node);
+      return true;
+    }
+    if (field.wrapperKind === 'abstract') {
+      const node = VisualizationService.doGenerateNodeDataFromWrapperField(parent, field, mappings, ABSTRACT_WRAPPER);
+      if (node) answer.push(node);
+      return true;
+    }
+    if (field.wrapperKind === 'sequence') {
+      const node = VisualizationService.doGenerateNodeDataFromWrapperField(parent, field, mappings, SEQUENCE_WRAPPER);
+      if (node) answer.push(node);
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -270,32 +382,8 @@ export class VisualizationService {
     return selectedMember ? [field] : field.fields;
   }
 
-  /**
-   * Returns `true` when a target-side wrapper has no FieldItem anywhere in
-   * the resolved mappings. The gate hides wrapper children until the user
-   * picks a substitute/member via the context menu or a mapping is created
-   * through the wrapper.
-   *
-   * Checks for ANY FieldItem (not just direct-child references) because
-   * `getOrCreateFieldItem` skips unselected wrappers — a FieldItem for a
-   * nested descendant (e.g. choice→choice→field) appears as a sibling in
-   * the mapping parent, not under the wrapper itself.
-   */
   private static isUnconfiguredTargetWrapper(parent: NodeData, mappings: MappingItem[] | undefined): boolean {
-    if (parent.isSource) return false;
-    if (!VisualizationService.isTargetWrapper(parent)) return false;
-    if (!mappings) return true;
-    const wrapperField = (parent as TargetFieldNodeData).field;
-    return !mappings.some(
-      (m) =>
-        m instanceof FieldItem && (m.field === wrapperField || DocumentService.isDescendant(wrapperField, m.field)),
-    );
-  }
-
-  private static isTargetWrapper(node: NodeData): boolean {
-    if (node instanceof TargetChoiceFieldNodeData) return node.field.wrapperKind === 'choice';
-    if (node instanceof TargetAbstractFieldNodeData) return node.field.wrapperKind === 'abstract';
-    return false;
+    return VisualizationService.resolveWrapperSpec(parent)?.spec.isUnconfiguredTarget(parent, mappings) ?? false;
   }
 
   private static resolveWrapperSpec(node: NodeData): { node: FieldNodeData; spec: WrapperSpec } | null {
@@ -312,11 +400,11 @@ export class VisualizationService {
    * wrappers to find the nearest real ancestor that carries mapping children.
    */
   private static resolveWrapperNodeMappings(parent: NodeData, spec: WrapperSpec): MappingItem[] | undefined {
-    if (!spec.isTargetWrapper(parent) || spec.hasWrapperRef(parent)) {
+    if (!spec.isTargetInstance(parent) || spec.hasWrapperRef(parent)) {
       return 'mapping' in parent ? (parent as TargetNodeData).mapping?.children : undefined;
     }
     let ancestor: TargetNodeData = (parent as TargetFieldNodeData).parent;
-    while (VisualizationService.isTargetWrapper(ancestor)) {
+    while (VisualizationService.resolveWrapperSpec(ancestor)?.spec.isTargetInstance(ancestor)) {
       ancestor = (ancestor as TargetFieldNodeData).parent;
     }
     return ancestor.mapping?.children;
@@ -329,16 +417,14 @@ export class VisualizationService {
    * @returns An array of child {@link NodeData} instances.
    */
   static generateNonDocumentNodeDataChildren(parent: NodeData): NodeData[] {
+    if (parent instanceof FieldItemNodeData && parent.wrapperField && parent.field === parent.wrapperField) return [];
     const wrapperMatch = VisualizationService.resolveWrapperSpec(parent);
     if (wrapperMatch) {
       const { node, spec } = wrapperMatch;
       const mappings = VisualizationService.resolveWrapperNodeMappings(node, spec);
       if (VisualizationService.isUnconfiguredTargetWrapper(node, mappings)) return [];
-      return VisualizationService.doGenerateNodeDataFromFields(
-        node,
-        VisualizationService.resolveWrapperNodeFields(node.field),
-        mappings,
-      );
+      const fields = VisualizationService.resolveWrapperNodeFields(node.field);
+      return VisualizationService.doGenerateNodeDataFromFields(node, fields, mappings);
     }
     if (parent instanceof SequenceFieldNodeData || parent instanceof TargetSequenceFieldNodeData) {
       return VisualizationService.doGenerateNodeDataFromFields(
@@ -363,8 +449,35 @@ export class VisualizationService {
     return [];
   }
 
+  private static findWrapperFieldForFieldItem(fieldItem: FieldItem): IField | undefined {
+    let current: MappingParentType = fieldItem.parent;
+    while (current instanceof InstructionItem) {
+      current = current.parent;
+    }
+    let fieldsToSearch: IField[];
+    if (current instanceof FieldItem) {
+      fieldsToSearch = current.field.fields;
+    } else if (current instanceof MappingTree) {
+      fieldsToSearch = fieldItem.field.ownerDocument.fields;
+    } else {
+      return undefined;
+    }
+    for (const child of fieldsToSearch) {
+      if (
+        (child.wrapperKind === 'abstract' || child.wrapperKind === 'choice') &&
+        (child === fieldItem.field || DocumentService.isDescendant(child, fieldItem.field))
+      ) {
+        return child;
+      }
+    }
+    return undefined;
+  }
+
   private static createNodeDataFromMappingItem(parent: TargetNodeData, mapping: MappingItem): MappingNodeData {
-    if (mapping instanceof FieldItem) return new FieldItemNodeData(parent, mapping);
+    if (mapping instanceof FieldItem) {
+      const wrapperField = VisualizationService.findWrapperFieldForFieldItem(mapping);
+      return new FieldItemNodeData(parent, mapping, wrapperField);
+    }
     if (mapping instanceof UnknownMappingItem) return new UnknownMappingNodeData(parent, mapping);
     if (mapping instanceof VariableItem) return new VariableNodeData(parent, mapping);
     return new MappingNodeData(parent, mapping);
@@ -383,16 +496,18 @@ export class VisualizationService {
       if (isPrimitiveDocumentWithConditionItem) return true;
     }
     if (nodeData instanceof FieldNodeData) {
-      if (VisualizationService.isTargetWrapper(nodeData)) {
+      if (VisualizationService.resolveWrapperSpec(nodeData)?.spec.isTargetInstance(nodeData)) {
         return (nodeData as TargetFieldNodeData).mapping instanceof FieldItem;
       }
       return DocumentService.hasChildren(nodeData.field);
     }
-    if (nodeData instanceof FieldItemNodeData)
+    if (nodeData instanceof FieldItemNodeData) {
+      if (nodeData.wrapperField && nodeData.field === nodeData.wrapperField) return false;
       return (
         DocumentService.hasChildren(nodeData.field) ||
         nodeData.mapping.children.some((m) => !VisualizationService.isInlineValueSelector(m))
       );
+    }
     if (nodeData instanceof MappingNodeData) return nodeData.mapping.children.length > 0;
     return false;
   }
@@ -477,7 +592,11 @@ export class VisualizationService {
    * @param node - The abstract wrapper node whose candidates should be described.
    */
   static getAbstractMemberLabel(node: AbstractFieldNodeData | TargetAbstractFieldNodeData): string {
-    const members = node.field.fields ?? [];
+    return VisualizationService.getAbstractMemberLabelFromField(node.field);
+  }
+
+  private static getAbstractMemberLabelFromField(field: IField): string {
+    const members = field.fields ?? [];
     const labels = members.map((m) => m.displayName ?? m.name);
     if (labels.length === 0) return '(no candidates)';
     const maxVisible = 3;
@@ -509,6 +628,26 @@ export class VisualizationService {
       !nodeData.abstractField
     ) {
       return VisualizationService.getAbstractMemberLabel(nodeData);
+    }
+    if (
+      nodeData instanceof FieldItemNodeData &&
+      nodeData.wrapperField?.wrapperKind === 'abstract' &&
+      nodeData.field === nodeData.wrapperField
+    ) {
+      return VisualizationService.getAbstractMemberLabelFromField(nodeData.wrapperField);
+    }
+    if (nodeData instanceof AddMappingNodeData && nodeData.field.wrapperKind === 'abstract') {
+      return VisualizationService.getAbstractMemberLabelFromField(nodeData.field);
+    }
+    if (
+      nodeData instanceof FieldItemNodeData &&
+      nodeData.wrapperField?.wrapperKind === 'choice' &&
+      nodeData.field === nodeData.wrapperField
+    ) {
+      return VisualizationService.getChoiceMemberLabel(nodeData.wrapperField);
+    }
+    if (nodeData instanceof AddMappingNodeData && nodeData.field.wrapperKind === 'choice') {
+      return VisualizationService.getChoiceMemberLabel(nodeData.field);
     }
     return nodeData.title;
   }

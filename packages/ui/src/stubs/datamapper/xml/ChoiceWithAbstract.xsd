@@ -34,21 +34,71 @@
     </xs:complexContent>
   </xs:complexType>
 
-  <!-- Root element with a choice that includes the abstract element -->
   <xs:element name="Notification">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="id" type="xs:string"/>
-        <xs:choice>
-          <xs:element ref="AbstractMessage"/>
-          <xs:element name="Webhook">
-            <xs:complexType>
-              <xs:sequence>
-                <xs:element name="url" type="xs:string"/>
-              </xs:sequence>
-            </xs:complexType>
-          </xs:element>
-        </xs:choice>
+        <xs:element name="Short">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="id" type="xs:string"/>
+              <xs:choice>
+                <xs:element ref="AbstractMessage"/>
+                <xs:element name="Webhook">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:element name="url" type="xs:string"/>
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+              </xs:choice>
+              <xs:choice maxOccurs="unbounded">
+                <xs:element ref="AbstractMessage"/>
+                <xs:element name="WebhookMulti">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:element name="url" type="xs:string"/>
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+              </xs:choice>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Large">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="id" type="xs:string"/>
+              <xs:choice>
+                <xs:element ref="AbstractMessage"/>
+                <xs:element name="Webhook" type="xs:string"/>
+                <xs:element name="Push" type="xs:string"/>
+                <xs:element name="Slack" type="xs:string"/>
+                <xs:element name="Teams" type="xs:string"/>
+                <xs:element name="Discord" type="xs:string"/>
+                <xs:element name="Pager" type="xs:string"/>
+                <xs:element name="Fax" type="xs:string"/>
+                <xs:element name="Voice" type="xs:string"/>
+                <xs:element name="Signal" type="xs:string"/>
+                <xs:element name="Telegram" type="xs:string"/>
+                <xs:element name="Matrix" type="xs:string"/>
+              </xs:choice>
+              <xs:choice maxOccurs="unbounded">
+                <xs:element ref="AbstractMessage"/>
+                <xs:element name="WebhookMulti" type="xs:string"/>
+                <xs:element name="PushMulti" type="xs:string"/>
+                <xs:element name="SlackMulti" type="xs:string"/>
+                <xs:element name="TeamsMulti" type="xs:string"/>
+                <xs:element name="DiscordMulti" type="xs:string"/>
+                <xs:element name="PagerMulti" type="xs:string"/>
+                <xs:element name="FaxMulti" type="xs:string"/>
+                <xs:element name="VoiceMulti" type="xs:string"/>
+                <xs:element name="SignalMulti" type="xs:string"/>
+                <xs:element name="TelegramMulti" type="xs:string"/>
+                <xs:element name="MatrixMulti" type="xs:string"/>
+              </xs:choice>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
