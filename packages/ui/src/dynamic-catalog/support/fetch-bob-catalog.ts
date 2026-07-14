@@ -1,9 +1,6 @@
 import { CamelCatalogService } from '../../models';
-import {
-  BOB_CUSTOM_MODE_ROOT_ENTITY_NAME,
-  BOB_CUSTOM_MODE_SCHEMA_KEY,
-  BobCatalogIndex,
-} from '../../models/bob/bob-catalog-index';
+import { IBobComponentDefinition } from '../../models/bob/bob-catalog';
+import { BOB_CUSTOM_MODE_ROOT_ENTITY_NAME, BobCatalogIndex } from '../../models/bob/bob-catalog-index';
 import { ComponentsCatalog } from '../../models/camel/camel-catalog-index';
 import { ICamelProcessorDefinition } from '../../models/camel/camel-processors-catalog';
 import { CatalogKind } from '../../models/catalog-kind';
@@ -19,20 +16,24 @@ export async function fetchBobCatalog(options: {
 }): Promise<void> {
   const { catalogIndex, relativeBasePath } = options;
 
-  const toolsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.BobTool]>(
+  const modesFile = CatalogSchemaLoader.fetchFile<Record<string, IBobComponentDefinition>>(
+    `${relativeBasePath}/${catalogIndex.catalogs.modes.file}`,
+  );
+  const toolsFile = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.BobTool]>(
     `${relativeBasePath}/${catalogIndex.catalogs.tools.file}`,
   );
-  const componentsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.BobComponent]>(
+  const componentsFile = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.BobComponent]>(
     `${relativeBasePath}/${catalogIndex.catalogs.components.file}`,
   );
-  const rootSchemaFile = CatalogSchemaLoader.fetchFile<ICamelProcessorDefinition['propertiesSchema']>(
-    `${relativeBasePath}/${catalogIndex.schemas[BOB_CUSTOM_MODE_SCHEMA_KEY].file}`,
-  );
 
-  const [tools, components, rootSchema] = await Promise.all([toolsFiles, componentsFiles, rootSchemaFile]);
+  const [modes, tools, components] = await Promise.all([modesFile, toolsFile, componentsFile]);
 
+  // The root mode schema lives inside the modes catalog under the 'mode' entry.
+  const rootModeEntry = modes.body['mode'];
   const customModeRootEntity: ComponentsCatalog[CatalogKind.Entity] = {
-    [BOB_CUSTOM_MODE_ROOT_ENTITY_NAME]: { propertiesSchema: rootSchema.body } as ICamelProcessorDefinition,
+    [BOB_CUSTOM_MODE_ROOT_ENTITY_NAME]: {
+      propertiesSchema: rootModeEntry?.propertiesSchema,
+    } as ICamelProcessorDefinition,
   };
 
   CamelCatalogService.setCatalogKey(CatalogKind.BobTool, tools.body);

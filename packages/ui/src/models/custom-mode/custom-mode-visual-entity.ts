@@ -18,8 +18,8 @@ import { IClipboardCopyObject } from '../visualization/clipboard';
 import { NodeEnrichmentService } from '../visualization/flows/nodes/node-enrichment.service';
 import { CustomModeSchemaService } from '../visualization/flows/support/custom-mode-schema.service';
 import { createVisualizationNode } from '../visualization/visualization-node';
-import { CustomInstructionsNode, CustomInstructionsParser } from './custom-instructions-parser';
-import { CustomMode } from './custom-mode-types';
+import { CustomInstructionsParser } from './custom-instructions-parser';
+import { CustomInstructionsNode, CustomMode } from './custom-mode-types';
 
 export class CustomModeVisualEntity implements BaseVisualEntity {
   id: string;
@@ -36,7 +36,7 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
       this.id = getCamelRandomId('custom-mode');
       this.mode.slug = this.id;
     }
-    this.parsedNodes = CustomInstructionsParser.parse(mode?.customInstructions ?? '');
+    this.parsedNodes = CustomInstructionsParser.parseAll(mode?.customInstructions ?? '').steps;
   }
 
   static isApplicable(entity: unknown): entity is CustomMode {
@@ -79,18 +79,25 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
   getNodeDefinition(path?: string): any {
     if (!path) return undefined;
     if (path === this.getRootPath()) {
+      // Exclude customInstructions (managed via canvas nodes) from the form.
       const { customInstructions: _ci, ...rest } = this.mode as CustomMode & { customInstructions?: string };
       return rest;
     }
     if (path.startsWith(`${this.getRootPath()}.customInstructions.`)) {
       const index = Number(path.replace(`${this.getRootPath()}.customInstructions.`, '').split('.')[0]);
-      return Number.isInteger(index) ? this.parsedNodes[index] : undefined;
+      if (!Number.isInteger(index)) return undefined;
+      const node = this.parsedNodes[index];
+      if (!node) return undefined;
+      // Project CustomInstructionsNode onto the text-node catalog schema shape.
+      return { content: node.rawContent, label: node.title, order: node.index };
     }
     return undefined;
   }
 
   getOmitFormFields(): string[] {
-    return ['customInstructions'];
+    // customInstructions is managed via the canvas step nodes.
+    // hardRules is hidden from the user (static text, always re-injected on serialize).
+    return ['customInstructions', 'hardRules'];
   }
 
   updateModel(path: string | undefined, value: unknown): void {
@@ -103,7 +110,16 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
     if (path.startsWith(`${this.getRootPath()}.customInstructions.`)) {
       const index = Number(path.replace(`${this.getRootPath()}.customInstructions.`, '').split('.')[0]);
       if (Number.isInteger(index) && isDefined(this.parsedNodes[index])) {
-        this.parsedNodes[index] = value as CustomInstructionsNode;
+        // The form submits the catalog shape { content, label, order }.
+        // Reverse-map back to CustomInstructionsNode before persisting.
+        const formValue = value as { content?: string; label?: string; order?: number };
+        const existing = this.parsedNodes[index];
+        this.parsedNodes[index] = {
+          nodeType: existing.nodeType,
+          rawContent: formValue.content ?? existing.rawContent,
+          title: formValue.label ?? existing.title,
+          index: typeof formValue.order === 'number' ? formValue.order : existing.index,
+        };
         this.parsedNodesDirty = true;
       }
     }
@@ -118,8 +134,7 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
   }
 
   getNodeInteraction(data: IVisualizationNodeData): NodeInteraction {
-    const isModeNode = data.path === this.getRootPath() && !data.isGroup;
-    return { ...DISABLED_NODE_INTERACTION, canRemoveFlow: isModeNode };
+    return { ...DISABLED_NODE_INTERACTION, canRemoveFlow: data.path === this.getRootPath() };
   }
 
   getNodeValidationText(_path?: string): string | undefined {
@@ -179,14 +194,16 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
       description: this.mode.description || '',
     });
 
-    await NodeEnrichmentService.enrichNodeFromCatalog(modeGroupNode, CatalogKind.BobTool);
+    await NodeEnrichmentService.enrichNodeFromCatalog(modeGroupNode, CatalogKind.Entity);
 
-    // Catalog title takes priority; fall back to mode.name when BobNodes catalog is absent (pre-Epic 6).
+    // Catalog title takes priority; fall back to mode.name when catalog is absent.
     if (!modeGroupNode.data.title) {
       modeGroupNode.data.title = this.mode.name || this.id;
     }
 
-    // 2. customInstructions sibling nodes (stub: parsedNodes is always [] until Epic 7)
+    // 2. customInstructions step nodes — one per parsed instruction step.
+    // title and index are populated by CustomInstructionsParser.parseAll().
+    // node.nodeType is looked up in the BobComponent catalog for icon/title enrichment.
     const siblings: IVisualizationNode[] = [];
     for (let i = 0; i < this.parsedNodes.length; i++) {
       const node = this.parsedNodes[i];
@@ -198,9 +215,14 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
         isPlaceholder: false,
         isGroup: false,
         iconUrl: '',
-        title: node.nodeType,
-        description: '',
+        title: node.title ?? node.nodeType,
+        description: node.rawContent,
       });
+      await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.BobComponent);
+      // Parsed title takes priority over whatever the catalog returns for the generic type.
+      if (node.title) {
+        vizNode.data.title = node.title;
+      }
       modeGroupNode.addChild(vizNode);
       siblings.push(vizNode);
     }

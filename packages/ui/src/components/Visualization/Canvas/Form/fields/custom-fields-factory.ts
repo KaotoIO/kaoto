@@ -77,6 +77,10 @@ const isEndpointListField = (schema: Parameters<CustomFieldsFactory>[0]): boolea
 };
 
 const isTextAreaField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
+  // x-component: textarea explicitly requests a textarea widget
+  if ((schema as Record<string, unknown>)['x-component'] === 'textarea') return true;
+  // format: "textarea" (used by Bob component schemas) also requests a textarea widget
+  if (schema.type === 'string' && schema.format === 'textarea') return true;
   return (
     schema.type === 'string' &&
     (schema.title === 'Data' || schema.title === 'Value' || schema.title === 'Source') &&

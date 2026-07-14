@@ -1,6 +1,6 @@
 import { JSONSchema4 } from 'json-schema';
 
-import rootSchema from '../../stubs/bob-catalog/custom-mode-schema.json';
+import modesStub from '../../stubs/bob-catalog/bob-modes.json';
 import { BOB_CUSTOM_MODE_ROOT_ENTITY_NAME } from '../bob/bob-catalog-index';
 import { ICamelProcessorDefinition } from '../camel/camel-processors-catalog';
 import { CatalogKind } from '../catalog-kind';
@@ -85,9 +85,10 @@ describe('CustomModeVisualEntity', () => {
 
   describe('getNodeSchema', () => {
     it('returns root schema for customMode path', () => {
+      const rootModeEntry = (modesStub as Record<string, { propertiesSchema?: JSONSchema4 }>)['mode'];
       CamelCatalogService.setCatalogKey(CatalogKind.Entity, {
         [BOB_CUSTOM_MODE_ROOT_ENTITY_NAME]: {
-          propertiesSchema: rootSchema as JSONSchema4,
+          propertiesSchema: rootModeEntry?.propertiesSchema,
         } as ICamelProcessorDefinition,
       });
       const schema = entity.getNodeSchema('customMode');
@@ -148,6 +149,66 @@ describe('CustomModeVisualEntity', () => {
       entity.updateModel(undefined, { name: 'Should Not Apply' });
       expect(entity.toJSON().name).toBe('Test Mode');
     });
+
+    describe('step path reverse-mapping', () => {
+      const instructions =
+        'system instructions:\nfollow the below instructions strictly.\n\n1. Parse input\n   - Read carefully\n\n2. Return result\n   - Return JSON.\n';
+
+      it('updates rawContent from form content field', () => {
+        const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
+        e.updateModel('customMode.customInstructions.0.step', {
+          content: 'Updated content',
+          label: 'Parse input',
+          order: 1,
+        });
+        const serialized = e.toJSON().customInstructions ?? '';
+        expect(serialized).toContain('Updated content');
+      });
+
+      it('updates title from form label field (reflected via getNodeDefinition)', () => {
+        const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
+        e.updateModel('customMode.customInstructions.0.step', {
+          content: 'Parse input\n- Read carefully',
+          label: 'New Label',
+          order: 1,
+        });
+        // title is stored on the node; read it back via getNodeDefinition (catalog shape)
+        const def = e.getNodeDefinition('customMode.customInstructions.0.step') as {
+          content: string;
+          label: string;
+          order: number;
+        };
+        expect(def.label).toBe('New Label');
+      });
+
+      it('preserves nodeType and existing index when order is omitted', () => {
+        const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
+        e.updateModel('customMode.customInstructions.0.step', { content: 'Changed', label: 'Parse input' });
+        // Just ensure serialize does not throw and produces a numbered list
+        const serialized = e.toJSON().customInstructions ?? '';
+        expect(serialized).toMatch(/^1\. /m);
+      });
+
+      it('marks parsedNodesDirty so toJSON re-serializes', () => {
+        const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
+        const before = e.toJSON().customInstructions;
+        e.updateModel('customMode.customInstructions.0.step', {
+          content: 'Completely new content',
+          label: 'Step 1',
+          order: 1,
+        });
+        const after = e.toJSON().customInstructions;
+        expect(after).not.toBe(before);
+        expect(after).toContain('Completely new content');
+      });
+
+      it('is a no-op for an out-of-range index', () => {
+        const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
+        const before = e.toJSON().customInstructions;
+        e.updateModel('customMode.customInstructions.99.step', { content: 'Ghost', label: 'Ghost', order: 99 });
+        expect(e.toJSON().customInstructions).toBe(before);
+      });
+    });
   });
 
   describe('toJSON', () => {
@@ -159,17 +220,16 @@ describe('CustomModeVisualEntity', () => {
   });
 
   describe('getNodeInteraction', () => {
-    it('canRemoveFlow true only for mode node (isGroup false, root path)', () => {
-      const interaction = entity.getNodeInteraction({ path: 'customMode', isGroup: false } as never);
-      expect(interaction.canRemoveFlow).toBe(true);
+    it('canRemoveFlow true for root path regardless of isGroup', () => {
+      expect(entity.getNodeInteraction({ path: 'customMode', isGroup: false } as never).canRemoveFlow).toBe(true);
+      expect(entity.getNodeInteraction({ path: 'customMode', isGroup: true } as never).canRemoveFlow).toBe(true);
+    });
+
+    it('canRemoveStep and canBeDisabled are always false', () => {
+      const interaction = entity.getNodeInteraction({ path: 'customMode', isGroup: true } as never);
       expect(interaction.canRemoveStep).toBe(false);
       expect(interaction.canHaveChildren).toBe(false);
       expect(interaction.canBeDisabled).toBe(false);
-    });
-
-    it('canRemoveFlow false for group node (isGroup true, root path)', () => {
-      const interaction = entity.getNodeInteraction({ path: 'customMode', isGroup: true } as never);
-      expect(interaction.canRemoveFlow).toBe(false);
     });
 
     it('all false for customInstructions siblings', () => {
@@ -240,9 +300,38 @@ describe('CustomModeVisualEntity', () => {
       expect(placeholder.getPreviousNode()).toBeUndefined();
     });
 
-    it('calls enrichNodeFromCatalog with BobNodes catalog kind', async () => {
+    it('enriches the group node with Entity catalog kind', async () => {
       await entity.toVizNode();
-      expect(NodeEnrichmentService.enrichNodeFromCatalog).toHaveBeenCalledOnce();
+      expect(NodeEnrichmentService.enrichNodeFromCatalog).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ path: 'customMode' }) }),
+        CatalogKind.Entity,
+      );
+    });
+
+    it('enriches each step node with BobComponent catalog kind', async () => {
+      const withSteps = new CustomModeVisualEntity(
+        makeMode({
+          customInstructions: `system instructions:\nfollow the below instructions strictly.\n\n1. Do something\n   - detail\n\n2. Return result\n   - Return JSON.\n`,
+        }),
+      );
+      await withSteps.toVizNode();
+      // group node (Entity) + 2 step nodes (BobComponent) = 3 calls
+      expect(NodeEnrichmentService.enrichNodeFromCatalog).toHaveBeenCalledTimes(3);
+      expect(NodeEnrichmentService.enrichNodeFromCatalog).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ name: 'step' }) }),
+        CatalogKind.BobComponent,
+      );
+    });
+
+    it('parsed step title takes priority over catalog title for step nodes', async () => {
+      const withSteps = new CustomModeVisualEntity(
+        makeMode({
+          customInstructions: `system instructions:\nfollow the below instructions strictly.\n\n1. My custom title\n   - detail\n`,
+        }),
+      );
+      const groupNode = await withSteps.toVizNode();
+      const stepNode = groupNode.getChildren()![0];
+      expect(stepNode.data.title).toBe('My custom title');
     });
   });
 });

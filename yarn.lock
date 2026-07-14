@@ -2829,6 +2829,7 @@ __metadata:
     "@types/eslint__js": "npm:^8.42.3"
     "@types/json-schema": "npm:^7.0.15"
     "@types/lodash": "npm:^4"
+    "@types/mdast": "npm:^4.0.0"
     "@types/node": "npm:^22.0.0"
     "@types/openapi-v3": "npm:^3.0.0"
     "@types/react": "npm:^19.2.14"
@@ -2857,6 +2858,9 @@ __metadata:
     jest-environment-jsdom: "npm:^29.4.2"
     jszip: "npm:^3.10.1"
     lodash: "npm:^4.17.21"
+    mdast-util-from-markdown: "npm:^2.0.2"
+    mdast-util-to-markdown: "npm:^2.0.0"
+    mdast-util-to-string: "npm:^4.0.0"
     mobx: "npm:^6.9.0"
     monaco-editor: "npm:^0.55.1"
     monaco-yaml: "npm:^5.5.1"
@@ -14041,6 +14045,26 @@ __metadata:
     micromark-util-types: "npm:^2.0.0"
     unist-util-stringify-position: "npm:^4.0.0"
   checksum: 10/69b207913fbcc0469f8c59d922af4d5509b79e809d77c9bd4781543a907fe2ecc8e6433ce0707066a27b117b13f38af3aae4f2d085e18ebd2d3ad5f1a5647902
+  languageName: node
+  linkType: hard
+
+"mdast-util-from-markdown@npm:^2.0.2":
+  version: 2.0.3
+  resolution: "mdast-util-from-markdown@npm:2.0.3"
+  dependencies:
+    "@types/mdast": "npm:^4.0.0"
+    "@types/unist": "npm:^3.0.0"
+    decode-named-character-reference: "npm:^1.0.0"
+    devlop: "npm:^1.0.0"
+    mdast-util-to-string: "npm:^4.0.0"
+    micromark: "npm:^4.0.0"
+    micromark-util-decode-numeric-character-reference: "npm:^2.0.0"
+    micromark-util-decode-string: "npm:^2.0.0"
+    micromark-util-normalize-identifier: "npm:^2.0.0"
+    micromark-util-symbol: "npm:^2.0.0"
+    micromark-util-types: "npm:^2.0.0"
+    unist-util-stringify-position: "npm:^4.0.0"
+  checksum: 10/96f2bfb3b240c3d20a57db5d215faed795abf495c65ca2a4d61c0cf796011bc980619aa032d7984b05b67c15edc0eccd12a004a848952d3a598d108cf14901ab
   languageName: node
   linkType: hard
 

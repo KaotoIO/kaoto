@@ -101,4 +101,17 @@ export class NodeTitleResolver {
     const title = await CatalogResolverFactory.resolvePropertyWithFallbacks(catalogKinds, name, (def) => def?.title);
     return title ?? name;
   }
+
+  /**
+   * Resolves the title for a Bob tool or instruction component.
+   * Tries BobTool first, then BobComponent as fallback.
+   */
+  static async getBobTitle(name: string, requestedKind: CatalogKind, _componentName?: string): Promise<string> {
+    const title = await CatalogResolverFactory.resolvePropertyWithFallbacks(
+      [requestedKind, CatalogKind.BobTool, CatalogKind.BobComponent],
+      name,
+      (def) => def?.title,
+    );
+    return title ?? name;
+  }
 }

@@ -1,41 +1,63 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
+  "additionalProperties": false,
   "properties": {
     "slug": {
       "type": "string",
       "title": "Slug",
-      "description": "Machine identifier — kebab-case, unique within the file."
+      "description": "Unique kebab-case identifier for the mode (e.g. my-mode)",
+      "pattern": "^[a-z0-9-]+$",
+      "$comment": "group:common"
     },
     "name": {
       "type": "string",
       "title": "Name",
-      "description": "Display name shown in the mode selector (may include emoji)."
+      "description": "Human-readable display name for the mode. May include an emoji prefix.",
+      "$comment": "group:common"
     },
     "description": {
       "type": "string",
       "title": "Description",
-      "description": "One-liner shown in the orchestrator dropdown."
+      "description": "Short summary of what this mode does, shown in the mode picker.",
+      "$comment": "group:common"
+    },
+    "groups": {
+      "type": "array",
+      "title": "Groups",
+      "description": "Tool permission groups this mode has access to. Controls which tools are available when the mode is active.",
+      "items": {
+        "type": "string",
+        "enum": [
+          "read",
+          "edit",
+          "execute",
+          "mcp",
+          "skill",
+          "todo",
+          "subtask",
+          "subagent",
+          "mode",
+          "command",
+          "browser",
+          "write"
+        ]
+      },
+      "default": ["read"],
+      "uniqueItems": true,
+      "$comment": "group:common"
+    },
+    "whenToUse": {
+      "type": "string",
+      "title": "When To Use",
+      "description": "Guidance for the orchestrator on when to activate this mode. Used by Bob to route requests to the right mode.",
+      "$comment": "group:advanced"
     },
     "roleDefinition": {
       "type": "string",
       "title": "Role Definition",
-      "description": "Defines who this mode is — shown to the LLM as a system prompt prefix.",
-      "x-component": "textarea"
-    },
-    "whenToUse": {
-      "type": "string",
-      "title": "When to Use",
-      "description": "Tells the orchestrator when to route to this mode.",
-      "x-component": "textarea"
-    },
-    "groups": {
-      "type": "array",
-      "title": "Tool Groups",
-      "description": "Tool permission groups granted to this mode.",
-      "items": {
-        "type": "string",
-        "enum": ["read", "edit", "command", "mcp", "subagent", "skill", "execute", "todo"]
-      }
+      "description": "System prompt that defines the mode's persona and responsibilities. This text is injected as the role definition when the mode is activated.",
+      "$comment": "group:advanced"
     }
   },
   "required": ["slug", "name", "roleDefinition"]

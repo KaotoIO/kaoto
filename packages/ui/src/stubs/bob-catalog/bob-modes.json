@@ -1,0 +1,63 @@
+{
+  "mode": {
+    "kind": "bobMode",
+    "version": "1.0.0",
+    "name": "mode",
+    "title": "Mode",
+    "description": "A Bob AI assistant mode definition",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "slug": {
+          "type": "string",
+          "title": "Slug",
+          "description": "Unique kebab-case identifier for the mode (e.g. my-mode)",
+          "pattern": "^[a-z0-9-]+$",
+          "$comment": "group:common"
+        },
+        "name": {
+          "type": "string",
+          "title": "Name",
+          "description": "Human-readable display name for the mode. May include an emoji prefix.",
+          "$comment": "group:common"
+        },
+        "description": {
+          "type": "string",
+          "title": "Description",
+          "description": "Short summary of what this mode does, shown in the mode picker.",
+          "$comment": "group:common"
+        },
+        "groups": {
+          "type": "array",
+          "title": "Groups",
+          "description": "Tool permission groups this mode has access to.",
+          "items": {
+            "type": "string",
+            "enum": [
+              "read", "edit", "execute", "mcp", "skill", "todo",
+              "subtask", "subagent", "mode", "command", "browser", "write"
+            ]
+          },
+          "default": ["read"],
+          "uniqueItems": true,
+          "$comment": "group:common"
+        },
+        "whenToUse": {
+          "type": "string",
+          "title": "When To Use",
+          "description": "Guidance for the orchestrator on when to activate this mode.",
+          "$comment": "group:advanced"
+        },
+        "roleDefinition": {
+          "type": "string",
+          "title": "Role Definition",
+          "description": "System prompt that defines the mode's persona and responsibilities.",
+          "$comment": "group:advanced"
+        }
+      },
+      "required": ["slug", "name", "roleDefinition"]
+    }
+  }
+}
