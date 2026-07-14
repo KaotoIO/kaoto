@@ -391,16 +391,16 @@ describe('PropertiesModal', () => {
       // info
       expect(baseElement.getElementsByClassName('pf-v6-c-modal-box__title-text').item(0)).toHaveTextContent('Iterate');
       expect(screen.getByTestId('properties-modal-description')).toHaveTextContent('The iterate test container.');
-      expect(screen.getByTestId('tab-0')).toHaveTextContent('Options (6)');
+      expect(screen.getByTestId('tab-0')).toHaveTextContent('Options (5)');
       // headers
       expect(screen.getByTestId('tab-0-table-0-header-name')).toHaveTextContent('name');
       expect(screen.getByTestId('tab-0-table-0-header-type')).toHaveTextContent('type');
       expect(screen.getByTestId('tab-0-table-0-header-description')).toHaveTextContent('description');
       // row
-      expect(screen.getByTestId('tab-0-table-0-row-0-cell-name')).toHaveTextContent('actions');
-      expect(screen.getByTestId('tab-0-table-0-row-0-cell-type')).toHaveTextContent('array');
+      expect(screen.getByTestId('tab-0-table-0-row-0-cell-name')).toHaveTextContent('condition');
+      expect(screen.getByTestId('tab-0-table-0-row-0-cell-type')).toHaveTextContent('string');
       expect(screen.getByTestId('tab-0-table-0-row-0-cell-description')).toHaveTextContent(
-        'Required Sequence of test actions to execute.',
+        'Required Condition that keeps the iteration running.',
       );
     });
   });

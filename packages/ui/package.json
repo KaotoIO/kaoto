@@ -100,7 +100,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.10.0",
-    "@kaoto/camel-catalog": "^0.5.5",
+    "@kaoto/camel-catalog": "^0.6.1",
     "@patternfly/patternfly": "^6.5.2",
     "@patternfly/react-code-editor": "^6.5.1",
     "@patternfly/react-core": "^6.5.1",
