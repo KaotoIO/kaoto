@@ -15,7 +15,7 @@ import { OperatingSystem } from '@kie-tools-core/operating-system/dist/Operating
 import { RefObject } from 'react';
 import type { Mock } from 'vitest';
 
-import { CatalogKind, StepUpdateAction } from '../models';
+import { CatalogKind, FileTypes, StepUpdateAction } from '../models';
 import { AbstractSettingsAdapter, ColorScheme, DefaultSettingsAdapter } from '../models/settings';
 import { setColorScheme } from '../utils/color-scheme';
 import { EditService } from './EditService';
@@ -63,6 +63,7 @@ describe('KaotoEditorApp', () => {
         requests: {
           getMetadata: vi.fn(),
           setMetadata: vi.fn(),
+          getResourcesContentByType: vi.fn(),
           getResourceContent: vi.fn(),
           saveResourceContent: vi.fn(),
           isResourceExist: vi.fn(),
@@ -224,6 +225,16 @@ describe('KaotoEditorApp', () => {
     await kaotoEditorApp.setMetadata('key', 'value');
 
     expect(envelopeContext.channelApi.requests.setMetadata).toHaveBeenCalledWith('key', 'value');
+  });
+
+  it('should delegate to the channelApi getting resources content by type', async () => {
+    const mockResponse = [{ filename: 'my-kamelet.kamelet.yaml', content: 'kind: Kamelet' }];
+    (envelopeContext.channelApi.requests.getResourcesContentByType as Mock).mockResolvedValue(mockResponse);
+
+    const result = await kaotoEditorApp.getResourcesContentByType(FileTypes.Kamelets);
+
+    expect(envelopeContext.channelApi.requests.getResourcesContentByType).toHaveBeenCalledWith(FileTypes.Kamelets);
+    expect(result).toEqual(mockResponse);
   });
 
   it('should delegate to the channelApi getting a file resource content', async () => {

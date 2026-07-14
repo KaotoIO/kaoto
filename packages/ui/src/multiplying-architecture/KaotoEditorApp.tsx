@@ -14,7 +14,7 @@ import { createRef, RefObject } from 'react';
 import { RouterProvider } from 'react-router-dom';
 
 import { CatalogLoaderProvider } from '../dynamic-catalog/catalog.provider';
-import { CatalogKind, StepUpdateAction } from '../models';
+import { CatalogKind, FileTypes, FileTypesResponse, StepUpdateAction } from '../models';
 import { AbstractSettingsAdapter, SettingsModel } from '../models/settings';
 import { KaotoResourceProvider } from '../providers';
 import { EntitiesProvider } from '../providers/entities.provider';
@@ -51,6 +51,7 @@ export class KaotoEditorApp implements Editor {
     this.sendStateControlCommand = this.sendStateControlCommand.bind(this);
     this.getMetadata = this.getMetadata.bind(this);
     this.setMetadata = this.setMetadata.bind(this);
+    this.getResourcesContentByType = this.getResourcesContentByType.bind(this);
     this.getResourceContent = this.getResourceContent.bind(this);
     this.isResourceExist = this.isResourceExist.bind(this);
     this.saveResourceContent = this.saveResourceContent.bind(this);
@@ -125,6 +126,10 @@ export class KaotoEditorApp implements Editor {
     return this.envelopeContext.channelApi.requests.setMetadata(key, preferences);
   }
 
+  async getResourcesContentByType(fileType: FileTypes): Promise<FileTypesResponse[]> {
+    return this.envelopeContext.channelApi.requests.getResourcesContentByType(fileType);
+  }
+
   async getResourceContent(path: string): Promise<string | undefined> {
     return this.envelopeContext.channelApi.requests.getResourceContent(path);
   }
@@ -181,7 +186,7 @@ export class KaotoEditorApp implements Editor {
                   runtimeCatalogName={this.settings.runtimeCatalogName}
                   testingCatalogName={this.settings.testingCatalogName}
                 >
-                  <CatalogLoaderProvider>
+                  <CatalogLoaderProvider getResourcesContentByType={this.getResourcesContentByType}>
                     <EntitiesProvider>
                       <KaotoBridge
                         channelType={this.initArgs.channel}
