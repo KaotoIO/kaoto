@@ -1,5 +1,8 @@
 import { parse } from 'yaml';
 
+import { ITile } from '../../components/Catalog';
+import { CatalogKind } from '../catalog-kind';
+import { AddStepMode, IVisualizationNodeData } from '../visualization/base-visual-entity';
 import { CustomModeResource } from './custom-mode-resource';
 import { CustomModeFile } from './custom-mode-types';
 import { CustomModeVisualEntity } from './custom-mode-visual-entity';
@@ -150,6 +153,34 @@ describe('CustomModeResource', () => {
       await resource.initialize();
       resource.removeEntity(undefined);
       expect(resource.getVisualEntities()).toHaveLength(2);
+    });
+  });
+  describe('getCompatibleComponents()', () => {
+    it('returns a TileFilter function', () => {
+      const filter = new CustomModeResource(undefined).getCompatibleComponents(
+        AddStepMode.AppendStep,
+        {} as IVisualizationNodeData,
+      );
+      expect(typeof filter).toBe('function');
+    });
+
+    it('accepts tiles of type CatalogKind.BobNodes', () => {
+      const filter = new CustomModeResource(undefined).getCompatibleComponents(
+        AddStepMode.AppendStep,
+        {} as IVisualizationNodeData,
+      );
+      const tile = { type: CatalogKind.BobNodes } as ITile;
+      expect(filter(tile)).toBe(true);
+    });
+
+    it('rejects tiles of other catalog kinds', () => {
+      const filter = new CustomModeResource(undefined).getCompatibleComponents(
+        AddStepMode.AppendStep,
+        {} as IVisualizationNodeData,
+      );
+      for (const kind of [CatalogKind.Component, CatalogKind.Pattern, CatalogKind.Kamelet, CatalogKind.TestAction]) {
+        expect(filter({ type: kind } as ITile)).toBe(false);
+      }
     });
   });
 });
