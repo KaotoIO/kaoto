@@ -72,7 +72,7 @@ describe('IntegrationTypeSelector', () => {
       fireEvent.click(wrapper.getByTestId('test-toggle'));
     });
 
-    for (const label of ['Camel Route', 'Kamelet', 'Pipe', 'Test']) {
+    for (const label of ['Camel Route', 'Kamelet', 'Pipe', 'Test', 'Custom Mode']) {
       expect(await wrapper.findByText(label)).toBeInTheDocument();
     }
   });
@@ -195,5 +195,22 @@ describe('IntegrationTypeSelector', () => {
 
     // Merely opening the dropdown must not select anything.
     expect(onSelect).not.toHaveBeenCalled();
+  });
+  it('calls onSelect with SourceSchemaType.CustomMode when Custom Mode is clicked', async () => {
+    const onSelect = vi.fn();
+    const wrapper = renderSelector(onSelect);
+
+    act(() => {
+      fireEvent.click(wrapper.getByTestId('test-toggle'));
+    });
+
+    const option = await wrapper.findByText('Custom Mode');
+    act(() => {
+      fireEvent.click(option);
+    });
+
+    await waitFor(() => {
+      expect(onSelect).toHaveBeenCalledWith(SourceSchemaType.CustomMode);
+    });
   });
 });
