@@ -56,4 +56,8 @@ export interface ComponentsCatalog {
   [CatalogKind.TestFunction]?: Record<string, ICitrusComponentDefinition>;
   [CatalogKind.TestValidationMatcher]?: Record<string, ICitrusComponentDefinition>;
   [CatalogKind.Function]?: Record<string, Record<string, KaotoFunction>>;
+  /** Placeholder for Epic 6 Bob catalog tiles — not populated until then.
+   *  TODO(Epic 6): Replace ICitrusComponentDefinition with the proper IBobNodeDefinition
+   *  interface once the Bob catalog is registered. */
+  [CatalogKind.BobNodes]?: Record<string, ICitrusComponentDefinition>;
 }

@@ -1,8 +1,9 @@
 import { isDefined } from '@kaoto/forms';
 import { stringify } from 'yaml';
 
-import { TileFilter } from '../../components/Catalog';
+import { ITile, TileFilter } from '../../components/Catalog';
 import { SourceSchemaType } from '../camel/source-schema-type';
+import { CatalogKind } from '../catalog-kind';
 import { BaseEntity, EntityType } from '../entities';
 import { BaseVisualEntityDefinition, KaotoResource } from '../kaoto-resource';
 import { AddStepMode, IVisualizationNodeData } from '../visualization/base-visual-entity';
@@ -50,9 +51,14 @@ export class CustomModeResource implements KaotoResource {
   }
 
   addNewEntity(_entityType?: EntityType, entityTemplate?: unknown): string {
-    const template = isDefined(entityTemplate)
-      ? (entityTemplate as CustomMode)
-      : (FlowTemplateService.getFlowTemplate(SourceSchemaType.CustomMode) as CustomMode);
+    let template: CustomMode;
+    if (isDefined(entityTemplate)) {
+      template = entityTemplate as CustomMode;
+    } else {
+      // getFlowTemplate returns a CustomModeFile ({ customModes: [...] }); extract the first mode.
+      const file = FlowTemplateService.getFlowTemplate(SourceSchemaType.CustomMode) as CustomModeFile;
+      template = file.customModes[0];
+    }
     const entity = new CustomModeVisualEntity(template);
     this.entities.push(entity);
     return entity.id;
@@ -78,9 +84,12 @@ export class CustomModeResource implements KaotoResource {
     };
   }
 
-  getCompatibleComponents(_mode: AddStepMode, _data: IVisualizationNodeData): TileFilter | undefined {
-    // Epic 5 will wire this to LlmToolsCatalog; return undefined for now (shows all tiles)
-    return undefined;
+  getCompatibleComponents(_mode: AddStepMode, _data: IVisualizationNodeData): TileFilter {
+    // Epic 5 bridge: only BobNodes tiles are compatible with the Custom Mode editor.
+    // No tiles with this type exist until Epic 6 registers the Bob catalog —
+    // until then the catalog panel shows nothing, which is the correct behavior.
+    // 'Bob' in getCompatibleRuntimes() is a temporary compatibility marker.
+    return (item: ITile) => item.type === CatalogKind.BobNodes;
   }
 
   /** Builds a mode object in canonical field order for stable YAML serialization. */

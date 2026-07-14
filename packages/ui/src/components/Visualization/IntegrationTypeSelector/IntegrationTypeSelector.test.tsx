@@ -196,6 +196,7 @@ describe('IntegrationTypeSelector', () => {
     // Merely opening the dropdown must not select anything.
     expect(onSelect).not.toHaveBeenCalled();
   });
+
   it('calls onSelect with SourceSchemaType.CustomMode when Custom Mode is clicked', async () => {
     const onSelect = vi.fn();
     const wrapper = renderSelector(onSelect);
