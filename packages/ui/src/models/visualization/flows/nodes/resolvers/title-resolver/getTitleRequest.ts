@@ -18,6 +18,8 @@ const TITLE_RESOLVER_MAP: Partial<
   [CatalogKind.TestEndpoint]: NodeTitleResolver.getTestActionTitle,
   [CatalogKind.TestFunction]: NodeTitleResolver.getTestActionTitle,
   [CatalogKind.TestValidationMatcher]: NodeTitleResolver.getTestActionTitle,
+  [CatalogKind.BobTool]: NodeTitleResolver.getBobTitle,
+  [CatalogKind.BobComponent]: NodeTitleResolver.getBobTitle,
 };
 
 /**

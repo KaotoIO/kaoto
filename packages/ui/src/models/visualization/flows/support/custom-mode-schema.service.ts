@@ -5,6 +5,9 @@ import { CatalogKind } from '../../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../../kaoto-schema';
 import { CamelCatalogService } from '../camel-catalog.service';
 
+/** The fallback component name used when no specific node type is registered in the catalog. */
+const BOB_FALLBACK_NODE_TYPE = 'text-node';
+
 /** Provides JSON schemas for CustomMode canvas nodes. */
 export class CustomModeSchemaService {
   /** Schema for the mode node form (all fields except customInstructions). */
@@ -15,12 +18,19 @@ export class CustomModeSchemaService {
     );
   }
 
-  /** Schema for a customInstructions child node, resolved from Bob tool or component catalogs. */
+  /**
+   * Schema for a customInstructions child node, resolved from Bob tool or component catalogs.
+   *
+   * Lookup order:
+   *   1. BobTool[nodeType]          — named tool step (e.g. read_file)
+   *   2. BobComponent[nodeType]     — named component step
+   *   3. BobComponent[text-node]    — generic fallback for parser-emitted 'step' nodes
+   */
   static getNodeSchema(nodeType: string): JSONSchema4 | undefined {
     const toolDef = CamelCatalogService.getComponent(CatalogKind.BobTool, nodeType);
     const componentDef = CamelCatalogService.getComponent(CatalogKind.BobComponent, nodeType);
-    const definition = toolDef ?? componentDef;
+    const fallbackDef = CamelCatalogService.getComponent(CatalogKind.BobComponent, BOB_FALLBACK_NODE_TYPE);
 
-    return definition?.propertiesSchema as JSONSchema4 | undefined;
+    return (toolDef ?? componentDef ?? fallbackDef)?.propertiesSchema as JSONSchema4 | undefined;
   }
 }

@@ -249,6 +249,28 @@ describe('customFieldsFactoryfactory', () => {
     expect(result).toBe(TextAreaField);
   });
 
+  it('returns TextAreaField for string type with format "textarea" (Bob component schema)', () => {
+    // Used by the text-node catalog component's "content" property
+    const schema: KaotoSchemaDefinition['schema'] = {
+      type: 'string',
+      title: 'Content',
+      format: 'textarea',
+      description: 'The instruction text to inject.',
+    };
+    const result = customFieldsFactoryfactory(schema);
+    expect(result).toBe(TextAreaField);
+  });
+
+  it('returns TextAreaField for string type with x-component "textarea"', () => {
+    const schema = {
+      type: 'string',
+      title: 'Custom Field',
+      'x-component': 'textarea',
+    } as KaotoSchemaDefinition['schema'];
+    const result = customFieldsFactoryfactory(schema);
+    expect(result).toBe(TextAreaField);
+  });
+
   it('returns EndpointListField for array type with title "Endpoints" and matching description', () => {
     const schema: KaotoSchemaDefinition['schema'] = {
       type: 'array',

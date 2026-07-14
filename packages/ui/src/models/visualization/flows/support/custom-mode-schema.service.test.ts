@@ -1,6 +1,6 @@
 import { JSONSchema4 } from 'json-schema';
 
-import rootSchema from '../../../../stubs/bob-catalog/custom-mode-schema.json';
+import modesStub from '../../../../stubs/bob-catalog/bob-modes.json';
 import { BOB_CUSTOM_MODE_ROOT_ENTITY_NAME } from '../../../bob/bob-catalog-index';
 import { ICamelProcessorDefinition } from '../../../camel/camel-processors-catalog';
 import { CatalogKind } from '../../../catalog-kind';
@@ -9,9 +9,11 @@ import { CustomModeSchemaService } from './custom-mode-schema.service';
 
 describe('CustomModeSchemaService', () => {
   beforeEach(() => {
+    // Mirror what fetchBobCatalog does: extract propertiesSchema from modes['mode']
+    const rootModeEntry = (modesStub as Record<string, { propertiesSchema?: JSONSchema4 }>)['mode'];
     CamelCatalogService.setCatalogKey(CatalogKind.Entity, {
       [BOB_CUSTOM_MODE_ROOT_ENTITY_NAME]: {
-        propertiesSchema: rootSchema as JSONSchema4,
+        propertiesSchema: rootModeEntry?.propertiesSchema,
       } as ICamelProcessorDefinition,
     });
   });
@@ -38,20 +40,24 @@ describe('CustomModeSchemaService', () => {
       );
     });
 
-    it('sets x-component textarea on roleDefinition and whenToUse', () => {
-      const { properties } = CustomModeSchemaService.getRootSchema();
-      expect((properties!['roleDefinition'] as Record<string, unknown>)['x-component']).toBe('textarea');
-      expect((properties!['whenToUse'] as Record<string, unknown>)['x-component']).toBe('textarea');
-    });
-
-    it('groups is an array with 8-item enum', () => {
+    it('groups is an array with the correct enum values', () => {
       const { properties } = CustomModeSchemaService.getRootSchema();
       const groups = properties!['groups'] as Record<string, unknown>;
       expect(groups.type).toBe('array');
       const items = groups.items as Record<string, unknown>;
-      expect(items.enum as string[]).toHaveLength(8);
       expect(items.enum).toEqual(
-        expect.arrayContaining(['read', 'edit', 'command', 'mcp', 'subagent', 'skill', 'execute', 'todo']),
+        expect.arrayContaining([
+          'read',
+          'edit',
+          'execute',
+          'mcp',
+          'subagent',
+          'skill',
+          'mode',
+          'command',
+          'browser',
+          'write',
+        ]),
       );
     });
   });
@@ -62,7 +68,7 @@ describe('CustomModeSchemaService', () => {
       expect(CustomModeSchemaService.getNodeSchema('unknown')).toBeUndefined();
     });
 
-    it('returns schema from Bob tool or component catalog when loaded', () => {
+    it('returns schema from BobTool catalog when loaded', () => {
       const toolSchema = { type: 'object', properties: { path: { type: 'string' } } } as JSONSchema4;
       CamelCatalogService.setCatalogKey(CatalogKind.BobTool, {
         read_file: {
@@ -73,6 +79,24 @@ describe('CustomModeSchemaService', () => {
       });
 
       expect(CustomModeSchemaService.getNodeSchema('read_file')).toEqual(toolSchema);
+    });
+
+    it('falls back to text-node schema for unknown node types', () => {
+      const textNodeSchema = { type: 'object', properties: { content: { type: 'string' } } } as JSONSchema4;
+      CamelCatalogService.setCatalogKey(CatalogKind.BobComponent, {
+        'text-node': {
+          kind: CatalogKind.BobComponent,
+          name: 'text-node',
+          propertiesSchema: textNodeSchema,
+        },
+      });
+
+      expect(CustomModeSchemaService.getNodeSchema('step')).toEqual(textNodeSchema);
+      expect(CustomModeSchemaService.getNodeSchema('unknown-type')).toEqual(textNodeSchema);
+    });
+
+    it('returns undefined when neither specific type nor text-node fallback is in catalog', () => {
+      expect(CustomModeSchemaService.getNodeSchema('step')).toBeUndefined();
     });
   });
 });

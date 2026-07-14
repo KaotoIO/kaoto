@@ -17,6 +17,7 @@ export const BOB_CUSTOM_MODE_ROOT_ENTITY_NAME = 'CustomModeConfiguration';
  */
 export interface BobCatalogIndex extends Omit<CatalogDefinition, 'catalogs'> {
   catalogs: {
+    modes: CatalogDefinitionEntry;
     tools: CatalogDefinitionEntry;
     components: CatalogDefinitionEntry;
   };

@@ -1,8 +1,33 @@
 {
-  "section": {
+  "text-node": {
     "kind": "bobComponent",
-    "name": "section",
-    "title": "Section",
-    "description": "A section block"
+    "version": "1.0.0",
+    "name": "text-node",
+    "title": "Text Node",
+    "description": "Injects a block of free-form text into a mode's customInstructions.",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "content": {
+          "title": "Content",
+          "description": "The instruction text to inject into the mode's customInstructions.",
+          "type": "string",
+          "format": "textarea"
+        },
+        "label": {
+          "title": "Label",
+          "description": "Optional short label displayed on the canvas node.",
+          "type": "string"
+        },
+        "order": {
+          "title": "Order",
+          "description": "Explicit position of this text block in the customInstructions sequence.",
+          "type": "integer"
+        }
+      },
+      "required": ["content"]
+    }
   }
 }
