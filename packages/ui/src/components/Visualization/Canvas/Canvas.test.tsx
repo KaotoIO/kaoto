@@ -1,4 +1,4 @@
-import { VisualizationProvider } from '@patternfly/react-topology';
+import { action, Point, VisualizationProvider } from '@patternfly/react-topology';
 import { act, fireEvent, render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { useState } from 'react';
 
@@ -586,5 +586,58 @@ describe('Canvas', () => {
         expect(screen.queryByText('Vertical Layout')).not.toBeInTheDocument();
       },
     );
+  });
+
+  it('preserves collapse and viewport state when remounted', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { Provider } = await TestProvidersWrapper();
+    const controller = ControllerService.createController();
+    const fromModelSpy = vi.spyOn(controller, 'fromModel');
+    const vizNode = await entity.toVizNode();
+
+    let setCanvasVisible: (visible: boolean) => void = () => {};
+    const Inner = () => {
+      const [isCanvasVisible, setIsCanvasVisible] = useState(true);
+      setCanvasVisible = setIsCanvasVisible;
+      return (
+        <VisualizationProvider controller={controller}>
+          {isCanvasVisible && <Canvas vizNodes={[vizNode]} entitiesCount={1} />}
+        </VisualizationProvider>
+      );
+    };
+
+    render(
+      <Provider>
+        <Inner />
+      </Provider>,
+    );
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    const graph = controller.getGraph();
+    action(() => {
+      graph.setScale(1.5);
+      graph.setPosition(new Point(120, 80));
+    })();
+    fromModelSpy.mockClear();
+    vi.mocked(applyCollapseState).mockClear();
+
+    await act(async () => {
+      setCanvasVisible(false);
+    });
+    await act(async () => {
+      setCanvasVisible(true);
+    });
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    expect(fromModelSpy).toHaveBeenCalledWith(expect.anything(), true);
+    expect(fromModelSpy).not.toHaveBeenCalledWith(expect.anything(), false);
+    expect(applyCollapseState).toHaveBeenCalledWith(controller);
+    expect(controller.getGraph()).toBe(graph);
+    expect(graph.getScale()).toBe(1.5);
+    expect(graph.getPosition()).toEqual(new Point(120, 80));
   });
 });

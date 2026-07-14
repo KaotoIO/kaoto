@@ -66,7 +66,8 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   const activeLayout =
     settingsLayout ?? localStorage.getItem(LocalStorageKeys.CanvasLayout) ?? CanvasDefaults.DEFAULT_LAYOUT;
 
-  const [initialized, setInitialized] = useState(false);
+  const controller = useVisualizationController();
+  const [initialized, setInitialized] = useState(() => controller.getGraph().getLayout() !== undefined);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedNode, setSelectedNode] = useState<CanvasNode | undefined>(undefined);
   const [sidebarWidth, setSidebarWidth] = useLocalStorage(
@@ -77,7 +78,6 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   /** Context to interact with the Canvas catalog */
   const catalogModalContext = useContext(CatalogModalContext);
 
-  const controller = useVisualizationController();
   const shouldShowEmptyState = useMemo(() => {
     const areNoFlows = entitiesCount === 0;
     const areAllFlowsHidden = vizNodes.length === 0 && entitiesCount > 0;
