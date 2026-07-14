@@ -384,7 +384,19 @@ export class UnknownMappingItem extends MappingItem {
 
 /**
  * Represents an `xsl:variable` element.
- * {@link name} is the variable name; {@link expression} is the XPath `select` attribute value.
+ *
+ * A variable can be defined in two ways:
+ * 1. With a `select` attribute containing an XPath expression (stored in {@link expression})
+ * 2. With child content (stored in {@link children})
+ *
+ * These are mutually exclusive - a variable should have either select OR children, not both.
+ *
+ * - If {@link children} is empty and {@link expression} is empty: serializes as `<xsl:variable name="x" select=""/>`
+ *   to indicate an unconfigured variable
+ * - If {@link children} is empty and {@link expression} is set: serializes as `<xsl:variable name="x" select="expr"/>`
+ * - If {@link children} is not empty: serializes as `<xsl:variable name="x">...children...</xsl:variable>`
+ *   (no select attribute)
+ *
  * Can be a child of FieldItem, ForEachItem, IfItem, WhenItem, or OtherwiseItem.
  */
 export class VariableItem extends MappingItem implements IExpressionHolder {

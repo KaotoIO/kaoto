@@ -353,16 +353,15 @@ export class ForEachGroupItemHandler implements XsltItemHandler<ForEachGroupItem
 }
 
 /**
- * Handles {@link VariableItem} — maps to `xsl:variable` with a `select` XPath expression.
+ * Handles {@link VariableItem} — maps to `xsl:variable` with a `select` XPath expression or child content.
  *
- * TODO(#2362-content-form): Currently only the `select` attribute form is supported:
- *   `<xsl:variable name="x" select="..."/>`
- * The content form (variable with child elements instead of a select attribute) is not yet
- * supported. When implementing content-form support:
- *   - `serialize`: omit the `select` attribute and serialize `mapping.children` as child elements
- *   - `deserialize`: when no `select` attribute is present, deserialize child elements recursively
- *   - `VariableItem` model: add a flag or union to distinguish scalar vs node-set variables
- *   - `SourceVariableNodeData` in `engageMapping`: handle container drop differently
+ * Both XSLT variable forms are supported:
+ *   - Select form:  `<xsl:variable name="x" select="expr"/>` — used when {@link VariableItem.children} is empty.
+ *   - Empty select: `<xsl:variable name="x" select=""/>` — used when no expression and no children (unconfigured).
+ *   - Content form: `<xsl:variable name="x">…children…</xsl:variable>` — used when {@link VariableItem.children}
+ *     is non-empty; the `select` attribute is omitted and children are serialized by {@link MappingSerializerService}.
+ *
+ * Having both a `select` attribute and child elements is invalid XSLT and triggers a warning on deserialization.
  */
 export class VariableItemHandler implements XsltItemHandler<VariableItem> {
   readonly itemClass = VariableItem;
@@ -371,8 +370,16 @@ export class VariableItemHandler implements XsltItemHandler<VariableItem> {
   serialize(parent: Element, mapping: VariableItem): Element {
     const xslVariable = parent.ownerDocument.createElementNS(NS_XSL, 'variable');
     xslVariable.setAttribute('name', mapping.name);
-    // TODO(#2362-content-form): if mapping has children (content form), serialize them instead
-    xslVariable.setAttribute('select', mapping.expression);
+
+    /*
+     * Select form: only add `select` when there are no children.
+     * Content form: children are serialized by MappingSerializerService.populateMapping after this returns,
+     * so no `select` attribute should be added.
+     */
+    if (mapping.children.length === 0) {
+      xslVariable.setAttribute('select', mapping.expression || '');
+    }
+
     parent.appendChild(xslVariable);
     return xslVariable;
   }
@@ -407,11 +414,34 @@ export class VariableItemHandler implements XsltItemHandler<VariableItem> {
         ],
       };
     }
+
     const variableItem = new VariableItem(parentMapping, varName);
-    // TODO(#2362-content-form): if element has no `select` attribute but has child elements,
-    // deserialize children recursively into variableItem.children instead
-    variableItem.expression = element.getAttribute('select') || '';
-    return { mappingItem: variableItem, fieldItem: null };
+    const hasChildren = Array.from(element.childNodes).some((n) => n.nodeType === Node.ELEMENT_NODE);
+    const selectAttr = element.getAttribute('select');
+
+    // Warn if variable has both select and children (invalid XSLT)
+    let messages: { variant: 'warning'; title: string; description: string }[] | undefined;
+    if (hasChildren && selectAttr) {
+      messages = [
+        {
+          variant: 'warning' as const,
+          title: `Variable "${varName}" has both select attribute and child content`,
+          description:
+            'XSLT variables should have either select attribute OR child content, not both. The select attribute will be ignored.',
+        },
+      ];
+    }
+
+    /*
+     * Select form: restore expression from `select` attribute.
+     * Content form: leave expression empty — child elements are deserialized into
+     * variableItem.children by MappingSerializerService.restoreElementNode.
+     */
+    if (!hasChildren) {
+      variableItem.expression = selectAttr || '';
+    }
+
+    return { mappingItem: variableItem, fieldItem: null, messages };
   }
 }
 
