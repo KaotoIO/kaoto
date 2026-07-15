@@ -209,6 +209,22 @@ describe('RestTree', () => {
     expect(mockOnSelect).not.toHaveBeenCalled();
   });
 
+  it('should ignore right-clicks outside a tree node', async () => {
+    const camelResource = CamelResourceFactory.createCamelResource(`
+- rest:
+    id: rest-1
+    `);
+    await camelResource.initialize();
+
+    const entities = getRestEntities(camelResource.getEntities());
+    render(<RestTree entities={entities} onSelect={mockOnSelect} onDelete={mockOnDelete} />);
+
+    fireEvent.contextMenu(screen.getByRole('tree', { name: 'Rest DSL Configuration' }));
+
+    expect(screen.queryByRole('menu', { name: 'REST tree node actions' })).not.toBeInTheDocument();
+    expect(mockOnSelect).not.toHaveBeenCalled();
+  });
+
   it('should delete through the context menu and close it', async () => {
     const camelResource = CamelResourceFactory.createCamelResource(`
 - rest:

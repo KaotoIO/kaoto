@@ -1,8 +1,8 @@
 import './RestTree.scss';
 
 import { TrashCan } from '@carbon/icons-react';
-import { Menu, MenuItem, TreeNode, TreeView } from '@carbon/react';
-import { FunctionComponent, PropsWithChildren, useCallback, useEffect, useRef, useState } from 'react';
+import { Menu, MenuItem, TreeNode, TreeView, useContextMenu } from '@carbon/react';
+import { FunctionComponent, PropsWithChildren, useEffect, useRef, useState } from 'react';
 
 import { BaseVisualEntity } from '../../../models/visualization/base-visual-entity';
 import { restToTree } from '../rest-to-tree';
@@ -27,19 +27,18 @@ export interface IRestTree extends PropsWithChildren {
  */
 export const RestTree: FunctionComponent<IRestTree> = ({ entities, selected, onSelect, onDelete, children }) => {
   const restTreeNodes = restToTree(entities);
-  const [contextMenuState, setContextMenuState] = useState<{ nodeId: string; x: number; y: number }>();
+  const contextMenuTriggerRef = useRef<HTMLDivElement>(null);
   const contextMenuRef = useRef<HTMLUListElement>(null);
-
-  const closeContextMenu = useCallback(() => {
-    setContextMenuState(undefined);
-  }, []);
+  const contextMenuProps = useContextMenu(contextMenuTriggerRef);
+  const [contextMenuNodeId, setContextMenuNodeId] = useState<string>();
 
   useEffect(() => {
-    if (!contextMenuState) return;
+    if (!contextMenuProps.open) return;
 
+    // Menu closes on blur, but pointer events on non-focusable areas do not always move focus.
     const handlePointerDown = (event: PointerEvent) => {
       if (event.target instanceof Node && !contextMenuRef.current?.contains(event.target)) {
-        closeContextMenu();
+        contextMenuProps.onClose();
       }
     };
 
@@ -47,7 +46,7 @@ export const RestTree: FunctionComponent<IRestTree> = ({ entities, selected, onS
     return () => {
       document.removeEventListener('pointerdown', handlePointerDown);
     };
-  }, [closeContextMenu, contextMenuState]);
+  }, [contextMenuProps]);
 
   /** Generates a unique node ID from entity ID and model path */
   const getNodeId = (entityId: string, modelPath: string) => `${entityId}::${modelPath}`;
@@ -72,22 +71,31 @@ export const RestTree: FunctionComponent<IRestTree> = ({ entities, selected, onS
       <div>{children}</div>
 
       <div
+        ref={contextMenuTriggerRef}
         className="rest-tree"
-        onContextMenu={(event) => {
-          if (!(event.target instanceof Element)) return;
+        onContextMenuCapture={(event) => {
+          if (!(event.target instanceof Element)) {
+            event.stopPropagation();
+            return;
+          }
 
           const treeItem = event.target.closest('[role="treeitem"]');
-          if (!(treeItem instanceof HTMLElement) || !event.currentTarget.contains(treeItem)) return;
+          if (!(treeItem instanceof HTMLElement) || !event.currentTarget.contains(treeItem)) {
+            event.stopPropagation();
+            return;
+          }
 
           const selection = selectionsByNodeId.get(treeItem.id);
-          if (!selection) return;
+          if (!selection) {
+            event.stopPropagation();
+            return;
+          }
 
-          event.preventDefault();
           if (selection.entityId !== selected?.entityId || selection.modelPath !== selected.modelPath) {
             onSelect(selection);
           }
           treeItem.focus();
-          setContextMenuState({ nodeId: treeItem.id, x: event.clientX, y: event.clientY });
+          setContextMenuNodeId(treeItem.id);
         }}
       >
         <TreeView label="Rest DSL Configuration" active={activeNodeId}>
@@ -130,15 +138,12 @@ export const RestTree: FunctionComponent<IRestTree> = ({ entities, selected, onS
         </TreeView>
       </div>
 
-      {contextMenuState && (
+      {contextMenuNodeId && (
         <Menu
-          key={`${contextMenuState.nodeId}:${contextMenuState.x}:${contextMenuState.y}`}
+          key={`${contextMenuNodeId}:${contextMenuProps.x}:${contextMenuProps.y}`}
+          {...contextMenuProps}
           ref={contextMenuRef}
           label="REST tree node actions"
-          open
-          x={contextMenuState.x}
-          y={contextMenuState.y}
-          onClose={closeContextMenu}
         >
           <MenuItem kind="danger" label="Delete" renderIcon={TrashCan} onClick={onDelete} />
         </Menu>
