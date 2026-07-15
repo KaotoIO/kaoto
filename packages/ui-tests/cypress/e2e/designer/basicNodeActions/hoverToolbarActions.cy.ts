@@ -129,7 +129,17 @@ describe('Test toolbar on hover actions', () => {
     cy.openGroupConfigurationTab('route-4321');
     cy.get('[data-testid="route-4321|step-toolbar-button-collapse"]').should('have.attr', 'title', 'Collapse step');
 
+    cy.selectAppendNode('log');
+    cy.chooseFromCatalog('component', 'activemq');
+
+    cy.get('span[title="route-1234"]').should('be.visible').click();
+    cy.get('[data-testid="route-1234|step-toolbar-button-collapse"]').should('have.attr', 'title', 'Expand step');
+
+    cy.openGroupConfigurationTab('route-4321');
+    cy.get('[data-testid="route-4321|step-toolbar-button-collapse"]').should('have.attr', 'title', 'Collapse step');
+
     cy.checkNodeExist('timer', 1);
     cy.checkNodeExist('log', 1);
+    cy.checkNodeExist('activemq', 1);
   });
 });

@@ -594,6 +594,53 @@ describe('Canvas', () => {
     );
   });
 
+  it('reinitializes the graph when content resolves after a settled empty state', async () => {
+    const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
+    const { Provider } = await TestProvidersWrapper();
+    const controller = ControllerService.createController();
+    const fromModelSpy = vi.spyOn(controller, 'fromModel');
+    const vizNode = await entity.toVizNode();
+
+    const { rerender } = render(
+      <RuntimeProvider>
+        <Provider>
+          <VisualizationProvider controller={controller}>
+            <Canvas vizNodes={[]} entitiesCount={0} />
+          </VisualizationProvider>
+        </Provider>
+      </RuntimeProvider>,
+    );
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+    fromModelSpy.mockClear();
+
+    rerender(
+      <RuntimeProvider>
+        <Provider>
+          <VisualizationProvider controller={controller}>
+            <Canvas vizNodes={[]} entitiesCount={1} isVizNodesResolving />
+          </VisualizationProvider>
+        </Provider>
+      </RuntimeProvider>,
+    );
+    rerender(
+      <RuntimeProvider>
+        <Provider>
+          <VisualizationProvider controller={controller}>
+            <Canvas vizNodes={[vizNode]} entitiesCount={1} />
+          </VisualizationProvider>
+        </Provider>
+      </RuntimeProvider>,
+    );
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    expect(fromModelSpy).toHaveBeenCalledWith(expect.anything(), false);
+    expect(fromModelSpy).not.toHaveBeenCalledWith(expect.anything(), true);
+  });
+
   it('preserves collapse and viewport state through a resolving remount', async () => {
     const { Provider } = await TestProvidersWrapper();
     const controller = ControllerService.createController();
