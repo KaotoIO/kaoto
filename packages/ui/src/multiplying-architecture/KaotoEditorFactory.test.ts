@@ -17,6 +17,7 @@ describe('KaotoEditorFactory', () => {
       catalogUrl: 'catalog-url',
       runtimeCatalogName: '',
       testingCatalogName: '',
+      bobCatalogName: '',
       rest: {
         apicurioRegistryUrl: '',
         customMediaTypes: [],
@@ -50,6 +51,7 @@ describe('KaotoEditorFactory', () => {
       catalogUrl: 'catalog-url',
       runtimeCatalogName: '',
       testingCatalogName: '',
+      bobCatalogName: '',
       rest: {
         apicurioRegistryUrl: '',
         customMediaTypes: [],
@@ -108,6 +110,7 @@ describe('KaotoEditorFactory', () => {
       catalogUrl: '',
       runtimeCatalogName: '',
       testingCatalogName: '',
+      bobCatalogName: '',
       rest: {
         apicurioRegistryUrl: '',
         customMediaTypes: [],
@@ -121,6 +124,7 @@ describe('KaotoEditorFactory', () => {
       catalogUrl: 'path-prefix/camel-catalog/index.json',
       runtimeCatalogName: '',
       testingCatalogName: '',
+      bobCatalogName: '',
       rest: {
         apicurioRegistryUrl: '',
         customMediaTypes: [],

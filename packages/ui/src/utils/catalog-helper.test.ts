@@ -1,7 +1,7 @@
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
 import { SourceSchemaType } from '../models/camel';
-import { findCatalog } from './catalog-helper';
+import { findCatalog, getCatalogRuntimeForSourceType, requiresCatalogChange } from './catalog-helper';
 
 describe('CatalogHelper', () => {
   let catalogLibrary: CatalogLibrary;
@@ -28,6 +28,12 @@ describe('CatalogHelper', () => {
           runtime: 'Citrus',
           version: '1.0.0',
           fileName: 'citrus/1.0.0/index.js',
+        },
+        {
+          name: 'Bob 1.0.0',
+          runtime: 'Bob',
+          version: '1.0.0',
+          fileName: 'bob/1.0.0/index.js',
         },
       ],
     };
@@ -106,5 +112,47 @@ describe('CatalogHelper', () => {
     expect(entry).toBeDefined();
     expect(entry?.name).toBe('Citrus 1.0.3');
     expect(entry?.runtime).toBe('Citrus');
+  });
+
+  it('should find Bob catalog for Custom Mode', () => {
+    const entry = findCatalog(SourceSchemaType.CustomMode, catalogLibrary);
+    expect(entry).toBeDefined();
+    expect(entry?.name).toBe('Bob 1.0.0');
+    expect(entry?.runtime).toBe('Bob');
+  });
+
+  describe('getCatalogRuntimeForSourceType', () => {
+    it('maps source types to catalog runtimes', () => {
+      expect(getCatalogRuntimeForSourceType(SourceSchemaType.Test)).toBe('Citrus');
+      expect(getCatalogRuntimeForSourceType(SourceSchemaType.CustomMode)).toBe('Bob');
+      expect(getCatalogRuntimeForSourceType(SourceSchemaType.Route)).toBe('integration');
+    });
+  });
+
+  describe('requiresCatalogChange', () => {
+    const mainCatalog = { name: 'Camel Main 1.0.0', runtime: 'Main', version: '1.0.0', fileName: 'main.js' };
+    const citrusCatalog = { name: 'Citrus 1.0.0', runtime: 'Citrus', version: '1.0.0', fileName: 'citrus.js' };
+    const bobCatalog = { name: 'Bob 1.0.0', runtime: 'Bob', version: '1.0.0', fileName: 'bob.js' };
+
+    it('requires change when switching between integration and Citrus', () => {
+      expect(requiresCatalogChange(SourceSchemaType.Route, citrusCatalog)).toBe(true);
+      expect(requiresCatalogChange(SourceSchemaType.Test, mainCatalog)).toBe(true);
+    });
+
+    it('requires change when switching between integration and Bob', () => {
+      expect(requiresCatalogChange(SourceSchemaType.Route, bobCatalog)).toBe(true);
+      expect(requiresCatalogChange(SourceSchemaType.CustomMode, mainCatalog)).toBe(true);
+    });
+
+    it('requires change when switching between Citrus and Bob', () => {
+      expect(requiresCatalogChange(SourceSchemaType.CustomMode, citrusCatalog)).toBe(true);
+      expect(requiresCatalogChange(SourceSchemaType.Test, bobCatalog)).toBe(true);
+    });
+
+    it('does not require change when catalog matches source type', () => {
+      expect(requiresCatalogChange(SourceSchemaType.Route, mainCatalog)).toBe(false);
+      expect(requiresCatalogChange(SourceSchemaType.Test, citrusCatalog)).toBe(false);
+      expect(requiresCatalogChange(SourceSchemaType.CustomMode, bobCatalog)).toBe(false);
+    });
   });
 });

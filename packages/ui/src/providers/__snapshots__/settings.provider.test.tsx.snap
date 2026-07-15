@@ -4,6 +4,6 @@ exports[`SettingsProvider > should render 1`] = `
 <p
   data-testid="settings"
 >
-  {"catalogUrl":"","runtimeCatalogName":"","testingCatalogName":"","nodeLabel":"description","nodeToolbarTrigger":"onHover","colorScheme":"auto","rest":{"apicurioRegistryUrl":"","customMediaTypes":[]},"canvasLayoutDirection":"SelectInCanvas"}
+  {"catalogUrl":"","runtimeCatalogName":"","testingCatalogName":"","bobCatalogName":"","nodeLabel":"description","nodeToolbarTrigger":"onHover","colorScheme":"auto","rest":{"apicurioRegistryUrl":"","customMediaTypes":[]},"canvasLayoutDirection":"SelectInCanvas"}
 </p>
 `;

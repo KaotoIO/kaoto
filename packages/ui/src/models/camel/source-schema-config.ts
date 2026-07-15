@@ -76,6 +76,9 @@ class SourceSchemaConfig {
     if (name === 'citrus-yaml') {
       this.config[SourceSchemaType.Test].schema = schema;
     }
+    if (name === 'custom-mode-yaml') {
+      this.config[SourceSchemaType.CustomMode].schema = schema;
+    }
     if (isEnumType(name, SourceSchemaType)) {
       const type: SourceSchemaType = SourceSchemaType[name];
       this.config[type].schema = schema;

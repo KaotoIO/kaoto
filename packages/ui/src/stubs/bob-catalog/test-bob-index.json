@@ -1,0 +1,12 @@
+{
+  "name": "Bob Test",
+  "version": "1.0.0",
+  "runtime": "Bob",
+  "catalogs": {
+    "tools": { "file": "bob-tools.json", "version": "1.0.0" },
+    "components": { "file": "bob-components.json", "version": "1.0.0" }
+  },
+  "schemas": {
+    "custom-mode-yaml": { "file": "custom-mode-schema.json", "version": "1.0.0" }
+  }
+}

@@ -4,7 +4,13 @@ import { act, render, renderHook, screen, waitFor } from '@testing-library/react
 import { useContext } from 'react';
 import type { Mock } from 'vitest';
 
-import { camelComponentToTile, camelProcessorToTile, citrusComponentToTile, kameletToTile } from '../camel-utils';
+import {
+  bobComponentToTile,
+  camelComponentToTile,
+  camelProcessorToTile,
+  citrusComponentToTile,
+  kameletToTile,
+} from '../camel-utils';
 import {
   CatalogKind,
   ICamelComponentDefinition,
@@ -37,6 +43,7 @@ vi.mock('../camel-utils', async () => {
     camelEntityToTile: vi.fn(),
     kameletToTile: vi.fn(),
     citrusComponentToTile: vi.fn(),
+    bobComponentToTile: vi.fn(),
   };
 });
 
@@ -211,6 +218,7 @@ describe('CatalogTilesProvider', () => {
     expect(camelProcessorToTile).not.toHaveBeenCalled();
     expect(kameletToTile).not.toHaveBeenCalled();
     expect(citrusComponentToTile).not.toHaveBeenCalled();
+    expect(bobComponentToTile).not.toHaveBeenCalled();
   });
 
   it('should return combined tiles from all catalog kinds', async () => {

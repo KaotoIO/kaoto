@@ -45,8 +45,9 @@ export const enum CatalogKind {
   /** Citrus test validation matcher catalog, f.i. @isNumber()@, @isEmpty()@, @matches()@ */
   TestValidationMatcher = 'testValidationMatcher',
 
-  /** Bob LLM tool catalog, used by the Custom Mode editor canvas.
-   *  Tiles with this type are registered by the Bob catalog in Epic 6.
-   *  This is a bridge value — not a Camel runtime equivalent. */
-  BobNodes = 'BobNodes',
+  /** Bob LLM tool catalog, f.i. read_file, run_terminal_cmd */
+  BobTool = 'bobTool',
+
+  /** Bob instruction component catalog, f.i. section, conditional block */
+  BobComponent = 'bobComponent',
 }

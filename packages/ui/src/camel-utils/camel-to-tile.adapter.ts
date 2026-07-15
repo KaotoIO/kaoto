@@ -1,6 +1,7 @@
 import { ITile } from '../components/Catalog/Catalog.models';
 import {
   CatalogKind,
+  IBobComponentDefinition,
   ICamelComponentDefinition,
   ICamelProcessorDefinition,
   ICitrusComponentDefinition,
@@ -120,6 +121,26 @@ export const citrusComponentToTile = async (componentDefinition: ICitrusComponen
     name: name,
     title: title || name,
     description: description,
+    headerTags,
+    tags,
+    version,
+    iconUrl,
+  };
+};
+
+export const bobComponentToTile = async (componentDefinition: IBobComponentDefinition): Promise<ITile> => {
+  const { kind, version, name, title, description } = componentDefinition;
+
+  const headerTags: string[] = [kind === CatalogKind.BobTool ? 'Tool' : 'Component'];
+  const tags: string[] = [];
+
+  const { icon: iconUrl } = await getIconRequest(kind, name);
+
+  return {
+    type: kind,
+    name,
+    title: title || name,
+    description,
     headerTags,
     tags,
     version,

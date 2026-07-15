@@ -13,6 +13,7 @@ import { fetchCitrusCatalog } from './support/fetch-citrus-catalog';
 
 vi.mock('./support/fetch-camel-catalog');
 vi.mock('./support/fetch-citrus-catalog');
+vi.mock('./support/fetch-bob-catalog');
 
 const catalogLibrary = catalogLibraryJson as CatalogLibrary;
 

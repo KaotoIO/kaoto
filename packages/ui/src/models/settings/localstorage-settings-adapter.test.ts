@@ -26,6 +26,7 @@ describe('LocalStorageSettingsAdapter', () => {
         apicurioRegistryUrl: '',
         customMediaTypes: [],
       },
+      bobCatalogName: '',
       canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
     };
 
@@ -59,6 +60,7 @@ describe('LocalStorageSettingsAdapter', () => {
         apicurioRegistryUrl: '',
         customMediaTypes: [],
       },
+      bobCatalogName: '',
       canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
     };
 

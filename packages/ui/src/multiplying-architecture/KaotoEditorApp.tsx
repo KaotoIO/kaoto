@@ -180,6 +180,7 @@ export class KaotoEditorApp implements Editor {
                   catalogUrl={this.settings.catalogUrl}
                   runtimeCatalogName={this.settings.runtimeCatalogName}
                   testingCatalogName={this.settings.testingCatalogName}
+                  bobCatalogName={this.settings.bobCatalogName}
                 >
                   <CatalogLoaderProvider>
                     <EntitiesProvider>

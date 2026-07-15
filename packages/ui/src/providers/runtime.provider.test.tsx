@@ -25,6 +25,8 @@ const CONTROLLED_LIBRARY: CatalogLibrary = {
     { name: 'Main New', runtime: 'Main', version: '2.0.0', fileName: 'main-new.json' },
     { name: 'Citrus Old', runtime: 'Citrus', version: '1.0.0', fileName: 'citrus-old.json' },
     { name: 'Citrus New', runtime: 'Citrus', version: '2.0.0', fileName: 'citrus-new.json' },
+    { name: 'Bob Old', runtime: 'Bob', version: '1.0.0', fileName: 'bob-old.json' },
+    { name: 'Bob New', runtime: 'Bob', version: '2.0.0', fileName: 'bob-new.json' },
   ],
 };
 
@@ -165,6 +167,22 @@ describe('RuntimeProvider', () => {
 
       // Test sources read testingCatalogName, not runtimeCatalogName.
       expect(await screen.findByTestId('selected-catalog')).toHaveTextContent('Citrus Old');
+    });
+
+    it('selects the catalog named by bobCatalogName for custom mode sources', async () => {
+      renderInRuntime(
+        <RuntimeProvider
+          catalogUrl="/index.json"
+          runtimeCatalogName="Main New"
+          testingCatalogName="Citrus Old"
+          bobCatalogName="Bob Old"
+        >
+          <SelectedCatalogProbe />
+        </RuntimeProvider>,
+        SourceSchemaType.CustomMode,
+      );
+
+      expect(await screen.findByTestId('selected-catalog')).toHaveTextContent('Bob Old');
     });
 
     it('falls back to the default catalog when the configured name is not found', async () => {

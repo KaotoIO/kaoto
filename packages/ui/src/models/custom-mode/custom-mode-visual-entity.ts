@@ -179,7 +179,7 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
       description: this.mode.description || '',
     });
 
-    await NodeEnrichmentService.enrichNodeFromCatalog(modeGroupNode, CatalogKind.BobNodes);
+    await NodeEnrichmentService.enrichNodeFromCatalog(modeGroupNode, CatalogKind.BobTool);
 
     // Catalog title takes priority; fall back to mode.name when BobNodes catalog is absent (pre-Epic 6).
     if (!modeGroupNode.data.title) {

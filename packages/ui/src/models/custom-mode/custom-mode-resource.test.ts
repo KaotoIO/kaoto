@@ -164,13 +164,13 @@ describe('CustomModeResource', () => {
       expect(typeof filter).toBe('function');
     });
 
-    it('accepts tiles of type CatalogKind.BobNodes', () => {
+    it('accepts tiles of type CatalogKind.BobTool and BobComponent', () => {
       const filter = new CustomModeResource(undefined).getCompatibleComponents(
         AddStepMode.AppendStep,
         {} as IVisualizationNodeData,
       );
-      const tile = { type: CatalogKind.BobNodes } as ITile;
-      expect(filter(tile)).toBe(true);
+      expect(filter({ type: CatalogKind.BobTool } as ITile)).toBe(true);
+      expect(filter({ type: CatalogKind.BobComponent } as ITile)).toBe(true);
     });
 
     it('rejects tiles of other catalog kinds', () => {
