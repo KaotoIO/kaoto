@@ -11,6 +11,7 @@ import {
 } from 'react';
 
 import {
+  bobComponentToTile,
   camelComponentToTile,
   camelEntityToTile,
   camelProcessorToTile,
@@ -48,6 +49,8 @@ export const CatalogTilesProvider: FunctionComponent<PropsWithChildren> = (props
       testActions,
       testContainers,
       testEndpoints,
+      bobTools,
+      bobComponents,
     ] = await Promise.all([
       catalogRegistry.getCatalog(CatalogKind.Component)?.getAll(),
       catalogRegistry.getCatalog(CatalogKind.Pattern)?.getAll(),
@@ -56,6 +59,8 @@ export const CatalogTilesProvider: FunctionComponent<PropsWithChildren> = (props
       catalogRegistry.getCatalog(CatalogKind.TestAction)?.getAll(),
       catalogRegistry.getCatalog(CatalogKind.TestContainer)?.getAll(),
       catalogRegistry.getCatalog(CatalogKind.TestEndpoint)?.getAll(),
+      catalogRegistry.getCatalog(CatalogKind.BobTool)?.getAll(),
+      catalogRegistry.getCatalog(CatalogKind.BobComponent)?.getAll(),
     ]);
 
     const tilePromises: Promise<ITile>[] = [];
@@ -92,6 +97,13 @@ export const CatalogTilesProvider: FunctionComponent<PropsWithChildren> = (props
     });
     Object.values(testEndpoints ?? {}).forEach((endpoint) => {
       tilePromises.push(citrusComponentToTile(endpoint));
+    });
+
+    Object.values(bobTools ?? {}).forEach((tool) => {
+      tilePromises.push(bobComponentToTile(tool));
+    });
+    Object.values(bobComponents ?? {}).forEach((component) => {
+      tilePromises.push(bobComponentToTile(component));
     });
 
     const combinedTiles = await Promise.all(tilePromises);

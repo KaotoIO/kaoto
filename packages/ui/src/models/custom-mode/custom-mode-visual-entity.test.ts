@@ -1,5 +1,12 @@
+import { JSONSchema4 } from 'json-schema';
+
+import rootSchema from '../../stubs/bob-catalog/custom-mode-schema.json';
+import { BOB_CUSTOM_MODE_ROOT_ENTITY_NAME } from '../bob/bob-catalog-index';
+import { ICamelProcessorDefinition } from '../camel/camel-processors-catalog';
+import { CatalogKind } from '../catalog-kind';
 import { EntityType } from '../entities';
 import { AddStepMode } from '../visualization/base-visual-entity';
+import { CamelCatalogService } from '../visualization/flows/camel-catalog.service';
 import { NodeEnrichmentService } from '../visualization/flows/nodes/node-enrichment.service';
 import { CustomMode } from './custom-mode-types';
 import { CustomModeVisualEntity } from './custom-mode-visual-entity';
@@ -78,6 +85,11 @@ describe('CustomModeVisualEntity', () => {
 
   describe('getNodeSchema', () => {
     it('returns root schema for customMode path', () => {
+      CamelCatalogService.setCatalogKey(CatalogKind.Entity, {
+        [BOB_CUSTOM_MODE_ROOT_ENTITY_NAME]: {
+          propertiesSchema: rootSchema as JSONSchema4,
+        } as ICamelProcessorDefinition,
+      });
       const schema = entity.getNodeSchema('customMode');
       expect(schema).toBeDefined();
       expect(schema!.type).toBe('object');

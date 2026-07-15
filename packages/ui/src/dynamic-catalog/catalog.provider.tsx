@@ -6,10 +6,12 @@ import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 import { Loading } from '../components/Loading';
 import { useRuntimeContext } from '../hooks/useRuntimeContext/useRuntimeContext';
 import { CamelCatalogIndex, CamelCatalogService, FileTypes, FileTypesResponse, LoadingStatus } from '../models';
+import { BobCatalogIndex } from '../models/bob/bob-catalog-index';
 import { CitrusCatalogIndex } from '../models/citrus/citrus-catalog-index';
 import { CatalogSchemaLoader } from '../utils';
 import { DynamicCatalogRegistry } from './dynamic-catalog-registry';
 import { IDynamicCatalogRegistry } from './models';
+import { fetchBobCatalog } from './support/fetch-bob-catalog';
 import { fetchCamelCatalog } from './support/fetch-camel-catalog';
 import { fetchCitrusCatalog } from './support/fetch-citrus-catalog';
 
@@ -39,6 +41,9 @@ export const CatalogLoaderProvider: FunctionComponent<
       .then((catalogIndex: CatalogDefinition) => {
         if (catalogIndex.runtime === 'Citrus') {
           return fetchCitrusCatalog({ catalogIndex: catalogIndex as CitrusCatalogIndex, relativeBasePath });
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } else if ((catalogIndex.runtime as any) === 'Bob') {
+          return fetchBobCatalog({ catalogIndex: catalogIndex as BobCatalogIndex, relativeBasePath });
         } else {
           return fetchCamelCatalog({
             catalogIndex: catalogIndex as CamelCatalogIndex,

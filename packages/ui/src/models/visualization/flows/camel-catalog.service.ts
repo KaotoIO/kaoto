@@ -1,5 +1,6 @@
 import { KaotoFunction } from '@kaoto/camel-catalog/catalog-index.d.ts';
 
+import { IBobComponentDefinition } from '../../bob/bob-catalog';
 import { ComponentsCatalog, ComponentsCatalogTypes } from '../../camel/camel-catalog-index';
 import { ICamelComponentDefinition } from '../../camel/camel-components-catalog';
 import { ICamelDataformatDefinition } from '../../camel/camel-dataformats-catalog';
@@ -58,6 +59,11 @@ export class CamelCatalogService {
     catalogKey: CatalogKind.TestValidationMatcher,
     componentName?: string,
   ): ICitrusComponentDefinition | undefined;
+  static getComponent(catalogKey: CatalogKind.BobTool, componentName?: string): IBobComponentDefinition | undefined;
+  static getComponent(
+    catalogKey: CatalogKind.BobComponent,
+    componentName?: string,
+  ): IBobComponentDefinition | undefined;
   static getComponent(
     catalogKey: CatalogKind.Function,
     componentName?: string,

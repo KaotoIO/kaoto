@@ -32,6 +32,11 @@ export async function getIconRequest(
       iconName = name;
       alt = altProps ?? `Test ${catalogKind.substring('test'.length)} icon`;
       break;
+    case CatalogKind.BobTool:
+    case CatalogKind.BobComponent:
+      iconName = name;
+      alt = altProps ?? `Bob ${catalogKind === CatalogKind.BobTool ? 'tool' : 'component'} icon`;
+      break;
     case CatalogKind.Processor:
     case CatalogKind.Pattern:
     case CatalogKind.Component:

@@ -35,6 +35,7 @@ const App = () => {
     catalogUrl: settingsCatalogUrl,
     runtimeCatalogName,
     testingCatalogName,
+    bobCatalogName,
     colorScheme,
   } = settingsAdapter.getSettings();
 
@@ -54,6 +55,7 @@ const App = () => {
             catalogUrl={catalogUrl}
             runtimeCatalogName={runtimeCatalogName}
             testingCatalogName={testingCatalogName}
+            bobCatalogName={bobCatalogName}
           >
             <SchemasLoaderProvider>
               <CatalogLoaderProvider>

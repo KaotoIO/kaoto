@@ -9,7 +9,11 @@ import { CamelCatalogService } from '../../../../../models/visualization/flows/c
 import { getFirstCatalogMap } from '../../../../../stubs/test-load-catalog';
 import { CustomMediaTypes } from './ArrayBadgesField/CustomMediaTypes';
 import { DataSourceBeanField, PrefixedBeanField, UnprefixedBeanField } from './BeanField/BeanField';
-import { RuntimeCatalogNameField, TestingCatalogNameField } from './CatalogSelectorField/CatalogSelectorField';
+import {
+  BobCatalogNameField,
+  RuntimeCatalogNameField,
+  TestingCatalogNameField,
+} from './CatalogSelectorField/CatalogSelectorField';
 import { customFieldsFactoryfactory } from './custom-fields-factory';
 import { DirectEndpointNameField } from './DirectEndpointNameField';
 import { EndpointField } from './EndpointField/EndpointField';
@@ -269,5 +273,13 @@ describe('customFieldsFactoryfactory', () => {
       title: 'Testing runtime version',
     });
     expect(result).toBe(TestingCatalogNameField);
+  });
+
+  it('returns BobCatalogNameField for custom mode runtime field', () => {
+    const result = customFieldsFactoryfactory({
+      type: 'string',
+      title: 'Custom Mode runtime version',
+    });
+    expect(result).toBe(BobCatalogNameField);
   });
 });

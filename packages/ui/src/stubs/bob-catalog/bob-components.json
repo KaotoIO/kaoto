@@ -1,0 +1,8 @@
+{
+  "section": {
+    "kind": "bobComponent",
+    "name": "section",
+    "title": "Section",
+    "description": "A section block"
+  }
+}

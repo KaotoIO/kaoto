@@ -85,11 +85,7 @@ export class CustomModeResource implements KaotoResource {
   }
 
   getCompatibleComponents(_mode: AddStepMode, _data: IVisualizationNodeData): TileFilter {
-    // Epic 5 bridge: only BobNodes tiles are compatible with the Custom Mode editor.
-    // No tiles with this type exist until Epic 6 registers the Bob catalog —
-    // until then the catalog panel shows nothing, which is the correct behavior.
-    // 'Bob' in getCompatibleRuntimes() is a temporary compatibility marker.
-    return (item: ITile) => item.type === CatalogKind.BobNodes;
+    return (item: ITile) => item.type === CatalogKind.BobTool || item.type === CatalogKind.BobComponent;
   }
 
   /** Builds a mode object in canonical field order for stable YAML serialization. */

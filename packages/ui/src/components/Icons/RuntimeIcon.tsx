@@ -34,6 +34,14 @@ export const getRuntimeIcon = (runtimeOrName: string = '') => {
     );
   }
 
+  if (normalized.includes('bob')) {
+    return (
+      <Icon className="runtime-icon">
+        <img src={camelLogo} alt="Bob logo" />
+      </Icon>
+    );
+  }
+
   if (normalized.includes('quarkus')) {
     return (
       <Icon className="runtime-icon">

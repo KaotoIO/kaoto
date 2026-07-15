@@ -1,0 +1,42 @@
+{
+  "type": "object",
+  "properties": {
+    "slug": {
+      "type": "string",
+      "title": "Slug",
+      "description": "Machine identifier — kebab-case, unique within the file."
+    },
+    "name": {
+      "type": "string",
+      "title": "Name",
+      "description": "Display name shown in the mode selector (may include emoji)."
+    },
+    "description": {
+      "type": "string",
+      "title": "Description",
+      "description": "One-liner shown in the orchestrator dropdown."
+    },
+    "roleDefinition": {
+      "type": "string",
+      "title": "Role Definition",
+      "description": "Defines who this mode is — shown to the LLM as a system prompt prefix.",
+      "x-component": "textarea"
+    },
+    "whenToUse": {
+      "type": "string",
+      "title": "When to Use",
+      "description": "Tells the orchestrator when to route to this mode.",
+      "x-component": "textarea"
+    },
+    "groups": {
+      "type": "array",
+      "title": "Tool Groups",
+      "description": "Tool permission groups granted to this mode.",
+      "items": {
+        "type": "string",
+        "enum": ["read", "edit", "command", "mcp", "subagent", "skill", "execute", "todo"]
+      }
+    }
+  },
+  "required": ["slug", "name"]
+}

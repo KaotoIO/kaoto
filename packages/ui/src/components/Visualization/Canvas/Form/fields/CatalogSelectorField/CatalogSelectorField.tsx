@@ -146,3 +146,8 @@ const TESTING_RUNTIMES = ['Citrus'];
 export const TestingCatalogNameField: FunctionComponent<FieldProps> = (props) => (
   <CatalogSelectorField schemaType={SourceSchemaType.Test} validRuntimes={TESTING_RUNTIMES} {...props} />
 );
+
+const BOB_RUNTIMES = ['Bob'];
+export const BobCatalogNameField: FunctionComponent<FieldProps> = (props) => (
+  <CatalogSelectorField schemaType={SourceSchemaType.CustomMode} validRuntimes={BOB_RUNTIMES} {...props} />
+);

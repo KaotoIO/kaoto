@@ -23,6 +23,12 @@
       "default": "<empty string>",
       "type": "string"
     },
+    "bobCatalogName": {
+      "title": "Custom Mode runtime version",
+      "description": "Custom Mode runtime version. f.i. 'Bob 1.0.0'",
+      "default": "<empty string>",
+      "type": "string"
+    },
     "nodeLabel": {
       "title": "Node label to display in canvas",
       "description": "Node label, which will be used for nodes in the canvas. Can be either `description` or `id`. If `description` is selected, it will be displayed only if it is available, otherwise `id` will be displayed by default.",

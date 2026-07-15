@@ -1,0 +1,8 @@
+{
+  "read_file": {
+    "kind": "bobTool",
+    "name": "read_file",
+    "title": "Read File",
+    "description": "Read a file from disk"
+  }
+}

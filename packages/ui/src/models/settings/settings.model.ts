@@ -24,6 +24,7 @@ export interface ISettingsModel {
   catalogUrl: string;
   runtimeCatalogName: string;
   testingCatalogName: string;
+  bobCatalogName: string;
   nodeLabel: NodeLabelType;
   nodeToolbarTrigger: NodeToolbarTrigger;
   colorScheme: ColorScheme;
@@ -43,6 +44,7 @@ export class SettingsModel implements ISettingsModel {
   catalogUrl: string = '';
   runtimeCatalogName: string = '';
   testingCatalogName: string = '';
+  bobCatalogName: string = '';
   nodeLabel: NodeLabelType = NodeLabelType.Description;
   nodeToolbarTrigger: NodeToolbarTrigger = NodeToolbarTrigger.onHover;
   colorScheme: ColorScheme = ColorScheme.Auto;

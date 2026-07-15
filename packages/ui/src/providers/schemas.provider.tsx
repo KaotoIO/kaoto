@@ -25,6 +25,12 @@ export const SchemasLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
   const [schemas, setSchemas] = useState<Record<string, KaotoSchemaDefinition>>({});
 
   useEffect(() => {
+    if (!selectedCatalogIndexFile) {
+      setLoadingStatus(LoadingStatus.Error);
+      setErrorMessage('No catalog is available for the current document type.');
+      return;
+    }
+
     const indexFile = `${basePath}/${selectedCatalogIndexFile}`;
     fetch(indexFile)
       .then((response) => {

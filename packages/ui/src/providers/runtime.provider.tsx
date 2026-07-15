@@ -23,6 +23,7 @@ interface IRuntimeProvider {
   catalogUrl: string;
   runtimeCatalogName: string;
   testingCatalogName: string;
+  bobCatalogName?: string;
 }
 
 /**
@@ -32,6 +33,7 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<IRuntimeProvid
   catalogUrl,
   runtimeCatalogName,
   testingCatalogName,
+  bobCatalogName = '',
   children,
 }) => {
   const [loadingStatus, setLoadingStatus] = useState(LoadingStatus.Loading);
@@ -41,7 +43,12 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<IRuntimeProvid
 
   const { kaotoResource } = useKaotoResourceContext();
   const currentSchemaType = kaotoResource.getType();
-  const catalogName = currentSchemaType === SourceSchemaType.Test ? testingCatalogName : runtimeCatalogName;
+  const catalogName =
+    currentSchemaType === SourceSchemaType.Test
+      ? testingCatalogName
+      : currentSchemaType === SourceSchemaType.CustomMode
+        ? bobCatalogName
+        : runtimeCatalogName;
 
   const basePath = catalogUrl.substring(0, catalogUrl.lastIndexOf('/'));
 

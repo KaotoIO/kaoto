@@ -1,5 +1,6 @@
 import { CatalogDefinition, CatalogDefinitionEntry, KaotoFunction } from '@kaoto/camel-catalog/types';
 
+import { IBobComponentDefinition } from '../bob/bob-catalog';
 import { CatalogKind } from '../catalog-kind';
 import { ICitrusComponentDefinition } from '../citrus/citrus-catalog';
 import { ICamelComponentDefinition } from './camel-components-catalog';
@@ -32,6 +33,7 @@ export type ComponentsCatalogTypes =
   | ICamelLoadBalancerDefinition
   | IKameletDefinition
   | ICitrusComponentDefinition
+  | IBobComponentDefinition
   | Record<string, KaotoFunction>;
 export type DefinedComponent = {
   name: string;
@@ -56,8 +58,6 @@ export interface ComponentsCatalog {
   [CatalogKind.TestFunction]?: Record<string, ICitrusComponentDefinition>;
   [CatalogKind.TestValidationMatcher]?: Record<string, ICitrusComponentDefinition>;
   [CatalogKind.Function]?: Record<string, Record<string, KaotoFunction>>;
-  /** Placeholder for Epic 6 Bob catalog tiles — not populated until then.
-   *  TODO(Epic 6): Replace ICitrusComponentDefinition with the proper IBobNodeDefinition
-   *  interface once the Bob catalog is registered. */
-  [CatalogKind.BobNodes]?: Record<string, ICitrusComponentDefinition>;
+  [CatalogKind.BobTool]?: Record<string, IBobComponentDefinition>;
+  [CatalogKind.BobComponent]?: Record<string, IBobComponentDefinition>;
 }

@@ -385,6 +385,128 @@ exports[`SettingsForm > should render 1`] = `
   </div>
   <div
     class="pf-v6-c-form__group"
+    data-testid="#.bobCatalogName__field-wrapper"
+  >
+    <div
+      class="pf-v6-c-form__group-label"
+    >
+      <label
+        class="pf-v6-c-form__label"
+        for="#.bobCatalogName"
+      >
+        <span
+          class="pf-v6-c-form__label-text"
+        >
+          Custom Mode runtime version
+        </span>
+      </label>
+        
+      <span
+        class="pf-v6-c-form__group-label-help"
+      >
+        <div
+          style="display: contents;"
+        >
+          <span
+            aria-label="More info for Custom Mode runtime version field"
+            class="pf-v6-c-button pf-m-plain pf-m-no-padding"
+            data-ouia-component-id="OUIA-Generated-Button-plain-_r_m_"
+            data-ouia-component-type="PF6/Button"
+            data-ouia-safe="true"
+            role="button"
+            tabindex="0"
+            type="button"
+          >
+            <span
+              class="pf-v6-c-button__icon"
+            >
+              <svg
+                aria-hidden="true"
+                class="pf-v6-svg"
+                fill="currentColor"
+                height="1em"
+                role="img"
+                viewBox="0 0 1024 1024"
+                width="1em"
+              >
+                <path
+                  d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
+                />
+              </svg>
+            </span>
+          </span>
+        </div>
+      </span>
+    </div>
+    <div
+      class="pf-v6-c-form__group-control"
+    >
+      <button
+        aria-expanded="false"
+        class="pf-v6-c-menu-toggle pf-m-full-width"
+        data-ouia-component-id="OUIA-Generated-MenuToggle-_r_o_"
+        data-ouia-component-type="PF6/MenuToggle"
+        data-ouia-safe="true"
+        data-testid="#.bobCatalogName-catalog-selector-toggle"
+        type="button"
+      >
+        <span
+          class="pf-v6-c-menu-toggle__text"
+        >
+          <span
+            class="pf-v6-c-icon runtime-icon"
+          >
+            <span
+              class="pf-v6-c-icon__content"
+            >
+              <img
+                alt="Apache Camel logo"
+                src="/src/assets/camel-logo.svg"
+              />
+            </span>
+          </span>
+          <span
+            class="runtime-selector pf-v6-u-m-sm"
+          />
+        </span>
+        <span
+          class="pf-v6-c-menu-toggle__controls"
+        >
+          <span
+            class="pf-v6-c-menu-toggle__toggle-icon"
+          >
+            <svg
+              aria-hidden="true"
+              class="pf-v6-svg"
+              fill="currentColor"
+              height="1em"
+              role="img"
+              width="1em"
+            >
+              <svg
+                class="pf-v6-icon-default"
+                viewBox="0 0 320 512"
+              >
+                <path
+                  d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                />
+              </svg>
+              <svg
+                class="pf-v6-icon-rh-ui"
+                viewBox="0 0 32 32"
+              >
+                <path
+                  d="M16 24.792c-.384 0-.769-.146-1.061-.438L2.293 11.707a.999.999 0 1 1 1.414-1.414L16 22.586l12.293-12.293a.999.999 0 1 1 1.414 1.414L17.061 24.353a1.497 1.497 0 0 1-1.061.438Z"
+                />
+              </svg>
+            </svg>
+          </span>
+        </span>
+      </button>
+    </div>
+  </div>
+  <div
+    class="pf-v6-c-form__group"
     data-testid="#.nodeLabel__field-wrapper"
   >
     <div
@@ -410,7 +532,7 @@ exports[`SettingsForm > should render 1`] = `
           <span
             aria-label="More info for Node label to display in canvas field"
             class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-            data-ouia-component-id="OUIA-Generated-Button-plain-_r_m_"
+            data-ouia-component-id="OUIA-Generated-Button-plain-_r_r_"
             data-ouia-component-type="PF6/Button"
             data-ouia-safe="true"
             role="button"
@@ -472,7 +594,7 @@ exports[`SettingsForm > should render 1`] = `
             <button
               aria-label="Clear input value"
               class="pf-v6-c-button pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_q_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_v_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="#.nodeLabel__clear"
@@ -496,7 +618,7 @@ exports[`SettingsForm > should render 1`] = `
           aria-expanded="false"
           aria-label="undefined toggle"
           class="pf-v6-c-menu-toggle__button"
-          data-ouia-component-id="OUIA-Generated-MenuToggle-typeahead-_r_p_"
+          data-ouia-component-id="OUIA-Generated-MenuToggle-typeahead-_r_u_"
           data-ouia-component-type="PF6/MenuToggle"
           data-ouia-safe="true"
           tabindex="-1"
@@ -566,7 +688,7 @@ exports[`SettingsForm > should render 1`] = `
           <span
             aria-label="More info for Open Node toolbar field"
             class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-            data-ouia-component-id="OUIA-Generated-Button-plain-_r_t_"
+            data-ouia-component-id="OUIA-Generated-Button-plain-_r_12_"
             data-ouia-component-type="PF6/Button"
             data-ouia-safe="true"
             role="button"
@@ -628,7 +750,7 @@ exports[`SettingsForm > should render 1`] = `
             <button
               aria-label="Clear input value"
               class="pf-v6-c-button pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_11_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_16_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="#.nodeToolbarTrigger__clear"
@@ -652,7 +774,7 @@ exports[`SettingsForm > should render 1`] = `
           aria-expanded="false"
           aria-label="undefined toggle"
           class="pf-v6-c-menu-toggle__button"
-          data-ouia-component-id="OUIA-Generated-MenuToggle-typeahead-_r_10_"
+          data-ouia-component-id="OUIA-Generated-MenuToggle-typeahead-_r_15_"
           data-ouia-component-type="PF6/MenuToggle"
           data-ouia-safe="true"
           tabindex="-1"
@@ -722,7 +844,7 @@ exports[`SettingsForm > should render 1`] = `
           <span
             aria-label="More info for Color scheme field"
             class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-            data-ouia-component-id="OUIA-Generated-Button-plain-_r_14_"
+            data-ouia-component-id="OUIA-Generated-Button-plain-_r_19_"
             data-ouia-component-type="PF6/Button"
             data-ouia-safe="true"
             role="button"
@@ -784,7 +906,7 @@ exports[`SettingsForm > should render 1`] = `
             <button
               aria-label="Clear input value"
               class="pf-v6-c-button pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_18_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_1d_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="#.colorScheme__clear"
@@ -808,7 +930,7 @@ exports[`SettingsForm > should render 1`] = `
           aria-expanded="false"
           aria-label="undefined toggle"
           class="pf-v6-c-menu-toggle__button"
-          data-ouia-component-id="OUIA-Generated-MenuToggle-typeahead-_r_17_"
+          data-ouia-component-id="OUIA-Generated-MenuToggle-typeahead-_r_1c_"
           data-ouia-component-type="PF6/MenuToggle"
           data-ouia-safe="true"
           tabindex="-1"
@@ -878,7 +1000,7 @@ exports[`SettingsForm > should render 1`] = `
           <span
             aria-label="More info for Canvas layout direction field"
             class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-            data-ouia-component-id="OUIA-Generated-Button-plain-_r_1b_"
+            data-ouia-component-id="OUIA-Generated-Button-plain-_r_1g_"
             data-ouia-component-type="PF6/Button"
             data-ouia-safe="true"
             role="button"
@@ -940,7 +1062,7 @@ exports[`SettingsForm > should render 1`] = `
             <button
               aria-label="Clear input value"
               class="pf-v6-c-button pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_1f_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_1k_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="#.canvasLayoutDirection__clear"
@@ -964,7 +1086,7 @@ exports[`SettingsForm > should render 1`] = `
           aria-expanded="false"
           aria-label="undefined toggle"
           class="pf-v6-c-menu-toggle__button"
-          data-ouia-component-id="OUIA-Generated-MenuToggle-typeahead-_r_1e_"
+          data-ouia-component-id="OUIA-Generated-MenuToggle-typeahead-_r_1j_"
           data-ouia-component-type="PF6/MenuToggle"
           data-ouia-safe="true"
           tabindex="-1"
@@ -1009,7 +1131,7 @@ exports[`SettingsForm > should render 1`] = `
   </div>
   <div
     class="pf-v6-c-card"
-    data-ouia-component-id="OUIA-Generated-Card-_r_1g_"
+    data-ouia-component-id="OUIA-Generated-Card-_r_1l_"
     data-ouia-component-type="PF6/Card"
     data-ouia-safe="true"
     data-testid="#.rest__field-wrapper"
@@ -1024,7 +1146,7 @@ exports[`SettingsForm > should render 1`] = `
         <button
           aria-label="Remove object"
           class="pf-v6-c-button pf-m-plain"
-          data-ouia-component-id="OUIA-Generated-Button-plain-_r_1i_"
+          data-ouia-component-id="OUIA-Generated-Button-plain-_r_1n_"
           data-ouia-component-type="PF6/Button"
           data-ouia-safe="true"
           data-testid="#.rest__remove"
@@ -1061,7 +1183,7 @@ exports[`SettingsForm > should render 1`] = `
               <span
                 aria-label="More info for Rest configuration field"
                 class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                data-ouia-component-id="OUIA-Generated-Button-plain-_r_1k_"
+                data-ouia-component-id="OUIA-Generated-Button-plain-_r_1p_"
                 data-ouia-component-type="PF6/Button"
                 data-ouia-safe="true"
                 role="button"
@@ -1122,7 +1244,7 @@ exports[`SettingsForm > should render 1`] = `
               <span
                 aria-label="More info for Apicurio Registry URL field"
                 class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                data-ouia-component-id="OUIA-Generated-Button-plain-_r_1o_"
+                data-ouia-component-id="OUIA-Generated-Button-plain-_r_1t_"
                 data-ouia-component-type="PF6/Button"
                 data-ouia-safe="true"
                 role="button"
@@ -1181,7 +1303,7 @@ exports[`SettingsForm > should render 1`] = `
               <button
                 aria-label="Open suggestions"
                 class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-                data-ouia-component-id="OUIA-Generated-Button-plain-_r_1p_"
+                data-ouia-component-id="OUIA-Generated-Button-plain-_r_1u_"
                 data-ouia-component-type="PF6/Button"
                 data-ouia-safe="true"
                 data-testid="#.rest.apicurioRegistryUrl__open-suggestions-button"
@@ -1203,7 +1325,7 @@ exports[`SettingsForm > should render 1`] = `
                 aria-expanded="false"
                 aria-label="#.rest.apicurioRegistryUrl__field-actions"
                 class="pf-v6-c-menu-toggle pf-m-plain"
-                data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_1t_"
+                data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_22_"
                 data-ouia-component-type="PF6/MenuToggle"
                 data-ouia-safe="true"
                 data-testid="#.rest.apicurioRegistryUrl__field-actions"
@@ -1251,7 +1373,7 @@ exports[`SettingsForm > should render 1`] = `
               <span
                 aria-label="More info for Custom media types field"
                 class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                data-ouia-component-id="OUIA-Generated-Button-plain-_r_20_"
+                data-ouia-component-id="OUIA-Generated-Button-plain-_r_25_"
                 data-ouia-component-type="PF6/Button"
                 data-ouia-safe="true"
                 role="button"
@@ -1300,7 +1422,7 @@ exports[`SettingsForm > should render 1`] = `
                     <input
                       aria-invalid="false"
                       aria-label="Custom media types"
-                      data-ouia-component-id="OUIA-Generated-TextInputBase-_r_22_"
+                      data-ouia-component-id="OUIA-Generated-TextInputBase-_r_27_"
                       data-ouia-component-type="PF6/TextInput"
                       data-ouia-safe="true"
                       id="#.rest.customMediaTypes-input"
@@ -1315,7 +1437,7 @@ exports[`SettingsForm > should render 1`] = `
                 >
                   <button
                     class="pf-v6-c-button pf-m-primary"
-                    data-ouia-component-id="OUIA-Generated-Button-primary-_r_23_"
+                    data-ouia-component-id="OUIA-Generated-Button-primary-_r_28_"
                     data-ouia-component-type="PF6/Button"
                     data-ouia-safe="true"
                     disabled=""
@@ -1342,7 +1464,7 @@ exports[`SettingsForm > should render 1`] = `
             >
               <button
                 class="pf-v6-c-button pf-m-link pf-m-inline"
-                data-ouia-component-id="OUIA-Generated-Button-link-_r_24_"
+                data-ouia-component-id="OUIA-Generated-Button-link-_r_29_"
                 data-ouia-component-type="PF6/Button"
                 data-ouia-safe="true"
                 disabled=""

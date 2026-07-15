@@ -3,10 +3,27 @@ import { CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types'
 import { SourceSchemaType } from '../models/camel';
 import { versionCompare } from './version-compare';
 
+const INTEGRATION_RUNTIMES = new Set(['Main', 'Quarkus', 'Spring Boot']);
+
+/**
+ * Returns the catalog library `runtime` value required for a given source schema type.
+ * Integration types map to Camel family runtimes (Main/Quarkus/Spring Boot).
+ */
+export const getCatalogRuntimeForSourceType = (sourceType: SourceSchemaType): string | 'integration' => {
+  if (sourceType === SourceSchemaType.Test) {
+    return 'Citrus';
+  }
+  if (sourceType === SourceSchemaType.CustomMode) {
+    return 'Bob';
+  }
+  return 'integration';
+};
+
 /**
  * Finds the appropriate catalog for a given source schema type.
  *
  * For Citrus tests (SourceSchemaType.Test), returns the first available Citrus catalog sorted by version.
+ * For Custom Mode (SourceSchemaType.CustomMode), returns the first available Bob catalog sorted by version.
  * For other source types, returns the first available RedHat Main catalog sorted by version.
  *
  * @param sourceType - The source schema type to find a catalog for
@@ -23,37 +40,45 @@ export const findCatalog = (sourceType: SourceSchemaType, catalogLibrary?: Catal
       .filter((c: CatalogLibraryEntry) => c.runtime === 'Citrus')
       .sort((c1: CatalogLibraryEntry, c2: CatalogLibraryEntry) => versionCompare(c1.version, c2.version));
     return citrusCatalogs.length > 0 ? citrusCatalogs[0] : undefined;
-  } else {
-    const redhatMainCatalogs = catalogLibrary.definitions
-      .filter((c: CatalogLibraryEntry) => c.runtime === 'Main' && c.name.includes('redhat'))
-      .sort((c1: CatalogLibraryEntry, c2: CatalogLibraryEntry) =>
-        versionCompare(c1.version.split('.redhat')[0], c2.version.split('.redhat')[0]),
-      );
-
-    if (redhatMainCatalogs.length > 0) {
-      return redhatMainCatalogs[0];
-    }
-
-    // Fallback to any Main catalog if no redhat catalog is found
-    const mainCatalogs = catalogLibrary.definitions
-      .filter((c: CatalogLibraryEntry) => c.runtime === 'Main')
-      .sort((c1: CatalogLibraryEntry, c2: CatalogLibraryEntry) => versionCompare(c1.version, c2.version));
-
-    return mainCatalogs.length > 0 ? mainCatalogs[0] : undefined;
   }
+
+  if (sourceType === SourceSchemaType.CustomMode) {
+    const bobCatalogs = catalogLibrary.definitions
+      .filter((c: CatalogLibraryEntry) => c.runtime === 'Bob')
+      .sort((c1: CatalogLibraryEntry, c2: CatalogLibraryEntry) => versionCompare(c1.version, c2.version));
+    return bobCatalogs.length > 0 ? bobCatalogs[0] : undefined;
+  }
+
+  const redhatMainCatalogs = catalogLibrary.definitions
+    .filter((c: CatalogLibraryEntry) => c.runtime === 'Main' && c.name.includes('redhat'))
+    .sort((c1: CatalogLibraryEntry, c2: CatalogLibraryEntry) =>
+      versionCompare(c1.version.split('.redhat')[0], c2.version.split('.redhat')[0]),
+    );
+
+  if (redhatMainCatalogs.length > 0) {
+    return redhatMainCatalogs[0];
+  }
+
+  const mainCatalogs = catalogLibrary.definitions
+    .filter((c: CatalogLibraryEntry) => c.runtime === 'Main')
+    .sort((c1: CatalogLibraryEntry, c2: CatalogLibraryEntry) => versionCompare(c1.version, c2.version));
+
+  return mainCatalogs.length > 0 ? mainCatalogs[0] : undefined;
 };
 
 /**
  * Determines if a catalog change is required based on the source type and current catalog.
- *
- * A catalog change is required when:
- * - The current catalog is Citrus but the source type is not Test
- * - The current catalog is not Citrus but the source type is Test
- *
- * @param sourceType - The source schema type being used
- * @param catalog - The currently active catalog
- * @returns True if a catalog change is required, false otherwise
  */
 export const requiresCatalogChange = (sourceType: SourceSchemaType, catalog?: CatalogLibraryEntry) => {
-  return catalog?.runtime === 'Citrus' ? sourceType !== SourceSchemaType.Test : sourceType === SourceSchemaType.Test;
+  if (!catalog) {
+    return false;
+  }
+
+  const targetRuntime = getCatalogRuntimeForSourceType(sourceType);
+
+  if (targetRuntime === 'integration') {
+    return !INTEGRATION_RUNTIMES.has(catalog.runtime);
+  }
+
+  return catalog.runtime !== targetRuntime;
 };

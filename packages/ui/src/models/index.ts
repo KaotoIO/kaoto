@@ -1,3 +1,5 @@
+export * from './bob/bob-catalog';
+export * from './bob/bob-catalog-index';
 export * from './camel/camel-catalog-index';
 export * from './camel/camel-components-catalog';
 export * from './camel/camel-dataformats-catalog';

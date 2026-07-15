@@ -1,6 +1,25 @@
+import { JSONSchema4 } from 'json-schema';
+
+import rootSchema from '../../../../stubs/bob-catalog/custom-mode-schema.json';
+import { BOB_CUSTOM_MODE_ROOT_ENTITY_NAME } from '../../../bob/bob-catalog-index';
+import { ICamelProcessorDefinition } from '../../../camel/camel-processors-catalog';
+import { CatalogKind } from '../../../catalog-kind';
+import { CamelCatalogService } from '../camel-catalog.service';
 import { CustomModeSchemaService } from './custom-mode-schema.service';
 
 describe('CustomModeSchemaService', () => {
+  beforeEach(() => {
+    CamelCatalogService.setCatalogKey(CatalogKind.Entity, {
+      [BOB_CUSTOM_MODE_ROOT_ENTITY_NAME]: {
+        propertiesSchema: rootSchema as JSONSchema4,
+      } as ICamelProcessorDefinition,
+    });
+  });
+
+  afterEach(() => {
+    CamelCatalogService.clearCatalogs();
+  });
+
   describe('getRootSchema', () => {
     it('returns an object schema', () => {
       expect(CustomModeSchemaService.getRootSchema().type).toBe('object');
@@ -36,9 +55,22 @@ describe('CustomModeSchemaService', () => {
   });
 
   describe('getNodeSchema', () => {
-    it('returns undefined for any nodeType (stub)', () => {
+    it('returns undefined when no catalog entry exists', () => {
       expect(CustomModeSchemaService.getNodeSchema('section')).toBeUndefined();
       expect(CustomModeSchemaService.getNodeSchema('unknown')).toBeUndefined();
+    });
+
+    it('returns schema from Bob tool or component catalog when loaded', () => {
+      const toolSchema = { type: 'object', properties: { path: { type: 'string' } } } as JSONSchema4;
+      CamelCatalogService.setCatalogKey(CatalogKind.BobTool, {
+        read_file: {
+          kind: CatalogKind.BobTool,
+          name: 'read_file',
+          propertiesSchema: toolSchema,
+        },
+      });
+
+      expect(CustomModeSchemaService.getNodeSchema('read_file')).toEqual(toolSchema);
     });
   });
 });
