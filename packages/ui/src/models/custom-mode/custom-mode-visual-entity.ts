@@ -2,6 +2,7 @@ import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../camel-utils/camel-random-id';
 import { DefinedComponent } from '../camel/camel-catalog-index';
+import { CatalogKind } from '../catalog-kind';
 import { EntityType } from '../entities';
 import { KaotoSchemaDefinition } from '../kaoto-schema';
 import { NodeLabelType } from '../settings/settings.model';
@@ -14,6 +15,7 @@ import {
   NodeInteraction,
 } from '../visualization/base-visual-entity';
 import { IClipboardCopyObject } from '../visualization/clipboard';
+import { NodeEnrichmentService } from '../visualization/flows/nodes/node-enrichment.service';
 import { CustomModeSchemaService } from '../visualization/flows/support/custom-mode-schema.service';
 import { createVisualizationNode } from '../visualization/visualization-node';
 import { CustomInstructionsNode, CustomInstructionsParser } from './custom-instructions-parser';
@@ -163,7 +165,9 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
   }
 
   async toVizNode(): Promise<IVisualizationNode> {
-    // 1. Mode group node — visual container
+    // 1. Mode group node — carries the title; clicking it opens the metadata form.
+    //    Title is left empty here so enrichNodeFromCatalog can populate it from the catalog (Epic 6).
+    //    A post-enrichment fallback sets mode.name when the catalog has no entry.
     const modeGroupNode = createVisualizationNode(this.id, {
       name: this.type,
       path: this.getRootPath(),
@@ -172,24 +176,18 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
       isGroup: true,
       iconUrl: '',
       title: '',
-      description: '',
-    });
-
-    // 2. Mode node — first child, opens the metadata form
-    const modeNode = createVisualizationNode(`${this.id}-mode`, {
-      name: this.type,
-      path: this.getRootPath(),
-      entity: this,
-      isPlaceholder: false,
-      isGroup: false,
-      iconUrl: '',
-      title: this.mode.name || this.id,
       description: this.mode.description || '',
     });
-    modeGroupNode.addChild(modeNode);
 
-    // 3. customInstructions sibling nodes (stub: parsedNodes is always [] until Epic 7)
-    const siblings: IVisualizationNode[] = [modeNode];
+    await NodeEnrichmentService.enrichNodeFromCatalog(modeGroupNode, CatalogKind.BobNodes);
+
+    // Catalog title takes priority; fall back to mode.name when BobNodes catalog is absent (pre-Epic 6).
+    if (!modeGroupNode.data.title) {
+      modeGroupNode.data.title = this.mode.name || this.id;
+    }
+
+    // 2. customInstructions sibling nodes (stub: parsedNodes is always [] until Epic 7)
+    const siblings: IVisualizationNode[] = [];
     for (let i = 0; i < this.parsedNodes.length; i++) {
       const node = this.parsedNodes[i];
       const path = `${this.getRootPath()}.customInstructions.${i}.${node.nodeType}`;

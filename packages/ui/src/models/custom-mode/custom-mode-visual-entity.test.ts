@@ -1,5 +1,6 @@
 import { EntityType } from '../entities';
 import { AddStepMode } from '../visualization/base-visual-entity';
+import { NodeEnrichmentService } from '../visualization/flows/nodes/node-enrichment.service';
 import { CustomMode } from './custom-mode-types';
 import { CustomModeVisualEntity } from './custom-mode-visual-entity';
 
@@ -17,6 +18,7 @@ describe('CustomModeVisualEntity', () => {
   let entity: CustomModeVisualEntity;
 
   beforeEach(() => {
+    vi.spyOn(NodeEnrichmentService, 'enrichNodeFromCatalog').mockResolvedValue(undefined);
     entity = new CustomModeVisualEntity(makeMode());
   });
 
@@ -204,15 +206,15 @@ describe('CustomModeVisualEntity', () => {
       expect(groupNode.data.path).toBe('customMode');
     });
 
-    it('mode group node has two children: mode node and placeholder', async () => {
+    it('group node carries the mode name as title when catalog absent', async () => {
       const groupNode = await entity.toVizNode();
-      expect(groupNode.getChildren()).toHaveLength(2);
+      expect(groupNode.data.title).toBe('Test Mode');
     });
 
-    it('first child is the mode node (isGroup false, same path)', async () => {
-      const modeNode = (await entity.toVizNode()).getChildren()![0];
-      expect(modeNode.data.isGroup).toBe(false);
-      expect(modeNode.data.path).toBe('customMode');
+    it('group node has one child when there are no parsed steps: the placeholder', async () => {
+      const groupNode = await entity.toVizNode();
+      expect(groupNode.getChildren()).toHaveLength(1);
+      expect(groupNode.getChildren()![0].data.isPlaceholder).toBe(true);
     });
 
     it('last child is the placeholder', async () => {
@@ -220,11 +222,15 @@ describe('CustomModeVisualEntity', () => {
       expect(children[children.length - 1].data.isPlaceholder).toBe(true);
     });
 
-    it('mode node and placeholder are linked via prev/next', async () => {
+    it('placeholder has no previous node when there are no parsed steps', async () => {
       const children = (await entity.toVizNode()).getChildren()!;
-      const [modeNode, placeholder] = children;
-      expect(modeNode.getNextNode()).toBe(placeholder);
-      expect(placeholder.getPreviousNode()).toBe(modeNode);
+      const [placeholder] = children;
+      expect(placeholder.getPreviousNode()).toBeUndefined();
+    });
+
+    it('calls enrichNodeFromCatalog with BobNodes catalog kind', async () => {
+      await entity.toVizNode();
+      expect(NodeEnrichmentService.enrichNodeFromCatalog).toHaveBeenCalledOnce();
     });
   });
 });
