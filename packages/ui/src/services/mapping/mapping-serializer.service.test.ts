@@ -1034,6 +1034,60 @@ describe('MappingSerializerService', () => {
       expect(xslt1).toContain('xsl:if');
       expect(xslt2).toContain('xsl:if');
     });
+
+    it('should preserve attribute order across multiple serialize/deserialize cycles', () => {
+      // XSLT with attributes in a non-schema order: attrC, attrA, attrB
+      const xsltWithAttrsOutOfSchemaOrder = `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:output method="xml" indent="yes"/>
+  <xsl:template match="/">
+    <Root>
+      <xsl:attribute name="attrC"><xsl:value-of select="attrC"/></xsl:attribute>
+      <xsl:attribute name="attrA"><xsl:value-of select="attrA"/></xsl:attribute>
+      <xsl:attribute name="attrB"><xsl:value-of select="attrB"/></xsl:attribute>
+    </Root>
+  </xsl:template>
+</xsl:stylesheet>`;
+
+      const xsdWithMultipleAttrs = `<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:attribute name="attrA" type="xs:string"/>
+      <xs:attribute name="attrB" type="xs:string"/>
+      <xs:attribute name="attrC" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+
+      const createMultiAttrDoc = () => {
+        const definition = new DocumentDefinition(
+          DocumentType.TARGET_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          BODY_DOCUMENT_ID,
+          { 'multi-attr.xsd': xsdWithMultipleAttrs },
+        );
+        return XmlSchemaDocumentService.createXmlSchemaDocument(definition).document!;
+      };
+
+      const cycle = (xslt: string) => {
+        const doc = createMultiAttrDoc();
+        const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+        const { mappingTree } = MappingSerializerService.deserialize(xslt, doc, tree, new Map());
+        return MappingSerializerService.serialize(mappingTree, new Map());
+      };
+
+      const extractAttrOrder = (xslt: string) =>
+        [...xslt.matchAll(/xsl:attribute name="(\w+)"/g)].map((m) => m[1]).join(',');
+
+      const round1 = cycle(xsltWithAttrsOutOfSchemaOrder);
+      const round2 = cycle(round1);
+
+      // The attribute order from the XSLT must be preserved (no reordering by schema position)
+      expect(extractAttrOrder(round1)).toBe('attrC,attrA,attrB');
+      // And must be stable — a second cycle must not reorder them
+      expect(extractAttrOrder(round2)).toBe('attrC,attrA,attrB');
+    });
   });
 
   describe('xsl:sort', () => {

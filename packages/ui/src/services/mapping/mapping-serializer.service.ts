@@ -76,7 +76,9 @@ export class MappingSerializerService {
 
     const leftHasAttribute = MappingSerializerService.hasAttributeField(leftFields);
     const rightHasAttribute = MappingSerializerService.hasAttributeField(rightFields);
+
     if (leftHasAttribute !== rightHasAttribute) return leftHasAttribute ? -1 : 1;
+    if (leftHasAttribute && rightHasAttribute) return 0;
 
     const leftFirst = [...leftFields].sort(MappingSerializerService.sortFields)[0];
     const rightFirst = [...rightFields].sort(MappingSerializerService.sortFields)[0];
