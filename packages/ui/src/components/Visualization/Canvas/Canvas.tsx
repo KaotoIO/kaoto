@@ -29,7 +29,6 @@ import {
 
 import { CatalogModalContext } from '../../../dynamic-catalog/catalog-modal.provider';
 import { useLocalStorage } from '../../../hooks';
-import { usePrevious } from '../../../hooks/previous.hook';
 import { LocalStorageKeys } from '../../../models';
 import { CanvasLayoutDirection } from '../../../models/settings/settings.model';
 import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
@@ -50,6 +49,12 @@ interface CanvasProps {
   entitiesCount: number;
   isVizNodesResolving?: boolean;
   contextToolbar?: ReactNode;
+}
+
+const SETTLED_EMPTY_STATE = 'settledEmptyStateVisible';
+
+interface CanvasState {
+  [SETTLED_EMPTY_STATE]?: boolean;
 }
 
 export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
@@ -86,7 +91,13 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     return areNoFlows || areAllFlowsHidden;
   }, [entitiesCount, vizNodes.length]);
 
-  const wasEmptyStateVisible = usePrevious(!isVizNodesResolving && shouldShowEmptyState);
+  const wasEmptyStateVisible = controller.getState<CanvasState>()[SETTLED_EMPTY_STATE];
+  useEffect(() => {
+    if (!isVizNodesResolving) {
+      controller.setState({ [SETTLED_EMPTY_STATE]: shouldShowEmptyState });
+    }
+  }, [controller, isVizNodesResolving, shouldShowEmptyState]);
+
   const clearSelection = useCallback(() => {
     setSelectedIds([]);
     setSelectedNode(undefined);
