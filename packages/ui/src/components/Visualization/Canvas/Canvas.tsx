@@ -67,7 +67,9 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     settingsLayout ?? localStorage.getItem(LocalStorageKeys.CanvasLayout) ?? CanvasDefaults.DEFAULT_LAYOUT;
 
   const controller = useVisualizationController();
-  const [initialized, setInitialized] = useState(() => controller.getGraph().getLayout() !== undefined);
+  const [initialized, setInitialized] = useState(
+    () => controller.hasGraph() && controller.getGraph().getLayout() !== undefined,
+  );
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedNode, setSelectedNode] = useState<CanvasNode | undefined>(undefined);
   const [sidebarWidth, setSidebarWidth] = useLocalStorage(
@@ -84,7 +86,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     return areNoFlows || areAllFlowsHidden;
   }, [entitiesCount, vizNodes.length]);
 
-  const wasEmptyStateVisible = usePrevious(shouldShowEmptyState);
+  const wasEmptyStateVisible = usePrevious(!isVizNodesResolving && shouldShowEmptyState);
   const clearSelection = useCallback(() => {
     setSelectedIds([]);
     setSelectedNode(undefined);

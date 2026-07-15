@@ -1,4 +1,4 @@
-import { action, Point, VisualizationProvider } from '@patternfly/react-topology';
+import { action, isNode, Point, VisualizationProvider } from '@patternfly/react-topology';
 import { act, fireEvent, render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { useState } from 'react';
 
@@ -17,13 +17,8 @@ import { camelRouteJson } from '../../../stubs/camel-route';
 import { kameletJson } from '../../../stubs/kamelet-route';
 import { Canvas } from './Canvas';
 import { LayoutType } from './canvas.models';
+import { COLLAPSE_STATE } from './collapse-handler-state';
 import { ControllerService } from './controller.service';
-
-vi.mock('./apply-collapse-state', () => ({
-  applyCollapseState: vi.fn(),
-}));
-
-import { applyCollapseState } from './apply-collapse-state';
 
 describe('Canvas', () => {
   const entity = new CamelRouteVisualEntity(camelRouteJson);
@@ -100,12 +95,15 @@ describe('Canvas', () => {
     expect(layoutSpy).not.toHaveBeenCalled();
   });
 
-  it('when initialized is true, runs fromModel(model, true), and applyCollapseState', async () => {
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('merges a changed visualization model after initialization', async () => {
     const { Provider } = await TestProvidersWrapper();
     const controller = ControllerService.createController();
     const fromModelSpy = vi.spyOn(controller, 'fromModel');
     const vizNode = await entity.toVizNode();
+    const updatedEntity = new CamelRouteVisualEntity({
+      route: { ...camelRouteJson.route, id: 'route-updated' },
+    });
+    const updatedVizNode = await updatedEntity.toVizNode();
 
     // Stateful child so we can update entities without re-rendering Provider
     let setVizNodesState: (next: IVisualizationNode[]) => void = () => {};
@@ -132,14 +130,22 @@ describe('Canvas', () => {
     fromModelSpy.mockClear();
 
     await act(async () => {
-      setVizNodesState([vizNode].slice());
+      setVizNodesState([updatedVizNode]);
     });
     await act(async () => {
       await vi.runAllTimersAsync();
     });
 
     expect(fromModelSpy).toHaveBeenCalledWith(expect.anything(), true);
-    expect(applyCollapseState).toHaveBeenCalledWith(controller);
+    expect(fromModelSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        nodes: expect.arrayContaining([expect.objectContaining({ data: { vizNode: updatedVizNode } })]),
+      }),
+      true,
+    );
+    expect(
+      controller.getElements().some((element) => isNode(element) && element.getData()?.vizNode === updatedVizNode),
+    ).toBe(true);
   });
 
   it('should be able to delete the routes', async () => {
@@ -588,27 +594,17 @@ describe('Canvas', () => {
     );
   });
 
-  it('preserves collapse and viewport state when remounted', async () => {
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('preserves collapse and viewport state through a resolving remount', async () => {
     const { Provider } = await TestProvidersWrapper();
     const controller = ControllerService.createController();
     const fromModelSpy = vi.spyOn(controller, 'fromModel');
     const vizNode = await entity.toVizNode();
 
-    let setCanvasVisible: (visible: boolean) => void = () => {};
-    const Inner = () => {
-      const [isCanvasVisible, setIsCanvasVisible] = useState(true);
-      setCanvasVisible = setIsCanvasVisible;
-      return (
-        <VisualizationProvider controller={controller}>
-          {isCanvasVisible && <Canvas vizNodes={[vizNode]} entitiesCount={1} />}
-        </VisualizationProvider>
-      );
-    };
-
-    render(
+    const { rerender } = render(
       <Provider>
-        <Inner />
+        <VisualizationProvider controller={controller}>
+          <Canvas vizNodes={[vizNode]} entitiesCount={1} />
+        </VisualizationProvider>
       </Provider>,
     );
     await act(async () => {
@@ -616,28 +612,64 @@ describe('Canvas', () => {
     });
 
     const graph = controller.getGraph();
+    const routeGroup = controller
+      .getElements()
+      .find(
+        (element) =>
+          isNode(element) &&
+          (element.getData()?.vizNode as IVisualizationNode | undefined)?.getNodeDefinition()?.id === 'route-8888',
+      );
+    expect(routeGroup && isNode(routeGroup)).toBe(true);
+    if (!routeGroup || !isNode(routeGroup)) {
+      throw new Error('Expected route group was not found');
+    }
+
     action(() => {
+      routeGroup.setCollapsed(true);
+      controller.setState({ [COLLAPSE_STATE]: ['route-8888'] });
       graph.setScale(1.5);
       graph.setPosition(new Point(120, 80));
     })();
     fromModelSpy.mockClear();
-    vi.mocked(applyCollapseState).mockClear();
 
-    await act(async () => {
-      setCanvasVisible(false);
-    });
-    await act(async () => {
-      setCanvasVisible(true);
-    });
+    rerender(
+      <Provider>
+        <VisualizationProvider controller={controller}>{null}</VisualizationProvider>
+      </Provider>,
+    );
+    rerender(
+      <Provider>
+        <VisualizationProvider controller={controller}>
+          <Canvas vizNodes={[]} entitiesCount={1} isVizNodesResolving />
+        </VisualizationProvider>
+      </Provider>,
+    );
+
+    const refreshedVizNode = await entity.toVizNode();
+    rerender(
+      <Provider>
+        <VisualizationProvider controller={controller}>
+          <Canvas vizNodes={[refreshedVizNode]} entitiesCount={1} />
+        </VisualizationProvider>
+      </Provider>,
+    );
     await act(async () => {
       await vi.runAllTimersAsync();
     });
 
     expect(fromModelSpy).toHaveBeenCalledWith(expect.anything(), true);
     expect(fromModelSpy).not.toHaveBeenCalledWith(expect.anything(), false);
-    expect(applyCollapseState).toHaveBeenCalledWith(controller);
     expect(controller.getGraph()).toBe(graph);
     expect(graph.getScale()).toBe(1.5);
     expect(graph.getPosition()).toEqual(new Point(120, 80));
+
+    const remountedRouteGroup = controller
+      .getElements()
+      .find(
+        (element) =>
+          isNode(element) &&
+          (element.getData()?.vizNode as IVisualizationNode | undefined)?.getNodeDefinition()?.id === 'route-8888',
+      );
+    expect(remountedRouteGroup && isNode(remountedRouteGroup) && remountedRouteGroup.isCollapsed()).toBe(true);
   });
 });

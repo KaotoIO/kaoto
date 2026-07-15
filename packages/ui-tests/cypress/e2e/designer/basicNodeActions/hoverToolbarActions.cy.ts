@@ -111,4 +111,25 @@ describe('Test toolbar on hover actions', () => {
     cy.checkNodeExist('when', 0);
     cy.checkNodeExist('otherwise', 0);
   });
+
+  it('Keep the selected route collapsed after switching tabs', () => {
+    cy.uploadFixture('flows/camelRoute/multiflow.yaml');
+    cy.openDesignPage();
+
+    cy.toggleExpandGroup('route-1234');
+    cy.checkNodeExist('timer', 1);
+    cy.checkNodeExist('log', 1);
+
+    cy.openSourceCode();
+    cy.openDesignPage();
+
+    cy.get('span[title="route-1234"]').should('be.visible').click();
+    cy.get('[data-testid="route-1234|step-toolbar-button-collapse"]').should('have.attr', 'title', 'Expand step');
+
+    cy.openGroupConfigurationTab('route-4321');
+    cy.get('[data-testid="route-4321|step-toolbar-button-collapse"]').should('have.attr', 'title', 'Collapse step');
+
+    cy.checkNodeExist('timer', 1);
+    cy.checkNodeExist('log', 1);
+  });
 });
