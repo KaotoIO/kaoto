@@ -230,4 +230,45 @@ describe('updateKameletFromCustomSchema', () => {
     updateKameletFromCustomSchema(inputKameletStruct as unknown as IKameletDefinition, value);
     expect(inputKameletStruct).toMatchSnapshot();
   });
+
+  it('should clear fields when empty string or undefined is provided', () => {
+    const kameletWithValues = cloneDeep(inputKameletStruct);
+
+    // First, verify the kamelet has values
+    expect(kameletWithValues.metadata.annotations['camel.apache.org/kamelet.icon']).toBeDefined();
+    expect(kameletWithValues.metadata.annotations['camel.apache.org/kamelet.namespace']).toBe('default');
+    expect(kameletWithValues.spec.definition.description).toBe('Produces periodic events about random users!');
+
+    // Now update with empty/undefined values
+    const value = {
+      name: 'kamelet',
+      title: 'kamelet-35256',
+      description: '', // Clear description
+      type: 'Source',
+      icon: '', // Clear icon
+      supportLevel: 'Stable',
+      catalogVersion: 'main-SNAPSHOT',
+      provider: 'Apache Software Foundation',
+      group: 'Users',
+      namespace: undefined, // Clear namespace
+      labels: {},
+      annotations: {},
+      kameletProperties: [
+        {
+          name: 'period',
+          default: 5000,
+          description: 'The time interval between two events',
+          title: 'Period',
+          type: 'integer',
+        },
+      ],
+    };
+
+    updateKameletFromCustomSchema(kameletWithValues, value);
+
+    // Verify that empty values are actually set (not kept as previous values)
+    expect(kameletWithValues.spec.definition.description).toBe('');
+    expect(kameletWithValues.metadata.annotations['camel.apache.org/kamelet.icon']).toBe('');
+    expect(kameletWithValues.metadata.annotations['camel.apache.org/kamelet.namespace']).toBeUndefined();
+  });
 });
