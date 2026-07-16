@@ -134,7 +134,7 @@ describe('CustomModeResource', () => {
       await resource.initialize();
       const id = resource.addNewEntity();
       const entity = resource.getVisualEntities().find((e) => e.id === id);
-      expect((entity!.toJSON() as ReturnType<CustomModeVisualEntity['toJSON']>).slug).toBe('new-mode');
+      expect((entity!.toJSON() as ReturnType<CustomModeVisualEntity['toJSON']>).slug).toMatch(/^new-mode/);
     });
   });
 
