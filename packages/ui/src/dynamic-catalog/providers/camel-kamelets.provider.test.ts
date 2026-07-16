@@ -28,7 +28,7 @@ spec:
       const result = await provider.fetchAll();
 
       expect(client).toHaveBeenCalledWith(FileTypes.Kamelets);
-      expect(result['http-source.kamelet.yaml']).toMatchObject({ kind: 'Kamelet', metadata: { name: 'http-source' } });
+      expect(result['http-source']).toMatchObject({ kind: 'Kamelet', metadata: { name: 'http-source' } });
     });
 
     it('should merge embedded kamelets with remote kamelets, remote taking precedence', async () => {
@@ -40,7 +40,7 @@ spec:
       const result = await provider.fetchAll();
 
       expect(result).toHaveProperty('timer-source');
-      expect(result).toHaveProperty('http-source.kamelet.yaml');
+      expect(result).toHaveProperty('http-source');
     });
 
     it('should skip an entry and log an error when YAML parsing fails', async () => {
@@ -67,8 +67,8 @@ spec:
 
       const result = await provider.fetchAll();
 
-      expect(result).toHaveProperty('good.yaml');
-      expect(result).not.toHaveProperty('bad.yaml');
+      expect(result).toHaveProperty('good-kamelet');
+      expect(result).not.toHaveProperty('bad');
       consoleErrorSpy.mockRestore();
     });
 
@@ -79,6 +79,39 @@ spec:
       const result = await provider.fetchAll();
 
       expect(result).toEqual({});
+    });
+
+    it('should skip an entry and log an error when metadata.name is missing', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const yamlWithoutName = 'kind: Kamelet\nmetadata:\n  labels:\n    test: value\n';
+      const client = vi.fn().mockResolvedValue([{ filename: 'no-name.yaml', content: yamlWithoutName }]);
+      const provider = new CamelKameletsProvider({}, client);
+
+      const result = await provider.fetchAll();
+
+      expect(result).toEqual({});
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Error parsing no-name.yaml', expect.any(TypeError));
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle null response from client', async () => {
+      const client = vi.fn().mockResolvedValue(null);
+      const embedded = { 'timer-source': { metadata: { name: 'timer-source' } } as IKameletDefinition };
+      const provider = new CamelKameletsProvider(embedded, client);
+
+      const result = await provider.fetchAll();
+
+      expect(result).toEqual(embedded);
+    });
+
+    it('should handle undefined response from client', async () => {
+      const client = vi.fn().mockResolvedValue(undefined);
+      const embedded = { 'timer-source': { metadata: { name: 'timer-source' } } as IKameletDefinition };
+      const provider = new CamelKameletsProvider(embedded, client);
+
+      const result = await provider.fetchAll();
+
+      expect(result).toEqual(embedded);
     });
   });
 

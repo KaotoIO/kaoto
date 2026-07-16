@@ -24,7 +24,12 @@ export class CamelKameletsProvider implements ICatalogProvider<IKameletDefinitio
       (acc, { filename, content }) => {
         try {
           const remoteKamelet = parse(content) as IKameletDefinition;
-          acc[filename] = remoteKamelet;
+          const name = remoteKamelet.metadata.name;
+          if (!name) {
+            throw new TypeError('Missing `metadata.name` property');
+          }
+
+          acc[name] = remoteKamelet;
         } catch (error) {
           console.error(`Error parsing ${filename}`, error);
         }
