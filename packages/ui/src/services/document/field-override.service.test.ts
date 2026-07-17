@@ -26,6 +26,7 @@ import { XmlSchemaDocument, XmlSchemaField } from './xml-schema/xml-schema-docum
 import { XmlSchemaDocumentService } from './xml-schema/xml-schema-document.service';
 
 const NS_SUBSTITUTION = 'http://www.example.com/SUBSTITUTION';
+const NS_TYPE_MAPPING = 'http://www.example.com/TYPE-MAPPING';
 
 function createSubstitutionDoc() {
   const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'test-doc', {
@@ -35,6 +36,46 @@ function createSubstitutionDoc() {
   const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
   if (result.validationStatus !== 'success' || !result.document) {
     throw new Error(result.errors?.map((e) => e.message).join('; ') || 'Failed to create substitution test document');
+  }
+  return result.document;
+}
+
+function createSubstitutionZooDoc() {
+  const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'test-doc', {
+    'FieldSubstitution.xsd': getFieldSubstitutionXsd(),
+  });
+  definition.rootElementChoice = { namespaceUri: NS_SUBSTITUTION, name: 'Zoo' };
+  const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+  if (result.validationStatus !== 'success' || !result.document) {
+    throw new Error(result.errors?.map((e) => e.message).join('; ') || 'Failed to create Zoo test document');
+  }
+  return result.document;
+}
+
+function findFieldByName(fields: IField[], name: string): IField | undefined {
+  for (const field of fields) {
+    if (field.name === name) return field;
+    const nested = findFieldByName(field.fields, name);
+    if (nested) return nested;
+  }
+  return undefined;
+}
+
+function createTypeMappingDoc(schemaBody: string, rootName: string) {
+  const xsd = `
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+      xmlns:types="${NS_TYPE_MAPPING}"
+      targetNamespace="${NS_TYPE_MAPPING}"
+      elementFormDefault="qualified">
+      ${schemaBody}
+    </xs:schema>`;
+  const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'test-doc', {
+    'TypeMapping.xsd': xsd,
+  });
+  definition.rootElementChoice = { namespaceUri: NS_TYPE_MAPPING, name: rootName };
+  const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+  if (result.validationStatus !== 'success' || !result.document) {
+    throw new Error(result.errors?.map((e) => e.message).join('; ') || 'Failed to create type mapping document');
   }
   return result.document;
 }
@@ -61,6 +102,106 @@ function createNoNsSubstitutionDoc() {
 
 describe('FieldOverrideService', () => {
   describe('getSafeOverrideCandidates()', () => {
+    it('should return only xs:int restrictions for the capacity field', () => {
+      const doc = createSubstitutionZooDoc();
+      const capacityField = findFieldByName(doc.fields, 'capacity');
+      if (!capacityField) throw new Error('capacity field not found');
+
+      const namespaceMap = { xs: NS_XML_SCHEMA, sub: NS_SUBSTITUTION };
+      const candidates = FieldOverrideService.getSafeOverrideCandidates(capacityField, namespaceMap);
+
+      expect(capacityField.typeQName?.getLocalPart()).toBe('int');
+      expect(capacityField.type).toBe(Types.Integer);
+      expect(Object.keys(candidates).sort()).toEqual(['sub:PositiveInt_t', 'sub:SmallInt_t']);
+    });
+
+    it('should return only xs:int restrictions for an xs:int attribute', () => {
+      const doc = createTypeMappingDoc(
+        `
+          <xs:simpleType name="PositiveIntAttribute_t">
+            <xs:restriction base="xs:int"><xs:minInclusive value="1"/></xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="SmallIntAttribute_t">
+            <xs:restriction base="xs:int"><xs:maxInclusive value="10"/></xs:restriction>
+          </xs:simpleType>
+          <xs:element name="Root">
+            <xs:complexType><xs:attribute name="capacity" type="xs:int"/></xs:complexType>
+          </xs:element>`,
+        'Root',
+      );
+      const capacityField = findFieldByName(doc.fields, 'capacity');
+      if (!capacityField) throw new Error('capacity attribute not found');
+
+      const namespaceMap = { xs: NS_XML_SCHEMA, types: NS_TYPE_MAPPING };
+      const candidates = FieldOverrideService.getSafeOverrideCandidates(capacityField, namespaceMap);
+
+      expect(capacityField.isAttribute).toBe(true);
+      expect(capacityField.type).toBe(Types.Integer);
+      expect(Object.keys(candidates).sort()).toEqual(['types:PositiveIntAttribute_t', 'types:SmallIntAttribute_t']);
+    });
+
+    it('should resolve a named attribute simple type through its xs:int restriction', () => {
+      const doc = createTypeMappingDoc(
+        `
+          <xs:simpleType name="PositiveIntAttribute_t">
+            <xs:restriction base="xs:int"><xs:minInclusive value="1"/></xs:restriction>
+          </xs:simpleType>
+          <xs:element name="Root">
+            <xs:complexType><xs:attribute name="capacity" type="types:PositiveIntAttribute_t"/></xs:complexType>
+          </xs:element>`,
+        'Root',
+      );
+      const capacityField = findFieldByName(doc.fields, 'capacity');
+      if (!capacityField) throw new Error('capacity attribute not found');
+
+      expect(capacityField.isAttribute).toBe(true);
+      expect(capacityField.typeQName?.getLocalPart()).toBe('PositiveIntAttribute_t');
+      expect(capacityField.type).toBe(Types.Integer);
+    });
+
+    it('should keep named list and union fields as AnyType', () => {
+      const doc = createTypeMappingDoc(
+        `
+          <xs:simpleType name="CodeList"><xs:list itemType="xs:string"/></xs:simpleType>
+          <xs:simpleType name="StringOrInt"><xs:union memberTypes="xs:string xs:int"/></xs:simpleType>
+          <xs:element name="Root">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="codes" type="types:CodeList"/>
+                <xs:element name="choice" type="types:StringOrInt"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>`,
+        'Root',
+      );
+      const codesField = findFieldByName(doc.fields, 'codes');
+      const choiceField = findFieldByName(doc.fields, 'choice');
+      if (!codesField || !choiceField) throw new Error('list or union field not found');
+
+      expect(codesField.type).toBe(Types.AnyType);
+      expect(choiceField.type).toBe(Types.AnyType);
+    });
+
+    it('should resolve a user-defined simple type named int through its xs:string restriction', () => {
+      const doc = createTypeMappingDoc(
+        `
+          <xs:simpleType name="int"><xs:restriction base="xs:string"/></xs:simpleType>
+          <xs:complexType name="Unrelated_t"><xs:sequence/></xs:complexType>
+          <xs:element name="Value" type="types:int"/>`,
+        'Value',
+      );
+      const valueField = findFieldByName(doc.fields, 'Value');
+      if (!valueField) throw new Error('Value field not found');
+
+      const namespaceMap = { xs: NS_XML_SCHEMA, types: NS_TYPE_MAPPING };
+      const candidates = FieldOverrideService.getSafeOverrideCandidates(valueField, namespaceMap);
+
+      expect(valueField.typeQName?.getNamespaceURI()).toBe(NS_TYPE_MAPPING);
+      expect(valueField.typeQName?.getLocalPart()).toBe('int');
+      expect(valueField.type).toBe(Types.String);
+      expect(Object.keys(candidates)).toEqual([]);
+    });
+
     it('should return all types for xs:anyType fields', () => {
       const doc = TestUtil.createSourceOrderDoc();
       const anyTypeField = doc.fields[0].fields[0];
@@ -434,6 +575,33 @@ describe('FieldOverrideService', () => {
       expect(stringField.typeOverride).toBe(FieldOverrideVariant.FORCE);
       expect(doc.definition.fieldTypeOverrides).toBeDefined();
       expect(doc.definition.fieldTypeOverrides![0].schemaPath).toBe('/ns0:ShipOrder/ns0:OrderPerson');
+    });
+
+    it('should apply and reload a returned simple restriction as a safe primitive override', () => {
+      const doc = createSubstitutionZooDoc();
+      const capacityField = findFieldByName(doc.fields, 'capacity');
+      if (!capacityField) throw new Error('capacity field not found');
+
+      const namespaceMap = { xs: NS_XML_SCHEMA, sub: NS_SUBSTITUTION };
+      const candidate = FieldOverrideService.getSafeOverrideCandidates(capacityField, namespaceMap)[
+        'sub:PositiveInt_t'
+      ];
+      if (!candidate) throw new Error('PositiveInt_t candidate not found');
+
+      FieldOverrideService.applyFieldTypeOverride(capacityField, candidate, namespaceMap, FieldOverrideVariant.SAFE);
+
+      expect(capacityField.type).toBe(Types.Integer);
+      expect(capacityField.typeOverride).toBe(FieldOverrideVariant.SAFE);
+      expect(capacityField.typeQName?.getLocalPart()).toBe('PositiveInt_t');
+      expect(doc.definition.fieldTypeOverrides).toEqual([
+        expect.objectContaining({ type: 'sub:PositiveInt_t', variant: FieldOverrideVariant.SAFE }),
+      ]);
+
+      const reloaded = XmlSchemaDocumentService.createXmlSchemaDocument(doc.definition, namespaceMap);
+      expect(reloaded.validationStatus).toBe('success');
+      const reloadedCapacity = findFieldByName(reloaded.document!.fields, 'capacity');
+      expect(reloadedCapacity?.type).toBe(Types.Integer);
+      expect(reloadedCapacity?.typeOverride).toBe(FieldOverrideVariant.SAFE);
     });
 
     it('should invalidate descendant overrides and selections after applying type override', () => {

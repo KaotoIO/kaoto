@@ -9,13 +9,45 @@ import {
   getSimpleTypeInheritanceXsd,
   TestUtil,
 } from '../../../stubs/datamapper/data-mapper';
+import { XmlSchema, XmlSchemaCollection, XmlSchemaSimpleType } from '../../../xml-schema-ts';
 import { QName } from '../../../xml-schema-ts/QName';
+import { XmlSchemaSimpleTypeRestriction } from '../../../xml-schema-ts/simple/XmlSchemaSimpleTypeRestriction';
 import { JsonSchemaDocument, JsonSchemaField } from '../json-schema/json-schema-document.model';
 import { XmlSchemaDocument, XmlSchemaField } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
 import { XmlSchemaTypesService } from './xml-schema-types.service';
 
 describe('XmlSchemaTypesService', () => {
+  describe('resolveSimpleTypeToEnum()', () => {
+    it('should stop safely when simple type restrictions form a cycle', () => {
+      const namespaceURI = 'http://www.example.com/CYCLIC-TYPES';
+      const schema = new XmlSchema(namespaceURI);
+      const typeA = new XmlSchemaSimpleType(schema, true);
+      typeA.setName('TypeA');
+      const typeB = new XmlSchemaSimpleType(schema, true);
+      typeB.setName('TypeB');
+
+      const restrictionA = new XmlSchemaSimpleTypeRestriction();
+      restrictionA.setBaseTypeName(typeB.getQName()!);
+      typeA.setContent(restrictionA);
+      const restrictionB = new XmlSchemaSimpleTypeRestriction();
+      restrictionB.setBaseTypeName(typeA.getQName()!);
+      typeB.setContent(restrictionB);
+
+      let lookups = 0;
+      const collection = {
+        getTypeByQName(qName: QName) {
+          lookups++;
+          if (lookups > 2) throw new Error('restriction cycle was followed more than once');
+          return qName.getLocalPart() === 'TypeA' ? typeA : typeB;
+        },
+      } as XmlSchemaCollection;
+
+      expect(XmlSchemaTypesService.resolveSimpleTypeToEnum(typeA, collection)).toBe(Types.AnyType);
+      expect(lookups).toBe(2);
+    });
+  });
+
   describe('parseTypeOverride()', () => {
     it('should parse qualified type name with namespace', () => {
       const doc = TestUtil.createSourceOrderDoc();

@@ -8,7 +8,6 @@ import {
   TypeDerivation,
   Types,
 } from '../../../models/datamapper/types';
-import { capitalize } from '../../../serializers/xml/utils/xml-utils';
 import {
   XmlSchemaCollection,
   XmlSchemaComplexContentExtension,
@@ -27,6 +26,7 @@ import { ensureNamespaceRegistered, formatQNameWithPrefix, parseQNameString } fr
 import { DocumentUtilService } from '../document-util.service';
 import { XmlSchemaDocument } from './xml-schema-document.model';
 import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
+import { mapXmlSchemaTypeToEnum } from './xml-schema-type-mapping';
 
 /**
  * Service for XML Schema type-related operations.
@@ -109,6 +109,10 @@ export class XmlSchemaTypesService {
       return FieldOverrideVariant.SAFE;
     }
 
+    if (XmlSchemaTypesService.isCompatibleSimpleTypeOverride(field, newTypeQName, newNamespaceURI)) {
+      return FieldOverrideVariant.SAFE;
+    }
+
     return FieldOverrideVariant.FORCE;
   }
 
@@ -156,6 +160,23 @@ export class XmlSchemaTypesService {
       originalSchemaType,
       xmlDoc.xmlSchemaCollection,
     );
+  }
+
+  private static isCompatibleSimpleTypeOverride(field: IField, newTypeQName: QName, newNamespaceURI: string): boolean {
+    if (newNamespaceURI === NS_XML_SCHEMA || !(field.ownerDocument instanceof XmlSchemaDocument)) {
+      return false;
+    }
+
+    const collection = field.ownerDocument.xmlSchemaCollection;
+    const newSchemaType = collection.getTypeByQName(newTypeQName);
+    const originalTypeQName = field.originalField?.typeQName ?? field.typeQName;
+    const originalSchemaType = originalTypeQName && collection.getTypeByQName(originalTypeQName);
+
+    if (!(newSchemaType instanceof XmlSchemaSimpleType) || !(originalSchemaType instanceof XmlSchemaSimpleType)) {
+      return false;
+    }
+
+    return XmlSchemaTypesService.isExtensionOrRestriction(newSchemaType, originalSchemaType, collection);
   }
 
   /**
@@ -259,24 +280,27 @@ export class XmlSchemaTypesService {
     return undefined;
   }
 
-  private static resolveSimpleTypeToEnum(schemaType: XmlSchemaSimpleType, collection?: XmlSchemaCollection): Types {
+  static resolveSimpleTypeToEnum(schemaType: XmlSchemaSimpleType, collection?: XmlSchemaCollection): Types {
     const typeQName = schemaType.getQName();
     if (!typeQName?.getLocalPart()) {
       const resolved = XmlSchemaTypesService.followRestrictionChain(schemaType, collection);
-      if (resolved !== Types.Container) return resolved;
-      return XmlSchemaDocumentUtilService.getFieldTypeFromName(schemaType.getName());
+      return resolved === Types.Container ? Types.AnyType : resolved;
     }
-    const type = XmlSchemaTypesService.mapTypeStringToEnum(
-      typeQName.getNamespaceURI() || '',
+    const type = XmlSchemaDocumentUtilService.getFieldTypeFromName(
       typeQName.getLocalPart()!,
+      typeQName.getNamespaceURI(),
     );
     if (type !== Types.Container) return type;
-    return XmlSchemaTypesService.followRestrictionChain(schemaType, collection);
+    const resolved = XmlSchemaTypesService.followRestrictionChain(schemaType, collection);
+    return resolved === Types.Container ? Types.AnyType : resolved;
   }
 
   private static followRestrictionChain(schemaType: XmlSchemaSimpleType, collection?: XmlSchemaCollection): Types {
     let current: XmlSchemaSimpleType = schemaType;
+    const visited = new Set<XmlSchemaSimpleType>();
     while (true) {
+      if (visited.has(current)) return Types.Container;
+      visited.add(current);
       const baseInfo = XmlSchemaTypesService.doGetBaseTypeAndDerivationFromSimpleType(current);
       if (!baseInfo) return Types.Container;
       const baseType = XmlSchemaTypesService.mapTypeStringToEnum(
@@ -455,69 +479,7 @@ export class XmlSchemaTypesService {
    * ```
    */
   static mapTypeStringToEnum(namespaceURI: string, localPart: string): Types {
-    if (namespaceURI === NS_XML_SCHEMA) {
-      const normalized = localPart.toLowerCase();
-
-      if (Types[capitalize(localPart) as keyof typeof Types]) {
-        return Types[capitalize(localPart) as keyof typeof Types];
-      }
-
-      switch (normalized) {
-        case 'string':
-        case 'normalizedstring':
-        case 'token':
-        case 'language':
-        case 'nmtoken':
-        case 'nmtokens':
-        case 'name':
-        case 'id':
-        case 'idref':
-        case 'idrefs':
-        case 'entity':
-        case 'entities':
-          return Types.String;
-
-        case 'int':
-        case 'integer':
-        case 'long':
-        case 'short':
-        case 'byte':
-        case 'unsignedint':
-        case 'unsignedlong':
-        case 'unsignedshort':
-        case 'unsignedbyte':
-        case 'nonpositiveinteger':
-        case 'negativeinteger':
-        case 'nonnegativeinteger':
-          return Types.Integer;
-
-        case 'datetime':
-          return Types.DateTime;
-
-        case 'duration':
-        case 'daytimeduration':
-        case 'yearmonthduration':
-          return Types.Duration;
-
-        case 'hexbinary':
-        case 'base64binary':
-          return Types.String;
-
-        case 'anyuri':
-          return Types.AnyURI;
-
-        case 'qname':
-          return Types.QName;
-
-        case 'notation':
-          return Types.String;
-
-        default:
-          return Types.AnyType;
-      }
-    }
-
-    return Types.Container;
+    return mapXmlSchemaTypeToEnum(namespaceURI, localPart);
   }
 
   /**
