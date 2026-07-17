@@ -1,11 +1,11 @@
 import { IField, IParentType, RootElementOption } from '../../../models/datamapper/document';
 import { NS_XML, NS_XML_SCHEMA } from '../../../models/datamapper/standard-namespaces';
 import { Types } from '../../../models/datamapper/types';
-import { capitalize } from '../../../serializers/xml/utils/xml-utils';
 import { XmlSchemaCollection, XmlSchemaElement, XmlSchemaType } from '../../../xml-schema-ts';
 import { QName } from '../../../xml-schema-ts/QName';
 import { QNameMap } from '../../../xml-schema-ts/utils/ObjectMap';
 import { DocumentUtilService } from '../document-util.service';
+import { mapXmlSchemaTypeToEnum } from './xml-schema-type-mapping';
 
 /**
  * Utility service for XML Schema document operations.
@@ -77,10 +77,11 @@ export class XmlSchemaDocumentUtilService {
   /**
    * Gets the field type from a simple type name.
    * @param name - The type name to look up
+   * @param namespaceURI - Namespace that owns the type name
    * @returns The corresponding Types enum value, or Types.AnyType if not found
    */
-  static getFieldTypeFromName(name: string | null): Types {
-    return (name && Types[capitalize(name) as keyof typeof Types]) || Types.AnyType;
+  static getFieldTypeFromName(name: string | null, namespaceURI: string | null): Types {
+    return name ? mapXmlSchemaTypeToEnum(namespaceURI || '', name) : Types.AnyType;
   }
 
   /**
