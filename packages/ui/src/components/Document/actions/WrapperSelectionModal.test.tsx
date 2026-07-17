@@ -1,7 +1,7 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import { Types } from '../../../models/datamapper/types';
-import { WrapperCandidate } from './FieldContextMenu/types';
+import { WrapperCandidate } from '../../../services/visualization/wrapper-action.service';
 import { WrapperSelectionModal, WrapperSelectionModalProps } from './WrapperSelectionModal';
 
 function makeCandidates(count: number): WrapperCandidate[] {
@@ -77,9 +77,7 @@ describe('WrapperSelectionModal', () => {
     renderModal({ candidates: makeCandidates(15) });
     const searchInput = screen.getByPlaceholderText('Filter candidates...');
 
-    act(() => {
-      fireEvent.change(searchInput, { target: { value: 'Candidate 1' } });
-    });
+    fireEvent.change(searchInput, { target: { value: 'Candidate 1' } });
 
     expect(screen.getByText('Candidate 1')).toBeInTheDocument();
     expect(screen.getByText('Candidate 10')).toBeInTheDocument();
@@ -90,9 +88,7 @@ describe('WrapperSelectionModal', () => {
     renderModal({ candidates: makeCandidates(15) });
     const searchInput = screen.getByPlaceholderText('Filter candidates...');
 
-    act(() => {
-      fireEvent.change(searchInput, { target: { value: 'nonexistent' } });
-    });
+    fireEvent.change(searchInput, { target: { value: 'nonexistent' } });
 
     expect(screen.getByText('No candidates match the filter.')).toBeInTheDocument();
   });
@@ -106,9 +102,7 @@ describe('WrapperSelectionModal', () => {
   it('should enable Confirm button when a radio is selected', () => {
     renderModal();
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('wrapper-radio-key-0'));
-    });
+    fireEvent.click(screen.getByTestId('wrapper-radio-key-0'));
 
     const confirmBtn = screen.getByText('Confirm').closest('button')!;
     expect(confirmBtn).toBeEnabled();
@@ -125,12 +119,8 @@ describe('WrapperSelectionModal', () => {
   it('should call onSelect with correct MemberSelection on Confirm', () => {
     const props = renderModal();
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('wrapper-radio-key-2'));
-    });
-    act(() => {
-      fireEvent.click(screen.getByText('Confirm'));
-    });
+    fireEvent.click(screen.getByTestId('wrapper-radio-key-2'));
+    fireEvent.click(screen.getByText('Confirm'));
 
     expect(props.onSelect).toHaveBeenCalledWith({ memberIndex: 2 });
     expect(props.onClose).toHaveBeenCalled();
@@ -139,9 +129,7 @@ describe('WrapperSelectionModal', () => {
   it('should call onClose when Cancel is clicked', () => {
     const props = renderModal();
 
-    act(() => {
-      fireEvent.click(screen.getByText('Cancel'));
-    });
+    fireEvent.click(screen.getByText('Cancel'));
 
     expect(props.onClose).toHaveBeenCalled();
     expect(props.onSelect).not.toHaveBeenCalled();
@@ -173,12 +161,8 @@ describe('WrapperSelectionModal', () => {
     ];
     const props = renderModal({ candidates });
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('wrapper-radio-0:ns:Cat'));
-    });
-    act(() => {
-      fireEvent.click(screen.getByText('Confirm'));
-    });
+    fireEvent.click(screen.getByTestId('wrapper-radio-0:ns:Cat'));
+    fireEvent.click(screen.getByText('Confirm'));
 
     expect(props.onSelect).toHaveBeenCalledWith({ memberIndex: 0, substituteQName: 'ns:Cat' });
   });

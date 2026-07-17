@@ -1,107 +1,12 @@
 import { IField } from '../../../../models/datamapper/document';
-import { IFieldSubstituteInfo } from '../../../../models/datamapper/types';
-import { FieldItemNodeData, NodeData, TargetAbstractFieldNodeData } from '../../../../models/datamapper/visualization';
+import { FieldItem } from '../../../../models/datamapper/mapping';
+import { DocumentService } from '../../../../services/document/document.service';
 import { FieldOverrideService } from '../../../../services/document/field-override.service';
-import { VisualizationService } from '../../../../services/visualization/visualization.service';
-import { VisualizationUtilService } from '../../../../services/visualization/visualization-util.service';
+import { WrapperActionService, WrapperCandidate } from '../../../../services/visualization/wrapper-action.service';
 import { MenuAction } from '../FieldContextMenu';
-import { WrapperCandidate } from './types';
-
-const MAX_CHILDREN_PREVIEW = 3;
 
 function getFieldDisplayName(field: IField): string {
   return field.displayName || field.name;
-}
-
-function childrenPreview(field: IField): string[] | undefined {
-  const children = field.fields;
-  if (!children || children.length === 0) return undefined;
-  return children.slice(0, MAX_CHILDREN_PREVIEW).map((c) => c.displayName || c.name);
-}
-
-/**
- * Find the QName key for a field in the candidates map by matching namespace and local name.
- */
-export function findCandidateQName(
-  candidates: Record<string, IFieldSubstituteInfo>,
-  field: IField,
-): string | undefined {
-  const entry = Object.entries(candidates).find(
-    ([_, info]) => info.qname.getLocalPart() === field.name && info.qname.getNamespaceURI() === field.namespaceURI,
-  );
-  return entry?.[0];
-}
-
-/**
- * Resolves the concrete IField from the wrapper's children by QName. Returns the actual
- * document-tree field instance (not schema metadata) so callers can pass it directly to
- * {@link MappingService.updateFieldItemField}. Uses `cachedCandidates` when the wrapper
- * matches `knownWrapper` to avoid re-querying the schema collection on each call.
- */
-export function resolveCandidateField(
-  wrapperField: IField,
-  qname: string,
-  cachedCandidates: Record<string, IFieldSubstituteInfo>,
-  knownWrapper: IField | undefined,
-  namespaceMap: Record<string, string>,
-): IField | undefined {
-  const resolvedCandidates =
-    wrapperField === knownWrapper
-      ? cachedCandidates
-      : FieldOverrideService.getFieldSubstitutionCandidates(wrapperField, namespaceMap);
-  const candidate = resolvedCandidates[qname];
-  if (!candidate) return undefined;
-  return wrapperField.fields?.find(
-    (f) => f.name === candidate.qname.getLocalPart() && f.namespaceURI === candidate.qname.getNamespaceURI(),
-  );
-}
-
-export interface AbstractFieldInfo {
-  isAbstractWrapper: boolean;
-  isAbstractWrapperMember: boolean;
-  isSelectedSubstitution: boolean;
-  isSubstitutionCandidate: boolean;
-  abstractWrapperField: IField | undefined;
-  field: IField | undefined;
-  parentAbstractField: IField | undefined;
-  candidateQName: string | undefined;
-}
-
-export function resolveAbstractFieldInfo(nodeData: NodeData, namespaceMap: Record<string, string>): AbstractFieldInfo {
-  const field = VisualizationUtilService.getField(nodeData);
-  const isAbstractWrapper = field?.wrapperKind === 'abstract';
-  const isAbstractWrapperMember = VisualizationUtilService.isAbstractWrapperMember(nodeData);
-  const isSelectedSubstitution = VisualizationUtilService.isAbstractField(nodeData);
-
-  const candidateParent = field?.parent && 'wrapperKind' in field.parent ? field.parent : undefined;
-  const isSubstitutionCandidate = candidateParent?.wrapperKind === 'abstract';
-  const parentAbstractField = isSubstitutionCandidate ? candidateParent : undefined;
-
-  let candidateQName: string | undefined;
-  if (field && parentAbstractField) {
-    const candidates = FieldOverrideService.getFieldSubstitutionCandidates(parentAbstractField, namespaceMap);
-    candidateQName = findCandidateQName(candidates, field);
-  }
-
-  let abstractWrapperField: IField | undefined;
-  if (isAbstractWrapper) {
-    abstractWrapperField = field;
-  } else if (isSelectedSubstitution) {
-    abstractWrapperField = nodeData.abstractField;
-  } else if (isAbstractWrapperMember && nodeData instanceof FieldItemNodeData) {
-    abstractWrapperField = nodeData.wrapperField ?? (nodeData.parent as TargetAbstractFieldNodeData).field;
-  }
-
-  return {
-    isAbstractWrapper,
-    isAbstractWrapperMember,
-    isSelectedSubstitution,
-    isSubstitutionCandidate,
-    abstractWrapperField,
-    field,
-    parentAbstractField,
-    candidateQName,
-  };
 }
 
 export function buildSelectSelfAction(
@@ -120,57 +25,102 @@ export function buildSelectSelfAction(
   };
 }
 
-function fieldToCandidate(field: IField, key: string, memberIndex: number): WrapperCandidate {
-  const label =
-    field.wrapperKind === 'choice' ? VisualizationService.getChoiceMemberLabel(field) : field.displayName || field.name;
-  return {
-    key,
-    label,
-    typeBadge: field.type,
-    description: field.description,
-    childrenPreview: childrenPreview(field),
-    selection: { memberIndex },
-  };
+interface CandidateEntry {
+  candidate: WrapperCandidate;
+  field: IField;
 }
 
-/**
- * Dissolves abstract members within a choice wrapper into their concrete
- * substitution candidates. Non-abstract members pass through unchanged.
- *
- * Abstract-in-choice dissolution ensures users pick a concrete type directly
- * without navigating through the intermediate abstract element. On confirm,
- * both `selectedMemberIndex` and `selectedMemberQName` are set in one action.
- */
-export function dissolveChoiceMembers(members: IField[], namespaceMap: Record<string, string>): WrapperCandidate[] {
-  return members.flatMap((member, index) => {
-    if (member.wrapperKind === 'abstract') {
-      const candidates = FieldOverrideService.getFieldSubstitutionCandidates(member, namespaceMap);
-      return Object.entries(candidates).map(([qname, info]) => ({
-        key: `${index}:${qname}`,
+function resolveAbstractSubstitutes(abstractField: IField, namespaceMap: Record<string, string>): CandidateEntry[] {
+  const subs = FieldOverrideService.getFieldSubstitutionCandidates(abstractField, namespaceMap);
+  const entries: CandidateEntry[] = [];
+  for (const [qname, info] of Object.entries(subs)) {
+    const field = WrapperActionService.resolveCandidateField(abstractField, qname, subs, abstractField, namespaceMap);
+    if (!field) continue;
+    entries.push({
+      candidate: {
+        key: '',
         label: info.displayName,
         typeBadge: info.type,
-        selection: { memberIndex: index, substituteQName: qname },
-      }));
-    }
-    if (member.wrapperKind === 'sequence') return [];
-    return [fieldToCandidate(member, String(index), index)];
-  });
+        selection: { memberIndex: 0, substituteQName: qname },
+      },
+      field,
+    });
+  }
+  return entries;
 }
 
-/**
- * Builds candidate list for a standalone abstract wrapper field.
- * `memberIndex` is set to 0 — abstract wrappers have a single logical
- * member slot (the selected substitute replaces the wrapper).
- */
-export function buildAbstractCandidates(
-  abstractField: IField,
+function resolveChoiceMembers(choiceField: IField, namespaceMap: Record<string, string>): CandidateEntry[] {
+  const entries: CandidateEntry[] = [];
+  for (const member of choiceField.fields) {
+    if (member.wrapperKind === 'abstract') {
+      entries.push(...resolveAbstractSubstitutes(member, namespaceMap));
+    } else if (member.wrapperKind !== 'sequence') {
+      entries.push({ candidate: WrapperActionService.fieldToCandidate(member, '', 0), field: member });
+    }
+  }
+  return entries;
+}
+
+function resolveFieldEntries(child: IField, namespaceMap: Record<string, string>): CandidateEntry[] {
+  if (child.wrapperKind === 'choice') return resolveChoiceMembers(child, namespaceMap);
+  if (child.wrapperKind === 'abstract') return resolveAbstractSubstitutes(child, namespaceMap);
+  return [{ candidate: WrapperActionService.fieldToCandidate(child, '', 0), field: child }];
+}
+
+function shouldSkipField(child: IField, forEachContext: boolean): boolean {
+  if (!forEachContext) return false;
+  return (
+    child.wrapperKind !== 'choice' &&
+    child.wrapperKind !== 'abstract' &&
+    child.maxOccurs !== 'unbounded' &&
+    Number(child.maxOccurs) <= 1
+  );
+}
+
+function isSlotExhausted(child: IField, existingFieldItems: FieldItem[]): boolean {
+  if (child.maxOccurs === 'unbounded') return false;
+  const occupied = existingFieldItems.filter(
+    (fi) => fi.field === child || DocumentService.isDescendant(child, fi.field),
+  ).length;
+  return occupied >= Number(child.maxOccurs);
+}
+
+export function computeAddFieldCandidates(
+  schemaFields: IField[],
   namespaceMap: Record<string, string>,
-): WrapperCandidate[] {
-  const candidates = FieldOverrideService.getFieldSubstitutionCandidates(abstractField, namespaceMap);
-  return Object.entries(candidates).map(([qname, info]) => ({
-    key: qname,
-    label: info.displayName,
-    typeBadge: info.type,
-    selection: { memberIndex: 0, substituteQName: qname },
-  }));
+  existingFieldItems: FieldItem[] = [],
+  forEachContext = false,
+): { candidates: WrapperCandidate[]; fields: IField[] } {
+  const candidates: WrapperCandidate[] = [];
+  const fields: IField[] = [];
+  let index = 0;
+
+  for (const child of schemaFields) {
+    if (child.wrapperKind === 'sequence') {
+      const nested = computeAddFieldCandidates(child.fields, namespaceMap, existingFieldItems, forEachContext);
+      for (let i = 0; i < nested.candidates.length; i++) {
+        candidates.push({
+          ...nested.candidates[i],
+          key: `${index}`,
+          selection: { ...nested.candidates[i].selection, memberIndex: index },
+        });
+        fields.push(nested.fields[i]);
+        index++;
+      }
+      continue;
+    }
+
+    if (shouldSkipField(child, forEachContext)) continue;
+    if (isSlotExhausted(child, existingFieldItems)) continue;
+
+    for (const { candidate, field } of resolveFieldEntries(child, namespaceMap)) {
+      candidate.key = `${index}`;
+      candidate.selection.memberIndex = index;
+      candidates.push(candidate);
+      fields.push(field);
+      index++;
+    }
+  }
+
+  return { candidates, fields };
 }

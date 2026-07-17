@@ -8,9 +8,9 @@ import {
   TargetAbstractFieldNodeData,
 } from '../../../../models/datamapper/visualization';
 import { VisualizationUtilService } from '../../../../services/visualization/visualization-util.service';
+import { WrapperActionService } from '../../../../services/visualization/wrapper-action.service';
 import { MenuGroup } from '../FieldContextMenu';
 import { FieldOverride } from '../FieldOverride/FieldOverride';
-import { revertOverride } from '../FieldOverride/revert-override';
 import { MenuContributor } from './types';
 
 export function useFieldOverrideMenu(nodeData: NodeData): MenuContributor {
@@ -36,7 +36,10 @@ export function useFieldOverrideMenu(nodeData: NodeData): MenuContributor {
   const handleResetOverride = useCallback(() => {
     const revertTarget = abstractWrapperField ?? field;
     if (revertTarget) {
-      revertOverride(revertTarget, mappingTree.namespaceMap, updateDocument);
+      const document = revertTarget.ownerDocument;
+      const previousRefId = document.getReferenceId(mappingTree.namespaceMap);
+      WrapperActionService.revertOverride(revertTarget, mappingTree.namespaceMap);
+      updateDocument(document, document.definition, previousRefId);
     }
   }, [abstractWrapperField, field, mappingTree.namespaceMap, updateDocument]);
 

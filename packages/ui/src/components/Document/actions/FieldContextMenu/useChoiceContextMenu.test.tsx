@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../../../../models/datamapper/document';
@@ -18,9 +18,9 @@ import { WrapperSelectionService } from '../../../../services/document/wrapper-s
 import { XmlSchemaField } from '../../../../services/document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../../../../services/document/xml-schema/xml-schema-document.service';
 import { MappingService } from '../../../../services/mapping/mapping.service';
-import { MappingActionService } from '../../../../services/visualization/mapping-action.service';
 import { TreeParsingService } from '../../../../services/visualization/tree-parsing.service';
 import { VisualizationService } from '../../../../services/visualization/visualization.service';
+import { WrapperActionService } from '../../../../services/visualization/wrapper-action.service';
 import { getChoiceWithAbstractXsd, getTestDocumentXsd, TestUtil } from '../../../../stubs/datamapper/data-mapper';
 import { SourceDocumentNodeWithContextMenu } from '../../SourceDocumentNode';
 import { TargetDocumentNodeWithContextMenu } from '../../TargetDocumentNode';
@@ -106,9 +106,7 @@ describe('useChoiceContextMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
 
     expect(screen.getByText('Email')).toBeInTheDocument();
     expect(screen.getByText('Phone')).toBeInTheDocument();
@@ -129,9 +127,7 @@ describe('useChoiceContextMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
 
     expect(screen.getByText('Clear selection')).toBeInTheDocument();
     expect(screen.getByText('Select Member...')).toBeInTheDocument();
@@ -151,13 +147,9 @@ describe('useChoiceContextMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
 
-    act(() => {
-      fireEvent.click(screen.getByText('Select Member...'));
-    });
+    fireEvent.click(screen.getByText('Select Member...'));
 
     expect(screen.getByText('Select member for Contact Choice')).toBeInTheDocument();
   });
@@ -177,13 +169,9 @@ describe('useChoiceContextMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
 
-    act(() => {
-      fireEvent.click(screen.getByText('Phone'));
-    });
+    fireEvent.click(screen.getByText('Phone'));
 
     expect(setSpy).toHaveBeenCalledWith(expect.any(Object), choiceField, 1, expect.any(Object));
     setSpy.mockRestore();
@@ -205,13 +193,9 @@ describe('useChoiceContextMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
 
-    act(() => {
-      fireEvent.click(screen.getByText('Clear selection'));
-    });
+    fireEvent.click(screen.getByText('Clear selection'));
 
     expect(clearSpy).toHaveBeenCalledWith(expect.any(Object), choiceField, expect.any(Object));
     clearSpy.mockRestore();
@@ -230,9 +214,7 @@ describe('useChoiceContextMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
 
     expect(screen.getByText('Select Member...')).toBeInTheDocument();
     expect(screen.queryByText('OptionA')).not.toBeInTheDocument();
@@ -252,13 +234,9 @@ describe('useChoiceContextMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
 
-    act(() => {
-      fireEvent.click(screen.getByText('Select Member...'));
-    });
+    fireEvent.click(screen.getByText('Select Member...'));
 
     expect(screen.getByText('Select member for choice')).toBeInTheDocument();
   });
@@ -290,9 +268,7 @@ describe('useChoiceContextMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
 
     expect(screen.queryByText('Clear selection')).not.toBeInTheDocument();
     expect(screen.queryByText('Override Field...')).not.toBeInTheDocument();
@@ -311,19 +287,13 @@ describe('useChoiceContextMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
 
-    act(() => {
-      fireEvent.click(screen.getByText('Select Member...'));
-    });
+    fireEvent.click(screen.getByText('Select Member...'));
 
     expect(screen.getByText('Select member for choice')).toBeInTheDocument();
 
-    act(() => {
-      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-    });
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
     expect(screen.queryByText('Select member for choice')).not.toBeInTheDocument();
   });
@@ -342,9 +312,7 @@ describe('useChoiceContextMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${memberNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${memberNode.nodeData.id}`));
 
     expect(screen.getByText("Select 'Email' in '(Email | Phone | Fax)'")).toBeInTheDocument();
     expect(screen.getByText('Override Field...')).toBeInTheDocument();
@@ -366,13 +334,9 @@ describe('useChoiceContextMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${memberNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${memberNode.nodeData.id}`));
 
-    act(() => {
-      fireEvent.click(screen.getByText(/Select 'Phone'/));
-    });
+    fireEvent.click(screen.getByText(/Select 'Phone'/));
 
     expect(setSpy).toHaveBeenCalledWith(expect.any(Object), choiceField, 1, expect.any(Object));
     setSpy.mockRestore();
@@ -437,9 +401,7 @@ describe('useChoiceContextMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
 
       expect(screen.getByText('InnerA')).toBeInTheDocument();
       expect(screen.getByText('InnerB')).toBeInTheDocument();
@@ -462,13 +424,9 @@ describe('useChoiceContextMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
 
-      act(() => {
-        fireEvent.click(screen.getByText('InnerB'));
-      });
+      fireEvent.click(screen.getByText('InnerB'));
 
       expect(setSpy).toHaveBeenCalledWith(expect.any(Object), innerChoiceField, 1, expect.any(Object));
       setSpy.mockRestore();
@@ -489,13 +447,9 @@ describe('useChoiceContextMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
 
-      act(() => {
-        fireEvent.click(screen.getByText('Clear selection'));
-      });
+      fireEvent.click(screen.getByText('Clear selection'));
 
       expect(clearSpy).toHaveBeenCalledWith(expect.any(Object), outerChoiceField, expect.any(Object));
       clearSpy.mockRestore();
@@ -514,9 +468,7 @@ describe('useChoiceContextMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
 
       expect(screen.queryByText(/Select '.*' in '.*'/)).not.toBeInTheDocument();
     });
@@ -577,13 +529,9 @@ describe('useChoiceContextMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
 
-      act(() => {
-        fireEvent.click(screen.getByText('Clear selection'));
-      });
+      fireEvent.click(screen.getByText('Clear selection'));
 
       expect(clearSpy).toHaveBeenCalledWith(expect.any(Object), middleChoiceField, expect.any(Object));
       clearSpy.mockRestore();
@@ -643,9 +591,7 @@ describe('useChoiceContextMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-target-${choiceNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-target-${choiceNode.nodeData.id}`));
 
       expect(screen.getByText('Email')).toBeInTheDocument();
       expect(screen.getByText('Phone')).toBeInTheDocument();
@@ -666,13 +612,9 @@ describe('useChoiceContextMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-target-${choiceNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-target-${choiceNode.nodeData.id}`));
 
-      act(() => {
-        fireEvent.click(screen.getByText('Email'));
-      });
+      fireEvent.click(screen.getByText('Email'));
 
       expect(setSpy).toHaveBeenCalledWith(expect.any(Object), choiceField, 0, expect.any(Object));
       setSpy.mockRestore();
@@ -696,13 +638,9 @@ describe('useChoiceContextMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-target-${choiceNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-target-${choiceNode.nodeData.id}`));
 
-      act(() => {
-        fireEvent.click(screen.getByText('Clear selection'));
-      });
+      fireEvent.click(screen.getByText('Clear selection'));
 
       expect(clearSpy).toHaveBeenCalled();
       clearSpy.mockRestore();
@@ -727,12 +665,8 @@ describe('useChoiceContextMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-target-${choiceNode.nodeData.id}`));
-      });
-      act(() => {
-        fireEvent.click(screen.getByText('Clear selection'));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-target-${choiceNode.nodeData.id}`));
+      fireEvent.click(screen.getByText('Clear selection'));
 
       expect(choiceField.selectedMemberIndex).toBeUndefined();
       expect(mappingTree.children).toHaveLength(0);
@@ -748,9 +682,9 @@ describe('useChoiceContextMenu', () => {
   });
 
   describe('target-side choice wrapper with maxOccurs>1', () => {
-    it('should call applyTargetSelection when selecting member on maxOccurs>1 choice', () => {
+    it('should call dispatchChoiceSelection when selecting member on maxOccurs>1 choice', () => {
       const { documentNodeData, choiceNode, mappingTree } = createTargetChoiceFieldNode('unbounded');
-      const applySpy = vi.spyOn(MappingActionService, 'applyTargetSelection');
+      const applySpy = vi.spyOn(WrapperActionService, 'dispatchChoiceSelection');
 
       render(
         <TargetDocumentNodeWithContextMenu
@@ -762,15 +696,11 @@ describe('useChoiceContextMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-target-${choiceNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-target-${choiceNode.nodeData.id}`));
 
-      act(() => {
-        fireEvent.click(screen.getByText('Email'));
-      });
+      fireEvent.click(screen.getByText('Email'));
 
-      expect(applySpy).toHaveBeenCalledWith(choiceNode.nodeData, expect.objectContaining({}));
+      expect(applySpy).toHaveBeenCalled();
       const createdFieldItem = mappingTree.children
         .flatMap((c) => (c instanceof FieldItem ? c.children : []))
         .find((c) => c instanceof FieldItem && c.field.name === 'email') as FieldItem | undefined;
@@ -791,13 +721,9 @@ describe('useChoiceContextMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-target-${choiceNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-target-${choiceNode.nodeData.id}`));
 
-      act(() => {
-        fireEvent.click(screen.getByText('Phone'));
-      });
+      fireEvent.click(screen.getByText('Phone'));
 
       expect(choiceField.selectedMemberIndex).toBeUndefined();
     });
@@ -817,13 +743,9 @@ describe('useChoiceContextMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-target-${choiceNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-target-${choiceNode.nodeData.id}`));
 
-      act(() => {
-        fireEvent.click(screen.getByText('Email'));
-      });
+      fireEvent.click(screen.getByText('Email'));
 
       expect(setSpy).toHaveBeenCalledWith(expect.any(Object), choiceField, 0, expect.any(Object));
       setSpy.mockRestore();
@@ -893,13 +815,9 @@ describe('useChoiceContextMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
 
-      act(() => {
-        fireEvent.click(screen.getByText('Clear selection'));
-      });
+      fireEvent.click(screen.getByText('Clear selection'));
 
       expect(innerChoiceField.selectedMemberIndex).toBeUndefined();
       clearSpy.mockRestore();
@@ -970,9 +888,7 @@ describe('useChoiceContextMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
 
       expect(screen.getByText('Email')).toBeInTheDocument();
       expect(screen.getByText('SMS')).toBeInTheDocument();
@@ -996,13 +912,9 @@ describe('useChoiceContextMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
 
-      act(() => {
-        fireEvent.click(screen.getByText('Email'));
-      });
+      fireEvent.click(screen.getByText('Email'));
 
       const abstractMemberIndex = choiceField.fields.findIndex((f) => f.wrapperKind === 'abstract');
       expect(setSpy).toHaveBeenCalledWith(expect.any(Object), choiceField, abstractMemberIndex, expect.any(Object));
@@ -1028,9 +940,7 @@ describe('useChoiceContextMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-target-${choiceNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-target-${choiceNode.nodeData.id}`));
 
       expect(screen.getByText('Email')).toBeInTheDocument();
       expect(screen.getByText('SMS')).toBeInTheDocument();
@@ -1059,12 +969,8 @@ describe('useChoiceContextMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-target-${choiceNode.nodeData.id}`));
-      });
-      act(() => {
-        fireEvent.click(screen.getByText('Clear selection'));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-target-${choiceNode.nodeData.id}`));
+      fireEvent.click(screen.getByText('Clear selection'));
 
       expect(choiceField.selectedMemberIndex).toBeUndefined();
       expect(mappingTree.children).toHaveLength(0);
@@ -1121,7 +1027,7 @@ describe('useChoiceContextMenu', () => {
       if (!abstractMember) throw new Error('Abstract member not found in choice');
 
       const applySubSpy = vi.spyOn(FieldOverrideService, 'applyFieldSubstitution');
-      const applySpy = vi.spyOn(MappingActionService, 'applyTargetSelection');
+      const dispatchSpy = vi.spyOn(WrapperActionService, 'dispatchChoiceSelection');
 
       render(
         <TargetDocumentNodeWithContextMenu
@@ -1133,21 +1039,17 @@ describe('useChoiceContextMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-target-${choiceNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-target-${choiceNode.nodeData.id}`));
 
-      act(() => {
-        fireEvent.click(screen.getByText('Email'));
-      });
+      fireEvent.click(screen.getByText('Email'));
 
       expect(applySubSpy).not.toHaveBeenCalled();
-      expect(applySpy).toHaveBeenCalled();
+      expect(dispatchSpy).toHaveBeenCalled();
       expect(abstractMember.selectedMemberQName).toBeUndefined();
       expect(document.definition.fieldSubstitutions ?? []).toHaveLength(0);
 
       applySubSpy.mockRestore();
-      applySpy.mockRestore();
+      dispatchSpy.mockRestore();
     });
   });
 });

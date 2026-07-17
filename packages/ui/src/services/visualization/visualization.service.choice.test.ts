@@ -1557,4 +1557,77 @@ describe('VisualizationService / choice fields', () => {
       expect(ifNodes).toHaveLength(1);
     });
   });
+
+  describe('Bug regression: wrap-with-if on unselected choice wrapper (maxOccurs=1)', () => {
+    let choiceField: ReturnType<typeof createMockChoiceField>;
+    let parentFieldItem: FieldItem;
+    let localTree: MappingTree;
+
+    beforeEach(() => {
+      choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }]);
+      const parentField = {
+        ...targetDoc.fields[0],
+        fields: [choiceField],
+      };
+      localTree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+      parentFieldItem = new FieldItem(localTree, parentField as (typeof targetDoc.fields)[0]);
+      const wrapperFieldItem = new FieldItem(parentFieldItem, choiceField);
+      parentFieldItem.children.push(wrapperFieldItem);
+      localTree.children.push(parentFieldItem);
+    });
+
+    it('should produce a single IfItem MappingNodeData and no TargetChoiceFieldNodeData', () => {
+      const wrapperFieldItem = parentFieldItem.children[0] as FieldItem;
+      MappingService.wrapWithIf(wrapperFieldItem);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
+      freshParentNode.mapping = parentFieldItem;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+      const ghostNodes = children.filter((c) => c instanceof TargetChoiceFieldNodeData);
+      expect(ghostNodes).toHaveLength(0);
+
+      const ifNodes = children.filter((c) => c instanceof MappingNodeData && c.mapping instanceof IfItem);
+      expect(ifNodes).toHaveLength(1);
+    });
+
+    it('IfItem children should contain unselected choice wrapper as leaf FieldItemNodeData', () => {
+      const wrapperFieldItem = parentFieldItem.children[0] as FieldItem;
+      MappingService.wrapWithIf(wrapperFieldItem);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
+      freshParentNode.mapping = parentFieldItem;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+      const ifNode = children.find(
+        (c) => c instanceof MappingNodeData && c.mapping instanceof IfItem,
+      ) as MappingNodeData;
+      expect(ifNode).toBeDefined();
+
+      const ifChildren = VisualizationService.generateNonDocumentNodeDataChildren(ifNode);
+      const wrapperNode = ifChildren.find(
+        (c) => c instanceof FieldItemNodeData && c.field === choiceField,
+      ) as FieldItemNodeData;
+      expect(wrapperNode).toBeDefined();
+      expect(wrapperNode.wrapperField).toBe(choiceField);
+
+      const leafChildren = VisualizationService.generateNonDocumentNodeDataChildren(wrapperNode);
+      expect(leafChildren).toHaveLength(0);
+    });
+
+    it('should not show AddMappingNodeData for maxOccurs=1', () => {
+      const wrapperFieldItem = parentFieldItem.children[0] as FieldItem;
+      MappingService.wrapWithIf(wrapperFieldItem);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
+      freshParentNode.mapping = parentFieldItem;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+      const addNodes = children.filter((c) => c instanceof AddMappingNodeData);
+      expect(addNodes).toHaveLength(0);
+    });
+  });
 });

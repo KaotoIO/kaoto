@@ -1,3 +1,4 @@
+import { computeAddFieldCandidates } from '../../components/Document/actions/FieldContextMenu/menu-utils';
 import {
   ChooseItem,
   FieldItem,
@@ -46,6 +47,10 @@ export class MappingActionRegistryService {
     return false;
   }
 
+  private static isUnselectedWrapperField(n: TargetNodeData): boolean {
+    return VisualizationUtilService.isUnselectedChoiceField(n) || VisualizationUtilService.isUnselectedAbstractField(n);
+  }
+
   private static mappingIsOneOf(...types: Array<abstract new (...args: never[]) => MappingItem>) {
     return (n: TargetNodeData): boolean =>
       VisualizationUtilService.isMappingNode(n) && types.some((t) => n.mapping instanceof t);
@@ -64,7 +69,7 @@ export class MappingActionRegistryService {
         if (VisualizationUtilService.isFieldNode(n)) return true;
         return (
           VisualizationUtilService.isMappingNode(n) &&
-          !MappingActionRegistryService.mappingIsOneOf(ValueSelector, WhenItem, OtherwiseItem, UnknownMappingItem)(n)
+          !MappingActionRegistryService.mappingIsOneOf(ValueSelector, UnknownMappingItem)(n)
         );
       },
     },
@@ -74,12 +79,7 @@ export class MappingActionRegistryService {
         if (n instanceof AddMappingNodeData) return false;
         if (n instanceof FieldItemNodeData)
           return (
-            (n.mapping instanceof FieldItem &&
-              n.mapping.isUserCreated &&
-              (n.mapping.parent instanceof FieldItem ||
-                VisualizationUtilService.isAbstractWrapperMember(n) ||
-                VisualizationUtilService.isChoiceWrapperMember(n))) ||
-            MappingActionService.hasValueSelector(n)
+            (n.mapping instanceof FieldItem && n.mapping.isUserCreated) || MappingActionService.hasValueSelector(n)
           );
         if (VisualizationUtilService.isFieldNode(n) || n instanceof TargetDocumentNodeData)
           return MappingActionService.hasValueSelector(n);
@@ -252,9 +252,10 @@ export class MappingActionRegistryService {
         onUpdate();
       },
       isAllowed: (n) =>
-        n instanceof AddMappingNodeData ||
-        (VisualizationUtilService.isFieldNode(n) && VisualizationUtilService.isTerminalField(n)) ||
-        MappingActionRegistryService.mappingIsOneOf(ForEachItem, ForEachGroupItem)(n),
+        !MappingActionRegistryService.isUnselectedWrapperField(n) &&
+        (n instanceof AddMappingNodeData ||
+          VisualizationUtilService.isFieldNode(n) ||
+          MappingActionRegistryService.mappingIsOneOf(ForEachItem, ForEachGroupItem)(n)),
     },
     {
       key: MappingActionKind.InnerForEachGroup,
@@ -265,9 +266,10 @@ export class MappingActionRegistryService {
         onUpdate();
       },
       isAllowed: (n) =>
-        n instanceof AddMappingNodeData ||
-        (VisualizationUtilService.isFieldNode(n) && VisualizationUtilService.isTerminalField(n)) ||
-        MappingActionRegistryService.mappingIsOneOf(ForEachItem, ForEachGroupItem)(n),
+        !MappingActionRegistryService.isUnselectedWrapperField(n) &&
+        (n instanceof AddMappingNodeData ||
+          VisualizationUtilService.isFieldNode(n) ||
+          MappingActionRegistryService.mappingIsOneOf(ForEachItem, ForEachGroupItem)(n)),
     },
     {
       key: MappingActionKind.InnerForEachCurrentGroup,
@@ -279,8 +281,9 @@ export class MappingActionRegistryService {
       },
       isAllowed: (n) => {
         if (n instanceof AddMappingNodeData) return false;
+        if (MappingActionRegistryService.isUnselectedWrapperField(n)) return false;
         const nodeTypeAllowed =
-          (VisualizationUtilService.isFieldNode(n) && VisualizationUtilService.isTerminalField(n)) ||
+          VisualizationUtilService.isFieldNode(n) ||
           MappingActionRegistryService.mappingIsOneOf(ForEachItem, ForEachGroupItem)(n);
         if (!nodeTypeAllowed) return false;
         return MappingActionRegistryService.allowForEachCurrentGroup(n);
@@ -295,8 +298,9 @@ export class MappingActionRegistryService {
         onUpdate();
       },
       isAllowed: (n) =>
-        (VisualizationUtilService.isFieldNode(n) && VisualizationUtilService.isTerminalField(n)) ||
-        MappingActionRegistryService.mappingIsOneOf(ForEachItem, ForEachGroupItem)(n),
+        !MappingActionRegistryService.isUnselectedWrapperField(n) &&
+        (VisualizationUtilService.isFieldNode(n) ||
+          MappingActionRegistryService.mappingIsOneOf(ForEachItem, ForEachGroupItem)(n)),
     },
     {
       key: MappingActionKind.InnerIf,
@@ -307,8 +311,9 @@ export class MappingActionRegistryService {
         onUpdate();
       },
       isAllowed: (n) =>
-        (VisualizationUtilService.isFieldNode(n) && VisualizationUtilService.isTerminalField(n)) ||
-        MappingActionRegistryService.mappingIsOneOf(ForEachItem, ForEachGroupItem, IfItem)(n),
+        !MappingActionRegistryService.isUnselectedWrapperField(n) &&
+        (VisualizationUtilService.isFieldNode(n) ||
+          MappingActionRegistryService.mappingIsOneOf(ForEachItem, ForEachGroupItem, IfItem)(n)),
     },
     {
       key: MappingActionKind.Variable,
@@ -359,6 +364,53 @@ export class MappingActionRegistryService {
         if (VisualizationUtilService.isMappingNode(n) && n.mapping instanceof IfItem) return true;
         if (VisualizationUtilService.isFieldNode(n)) return VisualizationUtilService.isCollectionField(n);
         return false;
+      },
+    },
+    {
+      key: MappingActionKind.AddField,
+      testId: 'transformation-actions-add-field',
+      getLabel: () => 'Add field',
+      apply: (_n, { openModal }) => {
+        openModal(MappingActionKind.AddField);
+      },
+      isAllowed: (n) => {
+        if (
+          !(
+            n.mapping instanceof WhenItem ||
+            n.mapping instanceof OtherwiseItem ||
+            n.mapping instanceof IfItem ||
+            n.mapping instanceof ForEachItem ||
+            n.mapping instanceof ForEachGroupItem
+          )
+        )
+          return false;
+        let current = n.mapping.parent;
+        while (current instanceof MappingItem) {
+          if (current instanceof FieldItem) return DocumentService.hasChildren(current.field);
+          current = current.parent;
+        }
+        return false;
+      },
+      isDisabled: (n) => {
+        if (!(n.mapping instanceof MappingItem)) return true;
+        let forEachContext = n.mapping instanceof ForEachItem || n.mapping instanceof ForEachGroupItem;
+        let current: MappingItem = n.mapping;
+        while (current.parent instanceof MappingItem) {
+          current = current.parent;
+          if (!forEachContext && (current instanceof ForEachItem || current instanceof ForEachGroupItem))
+            forEachContext = true;
+          if (current instanceof FieldItem) {
+            const existingFieldItems = n.mapping.children.filter((c): c is FieldItem => c instanceof FieldItem);
+            const result = computeAddFieldCandidates(
+              current.field.fields,
+              current.mappingTree.namespaceMap,
+              existingFieldItems,
+              forEachContext,
+            );
+            return result.candidates.length === 0;
+          }
+        }
+        return true;
       },
     },
   ];

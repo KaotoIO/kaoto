@@ -1026,10 +1026,11 @@ export class MappingService {
     const isInstructionItem = item instanceof InstructionItem;
     const isVariableItem = item instanceof VariableItem;
     const isParentFieldItem = 'parent' in item && item.parent instanceof FieldItem;
+    const isUserCreatedFieldItem = item instanceof FieldItem && item.isUserCreated;
     if (isVariableItem) {
       MappingService.removeVariableReferences(item as VariableItem);
     }
-    if (isInstructionItem || isVariableItem || isParentFieldItem) {
+    if (isInstructionItem || isVariableItem || isParentFieldItem || isUserCreatedFieldItem) {
       MappingService.deleteFromParent(item);
     }
   }

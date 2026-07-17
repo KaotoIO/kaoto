@@ -4,11 +4,10 @@ import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { IField } from '../../../../models/datamapper/document';
 import { FieldOverrideVariant } from '../../../../models/datamapper/types';
 import { FieldOverrideService } from '../../../../services/document/field-override.service';
+import { WrapperActionService } from '../../../../services/visualization/wrapper-action.service';
 import { FieldOverrideModal, OverrideSavePayload } from './FieldOverrideModal';
-import { revertOverride } from './revert-override';
 
 export { OverrideIndicator } from './OverrideIndicator';
-export { revertOverride } from './revert-override';
 
 type FieldOverrideProps = {
   field: IField;
@@ -62,7 +61,10 @@ export const FieldOverride: FunctionComponent<FieldOverrideProps> = ({ field, is
   );
 
   const handleRemove = useCallback(() => {
-    revertOverride(field, mappingTree.namespaceMap, updateDocument);
+    const document = field.ownerDocument;
+    const previousRefId = document.getReferenceId(mappingTree.namespaceMap);
+    WrapperActionService.revertOverride(field, mappingTree.namespaceMap);
+    updateDocument(document, document.definition, previousRefId);
     onComplete();
     onClose();
   }, [field, mappingTree.namespaceMap, updateDocument, onComplete, onClose]);
