@@ -21,6 +21,7 @@ import {
   WhenItem,
 } from '../../models/datamapper/mapping';
 import { MappingActionKind } from '../../models/datamapper/mapping-action';
+import { Types } from '../../models/datamapper/types';
 import {
   AddMappingNodeData,
   DocumentNodeData,
@@ -29,6 +30,7 @@ import {
   MappingNodeData,
   SourceVariableNodeData,
   TargetAbstractFieldNodeData,
+  TargetChoiceFieldNodeData,
   TargetDocumentNodeData,
   TargetFieldNodeData,
   TargetNodeData,
@@ -49,12 +51,14 @@ import {
   getUnknownApplyTemplateXslt,
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
-import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
+import { XmlSchemaCollection } from '../../xml-schema-ts';
+import { XmlSchemaDocument, XmlSchemaField } from '../document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { MappingSerializerService } from '../mapping/mapping-serializer.service';
 import { MappingActionService } from './mapping-action.service';
 import { MappingActionRegistryService } from './mapping-action-registry.service';
 import { VisualizationService } from './visualization.service';
+import { WrapperActionService } from './wrapper-action.service';
 
 describe('MappingActionService', () => {
   let sourceDoc: XmlSchemaDocument;
@@ -1096,6 +1100,257 @@ describe('MappingActionService', () => {
         expect(valueSelectorAction!.isDisabled!(updatedShipOrderChildren[0] as TargetNodeData)).toBe(true);
         const copyOfAction = menuItems.find((item) => item.key === MappingActionKind.CopyOfSelector);
         expect(copyOfAction!.isDisabled).toBeUndefined();
+      });
+    });
+
+    describe('getMappingContextMenuItems() AddField isDisabled', () => {
+      function createFieldSubstitutionSetup() {
+        const definition = new DocumentDefinition(
+          DocumentType.TARGET_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          'FieldSubstitution',
+        );
+        const document = new XmlSchemaDocument(definition, new XmlSchemaCollection());
+        const root = new XmlSchemaField(document, 'Root', false);
+        root.type = Types.Container;
+        document.fields = [root];
+
+        const containerField = new XmlSchemaField(root, 'Container', false);
+        containerField.type = Types.Container;
+        root.fields = [containerField];
+
+        return { document, root, containerField };
+      }
+
+      it('should disable AddField when all maxOccurs=1 slots are occupied', () => {
+        const { document, root, containerField } = createFieldSubstitutionSetup();
+        const childA = new XmlSchemaField(containerField, 'ChildA', false);
+        childA.type = Types.String;
+        childA.maxOccurs = 1;
+        const childB = new XmlSchemaField(containerField, 'ChildB', false);
+        childB.type = Types.String;
+        childB.maxOccurs = 1;
+        containerField.fields = [childA, childB];
+
+        const mappingTree = new MappingTree(
+          document.documentType,
+          document.documentId,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+        const rootFieldItem = new FieldItem(mappingTree, root);
+        mappingTree.children.push(rootFieldItem);
+        const fieldItem = new FieldItem(rootFieldItem, containerField);
+        fieldItem.isUserCreated = true;
+        rootFieldItem.children.push(fieldItem);
+        const ifItem = new IfItem(fieldItem);
+        ifItem.expression = 'true()';
+        fieldItem.children.push(ifItem);
+        const mappedChildA = new FieldItem(ifItem, childA);
+        mappedChildA.isUserCreated = true;
+        ifItem.children.push(mappedChildA);
+        const mappedChildB = new FieldItem(ifItem, childB);
+        mappedChildB.isUserCreated = true;
+        ifItem.children.push(mappedChildB);
+
+        const docNode = new TargetDocumentNodeData(document, mappingTree);
+        const docChildren = VisualizationService.generateStructuredDocumentChildren(docNode);
+        const rootChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        const containerChildren = VisualizationService.generateNonDocumentNodeDataChildren(rootChildren[0]);
+        const ifNode = containerChildren.find(
+          (c) => c instanceof MappingNodeData && c.mapping instanceof IfItem,
+        ) as MappingNodeData;
+        expect(ifNode).toBeDefined();
+
+        const menuItems = MappingActionRegistryService.getMappingContextMenuItems(ifNode as TargetNodeData);
+        const addFieldAction = menuItems.find((item) => item.key === MappingActionKind.AddField);
+        expect(addFieldAction).toBeDefined();
+        expect(addFieldAction!.isDisabled!(ifNode as TargetNodeData)).toBe(true);
+      });
+
+      it('should not disable AddField when slots remain', () => {
+        const { document, root, containerField } = createFieldSubstitutionSetup();
+        const childA = new XmlSchemaField(containerField, 'ChildA', false);
+        childA.type = Types.String;
+        childA.maxOccurs = 1;
+        const childB = new XmlSchemaField(containerField, 'ChildB', false);
+        childB.type = Types.String;
+        childB.maxOccurs = 1;
+        containerField.fields = [childA, childB];
+
+        const mappingTree = new MappingTree(
+          document.documentType,
+          document.documentId,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+        const rootFieldItem = new FieldItem(mappingTree, root);
+        mappingTree.children.push(rootFieldItem);
+        const fieldItem = new FieldItem(rootFieldItem, containerField);
+        fieldItem.isUserCreated = true;
+        rootFieldItem.children.push(fieldItem);
+        const ifItem = new IfItem(fieldItem);
+        ifItem.expression = 'true()';
+        fieldItem.children.push(ifItem);
+        const mappedChildA = new FieldItem(ifItem, childA);
+        mappedChildA.isUserCreated = true;
+        ifItem.children.push(mappedChildA);
+
+        const docNode = new TargetDocumentNodeData(document, mappingTree);
+        const docChildren = VisualizationService.generateStructuredDocumentChildren(docNode);
+        const rootChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        const containerChildren = VisualizationService.generateNonDocumentNodeDataChildren(rootChildren[0]);
+        const ifNode = containerChildren.find(
+          (c) => c instanceof MappingNodeData && c.mapping instanceof IfItem,
+        ) as MappingNodeData;
+        expect(ifNode).toBeDefined();
+
+        const menuItems = MappingActionRegistryService.getMappingContextMenuItems(ifNode as TargetNodeData);
+        const addFieldAction = menuItems.find((item) => item.key === MappingActionKind.AddField);
+        expect(addFieldAction).toBeDefined();
+        expect(addFieldAction!.isDisabled!(ifNode as TargetNodeData)).toBe(false);
+      });
+
+      it('should not disable AddField when maxOccurs is unbounded', () => {
+        const { document, root, containerField } = createFieldSubstitutionSetup();
+        const child = new XmlSchemaField(containerField, 'Child', false);
+        child.type = Types.String;
+        child.maxOccurs = 'unbounded';
+        containerField.fields = [child];
+
+        const mappingTree = new MappingTree(
+          document.documentType,
+          document.documentId,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+        const rootFieldItem = new FieldItem(mappingTree, root);
+        mappingTree.children.push(rootFieldItem);
+        const fieldItem = new FieldItem(rootFieldItem, containerField);
+        fieldItem.isUserCreated = true;
+        rootFieldItem.children.push(fieldItem);
+        const ifItem = new IfItem(fieldItem);
+        ifItem.expression = 'true()';
+        fieldItem.children.push(ifItem);
+        const mappedChild = new FieldItem(ifItem, child);
+        mappedChild.isUserCreated = true;
+        ifItem.children.push(mappedChild);
+
+        const docNode = new TargetDocumentNodeData(document, mappingTree);
+        const docChildren = VisualizationService.generateStructuredDocumentChildren(docNode);
+        const rootChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        const containerChildren = VisualizationService.generateNonDocumentNodeDataChildren(rootChildren[0]);
+        const ifNode = containerChildren.find(
+          (c) => c instanceof MappingNodeData && c.mapping instanceof IfItem,
+        ) as MappingNodeData;
+        expect(ifNode).toBeDefined();
+
+        const menuItems = MappingActionRegistryService.getMappingContextMenuItems(ifNode as TargetNodeData);
+        const addFieldAction = menuItems.find((item) => item.key === MappingActionKind.AddField);
+        expect(addFieldAction).toBeDefined();
+        expect(addFieldAction!.isDisabled!(ifNode as TargetNodeData)).toBe(false);
+      });
+
+      it('should allow AddField on ForEachItem with FieldItem ancestor', () => {
+        const { document, root, containerField } = createFieldSubstitutionSetup();
+        const child = new XmlSchemaField(containerField, 'Child', false);
+        child.type = Types.String;
+        child.maxOccurs = 'unbounded';
+        containerField.fields = [child];
+
+        const mappingTree = new MappingTree(
+          document.documentType,
+          document.documentId,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+        const rootFieldItem = new FieldItem(mappingTree, root);
+        mappingTree.children.push(rootFieldItem);
+        const fieldItem = new FieldItem(rootFieldItem, containerField);
+        fieldItem.isUserCreated = true;
+        rootFieldItem.children.push(fieldItem);
+        const forEachItem = new ForEachItem(fieldItem);
+        fieldItem.children.push(forEachItem);
+
+        const docNode = new TargetDocumentNodeData(document, mappingTree);
+        const docChildren = VisualizationService.generateStructuredDocumentChildren(docNode);
+        const rootChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        const containerChildren = VisualizationService.generateNonDocumentNodeDataChildren(rootChildren[0]);
+        const forEachNode = containerChildren.find(
+          (c) => c instanceof MappingNodeData && c.mapping instanceof ForEachItem,
+        ) as MappingNodeData;
+        expect(forEachNode).toBeDefined();
+
+        const menuItems = MappingActionRegistryService.getMappingContextMenuItems(forEachNode as TargetNodeData);
+        const addFieldAction = menuItems.find((item) => item.key === MappingActionKind.AddField);
+        expect(addFieldAction).toBeDefined();
+        expect(addFieldAction!.isDisabled!(forEachNode as TargetNodeData)).toBe(false);
+      });
+
+      it('should disable AddField on ForEachItem when no maxOccurs>1 children exist', () => {
+        const { document, root, containerField } = createFieldSubstitutionSetup();
+        const child = new XmlSchemaField(containerField, 'Child', false);
+        child.type = Types.String;
+        child.maxOccurs = 1;
+        containerField.fields = [child];
+
+        const mappingTree = new MappingTree(
+          document.documentType,
+          document.documentId,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+        const rootFieldItem = new FieldItem(mappingTree, root);
+        mappingTree.children.push(rootFieldItem);
+        const fieldItem = new FieldItem(rootFieldItem, containerField);
+        fieldItem.isUserCreated = true;
+        rootFieldItem.children.push(fieldItem);
+        const forEachItem = new ForEachItem(fieldItem);
+        fieldItem.children.push(forEachItem);
+
+        const docNode = new TargetDocumentNodeData(document, mappingTree);
+        const docChildren = VisualizationService.generateStructuredDocumentChildren(docNode);
+        const rootChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        const containerChildren = VisualizationService.generateNonDocumentNodeDataChildren(rootChildren[0]);
+        const forEachNode = containerChildren.find(
+          (c) => c instanceof MappingNodeData && c.mapping instanceof ForEachItem,
+        ) as MappingNodeData;
+        expect(forEachNode).toBeDefined();
+
+        const menuItems = MappingActionRegistryService.getMappingContextMenuItems(forEachNode as TargetNodeData);
+        const addFieldAction = menuItems.find((item) => item.key === MappingActionKind.AddField);
+        expect(addFieldAction).toBeDefined();
+        expect(addFieldAction!.isDisabled!(forEachNode as TargetNodeData)).toBe(true);
+      });
+
+      it('should not disable AddField on ForEachItem when maxOccurs=unbounded children exist', () => {
+        const { document, root, containerField } = createFieldSubstitutionSetup();
+        const child = new XmlSchemaField(containerField, 'Child', false);
+        child.type = Types.String;
+        child.maxOccurs = 'unbounded';
+        containerField.fields = [child];
+
+        const mappingTree = new MappingTree(
+          document.documentType,
+          document.documentId,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+        const rootFieldItem = new FieldItem(mappingTree, root);
+        mappingTree.children.push(rootFieldItem);
+        const fieldItem = new FieldItem(rootFieldItem, containerField);
+        fieldItem.isUserCreated = true;
+        rootFieldItem.children.push(fieldItem);
+        const forEachItem = new ForEachItem(fieldItem);
+        fieldItem.children.push(forEachItem);
+
+        const docNode = new TargetDocumentNodeData(document, mappingTree);
+        const docChildren = VisualizationService.generateStructuredDocumentChildren(docNode);
+        const rootChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        const containerChildren = VisualizationService.generateNonDocumentNodeDataChildren(rootChildren[0]);
+        const forEachNode = containerChildren.find(
+          (c) => c instanceof MappingNodeData && c.mapping instanceof ForEachItem,
+        ) as MappingNodeData;
+        expect(forEachNode).toBeDefined();
+
+        const menuItems = MappingActionRegistryService.getMappingContextMenuItems(forEachNode as TargetNodeData);
+        const addFieldAction = menuItems.find((item) => item.key === MappingActionKind.AddField);
+        expect(addFieldAction).toBeDefined();
+        expect(addFieldAction!.isDisabled!(forEachNode as TargetNodeData)).toBe(false);
       });
     });
 
@@ -2361,6 +2616,117 @@ describe('MappingActionService', () => {
     });
   });
 
+  describe('getAllowedActions() inner instructions on unselected wrapper fields', () => {
+    const innerInstructionKinds = [
+      MappingActionKind.InnerForEach,
+      MappingActionKind.InnerForEachGroup,
+      MappingActionKind.InnerChoose,
+      MappingActionKind.InnerIf,
+    ];
+
+    it('should disallow inner instructions on unselected choice field', () => {
+      const document = TestUtil.createTargetOrderDoc();
+      const mappingTree = new MappingTree(
+        document.documentType,
+        document.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const docNode = new TargetDocumentNodeData(document, mappingTree);
+      const parentField = document.fields[0];
+
+      const choiceField = new XmlSchemaField(parentField, 'testChoice', false);
+      choiceField.type = Types.Container;
+      choiceField.wrapperKind = 'choice';
+      const memberA = new XmlSchemaField(choiceField, 'memberA', false);
+      memberA.type = Types.String;
+      choiceField.fields = [memberA];
+      parentField.fields.push(choiceField);
+
+      const unselectedNode = new TargetChoiceFieldNodeData(docNode, choiceField);
+      const allowed = MappingActionRegistryService.getAllowedActions(unselectedNode);
+      for (const kind of innerInstructionKinds) {
+        expect(allowed).not.toContain(kind);
+      }
+    });
+
+    it('should allow inner instructions on selected choice field', () => {
+      const document = TestUtil.createTargetOrderDoc();
+      const mappingTree = new MappingTree(
+        document.documentType,
+        document.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const docNode = new TargetDocumentNodeData(document, mappingTree);
+      const parentField = document.fields[0];
+
+      const choiceField = new XmlSchemaField(parentField, 'testChoice', false);
+      choiceField.type = Types.Container;
+      choiceField.wrapperKind = 'choice';
+      const memberA = new XmlSchemaField(choiceField, 'memberA', false);
+      memberA.type = Types.String;
+      choiceField.fields = [memberA];
+      parentField.fields.push(choiceField);
+
+      const selectedNode = new TargetChoiceFieldNodeData(docNode, memberA);
+      selectedNode.choiceField = choiceField;
+      const allowed = MappingActionRegistryService.getAllowedActions(selectedNode);
+      for (const kind of innerInstructionKinds) {
+        expect(allowed).toContain(kind);
+      }
+    });
+
+    it('should disallow inner instructions on unsubstituted abstract field', () => {
+      const document = TestUtil.createTargetOrderDoc();
+      const mappingTree = new MappingTree(
+        document.documentType,
+        document.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const docNode = new TargetDocumentNodeData(document, mappingTree);
+      const parentField = document.fields[0];
+
+      const abstractField = new XmlSchemaField(parentField, 'testAbstract', false);
+      abstractField.type = Types.Container;
+      abstractField.wrapperKind = 'abstract';
+      const candidate = new XmlSchemaField(abstractField, 'ConcreteType', false);
+      candidate.type = Types.String;
+      abstractField.fields = [candidate];
+      parentField.fields.push(abstractField);
+
+      const unselectedNode = new TargetAbstractFieldNodeData(docNode, abstractField);
+      const allowed = MappingActionRegistryService.getAllowedActions(unselectedNode);
+      for (const kind of innerInstructionKinds) {
+        expect(allowed).not.toContain(kind);
+      }
+    });
+
+    it('should allow inner instructions on substituted abstract field', () => {
+      const document = TestUtil.createTargetOrderDoc();
+      const mappingTree = new MappingTree(
+        document.documentType,
+        document.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const docNode = new TargetDocumentNodeData(document, mappingTree);
+      const parentField = document.fields[0];
+
+      const abstractField = new XmlSchemaField(parentField, 'testAbstract', false);
+      abstractField.type = Types.Container;
+      abstractField.wrapperKind = 'abstract';
+      const candidate = new XmlSchemaField(abstractField, 'ConcreteType', false);
+      candidate.type = Types.String;
+      abstractField.fields = [candidate];
+      parentField.fields.push(abstractField);
+
+      const selectedNode = new TargetAbstractFieldNodeData(docNode, candidate);
+      selectedNode.abstractField = abstractField;
+      const allowed = MappingActionRegistryService.getAllowedActions(selectedNode);
+      for (const kind of innerInstructionKinds) {
+        expect(allowed).toContain(kind);
+      }
+    });
+  });
+
   describe('UnknownMappingItem visibility', () => {
     beforeEach(() => {
       MappingSerializerService.deserialize(getUnknownApplyTemplateXslt(), targetDoc, tree, paramsMap);
@@ -2452,127 +2818,102 @@ describe('MappingActionService', () => {
     });
   });
 
-  describe('applyTargetSelection / clearTargetSelection', () => {
-    const NS_SUBSTITUTION = 'http://www.example.com/SUBSTITUTION';
-
-    function createTargetSetup() {
-      const definition = new DocumentDefinition(
-        DocumentType.TARGET_BODY,
-        DocumentDefinitionType.XML_SCHEMA,
-        'test-doc',
-        { 'FieldSubstitution.xsd': getFieldSubstitutionXsd() },
-      );
-      definition.rootElementChoice = { namespaceUri: NS_SUBSTITUTION, name: 'Zoo' };
-      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
-      if (!result.document) throw new Error('Failed to create test document');
-      const document = result.document;
-
+  describe('dispatchChoiceSelection / clearChoiceSelectionOnField — target-side FieldItem mutations', () => {
+    function createChoiceTargetSetup(maxOccurs: number | 'unbounded' = 'unbounded') {
+      const document = TestUtil.createTargetOrderDoc();
       const mappingTree = new MappingTree(
         document.documentType,
         document.documentId,
         DocumentDefinitionType.XML_SCHEMA,
       );
       const docNode = new TargetDocumentNodeData(document, mappingTree);
-      const zooField = document.fields[0];
-      const fieldNode = new TargetFieldNodeData(docNode, zooField);
+      const parentField = document.fields[0];
 
-      return { document, mappingTree, docNode, zooField, fieldNode };
+      const choiceField = new XmlSchemaField(parentField, 'testChoice', false);
+      choiceField.type = Types.Container;
+      choiceField.wrapperKind = 'choice';
+      choiceField.maxOccurs = maxOccurs;
+
+      const memberA = new XmlSchemaField(choiceField, 'memberA', false);
+      memberA.type = Types.String;
+      const memberB = new XmlSchemaField(choiceField, 'memberB', false);
+      memberB.type = Types.String;
+      choiceField.fields = [memberA, memberB];
+      parentField.fields.push(choiceField);
+
+      const fieldNode = new TargetFieldNodeData(docNode, choiceField);
+
+      return { document, mappingTree, docNode, choiceField, memberA, memberB, fieldNode };
     }
 
-    describe('applyTargetSelection', () => {
-      it('should create new FieldItem when no existing mapping exists', () => {
-        const { mappingTree, fieldNode, zooField } = createTargetSetup();
-        const candidateField = zooField.fields[0];
-
-        MappingActionService.applyTargetSelection(fieldNode, candidateField);
-
-        expect(mappingTree.children).toHaveLength(1);
-        const created = mappingTree.children[0] as FieldItem;
-        expect(created).toBeInstanceOf(FieldItem);
-        expect(created.field).toBe(candidateField);
-        expect(created.isUserCreated).toBe(true);
-      });
-
+    describe('dispatchChoiceSelection — per-instance apply', () => {
       it('should replace existing FieldItem field when mapping already exists', () => {
-        const { mappingTree, fieldNode, zooField } = createTargetSetup();
-        const existingItem = new FieldItem(mappingTree, zooField);
+        const { mappingTree, fieldNode, choiceField, memberB } = createChoiceTargetSetup();
+        const existingItem = new FieldItem(mappingTree, choiceField);
         existingItem.isUserCreated = true;
         mappingTree.children.push(existingItem);
         fieldNode.mapping = existingItem;
 
-        const candidateField = zooField.fields[0];
-        MappingActionService.applyTargetSelection(fieldNode, candidateField);
+        WrapperActionService.dispatchChoiceSelection(fieldNode, choiceField, { memberIndex: 1 }, {}, true);
 
         expect(mappingTree.children).toHaveLength(1);
         const replaced = mappingTree.children[0] as FieldItem;
-        expect(replaced.field).toBe(candidateField);
+        expect(replaced.field).toBe(memberB);
         expect(replaced.isUserCreated).toBe(true);
       });
 
       it('should re-parent children when replacing existing FieldItem', () => {
-        const { mappingTree, fieldNode, zooField } = createTargetSetup();
-        const existingItem = new FieldItem(mappingTree, zooField);
+        const { mappingTree, fieldNode, choiceField, memberA, memberB } = createChoiceTargetSetup();
+        const existingItem = new FieldItem(mappingTree, choiceField);
         existingItem.isUserCreated = true;
-        const childField = zooField.fields[0];
-        const childItem = new FieldItem(existingItem, childField);
+        const childItem = new FieldItem(existingItem, memberA);
         existingItem.children.push(childItem);
         mappingTree.children.push(existingItem);
         fieldNode.mapping = existingItem;
 
-        const candidateField = zooField.fields[1];
-        MappingActionService.applyTargetSelection(fieldNode, candidateField);
+        WrapperActionService.dispatchChoiceSelection(fieldNode, choiceField, { memberIndex: 1 }, {}, true);
 
         const replaced = mappingTree.children[0] as FieldItem;
-        expect(replaced.field).toBe(candidateField);
+        expect(replaced.field).toBe(memberB);
         expect(replaced.isUserCreated).toBe(true);
         expect(replaced.children).toHaveLength(1);
         expect(replaced.children[0].parent).toBe(replaced);
       });
     });
 
-    describe('clearTargetSelection', () => {
+    describe('clearChoiceSelectionOnField — document-level clear', () => {
       it('should remove FieldItem from parent on existing mapping', () => {
-        const { mappingTree, fieldNode, zooField } = createTargetSetup();
-        const candidateField = zooField.fields[0];
-        const existingItem = new FieldItem(mappingTree, candidateField);
+        const { mappingTree, fieldNode, choiceField, memberA } = createChoiceTargetSetup(1);
+        const existingItem = new FieldItem(mappingTree, memberA);
         existingItem.isUserCreated = true;
-        const childItem = new FieldItem(existingItem, candidateField.fields[0]);
+        const childItem = new FieldItem(existingItem, memberA);
         existingItem.children.push(childItem);
         mappingTree.children.push(existingItem);
         fieldNode.mapping = existingItem;
 
-        MappingActionService.clearTargetSelection(fieldNode, zooField);
+        WrapperActionService.clearChoiceSelectionOnField(fieldNode, choiceField, {}, true);
 
         expect(mappingTree.children).toHaveLength(0);
         expect(existingItem.children).toHaveLength(0);
       });
 
-      it('should be no-op when no existing mapping', () => {
-        const { mappingTree, fieldNode, zooField } = createTargetSetup();
-
-        MappingActionService.clearTargetSelection(fieldNode, zooField);
-
-        expect(mappingTree.children).toHaveLength(0);
-      });
-
       it('should revert FieldItem to wrapper field when inside InstructionItem', () => {
-        const { mappingTree, fieldNode, zooField } = createTargetSetup();
+        const { mappingTree, fieldNode, choiceField, memberA } = createChoiceTargetSetup(1);
         const ifItem = new IfItem(mappingTree);
         ifItem.expression = 'some-condition';
         mappingTree.children.push(ifItem);
 
-        const candidateField = zooField.fields[0];
-        const existingItem = new FieldItem(ifItem, candidateField);
+        const existingItem = new FieldItem(ifItem, memberA);
         existingItem.isUserCreated = true;
         ifItem.children.push(existingItem);
         fieldNode.mapping = existingItem;
 
-        MappingActionService.clearTargetSelection(fieldNode, zooField);
+        WrapperActionService.clearChoiceSelectionOnField(fieldNode, choiceField, {}, true);
 
         expect(ifItem.children).toHaveLength(1);
         const reverted = ifItem.children[0] as FieldItem;
         expect(reverted).toBeInstanceOf(FieldItem);
-        expect(reverted.field).toBe(zooField);
+        expect(reverted.field).toBe(choiceField);
         expect(reverted.isUserCreated).toBe(true);
         expect(ifItem.expression).toBe('some-condition');
       });

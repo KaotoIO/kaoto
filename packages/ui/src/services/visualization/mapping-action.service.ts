@@ -5,7 +5,6 @@ import {
   ForEachGroupItem,
   ForEachItem,
   IfItem,
-  InstructionItem,
   MappingItem,
   MappingParentType,
   MappingTree,
@@ -438,63 +437,6 @@ export class MappingActionService {
     const fieldItem = MappingService.createFieldItem(parentItem, field);
     fieldItem.isUserCreated = true;
     return fieldItem;
-  }
-
-  /**
-   * Creates or updates a per-instance member selection for a wrapper field. Unlike the
-   * document-level selection (`selectedMemberQName`/`selectedMemberIndex`), this operates
-   * on individual FieldItems. New FieldItems are marked `isUserCreated` so they survive
-   * stale-mapping cleanup even before child mappings are created.
-   */
-  static applyTargetSelection(nodeData: TargetNodeData, selectedField: IField): void {
-    const existingMapping = nodeData.mapping;
-    if (existingMapping instanceof FieldItem) {
-      MappingService.updateFieldItemField(existingMapping, selectedField);
-    } else {
-      const parentItem = MappingActionService.getOrCreateFieldItem((nodeData as TargetFieldNodeData).parent);
-      const fieldItem = MappingService.createFieldItem(parentItem, selectedField);
-      fieldItem.isUserCreated = true;
-    }
-  }
-
-  /**
-   * When the FieldItem lives inside an InstructionItem (xsl:if, xsl:when, etc.), it is
-   * reverted to the wrapper field rather than removed. This preserves the instruction
-   * structure while still producing the correct "unconfigured" visual state — because
-   * {@link VisualizationService.isUnconfiguredTargetWrapper} only inspects direct children
-   * of the nearest non-wrapper ancestor mapping, a FieldItem nested inside an instruction
-   * is invisible to that check. Without an instruction, the FieldItem must be removed so
-   * `isUnconfiguredTargetWrapper` returns true; keeping it would bypass that gate and
-   * render all candidates below a wrapper that has no expand arrow.
-   */
-  static clearTargetSelection(nodeData: TargetNodeData, wrapperField: IField): void {
-    const existingMapping = nodeData.mapping;
-    if (existingMapping instanceof FieldItem) {
-      existingMapping.children = [];
-      if (existingMapping.parent instanceof InstructionItem) {
-        MappingService.updateFieldItemField(existingMapping, wrapperField);
-      } else {
-        existingMapping.parent.children = existingMapping.parent.children.filter((child) => child !== existingMapping);
-      }
-    }
-  }
-
-  /**
-   * Reverts a per-instance wrapper selection without removing the FieldItem.
-   * Unlike {@link clearTargetSelection}, which may remove the FieldItem entirely
-   * (when not inside an InstructionItem), this method always keeps the slot and
-   * reverts its field back to `wrapperField`. Used by collection (maxOccurs>1)
-   * abstract and choice wrappers where each FieldItem represents an independent
-   * instance that should be preserved.
-   */
-  static clearPerInstanceWrapperSelection(nodeData: TargetNodeData, wrapperField: IField): void {
-    const existingMapping = nodeData.mapping;
-    if (existingMapping instanceof FieldItem) {
-      existingMapping.children = [];
-      MappingService.updateFieldItemField(existingMapping, wrapperField);
-      return;
-    }
-    MappingActionService.clearTargetSelection(nodeData, wrapperField);
   }
 
   static getOrCreateParentMapping(nodeData: TargetNodeData): MappingParentType | undefined {

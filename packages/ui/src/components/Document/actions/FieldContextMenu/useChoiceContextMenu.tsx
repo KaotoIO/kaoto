@@ -4,26 +4,19 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { IField } from '../../../../models/datamapper/document';
-import { FieldItemNodeData, NodeData, TargetNodeData } from '../../../../models/datamapper/visualization';
-import { DocumentUtilService } from '../../../../services/document/document-util.service';
-import { FieldOverrideService } from '../../../../services/document/field-override.service';
-import { WrapperSelectionService } from '../../../../services/document/wrapper-selection.service';
-import { SchemaPathService } from '../../../../services/schema-path.service';
-import { MappingActionService } from '../../../../services/visualization/mapping-action.service';
-import { VisualizationService } from '../../../../services/visualization/visualization.service';
+import { NodeData } from '../../../../models/datamapper/visualization';
 import { VisualizationUtilService } from '../../../../services/visualization/visualization-util.service';
+import {
+  MemberSelection,
+  WrapperActionService,
+  WrapperCandidate,
+} from '../../../../services/visualization/wrapper-action.service';
 import { MenuAction, MenuGroup } from '../FieldContextMenu';
 import { WrapperSelectionModal } from '../WrapperSelectionModal';
-import { buildSelectSelfAction, dissolveChoiceMembers, findCandidateQName, resolveCandidateField } from './menu-utils';
-import { MemberSelection, MenuContributor, WrapperCandidate } from './types';
+import { buildSelectSelfAction } from './menu-utils';
+import { MenuContributor } from './types';
 
 const INLINE_CHOICE_LIMIT = 10;
-
-function getFieldDisplayName(field: IField): string {
-  return field.wrapperKind === 'choice'
-    ? VisualizationService.getChoiceMemberLabel(field)
-    : field.displayName || field.name;
-}
 
 function buildInlineMemberActions(
   dissolvedMembers: WrapperCandidate[],
@@ -40,144 +33,6 @@ function buildInlineMemberActions(
       ? 'choice-menu-item-' + selection.memberIndex + '-' + selection.substituteQName
       : 'choice-menu-item-' + selection.memberIndex,
   }));
-}
-
-function applyPerInstanceChoiceSelection(
-  nodeData: NodeData,
-  wrapper: IField,
-  selection: MemberSelection,
-  namespaceMap: { [prefix: string]: string },
-): void {
-  let candidateField: IField | undefined = wrapper.fields[selection.memberIndex];
-  if (selection.substituteQName && candidateField) {
-    candidateField = resolveCandidateField(candidateField, selection.substituteQName, {}, undefined, namespaceMap);
-  }
-  if (candidateField) {
-    MappingActionService.applyTargetSelection(nodeData as TargetNodeData, candidateField);
-  }
-}
-
-function applyDocumentLevelChoiceSelection(
-  nodeData: NodeData,
-  wrapper: IField,
-  selection: MemberSelection,
-  namespaceMap: { [prefix: string]: string },
-  isTargetSide: boolean,
-): void {
-  const doc = wrapper.ownerDocument;
-  WrapperSelectionService.setChoiceSelection(doc, wrapper, selection.memberIndex, namespaceMap);
-
-  if (selection.substituteQName) {
-    const abstractMember = wrapper.fields[selection.memberIndex];
-    if (abstractMember) {
-      FieldOverrideService.applyFieldSubstitution(abstractMember, selection.substituteQName, namespaceMap);
-    }
-  }
-
-  if (isTargetSide) {
-    const selectedMember = DocumentUtilService.getSelectedMember(wrapper);
-    if (selectedMember) {
-      const candidateField = selection.substituteQName
-        ? (DocumentUtilService.getSelectedMember(selectedMember) ?? selectedMember)
-        : selectedMember;
-      MappingActionService.applyTargetSelection(nodeData as TargetNodeData, candidateField);
-    }
-  }
-}
-
-function clearDocumentLevelChoiceSelection(
-  nodeData: NodeData,
-  wrapper: IField,
-  namespaceMap: { [prefix: string]: string },
-  isTargetSide: boolean,
-  clearDescendantSelections: (field: IField) => void,
-): void {
-  if (isTargetSide) MappingActionService.clearTargetSelection(nodeData as TargetNodeData, wrapper);
-  clearDescendantSelections(wrapper);
-  const doc = wrapper.ownerDocument;
-  const schemaPath = SchemaPathService.build(wrapper, namespaceMap);
-  DocumentUtilService.invalidateDescendants(doc, schemaPath);
-  WrapperSelectionService.clearChoiceSelection(doc, wrapper, namespaceMap);
-}
-
-function clearChoiceSelectionOnField(
-  nodeData: NodeData,
-  wrapper: IField,
-  namespaceMap: { [prefix: string]: string },
-  isTargetSide: boolean,
-  clearDescendantSelections: (field: IField) => void,
-): void {
-  if (isTargetSide && wrapper.maxOccurs !== 1) {
-    MappingActionService.clearPerInstanceWrapperSelection(nodeData as TargetNodeData, wrapper);
-    return;
-  }
-  clearDocumentLevelChoiceSelection(nodeData, wrapper, namespaceMap, isTargetSide, clearDescendantSelections);
-}
-
-function resolveMemberSelectedKey(
-  nodeData: NodeData,
-  choiceWrapperMemberField: IField | undefined,
-  dissolved: WrapperCandidate[],
-  namespaceMap: Record<string, string>,
-): string | null {
-  if (!(nodeData instanceof FieldItemNodeData)) return null;
-  const memberField = nodeData.field;
-  const wrapper = choiceWrapperMemberField;
-  if (!wrapper) return null;
-  const idx = wrapper.fields.indexOf(memberField);
-  if (idx < 0) {
-    const memberParent = memberField.parent && 'wrapperKind' in memberField.parent ? memberField.parent : undefined;
-    if (memberParent) {
-      const parentIdx = wrapper.fields.indexOf(memberParent as IField);
-      const candidates = FieldOverrideService.getFieldSubstitutionCandidates(memberParent as IField, namespaceMap);
-      const substituteQName = findCandidateQName(candidates, memberField);
-      return (
-        dissolved.find((d) => d.selection.memberIndex === parentIdx && d.selection.substituteQName === substituteQName)
-          ?.key ?? null
-      );
-    }
-    return null;
-  }
-  return dissolved.find((d) => d.selection.memberIndex === idx && !d.selection.substituteQName)?.key ?? null;
-}
-
-function dispatchChoiceSelection(
-  nodeData: NodeData,
-  wrapper: IField,
-  selection: MemberSelection,
-  namespaceMap: { [prefix: string]: string },
-  isTargetSide: boolean,
-): void {
-  if (isTargetSide && wrapper.maxOccurs !== 1) {
-    applyPerInstanceChoiceSelection(nodeData, wrapper, selection, namespaceMap);
-    return;
-  }
-  applyDocumentLevelChoiceSelection(nodeData, wrapper, selection, namespaceMap, isTargetSide);
-}
-
-function resolveChoiceWrapper(
-  isChoiceWrapperMember: boolean,
-  choiceWrapperMemberField: IField | undefined,
-  fallback: IField | undefined,
-): IField | undefined {
-  return isChoiceWrapperMember ? choiceWrapperMemberField : fallback;
-}
-
-function resolveSelectedModalKey(
-  isChoiceWrapperMember: boolean,
-  memberSelectedKey: string | null,
-  activeChoiceWrapperForMembers: IField | undefined,
-  dissolved: WrapperCandidate[],
-): string | null {
-  if (isChoiceWrapperMember) return memberSelectedKey;
-  const idx = activeChoiceWrapperForMembers?.selectedMemberIndex;
-  if (idx === undefined) return null;
-  const member = activeChoiceWrapperForMembers?.fields[idx];
-  const substituteQName = member?.selectedMemberQName?.toString();
-  return (
-    dissolved.find((d) => d.selection.memberIndex === idx && d.selection.substituteQName === substituteQName)?.key ??
-    null
-  );
 }
 
 interface ChoiceMenuGroupsConfig {
@@ -261,12 +116,18 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
 
   const dissolved = useMemo(() => {
     const members = effectiveChoiceWrapper?.fields ?? [];
-    return dissolveChoiceMembers(members, mappingTree.namespaceMap);
+    return WrapperActionService.dissolveChoiceMembers(members, mappingTree.namespaceMap);
   }, [effectiveChoiceWrapper?.fields, mappingTree.namespaceMap]);
 
   const applyChoiceSelection = useCallback(
     (wrapper: IField, selection: MemberSelection) => {
-      dispatchChoiceSelection(nodeData, wrapper, selection, mappingTree.namespaceMap, isTargetSide);
+      WrapperActionService.dispatchChoiceSelection(
+        nodeData,
+        wrapper,
+        selection,
+        mappingTree.namespaceMap,
+        isTargetSide,
+      );
       const doc = wrapper.ownerDocument;
       const previousRefId = doc.getReferenceId(mappingTree.namespaceMap);
       updateDocument(doc, doc.definition, previousRefId);
@@ -274,27 +135,20 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
     [isTargetSide, mappingTree.namespaceMap, nodeData, updateDocument],
   );
 
-  const clearDescendantSelections = useCallback(
-    (field: IField) => {
-      WrapperSelectionService.clearDescendantWrapperSelections(field, mappingTree.namespaceMap);
-    },
-    [mappingTree.namespaceMap],
-  );
-
   const applyClearChoice = useCallback(
     (wrapper: IField) => {
-      clearChoiceSelectionOnField(nodeData, wrapper, mappingTree.namespaceMap, isTargetSide, clearDescendantSelections);
+      WrapperActionService.clearChoiceSelectionOnField(nodeData, wrapper, mappingTree.namespaceMap, isTargetSide);
       const doc = wrapper.ownerDocument;
       const previousRefId = doc.getReferenceId(mappingTree.namespaceMap);
       updateDocument(doc, doc.definition, previousRefId);
     },
-    [clearDescendantSelections, isTargetSide, mappingTree.namespaceMap, nodeData, updateDocument],
+    [isTargetSide, mappingTree.namespaceMap, nodeData, updateDocument],
   );
 
   // Case A: select a member from this node's own wrapper member list
   const handleSelectChoiceMember = useCallback(
     (selection: MemberSelection) => {
-      const wrapper = resolveChoiceWrapper(
+      const wrapper = WrapperActionService.resolveChoiceWrapper(
         isChoiceWrapperMember,
         choiceWrapperMemberField,
         activeChoiceWrapperForMembers,
@@ -307,7 +161,7 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
 
   // Case A/B: clear selection on this node's active wrapper, cascading to parent when empty
   const handleClearChoice = useCallback(() => {
-    const wrapper = resolveChoiceWrapper(
+    const wrapper = WrapperActionService.resolveChoiceWrapper(
       isChoiceWrapperMember,
       choiceWrapperMemberField,
       activeChoiceWrapperForMembers,
@@ -356,7 +210,7 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
           parentChoiceWrapperField,
           handleSelectSelfAsChoiceMember,
           'select-choice-member',
-          getFieldDisplayName,
+          WrapperActionService.getChoiceFieldDisplayName,
         )
       : undefined;
 
@@ -369,13 +223,24 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
   const memberSelectedKey = useMemo<string | null>(
     () =>
       isChoiceWrapperMember
-        ? resolveMemberSelectedKey(nodeData, choiceWrapperMemberField, dissolved, mappingTree.namespaceMap)
+        ? WrapperActionService.resolveMemberSelectedKey(
+            nodeData,
+            choiceWrapperMemberField,
+            dissolved,
+            mappingTree.namespaceMap,
+          )
         : null,
     [isChoiceWrapperMember, nodeData, choiceWrapperMemberField, dissolved, mappingTree.namespaceMap],
   );
 
   const selectedModalKey = useMemo<string | null>(
-    () => resolveSelectedModalKey(isChoiceWrapperMember, memberSelectedKey, activeChoiceWrapperForMembers, dissolved),
+    () =>
+      WrapperActionService.resolveSelectedModalKey(
+        isChoiceWrapperMember,
+        memberSelectedKey,
+        activeChoiceWrapperForMembers,
+        dissolved,
+      ),
     [isChoiceWrapperMember, memberSelectedKey, activeChoiceWrapperForMembers, dissolved],
   );
 
@@ -397,7 +262,7 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
     setIsChoiceModalOpen(false);
   }, []);
 
-  const effectiveWrapper = resolveChoiceWrapper(
+  const effectiveWrapper = WrapperActionService.resolveChoiceWrapper(
     isChoiceWrapperMember,
     choiceWrapperMemberField,
     activeChoiceWrapperForMembers,

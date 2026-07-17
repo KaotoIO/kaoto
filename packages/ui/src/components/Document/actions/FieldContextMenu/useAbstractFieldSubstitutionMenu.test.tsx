@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
 import {
@@ -24,6 +24,7 @@ import { MappingService } from '../../../../services/mapping/mapping.service';
 import { MappingActionService } from '../../../../services/visualization/mapping-action.service';
 import { TreeParsingService } from '../../../../services/visualization/tree-parsing.service';
 import { VisualizationService } from '../../../../services/visualization/visualization.service';
+import { WrapperActionService } from '../../../../services/visualization/wrapper-action.service';
 import { getFieldSubstitutionXsd } from '../../../../stubs/datamapper/data-mapper';
 import { QName } from '../../../../xml-schema-ts/QName';
 import { SourceDocumentNodeWithContextMenu } from '../../SourceDocumentNode';
@@ -79,9 +80,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${abstractNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${abstractNode.nodeData.id}`));
 
     // Should show inline menu items for substitution candidates
     expect(screen.getByText('Cat')).toBeInTheDocument();
@@ -103,9 +102,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${abstractNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${abstractNode.nodeData.id}`));
 
     expect(screen.getByText('Clear substitution')).toBeInTheDocument();
     expect(screen.getByText('Select Substitute...')).toBeInTheDocument();
@@ -124,13 +121,9 @@ describe('useAbstractFieldSubstitutionMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${abstractNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${abstractNode.nodeData.id}`));
 
-    act(() => {
-      fireEvent.click(screen.getByText('Select Substitute...'));
-    });
+    fireEvent.click(screen.getByText('Select Substitute...'));
 
     expect(screen.getByText('Select substitute for AbstractAnimal')).toBeInTheDocument();
   });
@@ -149,13 +142,9 @@ describe('useAbstractFieldSubstitutionMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${abstractNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${abstractNode.nodeData.id}`));
 
-    act(() => {
-      fireEvent.click(screen.getByText('Cat'));
-    });
+    fireEvent.click(screen.getByText('Cat'));
 
     expect(applySpy).toHaveBeenCalledWith(abstractAnimalField, expect.stringContaining('Cat'), expect.any(Object));
     applySpy.mockRestore();
@@ -175,13 +164,9 @@ describe('useAbstractFieldSubstitutionMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${abstractNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${abstractNode.nodeData.id}`));
 
-    act(() => {
-      fireEvent.click(screen.getByText('Clear substitution'));
-    });
+    fireEvent.click(screen.getByText('Clear substitution'));
 
     expect(revertSpy).toHaveBeenCalledWith(abstractAnimalField, expect.any(Object));
     revertSpy.mockRestore();
@@ -200,9 +185,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${abstractNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${abstractNode.nodeData.id}`));
 
     expect(screen.queryByText('Clear substitution')).not.toBeInTheDocument();
   });
@@ -244,9 +227,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-target-${abstractNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-target-${abstractNode.nodeData.id}`));
 
       expect(screen.getByText('Cat')).toBeInTheDocument();
       expect(screen.getByText('Dog')).toBeInTheDocument();
@@ -268,13 +249,9 @@ describe('useAbstractFieldSubstitutionMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-target-${abstractNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-target-${abstractNode.nodeData.id}`));
 
-      act(() => {
-        fireEvent.click(screen.getByText('Cat'));
-      });
+      fireEvent.click(screen.getByText('Cat'));
 
       expect(applySpy).toHaveBeenCalledWith(abstractAnimalField, expect.stringContaining('Cat'), expect.any(Object));
       applySpy.mockRestore();
@@ -296,13 +273,9 @@ describe('useAbstractFieldSubstitutionMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-target-${abstractNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-target-${abstractNode.nodeData.id}`));
 
-      act(() => {
-        fireEvent.click(screen.getByText('Dog'));
-      });
+      fireEvent.click(screen.getByText('Dog'));
 
       expect(applySpy).toHaveBeenCalledWith(abstractAnimalField, expect.stringContaining('Dog'), expect.any(Object));
       applySpy.mockRestore();
@@ -339,12 +312,8 @@ describe('useAbstractFieldSubstitutionMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-target-${abstractNode.nodeData.id}`));
-      });
-      act(() => {
-        fireEvent.click(screen.getByText('Clear substitution'));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-target-${abstractNode.nodeData.id}`));
+      fireEvent.click(screen.getByText('Clear substitution'));
 
       expect(abstractAnimalField.selectedMemberQName).toBeUndefined();
       expect(mappingTree.children).toHaveLength(0);
@@ -386,9 +355,9 @@ describe('useAbstractFieldSubstitutionMenu', () => {
       return { document, documentNodeData, abstractNode, abstractAnimalField, mappingTree };
     };
 
-    it('should call applyTargetSelection when selecting candidate on maxOccurs>1 wrapper', () => {
+    it('should call applyAbstractSubstitution when selecting candidate on maxOccurs>1 wrapper', () => {
       const { documentNodeData, abstractNode, mappingTree } = createTargetZooAbstractNode();
-      const applySpy = vi.spyOn(MappingActionService, 'applyTargetSelection');
+      const applySpy = vi.spyOn(WrapperActionService, 'applyAbstractSubstitution');
 
       render(
         <TargetDocumentNodeWithContextMenu
@@ -400,15 +369,11 @@ describe('useAbstractFieldSubstitutionMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-target-${abstractNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-target-${abstractNode.nodeData.id}`));
 
-      act(() => {
-        fireEvent.click(screen.getByText('Cat'));
-      });
+      fireEvent.click(screen.getByText('Cat'));
 
-      expect(applySpy).toHaveBeenCalledWith(abstractNode.nodeData, expect.objectContaining({}));
+      expect(applySpy).toHaveBeenCalled();
       const createdFieldItem = mappingTree.children
         .flatMap((c) => (c instanceof FieldItem ? c.children : []))
         .find((c) => c instanceof FieldItem && c.field.name === 'Cat') as FieldItem | undefined;
@@ -429,13 +394,9 @@ describe('useAbstractFieldSubstitutionMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-target-${abstractNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-target-${abstractNode.nodeData.id}`));
 
-      act(() => {
-        fireEvent.click(screen.getByText('Dog'));
-      });
+      fireEvent.click(screen.getByText('Dog'));
 
       expect(abstractAnimalField.selectedMemberQName).toBeUndefined();
     });
@@ -455,13 +416,9 @@ describe('useAbstractFieldSubstitutionMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-target-${abstractNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-target-${abstractNode.nodeData.id}`));
 
-      act(() => {
-        fireEvent.click(screen.getByText('Cat'));
-      });
+      fireEvent.click(screen.getByText('Cat'));
 
       expect(applySpy).toHaveBeenCalledWith(abstractAnimalField, expect.stringContaining('Cat'), expect.any(Object));
       applySpy.mockRestore();
@@ -541,9 +498,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-target-${memberTreeNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-target-${memberTreeNode.nodeData.id}`));
 
       const menuItems = screen.getAllByText('Cat');
       expect(menuItems.length).toBeGreaterThanOrEqual(2);
@@ -565,9 +520,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-target-${memberTreeNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-target-${memberTreeNode.nodeData.id}`));
 
       expect(screen.getByText('Clear substitution')).toBeInTheDocument();
     });
@@ -586,13 +539,9 @@ describe('useAbstractFieldSubstitutionMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-target-${memberTreeNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-target-${memberTreeNode.nodeData.id}`));
 
-      act(() => {
-        fireEvent.click(screen.getByText('Dog'));
-      });
+      fireEvent.click(screen.getByText('Dog'));
 
       expect(updateSpy).toHaveBeenCalled();
       updateSpy.mockRestore();
@@ -612,13 +561,9 @@ describe('useAbstractFieldSubstitutionMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-target-${memberTreeNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-target-${memberTreeNode.nodeData.id}`));
 
-      act(() => {
-        fireEvent.click(screen.getByText('Clear substitution'));
-      });
+      fireEvent.click(screen.getByText('Clear substitution'));
 
       expect(updateSpy).toHaveBeenCalledWith(expect.any(FieldItem), abstractAnimalField);
       updateSpy.mockRestore();

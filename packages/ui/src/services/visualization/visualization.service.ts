@@ -209,6 +209,15 @@ export class VisualizationService {
     return node;
   }
 
+  private static isDescendantWithinWrapper(wrapper: IField, target: IField): boolean {
+    for (const child of wrapper.fields) {
+      if (child === target) return true;
+      if (child.wrapperKind === 'choice' || child.wrapperKind === 'abstract') continue;
+      if (VisualizationService.isDescendantWithinWrapper(child, target)) return true;
+    }
+    return false;
+  }
+
   private static generateCollectionWrapperNodes(
     parent: NodeData,
     field: IField,
@@ -218,15 +227,21 @@ export class VisualizationService {
     const wrapperSpec = field.wrapperKind === 'choice' ? CHOICE_WRAPPER : ABSTRACT_WRAPPER;
     const wrapperFieldItems = mappings.filter(
       (m): m is FieldItem =>
-        m instanceof FieldItem && (m.field === field || DocumentService.isDescendant(field, m.field)),
+        m instanceof FieldItem && (m.field === field || VisualizationService.isDescendantWithinWrapper(field, m.field)),
     );
     const wrapperInstructionItems = mappings.filter(
       (m): m is InstructionItem =>
         m instanceof InstructionItem &&
         !VisualizationService.isExistingMapping(renderedNodes as TargetNodeData[], m) &&
-        MappingService.getInstructionFields(m).some((f) => f === field || DocumentService.isDescendant(field, f)),
+        MappingService.getInstructionFields(m).some(
+          (f) => f === field || VisualizationService.isDescendantWithinWrapper(field, f),
+        ),
     );
     if (wrapperFieldItems.length === 0 && wrapperInstructionItems.length === 0) {
+      const node = VisualizationService.doGenerateNodeDataFromWrapperField(parent, field, mappings, wrapperSpec);
+      return node ? [node] : [];
+    }
+    if (!DocumentService.isCollectionField(field) && wrapperInstructionItems.length === 0) {
       const node = VisualizationService.doGenerateNodeDataFromWrapperField(parent, field, mappings, wrapperSpec);
       return node ? [node] : [];
     }
@@ -239,7 +254,9 @@ export class VisualizationService {
         nodes.push(VisualizationService.createNodeDataFromMappingItem(parent as TargetNodeData, item));
       }
     }
-    nodes.push(new AddMappingNodeData(parent as TargetNodeData, field));
+    if (field.maxOccurs !== 1) {
+      nodes.push(new AddMappingNodeData(parent as TargetNodeData, field));
+    }
     return nodes;
   }
 
@@ -330,12 +347,7 @@ export class VisualizationService {
     field: IField,
     mappings: MappingItem[] | undefined,
   ): boolean {
-    if (
-      (field.wrapperKind === 'choice' || field.wrapperKind === 'abstract') &&
-      field.maxOccurs !== 1 &&
-      !parent.isSource &&
-      mappings
-    ) {
+    if ((field.wrapperKind === 'choice' || field.wrapperKind === 'abstract') && !parent.isSource && mappings) {
       answer.push(...VisualizationService.generateCollectionWrapperNodes(parent, field, mappings, answer));
       return true;
     }

@@ -12,8 +12,8 @@ import {
 } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useMemo, useState } from 'react';
 
+import { MemberSelection, WrapperCandidate } from '../../../services/visualization/wrapper-action.service';
 import { DataMapperModal } from '../../DataMapper/DataMapperModal';
-import { MemberSelection, WrapperCandidate } from './FieldContextMenu/types';
 
 const SEARCH_THRESHOLD = 10;
 

@@ -8,7 +8,7 @@ import { IDataMapperContext } from '../../../../providers/datamapper.provider';
 import { FieldOverrideService } from '../../../../services/document/field-override.service';
 import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
 import { QName } from '../../../../xml-schema-ts/QName';
-import { FieldOverride, revertOverride } from './FieldOverride';
+import { FieldOverride } from './FieldOverride';
 import { FieldOverrideModal } from './FieldOverrideModal';
 
 const mockSelectedType: IFieldTypeInfo = {
@@ -197,56 +197,5 @@ describe('FieldOverride', () => {
     expect(mockOnClose).toHaveBeenCalled();
     // onClose without save/remove should not trigger onComplete
     expect(mockOnComplete).not.toHaveBeenCalled();
-  });
-});
-
-describe('revertOverride', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('should call revertFieldSubstitution when field has SUBSTITUTION override', () => {
-    const testTargetDoc = TestUtil.createTargetOrderDoc();
-    const field = testTargetDoc.fields[0];
-    field.typeOverride = FieldOverrideVariant.SUBSTITUTION;
-    const namespaceMap = { xs: 'http://www.w3.org/2001/XMLSchema' };
-    const mockUpdateDocument = vi.fn();
-
-    revertOverride(field, namespaceMap, mockUpdateDocument);
-
-    expect(FieldOverrideService.revertFieldSubstitution).toHaveBeenCalledWith(field, namespaceMap);
-    expect(FieldOverrideService.revertFieldTypeOverride).not.toHaveBeenCalled();
-    expect(mockUpdateDocument).toHaveBeenCalled();
-  });
-
-  it('should not call any service when field has no override', () => {
-    const testTargetDoc = TestUtil.createTargetOrderDoc();
-    const field = testTargetDoc.fields[0];
-    field.typeOverride = FieldOverrideVariant.NONE;
-    const namespaceMap = { xs: 'http://www.w3.org/2001/XMLSchema' };
-    const mockUpdateDocument = vi.fn();
-
-    revertOverride(field, namespaceMap, mockUpdateDocument);
-
-    expect(FieldOverrideService.revertFieldTypeOverride).not.toHaveBeenCalled();
-    expect(FieldOverrideService.revertFieldSubstitution).not.toHaveBeenCalled();
-    expect(mockUpdateDocument).not.toHaveBeenCalled();
-  });
-
-  it('should call revertFieldTypeOverride and updateDocument', () => {
-    const testTargetDoc = TestUtil.createTargetOrderDoc();
-    const field = testTargetDoc.fields[0];
-    field.typeOverride = FieldOverrideVariant.SAFE;
-    const namespaceMap = { xs: 'http://www.w3.org/2001/XMLSchema' };
-    const mockUpdateDocument = vi.fn();
-
-    revertOverride(field, namespaceMap, mockUpdateDocument);
-
-    expect(FieldOverrideService.revertFieldTypeOverride).toHaveBeenCalledWith(field, namespaceMap);
-    expect(mockUpdateDocument).toHaveBeenCalledWith(
-      field.ownerDocument,
-      field.ownerDocument.definition,
-      expect.any(String),
-    );
   });
 });

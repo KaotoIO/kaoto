@@ -28,6 +28,7 @@ export enum MappingActionKind {
   InnerForEachGroup = 'innerForEachGroup',
   InnerForEachCurrentGroup = 'innerForEachCurrentGroup',
   Duplicate = 'duplicate',
+  AddField = 'addField',
 }
 
 /**

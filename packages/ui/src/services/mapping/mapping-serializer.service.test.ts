@@ -1326,6 +1326,115 @@ describe('MappingSerializerService', () => {
       expect(orderIdFieldItem.isUserCreated).toBe(false);
     });
 
+    it('should serialize empty user-created FieldItem as empty element', () => {
+      const mappingTree = new MappingTree(
+        DocumentType.TARGET_BODY,
+        BODY_DOCUMENT_ID,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const shipOrderField = targetDoc.fields.find((f) => f.name === 'ShipOrder')!;
+      const shipOrderItem = new FieldItem(mappingTree, shipOrderField);
+      mappingTree.children.push(shipOrderItem);
+
+      const orderPersonField = shipOrderField.fields.find((f) => f.name === 'OrderPerson')!;
+      const orderPersonItem = new FieldItem(shipOrderItem, orderPersonField);
+      orderPersonItem.isUserCreated = true;
+      shipOrderItem.children.push(orderPersonItem);
+
+      const itemField = shipOrderField.fields.find((f) => f.name === 'Item')!;
+      const itemItem = new FieldItem(shipOrderItem, itemField);
+      itemItem.isUserCreated = true;
+      shipOrderItem.children.push(itemItem);
+
+      const xslt = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+      const xsltDocument = domParser.parseFromString(xslt, 'text/xml');
+
+      const orderPersonNode = xsltDocument.evaluate(
+        '/xsl:stylesheet/xsl:template/ShipOrder/OrderPerson',
+        xsltDocument,
+        xslNsResolver,
+        XPathResult.FIRST_ORDERED_NODE_TYPE,
+      ).singleNodeValue as Element;
+      expect(orderPersonNode).toBeTruthy();
+      expect(orderPersonNode.childNodes).toHaveLength(0);
+
+      const itemNode = xsltDocument.evaluate(
+        '/xsl:stylesheet/xsl:template/ShipOrder/Item',
+        xsltDocument,
+        xslNsResolver,
+        XPathResult.FIRST_ORDERED_NODE_TYPE,
+      ).singleNodeValue as Element;
+      expect(itemNode).toBeTruthy();
+      expect(itemNode.childNodes).toHaveLength(0);
+    });
+
+    it('should serialize empty user-created attribute FieldItem as empty xsl:attribute', () => {
+      const mappingTree = new MappingTree(
+        DocumentType.TARGET_BODY,
+        BODY_DOCUMENT_ID,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const shipOrderField = targetDoc.fields.find((f) => f.name === 'ShipOrder')!;
+      const shipOrderItem = new FieldItem(mappingTree, shipOrderField);
+      mappingTree.children.push(shipOrderItem);
+
+      const orderIdField = shipOrderField.fields.find((f) => f.name === 'OrderId')!;
+      const orderIdItem = new FieldItem(shipOrderItem, orderIdField);
+      orderIdItem.isUserCreated = true;
+      shipOrderItem.children.push(orderIdItem);
+
+      const xslt = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+      const xsltDocument = domParser.parseFromString(xslt, 'text/xml');
+
+      const attrNode = xsltDocument.evaluate(
+        '/xsl:stylesheet/xsl:template/ShipOrder/xsl:attribute[@name="OrderId"]',
+        xsltDocument,
+        xslNsResolver,
+        XPathResult.FIRST_ORDERED_NODE_TYPE,
+      ).singleNodeValue as Element;
+      expect(attrNode).toBeTruthy();
+      expect(attrNode.childNodes).toHaveLength(0);
+    });
+
+    it('should round-trip empty user-created fields through serialize then deserialize', () => {
+      const mappingTree = new MappingTree(
+        DocumentType.TARGET_BODY,
+        BODY_DOCUMENT_ID,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const shipOrderField = targetDoc.fields.find((f) => f.name === 'ShipOrder')!;
+      const shipOrderItem = new FieldItem(mappingTree, shipOrderField);
+      mappingTree.children.push(shipOrderItem);
+
+      const itemField = shipOrderField.fields.find((f) => f.name === 'Item')!;
+      const itemItem = new FieldItem(shipOrderItem, itemField);
+      itemItem.isUserCreated = true;
+      shipOrderItem.children.push(itemItem);
+
+      const xslt = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+
+      const roundTripTree = new MappingTree(
+        DocumentType.TARGET_BODY,
+        BODY_DOCUMENT_ID,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const { mappingTree: deserialized } = MappingSerializerService.deserialize(
+        xslt,
+        targetDoc,
+        roundTripTree,
+        sourceParameterMap,
+      );
+
+      const shipOrderFieldItem = deserialized.children[0] as FieldItem;
+      expect(shipOrderFieldItem).toBeInstanceOf(FieldItem);
+      const restoredItem = shipOrderFieldItem.children.find(
+        (c) => c instanceof FieldItem && c.field.name === 'Item',
+      ) as FieldItem;
+      expect(restoredItem).toBeInstanceOf(FieldItem);
+      expect(restoredItem.isUserCreated).toBe(true);
+      expect(restoredItem.children).toHaveLength(0);
+    });
+
     it('should copy isUserCreated via doClone()', () => {
       const mappingTree = new MappingTree(
         DocumentType.TARGET_BODY,

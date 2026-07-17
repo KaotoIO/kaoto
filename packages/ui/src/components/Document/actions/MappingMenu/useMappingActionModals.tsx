@@ -1,7 +1,11 @@
 import { useCallback, useMemo, useState } from 'react';
 
-import { ForEachGroupItem, ForEachItem, MappingItem } from '../../../../models/datamapper/mapping';
+import { FieldItem, ForEachGroupItem, ForEachItem, MappingItem } from '../../../../models/datamapper/mapping';
 import { MappingActionKind } from '../../../../models/datamapper/mapping-action';
+import { MappingService } from '../../../../services/mapping/mapping.service';
+import { MemberSelection } from '../../../../services/visualization/wrapper-action.service';
+import { computeAddFieldCandidates } from '../FieldContextMenu/menu-utils';
+import { WrapperSelectionModal } from '../WrapperSelectionModal';
 import { CommentModal } from './Comment/CommentModal';
 import { ForEachGroupModal } from './ForEachGroup/ForEachGroupModal';
 import { ModalAction } from './modal-action';
@@ -47,6 +51,59 @@ export function useMappingActionModals(mapping: MappingItem | undefined, onUpdat
     );
   }, [forEachGroupMapping, isForEachGroupConfigOpen, closeForEachGroupConfig, onUpdate]);
 
+  /** AddField */
+  const [isAddFieldOpen, setIsAddFieldOpen] = useState(false);
+  const closeAddField = useCallback(() => {
+    setIsAddFieldOpen(false);
+  }, []);
+
+  const { ancestorFieldItem, forEachContext } = useMemo(() => {
+    if (!mapping) return { ancestorFieldItem: undefined, forEachContext: false };
+    let forEach = mapping instanceof ForEachItem || mapping instanceof ForEachGroupItem;
+    let current = mapping.parent;
+    while (current instanceof MappingItem) {
+      if (!forEach && (current instanceof ForEachItem || current instanceof ForEachGroupItem)) forEach = true;
+      if (current instanceof FieldItem) return { ancestorFieldItem: current, forEachContext: forEach };
+      current = current.parent;
+    }
+    return { ancestorFieldItem: undefined, forEachContext: forEach };
+  }, [mapping]);
+
+  const addFieldData = (() => {
+    if (!ancestorFieldItem || !mapping) return undefined;
+    const namespaceMap = ancestorFieldItem.mappingTree.namespaceMap;
+    const existingFieldItems = mapping.children.filter((c): c is FieldItem => c instanceof FieldItem);
+    return computeAddFieldCandidates(ancestorFieldItem.field.fields, namespaceMap, existingFieldItems, forEachContext);
+  })();
+
+  const handleAddFieldSelect = useCallback(
+    (selection: MemberSelection) => {
+      if (!addFieldData || !mapping) return;
+      const selectedField = addFieldData.fields[selection.memberIndex];
+      if (!selectedField) return;
+      const fieldItem = MappingService.createFieldItem(mapping, selectedField);
+      fieldItem.isUserCreated = true;
+      setIsAddFieldOpen(false);
+      onUpdate();
+    },
+    [addFieldData, mapping, onUpdate],
+  );
+
+  const renderAddField = useCallback(() => {
+    if (!addFieldData || !isAddFieldOpen || addFieldData.candidates.length === 0) return null;
+    return (
+      <WrapperSelectionModal
+        isOpen
+        title="Add field"
+        testId="add-field-in-instruction-modal"
+        candidates={addFieldData.candidates}
+        selectedKey={null}
+        onSelect={handleAddFieldSelect}
+        onClose={closeAddField}
+      />
+    );
+  }, [addFieldData, isAddFieldOpen, handleAddFieldSelect, closeAddField]);
+
   return useMemo(
     () => [
       {
@@ -70,7 +127,14 @@ export function useMappingActionModals(mapping: MappingItem | undefined, onUpdat
         },
         render: renderForEachGroupConfig,
       },
+      {
+        kind: MappingActionKind.AddField,
+        open: () => {
+          setIsAddFieldOpen(true);
+        },
+        render: renderAddField,
+      },
     ],
-    [renderSort, renderComment, renderForEachGroupConfig],
+    [renderSort, renderComment, renderForEachGroupConfig, renderAddField],
   );
 }
