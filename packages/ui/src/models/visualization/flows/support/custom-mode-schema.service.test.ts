@@ -32,8 +32,10 @@ describe('CustomModeSchemaService', () => {
       );
     });
 
-    it('marks slug and name as required', () => {
-      expect(CustomModeSchemaService.getRootSchema().required).toEqual(expect.arrayContaining(['slug', 'name']));
+    it('marks slug, name and roleDefinition as required', () => {
+      expect(CustomModeSchemaService.getRootSchema().required).toEqual(
+        expect.arrayContaining(['slug', 'name', 'roleDefinition']),
+      );
     });
 
     it('sets x-component textarea on roleDefinition and whenToUse', () => {

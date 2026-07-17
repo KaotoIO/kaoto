@@ -38,5 +38,5 @@
       }
     }
   },
-  "required": ["slug", "name"]
+  "required": ["slug", "name", "roleDefinition"]
 }

@@ -10,7 +10,7 @@ export const customModeTemplate = (): string => {
   - slug: ${getCamelRandomId('new-mode')}
     name: New Mode
     description: ""
-    roleDefinition: ""
+    roleDefinition: "Defines who this New Mode is"
     whenToUse: ""
     groups:
       - read`;
