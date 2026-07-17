@@ -4,7 +4,9 @@ import { CustomModeResource } from './custom-mode-resource';
 import { CustomModeResourceFactory } from './custom-mode-resource-factory';
 
 const validFile = {
-  customModes: [{ slug: 'plan', name: 'Plan', description: '', roleDefinition: '', whenToUse: '', groups: [] }],
+  customModes: [
+    { slug: 'plan', name: 'Plan', description: '', roleDefinition: 'You plan things.', whenToUse: '', groups: [] },
+  ],
 };
 
 describe('CustomModeResourceFactory', () => {

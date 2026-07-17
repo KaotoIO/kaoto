@@ -81,7 +81,7 @@ describe('CamelResourceFactory', () => {
 
     it('returns CustomModeResource for yaml with customModes array (no path)', () => {
       const yaml =
-        'customModes:\n  - slug: plan\n    name: Plan\n    description: ""\n    roleDefinition: ""\n    whenToUse: ""\n    groups: []\n';
+        'customModes:\n  - slug: plan\n    name: Plan\n    description: ""\n    roleDefinition: "You plan things."\n    whenToUse: ""\n    groups: []\n';
       const resource = CamelResourceFactory.createCamelResource(yaml);
       expect(resource).toBeInstanceOf(CustomModeResource);
     });
