@@ -11,7 +11,12 @@ import {
   ValueSelector,
   WhenItem,
 } from '../../models/datamapper/mapping';
-import { IMappingAction, IMappingContextMenuAction, MappingActionKind } from '../../models/datamapper/mapping-action';
+import {
+  IMappingAction,
+  IMappingContextMenuAction,
+  MappingActionGroup,
+  MappingActionKind,
+} from '../../models/datamapper/mapping-action';
 import {
   AddMappingNodeData,
   FieldItemNodeData,
@@ -184,6 +189,7 @@ export class MappingActionRegistryService {
     {
       key: MappingActionKind.ForEach,
       testId: 'transformation-actions-foreach',
+      group: MappingActionGroup.WrapWithInstruction,
       getLabel: () => 'Wrap with "for-each"',
       apply: (n, { onUpdate }) => {
         MappingActionService.applyForEach(n as ForEachCapableNodeData);
@@ -196,6 +202,7 @@ export class MappingActionRegistryService {
     {
       key: MappingActionKind.ForEachGroup,
       testId: 'transformation-actions-foreachgroup',
+      group: MappingActionGroup.WrapWithInstruction,
       getLabel: () => 'Wrap with "for-each-group"',
       apply: (n, { onUpdate }) => {
         MappingActionService.applyForEachGroup(n as ForEachCapableNodeData);
@@ -208,6 +215,7 @@ export class MappingActionRegistryService {
     {
       key: MappingActionKind.ForEachCurrentGroup,
       testId: 'transformation-actions-foreach-current-group',
+      group: MappingActionGroup.WrapWithInstruction,
       getLabel: () => 'Wrap with "for-each current-group()"',
       apply: (n, { onUpdate }) => {
         MappingActionService.applyForEachCurrentGroup(n as ForEachCapableNodeData);
@@ -222,6 +230,7 @@ export class MappingActionRegistryService {
     {
       key: MappingActionKind.If,
       testId: 'transformation-actions-if',
+      group: MappingActionGroup.WrapWithInstruction,
       getLabel: () => 'Wrap with "if"',
       apply: (n, { onUpdate }) => {
         MappingActionService.applyIf(n);
@@ -234,6 +243,7 @@ export class MappingActionRegistryService {
     {
       key: MappingActionKind.Choose,
       testId: 'transformation-actions-choose',
+      group: MappingActionGroup.WrapWithInstruction,
       getLabel: () => 'Wrap with "choose-when-otherwise"',
       apply: (n, { onUpdate }) => {
         MappingActionService.applyChooseWhenOtherwise(n);
@@ -246,6 +256,7 @@ export class MappingActionRegistryService {
     {
       key: MappingActionKind.InnerForEach,
       testId: 'transformation-actions-foreach-inner',
+      group: MappingActionGroup.InnerInstruction,
       getLabel: () => 'Inner "for-each"',
       apply: (n, { onUpdate }) => {
         MappingActionService.applyInnerForEach(n);
@@ -260,6 +271,7 @@ export class MappingActionRegistryService {
     {
       key: MappingActionKind.InnerForEachGroup,
       testId: 'transformation-actions-foreachgroup-inner',
+      group: MappingActionGroup.InnerInstruction,
       getLabel: () => 'Inner "for-each-group"',
       apply: (n, { onUpdate }) => {
         MappingActionService.applyInnerForEachGroup(n);
@@ -274,6 +286,7 @@ export class MappingActionRegistryService {
     {
       key: MappingActionKind.InnerForEachCurrentGroup,
       testId: 'transformation-actions-foreach-current-group-inner',
+      group: MappingActionGroup.InnerInstruction,
       getLabel: () => 'Inner "for-each current-group()"',
       apply: (n, { onUpdate }) => {
         MappingActionService.applyInnerForEachCurrentGroup(n);
@@ -292,6 +305,7 @@ export class MappingActionRegistryService {
     {
       key: MappingActionKind.InnerChoose,
       testId: 'transformation-actions-choose-inner',
+      group: MappingActionGroup.InnerInstruction,
       getLabel: () => 'Inner "choose-when-otherwise"',
       apply: (n, { onUpdate }) => {
         MappingActionService.applyInnerChooseWhenOtherwise(n);
@@ -305,6 +319,7 @@ export class MappingActionRegistryService {
     {
       key: MappingActionKind.InnerIf,
       testId: 'transformation-actions-if-inner',
+      group: MappingActionGroup.InnerInstruction,
       getLabel: () => 'Inner "if"',
       apply: (n, { onUpdate }) => {
         MappingActionService.applyInnerIf(n);

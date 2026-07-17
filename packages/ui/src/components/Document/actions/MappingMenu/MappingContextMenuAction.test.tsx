@@ -1,9 +1,10 @@
 import { DraggableObject } from '@patternfly/react-drag-drop';
-import { act, createEvent, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { createEvent, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent } from 'react';
 
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../../models/datamapper/document';
 import { ChooseItem, FieldItem, ForEachItem, MappingTree, SortItem } from '../../../../models/datamapper/mapping';
+import { MappingActionGroup } from '../../../../models/datamapper/mapping-action';
 import {
   AddMappingNodeData,
   MappingNodeData,
@@ -12,6 +13,7 @@ import {
 } from '../../../../models/datamapper/visualization';
 import { MappingService } from '../../../../services/mapping/mapping.service';
 import { MappingActionService } from '../../../../services/visualization/mapping-action.service';
+import { MappingActionRegistryService } from '../../../../services/visualization/mapping-action-registry.service';
 import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
 import { MappingContextMenuAction } from './MappingContextMenuAction';
 
@@ -58,13 +60,9 @@ describe('MappingContextMenuAction', () => {
     const spyOnApply = vi.spyOn(MappingActionService, 'applyValueOfSelector');
     render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
-    act(() => {
-      fireEvent.click(actionToggle);
-    });
+    fireEvent.click(actionToggle);
     const selectorItem = screen.getByTestId('transformation-actions-selector');
-    act(() => {
-      fireEvent.click(selectorItem.getElementsByTagName('button')[0]);
-    });
+    fireEvent.click(selectorItem.getElementsByTagName('button')[0]);
     await waitFor(() => {
       expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toBe('false');
     });
@@ -82,13 +80,11 @@ describe('MappingContextMenuAction', () => {
     const spyOnApply = vi.spyOn(MappingActionService, 'applyIf');
     render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
-    act(() => {
-      fireEvent.click(actionToggle);
-    });
-    const ifItem = screen.getByTestId('transformation-actions-if');
-    act(() => {
-      fireEvent.click(ifItem.getElementsByTagName('button')[0]);
-    });
+    fireEvent.click(actionToggle);
+    const wrapFlyout = screen.getByTestId(`transformation-actions-group-${MappingActionGroup.WrapWithInstruction}`);
+    fireEvent.click(wrapFlyout.getElementsByTagName('button')[0]);
+    const ifItem = await screen.findByTestId('transformation-actions-if');
+    fireEvent.click(ifItem.getElementsByTagName('button')[0]);
     await waitFor(() => {
       expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toBe('false');
     });
@@ -106,13 +102,11 @@ describe('MappingContextMenuAction', () => {
     const spyOnApply = vi.spyOn(MappingActionService, 'applyChooseWhenOtherwise');
     render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
-    act(() => {
-      fireEvent.click(actionToggle);
-    });
-    const chooseItem = screen.getByTestId('transformation-actions-choose');
-    act(() => {
-      fireEvent.click(chooseItem.getElementsByTagName('button')[0]);
-    });
+    fireEvent.click(actionToggle);
+    const wrapFlyout = screen.getByTestId(`transformation-actions-group-${MappingActionGroup.WrapWithInstruction}`);
+    fireEvent.click(wrapFlyout.getElementsByTagName('button')[0]);
+    const chooseItem = await screen.findByTestId('transformation-actions-choose');
+    fireEvent.click(chooseItem.getElementsByTagName('button')[0]);
     await waitFor(() => {
       expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toBe('false');
     });
@@ -126,13 +120,9 @@ describe('MappingContextMenuAction', () => {
     const spyOnApply = vi.spyOn(MappingService, 'addWhen');
     render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
-    act(() => {
-      fireEvent.click(actionToggle);
-    });
+    fireEvent.click(actionToggle);
     const whenItem = screen.getByTestId('transformation-actions-when');
-    act(() => {
-      fireEvent.click(whenItem.getElementsByTagName('button')[0]);
-    });
+    fireEvent.click(whenItem.getElementsByTagName('button')[0]);
     await waitFor(() => {
       expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toBe('false');
     });
@@ -147,13 +137,9 @@ describe('MappingContextMenuAction', () => {
     const spyOnApply = vi.spyOn(MappingService, 'addOtherwise');
     render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
-    act(() => {
-      fireEvent.click(actionToggle);
-    });
+    fireEvent.click(actionToggle);
     const otherwiseItem = screen.getByTestId('transformation-actions-otherwise');
-    act(() => {
-      fireEvent.click(otherwiseItem.getElementsByTagName('button')[0]);
-    });
+    fireEvent.click(otherwiseItem.getElementsByTagName('button')[0]);
     await waitFor(() => {
       expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toBe('false');
     });
@@ -172,13 +158,11 @@ describe('MappingContextMenuAction', () => {
     const spyOnApply = vi.spyOn(MappingActionService, 'applyForEach');
     render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
-    act(() => {
-      fireEvent.click(actionToggle);
-    });
-    const foreachItem = screen.getByTestId('transformation-actions-foreach');
-    act(() => {
-      fireEvent.click(foreachItem.getElementsByTagName('button')[0]);
-    });
+    fireEvent.click(actionToggle);
+    const wrapFlyout = screen.getByTestId(`transformation-actions-group-${MappingActionGroup.WrapWithInstruction}`);
+    fireEvent.click(wrapFlyout.getElementsByTagName('button')[0]);
+    const foreachItem = await screen.findByTestId('transformation-actions-foreach');
+    fireEvent.click(foreachItem.getElementsByTagName('button')[0]);
     await waitFor(() => {
       expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toBe('false');
     });
@@ -199,9 +183,7 @@ describe('MappingContextMenuAction', () => {
     const clickEvent = createEvent.click(actionToggle);
     const stopPropagationSpy = vi.spyOn(clickEvent, 'stopPropagation');
 
-    act(() => {
-      fireEvent(actionToggle, clickEvent);
-    });
+    fireEvent(actionToggle, clickEvent);
 
     await waitFor(() => {
       expect(stopPropagationSpy).toHaveBeenCalled();
@@ -217,17 +199,13 @@ describe('MappingContextMenuAction', () => {
 
     const wrapper = render(<MappingContextMenuAction nodeData={nodeData} onUpdate={() => {}} />);
 
-    act(() => {
-      fireEvent.click(wrapper.getByTestId('transformation-actions-menu-toggle'));
-    });
+    fireEvent.click(wrapper.getByTestId('transformation-actions-menu-toggle'));
 
     const selectorButton = wrapper.getByTestId('transformation-actions-selector').getElementsByTagName('button')[0];
     const clickEvent = createEvent.click(selectorButton);
     const stopPropagationSpy = vi.spyOn(clickEvent, 'stopPropagation');
 
-    act(() => {
-      fireEvent(selectorButton, clickEvent);
-    });
+    fireEvent(selectorButton, clickEvent);
 
     await waitFor(() => {
       expect(stopPropagationSpy).toHaveBeenCalled();
@@ -241,17 +219,15 @@ describe('MappingContextMenuAction', () => {
       <MappingContextMenuAction nodeData={nodeData} dropdownLabel="Add Mapping Instruction" onUpdate={onUpdateSpy} />,
     );
 
-    act(() => {
-      const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
-      expect(actionToggle.textContent).toBe('Add Mapping Instruction');
-      fireEvent.click(actionToggle);
-    });
+    const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
+    expect(actionToggle.textContent).toBe('Add Mapping Instruction');
+    fireEvent.click(actionToggle);
 
-    act(() => {
-      const forEachList = wrapper.getByTestId('transformation-actions-foreach');
-      const forEachButton = forEachList.getElementsByTagName('button');
-      fireEvent.click(forEachButton[0]);
-    });
+    const wrapFlyout = wrapper.getByTestId(`transformation-actions-group-${MappingActionGroup.WrapWithInstruction}`);
+    fireEvent.click(wrapFlyout.getElementsByTagName('button')[0]);
+
+    const forEachItem = await wrapper.findByTestId('transformation-actions-foreach');
+    fireEvent.click(forEachItem.getElementsByTagName('button')[0]);
 
     await waitFor(() => {
       expect(onUpdateSpy).toHaveBeenCalled();
@@ -266,16 +242,14 @@ describe('MappingContextMenuAction', () => {
       <MappingContextMenuAction nodeData={nodeData} dropdownLabel="Add Mapping Instruction" onUpdate={onUpdateSpy} />,
     );
 
-    act(() => {
-      const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
-      fireEvent.click(actionToggle);
-    });
+    const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
+    fireEvent.click(actionToggle);
 
-    act(() => {
-      const ifItem = wrapper.getByTestId('transformation-actions-if');
-      const ifButton = ifItem.getElementsByTagName('button');
-      fireEvent.click(ifButton[0]);
-    });
+    const wrapFlyout = wrapper.getByTestId(`transformation-actions-group-${MappingActionGroup.WrapWithInstruction}`);
+    fireEvent.click(wrapFlyout.getElementsByTagName('button')[0]);
+
+    const ifItem = await wrapper.findByTestId('transformation-actions-if');
+    fireEvent.click(ifItem.getElementsByTagName('button')[0]);
 
     await waitFor(() => {
       expect(onUpdateSpy).toHaveBeenCalled();
@@ -291,16 +265,14 @@ describe('MappingContextMenuAction', () => {
       <MappingContextMenuAction nodeData={nodeData} dropdownLabel="Add Mapping Instruction" onUpdate={onUpdateSpy} />,
     );
 
-    act(() => {
-      const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
-      fireEvent.click(actionToggle);
-    });
+    const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
+    fireEvent.click(actionToggle);
 
-    act(() => {
-      const chooseItem = wrapper.getByTestId('transformation-actions-choose');
-      const chooseButton = chooseItem.getElementsByTagName('button');
-      fireEvent.click(chooseButton[0]);
-    });
+    const wrapFlyout = wrapper.getByTestId(`transformation-actions-group-${MappingActionGroup.WrapWithInstruction}`);
+    fireEvent.click(wrapFlyout.getElementsByTagName('button')[0]);
+
+    const chooseItem = await wrapper.findByTestId('transformation-actions-choose');
+    fireEvent.click(chooseItem.getElementsByTagName('button')[0]);
 
     await waitFor(() => {
       expect(onUpdateSpy).toHaveBeenCalled();
@@ -321,9 +293,7 @@ describe('MappingContextMenuAction', () => {
 
         // Open the dropdown menu
         const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
-        act(() => {
-          fireEvent.click(actionToggle);
-        });
+        fireEvent.click(actionToggle);
 
         // Comment item should be visible
         expect(screen.getByTestId('transformation-actions-comment')).toBeInTheDocument();
@@ -338,9 +308,7 @@ describe('MappingContextMenuAction', () => {
 
         // Open the dropdown menu
         const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
-        act(() => {
-          fireEvent.click(actionToggle);
-        });
+        fireEvent.click(actionToggle);
 
         const commentItem = screen.getByTestId('transformation-actions-comment');
         expect(commentItem).toHaveTextContent('Edit Comment');
@@ -359,15 +327,11 @@ describe('MappingContextMenuAction', () => {
 
         // Open the dropdown menu
         const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
-        act(() => {
-          fireEvent.click(actionToggle);
-        });
+        fireEvent.click(actionToggle);
 
         // Click the comment item
         const commentItem = screen.getByTestId('transformation-actions-comment');
-        act(() => {
-          fireEvent.click(commentItem.getElementsByTagName('button')[0]);
-        });
+        fireEvent.click(commentItem.getElementsByTagName('button')[0]);
 
         // Modal should be open
         await waitFor(() => {
@@ -385,15 +349,11 @@ describe('MappingContextMenuAction', () => {
 
         // Open the dropdown menu
         const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
-        act(() => {
-          fireEvent.click(actionToggle);
-        });
+        fireEvent.click(actionToggle);
 
         // Click the comment item to open modal
         const commentItem = screen.getByTestId('transformation-actions-comment');
-        act(() => {
-          fireEvent.click(commentItem.getElementsByTagName('button')[0]);
-        });
+        fireEvent.click(commentItem.getElementsByTagName('button')[0]);
 
         await waitFor(() => {
           expect(screen.getByTestId('comment-modal')).toBeInTheDocument();
@@ -409,15 +369,11 @@ describe('MappingContextMenuAction', () => {
 
         // Open the dropdown menu
         const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
-        act(() => {
-          fireEvent.click(actionToggle);
-        });
+        fireEvent.click(actionToggle);
 
         // Click the comment item to open modal
         const commentItem = screen.getByTestId('transformation-actions-comment');
-        act(() => {
-          fireEvent.click(commentItem.getElementsByTagName('button')[0]);
-        });
+        fireEvent.click(commentItem.getElementsByTagName('button')[0]);
 
         // Modal should display the comment
         const textarea = screen.getByTestId('comment-textarea') as HTMLTextAreaElement;
@@ -434,23 +390,17 @@ describe('MappingContextMenuAction', () => {
 
         // Open the dropdown menu
         const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
-        act(() => {
-          fireEvent.click(actionToggle);
-        });
+        fireEvent.click(actionToggle);
 
         // Click the comment item to open modal
         const commentItem = screen.getByTestId('transformation-actions-comment');
-        act(() => {
-          fireEvent.click(commentItem.getElementsByTagName('button')[0]);
-        });
+        fireEvent.click(commentItem.getElementsByTagName('button')[0]);
 
         expect(screen.getByTestId('comment-modal')).toBeInTheDocument();
 
         // Close the modal
         const cancelButton = screen.getByTestId('cancel-comment-btn');
-        act(() => {
-          fireEvent.click(cancelButton);
-        });
+        fireEvent.click(cancelButton);
 
         // Modal should be closed
         await waitFor(() => {
@@ -468,26 +418,18 @@ describe('MappingContextMenuAction', () => {
 
         // Open the dropdown menu
         const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
-        act(() => {
-          fireEvent.click(actionToggle);
-        });
+        fireEvent.click(actionToggle);
 
         // Click the comment item to open modal
         const commentItem = screen.getByTestId('transformation-actions-comment');
-        act(() => {
-          fireEvent.click(commentItem.getElementsByTagName('button')[0]);
-        });
+        fireEvent.click(commentItem.getElementsByTagName('button')[0]);
 
         // Add a comment
         const textarea = screen.getByTestId('comment-textarea');
-        act(() => {
-          fireEvent.change(textarea, { target: { value: 'New test comment' } });
-        });
+        fireEvent.change(textarea, { target: { value: 'New test comment' } });
 
         const createButton = screen.getByTestId('create-comment-btn');
-        act(() => {
-          fireEvent.click(createButton);
-        });
+        fireEvent.click(createButton);
 
         // Modal should close
         await waitFor(() => {
@@ -508,14 +450,10 @@ describe('MappingContextMenuAction', () => {
       render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
 
       const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
-      act(() => {
-        fireEvent.click(actionToggle);
-      });
+      fireEvent.click(actionToggle);
 
       const sortItem = screen.getByTestId('transformation-actions-sort');
-      act(() => {
-        fireEvent.click(sortItem.getElementsByTagName('button')[0]);
-      });
+      fireEvent.click(sortItem.getElementsByTagName('button')[0]);
 
       await waitFor(() => {
         expect(screen.getByTestId('sort-modal')).toBeInTheDocument();
@@ -531,12 +469,97 @@ describe('MappingContextMenuAction', () => {
       render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />);
 
       const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
-      act(() => {
-        fireEvent.click(actionToggle);
-      });
+      fireEvent.click(actionToggle);
 
       const sortAction = screen.getByTestId('transformation-actions-sort');
       expect(sortAction).toHaveTextContent('Edit Sort');
+    });
+  });
+
+  describe('Flyout Submenus', () => {
+    it('should render "Wrap with Instruction" flyout when wrap actions are allowed', () => {
+      const nodeData = new TargetFieldNodeData(
+        documentNodeData,
+        targetDoc.fields[0],
+        new FieldItem(mappingTree, targetDoc.fields[0]),
+      );
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />);
+
+      const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+      fireEvent.click(actionToggle);
+
+      expect(
+        screen.getByTestId(`transformation-actions-group-${MappingActionGroup.WrapWithInstruction}`),
+      ).toBeInTheDocument();
+    });
+
+    it('should contain correct actions in "Wrap with Instruction" flyout', async () => {
+      const nodeData = new TargetFieldNodeData(
+        documentNodeData,
+        targetDoc.fields[0],
+        new FieldItem(mappingTree, targetDoc.fields[0]),
+      );
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />);
+
+      const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+      fireEvent.click(actionToggle);
+
+      const wrapFlyout = screen.getByTestId(`transformation-actions-group-${MappingActionGroup.WrapWithInstruction}`);
+      fireEvent.click(wrapFlyout.getElementsByTagName('button')[0]);
+
+      expect(await screen.findByTestId('transformation-actions-if')).toBeInTheDocument();
+      expect(screen.getByTestId('transformation-actions-choose')).toBeInTheDocument();
+    });
+
+    it('should contain correct actions in "Inner Instruction" flyout', async () => {
+      const forEachItem = new ForEachItem(mappingTree);
+      const nodeData = new MappingNodeData(documentNodeData, forEachItem);
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />);
+
+      const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+      fireEvent.click(actionToggle);
+
+      const innerFlyout = screen.getByTestId(`transformation-actions-group-${MappingActionGroup.InnerInstruction}`);
+      fireEvent.click(innerFlyout.getElementsByTagName('button')[0]);
+
+      expect(await screen.findByTestId('transformation-actions-foreach-inner')).toBeInTheDocument();
+      expect(screen.getByTestId('transformation-actions-if-inner')).toBeInTheDocument();
+      expect(screen.getByTestId('transformation-actions-choose-inner')).toBeInTheDocument();
+    });
+
+    it('should render ungrouped actions as direct top-level items', () => {
+      const nodeData = new TargetFieldNodeData(
+        documentNodeData,
+        targetDoc.fields[0],
+        new FieldItem(mappingTree, targetDoc.fields[0]),
+      );
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />);
+
+      const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+      fireEvent.click(actionToggle);
+
+      expect(screen.getByTestId('transformation-actions-selector')).toBeInTheDocument();
+      expect(screen.getByTestId('transformation-actions-comment')).toBeInTheDocument();
+    });
+
+    it('should not render flyout parent when all group actions are filtered out', () => {
+      const nodeData = new MappingNodeData(documentNodeData, new ChooseItem(mappingTree, targetDoc.fields[0]));
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />);
+
+      const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+      fireEvent.click(actionToggle);
+
+      const menuItems = MappingActionRegistryService.getMappingContextMenuItems(nodeData);
+      const hasWrapGroup = menuItems.some((item) => item.group === MappingActionGroup.WrapWithInstruction);
+      const hasInnerGroup = menuItems.some((item) => item.group === MappingActionGroup.InnerInstruction);
+      expect(hasWrapGroup).toBe(false);
+      expect(hasInnerGroup).toBe(false);
+      expect(
+        screen.queryByTestId(`transformation-actions-group-${MappingActionGroup.WrapWithInstruction}`),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId(`transformation-actions-group-${MappingActionGroup.InnerInstruction}`),
+      ).not.toBeInTheDocument();
     });
   });
 });
