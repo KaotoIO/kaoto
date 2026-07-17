@@ -1,3 +1,6 @@
+import icon_bob from '../../../../../../assets/bob/bob-icon.svg';
+import icon_bob_text_node from '../../../../../../assets/bob/text-node.svg';
+import icon_bob_tool from '../../../../../../assets/bob/tool-node.svg';
 import icon_action_camel from '../../../../../../assets/camel-logo.svg';
 import icon_action_async from '../../../../../../assets/citrus/async-action.svg';
 import icon_action_conditional from '../../../../../../assets/citrus/conditional-action.svg';
@@ -298,6 +301,10 @@ export class NodeIconResolver {
       case CatalogKind.TestFunction:
       case CatalogKind.TestValidationMatcher:
         return this.getCitrusComponentIcon(elementName) ?? this.getDefaultCitrusIcon();
+      case CatalogKind.BobTool:
+        return this.getDefaultBobToolIcon();
+      case CatalogKind.BobComponent:
+        return this.getBobComponentIcon(elementName) ?? this.getDefaultBobIcon();
       default:
         return this.getDefaultCamelIcon();
     }
@@ -1143,8 +1150,26 @@ export class NodeIconResolver {
         return icon_eip_throwException;
       case PlaceholderType.Placeholder:
         return expandIcon;
+      case EntityType.CustomMode:
+        return icon_bob;
       default:
         return undefined;
     }
+  }
+
+  static getDefaultBobIcon(): string {
+    return icon_bob;
+  }
+
+  static getDefaultBobToolIcon(): string {
+    return icon_bob_tool;
+  }
+
+  private static readonly BOB_COMPONENT_ICONS: Record<string, string> = {
+    'text-node': icon_bob_text_node,
+  };
+
+  private static getBobComponentIcon(elementName: string): string | undefined {
+    return this.BOB_COMPONENT_ICONS[elementName];
   }
 }
