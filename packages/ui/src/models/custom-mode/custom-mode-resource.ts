@@ -43,7 +43,7 @@ export class CustomModeResource implements KaotoResource {
   }
 
   getVisualEntities(): CustomModeVisualEntity[] {
-    return this.entities;
+    return [...this.entities];
   }
 
   getEntities(): BaseEntity[] {

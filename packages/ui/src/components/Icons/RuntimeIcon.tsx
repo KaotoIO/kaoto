@@ -2,6 +2,7 @@ import './RuntimeIcon.scss';
 
 import { Icon } from '@patternfly/react-core';
 
+import bobIcon from '../../assets/bob/bob-icon.svg';
 import camelLogo from '../../assets/camel-logo.svg';
 import citrusLogo from '../../assets/citrus-logo.png';
 import quarkusLogo from '../../assets/quarkus-logo.svg';
@@ -37,7 +38,7 @@ export const getRuntimeIcon = (runtimeOrName: string = '') => {
   if (normalized.includes('bob')) {
     return (
       <Icon className="runtime-icon">
-        <img src={camelLogo} alt="Bob logo" />
+        <img src={bobIcon} alt="Bob logo" />
       </Icon>
     );
   }

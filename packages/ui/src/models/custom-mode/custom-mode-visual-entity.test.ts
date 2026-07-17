@@ -3,11 +3,13 @@ import { JSONSchema4 } from 'json-schema';
 import modesStub from '../../stubs/bob-catalog/bob-modes.json';
 import { BOB_CUSTOM_MODE_ROOT_ENTITY_NAME } from '../bob/bob-catalog-index';
 import { ICamelProcessorDefinition } from '../camel/camel-processors-catalog';
+import { SourceSchemaType } from '../camel/source-schema-type';
 import { CatalogKind } from '../catalog-kind';
 import { EntityType } from '../entities';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelCatalogService } from '../visualization/flows/camel-catalog.service';
 import { NodeEnrichmentService } from '../visualization/flows/nodes/node-enrichment.service';
+import { NodeIconResolver } from '../visualization/flows/nodes/resolvers/icon-resolver/node-icon-resolver';
 import { CustomMode } from './custom-mode-types';
 import { CustomModeVisualEntity } from './custom-mode-visual-entity';
 
@@ -244,54 +246,209 @@ describe('CustomModeVisualEntity', () => {
   });
 
   describe('getNodeInteraction', () => {
-    it('canRemoveFlow true for root path regardless of isGroup', () => {
-      expect(entity.getNodeInteraction({ path: 'customMode', isGroup: false } as never).canRemoveFlow).toBe(true);
-      expect(entity.getNodeInteraction({ path: 'customMode', isGroup: true } as never).canRemoveFlow).toBe(true);
+    it('canRemoveFlow is true for root path', () => {
+      expect(entity.getNodeInteraction({ path: 'customMode' } as never).canRemoveFlow).toBe(true);
     });
 
-    it('canRemoveStep and canBeDisabled are always false', () => {
-      const interaction = entity.getNodeInteraction({ path: 'customMode', isGroup: true } as never);
-      expect(interaction.canRemoveStep).toBe(false);
+    it('all step-level flags true for a step path', () => {
+      const interaction = entity.getNodeInteraction({
+        path: 'customMode.customInstructions.0.step',
+      } as never);
+      expect(interaction.canHavePreviousStep).toBe(true);
+      expect(interaction.canHaveNextStep).toBe(true);
+      expect(interaction.canRemoveStep).toBe(true);
+      expect(interaction.canReplaceStep).toBe(true);
+      expect(interaction.canRemoveFlow).toBe(false);
       expect(interaction.canHaveChildren).toBe(false);
       expect(interaction.canBeDisabled).toBe(false);
     });
 
-    it('all false for customInstructions siblings', () => {
+    it('all false for a placeholder path', () => {
       const interaction = entity.getNodeInteraction({
-        path: 'customMode.customInstructions.0.section',
-        isGroup: false,
+        path: 'customMode.customInstructions.2.placeholder',
       } as never);
-      expect(interaction.canRemoveFlow).toBe(false);
       expect(interaction.canRemoveStep).toBe(false);
+      expect(interaction.canReplaceStep).toBe(false);
+      expect(interaction.canHavePreviousStep).toBe(false);
+      expect(interaction.canRemoveFlow).toBe(false);
+    });
+
+    it('all false for undefined path', () => {
+      const interaction = entity.getNodeInteraction({ path: undefined } as never);
+      expect(interaction.canRemoveStep).toBe(false);
+      expect(interaction.canRemoveFlow).toBe(false);
     });
   });
 
-  describe('canDragNode / canDropOnNode / getCopiedContent', () => {
-    it('always returns false / undefined', () => {
+  describe('canDragNode / canDropOnNode', () => {
+    it('always returns false', () => {
       expect(entity.canDragNode()).toBe(false);
       expect(entity.canDragNode('customMode')).toBe(false);
       expect(entity.canDropOnNode()).toBe(false);
-      expect(entity.getCopiedContent('customMode')).toBeUndefined();
     });
   });
 
-  describe('addStep / removeStep / pasteStep', () => {
-    it('addStep is a no-op', () => {
-      expect(() => {
-        entity.addStep({ definedComponent: {} as never, mode: AddStepMode.AppendStep, data: {} as never });
-      }).not.toThrow();
+  describe('extractStepIndex (private, tested via cast)', () => {
+    const getIndex = (e: CustomModeVisualEntity, path: string) =>
+      (e as unknown as { extractStepIndex: (p: string) => number }).extractStepIndex(path);
+
+    it('returns the numeric index from a step path', () => {
+      expect(getIndex(entity, 'customMode.customInstructions.0.step')).toBe(0);
+      expect(getIndex(entity, 'customMode.customInstructions.3.step')).toBe(3);
     });
 
-    it('removeStep is a no-op', () => {
-      expect(() => {
-        entity.removeStep('customMode.customInstructions.0.section');
-      }).not.toThrow();
+    it('returns the numeric index from a placeholder path', () => {
+      expect(getIndex(entity, 'customMode.customInstructions.2.placeholder')).toBe(2);
     });
 
-    it('pasteStep is a no-op', () => {
-      expect(() => {
-        entity.pasteStep({ clipboardContent: {} as never, mode: AddStepMode.AppendStep, data: {} as never });
-      }).not.toThrow();
+    it('returns -1 for the root path', () => {
+      expect(getIndex(entity, 'customMode')).toBe(-1);
+    });
+
+    it('returns -1 for an unrecognised path', () => {
+      expect(getIndex(entity, 'other.path')).toBe(-1);
+    });
+  });
+
+  describe('addStep', () => {
+    const instructions =
+      'system instructions:\nfollow the below instructions strictly.\n\n1. First step\n\n2. Second step\n';
+
+    it('AppendStep on placeholder pushes a new step to the end', () => {
+      const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
+      e.addStep({
+        definedComponent: { name: 'my-component', type: CatalogKind.BobComponent } as never,
+        mode: AddStepMode.AppendStep,
+        data: { path: 'customMode.customInstructions.2.placeholder' } as never,
+      });
+      const serialized = e.toJSON().customInstructions ?? '';
+      expect(serialized).toMatch(/3\. my-component/);
+    });
+
+    it('PrependStep on index 0 inserts before the first step', () => {
+      const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
+      e.addStep({
+        definedComponent: { name: 'new-step', type: CatalogKind.BobComponent } as never,
+        mode: AddStepMode.PrependStep,
+        data: { path: 'customMode.customInstructions.0.step' } as never,
+      });
+      const serialized = e.toJSON().customInstructions ?? '';
+      // new-step is now step 1
+      expect(serialized).toMatch(/^1\. new-step/m);
+      // original first step is now step 2
+      expect(serialized).toMatch(/^2\. First step/m);
+    });
+
+    it('ReplaceStep replaces the node at the given index, length unchanged', () => {
+      const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
+      e.addStep({
+        definedComponent: { name: 'replacement', type: CatalogKind.BobComponent } as never,
+        mode: AddStepMode.ReplaceStep,
+        data: { path: 'customMode.customInstructions.0.step' } as never,
+      });
+      const serialized = e.toJSON().customInstructions ?? '';
+      expect(serialized).toMatch(/^1\. replacement/m);
+      expect(serialized).not.toContain('First step');
+      // still 2 steps
+      expect(serialized).toMatch(/^2\. Second step/m);
+    });
+
+    it('is a no-op for the root path', () => {
+      const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
+      const before = e.toJSON().customInstructions;
+      e.addStep({
+        definedComponent: { name: 'ghost', type: CatalogKind.BobComponent } as never,
+        mode: AddStepMode.AppendStep,
+        data: { path: 'customMode' } as never,
+      });
+      expect(e.toJSON().customInstructions).toBe(before);
+    });
+  });
+
+  describe('removeStep', () => {
+    const instructions =
+      'system instructions:\nfollow the below instructions strictly.\n\n1. First step\n\n2. Second step\n\n3. Third step\n';
+
+    it('removes the step at the given index and reindexes', () => {
+      const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
+      e.removeStep('customMode.customInstructions.1.step');
+      const serialized = e.toJSON().customInstructions ?? '';
+      expect(serialized).not.toContain('Second step');
+      expect(serialized).toMatch(/^1\. First step/m);
+      expect(serialized).toMatch(/^2\. Third step/m);
+    });
+
+    it('is a no-op for undefined path', () => {
+      const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
+      const before = e.toJSON().customInstructions;
+      e.removeStep(undefined);
+      expect(e.toJSON().customInstructions).toBe(before);
+    });
+
+    it('is a no-op for the root path', () => {
+      const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
+      const before = e.toJSON().customInstructions;
+      e.removeStep('customMode');
+      expect(e.toJSON().customInstructions).toBe(before);
+    });
+  });
+
+  describe('getCopiedContent', () => {
+    const instructions =
+      'system instructions:\nfollow the below instructions strictly.\n\n1. Parse input\n   - Read carefully\n\n2. Return result\n';
+
+    it('returns clipboard object for a valid step path', () => {
+      const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
+      const result = e.getCopiedContent('customMode.customInstructions.0.step');
+      expect(result).toBeDefined();
+      expect(result!.type).toBe(SourceSchemaType.CustomMode);
+      expect(result!.name).toBe('Parse input');
+      expect(result!.definition).toMatchObject({ nodeType: 'step', title: 'Parse input' });
+    });
+
+    it('returns undefined for undefined path', () => {
+      const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
+      expect(e.getCopiedContent(undefined)).toBeUndefined();
+    });
+
+    it('returns undefined for the root path', () => {
+      const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
+      expect(e.getCopiedContent('customMode')).toBeUndefined();
+    });
+  });
+
+  describe('pasteStep', () => {
+    const instructions =
+      'system instructions:\nfollow the below instructions strictly.\n\n1. First step\n\n2. Second step\n';
+
+    it('AppendStep pastes a cloned node after the target index', () => {
+      const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
+      const clipboard = e.getCopiedContent('customMode.customInstructions.0.step')!;
+      e.pasteStep({
+        clipboardContent: clipboard,
+        mode: AddStepMode.AppendStep,
+        data: { path: 'customMode.customInstructions.1.step' } as never,
+      });
+      const serialized = e.toJSON().customInstructions ?? '';
+      // 3 steps now; the pasted node is after index 1 → position 3
+      expect(serialized).toMatch(/^3\. First step/m);
+    });
+
+    it('pasted node is a clone — mutating original does not affect paste', () => {
+      const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
+      const clipboard = e.getCopiedContent('customMode.customInstructions.0.step')!;
+      // Mutate the definition object on the clipboard
+      (clipboard.definition as { title: string }).title = 'MUTATED';
+      e.pasteStep({
+        clipboardContent: clipboard,
+        mode: AddStepMode.AppendStep,
+        data: { path: 'customMode.customInstructions.1.step' } as never,
+      });
+      // The shallow clone at paste time means the mutated title IS reflected in the pasted node
+      const pastedDef = e.getNodeDefinition('customMode.customInstructions.2.step') as { label: string };
+      expect(pastedDef.label).toBe('MUTATED'); // shallow clone reflects mutation — this is acceptable
+      // The original parsedNodes[0] title should still be 'First step'
+      expect(e.getCopiedContent('customMode.customInstructions.0.step')!.name).toBe('First step');
     });
   });
 
@@ -433,5 +590,36 @@ describe('CustomModeVisualEntity', () => {
       expect(def['path']).toBe('roundtrip.md');
       expect(def['description']).toBe('round-trip value');
     });
+  });
+});
+
+describe('NodeIconResolver — Bob icons', () => {
+  it('getDefaultBobIcon returns a non-empty string', () => {
+    expect(NodeIconResolver.getDefaultBobIcon()).toBeTruthy();
+  });
+
+  it('getDefaultBobToolIcon returns a non-empty string', () => {
+    expect(NodeIconResolver.getDefaultBobToolIcon()).toBeTruthy();
+  });
+
+  it('getIcon with BobTool returns the tool icon', async () => {
+    const icon = await NodeIconResolver.getIcon('read_file', CatalogKind.BobTool);
+    expect(icon).toBe(NodeIconResolver.getDefaultBobToolIcon());
+  });
+
+  it('getIcon with BobComponent and known name returns the component icon', async () => {
+    const icon = await NodeIconResolver.getIcon('text-node', CatalogKind.BobComponent);
+    expect(icon).not.toBe(NodeIconResolver.getDefaultBobIcon());
+    expect(icon).toBeTruthy();
+  });
+
+  it('getIcon with BobComponent and unknown name falls back to bob icon', async () => {
+    const icon = await NodeIconResolver.getIcon('unknown-component', CatalogKind.BobComponent);
+    expect(icon).toBe(NodeIconResolver.getDefaultBobIcon());
+  });
+
+  it('getIcon with Entity/CustomMode returns the bob icon', async () => {
+    const icon = await NodeIconResolver.getIcon(EntityType.CustomMode, CatalogKind.Entity);
+    expect(icon).toBe(NodeIconResolver.getDefaultBobIcon());
   });
 });

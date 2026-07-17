@@ -2,6 +2,7 @@ import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../camel-utils/camel-random-id';
 import { DefinedComponent } from '../camel/camel-catalog-index';
+import { SourceSchemaType } from '../camel/source-schema-type';
 import { CatalogKind } from '../catalog-kind';
 import { EntityType } from '../entities';
 import { KaotoSchemaDefinition } from '../kaoto-schema';
@@ -9,7 +10,6 @@ import { NodeLabelType } from '../settings/settings.model';
 import {
   AddStepMode,
   BaseVisualEntity,
-  DISABLED_NODE_INTERACTION,
   IVisualizationNode,
   IVisualizationNodeData,
   NodeInteraction,
@@ -151,7 +151,18 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
   }
 
   getNodeInteraction(data: IVisualizationNodeData): NodeInteraction {
-    return { ...DISABLED_NODE_INTERACTION, canRemoveFlow: data.path === this.getRootPath() };
+    const isRoot = data.path === this.getRootPath();
+    const isStep = !isRoot && isDefined(data.path) && !data.path.endsWith('.placeholder');
+    return {
+      canHavePreviousStep: isStep,
+      canHaveNextStep: isStep,
+      canHaveChildren: false,
+      canHaveSpecialChildren: false,
+      canReplaceStep: isStep,
+      canRemoveStep: isStep,
+      canRemoveFlow: isRoot,
+      canBeDisabled: false,
+    };
   }
 
   getNodeValidationText(_path?: string): string | undefined {
@@ -166,34 +177,80 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
     return false;
   }
 
-  getCopiedContent(_path?: string): IClipboardCopyObject | undefined {
-    return undefined;
+  getCopiedContent(path?: string): IClipboardCopyObject | undefined {
+    if (!path) return undefined;
+    const index = this.extractStepIndex(path);
+    if (index === -1 || !this.parsedNodes[index]) return undefined;
+
+    const node = this.parsedNodes[index];
+    return {
+      type: SourceSchemaType.CustomMode,
+      name: node.title,
+      definition: { ...node },
+    };
   }
 
-  /** No-op — deferred to drag-and-drop epic. */
-  addStep(_options: {
+  addStep(options: {
     definedComponent: DefinedComponent;
     mode: AddStepMode;
     data: IVisualizationNodeData;
     targetProperty?: string;
     insertAtStart?: boolean;
   }): void {
-    // TODO: drag-and-drop epic
+    const index = this.extractStepIndex(options.data.path ?? '');
+    if (index === -1) return;
+
+    const newNode: CustomInstructionsNode = {
+      nodeType: 'step',
+      title: options.definedComponent.name,
+      rawContent: options.definedComponent.name,
+      index: 0,
+    };
+
+    if (options.mode === AddStepMode.PrependStep) {
+      this.parsedNodes.splice(index, 0, newNode);
+    } else if (options.mode === AddStepMode.ReplaceStep) {
+      this.parsedNodes.splice(index, 1, newNode);
+    } else {
+      // AppendStep and InsertChildStep both insert after the target index
+      this.parsedNodes.splice(index + 1, 0, newNode);
+    }
+
+    this.reindexNodes();
+    this.parsedNodesDirty = true;
   }
 
-  /** No-op — deferred to drag-and-drop epic. */
-  removeStep(_path?: string): void {
-    // TODO: drag-and-drop epic
+  removeStep(path?: string): void {
+    if (!path) return;
+    const index = this.extractStepIndex(path);
+    if (index === -1) return;
+
+    this.parsedNodes.splice(index, 1);
+    this.reindexNodes();
+    this.parsedNodesDirty = true;
   }
 
-  /** No-op — deferred to drag-and-drop epic. */
-  pasteStep(_options: {
+  pasteStep(options: {
     clipboardContent: IClipboardCopyObject;
     mode: AddStepMode;
     data: IVisualizationNodeData;
     insertAtStart?: boolean;
   }): void {
-    // TODO: drag-and-drop epic
+    const index = this.extractStepIndex(options.data.path ?? '');
+    if (index === -1) return;
+
+    const cloned = { ...(options.clipboardContent.definition as CustomInstructionsNode) };
+
+    if (options.mode === AddStepMode.PrependStep) {
+      this.parsedNodes.splice(index, 0, cloned);
+    } else if (options.mode === AddStepMode.ReplaceStep) {
+      this.parsedNodes.splice(index, 1, cloned);
+    } else {
+      this.parsedNodes.splice(index + 1, 0, cloned);
+    }
+
+    this.reindexNodes();
+    this.parsedNodesDirty = true;
   }
 
   async toVizNode(): Promise<IVisualizationNode> {
@@ -270,5 +327,17 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
     }
 
     return modeGroupNode;
+  }
+  private extractStepIndex(path: string): number {
+    const prefix = `${this.getRootPath()}.customInstructions.`;
+    if (!path.startsWith(prefix)) return -1;
+    const index = Number(path.replace(prefix, '').split('.')[0]);
+    return Number.isInteger(index) && !Number.isNaN(index) ? index : -1;
+  }
+
+  private reindexNodes(): void {
+    this.parsedNodes.forEach((node, i) => {
+      node.index = i + 1;
+    });
   }
 }
