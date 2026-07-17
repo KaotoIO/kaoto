@@ -32,6 +32,28 @@ export enum MappingActionKind {
 }
 
 /**
+ * Groups related context menu actions into flyout submenus.
+ *
+ * "Wrap with Instruction" vs "Inner Instruction" reflects the structural
+ * difference: wrap actions enclose the current field's mapping with an
+ * instruction element, while inner actions insert a new instruction inside
+ * the current instruction scope.
+ *
+ * Flyout submenus were chosen over a flat `DropdownGroup` to reduce visual
+ * noise when up to 17 items are shown simultaneously, and to align with
+ * the future Carbon Design System migration (Carbon's `Menu` component
+ * uses the same flyout submenu pattern natively).
+ *
+ * The component derives groups from visible actions rather than referencing
+ * concrete group names, so adding a new group only requires an enum value
+ * and `group` on the registry entry.
+ */
+export enum MappingActionGroup {
+  WrapWithInstruction = 'Wrap with Instruction',
+  InnerInstruction = 'Inner Instruction',
+}
+
+/**
  * Callbacks passed to {@link IMappingContextMenuAction.apply} so that action
  * handlers can trigger side effects uniformly — both immediate actions
  * (call service + `onUpdate`) and modal-based actions (`openModal`).
@@ -59,6 +81,7 @@ export interface IMappingAction {
  */
 export interface IMappingContextMenuAction extends IMappingAction {
   testId: string;
+  group?: MappingActionGroup;
   getLabel: (nodeData: TargetNodeData) => string;
   apply: (nodeData: TargetNodeData, callbacks: IMappingActionCallbacks) => void;
 }
