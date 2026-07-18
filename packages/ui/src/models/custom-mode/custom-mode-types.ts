@@ -27,21 +27,30 @@ export interface CustomModeFile {
 /**
  * Represents a single parsed instruction step from a customInstructions block.
  *
- * nodeType is always 'step' for now — it represents one numbered list item
- * (e.g. "1. Parse the draft", "2. Write Role Summary").
- *
- * TODO: Epic 7 — decide whether additional nodeType values are needed (e.g.
- * 'tool-call', 'decision') once the canvas node catalogue is finalised.
+ * `nodeType` is either:
+ *  - `'step'`            — an ordinary numbered instruction (default)
+ *  - `'tool-invocation'` — the list-item title is exactly `**toolName**`,
+ *                          meaning the step represents a direct tool call.
+ *                          The resolved tool name is stored in `toolName`.
  */
 export interface CustomInstructionsNode {
-  /** Discriminator for the canvas node type. Currently always 'step'. */
-  nodeType: string;
+  /**
+   * Discriminator for the canvas node type.
+   * - `'step'`            — ordinary instruction step
+   * - `'tool-invocation'` — direct tool call (title is `**toolName**`)
+   */
+  nodeType: 'step' | 'tool-invocation';
   /** The full markdown text of the list item (title paragraph + sub-bullets). */
   rawContent: string;
   /** Plain-text title extracted from the first paragraph of the list item. */
   title: string;
   /** 1-based position of this step in the ordered list. */
   index: number;
+  /**
+   * The tool name extracted from the `**toolName**` title pattern.
+   * Only present when `nodeType === 'tool-invocation'`.
+   */
+  toolName?: string;
 }
 
 /**

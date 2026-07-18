@@ -88,7 +88,12 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
       if (!Number.isInteger(index)) return undefined;
       const node = this.parsedNodes[index];
       if (!node) return undefined;
-      // Project CustomInstructionsNode onto the text-node catalog schema shape.
+      // Tool-invocation nodes: parse sub-bullets into a key→value record matching
+      // the tool's propertiesSchema so form fields are populated correctly.
+      if (node.nodeType === 'tool-invocation') {
+        return CustomInstructionsParser.parseToolParams(node.rawContent);
+      }
+      // Ordinary step nodes: use the text-node catalog schema shape.
       return { content: node.rawContent, label: node.title, order: node.index };
     }
     return undefined;
@@ -110,16 +115,28 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
     if (path.startsWith(`${this.getRootPath()}.customInstructions.`)) {
       const index = Number(path.replace(`${this.getRootPath()}.customInstructions.`, '').split('.')[0]);
       if (Number.isInteger(index) && isDefined(this.parsedNodes[index])) {
-        // The form submits the catalog shape { content, label, order }.
-        // Reverse-map back to CustomInstructionsNode before persisting.
-        const formValue = value as { content?: string; label?: string; order?: number };
         const existing = this.parsedNodes[index];
-        this.parsedNodes[index] = {
-          nodeType: existing.nodeType,
-          rawContent: formValue.content ?? existing.rawContent,
-          title: formValue.label ?? existing.title,
-          index: typeof formValue.order === 'number' ? formValue.order : existing.index,
-        };
+        if (existing.nodeType === 'tool-invocation' && isDefined(existing.toolName)) {
+          // Tool-invocation form submits a key→value record matching the tool's schema.
+          // Re-serialize it into the **toolName** + bullet-list rawContent format.
+          const params = value as Record<string, string>;
+          this.parsedNodes[index] = {
+            nodeType: 'tool-invocation',
+            rawContent: CustomInstructionsParser.serializeToolParams(existing.toolName, params),
+            title: existing.toolName,
+            index: existing.index,
+            toolName: existing.toolName,
+          };
+        } else {
+          // Ordinary step: the form submits the text-node catalog shape { content, label, order }.
+          const formValue = value as { content?: string; label?: string; order?: number };
+          this.parsedNodes[index] = {
+            nodeType: existing.nodeType,
+            rawContent: formValue.content ?? existing.rawContent,
+            title: formValue.label ?? existing.title,
+            index: typeof formValue.order === 'number' ? formValue.order : existing.index,
+          };
+        }
         this.parsedNodesDirty = true;
       }
     }
@@ -203,22 +220,26 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
 
     // 2. customInstructions step nodes — one per parsed instruction step.
     // title and index are populated by CustomInstructionsParser.parseAll().
-    // node.nodeType is looked up in the BobComponent catalog for icon/title enrichment.
+    // For 'tool-invocation' nodes, the catalog key is the tool name (BobTool catalog).
+    // For 'step' nodes, the catalog key is the nodeType (BobComponent catalog).
     const siblings: IVisualizationNode[] = [];
     for (let i = 0; i < this.parsedNodes.length; i++) {
       const node = this.parsedNodes[i];
-      const path = `${this.getRootPath()}.customInstructions.${i}.${node.nodeType}`;
+      const isToolInvocation = node.nodeType === 'tool-invocation';
+      const catalogKey = isToolInvocation ? (node.toolName ?? node.nodeType) : node.nodeType;
+      const catalogKind = isToolInvocation ? CatalogKind.BobTool : CatalogKind.BobComponent;
+      const path = `${this.getRootPath()}.customInstructions.${i}.${catalogKey}`;
       const vizNode = createVisualizationNode(path, {
-        name: node.nodeType,
+        name: catalogKey,
         path,
         entity: this,
         isPlaceholder: false,
         isGroup: false,
         iconUrl: '',
-        title: node.title ?? node.nodeType,
+        title: node.title ?? catalogKey,
         description: node.rawContent,
       });
-      await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.BobComponent);
+      await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, catalogKind);
       // Parsed title takes priority over whatever the catalog returns for the generic type.
       if (node.title) {
         vizNode.data.title = node.title;
