@@ -35,12 +35,12 @@ const NO_LIST_INSTRUCTIONS = `
 This mode has no numbered steps, just free-form prose.
 `.trim();
 
-/** Orchestrator-style 5-step instructions (mirrors examples/custom_modes_jd.yaml). */
+/** Orchestrator-style 5-step instructions (mirrors examples/custom_modes_jd.yaml, old format). */
 const ORCHESTRATOR_INSTRUCTIONS = `
 system instructions:
 follow the below instructions strictly.
  **switch_mode** -- if you see this. switch to the desired mode and proceed to spawn a subagent
- **spawn_subagent** -- if you see this. spawn a subagent. 
+ **spawn_subagent** -- if you see this. spawn a subagent.
 
 # JD Pipeline Orchestrator
 
@@ -84,6 +84,44 @@ follow the below instructions strictly.
 > - Always call **switch_mode** before **spawn_subagent** for every specialist step.
 `.trim();
 
+/**
+ * New JD-style instructions where a step title is `**tool_name**`
+ * (mirrors the updated examples/custom_modes_jd.yaml, line 303 format).
+ */
+const TOOL_INVOCATION_INSTRUCTIONS = `
+system instructions:
+follow the below instructions strictly.
+ **switch_mode** -- if you see this. switch to the desired mode and proceed to spawn a subagent
+ **spawn_subagent** -- if you see this. spawn a subagent.
+
+# JD Pipeline Orchestrator
+
+1. **read_file**
+   - title: Read source file
+   - description: the path provided by the user (default: \`sample_file_jd_normalizer.md\`)
+   - Store as \`$INPUT\`: \`source_path\`, \`content\`, \`char_count\`, \`line_count\`
+   - If file not found, report error and stop
+
+2. **update_todo_list**
+   - todos: Step 1 done, Steps 2A + 2B in progress
+
+3. **switch_mode**
+   - mode_id: jd-rewrite-a1b2
+
+4. **spawn_subagent**
+   - name: Subagent A — Rewrite
+   - taskDescription:
+     - pass \`{ "content": $INPUT.content, "source_path": $INPUT.source_path }\`
+     - Collect \`$REWRITE_RESULT\`
+
+5. Plain step with **bold** inside
+   - Some description mentioning **read_file** tool
+   - but the title itself is not a bare tool name
+
+> Hard rules
+> - Do not invent content.
+`.trim();
+
 // ---------------------------------------------------------------------------
 // parse() — backward-compat convenience wrapper
 // ---------------------------------------------------------------------------
@@ -110,7 +148,7 @@ describe('CustomInstructionsParser', () => {
       expect(CustomInstructionsParser.parse(ORCHESTRATOR_INSTRUCTIONS)).toHaveLength(5);
     });
 
-    it('every node has nodeType "step"', () => {
+    it('every node from MINIMAL_INSTRUCTIONS has nodeType "step"', () => {
       CustomInstructionsParser.parse(MINIMAL_INSTRUCTIONS).forEach((n) => {
         expect(n.nodeType).toBe('step');
       });
@@ -182,6 +220,64 @@ describe('CustomInstructionsParser', () => {
     it('step 1 rawContent contains the update_todo_list tool ref (orchestrator)', () => {
       const nodes = CustomInstructionsParser.parse(ORCHESTRATOR_INSTRUCTIONS);
       expect(nodes[0].rawContent).toMatch(/update.?_?.?todo.?_?.?list/);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // tool-invocation nodeType — **toolName** title format (JD YAML new style)
+  // ---------------------------------------------------------------------------
+
+  describe('tool-invocation steps (new **toolName** title format)', () => {
+    it('returns 5 nodes for the tool-invocation fixture', () => {
+      expect(CustomInstructionsParser.parse(TOOL_INVOCATION_INSTRUCTIONS)).toHaveLength(5);
+    });
+
+    it('step 1 has nodeType "tool-invocation"', () => {
+      const nodes = CustomInstructionsParser.parse(TOOL_INVOCATION_INSTRUCTIONS);
+      expect(nodes[0].nodeType).toBe('tool-invocation');
+    });
+
+    it('step 1 toolName is "read_file"', () => {
+      const nodes = CustomInstructionsParser.parse(TOOL_INVOCATION_INSTRUCTIONS);
+      expect(nodes[0].toolName).toBe('read_file');
+    });
+
+    it('step 2 toolName is "update_todo_list"', () => {
+      const nodes = CustomInstructionsParser.parse(TOOL_INVOCATION_INSTRUCTIONS);
+      expect(nodes[1].toolName).toBe('update_todo_list');
+    });
+
+    it('step 3 toolName is "switch_mode"', () => {
+      const nodes = CustomInstructionsParser.parse(TOOL_INVOCATION_INSTRUCTIONS);
+      expect(nodes[2].toolName).toBe('switch_mode');
+    });
+
+    it('step 4 toolName is "spawn_subagent"', () => {
+      const nodes = CustomInstructionsParser.parse(TOOL_INVOCATION_INSTRUCTIONS);
+      expect(nodes[3].toolName).toBe('spawn_subagent');
+    });
+
+    it('step 5 is a plain step (bold inside body, not bare title)', () => {
+      const nodes = CustomInstructionsParser.parse(TOOL_INVOCATION_INSTRUCTIONS);
+      expect(nodes[4].nodeType).toBe('step');
+      expect(nodes[4].toolName).toBeUndefined();
+    });
+
+    it('tool-invocation step title matches the tool name text', () => {
+      const nodes = CustomInstructionsParser.parse(TOOL_INVOCATION_INSTRUCTIONS);
+      expect(nodes[0].title).toBe('read_file');
+    });
+
+    it('tool-invocation rawContent includes the parameter sub-bullets', () => {
+      const nodes = CustomInstructionsParser.parse(TOOL_INVOCATION_INSTRUCTIONS);
+      // rawContent of step 1 must include the description sub-bullet
+      expect(nodes[0].rawContent).toContain('title');
+    });
+
+    it('toolName is undefined on ordinary step nodes', () => {
+      CustomInstructionsParser.parse(MINIMAL_INSTRUCTIONS).forEach((n) => {
+        expect(n.toolName).toBeUndefined();
+      });
     });
   });
 
@@ -349,6 +445,94 @@ Skill categories:
       expect(serialized).toMatch(/^system instructions:/);
       expect(serialized).toContain('1. First step');
       expect(serialized).toContain('> Hard rules');
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // parseToolParams()
+  // ---------------------------------------------------------------------------
+
+  describe('parseToolParams', () => {
+    it('returns empty object for empty rawContent', () => {
+      expect(CustomInstructionsParser.parseToolParams('')).toEqual({});
+    });
+
+    it('returns empty object when there is no unordered sub-list', () => {
+      expect(CustomInstructionsParser.parseToolParams('**read_file**')).toEqual({});
+    });
+
+    it('parses simple key: value bullets', () => {
+      const raw = '**read_file**\n\n* path: foo.md\n* range: 1-50';
+      const result = CustomInstructionsParser.parseToolParams(raw);
+      expect(result['path']).toBe('foo.md');
+      expect(result['range']).toBe('1-50');
+    });
+
+    it('parses the JD YAML format (id, path, description with nested bullets)', () => {
+      const raw =
+        '**read\\_file**\n\n' +
+        '* id: Read source file\n' +
+        '* path: sample\\_file\\_jd\\_normalizer.md\n' +
+        '* description:\n' +
+        '  * the path provided by the user\n' +
+        '  * Store as $INPUT: source\\_path, content';
+      const result = CustomInstructionsParser.parseToolParams(raw);
+      expect(result['id']).toBe('Read source file');
+      expect(result['path']).toBe('sample_file_jd_normalizer.md');
+      // nested bullets are concatenated under the description key
+      expect(result['description']).toMatch(/the path provided/);
+    });
+
+    it('collects free-form bullets without a colon under _notes', () => {
+      const raw = '**read_file**\n\n* path: foo.md\n* just a note without colon';
+      const result = CustomInstructionsParser.parseToolParams(raw);
+      expect(result['path']).toBe('foo.md');
+      expect(result['_notes']).toBe('just a note without colon');
+    });
+
+    it('does not include _notes key when all bullets have colons', () => {
+      const raw = '**read_file**\n\n* path: foo.md';
+      const result = CustomInstructionsParser.parseToolParams(raw);
+      expect(result['_notes']).toBeUndefined();
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // serializeToolParams()
+  // ---------------------------------------------------------------------------
+
+  describe('serializeToolParams', () => {
+    it('produces **toolName** header with bullet-list params', () => {
+      const out = CustomInstructionsParser.serializeToolParams('read_file', { path: 'foo.md', range: '1-50' });
+      expect(out).toContain('**read_file**');
+      expect(out).toContain('* path: foo.md');
+      expect(out).toContain('* range: 1-50');
+    });
+
+    it('produces only the header when params are empty', () => {
+      const out = CustomInstructionsParser.serializeToolParams('read_file', {});
+      expect(out).toBe('**read_file**');
+    });
+
+    it('omits keys starting with underscore', () => {
+      const out = CustomInstructionsParser.serializeToolParams('read_file', { path: 'foo.md', _notes: 'skip me' });
+      expect(out).not.toContain('_notes');
+      expect(out).toContain('path: foo.md');
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // parseToolParams → serializeToolParams round-trip
+  // ---------------------------------------------------------------------------
+
+  describe('parseToolParams → serializeToolParams round-trip', () => {
+    it('parse then serialize then parse produces the same keys and values', () => {
+      const raw = '**read_file**\n\n* path: foo.md\n* range: 1-50';
+      const parsed = CustomInstructionsParser.parseToolParams(raw);
+      const reserialized = CustomInstructionsParser.serializeToolParams('read_file', parsed);
+      const roundTripped = CustomInstructionsParser.parseToolParams(reserialized);
+      expect(roundTripped['path']).toBe(parsed['path']);
+      expect(roundTripped['range']).toBe(parsed['range']);
     });
   });
 });

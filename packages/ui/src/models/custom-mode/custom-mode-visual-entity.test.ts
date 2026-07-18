@@ -119,6 +119,30 @@ describe('CustomModeVisualEntity', () => {
       expect(entity.getNodeDefinition('other')).toBeUndefined();
       expect(entity.getNodeDefinition(undefined)).toBeUndefined();
     });
+
+    it('returns text-node shape { content, label, order } for ordinary step nodes', () => {
+      const e = new CustomModeVisualEntity(
+        makeMode({ customInstructions: `system instructions:\nfollow strictly.\n\n1. Do something\n   - detail\n` }),
+      );
+      const def = e.getNodeDefinition('customMode.customInstructions.0.step') as Record<string, unknown>;
+      expect(def).toHaveProperty('content');
+      expect(def).toHaveProperty('label');
+      expect(def).toHaveProperty('order');
+    });
+
+    it('returns key→value record for tool-invocation nodes', () => {
+      const e = new CustomModeVisualEntity(
+        makeMode({
+          customInstructions: `system instructions:\nfollow strictly.\n\n1. **read_file**\n   - path: foo.md\n   - description: A test file\n`,
+        }),
+      );
+      const def = e.getNodeDefinition('customMode.customInstructions.0.read_file') as Record<string, string>;
+      expect(def['path']).toBe('foo.md');
+      expect(def['description']).toBe('A test file');
+      // Must NOT use the text-node shape
+      expect(def['content']).toBeUndefined();
+      expect(def['label']).toBeUndefined();
+    });
   });
 
   describe('getOmitFormFields', () => {
@@ -332,6 +356,82 @@ describe('CustomModeVisualEntity', () => {
       const groupNode = await withSteps.toVizNode();
       const stepNode = groupNode.getChildren()![0];
       expect(stepNode.data.title).toBe('My custom title');
+    });
+
+    it('tool-invocation node is enriched with BobTool catalog kind', async () => {
+      const withTool = new CustomModeVisualEntity(
+        makeMode({
+          customInstructions: `system instructions:\nfollow the below instructions strictly.\n\n1. **read_file**\n   - path: foo.md\n`,
+        }),
+      );
+      await withTool.toVizNode();
+      expect(NodeEnrichmentService.enrichNodeFromCatalog).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ name: 'read_file' }) }),
+        CatalogKind.BobTool,
+      );
+    });
+
+    it('tool-invocation node path contains the tool name, not "tool-invocation"', async () => {
+      const withTool = new CustomModeVisualEntity(
+        makeMode({
+          customInstructions: `system instructions:\nfollow the below instructions strictly.\n\n1. **read_file**\n   - path: foo.md\n`,
+        }),
+      );
+      const groupNode = await withTool.toVizNode();
+      const toolNode = groupNode.getChildren()![0];
+      expect(toolNode.data.path).toContain('read_file');
+      expect(toolNode.data.path).not.toContain('tool-invocation');
+    });
+
+    it('mixed step and tool-invocation nodes use the correct catalog kind each', async () => {
+      const mixed = new CustomModeVisualEntity(
+        makeMode({
+          customInstructions: `system instructions:\nfollow the below instructions strictly.\n\n1. **read_file**\n   - path: foo.md\n\n2. Plain step\n   - detail\n`,
+        }),
+      );
+      await mixed.toVizNode();
+      expect(NodeEnrichmentService.enrichNodeFromCatalog).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ name: 'read_file' }) }),
+        CatalogKind.BobTool,
+      );
+      expect(NodeEnrichmentService.enrichNodeFromCatalog).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ name: 'step' }) }),
+        CatalogKind.BobComponent,
+      );
+    });
+  });
+
+  describe('updateModel for tool-invocation nodes', () => {
+    const toolInstructions = `system instructions:\nfollow the below instructions strictly.\n\n1. **read_file**\n   - path: foo.md\n   - description: original description\n`;
+
+    it('serializes form key-value record into rawContent bullet list', () => {
+      const e = new CustomModeVisualEntity(makeMode({ customInstructions: toolInstructions }));
+      e.updateModel('customMode.customInstructions.0.read_file', {
+        path: 'updated.md',
+        description: 'updated description',
+      });
+      const serialized = e.toJSON().customInstructions ?? '';
+      expect(serialized).toContain('updated.md');
+      expect(serialized).toContain('updated description');
+    });
+
+    it('preserves toolName and title after form update', () => {
+      const e = new CustomModeVisualEntity(makeMode({ customInstructions: toolInstructions }));
+      e.updateModel('customMode.customInstructions.0.read_file', { path: 'new.md' });
+      // The node title should still be the tool name
+      const serialized = e.toJSON().customInstructions ?? '';
+      expect(serialized).toContain('read_file');
+    });
+
+    it('round-trip: getNodeDefinition after updateModel returns updated values', () => {
+      const e = new CustomModeVisualEntity(makeMode({ customInstructions: toolInstructions }));
+      e.updateModel('customMode.customInstructions.0.read_file', {
+        path: 'roundtrip.md',
+        description: 'round-trip value',
+      });
+      const def = e.getNodeDefinition('customMode.customInstructions.0.read_file') as Record<string, string>;
+      expect(def['path']).toBe('roundtrip.md');
+      expect(def['description']).toBe('round-trip value');
     });
   });
 });
