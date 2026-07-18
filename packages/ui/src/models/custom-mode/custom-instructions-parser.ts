@@ -149,9 +149,7 @@ export class CustomInstructionsParser {
     if (!rawContent.trim()) return {};
 
     const tree = fromMarkdown(rawContent);
-    const paramList = tree.children.find(
-      (n): n is import('mdast').List => n.type === 'list' && n.ordered === false,
-    );
+    const paramList = tree.children.find((n): n is import('mdast').List => n.type === 'list' && n.ordered === false);
     if (!paramList) return {};
 
     const result: Record<string, string> = {};
