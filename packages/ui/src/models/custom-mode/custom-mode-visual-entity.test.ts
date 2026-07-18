@@ -10,7 +10,8 @@ import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelCatalogService } from '../visualization/flows/camel-catalog.service';
 import { NodeEnrichmentService } from '../visualization/flows/nodes/node-enrichment.service';
 import { NodeIconResolver } from '../visualization/flows/nodes/resolvers/icon-resolver/node-icon-resolver';
-import { CustomMode } from './custom-mode-types';
+import { CustomInstructionsParser } from './custom-instructions-parser';
+import { CustomInstructionsNode, CustomMode } from './custom-mode-types';
 import { CustomModeVisualEntity } from './custom-mode-visual-entity';
 
 const makeMode = (overrides?: Partial<CustomMode>): CustomMode => ({
@@ -22,6 +23,8 @@ const makeMode = (overrides?: Partial<CustomMode>): CustomMode => ({
   groups: ['read'],
   ...overrides,
 });
+
+const serializeSteps = (nodes: CustomInstructionsNode[]) => CustomInstructionsParser.serialize(nodes);
 
 describe('CustomModeVisualEntity', () => {
   let entity: CustomModeVisualEntity;
@@ -75,8 +78,36 @@ describe('CustomModeVisualEntity', () => {
       expect(e.getNodeLabel('customMode')).toBe('test-mode');
     });
 
-    it('returns last segment for customInstructions paths', () => {
-      expect(entity.getNodeLabel('customMode.customInstructions.0.section')).toBe('section');
+    it('returns empty string when path has no matching parsed node', () => {
+      expect(entity.getNodeLabel('customMode.customInstructions.0.section')).toBe('');
+    });
+
+    it('returns the parsed step title for a step node path', () => {
+      const e = new CustomModeVisualEntity(
+        makeMode({
+          customInstructions: serializeSteps([
+            { nodeType: 'step', index: 1, title: 'My Step Title', rawContent: '- detail' },
+          ]),
+        }),
+      );
+      expect(e.getNodeLabel('customMode.customInstructions.0.text-node')).toBe('My Step Title');
+    });
+
+    it('returns the tool name for a tool-invocation node path', () => {
+      const e = new CustomModeVisualEntity(
+        makeMode({
+          customInstructions: serializeSteps([
+            {
+              nodeType: 'tool-invocation',
+              index: 1,
+              title: 'read_file',
+              toolName: 'read_file',
+              rawContent: '**read_file**\n\n- path: foo.md',
+            },
+          ]),
+        }),
+      );
+      expect(e.getNodeLabel('customMode.customInstructions.0.read_file')).toBe('read_file');
     });
 
     it('returns empty string for unrecognised paths', () => {
@@ -124,18 +155,33 @@ describe('CustomModeVisualEntity', () => {
 
     it('returns text-node shape { content, label, order } for ordinary step nodes', () => {
       const e = new CustomModeVisualEntity(
-        makeMode({ customInstructions: `system instructions:\nfollow strictly.\n\n1. Do something\n   - detail\n` }),
+        makeMode({
+          customInstructions: serializeSteps([
+            { nodeType: 'step', index: 1, title: 'Do something', rawContent: '- detail' },
+          ]),
+        }),
       );
       const def = e.getNodeDefinition('customMode.customInstructions.0.step') as Record<string, unknown>;
       expect(def).toHaveProperty('content');
       expect(def).toHaveProperty('label');
       expect(def).toHaveProperty('order');
+      // label is the short title, content is the body — they must be independent
+      expect(def.label).toBe('Do something');
+      expect(def.content).not.toContain('Do something');
     });
 
     it('returns key→value record for tool-invocation nodes', () => {
       const e = new CustomModeVisualEntity(
         makeMode({
-          customInstructions: `system instructions:\nfollow strictly.\n\n1. **read_file**\n   - path: foo.md\n   - description: A test file\n`,
+          customInstructions: serializeSteps([
+            {
+              nodeType: 'tool-invocation',
+              index: 1,
+              title: 'read_file',
+              toolName: 'read_file',
+              rawContent: '**read_file**\n\n- path: foo.md\n- description: A test file',
+            },
+          ]),
         }),
       );
       const def = e.getNodeDefinition('customMode.customInstructions.0.read_file') as Record<string, string>;
@@ -177,8 +223,10 @@ describe('CustomModeVisualEntity', () => {
     });
 
     describe('step path reverse-mapping', () => {
-      const instructions =
-        'system instructions:\nfollow the below instructions strictly.\n\n1. Parse input\n   - Read carefully\n\n2. Return result\n   - Return JSON.\n';
+      const instructions = serializeSteps([
+        { nodeType: 'step', index: 1, title: 'Parse input', rawContent: '- Read carefully' },
+        { nodeType: 'step', index: 2, title: 'Return result', rawContent: '- Return JSON.' },
+      ]);
 
       it('updates rawContent from form content field', () => {
         const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
@@ -194,7 +242,7 @@ describe('CustomModeVisualEntity', () => {
       it('updates title from form label field (reflected via getNodeDefinition)', () => {
         const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
         e.updateModel('customMode.customInstructions.0.step', {
-          content: 'Parse input\n- Read carefully',
+          content: '- Read carefully',
           label: 'New Label',
           order: 1,
         });
@@ -205,14 +253,17 @@ describe('CustomModeVisualEntity', () => {
           order: number;
         };
         expect(def.label).toBe('New Label');
+        // content must not include the label text
+        expect(def.content).not.toContain('New Label');
       });
 
       it('preserves nodeType and existing index when order is omitted', () => {
         const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
-        e.updateModel('customMode.customInstructions.0.step', { content: 'Changed', label: 'Parse input' });
-        // Just ensure serialize does not throw and produces a numbered list
+        e.updateModel('customMode.customInstructions.0.step', { content: 'Changed body', label: 'Parse input' });
+        // Just ensure serialize does not throw and produces a numbered list with the label as title
         const serialized = e.toJSON().customInstructions ?? '';
-        expect(serialized).toMatch(/^1\. /m);
+        expect(serialized).toMatch(/^1\. Parse input/m);
+        expect(serialized).toContain('Changed body');
       });
 
       it('marks parsedNodesDirty so toJSON re-serializes', () => {
@@ -225,6 +276,7 @@ describe('CustomModeVisualEntity', () => {
         });
         const after = e.toJSON().customInstructions;
         expect(after).not.toBe(before);
+        expect(after).toContain('Step 1');
         expect(after).toContain('Completely new content');
       });
 
@@ -242,6 +294,22 @@ describe('CustomModeVisualEntity', () => {
       const json = entity.toJSON();
       expect(json.slug).toBe('test-mode');
       expect(json.groups).toEqual(['read']);
+    });
+
+    it('reorders steps by node.index when order is changed via updateModel', () => {
+      // Use the serializer to produce a well-formed fixture so the parser emits
+      // two proper ordered-list nodes with node.index 1 (Alpha) and 2 (Beta).
+      const instructions = CustomInstructionsParser.serialize([
+        { nodeType: 'step', index: 1, title: 'Alpha', rawContent: '- first' },
+        { nodeType: 'step', index: 2, title: 'Beta', rawContent: '- second' },
+      ]);
+      const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
+      // Move Alpha (node.index 1, array position 0) to position 3 — higher than Beta's index 2 — so Beta sorts first.
+      e.updateModel('customMode.customInstructions.0.text-node', { content: '- first', label: 'Alpha', order: 3 });
+      const serialized = e.toJSON().customInstructions ?? '';
+      // After reorder Beta should be step 1, Alpha should be step 2
+      expect(serialized).toMatch(/^1\. Beta/m);
+      expect(serialized).toMatch(/^2\. Alpha/m);
     });
   });
 
@@ -280,6 +348,58 @@ describe('CustomModeVisualEntity', () => {
     });
   });
 
+  describe('getNodeValidationText', () => {
+    beforeEach(() => {
+      const rootModeEntry = (modesStub as Record<string, { propertiesSchema?: JSONSchema4 }>)['mode'];
+      CamelCatalogService.setCatalogKey(CatalogKind.Entity, {
+        [BOB_CUSTOM_MODE_ROOT_ENTITY_NAME]: {
+          propertiesSchema: rootModeEntry?.propertiesSchema,
+        } as ICamelProcessorDefinition,
+      });
+    });
+
+    it('returns a non-empty string when a required root field is missing', () => {
+      const e = new CustomModeVisualEntity(makeMode({ roleDefinition: '' }));
+      const result = e.getNodeValidationText('customMode');
+      expect(typeof result).toBe('string');
+      expect(result).toContain('roleDefinition');
+    });
+
+    it('returns an empty string when all required root fields are present', () => {
+      const e = new CustomModeVisualEntity(makeMode());
+      expect(e.getNodeValidationText('customMode')).toBe('');
+    });
+
+    it('returns a non-empty string for a tool-invocation step missing required params', () => {
+      const toolsStub = {
+        read_file: {
+          propertiesSchema: { type: 'object', properties: { path: { type: 'string' } }, required: ['path'] },
+        },
+      };
+      CamelCatalogService.setCatalogKey(CatalogKind.BobTool, toolsStub as never);
+      const e = new CustomModeVisualEntity(
+        makeMode({
+          customInstructions: serializeSteps([
+            {
+              nodeType: 'tool-invocation',
+              index: 1,
+              title: 'read_file',
+              toolName: 'read_file',
+              rawContent: '**read_file**',
+            },
+          ]),
+        }),
+      );
+      const result = e.getNodeValidationText('customMode.customInstructions.0.read_file');
+      expect(typeof result).toBe('string');
+      expect(result!.length).toBeGreaterThan(0);
+    });
+
+    it('returns undefined for an unknown path', () => {
+      expect(entity.getNodeValidationText(undefined)).toBeUndefined();
+    });
+  });
+
   describe('canDragNode / canDropOnNode', () => {
     it('always returns false', () => {
       expect(entity.canDragNode()).toBe(false);
@@ -311,8 +431,10 @@ describe('CustomModeVisualEntity', () => {
   });
 
   describe('addStep', () => {
-    const instructions =
-      'system instructions:\nfollow the below instructions strictly.\n\n1. First step\n\n2. Second step\n';
+    const instructions = serializeSteps([
+      { nodeType: 'step', index: 1, title: 'First step', rawContent: '' },
+      { nodeType: 'step', index: 2, title: 'Second step', rawContent: '' },
+    ]);
 
     it('AppendStep on placeholder pushes a new step to the end', () => {
       const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
@@ -353,6 +475,18 @@ describe('CustomModeVisualEntity', () => {
       expect(serialized).toMatch(/^2\. Second step/m);
     });
 
+    it('AppendStep with a BobTool serializes as **toolName** and re-parses as tool-invocation', () => {
+      const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
+      e.addStep({
+        definedComponent: { name: 'read_file', type: CatalogKind.BobTool } as never,
+        mode: AddStepMode.AppendStep,
+        data: { path: 'customMode.customInstructions.2.placeholder' } as never,
+      });
+      const serialized = e.toJSON().customInstructions ?? '';
+      // Must be stored with bold markers so the parser re-classifies it as tool-invocation
+      expect(serialized).toMatch(/3\. \*\*read_file\*\*/m);
+    });
+
     it('is a no-op for the root path', () => {
       const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
       const before = e.toJSON().customInstructions;
@@ -366,8 +500,11 @@ describe('CustomModeVisualEntity', () => {
   });
 
   describe('removeStep', () => {
-    const instructions =
-      'system instructions:\nfollow the below instructions strictly.\n\n1. First step\n\n2. Second step\n\n3. Third step\n';
+    const instructions = serializeSteps([
+      { nodeType: 'step', index: 1, title: 'First step', rawContent: '' },
+      { nodeType: 'step', index: 2, title: 'Second step', rawContent: '' },
+      { nodeType: 'step', index: 3, title: 'Third step', rawContent: '' },
+    ]);
 
     it('removes the step at the given index and reindexes', () => {
       const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
@@ -394,8 +531,10 @@ describe('CustomModeVisualEntity', () => {
   });
 
   describe('getCopiedContent', () => {
-    const instructions =
-      'system instructions:\nfollow the below instructions strictly.\n\n1. Parse input\n   - Read carefully\n\n2. Return result\n';
+    const instructions = serializeSteps([
+      { nodeType: 'step', index: 1, title: 'Parse input', rawContent: '- Read carefully' },
+      { nodeType: 'step', index: 2, title: 'Return result', rawContent: '' },
+    ]);
 
     it('returns clipboard object for a valid step path', () => {
       const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
@@ -411,15 +550,28 @@ describe('CustomModeVisualEntity', () => {
       expect(e.getCopiedContent(undefined)).toBeUndefined();
     });
 
-    it('returns undefined for the root path', () => {
-      const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
-      expect(e.getCopiedContent('customMode')).toBeUndefined();
+    it('returns the full mode for the root path without the slug', () => {
+      const mode = makeMode({ customInstructions: instructions });
+      const e = new CustomModeVisualEntity(mode);
+      const result = e.getCopiedContent('customMode');
+      expect(result).toBeDefined();
+      expect(result!.type).toBe(SourceSchemaType.CustomMode);
+      expect(result!.name).toBe(EntityType.CustomMode);
+      // slug is intentionally stripped so the duplicate gets a fresh ID on the canvas
+      expect((result!.definition as Record<string, unknown>).slug).toBeUndefined();
+      expect(result!.definition).toMatchObject({
+        name: 'Test Mode',
+        description: 'A test mode',
+        groups: ['read'],
+      });
     });
   });
 
   describe('pasteStep', () => {
-    const instructions =
-      'system instructions:\nfollow the below instructions strictly.\n\n1. First step\n\n2. Second step\n';
+    const instructions = serializeSteps([
+      { nodeType: 'step', index: 1, title: 'First step', rawContent: '' },
+      { nodeType: 'step', index: 2, title: 'Second step', rawContent: '' },
+    ]);
 
     it('AppendStep pastes a cloned node after the target index', () => {
       const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
@@ -492,14 +644,17 @@ describe('CustomModeVisualEntity', () => {
     it('enriches each step node with BobComponent catalog kind', async () => {
       const withSteps = new CustomModeVisualEntity(
         makeMode({
-          customInstructions: `system instructions:\nfollow the below instructions strictly.\n\n1. Do something\n   - detail\n\n2. Return result\n   - Return JSON.\n`,
+          customInstructions: serializeSteps([
+            { nodeType: 'step', index: 1, title: 'Do something', rawContent: '- detail' },
+            { nodeType: 'step', index: 2, title: 'Return result', rawContent: '- Return JSON.' },
+          ]),
         }),
       );
       await withSteps.toVizNode();
       // group node (Entity) + 2 step nodes (BobComponent) = 3 calls
       expect(NodeEnrichmentService.enrichNodeFromCatalog).toHaveBeenCalledTimes(3);
       expect(NodeEnrichmentService.enrichNodeFromCatalog).toHaveBeenCalledWith(
-        expect.objectContaining({ data: expect.objectContaining({ name: 'step' }) }),
+        expect.objectContaining({ data: expect.objectContaining({ name: 'text-node' }) }),
         CatalogKind.BobComponent,
       );
     });
@@ -507,7 +662,9 @@ describe('CustomModeVisualEntity', () => {
     it('parsed step title takes priority over catalog title for step nodes', async () => {
       const withSteps = new CustomModeVisualEntity(
         makeMode({
-          customInstructions: `system instructions:\nfollow the below instructions strictly.\n\n1. My custom title\n   - detail\n`,
+          customInstructions: serializeSteps([
+            { nodeType: 'step', index: 1, title: 'My custom title', rawContent: '- detail' },
+          ]),
         }),
       );
       const groupNode = await withSteps.toVizNode();
@@ -518,7 +675,15 @@ describe('CustomModeVisualEntity', () => {
     it('tool-invocation node is enriched with BobTool catalog kind', async () => {
       const withTool = new CustomModeVisualEntity(
         makeMode({
-          customInstructions: `system instructions:\nfollow the below instructions strictly.\n\n1. **read_file**\n   - path: foo.md\n`,
+          customInstructions: serializeSteps([
+            {
+              nodeType: 'tool-invocation',
+              index: 1,
+              title: 'read_file',
+              toolName: 'read_file',
+              rawContent: '**read_file**\n\n- path: foo.md',
+            },
+          ]),
         }),
       );
       await withTool.toVizNode();
@@ -531,7 +696,15 @@ describe('CustomModeVisualEntity', () => {
     it('tool-invocation node path contains the tool name, not "tool-invocation"', async () => {
       const withTool = new CustomModeVisualEntity(
         makeMode({
-          customInstructions: `system instructions:\nfollow the below instructions strictly.\n\n1. **read_file**\n   - path: foo.md\n`,
+          customInstructions: serializeSteps([
+            {
+              nodeType: 'tool-invocation',
+              index: 1,
+              title: 'read_file',
+              toolName: 'read_file',
+              rawContent: '**read_file**\n\n- path: foo.md',
+            },
+          ]),
         }),
       );
       const groupNode = await withTool.toVizNode();
@@ -543,7 +716,16 @@ describe('CustomModeVisualEntity', () => {
     it('mixed step and tool-invocation nodes use the correct catalog kind each', async () => {
       const mixed = new CustomModeVisualEntity(
         makeMode({
-          customInstructions: `system instructions:\nfollow the below instructions strictly.\n\n1. **read_file**\n   - path: foo.md\n\n2. Plain step\n   - detail\n`,
+          customInstructions: serializeSteps([
+            {
+              nodeType: 'tool-invocation',
+              index: 1,
+              title: 'read_file',
+              toolName: 'read_file',
+              rawContent: '**read_file**\n\n- path: foo.md',
+            },
+            { nodeType: 'step', index: 2, title: 'Plain step', rawContent: '- detail' },
+          ]),
         }),
       );
       await mixed.toVizNode();
@@ -552,14 +734,43 @@ describe('CustomModeVisualEntity', () => {
         CatalogKind.BobTool,
       );
       expect(NodeEnrichmentService.enrichNodeFromCatalog).toHaveBeenCalledWith(
-        expect.objectContaining({ data: expect.objectContaining({ name: 'step' }) }),
+        expect.objectContaining({ data: expect.objectContaining({ name: 'text-node' }) }),
+        CatalogKind.BobComponent,
+      );
+    });
+
+    it('step nodes use text-node as their catalog key and viz node name', async () => {
+      const withStep = new CustomModeVisualEntity(
+        makeMode({
+          customInstructions: serializeSteps([
+            { nodeType: 'step', index: 1, title: 'Do something', rawContent: '- detail' },
+          ]),
+        }),
+      );
+      const groupNode = await withStep.toVizNode();
+      const stepNode = groupNode.getChildren()![0];
+      // name must be the catalog key 'text-node', NOT the parser-internal type 'step'
+      expect(stepNode.data.name).toBe('text-node');
+      // path tail must also be 'text-node'
+      expect(stepNode.data.path).toMatch(/\.text-node$/);
+      // enrichment must be called with 'text-node'
+      expect(NodeEnrichmentService.enrichNodeFromCatalog).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ name: 'text-node' }) }),
         CatalogKind.BobComponent,
       );
     });
   });
 
   describe('updateModel for tool-invocation nodes', () => {
-    const toolInstructions = `system instructions:\nfollow the below instructions strictly.\n\n1. **read_file**\n   - path: foo.md\n   - description: original description\n`;
+    const toolInstructions = serializeSteps([
+      {
+        nodeType: 'tool-invocation',
+        index: 1,
+        title: 'read_file',
+        toolName: 'read_file',
+        rawContent: '**read_file**\n\n- path: foo.md\n- description: original description',
+      },
+    ]);
 
     it('serializes form key-value record into rawContent bullet list', () => {
       const e = new CustomModeVisualEntity(makeMode({ customInstructions: toolInstructions }));

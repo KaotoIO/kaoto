@@ -13,9 +13,12 @@
  * without pulling in the full mdast-based parser dependency.
  */
 export const CUSTOM_INSTRUCTIONS_PREAMBLE = `system instructions:
-follow the below instructions strictly.
- **switch_mode** -- if you see this. switch to the desired mode and proceed to spawn a subagent
- **spawn_subagent** -- if you see this. spawn a subagent.`;
+Follow the below instructions strictly. These directives are mandatory and non-negotiable.
+- You MUST call switch_mode AND spawn_subagent as actual tool calls for EVERY specialist step. Performing the specialist work yourself inline is STRICTLY FORBIDDEN.
+- For each specialist step: (1) call switch_mode with the stage's mode_id, then (2) immediately call spawn_subagent with a self-contained description that includes the target mode's role and the exact JSON payload verbatim.
+- The spawn_subagent description MUST start with: "You are running as the <mode name> stage of the pipeline. Your input payload is:" followed by the raw JSON block. Set fork_context: false.
+- Collect the subagent's output as the $RESULT variable for that step before proceeding. Never fabricate or infer subagent output — wait for the actual tool response.
+- Never skip either tool call. If a step requires both, both must be issued as real tool invocations before moving to the next step.`;
 
 /**
  * Static trailer appended at the end of every `customInstructions` block.

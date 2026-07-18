@@ -136,6 +136,31 @@ describe('CustomModeResource', () => {
       const entity = resource.getVisualEntities().find((e) => e.id === id);
       expect((entity!.toJSON() as ReturnType<CustomModeVisualEntity['toJSON']>).slug).toMatch(/^new-mode/);
     });
+
+    it('unwraps the { customMode: <definition> } envelope sent by usePasteEntity / duplicate-step.hook', async () => {
+      const resource = new CustomModeResource({ customModes: [] });
+      await resource.initialize();
+
+      const modeDefinition = {
+        slug: 'copied-plan',
+        name: 'Copied Plan',
+        description: 'A copied planning mode',
+        roleDefinition: 'You plan things.',
+        whenToUse: 'When planning.',
+        groups: ['read'],
+      };
+
+      // Simulate the envelope that usePasteEntity / duplicate-step.hook produces:
+      //   { [EntityType.CustomMode]: <CustomMode> }
+      const id = resource.addNewEntity(undefined, { customMode: modeDefinition });
+      const entity = resource.getVisualEntities().find((e) => e.id === id);
+      const json = entity!.toJSON() as ReturnType<CustomModeVisualEntity['toJSON']>;
+
+      expect(json.name).toBe('Copied Plan');
+      expect(json.description).toBe('A copied planning mode');
+      expect(json.roleDefinition).toBe('You plan things.');
+      expect(json.groups).toEqual(['read']);
+    });
   });
 
   describe('removeEntity()', () => {

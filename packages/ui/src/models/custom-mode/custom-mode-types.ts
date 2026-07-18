@@ -40,6 +40,17 @@ export interface CustomInstructionsNode {
    * - `'tool-invocation'` — direct tool call (title is `**toolName**`)
    */
   nodeType: 'step' | 'tool-invocation';
+  /**
+   * Origin of this node — used by serialize() to decide whether to wrap it
+   * inside a numbered list item or emit it as top-level markdown.
+   * - `'list-item'`  — came from an ordered-list item; serialize as `N. …`
+   * - `'free-form'`  — came from headings/prose/tables outside any list;
+   *                    serialize as top-level markdown (no list marker)
+   *
+   * Defaults to `'list-item'` when absent so that nodes created by older
+   * code or tests that don't set the field are serialized as before.
+   */
+  source?: 'list-item' | 'free-form';
   /** The full markdown text of the list item (title paragraph + sub-bullets). */
   rawContent: string;
   /** Plain-text title extracted from the first paragraph of the list item. */

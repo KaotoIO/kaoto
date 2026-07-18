@@ -17,6 +17,7 @@ import {
 import { IClipboardCopyObject } from '../visualization/clipboard';
 import { NodeEnrichmentService } from '../visualization/flows/nodes/node-enrichment.service';
 import { CustomModeSchemaService } from '../visualization/flows/support/custom-mode-schema.service';
+import { ModelValidationService } from '../visualization/flows/support/validators/model-validation.service';
 import { createVisualizationNode } from '../visualization/visualization-node';
 import { CustomInstructionsParser } from './custom-instructions-parser';
 import { CustomInstructionsNode, CustomMode } from './custom-mode-types';
@@ -61,7 +62,10 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
     if (!path) return '';
     if (path === this.getRootPath()) return this.mode.name || this.id;
     if (path.startsWith(`${this.getRootPath()}.customInstructions.`)) {
-      return path.split('.').pop() ?? '';
+      const index = this.extractStepIndex(path);
+      const node = this.parsedNodes[index];
+      if (!node) return '';
+      return node.title;
     }
     return '';
   }
@@ -70,7 +74,8 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
     if (!path) return undefined;
     if (path === this.getRootPath()) return CustomModeSchemaService.getRootSchema();
     if (path.startsWith(`${this.getRootPath()}.customInstructions.`)) {
-      return CustomModeSchemaService.getNodeSchema(path.split('.').pop() ?? '');
+      const catalogKey = path.split('.').slice(3).join('.');
+      return CustomModeSchemaService.getNodeSchema(catalogKey);
     }
     return undefined;
   }
@@ -84,8 +89,8 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
       return rest;
     }
     if (path.startsWith(`${this.getRootPath()}.customInstructions.`)) {
-      const index = Number(path.replace(`${this.getRootPath()}.customInstructions.`, '').split('.')[0]);
-      if (!Number.isInteger(index)) return undefined;
+      const index = this.extractStepIndex(path);
+      if (index === -1) return undefined;
       const node = this.parsedNodes[index];
       if (!node) return undefined;
       // Tool-invocation nodes: parse sub-bullets into a key→value record matching
@@ -108,13 +113,21 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
   updateModel(path: string | undefined, value: unknown): void {
     if (!path) return;
     if (path === this.getRootPath()) {
-      Object.assign(this.mode, value);
+      const v = value as Partial<CustomMode>;
+      // Explicitly pick only known CustomMode fields to prevent arbitrary key injection.
+      // customInstructions is intentionally excluded — it is managed via canvas step nodes.
+      if (isDefined(v.slug)) this.mode.slug = v.slug;
+      if (isDefined(v.name)) this.mode.name = v.name;
+      if (isDefined(v.description)) this.mode.description = v.description;
+      if (isDefined(v.roleDefinition)) this.mode.roleDefinition = v.roleDefinition;
+      if (isDefined(v.whenToUse)) this.mode.whenToUse = v.whenToUse;
+      if (isDefined(v.groups)) this.mode.groups = v.groups;
       this.id = isDefined(this.mode.slug) && this.mode.slug !== '' ? this.mode.slug : this.id;
       return;
     }
     if (path.startsWith(`${this.getRootPath()}.customInstructions.`)) {
-      const index = Number(path.replace(`${this.getRootPath()}.customInstructions.`, '').split('.')[0]);
-      if (Number.isInteger(index) && isDefined(this.parsedNodes[index])) {
+      const index = this.extractStepIndex(path);
+      if (index !== -1 && isDefined(this.parsedNodes[index])) {
         const existing = this.parsedNodes[index];
         if (existing.nodeType === 'tool-invocation' && isDefined(existing.toolName)) {
           // Tool-invocation form submits a key→value record matching the tool's schema.
@@ -144,6 +157,10 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
 
   toJSON(): CustomMode {
     if (this.parsedNodesDirty) {
+      // Sort by node.index so that a user-edited `order` field takes effect before serializing,
+      // then normalize indexes back to 1…n so they stay in sync with the array position.
+      this.parsedNodes.sort((a, b) => a.index - b.index);
+      this.reindexNodes();
       this.mode.customInstructions = CustomInstructionsParser.serialize(this.parsedNodes);
       this.parsedNodesDirty = false;
     }
@@ -165,8 +182,11 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
     };
   }
 
-  getNodeValidationText(_path?: string): string | undefined {
-    return undefined;
+  getNodeValidationText(path?: string): string | undefined {
+    const schema = this.getNodeSchema(path);
+    const definition = this.getNodeDefinition(path);
+    if (!schema || !definition) return undefined;
+    return ModelValidationService.validateNodeStatus(schema, definition);
   }
 
   canDragNode(_path?: string): boolean {
@@ -179,6 +199,19 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
 
   getCopiedContent(path?: string): IClipboardCopyObject | undefined {
     if (!path) return undefined;
+
+    // Root path → copy the entire mode as a full entity.
+    // Strip the slug so that addNewEntity generates a fresh one for the duplicate,
+    // preventing both entities from sharing the same ID on the canvas.
+    if (path === this.getRootPath()) {
+      const { slug: _slug, ...rest } = this.toJSON();
+      return {
+        type: SourceSchemaType.CustomMode,
+        name: EntityType.CustomMode,
+        definition: rest,
+      };
+    }
+
     const index = this.extractStepIndex(path);
     if (index === -1 || !this.parsedNodes[index]) return undefined;
 
@@ -200,12 +233,21 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
     const index = this.extractStepIndex(options.data.path ?? '');
     if (index === -1) return;
 
-    const newNode: CustomInstructionsNode = {
-      nodeType: 'step',
-      title: options.definedComponent.name,
-      rawContent: options.definedComponent.name,
-      index: 0,
-    };
+    const isTool = options.definedComponent.type === CatalogKind.BobTool;
+    const newNode: CustomInstructionsNode = isTool
+      ? {
+          nodeType: 'tool-invocation',
+          title: options.definedComponent.name,
+          rawContent: `**${options.definedComponent.name}**`,
+          toolName: options.definedComponent.name,
+          index: 0,
+        }
+      : {
+          nodeType: 'step',
+          title: options.definedComponent.name,
+          rawContent: '',
+          index: 0,
+        };
 
     if (options.mode === AddStepMode.PrependStep) {
       this.parsedNodes.splice(index, 0, newNode);
@@ -255,8 +297,8 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
 
   async toVizNode(): Promise<IVisualizationNode> {
     // 1. Mode group node — carries the title; clicking it opens the metadata form.
-    //    Title is left empty here so enrichNodeFromCatalog can populate it from the catalog (Epic 6).
-    //    A post-enrichment fallback sets mode.name when the catalog has no entry.
+    //    Title is intentionally left empty so enrichNodeFromCatalog can populate it from the
+    //    catalog; a post-enrichment fallback sets mode.name when the catalog has no entry.
     const modeGroupNode = createVisualizationNode(this.id, {
       name: this.type,
       path: this.getRootPath(),
@@ -283,7 +325,7 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
     for (let i = 0; i < this.parsedNodes.length; i++) {
       const node = this.parsedNodes[i];
       const isToolInvocation = node.nodeType === 'tool-invocation';
-      const catalogKey = isToolInvocation ? (node.toolName ?? node.nodeType) : node.nodeType;
+      const catalogKey = isToolInvocation ? (node.toolName ?? node.nodeType) : 'text-node';
       const catalogKind = isToolInvocation ? CatalogKind.BobTool : CatalogKind.BobComponent;
       const path = `${this.getRootPath()}.customInstructions.${i}.${catalogKey}`;
       const vizNode = createVisualizationNode(path, {
@@ -305,7 +347,7 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
       siblings.push(vizNode);
     }
 
-    // 4. Placeholder
+    // 3. Placeholder
     const placeholderPath = `${this.getRootPath()}.customInstructions.${this.parsedNodes.length}.placeholder`;
     const placeholderNode = createVisualizationNode(placeholderPath, {
       name: 'placeholder',

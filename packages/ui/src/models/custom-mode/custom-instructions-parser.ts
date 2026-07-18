@@ -1,4 +1,4 @@
-import type { List, ListItem, Paragraph, Root, Strong } from 'mdast';
+import type { BlockContent, List, ListItem, Paragraph, Root, Strong } from 'mdast';
 import { fromMarkdown } from 'mdast-util-from-markdown';
 import { toMarkdown } from 'mdast-util-to-markdown';
 import { toString } from 'mdast-util-to-string';
@@ -30,10 +30,15 @@ import type { CustomInstructionsNode, ParsedCustomInstructions } from './custom-
  * of a single `**strong**` node whose text matches a known tool name (no extra
  * inline nodes beside it).
  *
- * Tables, blockquotes ("Hard rules"), "Bias rules", "Verification loop", and
- * any other unstructured content are treated as free text — they are NOT
- * extracted into typed fields. They remain in the raw customInstructions string
- * and are round-tripped verbatim by serialize().
+ * Free-form content (headings, paragraphs, unordered lists, tables, etc.) that
+ * sits between the preamble and the trailing blockquote but is NOT part of the
+ * ordered list is collected into one or more `step` text-nodes.  The title of
+ * each such node is derived from the first heading found, or 'Instructions' as
+ * a fallback.  This lets content that doesn't follow the numbered-step format
+ * appear on the canvas and be edited through the text-node form panel.
+ *
+ * The trailing blockquote ("Hard rules") is always stripped on parse and
+ * re-injected by serialize().
  * ```
  */
 export class CustomInstructionsParser {
@@ -54,39 +59,138 @@ export class CustomInstructionsParser {
   }
 
   /**
-   * Extracts ordered-list items as step nodes.
-   * Finds the first top-level ordered list; each item becomes one step.
+   * Extracts all canvas nodes from the top-level AST in document order.
    *
-   * A step whose first paragraph contains only a single `**strong**` node is
-   * classified as `'tool-invocation'`; the inner text becomes `toolName`.
+   * Walks the top-level AST nodes once, skipping the canonical preamble block
+   * and the trailing "Hard rules" blockquote.  For each remaining node:
+   *   - Ordered list  → each list item becomes a `tool-invocation` or `step` node.
+   *   - Anything else → accumulated into a "free-form buffer".  The buffer is
+   *     flushed as a single `step` text-node whenever an ordered list is
+   *     encountered next (or at end-of-document), preserving the position of
+   *     free-form content relative to the numbered steps.
+   *
+   * This means that prose that sits between two numbered lists (e.g. the "4A / 4B"
+   * paragraphs in the triage-orchestrator) appears as a canvas node between the
+   * steps that surround it, not appended at the end.
    */
   private static parseSteps(tree: Root): CustomInstructionsNode[] {
-    const list = tree.children.find((node): node is List => node.type === 'list' && node.ordered === true);
-    if (!list) return [];
+    const allNodes = tree.children;
 
-    return list.children.map((item: ListItem, i: number) => {
-      const firstParagraph = item.children.find((c): c is Paragraph => c.type === 'paragraph');
-      const title = firstParagraph ? toString(firstParagraph) : '';
-      const rawContent = toMarkdown({ type: 'root', children: item.children });
+    // The canonical preamble is always emitted first by serialize(). With the
+    // current markdown, it can span multiple top-level nodes (a paragraph
+    // followed by a list), so skip the full emitted block only when the first
+    // nodes match the canonical preamble AST exactly. This avoids swallowing
+    // arbitrary user prose that merely starts with "system instructions".
+    const preambleNodes = fromMarkdown(CUSTOM_INSTRUCTIONS_PREAMBLE).children;
+    const preambleNodeCount =
+      preambleNodes.length > 0 &&
+      preambleNodes.every((preambleNode, index) => {
+        const candidateNode = allNodes[index];
+        return candidateNode !== undefined && toMarkdown(candidateNode).trim() === toMarkdown(preambleNode).trim();
+      })
+        ? preambleNodes.length
+        : 0;
 
-      const toolName = CustomInstructionsParser.extractToolName(firstParagraph);
-      if (toolName !== undefined) {
-        return {
-          nodeType: 'tool-invocation',
-          rawContent: rawContent.trim(),
-          title: title.trim(),
-          toolName,
-          index: i + 1,
-        } satisfies CustomInstructionsNode;
+    // The trailer is always the last blockquote whose plain text starts with "Hard rules".
+    const lastNode = allNodes[allNodes.length - 1];
+    const trailerNode =
+      lastNode?.type === 'blockquote' && toString(lastNode).startsWith('Hard rules') ? lastNode : null;
+
+    const result: CustomInstructionsNode[] = [];
+    let freeFormBuffer: BlockContent[] = [];
+
+    /** Flush the accumulated free-form nodes as a single step text-node. */
+    const flushFreeForm = () => {
+      if (freeFormBuffer.length > 0) {
+        result.push(CustomInstructionsParser.freeFormToStep(freeFormBuffer));
+        freeFormBuffer = [];
       }
+    };
 
-      return {
-        nodeType: 'step',
-        rawContent: rawContent.trim(),
-        title: title.trim(),
-        index: i + 1,
-      } satisfies CustomInstructionsNode;
+    for (const [index, node] of allNodes.entries()) {
+      // Always skip the preamble and trailer — they are hidden from the canvas.
+      if (index < preambleNodeCount || node === trailerNode) continue;
+
+      if (node.type === 'list' && (node as List).ordered) {
+        // Flush any free-form content that preceded this ordered list so it
+        // appears before these steps on the canvas.
+        flushFreeForm();
+
+        for (const item of (node as List).children as ListItem[]) {
+          const firstParagraph = item.children.find((c): c is Paragraph => c.type === 'paragraph');
+          const title = firstParagraph ? toString(firstParagraph) : '';
+
+          const toolName = CustomInstructionsParser.extractToolName(firstParagraph);
+          if (toolName !== undefined) {
+            // tool-invocation: rawContent = entire list item (title bold + sub-bullets).
+            // toMarkdown escapes underscores in text by default (read_file → read\_file).
+            // Strip those backslashes so rawContent stores the canonical form (**read_file**)
+            // and parseToolParams / extractToolName can re-parse it without escaping issues.
+            const rawContent = toMarkdown({ type: 'root', children: item.children }, { bullet: '-' }).replace(
+              /\\_/g,
+              '_',
+            );
+            result.push({
+              nodeType: 'tool-invocation',
+              source: 'list-item',
+              rawContent: rawContent.trim(),
+              title: title.trim(),
+              toolName,
+              index: 0, // reindexed below
+            } satisfies CustomInstructionsNode);
+          } else {
+            // step: rawContent = body only (everything after the first paragraph).
+            // This keeps `content` (body) and `label` (title) independent in the form.
+            // Also strip toMarkdown's backslash-underscore escaping so the textarea shows
+            // clean text (e.g. **read_file**, not **read\_file**).
+            const bodyChildren = item.children.filter((c) => c !== firstParagraph);
+            const rawContent = toMarkdown({ type: 'root', children: bodyChildren }, { bullet: '-' }).replace(
+              /\\_/g,
+              '_',
+            );
+            result.push({
+              nodeType: 'step',
+              source: 'list-item',
+              rawContent: rawContent.trim(),
+              title: title.trim(),
+              index: 0, // reindexed below
+            } satisfies CustomInstructionsNode);
+          }
+        }
+      } else {
+        // Non-ordered-list node — accumulate into the free-form buffer.
+        freeFormBuffer.push(node as BlockContent);
+      }
+    }
+
+    // Flush any trailing free-form content (e.g. a mode with only prose and no steps).
+    flushFreeForm();
+
+    // Assign 1-based indexes in document order.
+    result.forEach((node, i) => {
+      node.index = i + 1;
     });
+    return result;
+  }
+
+  /**
+   * Converts a group of free-form AST nodes into a single `step` text-node.
+   *
+   * The title is taken from the first heading found; if no heading is present,
+   * the title defaults to `'Instructions'`.  The rawContent is the serialized
+   * markdown of all nodes (underscore escaping stripped).
+   */
+  private static freeFormToStep(nodes: BlockContent[]): CustomInstructionsNode {
+    const firstHeading = nodes.find((n) => n.type === 'heading');
+    const title = firstHeading ? toString(firstHeading) : 'Instructions';
+    const rawContent = toMarkdown({ type: 'root', children: nodes }, { bullet: '-' }).replace(/\\_/g, '_').trim();
+    return {
+      nodeType: 'step',
+      source: 'free-form',
+      rawContent,
+      title,
+      index: 0, // assigned by caller
+    };
   }
 
   /**
@@ -149,7 +253,7 @@ export class CustomInstructionsParser {
     if (!rawContent.trim()) return {};
 
     const tree = fromMarkdown(rawContent);
-    const paramList = tree.children.find((n): n is import('mdast').List => n.type === 'list' && n.ordered === false);
+    const paramList = tree.children.find((n): n is List => n.type === 'list' && n.ordered === false);
     if (!paramList) return {};
 
     const result: Record<string, string> = {};
@@ -189,7 +293,7 @@ export class CustomInstructionsParser {
   static serializeToolParams(toolName: string, params: Record<string, string>): string {
     const bullets = Object.entries(params)
       .filter(([key]) => !key.startsWith('_'))
-      .map(([key, val]) => `* ${key}: ${val}`)
+      .map(([key, val]) => `- ${key}: ${val}`)
       .join('\n');
 
     return bullets ? `**${toolName}**\n\n${bullets}` : `**${toolName}**`;
@@ -200,26 +304,50 @@ export class CustomInstructionsParser {
    * customInstructions string, re-injecting the static preamble and trailer
    * so the output is valid for Bob to consume.
    *
+   * Nodes with `source === 'free-form'` are emitted as top-level markdown
+   * (headings, tables, prose, etc. must not be wrapped in a list item).
+   * All other nodes (source === 'list-item' or source absent) are emitted
+   * as numbered list items, interleaved with any free-form blocks in
+   * document order.
+   *
    * Any pre-existing blockquote content in the raw string is intentionally
    * replaced by the canonical CUSTOM_INSTRUCTIONS_TRAILER.
    */
   static serialize(nodes: CustomInstructionsNode[]): string {
     if (nodes.length === 0) return '';
 
-    const lines = nodes.map((node, i) => {
-      // Dynamically compute the prefix length so that steps ≥ 10 (whose
-      // marker "10. " is 4 chars) indent continuation lines correctly.
-      // CommonMark requires continuation lines to be indented by the exact
-      // number of characters in the list marker.
-      const prefix = `${i + 1}. `;
+    // Assign list-item counters only to list-item nodes (free-form nodes do
+    // not consume a list number).
+    let listCounter = 0;
+
+    const parts = nodes.map((node) => {
+      if (node.source === 'free-form') {
+        // Emit the raw markdown directly — no list marker, no indentation.
+        return node.rawContent;
+      }
+
+      // list-item or legacy node (source absent) → numbered list item.
+      listCounter += 1;
+      const prefix = `${listCounter}. `;
       const indent = ' '.repeat(prefix.length);
-      const body = node.rawContent
+
+      // For step nodes, rawContent holds only the body (sub-bullets) while the
+      // title is stored separately. Reconstruct: title on the first line, then
+      // the body (if any) indented below.
+      // For tool-invocation nodes, rawContent already contains the full item
+      // (**toolName** + sub-bullets), so no reconstruction is needed.
+      const stepContent = node.rawContent ? `${node.title}\n\n${node.rawContent}` : node.title;
+      const fullContent = node.nodeType === 'step' ? stepContent : node.rawContent;
+
+      return fullContent
         .split('\n')
-        .map((line, lineIdx) => (lineIdx === 0 ? `${prefix}${line}` : `${indent}${line}`))
+        .map((line, lineIdx) => {
+          const linePrefix = lineIdx === 0 ? prefix : indent;
+          return `${linePrefix}${line}`;
+        })
         .join('\n');
-      return body;
     });
 
-    return `${CUSTOM_INSTRUCTIONS_PREAMBLE}\n\n${lines.join('\n')}\n\n${CUSTOM_INSTRUCTIONS_TRAILER}\n`;
+    return `${CUSTOM_INSTRUCTIONS_PREAMBLE}\n\n${parts.join('\n')}\n\n${CUSTOM_INSTRUCTIONS_TRAILER}\n`;
   }
 }
