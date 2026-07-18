@@ -17,6 +17,8 @@ const TOOLTIP_RESOLVER_MAP: Partial<Record<CatalogKind, (name: string, catalogKi
     [CatalogKind.TestEndpoint]: NodeTooltipResolver.getTestActionTooltip,
     [CatalogKind.TestFunction]: NodeTooltipResolver.getTestActionTooltip,
     [CatalogKind.TestValidationMatcher]: NodeTooltipResolver.getTestActionTooltip,
+    [CatalogKind.BobTool]: NodeTooltipResolver.getBobTooltip,
+    [CatalogKind.BobComponent]: NodeTooltipResolver.getBobTooltip,
   };
 
 /**

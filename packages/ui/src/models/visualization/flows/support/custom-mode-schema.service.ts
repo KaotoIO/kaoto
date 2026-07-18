@@ -30,7 +30,10 @@ export class CustomModeSchemaService {
     const toolDef = CamelCatalogService.getComponent(CatalogKind.BobTool, nodeType);
     const componentDef = CamelCatalogService.getComponent(CatalogKind.BobComponent, nodeType);
     const fallbackDef = CamelCatalogService.getComponent(CatalogKind.BobComponent, BOB_FALLBACK_NODE_TYPE);
-
-    return (toolDef ?? componentDef ?? fallbackDef)?.propertiesSchema as JSONSchema4 | undefined;
+    // Chain on propertiesSchema so that a catalog entry without a schema falls through to the
+    // next candidate, rather than stopping at a truthy-but-schema-less entry.
+    return (toolDef?.propertiesSchema ?? componentDef?.propertiesSchema ?? fallbackDef?.propertiesSchema) as
+      | JSONSchema4
+      | undefined;
   }
 }

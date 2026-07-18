@@ -65,8 +65,11 @@ export const useDuplicateStep = (vizNode: IVisualizationNode) => {
       return catalogModalContext?.checkCompatibility(vizNodeContent.name, filter) ?? false;
     }
 
-    // check for root containers only in case of Route Entity
-    if (vizNodeContent.type === SourceSchemaType.Route && !isDefined(parentVizNode)) {
+    // check for root containers — Route and CustomMode both duplicate as a full entity
+    if (
+      (vizNodeContent.type === SourceSchemaType.Route || vizNodeContent.type === SourceSchemaType.CustomMode) &&
+      !isDefined(parentVizNode)
+    ) {
       return true;
     }
 
@@ -90,7 +93,10 @@ export const useDuplicateStep = (vizNode: IVisualizationNode) => {
 
     if (!updatedVizNodeContent) return;
 
-    if (vizNodeContent.type === SourceSchemaType.Route && !isDefined(parentVizNode)) {
+    if (
+      (vizNodeContent.type === SourceSchemaType.Route || vizNodeContent.type === SourceSchemaType.CustomMode) &&
+      !isDefined(parentVizNode)
+    ) {
       const originalEntityId = vizNode.getId();
       const newId = entitiesContext.camelResource.addNewEntity(
         updatedVizNodeContent.name as EntityType,

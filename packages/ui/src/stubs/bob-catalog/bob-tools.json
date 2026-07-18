@@ -1,8 +1,466 @@
 {
   "read_file": {
     "kind": "bobTool",
+    "version": "1.0.0",
     "name": "read_file",
     "title": "Read File",
-    "description": "Read a file from disk"
+    "description": "Reads the contents of a file. Supports text files with line-numbered output and optional line ranges for efficient partial reads.",
+    "group": "file,read",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "Id",
+          "description": "Sets the id of this step",
+          "$comment": "group:common"
+        },
+        "description": {
+          "type": "string",
+          "title": "Description",
+          "description": "Sets the description of this step",
+          "$comment": "group:common"
+        },
+        "disabled": {
+          "type": "boolean",
+          "title": "Disabled",
+          "description": "Whether to skip this step during execution.",
+          "default": false,
+          "$comment": "group:advanced"
+        },
+        "path": {
+          "type": "string",
+          "title": "Path",
+          "description": "File path relative to the workspace directory to read.",
+          "$comment": "group:common"
+        },
+        "range": {
+          "type": "string",
+          "title": "Range",
+          "description": "One or more line range elements in format 'start-end' (1-based, inclusive). For example: '1-50' or '100-200'. Omit to read the entire file.",
+          "$comment": "group:advanced"
+        }
+      },
+      "required": ["path"]
+    }
+  },
+  "write_file": {
+    "kind": "bobTool",
+    "version": "1.0.0",
+    "name": "write_file",
+    "title": "Write File",
+    "description": "Writes content to a file. Creates the file and any necessary parent directories if they do not exist. Overwrites the file if it already exists.",
+    "group": "file,write",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "Id",
+          "description": "Sets the id of this step",
+          "$comment": "group:common"
+        },
+        "description": {
+          "type": "string",
+          "title": "Description",
+          "description": "Sets the description of this step",
+          "$comment": "group:common"
+        },
+        "disabled": {
+          "type": "boolean",
+          "title": "Disabled",
+          "description": "Whether to skip this step during execution.",
+          "default": false,
+          "$comment": "group:advanced"
+        },
+        "path": {
+          "type": "string",
+          "title": "Path",
+          "description": "File path relative to the workspace directory to write to.",
+          "$comment": "group:common"
+        },
+        "content": {
+          "type": "string",
+          "title": "Content",
+          "description": "The full content to write to the file. Must include ALL parts of the file — partial updates are not supported by this tool.",
+          "$comment": "group:common"
+        },
+        "line_count": {
+          "type": "number",
+          "title": "Line Count",
+          "description": "Predicted number of lines in the content. Used to detect truncation on large files (100+ lines).",
+          "$comment": "group:advanced"
+        }
+      },
+      "required": ["path", "content"]
+    }
+  },
+  "spawn_subagent": {
+    "kind": "bobTool",
+    "version": "1.0.0",
+    "name": "spawn_subagent",
+    "title": "Spawn Subagent",
+    "description": "Spawns an independent subagent to handle a focused task. The subagent runs in its own isolated context and returns a summary when done.",
+    "group": "agent,orchestration",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "Id",
+          "description": "Sets the id of this step",
+          "$comment": "group:common"
+        },
+        "description": {
+          "type": "string",
+          "title": "Description",
+          "description": "Sets the description of this step",
+          "$comment": "group:common"
+        },
+        "disabled": {
+          "type": "boolean",
+          "title": "Disabled",
+          "description": "Whether to skip this step during execution.",
+          "default": false,
+          "$comment": "group:advanced"
+        },
+        "name": {
+          "type": "string",
+          "title": "Subagent Type",
+          "description": "Type of subagent to spawn. Use 'explore' for read-only codebase investigation (uses explorer model). Use 'general' for full-capability work (default model).",
+          "enum": ["explore", "general"],
+          "default": "general",
+          "$comment": "group:common"
+        },
+        "taskDescription": {
+          "type": "string",
+          "title": "Task Description",
+          "description": "Detailed instructions for the subagent. Be specific about what it should accomplish. The subagent cannot interact with the user — all context must be provided here.",
+          "$comment": "group:common"
+        },
+        "fork_context": {
+          "type": "boolean",
+          "title": "Fork Context",
+          "description": "When true, passes the parent conversation history into the subagent's initial context. Use when the subagent needs to understand prior decisions or constraints.",
+          "default": false,
+          "$comment": "group:advanced"
+        }
+      },
+      "required": ["name", "taskDescription"]
+    }
+  },
+  "ask_followup_question": {
+    "kind": "bobTool",
+    "version": "1.0.0",
+    "name": "ask_followup_question",
+    "title": "Ask Followup Question",
+    "description": "Asks the user a question to gather additional information. Supports up to four selectable suggestion answers.",
+    "group": "interaction,user",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "Id",
+          "description": "Sets the id of this step",
+          "$comment": "group:common"
+        },
+        "description": {
+          "type": "string",
+          "title": "Description",
+          "description": "Sets the description of this step",
+          "$comment": "group:common"
+        },
+        "disabled": {
+          "type": "boolean",
+          "title": "Disabled",
+          "description": "Whether to skip this step during execution.",
+          "default": false,
+          "$comment": "group:advanced"
+        },
+        "question": {
+          "type": "string",
+          "title": "Question",
+          "description": "A clear, specific question to present to the user.",
+          "$comment": "group:common"
+        },
+        "suggestion_a": {
+          "type": "string",
+          "title": "Suggestion A",
+          "description": "First selectable answer suggestion. Must be complete and actionable without placeholders.",
+          "$comment": "group:common"
+        },
+        "suggestion_b": {
+          "type": "string",
+          "title": "Suggestion B",
+          "description": "Second selectable answer suggestion. Must be complete and actionable without placeholders.",
+          "$comment": "group:common"
+        },
+        "suggestion_c": {
+          "type": "string",
+          "title": "Suggestion C",
+          "description": "Third selectable answer suggestion (optional).",
+          "$comment": "group:common"
+        },
+        "suggestion_d": {
+          "type": "string",
+          "title": "Suggestion D",
+          "description": "Fourth selectable answer suggestion (optional).",
+          "$comment": "group:common"
+        },
+        "allow_multiple": {
+          "type": "boolean",
+          "title": "Allow Multiple",
+          "description": "When true, allows the user to select multiple suggestions at once.",
+          "default": false,
+          "$comment": "group:advanced"
+        }
+      },
+      "required": ["question", "suggestion_a", "suggestion_b"]
+    }
+  },
+  "update_todo_list": {
+    "kind": "bobTool",
+    "version": "1.0.0",
+    "name": "update_todo_list",
+    "title": "Update Todo List",
+    "description": "Replaces the todo list with an updated checklist reflecting the current task state. Use [ ] for pending, [-] for in-progress, and [x] for completed items.",
+    "group": "tracking",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "Id",
+          "description": "Sets the id of this step",
+          "$comment": "group:common"
+        },
+        "description": {
+          "type": "string",
+          "title": "Description",
+          "description": "Sets the description of this step",
+          "$comment": "group:common"
+        },
+        "disabled": {
+          "type": "boolean",
+          "title": "Disabled",
+          "description": "Whether to skip this step during execution.",
+          "default": false,
+          "$comment": "group:advanced"
+        },
+        "todos": {
+          "type": "string",
+          "title": "Todos",
+          "description": "Markdown-formatted checklist of all tasks. Use [ ] for pending, [-] for in-progress, and [x] for completed. Always provide the full list — the system overwrites the previous one.",
+          "$comment": "group:common"
+        }
+      },
+      "required": ["todos"]
+    }
+  },
+  "use_skill": {
+    "kind": "bobTool",
+    "version": "1.0.0",
+    "name": "use_skill",
+    "title": "Use Skill",
+    "description": "Activates a skill by name to load its full instructions into context. Only call once per skill per context window.",
+    "group": "skill",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "Id",
+          "description": "Sets the id of this step",
+          "$comment": "group:common"
+        },
+        "description": {
+          "type": "string",
+          "title": "Description",
+          "description": "Sets the description of this step",
+          "$comment": "group:common"
+        },
+        "disabled": {
+          "type": "boolean",
+          "title": "Disabled",
+          "description": "Whether to skip this step during execution.",
+          "default": false,
+          "$comment": "group:advanced"
+        },
+        "skill_name": {
+          "type": "string",
+          "title": "Skill Name",
+          "description": "Name of the skill to activate. Only call skills listed in the available skills section. Only activate each skill once per context window.",
+          "$comment": "group:common"
+        }
+      },
+      "required": ["skill_name"]
+    }
+  },
+  "switch_mode": {
+    "kind": "bobTool",
+    "version": "1.0.0",
+    "name": "switch_mode",
+    "title": "Switch Mode",
+    "description": "Switches to a different Bob mode to access different capabilities and tools. Each mode is optimized for specific types of tasks.",
+    "group": "mode",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "Id",
+          "description": "Sets the id of this step",
+          "$comment": "group:common"
+        },
+        "description": {
+          "type": "string",
+          "title": "Description",
+          "description": "Sets the description of this step",
+          "$comment": "group:common"
+        },
+        "disabled": {
+          "type": "boolean",
+          "title": "Disabled",
+          "description": "Whether to skip this step during execution.",
+          "default": false,
+          "$comment": "group:advanced"
+        },
+        "mode_id": {
+          "type": "string",
+          "title": "Mode Id",
+          "description": "The slug (ID) of the mode to switch to. Must match the slug of an available mode definition.",
+          "$comment": "group:common"
+        }
+      },
+      "required": ["mode_id"]
+    }
+  },
+  "start_subtask": {
+    "kind": "bobTool",
+    "version": "1.0.0",
+    "name": "start_subtask",
+    "title": "Start Subtask",
+    "description": "Creates a new task instance with its own title, instructions, and optional todo list. The subtask runs in an isolated context within the current session.",
+    "group": "orchestration",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "Id",
+          "description": "Sets the id of this step",
+          "$comment": "group:common"
+        },
+        "description": {
+          "type": "string",
+          "title": "Description",
+          "description": "Sets the description of this step",
+          "$comment": "group:common"
+        },
+        "disabled": {
+          "type": "boolean",
+          "title": "Disabled",
+          "description": "Whether to skip this step during execution.",
+          "default": false,
+          "$comment": "group:advanced"
+        },
+        "title": {
+          "type": "string",
+          "title": "Title",
+          "description": "Short display title for the subtask shown in the UI breadcrumbs.",
+          "$comment": "group:common"
+        },
+        "message": {
+          "type": "string",
+          "title": "Message",
+          "description": "Detailed instructions for the subtask. This is the initial user message the subtask will act on.",
+          "$comment": "group:common"
+        },
+        "mode": {
+          "type": "string",
+          "title": "Mode",
+          "description": "The mode ID to use for this subtask (e.g. 'agent', 'plan'). If not provided, defaults to 'agent'.",
+          "$comment": "group:advanced"
+        },
+        "todos": {
+          "type": "string",
+          "title": "Initial Todos",
+          "description": "Optional initial todo list in markdown checklist format for the subtask.",
+          "$comment": "group:advanced"
+        }
+      },
+      "required": ["title", "message"]
+    }
+  },
+  "execute_command": {
+    "kind": "bobTool",
+    "version": "1.0.0",
+    "name": "execute_command",
+    "title": "Execute Command",
+    "description": "Executes a CLI command on the system. Use for builds, test runners, git operations, and other system operations that require a shell.",
+    "group": "shell,command",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "Id",
+          "description": "Sets the id of this step",
+          "$comment": "group:common"
+        },
+        "description": {
+          "type": "string",
+          "title": "Description",
+          "description": "Sets the description of this step",
+          "$comment": "group:common"
+        },
+        "disabled": {
+          "type": "boolean",
+          "title": "Disabled",
+          "description": "Whether to skip this step during execution.",
+          "default": false,
+          "$comment": "group:advanced"
+        },
+        "command": {
+          "type": "string",
+          "title": "Command",
+          "description": "The CLI command to execute. Must be valid bash syntax. Chain dependent commands with && and use ; only when earlier failures are acceptable.",
+          "$comment": "group:common"
+        },
+        "cwd": {
+          "type": "string",
+          "title": "Working Directory",
+          "description": "Working directory for the command relative to the workspace root. Defaults to the workspace root if not specified.",
+          "$comment": "group:advanced"
+        },
+        "timeout_seconds": {
+          "type": "number",
+          "title": "Timeout (seconds)",
+          "description": "Maximum time in seconds to wait for the command to complete. Defaults to 300s. Set higher only for known slow operations (max 1800s).",
+          "default": 300,
+          "$comment": "group:advanced"
+        }
+      },
+      "required": ["command"]
+    }
   }
 }

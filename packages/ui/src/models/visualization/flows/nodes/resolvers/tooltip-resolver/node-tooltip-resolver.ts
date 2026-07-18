@@ -81,4 +81,17 @@ export class NodeTooltipResolver {
     );
     return tooltip ?? actionName;
   }
+
+  /**
+   * Get tooltip for a Bob tool or component.
+   * Tries BobTool first, then BobComponent as fallback.
+   */
+  static async getBobTooltip(name: string, requestedKind: CatalogKind): Promise<string> {
+    const tooltip = await CatalogResolverFactory.resolvePropertyWithFallbacks(
+      [requestedKind, CatalogKind.BobTool, CatalogKind.BobComponent],
+      name,
+      (def) => def?.description,
+    );
+    return tooltip ?? name;
+  }
 }

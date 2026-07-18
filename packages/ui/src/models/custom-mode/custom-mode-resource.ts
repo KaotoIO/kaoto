@@ -53,7 +53,12 @@ export class CustomModeResource implements KaotoResource {
   addNewEntity(_entityType?: EntityType, entityTemplate?: unknown): string {
     let template: CustomMode;
     if (isDefined(entityTemplate)) {
-      template = entityTemplate as CustomMode;
+      // usePasteEntity and duplicate-step.hook wrap the definition as
+      // { customMode: <CustomMode> } before calling addNewEntity.
+      // Unwrap that envelope when present; fall back to treating the value
+      // as a bare CustomMode (e.g. direct callers in tests).
+      const raw = entityTemplate as Record<string, unknown>;
+      template = (isDefined(raw[EntityType.CustomMode]) ? raw[EntityType.CustomMode] : raw) as CustomMode;
     } else {
       // getFlowTemplate returns a CustomModeFile ({ customModes: [...] }); extract the first mode.
       const file = FlowTemplateService.getFlowTemplate(SourceSchemaType.CustomMode) as CustomModeFile;

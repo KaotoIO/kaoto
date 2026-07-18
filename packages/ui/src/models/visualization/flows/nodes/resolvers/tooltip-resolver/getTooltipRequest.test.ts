@@ -109,4 +109,26 @@ describe('getTooltipRequest', () => {
 
     expect(result).toBe('kafka: fallback');
   });
+
+  it('should resolve BobTool tooltip from catalog', async () => {
+    mockGetEntity.mockResolvedValue({
+      description: 'Reads the contents of a file.',
+    });
+
+    const result = await getTooltipRequest(CatalogKind.BobTool, 'read_file', 'fallback');
+
+    expect(result).toBe('read_file: Reads the contents of a file.');
+    expect(mockGetEntity).toHaveBeenCalledWith(CatalogKind.BobTool, 'read_file');
+  });
+
+  it('should resolve BobComponent tooltip from catalog', async () => {
+    mockGetEntity.mockResolvedValue({
+      description: "Injects a block of free-form text into a mode's customInstructions.",
+    });
+
+    const result = await getTooltipRequest(CatalogKind.BobComponent, 'text-node', 'fallback');
+
+    expect(result).toBe("text-node: Injects a block of free-form text into a mode's customInstructions.");
+    expect(mockGetEntity).toHaveBeenCalledWith(CatalogKind.BobComponent, 'text-node');
+  });
 });
