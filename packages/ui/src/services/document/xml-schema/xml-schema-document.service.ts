@@ -39,6 +39,7 @@ import { XmlSchemaSimpleTypeList } from '../../../xml-schema-ts/simple/XmlSchema
 import { XmlSchemaSimpleTypeRestriction } from '../../../xml-schema-ts/simple/XmlSchemaSimpleTypeRestriction';
 import { XmlSchemaSimpleTypeUnion } from '../../../xml-schema-ts/simple/XmlSchemaSimpleTypeUnion';
 import { XmlSchemaAnnotated } from '../../../xml-schema-ts/XmlSchemaAnnotated';
+import { XmlSchemaInclude } from '../../../xml-schema-ts/external/XmlSchemaInclude';
 import { parseQNameString } from '../../namespace-util';
 import { DocumentUtilService } from '../document-util.service';
 import { XmlSchemaAnalysisService } from './xml-schema-analysis.service';
@@ -99,7 +100,7 @@ export class XmlSchemaDocumentService {
 
     const document = new XmlSchemaDocument(definition, collection, rootElement);
 
-    XmlSchemaDocumentService.populateNamedTypeFragments(document);
+    XmlSchemaDocumentService.populateNamedTypeFragments(document, analysis.warnings);
     XmlSchemaDocumentService.populateElement(document, document.fields, document.rootElement!);
 
     DocumentUtilService.processOverrides(
@@ -276,7 +277,7 @@ export class XmlSchemaDocumentService {
     const collection = document.xmlSchemaCollection;
     collection.getSchemaResolver().addFiles(additionalFiles);
     XmlSchemaDocumentUtilService.loadXmlSchemaFiles(collection, additionalFiles);
-    XmlSchemaDocumentService.populateNamedTypeFragments(document);
+    XmlSchemaDocumentService.populateNamedTypeFragments(document, undefined, false);
     XmlSchemaDocumentService.rebuildAbstractWrapperChildren(document);
   }
 
@@ -504,8 +505,95 @@ export class XmlSchemaDocumentService {
    * Must be called before processing elements to ensure base types are available for extensions and restrictions.
    * @param document - The document whose schema collection will be traversed and whose namedTypeFragments will be populated
    */
-  static populateNamedTypeFragments(document: XmlSchemaDocument) {
-    const schemas = document.xmlSchemaCollection.getUserSchemas();
+  static populateNamedTypeFragments(
+    document: XmlSchemaDocument,
+    warnings?: Array<{ message: string; filePath?: string }>,
+    filterUnreachable: boolean = true,
+  ) {
+    let schemas = document.xmlSchemaCollection.getUserSchemas();
+
+    if (filterUnreachable && document.rootElement) {
+      const parentSchema = document.rootElement.getParent();
+      const reachableSchemas = new Set<XmlSchema>();
+      const queue: XmlSchema[] = [parentSchema];
+
+      const includeEdges = new Map<XmlSchema, XmlSchema[]>();
+      for (const schema of schemas) {
+        for (const ext of schema.getExternals()) {
+          if (ext instanceof XmlSchemaInclude) {
+            const includedSchema = ext.getSchema();
+            if (includedSchema) {
+              if (!includeEdges.has(includedSchema)) {
+                includeEdges.set(includedSchema, []);
+              }
+              includeEdges.get(includedSchema)!.push(schema);
+            }
+          }
+        }
+      }
+
+      while (queue.length > 0) {
+        const current = queue.shift()!;
+        if (!reachableSchemas.has(current)) {
+          reachableSchemas.add(current);
+          const externals = current.getExternals();
+          for (const ext of externals) {
+            const schema = ext.getSchema();
+            if (schema) {
+              queue.push(schema);
+            }
+          }
+          const includers = includeEdges.get(current);
+          if (includers) {
+            for (const inc of includers) {
+              queue.push(inc);
+            }
+          }
+        }
+      }
+
+      const reachableArray = schemas.filter((s) => reachableSchemas.has(s));
+      const nonReachableArray = schemas.filter((s) => !reachableSchemas.has(s));
+
+      if (warnings) {
+        const reachableElements = new Set<string>();
+        const reachableTypes = new Set<string>();
+
+        for (const rs of reachableArray) {
+          for (const elemQName of rs.getElements().keys()) {
+            reachableElements.add(elemQName.toString());
+          }
+          for (const typeQName of rs.getSchemaTypes().keys()) {
+            reachableTypes.add(typeQName.toString());
+          }
+        }
+
+        for (const nrs of nonReachableArray) {
+          const conflicts = [];
+          for (const elemQName of nrs.getElements().keys()) {
+            if (reachableElements.has(elemQName.toString())) {
+              conflicts.push(`Element '${elemQName.getLocalPart()}'`);
+            }
+          }
+          for (const typeQName of nrs.getSchemaTypes().keys()) {
+            if (reachableTypes.has(typeQName.toString())) {
+              conflicts.push(`Type '${typeQName.getLocalPart()}'`);
+            }
+          }
+
+          if (conflicts.length > 0) {
+            const filePath = nrs.getSourceURI() ?? undefined;
+            warnings.push({
+              message: `Unrelated schema shadows reachable schema definitions. ${conflicts.join(', ')} will be ignored.`,
+              filePath,
+            });
+          }
+        }
+      }
+
+      schemas = reachableArray;
+    }
+
     for (const schema of schemas) {
       XmlSchemaDocumentService.populateNamedTypeFragmentsForSchema(document, schema);
     }

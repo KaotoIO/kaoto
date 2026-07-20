@@ -27,6 +27,9 @@ import {
   getRestrictionComplexXsd,
   getRestrictionInheritanceXsd,
   getRestrictionSimpleXsd,
+  getReverseIncludeFileAXsd,
+  getReverseIncludeFileBXsd,
+  getReverseIncludeMainXsd,
   getSchemaTestXsd,
   getShipOrderEmptyFirstLineXsd,
   getShipOrderXsd,
@@ -1117,6 +1120,85 @@ describe('XmlSchemaDocumentService', () => {
       expect(rootElement.fields[0].name).toBe('partA');
       expect(rootElement.fields[1].name).toBe('partB');
     });
+
+    it('should detect shadowed elements and only use reachable schema definitions', () => {
+      const mainXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified">
+  <xs:include schemaLocation="MainTypes.xsd"/>
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Order" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+      const mainTypesXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified">
+  <xs:complexType name="BaseObject" abstract="true">
+    <xs:sequence>
+      <xs:element name="ObjectId" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Order">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="BaseObject">
+          <xs:sequence>
+            <xs:element name="OrderItem" type="xs:string"/>
+            <xs:element name="Quantity" type="xs:int"/>
+            <xs:element name="Price" type="xs:double"/>
+          </xs:sequence>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+      const unrelatedXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified">
+  <xs:element name="Order">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Status" type="xs:string"/>
+        <xs:element name="Action" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'test-doc',
+        {
+          'Main.xsd': mainXsd,
+          'MainTypes.xsd': mainTypesXsd,
+          'Unrelated.xsd': unrelatedXsd,
+        },
+      );
+      definition.rootElementChoice = { name: 'Root', namespaceUri: '' };
+
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('warning');
+      expect(result.warnings).toHaveLength(1);
+      expect(result.warnings![0].message).toContain("Element 'Order'");
+      expect(result.warnings![0].filePath).toBe('Unrelated.xsd');
+
+      const document = result.document as XmlSchemaDocument;
+      expect(document).toBeDefined();
+
+      const rootElement = document.fields[0];
+      expect(rootElement.name).toBe('Root');
+      
+      const orderElement = rootElement.fields.find(f => f.name === 'Order');
+      expect(orderElement).toBeDefined();
+
+      const orderFields = orderElement!.fields.map(f => f.name);
+      expect(orderFields).toEqual(['ObjectId', 'OrderItem', 'Quantity', 'Price']);
+    });
   });
 
   describe('with xs:import', () => {
@@ -1396,5 +1478,28 @@ describe('XmlSchemaDocumentService', () => {
       expect(zipCodeField).toBeDefined();
       expect(zipCodeField!.description).toBe('Postal or ZIP code');
     });
+  });
+  it('should resolve types across sibling included schemas when root element is inside an include', () => {
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'main.xsd': getReverseIncludeMainXsd(),
+        'A.xsd': getReverseIncludeFileAXsd(),
+        'B.xsd': getReverseIncludeFileBXsd(),
+      },
+      undefined,
+      'RootA',
+    );
+    const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+    expect(result.validationStatus).toBe('success');
+    expect(result.warnings).toBeUndefined();
+
+    const document = result.document as XmlSchemaDocument;
+    const rootField = document.fields[0];
+    expect(rootField.name).toBe('RootA');
+    expect(rootField.fields.length).toBeGreaterThan(0);
+    expect(rootField.fields[0].name).toBe('FieldB');
   });
 });
