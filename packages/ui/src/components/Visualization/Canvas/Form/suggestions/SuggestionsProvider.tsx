@@ -3,6 +3,7 @@ import { FunctionComponent, PropsWithChildren, useCallback, useContext, useEffec
 
 import { IMetadataApi, MetadataContext } from '../../../../../providers';
 import { EntitiesContext } from '../../../../../providers/entities.provider';
+import { builtInModeSlugSuggestionProvider } from './suggestions/built-in-mode-slug.suggestions';
 import { getCustomModeSlugSuggestionProvider } from './suggestions/custom-mode-slug.suggestions';
 import { getPropertiesSuggestionProvider } from './suggestions/properties.suggestions';
 import { getSimpleLanguageSuggestionProvider } from './suggestions/simple-language.suggestions';
@@ -22,12 +23,14 @@ export const SuggestionRegistrar: FunctionComponent<PropsWithChildren> = ({ chil
     suggestionRegistry?.registerProvider(simpleLanguageSuggestionProvider);
     suggestionRegistry?.registerProvider(propertiesSuggestionProvider);
     suggestionRegistry?.registerProvider(sqlSyntaxSuggestionProvider);
+    suggestionRegistry?.registerProvider(builtInModeSlugSuggestionProvider);
     suggestionRegistry?.registerProvider(customModeSlugSuggestionProvider);
 
     return () => {
       suggestionRegistry?.unregisterProvider(simpleLanguageSuggestionProvider.id);
       suggestionRegistry?.unregisterProvider(propertiesSuggestionProvider.id);
       suggestionRegistry?.unregisterProvider(sqlSyntaxSuggestionProvider.id);
+      suggestionRegistry?.unregisterProvider(builtInModeSlugSuggestionProvider.id);
       suggestionRegistry?.unregisterProvider(customModeSlugSuggestionProvider.id);
     };
   }, [getSuggestions, getVisualEntities, suggestionRegistry]);

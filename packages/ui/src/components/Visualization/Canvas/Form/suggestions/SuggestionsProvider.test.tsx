@@ -3,6 +3,7 @@ import { ReactNode } from 'react';
 
 import { IMetadataApi, MetadataContext } from '../../../../../providers';
 import { EntitiesContext, EntitiesContextResult } from '../../../../../providers/entities.provider';
+import { builtInModeSlugSuggestionProvider } from './suggestions/built-in-mode-slug.suggestions';
 import { getCustomModeSlugSuggestionProvider } from './suggestions/custom-mode-slug.suggestions';
 import { getPropertiesSuggestionProvider } from './suggestions/properties.suggestions';
 import { sqlSyntaxSuggestionProvider } from './suggestions/sql.suggestions';
@@ -92,6 +93,7 @@ describe('SuggestionRegistrar', () => {
 
     expect(registerProvider).toHaveBeenCalledWith(mockPropertiesProvider);
     expect(registerProvider).toHaveBeenCalledWith(sqlSyntaxSuggestionProvider);
+    expect(registerProvider).toHaveBeenCalledWith(builtInModeSlugSuggestionProvider);
     expect(registerProvider).toHaveBeenCalledWith(mockCustomModeSlugProvider);
   });
 
@@ -104,6 +106,7 @@ describe('SuggestionRegistrar', () => {
 
     expect(unregisterProvider).toHaveBeenCalledWith(mockPropertiesProvider.id);
     expect(unregisterProvider).toHaveBeenCalledWith(sqlSyntaxSuggestionProvider.id);
+    expect(unregisterProvider).toHaveBeenCalledWith(builtInModeSlugSuggestionProvider.id);
     expect(unregisterProvider).toHaveBeenCalledWith(mockCustomModeSlugProvider.id);
   });
 
