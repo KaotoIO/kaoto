@@ -604,6 +604,7 @@ describe('WrapperActionService', () => {
       );
 
       expect(FieldOverrideService.applyFieldSubstitution).not.toHaveBeenCalled();
+      expect(MappingService.updateFieldItemField).toHaveBeenCalledWith(fieldItem, childField);
     });
 
     it('should route to document-level when source side', () => {
@@ -652,6 +653,7 @@ describe('WrapperActionService', () => {
 
       expect(FieldOverrideService.revertFieldSubstitution).not.toHaveBeenCalled();
       expect(SchemaPathService.build).not.toHaveBeenCalled();
+      expect(MappingService.updateFieldItemField).toHaveBeenCalledWith(fieldItem, wrapperField);
     });
 
     it('should route to document-level when source side', () => {
@@ -720,6 +722,7 @@ describe('WrapperActionService', () => {
       WrapperActionService.dispatchChoiceSelection(nodeData, wrapper, { memberIndex: 0 }, namespaceMap, true);
 
       expect(WrapperSelectionService.setChoiceSelection).not.toHaveBeenCalled();
+      expect(MappingService.updateFieldItemField).toHaveBeenCalledWith(fieldItem, memberField);
     });
 
     it('should route to document-level otherwise', () => {
@@ -743,14 +746,29 @@ describe('WrapperActionService', () => {
       WrapperActionService.clearChoiceSelectionOnField(nodeData, wrapper, namespaceMap, true);
 
       expect(WrapperSelectionService.clearChoiceSelection).not.toHaveBeenCalled();
+      expect(MappingService.updateFieldItemField).toHaveBeenCalledWith(fieldItem, wrapper);
     });
 
-    it('should route to document-level otherwise', () => {
+    it('should route to document-level when source side', () => {
       const ownerDocument = TestUtil.createTargetOrderDoc();
       const wrapper = mockField({ maxOccurs: 1, ownerDocument });
       const nodeData = {} as FieldNodeData;
 
       WrapperActionService.clearChoiceSelectionOnField(nodeData, wrapper, namespaceMap, false);
+
+      expect(WrapperSelectionService.clearDescendantWrapperSelections).toHaveBeenCalledWith(wrapper, namespaceMap);
+      expect(DocumentUtilService.invalidateDescendants).toHaveBeenCalled();
+      expect(WrapperSelectionService.clearChoiceSelection).toHaveBeenCalledWith(ownerDocument, wrapper, namespaceMap);
+    });
+
+    it('should route to document-level when maxOccurs is 1 and target side', () => {
+      const ownerDocument = TestUtil.createTargetOrderDoc();
+      const wrapper = mockField({ maxOccurs: 1, ownerDocument });
+      const tree = createMappingTree();
+      const fieldItem = new FieldItem(tree, wrapper);
+      const nodeData = createTargetFieldNodeData(wrapper, fieldItem);
+
+      WrapperActionService.clearChoiceSelectionOnField(nodeData, wrapper, namespaceMap, true);
 
       expect(WrapperSelectionService.clearDescendantWrapperSelections).toHaveBeenCalledWith(wrapper, namespaceMap);
       expect(DocumentUtilService.invalidateDescendants).toHaveBeenCalled();
