@@ -1,0 +1,21 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Built-in Mode Slug Suggestions > getSuggestions > returns all three built-in modes when word is empty 1`] = `
+[
+  {
+    "description": "Write, modify, and refactor code across any language or framework",
+    "group": "Built-in Modes",
+    "value": "agent",
+  },
+  {
+    "description": "Plan, design, and strategise before implementation",
+    "group": "Built-in Modes",
+    "value": "plan",
+  },
+  {
+    "description": "Get explanations, documentation, or answers without making changes",
+    "group": "Built-in Modes",
+    "value": "ask",
+  },
+]
+`;
