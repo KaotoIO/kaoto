@@ -1,0 +1,21 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Custom Mode Slug Suggestions > getSuggestions — with modes > returns all slugs when word is empty 1`] = `
+[
+  {
+    "description": "Switch to the 'new-mode-1' mode",
+    "group": "Custom Modes",
+    "value": "new-mode-1",
+  },
+  {
+    "description": "Switch to the 'review-mode' mode",
+    "group": "Custom Modes",
+    "value": "review-mode",
+  },
+  {
+    "description": "Switch to the 'doc-writer' mode",
+    "group": "Custom Modes",
+    "value": "doc-writer",
+  },
+]
+`;
