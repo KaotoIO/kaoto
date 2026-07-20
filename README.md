@@ -145,6 +145,7 @@ Browse integration files, orchestrate running Camel integrations, initialize new
       - [Build](#build)
     - [Public Components](#public-components)
   - [Storybook](#storybook)
+  - [Documentation](#documentation)
 
 ## Kaoto Online
 
@@ -244,6 +245,13 @@ yarn workspace @kaoto/kaoto-tests storybook
 ```
 
 To publish to Chromatic: `yarn workspace @kaoto/kaoto-tests chromatic`
+
+## Documentation
+
+- [Glossary](docs/GLOSSARY.md) -- canonical terminology for Kaoto's visual editor and DSL concepts.
+- [Contributing](CONTRIBUTING.md) -- guidelines for contributing to Kaoto.
+
+---
 
 <p align="center">
   <a href="https://redhat.com"><img style="margin: 50px 0px 50px 0px; " src="assets/redhat-sponsor.jpeg"/></a>
