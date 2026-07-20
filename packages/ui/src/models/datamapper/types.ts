@@ -108,3 +108,18 @@ export interface IFieldTypeInfo {
   /** How this type derives from its base type (extension or restriction) */
   derivation?: TypeDerivation;
 }
+
+interface IXslOutputSettings {
+  omitXmlDeclaration: boolean;
+}
+
+// later we can add more properties to this type (IXslOutputSettings & IOtherSettings, etc.)
+export type IDataMapperSettings = IXslOutputSettings;
+
+const DEFAULT_XSL_OUTPUT_SETTINGS: IXslOutputSettings = {
+  omitXmlDeclaration: false,
+};
+
+export const DEFAULT_DATAMAPPER_SETTINGS: IDataMapperSettings = {
+  ...DEFAULT_XSL_OUTPUT_SETTINGS,
+};

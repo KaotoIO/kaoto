@@ -3,11 +3,13 @@
 .document {
   &__actions {
     flex: 1;
-    display: flex;
+    display: flex !important;
+    flex-flow: row nowrap;
     justify-content: flex-end;
     align-items: center;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
+    gap: 0;
 
     --pf-v6-c-action-list--child--spacer-base: 0.5rem;
     --pf-v6-c-action-list--group--spacer-base: 0.5rem;
@@ -35,6 +37,13 @@
       &.input-group {
         flex: 1;
       }
+    }
+
+    /* stylelint-disable-next-line selector-class-pattern */
+    .pf-v6-c-divider {
+      margin: 0 var(--pf-t--global--spacer--xs);
+      align-self: center;
+      height: calc(var(--datamapper-header-icon-size, 0.75rem) + 0.25rem);
     }
   }
 }
