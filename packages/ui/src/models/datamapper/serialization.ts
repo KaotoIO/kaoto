@@ -1,5 +1,6 @@
 import { IParentType } from './document';
 import { MappingItem, MappingParentType, MappingTree, SortItem } from './mapping';
+import { IDataMapperSettings } from './types';
 import { SendAlertProps } from './visualization';
 
 /**
@@ -29,6 +30,7 @@ export interface DeserializeItemResult<T extends MappingItem | SortItem> {
 export interface DeserializeResult {
   mappingTree: MappingTree;
   messages: SendAlertProps[];
+  dataMapperSettings: IDataMapperSettings;
 }
 
 /**

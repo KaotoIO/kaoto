@@ -14,10 +14,11 @@ interface ExportMappingFileModalProps {
 }
 
 export const ExportMappingFileModal: FunctionComponent<ExportMappingFileModalProps> = ({ isOpen, onClose }) => {
-  const { mappingTree, sourceParameterMap } = useDataMapper();
+  const { mappingTree, sourceParameterMap, dataMapperSettings } = useDataMapper();
   const serializedMappings = useMemo(
-    () => (isOpen ? MappingSerializerService.serialize(mappingTree, sourceParameterMap) : undefined),
-    [isOpen, mappingTree, sourceParameterMap],
+    () =>
+      isOpen ? MappingSerializerService.serialize(mappingTree, sourceParameterMap, dataMapperSettings) : undefined,
+    [isOpen, mappingTree, sourceParameterMap, dataMapperSettings],
   );
 
   const editorHeight = useMemo(() => {

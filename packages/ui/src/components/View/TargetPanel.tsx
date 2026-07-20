@@ -166,6 +166,7 @@ export const TargetPanel: FunctionComponent = () => {
               additionalActions={documentActions}
               enableDnD={!hasSchema}
               nodeData={targetBodyNodeData}
+              showSettingsButton
             />
           }
           onLayoutChange={syncConnectionPorts}

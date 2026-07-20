@@ -1,7 +1,7 @@
 import './BaseDocument.scss';
 
 import { Draggable } from '@carbon/icons-react';
-import { ActionListGroup, ActionListItem, Icon } from '@patternfly/react-core';
+import { ActionListGroup, ActionListItem, Divider, Icon } from '@patternfly/react-core';
 import clsx from 'clsx';
 import { FunctionComponent, KeyboardEvent, MouseEvent, ReactNode, useCallback, useMemo } from 'react';
 
@@ -12,6 +12,7 @@ import { DocumentNodeData } from '../../models/datamapper/visualization';
 import { useDocumentTreeStore } from '../../store';
 import { AttachSchemaButton } from './actions/AttachSchema';
 import { DetachSchemaButton } from './actions/DetachSchemaButton';
+import { DataMapperSettingsButton } from './actions/Settings/DataMapperSettingsButton';
 import { NodeContainer } from './NodeContainer';
 
 // ============================================================================
@@ -50,6 +51,7 @@ type DocumentHeaderProps = {
   additionalActions?: ReactNode[];
   enableDnD?: boolean;
   nodeData?: DocumentNodeData; // Optional: use existing nodeData instead of creating new one
+  showSettingsButton?: boolean;
 };
 
 /**
@@ -65,6 +67,7 @@ export const DocumentHeader: FunctionComponent<DocumentHeaderProps> = ({
   additionalActions = [],
   enableDnD = false,
   nodeData: externalNodeData,
+  showSettingsButton = false,
 }) => {
   const { mappingTree } = useDataMapper();
   const toggleSelectedNode = useDocumentTreeStore((state) => state.toggleSelectedNode);
@@ -128,6 +131,15 @@ export const DocumentHeader: FunctionComponent<DocumentHeaderProps> = ({
               documentReferenceId={documentReferenceId}
             />
           </ActionListItem>
+
+          {showSettingsButton && (
+            <>
+              <Divider orientation={{ default: 'vertical' }} />
+              <ActionListItem key="datamapper-settings">
+                <DataMapperSettingsButton />
+              </ActionListItem>
+            </>
+          )}
         </ActionListGroup>
       )}
     </div>
