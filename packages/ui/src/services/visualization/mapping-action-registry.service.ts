@@ -134,6 +134,7 @@ export class MappingActionRegistryService {
       },
       isAllowed: (n) => {
         if (n instanceof AddMappingNodeData) return false;
+        if (MappingActionRegistryService.isUnselectedWrapperField(n)) return false;
         if (!VisualizationUtilService.isMappingNode(n)) return true;
         return !MappingActionRegistryService.mappingIsOneOf(
           ValueSelector,
@@ -155,6 +156,7 @@ export class MappingActionRegistryService {
       },
       isAllowed: (n) => {
         if (n instanceof AddMappingNodeData) return false;
+        if (MappingActionRegistryService.isUnselectedWrapperField(n)) return false;
         if (!VisualizationUtilService.isMappingNode(n)) return true;
         return !MappingActionRegistryService.mappingIsOneOf(
           ValueSelector,
@@ -340,6 +342,7 @@ export class MappingActionRegistryService {
       isAllowed: (n) => {
         if (n instanceof VariableNodeData) return false;
         if (n instanceof TargetDocumentNodeData) return false;
+        if (MappingActionRegistryService.isUnselectedWrapperField(n)) return false;
         if (VisualizationUtilService.isFieldNode(n)) return DocumentService.hasChildren(n.field);
         return (
           VisualizationUtilService.isMappingNode(n) &&
