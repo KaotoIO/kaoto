@@ -2616,15 +2616,17 @@ describe('MappingActionService', () => {
     });
   });
 
-  describe('getAllowedActions() inner instructions on unselected wrapper fields', () => {
-    const innerInstructionKinds = [
+  describe('getAllowedActions() on unselected wrapper fields', () => {
+    const disallowedOnUnselectedWrapperKinds = [
       MappingActionKind.InnerForEach,
       MappingActionKind.InnerForEachGroup,
       MappingActionKind.InnerChoose,
       MappingActionKind.InnerIf,
+      MappingActionKind.ValueSelector,
+      MappingActionKind.CopyOfSelector,
     ];
 
-    it('should disallow inner instructions on unselected choice field', () => {
+    it('should disallow actions on unselected choice field', () => {
       const document = TestUtil.createTargetOrderDoc();
       const mappingTree = new MappingTree(
         document.documentType,
@@ -2644,12 +2646,12 @@ describe('MappingActionService', () => {
 
       const unselectedNode = new TargetChoiceFieldNodeData(docNode, choiceField);
       const allowed = MappingActionRegistryService.getAllowedActions(unselectedNode);
-      for (const kind of innerInstructionKinds) {
+      for (const kind of disallowedOnUnselectedWrapperKinds) {
         expect(allowed).not.toContain(kind);
       }
     });
 
-    it('should allow inner instructions on selected choice field', () => {
+    it('should allow actions on selected choice field', () => {
       const document = TestUtil.createTargetOrderDoc();
       const mappingTree = new MappingTree(
         document.documentType,
@@ -2670,12 +2672,12 @@ describe('MappingActionService', () => {
       const selectedNode = new TargetChoiceFieldNodeData(docNode, memberA);
       selectedNode.choiceField = choiceField;
       const allowed = MappingActionRegistryService.getAllowedActions(selectedNode);
-      for (const kind of innerInstructionKinds) {
+      for (const kind of disallowedOnUnselectedWrapperKinds) {
         expect(allowed).toContain(kind);
       }
     });
 
-    it('should disallow inner instructions on unsubstituted abstract field', () => {
+    it('should disallow actions on unsubstituted abstract field', () => {
       const document = TestUtil.createTargetOrderDoc();
       const mappingTree = new MappingTree(
         document.documentType,
@@ -2695,12 +2697,12 @@ describe('MappingActionService', () => {
 
       const unselectedNode = new TargetAbstractFieldNodeData(docNode, abstractField);
       const allowed = MappingActionRegistryService.getAllowedActions(unselectedNode);
-      for (const kind of innerInstructionKinds) {
+      for (const kind of disallowedOnUnselectedWrapperKinds) {
         expect(allowed).not.toContain(kind);
       }
     });
 
-    it('should allow inner instructions on substituted abstract field', () => {
+    it('should allow actions on substituted abstract field', () => {
       const document = TestUtil.createTargetOrderDoc();
       const mappingTree = new MappingTree(
         document.documentType,
@@ -2721,9 +2723,53 @@ describe('MappingActionService', () => {
       const selectedNode = new TargetAbstractFieldNodeData(docNode, candidate);
       selectedNode.abstractField = abstractField;
       const allowed = MappingActionRegistryService.getAllowedActions(selectedNode);
-      for (const kind of innerInstructionKinds) {
+      for (const kind of disallowedOnUnselectedWrapperKinds) {
         expect(allowed).toContain(kind);
       }
+    });
+
+    it('should disallow Variable on unselected choice field', () => {
+      const document = TestUtil.createTargetOrderDoc();
+      const mappingTree = new MappingTree(
+        document.documentType,
+        document.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const docNode = new TargetDocumentNodeData(document, mappingTree);
+      const parentField = document.fields[0];
+
+      const choiceField = new XmlSchemaField(parentField, 'testChoice', false);
+      choiceField.type = Types.Container;
+      choiceField.wrapperKind = 'choice';
+      const memberA = new XmlSchemaField(choiceField, 'memberA', false);
+      memberA.type = Types.String;
+      choiceField.fields = [memberA];
+      parentField.fields.push(choiceField);
+
+      const unselectedNode = new TargetChoiceFieldNodeData(docNode, choiceField);
+      expect(MappingActionRegistryService.getAllowedActions(unselectedNode)).not.toContain(MappingActionKind.Variable);
+    });
+
+    it('should disallow Variable on unsubstituted abstract field', () => {
+      const document = TestUtil.createTargetOrderDoc();
+      const mappingTree = new MappingTree(
+        document.documentType,
+        document.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const docNode = new TargetDocumentNodeData(document, mappingTree);
+      const parentField = document.fields[0];
+
+      const abstractField = new XmlSchemaField(parentField, 'testAbstract', false);
+      abstractField.type = Types.Container;
+      abstractField.wrapperKind = 'abstract';
+      const candidate = new XmlSchemaField(abstractField, 'ConcreteType', false);
+      candidate.type = Types.String;
+      abstractField.fields = [candidate];
+      parentField.fields.push(abstractField);
+
+      const unselectedNode = new TargetAbstractFieldNodeData(docNode, abstractField);
+      expect(MappingActionRegistryService.getAllowedActions(unselectedNode)).not.toContain(MappingActionKind.Variable);
     });
   });
 
