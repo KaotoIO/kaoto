@@ -2,6 +2,8 @@ import { render } from '@testing-library/react';
 import { ReactNode } from 'react';
 
 import { IMetadataApi, MetadataContext } from '../../../../../providers';
+import { EntitiesContext, EntitiesContextResult } from '../../../../../providers/entities.provider';
+import { getCustomModeSlugSuggestionProvider } from './suggestions/custom-mode-slug.suggestions';
 import { getPropertiesSuggestionProvider } from './suggestions/properties.suggestions';
 import { sqlSyntaxSuggestionProvider } from './suggestions/sql.suggestions';
 import { SuggestionRegistrar } from './SuggestionsProvider';
@@ -37,9 +39,20 @@ vi.mock('./suggestions/simple-language.suggestions', async () => {
     getSimpleLanguageSuggestionProvider: vi.fn(() => provider),
   };
 });
+vi.mock('./suggestions/custom-mode-slug.suggestions', async () => {
+  const { getCustomModeSlugSuggestionProvider } = await vi.importActual<
+    typeof import('./suggestions/custom-mode-slug.suggestions')
+  >('./suggestions/custom-mode-slug.suggestions');
+  const provider = getCustomModeSlugSuggestionProvider(vi.fn());
+
+  return {
+    getCustomModeSlugSuggestionProvider: vi.fn(() => provider),
+  };
+});
 
 describe('SuggestionRegistrar', () => {
   let mockMetadataApi: Mocked<IMetadataApi>;
+  let mockEntitiesContext: Partial<EntitiesContextResult>;
 
   beforeEach(() => {
     mockMetadataApi = {
@@ -54,41 +67,48 @@ describe('SuggestionRegistrar', () => {
       shouldSaveSchema: false,
       onStepUpdated: vi.fn(),
     };
+    mockEntitiesContext = {
+      camelResource: {
+        getVisualEntities: vi.fn().mockReturnValue([]),
+      } as unknown as EntitiesContextResult['camelResource'],
+    };
   });
 
-  function renderWithMetadataProvider(children: ReactNode) {
+  function renderWithProviders(children: ReactNode) {
     return render(
       <MetadataContext.Provider value={mockMetadataApi}>
-        <SuggestionRegistrar>{children}</SuggestionRegistrar>
+        <EntitiesContext.Provider value={mockEntitiesContext as EntitiesContextResult}>
+          <SuggestionRegistrar>{children}</SuggestionRegistrar>
+        </EntitiesContext.Provider>
       </MetadataContext.Provider>,
     );
   }
 
   it('registers all providers on mount', () => {
-    renderWithMetadataProvider(<div>Child</div>);
+    renderWithProviders(<div>Child</div>);
 
-    const mockSimpleLanguageProvider = getPropertiesSuggestionProvider(mockMetadataApi.getSuggestions);
     const mockPropertiesProvider = getPropertiesSuggestionProvider(mockMetadataApi.getSuggestions);
+    const mockCustomModeSlugProvider = getCustomModeSlugSuggestionProvider(vi.fn());
 
-    expect(registerProvider).toHaveBeenCalledWith(mockSimpleLanguageProvider);
     expect(registerProvider).toHaveBeenCalledWith(mockPropertiesProvider);
     expect(registerProvider).toHaveBeenCalledWith(sqlSyntaxSuggestionProvider);
+    expect(registerProvider).toHaveBeenCalledWith(mockCustomModeSlugProvider);
   });
 
   it('unregisters all providers on unmount', () => {
-    const { unmount } = renderWithMetadataProvider(<div>Child</div>);
+    const { unmount } = renderWithProviders(<div>Child</div>);
     unmount();
 
-    const mockSimpleLanguageProvider = getPropertiesSuggestionProvider(mockMetadataApi.getSuggestions);
     const mockPropertiesProvider = getPropertiesSuggestionProvider(mockMetadataApi.getSuggestions);
+    const mockCustomModeSlugProvider = getCustomModeSlugSuggestionProvider(vi.fn());
 
-    expect(unregisterProvider).toHaveBeenCalledWith(mockSimpleLanguageProvider.id);
     expect(unregisterProvider).toHaveBeenCalledWith(mockPropertiesProvider.id);
     expect(unregisterProvider).toHaveBeenCalledWith(sqlSyntaxSuggestionProvider.id);
+    expect(unregisterProvider).toHaveBeenCalledWith(mockCustomModeSlugProvider.id);
   });
 
   it('renders children', () => {
-    const { container } = renderWithMetadataProvider(<span>Snapshot Child</span>);
+    const { container } = renderWithProviders(<span>Snapshot Child</span>);
     expect(container).toMatchSnapshot();
   });
 });
