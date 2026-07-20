@@ -149,3 +149,6 @@ storybook-static
 .bob/notes
 .bob/skills
 .codex
+
+# Superpowers skill
+docs/superpowers/**

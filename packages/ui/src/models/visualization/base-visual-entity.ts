@@ -3,6 +3,7 @@ import { BaseEntity, EntityType } from '../entities';
 import { KaotoSchemaDefinition } from '../kaoto-schema';
 import { NodeLabelType } from '../settings/settings.model';
 import { IClipboardCopyObject } from '../visualization/clipboard';
+import { NodeIdentity } from './node-identity';
 
 /**
  * BaseVisualCamelEntity
@@ -176,6 +177,35 @@ export interface IVisualizationNodeData {
   processorIconTooltip?: string;
   /** Schema resolved from the catalog at mapping time */
   schema?: KaotoSchemaDefinition['schema'];
+
+  /** Alt text for the icon */
+  iconAlt?: string;
+
+  /**
+   * The primary identity of this node.
+   * - In Camel Routes: the Processor name (e.g., 'to', 'choice', 'route').
+   * - In Pipe: the Kamelet name directly.
+   * - In Kamelet: the Processor name, same as Camel Routes.
+   * - For Citrus: the test action name.
+   * - For root group nodes: the entity type (e.g., 'route', 'routeConfiguration').
+   * See docs/GLOSSARY.md — "Primary / Secondary / Tertiary Node ID".
+   */
+  primaryNodeId?: NodeIdentity;
+
+  /**
+   * Optional secondary identity.
+   * - In Camel Routes: the Camel Component (e.g., 'timer', 'amqp').
+   * - In Pipe: not used.
+   */
+  secondaryNodeId?: NodeIdentity;
+
+  /**
+   * Optional tertiary identity.
+   * - In Camel Routes using a Kamelet URI: the Kamelet name (e.g., 'weather-source').
+   * - In Pipe: not used (the Kamelet is already the primaryNodeId).
+   */
+  tertiaryNodeId?: NodeIdentity;
+
   [key: string]: unknown;
 }
 
