@@ -30,11 +30,11 @@ export const CatalogLoaderProvider: FunctionComponent<
   useEffect(() => {
     const indexFile = `${basePath}/${selectedCatalogIndexFile}`;
     const relativeBasePath = CatalogSchemaLoader.getRelativeBasePath(indexFile);
+    // Engage Loading synchronously, before the fetch — see the note in RuntimeProvider. Setting it
+    // inside the fetch's `.then` leaves a window where the toolbar renders as interactive while a
+    // catalog reload is already pending, which loses clicks (E2E flakiness) during the remount.
+    setLoadingStatus(LoadingStatus.Loading);
     fetch(indexFile)
-      .then((response) => {
-        setLoadingStatus(LoadingStatus.Loading);
-        return response;
-      })
       .then((response) => response.json())
       .then((catalogIndex: CatalogDefinition) => {
         if (catalogIndex.runtime === 'Citrus') {

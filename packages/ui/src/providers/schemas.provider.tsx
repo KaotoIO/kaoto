@@ -26,11 +26,11 @@ export const SchemasLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
 
   useEffect(() => {
     const indexFile = `${basePath}/${selectedCatalogIndexFile}`;
+    // Engage Loading synchronously, before the fetch — see the note in RuntimeProvider. Setting it
+    // inside the fetch's `.then` leaves a window where the toolbar renders as interactive while a
+    // schema reload is already pending, which loses clicks (E2E flakiness) during the remount.
+    setLoadingStatus(LoadingStatus.Loading);
     fetch(indexFile)
-      .then((response) => {
-        setLoadingStatus(LoadingStatus.Loading);
-        return response;
-      })
       .then((response) => response.json())
       .then(async (catalogIndex: CatalogDefinition) => {
         const schemaFilesPromise = CatalogSchemaLoader.getSchemasFiles(indexFile, catalogIndex.schemas);

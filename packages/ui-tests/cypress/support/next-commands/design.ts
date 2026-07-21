@@ -220,10 +220,10 @@ Cypress.Commands.add('selectCamelRouteType', (type: string, subType?: string) =>
 
 Cypress.Commands.add('retryClickDropdown', (dropdownSelector: string, listSelector: string) => {
   cy.get(dropdownSelector).click({ force: true });
-  // The toggle is a stateful flip (clicking an open menu closes it again), so the previous
-  // fixed-delay probe + blind re-click could close a menu that merely opened slowly — the
-  // cold-start, Chrome-only failure. Instead wait for the toggle to report expanded
-  // (aria-expanded is set by the PatternFly MenuToggle) and the list to render.
+  // Wait for the toggle to report expanded (PatternFly MenuToggle sets aria-expanded) and the
+  // list to render. The loading providers now engage Loading synchronously on catalog/schema
+  // changes, so the toolbar is never rendered mid-reload — Cypress's built-in existence retry
+  // waits for the reloaded toggle, and a single click is enough.
   cy.get(dropdownSelector).should('have.attr', 'aria-expanded', 'true');
   cy.get(listSelector).should('exist');
 });

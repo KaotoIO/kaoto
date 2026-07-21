@@ -46,11 +46,13 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<IRuntimeProvid
   const basePath = catalogUrl.substring(0, catalogUrl.lastIndexOf('/'));
 
   useEffect(() => {
+    // Engage Loading synchronously, before the fetch. When currentSchemaType changes, doing this
+    // inside the fetch's `.then` leaves a window where the library is reloading but loadingStatus
+    // is still `Loaded`, so children (the whole toolbar) keep rendering as interactive while a
+    // remount is already pending — an untrue "ready" signal that loses clicks and flakes E2E.
+    setLoadingStatus(LoadingStatus.Loading);
     fetch(catalogUrl)
-      .then((response) => {
-        setLoadingStatus(LoadingStatus.Loading);
-        return response.json();
-      })
+      .then((response) => response.json())
       .then((catalogLibrary: CatalogLibrary) => {
         let catalogLibraryEntry: CatalogLibraryEntry | undefined = undefined;
         if (isDefined(catalogName)) {
