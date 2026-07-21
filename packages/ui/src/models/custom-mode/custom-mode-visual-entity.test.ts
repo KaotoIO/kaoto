@@ -1,6 +1,9 @@
 import { JSONSchema4 } from 'json-schema';
+import { set } from 'lodash';
 
+import componentsStub from '../../stubs/bob-catalog/bob-components.json';
 import modesStub from '../../stubs/bob-catalog/bob-modes.json';
+import toolsStub from '../../stubs/bob-catalog/bob-tools.json';
 import { BOB_CUSTOM_MODE_ROOT_ENTITY_NAME } from '../bob/bob-catalog-index';
 import { ICamelProcessorDefinition } from '../camel/camel-processors-catalog';
 import { SourceSchemaType } from '../camel/source-schema-type';
@@ -13,6 +16,18 @@ import { NodeIconResolver } from '../visualization/flows/nodes/resolvers/icon-re
 import { CustomInstructionsParser } from './custom-instructions-parser';
 import { CustomInstructionsNode, CustomMode } from './custom-mode-types';
 import { CustomModeVisualEntity } from './custom-mode-visual-entity';
+
+/** Loads stub Bob catalogs into CamelCatalogService, mirroring fetchBobCatalog at runtime. */
+function loadBobStubCatalog() {
+  CamelCatalogService.setCatalogKey(CatalogKind.BobTool, toolsStub as never);
+  CamelCatalogService.setCatalogKey(CatalogKind.BobComponent, componentsStub as never);
+  const rootModeEntry = (modesStub as Record<string, { propertiesSchema?: unknown }>)['mode'];
+  CamelCatalogService.setCatalogKey(CatalogKind.Entity, {
+    [BOB_CUSTOM_MODE_ROOT_ENTITY_NAME]: {
+      propertiesSchema: rootModeEntry?.propertiesSchema,
+    } as ICamelProcessorDefinition,
+  });
+}
 
 const makeMode = (overrides?: Partial<CustomMode>): CustomMode => ({
   slug: 'test-mode',
@@ -30,8 +45,13 @@ describe('CustomModeVisualEntity', () => {
   let entity: CustomModeVisualEntity;
 
   beforeEach(() => {
+    loadBobStubCatalog();
     vi.spyOn(NodeEnrichmentService, 'enrichNodeFromCatalog').mockResolvedValue(undefined);
     entity = new CustomModeVisualEntity(makeMode());
+  });
+
+  afterEach(() => {
+    CamelCatalogService.clearCatalogs();
   });
 
   describe('constructor', () => {
@@ -47,6 +67,28 @@ describe('CustomModeVisualEntity', () => {
       const e = new CustomModeVisualEntity(makeMode({ slug: undefined as unknown as string }));
       expect(e.id).toMatch(/^custom-mode-/);
       expect(e.toJSON().slug).toBe(e.id);
+    });
+
+    it('does not add groups from customInstructions on construction — YAML groups are the source of truth', () => {
+      // The constructor must not scan customInstructions and add groups.
+      // If the user removed a group from the YAML source panel, the constructor
+      // must not restore it just because a matching tool node is in customInstructions.
+      const e = new CustomModeVisualEntity(
+        makeMode({
+          groups: ['read'],
+          customInstructions: serializeSteps([
+            {
+              nodeType: 'tool-invocation',
+              index: 1,
+              title: 'write_file',
+              toolName: 'write_file',
+              rawContent: '**write_file**',
+            },
+          ]),
+        }),
+      );
+      // groups must be exactly what was passed in — constructor adds nothing
+      expect(e.toJSON().groups).toEqual(['read']);
     });
   });
 
@@ -131,8 +173,12 @@ describe('CustomModeVisualEntity', () => {
       expect(schema!.properties).toHaveProperty('groups');
     });
 
-    it('returns undefined for customInstructions child paths (stub)', () => {
-      expect(entity.getNodeSchema('customMode.customInstructions.0.section')).toBeUndefined();
+    it('returns the text-node fallback schema for unrecognised customInstructions child paths', () => {
+      // CustomModeSchemaService falls back to the text-node schema when neither BobTool
+      // nor BobComponent has a matching entry — so any unknown node type yields text-node's schema.
+      const schema = entity.getNodeSchema('customMode.customInstructions.0.section');
+      expect(schema).toBeDefined();
+      expect(schema!.type).toBe('object');
     });
 
     it('returns undefined for unrecognised paths', () => {
@@ -210,6 +256,73 @@ describe('CustomModeVisualEntity', () => {
       entity.updateModel('customMode', { name: 'Only Name Changed' });
       expect(entity.id).toBe('test-mode');
       expect(entity.toJSON().name).toBe('Only Name Changed');
+    });
+
+    it('merges groups from the form with existing groups — never overwrites', () => {
+      // The form panel reads groups at open-time, then submits all fields including groups.
+      // Submitting a stale empty groups array must NOT remove catalog-derived groups added
+      // by addStep (merge semantics: only add, never remove).
+      const e = new CustomModeVisualEntity(makeMode({ groups: [] }));
+      e.addStep({
+        definedComponent: { name: 'write_file', type: CatalogKind.BobTool } as never,
+        mode: AddStepMode.AppendStep,
+        data: { path: 'customMode.customInstructions.0.placeholder' } as never,
+      });
+      // groups now contains write_file's groups (e.g. 'file', 'write' from stub)
+      const groupsAfterAdd = [...e.toJSON().groups] as string[];
+      expect(groupsAfterAdd.length).toBeGreaterThan(0);
+
+      // Simulate form submitting with stale empty groups (form opened before addStep)
+      e.updateModel('customMode', { name: 'New Name', groups: [] });
+
+      // Catalog-derived groups must still be present — the empty submission is a no-op for groups
+      expect(e.toJSON().groups).toEqual(groupsAfterAdd);
+      expect(e.toJSON().name).toBe('New Name');
+    });
+
+    it('adds a group manually typed into the config form', () => {
+      // User opens the form when groups: ['read'], types 'edit', submits ['read', 'edit'].
+      // Both groups must be present — the form-submitted value is merged in.
+      const e = new CustomModeVisualEntity(makeMode({ groups: ['read'] }));
+      e.updateModel('customMode', { name: 'Test Mode', groups: ['read', 'edit'] });
+      expect(e.toJSON().groups).toContain('read');
+      expect(e.toJSON().groups).toContain('edit');
+      expect((e.toJSON().groups as string[]).filter((g) => g === 'read')).toHaveLength(1);
+    });
+
+    it('does not duplicate a group already present when form re-submits it', () => {
+      const e = new CustomModeVisualEntity(makeMode({ groups: ['read', 'edit'] }));
+      e.updateModel('customMode', { groups: ['read', 'edit'] });
+      expect((e.toJSON().groups as string[]).filter((g) => g === 'read')).toHaveLength(1);
+      expect((e.toJSON().groups as string[]).filter((g) => g === 'edit')).toHaveLength(1);
+    });
+
+    it('regression: sub-index setValue mutation does not destroy existing groups', () => {
+      // The form fires onChangeProp('groups.0', 'edit') when replacing the first item.
+      // setValue(snapshot, 'groups.0', 'edit') mutates the snapshot's groups array in-place.
+      // Because getNodeDefinition() used to return the same groups array reference as
+      // this.mode.groups, this mutation destroyed the original value before updateModel
+      // could merge it. getNodeDefinition() must return a cloned groups array.
+      const e = new CustomModeVisualEntity(makeMode({ groups: ['read'] }));
+      // Simulate what CanvasFormBody does: get a snapshot, mutate it via setValue, call updateModel
+      const snapshot = e.getNodeDefinition('customMode') as Record<string, unknown>;
+      // Mutate in-place (lodash set with sub-index path) — must NOT affect this.mode.groups
+      set(snapshot, 'groups.0', 'edit'); // replaces 'read' with 'edit' in the snapshot
+      e.updateModel('customMode', snapshot); // snapshot.groups is now ['edit']
+      // mode.groups should contain both 'read' (original) and 'edit' (from snapshot)
+      expect(e.toJSON().groups).toContain('read');
+      expect(e.toJSON().groups).toContain('edit');
+    });
+
+    it('filters out empty strings from form-submitted groups', () => {
+      // The array widget appends an empty trailing entry; it must be discarded.
+      const e = new CustomModeVisualEntity(makeMode({ groups: ['read'] }));
+      e.updateModel('customMode', { groups: ['read', 'edit', ''] });
+      const groups = e.toJSON().groups as string[];
+      expect(groups).toContain('read');
+      expect(groups).toContain('edit');
+      expect(groups).not.toContain('');
+      expect(groups.filter((g) => g === 'read')).toHaveLength(1);
     });
 
     it('is a no-op for unrecognised paths', () => {
@@ -496,6 +609,107 @@ describe('CustomModeVisualEntity', () => {
         data: { path: 'customMode' } as never,
       });
       expect(e.toJSON().customInstructions).toBe(before);
+    });
+
+    describe('group sync on addStep', () => {
+      it('adds required groups when a BobTool is added', () => {
+        // write_file stub has group: "file,write"
+        const e = new CustomModeVisualEntity(makeMode({ groups: ['read'] }));
+        e.addStep({
+          definedComponent: { name: 'write_file', type: CatalogKind.BobTool } as never,
+          mode: AddStepMode.AppendStep,
+          data: { path: 'customMode.customInstructions.0.placeholder' } as never,
+        });
+        expect(e.toJSON().groups).toContain('file');
+        expect(e.toJSON().groups).toContain('write');
+      });
+
+      it('does not duplicate groups already present', () => {
+        // write_file stub has group: "file,write"; both already present → no duplication
+        const e = new CustomModeVisualEntity(makeMode({ groups: ['file', 'write'] }));
+        e.addStep({
+          definedComponent: { name: 'write_file', type: CatalogKind.BobTool } as never,
+          mode: AddStepMode.AppendStep,
+          data: { path: 'customMode.customInstructions.0.placeholder' } as never,
+        });
+        expect((e.toJSON().groups as string[]).filter((g) => g === 'file')).toHaveLength(1);
+        expect((e.toJSON().groups as string[]).filter((g) => g === 'write')).toHaveLength(1);
+      });
+
+      it('adds groups for two tools in enum order', () => {
+        // use_skill: "skill" (enum index 4), switch_mode: "mode" (enum index 8)
+        // Adding both: "skill" must appear before "mode" in the groups array.
+        const e = new CustomModeVisualEntity(makeMode({ groups: [] }));
+        e.addStep({
+          definedComponent: { name: 'use_skill', type: CatalogKind.BobTool } as never,
+          mode: AddStepMode.AppendStep,
+          data: { path: 'customMode.customInstructions.0.placeholder' } as never,
+        });
+        e.addStep({
+          definedComponent: { name: 'switch_mode', type: CatalogKind.BobTool } as never,
+          mode: AddStepMode.AppendStep,
+          data: { path: 'customMode.customInstructions.1.placeholder' } as never,
+        });
+        const groups = e.toJSON().groups as string[];
+        // skill(4) before mode(8) in the stub enum
+        expect(groups.indexOf('skill')).toBeLessThan(groups.indexOf('mode'));
+      });
+
+      it('is a no-op for an unknown component name', () => {
+        const e = new CustomModeVisualEntity(makeMode({ groups: ['read'] }));
+        e.addStep({
+          definedComponent: { name: 'some-custom-node', type: CatalogKind.BobComponent } as never,
+          mode: AddStepMode.AppendStep,
+          data: { path: 'customMode.customInstructions.0.placeholder' } as never,
+        });
+        expect(e.toJSON().groups).toEqual(['read']);
+      });
+    });
+
+    describe('group sync on removeStep', () => {
+      it('preserves groups after removeStep — groups are additive-only', () => {
+        // Groups are only ever added, never removed. Removing a node does not
+        // remove the groups that were added when it was added.
+        const e = new CustomModeVisualEntity(makeMode({ groups: [] }));
+        e.addStep({
+          definedComponent: { name: 'write_file', type: CatalogKind.BobTool } as never,
+          mode: AddStepMode.AppendStep,
+          data: { path: 'customMode.customInstructions.0.placeholder' } as never,
+        });
+        expect(e.toJSON().groups).toContain('file');
+
+        e.removeStep('customMode.customInstructions.0.write_file');
+
+        // Groups from write_file remain — groups are never removed.
+        expect(e.toJSON().groups).toContain('file');
+        expect(e.toJSON().groups).toContain('write');
+      });
+
+      it('regression: reconstructing from the raw mode object after removeStep does not re-add removed tool groups', () => {
+        // The framework calls initialize() → new CustomModeVisualEntity(mode) on the shared
+        // mode object WITHOUT calling toJSON() first. If removeStep does not flush
+        // customInstructions immediately, the stale string still contains **write_file**
+        // and the constructor re-adds its groups on reconstruction.
+        const rawMode = makeMode({ groups: [] });
+        const e = new CustomModeVisualEntity(rawMode);
+        e.addStep({
+          definedComponent: { name: 'write_file', type: CatalogKind.BobTool } as never,
+          mode: AddStepMode.AppendStep,
+          data: { path: 'customMode.customInstructions.0.placeholder' } as never,
+        });
+        expect(rawMode.groups as string[]).toContain('file');
+
+        e.removeStep('customMode.customInstructions.0.write_file');
+
+        // Reconstruct directly from rawMode — no toJSON() call in between.
+        // This is exactly what initialize() does in production.
+        const reconstructed = new CustomModeVisualEntity(rawMode);
+
+        // The constructor must not have re-added write_file groups from the stale customInstructions.
+        expect(reconstructed.toJSON().customInstructions).not.toContain('write_file');
+        // groups must not grow from reconstruction — write_file groups already present but no new ones
+        expect(reconstructed.toJSON().groups).toEqual(rawMode.groups);
+      });
     });
   });
 
