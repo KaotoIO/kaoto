@@ -24,6 +24,7 @@ import {
   NodeInteraction,
 } from '../base-visual-entity';
 import { IClipboardCopyObject } from '../clipboard';
+import { NodeIdentity } from '../node-identity';
 import { createVisualizationNode } from '../visualization-node';
 import { CamelCatalogService } from './camel-catalog.service';
 import { NodeEnrichmentService } from './nodes/node-enrichment.service';
@@ -226,6 +227,7 @@ export class PipeVisualEntity implements BaseVisualEntity {
       title: '',
       description: '',
       processorIconTooltip: '',
+      primaryNodeId: { name: this.type, catalogKind: CatalogKind.Entity } satisfies NodeIdentity,
     });
 
     await NodeEnrichmentService.enrichNodeFromCatalog(pipeGroupNode, CatalogKind.Entity);
@@ -287,10 +289,11 @@ export class PipeVisualEntity implements BaseVisualEntity {
   }
 
   private async getVizNodeFromStep(step: PipeStep, path: string, isRoot = false): Promise<IVisualizationNode> {
-    const isPlaceholder = step?.ref?.name === undefined;
+    const kameletName = step?.ref?.name;
+    const isPlaceholder = kameletName === undefined;
 
     const data: IVisualizationNodeData = {
-      name: step?.ref?.name ?? PlaceholderType.Placeholder,
+      name: kameletName ?? PlaceholderType.Placeholder,
       path,
       entity: isRoot ? this : undefined,
       isPlaceholder,
@@ -299,6 +302,9 @@ export class PipeVisualEntity implements BaseVisualEntity {
       title: '',
       description: '',
       processorIconTooltip: '',
+      ...(kameletName !== undefined
+        ? { primaryNodeId: { name: kameletName, catalogKind: CatalogKind.Kamelet } satisfies NodeIdentity }
+        : {}),
     };
 
     const vizNode = createVisualizationNode(path, data);

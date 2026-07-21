@@ -152,3 +152,4 @@ storybook-static
 
 # Superpowers skill
 docs/superpowers/**
+.worktrees/
