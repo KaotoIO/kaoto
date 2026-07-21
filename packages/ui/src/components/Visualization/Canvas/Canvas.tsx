@@ -28,10 +28,9 @@ import {
 } from 'react';
 
 import { CatalogModalContext } from '../../../dynamic-catalog/catalog-modal.provider';
-import { useLocalStorage } from '../../../hooks';
-import { LocalStorageKeys } from '../../../models';
+import { useLocalStorage, useSelectedNodePanIntoView, useSelectedVizNode } from '../../../hooks';
+import { IVisualizationNode, LocalStorageKeys } from '../../../models';
 import { CanvasLayoutDirection } from '../../../models/settings/settings.model';
-import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
 import { SettingsContext } from '../../../providers/settings.provider';
 import { getInitialLayout } from '../../../utils/get-initial-layout';
 import { HorizontalLayoutIcon } from '../../Icons/HorizontalLayout';
@@ -76,7 +75,6 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     () => controller.hasGraph() && controller.getGraph().getLayout() !== undefined,
   );
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [selectedNode, setSelectedNode] = useState<CanvasNode | undefined>(undefined);
   const [sidebarWidth, setSidebarWidth] = useLocalStorage(
     LocalStorageKeys.CanvasSidebarWidth,
     CanvasDefaults.DEFAULT_SIDEBAR_WIDTH,
@@ -100,10 +98,10 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
 
   const clearSelection = useCallback(() => {
     setSelectedIds([]);
-    setSelectedNode(undefined);
   }, []);
 
-  useDeleteHotkey(selectedNode?.data?.vizNode, clearSelection);
+  const selectedVizNode = useSelectedVizNode(selectedIds);
+  useDeleteHotkey(selectedVizNode, clearSelection);
 
   /** Draw graph */
   useEffect(() => {
@@ -152,32 +150,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   }, [controller, vizNodes, isVizNodesResolving]);
 
   useEventListener<SelectionEventListener>(SELECTION_EVENT, setSelectedIds);
-
-  /** Set select node and pan it into view */
-  useEffect(() => {
-    let resizeTimeout: number | undefined;
-
-    if (selectedIds[0]) {
-      const selectedNode = controller.getNodeById(selectedIds[0]);
-      if (selectedNode) {
-        setSelectedNode(selectedNode as unknown as CanvasNode);
-        resizeTimeout = setTimeout(
-          action(() => {
-            controller.getGraph().panIntoView(selectedNode, { offset: 20, minimumVisible: 100 });
-            resizeTimeout = undefined;
-          }),
-          500,
-        ) as unknown as number;
-      }
-      return () => {
-        if (resizeTimeout) {
-          clearTimeout(resizeTimeout);
-        }
-      };
-    } else {
-      setSelectedNode(undefined);
-    }
-  }, [selectedIds, controller]);
+  useSelectedNodePanIntoView(selectedIds);
 
   const controlButtons = useMemo(() => {
     const customButtons: TopologyControlButton[] = [];
@@ -263,7 +236,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       onSideBarResize={setSidebarWidth}
       sideBarResizable
       sideBarOpen={isSidebarOpen}
-      sideBar={isSidebarOpen ? <CanvasSideBar selectedNode={selectedNode} onClose={clearSelection} /> : null}
+      sideBar={isSidebarOpen ? <CanvasSideBar vizNode={selectedVizNode} onClose={clearSelection} /> : null}
       contextToolbar={contextToolbar}
       controlBar={<TopologyControlBar controlButtons={controlButtons} />}
       onClick={handleCanvasClick}
