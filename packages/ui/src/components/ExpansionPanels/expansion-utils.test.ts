@@ -530,6 +530,81 @@ describe('expansion-utils', () => {
       expect(result.changed).toBe(false);
     });
 
+    it('should allow overflow when expanded panels at minHeight exceed available space', () => {
+      const panels: PanelResizeInfo[] = [
+        { id: 'collapsed-1', height: 32, minHeight: 32, collapsedHeight: 32, isExpanded: false },
+        { id: 'collapsed-2', height: 32, minHeight: 32, collapsedHeight: 32, isExpanded: false },
+        { id: 'collapsed-3', height: 32, minHeight: 32, collapsedHeight: 32, isExpanded: false },
+        { id: 'collapsed-4', height: 32, minHeight: 32, collapsedHeight: 32, isExpanded: false },
+        { id: 'collapsed-5', height: 32, minHeight: 32, collapsedHeight: 32, isExpanded: false },
+        { id: 'expanded-body', height: 200, minHeight: 100, collapsedHeight: 32, isExpanded: true },
+      ];
+
+      // Container is 250px, collapsed space is 5*32=160, available space is 90
+      // Expanded panel minHeight is 100 > available 90 — overflow guard triggers
+      // Panel keeps its current 200px height instead of being force-fit to 90px
+      const result = calculateContainerResize(panels, 250);
+
+      // Collapsed panels stay at collapsed height
+      expect(result.newHeights.get('collapsed-1')).toBe(32);
+      // Expanded panel should NOT be squished below its current height
+      // Total (360) exceeds container (250) - scrollbar handles it
+      const total = Array.from(result.newHeights.values()).reduce((sum, h) => sum + h, 0);
+      expect(total).toBeGreaterThan(250);
+      expect(result.newHeights.get('expanded-body')).toBe(200);
+    });
+
+    it('should allow overflow when collapsed panels alone exceed container height', () => {
+      const panels: PanelResizeInfo[] = [];
+      for (let i = 0; i < 10; i++) {
+        panels.push({ id: `collapsed-${i}`, height: 32, minHeight: 32, collapsedHeight: 32, isExpanded: false });
+      }
+      panels.push({ id: 'expanded-body', height: 100, minHeight: 50, collapsedHeight: 32, isExpanded: true });
+
+      // Container is 300px, collapsed space is 10*32=320 > 300, available space is -20
+      const result = calculateContainerResize(panels, 300);
+
+      // Expanded panel keeps current height (100 > minHeight 50)
+      expect(result.newHeights.get('expanded-body')).toBe(100);
+    });
+
+    it('should return changed=false on repeated calls in overflow mode (no ResizeObserver loop)', () => {
+      const panels: PanelResizeInfo[] = [
+        { id: 'collapsed-1', height: 32, minHeight: 32, collapsedHeight: 32, isExpanded: false },
+        { id: 'collapsed-2', height: 32, minHeight: 32, collapsedHeight: 32, isExpanded: false },
+        { id: 'collapsed-3', height: 32, minHeight: 32, collapsedHeight: 32, isExpanded: false },
+        { id: 'collapsed-4', height: 32, minHeight: 32, collapsedHeight: 32, isExpanded: false },
+        { id: 'collapsed-5', height: 32, minHeight: 32, collapsedHeight: 32, isExpanded: false },
+        { id: 'expanded-body', height: 30, minHeight: 100, collapsedHeight: 32, isExpanded: true },
+      ];
+
+      const firstResult = calculateContainerResize(panels, 250);
+      expect(firstResult.changed).toBe(true);
+
+      const settledPanels = panels.map((p) => ({
+        ...p,
+        height: firstResult.newHeights.get(p.id) ?? p.height,
+      }));
+      const result = calculateContainerResize(settledPanels, 250);
+
+      expect(result.changed).toBe(false);
+    });
+
+    it('should clamp expanded panel to minHeight when below minimum in overflow mode', () => {
+      const panels: PanelResizeInfo[] = [
+        { id: 'collapsed-1', height: 32, minHeight: 32, collapsedHeight: 32, isExpanded: false },
+        { id: 'collapsed-2', height: 32, minHeight: 32, collapsedHeight: 32, isExpanded: false },
+        { id: 'collapsed-3', height: 32, minHeight: 32, collapsedHeight: 32, isExpanded: false },
+        { id: 'expanded-a', height: 30, minHeight: 80, collapsedHeight: 32, isExpanded: true },
+      ];
+
+      // expanded-a has height 30 < minHeight 80 — should be clamped up
+      const result = calculateContainerResize(panels, 150);
+
+      expect(result.changed).toBe(true);
+      expect(result.newHeights.get('expanded-a')).toBe(80);
+    });
+
     it('should ensure pixel-perfect fit (total equals container height)', () => {
       const panels: PanelResizeInfo[] = [
         { id: 'a', height: 333, minHeight: 100, collapsedHeight: 50, isExpanded: true },

@@ -30,6 +30,9 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
   // Track pending layout change callbacks - executed after CSS transition completes
   const layoutChangeQueueRef = useRef<Array<() => void>>([]);
 
+  // rAF handle for throttling container scroll events
+  const scrollRafRef = useRef(0);
+
   // Track registered layout callbacks per panel - used to broadcast updates to all panels
   const panelCallbacksRef = useRef<Map<string, () => void>>(new Map());
 
@@ -72,6 +75,13 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
       callback();
     });
   }, []);
+
+  const handleContainerScroll = useCallback(() => {
+    cancelAnimationFrame(scrollRafRef.current);
+    scrollRafRef.current = requestAnimationFrame(() => {
+      executeAllLayoutCallbacks();
+    });
+  }, [executeAllLayoutCallbacks]);
 
   /**
    * Queue all registered panel callbacks
@@ -351,15 +361,25 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
    */
   const handlePanelExpand = useCallback(
     (panel: PanelData, panels: PanelData[], totalHeight: number) => {
+      if (panel.height <= panel.collapsedHeight) {
+        panel.height = Math.max(panel.minHeight, Math.min(totalHeight * 0.5, 240));
+      }
+
       const otherExpandedPanels = panels.filter((p) => p.isExpanded && p.id !== panel.id);
       const collapsedPanels = panels.filter((p) => !p.isExpanded && p.id !== panel.id);
 
       const collapsedSpace = calculateCollapsedSpace(collapsedPanels);
       const availableSpace = totalHeight - collapsedSpace;
+      const allExpandedPanels = [...otherExpandedPanels, panel];
+      const totalMinHeight = allExpandedPanels.reduce((sum, p) => sum + p.minHeight, 0);
+
+      if (availableSpace < totalMinHeight) {
+        panel.isExpanded = true;
+        return;
+      }
 
       if (otherExpandedPanels.length > 0) {
         // Redistribute space among all expanded panels (including the newly expanded one)
-        const allExpandedPanels = [...otherExpandedPanels, panel];
         redistributeSpace(allExpandedPanels, availableSpace);
       } else {
         // This is the only expanded panel - give it all available space
@@ -503,7 +523,7 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
   // No spacer needed - panels stack naturally in order
 
   return (
-    <div className="expansion-panels" ref={containerRef}>
+    <div className="expansion-panels" ref={containerRef} onScroll={handleContainerScroll}>
       <ExpansionContext.Provider value={value}>{children}</ExpansionContext.Provider>
     </div>
   );

@@ -112,6 +112,18 @@ export const calculateContainerResize = (
   const collapsedSpace = collapsedPanels.reduce((sum, p) => sum + p.collapsedHeight, 0);
   const availableSpace = newContainerHeight - collapsedSpace;
 
+  // Overflow guard: if panels can't fit at their minimum heights, allow overflow
+  const expandedMinTotal = expandedPanels.reduce((sum, p) => sum + p.minHeight, 0);
+  if (expandedMinTotal > availableSpace) {
+    let anyChanged = false;
+    for (const p of expandedPanels) {
+      const newHeight = Math.max(p.minHeight, p.height);
+      if (newHeight !== p.height) anyChanged = true;
+      newHeights.set(p.id, newHeight);
+    }
+    return { newHeights, changed: anyChanged };
+  }
+
   // Calculate proportional heights for expanded panels
   const expandedHeights = calculateProportionalHeights(expandedPanels, availableSpace);
 
