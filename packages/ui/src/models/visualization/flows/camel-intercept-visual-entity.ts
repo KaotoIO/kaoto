@@ -83,6 +83,7 @@ export class CamelInterceptVisualEntity
     interceptGroupNode.data.isGroup = true;
     interceptGroupNode.data.catalogKind = CatalogKind.Entity;
     interceptGroupNode.data.name = this.type;
+    interceptGroupNode.data.primaryNodeId = { name: this.type, catalogKind: CatalogKind.Entity };
 
     return interceptGroupNode;
   }

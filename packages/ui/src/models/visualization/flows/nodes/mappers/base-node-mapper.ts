@@ -5,6 +5,7 @@ import { CatalogKind } from '../../../../catalog-kind';
 import { PlaceholderType } from '../../../../placeholder.constants';
 import { SPECIAL_PROCESSORS_PARENTS_MAP } from '../../../../special-processors.constants';
 import { IVisualizationNode } from '../../../base-visual-entity';
+import { NodeIdentity } from '../../../node-identity';
 import { createVisualizationNode } from '../../../visualization-node';
 import { CamelComponentSchemaService } from '../../support/camel-component-schema.service';
 import {
@@ -37,6 +38,23 @@ export class BaseNodeMapper implements INodeMapper {
       catalogKind = CatalogKind.Processor;
       name = componentLookup.processorName;
     }
+    const primaryNodeId: NodeIdentity = {
+      name: componentLookup.processorName,
+      catalogKind: CatalogKind.Processor,
+    };
+    let secondaryNodeId: NodeIdentity | undefined;
+    let tertiaryNodeId: NodeIdentity | undefined;
+
+    if (componentLookup.componentName?.startsWith('kamelet:')) {
+      secondaryNodeId = { name: 'kamelet', catalogKind: CatalogKind.Component };
+      tertiaryNodeId = {
+        name: componentLookup.componentName.replace('kamelet:', ''),
+        catalogKind: CatalogKind.Kamelet,
+      };
+    } else if (componentLookup.componentName) {
+      secondaryNodeId = { name: componentLookup.componentName, catalogKind: CatalogKind.Component };
+    }
+
     const data: CamelRouteVisualEntityData = {
       name,
       path,
@@ -48,6 +66,9 @@ export class BaseNodeMapper implements INodeMapper {
       title: '',
       description: '',
       processorIconTooltip: '',
+      primaryNodeId,
+      secondaryNodeId,
+      tertiaryNodeId,
     };
 
     const vizNode = createVisualizationNode(path, data);

@@ -2,6 +2,7 @@ import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 
 import { CatalogKind } from '../../../../catalog-kind';
 import { IVisualizationNode } from '../../../base-visual-entity';
+import { NodeIdentity } from '../../../node-identity';
 import { createVisualizationNode } from '../../../visualization-node';
 import { CamelRouteVisualEntityData, ICamelElementLookupResult } from '../../support/camel-component-types';
 import { NodeEnrichmentService } from '../node-enrichment.service';
@@ -26,6 +27,7 @@ export abstract class ParallelProcessorBaseNodeMapper extends BaseNodeMapper {
       iconUrl: '',
       title: '',
       description: '',
+      primaryNodeId: { name: processorName, catalogKind: CatalogKind.Processor } satisfies NodeIdentity,
     };
 
     const vizNode = createVisualizationNode(path, data);

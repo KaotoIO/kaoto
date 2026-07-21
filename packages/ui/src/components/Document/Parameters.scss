@@ -23,6 +23,8 @@
     /* stylelint-disable-next-line selector-class-pattern */
     .pf-v6-c-divider {
       margin: 0 var(--pf-t--global--spacer--xs);
+      align-self: center;
+      height: calc(var(--datamapper-header-icon-size, 0.75rem) + 0.25rem);
     }
   }
 }

@@ -14,10 +14,19 @@
     limitations under the License.
 */
 import { Alert, AlertActionCloseButton, AlertGroup } from '@patternfly/react-core';
-import { createContext, FunctionComponent, PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  createContext,
+  FunctionComponent,
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import { Loading } from '../components/Loading';
-import { SendAlertProps } from '../models/datamapper';
+import { DEFAULT_DATAMAPPER_SETTINGS, IDataMapperSettings, SendAlertProps } from '../models/datamapper';
 import {
   BODY_DOCUMENT_ID,
   DocumentDefinition,
@@ -67,6 +76,9 @@ export interface IDataMapperContext {
 
   debug: boolean;
   setDebug(debug: boolean): void;
+
+  dataMapperSettings: IDataMapperSettings;
+  updateDataMapperSettings(settings: Partial<IDataMapperSettings>): void;
 }
 
 export const DataMapperContext = createContext<IDataMapperContext | null>(null);
@@ -94,6 +106,12 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   const [debug, setDebug] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [activeView, setActiveView] = useState<CanvasView>(CanvasView.SOURCE_TARGET);
+  const [dataMapperSettings, setDataMapperSettings] = useState<IDataMapperSettings>(DEFAULT_DATAMAPPER_SETTINGS);
+  const previousSettings = useRef<IDataMapperSettings | null>(null);
+
+  const updateDataMapperSettings = useCallback((settings: Partial<IDataMapperSettings>) => {
+    setDataMapperSettings((prev) => ({ ...prev, ...settings }));
+  }, []);
 
   const [sourceParameterMap, setSourceParameterMap] = useState<Map<string, IDocument>>(new Map<string, IDocument>());
   const [isSourceParametersExpanded, setSourceParametersExpanded] = useState<boolean>(true);
@@ -155,13 +173,18 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
         latestTargetBodyDocument.definitionType,
       );
       freshTree.namespaceMap = { ...effectiveNamespaceMap };
-      const { mappingTree: loaded, messages } = MappingSerializerService.deserialize(
+      const {
+        mappingTree: loaded,
+        messages,
+        dataMapperSettings: restoredDataMapperSettings,
+      } = MappingSerializerService.deserialize(
         initialXsltFile,
         latestTargetBodyDocument,
         freshTree,
         latestSourceParameterMap,
       );
       WrapperAutoDetectionService.autoDetectWrapperSelections(loaded, latestTargetBodyDocument, effectiveNamespaceMap);
+      setDataMapperSettings(restoredDataMapperSettings);
       setMappingTree(loaded);
       for (const msg of messages) {
         sendAlert(msg);
@@ -180,6 +203,17 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     refreshMappingTree();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading, targetBodyDocument]);
+
+  // Reset omitXmlDeclaration when target changes to non-XML
+  useEffect(() => {
+    if (
+      targetBodyDocument.definitionType !== DocumentDefinitionType.XML_SCHEMA &&
+      dataMapperSettings.omitXmlDeclaration
+    ) {
+      updateDataMapperSettings({ omitXmlDeclaration: DEFAULT_DATAMAPPER_SETTINGS.omitXmlDeclaration });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [targetBodyDocument.definitionType]);
 
   const refreshSourceParameters = useCallback(() => {
     setSourceParameterMap(new Map(sourceParameterMap));
@@ -202,24 +236,46 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     });
     newMapping.namespaceMap = mappingTree.namespaceMap;
     setMappingTree(newMapping);
-    const serialized = MappingSerializerService.serialize(newMapping, sourceParameterMap);
-    onUpdateMappings?.(serialized);
+    onUpdateMappings?.(MappingSerializerService.serialize(newMapping, sourceParameterMap, dataMapperSettings));
     onUpdateNamespaceMap?.(newMapping.namespaceMap);
-  }, [mappingTree, onUpdateMappings, onUpdateNamespaceMap, sourceParameterMap, targetBodyDocument.definitionType]);
-
+  }, [
+    dataMapperSettings,
+    mappingTree,
+    onUpdateMappings,
+    onUpdateNamespaceMap,
+    sourceParameterMap,
+    targetBodyDocument.definitionType,
+  ]);
   const resetMappingTree = useCallback(() => {
     const newMapping = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, targetBodyDocument.definitionType);
     newMapping.namespaceMap = { ...initialNamespaceMap };
     setMappingTree(newMapping);
-    onUpdateMappings?.(MappingSerializerService.serialize(newMapping, sourceParameterMap));
+    onUpdateMappings?.(MappingSerializerService.serialize(newMapping, sourceParameterMap, dataMapperSettings));
     onUpdateNamespaceMap?.(newMapping.namespaceMap);
   }, [
+    dataMapperSettings,
     initialNamespaceMap,
     onUpdateMappings,
     onUpdateNamespaceMap,
     sourceParameterMap,
     targetBodyDocument.definitionType,
   ]);
+
+  // Re-serialize only when dataMapperSettings actually change (e.g. omitXmlDeclaration toggled).
+  useEffect(() => {
+    if (isLoading) return;
+
+    // Skip initial setup to prevent serializing immediately on mount
+    if (previousSettings.current === null) {
+      previousSettings.current = dataMapperSettings;
+      return;
+    }
+    // Only serialize if settings changed, ignoring mappingTree reference changes
+    if (previousSettings.current === dataMapperSettings) return;
+
+    previousSettings.current = dataMapperSettings;
+    onUpdateMappings?.(MappingSerializerService.serialize(mappingTree, sourceParameterMap, dataMapperSettings));
+  }, [dataMapperSettings, isLoading, mappingTree, onUpdateMappings, sourceParameterMap]);
 
   const renameSourceParameter = useCallback(
     (oldName: string, newName: string) => {
@@ -346,6 +402,8 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       sendAlert,
       debug,
       setDebug,
+      dataMapperSettings,
+      updateDataMapperSettings,
     };
   }, [
     isLoading,
@@ -366,6 +424,8 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     alerts,
     sendAlert,
     debug,
+    dataMapperSettings,
+    updateDataMapperSettings,
   ]);
 
   return (

@@ -85,6 +85,7 @@ export class CamelOnCompletionVisualEntity
     onCompletionGroupNode.data.isGroup = true;
     onCompletionGroupNode.data.catalogKind = CatalogKind.Entity;
     onCompletionGroupNode.data.name = this.type;
+    onCompletionGroupNode.data.primaryNodeId = { name: this.type, catalogKind: CatalogKind.Entity };
 
     return onCompletionGroupNode;
   }

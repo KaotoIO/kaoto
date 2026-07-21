@@ -68,4 +68,35 @@ describe('TargetPanel', () => {
     // Target body starts as primitive (no schema), so it should be collapsed
     expect(panel).toHaveAttribute('data-expanded', 'false');
   });
+
+  it('should render DataMapper settings button', async () => {
+    render(<TargetPanel />, { wrapper });
+
+    // The settings button should be present
+    const settingsButton = await screen.findByRole('button', { name: /settings/i });
+    expect(settingsButton).toBeInTheDocument();
+  });
+
+  it('should render DataMapper settings button with schema', async () => {
+    render(<TargetPanel />, { wrapper: schemaWrapper });
+
+    // Wait for the panel to render with schema
+    expect(await screen.findByText('Target Body')).toBeInTheDocument();
+
+    // The settings button should be present even with schema
+    const settingsButton = await screen.findByRole('button', { name: /settings/i });
+    expect(settingsButton).toBeInTheDocument();
+  });
+
+  it('should include settings button in document actions', () => {
+    const { container } = render(<TargetPanel />, { wrapper });
+
+    // The settings button is wrapped in an ActionListItem
+    const actionListItem = container.querySelector('[data-testid="document-doc-targetBody-Body"]');
+    expect(actionListItem).toBeInTheDocument();
+
+    // Settings button should be within the document header actions
+    const settingsButton = container.querySelector('button[aria-label*="Settings"]');
+    expect(settingsButton).toBeInTheDocument();
+  });
 });
