@@ -1314,5 +1314,21 @@ describe('CitrusTestVisualEntity', () => {
       expect(placeHolderNode.data.path).toBe('actions.1.placeholder');
       expect(placeHolderNode.getNextNode()).toBeUndefined();
     });
+
+    it('should set primaryNodeId on the root group node', async () => {
+      const vizNode = await citrusTestEntity.toVizNode();
+
+      expect(vizNode.data.primaryNodeId).toEqual({ name: citrusTestEntity.type, catalogKind: CatalogKind.Entity });
+    });
+
+    it('should set primaryNodeId on each action child node', async () => {
+      const vizNode = await citrusTestEntity.toVizNode();
+      const actionNode = vizNode.getChildren()?.[0];
+
+      expect(actionNode?.data.primaryNodeId).toEqual({
+        name: actionNode?.data.name,
+        catalogKind: CatalogKind.TestAction,
+      });
+    });
   });
 });

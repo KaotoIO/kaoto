@@ -19,6 +19,7 @@ import {
   NodeInteraction,
 } from '../base-visual-entity';
 import { IClipboardCopyObject } from '../clipboard';
+import { NodeIdentity } from '../node-identity';
 import { createVisualizationNode } from '../visualization-node';
 import { CamelCatalogService } from './camel-catalog.service';
 import { NodeEnrichmentService } from './nodes/node-enrichment.service';
@@ -357,6 +358,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
       title: '',
       description: '',
       processorIconTooltip: '',
+      primaryNodeId: { name: this.type, catalogKind: CatalogKind.Entity } satisfies NodeIdentity,
     });
 
     await NodeEnrichmentService.enrichNodeFromCatalog(testGroupNode, CatalogKind.TestAction);
@@ -442,6 +444,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
       title: '',
       description: '',
       processorIconTooltip: '',
+      primaryNodeId: { name: actionName, catalogKind: CatalogKind.TestAction } satisfies NodeIdentity,
     };
 
     const vizNode = createVisualizationNode(path, data);

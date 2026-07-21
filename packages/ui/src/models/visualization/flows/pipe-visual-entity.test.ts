@@ -695,6 +695,55 @@ describe('Pipe', () => {
       const stepNode = vizNode.getChildren()![1];
       expect(stepNode.data.isPlaceholder).toBe(true);
     });
+
+    it('should set primaryNodeId on the root Pipe group node', async () => {
+      const vizNode = await pipeVisualEntity.toVizNode();
+
+      expect(vizNode.data.primaryNodeId).toEqual({ name: pipeVisualEntity.type, catalogKind: CatalogKind.Entity });
+    });
+
+    it('should set primaryNodeId on Kamelet step nodes (source, step, sink)', async () => {
+      const vizNode = await pipeVisualEntity.toVizNode();
+
+      const sourceNode = vizNode.getChildren()![0];
+      const stepNode = vizNode.getChildren()![1];
+      const sinkNode = vizNode.getChildren()![2];
+
+      expect(sourceNode.data.primaryNodeId).toEqual({ name: 'webhook-source', catalogKind: CatalogKind.Kamelet });
+      expect(stepNode.data.primaryNodeId).toEqual({ name: 'delay-action', catalogKind: CatalogKind.Kamelet });
+      expect(sinkNode.data.primaryNodeId).toEqual({ name: 'log-sink', catalogKind: CatalogKind.Kamelet });
+    });
+
+    it('should NOT set primaryNodeId on placeholder step nodes', async () => {
+      const pipeWithPlaceholder = cloneDeep(pipeJson);
+      pipeWithPlaceholder.spec!.steps = [
+        {
+          ref: {
+            kind: 'Kamelet',
+            apiVersion: 'camel.apache.org/v1',
+          },
+        },
+      ];
+      const entity = new PipeVisualEntity(pipeWithPlaceholder);
+      const vizNode = await entity.toVizNode();
+
+      const stepNode = vizNode.getChildren()![1];
+      expect(stepNode.data.isPlaceholder).toBe(true);
+      expect(stepNode.data.primaryNodeId).toBeUndefined();
+    });
+
+    it('should NOT set primaryNodeId on placeholder source/sink nodes', async () => {
+      const entity = new PipeVisualEntity({});
+      const vizNode = await entity.toVizNode();
+
+      const sourceNode = vizNode.getChildren()![0];
+      const sinkNode = vizNode.getChildren()![1];
+
+      expect(sourceNode.data.isPlaceholder).toBe(true);
+      expect(sourceNode.data.primaryNodeId).toBeUndefined();
+      expect(sinkNode.data.isPlaceholder).toBe(true);
+      expect(sinkNode.data.primaryNodeId).toBeUndefined();
+    });
   });
 
   describe('pasteStep', () => {
