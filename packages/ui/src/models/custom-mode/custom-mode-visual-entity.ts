@@ -20,6 +20,7 @@ import { CustomModeSchemaService } from '../visualization/flows/support/custom-m
 import { ModelValidationService } from '../visualization/flows/support/validators/model-validation.service';
 import { createVisualizationNode } from '../visualization/visualization-node';
 import { CustomInstructionsParser } from './custom-instructions-parser';
+import { CustomModeGroupsService } from './custom-mode-groups.service';
 import { CustomInstructionsNode, CustomMode } from './custom-mode-types';
 
 export class CustomModeVisualEntity implements BaseVisualEntity {
@@ -85,8 +86,11 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
     if (!path) return undefined;
     if (path === this.getRootPath()) {
       // Exclude customInstructions (managed via canvas nodes) from the form.
+      // Deep-clone groups so the form widget works on an independent copy.
+      // Without this, sub-index paths (e.g. 'groups.0') in setValue() mutate
+      // this.mode.groups in-place before our updateModel merge can read it.
       const { customInstructions: _ci, ...rest } = this.mode as CustomMode & { customInstructions?: string };
-      return rest;
+      return { ...rest, groups: Array.isArray(rest.groups) ? [...rest.groups] : rest.groups };
     }
     if (path.startsWith(`${this.getRootPath()}.customInstructions.`)) {
       const index = this.extractStepIndex(path);
@@ -116,12 +120,26 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
       const v = value as Partial<CustomMode>;
       // Explicitly pick only known CustomMode fields to prevent arbitrary key injection.
       // customInstructions is intentionally excluded — it is managed via canvas step nodes.
+      // groups is merged (never replaced) — the form may add groups manually, but it must
+      // not overwrite catalog-derived groups added by addStep. We union form-submitted groups
+      // with the current groups so that: (a) manual additions via the form are accepted, and
+      // (b) a stale form submission that lacks catalog-derived groups does not remove them.
       if (isDefined(v.slug)) this.mode.slug = v.slug;
       if (isDefined(v.name)) this.mode.name = v.name;
       if (isDefined(v.description)) this.mode.description = v.description;
       if (isDefined(v.roleDefinition)) this.mode.roleDefinition = v.roleDefinition;
       if (isDefined(v.whenToUse)) this.mode.whenToUse = v.whenToUse;
-      if (isDefined(v.groups)) this.mode.groups = v.groups;
+      if (Array.isArray(v.groups)) {
+        const existing = new Set<string>(
+          (this.mode.groups as string[]).filter((g): g is string => typeof g === 'string'),
+        );
+        for (const g of v.groups as string[]) {
+          if (typeof g === 'string' && g.trim() !== '' && !existing.has(g)) {
+            (this.mode.groups as string[]).push(g);
+            existing.add(g);
+          }
+        }
+      }
       this.id = isDefined(this.mode.slug) && this.mode.slug !== '' ? this.mode.slug : this.id;
       return;
     }
@@ -156,14 +174,7 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
   }
 
   toJSON(): CustomMode {
-    if (this.parsedNodesDirty) {
-      // Sort by node.index so that a user-edited `order` field takes effect before serializing,
-      // then normalize indexes back to 1…n so they stay in sync with the array position.
-      this.parsedNodes.sort((a, b) => a.index - b.index);
-      this.reindexNodes();
-      this.mode.customInstructions = CustomInstructionsParser.serialize(this.parsedNodes);
-      this.parsedNodesDirty = false;
-    }
+    this.flushParsedNodes();
     return this.mode;
   }
 
@@ -260,6 +271,8 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
 
     this.reindexNodes();
     this.parsedNodesDirty = true;
+    // Sync groups for the newly added node immediately — before toJSON() is called.
+    CustomModeGroupsService.syncGroupsForNode(options.definedComponent.name, this.mode);
   }
 
   removeStep(path?: string): void {
@@ -270,6 +283,11 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
     this.parsedNodes.splice(index, 1);
     this.reindexNodes();
     this.parsedNodesDirty = true;
+    // Flush immediately so this.mode.customInstructions reflects the removal.
+    // The framework reconstructs entities from this.mode (by reference) via initialize()
+    // without calling toJSON() first. Without this flush the stale customInstructions
+    // still contains the removed node reference, and the constructor re-adds its groups.
+    this.flushParsedNodes();
   }
 
   pasteStep(options: {
@@ -370,6 +388,16 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
 
     return modeGroupNode;
   }
+  private flushParsedNodes(): void {
+    if (!this.parsedNodesDirty) return;
+    // Sort by node.index so that a user-edited `order` field takes effect before serializing,
+    // then normalize indexes back to 1…n so they stay in sync with the array position.
+    this.parsedNodes.sort((a, b) => a.index - b.index);
+    this.reindexNodes();
+    this.mode.customInstructions = CustomInstructionsParser.serialize(this.parsedNodes);
+    this.parsedNodesDirty = false;
+  }
+
   private extractStepIndex(path: string): number {
     const prefix = `${this.getRootPath()}.customInstructions.`;
     if (!path.startsWith(prefix)) return -1;
