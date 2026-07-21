@@ -2,6 +2,7 @@ import { RouteDefinition } from '@kaoto/camel-catalog/types';
 import { parse } from 'yaml';
 
 import { DATAMAPPER_ID_PREFIX } from '../../../../../utils';
+import { CatalogKind } from '../../../../catalog-kind';
 import { RootNodeMapper } from '../root-node-mapper';
 import { DataMapperNodeMapper } from './datamapper-node-mapper';
 import { StepNodeMapper } from './step-node-mapper';
@@ -40,6 +41,13 @@ describe('StepNodeMapper', () => {
                 - log:
                     id: log-5678
                     message: \${body}`);
+  });
+
+  it('should populate primaryNodeId for non-DataMapper step', async () => {
+    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
+
+    expect(vizNode.data.primaryNodeId).toEqual({ name: 'step', catalogKind: CatalogKind.Processor });
+    expect(vizNode.data.secondaryNodeId).toBeUndefined();
   });
 
   it('should return children', async () => {

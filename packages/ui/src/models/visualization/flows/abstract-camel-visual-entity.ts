@@ -17,6 +17,7 @@ import {
   NodeInteraction,
 } from '../base-visual-entity';
 import { IClipboardCopyObject } from '../clipboard';
+import { NodeIdentity } from '../node-identity';
 import { createVisualizationNode } from '../visualization-node';
 import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
@@ -244,6 +245,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       processorIconTooltip: '',
       processorName: 'route',
       schema: undefined,
+      primaryNodeId: { name: this.type, catalogKind: CatalogKind.Entity } satisfies NodeIdentity,
     });
 
     // Enrich route group node with catalog properties (icon, title, description, etc.)

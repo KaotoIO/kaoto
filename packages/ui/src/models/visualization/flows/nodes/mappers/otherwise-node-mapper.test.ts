@@ -1,5 +1,6 @@
 import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
 
+import { CatalogKind } from '../../../../catalog-kind';
 import { RootNodeMapper } from '../root-node-mapper';
 import { OtherwiseNodeMapper } from './otherwise-node-mapper';
 import { noopNodeMapper } from './testing/noop-node-mapper';
@@ -45,5 +46,15 @@ describe('OtherwiseNodeMapper', () => {
 
     expect(vizNode.getChildren()).toHaveLength(2);
     expect(vizNode.getChildren()?.[1].data.isPlaceholder).toBe(true);
+  });
+
+  it('should populate primaryNodeId', async () => {
+    const vizNode = await mapper.getVizNodeFromProcessor(
+      path,
+      { processorName: 'otherwise' as keyof ProcessorDefinition },
+      routeDefinition,
+    );
+
+    expect(vizNode.data.primaryNodeId).toEqual({ name: 'otherwise', catalogKind: CatalogKind.Processor });
   });
 });

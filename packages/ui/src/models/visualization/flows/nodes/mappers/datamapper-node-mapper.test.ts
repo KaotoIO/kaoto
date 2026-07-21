@@ -4,6 +4,8 @@ import {
   datamapperRouteDefinitionStub,
   twoDataMapperRouteDefinitionStub,
 } from '../../../../../stubs/datamapper/data-mapper';
+import { DATAMAPPER_ID_PREFIX } from '../../../../../utils';
+import { CatalogKind } from '../../../../catalog-kind';
 import { RootNodeMapper } from '../root-node-mapper';
 import { DataMapperNodeMapper } from './datamapper-node-mapper';
 import { noopNodeMapper } from './testing/noop-node-mapper';
@@ -30,6 +32,12 @@ describe('DataMapperNodeMapper', () => {
       const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
 
       expect(vizNode.getChildren()).toBeUndefined();
+    });
+
+    it('should populate primaryNodeId', async () => {
+      const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
+
+      expect(vizNode.data.primaryNodeId).toEqual({ name: DATAMAPPER_ID_PREFIX, catalogKind: CatalogKind.Processor });
     });
 
     it('should assign an unique ID for each DataMapper steps', async () => {

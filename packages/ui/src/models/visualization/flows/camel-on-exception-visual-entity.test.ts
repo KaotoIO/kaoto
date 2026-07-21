@@ -83,6 +83,7 @@ describe('CamelOnExceptionVisualEntity', () => {
       expect(vizNode.data.isGroup).toBe(true);
       expect(vizNode.data.catalogKind).toBe(CatalogKind.Entity);
       expect(vizNode.data.name).toBe(EntityType.OnException);
+      expect(vizNode.data.primaryNodeId).toEqual({ name: entity.type, catalogKind: CatalogKind.Entity });
     });
 
     it('should work with auto-generated id', async () => {

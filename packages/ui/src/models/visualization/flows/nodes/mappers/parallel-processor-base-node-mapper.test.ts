@@ -1,5 +1,6 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 
+import { CatalogKind } from '../../../../catalog-kind';
 import { ICamelElementLookupResult } from '../../support/camel-component-types';
 import { RootNodeMapper } from '../root-node-mapper';
 import { LoadBalanceNodeMapper } from './loadbalance-node-mapper';
@@ -55,6 +56,8 @@ describe('ParallelProcessorBaseNodeMapper', () => {
         });
         // catalogKind is not set when lookup doesn't have componentName
         expect(vizNode.data.catalogKind).toBeUndefined();
+        expect(vizNode.data.primaryNodeId).toEqual({ name: processorName, catalogKind: CatalogKind.Processor });
+        expect(vizNode.data.secondaryNodeId).toBeUndefined();
       });
 
       it('should return a VisualizationNode with children', async () => {

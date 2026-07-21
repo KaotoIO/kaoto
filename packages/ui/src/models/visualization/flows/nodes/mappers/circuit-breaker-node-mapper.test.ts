@@ -1,5 +1,6 @@
 import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
 
+import { CatalogKind } from '../../../../catalog-kind';
 import { RootNodeMapper } from '../root-node-mapper';
 import { CircuitBreakerNodeMapper } from './circuit-breaker-node-mapper';
 import { OnFallbackNodeMapper } from './on-fallback-node-mapper';
@@ -44,6 +45,12 @@ describe('CircuitBreakerNodeMapper', () => {
 
     expect(vizNode.getChildren()).toHaveLength(3);
     expect(vizNode.getChildren()?.[1].data.isPlaceholder).toBe(true);
+  });
+
+  it('should populate primaryNodeId', async () => {
+    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'circuitBreaker' }, routeDefinition);
+
+    expect(vizNode.data.primaryNodeId).toEqual({ name: 'circuitBreaker', catalogKind: CatalogKind.Processor });
   });
 
   it('should return step nodes as children', async () => {

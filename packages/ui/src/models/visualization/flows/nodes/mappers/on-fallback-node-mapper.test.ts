@@ -1,5 +1,6 @@
 import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
 
+import { CatalogKind } from '../../../../catalog-kind';
 import { RootNodeMapper } from '../root-node-mapper';
 import { OnFallbackNodeMapper } from './on-fallback-node-mapper';
 import { noopNodeMapper } from './testing/noop-node-mapper';
@@ -43,5 +44,15 @@ describe('OnFallbackNodeMapper', () => {
     );
 
     expect(vizNode.getChildren()).toHaveLength(1);
+  });
+
+  it('should populate primaryNodeId', async () => {
+    const vizNode = await mapper.getVizNodeFromProcessor(
+      path,
+      { processorName: 'onFallback' as keyof ProcessorDefinition },
+      routeDefinition,
+    );
+
+    expect(vizNode.data.primaryNodeId).toEqual({ name: 'onFallback', catalogKind: CatalogKind.Processor });
   });
 });

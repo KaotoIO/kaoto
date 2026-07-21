@@ -1,5 +1,6 @@
 import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
 
+import { CatalogKind } from '../../../../catalog-kind';
 import { RootNodeMapper } from '../root-node-mapper';
 import { ChoiceNodeMapper } from './choice-node-mapper';
 import { OtherwiseNodeMapper } from './otherwise-node-mapper';
@@ -47,6 +48,13 @@ describe('ChoiceNodeMapper', () => {
 
     // When placeholder (first) + 2 when nodes + otherwise = 4 children
     expect(vizNode.getChildren()).toHaveLength(4);
+  });
+
+  it('should populate primaryNodeId', async () => {
+    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'choice' }, routeDefinition);
+
+    expect(vizNode.data.primaryNodeId).toEqual({ name: 'choice', catalogKind: CatalogKind.Processor });
+    expect(vizNode.data.secondaryNodeId).toBeUndefined();
   });
 
   it('should return when placeholder first, then `when` nodes as children', async () => {

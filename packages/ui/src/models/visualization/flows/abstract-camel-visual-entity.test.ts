@@ -649,5 +649,13 @@ describe('AbstractCamelVisualEntity', () => {
       expect(choiceNode?.data.isGroup).toBe(true);
       expect(choiceNode?.getChildren()?.length).toBe(2);
     });
+
+    it('should set primaryNodeId on the route group node', async () => {
+      const routeGroupNode = await abstractVisualEntity.toVizNode();
+      expect(routeGroupNode.data.primaryNodeId).toEqual({
+        name: abstractVisualEntity.type,
+        catalogKind: CatalogKind.Entity,
+      });
+    });
   });
 });
