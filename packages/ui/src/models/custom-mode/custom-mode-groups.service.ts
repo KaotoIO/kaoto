@@ -54,7 +54,7 @@ export class CustomModeGroupsService {
     const required = CustomModeGroupsService.getRequiredGroups([nodeName]);
     if (required.length === 0) return;
 
-    const existing = new Set<string>(mode.groups.filter((g): g is string => typeof g === 'string'));
+    const existing = new Set<string>(mode.groups.map((g) => (Array.isArray(g) ? g[0] : g)));
 
     const missing = required.filter((g) => !existing.has(g));
     if (missing.length === 0) return;

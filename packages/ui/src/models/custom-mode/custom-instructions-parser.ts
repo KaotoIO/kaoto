@@ -348,6 +348,6 @@ export class CustomInstructionsParser {
         .join('\n');
     });
 
-    return `${CUSTOM_INSTRUCTIONS_PREAMBLE}\n\n${parts.join('\n')}\n\n${CUSTOM_INSTRUCTIONS_TRAILER}\n`;
+    return `${CUSTOM_INSTRUCTIONS_PREAMBLE}\n\n${parts.join('\n\n')}\n\n${CUSTOM_INSTRUCTIONS_TRAILER}\n`;
   }
 }

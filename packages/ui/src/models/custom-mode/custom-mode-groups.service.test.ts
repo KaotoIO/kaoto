@@ -103,6 +103,17 @@ describe('CustomModeGroupsService (catalog-driven)', () => {
       expect((mode.groups as string[]).filter((g) => g === 'write')).toHaveLength(1);
     });
 
+    it('does not add a plain-string group when a tuple with the same name already exists', () => {
+      // Tuple ["write", { fileRegex: "..." }] must count as "write" for deduplication.
+      const mode = makeMode({ groups: [['write', { fileRegex: '\\.yaml$' }], 'file'] });
+      CustomModeGroupsService.syncGroupsForNode('write_file', mode);
+      // "write" is already represented by the tuple — must not be added again.
+      const writeEntries = mode.groups.filter((g) => (Array.isArray(g) ? g[0] === 'write' : g === 'write'));
+      expect(writeEntries).toHaveLength(1);
+      // "file" is already a plain string — must not be duplicated either.
+      expect(mode.groups.filter((g) => g === 'file')).toHaveLength(1);
+    });
+
     it('is a no-op for an unknown node name', () => {
       const mode = makeMode({ groups: ['read'] });
       CustomModeGroupsService.syncGroupsForNode('not_in_catalog', mode);
