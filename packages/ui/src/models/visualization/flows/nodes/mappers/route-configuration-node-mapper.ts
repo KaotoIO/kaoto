@@ -3,6 +3,7 @@ import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { CatalogKind } from '../../../../catalog-kind';
 import { SPECIAL_PROCESSORS_PARENTS_MAP } from '../../../../special-processors.constants';
 import { IVisualizationNode } from '../../../base-visual-entity';
+import { NodeIdentity } from '../../../node-identity';
 import { createVisualizationNode } from '../../../visualization-node';
 import { CamelRouteVisualEntityData, ICamelElementLookupResult } from '../../support/camel-component-types';
 import { NodeEnrichmentService } from '../node-enrichment.service';
@@ -25,6 +26,7 @@ export class RouteConfigurationNodeMapper extends BaseNodeMapper {
       iconUrl: '',
       title: '',
       description: '',
+      primaryNodeId: { name: processorName, catalogKind: CatalogKind.Processor } satisfies NodeIdentity,
     };
 
     const vizNode = createVisualizationNode(path, data);

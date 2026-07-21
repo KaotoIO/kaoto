@@ -1,4 +1,5 @@
 import { mockRandomValues } from '../../../stubs';
+import { CatalogKind } from '../../catalog-kind';
 import { IVisualizationNodeData } from '../base-visual-entity';
 import { CamelInterceptFromVisualEntity } from './camel-intercept-from-visual-entity';
 import { ModelValidationService } from './support/validators/model-validation.service';
@@ -110,6 +111,10 @@ describe('CamelInterceptFromVisualEntity', () => {
     expect(vizNode.data.processorName).toBe(CamelInterceptFromVisualEntity.ROOT_PATH);
     expect(vizNode.data.entity).toBe(interceptFromVisualEntity);
     expect(vizNode.data.isGroup).toBeTruthy();
+    expect(vizNode.data.primaryNodeId).toEqual({
+      name: interceptFromVisualEntity.type,
+      catalogKind: CatalogKind.Entity,
+    });
   });
 
   it('should serialize the entity', () => {

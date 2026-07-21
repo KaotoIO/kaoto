@@ -1,6 +1,7 @@
 import { OnCompletion } from '@kaoto/camel-catalog/types';
 
 import { mockRandomValues } from '../../../stubs';
+import { CatalogKind } from '../../catalog-kind';
 import { IVisualizationNodeData } from '../base-visual-entity';
 import { CamelOnCompletionVisualEntity } from './camel-on-completion-visual-entity';
 import { ModelValidationService } from './support/validators/model-validation.service';
@@ -108,6 +109,10 @@ describe('CamelOnCompletionVisualEntity', () => {
     expect(vizNode.data.processorName).toBe(CamelOnCompletionVisualEntity.ROOT_PATH);
     expect(vizNode.data.entity).toBe(onCompletionVisualEntity);
     expect(vizNode.data.isGroup).toBeTruthy();
+    expect(vizNode.data.primaryNodeId).toEqual({
+      name: onCompletionVisualEntity.type,
+      catalogKind: CatalogKind.Entity,
+    });
   });
 
   it('should serialize the entity', () => {

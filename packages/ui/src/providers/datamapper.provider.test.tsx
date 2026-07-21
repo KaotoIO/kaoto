@@ -15,6 +15,7 @@ import { FieldItem, ForEachItem, MappingTree, ValueSelector } from '../models/da
 import { CanvasView } from '../models/datamapper/view';
 import { DocumentService } from '../services/document/document.service';
 import { MappingService } from '../services/mapping/mapping.service';
+import { MappingSerializerService } from '../services/mapping/mapping-serializer.service';
 import {
   getAccountJsonSchema,
   getCartJsonSchema,
@@ -929,6 +930,370 @@ describe('DataMapperProvider', () => {
           result.current.resetMappingTree();
         });
       }).not.toThrow();
+    });
+  });
+
+  describe('DataMapper Settings', () => {
+    it('should initialize with default settings', async () => {
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      expect(result.current.dataMapperSettings).toEqual({
+        omitXmlDeclaration: false,
+      });
+    });
+
+    it('should update settings with updateDataMapperSettings when target is XML', async () => {
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      // First change target to XML so omitXmlDeclaration can be set
+      const xmlDocDef = new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.XML_SCHEMA, 'Body', {});
+      const mockXmlDocument = {
+        documentType: DocumentType.TARGET_BODY,
+        documentId: 'Body',
+        definitionType: DocumentDefinitionType.XML_SCHEMA,
+      } as IDocument;
+
+      act(() => {
+        result.current.updateDocument(mockXmlDocument, xmlDocDef, 'test');
+      });
+
+      await waitFor(() => {
+        expect(result.current.targetBodyDocument.definitionType).toBe(DocumentDefinitionType.XML_SCHEMA);
+      });
+
+      act(() => {
+        result.current.updateDataMapperSettings({ omitXmlDeclaration: true });
+      });
+
+      await waitFor(() => {
+        expect(result.current.dataMapperSettings.omitXmlDeclaration).toBe(true);
+      });
+    });
+
+    it('should merge partial settings updates', async () => {
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      // Change target to XML
+      const xmlDocDef = new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.XML_SCHEMA, 'Body', {});
+      const mockXmlDocument = {
+        documentType: DocumentType.TARGET_BODY,
+        documentId: 'Body',
+        definitionType: DocumentDefinitionType.XML_SCHEMA,
+      } as IDocument;
+
+      act(() => {
+        result.current.updateDocument(mockXmlDocument, xmlDocDef, 'test');
+      });
+
+      await waitFor(() => {
+        expect(result.current.targetBodyDocument.definitionType).toBe(DocumentDefinitionType.XML_SCHEMA);
+      });
+
+      // Update one setting
+      act(() => {
+        result.current.updateDataMapperSettings({ omitXmlDeclaration: true });
+      });
+
+      await waitFor(() => {
+        expect(result.current.dataMapperSettings).toEqual({
+          omitXmlDeclaration: true,
+        });
+      });
+
+      // Update again - demonstrates merge behavior
+      act(() => {
+        result.current.updateDataMapperSettings({ omitXmlDeclaration: false });
+      });
+
+      await waitFor(() => {
+        expect(result.current.dataMapperSettings).toEqual({
+          omitXmlDeclaration: false,
+        });
+      });
+    });
+
+    it('should reset omitXmlDeclaration when target changes from XML to non-XML', async () => {
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      // Change target to XML
+      const xmlDocDef = new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.XML_SCHEMA, 'Body', {});
+      const mockXmlDocument = {
+        documentType: DocumentType.TARGET_BODY,
+        documentId: 'Body',
+        definitionType: DocumentDefinitionType.XML_SCHEMA,
+      } as IDocument;
+
+      act(() => {
+        result.current.updateDocument(mockXmlDocument, xmlDocDef, 'test');
+      });
+
+      await waitFor(() => {
+        expect(result.current.targetBodyDocument.definitionType).toBe(DocumentDefinitionType.XML_SCHEMA);
+      });
+
+      // Set omitXmlDeclaration to true
+      act(() => {
+        result.current.updateDataMapperSettings({ omitXmlDeclaration: true });
+      });
+
+      await waitFor(() => {
+        expect(result.current.dataMapperSettings.omitXmlDeclaration).toBe(true);
+      });
+
+      // Change target to JSON (non-XML)
+      const jsonDocDef = new DocumentDefinition(
+        DocumentType.TARGET_BODY,
+        DocumentDefinitionType.JSON_SCHEMA,
+        'Body',
+        {},
+      );
+
+      const mockJsonDocument = {
+        documentType: DocumentType.TARGET_BODY,
+        documentId: 'Body',
+        definitionType: DocumentDefinitionType.JSON_SCHEMA,
+      } as IDocument;
+
+      act(() => {
+        result.current.updateDocument(mockJsonDocument, jsonDocDef, 'test');
+      });
+
+      // Should reset to default (false)
+      await waitFor(() => {
+        expect(result.current.dataMapperSettings.omitXmlDeclaration).toBe(false);
+      });
+    });
+
+    it('should not reset omitXmlDeclaration when target remains XML', async () => {
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      // Change target to XML
+      const xmlDocDef = new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.XML_SCHEMA, 'Body', {});
+      const mockXmlDocument = {
+        documentType: DocumentType.TARGET_BODY,
+        documentId: 'Body',
+        definitionType: DocumentDefinitionType.XML_SCHEMA,
+      } as IDocument;
+
+      act(() => {
+        result.current.updateDocument(mockXmlDocument, xmlDocDef, 'test');
+      });
+
+      await waitFor(() => {
+        expect(result.current.targetBodyDocument.definitionType).toBe(DocumentDefinitionType.XML_SCHEMA);
+      });
+
+      // Set omitXmlDeclaration to true
+      act(() => {
+        result.current.updateDataMapperSettings({ omitXmlDeclaration: true });
+      });
+
+      await waitFor(() => {
+        expect(result.current.dataMapperSettings.omitXmlDeclaration).toBe(true);
+      });
+
+      // Change target to another XML Schema (still XML)
+      const xmlDocDef2 = new DocumentDefinition(
+        DocumentType.TARGET_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'Body',
+        {},
+      );
+
+      const mockXmlDocument2 = {
+        documentType: DocumentType.TARGET_BODY,
+        documentId: 'Body',
+        definitionType: DocumentDefinitionType.XML_SCHEMA,
+      } as IDocument;
+
+      act(() => {
+        result.current.updateDocument(mockXmlDocument2, xmlDocDef2, 'test');
+      });
+
+      // Should remain true
+      await waitFor(() => {
+        expect(result.current.dataMapperSettings.omitXmlDeclaration).toBe(true);
+      });
+    });
+
+    it('should pass dataMapperSettings to serialize in refreshMappingTree', async () => {
+      const mockOnUpdateMappings = vi.fn();
+      const serializeSpy = vi.spyOn(MappingSerializerService, 'serialize');
+
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider onUpdateMappings={mockOnUpdateMappings}>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      // Change target to XML
+      const xmlDocDef = new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.XML_SCHEMA, 'Body', {});
+      const mockXmlDocument = {
+        documentType: DocumentType.TARGET_BODY,
+        documentId: 'Body',
+        definitionType: DocumentDefinitionType.XML_SCHEMA,
+      } as IDocument;
+
+      act(() => {
+        result.current.updateDocument(mockXmlDocument, xmlDocDef, 'test');
+      });
+
+      await waitFor(() => {
+        expect(result.current.targetBodyDocument.definitionType).toBe(DocumentDefinitionType.XML_SCHEMA);
+      });
+
+      act(() => {
+        result.current.updateDataMapperSettings({ omitXmlDeclaration: true });
+      });
+
+      await waitFor(() => {
+        expect(result.current.dataMapperSettings.omitXmlDeclaration).toBe(true);
+      });
+
+      act(() => {
+        result.current.refreshMappingTree();
+      });
+
+      await waitFor(() => {
+        expect(serializeSpy).toHaveBeenCalledWith(
+          expect.any(MappingTree),
+          expect.any(Map),
+          expect.objectContaining({ omitXmlDeclaration: true }),
+        );
+      });
+
+      serializeSpy.mockRestore();
+    });
+
+    it('should pass dataMapperSettings to serialize in resetMappingTree', async () => {
+      const mockOnUpdateMappings = vi.fn();
+      const serializeSpy = vi.spyOn(MappingSerializerService, 'serialize');
+
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider onUpdateMappings={mockOnUpdateMappings}>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      // Change target to XML
+      const xmlDocDef = new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.XML_SCHEMA, 'Body', {});
+      const mockXmlDocument = {
+        documentType: DocumentType.TARGET_BODY,
+        documentId: 'Body',
+        definitionType: DocumentDefinitionType.XML_SCHEMA,
+      } as IDocument;
+
+      act(() => {
+        result.current.updateDocument(mockXmlDocument, xmlDocDef, 'test');
+      });
+
+      await waitFor(() => {
+        expect(result.current.targetBodyDocument.definitionType).toBe(DocumentDefinitionType.XML_SCHEMA);
+      });
+
+      act(() => {
+        result.current.updateDataMapperSettings({ omitXmlDeclaration: true });
+      });
+
+      await waitFor(() => {
+        expect(result.current.dataMapperSettings.omitXmlDeclaration).toBe(true);
+      });
+
+      act(() => {
+        result.current.resetMappingTree();
+      });
+
+      await waitFor(() => {
+        expect(serializeSpy).toHaveBeenCalledWith(
+          expect.any(MappingTree),
+          expect.any(Map),
+          expect.objectContaining({ omitXmlDeclaration: true }),
+        );
+      });
+
+      serializeSpy.mockRestore();
+    });
+    it('should restore omitXmlDeclaration from initialXsltFile', async () => {
+      const initialXsltFile = `<?xml version="1.0" encoding="UTF-8"?>
+<!-- This file is generated by Kaoto DataMapper. Do not edit. -->
+<xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:output method="xml" indent="yes" omit-xml-declaration="yes"/>
+  <xsl:template match="/"/>
+</xsl:stylesheet>`;
+
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider initialXsltFile={initialXsltFile}>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.dataMapperSettings.omitXmlDeclaration).toBe(true);
+      });
+    });
+
+    it('should reserialize when dataMapperSettings change', async () => {
+      const mockOnUpdateMappings = vi.fn();
+      const serializeSpy = vi.spyOn(MappingSerializerService, 'serialize');
+
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider onUpdateMappings={mockOnUpdateMappings}>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      const xmlDocDef = new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.XML_SCHEMA, 'Body', {});
+      const mockXmlDocument = {
+        documentType: DocumentType.TARGET_BODY,
+        documentId: 'Body',
+        definitionType: DocumentDefinitionType.XML_SCHEMA,
+      } as IDocument;
+
+      act(() => {
+        result.current.updateDocument(mockXmlDocument, xmlDocDef, 'test');
+      });
+
+      await waitFor(() => {
+        expect(result.current.targetBodyDocument.definitionType).toBe(DocumentDefinitionType.XML_SCHEMA);
+      });
+
+      serializeSpy.mockClear();
+      mockOnUpdateMappings.mockClear();
+
+      act(() => {
+        result.current.updateDataMapperSettings({ omitXmlDeclaration: true });
+      });
+
+      await waitFor(() => {
+        expect(serializeSpy).toHaveBeenCalledWith(
+          expect.any(MappingTree),
+          expect.any(Map),
+          expect.objectContaining({ omitXmlDeclaration: true }),
+        );
+      });
+
+      expect(mockOnUpdateMappings).toHaveBeenCalled();
+      serializeSpy.mockRestore();
     });
   });
 });

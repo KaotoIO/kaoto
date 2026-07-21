@@ -112,6 +112,7 @@ export class CamelInterceptSendToEndpointVisualEntity
     interceptSendToEndpointGroupNode.data.isGroup = true;
     interceptSendToEndpointGroupNode.data.catalogKind = CatalogKind.Entity;
     interceptSendToEndpointGroupNode.data.name = this.type;
+    interceptSendToEndpointGroupNode.data.primaryNodeId = { name: this.type, catalogKind: CatalogKind.Entity };
 
     return interceptSendToEndpointGroupNode;
   }
