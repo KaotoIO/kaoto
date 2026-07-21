@@ -1,5 +1,6 @@
 import { ProcessorDefinition, RouteConfigurationDefinition } from '@kaoto/camel-catalog/types';
 
+import { CatalogKind } from '../../../../catalog-kind';
 import { RootNodeMapper } from '../root-node-mapper';
 import { BaseNodeMapper } from './base-node-mapper';
 import { RouteConfigurationNodeMapper } from './route-configuration-node-mapper';
@@ -27,6 +28,18 @@ describe('RouteConfigurationNodeMapper', () => {
     expect(vizNode.data.name).toBe('routeConfiguration');
     expect(vizNode.data.path).toEqual(path);
     expect(vizNode.data.isGroup).toBe(true);
+  });
+
+  it('should populate primaryNodeId', async () => {
+    const entityDef = { routeConfiguration: {} };
+    const vizNode = await mapper.getVizNodeFromProcessor(
+      path,
+      { processorName: 'routeConfiguration' as keyof ProcessorDefinition },
+      entityDef,
+    );
+
+    expect(vizNode.data.primaryNodeId).toEqual({ name: 'routeConfiguration', catalogKind: CatalogKind.Processor });
+    expect(vizNode.data.secondaryNodeId).toBeUndefined();
   });
 
   it('should return one placeholder per branch type when routeConfiguration is empty', async () => {

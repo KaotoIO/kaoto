@@ -1,5 +1,6 @@
 import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
 
+import { CatalogKind } from '../../../../catalog-kind';
 import { ICamelElementLookupResult } from '../../support/camel-component-types';
 import { RootNodeMapper } from '../root-node-mapper';
 import { BaseNodeMapper } from './base-node-mapper';
@@ -34,6 +35,21 @@ describe('BaseNodeMapper', () => {
         processorName: 'from',
         componentName: 'timer',
       });
+      expect(vizNode.data.primaryNodeId).toEqual({ name: 'from', catalogKind: CatalogKind.Processor });
+      expect(vizNode.data.secondaryNodeId).toEqual({ name: 'timer', catalogKind: CatalogKind.Component });
+      expect(vizNode.data.tertiaryNodeId).toBeUndefined();
+    });
+
+    it('should set only primaryNodeId when there is no componentName (processor-only)', async () => {
+      const processorOnlyLookup: ICamelElementLookupResult = {
+        processorName: 'log' as keyof ProcessorDefinition,
+      };
+
+      const vizNode = await mapper.getVizNodeFromProcessor('route.log', processorOnlyLookup, {});
+
+      expect(vizNode.data.primaryNodeId).toEqual({ name: 'log', catalogKind: CatalogKind.Processor });
+      expect(vizNode.data.secondaryNodeId).toBeUndefined();
+      expect(vizNode.data.tertiaryNodeId).toBeUndefined();
     });
 
     it('should return a VisualizationNode with children', async () => {
@@ -106,6 +122,9 @@ describe('BaseNodeMapper', () => {
         processorName: 'to',
         componentName: 'kamelet:postgresql-sink',
       });
+      expect(vizNode.data.primaryNodeId).toEqual({ name: 'to', catalogKind: CatalogKind.Processor });
+      expect(vizNode.data.secondaryNodeId).toEqual({ name: 'kamelet', catalogKind: CatalogKind.Component });
+      expect(vizNode.data.tertiaryNodeId).toEqual({ name: 'postgresql-sink', catalogKind: CatalogKind.Kamelet });
     });
   });
 });
