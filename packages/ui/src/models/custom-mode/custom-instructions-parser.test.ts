@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { CustomInstructionsParser } from './custom-instructions-parser';
 import { CUSTOM_INSTRUCTIONS_PREAMBLE, CUSTOM_INSTRUCTIONS_TRAILER } from './custom-mode-constants';
 import { CustomInstructionsNode } from './custom-mode-types';
@@ -927,6 +929,35 @@ Follow the below instructions strictly. These directives are mandatory and non-n
       // The ordered steps must still be present as numbered items.
       expect(serialized).toContain('1. Analyse ticket');
       expect(serialized).toContain('2. Return JSON');
+    });
+
+    it('round-trip preserves step count when a free-form block is sandwiched between list items', () => {
+      // With parts.join('\n'), the list item directly after the free-form prose
+      // (separated by only one newline) was parsed as a lazy paragraph continuation
+      // rather than a new ordered-list item, collapsing two steps into one.
+      const nodes: CustomInstructionsNode[] = [
+        { nodeType: 'step', source: 'list-item', index: 1, title: 'Step one', rawContent: '' },
+        {
+          nodeType: 'step',
+          source: 'free-form',
+          index: 2,
+          title: 'Prose block',
+          rawContent: '# Interlude\n\nSome prose here.',
+        },
+        { nodeType: 'step', source: 'list-item', index: 3, title: 'Step two', rawContent: '' },
+        { nodeType: 'step', source: 'list-item', index: 4, title: 'Step three', rawContent: '' },
+      ];
+
+      const serialized = CustomInstructionsParser.serialize(nodes);
+      const roundTripped = CustomInstructionsParser.parse(serialized);
+
+      // Must recover all four nodes — free-form + 3 list-items.
+      expect(roundTripped).toHaveLength(4);
+      // List-item counter must reset correctly after the free-form block.
+      expect(roundTripped.find((n) => n.title === 'Step two')).toBeDefined();
+      expect(roundTripped.find((n) => n.title === 'Step three')).toBeDefined();
+      // The free-form heading must survive the round-trip.
+      expect(roundTripped.find((n) => n.source === 'free-form')).toBeDefined();
     });
   });
 });

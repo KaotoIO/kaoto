@@ -87,10 +87,15 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
     if (path === this.getRootPath()) {
       // Exclude customInstructions (managed via canvas nodes) from the form.
       // Deep-clone groups so the form widget works on an independent copy.
-      // Without this, sub-index paths (e.g. 'groups.0') in setValue() mutate
-      // this.mode.groups in-place before our updateModel merge can read it.
+      // Without this, sub-index paths (e.g. 'groups.0.1.fileRegex') in setValue() mutate
+      // nested tuple objects inside this.mode.groups before our updateModel merge can read them.
+      // Each entry is cloned individually: strings are primitives (no-op), tuples carry a
+      // nested constraint object that must not be shared with the live mode.
       const { customInstructions: _ci, ...rest } = this.mode as CustomMode & { customInstructions?: string };
-      return { ...rest, groups: Array.isArray(rest.groups) ? [...rest.groups] : rest.groups };
+      return {
+        ...rest,
+        groups: Array.isArray(rest.groups) ? rest.groups.map((g) => structuredClone(g)) : rest.groups,
+      };
     }
     if (path.startsWith(`${this.getRootPath()}.customInstructions.`)) {
       const index = this.extractStepIndex(path);
@@ -131,7 +136,7 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
       if (isDefined(v.whenToUse)) this.mode.whenToUse = v.whenToUse;
       if (Array.isArray(v.groups)) {
         const existing = new Set<string>(
-          (this.mode.groups as string[]).filter((g): g is string => typeof g === 'string'),
+          (this.mode.groups as (string | [string, unknown])[]).map((g) => (Array.isArray(g) ? g[0] : g)),
         );
         for (const g of v.groups as string[]) {
           if (typeof g === 'string' && g.trim() !== '' && !existing.has(g)) {
@@ -153,6 +158,7 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
           const params = value as Record<string, string>;
           this.parsedNodes[index] = {
             nodeType: 'tool-invocation',
+            source: existing.source,
             rawContent: CustomInstructionsParser.serializeToolParams(existing.toolName, params),
             title: existing.toolName,
             index: existing.index,
@@ -163,6 +169,7 @@ export class CustomModeVisualEntity implements BaseVisualEntity {
           const formValue = value as { content?: string; label?: string; order?: number };
           this.parsedNodes[index] = {
             nodeType: existing.nodeType,
+            source: existing.source,
             rawContent: formValue.content ?? existing.rawContent,
             title: formValue.label ?? existing.title,
             index: typeof formValue.order === 'number' ? formValue.order : existing.index,

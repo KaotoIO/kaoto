@@ -26,8 +26,9 @@ Follow the below instructions strictly. These directives are mandatory and non-n
  * Hard rules are hidden from the user on the canvas (they never become step
  * nodes) and are always re-injected by `CustomInstructionsParser.serialize()`.
  *
- * TODO: consolidate the per-mode rule sets into a single canonical list.
  */
 export const CUSTOM_INSTRUCTIONS_TRAILER = `> Hard rules
-> - Do not invent content not present in the input.
-> - Follow the output format specified in the final step exactly.`;
+> - Never call any external API or query any live data source.
+> - Do NOT alter names, dates, email addresses, phone numbers, or any non-monetary text.
+> - If no target data is found, set the relevant count to 0 and return the content unchanged with a note.
+> - Never fabricate or skip a step — always wait for actual tool responses before proceeding.`;

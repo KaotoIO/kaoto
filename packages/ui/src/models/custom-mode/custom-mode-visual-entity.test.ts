@@ -237,6 +237,21 @@ describe('CustomModeVisualEntity', () => {
       expect(def['content']).toBeUndefined();
       expect(def['label']).toBeUndefined();
     });
+
+    it('deep-clones tuple group entries so mutating the snapshot cannot affect this.mode.groups', () => {
+      // A restricted group is stored as a tuple [name, { fileRegex }].
+      // The shallow [...rest.groups] copy shared the inner object reference, so a form
+      // setValue() on 'groups.0.1.fileRegex' mutated the live mode before updateModel ran.
+      const tupleGroup: [string, { fileRegex: string }] = ['write', { fileRegex: '\\.yaml$' }];
+      const e = new CustomModeVisualEntity(makeMode({ groups: [tupleGroup] }));
+
+      const snapshot = e.getNodeDefinition('customMode') as { groups: unknown[] };
+      // Mutate the nested object in the snapshot — must NOT bleed into the live mode.
+      (snapshot.groups[0] as [string, { fileRegex: string }])[1].fileRegex = 'MUTATED';
+
+      // The live mode's tuple must be unchanged.
+      expect((e.toJSON().groups[0] as [string, { fileRegex: string }])[1].fileRegex).toBe('\\.yaml$');
+    });
   });
 
   describe('getOmitFormFields', () => {
@@ -398,6 +413,21 @@ describe('CustomModeVisualEntity', () => {
         const before = e.toJSON().customInstructions;
         e.updateModel('customMode.customInstructions.99.step', { content: 'Ghost', label: 'Ghost', order: 99 });
         expect(e.toJSON().customInstructions).toBe(before);
+      });
+
+      it('preserves source from the existing node when updating an ordinary step', () => {
+        // The parser assigns source: 'list-item' for ordered-list items.
+        // updateModel must not drop this field when rebuilding the node.
+        const e = new CustomModeVisualEntity(makeMode({ customInstructions: instructions }));
+        e.updateModel('customMode.customInstructions.0.step', {
+          content: 'Updated body',
+          label: 'Parse input',
+          order: 1,
+        });
+        // The node came from a list-item, so after update it must still serialize as a list item.
+        const serialized = e.toJSON().customInstructions ?? '';
+        expect(serialized).toMatch(/^1\. Parse input/m);
+        expect(serialized).toContain('Updated body');
       });
     });
   });
@@ -1014,6 +1044,21 @@ describe('CustomModeVisualEntity', () => {
       const def = e.getNodeDefinition('customMode.customInstructions.0.read_file') as Record<string, string>;
       expect(def['path']).toBe('roundtrip.md');
       expect(def['description']).toBe('round-trip value');
+    });
+
+    it('preserves source from the existing node when updating a tool-invocation step', () => {
+      // The parser always assigns source: 'list-item' for ordered-list items.
+      // updateModel must not drop this field when rebuilding the node.
+      const e = new CustomModeVisualEntity(makeMode({ customInstructions: toolInstructions }));
+      // Confirm the parsed node has source: 'list-item' (set by the parser).
+      const defBefore = e.getNodeDefinition('customMode.customInstructions.0.read_file') as Record<string, string>;
+      expect(defBefore).toBeDefined();
+      // Now update — source must survive the rebuild.
+      e.updateModel('customMode.customInstructions.0.read_file', { path: 'updated.md' });
+      // The node is still a list-item, so serialization must emit a list marker.
+      const serialized = e.toJSON().customInstructions ?? '';
+      expect(serialized).toMatch(/^1\. /m);
+      expect(serialized).toContain('updated.md');
     });
   });
 });
