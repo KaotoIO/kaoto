@@ -21,13 +21,12 @@ import { VisualFlowsApi } from '../../../../models/visualization/flows/support/f
 import { camelRouteJson, kameletJson, TestProvidersWrapper } from '../../../../stubs';
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
 import { ROOT_PATH } from '../../../../utils';
-import { CanvasNode } from '../canvas.models';
 import { FlowService } from '../flow.service';
 import { CanvasForm } from './CanvasForm';
 
 describe('CanvasForm', () => {
   let camelRouteVisualEntity: CamelRouteVisualEntity;
-  let selectedNode: CanvasNode;
+  let vizNode: IVisualizationNode;
   let componentCatalogMap: Record<string, ICamelComponentDefinition>;
   let patternCatalogMap: Record<string, ICamelProcessorDefinition>;
   let kameletCatalogMap: Record<string, IKameletDefinition>;
@@ -51,7 +50,8 @@ describe('CanvasForm', () => {
   beforeEach(async () => {
     camelRouteVisualEntity = new CamelRouteVisualEntity(camelRouteJson);
     const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
-    selectedNode = nodes.find((node) => node.id === 'test|route.from.steps.1.choice')!; // choice
+    const choiceNode = nodes.find((node) => node.id === 'test|route.from.steps.1.choice')!;
+    vizNode = choiceNode.data!.vizNode!;
   });
 
   afterEach(() => {
@@ -64,7 +64,7 @@ describe('CanvasForm', () => {
       render(
         <Provider>
           <CanvasFormTabsProvider>
-            <CanvasForm selectedNode={selectedNode} />
+            <CanvasForm vizNode={vizNode} onClose={vi.fn()} />
           </CanvasFormTabsProvider>
         </Provider>,
       ),
@@ -73,31 +73,8 @@ describe('CanvasForm', () => {
     expect(container).toMatchSnapshot();
   });
 
-  it('should return null when vizNode is not available', async () => {
-    const selectedNode = {
-      id: '1',
-      type: 'node',
-      data: {
-        vizNode: undefined,
-      },
-    } as CanvasNode;
-
-    const { Provider } = await TestProvidersWrapper();
-    const { container } = await act(async () =>
-      render(
-        <Provider>
-          <CanvasFormTabsProvider>
-            <CanvasForm selectedNode={selectedNode} />
-          </CanvasFormTabsProvider>
-        </Provider>,
-      ),
-    );
-
-    expect(container.firstChild).toBeNull();
-  });
-
   it('should render nothing if no schema is available', async () => {
-    const vizNode = createVisualizationNode('route', {
+    const noSchemaVizNode = createVisualizationNode('route', {
       name: EntityType.Route,
       path: CamelRouteVisualEntity.ROOT_PATH,
       entity: new CamelRouteVisualEntity(camelRouteJson),
@@ -109,23 +86,15 @@ describe('CanvasForm', () => {
       isPlaceholder: false,
     });
 
-    const selectedNode: CanvasNode = {
-      id: '1',
-      type: 'node',
-      data: {
-        vizNode,
-      },
-    };
-
-    vi.spyOn(vizNode, 'getNodeSchema').mockReturnValue(undefined);
-    vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
+    vi.spyOn(noSchemaVizNode, 'getNodeSchema').mockReturnValue(undefined);
+    vi.spyOn(noSchemaVizNode, 'getNodeDefinition').mockReturnValue(undefined);
 
     const { Provider } = await TestProvidersWrapper();
     const { container } = await act(async () =>
       render(
         <Provider>
           <CanvasFormTabsProvider>
-            <CanvasForm selectedNode={selectedNode} />
+            <CanvasForm vizNode={noSchemaVizNode} onClose={vi.fn()} />
           </CanvasFormTabsProvider>
         </Provider>,
       ),
@@ -135,7 +104,7 @@ describe('CanvasForm', () => {
   });
 
   it('should render nothing if no schema and no definition is available', async () => {
-    const vizNode = createVisualizationNode('route', {
+    const noSchemaVizNode = createVisualizationNode('route', {
       name: EntityType.Route,
       path: CamelRouteVisualEntity.ROOT_PATH,
       entity: new CamelRouteVisualEntity(camelRouteJson),
@@ -147,23 +116,15 @@ describe('CanvasForm', () => {
       isPlaceholder: false,
     });
 
-    const selectedNode: CanvasNode = {
-      id: '1',
-      type: 'node',
-      data: {
-        vizNode,
-      },
-    };
-
-    vi.spyOn(vizNode, 'getNodeSchema').mockReturnValue(null as unknown as KaotoSchemaDefinition['schema']);
-    vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(null);
+    vi.spyOn(noSchemaVizNode, 'getNodeSchema').mockReturnValue(null as unknown as KaotoSchemaDefinition['schema']);
+    vi.spyOn(noSchemaVizNode, 'getNodeDefinition').mockReturnValue(null);
 
     const { Provider } = await TestProvidersWrapper();
     const { container } = await act(async () =>
       render(
         <Provider>
           <CanvasFormTabsProvider>
-            <CanvasForm selectedNode={selectedNode} />
+            <CanvasForm vizNode={noSchemaVizNode} onClose={vi.fn()} />
           </CanvasFormTabsProvider>
         </Provider>,
       ),
@@ -177,7 +138,7 @@ describe('CanvasForm', () => {
     const dispatchSpy = vi.fn();
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
     const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
-    selectedNode = nodes[nodes.length - 1];
+    const lastVizNode = nodes[nodes.length - 1].data!.vizNode!;
 
     const { Provider } = await TestProvidersWrapper({
       visibleFlowsContext: { allFlowsVisible: true, visibleFlows: { [flowId]: true }, visualFlowsApi },
@@ -192,7 +153,7 @@ describe('CanvasForm', () => {
               setSelectedTab: vi.fn(),
             }}
           >
-            <CanvasForm selectedNode={selectedNode} />
+            <CanvasForm vizNode={lastVizNode} onClose={vi.fn()} />
           </CanvasFormTabsContext.Provider>
         </Provider>,
       ),
@@ -216,7 +177,7 @@ describe('CanvasForm', () => {
     const dispatchSpy = vi.fn();
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
     const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
-    selectedNode = nodes[nodes.length - 1];
+    const lastVizNode = nodes[nodes.length - 1].data!.vizNode!;
 
     const { Provider } = await TestProvidersWrapper({
       visibleFlowsContext: { allFlowsVisible: true, visibleFlows: { [flowId]: true }, visualFlowsApi },
@@ -231,7 +192,7 @@ describe('CanvasForm', () => {
               setSelectedTab: vi.fn(),
             }}
           >
-            <CanvasForm selectedNode={selectedNode} />
+            <CanvasForm vizNode={lastVizNode} onClose={vi.fn()} />
           </CanvasFormTabsContext.Provider>
         </Provider>,
       ),
@@ -256,7 +217,7 @@ describe('CanvasForm', () => {
     const dispatchSpy = vi.fn();
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
     const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
-    selectedNode = nodes[nodes.length - 1];
+    const lastVizNode = nodes[nodes.length - 1].data!.vizNode!;
 
     const { Provider } = await TestProvidersWrapper({
       visibleFlowsContext: { allFlowsVisible: true, visibleFlows: { [flowId]: true }, visualFlowsApi },
@@ -271,7 +232,7 @@ describe('CanvasForm', () => {
               setSelectedTab: vi.fn(),
             }}
           >
-            <CanvasForm selectedNode={selectedNode} />
+            <CanvasForm vizNode={lastVizNode} onClose={vi.fn()} />
           </CanvasFormTabsContext.Provider>
         </Provider>,
       ),
@@ -298,7 +259,7 @@ describe('CanvasForm', () => {
     const dispatchSpy = vi.fn();
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
     const { nodes } = FlowService.getFlowDiagram('test', await kameletVisualEntity.toVizNode());
-    selectedNode = nodes[nodes.length - 1];
+    const lastVizNode = nodes[nodes.length - 1].data!.vizNode!;
 
     const { Provider } = await TestProvidersWrapper({
       visibleFlowsContext: { allFlowsVisible: true, visibleFlows: { [flowId]: true }, visualFlowsApi },
@@ -308,7 +269,7 @@ describe('CanvasForm', () => {
       render(
         <Provider>
           <CanvasFormTabsProvider>
-            <CanvasForm selectedNode={selectedNode} />
+            <CanvasForm vizNode={lastVizNode} onClose={vi.fn()} />
           </CanvasFormTabsProvider>
         </Provider>,
       ),
@@ -332,7 +293,7 @@ describe('CanvasForm', () => {
     beforeEach(async () => {
       camelRouteVisualEntity = new CamelRouteVisualEntity(camelRouteJson);
       const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
-      selectedNode = nodes[0]; // timer
+      vizNode = nodes[0].data!.vizNode!; // timer
     });
 
     it('normal text field', async () => {
@@ -342,7 +303,7 @@ describe('CanvasForm', () => {
         render(
           <Provider>
             <CanvasFormTabsProvider>
-              <CanvasForm selectedNode={selectedNode} />
+              <CanvasForm vizNode={vizNode} onClose={vi.fn()} />
             </CanvasFormTabsProvider>
           </Provider>,
         ),
@@ -384,14 +345,7 @@ describe('CanvasForm', () => {
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = await entity.toVizNode();
-      const setHeaderNode = rootNode.getChildren()![1];
-      const selectedNode = {
-        id: '1',
-        type: 'node',
-        data: {
-          vizNode: setHeaderNode,
-        },
-      };
+      const setHeaderVizNode = rootNode.getChildren()![1];
 
       const { Provider } = await TestProvidersWrapper();
 
@@ -399,7 +353,7 @@ describe('CanvasForm', () => {
         render(
           <Provider>
             <CanvasFormTabsProvider>
-              <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+              <CanvasForm vizNode={setHeaderVizNode} onClose={vi.fn()} />
             </CanvasFormTabsProvider>
           </Provider>,
         ),
@@ -449,14 +403,7 @@ describe('CanvasForm', () => {
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = await entity.toVizNode();
-      const marshalNode = rootNode.getChildren()![1];
-      const selectedNode = {
-        id: '1',
-        type: 'node',
-        data: {
-          vizNode: marshalNode,
-        },
-      };
+      const marshalVizNode = rootNode.getChildren()![1];
 
       const { Provider } = await TestProvidersWrapper();
 
@@ -464,7 +411,7 @@ describe('CanvasForm', () => {
         render(
           <Provider>
             <CanvasFormTabsProvider>
-              <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+              <CanvasForm vizNode={marshalVizNode} onClose={vi.fn()} />
             </CanvasFormTabsProvider>
           </Provider>,
         ),
@@ -518,14 +465,7 @@ describe('CanvasForm', () => {
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = await entity.toVizNode();
-      const loadBalanceNode = rootNode.getChildren()![1];
-      const selectedNode = {
-        id: '1',
-        type: 'node',
-        data: {
-          vizNode: loadBalanceNode,
-        },
-      };
+      const loadBalanceVizNode = rootNode.getChildren()![1];
 
       const { Provider } = await TestProvidersWrapper();
 
@@ -533,7 +473,7 @@ describe('CanvasForm', () => {
         render(
           <Provider>
             <CanvasFormTabsProvider>
-              <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+              <CanvasForm vizNode={loadBalanceVizNode} onClose={vi.fn()} />
             </CanvasFormTabsProvider>
           </Provider>,
         ),
@@ -571,7 +511,7 @@ describe('CanvasForm', () => {
     beforeEach(async () => {
       camelRouteVisualEntity = new CamelRouteVisualEntity(camelRouteJson);
       const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
-      selectedNode = nodes[0]; // timer
+      vizNode = nodes[0].data!.vizNode!; // timer
     });
 
     it('normal text field', async () => {
@@ -581,7 +521,7 @@ describe('CanvasForm', () => {
         render(
           <Provider>
             <CanvasFormTabsProvider>
-              <CanvasForm selectedNode={selectedNode} />
+              <CanvasForm vizNode={vizNode} onClose={vi.fn()} />
             </CanvasFormTabsProvider>
           </Provider>,
         ),
@@ -619,14 +559,7 @@ describe('CanvasForm', () => {
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = await entity.toVizNode();
-      const setHeaderNode = rootNode.getChildren()![1];
-      const selectedNode = {
-        id: '1',
-        type: 'node',
-        data: {
-          vizNode: setHeaderNode,
-        },
-      };
+      const setHeaderVizNode = rootNode.getChildren()![1];
 
       const { Provider } = await TestProvidersWrapper();
 
@@ -634,7 +567,7 @@ describe('CanvasForm', () => {
         render(
           <Provider>
             <CanvasFormTabsProvider>
-              <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+              <CanvasForm vizNode={setHeaderVizNode} onClose={vi.fn()} />
             </CanvasFormTabsProvider>
           </Provider>,
         ),
@@ -680,14 +613,7 @@ describe('CanvasForm', () => {
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = await entity.toVizNode();
-      const marshalNode = rootNode.getChildren()![1];
-      const selectedNode = {
-        id: '1',
-        type: 'node',
-        data: {
-          vizNode: marshalNode,
-        },
-      };
+      const marshalVizNode = rootNode.getChildren()![1];
 
       const { Provider } = await TestProvidersWrapper();
 
@@ -695,7 +621,7 @@ describe('CanvasForm', () => {
         render(
           <Provider>
             <CanvasFormTabsProvider>
-              <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+              <CanvasForm vizNode={marshalVizNode} onClose={vi.fn()} />
             </CanvasFormTabsProvider>
           </Provider>,
         ),
@@ -742,14 +668,7 @@ describe('CanvasForm', () => {
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = await entity.toVizNode();
-      const loadBalanceNode = rootNode.getChildren()![1];
-      const selectedNode = {
-        id: '1',
-        type: 'node',
-        data: {
-          vizNode: loadBalanceNode,
-        },
-      };
+      const loadBalanceVizNode = rootNode.getChildren()![1];
 
       const { Provider } = await TestProvidersWrapper();
 
@@ -757,7 +676,7 @@ describe('CanvasForm', () => {
         render(
           <Provider>
             <CanvasFormTabsProvider>
-              <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+              <CanvasForm vizNode={loadBalanceVizNode} onClose={vi.fn()} />
             </CanvasFormTabsProvider>
           </Provider>,
         ),

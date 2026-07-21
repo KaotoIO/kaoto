@@ -23,7 +23,7 @@ exports[`CanvasForm > should render 1`] = `
           >
             <img
               alt="choice"
-              class="form-header__icon-test|route.from.steps.1.choice"
+              class="form-header__icon-route.from.steps.1.choice"
               src="/src/assets/eip/choice.png"
             />
             <h2
