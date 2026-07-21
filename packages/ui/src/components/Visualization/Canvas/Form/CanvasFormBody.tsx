@@ -3,7 +3,7 @@ import { FunctionComponent, useCallback, useContext, useMemo, useRef } from 'rea
 
 import { IVisualizationNode } from '../../../../models';
 import { EntitiesContext } from '../../../../providers/entities.provider';
-import { setValue } from '../../../../utils';
+import { normalizeOneOfChoices, setValue } from '../../../../utils';
 import { UnknownNode } from '../../Custom/UnknownNode';
 import { customFieldsFactoryfactory } from './fields/custom-fields-factory';
 import { SuggestionRegistrar } from './suggestions/SuggestionsProvider';
@@ -15,7 +15,7 @@ interface CanvasFormTabsProps {
 export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = ({ vizNode }) => {
   const entitiesContext = useContext(EntitiesContext);
   const omitFields = useRef(vizNode.getOmitFormFields() ?? []);
-  const schema = useMemo(() => vizNode.getNodeSchema(), [vizNode]);
+  const schema = useMemo(() => normalizeOneOfChoices(vizNode.getNodeSchema()), [vizNode]);
 
   const isUnknownComponent = useMemo(() => {
     return !isDefined(schema) || Object.keys(schema).length === 0;
