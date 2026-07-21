@@ -18,13 +18,19 @@ export const useConnectionPortSync = (documentId: string) => {
     const elemRect = element.getBoundingClientRect();
     const containerRect = scrollContainer.getBoundingClientRect();
 
-    // Check if element is within the container's visible vertical bounds only.
-    // Horizontal bounds are intentionally ignored because target connection ports
-    // are positioned with a negative `left` value (outside the container's left
-    // boundary) via CSS `left: calc(var(--rank-margin) * -0.7)`, so checking
-    // horizontal bounds would incorrectly exclude all target ports.
-    // Add small buffer to account for rounding errors.
-    return elemRect.top >= containerRect.top - 1 && elemRect.bottom <= containerRect.bottom + 1;
+    // Check vertical bounds only. Horizontal bounds are intentionally ignored because
+    // target connection ports are positioned with a negative `left` value (outside the
+    // container's left boundary) via CSS, so checking horizontal bounds would incorrectly
+    // exclude all target ports.
+    if (elemRect.top < containerRect.top - 1 || elemRect.bottom > containerRect.bottom + 1) {
+      return false;
+    }
+
+    const panelsContainer = element.closest('.expansion-panels');
+    if (!panelsContainer) return true;
+
+    const panelsRect = panelsContainer.getBoundingClientRect();
+    return elemRect.top >= panelsRect.top - 1 && elemRect.bottom <= panelsRect.bottom + 1;
   };
 
   useEffect(() => {
@@ -62,7 +68,17 @@ export const useConnectionPortSync = (documentId: string) => {
         const isEdgeElement = nodePath.endsWith(':EDGE:top') || nodePath.endsWith(':EDGE:bottom');
         if (isEdgeElement || isElementVisibleInContainer(element)) {
           const rect = element.getBoundingClientRect();
-          const position: [number, number] = [rect.x + rect.width / 2, rect.y + rect.height / 2];
+          let y = rect.y + rect.height / 2;
+
+          if (isEdgeElement) {
+            const panelsContainer = element.closest('.expansion-panels');
+            if (panelsContainer) {
+              const panelsRect = panelsContainer.getBoundingClientRect();
+              y = Math.max(panelsRect.top, Math.min(panelsRect.bottom, y));
+            }
+          }
+
+          const position: [number, number] = [rect.x + rect.width / 2, y];
           documentVisiblePorts[nodePath] = position;
         }
       });

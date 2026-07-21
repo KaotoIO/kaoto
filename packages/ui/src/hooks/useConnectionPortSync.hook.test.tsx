@@ -224,10 +224,12 @@ describe('useConnectionPortSync', () => {
       const mockElement1 = {
         dataset: { nodePath: 'path1:EDGE:top' },
         getBoundingClientRect: vi.fn().mockReturnValue({ x: 0, y: 0, width: 10, height: 10 }),
+        closest: vi.fn().mockReturnValue(null),
       };
       const mockElement2 = {
         dataset: { nodePath: 'path2:EDGE:bottom' },
         getBoundingClientRect: vi.fn().mockReturnValue({ x: 50, y: 50, width: 20, height: 20 }),
+        closest: vi.fn().mockReturnValue(null),
       };
       document.querySelectorAll = vi.fn().mockReturnValue([mockElement1, mockElement2]);
 

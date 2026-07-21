@@ -1,5 +1,6 @@
 .target-panel {
   position: relative;
-  overflow: auto;
-  height: 100%;
+  overflow: hidden;
+  flex: 1 1 0;
+  min-height: 0;
 }
