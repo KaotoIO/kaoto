@@ -781,27 +781,67 @@ describe('XmlSchemaDocumentUtilService', () => {
     it('should fallback to AnyType for unknown xs type', () => {
       expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'unknownType')).toBe(Types.AnyType);
     });
+
+    it.each([
+      ['gYear', Types.Date],
+      ['gYearMonth', Types.Date],
+      ['gMonth', Types.Date],
+      ['gMonthDay', Types.Date],
+      ['gDay', Types.Date],
+      ['anySimpleType', Types.AnyAtomicType],
+    ])('should map supported xs:%s without falling back to AnyType', (name, expected) => {
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, name)).toBe(expected);
+    });
   });
 
   describe('getFieldTypeFromName()', () => {
+    it.each([
+      ['int', Types.Integer],
+      ['long', Types.Integer],
+      ['short', Types.Integer],
+      ['byte', Types.Integer],
+      ['unsignedInt', Types.Integer],
+      ['unsignedLong', Types.Integer],
+      ['unsignedShort', Types.Integer],
+      ['unsignedByte', Types.Integer],
+      ['nonPositiveInteger', Types.Integer],
+      ['negativeInteger', Types.Integer],
+      ['nonNegativeInteger', Types.Integer],
+      ['normalizedString', Types.String],
+      ['token', Types.String],
+      ['language', Types.String],
+      ['NMTOKEN', Types.String],
+      ['NMTOKENS', Types.String],
+      ['Name', Types.String],
+      ['ID', Types.String],
+      ['IDREF', Types.String],
+      ['IDREFS', Types.String],
+      ['ENTITY', Types.String],
+      ['ENTITIES', Types.String],
+      ['hexBinary', Types.String],
+      ['base64Binary', Types.String],
+    ])('should use the canonical XSD mapping for %s', (name, expected) => {
+      expect(XmlSchemaDocumentUtilService.getFieldTypeFromName(name, NS_XML_SCHEMA)).toBe(expected);
+    });
+
     it('should return String type for "string"', () => {
-      expect(XmlSchemaDocumentUtilService.getFieldTypeFromName('string')).toBe(Types.String);
+      expect(XmlSchemaDocumentUtilService.getFieldTypeFromName('string', NS_XML_SCHEMA)).toBe(Types.String);
     });
 
     it('should return Integer type for "integer"', () => {
-      expect(XmlSchemaDocumentUtilService.getFieldTypeFromName('integer')).toBe(Types.Integer);
+      expect(XmlSchemaDocumentUtilService.getFieldTypeFromName('integer', NS_XML_SCHEMA)).toBe(Types.Integer);
     });
 
     it('should return Boolean type for "boolean"', () => {
-      expect(XmlSchemaDocumentUtilService.getFieldTypeFromName('boolean')).toBe(Types.Boolean);
+      expect(XmlSchemaDocumentUtilService.getFieldTypeFromName('boolean', NS_XML_SCHEMA)).toBe(Types.Boolean);
     });
 
     it('should return AnyType for null', () => {
-      expect(XmlSchemaDocumentUtilService.getFieldTypeFromName(null)).toBe(Types.AnyType);
+      expect(XmlSchemaDocumentUtilService.getFieldTypeFromName(null, NS_XML_SCHEMA)).toBe(Types.AnyType);
     });
 
     it('should return AnyType for unknown type name', () => {
-      expect(XmlSchemaDocumentUtilService.getFieldTypeFromName('unknownType')).toBe(Types.AnyType);
+      expect(XmlSchemaDocumentUtilService.getFieldTypeFromName('unknownType', NS_XML_SCHEMA)).toBe(Types.AnyType);
     });
   });
 

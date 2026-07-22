@@ -1,7 +1,6 @@
 import { DocumentDefinition, RootElementOption } from '../../../models/datamapper/document';
 import { NS_XML_SCHEMA_INSTANCE } from '../../../models/datamapper/standard-namespaces';
 import { Types } from '../../../models/datamapper/types';
-import { capitalize } from '../../../serializers/xml/utils/xml-utils';
 import {
   XmlSchema,
   XmlSchemaAll,
@@ -645,7 +644,7 @@ export class XmlSchemaDocumentService {
   ) {
     if (!schemaType) return;
     if (schemaType instanceof XmlSchemaSimpleType) {
-      const newType = XmlSchemaDocumentUtilService.getFieldTypeFromName(schemaType.getName());
+      const newType = XmlSchemaTypesService.resolveSimpleTypeToEnum(schemaType, ownerDocument.xmlSchemaCollection);
       if (!field.type || field.type === Types.AnyType) {
         field.type = newType;
       }
@@ -774,21 +773,26 @@ export class XmlSchemaDocumentService {
     field.namespaceURI = namespaceURI;
     field.namespacePrefix = attr.getWireName()!.getPrefix();
     field.defaultValue = attr.getDefaultValue() || attr.getFixedValue();
-    const attrTypeName = attr.getSchemaTypeName()?.getLocalPart();
-    field.type = (attrTypeName ? Types[capitalize(attrTypeName) as keyof typeof Types] : null) || Types.AnyType;
+    const attrSchemaTypeQName = attr.getSchemaTypeName();
+    const attrSchemaType =
+      attrSchemaTypeQName &&
+      XmlSchemaDocumentUtilService.lookupSchemaType(ownerDoc.xmlSchemaCollection, attrSchemaTypeQName);
+    field.type =
+      attrSchemaType instanceof XmlSchemaSimpleType
+        ? XmlSchemaTypesService.resolveSimpleTypeToEnum(attrSchemaType, ownerDoc.xmlSchemaCollection)
+        : XmlSchemaDocumentUtilService.getFieldTypeFromName(
+            attrSchemaTypeQName?.getLocalPart() || null,
+            attrSchemaTypeQName?.getNamespaceURI() || null,
+          );
     field.description = XmlSchemaDocumentService.extractDocumentationFromAnnotated(attr);
     fields.push(field);
 
     ownerDoc.totalFieldCount++;
 
-    const attrSchemaTypeQName = attr.getSchemaTypeName();
     if (attrSchemaTypeQName) {
       field.typeQName = attrSchemaTypeQName;
     }
-    const userDefinedAttrType =
-      attrSchemaTypeQName &&
-      XmlSchemaDocumentUtilService.lookupSchemaType(ownerDoc.xmlSchemaCollection, attrSchemaTypeQName);
-    if (userDefinedAttrType) {
+    if (attrSchemaType) {
       field.namedTypeFragmentRefs.push(attrSchemaTypeQName.toString());
     }
 
@@ -1118,11 +1122,19 @@ export class XmlSchemaDocumentService {
   ): XmlSchemaType | null {
     if (!baseTypeQName) return null;
 
+    const baseType = XmlSchemaDocumentUtilService.lookupSchemaType(document.xmlSchemaCollection, baseTypeQName);
+
     if (!parent.type) {
-      parent.type = XmlSchemaDocumentUtilService.getFieldTypeFromName(baseTypeQName.getLocalPart());
+      parent.type =
+        baseType instanceof XmlSchemaSimpleType
+          ? XmlSchemaTypesService.resolveSimpleTypeToEnum(baseType, document.xmlSchemaCollection)
+          : XmlSchemaDocumentUtilService.getFieldTypeFromName(
+              baseTypeQName.getLocalPart(),
+              baseTypeQName.getNamespaceURI(),
+            );
     }
 
-    return XmlSchemaDocumentUtilService.lookupSchemaType(document.xmlSchemaCollection, baseTypeQName);
+    return baseType;
   }
 
   private static populateSimpleExtensionBaseAttributes(
@@ -1136,7 +1148,7 @@ export class XmlSchemaDocumentService {
       XmlSchemaDocumentService.populateSimpleTypeContent(document, parent, simpleContent);
     }
     if (!parent.type) {
-      parent.type = XmlSchemaDocumentUtilService.getFieldTypeFromName(simpleBase.getName());
+      parent.type = XmlSchemaTypesService.resolveSimpleTypeToEnum(simpleBase, document.xmlSchemaCollection);
     }
   }
 
@@ -1221,7 +1233,7 @@ export class XmlSchemaDocumentService {
         XmlSchemaDocumentService.populateSimpleTypeContent(document, parent, simpleContent);
       }
       if (!parent.type) {
-        parent.type = XmlSchemaDocumentUtilService.getFieldTypeFromName(simpleBase.getName());
+        parent.type = XmlSchemaTypesService.resolveSimpleTypeToEnum(simpleBase, document.xmlSchemaCollection);
       }
     }
   }
