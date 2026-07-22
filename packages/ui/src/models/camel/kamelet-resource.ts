@@ -50,6 +50,14 @@ export class KameletResource extends CamelKResource implements RouteTemplateBean
     return SourceSchemaType.Kamelet;
   }
 
+  addNewEntity(_entityType?: EntityType, entityTemplate?: unknown): string {
+    if (entityTemplate) {
+      this.resource = entityTemplate as IKameletDefinition;
+      this.flow = new KameletVisualEntity(this.resource as IKameletDefinition);
+    }
+    return this.flow?.id ?? '';
+  }
+
   getVisualEntities(): KameletVisualEntity[] {
     /** A kamelet always have a single flow defined, even if is empty */
     return [this.flow];

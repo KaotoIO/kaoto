@@ -55,6 +55,15 @@ export class PipeResource extends CamelKResource {
     return SourceSchemaType.Pipe;
   }
 
+  addNewEntity(_entityType?: EntityType, entityTemplate?: unknown): string {
+    if (entityTemplate) {
+      this.resource = entityTemplate as PipeType;
+      this.pipe = this.resource;
+      this.flow = new PipeVisualEntity(this.pipe);
+    }
+    return this.flow?.id ?? '';
+  }
+
   refreshVisualMetadata() {
     this.flow = new PipeVisualEntity(this.pipe);
   }
