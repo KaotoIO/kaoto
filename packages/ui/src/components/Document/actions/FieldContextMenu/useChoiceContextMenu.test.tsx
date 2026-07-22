@@ -1052,4 +1052,27 @@ describe('useChoiceContextMenu', () => {
       dispatchSpy.mockRestore();
     });
   });
+
+  describe('source-side choice wrapper with maxOccurs>1', () => {
+    it('should show choice members in context menu for source-side maxOccurs>1 choice', () => {
+      const { documentNodeData, choiceNode, choiceField } = createChoiceFieldNode(false);
+      choiceField.maxOccurs = 'unbounded';
+
+      render(
+        <SourceDocumentNodeWithContextMenu
+          treeNode={choiceNode}
+          documentId={documentNodeData.id}
+          isReadOnly={false}
+          rank={1}
+        />,
+        { wrapper },
+      );
+
+      fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
+
+      expect(screen.getByText('Email')).toBeInTheDocument();
+      expect(screen.getByText('Phone')).toBeInTheDocument();
+      expect(screen.getByText('Fax')).toBeInTheDocument();
+    });
+  });
 });

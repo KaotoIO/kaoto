@@ -107,7 +107,7 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
     choiceMemberField,
     parentChoiceWrapperField,
     choiceMemberIndex,
-  } = VisualizationUtilService.resolveChoiceNodeInfo(nodeData);
+  } = WrapperActionService.resolveChoiceNodeInfo(nodeData);
 
   const isNestedSelectedChoice = isSelectedChoice && isChoiceWrapper;
   const isTargetSide = !nodeData.isSource;

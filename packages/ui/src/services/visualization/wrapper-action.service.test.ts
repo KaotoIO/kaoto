@@ -57,6 +57,7 @@ vi.mock('../document/wrapper-selection.service', () => ({
     setChoiceSelection: vi.fn(),
     clearChoiceSelection: vi.fn(),
     clearDescendantWrapperSelections: vi.fn(),
+    findParentWrapper: vi.fn().mockReturnValue(undefined),
   },
 }));
 
@@ -978,6 +979,72 @@ describe('WrapperActionService', () => {
 
       expect(FieldOverrideService.revertFieldSubstitution).toHaveBeenCalledWith(field, namespaceMap);
       expect(FieldOverrideService.revertFieldTypeOverride).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('clearAbstractSubstitution / choice>abstract cascade (#3532)', () => {
+    it('should cascade clear to parent choice when document-level maxOccurs=1', () => {
+      const ownerDocument = TestUtil.createTargetOrderDoc();
+      const parentChoiceField = mockField({ wrapperKind: 'choice', ownerDocument });
+      const wrapperField = mockField({ maxOccurs: 1, ownerDocument, parent: parentChoiceField });
+      const tree = createMappingTree();
+      const fieldItem = new FieldItem(tree, wrapperField);
+      const nodeData = createTargetFieldNodeData(wrapperField, fieldItem);
+
+      vi.mocked(WrapperSelectionService.findParentWrapper).mockReturnValue(parentChoiceField);
+
+      WrapperActionService.clearAbstractSubstitution(nodeData, wrapperField, namespaceMap, true);
+
+      expect(FieldOverrideService.revertFieldSubstitution).toHaveBeenCalledWith(wrapperField, namespaceMap);
+      expect(WrapperSelectionService.clearChoiceSelection).toHaveBeenCalledWith(
+        ownerDocument,
+        parentChoiceField,
+        namespaceMap,
+      );
+    });
+
+    it('should cascade clear to parent choice when document-level source maxOccurs>1', () => {
+      const ownerDocument = TestUtil.createTargetOrderDoc();
+      const parentChoiceField = mockField({ wrapperKind: 'choice', ownerDocument });
+      const wrapperField = mockField({ maxOccurs: -1, ownerDocument, parent: parentChoiceField });
+      const nodeData = {} as FieldNodeData;
+
+      vi.mocked(WrapperSelectionService.findParentWrapper).mockReturnValue(parentChoiceField);
+
+      WrapperActionService.clearAbstractSubstitution(nodeData, wrapperField, namespaceMap, false);
+
+      expect(FieldOverrideService.revertFieldSubstitution).toHaveBeenCalledWith(wrapperField, namespaceMap);
+      expect(WrapperSelectionService.clearChoiceSelection).toHaveBeenCalledWith(
+        ownerDocument,
+        parentChoiceField,
+        namespaceMap,
+      );
+    });
+
+    it('should NOT cascade for per-instance clear (target maxOccurs>1)', () => {
+      const wrapperField = mockField({ maxOccurs: -1 });
+      const tree = createMappingTree();
+      const fieldItem = new FieldItem(tree, wrapperField);
+      const nodeData = createFieldItemNodeData(fieldItem);
+
+      WrapperActionService.clearAbstractSubstitution(nodeData, wrapperField, namespaceMap, true);
+
+      expect(WrapperSelectionService.clearChoiceSelection).not.toHaveBeenCalled();
+    });
+
+    it('should NOT cascade when no choice parent', () => {
+      const ownerDocument = TestUtil.createTargetOrderDoc();
+      const wrapperField = mockField({ maxOccurs: 1, ownerDocument });
+      const tree = createMappingTree();
+      const fieldItem = new FieldItem(tree, wrapperField);
+      const nodeData = createTargetFieldNodeData(wrapperField, fieldItem);
+
+      vi.mocked(WrapperSelectionService.findParentWrapper).mockReturnValue(undefined);
+
+      WrapperActionService.clearAbstractSubstitution(nodeData, wrapperField, namespaceMap, true);
+
+      expect(FieldOverrideService.revertFieldSubstitution).toHaveBeenCalledWith(wrapperField, namespaceMap);
+      expect(WrapperSelectionService.clearChoiceSelection).not.toHaveBeenCalled();
     });
   });
 });

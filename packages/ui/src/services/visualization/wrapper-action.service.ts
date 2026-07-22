@@ -5,6 +5,7 @@ import {
   FieldItemNodeData,
   NodeData,
   TargetAbstractFieldNodeData,
+  TargetChoiceFieldNodeData,
   TargetFieldNodeData,
   TargetNodeData,
 } from '../../models/datamapper/visualization';
@@ -284,6 +285,13 @@ export class WrapperActionService {
     if (selectedMember) WrapperActionService.applyTargetSelection(nodeData as TargetNodeData, selectedMember);
   }
 
+  /**
+   * Clears a document-level abstract substitution, reverting the wrapper to its
+   * unresolved state. When the abstract wrapper is nested inside a choice wrapper,
+   * the parent choice selection is also cleared — the choice's selectedMemberIndex
+   * still points at the abstract member, which is now unresolved, leaving the
+   * choice state inconsistent if not cleared.
+   */
   private static clearDocumentLevelAbstractSubstitution(
     nodeData: NodeData,
     wrapperField: IField,
@@ -295,6 +303,11 @@ export class WrapperActionService {
     const schemaPath = SchemaPathService.build(wrapperField, namespaceMap);
     DocumentUtilService.invalidateDescendants(doc, schemaPath);
     FieldOverrideService.revertFieldSubstitution(wrapperField, namespaceMap);
+
+    const parentChoice = WrapperSelectionService.findParentWrapper(wrapperField, 'choice');
+    if (parentChoice) {
+      WrapperSelectionService.clearChoiceSelection(doc, parentChoice, namespaceMap);
+    }
   }
 
   // ── Group D: Choice Selection Orchestration ──
@@ -523,4 +536,86 @@ export class WrapperActionService {
       FieldOverrideService.revertFieldTypeOverride(field, namespaceMap);
     }
   }
+
+  /**
+   * Resolves the full choice context for a given node — which wrapper it belongs to,
+   * whether it's a selected member, a per-instance wrapper member, etc. Pure read,
+   * no side effects. Used by {@link useChoiceContextMenu} to determine what menu
+   * actions to offer.
+   */
+  static resolveChoiceNodeInfo(nodeData: NodeData): ChoiceNodeInfo {
+    const field = VisualizationUtilService.getField(nodeData);
+    const isChoiceWrapper = field?.wrapperKind === 'choice';
+    const isSelectedChoice = VisualizationUtilService.isSelectedChoiceField(nodeData);
+
+    const choiceMemberField =
+      VisualizationUtilService.isChoiceField(nodeData) && nodeData.choiceField ? nodeData.choiceField : field;
+    const choiceMemberParent =
+      choiceMemberField?.parent && 'wrapperKind' in choiceMemberField.parent ? choiceMemberField.parent : undefined;
+    const isChoiceMember = choiceMemberParent?.wrapperKind === 'choice';
+    const parentChoiceWrapperField = isChoiceMember ? choiceMemberParent : undefined;
+    const choiceMemberIndex =
+      isChoiceMember && parentChoiceWrapperField && choiceMemberField
+        ? parentChoiceWrapperField.fields.indexOf(choiceMemberField)
+        : undefined;
+
+    let choiceWrapperField: IField | undefined;
+    if (isSelectedChoice) {
+      choiceWrapperField = WrapperSelectionService.resolveOutermostSelectedWrapper(nodeData.choiceField).outermost;
+    } else if (isChoiceWrapper) {
+      choiceWrapperField = field;
+    }
+    const activeChoiceWrapperForMembers = isSelectedChoice && isChoiceWrapper ? field : choiceWrapperField;
+
+    const isChoiceWrapperMember = VisualizationUtilService.isChoiceWrapperMember(nodeData);
+    const choiceWrapperMemberField =
+      isChoiceWrapperMember && nodeData instanceof FieldItemNodeData
+        ? (nodeData.wrapperField ?? ((nodeData.parent as TargetChoiceFieldNodeData).field as IField))
+        : undefined;
+    const effectiveChoiceWrapper = isChoiceWrapperMember ? choiceWrapperMemberField : activeChoiceWrapperForMembers;
+
+    return {
+      isChoiceWrapper,
+      isSelectedChoice,
+      isChoiceMember,
+      isChoiceWrapperMember,
+      activeChoiceWrapperForMembers,
+      effectiveChoiceWrapper,
+      choiceWrapperField,
+      choiceWrapperMemberField,
+      choiceMemberField,
+      parentChoiceWrapperField,
+      choiceMemberIndex,
+    };
+  }
+}
+
+/**
+ * Full choice context resolved for a given node. Each field captures one aspect
+ * of the node's relationship to choice wrappers.
+ *
+ * @property isChoiceWrapper - The node's own field has `wrapperKind === 'choice'`
+ * @property isSelectedChoice - The node is a choice field with a selected member (flattened view)
+ * @property isChoiceMember - The node's field is a direct child of a choice wrapper
+ * @property isChoiceWrapperMember - The node is a per-instance FieldItem belonging to a collection wrapper
+ * @property activeChoiceWrapperForMembers - The choice wrapper whose members should be offered in the context menu
+ * @property effectiveChoiceWrapper - The wrapper that governs this node (wrapper member takes priority)
+ * @property choiceWrapperField - The outermost selected choice wrapper (walks up through nested choices)
+ * @property choiceWrapperMemberField - The wrapper field from a per-instance FieldItem
+ * @property choiceMemberField - The field representing this node as a choice member
+ * @property parentChoiceWrapperField - The parent choice wrapper field if this node is a direct member
+ * @property choiceMemberIndex - The 0-based index of this member within its parent choice
+ */
+export interface ChoiceNodeInfo {
+  isChoiceWrapper: boolean;
+  isSelectedChoice: boolean;
+  isChoiceMember: boolean;
+  isChoiceWrapperMember: boolean;
+  activeChoiceWrapperForMembers: IField | undefined;
+  effectiveChoiceWrapper: IField | undefined;
+  choiceWrapperField: IField | undefined;
+  choiceWrapperMemberField: IField | undefined;
+  choiceMemberField: IField | undefined;
+  parentChoiceWrapperField: IField | undefined;
+  choiceMemberIndex: number | undefined;
 }

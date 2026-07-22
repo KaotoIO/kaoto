@@ -38,6 +38,7 @@ import {
 } from '../../models/datamapper/visualization';
 import { DocumentService } from '../document/document.service';
 import { DocumentUtilService } from '../document/document-util.service';
+import { WrapperSelectionService } from '../document/wrapper-selection.service';
 import { MappingService } from '../mapping/mapping.service';
 import { VisualizationUtilService } from './visualization-util.service';
 
@@ -186,9 +187,9 @@ export class VisualizationService {
   ): NodeData | null {
     const selectedMember = DocumentUtilService.getSelectedMember(field);
 
-    if (selectedMember?.wrapperKind) {
-      const innerSpec = selectedMember.wrapperKind === 'choice' ? CHOICE_WRAPPER : ABSTRACT_WRAPPER;
-      if (innerSpec !== spec || DocumentUtilService.getSelectedMember(selectedMember) !== undefined) {
+    if (selectedMember?.wrapperKind && field.wrapperKind) {
+      if (WrapperSelectionService.shouldFlattenNestedWrapper(field.wrapperKind, selectedMember)) {
+        const innerSpec = selectedMember.wrapperKind === 'choice' ? CHOICE_WRAPPER : ABSTRACT_WRAPPER;
         return VisualizationService.doGenerateNodeDataFromWrapperField(parent, selectedMember, mappings, innerSpec);
       }
     }
@@ -209,15 +210,6 @@ export class VisualizationService {
     return node;
   }
 
-  private static isDescendantWithinWrapper(wrapper: IField, target: IField): boolean {
-    for (const child of wrapper.fields) {
-      if (child === target) return true;
-      if (child.wrapperKind === 'choice' || child.wrapperKind === 'abstract') continue;
-      if (VisualizationService.isDescendantWithinWrapper(child, target)) return true;
-    }
-    return false;
-  }
-
   private static generateCollectionWrapperNodes(
     parent: NodeData,
     field: IField,
@@ -227,15 +219,13 @@ export class VisualizationService {
     const wrapperSpec = field.wrapperKind === 'choice' ? CHOICE_WRAPPER : ABSTRACT_WRAPPER;
     const wrapperFieldItems = mappings.filter(
       (m): m is FieldItem =>
-        m instanceof FieldItem && (m.field === field || VisualizationService.isDescendantWithinWrapper(field, m.field)),
+        m instanceof FieldItem && (m.field === field || DocumentService.isDescendant(field, m.field)),
     );
     const wrapperInstructionItems = mappings.filter(
       (m): m is InstructionItem =>
         m instanceof InstructionItem &&
         !VisualizationService.isExistingMapping(renderedNodes as TargetNodeData[], m) &&
-        MappingService.getInstructionFields(m).some(
-          (f) => f === field || VisualizationService.isDescendantWithinWrapper(field, f),
-        ),
+        MappingService.getInstructionFields(m).some((f) => f === field || DocumentService.isDescendant(field, f)),
     );
     if (wrapperFieldItems.length === 0 && wrapperInstructionItems.length === 0) {
       const node = VisualizationService.doGenerateNodeDataFromWrapperField(parent, field, mappings, wrapperSpec);

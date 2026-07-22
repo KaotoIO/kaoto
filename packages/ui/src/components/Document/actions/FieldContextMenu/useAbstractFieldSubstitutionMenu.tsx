@@ -6,6 +6,7 @@ import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { IField } from '../../../../models/datamapper/document';
 import { IFieldSubstituteInfo } from '../../../../models/datamapper/types';
 import { NodeData } from '../../../../models/datamapper/visualization';
+import { WrapperSelectionService } from '../../../../services/document/wrapper-selection.service';
 import { MemberSelection, WrapperActionService } from '../../../../services/visualization/wrapper-action.service';
 import { MenuAction, MenuGroup } from '../FieldContextMenu';
 import { WrapperSelectionModal } from '../WrapperSelectionModal';
@@ -17,6 +18,7 @@ const INLINE_SUBSTITUTION_LIMIT = 10;
 interface AbstractMenuGroupsConfig {
   isAbstractWrapper: boolean;
   isAbstractWrapperMember: boolean;
+  isInsideChoiceWrapper: boolean;
   isSelectedSubstitution: boolean;
   candidates: Record<string, IFieldSubstituteInfo>;
   selectedQName: string | undefined;
@@ -29,6 +31,10 @@ interface AbstractMenuGroupsConfig {
 }
 
 function buildMenuGroupsForAbstractNode(config: AbstractMenuGroupsConfig): MenuGroup[] {
+  if (config.isInsideChoiceWrapper && config.isAbstractWrapper) {
+    const hasSelection = config.selectedQName !== undefined;
+    return hasSelection ? [{ actions: [config.clearSubstitutionAction] }] : [];
+  }
   if (config.isAbstractWrapper || config.isAbstractWrapperMember) {
     return buildAbstractWrapperMenuGroups(
       config.candidates,
@@ -183,8 +189,12 @@ export function useAbstractFieldSubstitutionMenu(nodeData: NodeData): MenuContri
     testId: 'clear-substitution',
   };
 
+  const isInsideChoiceWrapper =
+    abstractWrapperField !== undefined &&
+    WrapperSelectionService.findParentWrapper(abstractWrapperField, 'choice') !== undefined;
+
   const selectSelfAction =
-    isSubstitutionCandidate && !isSelectedSubstitution
+    isSubstitutionCandidate && !isSelectedSubstitution && !isInsideChoiceWrapper
       ? buildSelectSelfAction(field, parentAbstractField, handleSelectSelfAsCandidate, 'select-substitution-member')
       : undefined;
 
@@ -203,6 +213,7 @@ export function useAbstractFieldSubstitutionMenu(nodeData: NodeData): MenuContri
   const menuGroups = buildMenuGroupsForAbstractNode({
     isAbstractWrapper,
     isAbstractWrapperMember,
+    isInsideChoiceWrapper,
     isSelectedSubstitution,
     candidates,
     selectedQName,

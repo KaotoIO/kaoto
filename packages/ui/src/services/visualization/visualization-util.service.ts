@@ -14,6 +14,7 @@ import {
   TargetSequenceFieldNodeData,
 } from '../../models/datamapper/visualization';
 import { DocumentService } from '../document/document.service';
+import { WrapperSelectionService } from '../document/wrapper-selection.service';
 
 /**
  * Static utility service for inspecting {@link NodeData} properties in the
@@ -112,28 +113,6 @@ export class VisualizationUtilService {
   }
 
   /**
-   * Walks up from `wrapper` through ancestor choice fields that also have a selection,
-   * returning the outermost selected wrapper and the number of levels traversed.
-   */
-  static resolveOutermostSelectedWrapper(wrapper: IField | undefined): {
-    outermost: IField | undefined;
-    depth: number;
-  } {
-    let depth = 1;
-    let current = wrapper;
-    while (
-      current?.parent &&
-      'wrapperKind' in current.parent &&
-      current.parent.wrapperKind === 'choice' &&
-      current.parent.selectedMemberIndex !== undefined
-    ) {
-      depth++;
-      current = current.parent;
-    }
-    return { outermost: current, depth };
-  }
-
-  /**
    * Returns the number of resolved choice wrapper levels for a selected choice node.
    * A simple selected choice returns 1. A flattened nested choice (both outer and inner
    * selected) returns 2+, indicating how many wrapper levels were collapsed.
@@ -141,7 +120,7 @@ export class VisualizationUtilService {
    */
   static getSelectedChoiceDepth(nodeData: NodeData): number {
     if (!VisualizationUtilService.isSelectedChoiceField(nodeData)) return 0;
-    return VisualizationUtilService.resolveOutermostSelectedWrapper(nodeData.choiceField).depth;
+    return WrapperSelectionService.resolveOutermostSelectedWrapper(nodeData.choiceField).depth;
   }
 
   /**
@@ -243,70 +222,4 @@ export class VisualizationUtilService {
   static isMappingNode(nodeData: NodeData): nodeData is MappingNodeData {
     return nodeData instanceof MappingNodeData;
   }
-
-  /**
-   * Resolves the full choice context for a given node — which wrapper it belongs to,
-   * whether it's a selected member, a per-instance wrapper member, etc. Pure read,
-   * no side effects. Used by {@link useChoiceContextMenu} to determine what menu
-   * actions to offer.
-   */
-  static resolveChoiceNodeInfo(nodeData: NodeData): ChoiceNodeInfo {
-    const field = VisualizationUtilService.getField(nodeData);
-    const isChoiceWrapper = field?.wrapperKind === 'choice';
-    const isSelectedChoice = VisualizationUtilService.isSelectedChoiceField(nodeData);
-
-    const choiceMemberField =
-      VisualizationUtilService.isChoiceField(nodeData) && nodeData.choiceField ? nodeData.choiceField : field;
-    const choiceMemberParent =
-      choiceMemberField?.parent && 'wrapperKind' in choiceMemberField.parent ? choiceMemberField.parent : undefined;
-    const isChoiceMember = choiceMemberParent?.wrapperKind === 'choice';
-    const parentChoiceWrapperField = isChoiceMember ? choiceMemberParent : undefined;
-    const choiceMemberIndex =
-      isChoiceMember && parentChoiceWrapperField && choiceMemberField
-        ? parentChoiceWrapperField.fields.indexOf(choiceMemberField)
-        : undefined;
-
-    let choiceWrapperField: IField | undefined;
-    if (isSelectedChoice) {
-      choiceWrapperField = VisualizationUtilService.resolveOutermostSelectedWrapper(nodeData.choiceField).outermost;
-    } else if (isChoiceWrapper) {
-      choiceWrapperField = field;
-    }
-    const activeChoiceWrapperForMembers = isSelectedChoice && isChoiceWrapper ? field : choiceWrapperField;
-
-    const isChoiceWrapperMember = VisualizationUtilService.isChoiceWrapperMember(nodeData);
-    const choiceWrapperMemberField =
-      isChoiceWrapperMember && nodeData instanceof FieldItemNodeData
-        ? (nodeData.wrapperField ?? ((nodeData.parent as TargetChoiceFieldNodeData).field as IField))
-        : undefined;
-    const effectiveChoiceWrapper = isChoiceWrapperMember ? choiceWrapperMemberField : activeChoiceWrapperForMembers;
-
-    return {
-      isChoiceWrapper,
-      isSelectedChoice,
-      isChoiceMember,
-      isChoiceWrapperMember,
-      activeChoiceWrapperForMembers,
-      effectiveChoiceWrapper,
-      choiceWrapperField,
-      choiceWrapperMemberField,
-      choiceMemberField,
-      parentChoiceWrapperField,
-      choiceMemberIndex,
-    };
-  }
-}
-
-export interface ChoiceNodeInfo {
-  isChoiceWrapper: boolean;
-  isSelectedChoice: boolean;
-  isChoiceMember: boolean;
-  isChoiceWrapperMember: boolean;
-  activeChoiceWrapperForMembers: IField | undefined;
-  effectiveChoiceWrapper: IField | undefined;
-  choiceWrapperField: IField | undefined;
-  choiceWrapperMemberField: IField | undefined;
-  choiceMemberField: IField | undefined;
-  parentChoiceWrapperField: IField | undefined;
-  choiceMemberIndex: number | undefined;
 }
