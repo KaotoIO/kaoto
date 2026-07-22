@@ -598,4 +598,117 @@ describe('VisualizationNode', () => {
       expect(fromNode!.getChildren()).toHaveLength(0);
     });
   });
+
+  describe('fetchSchema', () => {
+    it('should resolve to undefined when there is no base entity', async () => {
+      node = createVisualizationNode('orphan', {
+        name: 'orphan',
+        isPlaceholder: true,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
+      });
+
+      const result = await node.fetchSchema();
+      expect(result).toBeUndefined();
+    });
+
+    it('should delegate to baseEntity.fetchNodeSchema with the node identity fields', async () => {
+      const mockSchema = { type: 'object' as const, properties: { uri: { type: 'string' as const } } };
+      const fetchNodeSchemaSpy = vi.fn().mockResolvedValue(mockSchema);
+      const visualEntity = { fetchNodeSchema: fetchNodeSchemaSpy } as unknown as BaseVisualEntity;
+
+      node = createVisualizationNode('test', {
+        name: 'log',
+        entity: visualEntity,
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
+        primaryNodeId: { name: 'log', catalogKind: 'processor' as never },
+        secondaryNodeId: undefined,
+        tertiaryNodeId: undefined,
+      });
+
+      const result = await node.fetchSchema();
+
+      expect(fetchNodeSchemaSpy).toHaveBeenCalledWith({
+        primaryNodeId: node.data.primaryNodeId,
+        secondaryNodeId: undefined,
+        tertiaryNodeId: undefined,
+      });
+      expect(result).toBe(mockSchema);
+    });
+
+    it('should assign the resolved schema to node.data.schema', async () => {
+      const mockSchema = { type: 'object' as const };
+      const fetchNodeSchemaSpy = vi.fn().mockResolvedValue(mockSchema);
+      const visualEntity = { fetchNodeSchema: fetchNodeSchemaSpy } as unknown as BaseVisualEntity;
+
+      node = createVisualizationNode('test', {
+        name: 'log',
+        entity: visualEntity,
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
+      });
+
+      await node.fetchSchema();
+
+      expect(node.data.schema).toBe(mockSchema);
+    });
+
+    it('should assign undefined to node.data.schema when baseEntity returns undefined', async () => {
+      const fetchNodeSchemaSpy = vi.fn().mockResolvedValue(undefined);
+      const visualEntity = { fetchNodeSchema: fetchNodeSchemaSpy } as unknown as BaseVisualEntity;
+
+      node = createVisualizationNode('test', {
+        name: 'placeholder',
+        entity: visualEntity,
+        isPlaceholder: true,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
+      });
+
+      const result = await node.fetchSchema();
+
+      expect(result).toBeUndefined();
+      expect(node.data.schema).toBeUndefined();
+    });
+
+    it('should pass all three identity fields (including undefined ones) to fetchNodeSchema', async () => {
+      const fetchNodeSchemaSpy = vi.fn().mockResolvedValue(undefined);
+      const visualEntity = { fetchNodeSchema: fetchNodeSchemaSpy } as unknown as BaseVisualEntity;
+
+      const primaryNodeId = { name: 'to', catalogKind: 'processor' as never };
+      const secondaryNodeId = { name: 'timer', catalogKind: 'component' as never };
+
+      node = createVisualizationNode('test', {
+        name: 'timer',
+        entity: visualEntity,
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
+        primaryNodeId,
+        secondaryNodeId,
+        // tertiaryNodeId intentionally absent
+      });
+
+      await node.fetchSchema();
+
+      expect(fetchNodeSchemaSpy).toHaveBeenCalledWith({
+        primaryNodeId,
+        secondaryNodeId,
+        tertiaryNodeId: undefined,
+      });
+    });
+  });
 });

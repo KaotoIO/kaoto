@@ -29,6 +29,13 @@ export interface BaseVisualEntity extends BaseEntity {
   /** Given a path, returns the node's associated schema used for the configuration form */
   getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined;
 
+  /**
+   * Async, ID-based schema resolution using the Dynamic Catalog.
+   * Accepts the three node identifiers and returns the fully resolved schema.
+   * DSL-specific logic is owned by each concrete BaseVisualEntity implementation.
+   */
+  fetchNodeSchema(ids: IVisualizationNodeIds): Promise<KaotoSchemaDefinition['schema'] | undefined>;
+
   /** Given a path, returns the node's underlying definition in JSON format */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getNodeDefinition(path?: string): any;
