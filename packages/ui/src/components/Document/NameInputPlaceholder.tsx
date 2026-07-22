@@ -93,7 +93,12 @@ export const NameInputPlaceholder: FunctionComponent<NameInputPlaceholderProps> 
           <ActionListItem>
             <Button
               icon={<CheckIcon />}
-              onClick={handleSubmit}
+              onClick={(event) => {
+                // Keep the click from reaching an enclosing panel summary,
+                // which would otherwise toggle it while confirming.
+                event.stopPropagation();
+                handleSubmit();
+              }}
               variant="link"
               isDisabled={!isValid}
               id={`${testIdPrefix}-submit-btn`}
@@ -104,7 +109,10 @@ export const NameInputPlaceholder: FunctionComponent<NameInputPlaceholderProps> 
           <ActionListItem>
             <Button
               icon={<TimesIcon />}
-              onClick={onCancel}
+              onClick={(event) => {
+                event.stopPropagation();
+                onCancel();
+              }}
               variant="plain"
               id={`${testIdPrefix}-cancel-btn`}
               data-testid={`${testIdPrefix}-cancel-btn`}

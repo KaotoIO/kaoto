@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import type { Mock } from 'vitest';
 
 import { ExpansionContext } from './ExpansionContext';
@@ -472,6 +473,24 @@ describe('ExpansionPanel', () => {
       });
 
       expect(mockSetExpanded).not.toHaveBeenCalled();
+    });
+
+    it.each(['{Enter}', ' '])('should let a focused button inside the summary be activated with "%s"', async (key) => {
+      const user = userEvent.setup();
+      const onButtonClick = vi.fn();
+      renderPanel({
+        defaultExpanded: true,
+        summary: (
+          <button type="button" data-testid="summary-button" onClick={onButtonClick}>
+            Confirm
+          </button>
+        ),
+      });
+
+      screen.getByTestId('summary-button').focus();
+      await user.keyboard(key);
+
+      expect(onButtonClick).toHaveBeenCalledTimes(1);
     });
   });
 
