@@ -5,6 +5,8 @@ import {
   ICamelProcessorDefinition,
   ICitrusComponentDefinition,
   IKameletDefinition,
+  KameletKnownAnnotations,
+  KameletKnownLabels,
 } from '../models';
 import { getIconRequest } from '../models/visualization/flows/nodes/resolvers/icon-resolver/getIconRequest';
 
@@ -79,21 +81,17 @@ export const camelEntityToTile = async (processorDef: ICamelProcessorDefinition)
 
 export const kameletToTile = async (kameletDef: IKameletDefinition): Promise<ITile> => {
   const headerTags: string[] = ['Kamelet'];
-  if (kameletDef.metadata.annotations?.['camel.apache.org/kamelet.support.level']) {
-    headerTags.push(kameletDef.metadata.annotations['camel.apache.org/kamelet.support.level']);
+  if (kameletDef.metadata.annotations?.[KameletKnownAnnotations.SupportLevel]) {
+    headerTags.push(kameletDef.metadata.annotations[KameletKnownAnnotations.SupportLevel]);
   }
 
   const tags: string[] = [];
-  if (kameletDef.metadata.labels?.['camel.apache.org/kamelet.type']) {
-    tags.push(kameletDef.metadata.labels['camel.apache.org/kamelet.type']);
+  if (kameletDef.metadata.labels?.[KameletKnownLabels.Type]) {
+    tags.push(kameletDef.metadata.labels[KameletKnownLabels.Type]);
   }
 
-  let version = undefined;
-  if (kameletDef.metadata.annotations?.['camel.apache.org/catalog.version']) {
-    version = kameletDef.metadata.annotations['camel.apache.org/catalog.version'];
-  }
-
-  const { icon: iconUrl } = await getIconRequest(CatalogKind.Kamelet, kameletDef.metadata.name);
+  const version = kameletDef.metadata.annotations?.[KameletKnownAnnotations.CatalogVersion];
+  const iconUrl = kameletDef.metadata.annotations?.[KameletKnownAnnotations.Icon];
 
   return {
     type: CatalogKind.Kamelet,
