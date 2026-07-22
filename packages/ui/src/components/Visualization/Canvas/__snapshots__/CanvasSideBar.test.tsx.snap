@@ -27,7 +27,7 @@ exports[`CanvasSideBar > displays selected node information 1`] = `
             >
               <img
                 alt="timer"
-                class="form-header__icon-test|route.from"
+                class="form-header__icon-route.from"
                 src="/src/assets/components/timer.svg"
               />
               <h2

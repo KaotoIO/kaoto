@@ -6,14 +6,14 @@ import { parse } from 'yaml';
 
 import { CamelRouteResource } from '../../../models/camel';
 import { EntityType } from '../../../models/entities';
+import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
 import { mockRandomValues } from '../../../stubs';
 import { TestProvidersWrapper } from '../../../stubs/TestProvidersWrapper';
-import { CanvasNode } from './canvas.models';
 import { CanvasSideBar } from './CanvasSideBar';
 import { FlowService } from './flow.service';
 
 describe('CanvasSideBar', () => {
-  let selectedNode: CanvasNode;
+  let selectedVizNode: IVisualizationNode;
   let Provider: FunctionComponent<PropsWithChildren>;
 
   beforeAll(async () => {
@@ -25,15 +25,16 @@ describe('CanvasSideBar', () => {
     const camelResource = new CamelRouteResource(parse(await baseResource.toSourceCode()) as CamelYamlDsl);
     await camelResource.initialize();
     const visualEntity = camelResource.getVisualEntities()[0];
-    selectedNode = FlowService.getFlowDiagram('test', await visualEntity.toVizNode()).nodes[0];
+    const node = FlowService.getFlowDiagram('test', await visualEntity.toVizNode()).nodes[0];
+    selectedVizNode = node.data!.vizNode!;
     Provider = (await TestProvidersWrapper({ camelResource })).Provider;
   });
 
-  it('does not render anything if there is no selectedNode', async () => {
+  it('does not render anything if there is no selectedVizNode', async () => {
     const wrapper = await act(async () =>
       render(
         <CanvasFormTabsProvider>
-          <CanvasSideBar selectedNode={undefined} onClose={() => {}} />
+          <CanvasSideBar vizNode={undefined} onClose={() => {}} />
         </CanvasFormTabsProvider>,
       ),
     );
@@ -46,7 +47,7 @@ describe('CanvasSideBar', () => {
       render(
         <Provider>
           <CanvasFormTabsProvider>
-            <CanvasSideBar selectedNode={selectedNode} onClose={() => {}} />
+            <CanvasSideBar vizNode={selectedVizNode} onClose={() => {}} />
           </CanvasFormTabsProvider>
         </Provider>,
       ),
@@ -62,7 +63,7 @@ describe('CanvasSideBar', () => {
       render(
         <Provider>
           <CanvasFormTabsProvider>
-            <CanvasSideBar selectedNode={selectedNode} onClose={onCloseSpy} />
+            <CanvasSideBar vizNode={selectedVizNode} onClose={onCloseSpy} />
           </CanvasFormTabsProvider>
         </Provider>,
       ),
