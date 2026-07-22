@@ -659,6 +659,46 @@ describe('VisualizationService / abstract fields', () => {
       expect(children).toHaveLength(3);
       expect(children.map((c) => c.title)).toEqual(['Cat', 'Dog', 'Fish']);
     });
+
+    it('source max=1 render after clear: should revert to unselected AbstractFieldNodeData', () => {
+      const abstractField = createMockAbstractField(
+        [{ name: 'Cat' }, { name: 'Dog' }],
+        new QName('io.kaoto.datamapper.poc.test', 'Cat'),
+      );
+      const parentField = { ...sourceDoc.fields[0], fields: [abstractField] };
+      const parentNode = new FieldNodeData(sourceDocNode, parentField as (typeof sourceDoc.fields)[0]);
+
+      const before = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
+      expect(before).toHaveLength(1);
+      expect(before[0]).toBeInstanceOf(AbstractFieldNodeData);
+      expect(before[0].title).toBe('Cat');
+      expect((before[0] as AbstractFieldNodeData).abstractField).toBeDefined();
+
+      abstractField.selectedMemberQName = undefined;
+
+      const after = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
+      expect(after).toHaveLength(1);
+      expect(after[0]).toBeInstanceOf(AbstractFieldNodeData);
+      expect((after[0] as AbstractFieldNodeData).abstractField).toBeUndefined();
+      const candidates = VisualizationService.generateNonDocumentNodeDataChildren(after[0]);
+      expect(candidates).toHaveLength(2);
+      expect(candidates.map((c) => c.title)).toEqual(['Cat', 'Dog']);
+    });
+
+    it('source max>1 render after select: should show selected candidate through wrapper', () => {
+      const abstractField = createMockAbstractField(
+        [{ name: 'Cat' }, { name: 'Dog' }, { name: 'Fish' }],
+        new QName('io.kaoto.datamapper.poc.test', 'Dog'),
+      );
+      abstractField.maxOccurs = 'unbounded';
+      const parentField = { ...sourceDoc.fields[0], fields: [abstractField] };
+      const parentNode = new FieldNodeData(sourceDocNode, parentField as (typeof sourceDoc.fields)[0]);
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
+      expect(children).toHaveLength(1);
+      expect(children[0]).toBeInstanceOf(AbstractFieldNodeData);
+      expect(children[0].title).toBe('Dog');
+      expect((children[0] as AbstractFieldNodeData).abstractField).toBeDefined();
+    });
   });
 
   describe('mapping through selected target abstract wrapper', () => {

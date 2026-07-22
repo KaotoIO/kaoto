@@ -4,6 +4,7 @@ import { FieldOverrideVariant } from '../../models/datamapper/types';
 import { getChoiceWithAbstractXsd } from '../../stubs/datamapper/data-mapper';
 import { XmlSchemaCollection } from '../../xml-schema-ts';
 import { SchemaPathService } from '../schema-path.service';
+import { DocumentUtilService } from './document-util.service';
 import { FieldOverrideService } from './field-override.service';
 import { WrapperSelectionService } from './wrapper-selection.service';
 import { XmlSchemaDocument, XmlSchemaField } from './xml-schema/xml-schema-document.model';
@@ -547,6 +548,179 @@ describe('WrapperSelectionService', () => {
         expect(doc.definition.fieldTypeOverrides).toHaveLength(1);
         expect(idField.typeOverride).toBe(FieldOverrideVariant.SAFE);
       });
+    });
+  });
+
+  describe('wrapper field queries', () => {
+    describe('resolveOutermostSelectedWrapper', () => {
+      it('should return the field itself and depth 1 when no parent wrapper', () => {
+        const doc = createChoiceWithAbstractDoc();
+        const choiceField = findChoiceField(doc);
+        choiceField.selectedMemberIndex = 0;
+        const result = WrapperSelectionService.resolveOutermostSelectedWrapper(choiceField);
+        expect(result.outermost).toBe(choiceField);
+        expect(result.depth).toBe(1);
+      });
+
+      it('should walk up through selected parent wrappers', () => {
+        const doc = createChoiceWithAbstractDoc();
+        const choiceField = findChoiceField(doc);
+        const inner = new XmlSchemaField(choiceField, 'innerChoice', false);
+        inner.wrapperKind = 'choice';
+        inner.selectedMemberIndex = 1;
+        choiceField.fields.push(inner);
+        choiceField.selectedMemberIndex = choiceField.fields.indexOf(inner);
+        const result = WrapperSelectionService.resolveOutermostSelectedWrapper(inner);
+        expect(result.outermost).toBe(choiceField);
+        expect(result.depth).toBe(2);
+      });
+
+      it('should walk up through three levels of selected wrappers', () => {
+        const doc = createChoiceWithAbstractDoc();
+        const choiceField = findChoiceField(doc);
+        const middle = new XmlSchemaField(choiceField, 'middleChoice', false);
+        middle.wrapperKind = 'choice';
+        choiceField.fields.push(middle);
+        const inner = new XmlSchemaField(middle, 'innerChoice', false);
+        inner.wrapperKind = 'choice';
+        inner.selectedMemberIndex = 1;
+        middle.fields.push(inner);
+        middle.selectedMemberIndex = middle.fields.indexOf(inner);
+        choiceField.selectedMemberIndex = choiceField.fields.indexOf(middle);
+        const result = WrapperSelectionService.resolveOutermostSelectedWrapper(inner);
+        expect(result.outermost).toBe(choiceField);
+        expect(result.depth).toBe(3);
+      });
+
+      it('should stop when parent selects a different member', () => {
+        const doc = createChoiceWithAbstractDoc();
+        const choiceField = findChoiceField(doc);
+        const inner = new XmlSchemaField(choiceField, 'innerChoice', false);
+        inner.wrapperKind = 'choice';
+        inner.selectedMemberIndex = 0;
+        choiceField.fields.push(inner);
+        choiceField.selectedMemberIndex = 0;
+        const result = WrapperSelectionService.resolveOutermostSelectedWrapper(inner);
+        expect(result.outermost).toBe(inner);
+        expect(result.depth).toBe(1);
+      });
+
+      it('should stop at parent without selectedMemberIndex', () => {
+        const doc = createChoiceWithAbstractDoc();
+        const choiceField = findChoiceField(doc);
+        const inner = new XmlSchemaField(choiceField, 'innerChoice', false);
+        inner.wrapperKind = 'choice';
+        inner.selectedMemberIndex = 0;
+        const result = WrapperSelectionService.resolveOutermostSelectedWrapper(inner);
+        expect(result.outermost).toBe(inner);
+        expect(result.depth).toBe(1);
+      });
+
+      it('should return depth 1 and undefined for undefined input', () => {
+        const result = WrapperSelectionService.resolveOutermostSelectedWrapper(undefined);
+        expect(result.outermost).toBeUndefined();
+        expect(result.depth).toBe(1);
+      });
+    });
+
+    describe('shouldFlattenNestedWrapper', () => {
+      it('should flatten cross-kind nesting (choice>abstract) even without inner selection', () => {
+        const doc = createChoiceWithAbstractDoc();
+        const choiceField = findChoiceField(doc);
+        const abstractField = findAbstractField(choiceField);
+        expect(WrapperSelectionService.shouldFlattenNestedWrapper('choice', abstractField)).toBe(true);
+      });
+
+      it('should flatten cross-kind nesting when inner has selection (choice>abstract>Email)', () => {
+        const doc = createChoiceWithAbstractDoc();
+        const nsMap = { ca: NS_CHOICE_ABSTRACT };
+        const choiceField = findChoiceField(doc);
+        const abstractField = findAbstractField(choiceField);
+        FieldOverrideService.applyFieldSubstitution(abstractField, 'ca:Email', nsMap);
+        expect(DocumentUtilService.getSelectedMember(abstractField)).toBeDefined();
+        expect(WrapperSelectionService.shouldFlattenNestedWrapper('choice', abstractField)).toBe(true);
+      });
+
+      it('should NOT flatten same-kind nesting (choice>choice) when inner has no selection', () => {
+        const doc = createChoiceWithAbstractDoc();
+        const choiceField = findChoiceField(doc);
+        const innerChoice = new XmlSchemaField(choiceField, 'innerChoice', false);
+        innerChoice.wrapperKind = 'choice';
+        expect(WrapperSelectionService.shouldFlattenNestedWrapper('choice', innerChoice)).toBe(false);
+      });
+    });
+
+    describe('findParentWrapper', () => {
+      it('should return parent choice when abstract is inside selected choice', () => {
+        const doc = createChoiceWithAbstractDoc();
+        const nsMap = { ca: NS_CHOICE_ABSTRACT };
+        const choiceField = findChoiceField(doc);
+        const abstractField = findAbstractField(choiceField);
+        WrapperSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+        expect(WrapperSelectionService.findParentWrapper(abstractField, 'choice')).toBe(choiceField);
+      });
+
+      it('should return undefined for standalone abstract', () => {
+        const doc = createChoiceWithAbstractDoc();
+        const root = doc.fields[0];
+        const standaloneAbstract = new XmlSchemaField(root, 'standalone', false);
+        standaloneAbstract.wrapperKind = 'abstract';
+        root.fields.push(standaloneAbstract);
+        expect(WrapperSelectionService.findParentWrapper(standaloneAbstract, 'choice')).toBeUndefined();
+      });
+
+      it('should return undefined when choice selects a different member', () => {
+        const doc = createChoiceWithAbstractDoc();
+        const nsMap = { ca: NS_CHOICE_ABSTRACT };
+        const choiceField = findChoiceField(doc);
+        const abstractField = findAbstractField(choiceField);
+        WrapperSelectionService.setChoiceSelection(doc, choiceField, 1, nsMap);
+        expect(WrapperSelectionService.findParentWrapper(abstractField, 'choice')).toBeUndefined();
+      });
+    });
+  });
+
+  describe('cascade clear: abstract substitution clears parent choice (#3532)', () => {
+    it('should cascade abstract substitution clear to parent choice (source maxOccurs=1)', () => {
+      const doc = createChoiceWithAbstractDoc();
+      const nsMap = { ca: NS_CHOICE_ABSTRACT };
+      const choiceField = findChoiceField(doc);
+      const abstractField = findAbstractField(choiceField);
+
+      WrapperSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+      FieldOverrideService.applyFieldSubstitution(abstractField, 'ca:Email', nsMap);
+      expect(choiceField.selectedMemberIndex).toBe(0);
+      expect(abstractField.selectedMemberQName).toBeDefined();
+
+      FieldOverrideService.revertFieldSubstitution(abstractField, nsMap);
+      const parentChoice = WrapperSelectionService.findParentWrapper(abstractField, 'choice');
+      if (parentChoice) {
+        WrapperSelectionService.clearChoiceSelection(doc, parentChoice, nsMap);
+      }
+
+      expect(choiceField.selectedMemberIndex).toBeUndefined();
+      expect(abstractField.selectedMemberQName).toBeUndefined();
+    });
+
+    it('should clean up both choiceSelections and fieldSubstitutions after cascade', () => {
+      const doc = createChoiceWithAbstractDoc();
+      const nsMap = { ca: NS_CHOICE_ABSTRACT };
+      const choiceField = findChoiceField(doc);
+      const abstractField = findAbstractField(choiceField);
+
+      WrapperSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+      FieldOverrideService.applyFieldSubstitution(abstractField, 'ca:Email', nsMap);
+      expect(doc.definition.choiceSelections).toHaveLength(1);
+      expect(doc.definition.fieldSubstitutions).toHaveLength(1);
+
+      FieldOverrideService.revertFieldSubstitution(abstractField, nsMap);
+      const parentChoice = WrapperSelectionService.findParentWrapper(abstractField, 'choice');
+      if (parentChoice) {
+        WrapperSelectionService.clearChoiceSelection(doc, parentChoice, nsMap);
+      }
+
+      expect(doc.definition.choiceSelections ?? []).toHaveLength(0);
+      expect(doc.definition.fieldSubstitutions ?? []).toHaveLength(0);
     });
   });
 });

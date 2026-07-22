@@ -569,4 +569,28 @@ describe('useAbstractFieldSubstitutionMenu', () => {
       updateSpy.mockRestore();
     });
   });
+
+  describe('source-side abstract wrapper with maxOccurs>1', () => {
+    it('should show substitution candidates in context menu for source-side maxOccurs>1 abstract', () => {
+      const { documentNodeData, abstractNode, abstractAnimalField } = createAbstractFieldNode(false);
+      abstractAnimalField.maxOccurs = 'unbounded';
+
+      render(
+        <SourceDocumentNodeWithContextMenu
+          treeNode={abstractNode}
+          documentId={documentNodeData.id}
+          isReadOnly={false}
+          rank={1}
+        />,
+        { wrapper },
+      );
+
+      fireEvent.contextMenu(screen.getByTestId(`node-source-${abstractNode.nodeData.id}`));
+
+      expect(screen.getByText('Cat')).toBeInTheDocument();
+      expect(screen.getByText('Dog')).toBeInTheDocument();
+      expect(screen.getByText('Fish')).toBeInTheDocument();
+      expect(screen.getByText('Kitten')).toBeInTheDocument();
+    });
+  });
 });

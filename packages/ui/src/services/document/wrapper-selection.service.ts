@@ -1,4 +1,4 @@
-import { IDocument, IField } from '../../models/datamapper/document';
+import { IDocument, IField, WrapperKind } from '../../models/datamapper/document';
 import { IChoiceSelection } from '../../models/datamapper/metadata';
 import { SchemaPathService } from '../schema-path.service';
 import { DocumentUtilService } from './document-util.service';
@@ -123,5 +123,64 @@ export class WrapperSelectionService {
     if (member.wrapperKind === 'abstract' && member.selectedMemberQName) {
       FieldOverrideService.revertFieldSubstitution(member, namespaceMap);
     }
+  }
+
+  /**
+   * Walks up from `wrapper` through ancestor choice fields that also have a selection,
+   * returning the outermost selected wrapper and the number of levels traversed.
+   */
+  static resolveOutermostSelectedWrapper(wrapper: IField | undefined): {
+    outermost: IField | undefined;
+    depth: number;
+  } {
+    let depth = 1;
+    let current = wrapper;
+    while (
+      current?.parent &&
+      'wrapperKind' in current.parent &&
+      current.parent.wrapperKind === 'choice' &&
+      current.parent.selectedMemberIndex !== undefined &&
+      DocumentUtilService.getSelectedMember(current.parent) === current
+    ) {
+      depth++;
+      current = current.parent;
+    }
+    return { outermost: current, depth };
+  }
+
+  /**
+   * Determines whether a nested wrapper field should be flattened (recursed through)
+   * during node data generation.
+   *
+   * Cross-kind nesting (e.g. choice>abstract) always flattens so the inner wrapper can
+   * present its own UI (e.g. AbstractFieldNodeData for substitution selection).
+   * Same-kind nesting (e.g. choice>choice) only flattens when the inner wrapper already
+   * has a selection — otherwise the inner wrapper is shown as an unselected wrapper node.
+   *
+   * @param outerKind - The wrapper kind of the outer wrapper being processed
+   * @param innerField - The selected member that is itself a wrapper field
+   */
+  static shouldFlattenNestedWrapper(outerKind: WrapperKind, innerField: IField): boolean {
+    if (innerField.wrapperKind !== outerKind) return true;
+    return DocumentUtilService.getSelectedMember(innerField) !== undefined;
+  }
+
+  /**
+   * Finds the active parent wrapper of a given wrapper field.
+   *
+   * Returns the parent only when its current selection points at the given field — a choice
+   * can have multiple wrapper children (e.g. several abstract members), but only the selected
+   * one is the active nesting context. Returns undefined for top-level wrappers or when the
+   * parent's selection targets a different member.
+   *
+   * @param wrapperField - The inner wrapper field to check
+   * @param parentKind - The wrapper kind to look for in the parent
+   */
+  static findParentWrapper(wrapperField: IField, parentKind: WrapperKind): IField | undefined {
+    const parent = wrapperField.parent;
+    if (!parent || !('wrapperKind' in parent) || parent.wrapperKind !== parentKind) return undefined;
+    const selectedMember = DocumentUtilService.getSelectedMember(parent);
+    if (selectedMember !== wrapperField) return undefined;
+    return parent;
   }
 }
