@@ -332,6 +332,75 @@ describe('camel-to-tile.adapter', () => {
 
       expect(tile.headerTags).toEqual(['Kamelet']);
       expect(tile.version).toBeUndefined();
+      expect(tile.iconUrl).toBeUndefined();
+    });
+
+    it('should not crash and should return undefined iconUrl when annotations is undefined', async () => {
+      const kameletDef = {
+        metadata: {
+          name: 'my-kamelet',
+          annotations: undefined,
+          labels: {},
+        },
+        spec: {
+          definition: {
+            title: 'My Kamelet',
+            description: 'My Kamelet Description',
+          },
+        },
+      } as unknown as IKameletDefinition;
+
+      expect(() => kameletToTile(kameletDef)).not.toThrow();
+      const tile = await kameletToTile(kameletDef);
+      expect(tile.iconUrl).toBeUndefined();
+    });
+
+    it('should return undefined iconUrl when the icon annotation is missing', async () => {
+      const kameletDef = {
+        metadata: {
+          name: 'my-kamelet',
+          annotations: {
+            'camel.apache.org/kamelet.support.level': 'Stable',
+            'camel.apache.org/catalog.version': '1.0.0',
+          },
+          labels: {},
+        },
+        spec: {
+          definition: {
+            title: 'My Kamelet',
+            description: 'My Kamelet Description',
+          },
+        },
+      } as unknown as IKameletDefinition;
+
+      const tile = await kameletToTile(kameletDef);
+
+      expect(tile.iconUrl).toBeUndefined();
+    });
+
+    it('should return the annotation value as iconUrl when the icon annotation is present', async () => {
+      const iconData = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciLz4=';
+      const kameletDef = {
+        metadata: {
+          name: 'my-kamelet',
+          annotations: {
+            'camel.apache.org/kamelet.support.level': 'Stable',
+            'camel.apache.org/catalog.version': '1.0.0',
+            'camel.apache.org/kamelet.icon': iconData,
+          },
+          labels: {},
+        },
+        spec: {
+          definition: {
+            title: 'My Kamelet',
+            description: 'My Kamelet Description',
+          },
+        },
+      } as unknown as IKameletDefinition;
+
+      const tile = await kameletToTile(kameletDef);
+
+      expect(tile.iconUrl).toEqual(iconData);
     });
 
     it('should not include type tag when labels are absent', async () => {
