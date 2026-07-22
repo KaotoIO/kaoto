@@ -15,7 +15,7 @@ interface CanvasFormTabsProps {
 export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = ({ vizNode }) => {
   const entitiesContext = useContext(EntitiesContext);
   const omitFields = useRef(vizNode.getOmitFormFields() ?? []);
-  const schema = useMemo(() => vizNode.getNodeSchema(), [vizNode]);
+  const schema = vizNode.data.schema;
 
   const isUnknownComponent = useMemo(() => {
     return !isDefined(schema) || Object.keys(schema).length === 0;

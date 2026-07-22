@@ -10,6 +10,7 @@ import {
   DISABLED_NODE_INTERACTION,
   IVisualizationNode,
   IVisualizationNodeData,
+  IVisualizationNodeIds,
   NodeInteraction,
 } from './base-visual-entity';
 
@@ -95,14 +96,19 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     return this.getBaseEntity()?.getNodeSchema(this.data.path);
   }
 
-  fetchSchema(): Promise<KaotoSchemaDefinition['schema'] | undefined> {
+  async fetchSchema(): Promise<KaotoSchemaDefinition['schema'] | undefined> {
     const baseEntity = this.getBaseEntity();
     if (!baseEntity) {
-      return Promise.resolve(undefined);
+      return undefined;
     }
-    const schema = baseEntity.getNodeSchema(this.data.path);
+    const ids: IVisualizationNodeIds = {
+      primaryNodeId: this.data.primaryNodeId,
+      secondaryNodeId: this.data.secondaryNodeId,
+      tertiaryNodeId: this.data.tertiaryNodeId,
+    };
+    const schema = await baseEntity.fetchNodeSchema(ids);
     this.data.schema = schema;
-    return Promise.resolve(schema);
+    return schema;
   }
 
   getNodeDefinition(): unknown {
