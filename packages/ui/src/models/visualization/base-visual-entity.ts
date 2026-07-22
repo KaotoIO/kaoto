@@ -73,7 +73,7 @@ export interface BaseVisualEntity extends BaseEntity {
   getNodeInteraction(data: IVisualizationNodeData): NodeInteraction;
 
   /** Given a path, retrieve the Node validation status */
-  getNodeValidationText(path?: string): string | undefined;
+  getNodeValidationText(path?: string): Promise<string | undefined>;
 
   /** Generates a IVisualizationNode from the underlying Camel entity */
   toVizNode: () => Promise<IVisualizationNode>;
@@ -158,7 +158,7 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   removeChild(): void;
 
   /** Retrieve the node's validation status, relying into the underlying entity */
-  getNodeValidationText(): string | undefined;
+  getNodeValidationText(): Promise<string | undefined>;
 }
 
 export interface IVisualizationNodeData {

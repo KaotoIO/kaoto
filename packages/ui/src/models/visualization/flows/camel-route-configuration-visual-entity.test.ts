@@ -227,23 +227,23 @@ describe('CamelRouteConfigurationVisualEntity', () => {
   });
 
   describe('getNodeValidationText', () => {
-    it('should return undefined for valid definitions', () => {
+    it('should return undefined for valid definitions', async () => {
       const entity = new CamelRouteConfigurationVisualEntity({
         routeConfiguration: {
           ...routeConfigurationDef.routeConfiguration,
         },
       });
 
-      expect(entity.getNodeValidationText()).toBeUndefined();
+      expect(await entity.getNodeValidationText()).toBeUndefined();
     });
 
-    it('should not modify the original definition when validating', () => {
+    it('should not modify the original definition when validating', async () => {
       const originalRouteConfigurationDef: RouteConfigurationDefinition = {
         ...routeConfigurationDef.routeConfiguration,
       };
       const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
 
-      entity.getNodeValidationText();
+      await entity.getNodeValidationText();
 
       expect(routeConfigurationDef.routeConfiguration).toEqual(originalRouteConfigurationDef);
     });

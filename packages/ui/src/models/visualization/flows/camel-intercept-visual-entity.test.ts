@@ -84,13 +84,13 @@ describe('CamelInterceptVisualEntity', () => {
     });
   });
 
-  it('should delegate the validation text to the ModelValidationService', () => {
-    const validateNodeStatusSpy = vi.spyOn(ModelValidationService, 'validateNodeStatus');
+  it('should delegate the validation text to the ModelValidationService', async () => {
+    const validateNodeStatusSpy = vi.spyOn(ModelValidationService, 'validateNodeStatus').mockResolvedValue(undefined!);
 
     const interceptVisualEntity = new CamelInterceptVisualEntity({
       intercept: { id: 'id', disabled: false },
     });
-    interceptVisualEntity.getNodeValidationText('intercept');
+    await interceptVisualEntity.getNodeValidationText('intercept');
 
     expect(validateNodeStatusSpy).toHaveBeenCalled();
   });

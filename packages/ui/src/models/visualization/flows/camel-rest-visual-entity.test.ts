@@ -419,7 +419,7 @@ describe('CamelRestVisualEntity', () => {
   });
 
   describe('getNodeValidationText', () => {
-    it('should return undefined for valid definitions', () => {
+    it('should return undefined for valid definitions', async () => {
       const entity = new CamelRestVisualEntity({
         rest: {
           ...restDef.rest,
@@ -427,19 +427,19 @@ describe('CamelRestVisualEntity', () => {
         },
       });
 
-      expect(entity.getNodeValidationText()).toBeUndefined();
+      expect(await entity.getNodeValidationText()).toBeUndefined();
     });
 
-    it('should not modify the original definition when validating', () => {
+    it('should not modify the original definition when validating', async () => {
       const originalRestDef: Rest = { ...restDef.rest };
       const entity = new CamelRestVisualEntity(restDef);
 
-      entity.getNodeValidationText();
+      await entity.getNodeValidationText();
 
       expect(restDef.rest).toEqual(originalRestDef);
     });
 
-    it('should NOT return errors when there is an invalid property', () => {
+    it('should NOT return errors when there is an invalid property', async () => {
       const invalidRestDef: Rest = {
         ...restDef.rest,
         bindingMode: 'true' as unknown as Rest['bindingMode'],
@@ -447,7 +447,7 @@ describe('CamelRestVisualEntity', () => {
       };
       const entity = new CamelRestVisualEntity({ rest: invalidRestDef });
 
-      expect(entity.getNodeValidationText()).toBeUndefined();
+      expect(await entity.getNodeValidationText()).toBeUndefined();
     });
   });
 

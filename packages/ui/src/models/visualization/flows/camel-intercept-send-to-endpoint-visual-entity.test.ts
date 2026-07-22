@@ -90,13 +90,13 @@ describe('CamelInterceptSendToEndpointVisualEntity', () => {
     });
   });
 
-  it('should delegate the validation text to the ModelValidationService', () => {
-    const validateNodeStatusSpy = vi.spyOn(ModelValidationService, 'validateNodeStatus');
+  it('should delegate the validation text to the ModelValidationService', async () => {
+    const validateNodeStatusSpy = vi.spyOn(ModelValidationService, 'validateNodeStatus').mockResolvedValue(undefined!);
 
     const interceptSendToEndpointVisualEntity = new CamelInterceptSendToEndpointVisualEntity({
       interceptSendToEndpoint: { id: 'id', uri: 'direct:a-reference' },
     });
-    interceptSendToEndpointVisualEntity.getNodeValidationText('interceptSendToEndpoint');
+    await interceptSendToEndpointVisualEntity.getNodeValidationText('interceptSendToEndpoint');
 
     expect(validateNodeStatusSpy).toHaveBeenCalled();
   });

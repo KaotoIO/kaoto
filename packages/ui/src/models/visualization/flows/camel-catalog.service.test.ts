@@ -3,26 +3,17 @@ import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { ICamelComponentDefinition } from '../../camel/camel-components-catalog';
-import { ICamelDataformatDefinition } from '../../camel/camel-dataformats-catalog';
-import { ICamelLanguageDefinition } from '../../camel/camel-languages-catalog';
-import { ICamelLoadBalancerDefinition } from '../../camel/camel-loadbalancers-catalog';
 import { IKameletDefinition } from '../../camel/kamelets-catalog';
 import { CatalogKind } from '../../catalog-kind';
 import { CamelCatalogService } from './camel-catalog.service';
 
 describe('CamelCatalogService', () => {
   let componentCatalogMap: Record<string, ICamelComponentDefinition>;
-  let dataformatsCatalogMap: Record<string, ICamelDataformatDefinition>;
-  let languagesCatalogMap: Record<string, ICamelLanguageDefinition>;
-  let loadbalancersMap: Record<string, ICamelLoadBalancerDefinition>;
   let kameletCatalogMap: Record<string, IKameletDefinition>;
 
   beforeEach(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     componentCatalogMap = catalogsMap.componentCatalogMap;
-    dataformatsCatalogMap = catalogsMap.dataformatCatalog;
-    languagesCatalogMap = catalogsMap.languageCatalog;
-    loadbalancersMap = catalogsMap.loadbalancerCatalog;
     kameletCatalogMap = catalogsMap.kameletsCatalogMap;
     CamelCatalogService.setCatalogKey(CatalogKind.Component, catalogsMap.componentCatalogMap);
   });
@@ -43,57 +34,6 @@ describe('CamelCatalogService', () => {
       const component = CamelCatalogService.getComponent(CatalogKind.Component);
 
       expect(component).toBeUndefined();
-    });
-  });
-
-  describe('getLanguageMap', () => {
-    it('should return an empty object if there is no language map', () => {
-      const map = CamelCatalogService.getLanguageMap();
-      expect(map).toEqual({});
-    });
-
-    it('should return a language map', () => {
-      CamelCatalogService.setCatalogKey(
-        CatalogKind.Language,
-        languagesCatalogMap as unknown as Record<string, ICamelLanguageDefinition>,
-      );
-
-      const map = CamelCatalogService.getLanguageMap();
-      expect(map).toEqual(languagesCatalogMap);
-    });
-  });
-
-  describe('getDataFormatMap', () => {
-    it('should return an empty object if there is no data format map', () => {
-      const map = CamelCatalogService.getDataFormatMap();
-      expect(map).toEqual({});
-    });
-
-    it('should return a data format map', () => {
-      CamelCatalogService.setCatalogKey(
-        CatalogKind.Dataformat,
-        dataformatsCatalogMap as unknown as Record<string, ICamelLanguageDefinition>,
-      );
-
-      const map = CamelCatalogService.getDataFormatMap();
-      expect(map).toEqual(dataformatsCatalogMap);
-    });
-  });
-
-  describe('getLoadBalancerMap', () => {
-    it('should return an empty object if there is no load balancer map', () => {
-      const map = CamelCatalogService.getLoadBalancerMap();
-      expect(map).toEqual({});
-    });
-
-    it('should return a load balancer map', () => {
-      CamelCatalogService.setCatalogKey(
-        CatalogKind.Loadbalancer,
-        loadbalancersMap as unknown as Record<string, ICamelLanguageDefinition>,
-      );
-
-      const map = CamelCatalogService.getLoadBalancerMap();
-      expect(map).toEqual(loadbalancersMap);
     });
   });
 

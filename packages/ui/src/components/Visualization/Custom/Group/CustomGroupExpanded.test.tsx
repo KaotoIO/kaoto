@@ -119,7 +119,7 @@ describe('CustomGroupExpanded', () => {
     }) as IVisualizationNode;
     vi.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Choice');
     vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
-    vi.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
+    vi.spyOn(vizNode, 'getNodeValidationText').mockResolvedValue(undefined);
 
     vi.spyOn(element, 'getData').mockReturnValue({ vizNode });
     vi.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
@@ -148,7 +148,7 @@ describe('CustomGroupExpanded', () => {
     }) as IVisualizationNode;
     vi.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Choice');
     vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
-    vi.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
+    vi.spyOn(vizNode, 'getNodeValidationText').mockResolvedValue(undefined);
 
     vi.spyOn(element, 'getData').mockReturnValue({ vizNode });
     vi.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
@@ -171,7 +171,7 @@ describe('CustomGroupExpanded', () => {
     }) as IVisualizationNode;
     vi.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Choice');
     vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
-    vi.spyOn(vizNode, 'getNodeValidationText').mockReturnValue('Some validation warning');
+    vi.spyOn(vizNode, 'getNodeValidationText').mockResolvedValue('Some validation warning');
 
     vi.spyOn(element, 'getData').mockReturnValue({ vizNode });
     vi.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
@@ -194,7 +194,7 @@ describe('CustomGroupExpanded', () => {
     }) as IVisualizationNode;
     vi.spyOn(vizNode, 'getNodeLabel').mockReturnValue('when-setHeader');
     vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
-    vi.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
+    vi.spyOn(vizNode, 'getNodeValidationText').mockResolvedValue(undefined);
 
     vi.spyOn(element, 'getData').mockReturnValue({ vizNode });
     vi.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
@@ -226,7 +226,7 @@ describe('CustomGroupExpanded', () => {
     }) as IVisualizationNode;
     vi.spyOn(groupVizNode, 'getNodeLabel').mockReturnValue('Choice');
     vi.spyOn(groupVizNode, 'getNodeDefinition').mockReturnValue(undefined);
-    vi.spyOn(groupVizNode, 'getNodeValidationText').mockReturnValue(undefined);
+    vi.spyOn(groupVizNode, 'getNodeValidationText').mockResolvedValue(undefined);
 
     const draggedVizNode = createVisualizationNode('when-0', {
       name: 'when',

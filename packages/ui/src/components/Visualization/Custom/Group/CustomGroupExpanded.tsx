@@ -46,6 +46,7 @@ import {
   NODE_DRAG_TYPE,
 } from '../customComponentUtils';
 import { FloatingCircle } from '../FloatingCircle/FloatingCircle';
+import { useNodeValidationText } from '../hooks/use-node-validation-text.hook';
 import { CustomNodeContainer } from '../Node/CustomNodeContainer';
 import {
   checkNodeDropCompatibility,
@@ -73,9 +74,10 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
     const ProcessorIcon = getProcessorIcon(processorName);
     const processorDescription = groupVizNode?.data?.processorIconTooltip ?? '';
     const isDisabled = !!groupVizNode?.getNodeDefinition()?.disabled;
-    const validationText = groupVizNode?.getNodeValidationText();
+    const validationText = useNodeValidationText(groupVizNode);
     const doesHaveWarnings = !isDisabled && !!validationText;
     const { childCount, hasGroupChildren } = getVizNodeChildrenInfo(groupVizNode);
+
     const [isGHover, gHoverRef] = useHover<SVGGElement>(CanvasDefaults.HOVER_DELAY_IN, CanvasDefaults.HOVER_DELAY_OUT);
     const [isToolbarHover, toolbarHoverRef] = useHover<SVGForeignObjectElement>(
       CanvasDefaults.HOVER_DELAY_IN,

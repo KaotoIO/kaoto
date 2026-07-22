@@ -164,7 +164,7 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     }
   }
 
-  getNodeValidationText(): string | undefined {
+  async getNodeValidationText(): Promise<string | undefined> {
     return this.getBaseEntity()?.getNodeValidationText(this.data.path);
   }
 

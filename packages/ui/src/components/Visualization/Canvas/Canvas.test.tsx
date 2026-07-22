@@ -64,6 +64,13 @@ describe('Canvas', () => {
     const vizNode = await entity.toVizNode();
     const controller = ControllerService.createController();
     const fromModelSpy = vi.spyOn(controller, 'fromModel');
+    // Spy on the graph prototype before rendering: the async `getNodeValidationText` effects in the
+    // custom nodes keep the render `act()` open long enough that the scheduled `requestAnimationFrame`
+    // can fire during it. `fromModel` also swaps the graph instance, so we spy on the prototype to
+    // capture the `fit` call regardless of which instance receives it or exactly when the frame fires.
+    const graphPrototype = Object.getPrototypeOf(controller.getGraph());
+    const fitSpy = vi.spyOn(graphPrototype, 'fit');
+    const layoutSpy = vi.spyOn(graphPrototype, 'layout');
 
     await act(async () => {
       render(
@@ -74,11 +81,6 @@ describe('Canvas', () => {
         </Provider>,
       );
     });
-
-    // The graph has been initialized with the .fromModel method, but the requestAnimationFrame
-    // has not been called yet, so the graph.fit(80) is not called yet.
-    const fitSpy = vi.spyOn(controller.getGraph(), 'fit');
-    const layoutSpy = vi.spyOn(controller.getGraph(), 'layout');
 
     await act(async () => {
       await vi.runAllTimersAsync();

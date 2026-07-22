@@ -43,6 +43,7 @@ import { CanvasNode } from '../../Canvas/canvas.models';
 import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
 import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
 import { getDropTargetContainerClassNames, GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
+import { useNodeValidationText } from '../hooks/use-node-validation-text.hook';
 import { TargetAnchor } from '../target-anchor';
 import { CustomNodeContainer } from './CustomNodeContainer';
 import {
@@ -133,7 +134,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const ProcessorIcon = getProcessorIcon(processorName);
     const processorDescription = vizNode?.data.processorIconTooltip ?? '';
     const isDisabled = !!vizNode?.getNodeDefinition()?.disabled;
-    const validationText = vizNode?.getNodeValidationText();
+    const validationText = useNodeValidationText(vizNode);
     const doesHaveWarnings = !isDisabled && !!validationText;
     const [isGHover, gHoverRef] = useHover<SVGGElement>(CanvasDefaults.HOVER_DELAY_IN, CanvasDefaults.HOVER_DELAY_OUT);
     const [isToolbarHover, toolbarHoverRef] = useHover<SVGForeignObjectElement>(
@@ -147,6 +148,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
       isToolbarHover,
       selected,
     );
+
     const canDragNode = vizNode?.canDragNode() ?? false;
 
     const hasSomeInteractions = useMemo(
