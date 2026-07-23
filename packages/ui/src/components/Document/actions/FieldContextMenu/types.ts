@@ -1,8 +1,8 @@
 import { ReactNode } from 'react';
 
-import { MenuGroup } from '../FieldContextMenu';
+import { IFieldMenuGroup } from '../../../../models/datamapper/field-action';
 
 export interface MenuContributor {
-  groups: MenuGroup[];
+  groups: IFieldMenuGroup[];
   modals: ReactNode;
 }

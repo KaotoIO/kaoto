@@ -1,14 +1,15 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import type { Mock } from 'vitest';
 
-import { FieldContextMenu, MenuGroup } from './FieldContextMenu';
+import { IFieldMenuGroup } from '../../../models/datamapper/field-action';
+import { FieldContextMenu } from './FieldContextMenu';
 
 describe('FieldContextMenu', () => {
-  const overrideGroup: MenuGroup = {
+  const overrideGroup: IFieldMenuGroup = {
     actions: [{ label: 'Override Field...', onClick: vi.fn(), testId: 'override-field' }],
   };
 
-  const resetGroup = (onClick: Mock): MenuGroup => ({
+  const resetGroup = (onClick: Mock): IFieldMenuGroup => ({
     actions: [{ label: 'Reset Override', onClick }],
   });
 
@@ -21,7 +22,7 @@ describe('FieldContextMenu', () => {
   it('should call onClick and onClose when Override type is clicked', () => {
     const onClick = vi.fn();
     const onClose = vi.fn();
-    const group: MenuGroup = { actions: [{ label: 'Override Field...', onClick }] };
+    const group: IFieldMenuGroup = { actions: [{ label: 'Override Field...', onClick }] };
 
     render(<FieldContextMenu groups={[group]} onClose={onClose} />);
 
@@ -56,7 +57,7 @@ describe('FieldContextMenu', () => {
   });
 
   it('should skip empty groups and not render extra dividers', () => {
-    const emptyGroup: MenuGroup = { actions: [] };
+    const emptyGroup: IFieldMenuGroup = { actions: [] };
 
     const { container } = render(<FieldContextMenu groups={[emptyGroup, overrideGroup]} />);
 
@@ -65,8 +66,8 @@ describe('FieldContextMenu', () => {
   });
 
   it('should render dividers between non-empty groups', () => {
-    const group1: MenuGroup = { actions: [{ label: 'Action 1', onClick: vi.fn() }] };
-    const group2: MenuGroup = { actions: [{ label: 'Action 2', onClick: vi.fn() }] };
+    const group1: IFieldMenuGroup = { actions: [{ label: 'Action 1', onClick: vi.fn() }] };
+    const group2: IFieldMenuGroup = { actions: [{ label: 'Action 2', onClick: vi.fn() }] };
 
     const { container } = render(<FieldContextMenu groups={[group1, group2]} />);
 
@@ -79,11 +80,11 @@ describe('FieldContextMenu', () => {
       selectedIndex?: number,
       onSelect = vi.fn(),
       onClear = vi.fn(),
-    ): MenuGroup[] => {
+    ): IFieldMenuGroup[] => {
       const ChoicesIcon = () => <span data-testid="choices-icon" />;
       const CheckIcon = () => <span data-testid="check-icon" />;
 
-      const membersGroup: MenuGroup = {
+      const membersGroup: IFieldMenuGroup = {
         actions: members.map((name, index) => ({
           label: name,
           onClick: () => onSelect(index),
@@ -92,7 +93,7 @@ describe('FieldContextMenu', () => {
         })),
       };
 
-      const clearGroup: MenuGroup = {
+      const clearGroup: IFieldMenuGroup = {
         actions: [{ label: 'Clear selection', onClick: onClear, testId: 'clear-choice' }],
       };
 
@@ -158,10 +159,10 @@ describe('FieldContextMenu', () => {
     it('should show Select Member... for large choice lists', () => {
       const onOpenModal = vi.fn();
       const onClose = vi.fn();
-      const modalGroup: MenuGroup = {
+      const modalGroup: IFieldMenuGroup = {
         actions: [{ label: 'Select Member...', onClick: onOpenModal, testId: 'open-choice-modal' }],
       };
-      const clearGroup: MenuGroup = {
+      const clearGroup: IFieldMenuGroup = {
         actions: [{ label: 'Clear selection', onClick: vi.fn(), testId: 'clear-choice' }],
       };
 
@@ -187,7 +188,7 @@ describe('FieldContextMenu', () => {
 
   describe('Selected choice context menu (Case B)', () => {
     it('should show Clear selection above Override Field', () => {
-      const clearGroup: MenuGroup = {
+      const clearGroup: IFieldMenuGroup = {
         actions: [{ label: 'Clear selection', onClick: vi.fn(), testId: 'clear-choice' }],
       };
 
@@ -200,7 +201,7 @@ describe('FieldContextMenu', () => {
     it('should call onClearChoice when Clear selection is clicked', () => {
       const onClear = vi.fn();
       const onClose = vi.fn();
-      const clearGroup: MenuGroup = {
+      const clearGroup: IFieldMenuGroup = {
         actions: [{ label: 'Clear selection', onClick: onClear, testId: 'clear-choice' }],
       };
 
@@ -215,7 +216,7 @@ describe('FieldContextMenu', () => {
 
   describe('Choice member context menu (Case C)', () => {
     it('should show Select with member name above Override Field', () => {
-      const selectGroup: MenuGroup = {
+      const selectGroup: IFieldMenuGroup = {
         actions: [{ label: "Select 'Fax'", onClick: vi.fn(), testId: 'select-choice-member' }],
       };
 
@@ -231,7 +232,7 @@ describe('FieldContextMenu', () => {
         onClick: vi.fn(),
         testId: 'select-choice-member',
       };
-      const selectGroup: MenuGroup = { actions: [selectAction] };
+      const selectGroup: IFieldMenuGroup = { actions: [selectAction] };
 
       render(<FieldContextMenu groups={[selectGroup, overrideGroup]} />);
 
@@ -241,7 +242,7 @@ describe('FieldContextMenu', () => {
     it('should call onSelectSelfAsChoiceMember when Select is clicked', () => {
       const onSelectSelf = vi.fn();
       const onClose = vi.fn();
-      const selectGroup: MenuGroup = {
+      const selectGroup: IFieldMenuGroup = {
         actions: [{ label: "Select 'Fax'", onClick: onSelectSelf, testId: 'select-choice-member' }],
       };
 

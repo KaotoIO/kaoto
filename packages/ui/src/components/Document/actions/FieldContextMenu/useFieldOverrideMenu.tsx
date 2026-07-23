@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
+import { IFieldMenuGroup } from '../../../../models/datamapper/field-action';
 import { FieldOverrideVariant } from '../../../../models/datamapper/types';
 import {
   AbstractFieldNodeData,
@@ -9,7 +10,6 @@ import {
 } from '../../../../models/datamapper/visualization';
 import { VisualizationUtilService } from '../../../../services/visualization/visualization-util.service';
 import { WrapperActionService } from '../../../../services/visualization/wrapper-action.service';
-import { MenuGroup } from '../FieldContextMenu';
 import { FieldOverride } from '../FieldOverride/FieldOverride';
 import { MenuContributor } from './types';
 
@@ -43,7 +43,7 @@ export function useFieldOverrideMenu(nodeData: NodeData): MenuContributor {
     }
   }, [abstractWrapperField, field, mappingTree.namespaceMap, updateDocument]);
 
-  const groups = useMemo((): MenuGroup[] => {
+  const groups = useMemo((): IFieldMenuGroup[] => {
     if (field?.wrapperKind === 'choice' || field?.wrapperKind === 'sequence' || field?.wrapperKind === 'abstract')
       return [];
     if (abstractWrapperField) return [];
