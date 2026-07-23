@@ -42,6 +42,10 @@ import {
   getVariableNestedInForEachXslt,
   getVariableReservedNamesXslt,
   getVariableSimpleXslt,
+  getVariableStylesheetReservedNamesXslt,
+  getVariableStylesheetTextContentXslt,
+  getVariableStylesheetXslt,
+  getVariableTemplateXslt,
   getWhitespaceTextNodeXslt,
   getX12850ForEachXslt,
   getXslTextNodeXslt,
@@ -992,6 +996,136 @@ describe('MappingSerializerService', () => {
       expect(first.nodeName).toBe('xsl:variable');
       const second = children.iterateNext() as Element;
       expect(second.nodeName).toBe('xsl:attribute');
+    });
+
+    it('should deserialize stylesheet-level variable', () => {
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      ({ mappingTree } = MappingSerializerService.deserialize(
+        getVariableStylesheetXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      ));
+      expect(mappingTree.globalVariables).toHaveLength(1);
+      const gv = mappingTree.globalVariables[0];
+      expect(gv).toBeInstanceOf(VariableItem);
+      expect(gv.name).toBe('globalTax');
+      expect(gv.scope).toBe('stylesheet');
+      expect(gv.expression).toBe('0.08');
+    });
+
+    it('should deserialize template-level variable', () => {
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      ({ mappingTree } = MappingSerializerService.deserialize(
+        getVariableTemplateXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      ));
+      expect(mappingTree.globalVariables).toHaveLength(1);
+      const gv = mappingTree.globalVariables[0];
+      expect(gv).toBeInstanceOf(VariableItem);
+      expect(gv.name).toBe('tplDiscount');
+      expect(gv.scope).toBe('template');
+      expect(gv.expression).toBe('0.1');
+    });
+
+    it('should round-trip a stylesheet-level variable', () => {
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      ({ mappingTree } = MappingSerializerService.deserialize(
+        getVariableStylesheetXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      ));
+      const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+      const xsltDocument = domParser.parseFromString(serialized, 'text/xml');
+      const variableName = xsltDocument
+        .evaluate(
+          '/xsl:stylesheet/xsl:variable/@name',
+          xsltDocument,
+          xslNsResolver,
+          XPathResult.ORDERED_NODE_ITERATOR_TYPE,
+        )
+        .iterateNext();
+      expect(variableName?.nodeValue).toBe('globalTax');
+    });
+
+    it('should round-trip a template-level variable', () => {
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      ({ mappingTree } = MappingSerializerService.deserialize(
+        getVariableTemplateXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      ));
+      const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+      const xsltDocument = domParser.parseFromString(serialized, 'text/xml');
+      const templateChildren = xsltDocument.evaluate(
+        '/xsl:stylesheet/xsl:template/*',
+        xsltDocument,
+        xslNsResolver,
+        XPathResult.ORDERED_NODE_ITERATOR_TYPE,
+      );
+      const first = templateChildren.iterateNext() as Element;
+      expect(first.nodeName).toBe('xsl:variable');
+      expect(first.getAttribute('name')).toBe('tplDiscount');
+    });
+
+    it('should emit danger messages for reserved stylesheet-level variable names', () => {
+      const mappingTree = new MappingTree(
+        DocumentType.TARGET_BODY,
+        BODY_DOCUMENT_ID,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const { messages } = MappingSerializerService.deserialize(
+        getVariableStylesheetReservedNamesXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      );
+      expect(mappingTree.globalVariables).toHaveLength(1);
+      expect(mappingTree.globalVariables[0].name).toBe('globalTax');
+      expect(messages).toHaveLength(2);
+      expect(messages[0].variant).toBe('danger');
+      expect(messages[0].title).toContain('reserved stylesheet-level variable name');
+      expect(messages[1].variant).toBe('danger');
+      expect(messages[1].title).toContain('reserved stylesheet-level variable name');
+    });
+
+    it('should preserve text-content stylesheet variable via rawElement', () => {
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      ({ mappingTree } = MappingSerializerService.deserialize(
+        getVariableStylesheetTextContentXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      ));
+      expect(mappingTree.globalVariables).toHaveLength(1);
+      const gv = mappingTree.globalVariables[0];
+      expect(gv.name).toBe('label');
+      expect(gv.scope).toBe('stylesheet');
+      expect(gv.rawElement).toBeDefined();
+    });
+
+    it('should round-trip a text-content stylesheet variable', () => {
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      ({ mappingTree } = MappingSerializerService.deserialize(
+        getVariableStylesheetTextContentXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      ));
+      const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+      const xsltDocument = domParser.parseFromString(serialized, 'text/xml');
+      const varElement = xsltDocument.evaluate(
+        '/xsl:stylesheet/xsl:variable[@name="label"]',
+        xsltDocument,
+        xslNsResolver,
+        XPathResult.FIRST_ORDERED_NODE_TYPE,
+      ).singleNodeValue as Element;
+      expect(varElement).not.toBeNull();
+      expect(varElement.textContent?.trim()).toBe('Hello World');
     });
 
     it('should deserialize external XSL file with comments correctly', () => {

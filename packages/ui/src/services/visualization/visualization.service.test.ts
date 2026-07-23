@@ -571,6 +571,15 @@ describe('VisualizationService', () => {
       expect(result.error).toContain("'existingVar' already exists");
     });
 
+    it('should reject duplicate name in globalVariables', () => {
+      const variable = new VariableItem(tree, 'gVar');
+      variable.scope = 'template';
+      tree.globalVariables.push(variable);
+      const result = VisualizationService.validateVariableName('gVar', tree);
+      expect(result.status).toEqual(NameValidationStatus.ERROR);
+      expect(result.error).toContain("'gVar' already exists");
+    });
+
     it('should reject name with colon (QName but not NCName)', () => {
       const result = VisualizationService.validateVariableName('ns:var', tree);
       expect(result.status).toEqual(NameValidationStatus.ERROR);

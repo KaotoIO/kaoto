@@ -2,14 +2,17 @@ import './Variables.scss';
 
 import { Label } from '@patternfly/react-core';
 import { TrashIcon } from '@patternfly/react-icons';
-import { FunctionComponent, useCallback } from 'react';
+import { FunctionComponent, KeyboardEvent, MouseEvent, useCallback } from 'react';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
-import { FieldItem, MappingTree, VariableItem } from '../../../models/datamapper/mapping';
+import { FieldItem, MappingItem, VariableItem } from '../../../models/datamapper/mapping';
 import { SourceVariableNodeData, VARIABLES_DOCUMENT_ID } from '../../../models/datamapper/visualization';
 import { MappingService } from '../../../services/mapping/mapping.service';
 import { ConfirmActionButton } from '../actions/ConfirmActionButton';
-import { RenameButton } from '../actions/RenameButton';
+import { FieldContextMenu, MenuGroup } from '../actions/FieldContextMenu';
+import { useContextMenuState } from '../actions/FieldContextMenu/useContextMenuState';
+import { XPathEditorAction } from '../actions/XPathEditorAction';
+import { XPathInputAction } from '../actions/XPathInputAction';
 import { NodeContainer } from '../NodeContainer';
 import { BaseNode } from '../Nodes/BaseNode';
 import { VariableInputPlaceholder } from './VariableInputPlaceholder';
@@ -33,6 +36,46 @@ export const VariableRow: FunctionComponent<VariableRowProps> = ({
 }) => {
   const { refreshMappingTree } = useDataMapper();
   const nodeData = new SourceVariableNodeData(variable);
+  const { isMenuOpen, menuPosition, menuRef, closeMenu, openMenu } = useContextMenuState();
+
+  const handleContextMenu = useCallback(
+    (event: MouseEvent) => {
+      if (isReadOnly) return;
+      openMenu(event);
+    },
+    [isReadOnly, openMenu],
+  );
+
+  const handleDoubleClick = useCallback(() => {
+    if (isReadOnly) return;
+    onStartRename(variable.id);
+  }, [isReadOnly, onStartRename, variable.id]);
+
+  const handleTitleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (isReadOnly) return;
+      if (event.key === 'F2' || event.key === 'Enter') {
+        event.preventDefault();
+        event.stopPropagation();
+        onStartRename(variable.id);
+      }
+    },
+    [isReadOnly, onStartRename, variable.id],
+  );
+
+  const contextMenuGroups: MenuGroup[] = [
+    {
+      actions: [
+        {
+          label: 'Rename',
+          onClick: () => {
+            onStartRename(variable.id);
+          },
+          testId: `rename-variable-${variable.name}`,
+        },
+      ],
+    },
+  ];
 
   const handleRenameConfirm = useCallback(
     (newName: string) => {
@@ -43,6 +86,13 @@ export const VariableRow: FunctionComponent<VariableRowProps> = ({
     },
     [variable, refreshMappingTree, onStopRename],
   );
+
+  const handleExpressionUpdate = useCallback(() => {
+    if (variable.rawElement && variable.expression) {
+      variable.rawElement = undefined;
+    }
+    refreshMappingTree();
+  }, [variable, refreshMappingTree]);
 
   if (isRenaming) {
     return (
@@ -56,14 +106,24 @@ export const VariableRow: FunctionComponent<VariableRowProps> = ({
   }
 
   const scopeLabel = (() => {
+    if (variable.scope === 'stylesheet') return 'stylesheet';
+    if (variable.scope === 'template') return undefined;
     const p = variable.parent;
-    if (p instanceof MappingTree) return undefined;
     if (p instanceof FieldItem) return p.field.displayName;
-    return p.name;
+    if (p instanceof MappingItem) return p.name;
+    return undefined;
   })();
 
+  const isGlobal = variable.scope !== 'node';
+
   const variableTitle = (
-    <span className="node__spacer variable-row-title">
+    <span
+      className="node__spacer variable-row-title"
+      tabIndex={0}
+      role="button"
+      onDoubleClick={handleDoubleClick}
+      onKeyDown={handleTitleKeyDown}
+    >
       <Label>$</Label> {variable.name}
       {scopeLabel && (
         <span className="variable-row-scope-hint" title={`Defined inside "${scopeLabel}"`}>
@@ -75,13 +135,6 @@ export const VariableRow: FunctionComponent<VariableRowProps> = ({
 
   const actions = !isReadOnly && (
     <span className="variable-row-actions">
-      <RenameButton
-        itemName={`variable-${variable.name}`}
-        label="variable"
-        onRenameClick={() => {
-          onStartRename(variable.id);
-        }}
-      />
       <ConfirmActionButton
         icon={<TrashIcon />}
         title={`Delete variable $${variable.name}`}
@@ -99,20 +152,42 @@ export const VariableRow: FunctionComponent<VariableRowProps> = ({
   );
 
   return (
-    <div className="node__container" data-testid={`variable-row-${variable.name}`}>
-      <NodeContainer nodeData={nodeData}>
-        <div className="node__header">
-          <BaseNode
-            nodeData={nodeData}
-            title={variableTitle}
-            rank={0}
-            nodePath={nodeData.path.toString()}
-            documentId={VARIABLES_DOCUMENT_ID}
-          >
-            {actions}
-          </BaseNode>
+    <>
+      <div className="node__container" data-testid={`variable-row-${variable.name}`} onContextMenu={handleContextMenu}>
+        <NodeContainer nodeData={nodeData}>
+          <div className="node__header">
+            <BaseNode
+              nodeData={nodeData}
+              title={variableTitle}
+              rank={0}
+              nodePath={nodeData.path.toString()}
+              documentId={VARIABLES_DOCUMENT_ID}
+            >
+              {isGlobal && (
+                <>
+                  <XPathInputAction nodeData={nodeData} mapping={variable} onUpdate={handleExpressionUpdate} />
+                  <XPathEditorAction nodeData={nodeData} mapping={variable} onUpdate={handleExpressionUpdate} />
+                </>
+              )}
+              {actions}
+            </BaseNode>
+          </div>
+        </NodeContainer>
+      </div>
+
+      {isMenuOpen && (
+        <div
+          ref={menuRef}
+          style={{
+            position: 'fixed',
+            left: menuPosition.x,
+            top: menuPosition.y,
+            zIndex: 1000,
+          }}
+        >
+          <FieldContextMenu groups={contextMenuGroups} onClose={closeMenu} />
         </div>
-      </NodeContainer>
-    </div>
+      )}
+    </>
   );
 };

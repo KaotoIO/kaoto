@@ -16,6 +16,7 @@ import {
   ValueSelector,
   ValueType,
   VariableItem,
+  VariableScope,
   WhenItem,
 } from '../../models/datamapper/mapping';
 import { Types } from '../../models/datamapper/types';
@@ -826,14 +827,16 @@ export class MappingService {
         const sibling = parent.children[i];
         if (sibling instanceof VariableItem && sibling.name === name) return sibling;
       }
-      if (parent instanceof MappingTree) break;
+      if (parent instanceof MappingTree) {
+        return parent.globalVariables.find((gv) => gv.name === name);
+      }
       current = parent;
     }
     return undefined;
   }
 
   static getAllVariables(mappingTree: MappingTree): VariableItem[] {
-    const result: VariableItem[] = [];
+    const result: VariableItem[] = [...mappingTree.globalVariables];
     const collect = (children: MappingItem[]) => {
       for (const child of children) {
         if (child instanceof VariableItem) {
@@ -851,18 +854,36 @@ export class MappingService {
    * Inserts the new variable after any existing {@link VariableItem} children, keeping all
    * variable declarations grouped at the front ahead of other instructions — consistent with
    * the XSLT requirement that `xsl:variable` declarations precede other instructions.
+   *
+   * When {@link scope} is `'template'` or `'stylesheet'`, the variable is stored in
+   * `MappingTree.globalVariables` instead of `parent.children`.
    * @param parent - the parent container
    * @param name - the variable name
    * @param expression - optional initial XPath expression
+   * @param scope - variable scope determining storage and XSLT placement
    * @returns the created variable item
    */
-  static addVariable(parent: MappingParentType, name: string, expression?: string): VariableItem {
+  static addVariable(
+    parent: MappingParentType,
+    name: string,
+    expression?: string,
+    scope: VariableScope = 'node',
+  ): VariableItem {
     const variable = new VariableItem(parent, name);
     if (expression) {
       variable.expression = expression;
     }
-    const lastVariableIndex = parent.children.reduce((idx, child, i) => (child instanceof VariableItem ? i : idx), -1);
-    parent.children.splice(lastVariableIndex + 1, 0, variable);
+    variable.scope = scope;
+    if (scope !== 'node') {
+      const mt = parent instanceof MappingTree ? parent : parent.mappingTree;
+      mt.globalVariables.push(variable);
+    } else {
+      const lastVariableIndex = parent.children.reduce(
+        (idx, child, i) => (child instanceof VariableItem ? i : idx),
+        -1,
+      );
+      parent.children.splice(lastVariableIndex + 1, 0, variable);
+    }
     return variable;
   }
 
@@ -881,6 +902,10 @@ export class MappingService {
    * Call before {@link removeVariable}.
    */
   static removeVariableReferences(variable: VariableItem): void {
+    if (variable.scope !== 'node') {
+      MappingService.removeGlobalVariableReferences(variable);
+      return;
+    }
     const parent = variable.parent;
     if (!parent?.children) return;
     const idx = parent.children.indexOf(variable);
@@ -901,6 +926,57 @@ export class MappingService {
       }
     }
     parent.children = [...parent.children.slice(0, idx + 1), ...cleaned];
+  }
+
+  private static removeGlobalVariableReferences(variable: VariableItem): void {
+    const mt = variable.parent instanceof MappingTree ? variable.parent : variable.parent.mappingTree;
+    const gvIdx = mt.globalVariables.indexOf(variable);
+    if (gvIdx === -1) return;
+
+    if (!MappingService.cleanFollowingGlobalVariables(mt, gvIdx, variable.name)) {
+      MappingService.cleanTreeChildrenReferences(mt, variable.name);
+    }
+  }
+
+  private static cleanFollowingGlobalVariables(mt: MappingTree, gvIdx: number, variableName: string): boolean {
+    const remainingGlobals = mt.globalVariables.slice(gvIdx + 1);
+    const cleanedGlobals: VariableItem[] = [];
+    let stopped = false;
+    for (let i = 0; i < remainingGlobals.length; i++) {
+      const gv = remainingGlobals[i];
+      if (gv.name === variableName) {
+        if (MappingService.expressionReferencesVariable(gv, variableName)) {
+          gv.expression = '';
+        }
+        cleanedGlobals.push(...remainingGlobals.slice(i));
+        stopped = true;
+        break;
+      }
+      if (MappingService.expressionReferencesVariable(gv, variableName)) {
+        gv.expression = '';
+      }
+      cleanedGlobals.push(gv);
+    }
+    mt.globalVariables = [...mt.globalVariables.slice(0, gvIdx + 1), ...cleanedGlobals];
+    return stopped;
+  }
+
+  private static cleanTreeChildrenReferences(mt: MappingTree, variableName: string): void {
+    const cleanedChildren: MappingItem[] = [];
+    for (let i = 0; i < mt.children.length; i++) {
+      const child = mt.children[i];
+      if (child instanceof VariableItem && child.name === variableName) {
+        if (MappingService.expressionReferencesVariable(child, variableName)) {
+          child.expression = '';
+        }
+        cleanedChildren.push(...mt.children.slice(i));
+        break;
+      }
+      if (!MappingService.shouldRemoveItem(child, variableName)) {
+        cleanedChildren.push(child);
+      }
+    }
+    mt.children = cleanedChildren;
   }
 
   private static shouldRemoveItem(item: MappingItem, variableName: string): boolean {
@@ -974,6 +1050,12 @@ export class MappingService {
   }
 
   private static followingSiblings(variable: VariableItem): MappingItem[] {
+    if (variable.scope !== 'node') {
+      const mt = variable.parent instanceof MappingTree ? variable.parent : variable.parent.mappingTree;
+      const gvIdx = mt.globalVariables.indexOf(variable);
+      if (gvIdx === -1) return [];
+      return [...mt.globalVariables.slice(gvIdx + 1), ...mt.children];
+    }
     const parent = variable.parent;
     if (!parent?.children) return [];
     const idx = parent.children.indexOf(variable);
@@ -998,6 +1080,13 @@ export class MappingService {
   static updateVariable(variable: VariableItem, name: string, expression: string): void {
     variable.name = name;
     variable.expression = expression;
+    if (variable.rawElement) {
+      if (expression) {
+        variable.rawElement = undefined;
+      } else {
+        variable.rawElement.setAttribute('name', name);
+      }
+    }
   }
 
   private static getValueTypeFor(mapping: MappingItem): ValueType {
@@ -1036,6 +1125,11 @@ export class MappingService {
   }
 
   private static deleteFromParent(item: MappingItem) {
+    if (item instanceof VariableItem && item.scope !== 'node') {
+      const mt = item.parent instanceof MappingTree ? item.parent : item.parent.mappingTree;
+      mt.globalVariables = mt.globalVariables.filter((gv) => gv !== item);
+      return;
+    }
     item.parent.children = item.parent.children.filter((child) => child !== item);
     const isParentFieldItem = item.parent instanceof FieldItem;
     const isParentParentFieldItem =
