@@ -1,4 +1,3 @@
-import { computeAddFieldCandidates } from '../../components/Document/actions/FieldContextMenu/menu-utils';
 import {
   ChooseItem,
   FieldItem,
@@ -30,6 +29,7 @@ import { useDocumentTreeStore } from '../../store/document-tree.store';
 import { DocumentService } from '../document/document.service';
 import { MappingActionService } from './mapping-action.service';
 import { VisualizationUtilService } from './visualization-util.service';
+import { WrapperActionService } from './wrapper-action.service';
 
 /**
  * Static service that owns the action registry for the DataMapper
@@ -419,7 +419,7 @@ export class MappingActionRegistryService {
             forEachContext = true;
           if (current instanceof FieldItem) {
             const existingFieldItems = n.mapping.children.filter((c): c is FieldItem => c instanceof FieldItem);
-            const result = computeAddFieldCandidates(
+            const result = WrapperActionService.computeAddFieldCandidates(
               current.field.fields,
               current.mappingTree.namespaceMap,
               existingFieldItems,

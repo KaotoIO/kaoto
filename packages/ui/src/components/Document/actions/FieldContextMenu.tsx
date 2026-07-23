@@ -1,21 +1,12 @@
 import './FieldContextMenu.scss';
 
 import { Divider, Menu, MenuContent, MenuItem, MenuList } from '@patternfly/react-core';
-import { Fragment, FunctionComponent, ReactNode } from 'react';
+import { Fragment, FunctionComponent } from 'react';
 
-export interface MenuAction {
-  label: string;
-  onClick: () => void;
-  icon?: ReactNode;
-  testId?: string;
-}
-
-export interface MenuGroup {
-  actions: MenuAction[];
-}
+import { IFieldMenuGroup } from '../../../models/datamapper/field-action';
 
 export interface IFieldContextMenuProps {
-  groups: MenuGroup[];
+  groups: IFieldMenuGroup[];
   onClose?: () => void;
 }
 

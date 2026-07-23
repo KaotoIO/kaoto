@@ -4,103 +4,13 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { IField } from '../../../../models/datamapper/document';
-import { IFieldSubstituteInfo } from '../../../../models/datamapper/types';
+import { IFieldMenuAction, IMemberSelection } from '../../../../models/datamapper/field-action';
 import { NodeData } from '../../../../models/datamapper/visualization';
 import { WrapperSelectionService } from '../../../../services/document/wrapper-selection.service';
-import { MemberSelection, WrapperActionService } from '../../../../services/visualization/wrapper-action.service';
-import { MenuAction, MenuGroup } from '../FieldContextMenu';
+import { WrapperActionService } from '../../../../services/visualization/wrapper-action.service';
 import { WrapperSelectionModal } from '../WrapperSelectionModal';
 import { buildSelectSelfAction } from './menu-utils';
 import { MenuContributor } from './types';
-
-const INLINE_SUBSTITUTION_LIMIT = 10;
-
-interface AbstractMenuGroupsConfig {
-  isAbstractWrapper: boolean;
-  isAbstractWrapperMember: boolean;
-  isInsideChoiceWrapper: boolean;
-  isSelectedSubstitution: boolean;
-  candidates: Record<string, IFieldSubstituteInfo>;
-  selectedQName: string | undefined;
-  memberSelectedQName: string | undefined;
-  selectSelfAction: MenuAction | undefined;
-  clearSubstitutionAction: MenuAction;
-  changeSubstituteAction: MenuAction;
-  onSelectSubstitution: (qname: string) => void;
-  onOpenSubstitutionModal: () => void;
-}
-
-function buildMenuGroupsForAbstractNode(config: AbstractMenuGroupsConfig): MenuGroup[] {
-  if (config.isInsideChoiceWrapper && config.isAbstractWrapper) {
-    const hasSelection = config.selectedQName !== undefined;
-    return hasSelection ? [{ actions: [config.clearSubstitutionAction] }] : [];
-  }
-  if (config.isAbstractWrapper || config.isAbstractWrapperMember) {
-    return buildAbstractWrapperMenuGroups(
-      config.candidates,
-      config.isAbstractWrapperMember ? config.memberSelectedQName : config.selectedQName,
-      config.isAbstractWrapperMember ? undefined : config.selectSelfAction,
-      config.clearSubstitutionAction,
-      config.onSelectSubstitution,
-      config.onOpenSubstitutionModal,
-    );
-  }
-  const substitutionActions: MenuAction[] = [];
-  if (config.isSelectedSubstitution)
-    substitutionActions.push(config.clearSubstitutionAction, config.changeSubstituteAction);
-  if (config.selectSelfAction) substitutionActions.push(config.selectSelfAction);
-  return [{ actions: substitutionActions }];
-}
-
-function handleAbstractModalSelect(selection: MemberSelection, onSelectSubstitution: (qname: string) => void): void {
-  if (selection.substituteQName) onSelectSubstitution(selection.substituteQName);
-}
-
-function buildInlineSubstitutionActions(
-  candidates: Record<string, IFieldSubstituteInfo>,
-  selectedQName: string | undefined,
-  onSelect: (qname: string) => void,
-): MenuAction[] {
-  return Object.entries(candidates).map(([qname, info]) => ({
-    label: info.displayName,
-    onClick: () => {
-      onSelect(qname);
-    },
-    icon: selectedQName === qname ? <CheckIcon /> : <Choices />,
-    testId: `substitution-menu-item-${qname}`,
-  }));
-}
-
-function buildAbstractWrapperMenuGroups(
-  candidates: Record<string, IFieldSubstituteInfo>,
-  selectedQName: string | undefined,
-  selectSelfAction: MenuAction | undefined,
-  clearSubstitutionAction: MenuAction,
-  handleSelectSubstitution: (qname: string) => void,
-  handleOpenSubstitutionModal: () => void,
-): MenuGroup[] {
-  const candidateCount = Object.keys(candidates).length;
-
-  if (candidateCount === 0 && selectedQName === undefined) {
-    return selectSelfAction ? [{ actions: [selectSelfAction] }] : [];
-  }
-
-  const candidatesGroup: MenuGroup =
-    candidateCount <= INLINE_SUBSTITUTION_LIMIT
-      ? { actions: buildInlineSubstitutionActions(candidates, selectedQName, handleSelectSubstitution) }
-      : {
-          actions: [
-            { label: 'Select Substitute...', onClick: handleOpenSubstitutionModal, testId: 'open-substitution-modal' },
-          ],
-        };
-
-  const hasSelection = selectedQName !== undefined;
-  return [
-    { actions: selectSelfAction ? [selectSelfAction] : [] },
-    candidatesGroup,
-    { actions: hasSelection ? [clearSubstitutionAction] : [] },
-  ];
-}
 
 export function useAbstractFieldSubstitutionMenu(nodeData: NodeData): MenuContributor {
   const { mappingTree, updateDocument } = useDataMapper();
@@ -183,7 +93,7 @@ export function useAbstractFieldSubstitutionMenu(nodeData: NodeData): MenuContri
     applySubstitution(parentAbstractField, candidateQName);
   }, [parentAbstractField, candidateQName, applySubstitution]);
 
-  const clearSubstitutionAction: MenuAction = {
+  const clearSubstitutionAction: IFieldMenuAction = {
     label: 'Clear substitution',
     onClick: handleClearSubstitution,
     testId: 'clear-substitution',
@@ -198,7 +108,7 @@ export function useAbstractFieldSubstitutionMenu(nodeData: NodeData): MenuContri
       ? buildSelectSelfAction(field, parentAbstractField, handleSelectSelfAsCandidate, 'select-substitution-member')
       : undefined;
 
-  const changeSubstituteAction: MenuAction = {
+  const changeSubstituteAction: IFieldMenuAction = {
     label: 'Select Substitute...',
     onClick: handleOpenSubstitutionModal,
     testId: 'change-substitution',
@@ -210,7 +120,7 @@ export function useAbstractFieldSubstitutionMenu(nodeData: NodeData): MenuContri
     [isAbstractWrapperMember, field, abstractWrapperField, candidates],
   );
 
-  const menuGroups = buildMenuGroupsForAbstractNode({
+  const menuGroups = WrapperActionService.buildMenuGroupsForAbstractNode({
     isAbstractWrapper,
     isAbstractWrapperMember,
     isInsideChoiceWrapper,
@@ -223,6 +133,8 @@ export function useAbstractFieldSubstitutionMenu(nodeData: NodeData): MenuContri
     changeSubstituteAction,
     onSelectSubstitution: handleSelectSubstitution,
     onOpenSubstitutionModal: handleOpenSubstitutionModal,
+    selectedIcon: <CheckIcon />,
+    unselectedIcon: <Choices />,
   });
 
   const closeSubstitutionModal = useCallback(() => {
@@ -238,8 +150,8 @@ export function useAbstractFieldSubstitutionMenu(nodeData: NodeData): MenuContri
   );
 
   const handleModalSelect = useCallback(
-    (selection: MemberSelection) => {
-      handleAbstractModalSelect(selection, handleSelectSubstitution);
+    (selection: IMemberSelection) => {
+      if (selection.substituteQName) handleSelectSubstitution(selection.substituteQName);
     },
     [handleSelectSubstitution],
   );
