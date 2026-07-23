@@ -1,5 +1,7 @@
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType, IParentType } from '../../models/datamapper/document';
 import {
+  CopyOfSelector,
+  CopyOfType,
   FieldItem,
   ForEachGroupItem,
   ForEachItem,
@@ -8,8 +10,8 @@ import {
   MappingTree,
   SortItem,
   UnknownMappingItem,
-  ValueSelector,
-  ValueType,
+  ValueOfSelector,
+  ValueOfType,
   VariableItem,
 } from '../../models/datamapper/mapping';
 import { NS_XSL } from '../../models/datamapper/standard-namespaces';
@@ -23,6 +25,7 @@ import { MappingSerializerService } from './mapping-serializer.service';
 import * as handlerModule from './xslt-item-handlers';
 import {
   allHandlers,
+  CopyOfSelectorHandler,
   deserializeHandlers,
   FieldItemHandler,
   ForEachGroupItemHandler,
@@ -30,7 +33,6 @@ import {
   serializeHandlers,
   SortItemHandler,
   UnknownMappingItemHandler,
-  ValueSelectorHandler,
 } from './xslt-item-handlers';
 
 describe('xslt-item-handlers registry', () => {
@@ -96,11 +98,11 @@ describe('FieldItemHandler copy-of with value-of', () => {
     const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
 
-    const copyOf = new ValueSelector(fieldItem, ValueType.CONTAINER);
+    const copyOf = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER);
     copyOf.expression = '.';
     fieldItem.children.push(copyOf);
 
-    const valueOf = new ValueSelector(fieldItem, ValueType.VALUE);
+    const valueOf = new ValueOfSelector(fieldItem, ValueOfType.VALUE);
     valueOf.expression = '/ns0:ShipOrder/ns0:OrderId';
     fieldItem.children.push(valueOf);
 
@@ -116,7 +118,7 @@ describe('FieldItemHandler copy-of with value-of', () => {
     const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
 
-    const copyOf = new ValueSelector(fieldItem, ValueType.CONTAINER);
+    const copyOf = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER);
     copyOf.expression = '.';
     fieldItem.children.push(copyOf);
 
@@ -128,14 +130,14 @@ describe('FieldItemHandler copy-of with value-of', () => {
   });
 });
 
-describe('ValueSelectorHandler copy-of', () => {
-  const handler = new ValueSelectorHandler();
+describe('CopyOfSelectorHandler', () => {
+  const handler = new CopyOfSelectorHandler();
   const targetDoc = TestUtil.createTargetOrderDoc();
 
   it('should serialize CONTAINER_NODE without appending /node()', () => {
     const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
-    const vs = new ValueSelector(fieldItem, ValueType.CONTAINER_NODE);
+    const vs = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER_NODE);
     vs.expression = '/ns0:Envelope/Payload/node()';
 
     const xslt = MappingSerializerService.createNew();
@@ -146,7 +148,7 @@ describe('ValueSelectorHandler copy-of', () => {
   it('should serialize CONTAINER expression as-is', () => {
     const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
-    const vs = new ValueSelector(fieldItem, ValueType.CONTAINER);
+    const vs = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER);
     vs.expression = '/ns0:ShipOrder/Item';
 
     const xslt = MappingSerializerService.createNew();
@@ -163,8 +165,8 @@ describe('ValueSelectorHandler copy-of', () => {
     const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
     const result = handler.deserialize(element, targetDoc.fields[0], fieldItem);
-    const mappingItem = result.mappingItem as ValueSelector;
-    expect(mappingItem.valueType).toBe(ValueType.CONTAINER_NODE);
+    const mappingItem = result.mappingItem as CopyOfSelector;
+    expect(mappingItem.valueType).toBe(CopyOfType.CONTAINER_NODE);
     expect(mappingItem.expression).toBe('/ns0:Envelope/Payload/node()');
   });
 
@@ -177,9 +179,41 @@ describe('ValueSelectorHandler copy-of', () => {
     const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     const forEachItem = new ForEachItem(mappingTree);
     const result = handler.deserialize(element, targetDoc.fields[0], forEachItem);
-    const mappingItem = result.mappingItem as ValueSelector;
-    expect(mappingItem.valueType).toBe(ValueType.CONTAINER);
+    const mappingItem = result.mappingItem as CopyOfSelector;
+    expect(mappingItem.valueType).toBe(CopyOfType.CONTAINER);
     expect(mappingItem.expression).toBe('/ns0:ShipOrder/Item');
+  });
+
+  it('should deserialize copy-of as CONTAINER when select target differs from parent field name', () => {
+    const xslt = new DOMParser().parseFromString(
+      `<xsl:stylesheet xmlns:xsl="${NS_XSL}"><xsl:copy-of select="/ns0:ShipOrder/ShipTo"/></xsl:stylesheet>`,
+      'application/xml',
+    );
+    const element = xslt.getElementsByTagNameNS(NS_XSL, 'copy-of')[0];
+    const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+    const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
+    const result = handler.deserialize(element, targetDoc.fields[0], fieldItem);
+    expect(result.mappingItem).toBeInstanceOf(FieldItem);
+    const wrappedFieldItem = result.mappingItem as FieldItem;
+    const copyOfSelector = wrappedFieldItem.children[0] as CopyOfSelector;
+    expect(copyOfSelector).toBeInstanceOf(CopyOfSelector);
+    expect(copyOfSelector.valueType).toBe(CopyOfType.CONTAINER);
+    expect(copyOfSelector.expression).toBe('/ns0:ShipOrder/ShipTo');
+  });
+
+  it('should deserialize copy-of as CONTAINER_NODE when select target matches parent field name', () => {
+    const ns = 'io.kaoto.datamapper.poc.test';
+    const xslt = new DOMParser().parseFromString(
+      `<xsl:stylesheet xmlns:xsl="${NS_XSL}" xmlns:ns0="${ns}"><xsl:copy-of select="/root/ns0:ShipOrder"/></xsl:stylesheet>`,
+      'application/xml',
+    );
+    const element = xslt.getElementsByTagNameNS(NS_XSL, 'copy-of')[0];
+    const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+    const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
+    const result = handler.deserialize(element, targetDoc.fields[0], fieldItem);
+    const mappingItem = result.mappingItem as CopyOfSelector;
+    expect(mappingItem.valueType).toBe(CopyOfType.CONTAINER_NODE);
+    expect(mappingItem.expression).toBe('/root/ns0:ShipOrder');
   });
 });
 

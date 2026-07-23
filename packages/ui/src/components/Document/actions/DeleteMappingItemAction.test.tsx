@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
-import { ForEachItem, MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
+import { ForEachItem, MappingTree, ValueOfSelector } from '../../../models/datamapper/mapping';
 import { MappingNodeData, TargetDocumentNodeData } from '../../../models/datamapper/visualization';
 import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
@@ -14,7 +14,7 @@ describe('DeleteMappingItemAction', () => {
     const targetDoc = TestUtil.createTargetOrderDoc();
     const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     const docData = new TargetDocumentNodeData(targetDoc, mappingTree);
-    const nodeData = new MappingNodeData(docData, new ValueSelector(mappingTree));
+    const nodeData = new MappingNodeData(docData, new ValueOfSelector(mappingTree));
     const onDeleteMock = vi.fn();
     render(
       <DataMapperProvider>
