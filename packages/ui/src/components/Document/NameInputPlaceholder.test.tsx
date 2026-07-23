@@ -1,7 +1,10 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import type { Mock } from 'vitest';
 
 import { NameValidation, NameValidationStatus } from '../../models/datamapper/visualization';
+import { ExpansionContext } from '../ExpansionPanels/ExpansionContext';
+import { ExpansionPanel } from '../ExpansionPanels/ExpansionPanel';
 import { NameInputPlaceholder } from './NameInputPlaceholder';
 
 describe('NameInputPlaceholder', () => {
@@ -152,5 +155,78 @@ describe('NameInputPlaceholder', () => {
 
     const input = screen.getByTestId(`${TEST_PREFIX}-name-input`);
     expect(input).toHaveValue('existing');
+  });
+
+  describe('keyboard flow inside an ExpansionPanel summary', () => {
+    let mockSetExpanded: Mock;
+
+    function renderInPanel() {
+      mockSetExpanded = vi.fn();
+
+      return render(
+        <ExpansionContext.Provider
+          value={{
+            register: vi.fn(),
+            unregister: vi.fn(),
+            resize: vi.fn(),
+            setExpanded: mockSetExpanded,
+            queueLayoutChange: vi.fn(),
+            registerLayoutCallback: vi.fn(),
+            unregisterLayoutCallback: vi.fn(),
+          }}
+        >
+          <ExpansionPanel
+            id="test-panel"
+            summary={
+              <NameInputPlaceholder
+                validate={mockValidate}
+                onSubmit={mockOnSubmit}
+                onCancel={mockOnCancel}
+                placeholder="test name"
+                testIdPrefix={TEST_PREFIX}
+                ariaLabelPrefix="test"
+              />
+            }
+          >
+            <div>Test Content</div>
+          </ExpansionPanel>
+        </ExpansionContext.Provider>,
+      );
+    }
+
+    it.each(['{Enter}', ' '])('should submit via Tab then "%s" on the confirm button', async (key) => {
+      const user = userEvent.setup();
+      renderInPanel();
+
+      // The name input is auto-focused on mount.
+      await user.keyboard('testparam');
+      await user.tab();
+      expect(screen.getByTestId(`${TEST_PREFIX}-submit-btn`)).toHaveFocus();
+
+      await user.keyboard(key);
+
+      expect(mockOnSubmit).toHaveBeenCalledWith('testparam');
+      // Confirming must not toggle the surrounding panel.
+      expect(mockSetExpanded).not.toHaveBeenCalled();
+    });
+
+    it('should submit on Enter in the name field without tabbing', async () => {
+      const user = userEvent.setup();
+      renderInPanel();
+
+      await user.keyboard('testparam{Enter}');
+
+      expect(mockOnSubmit).toHaveBeenCalledWith('testparam');
+    });
+
+    it('should cancel on Escape in the name field', async () => {
+      const user = userEvent.setup();
+      renderInPanel();
+
+      await user.keyboard('testparam{Escape}');
+
+      expect(mockOnCancel).toHaveBeenCalled();
+      expect(mockOnSubmit).not.toHaveBeenCalled();
+    });
   });
 });
