@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { VirtuosoMockContext } from 'react-virtuoso';
 
 import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
@@ -301,11 +301,9 @@ describe('SourceTargetView', () => {
       const sourceTargetView = container.querySelector('.source-target-view') as HTMLElement;
 
       // Click zoom in 3 times (1.0 -> 1.1 -> 1.2 -> should stay at 1.2)
-      act(() => {
-        fireEvent.click(zoomInButton);
-        fireEvent.click(zoomInButton);
-        fireEvent.click(zoomInButton);
-      });
+      fireEvent.click(zoomInButton);
+      fireEvent.click(zoomInButton);
+      fireEvent.click(zoomInButton);
 
       await waitFor(() => {
         expect(sourceTargetView.style.getPropertyValue('--datamapper-scale-factor')).toBe('1.2');
@@ -327,12 +325,10 @@ describe('SourceTargetView', () => {
       const sourceTargetView = container.querySelector('.source-target-view') as HTMLElement;
 
       // Click zoom out 4 times (1.0 -> 0.9 -> 0.8 -> 0.7 -> should stay at 0.7)
-      act(() => {
-        fireEvent.click(zoomOutButton);
-        fireEvent.click(zoomOutButton);
-        fireEvent.click(zoomOutButton);
-        fireEvent.click(zoomOutButton);
-      });
+      fireEvent.click(zoomOutButton);
+      fireEvent.click(zoomOutButton);
+      fireEvent.click(zoomOutButton);
+      fireEvent.click(zoomOutButton);
 
       await waitFor(() => {
         expect(sourceTargetView.style.getPropertyValue('--datamapper-scale-factor')).toBe('0.7');

@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import type { Mock } from 'vitest';
 
 import { ExpansionContext } from './ExpansionContext';
@@ -176,22 +176,18 @@ describe('ExpansionPanel', () => {
 
       fireEvent.mouseDown(resizeHandle, { clientY: 100 });
 
-      act(() => {
-        fireEvent(
-          document,
-          new MouseEvent('mousemove', {
-            clientY: 150,
-            bubbles: true,
-          }),
-        );
-      });
+      fireEvent(
+        document,
+        new MouseEvent('mousemove', {
+          clientY: 150,
+          bubbles: true,
+        }),
+      );
 
       // Should still allow resize
       expect(mockResize).toHaveBeenCalledWith('non-collapsible', 350);
 
-      act(() => {
-        fireEvent(document, new MouseEvent('mouseup', { bubbles: true }));
-      });
+      fireEvent(document, new MouseEvent('mouseup', { bubbles: true }));
     });
 
     it('should update expansion state when defaultExpanded prop changes', () => {
@@ -275,23 +271,19 @@ describe('ExpansionPanel', () => {
       expect(panel).toHaveAttribute('data-resizing', 'true');
 
       // Simulate mousemove - drag down 50px (resize is immediate)
-      act(() => {
-        fireEvent(
-          document,
-          new MouseEvent('mousemove', {
-            clientY: 150, // 50px down
-            bubbles: true,
-          }),
-        );
-      });
+      fireEvent(
+        document,
+        new MouseEvent('mousemove', {
+          clientY: 150, // 50px down
+          bubbles: true,
+        }),
+      );
 
       // Normal bottom handle: deltaY = 150 - 100 = 50, newHeight = 300 + 50 = 350
       expect(mockResize).toHaveBeenCalledWith('normal-panel', 350);
 
       // Cleanup
-      act(() => {
-        fireEvent(document, new MouseEvent('mouseup', { bubbles: true }));
-      });
+      fireEvent(document, new MouseEvent('mouseup', { bubbles: true }));
     });
 
     it('should constrain resize to minHeight (bottom handle)', () => {
@@ -305,23 +297,19 @@ describe('ExpansionPanel', () => {
       fireEvent.mouseDown(resizeHandle, { clientY: 100 });
 
       // Simulate mousemove - drag up 100px (would make it 50px, but minHeight is 100)
-      act(() => {
-        fireEvent(
-          document,
-          new MouseEvent('mousemove', {
-            clientY: 0, // 100px up
-            bubbles: true,
-          }),
-        );
-      });
+      fireEvent(
+        document,
+        new MouseEvent('mousemove', {
+          clientY: 0, // 100px up
+          bubbles: true,
+        }),
+      );
 
       // Should be constrained to minHeight: 100
       expect(mockResize).toHaveBeenCalledWith('normal-panel', 100);
 
       // Cleanup
-      act(() => {
-        fireEvent(document, new MouseEvent('mouseup', { bubbles: true }));
-      });
+      fireEvent(document, new MouseEvent('mouseup', { bubbles: true }));
     });
 
     it('should stop resizing on mouseup (bottom handle)', () => {
@@ -334,9 +322,7 @@ describe('ExpansionPanel', () => {
 
       expect(panel).toHaveAttribute('data-resizing', 'true');
 
-      act(() => {
-        fireEvent(document, new MouseEvent('mouseup', { bubbles: true }));
-      });
+      fireEvent(document, new MouseEvent('mouseup', { bubbles: true }));
 
       expect(panel).toHaveAttribute('data-resizing', 'false');
     });
@@ -368,9 +354,7 @@ describe('ExpansionPanel', () => {
 
       fireEvent.mouseDown(resizeHandle, { clientY: 100 });
 
-      act(() => {
-        fireEvent(document, new MouseEvent('mouseup', { bubbles: true }));
-      });
+      fireEvent(document, new MouseEvent('mouseup', { bubbles: true }));
 
       expect(removeEventListenerSpy).toHaveBeenCalledWith('mousemove', expect.any(Function));
       expect(removeEventListenerSpy).toHaveBeenCalledWith('mouseup', expect.any(Function));
