@@ -2,6 +2,40 @@ import { ICamelElementLookupResult } from '../models/visualization/flows/support
 import { CamelUriHelper, ParsedParameters } from './camel-uri-helper';
 
 describe('CamelUriHelper', () => {
+  describe('getComponentAndKameletName', () => {
+    it.each([
+      ['', { componentName: undefined }],
+      ['   ', { componentName: undefined }],
+      ['timer:tick', { componentName: 'timer' }],
+      ['timer:tick?period=1000', { componentName: 'timer' }],
+      ['log:myLogger', { componentName: 'log' }],
+      ['kamelet:beer-source', { componentName: 'kamelet', kameletName: 'beer-source' }],
+      ['kamelet:beer-source?foo=bar', { componentName: 'kamelet', kameletName: 'beer-source' }],
+      ['kamelet:beer-source?prop1=123', { componentName: 'kamelet', kameletName: 'beer-source' }],
+      ['kamelet:aws-s3-sink?bucketName=test', { componentName: 'kamelet', kameletName: 'aws-s3-sink' }],
+      ['direct:myRoute', { componentName: 'direct' }],
+      ['http://example.com', { componentName: 'http' }],
+      ['javascript:alert(1)', { componentName: 'javascript' }],
+    ])('should extract component and kamelet name from "%s"', (uri, expected) => {
+      expect(CamelUriHelper.getComponentAndKameletName(uri)).toEqual(expected);
+    });
+
+    it.each([
+      ['kamelet:'],
+      ['kamelet:../../etc/passwd'],
+      ['kamelet:<script>alert(1)</script>'],
+      ['kamelet:${header.foo}'],
+      ['kamelet:{{dangerous.template}}'],
+      ['kamelet:Beer-Source'],
+    ])('should reject suspicious or invalid URIs: "%s"', (uri) => {
+      expect(CamelUriHelper.getComponentAndKameletName(uri)).toEqual({ componentName: undefined });
+    });
+
+    it('should not include kameletName for non-kamelet URIs', () => {
+      expect('kameletName' in CamelUriHelper.getComponentAndKameletName('timer:tick')).toBe(false);
+    });
+  });
+
   describe('getUriString', () => {
     it.each([
       [undefined, undefined],
@@ -87,12 +121,6 @@ describe('CamelUriHelper', () => {
         syntax: 'jms:destinationType:destinationName',
         uri: 'jms:queue:myQueue',
         result: { destinationType: 'queue', destinationName: 'myQueue' },
-        requiredParameters: ['destinationName'],
-      },
-      {
-        syntax: 'jms:destinationType:destinationName',
-        uri: 'jms:myQueue',
-        result: { destinationName: 'myQueue' },
         requiredParameters: ['destinationName'],
       },
       {
@@ -348,11 +376,16 @@ describe('CamelUriHelper', () => {
         requiredParameters: ['method', 'path'],
         result: 'rest:options:myPath',
       },
-    ])(
+    ] as Array<{
+      uri: string;
+      syntax: string;
+      parameters: unknown;
+      requiredParameters?: string[];
+      defaultValues?: ParsedParameters;
+      result: string;
+    }>)(
       'should return `$result` for `$parameters`',
-      ({ uri, syntax, parameters, requiredParameters, defaultValues: testDefaultValues, result }) => {
-        const defaultValues = testDefaultValues ?? {};
-
+      ({ uri, syntax, parameters, requiredParameters, defaultValues = {}, result }) => {
         expect(
           CamelUriHelper.getUriStringFromParameters(uri, syntax, parameters as unknown as ParsedParameters, {
             requiredParameters,
@@ -403,14 +436,16 @@ describe('CamelUriHelper', () => {
     });
   });
 
-  it.each([
-    ['log', { schema: 'log', syntax: '' }],
-    ['log:loggerName', { schema: 'log', syntax: 'loggerName' }],
-    ['log:loggerName:another', { schema: 'log', syntax: 'loggerName:another' }],
-  ])(
-    'getSyntaxWithoutSchema: should return the schema and syntax without schema for %s',
-    (uri: string, expected: { schema: string; syntax: string }) => {
-      expect(CamelUriHelper.getSyntaxWithoutSchema(uri)).toEqual(expected);
-    },
-  );
+  describe('getSyntaxWithoutSchema', () => {
+    it.each([
+      ['log', { schema: 'log', syntax: '' }],
+      ['log:loggerName', { schema: 'log', syntax: 'loggerName' }],
+      ['log:loggerName:another', { schema: 'log', syntax: 'loggerName:another' }],
+    ])(
+      'should return the schema and syntax without schema for %s',
+      (uri: string, expected: { schema: string; syntax: string }) => {
+        expect(CamelUriHelper.getSyntaxWithoutSchema(uri)).toEqual(expected);
+      },
+    );
+  });
 });

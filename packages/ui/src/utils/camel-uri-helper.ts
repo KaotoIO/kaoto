@@ -15,6 +15,10 @@ export class CamelUriHelper {
     'http://httpUri': 'http://',
     'https://httpUri': 'https://',
   };
+  private static readonly COMPONENT_NAME_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9-]*$/;
+  private static readonly KAMELET_NAME_REGEX = /^[a-z0-9][a-z0-9-]*$/;
+  // eslint-disable-next-line no-control-regex
+  private static readonly DANGEROUS_URI_SEGMENT_REGEX = /(\.\.|<|>|\$\{|{{|[\u0000-\u001F\u007F])/;
 
   static getUriString<T>(value: T | undefined | null): string | undefined {
     /** For string-based processor definitions, we can return the definition itself */
@@ -241,6 +245,69 @@ export class CamelUriHelper {
   }
 
   /**
+   * Extract component name and kamelet name from a URI.
+   *
+   * Note: kameletName can only be present when componentName is 'kamelet'.
+   * If there's no component, it's impossible to have a kamelet since kamelets
+   * can only be used through the 'kamelet' component.
+   *
+   * @returns For regular components: { componentName: 'timer' }
+   * @returns For kamelets: { componentName: 'kamelet', kameletName: 'beer-source' }
+   * @returns For empty/invalid: { componentName: undefined }
+   *
+   * @example
+   * // Regular component
+   * getComponentAndKameletName('timer:tick')
+   * // => { componentName: 'timer' }
+   *
+   * @example
+   * // Kamelet component
+   * getComponentAndKameletName('kamelet:beer-source')
+   * // => { componentName: 'kamelet', kameletName: 'beer-source' }
+   *
+   * @example
+   * // Kamelet with query parameters
+   * getComponentAndKameletName('kamelet:beer-source?foo=bar')
+   * // => { componentName: 'kamelet', kameletName: 'beer-source' }
+   */
+  static getComponentAndKameletName(
+    uri: string,
+  ): { componentName: string | undefined } | { componentName: 'kamelet'; kameletName: string } {
+    if (typeof uri !== 'string') {
+      return { componentName: undefined };
+    }
+
+    const trimmedUri = uri.trim();
+    if (trimmedUri === '') {
+      return { componentName: undefined };
+    }
+
+    const separatorIndex = trimmedUri.indexOf(':');
+    const componentName = separatorIndex === -1 ? trimmedUri : trimmedUri.slice(0, separatorIndex);
+
+    if (!this.isValidComponentName(componentName)) {
+      return { componentName: undefined };
+    }
+
+    if (componentName !== 'kamelet') {
+      return { componentName };
+    }
+
+    if (separatorIndex === -1) {
+      return { componentName: undefined };
+    }
+
+    const kameletSegment = trimmedUri.slice(separatorIndex + 1);
+    const kameletName = kameletSegment.split('?')[0];
+
+    if (!this.isValidKameletName(kameletName)) {
+      return { componentName: undefined };
+    }
+
+    return { componentName: 'kamelet', kameletName };
+  }
+
+  /**
    * Remove the scheme from the URI syntax:
    * 'avro:transport:host:port/messageName' => { schema: 'avro', syntax: 'transport:host:port/messageName' } */
   static getSyntaxWithoutSchema(uriSyntax: string): { schema: string; syntax: string } {
@@ -265,5 +332,13 @@ export class CamelUriHelper {
     }
 
     return result;
+  }
+
+  private static isValidComponentName(componentName: string): boolean {
+    return this.COMPONENT_NAME_REGEX.test(componentName);
+  }
+
+  private static isValidKameletName(kameletName: string): boolean {
+    return this.KAMELET_NAME_REGEX.test(kameletName) && !this.DANGEROUS_URI_SEGMENT_REGEX.test(kameletName);
   }
 }

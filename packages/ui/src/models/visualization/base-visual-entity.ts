@@ -161,7 +161,68 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   getNodeValidationText(): string | undefined;
 }
 
-export interface IVisualizationNodeData {
+/**
+ * The three typed node identity fields shared between `IVisualizationNodeData`
+ * and the `fetchNodeSchema` method signature.
+ *
+ * **Additive and hierarchical** — the identifiers form an ordered chain where
+ * each level is only meaningful when the preceding level is present:
+ *
+ * ```
+ * primaryNodeId                           ← always the anchor (if any id exists)
+ *   └─ secondaryNodeId (requires primary) ← refines the primary
+ *        └─ tertiaryNodeId (requires secondary, therefore also primary)
+ * ```
+ *
+ * In other words:
+ * - `secondaryNodeId` MUST NOT be set unless `primaryNodeId` is also set.
+ * - `tertiaryNodeId` MUST NOT be set unless `secondaryNodeId` (and therefore
+ *   `primaryNodeId`) is also set.
+ *
+ * All three fields are optional to accommodate nodes that carry no catalog
+ * identity at all (e.g. placeholder nodes).
+ *
+ * See docs/GLOSSARY.md — "Primary / Secondary / Tertiary Node ID".
+ */
+export interface IVisualizationNodeIds {
+  /**
+   * The primary (first-level) identity of this node.
+   *
+   * This is the anchor: `secondaryNodeId` and `tertiaryNodeId` must not be
+   * present unless this field is set.
+   *
+   * - In Camel Routes: the Processor name (e.g., 'to', 'choice', 'route').
+   * - In Pipe: the Kamelet name directly.
+   * - In Kamelet: the Processor name, same as Camel Routes.
+   * - For Citrus: the test action name.
+   * - For root group nodes: the entity type (e.g., 'route', 'routeConfiguration').
+   */
+  primaryNodeId?: NodeIdentity;
+
+  /**
+   * The secondary (second-level) identity of this node.
+   *
+   * Requires `primaryNodeId` to be present — must not be set in isolation.
+   * `tertiaryNodeId` must not be present unless this field is also set.
+   *
+   * - In Camel Routes: the Camel Component (e.g., 'timer', 'amqp').
+   * - In Pipe: not used.
+   */
+  secondaryNodeId?: NodeIdentity;
+
+  /**
+   * The tertiary (third-level) identity of this node.
+   *
+   * Requires both `secondaryNodeId` and `primaryNodeId` to be present —
+   * must not be set unless the full preceding chain is in place.
+   *
+   * - In Camel Routes using a Kamelet URI: the Kamelet name (e.g., 'weather-source').
+   * - In Pipe: not used (the Kamelet is already the primaryNodeId).
+   */
+  tertiaryNodeId?: NodeIdentity;
+}
+
+export interface IVisualizationNodeData extends IVisualizationNodeIds {
   name: string;
   path?: string;
   entity?: BaseVisualEntity;
@@ -180,31 +241,6 @@ export interface IVisualizationNodeData {
 
   /** Alt text for the icon */
   iconAlt?: string;
-
-  /**
-   * The primary identity of this node.
-   * - In Camel Routes: the Processor name (e.g., 'to', 'choice', 'route').
-   * - In Pipe: the Kamelet name directly.
-   * - In Kamelet: the Processor name, same as Camel Routes.
-   * - For Citrus: the test action name.
-   * - For root group nodes: the entity type (e.g., 'route', 'routeConfiguration').
-   * See docs/GLOSSARY.md — "Primary / Secondary / Tertiary Node ID".
-   */
-  primaryNodeId?: NodeIdentity;
-
-  /**
-   * Optional secondary identity.
-   * - In Camel Routes: the Camel Component (e.g., 'timer', 'amqp').
-   * - In Pipe: not used.
-   */
-  secondaryNodeId?: NodeIdentity;
-
-  /**
-   * Optional tertiary identity.
-   * - In Camel Routes using a Kamelet URI: the Kamelet name (e.g., 'weather-source').
-   * - In Pipe: not used (the Kamelet is already the primaryNodeId).
-   */
-  tertiaryNodeId?: NodeIdentity;
 
   [key: string]: unknown;
 }
