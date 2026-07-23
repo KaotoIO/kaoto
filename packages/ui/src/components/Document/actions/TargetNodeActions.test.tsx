@@ -7,7 +7,7 @@ import {
   DocumentType,
   PrimitiveDocument,
 } from '../../../models/datamapper/document';
-import { MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
+import { MappingTree, ValueOfSelector } from '../../../models/datamapper/mapping';
 import { MappingNodeData, TargetDocumentNodeData } from '../../../models/datamapper/visualization';
 import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
@@ -51,7 +51,7 @@ describe('TargetNodeActions', () => {
     );
     const tree = new MappingTree(primitiveDoc.documentType, primitiveDoc.documentId, DocumentDefinitionType.Primitive);
     const docData = new TargetDocumentNodeData(primitiveDoc, tree);
-    const mappingData = new MappingNodeData(docData, new ValueSelector(tree));
+    const mappingData = new MappingNodeData(docData, new ValueOfSelector(tree));
     render(
       <DataMapperProvider>
         <MappingLinksProvider>

@@ -7,7 +7,14 @@ import {
   IDocument,
   IField,
 } from '../../models/datamapper/document';
-import { FieldItem, MappingTree, ValueSelector, ValueType, VariableItem } from '../../models/datamapper/mapping';
+import {
+  CopyOfSelector,
+  CopyOfType,
+  FieldItem,
+  MappingTree,
+  ValueOfSelector,
+  VariableItem,
+} from '../../models/datamapper/mapping';
 import { MappingLineStyle, variableNodePath, VARIABLES_DOCUMENT_ID } from '../../models/datamapper/visualization';
 import { useDocumentTreeStore } from '../../store';
 import { mockRandomValues } from '../../stubs';
@@ -327,7 +334,7 @@ describe('MappingLinksService', () => {
       rootItem.children.push(personItem);
       const emailItem = new FieldItem(personItem, emailField);
       personItem.children.push(emailItem);
-      const valueSelector = new ValueSelector(emailItem);
+      const valueSelector = new ValueOfSelector(emailItem);
       valueSelector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
       emailItem.children.push(valueSelector);
 
@@ -373,7 +380,7 @@ describe('MappingLinksService', () => {
       rootItem.children.push(personItem);
       const emailItem = new FieldItem(personItem, emailField);
       personItem.children.push(emailItem);
-      const valueSelector = new ValueSelector(emailItem);
+      const valueSelector = new ValueOfSelector(emailItem);
       valueSelector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
       emailItem.children.push(valueSelector);
 
@@ -415,7 +422,7 @@ describe('MappingLinksService', () => {
       rootItem.children.push(personItem);
       const emailItem = new FieldItem(personItem, emailField);
       personItem.children.push(emailItem);
-      const valueSelector = new ValueSelector(emailItem);
+      const valueSelector = new ValueOfSelector(emailItem);
       valueSelector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
       emailItem.children.push(valueSelector);
 
@@ -466,7 +473,7 @@ describe('MappingLinksService', () => {
       largeItem.children.push(emailItem);
       const subjectItem = new FieldItem(emailItem, subjectField);
       emailItem.children.push(subjectItem);
-      const valueSelector = new ValueSelector(subjectItem);
+      const valueSelector = new ValueOfSelector(subjectItem);
       valueSelector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
       subjectItem.children.push(valueSelector);
 
@@ -518,7 +525,7 @@ describe('MappingLinksService', () => {
       abstractTree.children.push(rootItem);
       const orderIdItem = new FieldItem(rootItem, orderIdField);
       rootItem.children.push(orderIdItem);
-      const valueSelector = new ValueSelector(orderIdItem);
+      const valueSelector = new ValueOfSelector(orderIdItem);
       valueSelector.expression = '/ns0:Zoo/ns0:Cat/ns0:indoor';
       orderIdItem.children.push(valueSelector);
 
@@ -551,7 +558,7 @@ describe('MappingLinksService', () => {
       rootItem.children.push(catItem);
       const indoorItem = new FieldItem(catItem, indoorField);
       catItem.children.push(indoorItem);
-      const valueSelector = new ValueSelector(indoorItem);
+      const valueSelector = new ValueOfSelector(indoorItem);
       valueSelector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
       indoorItem.children.push(valueSelector);
 
@@ -585,7 +592,7 @@ describe('MappingLinksService', () => {
       rootItem.children.push(catItem);
       const indoorItem = new FieldItem(catItem, indoorField);
       catItem.children.push(indoorItem);
-      const valueSelector = new ValueSelector(indoorItem);
+      const valueSelector = new ValueOfSelector(indoorItem);
       valueSelector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
       indoorItem.children.push(valueSelector);
 
@@ -655,7 +662,7 @@ describe('MappingLinksService', () => {
       for (const childField of targetShipTo.fields) {
         const childItem = new FieldItem(shipToItem, childField);
         shipToItem.children.push(childItem);
-        const vs = new ValueSelector(childItem);
+        const vs = new ValueOfSelector(childItem);
         vs.expression = `/ns0:ShipOrder/ShipTo/${childField.name}`;
         childItem.children.push(vs);
       }
@@ -691,7 +698,7 @@ describe('MappingLinksService', () => {
       targetShipTo.fields.forEach((targetChild: IField, i: number) => {
         const childItem = new FieldItem(shipToItem, targetChild);
         shipToItem.children.push(childItem);
-        const vs = new ValueSelector(childItem);
+        const vs = new ValueOfSelector(childItem);
         vs.expression = `/ns0:ShipOrder/ShipTo/${shuffledSourceNames[i]}`;
         childItem.children.push(vs);
       });
@@ -723,7 +730,7 @@ describe('MappingLinksService', () => {
       for (const childField of mappedFields) {
         const childItem = new FieldItem(shipToItem, childField);
         shipToItem.children.push(childItem);
-        const vs = new ValueSelector(childItem);
+        const vs = new ValueOfSelector(childItem);
         vs.expression = `/ns0:ShipOrder/ShipTo/${childField.name}`;
         childItem.children.push(vs);
       }
@@ -760,7 +767,7 @@ describe('MappingLinksService', () => {
         for (const childField of targetShipTo.fields) {
           const childItem = new FieldItem(shipToItem, childField);
           shipToItem.children.push(childItem);
-          const vs = new ValueSelector(childItem);
+          const vs = new ValueOfSelector(childItem);
           vs.expression = `/ns0:ShipOrder/ShipTo/${childField.name}`;
           childItem.children.push(vs);
         }
@@ -801,7 +808,7 @@ describe('MappingLinksService', () => {
         targetChildren.forEach((childField: IField, i: number) => {
           const childItem = new FieldItem(shipToItem, childField);
           shipToItem.children.push(childItem);
-          const vs = new ValueSelector(childItem);
+          const vs = new ValueOfSelector(childItem);
           // Map first two target children to the same source child (Name),
           // so mappedSourceCount would be 4 but unique mapped sources is only 3
           const sourceName = i < 2 ? 'Name' : targetChildren[i].name;
@@ -833,7 +840,7 @@ describe('MappingLinksService', () => {
       manualTree.children.push(rootItem);
       const shipToItem = new FieldItem(rootItem, targetShipTo);
       rootItem.children.push(shipToItem);
-      const vs = new ValueSelector(shipToItem, ValueType.CONTAINER_NODE);
+      const vs = new CopyOfSelector(shipToItem, CopyOfType.CONTAINER_NODE);
       vs.expression = '/ns0:ShipOrder/ShipTo';
       shipToItem.children.push(vs);
 
@@ -860,7 +867,7 @@ describe('MappingLinksService', () => {
       manualTree.children.push(rootItem);
       const fieldItem = new FieldItem(rootItem, targetField);
       rootItem.children.push(fieldItem);
-      const vs = new ValueSelector(fieldItem);
+      const vs = new ValueOfSelector(fieldItem);
       vs.expression = '$myVar';
       fieldItem.children.push(vs);
 
@@ -884,7 +891,7 @@ describe('MappingLinksService', () => {
       const fieldItem = new FieldItem(rootItem, targetField);
       rootItem.children.push(fieldItem);
       const paramName = Array.from(paramsMap.values())[0].getReferenceId(manualTree.namespaceMap);
-      const vs = new ValueSelector(fieldItem);
+      const vs = new ValueOfSelector(fieldItem);
       vs.expression = `$${paramName}`;
       fieldItem.children.push(vs);
 
@@ -909,7 +916,7 @@ describe('MappingLinksService', () => {
       manualTree.children.push(rootItem);
       const fieldItem = new FieldItem(rootItem, targetField);
       rootItem.children.push(fieldItem);
-      const vs = new ValueSelector(fieldItem);
+      const vs = new ValueOfSelector(fieldItem);
       vs.expression = `$${paramName}`;
       fieldItem.children.push(vs);
 
@@ -937,7 +944,7 @@ describe('MappingLinksService', () => {
       manualTree.children.push(rootItem);
       const fieldItem = new FieldItem(rootItem, targetField);
       rootItem.children.push(fieldItem);
-      const vs = new ValueSelector(fieldItem);
+      const vs = new ValueOfSelector(fieldItem);
       vs.expression = 'concat($a, $b)';
       fieldItem.children.push(vs);
 

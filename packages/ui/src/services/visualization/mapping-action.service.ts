@@ -1,6 +1,8 @@
 import { IField, PrimitiveDocument } from '../../models/datamapper/document';
 import {
   ChooseItem,
+  CopyOfSelector,
+  CopyOfType,
   FieldItem,
   ForEachGroupItem,
   ForEachItem,
@@ -8,8 +10,9 @@ import {
   MappingItem,
   MappingParentType,
   MappingTree,
+  ValueOfSelector,
+  ValueOfType,
   ValueSelector,
-  ValueType,
 } from '../../models/datamapper/mapping';
 import { Types } from '../../models/datamapper/types';
 import {
@@ -57,11 +60,7 @@ export class MappingActionService {
   }
 
   static hasValueOfSelector(nodeData: TargetNodeData) {
-    return (
-      nodeData.mapping?.children.some(
-        (c) => c instanceof ValueSelector && (c.valueType === ValueType.VALUE || c.valueType === ValueType.ATTRIBUTE),
-      ) ?? false
-    );
+    return nodeData.mapping?.children.some((c) => c instanceof ValueOfSelector) ?? false;
   }
 
   /**
@@ -305,7 +304,7 @@ export class MappingActionService {
         : nodeData.mapping;
     if (!mapping) return;
     if (!mapping.children.some((c: MappingItem) => c instanceof ValueSelector)) {
-      const valueSelector = MappingService.createValueSelector(mapping);
+      const valueSelector = MappingService.createValueOfSelector(mapping);
       mapping.children.push(valueSelector);
       useDocumentTreeStore.getState().requestXPathInputFocus(mapping.nodePath.toString());
     }
@@ -317,13 +316,10 @@ export class MappingActionService {
         ? MappingActionService.getOrCreateFieldItem(nodeData)
         : nodeData.mapping;
     if (!mapping) return;
-    const hasExisting = mapping.children.some(
-      (c) => c instanceof ValueSelector && (c.valueType === ValueType.VALUE || c.valueType === ValueType.ATTRIBUTE),
-    );
-    if (hasExisting) return;
+    if (mapping.children.some((c) => c instanceof ValueOfSelector)) return;
     const valueType =
-      nodeData instanceof TargetFieldNodeData && nodeData.field.isAttribute ? ValueType.ATTRIBUTE : ValueType.VALUE;
-    const valueSelector = new ValueSelector(mapping, valueType);
+      nodeData instanceof TargetFieldNodeData && nodeData.field.isAttribute ? ValueOfType.ATTRIBUTE : ValueOfType.VALUE;
+    const valueSelector = new ValueOfSelector(mapping, valueType);
     mapping.children.push(valueSelector);
     useDocumentTreeStore.getState().requestXPathInputFocus(mapping.nodePath.toString());
   }
@@ -334,7 +330,7 @@ export class MappingActionService {
         ? MappingActionService.getOrCreateFieldItem(nodeData)
         : nodeData.mapping;
     if (!mapping) return;
-    const copyOfSelector = new ValueSelector(mapping, ValueType.CONTAINER_NODE);
+    const copyOfSelector = new CopyOfSelector(mapping, CopyOfType.CONTAINER_NODE);
     mapping.children.push(copyOfSelector);
     useDocumentTreeStore.getState().requestXPathInputFocus(mapping.nodePath.toString());
   }
@@ -378,11 +374,9 @@ export class MappingActionService {
     targetNode: TargetNodeData,
     mappingTree: MappingTree,
   ) {
-    // TODO(#2362-content-form): CONTAINER for condition/document targets not yet handled
-    const valueType = sourceNode.variable.children.length > 0 ? ValueType.CONTAINER : ValueType.VALUE;
     const pathExpr = MappingService.variablePathExpression(sourceNode.variable.name);
     const target = MappingActionService.resolveTarget(targetNode, mappingTree);
-    if (target) MappingService.applyMapping(pathExpr, target, valueType);
+    if (target) MappingService.applyMapping(pathExpr, target);
   }
 
   private static engageChoiceMapping(
@@ -472,7 +466,7 @@ export class MappingActionService {
 
     if (anyTypeInvolved && (!sourceHasChildren || !targetHasChildren)) {
       const item = MappingActionService.getOrCreateFieldItem(targetNode);
-      MappingService.mapToFieldWithValueType(sourceFieldFromNode, item, ValueType.CONTAINER_NODE);
+      MappingService.mapToFieldWithValueType(sourceFieldFromNode, item, CopyOfType.CONTAINER_NODE);
       return true;
     }
 
@@ -632,7 +626,7 @@ export class MappingActionService {
     const parent = item.parent;
     if (!(parent instanceof MappingItem)) return;
     parent.children = parent.children.filter(
-      (c) => !(c instanceof ValueSelector && c.valueType === ValueType.CONTAINER),
+      (c) => !(c instanceof CopyOfSelector && c.valueType === CopyOfType.CONTAINER),
     );
   }
 }

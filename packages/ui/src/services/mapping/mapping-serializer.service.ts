@@ -18,8 +18,8 @@ import {
   MappingTree,
   OtherwiseItem,
   UnknownMappingItem,
-  ValueSelector,
-  ValueType,
+  ValueOfSelector,
+  ValueOfType,
   VariableItem,
 } from '../../models/datamapper/mapping';
 import { DeserializeItemResult, DeserializeResult, MappingItemClass } from '../../models/datamapper/serialization';
@@ -297,7 +297,7 @@ export class MappingSerializerService {
   private static restoreTextNode(item: Node, parentMapping: MappingParentType) {
     const literal = (item.textContent || '').trim();
     if (!literal) return;
-    const selector = new ValueSelector(parentMapping, ValueType.VALUE);
+    const selector = new ValueOfSelector(parentMapping, ValueOfType.VALUE);
     selector.expression = literal;
     selector.isLiteral = true;
     parentMapping.children.push(selector);
@@ -412,6 +412,7 @@ export class MappingSerializerService {
     if (result.mappingItem) {
       MappingSerializerService.restoreCommentFromPreviousSibling(element, result.mappingItem);
     }
+
     return result;
   }
 

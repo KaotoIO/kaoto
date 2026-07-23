@@ -1,6 +1,8 @@
 import { DocumentType, IDocument, IField, PrimitiveDocument } from '../../models/datamapper/document';
 import {
   ChooseItem,
+  CopyOfSelector,
+  CopyOfType,
   FieldItem,
   ForEachGroupItem,
   ForEachItem,
@@ -13,8 +15,9 @@ import {
   MappingParentType,
   MappingTree,
   OtherwiseItem,
+  ValueOfSelector,
+  ValueOfType,
   ValueSelector,
-  ValueType,
   VariableItem,
   WhenItem,
 } from '../../models/datamapper/mapping';
@@ -347,7 +350,7 @@ export class MappingService {
   ): T {
     const ensureBodyPlaceholder = () => {
       if (item.children.length === 0) {
-        item.children.push(MappingService.createValueSelector(item));
+        item.children.push(MappingService.createValueOfSelector(item));
       }
     };
 
@@ -500,14 +503,14 @@ export class MappingService {
   }
 
   /**
-   * When no mapping is provided, creates an empty {@link ValueSelector} as a placeholder child.
+   * When no mapping is provided, creates an empty {@link ValueOfSelector} as a placeholder child.
    * @param parent - the parent container to add the if-item to
    * @param mapping - optional existing mapping to place inside the if-item
    */
   static addIf(parent: MappingParentType, mapping?: MappingItem) {
     const ifItem = new IfItem(parent);
     parent.children.push(ifItem);
-    ifItem.children.push(mapping ?? MappingService.createValueSelector(ifItem));
+    ifItem.children.push(mapping ?? MappingService.createValueOfSelector(ifItem));
   }
 
   /**
@@ -529,7 +532,7 @@ export class MappingService {
 
   /**
    * Content is resolved by priority: mapping argument, then field argument,
-   * then a default empty {@link ValueSelector}.
+   * then a default empty {@link ValueOfSelector}.
    * @param chooseItem - the choose item to add a when-branch to
    * @param mapping - optional existing mapping for the when content
    * @param field - optional field to create a {@link FieldItem} for
@@ -543,7 +546,7 @@ export class MappingService {
     } else if (field) {
       MappingService.createFieldItem(whenItem, field);
     } else {
-      whenItem.children.push(MappingService.createValueSelector(whenItem));
+      whenItem.children.push(MappingService.createValueOfSelector(whenItem));
     }
     chooseItem.children.push(whenItem);
     return whenItem;
@@ -565,7 +568,7 @@ export class MappingService {
     } else if (field) {
       MappingService.createFieldItem(otherwiseItem, field);
     } else {
-      otherwiseItem.children.push(MappingService.createValueSelector(otherwiseItem));
+      otherwiseItem.children.push(MappingService.createValueOfSelector(otherwiseItem));
     }
     newChildren.push(otherwiseItem);
     chooseItem.children = newChildren;
@@ -593,17 +596,12 @@ export class MappingService {
    *
    * @param pathExpr - the pre-built source path expression
    * @param target - where to apply: {@link MappingTree} (document root), or any {@link MappingItem}
-   * @param valueType - value type for field-target {@link ValueSelector}; defaults to VALUE
    */
-  static applyMapping(
-    pathExpr: PathExpression,
-    target: MappingItem | MappingTree,
-    valueType: ValueType = ValueType.VALUE,
-  ): void {
+  static applyMapping(pathExpr: PathExpression, target: MappingItem | MappingTree): void {
     if (target instanceof MappingTree) {
-      let vs = target.children.find((c) => c instanceof ValueSelector) as ValueSelector;
+      let vs = target.children.find((c) => c instanceof ValueOfSelector) as ValueOfSelector;
       if (!vs) {
-        vs = MappingService.createValueSelector(target);
+        vs = MappingService.createValueOfSelector(target);
         target.children.push(vs);
       }
       vs.expression = XPathService.addSource(vs.expression, pathExpr);
@@ -612,8 +610,7 @@ export class MappingService {
     } else if (isExpressionHolder(target)) {
       target.expression = XPathService.addSource(target.expression, pathExpr);
     } else {
-      const vs = MappingService.ensureValueSelector(target, valueType);
-      vs.valueType = valueType;
+      const vs = MappingService.ensureValueOfSelector(target);
       vs.expression = XPathService.addSource(vs.expression, pathExpr);
     }
   }
@@ -664,34 +661,39 @@ export class MappingService {
    * @param targetFieldItem - the target mapping item to map the source to
    */
   static mapToField(source: PrimitiveDocument | IField, targetFieldItem: MappingItem) {
-    const valueSelector = MappingService.ensureValueSelector(targetFieldItem);
+    const valueSelector = MappingService.ensureValueOfSelector(targetFieldItem);
     MappingService.applySourceExpression(source, targetFieldItem, valueSelector);
   }
 
   /**
-   * Like {@link mapToField} but sets an explicit {@link ValueType} on the selector.
-   * Used for container copy-of scenarios where we need CONTAINER or CONTAINER_NODE.
+   * Like {@link mapToField} but creates a {@link CopyOfSelector} for container copy-of scenarios.
    */
   static mapToFieldWithValueType(
     source: PrimitiveDocument | IField,
     targetFieldItem: MappingItem,
-    valueType: ValueType,
+    valueType: CopyOfType,
   ) {
-    const valueSelector = MappingService.ensureValueSelector(targetFieldItem, valueType);
-    valueSelector.valueType = valueType;
-    MappingService.applySourceExpression(source, targetFieldItem, valueSelector);
-    if (valueType === ValueType.CONTAINER_NODE && !valueSelector.expression.endsWith('/node()')) {
-      valueSelector.expression = `${valueSelector.expression}/node()`;
+    let copyOfSelector = targetFieldItem?.children.find((child) => child instanceof CopyOfSelector) as
+      | CopyOfSelector
+      | undefined;
+    if (!copyOfSelector) {
+      copyOfSelector = new CopyOfSelector(targetFieldItem, valueType);
+      targetFieldItem.children.push(copyOfSelector);
+    } else {
+      copyOfSelector.valueType = valueType;
+    }
+    MappingService.applySourceExpression(source, targetFieldItem, copyOfSelector);
+    if (valueType === CopyOfType.CONTAINER_NODE && !copyOfSelector.expression.endsWith('/node()')) {
+      copyOfSelector.expression = `${copyOfSelector.expression}/node()`;
     }
   }
 
-  private static ensureValueSelector(targetFieldItem: MappingItem, valueType?: ValueType): ValueSelector {
-    let valueSelector = targetFieldItem?.children.find((child) => child instanceof ValueSelector) as ValueSelector;
+  private static ensureValueOfSelector(targetFieldItem: MappingItem): ValueOfSelector {
+    let valueSelector = targetFieldItem?.children.find((child) => child instanceof ValueOfSelector) as
+      | ValueOfSelector
+      | undefined;
     if (!valueSelector) {
-      valueSelector =
-        valueType == null
-          ? MappingService.createValueSelector(targetFieldItem)
-          : new ValueSelector(targetFieldItem, valueType);
+      valueSelector = MappingService.createValueOfSelector(targetFieldItem);
       targetFieldItem.children.push(valueSelector);
     }
     return valueSelector;
@@ -771,12 +773,12 @@ export class MappingService {
    * @param targetField - Target field
    * @returns CONTAINER_NODE if xs:anyType is involved, otherwise CONTAINER
    */
-  static getContainerValueType(sourceField: IField, targetField: IField): ValueType {
+  static getContainerValueType(sourceField: IField, targetField: IField): CopyOfType {
     const anyTypeInvolved =
       (sourceField instanceof XmlSchemaField && sourceField.type === Types.AnyType) ||
       (targetField instanceof XmlSchemaField && targetField.type === Types.AnyType);
 
-    return anyTypeInvolved ? ValueType.CONTAINER_NODE : ValueType.CONTAINER;
+    return anyTypeInvolved ? CopyOfType.CONTAINER_NODE : CopyOfType.CONTAINER;
   }
 
   /**
@@ -799,14 +801,12 @@ export class MappingService {
   }
 
   /**
-   * {@link ValueType} is inferred from the parent's target field context: ATTRIBUTE for attribute fields,
-   * CONTAINER for fields with children, VALUE otherwise. {@link MappingTree} root defaults to VALUE.
-   * @param parent - the parent container that determines the value type
-   * @returns the created value selector
+   * {@link ValueOfType} is inferred from the parent's target field context: ATTRIBUTE for attribute fields,
+   * VALUE otherwise. {@link MappingTree} root defaults to VALUE.
    */
-  static createValueSelector(parent: MappingParentType) {
-    const valueType = parent instanceof MappingTree ? ValueType.VALUE : MappingService.getValueTypeFor(parent);
-    return new ValueSelector(parent, valueType);
+  static createValueOfSelector(parent: MappingParentType): ValueOfSelector {
+    const valueType = parent instanceof MappingTree ? ValueOfType.VALUE : MappingService.getValueTypeFor(parent);
+    return new ValueOfSelector(parent, valueType);
   }
 
   /**
@@ -1000,13 +1000,9 @@ export class MappingService {
     variable.expression = expression;
   }
 
-  private static getValueTypeFor(mapping: MappingItem): ValueType {
+  private static getValueTypeFor(mapping: MappingItem): ValueOfType {
     const field = MappingService.getTargetField(mapping);
-    return field?.isAttribute
-      ? ValueType.ATTRIBUTE
-      : field?.fields?.length && field.fields.length > 0
-        ? ValueType.CONTAINER
-        : ValueType.VALUE;
+    return field?.isAttribute ? ValueOfType.ATTRIBUTE : ValueOfType.VALUE;
   }
 
   private static getTargetField(mapping: MappingItem) {
@@ -1016,7 +1012,7 @@ export class MappingService {
   }
 
   /**
-   * First removes {@link ValueSelector} children, then for {@link InstructionItem}/{@link VariableItem}
+   * First removes value selector children, then for {@link InstructionItem}/{@link VariableItem}
    * or items under {@link FieldItem} parents, removes the item and recursively cleans up
    * empty FieldItem ancestors.
    * @param item - the mapping item to delete

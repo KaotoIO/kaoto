@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
-import { MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
+import { MappingTree, ValueOfSelector, ValueSelector } from '../../../models/datamapper/mapping';
 import { TargetDocumentNodeData } from '../../../models/datamapper/visualization';
 import { XmlSchemaDocument } from '../../../services/document/xml-schema/xml-schema-document.model';
 import { useDocumentTreeStore } from '../../../store/document-tree.store';
@@ -17,7 +17,7 @@ describe('XPathInputAction', () => {
   beforeEach(() => {
     doc = TestUtil.createTargetOrderDoc();
     tree = new MappingTree(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
-    mapping = new ValueSelector(tree);
+    mapping = new ValueOfSelector(tree);
     docData = new TargetDocumentNodeData(doc, tree);
     // Reset store state before each test
     useDocumentTreeStore.getState().clearXPathInputFocusRequest();

@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
-import { MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
+import { MappingTree, ValueOfSelector } from '../../../models/datamapper/mapping';
 import { TargetDocumentNodeData } from '../../../models/datamapper/visualization';
 import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
@@ -16,7 +16,7 @@ describe('XPathEditorAction', () => {
     render(
       <DataMapperProvider>
         <MappingLinksProvider>
-          <XPathEditorAction mapping={new ValueSelector(tree)} nodeData={docData} onUpdate={vi.fn()} />
+          <XPathEditorAction mapping={new ValueOfSelector(tree)} nodeData={docData} onUpdate={vi.fn()} />
         </MappingLinksProvider>
       </DataMapperProvider>,
     );
