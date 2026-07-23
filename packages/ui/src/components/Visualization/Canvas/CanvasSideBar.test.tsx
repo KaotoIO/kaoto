@@ -31,26 +31,22 @@ describe('CanvasSideBar', () => {
   });
 
   it('does not render anything if there is no selectedVizNode', async () => {
-    const wrapper = await act(async () =>
-      render(
-        <CanvasFormTabsProvider>
-          <CanvasSideBar vizNode={undefined} onClose={() => {}} />
-        </CanvasFormTabsProvider>,
-      ),
+    const wrapper = render(
+      <CanvasFormTabsProvider>
+        <CanvasSideBar vizNode={undefined} onClose={() => {}} />
+      </CanvasFormTabsProvider>,
     );
 
     expect(wrapper.container).toBeEmptyDOMElement();
   });
 
   it('displays selected node information', async () => {
-    const wrapper = await act(async () =>
-      render(
-        <Provider>
-          <CanvasFormTabsProvider>
-            <CanvasSideBar vizNode={selectedVizNode} onClose={() => {}} />
-          </CanvasFormTabsProvider>
-        </Provider>,
-      ),
+    const wrapper = render(
+      <Provider>
+        <CanvasFormTabsProvider>
+          <CanvasSideBar vizNode={selectedVizNode} onClose={() => {}} />
+        </CanvasFormTabsProvider>
+      </Provider>,
     );
 
     expect(wrapper.asFragment()).toMatchSnapshot();
@@ -59,14 +55,12 @@ describe('CanvasSideBar', () => {
   it('should propagate onClose callback', async () => {
     const onCloseSpy = vi.fn();
 
-    const wrapper = await act(async () =>
-      render(
-        <Provider>
-          <CanvasFormTabsProvider>
-            <CanvasSideBar vizNode={selectedVizNode} onClose={onCloseSpy} />
-          </CanvasFormTabsProvider>
-        </Provider>,
-      ),
+    const wrapper = render(
+      <Provider>
+        <CanvasFormTabsProvider>
+          <CanvasSideBar vizNode={selectedVizNode} onClose={onCloseSpy} />
+        </CanvasFormTabsProvider>
+      </Provider>,
     );
 
     act(() => {

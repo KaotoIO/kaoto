@@ -75,9 +75,7 @@ describe('NewFlow.tsx', () => {
     const trigger = await wrapper.findByTestId('viz-dsl-list-dropdown');
 
     /** Open Select */
-    act(() => {
-      fireEvent.click(trigger);
-    });
+    fireEvent.click(trigger);
 
     for (const name of ['Pipe', 'Camel Route']) {
       const element = await wrapper.findByText(name);
@@ -90,9 +88,7 @@ describe('NewFlow.tsx', () => {
     const trigger = await wrapper.findByTestId('viz-dsl-list-dropdown');
 
     /** Open Select */
-    act(() => {
-      fireEvent.click(trigger);
-    });
+    fireEvent.click(trigger);
 
     /** Select an option */
     act(() => {
@@ -118,9 +114,7 @@ describe('NewFlow.tsx', () => {
     const trigger = await findByTestId('viz-dsl-list-dropdown');
 
     /** Open Select */
-    act(() => {
-      fireEvent.click(trigger);
-    });
+    fireEvent.click(trigger);
 
     /** Select Citrus Test option */
     act(() => {
@@ -130,9 +124,7 @@ describe('NewFlow.tsx', () => {
 
     /** Confirm the modal */
     const confirmButton = await findByTestId('confirmation-modal-confirm');
-    act(() => {
-      fireEvent.click(confirmButton);
-    });
+    fireEvent.click(confirmButton);
 
     /** Verify catalog was updated to Citrus */
     expect(mockSetSelectedCatalog).toHaveBeenCalledWith(mockCitrusCatalog);
@@ -152,9 +144,7 @@ describe('NewFlow.tsx', () => {
     const trigger = await findByTestId('viz-dsl-list-dropdown');
 
     /** Open Select */
-    act(() => {
-      fireEvent.click(trigger);
-    });
+    fireEvent.click(trigger);
 
     /** Select Pipe option (another Camel type) */
     act(() => {
@@ -164,9 +154,7 @@ describe('NewFlow.tsx', () => {
 
     /** Confirm the modal */
     const confirmButton = await findByTestId('confirmation-modal-confirm');
-    act(() => {
-      fireEvent.click(confirmButton);
-    });
+    fireEvent.click(confirmButton);
 
     /** Verify catalog was NOT updated since both are Camel types */
     expect(mockSetSelectedCatalog).not.toHaveBeenCalled();

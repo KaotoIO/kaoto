@@ -31,14 +31,10 @@ const addRestMethod = async (path: string) => {
   const modal = screen.getByRole('dialog');
   const pathInput = within(modal).getByRole('textbox', { name: /Path/i });
 
-  act(() => {
-    fireEvent.change(pathInput, { target: { value: path } });
-  });
+  fireEvent.change(pathInput, { target: { value: path } });
 
   const addButton = within(modal).getByRole('button', { name: /^Add$/i });
-  act(() => {
-    fireEvent.click(addButton);
-  });
+  fireEvent.click(addButton);
 };
 
 describe('RestDslEditorPage', () => {
@@ -70,9 +66,7 @@ describe('RestDslEditorPage', () => {
    */
   const selectTreeNode = async (nodeName: string) => {
     const node = await screen.findByText(nodeName);
-    act(() => {
-      fireEvent.click(node);
-    });
+    fireEvent.click(node);
   };
 
   beforeEach(async () => {
@@ -335,14 +329,10 @@ describe('RestDslEditorPage', () => {
           uri: direct:getOrders
       `);
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByText('/users'), { clientX: 120, clientY: 80 });
-      });
+      fireEvent.contextMenu(screen.getByText('/users'), { clientX: 120, clientY: 80 });
 
       const deleteAction = await screen.findByRole('menuitem', { name: /Delete/ });
-      act(() => {
-        fireEvent.click(deleteAction);
-      });
+      fireEvent.click(deleteAction);
 
       await waitFor(() => {
         expect(screen.queryByText('/users')).toBeNull();
@@ -374,9 +364,7 @@ describe('RestDslEditorPage', () => {
     it('returns focus to the Actions trigger when the modal is cancelled', async () => {
       await openAddMethodModal();
 
-      act(() => {
-        fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-      });
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Actions' })).toHaveFocus();
@@ -386,9 +374,7 @@ describe('RestDslEditorPage', () => {
     it('returns focus to the Actions trigger when the modal is dismissed with Escape', async () => {
       await openAddMethodModal();
 
-      act(() => {
-        fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape', code: 'Escape' });
-      });
+      fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape', code: 'Escape' });
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Actions' })).toHaveFocus();

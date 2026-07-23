@@ -57,9 +57,7 @@ describe('PipeErrorHandlerPage', () => {
     );
 
     const addButton = screen.getByRole('button', { name: 'Add a new property' });
-    act(() => {
-      fireEvent.click(addButton);
-    });
+    fireEvent.click(addButton);
 
     expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
   });

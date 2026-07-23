@@ -37,21 +37,15 @@ describe('FlowExportDocument.tsx', () => {
 
     const exportButton = wrapper.getByTestId('documentationPreviewButton');
     expect(exportButton).toBeInTheDocument();
-    act(() => {
-      fireEvent.click(exportButton);
-    });
+    fireEvent.click(exportButton);
 
     const previewModal = wrapper.getByTestId('documentationPreviewModal');
     expect(previewModal).toBeInTheDocument();
     const dropdown = wrapper.getByTestId('entities-list-btn');
-    act(() => {
-      fireEvent.click(dropdown);
-    });
+    fireEvent.click(dropdown);
 
     const showAllBtn = wrapper.getByTestId('toggle-btn-all-show');
-    act(() => {
-      fireEvent.click(showAllBtn);
-    });
+    fireEvent.click(showAllBtn);
 
     await waitFor(async () => {
       const header = await wrapper.findByTestId('documentationPreviewModal');

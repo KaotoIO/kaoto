@@ -150,9 +150,7 @@ describe('ForEachGroupModal', () => {
     render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
 
     const input = screen.getByTestId('for-each-group-expression').querySelector('input') as HTMLInputElement;
-    act(() => {
-      fireEvent.change(input, { target: { value: '' } });
-    });
+    fireEvent.change(input, { target: { value: '' } });
 
     expect(screen.getByTestId('for-each-group-save-btn')).toBeDisabled();
   });
@@ -160,13 +158,9 @@ describe('ForEachGroupModal', () => {
   it('should change grouping strategy via dropdown', () => {
     render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('for-each-group-strategy-toggle'));
-    });
+    fireEvent.click(screen.getByTestId('for-each-group-strategy-toggle'));
 
-    act(() => {
-      fireEvent.click(screen.getByText('Group Adjacent'));
-    });
+    fireEvent.click(screen.getByText('Group Adjacent'));
 
     expect(screen.getByTestId('for-each-group-strategy-toggle')).toHaveTextContent('Group Adjacent');
   });
@@ -175,9 +169,7 @@ describe('ForEachGroupModal', () => {
     render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
 
     const input = screen.getByTestId('for-each-group-expression').querySelector('input') as HTMLInputElement;
-    act(() => {
-      fireEvent.change(input, { target: { value: '@customerId' } });
-    });
+    fireEvent.change(input, { target: { value: '@customerId' } });
 
     expect(input.value).toBe('@customerId');
   });
@@ -187,22 +179,14 @@ describe('ForEachGroupModal', () => {
     const onClose = vi.fn();
     render(<ForEachGroupModal isOpen onClose={onClose} mapping={forEachGroupItem} onUpdate={onUpdate} />);
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('for-each-group-strategy-toggle'));
-    });
+    fireEvent.click(screen.getByTestId('for-each-group-strategy-toggle'));
 
-    act(() => {
-      fireEvent.click(screen.getByText('Group Adjacent'));
-    });
+    fireEvent.click(screen.getByText('Group Adjacent'));
 
     const input = screen.getByTestId('for-each-group-expression').querySelector('input') as HTMLInputElement;
-    act(() => {
-      fireEvent.change(input, { target: { value: '@type' } });
-    });
+    fireEvent.change(input, { target: { value: '@type' } });
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('for-each-group-save-btn'));
-    });
+    fireEvent.click(screen.getByTestId('for-each-group-save-btn'));
 
     await waitFor(() => {
       expect(onUpdate).toHaveBeenCalled();
@@ -219,13 +203,9 @@ describe('ForEachGroupModal', () => {
     render(<ForEachGroupModal isOpen onClose={onClose} mapping={forEachGroupItem} onUpdate={onUpdate} />);
 
     const input = screen.getByTestId('for-each-group-expression').querySelector('input') as HTMLInputElement;
-    act(() => {
-      fireEvent.change(input, { target: { value: 'something-else' } });
-    });
+    fireEvent.change(input, { target: { value: 'something-else' } });
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('for-each-group-cancel-btn'));
-    });
+    fireEvent.click(screen.getByTestId('for-each-group-cancel-btn'));
 
     await waitFor(() => {
       expect(onClose).toHaveBeenCalled();
@@ -239,9 +219,7 @@ describe('ForEachGroupModal', () => {
     render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
     expect(screen.queryByTestId('xpath-editor-modal')).not.toBeInTheDocument();
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('for-each-group-edit-expression'));
-    });
+    fireEvent.click(screen.getByTestId('for-each-group-edit-expression'));
 
     expect(screen.getByTestId('xpath-editor-modal')).toBeInTheDocument();
     expect(screen.getByText('Grouping expression')).toBeInTheDocument();
@@ -251,19 +229,13 @@ describe('ForEachGroupModal', () => {
     const onUpdate = vi.fn();
     render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={onUpdate} />);
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('for-each-group-edit-expression'));
-    });
+    fireEvent.click(screen.getByTestId('for-each-group-edit-expression'));
 
     xpathEditorMapping!.expression = 'NewExpression';
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('xpath-editor-update'));
-    });
+    fireEvent.click(screen.getByTestId('xpath-editor-update'));
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('for-each-group-save-btn'));
-    });
+    fireEvent.click(screen.getByTestId('for-each-group-save-btn'));
 
     await waitFor(() => {
       expect(onUpdate).toHaveBeenCalled();
@@ -274,14 +246,10 @@ describe('ForEachGroupModal', () => {
   it('should close XPath editor on close callback', () => {
     render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('for-each-group-edit-expression'));
-    });
+    fireEvent.click(screen.getByTestId('for-each-group-edit-expression'));
     expect(screen.getByTestId('xpath-editor-modal')).toBeInTheDocument();
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('xpath-editor-close'));
-    });
+    fireEvent.click(screen.getByTestId('xpath-editor-close'));
     expect(screen.queryByTestId('xpath-editor-modal')).not.toBeInTheDocument();
   });
 
@@ -310,9 +278,7 @@ describe('ForEachGroupModal', () => {
     forEachGroupItem.sortItems = [];
     render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-add-key'));
-    });
+    fireEvent.click(screen.getByTestId('sort-add-key'));
     expect(screen.getByTestId('sort-expression-0')).toBeInTheDocument();
   });
 
@@ -324,9 +290,7 @@ describe('ForEachGroupModal', () => {
     render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
     expect(screen.getByTestId('sort-expression-0')).toBeInTheDocument();
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-remove-0'));
-    });
+    fireEvent.click(screen.getByTestId('sort-remove-0'));
     expect(screen.queryByTestId('sort-expression-0')).not.toBeInTheDocument();
   });
 
@@ -335,20 +299,14 @@ describe('ForEachGroupModal', () => {
     const onUpdate = vi.fn();
     render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={onUpdate} />);
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-add-key'));
-    });
+    fireEvent.click(screen.getByTestId('sort-add-key'));
 
     const getInput = (idx: number) =>
       screen.getByTestId(`sort-expression-${idx}`).querySelector('input') as HTMLInputElement;
 
-    act(() => {
-      fireEvent.change(getInput(0), { target: { value: 'Title' } });
-    });
+    fireEvent.change(getInput(0), { target: { value: 'Title' } });
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('for-each-group-save-btn'));
-    });
+    fireEvent.click(screen.getByTestId('for-each-group-save-btn'));
 
     await waitFor(() => {
       expect(onUpdate).toHaveBeenCalled();
@@ -362,23 +320,15 @@ describe('ForEachGroupModal', () => {
     const onUpdate = vi.fn();
     render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={onUpdate} />);
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-add-key'));
-    });
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-add-key'));
-    });
+    fireEvent.click(screen.getByTestId('sort-add-key'));
+    fireEvent.click(screen.getByTestId('sort-add-key'));
 
     const getInput = (idx: number) =>
       screen.getByTestId(`sort-expression-${idx}`).querySelector('input') as HTMLInputElement;
 
-    act(() => {
-      fireEvent.change(getInput(1), { target: { value: 'Price' } });
-    });
+    fireEvent.change(getInput(1), { target: { value: 'Price' } });
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('for-each-group-save-btn'));
-    });
+    fireEvent.click(screen.getByTestId('for-each-group-save-btn'));
 
     await waitFor(() => {
       expect(onUpdate).toHaveBeenCalled();
@@ -394,13 +344,9 @@ describe('ForEachGroupModal', () => {
     const onClose = vi.fn();
     render(<ForEachGroupModal isOpen onClose={onClose} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('mock-drag-trigger'));
-    });
+    fireEvent.click(screen.getByTestId('mock-drag-trigger'));
 
-    act(() => {
-      fireEvent.keyDown(screen.getByTestId('for-each-group-modal'), { key: 'Escape' });
-    });
+    fireEvent.keyDown(screen.getByTestId('for-each-group-modal'), { key: 'Escape' });
     expect(onClose).not.toHaveBeenCalled();
   });
 
@@ -414,13 +360,9 @@ describe('ForEachGroupModal', () => {
     const onUpdate = vi.fn();
     render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={onUpdate} />);
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('mock-drop-trigger'));
-    });
+    fireEvent.click(screen.getByTestId('mock-drop-trigger'));
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('for-each-group-save-btn'));
-    });
+    fireEvent.click(screen.getByTestId('for-each-group-save-btn'));
 
     await waitFor(() => {
       expect(onUpdate).toHaveBeenCalled();

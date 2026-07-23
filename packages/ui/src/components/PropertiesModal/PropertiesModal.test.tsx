@@ -67,12 +67,10 @@ describe('PropertiesModal', () => {
   });
 
   const renderModal = async (tile: ITile) => {
-    const { baseElement } = await act(async () =>
-      render(
-        <CatalogContext.Provider value={mockCatalogRegistry}>
-          <PropertiesModal tile={tile} isModalOpen onClose={vi.fn()} />
-        </CatalogContext.Provider>,
-      ),
+    const { baseElement } = render(
+      <CatalogContext.Provider value={mockCatalogRegistry}>
+        <PropertiesModal tile={tile} isModalOpen onClose={vi.fn()} />
+      </CatalogContext.Provider>,
     );
     return { baseElement };
   };

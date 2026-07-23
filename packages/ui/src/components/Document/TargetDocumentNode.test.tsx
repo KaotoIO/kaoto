@@ -296,9 +296,7 @@ describe('TargetDocumentNode', () => {
       const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
       expect(expandIcon).toBeInTheDocument();
 
-      act(() => {
-        fireEvent.click(expandIcon);
-      });
+      fireEvent.click(expandIcon);
 
       expect(toggleNodeSpy).toHaveBeenCalledWith(documentNodeData.id, tree.root.path);
 
@@ -411,9 +409,7 @@ describe('TargetDocumentNode', () => {
 
       const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
 
-      act(() => {
-        fireEvent.click(expandIcon);
-      });
+      fireEvent.click(expandIcon);
 
       expect(toggleNodeSpy).toHaveBeenCalledTimes(1);
       expect(toggleNodeSpy).toHaveBeenCalledWith(documentNodeData.id, tree.root.path);
@@ -439,9 +435,7 @@ describe('TargetDocumentNode', () => {
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
       expect(nodeContainer).toBeInTheDocument();
 
-      act(() => {
-        fireEvent.click(nodeContainer);
-      });
+      fireEvent.click(nodeContainer);
 
       expect(nodeContainer).toHaveAttribute('data-selected', 'true');
     });
@@ -462,9 +456,7 @@ describe('TargetDocumentNode', () => {
       // Initially not selected
       expect(nodeContainer).toHaveAttribute('data-selected', 'false');
 
-      act(() => {
-        fireEvent.click(nodeContainer);
-      });
+      fireEvent.click(nodeContainer);
 
       // Wait for the component to re-render with selected state
       await waitFor(() => {
@@ -488,15 +480,11 @@ describe('TargetDocumentNode', () => {
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
       expect(nodeContainer).toBeInTheDocument();
 
-      act(() => {
-        fireEvent.click(nodeContainer);
-      });
+      fireEvent.click(nodeContainer);
 
       expect(nodeContainer).toHaveAttribute('data-selected', 'true');
 
-      act(() => {
-        fireEvent.click(nodeContainer);
-      });
+      fireEvent.click(nodeContainer);
 
       const deselectedNode = screen.getByTestId(`node-target-${documentNodeData.id}`);
       expect(deselectedNode).toBeInTheDocument();
@@ -521,9 +509,7 @@ describe('TargetDocumentNode', () => {
 
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
 
-      act(() => {
-        fireEvent.click(nodeContainer);
-      });
+      fireEvent.click(nodeContainer);
 
       expect(parentClickHandler).not.toHaveBeenCalled();
     });
@@ -706,9 +692,7 @@ describe('TargetDocumentNode', () => {
 
       const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
 
-      act(() => {
-        fireEvent.click(expandIcon);
-      });
+      fireEvent.click(expandIcon);
 
       // Parent click handler should not be called due to stopPropagation
       expect(parentClickHandler).not.toHaveBeenCalled();
@@ -732,9 +716,7 @@ describe('TargetDocumentNode', () => {
 
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
 
-      act(() => {
-        fireEvent.click(nodeContainer);
-      });
+      fireEvent.click(nodeContainer);
 
       // Parent click handler should not be called due to stopPropagation
       expect(parentClickHandler).not.toHaveBeenCalled();
@@ -759,9 +741,7 @@ describe('TargetDocumentNode', () => {
 
       // Clicking the node should still work for selection
       const nodeContainer = screen.getByTestId(`node-target-${leafNode!.nodeData.id}`);
-      act(() => {
-        fireEvent.click(nodeContainer);
-      });
+      fireEvent.click(nodeContainer);
 
       // Node should be selected
       expect(nodeContainer).toHaveAttribute('data-selected', 'true');
@@ -786,9 +766,7 @@ describe('TargetDocumentNode', () => {
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
       expect(nodeContainer).toBeInTheDocument();
 
-      act(() => {
-        fireEvent.doubleClick(nodeContainer);
-      });
+      fireEvent.doubleClick(nodeContainer);
 
       expect(getAllowedActionsSpy).toHaveBeenCalledWith(documentNodeData);
       expect(applyValueSelectorSpy).toHaveBeenCalledWith(documentNodeData);
@@ -815,9 +793,7 @@ describe('TargetDocumentNode', () => {
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
       expect(nodeContainer).toBeInTheDocument();
 
-      act(() => {
-        fireEvent.doubleClick(nodeContainer);
-      });
+      fireEvent.doubleClick(nodeContainer);
 
       expect(getAllowedActionsSpy).toHaveBeenCalledWith(documentNodeData);
       expect(applyValueSelectorSpy).not.toHaveBeenCalled();
@@ -841,9 +817,7 @@ describe('TargetDocumentNode', () => {
 
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
 
-      act(() => {
-        fireEvent.keyDown(nodeContainer, { key: 'Enter' });
-      });
+      fireEvent.keyDown(nodeContainer, { key: 'Enter' });
 
       expect(nodeContainer).toHaveAttribute('data-selected', 'true');
     });
@@ -861,9 +835,7 @@ describe('TargetDocumentNode', () => {
 
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
 
-      act(() => {
-        fireEvent.keyDown(nodeContainer, { key: ' ' });
-      });
+      fireEvent.keyDown(nodeContainer, { key: ' ' });
 
       expect(nodeContainer).toHaveAttribute('data-selected', 'true');
     });
@@ -972,9 +944,7 @@ describe('TargetDocumentNode', () => {
         wrapper,
       });
 
-      act(() => {
-        fireEvent.click(screen.getByTestId('new-variable-cancel-btn'));
-      });
+      fireEvent.click(screen.getByTestId('new-variable-cancel-btn'));
 
       await waitFor(() => {
         expect(useDocumentTreeStore.getState().addingVariableToNodePath).toBeNull();
@@ -1006,12 +976,8 @@ describe('TargetDocumentNode', () => {
       });
 
       const input = screen.getByTestId('new-variable-name-input');
-      act(() => {
-        fireEvent.change(input, { target: { value: 'myVar' } });
-      });
-      act(() => {
-        fireEvent.click(screen.getByTestId('new-variable-submit-btn'));
-      });
+      fireEvent.change(input, { target: { value: 'myVar' } });
+      fireEvent.click(screen.getByTestId('new-variable-submit-btn'));
 
       await waitFor(() => {
         expect(addVariableSpy).toHaveBeenCalledWith(fieldNode.mapping, 'myVar');
@@ -1043,12 +1009,8 @@ describe('TargetDocumentNode', () => {
       });
 
       const input = screen.getByTestId('new-variable-name-input');
-      act(() => {
-        fireEvent.change(input, { target: { value: 'newName' } });
-      });
-      act(() => {
-        fireEvent.click(screen.getByTestId('new-variable-submit-btn'));
-      });
+      fireEvent.change(input, { target: { value: 'newName' } });
+      fireEvent.click(screen.getByTestId('new-variable-submit-btn'));
 
       await waitFor(() => {
         expect(updateVariableSpy).toHaveBeenCalledWith(variableItem, 'newName', variableItem.expression);
@@ -1078,9 +1040,7 @@ describe('TargetDocumentNode', () => {
         wrapper,
       });
 
-      act(() => {
-        fireEvent.click(screen.getByTestId('new-variable-cancel-btn'));
-      });
+      fireEvent.click(screen.getByTestId('new-variable-cancel-btn'));
 
       await waitFor(() => {
         expect(useDocumentTreeStore.getState().renamingVariableId).toBeNull();

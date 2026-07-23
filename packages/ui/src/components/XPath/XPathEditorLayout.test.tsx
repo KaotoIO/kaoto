@@ -46,9 +46,7 @@ describe('XPathEditorLayout - Search Field', () => {
     setup();
 
     const tab = screen.getByTestId('xpath-editor-tab-function');
-    act(() => {
-      fireEvent.click(tab);
-    });
+    fireEvent.click(tab);
 
     const searchInput = screen.getByTestId('functions-menu-search-input');
     expect(searchInput).toBeInTheDocument();
@@ -58,9 +56,7 @@ describe('XPathEditorLayout - Search Field', () => {
     setup();
 
     const tab = screen.getByTestId('xpath-editor-tab-function');
-    act(() => {
-      fireEvent.click(tab);
-    });
+    fireEvent.click(tab);
 
     const searchInput = screen.getByTestId('functions-menu-search-input').querySelector('input');
     expect(searchInput).toBeInTheDocument();
@@ -74,9 +70,7 @@ describe('XPathEditorLayout - Search Field', () => {
     setup();
 
     const tab = screen.getByTestId('xpath-editor-tab-function');
-    act(() => {
-      fireEvent.click(tab);
-    });
+    fireEvent.click(tab);
 
     const searchInput = screen.getByTestId('functions-menu-search-input').querySelector('input');
     expect(searchInput).toBeInTheDocument();
@@ -99,9 +93,7 @@ describe('XPathEditorLayout - Collapsible MenuGroups', () => {
     // Switch to the Function tab before each test
     setup();
     const tab = screen.getByTestId('xpath-editor-tab-function');
-    act(() => {
-      fireEvent.click(tab);
-    });
+    fireEvent.click(tab);
   });
 
   it('renders function groups with toggle buttons', () => {
@@ -128,9 +120,7 @@ describe('XPathEditorLayout - Collapsible MenuGroups', () => {
 
     // Click the String group toggle to collapse it
     const stringToggle = screen.getByTestId('function-group-toggle-String');
-    act(() => {
-      fireEvent.click(stringToggle);
-    });
+    fireEvent.click(stringToggle);
 
     // Functions should not be visible after collapse
     expect(screen.queryByText('String Length')).not.toBeInTheDocument();
@@ -141,15 +131,11 @@ describe('XPathEditorLayout - Collapsible MenuGroups', () => {
     const stringToggle = screen.getByTestId('function-group-toggle-String');
 
     // Collapse the group first
-    act(() => {
-      fireEvent.click(stringToggle);
-    });
+    fireEvent.click(stringToggle);
     expect(screen.queryByText('String Length')).not.toBeInTheDocument();
 
     // Expand the group again
-    act(() => {
-      fireEvent.click(stringToggle);
-    });
+    fireEvent.click(stringToggle);
     expect(screen.getByText('String Length')).toBeInTheDocument();
     expect(screen.getByText('Concatenate')).toBeInTheDocument();
   });
@@ -165,17 +151,13 @@ describe('XPathEditorLayout - Collapsible MenuGroups', () => {
     expect(screen.getByText('Concatenate')).toBeInTheDocument();
 
     // Collapse the group while search is active
-    act(() => {
-      fireEvent.click(stringToggle);
-    });
+    fireEvent.click(stringToggle);
 
     // Function should not be visible after collapse, even with search text
     expect(screen.queryByText('Concatenate')).not.toBeInTheDocument();
 
     // Expand again
-    act(() => {
-      fireEvent.click(stringToggle);
-    });
+    fireEvent.click(stringToggle);
 
     // Function should be visible again
     expect(screen.getByText('Concatenate')).toBeInTheDocument();

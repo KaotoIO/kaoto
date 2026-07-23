@@ -64,9 +64,7 @@ describe('FlowTypeSelector.tsx', () => {
     const toggle = await screen.findByTestId('dsl-list-btn');
 
     /** Click on button */
-    act(() => {
-      fireEvent.click(toggle);
-    });
+    fireEvent.click(toggle);
 
     await waitFor(() => {
       expect(onSelect).toHaveBeenCalled();
@@ -87,9 +85,7 @@ describe('FlowTypeSelector.tsx', () => {
     const toggle = await wrapper.findByTestId('viz-dsl-list-dropdown');
 
     /** Open Select */
-    act(() => {
-      fireEvent.click(toggle);
-    });
+    fireEvent.click(toggle);
 
     const element = await wrapper.findByText('Pipe (single route only)');
     expect(element).toBeInTheDocument();

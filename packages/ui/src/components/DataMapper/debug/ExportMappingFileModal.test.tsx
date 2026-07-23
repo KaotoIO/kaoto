@@ -117,9 +117,7 @@ describe('ExportMappingFileModal', () => {
 
     const closeButton = screen.getByTestId('dm-debug-export-mappings-modal-close-btn');
 
-    act(() => {
-      fireEvent.click(closeButton);
-    });
+    fireEvent.click(closeButton);
 
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
@@ -134,9 +132,7 @@ describe('ExportMappingFileModal', () => {
     const modal = screen.getByTestId('dm-debug-export-mappings-modal');
 
     // Simulate closing via the modal's onClose handler
-    act(() => {
-      fireEvent.keyDown(modal, { key: 'Escape', code: 'Escape' });
-    });
+    fireEvent.keyDown(modal, { key: 'Escape', code: 'Escape' });
 
     // The modal component should trigger onClose
     expect(mockOnClose).toHaveBeenCalled();

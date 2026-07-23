@@ -86,9 +86,7 @@ describe('ItemDeleteGroup', () => {
       </Provider>,
     );
 
-    act(() => {
-      fireEvent.click(wrapper.getByText('Delete'));
-    });
+    fireEvent.click(wrapper.getByText('Delete'));
 
     await waitFor(() => {
       expect(removeEntitySpy).toHaveBeenCalledWith([entityId]);
@@ -118,9 +116,7 @@ describe('ItemDeleteGroup', () => {
         </NodeInteractionAddonContext.Provider>
       </ActionConfirmationModalContext.Provider>,
     );
-    act(() => {
-      fireEvent.click(wrapper.getByText('Delete'));
-    });
+    fireEvent.click(wrapper.getByText('Delete'));
 
     await waitFor(() => {
       expect(mockAddon).toHaveBeenCalled();

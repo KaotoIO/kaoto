@@ -10,9 +10,7 @@ describe('RootElementSelect', () => {
   const getInput = () => screen.getByTestId('attach-schema-root-element').querySelector('input') as HTMLInputElement;
 
   const openDropdown = () => {
-    act(() => {
-      fireEvent.focus(getInput());
-    });
+    fireEvent.focus(getInput());
   };
 
   it('should render with selected option', async () => {
@@ -51,9 +49,7 @@ describe('RootElementSelect', () => {
     openDropdown();
     expect(screen.getByRole('listbox')).toBeInTheDocument();
 
-    act(() => {
-      fireEvent.click(screen.getByText('Invoice'));
-    });
+    fireEvent.click(screen.getByText('Invoice'));
     expect(onChange).toHaveBeenCalledWith({ name: 'Invoice', namespaceUri: 'urn:test' });
   });
 
@@ -111,9 +107,7 @@ describe('RootElementSelect', () => {
     const rootOptions = listbox.querySelectorAll('[role="option"]');
     expect(rootOptions).toHaveLength(2);
 
-    act(() => {
-      fireEvent.click(rootOptions[0]);
-    });
+    fireEvent.click(rootOptions[0]);
     expect(onChange).toHaveBeenCalledWith({ name: 'Root', namespaceUri: 'urn:ns-a' });
   });
 
@@ -129,9 +123,7 @@ describe('RootElementSelect', () => {
     const listbox = screen.getByRole('listbox');
     const rootOptions = listbox.querySelectorAll('[role="option"]');
 
-    act(() => {
-      fireEvent.click(rootOptions[1]);
-    });
+    fireEvent.click(rootOptions[1]);
     expect(onChange).toHaveBeenCalledWith({ name: 'Root', namespaceUri: 'urn:ns-b' });
   });
 
@@ -150,9 +142,7 @@ describe('RootElementSelect', () => {
     render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={vi.fn()} />);
 
     openDropdown();
-    act(() => {
-      fireEvent.change(getInput(), { target: { value: 'Inv' } });
-    });
+    fireEvent.change(getInput(), { target: { value: 'Inv' } });
     const listbox = screen.getByRole('listbox');
     const visibleOptions = listbox.querySelectorAll('[role="option"]');
     expect(visibleOptions).toHaveLength(1);
@@ -168,9 +158,7 @@ describe('RootElementSelect', () => {
     render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={vi.fn()} />);
 
     openDropdown();
-    act(() => {
-      fireEvent.change(getInput(), { target: { value: 'ns-a' } });
-    });
+    fireEvent.change(getInput(), { target: { value: 'ns-a' } });
     const listbox = screen.getByRole('listbox');
     const visibleOptions = listbox.querySelectorAll('[role="option"]');
     expect(visibleOptions).toHaveLength(1);
@@ -182,9 +170,7 @@ describe('RootElementSelect', () => {
     render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={onChange} />);
 
     openDropdown();
-    act(() => {
-      fireEvent.change(getInput(), { target: { value: 'Inv' } });
-    });
+    fireEvent.change(getInput(), { target: { value: 'Inv' } });
     expect(onChange).not.toHaveBeenCalled();
   });
 
@@ -193,14 +179,10 @@ describe('RootElementSelect', () => {
     render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={vi.fn()} />);
 
     openDropdown();
-    act(() => {
-      fireEvent.change(getInput(), { target: { value: 'Inv' } });
-    });
+    fireEvent.change(getInput(), { target: { value: 'Inv' } });
     expect(getInput().value).toBe('Inv');
 
-    act(() => {
-      fireEvent.blur(getInput(), { relatedTarget: document.body });
-    });
+    fireEvent.blur(getInput(), { relatedTarget: document.body });
     await waitFor(() => {
       expect(getInput().value).toBe('Order');
     });

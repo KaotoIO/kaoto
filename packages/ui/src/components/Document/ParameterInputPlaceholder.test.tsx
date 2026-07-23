@@ -40,14 +40,10 @@ describe('ParameterInputPlaceholder', () => {
     );
 
     const paramNameInput = screen.getByTestId('new-parameter-name-input');
-    act(() => {
-      fireEvent.change(paramNameInput, { target: { value: 'testparam' } });
-    });
+    fireEvent.change(paramNameInput, { target: { value: 'testparam' } });
 
     const submitButton = screen.getByTestId('new-parameter-submit-btn');
-    act(() => {
-      fireEvent.click(submitButton);
-    });
+    fireEvent.click(submitButton);
   }
 
   it('should send error alert when createPrimitiveDocument returns error', () => {
@@ -94,12 +90,8 @@ describe('ParameterInputPlaceholder', () => {
     const input = screen.getByTestId('new-parameter-name-input');
     expect(input).toHaveValue('oldParam');
 
-    act(() => {
-      fireEvent.change(input, { target: { value: 'newParam' } });
-    });
-    act(() => {
-      fireEvent.click(screen.getByTestId('new-parameter-submit-btn'));
-    });
+    fireEvent.change(input, { target: { value: 'newParam' } });
+    fireEvent.click(screen.getByTestId('new-parameter-submit-btn'));
 
     expect(mockRenameSourceParameter).toHaveBeenCalledWith('oldParam', 'newParam');
     expect(mockOnComplete).toHaveBeenCalled();

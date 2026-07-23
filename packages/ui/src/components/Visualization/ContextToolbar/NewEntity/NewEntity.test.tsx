@@ -41,15 +41,11 @@ describe('NewEntity', () => {
 
     /** Click on toggle */
     const toggle = await wrapper.findByTestId('new-entity-list-dropdown');
-    act(() => {
-      fireEvent.click(toggle);
-    });
+    fireEvent.click(toggle);
 
     /** Click on first element */
     const element = await wrapper.findAllByRole('menuitem');
-    act(() => {
-      fireEvent.click(element[0]);
-    });
+    fireEvent.click(element[0]);
 
     await waitFor(async () => {
       expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
@@ -67,17 +63,13 @@ describe('NewEntity', () => {
     const toggle = await wrapper.findByTestId('new-entity-list-dropdown');
 
     /** Click on toggle */
-    act(() => {
-      fireEvent.click(toggle);
-    });
+    fireEvent.click(toggle);
 
     const element = await wrapper.findByText('Route');
     expect(element).toBeInTheDocument();
 
     /** Close Select */
-    act(() => {
-      fireEvent.click(toggle);
-    });
+    fireEvent.click(toggle);
 
     await waitFor(async () => {
       expect(element).not.toBeInTheDocument();
@@ -95,9 +87,7 @@ describe('NewEntity', () => {
     const toggle = await wrapper.findByTestId('new-entity-list-dropdown');
 
     /** Open Select */
-    act(() => {
-      fireEvent.click(toggle);
-    });
+    fireEvent.click(toggle);
 
     const menu = await wrapper.findByRole('menu');
 
@@ -128,9 +118,7 @@ describe('NewEntity', () => {
       const toggle = await wrapper.findByTestId('new-entity-list-dropdown');
 
       /** Click on toggle */
-      act(() => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       // Should see Configuration submenu with YAML-only entities
       const configurationMenu = await wrapper.findByText('Configuration');
@@ -167,9 +155,7 @@ describe('NewEntity', () => {
       const toggle = await wrapper.findByTestId('new-entity-list-dropdown');
 
       /** Click on toggle */
-      act(() => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       // Should see Route as a common (non-grouped) entity
       const routeMenuItem = await wrapper.findByText('Route');
@@ -191,24 +177,18 @@ describe('NewEntity', () => {
       const toggle = await wrapper.findByTestId('new-entity-list-dropdown');
 
       /** Click on toggle */
-      act(() => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       const configurationMenu = await wrapper.findByText('Configuration');
       const menuItem = configurationMenu.closest('[role="menuitem"]');
 
       // Hover over Configuration to open submenu
       if (menuItem) {
-        act(() => {
-          fireEvent.mouseEnter(menuItem);
-        });
+        fireEvent.mouseEnter(menuItem);
 
         // Click on RouteConfiguration in submenu
         const routeConfigItem = await wrapper.findByText('RouteConfiguration');
-        act(() => {
-          fireEvent.click(routeConfigItem);
-        });
+        fireEvent.click(routeConfigItem);
 
         await waitFor(async () => {
           expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
@@ -238,9 +218,7 @@ describe('NewEntity', () => {
       const toggle = await wrapper.findByTestId('new-entity-list-dropdown');
 
       /** Click on toggle */
-      act(() => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       // Should still render the common entities
       const routeMenuItem = await wrapper.findByText('Route');

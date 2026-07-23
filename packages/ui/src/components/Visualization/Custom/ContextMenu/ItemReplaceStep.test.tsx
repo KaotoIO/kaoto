@@ -107,9 +107,7 @@ describe('ItemReplaceStep', () => {
         </CatalogModalContext.Provider>
       </EntitiesContext.Provider>,
     );
-    act(() => {
-      fireEvent.click(wrapper.getByText('Replace'));
-    });
+    fireEvent.click(wrapper.getByText('Replace'));
     await waitFor(() => {
       expect(mockAddon).toHaveBeenCalled();
     });

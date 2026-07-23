@@ -45,14 +45,10 @@ describe('CommentModal', () => {
       render(<CommentModal isOpen onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
 
       const textarea = screen.getByTestId('comment-textarea');
-      act(() => {
-        fireEvent.change(textarea, { target: { value: 'New comment' } });
-      });
+      fireEvent.change(textarea, { target: { value: 'New comment' } });
 
       const createBtn = screen.getByTestId('create-comment-btn');
-      act(() => {
-        fireEvent.click(createBtn);
-      });
+      fireEvent.click(createBtn);
 
       expect(mapping.comment).toBe('New comment');
       expect(onUpdateMock).toHaveBeenCalledTimes(1);
@@ -86,14 +82,10 @@ describe('CommentModal', () => {
       render(<CommentModal isOpen onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
 
       const textarea = screen.getByTestId('comment-textarea');
-      act(() => {
-        fireEvent.change(textarea, { target: { value: 'Updated comment' } });
-      });
+      fireEvent.change(textarea, { target: { value: 'Updated comment' } });
 
       const updateBtn = screen.getByTestId('update-comment-btn');
-      act(() => {
-        fireEvent.click(updateBtn);
-      });
+      fireEvent.click(updateBtn);
 
       expect(mapping.comment).toBe('Updated comment');
       expect(onUpdateMock).toHaveBeenCalledTimes(1);
@@ -104,9 +96,7 @@ describe('CommentModal', () => {
       render(<CommentModal isOpen onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
 
       const deleteBtn = screen.getByTestId('delete-comment-btn');
-      act(() => {
-        fireEvent.click(deleteBtn);
-      });
+      fireEvent.click(deleteBtn);
 
       expect(mapping.comment).toBeUndefined();
       expect(onUpdateMock).toHaveBeenCalledTimes(1);
@@ -147,14 +137,10 @@ describe('CommentModal', () => {
       );
 
       const textarea = screen.getByTestId('comment-textarea');
-      act(() => {
-        fireEvent.change(textarea, { target: { value: 'Confirmed comment' } });
-      });
+      fireEvent.change(textarea, { target: { value: 'Confirmed comment' } });
 
       const confirmBtn = screen.getByTestId('comment-confirm-btn');
-      act(() => {
-        fireEvent.click(confirmBtn);
-      });
+      fireEvent.click(confirmBtn);
 
       expect(mapping.comment).toBe('Confirmed comment');
       expect(onUpdateMock).toHaveBeenCalledTimes(1);
@@ -166,9 +152,7 @@ describe('CommentModal', () => {
       render(<CommentModal isOpen onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
 
       const cancelBtn = screen.getByTestId('cancel-comment-btn');
-      act(() => {
-        fireEvent.click(cancelBtn);
-      });
+      fireEvent.click(cancelBtn);
 
       expect(onCloseMock).toHaveBeenCalledTimes(1);
       expect(onUpdateMock).not.toHaveBeenCalled();
@@ -178,14 +162,10 @@ describe('CommentModal', () => {
       render(<CommentModal isOpen onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
 
       const textarea = screen.getByTestId('comment-textarea');
-      act(() => {
-        fireEvent.change(textarea, { target: { value: 'Changed text' } });
-      });
+      fireEvent.change(textarea, { target: { value: 'Changed text' } });
 
       const cancelBtn = screen.getByTestId('cancel-comment-btn');
-      act(() => {
-        fireEvent.click(cancelBtn);
-      });
+      fireEvent.click(cancelBtn);
 
       expect(mapping.comment).toBeUndefined();
     });

@@ -38,9 +38,7 @@ describe('ConfirmActionButton', () => {
   it('should open modal when trigger button is clicked', () => {
     render(<ConfirmActionButton {...defaultProps} />);
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('delete-item-button'));
-    });
+    fireEvent.click(screen.getByTestId('delete-item-button'));
 
     expect(screen.getByTestId('delete-item-modal')).toBeInTheDocument();
     expect(screen.getByText('Are you sure you want to delete this item?')).toBeInTheDocument();
@@ -50,12 +48,8 @@ describe('ConfirmActionButton', () => {
     const onConfirm = vi.fn();
     render(<ConfirmActionButton {...defaultProps} onConfirm={onConfirm} />);
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('delete-item-button'));
-    });
-    act(() => {
-      fireEvent.click(screen.getByTestId('delete-item-modal-confirm-btn'));
-    });
+    fireEvent.click(screen.getByTestId('delete-item-button'));
+    fireEvent.click(screen.getByTestId('delete-item-modal-confirm-btn'));
 
     expect(onConfirm).toHaveBeenCalledTimes(1);
     expect(screen.queryByTestId('delete-item-modal')).not.toBeInTheDocument();
@@ -65,12 +59,8 @@ describe('ConfirmActionButton', () => {
     const onConfirm = vi.fn();
     render(<ConfirmActionButton {...defaultProps} onConfirm={onConfirm} />);
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('delete-item-button'));
-    });
-    act(() => {
-      fireEvent.click(screen.getByTestId('delete-item-modal-cancel-btn'));
-    });
+    fireEvent.click(screen.getByTestId('delete-item-button'));
+    fireEvent.click(screen.getByTestId('delete-item-modal-cancel-btn'));
 
     expect(onConfirm).not.toHaveBeenCalled();
     expect(screen.queryByTestId('delete-item-modal')).not.toBeInTheDocument();
@@ -85,9 +75,7 @@ describe('ConfirmActionButton', () => {
     );
     render(<ConfirmActionButton {...defaultProps} description={description} />);
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('delete-item-button'));
-    });
+    fireEvent.click(screen.getByTestId('delete-item-button'));
 
     expect(screen.getByText('First line')).toBeInTheDocument();
     expect(screen.getByText('Second line')).toBeInTheDocument();

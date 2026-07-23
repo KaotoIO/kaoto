@@ -34,14 +34,10 @@ describe('RestDslImportPage', () => {
     );
 
     const resultsButton = screen.getByRole('button', { name: 'Result' });
-    act(() => {
-      fireEvent.click(resultsButton);
-    });
+    fireEvent.click(resultsButton);
 
     const goToRestEditorButton = screen.getByRole('button', { name: 'Go to Rest Editor' });
-    act(() => {
-      fireEvent.click(goToRestEditorButton);
-    });
+    fireEvent.click(goToRestEditorButton);
 
     expect(screen.getByText('Rest Editor')).toBeInTheDocument();
   });
@@ -57,14 +53,10 @@ describe('RestDslImportPage', () => {
     );
 
     const resultsButton = screen.getByRole('button', { name: 'Result' });
-    act(() => {
-      fireEvent.click(resultsButton);
-    });
+    fireEvent.click(resultsButton);
 
     const goToDesignerButton = screen.getByRole('button', { name: 'Go to Designer' });
-    act(() => {
-      fireEvent.click(goToDesignerButton);
-    });
+    fireEvent.click(goToDesignerButton);
 
     expect(screen.getByText('Home page')).toBeInTheDocument();
   });

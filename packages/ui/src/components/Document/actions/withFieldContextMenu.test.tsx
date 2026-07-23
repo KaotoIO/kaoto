@@ -37,9 +37,7 @@ describe('withFieldContextMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${fieldNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${fieldNode.nodeData.id}`));
 
     expect(screen.getByText('Override Field...')).toBeInTheDocument();
   });
@@ -52,9 +50,7 @@ describe('withFieldContextMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${fieldNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${fieldNode.nodeData.id}`));
 
     expect(screen.queryByText('Override Field...')).not.toBeInTheDocument();
   });
@@ -74,9 +70,7 @@ describe('withFieldContextMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${documentNodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${documentNodeData.id}`));
 
     expect(screen.queryByText('Override Field...')).not.toBeInTheDocument();
   });
@@ -94,15 +88,11 @@ describe('withFieldContextMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${fieldNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${fieldNode.nodeData.id}`));
 
     expect(screen.getByText('Override Field...')).toBeInTheDocument();
 
-    act(() => {
-      fireEvent.mouseDown(globalThis.document.body);
-    });
+    fireEvent.mouseDown(globalThis.document.body);
 
     expect(screen.queryByText('Override Field...')).not.toBeInTheDocument();
   });
@@ -120,15 +110,11 @@ describe('withFieldContextMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${fieldNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${fieldNode.nodeData.id}`));
 
     expect(screen.getByText('Override Field...')).toBeInTheDocument();
 
-    act(() => {
-      fireEvent.keyDown(globalThis.document, { key: 'Escape' });
-    });
+    fireEvent.keyDown(globalThis.document, { key: 'Escape' });
 
     expect(screen.queryByText('Override Field...')).not.toBeInTheDocument();
   });

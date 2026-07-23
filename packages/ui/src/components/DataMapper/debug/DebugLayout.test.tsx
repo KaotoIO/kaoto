@@ -108,18 +108,14 @@ describe('DebugLayout', () => {
     );
 
     const targetOrderId = await screen.findByTestId(/node-target-fx-OrderId-.*/);
-    act(() => {
-      fireEvent.click(targetOrderId);
-    });
+    fireEvent.click(targetOrderId);
     await waitFor(() => {
       const store = useDocumentTreeStore.getState();
       expect(store.selectedNodePath).toMatch(/targetBody:Body:\/\/fx-ShipOrder-.*\/fx-OrderId-.*/);
     });
 
     const sourceOrderId = await screen.findByTestId(/node-source-fx-OrderId-.*/);
-    act(() => {
-      fireEvent.click(sourceOrderId);
-    });
+    fireEvent.click(sourceOrderId);
     await waitFor(() => {
       const store = useDocumentTreeStore.getState();
       expect(store.selectedNodePath).toMatch(/sourceBody:Body:\/\/fx-ShipOrder-.*\/fx-OrderId-.*/);
@@ -153,39 +149,27 @@ describe('DebugLayout', () => {
         </TestProviders>,
       );
       let mainMenuButton = await screen.findByTestId('dm-debug-main-menu-button');
-      act(() => {
-        fireEvent.click(mainMenuButton);
-      });
+      fireEvent.click(mainMenuButton);
       const importButton = screen.getByTestId('dm-debug-import-mappings-button');
-      act(() => {
-        fireEvent.click(importButton);
-      });
+      fireEvent.click(importButton);
       const fileContent = new File([new Blob([getShipOrderToShipOrderXslt()])], 'ShipOrderToShipOrder.xsl', {
         type: 'text/plain',
       });
       const fileInput = screen.getByTestId('dm-debug-import-mappings-file-input');
       expect(spyOnMappingTree!.children).toHaveLength(0);
-      act(() => {
-        fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
-      });
+      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
       await waitFor(() => {
         expect(spyOnMappingTree!.children).toHaveLength(1);
       });
 
       mainMenuButton = screen.getByTestId('dm-debug-main-menu-button');
-      act(() => {
-        fireEvent.click(mainMenuButton);
-      });
+      fireEvent.click(mainMenuButton);
       const exportButton = screen.getByTestId('dm-debug-export-mappings-button');
-      act(() => {
-        fireEvent.click(exportButton.getElementsByTagName('button')[0]);
-      });
+      fireEvent.click(exportButton.getElementsByTagName('button')[0]);
       const modal = await screen.findAllByTestId('dm-debug-export-mappings-modal');
       expect(modal).toBeTruthy();
       const closeModalButton = screen.getByTestId('dm-debug-export-mappings-modal-close-btn');
-      act(() => {
-        fireEvent.click(closeModalButton);
-      });
+      fireEvent.click(closeModalButton);
       expect(screen.queryByTestId('dm-debug-export-mappings-modal')).toBeFalsy();
       const connectionPortsLog = mockDebug.mock.calls.filter((call) => call[0].startsWith('Connection Ports: ['));
       expect(connectionPortsLog.length).toBeGreaterThan(0);
