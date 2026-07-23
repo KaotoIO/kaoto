@@ -1,8 +1,9 @@
 import { ComponentType, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { DocumentTreeNode } from '../../../models/datamapper/document-tree-node';
+import { IFieldMenuGroup } from '../../../models/datamapper/field-action';
 import { VisualizationUtilService } from '../../../services/visualization/visualization-util.service';
-import { FieldContextMenu, MenuGroup } from './FieldContextMenu';
+import { FieldContextMenu } from './FieldContextMenu';
 import { useAbstractFieldSubstitutionMenu } from './FieldContextMenu/useAbstractFieldSubstitutionMenu';
 import { useChoiceContextMenu } from './FieldContextMenu/useChoiceContextMenu';
 import { useFieldOverrideMenu } from './FieldContextMenu/useFieldOverrideMenu';
@@ -74,7 +75,7 @@ export function withFieldContextMenu<P extends WithTreeNode>(
     );
 
     const menuGroups = useMemo(
-      (): MenuGroup[] =>
+      (): IFieldMenuGroup[] =>
         [...choice.groups, ...override.groups, ...abstractSubstitution.groups].filter(
           (group) => group.actions.length > 0,
         ),

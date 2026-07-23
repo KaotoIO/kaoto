@@ -12,7 +12,7 @@ import {
 } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useMemo, useState } from 'react';
 
-import { MemberSelection, WrapperCandidate } from '../../../services/visualization/wrapper-action.service';
+import { IMemberSelection, IWrapperCandidate } from '../../../models/datamapper/field-action';
 import { DataMapperModal } from '../../DataMapper/DataMapperModal';
 
 const SEARCH_THRESHOLD = 10;
@@ -22,9 +22,9 @@ export interface WrapperSelectionModalProps {
   title: string;
   description?: string;
   testId: string;
-  candidates: WrapperCandidate[];
+  candidates: IWrapperCandidate[];
   selectedKey: string | null;
-  onSelect: (selection: MemberSelection) => void;
+  onSelect: (selection: IMemberSelection) => void;
   onClose: () => void;
 }
 

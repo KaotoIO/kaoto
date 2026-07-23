@@ -1,10 +1,10 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 
+import { IWrapperCandidate } from '../../../models/datamapper/field-action';
 import { Types } from '../../../models/datamapper/types';
-import { WrapperCandidate } from '../../../services/visualization/wrapper-action.service';
 import { WrapperSelectionModal, WrapperSelectionModalProps } from './WrapperSelectionModal';
 
-function makeCandidates(count: number): WrapperCandidate[] {
+function makeCandidates(count: number): IWrapperCandidate[] {
   return Array.from({ length: count }, (_, i) => ({
     key: `key-${i}`,
     label: `Candidate ${i}`,
@@ -145,7 +145,7 @@ describe('WrapperSelectionModal', () => {
   });
 
   it('should handle candidates with substituteQName', () => {
-    const candidates: WrapperCandidate[] = [
+    const candidates: IWrapperCandidate[] = [
       {
         key: '0:ns:Cat',
         label: 'Cat',

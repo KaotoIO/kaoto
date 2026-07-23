@@ -1,6 +1,18 @@
+import type { ReactNode } from 'react';
+
 import { IField } from '../../models/datamapper/document';
+import {
+  IAbstractFieldInfo,
+  IAbstractMenuGroupsConfig,
+  IChoiceMenuGroupsConfig,
+  IChoiceNodeInfo,
+  IFieldMenuAction,
+  IFieldMenuGroup,
+  IMemberSelection,
+  IWrapperCandidate,
+} from '../../models/datamapper/field-action';
 import { FieldItem, InstructionItem } from '../../models/datamapper/mapping';
-import { FieldOverrideVariant, IFieldSubstituteInfo, Types } from '../../models/datamapper/types';
+import { FieldOverrideVariant, IFieldSubstituteInfo } from '../../models/datamapper/types';
 import {
   FieldItemNodeData,
   NodeData,
@@ -9,6 +21,7 @@ import {
   TargetFieldNodeData,
   TargetNodeData,
 } from '../../models/datamapper/visualization';
+import { DocumentService } from '../document/document.service';
 import { DocumentUtilService } from '../document/document-util.service';
 import { FieldOverrideService } from '../document/field-override.service';
 import { WrapperSelectionService } from '../document/wrapper-selection.service';
@@ -18,37 +31,20 @@ import { MappingActionService } from './mapping-action.service';
 import { VisualizationService } from './visualization.service';
 import { VisualizationUtilService } from './visualization-util.service';
 
-export interface MemberSelection {
-  memberIndex: number;
-  substituteQName?: string;
-}
-
-export interface WrapperCandidate {
-  key: string;
-  label: string;
-  typeBadge: Types;
-  description?: string;
-  childrenPreview?: string[];
-  selection: MemberSelection;
-}
-
-export interface AbstractFieldInfo {
-  isAbstractWrapper: boolean;
-  isAbstractWrapperMember: boolean;
-  isSelectedSubstitution: boolean;
-  isSubstitutionCandidate: boolean;
-  abstractWrapperField: IField | undefined;
-  field: IField | undefined;
-  parentAbstractField: IField | undefined;
-  candidateQName: string | undefined;
-}
-
 const MAX_CHILDREN_PREVIEW = 3;
 
 function childrenPreview(field: IField): string[] | undefined {
   const children = field.fields;
   if (!children || children.length === 0) return undefined;
   return children.slice(0, MAX_CHILDREN_PREVIEW).map((c) => c.displayName || c.name);
+}
+
+const INLINE_SUBSTITUTION_LIMIT = 10;
+const INLINE_CHOICE_LIMIT = 10;
+
+interface CandidateEntry {
+  candidate: IWrapperCandidate;
+  field: IField;
 }
 
 /**
@@ -58,7 +54,7 @@ function childrenPreview(field: IField): string[] | undefined {
  * menu-utils, and revert-override — leaving hooks as thin UI adapters.
  */
 export class WrapperActionService {
-  // ── Group A: Field Classification / Resolution ──
+  // ── Field Classification / Resolution ──
 
   private static findCandidateQName(
     candidates: Record<string, IFieldSubstituteInfo>,
@@ -88,7 +84,7 @@ export class WrapperActionService {
     );
   }
 
-  static resolveAbstractFieldInfo(nodeData: NodeData, namespaceMap: Record<string, string>): AbstractFieldInfo {
+  static resolveAbstractFieldInfo(nodeData: NodeData, namespaceMap: Record<string, string>): IAbstractFieldInfo {
     const field = VisualizationUtilService.getField(nodeData);
     const isAbstractWrapper = field?.wrapperKind === 'abstract';
     const isAbstractWrapperMember = VisualizationUtilService.isAbstractWrapperMember(nodeData);
@@ -125,9 +121,9 @@ export class WrapperActionService {
     };
   }
 
-  // ── Group B: Candidate Building ──
+  // ── Candidate Building ──
 
-  static fieldToCandidate(field: IField, key: string, memberIndex: number): WrapperCandidate {
+  static fieldToCandidate(field: IField, key: string, memberIndex: number): IWrapperCandidate {
     const label =
       field.wrapperKind === 'choice'
         ? VisualizationService.getChoiceMemberLabel(field)
@@ -150,7 +146,7 @@ export class WrapperActionService {
    * without navigating through the intermediate abstract element. On confirm,
    * both `selectedMemberIndex` and `selectedMemberQName` are set in one action.
    */
-  static dissolveChoiceMembers(members: IField[], namespaceMap: Record<string, string>): WrapperCandidate[] {
+  static dissolveChoiceMembers(members: IField[], namespaceMap: Record<string, string>): IWrapperCandidate[] {
     return members.flatMap((member, index) => {
       if (member.wrapperKind === 'abstract') {
         const candidates = FieldOverrideService.getFieldSubstitutionCandidates(member, namespaceMap);
@@ -171,7 +167,7 @@ export class WrapperActionService {
    * `memberIndex` is set to 0 — abstract wrappers have a single logical
    * member slot (the selected substitute replaces the wrapper).
    */
-  static buildAbstractCandidates(abstractField: IField, namespaceMap: Record<string, string>): WrapperCandidate[] {
+  static buildAbstractCandidates(abstractField: IField, namespaceMap: Record<string, string>): IWrapperCandidate[] {
     const candidates = FieldOverrideService.getFieldSubstitutionCandidates(abstractField, namespaceMap);
     return Object.entries(candidates).map(([qname, info]) => ({
       key: qname,
@@ -181,7 +177,7 @@ export class WrapperActionService {
     }));
   }
 
-  // ── Group C: Abstract Substitution Orchestration ──
+  // ── Abstract Substitution Orchestration ──
 
   static resolveSubstitutionCandidates(
     abstractWrapperField: IField | undefined,
@@ -310,7 +306,7 @@ export class WrapperActionService {
     }
   }
 
-  // ── Group D: Choice Selection Orchestration ──
+  // ── Choice Selection Orchestration ──
 
   static getChoiceFieldDisplayName(field: IField): string {
     return field.wrapperKind === 'choice'
@@ -321,7 +317,7 @@ export class WrapperActionService {
   static dispatchChoiceSelection(
     nodeData: NodeData,
     wrapper: IField,
-    selection: MemberSelection,
+    selection: IMemberSelection,
     namespaceMap: Record<string, string>,
     isTargetSide: boolean,
   ): void {
@@ -356,7 +352,7 @@ export class WrapperActionService {
   static resolveMemberSelectedKey(
     nodeData: NodeData,
     choiceWrapperMemberField: IField | undefined,
-    dissolved: WrapperCandidate[],
+    dissolved: IWrapperCandidate[],
     namespaceMap: Record<string, string>,
   ): string | null {
     if (!(nodeData instanceof FieldItemNodeData)) return null;
@@ -385,7 +381,7 @@ export class WrapperActionService {
     isChoiceWrapperMember: boolean,
     memberSelectedKey: string | null,
     activeChoiceWrapperForMembers: IField | undefined,
-    dissolved: WrapperCandidate[],
+    dissolved: IWrapperCandidate[],
   ): string | null {
     if (isChoiceWrapperMember) return memberSelectedKey;
     const idx = activeChoiceWrapperForMembers?.selectedMemberIndex;
@@ -401,7 +397,7 @@ export class WrapperActionService {
   private static applyPerInstanceChoiceSelection(
     nodeData: NodeData,
     wrapper: IField,
-    selection: MemberSelection,
+    selection: IMemberSelection,
     namespaceMap: Record<string, string>,
   ): void {
     let candidateField: IField | undefined = wrapper.fields[selection.memberIndex];
@@ -422,7 +418,7 @@ export class WrapperActionService {
   private static applyDocumentLevelChoiceSelection(
     nodeData: NodeData,
     wrapper: IField,
-    selection: MemberSelection,
+    selection: IMemberSelection,
     namespaceMap: Record<string, string>,
     isTargetSide: boolean,
   ): void {
@@ -461,7 +457,7 @@ export class WrapperActionService {
     WrapperSelectionService.clearChoiceSelection(doc, wrapper, namespaceMap);
   }
 
-  // ── Group E: Mapping Mutations (moved from MappingActionService) ──
+  // ── Mapping Mutations ──
 
   /**
    * Creates or updates a per-instance member selection for a wrapper field. Unlike the
@@ -520,7 +516,7 @@ export class WrapperActionService {
     WrapperActionService.clearTargetSelection(nodeData, wrapperField);
   }
 
-  // ── Group F: Revert Override ──
+  // ── Revert Override ──
 
   /**
    * Revert a field override (type override or substitution) without opening the modal.
@@ -543,7 +539,7 @@ export class WrapperActionService {
    * no side effects. Used by {@link useChoiceContextMenu} to determine what menu
    * actions to offer.
    */
-  static resolveChoiceNodeInfo(nodeData: NodeData): ChoiceNodeInfo {
+  static resolveChoiceNodeInfo(nodeData: NodeData): IChoiceNodeInfo {
     const field = VisualizationUtilService.getField(nodeData);
     const isChoiceWrapper = field?.wrapperKind === 'choice';
     const isSelectedChoice = VisualizationUtilService.isSelectedChoiceField(nodeData);
@@ -588,34 +584,267 @@ export class WrapperActionService {
       choiceMemberIndex,
     };
   }
-}
 
-/**
- * Full choice context resolved for a given node. Each field captures one aspect
- * of the node's relationship to choice wrappers.
- *
- * @property isChoiceWrapper - The node's own field has `wrapperKind === 'choice'`
- * @property isSelectedChoice - The node is a choice field with a selected member (flattened view)
- * @property isChoiceMember - The node's field is a direct child of a choice wrapper
- * @property isChoiceWrapperMember - The node is a per-instance FieldItem belonging to a collection wrapper
- * @property activeChoiceWrapperForMembers - The choice wrapper whose members should be offered in the context menu
- * @property effectiveChoiceWrapper - The wrapper that governs this node (wrapper member takes priority)
- * @property choiceWrapperField - The outermost selected choice wrapper (walks up through nested choices)
- * @property choiceWrapperMemberField - The wrapper field from a per-instance FieldItem
- * @property choiceMemberField - The field representing this node as a choice member
- * @property parentChoiceWrapperField - The parent choice wrapper field if this node is a direct member
- * @property choiceMemberIndex - The 0-based index of this member within its parent choice
- */
-export interface ChoiceNodeInfo {
-  isChoiceWrapper: boolean;
-  isSelectedChoice: boolean;
-  isChoiceMember: boolean;
-  isChoiceWrapperMember: boolean;
-  activeChoiceWrapperForMembers: IField | undefined;
-  effectiveChoiceWrapper: IField | undefined;
-  choiceWrapperField: IField | undefined;
-  choiceWrapperMemberField: IField | undefined;
-  choiceMemberField: IField | undefined;
-  parentChoiceWrapperField: IField | undefined;
-  choiceMemberIndex: number | undefined;
+  // ── Menu Builders ──
+
+  /**
+   * Assembles context menu groups for a node involved with abstract wrappers.
+   * Dispatches to one of three paths: (1) abstract-inside-choice — only a
+   * clear action when a substitute is already selected, since the choice menu
+   * owns member selection; (2) abstract wrapper or wrapper member — inline
+   * candidates or a modal launcher depending on count; (3) substitution
+   * candidate — clear/change actions for the current selection.
+   */
+  static buildMenuGroupsForAbstractNode(config: IAbstractMenuGroupsConfig): IFieldMenuGroup[] {
+    if (config.isInsideChoiceWrapper && config.isAbstractWrapper) {
+      const hasSelection = config.selectedQName !== undefined;
+      return hasSelection ? [{ actions: [config.clearSubstitutionAction] }] : [];
+    }
+    if (config.isAbstractWrapper || config.isAbstractWrapperMember) {
+      return WrapperActionService.buildAbstractWrapperMenuGroups(config);
+    }
+    const substitutionActions: IFieldMenuAction[] = [];
+    if (config.isSelectedSubstitution)
+      substitutionActions.push(config.clearSubstitutionAction, config.changeSubstituteAction);
+    if (config.selectSelfAction) substitutionActions.push(config.selectSelfAction);
+    return [{ actions: substitutionActions }];
+  }
+
+  /**
+   * Assembles context menu groups for a node involved with choice wrappers.
+   * Wrapper/wrapper-member nodes get inline members or a modal launcher;
+   * nested selected choices additionally get clear/change actions appended.
+   * Non-wrapper selected choices get only clear/change.
+   */
+  static buildMenuGroupsForChoiceNode(config: IChoiceMenuGroupsConfig): IFieldMenuGroup[] {
+    if (config.isChoiceWrapper || config.isChoiceWrapperMember) {
+      const groups = WrapperActionService.buildChoiceWrapperMenuGroups(config);
+      if (config.isNestedSelectedChoice)
+        groups.push({ actions: [config.clearChoiceAction, config.changeMemberAction] });
+      return groups;
+    }
+    const choiceActions: IFieldMenuAction[] = [];
+    if (config.isSelectedChoice) choiceActions.push(config.clearChoiceAction, config.changeMemberAction);
+    if (config.selectSelfAction) choiceActions.push(config.selectSelfAction);
+    return [{ actions: choiceActions }];
+  }
+
+  private static buildAbstractWrapperMenuGroups(config: IAbstractMenuGroupsConfig): IFieldMenuGroup[] {
+    const selectedQName = config.isAbstractWrapperMember ? config.memberSelectedQName : config.selectedQName;
+    const selectSelfAction = config.isAbstractWrapperMember ? undefined : config.selectSelfAction;
+    const candidateCount = Object.keys(config.candidates).length;
+
+    if (candidateCount === 0 && selectedQName === undefined) {
+      return selectSelfAction ? [{ actions: [selectSelfAction] }] : [];
+    }
+
+    const candidatesGroup: IFieldMenuGroup =
+      candidateCount <= INLINE_SUBSTITUTION_LIMIT
+        ? {
+            actions: WrapperActionService.buildInlineSubstitutionActions(
+              config.candidates,
+              selectedQName,
+              config.onSelectSubstitution,
+              config.selectedIcon,
+              config.unselectedIcon,
+            ),
+          }
+        : {
+            actions: [
+              {
+                label: 'Select Substitute...',
+                onClick: config.onOpenSubstitutionModal,
+                testId: 'open-substitution-modal',
+              },
+            ],
+          };
+
+    const hasSelection = selectedQName !== undefined;
+    return [
+      { actions: selectSelfAction ? [selectSelfAction] : [] },
+      candidatesGroup,
+      { actions: hasSelection ? [config.clearSubstitutionAction] : [] },
+    ];
+  }
+
+  private static buildInlineSubstitutionActions(
+    candidates: Record<string, IFieldSubstituteInfo>,
+    selectedQName: string | undefined,
+    onSelect: (qname: string) => void,
+    selectedIcon: ReactNode,
+    unselectedIcon: ReactNode,
+  ): IFieldMenuAction[] {
+    return Object.entries(candidates).map(([qname, info]) => ({
+      label: info.displayName,
+      onClick: () => {
+        onSelect(qname);
+      },
+      icon: selectedQName === qname ? selectedIcon : unselectedIcon,
+      testId: `substitution-menu-item-${qname}`,
+    }));
+  }
+
+  private static buildChoiceWrapperMenuGroups(config: IChoiceMenuGroupsConfig): IFieldMenuGroup[] {
+    const selectSelfAction = config.isChoiceWrapperMember ? undefined : config.selectSelfAction;
+
+    if (config.dissolved.length === 0 && config.selectedModalKey === null) {
+      return selectSelfAction ? [{ actions: [selectSelfAction] }] : [];
+    }
+
+    const membersGroup: IFieldMenuGroup =
+      config.dissolved.length <= INLINE_CHOICE_LIMIT
+        ? {
+            actions: WrapperActionService.buildInlineMemberActions(
+              config.dissolved,
+              config.selectedModalKey,
+              config.onSelectChoiceMember,
+              config.selectedIcon,
+              config.unselectedIcon,
+            ),
+          }
+        : { actions: [{ label: 'Select Member...', onClick: config.onOpenChoiceModal, testId: 'open-choice-modal' }] };
+
+    const hasSelection = config.selectedModalKey !== null;
+    return [
+      { actions: selectSelfAction ? [selectSelfAction] : [] },
+      membersGroup,
+      { actions: hasSelection ? [config.clearChoiceAction] : [] },
+    ];
+  }
+
+  private static buildInlineMemberActions(
+    dissolvedMembers: IWrapperCandidate[],
+    selectedKey: string | null,
+    onSelect: (selection: IMemberSelection) => void,
+    selectedIcon: ReactNode,
+    unselectedIcon: ReactNode,
+  ): IFieldMenuAction[] {
+    return dissolvedMembers.map(({ key, label, selection }) => ({
+      label,
+      onClick: () => {
+        onSelect(selection);
+      },
+      icon: selectedKey === key ? selectedIcon : unselectedIcon,
+      testId: selection.substituteQName
+        ? 'choice-menu-item-' + selection.memberIndex + '-' + selection.substituteQName
+        : 'choice-menu-item-' + selection.memberIndex,
+    }));
+  }
+
+  // ── Add-Field Candidates ──
+
+  /**
+   * Builds the candidate list for the "Add field" modal in the mapping context
+   * menu. Walks `schemaFields` and flattens wrapper layers: sequences are
+   * dissolved recursively, choices and abstract wrappers are expanded into
+   * their concrete members/substitutes. Fields whose `maxOccurs` slot is
+   * already occupied by `existingFieldItems` are excluded. In `forEachContext`,
+   * non-collection (maxOccurs=1) plain fields are skipped because for-each
+   * iterates collections only.
+   *
+   * Returns parallel arrays: `candidates` for the modal UI and `fields` for
+   * resolving the selected `memberIndex` back to the schema field.
+   */
+  static computeAddFieldCandidates(
+    schemaFields: IField[],
+    namespaceMap: Record<string, string>,
+    existingFieldItems: FieldItem[] = [],
+    forEachContext = false,
+  ): { candidates: IWrapperCandidate[]; fields: IField[] } {
+    const candidates: IWrapperCandidate[] = [];
+    const fields: IField[] = [];
+    let index = 0;
+
+    for (const child of schemaFields) {
+      if (child.wrapperKind === 'sequence') {
+        const nested = WrapperActionService.computeAddFieldCandidates(
+          child.fields,
+          namespaceMap,
+          existingFieldItems,
+          forEachContext,
+        );
+        for (let i = 0; i < nested.candidates.length; i++) {
+          candidates.push({
+            ...nested.candidates[i],
+            key: `${index}`,
+            selection: { ...nested.candidates[i].selection, memberIndex: index },
+          });
+          fields.push(nested.fields[i]);
+          index++;
+        }
+        continue;
+      }
+
+      if (WrapperActionService.shouldSkipField(child, forEachContext)) continue;
+      if (WrapperActionService.isSlotExhausted(child, existingFieldItems)) continue;
+
+      for (const { candidate, field } of WrapperActionService.resolveFieldEntries(child, namespaceMap)) {
+        candidate.key = `${index}`;
+        candidate.selection.memberIndex = index;
+        candidates.push(candidate);
+        fields.push(field);
+        index++;
+      }
+    }
+
+    return { candidates, fields };
+  }
+
+  private static resolveAbstractSubstitutes(
+    abstractField: IField,
+    namespaceMap: Record<string, string>,
+  ): CandidateEntry[] {
+    const subs = FieldOverrideService.getFieldSubstitutionCandidates(abstractField, namespaceMap);
+    const entries: CandidateEntry[] = [];
+    for (const [qname, info] of Object.entries(subs)) {
+      const field = WrapperActionService.resolveCandidateField(abstractField, qname, subs, abstractField, namespaceMap);
+      if (!field) continue;
+      entries.push({
+        candidate: {
+          key: '',
+          label: info.displayName,
+          typeBadge: info.type,
+          selection: { memberIndex: 0, substituteQName: qname },
+        },
+        field,
+      });
+    }
+    return entries;
+  }
+
+  private static resolveChoiceMembers(choiceField: IField, namespaceMap: Record<string, string>): CandidateEntry[] {
+    const entries: CandidateEntry[] = [];
+    for (const member of choiceField.fields) {
+      if (member.wrapperKind === 'abstract') {
+        entries.push(...WrapperActionService.resolveAbstractSubstitutes(member, namespaceMap));
+      } else if (member.wrapperKind !== 'sequence') {
+        entries.push({ candidate: WrapperActionService.fieldToCandidate(member, '', 0), field: member });
+      }
+    }
+    return entries;
+  }
+
+  private static resolveFieldEntries(child: IField, namespaceMap: Record<string, string>): CandidateEntry[] {
+    if (child.wrapperKind === 'choice') return WrapperActionService.resolveChoiceMembers(child, namespaceMap);
+    if (child.wrapperKind === 'abstract') return WrapperActionService.resolveAbstractSubstitutes(child, namespaceMap);
+    return [{ candidate: WrapperActionService.fieldToCandidate(child, '', 0), field: child }];
+  }
+
+  private static shouldSkipField(child: IField, forEachContext: boolean): boolean {
+    if (!forEachContext) return false;
+    return (
+      child.wrapperKind !== 'choice' &&
+      child.wrapperKind !== 'abstract' &&
+      child.maxOccurs !== 'unbounded' &&
+      Number(child.maxOccurs) <= 1
+    );
+  }
+
+  private static isSlotExhausted(child: IField, existingFieldItems: FieldItem[]): boolean {
+    if (child.maxOccurs === 'unbounded') return false;
+    const occupied = existingFieldItems.filter(
+      (fi) => fi.field === child || DocumentService.isDescendant(child, fi.field),
+    ).length;
+    return occupied >= Number(child.maxOccurs);
+  }
 }
