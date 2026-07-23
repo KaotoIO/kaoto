@@ -9,8 +9,9 @@ import {
   MappingTree,
   OtherwiseItem,
   SortItem,
+  ValueOfSelector,
+  ValueOfType,
   ValueSelector,
-  ValueType,
   VariableItem,
   WhenItem,
 } from './mapping';
@@ -28,7 +29,7 @@ describe('mapping.ts', () => {
       expect(isExpressionHolder(new WhenItem(tree))).toBe(true);
       expect(isExpressionHolder(new ForEachItem(tree))).toBe(true);
       expect(isExpressionHolder(new ForEachGroupItem(tree))).toBe(true);
-      expect(isExpressionHolder(new ValueSelector(tree))).toBe(true);
+      expect(isExpressionHolder(new ValueOfSelector(tree))).toBe(true);
       expect(isExpressionHolder(new VariableItem(tree, 'myVar'))).toBe(true);
     });
 
@@ -42,7 +43,7 @@ describe('mapping.ts', () => {
     it('clone() should copy expression and children', () => {
       const item = new IfItem(tree);
       item.expression = 'count($x) > 0';
-      const child = new ValueSelector(item);
+      const child = new ValueOfSelector(item);
       child.expression = '$x/name';
       item.children = [child];
 
@@ -56,7 +57,7 @@ describe('mapping.ts', () => {
 
     it('clone() should reparent cloned children to the cloned parent', () => {
       const item = new IfItem(tree);
-      const child = new ValueSelector(item);
+      const child = new ValueOfSelector(item);
       item.children = [child];
 
       const cloned = item.clone();
@@ -82,7 +83,7 @@ describe('mapping.ts', () => {
       const choose = new ChooseItem(tree);
       const item = new WhenItem(choose);
       item.expression = '@type = "express"';
-      const child = new ValueSelector(item);
+      const child = new ValueOfSelector(item);
       child.expression = '$x/value';
       item.children = [child];
 
@@ -124,7 +125,7 @@ describe('mapping.ts', () => {
     it('clone() should copy expression and children', () => {
       const item = new ForEachItem(tree);
       item.expression = '/Order/Items/Item';
-      const child = new ValueSelector(item);
+      const child = new ValueOfSelector(item);
       child.expression = 'ItemId';
       item.children = [child];
 
@@ -179,7 +180,7 @@ describe('mapping.ts', () => {
       item.expression = '/Order/Items/Item';
       item.groupingStrategy = GroupingStrategy.GROUP_ADJACENT;
       item.groupingExpression = 'Category';
-      const child = new ValueSelector(item);
+      const child = new ValueOfSelector(item);
       child.expression = 'ItemId';
       item.children = [child];
 
@@ -210,13 +211,13 @@ describe('mapping.ts', () => {
 
   describe('ValueSelector', () => {
     it('clone() should copy expression and valueType', () => {
-      const item = new ValueSelector(tree, ValueType.ATTRIBUTE);
+      const item = new ValueOfSelector(tree, ValueOfType.ATTRIBUTE);
       item.expression = '/Order/@id';
 
       const cloned = item.clone();
 
       expect(cloned.expression).toBe('/Order/@id');
-      expect(cloned.valueType).toBe(ValueType.ATTRIBUTE);
+      expect(cloned.valueType).toBe(ValueOfType.ATTRIBUTE);
       expect(cloned).not.toBe(item);
     });
   });
@@ -225,7 +226,7 @@ describe('mapping.ts', () => {
     it('clone() should copy name, expression, and children', () => {
       const item = new VariableItem(tree, 'myVar');
       item.expression = '/Order/Id';
-      const child = new ValueSelector(item);
+      const child = new ValueOfSelector(item);
       child.expression = 'ItemId';
       item.children = [child];
 

@@ -6,12 +6,15 @@ import {
 } from '../../models/datamapper/document';
 import {
   ChooseItem,
+  CopyOfSelector,
+  CopyOfType,
   FieldItem,
   ForEachItem,
   IfItem,
   MappingTree,
   OtherwiseItem,
   UnknownMappingItem,
+  ValueOfSelector,
   ValueSelector,
   VariableItem,
   WhenItem,
@@ -134,8 +137,9 @@ describe('MappingSerializerService', () => {
       expect(shipToFieldItem.field.namespaceURI).toBe('');
       expect(shipToFieldItem.field.maxOccurs).toBe(1);
       expect(shipToFieldItem.children).toHaveLength(1);
-      selector = shipToFieldItem.children[0] as ValueSelector;
-      expect(selector.expression).toBe('/ns0:ShipOrder/ShipTo');
+      const copyOfSelector = shipToFieldItem.children[0] as CopyOfSelector;
+      expect(copyOfSelector.expression).toBe('/ns0:ShipOrder/ShipTo');
+      expect(copyOfSelector.valueType).toBe(CopyOfType.CONTAINER_NODE);
 
       const forEachItem = shipOrderFieldItem.children[3] as ForEachItem;
       expect(forEachItem.expression).toBe('/ns0:ShipOrder/Item');
@@ -207,7 +211,50 @@ describe('MappingSerializerService', () => {
       expect(selector.expression).toBe('Price');
     });
 
-    it('should deserialize a raw text node as a literal ValueSelector', () => {
+    it('should reconstruct intermediate FieldItem for CONTAINER copy-of with skipped wrapper', () => {
+      const xslt = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        `<xsl:stylesheet version="3.0" xmlns:xsl="${NS_XSL}" xmlns:ns0="io.kaoto.datamapper.poc.test">`,
+        '  <xsl:output method="xml" indent="yes"/>',
+        '  <xsl:template match="/">',
+        '    <ShipOrder xmlns="io.kaoto.datamapper.poc.test">',
+        '      <xsl:copy-of select="/ns0:ShipOrder/ShipTo"/>',
+        '    </ShipOrder>',
+        '  </xsl:template>',
+        '</xsl:stylesheet>',
+      ].join('\n');
+
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      ({ mappingTree } = MappingSerializerService.deserialize(xslt, targetDoc, mappingTree, sourceParameterMap));
+
+      const shipOrderFieldItem = mappingTree.children[0] as FieldItem;
+      expect(shipOrderFieldItem.field.name).toBe('ShipOrder');
+      expect(shipOrderFieldItem.children).toHaveLength(1);
+
+      const shipToFieldItem = shipOrderFieldItem.children[0] as FieldItem;
+      expect(shipToFieldItem).toBeInstanceOf(FieldItem);
+      expect(shipToFieldItem.field.name).toBe('ShipTo');
+      expect(shipToFieldItem.children).toHaveLength(1);
+
+      const selector = shipToFieldItem.children[0] as CopyOfSelector;
+      expect(selector).toBeInstanceOf(CopyOfSelector);
+      expect(selector.valueType).toBe(CopyOfType.CONTAINER);
+      expect(selector.expression).toBe('/ns0:ShipOrder/ShipTo');
+
+      const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+      const xsltDocument = domParser.parseFromString(serialized, 'text/xml');
+      const copyOfSelect = xsltDocument
+        .evaluate(
+          '/xsl:stylesheet/xsl:template/ShipOrder/xsl:copy-of/@select',
+          xsltDocument,
+          xslNsResolver,
+          XPathResult.ORDERED_NODE_ITERATOR_TYPE,
+        )
+        .iterateNext();
+      expect(copyOfSelect?.nodeValue).toBe('/ns0:ShipOrder/ShipTo');
+    });
+
+    it('should deserialize a raw text node as a literal ValueOfSelector', () => {
       const mappingTree = new MappingTree(
         DocumentType.TARGET_BODY,
         BODY_DOCUMENT_ID,
@@ -220,12 +267,12 @@ describe('MappingSerializerService', () => {
         sourceParameterMap,
       );
       expect(result.children).toHaveLength(1);
-      const selector = result.children[0] as ValueSelector;
+      const selector = result.children[0] as ValueOfSelector;
       expect(selector.expression).toBe('TEST');
       expect(selector.isLiteral).toBeTruthy();
     });
 
-    it('should deserialize xsl:text as a literal ValueSelector', () => {
+    it('should deserialize xsl:text as a literal ValueOfSelector', () => {
       const mappingTree = new MappingTree(
         DocumentType.TARGET_BODY,
         BODY_DOCUMENT_ID,
@@ -238,7 +285,7 @@ describe('MappingSerializerService', () => {
         sourceParameterMap,
       );
       expect(result.children).toHaveLength(1);
-      const selector = result.children[0] as ValueSelector;
+      const selector = result.children[0] as ValueOfSelector;
       expect(selector.expression).toBe('TEST');
       expect(selector.isLiteral).toBeTruthy();
     });

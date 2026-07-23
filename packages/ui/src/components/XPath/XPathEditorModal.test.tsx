@@ -1,6 +1,12 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 
-import { BODY_DOCUMENT_ID, IExpressionHolder, MappingItem, MappingTree, ValueSelector } from '../../models/datamapper';
+import {
+  BODY_DOCUMENT_ID,
+  IExpressionHolder,
+  MappingItem,
+  MappingTree,
+  ValueOfSelector,
+} from '../../models/datamapper';
 import { DocumentDefinitionType, DocumentType } from '../../models/datamapper/document';
 import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
@@ -8,7 +14,7 @@ import { XPathEditorModal } from './XPathEditorModal';
 
 describe('XPathEditorModal', () => {
   const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
-  const mapping: IExpressionHolder & MappingItem = new ValueSelector(tree);
+  const mapping: IExpressionHolder & MappingItem = new ValueOfSelector(tree);
   mapping.expression = '/to/some/field';
   const onClose = vi.fn();
   const onUpdate = vi.fn();

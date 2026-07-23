@@ -7,7 +7,7 @@ import {
   IfItem,
   MappingTree,
   UnknownMappingItem,
-  ValueSelector,
+  ValueOfSelector,
   VariableItem,
   WhenItem,
 } from '../../../models/datamapper/mapping';
@@ -69,7 +69,7 @@ describe('NodeTitleUtil.getMappingItemLabelInfo()', () => {
 
     it('should not warn when children exist', () => {
       const item = new VariableItem(tree, 'myVar');
-      item.children.push(new ValueSelector(item));
+      item.children.push(new ValueOfSelector(item));
 
       const result = NodeTitleUtil.getMappingItemLabelInfo(item);
 

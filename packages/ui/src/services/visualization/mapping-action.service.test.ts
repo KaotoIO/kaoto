@@ -8,6 +8,8 @@ import {
 } from '../../models/datamapper/document';
 import {
   ChooseItem,
+  CopyOfSelector,
+  CopyOfType,
   FieldItem,
   ForEachGroupItem,
   ForEachItem,
@@ -15,8 +17,9 @@ import {
   MappingTree,
   OtherwiseItem,
   UnknownMappingItem,
+  ValueOfSelector,
+  ValueOfType,
   ValueSelector,
-  ValueType,
   VariableItem,
   WhenItem,
 } from '../../models/datamapper/mapping';
@@ -874,9 +877,9 @@ describe('MappingActionService', () => {
         const shipOrderFI = tree.children[0] as FieldItem;
         const orderPersonFI = shipOrderFI.children[0] as FieldItem;
         expect(orderPersonFI.children).toHaveLength(1);
-        const vs = orderPersonFI.children[0] as ValueSelector;
-        expect(vs).toBeInstanceOf(ValueSelector);
-        expect(vs.valueType).toBe(ValueType.VALUE);
+        const vs = orderPersonFI.children[0] as ValueOfSelector;
+        expect(vs).toBeInstanceOf(ValueOfSelector);
+        expect(vs.valueType).toBe(ValueOfType.VALUE);
       });
 
       it('should create ATTRIBUTE ValueSelector for attribute field', () => {
@@ -889,9 +892,9 @@ describe('MappingActionService', () => {
         const shipOrderFI = tree.children[0] as FieldItem;
         const orderIdFI = shipOrderFI.children[0] as FieldItem;
         expect(orderIdFI.children).toHaveLength(1);
-        const vs = orderIdFI.children[0] as ValueSelector;
-        expect(vs).toBeInstanceOf(ValueSelector);
-        expect(vs.valueType).toBe(ValueType.ATTRIBUTE);
+        const vs = orderIdFI.children[0] as ValueOfSelector;
+        expect(vs).toBeInstanceOf(ValueOfSelector);
+        expect(vs.valueType).toBe(ValueOfType.ATTRIBUTE);
       });
 
       it('should prevent duplicate VALUE ValueSelector', () => {
@@ -902,9 +905,7 @@ describe('MappingActionService', () => {
 
         const shipOrderFI = tree.children[0] as FieldItem;
         const orderPersonFI = shipOrderFI.children[0] as FieldItem;
-        const valueSelectors = orderPersonFI.children.filter(
-          (c) => c instanceof ValueSelector && (c.valueType === ValueType.VALUE || c.valueType === ValueType.ATTRIBUTE),
-        );
+        const valueSelectors = orderPersonFI.children.filter((c) => c instanceof ValueOfSelector);
         expect(valueSelectors).toHaveLength(1);
       });
     });
@@ -919,9 +920,9 @@ describe('MappingActionService', () => {
         const shipOrderFI = tree.children[0] as FieldItem;
         const orderIdFI = shipOrderFI.children[0] as FieldItem;
         expect(orderIdFI.children).toHaveLength(1);
-        const vs = orderIdFI.children[0] as ValueSelector;
-        expect(vs).toBeInstanceOf(ValueSelector);
-        expect(vs.valueType).toBe(ValueType.CONTAINER_NODE);
+        const vs = orderIdFI.children[0] as CopyOfSelector;
+        expect(vs).toBeInstanceOf(CopyOfSelector);
+        expect(vs.valueType).toBe(CopyOfType.CONTAINER_NODE);
       });
 
       it('should allow multiple CONTAINER_NODE ValueSelectors', () => {
@@ -942,7 +943,7 @@ describe('MappingActionService', () => {
         const shipOrderFI = tree.children[0] as FieldItem;
         const orderPersonFI = shipOrderFI.children[0] as FieldItem;
         const containerSelectors = orderPersonFI.children.filter(
-          (c) => c instanceof ValueSelector && c.valueType === ValueType.CONTAINER_NODE,
+          (c) => c instanceof CopyOfSelector && c.valueType === CopyOfType.CONTAINER_NODE,
         );
         expect(containerSelectors).toHaveLength(2);
       });
@@ -998,7 +999,7 @@ describe('MappingActionService', () => {
         const itemNode = forEachChildren[0] as FieldItemNodeData;
         const itemMapping = itemNode.mapping;
         expect(
-          itemMapping.children.some((c) => c instanceof ValueSelector && c.valueType === ValueType.CONTAINER),
+          itemMapping.children.some((c) => c instanceof CopyOfSelector && c.valueType === CopyOfType.CONTAINER),
         ).toBe(true);
 
         const sourceItemChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceShipOrderChildren[3]);
@@ -1008,7 +1009,7 @@ describe('MappingActionService', () => {
         MappingActionService.engageMapping(tree, sourceTitleField, targetTitleField);
 
         expect(
-          itemMapping.children.some((c) => c instanceof ValueSelector && c.valueType === ValueType.CONTAINER),
+          itemMapping.children.some((c) => c instanceof CopyOfSelector && c.valueType === CopyOfType.CONTAINER),
         ).toBe(false);
         expect(itemMapping.children.some((c) => c instanceof FieldItem && c.field.name === 'Title')).toBe(true);
       });
@@ -1026,7 +1027,7 @@ describe('MappingActionService', () => {
           (c) => c instanceof FieldItem && c.field.name === 'ShipTo',
         ) as FieldItem;
         expect(
-          shipToMapping.children.some((c) => c instanceof ValueSelector && c.valueType === ValueType.CONTAINER_NODE),
+          shipToMapping.children.some((c) => c instanceof CopyOfSelector && c.valueType === CopyOfType.CONTAINER_NODE),
         ).toBe(true);
 
         const sourceDocChildren = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
@@ -1052,7 +1053,7 @@ describe('MappingActionService', () => {
         MappingActionService.engageMapping(tree, sourceNameField, targetNameField);
 
         expect(
-          shipToMapping.children.some((c) => c instanceof ValueSelector && c.valueType === ValueType.CONTAINER_NODE),
+          shipToMapping.children.some((c) => c instanceof CopyOfSelector && c.valueType === CopyOfType.CONTAINER_NODE),
         ).toBe(true);
         expect(shipToMapping.children.some((c) => c instanceof FieldItem && c.field.name === 'Name')).toBe(true);
       });
@@ -1739,7 +1740,7 @@ describe('MappingActionService', () => {
         expect(vs.expression).toBe('$myVar');
       });
 
-      it('should create CONTAINER mapping for content-form variable to document', () => {
+      it('should create mapping for content-form variable to document', () => {
         const variable = new VariableItem(tree, 'contentVar');
         variable.children.push(new FieldItem(variable, targetDoc.fields[0]));
         tree.children.push(variable);
@@ -1799,9 +1800,9 @@ describe('MappingActionService', () => {
         ) as FieldItem;
         expect(itemFieldItem).toBeDefined();
 
-        const copyOf = itemFieldItem.children.find((c) => c instanceof ValueSelector) as ValueSelector;
+        const copyOf = itemFieldItem.children.find((c) => c instanceof CopyOfSelector) as CopyOfSelector;
         expect(copyOf).toBeDefined();
-        expect(copyOf.valueType).toEqual(ValueType.CONTAINER_NODE);
+        expect(copyOf.valueType).toEqual(CopyOfType.CONTAINER_NODE);
         expect(copyOf.expression).toMatch(/\/node\(\)$/);
       });
     });
@@ -2212,7 +2213,7 @@ describe('MappingActionService', () => {
       it('should not include Variable for ValueSelector, ChooseItem, or UnknownMappingItem MappingNodeData', () => {
         const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
         tree.children.push(fieldItem);
-        const valueSelector = new ValueSelector(fieldItem);
+        const valueSelector = new ValueOfSelector(fieldItem);
         fieldItem.children.push(valueSelector);
         const valueSelectorNode = new MappingNodeData(targetDocNode, valueSelector);
         expect(MappingActionRegistryService.getAllowedActions(valueSelectorNode)).not.toContain(

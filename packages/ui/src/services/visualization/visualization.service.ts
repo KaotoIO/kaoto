@@ -3,6 +3,8 @@ import { qname } from 'xml-name-validator';
 
 import { IDocument, IField } from '../../models/datamapper/document';
 import {
+  CopyOfSelector,
+  CopyOfType,
   FieldItem,
   IExpressionHolder,
   InstructionItem,
@@ -11,8 +13,8 @@ import {
   MappingParentType,
   MappingTree,
   UnknownMappingItem,
+  ValueOfSelector,
   ValueSelector,
-  ValueType,
   VariableItem,
 } from '../../models/datamapper/mapping';
 import {
@@ -273,7 +275,8 @@ export class VisualizationService {
     mappings: MappingItem[] | undefined,
   ): void {
     if (!mappings) return;
-    let filterPriorityMappingItem = (m: MappingItem) => m instanceof UnknownMappingItem || m instanceof VariableItem;
+    let filterPriorityMappingItem: (m: MappingItem) => boolean = (m) =>
+      m instanceof UnknownMappingItem || m instanceof VariableItem;
     if (parent.isPrimitive) {
       filterPriorityMappingItem = (m: MappingItem) =>
         m instanceof UnknownMappingItem || VisualizationService.isInlineValueSelector(m);
@@ -539,8 +542,8 @@ export class VisualizationService {
   }
 
   static isInlineValueSelector(item: MappingItem): item is ValueSelector {
-    if (!(item instanceof ValueSelector)) return false;
-    return item.valueType !== ValueType.CONTAINER_NODE;
+    if (item instanceof CopyOfSelector) return item.valueType !== CopyOfType.CONTAINER_NODE;
+    return item instanceof ValueOfSelector;
   }
 
   private static getFieldValueSelector(nodeData: TargetNodeData) {

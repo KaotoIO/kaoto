@@ -1,13 +1,16 @@
 import { DocumentDefinitionType, DocumentType, IDocument, IField } from '../../models/datamapper/document';
 import {
   ChooseItem,
+  CopyOfSelector,
+  CopyOfType,
   FieldItem,
   ForEachItem,
   IfItem,
   MappingTree,
   OtherwiseItem,
+  ValueOfSelector,
+  ValueOfType,
   ValueSelector,
-  ValueType,
   VariableItem,
   WhenItem,
 } from '../../models/datamapper/mapping';
@@ -725,7 +728,7 @@ describe('MappingService', () => {
   describe('wrapWithFunction()', () => {
     it('should wrap with xpath function', () => {
       const concatFx = XPathService.functions.String.find((f) => f.name === 'concat');
-      const valueSelector = new ValueSelector(tree);
+      const valueSelector = new ValueOfSelector(tree);
       valueSelector.expression = '/path/to/field';
       MappingService.wrapWithFunction(valueSelector, concatFx!);
       expect(valueSelector.expression).toBe('concat(/path/to/field)');
@@ -774,13 +777,13 @@ describe('MappingService', () => {
     });
   });
 
-  describe('createValueSelector()', () => {
-    it('should create ValueSelector', () => {
+  describe('createValueOfSelector()', () => {
+    it('should create ValueOfSelector', () => {
       const orderIdFieldItem = tree.children[0].children[0] as FieldItem;
       expect(orderIdFieldItem.children[0] instanceof ValueSelector).toBeTruthy();
       orderIdFieldItem.children = [];
-      const valueSelector = MappingService.createValueSelector(orderIdFieldItem);
-      expect(valueSelector.valueType).toEqual(ValueType.ATTRIBUTE);
+      const valueSelector = MappingService.createValueOfSelector(orderIdFieldItem);
+      expect(valueSelector.valueType).toEqual(ValueOfType.ATTRIBUTE);
     });
   });
 
@@ -834,7 +837,7 @@ describe('MappingService', () => {
       const targetField = targetDoc.fields[0].fields[0];
       const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
       const variable = MappingService.addVariable(shipOrderItem, 'myVar');
-      const vs = new ValueSelector(fieldItem);
+      const vs = new ValueOfSelector(fieldItem);
       vs.expression = '$myVar';
       fieldItem.children.push(vs);
       expect(fieldItem.children).toContain(vs);
@@ -1030,7 +1033,7 @@ describe('MappingService', () => {
       const variable = MappingService.addVariable(tree, 'taxRate');
 
       // Simulate mapping: add a ValueSelector with $taxRate expression
-      const vs = new ValueSelector(fieldItem);
+      const vs = new ValueOfSelector(fieldItem);
       vs.expression = '$taxRate';
       fieldItem.children.push(vs);
 
@@ -1049,7 +1052,7 @@ describe('MappingService', () => {
       const targetField = targetDoc.fields[0].fields[0];
       const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
 
-      const vs = new ValueSelector(fieldItem);
+      const vs = new ValueOfSelector(fieldItem);
       vs.expression = '$otherVar';
       fieldItem.children.push(vs);
 
@@ -1065,7 +1068,7 @@ describe('MappingService', () => {
       const childFieldItem = forEachItem.children.find((c) => c instanceof FieldItem) as FieldItem;
       if (!childFieldItem) return;
 
-      const vs = new ValueSelector(childFieldItem);
+      const vs = new ValueOfSelector(childFieldItem);
       vs.expression = '$loopVar';
       childFieldItem.children.push(vs);
 
@@ -1083,7 +1086,7 @@ describe('MappingService', () => {
       const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
 
       const localVar = MappingService.addVariable(shipOrderItem, 'x');
-      const vs = new ValueSelector(fieldItem);
+      const vs = new ValueOfSelector(fieldItem);
       vs.expression = '$x';
       fieldItem.children.push(vs);
 
@@ -1098,7 +1101,7 @@ describe('MappingService', () => {
     it('should remove a direct following sibling that references the variable', () => {
       const shipOrderItem = tree.children[0] as FieldItem;
       const variable = MappingService.addVariable(shipOrderItem, 'myVar');
-      const vs = new ValueSelector(shipOrderItem);
+      const vs = new ValueOfSelector(shipOrderItem);
       vs.expression = '$myVar';
       shipOrderItem.children.push(vs);
 
@@ -1130,7 +1133,7 @@ describe('MappingService', () => {
       const varX2 = new VariableItem(shipOrderItem, 'x');
       varX2.expression = '2';
       const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
-      const vs = new ValueSelector(fieldItem);
+      const vs = new ValueOfSelector(fieldItem);
       vs.expression = '$x';
       fieldItem.children.push(vs);
       shipOrderItem.children.unshift(varX1, varX2);
@@ -1152,7 +1155,7 @@ describe('MappingService', () => {
       const varX2 = new VariableItem(shipOrderItem, 'x');
       varX2.expression = '$x + 1';
       const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
-      const vs = new ValueSelector(fieldItem);
+      const vs = new ValueOfSelector(fieldItem);
       vs.expression = '$x';
       fieldItem.children.push(vs);
       shipOrderItem.children.unshift(varX1, varX2);
@@ -1172,7 +1175,7 @@ describe('MappingService', () => {
       const varX2 = new VariableItem(shipOrderItem, 'x');
       varX2.expression = '5';
       const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
-      const vs = new ValueSelector(fieldItem);
+      const vs = new ValueOfSelector(fieldItem);
       vs.expression = '$x';
       fieldItem.children.push(vs);
       shipOrderItem.children.unshift(varX1, varX2);
@@ -1190,7 +1193,7 @@ describe('MappingService', () => {
       const targetField = targetDoc.fields[0].fields[0];
       const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
       const variable = MappingService.addVariable(shipOrderItem, 'myVar');
-      const vs = new ValueSelector(fieldItem);
+      const vs = new ValueOfSelector(fieldItem);
       vs.expression = '$myVar';
       fieldItem.children.push(vs);
 
@@ -1204,7 +1207,7 @@ describe('MappingService', () => {
       const targetField = targetDoc.fields[0].fields[0];
       const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
       const variable = MappingService.addVariable(shipOrderItem, 'my');
-      const vs = new ValueSelector(fieldItem);
+      const vs = new ValueOfSelector(fieldItem);
       vs.expression = '$myVar + $my';
       fieldItem.children.push(vs);
 
@@ -1218,7 +1221,7 @@ describe('MappingService', () => {
       const targetField = targetDoc.fields[0].fields[0];
       const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
       const variable = MappingService.addVariable(shipOrderItem, 'x');
-      const vs = new ValueSelector(fieldItem);
+      const vs = new ValueOfSelector(fieldItem);
       vs.expression = '$x + $x';
       fieldItem.children.push(vs);
 
@@ -1233,7 +1236,7 @@ describe('MappingService', () => {
       const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
 
       MappingService.addVariable(shipOrderItem, 'x');
-      const vs = new ValueSelector(fieldItem);
+      const vs = new ValueOfSelector(fieldItem);
       vs.expression = '$x';
       fieldItem.children.push(vs);
 
@@ -1252,7 +1255,7 @@ describe('MappingService', () => {
       const varX2 = new VariableItem(shipOrderItem, 'x');
       varX2.expression = '2';
       const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
-      const vs = new ValueSelector(fieldItem);
+      const vs = new ValueOfSelector(fieldItem);
       vs.expression = '$x';
       fieldItem.children.push(vs);
       shipOrderItem.children.unshift(varX1, varX2);
@@ -1272,7 +1275,7 @@ describe('MappingService', () => {
       const varX2 = new VariableItem(shipOrderItem, 'x');
       varX2.expression = '$x + 1';
       const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
-      const vs = new ValueSelector(fieldItem);
+      const vs = new ValueOfSelector(fieldItem);
       vs.expression = '$x';
       fieldItem.children.push(vs);
       shipOrderItem.children.unshift(varX1, varX2);
@@ -1313,9 +1316,9 @@ describe('MappingService', () => {
 
       MappingService.applyContainerMapping(sourceShipTo, targetShipTo, shipToItem);
 
-      const vs = shipToItem.children.find((c) => c instanceof ValueSelector) as ValueSelector;
+      const vs = shipToItem.children.find((c) => c instanceof CopyOfSelector) as CopyOfSelector;
       expect(vs).toBeDefined();
-      expect(vs.valueType).toBe(ValueType.CONTAINER);
+      expect(vs.valueType).toBe(CopyOfType.CONTAINER);
     });
 
     it('generateAutoChildMappings should create value-of for terminal matching children', () => {
@@ -1341,7 +1344,7 @@ describe('MappingService', () => {
       const childFieldItems = shipToItem.children.filter((c) => c instanceof FieldItem);
       expect(childFieldItems).toHaveLength(4);
       childFieldItems.forEach((fi) => {
-        const vs = fi.children.find((c) => c instanceof ValueSelector);
+        const vs = fi.children.find((c) => c instanceof ValueOfSelector);
         expect(vs).toBeDefined();
       });
     });
@@ -1363,9 +1366,9 @@ describe('MappingService', () => {
       expect(childFieldItems.length).toBeGreaterThan(0);
       const shipToChild = childFieldItems.find((c) => c.field.name === 'ShipTo')!;
       expect(shipToChild).toBeDefined();
-      const shipToVs = shipToChild.children.find((c) => c instanceof ValueSelector) as ValueSelector;
+      const shipToVs = shipToChild.children.find((c) => c instanceof CopyOfSelector) as CopyOfSelector;
       expect(shipToVs).toBeDefined();
-      expect(shipToVs.valueType).toBe(ValueType.CONTAINER);
+      expect(shipToVs.valueType).toBe(CopyOfType.CONTAINER);
     });
 
     it('applyContainerMapping should recurse when canUseCopyOf is false', () => {
@@ -1397,7 +1400,7 @@ describe('MappingService', () => {
     it('getContainerValueType should return CONTAINER for normal fields', () => {
       const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
       const sourceShipTo = sourceRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
-      expect(MappingService.getContainerValueType(sourceShipTo, targetShipTo)).toBe(ValueType.CONTAINER);
+      expect(MappingService.getContainerValueType(sourceShipTo, targetShipTo)).toBe(CopyOfType.CONTAINER);
     });
   });
 
@@ -1407,7 +1410,7 @@ describe('MappingService', () => {
       const freshFieldItem = new FieldItem(tree, targetDoc.fields[0]);
       const field1 = new FieldItem(freshFieldItem, targetDoc.fields[0].fields[0]);
       const field2 = new FieldItem(freshFieldItem, targetDoc.fields[0].fields[1]);
-      const valueSelector = new ValueSelector(freshFieldItem, ValueType.VALUE);
+      const valueSelector = new ValueOfSelector(freshFieldItem, ValueOfType.VALUE);
       freshFieldItem.children = [field1, field2, valueSelector];
 
       MappingService.addInnerForEach(freshFieldItem);
@@ -1433,7 +1436,7 @@ describe('MappingService', () => {
       const parentForEach = new ForEachItem(shipOrderItem);
       const fieldItem = new FieldItem(parentForEach, targetDoc.fields[0].fields[0]);
       parentForEach.children.push(fieldItem);
-      const valueSelector = new ValueSelector(parentForEach, ValueType.VALUE);
+      const valueSelector = new ValueOfSelector(parentForEach, ValueOfType.VALUE);
       parentForEach.children.push(valueSelector);
 
       MappingService.addInnerForEach(parentForEach);

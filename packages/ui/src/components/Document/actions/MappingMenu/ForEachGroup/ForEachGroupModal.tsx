@@ -20,8 +20,9 @@ import {
   ForEachGroupItem,
   GROUPING_STRATEGY_LABELS,
   GroupingStrategy,
+  ValueOfSelector,
+  ValueOfType,
   ValueSelector,
-  ValueType,
 } from '../../../../../models/datamapper/mapping';
 import { DataMapperModal } from '../../../../DataMapper/DataMapperModal';
 import { XPathEditorModal } from '../../../../XPath/XPathEditorModal';
@@ -76,7 +77,7 @@ export const ForEachGroupModal: FunctionComponent<ForEachGroupModalProps> = ({
   const groupingXPathProxyRef = useRef<ValueSelector | null>(null);
 
   const handleOpenGroupingXPathEditor = useCallback(() => {
-    const proxy = new ValueSelector(mapping, ValueType.VALUE);
+    const proxy = new ValueOfSelector(mapping, ValueOfType.VALUE);
     proxy.expression = groupingExpression;
     groupingXPathProxyRef.current = proxy;
     setIsGroupingXPathEditorOpen(true);
