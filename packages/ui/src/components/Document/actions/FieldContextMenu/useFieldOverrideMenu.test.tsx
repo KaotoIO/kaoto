@@ -67,13 +67,9 @@ describe('useFieldOverrideMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${fieldNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${fieldNode.nodeData.id}`));
 
-    act(() => {
-      fireEvent.click(screen.getByText('Override Field...'));
-    });
+    fireEvent.click(screen.getByText('Override Field...'));
 
     expect(screen.getByText(/Field Override:/)).toBeInTheDocument();
   });
@@ -102,9 +98,7 @@ describe('useFieldOverrideMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${fieldNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${fieldNode.nodeData.id}`));
 
     expect(screen.getByText('Override Field...')).toBeInTheDocument();
     expect(screen.getByText('Reset Override')).toBeInTheDocument();
@@ -136,13 +130,9 @@ describe('useFieldOverrideMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${fieldNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${fieldNode.nodeData.id}`));
 
-    act(() => {
-      fireEvent.click(screen.getByText('Reset Override'));
-    });
+    fireEvent.click(screen.getByText('Reset Override'));
 
     expect(revertSpy).toHaveBeenCalledWith(field, expect.any(Object));
     revertSpy.mockRestore();
@@ -173,13 +163,9 @@ describe('useFieldOverrideMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${fieldNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${fieldNode.nodeData.id}`));
 
-    act(() => {
-      fireEvent.click(screen.getByText('Override Field...'));
-    });
+    fireEvent.click(screen.getByText('Override Field...'));
 
     await waitFor(() => {
       expect(screen.getByText(/Field Override:/)).toBeInTheDocument();
@@ -190,24 +176,18 @@ describe('useFieldOverrideMenu', () => {
       .getByTestId('type-select')
       .closest('.pf-v6-c-menu-toggle')!
       .querySelector('.pf-v6-c-menu-toggle__button') as HTMLButtonElement;
-    act(() => {
-      fireEvent.click(typeToggle);
-    });
+    fireEvent.click(typeToggle);
 
     const intOption = screen.getAllByText('int').find((el) => el.closest('[role="option"]'));
     if (!intOption) throw new Error('Int option not found');
 
-    act(() => {
-      fireEvent.click(intOption);
-    });
+    fireEvent.click(intOption);
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled();
     });
 
-    act(() => {
-      fireEvent.click(screen.getByRole('button', { name: 'Save' }));
-    });
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
 
     const field = (fieldNode.nodeData as FieldNodeData).field;
     expect(applySpy).toHaveBeenCalledWith(
@@ -234,21 +214,15 @@ describe('useFieldOverrideMenu', () => {
       { wrapper },
     );
 
-    act(() => {
-      fireEvent.contextMenu(screen.getByTestId(`node-source-${fieldNode.nodeData.id}`));
-    });
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${fieldNode.nodeData.id}`));
 
-    act(() => {
-      fireEvent.click(screen.getByText('Override Field...'));
-    });
+    fireEvent.click(screen.getByText('Override Field...'));
 
     await waitFor(() => {
       expect(screen.getByText(/Field Override:/)).toBeInTheDocument();
     });
 
-    act(() => {
-      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-    });
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
     await waitFor(() => {
       expect(screen.queryByText(/Field Override:/)).not.toBeInTheDocument();
@@ -271,9 +245,7 @@ describe('useFieldOverrideMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-source-${abstractNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-source-${abstractNode.nodeData.id}`));
 
       expect(screen.queryByText('Override Field...')).not.toBeInTheDocument();
       expect(screen.queryByText('Reset Override')).not.toBeInTheDocument();
@@ -292,9 +264,7 @@ describe('useFieldOverrideMenu', () => {
         { wrapper },
       );
 
-      act(() => {
-        fireEvent.contextMenu(screen.getByTestId(`node-source-${abstractNode.nodeData.id}`));
-      });
+      fireEvent.contextMenu(screen.getByTestId(`node-source-${abstractNode.nodeData.id}`));
 
       expect(screen.queryByText('Override Field...')).not.toBeInTheDocument();
       expect(screen.queryByText('Reset Override')).not.toBeInTheDocument();

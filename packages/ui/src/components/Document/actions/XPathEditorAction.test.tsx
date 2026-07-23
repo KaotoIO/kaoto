@@ -21,9 +21,7 @@ describe('XPathEditorAction', () => {
       </DataMapperProvider>,
     );
     const editBtn = await screen.findByTestId(`edit-xpath-button-${docData.id}`);
-    act(() => {
-      fireEvent.click(editBtn);
-    });
+    fireEvent.click(editBtn);
     const modal = await screen.findByTestId('xpath-editor-modal');
     expect(modal).toBeInTheDocument();
     const monaco = await screen.findByTestId('xpath-editor');

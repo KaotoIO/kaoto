@@ -102,9 +102,7 @@ describe('DocumentHeader', () => {
     );
 
     const headerContainer = screen.getByTestId(`document-doc-targetBody-${BODY_DOCUMENT_ID}`);
-    act(() => {
-      fireEvent.click(headerContainer);
-    });
+    fireEvent.click(headerContainer);
 
     const store = useDocumentTreeStore.getState();
     expect(store.selectedNodePath).toBeTruthy();

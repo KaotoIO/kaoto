@@ -103,9 +103,7 @@ describe('FlowsList.tsx', () => {
     );
     const flowId = await wrapper.findByTestId('goto-btn-route-1234');
 
-    act(() => {
-      fireEvent.click(flowId);
-    });
+    fireEvent.click(flowId);
 
     expect(resId).toBe('route-1234');
   });
@@ -121,9 +119,7 @@ describe('FlowsList.tsx', () => {
 
     const flowId = await wrapper.findByTestId('goto-btn-route-1234');
 
-    act(() => {
-      fireEvent.click(flowId);
-    });
+    fireEvent.click(flowId);
 
     expect(onCloseSpy).toHaveBeenCalledTimes(1);
   });
@@ -337,9 +333,7 @@ describe('FlowsList.tsx', () => {
 
     const toggleAllFlows = await wrapper.findByTestId('toggle-btn-all-flows');
 
-    act(() => {
-      fireEvent.click(toggleAllFlows);
-    });
+    fireEvent.click(toggleAllFlows);
 
     expect(showAllFlowsSpy).toHaveBeenCalledTimes(1);
   });
@@ -363,9 +357,7 @@ describe('FlowsList.tsx', () => {
 
     const toggleAllFlows = await wrapper.findByTestId('toggle-btn-all-flows');
 
-    act(() => {
-      fireEvent.click(toggleAllFlows);
-    });
+    fireEvent.click(toggleAllFlows);
 
     expect(hideAllFlowsSpy).toHaveBeenCalledTimes(1);
   });
@@ -431,9 +423,7 @@ describe('FlowsList.tsx', () => {
 
     // Simulate typing into the search input
     const searchInput = wrapper.getByRole('textbox', { name: 'search' });
-    act(() => {
-      fireEvent.change(searchInput, { target: { value: 'route-1234' } });
-    });
+    fireEvent.change(searchInput, { target: { value: 'route-1234' } });
 
     // Verify only the matching flow is displayed
     flows = await wrapper.findAllByTestId(/flows-list-row-*/);
@@ -442,9 +432,7 @@ describe('FlowsList.tsx', () => {
 
     // Clear the search input
     const clearButton = wrapper.getByRole('button', { name: 'Reset' });
-    act(() => {
-      fireEvent.click(clearButton);
-    });
+    fireEvent.click(clearButton);
 
     // Verify all flows are displayed again
     flows = await wrapper.findAllByTestId(/flows-list-row-*/);
@@ -461,9 +449,7 @@ describe('FlowsList.tsx', () => {
     );
     const searchInput = wrapper.getByRole('textbox', { name: 'search' });
 
-    act(() => {
-      fireEvent.change(searchInput, { target: { value: 'noroute' } });
-    });
+    fireEvent.change(searchInput, { target: { value: 'noroute' } });
 
     const deleteBtn = await wrapper.findByTestId('delete-filtered-btn');
     expect(deleteBtn).toBeDisabled();
@@ -481,9 +467,7 @@ describe('FlowsList.tsx', () => {
 
     // Simulate typing into the search input to filter flows
     const searchInput = wrapper.getByRole('textbox', { name: 'search' });
-    act(() => {
-      fireEvent.change(searchInput, { target: { value: 'route-1234' } });
-    });
+    fireEvent.change(searchInput, { target: { value: 'route-1234' } });
 
     // Click the delete filtered button
     const deleteFilteredBtn = wrapper.getByTestId('delete-filtered-btn');
@@ -514,9 +498,7 @@ describe('FlowsList.tsx', () => {
 
     // Simulate typing into the search input to filter flows
     const searchInput = wrapper.getByRole('textbox', { name: 'search' });
-    act(() => {
-      fireEvent.change(searchInput, { target: { value: 'route-1234' } });
-    });
+    fireEvent.change(searchInput, { target: { value: 'route-1234' } });
 
     // Click the delete filtered button
     const deleteFilteredBtn = wrapper.getByTestId('delete-filtered-btn');

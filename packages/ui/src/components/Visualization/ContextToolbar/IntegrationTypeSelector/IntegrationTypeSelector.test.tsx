@@ -70,9 +70,7 @@ describe('IntegrationTypeSelector.tsx', () => {
     const trigger = await wrapper.findByTestId('integration-type-list-dropdown');
 
     /** Open Select */
-    act(() => {
-      fireEvent.click(trigger);
-    });
+    fireEvent.click(trigger);
 
     for (const testId of [
       'integration-type-route',
@@ -99,9 +97,7 @@ describe('IntegrationTypeSelector.tsx', () => {
     const trigger = await wrapper.findByTestId('integration-type-list-dropdown');
 
     /** Open Select */
-    act(() => {
-      fireEvent.click(trigger);
-    });
+    fireEvent.click(trigger);
 
     /** Select an option */
     act(() => {
@@ -123,9 +119,7 @@ describe('IntegrationTypeSelector.tsx', () => {
     const trigger = await findByTestId('integration-type-list-dropdown');
 
     /** Open Select */
-    act(() => {
-      fireEvent.click(trigger);
-    });
+    fireEvent.click(trigger);
 
     /** Select an option */
     act(() => {

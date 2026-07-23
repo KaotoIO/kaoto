@@ -103,9 +103,7 @@ describe('ItemDeleteStep', () => {
         </NodeInteractionAddonContext.Provider>
       </ActionConfirmationModalContext.Provider>,
     );
-    act(() => {
-      fireEvent.click(wrapper.getByText('Delete'));
-    });
+    fireEvent.click(wrapper.getByText('Delete'));
     await waitFor(() => {
       expect(mockAddon).toHaveBeenCalled();
     });

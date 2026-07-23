@@ -14,9 +14,7 @@ describe('CatalogTagsPanel', () => {
     const onTagClick = vi.fn();
     render(<CatalogTagsPanel tags={['http']} onTagClick={onTagClick} />);
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('tag-http'));
-    });
+    fireEvent.click(screen.getByTestId('tag-http'));
 
     expect(onTagClick).toHaveBeenCalledWith(expect.anything(), 'http');
   });
@@ -29,9 +27,7 @@ describe('CatalogTagsPanel', () => {
       </div>,
     );
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('tag-http'));
-    });
+    fireEvent.click(screen.getByTestId('tag-http'));
 
     expect(parentClickHandler).not.toHaveBeenCalled();
   });

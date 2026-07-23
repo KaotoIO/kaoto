@@ -129,9 +129,7 @@ describe('ExpansionPanel', () => {
 
       const summary = screen.getByText('Test Summary');
 
-      act(() => {
-        fireEvent.click(summary);
-      });
+      fireEvent.click(summary);
 
       expect(mockSetExpanded).toHaveBeenCalledWith('test-panel', false);
 
@@ -144,9 +142,7 @@ describe('ExpansionPanel', () => {
 
       const summary = screen.getByText('Test Summary');
 
-      act(() => {
-        fireEvent.click(summary);
-      });
+      fireEvent.click(summary);
 
       // Should not call setExpanded
       expect(mockSetExpanded).not.toHaveBeenCalled();
@@ -161,9 +157,7 @@ describe('ExpansionPanel', () => {
       // Should start expanded
       expect(panel).toHaveAttribute('data-expanded', 'true');
 
-      act(() => {
-        fireEvent.click(summary);
-      });
+      fireEvent.click(summary);
 
       // Should not call setExpanded - panel cannot be collapsed
       expect(mockSetExpanded).not.toHaveBeenCalled();
@@ -180,9 +174,7 @@ describe('ExpansionPanel', () => {
       // Mock offsetHeight
       Object.defineProperty(panel, 'offsetHeight', { value: 300, configurable: true });
 
-      act(() => {
-        fireEvent.mouseDown(resizeHandle, { clientY: 100 });
-      });
+      fireEvent.mouseDown(resizeHandle, { clientY: 100 });
 
       act(() => {
         fireEvent(
@@ -235,9 +227,7 @@ describe('ExpansionPanel', () => {
 
       const summary = screen.getByText('Test Summary');
 
-      act(() => {
-        fireEvent.click(summary);
-      });
+      fireEvent.click(summary);
 
       // Should queue a layout change callback
       expect(mockQueueLayoutChange).toHaveBeenCalledWith(expect.any(Function));
@@ -248,9 +238,7 @@ describe('ExpansionPanel', () => {
 
       const summary = screen.getByText('Test Summary');
 
-      act(() => {
-        fireEvent.click(summary);
-      });
+      fireEvent.click(summary);
 
       // Should not queue any callback when onLayoutChange is not provided
       expect(mockQueueLayoutChange).not.toHaveBeenCalled();
@@ -282,9 +270,7 @@ describe('ExpansionPanel', () => {
       // Mock offsetHeight
       Object.defineProperty(panel, 'offsetHeight', { value: 300, configurable: true });
 
-      act(() => {
-        fireEvent.mouseDown(resizeHandle, { clientY: 100 });
-      });
+      fireEvent.mouseDown(resizeHandle, { clientY: 100 });
 
       expect(panel).toHaveAttribute('data-resizing', 'true');
 
@@ -316,9 +302,7 @@ describe('ExpansionPanel', () => {
 
       Object.defineProperty(panel, 'offsetHeight', { value: 150, configurable: true });
 
-      act(() => {
-        fireEvent.mouseDown(resizeHandle, { clientY: 100 });
-      });
+      fireEvent.mouseDown(resizeHandle, { clientY: 100 });
 
       // Simulate mousemove - drag up 100px (would make it 50px, but minHeight is 100)
       act(() => {
@@ -346,9 +330,7 @@ describe('ExpansionPanel', () => {
       const resizeHandle = document.querySelector('.expansion-panel__resize-handle') as HTMLElement;
       const panel = screen.getByText('Test Summary').closest('.expansion-panel') as HTMLElement;
 
-      act(() => {
-        fireEvent.mouseDown(resizeHandle, { clientY: 100 });
-      });
+      fireEvent.mouseDown(resizeHandle, { clientY: 100 });
 
       expect(panel).toHaveAttribute('data-resizing', 'true');
 
@@ -384,9 +366,7 @@ describe('ExpansionPanel', () => {
 
       removeEventListenerSpy.mockClear();
 
-      act(() => {
-        fireEvent.mouseDown(resizeHandle, { clientY: 100 });
-      });
+      fireEvent.mouseDown(resizeHandle, { clientY: 100 });
 
       act(() => {
         fireEvent(document, new MouseEvent('mouseup', { bubbles: true }));
@@ -406,9 +386,7 @@ describe('ExpansionPanel', () => {
 
       const content = document.querySelector('.expansion-panel__content') as HTMLElement;
 
-      act(() => {
-        fireEvent.scroll(content);
-      });
+      fireEvent.scroll(content);
 
       expect(onScroll).toHaveBeenCalled();
     });
@@ -443,9 +421,7 @@ describe('ExpansionPanel', () => {
 
       const summary = screen.getByText('Test Summary').closest('.expansion-panel__summary') as HTMLElement;
 
-      act(() => {
-        fireEvent.keyDown(summary, { key: 'Enter' });
-      });
+      fireEvent.keyDown(summary, { key: 'Enter' });
 
       expect(mockSetExpanded).toHaveBeenCalledWith('test-panel', false);
     });
@@ -455,9 +431,7 @@ describe('ExpansionPanel', () => {
 
       const summary = screen.getByText('Test Summary').closest('.expansion-panel__summary') as HTMLElement;
 
-      act(() => {
-        fireEvent.keyDown(summary, { key: ' ' });
-      });
+      fireEvent.keyDown(summary, { key: ' ' });
 
       expect(mockSetExpanded).toHaveBeenCalledWith('test-panel', false);
     });
@@ -467,9 +441,7 @@ describe('ExpansionPanel', () => {
 
       const summary = screen.getByText('Test Summary').closest('.expansion-panel__summary') as HTMLElement;
 
-      act(() => {
-        fireEvent.keyDown(summary, { key: 'Enter', ctrlKey: true });
-      });
+      fireEvent.keyDown(summary, { key: 'Enter', ctrlKey: true });
 
       expect(mockSetExpanded).not.toHaveBeenCalled();
     });

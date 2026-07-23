@@ -41,13 +41,9 @@ describe('DetachSchemaButton', () => {
     );
     const detachBtn = await screen.findByTestId('detach-schema-sourceBody-Body-button');
     expect(sourceDoc!.fields).toHaveLength(1);
-    act(() => {
-      fireEvent.click(detachBtn);
-    });
+    fireEvent.click(detachBtn);
     const confirmBtn = screen.getByTestId('detach-schema-modal-confirm-btn');
-    act(() => {
-      fireEvent.click(confirmBtn);
-    });
+    fireEvent.click(confirmBtn);
     await screen.findByTestId('detachtest');
     expect(sourceDoc!.fields).toHaveLength(0);
     expect(sourceDoc! instanceof PrimitiveDocument);
@@ -70,17 +66,13 @@ describe('DetachSchemaButton', () => {
     expect(modal).not.toBeInTheDocument();
 
     const detachBtn = await screen.findByTestId('detach-schema-sourceBody-Body-button');
-    act(() => {
-      fireEvent.click(detachBtn);
-    });
+    fireEvent.click(detachBtn);
 
     modal = screen.queryByTestId('detach-schema-modal');
     expect(modal).toBeInTheDocument();
 
     const cancelBtn = screen.getByTestId('detach-schema-modal-cancel-btn');
-    act(() => {
-      fireEvent.click(cancelBtn);
-    });
+    fireEvent.click(cancelBtn);
 
     expect(screen.queryByTestId('detach-schema-modal')).not.toBeInTheDocument();
   });
@@ -111,14 +103,10 @@ describe('DetachSchemaButton', () => {
     );
 
     const detachBtn = await screen.findByTestId('detach-schema-param-testParam-button');
-    act(() => {
-      fireEvent.click(detachBtn);
-    });
+    fireEvent.click(detachBtn);
 
     const confirmBtn = screen.getByTestId('detach-schema-modal-confirm-btn');
-    act(() => {
-      fireEvent.click(confirmBtn);
-    });
+    fireEvent.click(confirmBtn);
 
     expect(mockUpdateDocument).toHaveBeenCalledTimes(1);
     expect(mockSendAlert).not.toHaveBeenCalled();
@@ -150,14 +138,10 @@ describe('DetachSchemaButton', () => {
     );
 
     const detachBtn = await screen.findByTestId('detach-schema-targetBody-Body-button');
-    act(() => {
-      fireEvent.click(detachBtn);
-    });
+    fireEvent.click(detachBtn);
 
     const confirmBtn = screen.getByTestId('detach-schema-modal-confirm-btn');
-    act(() => {
-      fireEvent.click(confirmBtn);
-    });
+    fireEvent.click(confirmBtn);
 
     expect(mockUpdateDocument).toHaveBeenCalledTimes(1);
     expect(mockSendAlert).not.toHaveBeenCalled();
@@ -194,14 +178,10 @@ describe('DetachSchemaButton', () => {
     );
 
     const detachBtn = await screen.findByTestId('detach-schema-sourceBody-Body-button');
-    act(() => {
-      fireEvent.click(detachBtn);
-    });
+    fireEvent.click(detachBtn);
 
     const confirmBtn = screen.getByTestId('detach-schema-modal-confirm-btn');
-    act(() => {
-      fireEvent.click(confirmBtn);
-    });
+    fireEvent.click(confirmBtn);
 
     expect(mockSendAlert).toHaveBeenCalledWith({
       variant: 'danger',
@@ -242,14 +222,10 @@ describe('DetachSchemaButton', () => {
     );
 
     const detachBtn = await screen.findByTestId('detach-schema-sourceBody-Body-button');
-    act(() => {
-      fireEvent.click(detachBtn);
-    });
+    fireEvent.click(detachBtn);
 
     const confirmBtn = screen.getByTestId('detach-schema-modal-confirm-btn');
-    act(() => {
-      fireEvent.click(confirmBtn);
-    });
+    fireEvent.click(confirmBtn);
 
     expect(mockSendAlert).toHaveBeenCalledWith({
       variant: 'warning',
@@ -291,14 +267,10 @@ describe('DetachSchemaButton', () => {
     );
 
     const detachBtn = await screen.findByTestId('detach-schema-sourceBody-Body-button');
-    act(() => {
-      fireEvent.click(detachBtn);
-    });
+    fireEvent.click(detachBtn);
 
     const confirmBtn = screen.getByTestId('detach-schema-modal-confirm-btn');
-    act(() => {
-      fireEvent.click(confirmBtn);
-    });
+    fireEvent.click(confirmBtn);
 
     expect(mockSendAlert).toHaveBeenCalledWith({
       variant: 'danger',

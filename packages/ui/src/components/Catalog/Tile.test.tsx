@@ -15,7 +15,7 @@ describe('Tile', () => {
   };
 
   it('renders correctly', async () => {
-    const { container } = await act(async () => render(<Tile tile={tile} onClick={vi.fn()} onTagClick={vi.fn()} />));
+    const { container } = render(<Tile tile={tile} onClick={vi.fn()} onTagClick={vi.fn()} />);
 
     expect(container.firstChild).toMatchSnapshot();
   });
@@ -24,9 +24,7 @@ describe('Tile', () => {
     const onClick = vi.fn();
     const onTagClick = vi.fn();
 
-    const { getByTestId } = await act(async () =>
-      render(<Tile tile={tile} onClick={onClick} onTagClick={onTagClick} />),
-    );
+    const { getByTestId } = render(<Tile tile={tile} onClick={onClick} onTagClick={onTagClick} />);
 
     fireEvent.click(getByTestId('tile-header-tile-name'));
     expect(onClick).toHaveBeenCalledTimes(1);

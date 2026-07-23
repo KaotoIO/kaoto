@@ -51,15 +51,11 @@ describe('AttachSchemaModal', () => {
     );
 
     const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
-    act(() => {
-      fireEvent.click(importButton);
-    });
+    fireEvent.click(importButton);
 
     const fileInput = await screen.findByTestId('attach-schema-file-input');
     const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
-    act(() => {
-      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
-    });
+    fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
 
     await waitFor(() => {
       const fileItem = screen.getByTestId('attach-schema-file-item-ShipOrder.xsd');
@@ -68,9 +64,7 @@ describe('AttachSchemaModal', () => {
     });
 
     const commitButton = await screen.findByTestId('attach-schema-modal-btn-attach');
-    act(() => {
-      fireEvent.click(commitButton);
-    });
+    fireEvent.click(commitButton);
 
     await waitFor(() => {
       expect(mockReadFileAsString.mock.calls).toHaveLength(1);
@@ -97,15 +91,11 @@ describe('AttachSchemaModal', () => {
     );
 
     const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
-    act(() => {
-      fireEvent.click(importButton);
-    });
+    fireEvent.click(importButton);
 
     const fileInput = await screen.findByTestId('attach-schema-file-input');
     const fileContent = new File([new Blob([getShipOrderJsonSchema()])], 'ShipOrder.json', { type: 'text/plain' });
-    act(() => {
-      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
-    });
+    fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
 
     await waitFor(() => {
       const fileItem = screen.getByTestId('attach-schema-file-item-ShipOrder.json');
@@ -114,9 +104,7 @@ describe('AttachSchemaModal', () => {
 
     const commitButton = (await screen.findByTestId('attach-schema-modal-btn-attach')) as HTMLInputElement;
     expect(commitButton.disabled).toBe(false);
-    act(() => {
-      fireEvent.click(commitButton);
-    });
+    fireEvent.click(commitButton);
 
     await waitFor(() => {
       expect(mockReadFileAsString.mock.calls).toHaveLength(1);
@@ -142,15 +130,11 @@ describe('AttachSchemaModal', () => {
     );
 
     const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
-    act(() => {
-      fireEvent.click(importButton);
-    });
+    fireEvent.click(importButton);
 
     const fileInput = await screen.findByTestId('attach-schema-file-input');
     const fileContent = new File([new Blob([getNoTopElementXsd()])], 'NoTopElement.xsd', { type: 'text/plain' });
-    act(() => {
-      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
-    });
+    fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
 
     await waitFor(() => {
       const helperText = screen.getByTestId('attach-schema-error-0');
@@ -178,17 +162,13 @@ describe('AttachSchemaModal', () => {
     );
 
     const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
-    act(() => {
-      fireEvent.click(importButton);
-    });
+    fireEvent.click(importButton);
 
     const fileInput = await screen.findByTestId('attach-schema-file-input');
     const fileContent = new File([new Blob([getShipOrderEmptyFirstLineXsd()])], 'ShipOrderEmptyFirstLine.xsd', {
       type: 'text/plain',
     });
-    act(() => {
-      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
-    });
+    fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
 
     await waitFor(() => {
       const fileItem = screen.getByTestId('attach-schema-file-item-ShipOrderEmptyFirstLine.xsd');
@@ -216,17 +196,13 @@ describe('AttachSchemaModal', () => {
     );
 
     const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
-    act(() => {
-      fireEvent.click(importButton);
-    });
+    fireEvent.click(importButton);
 
     const fileInput = await screen.findByTestId('attach-schema-file-input');
     const fileContent = new File([new Blob([getShipOrderJsonSchema()])], 'ShipOrder.json', {
       type: 'text/plain',
     });
-    act(() => {
-      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
-    });
+    fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
 
     const commitButton = (await screen.findByTestId('attach-schema-modal-btn-attach')) as HTMLInputElement;
     expect(commitButton.disabled).toBe(true);
@@ -257,17 +233,13 @@ describe('AttachSchemaModal', () => {
     );
 
     const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
-    act(() => {
-      fireEvent.click(importButton);
-    });
+    fireEvent.click(importButton);
 
     const fileInput = await screen.findByTestId('attach-schema-file-input');
     const fileContent = new File([new Blob([getShipOrderJsonXslt()])], 'ShipOrderJson.xsl', {
       type: 'text/plain',
     });
-    act(() => {
-      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
-    });
+    fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
 
     const commitButton = (await screen.findByTestId('attach-schema-modal-btn-attach')) as HTMLInputElement;
     expect(commitButton.disabled).toBe(true);
@@ -300,17 +272,13 @@ describe('AttachSchemaModal', () => {
     );
 
     const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
-    act(() => {
-      fireEvent.click(importButton);
-    });
+    fireEvent.click(importButton);
 
     const fileInput = await screen.findByTestId('attach-schema-file-input');
     const fileContent = new File([new Blob([getShipOrderJsonXslt()])], 'ShipOrderJson.xsl', {
       type: 'text/plain',
     });
-    act(() => {
-      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
-    });
+    fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
 
     await waitFor(() => {});
 
@@ -348,9 +316,7 @@ describe('AttachSchemaModal', () => {
     expect(modal).toBeInTheDocument();
 
     const cancelButton = await screen.findByTestId('attach-schema-modal-btn-cancel');
-    act(() => {
-      fireEvent.click(cancelButton);
-    });
+    fireEvent.click(cancelButton);
 
     await waitFor(() => {
       expect(onModalClose).toHaveBeenCalled();
@@ -381,16 +347,12 @@ describe('AttachSchemaModal', () => {
     expect(xmlRadio).toBeChecked();
     expect(jsonRadio).not.toBeChecked();
 
-    act(() => {
-      fireEvent.click(jsonRadio);
-    });
+    fireEvent.click(jsonRadio);
 
     expect(xmlRadio).not.toBeChecked();
     expect(jsonRadio).toBeChecked();
 
-    act(() => {
-      fireEvent.click(xmlRadio);
-    });
+    fireEvent.click(xmlRadio);
 
     expect(xmlRadio).toBeChecked();
     expect(jsonRadio).not.toBeChecked();
@@ -440,15 +402,11 @@ describe('AttachSchemaModal', () => {
     expect(xmlRadio).not.toBeDisabled();
 
     const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
-    act(() => {
-      fireEvent.click(importButton);
-    });
+    fireEvent.click(importButton);
 
     const fileInput = await screen.findByTestId('attach-schema-file-input');
     const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
-    act(() => {
-      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
-    });
+    fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
 
     await waitFor(() => {
       const fileItem = screen.getByTestId('attach-schema-file-item-ShipOrder.xsd');
@@ -479,17 +437,13 @@ describe('AttachSchemaModal', () => {
       );
 
       const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
-      act(() => {
-        fireEvent.click(importButton);
-      });
+      fireEvent.click(importButton);
 
       const fileInput = await screen.findByTestId('attach-schema-file-input');
       const fileContent = new File([new Blob([getMultipleElementsXsd()])], 'MultipleElements.xsd', {
         type: 'text/plain',
       });
-      act(() => {
-        fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
-      });
+      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
 
       await waitFor(() => {
         const fileItem = screen.getByTestId('attach-schema-file-item-MultipleElements.xsd');
@@ -499,9 +453,7 @@ describe('AttachSchemaModal', () => {
       const input = await findRootElementInput();
       expect(input.value).toBe('Order');
 
-      act(() => {
-        fireEvent.focus(input);
-      });
+      fireEvent.focus(input);
 
       await waitFor(() => {
         const rootElementSelect = screen.getByTestId('attach-schema-root-element-select');
@@ -531,15 +483,11 @@ describe('AttachSchemaModal', () => {
       );
 
       const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
-      act(() => {
-        fireEvent.click(importButton);
-      });
+      fireEvent.click(importButton);
 
       const fileInput = await screen.findByTestId('attach-schema-file-input');
       const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
-      act(() => {
-        fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
-      });
+      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
 
       await waitFor(() => {
         const fileItem = screen.getByTestId('attach-schema-file-item-ShipOrder.xsd');
@@ -549,9 +497,7 @@ describe('AttachSchemaModal', () => {
       const input = await findRootElementInput();
       expect(input.value).toBe('ShipOrder');
 
-      act(() => {
-        fireEvent.focus(input);
-      });
+      fireEvent.focus(input);
 
       await waitFor(() => {
         const rootElementSelect = screen.getByTestId('attach-schema-root-element-select');
@@ -580,17 +526,13 @@ describe('AttachSchemaModal', () => {
       );
 
       const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
-      act(() => {
-        fireEvent.click(importButton);
-      });
+      fireEvent.click(importButton);
 
       const fileInput = await screen.findByTestId('attach-schema-file-input');
       const fileContent = new File([new Blob([getMultipleElementsXsd()])], 'MultipleElements.xsd', {
         type: 'text/plain',
       });
-      act(() => {
-        fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
-      });
+      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
 
       await waitFor(() => {
         const fileItem = screen.getByTestId('attach-schema-file-item-MultipleElements.xsd');
@@ -600,13 +542,9 @@ describe('AttachSchemaModal', () => {
       const input = await findRootElementInput();
       expect(input.value).toBe('Order');
 
-      act(() => {
-        fireEvent.focus(input);
-      });
+      fireEvent.focus(input);
 
-      act(() => {
-        fireEvent.change(input, { target: { value: 'Invoice' } });
-      });
+      fireEvent.change(input, { target: { value: 'Invoice' } });
       expect(input.value).toBe('Invoice');
 
       await waitFor(() => {
@@ -645,17 +583,13 @@ describe('AttachSchemaModal', () => {
       );
 
       const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
-      act(() => {
-        fireEvent.click(importButton);
-      });
+      fireEvent.click(importButton);
 
       const fileInput = await screen.findByTestId('attach-schema-file-input');
       const fileContent = new File([new Blob([getMultipleElementsXsd()])], 'MultipleElements.xsd', {
         type: 'text/plain',
       });
-      act(() => {
-        fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
-      });
+      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
 
       await waitFor(() => {
         const fileItem = screen.getByTestId('attach-schema-file-item-MultipleElements.xsd');
@@ -663,22 +597,16 @@ describe('AttachSchemaModal', () => {
       });
 
       const input = await findRootElementInput();
-      act(() => {
-        fireEvent.focus(input);
-      });
+      fireEvent.focus(input);
 
       const invoice = await screen.findByText('Invoice');
 
-      act(() => {
-        fireEvent.click(invoice);
-      });
+      fireEvent.click(invoice);
 
       const commitButton = await screen.findByTestId('attach-schema-modal-btn-attach');
       expect(commitButton).not.toBeDisabled();
 
-      act(() => {
-        fireEvent.click(commitButton);
-      });
+      fireEvent.click(commitButton);
 
       await waitFor(() => {
         const rootElementQName = DocumentService.getRootElementQName(dataMapperContext!.targetBodyDocument);
@@ -707,15 +635,11 @@ describe('AttachSchemaModal', () => {
       );
 
       const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
-      act(() => {
-        fireEvent.click(importButton);
-      });
+      fireEvent.click(importButton);
 
       const fileInput = await screen.findByTestId('attach-schema-file-input');
       const fileContent = new File([new Blob([getShipOrderJsonSchema()])], 'ShipOrder.json', { type: 'text/plain' });
-      act(() => {
-        fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
-      });
+      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
 
       await waitFor(() => {
         const fileItem = screen.getByTestId('attach-schema-file-item-ShipOrder.json');
@@ -746,17 +670,13 @@ describe('AttachSchemaModal', () => {
       );
 
       const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
-      act(() => {
-        fireEvent.click(importButton);
-      });
+      fireEvent.click(importButton);
 
       const fileInput = await screen.findByTestId('attach-schema-file-input');
       const file1 = new File([new Blob([getMultipleElementsXsd()])], 'MultipleElements.xsd', { type: 'text/plain' });
       const file2 = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
-      act(() => {
-        fireEvent.change(fileInput, {
-          target: { files: { item: (i: number) => [file1, file2][i], length: 2, 0: file1, 1: file2 } },
-        });
+      fireEvent.change(fileInput, {
+        target: { files: { item: (i: number) => [file1, file2][i], length: 2, 0: file1, 1: file2 } },
       });
 
       await waitFor(() => {
@@ -765,14 +685,10 @@ describe('AttachSchemaModal', () => {
       });
 
       const input = await findRootElementInput();
-      act(() => {
-        fireEvent.focus(input);
-      });
+      fireEvent.focus(input);
 
       const invoice = await screen.findByText('Invoice');
-      act(() => {
-        fireEvent.click(invoice);
-      });
+      fireEvent.click(invoice);
 
       await waitFor(async () => {
         const inputEl = await findRootElementInput();
@@ -780,9 +696,7 @@ describe('AttachSchemaModal', () => {
       });
 
       const removeButton = await screen.findByTestId('attach-schema-file-remove-ShipOrder.xsd');
-      act(() => {
-        fireEvent.click(removeButton);
-      });
+      fireEvent.click(removeButton);
 
       await waitFor(() => {
         expect(screen.queryByTestId('attach-schema-file-item-ShipOrder.xsd')).not.toBeInTheDocument();
@@ -818,19 +732,15 @@ describe('AttachSchemaModal', () => {
       );
 
       const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
-      act(() => {
-        fireEvent.click(importButton);
-      });
+      fireEvent.click(importButton);
 
       const fileInput = await screen.findByTestId('attach-schema-file-input');
       const file1 = new File([new Blob([getMultiIncludeMainXsd()])], 'MultiIncludeMain.xsd', { type: 'text/plain' });
       const file2 = new File([new Blob([getMultiIncludeComponentAXsd()])], 'MultiIncludeComponentA.xsd', {
         type: 'text/plain',
       });
-      act(() => {
-        fireEvent.change(fileInput, {
-          target: { files: { item: (i: number) => [file1, file2][i], length: 2, 0: file1, 1: file2 } },
-        });
+      fireEvent.change(fileInput, {
+        target: { files: { item: (i: number) => [file1, file2][i], length: 2, 0: file1, 1: file2 } },
       });
 
       await waitFor(() => {
@@ -839,9 +749,7 @@ describe('AttachSchemaModal', () => {
       });
 
       const removeButton = await screen.findByTestId('attach-schema-file-remove-MultiIncludeComponentA.xsd');
-      act(() => {
-        fireEvent.click(removeButton);
-      });
+      fireEvent.click(removeButton);
 
       await waitFor(() => {
         expect(screen.getByTestId('attach-schema-file-item-MultiIncludeMain.xsd')).toBeInTheDocument();
@@ -868,24 +776,18 @@ describe('AttachSchemaModal', () => {
       );
 
       const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
-      act(() => {
-        fireEvent.click(importButton);
-      });
+      fireEvent.click(importButton);
 
       const fileInput = await screen.findByTestId('attach-schema-file-input');
       const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
-      act(() => {
-        fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
-      });
+      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
 
       await waitFor(() => {
         expect(screen.getByTestId('attach-schema-file-item-ShipOrder.xsd')).toBeInTheDocument();
       });
 
       const removeAllButton = await screen.findByTestId('attach-schema-remove-all-btn');
-      act(() => {
-        fireEvent.click(removeAllButton);
-      });
+      fireEvent.click(removeAllButton);
 
       await waitFor(() => {
         expect(screen.queryByTestId('attach-schema-file-item-ShipOrder.xsd')).not.toBeInTheDocument();
@@ -915,28 +817,20 @@ describe('AttachSchemaModal', () => {
       );
 
       const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
-      act(() => {
-        fireEvent.click(importButton);
-      });
+      fireEvent.click(importButton);
 
       const fileInput = await screen.findByTestId('attach-schema-file-input');
       const xsdFile = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
-      act(() => {
-        fireEvent.change(fileInput, { target: { files: { item: () => xsdFile, length: 1, 0: xsdFile } } });
-      });
+      fireEvent.change(fileInput, { target: { files: { item: () => xsdFile, length: 1, 0: xsdFile } } });
 
       await waitFor(() => {
         expect(screen.getByTestId('attach-schema-file-item-ShipOrder.xsd')).toBeInTheDocument();
       });
 
-      act(() => {
-        fireEvent.click(importButton);
-      });
+      fireEvent.click(importButton);
 
       const jsonFile = new File([new Blob([getShipOrderJsonSchema()])], 'ShipOrder.json', { type: 'text/plain' });
-      act(() => {
-        fireEvent.change(fileInput, { target: { files: { item: () => jsonFile, length: 1, 0: jsonFile } } });
-      });
+      fireEvent.change(fileInput, { target: { files: { item: () => jsonFile, length: 1, 0: jsonFile } } });
 
       await waitFor(() => {
         const errorItem = screen.getByTestId('attach-schema-error-0');
@@ -964,18 +858,14 @@ describe('AttachSchemaModal', () => {
       );
 
       const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
-      act(() => {
-        fireEvent.click(importButton);
-      });
+      fireEvent.click(importButton);
 
       const fileInput = await screen.findByTestId('attach-schema-file-input');
       const fileContent = new File([new Blob([getMultiIncludeMainXsd()])], 'MultiIncludeMain.xsd', {
         type: 'text/plain',
       });
-      act(() => {
-        fireEvent.change(fileInput, {
-          target: { files: { item: () => fileContent, length: 1, 0: fileContent } },
-        });
+      fireEvent.change(fileInput, {
+        target: { files: { item: () => fileContent, length: 1, 0: fileContent } },
       });
 
       await waitFor(() => {
@@ -1007,24 +897,18 @@ describe('AttachSchemaModal', () => {
       );
 
       const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
-      act(() => {
-        fireEvent.click(importButton);
-      });
+      fireEvent.click(importButton);
 
       const fileInput = await screen.findByTestId('attach-schema-file-input');
       const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
-      act(() => {
-        fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
-      });
+      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
 
       await waitFor(() => {
         expect(screen.getByTestId('attach-schema-file-item-ShipOrder.xsd')).toBeInTheDocument();
       });
 
       const removeButton = await screen.findByTestId('attach-schema-file-remove-ShipOrder.xsd');
-      act(() => {
-        fireEvent.click(removeButton);
-      });
+      fireEvent.click(removeButton);
 
       await waitFor(() => {
         expect(screen.queryByTestId('attach-schema-file-item-ShipOrder.xsd')).not.toBeInTheDocument();
@@ -1056,19 +940,15 @@ describe('AttachSchemaModal', () => {
       );
 
       const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
-      act(() => {
-        fireEvent.click(importButton);
-      });
+      fireEvent.click(importButton);
 
       const fileInput = await screen.findByTestId('attach-schema-file-input');
       const file1 = new File([new Blob([getMultiIncludeMainXsd()])], 'MultiIncludeMain.xsd', { type: 'text/plain' });
       const file2 = new File([new Blob([getMultiIncludeComponentAXsd()])], 'MultiIncludeComponentA.xsd', {
         type: 'text/plain',
       });
-      act(() => {
-        fireEvent.change(fileInput, {
-          target: { files: { item: (i: number) => [file1, file2][i], length: 2, 0: file1, 1: file2 } },
-        });
+      fireEvent.change(fileInput, {
+        target: { files: { item: (i: number) => [file1, file2][i], length: 2, 0: file1, 1: file2 } },
       });
 
       await waitFor(() => {
@@ -1081,12 +961,8 @@ describe('AttachSchemaModal', () => {
 
       const errorFilterButton = filterGroup!.querySelector('#toggle-filter-error') as HTMLButtonElement;
       expect(errorFilterButton).toBeInTheDocument();
-      act(() => {
-        fireEvent.click(errorFilterButton);
-      });
-      act(() => {
-        fireEvent.click(errorFilterButton);
-      });
+      fireEvent.click(errorFilterButton);
+      fireEvent.click(errorFilterButton);
     });
 
     it('should show attach button as disabled when no files are uploaded', async () => {
@@ -1164,9 +1040,7 @@ describe('AttachSchemaModal', () => {
         expect(importButton).not.toBeDisabled();
         expect(importButton.textContent).toBe('Upload schema file(s)');
 
-        act(() => {
-          fireEvent.click(importButton);
-        });
+        fireEvent.click(importButton);
 
         const fileInput = await screen.findByTestId('attach-schema-file-input');
         const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
@@ -1216,9 +1090,7 @@ describe('AttachSchemaModal', () => {
 
         const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
 
-        act(() => {
-          fireEvent.click(importButton);
-        });
+        fireEvent.click(importButton);
 
         // Loading state should not appear immediately when file picker opens
         expect(screen.queryByLabelText('Uploading schema file(s)')).not.toBeInTheDocument();
@@ -1247,9 +1119,7 @@ describe('AttachSchemaModal', () => {
 
         const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
 
-        act(() => {
-          fireEvent.click(importButton);
-        });
+        fireEvent.click(importButton);
 
         const fileInput = await screen.findByTestId('attach-schema-file-input');
         const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });

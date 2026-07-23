@@ -47,15 +47,11 @@ describe('IntegrationTypeSelectorToggle.tsx', () => {
 
     /** Click on toggle */
     const toggle = await wrapper.findByTestId('integration-type-list-dropdown');
-    act(() => {
-      fireEvent.click(toggle);
-    });
+    fireEvent.click(toggle);
 
     /** Click on first element */
     const element = await wrapper.findByText('Pipe');
-    act(() => {
-      fireEvent.click(element);
-    });
+    fireEvent.click(element);
 
     await waitFor(() => {
       expect(onSelectSpy).toHaveBeenCalled();
@@ -66,19 +62,13 @@ describe('IntegrationTypeSelectorToggle.tsx', () => {
     const wrapper = await renderToggle();
     /** Click on toggle */
     const toggle = await wrapper.findByTestId('integration-type-list-dropdown');
-    act(() => {
-      fireEvent.click(toggle);
-    });
+    fireEvent.click(toggle);
 
     /** Click on first element */
     const element = await wrapper.findAllByRole('option');
-    act(() => {
-      fireEvent.click(element[0]);
-    });
+    fireEvent.click(element[0]);
 
-    act(() => {
-      fireEvent.click(toggle);
-    });
+    fireEvent.click(toggle);
 
     await waitFor(async () => {
       expect(element[0]).toBeDisabled();
@@ -90,18 +80,14 @@ describe('IntegrationTypeSelectorToggle.tsx', () => {
     const toggle = await wrapper.findByTestId('integration-type-list-dropdown');
 
     /** Click on toggle */
-    act(() => {
-      fireEvent.click(toggle);
-    });
+    fireEvent.click(toggle);
 
     const element = await wrapper.findByText('Pipe');
     await waitFor(() => {
       expect(element).toBeInTheDocument();
     });
     /** Close Select */
-    act(() => {
-      fireEvent.click(toggle);
-    });
+    fireEvent.click(toggle);
 
     await waitFor(() => {
       expect(element).not.toBeInTheDocument();
@@ -113,9 +99,7 @@ describe('IntegrationTypeSelectorToggle.tsx', () => {
     const toggle = await wrapper.findByTestId('integration-type-list-dropdown');
 
     /** Open Select */
-    act(() => {
-      fireEvent.click(toggle);
-    });
+    fireEvent.click(toggle);
 
     /** Click on first element */
     act(() => {
@@ -124,9 +108,7 @@ describe('IntegrationTypeSelectorToggle.tsx', () => {
     });
 
     /** Open Select again */
-    act(() => {
-      fireEvent.click(toggle);
-    });
+    fireEvent.click(toggle);
 
     const element = await wrapper.findByRole('option', { selected: true });
     expect(element).toBeInTheDocument();
@@ -138,9 +120,7 @@ describe('IntegrationTypeSelectorToggle.tsx', () => {
     const toggle = await wrapper.findByTestId('integration-type-list-dropdown');
 
     /** Open Select */
-    act(() => {
-      fireEvent.click(toggle);
-    });
+    fireEvent.click(toggle);
 
     await waitFor(() => {
       const element = wrapper.queryByRole('option', { selected: true });
@@ -154,9 +134,7 @@ describe('IntegrationTypeSelectorToggle.tsx', () => {
     const toggle = await wrapper.findByTestId('integration-type-list-dropdown');
 
     /** Open Select */
-    act(() => {
-      fireEvent.click(toggle);
-    });
+    fireEvent.click(toggle);
 
     const menu = await wrapper.findByRole('listbox');
 

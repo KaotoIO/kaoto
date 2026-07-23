@@ -54,16 +54,12 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>,
     );
 
-    act(() => {
-      fireEvent.click(wrapper.getByRole('button', { name: /Click to boom the app/ }));
-    });
+    fireEvent.click(wrapper.getByRole('button', { name: /Click to boom the app/ }));
 
     const toggleButton = wrapper.getByRole('button', { name: /Show more/ });
     expect(toggleButton).toBeInTheDocument();
 
-    act(() => {
-      fireEvent.click(toggleButton);
-    });
+    fireEvent.click(toggleButton);
 
     expect(wrapper.getByRole('button', { name: /Show less/ })).toBeInTheDocument();
   });
