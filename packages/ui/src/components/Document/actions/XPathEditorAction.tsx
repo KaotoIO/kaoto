@@ -3,11 +3,11 @@ import { ActionListItem, Button, Icon } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useState } from 'react';
 
 import { IExpressionHolder, MappingItem } from '../../../models/datamapper/mapping';
-import { TargetNodeData, VariableNodeData } from '../../../models/datamapper/visualization';
+import { ExpressionHolderNodeData, VariableNodeData } from '../../../models/datamapper/visualization';
 import { XPathEditorModal } from '../../XPath/XPathEditorModal';
 
 type XPathEditorProps = {
-  nodeData: TargetNodeData;
+  nodeData: ExpressionHolderNodeData;
   mapping: IExpressionHolder & MappingItem;
   onUpdate: () => void;
 };
