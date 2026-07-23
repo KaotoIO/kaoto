@@ -1,9 +1,8 @@
 import { cloneDeep } from 'lodash';
 
 import { camelRouteJson } from '../../stubs/camel-route';
-import { SourceSchemaType } from '../camel';
 import { NodeLabelType } from '../settings';
-import { IClipboardCopyObject } from '../visualization/clipboard';
+import { IClipboardContent } from '../visualization/clipboard';
 import {
   AddStepMode,
   BaseVisualEntity,
@@ -523,8 +522,7 @@ describe('VisualizationNode', () => {
   });
 
   describe('pasteBaseEntityStep', () => {
-    const clipboardContent: IClipboardCopyObject = {
-      type: SourceSchemaType.Route,
+    const clipboardContent: IClipboardContent = {
       name: 'log',
       definition: {
         id: 'log-test',
@@ -570,8 +568,7 @@ describe('VisualizationNode', () => {
 
     it('should paste the step', async () => {
       const camelRouteVisualEntityStub = new CamelRouteVisualEntity(cloneDeep(camelRouteJson));
-      const clipboardContent: IClipboardCopyObject = {
-        type: SourceSchemaType.Route,
+      const clipboardContent: IClipboardContent = {
         name: 'log',
         definition: {
           id: 'log-test',

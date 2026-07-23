@@ -2,7 +2,7 @@ import { Step } from '@kaoto/camel-catalog/types';
 
 import { IVisualizationNode } from '../../models';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
-import { IClipboardCopyObject } from '../../models/visualization/clipboard';
+import { IClipboardContent } from '../../models/visualization/clipboard';
 import { IMetadataApi } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { isDataMapperNode } from '../../utils/is-datamapper';
@@ -104,8 +104,8 @@ export const onPasteDataMapper = async (
   api: IMetadataApi | undefined,
   parameters: {
     targetVizNode: IVisualizationNode;
-    originalContent: IClipboardCopyObject | undefined;
-    updatedContent: IClipboardCopyObject | undefined;
+    originalContent: IClipboardContent | undefined;
+    updatedContent: IClipboardContent | undefined;
   },
 ): Promise<void> => {
   if (!parameters.originalContent || !parameters.updatedContent) return;

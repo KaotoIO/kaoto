@@ -1,7 +1,7 @@
 import { get, set } from 'lodash';
 
 import { IVisualizationNode } from '../../../../models';
-import { IClipboardCopyObject } from '../../../../models/visualization/clipboard';
+import { IClipboardContent } from '../../../../models/visualization/clipboard';
 import {
   IModalCustomization,
   IOnCopyAddon,
@@ -71,9 +71,9 @@ export const findOnDeleteModalCustomizationRecursively = (
  */
 export const processOnCopyAddon = (
   parentVizNode: IVisualizationNode,
-  content: IClipboardCopyObject | undefined,
+  content: IClipboardContent | undefined,
   getAddons: (vizNode: IVisualizationNode) => IOnCopyAddon[],
-): IClipboardCopyObject | undefined => {
+): IClipboardContent | undefined => {
   let processedContent = content;
 
   for (const addon of getAddons(parentVizNode)) {
@@ -94,7 +94,7 @@ const computeRelativePath = (parentPath: string, childPath: string): string | un
 const processOnDuplicateAddonForChildren = async (
   parentPath: string,
   children: IVisualizationNode[],
-  content: IClipboardCopyObject,
+  content: IClipboardContent,
   getAddons: (vizNode: IVisualizationNode) => IOnDuplicateAddon[],
 ) => {
   for (const child of children) {
@@ -110,7 +110,7 @@ const processOnDuplicateAddonForChildren = async (
     const childContentFromParent = child.getCopiedContent();
     if (!childContentFromParent) continue;
 
-    const childContent: IClipboardCopyObject = {
+    const childContent: IClipboardContent = {
       ...childContentFromParent,
       definition: childDefinitionValue,
     };
@@ -132,9 +132,9 @@ const processOnDuplicateAddonForChildren = async (
  */
 export const processOnDuplicateAddonRecursively = async (
   parentVizNode: IVisualizationNode,
-  content: IClipboardCopyObject | undefined,
+  content: IClipboardContent | undefined,
   getAddons: (vizNode: IVisualizationNode) => IOnDuplicateAddon[],
-): Promise<IClipboardCopyObject | undefined> => {
+): Promise<IClipboardContent | undefined> => {
   if (!content) return content;
 
   const children = parentVizNode.getChildren();
@@ -166,8 +166,8 @@ export const processOnDuplicateAddonRecursively = async (
  */
 export const processOnPasteAddon = async (
   targetVizNode: IVisualizationNode,
-  originalContent: IClipboardCopyObject | undefined,
-  updatedContent: IClipboardCopyObject | undefined,
+  originalContent: IClipboardContent | undefined,
+  updatedContent: IClipboardContent | undefined,
   getAddons: () => IOnPasteAddon[],
 ): Promise<void> => {
   for (const addon of getAddons()) {

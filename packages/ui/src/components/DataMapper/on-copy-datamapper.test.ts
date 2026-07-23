@@ -1,6 +1,5 @@
 import { IVisualizationNode } from '../../models';
-import { SourceSchemaType } from '../../models/camel/source-schema-type';
-import { IClipboardCopyObject } from '../../models/visualization/clipboard';
+import { IClipboardContent } from '../../models/visualization/clipboard';
 import { onCopyDataMapper } from './on-copy-datamapper';
 
 describe('onCopyDataMapper', () => {
@@ -11,8 +10,7 @@ describe('onCopyDataMapper', () => {
   });
 
   it('should fix the processor name from kaoto-datamapper to step', () => {
-    const content: IClipboardCopyObject = {
-      type: SourceSchemaType.Route,
+    const content: IClipboardContent = {
       name: 'kaoto-datamapper',
       definition: {
         step: {
@@ -49,8 +47,7 @@ describe('onCopyDataMapper', () => {
   });
 
   it('should not modify content if name is not kaoto-datamapper', () => {
-    const content: IClipboardCopyObject = {
-      type: SourceSchemaType.Route,
+    const content: IClipboardContent = {
       name: 'log',
       definition: {
         log: {
