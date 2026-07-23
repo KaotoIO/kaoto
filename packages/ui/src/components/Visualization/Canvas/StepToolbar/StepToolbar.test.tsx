@@ -104,9 +104,7 @@ describe('StepToolbar', () => {
       expect(duplicateButton).toBeInTheDocument();
       expect(duplicateButton).toHaveAttribute('title', 'Duplicate');
 
-      act(() => {
-        fireEvent.click(duplicateButton);
-      });
+      fireEvent.click(duplicateButton);
       expect(mockOnDuplicate).toHaveBeenCalledTimes(1);
     });
   });
@@ -124,9 +122,7 @@ describe('StepToolbar', () => {
       expect(moveButton).toBeInTheDocument();
       expect(moveButton).toHaveAttribute('title', 'Move before');
 
-      act(() => {
-        fireEvent.click(moveButton);
-      });
+      fireEvent.click(moveButton);
       expect(mockOnMoveStep).toHaveBeenCalledTimes(1);
     });
 
@@ -142,9 +138,7 @@ describe('StepToolbar', () => {
       expect(moveButton).toBeInTheDocument();
       expect(moveButton).toHaveAttribute('title', 'Move after');
 
-      act(() => {
-        fireEvent.click(moveButton);
-      });
+      fireEvent.click(moveButton);
       expect(mockOnMoveStep).toHaveBeenCalledTimes(1);
     });
   });
@@ -166,9 +160,7 @@ describe('StepToolbar', () => {
       expect(addSpecialButton).toBeInTheDocument();
       expect(addSpecialButton).toHaveAttribute('title', 'Add branch');
 
-      act(() => {
-        fireEvent.click(addSpecialButton);
-      });
+      fireEvent.click(addSpecialButton);
       expect(mockOnInsertStep).toHaveBeenCalledTimes(1);
     });
   });
@@ -217,9 +209,7 @@ describe('StepToolbar', () => {
       });
 
       const disableButton = screen.getByTestId('Test Node|step-toolbar-button-disable');
-      act(() => {
-        fireEvent.click(disableButton);
-      });
+      fireEvent.click(disableButton);
       expect(mockOnToggleDisableNode).toHaveBeenCalledTimes(1);
     });
   });
@@ -237,9 +227,7 @@ describe('StepToolbar', () => {
       expect(enableAllButton).toBeInTheDocument();
       expect(enableAllButton).toHaveAttribute('title', 'Enable all');
 
-      act(() => {
-        fireEvent.click(enableAllButton);
-      });
+      fireEvent.click(enableAllButton);
       expect(mockOnEnableAllSteps).toHaveBeenCalledTimes(1);
     });
   });
@@ -261,9 +249,7 @@ describe('StepToolbar', () => {
       expect(replaceButton).toBeInTheDocument();
       expect(replaceButton).toHaveAttribute('title', 'Replace step');
 
-      act(() => {
-        fireEvent.click(replaceButton);
-      });
+      fireEvent.click(replaceButton);
       expect(mockOnReplaceNode).toHaveBeenCalledTimes(1);
     });
   });
@@ -299,9 +285,7 @@ describe('StepToolbar', () => {
       });
 
       const collapseButton = screen.getByTestId('Test Node|step-toolbar-button-collapse');
-      act(() => {
-        fireEvent.click(collapseButton);
-      });
+      fireEvent.click(collapseButton);
       expect(mockOnCollapseToggle).toHaveBeenCalledTimes(1);
     });
 
@@ -331,9 +315,7 @@ describe('StepToolbar', () => {
       expect(deleteButton).toBeInTheDocument();
       expect(deleteButton).toHaveAttribute('title', 'Delete step');
 
-      act(() => {
-        fireEvent.click(deleteButton);
-      });
+      fireEvent.click(deleteButton);
       expect(mockOnDeleteStep).toHaveBeenCalledTimes(1);
     });
   });
@@ -355,9 +337,7 @@ describe('StepToolbar', () => {
       expect(deleteGroupButton).toBeInTheDocument();
       expect(deleteGroupButton).toHaveAttribute('title', 'Delete group');
 
-      act(() => {
-        fireEvent.click(deleteGroupButton);
-      });
+      fireEvent.click(deleteGroupButton);
       expect(mockOnDeleteGroup).toHaveBeenCalledTimes(1);
     });
   });

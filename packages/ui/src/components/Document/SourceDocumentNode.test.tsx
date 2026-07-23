@@ -299,9 +299,7 @@ describe('SourceDocumentNode', () => {
       const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
       expect(expandIcon).toBeInTheDocument();
 
-      act(() => {
-        fireEvent.click(expandIcon);
-      });
+      fireEvent.click(expandIcon);
 
       expect(toggleNodeSpy).toHaveBeenCalledWith(documentNodeData.id, tree.root.path);
 
@@ -426,9 +424,7 @@ describe('SourceDocumentNode', () => {
 
       const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
 
-      act(() => {
-        fireEvent.click(expandIcon);
-      });
+      fireEvent.click(expandIcon);
 
       expect(toggleNodeSpy).toHaveBeenCalledTimes(1);
       expect(toggleNodeSpy).toHaveBeenCalledWith(documentNodeData.id, tree.root.path);
@@ -457,9 +453,7 @@ describe('SourceDocumentNode', () => {
       const nodeContainer = screen.getByTestId(`node-source-${documentNodeData.id}`);
       expect(nodeContainer).toBeInTheDocument();
 
-      act(() => {
-        fireEvent.click(nodeContainer);
-      });
+      fireEvent.click(nodeContainer);
 
       expect(nodeContainer).toHaveAttribute('data-selected', 'true');
     });
@@ -480,9 +474,7 @@ describe('SourceDocumentNode', () => {
       // Initially not selected
       expect(nodeContainer).toHaveAttribute('data-selected', 'false');
 
-      act(() => {
-        fireEvent.click(nodeContainer);
-      });
+      fireEvent.click(nodeContainer);
 
       // Wait for the component to re-render with selected state
       await waitFor(() => {
@@ -509,15 +501,11 @@ describe('SourceDocumentNode', () => {
       const nodeContainer = screen.getByTestId(`node-source-${documentNodeData.id}`);
       expect(nodeContainer).toBeInTheDocument();
 
-      act(() => {
-        fireEvent.click(nodeContainer);
-      });
+      fireEvent.click(nodeContainer);
 
       expect(nodeContainer).toHaveAttribute('data-selected', 'true');
 
-      act(() => {
-        fireEvent.click(nodeContainer);
-      });
+      fireEvent.click(nodeContainer);
 
       const deselectedNode = screen.getByTestId(`node-source-${documentNodeData.id}`);
       expect(deselectedNode).toBeInTheDocument();
@@ -542,9 +530,7 @@ describe('SourceDocumentNode', () => {
 
       const nodeContainer = screen.getByTestId(`node-source-${documentNodeData.id}`);
 
-      act(() => {
-        fireEvent.click(nodeContainer);
-      });
+      fireEvent.click(nodeContainer);
 
       expect(parentClickHandler).not.toHaveBeenCalled();
     });
@@ -621,9 +607,7 @@ describe('SourceDocumentNode', () => {
 
       const nodeContainer = screen.getByTestId(`node-source-${documentNodeData.id}`);
 
-      act(() => {
-        fireEvent.keyDown(nodeContainer, { key: 'Enter' });
-      });
+      fireEvent.keyDown(nodeContainer, { key: 'Enter' });
 
       expect(nodeContainer).toHaveAttribute('data-selected', 'true');
     });
@@ -644,9 +628,7 @@ describe('SourceDocumentNode', () => {
 
       const nodeContainer = screen.getByTestId(`node-source-${documentNodeData.id}`);
 
-      act(() => {
-        fireEvent.keyDown(nodeContainer, { key: ' ' });
-      });
+      fireEvent.keyDown(nodeContainer, { key: ' ' });
 
       expect(nodeContainer).toHaveAttribute('data-selected', 'true');
     });
@@ -678,9 +660,7 @@ describe('SourceDocumentNode', () => {
       expect(expandIcon).toBeInTheDocument();
 
       // Should be able to click the expand icon
-      act(() => {
-        fireEvent.click(expandIcon);
-      });
+      fireEvent.click(expandIcon);
 
       // The toggle should have been called
       expect(expandIcon).toBeInTheDocument();
@@ -715,9 +695,7 @@ describe('SourceDocumentNode', () => {
 
       const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
 
-      act(() => {
-        fireEvent.click(expandIcon);
-      });
+      fireEvent.click(expandIcon);
 
       // Parent click handler should not be called due to stopPropagation
       expect(parentClickHandler).not.toHaveBeenCalled();
@@ -741,9 +719,7 @@ describe('SourceDocumentNode', () => {
 
       const nodeContainer = screen.getByTestId(`node-source-${documentNodeData.id}`);
 
-      act(() => {
-        fireEvent.click(nodeContainer);
-      });
+      fireEvent.click(nodeContainer);
 
       // Parent click handler should not be called due to stopPropagation
       expect(parentClickHandler).not.toHaveBeenCalled();
@@ -770,9 +746,7 @@ describe('SourceDocumentNode', () => {
 
       // Clicking the node should still work for selection
       const nodeContainer = screen.getByTestId(`node-source-${leafNode!.nodeData.id}`);
-      act(() => {
-        fireEvent.click(nodeContainer);
-      });
+      fireEvent.click(nodeContainer);
 
       // Node should be selected
       expect(nodeContainer).toHaveAttribute('data-selected', 'true');

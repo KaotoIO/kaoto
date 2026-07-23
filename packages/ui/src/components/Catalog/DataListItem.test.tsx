@@ -16,9 +16,7 @@ describe('DataListItem', () => {
   };
 
   it('renders correctly', async () => {
-    const { container } = await act(async () =>
-      render(<CatalogDataListItem key={tile.name} tile={tile} onTagClick={vi.fn()} />),
-    );
+    const { container } = render(<CatalogDataListItem key={tile.name} tile={tile} onTagClick={vi.fn()} />);
 
     expect(container.firstChild).toMatchSnapshot();
   });
@@ -26,9 +24,7 @@ describe('DataListItem', () => {
   it('calls onTagClick prop when clicked', async () => {
     const onTagClick = vi.fn();
 
-    const { getByTestId } = await act(async () =>
-      render(<CatalogDataListItem key={tile.name} tile={tile} onTagClick={onTagClick} />),
-    );
+    const { getByTestId } = render(<CatalogDataListItem key={tile.name} tile={tile} onTagClick={onTagClick} />);
 
     fireEvent.click(getByTestId('tag-tag1'));
 

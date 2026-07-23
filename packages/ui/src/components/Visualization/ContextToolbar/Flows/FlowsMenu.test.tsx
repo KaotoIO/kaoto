@@ -32,9 +32,7 @@ describe('FlowsMenu.tsx', () => {
     const dropdown = await wrapper.findByTestId('flows-list-dropdown');
 
     /** Open List */
-    act(() => {
-      fireEvent.click(dropdown);
-    });
+    fireEvent.click(dropdown);
 
     /** Wait for the List to appear */
     await act(async () => {
@@ -54,9 +52,7 @@ describe('FlowsMenu.tsx', () => {
     const dropdown = await wrapper.findByTestId('flows-list-dropdown');
 
     /** Open List */
-    act(() => {
-      fireEvent.click(dropdown);
-    });
+    fireEvent.click(dropdown);
 
     /** Wait for the List to appear */
     await act(async () => {
@@ -76,9 +72,7 @@ describe('FlowsMenu.tsx', () => {
     const dropdown = await wrapper.findByTestId('flows-list-dropdown');
 
     /** Open List */
-    act(() => {
-      fireEvent.click(dropdown);
-    });
+    fireEvent.click(dropdown);
 
     const flowsList = await wrapper.findByTestId('flows-list-table');
 

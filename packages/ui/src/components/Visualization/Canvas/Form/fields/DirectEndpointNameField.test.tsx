@@ -49,9 +49,7 @@ describe('DirectEndpointNameField', () => {
     ]);
 
     const toggle = screen.getByLabelText('Name toggle');
-    act(() => {
-      fireEvent.click(toggle);
-    });
+    fireEvent.click(toggle);
 
     // findAllByRole polls until the typeahead options render, which also flushes
     // PatternFly's debounced Popper reposition inside act() — a plain getAllByRole

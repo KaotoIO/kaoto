@@ -50,9 +50,7 @@ describe('MetadataPage', () => {
     );
 
     const addButton = screen.getAllByRole('button', { name: 'Add a new property' });
-    act(() => {
-      fireEvent.click(addButton[0]);
-    });
+    fireEvent.click(addButton[0]);
 
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
   });

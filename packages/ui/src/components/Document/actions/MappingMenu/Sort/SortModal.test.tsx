@@ -146,9 +146,7 @@ describe('SortModal', () => {
 
   it('should add a new sort key', () => {
     render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-add-key'));
-    });
+    fireEvent.click(screen.getByTestId('sort-add-key'));
     expect(screen.getByTestId('sort-expression-1')).toBeInTheDocument();
   });
 
@@ -160,9 +158,7 @@ describe('SortModal', () => {
     render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
     expect(screen.getByTestId('sort-expression-0')).toBeInTheDocument();
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-remove-0'));
-    });
+    fireEvent.click(screen.getByTestId('sort-remove-0'));
     expect(screen.queryByTestId('sort-expression-0')).not.toBeInTheDocument();
   });
 
@@ -171,13 +167,9 @@ describe('SortModal', () => {
     const onClose = vi.fn();
     render(<SortModal isOpen onClose={onClose} mapping={forEachItem} onUpdate={onUpdate} />);
 
-    act(() => {
-      fireEvent.change(getExpressionInput(0), { target: { value: 'Title' } });
-    });
+    fireEvent.change(getExpressionInput(0), { target: { value: 'Title' } });
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-save-btn'));
-    });
+    fireEvent.click(screen.getByTestId('sort-save-btn'));
 
     await waitFor(() => {
       expect(onUpdate).toHaveBeenCalled();
@@ -195,13 +187,9 @@ describe('SortModal', () => {
     const onClose = vi.fn();
     render(<SortModal isOpen onClose={onClose} mapping={forEachItem} onUpdate={onUpdate} />);
 
-    act(() => {
-      fireEvent.change(getExpressionInput(0), { target: { value: 'something' } });
-    });
+    fireEvent.change(getExpressionInput(0), { target: { value: 'something' } });
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-cancel-btn'));
-    });
+    fireEvent.click(screen.getByTestId('sort-cancel-btn'));
 
     await waitFor(() => {
       expect(onClose).toHaveBeenCalled();
@@ -214,17 +202,11 @@ describe('SortModal', () => {
     const onUpdate = vi.fn();
     render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-add-key'));
-    });
+    fireEvent.click(screen.getByTestId('sort-add-key'));
 
-    act(() => {
-      fireEvent.change(getExpressionInput(1), { target: { value: 'Price' } });
-    });
+    fireEvent.change(getExpressionInput(1), { target: { value: 'Price' } });
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-save-btn'));
-    });
+    fireEvent.click(screen.getByTestId('sort-save-btn'));
 
     await waitFor(() => {
       expect(onUpdate).toHaveBeenCalled();
@@ -243,9 +225,7 @@ describe('SortModal', () => {
     const orderBtn = screen.getByTestId('sort-order-0');
     expect(orderBtn).toHaveAttribute('aria-label', 'Sort order 1: ascending');
 
-    act(() => {
-      fireEvent.click(orderBtn);
-    });
+    fireEvent.click(orderBtn);
 
     expect(screen.getByTestId('sort-order-0')).toHaveAttribute('aria-label', 'Sort order 1: descending');
   });
@@ -254,13 +234,9 @@ describe('SortModal', () => {
     const onClose = vi.fn();
     render(<SortModal isOpen onClose={onClose} mapping={forEachItem} onUpdate={vi.fn()} />);
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('mock-drag-trigger'));
-    });
+    fireEvent.click(screen.getByTestId('mock-drag-trigger'));
 
-    act(() => {
-      fireEvent.keyDown(screen.getByTestId('sort-modal'), { key: 'Escape' });
-    });
+    fireEvent.keyDown(screen.getByTestId('sort-modal'), { key: 'Escape' });
     expect(onClose).not.toHaveBeenCalled();
   });
 
@@ -277,13 +253,9 @@ describe('SortModal', () => {
     expect(getExpressionInput(0).value).toBe('Title');
     expect(getExpressionInput(1).value).toBe('Price');
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('mock-drop-trigger'));
-    });
+    fireEvent.click(screen.getByTestId('mock-drop-trigger'));
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-save-btn'));
-    });
+    fireEvent.click(screen.getByTestId('sort-save-btn'));
 
     await waitFor(() => {
       expect(onUpdate).toHaveBeenCalled();
@@ -300,9 +272,7 @@ describe('SortModal', () => {
     render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
     expect(screen.queryByTestId('xpath-editor-modal')).not.toBeInTheDocument();
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-edit-xpath-0'));
-    });
+    fireEvent.click(screen.getByTestId('sort-edit-xpath-0'));
 
     expect(screen.getByTestId('xpath-editor-modal')).toBeInTheDocument();
     expect(screen.getByText('Sort key 1')).toBeInTheDocument();
@@ -315,14 +285,10 @@ describe('SortModal', () => {
 
     render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-edit-xpath-0'));
-    });
+    fireEvent.click(screen.getByTestId('sort-edit-xpath-0'));
     expect(screen.getByTestId('xpath-editor-modal')).toBeInTheDocument();
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('xpath-editor-close'));
-    });
+    fireEvent.click(screen.getByTestId('xpath-editor-close'));
     expect(screen.queryByTestId('xpath-editor-modal')).not.toBeInTheDocument();
   });
 
@@ -334,20 +300,14 @@ describe('SortModal', () => {
     const onUpdate = vi.fn();
     render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-edit-xpath-0'));
-    });
+    fireEvent.click(screen.getByTestId('sort-edit-xpath-0'));
 
     const newExpression = 'Price';
     xpathEditorMapping!.expression = newExpression;
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('xpath-editor-update'));
-    });
+    fireEvent.click(screen.getByTestId('xpath-editor-update'));
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-save-btn'));
-    });
+    fireEvent.click(screen.getByTestId('sort-save-btn'));
 
     await waitFor(() => {
       expect(onUpdate).toHaveBeenCalled();
@@ -363,14 +323,10 @@ describe('SortModal', () => {
     render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
     expect(screen.queryByTestId('sort-advanced-panel-0')).not.toBeInTheDocument();
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-advanced-0'));
-    });
+    fireEvent.click(screen.getByTestId('sort-advanced-0'));
     expect(screen.getByTestId('sort-advanced-panel-0')).toBeInTheDocument();
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-advanced-0'));
-    });
+    fireEvent.click(screen.getByTestId('sort-advanced-0'));
     expect(screen.queryByTestId('sort-advanced-panel-0')).not.toBeInTheDocument();
   });
 
@@ -384,9 +340,7 @@ describe('SortModal', () => {
     const onUpdate = vi.fn();
     render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-save-btn'));
-    });
+    fireEvent.click(screen.getByTestId('sort-save-btn'));
 
     await waitFor(() => {
       expect(onUpdate).toHaveBeenCalled();
@@ -405,13 +359,9 @@ describe('SortModal', () => {
 
     render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
 
-    act(() => {
-      fireEvent.change(getExpressionInput(0), { target: { value: 'Price' } });
-    });
+    fireEvent.change(getExpressionInput(0), { target: { value: 'Price' } });
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-advanced-0'));
-    });
+    fireEvent.click(screen.getByTestId('sort-advanced-0'));
 
     const langInput = screen.getByTestId('sort-lang-0').querySelector('input') as HTMLInputElement;
     expect(langInput.value).toBe('de');
@@ -425,13 +375,9 @@ describe('SortModal', () => {
 
     render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-order-0'));
-    });
+    fireEvent.click(screen.getByTestId('sort-order-0'));
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-advanced-0'));
-    });
+    fireEvent.click(screen.getByTestId('sort-advanced-0'));
 
     const stableToggle = screen.getByTestId('sort-stable-toggle-0');
     expect(stableToggle).toHaveTextContent('yes');
@@ -457,18 +403,12 @@ describe('SortModal', () => {
     const onUpdate = vi.fn();
     render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-advanced-0'));
-    });
+    fireEvent.click(screen.getByTestId('sort-advanced-0'));
 
     const langInput = screen.getByTestId('sort-lang-0').querySelector('input') as HTMLInputElement;
-    act(() => {
-      fireEvent.change(langInput, { target: { value: 'de' } });
-    });
+    fireEvent.change(langInput, { target: { value: 'de' } });
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-save-btn'));
-    });
+    fireEvent.click(screen.getByTestId('sort-save-btn'));
 
     await waitFor(() => {
       expect(onUpdate).toHaveBeenCalled();
@@ -484,18 +424,12 @@ describe('SortModal', () => {
     const onUpdate = vi.fn();
     render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-advanced-0'));
-    });
+    fireEvent.click(screen.getByTestId('sort-advanced-0'));
 
     const collationInput = screen.getByTestId('sort-collation-0') as HTMLInputElement;
-    act(() => {
-      fireEvent.change(collationInput, { target: { value: 'http://example.com/collation' } });
-    });
+    fireEvent.change(collationInput, { target: { value: 'http://example.com/collation' } });
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-save-btn'));
-    });
+    fireEvent.click(screen.getByTestId('sort-save-btn'));
 
     await waitFor(() => {
       expect(onUpdate).toHaveBeenCalled();
@@ -511,21 +445,13 @@ describe('SortModal', () => {
     const onUpdate = vi.fn();
     render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-advanced-0'));
-    });
+    fireEvent.click(screen.getByTestId('sort-advanced-0'));
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-case-order-toggle-0'));
-    });
+    fireEvent.click(screen.getByTestId('sort-case-order-toggle-0'));
 
-    act(() => {
-      fireEvent.click(screen.getByText('upper-first'));
-    });
+    fireEvent.click(screen.getByText('upper-first'));
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-save-btn'));
-    });
+    fireEvent.click(screen.getByTestId('sort-save-btn'));
 
     await waitFor(() => {
       expect(onUpdate).toHaveBeenCalled();
@@ -541,21 +467,13 @@ describe('SortModal', () => {
     const onUpdate = vi.fn();
     render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-advanced-0'));
-    });
+    fireEvent.click(screen.getByTestId('sort-advanced-0'));
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-stable-toggle-0'));
-    });
+    fireEvent.click(screen.getByTestId('sort-stable-toggle-0'));
 
-    act(() => {
-      fireEvent.click(screen.getByText('yes'));
-    });
+    fireEvent.click(screen.getByText('yes'));
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('sort-save-btn'));
-    });
+    fireEvent.click(screen.getByTestId('sort-save-btn'));
 
     await waitFor(() => {
       expect(onUpdate).toHaveBeenCalled();

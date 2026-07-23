@@ -17,9 +17,7 @@ describe('RenameButton', () => {
     const onRenameClick = vi.fn();
     render(<RenameButton itemName="my-item" label="variable" onRenameClick={onRenameClick} />);
 
-    act(() => {
-      fireEvent.click(screen.getByTestId('rename-my-item-button'));
-    });
+    fireEvent.click(screen.getByTestId('rename-my-item-button'));
 
     expect(onRenameClick).toHaveBeenCalledTimes(1);
   });

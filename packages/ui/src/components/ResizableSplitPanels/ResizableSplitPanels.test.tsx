@@ -415,36 +415,26 @@ describe('ResizableSplitPanels - Keyboard Navigation', () => {
     expect(onResizeStart).not.toHaveBeenCalled();
 
     // ArrowRight: 5% increment
-    act(() => {
-      fireEvent.keyDown(resizeHandle, { key: 'ArrowRight' });
-    });
+    fireEvent.keyDown(resizeHandle, { key: 'ArrowRight' });
     expect(onResizeStart).toHaveBeenCalledTimes(1);
     expect(onResize).toHaveBeenCalled();
     expect(onResize.mock.calls[0][0]).toBe(35); // 30 + 5
 
     // ArrowLeft: 5% decrement
-    act(() => {
-      fireEvent.keyDown(resizeHandle, { key: 'ArrowLeft' });
-    });
+    fireEvent.keyDown(resizeHandle, { key: 'ArrowLeft' });
     expect(onResize.mock.calls[1][0]).toBe(30); // 35 - 5
 
     // Shift+ArrowRight: 10% increment
-    act(() => {
-      fireEvent.keyDown(resizeHandle, { key: 'ArrowRight', shiftKey: true });
-    });
+    fireEvent.keyDown(resizeHandle, { key: 'ArrowRight', shiftKey: true });
     expect(onResize.mock.calls[2][0]).toBe(40); // 30 + 10
 
     // Shift+ArrowLeft: 10% decrement
-    act(() => {
-      fireEvent.keyDown(resizeHandle, { key: 'ArrowLeft', shiftKey: true });
-    });
+    fireEvent.keyDown(resizeHandle, { key: 'ArrowLeft', shiftKey: true });
     expect(onResize.mock.calls[3][0]).toBe(30); // 40 - 10
 
     // onResizeEnd called on Enter
     expect(onResizeEnd).not.toHaveBeenCalled();
-    act(() => {
-      fireEvent.keyUp(resizeHandle, { key: 'Enter' });
-    });
+    fireEvent.keyUp(resizeHandle, { key: 'Enter' });
     expect(onResizeEnd).toHaveBeenCalledTimes(1);
 
     // onResizeEnd called on blur (after starting new resize)
@@ -452,9 +442,7 @@ describe('ResizableSplitPanels - Keyboard Navigation', () => {
       fireEvent.keyDown(resizeHandle, { key: 'ArrowLeft' }); // Start new resize
     });
     expect(onResizeStart).toHaveBeenCalledTimes(2); // Called again for new resize
-    act(() => {
-      fireEvent.blur(resizeHandle);
-    });
+    fireEvent.blur(resizeHandle);
     expect(onResizeEnd).toHaveBeenCalledTimes(2);
 
     cleanupMockedStyles(originalGetComputedStyle);
@@ -475,15 +463,11 @@ describe('ResizableSplitPanels - Keyboard Navigation', () => {
     const { originalGetComputedStyle } = setupResizeTest(container);
 
     // Home key: minimum width
-    act(() => {
-      fireEvent.keyDown(resizeHandle, { key: 'Home' });
-    });
+    fireEvent.keyDown(resizeHandle, { key: 'Home' });
     expect(onResize.mock.calls[0][0]).toBe(10); // MIN_PANEL_WIDTH
 
     // End key: maximum width
-    act(() => {
-      fireEvent.keyDown(resizeHandle, { key: 'End' });
-    });
+    fireEvent.keyDown(resizeHandle, { key: 'End' });
     expect(onResize.mock.calls[1][0]).toBeCloseTo(85.8, 1); // 100 - 10 - 4.2
 
     cleanupMockedStyles(originalGetComputedStyle);
@@ -503,13 +487,9 @@ describe('ResizableSplitPanels - Keyboard Navigation', () => {
     const resizeHandle = screen.getByRole('slider');
     const { originalGetComputedStyle } = setupResizeTest(container);
 
-    act(() => {
-      fireEvent.keyDown(resizeHandle, { key: 'ArrowRight' });
-    });
+    fireEvent.keyDown(resizeHandle, { key: 'ArrowRight' });
 
-    act(() => {
-      fireEvent.keyDown(resizeHandle, { key: 'Escape' });
-    });
+    fireEvent.keyDown(resizeHandle, { key: 'Escape' });
 
     expect(onResizeEnd).toHaveBeenCalled();
     expect(onResizeEnd.mock.calls[0][0]).toBe(30); // Restored to original
@@ -577,9 +557,7 @@ describe('ResizableSplitPanels - ARIA Attributes', () => {
 
     expect(resizeHandle).toHaveAttribute('aria-valuenow', '30');
 
-    act(() => {
-      fireEvent.keyDown(resizeHandle, { key: 'ArrowRight' });
-    });
+    fireEvent.keyDown(resizeHandle, { key: 'ArrowRight' });
 
     expect(resizeHandle).toHaveAttribute('aria-valuenow', '35');
     expect(resizeHandle).toHaveAttribute('aria-valuetext', 'Left panel 35%, right panel 61%');
@@ -616,15 +594,11 @@ describe('ResizableSplitPanels - Screen Reader Announcements', () => {
     expect(liveRegion).toHaveTextContent('');
 
     // Announces during keyboard resize
-    act(() => {
-      fireEvent.keyDown(resizeHandle, { key: 'ArrowRight' });
-    });
+    fireEvent.keyDown(resizeHandle, { key: 'ArrowRight' });
     expect(liveRegion).toHaveTextContent('Left panel 35%, right panel 61%');
 
     // Clears on resize end
-    act(() => {
-      fireEvent.keyUp(resizeHandle, { key: 'Enter' });
-    });
+    fireEvent.keyUp(resizeHandle, { key: 'Enter' });
     expect(liveRegion).toHaveTextContent('');
 
     // Also announces during mouse resize

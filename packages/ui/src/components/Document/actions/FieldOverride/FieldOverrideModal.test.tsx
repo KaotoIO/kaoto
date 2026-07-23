@@ -81,9 +81,7 @@ describe('FieldOverrideModal', () => {
       <FieldOverrideModal onClose={vi.fn()} onSave={vi.fn()} onAttach={vi.fn()} onRemove={vi.fn()} field={testField} />,
     );
 
-    act(() => {
-      fireEvent.click(getMenuToggle());
-    });
+    fireEvent.click(getMenuToggle());
 
     expect(screen.getByRole('listbox')).toBeInTheDocument();
   });
@@ -112,18 +110,14 @@ describe('FieldOverrideModal', () => {
       <FieldOverrideModal onClose={vi.fn()} onSave={vi.fn()} onAttach={vi.fn()} onRemove={vi.fn()} field={testField} />,
     );
 
-    act(() => {
-      fireEvent.click(getMenuToggle());
-    });
+    fireEvent.click(getMenuToggle());
 
     const stringOptions = screen.getAllByText('string');
     const stringOption = stringOptions.find((el) => el.closest('[role="option"]'));
     if (!stringOption) {
       throw new Error('String option not found');
     }
-    act(() => {
-      fireEvent.click(stringOption);
-    });
+    fireEvent.click(stringOption);
 
     await waitFor(() => {
       // After selection, the input should show the selected type label
@@ -148,18 +142,14 @@ describe('FieldOverrideModal', () => {
       <FieldOverrideModal onClose={vi.fn()} onSave={vi.fn()} onAttach={vi.fn()} onRemove={vi.fn()} field={testField} />,
     );
 
-    act(() => {
-      fireEvent.click(getMenuToggle());
-    });
+    fireEvent.click(getMenuToggle());
 
     const stringOptions = screen.getAllByText('string');
     const stringOption = stringOptions.find((el) => el.closest('[role="option"]'));
     if (!stringOption) {
       throw new Error('String option not found');
     }
-    act(() => {
-      fireEvent.click(stringOption);
-    });
+    fireEvent.click(stringOption);
 
     await waitFor(() => {
       const saveButton = screen.getByRole('button', { name: 'Save' });
@@ -191,9 +181,7 @@ describe('FieldOverrideModal', () => {
     );
 
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
-    act(() => {
-      fireEvent.click(cancelButton);
-    });
+    fireEvent.click(cancelButton);
 
     expect(onCloseMock).toHaveBeenCalledTimes(1);
   });
@@ -223,18 +211,14 @@ describe('FieldOverrideModal', () => {
       />,
     );
 
-    act(() => {
-      fireEvent.click(getMenuToggle());
-    });
+    fireEvent.click(getMenuToggle());
 
     const stringOptions = screen.getAllByText('string');
     const stringOption = stringOptions.find((el) => el.closest('[role="option"]'));
     if (!stringOption) {
       throw new Error('String option not found');
     }
-    act(() => {
-      fireEvent.click(stringOption);
-    });
+    fireEvent.click(stringOption);
 
     await waitFor(() => {
       const saveButton = screen.getByRole('button', { name: 'Save' });
@@ -242,9 +226,7 @@ describe('FieldOverrideModal', () => {
     });
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
-    act(() => {
-      fireEvent.click(saveButton);
-    });
+    fireEvent.click(saveButton);
 
     expect(onSaveMock).toHaveBeenCalledTimes(1);
     expect(onSaveMock).toHaveBeenCalledWith({
@@ -279,9 +261,7 @@ describe('FieldOverrideModal', () => {
     );
 
     const removeButton = screen.getByRole('button', { name: 'Remove Override' });
-    act(() => {
-      fireEvent.click(removeButton);
-    });
+    fireEvent.click(removeButton);
 
     expect(onRemoveMock).toHaveBeenCalledTimes(1);
   });
@@ -335,9 +315,7 @@ describe('FieldOverrideModal', () => {
       <FieldOverrideModal onClose={vi.fn()} onSave={vi.fn()} onAttach={vi.fn()} onRemove={vi.fn()} field={testField} />,
     );
 
-    act(() => {
-      fireEvent.click(getMenuToggle());
-    });
+    fireEvent.click(getMenuToggle());
 
     // Namespace URI is shown as description in the dropdown; type description is not rendered
     await waitFor(() => {
@@ -405,9 +383,7 @@ describe('FieldOverrideModal', () => {
       );
 
       const substitutionRadio = screen.getByRole('radio', { name: 'Substitute Element' });
-      act(() => {
-        fireEvent.click(substitutionRadio);
-      });
+      fireEvent.click(substitutionRadio);
 
       expect(getSubstitutionSpy).toHaveBeenCalledWith(testField, testMappingTree.namespaceMap);
     });
@@ -428,9 +404,7 @@ describe('FieldOverrideModal', () => {
         />,
       );
 
-      act(() => {
-        fireEvent.click(screen.getByRole('radio', { name: 'Substitute Element' }));
-      });
+      fireEvent.click(screen.getByRole('radio', { name: 'Substitute Element' }));
 
       expect(getTypeSelectInput()).toHaveAttribute('placeholder', 'Select a substitute element...');
     });
@@ -453,29 +427,21 @@ describe('FieldOverrideModal', () => {
       );
 
       // Switch to substitution mode
-      act(() => {
-        fireEvent.click(screen.getByRole('radio', { name: 'Substitute Element' }));
-      });
+      fireEvent.click(screen.getByRole('radio', { name: 'Substitute Element' }));
 
       // Open dropdown and select Cat
-      act(() => {
-        fireEvent.click(getMenuToggle());
-      });
+      fireEvent.click(getMenuToggle());
 
       const catOption = screen.getAllByText('Cat').find((el) => el.closest('[role="option"]'));
       if (!catOption) throw new Error('Cat option not found');
-      act(() => {
-        fireEvent.click(catOption);
-      });
+      fireEvent.click(catOption);
 
       // Save
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled();
       });
 
-      act(() => {
-        fireEvent.click(screen.getByRole('button', { name: 'Save' }));
-      });
+      fireEvent.click(screen.getByRole('button', { name: 'Save' }));
 
       expect(onSaveMock).toHaveBeenCalledTimes(1);
       expect(onSaveMock).toHaveBeenCalledWith({ mode: 'substitution', selectedKey: 'sub:Cat' });
@@ -507,23 +473,17 @@ describe('FieldOverrideModal', () => {
       );
 
       // Select a type in type mode
-      act(() => {
-        fireEvent.click(getMenuToggle());
-      });
+      fireEvent.click(getMenuToggle());
       const stringOption = screen.getAllByText('string').find((el) => el.closest('[role="option"]'));
       if (!stringOption) throw new Error('string option not found');
-      act(() => {
-        fireEvent.click(stringOption);
-      });
+      fireEvent.click(stringOption);
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled();
       });
 
       // Switch to substitution mode — selection should reset, Save should be disabled
-      act(() => {
-        fireEvent.click(screen.getByRole('radio', { name: 'Substitute Element' }));
-      });
+      fireEvent.click(screen.getByRole('radio', { name: 'Substitute Element' }));
 
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
       expect(getTypeSelectInput()).toHaveAttribute('placeholder', 'Select a substitute element...');
@@ -837,9 +797,7 @@ describe('FieldOverrideModal', () => {
       // Button should be enabled initially
       expect(uploadButton).not.toBeDisabled();
 
-      act(() => {
-        fireEvent.click(uploadButton);
-      });
+      fireEvent.click(uploadButton);
 
       // After file selection, spinner should appear and button should be disabled
       await waitFor(() => {
@@ -869,9 +827,7 @@ describe('FieldOverrideModal', () => {
 
       const uploadButton = screen.getByTestId('upload-schema-button');
 
-      act(() => {
-        fireEvent.click(uploadButton);
-      });
+      fireEvent.click(uploadButton);
 
       // Spinner should not appear while file picker is open
       expect(screen.queryByLabelText('Uploading schema files')).not.toBeInTheDocument();
@@ -1029,9 +985,7 @@ describe('FieldOverrideModal', () => {
       // Save button is disabled when no key is selected, but click it anyway to confirm guard
       const saveButton = screen.getByRole('button', { name: 'Save' });
       expect(saveButton).toBeDisabled();
-      act(() => {
-        fireEvent.click(saveButton);
-      });
+      fireEvent.click(saveButton);
       expect(onSaveMock).not.toHaveBeenCalled();
     });
 
@@ -1059,14 +1013,10 @@ describe('FieldOverrideModal', () => {
       );
 
       // Select a valid type first
-      act(() => {
-        fireEvent.click(getMenuToggle());
-      });
+      fireEvent.click(getMenuToggle());
       const stringOption = screen.getAllByText('string').find((el) => el.closest('[role="option"]'));
       if (!stringOption) throw new Error('string option not found');
-      act(() => {
-        fireEvent.click(stringOption);
-      });
+      fireEvent.click(stringOption);
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled();
@@ -1081,9 +1031,7 @@ describe('FieldOverrideModal', () => {
       });
 
       // Save should still fire with the original valid selection intact
-      act(() => {
-        fireEvent.click(screen.getByRole('button', { name: 'Save' }));
-      });
+      fireEvent.click(screen.getByRole('button', { name: 'Save' }));
       expect(onSaveMock).toHaveBeenCalledWith({
         mode: 'type',
         selectedType: mockCandidates['xs:string'],
@@ -1157,9 +1105,7 @@ describe('FieldOverrideModal', () => {
         />,
       );
 
-      act(() => {
-        fireEvent.click(getMenuToggle());
-      });
+      fireEvent.click(getMenuToggle());
 
       // The description rendered in the SelectOption should show only the namespace URI
       await waitFor(() => {
@@ -1194,9 +1140,7 @@ describe('FieldOverrideModal', () => {
         />,
       );
 
-      act(() => {
-        fireEvent.click(getMenuToggle());
-      });
+      fireEvent.click(getMenuToggle());
 
       await waitFor(() => {
         expect(screen.getByText(`Namespace URI: ${NS_XS}`)).toBeInTheDocument();

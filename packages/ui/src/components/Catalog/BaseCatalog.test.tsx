@@ -8,15 +8,13 @@ describe('BaseCatalog', () => {
   it('renders correctly with Gallery Layout', async () => {
     expect.assertions(1);
 
-    const { container } = await act(async () =>
-      render(
-        <BaseCatalog
-          className="catalog__base"
-          tiles={longTileList}
-          catalogLayout={CatalogLayout.Gallery}
-          onTagClick={vi.fn()}
-        />,
-      ),
+    const { container } = render(
+      <BaseCatalog
+        className="catalog__base"
+        tiles={longTileList}
+        catalogLayout={CatalogLayout.Gallery}
+        onTagClick={vi.fn()}
+      />,
     );
 
     expect(container).toMatchSnapshot();
@@ -25,15 +23,13 @@ describe('BaseCatalog', () => {
   it('renders correctly with List Layout', async () => {
     expect.assertions(1);
 
-    const { container } = await act(async () =>
-      render(
-        <BaseCatalog
-          className="catalog__base"
-          tiles={longTileList}
-          catalogLayout={CatalogLayout.List}
-          onTagClick={vi.fn()}
-        />,
-      ),
+    const { container } = render(
+      <BaseCatalog
+        className="catalog__base"
+        tiles={longTileList}
+        catalogLayout={CatalogLayout.List}
+        onTagClick={vi.fn()}
+      />,
     );
 
     expect(container).toMatchSnapshot();
