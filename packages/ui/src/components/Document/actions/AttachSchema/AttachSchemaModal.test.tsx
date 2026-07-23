@@ -1045,11 +1045,9 @@ describe('AttachSchemaModal', () => {
         const fileInput = await screen.findByTestId('attach-schema-file-input');
         const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
 
-        await act(async () => {
-          fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
-          // Give time for state updates
-          await new Promise((resolve) => setTimeout(resolve, 50));
-        });
+        fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
+        // Give time for state updates
+        await new Promise((resolve) => setTimeout(resolve, 50));
 
         // After file selection, button should show loading state
         expect(importButton).toBeDisabled();
@@ -1124,9 +1122,7 @@ describe('AttachSchemaModal', () => {
         const fileInput = await screen.findByTestId('attach-schema-file-input');
         const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
 
-        await act(async () => {
-          fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
-        });
+        fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
 
         // Wait for error handling and loading state to clear
         await waitFor(() => {

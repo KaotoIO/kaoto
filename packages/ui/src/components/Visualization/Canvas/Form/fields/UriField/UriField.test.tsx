@@ -1,5 +1,5 @@
 import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { JSONSchema4 } from 'json-schema';
 
 import { UriField } from './UriField';

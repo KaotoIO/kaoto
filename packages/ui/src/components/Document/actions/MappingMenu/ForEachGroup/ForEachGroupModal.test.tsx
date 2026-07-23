@@ -1,5 +1,5 @@
 import { DraggableObject } from '@patternfly/react-drag-drop';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent } from 'react';
 
 import { useDataMapper } from '../../../../../hooks/useDataMapper';

@@ -46,9 +46,7 @@ describe('XPathInputAction', () => {
     const wrapper = render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={onUpdateMock} />);
     const input = wrapper.getByTestId('transformation-xpath-input');
 
-    await act(async () => {
-      fireEvent.change(input, { target: { value: '/ShipOrder' } });
-    });
+    fireEvent.change(input, { target: { value: '/ShipOrder' } });
 
     // Verify the handler was called and mapping was updated
     await waitFor(() => {

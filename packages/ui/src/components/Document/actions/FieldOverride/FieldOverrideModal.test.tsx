@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { Mock } from 'vitest';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
@@ -657,9 +657,7 @@ describe('FieldOverrideModal', () => {
 
       renderWithContext();
 
-      await act(async () => {
-        fireEvent.click(screen.getByTestId('upload-schema-button'));
-      });
+      fireEvent.click(screen.getByTestId('upload-schema-button'));
 
       await waitFor(() => {
         expect(screen.getByText(/Unknown file extension/)).toBeInTheDocument();
@@ -672,9 +670,7 @@ describe('FieldOverrideModal', () => {
 
       renderWithContext();
 
-      await act(async () => {
-        fireEvent.click(screen.getByTestId('upload-schema-button'));
-      });
+      fireEvent.click(screen.getByTestId('upload-schema-button'));
 
       await waitFor(() => {
         expect(screen.getByText(/Failed to read: valid.xsd/)).toBeInTheDocument();
@@ -692,9 +688,7 @@ describe('FieldOverrideModal', () => {
       renderWithContext({ onAttach: onAttachMock });
 
       // Upload the file - it will immediately try to attach
-      await act(async () => {
-        fireEvent.click(screen.getByTestId('upload-schema-button'));
-      });
+      fireEvent.click(screen.getByTestId('upload-schema-button'));
 
       // Error should appear immediately since attachment happens on upload
       await waitFor(() => {
@@ -719,9 +713,7 @@ describe('FieldOverrideModal', () => {
       const onAttachMock = vi.fn();
       renderWithContext({ onAttach: onAttachMock });
 
-      await act(async () => {
-        fireEvent.click(screen.getByTestId('upload-schema-button'));
-      });
+      fireEvent.click(screen.getByTestId('upload-schema-button'));
 
       // Schema should be immediately attached (no pending state)
       await waitFor(() => {
@@ -739,9 +731,7 @@ describe('FieldOverrideModal', () => {
       const onAttachMock = vi.fn();
       renderWithContext({ onAttach: onAttachMock });
 
-      await act(async () => {
-        fireEvent.click(screen.getByTestId('upload-schema-button'));
-      });
+      fireEvent.click(screen.getByTestId('upload-schema-button'));
 
       // onAttach should be called immediately with the schema content
       await waitFor(() => {
@@ -757,9 +747,7 @@ describe('FieldOverrideModal', () => {
       renderWithContext({ onAttach: onAttachMock });
 
       // First upload
-      await act(async () => {
-        fireEvent.click(screen.getByTestId('upload-schema-button'));
-      });
+      fireEvent.click(screen.getByTestId('upload-schema-button'));
 
       await waitFor(() => {
         expect(onAttachMock).toHaveBeenCalledTimes(1);
@@ -769,9 +757,7 @@ describe('FieldOverrideModal', () => {
       onAttachMock.mockClear();
 
       // Second upload of same file - should skip duplicate
-      await act(async () => {
-        fireEvent.click(screen.getByTestId('upload-schema-button'));
-      });
+      fireEvent.click(screen.getByTestId('upload-schema-button'));
 
       // onAttach should not be called again for duplicate
       await waitFor(() => {
@@ -842,9 +828,7 @@ describe('FieldOverrideModal', () => {
 
       const uploadButton = screen.getByTestId('upload-schema-button');
 
-      await act(async () => {
-        fireEvent.click(uploadButton);
-      });
+      fireEvent.click(uploadButton);
 
       // Loading state should be cleared even after error
       await waitFor(() => {
@@ -865,9 +849,7 @@ describe('FieldOverrideModal', () => {
 
       const uploadButton = screen.getByTestId('upload-schema-button');
 
-      await act(async () => {
-        fireEvent.click(uploadButton);
-      });
+      fireEvent.click(uploadButton);
 
       // Loading state should not appear for validation errors (fails before loading starts)
       expect(screen.queryByLabelText('Uploading schema files')).not.toBeInTheDocument();
@@ -891,9 +873,7 @@ describe('FieldOverrideModal', () => {
 
       const uploadButton = screen.getByTestId('upload-schema-button');
 
-      await act(async () => {
-        fireEvent.click(uploadButton);
-      });
+      fireEvent.click(uploadButton);
 
       // Loading state should be cleared after attachment error
       await waitFor(() => {
@@ -917,9 +897,7 @@ describe('FieldOverrideModal', () => {
       const onAttachMock = vi.fn();
       renderWithContext({ onAttach: onAttachMock });
 
-      await act(async () => {
-        fireEvent.click(screen.getByTestId('upload-schema-button'));
-      });
+      fireEvent.click(screen.getByTestId('upload-schema-button'));
       await waitFor(() => {
         expect(onAttachMock).toHaveBeenCalledTimes(1);
       });
@@ -928,9 +906,7 @@ describe('FieldOverrideModal', () => {
       vi.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValueOnce(['types.xsd']);
       getResourceContentMock.mockClear();
 
-      await act(async () => {
-        fireEvent.click(screen.getByTestId('upload-schema-button'));
-      });
+      fireEvent.click(screen.getByTestId('upload-schema-button'));
 
       await waitFor(() => {
         expect(getResourceContentMock).not.toHaveBeenCalled();
@@ -946,9 +922,7 @@ describe('FieldOverrideModal', () => {
 
       renderWithContext();
 
-      await act(async () => {
-        fireEvent.click(screen.getByTestId('upload-schema-button'));
-      });
+      fireEvent.click(screen.getByTestId('upload-schema-button'));
 
       // File is already in existingFiles — getResourceContent should not be called
       expect(getResourceContentMock).not.toHaveBeenCalled();
@@ -959,9 +933,7 @@ describe('FieldOverrideModal', () => {
       const onAttachMock = vi.fn();
       renderWithContext({ onAttach: onAttachMock });
 
-      await act(async () => {
-        fireEvent.click(screen.getByTestId('upload-schema-button'));
-      });
+      fireEvent.click(screen.getByTestId('upload-schema-button'));
 
       expect(onAttachMock).not.toHaveBeenCalled();
     });
@@ -1025,10 +997,8 @@ describe('FieldOverrideModal', () => {
       // Typing into the filter input only updates filterText in TypeaheadSelect;
       // it never calls onChange, so selectedKey stays 'xs:string'.
       const input = screen.getByTestId('type-select').querySelector('input') as HTMLInputElement;
-      act(() => {
-        fireEvent.focus(input);
-        fireEvent.change(input, { target: { value: 'unknown-key' } });
-      });
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: 'unknown-key' } });
 
       // Save should still fire with the original valid selection intact
       fireEvent.click(screen.getByRole('button', { name: 'Save' }));
