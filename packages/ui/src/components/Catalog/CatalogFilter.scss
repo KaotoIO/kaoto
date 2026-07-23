@@ -2,11 +2,16 @@
   padding: 0 2px;
   display: flex;
   flex-flow: row;
+  flex-wrap: wrap;
   justify-content: space-between;
   margin-bottom: var(--pf-t--global--spacer--sm);
 
   &__search {
     flex: 1;
+  }
+
+  > div:not(:last-child) {
+    min-width: 20%;
   }
 }
 
