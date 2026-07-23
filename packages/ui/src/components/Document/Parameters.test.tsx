@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { VirtuosoMockContext } from 'react-virtuoso';
 
 import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
@@ -127,10 +127,8 @@ describe('ParametersSection', () => {
     fireEvent.click(submitButton);
 
     const attachButton = screen.getByTestId('attach-schema-param-testparam1-button');
-    await act(async () => {
-      fireEvent.click(attachButton);
-    });
-    const importButton = screen.getByTestId('attach-schema-modal-btn-file');
+    fireEvent.click(attachButton);
+    const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
     fireEvent.click(importButton);
 
     const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
@@ -179,10 +177,8 @@ describe('ParametersSection', () => {
     fireEvent.click(submitButton);
 
     const attachButton = screen.getByTestId('attach-schema-param-testparam1-button');
-    await act(async () => {
-      fireEvent.click(attachButton);
-    });
-    const importButton = screen.getByTestId('attach-schema-modal-btn-file');
+    fireEvent.click(attachButton);
+    const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
     fireEvent.click(importButton);
 
     const fileContent = new File([new Blob([getShipOrderJsonSchema()])], 'ShipOrder.json', { type: 'text/plain' });

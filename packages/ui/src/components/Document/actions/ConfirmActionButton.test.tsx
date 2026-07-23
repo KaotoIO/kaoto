@@ -1,5 +1,5 @@
 import { TrashIcon } from '@patternfly/react-icons';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import { ConfirmActionButton } from './ConfirmActionButton';
 

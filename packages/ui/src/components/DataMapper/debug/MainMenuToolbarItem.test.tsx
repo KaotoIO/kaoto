@@ -40,11 +40,9 @@ describe('MainMenuToolbarItem', () => {
     const button = screen.getByTestId('dm-debug-main-menu-button');
 
     // Click to open
-    await act(async () => {
-      fireEvent.click(button);
-      await waitFor(() => {
-        expect(screen.getByTestId('dm-debug-main-menu-dropdownlist')).toBeInTheDocument();
-      });
+    fireEvent.click(button);
+    await waitFor(() => {
+      expect(screen.getByTestId('dm-debug-main-menu-dropdownlist')).toBeInTheDocument();
     });
 
     // Verify dropdown items are present
@@ -60,11 +58,9 @@ describe('MainMenuToolbarItem', () => {
 
     const button = screen.getByTestId('dm-debug-main-menu-button');
 
-    await act(async () => {
-      fireEvent.click(button);
-      await waitFor(() => {
-        expect(screen.getByTestId('dm-debug-main-menu-dropdownlist')).toBeInTheDocument();
-      });
+    fireEvent.click(button);
+    await waitFor(() => {
+      expect(screen.getByTestId('dm-debug-main-menu-dropdownlist')).toBeInTheDocument();
     });
 
     expect(screen.getByTestId('dm-debug-import-mappings-button')).toBeInTheDocument();
@@ -81,11 +77,9 @@ describe('MainMenuToolbarItem', () => {
 
     const button = screen.getByTestId('dm-debug-main-menu-button');
 
-    await act(async () => {
-      fireEvent.click(button);
-      await waitFor(() => {
-        expect(screen.getByTestId('dm-debug-main-menu-dropdownlist')).toBeInTheDocument();
-      });
+    fireEvent.click(button);
+    await waitFor(() => {
+      expect(screen.getByTestId('dm-debug-main-menu-dropdownlist')).toBeInTheDocument();
     });
 
     const exportButton = screen.getByTestId('dm-debug-export-mappings-button');
@@ -93,13 +87,11 @@ describe('MainMenuToolbarItem', () => {
 
     expect(exportButtonElement).toBeInTheDocument();
 
-    await act(async () => {
-      if (exportButtonElement) {
-        fireEvent.click(exportButtonElement);
-      }
-      await waitFor(() => {
-        expect(screen.getByTestId('dm-debug-export-mappings-modal')).toBeInTheDocument();
-      });
+    if (exportButtonElement) {
+      fireEvent.click(exportButtonElement);
+    }
+    await waitFor(() => {
+      expect(screen.getByTestId('dm-debug-export-mappings-modal')).toBeInTheDocument();
     });
   });
 
@@ -112,11 +104,9 @@ describe('MainMenuToolbarItem', () => {
 
     const button = screen.getByTestId('dm-debug-main-menu-button');
 
-    await act(async () => {
-      fireEvent.click(button);
-      await waitFor(() => {
-        expect(screen.getByTestId('dm-debug-main-menu-dropdownlist')).toBeInTheDocument();
-      });
+    fireEvent.click(button);
+    await waitFor(() => {
+      expect(screen.getByTestId('dm-debug-main-menu-dropdownlist')).toBeInTheDocument();
     });
 
     const exportButton = screen.getByTestId('dm-debug-export-mappings-button');
@@ -124,22 +114,18 @@ describe('MainMenuToolbarItem', () => {
 
     expect(exportButtonElement).toBeInTheDocument();
 
-    await act(async () => {
-      if (exportButtonElement) {
-        fireEvent.click(exportButtonElement);
-      }
-      await waitFor(() => {
-        expect(screen.getByTestId('dm-debug-export-mappings-modal')).toBeInTheDocument();
-      });
+    if (exportButtonElement) {
+      fireEvent.click(exportButtonElement);
+    }
+    await waitFor(() => {
+      expect(screen.getByTestId('dm-debug-export-mappings-modal')).toBeInTheDocument();
     });
 
     const closeButton = screen.getByTestId('dm-debug-export-mappings-modal-close-btn');
 
-    await act(async () => {
-      fireEvent.click(closeButton);
-      await waitFor(() => {
-        expect(screen.queryByTestId('dm-debug-export-mappings-modal')).not.toBeInTheDocument();
-      });
+    fireEvent.click(closeButton);
+    await waitFor(() => {
+      expect(screen.queryByTestId('dm-debug-export-mappings-modal')).not.toBeInTheDocument();
     });
   });
 
@@ -152,11 +138,9 @@ describe('MainMenuToolbarItem', () => {
 
     const button = screen.getByTestId('dm-debug-main-menu-button');
 
-    await act(async () => {
-      fireEvent.click(button);
-      await waitFor(() => {
-        expect(screen.getByTestId('dm-debug-main-menu-dropdownlist')).toBeInTheDocument();
-      });
+    fireEvent.click(button);
+    await waitFor(() => {
+      expect(screen.getByTestId('dm-debug-main-menu-dropdownlist')).toBeInTheDocument();
     });
 
     const importButton = screen.getByTestId('dm-debug-import-mappings-button');
@@ -186,11 +170,9 @@ describe('MainMenuToolbarItem', () => {
 
     const button = screen.getByTestId('dm-debug-main-menu-button');
 
-    await act(async () => {
-      fireEvent.click(button);
-      await waitFor(() => {
-        expect(screen.getByTestId('dm-debug-main-menu-dropdownlist')).toBeInTheDocument();
-      });
+    fireEvent.click(button);
+    await waitFor(() => {
+      expect(screen.getByTestId('dm-debug-main-menu-dropdownlist')).toBeInTheDocument();
     });
 
     const exportButton = screen.getByTestId('dm-debug-export-mappings-button');
@@ -198,13 +180,11 @@ describe('MainMenuToolbarItem', () => {
 
     expect(exportButtonElement).toBeInTheDocument();
 
-    await act(async () => {
-      if (exportButtonElement) {
-        fireEvent.click(exportButtonElement);
-      }
-      await waitFor(() => {
-        expect(screen.getByTestId('dm-debug-export-mappings-modal')).toBeInTheDocument();
-      });
+    if (exportButtonElement) {
+      fireEvent.click(exportButtonElement);
+    }
+    await waitFor(() => {
+      expect(screen.getByTestId('dm-debug-export-mappings-modal')).toBeInTheDocument();
     });
   });
 });

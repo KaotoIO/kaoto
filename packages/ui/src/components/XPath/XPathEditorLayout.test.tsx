@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import type { Mock } from 'vitest';
 
 import { BODY_DOCUMENT_ID, IExpressionHolder, MappingItem, MappingTree, ValueSelector } from '../../models/datamapper';

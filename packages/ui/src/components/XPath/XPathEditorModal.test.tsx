@@ -41,9 +41,7 @@ describe('XPathEditorModal', () => {
       setup();
     });
 
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('xpath-editor-hint'));
-    });
+    fireEvent.click(screen.getByTestId('xpath-editor-hint'));
 
     expect(
       screen.getByText(

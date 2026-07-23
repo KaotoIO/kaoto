@@ -1,5 +1,5 @@
 import { CanvasFormTabsProvider } from '@kaoto/forms';
-import { act, render } from '@testing-library/react';
+import { render } from '@testing-library/react';
 
 import { CanvasFormHeader } from './CanvasFormHeader';
 

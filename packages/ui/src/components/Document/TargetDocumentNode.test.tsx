@@ -68,10 +68,8 @@ describe('TargetDocumentNode', () => {
     TreeParsingService.parseTree(tree);
     const fieldNode = tree.root.children[0];
 
-    act(() => {
-      render(<TargetDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} rank={1} />, {
-        wrapper,
-      });
+    render(<TargetDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} rank={1} />, {
+      wrapper,
     });
 
     expect(screen.getByText(fieldNode.nodeData.title)).toBeInTheDocument();
@@ -84,10 +82,8 @@ describe('TargetDocumentNode', () => {
     const tree = new DocumentTree(documentNodeData);
     TreeParsingService.parseTree(tree);
 
-    act(() => {
-      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
-        wrapper,
-      });
+    render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+      wrapper,
     });
 
     expect(screen.getByText(document.documentId)).toBeInTheDocument();
@@ -101,10 +97,8 @@ describe('TargetDocumentNode', () => {
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
 
-    act(() => {
-      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
-        wrapper,
-      });
+    render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+      wrapper,
     });
 
     expect(screen.getByText(BODY_DOCUMENT_ID)).toBeInTheDocument();
@@ -130,10 +124,8 @@ describe('TargetDocumentNode', () => {
     const collectionFieldNode = findCollectionField(tree.root);
     expect(collectionFieldNode).toBeDefined();
 
-    act(() => {
-      render(<TargetDocumentNode treeNode={collectionFieldNode!} documentId={documentNodeData.id} rank={1} />, {
-        wrapper,
-      });
+    render(<TargetDocumentNode treeNode={collectionFieldNode!} documentId={documentNodeData.id} rank={1} />, {
+      wrapper,
     });
 
     const icons = screen.getAllByRole('img', { hidden: true });
@@ -160,10 +152,8 @@ describe('TargetDocumentNode', () => {
     const attributeFieldNode = findAttributeField(tree.root);
     expect(attributeFieldNode).toBeDefined();
 
-    act(() => {
-      render(<TargetDocumentNode treeNode={attributeFieldNode!} documentId={documentNodeData.id} rank={2} />, {
-        wrapper,
-      });
+    render(<TargetDocumentNode treeNode={attributeFieldNode!} documentId={documentNodeData.id} rank={2} />, {
+      wrapper,
     });
 
     const icons = screen.getAllByRole('img', { hidden: true });
@@ -189,10 +179,8 @@ describe('TargetDocumentNode', () => {
     const choiceNodeData = new TargetChoiceFieldNodeData(documentNodeData, choiceField);
     const choiceTreeNode = new DocumentTreeNode(choiceNodeData);
 
-    act(() => {
-      render(<TargetDocumentNode treeNode={choiceTreeNode} documentId={documentNodeData.id} rank={1} />, {
-        wrapper,
-      });
+    render(<TargetDocumentNode treeNode={choiceTreeNode} documentId={documentNodeData.id} rank={1} />, {
+      wrapper,
     });
 
     expect(screen.getByTestId('choice-field-icon')).toBeInTheDocument();
@@ -223,10 +211,8 @@ describe('TargetDocumentNode', () => {
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
 
-    act(() => {
-      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
-        wrapper,
-      });
+    render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+      wrapper,
     });
 
     const container = screen.getByTestId(`node-target-${documentNodeData.id}`);
@@ -239,10 +225,8 @@ describe('TargetDocumentNode', () => {
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
 
-    act(() => {
-      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
-        wrapper,
-      });
+    render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+      wrapper,
     });
 
     const container = screen.getByTestId(`node-target-${documentNodeData.id}`);
@@ -257,14 +241,11 @@ describe('TargetDocumentNode', () => {
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
 
-    let result: ReturnType<typeof render>;
-    act(() => {
-      result = render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
-        wrapper,
-      });
+    const result = render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+      wrapper,
     });
 
-    const nodeContainer = result!.container.querySelector('[data-testid*="node-target-"]');
+    const nodeContainer = result.container.querySelector('[data-testid*="node-target-"]');
     expect(nodeContainer).toBeInTheDocument();
   });
 
@@ -287,10 +268,8 @@ describe('TargetDocumentNode', () => {
         });
       });
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
-          wrapper,
-        });
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+        wrapper,
       });
 
       const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
@@ -312,10 +291,8 @@ describe('TargetDocumentNode', () => {
       const leafNode = findLeafNode(tree.root);
       expect(leafNode).toBeDefined();
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={leafNode!} documentId={documentNodeData.id} rank={2} />, {
-          wrapper,
-        });
+      render(<TargetDocumentNode treeNode={leafNode!} documentId={documentNodeData.id} rank={2} />, {
+        wrapper,
       });
 
       const expandIcon = screen.queryByTestId(`expand-icon-${leafNode!.nodeData.title}`);
@@ -341,10 +318,8 @@ describe('TargetDocumentNode', () => {
         });
       });
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
-          wrapper,
-        });
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+        wrapper,
       });
 
       const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
@@ -370,10 +345,8 @@ describe('TargetDocumentNode', () => {
         });
       });
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
-          wrapper,
-        });
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+        wrapper,
       });
 
       const collapseIcon = screen.getByTestId(`collapse-icon-${tree.root.nodeData.title}`);
@@ -401,10 +374,8 @@ describe('TargetDocumentNode', () => {
         });
       });
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
-          wrapper,
-        });
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+        wrapper,
       });
 
       const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
@@ -426,10 +397,8 @@ describe('TargetDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
-          wrapper,
-        });
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+        wrapper,
       });
 
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
@@ -471,10 +440,8 @@ describe('TargetDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
-          wrapper,
-        });
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+        wrapper,
       });
 
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
@@ -498,14 +465,12 @@ describe('TargetDocumentNode', () => {
 
       const parentClickHandler = vi.fn();
 
-      act(() => {
-        render(
-          <div onClick={parentClickHandler}>
-            <TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />
-          </div>,
-          { wrapper },
-        );
-      });
+      render(
+        <div onClick={parentClickHandler}>
+          <TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />
+        </div>,
+        { wrapper },
+      );
 
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
 
@@ -631,9 +596,7 @@ describe('TargetDocumentNode', () => {
       const addMappingNodeData = new AddMappingNodeData(documentNodeData, document.fields[0]);
       const treeNode = new DocumentTreeNode(addMappingNodeData);
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={treeNode} documentId={documentNodeData.id} rank={1} />, { wrapper });
-      });
+      render(<TargetDocumentNode treeNode={treeNode} documentId={documentNodeData.id} rank={1} />, { wrapper });
 
       expect(screen.getByText('Add Mapping')).toBeInTheDocument();
     });
@@ -759,9 +722,7 @@ describe('TargetDocumentNode', () => {
         .mockReturnValue([MappingActionKind.ValueSelector]);
       const applyValueSelectorSpy = vi.spyOn(MappingActionService, 'applyValueSelector');
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
-      });
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
 
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
       expect(nodeContainer).toBeInTheDocument();
@@ -786,9 +747,7 @@ describe('TargetDocumentNode', () => {
       const getAllowedActionsSpy = vi.spyOn(MappingActionRegistryService, 'getAllowedActions').mockReturnValue([]);
       const applyValueSelectorSpy = vi.spyOn(MappingActionService, 'applyValueSelector');
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
-      });
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
 
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
       expect(nodeContainer).toBeInTheDocument();
@@ -811,9 +770,7 @@ describe('TargetDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
-      });
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
 
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
 
@@ -829,9 +786,7 @@ describe('TargetDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
-      });
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
 
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
 
@@ -857,10 +812,8 @@ describe('TargetDocumentNode', () => {
       const variableNodeData = new VariableNodeData(targetDocNode, variableItem);
       const variableTreeNode = new DocumentTreeNode(variableNodeData);
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={variableTreeNode} documentId={targetDocNode.id} rank={1} />, {
-          wrapper,
-        });
+      render(<TargetDocumentNode treeNode={variableTreeNode} documentId={targetDocNode.id} rank={1} />, {
+        wrapper,
       });
 
       expect(screen.getByText('taxRate')).toBeInTheDocument();
