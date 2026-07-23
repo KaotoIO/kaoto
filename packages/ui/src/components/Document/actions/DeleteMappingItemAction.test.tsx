@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
 import { ForEachItem, MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
@@ -24,21 +24,13 @@ describe('DeleteMappingItemAction', () => {
       </DataMapperProvider>,
     );
     const deleteBtn = await screen.findByTestId('delete-mapping-btn');
-    act(() => {
-      fireEvent.click(deleteBtn);
-    });
+    fireEvent.click(deleteBtn);
     const cancelBtn = screen.getByTestId('delete-mapping-cancel-btn');
-    act(() => {
-      fireEvent.click(cancelBtn);
-    });
+    fireEvent.click(cancelBtn);
     expect(onDeleteMock.mock.calls).toHaveLength(0);
-    act(() => {
-      fireEvent.click(deleteBtn);
-    });
+    fireEvent.click(deleteBtn);
     const confirmBtn = screen.getByTestId('delete-mapping-confirm-btn');
-    act(() => {
-      fireEvent.click(confirmBtn);
-    });
+    fireEvent.click(confirmBtn);
     expect(onDeleteMock.mock.calls).toHaveLength(1);
   });
 
@@ -59,12 +51,8 @@ describe('DeleteMappingItemAction', () => {
       </DataMapperProvider>,
     );
     const deleteBtn = await screen.findByTestId('delete-mapping-btn');
-    act(() => {
-      fireEvent.click(deleteBtn);
-    });
-    act(() => {
-      fireEvent.click(deleteBtn);
-    });
+    fireEvent.click(deleteBtn);
+    fireEvent.click(deleteBtn);
 
     expect(screen.getByTestId('delete-mapping-modal')).toBeInTheDocument();
     expect(screen.getByText('Delete for-each mapping?')).toBeInTheDocument();
@@ -72,9 +60,7 @@ describe('DeleteMappingItemAction', () => {
       screen.getByText('Deleting a for-each mapping will also remove all its child mappings.'),
     ).toBeInTheDocument();
     const confirmBtn = screen.getByTestId('delete-mapping-confirm-btn');
-    act(() => {
-      fireEvent.click(confirmBtn);
-    });
+    fireEvent.click(confirmBtn);
     expect(onDeleteMock.mock.calls).toHaveLength(1);
   });
 });

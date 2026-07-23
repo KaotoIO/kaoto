@@ -68,10 +68,8 @@ describe('TargetDocumentNode', () => {
     TreeParsingService.parseTree(tree);
     const fieldNode = tree.root.children[0];
 
-    act(() => {
-      render(<TargetDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} rank={1} />, {
-        wrapper,
-      });
+    render(<TargetDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} rank={1} />, {
+      wrapper,
     });
 
     expect(screen.getByText(fieldNode.nodeData.title)).toBeInTheDocument();
@@ -84,10 +82,8 @@ describe('TargetDocumentNode', () => {
     const tree = new DocumentTree(documentNodeData);
     TreeParsingService.parseTree(tree);
 
-    act(() => {
-      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
-        wrapper,
-      });
+    render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+      wrapper,
     });
 
     expect(screen.getByText(document.documentId)).toBeInTheDocument();
@@ -101,10 +97,8 @@ describe('TargetDocumentNode', () => {
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
 
-    act(() => {
-      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
-        wrapper,
-      });
+    render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+      wrapper,
     });
 
     expect(screen.getByText(BODY_DOCUMENT_ID)).toBeInTheDocument();
@@ -130,10 +124,8 @@ describe('TargetDocumentNode', () => {
     const collectionFieldNode = findCollectionField(tree.root);
     expect(collectionFieldNode).toBeDefined();
 
-    act(() => {
-      render(<TargetDocumentNode treeNode={collectionFieldNode!} documentId={documentNodeData.id} rank={1} />, {
-        wrapper,
-      });
+    render(<TargetDocumentNode treeNode={collectionFieldNode!} documentId={documentNodeData.id} rank={1} />, {
+      wrapper,
     });
 
     const icons = screen.getAllByRole('img', { hidden: true });
@@ -160,10 +152,8 @@ describe('TargetDocumentNode', () => {
     const attributeFieldNode = findAttributeField(tree.root);
     expect(attributeFieldNode).toBeDefined();
 
-    act(() => {
-      render(<TargetDocumentNode treeNode={attributeFieldNode!} documentId={documentNodeData.id} rank={2} />, {
-        wrapper,
-      });
+    render(<TargetDocumentNode treeNode={attributeFieldNode!} documentId={documentNodeData.id} rank={2} />, {
+      wrapper,
     });
 
     const icons = screen.getAllByRole('img', { hidden: true });
@@ -189,10 +179,8 @@ describe('TargetDocumentNode', () => {
     const choiceNodeData = new TargetChoiceFieldNodeData(documentNodeData, choiceField);
     const choiceTreeNode = new DocumentTreeNode(choiceNodeData);
 
-    act(() => {
-      render(<TargetDocumentNode treeNode={choiceTreeNode} documentId={documentNodeData.id} rank={1} />, {
-        wrapper,
-      });
+    render(<TargetDocumentNode treeNode={choiceTreeNode} documentId={documentNodeData.id} rank={1} />, {
+      wrapper,
     });
 
     expect(screen.getByTestId('choice-field-icon')).toBeInTheDocument();
@@ -223,10 +211,8 @@ describe('TargetDocumentNode', () => {
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
 
-    act(() => {
-      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
-        wrapper,
-      });
+    render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+      wrapper,
     });
 
     const container = screen.getByTestId(`node-target-${documentNodeData.id}`);
@@ -239,10 +225,8 @@ describe('TargetDocumentNode', () => {
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
 
-    act(() => {
-      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
-        wrapper,
-      });
+    render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+      wrapper,
     });
 
     const container = screen.getByTestId(`node-target-${documentNodeData.id}`);
@@ -257,14 +241,11 @@ describe('TargetDocumentNode', () => {
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
 
-    let result: ReturnType<typeof render>;
-    act(() => {
-      result = render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
-        wrapper,
-      });
+    const result = render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+      wrapper,
     });
 
-    const nodeContainer = result!.container.querySelector('[data-testid*="node-target-"]');
+    const nodeContainer = result.container.querySelector('[data-testid*="node-target-"]');
     expect(nodeContainer).toBeInTheDocument();
   });
 
@@ -287,18 +268,14 @@ describe('TargetDocumentNode', () => {
         });
       });
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
-          wrapper,
-        });
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+        wrapper,
       });
 
       const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
       expect(expandIcon).toBeInTheDocument();
 
-      act(() => {
-        fireEvent.click(expandIcon);
-      });
+      fireEvent.click(expandIcon);
 
       expect(toggleNodeSpy).toHaveBeenCalledWith(documentNodeData.id, tree.root.path);
 
@@ -314,10 +291,8 @@ describe('TargetDocumentNode', () => {
       const leafNode = findLeafNode(tree.root);
       expect(leafNode).toBeDefined();
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={leafNode!} documentId={documentNodeData.id} rank={2} />, {
-          wrapper,
-        });
+      render(<TargetDocumentNode treeNode={leafNode!} documentId={documentNodeData.id} rank={2} />, {
+        wrapper,
       });
 
       const expandIcon = screen.queryByTestId(`expand-icon-${leafNode!.nodeData.title}`);
@@ -343,10 +318,8 @@ describe('TargetDocumentNode', () => {
         });
       });
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
-          wrapper,
-        });
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+        wrapper,
       });
 
       const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
@@ -372,10 +345,8 @@ describe('TargetDocumentNode', () => {
         });
       });
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
-          wrapper,
-        });
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+        wrapper,
       });
 
       const collapseIcon = screen.getByTestId(`collapse-icon-${tree.root.nodeData.title}`);
@@ -403,17 +374,13 @@ describe('TargetDocumentNode', () => {
         });
       });
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
-          wrapper,
-        });
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+        wrapper,
       });
 
       const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
 
-      act(() => {
-        fireEvent.click(expandIcon);
-      });
+      fireEvent.click(expandIcon);
 
       expect(toggleNodeSpy).toHaveBeenCalledTimes(1);
       expect(toggleNodeSpy).toHaveBeenCalledWith(documentNodeData.id, tree.root.path);
@@ -430,18 +397,14 @@ describe('TargetDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
-          wrapper,
-        });
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+        wrapper,
       });
 
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
       expect(nodeContainer).toBeInTheDocument();
 
-      act(() => {
-        fireEvent.click(nodeContainer);
-      });
+      fireEvent.click(nodeContainer);
 
       expect(nodeContainer).toHaveAttribute('data-selected', 'true');
     });
@@ -462,9 +425,7 @@ describe('TargetDocumentNode', () => {
       // Initially not selected
       expect(nodeContainer).toHaveAttribute('data-selected', 'false');
 
-      act(() => {
-        fireEvent.click(nodeContainer);
-      });
+      fireEvent.click(nodeContainer);
 
       // Wait for the component to re-render with selected state
       await waitFor(() => {
@@ -479,24 +440,18 @@ describe('TargetDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
-          wrapper,
-        });
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+        wrapper,
       });
 
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
       expect(nodeContainer).toBeInTheDocument();
 
-      act(() => {
-        fireEvent.click(nodeContainer);
-      });
+      fireEvent.click(nodeContainer);
 
       expect(nodeContainer).toHaveAttribute('data-selected', 'true');
 
-      act(() => {
-        fireEvent.click(nodeContainer);
-      });
+      fireEvent.click(nodeContainer);
 
       const deselectedNode = screen.getByTestId(`node-target-${documentNodeData.id}`);
       expect(deselectedNode).toBeInTheDocument();
@@ -510,20 +465,16 @@ describe('TargetDocumentNode', () => {
 
       const parentClickHandler = vi.fn();
 
-      act(() => {
-        render(
-          <div onClick={parentClickHandler}>
-            <TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />
-          </div>,
-          { wrapper },
-        );
-      });
+      render(
+        <div onClick={parentClickHandler}>
+          <TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />
+        </div>,
+        { wrapper },
+      );
 
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
 
-      act(() => {
-        fireEvent.click(nodeContainer);
-      });
+      fireEvent.click(nodeContainer);
 
       expect(parentClickHandler).not.toHaveBeenCalled();
     });
@@ -645,9 +596,7 @@ describe('TargetDocumentNode', () => {
       const addMappingNodeData = new AddMappingNodeData(documentNodeData, document.fields[0]);
       const treeNode = new DocumentTreeNode(addMappingNodeData);
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={treeNode} documentId={documentNodeData.id} rank={1} />, { wrapper });
-      });
+      render(<TargetDocumentNode treeNode={treeNode} documentId={documentNodeData.id} rank={1} />, { wrapper });
 
       expect(screen.getByText('Add Mapping')).toBeInTheDocument();
     });
@@ -706,9 +655,7 @@ describe('TargetDocumentNode', () => {
 
       const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
 
-      act(() => {
-        fireEvent.click(expandIcon);
-      });
+      fireEvent.click(expandIcon);
 
       // Parent click handler should not be called due to stopPropagation
       expect(parentClickHandler).not.toHaveBeenCalled();
@@ -732,9 +679,7 @@ describe('TargetDocumentNode', () => {
 
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
 
-      act(() => {
-        fireEvent.click(nodeContainer);
-      });
+      fireEvent.click(nodeContainer);
 
       // Parent click handler should not be called due to stopPropagation
       expect(parentClickHandler).not.toHaveBeenCalled();
@@ -759,9 +704,7 @@ describe('TargetDocumentNode', () => {
 
       // Clicking the node should still work for selection
       const nodeContainer = screen.getByTestId(`node-target-${leafNode!.nodeData.id}`);
-      act(() => {
-        fireEvent.click(nodeContainer);
-      });
+      fireEvent.click(nodeContainer);
 
       // Node should be selected
       expect(nodeContainer).toHaveAttribute('data-selected', 'true');
@@ -779,16 +722,12 @@ describe('TargetDocumentNode', () => {
         .mockReturnValue([MappingActionKind.ValueSelector]);
       const applyValueSelectorSpy = vi.spyOn(MappingActionService, 'applyValueSelector');
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
-      });
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
 
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
       expect(nodeContainer).toBeInTheDocument();
 
-      act(() => {
-        fireEvent.doubleClick(nodeContainer);
-      });
+      fireEvent.doubleClick(nodeContainer);
 
       expect(getAllowedActionsSpy).toHaveBeenCalledWith(documentNodeData);
       expect(applyValueSelectorSpy).toHaveBeenCalledWith(documentNodeData);
@@ -808,16 +747,12 @@ describe('TargetDocumentNode', () => {
       const getAllowedActionsSpy = vi.spyOn(MappingActionRegistryService, 'getAllowedActions').mockReturnValue([]);
       const applyValueSelectorSpy = vi.spyOn(MappingActionService, 'applyValueSelector');
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
-      });
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
 
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
       expect(nodeContainer).toBeInTheDocument();
 
-      act(() => {
-        fireEvent.doubleClick(nodeContainer);
-      });
+      fireEvent.doubleClick(nodeContainer);
 
       expect(getAllowedActionsSpy).toHaveBeenCalledWith(documentNodeData);
       expect(applyValueSelectorSpy).not.toHaveBeenCalled();
@@ -835,15 +770,11 @@ describe('TargetDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
-      });
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
 
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
 
-      act(() => {
-        fireEvent.keyDown(nodeContainer, { key: 'Enter' });
-      });
+      fireEvent.keyDown(nodeContainer, { key: 'Enter' });
 
       expect(nodeContainer).toHaveAttribute('data-selected', 'true');
     });
@@ -855,15 +786,11 @@ describe('TargetDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
-      });
+      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
 
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
 
-      act(() => {
-        fireEvent.keyDown(nodeContainer, { key: ' ' });
-      });
+      fireEvent.keyDown(nodeContainer, { key: ' ' });
 
       expect(nodeContainer).toHaveAttribute('data-selected', 'true');
     });
@@ -885,10 +812,8 @@ describe('TargetDocumentNode', () => {
       const variableNodeData = new VariableNodeData(targetDocNode, variableItem);
       const variableTreeNode = new DocumentTreeNode(variableNodeData);
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={variableTreeNode} documentId={targetDocNode.id} rank={1} />, {
-          wrapper,
-        });
+      render(<TargetDocumentNode treeNode={variableTreeNode} documentId={targetDocNode.id} rank={1} />, {
+        wrapper,
       });
 
       expect(screen.getByText('taxRate')).toBeInTheDocument();
@@ -972,9 +897,7 @@ describe('TargetDocumentNode', () => {
         wrapper,
       });
 
-      act(() => {
-        fireEvent.click(screen.getByTestId('new-variable-cancel-btn'));
-      });
+      fireEvent.click(screen.getByTestId('new-variable-cancel-btn'));
 
       await waitFor(() => {
         expect(useDocumentTreeStore.getState().addingVariableToNodePath).toBeNull();
@@ -1006,12 +929,8 @@ describe('TargetDocumentNode', () => {
       });
 
       const input = screen.getByTestId('new-variable-name-input');
-      act(() => {
-        fireEvent.change(input, { target: { value: 'myVar' } });
-      });
-      act(() => {
-        fireEvent.click(screen.getByTestId('new-variable-submit-btn'));
-      });
+      fireEvent.change(input, { target: { value: 'myVar' } });
+      fireEvent.click(screen.getByTestId('new-variable-submit-btn'));
 
       await waitFor(() => {
         expect(addVariableSpy).toHaveBeenCalledWith(fieldNode.mapping, 'myVar');
@@ -1043,12 +962,8 @@ describe('TargetDocumentNode', () => {
       });
 
       const input = screen.getByTestId('new-variable-name-input');
-      act(() => {
-        fireEvent.change(input, { target: { value: 'newName' } });
-      });
-      act(() => {
-        fireEvent.click(screen.getByTestId('new-variable-submit-btn'));
-      });
+      fireEvent.change(input, { target: { value: 'newName' } });
+      fireEvent.click(screen.getByTestId('new-variable-submit-btn'));
 
       await waitFor(() => {
         expect(updateVariableSpy).toHaveBeenCalledWith(variableItem, 'newName', variableItem.expression);
@@ -1078,9 +993,7 @@ describe('TargetDocumentNode', () => {
         wrapper,
       });
 
-      act(() => {
-        fireEvent.click(screen.getByTestId('new-variable-cancel-btn'));
-      });
+      fireEvent.click(screen.getByTestId('new-variable-cancel-btn'));
 
       await waitFor(() => {
         expect(useDocumentTreeStore.getState().renamingVariableId).toBeNull();

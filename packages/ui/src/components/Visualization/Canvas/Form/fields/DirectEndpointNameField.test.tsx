@@ -1,6 +1,6 @@
 import { CamelYamlDsl, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { JSONSchema4 } from 'json-schema';
 
 import { CamelRouteResource } from '../../../../../models/camel/camel-route-resource';
@@ -49,9 +49,7 @@ describe('DirectEndpointNameField', () => {
     ]);
 
     const toggle = screen.getByLabelText('Name toggle');
-    act(() => {
-      fireEvent.click(toggle);
-    });
+    fireEvent.click(toggle);
 
     // findAllByRole polls until the typeahead options render, which also flushes
     // PatternFly's debounced Popper reposition inside act() — a plain getAllByRole

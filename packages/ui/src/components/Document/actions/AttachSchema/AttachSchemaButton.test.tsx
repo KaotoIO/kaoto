@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { BODY_DOCUMENT_ID, DocumentType } from '../../../../models/datamapper/document';
 import { MappingLinksProvider } from '../../../../providers/data-mapping-links.provider';
@@ -26,9 +26,7 @@ describe('AttachSchemaButton', () => {
     expect(modal).toBeNull();
 
     const attachButton = await screen.findByTestId('attach-schema-sourceBody-Body-button');
-    await act(async () => {
-      fireEvent.click(attachButton);
-    });
+    fireEvent.click(attachButton);
 
     await waitFor(() => {
       modal = screen.queryByTestId('attach-schema-modal');
@@ -53,9 +51,7 @@ describe('AttachSchemaButton', () => {
     );
 
     const attachButton = await screen.findByTestId('attach-schema-sourceBody-Body-button');
-    act(() => {
-      fireEvent.click(attachButton);
-    });
+    fireEvent.click(attachButton);
 
     const attachSchemaModal = screen.queryByTestId('attach-schema-modal');
     expect(attachSchemaModal).toBeNull();
@@ -83,9 +79,7 @@ describe('AttachSchemaButton', () => {
     );
 
     const attachButton = await screen.findByTestId('attach-schema-sourceBody-Body-button');
-    act(() => {
-      fireEvent.click(attachButton);
-    });
+    fireEvent.click(attachButton);
 
     let attachSchemaModal = screen.queryByTestId('attach-schema-modal');
     expect(attachSchemaModal).toBeNull();
@@ -96,9 +90,7 @@ describe('AttachSchemaButton', () => {
     });
 
     const warningModalCancelButton = await screen.findByTestId('update-schema-warning-modal-btn-cancel');
-    act(() => {
-      fireEvent.click(warningModalCancelButton);
-    });
+    fireEvent.click(warningModalCancelButton);
 
     await waitFor(() => {
       const warningModal = screen.queryByTestId('update-schema-warning-modal');
@@ -126,9 +118,7 @@ describe('AttachSchemaButton', () => {
     );
 
     const attachButton = await screen.findByTestId('attach-schema-sourceBody-Body-button');
-    act(() => {
-      fireEvent.click(attachButton);
-    });
+    fireEvent.click(attachButton);
 
     const attachSchemaModal = screen.queryByTestId('attach-schema-modal');
     expect(attachSchemaModal).toBeNull();
@@ -139,9 +129,7 @@ describe('AttachSchemaButton', () => {
     });
 
     const warningModalContinueButton = await screen.findByTestId('update-schema-warning-modal-btn-continue');
-    act(() => {
-      fireEvent.click(warningModalContinueButton);
-    });
+    fireEvent.click(warningModalContinueButton);
 
     await waitFor(() => {
       const attachSchemaModal = screen.queryByTestId('attach-schema-modal');

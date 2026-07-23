@@ -99,9 +99,7 @@ describe('CatalogPage', () => {
 
       // Find and click a tile
       const tileElement = screen.getByTestId('tile-header-timer');
-      act(() => {
-        fireEvent.click(tileElement);
-      });
+      fireEvent.click(tileElement);
 
       await waitFor(() => {
         // Modal uses React portals, so we need to use baseElement
@@ -124,9 +122,7 @@ describe('CatalogPage', () => {
 
       // Open modal
       const tileElement = screen.getByTestId('tile-header-timer');
-      act(() => {
-        fireEvent.click(tileElement);
-      });
+      fireEvent.click(tileElement);
 
       await waitFor(() => {
         expect(baseElement.querySelector('.pf-v6-c-modal-box')).toBeInTheDocument();
@@ -134,9 +130,7 @@ describe('CatalogPage', () => {
 
       // Close modal using the close button
       const closeButton = baseElement.querySelector('.pf-v6-c-modal-box__close button');
-      act(() => {
-        fireEvent.click(closeButton!);
-      });
+      fireEvent.click(closeButton!);
 
       await waitFor(() => {
         expect(baseElement.querySelector('.pf-v6-c-modal-box')).not.toBeInTheDocument();
@@ -275,9 +269,7 @@ describe('CatalogPage', () => {
       });
 
       const tileElement = screen.getByTestId('tile-header-timer');
-      act(() => {
-        fireEvent.click(tileElement);
-      });
+      fireEvent.click(tileElement);
 
       await waitFor(() => {
         expect(baseElement.querySelector('.pf-v6-c-modal-box__title-text')).toHaveTextContent('Timer');
@@ -299,9 +291,7 @@ describe('CatalogPage', () => {
 
       // Open modal
       const tileElement = screen.getByTestId('tile-header-timer');
-      act(() => {
-        fireEvent.click(tileElement);
-      });
+      fireEvent.click(tileElement);
 
       await waitFor(() => {
         expect(baseElement.querySelector('.pf-v6-c-modal-box')).toBeInTheDocument();
@@ -309,9 +299,7 @@ describe('CatalogPage', () => {
 
       // Close modal
       const closeButton = baseElement.querySelector('.pf-v6-c-modal-box__close button');
-      act(() => {
-        fireEvent.click(closeButton!);
-      });
+      fireEvent.click(closeButton!);
 
       await waitFor(() => {
         expect(baseElement.querySelector('.pf-v6-c-modal-box')).not.toBeInTheDocument();
@@ -336,9 +324,7 @@ describe('CatalogPage', () => {
 
       // Click first tile
       const firstTileElement = screen.getByTestId('tile-header-timer');
-      act(() => {
-        fireEvent.click(firstTileElement);
-      });
+      fireEvent.click(firstTileElement);
 
       await waitFor(() => {
         expect(baseElement.querySelector('.pf-v6-c-modal-box__title-text')).toHaveTextContent('Timer');
@@ -346,9 +332,7 @@ describe('CatalogPage', () => {
 
       // Close modal
       const closeButton = baseElement.querySelector('.pf-v6-c-modal-box__close button');
-      act(() => {
-        fireEvent.click(closeButton!);
-      });
+      fireEvent.click(closeButton!);
 
       await waitFor(() => {
         expect(baseElement.querySelector('.pf-v6-c-modal-box')).not.toBeInTheDocument();
@@ -356,9 +340,7 @@ describe('CatalogPage', () => {
 
       // Click second tile
       const secondTileElement = screen.getByTestId('tile-header-aws-s3-source');
-      act(() => {
-        fireEvent.click(secondTileElement);
-      });
+      fireEvent.click(secondTileElement);
 
       await waitFor(() => {
         expect(baseElement.querySelector('.pf-v6-c-modal-box__title-text')).toHaveTextContent('AWS S3 Source');

@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
@@ -43,13 +43,9 @@ describe('DeleteParameterButton', () => {
     );
     const deleteBtn = await screen.findByTestId('delete-parameter-testparam1-button');
     expect(parameterMap!.size).toBe(1);
-    act(() => {
-      fireEvent.click(deleteBtn);
-    });
+    fireEvent.click(deleteBtn);
     const confirmBtn = screen.getByTestId('delete-parameter-modal-confirm-btn');
-    act(() => {
-      fireEvent.click(confirmBtn);
-    });
+    fireEvent.click(confirmBtn);
     expect(parameterMap!.size).toBe(0);
   });
 });

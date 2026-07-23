@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import { TypeaheadInput, TypeaheadInputOption } from './TypeaheadInput';
 
@@ -34,9 +34,7 @@ describe('TypeaheadInput', () => {
   it('should call onChange when typing', () => {
     const onChange = vi.fn();
     render(<TypeaheadInput value="" onChange={onChange} options={OPTIONS} data-testid="xpath-input" />);
-    act(() => {
-      fireEvent.change(getInput(), { target: { value: 'Ti' } });
-    });
+    fireEvent.change(getInput(), { target: { value: 'Ti' } });
     expect(onChange).toHaveBeenCalledWith('Ti');
   });
 
@@ -44,9 +42,7 @@ describe('TypeaheadInput', () => {
     const { rerender } = render(
       <TypeaheadInput value="" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />,
     );
-    act(() => {
-      fireEvent.change(getInput(), { target: { value: 'Ti' } });
-    });
+    fireEvent.change(getInput(), { target: { value: 'Ti' } });
     rerender(<TypeaheadInput value="Ti" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />);
     expect(screen.getByRole('listbox')).toBeInTheDocument();
     expect(screen.getByText('Title')).toBeInTheDocument();
@@ -56,9 +52,7 @@ describe('TypeaheadInput', () => {
   it('should close dropdown when no options match', () => {
     const onChange = vi.fn();
     render(<TypeaheadInput value="" onChange={onChange} options={OPTIONS} data-testid="xpath-input" />);
-    act(() => {
-      fireEvent.change(getInput(), { target: { value: 'string-length(' } });
-    });
+    fireEvent.change(getInput(), { target: { value: 'string-length(' } });
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
   });
 
@@ -66,9 +60,7 @@ describe('TypeaheadInput', () => {
     const { rerender } = render(
       <TypeaheadInput value="" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />,
     );
-    act(() => {
-      fireEvent.change(getInput(), { target: { value: 'decimal' } });
-    });
+    fireEvent.change(getInput(), { target: { value: 'decimal' } });
     rerender(<TypeaheadInput value="decimal" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />);
     expect(screen.getByRole('listbox')).toBeInTheDocument();
     expect(screen.getByText('Price')).toBeInTheDocument();
@@ -79,52 +71,38 @@ describe('TypeaheadInput', () => {
     const onChange = vi.fn();
     render(<TypeaheadInput value="" onChange={onChange} options={OPTIONS} data-testid="xpath-input" />);
 
-    act(() => {
-      fireEvent.change(getInput(), { target: { value: 'Ti' } });
-    });
+    fireEvent.change(getInput(), { target: { value: 'Ti' } });
     expect(screen.getByRole('listbox')).toBeInTheDocument();
 
-    act(() => {
-      fireEvent.click(screen.getByText('Title'));
-    });
+    fireEvent.click(screen.getByText('Title'));
     expect(onChange).toHaveBeenCalledWith('Title');
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
   });
 
   it('should open dropdown on focus when value is empty and options exist', () => {
     render(<TypeaheadInput value="" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />);
-    act(() => {
-      fireEvent.focus(getInput());
-    });
+    fireEvent.focus(getInput());
     expect(screen.getByRole('listbox')).toBeInTheDocument();
   });
 
   it('should not open dropdown on focus when value is non-empty', () => {
     render(<TypeaheadInput value="Title" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />);
-    act(() => {
-      fireEvent.focus(getInput());
-    });
+    fireEvent.focus(getInput());
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
   });
 
   it('should not open dropdown on focus when no options exist', () => {
     render(<TypeaheadInput value="" onChange={vi.fn()} options={[]} data-testid="xpath-input" />);
-    act(() => {
-      fireEvent.focus(getInput());
-    });
+    fireEvent.focus(getInput());
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
   });
 
   it('should close dropdown on blur', () => {
     render(<TypeaheadInput value="" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />);
-    act(() => {
-      fireEvent.focus(getInput());
-    });
+    fireEvent.focus(getInput());
     expect(screen.getByRole('listbox')).toBeInTheDocument();
 
-    act(() => {
-      fireEvent.blur(getInput(), { relatedTarget: document.body });
-    });
+    fireEvent.blur(getInput(), { relatedTarget: document.body });
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
   });
 
@@ -141,17 +119,13 @@ describe('TypeaheadInput', () => {
   it('should call onChange with empty string when clear button is clicked', () => {
     const onChange = vi.fn();
     render(<TypeaheadInput value="Title" onChange={onChange} options={OPTIONS} data-testid="xpath-input" />);
-    act(() => {
-      fireEvent.click(screen.getByLabelText('Clear expression'));
-    });
+    fireEvent.click(screen.getByLabelText('Clear expression'));
     expect(onChange).toHaveBeenCalledWith('');
   });
 
   it('should set Select id with suffix when id is provided', () => {
     render(<TypeaheadInput value="" onChange={vi.fn()} options={OPTIONS} id="my-input" data-testid="xpath-input" />);
-    act(() => {
-      fireEvent.focus(getInput());
-    });
+    fireEvent.focus(getInput());
     expect(screen.getByRole('listbox').closest('[id="my-input-select"]')).toBeInTheDocument();
   });
 
@@ -173,17 +147,13 @@ describe('TypeaheadInput', () => {
       <TypeaheadInput value="" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />,
     );
     rerender(<TypeaheadInput value="Title" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />);
-    act(() => {
-      fireEvent.focus(getInput());
-    });
+    fireEvent.focus(getInput());
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
   });
 
   it('should show all options when value is empty and dropdown is open', () => {
     render(<TypeaheadInput value="" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />);
-    act(() => {
-      fireEvent.focus(getInput());
-    });
+    fireEvent.focus(getInput());
     for (const opt of OPTIONS) {
       expect(screen.getByText(opt.value)).toBeInTheDocument();
     }

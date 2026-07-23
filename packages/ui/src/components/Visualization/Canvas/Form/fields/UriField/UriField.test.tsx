@@ -1,5 +1,5 @@
 import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { JSONSchema4 } from 'json-schema';
 
 import { UriField } from './UriField';
@@ -55,19 +55,13 @@ describe('UriField', () => {
     renderField({ uri: 'timer:test' }, onChangeMock);
 
     const editButton = screen.getByTestId('uri--edit');
-    act(() => {
-      fireEvent.click(editButton);
-    });
+    fireEvent.click(editButton);
 
     const input = screen.getByTestId('uri--text-input');
-    act(() => {
-      fireEvent.change(input, { target: { value: 'timer:newtest' } });
-    });
+    fireEvent.change(input, { target: { value: 'timer:newtest' } });
 
     const saveButton = screen.getByTestId('uri--save');
-    act(() => {
-      fireEvent.click(saveButton);
-    });
+    fireEvent.click(saveButton);
 
     expect(onChangeMock).toHaveBeenCalledWith('uri', 'timer:newtest');
   });
@@ -77,19 +71,13 @@ describe('UriField', () => {
     renderField({ uri: 'timer:test' }, onChangeMock);
 
     const editButton = screen.getByTestId('uri--edit');
-    act(() => {
-      fireEvent.click(editButton);
-    });
+    fireEvent.click(editButton);
 
     const input = screen.getByTestId('uri--text-input');
-    act(() => {
-      fireEvent.change(input, { target: { value: '' } });
-    });
+    fireEvent.change(input, { target: { value: '' } });
 
     const saveButton = screen.getByTestId('uri--save');
-    act(() => {
-      fireEvent.click(saveButton);
-    });
+    fireEvent.click(saveButton);
 
     expect(onChangeMock).toHaveBeenCalledWith('uri', undefined);
   });
@@ -99,19 +87,13 @@ describe('UriField', () => {
     renderField({ uri: 'timer:test' }, onChangeMock);
 
     const editButton = screen.getByTestId('uri--edit');
-    act(() => {
-      fireEvent.click(editButton);
-    });
+    fireEvent.click(editButton);
 
     const input = screen.getByTestId('uri--text-input');
-    act(() => {
-      fireEvent.change(input, { target: { value: 'timer:newtest' } });
-    });
+    fireEvent.change(input, { target: { value: 'timer:newtest' } });
 
     const cancelButton = screen.getByTestId('uri--cancel');
-    act(() => {
-      fireEvent.click(cancelButton);
-    });
+    fireEvent.click(cancelButton);
 
     expect(onChangeMock).not.toHaveBeenCalled();
   });

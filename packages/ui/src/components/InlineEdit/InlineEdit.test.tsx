@@ -41,9 +41,7 @@ describe('InlineEdit', () => {
       const wrapper = render(<InlineEdit data-testid={DATA_TESTID} />);
       const editButton = wrapper.getByTestId('inline--edit');
 
-      act(() => {
-        fireEvent.click(editButton);
-      });
+      fireEvent.click(editButton);
 
       const input = wrapper.getByTestId('inline--text-input');
       expect(input).toBeInTheDocument();
@@ -69,9 +67,7 @@ describe('InlineEdit', () => {
       const wrapper = render(<InlineEdit data-testid={DATA_TESTID} />);
       const editButton = wrapper.getByTestId('inline--edit');
 
-      act(() => {
-        fireEvent.click(editButton);
-      });
+      fireEvent.click(editButton);
 
       const input = wrapper.getByTestId('inline--text-input');
       expect(input).toHaveFocus();
@@ -81,9 +77,7 @@ describe('InlineEdit', () => {
       const wrapper = render(<InlineEdit data-testid={DATA_TESTID} />);
       const editButton = wrapper.getByTestId('inline--edit');
 
-      act(() => {
-        fireEvent.click(editButton);
-      });
+      fireEvent.click(editButton);
 
       const input = wrapper.getByTestId('inline--text-input');
       expect(input).toHaveAttribute('aria-invalid', 'false');
@@ -93,9 +87,7 @@ describe('InlineEdit', () => {
       const wrapper = render(<InlineEdit data-testid={DATA_TESTID} value="My text" />);
       const editButton = wrapper.getByTestId('inline--edit');
 
-      act(() => {
-        fireEvent.click(editButton);
-      });
+      fireEvent.click(editButton);
 
       const input = wrapper.getByTestId('inline--text-input');
 
@@ -111,9 +103,7 @@ describe('InlineEdit', () => {
       const wrapper = render(<InlineEdit data-testid={DATA_TESTID} value="My text" validator={minLengthValidator} />);
       const editButton = wrapper.getByTestId('inline--edit');
 
-      act(() => {
-        fireEvent.click(editButton);
-      });
+      fireEvent.click(editButton);
 
       act(() => {
         const input = wrapper.getByTestId('inline--text-input');
@@ -143,9 +133,7 @@ describe('InlineEdit', () => {
       });
 
       const saveButton = wrapper.getByTestId('inline--save');
-      act(() => {
-        fireEvent.click(saveButton);
-      });
+      fireEvent.click(saveButton);
 
       expect(saveButton).toBeInTheDocument();
       expect(saveButton).toBeDisabled();
@@ -274,9 +262,7 @@ describe('InlineEdit', () => {
       const onClick = vi.fn();
       const wrapper = render(<InlineEdit data-testid={DATA_TESTID} onClick={onClick} />);
 
-      act(() => {
-        fireEvent.keyDown(wrapper.getByTestId(DATA_TESTID), { key: 'Enter' });
-      });
+      fireEvent.keyDown(wrapper.getByTestId(DATA_TESTID), { key: 'Enter' });
 
       expect(onClick).toHaveBeenCalled();
     });
@@ -285,9 +271,7 @@ describe('InlineEdit', () => {
       const onClick = vi.fn();
       const wrapper = render(<InlineEdit data-testid={DATA_TESTID} onClick={onClick} />);
 
-      act(() => {
-        fireEvent.keyDown(wrapper.getByTestId(DATA_TESTID), { key: ' ' });
-      });
+      fireEvent.keyDown(wrapper.getByTestId(DATA_TESTID), { key: ' ' });
 
       expect(onClick).toHaveBeenCalled();
     });
@@ -296,9 +280,7 @@ describe('InlineEdit', () => {
       const wrapper = render(<InlineEdit data-testid={DATA_TESTID} />);
 
       expect(() => {
-        act(() => {
-          fireEvent.keyDown(wrapper.getByTestId(DATA_TESTID), { key: 'Enter' });
-        });
+        fireEvent.keyDown(wrapper.getByTestId(DATA_TESTID), { key: 'Enter' });
       }).not.toThrow();
     });
   });

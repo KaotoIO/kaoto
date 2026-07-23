@@ -57,9 +57,7 @@ describe('IntegrationTypeSelector', () => {
     const wrapper = renderSelector();
     const toggle = wrapper.getByTestId('test-toggle');
 
-    act(() => {
-      fireEvent.click(toggle);
-    });
+    fireEvent.click(toggle);
 
     const list = await wrapper.findByTestId('test-select-list');
     expect(list).toBeInTheDocument();
@@ -68,9 +66,7 @@ describe('IntegrationTypeSelector', () => {
   it('renders all DSL options when open', async () => {
     const wrapper = renderSelector();
 
-    act(() => {
-      fireEvent.click(wrapper.getByTestId('test-toggle'));
-    });
+    fireEvent.click(wrapper.getByTestId('test-toggle'));
 
     for (const label of ['Camel Route', 'Kamelet', 'Pipe', 'Test']) {
       expect(await wrapper.findByText(label)).toBeInTheDocument();
@@ -81,14 +77,10 @@ describe('IntegrationTypeSelector', () => {
     const onSelect = vi.fn();
     const wrapper = renderSelector(onSelect);
 
-    act(() => {
-      fireEvent.click(wrapper.getByTestId('test-toggle'));
-    });
+    fireEvent.click(wrapper.getByTestId('test-toggle'));
 
     const option = await wrapper.findByText('Pipe');
-    act(() => {
-      fireEvent.click(option);
-    });
+    fireEvent.click(option);
 
     await waitFor(() => {
       expect(onSelect).toHaveBeenCalledWith(SourceSchemaType.Pipe);
@@ -98,14 +90,10 @@ describe('IntegrationTypeSelector', () => {
   it('closes the dropdown after selecting an option', async () => {
     const wrapper = renderSelector(vi.fn());
 
-    act(() => {
-      fireEvent.click(wrapper.getByTestId('test-toggle'));
-    });
+    fireEvent.click(wrapper.getByTestId('test-toggle'));
 
     const option = await wrapper.findByText('Pipe');
-    act(() => {
-      fireEvent.click(option);
-    });
+    fireEvent.click(option);
 
     await waitFor(() => {
       expect(wrapper.queryByTestId('test-select-list')).not.toBeInTheDocument();
@@ -115,9 +103,7 @@ describe('IntegrationTypeSelector', () => {
   it('closes the dropdown when pressing Escape', async () => {
     const wrapper = renderSelector();
 
-    act(() => {
-      fireEvent.click(wrapper.getByTestId('test-toggle'));
-    });
+    fireEvent.click(wrapper.getByTestId('test-toggle'));
 
     const menu = await wrapper.findByRole('listbox');
     expect(menu).toBeInTheDocument();
@@ -142,9 +128,7 @@ describe('IntegrationTypeSelector', () => {
 
     const wrapper = renderSelector(undefined, SourceSchemaType.Route, getOptionWithDisabled);
 
-    act(() => {
-      fireEvent.click(wrapper.getByTestId('test-toggle'));
-    });
+    fireEvent.click(wrapper.getByTestId('test-toggle'));
 
     const disabledOption = await wrapper.findByTestId('option-Pipe');
     expect(disabledOption).toHaveClass('pf-m-disabled');
@@ -160,9 +144,7 @@ describe('IntegrationTypeSelector', () => {
 
     const wrapper = renderSelector(undefined, SourceSchemaType.Route, getOptionWithSuffix);
 
-    act(() => {
-      fireEvent.click(wrapper.getByTestId('test-toggle'));
-    });
+    fireEvent.click(wrapper.getByTestId('test-toggle'));
 
     const option = await wrapper.findByText('Kamelet (current)');
     expect(option).toBeInTheDocument();
@@ -171,9 +153,7 @@ describe('IntegrationTypeSelector', () => {
   it('marks the selected option as selected', async () => {
     const wrapper = renderSelector(undefined, SourceSchemaType.Route);
 
-    act(() => {
-      fireEvent.click(wrapper.getByTestId('test-toggle'));
-    });
+    fireEvent.click(wrapper.getByTestId('test-toggle'));
 
     const selectedOption = await wrapper.findByRole('option', { selected: true });
     expect(selectedOption).toHaveTextContent('Camel Route');
@@ -183,9 +163,7 @@ describe('IntegrationTypeSelector', () => {
     const onSelect = vi.fn();
     const wrapper = renderSelector(onSelect);
 
-    act(() => {
-      fireEvent.click(wrapper.getByTestId('test-toggle'));
-    });
+    fireEvent.click(wrapper.getByTestId('test-toggle'));
 
     // Wait for the dropdown to actually open. Besides making the assertion
     // meaningful, awaiting here flushes PatternFly's debounced Popper

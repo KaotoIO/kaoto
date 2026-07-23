@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import type { Mock } from 'vitest';
 
 import { NameValidation, NameValidationStatus } from '../../models/datamapper/visualization';
@@ -65,9 +65,7 @@ describe('NameInputPlaceholder', () => {
     renderPlaceholder();
 
     const input = screen.getByTestId(`${TEST_PREFIX}-name-input`);
-    act(() => {
-      fireEvent.change(input, { target: { value: 'validName' } });
-    });
+    fireEvent.change(input, { target: { value: 'validName' } });
 
     expect(screen.getByTestId(`${TEST_PREFIX}-submit-btn`)).toBeEnabled();
   });
@@ -76,9 +74,7 @@ describe('NameInputPlaceholder', () => {
     renderPlaceholder();
 
     const input = screen.getByTestId(`${TEST_PREFIX}-name-input`);
-    act(() => {
-      fireEvent.change(input, { target: { value: 'invalidName' } });
-    });
+    fireEvent.change(input, { target: { value: 'invalidName' } });
 
     expect(screen.getByTestId(`${TEST_PREFIX}-submit-btn`)).toBeDisabled();
     expect(screen.getByTestId(`${TEST_PREFIX}-name-input-error`)).toHaveTextContent('Invalid name');
@@ -88,12 +84,8 @@ describe('NameInputPlaceholder', () => {
     renderPlaceholder();
 
     const input = screen.getByTestId(`${TEST_PREFIX}-name-input`);
-    act(() => {
-      fireEvent.change(input, { target: { value: 'validName' } });
-    });
-    act(() => {
-      fireEvent.click(screen.getByTestId(`${TEST_PREFIX}-submit-btn`));
-    });
+    fireEvent.change(input, { target: { value: 'validName' } });
+    fireEvent.click(screen.getByTestId(`${TEST_PREFIX}-submit-btn`));
 
     expect(mockOnSubmit).toHaveBeenCalledWith('validName');
   });
@@ -102,12 +94,8 @@ describe('NameInputPlaceholder', () => {
     renderPlaceholder();
 
     const input = screen.getByTestId(`${TEST_PREFIX}-name-input`);
-    act(() => {
-      fireEvent.change(input, { target: { value: 'validName' } });
-    });
-    act(() => {
-      fireEvent.keyDown(input, { key: 'Enter' });
-    });
+    fireEvent.change(input, { target: { value: 'validName' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
 
     expect(mockOnSubmit).toHaveBeenCalledWith('validName');
   });
@@ -116,12 +104,8 @@ describe('NameInputPlaceholder', () => {
     renderPlaceholder();
 
     const input = screen.getByTestId(`${TEST_PREFIX}-name-input`);
-    act(() => {
-      fireEvent.change(input, { target: { value: 'invalidName' } });
-    });
-    act(() => {
-      fireEvent.keyDown(input, { key: 'Enter' });
-    });
+    fireEvent.change(input, { target: { value: 'invalidName' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
 
     expect(mockOnSubmit).not.toHaveBeenCalled();
   });
@@ -129,9 +113,7 @@ describe('NameInputPlaceholder', () => {
   it('should call onCancel on cancel button click', () => {
     renderPlaceholder();
 
-    act(() => {
-      fireEvent.click(screen.getByTestId(`${TEST_PREFIX}-cancel-btn`));
-    });
+    fireEvent.click(screen.getByTestId(`${TEST_PREFIX}-cancel-btn`));
 
     expect(mockOnCancel).toHaveBeenCalled();
   });
@@ -140,9 +122,7 @@ describe('NameInputPlaceholder', () => {
     renderPlaceholder();
 
     const input = screen.getByTestId(`${TEST_PREFIX}-name-input`);
-    act(() => {
-      fireEvent.keyDown(input, { key: 'Escape' });
-    });
+    fireEvent.keyDown(input, { key: 'Escape' });
 
     expect(mockOnCancel).toHaveBeenCalled();
   });

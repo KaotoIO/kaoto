@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import { TypeaheadSelect, TypeaheadSelectOption } from './TypeaheadSelect';
 
@@ -23,17 +23,13 @@ describe('TypeaheadSelect', () => {
 
   it('should open dropdown on focus regardless of current value', () => {
     render(<TypeaheadSelect value="invoice-key" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);
-    act(() => {
-      fireEvent.focus(getInput());
-    });
+    fireEvent.focus(getInput());
     expect(screen.getByRole('listbox')).toBeInTheDocument();
   });
 
   it('should show all options when dropdown opens', () => {
     render(<TypeaheadSelect value="invoice-key" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);
-    act(() => {
-      fireEvent.focus(getInput());
-    });
+    fireEvent.focus(getInput());
     expect(screen.getByText('Order')).toBeInTheDocument();
     expect(screen.getByText('Invoice')).toBeInTheDocument();
     expect(screen.getByText('Shipment')).toBeInTheDocument();
@@ -42,23 +38,15 @@ describe('TypeaheadSelect', () => {
   it('should not call onChange when typing', () => {
     const onChange = vi.fn();
     render(<TypeaheadSelect value="order-key" onChange={onChange} options={OPTIONS} data-testid="select-input" />);
-    act(() => {
-      fireEvent.focus(getInput());
-    });
-    act(() => {
-      fireEvent.change(getInput(), { target: { value: 'Inv' } });
-    });
+    fireEvent.focus(getInput());
+    fireEvent.change(getInput(), { target: { value: 'Inv' } });
     expect(onChange).not.toHaveBeenCalled();
   });
 
   it('should filter options when typing', () => {
     render(<TypeaheadSelect value="order-key" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);
-    act(() => {
-      fireEvent.focus(getInput());
-    });
-    act(() => {
-      fireEvent.change(getInput(), { target: { value: 'Inv' } });
-    });
+    fireEvent.focus(getInput());
+    fireEvent.change(getInput(), { target: { value: 'Inv' } });
     expect(screen.getByText('Invoice')).toBeInTheDocument();
     expect(screen.queryByText('Order')).not.toBeInTheDocument();
     expect(screen.queryByText('Shipment')).not.toBeInTheDocument();
@@ -67,48 +55,32 @@ describe('TypeaheadSelect', () => {
   it('should call onChange when option is clicked', () => {
     const onChange = vi.fn();
     render(<TypeaheadSelect value="order-key" onChange={onChange} options={OPTIONS} data-testid="select-input" />);
-    act(() => {
-      fireEvent.focus(getInput());
-    });
-    act(() => {
-      fireEvent.click(screen.getByText('Invoice'));
-    });
+    fireEvent.focus(getInput());
+    fireEvent.click(screen.getByText('Invoice'));
     expect(onChange).toHaveBeenCalledWith('invoice-key');
   });
 
   it('should revert to selected label on blur', () => {
     render(<TypeaheadSelect value="order-key" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);
-    act(() => {
-      fireEvent.focus(getInput());
-    });
-    act(() => {
-      fireEvent.change(getInput(), { target: { value: 'Inv' } });
-    });
+    fireEvent.focus(getInput());
+    fireEvent.change(getInput(), { target: { value: 'Inv' } });
     expect(getInput().value).toBe('Inv');
 
-    act(() => {
-      fireEvent.blur(getInput(), { relatedTarget: document.body });
-    });
+    fireEvent.blur(getInput(), { relatedTarget: document.body });
     expect(getInput().value).toBe('Order');
   });
 
   it('should display label instead of value in dropdown', () => {
     render(<TypeaheadSelect value="order-key" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);
-    act(() => {
-      fireEvent.focus(getInput());
-    });
+    fireEvent.focus(getInput());
     expect(screen.getByText('Order')).toBeInTheDocument();
     expect(screen.queryByText('order-key')).not.toBeInTheDocument();
   });
 
   it('should filter by description', () => {
     render(<TypeaheadSelect value="order-key" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);
-    act(() => {
-      fireEvent.focus(getInput());
-    });
-    act(() => {
-      fireEvent.change(getInput(), { target: { value: 'invoice' } });
-    });
+    fireEvent.focus(getInput());
+    fireEvent.change(getInput(), { target: { value: 'invoice' } });
     expect(screen.getByText('Invoice')).toBeInTheDocument();
     expect(screen.queryByText('Order')).not.toBeInTheDocument();
   });
@@ -116,9 +88,7 @@ describe('TypeaheadSelect', () => {
   it('should open dropdown via toggle click', () => {
     render(<TypeaheadSelect value="order-key" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);
     const toggle = getToggleButton();
-    act(() => {
-      fireEvent.click(toggle);
-    });
+    fireEvent.click(toggle);
     expect(screen.getByRole('listbox')).toBeInTheDocument();
     expect(screen.getByText('Order')).toBeInTheDocument();
     expect(screen.getByText('Invoice')).toBeInTheDocument();
@@ -126,31 +96,21 @@ describe('TypeaheadSelect', () => {
 
   it('should close dropdown via toggle click when open', () => {
     render(<TypeaheadSelect value="order-key" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);
-    act(() => {
-      fireEvent.focus(getInput());
-    });
+    fireEvent.focus(getInput());
     expect(screen.getByRole('listbox')).toBeInTheDocument();
 
     const toggle = getToggleButton();
-    act(() => {
-      fireEvent.click(toggle);
-    });
+    fireEvent.click(toggle);
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
   });
 
   it('should clear filter text when clear button is clicked', () => {
     render(<TypeaheadSelect value="order-key" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);
-    act(() => {
-      fireEvent.focus(getInput());
-    });
-    act(() => {
-      fireEvent.change(getInput(), { target: { value: 'Inv' } });
-    });
+    fireEvent.focus(getInput());
+    fireEvent.change(getInput(), { target: { value: 'Inv' } });
     expect(getInput().value).toBe('Inv');
 
-    act(() => {
-      fireEvent.click(screen.getByLabelText('Clear expression'));
-    });
+    fireEvent.click(screen.getByLabelText('Clear expression'));
     expect(getInput().value).toBe('');
     expect(screen.getByText('Order')).toBeInTheDocument();
     expect(screen.getByText('Invoice')).toBeInTheDocument();
@@ -158,23 +118,17 @@ describe('TypeaheadSelect', () => {
 
   it('should not open dropdown on focus when no options exist', () => {
     render(<TypeaheadSelect value="" onChange={vi.fn()} options={[]} data-testid="select-input" />);
-    act(() => {
-      fireEvent.focus(getInput());
-    });
+    fireEvent.focus(getInput());
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
   });
 
   it('should not close when blur target is inside the listbox', () => {
     render(<TypeaheadSelect value="order-key" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);
-    act(() => {
-      fireEvent.focus(getInput());
-    });
+    fireEvent.focus(getInput());
 
     // Blur to one of the PF listbox option buttons — handleBlur should detect relatedTarget inside [role="listbox"]
     const options = screen.getAllByRole('option');
-    act(() => {
-      fireEvent.blur(getInput(), { relatedTarget: options[0] });
-    });
+    fireEvent.blur(getInput(), { relatedTarget: options[0] });
 
     // Dropdown should stay open because relatedTarget is inside the listbox
     expect(screen.getAllByRole('listbox').length).toBeGreaterThan(0);
@@ -194,33 +148,25 @@ describe('TypeaheadSelect', () => {
     render(
       <TypeaheadSelect value="other-value" onChange={vi.fn()} options={noLabelOptions} data-testid="select-input" />,
     );
-    act(() => {
-      fireEvent.focus(getInput());
-    });
+    fireEvent.focus(getInput());
     expect(screen.getByText('raw-value')).toBeInTheDocument();
   });
 
   it('should not call onChange when dropdown opens without selecting an option', () => {
     const onChange = vi.fn();
     render(<TypeaheadSelect value="order-key" onChange={onChange} options={OPTIONS} data-testid="select-input" />);
-    act(() => {
-      fireEvent.focus(getInput());
-    });
+    fireEvent.focus(getInput());
     // Opening the dropdown alone must not trigger onChange
     expect(onChange).not.toHaveBeenCalled();
   });
 
   it('should keep dropdown open when typing while already open', () => {
     render(<TypeaheadSelect value="order-key" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);
-    act(() => {
-      fireEvent.focus(getInput());
-    });
+    fireEvent.focus(getInput());
     expect(screen.getAllByRole('listbox').length).toBeGreaterThan(0);
 
     // Type while dropdown is already open — it should remain open
-    act(() => {
-      fireEvent.change(getInput(), { target: { value: 'O' } });
-    });
+    fireEvent.change(getInput(), { target: { value: 'O' } });
     expect(screen.getAllByRole('listbox').length).toBeGreaterThan(0);
   });
 

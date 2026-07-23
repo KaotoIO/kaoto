@@ -1,4 +1,4 @@
-import { act, fireEvent, render, waitFor } from '@testing-library/react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { createVisualizationNode, DefinedComponent, IVisualizationNode } from '../../../../models';
@@ -107,9 +107,7 @@ describe('ItemReplaceStep', () => {
         </CatalogModalContext.Provider>
       </EntitiesContext.Provider>,
     );
-    act(() => {
-      fireEvent.click(wrapper.getByText('Replace'));
-    });
+    fireEvent.click(wrapper.getByText('Replace'));
     await waitFor(() => {
       expect(mockAddon).toHaveBeenCalled();
     });

@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
 import { MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
@@ -21,9 +21,7 @@ describe('XPathEditorAction', () => {
       </DataMapperProvider>,
     );
     const editBtn = await screen.findByTestId(`edit-xpath-button-${docData.id}`);
-    act(() => {
-      fireEvent.click(editBtn);
-    });
+    fireEvent.click(editBtn);
     const modal = await screen.findByTestId('xpath-editor-modal');
     expect(modal).toBeInTheDocument();
     const monaco = await screen.findByTestId('xpath-editor');

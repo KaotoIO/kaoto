@@ -1,4 +1,4 @@
-import { act, fireEvent, render, waitFor } from '@testing-library/react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
@@ -86,9 +86,7 @@ describe('ItemDeleteGroup', () => {
       </Provider>,
     );
 
-    act(() => {
-      fireEvent.click(wrapper.getByText('Delete'));
-    });
+    fireEvent.click(wrapper.getByText('Delete'));
 
     await waitFor(() => {
       expect(removeEntitySpy).toHaveBeenCalledWith([entityId]);
@@ -118,9 +116,7 @@ describe('ItemDeleteGroup', () => {
         </NodeInteractionAddonContext.Provider>
       </ActionConfirmationModalContext.Provider>,
     );
-    act(() => {
-      fireEvent.click(wrapper.getByText('Delete'));
-    });
+    fireEvent.click(wrapper.getByText('Delete'));
 
     await waitFor(() => {
       expect(mockAddon).toHaveBeenCalled();

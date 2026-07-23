@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import type { Mock } from 'vitest';
 
 import { DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
@@ -37,9 +37,7 @@ describe('VariableInputPlaceholder', () => {
       render(<VariableInputPlaceholder parent={tree} onConfirm={mockOnConfirm} onCancel={mockOnCancel} />);
 
       const input = screen.getByTestId('new-variable-name-input');
-      act(() => {
-        fireEvent.change(input, { target: { value: 'taxRate' } });
-      });
+      fireEvent.change(input, { target: { value: 'taxRate' } });
 
       expect(screen.getByTestId('new-variable-submit-btn')).toBeEnabled();
     });
@@ -48,9 +46,7 @@ describe('VariableInputPlaceholder', () => {
       render(<VariableInputPlaceholder parent={tree} onConfirm={mockOnConfirm} onCancel={mockOnCancel} />);
 
       const input = screen.getByTestId('new-variable-name-input');
-      act(() => {
-        fireEvent.change(input, { target: { value: '1invalid' } });
-      });
+      fireEvent.change(input, { target: { value: '1invalid' } });
 
       expect(screen.getByTestId('new-variable-submit-btn')).toBeDisabled();
       expect(screen.getByTestId('new-variable-name-input-error')).toHaveTextContent('valid NCName');
@@ -60,9 +56,7 @@ describe('VariableInputPlaceholder', () => {
       render(<VariableInputPlaceholder parent={tree} onConfirm={mockOnConfirm} onCancel={mockOnCancel} />);
 
       const input = screen.getByTestId('new-variable-name-input');
-      act(() => {
-        fireEvent.change(input, { target: { value: 'myVar-x' } });
-      });
+      fireEvent.change(input, { target: { value: 'myVar-x' } });
 
       expect(screen.getByTestId('new-variable-submit-btn')).toBeDisabled();
       expect(screen.getByTestId('new-variable-name-input-error')).toHaveTextContent("'-x'");
@@ -73,9 +67,7 @@ describe('VariableInputPlaceholder', () => {
       render(<VariableInputPlaceholder parent={tree} onConfirm={mockOnConfirm} onCancel={mockOnCancel} />);
 
       const input = screen.getByTestId('new-variable-name-input');
-      act(() => {
-        fireEvent.change(input, { target: { value: 'existingVar' } });
-      });
+      fireEvent.change(input, { target: { value: 'existingVar' } });
 
       expect(screen.getByTestId('new-variable-submit-btn')).toBeDisabled();
       expect(screen.getByTestId('new-variable-name-input-error')).toHaveTextContent('already exists');
@@ -85,12 +77,8 @@ describe('VariableInputPlaceholder', () => {
       render(<VariableInputPlaceholder parent={tree} onConfirm={mockOnConfirm} onCancel={mockOnCancel} />);
 
       const input = screen.getByTestId('new-variable-name-input');
-      act(() => {
-        fireEvent.change(input, { target: { value: 'taxRate' } });
-      });
-      act(() => {
-        fireEvent.click(screen.getByTestId('new-variable-submit-btn'));
-      });
+      fireEvent.change(input, { target: { value: 'taxRate' } });
+      fireEvent.click(screen.getByTestId('new-variable-submit-btn'));
 
       expect(mockOnConfirm).toHaveBeenCalledWith('taxRate');
     });
@@ -99,12 +87,8 @@ describe('VariableInputPlaceholder', () => {
       render(<VariableInputPlaceholder parent={tree} onConfirm={mockOnConfirm} onCancel={mockOnCancel} />);
 
       const input = screen.getByTestId('new-variable-name-input');
-      act(() => {
-        fireEvent.change(input, { target: { value: 'taxRate' } });
-      });
-      act(() => {
-        fireEvent.keyDown(input, { key: 'Enter' });
-      });
+      fireEvent.change(input, { target: { value: 'taxRate' } });
+      fireEvent.keyDown(input, { key: 'Enter' });
 
       expect(mockOnConfirm).toHaveBeenCalledWith('taxRate');
     });
@@ -113,12 +97,8 @@ describe('VariableInputPlaceholder', () => {
       render(<VariableInputPlaceholder parent={tree} onConfirm={mockOnConfirm} onCancel={mockOnCancel} />);
 
       const input = screen.getByTestId('new-variable-name-input');
-      act(() => {
-        fireEvent.change(input, { target: { value: '1invalid' } });
-      });
-      act(() => {
-        fireEvent.keyDown(input, { key: 'Enter' });
-      });
+      fireEvent.change(input, { target: { value: '1invalid' } });
+      fireEvent.keyDown(input, { key: 'Enter' });
 
       expect(mockOnConfirm).not.toHaveBeenCalled();
     });
@@ -126,9 +106,7 @@ describe('VariableInputPlaceholder', () => {
     it('should call onCancel on cancel button click', () => {
       render(<VariableInputPlaceholder parent={tree} onConfirm={mockOnConfirm} onCancel={mockOnCancel} />);
 
-      act(() => {
-        fireEvent.click(screen.getByTestId('new-variable-cancel-btn'));
-      });
+      fireEvent.click(screen.getByTestId('new-variable-cancel-btn'));
 
       expect(mockOnCancel).toHaveBeenCalled();
     });
@@ -137,9 +115,7 @@ describe('VariableInputPlaceholder', () => {
       render(<VariableInputPlaceholder parent={tree} onConfirm={mockOnConfirm} onCancel={mockOnCancel} />);
 
       const input = screen.getByTestId('new-variable-name-input');
-      act(() => {
-        fireEvent.keyDown(input, { key: 'Escape' });
-      });
+      fireEvent.keyDown(input, { key: 'Escape' });
 
       expect(mockOnCancel).toHaveBeenCalled();
     });
@@ -171,9 +147,7 @@ describe('VariableInputPlaceholder', () => {
         />,
       );
 
-      act(() => {
-        fireEvent.click(screen.getByTestId('new-variable-submit-btn'));
-      });
+      fireEvent.click(screen.getByTestId('new-variable-submit-btn'));
 
       expect(mockOnCancel).toHaveBeenCalled();
       expect(mockOnConfirm).not.toHaveBeenCalled();
@@ -190,12 +164,8 @@ describe('VariableInputPlaceholder', () => {
       );
 
       const input = screen.getByTestId('new-variable-name-input');
-      act(() => {
-        fireEvent.change(input, { target: { value: 'newRate' } });
-      });
-      act(() => {
-        fireEvent.click(screen.getByTestId('new-variable-submit-btn'));
-      });
+      fireEvent.change(input, { target: { value: 'newRate' } });
+      fireEvent.click(screen.getByTestId('new-variable-submit-btn'));
 
       expect(mockOnConfirm).toHaveBeenCalledWith('newRate');
     });

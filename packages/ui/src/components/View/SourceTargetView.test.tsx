@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { VirtuosoMockContext } from 'react-virtuoso';
 
 import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
@@ -46,42 +46,28 @@ describe('SourceTargetView', () => {
         </BrowserFilePickerMetadataProvider>,
       );
       const attachButton = await screen.findByTestId('attach-schema-sourceBody-Body-button');
-      act(() => {
-        fireEvent.click(attachButton);
-      });
+      fireEvent.click(attachButton);
       const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
-      act(() => {
-        fireEvent.click(importButton);
-      });
+      fireEvent.click(importButton);
 
       const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
-      act(() => {
-        fireEvent.click(attachButton);
-      });
+      fireEvent.click(attachButton);
       const fileInput = screen.getByTestId('attach-schema-file-input');
-      act(() => {
-        fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
-      });
+      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
 
       await waitFor(() => {
         screen.getByTestId('attach-schema-file-item-ShipOrder.xsd');
       });
 
       const commitButton = await screen.findByTestId('attach-schema-modal-btn-attach');
-      act(() => {
-        fireEvent.click(commitButton);
-      });
+      fireEvent.click(commitButton);
 
       const shipTo = await screen.findByText('ShipTo');
       expect(shipTo).toBeTruthy();
       const detachButton = screen.getByTestId('detach-schema-sourceBody-Body-button');
-      act(() => {
-        fireEvent.click(detachButton);
-      });
+      fireEvent.click(detachButton);
       const detachConfirmButton = screen.getByTestId('detach-schema-modal-confirm-btn');
-      act(() => {
-        fireEvent.click(detachConfirmButton);
-      });
+      fireEvent.click(detachConfirmButton);
       await screen.findByTestId('attach-schema-sourceBody-Body-button');
       expect(screen.queryByTestId('ShipTo')).toBeFalsy();
     });
@@ -97,9 +83,7 @@ describe('SourceTargetView', () => {
         </BrowserFilePickerMetadataProvider>,
       );
       const attachButton = await screen.findByTestId('attach-schema-sourceBody-Body-button');
-      act(() => {
-        fireEvent.click(attachButton);
-      });
+      fireEvent.click(attachButton);
 
       await screen.findByTestId('attach-schema-modal-option-xml');
       const jsonSchemaRadio = await screen.queryByTestId('attach-schema-modal-option-json');
@@ -119,22 +103,14 @@ describe('SourceTargetView', () => {
         </BrowserFilePickerMetadataProvider>,
       );
       const attachButton = await screen.findByTestId('attach-schema-targetBody-Body-button');
-      act(() => {
-        fireEvent.click(attachButton);
-      });
+      fireEvent.click(attachButton);
       const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
-      act(() => {
-        fireEvent.click(importButton);
-      });
+      fireEvent.click(importButton);
 
       const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
-      act(() => {
-        fireEvent.click(attachButton);
-      });
+      fireEvent.click(attachButton);
       const fileInput = screen.getByTestId('attach-schema-file-input');
-      act(() => {
-        fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
-      });
+      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
 
       await waitFor(() => {
         screen.getByTestId('attach-schema-file-item-ShipOrder.xsd');
@@ -145,20 +121,14 @@ describe('SourceTargetView', () => {
       });
 
       const commitButton = await screen.findByTestId('attach-schema-modal-btn-attach');
-      act(() => {
-        fireEvent.click(commitButton);
-      });
+      fireEvent.click(commitButton);
 
       const shipTo = await screen.findByText('ShipTo');
       expect(shipTo).toBeTruthy();
       const detachButtons = screen.getAllByTestId('detach-schema-targetBody-Body-button');
-      act(() => {
-        fireEvent.click(detachButtons[0]);
-      });
+      fireEvent.click(detachButtons[0]);
       const detachConfirmButton = screen.getByTestId('detach-schema-modal-confirm-btn');
-      act(() => {
-        fireEvent.click(detachConfirmButton);
-      });
+      fireEvent.click(detachConfirmButton);
       await screen.findByTestId('attach-schema-sourceBody-Body-button');
       expect(screen.queryByText('ShipTo')).toBeFalsy();
     });
@@ -174,22 +144,14 @@ describe('SourceTargetView', () => {
         </BrowserFilePickerMetadataProvider>,
       );
       const attachButton = await screen.findByTestId('attach-schema-targetBody-Body-button');
-      act(() => {
-        fireEvent.click(attachButton);
-      });
+      fireEvent.click(attachButton);
       const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
-      act(() => {
-        fireEvent.click(importButton);
-      });
+      fireEvent.click(importButton);
 
       const fileContent = new File([new Blob([getShipOrderJsonSchema()])], 'ShipOrder.json', { type: 'text/plain' });
-      act(() => {
-        fireEvent.click(attachButton);
-      });
+      fireEvent.click(attachButton);
       const fileInput = screen.getByTestId('attach-schema-file-input');
-      act(() => {
-        fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
-      });
+      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
 
       await waitFor(() => {
         screen.getByTestId('attach-schema-file-item-ShipOrder.json');
@@ -200,21 +162,15 @@ describe('SourceTargetView', () => {
       });
 
       const commitButton = await screen.findByTestId('attach-schema-modal-btn-attach');
-      act(() => {
-        fireEvent.click(commitButton);
-      });
+      fireEvent.click(commitButton);
 
       const shipTo = await screen.findByText('map [@key = ShipTo]');
       expect(shipTo).toBeTruthy();
       const detachButtons = screen.getAllByTestId('detach-schema-targetBody-Body-button');
       const detachButton = detachButtons[0];
-      act(() => {
-        fireEvent.click(detachButton);
-      });
+      fireEvent.click(detachButton);
       const detachConfirmButton = screen.getByTestId('detach-schema-modal-confirm-btn');
-      act(() => {
-        fireEvent.click(detachConfirmButton);
-      });
+      fireEvent.click(detachConfirmButton);
       await screen.findByTestId('attach-schema-sourceBody-Body-button');
       expect(screen.queryByText('map [@key = ShipTo]')).toBeFalsy();
     });
@@ -230,24 +186,16 @@ describe('SourceTargetView', () => {
         </BrowserFilePickerMetadataProvider>,
       );
       const attachButton = await screen.findByTestId('attach-schema-targetBody-Body-button');
-      act(() => {
-        fireEvent.click(attachButton);
-      });
+      fireEvent.click(attachButton);
       const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
-      act(() => {
-        fireEvent.click(importButton);
-      });
+      fireEvent.click(importButton);
 
       const fileContent = new File([new Blob([getCamelYamlDslJsonSchema()])], 'CamelYamlDsl.json', {
         type: 'text/plain',
       });
-      act(() => {
-        fireEvent.click(attachButton);
-      });
+      fireEvent.click(attachButton);
       const fileInput = screen.getByTestId('attach-schema-file-input');
-      act(() => {
-        fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
-      });
+      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
 
       await waitFor(() => {
         screen.getByTestId('attach-schema-file-item-CamelYamlDsl.json');
@@ -258,9 +206,7 @@ describe('SourceTargetView', () => {
       });
 
       const commitButton = await screen.findByTestId('attach-schema-modal-btn-attach');
-      act(() => {
-        fireEvent.click(commitButton);
-      });
+      fireEvent.click(commitButton);
 
       await waitFor(() => {
         const map = screen.getAllByTestId(/node-target-fj-map-\d+/);
@@ -307,9 +253,7 @@ describe('SourceTargetView', () => {
       // Initial scale should be 1
       expect(sourceTargetView.style.getPropertyValue('--datamapper-scale-factor')).toBe('1');
 
-      act(() => {
-        fireEvent.click(zoomInButton);
-      });
+      fireEvent.click(zoomInButton);
 
       // After zoom in, scale should be 1.1
       await waitFor(() => {
@@ -334,9 +278,7 @@ describe('SourceTargetView', () => {
       // Initial scale should be 1
       expect(sourceTargetView.style.getPropertyValue('--datamapper-scale-factor')).toBe('1');
 
-      act(() => {
-        fireEvent.click(zoomOutButton);
-      });
+      fireEvent.click(zoomOutButton);
 
       // After zoom out, scale should be 0.9
       await waitFor(() => {
@@ -359,11 +301,9 @@ describe('SourceTargetView', () => {
       const sourceTargetView = container.querySelector('.source-target-view') as HTMLElement;
 
       // Click zoom in 3 times (1.0 -> 1.1 -> 1.2 -> should stay at 1.2)
-      act(() => {
-        fireEvent.click(zoomInButton);
-        fireEvent.click(zoomInButton);
-        fireEvent.click(zoomInButton);
-      });
+      fireEvent.click(zoomInButton);
+      fireEvent.click(zoomInButton);
+      fireEvent.click(zoomInButton);
 
       await waitFor(() => {
         expect(sourceTargetView.style.getPropertyValue('--datamapper-scale-factor')).toBe('1.2');
@@ -385,12 +325,10 @@ describe('SourceTargetView', () => {
       const sourceTargetView = container.querySelector('.source-target-view') as HTMLElement;
 
       // Click zoom out 4 times (1.0 -> 0.9 -> 0.8 -> 0.7 -> should stay at 0.7)
-      act(() => {
-        fireEvent.click(zoomOutButton);
-        fireEvent.click(zoomOutButton);
-        fireEvent.click(zoomOutButton);
-        fireEvent.click(zoomOutButton);
-      });
+      fireEvent.click(zoomOutButton);
+      fireEvent.click(zoomOutButton);
+      fireEvent.click(zoomOutButton);
+      fireEvent.click(zoomOutButton);
 
       await waitFor(() => {
         expect(sourceTargetView.style.getPropertyValue('--datamapper-scale-factor')).toBe('0.7');
