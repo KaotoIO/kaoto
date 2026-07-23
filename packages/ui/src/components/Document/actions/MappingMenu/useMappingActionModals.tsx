@@ -1,10 +1,10 @@
 import { useCallback, useMemo, useState } from 'react';
 
+import { IMemberSelection } from '../../../../models/datamapper/field-action';
 import { FieldItem, ForEachGroupItem, ForEachItem, MappingItem } from '../../../../models/datamapper/mapping';
 import { MappingActionKind } from '../../../../models/datamapper/mapping-action';
 import { MappingService } from '../../../../services/mapping/mapping.service';
-import { MemberSelection } from '../../../../services/visualization/wrapper-action.service';
-import { computeAddFieldCandidates } from '../FieldContextMenu/menu-utils';
+import { WrapperActionService } from '../../../../services/visualization/wrapper-action.service';
 import { WrapperSelectionModal } from '../WrapperSelectionModal';
 import { CommentModal } from './Comment/CommentModal';
 import { ForEachGroupModal } from './ForEachGroup/ForEachGroupModal';
@@ -73,11 +73,16 @@ export function useMappingActionModals(mapping: MappingItem | undefined, onUpdat
     if (!ancestorFieldItem || !mapping) return undefined;
     const namespaceMap = ancestorFieldItem.mappingTree.namespaceMap;
     const existingFieldItems = mapping.children.filter((c): c is FieldItem => c instanceof FieldItem);
-    return computeAddFieldCandidates(ancestorFieldItem.field.fields, namespaceMap, existingFieldItems, forEachContext);
+    return WrapperActionService.computeAddFieldCandidates(
+      ancestorFieldItem.field.fields,
+      namespaceMap,
+      existingFieldItems,
+      forEachContext,
+    );
   })();
 
   const handleAddFieldSelect = useCallback(
-    (selection: MemberSelection) => {
+    (selection: IMemberSelection) => {
       if (!addFieldData || !mapping) return;
       const selectedField = addFieldData.fields[selection.memberIndex];
       if (!selectedField) return;

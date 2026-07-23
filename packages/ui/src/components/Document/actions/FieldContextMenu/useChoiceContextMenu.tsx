@@ -4,94 +4,13 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { IField } from '../../../../models/datamapper/document';
+import { IFieldMenuAction, IMemberSelection } from '../../../../models/datamapper/field-action';
 import { NodeData } from '../../../../models/datamapper/visualization';
 import { VisualizationUtilService } from '../../../../services/visualization/visualization-util.service';
-import {
-  MemberSelection,
-  WrapperActionService,
-  WrapperCandidate,
-} from '../../../../services/visualization/wrapper-action.service';
-import { MenuAction, MenuGroup } from '../FieldContextMenu';
+import { WrapperActionService } from '../../../../services/visualization/wrapper-action.service';
 import { WrapperSelectionModal } from '../WrapperSelectionModal';
 import { buildSelectSelfAction } from './menu-utils';
 import { MenuContributor } from './types';
-
-const INLINE_CHOICE_LIMIT = 10;
-
-function buildInlineMemberActions(
-  dissolvedMembers: WrapperCandidate[],
-  selectedKey: string | null,
-  onSelect: (selection: MemberSelection) => void,
-): MenuAction[] {
-  return dissolvedMembers.map(({ key, label, selection }) => ({
-    label,
-    onClick: () => {
-      onSelect(selection);
-    },
-    icon: selectedKey === key ? <CheckIcon /> : <Choices />,
-    testId: selection.substituteQName
-      ? 'choice-menu-item-' + selection.memberIndex + '-' + selection.substituteQName
-      : 'choice-menu-item-' + selection.memberIndex,
-  }));
-}
-
-interface ChoiceMenuGroupsConfig {
-  isChoiceWrapper: boolean;
-  isChoiceWrapperMember: boolean;
-  isNestedSelectedChoice: boolean;
-  isSelectedChoice: boolean;
-  dissolved: WrapperCandidate[];
-  selectedModalKey: string | null;
-  selectSelfAction: MenuAction | undefined;
-  clearChoiceAction: MenuAction;
-  changeMemberAction: MenuAction;
-  onSelectChoiceMember: (selection: MemberSelection) => void;
-  onOpenChoiceModal: () => void;
-}
-
-function buildMenuGroupsForChoiceNode(config: ChoiceMenuGroupsConfig): MenuGroup[] {
-  if (config.isChoiceWrapper || config.isChoiceWrapperMember) {
-    const groups = buildChoiceWrapperMenuGroups(
-      config.dissolved,
-      config.selectedModalKey,
-      config.isChoiceWrapperMember ? undefined : config.selectSelfAction,
-      config.clearChoiceAction,
-      config.onSelectChoiceMember,
-      config.onOpenChoiceModal,
-    );
-    if (config.isNestedSelectedChoice) groups.push({ actions: [config.clearChoiceAction, config.changeMemberAction] });
-    return groups;
-  }
-  const choiceActions: MenuAction[] = [];
-  if (config.isSelectedChoice) choiceActions.push(config.clearChoiceAction, config.changeMemberAction);
-  if (config.selectSelfAction) choiceActions.push(config.selectSelfAction);
-  return [{ actions: choiceActions }];
-}
-
-function buildChoiceWrapperMenuGroups(
-  dissolved: WrapperCandidate[],
-  selectedKey: string | null,
-  selectSelfAction: MenuAction | undefined,
-  clearChoiceAction: MenuAction,
-  handleSelectChoiceMember: (selection: MemberSelection) => void,
-  handleOpenChoiceModal: () => void,
-): MenuGroup[] {
-  if (dissolved.length === 0 && selectedKey === null) {
-    return selectSelfAction ? [{ actions: [selectSelfAction] }] : [];
-  }
-
-  const membersGroup: MenuGroup =
-    dissolved.length <= INLINE_CHOICE_LIMIT
-      ? { actions: buildInlineMemberActions(dissolved, selectedKey, handleSelectChoiceMember) }
-      : { actions: [{ label: 'Select Member...', onClick: handleOpenChoiceModal, testId: 'open-choice-modal' }] };
-
-  const hasSelection = selectedKey !== null;
-  return [
-    { actions: selectSelfAction ? [selectSelfAction] : [] },
-    membersGroup,
-    { actions: hasSelection ? [clearChoiceAction] : [] },
-  ];
-}
 
 export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
   const { mappingTree, updateDocument } = useDataMapper();
@@ -120,7 +39,7 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
   }, [effectiveChoiceWrapper?.fields, mappingTree.namespaceMap]);
 
   const applyChoiceSelection = useCallback(
-    (wrapper: IField, selection: MemberSelection) => {
+    (wrapper: IField, selection: IMemberSelection) => {
       WrapperActionService.dispatchChoiceSelection(
         nodeData,
         wrapper,
@@ -147,7 +66,7 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
 
   // Case A: select a member from this node's own wrapper member list
   const handleSelectChoiceMember = useCallback(
-    (selection: MemberSelection) => {
+    (selection: IMemberSelection) => {
       const wrapper = WrapperActionService.resolveChoiceWrapper(
         isChoiceWrapperMember,
         choiceWrapperMemberField,
@@ -197,7 +116,7 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
     applyChoiceSelection(parentChoiceWrapperField, { memberIndex: choiceMemberIndex });
   }, [parentChoiceWrapperField, choiceMemberIndex, applyChoiceSelection]);
 
-  const clearChoiceAction: MenuAction = {
+  const clearChoiceAction: IFieldMenuAction = {
     label: 'Clear selection',
     onClick: handleClearChoice,
     testId: 'clear-choice',
@@ -214,7 +133,7 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
         )
       : undefined;
 
-  const changeMemberAction: MenuAction = {
+  const changeMemberAction: IFieldMenuAction = {
     label: 'Select Member...',
     onClick: handleOpenChoiceModal,
     testId: 'change-choice-member',
@@ -244,7 +163,7 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
     [isChoiceWrapperMember, memberSelectedKey, activeChoiceWrapperForMembers, dissolved],
   );
 
-  const menuGroups = buildMenuGroupsForChoiceNode({
+  const menuGroups = WrapperActionService.buildMenuGroupsForChoiceNode({
     isChoiceWrapper,
     isChoiceWrapperMember,
     isNestedSelectedChoice,
@@ -256,6 +175,8 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
     changeMemberAction,
     onSelectChoiceMember: handleSelectChoiceMember,
     onOpenChoiceModal: handleOpenChoiceModal,
+    selectedIcon: <CheckIcon />,
+    unselectedIcon: <Choices />,
   });
 
   const closeChoiceModal = useCallback(() => {
