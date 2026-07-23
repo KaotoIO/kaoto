@@ -84,9 +84,16 @@ ${elements}
     const circularErrors = result.errors.filter((e) => e.message.includes('Circular'));
     expect(circularErrors).toHaveLength(0);
     const circularWarnings = result.warnings.filter((w) => w.message.includes('Circular xs:include'));
-    expect(circularWarnings.length).toBeGreaterThan(0);
-    expect(circularWarnings[0].message).toContain('A.xsd');
-    expect(circularWarnings[0].message).toContain('B.xsd');
+    expect(circularWarnings).toEqual([
+      {
+        filePath: 'A.xsd',
+        message: 'Circular xs:include detected: A.xsd->B.xsd->A.xsd',
+      },
+      {
+        filePath: 'B.xsd',
+        message: 'Circular xs:include detected: B.xsd->A.xsd->B.xsd',
+      },
+    ]);
   });
 
   it('should allow circular imports (different namespaces)', () => {
@@ -373,11 +380,12 @@ ${elements}
         };
         const result = XmlSchemaAnalysisService.analyze(files);
         expect(result.errors).toHaveLength(0);
-        const nsWarnings = result.warnings.filter((w) => w.message.includes('Multiple schemas'));
-        expect(nsWarnings).toHaveLength(1);
+        const nsWarnings = result.warnings.filter((w) => w.message.includes('Multiple other schemas'));
+        expect(nsWarnings).toHaveLength(2);
         expect(nsWarnings[0].message).toContain('http://example.com/types');
-        expect(nsWarnings[0].message).toContain('types1.xsd');
         expect(nsWarnings[0].message).toContain('types2.xsd');
+        expect(nsWarnings[1].message).toContain('http://example.com/types');
+        expect(nsWarnings[1].message).toContain('types1.xsd');
       });
 
       it('should not warn when schemas have no targetNamespace', () => {

@@ -137,7 +137,7 @@ describe('utils', () => {
       );
       expect(result).toHaveLength(1);
       expect(result[0].status).toBe('error');
-      expect(result[0].messages).toContain('Parse error');
+      expect(result[0].messages).toEqual([{ text: 'Parse error', severity: 'error' }]);
     });
 
     it('should create warning items for files with warnings only', () => {
@@ -150,7 +150,7 @@ describe('utils', () => {
       );
       expect(result).toHaveLength(1);
       expect(result[0].status).toBe('warning');
-      expect(result[0].messages).toContain('Missing import');
+      expect(result[0].messages).toEqual([{ text: 'Missing import', severity: 'warning' }]);
     });
 
     it('should include global errors without filePath', () => {
@@ -165,7 +165,7 @@ describe('utils', () => {
       const globalItem = result.find((item) => !item.filePath);
       expect(globalItem).toBeDefined();
       expect(globalItem!.status).toBe('error');
-      expect(globalItem!.messages).toContain('Global error');
+      expect(globalItem!.messages).toEqual([{ text: 'Global error', severity: 'error' }]);
     });
 
     it('should include global warnings without filePath', () => {
@@ -179,7 +179,7 @@ describe('utils', () => {
       const globalItem = result.find((item) => !item.filePath);
       expect(globalItem).toBeDefined();
       expect(globalItem!.status).toBe('warning');
-      expect(globalItem!.messages).toContain('Global warning');
+      expect(globalItem!.messages).toEqual([{ text: 'Global warning', severity: 'warning' }]);
     });
 
     it('should sort items by status: error first, then warning, then success', () => {
@@ -207,8 +207,10 @@ describe('utils', () => {
       );
       expect(result).toHaveLength(1);
       expect(result[0].status).toBe('error');
-      expect(result[0].messages).toContain('Error msg');
-      expect(result[0].messages).toContain('Warning msg');
+      expect(result[0].messages).toEqual([
+        { text: 'Error msg', severity: 'error' },
+        { text: 'Warning msg', severity: 'warning' },
+      ]);
     });
 
     it('should match files by filename when filePath in report uses filename only', () => {
