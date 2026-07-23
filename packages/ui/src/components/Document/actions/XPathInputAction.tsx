@@ -16,13 +16,13 @@ import { ExclamationCircleIcon, ExclamationTriangleIcon } from '@patternfly/reac
 import { FormEvent, FunctionComponent, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { IExpressionHolder } from '../../../models/datamapper/mapping';
-import { TargetNodeData } from '../../../models/datamapper/visualization';
+import { ExpressionHolderNodeData } from '../../../models/datamapper/visualization';
 import { XPathService } from '../../../services/xpath/xpath.service';
 import { ValidatedXPathParseResult } from '../../../services/xpath/xpath-model';
 import { useDocumentTreeStore } from '../../../store/document-tree.store';
 
 type XPathInputProps = {
-  nodeData: TargetNodeData;
+  nodeData: ExpressionHolderNodeData;
   mapping: IExpressionHolder;
   onUpdate: () => void;
 };

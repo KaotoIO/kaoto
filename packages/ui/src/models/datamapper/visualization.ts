@@ -44,13 +44,20 @@ export interface NodeData {
 }
 
 /**
- * Extension of {@link NodeData} for target-side nodes that carry mapping information.
+ * Extension of {@link NodeData} for nodes whose associated mapping item carries
+ * an editable XPath expression. Used by {@link XPathInputAction} to accept both
+ * target-side and source-side variable nodes.
  */
-export interface TargetNodeData extends NodeData {
+export interface ExpressionHolderNodeData extends NodeData {
+  mapping?: MappingParentType;
+}
+
+/**
+ * Extension of {@link ExpressionHolderNodeData} for target-side nodes that carry mapping information.
+ */
+export interface TargetNodeData extends ExpressionHolderNodeData {
   /** The root mapping tree for the target document. */
   mappingTree: MappingTree;
-  /** The mapping item associated with this node, if one exists. */
-  mapping?: MappingParentType;
 }
 
 /** Union of all valid source-side node types. */
@@ -377,7 +384,7 @@ export function variableNodePath(varId: string): string {
   return `Var:${VARIABLES_DOCUMENT_ID}://${varId}`;
 }
 
-export class SourceVariableNodeData implements NodeData {
+export class SourceVariableNodeData implements ExpressionHolderNodeData {
   constructor(public variable: VariableItem) {
     this.id = `var-${variable.id}`;
     this.title = `$${variable.name}`;
@@ -390,6 +397,10 @@ export class SourceVariableNodeData implements NodeData {
   isSource = true;
   isPrimitive = true;
   isDocument = false;
+
+  get mapping(): VariableItem {
+    return this.variable;
+  }
 }
 
 export enum MappingLineStyle {

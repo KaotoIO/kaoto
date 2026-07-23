@@ -574,6 +574,15 @@ describe('VisualizationService', () => {
       expect(result.error).toContain("'existingVar' already exists");
     });
 
+    it('should reject duplicate name in globalVariables', () => {
+      const variable = new VariableItem(tree, 'gVar');
+      variable.scope = 'template';
+      tree.globalVariables.push(variable);
+      const result = VisualizationService.validateVariableName('gVar', tree);
+      expect(result.status).toEqual(NameValidationStatus.ERROR);
+      expect(result.error).toContain("'gVar' already exists");
+    });
+
     it('should reject name with colon (QName but not NCName)', () => {
       const result = VisualizationService.validateVariableName('ns:var', tree);
       expect(result.status).toEqual(NameValidationStatus.ERROR);
@@ -621,25 +630,25 @@ describe('VisualizationService', () => {
   });
 
   describe('isInlineValueSelector()', () => {
-    it('should return true for VALUE ValueSelector', () => {
+    it('should return true for VALUE ValueOfSelector', () => {
       const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
       const vs = new ValueOfSelector(fieldItem, ValueOfType.VALUE);
       expect(VisualizationService.isInlineValueSelector(vs)).toBe(true);
     });
 
-    it('should return true for ATTRIBUTE ValueSelector', () => {
+    it('should return true for ATTRIBUTE ValueOfSelector', () => {
       const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
       const vs = new ValueOfSelector(fieldItem, ValueOfType.ATTRIBUTE);
       expect(VisualizationService.isInlineValueSelector(vs)).toBe(true);
     });
 
-    it('should return true for CONTAINER ValueSelector', () => {
+    it('should return true for CONTAINER CopyOfSelector', () => {
       const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
       const vs = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER);
       expect(VisualizationService.isInlineValueSelector(vs)).toBe(true);
     });
 
-    it('should return false for CONTAINER_NODE ValueSelector', () => {
+    it('should return false for CONTAINER_NODE CopyOfSelector', () => {
       const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
       const vs = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER_NODE);
       expect(VisualizationService.isInlineValueSelector(vs)).toBe(false);
@@ -662,7 +671,7 @@ describe('VisualizationService', () => {
       expect(VisualizationService.hasChildren(docChildren[0])).toBe(true);
     });
 
-    it('should not show inline VALUE ValueSelector as tree node child', () => {
+    it('should not show inline VALUE ValueOfSelector as tree node child', () => {
       const shipOrderFI = new FieldItem(tree, targetDoc.fields[0]);
       tree.children.push(shipOrderFI);
       const orderPersonField = targetDoc.fields[0].fields[0];

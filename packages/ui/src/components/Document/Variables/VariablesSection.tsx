@@ -7,6 +7,7 @@ import { VARIABLES_DOCUMENT_ID } from '../../../models/datamapper/visualization'
 import { MappingService } from '../../../services/mapping/mapping.service';
 import { ExpansionPanel } from '../../ExpansionPanels/ExpansionPanel';
 import { PANEL_COLLAPSED_HEIGHT, PANEL_MIN_HEIGHT } from '../../ExpansionPanels/panel-dimensions';
+import { VariableInputPlaceholder } from './VariableInputPlaceholder';
 import { VariableRow } from './VariableRow';
 import { VariablesHeader } from './VariablesHeader';
 
@@ -16,10 +17,11 @@ type VariablesSectionProps = {
 };
 
 export const VariablesSection: FunctionComponent<VariablesSectionProps> = ({ isReadOnly, onLayoutChange }) => {
-  const { variables, refreshMappingTree } = useDataMapper();
+  const { variables, mappingTree, refreshMappingTree } = useDataMapper();
   const { syncConnectionPorts } = useConnectionPortSync(VARIABLES_DOCUMENT_ID);
 
   const [renamingVariableId, setRenamingVariableId] = useState<string | null>(null);
+  const [isAddingVariable, setIsAddingVariable] = useState(false);
 
   useEffect(() => {
     syncConnectionPorts();
@@ -41,7 +43,24 @@ export const VariablesSection: FunctionComponent<VariablesSectionProps> = ({ isR
     [refreshMappingTree],
   );
 
-  const hasContent = variables.length > 0;
+  const handleAddVariable = useCallback(() => {
+    setIsAddingVariable(true);
+  }, []);
+
+  const handleConfirmAdd = useCallback(
+    (name: string) => {
+      MappingService.addVariable(mappingTree, name, undefined, 'template');
+      setIsAddingVariable(false);
+      refreshMappingTree();
+    },
+    [mappingTree, refreshMappingTree],
+  );
+
+  const handleCancelAdd = useCallback(() => {
+    setIsAddingVariable(false);
+  }, []);
+
+  const hasContent = variables.length > 0 || isAddingVariable;
 
   const edgeMarkers = useMemo(
     () => (
@@ -66,7 +85,7 @@ export const VariablesSection: FunctionComponent<VariablesSectionProps> = ({ isR
   return (
     <ExpansionPanel
       id="variables"
-      summary={<VariablesHeader isReadOnly={isReadOnly} />}
+      summary={<VariablesHeader isReadOnly={isReadOnly} onAddVariable={handleAddVariable} />}
       defaultExpanded={hasContent}
       defaultHeight={hasContent ? PANEL_COLLAPSED_HEIGHT + variables.length * 32 : PANEL_COLLAPSED_HEIGHT}
       minHeight={PANEL_MIN_HEIGHT}
@@ -89,6 +108,9 @@ export const VariablesSection: FunctionComponent<VariablesSectionProps> = ({ isR
               onDelete={handleDelete}
             />
           ))}
+          {isAddingVariable && (
+            <VariableInputPlaceholder parent={mappingTree} onConfirm={handleConfirmAdd} onCancel={handleCancelAdd} />
+          )}
         </>
       )}
     </ExpansionPanel>
