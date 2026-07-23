@@ -7,6 +7,7 @@ import { BaseNodeMapper } from './mappers/base-node-mapper';
 import { ChoiceNodeMapper } from './mappers/choice-node-mapper';
 import { CircuitBreakerNodeMapper } from './mappers/circuit-breaker-node-mapper';
 import { DataMapperNodeMapper } from './mappers/datamapper-node-mapper';
+import { FromNodeMapper } from './mappers/from-node-mapper';
 import { LoadBalanceNodeMapper } from './mappers/loadbalance-node-mapper';
 import { MulticastNodeMapper } from './mappers/multicast-node-mapper';
 import { OnFallbackNodeMapper } from './mappers/on-fallback-node-mapper';
@@ -39,6 +40,7 @@ export class NodeMapperService {
   private static initializeRootNodeMapper() {
     this.rootNodeMapper = new RootNodeMapper();
     this.rootNodeMapper.registerDefaultMapper(new BaseNodeMapper(this.rootNodeMapper));
+    this.rootNodeMapper.registerMapper('from' as keyof ProcessorDefinition, new FromNodeMapper(this.rootNodeMapper));
     this.rootNodeMapper.registerMapper('circuitBreaker', new CircuitBreakerNodeMapper(this.rootNodeMapper));
     this.rootNodeMapper.registerMapper(
       'onFallback' as keyof ProcessorDefinition,
