@@ -8,6 +8,8 @@ import { PathExpression } from './xpath';
 /** Valid parent types for any node in the mapping tree. */
 export type MappingParentType = MappingTree | MappingItem;
 
+export type VariableScope = 'stylesheet' | 'template' | 'node';
+
 /**
  * Root of the mapping tree for a single target document.
  * Holds top-level {@link MappingItem} children and shared state such as
@@ -22,6 +24,7 @@ export class MappingTree {
     this.nodePath = NodePath.fromDocument(documentType, documentId);
   }
   children: MappingItem[] = [];
+  globalVariables: VariableItem[] = [];
   nodePath: NodePath;
   contextPath?: PathExpression;
   namespaceMap: { [prefix: string]: string } = {};
@@ -397,7 +400,10 @@ export class UnknownMappingItem extends MappingItem {
  * - If {@link children} is not empty: serializes as `<xsl:variable name="x">...children...</xsl:variable>`
  *   (no select attribute)
  *
- * Can be a child of FieldItem, ForEachItem, IfItem, WhenItem, or OtherwiseItem.
+ * {@link scope} determines placement and visibility:
+ * - `'node'` — scoped under a target element, stored in `parent.children` (default)
+ * - `'template'` — template-level global, stored in `MappingTree.globalVariables`
+ * - `'stylesheet'` — stylesheet-level global, stored in `MappingTree.globalVariables`
  */
 export class VariableItem extends MappingItem implements IExpressionHolder {
   constructor(
@@ -407,12 +413,16 @@ export class VariableItem extends MappingItem implements IExpressionHolder {
     super(parent, name, getCamelRandomId(name, 4));
   }
   expression = '';
+  scope: VariableScope = 'node';
+  rawElement?: Element;
   doClone() {
     return new VariableItem(this.parent, this.name);
   }
   clone() {
     const cloned = super.clone() as VariableItem;
     cloned.expression = this.expression;
+    cloned.scope = this.scope;
+    cloned.rawElement = this.rawElement?.cloneNode(true) as Element | undefined;
     return cloned;
   }
 }

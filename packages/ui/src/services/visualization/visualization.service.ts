@@ -273,9 +273,10 @@ export class VisualizationService {
     mappings: MappingItem[] | undefined,
   ): void {
     if (!mappings) return;
-    let filterPriorityMappingItem = (m: MappingItem) => m instanceof UnknownMappingItem || m instanceof VariableItem;
+    let filterPriorityMappingItem: (m: MappingItem) => boolean = (m) =>
+      m instanceof UnknownMappingItem || m instanceof VariableItem;
     if (parent.isPrimitive) {
-      filterPriorityMappingItem = (m: MappingItem) =>
+      filterPriorityMappingItem = (m) =>
         m instanceof UnknownMappingItem || VisualizationService.isInlineValueSelector(m);
     }
     for (const m of mappings.filter(filterPriorityMappingItem)) {
@@ -694,7 +695,10 @@ export class VisualizationService {
     if (name === 'mapped-xml') {
       return { status: NameValidationStatus.ERROR, error: "Variable name 'mapped-xml' is reserved for internal use" };
     }
-    if (parent.children.some((child) => child instanceof VariableItem && child.name === name)) {
+    const hasDuplicate =
+      (parent instanceof MappingTree && parent.globalVariables.some((v) => v.name === name)) ||
+      parent.children.some((c) => c instanceof VariableItem && c.name === name);
+    if (hasDuplicate) {
       return { status: NameValidationStatus.ERROR, error: `Variable name '${name}' already exists in this scope` };
     }
     return { status: NameValidationStatus.SUCCESS };

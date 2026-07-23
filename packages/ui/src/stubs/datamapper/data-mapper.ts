@@ -340,6 +340,18 @@ export function getVariableEmptyNameXslt(): string {
 export function getVariableNestedInForEachXslt(): string {
   return readStubFile('./xml/VariableNestedInForEach.xsl');
 }
+export function getVariableStylesheetXslt(): string {
+  return readStubFile('./xml/VariableStylesheet.xsl');
+}
+export function getVariableStylesheetReservedNamesXslt(): string {
+  return readStubFile('./xml/VariableStylesheetReservedNames.xsl');
+}
+export function getVariableStylesheetTextContentXslt(): string {
+  return readStubFile('./xml/VariableStylesheetTextContent.xsl');
+}
+export function getVariableTemplateXslt(): string {
+  return readStubFile('./xml/VariableTemplate.xsl');
+}
 export function getOrderInfoXsd(): string {
   return readStubFile('./xml/OrderInfo.xsd');
 }

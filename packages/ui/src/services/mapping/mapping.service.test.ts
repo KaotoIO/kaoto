@@ -911,6 +911,20 @@ describe('MappingService', () => {
       expect((parent.children[1] as VariableItem).name).toBe('var2');
       expect(parent.children[2]).toBe(firstChildBefore);
     });
+
+    it('should add template-scoped variable to globalVariables', () => {
+      const variable = MappingService.addVariable(tree, 'tplVar', undefined, 'template');
+      expect(variable.scope).toBe('template');
+      expect(tree.globalVariables).toContain(variable);
+      expect(tree.children).not.toContain(variable);
+    });
+
+    it('should add stylesheet-scoped variable to globalVariables', () => {
+      const variable = MappingService.addVariable(tree, 'ssVar', undefined, 'stylesheet');
+      expect(variable.scope).toBe('stylesheet');
+      expect(tree.globalVariables).toContain(variable);
+      expect(tree.children).not.toContain(variable);
+    });
   });
 
   describe('removeVariable()', () => {
@@ -944,6 +958,13 @@ describe('MappingService', () => {
       expect(parent.children[0]).toBeInstanceOf(VariableItem);
       expect((parent.children[0] as VariableItem).name).toBe('var2');
     });
+
+    it('should remove global variable from globalVariables', () => {
+      const variable = MappingService.addVariable(tree, 'tplVar', undefined, 'template');
+      expect(tree.globalVariables).toContain(variable);
+      MappingService.removeVariable(variable);
+      expect(tree.globalVariables).not.toContain(variable);
+    });
   });
 
   describe('updateVariable()', () => {
@@ -953,6 +974,37 @@ describe('MappingService', () => {
       MappingService.updateVariable(variable, 'newName', 'newExpr');
       expect(variable.name).toBe('newName');
       expect(variable.expression).toBe('newExpr');
+    });
+
+    it('should sync rawElement name attribute on rename', () => {
+      const parent = tree.children[0];
+      const variable = MappingService.addVariable(parent, 'oldName');
+      const doc = new DOMParser().parseFromString(
+        '<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="oldName"><child/></xsl:variable>',
+        'text/xml',
+      );
+      variable.rawElement = doc.documentElement;
+
+      MappingService.updateVariable(variable, 'newName', '');
+
+      expect(variable.name).toBe('newName');
+      expect(variable.rawElement).toBeDefined();
+      expect(variable.rawElement!.getAttribute('name')).toBe('newName');
+    });
+
+    it('should clear rawElement when expression is set', () => {
+      const parent = tree.children[0];
+      const variable = MappingService.addVariable(parent, 'myVar');
+      const doc = new DOMParser().parseFromString(
+        '<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="myVar"><child/></xsl:variable>',
+        'text/xml',
+      );
+      variable.rawElement = doc.documentElement;
+
+      MappingService.updateVariable(variable, 'myVar', 'newExpr');
+
+      expect(variable.expression).toBe('newExpr');
+      expect(variable.rawElement).toBeUndefined();
     });
   });
 
@@ -1019,6 +1071,16 @@ describe('MappingService', () => {
       expect(result).toHaveLength(2);
       expect(result).toContain(rootVar);
       expect(result).toContain(nestedVar);
+    });
+
+    it('should include global variables', () => {
+      const parent = tree.children[0];
+      const nodeVar = MappingService.addVariable(parent, 'nodeVar');
+      const globalVar = MappingService.addVariable(tree, 'globalVar', undefined, 'template');
+      const result = MappingService.getAllVariables(tree);
+      expect(result).toHaveLength(2);
+      expect(result).toContain(nodeVar);
+      expect(result).toContain(globalVar);
     });
   });
 
@@ -1182,6 +1244,61 @@ describe('MappingService', () => {
       expect(varX2.expression).toBe('5');
       expect(vs.expression).toBe('$x');
     });
+
+    it('should remove references to global variable from tree children', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const targetField = targetDoc.fields[0].fields[0];
+      const gv = MappingService.addVariable(tree, 'gVar', '1', 'template');
+      const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
+      const vs = new ValueSelector(fieldItem);
+      vs.expression = '$gVar';
+      fieldItem.children.push(vs);
+
+      MappingService.removeVariableReferences(gv);
+
+      expect(shipOrderItem.children).not.toContain(fieldItem);
+    });
+
+    it('should stop cleanup at shadowing global redeclaration', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const targetField = targetDoc.fields[0].fields[0];
+      const gv1 = MappingService.addVariable(tree, 'x', '1', 'template');
+      const gv2 = MappingService.addVariable(tree, 'x', '$x + 1', 'template');
+      const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
+      const vs = new ValueSelector(fieldItem);
+      vs.expression = '$x';
+      fieldItem.children.push(vs);
+
+      MappingService.removeVariableReferences(gv1);
+
+      expect(gv2.expression).toBe('');
+      expect(vs.expression).toBe('$x');
+      expect(shipOrderItem.children).toContain(fieldItem);
+    });
+
+    it('should preserve global variables after a shadowing redeclaration', () => {
+      const gv1 = MappingService.addVariable(tree, 'x', '1', 'template');
+      const gv2 = MappingService.addVariable(tree, 'x', '$x + 1', 'template');
+      const gv3 = MappingService.addVariable(tree, 'y', '$x + 2', 'template');
+
+      MappingService.removeVariableReferences(gv1);
+
+      expect(tree.globalVariables).toContain(gv1);
+      expect(tree.globalVariables).toContain(gv2);
+      expect(tree.globalVariables).toContain(gv3);
+      expect(gv3.expression).toBe('$x + 2');
+    });
+
+    it('should clear dangling references in differently-named globals after deletion', () => {
+      const gvA = MappingService.addVariable(tree, 'a', '1', 'template');
+      const gvB = MappingService.addVariable(tree, 'b', '$a + 2', 'template');
+
+      MappingService.removeVariableReferences(gvA);
+
+      expect(tree.globalVariables).toContain(gvA);
+      expect(tree.globalVariables).toContain(gvB);
+      expect(gvB.expression).toBe('');
+    });
   });
 
   describe('renameVariableReferences()', () => {
@@ -1281,6 +1398,37 @@ describe('MappingService', () => {
 
       expect(varX2.expression).toBe('$y + 1');
       expect(vs.expression).toBe('$x');
+    });
+
+    it('should rename references to global variable in tree children', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const targetField = targetDoc.fields[0].fields[0];
+      const gv = MappingService.addVariable(tree, 'gVar', '1', 'template');
+      const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
+      const vs = new ValueSelector(fieldItem);
+      vs.expression = '$gVar';
+      fieldItem.children.push(vs);
+
+      MappingService.renameVariableReferences(gv, 'renamed');
+
+      expect(vs.expression).toBe('$renamed');
+    });
+  });
+
+  describe('resolveVariableInScope()', () => {
+    it('should resolve node-scoped variable from preceding sibling', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const variable = MappingService.addVariable(shipOrderItem, 'myVar', '42');
+      const followingSibling = shipOrderItem.children[shipOrderItem.children.indexOf(variable) + 1];
+      const resolved = MappingService.resolveVariableInScope('myVar', followingSibling);
+      expect(resolved).toBe(variable);
+    });
+
+    it('should resolve global variable from MappingTree.globalVariables', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const gv = MappingService.addVariable(tree, 'gVar', '1', 'template');
+      const resolved = MappingService.resolveVariableInScope('gVar', shipOrderItem);
+      expect(resolved).toBe(gv);
     });
   });
 

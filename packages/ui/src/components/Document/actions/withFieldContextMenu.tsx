@@ -1,10 +1,11 @@
-import { ComponentType, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ComponentType, MouseEvent, useCallback, useMemo } from 'react';
 
 import { DocumentTreeNode } from '../../../models/datamapper/document-tree-node';
 import { VisualizationUtilService } from '../../../services/visualization/visualization-util.service';
 import { FieldContextMenu, MenuGroup } from './FieldContextMenu';
 import { useAbstractFieldSubstitutionMenu } from './FieldContextMenu/useAbstractFieldSubstitutionMenu';
 import { useChoiceContextMenu } from './FieldContextMenu/useChoiceContextMenu';
+import { useContextMenuState } from './FieldContextMenu/useContextMenuState';
 import { useFieldOverrideMenu } from './FieldContextMenu/useFieldOverrideMenu';
 
 type WithTreeNode = {
@@ -34,43 +35,14 @@ export function withFieldContextMenu<P extends WithTreeNode>(
     const override = useFieldOverrideMenu(nodeData);
     const abstractSubstitution = useAbstractFieldSubstitutionMenu(nodeData);
 
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
-    const menuRef = useRef<HTMLDivElement>(null);
-
-    const closeMenu = useCallback(() => {
-      setIsMenuOpen(false);
-    }, []);
-
-    useEffect(() => {
-      if (!isMenuOpen) return;
-
-      const handleDismiss = (e: globalThis.MouseEvent) => {
-        if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-          setIsMenuOpen(false);
-        }
-      };
-      const handleEscape = (e: globalThis.KeyboardEvent) => {
-        if (e.key === 'Escape') setIsMenuOpen(false);
-      };
-
-      document.addEventListener('mousedown', handleDismiss);
-      document.addEventListener('keydown', handleEscape);
-      return () => {
-        document.removeEventListener('mousedown', handleDismiss);
-        document.removeEventListener('keydown', handleEscape);
-      };
-    }, [isMenuOpen]);
+    const { isMenuOpen, menuPosition, menuRef, closeMenu, openMenu } = useContextMenuState();
 
     const handleContextMenu = useCallback(
       (event: MouseEvent) => {
         if (!field || isReadOnly) return;
-        event.preventDefault();
-        event.stopPropagation();
-        setMenuPosition({ x: event.clientX, y: event.clientY });
-        setIsMenuOpen(true);
+        openMenu(event);
       },
-      [field, isReadOnly],
+      [field, isReadOnly, openMenu],
     );
 
     const menuGroups = useMemo(

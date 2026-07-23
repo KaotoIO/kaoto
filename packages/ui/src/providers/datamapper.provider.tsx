@@ -234,6 +234,10 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       child.parent = newMapping;
       return child;
     });
+    newMapping.globalVariables = mappingTree.globalVariables.map((gv) => {
+      gv.parent = newMapping;
+      return gv;
+    });
     newMapping.namespaceMap = mappingTree.namespaceMap;
     setMappingTree(newMapping);
     onUpdateMappings?.(MappingSerializerService.serialize(newMapping, sourceParameterMap, dataMapperSettings));

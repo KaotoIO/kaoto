@@ -244,5 +244,22 @@ describe('mapping.ts', () => {
       expect(item.nodePath).toBeDefined();
       expect(item.nodePath.pathSegments).toContain(item.id);
     });
+
+    it('clone() should copy scope and rawElement', () => {
+      const item = new VariableItem(tree, 'ssVar');
+      item.scope = 'stylesheet';
+      const doc = new DOMParser().parseFromString(
+        '<variable xmlns="http://www.w3.org/1999/XSL/Transform" name="ssVar" select="1"/>',
+        'text/xml',
+      );
+      item.rawElement = doc.documentElement;
+
+      const cloned = item.clone();
+
+      expect(cloned.scope).toBe('stylesheet');
+      expect(cloned.rawElement).toBeDefined();
+      expect(cloned.rawElement).not.toBe(item.rawElement);
+      expect(cloned.rawElement?.getAttribute('name')).toBe('ssVar');
+    });
   });
 });
