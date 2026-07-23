@@ -8,12 +8,15 @@ import {
 } from '../../models/datamapper/document';
 import {
   ChooseItem,
+  CopyOfSelector,
+  CopyOfType,
   FieldItem,
   ForEachItem,
   IfItem,
   MappingTree,
+  ValueOfSelector,
+  ValueOfType,
   ValueSelector,
-  ValueType,
   VariableItem,
 } from '../../models/datamapper/mapping';
 import {
@@ -620,25 +623,25 @@ describe('VisualizationService', () => {
   describe('isInlineValueSelector()', () => {
     it('should return true for VALUE ValueSelector', () => {
       const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
-      const vs = new ValueSelector(fieldItem, ValueType.VALUE);
+      const vs = new ValueOfSelector(fieldItem, ValueOfType.VALUE);
       expect(VisualizationService.isInlineValueSelector(vs)).toBe(true);
     });
 
     it('should return true for ATTRIBUTE ValueSelector', () => {
       const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
-      const vs = new ValueSelector(fieldItem, ValueType.ATTRIBUTE);
+      const vs = new ValueOfSelector(fieldItem, ValueOfType.ATTRIBUTE);
       expect(VisualizationService.isInlineValueSelector(vs)).toBe(true);
     });
 
     it('should return true for CONTAINER ValueSelector', () => {
       const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
-      const vs = new ValueSelector(fieldItem, ValueType.CONTAINER);
+      const vs = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER);
       expect(VisualizationService.isInlineValueSelector(vs)).toBe(true);
     });
 
     it('should return false for CONTAINER_NODE ValueSelector', () => {
       const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
-      const vs = new ValueSelector(fieldItem, ValueType.CONTAINER_NODE);
+      const vs = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER_NODE);
       expect(VisualizationService.isInlineValueSelector(vs)).toBe(false);
     });
 
@@ -652,7 +655,7 @@ describe('VisualizationService', () => {
     it('should show CONTAINER_NODE copy-of as tree node in hasChildren', () => {
       const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
       tree.children.push(fieldItem);
-      const vs = new ValueSelector(fieldItem, ValueType.CONTAINER_NODE);
+      const vs = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER_NODE);
       fieldItem.children.push(vs);
       targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
       const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
@@ -665,7 +668,7 @@ describe('VisualizationService', () => {
       const orderPersonField = targetDoc.fields[0].fields[0];
       const orderPersonFI = new FieldItem(shipOrderFI, orderPersonField);
       shipOrderFI.children.push(orderPersonFI);
-      const vs = new ValueSelector(orderPersonFI, ValueType.VALUE);
+      const vs = new ValueOfSelector(orderPersonFI, ValueOfType.VALUE);
       orderPersonFI.children.push(vs);
       targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
       const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
@@ -683,7 +686,7 @@ describe('VisualizationService', () => {
         primitiveTargetDoc.documentId,
         DocumentDefinitionType.Primitive,
       );
-      const vs = new ValueSelector(primitiveTree, ValueType.CONTAINER_NODE);
+      const vs = new CopyOfSelector(primitiveTree, CopyOfType.CONTAINER_NODE);
       primitiveTree.children.push(vs);
       const primitiveDocNode = new TargetDocumentNodeData(primitiveTargetDoc, primitiveTree);
       const children = VisualizationService.generatePrimitiveDocumentChildren(primitiveDocNode);

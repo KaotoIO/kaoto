@@ -1,5 +1,7 @@
 import {
   BODY_DOCUMENT_ID,
+  CopyOfSelector,
+  CopyOfType,
   DocumentNodeData,
   DocumentType,
   FieldItem,
@@ -16,7 +18,6 @@ import {
   NodePath,
   PrimitiveDocument,
   ValueSelector,
-  ValueType,
   VariableItem,
   variableNodePath,
   VARIABLES_DOCUMENT_ID,
@@ -67,7 +68,7 @@ export class MappingLinksService {
           item instanceof FieldItem &&
           !(item.field.ownerDocument instanceof PrimitiveDocument) &&
           child instanceof ValueSelector &&
-          child.valueType !== ValueType.CONTAINER_NODE
+          !(child instanceof CopyOfSelector && child.valueType === CopyOfType.CONTAINER_NODE)
         ) {
           const links = MappingLinksService.doExtractMappingLinks(
             child,
@@ -222,12 +223,7 @@ export class MappingLinksService {
   private static classifyContainerLineStyle(item: FieldItem): MappingLineStyle {
     const childFieldItems = item.children.filter((c): c is FieldItem => c instanceof FieldItem);
 
-    const vs = item.children.find((c) => c instanceof ValueSelector) as ValueSelector | undefined;
-    if (
-      childFieldItems.length === 0 &&
-      vs &&
-      (vs.valueType === ValueType.CONTAINER || vs.valueType === ValueType.CONTAINER_NODE)
-    ) {
+    if (childFieldItems.length === 0 && item.children.some((c) => c instanceof CopyOfSelector)) {
       return MappingLineStyle.COPY_OF;
     }
 
@@ -239,10 +235,7 @@ export class MappingLinksService {
 
     const allContainerChildrenCopyOf = childFieldItems
       .filter((child) => DocumentService.hasChildren(child.field))
-      .every((child) => {
-        const childVs = child.children.find((c) => c instanceof ValueSelector) as ValueSelector | undefined;
-        return childVs && (childVs.valueType === ValueType.CONTAINER || childVs.valueType === ValueType.CONTAINER_NODE);
-      });
+      .every((child) => child.children.some((c) => c instanceof CopyOfSelector));
 
     return allContainerChildrenCopyOf ? MappingLineStyle.COMPLETE : MappingLineStyle.PARTIAL;
   }

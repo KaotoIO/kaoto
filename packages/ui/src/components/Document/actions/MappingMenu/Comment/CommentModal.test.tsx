@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { Mock } from 'vitest';
 
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../../../models/datamapper/document';
-import { MappingTree, ValueSelector } from '../../../../../models/datamapper/mapping';
+import { MappingTree, ValueOfSelector, ValueSelector } from '../../../../../models/datamapper/mapping';
 import { CommentModal } from './CommentModal';
 
 describe('CommentModal', () => {
@@ -13,7 +13,7 @@ describe('CommentModal', () => {
 
   beforeEach(() => {
     tree = new MappingTree(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
-    mapping = new ValueSelector(tree);
+    mapping = new ValueOfSelector(tree);
     onCloseMock = vi.fn();
     onUpdateMock = vi.fn();
   });

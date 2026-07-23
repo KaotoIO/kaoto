@@ -18,8 +18,9 @@ import {
   ForEachGroupItem,
   ForEachItem,
   SortItem,
+  ValueOfSelector,
+  ValueOfType,
   ValueSelector,
-  ValueType,
 } from '../../../../../models/datamapper/mapping';
 import { LANG_OPTIONS } from '../../../../../models/datamapper/types';
 import { XPathEditorModal } from '../../../../XPath/XPathEditorModal';
@@ -70,7 +71,7 @@ export const SortKey: FunctionComponent<SortKeyProps> = ({ index, sortItem, mapp
   const xpathProxyRef = useRef<ValueSelector | null>(null);
 
   const handleOpenXPathEditor = useCallback(() => {
-    const proxy = new ValueSelector(mapping, ValueType.VALUE);
+    const proxy = new ValueOfSelector(mapping, ValueOfType.VALUE);
     proxy.expression = sortItem.expression;
     xpathProxyRef.current = proxy;
     setIsXpathEditorOpen(true);

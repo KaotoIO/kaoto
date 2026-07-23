@@ -1,6 +1,8 @@
 import { BaseField, IField, IParentType, PrimitiveDocument } from '../../models/datamapper/document';
 import {
   ChooseItem,
+  CopyOfSelector,
+  CopyOfType,
   FieldItem,
   ForEachGroupItem,
   ForEachItem,
@@ -11,8 +13,8 @@ import {
   OtherwiseItem,
   SortItem,
   UnknownMappingItem,
-  ValueSelector,
-  ValueType,
+  ValueOfSelector,
+  ValueOfType,
   VariableItem,
   WhenItem,
 } from '../../models/datamapper/mapping';
@@ -22,19 +24,13 @@ import { FROM_JSON_SOURCE_SUFFIX } from '../document/json-schema/json-schema-doc
 import { XmlSchemaDocumentUtilService } from '../document/xml-schema/xml-schema-document-util.service';
 import { MappingSerializerJsonAddon, TO_JSON_TARGET_VARIABLE } from './mapping-serializer-json-addon';
 
-/** Handles {@link ValueSelector} — maps to `xsl:copy-of`, `xsl:value-of`, or `xsl:text`. */
-export class ValueSelectorHandler implements XsltItemHandler<ValueSelector> {
-  readonly itemClass = ValueSelector;
-  readonly xsltElementNames = ['copy-of', 'value-of', 'text'];
+/** Handles {@link ValueOfSelector} — maps to `xsl:value-of` or `xsl:text`. */
+export class ValueOfSelectorHandler implements XsltItemHandler<ValueOfSelector> {
+  readonly itemClass = ValueOfSelector;
+  readonly xsltElementNames = ['value-of', 'text'];
 
-  serialize(parent: Element, mapping: ValueSelector): Element {
+  serialize(parent: Element, mapping: ValueOfSelector): Element {
     const doc = parent.ownerDocument;
-    if (mapping.valueType === ValueType.CONTAINER || mapping.valueType === ValueType.CONTAINER_NODE) {
-      const copyOf = doc.createElementNS(NS_XSL, 'copy-of');
-      copyOf.setAttribute('select', mapping.expression);
-      parent.appendChild(copyOf);
-      return copyOf;
-    }
     const valueOf = doc.createElementNS(NS_XSL, 'value-of');
     valueOf.setAttribute('select', mapping.expression);
     parent.appendChild(valueOf);
@@ -44,33 +40,138 @@ export class ValueSelectorHandler implements XsltItemHandler<ValueSelector> {
   deserialize(
     element: Element,
     parentField: IParentType,
-    parentMapping: MappingParentType,
-  ): DeserializeItemResult<ValueSelector> {
-    switch (element.localName) {
-      case 'copy-of': {
-        const valueType = parentMapping instanceof FieldItem ? ValueType.CONTAINER_NODE : ValueType.CONTAINER;
-        const selector = new ValueSelector(parentMapping, valueType);
-        selector.expression = element.getAttribute('select') || '';
-        return { mappingItem: selector, fieldItem: null };
-      }
-      case 'text': {
-        const selector = new ValueSelector(parentMapping, ValueType.VALUE);
-        selector.expression = element.textContent || '';
-        selector.isLiteral = true;
-        return { mappingItem: selector, fieldItem: null };
-      }
-      default: {
-        const valueType =
-          'isAttribute' in parentField && parentField.isAttribute ? ValueType.ATTRIBUTE : ValueType.VALUE;
-        const selector = new ValueSelector(parentMapping, valueType);
-        selector.expression = element.getAttribute('select') || '';
-        return { mappingItem: selector, fieldItem: null };
-      }
+    _parentMapping: MappingParentType,
+  ): DeserializeItemResult<ValueOfSelector> {
+    if (element.localName === 'text') {
+      const selector = new ValueOfSelector(_parentMapping, ValueOfType.VALUE);
+      selector.expression = element.textContent || '';
+      selector.isLiteral = true;
+      return { mappingItem: selector, fieldItem: null };
     }
+    const valueType =
+      'isAttribute' in parentField && parentField.isAttribute ? ValueOfType.ATTRIBUTE : ValueOfType.VALUE;
+    const selector = new ValueOfSelector(_parentMapping, valueType);
+    selector.expression = element.getAttribute('select') || '';
+    return { mappingItem: selector, fieldItem: null };
   }
 }
 
-/** Handles {@link FieldItem} — serializes target element or `xsl:attribute`, deserializes `xsl:attribute`. */
+/**
+ * Handles {@link CopyOfSelector} — maps to `xsl:copy-of`.
+ *
+ * When a CONTAINER copy-of is deserialized (wrapper element was skipped during
+ * serialization), this handler reconstructs the intermediate {@link FieldItem}
+ * so that the mapping model is consistent regardless of how it was created.
+ */
+export class CopyOfSelectorHandler implements XsltItemHandler<MappingItem> {
+  readonly itemClass = CopyOfSelector;
+  readonly xsltElementNames = ['copy-of'];
+
+  serialize(parent: Element, mapping: CopyOfSelector): Element {
+    const doc = parent.ownerDocument;
+    const copyOf = doc.createElementNS(NS_XSL, 'copy-of');
+    copyOf.setAttribute('select', mapping.expression);
+    parent.appendChild(copyOf);
+    return copyOf;
+  }
+
+  private static resolveContainerValueType(
+    selectExpr: string,
+    parentMapping: MappingParentType,
+    element: Element,
+  ): CopyOfType {
+    if (selectExpr.endsWith('/node()')) return CopyOfType.CONTAINER_NODE;
+    if (parentMapping instanceof FieldItem) {
+      const { localName, namespaceURI } = CopyOfSelectorHandler.resolveFieldFromSelectExpression(selectExpr, element);
+      if (localName === parentMapping.field.name && namespaceURI === parentMapping.field.namespaceURI) {
+        return CopyOfType.CONTAINER_NODE;
+      }
+    }
+    return CopyOfType.CONTAINER;
+  }
+
+  private static resolveFieldFromSelectExpression(
+    selectExpr: string,
+    element: Element,
+  ): { localName: string; namespaceURI: string } {
+    const segments = selectExpr.split('/');
+    const lastSegment = segments[segments.length - 1];
+    if (!lastSegment) return { localName: '', namespaceURI: '' };
+
+    const colonIndex = lastSegment.indexOf(':');
+    const localName = colonIndex >= 0 ? lastSegment.substring(colonIndex + 1) : lastSegment;
+    const prefix = colonIndex >= 0 ? lastSegment.substring(0, colonIndex) : '';
+    const namespaceURI = prefix ? element.lookupNamespaceURI(prefix) || '' : '';
+
+    return { localName, namespaceURI };
+  }
+
+  private static wrapContainerCopyOfInFieldItem(
+    selector: CopyOfSelector,
+    element: Element,
+    parentField: IParentType,
+    parentMapping: FieldItem,
+  ): DeserializeItemResult<MappingItem> | null {
+    const { localName, namespaceURI } = CopyOfSelectorHandler.resolveFieldFromSelectExpression(
+      selector.expression,
+      element,
+    );
+    if (!localName) return null;
+
+    let targetField = XmlSchemaDocumentUtilService.getChildField(parentField, localName, namespaceURI);
+    if (!targetField) {
+      targetField = new BaseField(
+        parentField,
+        'ownerDocument' in parentField ? parentField.ownerDocument : parentField,
+        localName,
+      );
+      targetField.namespaceURI = namespaceURI;
+      parentField.fields.push(targetField);
+    }
+
+    const fieldItem = new FieldItem(parentMapping, targetField);
+    if (selector.comment) {
+      fieldItem.comment = selector.comment;
+      selector.comment = undefined;
+    }
+    selector.parent = fieldItem;
+    fieldItem.children.push(selector);
+    return { mappingItem: fieldItem, fieldItem: targetField };
+  }
+
+  deserialize(
+    element: Element,
+    parentField: IParentType,
+    parentMapping: MappingParentType,
+  ): DeserializeItemResult<MappingItem> {
+    const selectExpr = element.getAttribute('select') || '';
+    const valueType = CopyOfSelectorHandler.resolveContainerValueType(selectExpr, parentMapping, element);
+    const selector = new CopyOfSelector(parentMapping, valueType);
+    selector.expression = selectExpr;
+
+    if (
+      valueType === CopyOfType.CONTAINER &&
+      parentMapping instanceof FieldItem &&
+      !(parentField instanceof PrimitiveDocument)
+    ) {
+      const wrapped = CopyOfSelectorHandler.wrapContainerCopyOfInFieldItem(
+        selector,
+        element,
+        parentField,
+        parentMapping,
+      );
+      if (wrapped) return wrapped;
+    }
+
+    return { mappingItem: selector, fieldItem: null };
+  }
+}
+
+/**
+ * Handles {@link FieldItem} — serializes target element or `xsl:attribute`, deserializes `xsl:attribute`.
+ * When the sole child is a CONTAINER {@link CopyOfSelector}, the target element is skipped
+ * during serialization (copy-of appears directly under the parent).
+ */
 export class FieldItemHandler implements XsltItemHandler<FieldItem> {
   readonly itemClass = FieldItem;
   readonly xsltElementNames = ['attribute'];
@@ -86,12 +187,10 @@ export class FieldItemHandler implements XsltItemHandler<FieldItem> {
     }
 
     const hasContainerCopyOf = mapping.children.some(
-      (c) => c instanceof ValueSelector && c.valueType === ValueType.CONTAINER,
+      (c) => c instanceof CopyOfSelector && c.valueType === CopyOfType.CONTAINER,
     );
     const hasChildFieldItems = mapping.children.some((c) => c instanceof FieldItem);
-    const hasValueOf = mapping.children.some(
-      (c) => c instanceof ValueSelector && (c.valueType === ValueType.VALUE || c.valueType === ValueType.ATTRIBUTE),
-    );
+    const hasValueOf = mapping.children.some((c) => c instanceof ValueOfSelector);
     if (hasContainerCopyOf && !hasChildFieldItems && !hasValueOf) return parent;
 
     const jsonElement = MappingSerializerJsonAddon.populateFieldItem(parent, mapping);
@@ -471,7 +570,8 @@ export class UnknownMappingItemHandler implements XsltItemHandler<UnknownMapping
 
 /** Single source of truth — every {@link XsltItemHandler} instance. Lookup maps are derived from this array. */
 export const allHandlers: XsltItemHandler<MappingItem | SortItem>[] = [
-  new ValueSelectorHandler(),
+  new ValueOfSelectorHandler(),
+  new CopyOfSelectorHandler(),
   new FieldItemHandler(),
   new IfItemHandler(),
   new ChooseItemHandler(),

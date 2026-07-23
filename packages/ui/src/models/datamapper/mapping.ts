@@ -29,8 +29,8 @@ export class MappingTree {
 
 /**
  * Abstract base for every node in the mapping tree.
- * Subclasses represent either data mappings ({@link FieldItem}, {@link ValueSelector})
- * or XSLT instruction elements ({@link InstructionItem} subtypes).
+ * Subclasses represent either data mappings ({@link FieldItem}, {@link ValueOfSelector},
+ * {@link CopyOfSelector}) or XSLT instruction elements ({@link InstructionItem} subtypes).
  */
 export abstract class MappingItem {
   constructor(
@@ -108,7 +108,8 @@ export class FieldItem extends MappingItem {
 
 /**
  * Implemented by any mapping item that carries an XPath expression,
- * such as {@link IfItem}, {@link WhenItem}, {@link ForEachItem}, and {@link ValueSelector}.
+ * such as {@link IfItem}, {@link WhenItem}, {@link ForEachItem}, {@link ValueOfSelector},
+ * and {@link CopyOfSelector}.
  */
 export interface IExpressionHolder {
   expression: string;
@@ -317,11 +318,19 @@ export class SortItem {
 }
 
 /**
- * Distinguishes how a {@link ValueSelector} produces its output in the generated XSLT
- * and how it is rendered in the visualization tree.
+ * How a {@link ValueOfSelector} produces its output in the generated XSLT.
+ * Both types are always rendered **inline** (XPath input on the field row).
+ */
+export enum ValueOfType {
+  /** Emits a text value via `xsl:value-of`. */
+  VALUE = 'value',
+  /** Emits an XML attribute. */
+  ATTRIBUTE = 'attribute',
+}
+
+/**
+ * How a {@link CopyOfSelector} produces its output in the generated XSLT.
  *
- * Rendering rules:
- * - `VALUE` / `ATTRIBUTE` — always rendered **inline** (XPath input on the field row).
  * - `CONTAINER` — always rendered **inline**. Used for 1-to-1 container copy-of
  *   from DnD. `FieldItemHandler` skips target element creation so `xsl:copy-of`
  *   appears directly under the parent XSLT element.
@@ -329,44 +338,74 @@ export class SortItem {
  *   explicit copy-of added from the context menu or xs:anyType mappings. Target
  *   element is always created, with `xsl:copy-of` nested inside it.
  */
-export enum ValueType {
-  /** Emits a text value via `xsl:value-of`. Always rendered inline. */
-  VALUE = 'value',
+export enum CopyOfType {
   /** Emits `xsl:copy-of`. Always inline — `FieldItemHandler` skips target element creation. */
   CONTAINER = 'container',
   /** Emits `xsl:copy-of` inside a target element. Always rendered as a tree node. */
   CONTAINER_NODE = 'container_node',
-  /** Emits an XML attribute. Always rendered inline. */
-  ATTRIBUTE = 'attribute',
 }
 
 /**
- * Leaf node that supplies the value for a target {@link FieldItem}.
- * Serializes as `xsl:value-of` for scalar values and attributes,
- * or `xsl:copy-of` for container nodes, depending on {@link valueType}.
+ * Abstract base for leaf nodes that supply the value for a target {@link FieldItem}.
+ * Concrete subclasses:
+ * - {@link ValueOfSelector} — `xsl:value-of` and `xsl:text`
+ * - {@link CopyOfSelector} — `xsl:copy-of`
  *
  * A ValueSelector may render either inline on its parent field row or as a
  * dedicated tree node in the target visualization. The rendering mode is
- * determined solely by {@link valueType} — see {@link ValueType}.
+ * determined by each subclass's `valueType` property.
  */
-export class ValueSelector extends MappingItem implements IExpressionHolder {
+export abstract class ValueSelector extends MappingItem implements IExpressionHolder {
   constructor(
     public parent: MappingParentType,
-    public valueType: ValueType = ValueType.VALUE,
+    label: string,
   ) {
-    const label = valueType === ValueType.CONTAINER || valueType === ValueType.CONTAINER_NODE ? 'copy-of' : 'value';
     super(parent, label, getCamelRandomId(label, 4));
   }
   expression = '';
-  isLiteral = false;
-  doClone() {
-    return new ValueSelector(this.parent, this.valueType);
-  }
   clone() {
     const cloned = super.clone() as ValueSelector;
     cloned.expression = this.expression;
+    return cloned;
+  }
+}
+
+/**
+ * Leaf node that produces a text value via `xsl:value-of` or a literal via `xsl:text`.
+ * {@link valueType} is {@link ValueOfType.VALUE} or {@link ValueOfType.ATTRIBUTE}.
+ */
+export class ValueOfSelector extends ValueSelector {
+  constructor(
+    public parent: MappingParentType,
+    public valueType: ValueOfType = ValueOfType.VALUE,
+  ) {
+    super(parent, 'value');
+  }
+  isLiteral = false;
+  doClone() {
+    return new ValueOfSelector(this.parent, this.valueType);
+  }
+  clone() {
+    const cloned = super.clone() as ValueOfSelector;
     cloned.isLiteral = this.isLiteral;
     return cloned;
+  }
+}
+
+/**
+ * Leaf node that copies a subtree via `xsl:copy-of`.
+ * {@link valueType} is {@link CopyOfType.CONTAINER} (inline, wrapper element skipped)
+ * or {@link CopyOfType.CONTAINER_NODE} (separate tree node, wrapper element kept).
+ */
+export class CopyOfSelector extends ValueSelector {
+  constructor(
+    public parent: MappingParentType,
+    public valueType: CopyOfType = CopyOfType.CONTAINER,
+  ) {
+    super(parent, 'copy-of');
+  }
+  doClone() {
+    return new CopyOfSelector(this.parent, this.valueType);
   }
 }
 

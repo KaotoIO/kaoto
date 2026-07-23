@@ -8,7 +8,7 @@ import {
   DocumentType,
   PrimitiveDocument,
 } from '../../../models/datamapper/document';
-import { MappingTree, UnknownMappingItem, ValueSelector, VariableItem } from '../../../models/datamapper/mapping';
+import { MappingTree, UnknownMappingItem, ValueOfSelector, VariableItem } from '../../../models/datamapper/mapping';
 import {
   AddMappingNodeData,
   DocumentNodeData,
@@ -463,12 +463,12 @@ describe('BaseNode', () => {
   });
 
   describe('Comment Functionality', () => {
-    let mockMapping: ValueSelector;
+    let mockMapping: ValueOfSelector;
     let mockOnUpdate: Mock;
 
     beforeEach(() => {
       const tree = new MappingTree(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
-      mockMapping = new ValueSelector(tree);
+      mockMapping = new ValueOfSelector(tree);
       mockOnUpdate = vi.fn();
     });
 
