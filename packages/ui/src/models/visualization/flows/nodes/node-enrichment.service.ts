@@ -1,3 +1,5 @@
+import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
+
 import { CatalogKind } from '../../../catalog-kind';
 import { IVisualizationNode } from '../../base-visual-entity';
 import { CamelRouteVisualEntityData } from '../support/camel-component-types';
@@ -21,18 +23,36 @@ export class NodeEnrichmentService {
     const processorName = routeData.processorName;
     const componentName = routeData.componentName;
 
+    // Special handling for From nodes with Entity catalog kind
+    // Use the component or kamelet for enrichment instead of the processor
+    let effectiveCatalogKind = catalogKind;
+    let effectiveName = vizNode.data.name;
+
+    if (catalogKind === CatalogKind.Entity && processorName === ('from' as keyof ProcessorDefinition)) {
+      // Check if we have a component (secondaryNodeId) or kamelet (tertiaryNodeId)
+      if (vizNode.data.tertiaryNodeId) {
+        effectiveCatalogKind = vizNode.data.tertiaryNodeId.catalogKind;
+        effectiveName = vizNode.data.tertiaryNodeId.name;
+      } else if (vizNode.data.secondaryNodeId) {
+        effectiveCatalogKind = vizNode.data.secondaryNodeId.catalogKind;
+        effectiveName = vizNode.data.secondaryNodeId.name;
+      }
+    }
+
     // For Processor/Pattern catalog kinds, use processorName as the identifier
-    // For other kinds (Component, Kamelet, etc.), use vizNode.data.name
+    // For other kinds (Component, Kamelet, etc.), use the effective name
     const titleIdentifier =
-      catalogKind === CatalogKind.Processor || catalogKind === CatalogKind.Pattern ? processorName : vizNode.data.name;
+      effectiveCatalogKind === CatalogKind.Processor || effectiveCatalogKind === CatalogKind.Pattern
+        ? processorName
+        : effectiveName;
 
     const getSchema = () => vizNode.fetchSchema();
 
     const results = await Promise.allSettled([
-      getIconRequest(catalogKind, vizNode.data.name),
-      getTooltipRequest(catalogKind, vizNode.data.name, vizNode.data.description),
+      getIconRequest(effectiveCatalogKind, effectiveName),
+      getTooltipRequest(effectiveCatalogKind, effectiveName, vizNode.data.description),
       getProcessorIconTooltipRequest(processorName),
-      getTitleRequest(catalogKind, titleIdentifier, componentName),
+      getTitleRequest(effectiveCatalogKind, titleIdentifier, componentName),
       getSchema(),
     ]);
 

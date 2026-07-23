@@ -163,6 +163,110 @@ describe('NodeEnrichmentService', () => {
     expect(vizNode.data.title).toBe('Timer');
   });
 
+  describe('Entity + from processor special handling', () => {
+    it('should use tertiaryNodeId (Kamelet) when present on a from node', async () => {
+      mockGetIconRequest.mockResolvedValue({ icon: 'beer-icon.svg', alt: 'Kamelet icon' });
+      mockGetTooltipRequest.mockResolvedValue('Beer source kamelet');
+      mockGetProcessorIconTooltipRequest.mockResolvedValue('');
+      mockGetTitleRequest.mockResolvedValue('Beer Source');
+
+      const vizNode = createMockVizNode();
+      vizNode.data.name = 'kamelet';
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (vizNode.data as any).processorName = 'from';
+      vizNode.data.secondaryNodeId = { catalogKind: CatalogKind.Component, name: 'kamelet' };
+      vizNode.data.tertiaryNodeId = { catalogKind: CatalogKind.Kamelet, name: 'beer-source' };
+
+      await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Entity);
+
+      // Should resolve using tertiaryNodeId (Kamelet) rather than the node name
+      expect(mockGetIconRequest).toHaveBeenCalledWith(CatalogKind.Kamelet, 'beer-source');
+      expect(mockGetTooltipRequest).toHaveBeenCalledWith(CatalogKind.Kamelet, 'beer-source', expect.any(String));
+      expect(mockGetTitleRequest).toHaveBeenCalledWith(CatalogKind.Kamelet, 'beer-source', undefined);
+      expect(vizNode.data.title).toBe('Beer Source');
+    });
+
+    it('should use secondaryNodeId (Component) when tertiaryNodeId is absent on a from node', async () => {
+      mockGetIconRequest.mockResolvedValue({ icon: 'timer-icon.svg', alt: 'Component icon' });
+      mockGetTooltipRequest.mockResolvedValue('Timer component');
+      mockGetProcessorIconTooltipRequest.mockResolvedValue('');
+      mockGetTitleRequest.mockResolvedValue('Timer');
+
+      const vizNode = createMockVizNode();
+      vizNode.data.name = 'timer';
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (vizNode.data as any).processorName = 'from';
+      vizNode.data.secondaryNodeId = { catalogKind: CatalogKind.Component, name: 'timer' };
+      vizNode.data.tertiaryNodeId = undefined;
+
+      await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Entity);
+
+      // Should resolve using secondaryNodeId (Component)
+      expect(mockGetIconRequest).toHaveBeenCalledWith(CatalogKind.Component, 'timer');
+      expect(mockGetTooltipRequest).toHaveBeenCalledWith(CatalogKind.Component, 'timer', expect.any(String));
+      expect(mockGetTitleRequest).toHaveBeenCalledWith(CatalogKind.Component, 'timer', undefined);
+      expect(vizNode.data.title).toBe('Timer');
+    });
+
+    it('should fall back to original name when neither secondaryNodeId nor tertiaryNodeId is set on a from node', async () => {
+      mockGetIconRequest.mockResolvedValue({ icon: 'entity-icon.svg', alt: 'Entity icon' });
+      mockGetTooltipRequest.mockResolvedValue('from processor');
+      mockGetProcessorIconTooltipRequest.mockResolvedValue('');
+      mockGetTitleRequest.mockResolvedValue('from');
+
+      const vizNode = createMockVizNode();
+      vizNode.data.name = 'from';
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (vizNode.data as any).processorName = 'from';
+      vizNode.data.secondaryNodeId = undefined;
+      vizNode.data.tertiaryNodeId = undefined;
+
+      await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Entity);
+
+      // Should keep Entity kind with original name
+      expect(mockGetIconRequest).toHaveBeenCalledWith(CatalogKind.Entity, 'from');
+      expect(mockGetTooltipRequest).toHaveBeenCalledWith(CatalogKind.Entity, 'from', expect.any(String));
+      // titleIdentifier: Entity is not Processor/Pattern, so effectiveName ('from') is used
+      expect(mockGetTitleRequest).toHaveBeenCalledWith(CatalogKind.Entity, 'from', undefined);
+    });
+
+    it('should not apply from-node special handling when processorName is not "from"', async () => {
+      mockGetIconRequest.mockResolvedValue({ icon: 'route-icon.svg', alt: 'Entity icon' });
+      mockGetTooltipRequest.mockResolvedValue('route entity');
+      mockGetProcessorIconTooltipRequest.mockResolvedValue('');
+      mockGetTitleRequest.mockResolvedValue('Route');
+
+      const vizNode = createMockVizNode();
+      vizNode.data.name = 'my-route';
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (vizNode.data as any).processorName = 'route';
+      vizNode.data.secondaryNodeId = { catalogKind: CatalogKind.Component, name: 'timer' };
+
+      await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Entity);
+
+      // Should NOT redirect to the secondaryNodeId — stays with Entity kind and original name
+      expect(mockGetIconRequest).toHaveBeenCalledWith(CatalogKind.Entity, 'my-route');
+    });
+  });
+
+  it('should use processorName as titleIdentifier for Pattern catalog kind', async () => {
+    mockGetIconRequest.mockResolvedValue({ icon: 'split-icon.svg', alt: 'Pattern icon' });
+    mockGetTooltipRequest.mockResolvedValue('Split EIP');
+    mockGetProcessorIconTooltipRequest.mockResolvedValue('');
+    mockGetTitleRequest.mockResolvedValue('Split');
+
+    const vizNode = createMockVizNode();
+    vizNode.data.name = 'split-expression';
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (vizNode.data as any).processorName = 'split';
+
+    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Pattern);
+
+    // Pattern kind → titleIdentifier must be processorName, not the node name
+    expect(mockGetTitleRequest).toHaveBeenCalledWith(CatalogKind.Pattern, 'split', undefined);
+    expect(vizNode.data.title).toBe('Split');
+  });
+
   it('should enrich schema for Kamelet root nodes', async () => {
     const rootSchema: KaotoSchemaDefinition['schema'] = {
       type: 'object' as const,
