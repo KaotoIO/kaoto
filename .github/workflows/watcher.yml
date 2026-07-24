@@ -7,11 +7,13 @@ on:
 jobs:
   close-issues:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     permissions:
       issues: write
       pull-requests: write
     steps:
-      - uses: actions/stale@v10
+      - uses: actions/stale@eb5cf3af3ac0a1aa4c9c45633dd1ae542a27a899
         with:
           operations-per-run: 500   # increase from default
           stale-issue-label: "stale"
