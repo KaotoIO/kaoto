@@ -22,6 +22,36 @@ describe('CamelUriHelper', () => {
     });
   });
 
+  describe('getEndpoint', () => {
+    it.each([
+      [undefined, undefined],
+      [null, undefined],
+      [88, undefined],
+      [true, undefined],
+      [false, undefined],
+      ['', undefined],
+      [{ uri: '' }, undefined],
+      [{ uri: undefined }, undefined],
+      [{ uri: null }, undefined],
+      [{ uri: 88 }, undefined],
+      [{ uri: {} }, undefined],
+      [{}, undefined],
+      ['direct:shared', 'direct:shared'],
+      [{ uri: 'direct:shared' }, 'direct:shared'],
+      [{ uri: 'http://localhost:8080/api' }, 'http://localhost:8080/api'],
+      [{ uri: 'direct' }, 'direct'],
+      [{ uri: 'direct', parameters: {} }, 'direct'],
+      [{ uri: 'direct', parameters: { name: '' } }, 'direct'],
+      [{ uri: 'direct', parameters: { name: '   ' } }, 'direct'],
+      [{ uri: 'direct', parameters: { name: 'foo' } }, 'direct:foo'],
+      [{ uri: 'direct', parameters: { name: '  foo  ' } }, 'direct:foo'],
+      [{ uri: 'seda', parameters: { name: 'bar' } }, 'seda:bar'],
+      [{ uri: 'vm', parameters: { name: 'myQueue' } }, 'vm:myQueue'],
+    ])('should return `%s` for `%s`', (value, expected) => {
+      expect(CamelUriHelper.getEndpoint(value)).toBe(expected);
+    });
+  });
+
   describe('getSemanticString', () => {
     it.each([
       [{}, {}, undefined],

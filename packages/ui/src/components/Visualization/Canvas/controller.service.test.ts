@@ -2,7 +2,9 @@ import { DagreGroupsLayout, ModelKind, Visualization } from '@patternfly/react-t
 
 import { CustomGroupWithSelection } from '../Custom';
 import { CustomEdge } from '../Custom/Edge/CustomEdge';
+import TopologyEdge from '../Custom/Edge/TopologyEdge';
 import { PlaceholderNode } from '../Custom/Node/PlaceholderNode';
+import { TopologyNode } from '../Custom/Node/TopologyNode';
 import { CanvasDefaults } from './canvas.defaults';
 import { LayoutType } from './canvas.models';
 import { ControllerService } from './controller.service';
@@ -73,6 +75,18 @@ describe('ControllerService', () => {
       const component = ControllerService.baselineComponentFactory(ModelKind.edge, 'edge');
 
       expect(component).toBe(CustomEdge);
+    });
+
+    it('should return TopologyNode for topology-node type', () => {
+      const component = ControllerService.baselineComponentFactory(ModelKind.node, 'topology-node');
+
+      expect(component).toBe(TopologyNode);
+    });
+
+    it('should return TopologyEdge for topology-edge type', () => {
+      const component = ControllerService.baselineComponentFactory(ModelKind.edge, 'topology-edge');
+
+      expect(component).toBe(TopologyEdge);
     });
 
     it('should return undefined for an unknown type', () => {
