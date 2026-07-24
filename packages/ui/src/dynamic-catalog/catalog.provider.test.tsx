@@ -52,15 +52,13 @@ describe('CatalogLoaderProvider', () => {
 
   it('should start in loading mode', async () => {
     const { Provider } = TestRuntimeProviderWrapper();
-    await act(async () => {
-      render(
-        <Provider>
-          <CatalogLoaderProvider>
-            <span data-testid="catalogs-loaded">Loaded</span>
-          </CatalogLoaderProvider>
-        </Provider>,
-      );
-    });
+    render(
+      <Provider>
+        <CatalogLoaderProvider>
+          <span data-testid="catalogs-loaded">Loaded</span>
+        </CatalogLoaderProvider>
+      </Provider>,
+    );
 
     expect(screen.getByTestId('loading-catalogs')).toBeInTheDocument();
   });
@@ -68,17 +66,15 @@ describe('CatalogLoaderProvider', () => {
   it('should stay in Error mode when there is an error', async () => {
     vi.spyOn(console, 'error').mockImplementationOnce(() => {});
     const { Provider } = TestRuntimeProviderWrapper();
-    await act(async () => {
-      render(
-        <ReloadContext.Provider value={{ reloadPage: vi.fn(), lastRender: 0 }}>
-          <Provider>
-            <CatalogLoaderProvider>
-              <span data-testid="catalogs-loaded">Loaded</span>
-            </CatalogLoaderProvider>
-          </Provider>
-        </ReloadContext.Provider>,
-      );
-    });
+    render(
+      <ReloadContext.Provider value={{ reloadPage: vi.fn(), lastRender: 0 }}>
+        <Provider>
+          <CatalogLoaderProvider>
+            <span data-testid="catalogs-loaded">Loaded</span>
+          </CatalogLoaderProvider>
+        </Provider>
+      </ReloadContext.Provider>,
+    );
 
     await act(async () => {
       fetchReject();
@@ -89,15 +85,13 @@ describe('CatalogLoaderProvider', () => {
 
   it('should fetch the index.json catalog file', async () => {
     const { Provider, selectedCatalog } = TestRuntimeProviderWrapper();
-    await act(async () => {
-      render(
-        <Provider>
-          <CatalogLoaderProvider>
-            <span data-testid="catalogs-loaded">Loaded</span>
-          </CatalogLoaderProvider>
-        </Provider>,
-      );
-    });
+    render(
+      <Provider>
+        <CatalogLoaderProvider>
+          <span data-testid="catalogs-loaded">Loaded</span>
+        </CatalogLoaderProvider>
+      </Provider>,
+    );
 
     await act(async () => {
       fetchResolve();
@@ -110,15 +104,13 @@ describe('CatalogLoaderProvider', () => {
 
   it('should call fetchCamelCatalog for a Camel catalog', async () => {
     const { Provider } = TestRuntimeProviderWrapper();
-    await act(async () => {
-      render(
-        <Provider>
-          <CatalogLoaderProvider>
-            <span data-testid="catalogs-loaded">Loaded</span>
-          </CatalogLoaderProvider>
-        </Provider>,
-      );
-    });
+    render(
+      <Provider>
+        <CatalogLoaderProvider>
+          <span data-testid="catalogs-loaded">Loaded</span>
+        </CatalogLoaderProvider>
+      </Provider>,
+    );
 
     await act(async () => {
       fetchResolve();
@@ -129,15 +121,13 @@ describe('CatalogLoaderProvider', () => {
 
   it('should set loading to false after fetching the catalogs', async () => {
     const { Provider } = TestRuntimeProviderWrapper();
-    await act(async () => {
-      render(
-        <Provider>
-          <CatalogLoaderProvider>
-            <span data-testid="catalogs-loaded">Loaded</span>
-          </CatalogLoaderProvider>
-        </Provider>,
-      );
-    });
+    render(
+      <Provider>
+        <CatalogLoaderProvider>
+          <span data-testid="catalogs-loaded">Loaded</span>
+        </CatalogLoaderProvider>
+      </Provider>,
+    );
 
     await act(async () => {
       fetchResolve();
@@ -183,15 +173,13 @@ describe('CitrusCatalogLoaderProvider', () => {
 
   it('should start in loading mode', async () => {
     const { Provider } = TestRuntimeProviderWrapper(citrusCatalogSelector);
-    await act(async () => {
-      render(
-        <Provider>
-          <CatalogLoaderProvider>
-            <span data-testid="catalogs-loaded">Loaded</span>
-          </CatalogLoaderProvider>
-        </Provider>,
-      );
-    });
+    render(
+      <Provider>
+        <CatalogLoaderProvider>
+          <span data-testid="catalogs-loaded">Loaded</span>
+        </CatalogLoaderProvider>
+      </Provider>,
+    );
 
     expect(screen.getByTestId('loading-catalogs')).toBeInTheDocument();
   });
@@ -199,17 +187,15 @@ describe('CitrusCatalogLoaderProvider', () => {
   it('should stay in Error mode when there is an error', async () => {
     vi.spyOn(console, 'error').mockImplementationOnce(() => {});
     const { Provider } = TestRuntimeProviderWrapper(citrusCatalogSelector);
-    await act(async () => {
-      render(
-        <ReloadContext.Provider value={{ reloadPage: vi.fn(), lastRender: 0 }}>
-          <Provider>
-            <CatalogLoaderProvider>
-              <span data-testid="catalogs-loaded">Loaded</span>
-            </CatalogLoaderProvider>
-          </Provider>
-        </ReloadContext.Provider>,
-      );
-    });
+    render(
+      <ReloadContext.Provider value={{ reloadPage: vi.fn(), lastRender: 0 }}>
+        <Provider>
+          <CatalogLoaderProvider>
+            <span data-testid="catalogs-loaded">Loaded</span>
+          </CatalogLoaderProvider>
+        </Provider>
+      </ReloadContext.Provider>,
+    );
 
     await act(async () => {
       fetchReject();
@@ -220,15 +206,13 @@ describe('CitrusCatalogLoaderProvider', () => {
 
   it('should fetch the index.json catalog file', async () => {
     const { Provider, selectedCatalog } = TestRuntimeProviderWrapper(citrusCatalogSelector);
-    await act(async () => {
-      render(
-        <Provider>
-          <CatalogLoaderProvider>
-            <span data-testid="catalogs-loaded">Loaded</span>
-          </CatalogLoaderProvider>
-        </Provider>,
-      );
-    });
+    render(
+      <Provider>
+        <CatalogLoaderProvider>
+          <span data-testid="catalogs-loaded">Loaded</span>
+        </CatalogLoaderProvider>
+      </Provider>,
+    );
 
     await act(async () => {
       fetchResolve();
@@ -241,15 +225,13 @@ describe('CitrusCatalogLoaderProvider', () => {
 
   it('should call fetchCitrusCatalog for a Citrus catalog', async () => {
     const { Provider } = TestRuntimeProviderWrapper(citrusCatalogSelector);
-    await act(async () => {
-      render(
-        <Provider>
-          <CatalogLoaderProvider>
-            <span data-testid="catalogs-loaded">Loaded</span>
-          </CatalogLoaderProvider>
-        </Provider>,
-      );
-    });
+    render(
+      <Provider>
+        <CatalogLoaderProvider>
+          <span data-testid="catalogs-loaded">Loaded</span>
+        </CatalogLoaderProvider>
+      </Provider>,
+    );
 
     await act(async () => {
       fetchResolve();
@@ -260,15 +242,13 @@ describe('CitrusCatalogLoaderProvider', () => {
 
   it('should set loading to false after fetching the catalogs', async () => {
     const { Provider } = TestRuntimeProviderWrapper(citrusCatalogSelector);
-    await act(async () => {
-      render(
-        <Provider>
-          <CatalogLoaderProvider>
-            <span data-testid="catalogs-loaded">Loaded</span>
-          </CatalogLoaderProvider>
-        </Provider>,
-      );
-    });
+    render(
+      <Provider>
+        <CatalogLoaderProvider>
+          <span data-testid="catalogs-loaded">Loaded</span>
+        </CatalogLoaderProvider>
+      </Provider>,
+    );
 
     await act(async () => {
       fetchResolve();

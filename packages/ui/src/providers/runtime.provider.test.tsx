@@ -67,28 +67,24 @@ describe('RuntimeProvider', () => {
   });
 
   it('should start in loading mode', async () => {
-    await act(async () => {
-      renderInRuntime(
-        <RuntimeProvider catalogUrl="" runtimeCatalogName="" testingCatalogName="">
-          <span data-testid="library-loaded">Loaded</span>
-        </RuntimeProvider>,
-      );
-    });
+    renderInRuntime(
+      <RuntimeProvider catalogUrl="" runtimeCatalogName="" testingCatalogName="">
+        <span data-testid="library-loaded">Loaded</span>
+      </RuntimeProvider>,
+    );
 
     expect(screen.getByTestId('loading-library')).toBeInTheDocument();
   });
 
   it('should stay in Error mode when there is an error', async () => {
     vi.spyOn(console, 'error').mockImplementationOnce(() => {});
-    await act(async () => {
-      renderInRuntime(
-        <ReloadContext.Provider value={{ reloadPage: vi.fn(), lastRender: 0 }}>
-          <RuntimeProvider catalogUrl="" runtimeCatalogName="" testingCatalogName="">
-            <span data-testid="library-loaded">Loaded</span>
-          </RuntimeProvider>
-        </ReloadContext.Provider>,
-      );
-    });
+    renderInRuntime(
+      <ReloadContext.Provider value={{ reloadPage: vi.fn(), lastRender: 0 }}>
+        <RuntimeProvider catalogUrl="" runtimeCatalogName="" testingCatalogName="">
+          <span data-testid="library-loaded">Loaded</span>
+        </RuntimeProvider>
+      </ReloadContext.Provider>,
+    );
 
     await act(async () => {
       fetchReject();
@@ -98,17 +94,15 @@ describe('RuntimeProvider', () => {
   });
 
   it('should fetch the index.json catalog file', async () => {
-    await act(async () => {
-      renderInRuntime(
-        <RuntimeProvider
-          catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
-          runtimeCatalogName=""
-          testingCatalogName=""
-        >
-          <span data-testid="library-loaded">Loaded</span>
-        </RuntimeProvider>,
-      );
-    });
+    renderInRuntime(
+      <RuntimeProvider
+        catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
+        runtimeCatalogName=""
+        testingCatalogName=""
+      >
+        <span data-testid="library-loaded">Loaded</span>
+      </RuntimeProvider>,
+    );
 
     await act(async () => {
       fetchResolve();
@@ -118,17 +112,15 @@ describe('RuntimeProvider', () => {
   });
 
   it('should render children when the index.json file is loaded', async () => {
-    await act(async () => {
-      renderInRuntime(
-        <RuntimeProvider
-          catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
-          runtimeCatalogName=""
-          testingCatalogName=""
-        >
-          <span data-testid="library-loaded">Loaded</span>
-        </RuntimeProvider>,
-      );
-    });
+    renderInRuntime(
+      <RuntimeProvider
+        catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
+        runtimeCatalogName=""
+        testingCatalogName=""
+      >
+        <span data-testid="library-loaded">Loaded</span>
+      </RuntimeProvider>,
+    );
 
     await act(async () => {
       fetchResolve();

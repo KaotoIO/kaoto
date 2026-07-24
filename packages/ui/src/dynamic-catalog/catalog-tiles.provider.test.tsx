@@ -95,15 +95,13 @@ describe('CatalogTilesProvider', () => {
   });
 
   it('should render children', async () => {
-    await act(async () => {
-      render(
-        <CatalogContext.Provider value={mockRegistry}>
-          <CatalogTilesProvider>
-            <span data-testid="tiles-loaded">Loaded</span>
-          </CatalogTilesProvider>
-        </CatalogContext.Provider>,
-      );
-    });
+    render(
+      <CatalogContext.Provider value={mockRegistry}>
+        <CatalogTilesProvider>
+          <span data-testid="tiles-loaded">Loaded</span>
+        </CatalogTilesProvider>
+      </CatalogContext.Provider>,
+    );
 
     expect(screen.getByTestId('tiles-loaded')).toBeInTheDocument();
   });
@@ -135,9 +133,7 @@ describe('CatalogTilesProvider', () => {
       ),
     });
 
-    await act(async () => {
-      await context?.fetchTiles();
-    });
+    await context?.fetchTiles();
 
     expect(camelComponentToTile).toHaveBeenCalled();
     expect(camelProcessorToTile).toHaveBeenCalled();
@@ -172,9 +168,7 @@ describe('CatalogTilesProvider', () => {
     const getAllSpyTestContainer = vi.spyOn(testContainerCatalog!, 'getAll');
     const getAllSpyTestEndpoint = vi.spyOn(testEndpointCatalog!, 'getAll');
 
-    await act(async () => {
-      await context?.fetchTiles();
-    });
+    await context?.fetchTiles();
 
     expect(getAllSpyComponent).toHaveBeenCalled();
     expect(getAllSpyPattern).toHaveBeenCalled();
@@ -203,9 +197,7 @@ describe('CatalogTilesProvider', () => {
       ),
     });
 
-    await act(async () => {
-      await context?.fetchTiles();
-    });
+    await context?.fetchTiles();
 
     expect(camelComponentToTile).not.toHaveBeenCalled();
     expect(camelProcessorToTile).not.toHaveBeenCalled();
@@ -234,10 +226,7 @@ describe('CatalogTilesProvider', () => {
       ),
     });
 
-    let tiles: ITile[] | undefined;
-    await act(async () => {
-      tiles = await context?.fetchTiles();
-    });
+    const tiles: ITile[] | undefined = await context?.fetchTiles();
 
     expect(Array.isArray(tiles)).toBe(true);
     expect(tiles?.length).toBeGreaterThan(0);
@@ -253,9 +242,7 @@ describe('CatalogTilesProvider', () => {
     });
 
     const firstContext = result.current;
-    await act(async () => {
-      rerender();
-    });
+    rerender();
 
     // The context reference should be the same since the registry hasn't changed
     expect(firstContext).toBe(result.current);
@@ -287,10 +274,7 @@ describe('CatalogTilesProvider', () => {
     expect(cachedTiles).toEqual([]);
 
     // After fetchTiles, getTiles should return the fetched tiles
-    let fetchedTiles: ITile[] | undefined;
-    await act(async () => {
-      fetchedTiles = await context?.fetchTiles();
-    });
+    const fetchedTiles: ITile[] | undefined = await context?.fetchTiles();
 
     cachedTiles = context?.getTiles();
     expect(cachedTiles).toEqual(fetchedTiles);
@@ -302,15 +286,13 @@ describe('CatalogTilesProvider', () => {
     const componentCatalog = mockRegistry.getCatalog(CatalogKind.Component);
     vi.spyOn(componentCatalog!, 'getAll').mockRejectedValue(new Error('catalog boom'));
 
-    await act(async () => {
-      render(
-        <CatalogContext.Provider value={mockRegistry}>
-          <CatalogTilesProvider>
-            <span data-testid="still-here">Loaded</span>
-          </CatalogTilesProvider>
-        </CatalogContext.Provider>,
-      );
-    });
+    render(
+      <CatalogContext.Provider value={mockRegistry}>
+        <CatalogTilesProvider>
+          <span data-testid="still-here">Loaded</span>
+        </CatalogTilesProvider>
+      </CatalogContext.Provider>,
+    );
 
     expect(screen.getByTestId('still-here')).toBeInTheDocument();
     await waitFor(() => {

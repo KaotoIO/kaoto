@@ -1,4 +1,4 @@
-import { act, render } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import hotkeys from 'hotkeys-js';
 
 import { KeyboardShortcutsProvider } from './keyboard-shortcuts.provider';
@@ -43,25 +43,21 @@ describe('KeyboardShortcutsProvider', () => {
   });
 
   it('should register undo shortcut (ctrl+z, command+z)', () => {
-    act(() => {
-      render(
-        <KeyboardShortcutsProvider>
-          <div>Test</div>
-        </KeyboardShortcutsProvider>,
-      );
-    });
+    render(
+      <KeyboardShortcutsProvider>
+        <div>Test</div>
+      </KeyboardShortcutsProvider>,
+    );
 
     expect(mockHotkeys).toHaveBeenCalledWith('ctrl+z,command+z', expect.any(Function));
   });
 
   it('should register redo shortcut (ctrl+shift+z, command+shift+z)', () => {
-    act(() => {
-      render(
-        <KeyboardShortcutsProvider>
-          <div>Test</div>
-        </KeyboardShortcutsProvider>,
-      );
-    });
+    render(
+      <KeyboardShortcutsProvider>
+        <div>Test</div>
+      </KeyboardShortcutsProvider>,
+    );
 
     expect(mockHotkeys).toHaveBeenCalledWith('ctrl+shift+z,command+shift+z', expect.any(Function));
   });

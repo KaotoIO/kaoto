@@ -90,10 +90,7 @@ describe('CatalogModalProvider', () => {
       const wrapper = createWrapper();
       const { result } = renderHook(() => useContext(CatalogModalContext), { wrapper });
 
-      let componentPromise: Promise<DefinedComponent | undefined>;
-      await act(async () => {
-        componentPromise = result.current!.getNewComponent();
-      });
+      const componentPromise: Promise<DefinedComponent | undefined> = result.current!.getNewComponent();
 
       await waitFor(() => {
         expect(screen.getByText('Catalog')).toBeInTheDocument();
@@ -103,10 +100,8 @@ describe('CatalogModalProvider', () => {
       expect(screen.getByRole('dialog')).toBeInTheDocument();
 
       // Close modal to resolve promise
-      await act(async () => {
-        const closeButton = screen.getByLabelText('Close');
-        closeButton.click();
-      });
+      const closeButton = screen.getByLabelText('Close');
+      closeButton.click();
 
       const selectedComponent = await componentPromise!;
       expect(selectedComponent).toBeUndefined();
@@ -130,9 +125,7 @@ describe('CatalogModalProvider', () => {
       render(<TestComponent />, { wrapper });
 
       const button = screen.getByText('Open Catalog');
-      await act(async () => {
-        fireEvent.click(button);
-      });
+      fireEvent.click(button);
 
       await waitFor(() => {
         expect(screen.getByText('Catalog')).toBeInTheDocument();
@@ -163,9 +156,7 @@ describe('CatalogModalProvider', () => {
       render(<TestComponent />, { wrapper });
 
       const button = screen.getByText('Open Catalog');
-      await act(async () => {
-        fireEvent.click(button);
-      });
+      fireEvent.click(button);
 
       await waitFor(() => {
         expect(screen.getByText('Catalog')).toBeInTheDocument();
@@ -208,9 +199,7 @@ describe('CatalogModalProvider', () => {
 
       // Click on a tile
       const amqpTile = screen.getByTestId('tile-header-amqp');
-      await act(async () => {
-        fireEvent.click(amqpTile);
-      });
+      fireEvent.click(amqpTile);
 
       await waitFor(() => {
         expect(selectedComponent).toBeDefined();
@@ -255,9 +244,7 @@ describe('CatalogModalProvider', () => {
       });
 
       const kameletTile = screen.getByTestId('tile-header-sink');
-      await act(async () => {
-        fireEvent.click(kameletTile);
-      });
+      fireEvent.click(kameletTile);
 
       await waitFor(() => {
         expect(mockCatalogRegistry.getEntity).toHaveBeenCalled();
@@ -299,9 +286,7 @@ describe('CatalogModalProvider', () => {
 
       // Close modal
       const closeButton = screen.getByLabelText('Close');
-      await act(async () => {
-        fireEvent.click(closeButton);
-      });
+      fireEvent.click(closeButton);
 
       await waitFor(() => {
         expect(selectedComponent).toBeUndefined();
@@ -329,9 +314,7 @@ describe('CatalogModalProvider', () => {
       render(<TestComponent />, { wrapper });
 
       const button = screen.getByText('Open Catalog');
-      await act(async () => {
-        fireEvent.click(button);
-      });
+      fireEvent.click(button);
 
       await waitFor(() => {
         expect(screen.getByText('Catalog')).toBeInTheDocument();
@@ -386,9 +369,7 @@ describe('CatalogModalProvider', () => {
       });
 
       const amqpTile = screen.getByTestId('tile-header-amqp');
-      await act(async () => {
-        fireEvent.click(amqpTile);
-      });
+      fireEvent.click(amqpTile);
 
       await waitFor(() => {
         expect(firstComponent).toBeDefined();
@@ -404,9 +385,7 @@ describe('CatalogModalProvider', () => {
       });
 
       const logTile = screen.getByTestId('tile-header-log');
-      await act(async () => {
-        fireEvent.click(logTile);
-      });
+      fireEvent.click(logTile);
 
       await waitFor(() => {
         expect(secondComponent).toBeDefined();
@@ -434,9 +413,7 @@ describe('CatalogModalProvider', () => {
       render(<TestComponent />, { wrapper });
 
       const button = screen.getByText('Open Catalog');
-      await act(async () => {
-        fireEvent.click(button);
-      });
+      fireEvent.click(button);
 
       await waitFor(() => {
         expect(screen.getByText('Catalog')).toBeInTheDocument();
@@ -479,9 +456,7 @@ describe('CatalogModalProvider', () => {
       });
 
       const amqpTile = screen.getByTestId('tile-header-amqp');
-      await act(async () => {
-        fireEvent.click(amqpTile);
-      });
+      fireEvent.click(amqpTile);
 
       // Modal should close
       await waitFor(() => {
