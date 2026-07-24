@@ -256,6 +256,32 @@ export function getMainWithImportXsd(): string {
 export function getImportedTypesXsd(): string {
   return readStubFile('./xml/ImportedTypes.xsd');
 }
+export function getReverseIncludeMainXsd(): string {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:include schemaLocation="A.xsd"/>
+  <xs:include schemaLocation="B.xsd"/>
+</xs:schema>`;
+}
+
+export function getReverseIncludeFileAXsd(): string {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:element name="RootA" type="TypeB"/>
+</xs:schema>`;
+}
+
+export function getReverseIncludeFileBXsd(): string {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:complexType name="TypeB">
+    <xs:sequence>
+      <xs:element name="FieldB" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>`;
+}
+
 export function getMultiIncludeMainXsd(): string {
   return readStubFile('./xml/MultiIncludeMain.xsd');
 }
