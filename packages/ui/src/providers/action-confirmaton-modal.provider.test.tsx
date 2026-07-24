@@ -1,5 +1,5 @@
 import { ButtonVariant } from '@patternfly/react-core';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, useContext } from 'react';
 
 import {
@@ -62,10 +62,8 @@ describe('ActionConfirmationModalProvider', () => {
       </ActionConfirmationModalContextProvider>,
     );
 
-    act(() => {
-      const deleteButton = wrapper.getByText('Delete');
-      fireEvent.click(deleteButton);
-    });
+    const deleteButton = wrapper.getByText('Delete');
+    fireEvent.click(deleteButton);
 
     const modalDialog = wrapper.getByRole('dialog');
     expect(modalDialog).toMatchSnapshot();
@@ -96,43 +94,28 @@ describe('ActionConfirmationModalProvider', () => {
       </ActionConfirmationModalContextProvider>,
     );
 
-    act(() => {
-      const deleteButton = wrapper.getByText('Delete');
-      fireEvent.click(deleteButton);
-    });
+    fireEvent.click(wrapper.getByText('Delete'));
     const modalDialog = wrapper.getByRole('dialog');
     expect(modalDialog.textContent).toContain('Additional text is added in the modal description');
-    act(() => {
-      const cancelButton = wrapper.getByTestId('action-confirmation-modal-btn-cancel');
-      expect(cancelButton.textContent).toBe('Cancel');
-      fireEvent.click(cancelButton);
-    });
+    const cancelButton = wrapper.getByTestId('action-confirmation-modal-btn-cancel');
+    expect(cancelButton.textContent).toBe('Cancel');
+    fireEvent.click(cancelButton);
     await waitFor(() => {
       expect(actionConfirmationResult).toEqual(ACTION_ID_CANCEL);
     });
 
-    act(() => {
-      const deleteButton = wrapper.getByText('Delete');
-      fireEvent.click(deleteButton);
-    });
-    act(() => {
-      const deleteStepAndFileButton = wrapper.getByTestId('action-confirmation-modal-btn-del-step-and-file');
-      expect(deleteStepAndFileButton.textContent).toBe('Delete the step, and delete the file(s)');
-      fireEvent.click(deleteStepAndFileButton);
-    });
+    fireEvent.click(wrapper.getByText('Delete'));
+    const deleteStepAndFileButton = wrapper.getByTestId('action-confirmation-modal-btn-del-step-and-file');
+    expect(deleteStepAndFileButton.textContent).toBe('Delete the step, and delete the file(s)');
+    fireEvent.click(deleteStepAndFileButton);
     await waitFor(() => {
       expect(actionConfirmationResult).toBe('del-step-and-file');
     });
 
-    act(() => {
-      const deleteButton = wrapper.getByText('Delete');
-      fireEvent.click(deleteButton);
-    });
-    act(() => {
-      const deleteStepOnlyButton = wrapper.getByTestId('action-confirmation-modal-btn-del-step-only');
-      expect(deleteStepOnlyButton.textContent).toBe('Delete the step, but keep the file(s)');
-      fireEvent.click(deleteStepOnlyButton);
-    });
+    fireEvent.click(wrapper.getByText('Delete'));
+    const deleteStepOnlyButton = wrapper.getByTestId('action-confirmation-modal-btn-del-step-only');
+    expect(deleteStepOnlyButton.textContent).toBe('Delete the step, but keep the file(s)');
+    fireEvent.click(deleteStepOnlyButton);
     await waitFor(() => {
       expect(actionConfirmationResult).toBe('del-step-only');
     });

@@ -51,15 +51,13 @@ describe('SchemasLoaderProvider', () => {
 
   it('should start in loading mode', async () => {
     const { Provider } = TestRuntimeProviderWrapper();
-    await act(async () => {
-      render(
-        <Provider>
-          <SchemasLoaderProvider>
-            <span data-testid="schemas-loaded">Loaded</span>
-          </SchemasLoaderProvider>
-        </Provider>,
-      );
-    });
+    render(
+      <Provider>
+        <SchemasLoaderProvider>
+          <span data-testid="schemas-loaded">Loaded</span>
+        </SchemasLoaderProvider>
+      </Provider>,
+    );
 
     expect(screen.getByTestId('loading-schemas')).toBeInTheDocument();
   });
@@ -67,17 +65,15 @@ describe('SchemasLoaderProvider', () => {
   it('should stay in Error mode when there is an error', async () => {
     vi.spyOn(console, 'error').mockImplementationOnce(() => {});
     const { Provider } = TestRuntimeProviderWrapper();
-    await act(async () => {
-      render(
-        <ReloadContext.Provider value={{ reloadPage: vi.fn(), lastRender: 0 }}>
-          <Provider>
-            <SchemasLoaderProvider>
-              <span data-testid="schemas-loaded">Loaded</span>
-            </SchemasLoaderProvider>
-          </Provider>
-        </ReloadContext.Provider>,
-      );
-    });
+    render(
+      <ReloadContext.Provider value={{ reloadPage: vi.fn(), lastRender: 0 }}>
+        <Provider>
+          <SchemasLoaderProvider>
+            <span data-testid="schemas-loaded">Loaded</span>
+          </SchemasLoaderProvider>
+        </Provider>
+      </ReloadContext.Provider>,
+    );
 
     await act(async () => {
       fetchReject();
@@ -88,15 +84,13 @@ describe('SchemasLoaderProvider', () => {
 
   it('should fetch the index.json catalog file', async () => {
     const { Provider, selectedCatalog } = TestRuntimeProviderWrapper();
-    await act(async () => {
-      render(
-        <Provider>
-          <SchemasLoaderProvider>
-            <span data-testid="schemas-loaded">Loaded</span>
-          </SchemasLoaderProvider>
-        </Provider>,
-      );
-    });
+    render(
+      <Provider>
+        <SchemasLoaderProvider>
+          <span data-testid="schemas-loaded">Loaded</span>
+        </SchemasLoaderProvider>
+      </Provider>,
+    );
 
     await act(async () => {
       fetchResolve();
@@ -109,15 +103,13 @@ describe('SchemasLoaderProvider', () => {
 
   it('should fetch the subsequent schemas files', async () => {
     const { Provider, selectedCatalog } = TestRuntimeProviderWrapper();
-    await act(async () => {
-      render(
-        <Provider>
-          <SchemasLoaderProvider>
-            <span data-testid="schemas-loaded">Loaded</span>
-          </SchemasLoaderProvider>
-        </Provider>,
-      );
-    });
+    render(
+      <Provider>
+        <SchemasLoaderProvider>
+          <span data-testid="schemas-loaded">Loaded</span>
+        </SchemasLoaderProvider>
+      </Provider>,
+    );
 
     await act(async () => {
       fetchResolve();
