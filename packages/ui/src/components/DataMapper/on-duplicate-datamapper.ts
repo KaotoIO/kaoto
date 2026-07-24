@@ -2,7 +2,7 @@ import { Step } from '@kaoto/camel-catalog/types';
 
 import { IVisualizationNode } from '../../models';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
-import { IClipboardCopyObject } from '../../models/visualization/clipboard';
+import { IClipboardContent } from '../../models/visualization/clipboard';
 import { IMetadataApi } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { DataMapperStepService } from '../../services/datamapper-step.service';
@@ -12,9 +12,9 @@ export const onDuplicateDataMapper = async (
   api: IMetadataApi | undefined,
   parameters: {
     sourceVizNode: IVisualizationNode;
-    content: IClipboardCopyObject | undefined;
+    content: IClipboardContent | undefined;
   },
-): Promise<IClipboardCopyObject | undefined> => {
+): Promise<IClipboardContent | undefined> => {
   if (!parameters.content) return parameters.content;
 
   const stepDef = parameters.content.definition as Step;

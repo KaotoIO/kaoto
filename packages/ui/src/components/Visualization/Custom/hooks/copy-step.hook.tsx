@@ -1,7 +1,7 @@
 import { useCallback, useContext, useMemo } from 'react';
 
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { ClipboardManager } from '../../../../utils/ClipboardManager';
+import { ClipboardService } from '../../../../services/visualization/clipboard.service';
 import { IInteractionType, IOnCopyAddon } from '../../../registers/interactions/node-interaction-addon.model';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { processOnCopyAddon } from '../ContextMenu/item-interaction-helper';
@@ -23,7 +23,7 @@ export const useCopyStep = (vizNode: IVisualizationNode) => {
 
     /** Copy the node model */
     if (copiedNodeContent) {
-      await ClipboardManager.copy(copiedNodeContent);
+      await ClipboardService.copy(copiedNodeContent);
     }
   }, [nodeInteractionAddonContext, vizNode]);
 

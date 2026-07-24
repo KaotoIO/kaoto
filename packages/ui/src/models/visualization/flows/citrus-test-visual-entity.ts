@@ -4,7 +4,6 @@ import { cloneDeep } from 'lodash';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { getArrayProperty, getValue, setValue } from '../../../utils';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
-import { SourceSchemaType } from '../../camel/source-schema-type';
 import { CatalogKind } from '../../catalog-kind';
 import { CITRUS_TEST_ROOT_ENTITY_NAME } from '../../citrus/citrus-catalog-index';
 import { Test, TestAction, TestActions } from '../../citrus/entities/Test';
@@ -18,7 +17,7 @@ import {
   IVisualizationNodeData,
   NodeInteraction,
 } from '../base-visual-entity';
-import { IClipboardCopyObject } from '../clipboard';
+import { IClipboardContent } from '../clipboard';
 import { NodeIdentity } from '../node-identity';
 import { createVisualizationNode } from '../visualization-node';
 import { CamelCatalogService } from './camel-catalog.service';
@@ -242,12 +241,17 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     this.addNewStep(action, options.mode, options.data);
   }
 
-  getCopiedContent(path?: string) {
+  getCopiedContent(path?: string): IClipboardContent | undefined {
     if (!path) return;
+
+    // Allow copying the entire test entity
+    if (path === this.getRootPath()) {
+      return { name: 'test', definition: this.test as object };
+    }
 
     const actionName = CitrusTestSchemaService.extractTestActionName(path);
     const actionModel: TestActions = getValue(this.test, this.toModelPath(path.substring(0, path.lastIndexOf('.'))));
-    return { type: SourceSchemaType.Test, name: actionName, definition: actionModel as object };
+    return { name: actionName, definition: actionModel as object };
   }
 
   /**
@@ -258,7 +262,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
    * - How to add the step (append, prepend, or replace)
    * - Visualization node data indicating where to paste
    */
-  pasteStep(options: { clipboardContent: IClipboardCopyObject; mode: AddStepMode; data: IVisualizationNodeData }) {
+  pasteStep(options: { clipboardContent: IClipboardContent; mode: AddStepMode; data: IVisualizationNodeData }) {
     const action = options.clipboardContent.definition as TestActions;
     this.addNewStep(action, options.mode, options.data);
   }

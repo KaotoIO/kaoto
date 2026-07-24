@@ -2,11 +2,11 @@ import { renderHook } from '@testing-library/react';
 
 import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { ClipboardManager } from '../../../../utils/ClipboardManager';
+import { ClipboardService } from '../../../../services/visualization/clipboard.service';
 import { useCopyStep } from './copy-step.hook';
 
 describe('useCopyStep', () => {
-  const copySpy = vi.spyOn(ClipboardManager, 'copy').mockImplementation(async (__object) => undefined);
+  const copySpy = vi.spyOn(ClipboardService, 'copy').mockImplementation(async (__object) => undefined);
   const copiedContent = {
     type: SourceSchemaType.Route,
     name: 'exampleNode',
@@ -17,7 +17,7 @@ describe('useCopyStep', () => {
     vi.clearAllMocks();
   });
 
-  it('should call ClipboardManager.copy with the copied node content', async () => {
+  it('should call ClipboardService.copy with the copied node content', async () => {
     const mockVizNode = {
       getCopiedContent: vi.fn().mockReturnValue(copiedContent),
     } as unknown as IVisualizationNode;
@@ -30,7 +30,7 @@ describe('useCopyStep', () => {
     expect(copySpy).toHaveBeenCalledWith(copiedContent);
   });
 
-  it('should not call ClipboardManager.copy if getCopiedContent returns null', async () => {
+  it('should not call ClipboardService.copy if getCopiedContent returns null', async () => {
     const mockVizNode = {
       getCopiedContent: vi.fn().mockReturnValue(null),
     } as unknown as IVisualizationNode;

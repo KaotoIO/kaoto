@@ -10,7 +10,6 @@ describe('Tests for Design page', { browser: '!firefox' }, () => {
 
     cy.selectCopyNode('timer');
     cy.assertValueCopiedToClipboard({
-      type: 'Route',
       name: 'from',
       definition: {
         uri: 'timer:test',
@@ -24,14 +23,12 @@ describe('Tests for Design page', { browser: '!firefox' }, () => {
 
     cy.selectCopyNode('setHeader');
     cy.assertValueCopiedToClipboard({
-      type: 'Route',
       name: 'setHeader',
       definition: { constant: 'test', name: 'test' },
     });
 
     cy.selectCopyNode('camel-route');
     cy.assertValueCopiedToClipboard({
-      type: 'Route',
       name: 'route',
       definition: {
         id: 'camel-route',
@@ -53,7 +50,6 @@ describe('Tests for Design page', { browser: '!firefox' }, () => {
 
     cy.selectCopyNode('timer-source');
     cy.assertValueCopiedToClipboard({
-      type: 'Pipe',
       name: 'timer-source',
       definition: {
         properties: { message: 'hello' },
@@ -63,14 +59,12 @@ describe('Tests for Design page', { browser: '!firefox' }, () => {
 
     cy.selectCopyNode('delay-action');
     cy.assertValueCopiedToClipboard({
-      type: 'Pipe',
       name: 'delay-action',
       definition: { ref: { apiVersion: 'camel.apache.org/v1', kind: 'Kamelet', name: 'delay-action' } },
     });
 
     cy.selectCopyNode('log-sink');
     cy.assertValueCopiedToClipboard({
-      type: 'Pipe',
       name: 'log-sink',
       definition: { ref: { apiVersion: 'camel.apache.org/v1', kind: 'Kamelet', name: 'log-sink' } },
     });
@@ -82,25 +76,48 @@ describe('Tests for Design page', { browser: '!firefox' }, () => {
 
     cy.selectCopyNode('kamelet:sink');
     cy.assertValueCopiedToClipboard({
-      type: 'Kamelet',
       name: 'to',
       definition: { uri: 'kamelet:sink', parameters: {} },
     });
 
     cy.selectCopyNode('eip-action');
     cy.assertValueCopiedToClipboard({
-      type: 'Kamelet',
-      name: 'template',
+      name: 'kamelet',
       definition: {
-        from: {
-          id: 'from-1870',
-          uri: 'timer:user',
-          parameters: { period: '{{period}}' },
-          steps: [
-            { setBody: { id: 'setBody-3387', expression: { simple: {} } } },
-            { marshal: { id: 'marshal-1414' } },
-            { to: { uri: 'kamelet:sink', parameters: {} } },
-          ],
+        apiVersion: 'camel.apache.org/v1alpha1',
+        kind: 'Kamelet',
+        metadata: {
+          annotations: { 'camel.apache.org/kamelet.icon': 'whatever' },
+          labels: { 'camel.apache.org/kamelet.type': 'action' },
+          name: 'eip-action',
+        },
+        spec: {
+          definition: {
+            title: 'kamelet-2082',
+            type: 'object',
+            properties: {
+              period: {
+                title: 'Period',
+                description: 'The time interval between two events',
+                type: 'integer',
+                default: 5000,
+              },
+            },
+          },
+          types: { out: { mediaType: 'application/json' } },
+          dependencies: ['camel:timer', 'camel:http', 'camel:kamelet'],
+          template: {
+            from: {
+              id: 'from-1870',
+              uri: 'timer:user',
+              parameters: { period: '{{period}}' },
+              steps: [
+                { setBody: { id: 'setBody-3387', expression: { simple: {} } } },
+                { marshal: { id: 'marshal-1414' } },
+                { to: { uri: 'kamelet:sink', parameters: {} } },
+              ],
+            },
+          },
         },
       },
     });
@@ -112,7 +129,6 @@ describe('Tests for Design page', { browser: '!firefox' }, () => {
 
     cy.selectCopyNode('errorHandler');
     cy.assertValueCopiedToClipboard({
-      type: 'Route',
       name: 'errorHandler',
       definition: {
         defaultErrorHandler: {
@@ -137,7 +153,6 @@ describe('Tests for Design page', { browser: '!firefox' }, () => {
 
     cy.selectCopyNode('routeConfiguration');
     cy.assertValueCopiedToClipboard({
-      type: 'Route',
       name: 'routeConfiguration',
       definition: {
         id: 'routeConfiguration-6082',

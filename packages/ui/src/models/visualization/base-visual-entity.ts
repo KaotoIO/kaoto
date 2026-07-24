@@ -2,7 +2,7 @@ import { DefinedComponent } from '../camel/camel-catalog-index';
 import { BaseEntity, EntityType } from '../entities';
 import { KaotoSchemaDefinition } from '../kaoto-schema';
 import { NodeLabelType } from '../settings/settings.model';
-import { IClipboardCopyObject } from '../visualization/clipboard';
+import { IClipboardContent } from '../visualization/clipboard';
 import { NodeIdentity } from './node-identity';
 
 /**
@@ -50,10 +50,10 @@ export interface BaseVisualEntity extends BaseEntity {
   }) => void;
 
   /** Given a path, get the content to be copied */
-  getCopiedContent: (path?: string) => IClipboardCopyObject | undefined;
+  getCopiedContent: (path?: string) => IClipboardContent | undefined;
 
   pasteStep: (options: {
-    clipboardContent: IClipboardCopyObject;
+    clipboardContent: IClipboardContent;
     mode: AddStepMode;
     data: IVisualizationNodeData;
     /** When true and target is an array-clause (e.g. when), insert at start instead of end */
@@ -114,9 +114,9 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   ): void;
 
   /** This method return the content to be copied for the node */
-  getCopiedContent(): IClipboardCopyObject | undefined;
+  getCopiedContent(): IClipboardContent | undefined;
 
-  pasteBaseEntityStep(definedComponent: IClipboardCopyObject, mode: AddStepMode, insertAtStart?: boolean): void;
+  pasteBaseEntityStep(definedComponent: IClipboardContent, mode: AddStepMode, insertAtStart?: boolean): void;
 
   canDragNode(): boolean;
 

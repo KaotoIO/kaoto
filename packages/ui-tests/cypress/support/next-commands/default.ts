@@ -1,4 +1,5 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { parse } from 'yaml';
 
 Cypress.Commands.add('openHomePage', () => {
   const url = Cypress.config().baseUrl;
@@ -391,21 +392,22 @@ Cypress.Commands.add('assertValueCopiedToClipboard', (value) => {
         for (const item of text) {
           if (item.types.includes('web text/kaoto')) {
             const blob = await item.getType('web text/kaoto');
-            const parsedContent = JSON.parse(await blob.text());
+            const yamlText = await blob.text();
+            const parsedContent = parse(yamlText);
 
-            expect(parsedContent).to.deep.equal(value);
+            // Normalize parsed YAML to IClipboardContent format
+            const clipboardContent = normalizeClipboardContent(parsedContent);
+            expect(clipboardContent).to.deep.equal(value);
           }
 
           if (item.types.includes('text/plain')) {
             const blob = await item.getType('text/plain');
-            const parsedContent = JSON.parse(await blob.text());
+            const yamlText = await blob.text();
+            const parsedContent = parse(yamlText);
 
-            // Validate the marker to ensure it's Kaoto-specific content
-            if (parsedContent.__kaoto_marker === 'kaoto-node') {
-              delete parsedContent.__kaoto_marker;
-            }
-
-            expect(parsedContent).to.deep.equal(value);
+            // Normalize parsed YAML to IClipboardContent format
+            const clipboardContent = normalizeClipboardContent(parsedContent);
+            expect(clipboardContent).to.deep.equal(value);
           }
         }
       });
@@ -415,6 +417,32 @@ Cypress.Commands.add('assertValueCopiedToClipboard', (value) => {
     }
   });
 });
+
+// Helper to normalize YAML clipboard content to IClipboardContent format
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function normalizeClipboardContent(parsed: any): { name: string; definition: object } | null {
+  if (!parsed || typeof parsed !== 'object') return null;
+
+  // Handle array format: [{ stepName: { ... } }]
+  if (Array.isArray(parsed)) {
+    if (parsed.length !== 1 || typeof parsed[0] !== 'object' || parsed[0] === null || Array.isArray(parsed[0])) {
+      return null;
+    }
+    const keys = Object.keys(parsed[0]);
+    if (keys.length !== 1) return null;
+    const name = keys[0];
+    const definition = parsed[0][name];
+    return { name, definition: definition ?? {} };
+  }
+
+  // Handle object format: { stepName: { ... } }
+  const keys = Object.keys(parsed);
+  if (keys.length !== 1) return null;
+
+  const name = keys[0];
+  const definition = parsed[name];
+  return { name, definition: definition ?? {} };
+}
 
 Cypress.Commands.add('addValueToClipboard', (value) => {
   cy.window().then(async (win) => {

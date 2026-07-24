@@ -4,14 +4,13 @@ import { cloneDeep } from 'lodash';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
-import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { IClipboardCopyObject } from '../../../../models/visualization/clipboard';
+import { IClipboardContent } from '../../../../models/visualization/clipboard';
 import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
 import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
 import { EntitiesContext } from '../../../../providers/entities.provider';
-import { ClipboardManager } from '../../../../utils/ClipboardManager';
+import { ClipboardService } from '../../../../services/visualization/clipboard.service';
 import { updateIds } from '../../../../utils/update-ids';
 import { IInteractionType, IOnPasteAddon } from '../../../registers/interactions/node-interaction-addon.model';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
@@ -27,27 +26,13 @@ export const usePasteStep = (vizNode: IVisualizationNode, mode: AddStepMode) => 
 
   /** validate compatibility of the clipboard node */
   const checkClipboardCompatibility = useCallback(
-    (pastedNodeValue: IClipboardCopyObject | null): boolean => {
+    (pastedNodeValue: IClipboardContent | null): boolean => {
       if (!pastedNodeValue) return false;
-
-      const pastedNodeType = pastedNodeValue.type;
-      const baseNodeType = entitiesContext.camelResource.getType();
-      const isSameType = pastedNodeType === baseNodeType;
-      // Allow Route <-> Kamelet pasting
-      const isCompatibleType =
-        (pastedNodeType === SourceSchemaType.Route && baseNodeType === SourceSchemaType.Kamelet) ||
-        (pastedNodeType === SourceSchemaType.Kamelet && baseNodeType === SourceSchemaType.Route);
-
-      /** Validate the pasted node */
-      if (!isSameType && !isCompatibleType) return false;
-      /** Get compatible nodes and the location where can be introduced */
       const filter = entitiesContext.camelResource.getCompatibleComponents(
         mode,
         vizNode.data,
         vizNode.getNodeDefinition(),
       );
-
-      /** Check paste compatibility */
       return catalogModalContext?.checkCompatibility(pastedNodeValue.name, filter) ?? false;
     },
     [catalogModalContext, entitiesContext, mode, vizNode],
@@ -58,7 +43,7 @@ export const usePasteStep = (vizNode: IVisualizationNode, mode: AddStepMode) => 
     const validate = async () => {
       try {
         await navigator.permissions.query({ name: 'clipboard-read' as PermissionName });
-        const pastedNodeValue = await ClipboardManager.paste();
+        const pastedNodeValue = await ClipboardService.paste();
         const updatedNodeValue = updateIds(pastedNodeValue);
         const compatible = checkClipboardCompatibility(updatedNodeValue);
         setIsCompatible(compatible);
@@ -72,7 +57,7 @@ export const usePasteStep = (vizNode: IVisualizationNode, mode: AddStepMode) => 
   }, [checkClipboardCompatibility]);
 
   const onPasteStep = useCallback(async () => {
-    const pastedNodeValue = await ClipboardManager.paste();
+    const pastedNodeValue = await ClipboardService.paste();
     if (!vizNode || !entitiesContext || !pastedNodeValue) return;
 
     const compatible = checkClipboardCompatibility(pastedNodeValue);

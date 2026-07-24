@@ -6,7 +6,6 @@ import { camelRouteJson } from '../../../stubs/camel-route';
 import { citrusTestJson } from '../../../stubs/citrus-test';
 import { getFirstCitrusCatalogMap } from '../../../stubs/test-load-catalog';
 import { setValue } from '../../../utils';
-import { SourceSchemaType } from '../../camel';
 import { ICamelProcessorDefinition } from '../../camel/camel-processors-catalog';
 import { CatalogKind } from '../../catalog-kind';
 import { CITRUS_TEST_ROOT_ENTITY_NAME } from '../../citrus/citrus-catalog-index';
@@ -603,7 +602,6 @@ describe('CitrusTestVisualEntity', () => {
     it('should return the copied content for a step', () => {
       const copiedContent = citrusTestEntity.getCopiedContent('actions.0.print');
       expect(copiedContent).toEqual({
-        type: SourceSchemaType.Test,
         name: 'print',
         definition: {
           print: {
@@ -616,7 +614,6 @@ describe('CitrusTestVisualEntity', () => {
     it('should return undefined node default value if the path is invalid', () => {
       const copiedContent = citrusTestEntity.getCopiedContent('actions.999.foo');
       expect(copiedContent).toEqual({
-        type: SourceSchemaType.Test,
         name: 'foo',
         definition: undefined,
       });
@@ -630,7 +627,6 @@ describe('CitrusTestVisualEntity', () => {
       citrusTestEntity.pasteStep({
         clipboardContent: {
           name: 'echo',
-          type: SourceSchemaType.Test,
           definition: {
             echo: {
               message: 'Hello World!',
@@ -657,7 +653,6 @@ describe('CitrusTestVisualEntity', () => {
       citrusTestEntity.pasteStep({
         clipboardContent: {
           name: 'echo',
-          type: SourceSchemaType.Test,
           definition: {
             echo: {
               message: 'Hello World!',

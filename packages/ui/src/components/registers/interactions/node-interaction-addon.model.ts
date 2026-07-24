@@ -1,5 +1,5 @@
 import { IVisualizationNode } from '../../../models';
-import { IClipboardCopyObject } from '../../../models/visualization/clipboard';
+import { IClipboardContent } from '../../../models/visualization/clipboard';
 import { ActionConfirmationButtonOption } from '../../../providers';
 
 export enum IInteractionType {
@@ -31,8 +31,8 @@ export interface IOnCopyAddon {
   activationFn: (vizNode: IVisualizationNode) => boolean;
   callback: (parameters: {
     sourceVizNode: IVisualizationNode;
-    content: IClipboardCopyObject | undefined;
-  }) => IClipboardCopyObject;
+    content: IClipboardContent | undefined;
+  }) => IClipboardContent;
 }
 
 export interface IOnDuplicateAddon {
@@ -40,8 +40,8 @@ export interface IOnDuplicateAddon {
   activationFn: (vizNode: IVisualizationNode) => boolean;
   callback: (parameters: {
     sourceVizNode: IVisualizationNode;
-    content: IClipboardCopyObject | undefined;
-  }) => Promise<IClipboardCopyObject>;
+    content: IClipboardContent | undefined;
+  }) => Promise<IClipboardContent>;
 }
 
 export interface IOnPasteAddon {
@@ -49,8 +49,8 @@ export interface IOnPasteAddon {
   activationFn: (vizNode: IVisualizationNode) => boolean;
   callback: (parameters: {
     targetVizNode: IVisualizationNode;
-    originalContent: IClipboardCopyObject | undefined;
-    updatedContent: IClipboardCopyObject | undefined;
+    originalContent: IClipboardContent | undefined;
+    updatedContent: IClipboardContent | undefined;
   }) => Promise<void>;
 }
 

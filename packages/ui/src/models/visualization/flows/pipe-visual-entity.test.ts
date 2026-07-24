@@ -8,7 +8,6 @@ import { pipeJson } from '../../../stubs/pipe';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
 import { IKameletDefinition } from '../../camel/kamelets-catalog';
-import { SourceSchemaType } from '../../camel/source-schema-type';
 import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities';
 import { AddStepMode } from '../base-visual-entity';
@@ -751,7 +750,6 @@ describe('Pipe', () => {
       pipeVisualEntity.pasteStep({
         clipboardContent: {
           name: 'avro-serialize-action',
-          type: SourceSchemaType.Pipe,
           definition: {
             ref: {
               kind: 'Kamelet',
@@ -782,7 +780,6 @@ describe('Pipe', () => {
     it('should return the copied content for a step', () => {
       const copiedContent = pipeVisualEntity.getCopiedContent('steps.0');
       expect(copiedContent).toEqual({
-        type: SourceSchemaType.Pipe,
         name: 'delay-action',
         definition: {
           ref: {
@@ -802,9 +799,8 @@ describe('Pipe', () => {
     it('should return undefined node default value if the path is invalid', () => {
       const copiedContent = pipeVisualEntity.getCopiedContent('steps.1');
       expect(copiedContent).toEqual({
-        type: SourceSchemaType.Pipe,
         name: '',
-        defaultValue: undefined,
+        definition: undefined,
       });
     });
   });

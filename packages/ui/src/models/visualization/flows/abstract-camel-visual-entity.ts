@@ -3,7 +3,6 @@ import { isDefined } from '@kaoto/forms';
 
 import { getArrayProperty, getValue, setValue } from '../../../utils';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
-import { SourceSchemaType } from '../../camel/source-schema-type';
 import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
@@ -16,7 +15,7 @@ import {
   IVisualizationNodeData,
   NodeInteraction,
 } from '../base-visual-entity';
-import { IClipboardCopyObject } from '../clipboard';
+import { IClipboardContent } from '../clipboard';
 import { NodeIdentity } from '../node-identity';
 import { createVisualizationNode } from '../visualization-node';
 import { NodeEnrichmentService } from './nodes/node-enrichment.service';
@@ -119,21 +118,20 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     this.addNewStep(defaultValue, options.mode, options.data, options.definedComponent.name, options.insertAtStart);
   }
 
-  getCopiedContent(path?: string): IClipboardCopyObject | undefined {
+  getCopiedContent(path?: string): IClipboardContent | undefined {
     if (!path) return;
 
     const componentModel = getValue(this.entityDef, path);
     const componentLookup = CamelComponentSchemaService.getCamelComponentLookup(path, componentModel);
 
     return {
-      type: SourceSchemaType.Route,
       name: componentLookup.processorName as string,
       definition: componentModel,
     };
   }
 
   pasteStep(options: {
-    clipboardContent: IClipboardCopyObject;
+    clipboardContent: IClipboardContent;
     mode: AddStepMode;
     data: IVisualizationNodeData;
     insertAtStart?: boolean;

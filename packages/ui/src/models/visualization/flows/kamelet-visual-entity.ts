@@ -5,13 +5,12 @@ import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { getCustomSchemaFromKamelet, setValue, updateKameletFromCustomSchema } from '../../../utils';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
 import { IKameletDefinition, IKameletSpec } from '../../camel/kamelets-catalog';
-import { SourceSchemaType } from '../../camel/source-schema-type';
 import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { NodeLabelType } from '../../settings';
 import { AddStepMode, IVisualizationNodeData } from '../base-visual-entity';
-import { IClipboardCopyObject } from '../clipboard';
+import { IClipboardContent } from '../clipboard';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelComponentDefaultService } from './support/camel-component-default.service';
@@ -92,12 +91,16 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string;
     return super.getNodeDefinition(path);
   }
 
-  getCopiedContent(path?: string): IClipboardCopyObject | undefined {
-    const content = super.getCopiedContent(path);
+  getCopiedContent(path?: string): IClipboardContent | undefined {
+    if (!path) return;
 
-    if (!isDefined(content)) return undefined;
+    // Allow copying the entire kamelet entity
+    if (path === this.getRootPath()) {
+      return { name: 'kamelet', definition: this.kamelet as object };
+    }
 
-    return { ...content, type: SourceSchemaType.Kamelet };
+    // For other paths, use the parent implementation
+    return super.getCopiedContent(path);
   }
 
   updateModel(path: string | undefined, value: Record<string, unknown>): void {

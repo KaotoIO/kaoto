@@ -87,18 +87,23 @@ describe('Tests for Design page', { browser: '!firefox' }, () => {
     });
   });
 
-  it('Design - Paste steps in CamelRoute by adding something to the clipboad', () => {
+  it('Design - Paste steps in CamelRoute by adding something to the clipboard', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
-    cy.addValueToClipboard({
-      type: 'Route',
-      name: 'to',
-      definition: { id: 'to-1913', uri: 'amqp', parameters: {} },
-      __kaoto_marker: 'kaoto-node',
+    cy.window().then(async (win) => {
+      const yamlContent = `
+        - to:
+            id: to-1913
+            uri: amqp
+            parameters: {}
+        `;
+      if (win.navigator?.clipboard?.writeText) {
+        await win.navigator.clipboard.writeText(yamlContent);
+      }
     });
     cy.openDesignPage();
 
     // workaround for https://github.com/KaotoIO/kaoto/issues/2885
-    cy.forcePerformNodeAction('marshal', `paste-as-next-step`);
+    cy.forcePerformNodeAction('marshal', 'paste-as-next-step');
     cy.checkNodeExist('amqp', 1);
 
     cy.openSourceCode();
@@ -106,6 +111,31 @@ describe('Tests for Design page', { browser: '!firefox' }, () => {
     cy.getMonacoValue().then(({ sourceCode }) => {
       const uriMatches = sourceCode.match(/uri: amqp/g) ?? [];
       expect(uriMatches).to.have.lengthOf(1);
+    });
+  });
+
+  it('Design - Paste step from external YAML source (no Kaoto marker)', () => {
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
+    // Simulate clipboard content written by an external editor — raw YAML, no __kaoto_marker
+    cy.window().then(async (win) => {
+      const externalYaml = `
+        - log:
+            message: hello from external
+      `;
+      if (win.navigator?.clipboard?.writeText) {
+        await win.navigator.clipboard.writeText(externalYaml);
+      }
+    });
+    cy.openDesignPage();
+
+    // workaround for https://github.com/KaotoIO/kaoto/issues/2885
+    cy.forcePerformNodeAction('marshal', 'paste-as-next-step');
+    cy.checkNodeExist('log', 2);
+
+    cy.openSourceCode();
+    cy.getMonacoValue().then(({ sourceCode }) => {
+      const logMatches = sourceCode.match(/- log:/g) ?? [];
+      expect(logMatches).to.have.lengthOf(1);
     });
   });
 });

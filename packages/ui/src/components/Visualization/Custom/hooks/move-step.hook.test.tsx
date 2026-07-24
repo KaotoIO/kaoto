@@ -3,7 +3,6 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 import type { Mock } from 'vitest';
 
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
-import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows/camel-route-visual-entity';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
@@ -60,13 +59,11 @@ describe('useMoveStep', () => {
   );
 
   const vizNodeCopiedContent = {
-    type: SourceSchemaType.Route,
     name: 'exampleVizNode',
     definition: { id: 'vizNode', Parameters: 'testParameters' },
   };
 
   const targetVizNodeCopiedContent = {
-    type: SourceSchemaType.Route,
     name: 'exampleTargetVizNode',
     definition: { id: 'targetVizNode', type: 'testExampleType' },
   };
@@ -244,7 +241,6 @@ describe('useMoveStep', () => {
       });
 
       const dataMapperVizNodeCopiedContent = {
-        type: 'Route',
         name: 'kaoto-datamapper',
         definition: {
           id: 'kaoto-datamapper-657b6637',
@@ -263,7 +259,6 @@ describe('useMoveStep', () => {
       };
 
       const dataMapperUpdatedVizNodeCopiedContent = {
-        type: 'Route',
         name: 'step',
         definition: {
           id: 'kaoto-datamapper-657b6637',
