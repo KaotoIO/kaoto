@@ -2,12 +2,11 @@ import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types
 import { cloneDeep } from 'lodash';
 
 import { mockRandomValues } from '../../../stubs';
-import { camelFromJson } from '../../../stubs/camel-from';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { EntityType } from '../../entities/base-entity';
 import { NodeLabelType } from '../../settings/settings.model';
 import { IVisualizationNode } from '../base-visual-entity';
-import { CamelRouteVisualEntity, isCamelFrom, isCamelRoute } from './camel-route-visual-entity';
+import { CamelRouteVisualEntity } from './camel-route-visual-entity';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 
 describe('Camel Route', () => {
@@ -15,39 +14,6 @@ describe('Camel Route', () => {
 
   beforeEach(() => {
     camelEntity = new CamelRouteVisualEntity(cloneDeep(camelRouteJson));
-  });
-
-  describe('isCamelRoute', () => {
-    it.each([
-      [{ route: { from: 'direct:foo' } }, true],
-      [{ from: 'direct:foo' }, false],
-      [{ from: { uri: 'direct:foo', steps: [] } }, false],
-      [camelRouteJson, true],
-      [camelFromJson, false],
-      [undefined, false],
-      [null, false],
-      [true, false],
-      [false, false],
-    ])('should mark %s as isCamelRoute: %s', (route, result) => {
-      expect(isCamelRoute(route)).toEqual(result);
-    });
-  });
-
-  describe('isCamelFrom', () => {
-    it.each([
-      [{ route: { from: 'direct:foo' } }, false],
-      [{ from: 'direct:foo' }, false],
-      [{ from: { uri: 'direct:foo' } }, true],
-      [{ from: { uri: 'direct:foo', steps: [] } }, true],
-      [camelRouteJson, false],
-      [camelFromJson, true],
-      [undefined, false],
-      [null, false],
-      [true, false],
-      [false, false],
-    ])('should mark %s as isCamelFrom: %s', (route, result) => {
-      expect(isCamelFrom(route)).toEqual(result);
-    });
   });
 
   describe('id', () => {

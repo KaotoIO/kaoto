@@ -3,41 +3,13 @@ import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { setValue } from '../../../utils';
+import { isCamelFrom } from '../../../utils/is-camel-from';
+import { isCamelRoute } from '../../../utils/is-camel-route';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
 import { EntityType } from '../../entities';
 import { AddStepMode, IVisualizationNodeData } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelComponentDefaultService } from './support/camel-component-default.service';
-
-/** Very basic check to determine whether this object is a Camel Route */
-export const isCamelRoute = (rawEntity: unknown): rawEntity is { route: RouteDefinition } => {
-  if (!isDefined(rawEntity) || Array.isArray(rawEntity) || typeof rawEntity !== 'object') {
-    return false;
-  }
-
-  const objectKeys = Object.keys(rawEntity);
-
-  return (
-    objectKeys.length === 1 &&
-    'route' in rawEntity &&
-    typeof rawEntity.route === 'object' &&
-    isDefined(rawEntity.route) &&
-    'from' in rawEntity.route
-  );
-};
-
-/** Very basic check to determine whether this object is a Camel From */
-export const isCamelFrom = (rawEntity: unknown): rawEntity is { from: FromDefinition } => {
-  if (!isDefined(rawEntity) || Array.isArray(rawEntity) || typeof rawEntity !== 'object') {
-    return false;
-  }
-
-  const objectKeys = Object.keys(rawEntity);
-  const isFromHolder = objectKeys.length === 1 && objectKeys[0] === 'from';
-  const isValidUriField = typeof (rawEntity as { from: FromDefinition })?.from?.uri === 'string';
-
-  return isFromHolder && isValidUriField;
-};
 
 const getDefaultRouteDefinition = (fromDefinition?: { from: FromDefinition }): { route: RouteDefinition } => ({
   route: {
