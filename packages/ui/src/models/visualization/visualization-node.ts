@@ -3,7 +3,7 @@ import { action, makeObservable, observable } from 'mobx';
 import { DefinedComponent } from '../camel/camel-catalog-index';
 import { KaotoSchemaDefinition } from '../kaoto-schema';
 import { NodeLabelType } from '../settings/settings.model';
-import { IClipboardCopyObject } from '../visualization/clipboard';
+import { IClipboardContent } from '../visualization/clipboard';
 import {
   AddStepMode,
   BaseVisualEntity,
@@ -71,11 +71,11 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     });
   }
 
-  getCopiedContent(): IClipboardCopyObject | undefined {
+  getCopiedContent(): IClipboardContent | undefined {
     return this.getBaseEntity()?.getCopiedContent(this.data.path);
   }
 
-  pasteBaseEntityStep(definition: IClipboardCopyObject, mode: AddStepMode, insertAtStart?: boolean): void {
+  pasteBaseEntityStep(definition: IClipboardContent, mode: AddStepMode, insertAtStart?: boolean): void {
     this.getBaseEntity()?.pasteStep({ clipboardContent: definition, mode, data: this.data, insertAtStart });
   }
 

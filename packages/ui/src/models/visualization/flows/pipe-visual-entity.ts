@@ -10,7 +10,6 @@ import {
   updatePipeFromCustomSchema,
 } from '../../../utils';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
-import { SourceSchemaType } from '../../camel/source-schema-type';
 import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities';
 import { PipeStep } from '../../entities/pipe-overrides';
@@ -23,7 +22,7 @@ import {
   IVisualizationNodeData,
   NodeInteraction,
 } from '../base-visual-entity';
-import { IClipboardCopyObject } from '../clipboard';
+import { IClipboardContent } from '../clipboard';
 import { NodeIdentity } from '../node-identity';
 import { createVisualizationNode } from '../visualization-node';
 import { CamelCatalogService } from './camel-catalog.service';
@@ -146,14 +145,19 @@ export class PipeVisualEntity implements BaseVisualEntity {
     this.addNewStep(step, options.mode, options.data);
   }
 
-  getCopiedContent(path?: string) {
+  getCopiedContent(path?: string): IClipboardContent | undefined {
     if (!path) return;
 
+    // Allow copying the entire pipe entity
+    if (path === this.getRootPath()) {
+      return { name: 'pipe', definition: this.pipe as object };
+    }
+
     const stepModel: PipeStep = getValue(this.pipe.spec, path);
-    return { type: SourceSchemaType.Pipe, name: stepModel?.ref?.name ?? '', definition: stepModel as object };
+    return { name: stepModel?.ref?.name ?? '', definition: stepModel as object };
   }
 
-  pasteStep(options: { clipboardContent: IClipboardCopyObject; mode: AddStepMode; data: IVisualizationNodeData }) {
+  pasteStep(options: { clipboardContent: IClipboardContent; mode: AddStepMode; data: IVisualizationNodeData }) {
     const step = options.clipboardContent.definition as PipeStep;
     this.addNewStep(step, options.mode, options.data);
   }

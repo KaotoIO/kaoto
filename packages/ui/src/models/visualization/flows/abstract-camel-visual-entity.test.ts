@@ -5,7 +5,6 @@ import { cloneDeep } from 'lodash';
 import { mockRandomValues } from '../../../stubs';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
-import { SourceSchemaType } from '../../camel';
 import { NonStringEIP } from '../../camel/types';
 import { CatalogKind } from '../../catalog-kind';
 import { PlaceholderType } from '../../placeholder.constants';
@@ -428,7 +427,6 @@ describe('AbstractCamelVisualEntity', () => {
       abstractVisualEntity.pasteStep({
         clipboardContent: {
           name: 'log',
-          type: SourceSchemaType.Route,
           definition: {
             id: 'test-id',
             message: 'Test message',
@@ -458,7 +456,6 @@ describe('AbstractCamelVisualEntity', () => {
       abstractVisualEntity.pasteStep({
         clipboardContent: {
           name: 'log',
-          type: SourceSchemaType.Route,
           definition: {
             id: 'test-id',
             message: 'Test message',
@@ -487,7 +484,6 @@ describe('AbstractCamelVisualEntity', () => {
       abstractVisualEntity.pasteStep({
         clipboardContent: {
           name: 'when',
-          type: SourceSchemaType.Route,
           definition: {
             expression: 'simple("${body} contains \'test\'")',
           },
@@ -515,7 +511,6 @@ describe('AbstractCamelVisualEntity', () => {
       abstractVisualEntity.pasteStep({
         clipboardContent: {
           name: 'otherwise',
-          type: SourceSchemaType.Route,
           definition: {
             id: 'test-id',
             steps: [],
@@ -543,7 +538,6 @@ describe('AbstractCamelVisualEntity', () => {
       abstractVisualEntity.pasteStep({
         clipboardContent: {
           name: 'log',
-          type: SourceSchemaType.Route,
           definition: {
             id: 'test-id',
             message: 'Test message',
@@ -572,7 +566,6 @@ describe('AbstractCamelVisualEntity', () => {
       abstractVisualEntity.pasteStep({
         clipboardContent: {
           name: 'when',
-          type: SourceSchemaType.Route,
           definition: {
             expression: 'simple("${body} contains \'test\'")',
             id: 'when-replaced',
@@ -607,7 +600,6 @@ describe('AbstractCamelVisualEntity', () => {
     it('should return the copied content for a step', () => {
       const copiedContent = abstractVisualEntity.getCopiedContent('route.from.steps.2.to');
       expect(copiedContent).toEqual({
-        type: SourceSchemaType.Route,
         name: 'to',
         definition: {
           uri: 'direct:my-route',
@@ -626,9 +618,8 @@ describe('AbstractCamelVisualEntity', () => {
     it('should return undefined node default value if the path is invalid', () => {
       const copiedContent = abstractVisualEntity.getCopiedContent('route.from.steps.999.to');
       expect(copiedContent).toEqual({
-        type: SourceSchemaType.Route,
         name: 'to',
-        defaultValue: undefined,
+        definition: undefined,
       });
     });
   });

@@ -3,12 +3,11 @@ import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { getValue, setValue } from '../../../utils';
-import { SourceSchemaType } from '../../camel/source-schema-type';
 import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities/base-entity';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { BaseVisualEntity, IVisualizationNode, IVisualizationNodeData, NodeInteraction } from '../base-visual-entity';
-import { IClipboardCopyObject } from '../clipboard';
+import { IClipboardContent } from '../clipboard';
 import { createVisualizationNode } from '../visualization-node';
 import { CamelCatalogService } from './camel-catalog.service';
 import { NodeEnrichmentService } from './nodes/node-enrichment.service';
@@ -82,9 +81,8 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualEntity {
     return;
   }
 
-  getCopiedContent(): IClipboardCopyObject | undefined {
+  getCopiedContent(): IClipboardContent | undefined {
     return {
-      type: SourceSchemaType.Route,
       name: CamelErrorHandlerVisualEntity.ROOT_PATH,
       definition: this.errorHandlerDef.errorHandler,
     };

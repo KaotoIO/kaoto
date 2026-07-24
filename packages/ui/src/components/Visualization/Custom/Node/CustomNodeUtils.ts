@@ -3,7 +3,7 @@ import { ElementModel, GraphElement, Node } from '@patternfly/react-topology';
 
 import { PlaceholderType } from '../../../../models/placeholder.constants';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { IClipboardCopyObject } from '../../../../models/visualization/clipboard';
+import { IClipboardContent } from '../../../../models/visualization/clipboard';
 import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
 import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { EntitiesContextResult } from '../../../../providers/entities.provider';
@@ -160,7 +160,7 @@ export const checkNodeDropCompatibility = (
 const performForwardDrop = (
   droppedVizNode: IVisualizationNode,
   draggedVizNode: IVisualizationNode,
-  draggedNodeContent: IClipboardCopyObject,
+  draggedNodeContent: IClipboardContent,
   droppedIntoEdge: boolean,
   entitiesContext: EntitiesContextResult,
 ) => {

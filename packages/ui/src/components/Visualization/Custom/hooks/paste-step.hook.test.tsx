@@ -4,15 +4,14 @@ import type { Mock } from 'vitest';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
-import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { IClipboardCopyObject } from '../../../../models/visualization/clipboard';
+import { IClipboardContent } from '../../../../models/visualization/clipboard';
 import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
 import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
+import { ClipboardService } from '../../../../services/visualization/clipboard.service';
 import { createMockEntitiesContext } from '../../../../stubs';
-import { ClipboardManager } from '../../../../utils/ClipboardManager';
 import { usePasteStep } from './paste-step.hook';
 
 const mockController = {
@@ -33,13 +32,11 @@ Object.assign(navigator, {
 describe('usePasteStep', () => {
   const camelResource = new CamelRouteResource();
   let getCompatibleComponentsSpy: ReturnType<typeof vi.spyOn>;
-  let getTypeSpy: ReturnType<typeof vi.spyOn>;
   let mockEntitiesContext: EntitiesContextResult;
 
   beforeAll(async () => {
     mockEntitiesContext = await createMockEntitiesContext(camelResource);
     getCompatibleComponentsSpy = vi.spyOn(camelResource, 'getCompatibleComponents');
-    getTypeSpy = vi.spyOn(camelResource, 'getType').mockReturnValue(SourceSchemaType.Route);
   });
 
   // Mock CatalogModalContext
@@ -50,7 +47,6 @@ describe('usePasteStep', () => {
   };
 
   const copiedContent = {
-    type: SourceSchemaType.Route,
     name: 'log',
     definition: { id: 'test', message: 'hello' },
   };
@@ -67,7 +63,7 @@ describe('usePasteStep', () => {
 
   it('should return the isCompatible false', async () => {
     vi.spyOn(navigator.permissions, 'query').mockResolvedValueOnce({ state: 'granted' } as PermissionStatus);
-    vi.spyOn(ClipboardManager, 'paste').mockResolvedValueOnce(null);
+    vi.spyOn(ClipboardService, 'paste').mockResolvedValueOnce(null);
 
     const vizNode = createVisualizationNode('test', {
       name: 'test',
@@ -116,28 +112,26 @@ describe('usePasteStep', () => {
       pasteBaseEntityStep: vi.fn(),
     } as unknown as IVisualizationNode;
 
-    // Mock the ClipboardManager.paste() to return a valid content
+    // Mock the ClipboardService.paste() to return a valid content
     const pasteSpy = vi
-      .spyOn(ClipboardManager, 'paste')
-      .mockImplementation(async () => copiedContent as IClipboardCopyObject);
+      .spyOn(ClipboardService, 'paste')
+      .mockImplementation(async () => copiedContent as IClipboardContent);
     // Mock the compatibility check to return true
     vi.spyOn(mockCatalogModalContext, 'checkCompatibility').mockReturnValue(true);
 
     const { result } = renderHook(() => usePasteStep(mockVizNode, AddStepMode.AppendStep), { wrapper });
     await waitFor(() => {
       expect(result.current.isCompatible).toBe(true);
-      // ClipboardManager.paste() called 1st time to check the paste compatibilty
+      // ClipboardService.paste() called 1st time to check the paste compatibilty
       expect(pasteSpy).toHaveBeenCalledTimes(1);
       expect(getCompatibleComponentsSpy).toHaveBeenCalledTimes(1);
-      expect(getTypeSpy).toHaveBeenCalledTimes(1);
       expect(mockCatalogModalContext.checkCompatibility as Mock).toHaveBeenCalledTimes(1);
     });
 
     await result.current.onPasteStep();
-    // ClipboardManager.paste() called another time by the onPasteStep() execution
+    // ClipboardService.paste() called another time by the onPasteStep() execution
     expect(pasteSpy).toHaveBeenCalledTimes(2);
     expect(getCompatibleComponentsSpy).toHaveBeenCalledTimes(2);
-    expect(getTypeSpy).toHaveBeenCalledTimes(2);
     expect(mockCatalogModalContext.checkCompatibility as Mock).toHaveBeenCalledTimes(2);
     expect(mockVizNode.pasteBaseEntityStep as Mock).toHaveBeenCalledTimes(1);
     expect(mockEntitiesContext.updateEntitiesFromCamelResource as Mock).toHaveBeenCalledTimes(1);
@@ -146,31 +140,32 @@ describe('usePasteStep', () => {
   it('should not call pasteBaseEntityStep() and updateEntitiesFromCamelResource()', async () => {
     vi.spyOn(navigator.permissions, 'query').mockRejectedValueOnce(new Error('Permission error'));
     const mockVizNode = {
+      getNodeDefinition: vi.fn(),
       pasteBaseEntityStep: vi.fn(),
     } as unknown as IVisualizationNode;
 
-    // Mock the ClipboardManager.paste() to return a content which isn't compatible
-    const pasteSpy = vi.spyOn(ClipboardManager, 'paste').mockImplementation(
+    // Mock the ClipboardService.paste() to return a content which isn't compatible
+    const pasteSpy = vi.spyOn(ClipboardService, 'paste').mockImplementation(
       async () =>
         ({
-          type: SourceSchemaType.Pipe,
           name: 'log',
           definition: { id: 'test', message: 'hello' },
-        }) as IClipboardCopyObject,
+        }) as IClipboardContent,
     );
+    // checkCompatibility returns false → pasteBaseEntityStep should NOT be called
+    vi.spyOn(mockCatalogModalContext, 'checkCompatibility').mockReturnValue(false);
 
     const { result } = renderHook(() => usePasteStep(mockVizNode, AddStepMode.AppendStep), { wrapper });
     await waitFor(() => {
-      // ClipboardManager.paste() call skipped as the permission query failed
+      // ClipboardService.paste() call skipped as the permission query failed
       expect(pasteSpy).toHaveBeenCalledTimes(0);
       // Compatibility set to true intentionally
       expect(result.current.isCompatible).toBe(true);
     });
 
     await result.current.onPasteStep();
-    // ClipboardManager.paste() called first time by the onPasteStep() execution
+    // ClipboardService.paste() called first time by the onPasteStep() execution
     expect(pasteSpy).toHaveBeenCalledTimes(1);
-    expect(getTypeSpy).toHaveBeenCalledTimes(1);
     expect(mockVizNode.pasteBaseEntityStep as Mock).toHaveBeenCalledTimes(0);
     expect(mockEntitiesContext.updateEntitiesFromCamelResource as Mock).toHaveBeenCalledTimes(0);
   });
@@ -190,7 +185,6 @@ describe('usePasteStep', () => {
     const getProcessorStepsPropertiesMock = vi.spyOn(CamelComponentSchemaService, 'getProcessorStepsProperties');
 
     const whenContent = {
-      type: SourceSchemaType.Route,
       name: 'when',
       definition: {
         steps: [],
@@ -198,11 +192,11 @@ describe('usePasteStep', () => {
           expression: '${header.foo} == 1',
         },
       },
-    } as IClipboardCopyObject;
+    } as IClipboardContent;
 
     beforeEach(() => {
-      // Mock the ClipboardManager.paste() to return a content which isn't compatible
-      vi.spyOn(ClipboardManager, 'paste').mockResolvedValue(whenContent);
+      // Mock the ClipboardService.paste() to return a content which isn't compatible
+      vi.spyOn(ClipboardService, 'paste').mockResolvedValue(whenContent);
       // Mock the compatibility check to return true
       vi.spyOn(mockCatalogModalContext, 'checkCompatibility').mockReturnValue(true);
       mockController.fromModel.mockClear();

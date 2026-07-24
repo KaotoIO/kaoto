@@ -3,12 +3,11 @@ import { getValidator, isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { setValue } from '../../../utils';
-import { SourceSchemaType } from '../../camel/source-schema-type';
 import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities/base-entity';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { BaseVisualEntity, IVisualizationNode, IVisualizationNodeData, NodeInteraction } from '../base-visual-entity';
-import { IClipboardCopyObject } from '../clipboard';
+import { IClipboardContent } from '../clipboard';
 import { createVisualizationNode } from '../visualization-node';
 import { CamelCatalogService } from './camel-catalog.service';
 import { NodeEnrichmentService } from './nodes/node-enrichment.service';
@@ -62,9 +61,8 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualEntity {
     return;
   }
 
-  getCopiedContent(): IClipboardCopyObject | undefined {
+  getCopiedContent(): IClipboardContent | undefined {
     return {
-      type: SourceSchemaType.Route,
       name: CamelRestConfigurationVisualEntity.ROOT_PATH,
       definition: this.restConfigurationDef.restConfiguration,
     };

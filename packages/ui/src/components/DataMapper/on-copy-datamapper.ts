@@ -1,10 +1,10 @@
 import { IVisualizationNode } from '../../models';
-import { IClipboardCopyObject } from '../../models/visualization/clipboard';
+import { IClipboardContent } from '../../models/visualization/clipboard';
 
 export const onCopyDataMapper = (parameters: {
   sourceVizNode: IVisualizationNode;
-  content: IClipboardCopyObject | undefined;
-}): IClipboardCopyObject | undefined => {
+  content: IClipboardContent | undefined;
+}): IClipboardContent | undefined => {
   if (!parameters.content) return undefined;
 
   if (parameters.content.name === 'kaoto-datamapper') {
