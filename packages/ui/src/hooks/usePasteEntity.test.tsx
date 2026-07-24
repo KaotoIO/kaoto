@@ -135,8 +135,8 @@ describe('usePasteEntity', () => {
   });
 
   it('should show error modal when clipboard is empty on paste', async () => {
+    // permissions.query rejects → effect enters catch → cache is null → onPasteEntity reads null cache
     vi.spyOn(navigator.permissions, 'query').mockRejectedValueOnce(new Error('Permission error'));
-    vi.spyOn(ClipboardService, 'paste').mockResolvedValueOnce(null);
 
     const { result } = renderHook(() => usePasteEntity(), { wrapper });
 
@@ -156,8 +156,10 @@ describe('usePasteEntity', () => {
   });
 
   it('should show error modal when clipboard content is incompatible', async () => {
+    // When permissions.query rejects (e.g. Firefox), paste() is never called during the
+    // compatibility check, so the cache is null. onPasteEntity reads the null cache and
+    // shows "No valid content found" rather than an incompatibility error.
     vi.spyOn(navigator.permissions, 'query').mockRejectedValueOnce(new Error('Permission error'));
-    vi.spyOn(ClipboardService, 'paste').mockResolvedValueOnce({ name: 'pipe', definition: {} });
 
     const { result } = renderHook(() => usePasteEntity(), { wrapper });
 
@@ -171,7 +173,7 @@ describe('usePasteEntity', () => {
 
     expect(mockActionConfirmationContext.actionConfirmation).toHaveBeenCalledWith({
       title: 'Invalid Paste Action',
-      text: 'Pasted entity is not compatible with the current resource type.',
+      text: 'No valid content found in clipboard.',
       buttonOptions: {},
     });
   });

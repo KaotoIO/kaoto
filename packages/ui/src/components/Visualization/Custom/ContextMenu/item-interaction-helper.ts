@@ -119,7 +119,7 @@ const processOnDuplicateAddonForChildren = async (
 
     if (!transformedChildContent) continue;
 
-    set(content.definition, relativePath, transformedChildContent.definition);
+    set(content.definition as object, relativePath, transformedChildContent.definition);
   }
 };
 

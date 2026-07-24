@@ -1,7 +1,7 @@
 import { isDefined } from '@kaoto/forms';
 import { useVisualizationController } from '@patternfly/react-topology';
 import { cloneDeep } from 'lodash';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
@@ -22,6 +22,7 @@ export const usePasteStep = (vizNode: IVisualizationNode, mode: AddStepMode) => 
   const pasteModalContext = useContext(ActionConfirmationModalContext);
   const nodeInteractionAddonContext = useContext(NodeInteractionAddonContext);
   const [isCompatible, setIsCompatible] = useState(false);
+  const clipboardCacheRef = useRef<IClipboardContent | null | undefined>(undefined);
   const controller = useVisualizationController();
 
   /** validate compatibility of the clipboard node */
@@ -40,24 +41,35 @@ export const usePasteStep = (vizNode: IVisualizationNode, mode: AddStepMode) => 
 
   /** Compatibility check on effect */
   useEffect(() => {
+    let cancelled = false;
+    clipboardCacheRef.current = undefined;
     const validate = async () => {
       try {
         await navigator.permissions.query({ name: 'clipboard-read' as PermissionName });
         const pastedNodeValue = await ClipboardService.paste();
-        const updatedNodeValue = updateIds(pastedNodeValue);
-        const compatible = checkClipboardCompatibility(updatedNodeValue);
-        setIsCompatible(compatible);
+        if (!cancelled) {
+          clipboardCacheRef.current = pastedNodeValue;
+          const updatedNodeValue = updateIds(cloneDeep(pastedNodeValue));
+          setIsCompatible(checkClipboardCompatibility(updatedNodeValue));
+        }
       } catch (error) {
-        // fallback to allow pasting incase of permission issues (for Firefox or other browsers)
-        setIsCompatible(true);
+        // fallback to allow pasting in case of permission issues (for Firefox or other browsers)
+        console.warn('Clipboard permission check failed, falling back to optimistic paste:', error);
+        if (!cancelled) {
+          clipboardCacheRef.current = null;
+          setIsCompatible(true);
+        }
       }
     };
 
     void validate();
+    return () => {
+      cancelled = true;
+    };
   }, [checkClipboardCompatibility]);
 
   const onPasteStep = useCallback(async () => {
-    const pastedNodeValue = await ClipboardService.paste();
+    const pastedNodeValue = clipboardCacheRef.current ?? null;
     if (!vizNode || !entitiesContext || !pastedNodeValue) return;
 
     const compatible = checkClipboardCompatibility(pastedNodeValue);

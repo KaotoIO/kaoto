@@ -1,6 +1,6 @@
 import { ButtonVariant } from '@patternfly/react-core';
 import { cloneDeep } from 'lodash';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { EntityType } from '../models/entities';
 import { IClipboardContent } from '../models/visualization/clipboard';
@@ -18,6 +18,7 @@ export const usePasteEntity = () => {
   const visibleFlowsContext = useContext(VisibleFlowsContext)!;
   const actionConfirmationContext = useContext(ActionConfirmationModalContext);
   const [isCompatible, setIsCompatible] = useState(false);
+  const clipboardCacheRef = useRef<IClipboardContent | null | undefined>(undefined);
 
   /**
    * Infer clipboard compatibility from the YAML key name matched against the active canvas
@@ -46,19 +47,23 @@ export const usePasteEntity = () => {
     [entitiesContext],
   );
 
-  /** Compatibility check on effect */
+  /** Compatibility check on effect — caches the result so onPasteEntity reuses it */
   useEffect(() => {
     let cancelled = false;
+    clipboardCacheRef.current = undefined;
     const validate = async () => {
       try {
         await navigator.permissions.query({ name: 'clipboard-read' as PermissionName });
         const pastedNodeValue = await ClipboardService.paste();
         if (!cancelled) {
+          clipboardCacheRef.current = pastedNodeValue;
           setIsCompatible(inferClipboardCompatibility(pastedNodeValue));
         }
       } catch (error) {
-        // fallback to allow pasting incase of permission issues (for Firefox or other browsers)
+        // fallback to allow pasting in case of permission issues (for Firefox or other browsers)
+        console.warn('Clipboard permission check failed, falling back to allow paste:', error);
         if (!cancelled) {
+          clipboardCacheRef.current = null;
           setIsCompatible(true);
         }
       }
@@ -71,11 +76,14 @@ export const usePasteEntity = () => {
   }, [inferClipboardCompatibility]);
 
   /**
-   * Paste entity from clipboard
+   * Paste entity from clipboard — reuses the cached result from the compatibility check
+   * to avoid a second clipboard read (TOCTOU).
    */
   const onPasteEntity = useCallback(async () => {
     if (!entitiesContext) return;
-    const clipboardContent = await ClipboardService.paste();
+    // If the effect hasn't resolved yet, do a fresh read rather than failing immediately
+    const clipboardContent =
+      clipboardCacheRef.current !== undefined ? clipboardCacheRef.current : await ClipboardService.paste();
 
     if (!clipboardContent) {
       await actionConfirmationContext?.actionConfirmation({

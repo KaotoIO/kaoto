@@ -158,8 +158,10 @@ export class PipeVisualEntity implements BaseVisualEntity {
   }
 
   pasteStep(options: { clipboardContent: IClipboardContent; mode: AddStepMode; data: IVisualizationNodeData }) {
-    const step = options.clipboardContent.definition as PipeStep;
-    this.addNewStep(step, options.mode, options.data);
+    const definition = options.clipboardContent.definition;
+    // Guard: a whole-pipe object has a `spec` property, not a `ref` — reject it
+    if (!definition || typeof definition !== 'object' || 'spec' in definition) return;
+    this.addNewStep(definition as PipeStep, options.mode, options.data);
   }
 
   canDragNode(path?: string) {
