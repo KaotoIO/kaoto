@@ -774,6 +774,32 @@ describe('Pipe', () => {
       expect(pipeVisualEntity.pipe.spec!.steps).toHaveLength(2);
       expect(pipeVisualEntity.pipe.spec!.steps).toMatchSnapshot();
     });
+
+    it('should reject a whole-pipe definition (has `spec`) and leave the model unchanged', () => {
+      const stepsBefore = pipeVisualEntity.pipe.spec!.steps?.length ?? 0;
+      pipeVisualEntity.pasteStep({
+        clipboardContent: {
+          name: 'pipe',
+          definition: {
+            spec: { source: {}, sink: {} },
+            metadata: { name: 'my-pipe' },
+          },
+        },
+        mode: AddStepMode.AppendStep,
+        data: {
+          path: 'steps.0',
+          name: 'log-action',
+          isPlaceholder: false,
+          isGroup: false,
+          title: '',
+          description: '',
+          iconUrl: '',
+          processorIconTooltip: '',
+        },
+      });
+
+      expect(pipeVisualEntity.pipe.spec!.steps).toHaveLength(stepsBefore);
+    });
   });
 
   describe('getCopiedContent', () => {

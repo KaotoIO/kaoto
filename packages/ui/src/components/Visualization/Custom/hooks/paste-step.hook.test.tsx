@@ -122,15 +122,15 @@ describe('usePasteStep', () => {
     const { result } = renderHook(() => usePasteStep(mockVizNode, AddStepMode.AppendStep), { wrapper });
     await waitFor(() => {
       expect(result.current.isCompatible).toBe(true);
-      // ClipboardService.paste() called 1st time to check the paste compatibilty
+      // ClipboardService.paste() called once by the effect to check compatibility and populate the cache
       expect(pasteSpy).toHaveBeenCalledTimes(1);
       expect(getCompatibleComponentsSpy).toHaveBeenCalledTimes(1);
       expect(mockCatalogModalContext.checkCompatibility as Mock).toHaveBeenCalledTimes(1);
     });
 
     await result.current.onPasteStep();
-    // ClipboardService.paste() called another time by the onPasteStep() execution
-    expect(pasteSpy).toHaveBeenCalledTimes(2);
+    // onPasteStep reuses the cache — no additional paste() call
+    expect(pasteSpy).toHaveBeenCalledTimes(1);
     expect(getCompatibleComponentsSpy).toHaveBeenCalledTimes(2);
     expect(mockCatalogModalContext.checkCompatibility as Mock).toHaveBeenCalledTimes(2);
     expect(mockVizNode.pasteBaseEntityStep as Mock).toHaveBeenCalledTimes(1);
@@ -157,15 +157,15 @@ describe('usePasteStep', () => {
 
     const { result } = renderHook(() => usePasteStep(mockVizNode, AddStepMode.AppendStep), { wrapper });
     await waitFor(() => {
-      // ClipboardService.paste() call skipped as the permission query failed
+      // ClipboardService.paste() call skipped as the permission query failed; cache set to null
       expect(pasteSpy).toHaveBeenCalledTimes(0);
-      // Compatibility set to true intentionally
+      // Compatibility set to true intentionally (fallback)
       expect(result.current.isCompatible).toBe(true);
     });
 
     await result.current.onPasteStep();
-    // ClipboardService.paste() called first time by the onPasteStep() execution
-    expect(pasteSpy).toHaveBeenCalledTimes(1);
+    // Cache is null (permission failed) → onPasteStep exits early, no paste() call
+    expect(pasteSpy).toHaveBeenCalledTimes(0);
     expect(mockVizNode.pasteBaseEntityStep as Mock).toHaveBeenCalledTimes(0);
     expect(mockEntitiesContext.updateEntitiesFromCamelResource as Mock).toHaveBeenCalledTimes(0);
   });
@@ -209,6 +209,10 @@ describe('usePasteStep', () => {
         wrapper,
       });
 
+      // Wait for the effect to populate the cache before calling onPasteStep
+      await waitFor(() => {
+        expect(result.current.isCompatible).toBe(true);
+      });
       await result.current.onPasteStep();
 
       expect(mockChoiceVizNode.pasteBaseEntityStep).toHaveBeenCalledWith(
@@ -245,6 +249,10 @@ describe('usePasteStep', () => {
         wrapper,
       });
 
+      // Wait for the effect to populate the cache before calling onPasteStep
+      await waitFor(() => {
+        expect(result.current.isCompatible).toBe(true);
+      });
       await result.current.onPasteStep();
 
       expect(mockController.fromModel).toHaveBeenCalledWith({

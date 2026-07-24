@@ -111,8 +111,8 @@ export const onPasteDataMapper = async (
   if (!parameters.originalContent || !parameters.updatedContent) return;
 
   const { idMap, updatedNodes } = collectDataMapperNodes(
-    parameters.originalContent.definition,
-    parameters.updatedContent.definition,
+    parameters.originalContent.definition as object,
+    parameters.updatedContent.definition as object,
   );
 
   for (const [originalId, newId] of idMap.entries()) {
