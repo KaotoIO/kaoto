@@ -23,3 +23,4 @@ export * from './set-value';
 export * from './update-kamelet-from-custom-schema';
 export * from './xml-comments';
 export * from './yaml-comments';
+export * from './normalize-oneof-choices';
