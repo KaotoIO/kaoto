@@ -6,7 +6,14 @@ import {
   PrimitiveDocument,
 } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
-import { DocumentNodeData } from '../../models/datamapper/visualization';
+import { MappingTree } from '../../models/datamapper/mapping';
+import {
+  DocumentNodeData,
+  FieldItemNodeData,
+  TargetDocumentNodeData,
+  TargetFieldNodeData,
+} from '../../models/datamapper/visualization';
+import { MappingService } from '../../services/mapping/mapping.service';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
 import { TestUtil } from '../../stubs/datamapper/data-mapper';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
@@ -457,6 +464,64 @@ describe('TreeUIService', () => {
 
       // After odd number of toggles, state should be opposite of initial
       expect(store.isExpanded(documentId, nodePath)).toBe(!initialState);
+    });
+  });
+
+  describe('expansion state preservation across tree rebuild', () => {
+    it('should preserve collapsed state when tree is rebuilt for same document', () => {
+      const tree = TreeUIService.createTree(sourceDocNode);
+      const documentId = sourceDocNode.id;
+      const store = useDocumentTreeStore.getState();
+
+      const contentRoot = tree.contentRoots[0];
+      expect(store.isExpanded(documentId, contentRoot.path)).toBe(true);
+
+      TreeUIService.toggleNode(documentId, contentRoot.path);
+      expect(store.isExpanded(documentId, contentRoot.path)).toBe(false);
+
+      const tree2 = TreeUIService.createTree(sourceDocNode);
+      const contentRoot2 = tree2.contentRoots[0];
+      expect(store.isExpanded(documentId, contentRoot2.path)).toBe(false);
+    });
+
+    it('should preserve expansion state via field identity when node type transitions', () => {
+      const targetDoc = TestUtil.createTargetOrderDoc();
+      const mappingTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const targetDocNode = new TargetDocumentNodeData(targetDoc, mappingTree);
+      const tree1 = TreeUIService.createTree(targetDocNode);
+      const documentId = targetDocNode.id;
+      const store = useDocumentTreeStore.getState();
+
+      const contentRoot = tree1.contentRoots[0];
+      expect(contentRoot.nodeData).toBeInstanceOf(TargetFieldNodeData);
+      expect(store.isExpanded(documentId, contentRoot.path)).toBe(true);
+
+      TreeUIService.toggleNode(documentId, contentRoot.path);
+      expect(store.isExpanded(documentId, contentRoot.path)).toBe(false);
+
+      const field = (contentRoot.nodeData as TargetFieldNodeData).field;
+      MappingService.createFieldItem(mappingTree, field);
+
+      const newMappingTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      newMappingTree.children = mappingTree.children.map((child) => {
+        child.parent = newMappingTree;
+        return child;
+      });
+      const targetDocNode2 = new TargetDocumentNodeData(targetDoc, newMappingTree);
+      const tree2 = TreeUIService.createTree(targetDocNode2);
+
+      const newContentRoot = tree2.contentRoots[0];
+      expect(newContentRoot.nodeData).toBeInstanceOf(FieldItemNodeData);
+      expect(newContentRoot.path).not.toBe(contentRoot.path);
+      expect(store.isExpanded(documentId, newContentRoot.path)).toBe(false);
     });
   });
 });
