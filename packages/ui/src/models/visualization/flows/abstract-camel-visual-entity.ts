@@ -1,6 +1,8 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
+import { cloneDeep } from 'lodash';
 
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
 import { getArrayProperty, getValue, setValue } from '../../../utils';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
@@ -13,6 +15,7 @@ import {
   BaseVisualEntity,
   IVisualizationNode,
   IVisualizationNodeData,
+  IVisualizationNodeIds,
   NodeInteraction,
 } from '../base-visual-entity';
 import { IClipboardContent } from '../clipboard';
@@ -67,6 +70,79 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     const definition = getValue(this.entityDef, path);
     const camelElementLookup = CamelComponentSchemaService.getCamelComponentLookup(path, definition);
     return CamelComponentSchemaService.getSchema(camelElementLookup);
+  }
+
+  async fetchNodeSchema(ids: IVisualizationNodeIds): Promise<KaotoSchemaDefinition['schema'] | undefined> {
+    if (!ids.primaryNodeId) {
+      return;
+    }
+
+    /* This could be an Entity or Pattern (EIP) */
+    const primaryCatalogEntry = await DynamicCatalogRegistry.get().getEntity(
+      ids.primaryNodeId.catalogKind,
+      ids.primaryNodeId.name,
+    );
+
+    if (!primaryCatalogEntry?.propertiesSchema) {
+      return;
+    }
+
+    const schema: KaotoSchemaDefinition['schema'] = cloneDeep(primaryCatalogEntry?.propertiesSchema);
+
+    /* This would be a Component, in case it's not, we can return the schema so far */
+    if (ids.secondaryNodeId?.catalogKind !== CatalogKind.Component) {
+      return schema;
+    }
+
+    const camelComponentDefinition = await DynamicCatalogRegistry.get().getEntity(
+      ids.secondaryNodeId.catalogKind,
+      ids.secondaryNodeId.name,
+    );
+
+    /* If the component entry cannot be found in the Catalog, we can return the schema so far */
+    if (!camelComponentDefinition) {
+      return schema;
+    }
+
+    /* Filter out producer/consumer properties depending upon the endpoint usage */
+    const actualComponentProperties = Object.fromEntries(
+      Object.entries(camelComponentDefinition.propertiesSchema.properties ?? {}).filter(([, propertySchema]) => {
+        if (ids.primaryNodeId?.name === 'from') {
+          return !propertySchema.$comment?.includes('producer');
+        } else {
+          return !propertySchema.$comment?.includes('consumer');
+        }
+      }),
+    );
+
+    schema.properties ??= {};
+    if (!schema.properties.parameters) {
+      schema.properties.parameters = { type: 'object', properties: {} };
+    }
+    schema.properties.parameters.properties = actualComponentProperties;
+    schema.properties.parameters.required = camelComponentDefinition.propertiesSchema.required;
+    schema.properties.parameters['x-component-name'] = ids.secondaryNodeId.name;
+
+    /* This would be a Kamelet definition being used by the kamelet component, f.i. `uri: kamelet:weather-action`, in case it's not, we can return the schema so far */
+    if (ids.tertiaryNodeId?.catalogKind !== CatalogKind.Kamelet) {
+      return schema;
+    }
+
+    const kameletDefinition = await DynamicCatalogRegistry.get().getEntity(
+      ids.tertiaryNodeId.catalogKind,
+      ids.tertiaryNodeId.name,
+    );
+
+    /* If the kamelet entry cannot be found in the Catalog, we can return the schema so far */
+    if (!kameletDefinition) {
+      return schema;
+    }
+
+    schema.properties.parameters = kameletDefinition.spec.definition as KaotoSchemaDefinition['schema'];
+    schema.properties.parameters['x-kamelet-name'] = ids.tertiaryNodeId.name;
+    schema.properties.parameters.type = 'object';
+
+    return schema;
   }
 
   getNodeDefinition(path?: string): unknown {

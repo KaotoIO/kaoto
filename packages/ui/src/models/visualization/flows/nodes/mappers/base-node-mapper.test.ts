@@ -35,7 +35,7 @@ describe('BaseNodeMapper', () => {
         processorName: 'from',
         componentName: 'timer',
       });
-      expect(vizNode.data.primaryNodeId).toEqual({ name: 'from', catalogKind: CatalogKind.Processor });
+      expect(vizNode.data.primaryNodeId).toEqual({ name: 'from', catalogKind: CatalogKind.Pattern });
       expect(vizNode.data.secondaryNodeId).toEqual({ name: 'timer', catalogKind: CatalogKind.Component });
       expect(vizNode.data.tertiaryNodeId).toBeUndefined();
     });
@@ -47,7 +47,7 @@ describe('BaseNodeMapper', () => {
 
       const vizNode = await mapper.getVizNodeFromProcessor('route.log', processorOnlyLookup, {});
 
-      expect(vizNode.data.primaryNodeId).toEqual({ name: 'log', catalogKind: CatalogKind.Processor });
+      expect(vizNode.data.primaryNodeId).toEqual({ name: 'log', catalogKind: CatalogKind.Pattern });
       expect(vizNode.data.secondaryNodeId).toBeUndefined();
       expect(vizNode.data.tertiaryNodeId).toBeUndefined();
     });
@@ -122,7 +122,7 @@ describe('BaseNodeMapper', () => {
         processorName: 'to',
         componentName: 'kamelet:postgresql-sink',
       });
-      expect(vizNode.data.primaryNodeId).toEqual({ name: 'to', catalogKind: CatalogKind.Processor });
+      expect(vizNode.data.primaryNodeId).toEqual({ name: 'to', catalogKind: CatalogKind.Pattern });
       expect(vizNode.data.secondaryNodeId).toEqual({ name: 'kamelet', catalogKind: CatalogKind.Component });
       expect(vizNode.data.tertiaryNodeId).toEqual({ name: 'postgresql-sink', catalogKind: CatalogKind.Kamelet });
     });

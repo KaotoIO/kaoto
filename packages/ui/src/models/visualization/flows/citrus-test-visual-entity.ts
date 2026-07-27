@@ -15,6 +15,7 @@ import {
   BaseVisualEntity,
   IVisualizationNode,
   IVisualizationNodeData,
+  IVisualizationNodeIds,
   NodeInteraction,
 } from '../base-visual-entity';
 import { IClipboardContent } from '../clipboard';
@@ -177,6 +178,21 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
 
     const actionName = CitrusTestSchemaService.extractTestActionName(path);
     return CitrusTestSchemaService.getNodeSchema(actionName);
+  }
+
+  async fetchNodeSchema(ids: IVisualizationNodeIds): Promise<KaotoSchemaDefinition['schema'] | undefined> {
+    const { primaryNodeId } = ids;
+    if (!primaryNodeId) {
+      return undefined;
+    }
+
+    if (primaryNodeId.catalogKind === CatalogKind.Entity) {
+      // Root test group node — use the static catalog (same as getNodeSchema at root path)
+      return this.getRootTestSchema();
+    }
+
+    // Test action / container nodes — use CitrusTestSchemaService (static catalog)
+    return CitrusTestSchemaService.getNodeSchema(primaryNodeId.name);
   }
 
   getNodeDefinition(path?: string): unknown {
