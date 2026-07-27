@@ -2,12 +2,20 @@ import { ProcessorDefinition, RestConfiguration } from '@kaoto/camel-catalog/typ
 import { getValidator, isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { setValue } from '../../../utils';
 import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities/base-entity';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
-import { BaseVisualEntity, IVisualizationNode, IVisualizationNodeData, NodeInteraction } from '../base-visual-entity';
+import {
+  BaseVisualEntity,
+  IVisualizationNode,
+  IVisualizationNodeData,
+  IVisualizationNodeIds,
+  NodeInteraction,
+} from '../base-visual-entity';
 import { IClipboardContent } from '../clipboard';
+import { NodeIdentity } from '../node-identity';
 import { createVisualizationNode } from '../visualization-node';
 import { CamelCatalogService } from './camel-catalog.service';
 import { NodeEnrichmentService } from './nodes/node-enrichment.service';
@@ -89,6 +97,15 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualEntity {
     return schema?.propertiesSchema ?? {};
   }
 
+  async fetchNodeSchema(ids: IVisualizationNodeIds): Promise<KaotoSchemaDefinition['schema'] | undefined> {
+    const { primaryNodeId } = ids;
+    if (!primaryNodeId) {
+      return undefined;
+    }
+    const definition = await DynamicCatalogRegistry.get().getEntity(primaryNodeId.catalogKind, primaryNodeId.name);
+    return definition?.propertiesSchema;
+  }
+
   getNodeDefinition(): unknown {
     return { ...this.restConfigurationDef.restConfiguration };
   }
@@ -124,9 +141,7 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualEntity {
     const schema = this.getNodeSchema();
     if (!schema) return undefined;
 
-    if (!this.schemaValidator) {
-      this.schemaValidator = getValidator<RestConfiguration>(schema, { useDefaults: 'empty' });
-    }
+    this.schemaValidator ??= getValidator<RestConfiguration>(schema, { useDefaults: 'empty' });
 
     this.schemaValidator?.({ ...this.restConfigurationDef.restConfiguration });
 
@@ -145,6 +160,7 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualEntity {
       description: '',
       processorIconTooltip: '',
       processorName: 'restConfiguration' as keyof ProcessorDefinition,
+      primaryNodeId: { name: this.type, catalogKind: CatalogKind.Entity } satisfies NodeIdentity,
     });
 
     // Enrich as Entity (not Processor) to get proper title formatting

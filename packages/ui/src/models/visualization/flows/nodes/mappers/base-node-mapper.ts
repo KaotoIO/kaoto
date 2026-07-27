@@ -35,12 +35,12 @@ export class BaseNodeMapper implements INodeMapper {
       catalogKind = CatalogKind.Component;
       name = componentLookup.componentName;
     } else {
-      catalogKind = CatalogKind.Processor;
+      catalogKind = CatalogKind.Pattern;
       name = componentLookup.processorName;
     }
     const primaryNodeId: NodeIdentity = {
       name: componentLookup.processorName,
-      catalogKind: CatalogKind.Processor,
+      catalogKind: CatalogKind.Pattern,
     };
     let secondaryNodeId: NodeIdentity | undefined;
     let tertiaryNodeId: NodeIdentity | undefined;
