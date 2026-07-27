@@ -5,7 +5,7 @@ import { FieldItem, ForEachGroupItem, ForEachItem, MappingItem } from '../../../
 import { MappingActionKind } from '../../../../models/datamapper/mapping-action';
 import { MappingService } from '../../../../services/mapping/mapping.service';
 import { FieldCandidateService } from '../../../../services/visualization/field-candidate.service';
-import { WrapperSelectionModal } from '../WrapperSelectionModal';
+import { WrapperSelectionModal } from '../FieldContextMenu';
 import { CommentModal } from './Comment/CommentModal';
 import { ForEachGroupModal } from './ForEachGroup/ForEachGroupModal';
 import { ModalAction } from './modal-action';

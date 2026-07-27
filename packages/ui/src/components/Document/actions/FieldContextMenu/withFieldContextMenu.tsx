@@ -1,13 +1,13 @@
 import { ComponentType, MouseEvent, useCallback, useMemo } from 'react';
 
-import { DocumentTreeNode } from '../../../models/datamapper/document-tree-node';
-import { IFieldMenuGroup } from '../../../models/datamapper/field-action';
-import { VisualizationUtilService } from '../../../services/visualization/visualization-util.service';
+import { DocumentTreeNode } from '../../../../models/datamapper/document-tree-node';
+import { IFieldMenuGroup } from '../../../../models/datamapper/field-action';
+import { VisualizationUtilService } from '../../../../services/visualization/visualization-util.service';
 import { FieldContextMenu } from './FieldContextMenu';
-import { useAbstractFieldSubstitutionMenu } from './FieldContextMenu/useAbstractFieldSubstitutionMenu';
-import { useChoiceContextMenu } from './FieldContextMenu/useChoiceContextMenu';
-import { useContextMenuState } from './FieldContextMenu/useContextMenuState';
-import { useFieldOverrideMenu } from './FieldContextMenu/useFieldOverrideMenu';
+import { useAbstractFieldSubstitutionMenu } from './useAbstractFieldSubstitutionMenu';
+import { useChoiceContextMenu } from './useChoiceContextMenu';
+import { useContextMenuState } from './useContextMenuState';
+import { useFieldOverrideMenu } from './useFieldOverrideMenu';
 
 type WithTreeNode = {
   treeNode: DocumentTreeNode;

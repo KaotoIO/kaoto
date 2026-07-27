@@ -8,9 +8,9 @@ import { IFieldMenuAction, IMemberSelection } from '../../../../models/datamappe
 import { NodeData } from '../../../../models/datamapper/visualization';
 import { WrapperSelectionService } from '../../../../services/document/wrapper-selection.service';
 import { AbstractFieldService } from '../../../../services/visualization/abstract-field.service';
-import { WrapperSelectionModal } from '../WrapperSelectionModal';
 import { buildSelectSelfAction } from './menu-utils';
 import { MenuContributor } from './types';
+import { WrapperSelectionModal } from './WrapperSelectionModal';
 
 export function useAbstractFieldSubstitutionMenu(nodeData: NodeData): MenuContributor {
   const { mappingTree, updateDocument } = useDataMapper();

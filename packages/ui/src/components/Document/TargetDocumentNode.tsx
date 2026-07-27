@@ -19,9 +19,9 @@ import { VisualizationService } from '../../services/visualization/visualization
 import { VisualizationUtilService } from '../../services/visualization/visualization-util.service';
 import { useDocumentTreeStore } from '../../store';
 import { DocumentActions } from './actions/DocumentActions';
+import { withFieldContextMenu } from './actions/FieldContextMenu';
 import { OverrideIndicator } from './actions/FieldOverride/OverrideIndicator';
 import { TargetNodeActions } from './actions/TargetNodeActions';
-import { withFieldContextMenu } from './actions/withFieldContextMenu';
 import { AddMappingNode } from './AddMappingNode';
 import { handleNodeKeyDown } from './document-node.utils';
 import { NodeContainer } from './NodeContainer';

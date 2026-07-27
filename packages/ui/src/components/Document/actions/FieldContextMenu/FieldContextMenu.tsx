@@ -3,7 +3,7 @@ import './FieldContextMenu.scss';
 import { Divider, Menu, MenuContent, MenuItem, MenuList } from '@patternfly/react-core';
 import { Fragment, FunctionComponent } from 'react';
 
-import { IFieldMenuGroup } from '../../../models/datamapper/field-action';
+import { IFieldMenuGroup } from '../../../../models/datamapper/field-action';
 
 export interface IFieldContextMenuProps {
   groups: IFieldMenuGroup[];
