@@ -44,7 +44,7 @@ export interface IMemberSelection {
 
 /**
  * Display-ready candidate for the wrapper selection modal or inline menu.
- * Built by {@link WrapperActionService} from schema fields; consumed by
+ * Built by {@link ChoiceFieldService} from schema fields; consumed by
  * {@link WrapperSelectionModal} and inline menu builders without further
  * transformation.
  */
@@ -61,7 +61,7 @@ export interface IWrapperCandidate {
 
 /**
  * Resolved abstract-field context for a visualization node. Pure read result
- * from {@link WrapperActionService.resolveAbstractFieldInfo} — classifies what
+ * from {@link AbstractFieldService.resolveInfo} — classifies what
  * role the node plays relative to abstract wrappers so the hook can decide
  * which menu actions to offer without re-deriving wrapper relationships.
  */
@@ -109,7 +109,7 @@ export interface IChoiceNodeInfo {
 // ── Menu builder configs ──
 
 /**
- * Config for {@link WrapperActionService.buildMenuGroupsForAbstractNode}.
+ * Config for {@link AbstractFieldService.buildMenuGroups}.
  * Hooks populate this with resolved state and pre-built action closures;
  * the service assembles groups without touching React state.
  *
@@ -134,7 +134,7 @@ export interface IAbstractMenuGroupsConfig {
   unselectedIcon: ReactNode;
 }
 
-/** Config for {@link WrapperActionService.buildMenuGroupsForChoiceNode}. See {@link IAbstractMenuGroupsConfig}. */
+/** Config for {@link ChoiceFieldService.buildMenuGroups}. See {@link IAbstractMenuGroupsConfig}. */
 export interface IChoiceMenuGroupsConfig {
   isChoiceWrapper: boolean;
   isChoiceWrapperMember: boolean;

@@ -15,10 +15,9 @@ import { DocumentUtilService } from '../document/document-util.service';
 import { FieldOverrideService } from '../document/field-override.service';
 import { WrapperSelectionService } from '../document/wrapper-selection.service';
 import { MappingService } from '../mapping/mapping.service';
-import { SchemaPathService } from '../schema-path.service';
+import { AbstractFieldService } from './abstract-field.service';
 import { MappingActionService } from './mapping-action.service';
 import { VisualizationUtilService } from './visualization-util.service';
-import { WrapperActionService } from './wrapper-action.service';
 
 vi.mock('../document/field-override.service', () => ({
   FieldOverrideService: {
@@ -122,14 +121,14 @@ function createFieldItemNodeData(fieldItem: FieldItem, wrapperField?: IField): F
   return new FieldItemNodeData(parentNode, fieldItem, wrapperField);
 }
 
-describe('WrapperActionService (abstract)', () => {
+describe('AbstractFieldService', () => {
   const namespaceMap = { xs: 'http://www.w3.org/2001/XMLSchema' };
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe('resolveAbstractFieldInfo', () => {
+  describe('resolveInfo', () => {
     it('should identify an abstract wrapper field', () => {
       const field = mockField({ wrapperKind: 'abstract' });
       const nodeData = { field } as unknown as FieldNodeData;
@@ -137,7 +136,7 @@ describe('WrapperActionService (abstract)', () => {
       vi.mocked(VisualizationUtilService.isAbstractWrapperMember).mockReturnValue(false);
       vi.mocked(VisualizationUtilService.isAbstractField).mockReturnValue(false);
 
-      const result = WrapperActionService.resolveAbstractFieldInfo(nodeData, namespaceMap);
+      const result = AbstractFieldService.resolveInfo(nodeData, namespaceMap);
 
       expect(result.isAbstractWrapper).toBe(true);
       expect(result.abstractWrapperField).toBe(field);
@@ -151,7 +150,7 @@ describe('WrapperActionService (abstract)', () => {
       vi.mocked(VisualizationUtilService.isAbstractWrapperMember).mockReturnValue(false);
       vi.mocked(VisualizationUtilService.isAbstractField).mockReturnValue(true);
 
-      const result = WrapperActionService.resolveAbstractFieldInfo(nodeData, namespaceMap);
+      const result = AbstractFieldService.resolveInfo(nodeData, namespaceMap);
 
       expect(result.isSelectedSubstitution).toBe(true);
       expect(result.abstractWrapperField).toBe(abstractField);
@@ -167,7 +166,7 @@ describe('WrapperActionService (abstract)', () => {
       vi.mocked(VisualizationUtilService.isAbstractWrapperMember).mockReturnValue(true);
       vi.mocked(VisualizationUtilService.isAbstractField).mockReturnValue(false);
 
-      const result = WrapperActionService.resolveAbstractFieldInfo(nodeData, namespaceMap);
+      const result = AbstractFieldService.resolveInfo(nodeData, namespaceMap);
 
       expect(result.isAbstractWrapperMember).toBe(true);
       expect(result.abstractWrapperField).toBe(wrapperField);
@@ -185,7 +184,7 @@ describe('WrapperActionService (abstract)', () => {
       vi.mocked(VisualizationUtilService.isAbstractWrapperMember).mockReturnValue(true);
       vi.mocked(VisualizationUtilService.isAbstractField).mockReturnValue(false);
 
-      const result = WrapperActionService.resolveAbstractFieldInfo(nodeData, namespaceMap);
+      const result = AbstractFieldService.resolveInfo(nodeData, namespaceMap);
 
       expect(result.isAbstractWrapperMember).toBe(true);
       expect(result.abstractWrapperField).toBe(abstractField);
@@ -202,7 +201,7 @@ describe('WrapperActionService (abstract)', () => {
         'ns:Cat': mockSubstituteInfo('Cat'),
       });
 
-      const result = WrapperActionService.resolveAbstractFieldInfo(nodeData, namespaceMap);
+      const result = AbstractFieldService.resolveInfo(nodeData, namespaceMap);
 
       expect(result.isSubstitutionCandidate).toBe(true);
       expect(result.parentAbstractField).toBe(parent);
@@ -217,7 +216,7 @@ describe('WrapperActionService (abstract)', () => {
       vi.mocked(VisualizationUtilService.isAbstractWrapperMember).mockReturnValue(false);
       vi.mocked(VisualizationUtilService.isAbstractField).mockReturnValue(false);
 
-      const result = WrapperActionService.resolveAbstractFieldInfo(nodeData, namespaceMap);
+      const result = AbstractFieldService.resolveInfo(nodeData, namespaceMap);
 
       expect(result.isSubstitutionCandidate).toBe(false);
       expect(result.parentAbstractField).toBeUndefined();
@@ -231,7 +230,7 @@ describe('WrapperActionService (abstract)', () => {
       vi.mocked(VisualizationUtilService.isAbstractWrapperMember).mockReturnValue(false);
       vi.mocked(VisualizationUtilService.isAbstractField).mockReturnValue(false);
 
-      const result = WrapperActionService.resolveAbstractFieldInfo(nodeData, namespaceMap);
+      const result = AbstractFieldService.resolveInfo(nodeData, namespaceMap);
 
       expect(result.isAbstractWrapper).toBe(false);
       expect(result.isAbstractWrapperMember).toBe(false);
@@ -251,7 +250,7 @@ describe('WrapperActionService (abstract)', () => {
         'ns:Dog': mockSubstituteInfo('Dog'),
       });
 
-      const result = WrapperActionService.buildAbstractCandidates(abstractField, namespaceMap);
+      const result = AbstractFieldService.buildAbstractCandidates(abstractField, namespaceMap);
 
       expect(result).toHaveLength(2);
       expect(result[0]).toEqual(
@@ -274,7 +273,7 @@ describe('WrapperActionService (abstract)', () => {
       const abstractField = mockField({ wrapperKind: 'abstract' });
       vi.mocked(FieldOverrideService.getFieldSubstitutionCandidates).mockReturnValue({});
 
-      const result = WrapperActionService.buildAbstractCandidates(abstractField, namespaceMap);
+      const result = AbstractFieldService.buildAbstractCandidates(abstractField, namespaceMap);
 
       expect(result).toHaveLength(0);
     });
@@ -282,7 +281,7 @@ describe('WrapperActionService (abstract)', () => {
 
   describe('resolveSubstitutionCandidates', () => {
     it('should return empty record when abstractWrapperField is undefined', () => {
-      const result = WrapperActionService.resolveSubstitutionCandidates(undefined, namespaceMap);
+      const result = AbstractFieldService.resolveSubstitutionCandidates(undefined, namespaceMap);
 
       expect(result).toEqual({});
       expect(FieldOverrideService.getFieldSubstitutionCandidates).not.toHaveBeenCalled();
@@ -293,7 +292,7 @@ describe('WrapperActionService (abstract)', () => {
       const expected = { 'ns:Cat': mockSubstituteInfo('Cat') };
       vi.mocked(FieldOverrideService.getFieldSubstitutionCandidates).mockReturnValue(expected);
 
-      const result = WrapperActionService.resolveSubstitutionCandidates(field, namespaceMap);
+      const result = AbstractFieldService.resolveSubstitutionCandidates(field, namespaceMap);
 
       expect(result).toBe(expected);
       expect(FieldOverrideService.getFieldSubstitutionCandidates).toHaveBeenCalledWith(field, namespaceMap);
@@ -302,7 +301,7 @@ describe('WrapperActionService (abstract)', () => {
 
   describe('resolveSelectedQName', () => {
     it('should return undefined when abstractWrapperField is undefined', () => {
-      const result = WrapperActionService.resolveSelectedQName(undefined, {});
+      const result = AbstractFieldService.resolveSelectedQName(undefined, {});
 
       expect(result).toBeUndefined();
     });
@@ -315,7 +314,7 @@ describe('WrapperActionService (abstract)', () => {
         'ns:Cat': mockSubstituteInfo('Cat'),
       };
 
-      const result = WrapperActionService.resolveSelectedQName(field, candidates);
+      const result = AbstractFieldService.resolveSelectedQName(field, candidates);
 
       expect(result).toBe('ns:Cat');
     });
@@ -324,7 +323,7 @@ describe('WrapperActionService (abstract)', () => {
       const field = mockField({ wrapperKind: 'abstract' });
       vi.mocked(DocumentUtilService.getSelectedMember).mockReturnValue(undefined);
 
-      const result = WrapperActionService.resolveSelectedQName(field, {});
+      const result = AbstractFieldService.resolveSelectedQName(field, {});
 
       expect(result).toBeUndefined();
     });
@@ -333,19 +332,19 @@ describe('WrapperActionService (abstract)', () => {
   describe('resolveMemberSelectedQName', () => {
     it('should return undefined when not abstract wrapper member', () => {
       const field = mockField();
-      const result = WrapperActionService.resolveMemberSelectedQName(false, field, mockField(), {});
+      const result = AbstractFieldService.resolveMemberSelectedQName(false, field, mockField(), {});
 
       expect(result).toBeUndefined();
     });
 
     it('should return undefined when field is undefined', () => {
-      const result = WrapperActionService.resolveMemberSelectedQName(true, undefined, mockField(), {});
+      const result = AbstractFieldService.resolveMemberSelectedQName(true, undefined, mockField(), {});
 
       expect(result).toBeUndefined();
     });
 
     it('should return undefined when abstractWrapperField is undefined', () => {
-      const result = WrapperActionService.resolveMemberSelectedQName(true, mockField(), undefined, {});
+      const result = AbstractFieldService.resolveMemberSelectedQName(true, mockField(), undefined, {});
 
       expect(result).toBeUndefined();
     });
@@ -357,7 +356,7 @@ describe('WrapperActionService (abstract)', () => {
         'ns:Cat': mockSubstituteInfo('Cat'),
       };
 
-      const result = WrapperActionService.resolveMemberSelectedQName(true, field, abstractField, candidates);
+      const result = AbstractFieldService.resolveMemberSelectedQName(true, field, abstractField, candidates);
 
       expect(result).toBe('ns:Cat');
     });
@@ -379,7 +378,7 @@ describe('WrapperActionService (abstract)', () => {
       vi.mocked(MappingActionService.getOrCreateFieldItem).mockReturnValue(mockFieldItem);
       vi.mocked(MappingService.createFieldItem).mockReturnValue(mockFieldItem);
 
-      WrapperActionService.applyAbstractSubstitution(
+      AbstractFieldService.applyAbstractSubstitution(
         nodeData,
         wrapperField,
         'ns:Cat',
@@ -397,7 +396,7 @@ describe('WrapperActionService (abstract)', () => {
       const wrapperField = mockField({ maxOccurs: -1 });
       const nodeData = {} as FieldNodeData;
 
-      WrapperActionService.applyAbstractSubstitution(
+      AbstractFieldService.applyAbstractSubstitution(
         nodeData,
         wrapperField,
         'ns:Cat',
@@ -414,7 +413,7 @@ describe('WrapperActionService (abstract)', () => {
       const wrapperField = mockField({ maxOccurs: 1 });
       const nodeData = {} as FieldNodeData;
 
-      WrapperActionService.applyAbstractSubstitution(
+      AbstractFieldService.applyAbstractSubstitution(
         nodeData,
         wrapperField,
         'ns:Cat',
@@ -435,10 +434,9 @@ describe('WrapperActionService (abstract)', () => {
       const fieldItem = new FieldItem(tree, wrapperField);
       const nodeData = createFieldItemNodeData(fieldItem);
 
-      WrapperActionService.clearAbstractSubstitution(nodeData, wrapperField, namespaceMap, true);
+      AbstractFieldService.clearAbstractSubstitution(nodeData, wrapperField, namespaceMap, true);
 
       expect(FieldOverrideService.revertFieldSubstitution).not.toHaveBeenCalled();
-      expect(SchemaPathService.build).not.toHaveBeenCalled();
       expect(MappingService.updateFieldItemField).toHaveBeenCalledWith(fieldItem, wrapperField);
     });
 
@@ -447,9 +445,8 @@ describe('WrapperActionService (abstract)', () => {
       const wrapperField = mockField({ maxOccurs: -1, ownerDocument });
       const nodeData = {} as FieldNodeData;
 
-      WrapperActionService.clearAbstractSubstitution(nodeData, wrapperField, namespaceMap, false);
+      AbstractFieldService.clearAbstractSubstitution(nodeData, wrapperField, namespaceMap, false);
 
-      expect(SchemaPathService.build).toHaveBeenCalledWith(wrapperField, namespaceMap);
       expect(DocumentUtilService.invalidateDescendants).toHaveBeenCalled();
       expect(FieldOverrideService.revertFieldSubstitution).toHaveBeenCalledWith(wrapperField, namespaceMap);
     });
@@ -461,7 +458,7 @@ describe('WrapperActionService (abstract)', () => {
       const fieldItem = new FieldItem(tree, wrapperField);
       const nodeData = createTargetFieldNodeData(wrapperField, fieldItem);
 
-      WrapperActionService.clearAbstractSubstitution(nodeData, wrapperField, namespaceMap, true);
+      AbstractFieldService.clearAbstractSubstitution(nodeData, wrapperField, namespaceMap, true);
 
       expect(FieldOverrideService.revertFieldSubstitution).toHaveBeenCalledWith(wrapperField, namespaceMap);
     });
@@ -478,7 +475,7 @@ describe('WrapperActionService (abstract)', () => {
 
       vi.mocked(WrapperSelectionService.findParentWrapper).mockReturnValue(parentChoiceField);
 
-      WrapperActionService.clearAbstractSubstitution(nodeData, wrapperField, namespaceMap, true);
+      AbstractFieldService.clearAbstractSubstitution(nodeData, wrapperField, namespaceMap, true);
 
       expect(FieldOverrideService.revertFieldSubstitution).toHaveBeenCalledWith(wrapperField, namespaceMap);
       expect(WrapperSelectionService.clearChoiceSelection).toHaveBeenCalledWith(
@@ -496,7 +493,7 @@ describe('WrapperActionService (abstract)', () => {
 
       vi.mocked(WrapperSelectionService.findParentWrapper).mockReturnValue(parentChoiceField);
 
-      WrapperActionService.clearAbstractSubstitution(nodeData, wrapperField, namespaceMap, false);
+      AbstractFieldService.clearAbstractSubstitution(nodeData, wrapperField, namespaceMap, false);
 
       expect(FieldOverrideService.revertFieldSubstitution).toHaveBeenCalledWith(wrapperField, namespaceMap);
       expect(WrapperSelectionService.clearChoiceSelection).toHaveBeenCalledWith(
@@ -512,7 +509,7 @@ describe('WrapperActionService (abstract)', () => {
       const fieldItem = new FieldItem(tree, wrapperField);
       const nodeData = createFieldItemNodeData(fieldItem);
 
-      WrapperActionService.clearAbstractSubstitution(nodeData, wrapperField, namespaceMap, true);
+      AbstractFieldService.clearAbstractSubstitution(nodeData, wrapperField, namespaceMap, true);
 
       expect(WrapperSelectionService.clearChoiceSelection).not.toHaveBeenCalled();
     });
@@ -526,14 +523,14 @@ describe('WrapperActionService (abstract)', () => {
 
       vi.mocked(WrapperSelectionService.findParentWrapper).mockReturnValue(undefined);
 
-      WrapperActionService.clearAbstractSubstitution(nodeData, wrapperField, namespaceMap, true);
+      AbstractFieldService.clearAbstractSubstitution(nodeData, wrapperField, namespaceMap, true);
 
       expect(FieldOverrideService.revertFieldSubstitution).toHaveBeenCalledWith(wrapperField, namespaceMap);
       expect(WrapperSelectionService.clearChoiceSelection).not.toHaveBeenCalled();
     });
   });
 
-  describe('buildMenuGroupsForAbstractNode', () => {
+  describe('buildMenuGroups', () => {
     function baseAbstractConfig(overrides: Partial<IAbstractMenuGroupsConfig> = {}): IAbstractMenuGroupsConfig {
       return {
         isAbstractWrapper: false,
@@ -563,7 +560,7 @@ describe('WrapperActionService (abstract)', () => {
         clearSubstitutionAction: clearAction,
       });
 
-      const groups = WrapperActionService.buildMenuGroupsForAbstractNode(config);
+      const groups = AbstractFieldService.buildMenuGroups(config);
 
       expect(groups).toHaveLength(1);
       expect(groups[0].actions).toEqual([clearAction]);
@@ -576,7 +573,7 @@ describe('WrapperActionService (abstract)', () => {
         selectedQName: undefined,
       });
 
-      const groups = WrapperActionService.buildMenuGroupsForAbstractNode(config);
+      const groups = AbstractFieldService.buildMenuGroups(config);
 
       expect(groups).toEqual([]);
     });
@@ -593,7 +590,7 @@ describe('WrapperActionService (abstract)', () => {
         selectSelfAction: { label: 'Select self', onClick: vi.fn() },
       });
 
-      const groups = WrapperActionService.buildMenuGroupsForAbstractNode(config);
+      const groups = AbstractFieldService.buildMenuGroups(config);
 
       expect(groups).toHaveLength(3);
       expect(groups[0].actions[0].label).toBe('Select self');
@@ -615,7 +612,7 @@ describe('WrapperActionService (abstract)', () => {
         candidates,
       });
 
-      const groups = WrapperActionService.buildMenuGroupsForAbstractNode(config);
+      const groups = AbstractFieldService.buildMenuGroups(config);
 
       expect(groups[1].actions).toHaveLength(1);
       expect(groups[1].actions[0].label).toBe('Select Substitute...');
@@ -629,7 +626,7 @@ describe('WrapperActionService (abstract)', () => {
         selectSelfAction: undefined,
       });
 
-      const groups = WrapperActionService.buildMenuGroupsForAbstractNode(config);
+      const groups = AbstractFieldService.buildMenuGroups(config);
 
       expect(groups).toEqual([]);
     });
@@ -641,7 +638,7 @@ describe('WrapperActionService (abstract)', () => {
         selectSelfAction: { label: 'Select self', onClick: vi.fn() },
       });
 
-      const groups = WrapperActionService.buildMenuGroupsForAbstractNode(config);
+      const groups = AbstractFieldService.buildMenuGroups(config);
 
       expect(groups[0].actions).toHaveLength(0);
     });
@@ -655,7 +652,7 @@ describe('WrapperActionService (abstract)', () => {
         changeSubstituteAction: changeAction,
       });
 
-      const groups = WrapperActionService.buildMenuGroupsForAbstractNode(config);
+      const groups = AbstractFieldService.buildMenuGroups(config);
 
       expect(groups).toHaveLength(1);
       expect(groups[0].actions).toEqual([clearAction, changeAction]);

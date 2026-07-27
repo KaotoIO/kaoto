@@ -1,20 +1,15 @@
-import { DocumentDefinition, DocumentDefinitionType, DocumentType, IField } from '../../models/datamapper/document';
+import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../../models/datamapper/document';
 import { FieldItem, MappingTree } from '../../models/datamapper/mapping';
-import { FieldOverrideVariant, IFieldSubstituteInfo, Types } from '../../models/datamapper/types';
-import { TestUtil } from '../../stubs/datamapper/data-mapper';
+import { IFieldSubstituteInfo, Types } from '../../models/datamapper/types';
 import { XmlSchemaCollection } from '../../xml-schema-ts';
 import { QName } from '../../xml-schema-ts/QName';
 import { FieldOverrideService } from '../document/field-override.service';
 import { XmlSchemaDocument, XmlSchemaField } from '../document/xml-schema/xml-schema-document.model';
-import { VisualizationService } from './visualization.service';
-import { WrapperActionService } from './wrapper-action.service';
+import { FieldCandidateService } from './field-candidate.service';
 
 vi.mock('../document/field-override.service', () => ({
   FieldOverrideService: {
-    revertFieldTypeOverride: vi.fn(),
-    revertFieldSubstitution: vi.fn(),
     getFieldSubstitutionCandidates: vi.fn().mockReturnValue({}),
-    applyFieldSubstitution: vi.fn(),
   },
 }));
 
@@ -23,23 +18,6 @@ vi.mock('./visualization.service', () => ({
     getChoiceMemberLabel: vi.fn().mockReturnValue('choice-label'),
   },
 }));
-
-function mockField(overrides: Partial<IField> = {}): IField {
-  return {
-    name: 'field',
-    displayName: 'Field',
-    id: 'field-id',
-    type: Types.String,
-    fields: [],
-    minOccurs: 1,
-    maxOccurs: 1,
-    namespacePrefix: null,
-    namespaceURI: '',
-    namedTypeFragmentRefs: [],
-    typeOverride: FieldOverrideVariant.NONE,
-    ...overrides,
-  } as IField;
-}
 
 function mockSubstituteInfo(
   name: string,
@@ -55,195 +33,9 @@ function mockSubstituteInfo(
   };
 }
 
-describe('WrapperActionService', () => {
-  const namespaceMap = { xs: 'http://www.w3.org/2001/XMLSchema' };
-
+describe('FieldCandidateService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-  });
-
-  describe('resolveCandidateField', () => {
-    it('should use cached candidates when wrapperField matches knownWrapper', () => {
-      const childField = mockField({ name: 'Cat', namespaceURI: 'http://test' });
-      const wrapperField = mockField({ fields: [childField] });
-      const cachedCandidates: Record<string, IFieldSubstituteInfo> = {
-        'ns:Cat': mockSubstituteInfo('Cat'),
-      };
-
-      const result = WrapperActionService.resolveCandidateField(
-        wrapperField,
-        'ns:Cat',
-        cachedCandidates,
-        wrapperField,
-        namespaceMap,
-      );
-
-      expect(result).toBe(childField);
-      expect(FieldOverrideService.getFieldSubstitutionCandidates).not.toHaveBeenCalled();
-    });
-
-    it('should call FieldOverrideService when wrapperField differs from knownWrapper', () => {
-      const childField = mockField({ name: 'Cat', namespaceURI: 'http://test' });
-      const wrapperField = mockField({ fields: [childField] });
-      const otherWrapper = mockField();
-      vi.mocked(FieldOverrideService.getFieldSubstitutionCandidates).mockReturnValue({
-        'ns:Cat': mockSubstituteInfo('Cat'),
-      });
-
-      const result = WrapperActionService.resolveCandidateField(wrapperField, 'ns:Cat', {}, otherWrapper, namespaceMap);
-
-      expect(result).toBe(childField);
-      expect(FieldOverrideService.getFieldSubstitutionCandidates).toHaveBeenCalledWith(wrapperField, namespaceMap);
-    });
-
-    it('should return undefined when qname not found in candidates', () => {
-      const wrapperField = mockField();
-      const result = WrapperActionService.resolveCandidateField(
-        wrapperField,
-        'ns:Unknown',
-        {},
-        wrapperField,
-        namespaceMap,
-      );
-
-      expect(result).toBeUndefined();
-    });
-
-    it('should return matching child field when candidate is found', () => {
-      const childField = mockField({ name: 'Dog', namespaceURI: 'http://test' });
-      const wrapperField = mockField({ fields: [childField] });
-      const cachedCandidates: Record<string, IFieldSubstituteInfo> = {
-        'ns:Dog': mockSubstituteInfo('Dog'),
-      };
-
-      const result = WrapperActionService.resolveCandidateField(
-        wrapperField,
-        'ns:Dog',
-        cachedCandidates,
-        wrapperField,
-        namespaceMap,
-      );
-
-      expect(result).toBe(childField);
-    });
-
-    it('should return undefined when no child field matches the candidate qname', () => {
-      const childField = mockField({ name: 'Cat', namespaceURI: 'http://other' });
-      const wrapperField = mockField({ fields: [childField] });
-      const cachedCandidates: Record<string, IFieldSubstituteInfo> = {
-        'ns:Cat': mockSubstituteInfo('Cat'),
-      };
-
-      const result = WrapperActionService.resolveCandidateField(
-        wrapperField,
-        'ns:Cat',
-        cachedCandidates,
-        wrapperField,
-        namespaceMap,
-      );
-
-      expect(result).toBeUndefined();
-    });
-  });
-
-  describe('fieldToCandidate', () => {
-    it('should use getChoiceMemberLabel for choice wrapper fields', () => {
-      const field = mockField({ wrapperKind: 'choice', type: Types.Container });
-      vi.mocked(VisualizationService.getChoiceMemberLabel).mockReturnValue('(email | phone)');
-
-      const result = WrapperActionService.fieldToCandidate(field, 'key1', 0);
-
-      expect(result.label).toBe('(email | phone)');
-      expect(VisualizationService.getChoiceMemberLabel).toHaveBeenCalledWith(field);
-    });
-
-    it('should use displayName for non-choice fields', () => {
-      const field = mockField({ displayName: 'EmailAddress', type: Types.String });
-
-      const result = WrapperActionService.fieldToCandidate(field, 'key1', 2);
-
-      expect(result.label).toBe('EmailAddress');
-      expect(result.typeBadge).toBe(Types.String);
-      expect(result.selection).toEqual({ memberIndex: 2 });
-    });
-
-    it('should fall back to name when displayName is empty', () => {
-      const field = mockField({ displayName: '', name: 'fallbackName' });
-
-      const result = WrapperActionService.fieldToCandidate(field, 'key1', 0);
-
-      expect(result.label).toBe('fallbackName');
-    });
-
-    it('should populate childrenPreview from first 3 children', () => {
-      const children = [
-        mockField({ displayName: 'A', name: 'a' }),
-        mockField({ displayName: 'B', name: 'b' }),
-        mockField({ displayName: 'C', name: 'c' }),
-        mockField({ displayName: 'D', name: 'd' }),
-        mockField({ displayName: 'E', name: 'e' }),
-      ];
-      const field = mockField({ fields: children });
-
-      const result = WrapperActionService.fieldToCandidate(field, 'key1', 0);
-
-      expect(result.childrenPreview).toEqual(['A', 'B', 'C']);
-    });
-
-    it('should return undefined childrenPreview for field with no children', () => {
-      const field = mockField({ fields: [] });
-
-      const result = WrapperActionService.fieldToCandidate(field, 'key1', 0);
-
-      expect(result.childrenPreview).toBeUndefined();
-    });
-  });
-
-  describe('revertOverride', () => {
-    it('should call revertFieldSubstitution when field has SUBSTITUTION override', () => {
-      const testTargetDoc = TestUtil.createTargetOrderDoc();
-      const field = testTargetDoc.fields[0];
-      field.typeOverride = FieldOverrideVariant.SUBSTITUTION;
-
-      WrapperActionService.revertOverride(field, namespaceMap);
-
-      expect(FieldOverrideService.revertFieldSubstitution).toHaveBeenCalledWith(field, namespaceMap);
-      expect(FieldOverrideService.revertFieldTypeOverride).not.toHaveBeenCalled();
-    });
-
-    it('should not call any service when field has no override', () => {
-      const testTargetDoc = TestUtil.createTargetOrderDoc();
-      const field = testTargetDoc.fields[0];
-      field.typeOverride = FieldOverrideVariant.NONE;
-
-      WrapperActionService.revertOverride(field, namespaceMap);
-
-      expect(FieldOverrideService.revertFieldTypeOverride).not.toHaveBeenCalled();
-      expect(FieldOverrideService.revertFieldSubstitution).not.toHaveBeenCalled();
-    });
-
-    it('should call revertFieldTypeOverride for type override', () => {
-      const testTargetDoc = TestUtil.createTargetOrderDoc();
-      const field = testTargetDoc.fields[0];
-      field.typeOverride = FieldOverrideVariant.SAFE;
-
-      WrapperActionService.revertOverride(field, namespaceMap);
-
-      expect(FieldOverrideService.revertFieldTypeOverride).toHaveBeenCalledWith(field, namespaceMap);
-    });
-
-    it('should call revertFieldSubstitution when field is abstract with selectedMemberQName', () => {
-      const testTargetDoc = TestUtil.createTargetOrderDoc();
-      const field = testTargetDoc.fields[0];
-      field.typeOverride = FieldOverrideVariant.NONE;
-      field.wrapperKind = 'abstract';
-      field.selectedMemberQName = new QName('http://test', 'Cat');
-
-      WrapperActionService.revertOverride(field, namespaceMap);
-
-      expect(FieldOverrideService.revertFieldSubstitution).toHaveBeenCalledWith(field, namespaceMap);
-      expect(FieldOverrideService.revertFieldTypeOverride).not.toHaveBeenCalled();
-    });
   });
 
   describe('computeAddFieldCandidates', () => {
@@ -263,7 +55,7 @@ describe('WrapperActionService', () => {
       parent.fields = [childA, childB];
       doc.fields = [parent];
 
-      const result = WrapperActionService.computeAddFieldCandidates(parent.fields, {}, []);
+      const result = FieldCandidateService.computeAddFieldCandidates(parent.fields, {}, []);
 
       expect(result.candidates).toHaveLength(2);
       expect(result.fields).toHaveLength(2);
@@ -287,7 +79,7 @@ describe('WrapperActionService', () => {
       const tree = new MappingTree(DocumentType.TARGET_BODY, 'test', DocumentDefinitionType.XML_SCHEMA);
       const existingFieldItem = new FieldItem(tree, childA);
 
-      const result = WrapperActionService.computeAddFieldCandidates(parent.fields, {}, [existingFieldItem]);
+      const result = FieldCandidateService.computeAddFieldCandidates(parent.fields, {}, [existingFieldItem]);
 
       expect(result.candidates).toHaveLength(1);
       expect(result.fields).toHaveLength(1);
@@ -307,7 +99,7 @@ describe('WrapperActionService', () => {
       const tree = new MappingTree(DocumentType.TARGET_BODY, 'test', DocumentDefinitionType.XML_SCHEMA);
       const existingFieldItem = new FieldItem(tree, child);
 
-      const result = WrapperActionService.computeAddFieldCandidates(parent.fields, {}, [existingFieldItem]);
+      const result = FieldCandidateService.computeAddFieldCandidates(parent.fields, {}, [existingFieldItem]);
 
       expect(result.candidates).toHaveLength(1);
       expect(result.fields[0]).toBe(child);
@@ -333,9 +125,9 @@ describe('WrapperActionService', () => {
       vi.mocked(FieldOverrideService.getFieldSubstitutionCandidates).mockReturnValue({
         'ns:Concrete': mockSubstituteInfo('Concrete'),
       });
-      vi.spyOn(WrapperActionService, 'resolveCandidateField').mockReturnValue(concreteChild);
+      vi.spyOn(FieldCandidateService, 'resolveCandidateField').mockReturnValue(concreteChild);
 
-      const result = WrapperActionService.computeAddFieldCandidates(parent.fields, {}, [existingFieldItem]);
+      const result = FieldCandidateService.computeAddFieldCandidates(parent.fields, {}, [existingFieldItem]);
 
       expect(result.candidates).toHaveLength(0);
       expect(result.fields).toHaveLength(0);
@@ -360,7 +152,7 @@ describe('WrapperActionService', () => {
       const tree = new MappingTree(DocumentType.TARGET_BODY, 'test', DocumentDefinitionType.XML_SCHEMA);
       const existingFieldItem = new FieldItem(tree, memberA);
 
-      const result = WrapperActionService.computeAddFieldCandidates(parent.fields, {}, [existingFieldItem]);
+      const result = FieldCandidateService.computeAddFieldCandidates(parent.fields, {}, [existingFieldItem]);
 
       expect(result.candidates).toHaveLength(0);
       expect(result.fields).toHaveLength(0);
@@ -385,7 +177,7 @@ describe('WrapperActionService', () => {
       const tree = new MappingTree(DocumentType.TARGET_BODY, 'test', DocumentDefinitionType.XML_SCHEMA);
       const existingFieldItem = new FieldItem(tree, memberA);
 
-      const result = WrapperActionService.computeAddFieldCandidates(parent.fields, {}, [existingFieldItem]);
+      const result = FieldCandidateService.computeAddFieldCandidates(parent.fields, {}, [existingFieldItem]);
 
       expect(result.candidates).toHaveLength(2);
       expect(result.fields[0]).toBe(memberA);
@@ -406,7 +198,7 @@ describe('WrapperActionService', () => {
       parent.fields = [seqWrapper];
       doc.fields = [parent];
 
-      const result = WrapperActionService.computeAddFieldCandidates(parent.fields, {}, []);
+      const result = FieldCandidateService.computeAddFieldCandidates(parent.fields, {}, []);
 
       expect(result.candidates).toHaveLength(2);
       expect(result.fields[0]).toBe(seqChildA);
@@ -426,7 +218,7 @@ describe('WrapperActionService', () => {
       parent.fields = [singleChild, collectionChild];
       doc.fields = [parent];
 
-      const result = WrapperActionService.computeAddFieldCandidates(parent.fields, {}, [], true);
+      const result = FieldCandidateService.computeAddFieldCandidates(parent.fields, {}, [], true);
 
       expect(result.candidates).toHaveLength(1);
       expect(result.fields[0]).toBe(collectionChild);
@@ -445,7 +237,7 @@ describe('WrapperActionService', () => {
       parent.fields = [singleChild, collectionChild];
       doc.fields = [parent];
 
-      const result = WrapperActionService.computeAddFieldCandidates(parent.fields, {}, []);
+      const result = FieldCandidateService.computeAddFieldCandidates(parent.fields, {}, []);
 
       expect(result.candidates).toHaveLength(2);
       expect(result.fields[0]).toBe(singleChild);
@@ -468,7 +260,7 @@ describe('WrapperActionService', () => {
       parent.fields = [seqWrapper];
       doc.fields = [parent];
 
-      const result = WrapperActionService.computeAddFieldCandidates(parent.fields, {}, [], true);
+      const result = FieldCandidateService.computeAddFieldCandidates(parent.fields, {}, [], true);
 
       expect(result.candidates).toHaveLength(1);
       expect(result.fields[0]).toBe(collectionMember);

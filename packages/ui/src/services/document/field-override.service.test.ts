@@ -963,4 +963,60 @@ describe('FieldOverrideService', () => {
       expect(abstractAnimalField.selectedMemberQName?.getNamespaceURI()).toBe('');
     });
   });
+
+  describe('revertOverride', () => {
+    const namespaceMap = { xs: NS_XML_SCHEMA };
+
+    it('should call revertFieldSubstitution when field has SUBSTITUTION override', () => {
+      const doc = TestUtil.createTargetOrderDoc();
+      const field = doc.fields[0];
+      field.typeOverride = FieldOverrideVariant.SUBSTITUTION;
+      const revertSubSpy = vi.spyOn(FieldOverrideService, 'revertFieldSubstitution');
+      const revertTypeSpy = vi.spyOn(FieldOverrideService, 'revertFieldTypeOverride');
+
+      FieldOverrideService.revertOverride(field, namespaceMap);
+
+      expect(revertSubSpy).toHaveBeenCalledWith(field, namespaceMap);
+      expect(revertTypeSpy).not.toHaveBeenCalled();
+    });
+
+    it('should not call any service when field has no override', () => {
+      const doc = TestUtil.createTargetOrderDoc();
+      const field = doc.fields[0];
+      field.typeOverride = FieldOverrideVariant.NONE;
+      const revertSubSpy = vi.spyOn(FieldOverrideService, 'revertFieldSubstitution');
+      const revertTypeSpy = vi.spyOn(FieldOverrideService, 'revertFieldTypeOverride');
+
+      FieldOverrideService.revertOverride(field, namespaceMap);
+
+      expect(revertTypeSpy).not.toHaveBeenCalled();
+      expect(revertSubSpy).not.toHaveBeenCalled();
+    });
+
+    it('should call revertFieldTypeOverride for type override', () => {
+      const doc = TestUtil.createTargetOrderDoc();
+      const field = doc.fields[0];
+      field.typeOverride = FieldOverrideVariant.SAFE;
+      const revertTypeSpy = vi.spyOn(FieldOverrideService, 'revertFieldTypeOverride');
+
+      FieldOverrideService.revertOverride(field, namespaceMap);
+
+      expect(revertTypeSpy).toHaveBeenCalledWith(field, namespaceMap);
+    });
+
+    it('should call revertFieldSubstitution when field is abstract with selectedMemberQName', () => {
+      const doc = TestUtil.createTargetOrderDoc();
+      const field = doc.fields[0];
+      field.typeOverride = FieldOverrideVariant.NONE;
+      field.wrapperKind = 'abstract';
+      field.selectedMemberQName = new QName('http://test', 'Cat');
+      const revertSubSpy = vi.spyOn(FieldOverrideService, 'revertFieldSubstitution');
+      const revertTypeSpy = vi.spyOn(FieldOverrideService, 'revertFieldTypeOverride');
+
+      FieldOverrideService.revertOverride(field, namespaceMap);
+
+      expect(revertSubSpy).toHaveBeenCalledWith(field, namespaceMap);
+      expect(revertTypeSpy).not.toHaveBeenCalled();
+    });
+  });
 });

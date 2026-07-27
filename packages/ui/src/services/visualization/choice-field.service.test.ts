@@ -14,9 +14,9 @@ import { DocumentUtilService } from '../document/document-util.service';
 import { FieldOverrideService } from '../document/field-override.service';
 import { WrapperSelectionService } from '../document/wrapper-selection.service';
 import { MappingService } from '../mapping/mapping.service';
+import { ChoiceFieldService } from './choice-field.service';
 import { MappingActionService } from './mapping-action.service';
 import { VisualizationService } from './visualization.service';
-import { WrapperActionService } from './wrapper-action.service';
 
 vi.mock('../document/field-override.service', () => ({
   FieldOverrideService: {
@@ -118,11 +118,64 @@ function createFieldItemNodeData(fieldItem: FieldItem, wrapperField?: IField): F
   return new FieldItemNodeData(parentNode, fieldItem, wrapperField);
 }
 
-describe('WrapperActionService (choice)', () => {
+describe('ChoiceFieldService', () => {
   const namespaceMap = { xs: 'http://www.w3.org/2001/XMLSchema' };
 
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  describe('fieldToCandidate', () => {
+    it('should use getChoiceMemberLabel for choice wrapper fields', () => {
+      const field = mockField({ wrapperKind: 'choice', type: Types.Container });
+      vi.mocked(VisualizationService.getChoiceMemberLabel).mockReturnValue('(email | phone)');
+
+      const result = ChoiceFieldService.fieldToCandidate(field, 'key1', 0);
+
+      expect(result.label).toBe('(email | phone)');
+      expect(VisualizationService.getChoiceMemberLabel).toHaveBeenCalledWith(field);
+    });
+
+    it('should use displayName for non-choice fields', () => {
+      const field = mockField({ displayName: 'EmailAddress', type: Types.String });
+
+      const result = ChoiceFieldService.fieldToCandidate(field, 'key1', 2);
+
+      expect(result.label).toBe('EmailAddress');
+      expect(result.typeBadge).toBe(Types.String);
+      expect(result.selection).toEqual({ memberIndex: 2 });
+    });
+
+    it('should fall back to name when displayName is empty', () => {
+      const field = mockField({ displayName: '', name: 'fallbackName' });
+
+      const result = ChoiceFieldService.fieldToCandidate(field, 'key1', 0);
+
+      expect(result.label).toBe('fallbackName');
+    });
+
+    it('should populate childrenPreview from first 3 children', () => {
+      const children = [
+        mockField({ displayName: 'A', name: 'a' }),
+        mockField({ displayName: 'B', name: 'b' }),
+        mockField({ displayName: 'C', name: 'c' }),
+        mockField({ displayName: 'D', name: 'd' }),
+        mockField({ displayName: 'E', name: 'e' }),
+      ];
+      const field = mockField({ fields: children });
+
+      const result = ChoiceFieldService.fieldToCandidate(field, 'key1', 0);
+
+      expect(result.childrenPreview).toEqual(['A', 'B', 'C']);
+    });
+
+    it('should return undefined childrenPreview for field with no children', () => {
+      const field = mockField({ fields: [] });
+
+      const result = ChoiceFieldService.fieldToCandidate(field, 'key1', 0);
+
+      expect(result.childrenPreview).toBeUndefined();
+    });
   });
 
   describe('dissolveChoiceMembers', () => {
@@ -133,7 +186,7 @@ describe('WrapperActionService (choice)', () => {
         'ns:Dog': mockSubstituteInfo('Dog'),
       });
 
-      const result = WrapperActionService.dissolveChoiceMembers([abstractMember], namespaceMap);
+      const result = ChoiceFieldService.dissolveChoiceMembers([abstractMember], namespaceMap);
 
       expect(result).toHaveLength(2);
       expect(result[0]).toEqual(
@@ -155,7 +208,7 @@ describe('WrapperActionService (choice)', () => {
     it('should skip sequence members', () => {
       const sequenceMember = mockField({ wrapperKind: 'sequence' });
 
-      const result = WrapperActionService.dissolveChoiceMembers([sequenceMember], namespaceMap);
+      const result = ChoiceFieldService.dissolveChoiceMembers([sequenceMember], namespaceMap);
 
       expect(result).toHaveLength(0);
     });
@@ -163,7 +216,7 @@ describe('WrapperActionService (choice)', () => {
     it('should pass through normal members via fieldToCandidate', () => {
       const normalMember = mockField({ name: 'email', displayName: 'Email', type: Types.String });
 
-      const result = WrapperActionService.dissolveChoiceMembers([normalMember], namespaceMap);
+      const result = ChoiceFieldService.dissolveChoiceMembers([normalMember], namespaceMap);
 
       expect(result).toHaveLength(1);
       expect(result[0]).toEqual(
@@ -184,7 +237,7 @@ describe('WrapperActionService (choice)', () => {
         'ns:Cat': mockSubstituteInfo('Cat'),
       });
 
-      const result = WrapperActionService.dissolveChoiceMembers([normal, abstract, sequence], namespaceMap);
+      const result = ChoiceFieldService.dissolveChoiceMembers([normal, abstract, sequence], namespaceMap);
 
       expect(result).toHaveLength(2);
       expect(result[0].key).toBe('0');
@@ -202,13 +255,13 @@ describe('WrapperActionService (choice)', () => {
         type: Types.Container,
         fields: [mockField({ displayName: 'Street' }), mockField({ displayName: 'City' })],
       });
-      const result = WrapperActionService.dissolveChoiceMembers([member], namespaceMap);
+      const result = ChoiceFieldService.dissolveChoiceMembers([member], namespaceMap);
 
       expect(result[0].childrenPreview).toEqual(['Street', 'City']);
     });
 
     it('should handle empty members list', () => {
-      expect(WrapperActionService.dissolveChoiceMembers([], namespaceMap)).toEqual([]);
+      expect(ChoiceFieldService.dissolveChoiceMembers([], namespaceMap)).toEqual([]);
     });
   });
 
@@ -217,7 +270,7 @@ describe('WrapperActionService (choice)', () => {
       const field = mockField({ wrapperKind: 'choice' });
       vi.mocked(VisualizationService.getChoiceMemberLabel).mockReturnValue('(A | B)');
 
-      const result = WrapperActionService.getChoiceFieldDisplayName(field);
+      const result = ChoiceFieldService.getChoiceFieldDisplayName(field);
 
       expect(result).toBe('(A | B)');
       expect(VisualizationService.getChoiceMemberLabel).toHaveBeenCalledWith(field);
@@ -226,7 +279,7 @@ describe('WrapperActionService (choice)', () => {
     it('should use displayName for non-choice field', () => {
       const field = mockField({ displayName: 'MyField' });
 
-      const result = WrapperActionService.getChoiceFieldDisplayName(field);
+      const result = ChoiceFieldService.getChoiceFieldDisplayName(field);
 
       expect(result).toBe('MyField');
     });
@@ -234,7 +287,7 @@ describe('WrapperActionService (choice)', () => {
     it('should fall back to name when displayName is empty', () => {
       const field = mockField({ displayName: '', name: 'fallback' });
 
-      const result = WrapperActionService.getChoiceFieldDisplayName(field);
+      const result = ChoiceFieldService.getChoiceFieldDisplayName(field);
 
       expect(result).toBe('fallback');
     });
@@ -250,7 +303,7 @@ describe('WrapperActionService (choice)', () => {
       vi.mocked(MappingActionService.getOrCreateFieldItem).mockReturnValue(fieldItem);
       vi.mocked(MappingService.createFieldItem).mockReturnValue(new FieldItem(tree, memberField));
 
-      WrapperActionService.dispatchChoiceSelection(nodeData, wrapper, { memberIndex: 0 }, namespaceMap, true);
+      ChoiceFieldService.dispatchChoiceSelection(nodeData, wrapper, { memberIndex: 0 }, namespaceMap, true);
 
       expect(WrapperSelectionService.setChoiceSelection).not.toHaveBeenCalled();
       expect(MappingService.updateFieldItemField).toHaveBeenCalledWith(fieldItem, memberField);
@@ -261,7 +314,7 @@ describe('WrapperActionService (choice)', () => {
       const wrapper = mockField({ maxOccurs: 1, ownerDocument });
       const nodeData = {} as FieldNodeData;
 
-      WrapperActionService.dispatchChoiceSelection(nodeData, wrapper, { memberIndex: 0 }, namespaceMap, false);
+      ChoiceFieldService.dispatchChoiceSelection(nodeData, wrapper, { memberIndex: 0 }, namespaceMap, false);
 
       expect(WrapperSelectionService.setChoiceSelection).toHaveBeenCalledWith(ownerDocument, wrapper, 0, namespaceMap);
     });
@@ -274,7 +327,7 @@ describe('WrapperActionService (choice)', () => {
       const fieldItem = new FieldItem(tree, wrapper);
       const nodeData = createFieldItemNodeData(fieldItem);
 
-      WrapperActionService.clearChoiceSelectionOnField(nodeData, wrapper, namespaceMap, true);
+      ChoiceFieldService.clearChoiceSelectionOnField(nodeData, wrapper, namespaceMap, true);
 
       expect(WrapperSelectionService.clearChoiceSelection).not.toHaveBeenCalled();
       expect(MappingService.updateFieldItemField).toHaveBeenCalledWith(fieldItem, wrapper);
@@ -285,7 +338,7 @@ describe('WrapperActionService (choice)', () => {
       const wrapper = mockField({ maxOccurs: 1, ownerDocument });
       const nodeData = {} as FieldNodeData;
 
-      WrapperActionService.clearChoiceSelectionOnField(nodeData, wrapper, namespaceMap, false);
+      ChoiceFieldService.clearChoiceSelectionOnField(nodeData, wrapper, namespaceMap, false);
 
       expect(WrapperSelectionService.clearDescendantWrapperSelections).toHaveBeenCalledWith(wrapper, namespaceMap);
       expect(DocumentUtilService.invalidateDescendants).toHaveBeenCalled();
@@ -299,7 +352,7 @@ describe('WrapperActionService (choice)', () => {
       const fieldItem = new FieldItem(tree, wrapper);
       const nodeData = createTargetFieldNodeData(wrapper, fieldItem);
 
-      WrapperActionService.clearChoiceSelectionOnField(nodeData, wrapper, namespaceMap, true);
+      ChoiceFieldService.clearChoiceSelectionOnField(nodeData, wrapper, namespaceMap, true);
 
       expect(WrapperSelectionService.clearDescendantWrapperSelections).toHaveBeenCalledWith(wrapper, namespaceMap);
       expect(DocumentUtilService.invalidateDescendants).toHaveBeenCalled();
@@ -312,7 +365,7 @@ describe('WrapperActionService (choice)', () => {
       const choiceField = mockField({ wrapperKind: 'choice' });
       const fallback = mockField();
 
-      const result = WrapperActionService.resolveChoiceWrapper(true, choiceField, fallback);
+      const result = ChoiceFieldService.resolveChoiceWrapper(true, choiceField, fallback);
 
       expect(result).toBe(choiceField);
     });
@@ -321,7 +374,7 @@ describe('WrapperActionService (choice)', () => {
       const choiceField = mockField({ wrapperKind: 'choice' });
       const fallback = mockField();
 
-      const result = WrapperActionService.resolveChoiceWrapper(false, choiceField, fallback);
+      const result = ChoiceFieldService.resolveChoiceWrapper(false, choiceField, fallback);
 
       expect(result).toBe(fallback);
     });
@@ -331,7 +384,7 @@ describe('WrapperActionService (choice)', () => {
     it('should return null when nodeData is not FieldItemNodeData', () => {
       const nodeData = {} as FieldNodeData;
 
-      const result = WrapperActionService.resolveMemberSelectedKey(nodeData, mockField(), [], namespaceMap);
+      const result = ChoiceFieldService.resolveMemberSelectedKey(nodeData, mockField(), [], namespaceMap);
 
       expect(result).toBeNull();
     });
@@ -342,7 +395,7 @@ describe('WrapperActionService (choice)', () => {
       const fieldItem = new FieldItem(tree, field);
       const nodeData = createFieldItemNodeData(fieldItem);
 
-      const result = WrapperActionService.resolveMemberSelectedKey(nodeData, undefined, [], namespaceMap);
+      const result = ChoiceFieldService.resolveMemberSelectedKey(nodeData, undefined, [], namespaceMap);
 
       expect(result).toBeNull();
     });
@@ -354,7 +407,7 @@ describe('WrapperActionService (choice)', () => {
       const fieldItem = new FieldItem(tree, memberField);
       const nodeData = createFieldItemNodeData(fieldItem);
 
-      const result = WrapperActionService.resolveMemberSelectedKey(nodeData, wrapper, [], namespaceMap);
+      const result = ChoiceFieldService.resolveMemberSelectedKey(nodeData, wrapper, [], namespaceMap);
 
       expect(result).toBeNull();
     });
@@ -378,7 +431,7 @@ describe('WrapperActionService (choice)', () => {
         },
       ];
 
-      const result = WrapperActionService.resolveMemberSelectedKey(nodeData, wrapper, dissolved, namespaceMap);
+      const result = ChoiceFieldService.resolveMemberSelectedKey(nodeData, wrapper, dissolved, namespaceMap);
 
       expect(result).toBe('0:ns:Cat');
     });
@@ -391,7 +444,7 @@ describe('WrapperActionService (choice)', () => {
       const nodeData = createFieldItemNodeData(fieldItem);
       const dissolved = [{ key: '0', label: 'Email', typeBadge: Types.String, selection: { memberIndex: 0 } }];
 
-      const result = WrapperActionService.resolveMemberSelectedKey(nodeData, wrapper, dissolved, namespaceMap);
+      const result = ChoiceFieldService.resolveMemberSelectedKey(nodeData, wrapper, dissolved, namespaceMap);
 
       expect(result).toBe('0');
     });
@@ -403,7 +456,7 @@ describe('WrapperActionService (choice)', () => {
       const fieldItem = new FieldItem(tree, memberField);
       const nodeData = createFieldItemNodeData(fieldItem);
 
-      const result = WrapperActionService.resolveMemberSelectedKey(nodeData, wrapper, [], namespaceMap);
+      const result = ChoiceFieldService.resolveMemberSelectedKey(nodeData, wrapper, [], namespaceMap);
 
       expect(result).toBeNull();
     });
@@ -411,7 +464,7 @@ describe('WrapperActionService (choice)', () => {
 
   describe('resolveSelectedModalKey', () => {
     it('should return memberSelectedKey when isChoiceWrapperMember is true', () => {
-      const result = WrapperActionService.resolveSelectedModalKey(true, 'key1', undefined, []);
+      const result = ChoiceFieldService.resolveSelectedModalKey(true, 'key1', undefined, []);
 
       expect(result).toBe('key1');
     });
@@ -419,7 +472,7 @@ describe('WrapperActionService (choice)', () => {
     it('should return null when selectedMemberIndex is undefined', () => {
       const wrapper = mockField();
 
-      const result = WrapperActionService.resolveSelectedModalKey(false, null, wrapper, []);
+      const result = ChoiceFieldService.resolveSelectedModalKey(false, null, wrapper, []);
 
       expect(result).toBeNull();
     });
@@ -440,7 +493,7 @@ describe('WrapperActionService (choice)', () => {
         },
       ];
 
-      const result = WrapperActionService.resolveSelectedModalKey(false, null, wrapper, dissolved);
+      const result = ChoiceFieldService.resolveSelectedModalKey(false, null, wrapper, dissolved);
 
       expect(result).toBe('0:ns:Cat');
     });
@@ -450,7 +503,7 @@ describe('WrapperActionService (choice)', () => {
       const wrapper = mockField({ selectedMemberIndex: 0, fields: [normalMember] });
       const dissolved = [{ key: '0', label: 'Email', typeBadge: Types.String, selection: { memberIndex: 0 } }];
 
-      const result = WrapperActionService.resolveSelectedModalKey(false, null, wrapper, dissolved);
+      const result = ChoiceFieldService.resolveSelectedModalKey(false, null, wrapper, dissolved);
 
       expect(result).toBe('0');
     });
@@ -459,13 +512,13 @@ describe('WrapperActionService (choice)', () => {
       const normalMember = mockField({ name: 'email' });
       const wrapper = mockField({ selectedMemberIndex: 0, fields: [normalMember] });
 
-      const result = WrapperActionService.resolveSelectedModalKey(false, null, wrapper, []);
+      const result = ChoiceFieldService.resolveSelectedModalKey(false, null, wrapper, []);
 
       expect(result).toBeNull();
     });
   });
 
-  describe('buildMenuGroupsForChoiceNode', () => {
+  describe('buildMenuGroups', () => {
     function baseChoiceConfig(overrides: Partial<IChoiceMenuGroupsConfig> = {}): IChoiceMenuGroupsConfig {
       return {
         isChoiceWrapper: false,
@@ -502,7 +555,7 @@ describe('WrapperActionService (choice)', () => {
         selectSelfAction: { label: 'Select self', onClick: vi.fn() },
       });
 
-      const groups = WrapperActionService.buildMenuGroupsForChoiceNode(config);
+      const groups = ChoiceFieldService.buildMenuGroups(config);
 
       expect(groups).toHaveLength(3);
       expect(groups[0].actions[0].label).toBe('Select self');
@@ -518,7 +571,7 @@ describe('WrapperActionService (choice)', () => {
         dissolved: makeDissolved(11),
       });
 
-      const groups = WrapperActionService.buildMenuGroupsForChoiceNode(config);
+      const groups = ChoiceFieldService.buildMenuGroups(config);
 
       expect(groups[1].actions).toHaveLength(1);
       expect(groups[1].actions[0].label).toBe('Select Member...');
@@ -532,7 +585,7 @@ describe('WrapperActionService (choice)', () => {
         selectSelfAction: { label: 'Select self', onClick: vi.fn() },
       });
 
-      const groups = WrapperActionService.buildMenuGroupsForChoiceNode(config);
+      const groups = ChoiceFieldService.buildMenuGroups(config);
 
       expect(groups[0].actions).toHaveLength(0);
     });
@@ -548,7 +601,7 @@ describe('WrapperActionService (choice)', () => {
         changeMemberAction: changeAction,
       });
 
-      const groups = WrapperActionService.buildMenuGroupsForChoiceNode(config);
+      const groups = ChoiceFieldService.buildMenuGroups(config);
 
       const lastGroup = groups[groups.length - 1];
       expect(lastGroup.actions).toEqual([clearAction, changeAction]);
@@ -563,7 +616,7 @@ describe('WrapperActionService (choice)', () => {
         changeMemberAction: changeAction,
       });
 
-      const groups = WrapperActionService.buildMenuGroupsForChoiceNode(config);
+      const groups = ChoiceFieldService.buildMenuGroups(config);
 
       expect(groups).toHaveLength(1);
       expect(groups[0].actions).toEqual([clearAction, changeAction]);
@@ -576,7 +629,7 @@ describe('WrapperActionService (choice)', () => {
         selectSelfAction: undefined,
       });
 
-      const groups = WrapperActionService.buildMenuGroupsForChoiceNode(config);
+      const groups = ChoiceFieldService.buildMenuGroups(config);
 
       expect(groups).toEqual([]);
     });
@@ -588,7 +641,7 @@ describe('WrapperActionService (choice)', () => {
         selectSelfAction: selectSelf,
       });
 
-      const groups = WrapperActionService.buildMenuGroupsForChoiceNode(config);
+      const groups = ChoiceFieldService.buildMenuGroups(config);
 
       expect(groups[0].actions).toContainEqual(selectSelf);
     });

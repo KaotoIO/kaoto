@@ -6,8 +6,8 @@ import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { IField } from '../../../../models/datamapper/document';
 import { IFieldMenuAction, IMemberSelection } from '../../../../models/datamapper/field-action';
 import { NodeData } from '../../../../models/datamapper/visualization';
+import { ChoiceFieldService } from '../../../../services/visualization/choice-field.service';
 import { VisualizationUtilService } from '../../../../services/visualization/visualization-util.service';
-import { WrapperActionService } from '../../../../services/visualization/wrapper-action.service';
 import { WrapperSelectionModal } from '../WrapperSelectionModal';
 import { buildSelectSelfAction } from './menu-utils';
 import { MenuContributor } from './types';
@@ -26,7 +26,7 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
     choiceMemberField,
     parentChoiceWrapperField,
     choiceMemberIndex,
-  } = WrapperActionService.resolveChoiceNodeInfo(nodeData);
+  } = ChoiceFieldService.resolveInfo(nodeData);
 
   const isNestedSelectedChoice = isSelectedChoice && isChoiceWrapper;
   const isTargetSide = !nodeData.isSource;
@@ -35,18 +35,12 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
 
   const dissolved = useMemo(() => {
     const members = effectiveChoiceWrapper?.fields ?? [];
-    return WrapperActionService.dissolveChoiceMembers(members, mappingTree.namespaceMap);
+    return ChoiceFieldService.dissolveChoiceMembers(members, mappingTree.namespaceMap);
   }, [effectiveChoiceWrapper?.fields, mappingTree.namespaceMap]);
 
   const applyChoiceSelection = useCallback(
     (wrapper: IField, selection: IMemberSelection) => {
-      WrapperActionService.dispatchChoiceSelection(
-        nodeData,
-        wrapper,
-        selection,
-        mappingTree.namespaceMap,
-        isTargetSide,
-      );
+      ChoiceFieldService.dispatchChoiceSelection(nodeData, wrapper, selection, mappingTree.namespaceMap, isTargetSide);
       const doc = wrapper.ownerDocument;
       const previousRefId = doc.getReferenceId(mappingTree.namespaceMap);
       updateDocument(doc, doc.definition, previousRefId);
@@ -56,7 +50,7 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
 
   const applyClearChoice = useCallback(
     (wrapper: IField) => {
-      WrapperActionService.clearChoiceSelectionOnField(nodeData, wrapper, mappingTree.namespaceMap, isTargetSide);
+      ChoiceFieldService.clearChoiceSelectionOnField(nodeData, wrapper, mappingTree.namespaceMap, isTargetSide);
       const doc = wrapper.ownerDocument;
       const previousRefId = doc.getReferenceId(mappingTree.namespaceMap);
       updateDocument(doc, doc.definition, previousRefId);
@@ -67,7 +61,7 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
   // Case A: select a member from this node's own wrapper member list
   const handleSelectChoiceMember = useCallback(
     (selection: IMemberSelection) => {
-      const wrapper = WrapperActionService.resolveChoiceWrapper(
+      const wrapper = ChoiceFieldService.resolveChoiceWrapper(
         isChoiceWrapperMember,
         choiceWrapperMemberField,
         activeChoiceWrapperForMembers,
@@ -80,7 +74,7 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
 
   // Case A/B: clear selection on this node's active wrapper, cascading to parent when empty
   const handleClearChoice = useCallback(() => {
-    const wrapper = WrapperActionService.resolveChoiceWrapper(
+    const wrapper = ChoiceFieldService.resolveChoiceWrapper(
       isChoiceWrapperMember,
       choiceWrapperMemberField,
       activeChoiceWrapperForMembers,
@@ -129,7 +123,7 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
           parentChoiceWrapperField,
           handleSelectSelfAsChoiceMember,
           'select-choice-member',
-          WrapperActionService.getChoiceFieldDisplayName,
+          ChoiceFieldService.getChoiceFieldDisplayName,
         )
       : undefined;
 
@@ -142,7 +136,7 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
   const memberSelectedKey = useMemo<string | null>(
     () =>
       isChoiceWrapperMember
-        ? WrapperActionService.resolveMemberSelectedKey(
+        ? ChoiceFieldService.resolveMemberSelectedKey(
             nodeData,
             choiceWrapperMemberField,
             dissolved,
@@ -154,7 +148,7 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
 
   const selectedModalKey = useMemo<string | null>(
     () =>
-      WrapperActionService.resolveSelectedModalKey(
+      ChoiceFieldService.resolveSelectedModalKey(
         isChoiceWrapperMember,
         memberSelectedKey,
         activeChoiceWrapperForMembers,
@@ -163,7 +157,7 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
     [isChoiceWrapperMember, memberSelectedKey, activeChoiceWrapperForMembers, dissolved],
   );
 
-  const menuGroups = WrapperActionService.buildMenuGroupsForChoiceNode({
+  const menuGroups = ChoiceFieldService.buildMenuGroups({
     isChoiceWrapper,
     isChoiceWrapperMember,
     isNestedSelectedChoice,
@@ -183,7 +177,7 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
     setIsChoiceModalOpen(false);
   }, []);
 
-  const effectiveWrapper = WrapperActionService.resolveChoiceWrapper(
+  const effectiveWrapper = ChoiceFieldService.resolveChoiceWrapper(
     isChoiceWrapperMember,
     choiceWrapperMemberField,
     activeChoiceWrapperForMembers,
