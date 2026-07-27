@@ -144,9 +144,7 @@ describe('NewEndpointModal', () => {
       expect(screen.getByTestId('endpoint-modal-confirm-btn')).toBeInTheDocument();
     });
 
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('endpoint-modal-confirm-btn'));
-    });
+    fireEvent.click(screen.getByTestId('endpoint-modal-confirm-btn'));
 
     expect(mockOnConfirm).toHaveBeenCalledWith('http-client', endpoint);
   });
@@ -178,9 +176,7 @@ describe('NewEndpointModal', () => {
     );
 
     const confirmButton = screen.getByTestId('endpoint-modal-confirm-btn');
-    await act(async () => {
-      fireEvent.click(confirmButton);
-    });
+    fireEvent.click(confirmButton);
 
     expect(mockOnConfirm).not.toHaveBeenCalled();
   });
@@ -223,9 +219,7 @@ describe('NewEndpointModal', () => {
       expect(screen.getByTestId('endpoint-modal-confirm-btn')).toBeInTheDocument();
     });
 
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('endpoint-modal-confirm-btn'));
-    });
+    fireEvent.click(screen.getByTestId('endpoint-modal-confirm-btn'));
 
     expect(mockOnConfirm).toHaveBeenCalledWith(
       'http-client',

@@ -44,6 +44,7 @@ describe('RestRouteEndpointField', () => {
     await camelResource.initialize();
     const { Provider } = await TestProvidersWrapper({ camelResource });
 
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
       render(
         <Provider>
@@ -135,13 +136,11 @@ describe('RestRouteEndpointField', () => {
       expect(input).toHaveValue('orders');
 
       // Change the input value
-      await act(async () => {
-        fireEvent.click(input);
-        fireEvent.change(input, { target: { value: 'billing' } });
+      fireEvent.click(input);
+      fireEvent.change(input, { target: { value: 'billing' } });
 
-        const option = screen.getByRole('option', { name: 'option billing' });
-        fireEvent.click(option);
-      });
+      const option = screen.getByRole('option', { name: 'option billing' });
+      fireEvent.click(option);
 
       await waitFor(() => {
         expect(onPropertyChange).toHaveBeenCalledWith(PROP_NAME, {
@@ -168,13 +167,11 @@ describe('RestRouteEndpointField', () => {
       const input = getInput();
       expect(input).toHaveValue('orders');
 
-      await act(async () => {
-        fireEvent.click(input);
-        fireEvent.change(input, { target: { value: 'new-endpoint' } });
+      fireEvent.click(input);
+      fireEvent.change(input, { target: { value: 'new-endpoint' } });
 
-        const option = screen.getByRole('option', { name: 'use custom value new-endpoint' });
-        fireEvent.click(option);
-      });
+      const option = screen.getByRole('option', { name: 'use custom value new-endpoint' });
+      fireEvent.click(option);
 
       await waitFor(() => {
         expect(onPropertyChange).toHaveBeenCalledWith(PROP_NAME, {
@@ -202,9 +199,7 @@ describe('RestRouteEndpointField', () => {
       });
       const clearButton = screen.getByRole('button', { name: /clear/i });
 
-      await act(async () => {
-        fireEvent.click(clearButton);
-      });
+      fireEvent.click(clearButton);
 
       await waitFor(() => {
         expect(onPropertyChange).toHaveBeenCalledWith(PROP_NAME, {
@@ -228,19 +223,15 @@ describe('RestRouteEndpointField', () => {
       });
       const toggle = screen.getByLabelText('Endpoint Name toggle');
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       // Wait for options to appear and select one
       await waitFor(() => {
         expect(screen.getByText('billing')).toBeInTheDocument();
       });
 
-      await act(async () => {
-        const option = screen.getByRole('option', { name: 'option billing' });
-        fireEvent.click(option);
-      });
+      const option = screen.getByRole('option', { name: 'option billing' });
+      fireEvent.click(option);
 
       await waitFor(() => {
         expect(onPropertyChange).toHaveBeenCalledWith(PROP_NAME, {
@@ -277,9 +268,7 @@ describe('RestRouteEndpointField', () => {
       expect(button).toBeDisabled();
 
       const input = getInput();
-      await act(async () => {
-        fireEvent.change(input, { target: { value: 'new-endpoint' } });
-      });
+      fireEvent.change(input, { target: { value: 'new-endpoint' } });
 
       await waitFor(() => {
         expect(button).toBeEnabled();
@@ -290,9 +279,7 @@ describe('RestRouteEndpointField', () => {
       const { getInput, getCreateButton } = await renderField({ to: undefined });
 
       const input = getInput();
-      await act(async () => {
-        fireEvent.change(input, { target: { value: 'orders' } });
-      });
+      fireEvent.change(input, { target: { value: 'orders' } });
 
       const button = getCreateButton();
       await waitFor(() => {
@@ -305,18 +292,14 @@ describe('RestRouteEndpointField', () => {
       const { getInput, getCreateButton } = await renderField({ to: undefined }, onPropertyChange);
 
       const input = getInput();
-      await act(async () => {
-        fireEvent.change(input, { target: { value: 'new-route' } });
-      });
+      fireEvent.change(input, { target: { value: 'new-route' } });
 
       const button = getCreateButton();
       await waitFor(() => {
         expect(button).toBeEnabled();
       });
 
-      await act(async () => {
-        fireEvent.click(button);
-      });
+      fireEvent.click(button);
 
       // Should update the field value with the new route name
       await waitFor(() => {

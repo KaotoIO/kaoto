@@ -36,16 +36,14 @@ describe('BaseCatalog', () => {
   });
 
   it('Render BaseCatalog with 60 tiles, 2 pages with 50 tiles on the 1st page and 10 tiles on the 2nd page', async () => {
-    await act(async () => {
-      render(
-        <BaseCatalog
-          className="catalog__base"
-          tiles={longTileList}
-          catalogLayout={CatalogLayout.List}
-          onTagClick={vi.fn()}
-        />,
-      );
-    });
+    render(
+      <BaseCatalog
+        className="catalog__base"
+        tiles={longTileList}
+        catalogLayout={CatalogLayout.List}
+        onTagClick={vi.fn()}
+      />,
+    );
 
     expect(screen.getByRole('spinbutton', { name: 'Current page' })).toHaveValue(1);
 
@@ -54,9 +52,7 @@ describe('BaseCatalog', () => {
     ).toHaveLength(50);
 
     const nextPageButton = screen.getByRole('button', { name: 'Go to next page' });
-    await act(async () => {
-      fireEvent.click(nextPageButton);
-    });
+    fireEvent.click(nextPageButton);
     expect(screen.getByRole('spinbutton', { name: 'Current page' })).toHaveValue(2);
 
     expect(
@@ -67,47 +63,37 @@ describe('BaseCatalog', () => {
   });
 
   it('Render BaseCatalog with 60 tiles, change per page setting to 20', async () => {
-    await act(async () => {
-      render(
-        <BaseCatalog
-          className="catalog__base"
-          tiles={longTileList}
-          catalogLayout={CatalogLayout.List}
-          onTagClick={vi.fn()}
-        />,
-      );
-    });
+    render(
+      <BaseCatalog
+        className="catalog__base"
+        tiles={longTileList}
+        catalogLayout={CatalogLayout.List}
+        onTagClick={vi.fn()}
+      />,
+    );
 
     expect(screen.getByRole('spinbutton', { name: 'Current page' })).toHaveValue(1);
 
     const pageSetting = screen.getAllByRole('button').find((btn) => btn.id === 'catalog-pagination-top-toggle');
     expect(pageSetting).toBeInTheDocument();
 
-    await act(async () => {
-      fireEvent.click(pageSetting!);
-    });
+    fireEvent.click(pageSetting!);
 
-    await act(async () => {
-      fireEvent.click(screen.getByText('20 per page'));
-    });
+    fireEvent.click(screen.getByText('20 per page'));
 
     expect(
       screen.getAllByRole('listitem').filter((li) => li.classList.contains('catalog-data-list-item')),
     ).toHaveLength(20);
 
     const nextPageButton = screen.getByRole('button', { name: 'Go to next page' });
-    await act(async () => {
-      fireEvent.click(nextPageButton);
-    });
+    fireEvent.click(nextPageButton);
     expect(screen.getByRole('spinbutton', { name: 'Current page' })).toHaveValue(2);
 
     expect(
       screen.getAllByRole('listitem').filter((li) => li.classList.contains('catalog-data-list-item')),
     ).toHaveLength(20);
 
-    await act(async () => {
-      fireEvent.click(nextPageButton);
-    });
+    fireEvent.click(nextPageButton);
     expect(screen.getByRole('spinbutton', { name: 'Current page' })).toHaveValue(3);
 
     expect(

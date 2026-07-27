@@ -175,9 +175,7 @@ describe('ExpressionField', () => {
     );
 
     const clearButton = screen.getByTestId(`#__expression-list__clear`);
-    await act(async () => {
-      fireEvent.click(clearButton);
-    });
+    fireEvent.click(clearButton);
 
     expect(onPropertyChangeSpy).toHaveBeenCalledTimes(1);
     expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, { id: 'setHeader-1891' });
@@ -203,9 +201,7 @@ describe('ExpressionField', () => {
 
     const clearButton = wrapper.getByTestId(`#__expression-list__clear`);
 
-    await act(async () => {
-      fireEvent.click(clearButton);
-    });
+    fireEvent.click(clearButton);
 
     expect(onPropertyChangeSpy).toHaveBeenCalledTimes(1);
     expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, undefined);

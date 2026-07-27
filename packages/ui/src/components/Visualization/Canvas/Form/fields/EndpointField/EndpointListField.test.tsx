@@ -80,21 +80,19 @@ describe('EndpointListField', () => {
     const camelResource = createTestResource(testModel);
     const { Provider } = await TestProvidersWrapper({ camelResource });
 
-    await act(async () => {
-      const wrapper = createWrapper();
-      render(
-        <Provider>
-          <ActionConfirmationModalContext.Provider value={mockActionConfirmationModalContext}>
-            <SchemaProvider schema={schema}>
-              <ModelContextProvider model={model} onPropertyChange={onPropertyChange} disabled={options.disabled}>
-                <EndpointListField propName={PROP_NAME} required={options.required} />
-              </ModelContextProvider>
-            </SchemaProvider>
-          </ActionConfirmationModalContext.Provider>
-        </Provider>,
-        { wrapper },
-      );
-    });
+    const wrapper = createWrapper();
+    render(
+      <Provider>
+        <ActionConfirmationModalContext.Provider value={mockActionConfirmationModalContext}>
+          <SchemaProvider schema={schema}>
+            <ModelContextProvider model={model} onPropertyChange={onPropertyChange} disabled={options.disabled}>
+              <EndpointListField propName={PROP_NAME} required={options.required} />
+            </ModelContextProvider>
+          </SchemaProvider>
+        </ActionConfirmationModalContext.Provider>
+      </Provider>,
+      { wrapper },
+    );
 
     return {
       getTable: () => screen.getByRole('grid', { name: 'endpoint-table' }),
@@ -217,9 +215,7 @@ describe('EndpointListField', () => {
 
       const addButton = getAddButton();
 
-      await act(async () => {
-        fireEvent.click(addButton);
-      });
+      fireEvent.click(addButton);
 
       // Modal should appear
       await waitFor(() => {
@@ -240,9 +236,7 @@ describe('EndpointListField', () => {
 
       const addButton = getAddButton();
 
-      await act(async () => {
-        fireEvent.click(addButton);
-      });
+      fireEvent.click(addButton);
 
       // Modal should appear
       await waitFor(() => {
@@ -258,24 +252,19 @@ describe('EndpointListField', () => {
 
       // Click on a tile
       const httpClientTile = screen.getByTestId('tile-header-http-client');
+      // eslint-disable-next-line testing-library/no-unnecessary-act
       await act(async () => {
         fireEvent.click(httpClientTile);
       });
 
       const nameInput = screen.getByLabelText('Name');
-      await act(async () => {
-        fireEvent.change(nameInput, { target: { value: 'httpClient' } });
-      });
+      fireEvent.change(nameInput, { target: { value: 'httpClient' } });
 
       const url = screen.getByLabelText('RequestUrl');
-      await act(async () => {
-        fireEvent.change(url, { target: { value: 'http://localhost:8080' } });
-      });
+      fireEvent.change(url, { target: { value: 'http://localhost:8080' } });
 
       const confirmButton = screen.getByTestId('endpoint-modal-confirm-btn');
-      await act(async () => {
-        fireEvent.click(confirmButton);
-      });
+      fireEvent.click(confirmButton);
 
       expect(testModel.endpoints).toHaveLength(1);
       expect(testModel.endpoints![0].http.client.name).toBe('httpClient');
@@ -289,9 +278,7 @@ describe('EndpointListField', () => {
 
       const { getAddButton } = await renderField({ endpoints: [] }, testModel);
 
-      await act(async () => {
-        fireEvent.click(getAddButton());
-      });
+      fireEvent.click(getAddButton());
 
       await waitFor(() => {
         expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
@@ -299,9 +286,7 @@ describe('EndpointListField', () => {
 
       const cancelButton = screen.getByTestId('endpoint-modal-cancel-btn');
 
-      await act(async () => {
-        fireEvent.click(cancelButton);
-      });
+      fireEvent.click(cancelButton);
 
       await waitFor(() => {
         expect(screen.queryByTestId('NewEndpointModal')).not.toBeInTheDocument();
@@ -330,9 +315,7 @@ describe('EndpointListField', () => {
 
       const editButton = screen.getByTestId('endpoint-edit-0-btn');
 
-      await act(async () => {
-        fireEvent.click(editButton);
-      });
+      fireEvent.click(editButton);
 
       // Modal should appear in Update mode
       await waitFor(() => {
@@ -364,9 +347,7 @@ describe('EndpointListField', () => {
 
       // Click edit button
       const editButton = screen.getByTestId('endpoint-edit-0-btn');
-      await act(async () => {
-        fireEvent.click(editButton);
-      });
+      fireEvent.click(editButton);
 
       // Wait for modal
       await waitFor(() => {
@@ -374,11 +355,10 @@ describe('EndpointListField', () => {
       });
 
       const input = screen.getByLabelText('Name');
-      await act(async () => {
-        fireEvent.change(input, { target: { value: 'newHttpClient' } });
-      });
+      fireEvent.change(input, { target: { value: 'newHttpClient' } });
 
       const confirmButton = screen.getByTestId('endpoint-modal-confirm-btn');
+      // eslint-disable-next-line testing-library/no-unnecessary-act
       await act(async () => {
         fireEvent.click(confirmButton);
       });
@@ -414,9 +394,7 @@ describe('EndpointListField', () => {
 
       // Click edit button
       const editButton = screen.getByTestId('endpoint-edit-0-btn');
-      await act(async () => {
-        fireEvent.click(editButton);
-      });
+      fireEvent.click(editButton);
 
       // Wait for modal
       await waitFor(() => {
@@ -424,14 +402,10 @@ describe('EndpointListField', () => {
       });
 
       const input = screen.getByLabelText('RequestUrl');
-      await act(async () => {
-        fireEvent.change(input, { target: { value: 'http://localhost:9999' } });
-      });
+      fireEvent.change(input, { target: { value: 'http://localhost:9999' } });
 
       const confirmButton = screen.getByTestId('endpoint-modal-confirm-btn');
-      await act(async () => {
-        fireEvent.click(confirmButton);
-      });
+      fireEvent.click(confirmButton);
 
       // The confirmation should be triggered when the user tries to change the name
       // This is handled by the modal's onConfirm callback
@@ -464,9 +438,7 @@ describe('EndpointListField', () => {
 
       // Click edit button
       const editButton = screen.getByTestId('endpoint-edit-0-btn');
-      await act(async () => {
-        fireEvent.click(editButton);
-      });
+      fireEvent.click(editButton);
 
       // Wait for modal
       await waitFor(() => {
@@ -474,14 +446,10 @@ describe('EndpointListField', () => {
       });
 
       const input = screen.getByLabelText('Name');
-      await act(async () => {
-        fireEvent.change(input, { target: { value: 'newHttpClient' } });
-      });
+      fireEvent.change(input, { target: { value: 'newHttpClient' } });
 
       const cancelButton = screen.getByTestId('endpoint-modal-cancel-btn');
-      await act(async () => {
-        fireEvent.click(cancelButton);
-      });
+      fireEvent.click(cancelButton);
 
       // The confirmation should be triggered when the user tries to change the name
       // This is handled by the modal's onConfirm callback
@@ -531,9 +499,7 @@ describe('EndpointListField', () => {
       // Delete first endpoint
       const deleteButton = screen.getByTestId('endpoint-delete-0-btn');
 
-      await act(async () => {
-        fireEvent.click(deleteButton);
-      });
+      fireEvent.click(deleteButton);
 
       // The confirmation should be triggered when the user tries to delete an endpoint
       // This is handled by the modal's onConfirm callback
@@ -574,9 +540,7 @@ describe('EndpointListField', () => {
 
       const deleteButton = screen.getByTestId('endpoint-delete-0-btn');
 
-      await act(async () => {
-        fireEvent.click(deleteButton);
-      });
+      fireEvent.click(deleteButton);
 
       // The confirmation should be triggered when the user tries to delete an endpoint
       // This is handled by the modal's onConfirm callback
@@ -628,9 +592,7 @@ describe('EndpointListField', () => {
       // Delete first endpoint
       const deleteButton = screen.getByTestId('endpoint-delete-0-btn');
 
-      await act(async () => {
-        fireEvent.click(deleteButton);
-      });
+      fireEvent.click(deleteButton);
 
       // The confirmation should be triggered when the user tries to delete an endpoint
       // This is handled by the modal's onConfirm callback
@@ -751,9 +713,7 @@ describe('EndpointListField', () => {
 
         // Click the add button to open modal
         const addButton = screen.getByTestId('create-new-endpoint-btn');
-        await act(async () => {
-          fireEvent.click(addButton);
-        });
+        fireEvent.click(addButton);
 
         await waitFor(() => {
           expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
@@ -779,9 +739,7 @@ describe('EndpointListField', () => {
 
         // Click the add button
         const addButton = screen.getByTestId('create-new-endpoint-btn');
-        await act(async () => {
-          fireEvent.click(addButton);
-        });
+        fireEvent.click(addButton);
 
         await waitFor(() => {
           expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
@@ -806,9 +764,7 @@ describe('EndpointListField', () => {
       await renderField({ endpoints: [] }, testModel);
 
       const addButton = screen.getByTestId('create-new-endpoint-btn');
-      await act(async () => {
-        fireEvent.click(addButton);
-      });
+      fireEvent.click(addButton);
 
       await waitFor(() => {
         expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
@@ -835,9 +791,7 @@ describe('EndpointListField', () => {
       await renderField({ endpoints: testModel.endpoints }, testModel);
 
       const editButton = screen.getByTestId('endpoint-edit-0-btn');
-      await act(async () => {
-        fireEvent.click(editButton);
-      });
+      fireEvent.click(editButton);
 
       await waitFor(() => {
         expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
@@ -845,9 +799,7 @@ describe('EndpointListField', () => {
 
       // Cancel to close modal
       const cancelButton = screen.getByTestId('endpoint-modal-cancel-btn');
-      await act(async () => {
-        fireEvent.click(cancelButton);
-      });
+      fireEvent.click(cancelButton);
 
       await waitFor(() => {
         expect(screen.queryByTestId('NewEndpointModal')).not.toBeInTheDocument();
@@ -866,9 +818,7 @@ describe('EndpointListField', () => {
 
       // Open create modal
       const addButton = screen.getByTestId('create-new-endpoint-btn');
-      await act(async () => {
-        fireEvent.click(addButton);
-      });
+      fireEvent.click(addButton);
 
       await waitFor(() => {
         expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
@@ -879,15 +829,11 @@ describe('EndpointListField', () => {
         expect(screen.getByTestId('tile-header-http-client')).toBeInTheDocument();
       });
 
-      await act(async () => {
-        fireEvent.click(screen.getByTestId('tile-header-http-client'));
-      });
+      fireEvent.click(screen.getByTestId('tile-header-http-client'));
 
       // Confirm without filling in a name — the guard in handleCreateOrEdit returns early
       const confirmButton = screen.getByTestId('endpoint-modal-confirm-btn');
-      await act(async () => {
-        fireEvent.click(confirmButton);
-      });
+      fireEvent.click(confirmButton);
 
       // onChange must not have been called because name was absent
       expect(onPropertyChange).not.toHaveBeenCalled();
@@ -901,19 +847,17 @@ describe('EndpointListField', () => {
     const { Provider } = await TestProvidersWrapper(); // uses CamelRouteResource by default
 
     expect(() => {
-      act(() => {
-        render(
-          <Provider>
-            <ActionConfirmationModalContext.Provider value={mockActionConfirmationModalContext}>
-              <SchemaProvider schema={schema}>
-                <ModelContextProvider model={{}} onPropertyChange={vi.fn()}>
-                  <EndpointListField propName={PROP_NAME} />
-                </ModelContextProvider>
-              </SchemaProvider>
-            </ActionConfirmationModalContext.Provider>
-          </Provider>,
-        );
-      });
+      render(
+        <Provider>
+          <ActionConfirmationModalContext.Provider value={mockActionConfirmationModalContext}>
+            <SchemaProvider schema={schema}>
+              <ModelContextProvider model={{}} onPropertyChange={vi.fn()}>
+                <EndpointListField propName={PROP_NAME} />
+              </ModelContextProvider>
+            </SchemaProvider>
+          </ActionConfirmationModalContext.Provider>
+        </Provider>,
+      );
     }).toThrow('EndpointListField must be used only with CitrusTestResource');
   });
 });

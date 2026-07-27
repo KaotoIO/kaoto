@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import { IVisualizationNode } from '../../../../models';
 import { useDeleteGroup } from '../../Custom/hooks/delete-group.hook';
@@ -68,18 +68,14 @@ describe('StepToolbar', () => {
 
   describe('Rendering', () => {
     it('should render the toolbar with correct data-testid', async () => {
-      await act(async () => {
-        render(<StepToolbar vizNode={mockVizNode} data-testid="test-toolbar" />);
-      });
+      render(<StepToolbar vizNode={mockVizNode} data-testid="test-toolbar" />);
 
       expect(screen.getByTestId('test-toolbar')).toBeInTheDocument();
       expect(screen.getByTestId('test-toolbar')).toHaveClass('step-toolbar');
     });
 
     it('should render no buttons when all interactions are disabled', async () => {
-      await act(async () => {
-        render(<StepToolbar vizNode={mockVizNode} />);
-      });
+      render(<StepToolbar vizNode={mockVizNode} />);
 
       expect(screen.queryByTestId('Test Node|step-toolbar-button-duplicate')).not.toBeInTheDocument();
       expect(screen.queryByTestId('Test Node|step-toolbar-button-add-special')).not.toBeInTheDocument();
@@ -96,9 +92,7 @@ describe('StepToolbar', () => {
       const mockOnDuplicate = vi.fn();
       mockUseDuplicateStep.mockReturnValue({ canDuplicate: true, onDuplicate: mockOnDuplicate });
 
-      await act(async () => {
-        render(<StepToolbar vizNode={mockVizNode} />);
-      });
+      render(<StepToolbar vizNode={mockVizNode} />);
 
       const duplicateButton = screen.getByTestId('Test Node|step-toolbar-button-duplicate');
       expect(duplicateButton).toBeInTheDocument();
@@ -114,9 +108,7 @@ describe('StepToolbar', () => {
       const mockOnMoveStep = vi.fn();
       mockUseMoveStep.mockReturnValue({ canBeMoved: true, onMoveStep: mockOnMoveStep });
 
-      await act(async () => {
-        render(<StepToolbar vizNode={mockVizNode} />);
-      });
+      render(<StepToolbar vizNode={mockVizNode} />);
 
       const moveButton = screen.getByTestId('Test Node|step-toolbar-button-move-before');
       expect(moveButton).toBeInTheDocument();
@@ -130,9 +122,7 @@ describe('StepToolbar', () => {
       const mockOnMoveStep = vi.fn();
       mockUseMoveStep.mockReturnValue({ canBeMoved: true, onMoveStep: mockOnMoveStep });
 
-      await act(async () => {
-        render(<StepToolbar vizNode={mockVizNode} />);
-      });
+      render(<StepToolbar vizNode={mockVizNode} />);
 
       const moveButton = screen.getByTestId('Test Node|step-toolbar-button-move-after');
       expect(moveButton).toBeInTheDocument();
@@ -152,9 +142,7 @@ describe('StepToolbar', () => {
         canHaveSpecialChildren: true,
       });
 
-      await act(async () => {
-        render(<StepToolbar vizNode={mockVizNode} />);
-      });
+      render(<StepToolbar vizNode={mockVizNode} />);
 
       const addSpecialButton = screen.getByTestId('Test Node|step-toolbar-button-add-special');
       expect(addSpecialButton).toBeInTheDocument();
@@ -173,9 +161,7 @@ describe('StepToolbar', () => {
         canBeDisabled: true,
       });
 
-      await act(async () => {
-        render(<StepToolbar vizNode={mockVizNode} />);
-      });
+      render(<StepToolbar vizNode={mockVizNode} />);
 
       const disableButton = screen.getByTestId('Test Node|step-toolbar-button-disable');
       expect(disableButton).toHaveAttribute('title', 'Disable step');
@@ -188,9 +174,7 @@ describe('StepToolbar', () => {
         canBeDisabled: true,
       });
 
-      await act(async () => {
-        render(<StepToolbar vizNode={mockVizNode} />);
-      });
+      render(<StepToolbar vizNode={mockVizNode} />);
 
       const disableButton = screen.getByTestId('Test Node|step-toolbar-button-disable');
       expect(disableButton).toHaveAttribute('title', 'Enable step');
@@ -204,9 +188,7 @@ describe('StepToolbar', () => {
         canBeDisabled: true,
       });
 
-      await act(async () => {
-        render(<StepToolbar vizNode={mockVizNode} />);
-      });
+      render(<StepToolbar vizNode={mockVizNode} />);
 
       const disableButton = screen.getByTestId('Test Node|step-toolbar-button-disable');
       fireEvent.click(disableButton);
@@ -219,9 +201,7 @@ describe('StepToolbar', () => {
       const mockOnEnableAllSteps = vi.fn();
       mockUseEnableAllSteps.mockReturnValue({ areMultipleStepsDisabled: true, onEnableAllSteps: mockOnEnableAllSteps });
 
-      await act(async () => {
-        render(<StepToolbar vizNode={mockVizNode} />);
-      });
+      render(<StepToolbar vizNode={mockVizNode} />);
 
       const enableAllButton = screen.getByTestId('Test Node|step-toolbar-button-enable-all');
       expect(enableAllButton).toBeInTheDocument();
@@ -241,9 +221,7 @@ describe('StepToolbar', () => {
         canReplaceStep: true,
       });
 
-      await act(async () => {
-        render(<StepToolbar vizNode={mockVizNode} />);
-      });
+      render(<StepToolbar vizNode={mockVizNode} />);
 
       const replaceButton = screen.getByTestId('Test Node|step-toolbar-button-replace');
       expect(replaceButton).toBeInTheDocument();
@@ -258,9 +236,7 @@ describe('StepToolbar', () => {
     it('should show "Collapse step" title when not collapsed', async () => {
       const mockOnCollapseToggle = vi.fn();
 
-      await act(async () => {
-        render(<StepToolbar vizNode={mockVizNode} onCollapseToggle={mockOnCollapseToggle} isCollapsed={false} />);
-      });
+      render(<StepToolbar vizNode={mockVizNode} onCollapseToggle={mockOnCollapseToggle} isCollapsed={false} />);
 
       const collapseButton = screen.getByTestId('Test Node|step-toolbar-button-collapse');
       expect(collapseButton).toHaveAttribute('title', 'Collapse step');
@@ -269,9 +245,7 @@ describe('StepToolbar', () => {
     it('should show "Expand step" title when collapsed', async () => {
       const mockOnCollapseToggle = vi.fn();
 
-      await act(async () => {
-        render(<StepToolbar vizNode={mockVizNode} onCollapseToggle={mockOnCollapseToggle} isCollapsed />);
-      });
+      render(<StepToolbar vizNode={mockVizNode} onCollapseToggle={mockOnCollapseToggle} isCollapsed />);
 
       const collapseButton = screen.getByTestId('Test Node|step-toolbar-button-collapse');
       expect(collapseButton).toHaveAttribute('title', 'Expand step');
@@ -280,9 +254,7 @@ describe('StepToolbar', () => {
     it('should call onCollapseToggle when collapse button is clicked', async () => {
       const mockOnCollapseToggle = vi.fn();
 
-      await act(async () => {
-        render(<StepToolbar vizNode={mockVizNode} onCollapseToggle={mockOnCollapseToggle} />);
-      });
+      render(<StepToolbar vizNode={mockVizNode} onCollapseToggle={mockOnCollapseToggle} />);
 
       const collapseButton = screen.getByTestId('Test Node|step-toolbar-button-collapse');
       fireEvent.click(collapseButton);
@@ -290,9 +262,7 @@ describe('StepToolbar', () => {
     });
 
     it('should not render collapse button when onCollapseToggle is not provided', async () => {
-      await act(async () => {
-        render(<StepToolbar vizNode={mockVizNode} />);
-      });
+      render(<StepToolbar vizNode={mockVizNode} />);
 
       expect(screen.queryByTestId('Test Node|step-toolbar-button-collapse')).not.toBeInTheDocument();
     });
@@ -307,9 +277,7 @@ describe('StepToolbar', () => {
         canRemoveStep: true,
       });
 
-      await act(async () => {
-        render(<StepToolbar vizNode={mockVizNode} />);
-      });
+      render(<StepToolbar vizNode={mockVizNode} />);
 
       const deleteButton = screen.getByTestId('Test Node|step-toolbar-button-delete');
       expect(deleteButton).toBeInTheDocument();
@@ -329,9 +297,7 @@ describe('StepToolbar', () => {
         canRemoveFlow: true,
       });
 
-      await act(async () => {
-        render(<StepToolbar vizNode={mockVizNode} />);
-      });
+      render(<StepToolbar vizNode={mockVizNode} />);
 
       const deleteGroupButton = screen.getByTestId('Test Node|step-toolbar-button-delete-group');
       expect(deleteGroupButton).toBeInTheDocument();
@@ -352,18 +318,14 @@ describe('StepToolbar', () => {
         canRemoveStep: true,
       });
 
-      await act(async () => {
-        render(
-          <div onClick={parentOnClick}>
-            <StepToolbar vizNode={mockVizNode} />
-          </div>,
-        );
-      });
+      render(
+        <div onClick={parentOnClick}>
+          <StepToolbar vizNode={mockVizNode} />
+        </div>,
+      );
 
       const deleteButton = screen.getByTestId('Test Node|step-toolbar-button-delete');
-      await act(async () => {
-        fireEvent.click(deleteButton);
-      });
+      fireEvent.click(deleteButton);
 
       expect(mockOnDeleteStep).toHaveBeenCalledTimes(1);
       expect(parentOnClick).not.toHaveBeenCalled();
@@ -378,18 +340,14 @@ describe('StepToolbar', () => {
         canHaveSpecialChildren: true,
       });
 
-      await act(async () => {
-        render(
-          <div onClick={parentOnClick}>
-            <StepToolbar vizNode={mockVizNode} />
-          </div>,
-        );
-      });
+      render(
+        <div onClick={parentOnClick}>
+          <StepToolbar vizNode={mockVizNode} />
+        </div>,
+      );
 
       const addSpecialButton = screen.getByTestId('Test Node|step-toolbar-button-add-special');
-      await act(async () => {
-        fireEvent.click(addSpecialButton);
-      });
+      fireEvent.click(addSpecialButton);
 
       expect(mockOnInsertStep).toHaveBeenCalledTimes(1);
       expect(parentOnClick).not.toHaveBeenCalled();
@@ -413,9 +371,7 @@ describe('StepToolbar', () => {
       mockUseDisableStep.mockReturnValue({ onToggleDisableNode: vi.fn(), isDisabled: false });
       mockUseEnableAllSteps.mockReturnValue({ areMultipleStepsDisabled: true, onEnableAllSteps: vi.fn() });
 
-      await act(async () => {
-        render(<StepToolbar vizNode={mockVizNode} onCollapseToggle={mockOnCollapseToggle} />);
-      });
+      render(<StepToolbar vizNode={mockVizNode} onCollapseToggle={mockOnCollapseToggle} />);
 
       expect(screen.getByTestId('Test Node|step-toolbar-button-duplicate')).toBeInTheDocument();
       expect(screen.getByTestId('Test Node|step-toolbar-button-add-special')).toBeInTheDocument();

@@ -1,7 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { resolveSchemaWithRef, SuggestionRegistryProvider } from '@kaoto/forms';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import { KaotoSchemaDefinition } from '../../../../../../models';
 import { getFirstCatalogMap } from '../../../../../../stubs/test-load-catalog';
@@ -48,17 +48,13 @@ describe('NewBeanModal', () => {
 
   it('should call `onCreateBean` when create button is clicked', async () => {
     render(<NewBeanModal {...defaultProps} />, { wrapper: SuggestionRegistryProvider });
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('create-bean-btn'));
-    });
+    fireEvent.click(screen.getByTestId('create-bean-btn'));
     expect(defaultProps.onCreateBean).toHaveBeenCalled();
   });
 
   it('should NOT call `onCreateBean` when create button is clicked but the schema is missing required fields', async () => {
     render(<NewBeanModal {...defaultProps} beanName={undefined} />, { wrapper: SuggestionRegistryProvider });
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('create-bean-btn'));
-    });
+    fireEvent.click(screen.getByTestId('create-bean-btn'));
     expect(defaultProps.onCreateBean).not.toHaveBeenCalled();
   });
 
@@ -71,9 +67,7 @@ describe('NewBeanModal', () => {
   it('updates the bean model when form changes', async () => {
     render(<NewBeanModal {...defaultProps} />, { wrapper: SuggestionRegistryProvider });
     const input = screen.getByLabelText('Name');
-    await act(async () => {
-      fireEvent.change(input, { target: { value: 'New Bean Name' } });
-    });
+    fireEvent.change(input, { target: { value: 'New Bean Name' } });
     expect(input).toHaveValue('New Bean Name');
   });
 });

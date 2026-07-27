@@ -38,9 +38,7 @@ describe('CatalogTagsPanel', () => {
     const mouseDownEvent = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
     const preventDefaultSpy = vi.spyOn(mouseDownEvent, 'preventDefault');
 
-    act(() => {
-      fireEvent(screen.getByTestId('tag-http'), mouseDownEvent);
-    });
+    fireEvent(screen.getByTestId('tag-http'), mouseDownEvent);
 
     expect(preventDefaultSpy).toHaveBeenCalled();
   });

@@ -1,5 +1,5 @@
 import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 
 import { KaotoSchemaDefinition } from '../../../../../../models';
 import { DefaultSettingsAdapter } from '../../../../../../models/settings';
@@ -72,9 +72,7 @@ describe('MediaTypeField', () => {
 
       const toggle = screen.getByRole('button', { name: /select media types/i });
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       expect(screen.getByRole('menuitem', { name: 'application/json' })).toBeInTheDocument();
       expect(screen.getByRole('menuitem', { name: 'application/xml' })).toBeInTheDocument();
@@ -87,16 +85,12 @@ describe('MediaTypeField', () => {
 
       const toggle = screen.getByRole('button', { name: /select media types/i });
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       const option = screen.getByRole('menuitem', { name: 'application/json' });
       const checkbox = within(option).getByRole('checkbox');
 
-      await act(async () => {
-        fireEvent.click(checkbox);
-      });
+      fireEvent.click(checkbox);
 
       expect(onPropertyChange).toHaveBeenCalledWith('mediaType', 'application/json');
     });
@@ -110,16 +104,12 @@ describe('MediaTypeField', () => {
 
       const toggle = screen.getByRole('button', { name: /select media types/i });
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       const option1 = screen.getByRole('menuitem', { name: 'application/json' });
       const checkbox1 = within(option1).getByRole('checkbox');
 
-      await act(async () => {
-        fireEvent.click(checkbox1);
-      });
+      fireEvent.click(checkbox1);
 
       rerender(
         <SettingsProvider adapter={settingsAdapter}>
@@ -134,9 +124,7 @@ describe('MediaTypeField', () => {
       const option2 = screen.getByRole('menuitem', { name: 'text/plain' });
       const checkbox2 = within(option2).getByRole('checkbox');
 
-      await act(async () => {
-        fireEvent.click(checkbox2);
-      });
+      fireEvent.click(checkbox2);
 
       expect(onPropertyChange).toHaveBeenCalledWith('mediaType', 'application/json');
       expect(onPropertyChange).toHaveBeenCalledWith('mediaType', 'application/json, text/plain');
@@ -148,16 +136,12 @@ describe('MediaTypeField', () => {
 
       const toggle = screen.getByRole('button', { name: /application\/json, text\/plain/i });
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       const option = screen.getByRole('menuitem', { name: 'application/json' });
       const checkbox = within(option).getByRole('checkbox');
 
-      await act(async () => {
-        fireEvent.click(checkbox);
-      });
+      fireEvent.click(checkbox);
 
       expect(onPropertyChange).toHaveBeenCalledWith('mediaType', 'text/plain');
     });
@@ -168,16 +152,12 @@ describe('MediaTypeField', () => {
 
       const toggle = screen.getByRole('button', { name: /application\/json/i });
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       const option = screen.getByRole('menuitem', { name: 'application/json' });
       const checkbox = within(option).getByRole('checkbox');
 
-      await act(async () => {
-        fireEvent.click(checkbox);
-      });
+      fireEvent.click(checkbox);
 
       expect(onPropertyChange).toHaveBeenCalledWith('mediaType', undefined);
     });
@@ -187,9 +167,7 @@ describe('MediaTypeField', () => {
 
       const toggle = screen.getByRole('button', { name: /application\/json/i });
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       const option = screen.getByRole('menuitem', { name: 'application/json' });
       const checkbox = within(option).getByRole('checkbox');
@@ -204,9 +182,7 @@ describe('MediaTypeField', () => {
 
       const toggle = screen.getByRole('button', { name: /select media types/i });
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       expect(screen.getByPlaceholderText('Add custom media type')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument();
@@ -218,20 +194,14 @@ describe('MediaTypeField', () => {
 
       const toggle = screen.getByRole('button', { name: /select media types/i });
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       const input = screen.getByPlaceholderText('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
-      await act(async () => {
-        fireEvent.change(input, { target: { value: 'application/custom' } });
-      });
+      fireEvent.change(input, { target: { value: 'application/custom' } });
 
-      await act(async () => {
-        fireEvent.click(addButton);
-      });
+      fireEvent.click(addButton);
 
       expect(onPropertyChange).toHaveBeenCalledWith('mediaType', 'application/custom');
     });
@@ -242,19 +212,13 @@ describe('MediaTypeField', () => {
 
       const toggle = screen.getByRole('button', { name: /select media types/i });
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       const input = screen.getByPlaceholderText('Add custom media type');
 
-      await act(async () => {
-        fireEvent.change(input, { target: { value: 'application/custom' } });
-      });
+      fireEvent.change(input, { target: { value: 'application/custom' } });
 
-      await act(async () => {
-        fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
-      });
+      fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
 
       expect(onPropertyChange).toHaveBeenCalledWith('mediaType', 'application/custom');
     });
@@ -264,20 +228,14 @@ describe('MediaTypeField', () => {
 
       const toggle = screen.getByRole('button', { name: /select media types/i });
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       const input = screen.getByPlaceholderText<HTMLInputElement>('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
-      await act(async () => {
-        fireEvent.change(input, { target: { value: 'application/custom' } });
-      });
+      fireEvent.change(input, { target: { value: 'application/custom' } });
 
-      await act(async () => {
-        fireEvent.click(addButton);
-      });
+      fireEvent.click(addButton);
 
       expect(input.value).toBe('');
     });
@@ -288,20 +246,14 @@ describe('MediaTypeField', () => {
 
       const toggle = screen.getByRole('button', { name: /select media types/i });
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       const input = screen.getByPlaceholderText('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
-      await act(async () => {
-        fireEvent.change(input, { target: { value: '  application/custom  ' } });
-      });
+      fireEvent.change(input, { target: { value: '  application/custom  ' } });
 
-      await act(async () => {
-        fireEvent.click(addButton);
-      });
+      fireEvent.click(addButton);
 
       expect(onPropertyChange).toHaveBeenCalledWith('mediaType', 'application/custom');
     });
@@ -312,20 +264,14 @@ describe('MediaTypeField', () => {
 
       const toggle = screen.getByRole('button', { name: /select media types/i });
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       const input = screen.getByPlaceholderText('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
-      await act(async () => {
-        fireEvent.change(input, { target: { value: '   ' } });
-      });
+      fireEvent.change(input, { target: { value: '   ' } });
 
-      await act(async () => {
-        fireEvent.click(addButton);
-      });
+      fireEvent.click(addButton);
 
       expect(onPropertyChange).not.toHaveBeenCalled();
     });
@@ -335,9 +281,7 @@ describe('MediaTypeField', () => {
 
       const toggle = screen.getByRole('button', { name: /select media types/i });
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       const addButton = screen.getByRole('button', { name: 'Add' });
 
@@ -349,16 +293,12 @@ describe('MediaTypeField', () => {
 
       const toggle = screen.getByRole('button', { name: /select media types/i });
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       const input = screen.getByPlaceholderText('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
-      await act(async () => {
-        fireEvent.change(input, { target: { value: 'test' } });
-      });
+      fireEvent.change(input, { target: { value: 'test' } });
 
       expect(addButton).not.toBeDisabled();
     });
@@ -369,20 +309,14 @@ describe('MediaTypeField', () => {
 
       const toggle = screen.getByRole('button', { name: /application\/json/i });
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       const input = screen.getByPlaceholderText('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
-      await act(async () => {
-        fireEvent.change(input, { target: { value: 'application/custom' } });
-      });
+      fireEvent.change(input, { target: { value: 'application/custom' } });
 
-      await act(async () => {
-        fireEvent.click(addButton);
-      });
+      fireEvent.click(addButton);
 
       expect(onPropertyChange).toHaveBeenCalledWith('mediaType', 'application/json, application/custom');
     });
@@ -394,20 +328,14 @@ describe('MediaTypeField', () => {
 
       const toggle = screen.getByRole('button', { name: /select media types/i });
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       const input = screen.getByPlaceholderText('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
-      await act(async () => {
-        fireEvent.change(input, { target: { value: 'application/custom' } });
-      });
+      fireEvent.change(input, { target: { value: 'application/custom' } });
 
-      await act(async () => {
-        fireEvent.click(addButton);
-      });
+      fireEvent.click(addButton);
 
       const settings = settingsAdapter.getSettings();
       expect(settings.rest.customMediaTypes).toContain('application/custom');
@@ -428,20 +356,14 @@ describe('MediaTypeField', () => {
 
       const toggle = screen.getByRole('button', { name: /select media types/i });
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       const input = screen.getByPlaceholderText('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
-      await act(async () => {
-        fireEvent.change(input, { target: { value: 'application/existing' } });
-      });
+      fireEvent.change(input, { target: { value: 'application/existing' } });
 
-      await act(async () => {
-        fireEvent.click(addButton);
-      });
+      fireEvent.click(addButton);
 
       const updatedSettings = settingsAdapter.getSettings();
       const customTypes = updatedSettings.rest.customMediaTypes;
@@ -462,9 +384,7 @@ describe('MediaTypeField', () => {
 
       const toggle = screen.getByRole('button', { name: /select media types/i });
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       expect(screen.getByRole('menuitem', { name: 'application/stored-custom' })).toBeInTheDocument();
     });
@@ -502,9 +422,7 @@ describe('MediaTypeField', () => {
 
       const toggle = screen.getByRole('button', { name: /application\/custom-type/i });
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       expect(screen.getByRole('menuitem', { name: 'application/custom-type' })).toBeInTheDocument();
     });
@@ -515,20 +433,14 @@ describe('MediaTypeField', () => {
 
       const toggle = screen.getByRole('button', { name: /application\/custom/i });
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       const input = screen.getByPlaceholderText('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
-      await act(async () => {
-        fireEvent.change(input, { target: { value: 'application/custom' } });
-      });
+      fireEvent.change(input, { target: { value: 'application/custom' } });
 
-      await act(async () => {
-        fireEvent.click(addButton);
-      });
+      fireEvent.click(addButton);
 
       // Should not call onChange since the value is already selected
       expect(onPropertyChange).not.toHaveBeenCalled();
