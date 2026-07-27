@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import type { Mock } from 'vitest';
 
-import { IFieldMenuGroup } from '../../../models/datamapper/field-action';
+import { IFieldMenuGroup } from '../../../../models/datamapper/field-action';
 import { FieldContextMenu } from './FieldContextMenu';
 
 describe('FieldContextMenu', () => {

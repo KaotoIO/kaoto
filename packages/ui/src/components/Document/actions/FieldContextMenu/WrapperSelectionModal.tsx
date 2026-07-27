@@ -12,8 +12,8 @@ import {
 } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useMemo, useState } from 'react';
 
-import { IMemberSelection, IWrapperCandidate } from '../../../models/datamapper/field-action';
-import { DataMapperModal } from '../../DataMapper/DataMapperModal';
+import { IMemberSelection, IWrapperCandidate } from '../../../../models/datamapper/field-action';
+import { DataMapperModal } from '../../../DataMapper/DataMapperModal';
 
 const SEARCH_THRESHOLD = 10;
 

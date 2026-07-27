@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 
-import { IWrapperCandidate } from '../../../models/datamapper/field-action';
-import { Types } from '../../../models/datamapper/types';
+import { IWrapperCandidate } from '../../../../models/datamapper/field-action';
+import { Types } from '../../../../models/datamapper/types';
 import { WrapperSelectionModal, WrapperSelectionModalProps } from './WrapperSelectionModal';
 
 function makeCandidates(count: number): IWrapperCandidate[] {

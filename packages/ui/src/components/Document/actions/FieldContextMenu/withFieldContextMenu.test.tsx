@@ -1,13 +1,13 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
-import { DocumentTree } from '../../../models/datamapper/document-tree';
-import { DocumentNodeData } from '../../../models/datamapper/visualization';
-import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
-import { DataMapperProvider } from '../../../providers/datamapper.provider';
-import { TreeParsingService } from '../../../services/visualization/tree-parsing.service';
-import { TestUtil } from '../../../stubs/datamapper/data-mapper';
-import { SourceDocumentNodeWithContextMenu } from '../SourceDocumentNode';
+import { DocumentTree } from '../../../../models/datamapper/document-tree';
+import { DocumentNodeData } from '../../../../models/datamapper/visualization';
+import { MappingLinksProvider } from '../../../../providers/data-mapping-links.provider';
+import { DataMapperProvider } from '../../../../providers/datamapper.provider';
+import { TreeParsingService } from '../../../../services/visualization/tree-parsing.service';
+import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
+import { SourceDocumentNodeWithContextMenu } from '../../SourceDocumentNode';
 
 describe('withFieldContextMenu', () => {
   const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (

@@ -8,9 +8,9 @@ import { IFieldMenuAction, IMemberSelection } from '../../../../models/datamappe
 import { NodeData } from '../../../../models/datamapper/visualization';
 import { ChoiceFieldService } from '../../../../services/visualization/choice-field.service';
 import { VisualizationUtilService } from '../../../../services/visualization/visualization-util.service';
-import { WrapperSelectionModal } from '../WrapperSelectionModal';
 import { buildSelectSelfAction } from './menu-utils';
 import { MenuContributor } from './types';
+import { WrapperSelectionModal } from './WrapperSelectionModal';
 
 export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
   const { mappingTree, updateDocument } = useDataMapper();
