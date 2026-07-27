@@ -75,19 +75,17 @@ describe('EndpointField', () => {
     const camelResource = createTestResource(testModel);
     const { Provider } = await TestProvidersWrapper({ camelResource });
 
-    await act(async () => {
-      const wrapper = createWrapper();
-      render(
-        <Provider>
-          <SchemaProvider schema={schema}>
-            <ModelContextProvider model={model} onPropertyChange={onPropertyChange} disabled={options.disabled}>
-              <EndpointField propName={PROP_NAME} required={options.required} />
-            </ModelContextProvider>
-          </SchemaProvider>
-        </Provider>,
-        { wrapper },
-      );
-    });
+    const wrapper = createWrapper();
+    render(
+      <Provider>
+        <SchemaProvider schema={schema}>
+          <ModelContextProvider model={model} onPropertyChange={onPropertyChange} disabled={options.disabled}>
+            <EndpointField propName={PROP_NAME} required={options.required} />
+          </ModelContextProvider>
+        </SchemaProvider>
+      </Provider>,
+      { wrapper },
+    );
 
     return {
       getInput: () => screen.getByRole('textbox', { name: schema.title }),
@@ -193,9 +191,7 @@ describe('EndpointField', () => {
       });
       const toggle = screen.getByLabelText('Endpoint toggle');
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       // Check that both endpoints appear in the dropdown
       await waitFor(() => {
@@ -220,19 +216,15 @@ describe('EndpointField', () => {
     });
     const toggle = screen.getByLabelText('Endpoint toggle');
 
-    await act(async () => {
-      fireEvent.click(toggle);
-    });
+    fireEvent.click(toggle);
 
     // Create new endpoint
     await waitFor(() => {
       expect(screen.getByRole('option', { name: 'option create-new-with-name' })).toBeInTheDocument();
     });
 
-    await act(async () => {
-      const createNew = screen.getByRole('option', { name: 'option create-new-with-name' });
-      fireEvent.click(createNew);
-    });
+    const createNew = screen.getByRole('option', { name: 'option create-new-with-name' });
+    fireEvent.click(createNew);
 
     // Modal should appear
     await waitFor(() => {
@@ -248,24 +240,19 @@ describe('EndpointField', () => {
 
     // Click on a tile
     const httpClientTile = screen.getByTestId('tile-header-http-client');
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
       fireEvent.click(httpClientTile);
     });
 
     const nameInput = screen.getByLabelText('Name');
-    await act(async () => {
-      fireEvent.change(nameInput, { target: { value: 'httpClient' } });
-    });
+    fireEvent.change(nameInput, { target: { value: 'httpClient' } });
 
     const url = screen.getByLabelText('RequestUrl');
-    await act(async () => {
-      fireEvent.change(url, { target: { value: 'http://localhost:8080' } });
-    });
+    fireEvent.change(url, { target: { value: 'http://localhost:8080' } });
 
     const confirmButton = screen.getByTestId('endpoint-modal-confirm-btn');
-    await act(async () => {
-      fireEvent.click(confirmButton);
-    });
+    fireEvent.click(confirmButton);
 
     await waitFor(() => {
       expect(onPropertyChange).toHaveBeenCalledWith(PROP_NAME, 'httpClient');
@@ -307,19 +294,15 @@ describe('EndpointField', () => {
       });
       const toggle = screen.getByLabelText('Endpoint toggle');
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       // Select an endpoint
       await waitFor(() => {
         expect(screen.getByText('httpClient')).toBeInTheDocument();
       });
 
-      await act(async () => {
-        const option = screen.getByRole('option', { name: 'option httpclient' });
-        fireEvent.click(option);
-      });
+      const option = screen.getByRole('option', { name: 'option httpclient' });
+      fireEvent.click(option);
 
       await waitFor(() => {
         expect(onPropertyChange).toHaveBeenCalledWith(PROP_NAME, 'httpClient');
@@ -357,9 +340,7 @@ describe('EndpointField', () => {
       });
       const clearButton = screen.getByRole('button', { name: /clear/i });
 
-      await act(async () => {
-        fireEvent.click(clearButton);
-      });
+      fireEvent.click(clearButton);
 
       await waitFor(() => {
         expect(onPropertyChange).toHaveBeenCalledWith(PROP_NAME, undefined);
@@ -403,18 +384,14 @@ describe('EndpointField', () => {
       });
       const toggle = screen.getByLabelText('Endpoint toggle');
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       await waitFor(() => {
         expect(screen.getByText('jmsQueue')).toBeInTheDocument();
       });
 
-      await act(async () => {
-        const option = screen.getByRole('option', { name: 'option jmsqueue' });
-        fireEvent.click(option);
-      });
+      const option = screen.getByRole('option', { name: 'option jmsqueue' });
+      fireEvent.click(option);
 
       await waitFor(() => {
         expect(onPropertyChange).toHaveBeenCalledWith(PROP_NAME, 'jmsQueue');
@@ -432,10 +409,8 @@ describe('EndpointField', () => {
 
       const input = getInput();
 
-      await act(async () => {
-        fireEvent.click(input);
-        fireEvent.change(input, { target: { value: 'customEndpoint' } });
-      });
+      fireEvent.click(input);
+      fireEvent.change(input, { target: { value: 'customEndpoint' } });
 
       // The Typeahead allows custom input with allowCustomInput={true}
       expect(input).toHaveValue('customEndpoint');
@@ -467,9 +442,7 @@ describe('EndpointField', () => {
       });
       const toggle = screen.getByLabelText('Endpoint toggle');
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       // The endpoint type should be shown in the description
       await waitFor(() => {
@@ -503,9 +476,7 @@ describe('EndpointField', () => {
       });
       const toggle = screen.getByLabelText('Endpoint toggle');
 
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      fireEvent.click(toggle);
 
       // Check that the dynamic endpoint appears
       await waitFor(() => {
@@ -532,17 +503,15 @@ describe('EndpointField', () => {
     const { Provider } = await TestProvidersWrapper(); // uses CamelRouteResource by default
 
     expect(() => {
-      act(() => {
-        render(
-          <Provider>
-            <SchemaProvider schema={schema}>
-              <ModelContextProvider model={{}} onPropertyChange={vi.fn()}>
-                <EndpointField propName={PROP_NAME} />
-              </ModelContextProvider>
-            </SchemaProvider>
-          </Provider>,
-        );
-      });
+      render(
+        <Provider>
+          <SchemaProvider schema={schema}>
+            <ModelContextProvider model={{}} onPropertyChange={vi.fn()}>
+              <EndpointField propName={PROP_NAME} />
+            </ModelContextProvider>
+          </SchemaProvider>
+        </Provider>,
+      );
     }).toThrow('EndpointField must be used only with CitrusTestResource');
   });
 
@@ -570,26 +539,20 @@ describe('EndpointField', () => {
       expect(screen.getByLabelText('Endpoint toggle')).toBeInTheDocument();
     });
 
-    await act(async () => {
-      fireEvent.click(screen.getByLabelText('Endpoint toggle'));
-    });
+    fireEvent.click(screen.getByLabelText('Endpoint toggle'));
 
     await waitFor(() => {
       expect(screen.getByRole('option', { name: 'option create-new-with-name' })).toBeInTheDocument();
     });
 
-    await act(async () => {
-      fireEvent.click(screen.getByRole('option', { name: 'option create-new-with-name' }));
-    });
+    fireEvent.click(screen.getByRole('option', { name: 'option create-new-with-name' }));
 
     await waitFor(() => {
       expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
     });
 
     // Cancel the modal
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('endpoint-modal-cancel-btn'));
-    });
+    fireEvent.click(screen.getByTestId('endpoint-modal-cancel-btn'));
 
     await waitFor(() => {
       expect(screen.queryByTestId('NewEndpointModal')).not.toBeInTheDocument();

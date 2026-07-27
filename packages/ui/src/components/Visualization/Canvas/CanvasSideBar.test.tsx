@@ -63,10 +63,8 @@ describe('CanvasSideBar', () => {
       </Provider>,
     );
 
-    act(() => {
-      const closeButton = wrapper.getByTestId('close-side-bar');
-      fireEvent.click(closeButton);
-    });
+    const closeButton = wrapper.getByTestId('close-side-bar');
+    fireEvent.click(closeButton);
 
     expect(onCloseSpy).toHaveBeenCalledTimes(1);
   });

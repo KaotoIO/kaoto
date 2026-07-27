@@ -36,17 +36,13 @@ describe('Canvas', () => {
     const { Provider } = await TestProvidersWrapper();
     const vizNode = await entity.toVizNode();
 
-    let result: RenderResult | undefined;
-
-    await act(async () => {
-      result = render(
-        <Provider>
-          <VisualizationProvider controller={ControllerService.createController()}>
-            <Canvas vizNodes={[vizNode]} entitiesCount={1} />
-          </VisualizationProvider>
-        </Provider>,
-      );
-    });
+    const result = render(
+      <Provider>
+        <VisualizationProvider controller={ControllerService.createController()}>
+          <Canvas vizNodes={[vizNode]} entitiesCount={1} />
+        </VisualizationProvider>
+      </Provider>,
+    );
 
     await act(async () => {
       await vi.runAllTimersAsync();
@@ -65,15 +61,13 @@ describe('Canvas', () => {
     const controller = ControllerService.createController();
     const fromModelSpy = vi.spyOn(controller, 'fromModel');
 
-    await act(async () => {
-      render(
-        <Provider>
-          <VisualizationProvider controller={controller}>
-            <Canvas vizNodes={[vizNode]} entitiesCount={1} />
-          </VisualizationProvider>
-        </Provider>,
-      );
-    });
+    render(
+      <Provider>
+        <VisualizationProvider controller={controller}>
+          <Canvas vizNodes={[vizNode]} entitiesCount={1} />
+        </VisualizationProvider>
+      </Provider>,
+    );
 
     // The graph has been initialized with the .fromModel method, but the requestAnimationFrame
     // has not been called yet, so the graph.fit(80) is not called yet.
@@ -129,9 +123,7 @@ describe('Canvas', () => {
 
     fromModelSpy.mockClear();
 
-    await act(async () => {
-      setVizNodesState([updatedVizNode]);
-    });
+    setVizNodesState([updatedVizNode]);
     await act(async () => {
       await vi.runAllTimersAsync();
     });
@@ -159,19 +151,15 @@ describe('Canvas', () => {
       camelResource,
     });
 
-    let result: RenderResult | undefined;
-
-    await act(async () => {
-      result = render(
-        <ActionConfirmationModalContextProvider>
-          <Provider>
-            <VisualizationProvider controller={ControllerService.createController()}>
-              <Canvas vizNodes={[vizNode]} entitiesCount={1} />
-            </VisualizationProvider>
-          </Provider>
-        </ActionConfirmationModalContextProvider>,
-      );
-    });
+    const result = render(
+      <ActionConfirmationModalContextProvider>
+        <Provider>
+          <VisualizationProvider controller={ControllerService.createController()}>
+            <Canvas vizNodes={[vizNode]} entitiesCount={1} />
+          </VisualizationProvider>
+        </Provider>
+      </ActionConfirmationModalContextProvider>,
+    );
 
     await act(async () => {
       await vi.runAllTimersAsync();
@@ -183,25 +171,19 @@ describe('Canvas', () => {
     }
 
     // Right click anywhere on the container label
-    await act(async () => {
-      fireEvent.contextMenu(route);
-    });
+    fireEvent.contextMenu(route);
 
     // Click the Delete ContextMenuItem
     const deleteRoute = await screen.findByRole('menuitem', { name: 'Delete' });
     expect(deleteRoute).toBeInTheDocument();
 
-    await act(async () => {
-      fireEvent.click(deleteRoute);
-    });
+    fireEvent.click(deleteRoute);
 
     // Deal with the Confirmation modal
     const deleteConfirmation = screen.getByRole('button', { name: 'Confirm' });
     expect(deleteConfirmation).toBeInTheDocument();
 
-    await act(async () => {
-      fireEvent.click(deleteConfirmation);
-    });
+    await fireEvent.click(deleteConfirmation);
 
     // Check if the remove function is called
     expect(removeSpy).toHaveBeenCalled();
@@ -219,19 +201,15 @@ describe('Canvas', () => {
       camelResource: kameletResource,
     });
 
-    let result: RenderResult | undefined;
-
-    await act(async () => {
-      result = render(
-        <ActionConfirmationModalContextProvider>
-          <Provider>
-            <VisualizationProvider controller={ControllerService.createController()}>
-              <Canvas vizNodes={[vizNode]} entitiesCount={1} />
-            </VisualizationProvider>
-          </Provider>
-        </ActionConfirmationModalContextProvider>,
-      );
-    });
+    const result = render(
+      <ActionConfirmationModalContextProvider>
+        <Provider>
+          <VisualizationProvider controller={ControllerService.createController()}>
+            <Canvas vizNodes={[vizNode]} entitiesCount={1} />
+          </VisualizationProvider>
+        </Provider>
+      </ActionConfirmationModalContextProvider>,
+    );
 
     await act(async () => {
       await vi.runAllTimersAsync();
@@ -243,25 +221,19 @@ describe('Canvas', () => {
     }
 
     // Right click anywhere on the container label
-    await act(async () => {
-      fireEvent.contextMenu(kamelet);
-    });
+    fireEvent.contextMenu(kamelet);
 
     // click the Delete ContextMenuItem
     const deleteKamelet = await screen.findByRole('menuitem', { name: 'Delete' });
     expect(deleteKamelet).toBeInTheDocument();
 
-    await act(async () => {
-      fireEvent.click(deleteKamelet);
-    });
+    fireEvent.click(deleteKamelet);
 
     // Deal with the Confirmation modal
     const deleteConfirmation = screen.getByRole('button', { name: 'Confirm' });
     expect(deleteConfirmation).toBeInTheDocument();
 
-    await act(async () => {
-      fireEvent.click(deleteConfirmation);
-    });
+    await fireEvent.click(deleteConfirmation);
 
     // Check if the remove function is called
     expect(removeSpy).toHaveBeenCalled();
@@ -272,19 +244,15 @@ describe('Canvas', () => {
       const { Provider } = await TestProvidersWrapper();
       const vizNode = await entity.toVizNode();
 
-      let result: RenderResult | undefined;
-
-      await act(async () => {
-        result = render(
-          <CatalogModalContext.Provider value={{ getNewComponent: vi.fn(), checkCompatibility: vi.fn() }}>
-            <Provider>
-              <VisualizationProvider controller={ControllerService.createController()}>
-                <Canvas vizNodes={[vizNode]} entitiesCount={1} />
-              </VisualizationProvider>
-            </Provider>
-          </CatalogModalContext.Provider>,
-        );
-      });
+      const result: RenderResult = render(
+        <CatalogModalContext.Provider value={{ getNewComponent: vi.fn(), checkCompatibility: vi.fn() }}>
+          <Provider>
+            <VisualizationProvider controller={ControllerService.createController()}>
+              <Canvas vizNodes={[vizNode]} entitiesCount={1} />
+            </VisualizationProvider>
+          </Provider>
+        </CatalogModalContext.Provider>,
+      );
 
       await act(async () => {
         await vi.runAllTimersAsync();
@@ -300,17 +268,13 @@ describe('Canvas', () => {
       const { Provider } = await TestProvidersWrapper();
       const vizNode = await entity.toVizNode();
 
-      let result: RenderResult | undefined;
-
-      await act(async () => {
-        result = render(
-          <Provider>
-            <VisualizationProvider controller={ControllerService.createController()}>
-              <Canvas vizNodes={[vizNode]} entitiesCount={1} />
-            </VisualizationProvider>
-          </Provider>,
-        );
-      });
+      const result = render(
+        <Provider>
+          <VisualizationProvider controller={ControllerService.createController()}>
+            <Canvas vizNodes={[vizNode]} entitiesCount={1} />
+          </VisualizationProvider>
+        </Provider>,
+      );
 
       await act(async () => {
         await vi.runAllTimersAsync();
@@ -330,19 +294,15 @@ describe('Canvas', () => {
         visibleFlowsContext: { visibleFlows: {} } as unknown as VisibleFlowsContextResult,
       });
 
-      let result: RenderResult | undefined;
-
-      await act(async () => {
-        result = render(
-          <RuntimeProvider>
-            <Provider>
-              <VisualizationProvider controller={ControllerService.createController()}>
-                <Canvas vizNodes={[]} entitiesCount={0} />
-              </VisualizationProvider>
-            </Provider>
-          </RuntimeProvider>,
-        );
-      });
+      const result = render(
+        <RuntimeProvider>
+          <Provider>
+            <VisualizationProvider controller={ControllerService.createController()}>
+              <Canvas vizNodes={[]} entitiesCount={0} />
+            </VisualizationProvider>
+          </Provider>
+        </RuntimeProvider>,
+      );
 
       await act(async () => {
         await vi.runAllTimersAsync();
@@ -357,19 +317,16 @@ describe('Canvas', () => {
     it('should render empty state when there is no visible flows', async () => {
       const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
       const { Provider } = await TestProvidersWrapper();
-      let result: RenderResult | undefined;
 
-      await act(async () => {
-        result = render(
-          <RuntimeProvider>
-            <Provider>
-              <VisualizationProvider controller={ControllerService.createController()}>
-                <Canvas vizNodes={[]} entitiesCount={1} />
-              </VisualizationProvider>
-            </Provider>
-          </RuntimeProvider>,
-        );
-      });
+      const result = render(
+        <RuntimeProvider>
+          <Provider>
+            <VisualizationProvider controller={ControllerService.createController()}>
+              <Canvas vizNodes={[]} entitiesCount={1} />
+            </VisualizationProvider>
+          </Provider>
+        </RuntimeProvider>,
+      );
 
       await act(async () => {
         await vi.runAllTimersAsync();
@@ -385,17 +342,15 @@ describe('Canvas', () => {
       const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
       const { Provider } = await TestProvidersWrapper();
 
-      await act(async () => {
-        render(
-          <RuntimeProvider>
-            <Provider>
-              <VisualizationProvider controller={ControllerService.createController()}>
-                <Canvas vizNodes={[]} entitiesCount={1} isVizNodesResolving />
-              </VisualizationProvider>
-            </Provider>
-          </RuntimeProvider>,
-        );
-      });
+      render(
+        <RuntimeProvider>
+          <Provider>
+            <VisualizationProvider controller={ControllerService.createController()}>
+              <Canvas vizNodes={[]} entitiesCount={1} isVizNodesResolving />
+            </VisualizationProvider>
+          </Provider>
+        </RuntimeProvider>,
+      );
 
       await act(async () => {
         await vi.runAllTimersAsync();
@@ -447,17 +402,15 @@ describe('Canvas', () => {
         const controller = ControllerService.createController();
         const fromModelSpy = vi.spyOn(controller, 'fromModel');
 
-        await act(async () => {
-          render(
-            <SettingsProvider adapter={settingsAdapter}>
-              <Provider>
-                <VisualizationProvider controller={controller}>
-                  <Canvas vizNodes={[vizNode]} entitiesCount={1} />
-                </VisualizationProvider>
-              </Provider>
-            </SettingsProvider>,
-          );
-        });
+        render(
+          <SettingsProvider adapter={settingsAdapter}>
+            <Provider>
+              <VisualizationProvider controller={controller}>
+                <Canvas vizNodes={[vizNode]} entitiesCount={1} />
+              </VisualizationProvider>
+            </Provider>
+          </SettingsProvider>,
+        );
 
         await act(async () => {
           await vi.runAllTimersAsync();
@@ -490,17 +443,15 @@ describe('Canvas', () => {
 
       const localStorageSetItemSpy = vi.spyOn(Storage.prototype, 'setItem');
 
-      await act(async () => {
-        render(
-          <SettingsProvider adapter={settingsAdapter}>
-            <Provider>
-              <VisualizationProvider controller={ControllerService.createController()}>
-                <Canvas vizNodes={[vizNode]} entitiesCount={1} />
-              </VisualizationProvider>
-            </Provider>
-          </SettingsProvider>,
-        );
-      });
+      render(
+        <SettingsProvider adapter={settingsAdapter}>
+          <Provider>
+            <VisualizationProvider controller={ControllerService.createController()}>
+              <Canvas vizNodes={[vizNode]} entitiesCount={1} />
+            </VisualizationProvider>
+          </Provider>
+        </SettingsProvider>,
+      );
 
       await act(async () => {
         await vi.runAllTimersAsync();
@@ -513,9 +464,7 @@ describe('Canvas', () => {
       const horizontalButton = screen.getByText('Horizontal Layout').closest('button')!;
       expect(horizontalButton).toBeInTheDocument();
 
-      await act(async () => {
-        fireEvent.click(horizontalButton);
-      });
+      fireEvent.click(horizontalButton);
 
       expect(localStorageSetItemSpy).toHaveBeenCalledWith(LocalStorageKeys.CanvasLayout, LayoutType.DagreHorizontal);
 
@@ -532,17 +481,15 @@ describe('Canvas', () => {
 
       const localStorageSetItemSpy = vi.spyOn(Storage.prototype, 'setItem');
 
-      await act(async () => {
-        render(
-          <SettingsProvider adapter={settingsAdapter}>
-            <Provider>
-              <VisualizationProvider controller={ControllerService.createController()}>
-                <Canvas vizNodes={[vizNode]} entitiesCount={1} />
-              </VisualizationProvider>
-            </Provider>
-          </SettingsProvider>,
-        );
-      });
+      render(
+        <SettingsProvider adapter={settingsAdapter}>
+          <Provider>
+            <VisualizationProvider controller={ControllerService.createController()}>
+              <Canvas vizNodes={[vizNode]} entitiesCount={1} />
+            </VisualizationProvider>
+          </Provider>
+        </SettingsProvider>,
+      );
 
       await act(async () => {
         await vi.runAllTimersAsync();
@@ -555,9 +502,7 @@ describe('Canvas', () => {
       const verticalButton = screen.getByText('Vertical Layout').closest('button')!;
       expect(verticalButton).toBeInTheDocument();
 
-      await act(async () => {
-        fireEvent.click(verticalButton);
-      });
+      fireEvent.click(verticalButton);
 
       expect(localStorageSetItemSpy).toHaveBeenCalledWith(LocalStorageKeys.CanvasLayout, LayoutType.DagreVertical);
 
@@ -572,17 +517,15 @@ describe('Canvas', () => {
         const { Provider } = await TestProvidersWrapper();
         const vizNode = await entity.toVizNode();
 
-        await act(async () => {
-          render(
-            <SettingsProvider adapter={settingsAdapter}>
-              <Provider>
-                <VisualizationProvider controller={ControllerService.createController()}>
-                  <Canvas vizNodes={[vizNode]} entitiesCount={1} />
-                </VisualizationProvider>
-              </Provider>
-            </SettingsProvider>,
-          );
-        });
+        render(
+          <SettingsProvider adapter={settingsAdapter}>
+            <Provider>
+              <VisualizationProvider controller={ControllerService.createController()}>
+                <Canvas vizNodes={[vizNode]} entitiesCount={1} />
+              </VisualizationProvider>
+            </Provider>
+          </SettingsProvider>,
+        );
 
         await act(async () => {
           await vi.runAllTimersAsync();

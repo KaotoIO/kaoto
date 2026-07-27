@@ -59,9 +59,7 @@ describe('BeanField', () => {
     await formPageObject.inputText('Type', 'io.kaoto.test.TestBean');
 
     const createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create')!;
-    await act(async () => {
-      fireEvent.click(createButton);
-    });
+    fireEvent.click(createButton);
   };
 
   const createBean = async (name: string, schemaTitle: string) => {
@@ -72,9 +70,7 @@ describe('BeanField', () => {
 
   const clickCreateButton = async () => {
     const createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create')!;
-    await act(async () => {
-      fireEvent.click(createButton);
-    });
+    fireEvent.click(createButton);
   };
 
   describe('PrefixedBeanField', () => {
@@ -211,9 +207,7 @@ describe('BeanField', () => {
       await createBean('myNewBean', 'Bean');
 
       const cancelButton = screen.getAllByRole('button').find((b) => b.textContent === 'Cancel')!;
-      await act(async () => {
-        fireEvent.click(cancelButton);
-      });
+      fireEvent.click(cancelButton);
 
       expect(onPropertyChangeSpy).not.toHaveBeenCalled();
       expect(screen.queryByTestId('NewBeanModal-myNewBean')).not.toBeInTheDocument();
@@ -229,9 +223,7 @@ describe('BeanField', () => {
       fireEvent.click(clearButton);
 
       const createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create')!;
-      await act(async () => {
-        fireEvent.click(createButton);
-      });
+      fireEvent.click(createButton);
 
       expect(onPropertyChangeSpy).not.toHaveBeenCalled();
       expect(screen.queryByTestId('NewBeanModal-myNewBean')).toBeInTheDocument();
@@ -408,9 +400,7 @@ describe('BeanField', () => {
       await createBean('myNewBean', 'Ref');
 
       const cancelButton = screen.getAllByRole('button').find((b) => b.textContent === 'Cancel')!;
-      await act(async () => {
-        fireEvent.click(cancelButton);
-      });
+      fireEvent.click(cancelButton);
 
       expect(onPropertyChangeSpy).not.toHaveBeenCalled();
       expect(screen.queryByTestId('NewBeanModal-myNewBean')).not.toBeInTheDocument();
@@ -463,9 +453,7 @@ describe('BeanField', () => {
       await formPageObject.inputText('Type', 'io.kaoto.test.ExistingBean');
 
       const createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create')!;
-      await act(async () => {
-        fireEvent.click(createButton);
-      });
+      fireEvent.click(createButton);
 
       cleanup();
 
@@ -509,9 +497,7 @@ describe('BeanField', () => {
       await formPageObject.inputText('Type', 'io.kaoto.test.AnotherBean');
 
       const createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create')!;
-      await act(async () => {
-        fireEvent.click(createButton);
-      });
+      fireEvent.click(createButton);
 
       cleanup();
 
@@ -618,9 +604,7 @@ describe('BeanField', () => {
       await formPageObject.inputText('Type', 'io.kaoto.test.RegularBean');
 
       let createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create')!;
-      await act(async () => {
-        fireEvent.click(createButton);
-      });
+      fireEvent.click(createButton);
 
       cleanup();
 
@@ -642,9 +626,7 @@ describe('BeanField', () => {
       await formPageObject.inputText('Type', 'javax.sql.DataSource');
 
       createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create')!;
-      await act(async () => {
-        fireEvent.click(createButton);
-      });
+      fireEvent.click(createButton);
 
       cleanup();
 

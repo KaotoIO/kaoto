@@ -1,6 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, Rest } from '@kaoto/camel-catalog/types';
-import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 
 import { CamelCatalogService } from '../../models';
 import { CamelResourceFactory } from '../../models/camel/camel-resource-factory';
@@ -100,10 +100,8 @@ describe('RestDslEditorPage', () => {
       });
 
       const pathInput = screen.getByDisplayValue('/api');
-      act(() => {
-        fireEvent.change(pathInput, { target: { value: '/api/v2' } });
-        fireEvent.blur(pathInput);
-      });
+      fireEvent.change(pathInput, { target: { value: '/api/v2' } });
+      fireEvent.blur(pathInput);
 
       await waitFor(() => {
         expect(updateSourceCodeFromEntitiesSpy).toHaveBeenCalled();
