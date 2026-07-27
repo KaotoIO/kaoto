@@ -37,7 +37,10 @@ export interface DocumentTreeState {
   /** Toggle expansion state of a node */
   toggleExpansion: (documentId: string, nodePath: string) => void;
 
-  /** Update the expansionState from a DocumentTree keeping the matching entries */
+  /** Set the document's expansion state with fresh data */
+  setTreeExpansion: (documentId: string, expansionState: TreeExpansionState) => void;
+
+  /** Reconcile expansion state from a DocumentTree, preserving matching entries by path */
   updateTreeExpansion: (documentTree: DocumentTree) => void;
 
   /** Get expansion state of a node */
@@ -106,6 +109,13 @@ export const useDocumentTreeStore = createWithEqualityFn<DocumentTreeState>()(
         }));
       },
 
+      setTreeExpansion: (documentId: string, expansionState: TreeExpansionState) => {
+        set((state) => ({
+          expansionState: { ...state.expansionState, [documentId]: expansionState },
+          expansionStateArray: { ...state.expansionStateArray, [documentId]: Object.keys(expansionState) },
+        }));
+      },
+
       updateTreeExpansion: (documentTree: DocumentTree) => {
         const currentExpansionState: TreeExpansionState = get().expansionState[documentTree.documentNodeDataId] ?? {};
         const newExpansionState: TreeExpansionState = {};
@@ -113,20 +123,12 @@ export const useDocumentTreeStore = createWithEqualityFn<DocumentTreeState>()(
         for (const contentRoot of documentTree.contentRoots) {
           processTreeNode(contentRoot, (treeNode) => {
             const isNodeParsed = treeNode.isParsed;
-            newExpansionState[treeNode.path] = isNodeParsed && (currentExpansionState[treeNode.path] ?? true);
+            const savedState = currentExpansionState[treeNode.path];
+            newExpansionState[treeNode.path] = isNodeParsed && (savedState ?? true);
           });
         }
 
-        set((state) => ({
-          expansionState: {
-            ...state.expansionState,
-            [documentTree.documentNodeDataId]: newExpansionState,
-          },
-          expansionStateArray: {
-            ...state.expansionStateArray,
-            [documentTree.documentNodeDataId]: Object.keys(newExpansionState),
-          },
-        }));
+        get().setTreeExpansion(documentTree.documentNodeDataId, newExpansionState);
       },
 
       isExpanded: (documentId: string, nodePath: string) => {

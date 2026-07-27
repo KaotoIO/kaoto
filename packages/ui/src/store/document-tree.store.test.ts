@@ -160,6 +160,29 @@ describe('useDocumentTreeStore', () => {
     });
   });
 
+  describe('setTreeExpansion', () => {
+    it('should set expansion state and array for a document', () => {
+      const documentId = 'test-doc-id';
+      const expansionState = { path1: true, path2: false, path3: true };
+
+      useDocumentTreeStore.getState().setTreeExpansion(documentId, expansionState);
+      const state = useDocumentTreeStore.getState();
+
+      expect(state.expansionState[documentId]).toEqual(expansionState);
+      expect(state.expansionStateArray[documentId]).toEqual(['path1', 'path2', 'path3']);
+    });
+
+    it('should overwrite previous expansion state for the same document', () => {
+      const documentId = 'test-doc-id';
+      useDocumentTreeStore.getState().setTreeExpansion(documentId, { path1: true, path2: false });
+      useDocumentTreeStore.getState().setTreeExpansion(documentId, { path3: true });
+      const state = useDocumentTreeStore.getState();
+
+      expect(state.expansionState[documentId]).toEqual({ path3: true });
+      expect(state.expansionStateArray[documentId]).toEqual(['path3']);
+    });
+  });
+
   describe('setNodesConnectionPorts', () => {
     it('should set connection ports for a document', () => {
       const documentId = 'test-doc-id';
