@@ -21,10 +21,10 @@ import { DataMapperProvider } from '../../../../providers/datamapper.provider';
 import { FieldOverrideService } from '../../../../services/document/field-override.service';
 import { XmlSchemaDocumentService } from '../../../../services/document/xml-schema/xml-schema-document.service';
 import { MappingService } from '../../../../services/mapping/mapping.service';
+import { AbstractFieldService } from '../../../../services/visualization/abstract-field.service';
 import { MappingActionService } from '../../../../services/visualization/mapping-action.service';
 import { TreeParsingService } from '../../../../services/visualization/tree-parsing.service';
 import { VisualizationService } from '../../../../services/visualization/visualization.service';
-import { WrapperActionService } from '../../../../services/visualization/wrapper-action.service';
 import { getFieldSubstitutionXsd } from '../../../../stubs/datamapper/data-mapper';
 import { QName } from '../../../../xml-schema-ts/QName';
 import { SourceDocumentNodeWithContextMenu } from '../../SourceDocumentNode';
@@ -357,7 +357,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
 
     it('should call applyAbstractSubstitution when selecting candidate on maxOccurs>1 wrapper', () => {
       const { documentNodeData, abstractNode, mappingTree } = createTargetZooAbstractNode();
-      const applySpy = vi.spyOn(WrapperActionService, 'applyAbstractSubstitution');
+      const applySpy = vi.spyOn(AbstractFieldService, 'applyAbstractSubstitution');
 
       render(
         <TargetDocumentNodeWithContextMenu

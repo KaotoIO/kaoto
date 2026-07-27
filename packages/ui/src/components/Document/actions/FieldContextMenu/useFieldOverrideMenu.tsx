@@ -8,8 +8,8 @@ import {
   NodeData,
   TargetAbstractFieldNodeData,
 } from '../../../../models/datamapper/visualization';
+import { FieldOverrideService } from '../../../../services/document/field-override.service';
 import { VisualizationUtilService } from '../../../../services/visualization/visualization-util.service';
-import { WrapperActionService } from '../../../../services/visualization/wrapper-action.service';
 import { FieldOverride } from '../FieldOverride/FieldOverride';
 import { MenuContributor } from './types';
 
@@ -38,7 +38,7 @@ export function useFieldOverrideMenu(nodeData: NodeData): MenuContributor {
     if (revertTarget) {
       const document = revertTarget.ownerDocument;
       const previousRefId = document.getReferenceId(mappingTree.namespaceMap);
-      WrapperActionService.revertOverride(revertTarget, mappingTree.namespaceMap);
+      FieldOverrideService.revertOverride(revertTarget, mappingTree.namespaceMap);
       updateDocument(document, document.definition, previousRefId);
     }
   }, [abstractWrapperField, field, mappingTree.namespaceMap, updateDocument]);

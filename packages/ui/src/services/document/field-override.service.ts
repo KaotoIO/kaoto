@@ -519,4 +519,20 @@ export class FieldOverrideService {
       }
     }
   }
+
+  /**
+   * Reverts any field override — dispatches to {@link revertFieldSubstitution}
+   * or {@link revertFieldTypeOverride} based on the override kind. Also handles
+   * abstract wrappers whose `selectedMemberQName` is set without a type override.
+   */
+  static revertOverride(field: IField, namespaceMap: Record<string, string>): void {
+    const hasAbstractSubstitution = field.wrapperKind === 'abstract' && field.selectedMemberQName !== undefined;
+    if (field.typeOverride === FieldOverrideVariant.NONE && !hasAbstractSubstitution) return;
+
+    if (hasAbstractSubstitution || field.typeOverride === FieldOverrideVariant.SUBSTITUTION) {
+      FieldOverrideService.revertFieldSubstitution(field, namespaceMap);
+    } else {
+      FieldOverrideService.revertFieldTypeOverride(field, namespaceMap);
+    }
+  }
 }

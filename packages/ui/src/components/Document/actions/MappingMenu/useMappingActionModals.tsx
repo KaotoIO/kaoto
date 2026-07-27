@@ -4,7 +4,7 @@ import { IMemberSelection } from '../../../../models/datamapper/field-action';
 import { FieldItem, ForEachGroupItem, ForEachItem, MappingItem } from '../../../../models/datamapper/mapping';
 import { MappingActionKind } from '../../../../models/datamapper/mapping-action';
 import { MappingService } from '../../../../services/mapping/mapping.service';
-import { WrapperActionService } from '../../../../services/visualization/wrapper-action.service';
+import { FieldCandidateService } from '../../../../services/visualization/field-candidate.service';
 import { WrapperSelectionModal } from '../WrapperSelectionModal';
 import { CommentModal } from './Comment/CommentModal';
 import { ForEachGroupModal } from './ForEachGroup/ForEachGroupModal';
@@ -73,7 +73,7 @@ export function useMappingActionModals(mapping: MappingItem | undefined, onUpdat
     if (!ancestorFieldItem || !mapping) return undefined;
     const namespaceMap = ancestorFieldItem.mappingTree.namespaceMap;
     const existingFieldItems = mapping.children.filter((c): c is FieldItem => c instanceof FieldItem);
-    return WrapperActionService.computeAddFieldCandidates(
+    return FieldCandidateService.computeAddFieldCandidates(
       ancestorFieldItem.field.fields,
       namespaceMap,
       existingFieldItems,

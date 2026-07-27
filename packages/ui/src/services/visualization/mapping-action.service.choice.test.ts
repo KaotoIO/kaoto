@@ -8,10 +8,12 @@ import {
   ChooseItem,
   FieldItem,
   ForEachItem,
+  IfItem,
   MappingTree,
   OtherwiseItem,
   ValueSelector,
 } from '../../models/datamapper/mapping';
+import { Types } from '../../models/datamapper/types';
 import {
   ChoiceFieldNodeData,
   DocumentNodeData,
@@ -24,8 +26,9 @@ import {
   TargetSequenceFieldNodeData,
 } from '../../models/datamapper/visualization';
 import { getTestDocumentXsd, TestUtil } from '../../stubs/datamapper/data-mapper';
-import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
+import { XmlSchemaDocument, XmlSchemaField } from '../document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
+import { ChoiceFieldService } from './choice-field.service';
 import { MappingActionService } from './mapping-action.service';
 import { VisualizationService } from './visualization.service';
 
@@ -629,6 +632,104 @@ describe('MappingActionService / choice field mappings', () => {
       const targetFieldItem = tree.children[0];
       const forEachItems = targetFieldItem.children.filter((c) => c instanceof ForEachItem);
       expect(forEachItems).toHaveLength(1);
+    });
+  });
+});
+
+describe('dispatchChoiceSelection / clearChoiceSelectionOnField — target-side FieldItem mutations', () => {
+  function createChoiceTargetSetup(maxOccurs: number | 'unbounded' = 'unbounded') {
+    const document = TestUtil.createTargetOrderDoc();
+    const mappingTree = new MappingTree(document.documentType, document.documentId, DocumentDefinitionType.XML_SCHEMA);
+    const docNode = new TargetDocumentNodeData(document, mappingTree);
+    const parentField = document.fields[0];
+
+    const choiceField = new XmlSchemaField(parentField, 'testChoice', false);
+    choiceField.type = Types.Container;
+    choiceField.wrapperKind = 'choice';
+    choiceField.maxOccurs = maxOccurs;
+
+    const memberA = new XmlSchemaField(choiceField, 'memberA', false);
+    memberA.type = Types.String;
+    const memberB = new XmlSchemaField(choiceField, 'memberB', false);
+    memberB.type = Types.String;
+    choiceField.fields = [memberA, memberB];
+    parentField.fields.push(choiceField);
+
+    const fieldNode = new TargetFieldNodeData(docNode, choiceField);
+
+    return { document, mappingTree, docNode, choiceField, memberA, memberB, fieldNode };
+  }
+
+  describe('dispatchChoiceSelection — per-instance apply', () => {
+    it('should replace existing FieldItem field when mapping already exists', () => {
+      const { mappingTree, fieldNode, choiceField, memberB } = createChoiceTargetSetup();
+      const existingItem = new FieldItem(mappingTree, choiceField);
+      existingItem.isUserCreated = true;
+      mappingTree.children.push(existingItem);
+      fieldNode.mapping = existingItem;
+
+      ChoiceFieldService.dispatchChoiceSelection(fieldNode, choiceField, { memberIndex: 1 }, {}, true);
+
+      expect(mappingTree.children).toHaveLength(1);
+      const replaced = mappingTree.children[0] as FieldItem;
+      expect(replaced.field).toBe(memberB);
+      expect(replaced.isUserCreated).toBe(true);
+    });
+
+    it('should re-parent children when replacing existing FieldItem', () => {
+      const { mappingTree, fieldNode, choiceField, memberA, memberB } = createChoiceTargetSetup();
+      const existingItem = new FieldItem(mappingTree, choiceField);
+      existingItem.isUserCreated = true;
+      const childItem = new FieldItem(existingItem, memberA);
+      existingItem.children.push(childItem);
+      mappingTree.children.push(existingItem);
+      fieldNode.mapping = existingItem;
+
+      ChoiceFieldService.dispatchChoiceSelection(fieldNode, choiceField, { memberIndex: 1 }, {}, true);
+
+      const replaced = mappingTree.children[0] as FieldItem;
+      expect(replaced.field).toBe(memberB);
+      expect(replaced.isUserCreated).toBe(true);
+      expect(replaced.children).toHaveLength(1);
+      expect(replaced.children[0].parent).toBe(replaced);
+    });
+  });
+
+  describe('clearChoiceSelectionOnField — document-level clear', () => {
+    it('should remove FieldItem from parent on existing mapping', () => {
+      const { mappingTree, fieldNode, choiceField, memberA } = createChoiceTargetSetup(1);
+      const existingItem = new FieldItem(mappingTree, memberA);
+      existingItem.isUserCreated = true;
+      const childItem = new FieldItem(existingItem, memberA);
+      existingItem.children.push(childItem);
+      mappingTree.children.push(existingItem);
+      fieldNode.mapping = existingItem;
+
+      ChoiceFieldService.clearChoiceSelectionOnField(fieldNode, choiceField, {}, true);
+
+      expect(mappingTree.children).toHaveLength(0);
+      expect(existingItem.children).toHaveLength(0);
+    });
+
+    it('should revert FieldItem to wrapper field when inside InstructionItem', () => {
+      const { mappingTree, fieldNode, choiceField, memberA } = createChoiceTargetSetup(1);
+      const ifItem = new IfItem(mappingTree);
+      ifItem.expression = 'some-condition';
+      mappingTree.children.push(ifItem);
+
+      const existingItem = new FieldItem(ifItem, memberA);
+      existingItem.isUserCreated = true;
+      ifItem.children.push(existingItem);
+      fieldNode.mapping = existingItem;
+
+      ChoiceFieldService.clearChoiceSelectionOnField(fieldNode, choiceField, {}, true);
+
+      expect(ifItem.children).toHaveLength(1);
+      const reverted = ifItem.children[0] as FieldItem;
+      expect(reverted).toBeInstanceOf(FieldItem);
+      expect(reverted.field).toBe(choiceField);
+      expect(reverted.isUserCreated).toBe(true);
+      expect(ifItem.expression).toBe('some-condition');
     });
   });
 });

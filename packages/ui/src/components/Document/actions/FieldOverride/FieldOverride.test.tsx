@@ -46,6 +46,7 @@ vi.mock('../../../../services/document/field-override.service', () => ({
   FieldOverrideService: {
     applyFieldTypeOverride: vi.fn(),
     applyFieldSubstitution: vi.fn(),
+    revertOverride: vi.fn(),
     revertFieldTypeOverride: vi.fn(),
     revertFieldSubstitution: vi.fn(),
     addSchemaFilesForTypeOverride: vi.fn(),
@@ -167,7 +168,7 @@ describe('FieldOverride', () => {
     expect(mockOnClose).toHaveBeenCalled();
   });
 
-  it('should call revertFieldTypeOverride and updateDocument on remove', () => {
+  it('should call revertOverride and updateDocument on remove', () => {
     const field = testTargetDoc.fields[0];
     field.typeOverride = FieldOverrideVariant.SAFE;
     render(<FieldOverride isOpen field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
@@ -178,7 +179,7 @@ describe('FieldOverride', () => {
 
     onRemoveCallback();
 
-    expect(FieldOverrideService.revertFieldTypeOverride).toHaveBeenCalledWith(field, testMappingTree.namespaceMap);
+    expect(FieldOverrideService.revertOverride).toHaveBeenCalledWith(field, testMappingTree.namespaceMap);
     expect(mockUpdateDocument).toHaveBeenCalled();
     expect(mockOnComplete).toHaveBeenCalled();
     expect(mockOnClose).toHaveBeenCalled();

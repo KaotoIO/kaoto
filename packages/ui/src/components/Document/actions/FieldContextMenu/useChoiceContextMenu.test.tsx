@@ -18,9 +18,9 @@ import { WrapperSelectionService } from '../../../../services/document/wrapper-s
 import { XmlSchemaField } from '../../../../services/document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../../../../services/document/xml-schema/xml-schema-document.service';
 import { MappingService } from '../../../../services/mapping/mapping.service';
+import { ChoiceFieldService } from '../../../../services/visualization/choice-field.service';
 import { TreeParsingService } from '../../../../services/visualization/tree-parsing.service';
 import { VisualizationService } from '../../../../services/visualization/visualization.service';
-import { WrapperActionService } from '../../../../services/visualization/wrapper-action.service';
 import { getChoiceWithAbstractXsd, getTestDocumentXsd, TestUtil } from '../../../../stubs/datamapper/data-mapper';
 import { SourceDocumentNodeWithContextMenu } from '../../SourceDocumentNode';
 import { TargetDocumentNodeWithContextMenu } from '../../TargetDocumentNode';
@@ -684,7 +684,7 @@ describe('useChoiceContextMenu', () => {
   describe('target-side choice wrapper with maxOccurs>1', () => {
     it('should call dispatchChoiceSelection when selecting member on maxOccurs>1 choice', () => {
       const { documentNodeData, choiceNode, mappingTree } = createTargetChoiceFieldNode('unbounded');
-      const applySpy = vi.spyOn(WrapperActionService, 'dispatchChoiceSelection');
+      const applySpy = vi.spyOn(ChoiceFieldService, 'dispatchChoiceSelection');
 
       render(
         <TargetDocumentNodeWithContextMenu
@@ -1027,7 +1027,7 @@ describe('useChoiceContextMenu', () => {
       if (!abstractMember) throw new Error('Abstract member not found in choice');
 
       const applySubSpy = vi.spyOn(FieldOverrideService, 'applyFieldSubstitution');
-      const dispatchSpy = vi.spyOn(WrapperActionService, 'dispatchChoiceSelection');
+      const dispatchSpy = vi.spyOn(ChoiceFieldService, 'dispatchChoiceSelection');
 
       render(
         <TargetDocumentNodeWithContextMenu
