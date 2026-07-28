@@ -30,20 +30,34 @@ export const useSelectedVizNode = (selectedIds: string[]): IVisualizationNode | 
   const [selectedVizNode, setSelectedVizNode] = useState<IVisualizationNode | undefined>(undefined);
 
   useEffect(() => {
+    let isCancelled = false;
+
     const cb = async () => {
+      setSelectedVizNode(undefined);
+
       if (selectedIds.length !== 1) {
-        setSelectedVizNode(undefined);
         return;
       }
 
       const graphNode = controller.getNodeById(selectedIds[0]);
       const vizNode = graphNode?.getData()?.vizNode as IVisualizationNode | undefined;
 
-      await vizNode?.fetchSchema();
-      setSelectedVizNode(vizNode);
+      if (!vizNode) {
+        return;
+      }
+
+      await vizNode.fetchSchema();
+
+      if (!isCancelled) {
+        setSelectedVizNode(vizNode);
+      }
     };
 
     void cb();
+
+    return () => {
+      isCancelled = true;
+    };
   }, [selectedIds, controller]);
 
   return selectedVizNode;

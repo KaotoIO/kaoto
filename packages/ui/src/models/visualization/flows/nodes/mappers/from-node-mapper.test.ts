@@ -1,6 +1,7 @@
 import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { parse } from 'yaml';
 
+import { IKameletDefinition } from '../../../../camel/kamelets-catalog';
 import { CatalogKind } from '../../../../catalog-kind';
 import { IVisualizationNode } from '../../../base-visual-entity';
 import { RootNodeMapper } from '../root-node-mapper';
@@ -113,6 +114,66 @@ describe('FromNodeMapper', () => {
     expect(noUriVizNode.data.primaryNodeId).toEqual({ name: 'from', catalogKind: CatalogKind.Entity });
     expect(noUriVizNode.data.secondaryNodeId).toBeUndefined();
     expect(noUriVizNode.data.tertiaryNodeId).toBeUndefined();
+  });
+
+  it('should populate secondaryNodeId for Kamelet template.from regular components', async () => {
+    const kameletDefinition: IKameletDefinition = parse(`
+      apiVersion: camel.apache.org/v1
+      kind: Kamelet
+      metadata:
+        name: timer-source
+        annotations: {}
+        labels:
+          camel.apache.org/kamelet.type: source
+      spec:
+        definition:
+          title: Timer Source
+          type: object
+          properties: {}
+        dependencies: []
+        template:
+          from:
+            id: from-kamelet-timer
+            uri: timer:start
+            parameters: {}
+            steps: []
+    `);
+
+    const kameletVizNode = await mapper.getVizNodeFromProcessor('template.from', PROCESSOR_OPTIONS, kameletDefinition);
+
+    expect(kameletVizNode.data.primaryNodeId).toEqual({ name: 'from', catalogKind: CatalogKind.Entity });
+    expect(kameletVizNode.data.secondaryNodeId).toEqual({ name: 'timer', catalogKind: CatalogKind.Component });
+    expect(kameletVizNode.data.tertiaryNodeId).toBeUndefined();
+  });
+
+  it('should populate secondaryNodeId and tertiaryNodeId for Kamelet template.from kamelet URIs', async () => {
+    const kameletDefinition: IKameletDefinition = parse(`
+      apiVersion: camel.apache.org/v1
+      kind: Kamelet
+      metadata:
+        name: nested-kamelet-source
+        annotations: {}
+        labels:
+          camel.apache.org/kamelet.type: source
+      spec:
+        definition:
+          title: Nested Kamelet Source
+          type: object
+          properties: {}
+        dependencies: []
+        template:
+          from:
+            id: from-kamelet-nested
+            uri: kamelet:beer-source
+            parameters: {}
+            steps: []
+    `);
+
+    const kameletVizNode = await mapper.getVizNodeFromProcessor('template.from', PROCESSOR_OPTIONS, kameletDefinition);
+
+    expect(kameletVizNode.data.primaryNodeId).toEqual({ name: 'from', catalogKind: CatalogKind.Entity });
+    expect(kameletVizNode.data.secondaryNodeId).toEqual({ name: 'kamelet', catalogKind: CatalogKind.Component });
+    expect(kameletVizNode.data.tertiaryNodeId).toEqual({ name: 'beer-source', catalogKind: CatalogKind.Kamelet });
   });
 
   it('should return children from from.steps', () => {

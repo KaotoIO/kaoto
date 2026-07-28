@@ -11,6 +11,7 @@ export * from './get-viznodes-from-graph';
 export * from './init-visible-flows';
 export * from './is-datamapper';
 export * from './is-enum-type';
+export * from './is-kamelet-definition';
 export * from './is-raw-string';
 export * from './is-same-array';
 export * from './is-to-processor';
