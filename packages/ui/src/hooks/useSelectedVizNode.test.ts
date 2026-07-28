@@ -14,7 +14,7 @@
     limitations under the License.
 */
 import { useVisualizationController } from '@patternfly/react-topology';
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import type { Mock } from 'vitest';
 
 import { IVisualizationNode } from '../models/visualization/base-visual-entity';
@@ -60,29 +60,39 @@ describe('useSelectedVizNode', () => {
 
   it('returns the vizNode when exactly one id resolves to a node with vizNode', async () => {
     const { result } = renderHook(() => useSelectedVizNode(['scope|timer-1']));
-    expect(result.current).toBe(mockVizNode);
+    await waitFor(() => {
+      expect(result.current).toBe(mockVizNode);
+    });
   });
 
   it('returns undefined when controller returns no node for the given id', async () => {
     (useVisualizationController as Mock).mockReturnValue(makeController(undefined));
     const { result } = renderHook(() => useSelectedVizNode(['scope|unknown']));
-    expect(result.current).toBeUndefined();
+    await waitFor(() => {
+      expect(result.current).toBeUndefined();
+    });
   });
 
   it('returns undefined when the node has no vizNode in its data', async () => {
     const controller = { getNodeById: vi.fn(() => ({ getData: () => ({}) })) };
     (useVisualizationController as Mock).mockReturnValue(controller);
     const { result } = renderHook(() => useSelectedVizNode(['scope|timer-1']));
-    expect(result.current).toBeUndefined();
+    await waitFor(() => {
+      expect(result.current).toBeUndefined();
+    });
   });
 
   it('updates when selectedIds changes', async () => {
     let ids = ['scope|timer-1'];
     const { result, rerender } = renderHook(() => useSelectedVizNode(ids));
-    expect(result.current).toBe(mockVizNode);
+    await waitFor(() => {
+      expect(result.current).toBe(mockVizNode);
+    });
 
     ids = [];
     rerender();
-    expect(result.current).toBeUndefined();
+    await waitFor(() => {
+      expect(result.current).toBeUndefined();
+    });
   });
 });
