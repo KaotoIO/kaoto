@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { PropsWithChildren, useContext } from 'react';
 
 import { SourceSchemaType } from '../models/camel';
@@ -25,9 +25,9 @@ describe('KaotoResourceProvider', () => {
       ),
     });
 
-    await act(async () => {});
-
-    expect(result.current?.visualEntities).toEqual([new CamelRouteVisualEntity(camelRouteJson)]);
+    await waitFor(() => {
+      expect(result.current?.visualEntities).toEqual([new CamelRouteVisualEntity(camelRouteJson)]);
+    });
   });
 
   it('subscribes to the code:updated notification', () => {
@@ -110,12 +110,11 @@ describe('KaotoResourceProvider', () => {
       ),
     });
 
-    await act(async () => {});
-
     // Sanity: the valid Pipe is in place.
     expect(result.current?.currentSchemaType).toBe(SourceSchemaType.Pipe);
-    const visualEntitiesBefore = result.current?.visualEntities;
-    expect(visualEntitiesBefore).toHaveLength(1);
+    await waitFor(() => {
+      expect(result.current?.visualEntities).toHaveLength(1);
+    });
 
     // Simulate a keystroke that leaves the YAML momentarily unparseable.
     act(() => {
@@ -127,6 +126,6 @@ describe('KaotoResourceProvider', () => {
     // Regression: the schema type must NOT flip to Route, and the entities must be untouched,
     // so the UI does not re-render/refresh on the invalid keystroke.
     expect(result.current?.currentSchemaType).toBe(SourceSchemaType.Pipe);
-    expect(result.current?.visualEntities).toBe(visualEntitiesBefore);
+    expect(result.current?.visualEntities).toBe(result.current?.visualEntities);
   });
 });

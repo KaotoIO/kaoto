@@ -1,5 +1,5 @@
 import { CamelYamlDsl } from '@kaoto/camel-catalog/types';
-import { act, fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 import { parse } from 'yaml';
 
 import { CamelRouteResource } from '../../../../models/camel';
@@ -156,17 +156,15 @@ describe('FlowsList.tsx', () => {
       </Provider>,
     );
 
-    await act(async () => {
-      const deleteBtn = wrapper.getByTestId('delete-btn-route-1234');
-      fireEvent.click(deleteBtn);
-    });
+    const deleteBtn = wrapper.getByTestId('delete-btn-route-1234');
+    fireEvent.click(deleteBtn);
 
-    await act(async () => {
-      const actionConfirmationModalBtnConfirm = wrapper.getByTestId('action-confirmation-modal-btn-confirm');
-      fireEvent.click(actionConfirmationModalBtnConfirm);
-    });
+    const actionConfirmationModalBtnConfirm = wrapper.getByTestId('action-confirmation-modal-btn-confirm');
+    fireEvent.click(actionConfirmationModalBtnConfirm);
 
-    expect(camelResource.getVisualEntities()).toHaveLength(1);
+    await waitFor(() => {
+      expect(camelResource.getVisualEntities()).toHaveLength(1);
+    });
   });
 
   it('should not delete a flow when clicking the delete icon and then clicking cancel', async () => {
@@ -455,19 +453,17 @@ describe('FlowsList.tsx', () => {
 
     // Click the delete filtered button
     const deleteFilteredBtn = wrapper.getByTestId('delete-filtered-btn');
-    await act(async () => {
-      fireEvent.click(deleteFilteredBtn);
-    });
+    fireEvent.click(deleteFilteredBtn);
 
     // Confirm the deletion in the modal
     const confirmBtn = wrapper.getByTestId('action-confirmation-modal-btn-confirm');
-    await act(async () => {
-      fireEvent.click(confirmBtn);
-    });
+    fireEvent.click(confirmBtn);
 
     // Verify only the filtered flow is deleted
-    expect(camelResource.getVisualEntities()).toHaveLength(1);
-    expect(camelResource.getVisualEntities()[0].id).toBe('routeConfiguration-1234');
+    await waitFor(() => {
+      expect(camelResource.getVisualEntities()).toHaveLength(1);
+      expect(camelResource.getVisualEntities()[0].id).toBe('routeConfiguration-1234');
+    });
   });
 
   it('should not delete any flows when canceling the delete filtered action', async () => {

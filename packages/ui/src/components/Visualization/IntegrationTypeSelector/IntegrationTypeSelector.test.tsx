@@ -1,5 +1,5 @@
 import { MenuToggle, MenuToggleElement } from '@patternfly/react-core';
-import { act, fireEvent, render, waitFor } from '@testing-library/react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 import { Ref } from 'react';
 import type { Mock } from 'vitest';
 

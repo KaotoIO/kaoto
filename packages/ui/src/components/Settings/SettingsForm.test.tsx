@@ -1,5 +1,5 @@
 import { SuggestionRegistryProvider } from '@kaoto/forms';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import type { Mock } from 'vitest';
 

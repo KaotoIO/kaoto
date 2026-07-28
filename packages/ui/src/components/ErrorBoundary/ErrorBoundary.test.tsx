@@ -1,4 +1,4 @@
-import { act, fireEvent, render } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import { useState } from 'react';
 
 import { ErrorBoundary } from './ErrorBoundary';

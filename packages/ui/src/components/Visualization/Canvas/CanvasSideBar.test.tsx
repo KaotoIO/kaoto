@@ -1,6 +1,6 @@
 import { CamelYamlDsl } from '@kaoto/camel-catalog/types';
 import { CanvasFormTabsProvider } from '@kaoto/forms';
-import { act, fireEvent, render } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 import { parse } from 'yaml';
 

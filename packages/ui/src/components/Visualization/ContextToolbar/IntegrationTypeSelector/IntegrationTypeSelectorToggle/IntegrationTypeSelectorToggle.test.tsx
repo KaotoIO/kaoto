@@ -1,4 +1,4 @@
-import { act, fireEvent, render, waitFor } from '@testing-library/react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 import { ComponentProps } from 'react';
 
 import { sourceSchemaConfig, SourceSchemaType } from '../../../../../models/camel';

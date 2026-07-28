@@ -1,5 +1,5 @@
 import { fireEvent } from '@testing-library/dom';
-import { act, render } from '@testing-library/react';
+import { render } from '@testing-library/react';
 
 import { InlineEdit } from './InlineEdit';
 import { minLengthValidator } from './min-length-validator';
@@ -54,9 +54,7 @@ describe('InlineEdit', () => {
       const wrapper = render(<InlineEdit data-testid={DATA_TESTID} />);
       const editButton = wrapper.getByTestId('inline--edit');
 
-      act(() => {
-        fireEvent(editButton, mouseEvent);
-      });
+      fireEvent(editButton, mouseEvent);
 
       expect(stopPropagationSpy).toHaveBeenCalled();
     });
@@ -91,10 +89,8 @@ describe('InlineEdit', () => {
 
       const input = wrapper.getByTestId('inline--text-input');
 
-      act(() => {
-        fireEvent.change(input, { target: { value: 'edited text' } });
-        fireEvent.change(input, { target: { value: 'My text' } });
-      });
+      fireEvent.change(input, { target: { value: 'edited text' } });
+      fireEvent.change(input, { target: { value: 'My text' } });
 
       expect(input).toHaveAttribute('aria-invalid', 'false');
     });
@@ -105,32 +101,24 @@ describe('InlineEdit', () => {
 
       fireEvent.click(editButton);
 
-      act(() => {
-        const input = wrapper.getByTestId('inline--text-input');
-        fireEvent.change(input, { target: { value: 'none' } });
-        expect(input).toHaveAttribute('aria-invalid', 'true');
-      });
+      const input = wrapper.getByTestId('inline--text-input');
+      fireEvent.change(input, { target: { value: 'none' } });
+      expect(input).toHaveAttribute('aria-invalid', 'true');
 
-      act(() => {
-        const errorMessage = wrapper.getByText(/Value must be at least 5 characters long/, {
-          exact: false,
-        });
-        expect(errorMessage).toBeInTheDocument();
+      const errorMessage = wrapper.getByText(/Value must be at least 5 characters long/, {
+        exact: false,
       });
+      expect(errorMessage).toBeInTheDocument();
     });
 
     it('should ignore the save action if the validation fails', () => {
       const wrapper = render(<InlineEdit data-testid={DATA_TESTID} value="My text" validator={minLengthValidator} />);
 
-      act(() => {
-        const editButton = wrapper.getByTestId('inline--edit');
-        fireEvent.click(editButton);
-      });
+      const editButton = wrapper.getByTestId('inline--edit');
+      fireEvent.click(editButton);
 
-      act(() => {
-        const input = wrapper.getByTestId('inline--text-input');
-        fireEvent.change(input, { target: { value: 'none' } });
-      });
+      const input = wrapper.getByTestId('inline--text-input');
+      fireEvent.change(input, { target: { value: 'none' } });
 
       const saveButton = wrapper.getByTestId('inline--save');
       fireEvent.click(saveButton);
@@ -148,20 +136,14 @@ describe('InlineEdit', () => {
         <InlineEdit data-testid={DATA_TESTID} value="My text" onChange={onChange} validator={minLengthValidator} />,
       );
 
-      act(() => {
-        const editButton = wrapper.getByTestId('inline--edit');
-        fireEvent.click(editButton);
-      });
+      const editButton = wrapper.getByTestId('inline--edit');
+      fireEvent.click(editButton);
 
-      act(() => {
-        const input = wrapper.getByTestId('inline--text-input');
-        fireEvent.change(input, { target: { value: 'A new hope' } });
-      });
+      const input = wrapper.getByTestId('inline--text-input');
+      fireEvent.change(input, { target: { value: 'A new hope' } });
 
-      act(() => {
-        const saveButton = wrapper.getByTestId('inline--save');
-        fireEvent.click(saveButton);
-      });
+      const saveButton = wrapper.getByTestId('inline--save');
+      fireEvent.click(saveButton);
 
       expect(onChange).toHaveBeenCalledWith('A new hope');
     });
@@ -172,16 +154,12 @@ describe('InlineEdit', () => {
         <InlineEdit data-testid={DATA_TESTID} value="My text" onChange={onChange} validator={minLengthValidator} />,
       );
 
-      act(() => {
-        const editButton = wrapper.getByTestId('inline--edit');
-        fireEvent.click(editButton);
-      });
+      const editButton = wrapper.getByTestId('inline--edit');
+      fireEvent.click(editButton);
 
-      act(() => {
-        const input = wrapper.getByTestId('inline--text-input');
-        fireEvent.change(input, { target: { value: 'none' } });
-        fireEvent.keyDown(input, { key: 'Enter' });
-      });
+      const input = wrapper.getByTestId('inline--text-input');
+      fireEvent.change(input, { target: { value: 'none' } });
+      fireEvent.keyDown(input, { key: 'Enter' });
 
       expect(onChange).not.toHaveBeenCalled();
     });
@@ -192,15 +170,11 @@ describe('InlineEdit', () => {
         <InlineEdit data-testid={DATA_TESTID} value="My text" onChange={onChange} validator={minLengthValidator} />,
       );
 
-      act(() => {
-        const editButton = wrapper.getByTestId('inline--edit');
-        fireEvent.click(editButton);
-      });
+      const editButton = wrapper.getByTestId('inline--edit');
+      fireEvent.click(editButton);
 
-      act(() => {
-        const input = wrapper.getByTestId('inline--text-input');
-        fireEvent.keyDown(input, { key: 'Enter' });
-      });
+      const input = wrapper.getByTestId('inline--text-input');
+      fireEvent.keyDown(input, { key: 'Enter' });
 
       expect(onChange).not.toHaveBeenCalled();
     });
@@ -208,15 +182,11 @@ describe('InlineEdit', () => {
     it('should return to read mode when the user presses the Escape key', () => {
       const wrapper = render(<InlineEdit data-testid={DATA_TESTID} />);
 
-      act(() => {
-        const editButton = wrapper.getByTestId('inline--edit');
-        fireEvent.click(editButton);
-      });
+      const editButton = wrapper.getByTestId('inline--edit');
+      fireEvent.click(editButton);
 
-      act(() => {
-        const input = wrapper.getByTestId('inline--text-input');
-        fireEvent.keyDown(input, { key: 'Escape' });
-      });
+      const input = wrapper.getByTestId('inline--text-input');
+      fireEvent.keyDown(input, { key: 'Escape' });
 
       const textField = wrapper.queryByTestId(DATA_TESTID);
       expect(textField).toBeInTheDocument();
@@ -227,15 +197,11 @@ describe('InlineEdit', () => {
       const stopPropagationSpy = vi.spyOn(mouseEvent, 'stopPropagation');
       const wrapper = render(<InlineEdit data-testid={DATA_TESTID} />);
 
-      act(() => {
-        const editButton = wrapper.getByTestId('inline--edit');
-        fireEvent.click(editButton);
-      });
+      const editButton = wrapper.getByTestId('inline--edit');
+      fireEvent.click(editButton);
 
-      act(() => {
-        const cancelButton = wrapper.getByTestId('inline--cancel');
-        fireEvent(cancelButton, mouseEvent);
-      });
+      const cancelButton = wrapper.getByTestId('inline--cancel');
+      fireEvent(cancelButton, mouseEvent);
 
       const textField = wrapper.queryByTestId(DATA_TESTID);
       expect(textField).toBeInTheDocument();

@@ -400,10 +400,8 @@ describe('CanvasFormBody', () => {
     const formPageObject = new KaotoFormPageObject(screen, act);
     const inputField = formPageObject.getFieldByDisplayName('Name')!;
 
-    await act(async () => {
-      fireEvent.focus(inputField);
-      fireEvent.keyDown(inputField, { ctrlKey: true, code: 'Space' });
-    });
+    fireEvent.focus(inputField);
+    fireEvent.keyDown(inputField, { ctrlKey: true, code: 'Space' });
 
     await waitFor(() => {
       expect(wrapper.getByTestId('suggestions-menu')).toBeInTheDocument();

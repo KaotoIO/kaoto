@@ -14,7 +14,7 @@
     limitations under the License.
 */
 import { useVisualizationController } from '@patternfly/react-topology';
-import { act, renderHook } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
 import type { Mock } from 'vitest';
 
 import { IVisualizationNode } from '../models/visualization/base-visual-entity';
@@ -58,14 +58,12 @@ describe('useSelectedVizNode', () => {
 
   it('returns the vizNode when exactly one id resolves to a node with vizNode', async () => {
     const { result } = renderHook(() => useSelectedVizNode(['scope|timer-1']));
-    await act(async () => {});
     expect(result.current).toBe(mockVizNode);
   });
 
   it('returns undefined when controller returns no node for the given id', async () => {
     (useVisualizationController as Mock).mockReturnValue(makeController(undefined));
     const { result } = renderHook(() => useSelectedVizNode(['scope|unknown']));
-    await act(async () => {});
     expect(result.current).toBeUndefined();
   });
 
@@ -73,19 +71,16 @@ describe('useSelectedVizNode', () => {
     const controller = { getNodeById: vi.fn(() => ({ getData: () => ({}) })) };
     (useVisualizationController as Mock).mockReturnValue(controller);
     const { result } = renderHook(() => useSelectedVizNode(['scope|timer-1']));
-    await act(async () => {});
     expect(result.current).toBeUndefined();
   });
 
   it('updates when selectedIds changes', async () => {
     let ids = ['scope|timer-1'];
     const { result, rerender } = renderHook(() => useSelectedVizNode(ids));
-    await act(async () => {});
     expect(result.current).toBe(mockVizNode);
 
     ids = [];
     rerender();
-    await act(async () => {});
     expect(result.current).toBeUndefined();
   });
 });

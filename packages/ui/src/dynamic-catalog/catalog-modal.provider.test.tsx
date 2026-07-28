@@ -1,4 +1,4 @@
-import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren, useContext } from 'react';
 import type { Mock } from 'vitest';
 
