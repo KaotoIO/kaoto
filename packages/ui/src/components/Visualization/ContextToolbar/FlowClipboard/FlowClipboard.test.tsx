@@ -29,6 +29,8 @@ describe('FlowClipboard.tsx', () => {
     const clipboardButton = screen.getByTestId('clipboardButton');
     fireEvent.click(clipboardButton);
 
+    await screen.findByTestId('clipboardButton');
+
     expect(navigator.clipboard.writeText).toHaveBeenCalledTimes(1);
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith('my source code');
   });
@@ -43,14 +45,19 @@ describe('FlowClipboard.tsx', () => {
   });
 
   it('should set data-copied attribute to false after 2 seconds', async () => {
-    vi.useFakeTimers();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
 
     const clipboardButton = screen.getByTestId('clipboardButton');
     fireEvent.click(clipboardButton);
 
-    vi.advanceTimersByTime(2000);
+    const copiedButton = await screen.findByTestId('clipboardButton');
+    expect(copiedButton).toHaveAttribute('data-copied', 'true');
 
-    expect(clipboardButton).toHaveAttribute('data-copied', 'false');
+    act(() => {
+      vi.advanceTimersByTime(2000);
+    });
+
+    expect(copiedButton).toHaveAttribute('data-copied', 'false');
 
     vi.useRealTimers();
   });
@@ -71,14 +78,19 @@ describe('FlowClipboard.tsx', () => {
   });
 
   it('should restore tooltip text after 2 seconds', async () => {
-    vi.useFakeTimers();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
 
     const clipboardButton = screen.getByTestId('clipboardButton');
     fireEvent.click(clipboardButton);
 
-    vi.advanceTimersByTime(2000);
+    const copiedButton = await screen.findByTestId('clipboardButton');
+    expect(copiedButton).toHaveAttribute('title', successTooltipText);
 
-    expect(clipboardButton).toHaveAttribute('title', 'Copy to clipboard');
+    act(() => {
+      vi.advanceTimersByTime(2000);
+    });
+
+    expect(copiedButton).toHaveAttribute('title', 'Copy to clipboard');
 
     vi.useRealTimers();
   });
