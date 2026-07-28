@@ -35,10 +35,8 @@ describe('FlowsMenu.tsx', () => {
     fireEvent.click(dropdown);
 
     /** Wait for the List to appear */
-    await act(async () => {
-      const flowsList = wrapper.queryByTestId('flows-list-table');
-      expect(flowsList).toBeInTheDocument();
-    });
+    const flowsList = wrapper.queryByTestId('flows-list-table');
+    expect(flowsList).toBeInTheDocument();
   });
 
   it('should open the flows list when clicking the action button', async () => {
@@ -55,10 +53,8 @@ describe('FlowsMenu.tsx', () => {
     fireEvent.click(dropdown);
 
     /** Wait for the List to appear */
-    await act(async () => {
-      const flowsList = wrapper.queryByTestId('flows-list-table');
-      expect(flowsList).toBeInTheDocument();
-    });
+    const flowsList = wrapper.queryByTestId('flows-list-table');
+    expect(flowsList).toBeInTheDocument();
   });
 
   it('should close the flows list when pressing ESC', async () => {
@@ -77,10 +73,8 @@ describe('FlowsMenu.tsx', () => {
     const flowsList = await wrapper.findByTestId('flows-list-table');
 
     /** Press Escape key to close the menu */
-    act(() => {
-      fireEvent.focus(flowsList);
-      fireEvent.keyDown(flowsList, { key: 'Escape', code: 'Escape', charCode: 27 });
-    });
+    fireEvent.focus(flowsList);
+    fireEvent.keyDown(flowsList, { key: 'Escape', code: 'Escape', charCode: 27 });
 
     /** Wait for the List to disappear */
     await waitFor(() => {

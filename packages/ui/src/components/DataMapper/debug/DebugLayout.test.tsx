@@ -31,9 +31,7 @@ describe('DebugLayout', () => {
   });
 
   afterEach(() => {
-    act(() => {
-      useDocumentTreeStore.getState().clearSelection();
-    });
+    useDocumentTreeStore.getState().clearSelection();
   });
 
   // Skipped: JSDOM cannot render the full DataMapperControl layout (expansion panels require real dimensions)

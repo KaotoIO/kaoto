@@ -105,9 +105,7 @@ describe('ConfirmIntegrationTypeChangeModal', () => {
   it('should call onClose after confirming', async () => {
     const { getByTestId } = await renderModal(SourceSchemaType.Route);
 
-    await act(async () => {
-      fireEvent.click(getByTestId('confirmation-modal-confirm'));
-    });
+    fireEvent.click(getByTestId('confirmation-modal-confirm'));
 
     expect(onClose).toHaveBeenCalled();
   });
@@ -115,9 +113,7 @@ describe('ConfirmIntegrationTypeChangeModal', () => {
   it('should update catalog when switching to a different catalog type', async () => {
     const { getByTestId } = await renderModal(SourceSchemaType.Test, mockCamelCatalog);
 
-    await act(async () => {
-      fireEvent.click(getByTestId('confirmation-modal-confirm'));
-    });
+    fireEvent.click(getByTestId('confirmation-modal-confirm'));
 
     expect(mockSetSelectedCatalog).toHaveBeenCalledWith(expect.objectContaining({ runtime: 'Citrus' }));
   });
@@ -125,9 +121,7 @@ describe('ConfirmIntegrationTypeChangeModal', () => {
   it('should not update catalog when switching between same-catalog flow types', async () => {
     const { getByTestId } = await renderModal(SourceSchemaType.Pipe, mockCamelCatalog);
 
-    await act(async () => {
-      fireEvent.click(getByTestId('confirmation-modal-confirm'));
-    });
+    fireEvent.click(getByTestId('confirmation-modal-confirm'));
 
     expect(mockSetSelectedCatalog).not.toHaveBeenCalled();
   });

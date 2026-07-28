@@ -438,9 +438,7 @@ describe('ResizableSplitPanels - Keyboard Navigation', () => {
     expect(onResizeEnd).toHaveBeenCalledTimes(1);
 
     // onResizeEnd called on blur (after starting new resize)
-    act(() => {
-      fireEvent.keyDown(resizeHandle, { key: 'ArrowLeft' }); // Start new resize
-    });
+    fireEvent.keyDown(resizeHandle, { key: 'ArrowLeft' }); // Start new resize;
     expect(onResizeStart).toHaveBeenCalledTimes(2); // Called again for new resize
     fireEvent.blur(resizeHandle);
     expect(onResizeEnd).toHaveBeenCalledTimes(2);

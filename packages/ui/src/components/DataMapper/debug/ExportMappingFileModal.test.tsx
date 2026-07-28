@@ -330,9 +330,7 @@ describe('ExportMappingFileModal', () => {
       expect(callback).toBeDefined();
 
       // Invoke the callback
-      act(() => {
-        callback(mockEditor, mockMonaco);
-      });
+      callback(mockEditor, mockMonaco);
 
       expect(mockEditor.layout).toHaveBeenCalledTimes(1);
     });
@@ -349,9 +347,7 @@ describe('ExportMappingFileModal', () => {
       expect(callback).toBeDefined();
 
       // Invoke the callback
-      act(() => {
-        callback(mockEditor, mockMonaco);
-      });
+      callback(mockEditor, mockMonaco);
 
       expect(mockEditor.focus).toHaveBeenCalledTimes(1);
     });
@@ -368,9 +364,7 @@ describe('ExportMappingFileModal', () => {
       expect(callback).toBeDefined();
 
       // Invoke the callback
-      act(() => {
-        callback(mockEditor, mockMonaco);
-      });
+      callback(mockEditor, mockMonaco);
 
       expect(mockMonaco.editor.getModels).toHaveBeenCalledTimes(1);
       expect(mockModel.updateOptions).toHaveBeenCalledTimes(1);
@@ -389,9 +383,7 @@ describe('ExportMappingFileModal', () => {
       expect(callback).toBeDefined();
 
       // Invoke the callback
-      act(() => {
-        callback(mockEditor, mockMonaco);
-      });
+      callback(mockEditor, mockMonaco);
 
       // Verify all three operations were called
       expect(mockEditor.layout).toHaveBeenCalledTimes(1);
@@ -420,10 +412,8 @@ describe('ExportMappingFileModal', () => {
       expect(callback).toBeDefined();
 
       // Invoke the callback multiple times
-      act(() => {
-        callback(mockEditor, mockMonaco);
-        callback(mockEditor, mockMonaco);
-      });
+      callback(mockEditor, mockMonaco);
+      callback(mockEditor, mockMonaco);
 
       // Each call should trigger the operations
       expect(mockEditor.layout).toHaveBeenCalledTimes(2);

@@ -199,9 +199,7 @@ describe('PlaceholderNode', () => {
     const edgeElement = new MockBaseEdge() as unknown as GraphElement<ElementModel, CanvasNode['data']>;
 
     expect(() => {
-      act(() => {
-        render(<PlaceholderNodeObserver element={edgeElement} />);
-      });
+      render(<PlaceholderNodeObserver element={edgeElement} />);
     }).toThrow('PlaceholderNode must be used only on Node elements');
   });
 

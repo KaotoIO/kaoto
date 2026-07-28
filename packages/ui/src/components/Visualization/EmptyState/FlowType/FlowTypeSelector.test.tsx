@@ -46,9 +46,7 @@ describe('FlowTypeSelector.tsx', () => {
   });
 
   it('component renders', async () => {
-    await act(async () => {
-      render(<FlowTypeSelectorWithContext />);
-    });
+    render(<FlowTypeSelectorWithContext />);
 
     await waitFor(() => {
       const toggle = screen.queryByTestId('viz-dsl-list-dropdown');
@@ -57,9 +55,7 @@ describe('FlowTypeSelector.tsx', () => {
   });
 
   it('should call onSelect when clicking on the MenuToggleAction', async () => {
-    await act(async () => {
-      render(<FlowTypeSelectorWithContext />);
-    });
+    render(<FlowTypeSelectorWithContext />);
 
     const toggle = await screen.findByTestId('dsl-list-btn');
 

@@ -100,10 +100,8 @@ describe('IntegrationTypeSelector.tsx', () => {
     fireEvent.click(trigger);
 
     /** Select an option */
-    act(() => {
-      const element = wrapper.getByText('Pipe');
-      fireEvent.click(element);
-    });
+    const element = wrapper.getByText('Pipe');
+    fireEvent.click(element);
 
     const modal = await wrapper.findByTestId('confirmation-modal');
     expect(modal).toBeInTheDocument();
@@ -122,11 +120,9 @@ describe('IntegrationTypeSelector.tsx', () => {
     fireEvent.click(trigger);
 
     /** Select an option */
-    act(() => {
-      const element = getByTestId('integration-type-Test').firstElementChild; // drop down button
-      expect(element).toBeTruthy();
-      fireEvent.click(element!);
-    });
+    const element = getByTestId('integration-type-Test').firstElementChild; // drop down button
+    expect(element).toBeTruthy();
+    fireEvent.click(element!);
 
     const modal = await findByTestId('confirmation-modal');
     expect(modal).toBeInTheDocument();
@@ -138,9 +134,7 @@ describe('IntegrationTypeSelector.tsx', () => {
     /** Confirm **/
     const confirmButton = await findByTestId('confirmation-modal-confirm');
 
-    await act(async () => {
-      fireEvent.click(confirmButton);
-    });
+    fireEvent.click(confirmButton);
 
     await waitFor(() => {
       expect(mockSetSelectedCatalog).toHaveBeenCalledWith(

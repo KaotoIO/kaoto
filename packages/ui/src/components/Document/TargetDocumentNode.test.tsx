@@ -52,12 +52,10 @@ describe('TargetDocumentNode', () => {
   };
 
   beforeEach(() => {
-    act(() => {
-      useDocumentTreeStore.setState({
-        expansionState: {},
-        selectedNodePath: null,
-        selectedNodeIsSource: false,
-      });
+    useDocumentTreeStore.setState({
+      expansionState: {},
+      selectedNodePath: null,
+      selectedNodeIsSource: false,
     });
   });
 
@@ -258,14 +256,12 @@ describe('TargetDocumentNode', () => {
 
       const toggleNodeSpy = vi.spyOn(TreeUIService, 'toggleNode');
 
-      act(() => {
-        useDocumentTreeStore.setState({
-          expansionState: {
-            [documentNodeData.id]: {
-              [tree.root.path]: true,
-            },
+      useDocumentTreeStore.setState({
+        expansionState: {
+          [documentNodeData.id]: {
+            [tree.root.path]: true,
           },
-        });
+        },
       });
 
       render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
@@ -308,14 +304,12 @@ describe('TargetDocumentNode', () => {
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
 
-      act(() => {
-        useDocumentTreeStore.setState({
-          expansionState: {
-            [documentNodeData.id]: {
-              [tree.root.path]: true,
-            },
+      useDocumentTreeStore.setState({
+        expansionState: {
+          [documentNodeData.id]: {
+            [tree.root.path]: true,
           },
-        });
+        },
       });
 
       render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
@@ -335,14 +329,12 @@ describe('TargetDocumentNode', () => {
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
 
-      act(() => {
-        useDocumentTreeStore.setState({
-          expansionState: {
-            [documentNodeData.id]: {
-              [tree.root.path]: false,
-            },
+      useDocumentTreeStore.setState({
+        expansionState: {
+          [documentNodeData.id]: {
+            [tree.root.path]: false,
           },
-        });
+        },
       });
 
       render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
@@ -364,14 +356,12 @@ describe('TargetDocumentNode', () => {
 
       const toggleNodeSpy = vi.spyOn(TreeUIService, 'toggleNode');
 
-      act(() => {
-        useDocumentTreeStore.setState({
-          expansionState: {
-            [documentNodeData.id]: {
-              [tree.root.path]: true,
-            },
+      useDocumentTreeStore.setState({
+        expansionState: {
+          [documentNodeData.id]: {
+            [tree.root.path]: true,
           },
-        });
+        },
       });
 
       render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
@@ -636,14 +626,12 @@ describe('TargetDocumentNode', () => {
 
       const parentClickHandler = vi.fn();
 
-      act(() => {
-        useDocumentTreeStore.setState({
-          expansionState: {
-            [documentNodeData.id]: {
-              [tree.root.path]: true,
-            },
+      useDocumentTreeStore.setState({
+        expansionState: {
+          [documentNodeData.id]: {
+            [tree.root.path]: true,
           },
-        });
+        },
       });
 
       render(
@@ -798,10 +786,8 @@ describe('TargetDocumentNode', () => {
 
   describe('Variable Node', () => {
     afterEach(() => {
-      act(() => {
-        useDocumentTreeStore.getState().setAddingVariableTo(null);
-        useDocumentTreeStore.getState().setRenamingVariable(null);
-      });
+      useDocumentTreeStore.getState().setAddingVariableTo(null);
+      useDocumentTreeStore.getState().setRenamingVariable(null);
     });
 
     it('should render variable node with $name label', () => {
@@ -834,9 +820,7 @@ describe('TargetDocumentNode', () => {
       const fieldTreeNode = new DocumentTreeNode(fieldNode);
 
       const nodePath = fieldNode.path.toString();
-      act(() => {
-        useDocumentTreeStore.getState().setAddingVariableTo(nodePath);
-      });
+      useDocumentTreeStore.getState().setAddingVariableTo(nodePath);
 
       render(<TargetDocumentNode treeNode={fieldTreeNode} documentId={targetDocNode.id} rank={1} />, {
         wrapper,
@@ -860,9 +844,7 @@ describe('TargetDocumentNode', () => {
       const variableNodeData = new VariableNodeData(targetDocNode, variableItem);
       const variableTreeNode = new DocumentTreeNode(variableNodeData);
 
-      act(() => {
-        useDocumentTreeStore.getState().setRenamingVariable(variableItem.id);
-      });
+      useDocumentTreeStore.getState().setRenamingVariable(variableItem.id);
 
       render(<TargetDocumentNode treeNode={variableTreeNode} documentId={targetDocNode.id} rank={1} />, {
         wrapper,
@@ -889,9 +871,7 @@ describe('TargetDocumentNode', () => {
       const fieldTreeNode = new DocumentTreeNode(fieldNode);
 
       const nodePath = fieldNode.path.toString();
-      act(() => {
-        useDocumentTreeStore.getState().setAddingVariableTo(nodePath);
-      });
+      useDocumentTreeStore.getState().setAddingVariableTo(nodePath);
 
       render(<TargetDocumentNode treeNode={fieldTreeNode} documentId={targetDocNode.id} rank={1} />, {
         wrapper,
@@ -920,9 +900,7 @@ describe('TargetDocumentNode', () => {
 
       const addVariableSpy = vi.spyOn(MappingService, 'addVariable');
       const nodePath = fieldNode.path.toString();
-      act(() => {
-        useDocumentTreeStore.getState().setAddingVariableTo(nodePath);
-      });
+      useDocumentTreeStore.getState().setAddingVariableTo(nodePath);
 
       render(<TargetDocumentNode treeNode={fieldTreeNode} documentId={targetDocNode.id} rank={1} />, {
         wrapper,
@@ -953,9 +931,7 @@ describe('TargetDocumentNode', () => {
       const variableTreeNode = new DocumentTreeNode(variableNodeData);
 
       const updateVariableSpy = vi.spyOn(MappingService, 'updateVariable');
-      act(() => {
-        useDocumentTreeStore.getState().setRenamingVariable(variableItem.id);
-      });
+      useDocumentTreeStore.getState().setRenamingVariable(variableItem.id);
 
       render(<TargetDocumentNode treeNode={variableTreeNode} documentId={targetDocNode.id} rank={1} />, {
         wrapper,
@@ -985,9 +961,7 @@ describe('TargetDocumentNode', () => {
       const variableNodeData = new VariableNodeData(targetDocNode, variableItem);
       const variableTreeNode = new DocumentTreeNode(variableNodeData);
 
-      act(() => {
-        useDocumentTreeStore.getState().setRenamingVariable(variableItem.id);
-      });
+      useDocumentTreeStore.getState().setRenamingVariable(variableItem.id);
 
       render(<TargetDocumentNode treeNode={variableTreeNode} documentId={targetDocNode.id} rank={1} />, {
         wrapper,

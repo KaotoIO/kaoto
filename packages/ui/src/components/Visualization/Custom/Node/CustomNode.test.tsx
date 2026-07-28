@@ -44,9 +44,7 @@ describe('CustomNode', () => {
     const edgeElement = new BaseEdge();
 
     expect(() => {
-      act(() => {
-        render(<CustomNodeObserver element={edgeElement} />);
-      });
+      render(<CustomNodeObserver element={edgeElement} />);
     }).toThrow('CustomNode must be used only on Node elements');
   });
 

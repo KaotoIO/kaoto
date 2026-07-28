@@ -1055,9 +1055,7 @@ describe('AttachSchemaModal', () => {
         expect(screen.getByLabelText('Uploading schema file(s)')).toBeInTheDocument();
 
         // Resolve the document creation
-        act(() => {
-          resolveCreate!({ validationStatus: 'success', document: {}, documentDefinition: {} });
-        });
+        resolveCreate!({ validationStatus: 'success', document: {}, documentDefinition: {} });
 
         // Wait for processing to complete
         await waitFor(() => {

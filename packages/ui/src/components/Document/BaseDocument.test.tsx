@@ -18,9 +18,7 @@ import { TargetDocumentNode } from './TargetDocumentNode';
 
 describe('DocumentHeader', () => {
   afterEach(() => {
-    act(() => {
-      useDocumentTreeStore.getState().clearSelection();
-    });
+    useDocumentTreeStore.getState().clearSelection();
   });
 
   it('should render with enableDnD=false (default)', () => {
@@ -116,9 +114,7 @@ describe('DocumentContent', () => {
     const documentNodeData = new TargetDocumentNodeData(document, mappingTree);
 
     let tree: ReturnType<typeof TreeUIService.createTree>;
-    act(() => {
-      tree = TreeUIService.createTree(documentNodeData);
-    });
+    tree = TreeUIService.createTree(documentNodeData);
 
     const { container } = render(
       <DataMapperProvider>

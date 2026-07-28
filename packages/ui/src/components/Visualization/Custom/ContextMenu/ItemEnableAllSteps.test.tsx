@@ -80,10 +80,8 @@ describe('ItemEnableAllSteps', () => {
       </Provider>,
     );
 
-    act(() => {
-      const item = wrapper.getByText('Enable All');
-      fireEvent.click(item);
-    });
+    const item = wrapper.getByText('Enable All');
+    fireEvent.click(item);
 
     await waitFor(async () => {
       disabledNodes.forEach((node) => {

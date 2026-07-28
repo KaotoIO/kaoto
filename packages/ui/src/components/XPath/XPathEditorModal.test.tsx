@@ -30,9 +30,7 @@ describe('XPathEditorModal', () => {
   };
 
   it('should render', async () => {
-    await act(async () => {
-      setup();
-    });
+    setup();
 
     const xpathEditor = screen.getByTestId('xpath-editor');
     expect(xpathEditor).toBeInTheDocument();
@@ -43,9 +41,7 @@ describe('XPathEditorModal', () => {
   });
 
   it('should show popover when hint button is clicked', async () => {
-    await act(async () => {
-      setup();
-    });
+    setup();
 
     fireEvent.click(screen.getByTestId('xpath-editor-hint'));
 
