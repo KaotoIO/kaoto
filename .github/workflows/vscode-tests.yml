@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger vscode-kaoto tests
-        uses: convictional/trigger-workflow-and-wait@f69fa9eedd3c62a599220f4d5745230e237904be # v1.6.5
+        uses: step-security/trigger-workflow-and-wait@0269af83b7e0798d945daedac4ed85dcd4b14733 # v1.6.7
         with:
           owner: KaotoIO
           repo: vscode-kaoto
