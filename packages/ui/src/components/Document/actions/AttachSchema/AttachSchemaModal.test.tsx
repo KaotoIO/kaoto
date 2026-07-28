@@ -1046,13 +1046,13 @@ describe('AttachSchemaModal', () => {
         const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
 
         fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
-        // Give time for state updates
-        await new Promise((resolve) => setTimeout(resolve, 50));
 
         // After file selection, button should show loading state
-        expect(importButton).toBeDisabled();
-        expect(importButton.textContent).toContain('Uploading schema file(s)...');
-        expect(screen.getByLabelText('Uploading schema file(s)')).toBeInTheDocument();
+        await waitFor(() => {
+          expect(importButton).toBeDisabled();
+          expect(importButton.textContent).toContain('Uploading schema file(s)...');
+          expect(screen.getByLabelText('Uploading schema file(s)')).toBeInTheDocument();
+        });
 
         // Resolve the document creation
         resolveCreate!({ validationStatus: 'success', document: {}, documentDefinition: {} });
