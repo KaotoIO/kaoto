@@ -74,7 +74,8 @@ describe('MediaTypeField', () => {
 
       fireEvent.click(toggle);
 
-      expect(screen.getByRole('menuitem', { name: 'application/json' })).toBeInTheDocument();
+      // Wait for Popper to position the menu and render items
+      await screen.findByRole('menuitem', { name: 'application/json' });
       expect(screen.getByRole('menuitem', { name: 'application/xml' })).toBeInTheDocument();
       expect(screen.getByRole('menuitem', { name: 'text/plain' })).toBeInTheDocument();
     });
@@ -87,7 +88,8 @@ describe('MediaTypeField', () => {
 
       fireEvent.click(toggle);
 
-      const option = screen.getByRole('menuitem', { name: 'application/json' });
+      // Wait for Popper to position the menu
+      const option = await screen.findByRole('menuitem', { name: 'application/json' });
       const checkbox = within(option).getByRole('checkbox');
 
       fireEvent.click(checkbox);
@@ -106,7 +108,8 @@ describe('MediaTypeField', () => {
 
       fireEvent.click(toggle);
 
-      const option1 = screen.getByRole('menuitem', { name: 'application/json' });
+      // Wait for Popper to position the menu
+      const option1 = await screen.findByRole('menuitem', { name: 'application/json' });
       const checkbox1 = within(option1).getByRole('checkbox');
 
       fireEvent.click(checkbox1);
@@ -138,7 +141,8 @@ describe('MediaTypeField', () => {
 
       fireEvent.click(toggle);
 
-      const option = screen.getByRole('menuitem', { name: 'application/json' });
+      // Wait for Popper to position the menu
+      const option = await screen.findByRole('menuitem', { name: 'application/json' });
       const checkbox = within(option).getByRole('checkbox');
 
       fireEvent.click(checkbox);
@@ -154,7 +158,8 @@ describe('MediaTypeField', () => {
 
       fireEvent.click(toggle);
 
-      const option = screen.getByRole('menuitem', { name: 'application/json' });
+      // Wait for Popper to position the menu
+      const option = await screen.findByRole('menuitem', { name: 'application/json' });
       const checkbox = within(option).getByRole('checkbox');
 
       fireEvent.click(checkbox);
@@ -169,7 +174,8 @@ describe('MediaTypeField', () => {
 
       fireEvent.click(toggle);
 
-      const option = screen.getByRole('menuitem', { name: 'application/json' });
+      // Wait for Popper to position the menu
+      const option = await screen.findByRole('menuitem', { name: 'application/json' });
       const checkbox = within(option).getByRole('checkbox');
 
       expect(checkbox).toBeChecked();
@@ -184,6 +190,8 @@ describe('MediaTypeField', () => {
 
       fireEvent.click(toggle);
 
+      // Wait for Popper to position the menu
+      await screen.findByPlaceholderText('Add custom media type');
       expect(screen.getByPlaceholderText('Add custom media type')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument();
     });
@@ -196,7 +204,8 @@ describe('MediaTypeField', () => {
 
       fireEvent.click(toggle);
 
-      const input = screen.getByPlaceholderText('Add custom media type');
+      // Wait for Popper to position the menu
+      const input = await screen.findByPlaceholderText('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
       fireEvent.change(input, { target: { value: 'application/custom' } });
@@ -214,7 +223,8 @@ describe('MediaTypeField', () => {
 
       fireEvent.click(toggle);
 
-      const input = screen.getByPlaceholderText('Add custom media type');
+      // Wait for Popper to position the menu
+      const input = await screen.findByPlaceholderText('Add custom media type');
 
       fireEvent.change(input, { target: { value: 'application/custom' } });
 
@@ -230,7 +240,8 @@ describe('MediaTypeField', () => {
 
       fireEvent.click(toggle);
 
-      const input = screen.getByPlaceholderText<HTMLInputElement>('Add custom media type');
+      // Wait for Popper to position the menu
+      const input = await screen.findByPlaceholderText<HTMLInputElement>('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
       fireEvent.change(input, { target: { value: 'application/custom' } });
@@ -248,7 +259,8 @@ describe('MediaTypeField', () => {
 
       fireEvent.click(toggle);
 
-      const input = screen.getByPlaceholderText('Add custom media type');
+      // Wait for Popper to position the menu
+      const input = await screen.findByPlaceholderText('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
       fireEvent.change(input, { target: { value: '  application/custom  ' } });
@@ -266,7 +278,8 @@ describe('MediaTypeField', () => {
 
       fireEvent.click(toggle);
 
-      const input = screen.getByPlaceholderText('Add custom media type');
+      // Wait for Popper to position the menu
+      const input = await screen.findByPlaceholderText('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
       fireEvent.change(input, { target: { value: '   ' } });
@@ -283,7 +296,8 @@ describe('MediaTypeField', () => {
 
       fireEvent.click(toggle);
 
-      const addButton = screen.getByRole('button', { name: 'Add' });
+      // Wait for Popper to position the menu
+      const addButton = await screen.findByRole('button', { name: 'Add' });
 
       expect(addButton).toBeDisabled();
     });
@@ -295,7 +309,8 @@ describe('MediaTypeField', () => {
 
       fireEvent.click(toggle);
 
-      const input = screen.getByPlaceholderText('Add custom media type');
+      // Wait for Popper to position the menu
+      const input = await screen.findByPlaceholderText('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
       fireEvent.change(input, { target: { value: 'test' } });
@@ -311,7 +326,8 @@ describe('MediaTypeField', () => {
 
       fireEvent.click(toggle);
 
-      const input = screen.getByPlaceholderText('Add custom media type');
+      // Wait for Popper to position the menu
+      const input = await screen.findByPlaceholderText('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
       fireEvent.change(input, { target: { value: 'application/custom' } });
@@ -330,7 +346,8 @@ describe('MediaTypeField', () => {
 
       fireEvent.click(toggle);
 
-      const input = screen.getByPlaceholderText('Add custom media type');
+      // Wait for Popper to position the menu
+      const input = await screen.findByPlaceholderText('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
       fireEvent.change(input, { target: { value: 'application/custom' } });
@@ -358,7 +375,8 @@ describe('MediaTypeField', () => {
 
       fireEvent.click(toggle);
 
-      const input = screen.getByPlaceholderText('Add custom media type');
+      // Wait for Popper to position the menu
+      const input = await screen.findByPlaceholderText('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
       fireEvent.change(input, { target: { value: 'application/existing' } });
@@ -386,6 +404,8 @@ describe('MediaTypeField', () => {
 
       fireEvent.click(toggle);
 
+      // Wait for Popper to position the menu
+      await screen.findByRole('menuitem', { name: 'application/stored-custom' });
       expect(screen.getByRole('menuitem', { name: 'application/stored-custom' })).toBeInTheDocument();
     });
   });
@@ -424,6 +444,8 @@ describe('MediaTypeField', () => {
 
       fireEvent.click(toggle);
 
+      // Wait for Popper to position the menu
+      await screen.findByRole('menuitem', { name: 'application/custom-type' });
       expect(screen.getByRole('menuitem', { name: 'application/custom-type' })).toBeInTheDocument();
     });
 
@@ -435,7 +457,8 @@ describe('MediaTypeField', () => {
 
       fireEvent.click(toggle);
 
-      const input = screen.getByPlaceholderText('Add custom media type');
+      // Wait for Popper to position the menu
+      const input = await screen.findByPlaceholderText('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
       fireEvent.change(input, { target: { value: 'application/custom' } });
