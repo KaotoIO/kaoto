@@ -5,13 +5,7 @@ import { act, render } from '@testing-library/react';
 
 import { CatalogContext } from '../../dynamic-catalog/catalog.provider';
 import { DynamicCatalogRegistry } from '../../dynamic-catalog/dynamic-catalog-registry';
-import {
-  CatalogKind,
-  ICamelComponentDefinition,
-  ICamelProcessorDefinition,
-  ICitrusComponentDefinition,
-  IKameletDefinition,
-} from '../../models';
+import { CatalogKind, ICamelComponentDefinition, ICamelProcessorDefinition, IKameletDefinition } from '../../models';
 import {
   getFirstCatalogMap,
   getFirstCitrusCatalogMap,
@@ -25,8 +19,6 @@ describe('PropertiesModal', () => {
   let componentCatalogMap: Record<string, ICamelComponentDefinition>;
   let kameletCatalogMap: Record<string, IKameletDefinition>;
   let modelCatalogMap: Record<string, ICamelProcessorDefinition>;
-  let citrusActionCatalogMap: Record<string, ICitrusComponentDefinition>;
-  let citrusContainerCatalogMap: Record<string, ICitrusComponentDefinition>;
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
@@ -45,9 +37,6 @@ describe('PropertiesModal', () => {
 
     const citrusCatalogsMap = await getFirstCitrusCatalogMap(catalogLibrary as CatalogLibrary);
     setupCitrusDynamicCatalogRegistry(citrusCatalogsMap);
-
-    citrusActionCatalogMap = citrusCatalogsMap.actionsCatalogMap;
-    citrusContainerCatalogMap = citrusCatalogsMap.containersCatalogMap;
   });
 
   const renderModal = async (tile: ITile) => {
