@@ -22,7 +22,7 @@ exports[`CanvasForm > should render 1`] = `
             class="pf-v6-l-grid__item pf-m-11-col form-header"
           >
             <img
-              alt="choice"
+              alt="Choice"
               class="form-header__icon-route.from.steps.1.choice"
               src="/src/assets/eip/choice.png"
             />
@@ -32,7 +32,7 @@ exports[`CanvasForm > should render 1`] = `
               data-ouia-component-type="PF6/Title"
               data-ouia-safe="true"
             >
-              choice
+              Choice
             </h2>
           </div>
           <div

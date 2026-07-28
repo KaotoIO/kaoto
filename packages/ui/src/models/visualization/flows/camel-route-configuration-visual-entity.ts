@@ -165,6 +165,10 @@ export class CamelRouteConfigurationVisualEntity
     routeConfigurationGroupNode.data.entity = this;
     routeConfigurationGroupNode.data.isGroup = true;
     routeConfigurationGroupNode.data.name = this.type;
+    routeConfigurationGroupNode.data.primaryNodeId = {
+      catalogKind: CatalogKind.Entity,
+      name: 'routeConfiguration',
+    };
 
     return routeConfigurationGroupNode;
   }

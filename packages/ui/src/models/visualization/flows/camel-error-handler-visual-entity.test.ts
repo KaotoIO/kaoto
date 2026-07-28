@@ -1,7 +1,8 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, ErrorHandlerDeserializer, NoErrorHandler } from '@kaoto/camel-catalog/types';
 
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
 import { CatalogKind } from '../../catalog-kind';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelErrorHandlerVisualEntity } from './camel-error-handler-visual-entity';
@@ -13,10 +14,12 @@ describe('CamelErrorHandlerVisualEntity', () => {
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
+    setupDynamicCatalogRegistry(catalogsMap);
   });
 
   afterAll(() => {
     CamelCatalogService.clearCatalogs();
+    DynamicCatalogRegistry.get().clearRegistry();
   });
 
   beforeEach(() => {
@@ -151,26 +154,26 @@ describe('CamelErrorHandlerVisualEntity', () => {
     expect(entity.getNodeValidationText()).toBeUndefined();
   });
 
-  describe('toVizNode', () => {
-    it('should return visualization node', async () => {
-      const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
+  it('toVizNode should return visualization node', async () => {
+    const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
 
-      const vizNode = await entity.toVizNode();
+    const vizNode = await entity.toVizNode();
+    await vizNode.fetchSchema();
 
-      expect(vizNode.data).toEqual({
-        entity,
-        name: 'errorHandler',
-        isGroup: true,
-        path: 'errorHandler',
-        processorName: 'errorHandler',
-        iconAlt: 'Entity icon',
-        iconUrl: '/src/assets/components/generic-component.png',
-        isPlaceholder: false,
-        title: 'Error Handler',
-        description: 'errorHandler: errorHandler',
-        processorIconTooltip: '',
-        schema: expect.any(Object),
-      });
+    expect(vizNode.data).toEqual({
+      entity,
+      name: 'errorHandler',
+      isGroup: true,
+      path: 'errorHandler',
+      processorName: 'errorHandler',
+      primaryNodeId: { name: entity.type, catalogKind: CatalogKind.Entity },
+      iconAlt: 'Entity icon',
+      iconUrl: '/src/assets/components/generic-component.png',
+      isPlaceholder: false,
+      title: 'Error Handler',
+      description: 'errorHandler: Camel error handling.',
+      processorIconTooltip: '',
+      schema: expect.any(Object),
     });
   });
 

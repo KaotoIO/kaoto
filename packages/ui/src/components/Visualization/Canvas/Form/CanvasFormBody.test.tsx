@@ -15,7 +15,7 @@ import {
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
-import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../../stubs/test-load-catalog';
 import { ROOT_PATH } from '../../../../utils';
 import { CanvasFormBody } from './CanvasFormBody';
 
@@ -38,6 +38,8 @@ describe('CanvasFormBody', () => {
     CamelCatalogService.setCatalogKey(CatalogKind.Dataformat, catalogsMap.dataformatCatalog);
     CamelCatalogService.setCatalogKey(CatalogKind.Loadbalancer, catalogsMap.loadbalancerCatalog);
     CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
+
+    setupDynamicCatalogRegistry(catalogsMap);
   });
 
   describe('should persists changes from both expression editor and main form', () => {
@@ -64,6 +66,7 @@ describe('CanvasFormBody', () => {
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const setHeaderNode = rootNode.getChildren()![1];
+      await setHeaderNode.fetchSchema();
 
       const { Provider } = await TestProvidersWrapper();
 
@@ -116,6 +119,7 @@ describe('CanvasFormBody', () => {
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const setHeaderNode = rootNode.getChildren()![1];
+      await setHeaderNode.fetchSchema();
 
       const { Provider } = await TestProvidersWrapper();
 
@@ -174,6 +178,7 @@ describe('CanvasFormBody', () => {
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const marshalNode = rootNode.getChildren()![1];
+      await marshalNode.fetchSchema();
 
       const { Provider } = await TestProvidersWrapper();
 
@@ -225,6 +230,7 @@ describe('CanvasFormBody', () => {
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const marshalNode = rootNode.getChildren()![1];
+      await marshalNode.fetchSchema();
 
       const { Provider } = await TestProvidersWrapper();
 
@@ -281,6 +287,7 @@ describe('CanvasFormBody', () => {
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const loadBalanceNode = rootNode.getChildren()![1];
+      await loadBalanceNode.fetchSchema();
 
       const { Provider } = await TestProvidersWrapper();
 
@@ -336,6 +343,7 @@ describe('CanvasFormBody', () => {
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const loadBalanceNode = rootNode.getChildren()![1];
+      await loadBalanceNode.fetchSchema();
 
       const { Provider } = await TestProvidersWrapper();
 
@@ -373,7 +381,7 @@ describe('CanvasFormBody', () => {
   it('should show suggestions', async () => {
     const { Provider, camelResource } = await TestProvidersWrapper();
     const vizNode = await camelResource.getVisualEntities()[0].toVizNode();
-    vi.spyOn(vizNode, 'getNodeSchema').mockReturnValue({
+    vizNode.data.schema = {
       type: 'object',
       properties: {
         name: {
@@ -381,7 +389,7 @@ describe('CanvasFormBody', () => {
           title: 'Name',
         },
       },
-    });
+    };
     vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue({ name: 'test-component' });
 
     const wrapper = render(

@@ -1,8 +1,9 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, RouteConfigurationDefinition } from '@kaoto/camel-catalog/types';
 
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { routeConfigurationStub } from '../../../stubs/route-configuration';
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities';
@@ -18,10 +19,12 @@ describe('CamelRouteConfigurationVisualEntity', () => {
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
+    setupDynamicCatalogRegistry(catalogsMap);
   });
 
   afterAll(() => {
     CamelCatalogService.clearCatalogs();
+    DynamicCatalogRegistry.get().clearRegistry();
   });
 
   beforeEach(() => {
@@ -250,10 +253,11 @@ describe('CamelRouteConfigurationVisualEntity', () => {
   });
 
   describe('toVizNode', () => {
-    it('should return visualization node', async () => {
+    it('toVizNode should return visualization node', async () => {
       const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
 
       const vizNode = await entity.toVizNode();
+      await vizNode.fetchSchema();
 
       expect(vizNode.data).toEqual({
         entity,
@@ -261,14 +265,14 @@ describe('CamelRouteConfigurationVisualEntity', () => {
         isGroup: true,
         path: 'routeConfiguration',
         processorName: 'routeConfiguration',
-        primaryNodeId: { name: 'routeConfiguration', catalogKind: CatalogKind.Processor },
+        primaryNodeId: { name: 'routeConfiguration', catalogKind: CatalogKind.Entity },
         iconAlt: 'Entity icon',
         iconUrl: '/src/assets/components/generic-component.png',
         isPlaceholder: false,
         title: 'Route Configuration',
-        description: 'routeConfiguration: routeConfiguration',
+        description: 'routeConfiguration: Reusable configuration for Camel route(s).',
         processorIconTooltip: '',
-        schema: undefined,
+        schema: expect.any(Object),
       });
     });
 

@@ -46,7 +46,7 @@ describe('StepNodeMapper', () => {
   it('should populate primaryNodeId for non-DataMapper step', async () => {
     const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
 
-    expect(vizNode.data.primaryNodeId).toEqual({ name: 'step', catalogKind: CatalogKind.Processor });
+    expect(vizNode.data.primaryNodeId).toEqual({ name: 'step', catalogKind: CatalogKind.Pattern });
     expect(vizNode.data.secondaryNodeId).toBeUndefined();
   });
 

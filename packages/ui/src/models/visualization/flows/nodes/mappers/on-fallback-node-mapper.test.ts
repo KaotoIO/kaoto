@@ -53,6 +53,6 @@ describe('OnFallbackNodeMapper', () => {
       routeDefinition,
     );
 
-    expect(vizNode.data.primaryNodeId).toEqual({ name: 'onFallback', catalogKind: CatalogKind.Processor });
+    expect(vizNode.data.primaryNodeId).toEqual({ name: 'onFallback', catalogKind: CatalogKind.Pattern });
   });
 });

@@ -56,7 +56,7 @@ describe('ParallelProcessorBaseNodeMapper', () => {
         });
         // catalogKind is not set when lookup doesn't have componentName
         expect(vizNode.data.catalogKind).toBeUndefined();
-        expect(vizNode.data.primaryNodeId).toEqual({ name: processorName, catalogKind: CatalogKind.Processor });
+        expect(vizNode.data.primaryNodeId).toEqual({ name: processorName, catalogKind: CatalogKind.Pattern });
         expect(vizNode.data.secondaryNodeId).toBeUndefined();
       });
 

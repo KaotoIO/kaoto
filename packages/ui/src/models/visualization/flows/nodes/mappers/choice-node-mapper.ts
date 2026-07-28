@@ -25,13 +25,13 @@ export class ChoiceNodeMapper extends BaseNodeMapper {
       iconUrl: '',
       title: '',
       description: '',
-      primaryNodeId: { name: processorName, catalogKind: CatalogKind.Processor } satisfies NodeIdentity,
+      primaryNodeId: { name: processorName, catalogKind: CatalogKind.Pattern } satisfies NodeIdentity,
     };
 
     const vizNode = createVisualizationNode(path, data);
 
     /** Enrich the node*/
-    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Processor);
+    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Pattern);
 
     const whenNodes = await this.getChildrenFromArrayClause(`${path}.when`, entityDefinition);
     whenNodes.forEach((whenNode) => {

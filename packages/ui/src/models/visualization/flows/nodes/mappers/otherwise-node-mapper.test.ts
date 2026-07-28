@@ -55,6 +55,6 @@ describe('OtherwiseNodeMapper', () => {
       routeDefinition,
     );
 
-    expect(vizNode.data.primaryNodeId).toEqual({ name: 'otherwise', catalogKind: CatalogKind.Processor });
+    expect(vizNode.data.primaryNodeId).toEqual({ name: 'otherwise', catalogKind: CatalogKind.Pattern });
   });
 });

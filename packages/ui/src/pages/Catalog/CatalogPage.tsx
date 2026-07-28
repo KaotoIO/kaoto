@@ -4,7 +4,7 @@ import { FunctionComponent, useCallback, useEffect, useState } from 'react';
 import { Catalog, ITile } from '../../components/Catalog';
 import { LoadDefaultCatalog } from '../../components/LoadDefaultCatalog';
 import { PropertiesModal } from '../../components/PropertiesModal';
-import { useCatalogTiles } from '../../dynamic-catalog';
+import { useCatalogTiles } from '../../dynamic-catalog/ui';
 
 export const CatalogPage: FunctionComponent = () => {
   const { fetchTiles } = useCatalogTiles();
