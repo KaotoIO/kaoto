@@ -4,6 +4,7 @@ import { parse } from 'yaml';
 import { IKameletDefinition } from '../../../../camel/kamelets-catalog';
 import { CatalogKind } from '../../../../catalog-kind';
 import { IVisualizationNode } from '../../../base-visual-entity';
+import { KameletVisualEntity } from '../../kamelet-visual-entity';
 import { RootNodeMapper } from '../root-node-mapper';
 import { FromNodeMapper } from './from-node-mapper';
 import { noopNodeMapper } from './testing/noop-node-mapper';
@@ -139,11 +140,14 @@ describe('FromNodeMapper', () => {
             steps: []
     `);
 
-    const kameletVizNode = await mapper.getVizNodeFromProcessor('template.from', PROCESSOR_OPTIONS, kameletDefinition);
+    const kameletVisualEntity = new KameletVisualEntity(kameletDefinition);
+    const kameletVizNode = await kameletVisualEntity.toVizNode();
+    const fromNode = kameletVizNode.getChildren()?.[0];
 
-    expect(kameletVizNode.data.primaryNodeId).toEqual({ name: 'from', catalogKind: CatalogKind.Entity });
-    expect(kameletVizNode.data.secondaryNodeId).toEqual({ name: 'timer', catalogKind: CatalogKind.Component });
-    expect(kameletVizNode.data.tertiaryNodeId).toBeUndefined();
+    expect(fromNode).toBeDefined();
+    expect(fromNode!.data.primaryNodeId).toEqual({ name: 'from', catalogKind: CatalogKind.Entity });
+    expect(fromNode!.data.secondaryNodeId).toEqual({ name: 'timer', catalogKind: CatalogKind.Component });
+    expect(fromNode!.data.tertiaryNodeId).toBeUndefined();
   });
 
   it('should populate secondaryNodeId and tertiaryNodeId for Kamelet template.from kamelet URIs', async () => {
@@ -169,11 +173,14 @@ describe('FromNodeMapper', () => {
             steps: []
     `);
 
-    const kameletVizNode = await mapper.getVizNodeFromProcessor('template.from', PROCESSOR_OPTIONS, kameletDefinition);
+    const kameletVisualEntity = new KameletVisualEntity(kameletDefinition);
+    const kameletVizNode = await kameletVisualEntity.toVizNode();
+    const fromNode = kameletVizNode.getChildren()?.[0];
 
-    expect(kameletVizNode.data.primaryNodeId).toEqual({ name: 'from', catalogKind: CatalogKind.Entity });
-    expect(kameletVizNode.data.secondaryNodeId).toEqual({ name: 'kamelet', catalogKind: CatalogKind.Component });
-    expect(kameletVizNode.data.tertiaryNodeId).toEqual({ name: 'beer-source', catalogKind: CatalogKind.Kamelet });
+    expect(fromNode).toBeDefined();
+    expect(fromNode!.data.primaryNodeId).toEqual({ name: 'from', catalogKind: CatalogKind.Entity });
+    expect(fromNode!.data.secondaryNodeId).toEqual({ name: 'kamelet', catalogKind: CatalogKind.Component });
+    expect(fromNode!.data.tertiaryNodeId).toEqual({ name: 'beer-source', catalogKind: CatalogKind.Kamelet });
   });
 
   it('should return children from from.steps', () => {

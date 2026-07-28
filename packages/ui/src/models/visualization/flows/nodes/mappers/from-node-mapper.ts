@@ -1,8 +1,8 @@
-import { FromDefinition, ProcessorDefinition } from '@kaoto/camel-catalog/types';
+import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
+import { safeGetValue } from '@kaoto/forms';
 
 import { CamelUriHelper } from '../../../../../utils';
-import { isCamelRoute } from '../../../../../utils/is-camel-route';
-import { isKameletDefinition } from '../../../../../utils/is-kamelet-definition';
+import { isFromDefinition } from '../../../../../utils/is-from-definition';
 import { CatalogKind } from '../../../../catalog-kind';
 import { IVisualizationNode } from '../../../base-visual-entity';
 import { NodeIdentity } from '../../../node-identity';
@@ -23,8 +23,8 @@ export class FromNodeMapper extends BaseNodeMapper {
     let componentName: string | undefined;
     let kameletName: string | undefined;
 
-    const fromDefinition = this.getFromDefinition(entityDefinition);
-    if (fromDefinition?.uri) {
+    const fromDefinition = safeGetValue(entityDefinition, path);
+    if (isFromDefinition(fromDefinition)) {
       const names = CamelUriHelper.getComponentAndKameletName(fromDefinition.uri);
       componentName = names.componentName;
       if ('kameletName' in names) {
@@ -63,17 +63,5 @@ export class FromNodeMapper extends BaseNodeMapper {
     });
 
     return vizNode;
-  }
-
-  private getFromDefinition(entityDefinition: unknown): FromDefinition | undefined {
-    if (isCamelRoute(entityDefinition)) {
-      return entityDefinition.route.from;
-    }
-
-    if (isKameletDefinition(entityDefinition)) {
-      return entityDefinition.spec.template.from;
-    }
-
-    return undefined;
   }
 }
