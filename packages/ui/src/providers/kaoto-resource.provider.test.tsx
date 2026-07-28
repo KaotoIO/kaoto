@@ -116,6 +116,9 @@ describe('KaotoResourceProvider', () => {
       expect(result.current?.visualEntities).toHaveLength(1);
     });
 
+    // Capture the reference before the keystroke
+    const visualEntitiesBeforeKeystroke = result.current?.visualEntities;
+
     // Simulate a keystroke that leaves the YAML momentarily unparseable.
     act(() => {
       EventNotifier.getInstance().next('code:updated', {
@@ -126,6 +129,6 @@ describe('KaotoResourceProvider', () => {
     // Regression: the schema type must NOT flip to Route, and the entities must be untouched,
     // so the UI does not re-render/refresh on the invalid keystroke.
     expect(result.current?.currentSchemaType).toBe(SourceSchemaType.Pipe);
-    expect(result.current?.visualEntities).toBe(result.current?.visualEntities);
+    expect(result.current?.visualEntities).toBe(visualEntitiesBeforeKeystroke);
   });
 });
