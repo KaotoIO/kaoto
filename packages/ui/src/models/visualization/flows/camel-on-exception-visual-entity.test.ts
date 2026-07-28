@@ -71,10 +71,11 @@ describe('CamelOnExceptionVisualEntity', () => {
   });
 
   describe('toVizNode', () => {
-    it('should return a visualization node with correct structure and properties', async () => {
+    it('toVizNode should return visualization node', async () => {
       const onExceptionDef = { onException: { id: 'test-id' } };
       const entity = new CamelOnExceptionVisualEntity(onExceptionDef);
       const vizNode = await entity.toVizNode();
+      await vizNode.fetchSchema();
 
       expect(vizNode).toBeDefined();
       expect(vizNode.id).toBeDefined();

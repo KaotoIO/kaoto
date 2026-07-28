@@ -21,6 +21,7 @@ import {
   IVisualizationNodeData,
   NodeInteraction,
 } from '../base-visual-entity';
+import { NodeIdentity } from '../node-identity';
 import { createVisualizationNode } from '../visualization-node';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
@@ -156,6 +157,7 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
       description: '',
       processorIconTooltip: '',
       processorName: REST_ELEMENT_NAME,
+      primaryNodeId: { name: this.type, catalogKind: CatalogKind.Entity } satisfies NodeIdentity,
     });
 
     // Enrich as Entity (not Processor) to get proper title formatting

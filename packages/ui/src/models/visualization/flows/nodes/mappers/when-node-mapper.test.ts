@@ -58,6 +58,6 @@ describe('WhenNodeMapper', () => {
       routeDefinition,
     );
 
-    expect(vizNode.data.primaryNodeId).toEqual({ name: 'when', catalogKind: CatalogKind.Processor });
+    expect(vizNode.data.primaryNodeId).toEqual({ name: 'when', catalogKind: CatalogKind.Pattern });
   });
 });

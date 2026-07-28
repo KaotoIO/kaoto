@@ -1,8 +1,9 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, ProcessorDefinition, Rest, To2 } from '@kaoto/camel-catalog/types';
 
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { restStub } from '../../../stubs/rest';
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities';
@@ -23,10 +24,12 @@ describe('CamelRestVisualEntity', () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
     restSchema = catalogsMap.entitiesCatalog[EntityType.Rest].propertiesSchema as KaotoSchemaDefinition['schema'];
+    setupDynamicCatalogRegistry(catalogsMap);
   });
 
   afterAll(() => {
     CamelCatalogService.clearCatalogs();
+    DynamicCatalogRegistry.get().clearRegistry();
   });
 
   beforeEach(() => {
@@ -451,26 +454,26 @@ describe('CamelRestVisualEntity', () => {
     });
   });
 
-  describe('toVizNode', () => {
-    it('should return visualization node', async () => {
-      const entity = new CamelRestVisualEntity(restDef);
+  it('toVizNode should return visualization node', async () => {
+    const entity = new CamelRestVisualEntity(restDef);
 
-      const vizNode = await entity.toVizNode();
+    const vizNode = await entity.toVizNode();
+    await vizNode.fetchSchema();
 
-      expect(vizNode.data).toEqual({
-        entity,
-        name: 'rest',
-        isGroup: true,
-        path: 'rest',
-        processorName: 'rest',
-        iconAlt: 'Entity icon',
-        iconUrl: '/src/assets/components/generic-component.png',
-        isPlaceholder: false,
-        title: 'Rest',
-        description: 'rest: rest',
-        processorIconTooltip: '',
-        schema: expect.any(Object),
-      });
+    expect(vizNode.data).toEqual({
+      entity,
+      name: 'rest',
+      isGroup: true,
+      path: 'rest',
+      processorName: 'rest',
+      primaryNodeId: { name: entity.type, catalogKind: CatalogKind.Entity },
+      iconAlt: 'Entity icon',
+      iconUrl: '/src/assets/components/generic-component.png',
+      isPlaceholder: false,
+      title: 'Rest',
+      description: 'rest: Defines a rest service using the rest-dsl',
+      processorIconTooltip: '',
+      schema: expect.any(Object),
     });
   });
 

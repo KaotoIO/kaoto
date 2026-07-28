@@ -9,7 +9,7 @@ import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { NodeLabelType } from '../../settings';
-import { AddStepMode, IVisualizationNodeData } from '../base-visual-entity';
+import { AddStepMode, IVisualizationNode, IVisualizationNodeData } from '../base-visual-entity';
 import { IClipboardContent } from '../clipboard';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
@@ -147,6 +147,17 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string;
     }
 
     super.removeStep(path);
+  }
+
+  async toVizNode(): Promise<IVisualizationNode> {
+    const kameletGroupNode = await super.toVizNode();
+
+    kameletGroupNode.data.primaryNodeId = {
+      catalogKind: CatalogKind.Entity,
+      name: 'KameletConfiguration',
+    };
+
+    return kameletGroupNode;
   }
 
   protected getRootUri(): string | undefined {

@@ -18,13 +18,15 @@ import { renderHook } from '@testing-library/react';
 import type { Mock } from 'vitest';
 
 import { IVisualizationNode } from '../models/visualization/base-visual-entity';
+import { createVisualizationNode } from '../models/visualization/visualization-node';
 import { useSelectedVizNode } from './useSelectedVizNode';
 
 vi.mock('@patternfly/react-topology', () => ({
   useVisualizationController: vi.fn(),
 }));
 
-const mockVizNode = { id: 'timer-1' } as unknown as IVisualizationNode;
+const mockVizNode = createVisualizationNode('timer-1', {} as never);
+mockVizNode.fetchSchema = vi.fn().mockResolvedValue(undefined);
 
 function makeController(vizNode?: IVisualizationNode) {
   return {

@@ -25,11 +25,11 @@ export class CircuitBreakerNodeMapper extends BaseNodeMapper {
       iconUrl: '',
       title: '',
       description: '',
-      primaryNodeId: { name: processorName, catalogKind: CatalogKind.Processor } satisfies NodeIdentity,
+      primaryNodeId: { name: processorName, catalogKind: CatalogKind.Pattern } satisfies NodeIdentity,
     };
 
     const vizNode = createVisualizationNode(path, data);
-    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Processor);
+    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Pattern);
 
     const children = await this.getChildrenFromBranch(`${path}.steps`, entityDefinition);
     children.forEach((child) => {

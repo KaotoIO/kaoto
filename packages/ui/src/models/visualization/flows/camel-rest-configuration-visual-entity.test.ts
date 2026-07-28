@@ -1,8 +1,9 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, RestConfiguration } from '@kaoto/camel-catalog/types';
 
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { restConfigurationSchema, restConfigurationStub } from '../../../stubs/rest-configuration';
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
 import { CatalogKind } from '../../catalog-kind';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRestConfigurationVisualEntity } from './camel-rest-configuration-visual-entity';
@@ -14,10 +15,12 @@ describe('CamelRestConfigurationVisualEntity', () => {
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
+    setupDynamicCatalogRegistry(catalogsMap);
   });
 
   afterAll(() => {
     CamelCatalogService.clearCatalogs();
+    DynamicCatalogRegistry.get().clearRegistry();
   });
 
   beforeEach(() => {
@@ -178,10 +181,11 @@ describe('CamelRestConfigurationVisualEntity', () => {
   });
 
   describe('toVizNode', () => {
-    it('should return visualization node', async () => {
+    it('toVizNode should return visualization node', async () => {
       const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
 
       const vizNode = await entity.toVizNode();
+      await vizNode.fetchSchema();
 
       expect(vizNode.data).toEqual({
         entity,
@@ -189,11 +193,12 @@ describe('CamelRestConfigurationVisualEntity', () => {
         isGroup: true,
         path: 'restConfiguration',
         processorName: 'restConfiguration',
+        primaryNodeId: { name: entity.type, catalogKind: CatalogKind.Entity },
         iconAlt: 'Entity icon',
         iconUrl: '/src/assets/components/generic-component.png',
         isPlaceholder: false,
         title: 'Rest Configuration',
-        description: 'restConfiguration: restConfiguration',
+        description: 'restConfiguration: To configure rest',
         processorIconTooltip: '',
         schema: expect.any(Object),
       });

@@ -50,7 +50,7 @@ describe('CircuitBreakerNodeMapper', () => {
   it('should populate primaryNodeId', async () => {
     const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'circuitBreaker' }, routeDefinition);
 
-    expect(vizNode.data.primaryNodeId).toEqual({ name: 'circuitBreaker', catalogKind: CatalogKind.Processor });
+    expect(vizNode.data.primaryNodeId).toEqual({ name: 'circuitBreaker', catalogKind: CatalogKind.Pattern });
   });
 
   it('should return step nodes as children', async () => {

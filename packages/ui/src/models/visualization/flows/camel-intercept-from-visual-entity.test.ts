@@ -102,11 +102,12 @@ describe('CamelInterceptFromVisualEntity', () => {
     expect(validateNodeStatusSpy).toHaveBeenCalled();
   });
 
-  it('should return the vizualization node', async () => {
+  it('toVizNode should return visualization node', async () => {
     const interceptFromVisualEntity = new CamelInterceptFromVisualEntity({
       interceptFrom: { id: 'id', uri: 'direct:a-reference' },
     });
     const vizNode = await interceptFromVisualEntity.toVizNode();
+    await vizNode.fetchSchema();
 
     expect(vizNode.data.processorName).toBe(CamelInterceptFromVisualEntity.ROOT_PATH);
     expect(vizNode.data.entity).toBe(interceptFromVisualEntity);

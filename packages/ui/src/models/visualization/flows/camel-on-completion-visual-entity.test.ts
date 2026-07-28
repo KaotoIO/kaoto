@@ -100,11 +100,12 @@ describe('CamelOnCompletionVisualEntity', () => {
     expect(validateNodeStatusSpy).toHaveBeenCalled();
   });
 
-  it('should return the visualization node', async () => {
+  it('toVizNode should return visualization node', async () => {
     const onCompletionVisualEntity = new CamelOnCompletionVisualEntity({
       onCompletion: { id: 'id', mode: 'AfterConsumer' },
     });
     const vizNode = await onCompletionVisualEntity.toVizNode();
+    await vizNode.fetchSchema();
 
     expect(vizNode.data.processorName).toBe(CamelOnCompletionVisualEntity.ROOT_PATH);
     expect(vizNode.data.entity).toBe(onCompletionVisualEntity);

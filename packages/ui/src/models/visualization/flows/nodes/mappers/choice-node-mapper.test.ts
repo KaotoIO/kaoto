@@ -53,7 +53,7 @@ describe('ChoiceNodeMapper', () => {
   it('should populate primaryNodeId', async () => {
     const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'choice' }, routeDefinition);
 
-    expect(vizNode.data.primaryNodeId).toEqual({ name: 'choice', catalogKind: CatalogKind.Processor });
+    expect(vizNode.data.primaryNodeId).toEqual({ name: 'choice', catalogKind: CatalogKind.Pattern });
     expect(vizNode.data.secondaryNodeId).toBeUndefined();
   });
 

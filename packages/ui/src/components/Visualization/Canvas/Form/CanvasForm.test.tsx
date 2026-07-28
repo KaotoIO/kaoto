@@ -19,7 +19,7 @@ import { EntityType } from '../../../../models/entities';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { VisualFlowsApi } from '../../../../models/visualization/flows/support/flows-visibility';
 import { camelRouteJson, kameletJson, TestProvidersWrapper } from '../../../../stubs';
-import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../../stubs/test-load-catalog';
 import { ROOT_PATH } from '../../../../utils';
 import { FlowService } from '../flow.service';
 import { CanvasForm } from './CanvasForm';
@@ -45,6 +45,8 @@ describe('CanvasForm', () => {
     CamelCatalogService.setCatalogKey(CatalogKind.Dataformat, catalogsMap.dataformatCatalog);
     CamelCatalogService.setCatalogKey(CatalogKind.Loadbalancer, catalogsMap.loadbalancerCatalog);
     CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
+
+    setupDynamicCatalogRegistry(catalogsMap);
   });
 
   beforeEach(async () => {
@@ -52,6 +54,7 @@ describe('CanvasForm', () => {
     const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
     const choiceNode = nodes.find((node) => node.id === 'test|route.from.steps.1.choice')!;
     vizNode = choiceNode.data!.vizNode!;
+    await vizNode.fetchSchema();
   });
 
   afterEach(() => {
@@ -133,6 +136,7 @@ describe('CanvasForm', () => {
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
     const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
     const lastVizNode = nodes[nodes.length - 1].data!.vizNode!;
+    await lastVizNode.fetchSchema();
 
     const { Provider } = await TestProvidersWrapper({
       visibleFlowsContext: { allFlowsVisible: true, visibleFlows: { [flowId]: true }, visualFlowsApi },
@@ -166,6 +170,7 @@ describe('CanvasForm', () => {
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
     const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
     const lastVizNode = nodes[nodes.length - 1].data!.vizNode!;
+    await lastVizNode.fetchSchema();
 
     const { Provider } = await TestProvidersWrapper({
       visibleFlowsContext: { allFlowsVisible: true, visibleFlows: { [flowId]: true }, visualFlowsApi },
@@ -200,6 +205,7 @@ describe('CanvasForm', () => {
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
     const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
     const lastVizNode = nodes[nodes.length - 1].data!.vizNode!;
+    await lastVizNode.fetchSchema();
 
     const { Provider } = await TestProvidersWrapper({
       visibleFlowsContext: { allFlowsVisible: true, visibleFlows: { [flowId]: true }, visualFlowsApi },
@@ -236,6 +242,7 @@ describe('CanvasForm', () => {
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
     const { nodes } = FlowService.getFlowDiagram('test', await kameletVisualEntity.toVizNode());
     const lastVizNode = nodes[nodes.length - 1].data!.vizNode!;
+    await lastVizNode.fetchSchema();
 
     const { Provider } = await TestProvidersWrapper({
       visibleFlowsContext: { allFlowsVisible: true, visibleFlows: { [flowId]: true }, visualFlowsApi },
@@ -264,6 +271,7 @@ describe('CanvasForm', () => {
       camelRouteVisualEntity = new CamelRouteVisualEntity(camelRouteJson);
       const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
       vizNode = nodes[0].data!.vizNode!; // timer
+      await vizNode.fetchSchema();
     });
 
     it('normal text field', async () => {
@@ -314,6 +322,7 @@ describe('CanvasForm', () => {
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const setHeaderVizNode = rootNode.getChildren()![1];
+      await setHeaderVizNode.fetchSchema();
 
       const { Provider } = await TestProvidersWrapper();
 
@@ -370,6 +379,7 @@ describe('CanvasForm', () => {
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const marshalVizNode = rootNode.getChildren()![1];
+      await marshalVizNode.fetchSchema();
 
       const { Provider } = await TestProvidersWrapper();
 
@@ -430,6 +440,7 @@ describe('CanvasForm', () => {
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const loadBalanceVizNode = rootNode.getChildren()![1];
+      await loadBalanceVizNode.fetchSchema();
 
       const { Provider } = await TestProvidersWrapper();
 
@@ -474,6 +485,7 @@ describe('CanvasForm', () => {
       camelRouteVisualEntity = new CamelRouteVisualEntity(camelRouteJson);
       const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
       vizNode = nodes[0].data!.vizNode!; // timer
+      await vizNode.fetchSchema();
     });
 
     it('normal text field', async () => {
@@ -520,6 +532,7 @@ describe('CanvasForm', () => {
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const setHeaderVizNode = rootNode.getChildren()![1];
+      await setHeaderVizNode.fetchSchema();
 
       const { Provider } = await TestProvidersWrapper();
 
@@ -572,6 +585,7 @@ describe('CanvasForm', () => {
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const marshalVizNode = rootNode.getChildren()![1];
+      await marshalVizNode.fetchSchema();
 
       const { Provider } = await TestProvidersWrapper();
 
@@ -625,6 +639,7 @@ describe('CanvasForm', () => {
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const loadBalanceVizNode = rootNode.getChildren()![1];
+      await loadBalanceVizNode.fetchSchema();
 
       const { Provider } = await TestProvidersWrapper();
 

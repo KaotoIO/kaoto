@@ -7,7 +7,7 @@ import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 import { Loading } from '../components/Loading';
 import { useKaotoResourceContext } from '../hooks/useKaotoResourceContext/useKaotoResourceContext';
 import { LoadingStatus } from '../models';
-import { SourceSchemaType } from '../models/camel';
+import { SourceSchemaType } from '../models/camel/source-schema-type';
 import { findCatalog } from '../utils/catalog-helper';
 
 export interface IRuntimeContext {

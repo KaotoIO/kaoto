@@ -95,11 +95,12 @@ describe('CamelInterceptVisualEntity', () => {
     expect(validateNodeStatusSpy).toHaveBeenCalled();
   });
 
-  it('should return the vizualization node', async () => {
+  it('toVizNode should return visualization node', async () => {
     const interceptVisualEntity = new CamelInterceptVisualEntity({
       intercept: { id: 'id', disabled: false },
     });
     const vizNode = await interceptVisualEntity.toVizNode();
+    await vizNode.fetchSchema();
 
     expect(vizNode.data.processorName).toBe(CamelInterceptVisualEntity.ROOT_PATH);
     expect(vizNode.data.entity).toBe(interceptVisualEntity);

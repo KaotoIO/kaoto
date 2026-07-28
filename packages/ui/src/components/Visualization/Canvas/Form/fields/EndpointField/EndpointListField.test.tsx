@@ -6,10 +6,10 @@ import { JSONSchema4 } from 'json-schema';
 import { FunctionComponent, PropsWithChildren } from 'react';
 import type { Mock } from 'vitest';
 
-import { CatalogContext, CatalogTilesContext } from '../../../../../../dynamic-catalog';
 import { CatalogModalProvider } from '../../../../../../dynamic-catalog/catalog-modal.provider';
 import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
 import { IDynamicCatalogRegistry } from '../../../../../../dynamic-catalog/models';
+import { CatalogContext, CatalogTilesContext } from '../../../../../../dynamic-catalog/ui';
 import { CitrusTestResource } from '../../../../../../models/citrus/citrus-test-resource';
 import { Test } from '../../../../../../models/citrus/entities/Test';
 import { ACTION_ID_CANCEL, ACTION_ID_CONFIRM, ActionConfirmationModalContext } from '../../../../../../providers';
