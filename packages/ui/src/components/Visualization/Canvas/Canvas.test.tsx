@@ -123,7 +123,9 @@ describe('Canvas', () => {
 
     fromModelSpy.mockClear();
 
-    setVizNodesState([updatedVizNode]);
+    act(() => {
+      setVizNodesState([updatedVizNode]);
+    });
     await act(async () => {
       await vi.runAllTimersAsync();
     });
