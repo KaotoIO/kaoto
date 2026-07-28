@@ -130,9 +130,7 @@ describe('GroupAutoStartupSwitch', () => {
     const switchElement = screen.getByRole('switch', { name: 'Auto Startup' });
     expect(switchElement).toBeChecked();
 
-    await act(async () => {
-      await user.click(switchElement);
-    });
+    await user.click(switchElement);;
 
     expect(updateModelSpy).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -171,9 +169,7 @@ describe('GroupAutoStartupSwitch', () => {
     const switchElement = screen.getByRole('switch', { name: 'Auto Startup' });
     expect(switchElement).not.toBeChecked();
 
-    await act(async () => {
-      await user.click(switchElement);
-    });
+    await user.click(switchElement);;
 
     const callArg = updateModelSpy.mock.calls[0][0] as Record<string, unknown>;
     expect(callArg).not.toHaveProperty('autoStartup');
@@ -209,9 +205,7 @@ describe('GroupAutoStartupSwitch', () => {
     const switchElement = screen.getByRole('switch', { name: 'Auto Startup' });
     expect(switchElement).toBeChecked();
 
-    await act(async () => {
-      await user.click(switchElement);
-    });
+    await user.click(switchElement);;
 
     expect(updateModelSpy).not.toHaveBeenCalled();
     expect(updateEntitiesFromCamelResourceSpy).not.toHaveBeenCalled();
@@ -246,9 +240,7 @@ describe('GroupAutoStartupSwitch', () => {
     const switchElement = screen.getByRole('switch', { name: 'Auto Startup' });
     expect(switchElement).toBeChecked();
 
-    await act(async () => {
-      await user.click(switchElement);
-    });
+    await user.click(switchElement);;
 
     expect(updateModelSpy).not.toHaveBeenCalled();
     expect(updateEntitiesFromCamelResourceSpy).not.toHaveBeenCalled();
@@ -287,9 +279,7 @@ describe('GroupAutoStartupSwitch', () => {
 
     const switchElement = screen.getByRole('switch', { name: 'Auto Startup' });
 
-    await act(async () => {
-      await user.click(switchElement);
-    });
+    await user.click(switchElement);;
 
     expect(updateModelSpy).toHaveBeenCalledWith(
       expect.objectContaining({

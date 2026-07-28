@@ -148,11 +148,9 @@ describe('MainMenuToolbarItem', () => {
 
     expect(importButtonElement).toBeInTheDocument();
 
-    await act(async () => {
-      if (importButtonElement) {
-        fireEvent.click(importButtonElement);
-      }
-    });
+    if (importButtonElement) {
+      fireEvent.click(importButtonElement);
+    }
 
     // Dropdown should remain present (closes only after file is selected)
     expect(screen.getByTestId('dm-debug-main-menu-dropdownlist')).toBeInTheDocument();

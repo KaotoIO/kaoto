@@ -138,9 +138,7 @@ describe('FlowsList.tsx', () => {
       </Provider>,
     );
 
-    await act(async () => {
-      fireEvent.click(wrapper.getByTestId('delete-btn-route-1234'));
-    });
+    fireEvent.click(wrapper.getByTestId('delete-btn-route-1234'));
 
     expect(mockDeleteModalContext.actionConfirmation).toHaveBeenCalledWith({
       title: "Do you want to delete the 'route-1234' Route?",
@@ -181,15 +179,11 @@ describe('FlowsList.tsx', () => {
       </Provider>,
     );
 
-    await act(async () => {
-      const deleteBtn = wrapper.getByTestId('delete-btn-route-1234');
-      fireEvent.click(deleteBtn);
-    });
+    const deleteBtn = wrapper.getByTestId('delete-btn-route-1234');
+    fireEvent.click(deleteBtn);
 
-    await act(async () => {
-      const actionConfirmationModalBtnCancel = wrapper.getByTestId('action-confirmation-modal-btn-cancel');
-      fireEvent.click(actionConfirmationModalBtnCancel);
-    });
+    const actionConfirmationModalBtnCancel = wrapper.getByTestId('action-confirmation-modal-btn-cancel');
+    fireEvent.click(actionConfirmationModalBtnCancel);
 
     expect(camelResource.getVisualEntities()).toHaveLength(2);
   });
@@ -216,9 +210,7 @@ describe('FlowsList.tsx', () => {
 
     const toggleFlowId = await wrapper.findByTestId('toggle-btn-route-1234');
 
-    await act(async () => {
-      fireEvent.click(toggleFlowId);
-    });
+    fireEvent.click(toggleFlowId);
 
     expect(resId).toBe('route-1234');
   });
@@ -262,9 +254,7 @@ describe('FlowsList.tsx', () => {
     /** Eye slash icon */
     const flow1 = await wrapper.findByTestId('toggle-btn-route-1234-hidden');
     expect(flow1).toBeInTheDocument();
-    await act(async () => {
-      fireEvent.click(flow1);
-    });
+    fireEvent.click(flow1);
 
     expect(mockController.fromModel).toHaveBeenCalledTimes(1);
     expect(mockController.fromModel).toHaveBeenCalledWith({
@@ -293,21 +283,15 @@ describe('FlowsList.tsx', () => {
       </Provider>,
     );
 
-    await act(async () => {
-      const entityOnePencilIcon = await wrapper.findByTestId('goto-btn-route-1234--edit');
-      fireEvent.click(entityOnePencilIcon);
-    });
+    const entityOnePencilEditIcon = await wrapper.findByTestId('goto-btn-route-1234--edit');
+    fireEvent.click(entityOnePencilEditIcon);
 
-    await act(async () => {
-      const input = await wrapper.findByDisplayValue('route-1234');
-      fireEvent.change(input, { target: { value: 'new-name' } });
-      fireEvent.blur(input);
-    });
+    const input = await wrapper.findByDisplayValue('route-1234');
+    fireEvent.change(input, { target: { value: 'new-name' } });
+    fireEvent.blur(input);
 
-    await act(async () => {
-      const entityOnePencilIcon = await wrapper.findByTestId('goto-btn-route-1234--save');
-      fireEvent.click(entityOnePencilIcon);
-    });
+    const entityOnePencilSaveIcon = await wrapper.findByTestId('goto-btn-route-1234--save');
+    fireEvent.click(entityOnePencilSaveIcon);
 
     expect(renameSpy).toHaveBeenCalledWith('route-1234', 'new-name');
     expect(camelResource.getVisualEntities()[1].id).toBe('new-name');
@@ -502,15 +486,11 @@ describe('FlowsList.tsx', () => {
 
     // Click the delete filtered button
     const deleteFilteredBtn = wrapper.getByTestId('delete-filtered-btn');
-    await act(async () => {
-      fireEvent.click(deleteFilteredBtn);
-    });
+    fireEvent.click(deleteFilteredBtn);
 
     // Cancel the deletion in the modal
     const cancelBtn = wrapper.getByTestId('action-confirmation-modal-btn-cancel');
-    await act(async () => {
-      fireEvent.click(cancelBtn);
-    });
+    fireEvent.click(cancelBtn);
 
     // Verify no flows are deleted
     expect(camelResource.getVisualEntities()).toHaveLength(2);

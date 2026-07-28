@@ -82,9 +82,7 @@ describe('CustomGroupExpanded', () => {
       </Provider>,
     );
     // Wait for async icon loading to complete
-    await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 0));
-    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
     return result;
   }
 
@@ -93,9 +91,7 @@ describe('CustomGroupExpanded', () => {
     const edgeElement = new BaseEdge();
 
     expect(() => {
-      act(() => {
-        render(<CustomGroupExpanded element={edgeElement} />);
-      });
+      render(<CustomGroupExpanded element={edgeElement} />);
     }).toThrow('CustomGroupExpanded must be used only on Node elements');
   });
 

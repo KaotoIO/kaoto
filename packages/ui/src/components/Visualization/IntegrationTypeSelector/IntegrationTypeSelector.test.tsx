@@ -108,10 +108,8 @@ describe('IntegrationTypeSelector', () => {
     const menu = await wrapper.findByRole('listbox');
     expect(menu).toBeInTheDocument();
 
-    act(() => {
-      fireEvent.focus(menu);
-      fireEvent.keyDown(menu, { key: 'Escape', code: 'Escape', charCode: 27 });
-    });
+    fireEvent.focus(menu);
+    fireEvent.keyDown(menu, { key: 'Escape', code: 'Escape', charCode: 27 });
 
     await waitFor(() => {
       expect(menu).not.toBeInTheDocument();

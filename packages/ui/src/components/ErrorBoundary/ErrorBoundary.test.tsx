@@ -38,11 +38,9 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>,
     );
 
-    act(() => {
-      const button = wrapper.getByRole('button');
-      expect(button).toBeDefined();
-      fireEvent.click(button);
-    });
+    const button = wrapper.getByRole('button');
+    expect(button).toBeDefined();
+    fireEvent.click(button);
 
     expect(wrapper.getByText('fallback')).toBeDefined();
   });

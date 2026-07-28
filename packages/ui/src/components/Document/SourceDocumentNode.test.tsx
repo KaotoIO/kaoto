@@ -39,12 +39,10 @@ describe('SourceDocumentNode', () => {
   };
 
   beforeEach(() => {
-    act(() => {
-      useDocumentTreeStore.setState({
-        expansionState: {},
-        selectedNodePath: null,
-        selectedNodeIsSource: false,
-      });
+    useDocumentTreeStore.setState({
+      expansionState: {},
+      selectedNodePath: null,
+      selectedNodeIsSource: false,
     });
   });
 
@@ -258,14 +256,12 @@ describe('SourceDocumentNode', () => {
 
       const toggleNodeSpy = vi.spyOn(TreeUIService, 'toggleNode');
 
-      act(() => {
-        useDocumentTreeStore.setState({
-          expansionState: {
-            [documentNodeData.id]: {
-              [tree.root.path]: true,
-            },
+      useDocumentTreeStore.setState({
+        expansionState: {
+          [documentNodeData.id]: {
+            [tree.root.path]: true,
           },
-        });
+        },
       });
 
       render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
@@ -308,14 +304,12 @@ describe('SourceDocumentNode', () => {
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
 
-      act(() => {
-        useDocumentTreeStore.setState({
-          expansionState: {
-            [documentNodeData.id]: {
-              [tree.root.path]: true,
-            },
+      useDocumentTreeStore.setState({
+        expansionState: {
+          [documentNodeData.id]: {
+            [tree.root.path]: true,
           },
-        });
+        },
       });
 
       render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
@@ -335,14 +329,12 @@ describe('SourceDocumentNode', () => {
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
 
-      act(() => {
-        useDocumentTreeStore.setState({
-          expansionState: {
-            [documentNodeData.id]: {
-              [tree.root.path]: false,
-            },
+      useDocumentTreeStore.setState({
+        expansionState: {
+          [documentNodeData.id]: {
+            [tree.root.path]: false,
           },
-        });
+        },
       });
 
       render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
@@ -364,14 +356,12 @@ describe('SourceDocumentNode', () => {
 
       const toggleNodeSpy = vi.spyOn(TreeUIService, 'toggleNode');
 
-      act(() => {
-        useDocumentTreeStore.setState({
-          expansionState: {
-            [documentNodeData.id]: {
-              [tree.root.path]: true,
-            },
+      useDocumentTreeStore.setState({
+        expansionState: {
+          [documentNodeData.id]: {
+            [tree.root.path]: true,
           },
-        });
+        },
       });
 
       render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
@@ -579,14 +569,12 @@ describe('SourceDocumentNode', () => {
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
 
-      act(() => {
-        useDocumentTreeStore.setState({
-          expansionState: {
-            [documentNodeData.id]: {
-              [tree.root.path]: true,
-            },
+      useDocumentTreeStore.setState({
+        expansionState: {
+          [documentNodeData.id]: {
+            [tree.root.path]: true,
           },
-        });
+        },
       });
 
       render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly rank={0} />, {
@@ -614,14 +602,12 @@ describe('SourceDocumentNode', () => {
 
       const parentClickHandler = vi.fn();
 
-      act(() => {
-        useDocumentTreeStore.setState({
-          expansionState: {
-            [documentNodeData.id]: {
-              [tree.root.path]: true,
-            },
+      useDocumentTreeStore.setState({
+        expansionState: {
+          [documentNodeData.id]: {
+            [tree.root.path]: true,
           },
-        });
+        },
       });
 
       render(

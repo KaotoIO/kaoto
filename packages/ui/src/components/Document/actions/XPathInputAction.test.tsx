@@ -89,9 +89,7 @@ describe('XPathInputAction', () => {
     const input = await screen.findByTestId('transformation-xpath-input');
     expect(input).toHaveFocus();
 
-    act(() => {
-      input.blur();
-    });
+    input.blur();
     expect(input).not.toHaveFocus();
 
     rerender(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={vi.fn()} />);
@@ -109,9 +107,7 @@ describe('XPathInputAction', () => {
     const input = await screen.findByTestId('transformation-xpath-input');
     expect(input).toHaveFocus();
 
-    act(() => {
-      input.blur();
-    });
+    input.blur();
 
     mapping.expression = 'new/path';
     rerender(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={vi.fn()} />);

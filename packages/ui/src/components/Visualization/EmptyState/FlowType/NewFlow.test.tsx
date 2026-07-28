@@ -91,10 +91,8 @@ describe('NewFlow.tsx', () => {
     fireEvent.click(trigger);
 
     /** Select an option */
-    act(() => {
-      const element = wrapper.getByText('Pipe');
-      fireEvent.click(element);
-    });
+    const element = wrapper.getByText('Pipe');
+    fireEvent.click(element);
 
     const modal = await wrapper.findByTestId('confirmation-modal');
     expect(modal).toBeInTheDocument();
@@ -117,10 +115,8 @@ describe('NewFlow.tsx', () => {
     fireEvent.click(trigger);
 
     /** Select Citrus Test option */
-    act(() => {
-      const element = getByText('Test');
-      fireEvent.click(element);
-    });
+    const element = getByText('Test');
+    fireEvent.click(element);
 
     /** Confirm the modal */
     const confirmButton = await findByTestId('confirmation-modal-confirm');
@@ -147,10 +143,8 @@ describe('NewFlow.tsx', () => {
     fireEvent.click(trigger);
 
     /** Select Pipe option (another Camel type) */
-    act(() => {
-      const element = getByText('Pipe');
-      fireEvent.click(element);
-    });
+    const element = getByText('Pipe');
+    fireEvent.click(element);
 
     /** Confirm the modal */
     const confirmButton = await findByTestId('confirmation-modal-confirm');

@@ -37,9 +37,7 @@ describe('CustomEdge', () => {
     const nodeElement = new BaseNode();
 
     expect(() => {
-      act(() => {
-        render(<CustomEdge element={nodeElement} />);
-      });
+      render(<CustomEdge element={nodeElement} />);
     }).toThrow('EdgeEndWithButton must be used only on Edge elements');
   });
 

@@ -94,10 +94,8 @@ describe('NewEntity', () => {
     expect(menu).toBeInTheDocument();
 
     /** Press Escape key to close the menu */
-    act(() => {
-      fireEvent.focus(menu);
-      fireEvent.keyDown(menu, { key: 'Escape', code: 'Escape', charCode: 27 });
-    });
+    fireEvent.focus(menu);
+    fireEvent.keyDown(menu, { key: 'Escape', code: 'Escape', charCode: 27 });
 
     await waitFor(async () => {
       /** The close panel is an async process */

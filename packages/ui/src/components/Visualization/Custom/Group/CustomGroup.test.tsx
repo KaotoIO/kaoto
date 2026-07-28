@@ -27,9 +27,7 @@ describe('CustomGroup', () => {
     const edgeElement = new BaseEdge();
 
     expect(() => {
-      act(() => {
-        render(<CustomGroup element={edgeElement} />);
-      });
+      render(<CustomGroup element={edgeElement} />);
     }).toThrow('CustomGroup must be used only on Node elements');
   });
 

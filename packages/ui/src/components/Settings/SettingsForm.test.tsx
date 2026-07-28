@@ -38,33 +38,25 @@ describe('SettingsForm', () => {
   });
 
   it('should update settings upon clicking save', () => {
-    act(() => {
-      const input = screen.getByLabelText('Camel Catalog URL');
-      fireEvent.change(input, { target: { value: 'http://localhost:8080' } });
-    });
+    const input = screen.getByLabelText('Camel Catalog URL');
+    fireEvent.change(input, { target: { value: 'http://localhost:8080' } });
 
-    act(() => {
-      const button = screen.getByTestId('settings-form-save-btn');
-      fireEvent.click(button);
-    });
+    const button = screen.getByTestId('settings-form-save-btn');
+    fireEvent.click(button);
 
     expect(settingsAdapter.getSettings().catalogUrl).toBe('http://localhost:8080');
   });
 
   it('should not update settings if the save button was not clicked', () => {
-    act(() => {
-      const input = screen.getByLabelText('Camel Catalog URL');
-      fireEvent.change(input, { target: { value: 'http://localhost:8080' } });
-    });
+    const input = screen.getByLabelText('Camel Catalog URL');
+    fireEvent.change(input, { target: { value: 'http://localhost:8080' } });
 
     expect(settingsAdapter.getSettings().catalogUrl).not.toBe('http://localhost:8080');
   });
 
   it('should reload the page upon clicking save', async () => {
-    await act(async () => {
-      const button = screen.getByTestId('settings-form-save-btn');
-      fireEvent.click(button);
-    });
+    const button = screen.getByTestId('settings-form-save-btn');
+    fireEvent.click(button);
 
     expect(reloadPage).toHaveBeenCalledTimes(1);
   });
@@ -76,10 +68,8 @@ describe('SettingsForm', () => {
       throw new Error(errorMessage);
     });
 
-    await act(async () => {
-      const button = screen.getByTestId('settings-form-save-btn');
-      fireEvent.click(button);
-    });
+    const button = screen.getByTestId('settings-form-save-btn');
+    fireEvent.click(button);
 
     // Wait for error alert to appear
     const errorAlert = await screen.findByText('Failed to save settings.');

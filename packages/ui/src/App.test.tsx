@@ -11,13 +11,11 @@ import { setColorScheme } from './utils/color-scheme';
 
 describe('App', () => {
   it('should set color theme', async () => {
-    await act(async () => {
-      render(
-        <ReloadProvider>
-          <App />
-        </ReloadProvider>,
-      );
-    });
+    render(
+      <ReloadProvider>
+        <App />
+      </ReloadProvider>,
+    );
 
     expect(setColorScheme).toHaveBeenCalledWith(ColorScheme.Auto);
   });
