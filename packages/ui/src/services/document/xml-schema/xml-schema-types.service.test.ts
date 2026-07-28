@@ -34,17 +34,14 @@ describe('XmlSchemaTypesService', () => {
       restrictionB.setBaseTypeName(typeA.getQName()!);
       typeB.setContent(restrictionB);
 
-      let lookups = 0;
-      const collection = {
-        getTypeByQName(qName: QName) {
-          lookups++;
-          if (lookups > 2) throw new Error('restriction cycle was followed more than once');
-          return qName.getLocalPart() === 'TypeA' ? typeA : typeB;
-        },
-      } as XmlSchemaCollection;
+      const collection = new XmlSchemaCollection();
+      const getTypeByQName = vi.spyOn(collection, 'getTypeByQName').mockImplementation((qName: QName) => {
+        if (getTypeByQName.mock.calls.length > 2) throw new Error('restriction cycle was followed more than once');
+        return qName.getLocalPart() === 'TypeA' ? typeA : typeB;
+      });
 
       expect(XmlSchemaTypesService.resolveSimpleTypeToEnum(typeA, collection)).toBe(Types.AnyType);
-      expect(lookups).toBe(2);
+      expect(getTypeByQName).toHaveBeenCalledTimes(2);
     });
   });
 
