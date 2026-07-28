@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { PropsWithChildren, useContext } from 'react';
 import { parse } from 'yaml';
 
@@ -149,10 +149,10 @@ describe('EntitiesProvider', () => {
       eventNotifier.next('code:updated', { code: camelRouteYaml });
     });
 
-    await act(async () => {});
-
-    expect(result.current?.entities).toEqual([]);
-    expect(result.current?.visualEntities).toEqual([new CamelRouteVisualEntity(camelRouteJson)]);
+    await waitFor(() => {
+      expect(result.current?.entities).toEqual([]);
+      expect(result.current?.visualEntities).toEqual([new CamelRouteVisualEntity(camelRouteJson)]);
+    });
   });
 
   it('should serialize using YAML 1.1', async () => {
@@ -163,9 +163,7 @@ describe('EntitiesProvider', () => {
       eventNotifier.next('code:updated', { code: camelRouteYaml_1_1_original });
     });
 
-    await act(async () => {});
-
-    await act(async () => {
+    await waitFor(() => {
       result.current?.visualEntities[0].updateModel('route.from.parameters.bindingMode', 'off');
       result.current?.updateSourceCodeFromEntities();
     });
@@ -300,9 +298,9 @@ describe('EntitiesProvider', () => {
       });
 
       // Flush the rejected init microtask so the catch block runs.
-      await act(async () => {});
-
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to initialize KaotoResource', error);
+      await waitFor(() => {
+        expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to initialize KaotoResource', error);
+      });
       expect(result.current?.entities).toEqual([]);
       expect(result.current?.visualEntities).toEqual([]);
       // Proof we took the catch path, not the success path.

@@ -1,5 +1,5 @@
 import { CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
-import { act, fireEvent, render } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 
 import { SourceSchemaType } from '../../../models/camel';
 import { RuntimeContext } from '../../../providers';

@@ -6,7 +6,7 @@ import {
   GraphElement,
   VisualizationProvider,
 } from '@patternfly/react-topology';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import { createVisualizationNode, IVisualizationNode, IVisualizationNodeData } from '../../../../models';
 import { PlaceholderType } from '../../../../models/placeholder.constants';

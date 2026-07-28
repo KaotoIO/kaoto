@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import {
   BODY_DOCUMENT_ID,
@@ -113,8 +113,7 @@ describe('DocumentContent', () => {
     const mappingTree = new MappingTree(document.documentType, document.documentId, document.definitionType);
     const documentNodeData = new TargetDocumentNodeData(document, mappingTree);
 
-    let tree: ReturnType<typeof TreeUIService.createTree>;
-    tree = TreeUIService.createTree(documentNodeData);
+    const tree: ReturnType<typeof TreeUIService.createTree> = TreeUIService.createTree(documentNodeData);
 
     const { container } = render(
       <DataMapperProvider>

@@ -1,5 +1,5 @@
 import { CamelYamlDsl } from '@kaoto/camel-catalog/types';
-import { act, fireEvent, render, waitFor } from '@testing-library/react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 import { parse } from 'yaml';
 
 import { CamelRouteResource } from '../../../../models/camel';
