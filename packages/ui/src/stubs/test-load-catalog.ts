@@ -11,7 +11,11 @@ import {
   CamelProcessorsProvider,
 } from '../dynamic-catalog/providers/camel-components.provider';
 import { CamelKameletsProvider } from '../dynamic-catalog/providers/camel-kamelets.provider';
-import { CitrusTestEndpointsProvider } from '../dynamic-catalog/providers/citrus-components.provider';
+import {
+  CitrusTestActionsProvider,
+  CitrusTestContainersProvider,
+  CitrusTestEndpointsProvider,
+} from '../dynamic-catalog/providers/citrus-components.provider';
 import {
   CamelCatalogIndex,
   CitrusCatalogIndex,
@@ -237,5 +241,13 @@ export const setupCitrusDynamicCatalogRegistry = (catalogsMap: Awaited<ReturnTyp
   DynamicCatalogRegistry.get().setCatalog(
     CatalogKind.TestEndpoint,
     new DynamicCatalog(new CitrusTestEndpointsProvider(catalogsMap.endpointsCatalogMap)),
+  );
+  DynamicCatalogRegistry.get().setCatalog(
+    CatalogKind.TestAction,
+    new DynamicCatalog(new CitrusTestActionsProvider(catalogsMap.actionsCatalogMap)),
+  );
+  DynamicCatalogRegistry.get().setCatalog(
+    CatalogKind.TestContainer,
+    new DynamicCatalog(new CitrusTestContainersProvider(catalogsMap.containersCatalogMap)),
   );
 };

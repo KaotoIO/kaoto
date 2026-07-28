@@ -4,7 +4,7 @@ import { screen, waitFor } from '@testing-library/dom';
 import { act, render } from '@testing-library/react';
 
 import { CatalogContext } from '../../dynamic-catalog/catalog.provider';
-import { IDynamicCatalogRegistry } from '../../dynamic-catalog/models';
+import { DynamicCatalogRegistry } from '../../dynamic-catalog/dynamic-catalog-registry';
 import {
   CatalogKind,
   ICamelComponentDefinition,
@@ -12,7 +12,12 @@ import {
   ICitrusComponentDefinition,
   IKameletDefinition,
 } from '../../models';
-import { getFirstCatalogMap, getFirstCitrusCatalogMap } from '../../stubs/test-load-catalog';
+import {
+  getFirstCatalogMap,
+  getFirstCitrusCatalogMap,
+  setupCitrusDynamicCatalogRegistry,
+  setupDynamicCatalogRegistry,
+} from '../../stubs/test-load-catalog';
 import { ITile } from '../Catalog';
 import { PropertiesModal } from './PropertiesModal';
 
@@ -20,12 +25,13 @@ describe('PropertiesModal', () => {
   let componentCatalogMap: Record<string, ICamelComponentDefinition>;
   let kameletCatalogMap: Record<string, IKameletDefinition>;
   let modelCatalogMap: Record<string, ICamelProcessorDefinition>;
-  let mockCatalogRegistry: IDynamicCatalogRegistry;
   let citrusActionCatalogMap: Record<string, ICitrusComponentDefinition>;
   let citrusContainerCatalogMap: Record<string, ICitrusComponentDefinition>;
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    setupDynamicCatalogRegistry(catalogsMap);
+
     componentCatalogMap = catalogsMap.componentCatalogMap;
     componentCatalogMap.asterisk.properties = {};
     componentCatalogMap.asterisk.headers = {};
@@ -38,37 +44,15 @@ describe('PropertiesModal', () => {
     modelCatalogMap.asn1.properties = {};
 
     const citrusCatalogsMap = await getFirstCitrusCatalogMap(catalogLibrary as CatalogLibrary);
+    setupCitrusDynamicCatalogRegistry(citrusCatalogsMap);
+
     citrusActionCatalogMap = citrusCatalogsMap.actionsCatalogMap;
     citrusContainerCatalogMap = citrusCatalogsMap.containersCatalogMap;
-
-    // Create mock catalog registry
-    mockCatalogRegistry = {
-      getEntity: vi.fn(async (kind: CatalogKind, key: string) => {
-        switch (kind) {
-          case CatalogKind.Component:
-            return componentCatalogMap[key];
-          case CatalogKind.Processor:
-            return modelCatalogMap[key];
-          case CatalogKind.Pattern:
-            return catalogsMap.patternCatalogMap[key];
-          case CatalogKind.Entity:
-            return catalogsMap.entitiesCatalog[key];
-          case CatalogKind.Kamelet:
-            return kameletCatalogMap[key];
-          case CatalogKind.TestAction:
-            return citrusActionCatalogMap[key];
-          case CatalogKind.TestContainer:
-            return citrusContainerCatalogMap[key];
-          default:
-            return undefined;
-        }
-      }),
-    } as unknown as IDynamicCatalogRegistry;
   });
 
   const renderModal = async (tile: ITile) => {
     const { baseElement } = render(
-      <CatalogContext.Provider value={mockCatalogRegistry}>
+      <CatalogContext.Provider value={DynamicCatalogRegistry.get()}>
         <PropertiesModal tile={tile} isModalOpen onClose={vi.fn()} />
       </CatalogContext.Provider>,
     );
