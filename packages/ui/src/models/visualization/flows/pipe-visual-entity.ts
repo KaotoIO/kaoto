@@ -244,7 +244,7 @@ export class PipeVisualEntity implements BaseVisualEntity {
       title: '',
       description: '',
       processorIconTooltip: '',
-      primaryNodeId: { name: this.type, catalogKind: CatalogKind.Entity } satisfies NodeIdentity,
+      primaryNodeId: { name: 'PipeConfiguration', catalogKind: CatalogKind.Entity } satisfies NodeIdentity,
     });
 
     await NodeEnrichmentService.enrichNodeFromCatalog(pipeGroupNode, CatalogKind.Entity);

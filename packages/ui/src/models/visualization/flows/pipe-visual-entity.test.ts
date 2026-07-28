@@ -698,7 +698,7 @@ describe('Pipe', () => {
     it('should set primaryNodeId on the root Pipe group node', async () => {
       const vizNode = await pipeVisualEntity.toVizNode();
 
-      expect(vizNode.data.primaryNodeId).toEqual({ name: pipeVisualEntity.type, catalogKind: CatalogKind.Entity });
+      expect(vizNode.data.primaryNodeId).toEqual({ name: 'PipeConfiguration', catalogKind: CatalogKind.Entity });
     });
 
     it('should set primaryNodeId on Kamelet step nodes (source, step, sink)', async () => {
