@@ -7,5 +7,5 @@ export const isFromDefinition = (rawEntity: unknown): rawEntity is FromDefinitio
     return false;
   }
 
-  return 'uri' in rawEntity;
+  return 'uri' in rawEntity && typeof (rawEntity as { uri?: unknown }).uri === 'string';
 };
