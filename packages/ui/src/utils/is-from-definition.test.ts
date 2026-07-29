@@ -26,4 +26,13 @@ describe('isFromDefinition', () => {
   ])('should mark %s as isFromDefinition: %s', (entity, result) => {
     expect(isFromDefinition(entity)).toEqual(result);
   });
+
+  it('should reject definitions whose uri is not a string', () => {
+    expect(isFromDefinition({ uri: 123 })).toBe(false);
+    expect(isFromDefinition({ uri: null })).toBe(false);
+    expect(isFromDefinition({ uri: undefined })).toBe(false);
+    expect(isFromDefinition({ uri: { scheme: 'direct' } })).toBe(false);
+    expect(isFromDefinition({ uri: ['direct:foo'] })).toBe(false);
+    expect(isFromDefinition({ uri: true })).toBe(false);
+  });
 });

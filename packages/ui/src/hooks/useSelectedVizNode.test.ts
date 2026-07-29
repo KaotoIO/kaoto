@@ -26,7 +26,6 @@ vi.mock('@patternfly/react-topology', () => ({
 }));
 
 const mockVizNode = createVisualizationNode('timer-1', {} as never);
-mockVizNode.fetchSchema = vi.fn().mockResolvedValue(undefined);
 
 function makeController(vizNode?: IVisualizationNode) {
   return {
@@ -41,6 +40,8 @@ function makeController(vizNode?: IVisualizationNode) {
 
 describe('useSelectedVizNode', () => {
   beforeEach(() => {
+    /* Re-established per test so a test that overrides it cannot leak into the next one */
+    mockVizNode.fetchSchema = vi.fn().mockResolvedValue(undefined);
     (useVisualizationController as Mock).mockReturnValue(makeController(mockVizNode));
   });
 
@@ -94,5 +95,64 @@ describe('useSelectedVizNode', () => {
     await waitFor(() => {
       expect(result.current).toBeUndefined();
     });
+  });
+
+  it('does not select the vizNode while fetchSchema is pending', async () => {
+    let resolveSchema!: () => void;
+    const pending = new Promise<void>((resolve) => {
+      resolveSchema = resolve;
+    });
+    mockVizNode.fetchSchema = vi.fn().mockReturnValue(pending);
+
+    const { result } = renderHook(() => useSelectedVizNode(['scope|timer-1']));
+
+    // Should be undefined while pending
+    expect(result.current).toBeUndefined();
+    expect(mockVizNode.fetchSchema).toHaveBeenCalled();
+
+    // Resolve the promise
+    resolveSchema();
+
+    // Should now have the vizNode
+    await waitFor(() => {
+      expect(result.current).toBe(mockVizNode);
+    });
+  });
+
+  it('keeps the selection cleared when fetchSchema rejects', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const testError = new Error('Schema fetch failed');
+    mockVizNode.fetchSchema = vi.fn().mockRejectedValue(testError);
+
+    const { result } = renderHook(() => useSelectedVizNode(['scope|timer-1']));
+
+    // Wait for the rejection to be processed
+    await waitFor(() => {
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to fetch schema for the selected node:', testError);
+    });
+
+    // Selection should remain undefined
+    expect(result.current).toBeUndefined();
+  });
+
+  it('does not log when fetchSchema rejects after the request was cancelled', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    let rejectSchema!: (error: Error) => void;
+    mockVizNode.fetchSchema = vi.fn().mockReturnValue(
+      new Promise<void>((_resolve, reject) => {
+        rejectSchema = reject;
+      }),
+    );
+
+    const { unmount } = renderHook(() => useSelectedVizNode(['scope|timer-1']));
+    unmount();
+    rejectSchema(new Error('Schema fetch failed'));
+
+    /* Let the rejection settle before asserting that nothing was logged for it */
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0);
+    });
+
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 });

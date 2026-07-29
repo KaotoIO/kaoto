@@ -32,7 +32,7 @@ export const useSelectedVizNode = (selectedIds: string[]): IVisualizationNode | 
   useEffect(() => {
     let isCancelled = false;
 
-    const cb = async () => {
+    const selectVizNode = async () => {
       setSelectedVizNode(undefined);
 
       if (selectedIds.length !== 1) {
@@ -46,14 +46,20 @@ export const useSelectedVizNode = (selectedIds: string[]): IVisualizationNode | 
         return;
       }
 
-      await vizNode.fetchSchema();
+      try {
+        await vizNode.fetchSchema();
 
-      if (!isCancelled) {
-        setSelectedVizNode(vizNode);
+        if (!isCancelled) {
+          setSelectedVizNode(vizNode);
+        }
+      } catch (error) {
+        if (!isCancelled) {
+          console.error('Failed to fetch schema for the selected node:', error);
+        }
       }
     };
 
-    void cb();
+    void selectVizNode();
 
     return () => {
       isCancelled = true;

@@ -150,6 +150,20 @@ export const doTryCamelRouteJson = {
 
 export const camelRoute = new CamelRouteVisualEntity(camelRouteJson);
 
+/**
+ * A stub Camel Route whose `from` uses a real kamelet URI.
+ * Used to test the kamelet code path in fetchNodeSchema without mocks.
+ */
+export const camelRouteWithKameletYaml = `
+- route:
+    id: route-kamelet-test
+    from:
+      uri: kamelet:avro-deserialize-action
+      parameters: {}
+      steps: []
+`;
+export const camelRouteWithKameletJson: { route: RouteDefinition } = parse(camelRouteWithKameletYaml)[0];
+
 export const camelRouteYamlWithDM = `
 - route:
     id: route-3076

@@ -138,7 +138,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       return schema;
     }
 
-    schema.properties.parameters = kameletDefinition.spec.definition as KaotoSchemaDefinition['schema'];
+    schema.properties.parameters = cloneDeep(kameletDefinition.spec.definition) as KaotoSchemaDefinition['schema'];
     schema.properties.parameters['x-kamelet-name'] = ids.tertiaryNodeId.name;
     schema.properties.parameters.type = 'object';
 

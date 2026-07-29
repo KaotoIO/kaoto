@@ -1,10 +1,11 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { CatalogLibrary, To } from '@kaoto/camel-catalog/types';
+import { CatalogLibrary, ProcessorDefinition, To } from '@kaoto/camel-catalog/types';
 import { cloneDeep } from 'lodash';
 
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { mockRandomValues } from '../../../stubs';
-import { camelRouteJson } from '../../../stubs/camel-route';
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
+import { camelRouteJson, camelRouteWithKameletJson } from '../../../stubs/camel-route';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
 import { NonStringEIP } from '../../camel/types';
 import { CatalogKind } from '../../catalog-kind';
 import { PlaceholderType } from '../../placeholder.constants';
@@ -12,6 +13,7 @@ import { NodeLabelType } from '../../settings';
 import { AddStepMode } from '../base-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRouteVisualEntity } from './camel-route-visual-entity';
+import { CamelRouteVisualEntityData } from './support/camel-component-types';
 
 describe('AbstractCamelVisualEntity', () => {
   let abstractVisualEntity: CamelRouteVisualEntity;
@@ -24,10 +26,12 @@ describe('AbstractCamelVisualEntity', () => {
     CamelCatalogService.setCatalogKey(CatalogKind.Pattern, catalogsMap.patternCatalogMap);
     CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
     CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
+    setupDynamicCatalogRegistry(catalogsMap);
   });
 
   afterAll(() => {
     CamelCatalogService.clearCatalogs();
+    DynamicCatalogRegistry.get().clearRegistry();
   });
 
   beforeEach(() => {
@@ -35,34 +39,20 @@ describe('AbstractCamelVisualEntity', () => {
   });
 
   // Test helper to create mock node data with consistent defaults
-  const createMockNodeData = (
-    overrides: Partial<{
-      name: string;
-      path: string;
-      icon: string;
-      processorName: string;
-      componentName: string;
-      isPlaceholder: boolean;
-      isGroup: boolean;
-      iconUrl: string;
-      title: string;
-      description: string;
-      processorIconTooltip: string;
-    }> = {},
-  ) => ({
-    name: 'log',
-    path: 'route.from.steps.0.to',
-    icon: '/src/assets/components/log.svg',
-    processorName: 'to',
-    componentName: 'log',
-    isPlaceholder: false,
-    isGroup: false,
-    iconUrl: '',
-    title: 'Log',
-    description: '',
-    processorIconTooltip: '',
-    ...overrides,
-  });
+  const createMockNodeData = (overrides: Partial<CamelRouteVisualEntityData> = {}): CamelRouteVisualEntityData =>
+    ({
+      name: 'log',
+      path: 'route.from.steps.0.to',
+      processorName: 'to',
+      componentName: 'log',
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: 'Log',
+      description: '',
+      processorIconTooltip: '',
+      ...overrides,
+    }) as CamelRouteVisualEntityData;
 
   describe('getNodeLabel', () => {
     it('should return an empty string if the path is `undefined`', () => {
@@ -107,7 +97,7 @@ describe('AbstractCamelVisualEntity', () => {
   describe('getNodeInteraction', () => {
     it('should not allow marked processors to have previous/next steps', () => {
       const result = abstractVisualEntity.getNodeInteraction(
-        createMockNodeData({ name: 'from', processorName: 'from', title: 'From' }),
+        createMockNodeData({ name: 'from', processorName: 'from' as keyof ProcessorDefinition, title: 'From' }),
       );
       expect(result.canHavePreviousStep).toBe(false);
       expect(result.canHaveNextStep).toBe(false);
@@ -133,7 +123,11 @@ describe('AbstractCamelVisualEntity', () => {
       'interceptSendToEndpoint',
     ])(`should return the correct interaction for the '%s' processor`, (processorName) => {
       const result = abstractVisualEntity.getNodeInteraction(
-        createMockNodeData({ name: processorName, processorName, title: 'From' }),
+        createMockNodeData({
+          name: processorName,
+          processorName: processorName as keyof ProcessorDefinition,
+          title: 'From',
+        }),
       );
       expect(result).toMatchSnapshot();
     });
@@ -254,13 +248,22 @@ describe('AbstractCamelVisualEntity', () => {
   });
 
   describe('addStep', () => {
+    // Suggestion 1: shared definedComponent constant reused across prepend/append/replace/child tests
+    const xchangeComponent = { name: 'xchange', type: CatalogKind.Component, definition: undefined };
+
+    // Suggestion 4: shared node data for the two InsertSpecialChildStep tests
+    const choiceGroupNodeData = createMockNodeData({
+      name: 'choice',
+      path: 'route.from.steps.1.choice',
+      iconUrl: '/src/assets/eip/choice.png',
+      processorName: 'choice',
+      componentName: undefined,
+      isGroup: true,
+    });
+
     it('should prepend a new step to the model', () => {
       abstractVisualEntity.addStep({
-        definedComponent: {
-          name: 'xchange',
-          type: CatalogKind.Component,
-          definition: undefined,
-        },
+        definedComponent: xchangeComponent,
         mode: AddStepMode.PrependStep,
         data: createMockNodeData({ path: 'route.from.steps.2.to' }),
       });
@@ -271,11 +274,7 @@ describe('AbstractCamelVisualEntity', () => {
 
     it('should append a new step to the model', () => {
       abstractVisualEntity.addStep({
-        definedComponent: {
-          name: 'xchange',
-          type: CatalogKind.Component,
-          definition: undefined,
-        },
+        definedComponent: xchangeComponent,
         mode: AddStepMode.AppendStep,
         data: createMockNodeData({ path: 'route.from.steps.2.to' }),
       });
@@ -286,11 +285,7 @@ describe('AbstractCamelVisualEntity', () => {
 
     it('should replace a step', () => {
       abstractVisualEntity.addStep({
-        definedComponent: {
-          name: 'xchange',
-          type: CatalogKind.Component,
-          definition: undefined,
-        },
+        definedComponent: xchangeComponent,
         mode: AddStepMode.ReplaceStep,
         data: createMockNodeData({ path: 'route.from.steps.0.to' }),
       });
@@ -299,44 +294,51 @@ describe('AbstractCamelVisualEntity', () => {
       expect(abstractVisualEntity.entityDef.route.from.steps[0]).toMatchSnapshot();
     });
 
-    it('should replace a placeholder step', () => {
+    // Suggestion 3 (first half): only asserts the processor replacement and the resulting placeholder
+    it('should replace a step with a processor that introduces a placeholder', () => {
       abstractVisualEntity.addStep({
-        definedComponent: {
-          name: 'multicast',
-          type: CatalogKind.Processor,
-          definition: undefined,
-        },
+        definedComponent: { name: 'multicast', type: CatalogKind.Processor, definition: undefined },
         mode: AddStepMode.ReplaceStep,
-        data: {
+        data: createMockNodeData({
           name: 'choice',
           path: 'route.from.steps.1.choice',
-          icon: '/src/assets/components/choice.svg',
+          iconUrl: '/src/assets/components/choice.svg',
           processorName: 'choice',
           componentName: undefined,
-          isPlaceholder: false,
           isGroup: false,
-          iconUrl: '',
-          title: 'Log',
-          description: '',
-          processorIconTooltip: '',
-        },
+        }),
       });
+
+      expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(3);
+      expect(abstractVisualEntity.entityDef.route.from.steps[1]).toMatchSnapshot();
+    });
+
+    // Suggestion 3 (second half): sets up the multicast precondition, then asserts placeholder replacement
+    it('should replace a placeholder step with a component', () => {
+      // Setup: replace choice with multicast so a placeholder child exists
       abstractVisualEntity.addStep({
-        definedComponent: {
-          name: 'log',
-          type: CatalogKind.Component,
-          definition: undefined,
-        },
+        definedComponent: { name: 'multicast', type: CatalogKind.Processor, definition: undefined },
         mode: AddStepMode.ReplaceStep,
-        data: {
+        data: createMockNodeData({
+          name: 'choice',
+          path: 'route.from.steps.1.choice',
+          iconUrl: '/src/assets/components/choice.svg',
+          processorName: 'choice',
+          componentName: undefined,
+          isGroup: false,
+        }),
+      });
+
+      // Suggestion 2: use createMockNodeData instead of an inline raw object
+      abstractVisualEntity.addStep({
+        definedComponent: { name: 'log', type: CatalogKind.Component, definition: undefined },
+        mode: AddStepMode.ReplaceStep,
+        data: createMockNodeData({
           name: PlaceholderType.Placeholder,
           isPlaceholder: true,
           path: 'route.from.steps.1.multicast.steps.0.placeholder',
-          isGroup: false,
-          iconUrl: '',
-          title: 'Log',
-          description: '',
-        },
+          componentName: undefined,
+        }),
       });
 
       expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(3);
@@ -345,24 +347,15 @@ describe('AbstractCamelVisualEntity', () => {
 
     it('should insert a new child step', () => {
       abstractVisualEntity.addStep({
-        definedComponent: {
-          name: 'xchange',
-          type: CatalogKind.Component,
-          definition: undefined,
-        },
+        definedComponent: xchangeComponent,
         mode: AddStepMode.InsertChildStep,
-        data: {
+        data: createMockNodeData({
           name: 'timer',
           componentName: 'timer',
-          icon: '/src/assets/components/timer.svg',
-          isGroup: false,
+          iconUrl: '/src/assets/components/timer.svg',
           path: 'route.from',
-          processorName: 'from',
-          isPlaceholder: false,
-          iconUrl: '',
-          title: 'Log',
-          description: '',
-        },
+          processorName: 'from' as keyof ProcessorDefinition,
+        }),
       });
 
       expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(4);
@@ -372,23 +365,9 @@ describe('AbstractCamelVisualEntity', () => {
     it('should insert a new special child step belonging to an array like when or doCatch', () => {
       abstractVisualEntity.removeStep('route.from.steps.1.choice.when.0');
       abstractVisualEntity.addStep({
-        definedComponent: {
-          name: 'when',
-          type: CatalogKind.Processor,
-          definition: undefined,
-        },
+        definedComponent: { name: 'when', type: CatalogKind.Processor, definition: undefined },
         mode: AddStepMode.InsertSpecialChildStep,
-        data: {
-          name: 'choice',
-          path: 'route.from.steps.1.choice',
-          icon: '/src/assets/eip/choice.png',
-          processorName: 'choice',
-          isGroup: true,
-          isPlaceholder: false,
-          iconUrl: '',
-          title: 'Log',
-          description: '',
-        },
+        data: choiceGroupNodeData,
       });
 
       expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(3);
@@ -398,23 +377,9 @@ describe('AbstractCamelVisualEntity', () => {
     it('should insert a new special child step belonging to a single property like otherwise or doFinally', () => {
       abstractVisualEntity.removeStep('route.from.steps.1.choice.otherwise');
       abstractVisualEntity.addStep({
-        definedComponent: {
-          name: 'otherwise',
-          type: CatalogKind.Processor,
-          definition: undefined,
-        },
+        definedComponent: { name: 'otherwise', type: CatalogKind.Processor, definition: undefined },
         mode: AddStepMode.InsertSpecialChildStep,
-        data: {
-          name: 'choice',
-          path: 'route.from.steps.1.choice',
-          icon: '/src/assets/eip/choice.png',
-          processorName: 'choice',
-          isGroup: true,
-          isPlaceholder: false,
-          iconUrl: '',
-          title: 'Log',
-          description: '',
-        },
+        data: choiceGroupNodeData,
       });
 
       expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(3);
@@ -423,29 +388,28 @@ describe('AbstractCamelVisualEntity', () => {
   });
 
   describe('pasteStep', () => {
+    const LOG_CLIPBOARD_CONTENT = {
+      name: 'log',
+      definition: {
+        id: 'test-id',
+        message: 'Test message',
+      },
+    };
+
+    const CHOICE_NODE_DATA = createMockNodeData({
+      name: 'choice',
+      path: 'route.from.steps.1.choice',
+      iconUrl: '/src/assets/eip/choice.png',
+      processorName: 'choice',
+      componentName: undefined,
+      isGroup: true,
+    });
+
     it('should append a new step to the model', () => {
       abstractVisualEntity.pasteStep({
-        clipboardContent: {
-          name: 'log',
-          definition: {
-            id: 'test-id',
-            message: 'Test message',
-          },
-        },
+        clipboardContent: LOG_CLIPBOARD_CONTENT,
         mode: AddStepMode.AppendStep,
-        data: {
-          name: 'log',
-          path: 'route.from.steps.2.to',
-          icon: '/src/assets/components/log.svg',
-          processorName: 'to',
-          componentName: 'log',
-          isPlaceholder: false,
-          isGroup: false,
-          iconUrl: '',
-          title: 'Log',
-          description: '',
-          processorIconTooltip: '',
-        },
+        data: createMockNodeData({ path: 'route.from.steps.2.to' }),
       });
 
       expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(4);
@@ -454,26 +418,15 @@ describe('AbstractCamelVisualEntity', () => {
 
     it('should insert a new child step', () => {
       abstractVisualEntity.pasteStep({
-        clipboardContent: {
-          name: 'log',
-          definition: {
-            id: 'test-id',
-            message: 'Test message',
-          },
-        },
+        clipboardContent: LOG_CLIPBOARD_CONTENT,
         mode: AddStepMode.InsertChildStep,
-        data: {
+        data: createMockNodeData({
           name: 'timer',
           componentName: 'timer',
-          icon: '/src/assets/components/timer.svg',
-          isGroup: false,
+          iconUrl: '/src/assets/components/timer.svg',
           path: 'route.from',
-          processorName: 'from',
-          isPlaceholder: false,
-          iconUrl: '',
-          title: 'Log',
-          description: '',
-        },
+          processorName: 'from' as keyof ProcessorDefinition,
+        }),
       });
 
       expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(4);
@@ -489,17 +442,7 @@ describe('AbstractCamelVisualEntity', () => {
           },
         },
         mode: AddStepMode.InsertSpecialChildStep,
-        data: {
-          name: 'choice',
-          path: 'route.from.steps.1.choice',
-          icon: '/src/assets/eip/choice.png',
-          processorName: 'choice',
-          isGroup: true,
-          isPlaceholder: false,
-          iconUrl: '',
-          title: 'Log',
-          description: '',
-        },
+        data: CHOICE_NODE_DATA,
       });
 
       expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(3);
@@ -517,17 +460,7 @@ describe('AbstractCamelVisualEntity', () => {
           },
         },
         mode: AddStepMode.InsertSpecialChildStep,
-        data: {
-          name: 'choice',
-          path: 'route.from.steps.1.choice',
-          icon: '/src/assets/eip/choice.png',
-          processorName: 'choice',
-          isGroup: true,
-          isPlaceholder: false,
-          iconUrl: '',
-          title: 'Log',
-          description: '',
-        },
+        data: CHOICE_NODE_DATA,
       });
 
       expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(3);
@@ -536,33 +469,20 @@ describe('AbstractCamelVisualEntity', () => {
 
     it('should replace the step', () => {
       abstractVisualEntity.pasteStep({
-        clipboardContent: {
-          name: 'log',
-          definition: {
-            id: 'test-id',
-            message: 'Test message',
-          },
-        },
+        clipboardContent: LOG_CLIPBOARD_CONTENT,
         mode: AddStepMode.ReplaceStep,
-        data: {
+        data: createMockNodeData({
           name: 'direct',
           path: 'route.from.steps.2.to',
-          processorName: 'to',
           componentName: 'direct',
-          isPlaceholder: false,
-          isGroup: false,
-          iconUrl: '',
-          title: 'Log',
-          description: '',
-          processorIconTooltip: '',
-        },
+        }),
       });
 
       expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(3);
       expect(abstractVisualEntity.entityDef.route.from.steps).toMatchSnapshot();
     });
 
-    it('should repace the special child step belonging to an array like when or doCatch', () => {
+    it('should replace the special child step belonging to an array like when or doCatch', () => {
       abstractVisualEntity.pasteStep({
         clipboardContent: {
           name: 'when',
@@ -579,17 +499,14 @@ describe('AbstractCamelVisualEntity', () => {
           },
         },
         mode: AddStepMode.ReplaceStep,
-        data: {
+        data: createMockNodeData({
           name: 'when',
           path: 'route.from.steps.1.choice.when.0',
-          icon: '/src/assets/eip/when.png',
-          processorName: 'when',
+          iconUrl: '/src/assets/eip/when.png',
+          processorName: 'when' as keyof ProcessorDefinition,
+          componentName: undefined,
           isGroup: true,
-          isPlaceholder: false,
-          iconUrl: '',
-          title: 'Log',
-          description: '',
-        },
+        }),
       });
 
       expect(abstractVisualEntity.entityDef.route.from.steps[1]).toMatchSnapshot();
@@ -647,6 +564,71 @@ describe('AbstractCamelVisualEntity', () => {
         name: abstractVisualEntity.type,
         catalogKind: CatalogKind.Entity,
       });
+    });
+  });
+
+  describe('fetchNodeSchema', () => {
+    it('should return the route Entity schema for the route group node', async () => {
+      const routeNode = await abstractVisualEntity.toVizNode();
+      const ids = routeNode.data;
+
+      const result = await abstractVisualEntity.fetchNodeSchema(ids);
+
+      // The schema comes straight from the entities catalog entry for 'route'
+      const routeEntry = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Entity, 'route');
+      expect(result).toEqual(routeEntry!.propertiesSchema);
+      // No component parameters injected — the route entity has no secondaryNodeId
+      expect(result?.properties?.parameters).toBeUndefined();
+    });
+
+    it('should return the from Entity schema merged with the component properties', async () => {
+      // abstractVisualEntity uses camelRouteJson whose from.uri is 'timer'
+      const routeNode = await abstractVisualEntity.toVizNode();
+      const fromNode = routeNode.getChildren()?.[0];
+      const ids = fromNode!.data;
+
+      expect(ids.primaryNodeId).toEqual({ name: 'from', catalogKind: CatalogKind.Entity });
+      expect(ids.secondaryNodeId).toEqual({ name: 'timer', catalogKind: CatalogKind.Component });
+      expect(ids.tertiaryNodeId).toBeUndefined();
+
+      const result = await abstractVisualEntity.fetchNodeSchema(ids);
+
+      const fromEntry = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Entity, 'from');
+      expect(result?.type).toBe(fromEntry!.propertiesSchema?.type);
+
+      const timerEntry = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Component, 'timer');
+      expect(result?.properties?.parameters?.properties).toEqual(
+        expect.objectContaining({ timerName: expect.any(Object) }),
+      );
+      expect(result?.properties?.parameters?.['x-component-name']).toBe('timer');
+      // Consumer-only properties are retained for a `from` node; none are filtered
+      expect(result?.properties?.parameters?.required).toEqual(timerEntry!.propertiesSchema.required);
+    });
+
+    it('should not mutate the catalog Kamelet definition', async () => {
+      // Build a real route entity whose `from` sources from a real catalog kamelet
+      const entity = new CamelRouteVisualEntity(cloneDeep(camelRouteWithKameletJson));
+
+      const routeNode = await entity.toVizNode();
+      const fromNode = routeNode.getChildren()?.[0];
+      const ids = fromNode!.data;
+
+      // Snapshot the live catalog entry before the call
+      const kameletEntry = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Kamelet, 'avro-deserialize-action');
+      const originalDefinitionSnapshot = cloneDeep(kameletEntry!.spec.definition);
+
+      const result = await entity.fetchNodeSchema(ids);
+
+      // The catalog entry itself must NOT be mutated
+      expect(kameletEntry!.spec.definition).toEqual(originalDefinitionSnapshot);
+      expect(kameletEntry!.spec.definition).not.toHaveProperty('x-kamelet-name');
+
+      // The returned schema carries the decorations
+      expect(result?.properties?.parameters?.['x-kamelet-name']).toBe('avro-deserialize-action');
+      expect(result?.properties?.parameters?.type).toBe('object');
+
+      // The result must not be the same object reference as the catalog entry
+      expect(result?.properties?.parameters).not.toBe(kameletEntry!.spec.definition);
     });
   });
 });

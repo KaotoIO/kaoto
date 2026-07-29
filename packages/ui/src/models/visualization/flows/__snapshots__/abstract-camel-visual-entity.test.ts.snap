@@ -159,7 +159,7 @@ exports[`AbstractCamelVisualEntity > addStep > should prepend a new step to the 
 }
 `;
 
-exports[`AbstractCamelVisualEntity > addStep > should replace a placeholder step 1`] = `
+exports[`AbstractCamelVisualEntity > addStep > should replace a placeholder step with a component 1`] = `
 {
   "multicast": {
     "id": "multicast-1234",
@@ -182,6 +182,14 @@ exports[`AbstractCamelVisualEntity > addStep > should replace a step 1`] = `
     "id": "to-1234",
     "parameters": {},
     "uri": "xchange",
+  },
+}
+`;
+
+exports[`AbstractCamelVisualEntity > addStep > should replace a step with a processor that introduces a placeholder 1`] = `
+{
+  "multicast": {
+    "id": "multicast-1234",
   },
 }
 `;
@@ -441,7 +449,7 @@ exports[`AbstractCamelVisualEntity > pasteStep > should insert a new special chi
 }
 `;
 
-exports[`AbstractCamelVisualEntity > pasteStep > should repace the special child step belonging to an array like when or doCatch 1`] = `
+exports[`AbstractCamelVisualEntity > pasteStep > should replace the special child step belonging to an array like when or doCatch 1`] = `
 {
   "choice": {
     "otherwise": {
