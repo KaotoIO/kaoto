@@ -1,5 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, ProcessorDefinition } from '@kaoto/camel-catalog/types';
+import { getValidator } from '@kaoto/forms';
 
 import { DynamicCatalog } from '../../../../dynamic-catalog/dynamic-catalog';
 import { DynamicCatalogRegistry } from '../../../../dynamic-catalog/dynamic-catalog-registry';
@@ -138,6 +139,28 @@ describe('CamelComponentSchemaService', () => {
       const result = CamelComponentSchemaService.getSchema({ processorName: 'to', componentName: 'log' });
 
       expect(result.properties?.parameters['x-component-name']).toBe('log');
+    });
+
+    it('should produce valid JSON Schema for Camel catalog enum properties', () => {
+      const result = CamelComponentSchemaService.getSchema({
+        processorName: 'from' as keyof ProcessorDefinition,
+        componentName: 'timer',
+      });
+      const componentSchema = result.properties?.parameters;
+      if (!componentSchema) {
+        throw new Error('Expected the Timer component parameters schema');
+      }
+      const componentProperties = componentSchema.properties;
+
+      expect(componentProperties?.exchangePattern).toMatchObject({
+        type: 'string',
+        enum: ['InOnly', 'InOut'],
+      });
+      expect(componentProperties?.runLoggingLevel).toMatchObject({
+        type: 'string',
+        enum: ['TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR', 'OFF'],
+      });
+      expect(getValidator(componentSchema)).toBeTypeOf('function');
     });
   });
 

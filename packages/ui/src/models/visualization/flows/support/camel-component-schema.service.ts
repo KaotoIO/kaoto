@@ -309,13 +309,18 @@ export class CamelComponentSchemaService {
 
       // Filter out producer/consumer properties depending upon the endpoint usage
       const actualComponentProperties = Object.fromEntries(
-        Object.entries(componentSchema.properties ?? {}).filter((property) => {
-          if (camelElementLookup.processorName === ('from' as keyof ProcessorDefinition)) {
-            return !property[1].$comment?.includes('producer');
-          } else {
-            return !property[1].$comment?.includes('consumer');
-          }
-        }),
+        Object.entries(componentSchema.properties ?? {})
+          .filter((property) => {
+            if (camelElementLookup.processorName === ('from' as keyof ProcessorDefinition)) {
+              return !property[1].$comment?.includes('producer');
+            } else {
+              return !property[1].$comment?.includes('consumer');
+            }
+          })
+          .map(([name, property]) => [
+            name,
+            (property.type as string) === 'enum' ? { ...property, type: 'string' as const } : property,
+          ]),
       );
 
       if (catalogLookup.definition !== undefined && componentSchema !== undefined) {
