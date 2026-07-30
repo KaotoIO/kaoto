@@ -8,6 +8,10 @@ import { useDocumentTreeStore } from '../../../store/document-tree.store';
 import { TestUtil } from '../../../stubs/datamapper/data-mapper';
 import { XPathInputAction } from './XPathInputAction';
 
+vi.mock('monaco-editor', () => ({
+  languages: { CompletionItemKind: { Keyword: 17 } },
+}));
+
 describe('XPathInputAction', () => {
   let tree: MappingTree;
   let mapping: ValueSelector;
