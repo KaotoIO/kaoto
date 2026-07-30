@@ -38,9 +38,9 @@ jobs:
           scope: '@kaoto'
           cache: 'yarn'
 
-      # 👇 Install dependencies with the same package manager used in the project (replace it as needed), e.g. yarn, npm, pnpm
-      - name: Install dependencies
-        run: yarn
+      # Install dependencies
+      - name: 🔧 Install dependencies
+        run: yarn install --immutable --mode=skip-build
 
       # 👇 Builds the kaoto/ui in library mode
       - name: Build ui library

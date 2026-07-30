@@ -22,7 +22,8 @@ jobs:
           cache: 'yarn'
 
       # Install dependencies
-      - run: yarn
+      - name: 🔧 Install dependencies
+        run: yarn install --immutable --mode=skip-build
 
       # Lint files
       - name: 💅 Run eslint

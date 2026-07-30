@@ -29,8 +29,9 @@ jobs:
           scope: '@kaoto'
           cache: 'yarn'
 
-      - name: '🔧 Install dependencies'
-        run: yarn
+      # Install dependencies
+      - name: 🔧 Install dependencies
+        run: yarn install --immutable --mode=skip-build
 
       # Build packages
       - name: '🔧 Build packages'
