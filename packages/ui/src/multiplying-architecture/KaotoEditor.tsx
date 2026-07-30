@@ -27,6 +27,13 @@ const enum TabList {
 
 const SCHEMA_TABS: Record<SourceSchemaType, TabList[]> = {
   [SourceSchemaType.Route]: [TabList.Design, TabList.Beans, TabList.RestEditor, TabList.KaotoDataMapper, TabList.About],
+  [SourceSchemaType.RouteXml]: [
+    TabList.Design,
+    TabList.Beans,
+    TabList.RestEditor,
+    TabList.KaotoDataMapper,
+    TabList.About,
+  ],
   [SourceSchemaType.Kamelet]: [TabList.Design, TabList.Beans, TabList.Metadata, TabList.KaotoDataMapper, TabList.About],
   [SourceSchemaType.Integration]: [],
   [SourceSchemaType.KameletBinding]: [TabList.Design, TabList.Metadata, TabList.ErrorHandler, TabList.About],

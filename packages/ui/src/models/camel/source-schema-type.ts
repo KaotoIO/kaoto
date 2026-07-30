@@ -1,5 +1,6 @@
 export enum SourceSchemaType {
   Route = 'Route',
+  RouteXml = 'RouteXml',
   Integration = 'Integration',
   KameletBinding = 'KameletBinding',
   Kamelet = 'Kamelet',
@@ -32,7 +33,9 @@ export const getResourceTypeFromPath = (path?: string): SourceSchemaType | undef
     path?.endsWith('citrus.it.yml')
   ) {
     return SourceSchemaType.Test;
-  } else if (path?.endsWith('.xml') || path?.endsWith('.yaml') || path?.endsWith('.yml')) {
+  } else if (path?.endsWith('.xml')) {
+    return SourceSchemaType.RouteXml;
+  } else if (path?.endsWith('.yaml') || path?.endsWith('.yml')) {
     return SourceSchemaType.Route;
   }
 

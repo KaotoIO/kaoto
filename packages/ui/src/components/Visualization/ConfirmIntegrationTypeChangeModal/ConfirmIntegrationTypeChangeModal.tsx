@@ -27,7 +27,7 @@ export const ConfirmIntegrationTypeChangeModal: FunctionComponent<ConfirmIntegra
 
   const onConfirm = useCallback(() => {
     if (proposedFlowType) {
-      setCodeAndNotify(FlowTemplateService.getFlowYamlTemplate(proposedFlowType));
+      setCodeAndNotify(FlowTemplateService.getFlowSourceTemplate(proposedFlowType));
 
       if (changesCatalog) {
         const matchingCatalog = findCatalog(proposedFlowType, runtimeContext.catalogLibrary);

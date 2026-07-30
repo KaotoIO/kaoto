@@ -11,6 +11,7 @@ export interface ISourceSchema {
 
 interface IEntitySchemaConfig {
   [SourceSchemaType.Route]: ISourceSchema;
+  [SourceSchemaType.RouteXml]: ISourceSchema;
   [SourceSchemaType.Kamelet]: ISourceSchema;
   [SourceSchemaType.Test]: ISourceSchema;
   [SourceSchemaType.Pipe]: ISourceSchema;
@@ -21,11 +22,18 @@ interface IEntitySchemaConfig {
 class SourceSchemaConfig {
   config: IEntitySchemaConfig = {
     [SourceSchemaType.Route]: {
-      name: 'Camel Route',
+      name: 'Camel Route YAML',
       schema: undefined,
       multipleRoute: true,
       description:
         'Defines an executable integration flow by declaring a source (starter) and followed by a sequence of actions (or steps). Actions can include data manipulations, EIPs (integration patterns) and internal or external calls.',
+    },
+    [SourceSchemaType.RouteXml]: {
+      name: 'Camel Route XML',
+      schema: undefined,
+      multipleRoute: true,
+      description:
+        'Defines an executable integration flow in XML format by declaring a source (starter) and followed by a sequence of actions (or steps). Actions can include data manipulations, EIPs (integration patterns) and internal or external calls.',
     },
     [SourceSchemaType.Kamelet]: {
       name: 'Kamelet',

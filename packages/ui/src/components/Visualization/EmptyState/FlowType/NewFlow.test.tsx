@@ -77,7 +77,7 @@ describe('NewFlow.tsx', () => {
     /** Open Select */
     fireEvent.click(trigger);
 
-    for (const name of ['Pipe', 'Camel Route']) {
+    for (const name of ['Pipe', 'Camel Route YAML']) {
       const element = await wrapper.findByText(name);
       expect(element).toBeInTheDocument();
     }

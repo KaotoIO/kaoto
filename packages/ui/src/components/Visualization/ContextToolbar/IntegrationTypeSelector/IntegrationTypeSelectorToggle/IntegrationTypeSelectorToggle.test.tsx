@@ -102,7 +102,7 @@ describe('IntegrationTypeSelectorToggle.tsx', () => {
     fireEvent.click(toggle);
 
     /** Click on first element */
-    const camelRouteElement = wrapper.getByText('Camel Route');
+    const camelRouteElement = wrapper.getByText('Camel Route YAML');
     fireEvent.click(camelRouteElement);
 
     /** Open Select again */
@@ -110,7 +110,7 @@ describe('IntegrationTypeSelectorToggle.tsx', () => {
 
     const element = await wrapper.findByRole('option', { selected: true });
     expect(element).toBeInTheDocument();
-    expect(element).toHaveTextContent('Camel Route');
+    expect(element).toHaveTextContent('Camel Route YAML');
   });
 
   it('should have selected integration type if provided', async () => {
@@ -123,7 +123,7 @@ describe('IntegrationTypeSelectorToggle.tsx', () => {
     await waitFor(() => {
       const element = wrapper.queryByRole('option', { selected: true });
       expect(element).toBeInTheDocument();
-      expect(element).toHaveTextContent('Camel Route');
+      expect(element).toHaveTextContent('Camel Route YAML');
     });
   });
 
