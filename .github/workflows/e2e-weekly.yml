@@ -27,7 +27,8 @@ jobs:
             ${{ runner.os }}-yarn-
 
       # Install dependencies
-      - run: yarn install --immutable --mode=skip-build
+      - name: 🔧 Install dependencies
+        run: yarn install --immutable --mode=skip-build
 
       # Build packages excluding @kaoto/camel-catalog since it was build during installing dependencies
       - name: Build packages
