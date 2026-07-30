@@ -215,8 +215,14 @@ export class CamelUriHelper {
   /** Analyze a URI syntax template once for both path serialization and parsing. */
   private static analyzeSyntax(uriSyntax: string): SyntaxAnalysis {
     const { schema, syntax } = this.getSyntaxWithoutSchema(uriSyntax);
-    const delimiters = syntax.match(this.URI_SEPARATORS_REGEX);
+    const delimiterMatches: string[] = [];
+    let separatorMatch = this.URI_SEPARATORS_REGEX.exec(syntax);
+    while (separatorMatch !== null) {
+      delimiterMatches.push(separatorMatch[0]);
+      separatorMatch = this.URI_SEPARATORS_REGEX.exec(syntax);
+    }
     this.URI_SEPARATORS_REGEX.lastIndex = 0;
+    const delimiters = delimiterMatches.length === 0 ? null : delimiterMatches;
 
     const delimiterRegex = delimiters === null ? null : new RegExp(delimiters.join('|'), 'g');
     const keys = delimiterRegex === null ? [syntax] : syntax.split(delimiterRegex);
