@@ -1,4 +1,4 @@
-import { KaotoFunction } from '@kaoto/camel-catalog/types';
+import { KaotoFunction, KaotoFunctionArgument } from '@kaoto/camel-catalog/types';
 
 import {
   ICamelComponentDefinition,
@@ -329,7 +329,7 @@ describe('DynamicCatalogRegistry', () => {
     });
 
     it('should handle different entity types correctly', async () => {
-      const mockEntity: Record<string, KaotoFunction> = {
+      const mockEntity: Record<string, KaotoFunction<KaotoFunctionArgument>> = {
         custom: {
           name: 'customFunction',
           displayName: 'Custom Function',
@@ -340,14 +340,14 @@ describe('DynamicCatalogRegistry', () => {
         },
       };
 
-      const mockProvider: ICatalogProvider<Record<string, KaotoFunction>> = {
+      const mockProvider: ICatalogProvider<Record<string, KaotoFunction<KaotoFunctionArgument>>> = {
         id: 'custom-provider',
         fetch: () => Promise.resolve(undefined),
         fetchAll: () => Promise.resolve({}),
       };
       vi.spyOn(mockProvider, 'fetch').mockResolvedValue(mockEntity);
 
-      const catalog = new DynamicCatalog<Record<string, KaotoFunction>>(mockProvider);
+      const catalog = new DynamicCatalog<Record<string, KaotoFunction<KaotoFunctionArgument>>>(mockProvider);
       registry.setCatalog(CatalogKind.Function, catalog);
 
       const entity = await registry.getEntity(CatalogKind.Function, 'custom-key');

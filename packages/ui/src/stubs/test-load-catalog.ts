@@ -1,4 +1,4 @@
-import { CatalogLibrary, CatalogLibraryEntry, KaotoFunction } from '@kaoto/camel-catalog/types';
+import { CatalogLibrary, CatalogLibraryEntry, KaotoFunction, KaotoFunctionArgument } from '@kaoto/camel-catalog/types';
 
 import { DynamicCatalog } from '../dynamic-catalog/dynamic-catalog';
 import { DynamicCatalogRegistry } from '../dynamic-catalog/dynamic-catalog-registry';
@@ -107,8 +107,10 @@ export const testLoadCatalog = async (catalogLibraryEntry: CatalogLibraryEntry) 
   }
 
   const functionsCatalogMapImport = await import(`${catalogPath}${catalogDefinition.catalogs.functions.file}`);
-  const functionsCatalogMap: Record<string, Record<string, KaotoFunction>> = functionsCatalogMapImport.default ||
-  functionsCatalogMapImport;
+  const functionsCatalogMap: Record<
+    string,
+    Record<string, KaotoFunction<KaotoFunctionArgument>>
+  > = functionsCatalogMapImport.default || functionsCatalogMapImport;
   if (functionsCatalogMapImport.default) {
     delete functionsCatalogMapImport.default;
   }
