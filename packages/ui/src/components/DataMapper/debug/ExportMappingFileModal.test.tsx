@@ -37,6 +37,8 @@ vi.mock('@patternfly/react-code-editor', async () => {
   };
 });
 
+vi.mock('monaco-editor', () => ({}));
+
 const dndHandler = new SourceTargetDnDHandler();
 
 const TestProviders: FunctionComponent<PropsWithChildren> = ({ children }) => (

@@ -13,6 +13,16 @@ import { MappingLinksProvider } from '../../providers/data-mapping-links.provide
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { XPathEditorLayout } from './XPathEditorLayout';
 
+vi.mock('./XPathEditor', () => ({
+  XPathEditor: ({ mapping }: { mapping: IExpressionHolder }) => (
+    <div data-testid="xpath-editor">{mapping.expression}</div>
+  ),
+}));
+
+vi.mock('monaco-editor', () => ({
+  languages: { CompletionItemKind: { Keyword: 17 } },
+}));
+
 // Shared test setup
 globalThis.ResizeObserver = class ResizeObserver {
   observe() {
