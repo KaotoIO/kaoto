@@ -74,6 +74,7 @@ describe('IntegrationTypeSelector.tsx', () => {
 
     for (const testId of [
       'integration-type-route',
+      'integration-type-Camel Route XML',
       'integration-type-Pipe',
       'integration-type-Kamelet',
       'integration-type-Test',

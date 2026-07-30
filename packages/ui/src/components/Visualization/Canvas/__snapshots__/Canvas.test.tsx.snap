@@ -2536,7 +2536,7 @@ exports[`Canvas > Empty state > should render empty state when there is no visua
                                 type="button"
                               >
                                 <div
-                                  title="Add a new Camel Route route"
+                                  title="Add a new Camel Route YAML route"
                                 >
                                   <svg
                                     data-testid="plus-icon"

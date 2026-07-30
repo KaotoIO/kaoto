@@ -33,7 +33,7 @@ describe('CamelResourceFactory.createCamelResource', () => {
   it('should create an empty CamelRouteResource if a camel.xml path is specified', async () => {
     const resource = CamelResourceFactory.createCamelResource(undefined, { path: 'my-route.camel.xml' });
     await resource.initialize();
-    expect(resource.getType()).toEqual(SourceSchemaType.Route);
+    expect(resource.getType()).toEqual(SourceSchemaType.RouteXml);
     expect(resource.getEntities()).toEqual([]);
     expect(resource.getVisualEntities()).toEqual([]);
   });

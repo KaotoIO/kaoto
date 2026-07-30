@@ -24,6 +24,7 @@ import { insertXmlComments, parseXmlComments } from '../../utils/xml-comments';
 import { EntityType } from '../entities';
 import { BaseVisualCamelEntityConstructor } from '../visualization/base-visual-entity';
 import { CamelRouteResource } from './camel-route-resource';
+import { SourceSchemaType } from './source-schema-type';
 
 type SupportedEntity = {
   type: EntityType;
@@ -63,6 +64,10 @@ export class CamelXMLRouteResource extends CamelRouteResource {
 
   override get supportedEntities() {
     return CamelXMLRouteResource.SUPPORTED_ENTITIES;
+  }
+
+  override getType(): SourceSchemaType {
+    return SourceSchemaType.RouteXml;
   }
 
   override async initialize(): Promise<void> {

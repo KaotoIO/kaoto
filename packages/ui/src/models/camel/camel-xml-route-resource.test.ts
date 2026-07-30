@@ -5,6 +5,7 @@ import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../stubs/tes
 import { EntityType } from '../entities';
 import { CamelCatalogService } from '../visualization/flows';
 import { CamelXMLRouteResource } from './camel-xml-route-resource';
+import { SourceSchemaType } from './source-schema-type';
 
 describe('CamelXMLRouteResource', () => {
   const xml = `<camel><routes><route><from uri="direct:start"/><log message="hi"/><to uri="mock:result"/></route></routes></camel>`;
@@ -103,6 +104,11 @@ describe('CamelXMLRouteResource', () => {
     const resource = new CamelXMLRouteResource('');
     const output = await resource.toSourceCode();
     expect(typeof output).toBe('string');
+  });
+
+  it('returns RouteXml from getType()', () => {
+    const resource = new CamelXMLRouteResource('');
+    expect(resource.getType()).toEqual(SourceSchemaType.RouteXml);
   });
 
   it('includes Beans entities in toString() output', async () => {

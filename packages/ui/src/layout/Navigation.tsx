@@ -125,8 +125,8 @@ export const Navigation: FunctionComponent<INavigationSidebar> = (props) => {
 };
 
 const NAVIGATION_ELEMENTS = {
-  Beans: [SourceSchemaType.Route, SourceSchemaType.Kamelet],
-  RestDsl: [SourceSchemaType.Route, SourceSchemaType.Integration],
+  Beans: [SourceSchemaType.Route, SourceSchemaType.RouteXml, SourceSchemaType.Kamelet],
+  RestDsl: [SourceSchemaType.Route, SourceSchemaType.RouteXml, SourceSchemaType.Integration],
   Metadata: [
     SourceSchemaType.Integration,
     SourceSchemaType.Kamelet,

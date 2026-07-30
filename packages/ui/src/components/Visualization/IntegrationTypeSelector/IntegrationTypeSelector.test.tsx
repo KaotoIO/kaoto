@@ -68,7 +68,7 @@ describe('IntegrationTypeSelector', () => {
 
     fireEvent.click(wrapper.getByTestId('test-toggle'));
 
-    for (const label of ['Camel Route', 'Kamelet', 'Pipe', 'Test']) {
+    for (const label of ['Camel Route YAML', 'Camel Route XML', 'Kamelet', 'Pipe', 'Test']) {
       expect(await wrapper.findByText(label)).toBeInTheDocument();
     }
   });
@@ -154,7 +154,7 @@ describe('IntegrationTypeSelector', () => {
     fireEvent.click(wrapper.getByTestId('test-toggle'));
 
     const selectedOption = await wrapper.findByRole('option', { selected: true });
-    expect(selectedOption).toHaveTextContent('Camel Route');
+    expect(selectedOption).toHaveTextContent('Camel Route YAML');
   });
 
   it('does not call onSelect when no valid flowType is provided', async () => {
