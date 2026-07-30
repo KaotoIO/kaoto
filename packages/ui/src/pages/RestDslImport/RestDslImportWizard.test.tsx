@@ -107,9 +107,11 @@ describe('RestDslImportWizard', () => {
       render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
       const operationsNav = screen.getByRole('button', { name: /^Operations$/i });
       fireEvent.click(operationsNav);
+
+      const textarea = await screen.findByRole('textbox', { name: /rest-openapi-spec/i });
+      fireEvent.change(textarea, { target: { value: 'openapi: 3.0.0' } });
+
       await waitFor(() => {
-        const textarea = screen.getByRole('textbox', { name: /rest-openapi-spec/i });
-        fireEvent.change(textarea, { target: { value: 'openapi: 3.0.0' } });
         expect(mockWizard.setOpenApiSpecText).toHaveBeenCalledWith('openapi: 3.0.0');
       });
     });
@@ -118,9 +120,11 @@ describe('RestDslImportWizard', () => {
       render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
       const operationsNav = screen.getByRole('button', { name: /^Operations$/i });
       fireEvent.click(operationsNav);
+
+      const parseButton = await screen.findByRole('button', { name: /parse specification/i });
+      fireEvent.click(parseButton);
+
       await waitFor(() => {
-        const parseButton = screen.getByRole('button', { name: /parse specification/i });
-        fireEvent.click(parseButton);
         expect(mockWizard.handleParseOpenApiSpec).toHaveBeenCalled();
       });
     });
@@ -152,9 +156,11 @@ describe('RestDslImportWizard', () => {
       render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
       const operationsNav = screen.getByRole('button', { name: /^Operations$/i });
       fireEvent.click(operationsNav);
+
+      const checkbox = await screen.findByLabelText('Create Rest DSL operations');
+      fireEvent.click(checkbox);
+
       await waitFor(() => {
-        const checkbox = screen.getByLabelText('Create Rest DSL operations');
-        fireEvent.click(checkbox);
         expect(mockWizard.setImportCreateRest).toHaveBeenCalledWith(true);
       });
     });
@@ -193,9 +199,11 @@ describe('RestDslImportWizard', () => {
       render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
       const operationsNav = screen.getByRole('button', { name: /^Operations$/i });
       fireEvent.click(operationsNav);
+
+      const checkbox = await screen.findByLabelText(/GET \/pet/);
+      fireEvent.click(checkbox);
+
       await waitFor(() => {
-        const checkbox = screen.getByLabelText(/GET \/pet/);
-        fireEvent.click(checkbox);
         expect(mockWizard.handleToggleOperation).toHaveBeenCalledWith('getPet', 'get', '/pet', false);
       });
     });
@@ -216,17 +224,13 @@ describe('RestDslImportWizard', () => {
       fireEvent.click(operationsNav);
 
       // Find and click the Import button
-      await waitFor(() => {
-        const importButton = screen.getByRole('button', { name: /^Import$/i });
-        expect(importButton).toBeInTheDocument();
-        fireEvent.click(importButton);
-      });
+      const importButton = await screen.findByRole('button', { name: /^Import$/i });
+      expect(importButton).toBeInTheDocument();
+      fireEvent.click(importButton);
 
       // Navigate to Result step
-      await waitFor(() => {
-        const resultNav = screen.getByRole('button', { name: /^Result$/i });
-        fireEvent.click(resultNav);
-      });
+      const resultNav = await screen.findByRole('button', { name: /^Result$/i });
+      fireEvent.click(resultNav);
 
       await waitFor(() => {
         expect(screen.getByText('Import succeeded. 2 operations added.')).toBeInTheDocument();
@@ -246,9 +250,10 @@ describe('RestDslImportWizard', () => {
       const resultNav = screen.getByRole('button', { name: /^Result$/i });
       fireEvent.click(resultNav);
 
+      const designerButton = await screen.findByRole('button', { name: /go to designer/i });
+      fireEvent.click(designerButton);
+
       await waitFor(() => {
-        const designerButton = screen.getByRole('button', { name: /go to designer/i });
-        fireEvent.click(designerButton);
         expect(mockWizard.resetImportWizard).toHaveBeenCalled();
         expect(mockOnGoToDesigner).toHaveBeenCalled();
       });
@@ -270,10 +275,8 @@ describe('RestDslImportWizard', () => {
       const operationsNav = screen.getByRole('button', { name: /^Operations$/i });
       fireEvent.click(operationsNav);
 
-      await waitFor(() => {
-        const importButton = screen.getByRole('button', { name: /^Import$/i });
-        expect(importButton).toBeDisabled();
-      });
+      const importButton = await screen.findByRole('button', { name: /^Import$/i });
+      expect(importButton).toBeDisabled();
     });
 
     it('disables Import button when neither REST nor routes are selected', async () => {
@@ -307,9 +310,10 @@ describe('RestDslImportWizard', () => {
       const resultNav = screen.getByRole('button', { name: /^Result$/i });
       fireEvent.click(resultNav);
 
+      const restEditorButton = await screen.findByRole('button', { name: /go to rest editor/i });
+      fireEvent.click(restEditorButton);
+
       await waitFor(() => {
-        const restEditorButton = screen.getByRole('button', { name: /go to rest editor/i });
-        fireEvent.click(restEditorButton);
         expect(mockWizard.resetImportWizard).toHaveBeenCalled();
         expect(mockOnClose).toHaveBeenCalled();
       });
@@ -350,10 +354,8 @@ describe('RestDslImportWizard', () => {
       const operationsNav = screen.getByRole('button', { name: /^Operations$/i });
       fireEvent.click(operationsNav);
 
-      await waitFor(() => {
-        const importButton = screen.getByRole('button', { name: /^Import$/i });
-        fireEvent.click(importButton);
-      });
+      const importButton = await screen.findByRole('button', { name: /^Import$/i });
+      fireEvent.click(importButton);
 
       // Should still be on Operations step, not Result
       expect(screen.getByRole('textbox', { name: /rest-openapi-spec/i })).toBeInTheDocument();
