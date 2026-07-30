@@ -8,68 +8,54 @@ import { XPathService } from '../../services/xpath/xpath.service';
 import { xpathEditorConstrufctionOption, xpathEditorTheme } from './monaco-options';
 
 type XPathEditorProps = {
-  mapping: IExpressionHolder;
-  onChange: (expression: string | undefined) => void;
+    mapping: IExpressionHolder;
+    onChange: (expression: string | undefined) => void;
 };
 
 export const XPathEditor: FunctionComponent<XPathEditorProps> = ({ mapping, onChange }) => {
-  const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
-  const monacoEl = useRef(null);
-  const xpathLanguage = XPathService.getMonacoXPathLanguageMetadata();
+    const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
+    const monacoEl = useRef(null);
+    const onChangeRef = useRef(onChange);
+    onChangeRef.current = onChange;
+    const xpathLanguage = XPathService.getMonacoXPathLanguageMetadata();
 
-  useEffect(() => {
-    const previousExpression = editor?.getModel()?.getValue();
-    if (previousExpression !== mapping.expression) editor?.getModel()?.setValue(mapping.expression);
-  }, [editor, mapping.expression]);
+    useEffect(() => {
+          const previousExpression = editor?.getModel()?.getValue();
+          if (previousExpression !== mapping.expression) editor?.getModel()?.setValue(mapping.expression);
+    }, [editor, mapping.expression]);
 
-  useEffect(() => {
-    if (monacoEl) {
-      setEditor((editor) => {
-        if (editor) return editor;
+    useEffect(() => {
+          if (!monacoEl.current) return;
 
         monaco.languages.register({ id: xpathLanguage.id });
-        monaco.languages.setMonarchTokensProvider(xpathLanguage.id, xpathLanguage.tokensProvider);
-        monaco.languages.setLanguageConfiguration(xpathLanguage.id, xpathLanguage.languageConfiguration);
-        monaco.languages.registerCompletionItemProvider(xpathLanguage.id, xpathLanguage.completionItemProvider);
-        monaco.languages.registerHoverProvider(xpathLanguage.id, {
-          provideHover: (model, position, token, context) => {
-            console.log(`#### ${model}, ${position}, ${token}, ${context}`);
-            return { contents: [{ value: 'test' }] };
-          },
-        });
-        const themeName = 'datamapperTheme';
-        monaco.editor.defineTheme(themeName, xpathEditorTheme);
+          monaco.languages.setMonarchTokensProvider(xpathLanguage.id, xpathLanguage.tokensProvider);
+          monaco.languages.setLanguageConfiguration(xpathLanguage.id, xpathLanguage.languageConfiguration);
+          monaco.languages.registerCompletionItemProvider(xpathLanguage.id, xpathLanguage.completionItemProvider);
+          monaco.languages.registerHoverProvider(xpathLanguage.id, {
+                  provideHover: () => ({ contents: [{ value: 'test' }] }),
+          });
+          const themeName = 'datamapperTheme';
+          monaco.editor.defineTheme(themeName, xpathEditorTheme);
 
-        const newEditor = monaco.editor.create(monacoEl.current!, {
-          ...xpathEditorConstrufctionOption,
-          theme: themeName,
-          value: mapping.expression,
-          minimap: {
-            enabled: false,
-          },
-        });
-        newEditor.onDidChangeModelContent((_e) => {
-          onChange(newEditor.getModel()?.getValue());
-        });
-        return newEditor;
-      });
-    }
+    const newEditor = monaco.editor.create(monacoEl.current, {
+      ...xpathEditorConstrufctionOption,
+      theme: themeName,
+      value: mapping.expression,
+      minimap: {
+        enabled: false,
+      },
+    });
+    newEditor.onDidChangeModelContent(() => {
+      onChangeRef.current(newEditor.getModel()?.getValue());
+    });
+    setEditor(newEditor);
 
     return () => {
-      if (!monacoEl) {
-        editor?.dispose();
-        setEditor(null);
-      }
+      newEditor.dispose();
+      setEditor(null);
     };
-  }, [
-    editor,
-    mapping.expression,
-    onChange,
-    xpathLanguage.completionItemProvider,
-    xpathLanguage.id,
-    xpathLanguage.languageConfiguration,
-    xpathLanguage.tokensProvider,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return <div className="xpath-editor" data-testid="xpath-editor" ref={monacoEl} />;
 };
