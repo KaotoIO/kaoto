@@ -1,4 +1,4 @@
-import { KaotoFunction } from '@kaoto/camel-catalog/types';
+import { KaotoFunction, KaotoFunctionArgument } from '@kaoto/camel-catalog/types';
 
 import { ICamelComponentDefinition } from '../models/camel/camel-components-catalog';
 import { ICamelDataformatDefinition } from '../models/camel/camel-dataformats-catalog';
@@ -23,7 +23,7 @@ export type DynamicCatalogTypeMap = {
   [CatalogKind.TestEndpoint]: ICitrusComponentDefinition;
   [CatalogKind.TestFunction]: ICitrusComponentDefinition;
   [CatalogKind.TestValidationMatcher]: ICitrusComponentDefinition;
-  [CatalogKind.Function]: Record<string, KaotoFunction>;
+  [CatalogKind.Function]: Record<string, KaotoFunction<KaotoFunctionArgument>>;
 };
 
 export interface ICatalogProvider<T> {

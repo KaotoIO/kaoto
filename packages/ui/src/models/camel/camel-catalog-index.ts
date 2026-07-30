@@ -1,4 +1,9 @@
-import { CatalogDefinition, CatalogDefinitionEntry, KaotoFunction } from '@kaoto/camel-catalog/types';
+import {
+  CatalogDefinition,
+  CatalogDefinitionEntry,
+  KaotoFunction,
+  KaotoFunctionArgument,
+} from '@kaoto/camel-catalog/types';
 
 import { CatalogKind } from '../catalog-kind';
 import { ICitrusComponentDefinition } from '../citrus/citrus-catalog';
@@ -32,7 +37,7 @@ export type ComponentsCatalogTypes =
   | ICamelLoadBalancerDefinition
   | IKameletDefinition
   | ICitrusComponentDefinition
-  | Record<string, KaotoFunction>;
+  | Record<string, KaotoFunction<KaotoFunctionArgument>>;
 export type DefinedComponent = {
   name: string;
   type: CatalogKind;
@@ -55,5 +60,5 @@ export interface ComponentsCatalog {
   [CatalogKind.TestEndpoint]?: Record<string, ICitrusComponentDefinition>;
   [CatalogKind.TestFunction]?: Record<string, ICitrusComponentDefinition>;
   [CatalogKind.TestValidationMatcher]?: Record<string, ICitrusComponentDefinition>;
-  [CatalogKind.Function]?: Record<string, Record<string, KaotoFunction>>;
+  [CatalogKind.Function]?: Record<string, Record<string, KaotoFunction<KaotoFunctionArgument>>>;
 }

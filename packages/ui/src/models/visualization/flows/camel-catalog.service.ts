@@ -1,4 +1,4 @@
-import { KaotoFunction } from '@kaoto/camel-catalog/catalog-index.d.ts';
+import { KaotoFunction, KaotoFunctionArgument } from '@kaoto/camel-catalog/catalog-index.d.ts';
 
 import { ComponentsCatalog, ComponentsCatalogTypes } from '../../camel/camel-catalog-index';
 import { ICamelComponentDefinition } from '../../camel/camel-components-catalog';
@@ -61,7 +61,7 @@ export class CamelCatalogService {
   static getComponent(
     catalogKey: CatalogKind.Function,
     componentName?: string,
-  ): Record<string, KaotoFunction> | undefined;
+  ): Record<string, KaotoFunction<KaotoFunctionArgument>> | undefined;
   static getComponent(catalogKey: CatalogKind, componentName?: string): ComponentsCatalogTypes | undefined;
   static getComponent(catalogKey: CatalogKind, componentName?: string): ComponentsCatalogTypes | undefined {
     if (componentName === undefined) return undefined;
