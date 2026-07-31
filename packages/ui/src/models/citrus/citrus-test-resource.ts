@@ -1,5 +1,5 @@
 import { isDefined } from '@kaoto/forms';
-import { stringify } from 'yaml';
+import { parse, stringify } from 'yaml';
 
 import { ITile, TileFilter } from '../../components/Catalog';
 import { DynamicCatalogRegistry } from '../../dynamic-catalog/dynamic-catalog-registry';
@@ -137,7 +137,7 @@ export class CitrusTestResource implements KaotoResource {
     if (entityTemplate) {
       test = entityTemplate as Test;
     } else {
-      const template = FlowTemplateService.getFlowTemplate(this.getType());
+      const template = parse(FlowTemplateService.getFlowSourceTemplate(this.getType()));
       test = template[0] as Test;
     }
     const entity = new CitrusTestVisualEntity(test);

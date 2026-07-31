@@ -1,4 +1,5 @@
 import { Pipe as PipeType } from '@kaoto/camel-catalog/types';
+import { parse } from 'yaml';
 
 import { ITile, TileFilter } from '../../components/Catalog/Catalog.models';
 import { CatalogKind } from '../catalog-kind';
@@ -38,7 +39,7 @@ export class PipeResource extends CamelKResource {
 
   removeEntity(): void {
     super.removeEntity();
-    const flowTemplate: PipeType = FlowTemplateService.getFlowTemplate(this.getType());
+    const flowTemplate: PipeType = parse(FlowTemplateService.getFlowSourceTemplate(this.getType()));
     this.pipe = flowTemplate;
     this.flow = new PipeVisualEntity(flowTemplate);
   }
