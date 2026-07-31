@@ -654,6 +654,25 @@ describe('MappingService', () => {
     });
   });
 
+  describe('removeStaleMappingsForDocument() preserving VariableItem', () => {
+    it('should preserve the exact VariableItem instance when a choice member is selected', () => {
+      // Bug regression: variable disappears when a sibling choice member is selected.
+      // updateDocument() calls removeStaleMappingsForDocument() which was pruning VariableItems.
+      const parentItem = tree.children[0] as FieldItem;
+      const variable = new VariableItem(parentItem, 'myVar');
+      parentItem.children.splice(0, 0, variable); // insert at front, as addVariable() would
+
+      MappingService.removeStaleMappingsForDocument(tree, targetDoc);
+
+      // The parent FieldItem may be replaced by updateFieldItemField; resolve it from the tree.
+      const replacedParent = tree.children[0] as FieldItem;
+      // Reference identity: the exact VariableItem instance must still be present, not pruned.
+      expect(replacedParent.children).toContain(variable);
+      // Its parent pointer must be updated to the replacement FieldItem it now lives under.
+      expect(variable.parent).toBe(replacedParent);
+    });
+  });
+
   describe('addIf()', () => {
     it('should add if with mapping', () => {
       const parent = tree.children[0];

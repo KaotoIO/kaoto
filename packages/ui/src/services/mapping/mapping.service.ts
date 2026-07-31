@@ -195,7 +195,8 @@ export class MappingService {
         (compatibleField && child instanceof FieldItem && child.isUserCreated) ||
         child.parent instanceof InstructionItem ||
         child instanceof InstructionItem ||
-        child instanceof ValueSelector
+        child instanceof ValueSelector ||
+        child instanceof VariableItem
       ) {
         acc.push(child);
       }

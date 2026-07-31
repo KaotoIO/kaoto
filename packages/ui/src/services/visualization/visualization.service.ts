@@ -493,28 +493,50 @@ export class VisualizationService {
    * @param nodeData - The node to inspect.
    */
   static hasChildren(nodeData: NodeData) {
-    if (nodeData instanceof DocumentNodeData) {
-      if (DocumentService.hasFields(nodeData.document)) return true;
-      const isPrimitiveDocument = nodeData instanceof TargetDocumentNodeData && nodeData.isPrimitive;
-      const isPrimitiveDocumentWithConditionItem =
-        isPrimitiveDocument && nodeData.mapping.children.some((m) => !VisualizationService.isInlineValueSelector(m));
-      if (isPrimitiveDocumentWithConditionItem) return true;
-    }
-    if (nodeData instanceof FieldNodeData) {
-      if (VisualizationService.resolveWrapperSpec(nodeData)?.spec.isTargetInstance(nodeData)) {
-        return (nodeData as TargetFieldNodeData).mapping instanceof FieldItem;
-      }
-      return DocumentService.hasChildren(nodeData.field);
-    }
-    if (nodeData instanceof FieldItemNodeData) {
-      if (nodeData.wrapperField && nodeData.field === nodeData.wrapperField) return false;
-      return (
-        DocumentService.hasChildren(nodeData.field) ||
-        nodeData.mapping.children.some((m) => !VisualizationService.isInlineValueSelector(m))
-      );
-    }
+    if (nodeData instanceof DocumentNodeData) return VisualizationService.documentHasChildren(nodeData);
+    if (nodeData instanceof FieldNodeData) return VisualizationService.fieldNodeHasChildren(nodeData);
+    if (nodeData instanceof FieldItemNodeData) return VisualizationService.fieldItemNodeHasChildren(nodeData);
     if (nodeData instanceof MappingNodeData) return nodeData.mapping.children.length > 0;
     return false;
+  }
+
+  private static documentHasChildren(nodeData: DocumentNodeData): boolean {
+    if (DocumentService.hasFields(nodeData.document)) return true;
+    return (
+      nodeData instanceof TargetDocumentNodeData &&
+      nodeData.isPrimitive &&
+      nodeData.mapping.children.some((m) => !VisualizationService.isInlineValueSelector(m))
+    );
+  }
+
+  /**
+   * Returns whether a selected target wrapper node (choice/abstract) is expandable.
+   * A FieldItem that exists solely because of the selection but has nothing inside
+   * should not show an expand arrow — only schema sub-fields or non-trivial mapping
+   * children (e.g. instructions) justify expansion.
+   */
+  private static selectedWrapperHasChildren(nodeData: TargetFieldNodeData): boolean {
+    const mapping = nodeData.mapping;
+    if (!(mapping instanceof FieldItem)) return false;
+    return (
+      DocumentService.hasChildren(nodeData.field) ||
+      mapping.children.some((m) => !VisualizationService.isInlineValueSelector(m))
+    );
+  }
+
+  private static fieldNodeHasChildren(nodeData: FieldNodeData): boolean {
+    if (VisualizationService.resolveWrapperSpec(nodeData)?.spec.isTargetInstance(nodeData)) {
+      return VisualizationService.selectedWrapperHasChildren(nodeData as TargetFieldNodeData);
+    }
+    return DocumentService.hasChildren(nodeData.field);
+  }
+
+  private static fieldItemNodeHasChildren(nodeData: FieldItemNodeData): boolean {
+    if (nodeData.wrapperField && nodeData.field === nodeData.wrapperField) return false;
+    return (
+      DocumentService.hasChildren(nodeData.field) ||
+      nodeData.mapping.children.some((m) => !VisualizationService.isInlineValueSelector(m))
+    );
   }
 
   /**

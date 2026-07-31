@@ -91,6 +91,63 @@ describe('VisualizationService / choice fields', () => {
       const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
       expect(VisualizationService.hasChildren(choiceNode)).toBe(false);
     });
+
+    it('should return false for selected target choice whose leaf member has no schema children and empty FieldItem', () => {
+      const choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }], 0);
+      const parentFieldItem = new FieldItem(tree, targetDoc.fields[0]);
+      tree.children.push(parentFieldItem);
+      const memberFieldItem = new FieldItem(parentFieldItem, choiceField.fields[0]);
+      parentFieldItem.children.push(memberFieldItem);
+
+      const parentNode = new TargetFieldNodeData(targetDocNode, targetDoc.fields[0]);
+      parentNode.mapping = parentFieldItem;
+      const selectedNode = new TargetChoiceFieldNodeData(parentNode, choiceField.fields[0]);
+      selectedNode.choiceField = choiceField;
+      selectedNode.mapping = memberFieldItem;
+
+      expect(VisualizationService.hasChildren(selectedNode)).toBe(false);
+    });
+
+    it('should return true for selected target choice whose member has schema children', () => {
+      const memberWithChildren = {
+        ...targetDoc.fields[0],
+        name: 'address',
+        displayName: 'address',
+        fields: [{ ...targetDoc.fields[0], name: 'street', displayName: 'street', fields: [] }],
+      } as unknown as (typeof targetDoc.fields)[0];
+      const choiceField = createMockChoiceField([{ name: 'phone' }]);
+      (choiceField as unknown as Record<string, unknown>).fields = [memberWithChildren];
+      const parentFieldItem = new FieldItem(tree, targetDoc.fields[0]);
+      tree.children.push(parentFieldItem);
+      const memberFieldItem = new FieldItem(parentFieldItem, memberWithChildren);
+      parentFieldItem.children.push(memberFieldItem);
+
+      const parentNode = new TargetFieldNodeData(targetDocNode, targetDoc.fields[0]);
+      parentNode.mapping = parentFieldItem;
+      const selectedNode = new TargetChoiceFieldNodeData(parentNode, memberWithChildren);
+      selectedNode.choiceField = choiceField;
+      selectedNode.mapping = memberFieldItem;
+
+      expect(VisualizationService.hasChildren(selectedNode)).toBe(true);
+    });
+
+    it('should return true for selected target choice whose FieldItem has instruction children', () => {
+      const choiceField = createMockChoiceField([{ name: 'email' }], 0);
+      const parentFieldItem = new FieldItem(tree, targetDoc.fields[0]);
+      tree.children.push(parentFieldItem);
+      const memberFieldItem = new FieldItem(parentFieldItem, choiceField.fields[0]);
+      const ifItem = new IfItem(memberFieldItem);
+      memberFieldItem.children.push(ifItem);
+      parentFieldItem.children.push(memberFieldItem);
+
+      const parentNode = new TargetFieldNodeData(targetDocNode, targetDoc.fields[0]);
+      parentNode.mapping = parentFieldItem;
+      const selectedNode = new TargetChoiceFieldNodeData(parentNode, choiceField.fields[0]);
+      selectedNode.choiceField = choiceField;
+      selectedNode.mapping = memberFieldItem;
+
+      expect(VisualizationService.hasChildren(selectedNode)).toBe(true);
+    });
   });
 
   describe('doGenerateNodeDataFromFields with choice fields', () => {
