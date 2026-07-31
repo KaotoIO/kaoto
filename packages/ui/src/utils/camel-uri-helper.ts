@@ -6,6 +6,14 @@ import { getValue } from './get-value';
 
 export type ParsedParameters = Record<string, string | boolean | number>;
 
+interface SyntaxAnalysis {
+  schema: string;
+  syntax: string;
+  delimiters: string[] | null;
+  delimiterRegex: RegExp | null;
+  keys: string[];
+}
+
 /**
  * Helper class for working with Camel URIs
  */
@@ -94,17 +102,10 @@ export class CamelUriHelper {
     parameters?: ParsedParameters,
     options?: { requiredParameters?: string[]; defaultValues?: ParsedParameters },
   ): string {
-    const { schema, syntax: syntaxWithoutScheme } = this.getSyntaxWithoutSchema(uriSyntax);
+    const { schema, syntax: syntaxWithoutScheme, delimiters, keys } = this.analyzeSyntax(uriSyntax);
     /** Prepare options */
     const requiredParameters = options?.requiredParameters ?? [];
     const defaultValues = options?.defaultValues ?? {};
-
-    /**
-     * Retrieve the delimiters from the syntax by matching the delimiters
-     * Example: 'transport:host:port/messageName' => [':', ':', '/']
-     */
-    const delimiters = syntaxWithoutScheme.match(this.URI_SEPARATORS_REGEX);
-    this.URI_SEPARATORS_REGEX.lastIndex = 0;
 
     /** If the syntax does not contain any delimiters, we can return the URI string as is */
     if (
@@ -123,14 +124,6 @@ export class CamelUriHelper {
       return paramQueryString && paramQueryString !== '' ? uri + '?' + paramQueryString : uri;
     }
 
-    /** Otherwise, we create a RegExp using the delimiters found [':', ':', '/'] */
-    const delimitersRegex = new RegExp(delimiters.join('|'), 'g');
-
-    /**
-     * Splitting the syntax string using the delimiters
-     * keys: [ 'transport', 'host', 'port', 'messageName' ]
-     */
-    const keys = syntaxWithoutScheme.split(delimitersRegex);
     const values = keys.map((key, keyIndex) => {
       const valueOrUndefined = parameters[key] === '' ? undefined : parameters[key];
       const value = valueOrUndefined ?? defaultValues[key] ?? '';
@@ -174,30 +167,19 @@ export class CamelUriHelper {
     /** Holder for parsed parameters */
     const parameters: ParsedParameters = {};
 
-    const syntaxWithoutScheme = this.getSyntaxWithoutSchema(uriSyntax).syntax;
+    const { syntax: syntaxWithoutScheme, delimiters, delimiterRegex, keys } = this.analyzeSyntax(uriSyntax);
     const uriWithoutScheme = this.getUriWithoutScheme(uriString, uriSyntax);
-
-    /**
-     * Retrieve the delimiters from the syntax by matching the delimiters
-     * Example: 'transport:host:port/messageName' => [':', ':', '/']
-     */
-    const delimiters = syntaxWithoutScheme.match(this.URI_SEPARATORS_REGEX);
-    this.URI_SEPARATORS_REGEX.lastIndex = 0;
 
     /** If the syntax does not contain any delimiters, we can return the URI string as is */
     if (delimiters === null && uriWithoutScheme !== '') {
       parameters[syntaxWithoutScheme] = uriWithoutScheme;
-    } else if (delimiters !== null) {
-      /** Otherwise, we create a RegExp using the delimiters found [':', ':', '/'] */
-      const delimitersRegex = new RegExp(delimiters.join('|'), 'g');
-
+    } else if (delimiters !== null && delimiterRegex !== null) {
       /**
-       * Splitting the syntax and the URI string using the delimiters
+       * Split the URI string using the delimiters from the analyzed syntax.
        * keys: [ 'transport', 'host', 'port', 'messageName' ]
        * values: [ 'netty', 'localhost', '41414', 'foo' ]
        */
-      const keys = syntaxWithoutScheme.split(delimitersRegex);
-      const values = uriWithoutScheme.split(delimitersRegex);
+      const values = uriWithoutScheme.split(delimiterRegex);
 
       /**
        * There are special cases where some keys are not required, and the user didn't provide them.
@@ -228,6 +210,24 @@ export class CamelUriHelper {
     }
 
     return parameters;
+  }
+
+  /** Analyze a URI syntax template once for both path serialization and parsing. */
+  private static analyzeSyntax(uriSyntax: string): SyntaxAnalysis {
+    const { schema, syntax } = this.getSyntaxWithoutSchema(uriSyntax);
+    const delimiterMatches: string[] = [];
+    let separatorMatch = this.URI_SEPARATORS_REGEX.exec(syntax);
+    while (separatorMatch !== null) {
+      delimiterMatches.push(separatorMatch[0]);
+      separatorMatch = this.URI_SEPARATORS_REGEX.exec(syntax);
+    }
+    this.URI_SEPARATORS_REGEX.lastIndex = 0;
+    const delimiters = delimiterMatches.length === 0 ? null : delimiterMatches;
+
+    const delimiterRegex = delimiters === null ? null : new RegExp(delimiters.join('|'), 'g');
+    const keys = delimiterRegex === null ? [syntax] : syntax.split(delimiterRegex);
+
+    return { schema, syntax, delimiters, delimiterRegex, keys };
   }
 
   /** Transform the query string portion of a URI `param1=12&param2=hey`, into a key-value object */

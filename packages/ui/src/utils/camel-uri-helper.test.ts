@@ -448,4 +448,61 @@ describe('CamelUriHelper', () => {
       },
     );
   });
+
+  describe('analyzeSyntax', () => {
+    it.each([
+      {
+        uriSyntax: 'log',
+        expected: {
+          schema: 'log',
+          syntax: '',
+          delimiters: null,
+          delimiterRegex: null,
+          keys: [''],
+        },
+      },
+      {
+        uriSyntax: 'timer:timerName',
+        expected: {
+          schema: 'timer',
+          syntax: 'timerName',
+          delimiters: null,
+          delimiterRegex: null,
+          keys: ['timerName'],
+        },
+      },
+      {
+        uriSyntax: 'avro:transport:host:port/messageName',
+        expected: {
+          schema: 'avro',
+          syntax: 'transport:host:port/messageName',
+          delimiters: [':', ':', '/'],
+          delimiterRegex: /:|:|\//g,
+          keys: ['transport', 'host', 'port', 'messageName'],
+        },
+      },
+      {
+        uriSyntax: 'http://httpUri',
+        expected: {
+          schema: 'http',
+          syntax: '//httpUri',
+          delimiters: ['//'],
+          delimiterRegex: /\/\//g,
+          keys: ['', 'httpUri'],
+        },
+      },
+      {
+        uriSyntax: 'rest-openapi:specificationUri#operationId',
+        expected: {
+          schema: 'rest-openapi',
+          syntax: 'specificationUri#operationId',
+          delimiters: ['#'],
+          delimiterRegex: /#/g,
+          keys: ['specificationUri', 'operationId'],
+        },
+      },
+    ])('should analyze $uriSyntax as canonical syntax metadata', ({ uriSyntax, expected }) => {
+      expect(CamelUriHelper['analyzeSyntax'](uriSyntax)).toEqual(expected);
+    });
+  });
 });
