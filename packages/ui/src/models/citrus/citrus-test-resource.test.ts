@@ -1,5 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { parse } from 'yaml';
 
 import { ITile } from '../../components/Catalog';
 import { DynamicCatalogRegistry } from '../../dynamic-catalog/dynamic-catalog-registry';
@@ -58,7 +59,10 @@ describe('CitrusTestResource', () => {
       const resource = new CitrusTestResource();
       await resource.initialize();
       resource.addNewEntity();
-      const id = resource.addNewEntity(EntityType.Test, FlowTemplateService.getFlowTemplate(SourceSchemaType.Test)[0]);
+      const id = resource.addNewEntity(
+        EntityType.Test,
+        parse(FlowTemplateService.getFlowSourceTemplate(SourceSchemaType.Test))[0],
+      );
 
       expect(resource.getVisualEntities()).toHaveLength(2);
       expect(resource.getVisualEntities()[1].id).toEqual(id);

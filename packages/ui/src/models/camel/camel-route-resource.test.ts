@@ -1,4 +1,5 @@
 import { CamelYamlDsl, RouteConfigurationDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
+import { parse } from 'yaml';
 
 import { beansJson } from '../../stubs/beans';
 import { camelFromJson } from '../../stubs/camel-from';
@@ -166,7 +167,7 @@ describe('CamelRouteResource', () => {
       resource.addNewEntity();
       const id = resource.addNewEntity(
         EntityType.Route,
-        FlowTemplateService.getFlowTemplate(SourceSchemaType.Route)[0],
+        parse(FlowTemplateService.getFlowSourceTemplate(SourceSchemaType.Route))[0],
       );
 
       expect(resource.getVisualEntities()).toHaveLength(2);

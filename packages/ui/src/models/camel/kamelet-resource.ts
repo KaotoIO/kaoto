@@ -1,3 +1,5 @@
+import { parse } from 'yaml';
+
 import { TileFilter } from '../../components/Catalog/Catalog.models';
 import { setValue } from '../../utils';
 import { RouteTemplateBeansAwareResource } from '../kaoto-resource';
@@ -22,7 +24,7 @@ export class KameletResource extends CamelKResource implements RouteTemplateBean
     super(kamelet);
 
     if (!kamelet) {
-      this.resource = FlowTemplateService.getFlowTemplate(this.getType());
+      this.resource = parse(FlowTemplateService.getFlowSourceTemplate(this.getType()));
     }
     this.flow = new KameletVisualEntity(this.resource as IKameletDefinition);
   }
@@ -41,7 +43,7 @@ export class KameletResource extends CamelKResource implements RouteTemplateBean
 
   removeEntity(): void {
     super.removeEntity();
-    this.resource = FlowTemplateService.getFlowTemplate(this.getType());
+    this.resource = parse(FlowTemplateService.getFlowSourceTemplate(this.getType()));
     this.flow = new KameletVisualEntity(this.resource as IKameletDefinition);
     this.beans = undefined;
   }

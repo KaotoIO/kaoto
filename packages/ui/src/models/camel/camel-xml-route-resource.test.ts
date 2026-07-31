@@ -111,6 +111,20 @@ describe('CamelXMLRouteResource', () => {
     expect(resource.getType()).toEqual(SourceSchemaType.RouteXml);
   });
 
+  it('adds a default route without parsing the XML template as YAML', async () => {
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    setupDynamicCatalogRegistry(catalogsMap);
+    const resource = new CamelXMLRouteResource(xml);
+    await resource.initialize();
+
+    const id = resource.addNewEntity();
+
+    const visualEntities = resource.getVisualEntities();
+    expect(visualEntities).toHaveLength(2);
+    const addedRoute = visualEntities.find((entity) => entity.id === id);
+    expect(addedRoute?.toJSON().route.from).toBeDefined();
+  });
+
   it('includes Beans entities in toString() output', async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     setupDynamicCatalogRegistry(catalogsMap);
