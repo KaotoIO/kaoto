@@ -4,12 +4,7 @@ import { useDocumentTreeStore } from './document-tree.store';
 import { useSchemasStore } from './schemas.store';
 import { useSourceCodeStore } from './sourcecode.store';
 
-let isDevMode = true;
-try {
-  isDevMode = NODE_ENV === 'development';
-} catch (error) {
-  console.warn('NODE_ENV is not defined');
-}
+const isDevMode = import.meta.env?.DEV === true && import.meta.env.MODE !== 'test';
 
 if (isDevMode) {
   mountStoreDevtool('Schemas Store', useSchemasStore);
