@@ -10,6 +10,10 @@ import { RuntimeProvider } from '../../providers/runtime.provider';
 import { CatalogSchemaLoader } from '../../utils/catalog-schema-loader';
 import { errorMessage, useRuntimeContext } from './useRuntimeContext';
 
+vi.mock('../../dynamic-catalog/support/fetch-xslt-xpath-functions', () => ({
+  fetchXsltXPathFunctions: vi.fn().mockResolvedValue(undefined),
+}));
+
 const kaotoResource = { getType: () => SourceSchemaType.Integration } as unknown as KaotoResource;
 
 const wrapper = ({ children }: PropsWithChildren) => (

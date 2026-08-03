@@ -11,6 +11,7 @@ import { DocumentUtilService } from '../document/document-util.service';
 import { getPrefixForNamespaceURI } from '../namespace-util';
 import { XPATH_2_0_FUNCTIONS } from './2.0/xpath-2.0-functions';
 import { XPath2Parser } from './2.0/xpath-2.0-parser';
+import { XPathFunctionCatalogService } from './catalog/xpath-function-catalog.service';
 import { monacoXPathLanguageMetadata } from './monaco-language';
 import { CstVisitor } from './syntaxtree/xpath-syntaxtree-cst-visitor';
 import {
@@ -36,7 +37,6 @@ import { FunctionGroup, ValidatedXPathParseResult, XPathParserResult } from './x
  */
 export class XPathService {
   static readonly parser = new XPath2Parser();
-  static readonly functions = XPATH_2_0_FUNCTIONS;
 
   /**
    * Parses an XPath expression string into a parser result
@@ -80,8 +80,8 @@ export class XPathService {
    * Gets all XPath function definitions grouped by function category
    * @returns record of function definitions organized by function group
    */
-  static getXPathFunctionDefinitions(): Record<FunctionGroup, IFunctionDefinition[]> {
-    return XPathService.functions;
+  static getXPathFunctionDefinitions(): Partial<Record<FunctionGroup, IFunctionDefinition[]>> {
+    return XPathFunctionCatalogService.getCatalog() ?? XPATH_2_0_FUNCTIONS;
   }
 
   private static getXPathFunctionNames(): string[] {

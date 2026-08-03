@@ -14,7 +14,7 @@ import { patternMatchingFunctions, stringFunctions, substringMatchingFunctions }
  * https://www.w3.org/TR/2010/REC-xpath-functions-20101214/
  */
 
-export const XPATH_2_0_FUNCTIONS: Record<FunctionGroup, IFunctionDefinition[]> = {
+export const XPATH_2_0_FUNCTIONS: Partial<Record<FunctionGroup, IFunctionDefinition[]>> = {
   [FunctionGroup.String]: stringFunctions,
   [FunctionGroup.SubstringMatching]: substringMatchingFunctions,
   [FunctionGroup.PatternMatching]: patternMatchingFunctions,

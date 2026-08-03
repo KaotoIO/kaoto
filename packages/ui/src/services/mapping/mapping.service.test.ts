@@ -31,6 +31,7 @@ import { DocumentUtilService } from '../document/document-util.service';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
 import { MappingLinksService } from '../visualization/mapping-links.service';
 import { XPathService } from '../xpath/xpath.service';
+import { FunctionGroup } from '../xpath/xpath-model';
 import { FieldMatchingService } from './field-matching.service';
 import { MappingService } from './mapping.service';
 import { MappingSerializerService } from './mapping-serializer.service';
@@ -746,7 +747,9 @@ describe('MappingService', () => {
 
   describe('wrapWithFunction()', () => {
     it('should wrap with xpath function', () => {
-      const concatFx = XPathService.functions.String.find((f) => f.name === 'concat');
+      const concatFx = XPathService.getXPathFunctionDefinitions()[FunctionGroup.String]?.find(
+        (f) => f.name === 'concat',
+      );
       const valueSelector = new ValueOfSelector(tree);
       valueSelector.expression = '/path/to/field';
       MappingService.wrapWithFunction(valueSelector, concatFx!);
