@@ -5,9 +5,11 @@ import { createContext, FunctionComponent, PropsWithChildren, useEffect, useMemo
 
 import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 import { Loading } from '../components/Loading';
+import { fetchXsltXPathFunctions } from '../dynamic-catalog/support/fetch-xslt-xpath-functions';
 import { useKaotoResourceContext } from '../hooks/useKaotoResourceContext/useKaotoResourceContext';
 import { LoadingStatus } from '../models';
 import { SourceSchemaType } from '../models/camel/source-schema-type';
+import { XPathFunctionCatalogService } from '../services/xpath/catalog/xpath-function-catalog.service';
 import { findCatalog } from '../utils/catalog-helper';
 
 export interface IRuntimeContext {
@@ -66,6 +68,10 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<IRuntimeProvid
         if (isDefined(catalogLibraryEntry)) {
           setSelectedCatalog(catalogLibraryEntry);
         }
+
+        return fetchXsltXPathFunctions(basePath, catalogLibrary).catch(() => {
+          /* XSLT catalog load failure is non-fatal — XPath editor falls back to hardcoded functions */
+        });
       })
       .then(() => {
         setLoadingStatus(LoadingStatus.Loaded);
@@ -74,6 +80,10 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<IRuntimeProvid
         setErrorMessage(error.message);
         setLoadingStatus(LoadingStatus.Error);
       });
+
+    return () => {
+      XPathFunctionCatalogService.clear();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSchemaType]);
 

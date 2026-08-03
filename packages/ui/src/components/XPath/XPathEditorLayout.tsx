@@ -129,9 +129,10 @@ export const XPathEditorLayout: FunctionComponent<XPathEditorLayoutProps> = ({
                   <MenuContent>
                     {Object.keys(functionDefinitions).map((value) => {
                       const isExpanded = expandedGroups.has(value);
-                      const hasVisibleItems = functionDefinitions[value as FunctionGroup].some((func) =>
-                        func.displayName.toLocaleLowerCase().includes(getSearchValue),
-                      );
+                      const groupFunctions = functionDefinitions[value as FunctionGroup];
+                      const hasVisibleItems =
+                        groupFunctions?.some((func) => func.displayName.toLocaleLowerCase().includes(getSearchValue)) ??
+                        false;
 
                       if (!hasVisibleItems) return null;
 
@@ -154,7 +155,7 @@ export const XPathEditorLayout: FunctionComponent<XPathEditorLayoutProps> = ({
                           }
                         >
                           {isExpanded &&
-                            functionDefinitions[value as FunctionGroup]
+                            (functionDefinitions[value as FunctionGroup] ?? [])
                               .filter((func) => func.displayName.toLocaleLowerCase().includes(getSearchValue))
                               .map((func) => (
                                 <DraggableContainer

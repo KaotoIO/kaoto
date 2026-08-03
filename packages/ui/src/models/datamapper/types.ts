@@ -32,6 +32,36 @@ export enum Types {
   Array = 'Array',
 }
 
+/** Maps XSD / XPath type notation strings to the {@link Types} enum. */
+export const TYPE_STRING_TO_TYPES: Record<string, Types> = {
+  'xs:string': Types.String,
+  'xs:boolean': Types.Boolean,
+  'xs:integer': Types.Integer,
+  'xs:decimal': Types.Decimal,
+  'xs:double': Types.Double,
+  'xs:float': Types.Float,
+  'xs:numeric': Types.Numeric,
+  'xs:date': Types.Date,
+  'xs:dateTime': Types.DateTime,
+  'xs:dateTimeStamp': Types.DateTime,
+  'xs:time': Types.Time,
+  'xs:duration': Types.Duration,
+  'xs:dayTimeDuration': Types.DayTimeDuration,
+  'xs:anyAtomicType': Types.AnyAtomicType,
+  'xs:anyType': Types.AnyType,
+  'xs:anyURI': Types.AnyURI,
+  'xs:QName': Types.QName,
+  'xs:NCName': Types.NCName,
+  'xs:language': Types.String,
+  'xs:base64Binary': Types.AnyAtomicType,
+  'xs:positiveInteger': Types.PositiveInteger,
+  'item()': Types.Item,
+  'node()': Types.Node,
+  'element()': Types.Element,
+  'document-node()': Types.DocumentNode,
+  none: Types.Item,
+};
+
 export enum FieldOverrideVariant {
   NONE = 'NONE',
   SAFE = 'SAFE',

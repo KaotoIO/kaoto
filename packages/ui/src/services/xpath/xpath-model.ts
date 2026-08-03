@@ -34,7 +34,31 @@ export enum FunctionGroup {
   Node = 'Node',
   Sequence = 'Sequence',
   Context = 'Context',
+  Math = 'Math',
+  Map = 'Map',
+  Array = 'Array',
+  HigherOrder = 'Higher-Order',
+  XSLT = 'XSLT',
 }
+
+/** Maps {@link @kaoto/camel-catalog} XPath function category keys to {@link FunctionGroup} values. */
+export const CATEGORY_TO_FUNCTION_GROUP: Record<string, FunctionGroup> = {
+  String: FunctionGroup.String,
+  SubstringMatching: FunctionGroup.SubstringMatching,
+  PatternMatching: FunctionGroup.PatternMatching,
+  Numeric: FunctionGroup.Numeric,
+  DateAndTime: FunctionGroup.DateAndTime,
+  Boolean: FunctionGroup.Boolean,
+  QName: FunctionGroup.QName,
+  Node: FunctionGroup.Node,
+  Sequence: FunctionGroup.Sequence,
+  Context: FunctionGroup.Context,
+  Math: FunctionGroup.Math,
+  MapFunctions: FunctionGroup.Map,
+  ArrayFunctions: FunctionGroup.Array,
+  HigherOrder: FunctionGroup.HigherOrder,
+  XSLT: FunctionGroup.XSLT,
+};
 
 /**
  * Contains validation results for an XPath expression including parser results, errors, and warnings
