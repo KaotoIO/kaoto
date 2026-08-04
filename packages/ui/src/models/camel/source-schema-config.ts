@@ -10,7 +10,7 @@ export interface ISourceSchema {
 }
 
 interface IEntitySchemaConfig {
-  [SourceSchemaType.Route]: ISourceSchema;
+  [SourceSchemaType.RouteYaml]: ISourceSchema;
   [SourceSchemaType.RouteXml]: ISourceSchema;
   [SourceSchemaType.Kamelet]: ISourceSchema;
   [SourceSchemaType.Test]: ISourceSchema;
@@ -21,7 +21,7 @@ interface IEntitySchemaConfig {
 
 class SourceSchemaConfig {
   config: IEntitySchemaConfig = {
-    [SourceSchemaType.Route]: {
+    [SourceSchemaType.RouteYaml]: {
       name: 'Camel Route YAML',
       schema: undefined,
       multipleRoute: true,
@@ -72,7 +72,7 @@ class SourceSchemaConfig {
 
   setSchema(name: string, schema: KaotoSchemaDefinition) {
     if (name === 'camelYamlDsl') {
-      this.config[SourceSchemaType.Route].schema = schema;
+      this.config[SourceSchemaType.RouteYaml].schema = schema;
     }
     if (name === 'citrus-yaml') {
       this.config[SourceSchemaType.Test].schema = schema;

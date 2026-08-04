@@ -8,7 +8,7 @@ import { useCopyStep } from './copy-step.hook';
 describe('useCopyStep', () => {
   const copySpy = vi.spyOn(ClipboardService, 'copy').mockImplementation(async (__object) => undefined);
   const copiedContent = {
-    type: SourceSchemaType.Route,
+    type: SourceSchemaType.RouteYaml,
     name: 'exampleNode',
     definition: { id: 'node1', type: 'exampleType' },
   };

@@ -11,7 +11,7 @@ describe('FlowTemplateService', () => {
     });
 
     it('returns a YAML string for Route', () => {
-      const result = FlowTemplateService.getFlowSourceTemplate(SourceSchemaType.Route);
+      const result = FlowTemplateService.getFlowSourceTemplate(SourceSchemaType.RouteYaml);
       expect(result).toContain('route:');
       expect(result).not.toContain('<routes');
     });
@@ -19,6 +19,19 @@ describe('FlowTemplateService', () => {
     it('returns empty string for unknown types', () => {
       const result = FlowTemplateService.getFlowSourceTemplate(SourceSchemaType.Integration);
       expect(result).toBe('');
+    });
+  });
+
+  describe('getFlowTemplate', () => {
+    it('returns a string (not a parsed object) for RouteXml', () => {
+      const result = FlowTemplateService.getFlowTemplate(SourceSchemaType.RouteXml);
+      expect(typeof result).toBe('string');
+      expect(result).toContain('<routes');
+    });
+
+    it('returns a parsed object (array) for Route', () => {
+      const result = FlowTemplateService.getFlowTemplate(SourceSchemaType.RouteYaml);
+      expect(Array.isArray(result)).toBe(true);
     });
   });
 });

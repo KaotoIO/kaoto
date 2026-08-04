@@ -17,7 +17,7 @@ config.config[SourceSchemaType.Kamelet].schema = {
   name: 'Kamelet',
   schema: { name: 'Kamelet', description: 'desc' } as KaotoSchemaDefinition['schema'],
 } as KaotoSchemaDefinition;
-config.config[SourceSchemaType.Route].schema = {
+config.config[SourceSchemaType.RouteYaml].schema = {
   name: 'route',
   schema: { name: 'route', description: 'desc' } as KaotoSchemaDefinition['schema'],
 } as KaotoSchemaDefinition;

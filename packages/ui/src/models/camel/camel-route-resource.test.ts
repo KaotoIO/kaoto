@@ -19,7 +19,7 @@ describe('CamelRouteResource', () => {
   it('should create CamelRouteResource', async () => {
     const resource = new CamelRouteResource([camelRouteJson]);
     await resource.initialize();
-    expect(resource.getType()).toEqual(SourceSchemaType.Route);
+    expect(resource.getType()).toEqual(SourceSchemaType.RouteYaml);
     expect(resource.getVisualEntities()).toHaveLength(1);
     expect(resource.getEntities()).toHaveLength(0);
   });
@@ -27,7 +27,7 @@ describe('CamelRouteResource', () => {
   it('should initialize Camel Route if no args is specified', async () => {
     const resource = new CamelRouteResource(undefined);
     await resource.initialize();
-    expect(resource.getType()).toEqual(SourceSchemaType.Route);
+    expect(resource.getType()).toEqual(SourceSchemaType.RouteYaml);
     expect(resource.getEntities()).toEqual([]);
     expect(resource.getVisualEntities()).toEqual([]);
     await resource.initialize();
@@ -167,7 +167,7 @@ describe('CamelRouteResource', () => {
       resource.addNewEntity();
       const id = resource.addNewEntity(
         EntityType.Route,
-        parse(FlowTemplateService.getFlowSourceTemplate(SourceSchemaType.Route))[0],
+        parse(FlowTemplateService.getFlowSourceTemplate(SourceSchemaType.RouteYaml))[0],
       );
 
       expect(resource.getVisualEntities()).toHaveLength(2);
@@ -325,7 +325,7 @@ describe('CamelRouteResource', () => {
   it('should return the right type', async () => {
     const resource = new CamelRouteResource();
     await resource.initialize();
-    expect(resource.getType()).toEqual(SourceSchemaType.Route);
+    expect(resource.getType()).toEqual(SourceSchemaType.RouteYaml);
   });
 
   it('should allow consumers to have multiple visual entities', async () => {

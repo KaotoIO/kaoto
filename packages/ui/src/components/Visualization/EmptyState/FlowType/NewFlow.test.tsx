@@ -106,7 +106,7 @@ describe('NewFlow.tsx', () => {
         catalogLibrary: mockCatalogLibrary,
         setSelectedCatalog: mockSetSelectedCatalog,
       },
-      SourceSchemaType.Route,
+      SourceSchemaType.RouteYaml,
     );
 
     const trigger = await findByTestId('viz-dsl-list-dropdown');
@@ -134,7 +134,7 @@ describe('NewFlow.tsx', () => {
         catalogLibrary: mockCatalogLibrary,
         setSelectedCatalog: mockSetSelectedCatalog,
       },
-      SourceSchemaType.Route,
+      SourceSchemaType.RouteYaml,
     );
 
     const trigger = await findByTestId('viz-dsl-list-dropdown');

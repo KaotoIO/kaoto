@@ -1,5 +1,5 @@
 export enum SourceSchemaType {
-  Route = 'Route',
+  RouteYaml = 'RouteYaml',
   RouteXml = 'RouteXml',
   Integration = 'Integration',
   KameletBinding = 'KameletBinding',
@@ -36,7 +36,7 @@ export const getResourceTypeFromPath = (path?: string): SourceSchemaType | undef
   } else if (path?.endsWith('.xml')) {
     return SourceSchemaType.RouteXml;
   } else if (path?.endsWith('.yaml') || path?.endsWith('.yml')) {
-    return SourceSchemaType.Route;
+    return SourceSchemaType.RouteYaml;
   }
 
   return undefined;

@@ -139,7 +139,7 @@ const CatalogSelectorField: FunctionComponent<ICatalogSelectorField> = ({
 
 const INTEGRATION_RUNTIMES = ['Main', 'Quarkus', 'Spring Boot'];
 export const RuntimeCatalogNameField: FunctionComponent<FieldProps> = (props) => (
-  <CatalogSelectorField schemaType={SourceSchemaType.Route} validRuntimes={INTEGRATION_RUNTIMES} {...props} />
+  <CatalogSelectorField schemaType={SourceSchemaType.RouteYaml} validRuntimes={INTEGRATION_RUNTIMES} {...props} />
 );
 
 const TESTING_RUNTIMES = ['Citrus'];
