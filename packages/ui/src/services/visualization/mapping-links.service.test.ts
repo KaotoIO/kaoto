@@ -8,12 +8,16 @@ import {
   IField,
 } from '../../models/datamapper/document';
 import {
+  ChooseItem,
   CopyOfSelector,
   CopyOfType,
   FieldItem,
+  IfItem,
   MappingTree,
+  OtherwiseItem,
   ValueOfSelector,
   VariableItem,
+  WhenItem,
 } from '../../models/datamapper/mapping';
 import { MappingLineStyle, variableNodePath, VARIABLES_DOCUMENT_ID } from '../../models/datamapper/visualization';
 import { useDocumentTreeStore } from '../../store';
@@ -954,6 +958,360 @@ describe('MappingLinksService', () => {
       expect(varLinks.map((l) => l.sourceNodePath).sort()).toEqual(
         [variableNodePath(variable1.id), variableNodePath(variable2.id)].sort(),
       );
+    });
+  });
+
+  describe('hasCopyOfDescendant — lineStyle classification via InstructionItem', () => {
+    let sourceRoot: IField;
+    let targetRoot: IField;
+
+    beforeEach(() => {
+      sourceRoot = sourceDoc.fields[0];
+      DocumentUtilService.resolveTypeFragment(sourceRoot);
+      targetRoot = targetDoc.fields[0];
+      DocumentUtilService.resolveTypeFragment(targetRoot);
+    });
+
+    // N1 — bug #1: FieldItem → WhenItem → CopyOfSelector  →  COPY_OF
+    it('should classify copy-of under WhenItem as COPY_OF', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+
+      const rootItem = new FieldItem(manualTree, targetRoot);
+      manualTree.children.push(rootItem);
+      const shipToItem = new FieldItem(rootItem, targetShipTo);
+      rootItem.children.push(shipToItem);
+
+      const whenItem = new WhenItem(shipToItem);
+      whenItem.expression = 'true()';
+      shipToItem.children.push(whenItem);
+      const vs = new CopyOfSelector(whenItem, CopyOfType.CONTAINER);
+      vs.expression = '/ns0:ShipOrder/ShipTo';
+      whenItem.children.push(vs);
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      expect(links[0].lineStyle).toBe(MappingLineStyle.COPY_OF);
+    });
+
+    // N2 — bug #1: FieldItem → OtherwiseItem → CopyOfSelector  →  COPY_OF
+    it('should classify copy-of under OtherwiseItem as COPY_OF', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+
+      const rootItem = new FieldItem(manualTree, targetRoot);
+      manualTree.children.push(rootItem);
+      const shipToItem = new FieldItem(rootItem, targetShipTo);
+      rootItem.children.push(shipToItem);
+
+      const otherwiseItem = new OtherwiseItem(shipToItem);
+      shipToItem.children.push(otherwiseItem);
+      const vs = new CopyOfSelector(otherwiseItem, CopyOfType.CONTAINER);
+      vs.expression = '/ns0:ShipOrder/ShipTo';
+      otherwiseItem.children.push(vs);
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      expect(links[0].lineStyle).toBe(MappingLineStyle.COPY_OF);
+    });
+
+    // N3 — bug #1: FieldItem → IfItem → CopyOfSelector  →  COPY_OF
+    it('should classify copy-of under IfItem as COPY_OF', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+
+      const rootItem = new FieldItem(manualTree, targetRoot);
+      manualTree.children.push(rootItem);
+      const shipToItem = new FieldItem(rootItem, targetShipTo);
+      rootItem.children.push(shipToItem);
+
+      const ifItem = new IfItem(shipToItem);
+      ifItem.expression = 'true()';
+      shipToItem.children.push(ifItem);
+      const vs = new CopyOfSelector(ifItem, CopyOfType.CONTAINER);
+      vs.expression = '/ns0:ShipOrder/ShipTo';
+      ifItem.children.push(vs);
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      expect(links[0].lineStyle).toBe(MappingLineStyle.COPY_OF);
+    });
+
+    // N4 — bug #1: FieldItem → ChooseItem → WhenItem → CopyOfSelector  →  COPY_OF
+    it('should classify copy-of under ChooseItem → WhenItem as COPY_OF', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+
+      const rootItem = new FieldItem(manualTree, targetRoot);
+      manualTree.children.push(rootItem);
+      const shipToItem = new FieldItem(rootItem, targetShipTo);
+      rootItem.children.push(shipToItem);
+
+      const chooseItem = new ChooseItem(shipToItem);
+      shipToItem.children.push(chooseItem);
+      const whenItem = new WhenItem(chooseItem);
+      whenItem.expression = 'true()';
+      chooseItem.children.push(whenItem);
+      const vs = new CopyOfSelector(whenItem, CopyOfType.CONTAINER);
+      vs.expression = '/ns0:ShipOrder/ShipTo';
+      whenItem.children.push(vs);
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      expect(links[0].lineStyle).toBe(MappingLineStyle.COPY_OF);
+    });
+
+    // N5 — bug #1: FieldItem → ChooseItem → {WhenItem, OtherwiseItem} → CopyOfSelector  →  COPY_OF
+    it('should classify copy-of under ChooseItem with WhenItem and OtherwiseItem as COPY_OF', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+
+      const rootItem = new FieldItem(manualTree, targetRoot);
+      manualTree.children.push(rootItem);
+      const shipToItem = new FieldItem(rootItem, targetShipTo);
+      rootItem.children.push(shipToItem);
+
+      const chooseItem = new ChooseItem(shipToItem);
+      shipToItem.children.push(chooseItem);
+
+      const whenItem = new WhenItem(chooseItem);
+      whenItem.expression = 'true()';
+      chooseItem.children.push(whenItem);
+      const vs1 = new CopyOfSelector(whenItem, CopyOfType.CONTAINER);
+      vs1.expression = '/ns0:ShipOrder/ShipTo';
+      whenItem.children.push(vs1);
+
+      const otherwiseItem = new OtherwiseItem(chooseItem);
+      chooseItem.children.push(otherwiseItem);
+      const vs2 = new CopyOfSelector(otherwiseItem, CopyOfType.CONTAINER);
+      vs2.expression = '/ns0:ShipOrder/ShipTo';
+      otherwiseItem.children.push(vs2);
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const shipToLinks = links.filter((l) => l.targetNodePath.includes(shipToItem.id));
+      expect(shipToLinks.length).toBeGreaterThan(0);
+      shipToLinks.forEach((link) => {
+        expect(link.lineStyle).toBe(MappingLineStyle.COPY_OF);
+      });
+    });
+
+    // N6 — recursion boundary: CopyOf under FieldItem(child) must NOT propagate upward
+    it('should NOT classify as COPY_OF when CopyOfSelector is nested under a child FieldItem', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      DocumentUtilService.resolveTypeFragment(targetShipTo);
+      const nameField = targetShipTo.fields.find((f: IField) => f.name === 'Name')!;
+
+      // shipToItem directly under the tree root — no outer parentLineStyle
+      const shipToItem = new FieldItem(manualTree, targetShipTo);
+      manualTree.children.push(shipToItem);
+
+      // A direct ValueOfSelector so extractMappingLinks actually produces a link for shipToItem
+      const directVs = new ValueOfSelector(shipToItem);
+      directVs.expression = '/ns0:ShipOrder/ShipTo/Name';
+      shipToItem.children.push(directVs);
+
+      // IfItem under shipToItem (no direct FieldItem children → childFieldItems=[])
+      const ifItem = new IfItem(shipToItem);
+      ifItem.expression = 'true()';
+      shipToItem.children.push(ifItem);
+
+      // FieldItem(Name) under IfItem — recursion must stop here
+      const nameItem = new FieldItem(ifItem, nameField);
+      ifItem.children.push(nameItem);
+      const copyOf = new CopyOfSelector(nameItem, CopyOfType.CONTAINER);
+      copyOf.expression = '/ns0:ShipOrder/ShipTo/Name';
+      nameItem.children.push(copyOf);
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const shipToLink = links.find(
+        (l) => l.targetNodePath.includes(shipToItem.id) && !l.targetNodePath.includes(nameItem.id),
+      );
+      expect(shipToLink).toBeDefined();
+      expect(shipToLink!.lineStyle).not.toBe(MappingLineStyle.COPY_OF);
+    });
+
+    // N7 — bug #2: all container children have CopyOf under WhenItem  →  COMPLETE
+    it('should classify COMPLETE when all container children have copy-of under WhenItem', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+
+      const sourceShipTo = sourceRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      DocumentUtilService.resolveTypeFragment(sourceShipTo);
+
+      const parentField = new BaseField(targetRoot, targetDoc, 'ParentContainer');
+
+      // containerA — hasChildren = true (has a sub-field)
+      const containerA = new BaseField(parentField, targetDoc, 'ContainerA');
+      containerA.fields.push(new BaseField(containerA, targetDoc, 'SubA'));
+      parentField.fields.push(containerA);
+
+      // leaf fields for ALL source ShipTo children — avoids hasExtraSourceChildren downgrade
+      const sourceChildNames = sourceShipTo.fields.filter((f: IField) => !f.isAttribute).map((f: IField) => f.name);
+      const leafFields = sourceChildNames.map((name: string) => new BaseField(parentField, targetDoc, name));
+      leafFields.forEach((f: BaseField) => parentField.fields.push(f));
+
+      targetRoot.fields.push(parentField);
+
+      try {
+        const rootItem = new FieldItem(manualTree, targetRoot);
+        manualTree.children.push(rootItem);
+        const parentItem = new FieldItem(rootItem, parentField);
+        rootItem.children.push(parentItem);
+
+        // containerItem: WhenItem → CopyOfSelector
+        const containerItem = new FieldItem(parentItem, containerA);
+        parentItem.children.push(containerItem);
+        const whenItem = new WhenItem(containerItem);
+        whenItem.expression = 'true()';
+        containerItem.children.push(whenItem);
+        const copyOf = new CopyOfSelector(whenItem, CopyOfType.CONTAINER);
+        copyOf.expression = '/ns0:ShipOrder/ShipTo';
+        whenItem.children.push(copyOf);
+
+        // leafItems: each maps to one source ShipTo child → all source children covered
+        let firstLeafItem: FieldItem | undefined;
+        for (let i = 0; i < leafFields.length; i++) {
+          const leafItem = new FieldItem(parentItem, leafFields[i]);
+          parentItem.children.push(leafItem);
+          const vs = new ValueOfSelector(leafItem);
+          vs.expression = `/ns0:ShipOrder/ShipTo/${sourceChildNames[i]}`;
+          leafItem.children.push(vs);
+          if (!firstLeafItem) firstLeafItem = leafItem;
+        }
+
+        const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+        const leafLink = links.find((l) => l.targetNodePath.includes(firstLeafItem!.id));
+        expect(leafLink).toBeDefined();
+        expect(leafLink!.lineStyle).toBe(MappingLineStyle.COMPLETE);
+      } finally {
+        targetRoot.fields.pop();
+      }
+    });
+
+    // N8 — bug #2: only some container children have CopyOf under WhenItem  →  PARTIAL
+    it('should classify PARTIAL when only some container children have copy-of under WhenItem', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+
+      const sourceShipTo = sourceRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      DocumentUtilService.resolveTypeFragment(sourceShipTo);
+      const sourceName = sourceShipTo.fields.find((f: IField) => f.name === 'Name')!;
+
+      const parentField = new BaseField(targetRoot, targetDoc, 'ParentContainer2');
+
+      const containerA = new BaseField(parentField, targetDoc, 'ContainerA2');
+      containerA.fields.push(new BaseField(containerA, targetDoc, 'SubA2'));
+
+      const containerB = new BaseField(parentField, targetDoc, 'ContainerB2');
+      containerB.fields.push(new BaseField(containerB, targetDoc, 'SubB2'));
+
+      const leafField = new BaseField(parentField, targetDoc, 'LeafField2');
+
+      parentField.fields.push(containerA, containerB, leafField);
+      targetRoot.fields.push(parentField);
+
+      try {
+        const rootItem = new FieldItem(manualTree, targetRoot);
+        manualTree.children.push(rootItem);
+        const parentItem = new FieldItem(rootItem, parentField);
+        rootItem.children.push(parentItem);
+
+        // containerItemA: WhenItem → CopyOfSelector  ✓
+        const containerItemA = new FieldItem(parentItem, containerA);
+        parentItem.children.push(containerItemA);
+        const whenItem = new WhenItem(containerItemA);
+        whenItem.expression = 'true()';
+        containerItemA.children.push(whenItem);
+        const copyOf = new CopyOfSelector(whenItem, CopyOfType.CONTAINER);
+        copyOf.expression = '/ns0:ShipOrder/ShipTo/Name';
+        whenItem.children.push(copyOf);
+
+        // containerItemB: direct ValueOfSelector (NOT CopyOf)  ✗
+        const containerItemB = new FieldItem(parentItem, containerB);
+        parentItem.children.push(containerItemB);
+        const vs2 = new ValueOfSelector(containerItemB);
+        vs2.expression = `/ns0:ShipOrder/ShipTo/${sourceName.name}`;
+        containerItemB.children.push(vs2);
+
+        // leafItem: ValueOfSelector
+        const leafItem = new FieldItem(parentItem, leafField);
+        parentItem.children.push(leafItem);
+        const vs3 = new ValueOfSelector(leafItem);
+        vs3.expression = `/ns0:ShipOrder/ShipTo/${sourceName.name}`;
+        leafItem.children.push(vs3);
+
+        const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+        const leafLink = links.find((l) => l.targetNodePath.includes(leafItem.id));
+        expect(leafLink).toBeDefined();
+        expect(leafLink!.lineStyle).toBe(MappingLineStyle.PARTIAL);
+      } finally {
+        targetRoot.fields.pop();
+      }
+    });
+
+    // N9 — regression guard: WhenItem with ValueOfSelector (NOT CopyOf)  →  REGULAR
+    it('should classify as REGULAR when InstructionItem contains only ValueOfSelector (no CopyOf)', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+
+      const rootItem = new FieldItem(manualTree, targetRoot);
+      manualTree.children.push(rootItem);
+      const shipToItem = new FieldItem(rootItem, targetShipTo);
+      rootItem.children.push(shipToItem);
+
+      const whenItem = new WhenItem(shipToItem);
+      whenItem.expression = 'true()';
+      shipToItem.children.push(whenItem);
+      const vs = new ValueOfSelector(whenItem);
+      vs.expression = '/ns0:ShipOrder/ShipTo/Name';
+      whenItem.children.push(vs);
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const shipToLinks = links.filter((l) => l.targetNodePath.includes(shipToItem.id));
+      expect(shipToLinks.length).toBeGreaterThan(0);
+      shipToLinks.forEach((link) => {
+        expect(link.lineStyle).toBe(MappingLineStyle.REGULAR);
+      });
     });
   });
 });
