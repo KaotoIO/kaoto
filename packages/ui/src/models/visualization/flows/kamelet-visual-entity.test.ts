@@ -106,9 +106,9 @@ describe('KameletVisualEntity', () => {
       expect(kamelet.getNodeLabel(KameletVisualEntity.ROOT_PATH, NodeLabelType.Description)).toBe('My Kamelet');
     });
 
-    it('should return the node label when querying a different path', () => {
+    it('should return empty string when querying a non-root path without ids', () => {
       const kamelet = new KameletVisualEntity(kameletDef);
-      expect(kamelet.getNodeLabel('template.from')).toBe('timer');
+      expect(kamelet.getNodeLabel('template.from')).toBe('');
     });
   });
 

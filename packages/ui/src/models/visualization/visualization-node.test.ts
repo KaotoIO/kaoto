@@ -162,7 +162,11 @@ describe('VisualizationNode', () => {
       });
       const label = node.getNodeLabel(NodeLabelType.Id);
 
-      expect(getNodeLabelSpy).toHaveBeenCalledWith(node.data.path, NodeLabelType.Id);
+      expect(getNodeLabelSpy).toHaveBeenCalledWith(node.data.path, NodeLabelType.Id, {
+        primaryNodeId: node.data.primaryNodeId,
+        secondaryNodeId: node.data.secondaryNodeId,
+        tertiaryNodeId: node.data.tertiaryNodeId,
+      });
       expect(label).toBe('test-label');
     });
 

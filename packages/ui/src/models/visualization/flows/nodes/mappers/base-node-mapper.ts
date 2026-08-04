@@ -213,14 +213,16 @@ export class BaseNodeMapper implements INodeMapper {
   }
 
   protected getPlaceHolderNodeForProcessor(path: string): IVisualizationNode {
+    const processorName = path.split('.').pop() as keyof ProcessorDefinition;
     return createVisualizationNode(`${path}`, {
-      name: path.split('.').pop() as keyof ProcessorDefinition,
+      name: processorName,
       isPlaceholder: true,
       isGroup: false,
       iconUrl: '',
       title: '',
       description: '',
       path: `${path}`,
+      primaryNodeId: { name: processorName, catalogKind: CatalogKind.Processor } satisfies NodeIdentity,
     });
   }
 }

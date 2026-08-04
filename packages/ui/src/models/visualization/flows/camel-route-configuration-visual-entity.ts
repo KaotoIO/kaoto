@@ -14,6 +14,7 @@ import {
   BaseVisualEntity,
   IVisualizationNode,
   IVisualizationNodeData,
+  IVisualizationNodeIds,
   NodeInteraction,
 } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
@@ -76,12 +77,12 @@ export class CamelRouteConfigurationVisualEntity
     this.id = id;
   }
 
-  getNodeLabel(path?: string, labelType?: NodeLabelType): string {
+  getNodeLabel(path?: string, labelType?: NodeLabelType, ids?: IVisualizationNodeIds): string {
     if (path === 'routeConfiguration.placeholder') {
       return 'Add configuration';
     }
 
-    return super.getNodeLabel(path, labelType);
+    return super.getNodeLabel(path, labelType, ids);
   }
 
   removeStep(path?: string): void {

@@ -42,7 +42,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     return this.id;
   }
 
-  getNodeLabel(path?: string, labelType?: NodeLabelType): string {
+  getNodeLabel(path?: string, labelType?: NodeLabelType, ids?: IVisualizationNodeIds): string {
     if (!path) return '';
     if (path === this.getRootPath()) {
       const description: string | undefined = getValue(this.entityDef, `${this.getRootPath()}.description`);
@@ -53,15 +53,8 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       return this.id;
     }
 
-    const componentModel = getValue(this.entityDef, path);
-
-    const label = CamelComponentSchemaService.getNodeLabel(
-      CamelComponentSchemaService.getCamelComponentLookup(path, componentModel),
-      componentModel,
-      labelType,
-    );
-
-    return label;
+    const definition = getValue(this.entityDef, path);
+    return this.getNodeLabelFromIds(ids, definition, labelType);
   }
 
   getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined {
@@ -431,6 +424,55 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
 
       const stepsArray = getArrayProperty(this.entityDef, pathArray.slice(0, -1).join('.'));
       stepsArray.splice(desiredStartIndex, deleteCount, defaultValue);
+    }
+  }
+
+  private getNodeLabelFromIds(
+    ids: IVisualizationNodeIds | undefined,
+    definition:
+      | { id?: string; description?: string; uri?: string; parameters?: { name?: string } }
+      | string
+      | undefined,
+    labelType?: NodeLabelType,
+  ): string {
+    const primaryName = ids?.primaryNodeId?.name ?? '';
+    const secondaryName = ids?.secondaryNodeId?.name;
+    const tertiaryName = ids?.tertiaryNodeId?.name;
+
+    const defObj = typeof definition === 'string' ? undefined : definition;
+    const id: string | undefined = defObj?.id;
+    const description: string | undefined = defObj?.description;
+    const uri: string | undefined = typeof definition === 'string' ? definition : defObj?.uri;
+
+    if (labelType === NodeLabelType.Id && id) return id;
+    if (description) return description;
+
+    if (secondaryName !== undefined) {
+      if (secondaryName === 'direct') {
+        return getValue(definition, 'parameters.name') ?? secondaryName;
+      }
+      if (secondaryName === 'kamelet' && tertiaryName !== undefined) {
+        return `kamelet:${tertiaryName}`;
+      }
+      return secondaryName;
+    }
+
+    switch (primaryName) {
+      case 'route':
+      case 'errorHandler':
+      case 'onException':
+      case 'onCompletion':
+      case 'intercept':
+      case 'interceptFrom':
+      case 'interceptSendToEndpoint':
+      case 'step':
+        return id ?? primaryName;
+
+      case 'from':
+        return uri || 'from: Unknown';
+
+      default:
+        return primaryName;
     }
   }
 

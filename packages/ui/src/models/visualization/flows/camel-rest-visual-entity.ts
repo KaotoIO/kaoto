@@ -19,6 +19,7 @@ import {
   BaseVisualEntity,
   IVisualizationNode,
   IVisualizationNodeData,
+  IVisualizationNodeIds,
   NodeInteraction,
 } from '../base-visual-entity';
 import { NodeIdentity } from '../node-identity';
@@ -47,12 +48,12 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
     return Object.keys(restDef).length === 1 && this.ROOT_PATH in restDef && typeof restDef.rest === 'object';
   }
 
-  getNodeLabel(path?: string, labelType?: NodeLabelType): string {
+  getNodeLabel(path?: string, labelType?: NodeLabelType, ids?: IVisualizationNodeIds): string {
     if (path === 'rest.placeholder') {
       return 'verb';
     }
 
-    return super.getNodeLabel(path, labelType);
+    return super.getNodeLabel(path, labelType, ids);
   }
 
   removeStep(path?: string): void {

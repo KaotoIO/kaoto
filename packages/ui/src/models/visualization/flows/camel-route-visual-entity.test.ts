@@ -1,4 +1,4 @@
-import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
+import { RouteDefinition } from '@kaoto/camel-catalog/types';
 import { cloneDeep } from 'lodash';
 
 import { mockRandomValues } from '../../../stubs';
@@ -49,18 +49,10 @@ describe('Camel Route', () => {
       expect(camelEntity.getNodeLabel()).toBe('');
     });
 
-    it('should delegate the label lookup to the CamelComponentSchemaService.getNodeLabel() method', () => {
-      const lookupValue = {
-        processorName: 'from' as keyof ProcessorDefinition,
-        componentName: 'timer',
-      };
-      const getNodeLabelSpy = vi.spyOn(CamelComponentSchemaService, 'getNodeLabel');
-      vi.spyOn(CamelComponentSchemaService, 'getCamelComponentLookup').mockReturnValueOnce(lookupValue);
-
+    it('should return empty string when called without ids', () => {
       const label = camelEntity.getNodeLabel('route.from', NodeLabelType.Id);
 
-      expect(getNodeLabelSpy).toHaveBeenCalledWith(lookupValue, camelRouteJson.route.from, NodeLabelType.Id);
-      expect(label).toBe('timer');
+      expect(label).toBe('');
     });
   });
 
