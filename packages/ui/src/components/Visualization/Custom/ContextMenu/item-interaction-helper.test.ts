@@ -195,7 +195,7 @@ describe('item-interaction-helper', () => {
   describe('processOnCopyAddon', () => {
     it('should invoke addon callback with correct parameters', () => {
       const mockContent = {
-        type: SourceSchemaType.Route,
+        type: SourceSchemaType.RouteYaml,
         name: 'log',
         definition: { log: { message: 'test' } },
       };
@@ -228,12 +228,12 @@ describe('item-interaction-helper', () => {
   describe('processOnDuplicateAddonRecursively', () => {
     it('should process addon transformation', async () => {
       const mockContent = {
-        type: SourceSchemaType.Route,
+        type: SourceSchemaType.RouteYaml,
         name: 'log',
         definition: { log: { message: 'test' } },
       };
       const transformedContent = {
-        type: SourceSchemaType.Route,
+        type: SourceSchemaType.RouteYaml,
         name: 'log',
         definition: { log: { message: 'transformed' } },
       };
@@ -266,7 +266,7 @@ describe('item-interaction-helper', () => {
 
     it('should return content when no addons return transformation', async () => {
       const mockContent = {
-        type: SourceSchemaType.Route,
+        type: SourceSchemaType.RouteYaml,
         name: 'log',
         definition: { log: { message: 'test' } },
       };
@@ -311,13 +311,13 @@ describe('item-interaction-helper', () => {
 
     it('should process children when path and children are available', async () => {
       const childContent = {
-        type: SourceSchemaType.Route,
+        type: SourceSchemaType.RouteYaml,
         name: 'log',
         definition: { log: { message: 'child' } },
       };
 
       const parentContent = {
-        type: SourceSchemaType.Route,
+        type: SourceSchemaType.RouteYaml,
         name: 'step',
         definition: {
           step: {
@@ -364,12 +364,12 @@ describe('item-interaction-helper', () => {
   describe('processOnPasteAddon', () => {
     it('should invoke addon callback with correct parameters', async () => {
       const originalContent = {
-        type: SourceSchemaType.Route,
+        type: SourceSchemaType.RouteYaml,
         name: 'log',
         definition: { log: { message: 'original' } },
       };
       const updatedContent = {
-        type: SourceSchemaType.Route,
+        type: SourceSchemaType.RouteYaml,
         name: 'log',
         definition: { log: { message: 'updated' } },
       };
@@ -401,7 +401,7 @@ describe('item-interaction-helper', () => {
 
     it('should call all registered addons regardless of target vizNode', async () => {
       const originalContent = {
-        type: SourceSchemaType.Route,
+        type: SourceSchemaType.RouteYaml,
         name: 'choice',
         definition: {
           choice: {
@@ -416,7 +416,7 @@ describe('item-interaction-helper', () => {
       };
 
       const updatedContent = {
-        type: SourceSchemaType.Route,
+        type: SourceSchemaType.RouteYaml,
         name: 'choice',
         definition: {
           choice: {
@@ -458,7 +458,7 @@ describe('item-interaction-helper', () => {
 
     it('should process multiple addons with nested DataMapper content', async () => {
       const originalContent = {
-        type: SourceSchemaType.Route,
+        type: SourceSchemaType.RouteYaml,
         name: 'choice',
         definition: {
           choice: {
@@ -477,7 +477,7 @@ describe('item-interaction-helper', () => {
       };
 
       const updatedContent = {
-        type: SourceSchemaType.Route,
+        type: SourceSchemaType.RouteYaml,
         name: 'choice',
         definition: {
           choice: {

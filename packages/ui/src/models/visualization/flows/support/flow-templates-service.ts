@@ -11,7 +11,7 @@ export class FlowTemplateService {
       case SourceSchemaType.Pipe:
         return pipeTemplate();
 
-      case SourceSchemaType.Route:
+      case SourceSchemaType.RouteYaml:
         return routeTemplate();
 
       case SourceSchemaType.RouteXml:

@@ -23,7 +23,7 @@ const makeGetOption = () => (sourceType: SourceSchemaType) => ({
 
 const renderSelector = (
   onSelect?: Mock,
-  currentSchemaType: SourceSchemaType = SourceSchemaType.Route,
+  currentSchemaType: SourceSchemaType = SourceSchemaType.RouteYaml,
   overrideGetOption?: (sourceType: SourceSchemaType) => {
     description: string;
     isDisabled: boolean;
@@ -124,7 +124,7 @@ describe('IntegrationTypeSelector', () => {
       testIdPrefix: 'option',
     });
 
-    const wrapper = renderSelector(undefined, SourceSchemaType.Route, getOptionWithDisabled);
+    const wrapper = renderSelector(undefined, SourceSchemaType.RouteYaml, getOptionWithDisabled);
 
     fireEvent.click(wrapper.getByTestId('test-toggle'));
 
@@ -140,7 +140,7 @@ describe('IntegrationTypeSelector', () => {
       testIdPrefix: 'option',
     });
 
-    const wrapper = renderSelector(undefined, SourceSchemaType.Route, getOptionWithSuffix);
+    const wrapper = renderSelector(undefined, SourceSchemaType.RouteYaml, getOptionWithSuffix);
 
     fireEvent.click(wrapper.getByTestId('test-toggle'));
 
@@ -149,7 +149,7 @@ describe('IntegrationTypeSelector', () => {
   });
 
   it('marks the selected option as selected', async () => {
-    const wrapper = renderSelector(undefined, SourceSchemaType.Route);
+    const wrapper = renderSelector(undefined, SourceSchemaType.RouteYaml);
 
     fireEvent.click(wrapper.getByTestId('test-toggle'));
 

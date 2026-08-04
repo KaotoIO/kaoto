@@ -222,7 +222,7 @@ export class CamelRouteResource implements KaotoResource, BeansAwareResource {
   }
 
   getType(): SourceSchemaType {
-    return SourceSchemaType.Route;
+    return SourceSchemaType.RouteYaml;
   }
 
   supportsMultipleVisualEntities(): boolean {

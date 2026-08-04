@@ -5,7 +5,7 @@ import { sourceSchemaConfig, SourceSchemaType } from '../../../models/camel';
 import { EntitiesContext } from '../../../providers/entities.provider';
 
 const DSL_LIST = [
-  SourceSchemaType.Route,
+  SourceSchemaType.RouteYaml,
   SourceSchemaType.RouteXml,
   SourceSchemaType.Kamelet,
   SourceSchemaType.Pipe,

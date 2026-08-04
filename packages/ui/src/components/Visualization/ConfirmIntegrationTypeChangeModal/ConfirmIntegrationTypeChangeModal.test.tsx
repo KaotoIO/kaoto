@@ -65,13 +65,13 @@ describe('ConfirmIntegrationTypeChangeModal', () => {
   });
 
   it('should be visible when proposedFlowType is set', async () => {
-    const { queryByTestId } = await renderModal(SourceSchemaType.Route);
+    const { queryByTestId } = await renderModal(SourceSchemaType.RouteYaml);
 
     expect(queryByTestId('confirmation-modal')).toBeInTheDocument();
   });
 
   it('should call onClose when cancel button is clicked', async () => {
-    const { getByTestId } = await renderModal(SourceSchemaType.Route);
+    const { getByTestId } = await renderModal(SourceSchemaType.RouteYaml);
 
     fireEvent.click(getByTestId('confirmation-modal-cancel'));
 
@@ -79,7 +79,7 @@ describe('ConfirmIntegrationTypeChangeModal', () => {
   });
 
   it('should call onClose when close button is clicked', async () => {
-    const { getByLabelText } = await renderModal(SourceSchemaType.Route);
+    const { getByLabelText } = await renderModal(SourceSchemaType.RouteYaml);
 
     fireEvent.click(getByLabelText('Close'));
 
@@ -103,7 +103,7 @@ describe('ConfirmIntegrationTypeChangeModal', () => {
   });
 
   it('should call onClose after confirming', async () => {
-    const { getByTestId } = await renderModal(SourceSchemaType.Route);
+    const { getByTestId } = await renderModal(SourceSchemaType.RouteYaml);
 
     fireEvent.click(getByTestId('confirmation-modal-confirm'));
 

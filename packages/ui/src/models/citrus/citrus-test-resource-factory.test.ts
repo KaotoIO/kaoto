@@ -17,7 +17,7 @@ describe('CitrusTestResourceFactory', () => {
     });
 
     it('should handle other schema types', () => {
-      const resource = CitrusTestResourceFactory.getCitrusTestResource({} as Test, SourceSchemaType.Route);
+      const resource = CitrusTestResourceFactory.getCitrusTestResource({} as Test, SourceSchemaType.RouteYaml);
       expect(resource).toBeUndefined();
     });
 

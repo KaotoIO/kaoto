@@ -1103,7 +1103,7 @@ exports[`Navigation Component > navigation sidebar for: Pipe 1`] = `
 </DocumentFragment>
 `;
 
-exports[`Navigation Component > navigation sidebar for: Route 1`] = `
+exports[`Navigation Component > navigation sidebar for: RouteYaml 1`] = `
 <DocumentFragment>
   <div
     aria-hidden="false"
