@@ -47,7 +47,11 @@ export class MappingLinksService {
         ownLineStyle = MappingLineStyle.PARTIAL;
       }
     }
-    const lineStyle = ownLineStyle === MappingLineStyle.REGULAR ? (parentLineStyle ?? ownLineStyle) : ownLineStyle;
+    const isFieldInsideInstruction = item instanceof FieldItem && item.parent instanceof InstructionItem;
+    const lineStyle =
+      ownLineStyle === MappingLineStyle.REGULAR && !isFieldInsideInstruction
+        ? (parentLineStyle ?? ownLineStyle)
+        : ownLineStyle;
 
     if (item instanceof MappingItem && isExpressionHolder(item)) {
       const links = MappingLinksService.doExtractMappingLinks(
@@ -62,7 +66,8 @@ export class MappingLinksService {
       answer.push(...links);
     }
     if ('children' in item) {
-      const childLineStyle = ownLineStyle === MappingLineStyle.REGULAR ? undefined : ownLineStyle;
+      const effectiveStyle = item instanceof FieldItem ? ownLineStyle : lineStyle;
+      const childLineStyle = effectiveStyle === MappingLineStyle.REGULAR ? undefined : effectiveStyle;
       item.children.forEach((child) => {
         if (
           item instanceof FieldItem &&
@@ -220,10 +225,27 @@ export class MappingLinksService {
       .some((link) => link.sourceNodePath === nodePath || link.targetNodePath === nodePath);
   }
 
+  /**
+   * Returns true if `item` or any of its descendants (recursing through
+   * {@link InstructionItem} nodes) contains a {@link CopyOfSelector}.
+   * Recursion stops at {@link FieldItem} boundaries because a `CopyOfSelector`
+   * under a child `FieldItem` belongs to that child target element, not to the
+   * parent being classified.
+   */
+  private static hasCopyOfDescendant(item: MappingItem): boolean {
+    for (const child of item.children) {
+      if (child instanceof CopyOfSelector) return true;
+      if (child instanceof InstructionItem) {
+        if (MappingLinksService.hasCopyOfDescendant(child)) return true;
+      }
+    }
+    return false;
+  }
+
   private static classifyContainerLineStyle(item: FieldItem): MappingLineStyle {
     const childFieldItems = item.children.filter((c): c is FieldItem => c instanceof FieldItem);
 
-    if (childFieldItems.length === 0 && item.children.some((c) => c instanceof CopyOfSelector)) {
+    if (childFieldItems.length === 0 && MappingLinksService.hasCopyOfDescendant(item)) {
       return MappingLineStyle.COPY_OF;
     }
 
@@ -235,7 +257,7 @@ export class MappingLinksService {
 
     const allContainerChildrenCopyOf = childFieldItems
       .filter((child) => DocumentService.hasChildren(child.field))
-      .every((child) => child.children.some((c) => c instanceof CopyOfSelector));
+      .every((child) => MappingLinksService.hasCopyOfDescendant(child));
 
     return allContainerChildrenCopyOf ? MappingLineStyle.COMPLETE : MappingLineStyle.PARTIAL;
   }
