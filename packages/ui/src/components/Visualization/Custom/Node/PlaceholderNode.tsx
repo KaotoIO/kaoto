@@ -114,7 +114,7 @@ const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = obser
   const entitiesContext = useEntityContext();
   const catalogModalContext = useContext(CatalogModalContext);
   const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
-  const updatedLabel = label === PlaceholderType.Placeholder ? 'Add step' : `Add ${label}`;
+  const updatedLabel = label === '' ? 'Add step' : `Add ${label}`;
   const boxRef = useRef<Rect | null>(null);
   const boxXRef = useRef<number | null>(null);
   const boxYRef = useRef<number | null>(null);

@@ -24,7 +24,7 @@ export interface BaseVisualEntity extends BaseEntity {
   setId: (id: string) => void;
 
   /** Given a path, get the component label */
-  getNodeLabel: (path?: string, labelType?: NodeLabelType) => string;
+  getNodeLabel: (path?: string, labelType?: NodeLabelType, ids?: IVisualizationNodeIds) => string;
 
   /** Given a path, returns the node's associated schema used for the configuration form */
   getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined;

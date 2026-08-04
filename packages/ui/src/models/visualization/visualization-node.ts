@@ -49,7 +49,14 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   }
 
   getNodeLabel(labelType?: NodeLabelType): string {
-    return this.getBaseEntity()?.getNodeLabel(this.data.path, labelType) ?? this.id;
+    const { primaryNodeId, secondaryNodeId, tertiaryNodeId } = this.data;
+    return (
+      this.getBaseEntity()?.getNodeLabel(this.data.path, labelType, {
+        primaryNodeId,
+        secondaryNodeId,
+        tertiaryNodeId,
+      }) ?? this.id
+    );
   }
 
   getNodeTitle(): string {
