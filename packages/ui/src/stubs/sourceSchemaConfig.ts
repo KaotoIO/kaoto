@@ -9,7 +9,7 @@ import { sourceSchemaConfig, SourceSchemaType } from '../models/camel';
  */
 export const configureSourceSchemaTypes = (): void => {
   const types: { type: SourceSchemaType; name: string; description: string }[] = [
-    { type: SourceSchemaType.Route, name: 'route', description: 'Camel Route desc' },
+    { type: SourceSchemaType.RouteYaml, name: 'route', description: 'Camel Route desc' },
     { type: SourceSchemaType.RouteXml, name: 'Camel Route XML', description: 'Camel Route XML desc' },
     { type: SourceSchemaType.Kamelet, name: 'Kamelet', description: 'Kamelet desc' },
     { type: SourceSchemaType.Pipe, name: 'Pipe', description: 'Pipe desc' },

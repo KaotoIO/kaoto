@@ -10,7 +10,7 @@ describe('IntegrationTypeSelectorToggle.tsx', () => {
   const previousSchemas = {
     [SourceSchemaType.Pipe]: config.config[SourceSchemaType.Pipe].schema,
     [SourceSchemaType.Kamelet]: config.config[SourceSchemaType.Kamelet].schema,
-    [SourceSchemaType.Route]: config.config[SourceSchemaType.Route].schema,
+    [SourceSchemaType.RouteYaml]: config.config[SourceSchemaType.RouteYaml].schema,
   };
 
   beforeAll(() => {
@@ -20,7 +20,7 @@ describe('IntegrationTypeSelectorToggle.tsx', () => {
   afterAll(() => {
     config.config[SourceSchemaType.Pipe].schema = previousSchemas[SourceSchemaType.Pipe];
     config.config[SourceSchemaType.Kamelet].schema = previousSchemas[SourceSchemaType.Kamelet];
-    config.config[SourceSchemaType.Route].schema = previousSchemas[SourceSchemaType.Route];
+    config.config[SourceSchemaType.RouteYaml].schema = previousSchemas[SourceSchemaType.RouteYaml];
   });
 
   const renderToggle = async (props?: ComponentProps<typeof IntegrationTypeSelectorToggle>) => {

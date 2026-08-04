@@ -34,7 +34,7 @@ describe('CatalogHelper', () => {
   });
 
   it('should handle no matching Camel catalog', () => {
-    const entry = findCatalog(SourceSchemaType.Route, catalogLibrary);
+    const entry = findCatalog(SourceSchemaType.RouteYaml, catalogLibrary);
     expect(entry).toEqual({
       fileName: 'camel-main/index.js',
       name: 'Camel Main 1.0.0',
@@ -51,7 +51,7 @@ describe('CatalogHelper', () => {
       fileName: 'camel-main-redhat/index.js',
     });
 
-    const entry = findCatalog(SourceSchemaType.Route, catalogLibrary);
+    const entry = findCatalog(SourceSchemaType.RouteYaml, catalogLibrary);
     expect(entry).toBeDefined();
     expect(entry?.name).toBe('Camel Main 1.0.0.redhat-00001');
     expect(entry?.runtime).toBe('Main');
@@ -73,7 +73,7 @@ describe('CatalogHelper', () => {
       },
     );
 
-    const entry = findCatalog(SourceSchemaType.Route, catalogLibrary);
+    const entry = findCatalog(SourceSchemaType.RouteYaml, catalogLibrary);
     expect(entry).toBeDefined();
     expect(entry?.name).toBe('Camel Main 1.0.3.redhat-00003');
     expect(entry?.runtime).toBe('Main');

@@ -17,7 +17,7 @@ describe('CamelResourceFactory.createCamelResource', () => {
   it('should create an empty CamelRouteResource if no args is specified', async () => {
     const resource = CamelResourceFactory.createCamelResource();
     await resource.initialize();
-    expect(resource.getType()).toEqual(SourceSchemaType.Route);
+    expect(resource.getType()).toEqual(SourceSchemaType.RouteYaml);
     expect(resource.getEntities()).toEqual([]);
     expect(resource.getVisualEntities()).toEqual([]);
   });
@@ -25,7 +25,7 @@ describe('CamelResourceFactory.createCamelResource', () => {
   it('should create an empty CamelRouteResource if a camel.yaml path is specified', async () => {
     const resource = CamelResourceFactory.createCamelResource(undefined, { path: 'my-route.camel.yaml' });
     await resource.initialize();
-    expect(resource.getType()).toEqual(SourceSchemaType.Route);
+    expect(resource.getType()).toEqual(SourceSchemaType.RouteYaml);
     expect(resource.getEntities()).toEqual([]);
     expect(resource.getVisualEntities()).toEqual([]);
   });
@@ -81,7 +81,7 @@ describe('CamelResourceFactory.createCamelResource', () => {
   it('should create a camel route', async () => {
     const resource = CamelResourceFactory.createCamelResource(camelRouteYaml);
     await resource.initialize();
-    expect(resource.getType()).toEqual(SourceSchemaType.Route);
+    expect(resource.getType()).toEqual(SourceSchemaType.RouteYaml);
     expect(resource.getVisualEntities()).toHaveLength(1);
     const vis = resource.getVisualEntities()[0] as CamelRouteVisualEntity;
     expect(vis.entityDef.route.from?.uri).toBeDefined();

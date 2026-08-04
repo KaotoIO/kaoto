@@ -126,8 +126,8 @@ export const Navigation: FunctionComponent<INavigationSidebar> = (props) => {
 };
 
 const NAVIGATION_ELEMENTS = {
-  Beans: [SourceSchemaType.Route, SourceSchemaType.RouteXml, SourceSchemaType.Kamelet],
-  RestDsl: [SourceSchemaType.Route, SourceSchemaType.RouteXml, SourceSchemaType.Integration],
+  Beans: [SourceSchemaType.RouteYaml, SourceSchemaType.RouteXml, SourceSchemaType.Kamelet],
+  RestDsl: [SourceSchemaType.RouteYaml, SourceSchemaType.RouteXml, SourceSchemaType.Integration],
   Metadata: [
     SourceSchemaType.Integration,
     SourceSchemaType.Kamelet,
@@ -135,5 +135,5 @@ const NAVIGATION_ELEMENTS = {
     SourceSchemaType.Pipe,
   ],
   PipeErrorHandler: [SourceSchemaType.KameletBinding, SourceSchemaType.Pipe],
-  DataMapper: [SourceSchemaType.Route, SourceSchemaType.Kamelet],
+  DataMapper: [SourceSchemaType.RouteYaml, SourceSchemaType.Kamelet],
 };

@@ -42,7 +42,7 @@ const createMockResource = (overrides: Partial<KaotoResource> = {}): KaotoResour
     initialize: vi.fn().mockResolvedValue(undefined),
     getEntities: vi.fn().mockReturnValue([]),
     getVisualEntities: vi.fn().mockReturnValue([]),
-    getType: vi.fn().mockReturnValue(SourceSchemaType.Route),
+    getType: vi.fn().mockReturnValue(SourceSchemaType.RouteYaml),
     toString: vi.fn().mockReturnValue(''),
     ...overrides,
   }) as unknown as KaotoResource;
