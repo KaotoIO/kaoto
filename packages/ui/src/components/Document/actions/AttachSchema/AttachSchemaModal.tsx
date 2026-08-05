@@ -4,7 +4,6 @@ import {
   HelperTextItem,
   InputGroup,
   InputGroupItem,
-  Modal,
   ModalBody,
   ModalFooter,
   ModalHeader,
@@ -14,7 +13,7 @@ import {
   StackItem,
 } from '@patternfly/react-core';
 import { FileImportIcon, TrashIcon } from '@patternfly/react-icons';
-import { FunctionComponent, KeyboardEvent, MouseEvent, useCallback, useContext, useMemo, useState } from 'react';
+import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import {
@@ -27,6 +26,7 @@ import {
 } from '../../../../models/datamapper/document';
 import { MetadataContext } from '../../../../providers';
 import { DocumentService } from '../../../../services/document/document.service';
+import { DataMapperModal } from '../../../DataMapper/DataMapperModal';
 import { createSchemaFileItems, getFileExtension, isJsonExtension, pickAndValidateSchemaFiles } from '../utils';
 import { RootElementSelect } from './RootElementSelect';
 import { SchemaFileDataList } from './SchemaFileDataList';
@@ -210,10 +210,6 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
     setFilePaths([]);
   }, [onModalClose]);
 
-  const handleStopPropagation = useCallback((event: MouseEvent | KeyboardEvent) => {
-    event.stopPropagation();
-  }, []);
-
   const isReadyToSubmit = useMemo(() => {
     return filePaths.length > 0 && createDocumentResult?.validationStatus !== 'error' && createDocumentResult?.document;
   }, [filePaths.length, createDocumentResult]);
@@ -224,14 +220,7 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
   );
 
   return (
-    <Modal
-      isOpen={isModalOpen}
-      variant="medium"
-      data-testid="attach-schema-modal"
-      onClick={handleStopPropagation}
-      onMouseDown={handleStopPropagation}
-      onKeyDown={handleStopPropagation}
-    >
+    <DataMapperModal isOpen={isModalOpen} variant="medium" data-testid="attach-schema-modal">
       <ModalHeader title={`${actionName} schema : ( ${documentTypeLabel} )`} />
       <ModalBody>
         <Stack hasGutter>
@@ -336,6 +325,6 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
           Cancel
         </Button>
       </ModalFooter>
-    </Modal>
+    </DataMapperModal>
   );
 };

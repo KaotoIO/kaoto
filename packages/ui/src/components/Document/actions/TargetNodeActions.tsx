@@ -1,7 +1,7 @@
 import './TargetNodeActions.scss';
 
 import { ActionListGroup } from '@patternfly/react-core';
-import { FunctionComponent, KeyboardEvent, MouseEvent, useCallback } from 'react';
+import { FunctionComponent } from 'react';
 
 import { MappingActionKind } from '../../../models/datamapper/mapping-action';
 import { TargetNodeData } from '../../../models/datamapper/visualization';
@@ -22,13 +22,8 @@ export const TargetNodeActions: FunctionComponent<TargetNodeActionsProps> = ({ c
   const expressionItem = VisualizationService.getExpressionItemForNode(nodeData);
   const allowedActions = new Set(MappingActionRegistryService.getAllowedActions(nodeData));
 
-  const handleStopPropagation = useCallback((event: MouseEvent | KeyboardEvent) => {
-    if (!(event.currentTarget as HTMLElement).contains(event.target as Node)) return;
-    event.stopPropagation();
-  }, []);
-
   return (
-    <ActionListGroup key={`target-node-actions-${nodeData.id}`} onKeyDown={handleStopPropagation} className={className}>
+    <ActionListGroup key={`target-node-actions-${nodeData.id}`} className={className}>
       {expressionItem && (
         <>
           <XPathInputAction nodeData={nodeData} mapping={expressionItem} onUpdate={onUpdate} />

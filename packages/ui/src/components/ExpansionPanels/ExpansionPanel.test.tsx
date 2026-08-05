@@ -458,6 +458,44 @@ describe('ExpansionPanel', () => {
       // Activating the button must not toggle the surrounding panel.
       expect(mockSetExpanded).not.toHaveBeenCalled();
     });
+
+    it('should NOT toggle on Space key from a child input inside summary', () => {
+      renderPanel({
+        defaultExpanded: true,
+        summary: (
+          <div>
+            Test Summary
+            <input data-testid="child-input" type="text" />
+          </div>
+        ),
+      });
+
+      const input = screen.getByTestId('child-input');
+      fireEvent.keyDown(input, { key: ' ' });
+
+      expect(mockSetExpanded).not.toHaveBeenCalled();
+      const panel = screen.getByText('Test Summary').closest('.expansion-panel');
+      expect(panel).toHaveAttribute('data-expanded', 'true');
+    });
+
+    it('should NOT toggle on Enter key from a child input inside summary', () => {
+      renderPanel({
+        defaultExpanded: true,
+        summary: (
+          <div>
+            Test Summary
+            <input data-testid="child-input" type="text" />
+          </div>
+        ),
+      });
+
+      const input = screen.getByTestId('child-input');
+      fireEvent.keyDown(input, { key: 'Enter' });
+
+      expect(mockSetExpanded).not.toHaveBeenCalled();
+      const panel = screen.getByText('Test Summary').closest('.expansion-panel');
+      expect(panel).toHaveAttribute('data-expanded', 'true')
+    });
   });
 
   describe('Layout Callback Registration', () => {
