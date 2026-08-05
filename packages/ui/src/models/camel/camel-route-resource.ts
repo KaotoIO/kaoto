@@ -16,7 +16,7 @@
 
 import { CamelYamlDsl, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
-import { stringify } from 'yaml';
+import { parse, stringify } from 'yaml';
 
 import { TileFilter } from '../../components/Catalog';
 import { insertYamlComments } from '../../utils/yaml-comments';
@@ -190,8 +190,7 @@ export class CamelRouteResource implements KaotoResource, BeansAwareResource {
     if (entityTemplate) {
       route = entityTemplate as RouteDefinition;
     } else {
-      const template = FlowTemplateService.getFlowTemplate(this.getType());
-      route = template[0] as RouteDefinition;
+      route = this.getRouteTemplate();
     }
     const entity = new CamelRouteVisualEntity(route);
 
@@ -199,6 +198,11 @@ export class CamelRouteResource implements KaotoResource, BeansAwareResource {
     this.entities.splice(insertIndex, 0, entity);
 
     return entity.id;
+  }
+
+  protected getRouteTemplate(): RouteDefinition {
+    const template = parse(FlowTemplateService.getFlowSourceTemplate(this.getType()));
+    return template[0] as RouteDefinition;
   }
 
   /**
