@@ -32,6 +32,7 @@ Before you start contributing, ensure that you have the following installed:
 
 - Look for existing issues on the [GitHub Issues page](https://github.com/KaotoIO/kaoto/issues).
 - If you want to work on something new, feel free to create a new issue and discuss it with the team.
+- If the research tag is found, the contribution should be research in an issue, not a new PR.
 
 ### Create a Feature Branch
 
@@ -41,6 +42,7 @@ Before you start contributing, ensure that you have the following installed:
 
 - Work on the issue in your local environment.
 - Make sure to follow the project's coding standards and guidelines.
+- Make sure to not introduce regressions or add any new sonarqube issues.
 
 ### Commit and Push Your Changes
 
@@ -51,6 +53,7 @@ Before you start contributing, ensure that you have the following installed:
 
 - Create a pull request from your fork to the main Kaoto repository.
 - Provide a detailed description of your changes, referencing any related issues.
+- PRs without linked issues, introducing regressions, with new sonarqube issues or not follow the code quality guidelines won't be accepted.
 - Await feedback or approval from the maintainers.
 
 ## Code Style and Guidelines
@@ -95,6 +98,7 @@ We welcome contributions created with AI assistance! AI tools can help accelerat
 - **Quality Standards Apply**:
   - All AI-generated code must pass linting and tests
   - Follow the same code style and guidelines as manual contributions
+  - Do not introduce regressions nor sonarqube issues.
   - See the Testing and Code Style sections above
 
 For technical details on using AI tools with Kaoto, see [AGENTS.md](AGENTS.md) and [CLAUDE.md](CLAUDE.md).
