@@ -1,5 +1,7 @@
-import { Alert, Button, Modal, ModalBody, ModalFooter, ModalHeader, Stack, StackItem } from '@patternfly/react-core';
-import { FunctionComponent, KeyboardEvent, MouseEvent, useCallback } from 'react';
+import { Alert, Button, ModalBody, ModalFooter, ModalHeader, Stack, StackItem } from '@patternfly/react-core';
+import { FunctionComponent } from 'react';
+
+import { DataMapperModal } from '../../../DataMapper/DataMapperModal';
 
 type UpdateSchemaWarningModalProps = {
   actionName: string;
@@ -16,19 +18,8 @@ export const UpdateSchemaWarningModal: FunctionComponent<UpdateSchemaWarningModa
   onProceed,
   onCancel,
 }) => {
-  const handleStopPropagation = useCallback((event: MouseEvent | KeyboardEvent) => {
-    event.stopPropagation();
-  }, []);
-
   return (
-    <Modal
-      isOpen={isModalOpen}
-      variant="small"
-      data-testid="update-schema-warning-modal"
-      onClick={handleStopPropagation}
-      onMouseDown={handleStopPropagation}
-      onKeyDown={handleStopPropagation}
-    >
+    <DataMapperModal isOpen={isModalOpen} variant="small" data-testid="update-schema-warning-modal">
       <ModalHeader title={`${actionName} schema : ( ${documentTypeLabel} )`} />
       <ModalBody>
         <Stack hasGutter>
@@ -53,6 +44,6 @@ export const UpdateSchemaWarningModal: FunctionComponent<UpdateSchemaWarningModa
           Cancel
         </Button>
       </ModalFooter>
-    </Modal>
+    </DataMapperModal>
   );
 };

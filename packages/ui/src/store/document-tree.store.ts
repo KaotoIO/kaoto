@@ -68,6 +68,10 @@ export interface DocumentTreeState {
   /** Variable mapping ID currently being renamed inline. */
   renamingVariableId: string | null;
   setRenamingVariable: (variableId: string | null) => void;
+
+  /** Node ID whose mapping context menu (3-dot) is currently open. */
+  openMappingMenuId: string | null;
+  setOpenMappingMenuId: (id: string | null) => void;
 }
 
 export const useDocumentTreeStore = createWithEqualityFn<DocumentTreeState>()(
@@ -82,6 +86,7 @@ export const useDocumentTreeStore = createWithEqualityFn<DocumentTreeState>()(
       targetXPathInputForFocus: null,
       addingVariableToNodePath: null,
       renamingVariableId: null,
+      openMappingMenuId: null,
 
       setNodesConnectionPorts: (documentId: string, ports: TreeConnectionPorts) => {
         set((state) => ({
@@ -173,6 +178,10 @@ export const useDocumentTreeStore = createWithEqualityFn<DocumentTreeState>()(
 
       setRenamingVariable: (variableId: string | null) => {
         set({ renamingVariableId: variableId, addingVariableToNodePath: null });
+      },
+
+      setOpenMappingMenuId: (id: string | null) => {
+        set({ openMappingMenuId: id });
       },
     }),
     { name: 'Document Tree Store' },

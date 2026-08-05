@@ -14,6 +14,7 @@ import {
 import { MappingService } from '../../../../services/mapping/mapping.service';
 import { MappingActionService } from '../../../../services/visualization/mapping-action.service';
 import { MappingActionRegistryService } from '../../../../services/visualization/mapping-action-registry.service';
+import { useDocumentTreeStore } from '../../../../store/document-tree.store';
 import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
 import { MappingContextMenuAction } from './MappingContextMenuAction';
 
@@ -48,6 +49,7 @@ describe('MappingContextMenuAction', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    useDocumentTreeStore.getState().setOpenMappingMenuId(null);
   });
 
   it('should apply ValueSelector', async () => {
@@ -473,6 +475,44 @@ describe('MappingContextMenuAction', () => {
 
       const sortAction = screen.getByTestId('transformation-actions-sort');
       expect(sortAction).toHaveTextContent('Edit Sort');
+    });
+  });
+
+  describe('Single open menu enforcement', () => {
+    afterEach(() => {
+      useDocumentTreeStore.getState().setOpenMappingMenuId(null);
+    });
+
+    it('should close first menu when second menu toggle is clicked', async () => {
+      const nodeData1 = new TargetFieldNodeData(
+        documentNodeData,
+        targetDoc.fields[0],
+        new FieldItem(mappingTree, targetDoc.fields[0]),
+      );
+      const nodeData2 = new TargetFieldNodeData(
+        documentNodeData,
+        targetDoc.fields[0].fields[0],
+        new FieldItem(mappingTree, targetDoc.fields[0].fields[0]),
+      );
+      render(
+        <>
+          <MappingContextMenuAction nodeData={nodeData1} onUpdate={vi.fn()} />
+          <MappingContextMenuAction nodeData={nodeData2} onUpdate={vi.fn()} />
+        </>,
+      );
+
+      const toggles = screen.getAllByTestId('transformation-actions-menu-toggle');
+
+      fireEvent.click(toggles[0]);
+      await waitFor(() => {
+        expect(toggles[0].getAttribute('aria-expanded')).toBe('true');
+      });
+
+      fireEvent.click(toggles[1]);
+      await waitFor(() => {
+        expect(toggles[0].getAttribute('aria-expanded')).toBe('false');
+        expect(toggles[1].getAttribute('aria-expanded')).toBe('true');
+      });
     });
   });
 

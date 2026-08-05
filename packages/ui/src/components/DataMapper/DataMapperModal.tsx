@@ -1,3 +1,5 @@
+import './DataMapperModal.scss';
+
 import { Modal, ModalProps } from '@patternfly/react-core';
 import { FunctionComponent, MouseEvent, PointerEvent, TouchEvent, useCallback } from 'react';
 
@@ -31,7 +33,7 @@ export const DataMapperModal: FunctionComponent<Omit<ModalProps, 'ref'>> = (prop
 
   return (
     <div // NOSONAR - intentional non-interactive event barrier for DnD isolation, not a user-facing element
-      style={{ display: 'contents' }}
+      className="datamapper-modal"
       onClick={stopPropagation}
       onPointerDown={stopPropagation}
       onMouseDown={stopPropagation}

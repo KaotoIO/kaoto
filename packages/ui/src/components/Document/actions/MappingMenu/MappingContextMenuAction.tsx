@@ -8,7 +8,7 @@ import {
   MenuToggle,
 } from '@patternfly/react-core';
 import { AddCircleOIcon, EllipsisVIcon } from '@patternfly/react-icons';
-import { Fragment, FunctionComponent, MouseEvent, useCallback, useMemo, useRef, useState } from 'react';
+import { Fragment, FunctionComponent, MouseEvent, useCallback, useMemo, useRef } from 'react';
 
 import { MappingItem } from '../../../../models/datamapper/mapping';
 import {
@@ -19,6 +19,7 @@ import {
 import { TargetNodeData } from '../../../../models/datamapper/visualization';
 import { DEFAULT_POPPER_PROPS } from '../../../../models/popper-default';
 import { MappingActionRegistryService } from '../../../../services/visualization/mapping-action-registry.service';
+import { useDocumentTreeStore } from '../../../../store/document-tree.store';
 import { useMappingActionModals } from './useMappingActionModals';
 
 type MappingContextMenuProps = {
@@ -32,7 +33,9 @@ export const MappingContextMenuAction: FunctionComponent<MappingContextMenuProps
   nodeData,
   onUpdate,
 }) => {
-  const [isActionMenuOpen, setIsActionMenuOpen] = useState<boolean>(false);
+  const openMappingMenuId = useDocumentTreeStore((state) => state.openMappingMenuId);
+  const setOpenMappingMenuId = useDocumentTreeStore((state) => state.setOpenMappingMenuId);
+  const isActionMenuOpen = openMappingMenuId === nodeData.id;
   const menuRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const menuItems = useMemo(() => MappingActionRegistryService.getMappingContextMenuItems(nodeData), [nodeData]);
@@ -75,16 +78,19 @@ export const MappingContextMenuAction: FunctionComponent<MappingContextMenuProps
       const item = menuItems.find((mi) => mi.key === itemId);
       if (item) {
         item.apply(nodeData, callbacks);
-        setIsActionMenuOpen(false);
+        setOpenMappingMenuId(null);
       }
     },
-    [menuItems, nodeData, callbacks],
+    [menuItems, nodeData, callbacks, setOpenMappingMenuId],
   );
 
-  const onToggleClick = useCallback((event: MouseEvent) => {
-    event.stopPropagation();
-    setIsActionMenuOpen((prev) => !prev);
-  }, []);
+  const onToggleClick = useCallback(
+    (event: MouseEvent) => {
+      event.stopPropagation();
+      setOpenMappingMenuId(isActionMenuOpen ? null : nodeData.id);
+    },
+    [isActionMenuOpen, nodeData.id, setOpenMappingMenuId],
+  );
 
   return (
     <>
@@ -92,7 +98,7 @@ export const MappingContextMenuAction: FunctionComponent<MappingContextMenuProps
         <MenuContainer
           isOpen={isActionMenuOpen}
           onOpenChange={(isOpen) => {
-            setIsActionMenuOpen(isOpen);
+            setOpenMappingMenuId(isOpen ? nodeData.id : null);
           }}
           menu={
             <Menu ref={menuRef} containsFlyout onSelect={onSelectAction}>
