@@ -98,10 +98,7 @@ Object.defineProperty(window, 'matchMedia', {
 vi.spyOn(globalThis, 'crypto', 'get').mockImplementation(() => ({ getRandomValues, subtle }) as unknown as Crypto);
 
 // Suppress specific known warnings to reduce noise in test output
-const suppressedWarnings = [
-  '[mobx-react-lite] importing batchingForReactDom is no longer needed',
-  'NODE_ENV is not defined',
-];
+const suppressedWarnings = ['[mobx-react-lite] importing batchingForReactDom is no longer needed'];
 
 vi.spyOn(console, 'warn').mockImplementation((...args) => {
   const message = args[0]?.toString() ?? '';
