@@ -30,10 +30,11 @@ export const XPathEditor: FunctionComponent<XPathEditorProps> = ({ mapping, onCh
     monaco.languages.register({ id: xpathLanguage.id });
     monaco.languages.setMonarchTokensProvider(xpathLanguage.id, xpathLanguage.tokensProvider);
     monaco.languages.setLanguageConfiguration(xpathLanguage.id, xpathLanguage.languageConfiguration);
-    monaco.languages.registerCompletionItemProvider(xpathLanguage.id, xpathLanguage.completionItemProvider);
-    monaco.languages.registerHoverProvider(xpathLanguage.id, {
-      provideHover: () => ({ contents: [{ value: 'test' }] }),
-    });
+    const completionDisposable = monaco.languages.registerCompletionItemProvider(
+      xpathLanguage.id,
+      xpathLanguage.completionItemProvider,
+    );
+    const hoverDisposable = monaco.languages.registerHoverProvider(xpathLanguage.id, xpathLanguage.hoverProvider);
     const themeName = 'datamapperTheme';
     monaco.editor.defineTheme(themeName, xpathEditorTheme);
 
@@ -51,6 +52,8 @@ export const XPathEditor: FunctionComponent<XPathEditorProps> = ({ mapping, onCh
     setEditor(newEditor);
 
     return () => {
+      completionDisposable.dispose();
+      hoverDisposable.dispose();
       newEditor.dispose();
       setEditor(null);
     };

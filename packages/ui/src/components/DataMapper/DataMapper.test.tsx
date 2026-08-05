@@ -13,7 +13,10 @@ import { getShipOrderToShipOrderXslt, getShipOrderXsd } from '../../stubs/datama
 import { DataMapper } from './DataMapper';
 
 vi.mock('monaco-editor', () => ({
-  languages: { CompletionItemKind: { Keyword: 17 } },
+  languages: {
+    CompletionItemKind: { Keyword: 17, Function: 1 },
+    CompletionItemInsertTextRule: { InsertAsSnippet: 4 },
+  },
 }));
 
 describe('DataMapperPage', () => {
