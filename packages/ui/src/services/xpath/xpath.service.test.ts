@@ -780,6 +780,10 @@ describe('XPathService', () => {
   it('getMonacoXPathLanguageMetadata()', () => {
     const metadata = XPathService.getMonacoXPathLanguageMetadata();
     expect(metadata.id).toBe('xpath');
+    expect(metadata.functionDefinitions.length).toBeGreaterThan(90);
+    expect(metadata.functionDefinitions.find((f) => f.name === 'concat')).toBeDefined();
+    expect(metadata.functionDefinitions.find((f) => f.name === 'position')).toBeDefined();
+    expect(metadata.functionDefinitions.find((f) => f.name === 'count')).toBeDefined();
   });
 
   describe('toPathExpression()', () => {

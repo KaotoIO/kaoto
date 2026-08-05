@@ -97,6 +97,7 @@ export class XPathService {
    */
   static getMonacoXPathLanguageMetadata() {
     monacoXPathLanguageMetadata.tokensProvider.actions = XPathService.getXPathFunctionNames();
+    monacoXPathLanguageMetadata.functionDefinitions = Object.values(XPathService.getXPathFunctionDefinitions()).flat();
     return monacoXPathLanguageMetadata;
   }
 

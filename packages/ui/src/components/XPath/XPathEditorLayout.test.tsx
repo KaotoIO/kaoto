@@ -20,7 +20,10 @@ vi.mock('./XPathEditor', () => ({
 }));
 
 vi.mock('monaco-editor', () => ({
-  languages: { CompletionItemKind: { Keyword: 17 } },
+  languages: {
+    CompletionItemKind: { Keyword: 17, Function: 1 },
+    CompletionItemInsertTextRule: { InsertAsSnippet: 4 },
+  },
 }));
 
 // Shared test setup
