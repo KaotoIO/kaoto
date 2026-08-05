@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-import { CamelYamlDsl } from '@kaoto/camel-catalog/types';
+import { CamelYamlDsl, RouteDefinition } from '@kaoto/camel-catalog/types';
 import xmlFormat from 'xml-formatter';
 
+import { getCamelRandomId } from '../../camel-utils/camel-random-id';
 import { KaotoXmlParser } from '../../serializers/xml/kaoto-xml-parser';
 import { EntityDefinition } from '../../serializers/xml/serializers/entitiy-definition';
 import { KaotoXmlSerializer } from '../../serializers/xml/serializers/kaoto-xml-serializer';
 import { insertXmlComments, parseXmlComments } from '../../utils/xml-comments';
 import { EntityType } from '../entities';
 import { BaseVisualCamelEntityConstructor } from '../visualization/base-visual-entity';
+import { FlowTemplateService } from '../visualization/flows/support/flow-templates-service';
 import { CamelRouteResource } from './camel-route-resource';
 import { SourceSchemaType } from './source-schema-type';
 
@@ -52,6 +54,7 @@ export class CamelXMLRouteResource extends CamelRouteResource {
   private readonly xmlDeclaration: string;
   private readonly rootElementDefinitions: { name: string; value: string }[];
   private readonly xmlSerializer = new XMLSerializer();
+  private parsedRouteTemplate: RouteDefinition | undefined;
 
   constructor(source: string = '') {
     super();
@@ -74,7 +77,16 @@ export class CamelXMLRouteResource extends CamelRouteResource {
     const parser = new KaotoXmlParser();
     const rawEntities = (await parser.parseXML(this.code)) as unknown as CamelYamlDsl;
     this.setRawEntities(rawEntities);
+    const xmlTemplate = FlowTemplateService.getFlowSourceTemplate(this.getType());
+    const parsedTemplate = (await parser.parseXML(xmlTemplate)) as Array<{ route: RouteDefinition }>;
+    this.parsedRouteTemplate = parsedTemplate[0] as unknown as RouteDefinition;
     await super.initialize();
+  }
+
+  protected override getRouteTemplate(): RouteDefinition {
+    const template = structuredClone((this.parsedRouteTemplate as unknown as { route: RouteDefinition }).route);
+    template.id = getCamelRandomId('route');
+    return { route: template } as unknown as RouteDefinition;
   }
 
   override async toSourceCode(): Promise<string> {
