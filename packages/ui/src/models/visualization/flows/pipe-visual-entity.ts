@@ -156,16 +156,18 @@ export class PipeVisualEntity implements BaseVisualEntity {
     this.addNewStep(step, options.mode, options.data);
   }
 
-  getCopiedContent(path?: string): IClipboardContent | undefined {
-    if (!path) return;
+  getCopiedContent(path?: string, ids?: IVisualizationNodeIds): IClipboardContent | undefined {
+    if (!path || !ids?.primaryNodeId?.name) return;
+
+    const contentName = ids.primaryNodeId.name;
 
     // Allow copying the entire pipe entity
-    if (path === this.getRootPath()) {
+    if (path === this.getRootPath() && contentName === 'PipeConfiguration') {
       return { name: 'pipe', definition: this.pipe as object };
     }
 
     const stepModel: PipeStep = getValue(this.pipe.spec, path);
-    return { name: stepModel?.ref?.name ?? '', definition: stepModel as object };
+    return { name: contentName, definition: stepModel as object };
   }
 
   pasteStep(options: { clipboardContent: IClipboardContent; mode: AddStepMode; data: IVisualizationNodeData }) {

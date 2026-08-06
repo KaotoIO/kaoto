@@ -515,7 +515,11 @@ describe('AbstractCamelVisualEntity', () => {
 
   describe('getCopiedContent', () => {
     it('should return the copied content for a step', () => {
-      const copiedContent = abstractVisualEntity.getCopiedContent('route.from.steps.2.to');
+      const copiedContent = abstractVisualEntity.getCopiedContent('route.from.steps.2.to', {
+        primaryNodeId: { name: 'to', catalogKind: CatalogKind.Processor },
+        secondaryNodeId: undefined,
+        tertiaryNodeId: undefined,
+      });
       expect(copiedContent).toEqual({
         name: 'to',
         definition: {
@@ -533,7 +537,11 @@ describe('AbstractCamelVisualEntity', () => {
     });
 
     it('should return undefined node default value if the path is invalid', () => {
-      const copiedContent = abstractVisualEntity.getCopiedContent('route.from.steps.999.to');
+      const copiedContent = abstractVisualEntity.getCopiedContent('route.from.steps.999.to', {
+        primaryNodeId: { name: 'to', catalogKind: CatalogKind.Processor },
+        secondaryNodeId: undefined,
+        tertiaryNodeId: undefined,
+      });
       expect(copiedContent).toEqual({
         name: 'to',
         definition: undefined,

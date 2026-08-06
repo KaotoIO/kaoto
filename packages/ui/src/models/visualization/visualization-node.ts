@@ -80,7 +80,12 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   }
 
   getCopiedContent(): IClipboardContent | undefined {
-    return this.getBaseEntity()?.getCopiedContent(this.data.path);
+    const ids: IVisualizationNodeIds = {
+      primaryNodeId: this.data.primaryNodeId,
+      secondaryNodeId: this.data.secondaryNodeId,
+      tertiaryNodeId: this.data.tertiaryNodeId,
+    };
+    return this.getBaseEntity()?.getCopiedContent(this.data.path, ids);
   }
 
   pasteBaseEntityStep(definition: IClipboardContent, mode: AddStepMode, insertAtStart?: boolean): void {

@@ -4,6 +4,7 @@ import type { Mock } from 'vitest';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
+import { CatalogKind } from '../../../../models/catalog-kind';
 import { AddStepMode } from '../../../../models/visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows/camel-route-visual-entity';
 import { VisualFlowsApi } from '../../../../models/visualization/flows/support/flows-visibility';
@@ -40,6 +41,7 @@ describe('useDuplicateStep', () => {
     iconUrl: '',
     title: '',
     description: '',
+    primaryNodeId: { name: 'to', catalogKind: CatalogKind.Processor },
   });
   const whenVizNode = createVisualizationNode('when', {
     name: 'when',
@@ -51,6 +53,7 @@ describe('useDuplicateStep', () => {
     iconUrl: '',
     title: '',
     description: '',
+    primaryNodeId: { name: 'when', catalogKind: CatalogKind.Processor },
   });
   const choiceVizNode = createVisualizationNode('choice', {
     name: 'choice',
@@ -62,6 +65,7 @@ describe('useDuplicateStep', () => {
     iconUrl: '',
     title: '',
     description: '',
+    primaryNodeId: { name: 'choice', catalogKind: CatalogKind.Processor },
   });
 
   // Set parent of when node to choice node and vice versa
@@ -78,6 +82,7 @@ describe('useDuplicateStep', () => {
     iconUrl: '',
     title: '',
     description: '',
+    primaryNodeId: { name: 'route', catalogKind: CatalogKind.Processor },
   });
   // Set parent of viznode to route node
   vizNode.setParentNode(routeVizNode);

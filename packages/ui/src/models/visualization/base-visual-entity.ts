@@ -57,7 +57,7 @@ export interface BaseVisualEntity extends BaseEntity {
   }) => void;
 
   /** Given a path, get the content to be copied */
-  getCopiedContent: (path?: string) => IClipboardContent | undefined;
+  getCopiedContent: (path?: string, ids?: IVisualizationNodeIds) => IClipboardContent | undefined;
 
   pasteStep: (options: {
     clipboardContent: IClipboardContent;

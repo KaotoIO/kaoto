@@ -91,16 +91,17 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string;
     return super.getNodeDefinition(path);
   }
 
-  getCopiedContent(path?: string): IClipboardContent | undefined {
-    if (!path) return;
+  getCopiedContent(path?: string, ids?: IVisualizationNodeIds): IClipboardContent | undefined {
+    if (!path || !ids) return;
 
+    const contentName = ids.primaryNodeId?.name;
     // Allow copying the entire kamelet entity
-    if (path === this.getRootPath()) {
+    if (path === this.getRootPath() && contentName === 'KameletConfiguration') {
       return { name: 'kamelet', definition: this.kamelet as object };
     }
 
     // For other paths, use the parent implementation
-    return super.getCopiedContent(path);
+    return super.getCopiedContent(path, ids);
   }
 
   updateModel(path: string | undefined, value: Record<string, unknown>): void {
