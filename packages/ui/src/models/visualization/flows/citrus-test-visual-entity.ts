@@ -257,15 +257,16 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     this.addNewStep(action, options.mode, options.data);
   }
 
-  getCopiedContent(path?: string): IClipboardContent | undefined {
-    if (!path) return;
+  getCopiedContent(path?: string, ids?: IVisualizationNodeIds): IClipboardContent | undefined {
+    if (!path || !ids?.primaryNodeId?.name) return;
+
+    const actionName = ids.primaryNodeId.name;
 
     // Allow copying the entire test entity
     if (path === this.getRootPath()) {
-      return { name: 'test', definition: this.test as object };
+      return { name: actionName, definition: this.test as object };
     }
 
-    const actionName = CitrusTestSchemaService.extractTestActionName(path);
     const actionModel: TestActions = getValue(this.test, this.toModelPath(path.substring(0, path.lastIndexOf('.'))));
     return { name: actionName, definition: actionModel as object };
   }

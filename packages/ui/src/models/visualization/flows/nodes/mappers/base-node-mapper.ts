@@ -157,6 +157,7 @@ export class BaseNodeMapper implements INodeMapper {
       description: '',
       processorIconTooltip: '',
       path: placeholderPath,
+      primaryNodeId: { name: PlaceholderType.Placeholder, catalogKind: CatalogKind.Pattern } satisfies NodeIdentity,
     });
     branchVizNodes.push(placeholderNode);
 

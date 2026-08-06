@@ -517,10 +517,17 @@ describe('VisualizationNode', () => {
         title: '',
         description: '',
         iconUrl: '',
+        primaryNodeId: { name: 'to', catalogKind: 'processor' as never },
+        secondaryNodeId: { name: 'log', catalogKind: 'component' as never },
+        tertiaryNodeId: undefined,
       });
       const copiedContent = node.getCopiedContent();
 
-      expect(getCopiedContentSpy).toHaveBeenCalledWith(node.data.path);
+      expect(getCopiedContentSpy).toHaveBeenCalledWith(node.data.path, {
+        primaryNodeId: node.data.primaryNodeId,
+        secondaryNodeId: node.data.secondaryNodeId,
+        tertiaryNodeId: node.data.tertiaryNodeId,
+      });
       expect(copiedContent).toBe('test-copied-content');
     });
   });

@@ -3,6 +3,7 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 import type { Mock } from 'vitest';
 
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
+import { CatalogKind } from '../../../../models/catalog-kind';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows/camel-route-visual-entity';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
@@ -238,6 +239,7 @@ describe('useMoveStep', () => {
         iconUrl: '',
         title: '',
         description: '',
+        primaryNodeId: { name: 'kaoto-datamapper', catalogKind: CatalogKind.Processor },
       });
 
       const dataMapperVizNodeCopiedContent = {

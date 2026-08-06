@@ -804,7 +804,11 @@ describe('Pipe', () => {
 
   describe('getCopiedContent', () => {
     it('should return the copied content for a step', () => {
-      const copiedContent = pipeVisualEntity.getCopiedContent('steps.0');
+      const copiedContent = pipeVisualEntity.getCopiedContent('steps.0', {
+        primaryNodeId: { name: 'delay-action', catalogKind: CatalogKind.Kamelet },
+        secondaryNodeId: undefined,
+        tertiaryNodeId: undefined,
+      });
       expect(copiedContent).toEqual({
         name: 'delay-action',
         definition: {
@@ -823,9 +827,13 @@ describe('Pipe', () => {
     });
 
     it('should return undefined node default value if the path is invalid', () => {
-      const copiedContent = pipeVisualEntity.getCopiedContent('steps.1');
+      const copiedContent = pipeVisualEntity.getCopiedContent('steps.1', {
+        primaryNodeId: { name: 'delay-action', catalogKind: CatalogKind.Kamelet },
+        secondaryNodeId: undefined,
+        tertiaryNodeId: undefined,
+      });
       expect(copiedContent).toEqual({
-        name: '',
+        name: 'delay-action',
         definition: undefined,
       });
     });

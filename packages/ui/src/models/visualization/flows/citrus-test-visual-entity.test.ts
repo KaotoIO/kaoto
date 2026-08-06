@@ -600,7 +600,11 @@ describe('CitrusTestVisualEntity', () => {
     });
 
     it('should return the copied content for a step', () => {
-      const copiedContent = citrusTestEntity.getCopiedContent('actions.0.print');
+      const copiedContent = citrusTestEntity.getCopiedContent('actions.0.print', {
+        primaryNodeId: { name: 'print', catalogKind: CatalogKind.TestAction },
+        secondaryNodeId: undefined,
+        tertiaryNodeId: undefined,
+      });
       expect(copiedContent).toEqual({
         name: 'print',
         definition: {
@@ -612,7 +616,11 @@ describe('CitrusTestVisualEntity', () => {
     });
 
     it('should return undefined node default value if the path is invalid', () => {
-      const copiedContent = citrusTestEntity.getCopiedContent('actions.999.foo');
+      const copiedContent = citrusTestEntity.getCopiedContent('actions.999.foo', {
+        primaryNodeId: { name: 'foo', catalogKind: CatalogKind.TestAction },
+        secondaryNodeId: undefined,
+        tertiaryNodeId: undefined,
+      });
       expect(copiedContent).toEqual({
         name: 'foo',
         definition: undefined,

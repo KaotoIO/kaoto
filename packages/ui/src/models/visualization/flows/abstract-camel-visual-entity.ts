@@ -187,14 +187,13 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     this.addNewStep(defaultValue, options.mode, options.data, options.definedComponent.name, options.insertAtStart);
   }
 
-  getCopiedContent(path?: string): IClipboardContent | undefined {
-    if (!path) return;
+  getCopiedContent(path?: string, ids?: IVisualizationNodeIds): IClipboardContent | undefined {
+    if (!path || !ids?.primaryNodeId?.name) return;
 
     const componentModel = getValue(this.entityDef, path);
-    const componentLookup = CamelComponentSchemaService.getCamelComponentLookup(path, componentModel);
 
     return {
-      name: componentLookup.processorName as string,
+      name: ids.primaryNodeId.name,
       definition: componentModel,
     };
   }
