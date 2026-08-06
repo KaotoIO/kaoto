@@ -1,10 +1,12 @@
 import { IVisualizationNode } from '../../base-visual-entity';
-import { ICamelElementLookupResult } from '../support/camel-component-types';
+import { NodeIdentity } from '../../node-identity';
 
 export interface INodeMapper {
   getVizNodeFromProcessor(
     path: string,
-    componentLookup: ICamelElementLookupResult,
+    primaryNodeId: NodeIdentity,
     entityDefinition: unknown,
+    secondaryNodeId?: NodeIdentity,
+    tertiaryNodeId?: NodeIdentity,
   ): Promise<IVisualizationNode>;
 }

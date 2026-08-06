@@ -7,15 +7,17 @@ import { CatalogKind } from '../../../../catalog-kind';
 import { IVisualizationNode } from '../../../base-visual-entity';
 import { NodeIdentity } from '../../../node-identity';
 import { createVisualizationNode } from '../../../visualization-node';
-import { CamelRouteVisualEntityData, ICamelElementLookupResult } from '../../support/camel-component-types';
+import { CamelRouteVisualEntityData } from '../../support/camel-component-types';
 import { NodeEnrichmentService } from '../node-enrichment.service';
 import { BaseNodeMapper } from './base-node-mapper';
 
 export class FromNodeMapper extends BaseNodeMapper {
   async getVizNodeFromProcessor(
     path: string,
-    _componentLookup: ICamelElementLookupResult,
+    _primaryNodeId: NodeIdentity,
     entityDefinition: unknown,
+    _secondaryNodeId?: NodeIdentity,
+    _tertiaryNodeId?: NodeIdentity,
   ): Promise<IVisualizationNode> {
     const processorName: keyof ProcessorDefinition = 'from' as keyof ProcessorDefinition;
 

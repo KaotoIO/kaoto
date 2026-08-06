@@ -4,6 +4,7 @@ import { parse } from 'yaml';
 import { IKameletDefinition } from '../../../../camel/kamelets-catalog';
 import { CatalogKind } from '../../../../catalog-kind';
 import { IVisualizationNode } from '../../../base-visual-entity';
+import { NodeIdentity } from '../../../node-identity';
 import { KameletVisualEntity } from '../../kamelet-visual-entity';
 import { RootNodeMapper } from '../root-node-mapper';
 import { FromNodeMapper } from './from-node-mapper';
@@ -14,8 +15,7 @@ describe('FromNodeMapper', () => {
   let rootNodeMapper: RootNodeMapper;
   let vizNode: IVisualizationNode;
   const path = 'route.from';
-  const FROM_ENTITY = 'from' as keyof ProcessorDefinition;
-  const PROCESSOR_OPTIONS = { processorName: FROM_ENTITY };
+  const FROM_NODE_ID: NodeIdentity = { name: 'from' as keyof ProcessorDefinition, catalogKind: CatalogKind.Pattern };
 
   beforeEach(async () => {
     rootNodeMapper = new RootNodeMapper();
@@ -42,7 +42,7 @@ describe('FromNodeMapper', () => {
                 id: to-9012
                 uri: direct:end`);
 
-    vizNode = await mapper.getVizNodeFromProcessor(path, PROCESSOR_OPTIONS, routeJson);
+    vizNode = await mapper.getVizNodeFromProcessor(path, FROM_NODE_ID, routeJson);
   });
 
   it('should populate primaryNodeId', () => {
@@ -63,7 +63,7 @@ describe('FromNodeMapper', () => {
           parameters: {}
           steps: []`);
 
-    const kameletVizNode = await mapper.getVizNodeFromProcessor(path, PROCESSOR_OPTIONS, kameletRouteJson);
+    const kameletVizNode = await mapper.getVizNodeFromProcessor(path, FROM_NODE_ID, kameletRouteJson);
 
     expect(kameletVizNode.data.primaryNodeId).toEqual({ name: 'from', catalogKind: CatalogKind.Entity });
     expect(kameletVizNode.data.secondaryNodeId).toEqual({ name: 'kamelet', catalogKind: CatalogKind.Component });
@@ -79,7 +79,7 @@ describe('FromNodeMapper', () => {
           parameters: {}
           steps: []`);
 
-    const kameletVizNode = await mapper.getVizNodeFromProcessor(path, PROCESSOR_OPTIONS, kameletParamsRouteJson);
+    const kameletVizNode = await mapper.getVizNodeFromProcessor(path, FROM_NODE_ID, kameletParamsRouteJson);
 
     expect(kameletVizNode.data.primaryNodeId).toEqual({ name: 'from', catalogKind: CatalogKind.Entity });
     expect(kameletVizNode.data.secondaryNodeId).toEqual({ name: 'kamelet', catalogKind: CatalogKind.Component });
@@ -95,7 +95,7 @@ describe('FromNodeMapper', () => {
           parameters: {}
           steps: []`);
 
-    const timerVizNode = await mapper.getVizNodeFromProcessor(path, PROCESSOR_OPTIONS, timerRouteJson);
+    const timerVizNode = await mapper.getVizNodeFromProcessor(path, FROM_NODE_ID, timerRouteJson);
 
     expect(timerVizNode.data.primaryNodeId).toEqual({ name: 'from', catalogKind: CatalogKind.Entity });
     expect(timerVizNode.data.secondaryNodeId).toEqual({ name: 'timer', catalogKind: CatalogKind.Component });
@@ -110,7 +110,7 @@ describe('FromNodeMapper', () => {
           parameters: {}
           steps: []`);
 
-    const noUriVizNode = await mapper.getVizNodeFromProcessor(path, PROCESSOR_OPTIONS, noUriRouteJson);
+    const noUriVizNode = await mapper.getVizNodeFromProcessor(path, FROM_NODE_ID, noUriRouteJson);
 
     expect(noUriVizNode.data.primaryNodeId).toEqual({ name: 'from', catalogKind: CatalogKind.Entity });
     expect(noUriVizNode.data.secondaryNodeId).toBeUndefined();
@@ -205,7 +205,7 @@ describe('FromNodeMapper', () => {
           parameters: {}
           steps: []`);
 
-    const emptyVizNode = await mapper.getVizNodeFromProcessor(path, PROCESSOR_OPTIONS, emptyRouteJson);
+    const emptyVizNode = await mapper.getVizNodeFromProcessor(path, FROM_NODE_ID, emptyRouteJson);
 
     const children = emptyVizNode.getChildren();
     expect(children).toHaveLength(1);
@@ -225,7 +225,7 @@ describe('FromNodeMapper', () => {
       },
     };
 
-    const undefinedVizNode = await mapper.getVizNodeFromProcessor(path, PROCESSOR_OPTIONS, undefinedRouteJson);
+    const undefinedVizNode = await mapper.getVizNodeFromProcessor(path, FROM_NODE_ID, undefinedRouteJson);
 
     const children = undefinedVizNode.getChildren();
     expect(children).toHaveLength(1);
@@ -267,7 +267,7 @@ describe('FromNodeMapper', () => {
                 id: log-only
                 message: single step`);
 
-    const singleVizNode = await mapper.getVizNodeFromProcessor(path, PROCESSOR_OPTIONS, singleRouteJson);
+    const singleVizNode = await mapper.getVizNodeFromProcessor(path, FROM_NODE_ID, singleRouteJson);
 
     const children = singleVizNode.getChildren();
     expect(children).toHaveLength(2);

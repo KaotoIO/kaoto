@@ -1,9 +1,12 @@
-import { ProcessorDefinition, RouteConfigurationDefinition } from '@kaoto/camel-catalog/types';
+import { RouteConfigurationDefinition } from '@kaoto/camel-catalog/types';
 
 import { CatalogKind } from '../../../../catalog-kind';
+import { NodeIdentity } from '../../../node-identity';
 import { RootNodeMapper } from '../root-node-mapper';
 import { BaseNodeMapper } from './base-node-mapper';
 import { RouteConfigurationNodeMapper } from './route-configuration-node-mapper';
+
+const RC_NODE_ID: NodeIdentity = { name: 'routeConfiguration', catalogKind: CatalogKind.Pattern };
 
 describe('RouteConfigurationNodeMapper', () => {
   let mapper: RouteConfigurationNodeMapper;
@@ -13,17 +16,13 @@ describe('RouteConfigurationNodeMapper', () => {
   beforeEach(() => {
     rootNodeMapper = new RootNodeMapper();
     mapper = new RouteConfigurationNodeMapper(rootNodeMapper);
-    rootNodeMapper.registerMapper('routeConfiguration' as keyof ProcessorDefinition, mapper);
+    rootNodeMapper.registerMapper('routeConfiguration', mapper);
     rootNodeMapper.registerDefaultMapper(new BaseNodeMapper(rootNodeMapper));
   });
 
   it('should create a visualization node with correct data', async () => {
     const entityDef = { routeConfiguration: {} };
-    const vizNode = await mapper.getVizNodeFromProcessor(
-      path,
-      { processorName: 'routeConfiguration' as keyof ProcessorDefinition },
-      entityDef,
-    );
+    const vizNode = await mapper.getVizNodeFromProcessor(path, RC_NODE_ID, entityDef);
 
     expect(vizNode.data.name).toBe('routeConfiguration');
     expect(vizNode.data.path).toEqual(path);
@@ -32,11 +31,7 @@ describe('RouteConfigurationNodeMapper', () => {
 
   it('should populate primaryNodeId', async () => {
     const entityDef = { routeConfiguration: {} };
-    const vizNode = await mapper.getVizNodeFromProcessor(
-      path,
-      { processorName: 'routeConfiguration' as keyof ProcessorDefinition },
-      entityDef,
-    );
+    const vizNode = await mapper.getVizNodeFromProcessor(path, RC_NODE_ID, entityDef);
 
     expect(vizNode.data.primaryNodeId).toEqual({ name: 'routeConfiguration', catalogKind: CatalogKind.Processor });
     expect(vizNode.data.secondaryNodeId).toBeUndefined();
@@ -44,11 +39,7 @@ describe('RouteConfigurationNodeMapper', () => {
 
   it('should return one placeholder per branch type when routeConfiguration is empty', async () => {
     const entityDef = { routeConfiguration: {} };
-    const vizNode = await mapper.getVizNodeFromProcessor(
-      path,
-      { processorName: 'routeConfiguration' as keyof ProcessorDefinition },
-      entityDef,
-    );
+    const vizNode = await mapper.getVizNodeFromProcessor(path, RC_NODE_ID, entityDef);
 
     const children = vizNode.getChildren();
     expect(children).toHaveLength(5);
@@ -64,11 +55,7 @@ describe('RouteConfigurationNodeMapper', () => {
       },
     };
 
-    const vizNode = await mapper.getVizNodeFromProcessor(
-      path,
-      { processorName: 'routeConfiguration' as keyof ProcessorDefinition },
-      entityDef,
-    );
+    const vizNode = await mapper.getVizNodeFromProcessor(path, RC_NODE_ID, entityDef);
 
     const children = vizNode.getChildren();
     // One placeholder + one intercept node for intercept branch, plus 4 placeholders for other branches
@@ -84,11 +71,7 @@ describe('RouteConfigurationNodeMapper', () => {
       },
     };
 
-    const vizNode = await mapper.getVizNodeFromProcessor(
-      path,
-      { processorName: 'routeConfiguration' as keyof ProcessorDefinition },
-      entityDef,
-    );
+    const vizNode = await mapper.getVizNodeFromProcessor(path, RC_NODE_ID, entityDef);
 
     const children = vizNode.getChildren();
     // One placeholder + 2 intercept nodes for intercept branch, plus 4 placeholders for other branches
@@ -109,11 +92,7 @@ describe('RouteConfigurationNodeMapper', () => {
       },
     };
 
-    const vizNode = await mapper.getVizNodeFromProcessor(
-      path,
-      { processorName: 'routeConfiguration' as keyof ProcessorDefinition },
-      entityDef,
-    );
+    const vizNode = await mapper.getVizNodeFromProcessor(path, RC_NODE_ID, entityDef);
 
     const children = vizNode.getChildren();
     // intercept: 2, onException: 2, onCompletion: 2, interceptFrom: 1, interceptSendToEndpoint: 1
@@ -132,11 +111,7 @@ describe('RouteConfigurationNodeMapper', () => {
       },
     };
 
-    const vizNode = await mapper.getVizNodeFromProcessor(
-      path,
-      { processorName: 'routeConfiguration' as keyof ProcessorDefinition },
-      entityDef,
-    );
+    const vizNode = await mapper.getVizNodeFromProcessor(path, RC_NODE_ID, entityDef);
 
     const children = vizNode.getChildren();
     expect(children).toHaveLength(6);
@@ -151,11 +126,7 @@ describe('RouteConfigurationNodeMapper', () => {
       },
     };
 
-    const vizNode = await mapper.getVizNodeFromProcessor(
-      path,
-      { processorName: 'routeConfiguration' as keyof ProcessorDefinition },
-      entityDef,
-    );
+    const vizNode = await mapper.getVizNodeFromProcessor(path, RC_NODE_ID, entityDef);
 
     const children = vizNode.getChildren();
     expect(children).toHaveLength(6);
@@ -170,11 +141,7 @@ describe('RouteConfigurationNodeMapper', () => {
       },
     };
 
-    const vizNode = await mapper.getVizNodeFromProcessor(
-      path,
-      { processorName: 'routeConfiguration' as keyof ProcessorDefinition },
-      entityDef,
-    );
+    const vizNode = await mapper.getVizNodeFromProcessor(path, RC_NODE_ID, entityDef);
 
     const children = vizNode.getChildren();
     expect(children?.some((c) => c.data.isPlaceholder)).toBe(true);
@@ -192,11 +159,7 @@ describe('RouteConfigurationNodeMapper', () => {
       },
     };
 
-    const vizNode = await mapper.getVizNodeFromProcessor(
-      path,
-      { processorName: 'routeConfiguration' as keyof ProcessorDefinition },
-      entityDef,
-    );
+    const vizNode = await mapper.getVizNodeFromProcessor(path, RC_NODE_ID, entityDef);
 
     const children = vizNode.getChildren();
     // One placeholder + one node per branch type = 2*5 = 10

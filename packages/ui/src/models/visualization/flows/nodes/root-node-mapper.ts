@@ -1,14 +1,12 @@
-import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
-
 import { IVisualizationNode } from '../../base-visual-entity';
-import { ICamelElementLookupResult } from '../support/camel-component-types';
+import { NodeIdentity } from '../../node-identity';
 import { INodeMapper } from './node-mapper';
 
 export class RootNodeMapper implements INodeMapper {
-  private readonly mappers: Map<keyof ProcessorDefinition, INodeMapper> = new Map();
+  private readonly mappers: Map<string, INodeMapper> = new Map();
   private defaultMapper: INodeMapper | undefined;
 
-  registerMapper(processorName: keyof ProcessorDefinition, mapper: INodeMapper): void {
+  registerMapper(processorName: string, mapper: INodeMapper): void {
     this.mappers.set(processorName, mapper);
   }
 
@@ -18,15 +16,17 @@ export class RootNodeMapper implements INodeMapper {
 
   async getVizNodeFromProcessor(
     path: string,
-    componentLookup: ICamelElementLookupResult,
+    primaryNodeId: NodeIdentity,
     entityDefinition: unknown,
+    secondaryNodeId?: NodeIdentity,
+    tertiaryNodeId?: NodeIdentity,
   ): Promise<IVisualizationNode> {
-    const mapper = this.mappers.get(componentLookup.processorName) || this.defaultMapper;
+    const mapper = this.mappers.get(primaryNodeId.name) || this.defaultMapper;
 
     if (!mapper) {
-      throw new Error(`No mapper found for processor: ${componentLookup.processorName}`);
+      throw new Error(`No mapper found for processor: ${primaryNodeId.name}`);
     }
 
-    return mapper.getVizNodeFromProcessor(path, componentLookup, entityDefinition);
+    return mapper.getVizNodeFromProcessor(path, primaryNodeId, entityDefinition, secondaryNodeId, tertiaryNodeId);
   }
 }

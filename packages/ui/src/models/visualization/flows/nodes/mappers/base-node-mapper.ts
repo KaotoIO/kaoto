@@ -8,11 +8,7 @@ import { IVisualizationNode } from '../../../base-visual-entity';
 import { NodeIdentity } from '../../../node-identity';
 import { createVisualizationNode } from '../../../visualization-node';
 import { CamelComponentSchemaService } from '../../support/camel-component-schema.service';
-import {
-  CamelProcessorStepsProperties,
-  CamelRouteVisualEntityData,
-  ICamelElementLookupResult,
-} from '../../support/camel-component-types';
+import { CamelProcessorStepsProperties, CamelRouteVisualEntityData } from '../../support/camel-component-types';
 import { NodeEnrichmentService } from '../node-enrichment.service';
 import { INodeMapper } from '../node-mapper';
 
@@ -21,45 +17,29 @@ export class BaseNodeMapper implements INodeMapper {
 
   async getVizNodeFromProcessor(
     path: string,
-    componentLookup: ICamelElementLookupResult,
+    primaryNodeId: NodeIdentity,
     entityDefinition: unknown,
+    secondaryNodeId?: NodeIdentity,
+    tertiaryNodeId?: NodeIdentity,
   ): Promise<IVisualizationNode> {
     let catalogKind: CatalogKind;
     let name: string;
-    if (componentLookup.componentName?.startsWith('kamelet:')) {
+
+    if (tertiaryNodeId) {
       catalogKind = CatalogKind.Kamelet;
-      // For Kamelets, remove the 'kamelet:' prefix from the name
-      // The resolvers will use the clean name to look up in the catalog
-      name = componentLookup.componentName.replace('kamelet:', '');
-    } else if (componentLookup.componentName) {
-      catalogKind = CatalogKind.Component;
-      name = componentLookup.componentName;
+      name = tertiaryNodeId.name;
+    } else if (secondaryNodeId) {
+      catalogKind = secondaryNodeId.catalogKind;
+      name = secondaryNodeId.name;
     } else {
       catalogKind = CatalogKind.Pattern;
-      name = componentLookup.processorName;
-    }
-    const primaryNodeId: NodeIdentity = {
-      name: componentLookup.processorName,
-      catalogKind: CatalogKind.Pattern,
-    };
-    let secondaryNodeId: NodeIdentity | undefined;
-    let tertiaryNodeId: NodeIdentity | undefined;
-
-    if (componentLookup.componentName?.startsWith('kamelet:')) {
-      secondaryNodeId = { name: 'kamelet', catalogKind: CatalogKind.Component };
-      tertiaryNodeId = {
-        name: componentLookup.componentName.replace('kamelet:', ''),
-        catalogKind: CatalogKind.Kamelet,
-      };
-    } else if (componentLookup.componentName) {
-      secondaryNodeId = { name: componentLookup.componentName, catalogKind: CatalogKind.Component };
+      name = primaryNodeId.name;
     }
 
     const data: CamelRouteVisualEntityData = {
       name,
       path,
-      processorName: componentLookup.processorName,
-      componentName: componentLookup.componentName,
+      processorName: primaryNodeId.name as keyof ProcessorDefinition,
       isPlaceholder: false,
       isGroup: false,
       iconUrl: '',
@@ -77,7 +57,7 @@ export class BaseNodeMapper implements INodeMapper {
     await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, catalogKind);
 
     const childrenStepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
-      componentLookup.processorName,
+      primaryNodeId.name as keyof ProcessorDefinition,
     );
 
     if (childrenStepsProperties.length > 0) {
@@ -125,15 +105,18 @@ export class BaseNodeMapper implements INodeMapper {
       const step = stepsList[index];
       const singlePropertyName = Object.keys(step)[0];
       const childPath = `${path}.${index}.${singlePropertyName}`;
-      const childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(
-        childPath,
+
+      const { primaryNodeId, secondaryNodeId, tertiaryNodeId } = BaseNodeMapper.buildNodeIds(
+        singlePropertyName,
         getValue(step, singlePropertyName),
       );
 
       const vizNode = await this.rootNodeMapper.getVizNodeFromProcessor(
         childPath,
-        childComponentLookup,
+        primaryNodeId,
         entityDefinition,
+        secondaryNodeId,
+        tertiaryNodeId,
       );
 
       const previousVizNode = branchVizNodes[branchVizNodes.length - 1];
@@ -169,15 +152,21 @@ export class BaseNodeMapper implements INodeMapper {
   }
 
   protected async getChildrenFromSingleClause(path: string, entityDefinition: unknown): Promise<IVisualizationNode[]> {
-    const childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(path, entityDefinition);
-
     /** If the single-clause property is not defined, return a placeholder */
     if (getValue(entityDefinition, path) === undefined) return [this.getPlaceHolderNodeForProcessor(path)];
 
+    const processorName = path.split('.').pop()!;
+    const { primaryNodeId, secondaryNodeId, tertiaryNodeId } = BaseNodeMapper.buildNodeIds(
+      processorName,
+      getValue(entityDefinition, path),
+    );
+
     const singleClauseVizNode = await this.rootNodeMapper.getVizNodeFromProcessor(
       path,
-      childComponentLookup,
+      primaryNodeId,
       entityDefinition,
+      secondaryNodeId,
+      tertiaryNodeId,
     );
 
     return [singleClauseVizNode];
@@ -189,8 +178,8 @@ export class BaseNodeMapper implements INodeMapper {
     const children: IVisualizationNode[] = [this.getPlaceHolderNodeForProcessor(path)];
     for (let index = 0; index < expressionList.length; index++) {
       let childPath = `${path}.${index}`;
-      const processorName = path.split('.').pop() as keyof ProcessorDefinition;
-      const childComponentLookup = { processorName };
+      const processorName = path.split('.').pop()!;
+      const primaryNodeId: NodeIdentity = { name: processorName, catalogKind: CatalogKind.Pattern };
 
       if (
         SPECIAL_PROCESSORS_PARENTS_MAP['routeConfiguration'].includes(
@@ -202,7 +191,7 @@ export class BaseNodeMapper implements INodeMapper {
 
       const arrayClauseVizNode = await this.rootNodeMapper.getVizNodeFromProcessor(
         childPath,
-        childComponentLookup,
+        primaryNodeId,
         entityDefinition,
       );
 
@@ -222,5 +211,35 @@ export class BaseNodeMapper implements INodeMapper {
       description: '',
       path: `${path}`,
     });
+  }
+
+  private static buildNodeIds(
+    processorName: string,
+    definition: unknown,
+  ): {
+    primaryNodeId: NodeIdentity;
+    secondaryNodeId?: NodeIdentity;
+    tertiaryNodeId?: NodeIdentity;
+  } {
+    const primaryNodeId: NodeIdentity = { name: processorName, catalogKind: CatalogKind.Pattern };
+
+    if (processorName === 'from' || processorName === 'to' || processorName === 'toD' || processorName === 'poll') {
+      const uri = typeof definition === 'string' ? definition : (definition as { uri?: string })?.uri;
+      const componentName = uri ? CamelComponentSchemaService.getComponentNameFromUri(uri) : undefined;
+
+      if (componentName?.startsWith('kamelet:')) {
+        return {
+          primaryNodeId,
+          secondaryNodeId: { name: 'kamelet', catalogKind: CatalogKind.Component },
+          tertiaryNodeId: { name: componentName.replace('kamelet:', ''), catalogKind: CatalogKind.Kamelet },
+        };
+      }
+
+      if (componentName) {
+        return { primaryNodeId, secondaryNodeId: { name: componentName, catalogKind: CatalogKind.Component } };
+      }
+    }
+
+    return { primaryNodeId };
   }
 }

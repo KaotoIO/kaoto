@@ -1,11 +1,14 @@
 import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
 
 import { CatalogKind } from '../../../../catalog-kind';
+import { NodeIdentity } from '../../../node-identity';
 import { RootNodeMapper } from '../root-node-mapper';
 import { ChoiceNodeMapper } from './choice-node-mapper';
 import { OtherwiseNodeMapper } from './otherwise-node-mapper';
 import { noopNodeMapper } from './testing/noop-node-mapper';
 import { WhenNodeMapper } from './when-node-mapper';
+
+const CHOICE_NODE_ID: NodeIdentity = { name: 'choice' as keyof ProcessorDefinition, catalogKind: CatalogKind.Pattern };
 
 describe('ChoiceNodeMapper', () => {
   let mapper: ChoiceNodeMapper;
@@ -17,8 +20,8 @@ describe('ChoiceNodeMapper', () => {
     const whenNodeMapper = new WhenNodeMapper(rootNodeMapper);
     const otherwiseNodeMapper = new OtherwiseNodeMapper(rootNodeMapper);
     rootNodeMapper.registerDefaultMapper(mapper);
-    rootNodeMapper.registerMapper('when' as keyof ProcessorDefinition, whenNodeMapper);
-    rootNodeMapper.registerMapper('otherwise' as keyof ProcessorDefinition, otherwiseNodeMapper);
+    rootNodeMapper.registerMapper('when', whenNodeMapper);
+    rootNodeMapper.registerMapper('otherwise', otherwiseNodeMapper);
     rootNodeMapper.registerMapper('log', noopNodeMapper);
 
     mapper = new ChoiceNodeMapper(rootNodeMapper);
@@ -44,21 +47,21 @@ describe('ChoiceNodeMapper', () => {
   });
 
   it('should return children', async () => {
-    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'choice' }, routeDefinition);
+    const vizNode = await mapper.getVizNodeFromProcessor(path, CHOICE_NODE_ID, routeDefinition);
 
     // When placeholder (first) + 2 when nodes + otherwise = 4 children
     expect(vizNode.getChildren()).toHaveLength(4);
   });
 
   it('should populate primaryNodeId', async () => {
-    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'choice' }, routeDefinition);
+    const vizNode = await mapper.getVizNodeFromProcessor(path, CHOICE_NODE_ID, routeDefinition);
 
     expect(vizNode.data.primaryNodeId).toEqual({ name: 'choice', catalogKind: CatalogKind.Pattern });
     expect(vizNode.data.secondaryNodeId).toBeUndefined();
   });
 
   it('should return when placeholder first, then `when` nodes as children', async () => {
-    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'choice' }, routeDefinition);
+    const vizNode = await mapper.getVizNodeFromProcessor(path, CHOICE_NODE_ID, routeDefinition);
 
     expect(vizNode.getChildren()?.[0].data.path).toBe('from.steps.0.choice.when');
     expect(vizNode.getChildren()?.[0].data.isPlaceholder).toBe(true);
@@ -67,7 +70,7 @@ describe('ChoiceNodeMapper', () => {
   });
 
   it('should return an `otherwise` node if defined', async () => {
-    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'choice' }, routeDefinition);
+    const vizNode = await mapper.getVizNodeFromProcessor(path, CHOICE_NODE_ID, routeDefinition);
 
     expect(vizNode.getChildren()?.[3].data.path).toBe('from.steps.0.choice.otherwise');
     expect(vizNode.getChildren()?.[3].data.isPlaceholder).toBe(false);
@@ -76,7 +79,7 @@ describe('ChoiceNodeMapper', () => {
   it('should return an `otherwise` placeholder if not defined', async () => {
     routeDefinition.from.steps[0].choice!.otherwise = undefined;
 
-    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'choice' }, routeDefinition);
+    const vizNode = await mapper.getVizNodeFromProcessor(path, CHOICE_NODE_ID, routeDefinition);
 
     // When placeholder + 2 when nodes + otherwise placeholder = 4 children
     expect(vizNode.getChildren()).toHaveLength(4);

@@ -1,10 +1,16 @@
 import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
 
 import { CatalogKind } from '../../../../catalog-kind';
+import { NodeIdentity } from '../../../node-identity';
 import { RootNodeMapper } from '../root-node-mapper';
 import { CircuitBreakerNodeMapper } from './circuit-breaker-node-mapper';
 import { OnFallbackNodeMapper } from './on-fallback-node-mapper';
 import { noopNodeMapper } from './testing/noop-node-mapper';
+
+const CB_NODE_ID: NodeIdentity = {
+  name: 'circuitBreaker' as keyof ProcessorDefinition,
+  catalogKind: CatalogKind.Pattern,
+};
 
 describe('CircuitBreakerNodeMapper', () => {
   let mapper: CircuitBreakerNodeMapper;
@@ -15,7 +21,7 @@ describe('CircuitBreakerNodeMapper', () => {
     const rootNodeMapper = new RootNodeMapper();
     const onFallbackNodeMapper = new OnFallbackNodeMapper(rootNodeMapper);
     rootNodeMapper.registerDefaultMapper(mapper);
-    rootNodeMapper.registerMapper('onFallback' as keyof ProcessorDefinition, onFallbackNodeMapper);
+    rootNodeMapper.registerMapper('onFallback', onFallbackNodeMapper);
     rootNodeMapper.registerMapper('log', noopNodeMapper);
 
     mapper = new CircuitBreakerNodeMapper(rootNodeMapper);
@@ -41,26 +47,26 @@ describe('CircuitBreakerNodeMapper', () => {
   });
 
   it('should return children', async () => {
-    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'circuitBreaker' }, routeDefinition);
+    const vizNode = await mapper.getVizNodeFromProcessor(path, CB_NODE_ID, routeDefinition);
 
     expect(vizNode.getChildren()).toHaveLength(3);
     expect(vizNode.getChildren()?.[1].data.isPlaceholder).toBe(true);
   });
 
   it('should populate primaryNodeId', async () => {
-    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'circuitBreaker' }, routeDefinition);
+    const vizNode = await mapper.getVizNodeFromProcessor(path, CB_NODE_ID, routeDefinition);
 
     expect(vizNode.data.primaryNodeId).toEqual({ name: 'circuitBreaker', catalogKind: CatalogKind.Pattern });
   });
 
   it('should return step nodes as children', async () => {
-    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'circuitBreaker' }, routeDefinition);
+    const vizNode = await mapper.getVizNodeFromProcessor(path, CB_NODE_ID, routeDefinition);
 
     expect(vizNode.getChildren()?.[0].data.path).toBe('from.steps.0.circuitBreaker.steps.0.log');
   });
 
   it('should return an `onFallback` node if defined', async () => {
-    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'circuitBreaker' }, routeDefinition);
+    const vizNode = await mapper.getVizNodeFromProcessor(path, CB_NODE_ID, routeDefinition);
 
     expect(vizNode.getChildren()?.[2].data.path).toBe('from.steps.0.circuitBreaker.onFallback');
   });
@@ -68,7 +74,7 @@ describe('CircuitBreakerNodeMapper', () => {
   it('should not return an `onFallback` node if not defined', async () => {
     routeDefinition.from.steps[0].circuitBreaker!.onFallback = undefined;
 
-    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'circuitBreaker' }, routeDefinition);
+    const vizNode = await mapper.getVizNodeFromProcessor(path, CB_NODE_ID, routeDefinition);
 
     expect(vizNode.getChildren()).toHaveLength(3);
     expect(vizNode.getChildren()?.[0].data.path).toBe('from.steps.0.circuitBreaker.steps.0.log');

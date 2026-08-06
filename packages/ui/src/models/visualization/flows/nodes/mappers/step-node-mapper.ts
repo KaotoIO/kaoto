@@ -5,7 +5,7 @@ import { CatalogKind } from '../../../../catalog-kind';
 import { IVisualizationNode } from '../../../base-visual-entity';
 import { NodeIdentity } from '../../../node-identity';
 import { createVisualizationNode } from '../../../visualization-node';
-import { CamelRouteVisualEntityData, ICamelElementLookupResult } from '../../support/camel-component-types';
+import { CamelRouteVisualEntityData } from '../../support/camel-component-types';
 import { NodeEnrichmentService } from '../node-enrichment.service';
 import { BaseNodeMapper } from './base-node-mapper';
 import { DataMapperNodeMapper } from './datamapper-node-mapper';
@@ -13,8 +13,10 @@ import { DataMapperNodeMapper } from './datamapper-node-mapper';
 export class StepNodeMapper extends BaseNodeMapper {
   async getVizNodeFromProcessor(
     path: string,
-    _componentLookup: ICamelElementLookupResult,
+    _primaryNodeId: NodeIdentity,
     entityDefinition: unknown,
+    _secondaryNodeId?: NodeIdentity,
+    _tertiaryNodeId?: NodeIdentity,
   ): Promise<IVisualizationNode> {
     const processorName: keyof ProcessorDefinition = 'step';
 
@@ -34,9 +36,7 @@ export class StepNodeMapper extends BaseNodeMapper {
     if (DataMapperNodeMapper.isDataMapperNode(stepDefinition)) {
       return this.rootNodeMapper.getVizNodeFromProcessor(
         path,
-        {
-          processorName: DATAMAPPER_ID_PREFIX,
-        },
+        { name: DATAMAPPER_ID_PREFIX, catalogKind: CatalogKind.Pattern },
         entityDefinition,
       );
     }

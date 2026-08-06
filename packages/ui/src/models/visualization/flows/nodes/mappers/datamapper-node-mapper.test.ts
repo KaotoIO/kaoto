@@ -6,9 +6,12 @@ import {
 } from '../../../../../stubs/datamapper/data-mapper';
 import { DATAMAPPER_ID_PREFIX } from '../../../../../utils';
 import { CatalogKind } from '../../../../catalog-kind';
+import { NodeIdentity } from '../../../node-identity';
 import { RootNodeMapper } from '../root-node-mapper';
 import { DataMapperNodeMapper } from './datamapper-node-mapper';
 import { noopNodeMapper } from './testing/noop-node-mapper';
+
+const STEP_NODE_ID: NodeIdentity = { name: 'step', catalogKind: CatalogKind.Pattern };
 
 describe('DataMapperNodeMapper', () => {
   let mapper: DataMapperNodeMapper;
@@ -29,13 +32,13 @@ describe('DataMapperNodeMapper', () => {
 
   describe('getVizNodeFromProcessor', () => {
     it('should not return any children', async () => {
-      const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
+      const vizNode = await mapper.getVizNodeFromProcessor(path, STEP_NODE_ID, routeDefinition);
 
       expect(vizNode.getChildren()).toBeUndefined();
     });
 
     it('should populate primaryNodeId', async () => {
-      const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
+      const vizNode = await mapper.getVizNodeFromProcessor(path, STEP_NODE_ID, routeDefinition);
 
       expect(vizNode.data.primaryNodeId).toEqual({ name: DATAMAPPER_ID_PREFIX, catalogKind: CatalogKind.Processor });
     });
@@ -43,12 +46,12 @@ describe('DataMapperNodeMapper', () => {
     it('should assign an unique ID for each DataMapper steps', async () => {
       const firstVizNode = await mapper.getVizNodeFromProcessor(
         firstDataMapperPath,
-        { processorName: 'step' },
+        STEP_NODE_ID,
         twoDataMapperRouteDefinition,
       );
       const secondVizNode = await mapper.getVizNodeFromProcessor(
         secondDataMapperPath,
-        { processorName: 'step' },
+        STEP_NODE_ID,
         twoDataMapperRouteDefinition,
       );
 

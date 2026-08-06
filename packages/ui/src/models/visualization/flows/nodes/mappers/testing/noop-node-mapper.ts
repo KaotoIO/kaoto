@@ -1,12 +1,14 @@
+import { NodeIdentity } from '../../../../node-identity';
 import { createVisualizationNode } from '../../../../visualization-node';
-import { ICamelElementLookupResult } from '../../../support/camel-component-types';
 import { INodeMapper } from '../../node-mapper';
 
 export const noopNodeMapper: INodeMapper = {
   getVizNodeFromProcessor: async (
     path: string,
-    componentLookup: ICamelElementLookupResult,
+    primaryNodeId: NodeIdentity,
     entityDefinition: unknown,
+    _secondaryNodeId?: NodeIdentity,
+    _tertiaryNodeId?: NodeIdentity,
   ) => {
     return createVisualizationNode('noop', {
       name: 'noop',
@@ -16,7 +18,7 @@ export const noopNodeMapper: INodeMapper = {
       iconUrl: '',
       title: '',
       description: '',
-      componentLookup,
+      primaryNodeId,
       entityDefinition,
     });
   },
