@@ -1,37 +1,12 @@
 import { forwardRef, useCallback, useEffect, useMemo, useRef } from 'react';
 import { VirtuosoProps } from 'react-virtuoso';
 
+import { ConnectionPortSyncHelper } from '../services/connection-port-sync.helper';
 import { TreeConnectionPorts, useDocumentTreeStore } from '../store/document-tree.store';
 
 export const useConnectionPortSync = (documentId: string) => {
   const setNodesConnectionPorts = useDocumentTreeStore((state) => state.setNodesConnectionPorts);
   const rafId = useRef<number | null>(null);
-
-  /**
-   * Checks if an element is actually visible within its scroll container
-   * (not just in the DOM due to overscan)
-   */
-  const isElementVisibleInContainer = (element: HTMLElement): boolean => {
-    const scrollContainer = element.closest('.expansion-panel__content');
-    if (!scrollContainer) return true; // No scroll container, assume visible
-
-    const elemRect = element.getBoundingClientRect();
-    const containerRect = scrollContainer.getBoundingClientRect();
-
-    // Check vertical bounds only. Horizontal bounds are intentionally ignored because
-    // target connection ports are positioned with a negative `left` value (outside the
-    // container's left boundary) via CSS, so checking horizontal bounds would incorrectly
-    // exclude all target ports.
-    if (elemRect.top < containerRect.top - 1 || elemRect.bottom > containerRect.bottom + 1) {
-      return false;
-    }
-
-    const panelsContainer = element.closest('.expansion-panels');
-    if (!panelsContainer) return true;
-
-    const panelsRect = panelsContainer.getBoundingClientRect();
-    return elemRect.top >= panelsRect.top - 1 && elemRect.bottom <= panelsRect.bottom + 1;
-  };
 
   useEffect(() => {
     return () => {
@@ -60,28 +35,20 @@ export const useConnectionPortSync = (documentId: string) => {
 
       const documentVisiblePorts: TreeConnectionPorts = {};
 
-      documentPortElements.forEach((element) => {
+      for (const element of documentPortElements) {
         const nodePath = element.dataset.nodePath;
-        if (!nodePath) return;
+        if (!nodePath) continue;
 
         /* EDGE elements are always visible, document elements need visibility check */
         const isEdgeElement = nodePath.endsWith(':EDGE:top') || nodePath.endsWith(':EDGE:bottom');
-        if (isEdgeElement || isElementVisibleInContainer(element)) {
+
+        if (isEdgeElement) {
+          documentVisiblePorts[nodePath] = ConnectionPortSyncHelper.getClampedEdgePosition(element);
+        } else if (ConnectionPortSyncHelper.isElementVisible(element)) {
           const rect = element.getBoundingClientRect();
-          let y = rect.y + rect.height / 2;
-
-          if (isEdgeElement) {
-            const panelsContainer = element.closest('.expansion-panels');
-            if (panelsContainer) {
-              const panelsRect = panelsContainer.getBoundingClientRect();
-              y = Math.max(panelsRect.top, Math.min(panelsRect.bottom, y));
-            }
-          }
-
-          const position: [number, number] = [rect.x + rect.width / 2, y];
-          documentVisiblePorts[nodePath] = position;
+          documentVisiblePorts[nodePath] = [rect.x + rect.width / 2, rect.y + rect.height / 2];
         }
-      });
+      }
 
       setNodesConnectionPorts(documentId, documentVisiblePorts);
     });
