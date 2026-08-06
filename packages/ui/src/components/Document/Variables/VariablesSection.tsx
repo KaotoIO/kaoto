@@ -14,14 +14,20 @@ import { VariablesHeader } from './VariablesHeader';
 type VariablesSectionProps = {
   isReadOnly: boolean;
   onLayoutChange?: () => void;
+  actionItems?: React.ReactNode[];
 };
 
-export const VariablesSection: FunctionComponent<VariablesSectionProps> = ({ isReadOnly, onLayoutChange }) => {
+export const VariablesSection: FunctionComponent<VariablesSectionProps> = ({
+  isReadOnly,
+  onLayoutChange,
+  actionItems,
+}) => {
   const { variables, mappingTree, refreshMappingTree } = useDataMapper();
   const { syncConnectionPorts } = useConnectionPortSync(VARIABLES_DOCUMENT_ID);
 
   const [renamingVariableId, setRenamingVariableId] = useState<string | null>(null);
   const [isAddingVariable, setIsAddingVariable] = useState(false);
+  const [showVariables, setShowVariables] = useState(true);
 
   useEffect(() => {
     syncConnectionPorts();
@@ -45,7 +51,17 @@ export const VariablesSection: FunctionComponent<VariablesSectionProps> = ({ isR
 
   const handleAddVariable = useCallback(() => {
     setIsAddingVariable(true);
+    // Auto-show variables when adding a new one
+    setShowVariables(true);
   }, []);
+
+  const handleToggleVariables = useCallback(() => {
+    setShowVariables((prev) => !prev);
+    setTimeout(() => {
+      syncConnectionPorts();
+      onLayoutChange?.();
+    }, 0);
+  }, [onLayoutChange, syncConnectionPorts]);
 
   const handleConfirmAdd = useCallback(
     (name: string) => {
@@ -59,8 +75,6 @@ export const VariablesSection: FunctionComponent<VariablesSectionProps> = ({ isR
   const handleCancelAdd = useCallback(() => {
     setIsAddingVariable(false);
   }, []);
-
-  const hasContent = variables.length > 0 || isAddingVariable;
 
   const edgeMarkers = useMemo(
     () => (
@@ -82,12 +96,24 @@ export const VariablesSection: FunctionComponent<VariablesSectionProps> = ({ isR
     [],
   );
 
+  const variableListHeight = PANEL_COLLAPSED_HEIGHT + variables.length * 32;
+
+  const hasContent = showVariables && (variables.length > 0 || isAddingVariable);
+
   return (
     <ExpansionPanel
       id="variables"
-      summary={<VariablesHeader isReadOnly={isReadOnly} onAddVariable={handleAddVariable} />}
+      summary={
+        <VariablesHeader
+          isReadOnly={isReadOnly}
+          onAddVariable={handleAddVariable}
+          showVariables={showVariables}
+          onToggleVariables={handleToggleVariables}
+          actionItems={actionItems}
+        />
+      }
       defaultExpanded={hasContent}
-      defaultHeight={hasContent ? PANEL_COLLAPSED_HEIGHT + variables.length * 32 : PANEL_COLLAPSED_HEIGHT}
+      defaultHeight={hasContent ? variableListHeight : PANEL_COLLAPSED_HEIGHT}
       minHeight={PANEL_MIN_HEIGHT}
       onLayoutChange={() => {
         syncConnectionPorts();

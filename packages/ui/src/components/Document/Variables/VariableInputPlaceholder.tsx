@@ -1,5 +1,3 @@
-import './VariableInputPlaceholder.scss';
-
 import { FunctionComponent, useCallback } from 'react';
 
 import { MappingParentType } from '../../../models/datamapper/mapping';
@@ -42,17 +40,15 @@ export const VariableInputPlaceholder: FunctionComponent<VariableInputPlaceholde
   );
 
   return (
-    <div className="variable-input-placeholder">
-      <NameInputPlaceholder
-        initialName={initialName}
-        validate={validate}
-        onSubmit={handleSubmit}
-        onCancel={onCancel}
-        placeholder="variable name"
-        testIdPrefix="new-variable"
-        ariaLabelPrefix="variable name"
-        label="$"
-      />
-    </div>
+    <NameInputPlaceholder
+      initialName={initialName}
+      validate={validate}
+      onSubmit={handleSubmit}
+      onCancel={onCancel}
+      placeholder="variable name"
+      testIdPrefix="new-variable"
+      ariaLabelPrefix="variable name"
+      label="$"
+    />
   );
 };

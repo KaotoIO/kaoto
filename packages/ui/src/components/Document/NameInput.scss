@@ -11,7 +11,7 @@
     height: var(--datamapper-header-control-size);
     font-size: var(--datamapper-header-control-font-size);
     line-height: var(--datamapper-header-control-size);
-    padding: 0 0.5rem;
+    padding: 0 2rem 0 0.5rem;
     border: 1px solid var(--pf-t--global--border--color--default);
     border-radius: var(--pf-t--global--border--radius--small);
     background: var(--pf-t--global--background--color--primary--default);
@@ -24,12 +24,10 @@
     }
 
     &--success {
-      padding-right: 2rem;
       border-color: var(--pf-t--global--border--color--status--success--default);
     }
 
     &--error {
-      padding-right: 2rem;
       border-color: var(--pf-t--global--border--color--status--danger--default);
     }
 
