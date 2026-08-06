@@ -1,5 +1,6 @@
 import './TargetPanel.scss';
 
+import { Label } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 
@@ -159,7 +160,11 @@ export const TargetPanel: FunctionComponent = () => {
           collapsible={false}
           summary={
             <DocumentHeader
-              header={<span className="panel-header-text">Target Body</span>}
+              header={
+                <span className="panel-header-text">
+                  <Label>Target</Label> Body
+                </span>
+              }
               document={targetBodyDocument}
               documentType={DocumentType.TARGET_BODY}
               isReadOnly={false}

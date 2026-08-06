@@ -665,7 +665,7 @@ describe('ParametersSection', () => {
       );
 
       // Header should exist
-      expect(screen.getByText('Source Parameters')).toBeInTheDocument();
+      expect(screen.getByTestId('source-parameters-header')).toBeInTheDocument();
 
       // Add button should exist
       expect(await screen.findByTestId('add-parameter-button')).toBeInTheDocument();
@@ -692,7 +692,7 @@ describe('ParametersSection', () => {
       );
 
       // Header should exist
-      expect(screen.getByText('Source Parameters')).toBeInTheDocument();
+      expect(screen.getByTestId('source-parameters-header')).toBeInTheDocument();
 
       // Add button should not exist in read-only
       expect(screen.queryByTestId('add-parameter-button')).not.toBeInTheDocument();

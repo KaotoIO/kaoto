@@ -64,7 +64,8 @@ describe('SourcePanel', () => {
     );
 
     // Find the Body panel summary and click to collapse
-    const bodyPanel = screen.getByText('Source Body').closest('.expansion-panel__summary') as HTMLElement;
+    const sourceBodyHeader = screen.getByTestId('document-doc-sourceBody-Body');
+    const bodyPanel = sourceBodyHeader.closest('.expansion-panel__summary') as HTMLElement;
     expect(bodyPanel).toBeInTheDocument();
 
     await act(async () => {
@@ -82,7 +83,7 @@ describe('SourcePanel', () => {
     });
 
     // The panel should now be collapsed (data-expanded=false)
-    const panel = screen.getByText('Source Body').closest('.expansion-panel');
+    const panel = sourceBodyHeader.closest('.expansion-panel');
     expect(panel).toHaveAttribute('data-expanded', 'false');
 
     // Clean up

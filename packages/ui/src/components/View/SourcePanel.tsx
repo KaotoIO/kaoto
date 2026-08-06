@@ -1,5 +1,6 @@
 import './SourcePanel.scss';
 
+import { Label } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 
@@ -98,10 +99,10 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
     <div id="panel-source" className="source-panel">
       <ExpansionPanels firstPanelId="variables" lastPanelId="source-body">
         {/* Variables section - xsl:variable items as draggable source references */}
-        <VariablesSection isReadOnly={isReadOnly} onLayoutChange={syncConnectionPorts} />
+        <VariablesSection isReadOnly={isReadOnly} onLayoutChange={syncConnectionPorts} actionItems={actionItems} />
 
         {/* Parameters section - self-contained component that manages all parameter state */}
-        <ParametersSection isReadOnly={isReadOnly} onLayoutChange={syncConnectionPorts} actionItems={actionItems} />
+        <ParametersSection isReadOnly={isReadOnly} onLayoutChange={syncConnectionPorts} />
 
         {/* Source Body - behaves like parameters: collapsed when no schema */}
         <ExpansionPanel
@@ -112,7 +113,11 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
           minHeight={PANEL_MIN_HEIGHT}
           summary={
             <DocumentHeader
-              header={<span className="panel-header-text">Source Body</span>}
+              header={
+                <span className="panel-header-text">
+                  <Label>Source</Label> Body
+                </span>
+              }
               document={sourceBodyDocument}
               documentType={DocumentType.SOURCE_BODY}
               isReadOnly={isReadOnly}

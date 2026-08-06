@@ -38,7 +38,7 @@ describe('TargetPanel', () => {
 
   it('should render the Target panel with Body header', () => {
     render(<TargetPanel />, { wrapper });
-    expect(screen.getByText('Target Body')).toBeInTheDocument();
+    expect(screen.getByTestId('document-doc-targetBody-Body')).toBeInTheDocument();
   });
 
   it('should render the panel with correct id', () => {
@@ -47,11 +47,9 @@ describe('TargetPanel', () => {
   });
 
   it('should hide the grab icon when the target body has a schema attached', async () => {
-    const { container } = render(<TargetPanel />, { wrapper: schemaWrapper });
+    render(<TargetPanel />, { wrapper: schemaWrapper });
 
-    expect(await screen.findByText('Target Body')).toBeInTheDocument();
-
-    const header = container.querySelector('[data-testid="document-doc-targetBody-Body"]');
+    const header = await screen.findByTestId('document-doc-targetBody-Body');
     expect(header).toBeInTheDocument();
     expect(header?.querySelector('[data-drag-handler]')).not.toBeInTheDocument();
   });
@@ -81,7 +79,7 @@ describe('TargetPanel', () => {
     render(<TargetPanel />, { wrapper: schemaWrapper });
 
     // Wait for the panel to render with schema
-    expect(await screen.findByText('Target Body')).toBeInTheDocument();
+    await screen.findByTestId('document-doc-targetBody-Body');
 
     // The settings button should be present even with schema
     const settingsButton = await screen.findByRole('button', { name: /settings/i });

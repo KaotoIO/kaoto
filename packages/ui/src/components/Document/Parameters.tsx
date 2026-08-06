@@ -1,7 +1,7 @@
 import './BaseDocument.scss';
 import './Parameters.scss';
 
-import { ActionList, ActionListItem, Button, Divider, Icon } from '@patternfly/react-core';
+import { ActionList, ActionListItem, Button, Icon, Label } from '@patternfly/react-core';
 import { AngleDownIcon, AngleRightIcon, EyeIcon, EyeSlashIcon, PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import { Virtuoso } from 'react-virtuoso';
@@ -31,7 +31,6 @@ import { SourceDocumentNodeWithContextMenu } from './SourceDocumentNode';
 type ParametersSectionProps = {
   isReadOnly: boolean;
   onLayoutChange?: () => void;
-  actionItems?: React.ReactNode[];
 };
 
 type ParametersHeaderProps = {
@@ -39,7 +38,6 @@ type ParametersHeaderProps = {
   onAddParameter: () => void;
   showParameters: boolean;
   onToggleParameters: () => void;
-  actionItems?: React.ReactNode[];
 };
 
 /**
@@ -51,10 +49,11 @@ export const ParametersHeader: FunctionComponent<ParametersHeaderProps> = ({
   onAddParameter,
   showParameters,
   onToggleParameters,
-  actionItems,
 }) => (
   <div className="parameters-header" data-testid="source-parameters-header">
-    <span className="parameters-header__title panel-header-text">Source Parameters</span>
+    <span className="parameters-header__title panel-header-text">
+      <Label>Source</Label> Parameters
+    </span>
     <ActionList isIconList className="parameters-header__actions">
       {!isReadOnly && (
         <>
@@ -84,12 +83,8 @@ export const ParametersHeader: FunctionComponent<ParametersHeaderProps> = ({
               icon={<Icon isInline>{showParameters ? <EyeIcon /> : <EyeSlashIcon />}</Icon>}
             />
           </ActionListItem>
-          <Divider orientation={{ default: 'vertical' }} />
         </>
       )}
-      {actionItems?.map((item, index) => (
-        <ActionListItem key={index}>{item}</ActionListItem>
-      ))}
     </ActionList>
   </div>
 );
@@ -247,11 +242,7 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
  * This component encapsulates all parameter logic similar to the old Card-based Parameters component,
  * but now works with the new ExpansionPanel architecture.
  */
-export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({
-  isReadOnly,
-  onLayoutChange,
-  actionItems,
-}) => {
+export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({ isReadOnly, onLayoutChange }) => {
   const { sourceParameterMap } = useDataMapper();
 
   // State for adding new parameter
@@ -304,7 +295,6 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({
             onAddParameter={handleAddParameter}
             showParameters={showParameters}
             onToggleParameters={handleToggleParameters}
-            actionItems={actionItems}
           />
         }
         defaultExpanded={false}
