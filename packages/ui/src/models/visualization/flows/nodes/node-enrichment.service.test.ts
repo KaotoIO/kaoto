@@ -39,7 +39,7 @@ describe('NodeEnrichmentService', () => {
     const data = {
       name: 'log',
       description: 'Logs messages',
-      processorName: 'from',
+      primaryNodeId: { catalogKind: CatalogKind.Pattern, name: 'from' },
       isPlaceholder: false,
       isGroup: false,
       iconUrl: '',
@@ -131,14 +131,13 @@ describe('NodeEnrichmentService', () => {
     mockGetTitleRequest.mockResolvedValue('When EIP');
 
     const vizNode = createMockVizNode();
-    // Set name to a condition expression (different from processorName)
+    // Set name to a condition expression (different from primaryNodeId.name)
     vizNode.data.name = "${header.foo} == 'bar'";
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (vizNode.data as any).processorName = 'when';
+    vizNode.data.primaryNodeId = { catalogKind: CatalogKind.Pattern, name: 'when' };
 
     await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Processor);
 
-    // Verify getTitleRequest was called with processorName, not name
+    // Verify getTitleRequest was called with primaryNodeId.name, not name
     expect(mockGetTitleRequest).toHaveBeenCalledWith(CatalogKind.Processor, 'when', undefined);
     expect(vizNode.data.title).toBe('When EIP');
   });
@@ -151,14 +150,12 @@ describe('NodeEnrichmentService', () => {
 
     const vizNode = createMockVizNode();
     vizNode.data.name = 'timer';
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (vizNode.data as any).processorName = 'from';
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (vizNode.data as any).componentName = 'timer';
+    vizNode.data.primaryNodeId = { catalogKind: CatalogKind.Pattern, name: 'from' };
+    vizNode.data.secondaryNodeId = { catalogKind: CatalogKind.Component, name: 'timer' };
 
     await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Component);
 
-    // Verify getTitleRequest was called with name (not processorName) for Component kind
+    // Verify getTitleRequest was called with name (not primaryNodeId.name) for Component kind
     expect(mockGetTitleRequest).toHaveBeenCalledWith(CatalogKind.Component, 'timer', 'timer');
     expect(vizNode.data.title).toBe('Timer');
   });
@@ -172,8 +169,7 @@ describe('NodeEnrichmentService', () => {
 
       const vizNode = createMockVizNode();
       vizNode.data.name = 'kamelet';
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (vizNode.data as any).processorName = 'from';
+      vizNode.data.primaryNodeId = { catalogKind: CatalogKind.Entity, name: 'from' };
       vizNode.data.secondaryNodeId = { catalogKind: CatalogKind.Component, name: 'kamelet' };
       vizNode.data.tertiaryNodeId = { catalogKind: CatalogKind.Kamelet, name: 'beer-source' };
 
@@ -194,8 +190,7 @@ describe('NodeEnrichmentService', () => {
 
       const vizNode = createMockVizNode();
       vizNode.data.name = 'timer';
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (vizNode.data as any).processorName = 'from';
+      vizNode.data.primaryNodeId = { catalogKind: CatalogKind.Entity, name: 'from' };
       vizNode.data.secondaryNodeId = { catalogKind: CatalogKind.Component, name: 'timer' };
       vizNode.data.tertiaryNodeId = undefined;
 
@@ -216,8 +211,7 @@ describe('NodeEnrichmentService', () => {
 
       const vizNode = createMockVizNode();
       vizNode.data.name = 'from';
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (vizNode.data as any).processorName = 'from';
+      vizNode.data.primaryNodeId = { catalogKind: CatalogKind.Entity, name: 'from' };
       vizNode.data.secondaryNodeId = undefined;
       vizNode.data.tertiaryNodeId = undefined;
 
@@ -238,8 +232,7 @@ describe('NodeEnrichmentService', () => {
 
       const vizNode = createMockVizNode();
       vizNode.data.name = 'my-route';
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (vizNode.data as any).processorName = 'route';
+      vizNode.data.primaryNodeId = { catalogKind: CatalogKind.Entity, name: 'route' };
       vizNode.data.secondaryNodeId = { catalogKind: CatalogKind.Component, name: 'timer' };
 
       await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Entity);
@@ -257,8 +250,7 @@ describe('NodeEnrichmentService', () => {
 
     const vizNode = createMockVizNode();
     vizNode.data.name = 'split-expression';
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (vizNode.data as any).processorName = 'split';
+    vizNode.data.primaryNodeId = { catalogKind: CatalogKind.Pattern, name: 'split' };
 
     await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Pattern);
 

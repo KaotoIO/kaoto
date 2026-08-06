@@ -1,8 +1,5 @@
-import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
-
 import { CatalogKind } from '../../../catalog-kind';
 import { IVisualizationNode } from '../../base-visual-entity';
-import { CamelRouteVisualEntityData } from '../support/camel-component-types';
 import { getIconRequest } from './resolvers/icon-resolver/getIconRequest';
 import { getTitleRequest } from './resolvers/title-resolver/getTitleRequest';
 import { getProcessorIconTooltipRequest } from './resolvers/tooltip-resolver/getProcessorIconTooltipRequest';
@@ -19,77 +16,102 @@ export class NodeEnrichmentService {
    * @param catalogKind - The catalog kind (Component or Processor)
    */
   static async enrichNodeFromCatalog(vizNode: IVisualizationNode, catalogKind: CatalogKind): Promise<void> {
-    const routeData = vizNode.data as CamelRouteVisualEntityData;
-    const processorName = routeData.processorName;
-    const componentName = routeData.componentName;
-
     // Special handling for From nodes with Entity catalog kind
     // Use the component or kamelet for enrichment instead of the processor
     let effectiveCatalogKind = catalogKind;
     let effectiveName = vizNode.data.name;
+    let redirected = false;
 
-    if (catalogKind === CatalogKind.Entity && processorName === ('from' as keyof ProcessorDefinition)) {
+    if (catalogKind === CatalogKind.Entity && vizNode.data.primaryNodeId?.name === 'from') {
       // Check if we have a component (secondaryNodeId) or kamelet (tertiaryNodeId)
       if (vizNode.data.tertiaryNodeId) {
         effectiveCatalogKind = vizNode.data.tertiaryNodeId.catalogKind;
         effectiveName = vizNode.data.tertiaryNodeId.name;
+        redirected = true;
       } else if (vizNode.data.secondaryNodeId) {
         effectiveCatalogKind = vizNode.data.secondaryNodeId.catalogKind;
         effectiveName = vizNode.data.secondaryNodeId.name;
+        redirected = true;
       }
     }
 
-    // For Processor/Pattern catalog kinds, use processorName as the identifier
-    // For other kinds (Component, Kamelet, etc.), use the effective name
-    const titleIdentifier =
-      effectiveCatalogKind === CatalogKind.Processor || effectiveCatalogKind === CatalogKind.Pattern
-        ? processorName
-        : effectiveName;
+    // For Processor/Pattern catalog kinds, use the primary node name as the title identifier
+    // and pass the secondary node (component) as an overlay for the title resolver.
+    // Fall back to effectiveName when no primary id is set (e.g. placeholder nodes).
+    // When redirected (from-node Entity special case), the effective name is already the full
+    // identity — no component overlay is needed.
+    const isProcessorLike =
+      effectiveCatalogKind === CatalogKind.Processor || effectiveCatalogKind === CatalogKind.Pattern;
+    const titleIdentifier = isProcessorLike ? (vizNode.data.primaryNodeId?.name ?? effectiveName) : effectiveName;
+    const titleComponentName = redirected ? undefined : vizNode.data.secondaryNodeId?.name;
 
-    const getSchema = () => vizNode.fetchSchema();
-
-    const results = await Promise.allSettled([
+    const [iconResult, tooltipResult, processorTooltipResult, titleResult, schemaResult] = await Promise.allSettled([
       getIconRequest(effectiveCatalogKind, effectiveName),
       getTooltipRequest(effectiveCatalogKind, effectiveName, vizNode.data.description),
-      getProcessorIconTooltipRequest(processorName),
-      getTitleRequest(effectiveCatalogKind, titleIdentifier, componentName),
-      getSchema(),
+      getProcessorIconTooltipRequest(vizNode.data.primaryNodeId?.name),
+      getTitleRequest(effectiveCatalogKind, titleIdentifier, titleComponentName),
+      vizNode.fetchSchema(),
     ]);
 
-    // Handle icon result
-    if (results[0].status === 'fulfilled') {
-      vizNode.data.iconUrl = results[0].value.icon;
-      vizNode.data.iconAlt = results[0].value.alt;
+    NodeEnrichmentService.applyEnrichmentResults(vizNode, {
+      iconResult,
+      tooltipResult,
+      processorTooltipResult,
+      titleResult,
+      schemaResult,
+    });
+  }
+
+  private static applyEnrichmentResults(
+    vizNode: IVisualizationNode,
+    {
+      iconResult,
+      tooltipResult,
+      processorTooltipResult,
+      titleResult,
+      schemaResult,
+    }: {
+      iconResult: PromiseSettledResult<{ icon: string; alt: string }>;
+      tooltipResult: PromiseSettledResult<string>;
+      processorTooltipResult: PromiseSettledResult<string>;
+      titleResult: PromiseSettledResult<string>;
+      schemaResult: PromiseSettledResult<
+        ReturnType<IVisualizationNode['fetchSchema']> extends Promise<infer R> ? R : never
+      >;
+    },
+  ): void {
+    if (iconResult.status === 'fulfilled') {
+      vizNode.data.iconUrl = iconResult.value.icon;
+      vizNode.data.iconAlt = iconResult.value.alt;
     } else {
-      console.warn(`Failed to fetch icon for ${vizNode.data.name}:`, results[0].reason);
+      console.warn(`Failed to fetch icon for ${vizNode.data.name}:`, iconResult.reason);
     }
 
-    // Handle tooltip result
-    if (results[1].status === 'fulfilled') {
-      vizNode.data.description = results[1].value;
+    if (tooltipResult.status === 'fulfilled') {
+      vizNode.data.description = tooltipResult.value;
     } else {
-      console.warn(`Failed to fetch tooltip for ${vizNode.data.name}:`, results[1].reason);
+      console.warn(`Failed to fetch tooltip for ${vizNode.data.name}:`, tooltipResult.reason);
     }
 
-    // Handle processor icon tooltip result
-    if (results[2].status === 'fulfilled') {
-      vizNode.data.processorIconTooltip = results[2].value;
+    if (processorTooltipResult.status === 'fulfilled') {
+      vizNode.data.processorIconTooltip = processorTooltipResult.value;
     } else {
-      console.warn(`Failed to fetch processor icon tooltip for ${processorName}:`, results[2].reason);
+      console.warn(
+        `Failed to fetch processor icon tooltip for ${vizNode.data.primaryNodeId?.name}:`,
+        processorTooltipResult.reason,
+      );
     }
 
-    // Handle title result
-    if (results[3].status === 'fulfilled') {
-      vizNode.data.title = results[3].value;
+    if (titleResult.status === 'fulfilled') {
+      vizNode.data.title = titleResult.value;
     } else {
-      console.warn(`Failed to fetch title for ${vizNode.data.name}:`, results[3].reason);
+      console.warn(`Failed to fetch title for ${vizNode.data.name}:`, titleResult.reason);
     }
 
-    // Handle schema result
-    if (results[4].status === 'fulfilled') {
-      vizNode.data.schema = results[4].value;
+    if (schemaResult.status === 'fulfilled') {
+      vizNode.data.schema = schemaResult.value;
     } else {
-      console.warn(`Failed to fetch schema for ${vizNode.data.name}:`, results[4].reason);
+      console.warn(`Failed to fetch schema for ${vizNode.data.name}:`, schemaResult.reason);
     }
   }
 }
