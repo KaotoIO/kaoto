@@ -1102,9 +1102,10 @@ export class MappingService {
   }
 
   /**
-   * First removes value selector children, then for {@link InstructionItem}/{@link VariableItem}
-   * or items under {@link FieldItem} parents, removes the item and recursively cleans up
-   * empty FieldItem ancestors.
+   * First removes value selector children, then for {@link InstructionItem}/{@link VariableItem},
+   * items under {@link FieldItem} parents, {@link CopyOfSelector} directly under {@link MappingTree}
+   * (primitive target body), or user-created {@link FieldItem}s, removes the item and recursively
+   * cleans up empty FieldItem ancestors.
    * @param item - the mapping item to delete
    */
   static deleteMappingItem(item: MappingParentType) {
@@ -1112,11 +1113,14 @@ export class MappingService {
     const isInstructionItem = item instanceof InstructionItem;
     const isVariableItem = item instanceof VariableItem;
     const isParentFieldItem = 'parent' in item && item.parent instanceof FieldItem;
+    // Primitive target body has no root FieldItem — CopyOfSelector sits directly under MappingTree.
+    // Structured targets don't need this: their copy-of parent is a FieldItem, handled by isParentFieldItem.
+    const isRootLevelCopyOf = item instanceof CopyOfSelector && item.parent instanceof MappingTree;
     const isUserCreatedFieldItem = item instanceof FieldItem && item.isUserCreated;
     if (isVariableItem) {
       MappingService.removeVariableReferences(item as VariableItem);
     }
-    if (isInstructionItem || isVariableItem || isParentFieldItem || isUserCreatedFieldItem) {
+    if (isInstructionItem || isVariableItem || isParentFieldItem || isRootLevelCopyOf || isUserCreatedFieldItem) {
       MappingService.deleteFromParent(item);
     }
   }
