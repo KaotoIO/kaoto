@@ -549,6 +549,28 @@ describe('MappingActionService', () => {
         const expressionItem = VisualizationService.getExpressionItemForNode(targetDocNode);
         expect(expressionItem).toBeUndefined();
       });
+
+      it('should delete copy-of added on primitive target body', () => {
+        const primitiveTargetDoc = new PrimitiveDocument(
+          new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+        );
+        tree = new MappingTree(
+          primitiveTargetDoc.documentType,
+          primitiveTargetDoc.documentId,
+          DocumentDefinitionType.Primitive,
+        );
+        targetDocNode = new TargetDocumentNodeData(primitiveTargetDoc, tree);
+        MappingActionService.applyCopyOfSelector(targetDocNode);
+        expect(tree.children).toHaveLength(1);
+        expect(tree.children[0]).toBeInstanceOf(CopyOfSelector);
+
+        const copyOfNodeData = VisualizationService.generatePrimitiveDocumentChildren(
+          targetDocNode,
+        )[0] as MappingNodeData;
+        expect(copyOfNodeData).toBeInstanceOf(MappingNodeData);
+        MappingActionService.deleteMappingItem(copyOfNodeData);
+        expect(tree.children).toHaveLength(0);
+      });
     });
   });
 

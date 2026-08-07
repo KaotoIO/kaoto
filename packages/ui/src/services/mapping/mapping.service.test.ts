@@ -867,6 +867,14 @@ describe('MappingService', () => {
       expect(shipOrderItem.children).not.toContain(variable);
       expect(fieldItem.children).not.toContain(vs);
     });
+
+    it('should delete CopyOfSelector with MappingTree parent', () => {
+      const copyOf = new CopyOfSelector(tree, CopyOfType.CONTAINER_NODE);
+      tree.children.push(copyOf);
+      expect(tree.children).toContain(copyOf);
+      MappingService.deleteMappingItem(copyOf);
+      expect(tree.children).not.toContain(copyOf);
+    });
   });
 
   describe('addVariable()', () => {
