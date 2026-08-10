@@ -764,7 +764,7 @@ describe('VisualizationService / abstract fields', () => {
       ) as FieldItem;
 
       const candidateChildren = VisualizationService.generateNonDocumentNodeDataChildren(freshAbstractNode);
-      expect(candidateChildren.map((c) => c.title)).toEqual(['catName']);
+      expect(candidateChildren.map((c) => c.title)).toEqual(['catName', 'value']);
     });
   });
 

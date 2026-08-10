@@ -426,6 +426,39 @@ describe('MappingSerializerService', () => {
   });
 
   describe('serialize()', () => {
+    it('should preserve copy-of and value-of on the same container through a round trip', () => {
+      const mappingTree = new MappingTree(
+        DocumentType.TARGET_BODY,
+        BODY_DOCUMENT_ID,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      mappingTree.namespaceMap = { ns0: targetDoc.fields[0].namespaceURI };
+      const shipOrderFieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
+      mappingTree.children.push(shipOrderFieldItem);
+
+      const copyOf = new CopyOfSelector(shipOrderFieldItem, CopyOfType.CONTAINER);
+      copyOf.expression = '/ns0:ShipOrder';
+      const valueOf = new ValueOfSelector(shipOrderFieldItem);
+      valueOf.expression = '/ns0:ShipOrder/ns0:OrderPerson';
+      shipOrderFieldItem.children.push(copyOf, valueOf);
+
+      const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+      const { mappingTree: reloaded } = MappingSerializerService.deserialize(
+        serialized,
+        targetDoc,
+        new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA),
+        sourceParameterMap,
+      );
+      const reloadedShipOrder = reloaded.children[0] as FieldItem;
+
+      expect(reloadedShipOrder.children.find((child) => child instanceof CopyOfSelector)?.expression).toBe(
+        copyOf.expression,
+      );
+      expect(reloadedShipOrder.children.find((child) => child instanceof ValueOfSelector)?.expression).toBe(
+        valueOf.expression,
+      );
+    });
+
     it('should return an empty XSLT document with empty mappings', () => {
       const empty = MappingSerializerService.serialize(
         new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA),

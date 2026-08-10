@@ -1,7 +1,6 @@
 import {
   BODY_DOCUMENT_ID,
   CopyOfSelector,
-  CopyOfType,
   DocumentNodeData,
   DocumentType,
   FieldItem,
@@ -17,6 +16,7 @@ import {
   MappingTree,
   NodePath,
   PrimitiveDocument,
+  ValueOfSelector,
   ValueSelector,
   VariableItem,
   variableNodePath,
@@ -25,6 +25,7 @@ import {
 import { DocumentService } from '../document/document.service';
 import { MappingService } from '../mapping/mapping.service';
 import { XPathService } from '../xpath/xpath.service';
+import { VisualizationService } from './visualization.service';
 
 /**
  * A collection of the business logic for rendering mapping link lines.
@@ -69,11 +70,12 @@ export class MappingLinksService {
       const effectiveStyle = item instanceof FieldItem ? ownLineStyle : lineStyle;
       const childLineStyle = effectiveStyle === MappingLineStyle.REGULAR ? undefined : effectiveStyle;
       item.children.forEach((child) => {
+        const isInlineValueSelector =
+          child instanceof ValueSelector && VisualizationService.isInlineValueSelector(child);
         if (
           item instanceof FieldItem &&
           !(item.field.ownerDocument instanceof PrimitiveDocument) &&
-          child instanceof ValueSelector &&
-          !(child instanceof CopyOfSelector && child.valueType === CopyOfType.CONTAINER_NODE)
+          isInlineValueSelector
         ) {
           const links = MappingLinksService.doExtractMappingLinks(
             child,
@@ -92,7 +94,7 @@ export class MappingLinksService {
             sourceBody,
             selectedNodePath,
             selectedNodeIsSource,
-            childLineStyle,
+            child instanceof ValueOfSelector ? undefined : childLineStyle,
           );
           answer.push(...links);
         }
