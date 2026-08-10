@@ -414,6 +414,25 @@ describe('XmlSchemaTypesService', () => {
       expect(Object.values(builtInTypes).some((t) => t.displayName === 'xs:dateTime')).toBe(true);
     });
 
+    it('should expose every supported XSD alias through the canonical type mapping', () => {
+      const builtInTypes = XmlSchemaTypesService.getAllBuiltInTypes({ xs: NS_XML_SCHEMA });
+      const aliases = [
+        'normalizedString',
+        'unsignedInt',
+        'nonPositiveInteger',
+        'base64Binary',
+        'gYearMonth',
+        'NOTATION',
+        'anySimpleType',
+      ];
+
+      for (const localName of aliases) {
+        expect(builtInTypes[`xs:${localName}`]?.type).toBe(
+          XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, localName),
+        );
+      }
+    });
+
     it('should use custom namespace prefix', () => {
       const namespaceMap = { xsd: NS_XML_SCHEMA };
 
