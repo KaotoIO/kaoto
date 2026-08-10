@@ -26,7 +26,7 @@ import { ensureNamespaceRegistered, formatQNameWithPrefix, parseQNameString } fr
 import { DocumentUtilService } from '../document-util.service';
 import { XmlSchemaDocument } from './xml-schema-document.model';
 import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
-import { mapXmlSchemaTypeToEnum } from './xml-schema-type-mapping';
+import { mapXmlSchemaTypeToEnum, XML_SCHEMA_BUILT_IN_TYPES } from './xml-schema-type-mapping';
 
 /**
  * Service for XML Schema type-related operations.
@@ -604,32 +604,9 @@ export class XmlSchemaTypesService {
    * ```
    */
   static getAllBuiltInTypes(namespaceMap: Record<string, string>): Record<string, IFieldTypeInfo> {
-    const builtInTypes = [
-      { localName: 'string', type: Types.String },
-      { localName: 'boolean', type: Types.Boolean },
-      { localName: 'decimal', type: Types.Decimal },
-      { localName: 'float', type: Types.Float },
-      { localName: 'double', type: Types.Double },
-      { localName: 'integer', type: Types.Integer },
-      { localName: 'positiveInteger', type: Types.PositiveInteger },
-      { localName: 'int', type: Types.Integer },
-      { localName: 'long', type: Types.Integer },
-      { localName: 'short', type: Types.Integer },
-      { localName: 'byte', type: Types.Integer },
-      { localName: 'date', type: Types.Date },
-      { localName: 'dateTime', type: Types.DateTime },
-      { localName: 'time', type: Types.Time },
-      { localName: 'duration', type: Types.Duration },
-      { localName: 'dayTimeDuration', type: Types.DayTimeDuration },
-      { localName: 'anyURI', type: Types.AnyURI },
-      { localName: 'QName', type: Types.QName },
-      { localName: 'NCName', type: Types.NCName },
-      { localName: 'anyType', type: Types.AnyType },
-    ];
-
     const results: Record<string, IFieldTypeInfo> = {};
 
-    for (const bt of builtInTypes) {
+    for (const bt of XML_SCHEMA_BUILT_IN_TYPES) {
       const typeQName = new QName(NS_XML_SCHEMA, bt.localName);
       const key = formatQNameWithPrefix(typeQName, namespaceMap);
       results[key] = {
