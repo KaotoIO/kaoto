@@ -3,11 +3,11 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 import type { Mock } from 'vitest';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
+import { CatalogKind } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { IClipboardContent } from '../../../../models/visualization/clipboard';
 import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
-import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
 import { ClipboardService } from '../../../../services/visualization/clipboard.service';
@@ -173,7 +173,7 @@ describe('usePasteStep', () => {
   describe('onPasteStep', () => {
     const mockChoiceVizNode = createVisualizationNode('choice', {
       name: 'choice',
-      processorName: 'choice',
+      primaryNodeId: { name: 'choice', catalogKind: CatalogKind.Pattern },
       isPlaceholder: false,
       isGroup: false,
       iconUrl: '',
@@ -220,9 +220,7 @@ describe('usePasteStep', () => {
         AddStepMode.InsertSpecialChildStep,
       );
 
-      expect(getProcessorStepsPropertiesMock).toHaveBeenCalledWith(
-        (mockChoiceVizNode.data as CamelRouteVisualEntityData).processorName,
-      );
+      expect(getProcessorStepsPropertiesMock).toHaveBeenCalledWith(mockChoiceVizNode.data.primaryNodeId?.name);
 
       expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
     });

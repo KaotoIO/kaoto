@@ -12,7 +12,6 @@ import { ReactElement } from 'react';
 
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
-import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { LayoutType } from '../../Canvas/canvas.models';
 
 export interface MoveIcons {
@@ -71,7 +70,7 @@ function isSpecialChildNode(vizNode?: IVisualizationNode): boolean {
     return false;
   }
 
-  const processorName = (vizNode.data as CamelRouteVisualEntityData).processorName;
+  const processorName = vizNode.data.primaryNodeId?.name;
   if (!processorName) {
     return false;
   }

@@ -1,4 +1,3 @@
-import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import {
   AngleDoubleDownIcon,
   AngleDoubleLeftIcon,
@@ -10,25 +9,24 @@ import {
   ArrowUpIcon,
 } from '@patternfly/react-icons';
 
+import { CatalogKind } from '../../../../models';
 import { IVisualizationNode, IVisualizationNodeData } from '../../../../models/visualization/base-visual-entity';
-import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { LayoutType } from '../../Canvas/canvas.models';
 import { getMoveIcons } from './get-move-icons.util';
 
 describe('getMoveIcons', () => {
   const createMockVizNode = (processorName: string): IVisualizationNode => {
-    const data: CamelRouteVisualEntityData = {
+    return createVisualizationNode(`test-${processorName}`, {
       name: processorName,
       path: `route.from.steps.0.${processorName}`,
-      processorName: processorName as keyof ProcessorDefinition,
+      primaryNodeId: { name: processorName, catalogKind: CatalogKind.Pattern },
       isPlaceholder: false,
       isGroup: false,
       iconUrl: '',
       title: '',
       description: '',
-    };
-    return createVisualizationNode(`test-${processorName}`, data);
+    });
   };
 
   describe('Regular steps (non-special children)', () => {
@@ -67,16 +65,19 @@ describe('getMoveIcons', () => {
   });
 
   describe('Special child nodes (array-clause processors) - inverted direction', () => {
-    it('should return horizontal icons for "when" node in vertical layout (inverted)', () => {
-      const vizNode = createMockVizNode('when');
+    it.each(['when', 'doCatch', 'get', 'onFallback'])(
+      'should return horizontal icons for "%s" node in vertical layout (inverted)',
+      (processorName) => {
+        const vizNode = createMockVizNode(processorName);
 
-      const icons = getMoveIcons(LayoutType.DagreVertical, vizNode);
+        const icons = getMoveIcons(LayoutType.DagreVertical, vizNode);
 
-      expect(icons.prepend.type).toBe(ArrowLeftIcon);
-      expect(icons.append.type).toBe(ArrowRightIcon);
-      expect(icons.moveBefore.type).toBe(AngleDoubleLeftIcon);
-      expect(icons.moveNext.type).toBe(AngleDoubleRightIcon);
-    });
+        expect(icons.prepend.type).toBe(ArrowLeftIcon);
+        expect(icons.append.type).toBe(ArrowRightIcon);
+        expect(icons.moveBefore.type).toBe(AngleDoubleLeftIcon);
+        expect(icons.moveNext.type).toBe(AngleDoubleRightIcon);
+      },
+    );
 
     it('should return vertical icons for "when" node in horizontal layout (inverted)', () => {
       const vizNode = createMockVizNode('when');
@@ -87,39 +88,6 @@ describe('getMoveIcons', () => {
       expect(icons.append.type).toBe(ArrowDownIcon);
       expect(icons.moveBefore.type).toBe(AngleDoubleUpIcon);
       expect(icons.moveNext.type).toBe(AngleDoubleDownIcon);
-    });
-
-    it('should return horizontal icons for "doCatch" node in vertical layout (inverted)', () => {
-      const vizNode = createMockVizNode('doCatch');
-
-      const icons = getMoveIcons(LayoutType.DagreVertical, vizNode);
-
-      expect(icons.prepend.type).toBe(ArrowLeftIcon);
-      expect(icons.append.type).toBe(ArrowRightIcon);
-      expect(icons.moveBefore.type).toBe(AngleDoubleLeftIcon);
-      expect(icons.moveNext.type).toBe(AngleDoubleRightIcon);
-    });
-
-    it('should return horizontal icons for REST DSL verb "get" in vertical layout (inverted)', () => {
-      const vizNode = createMockVizNode('get');
-
-      const icons = getMoveIcons(LayoutType.DagreVertical, vizNode);
-
-      expect(icons.prepend.type).toBe(ArrowLeftIcon);
-      expect(icons.append.type).toBe(ArrowRightIcon);
-      expect(icons.moveBefore.type).toBe(AngleDoubleLeftIcon);
-      expect(icons.moveNext.type).toBe(AngleDoubleRightIcon);
-    });
-
-    it('should return horizontal icons for "onFallback" node in vertical layout (inverted)', () => {
-      const vizNode = createMockVizNode('onFallback');
-
-      const icons = getMoveIcons(LayoutType.DagreVertical, vizNode);
-
-      expect(icons.prepend.type).toBe(ArrowLeftIcon);
-      expect(icons.append.type).toBe(ArrowRightIcon);
-      expect(icons.moveBefore.type).toBe(AngleDoubleLeftIcon);
-      expect(icons.moveNext.type).toBe(AngleDoubleRightIcon);
     });
   });
 

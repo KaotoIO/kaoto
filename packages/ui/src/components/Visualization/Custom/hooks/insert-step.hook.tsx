@@ -1,3 +1,4 @@
+import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 import { useVisualizationController } from '@patternfly/react-topology';
 import { useCallback, useContext, useMemo } from 'react';
@@ -6,7 +7,6 @@ import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.p
 import { DefinedComponent } from '../../../../models';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
-import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 
 export interface UseInsertStepOptions {
@@ -46,7 +46,7 @@ export const useInsertStep = (
     // Set an empty model to clear the graph, Fixes an issue rendering child nodes incorrectly
     if (mode === AddStepMode.InsertSpecialChildStep) {
       const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
-        (vizNode.data as CamelRouteVisualEntityData).processorName,
+        vizNode.data.primaryNodeId?.name as keyof ProcessorDefinition,
       );
       if (
         stepsProperties.some(

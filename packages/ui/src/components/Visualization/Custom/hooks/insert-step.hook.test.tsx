@@ -7,7 +7,6 @@ import { CatalogKind } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
-import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
 import { createMockEntitiesContext } from '../../../../stubs';
@@ -48,7 +47,7 @@ describe('useInsertStep', () => {
   beforeEach(() => {
     mockVizNode = createVisualizationNode('test', {
       name: 'test',
-      processorName: 'test',
+      primaryNodeId: { name: 'test', catalogKind: CatalogKind.Pattern },
       isPlaceholder: false,
       isGroup: false,
       iconUrl: '',
@@ -165,9 +164,7 @@ describe('useInsertStep', () => {
       undefined,
       undefined,
     );
-    expect(getProcessorStepsPropertiesMock).toHaveBeenCalledWith(
-      (mockVizNode.data as CamelRouteVisualEntityData).processorName,
-    );
+    expect(getProcessorStepsPropertiesMock).toHaveBeenCalledWith(mockVizNode.data.primaryNodeId?.name);
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
   });
 
