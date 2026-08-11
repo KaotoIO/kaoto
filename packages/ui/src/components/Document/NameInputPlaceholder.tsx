@@ -2,7 +2,7 @@ import './NameInputPlaceholder.scss';
 
 import { ActionList, ActionListGroup, ActionListItem, Button, Label } from '@patternfly/react-core';
 import { CheckIcon, TimesIcon } from '@patternfly/react-icons';
-import { FunctionComponent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FunctionComponent, KeyboardEvent, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { NameValidation, NameValidationStatus } from '../../models/datamapper/visualization';
 import { NameInput } from './NameInput';
@@ -59,6 +59,12 @@ export const NameInputPlaceholder: FunctionComponent<NameInputPlaceholderProps> 
     [onCancel],
   );
 
+  // Keep clicks from reaching an enclosing panel summary or node container,
+  // which would otherwise toggle or select it while the name is being edited.
+  const handleClick = useCallback((event: MouseEvent) => {
+    event.stopPropagation();
+  }, []);
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -71,8 +77,10 @@ export const NameInputPlaceholder: FunctionComponent<NameInputPlaceholderProps> 
   }, [initialName]);
 
   return (
-    <>
-      <ActionList className="name-input-actions" onKeyDown={handleEscapeKeyDown}>
+    // role="none": this wrapper is scaffolding that bounds event propagation, not a
+    // control. It must not be exposed or focusable in its own right.
+    <div className="name-input-placeholder" role="none" onClick={handleClick} onKeyDown={handleEscapeKeyDown}>
+      <ActionList className="name-input-actions">
         <ActionListGroup>
           <ActionListItem>
             {label && <Label>{label}</Label>}
@@ -116,6 +124,6 @@ export const NameInputPlaceholder: FunctionComponent<NameInputPlaceholderProps> 
       <div className="name-input-error" data-testid={`${testIdPrefix}-name-input-error`}>
         {validation.error}
       </div>
-    </>
+    </div>
   );
 };

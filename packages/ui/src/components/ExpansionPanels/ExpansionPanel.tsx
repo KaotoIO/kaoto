@@ -113,6 +113,9 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
       if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      // Let interactive descendants (buttons, inputs) handle their own Enter/Space.
+      // Calling preventDefault() here would otherwise suppress their activation.
+      if (event.target !== event.currentTarget) return;
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
         event.stopPropagation();
