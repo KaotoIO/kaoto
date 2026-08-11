@@ -2,7 +2,8 @@ import { act, render } from '@testing-library/react';
 import { Mock, MockedFunction, vi } from 'vitest';
 
 import { useProcessorTooltips } from '../../hooks/use-processor-tooltips.hook';
-import { IVisualizationNode } from '../../models';
+import { CatalogKind, IVisualizationNode } from '../../models';
+import { createVisualizationNode } from '../../models/visualization/visualization-node';
 import { ComponentMode } from './ComponentMode';
 
 let mockUpdateSourceCodeFromEntities: Mock;
@@ -28,12 +29,20 @@ describe('ComponentMode', () => {
   });
 
   const getMockVizNode = (processorName = 'to'): IVisualizationNode => {
-    return {
-      data: { processorName, path: `route.from.steps.0.${processorName}` },
-      getNodeSchema: () => undefined,
-      getNodeDefinition: () => ({}),
-      updateModel: vi.fn(),
-    } as unknown as IVisualizationNode;
+    const node = createVisualizationNode(`route.from.steps.0.${processorName}`, {
+      name: processorName,
+      path: `route.from.steps.0.${processorName}`,
+      primaryNodeId: { name: processorName, catalogKind: CatalogKind.Pattern },
+      isPlaceholder: false,
+      isGroup: false,
+      title: '',
+      description: '',
+      iconUrl: '',
+    });
+    vi.spyOn(node, 'getNodeSchema').mockReturnValue(undefined);
+    vi.spyOn(node, 'getNodeDefinition').mockReturnValue({});
+    vi.spyOn(node, 'updateModel').mockImplementation(vi.fn());
+    return node;
   };
 
   it('renders the three toggle buttons', () => {

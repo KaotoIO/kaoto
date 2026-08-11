@@ -2,6 +2,7 @@ import { ElementModel, GraphElement } from '@patternfly/react-topology';
 import { waitFor } from '@testing-library/react';
 import type { Mock } from 'vitest';
 
+import { CatalogKind } from '../../../../models/catalog-kind';
 import { PlaceholderType } from '../../../../models/placeholder.constants';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { EntitiesContextResult } from '../../../../providers/entities.provider';
@@ -121,8 +122,8 @@ describe('CustomNodeUtils', () => {
 
     it('should return true for compatible nodes in case of placeholder node', () => {
       const mockValidate = vi.fn().mockReturnValue(true);
-      vizNode1.data.name = 'log';
-      placeholderNode.data.name = PlaceholderType.Placeholder;
+      vizNode1.data.primaryNodeId = { name: 'log', catalogKind: CatalogKind.Processor };
+      placeholderNode.data.primaryNodeId = { name: PlaceholderType.Placeholder, catalogKind: CatalogKind.Pattern };
       const result = checkNodeDropCompatibility(vizNode1, placeholderNode, mockValidate);
       expect(result).toBe(true);
       expect(mockValidate).toHaveBeenCalled();
@@ -131,17 +132,19 @@ describe('CustomNodeUtils', () => {
     it('should return true when dropping when container onto when placeholder from another choice', () => {
       const mockValidate = vi.fn();
       const whenPlaceholder = getMockVizNode('route.from.steps.1.choice.when');
-      whenPlaceholder.data = { ...whenPlaceholder.data, name: 'when', isPlaceholder: true };
+      whenPlaceholder.data = {
+        ...whenPlaceholder.data,
+        primaryNodeId: { name: 'when', catalogKind: CatalogKind.Pattern },
+        isPlaceholder: true,
+      };
       whenPlaceholder.getCopiedContent = vi.fn().mockReturnValue({ name: 'when' });
       const choiceB = getMockVizNode('route.from.steps.1.choice');
-      choiceB.data = { ...choiceB.data, processorName: 'choice' };
       whenPlaceholder.getParentNode = vi.fn().mockReturnValue(choiceB);
 
       const whenContainer = getMockVizNode('route.from.steps.0.choice.when.0');
-      whenContainer.data = { ...whenContainer.data, name: 'when' };
+      whenContainer.data = { ...whenContainer.data, primaryNodeId: { name: 'when', catalogKind: CatalogKind.Pattern } };
       whenContainer.getCopiedContent = vi.fn().mockReturnValue({ name: 'when' });
       const choiceA = getMockVizNode('route.from.steps.0.choice');
-      choiceA.data = { ...choiceA.data, processorName: 'choice' };
       (choiceA.getId as Mock).mockReturnValue('choice-a');
       (choiceB.getId as Mock).mockReturnValue('choice-b');
       whenContainer.getParentNode = vi.fn().mockReturnValue(choiceA);
@@ -153,15 +156,18 @@ describe('CustomNodeUtils', () => {
 
     it('should return false when dropping when container onto when placeholder from same choice', () => {
       const choiceNode = getMockVizNode('route.from.steps.0.choice');
-      choiceNode.data = { ...choiceNode.data, processorName: 'choice' };
       (choiceNode.getId as Mock).mockReturnValue('same-choice');
       const whenPlaceholder = getMockVizNode('route.from.steps.0.choice.when');
-      whenPlaceholder.data = { ...whenPlaceholder.data, name: 'when', isPlaceholder: true };
+      whenPlaceholder.data = {
+        ...whenPlaceholder.data,
+        primaryNodeId: { name: 'when', catalogKind: CatalogKind.Pattern },
+        isPlaceholder: true,
+      };
       whenPlaceholder.getCopiedContent = vi.fn().mockReturnValue({ name: 'when' });
       whenPlaceholder.getParentNode = vi.fn().mockReturnValue(choiceNode);
 
       const whenContainer = getMockVizNode('route.from.steps.0.choice.when.0');
-      whenContainer.data = { ...whenContainer.data, name: 'when' };
+      whenContainer.data = { ...whenContainer.data, primaryNodeId: { name: 'when', catalogKind: CatalogKind.Pattern } };
       whenContainer.getCopiedContent = vi.fn().mockReturnValue({ name: 'when' });
       whenContainer.getParentNode = vi.fn().mockReturnValue(choiceNode);
 
@@ -171,13 +177,20 @@ describe('CustomNodeUtils', () => {
 
     it('should return false when dropping non-when onto when placeholder', () => {
       const whenPlaceholder = getMockVizNode('route.from.steps.0.choice.when');
-      whenPlaceholder.data = { ...whenPlaceholder.data, name: 'when', isPlaceholder: true };
+      whenPlaceholder.data = {
+        ...whenPlaceholder.data,
+        primaryNodeId: { name: 'when', catalogKind: CatalogKind.Pattern },
+        isPlaceholder: true,
+      };
       whenPlaceholder.getCopiedContent = vi.fn().mockReturnValue({ name: 'when' });
       const choiceNode = getMockVizNode('route.from.steps.0.choice');
       whenPlaceholder.getParentNode = vi.fn().mockReturnValue(choiceNode);
 
       const otherwiseContainer = getMockVizNode('route.from.steps.0.choice.otherwise');
-      otherwiseContainer.data = { ...otherwiseContainer.data, name: 'otherwise' };
+      otherwiseContainer.data = {
+        ...otherwiseContainer.data,
+        primaryNodeId: { name: 'otherwise', catalogKind: CatalogKind.Pattern },
+      };
       otherwiseContainer.getCopiedContent = vi.fn().mockReturnValue({ name: 'otherwise' });
       const otherChoice = getMockVizNode('route.from.steps.1.choice');
       (otherChoice.getId as Mock).mockReturnValue('other');
@@ -199,13 +212,20 @@ describe('CustomNodeUtils', () => {
 
     it('should return true when dropping otherwise container onto otherwise placeholder from another choice', () => {
       const otherwisePlaceholder = getMockVizNode('route.from.steps.1.choice.otherwise');
-      otherwisePlaceholder.data = { ...otherwisePlaceholder.data, name: 'otherwise', isPlaceholder: true };
+      otherwisePlaceholder.data = {
+        ...otherwisePlaceholder.data,
+        primaryNodeId: { name: 'otherwise', catalogKind: CatalogKind.Pattern },
+        isPlaceholder: true,
+      };
       otherwisePlaceholder.getCopiedContent = vi.fn().mockReturnValue({ name: 'otherwise' });
       const choiceB = getMockVizNode('route.from.steps.1.choice');
       otherwisePlaceholder.getParentNode = vi.fn().mockReturnValue(choiceB);
 
       const otherwiseContainer = getMockVizNode('route.from.steps.0.choice.otherwise');
-      otherwiseContainer.data = { ...otherwiseContainer.data, name: 'otherwise' };
+      otherwiseContainer.data = {
+        ...otherwiseContainer.data,
+        primaryNodeId: { name: 'otherwise', catalogKind: CatalogKind.Pattern },
+      };
       otherwiseContainer.getCopiedContent = vi.fn().mockReturnValue({ name: 'otherwise' });
       const choiceA = getMockVizNode('route.from.steps.0.choice');
       (choiceA.getId as Mock).mockReturnValue('choice-a');
@@ -220,12 +240,19 @@ describe('CustomNodeUtils', () => {
       const choiceNode = getMockVizNode('route.from.steps.0.choice');
       (choiceNode.getId as Mock).mockReturnValue('same-choice');
       const otherwisePlaceholder = getMockVizNode('route.from.steps.0.choice.otherwise');
-      otherwisePlaceholder.data = { ...otherwisePlaceholder.data, name: 'otherwise', isPlaceholder: true };
+      otherwisePlaceholder.data = {
+        ...otherwisePlaceholder.data,
+        primaryNodeId: { name: 'otherwise', catalogKind: CatalogKind.Pattern },
+        isPlaceholder: true,
+      };
       otherwisePlaceholder.getCopiedContent = vi.fn().mockReturnValue({ name: 'otherwise' });
       otherwisePlaceholder.getParentNode = vi.fn().mockReturnValue(choiceNode);
 
       const otherwiseContainer = getMockVizNode('route.from.steps.0.choice.otherwise');
-      otherwiseContainer.data = { ...otherwiseContainer.data, name: 'otherwise' };
+      otherwiseContainer.data = {
+        ...otherwiseContainer.data,
+        primaryNodeId: { name: 'otherwise', catalogKind: CatalogKind.Pattern },
+      };
       otherwiseContainer.getCopiedContent = vi.fn().mockReturnValue({ name: 'otherwise' });
       otherwiseContainer.getParentNode = vi.fn().mockReturnValue(choiceNode);
 
@@ -286,6 +313,23 @@ describe('CustomNodeUtils', () => {
       const result = checkNodeDropCompatibility(whenNode, AnotherWhen, mockValidate);
       expect(result).toBe(true);
       expect(mockValidate).toHaveBeenCalled();
+    });
+
+    it('should return false when dropped placeholder has no primaryNodeId (regression: undefined name must not match)', () => {
+      // Both nodes have no primaryNodeId — undefined === undefined must NOT be treated as a name match
+      const draggedNode = getMockVizNode('route.from.steps.0.log');
+      // no primaryNodeId set on draggedNode
+
+      const noPrimaryPlaceholder = getMockVizNode('route.from.steps.1.placeholder');
+      noPrimaryPlaceholder.data = {
+        ...noPrimaryPlaceholder.data,
+        isPlaceholder: true,
+        // primaryNodeId intentionally absent
+      };
+      noPrimaryPlaceholder.getPreviousNode = vi.fn().mockReturnValue(undefined);
+
+      const result = checkNodeDropCompatibility(draggedNode, noPrimaryPlaceholder, vi.fn());
+      expect(result).toBe(false);
     });
   });
 
@@ -422,11 +466,15 @@ describe('CustomNodeUtils', () => {
         canHaveSpecialChildren: true,
       });
       const whenPlaceholder = getMockVizNode('route.from.steps.1.choice.when');
-      whenPlaceholder.data = { ...whenPlaceholder.data, name: 'when', isPlaceholder: true };
+      whenPlaceholder.data = {
+        ...whenPlaceholder.data,
+        primaryNodeId: { name: 'when', catalogKind: CatalogKind.Pattern },
+        isPlaceholder: true,
+      };
       whenPlaceholder.getParentNode = vi.fn().mockReturnValue(choiceVizNode);
 
       const whenContainer = getMockVizNode('route.from.steps.0.choice.when.0');
-      whenContainer.data = { ...whenContainer.data, name: 'when' };
+      whenContainer.data = { ...whenContainer.data, primaryNodeId: { name: 'when', catalogKind: CatalogKind.Pattern } };
       whenContainer.getCopiedContent = vi.fn().mockReturnValue({ name: 'when', type: 'processor', definition: {} });
 
       const draggedElement = createMockDraggedElement(whenContainer);
@@ -458,11 +506,18 @@ describe('CustomNodeUtils', () => {
         canHaveSpecialChildren: true,
       });
       const otherwisePlaceholder = getMockVizNode('route.from.steps.1.choice.otherwise');
-      otherwisePlaceholder.data = { ...otherwisePlaceholder.data, name: 'otherwise', isPlaceholder: true };
+      otherwisePlaceholder.data = {
+        ...otherwisePlaceholder.data,
+        primaryNodeId: { name: 'otherwise', catalogKind: CatalogKind.Pattern },
+        isPlaceholder: true,
+      };
       otherwisePlaceholder.getParentNode = vi.fn().mockReturnValue(choiceVizNode);
 
       const otherwiseContainer = getMockVizNode('route.from.steps.0.choice.otherwise');
-      otherwiseContainer.data = { ...otherwiseContainer.data, name: 'otherwise' };
+      otherwiseContainer.data = {
+        ...otherwiseContainer.data,
+        primaryNodeId: { name: 'otherwise', catalogKind: CatalogKind.Pattern },
+      };
       otherwiseContainer.getCopiedContent = vi.fn().mockReturnValue({
         name: 'otherwise',
         type: 'processor',
@@ -521,6 +576,45 @@ describe('CustomNodeUtils', () => {
       await waitFor(() => {
         expect(entitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
       });
+    });
+
+    it('should NOT route to InsertSpecialChildStep when dropped placeholder has no primaryNodeId', () => {
+      // A placeholder without primaryNodeId must not be treated as a special-child placeholder
+      const choiceVizNode = getMockVizNode('route.from.steps.1.choice');
+      choiceVizNode.getNodeInteraction = vi.fn().mockReturnValue({
+        canHaveSpecialChildren: true,
+      });
+
+      const noPrimaryPlaceholder = getMockVizNode('route.from.steps.1.choice.when');
+      noPrimaryPlaceholder.data = {
+        ...noPrimaryPlaceholder.data,
+        isPlaceholder: true,
+        // primaryNodeId intentionally absent
+      };
+      noPrimaryPlaceholder.getParentNode = vi.fn().mockReturnValue(choiceVizNode);
+
+      const logNode = getMockVizNode('route.from.steps.0.log');
+      logNode.getCopiedContent = vi.fn().mockReturnValue({ name: 'log', type: 'processor', definition: {} });
+      (logNode.getId as Mock).mockReturnValue('route1');
+      (noPrimaryPlaceholder.getId as Mock).mockReturnValue('route1');
+
+      const draggedElement = createMockDraggedElement(logNode);
+      const dropResult = createMockDropResultNode(noPrimaryPlaceholder);
+      const entitiesContext = createMockEntitiesContext();
+
+      handleValidNodeDrop(
+        draggedElement,
+        dropResult,
+        entitiesContext as unknown as EntitiesContextResult,
+        { getRegisteredInteractionAddons: noopGetOnCopyAddons } as unknown as INodeInteractionAddonContext,
+      );
+
+      // Must NOT have called pasteBaseEntityStep with InsertSpecialChildStep on the choice node
+      expect(choiceVizNode.pasteBaseEntityStep).not.toHaveBeenCalledWith(
+        expect.anything(),
+        AddStepMode.InsertSpecialChildStep,
+        expect.anything(),
+      );
     });
   });
 });

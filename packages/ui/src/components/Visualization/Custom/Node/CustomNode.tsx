@@ -1,5 +1,6 @@
 import './CustomNode.scss';
 
+import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 import {
   AnchorEnd,
@@ -31,7 +32,6 @@ import { FunctionComponent, useContext, useMemo, useRef } from 'react';
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
-import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { SettingsContext } from '../../../../providers';
 import { getProcessorIcon } from '../../../../utils/processor-icon';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
@@ -83,8 +83,8 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const settingsAdapter = useContext(SettingsContext);
     const nodeInteractionAddonContext = useContext(NodeInteractionAddonContext);
     const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
-    const processorName = (vizNode?.data as CamelRouteVisualEntityData)?.processorName;
-    const ProcessorIcon = getProcessorIcon(processorName);
+    const processorName = vizNode?.data.primaryNodeId?.name;
+    const ProcessorIcon = processorName ? getProcessorIcon(processorName as keyof ProcessorDefinition) : null;
     const processorDescription = vizNode?.data.processorIconTooltip ?? '';
     const isDisabled = !!vizNode?.getNodeDefinition()?.disabled;
     const validationText = vizNode?.getNodeValidationText();

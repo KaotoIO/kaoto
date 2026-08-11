@@ -1,3 +1,4 @@
+import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 import { ElementModel, GraphElement, Node } from '@patternfly/react-topology';
 
@@ -5,7 +6,6 @@ import { PlaceholderType } from '../../../../models/placeholder.constants';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { IClipboardContent } from '../../../../models/visualization/clipboard';
 import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
-import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { EntitiesContextResult } from '../../../../providers/entities.provider';
 import {
   IInteractionType,
@@ -74,9 +74,11 @@ export const handleValidNodeDrop = (
   if (!isDefined(draggedNodeContent)) return;
 
   // Drop onto special placeholder
+  const droppedPrimaryName = droppedVizNode.data?.primaryNodeId?.name;
   const isSpecialChildPlaceholder =
     droppedVizNode.data?.isPlaceholder &&
-    droppedVizNode.data?.name !== PlaceholderType.Placeholder &&
+    droppedPrimaryName !== undefined &&
+    droppedPrimaryName !== PlaceholderType.Placeholder &&
     droppedVizNode.getParentNode()?.getNodeInteraction().canHaveSpecialChildren;
   if (isSpecialChildPlaceholder) {
     const parentVizNode = droppedVizNode.getParentNode();
@@ -131,14 +133,16 @@ export const checkNodeDropCompatibility = (
 
   // validation for placeholder nodes
   if (droppedVizNode.data.isPlaceholder) {
-    if (droppedVizNode.data.name === draggedVizNode?.data.name) {
+    const droppedName = droppedVizNode.data.primaryNodeId?.name;
+    const draggedName = draggedVizNode?.data.primaryNodeId?.name;
+    if (droppedName !== undefined && draggedName !== undefined && droppedName === draggedName) {
       const draggedParent = draggedVizNode.getParentNode();
       const droppedParent = droppedVizNode.getParentNode();
       return !(draggedParent?.id === droppedParent?.id && draggedParent?.getId() === droppedParent?.getId());
     }
 
     if (
-      droppedVizNode.data.name === PlaceholderType.Placeholder &&
+      droppedVizNode.data.primaryNodeId?.name === PlaceholderType.Placeholder &&
       droppedVizNode.getPreviousNode() !== draggedVizNode
     ) {
       return validate(AddStepMode.ReplaceStep, droppedVizNode, droppedVizNodeContent.name);
@@ -184,17 +188,19 @@ export interface VizNodeChildrenInfo {
 }
 
 export const getVizNodeChildrenInfo = (vizNode: IVisualizationNode | undefined): VizNodeChildrenInfo => {
-  const processorName = (vizNode?.data as CamelRouteVisualEntityData)?.processorName;
+  const processorName = vizNode?.data.primaryNodeId?.name;
   const vizNodeChildren = vizNode?.getChildren() ?? [];
   const childCount = vizNodeChildren.filter((c) => !c.data.isPlaceholder).length;
   const hasGroupChildren = vizNodeChildren.some((child) => {
-    const childProcessorName = (child.data as CamelRouteVisualEntityData)?.processorName;
+    const childProcessorName = child.data.primaryNodeId?.name;
     return childProcessorName
-      ? CamelComponentSchemaService.getProcessorStepsProperties(childProcessorName).length > 0
+      ? CamelComponentSchemaService.getProcessorStepsProperties(childProcessorName as keyof ProcessorDefinition)
+          .length > 0
       : false;
   });
   const isContainerType =
-    !!processorName && CamelComponentSchemaService.getProcessorStepsProperties(processorName).length > 0;
+    !!processorName &&
+    CamelComponentSchemaService.getProcessorStepsProperties(processorName as keyof ProcessorDefinition).length > 0;
   const isCollapsedGroup = isContainerType && childCount > 0;
   return { childCount, hasGroupChildren, isCollapsedGroup };
 };

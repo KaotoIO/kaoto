@@ -8,14 +8,11 @@ import { useProcessorTooltips } from '../../hooks/use-processor-tooltips.hook';
 import { useEntityContext } from '../../hooks/useEntityContext/useEntityContext';
 import { IVisualizationNode } from '../../models';
 import { COMPONENT_MODE_PROCESSORS } from '../../models/special-processors.constants';
-import { CamelRouteVisualEntityData } from '../../models/visualization/flows/support/camel-component-types';
 import { getProcessorIcon } from '../../utils/processor-icon';
 
 export const ComponentMode: FunctionComponent<{ vizNode?: IVisualizationNode }> = ({ vizNode }) => {
   const { updateSourceCodeFromEntities } = useEntityContext();
-  const [processorName, setProcessorName] = useState<keyof ProcessorDefinition>(
-    (vizNode?.data as CamelRouteVisualEntityData)?.processorName,
-  );
+  const [processorName, setProcessorName] = useState(vizNode?.data.primaryNodeId?.name);
 
   const switchComponentMode = useCallback(
     (newProcessorName: keyof ProcessorDefinition) => {
@@ -33,7 +30,17 @@ export const ComponentMode: FunctionComponent<{ vizNode?: IVisualizationNode }> 
       vizNode.data = { ...vizNode.data, path: rootEipPath };
       vizNode.updateModel(undefined);
 
-      vizNode.data = { ...vizNode.data, path: `${rootEipPath}.${newProcessorName}`, processorName: newProcessorName };
+      const existingPrimaryNodeId = vizNode.data.primaryNodeId;
+      if (!existingPrimaryNodeId) return;
+
+      vizNode.data = {
+        ...vizNode.data,
+        path: `${rootEipPath}.${newProcessorName}`,
+        primaryNodeId: {
+          ...existingPrimaryNodeId,
+          name: newProcessorName,
+        },
+      };
       vizNode.updateModel(definition);
       updateSourceCodeFromEntities();
       setProcessorName(newProcessorName);
