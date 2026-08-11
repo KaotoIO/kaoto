@@ -1,8 +1,8 @@
+import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { AnchorEnd, ElementModel, GraphElement, isNode, observer, useAnchor } from '@patternfly/react-topology';
 import { FunctionComponent, useCallback } from 'react';
 
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { getProcessorIcon } from '../../../../utils/processor-icon';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { CanvasNode } from '../../Canvas/canvas.models';
@@ -33,8 +33,8 @@ export const TopologyNode: FunctionComponent<TopologyRouteNodeProps> = observer(
     return null;
   }
 
-  const processorName = (vizNode.data as CamelRouteVisualEntityData).processorName;
-  const ProcessorIcon = getProcessorIcon(processorName);
+  const processorName = vizNode.data.primaryNodeId?.name;
+  const ProcessorIcon = getProcessorIcon(processorName as keyof ProcessorDefinition);
   const processorDescription = vizNode.data.processorIconTooltip ?? '';
   const definition = vizNode.getNodeDefinition() as { disabled?: boolean; description?: string } | undefined;
   const label = definition?.description?.trim() || vizNode.getNodeLabel();

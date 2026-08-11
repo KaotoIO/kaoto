@@ -1,3 +1,4 @@
+import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 import { useVisualizationController } from '@patternfly/react-topology';
 import { cloneDeep } from 'lodash';
@@ -7,7 +8,6 @@ import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.p
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { IClipboardContent } from '../../../../models/visualization/clipboard';
 import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
-import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { ClipboardService } from '../../../../services/visualization/clipboard.service';
@@ -99,7 +99,7 @@ export const usePasteStep = (vizNode: IVisualizationNode, mode: AddStepMode) => 
     // Set an empty model to clear the graph, Fixes an issue rendering child nodes incorrectly
     if (mode === AddStepMode.InsertSpecialChildStep) {
       const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
-        (vizNode.data as CamelRouteVisualEntityData).processorName,
+        vizNode.data.primaryNodeId?.name as keyof ProcessorDefinition,
       );
       if (
         stepsProperties.some(
