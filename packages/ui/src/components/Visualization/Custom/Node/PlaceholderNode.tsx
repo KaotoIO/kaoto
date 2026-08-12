@@ -114,7 +114,7 @@ const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = obser
   const entitiesContext = useEntityContext();
   const catalogModalContext = useContext(CatalogModalContext);
   const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
-  const updatedLabel = label === '' ? 'Add step' : `Add ${label}`;
+  const updatedLabel = label === '' || label === PlaceholderType.Placeholder ? 'Add step' : `Add ${label}`;
   const boxRef = useRef<Rect | null>(null);
   const boxXRef = useRef<number | null>(null);
   const boxYRef = useRef<number | null>(null);
@@ -128,19 +128,23 @@ const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = obser
   }
   const { onReplaceNode } = useReplaceStep(vizNode);
   const isSpecialPlaceholder =
-    vizNode.data.name !== PlaceholderType.Placeholder && vizNode.data.name !== PlaceholderType.PlaceholderSpecialChild;
-  const isSpecialChildPlaceholder = vizNode.data.name === PlaceholderType.PlaceholderSpecialChild;
+    vizNode.data.primaryNodeId?.name !== PlaceholderType.Placeholder &&
+    vizNode.data.primaryNodeId?.name !== PlaceholderType.PlaceholderSpecialChild;
+  const isSpecialChildPlaceholder = vizNode.data.primaryNodeId?.name === PlaceholderType.PlaceholderSpecialChild;
 
   const parentVizNode = vizNode.getParentNode();
   const insertStepTargetNode = isSpecialPlaceholder ? (parentVizNode ?? vizNode) : vizNode;
-  const insertStepOptions = isSpecialPlaceholder
-    ? {
-        predefinedComponent: { name: vizNode.data.name, type: CatalogKind.Processor },
-        insertAtStart: true,
-      }
-    : undefined;
+  const insertStepOptions =
+    isSpecialPlaceholder && vizNode.data.primaryNodeId?.name !== undefined
+      ? {
+          predefinedComponent: { name: vizNode.data.primaryNodeId?.name, type: CatalogKind.Processor },
+          insertAtStart: true,
+        }
+      : undefined;
   const { onInsertStep } = useInsertStep(insertStepTargetNode, AddStepMode.InsertSpecialChildStep, insertStepOptions);
-  const tooltipContent = isSpecialPlaceholder ? `Click to add ${vizNode?.data.name} branch` : 'Click to add a step';
+  const tooltipContent = isSpecialPlaceholder
+    ? `Click to add ${vizNode?.data.primaryNodeId?.name} branch`
+    : 'Click to add a step';
 
   const placeholderNodeDropTargetSpec: DropTargetSpec<
     GraphElement,
@@ -248,16 +252,13 @@ const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = obser
           </foreignObject>
         )}
 
-        {/** Label rendering - regular label when nothing is dragging */}
-        {updatedLabel && !dndDropProps.droppable && <PlaceholderNodeLabel label={updatedLabel} x={labelX} y={labelY} />}
-
-        {/** Label which appears when dragging the group/node, but for the dummy node */}
+        {/** Label for the dummy node when dragging within group */}
         {updatedLabel && dndDropProps.droppable && isDraggingWithinGroup && (
           <PlaceholderNodeLabel label={updatedLabel} x={labelX} y={labelY} transform={labelTransform} />
         )}
 
-        {/** This label, appears for the node which are not dragging within the container */}
-        {updatedLabel && (isDraggingNodeType || (isDraggingGroupType && !isDraggingWithinGroup)) && (
+        {/** Label for all other cases (not dragging, or dragging outside group) */}
+        {updatedLabel && !(dndDropProps.droppable && isDraggingWithinGroup) && (
           <PlaceholderNodeLabel label={updatedLabel} x={labelX} y={labelY} />
         )}
       </g>

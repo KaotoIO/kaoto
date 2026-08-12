@@ -9,6 +9,7 @@ import {
 import { fireEvent, render, screen } from '@testing-library/react';
 
 import { createVisualizationNode, IVisualizationNode, IVisualizationNodeData } from '../../../../models';
+import { CatalogKind } from '../../../../models/catalog-kind';
 import { PlaceholderType } from '../../../../models/placeholder.constants';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { ControllerService } from '../../../../testing-api';
@@ -296,7 +297,7 @@ describe('PlaceholderNode', () => {
       ['PlusCircleIcon for regular placeholder', PlaceholderType.Placeholder],
       ['CodeBranchIcon for other placeholders', 'when'],
     ])('should render %s', async (_label, name) => {
-      const wrapper = await setupWithVizNode({ name });
+      const wrapper = await setupWithVizNode({ name, primaryNodeId: { name, catalogKind: CatalogKind.Pattern } });
 
       const svgIcon = wrapper.container.querySelector('svg');
       expect(svgIcon).toBeInTheDocument();
@@ -304,7 +305,10 @@ describe('PlaceholderNode', () => {
     });
 
     it('should call onInsertStep when clicking on special child placeholder', async () => {
-      await setupWithVizNode({ name: PlaceholderType.PlaceholderSpecialChild });
+      await setupWithVizNode({
+        name: PlaceholderType.PlaceholderSpecialChild,
+        primaryNodeId: { name: PlaceholderType.PlaceholderSpecialChild, catalogKind: CatalogKind.Pattern },
+      });
 
       const placeholderNode = screen.getByTestId('placeholder-node__test-placeholder');
       fireEvent.click(placeholderNode);
@@ -314,7 +318,10 @@ describe('PlaceholderNode', () => {
     });
 
     it('should call onReplaceNode when clicking on regular placeholder', async () => {
-      await setupWithVizNode({ name: PlaceholderType.Placeholder });
+      await setupWithVizNode({
+        name: PlaceholderType.Placeholder,
+        primaryNodeId: { name: PlaceholderType.Placeholder, catalogKind: CatalogKind.Pattern },
+      });
 
       const placeholderNode = screen.getByTestId('placeholder-node__test-placeholder');
       fireEvent.click(placeholderNode);
@@ -324,7 +331,11 @@ describe('PlaceholderNode', () => {
     });
 
     it('should call onInsertStep when clicking on otherwise placeholder', async () => {
-      await setupWithVizNode({ name: 'otherwise', isPlaceholder: true });
+      await setupWithVizNode({
+        name: 'otherwise',
+        isPlaceholder: true,
+        primaryNodeId: { name: 'otherwise', catalogKind: CatalogKind.Pattern },
+      });
 
       const placeholderNode = screen.getByTestId('placeholder-node__test-placeholder');
       fireEvent.click(placeholderNode);
@@ -334,7 +345,11 @@ describe('PlaceholderNode', () => {
     });
 
     it('should call onInsertStep when clicking on when placeholder', async () => {
-      await setupWithVizNode({ name: 'when', isPlaceholder: true });
+      await setupWithVizNode({
+        name: 'when',
+        isPlaceholder: true,
+        primaryNodeId: { name: 'when', catalogKind: CatalogKind.Pattern },
+      });
 
       const placeholderNode = screen.getByTestId('placeholder-node__test-placeholder');
       fireEvent.click(placeholderNode);
