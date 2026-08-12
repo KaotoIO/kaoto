@@ -1,5 +1,6 @@
 import './CustomGroupExpanded.scss';
 
+import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 import { Icon } from '@patternfly/react-core';
 import { BanIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
@@ -31,7 +32,6 @@ import { FunctionComponent, useContext, useMemo, useRef } from 'react';
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
-import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { SettingsContext } from '../../../../providers';
 import { getProcessorIcon } from '../../../../utils/processor-icon';
 import { Anchors } from '../../../registers/anchors';
@@ -69,7 +69,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
     const catalogModalContext = useContext(CatalogModalContext);
     const nodeInteractionAddonContext = useContext(NodeInteractionAddonContext);
     const label = groupVizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
-    const processorName = (groupVizNode?.data as CamelRouteVisualEntityData)?.processorName;
+    const processorName = groupVizNode?.data.primaryNodeId?.name as keyof ProcessorDefinition;
     const ProcessorIcon = getProcessorIcon(processorName);
     const processorDescription = groupVizNode?.data?.processorIconTooltip ?? '';
     const isDisabled = !!groupVizNode?.getNodeDefinition()?.disabled;

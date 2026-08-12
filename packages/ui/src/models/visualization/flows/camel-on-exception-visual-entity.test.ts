@@ -78,7 +78,7 @@ describe('CamelOnExceptionVisualEntity', () => {
 
       expect(vizNode).toBeDefined();
       expect(vizNode.id).toBeDefined();
-      expect(vizNode.data.processorName).toBe('onException');
+      expect(vizNode.data.primaryNodeId?.name).toBe('onException');
       expect(vizNode.data.entity).toBe(entity);
       expect(vizNode.data.isGroup).toBe(true);
       expect(vizNode.data.catalogKind).toBe(CatalogKind.Entity);

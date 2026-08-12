@@ -1,4 +1,4 @@
-import { IVisualizationNode } from '../../models';
+import { CatalogKind, IVisualizationNode } from '../../models';
 import { componentModeActivationFn } from './component-mode.activationfn';
 
 describe('componentModeActivationFn', () => {
@@ -18,7 +18,7 @@ describe('componentModeActivationFn', () => {
   ];
   it.each(TEST_CASES)('should return "%s" for "%s"', (expectedResult, processorName) => {
     const result = componentModeActivationFn({
-      data: { processorName },
+      data: { primaryNodeId: { name: processorName, catalogKind: CatalogKind.Pattern } },
     } as unknown as IVisualizationNode);
 
     expect(result).toBe(expectedResult);

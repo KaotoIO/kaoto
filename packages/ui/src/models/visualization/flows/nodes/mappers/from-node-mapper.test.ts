@@ -233,7 +233,7 @@ describe('FromNodeMapper', () => {
   });
 
   it('should set correct processor name', () => {
-    expect(vizNode.data.processorName).toBe('from');
+    expect(vizNode.data.primaryNodeId?.name).toBe('from');
     expect(vizNode.data.name).toBe('direct');
   });
 

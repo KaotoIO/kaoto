@@ -104,7 +104,7 @@ describe('CamelInterceptVisualEntity', () => {
     const vizNode = await interceptVisualEntity.toVizNode();
     await vizNode.fetchSchema();
 
-    expect(vizNode.data.processorName).toBe(CamelInterceptVisualEntity.ROOT_PATH);
+    expect(vizNode.data.primaryNodeId?.name).toBe(CamelInterceptVisualEntity.ROOT_PATH);
     expect(vizNode.data.entity).toBe(interceptVisualEntity);
     expect(vizNode.data.isGroup).toBeTruthy();
     expect(vizNode.data.primaryNodeId).toEqual({ name: interceptVisualEntity.type, catalogKind: CatalogKind.Entity });

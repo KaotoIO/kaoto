@@ -109,7 +109,7 @@ describe('CamelOnCompletionVisualEntity', () => {
     const vizNode = await onCompletionVisualEntity.toVizNode();
     await vizNode.fetchSchema();
 
-    expect(vizNode.data.processorName).toBe(CamelOnCompletionVisualEntity.ROOT_PATH);
+    expect(vizNode.data.primaryNodeId?.name).toBe(CamelOnCompletionVisualEntity.ROOT_PATH);
     expect(vizNode.data.entity).toBe(onCompletionVisualEntity);
     expect(vizNode.data.isGroup).toBeTruthy();
     expect(vizNode.data.primaryNodeId).toEqual({

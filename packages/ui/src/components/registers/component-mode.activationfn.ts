@@ -6,9 +6,8 @@ export const componentModeActivationFn = (vizNode?: IVisualizationNode): boolean
   }
 
   return (
-    'processorName' in vizNode.data &&
-    (vizNode.data.processorName === 'to' ||
-      vizNode.data.processorName === 'toD' ||
-      vizNode.data.processorName === 'poll')
+    vizNode.data.primaryNodeId?.name === 'to' ||
+    vizNode.data.primaryNodeId?.name === 'toD' ||
+    vizNode.data.primaryNodeId?.name === 'poll'
   );
 };
