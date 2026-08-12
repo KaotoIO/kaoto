@@ -9,6 +9,7 @@ import { CITRUS_TEST_ROOT_ENTITY_NAME } from '../../citrus/citrus-catalog-index'
 import { Test, TestAction, TestActions } from '../../citrus/entities/Test';
 import { EntityType } from '../../entities';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
+import { PlaceholderType } from '../../placeholder.constants';
 import { NodeLabelType } from '../../settings';
 import {
   AddStepMode,
@@ -510,7 +511,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     const placeholderPath = `${actionsPath}.${vizNodes.length}.placeholder`;
     const previousNode = vizNodes[vizNodes.length - 1];
     const placeholderNode = createVisualizationNode(placeholderPath, {
-      name: 'placeholder',
+      name: PlaceholderType.Placeholder,
       isPlaceholder: true,
       isGroup: false,
       iconUrl: '',
@@ -518,6 +519,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
       description: '',
       processorIconTooltip: '',
       path: placeholderPath,
+      primaryNodeId: { name: PlaceholderType.Placeholder, catalogKind: CatalogKind.TestAction } satisfies NodeIdentity,
     });
     vizNodes.push(placeholderNode);
 
@@ -567,7 +569,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
       /** Empty steps branch placeholder */
       const placeholderPath = `${path}.placeholder`;
       const placeholderNode = createVisualizationNode(placeholderPath, {
-        name: 'placeholder',
+        name: PlaceholderType.Placeholder,
         isPlaceholder: true,
         isGroup: false,
         iconUrl: '',
@@ -575,6 +577,10 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
         description: '',
         processorIconTooltip: '',
         path: placeholderPath,
+        primaryNodeId: {
+          name: PlaceholderType.Placeholder,
+          catalogKind: CatalogKind.TestAction,
+        } satisfies NodeIdentity,
       });
       return [placeholderNode];
     }
@@ -604,7 +610,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     const placeholderPath = `${path}.${children.length}.placeholder`;
     const previousNode = children[children.length - 1];
     const placeholderNode = createVisualizationNode(placeholderPath, {
-      name: 'placeholder',
+      name: PlaceholderType.Placeholder,
       isPlaceholder: true,
       isGroup: false,
       iconUrl: '',
@@ -612,6 +618,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
       description: '',
       processorIconTooltip: '',
       path: placeholderPath,
+      primaryNodeId: { name: PlaceholderType.Placeholder, catalogKind: CatalogKind.TestAction } satisfies NodeIdentity,
     });
     children.push(placeholderNode);
 

@@ -11,6 +11,7 @@ import { CatalogKind } from '../../catalog-kind';
 import { CITRUS_TEST_ROOT_ENTITY_NAME } from '../../citrus/citrus-catalog-index';
 import { Test } from '../../citrus/entities/Test';
 import { EntityType } from '../../entities/base-entity';
+import { PlaceholderType } from '../../placeholder.constants';
 import { NodeLabelType } from '../../settings/settings.model';
 import { AddStepMode } from '../base-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
@@ -1330,6 +1331,18 @@ describe('CitrusTestVisualEntity', () => {
 
       expect(actionNode?.data.primaryNodeId).toEqual({
         name: actionNode?.data.name,
+        catalogKind: CatalogKind.TestAction,
+      });
+    });
+
+    it('should set primaryNodeId on placeholder nodes', async () => {
+      const vizNode = await citrusTestEntity.toVizNode();
+      const children = vizNode.getChildren()!;
+      const placeholderNode = children[children.length - 1];
+
+      expect(placeholderNode.data.isPlaceholder).toBeTruthy();
+      expect(placeholderNode.data.primaryNodeId).toEqual({
+        name: PlaceholderType.Placeholder,
         catalogKind: CatalogKind.TestAction,
       });
     });
