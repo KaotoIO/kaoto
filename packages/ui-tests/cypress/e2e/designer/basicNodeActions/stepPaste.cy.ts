@@ -102,8 +102,7 @@ describe('Tests for Design page', { browser: '!firefox' }, () => {
     });
     cy.openDesignPage();
 
-    // workaround for https://github.com/KaotoIO/kaoto/issues/2885
-    cy.forcePerformNodeAction('marshal', 'paste-as-next-step');
+    cy.selectPasteNode('marshal', 'paste-as-next-step');
     cy.checkNodeExist('amqp', 1);
 
     cy.openSourceCode();
@@ -128,8 +127,7 @@ describe('Tests for Design page', { browser: '!firefox' }, () => {
     });
     cy.openDesignPage();
 
-    // workaround for https://github.com/KaotoIO/kaoto/issues/2885
-    cy.forcePerformNodeAction('marshal', 'paste-as-next-step');
+    cy.selectPasteNode('marshal', 'paste-as-next-step');
     cy.checkNodeExist('log', 2);
 
     cy.openSourceCode();
