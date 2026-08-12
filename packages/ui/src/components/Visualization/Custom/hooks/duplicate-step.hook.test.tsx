@@ -41,7 +41,7 @@ describe('useDuplicateStep', () => {
     iconUrl: '',
     title: '',
     description: '',
-    primaryNodeId: { name: 'to', catalogKind: CatalogKind.Processor },
+    primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern },
   });
   const whenVizNode = createVisualizationNode('when', {
     name: 'when',
@@ -53,7 +53,7 @@ describe('useDuplicateStep', () => {
     iconUrl: '',
     title: '',
     description: '',
-    primaryNodeId: { name: 'when', catalogKind: CatalogKind.Processor },
+    primaryNodeId: { name: 'when', catalogKind: CatalogKind.Pattern },
   });
   const choiceVizNode = createVisualizationNode('choice', {
     name: 'choice',
@@ -65,7 +65,7 @@ describe('useDuplicateStep', () => {
     iconUrl: '',
     title: '',
     description: '',
-    primaryNodeId: { name: 'choice', catalogKind: CatalogKind.Processor },
+    primaryNodeId: { name: 'choice', catalogKind: CatalogKind.Pattern },
   });
 
   // Set parent of when node to choice node and vice versa
@@ -82,7 +82,7 @@ describe('useDuplicateStep', () => {
     iconUrl: '',
     title: '',
     description: '',
-    primaryNodeId: { name: 'route', catalogKind: CatalogKind.Processor },
+    primaryNodeId: { name: 'route', catalogKind: CatalogKind.Entity },
   });
   // Set parent of viznode to route node
   vizNode.setParentNode(routeVizNode);

@@ -96,7 +96,7 @@ describe('AbstractCamelVisualEntity', () => {
       const result = abstractVisualEntity.getNodeInteraction(
         createMockNodeData({
           name: 'from',
-          primaryNodeId: { name: 'from', catalogKind: CatalogKind.Pattern },
+          primaryNodeId: { name: 'from', catalogKind: CatalogKind.Entity },
         }),
       );
       expect(result.canHavePreviousStep).toBe(false);
@@ -258,9 +258,9 @@ describe('AbstractCamelVisualEntity', () => {
       name: 'choice',
       path: 'route.from.steps.1.choice',
       iconUrl: '/src/assets/eip/choice.png',
-      processorName: 'choice',
       componentName: undefined,
       isGroup: true,
+      primaryNodeId: { name: 'choice', catalogKind: CatalogKind.Pattern },
     });
 
     it('should prepend a new step to the model', () => {
@@ -356,7 +356,7 @@ describe('AbstractCamelVisualEntity', () => {
           componentName: 'timer',
           iconUrl: '/src/assets/components/timer.svg',
           path: 'route.from',
-          processorName: 'from' as keyof ProcessorDefinition,
+          primaryNodeId: { name: 'from', catalogKind: CatalogKind.Entity },
         }),
       });
 
@@ -405,6 +405,7 @@ describe('AbstractCamelVisualEntity', () => {
       processorName: 'choice',
       componentName: undefined,
       isGroup: true,
+      primaryNodeId: { name: 'choice', catalogKind: CatalogKind.Pattern },
     });
 
     it('should append a new step to the model', () => {
@@ -427,7 +428,7 @@ describe('AbstractCamelVisualEntity', () => {
           componentName: 'timer',
           iconUrl: '/src/assets/components/timer.svg',
           path: 'route.from',
-          processorName: 'from' as keyof ProcessorDefinition,
+          primaryNodeId: { name: 'from', catalogKind: CatalogKind.Entity },
         }),
       });
 
@@ -518,7 +519,7 @@ describe('AbstractCamelVisualEntity', () => {
   describe('getCopiedContent', () => {
     it('should return the copied content for a step', () => {
       const copiedContent = abstractVisualEntity.getCopiedContent('route.from.steps.2.to', {
-        primaryNodeId: { name: 'to', catalogKind: CatalogKind.Processor },
+        primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern },
         secondaryNodeId: undefined,
         tertiaryNodeId: undefined,
       });
@@ -540,7 +541,7 @@ describe('AbstractCamelVisualEntity', () => {
 
     it('should return undefined node default value if the path is invalid', () => {
       const copiedContent = abstractVisualEntity.getCopiedContent('route.from.steps.999.to', {
-        primaryNodeId: { name: 'to', catalogKind: CatalogKind.Processor },
+        primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern },
         secondaryNodeId: undefined,
         tertiaryNodeId: undefined,
       });

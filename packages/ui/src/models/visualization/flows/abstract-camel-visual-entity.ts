@@ -25,7 +25,7 @@ import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
 import { CamelComponentDefaultService } from './support/camel-component-default.service';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
-import { CamelProcessorStepsProperties, CamelRouteVisualEntityData } from './support/camel-component-types';
+import { CamelProcessorStepsProperties } from './support/camel-component-types';
 import { ModelValidationService } from './support/validators/model-validation.service';
 
 export abstract class AbstractCamelVisualEntity<T extends object> implements BaseVisualEntity {
@@ -374,7 +374,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
   ) {
     if (data.path === undefined) return;
     const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
-      (data as CamelRouteVisualEntityData).processorName,
+      data.primaryNodeId?.name as keyof ProcessorDefinition,
     );
 
     if (mode === AddStepMode.InsertChildStep || mode === AddStepMode.InsertSpecialChildStep) {

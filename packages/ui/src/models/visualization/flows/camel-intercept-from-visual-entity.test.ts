@@ -111,7 +111,7 @@ describe('CamelInterceptFromVisualEntity', () => {
     const vizNode = await interceptFromVisualEntity.toVizNode();
     await vizNode.fetchSchema();
 
-    expect(vizNode.data.processorName).toBe(CamelInterceptFromVisualEntity.ROOT_PATH);
+    expect(vizNode.data.primaryNodeId?.name).toBe(CamelInterceptFromVisualEntity.ROOT_PATH);
     expect(vizNode.data.entity).toBe(interceptFromVisualEntity);
     expect(vizNode.data.isGroup).toBeTruthy();
     expect(vizNode.data.primaryNodeId).toEqual({
