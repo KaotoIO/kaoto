@@ -62,22 +62,24 @@ describe('CamelOnCompletionVisualEntity', () => {
 
   describe('getNodeInteraction', () => {
     it.each([
-      { processorName: 'route', path: 'route' },
-      { processorName: 'from', path: 'from' },
-      { processorName: 'to', path: 'to' },
-      { processorName: 'log', path: 'log' },
-      { processorName: 'onException', path: 'onException' },
-      { processorName: 'onCompletion', path: 'onCompletion' },
-      { processorName: 'intercept', path: 'intercept' },
-      { processorName: 'interceptSendToEndpoint', path: 'interceptSendToEndpoint' },
-    ] as const)(`should return the correct interaction for the '%s' processor`, (data) => {
+      { primaryNodeId: { name: 'route', catalogKind: CatalogKind.Entity }, path: 'route' },
+      { primaryNodeId: { name: 'from', catalogKind: CatalogKind.Entity }, path: 'from' },
+      { primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern }, path: 'to' },
+      { primaryNodeId: { name: 'log', catalogKind: CatalogKind.Pattern }, path: 'log' },
+      { primaryNodeId: { name: 'onException', catalogKind: CatalogKind.Entity }, path: 'onException' },
+      { primaryNodeId: { name: 'onCompletion', catalogKind: CatalogKind.Entity }, path: 'onCompletion' },
+      { primaryNodeId: { name: 'intercept', catalogKind: CatalogKind.Entity }, path: 'intercept' },
+      {
+        primaryNodeId: { name: 'interceptSendToEndpoint', catalogKind: CatalogKind.Entity },
+        path: 'interceptSendToEndpoint',
+      },
+    ])(`should return the correct interaction for the '%s' processor`, (data) => {
       const onCompletionVisualEntity = new CamelOnCompletionVisualEntity({
         onCompletion: { id: 'id', mode: 'AfterConsumer' },
       });
 
       const result = onCompletionVisualEntity.getNodeInteraction({
         ...data,
-        name: data.processorName,
         isPlaceholder: false,
         isGroup: false,
         iconUrl: '',

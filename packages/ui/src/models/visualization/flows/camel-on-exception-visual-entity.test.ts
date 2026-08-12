@@ -3,6 +3,7 @@ import { OnException } from '@kaoto/camel-catalog/types';
 import { mockRandomValues } from '../../../stubs';
 import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities/base-entity';
+import { IVisualizationNodeData } from '../base-visual-entity';
 import { CamelOnExceptionVisualEntity } from './camel-on-exception-visual-entity';
 
 describe('CamelOnExceptionVisualEntity', () => {
@@ -42,30 +43,28 @@ describe('CamelOnExceptionVisualEntity', () => {
 
   describe('getNodeInteraction', () => {
     it.each([
-      { processorName: 'route', catalogKind: CatalogKind.Entity },
-      { processorName: 'from', catalogKind: CatalogKind.Entity },
-      { processorName: 'to', catalogKind: CatalogKind.Processor },
-      { processorName: 'log', catalogKind: CatalogKind.Processor },
-      { processorName: 'onException', catalogKind: CatalogKind.Entity },
-      { processorName: 'onCompletion', catalogKind: CatalogKind.Entity },
-      { processorName: 'intercept', catalogKind: CatalogKind.Entity },
-      { processorName: 'interceptFrom', catalogKind: CatalogKind.Entity },
-      { processorName: 'interceptSendToEndpoint', catalogKind: CatalogKind.Entity },
-    ])(`should return the correct interaction for the '%s' processor`, ({ processorName, catalogKind }) => {
+      { primaryNodeId: { name: 'route', catalogKind: CatalogKind.Entity } },
+      { primaryNodeId: { name: 'from', catalogKind: CatalogKind.Entity } },
+      { primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern } },
+      { primaryNodeId: { name: 'log', catalogKind: CatalogKind.Pattern } },
+      { primaryNodeId: { name: 'onException', catalogKind: CatalogKind.Entity } },
+      { primaryNodeId: { name: 'onCompletion', catalogKind: CatalogKind.Entity } },
+      { primaryNodeId: { name: 'intercept', catalogKind: CatalogKind.Entity } },
+      { primaryNodeId: { name: 'interceptFrom', catalogKind: CatalogKind.Entity } },
+      { primaryNodeId: { name: 'interceptSendToEndpoint', catalogKind: CatalogKind.Entity } },
+    ])(`should return the correct interaction for the '%s' processor`, ({ primaryNodeId }) => {
       const onExceptionDef = { onException: {} as OnException };
       const entity = new CamelOnExceptionVisualEntity(onExceptionDef);
 
       const result = entity.getNodeInteraction({
-        processorName,
-        catalogKind,
-        name: processorName,
+        primaryNodeId,
         isPlaceholder: false,
         isGroup: false,
         iconUrl: '',
         title: '',
         description: '',
         processorIconTooltip: '',
-      });
+      } as IVisualizationNodeData);
       expect(result).toMatchSnapshot();
     });
   });

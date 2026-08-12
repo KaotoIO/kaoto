@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the correct interaction for the '{ processorName: 'from', path: 'from' }' processor 1`] = `
+exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the correct interaction for the '{ primaryNodeId: { name: 'from', catalogKind: 'entity' }, path: 'from' }' processor 1`] = `
 {
   "canBeDisabled": false,
   "canHaveChildren": true,
@@ -13,7 +13,7 @@ exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the cor
 }
 `;
 
-exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the correct interaction for the '{ processorName: 'intercept', path: 'intercept' }' processor 1`] = `
+exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the correct interaction for the '{ primaryNodeId: { name: 'intercept', catalogKind: 'entity' }, path: 'intercept' }' processor 1`] = `
 {
   "canBeDisabled": false,
   "canHaveChildren": true,
@@ -26,7 +26,7 @@ exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the cor
 }
 `;
 
-exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the correct interaction for the '{ processorName: 'interceptSendToEndpoint', path: 'interceptSendToEndpoint' }' processor 1`] = `
+exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the correct interaction for the '{ primaryNodeId: { name: 'interceptSendToEndpoint', catalogKind: 'entity' }, path: 'interceptSendToEndpoint' }' processor 1`] = `
 {
   "canBeDisabled": false,
   "canHaveChildren": true,
@@ -39,7 +39,7 @@ exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the cor
 }
 `;
 
-exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the correct interaction for the '{ processorName: 'log', path: 'log' }' processor 1`] = `
+exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the correct interaction for the '{ primaryNodeId: { name: 'log', catalogKind: 'pattern' }, path: 'log' }' processor 1`] = `
 {
   "canBeDisabled": false,
   "canHaveChildren": false,
@@ -52,7 +52,7 @@ exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the cor
 }
 `;
 
-exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the correct interaction for the '{ processorName: 'onCompletion', path: 'onCompletion' }' processor 1`] = `
+exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the correct interaction for the '{ primaryNodeId: { name: 'onCompletion', catalogKind: 'entity' }, path: 'onCompletion' }' processor 1`] = `
 {
   "canBeDisabled": false,
   "canHaveChildren": true,
@@ -65,7 +65,7 @@ exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the cor
 }
 `;
 
-exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the correct interaction for the '{ processorName: 'onException', path: 'onException' }' processor 1`] = `
+exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the correct interaction for the '{ primaryNodeId: { name: 'onException', catalogKind: 'entity' }, path: 'onException' }' processor 1`] = `
 {
   "canBeDisabled": false,
   "canHaveChildren": true,
@@ -78,7 +78,7 @@ exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the cor
 }
 `;
 
-exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the correct interaction for the '{ processorName: 'route', path: 'route' }' processor 1`] = `
+exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the correct interaction for the '{ primaryNodeId: { name: 'route', catalogKind: 'entity' }, path: 'route' }' processor 1`] = `
 {
   "canBeDisabled": false,
   "canHaveChildren": false,
@@ -91,7 +91,7 @@ exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the cor
 }
 `;
 
-exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the correct interaction for the '{ processorName: 'to', path: 'to' }' processor 1`] = `
+exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the correct interaction for the '{ primaryNodeId: { name: 'to', catalogKind: 'pattern' }, path: 'to' }' processor 1`] = `
 {
   "canBeDisabled": false,
   "canHaveChildren": false,

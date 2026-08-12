@@ -9,7 +9,6 @@ import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
-import { CamelRouteVisualEntityData } from './support/camel-component-types';
 
 export class CamelOnExceptionVisualEntity
   extends AbstractCamelVisualEntity<{ onException: OnException }>
@@ -53,16 +52,18 @@ export class CamelOnExceptionVisualEntity
 
   getNodeInteraction(data: IVisualizationNodeData): NodeInteraction {
     const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
-      (data as CamelRouteVisualEntityData).processorName as keyof ProcessorDefinition,
+      data.primaryNodeId?.name as keyof ProcessorDefinition,
     );
     const canHavePreviousStep = CamelComponentSchemaService.canHavePreviousStep(
-      (data as CamelRouteVisualEntityData).processorName,
+      data.primaryNodeId?.name as keyof ProcessorDefinition,
     );
     const canHaveChildren = stepsProperties.find((property) => property.type === 'branch') !== undefined;
     const canHaveSpecialChildren = Object.keys(stepsProperties).length > 1;
     const canReplaceStep = data.path !== CamelOnExceptionVisualEntity.ROOT_PATH;
     const canRemoveStep = data.path !== CamelOnExceptionVisualEntity.ROOT_PATH;
-    const canBeDisabled = CamelComponentSchemaService.canBeDisabled((data as CamelRouteVisualEntityData).processorName);
+    const canBeDisabled = CamelComponentSchemaService.canBeDisabled(
+      data.primaryNodeId?.name as keyof ProcessorDefinition,
+    );
 
     return {
       canHavePreviousStep,
