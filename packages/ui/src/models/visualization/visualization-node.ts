@@ -124,7 +124,12 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   }
 
   getNodeDefinition(): unknown {
-    return this.getBaseEntity()?.getNodeDefinition(this.data.path);
+    const { primaryNodeId, secondaryNodeId, tertiaryNodeId } = this.data;
+    return this.getBaseEntity()?.getNodeDefinition(this.data.path, {
+      primaryNodeId,
+      secondaryNodeId,
+      tertiaryNodeId,
+    });
   }
 
   getOmitFormFields(): string[] {

@@ -38,7 +38,7 @@ export interface BaseVisualEntity extends BaseEntity {
 
   /** Given a path, returns the node's underlying definition in JSON format */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getNodeDefinition(path?: string): any;
+  getNodeDefinition(path?: string, ids?: IVisualizationNodeIds): any;
 
   /** Return fields that should be omitted when configuring this entity */
   getOmitFormFields: () => string[];
@@ -57,7 +57,7 @@ export interface BaseVisualEntity extends BaseEntity {
   }) => void;
 
   /** Given a path, get the content to be copied */
-  getCopiedContent: (path?: string, ids?: IVisualizationNodeIds) => IClipboardContent | undefined;
+  getCopiedContent: (path: string, ids: IVisualizationNodeIds) => IClipboardContent | undefined;
 
   pasteStep: (options: {
     clipboardContent: IClipboardContent;

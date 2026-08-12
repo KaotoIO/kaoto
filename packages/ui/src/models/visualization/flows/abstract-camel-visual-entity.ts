@@ -25,7 +25,11 @@ import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
 import { CamelComponentDefaultService } from './support/camel-component-default.service';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
-import { CamelProcessorStepsProperties, CamelRouteVisualEntityData } from './support/camel-component-types';
+import {
+  CamelProcessorStepsProperties,
+  CamelRouteVisualEntityData,
+  ICamelElementLookupResult,
+} from './support/camel-component-types';
 import { ModelValidationService } from './support/validators/model-validation.service';
 
 export abstract class AbstractCamelVisualEntity<T extends object> implements BaseVisualEntity {
@@ -138,11 +142,14 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     return schema;
   }
 
-  getNodeDefinition(path?: string): unknown {
+  getNodeDefinition(path?: string, ids?: IVisualizationNodeIds): unknown {
     if (!path) return undefined;
 
     const definition = getValue(this.entityDef, path);
-    const camelElementLookup = CamelComponentSchemaService.getCamelComponentLookup(path, definition);
+    const camelElementLookup = {
+      processorName: ids?.primaryNodeId?.name,
+      componentName: ids?.secondaryNodeId?.name,
+    } as ICamelElementLookupResult;
     const updatedDefinition = CamelComponentSchemaService.getUpdatedDefinition(camelElementLookup, definition);
 
     /** Overriding parameters with an empty object When the parameters property is mistakenly set to null */

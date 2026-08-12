@@ -195,13 +195,13 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     return CitrusTestSchemaService.getNodeSchema(primaryNodeId.name);
   }
 
-  getNodeDefinition(path?: string): unknown {
-    if (!path) return undefined;
+  getNodeDefinition(path?: string, ids?: IVisualizationNodeIds): unknown {
+    if (!path || !ids?.primaryNodeId?.name) return undefined;
     if (path === this.getRootPath()) {
       return this.test;
     }
 
-    const actionName = CitrusTestSchemaService.extractTestActionName(path);
+    const actionName = ids.primaryNodeId.name;
     const actionModel: TestAction = getValue(this.test, this.toModelPath(path));
 
     if (actionModel) {
