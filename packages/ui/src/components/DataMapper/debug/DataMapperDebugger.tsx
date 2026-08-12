@@ -11,7 +11,7 @@ type DataMapperDebuggerProps = {
   documentInitializationModel?: DocumentInitializationModel;
   onUpdateDocument?: (definition: DocumentDefinition) => void;
   initialXsltFile?: string;
-  onUpdateMappings?: (xsltFile: string, isSourceBodyUsed: boolean) => void;
+  onUpdateMappings?: (xsltFile: string) => void;
 };
 
 export const DataMapperDebugger: FunctionComponent<DataMapperDebuggerProps> = ({
