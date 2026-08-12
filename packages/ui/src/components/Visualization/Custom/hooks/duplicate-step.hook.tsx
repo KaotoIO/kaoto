@@ -1,3 +1,4 @@
+import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 import { useVisualizationController } from '@patternfly/react-topology';
 import { cloneDeep } from 'lodash';
@@ -8,7 +9,6 @@ import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
 import { EntityType } from '../../../../models/entities';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
-import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
 import { updateIds } from '../../../../utils/update-ids';
@@ -109,7 +109,7 @@ export const useDuplicateStep = (vizNode: IVisualizationNode) => {
       // Set an empty model to clear the graph, Fixes an issue rendering child nodes incorrectly
       if (parentVizNode?.getNodeInteraction().canHaveSpecialChildren) {
         const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
-          (parentVizNode.data as CamelRouteVisualEntityData).processorName,
+          parentVizNode.data.primaryNodeId?.name as keyof ProcessorDefinition,
         );
         if (
           stepsProperties.some(

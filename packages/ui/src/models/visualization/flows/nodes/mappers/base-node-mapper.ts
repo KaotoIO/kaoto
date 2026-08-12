@@ -42,6 +42,14 @@ export class BaseNodeMapper implements INodeMapper {
       name: componentLookup.processorName,
       catalogKind: CatalogKind.Pattern,
     };
+
+    if (
+      SPECIAL_PROCESSORS_PARENTS_MAP['routeConfiguration'].includes(
+        primaryNodeId.name as (typeof SPECIAL_PROCESSORS_PARENTS_MAP)['routeConfiguration'][number],
+      )
+    ) {
+      primaryNodeId.catalogKind = CatalogKind.Entity;
+    }
     let secondaryNodeId: NodeIdentity | undefined;
     let tertiaryNodeId: NodeIdentity | undefined;
 
