@@ -3,7 +3,6 @@ import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { DynamicCatalogRegistry } from '../dynamic-catalog/dynamic-catalog-registry';
 import { CatalogKind, createVisualizationNode, IVisualizationNode } from '../models';
 import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../models/datamapper/document';
-import { MappingTree, ValueOfSelector } from '../models/datamapper/mapping';
 import { EntitiesContextResult } from '../providers';
 import { XSLT_COMPONENT_NAME, XsltComponentDef } from '../utils';
 import { DataMapperStepService } from './datamapper-step.service';
@@ -486,7 +485,7 @@ describe('DataMapperStepService', () => {
       });
     });
 
-    it('should configure json body and managed setBody when source body is JSON and body is not used', () => {
+    it('should set useJsonBody but not insert setBody(null) when source body is JSON_SCHEMA (non-Primitive)', () => {
       const model = {
         id: 'step-id',
         steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl`, parameters: {} } } as ProcessorDefinition],
@@ -501,24 +500,50 @@ describe('DataMapperStepService', () => {
         'Body',
       );
 
-      DataMapperStepService.setSourceBody(vizNode, sourceBodyDocument, false, mockEntitiesContext);
+      // JSON_SCHEMA is non-Primitive → body is used, so setBody(null) should NOT be inserted
+      DataMapperStepService.setSourceBody(vizNode, sourceBodyDocument, mockEntitiesContext);
 
       expect(updateModelSpy).toHaveBeenCalled();
       expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
-      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-      expect((model.steps[0] as any).setBody).toBeDefined();
-      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-      expect((model.steps[0] as any).setBody.simple.expression).toBe('${null}');
-      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-      expect(((model.steps[1] as any).to as any)?.parameters?.useJsonBody).toBe(true);
+      // useJsonBody should be set because definition type is JSON_SCHEMA
+      expect(model.steps).toHaveLength(1);
+      expect(
+        (model.steps[0] as ProcessorDefinition & { to: { parameters: Record<string, unknown> } }).to.parameters
+          ?.useJsonBody,
+      ).toBe(true);
     });
 
-    it('should remove managed setBody and keep useJsonBody when body is used', () => {
+    it('should insert setBody(null) and not set useJsonBody when source body is Primitive', () => {
+      const model = {
+        id: 'step-id',
+        steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl`, parameters: {} } } as ProcessorDefinition],
+      };
+
+      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
+
+      const sourceBodyDocument = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.Primitive,
+        'Body',
+      );
+
+      // Primitive → body is not used → setBody(null) should be inserted
+      DataMapperStepService.setSourceBody(vizNode, sourceBodyDocument, mockEntitiesContext);
+
+      expect(updateModelSpy).toHaveBeenCalled();
+      expect(model.steps).toHaveLength(2);
+      expect(model.steps[0]).toHaveProperty('setBody');
+      expect(model.steps[0]).toHaveProperty('setBody.expression.simple.expression', '${null}');
+    });
+
+    it('should remove managed setBody when source body is XML_SCHEMA (non-Primitive)', () => {
       const model = {
         id: 'step-id',
         steps: [
-          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-          { setBody: { id: 'set-body-id', simple: { expression: '${null}' } } } as any,
+          {
+            setBody: { id: 'kaoto-datamapper-set-body-1234', expression: { simple: { expression: '${null}' } } },
+          } as ProcessorDefinition,
           { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl`, parameters: {} } } as ProcessorDefinition,
         ],
       };
@@ -528,40 +553,30 @@ describe('DataMapperStepService', () => {
 
       const sourceBodyDocument = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
-        DocumentDefinitionType.JSON_SCHEMA,
+        DocumentDefinitionType.XML_SCHEMA,
         'Body',
       );
 
-      DataMapperStepService.setSourceBody(vizNode, sourceBodyDocument, true, mockEntitiesContext);
+      DataMapperStepService.setSourceBody(vizNode, sourceBodyDocument, mockEntitiesContext);
 
       expect(updateModelSpy).toHaveBeenCalled();
-      expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
       expect(model.steps).toHaveLength(1);
-      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-      expect(((model.steps[0] as any).to as any)?.parameters?.useJsonBody).toBe(true);
-    });
-  });
-
-  describe('isSourceBodyUsed', () => {
-    it('should return false for an empty mapping tree', () => {
-      const tree = new MappingTree(DocumentType.TARGET_BODY, 'Body', DocumentDefinitionType.Primitive);
-      expect(DataMapperStepService.isSourceBodyUsed(tree)).toBe(false);
+      expect(model.steps[0]).toHaveProperty('to');
     });
 
-    it('should return false when all expressions reference parameters (have documentReferenceName)', () => {
-      const tree = new MappingTree(DocumentType.TARGET_BODY, 'Body', DocumentDefinitionType.XML_SCHEMA);
-      const selector = new ValueOfSelector(tree);
-      selector.expression = '$myParam/field';
-      tree.children.push(selector);
-      expect(DataMapperStepService.isSourceBodyUsed(tree)).toBe(false);
-    });
+    it('should insert setBody(null) when sourceBodyDocument is undefined', () => {
+      const model = {
+        id: 'step-id',
+        steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl`, parameters: {} } } as ProcessorDefinition],
+      };
 
-    it('should return true when an expression references the source body (no documentReferenceName)', () => {
-      const tree = new MappingTree(DocumentType.TARGET_BODY, 'Body', DocumentDefinitionType.XML_SCHEMA);
-      const selector = new ValueOfSelector(tree);
-      selector.expression = '/rootElement/field';
-      tree.children.push(selector);
-      expect(DataMapperStepService.isSourceBodyUsed(tree)).toBe(true);
+      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+
+      DataMapperStepService.setSourceBody(vizNode, undefined, mockEntitiesContext);
+
+      expect(model.steps).toHaveLength(2);
+      expect(model.steps[0]).toHaveProperty('setBody');
+      expect(model.steps[0]).toHaveProperty('setBody.expression.simple.expression', '${null}');
     });
   });
 
@@ -592,10 +607,8 @@ describe('DataMapperStepService', () => {
       expect(updateModelSpy).toHaveBeenCalledWith(model);
       expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
       expect(model.steps).toHaveLength(2);
-      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-      expect((model.steps[0] as any).setBody).toBeDefined();
-      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-      expect((model.steps[0] as any).setBody.simple.expression).toBe('${null}');
+      expect(model.steps[0]).toHaveProperty('setBody');
+      expect(model.steps[0]).toHaveProperty('setBody.expression.simple.expression', '${null}');
     });
 
     it('should not insert setBody(null) when body is used', () => {
@@ -612,12 +625,13 @@ describe('DataMapperStepService', () => {
       expect(model.steps).toHaveLength(1);
     });
 
-    it('should remove setBody(null) when body becomes used', () => {
+    it('should remove setBody(null) when body becomes used — verbose form', () => {
       const model = {
         id: 'step-id',
         steps: [
-          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-          { setBody: { id: 'set-body-id', simple: { expression: '${null}' } } } as any,
+          {
+            setBody: { id: 'kaoto-datamapper-set-body-1234', expression: { simple: { expression: '${null}' } } },
+          } as ProcessorDefinition,
           { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
         ],
       };
@@ -629,16 +643,16 @@ describe('DataMapperStepService', () => {
       expect(updateModelSpy).toHaveBeenCalledWith(model);
       expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
       expect(model.steps).toHaveLength(1);
-      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-      expect((model.steps[0] as any).to).toBeDefined();
+      expect(model.steps[0]).toHaveProperty('to');
     });
 
-    it('should remove setBody with ${null} expression when body becomes used', () => {
+    it('should remove setBody(null) when body becomes used — short form', () => {
       const model = {
         id: 'step-id',
         steps: [
-          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-          { setBody: { id: 'set-body-id', simple: { expression: '${null}' } } } as any,
+          {
+            setBody: { id: 'kaoto-datamapper-set-body-5678', simple: { expression: '${null}' } },
+          } as ProcessorDefinition,
           { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
         ],
       };
@@ -650,16 +664,14 @@ describe('DataMapperStepService', () => {
       expect(updateModelSpy).toHaveBeenCalledWith(model);
       expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
       expect(model.steps).toHaveLength(1);
-      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-      expect((model.steps[0] as any).to).toBeDefined();
+      expect(model.steps[0]).toHaveProperty('to');
     });
 
     it('should not remove a non-null setBody step when body becomes used', () => {
       const model = {
         id: 'step-id',
         steps: [
-          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-          { setBody: { id: 'set-body-id', simple: { expression: '${body}' } } } as any,
+          { setBody: { id: 'set-body-id', expression: { simple: { expression: '${body}' } } } } as ProcessorDefinition,
           { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
         ],
       };
@@ -676,8 +688,9 @@ describe('DataMapperStepService', () => {
       const model = {
         id: 'step-id',
         steps: [
-          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-          { setBody: { id: 'set-body-id', simple: { expression: '${null}' } } } as any,
+          {
+            setBody: { id: 'kaoto-datamapper-set-body-1234', expression: { simple: { expression: '${null}' } } },
+          } as ProcessorDefinition,
           { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
         ],
       };
@@ -688,27 +701,6 @@ describe('DataMapperStepService', () => {
 
       expect(updateModelSpy).not.toHaveBeenCalled();
       expect(model.steps).toHaveLength(2);
-    });
-
-    it('should normalize an existing non-managed setBody step to empty constant instead of adding another one', () => {
-      const model = {
-        id: 'step-id',
-        steps: [
-          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-          { setBody: { id: 'set-body-id', expression: { simple: { expression: '${body}' } } } } as any,
-          { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
-        ],
-      };
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
-      const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
-
-      DataMapperStepService.syncSetBodyNullStep(vizNode, false, mockEntitiesContext);
-
-      expect(updateModelSpy).toHaveBeenCalledWith(model);
-      expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
-      expect(model.steps).toHaveLength(2);
-      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-      expect((model.steps[0] as any)?.setBody?.simple?.expression).toBe('${null}');
     });
 
     it('should do nothing when steps is undefined', () => {
