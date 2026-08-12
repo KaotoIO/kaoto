@@ -10,10 +10,9 @@ import { NonStringEIP } from '../../camel/types';
 import { CatalogKind } from '../../catalog-kind';
 import { PlaceholderType } from '../../placeholder.constants';
 import { NodeLabelType } from '../../settings';
-import { AddStepMode } from '../base-visual-entity';
+import { AddStepMode, IVisualizationNodeData } from '../base-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRouteVisualEntity } from './camel-route-visual-entity';
-import { CamelRouteVisualEntityData } from './support/camel-component-types';
 
 describe('AbstractCamelVisualEntity', () => {
   let abstractVisualEntity: CamelRouteVisualEntity;
@@ -39,20 +38,18 @@ describe('AbstractCamelVisualEntity', () => {
   });
 
   // Test helper to create mock node data with consistent defaults
-  const createMockNodeData = (overrides: Partial<CamelRouteVisualEntityData> = {}): CamelRouteVisualEntityData =>
-    ({
-      name: 'log',
-      path: 'route.from.steps.0.to',
-      processorName: 'to',
-      componentName: 'log',
-      isPlaceholder: false,
-      isGroup: false,
-      iconUrl: '',
-      title: 'Log',
-      description: '',
-      processorIconTooltip: '',
-      ...overrides,
-    }) as CamelRouteVisualEntityData;
+  const createMockNodeData = (overrides: Partial<IVisualizationNodeData> = {}): IVisualizationNodeData => ({
+    name: 'log',
+    path: 'route.from.steps.0.to',
+    isPlaceholder: false,
+    isGroup: false,
+    iconUrl: '',
+    title: 'Log',
+    description: '',
+    processorIconTooltip: '',
+    primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern },
+    ...overrides,
+  });
 
   describe('getNodeLabel', () => {
     it('should return an empty string if the path is `undefined`', () => {
@@ -97,7 +94,10 @@ describe('AbstractCamelVisualEntity', () => {
   describe('getNodeInteraction', () => {
     it('should not allow marked processors to have previous/next steps', () => {
       const result = abstractVisualEntity.getNodeInteraction(
-        createMockNodeData({ name: 'from', processorName: 'from' as keyof ProcessorDefinition, title: 'From' }),
+        createMockNodeData({
+          name: 'from',
+          primaryNodeId: { name: 'from', catalogKind: CatalogKind.Pattern },
+        }),
       );
       expect(result.canHavePreviousStep).toBe(false);
       expect(result.canHaveNextStep).toBe(false);
@@ -105,7 +105,10 @@ describe('AbstractCamelVisualEntity', () => {
 
     it('should allow processors to have previous/next steps', () => {
       const result = abstractVisualEntity.getNodeInteraction(
-        createMockNodeData({ name: 'to', processorName: 'to', title: 'To' }),
+        createMockNodeData({
+          name: 'to',
+          primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern },
+        }),
       );
       expect(result.canHavePreviousStep).toBe(true);
       expect(result.canHaveNextStep).toBe(true);
@@ -125,8 +128,7 @@ describe('AbstractCamelVisualEntity', () => {
       const result = abstractVisualEntity.getNodeInteraction(
         createMockNodeData({
           name: processorName,
-          processorName: processorName as keyof ProcessorDefinition,
-          title: 'From',
+          primaryNodeId: { name: processorName, catalogKind: CatalogKind.Pattern },
         }),
       );
       expect(result).toMatchSnapshot();

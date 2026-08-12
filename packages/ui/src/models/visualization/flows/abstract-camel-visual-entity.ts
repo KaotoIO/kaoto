@@ -268,14 +268,14 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
   }
 
   getNodeInteraction(data: IVisualizationNodeData): NodeInteraction {
-    const processorName = (data as CamelRouteVisualEntityData).processorName;
+    const processorName = data.primaryNodeId?.name as keyof ProcessorDefinition;
     const canHavePreviousStep = CamelComponentSchemaService.canHavePreviousStep(processorName);
     const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(processorName);
     const canHaveChildren = stepsProperties.some((property) => property.type === 'branch');
     const canHaveSpecialChildren = Object.keys(stepsProperties).length > 1;
     const canReplaceStep = CamelComponentSchemaService.canReplaceStep(processorName);
-    const canRemoveStep = !CamelComponentSchemaService.DISABLED_REMOVE_STEPS.includes(processorName);
     const canRemoveFlow = data.path === this.getRootPath();
+    const canRemoveStep = !canRemoveFlow && !CamelComponentSchemaService.DISABLED_REMOVE_STEPS.includes(processorName);
     const canBeDisabled = CamelComponentSchemaService.canBeDisabled(processorName);
 
     return {

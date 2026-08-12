@@ -8,7 +8,6 @@ import { BaseVisualEntity, IVisualizationNode, IVisualizationNodeData, NodeInter
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { NodeMapperService } from './nodes/node-mapper.service';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
-import { CamelRouteVisualEntityData } from './support/camel-component-types';
 
 export class CamelInterceptFromVisualEntity
   extends AbstractCamelVisualEntity<{ interceptFrom: InterceptFrom }>
@@ -67,16 +66,18 @@ export class CamelInterceptFromVisualEntity
 
   getNodeInteraction(data: IVisualizationNodeData): NodeInteraction {
     const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
-      (data as CamelRouteVisualEntityData).processorName as keyof ProcessorDefinition,
+      data.primaryNodeId?.name as keyof ProcessorDefinition,
     );
     const canHavePreviousStep = CamelComponentSchemaService.canHavePreviousStep(
-      (data as CamelRouteVisualEntityData).processorName,
+      data.primaryNodeId?.name as keyof ProcessorDefinition,
     );
     const canHaveChildren = stepsProperties.some((property) => property.type === 'branch');
     const canHaveSpecialChildren = Object.keys(stepsProperties).length > 1;
     const canReplaceStep = data.path !== CamelInterceptFromVisualEntity.ROOT_PATH;
     const canRemoveStep = data.path !== CamelInterceptFromVisualEntity.ROOT_PATH;
-    const canBeDisabled = CamelComponentSchemaService.canBeDisabled((data as CamelRouteVisualEntityData).processorName);
+    const canBeDisabled = CamelComponentSchemaService.canBeDisabled(
+      data.primaryNodeId?.name as keyof ProcessorDefinition,
+    );
 
     return {
       canHavePreviousStep,
