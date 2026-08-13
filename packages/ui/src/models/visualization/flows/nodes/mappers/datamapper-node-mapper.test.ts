@@ -34,10 +34,10 @@ describe('DataMapperNodeMapper', () => {
       expect(vizNode.getChildren()).toBeUndefined();
     });
 
-    it('should populate primaryNodeId', async () => {
+    it('should populate primaryNodeId with CatalogKind.Pattern so the schema is resolved from the patterns catalog', async () => {
       const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
 
-      expect(vizNode.data.primaryNodeId).toEqual({ name: DATAMAPPER_ID_PREFIX, catalogKind: CatalogKind.Processor });
+      expect(vizNode.data.primaryNodeId).toEqual({ name: DATAMAPPER_ID_PREFIX, catalogKind: CatalogKind.Pattern });
     });
 
     it('should assign an unique ID for each DataMapper steps', async () => {
