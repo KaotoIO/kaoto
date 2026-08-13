@@ -26,11 +26,11 @@ export class DataMapperNodeMapper extends BaseNodeMapper {
       iconUrl: '',
       title: '',
       description: '',
-      primaryNodeId: { name: processorName, catalogKind: CatalogKind.Processor } satisfies NodeIdentity,
+      primaryNodeId: { name: processorName, catalogKind: CatalogKind.Pattern } satisfies NodeIdentity,
     };
 
     const vizNode = createVisualizationNode(path + ':' + processorName, data);
-    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Processor);
+    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Pattern);
     return vizNode;
   }
 
