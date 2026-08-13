@@ -18,7 +18,6 @@ import { DoTry } from '@kaoto/camel-catalog/types';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
 import { CatalogKind, ICamelComponentDefinition, ICamelProcessorProperty } from '../../../models';
-import { CamelComponentSchemaService } from '../../../models/visualization/flows/support/camel-component-schema.service';
 import { CamelUriHelper, ParsedParameters } from '../../../utils';
 import { ARRAY_TYPE_NAMES, PROCESSOR_NAMES } from '../utils/xml-utils';
 import { ExpressionXmlSerializer } from './expression-xml-serializer';
@@ -224,24 +223,30 @@ export class StepXmlSerializer {
 
   static async createUriFromParameters(step: ElementType): Promise<string> {
     const uri = step.uri as string;
-    const camelElementLookup = CamelComponentSchemaService.getCamelComponentLookup('from', step);
-    if (camelElementLookup.componentName === undefined) return uri;
+    const names = CamelUriHelper.getComponentAndKameletName(uri);
+    if (names.componentName === undefined) return uri;
 
-    const catalogResult = await CamelComponentSchemaService.resolveCatalogLookup(camelElementLookup.componentName);
-
-    if (catalogResult?.catalogKind === CatalogKind.Kamelet && catalogResult.definition !== undefined) {
-      // Kamelets don't use syntax-based URI building
-      return step.parameters && Object.keys(step.parameters).length > 0
-        ? CamelUriHelper.getUriStringFromParameters(uri, '', step.parameters as ParsedParameters)
-        : uri;
+    if ('kameletName' in names) {
+      // Kamelet URI: resolve by tertiaryNodeId (kameletName); kamelets don't use syntax-based URI building
+      const kameletDefinition = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Kamelet, names.kameletName);
+      if (kameletDefinition !== undefined) {
+        return step.parameters && Object.keys(step.parameters).length > 0
+          ? CamelUriHelper.getUriStringFromParameters(uri, '', step.parameters as ParsedParameters)
+          : uri;
+      }
     }
 
-    const componentDefinition = catalogResult?.definition as ICamelComponentDefinition | undefined;
+    // Regular component: resolve by secondaryNodeId (componentName)
+    const componentDefinition = (await DynamicCatalogRegistry.get().getEntity(
+      CatalogKind.Component,
+      names.componentName,
+    )) as ICamelComponentDefinition | undefined;
+
     if (componentDefinition?.component.syntax !== undefined) {
       return this.buildUriFromComponentDefinition(uri, step.parameters as ParsedParameters, componentDefinition);
     }
 
-    // This fallback applies only when the component does not define a syntax (e.g., for Kamelets or Components without syntax).
+    // Fallback: component not found or has no syntax
     return step.parameters && Object.keys(step.parameters).length > 0
       ? CamelUriHelper.getUriStringFromParameters(uri, '', step.parameters as ParsedParameters)
       : uri;
