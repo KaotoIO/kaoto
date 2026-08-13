@@ -494,7 +494,7 @@ describe('ExpansionPanel', () => {
 
       expect(mockSetExpanded).not.toHaveBeenCalled();
       const panel = screen.getByText('Test Summary').closest('.expansion-panel');
-      expect(panel).toHaveAttribute('data-expanded', 'true')
+      expect(panel).toHaveAttribute('data-expanded', 'true');
     });
   });
 
