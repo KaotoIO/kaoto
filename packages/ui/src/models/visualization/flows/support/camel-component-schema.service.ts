@@ -3,12 +3,11 @@ import { isDefined } from '@kaoto/forms';
 import { cloneDeep } from 'lodash';
 
 import { DynamicCatalogRegistry } from '../../../../dynamic-catalog/dynamic-catalog-registry';
-import { CamelUriHelper, DATAMAPPER_ID_PREFIX, getValue, isDataMapperNode, ParsedParameters } from '../../../../utils';
+import { CamelUriHelper, DATAMAPPER_ID_PREFIX, isDataMapperNode, ParsedParameters } from '../../../../utils';
 import { ICamelComponentDefinition } from '../../../camel/camel-components-catalog';
 import { IKameletDefinition } from '../../../camel/kamelets-catalog';
 import { CatalogKind } from '../../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../../kaoto-schema';
-import { NodeLabelType } from '../../../settings/settings.model';
 import { REST_DSL_VERBS } from '../../../special-processors.constants';
 import { IClipboardContent } from '../../clipboard';
 import { CamelCatalogService } from '../camel-catalog.service';
@@ -117,52 +116,6 @@ export class CamelComponentSchemaService {
     return this.getCamelElement(previousPathSegment as keyof ProcessorDefinition, definition);
   }
 
-  static getNodeLabel(
-    camelElementLookup: ICamelElementLookupResult,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    definition?: any,
-    labelType?: NodeLabelType,
-  ): string {
-    const id: string | undefined = getValue(definition, 'id');
-    if (labelType === NodeLabelType.Id && id) {
-      return id;
-    }
-
-    const description: string | undefined = getValue(definition, 'description');
-    if (description) {
-      return description;
-    }
-
-    const semanticString = CamelUriHelper.getSemanticString(camelElementLookup, definition);
-    if (camelElementLookup.componentName !== undefined) {
-      return semanticString ?? camelElementLookup.componentName;
-    }
-
-    const uriString = CamelUriHelper.getUriString(definition);
-    switch (camelElementLookup.processorName) {
-      case 'route' as keyof ProcessorDefinition:
-      case 'errorHandler' as keyof ProcessorDefinition:
-      case 'onException' as keyof ProcessorDefinition:
-      case 'onCompletion' as keyof ProcessorDefinition:
-      case 'intercept' as keyof ProcessorDefinition:
-      case 'interceptFrom' as keyof ProcessorDefinition:
-      case 'interceptSendToEndpoint' as keyof ProcessorDefinition:
-      case 'step':
-        return id ?? camelElementLookup.processorName;
-
-      case 'from' as keyof ProcessorDefinition:
-        return uriString ?? 'from: Unknown';
-
-      case 'to':
-      case 'toD':
-      case 'poll':
-        return semanticString ?? uriString ?? camelElementLookup.processorName;
-
-      default:
-        return camelElementLookup.processorName;
-    }
-  }
-
   static canHavePreviousStep(processorName: keyof ProcessorDefinition): boolean {
     return !this.DISABLED_SIBLING_STEPS.includes(processorName);
   }
@@ -223,25 +176,6 @@ export class CamelComponentSchemaService {
       default:
         return [];
     }
-  }
-
-  static getIconName(camelElementLookup: ICamelElementLookupResult): string | undefined {
-    if (isDefined(camelElementLookup.componentName)) {
-      const catalogLookup = CamelCatalogService.getCatalogLookup(camelElementLookup.componentName);
-      if (isDefined(catalogLookup.definition)) {
-        return camelElementLookup.componentName;
-      }
-    }
-
-    if (
-      isDefined(camelElementLookup.processorName) &&
-      !isDefined(camelElementLookup.componentName) &&
-      isDefined(CamelCatalogService.getComponent(CatalogKind.Processor, camelElementLookup.processorName))
-    ) {
-      return camelElementLookup.processorName;
-    }
-
-    return '';
   }
 
   /**

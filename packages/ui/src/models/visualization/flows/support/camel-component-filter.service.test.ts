@@ -20,6 +20,7 @@ import {
   processorWhenTile,
   tiles,
 } from '../../../../stubs';
+import { CatalogKind } from '../../../catalog-kind';
 import { EntityType } from '../../../entities';
 import { PlaceholderType } from '../../../placeholder.constants';
 import { AddStepMode } from '../../base-visual-entity';
@@ -79,6 +80,7 @@ describe('CamelComponentFilterService', () => {
           {
             name: 'circuitBreaker',
             path: 'route.from.steps.0.circuitBreaker',
+            primaryNodeId: { name: 'circuitBreaker', catalogKind: CatalogKind.Pattern },
             processorName: 'circuitBreaker',
             label: 'Circuit Breaker',
             isPlaceholder: false,
@@ -99,6 +101,7 @@ describe('CamelComponentFilterService', () => {
           {
             name: 'circuitBreaker',
             path: 'route.from.steps.0.circuitBreaker',
+            primaryNodeId: { name: 'circuitBreaker', catalogKind: CatalogKind.Pattern },
             processorName: 'circuitBreaker',
             label: 'Circuit Breaker',
             isPlaceholder: false,
@@ -121,6 +124,7 @@ describe('CamelComponentFilterService', () => {
           {
             name: 'choice',
             path: 'route.from.steps.0.choice',
+            primaryNodeId: { name: 'choice', catalogKind: CatalogKind.Pattern },
             processorName: 'choice',
             label: 'Choice',
             isPlaceholder: false,
@@ -141,6 +145,7 @@ describe('CamelComponentFilterService', () => {
           {
             name: 'choice',
             path: 'route.from.steps.0.choice',
+            primaryNodeId: { name: 'choice', catalogKind: CatalogKind.Pattern },
             processorName: 'choice',
             label: 'Choice',
             isPlaceholder: false,
@@ -163,6 +168,7 @@ describe('CamelComponentFilterService', () => {
           {
             name: 'doTry',
             path: 'route.from.steps.0.doTry',
+            primaryNodeId: { name: 'doTry', catalogKind: CatalogKind.Pattern },
             processorName: 'doTry',
             label: 'Do Try',
             isPlaceholder: false,
@@ -183,6 +189,7 @@ describe('CamelComponentFilterService', () => {
           {
             name: 'doTry',
             path: 'route.from.steps.0.doTry',
+            primaryNodeId: { name: 'doTry', catalogKind: CatalogKind.Pattern },
             processorName: 'doTry',
             label: 'Do Try',
             isPlaceholder: false,
@@ -228,6 +235,7 @@ describe('CamelComponentFilterService', () => {
         {
           name: EntityType.RouteConfiguration,
           path: 'routeConfiguration',
+          primaryNodeId: { name: EntityType.RouteConfiguration, catalogKind: CatalogKind.Entity },
           processorName: 'routeConfiguration' as keyof ProcessorDefinition,
           label: 'RouteConfiguration',
           isPlaceholder: false,
@@ -380,6 +388,7 @@ describe('CamelComponentFilterService', () => {
         {
           name: 'choice',
           path: 'template.from.steps.0.choice',
+          primaryNodeId: { name: 'choice', catalogKind: CatalogKind.Pattern },
           processorName: 'choice',
           label: 'Choice',
           isPlaceholder: false,
@@ -400,6 +409,7 @@ describe('CamelComponentFilterService', () => {
         {
           name: 'choice',
           path: 'template.from.steps.0.choice',
+          primaryNodeId: { name: 'choice', catalogKind: CatalogKind.Pattern },
           processorName: 'choice',
           label: 'Choice',
           isPlaceholder: false,
