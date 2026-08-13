@@ -1,5 +1,5 @@
 import { DraggableObject } from '@patternfly/react-drag-drop';
-import { createEvent, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, createEvent, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent } from 'react';
 
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../../models/datamapper/document';
@@ -480,7 +480,9 @@ describe('MappingContextMenuAction', () => {
 
   describe('Single open menu enforcement', () => {
     afterEach(() => {
-      useDocumentTreeStore.getState().setOpenMappingMenuId(null);
+      act(() => {
+        useDocumentTreeStore.getState().setOpenMappingMenuId(null);
+      });
     });
 
     it('should close first menu when second menu toggle is clicked', async () => {
@@ -501,17 +503,17 @@ describe('MappingContextMenuAction', () => {
         </>,
       );
 
-      const toggles = screen.getAllByTestId('transformation-actions-menu-toggle');
+      const [firstToggle, secondToggle] = screen.getAllByTestId('transformation-actions-menu-toggle');
 
-      fireEvent.click(toggles[0]);
+      fireEvent.click(firstToggle);
       await waitFor(() => {
-        expect(toggles[0].getAttribute('aria-expanded')).toBe('true');
+        expect(firstToggle.getAttribute('aria-expanded')).toBe('true');
       });
 
-      fireEvent.click(toggles[1]);
+      fireEvent.click(secondToggle);
       await waitFor(() => {
-        expect(toggles[0].getAttribute('aria-expanded')).toBe('false');
-        expect(toggles[1].getAttribute('aria-expanded')).toBe('true');
+        expect(firstToggle.getAttribute('aria-expanded')).toBe('false');
+        expect(secondToggle.getAttribute('aria-expanded')).toBe('true');
       });
     });
   });
