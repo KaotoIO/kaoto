@@ -8,7 +8,6 @@ import { DATAMAPPER_ID_PREFIX, XSLT_COMPONENT_NAME } from '../../../../utils';
 import { ICamelComponentDefinition } from '../../../camel/camel-components-catalog';
 import { IKameletDefinition } from '../../../camel/kamelets-catalog';
 import { CatalogKind } from '../../../catalog-kind';
-import { NodeLabelType } from '../../../settings/settings.model';
 import { IClipboardContent } from '../../clipboard';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelComponentSchemaService } from './camel-component-schema.service';
@@ -289,128 +288,6 @@ describe('CamelComponentSchemaService', () => {
     });
   });
 
-  describe('getNodeLabel', () => {
-    it('should return the component name if provided', () => {
-      const label = CamelComponentSchemaService.getNodeLabel(
-        { processorName: 'from' as keyof ProcessorDefinition, componentName: 'timer' },
-        {},
-      );
-
-      expect(label).toBe('timer');
-    });
-
-    it.each([
-      [
-        { processorName: 'route' },
-        { id: 'route-1234', description: 'My Route description', from: { uri: 'timer' } },
-        'My Route description',
-      ],
-      [
-        { processorName: 'route' },
-        { id: 'route-1234', from: { uri: 'timer', parameters: { timerName: 'foo' }, description: '' } },
-        'route-1234',
-      ],
-      [{ processorName: 'from' }, { uri: 'timer', parameters: { timerName: 'foo' }, description: '' }, 'timer'],
-      [
-        { processorName: 'from' },
-        { uri: 'timer', parameters: { timerName: 'foo' }, description: 'this is a description' },
-        'this is a description',
-      ],
-      [
-        { processorName: 'from' },
-        { uri: 'timer', parameters: { timerName: 'foo', delay: 1000, period: 1000 } },
-        'timer',
-      ],
-      [{ processorName: 'from' }, {}, 'from: Unknown'],
-      [{ processorName: 'from', id: 'from-1234', uri: '' }, {}, 'from: Unknown'],
-      [{ processorName: 'from', uri: '' }, {}, 'from: Unknown'],
-      [{ processorName: 'from', uri: null }, {}, 'from: Unknown'],
-      [{ processorName: 'from', uri: 10 }, {}, 'from: Unknown'],
-      [{ processorName: 'from', uri: undefined }, {}, 'from: Unknown'],
-      [{ processorName: 'to' }, { uri: 'timer', parameters: { timerName: 'foo' } }, 'timer'],
-      [{ processorName: 'to' }, {}, 'to'],
-      [{ processorName: 'to' }, undefined, 'to'],
-      [{ processorName: 'to' }, null, 'to'],
-      [{ processorName: 'to' }, '', 'to'],
-      [
-        { processorName: 'to', componentName: 'direct' },
-        { uri: 'direct', parameters: { name: 'anotherWorld' } },
-        'anotherWorld',
-      ],
-      [{ processorName: 'toD' }, { uri: 'timer', parameters: { timerName: 'foo' } }, 'timer'],
-      [{ processorName: 'toD' }, {}, 'toD'],
-      [{ processorName: 'toD' }, undefined, 'toD'],
-      [{ processorName: 'toD' }, null, 'toD'],
-      [{ processorName: 'toD' }, '', 'toD'],
-      [
-        { processorName: 'toD', componentName: 'direct' },
-        { uri: 'direct', parameters: { name: 'anotherWorld' } },
-        'anotherWorld',
-      ],
-      [{ processorName: 'poll' }, { uri: 'timer', parameters: { timerName: 'foo' } }, 'timer'],
-      [{ processorName: 'poll' }, {}, 'poll'],
-      [{ processorName: 'poll' }, undefined, 'poll'],
-      [{ processorName: 'poll' }, null, 'poll'],
-      [{ processorName: 'poll' }, '', 'poll'],
-      [
-        { processorName: 'poll', componentName: 'direct' },
-        { uri: 'direct', parameters: { name: 'anotherWorld' } },
-        'anotherWorld',
-      ],
-      [{ processorName: 'choice' }, {}, 'choice'],
-      [{ processorName: 'otherwise' }, {}, 'otherwise'],
-      [{ processorName: 'errorHandler' }, { id: 'errorHandler-1234', description: 'Error Handler' }, 'Error Handler'],
-      [{ processorName: 'errorHandler' }, { id: 'errorHandler-1234' }, 'errorHandler-1234'],
-      [{ processorName: 'onException' }, { id: 'onException-1234', description: 'On Exception' }, 'On Exception'],
-      [{ processorName: 'onException' }, { id: 'onException-1234' }, 'onException-1234'],
-      [{ processorName: 'onCompletion' }, { id: 'onCompletion-1234', description: 'On Completion' }, 'On Completion'],
-      [{ processorName: 'onCompletion' }, { id: 'onCompletion-1234' }, 'onCompletion-1234'],
-      [{ processorName: 'intercept' }, { id: 'intercept-1234', description: 'Intercept' }, 'Intercept'],
-      [{ processorName: 'intercept' }, { id: 'intercept-1234' }, 'intercept-1234'],
-      [{ processorName: 'interceptFrom' }, { id: 'interceptFrom-1234', description: 'InterceptFrom' }, 'InterceptFrom'],
-      [{ processorName: 'interceptFrom' }, { id: 'interceptFrom-1234' }, 'interceptFrom-1234'],
-      [
-        { processorName: 'interceptSendToEndpoint' },
-        { id: 'interceptSendToEndpoint-1234', description: 'InterceptSendToEndpoint' },
-        'InterceptSendToEndpoint',
-      ],
-      [
-        { processorName: 'interceptSendToEndpoint' },
-        { id: 'interceptSendToEndpoint-1234' },
-        'interceptSendToEndpoint-1234',
-      ],
-      [{ processorName: 'step' }, { id: 'kaoto-datamapper-1234' }, 'kaoto-datamapper-1234'],
-      [{ processorName: 'step' }, { id: 'step-1234' }, 'step-1234'],
-    ] as Array<[ICamelElementLookupResult, unknown, string]>)(
-      'should return the processor name if the component name is not provided: %s [%s]',
-      (componentLookup, definition, result) => {
-        const label = CamelComponentSchemaService.getNodeLabel(componentLookup, definition);
-
-        expect(label).toEqual(result);
-      },
-    );
-
-    it('should favor `id` when asked for the label', () => {
-      const label = CamelComponentSchemaService.getNodeLabel(
-        { processorName: 'to', componentName: 'log' },
-        { id: 'to-1234', description: 'My Logger', uri: 'log' },
-        NodeLabelType.Id,
-      );
-
-      expect(label).toBe('to-1234');
-    });
-
-    it('should favor `description` when asked for the label', () => {
-      const label = CamelComponentSchemaService.getNodeLabel(
-        { processorName: 'to', componentName: 'log' },
-        { id: 'to-1234', description: 'My Logger', uri: 'log' },
-        NodeLabelType.Description,
-      );
-
-      expect(label).toBe('My Logger');
-    });
-  });
-
   describe('canHavePreviousStep', () => {
     it.each([
       ['from', false],
@@ -531,79 +408,16 @@ describe('CamelComponentSchemaService', () => {
     );
   });
 
-  describe('getIconName', () => {
-    it('should return the component name if provided', () => {
-      const iconName = CamelComponentSchemaService.getIconName({
-        processorName: 'from' as keyof ProcessorDefinition,
-        componentName: 'timer',
-      });
-
-      expect(iconName).toBe('timer');
-    });
-
-    it('should return the kamelet name if provided', () => {
-      const iconName = CamelComponentSchemaService.getIconName({
-        processorName: 'from' as keyof ProcessorDefinition,
-        componentName: 'kamelet:beer-source',
-      });
-
-      expect(iconName).toBe('kamelet:beer-source');
-    });
-
-    it('should return the processor name if the component name is not provided', () => {
-      const iconName = CamelComponentSchemaService.getIconName({
-        processorName: 'log',
-      });
-
-      expect(iconName).toBe('log');
-    });
-
-    it('should return an empty string if the component cannot be found', () => {
-      const iconName = CamelComponentSchemaService.getIconName({
-        processorName: 'to',
-        componentName: 'unknown-component',
-      });
-
-      expect(iconName).toBe('');
-    });
-
-    it('should return an empty string if the processor cannot be found', () => {
-      const iconName = CamelComponentSchemaService.getIconName({
-        processorName: 'non-existing-processor' as keyof ProcessorDefinition,
-      });
-
-      expect(iconName).toBe('');
-    });
-  });
-
   describe('getComponentNameFromUri', () => {
-    it('should return undefined if the uri is empty', () => {
-      const componentName = CamelComponentSchemaService.getComponentNameFromUri('');
-      expect(componentName).toBeUndefined();
-    });
-
-    it('should return the kamelet component name', () => {
-      const uri = 'kamelet:beer-source';
+    it.each([
+      ['', undefined],
+      ['kamelet:beer-source', 'kamelet:beer-source'],
+      ['kamelet:beer-source?foo=bar', 'kamelet:beer-source'],
+      ['timer:foo?delay=1000&period=1000', 'timer'],
+      ['timer', 'timer'],
+    ] as [string, string | undefined][])(`should return the component name from '%s'`, (uri, expected) => {
       const componentName = CamelComponentSchemaService.getComponentNameFromUri(uri);
-      expect(componentName).toBe('kamelet:beer-source');
-    });
-
-    it('should return the kamelet component name when having query parameters', () => {
-      const uri = 'kamelet:beer-source?foo=bar';
-      const componentName = CamelComponentSchemaService.getComponentNameFromUri(uri);
-      expect(componentName).toBe('kamelet:beer-source');
-    });
-
-    it('should return the component name from the uri', () => {
-      const uri = 'timer:foo?delay=1000&period=1000';
-      const componentName = CamelComponentSchemaService.getComponentNameFromUri(uri);
-      expect(componentName).toBe('timer');
-    });
-
-    it('should return the component name from the uri', () => {
-      const uri = 'timer';
-      const componentName = CamelComponentSchemaService.getComponentNameFromUri(uri);
-      expect(componentName).toBe('timer');
+      expect(componentName).toBe(expected);
     });
   });
 

@@ -1,6 +1,5 @@
 import { isDefined } from '@kaoto/forms';
 
-import { ICamelElementLookupResult } from '../models/visualization/flows/support/camel-component-types';
 import { getParsedValue } from './get-parsed-value';
 import { getValue } from './get-value';
 
@@ -39,23 +38,6 @@ export class CamelUriHelper {
     /** For object-based processor definitions, we can return the `uri` property if not empty */
     if (typeof uriString === 'string' && uriString !== '') {
       return uriString;
-    }
-
-    return undefined;
-  }
-
-  static getSemanticString<T>(
-    camelElementLookup: ICamelElementLookupResult,
-    value: T | undefined | null,
-  ): string | undefined {
-    /** For string-based processor definitions, we return undefined */
-    if (!isDefined(value) || typeof value === 'string') {
-      return undefined;
-    }
-
-    switch (camelElementLookup.componentName) {
-      case 'direct':
-        return getValue(value, 'parameters.name');
     }
 
     return undefined;

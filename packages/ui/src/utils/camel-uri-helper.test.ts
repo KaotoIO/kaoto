@@ -1,4 +1,3 @@
-import { ICamelElementLookupResult } from '../models/visualization/flows/support/camel-component-types';
 import { CamelUriHelper, ParsedParameters } from './camel-uri-helper';
 
 describe('CamelUriHelper', () => {
@@ -55,19 +54,6 @@ describe('CamelUriHelper', () => {
       expect(CamelUriHelper.getUriString(value)).toBe(expected);
     });
   });
-
-  describe('getSemanticString', () => {
-    it.each([
-      [{}, {}, undefined],
-      [{ processorName: 'to', componentName: 'direct' }, { parameters: { name: 'anotherWorld' } }, 'anotherWorld'],
-    ] as Array<[ICamelElementLookupResult, unknown, string | undefined]>)(
-      'for `%s` with `%s` value, it should return %s',
-      (camelElementLookup, value, expected) => {
-        expect(CamelUriHelper.getSemanticString(camelElementLookup, value)).toBe(expected);
-      },
-    );
-  });
-
   describe('getParametersFromPathString', () => {
     it.each([
       { syntax: undefined, uri: undefined, result: {} },

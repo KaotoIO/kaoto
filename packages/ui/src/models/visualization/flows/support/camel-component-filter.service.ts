@@ -117,8 +117,8 @@ export class CamelComponentFilterService {
   }
 
   private static specialChildrenFilter(visualEntityData: CamelRouteVisualEntityData, definition: unknown): TileFilter {
-    const { processorName } = visualEntityData;
-    if (!(processorName in this.SPECIAL_PROCESSORS_PARENTS_MAP)) {
+    const processorName = visualEntityData.primaryNodeId?.name;
+    if (!processorName || !(processorName in this.SPECIAL_PROCESSORS_PARENTS_MAP)) {
       return () => false;
     }
 
