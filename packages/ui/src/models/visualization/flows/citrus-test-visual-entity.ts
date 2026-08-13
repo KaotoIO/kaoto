@@ -171,29 +171,18 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     return name;
   }
 
-  getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined {
-    if (!path) return undefined;
-    if (path === this.getRootPath()) {
-      return this.getRootTestSchema();
-    }
-
-    const actionName = CitrusTestSchemaService.extractTestActionName(path);
-    return CitrusTestSchemaService.getNodeSchema(actionName);
-  }
-
   async fetchNodeSchema(ids: IVisualizationNodeIds): Promise<KaotoSchemaDefinition['schema'] | undefined> {
-    const { primaryNodeId } = ids;
-    if (!primaryNodeId) {
-      return undefined;
+    if (!ids?.primaryNodeId) {
+      return;
     }
 
-    if (primaryNodeId.catalogKind === CatalogKind.Entity) {
+    if (ids.primaryNodeId.catalogKind === CatalogKind.Entity) {
       // Root test group node — use the static catalog (same as getNodeSchema at root path)
       return this.getRootTestSchema();
     }
 
     // Test action / container nodes — use CitrusTestSchemaService (static catalog)
-    return CitrusTestSchemaService.getNodeSchema(primaryNodeId.name);
+    return CitrusTestSchemaService.getNodeSchema(ids.primaryNodeId.name);
   }
 
   getNodeDefinition(path?: string): unknown {
@@ -357,8 +346,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     };
   }
 
-  getNodeValidationText(path?: string | undefined): string | undefined {
-    const schema = this.getNodeSchema(path);
+  getNodeValidationText(path?: string, schema?: KaotoSchemaDefinition['schema']): string | undefined {
     const definition = this.getNodeDefinition(path);
     if (!schema || !definition) return undefined;
 
@@ -455,7 +443,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
   }
 
   private async getVizNodeFromStep(action: TestActions, path: string): Promise<IVisualizationNode> {
-    const actionName = CitrusTestSchemaService.getTestActionName(action);
+    const actionName = await CitrusTestSchemaService.getTestActionName(action);
     const data: IVisualizationNodeData = {
       name: actionName,
       path,
@@ -495,7 +483,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     const vizNodes: IVisualizationNode[] = [];
     for (let index = 0; index < actions.length; index++) {
       const action = actions[index];
-      const actionName = CitrusTestSchemaService.getTestActionName(action);
+      const actionName = await CitrusTestSchemaService.getTestActionName(action);
       const vizNode = await this.getVizNodeFromStep(action, `${actionsPath}.${index}.${actionName}`);
 
       if (index > 0) {
@@ -585,7 +573,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
       return [placeholderNode];
     }
 
-    const actionName = CitrusTestSchemaService.getTestActionName(action);
+    const actionName = await CitrusTestSchemaService.getTestActionName(action);
     const stepVizNode = await this.getVizNodeFromStep(action, `${path}.${actionName}`);
     return [stepVizNode];
   }
@@ -601,7 +589,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     const children: IVisualizationNode[] = [];
     for (let index = 0; index < actions.length; index++) {
       const action = actions[index];
-      const actionName = CitrusTestSchemaService.getTestActionName(action);
+      const actionName = await CitrusTestSchemaService.getTestActionName(action);
       const vizNode = await this.getVizNodeFromStep(action, `${path}.${index}.${actionName}`);
       children.push(vizNode);
     }
@@ -664,6 +652,10 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
    * Properties that belong to the test action group are removed from the test action model.
    */
   private updateTestGroupModel(actions: TestActions[]): void {
+    if (!Array.isArray(actions)) {
+      return;
+    }
+
     for (const action of actions) {
       const actionName = CitrusTestSchemaService.getTestActionName(action);
       const actionDefinition = CitrusTestSchemaService.getTestActionDefinition(actionName);

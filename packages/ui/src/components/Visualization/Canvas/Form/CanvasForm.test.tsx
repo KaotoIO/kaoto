@@ -13,7 +13,6 @@ import {
   ICamelProcessorDefinition,
   IKameletDefinition,
   KameletVisualEntity,
-  KaotoSchemaDefinition,
 } from '../../../../models';
 import { EntityType } from '../../../../models/entities';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
@@ -87,7 +86,6 @@ describe('CanvasForm', () => {
       isPlaceholder: false,
     });
 
-    vi.spyOn(noSchemaVizNode, 'getNodeSchema').mockReturnValue(undefined);
     vi.spyOn(noSchemaVizNode, 'getNodeDefinition').mockReturnValue(undefined);
 
     const { Provider } = await TestProvidersWrapper();
@@ -115,7 +113,6 @@ describe('CanvasForm', () => {
       isPlaceholder: false,
     });
 
-    vi.spyOn(noSchemaVizNode, 'getNodeSchema').mockReturnValue(null as unknown as KaotoSchemaDefinition['schema']);
     vi.spyOn(noSchemaVizNode, 'getNodeDefinition').mockReturnValue(null);
 
     const { Provider } = await TestProvidersWrapper();

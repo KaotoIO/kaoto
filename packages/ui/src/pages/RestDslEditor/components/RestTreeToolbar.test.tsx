@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 
 import { CamelResourceFactory } from '../../../models/camel/camel-resource-factory';
+import { CatalogKind } from '../../../models/catalog-kind';
 import { BaseVisualEntity } from '../../../models/visualization/base-visual-entity';
 import { CamelRestConfigurationVisualEntity } from '../../../models/visualization/flows/camel-rest-configuration-visual-entity';
 import { clickToolbarActionUtil } from '../test-utils';
@@ -193,7 +194,11 @@ describe('RestTreeToolbar', () => {
       render(
         <RestTreeToolbar
           entities={entities}
-          selectedElement={{ entityId: restConfigEntity.id, modelPath: 'restConfiguration' }}
+          selectedElement={{
+            entityId: restConfigEntity.id,
+            modelPath: 'restConfiguration',
+            ids: { primaryNodeId: { name: 'restConfiguration', catalogKind: CatalogKind.Entity } },
+          }}
           onAddRestConfiguration={mockOnAddRestConfiguration}
           onAddRest={mockOnAddRest}
           onAddMethodClick={mockOnAddMethodClick}
@@ -225,7 +230,11 @@ describe('RestTreeToolbar', () => {
       render(
         <RestTreeToolbar
           entities={entities}
-          selectedElement={{ entityId: 'rest-1234', modelPath: 'rest' }}
+          selectedElement={{
+            entityId: 'rest-1234',
+            modelPath: 'rest',
+            ids: { primaryNodeId: { name: 'rest', catalogKind: CatalogKind.Entity } },
+          }}
           onAddRestConfiguration={mockOnAddRestConfiguration}
           onAddRest={mockOnAddRest}
           onAddMethodClick={mockOnAddMethodClick}
@@ -257,7 +266,11 @@ describe('RestTreeToolbar', () => {
       render(
         <RestTreeToolbar
           entities={entities}
-          selectedElement={{ entityId: 'rest-1234', modelPath: 'rest.get.0' }}
+          selectedElement={{
+            entityId: 'rest-1234',
+            modelPath: 'rest.get.0',
+            ids: { primaryNodeId: { name: 'rest', catalogKind: CatalogKind.Pattern } },
+          }}
           onAddRestConfiguration={mockOnAddRestConfiguration}
           onAddRest={mockOnAddRest}
           onAddMethodClick={mockOnAddMethodClick}
@@ -293,7 +306,11 @@ describe('RestTreeToolbar', () => {
       render(
         <RestTreeToolbar
           entities={entities}
-          selectedElement={{ entityId: 'route-1234', modelPath: 'route' }}
+          selectedElement={{
+            entityId: 'route-1234',
+            modelPath: 'route',
+            ids: { primaryNodeId: { name: 'route', catalogKind: CatalogKind.Entity } },
+          }}
           onAddRestConfiguration={mockOnAddRestConfiguration}
           onAddRest={mockOnAddRest}
           onAddMethodClick={mockOnAddMethodClick}
@@ -320,7 +337,11 @@ describe('RestTreeToolbar', () => {
       render(
         <RestTreeToolbar
           entities={entities}
-          selectedElement={{ entityId: 'rest-1234', modelPath: 'rest' }}
+          selectedElement={{
+            entityId: 'rest-1234',
+            modelPath: 'rest',
+            ids: { primaryNodeId: { name: 'rest', catalogKind: CatalogKind.Entity } },
+          }}
           onAddRestConfiguration={mockOnAddRestConfiguration}
           onAddRest={mockOnAddRest}
           onAddMethodClick={mockOnAddMethodClick}
@@ -366,7 +387,11 @@ describe('RestTreeToolbar', () => {
       render(
         <RestTreeToolbar
           entities={entities}
-          selectedElement={{ entityId: 'rest-1234', modelPath: 'rest' }}
+          selectedElement={{
+            entityId: 'rest-1234',
+            modelPath: 'rest',
+            ids: { primaryNodeId: { name: 'rest', catalogKind: CatalogKind.Entity } },
+          }}
           onAddRestConfiguration={mockOnAddRestConfiguration}
           onAddRest={mockOnAddRest}
           onAddMethodClick={mockOnAddMethodClick}
@@ -393,7 +418,11 @@ describe('RestTreeToolbar', () => {
       render(
         <RestTreeToolbar
           entities={entities}
-          selectedElement={{ entityId: 'rest-1234', modelPath: 'rest' }}
+          selectedElement={{
+            entityId: 'rest-1234',
+            modelPath: 'rest',
+            ids: { primaryNodeId: { name: 'rest', catalogKind: CatalogKind.Entity } },
+          }}
           onAddRestConfiguration={mockOnAddRestConfiguration}
           onAddRest={mockOnAddRest}
           onAddMethodClick={mockOnAddMethodClick}

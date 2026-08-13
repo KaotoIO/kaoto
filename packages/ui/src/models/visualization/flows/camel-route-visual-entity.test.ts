@@ -1,8 +1,11 @@
-import { RouteDefinition } from '@kaoto/camel-catalog/types';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { cloneDeep } from 'lodash';
 
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { mockRandomValues } from '../../../stubs';
 import { camelRouteJson } from '../../../stubs/camel-route';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
 import { EntityType } from '../../entities/base-entity';
 import { NodeLabelType } from '../../settings/settings.model';
 import { IVisualizationNode } from '../base-visual-entity';
@@ -11,6 +14,15 @@ import { CamelComponentSchemaService } from './support/camel-component-schema.se
 
 describe('Camel Route', () => {
   let camelEntity: CamelRouteVisualEntity;
+
+  beforeAll(async () => {
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    setupDynamicCatalogRegistry(catalogsMap);
+  });
+
+  afterAll(() => {
+    DynamicCatalogRegistry.get().clearRegistry();
+  });
 
   beforeEach(() => {
     camelEntity = new CamelRouteVisualEntity(cloneDeep(camelRouteJson));
@@ -56,24 +68,17 @@ describe('Camel Route', () => {
     });
   });
 
-  describe('getNodeSchema', () => {
-    it('should return undefined if no path is provided', () => {
-      expect(camelEntity.getNodeSchema()).toBeUndefined();
+  describe('fetchNodeSchema', () => {
+    it('should return undefined if no primaryNodeId is provided', async () => {
+      expect(await camelEntity.fetchNodeSchema({})).toBeUndefined();
     });
 
-    it('should return empty object if no component model is found', () => {
-      const result = camelEntity.getNodeSchema('test');
+    it('should return schema for the from node with component merge', async () => {
+      const routeNode = await camelEntity.toVizNode();
+      const fromNode = routeNode.getChildren()?.[0];
+      const result = await camelEntity.fetchNodeSchema(fromNode!.data);
 
-      expect(result).toEqual({});
-    });
-
-    it('should return the component schema', () => {
-      const spy = vi.spyOn(CamelComponentSchemaService, 'getSchema');
-      spy.mockReturnValueOnce({ type: 'string' });
-
-      camelEntity.getNodeSchema('route.from');
-
-      expect(spy).toHaveBeenCalledWith({ processorName: 'from', componentName: 'timer' });
+      expect(result?.properties?.parameters?.['x-component-name']).toBe('timer');
     });
   });
 

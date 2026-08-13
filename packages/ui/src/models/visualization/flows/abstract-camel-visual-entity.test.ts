@@ -148,29 +148,18 @@ describe('AbstractCamelVisualEntity', () => {
       expect(result).toBeUndefined();
     });
 
-    it('should return a validation text relying on the `validateNodeStatus` method', () => {
+    it('should return a validation text relying on the `validateNodeStatus` method', async () => {
       const missingParametersModel = cloneDeep(camelRouteJson.route);
       missingParametersModel.from.uri = '';
       abstractVisualEntity = new CamelRouteVisualEntity(missingParametersModel);
 
-      const result = abstractVisualEntity.getNodeValidationText('route.from');
+      const schema = await abstractVisualEntity.fetchNodeSchema({
+        primaryNodeId: { name: 'from', catalogKind: CatalogKind.Entity },
+        secondaryNodeId: { name: 'timer', catalogKind: CatalogKind.Component },
+      });
+      const result = abstractVisualEntity.getNodeValidationText('route.from', schema);
 
-      expect(result).toBe('1 required parameter is not yet configured: [ uri ]');
-    });
-  });
-
-  describe('getNodeSchema', () => {
-    it('should return undefined if path is not provided', () => {
-      const result = abstractVisualEntity.getNodeSchema();
-      expect(result).toBeUndefined();
-    });
-
-    it('should return schema when path is valid', () => {
-      const path = 'route.from.steps.1.choice';
-
-      const result = abstractVisualEntity.getNodeSchema(path);
-
-      expect(result).toMatchObject({ type: 'object', title: 'Choice' });
+      expect(result).toBe('2 required parameters are not yet configured: [ uri,timerName ]');
     });
   });
 
@@ -579,6 +568,19 @@ describe('AbstractCamelVisualEntity', () => {
   });
 
   describe('fetchNodeSchema', () => {
+    it('should return undefined if primaryNodeId is not provided', async () => {
+      const result = await abstractVisualEntity.fetchNodeSchema({});
+      expect(result).toBeUndefined();
+    });
+
+    it('should return schema when primaryNodeId is valid', async () => {
+      const result = await abstractVisualEntity.fetchNodeSchema({
+        primaryNodeId: { name: 'choice', catalogKind: CatalogKind.Pattern },
+      });
+
+      expect(result).toMatchObject({ type: 'object', title: 'Choice' });
+    });
+
     it('should return the route Entity schema for the route group node', async () => {
       const routeNode = await abstractVisualEntity.toVizNode();
       const ids = routeNode.data;

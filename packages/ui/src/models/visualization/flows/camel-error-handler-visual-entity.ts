@@ -17,7 +17,6 @@ import {
 import { IClipboardContent } from '../clipboard';
 import { NodeIdentity } from '../node-identity';
 import { createVisualizationNode } from '../visualization-node';
-import { CamelCatalogService } from './camel-catalog.service';
 import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 
 export class CamelErrorHandlerVisualEntity implements BaseVisualEntity {
@@ -112,17 +111,15 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualEntity {
     return;
   }
 
-  getNodeSchema(): KaotoSchemaDefinition['schema'] {
-    const schema = CamelCatalogService.getComponent(CatalogKind.Entity, 'errorHandler');
-    return schema?.propertiesSchema ?? {};
-  }
-
-  async fetchNodeSchema(ids: IVisualizationNodeIds): Promise<KaotoSchemaDefinition['schema'] | undefined> {
-    const { primaryNodeId } = ids;
-    if (!primaryNodeId) {
-      return undefined;
+  async fetchNodeSchema(ids?: IVisualizationNodeIds): Promise<KaotoSchemaDefinition['schema'] | undefined> {
+    if (!ids?.primaryNodeId) {
+      return;
     }
-    const definition = await DynamicCatalogRegistry.get().getEntity(primaryNodeId.catalogKind, primaryNodeId.name);
+
+    const definition = await DynamicCatalogRegistry.get().getEntity(
+      ids.primaryNodeId.catalogKind,
+      ids.primaryNodeId.name,
+    );
     return definition?.propertiesSchema;
   }
 

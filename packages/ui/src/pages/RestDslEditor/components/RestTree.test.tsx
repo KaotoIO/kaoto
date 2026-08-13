@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { CamelResourceFactory } from '../../../models/camel/camel-resource-factory';
+import { CatalogKind } from '../../../models/catalog-kind';
 import { BaseVisualEntity } from '../../../models/visualization/base-visual-entity';
 import { getRestEntities } from './get-rest-entities';
 import { RestTree } from './RestTree';
@@ -79,6 +80,7 @@ describe('RestTree', () => {
     expect(mockOnSelect).toHaveBeenCalledWith({
       entityId: 'rest-1234',
       modelPath: 'rest',
+      ids: { primaryNodeId: { name: 'rest', catalogKind: CatalogKind.Entity } },
     });
 
     mockOnSelect.mockClear();
@@ -89,6 +91,7 @@ describe('RestTree', () => {
     expect(mockOnSelect).toHaveBeenCalledWith({
       entityId: 'rest-1234',
       modelPath: 'rest.get.0',
+      ids: { primaryNodeId: { name: 'get', catalogKind: CatalogKind.Pattern } },
     });
   });
 
@@ -112,6 +115,7 @@ describe('RestTree', () => {
     expect(mockOnSelect).toHaveBeenCalledWith({
       entityId: 'rest-1234',
       modelPath: 'rest.get.0',
+      ids: { primaryNodeId: { name: 'get', catalogKind: CatalogKind.Pattern } },
     });
     expect(await screen.findByRole('menu', { name: 'REST tree node actions' })).toBeInTheDocument();
     const deleteAction = screen.getByRole('menuitem', { name: /Delete/ });
@@ -149,7 +153,11 @@ describe('RestTree', () => {
         insetBlockStart: '230px',
       });
     });
-    expect(mockOnSelect).toHaveBeenLastCalledWith({ entityId: 'rest-2', modelPath: 'rest' });
+    expect(mockOnSelect).toHaveBeenLastCalledWith({
+      entityId: 'rest-2',
+      modelPath: 'rest',
+      ids: { primaryNodeId: { name: 'rest', catalogKind: CatalogKind.Entity } },
+    });
   });
 
   it('should open the same menu for configuration, service, and method badge targets', async () => {
@@ -176,13 +184,22 @@ describe('RestTree', () => {
     expect(mockOnSelect).toHaveBeenLastCalledWith({
       entityId: configuration.id,
       modelPath: 'restConfiguration',
+      ids: { primaryNodeId: { name: 'restConfiguration', catalogKind: CatalogKind.Entity } },
     });
 
     fireEvent.contextMenu(screen.getByText('rest-1'));
-    expect(mockOnSelect).toHaveBeenLastCalledWith({ entityId: 'rest-1', modelPath: 'rest' });
+    expect(mockOnSelect).toHaveBeenLastCalledWith({
+      entityId: 'rest-1',
+      modelPath: 'rest',
+      ids: { primaryNodeId: { name: 'rest', catalogKind: CatalogKind.Entity } },
+    });
 
     fireEvent.contextMenu(screen.getByText('GET'));
-    expect(mockOnSelect).toHaveBeenLastCalledWith({ entityId: 'rest-1', modelPath: 'rest.get.0' });
+    expect(mockOnSelect).toHaveBeenLastCalledWith({
+      entityId: 'rest-1',
+      modelPath: 'rest.get.0',
+      ids: { primaryNodeId: { name: 'get', catalogKind: CatalogKind.Pattern } },
+    });
     expect(screen.getAllByRole('menu', { name: 'REST tree node actions' })).toHaveLength(1);
   });
 
@@ -197,7 +214,11 @@ describe('RestTree', () => {
     render(
       <RestTree
         entities={entities}
-        selected={{ entityId: 'rest-1', modelPath: 'rest' }}
+        selected={{
+          entityId: 'rest-1',
+          modelPath: 'rest',
+          ids: { primaryNodeId: { name: 'rest', catalogKind: CatalogKind.Entity } },
+        }}
         onSelect={mockOnSelect}
         onDelete={mockOnDelete}
       />,
@@ -321,7 +342,11 @@ describe('RestTree', () => {
     await camelResource.initialize();
 
     const entities = getRestEntities(camelResource.getEntities());
-    const selected = { entityId: 'rest-1234', modelPath: 'rest' };
+    const selected = {
+      entityId: 'rest-1234',
+      modelPath: 'rest',
+      ids: { primaryNodeId: { name: 'rest', catalogKind: CatalogKind.Entity } },
+    };
 
     const { container } = render(
       <RestTree entities={entities} selected={selected} onSelect={mockOnSelect} onDelete={mockOnDelete} />,
@@ -355,7 +380,11 @@ describe('RestTree', () => {
     await camelResource.initialize();
 
     const entities = getRestEntities(camelResource.getEntities());
-    const selected = { entityId: 'rest-1234', modelPath: 'rest.post.0' };
+    const selected = {
+      entityId: 'rest-1234',
+      modelPath: 'rest.post.0',
+      ids: { primaryNodeId: { name: 'post', catalogKind: CatalogKind.Pattern } },
+    };
 
     const { container } = render(
       <RestTree entities={entities} selected={selected} onSelect={mockOnSelect} onDelete={mockOnDelete} />,
@@ -395,7 +424,11 @@ describe('RestTree', () => {
     await camelResource.initialize();
 
     const entities = getRestEntities(camelResource.getEntities());
-    const initialSelected = { entityId: 'rest-1234', modelPath: 'rest' };
+    const initialSelected = {
+      entityId: 'rest-1234',
+      modelPath: 'rest',
+      ids: { primaryNodeId: { name: 'rest', catalogKind: CatalogKind.Entity } },
+    };
 
     const { container, rerender } = render(
       <RestTree entities={entities} selected={initialSelected} onSelect={mockOnSelect} onDelete={mockOnDelete} />,
@@ -405,7 +438,11 @@ describe('RestTree', () => {
     let activeNode = container.querySelector(`[id="${expectedActiveId}"]`);
     expect(activeNode).toBeInTheDocument();
 
-    const newSelected = { entityId: 'rest-1234', modelPath: 'rest.get.0' };
+    const newSelected = {
+      entityId: 'rest-1234',
+      modelPath: 'rest.get.0',
+      ids: { primaryNodeId: { name: 'get', catalogKind: CatalogKind.Pattern } },
+    };
     rerender(<RestTree entities={entities} selected={newSelected} onSelect={mockOnSelect} onDelete={mockOnDelete} />);
 
     expectedActiveId = 'rest-1234::rest.get.0';

@@ -168,27 +168,37 @@ describe('Pipe', () => {
     });
   });
 
-  describe('getNodeSchema', () => {
-    it('should return undefined if no path is provided', () => {
-      expect(pipeVisualEntity.getNodeSchema()).toBeUndefined();
+  describe('fetchNodeSchema', () => {
+    it('should return undefined if no primaryNodeId is provided', async () => {
+      expect(await pipeVisualEntity.fetchNodeSchema({})).toBeUndefined();
     });
 
-    it('should return {} when using an invalid path', () => {
-      const result = pipeVisualEntity.getNodeSchema('test');
+    it('should return the root pipe schema when primaryNodeId is PipeConfiguration', async () => {
+      (DynamicCatalogRegistry.get as Mock).mockReturnValue({
+        getEntity: vi.fn((kind: CatalogKind, name: string) => {
+          if (kind === CatalogKind.Entity && name === 'PipeConfiguration') {
+            return Promise.resolve({ propertiesSchema: { type: 'object', title: 'Pipe' } });
+          }
+          if (kind === CatalogKind.Kamelet) {
+            return Promise.resolve(kameletCatalogMap[name]);
+          }
+          return Promise.resolve(undefined);
+        }),
+      });
 
-      expect(result).toEqual({});
+      const result = await pipeVisualEntity.fetchNodeSchema({
+        primaryNodeId: { name: 'PipeConfiguration', catalogKind: CatalogKind.Entity },
+      });
+
+      expect(result).toMatchObject({ type: 'object', title: 'Pipe' });
     });
 
-    it('should return the root pipe schema when path is root path', () => {
-      const result = pipeVisualEntity.getNodeSchema('pipe');
-      expect(result).toBeDefined();
-    });
+    it('should return the kamelet schema for a step primaryNodeId', async () => {
+      const result = await pipeVisualEntity.fetchNodeSchema({
+        primaryNodeId: { name: 'delay-action', catalogKind: CatalogKind.Kamelet },
+      });
 
-    it('should return the node schema', () => {
-      const spy = vi.spyOn(KameletSchemaService, 'getKameletCatalogEntry');
-
-      pipeVisualEntity.getNodeSchema('source');
-      expect(spy).toHaveBeenCalledTimes(1);
+      expect(result).toEqual(kameletCatalogMap['delay-action'].propertiesSchema);
     });
   });
 
@@ -520,12 +530,15 @@ describe('Pipe', () => {
       expect(result).toBeUndefined();
     });
 
-    it('should return a validation text relying on the `validateNodeStatus` method', () => {
+    it('should return a validation text relying on the `validateNodeStatus` method', async () => {
       const missingParametersModel = cloneDeep(pipeJson);
       missingParametersModel.spec!.steps![0].properties = {};
       pipeVisualEntity = new PipeVisualEntity(missingParametersModel);
 
-      const result = pipeVisualEntity.getNodeValidationText('steps.0');
+      const schema = await pipeVisualEntity.fetchNodeSchema({
+        primaryNodeId: { name: 'delay-action', catalogKind: CatalogKind.Kamelet },
+      });
+      const result = pipeVisualEntity.getNodeValidationText('steps.0', schema);
 
       expect(result).toBe('1 required parameter is not yet configured: [ milliseconds ]');
     });

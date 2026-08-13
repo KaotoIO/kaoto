@@ -107,7 +107,6 @@ describe('usePasteStep', () => {
   it('should call pasteBaseEntityStep() and updateEntitiesFromCamelResource()', async () => {
     vi.spyOn(navigator.permissions, 'query').mockResolvedValue({ state: 'granted' } as PermissionStatus);
     const mockVizNode = {
-      getNodeSchema: vi.fn(),
       getNodeDefinition: vi.fn(),
       pasteBaseEntityStep: vi.fn(),
     } as unknown as IVisualizationNode;

@@ -141,10 +141,14 @@ describe('CamelRestVisualEntity', () => {
     });
   });
 
-  it('should return schema from store', () => {
+  it('should return schema from catalog', async () => {
     const entity = new CamelRestVisualEntity(restDef);
 
-    expect(entity.getNodeSchema(CamelRestVisualEntity.ROOT_PATH)).toEqual(restSchema);
+    const result = await entity.fetchNodeSchema({
+      primaryNodeId: { name: EntityType.Rest, catalogKind: CatalogKind.Entity },
+    });
+
+    expect(result).toEqual(restSchema);
   });
 
   describe('removeStep', () => {
@@ -163,42 +167,35 @@ describe('CamelRestVisualEntity', () => {
     });
   });
 
-  describe('getNodeSchema', () => {
-    it('should return REST method schema for REST DSL methods', () => {
+  describe('fetchNodeSchema', () => {
+    it('should return REST method schema for GET method', async () => {
       const entity = new CamelRestVisualEntity(restDef);
-      const getComponentSpy = vi.spyOn(CamelCatalogService, 'getComponent');
 
-      entity.getNodeSchema('rest.get.0');
+      const result = await entity.fetchNodeSchema({
+        primaryNodeId: { name: 'get', catalogKind: CatalogKind.Pattern },
+      });
 
-      expect(getComponentSpy).toHaveBeenCalledWith(CatalogKind.Pattern, 'get');
+      const getEntry = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Pattern, 'get');
+      expect(result).toEqual(getEntry?.propertiesSchema);
     });
 
-    it('should return REST method schema for POST method', () => {
+    it('should return REST method schema for POST method', async () => {
       const entity = new CamelRestVisualEntity(restDef);
-      const getComponentSpy = vi.spyOn(CamelCatalogService, 'getComponent');
 
-      entity.getNodeSchema('rest.post.0');
+      const result = await entity.fetchNodeSchema({
+        primaryNodeId: { name: 'post', catalogKind: CatalogKind.Pattern },
+      });
 
-      expect(getComponentSpy).toHaveBeenCalledWith(CatalogKind.Pattern, 'post');
+      const postEntry = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Pattern, 'post');
+      expect(result).toEqual(postEntry?.propertiesSchema);
     });
 
-    it('should delegate to super for non-REST method paths', () => {
+    it('should return undefined when primaryNodeId is missing', async () => {
       const entity = new CamelRestVisualEntity(restDef);
-      const superGetNodeSchemaSpy = vi.spyOn(AbstractCamelVisualEntity.prototype, 'getNodeSchema');
 
-      // Use a path where method is NOT in REST_DSL_METHODS
-      entity.getNodeSchema('rest.unknown.0');
+      const result = await entity.fetchNodeSchema({});
 
-      expect(superGetNodeSchemaSpy).toHaveBeenCalledWith('rest.unknown.0');
-    });
-
-    it('should handle undefined path by delegating to super', () => {
-      const entity = new CamelRestVisualEntity(restDef);
-      const superGetNodeSchemaSpy = vi.spyOn(AbstractCamelVisualEntity.prototype, 'getNodeSchema');
-
-      entity.getNodeSchema();
-
-      expect(superGetNodeSchemaSpy).toHaveBeenCalledWith(undefined);
+      expect(result).toBeUndefined();
     });
   });
 

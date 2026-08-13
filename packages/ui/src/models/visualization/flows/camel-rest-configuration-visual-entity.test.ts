@@ -77,10 +77,14 @@ describe('CamelRestConfigurationVisualEntity', () => {
     expect(entity.getNodeDefinition()).toEqual(restConfigurationDef.restConfiguration);
   });
 
-  it('should return schema from store', () => {
+  it('should return schema from catalog', async () => {
     const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
 
-    expect(entity.getNodeSchema()).toEqual(restConfigurationSchema);
+    const result = await entity.fetchNodeSchema({
+      primaryNodeId: { name: 'restConfiguration', catalogKind: CatalogKind.Entity },
+    });
+
+    expect(result).toEqual(restConfigurationSchema);
   });
 
   describe('updateModel', () => {
@@ -128,7 +132,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
   });
 
   describe('getNodeValidationText', () => {
-    it('should return undefined for valid definitions', () => {
+    it('should return undefined for valid definitions', async () => {
       const entity = new CamelRestConfigurationVisualEntity({
         restConfiguration: {
           ...restConfigurationDef.restConfiguration,
@@ -143,19 +147,26 @@ describe('CamelRestConfigurationVisualEntity', () => {
         },
       });
 
-      expect(entity.getNodeValidationText()).toBeUndefined();
+      const schema = await entity.fetchNodeSchema({
+        primaryNodeId: { name: 'restConfiguration', catalogKind: CatalogKind.Entity },
+      });
+
+      expect(entity.getNodeValidationText(undefined, schema)).toBeUndefined();
     });
 
-    it('should not modify the original definition when validating', () => {
+    it('should not modify the original definition when validating', async () => {
       const originalRestConfigurationDef: RestConfiguration = { ...restConfigurationDef.restConfiguration };
       const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
+      const schema = await entity.fetchNodeSchema({
+        primaryNodeId: { name: 'restConfiguration', catalogKind: CatalogKind.Entity },
+      });
 
-      entity.getNodeValidationText();
+      entity.getNodeValidationText(undefined, schema);
 
       expect(restConfigurationDef.restConfiguration).toEqual(originalRestConfigurationDef);
     });
 
-    it('should return errors when there is an invalid property', () => {
+    it('should return errors when there is an invalid property', async () => {
       const invalidRestConfigurationDef: RestConfiguration = {
         ...restConfigurationDef.restConfiguration,
         useXForwardHeaders: 'true' as unknown as RestConfiguration['useXForwardHeaders'],
@@ -168,8 +179,11 @@ describe('CamelRestConfigurationVisualEntity', () => {
         inlineRoutes: 'true' as unknown as RestConfiguration['inlineRoutes'],
       };
       const entity = new CamelRestConfigurationVisualEntity({ restConfiguration: invalidRestConfigurationDef });
+      const schema = await entity.fetchNodeSchema({
+        primaryNodeId: { name: 'restConfiguration', catalogKind: CatalogKind.Entity },
+      });
 
-      expect(entity.getNodeValidationText()).toBe(`'/useXForwardHeaders' must be boolean,
+      expect(entity.getNodeValidationText(undefined, schema)).toBe(`'/useXForwardHeaders' must be boolean,
 '/apiVendorExtension' must be boolean,
 '/skipBindingOnErrorCode' must be boolean,
 '/clientRequestValidation' must be boolean,

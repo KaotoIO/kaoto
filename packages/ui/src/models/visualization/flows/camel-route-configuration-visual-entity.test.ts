@@ -92,13 +92,18 @@ describe('CamelRouteConfigurationVisualEntity', () => {
     );
   });
 
-  it('should return schema from store', () => {
-    const catalogServiceSpy = vi.spyOn(CamelCatalogService, 'getComponent');
-
+  it('should return schema from catalog', async () => {
     const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
-    entity.getNodeSchema(CamelRouteConfigurationVisualEntity.ROOT_PATH);
 
-    expect(catalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Entity, 'routeConfiguration');
+    const result = await entity.fetchNodeSchema({
+      primaryNodeId: { name: 'routeConfiguration', catalogKind: CatalogKind.Entity },
+    });
+
+    const routeConfigurationEntry = await DynamicCatalogRegistry.get().getEntity(
+      CatalogKind.Entity,
+      'routeConfiguration',
+    );
+    expect(result).toEqual(routeConfigurationEntry?.propertiesSchema);
   });
 
   describe('removeStep', () => {

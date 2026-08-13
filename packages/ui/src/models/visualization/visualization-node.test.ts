@@ -80,27 +80,6 @@ describe('VisualizationNode', () => {
     expect(node.getId()).toBe('route-8888');
   });
 
-  it('should return the node schema from the underlying BaseVisualCamelEntity', () => {
-    const getNodeSchemaSpy = vi.fn();
-    const visualEntity = {
-      getNodeSchema: getNodeSchemaSpy,
-    } as unknown as BaseVisualEntity;
-
-    node = createVisualizationNode('test', {
-      name: 'log',
-      path: 'test-path',
-      entity: visualEntity,
-      isPlaceholder: false,
-      isGroup: false,
-      title: '',
-      description: '',
-      iconUrl: '',
-    });
-    node.getNodeSchema();
-
-    expect(getNodeSchemaSpy).toHaveBeenCalledWith(node.data.path);
-  });
-
   it('should return the node definition from the underlying BaseVisualCamelEntity', () => {
     const getNodeDefinitionSpy = vi.fn();
     const visualEntity = {
@@ -183,32 +162,6 @@ describe('VisualizationNode', () => {
 
       expect(label).toEqual(node.id);
     });
-  });
-
-  it('should return the node schema from the root node', () => {
-    /** Arrange */
-    const getNodeSchemaSpy = vi.fn();
-    const visualEntity = {
-      getNodeSchema: getNodeSchemaSpy,
-    } as unknown as BaseVisualEntity;
-
-    const rootNode = createVisualizationNode('test', {
-      name: 'log',
-      path: 'test-path',
-      entity: visualEntity,
-      isPlaceholder: false,
-      isGroup: false,
-      title: '',
-      description: '',
-      iconUrl: '',
-    });
-    node.setParentNode(rootNode);
-
-    /** Act */
-    node.getNodeSchema();
-
-    /** Assert */
-    expect(getNodeSchemaSpy).toHaveBeenCalledWith(node.data.path);
   });
 
   it('should return the node definition from the root node', () => {
@@ -479,10 +432,11 @@ describe('VisualizationNode', () => {
         title: '',
         description: '',
         iconUrl: '',
+        schema: { type: 'object' },
       });
       const validationText = node.getNodeValidationText();
 
-      expect(getNodeValidationTextSpy).toHaveBeenCalledWith(node.data.path);
+      expect(getNodeValidationTextSpy).toHaveBeenCalledWith(node.data.path, node.data.schema);
       expect(validationText).toBe('test-validation-text');
     });
   });
