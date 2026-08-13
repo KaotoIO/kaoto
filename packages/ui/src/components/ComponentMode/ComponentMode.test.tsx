@@ -39,7 +39,6 @@ describe('ComponentMode', () => {
       description: '',
       iconUrl: '',
     });
-    vi.spyOn(node, 'getNodeSchema').mockReturnValue(undefined);
     vi.spyOn(node, 'getNodeDefinition').mockReturnValue({});
     vi.spyOn(node, 'updateModel').mockImplementation(vi.fn());
     return node;

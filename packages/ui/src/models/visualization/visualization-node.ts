@@ -104,10 +104,6 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     return this.getBaseEntity()?.getNodeInteraction(this.data) ?? this.DISABLED_NODE_INTERACTION;
   }
 
-  getNodeSchema(): KaotoSchemaDefinition['schema'] | undefined {
-    return this.getBaseEntity()?.getNodeSchema(this.data.path);
-  }
-
   async fetchSchema(): Promise<KaotoSchemaDefinition['schema'] | undefined> {
     const baseEntity = this.getBaseEntity();
     if (!baseEntity) {
@@ -183,7 +179,7 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   }
 
   getNodeValidationText(): string | undefined {
-    return this.getBaseEntity()?.getNodeValidationText(this.data.path);
+    return this.getBaseEntity()?.getNodeValidationText(this.data.path, this.data.schema);
   }
 
   /**

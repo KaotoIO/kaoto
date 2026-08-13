@@ -1,6 +1,6 @@
 import { Rest } from '@kaoto/camel-catalog/types';
 
-import { BaseVisualEntity } from '../../models';
+import { BaseVisualEntity, CatalogKind, IVisualizationNodeIds } from '../../models';
 import { REST_DSL_VERBS } from '../../models/special-processors.constants';
 import { CamelRestConfigurationVisualEntity } from '../../models/visualization/flows/camel-rest-configuration-visual-entity';
 import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';
@@ -9,7 +9,7 @@ import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-re
  * Represents a node in the REST DSL tree structure.
  * Used to display REST configurations and REST services with their methods in a hierarchical tree view.
  */
-export interface RestTreeNode {
+export interface RestTreeNode extends IVisualizationNodeIds {
   id: string;
   entityId: string;
   type: 'restConfiguration' | 'rest' | 'get' | 'post' | 'put' | 'patch' | 'delete' | 'head';
@@ -40,6 +40,10 @@ export const restToTree = (visualEntities: BaseVisualEntity[]): RestTreeNode[] =
       type: 'restConfiguration',
       label: 'Rest configuration',
       modelPath: entity.getRootPath(),
+      primaryNodeId: {
+        name: 'restConfiguration',
+        catalogKind: CatalogKind.Entity,
+      },
     };
   });
 
@@ -63,6 +67,10 @@ export const restToTree = (visualEntities: BaseVisualEntity[]): RestTreeNode[] =
           type: method,
           label: methodDef.path,
           modelPath: `rest.${method}.${index}`,
+          primaryNodeId: {
+            name: method,
+            catalogKind: CatalogKind.Pattern,
+          },
         });
       });
     });
@@ -74,6 +82,10 @@ export const restToTree = (visualEntities: BaseVisualEntity[]): RestTreeNode[] =
       label: 'Rest',
       modelPath: entity.getRootPath(),
       children: methodsTreeNodes,
+      primaryNodeId: {
+        name: 'rest',
+        catalogKind: CatalogKind.Entity,
+      },
     };
   });
 

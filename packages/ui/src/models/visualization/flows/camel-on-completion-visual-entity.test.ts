@@ -97,7 +97,7 @@ describe('CamelOnCompletionVisualEntity', () => {
     const onCompletionVisualEntity = new CamelOnCompletionVisualEntity({
       onCompletion: { id: 'id', mode: 'AfterConsumer' },
     });
-    onCompletionVisualEntity.getNodeValidationText('onCompletion');
+    onCompletionVisualEntity.getNodeValidationText('onCompletion', { type: 'object', properties: {} });
 
     expect(validateNodeStatusSpy).toHaveBeenCalled();
   });

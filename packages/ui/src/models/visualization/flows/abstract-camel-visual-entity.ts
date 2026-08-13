@@ -57,16 +57,8 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     return this.getNodeLabelFromIds(ids, definition, labelType);
   }
 
-  getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined {
-    if (!path) return undefined;
-
-    const definition = getValue(this.entityDef, path);
-    const camelElementLookup = CamelComponentSchemaService.getCamelComponentLookup(path, definition);
-    return CamelComponentSchemaService.getSchema(camelElementLookup);
-  }
-
-  async fetchNodeSchema(ids: IVisualizationNodeIds): Promise<KaotoSchemaDefinition['schema'] | undefined> {
-    if (!ids.primaryNodeId) {
+  async fetchNodeSchema(ids?: IVisualizationNodeIds): Promise<KaotoSchemaDefinition['schema'] | undefined> {
+    if (!ids?.primaryNodeId) {
       return;
     }
 
@@ -290,8 +282,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     };
   }
 
-  getNodeValidationText(path?: string | undefined): string | undefined {
-    const schema = this.getNodeSchema(path);
+  getNodeValidationText(path?: string | undefined, schema?: KaotoSchemaDefinition['schema']): string | undefined {
     const definition = this.getNodeDefinition(path);
     if (!schema || !definition) return undefined;
 

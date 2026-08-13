@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`CamelErrorHandlerVisualEntity > should return schema from store 1`] = `
+exports[`CamelErrorHandlerVisualEntity > should return schema from catalog 1`] = `
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "additionalProperties": false,

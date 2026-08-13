@@ -1,15 +1,15 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { mockRandomValues } from '../../../stubs';
 import { camelFromJson } from '../../../stubs/camel-from';
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
 import { SourceSchemaType } from '../../camel';
 import { IKameletDefinition, IKameletMetadata, IKameletSpecProperty } from '../../camel/kamelets-catalog';
 import { CatalogKind } from '../../catalog-kind';
 import { NodeLabelType } from '../../settings';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
-import { CamelCatalogService } from './camel-catalog.service';
 import { KameletVisualEntity } from './kamelet-visual-entity';
 
 describe('KameletVisualEntity', () => {
@@ -112,26 +112,30 @@ describe('KameletVisualEntity', () => {
     });
   });
 
-  it('should return the kamelet root schema when querying the ROOT_PATH', async () => {
+  it('should return the kamelet root schema when querying with KameletConfiguration primaryNodeId', async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    const entityCatalogMap = catalogsMap.entitiesCatalog;
-    CamelCatalogService.setCatalogKey(CatalogKind.Entity, entityCatalogMap);
+    setupDynamicCatalogRegistry(catalogsMap);
     const kamelet = new KameletVisualEntity(kameletDef);
 
-    expect(kamelet.getNodeSchema(KameletVisualEntity.ROOT_PATH)).toEqual(
-      entityCatalogMap.KameletConfiguration.propertiesSchema,
-    );
+    const result = await kamelet.fetchNodeSchema({
+      primaryNodeId: { name: 'KameletConfiguration', catalogKind: CatalogKind.Entity },
+    });
 
-    CamelCatalogService.clearCatalogs();
+    const kameletConfigEntry = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Entity, 'KameletConfiguration');
+    expect(result).toEqual(kameletConfigEntry?.propertiesSchema);
   });
 
-  it('getNodeSchema should return the component schema from the underlying AbstractCamelVisualEntity', () => {
-    const getNodeSchemaSpy = vi.spyOn(AbstractCamelVisualEntity.prototype, 'getNodeSchema');
+  it('fetchNodeSchema should delegate to the underlying AbstractCamelVisualEntity for nested nodes', async () => {
+    const fetchNodeSchemaSpy = vi.spyOn(AbstractCamelVisualEntity.prototype, 'fetchNodeSchema');
 
     const kamelet = new KameletVisualEntity(kameletDef);
-    kamelet.getNodeSchema('test-path');
+    const ids = {
+      primaryNodeId: { name: 'from', catalogKind: CatalogKind.Entity },
+      secondaryNodeId: { name: 'timer', catalogKind: CatalogKind.Component },
+    };
+    await kamelet.fetchNodeSchema(ids);
 
-    expect(getNodeSchemaSpy).toHaveBeenCalledWith('test-path');
+    expect(fetchNodeSchemaSpy).toHaveBeenCalledWith(ids);
   });
 
   it('should return the root uri', () => {

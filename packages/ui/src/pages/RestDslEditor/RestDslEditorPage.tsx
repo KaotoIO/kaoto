@@ -3,13 +3,15 @@ import './RestDslEditorPage.scss';
 import { CodeSnippet } from '@carbon/react';
 import { Rest } from '@kaoto/camel-catalog/types';
 import { CanvasFormTabsProvider, FilteredFieldProvider, getCamelRandomId, KaotoForm } from '@kaoto/forms';
-import { FunctionComponent, Suspense, useCallback, useMemo, useRef, useState } from 'react';
+import { FunctionComponent, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Loading } from '../../components/Loading';
 import { ResizableSplitPanels } from '../../components/ResizableSplitPanels/ResizableSplitPanels';
 import { SuggestionRegistrar } from '../../components/Visualization/Canvas/Form/suggestions/SuggestionsProvider';
 import { useEntityContext } from '../../hooks/useEntityContext/useEntityContext';
+import { CatalogKind } from '../../models/catalog-kind';
 import { EntityType } from '../../models/entities';
+import { KaotoSchemaDefinition } from '../../models/kaoto-schema';
 import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';
 import { AddMethodFormModel } from './components/add-method-schema';
 import { AddMethodModal } from './components/AddMethodModal';
@@ -30,10 +32,39 @@ const DEFAULT_REST_METHOD_URI = 'direct';
 export const RestDslEditorPage: FunctionComponent = () => {
   const { entities, camelResource, updateEntitiesFromCamelResource, updateSourceCodeFromEntities } = useEntityContext();
   const [selectedElement, setSelectedElement] = useState<IRestTreeSelection | undefined>();
+  const [schema, setSchema] = useState<KaotoSchemaDefinition['schema'] | undefined>();
+  const [isSchemaLoading, setIsSchemaLoading] = useState(false);
   const restRelatedEntities = useMemo(() => getRestEntities(entities), [entities]);
 
   const selectedEntity = restRelatedEntities.find((entity) => entity.id === selectedElement?.entityId);
-  const schema = selectedEntity?.getNodeSchema(selectedElement?.modelPath);
+
+  useEffect(() => {
+    let cancelled = false;
+    setSchema(undefined);
+    if (!selectedEntity || !selectedElement?.ids) return;
+    setIsSchemaLoading(true);
+    selectedEntity
+      .fetchNodeSchema(selectedElement.ids)
+      .then((resolved) => {
+        if (!cancelled) setSchema(resolved);
+      })
+      .catch((err) => {
+        console.error('Failed to fetch REST DSL schema:', err);
+      })
+      .finally(() => {
+        if (!cancelled) setIsSchemaLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    selectedEntity,
+    selectedElement?.entityId,
+    selectedElement?.modelPath,
+    selectedElement?.ids?.primaryNodeId?.name,
+  ]);
+
   const model = selectedEntity?.getNodeDefinition(selectedElement?.modelPath);
 
   const [treeVersion, setTreeVersion] = useState(0);
@@ -75,14 +106,22 @@ export const RestDslEditorPage: FunctionComponent = () => {
   const handleAddRestConfiguration = useCallback(() => {
     const newId = camelResource.addNewEntity(EntityType.RestConfiguration);
     updateEntitiesFromCamelResource();
-    setSelectedElement({ modelPath: 'restConfiguration', entityId: newId });
+    setSelectedElement({
+      modelPath: 'restConfiguration',
+      entityId: newId,
+      ids: { primaryNodeId: { name: 'restConfiguration', catalogKind: CatalogKind.Entity } },
+    });
     setTreeVersion((version) => version + 1);
   }, [camelResource, updateEntitiesFromCamelResource]);
 
   /** Adds a new REST service entity to the resource */
   const handleAddRest = useCallback(() => {
     const newId = camelResource.addNewEntity(EntityType.Rest);
-    setSelectedElement({ modelPath: 'rest', entityId: newId });
+    setSelectedElement({
+      modelPath: 'rest',
+      entityId: newId,
+      ids: { primaryNodeId: { name: 'rest', catalogKind: CatalogKind.Entity } },
+    });
     updateEntitiesFromCamelResource();
     setTreeVersion((version) => version + 1);
   }, [camelResource, updateEntitiesFromCamelResource]);
@@ -109,7 +148,11 @@ export const RestDslEditorPage: FunctionComponent = () => {
       });
 
       updateEntitiesFromCamelResource();
-      setSelectedElement({ entityId: selectedEntity.id, modelPath: `rest.${model.method}.${methodsArray.length - 1}` });
+      setSelectedElement({
+        entityId: selectedEntity.id,
+        modelPath: `rest.${model.method}.${methodsArray.length - 1}`,
+        ids: { primaryNodeId: { name: model.method, catalogKind: CatalogKind.Pattern } },
+      });
       setTreeVersion((version) => version + 1);
     },
     [selectedEntity, updateEntitiesFromCamelResource],
@@ -171,7 +214,7 @@ export const RestDslEditorPage: FunctionComponent = () => {
                     </>
                   )}
                 </div>
-                {!schema || Object.keys(schema).length === 0 ? (
+                {isSchemaLoading || !schema || Object.keys(schema).length === 0 ? (
                   <Loading>Loading schemas...</Loading>
                 ) : (
                   <Suspense fallback={<Loading>Loading form...</Loading>}>

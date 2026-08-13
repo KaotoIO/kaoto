@@ -1,4 +1,5 @@
 import { CamelResourceFactory } from '../../models/camel/camel-resource-factory';
+import { CatalogKind } from '../../models/catalog-kind';
 import { KaotoResource } from '../../models/kaoto-resource';
 import { BaseVisualEntity } from '../../models/visualization/base-visual-entity';
 import { CamelRestConfigurationVisualEntity } from '../../models/visualization/flows/camel-rest-configuration-visual-entity';
@@ -61,6 +62,10 @@ describe('restToTree', () => {
         type: 'restConfiguration',
         label: 'Rest configuration',
         modelPath: 'restConfiguration',
+        primaryNodeId: {
+          name: 'restConfiguration',
+          catalogKind: CatalogKind.Entity,
+        },
       },
       {
         id: 'rest-3496',
@@ -68,6 +73,10 @@ describe('restToTree', () => {
         type: 'rest',
         label: 'Rest',
         modelPath: 'rest',
+        primaryNodeId: {
+          name: 'rest',
+          catalogKind: CatalogKind.Entity,
+        },
         children: [
           {
             id: 'rest-1816',
@@ -75,6 +84,10 @@ describe('restToTree', () => {
             type: 'get',
             label: 'aaa',
             modelPath: 'rest.get.0',
+            primaryNodeId: {
+              name: 'get',
+              catalogKind: CatalogKind.Pattern,
+            },
           },
           {
             id: 'rest-1996',
@@ -82,6 +95,10 @@ describe('restToTree', () => {
             type: 'get',
             label: 'bbb',
             modelPath: 'rest.get.1',
+            primaryNodeId: {
+              name: 'get',
+              catalogKind: CatalogKind.Pattern,
+            },
           },
           {
             id: 'rest-3315',
@@ -89,6 +106,10 @@ describe('restToTree', () => {
             type: 'delete',
             label: 'ddd',
             modelPath: 'rest.delete.0',
+            primaryNodeId: {
+              name: 'delete',
+              catalogKind: CatalogKind.Pattern,
+            },
           },
           {
             id: 'rest-5678',
@@ -96,6 +117,10 @@ describe('restToTree', () => {
             type: 'delete',
             label: 'ddd',
             modelPath: 'rest.delete.1',
+            primaryNodeId: {
+              name: 'delete',
+              catalogKind: CatalogKind.Pattern,
+            },
           },
           {
             id: 'rest-1370',
@@ -103,6 +128,10 @@ describe('restToTree', () => {
             type: 'head',
             label: 'ssss',
             modelPath: 'rest.head.0',
+            primaryNodeId: {
+              name: 'head',
+              catalogKind: CatalogKind.Pattern,
+            },
           },
         ],
       },

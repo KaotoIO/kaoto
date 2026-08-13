@@ -2,6 +2,7 @@ import { ProcessorDefinition, RouteConfigurationDefinition } from '@kaoto/camel-
 import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { getValue, setValue } from '../../../utils';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
@@ -18,7 +19,6 @@ import {
   NodeInteraction,
 } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
-import { CamelCatalogService } from './camel-catalog.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
 
 export class CamelRouteConfigurationVisualEntity
@@ -97,13 +97,20 @@ export class CamelRouteConfigurationVisualEntity
     }
   }
 
-  getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined {
-    if (path === this.getRootPath()) {
-      const schema = CamelCatalogService.getComponent(CatalogKind.Entity, 'routeConfiguration');
-      return schema?.propertiesSchema ?? {};
+  async fetchNodeSchema(ids: IVisualizationNodeIds): Promise<KaotoSchemaDefinition['schema'] | undefined> {
+    if (!ids?.primaryNodeId) {
+      return;
     }
 
-    return super.getNodeSchema(path);
+    if (ids.primaryNodeId.catalogKind === CatalogKind.Entity && ids.primaryNodeId.name === 'routeConfiguration') {
+      const definition = await DynamicCatalogRegistry.get().getEntity(
+        ids.primaryNodeId.catalogKind,
+        ids.primaryNodeId.name,
+      );
+      return definition?.propertiesSchema;
+    }
+
+    return await super.fetchNodeSchema(ids);
   }
 
   getNodeDefinition(path?: string): unknown {

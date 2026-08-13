@@ -89,10 +89,14 @@ describe('CamelErrorHandlerVisualEntity', () => {
     expect(entity.getNodeDefinition()).toEqual(errorHandlerDef.errorHandler);
   });
 
-  it('should return schema from store', () => {
+  it('should return schema from catalog', async () => {
     const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
 
-    expect(entity.getNodeSchema()).toMatchSnapshot();
+    const result = await entity.fetchNodeSchema({
+      primaryNodeId: { name: 'errorHandler', catalogKind: CatalogKind.Entity },
+    });
+
+    expect(result).toMatchSnapshot();
   });
 
   describe('updateModel', () => {

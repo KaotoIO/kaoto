@@ -27,7 +27,6 @@ import {
 import { IClipboardContent } from '../clipboard';
 import { NodeIdentity } from '../node-identity';
 import { createVisualizationNode } from '../visualization-node';
-import { CamelCatalogService } from './camel-catalog.service';
 import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 import { KameletSchemaService } from './support/kamelet-schema.service';
 import { ModelValidationService } from './support/validators/model-validation.service';
@@ -74,25 +73,19 @@ export class PipeVisualEntity implements BaseVisualEntity {
     return KameletSchemaService.getNodeLabel(stepModel, path);
   }
 
-  getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined {
-    if (!path) return undefined;
-    if (path === this.getRootPath()) {
-      return this.getRootPipeSchema();
-    }
-
-    const stepModel: PipeStep = getValue(this.pipe.spec, path);
-    return (
-      KameletSchemaService.getKameletCatalogEntry(stepModel)?.propertiesSchema ??
-      ({} as KaotoSchemaDefinition['schema'])
-    );
-  }
-
   async fetchNodeSchema(ids: IVisualizationNodeIds): Promise<KaotoSchemaDefinition['schema'] | undefined> {
-    const { primaryNodeId } = ids;
-    if (!primaryNodeId) {
-      return undefined;
+    if (!ids?.primaryNodeId) {
+      return;
     }
-    const definition = await DynamicCatalogRegistry.get().getEntity(primaryNodeId.catalogKind, primaryNodeId.name);
+
+    if (ids.primaryNodeId.catalogKind === CatalogKind.Entity && ids.primaryNodeId.name === 'PipeConfiguration') {
+      return await this.getRootPipeSchema();
+    }
+
+    const definition = await DynamicCatalogRegistry.get().getEntity(
+      ids.primaryNodeId.catalogKind,
+      ids.primaryNodeId.name,
+    );
     return definition?.propertiesSchema;
   }
 
@@ -227,8 +220,7 @@ export class PipeVisualEntity implements BaseVisualEntity {
     };
   }
 
-  getNodeValidationText(path?: string | undefined): string | undefined {
-    const schema = this.getNodeSchema(path);
+  getNodeValidationText(path?: string, schema?: KaotoSchemaDefinition['schema']): string | undefined {
     const definition = this.getNodeDefinition(path);
     if (!schema || !definition) return undefined;
 
@@ -349,8 +341,8 @@ export class PipeVisualEntity implements BaseVisualEntity {
     return vizNodes;
   }
 
-  private getRootPipeSchema(): KaotoSchemaDefinition['schema'] {
-    const rootPipeDefinition = CamelCatalogService.getComponent(CatalogKind.Entity, 'PipeConfiguration');
+  private async getRootPipeSchema(): Promise<KaotoSchemaDefinition['schema']> {
+    const rootPipeDefinition = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Entity, 'PipeConfiguration');
 
     if (rootPipeDefinition === undefined) return {} as unknown as KaotoSchemaDefinition['schema'];
 

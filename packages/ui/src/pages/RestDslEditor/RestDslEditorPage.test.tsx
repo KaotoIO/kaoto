@@ -10,7 +10,7 @@ import { KaotoResource } from '../../models/kaoto-resource';
 import { CamelRestConfigurationVisualEntity } from '../../models/visualization/flows/camel-rest-configuration-visual-entity';
 import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';
 import { TestProvidersWrapper } from '../../stubs';
-import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../stubs/test-load-catalog';
 import { RestDslEditorPage } from './RestDslEditorPage';
 import { clickToolbarActionUtil } from './test-utils';
 
@@ -73,6 +73,7 @@ describe('RestDslEditorPage', () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
     CamelCatalogService.setCatalogKey(CatalogKind.Pattern, catalogsMap.patternCatalogMap);
+    setupDynamicCatalogRegistry(catalogsMap);
   });
 
   afterEach(() => {

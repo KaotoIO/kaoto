@@ -165,18 +165,20 @@ describe('CitrusTestVisualEntity', () => {
     });
   });
 
-  describe('getNodeSchema', () => {
-    it('should return undefined if no path is provided', () => {
-      expect(citrusTestEntity.getNodeSchema()).toBeUndefined();
+  describe('fetchNodeSchema', () => {
+    it('should return undefined if no primaryNodeId is provided', async () => {
+      expect(await citrusTestEntity.fetchNodeSchema({})).toBeUndefined();
     });
 
-    it('should return empty schema if no component model is found', () => {
-      const result = citrusTestEntity.getNodeSchema('unknown');
+    it('should return empty schema if action is not found', async () => {
+      const result = await citrusTestEntity.fetchNodeSchema({
+        primaryNodeId: { name: 'unknown', catalogKind: CatalogKind.TestAction },
+      });
 
       expect(result).toEqual({});
     });
 
-    it('should return root test schema from the catalog', () => {
+    it('should return root test schema from the catalog', async () => {
       CamelCatalogService.setCatalogKey(CatalogKind.Entity, {
         [CITRUS_TEST_ROOT_ENTITY_NAME]: {
           propertiesSchema: {
@@ -186,7 +188,9 @@ describe('CitrusTestVisualEntity', () => {
           },
         } as unknown as ICamelProcessorDefinition,
       });
-      const result = citrusTestEntity.getNodeSchema(CitrusTestVisualEntity.ROOT_PATH);
+      const result = await citrusTestEntity.fetchNodeSchema({
+        primaryNodeId: { name: CITRUS_TEST_ROOT_ENTITY_NAME, catalogKind: CatalogKind.Entity },
+      });
 
       expect(result).toHaveProperty('name');
       expect(result).toHaveProperty('description');
@@ -197,13 +201,12 @@ describe('CitrusTestVisualEntity', () => {
       expect(result?.properties?.finally).toEqual({});
     });
 
-    it('should return the component schema', () => {
-      const spy = vi.spyOn(CitrusTestSchemaService, 'extractTestActionName');
-      spy.mockReturnValueOnce('print');
+    it('should return the component schema for a test action', async () => {
+      const result = await citrusTestEntity.fetchNodeSchema({
+        primaryNodeId: { name: 'print', catalogKind: CatalogKind.TestAction },
+      });
 
-      citrusTestEntity.getNodeSchema('actions.0.print');
-
-      expect(spy).toHaveBeenCalledWith('actions.0.print');
+      expect(result).toBeDefined();
     });
   });
 
@@ -904,13 +907,10 @@ describe('CitrusTestVisualEntity', () => {
       const invalidModel = cloneDeep(citrusTestJson);
       setValue(invalidModel, 'actions[0].print.message', undefined);
       const entity = new CitrusTestVisualEntity(invalidModel);
+      const schema = CitrusTestSchemaService.getNodeSchema('print');
 
-      const spy = vi.spyOn(CitrusTestSchemaService, 'extractTestActionName');
-      spy.mockReturnValueOnce('print');
+      const result = entity.getNodeValidationText('actions.0.print', schema);
 
-      const result = entity.getNodeValidationText('actions.0.print');
-
-      expect(spy).toHaveBeenCalledWith('actions.0.print');
       expect(result).toBe('1 required parameter is not yet configured: [ message ]');
     });
   });

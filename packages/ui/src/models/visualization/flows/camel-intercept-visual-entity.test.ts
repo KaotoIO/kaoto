@@ -92,7 +92,7 @@ describe('CamelInterceptVisualEntity', () => {
     const interceptVisualEntity = new CamelInterceptVisualEntity({
       intercept: { id: 'id', disabled: false },
     });
-    interceptVisualEntity.getNodeValidationText('intercept');
+    interceptVisualEntity.getNodeValidationText('intercept', { type: 'object', properties: {} });
 
     expect(validateNodeStatusSpy).toHaveBeenCalled();
   });

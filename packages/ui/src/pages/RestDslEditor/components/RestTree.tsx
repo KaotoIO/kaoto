@@ -4,12 +4,12 @@ import { TrashCan } from '@carbon/icons-react';
 import { Menu, MenuItem, TreeNode, TreeView, useContextMenu } from '@carbon/react';
 import { FunctionComponent, PropsWithChildren, useEffect, useRef, useState } from 'react';
 
-import { BaseVisualEntity } from '../../../models/visualization/base-visual-entity';
+import { BaseVisualEntity, IVisualizationNodeIds } from '../../../models/visualization/base-visual-entity';
 import { restToTree } from '../rest-to-tree';
 import { MethodBadge } from './MethodBadge';
 
 /** Represents a selected item in the REST tree */
-export type IRestTreeSelection = { entityId: string; modelPath: string };
+export type IRestTreeSelection = { entityId: string; modelPath: string; ids: IVisualizationNodeIds };
 
 /**
  * Props for the RestTree component.
@@ -57,11 +57,13 @@ export const RestTree: FunctionComponent<IRestTree> = ({ entities, selected, onS
     selectionsByNodeId.set(getNodeId(node.entityId, node.modelPath), {
       entityId: node.entityId,
       modelPath: node.modelPath,
+      ids: { primaryNodeId: node.primaryNodeId },
     });
     node.children?.forEach((child) => {
       selectionsByNodeId.set(getNodeId(child.entityId, child.modelPath), {
         entityId: child.entityId,
         modelPath: child.modelPath,
+        ids: { primaryNodeId: child.primaryNodeId },
       });
     });
   });
@@ -108,7 +110,11 @@ export const RestTree: FunctionComponent<IRestTree> = ({ entities, selected, onS
                 id={nodeId}
                 label={node.id}
                 onSelect={() => {
-                  onSelect({ entityId: node.entityId, modelPath: node.modelPath });
+                  onSelect({
+                    entityId: node.entityId,
+                    modelPath: node.modelPath,
+                    ids: { primaryNodeId: node.primaryNodeId },
+                  });
                 }}
               >
                 {node.children?.map((child) => {
@@ -127,7 +133,11 @@ export const RestTree: FunctionComponent<IRestTree> = ({ entities, selected, onS
                       label={label}
                       renderIcon={() => <MethodBadge type={child.type} />}
                       onSelect={() => {
-                        onSelect({ entityId: child.entityId, modelPath: child.modelPath });
+                        onSelect({
+                          entityId: child.entityId,
+                          modelPath: child.modelPath,
+                          ids: { primaryNodeId: child.primaryNodeId },
+                        });
                       }}
                     />
                   );

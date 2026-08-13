@@ -28,10 +28,10 @@ describe('CitrusTestSchemaService', () => {
       ['iterate', CatalogKind.TestContainer],
       ['kubernetes-createService', CatalogKind.TestAction],
       ['camel-jbang-run', CatalogKind.TestAction],
-    ])('should leverage the CamelCatalogService.getComponent method', (actionName, catalogKind) => {
+    ])('should leverage the CamelCatalogService.getComponent method', async (actionName, catalogKind) => {
       const getComponentSpy = vi.spyOn(CamelCatalogService, 'getComponent');
 
-      CitrusTestSchemaService.getNodeSchema(actionName);
+      await CitrusTestSchemaService.getNodeSchema(actionName);
 
       expect(getComponentSpy).toHaveBeenCalledWith(catalogKind, actionName);
     });

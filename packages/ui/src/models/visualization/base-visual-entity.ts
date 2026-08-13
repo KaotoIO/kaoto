@@ -26,15 +26,12 @@ export interface BaseVisualEntity extends BaseEntity {
   /** Given a path, get the component label */
   getNodeLabel: (path?: string, labelType?: NodeLabelType, ids?: IVisualizationNodeIds) => string;
 
-  /** Given a path, returns the node's associated schema used for the configuration form */
-  getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined;
-
   /**
    * Async, ID-based schema resolution using the Dynamic Catalog.
    * Accepts the three node identifiers and returns the fully resolved schema.
    * DSL-specific logic is owned by each concrete BaseVisualEntity implementation.
    */
-  fetchNodeSchema(ids: IVisualizationNodeIds): Promise<KaotoSchemaDefinition['schema'] | undefined>;
+  fetchNodeSchema(ids?: IVisualizationNodeIds): Promise<KaotoSchemaDefinition['schema'] | undefined>;
 
   /** Given a path, returns the node's underlying definition in JSON format */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -80,7 +77,7 @@ export interface BaseVisualEntity extends BaseEntity {
   getNodeInteraction(data: IVisualizationNodeData): NodeInteraction;
 
   /** Given a path, retrieve the Node validation status */
-  getNodeValidationText(path?: string): string | undefined;
+  getNodeValidationText(path?: string, schema?: KaotoSchemaDefinition['schema']): string | undefined;
 
   /** Generates a IVisualizationNode from the underlying Camel entity */
   toVizNode: () => Promise<IVisualizationNode>;
@@ -130,9 +127,6 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   canDropOnNode(): boolean;
 
   getNodeInteraction(): NodeInteraction;
-
-  /** This method returns the node's associated schema used for the configuration form */
-  getNodeSchema(): KaotoSchemaDefinition['schema'] | undefined;
 
   /** This method returns the node's associated schema asynchronously from the catalog */
   fetchSchema(): Promise<KaotoSchemaDefinition['schema'] | undefined>;
