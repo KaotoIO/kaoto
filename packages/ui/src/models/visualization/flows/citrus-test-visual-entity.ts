@@ -443,7 +443,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
   }
 
   private async getVizNodeFromStep(action: TestActions, path: string): Promise<IVisualizationNode> {
-    const actionName = await CitrusTestSchemaService.getTestActionName(action);
+    const actionName = CitrusTestSchemaService.getTestActionName(action);
     const data: IVisualizationNodeData = {
       name: actionName,
       path,
@@ -483,7 +483,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     const vizNodes: IVisualizationNode[] = [];
     for (let index = 0; index < actions.length; index++) {
       const action = actions[index];
-      const actionName = await CitrusTestSchemaService.getTestActionName(action);
+      const actionName = CitrusTestSchemaService.getTestActionName(action);
       const vizNode = await this.getVizNodeFromStep(action, `${actionsPath}.${index}.${actionName}`);
 
       if (index > 0) {
@@ -573,7 +573,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
       return [placeholderNode];
     }
 
-    const actionName = await CitrusTestSchemaService.getTestActionName(action);
+    const actionName = CitrusTestSchemaService.getTestActionName(action);
     const stepVizNode = await this.getVizNodeFromStep(action, `${path}.${actionName}`);
     return [stepVizNode];
   }
@@ -589,7 +589,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     const children: IVisualizationNode[] = [];
     for (let index = 0; index < actions.length; index++) {
       const action = actions[index];
-      const actionName = await CitrusTestSchemaService.getTestActionName(action);
+      const actionName = CitrusTestSchemaService.getTestActionName(action);
       const vizNode = await this.getVizNodeFromStep(action, `${path}.${index}.${actionName}`);
       children.push(vizNode);
     }
