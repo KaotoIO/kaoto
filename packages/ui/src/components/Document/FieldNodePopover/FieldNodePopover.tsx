@@ -37,7 +37,7 @@ export const FieldNodePopover: FunctionComponent<FieldNodePopoverProps> = ({
     return null;
   }
 
-  const detailItems = prepareFieldDetails(field, namespaceMap);
+  const detailItems = prepareFieldDetails(field, namespaceMap, nodeData);
 
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
