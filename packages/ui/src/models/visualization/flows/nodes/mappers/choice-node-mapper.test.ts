@@ -44,21 +44,33 @@ describe('ChoiceNodeMapper', () => {
   });
 
   it('should return children', async () => {
-    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'choice' }, routeDefinition);
+    const vizNode = await mapper.getVizNodeFromProcessor(
+      path,
+      { primaryNodeId: { name: 'choice', catalogKind: CatalogKind.Pattern } },
+      routeDefinition,
+    );
 
     // When placeholder (first) + 2 when nodes + otherwise = 4 children
     expect(vizNode.getChildren()).toHaveLength(4);
   });
 
   it('should populate primaryNodeId', async () => {
-    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'choice' }, routeDefinition);
+    const vizNode = await mapper.getVizNodeFromProcessor(
+      path,
+      { primaryNodeId: { name: 'choice', catalogKind: CatalogKind.Pattern } },
+      routeDefinition,
+    );
 
     expect(vizNode.data.primaryNodeId).toEqual({ name: 'choice', catalogKind: CatalogKind.Pattern });
     expect(vizNode.data.secondaryNodeId).toBeUndefined();
   });
 
   it('should return when placeholder first, then `when` nodes as children', async () => {
-    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'choice' }, routeDefinition);
+    const vizNode = await mapper.getVizNodeFromProcessor(
+      path,
+      { primaryNodeId: { name: 'choice', catalogKind: CatalogKind.Pattern } },
+      routeDefinition,
+    );
 
     expect(vizNode.getChildren()?.[0].data.path).toBe('from.steps.0.choice.when');
     expect(vizNode.getChildren()?.[0].data.isPlaceholder).toBe(true);
@@ -67,7 +79,11 @@ describe('ChoiceNodeMapper', () => {
   });
 
   it('should return an `otherwise` node if defined', async () => {
-    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'choice' }, routeDefinition);
+    const vizNode = await mapper.getVizNodeFromProcessor(
+      path,
+      { primaryNodeId: { name: 'choice', catalogKind: CatalogKind.Pattern } },
+      routeDefinition,
+    );
 
     expect(vizNode.getChildren()?.[3].data.path).toBe('from.steps.0.choice.otherwise');
     expect(vizNode.getChildren()?.[3].data.isPlaceholder).toBe(false);
@@ -76,7 +92,11 @@ describe('ChoiceNodeMapper', () => {
   it('should return an `otherwise` placeholder if not defined', async () => {
     routeDefinition.from.steps[0].choice!.otherwise = undefined;
 
-    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'choice' }, routeDefinition);
+    const vizNode = await mapper.getVizNodeFromProcessor(
+      path,
+      { primaryNodeId: { name: 'choice', catalogKind: CatalogKind.Pattern } },
+      routeDefinition,
+    );
 
     // When placeholder + 2 when nodes + otherwise placeholder = 4 children
     expect(vizNode.getChildren()).toHaveLength(4);

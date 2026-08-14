@@ -44,25 +44,41 @@ describe('StepNodeMapper', () => {
   });
 
   it('should populate primaryNodeId for non-DataMapper step', async () => {
-    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
+    const vizNode = await mapper.getVizNodeFromProcessor(
+      path,
+      { primaryNodeId: { name: 'step', catalogKind: CatalogKind.Pattern } },
+      routeDefinition,
+    );
 
     expect(vizNode.data.primaryNodeId).toEqual({ name: 'step', catalogKind: CatalogKind.Pattern });
     expect(vizNode.data.secondaryNodeId).toBeUndefined();
   });
 
   it('should return children', async () => {
-    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
+    const vizNode = await mapper.getVizNodeFromProcessor(
+      path,
+      { primaryNodeId: { name: 'step', catalogKind: CatalogKind.Pattern } },
+      routeDefinition,
+    );
 
     expect(vizNode.getChildren()).toHaveLength(2);
     expect(vizNode.getChildren()?.[1].data.isPlaceholder).toBe(true);
   });
 
   it('should use path for viz node ID for non DataMapper step node', async () => {
-    const vizNode1 = await mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
+    const vizNode1 = await mapper.getVizNodeFromProcessor(
+      path,
+      { primaryNodeId: { name: 'step', catalogKind: CatalogKind.Pattern } },
+      routeDefinition,
+    );
     expect(vizNode1.id).toBe('from.steps.0.step');
     expect(vizNode1.getChildren()).toHaveLength(2);
     expect(vizNode1.getChildren()?.[1].data.isPlaceholder).toBe(true);
-    const vizNode2 = await mapper.getVizNodeFromProcessor(path2, { processorName: 'step' }, routeDefinition);
+    const vizNode2 = await mapper.getVizNodeFromProcessor(
+      path2,
+      { primaryNodeId: { name: 'step', catalogKind: CatalogKind.Pattern } },
+      routeDefinition,
+    );
     expect(vizNode2.id).toBe('from.steps.1.step');
     expect(vizNode2.getChildren()).toHaveLength(2);
     expect(vizNode2.getChildren()?.[1].data.isPlaceholder).toBe(true);
@@ -71,7 +87,11 @@ describe('StepNodeMapper', () => {
   it('should verify if this step node is a Kaoto DataMapper one', async () => {
     const dataMapperNodeSpy = vi.spyOn(DataMapperNodeMapper, 'isDataMapperNode');
 
-    await mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
+    await mapper.getVizNodeFromProcessor(
+      path,
+      { primaryNodeId: { name: 'step', catalogKind: CatalogKind.Pattern } },
+      routeDefinition,
+    );
 
     expect(dataMapperNodeSpy).toHaveBeenCalledWith(routeDefinition.from.steps[0].step);
   });
@@ -81,8 +101,16 @@ describe('StepNodeMapper', () => {
     const dataMapperNodeSpy = vi.spyOn(DataMapperNodeMapper, 'isDataMapperNode');
     dataMapperNodeSpy.mockReturnValue(true);
 
-    await mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
+    await mapper.getVizNodeFromProcessor(
+      path,
+      { primaryNodeId: { name: 'step', catalogKind: CatalogKind.Pattern } },
+      routeDefinition,
+    );
 
-    expect(rootNodeMapperSpy).toHaveBeenCalledWith(path, { processorName: DATAMAPPER_ID_PREFIX }, routeDefinition);
+    expect(rootNodeMapperSpy).toHaveBeenCalledWith(
+      path,
+      { primaryNodeId: { name: DATAMAPPER_ID_PREFIX, catalogKind: CatalogKind.Pattern } },
+      routeDefinition,
+    );
   });
 });

@@ -1,3 +1,4 @@
+import { CatalogKind } from '../../../catalog-kind';
 import { noopNodeMapper } from './mappers/testing/noop-node-mapper';
 import { RootNodeMapper } from './root-node-mapper';
 
@@ -7,7 +8,13 @@ describe('RootNodeMapper', () => {
 
     rootNodeMapper.registerMapper('log', noopNodeMapper);
 
-    await expect(rootNodeMapper.getVizNodeFromProcessor('path', { processorName: 'log' }, {})).resolves.toBeDefined();
+    await expect(
+      rootNodeMapper.getVizNodeFromProcessor(
+        'path',
+        { primaryNodeId: { name: 'log', catalogKind: CatalogKind.Pattern } },
+        {},
+      ),
+    ).resolves.toBeDefined();
   });
 
   it('should allow consumers to register a default mapper', async () => {
@@ -15,15 +22,25 @@ describe('RootNodeMapper', () => {
 
     rootNodeMapper.registerDefaultMapper(noopNodeMapper);
 
-    await expect(rootNodeMapper.getVizNodeFromProcessor('path', { processorName: 'log' }, {})).resolves.toBeDefined();
+    await expect(
+      rootNodeMapper.getVizNodeFromProcessor(
+        'path',
+        { primaryNodeId: { name: 'log', catalogKind: CatalogKind.Pattern } },
+        {},
+      ),
+    ).resolves.toBeDefined();
   });
 
   it('should throw an error when no mapper is found', async () => {
     const rootNodeMapper = new RootNodeMapper();
 
-    await expect(rootNodeMapper.getVizNodeFromProcessor('path', { processorName: 'log' }, {})).rejects.toThrow(
-      'No mapper found for processor: log',
-    );
+    await expect(
+      rootNodeMapper.getVizNodeFromProcessor(
+        'path',
+        { primaryNodeId: { name: 'log', catalogKind: CatalogKind.Pattern } },
+        {},
+      ),
+    ).rejects.toThrow('No mapper found for processor: log');
   });
 
   describe('getVizNodeFromProcessor', () => {
@@ -32,9 +49,10 @@ describe('RootNodeMapper', () => {
       rootNodeMapper.registerDefaultMapper(noopNodeMapper);
       vi.spyOn(noopNodeMapper, 'getVizNodeFromProcessor');
 
-      const vizNode = await rootNodeMapper.getVizNodeFromProcessor('path', { processorName: 'log' }, {});
+      const componentLookup = { primaryNodeId: { name: 'log', catalogKind: CatalogKind.Pattern } };
+      const vizNode = await rootNodeMapper.getVizNodeFromProcessor('path', componentLookup, {});
 
-      expect(noopNodeMapper.getVizNodeFromProcessor).toHaveBeenCalledWith('path', { processorName: 'log' }, {});
+      expect(noopNodeMapper.getVizNodeFromProcessor).toHaveBeenCalledWith('path', componentLookup, {});
       expect(vizNode).toBeDefined();
     });
 
@@ -43,9 +61,10 @@ describe('RootNodeMapper', () => {
       rootNodeMapper.registerMapper('log', noopNodeMapper);
       vi.spyOn(noopNodeMapper, 'getVizNodeFromProcessor');
 
-      const vizNode = await rootNodeMapper.getVizNodeFromProcessor('path', { processorName: 'log' }, {});
+      const componentLookup = { primaryNodeId: { name: 'log', catalogKind: CatalogKind.Pattern } };
+      const vizNode = await rootNodeMapper.getVizNodeFromProcessor('path', componentLookup, {});
 
-      expect(noopNodeMapper.getVizNodeFromProcessor).toHaveBeenCalledWith('path', { processorName: 'log' }, {});
+      expect(noopNodeMapper.getVizNodeFromProcessor).toHaveBeenCalledWith('path', componentLookup, {});
       expect(vizNode).toBeDefined();
     });
   });

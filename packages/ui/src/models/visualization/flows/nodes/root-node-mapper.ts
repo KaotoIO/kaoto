@@ -1,7 +1,6 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 
-import { IVisualizationNode } from '../../base-visual-entity';
-import { ICamelElementLookupResult } from '../support/camel-component-types';
+import { IVisualizationNode, IVisualizationNodeIds } from '../../base-visual-entity';
 import { INodeMapper } from './node-mapper';
 
 export class RootNodeMapper implements INodeMapper {
@@ -18,13 +17,14 @@ export class RootNodeMapper implements INodeMapper {
 
   async getVizNodeFromProcessor(
     path: string,
-    componentLookup: ICamelElementLookupResult,
+    componentLookup: IVisualizationNodeIds,
     entityDefinition: unknown,
   ): Promise<IVisualizationNode> {
-    const mapper = this.mappers.get(componentLookup.processorName) || this.defaultMapper;
+    const mapper =
+      this.mappers.get(componentLookup.primaryNodeId?.name as keyof ProcessorDefinition) || this.defaultMapper;
 
     if (!mapper) {
-      throw new Error(`No mapper found for processor: ${componentLookup.processorName}`);
+      throw new Error(`No mapper found for processor: ${componentLookup.primaryNodeId?.name}`);
     }
 
     return mapper.getVizNodeFromProcessor(path, componentLookup, entityDefinition);

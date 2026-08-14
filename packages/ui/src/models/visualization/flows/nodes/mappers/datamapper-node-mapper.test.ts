@@ -29,13 +29,21 @@ describe('DataMapperNodeMapper', () => {
 
   describe('getVizNodeFromProcessor', () => {
     it('should not return any children', async () => {
-      const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
+      const vizNode = await mapper.getVizNodeFromProcessor(
+        path,
+        { primaryNodeId: { name: 'step', catalogKind: CatalogKind.Pattern } },
+        routeDefinition,
+      );
 
       expect(vizNode.getChildren()).toBeUndefined();
     });
 
     it('should populate primaryNodeId with CatalogKind.Pattern so the schema is resolved from the patterns catalog', async () => {
-      const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
+      const vizNode = await mapper.getVizNodeFromProcessor(
+        path,
+        { primaryNodeId: { name: 'step', catalogKind: CatalogKind.Pattern } },
+        routeDefinition,
+      );
 
       expect(vizNode.data.primaryNodeId).toEqual({ name: DATAMAPPER_ID_PREFIX, catalogKind: CatalogKind.Pattern });
     });
@@ -43,12 +51,12 @@ describe('DataMapperNodeMapper', () => {
     it('should assign an unique ID for each DataMapper steps', async () => {
       const firstVizNode = await mapper.getVizNodeFromProcessor(
         firstDataMapperPath,
-        { processorName: 'step' },
+        { primaryNodeId: { name: 'step', catalogKind: CatalogKind.Pattern } },
         twoDataMapperRouteDefinition,
       );
       const secondVizNode = await mapper.getVizNodeFromProcessor(
         secondDataMapperPath,
-        { processorName: 'step' },
+        { primaryNodeId: { name: 'step', catalogKind: CatalogKind.Pattern } },
         twoDataMapperRouteDefinition,
       );
 

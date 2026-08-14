@@ -15,7 +15,7 @@ describe('FromNodeMapper', () => {
   let vizNode: IVisualizationNode;
   const path = 'route.from';
   const FROM_ENTITY = 'from' as keyof ProcessorDefinition;
-  const PROCESSOR_OPTIONS = { processorName: FROM_ENTITY };
+  const PROCESSOR_OPTIONS = { primaryNodeId: { name: FROM_ENTITY, catalogKind: CatalogKind.Entity } };
 
   beforeEach(async () => {
     rootNodeMapper = new RootNodeMapper();

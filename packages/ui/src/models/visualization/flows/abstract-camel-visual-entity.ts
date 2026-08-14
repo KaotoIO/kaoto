@@ -308,8 +308,10 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     const fromNode = await NodeMapperService.getVizNode(
       `${this.getRootPath()}.from`,
       {
-        processorName: 'from' as keyof ProcessorDefinition,
-        componentName: CamelComponentSchemaService.getComponentNameFromUri(this.getRootUri()!),
+        primaryNodeId: {
+          name: 'from' as keyof ProcessorDefinition,
+          catalogKind: CatalogKind.Entity,
+        } satisfies NodeIdentity,
       },
       this.entityDef,
     );

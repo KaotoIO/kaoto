@@ -1,4 +1,4 @@
-import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
+import { RouteDefinition } from '@kaoto/camel-catalog/types';
 
 import { CatalogKind } from '../../../../catalog-kind';
 import { RootNodeMapper } from '../root-node-mapper';
@@ -43,7 +43,7 @@ describe('WhenNodeMapper', () => {
   it('should return children', async () => {
     const vizNode = await mapper.getVizNodeFromProcessor(
       path,
-      { processorName: 'when' as keyof ProcessorDefinition },
+      { primaryNodeId: { name: 'when', catalogKind: CatalogKind.Pattern } },
       routeDefinition,
     );
 
@@ -54,7 +54,7 @@ describe('WhenNodeMapper', () => {
   it('should populate primaryNodeId', async () => {
     const vizNode = await mapper.getVizNodeFromProcessor(
       path,
-      { processorName: 'when' as keyof ProcessorDefinition },
+      { primaryNodeId: { name: 'when', catalogKind: CatalogKind.Pattern } },
       routeDefinition,
     );
 

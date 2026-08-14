@@ -1,8 +1,7 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 
 import { DATAMAPPER_ID_PREFIX } from '../../../../utils';
-import { IVisualizationNode } from '../../base-visual-entity';
-import { ICamelElementLookupResult } from '../support/camel-component-types';
+import { IVisualizationNode, IVisualizationNodeIds } from '../../base-visual-entity';
 import { BaseNodeMapper } from './mappers/base-node-mapper';
 import { ChoiceNodeMapper } from './mappers/choice-node-mapper';
 import { CircuitBreakerNodeMapper } from './mappers/circuit-breaker-node-mapper';
@@ -23,7 +22,7 @@ export class NodeMapperService {
 
   static async getVizNode(
     path: string,
-    componentLookup: ICamelElementLookupResult,
+    componentLookup: IVisualizationNodeIds,
     entityDefinition: unknown,
   ): Promise<IVisualizationNode> {
     return this.getInstance().getVizNodeFromProcessor(path, componentLookup, entityDefinition);

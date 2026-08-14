@@ -1,7 +1,4 @@
-import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
-
 import { CatalogKind } from '../../../../catalog-kind';
-import { ICamelElementLookupResult } from '../../support/camel-component-types';
 import { RootNodeMapper } from '../root-node-mapper';
 import { LoadBalanceNodeMapper } from './loadbalance-node-mapper';
 import { MulticastNodeMapper } from './multicast-node-mapper';
@@ -43,7 +40,7 @@ describe('ParallelProcessorBaseNodeMapper', () => {
         };
         const vizNode = await mapper.getVizNodeFromProcessor(
           path,
-          { processorName: processorName as keyof ProcessorDefinition } as ICamelElementLookupResult,
+          { primaryNodeId: { name: processorName, catalogKind: CatalogKind.Pattern } },
           routeDefinition,
         );
 
@@ -51,7 +48,6 @@ describe('ParallelProcessorBaseNodeMapper', () => {
         expect(vizNode.data).toMatchObject({
           path,
           name: processorName,
-          processorName,
           isGroup: true,
         });
         // catalogKind is not set when lookup doesn't have componentName
@@ -91,7 +87,11 @@ describe('ParallelProcessorBaseNodeMapper', () => {
           },
         };
 
-        const vizNode = await mapper.getVizNodeFromProcessor(path, {} as ICamelElementLookupResult, routeDefinition);
+        const vizNode = await mapper.getVizNodeFromProcessor(
+          path,
+          { primaryNodeId: { name: processorName, catalogKind: CatalogKind.Pattern } },
+          routeDefinition,
+        );
         expect(vizNode.getChildren()).toHaveLength(3);
         expect(vizNode.getChildren()?.[0].getNextNode()).toBeUndefined();
         expect(vizNode.getChildren()?.[1].getPreviousNode()).toBeUndefined();
