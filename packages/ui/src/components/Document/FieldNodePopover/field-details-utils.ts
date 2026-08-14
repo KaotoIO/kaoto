@@ -4,7 +4,10 @@ import {
   FieldItemNodeData,
   FieldNodeData,
   NodeData,
+  TargetAbstractFieldNodeData,
+  TargetChoiceFieldNodeData,
 } from '../../../models/datamapper/visualization';
+import { VisualizationUtilService } from '../../../services/visualization/visualization-util.service';
 import { QName } from '../../../xml-schema-ts/QName';
 import { getOverrideDisplayInfo } from '../actions/FieldOverride/override-util';
 
@@ -28,8 +31,76 @@ export const formatTypeQName = (typeQName: QName | null): string => {
   return namespaceURI ? `${localPart} (${namespaceURI})` : localPart;
 };
 
-export const prepareFieldDetails = (field: IField, namespaceMap: Record<string, string> = {}): LabelValuePair[] => {
+/**
+ * Returns the effective maxOccurs for display in the field details popover.
+ *
+ * A selected choice member (or abstract substitution member) inherits its
+ * collection cardinality from the parent wrapper. In that case the member
+ * field's own maxOccurs is always 1, while the wrapper's maxOccurs carries
+ * the actual repeating constraint.
+ *
+ * Resolution order:
+ *
+ * 1. **No `nodeData`** — returns `field.maxOccurs` directly.
+ *
+ * 2. **`FieldItemNodeData` with `wrapperField` set** — target-side collection
+ *    member whose wrapper was resolved at node-construction time; returns
+ *    `wrapperField.maxOccurs`.
+ *
+ * 3. **`FieldItemNodeData` without `wrapperField`, parent is `TargetChoiceFieldNodeData`
+ *    or `TargetAbstractFieldNodeData`** — fallback for the case where
+ *    `VisualizationService.findWrapperFieldForFieldItem` returned `undefined`
+ *    but the parent node itself carries the wrapper's `IField`; returns
+ *    `parent.field.maxOccurs`.
+ *
+ * 4. **`ChoiceFieldNodeData` / `TargetChoiceFieldNodeData` with `choiceField` set** —
+ *    source or target selected choice member; returns `choiceField.maxOccurs`.
+ *
+ * 5. **`AbstractFieldNodeData` / `TargetAbstractFieldNodeData` with `abstractField` set** —
+ *    source or target selected abstract substitution member; returns `abstractField.maxOccurs`.
+ *
+ * 6. **All other nodes** (plain `FieldNodeData`, `TargetFieldNodeData`, unselected
+ *    choice/abstract wrappers, `AddMappingNodeData`, etc.) — returns `field.maxOccurs`.
+ *
+ * @param field    - The `IField` associated with the popover node.
+ * @param nodeData - Optional visualization node; when absent the raw field value is used.
+ */
+export const getEffectiveMaxOccurs = (field: IField, nodeData?: NodeData): IField['maxOccurs'] => {
+  if (!nodeData) {
+    return field.maxOccurs;
+  }
+
+  if (nodeData instanceof FieldItemNodeData) {
+    if (nodeData.wrapperField) {
+      return nodeData.wrapperField.maxOccurs;
+    }
+
+    if (
+      nodeData.parent instanceof TargetChoiceFieldNodeData ||
+      nodeData.parent instanceof TargetAbstractFieldNodeData
+    ) {
+      return nodeData.parent.field.maxOccurs;
+    }
+  }
+
+  if (VisualizationUtilService.isChoiceField(nodeData) && nodeData.choiceField) {
+    return nodeData.choiceField.maxOccurs;
+  }
+
+  if (VisualizationUtilService.isAbstractField(nodeData) && nodeData.abstractField) {
+    return nodeData.abstractField.maxOccurs;
+  }
+
+  return field.maxOccurs;
+};
+
+export const prepareFieldDetails = (
+  field: IField,
+  namespaceMap: Record<string, string> = {},
+  nodeData?: NodeData,
+): LabelValuePair[] => {
   const overrideDisplay = getOverrideDisplayInfo(field, namespaceMap);
+  const effectiveMaxOccurs = getEffectiveMaxOccurs(field, nodeData);
 
   const rows = [
     { label: 'Category', value: field.type },
@@ -40,7 +111,7 @@ export const prepareFieldDetails = (field: IField, namespaceMap: Record<string, 
     },
     {
       label: 'Max Occurs',
-      value: field.maxOccurs !== null && field.maxOccurs !== undefined ? String(field.maxOccurs) : null,
+      value: effectiveMaxOccurs !== null && effectiveMaxOccurs !== undefined ? String(effectiveMaxOccurs) : null,
     },
     { label: 'Namespace', value: field.namespaceURI },
     { label: 'Attribute', value: field.isAttribute ? 'yes' : null },

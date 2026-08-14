@@ -1,16 +1,20 @@
 import { IField } from '../../../models/datamapper/document';
 import { FieldItem, MappingTree } from '../../../models/datamapper/mapping';
 import {
+  AbstractFieldNodeData,
   AddMappingNodeData,
+  ChoiceFieldNodeData,
   DocumentNodeData,
   FieldItemNodeData,
   FieldNodeData,
+  TargetAbstractFieldNodeData,
+  TargetChoiceFieldNodeData,
   TargetDocumentNodeData,
   TargetFieldNodeData,
 } from '../../../models/datamapper/visualization';
 import { TestUtil } from '../../../stubs/datamapper/data-mapper';
 import { QName } from '../../../xml-schema-ts/QName';
-import { formatTypeQName, isFieldNode, prepareFieldDetails } from './field-details-utils';
+import { formatTypeQName, getEffectiveMaxOccurs, isFieldNode, prepareFieldDetails } from './field-details-utils';
 
 describe('field-details-utils', () => {
   afterEach(() => {
@@ -81,6 +85,112 @@ describe('field-details-utils', () => {
     it('should return formatted string with namespace when both are present', () => {
       const qname = new QName('http://www.w3.org/2001/XMLSchema', 'string');
       expect(formatTypeQName(qname)).toBe('string (http://www.w3.org/2001/XMLSchema)');
+    });
+  });
+
+  describe('getEffectiveMaxOccurs', () => {
+    it('should return field.maxOccurs when nodeData is undefined (case 1)', () => {
+      const shipOrderDoc = TestUtil.createSourceOrderDoc();
+      const field = { ...shipOrderDoc.fields[0], maxOccurs: 5 } as unknown as IField;
+
+      expect(getEffectiveMaxOccurs(field, undefined)).toBe(5);
+    });
+
+    it('should return field.maxOccurs for a plain FieldNodeData', () => {
+      const shipOrderDoc = TestUtil.createSourceOrderDoc();
+      const documentNodeData = new DocumentNodeData(shipOrderDoc);
+      const field = shipOrderDoc.fields[0];
+      const fieldNodeData = new FieldNodeData(documentNodeData, field);
+
+      expect(getEffectiveMaxOccurs(field, fieldNodeData)).toBe(field.maxOccurs);
+    });
+
+    it('should return wrapperField.maxOccurs for a FieldItemNodeData with wrapperField set (case 2)', () => {
+      const targetDoc = TestUtil.createTargetOrderDoc();
+      const mappingTree = new MappingTree(targetDoc.documentType, targetDoc.documentId, targetDoc.definitionType);
+      const targetDocNodeData = new TargetDocumentNodeData(targetDoc, mappingTree);
+      const memberField = { ...targetDoc.fields[0], maxOccurs: 1 } as unknown as IField;
+      const wrapperField = {
+        ...targetDoc.fields[0],
+        maxOccurs: 'unbounded',
+        wrapperKind: 'choice',
+      } as unknown as IField;
+      const targetFieldNodeData = new TargetFieldNodeData(targetDocNodeData, memberField);
+      const fieldItem = new FieldItem(mappingTree, memberField);
+      const fieldItemNodeData = new FieldItemNodeData(targetFieldNodeData, fieldItem, wrapperField);
+
+      expect(getEffectiveMaxOccurs(memberField, fieldItemNodeData)).toBe('unbounded');
+    });
+
+    it('should return choiceField.maxOccurs for a selected ChoiceFieldNodeData', () => {
+      const shipOrderDoc = TestUtil.createSourceOrderDoc();
+      const documentNodeData = new DocumentNodeData(shipOrderDoc);
+      const memberField = { ...shipOrderDoc.fields[0], maxOccurs: 1 } as unknown as IField;
+      const wrapperField = {
+        ...shipOrderDoc.fields[0],
+        maxOccurs: 'unbounded',
+        wrapperKind: 'choice',
+      } as unknown as IField;
+      const choiceNode = new ChoiceFieldNodeData(documentNodeData, memberField);
+      choiceNode.choiceField = wrapperField;
+
+      expect(getEffectiveMaxOccurs(memberField, choiceNode)).toBe('unbounded');
+    });
+
+    it('should fall back to parent TargetChoiceFieldNodeData.field.maxOccurs when wrapperField is absent', () => {
+      const targetDoc = TestUtil.createTargetOrderDoc();
+      const mappingTree = new MappingTree(targetDoc.documentType, targetDoc.documentId, targetDoc.definitionType);
+      const targetDocNodeData = new TargetDocumentNodeData(targetDoc, mappingTree);
+      const wrapperField = {
+        ...targetDoc.fields[0],
+        maxOccurs: 'unbounded',
+        wrapperKind: 'choice',
+      } as unknown as IField;
+      const memberField = { ...targetDoc.fields[0], maxOccurs: 1 } as unknown as IField;
+      const choiceParentNode = new TargetChoiceFieldNodeData(targetDocNodeData, wrapperField);
+      const fieldItem = new FieldItem(mappingTree, memberField);
+      // no wrapperField passed → simulates findWrapperFieldForFieldItem returning undefined
+      const fieldItemNodeData = new FieldItemNodeData(choiceParentNode, fieldItem);
+
+      expect(getEffectiveMaxOccurs(memberField, fieldItemNodeData)).toBe('unbounded');
+    });
+
+    it('should fall back to parent TargetAbstractFieldNodeData.field.maxOccurs when wrapperField is absent', () => {
+      const targetDoc = TestUtil.createTargetOrderDoc();
+      const mappingTree = new MappingTree(targetDoc.documentType, targetDoc.documentId, targetDoc.definitionType);
+      const targetDocNodeData = new TargetDocumentNodeData(targetDoc, mappingTree);
+      const wrapperField = { ...targetDoc.fields[0], maxOccurs: 3, wrapperKind: 'abstract' } as unknown as IField;
+      const memberField = { ...targetDoc.fields[0], maxOccurs: 1 } as unknown as IField;
+      const abstractParentNode = new TargetAbstractFieldNodeData(targetDocNodeData, wrapperField);
+      const fieldItem = new FieldItem(mappingTree, memberField);
+      const fieldItemNodeData = new FieldItemNodeData(abstractParentNode, fieldItem);
+
+      expect(getEffectiveMaxOccurs(memberField, fieldItemNodeData)).toBe(3);
+    });
+
+    it('should return abstractField.maxOccurs for a selected AbstractFieldNodeData (case 5)', () => {
+      const shipOrderDoc = TestUtil.createSourceOrderDoc();
+      const documentNodeData = new DocumentNodeData(shipOrderDoc);
+      const memberField = { ...shipOrderDoc.fields[0], maxOccurs: 1 } as unknown as IField;
+      const wrapperField = { ...shipOrderDoc.fields[0], maxOccurs: 4, wrapperKind: 'abstract' } as unknown as IField;
+      const abstractNode = new AbstractFieldNodeData(documentNodeData, memberField);
+      abstractNode.abstractField = wrapperField;
+
+      expect(getEffectiveMaxOccurs(memberField, abstractNode)).toBe(4);
+    });
+
+    it('should return field.maxOccurs for an unselected ChoiceFieldNodeData (no choiceField set)', () => {
+      const shipOrderDoc = TestUtil.createSourceOrderDoc();
+      const documentNodeData = new DocumentNodeData(shipOrderDoc);
+      const wrapperField = {
+        ...shipOrderDoc.fields[0],
+        maxOccurs: 'unbounded',
+        wrapperKind: 'choice',
+      } as unknown as IField;
+      const choiceNode = new ChoiceFieldNodeData(documentNodeData, wrapperField);
+      // choiceNode.choiceField is undefined (unselected)
+
+      expect(getEffectiveMaxOccurs(wrapperField, choiceNode)).toBe('unbounded');
     });
   });
 
@@ -249,6 +359,30 @@ describe('field-details-utils', () => {
       const result = prepareFieldDetails(field);
 
       expect(result.find((item) => item.label === 'Max Occurs')).toBeUndefined();
+    });
+
+    it('should show inherited maxOccurs from choice wrapper for a selected collection choice member', () => {
+      const shipOrderDoc = TestUtil.createSourceOrderDoc();
+      const documentNodeData = new DocumentNodeData(shipOrderDoc);
+      const memberField = createMockField({ maxOccurs: 1 });
+      const wrapperField = {
+        ...memberField,
+        maxOccurs: 'unbounded',
+        wrapperKind: 'choice',
+      } as unknown as IField;
+      const choiceNode = new ChoiceFieldNodeData(documentNodeData, memberField);
+      choiceNode.choiceField = wrapperField;
+
+      const result = prepareFieldDetails(memberField, {}, choiceNode);
+
+      expect(result).toContainEqual({ label: 'Max Occurs', value: 'unbounded' });
+    });
+
+    it('should show field maxOccurs unchanged when nodeData is not provided', () => {
+      const field = createMockField({ maxOccurs: 1 });
+      const result = prepareFieldDetails(field);
+
+      expect(result).toContainEqual({ label: 'Max Occurs', value: '1' });
     });
 
     it('should handle null typeQName', () => {
