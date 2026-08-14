@@ -21,7 +21,7 @@ describe('RouteConfigurationNodeMapper', () => {
     const entityDef = { routeConfiguration: {} };
     const vizNode = await mapper.getVizNodeFromProcessor(
       path,
-      { processorName: 'routeConfiguration' as keyof ProcessorDefinition },
+      { primaryNodeId: { name: 'routeConfiguration', catalogKind: CatalogKind.Entity } },
       entityDef,
     );
 
@@ -34,11 +34,11 @@ describe('RouteConfigurationNodeMapper', () => {
     const entityDef = { routeConfiguration: {} };
     const vizNode = await mapper.getVizNodeFromProcessor(
       path,
-      { processorName: 'routeConfiguration' as keyof ProcessorDefinition },
+      { primaryNodeId: { name: 'routeConfiguration', catalogKind: CatalogKind.Entity } },
       entityDef,
     );
 
-    expect(vizNode.data.primaryNodeId).toEqual({ name: 'routeConfiguration', catalogKind: CatalogKind.Processor });
+    expect(vizNode.data.primaryNodeId).toEqual({ name: 'routeConfiguration', catalogKind: CatalogKind.Entity });
     expect(vizNode.data.secondaryNodeId).toBeUndefined();
   });
 
@@ -46,7 +46,7 @@ describe('RouteConfigurationNodeMapper', () => {
     const entityDef = { routeConfiguration: {} };
     const vizNode = await mapper.getVizNodeFromProcessor(
       path,
-      { processorName: 'routeConfiguration' as keyof ProcessorDefinition },
+      { primaryNodeId: { name: 'routeConfiguration', catalogKind: CatalogKind.Entity } },
       entityDef,
     );
 
@@ -66,7 +66,7 @@ describe('RouteConfigurationNodeMapper', () => {
 
     const vizNode = await mapper.getVizNodeFromProcessor(
       path,
-      { processorName: 'routeConfiguration' as keyof ProcessorDefinition },
+      { primaryNodeId: { name: 'routeConfiguration', catalogKind: CatalogKind.Entity } },
       entityDef,
     );
 
@@ -86,7 +86,7 @@ describe('RouteConfigurationNodeMapper', () => {
 
     const vizNode = await mapper.getVizNodeFromProcessor(
       path,
-      { processorName: 'routeConfiguration' as keyof ProcessorDefinition },
+      { primaryNodeId: { name: 'routeConfiguration', catalogKind: CatalogKind.Entity } },
       entityDef,
     );
 
@@ -111,7 +111,7 @@ describe('RouteConfigurationNodeMapper', () => {
 
     const vizNode = await mapper.getVizNodeFromProcessor(
       path,
-      { processorName: 'routeConfiguration' as keyof ProcessorDefinition },
+      { primaryNodeId: { name: 'routeConfiguration', catalogKind: CatalogKind.Entity } },
       entityDef,
     );
 
@@ -134,7 +134,7 @@ describe('RouteConfigurationNodeMapper', () => {
 
     const vizNode = await mapper.getVizNodeFromProcessor(
       path,
-      { processorName: 'routeConfiguration' as keyof ProcessorDefinition },
+      { primaryNodeId: { name: 'routeConfiguration', catalogKind: CatalogKind.Entity } },
       entityDef,
     );
 
@@ -153,7 +153,7 @@ describe('RouteConfigurationNodeMapper', () => {
 
     const vizNode = await mapper.getVizNodeFromProcessor(
       path,
-      { processorName: 'routeConfiguration' as keyof ProcessorDefinition },
+      { primaryNodeId: { name: 'routeConfiguration', catalogKind: CatalogKind.Entity } },
       entityDef,
     );
 
@@ -172,7 +172,7 @@ describe('RouteConfigurationNodeMapper', () => {
 
     const vizNode = await mapper.getVizNodeFromProcessor(
       path,
-      { processorName: 'routeConfiguration' as keyof ProcessorDefinition },
+      { primaryNodeId: { name: 'routeConfiguration', catalogKind: CatalogKind.Entity } },
       entityDef,
     );
 
@@ -194,7 +194,7 @@ describe('RouteConfigurationNodeMapper', () => {
 
     const vizNode = await mapper.getVizNodeFromProcessor(
       path,
-      { processorName: 'routeConfiguration' as keyof ProcessorDefinition },
+      { primaryNodeId: { name: 'routeConfiguration', catalogKind: CatalogKind.Entity } },
       entityDef,
     );
 

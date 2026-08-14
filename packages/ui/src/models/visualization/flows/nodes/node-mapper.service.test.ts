@@ -1,4 +1,5 @@
 import { DATAMAPPER_ID_PREFIX } from '../../../../utils';
+import { CatalogKind } from '../../../catalog-kind';
 import { BaseNodeMapper } from './mappers/base-node-mapper';
 import { ChoiceNodeMapper } from './mappers/choice-node-mapper';
 import { CircuitBreakerNodeMapper } from './mappers/circuit-breaker-node-mapper';
@@ -19,7 +20,11 @@ describe('NodeMapperService', () => {
     const registerDefaultMapperSpy = vi.spyOn(RootNodeMapper.prototype, 'registerDefaultMapper');
     const registerMapperSpy = vi.spyOn(RootNodeMapper.prototype, 'registerMapper');
 
-    await NodeMapperService.getVizNode('path', { processorName: 'log' }, {});
+    await NodeMapperService.getVizNode(
+      'path',
+      { primaryNodeId: { name: 'log', catalogKind: CatalogKind.Pattern } },
+      {},
+    );
 
     expect(registerDefaultMapperSpy).toHaveBeenCalledWith(expect.any(BaseNodeMapper));
     expect(registerMapperSpy).toHaveBeenCalledWith('from', expect.any(FromNodeMapper));

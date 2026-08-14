@@ -1,24 +1,22 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 
 import { CatalogKind } from '../../../../catalog-kind';
-import { IVisualizationNode } from '../../../base-visual-entity';
+import { IVisualizationNode, IVisualizationNodeData, IVisualizationNodeIds } from '../../../base-visual-entity';
 import { NodeIdentity } from '../../../node-identity';
 import { createVisualizationNode } from '../../../visualization-node';
-import { CamelRouteVisualEntityData, ICamelElementLookupResult } from '../../support/camel-component-types';
 import { BaseNodeMapper } from './base-node-mapper';
 
 export class WhenNodeMapper extends BaseNodeMapper {
   async getVizNodeFromProcessor(
     path: string,
-    _componentLookup: ICamelElementLookupResult,
+    _componentLookup: IVisualizationNodeIds,
     entityDefinition: unknown,
   ): Promise<IVisualizationNode> {
     const processorName = 'when' as keyof ProcessorDefinition;
 
-    const data: CamelRouteVisualEntityData = {
+    const data: IVisualizationNodeData = {
       name: processorName,
       path,
-      processorName,
       isPlaceholder: false,
       isGroup: true,
       iconUrl: '',

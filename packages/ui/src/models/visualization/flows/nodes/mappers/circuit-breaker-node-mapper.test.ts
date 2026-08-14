@@ -41,26 +41,42 @@ describe('CircuitBreakerNodeMapper', () => {
   });
 
   it('should return children', async () => {
-    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'circuitBreaker' }, routeDefinition);
+    const vizNode = await mapper.getVizNodeFromProcessor(
+      path,
+      { primaryNodeId: { name: 'circuitBreaker', catalogKind: CatalogKind.Pattern } },
+      routeDefinition,
+    );
 
     expect(vizNode.getChildren()).toHaveLength(3);
     expect(vizNode.getChildren()?.[1].data.isPlaceholder).toBe(true);
   });
 
   it('should populate primaryNodeId', async () => {
-    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'circuitBreaker' }, routeDefinition);
+    const vizNode = await mapper.getVizNodeFromProcessor(
+      path,
+      { primaryNodeId: { name: 'circuitBreaker', catalogKind: CatalogKind.Pattern } },
+      routeDefinition,
+    );
 
     expect(vizNode.data.primaryNodeId).toEqual({ name: 'circuitBreaker', catalogKind: CatalogKind.Pattern });
   });
 
   it('should return step nodes as children', async () => {
-    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'circuitBreaker' }, routeDefinition);
+    const vizNode = await mapper.getVizNodeFromProcessor(
+      path,
+      { primaryNodeId: { name: 'circuitBreaker', catalogKind: CatalogKind.Pattern } },
+      routeDefinition,
+    );
 
     expect(vizNode.getChildren()?.[0].data.path).toBe('from.steps.0.circuitBreaker.steps.0.log');
   });
 
   it('should return an `onFallback` node if defined', async () => {
-    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'circuitBreaker' }, routeDefinition);
+    const vizNode = await mapper.getVizNodeFromProcessor(
+      path,
+      { primaryNodeId: { name: 'circuitBreaker', catalogKind: CatalogKind.Pattern } },
+      routeDefinition,
+    );
 
     expect(vizNode.getChildren()?.[2].data.path).toBe('from.steps.0.circuitBreaker.onFallback');
   });
@@ -68,7 +84,11 @@ describe('CircuitBreakerNodeMapper', () => {
   it('should not return an `onFallback` node if not defined', async () => {
     routeDefinition.from.steps[0].circuitBreaker!.onFallback = undefined;
 
-    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'circuitBreaker' }, routeDefinition);
+    const vizNode = await mapper.getVizNodeFromProcessor(
+      path,
+      { primaryNodeId: { name: 'circuitBreaker', catalogKind: CatalogKind.Pattern } },
+      routeDefinition,
+    );
 
     expect(vizNode.getChildren()).toHaveLength(3);
     expect(vizNode.getChildren()?.[0].data.path).toBe('from.steps.0.circuitBreaker.steps.0.log');

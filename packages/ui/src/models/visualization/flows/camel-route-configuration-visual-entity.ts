@@ -18,6 +18,7 @@ import {
   IVisualizationNodeIds,
   NodeInteraction,
 } from '../base-visual-entity';
+import { NodeIdentity } from '../node-identity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
@@ -168,7 +169,12 @@ export class CamelRouteConfigurationVisualEntity
   async toVizNode(): Promise<IVisualizationNode> {
     const routeConfigurationGroupNode = await NodeMapperService.getVizNode(
       this.getRootPath(),
-      { processorName: this.getRootPath() as keyof ProcessorDefinition },
+      {
+        primaryNodeId: {
+          name: this.getRootPath() as keyof ProcessorDefinition,
+          catalogKind: CatalogKind.Entity,
+        } satisfies NodeIdentity,
+      },
       this.routeConfigurationDef,
     );
     routeConfigurationGroupNode.data.entity = this;

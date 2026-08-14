@@ -269,7 +269,6 @@ describe('CamelRouteConfigurationVisualEntity', () => {
         name: 'routeConfiguration',
         isGroup: true,
         path: 'routeConfiguration',
-        processorName: 'routeConfiguration',
         primaryNodeId: { name: 'routeConfiguration', catalogKind: CatalogKind.Entity },
         iconAlt: 'Entity icon',
         iconUrl: '/src/assets/components/generic-component.png',

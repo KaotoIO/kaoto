@@ -5,6 +5,7 @@ import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities/base-entity';
 import { BaseVisualEntity, IVisualizationNode, IVisualizationNodeData, NodeInteraction } from '../base-visual-entity';
+import { NodeIdentity } from '../node-identity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
@@ -95,7 +96,12 @@ export class CamelInterceptFromVisualEntity
   async toVizNode(): Promise<IVisualizationNode<IVisualizationNodeData>> {
     const interceptFromGroupNode = await NodeMapperService.getVizNode(
       CamelInterceptFromVisualEntity.ROOT_PATH,
-      { processorName: CamelInterceptFromVisualEntity.ROOT_PATH as keyof ProcessorDefinition },
+      {
+        primaryNodeId: {
+          name: CamelInterceptFromVisualEntity.ROOT_PATH as keyof ProcessorDefinition,
+          catalogKind: CatalogKind.Entity,
+        } satisfies NodeIdentity,
+      },
       this.interceptFromDef,
     );
     interceptFromGroupNode.data.entity = this;

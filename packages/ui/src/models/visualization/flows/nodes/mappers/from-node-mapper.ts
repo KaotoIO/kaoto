@@ -4,16 +4,15 @@ import { safeGetValue } from '@kaoto/forms';
 import { CamelUriHelper } from '../../../../../utils';
 import { isFromDefinition } from '../../../../../utils/is-from-definition';
 import { CatalogKind } from '../../../../catalog-kind';
-import { IVisualizationNode } from '../../../base-visual-entity';
+import { IVisualizationNode, IVisualizationNodeData, IVisualizationNodeIds } from '../../../base-visual-entity';
 import { NodeIdentity } from '../../../node-identity';
 import { createVisualizationNode } from '../../../visualization-node';
-import { CamelRouteVisualEntityData, ICamelElementLookupResult } from '../../support/camel-component-types';
 import { BaseNodeMapper } from './base-node-mapper';
 
 export class FromNodeMapper extends BaseNodeMapper {
   async getVizNodeFromProcessor(
     path: string,
-    _componentLookup: ICamelElementLookupResult,
+    _componentLookup: IVisualizationNodeIds,
     entityDefinition: unknown,
   ): Promise<IVisualizationNode> {
     const processorName: keyof ProcessorDefinition = 'from' as keyof ProcessorDefinition;
@@ -31,11 +30,9 @@ export class FromNodeMapper extends BaseNodeMapper {
       }
     }
 
-    const data: CamelRouteVisualEntityData = {
+    const data: IVisualizationNodeData = {
       name: kameletName || componentName || processorName,
       path,
-      processorName,
-      componentName,
       isPlaceholder: false,
       isGroup: false,
       iconUrl: '',
