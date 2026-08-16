@@ -114,10 +114,12 @@ describe('DocumentHeader', () => {
    * Characterization tests for a DocumentHeader rendered as an ExpansionPanel summary,
    * which is how every source body, target body and parameter panel is composed.
    *
-   * A header click currently performs two distinct actions at once: it selects the node
-   * for mapping AND toggles the panel. DocumentHeader deliberately does not stop
-   * propagation so that both happen. These tests pin that contract so any restructuring
-   * of the summary (see issue #3651) has to make the change deliberately.
+   * A header click selects the node for mapping and nothing else; expansion belongs to
+   * the panel's disclosure button. These tests pin that split so any further
+   * restructuring of the summary (see issue #3651) has to change it deliberately.
+   *
+   * Before the disclosure refactor a single header click did both at once, because
+   * DocumentHeader deliberately does not stop propagation.
    */
   describe('as an ExpansionPanel summary', () => {
     const HEADER_TEST_ID = `document-doc-targetBody-${BODY_DOCUMENT_ID}`;

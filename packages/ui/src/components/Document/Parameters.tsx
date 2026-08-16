@@ -2,7 +2,7 @@ import './BaseDocument.scss';
 import './Parameters.scss';
 
 import { ActionList, ActionListItem, Button, Icon, Label } from '@patternfly/react-core';
-import { AngleDownIcon, AngleRightIcon, EyeIcon, EyeSlashIcon, PlusIcon } from '@patternfly/react-icons';
+import { EyeIcon, EyeSlashIcon, PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 

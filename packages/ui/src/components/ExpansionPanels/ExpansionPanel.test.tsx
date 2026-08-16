@@ -174,9 +174,25 @@ describe('ExpansionPanel', () => {
 
       const region = document.getElementById('test-panel-content');
       expect(region).toHaveAttribute('role', 'region');
+      expect(region).toHaveAttribute('aria-labelledby', 'test-panel-summary');
+      expect(document.getElementById('test-panel-summary')).toBeInTheDocument();
 
       fireEvent.click(disclosure);
       expect(disclosure).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    it('should keep collapsed content out of the tab order and the accessibility tree', () => {
+      renderPanel({ defaultExpanded: true });
+
+      const region = document.getElementById('test-panel-content') as HTMLElement;
+      // Expanded: content is reachable.
+      expect(region).not.toHaveAttribute('inert');
+
+      fireEvent.click(screen.getByTestId('test-panel-disclosure'));
+
+      // Collapsed: CSS only clips the row, so `inert` is what actually removes the
+      // content's controls from keyboard navigation and assistive technology.
+      expect(region).toHaveAttribute('inert');
     });
 
     it('should allow resize even when collapsible is false', () => {

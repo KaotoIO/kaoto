@@ -116,6 +116,7 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
   // disclose anything must not advertise one to assistive technology.
   const isDisclosable = Boolean(children) && collapsible;
   const contentId = `${id}-content`;
+  const summaryId = `${id}-summary`;
 
   // Use refs for stable event handlers that don't change during resize
   const mouseMoveHandlerRef = useRef<(e: MouseEvent) => void>(() => {});
@@ -245,10 +246,23 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
             <Icon isInline>{isExpanded ? <AngleDownIcon /> : <AngleRightIcon />}</Icon>
           </button>
         )}
-        <div className="expansion-panel__summary-content">{summary}</div>
+        <div className="expansion-panel__summary-content" id={summaryId}>
+          {summary}
+        </div>
       </div>
 
-      <div className="expansion-panel__content" id={contentId} role="region" onScroll={onScroll}>
+      {/*
+        Collapsed content is only clipped by CSS, so without `inert` its controls stay
+        in the tab order and the accessibility tree while invisible.
+      */}
+      <div
+        className="expansion-panel__content"
+        id={contentId}
+        role="region"
+        aria-labelledby={summaryId}
+        inert={!isExpanded}
+        onScroll={onScroll}
+      >
         {children}
       </div>
 
