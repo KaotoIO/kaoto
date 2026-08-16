@@ -1,4 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { ReactNode } from 'react';
+import type { Mock } from 'vitest';
 
 import {
   BODY_DOCUMENT_ID,
@@ -13,6 +15,8 @@ import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { TreeUIService } from '../../services/visualization/tree-ui.service';
 import { useDocumentTreeStore } from '../../store';
 import { TestUtil } from '../../stubs/datamapper/data-mapper';
+import { ExpansionContext } from '../ExpansionPanels/ExpansionContext';
+import { ExpansionPanel } from '../ExpansionPanels/ExpansionPanel';
 import { DocumentContent, DocumentHeader } from './BaseDocument';
 import { TargetDocumentNode } from './TargetDocumentNode';
 
@@ -104,6 +108,100 @@ describe('DocumentHeader', () => {
 
     const store = useDocumentTreeStore.getState();
     expect(store.selectedNodePath).toBeTruthy();
+  });
+
+  /**
+   * Characterization tests for a DocumentHeader rendered as an ExpansionPanel summary,
+   * which is how every source body, target body and parameter panel is composed.
+   *
+   * A header click currently performs two distinct actions at once: it selects the node
+   * for mapping AND toggles the panel. DocumentHeader deliberately does not stop
+   * propagation so that both happen. These tests pin that contract so any restructuring
+   * of the summary (see issue #3651) has to make the change deliberately.
+   */
+  describe('as an ExpansionPanel summary', () => {
+    const HEADER_TEST_ID = `document-doc-targetBody-${BODY_DOCUMENT_ID}`;
+
+    function renderInPanel(mockSetExpanded: Mock, additionalActions?: ReactNode[]) {
+      const document = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+      );
+
+      return render(
+        <DataMapperProvider>
+          <ExpansionContext.Provider
+            value={{
+              register: vi.fn(),
+              unregister: vi.fn(),
+              resize: vi.fn(),
+              setExpanded: mockSetExpanded,
+              queueLayoutChange: vi.fn(),
+              registerLayoutCallback: vi.fn(),
+              unregisterLayoutCallback: vi.fn(),
+            }}
+          >
+            <ExpansionPanel
+              id="target-body"
+              defaultExpanded
+              summary={
+                <DocumentHeader
+                  header={<div>Test Header</div>}
+                  document={document}
+                  documentType={DocumentType.TARGET_BODY}
+                  isReadOnly={false}
+                  additionalActions={additionalActions}
+                />
+              }
+            >
+              <div>Panel content</div>
+            </ExpansionPanel>
+          </ExpansionContext.Provider>
+        </DataMapperProvider>,
+      );
+    }
+
+    it('should both select the node and toggle the panel when the header is clicked', () => {
+      const mockSetExpanded = vi.fn();
+      renderInPanel(mockSetExpanded);
+
+      const headerContainer = screen.getByTestId(HEADER_TEST_ID);
+      const panel = headerContainer.closest('.expansion-panel');
+      expect(panel).toHaveAttribute('data-expanded', 'true');
+
+      fireEvent.click(headerContainer);
+
+      // Selection: handled by DocumentHeader itself.
+      expect(useDocumentTreeStore.getState().selectedNodePath).toBeTruthy();
+      // Expansion: the same click bubbles to the summary and toggles the panel.
+      expect(mockSetExpanded).toHaveBeenCalledWith('target-body', false);
+      expect(panel).toHaveAttribute('data-expanded', 'false');
+    });
+
+    it('should not toggle the panel when an action inside the header is clicked', () => {
+      const mockSetExpanded = vi.fn();
+      renderInPanel(mockSetExpanded, [
+        <button key="custom" type="button" data-testid="custom-action">
+          Custom
+        </button>,
+      ]);
+
+      fireEvent.click(screen.getByTestId('custom-action'));
+
+      // DocumentHeader stops propagation on its action list, so the panel is unaffected.
+      expect(mockSetExpanded).not.toHaveBeenCalled();
+    });
+
+    it('should toggle the panel but not select the node when the summary is activated by keyboard', () => {
+      const mockSetExpanded = vi.fn();
+      renderInPanel(mockSetExpanded);
+
+      const summary = screen.getByTestId(HEADER_TEST_ID).closest('.expansion-panel__summary') as HTMLElement;
+      fireEvent.keyDown(summary, { key: 'Enter' });
+
+      expect(mockSetExpanded).toHaveBeenCalledWith('target-body', false);
+      // Keyboard activation targets the summary, so DocumentHeader never sees it.
+      expect(useDocumentTreeStore.getState().selectedNodePath).toBeFalsy();
+    });
   });
 });
 
