@@ -125,45 +125,58 @@ describe('ExpansionPanel', () => {
       expect(panel).toHaveAttribute('data-expanded', 'false');
     });
 
-    it('should toggle expansion when summary is clicked', () => {
+    it('should toggle expansion when the disclosure button is clicked', () => {
       renderPanel({ defaultExpanded: true });
 
-      const summary = screen.getByText('Test Summary');
-
-      fireEvent.click(summary);
+      fireEvent.click(screen.getByTestId('test-panel-disclosure'));
 
       expect(mockSetExpanded).toHaveBeenCalledWith('test-panel', false);
 
-      const panel = summary.closest('.expansion-panel');
+      const panel = screen.getByText('Test Summary').closest('.expansion-panel');
       expect(panel).toHaveAttribute('data-expanded', 'false');
     });
 
-    it('should NOT allow expansion when there are no children', () => {
-      renderPanel({ children: null });
+    it('should NOT toggle expansion when the summary itself is clicked', () => {
+      renderPanel({ defaultExpanded: true });
 
       const summary = screen.getByText('Test Summary');
-
       fireEvent.click(summary);
 
-      // Should not call setExpanded
+      // The summary is not a control; only the disclosure button toggles.
+      expect(mockSetExpanded).not.toHaveBeenCalled();
+      expect(summary.closest('.expansion-panel')).toHaveAttribute('data-expanded', 'true');
+    });
+
+    it('should NOT render a disclosure button when there are no children', () => {
+      renderPanel({ children: null });
+
+      // Nothing to disclose, so no control is advertised.
+      expect(screen.queryByTestId('test-panel-disclosure')).not.toBeInTheDocument();
       expect(mockSetExpanded).not.toHaveBeenCalled();
     });
 
-    it('should NOT allow collapse when collapsible is false', () => {
+    it('should NOT render a disclosure button when collapsible is false', () => {
       renderPanel({ defaultExpanded: true, collapsible: false });
 
-      const summary = screen.getByText('Test Summary');
-      const panel = summary.closest('.expansion-panel');
+      const panel = screen.getByText('Test Summary').closest('.expansion-panel');
 
-      // Should start expanded
-      expect(panel).toHaveAttribute('data-expanded', 'true');
-
-      fireEvent.click(summary);
-
-      // Should not call setExpanded - panel cannot be collapsed
+      expect(screen.queryByTestId('test-panel-disclosure')).not.toBeInTheDocument();
       expect(mockSetExpanded).not.toHaveBeenCalled();
-      // Should still be expanded
       expect(panel).toHaveAttribute('data-expanded', 'true');
+    });
+
+    it('should expose disclosure state and the content it controls to assistive tech', () => {
+      renderPanel({ defaultExpanded: true });
+
+      const disclosure = screen.getByTestId('test-panel-disclosure');
+      expect(disclosure).toHaveAttribute('aria-expanded', 'true');
+      expect(disclosure).toHaveAttribute('aria-controls', 'test-panel-content');
+
+      const region = document.getElementById('test-panel-content');
+      expect(region).toHaveAttribute('role', 'region');
+
+      fireEvent.click(disclosure);
+      expect(disclosure).toHaveAttribute('aria-expanded', 'false');
     });
 
     it('should allow resize even when collapsible is false', () => {
@@ -401,33 +414,28 @@ describe('ExpansionPanel', () => {
   });
 
   describe('Keyboard Behavior', () => {
-    it('should toggle expansion on Enter key', () => {
+    it.each(['{Enter}', ' '])(
+      'should toggle expansion when the disclosure button is activated with "%s"',
+      async (key) => {
+        const user = userEvent.setup();
+        renderPanel({ defaultExpanded: true });
+
+        screen.getByTestId('test-panel-disclosure').focus();
+        await user.keyboard(key);
+
+        expect(mockSetExpanded).toHaveBeenCalledWith('test-panel', false);
+      },
+    );
+
+    it('should not make the summary itself a keyboard target', () => {
       renderPanel({ defaultExpanded: true });
 
       const summary = screen.getByText('Test Summary').closest('.expansion-panel__summary') as HTMLElement;
+
+      expect(summary).not.toHaveAttribute('role', 'button');
+      expect(summary).not.toHaveAttribute('tabindex');
 
       fireEvent.keyDown(summary, { key: 'Enter' });
-
-      expect(mockSetExpanded).toHaveBeenCalledWith('test-panel', false);
-    });
-
-    it('should toggle expansion on Space key', () => {
-      renderPanel({ defaultExpanded: true });
-
-      const summary = screen.getByText('Test Summary').closest('.expansion-panel__summary') as HTMLElement;
-
-      fireEvent.keyDown(summary, { key: ' ' });
-
-      expect(mockSetExpanded).toHaveBeenCalledWith('test-panel', false);
-    });
-
-    it('should NOT toggle when a modifier key is held', () => {
-      renderPanel({ defaultExpanded: true });
-
-      const summary = screen.getByText('Test Summary').closest('.expansion-panel__summary') as HTMLElement;
-
-      fireEvent.keyDown(summary, { key: 'Enter', ctrlKey: true });
-
       expect(mockSetExpanded).not.toHaveBeenCalled();
     });
 
@@ -437,15 +445,8 @@ describe('ExpansionPanel', () => {
       renderPanel({
         defaultExpanded: true,
         summary: (
-          // Summary buttons stop click propagation so activating them does not toggle the panel.
-          <button
-            type="button"
-            data-testid="summary-button"
-            onClick={(event) => {
-              event.stopPropagation();
-              onButtonClick();
-            }}
-          >
+          // No stopPropagation: a control in the summary needs no special handling.
+          <button type="button" data-testid="summary-button" onClick={onButtonClick}>
             Confirm
           </button>
         ),

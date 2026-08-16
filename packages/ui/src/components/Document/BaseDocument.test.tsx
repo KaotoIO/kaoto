@@ -160,7 +160,7 @@ describe('DocumentHeader', () => {
       );
     }
 
-    it('should both select the node and toggle the panel when the header is clicked', () => {
+    it('should select the node without toggling the panel when the header is clicked', () => {
       const mockSetExpanded = vi.fn();
       renderInPanel(mockSetExpanded);
 
@@ -172,9 +172,19 @@ describe('DocumentHeader', () => {
 
       // Selection: handled by DocumentHeader itself.
       expect(useDocumentTreeStore.getState().selectedNodePath).toBeTruthy();
-      // Expansion: the same click bubbles to the summary and toggles the panel.
+      // Expansion is now owned solely by the disclosure button, so the panel is untouched.
+      expect(mockSetExpanded).not.toHaveBeenCalled();
+      expect(panel).toHaveAttribute('data-expanded', 'true');
+    });
+
+    it('should toggle the panel without selecting the node when the disclosure button is clicked', () => {
+      const mockSetExpanded = vi.fn();
+      renderInPanel(mockSetExpanded);
+
+      fireEvent.click(screen.getByTestId('target-body-disclosure'));
+
       expect(mockSetExpanded).toHaveBeenCalledWith('target-body', false);
-      expect(panel).toHaveAttribute('data-expanded', 'false');
+      expect(useDocumentTreeStore.getState().selectedNodePath).toBeFalsy();
     });
 
     it('should not toggle the panel when an action inside the header is clicked', () => {
@@ -191,16 +201,18 @@ describe('DocumentHeader', () => {
       expect(mockSetExpanded).not.toHaveBeenCalled();
     });
 
-    it('should toggle the panel but not select the node when the summary is activated by keyboard', () => {
+    it('should not treat the summary itself as a control', () => {
       const mockSetExpanded = vi.fn();
       renderInPanel(mockSetExpanded);
 
       const summary = screen.getByTestId(HEADER_TEST_ID).closest('.expansion-panel__summary') as HTMLElement;
+
+      // The summary is a plain container; DocumentHeader is no longer nested inside a
+      // second role="button", which is what made Enter/Space ambiguous.
+      expect(summary).not.toHaveAttribute('role', 'button');
       fireEvent.keyDown(summary, { key: 'Enter' });
 
-      expect(mockSetExpanded).toHaveBeenCalledWith('target-body', false);
-      // Keyboard activation targets the summary, so DocumentHeader never sees it.
-      expect(useDocumentTreeStore.getState().selectedNodePath).toBeFalsy();
+      expect(mockSetExpanded).not.toHaveBeenCalled();
     });
   });
 });

@@ -134,7 +134,6 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
   }, [flattenedNodes.length, syncConnectionPorts]);
 
   const hasSchema = !parameterNodeData.isPrimitive;
-  const [isExpanded, setIsExpanded] = useState(hasSchema);
 
   const renderParameterItem = useCallback(
     (index: number) => {
@@ -202,11 +201,6 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
           <ParameterInputPlaceholder parameter={parameterName} onComplete={onStopRename} />
         ) : (
           <div className="parameter-panel__summary">
-            {hasSchema && (
-              <Icon isInline className="parameter-panel__chevron">
-                {isExpanded ? <AngleDownIcon /> : <AngleRightIcon />}
-              </Icon>
-            )}
             <DocumentHeader
               header={<span className="panel-header-text panel-header-text--parameter">{parameterName}</span>}
               document={document}
@@ -219,7 +213,6 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
         )
       }
       onLayoutChange={syncConnectionPorts}
-      onExpandedChange={setIsExpanded}
     >
       {/* Only render children if parameter has schema */}
       {hasSchema && parameterTree && (
