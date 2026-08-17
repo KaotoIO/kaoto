@@ -8,7 +8,6 @@ import { IVisualizationNode } from '../../../base-visual-entity';
 import { NodeIdentity } from '../../../node-identity';
 import { createVisualizationNode } from '../../../visualization-node';
 import { CamelRouteVisualEntityData, ICamelElementLookupResult } from '../../support/camel-component-types';
-import { NodeEnrichmentService } from '../node-enrichment.service';
 import { BaseNodeMapper } from './base-node-mapper';
 
 export class FromNodeMapper extends BaseNodeMapper {
@@ -53,9 +52,6 @@ export class FromNodeMapper extends BaseNodeMapper {
     if (kameletName) {
       vizNode.data.tertiaryNodeId = { catalogKind: CatalogKind.Kamelet, name: kameletName };
     }
-
-    /** Enrich the node*/
-    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Entity);
 
     const stepNodes = await this.getChildrenFromBranch(`${path}.steps`, entityDefinition);
     stepNodes.forEach((stepNode) => {

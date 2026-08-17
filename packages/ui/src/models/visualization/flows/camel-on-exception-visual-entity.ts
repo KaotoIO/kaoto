@@ -88,8 +88,8 @@ export class CamelOnExceptionVisualEntity
     onExceptionGroupNode.data.catalogKind = CatalogKind.Entity;
     onExceptionGroupNode.data.name = this.type;
     onExceptionGroupNode.data.primaryNodeId = { name: this.type, catalogKind: CatalogKind.Entity };
-    // Re-enrich node with correct catalogKind to get proper icons
-    await NodeEnrichmentService.enrichNodeFromCatalog(onExceptionGroupNode, CatalogKind.Entity);
+
+    await NodeEnrichmentService.enrichVisualizationTree(onExceptionGroupNode);
 
     return onExceptionGroupNode;
   }

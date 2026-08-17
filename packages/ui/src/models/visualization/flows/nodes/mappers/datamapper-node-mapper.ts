@@ -6,7 +6,6 @@ import { IVisualizationNode } from '../../../base-visual-entity';
 import { NodeIdentity } from '../../../node-identity';
 import { createVisualizationNode } from '../../../visualization-node';
 import { CamelRouteVisualEntityData, ICamelElementLookupResult } from '../../support/camel-component-types';
-import { NodeEnrichmentService } from '../node-enrichment.service';
 import { BaseNodeMapper } from './base-node-mapper';
 
 export class DataMapperNodeMapper extends BaseNodeMapper {
@@ -30,7 +29,6 @@ export class DataMapperNodeMapper extends BaseNodeMapper {
     };
 
     const vizNode = createVisualizationNode(path + ':' + processorName, data);
-    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Pattern);
     return vizNode;
   }
 

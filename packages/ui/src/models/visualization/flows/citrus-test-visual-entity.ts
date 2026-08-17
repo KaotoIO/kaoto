@@ -371,12 +371,13 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
       primaryNodeId: { name: this.type, catalogKind: CatalogKind.Entity } satisfies NodeIdentity,
     });
 
-    await NodeEnrichmentService.enrichNodeFromCatalog(testGroupNode, CatalogKind.TestAction);
-
     const actionNodes = await this.getVizNodesFromSteps(this.test.actions, this.getRootPath());
     actionNodes.forEach((actionNode) => {
       testGroupNode.addChild(actionNode);
     });
+
+    await NodeEnrichmentService.enrichVisualizationTree(testGroupNode);
+
     return testGroupNode;
   }
 
@@ -458,7 +459,6 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     };
 
     const vizNode = createVisualizationNode(path, data);
-    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.TestAction);
 
     const containerSettings = CitrusTestSchemaService.getTestContainerSettings(actionName);
     if (containerSettings) {

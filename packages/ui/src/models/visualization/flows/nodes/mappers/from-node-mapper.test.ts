@@ -237,11 +237,9 @@ describe('FromNodeMapper', () => {
     expect(vizNode.data.name).toBe('direct');
   });
 
-  it('should enrich node from catalog', () => {
-    // iconUrl must be non-empty: the mapper resolves the 'direct' component icon
-    expect(vizNode.data.iconUrl).toBeTruthy();
-    // title resolves to the component name ('direct') when the catalog has no entry in the test environment
-    expect(vizNode.data.title).toBe('direct');
+  it('should defer catalog enrichment until the visualization tree is built', () => {
+    expect(vizNode.data.iconUrl).toBe('');
+    expect(vizNode.data.title).toBe('');
   });
 
   it('should create linked list of step nodes', () => {

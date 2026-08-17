@@ -1,6 +1,7 @@
 import type { MockInstance } from 'vitest';
 
 import { CatalogKind } from '../../../catalog-kind';
+import { EntityType } from '../../../entities';
 import { KaotoSchemaDefinition } from '../../../kaoto-schema';
 import { BaseVisualEntity, IVisualizationNode } from '../../base-visual-entity';
 import { createVisualizationNode } from '../../visualization-node';
@@ -324,5 +325,109 @@ describe('NodeEnrichmentService', () => {
 
     expect(vizNode.fetchSchema).toHaveBeenCalled();
     expect(vizNode.data.schema).toBe(standardSchema);
+  });
+
+  describe('deriveCatalogKind', () => {
+    it('should derive Kamelet when a tertiary kamelet identity is present', () => {
+      const vizNode = createMockVizNode();
+      vizNode.data.primaryNodeId = { catalogKind: CatalogKind.Pattern, name: 'to' };
+      vizNode.data.secondaryNodeId = { catalogKind: CatalogKind.Component, name: 'kamelet' };
+      vizNode.data.tertiaryNodeId = { catalogKind: CatalogKind.Kamelet, name: 'my-kamelet' };
+
+      expect(NodeEnrichmentService.deriveCatalogKind(vizNode)).toBe(CatalogKind.Kamelet);
+    });
+
+    it('should derive Entity for entity nodes such as from and route', () => {
+      const vizNode = createMockVizNode();
+      vizNode.data.primaryNodeId = { catalogKind: CatalogKind.Entity, name: 'from' };
+      vizNode.data.secondaryNodeId = { catalogKind: CatalogKind.Component, name: 'timer' };
+
+      expect(NodeEnrichmentService.deriveCatalogKind(vizNode)).toBe(CatalogKind.Entity);
+    });
+
+    it('should derive Component for endpoint steps with a secondary component identity', () => {
+      const vizNode = createMockVizNode();
+      vizNode.data.primaryNodeId = { catalogKind: CatalogKind.Pattern, name: 'to' };
+      vizNode.data.secondaryNodeId = { catalogKind: CatalogKind.Component, name: 'github' };
+
+      expect(NodeEnrichmentService.deriveCatalogKind(vizNode)).toBe(CatalogKind.Component);
+    });
+
+    it('should derive Pattern for processor-only steps', () => {
+      const vizNode = createMockVizNode();
+      vizNode.data.primaryNodeId = { catalogKind: CatalogKind.Pattern, name: 'log' };
+
+      expect(NodeEnrichmentService.deriveCatalogKind(vizNode)).toBe(CatalogKind.Pattern);
+    });
+
+    it('should derive TestAction for citrus action nodes', () => {
+      const vizNode = createMockVizNode();
+      vizNode.data.primaryNodeId = { catalogKind: CatalogKind.TestAction, name: 'print' };
+
+      expect(NodeEnrichmentService.deriveCatalogKind(vizNode)).toBe(CatalogKind.TestAction);
+    });
+
+    it('should derive TestAction for the citrus test root node', () => {
+      const vizNode = createMockVizNode();
+      vizNode.data.primaryNodeId = { catalogKind: CatalogKind.Entity, name: EntityType.Test };
+
+      expect(NodeEnrichmentService.deriveCatalogKind(vizNode)).toBe(CatalogKind.TestAction);
+    });
+  });
+
+  describe('enrichVisualizationTree', () => {
+    it('should enrich linked child nodes and skip placeholders', async () => {
+      const mockSchema: KaotoSchemaDefinition['schema'] = { type: 'object' as const };
+      mockGetIconRequest.mockResolvedValue({ icon: 'log-icon.svg', alt: 'Log icon' });
+      mockGetTooltipRequest.mockResolvedValue('Logs messages');
+      mockGetProcessorIconTooltipRequest.mockResolvedValue('Log processor');
+      mockGetTitleRequest.mockResolvedValue('Log');
+
+      const root = createVisualizationNode('route', {
+        name: 'route',
+        path: 'route',
+        entity: {} as BaseVisualEntity,
+        isPlaceholder: false,
+        isGroup: true,
+        iconUrl: '',
+        title: '',
+        description: '',
+        primaryNodeId: { catalogKind: CatalogKind.Entity, name: 'route' },
+      } as unknown as CamelRouteVisualEntityData);
+
+      const child = createVisualizationNode('route.from.steps.0.log', {
+        name: 'log',
+        path: 'route.from.steps.0.log',
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
+        primaryNodeId: { catalogKind: CatalogKind.Pattern, name: 'log' },
+      } as unknown as CamelRouteVisualEntityData);
+      child.fetchSchema = vi.fn(async () => mockSchema);
+
+      const placeholder = createVisualizationNode('route.from.steps.1.placeholder', {
+        name: 'placeholder',
+        path: 'route.from.steps.1.placeholder',
+        isPlaceholder: true,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
+        primaryNodeId: { catalogKind: CatalogKind.Pattern, name: 'placeholder' },
+      } as unknown as CamelRouteVisualEntityData);
+
+      root.addChild(child);
+      root.addChild(placeholder);
+      child.setPreviousNode(root);
+      root.setNextNode(child);
+
+      await NodeEnrichmentService.enrichVisualizationTree(root);
+
+      expect(root.data.title).toBe('Log');
+      expect(child.data.schema).toBe(mockSchema);
+      expect(placeholder.data.iconUrl).toBe('');
+    });
   });
 });

@@ -6,6 +6,7 @@ import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities/base-entity';
 import { BaseVisualEntity, IVisualizationNode, IVisualizationNodeData, NodeInteraction } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
+import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 
@@ -87,6 +88,8 @@ export class CamelOnCompletionVisualEntity
     onCompletionGroupNode.data.catalogKind = CatalogKind.Entity;
     onCompletionGroupNode.data.name = this.type;
     onCompletionGroupNode.data.primaryNodeId = { name: this.type, catalogKind: CatalogKind.Entity };
+
+    await NodeEnrichmentService.enrichVisualizationTree(onCompletionGroupNode);
 
     return onCompletionGroupNode;
   }

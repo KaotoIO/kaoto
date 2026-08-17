@@ -565,6 +565,14 @@ describe('AbstractCamelVisualEntity', () => {
         catalogKind: CatalogKind.Entity,
       });
     });
+
+    it('should enrich child nodes with schema after the visualization tree is linked', async () => {
+      const routeNode = await abstractVisualEntity.toVizNode();
+      const fromNode = routeNode.getChildren()?.[0];
+
+      expect(fromNode?.data.schema).toBeDefined();
+      expect(fromNode?.data.iconUrl).not.toBe('');
+    });
   });
 
   describe('fetchNodeSchema', () => {

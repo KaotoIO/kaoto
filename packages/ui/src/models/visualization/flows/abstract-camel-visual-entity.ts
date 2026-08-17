@@ -305,9 +305,6 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       primaryNodeId: { name: this.type, catalogKind: CatalogKind.Entity } satisfies NodeIdentity,
     });
 
-    // Enrich route group node with catalog properties (icon, title, description, etc.)
-    await NodeEnrichmentService.enrichNodeFromCatalog(routeGroupNode, CatalogKind.Entity);
-
     const fromNode = await NodeMapperService.getVizNode(
       `${this.getRootPath()}.from`,
       {
@@ -352,6 +349,8 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     };
 
     normalizeGroups(routeGroupNode);
+
+    await NodeEnrichmentService.enrichVisualizationTree(routeGroupNode);
 
     return routeGroupNode;
   }

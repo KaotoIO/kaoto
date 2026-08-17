@@ -6,7 +6,6 @@ import { IVisualizationNode } from '../../../base-visual-entity';
 import { NodeIdentity } from '../../../node-identity';
 import { createVisualizationNode } from '../../../visualization-node';
 import { CamelRouteVisualEntityData, ICamelElementLookupResult } from '../../support/camel-component-types';
-import { NodeEnrichmentService } from '../node-enrichment.service';
 import { BaseNodeMapper } from './base-node-mapper';
 
 export class RouteConfigurationNodeMapper extends BaseNodeMapper {
@@ -30,8 +29,6 @@ export class RouteConfigurationNodeMapper extends BaseNodeMapper {
     };
 
     const vizNode = createVisualizationNode(path, data);
-
-    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Entity);
 
     for (const property of SPECIAL_PROCESSORS_PARENTS_MAP.routeConfiguration) {
       const configNodes = await this.getChildrenFromArrayClause(`${path}.${property}`, entityDefinition);
