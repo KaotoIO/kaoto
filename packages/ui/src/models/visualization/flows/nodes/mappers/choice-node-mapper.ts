@@ -5,7 +5,6 @@ import { IVisualizationNode } from '../../../base-visual-entity';
 import { NodeIdentity } from '../../../node-identity';
 import { createVisualizationNode } from '../../../visualization-node';
 import { CamelRouteVisualEntityData, ICamelElementLookupResult } from '../../support/camel-component-types';
-import { NodeEnrichmentService } from '../node-enrichment.service';
 import { BaseNodeMapper } from './base-node-mapper';
 
 export class ChoiceNodeMapper extends BaseNodeMapper {
@@ -29,9 +28,6 @@ export class ChoiceNodeMapper extends BaseNodeMapper {
     };
 
     const vizNode = createVisualizationNode(path, data);
-
-    /** Enrich the node*/
-    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Pattern);
 
     const whenNodes = await this.getChildrenFromArrayClause(`${path}.when`, entityDefinition);
     whenNodes.forEach((whenNode) => {

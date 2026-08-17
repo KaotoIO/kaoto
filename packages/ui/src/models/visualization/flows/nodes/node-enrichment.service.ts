@@ -1,4 +1,5 @@
 import { CatalogKind } from '../../../catalog-kind';
+import { EntityType } from '../../../entities';
 import { IVisualizationNode } from '../../base-visual-entity';
 import { getIconRequest } from './resolvers/icon-resolver/getIconRequest';
 import { getTitleRequest } from './resolvers/title-resolver/getTitleRequest';
@@ -10,6 +11,74 @@ import { getTooltipRequest } from './resolvers/tooltip-resolver/getTooltipReques
  * This includes resolving icons, titles, and descriptions from the catalog.
  */
 export class NodeEnrichmentService {
+  /**
+   * Derives the catalog kind used for enrichment from the node's identity fields.
+   * Mirrors the catalog-kind selection previously done in node mappers.
+   */
+  static deriveCatalogKind(vizNode: IVisualizationNode): CatalogKind {
+    const { primaryNodeId, secondaryNodeId, tertiaryNodeId } = vizNode.data;
+
+    if (tertiaryNodeId?.catalogKind === CatalogKind.Kamelet) {
+      return CatalogKind.Kamelet;
+    }
+
+    // Citrus test root uses Entity on primaryNodeId but was always enriched with TestAction.
+    if (primaryNodeId?.catalogKind === CatalogKind.Entity && primaryNodeId.name === EntityType.Test) {
+      return CatalogKind.TestAction;
+    }
+
+    if (primaryNodeId?.catalogKind === CatalogKind.Entity) {
+      return CatalogKind.Entity;
+    }
+
+    // Citrus action nodes always store TestAction on primaryNodeId and use TestAction for enrichment.
+    if (primaryNodeId?.catalogKind === CatalogKind.TestAction) {
+      return CatalogKind.TestAction;
+    }
+
+    if (primaryNodeId?.catalogKind === CatalogKind.Kamelet) {
+      return CatalogKind.Kamelet;
+    }
+
+    if (secondaryNodeId?.catalogKind === CatalogKind.Component) {
+      return CatalogKind.Component;
+    }
+
+    if (primaryNodeId?.catalogKind === CatalogKind.Pattern) {
+      return CatalogKind.Pattern;
+    }
+
+    if (primaryNodeId?.catalogKind === CatalogKind.Processor) {
+      return CatalogKind.Processor;
+    }
+
+    return primaryNodeId?.catalogKind ?? CatalogKind.Pattern;
+  }
+
+  /**
+   * Enriches every non-placeholder node in the visualization tree after the structure is linked.
+   */
+  static async enrichVisualizationTree(root: IVisualizationNode): Promise<void> {
+    const visited = new Set<string>();
+
+    const visit = async (node: IVisualizationNode): Promise<void> => {
+      if (visited.has(node.id)) {
+        return;
+      }
+      visited.add(node.id);
+
+      if (!node.data.isPlaceholder) {
+        await NodeEnrichmentService.enrichNodeFromCatalog(node, NodeEnrichmentService.deriveCatalogKind(node));
+      }
+
+      for (const child of node.getChildren() ?? []) {
+        await visit(child);
+      }
+    };
+
+    await visit(root);
+  }
+
   /**
    * Enriches a visualization node with catalog properties (icon, title, description).
    * @param vizNode - The visualization node to enrich

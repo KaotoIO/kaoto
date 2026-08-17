@@ -159,8 +159,7 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualEntity {
       primaryNodeId: { name: this.type, catalogKind: CatalogKind.Entity } satisfies NodeIdentity,
     });
 
-    // Enrich as Entity (not Processor) to get proper title formatting
-    await NodeEnrichmentService.enrichNodeFromCatalog(restConfigurationGroupNode, CatalogKind.Entity);
+    await NodeEnrichmentService.enrichVisualizationTree(restConfigurationGroupNode);
 
     return restConfigurationGroupNode;
   }

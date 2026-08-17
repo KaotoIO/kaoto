@@ -241,8 +241,6 @@ export class PipeVisualEntity implements BaseVisualEntity {
       primaryNodeId: { name: 'PipeConfiguration', catalogKind: CatalogKind.Entity } satisfies NodeIdentity,
     });
 
-    await NodeEnrichmentService.enrichNodeFromCatalog(pipeGroupNode, CatalogKind.Entity);
-
     const sourceNode = await this.getVizNodeFromStep(this.pipe.spec!.source, 'source', true);
     const stepNodes = await this.getVizNodesFromSteps(this.pipe.spec!.steps);
     const sinkNode = await this.getVizNodeFromStep(this.pipe.spec!.sink, 'sink');
@@ -257,6 +255,7 @@ export class PipeVisualEntity implements BaseVisualEntity {
     if (stepNodes.length === 0) {
       sourceNode.setNextNode(sinkNode);
       sinkNode.setPreviousNode(sourceNode);
+      await NodeEnrichmentService.enrichVisualizationTree(pipeGroupNode);
       return pipeGroupNode;
     }
 
@@ -273,6 +272,8 @@ export class PipeVisualEntity implements BaseVisualEntity {
       lastStepNode.setNextNode(sinkNode);
       sinkNode.setPreviousNode(lastStepNode);
     }
+
+    await NodeEnrichmentService.enrichVisualizationTree(pipeGroupNode);
 
     return pipeGroupNode;
   }
@@ -319,7 +320,6 @@ export class PipeVisualEntity implements BaseVisualEntity {
     };
 
     const vizNode = createVisualizationNode(path, data);
-    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Kamelet);
     return vizNode;
   }
 

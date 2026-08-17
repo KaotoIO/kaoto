@@ -13,7 +13,6 @@ import {
   CamelRouteVisualEntityData,
   ICamelElementLookupResult,
 } from '../../support/camel-component-types';
-import { NodeEnrichmentService } from '../node-enrichment.service';
 import { INodeMapper } from '../node-mapper';
 
 export class BaseNodeMapper implements INodeMapper {
@@ -24,18 +23,14 @@ export class BaseNodeMapper implements INodeMapper {
     componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
   ): Promise<IVisualizationNode> {
-    let catalogKind: CatalogKind;
     let name: string;
     if (componentLookup.componentName?.startsWith('kamelet:')) {
-      catalogKind = CatalogKind.Kamelet;
       // For Kamelets, remove the 'kamelet:' prefix from the name
       // The resolvers will use the clean name to look up in the catalog
       name = componentLookup.componentName.replace('kamelet:', '');
     } else if (componentLookup.componentName) {
-      catalogKind = CatalogKind.Component;
       name = componentLookup.componentName;
     } else {
-      catalogKind = CatalogKind.Pattern;
       name = componentLookup.processorName;
     }
     const primaryNodeId: NodeIdentity = {
@@ -80,9 +75,6 @@ export class BaseNodeMapper implements INodeMapper {
     };
 
     const vizNode = createVisualizationNode(path, data);
-
-    // Resolve catalog-derived properties
-    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, catalogKind);
 
     const childrenStepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
       componentLookup.processorName,

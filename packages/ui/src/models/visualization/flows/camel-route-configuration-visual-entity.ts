@@ -19,6 +19,7 @@ import {
   NodeInteraction,
 } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
+import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
 
 export class CamelRouteConfigurationVisualEntity
@@ -177,6 +178,8 @@ export class CamelRouteConfigurationVisualEntity
       catalogKind: CatalogKind.Entity,
       name: 'routeConfiguration',
     };
+
+    await NodeEnrichmentService.enrichVisualizationTree(routeConfigurationGroupNode);
 
     return routeConfigurationGroupNode;
   }

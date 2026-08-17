@@ -158,8 +158,7 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
       primaryNodeId: { name: this.type, catalogKind: CatalogKind.Entity } satisfies NodeIdentity,
     });
 
-    // Enrich as Entity (not Processor) to get proper title formatting
-    await NodeEnrichmentService.enrichNodeFromCatalog(restGroupNode, CatalogKind.Entity);
+    await NodeEnrichmentService.enrichVisualizationTree(restGroupNode);
 
     return restGroupNode;
   }
