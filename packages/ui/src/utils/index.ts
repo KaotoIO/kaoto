@@ -14,6 +14,7 @@ export * from './is-enum-type';
 export * from './is-raw-string';
 export * from './is-same-array';
 export * from './is-to-processor';
+export * from './is-validator-component';
 export * from './is-xslt-component';
 export * from './pipe-custom-schema';
 export * from './process-tree-node';

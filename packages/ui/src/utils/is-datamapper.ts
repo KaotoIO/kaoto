@@ -2,6 +2,8 @@ import { ProcessorDefinition, Step } from '@kaoto/camel-catalog/types';
 
 export const DATAMAPPER_ID_PREFIX = 'kaoto-datamapper' as keyof ProcessorDefinition;
 export const XSLT_COMPONENT_NAME = 'xslt-saxon';
+export const VALIDATOR_COMPONENT_NAME = 'validator';
+export const JSON_VALIDATOR_COMPONENT_NAME = 'json-validator';
 
 export const isDataMapperNode = (stepDefinition: Step): stepDefinition is Step => {
   const isDatamapperId = stepDefinition.id?.startsWith(DATAMAPPER_ID_PREFIX) ?? false;
