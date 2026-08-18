@@ -46,7 +46,7 @@ describe('DetachSchemaButton', () => {
     fireEvent.click(confirmBtn);
     await screen.findByTestId('detachtest');
     expect(sourceDoc!.fields).toHaveLength(0);
-    expect(sourceDoc! instanceof PrimitiveDocument).toBe(true);
+    expect(sourceDoc!).toBeInstanceOf(PrimitiveDocument);
   });
 
   it('should open and close modal', async () => {
