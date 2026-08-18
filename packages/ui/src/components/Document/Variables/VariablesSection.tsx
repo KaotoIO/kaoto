@@ -115,6 +115,7 @@ export const VariablesSection: FunctionComponent<VariablesSectionProps> = ({
       defaultExpanded={hasContent}
       defaultHeight={hasContent ? variableListHeight : PANEL_COLLAPSED_HEIGHT}
       minHeight={PANEL_MIN_HEIGHT}
+      onScroll={syncConnectionPorts}
       onLayoutChange={() => {
         syncConnectionPorts();
         onLayoutChange?.();
