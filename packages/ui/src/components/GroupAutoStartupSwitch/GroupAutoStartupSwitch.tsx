@@ -3,7 +3,7 @@ import { Switch } from '@patternfly/react-core';
 import { FunctionComponent } from 'react';
 
 import { useEntityContext } from '../../hooks/useEntityContext/useEntityContext';
-import { CamelRouteVisualEntity, IVisualizationNode } from '../../models';
+import { IVisualizationNode } from '../../models';
 
 interface IGroupAutoStartupSwitchProps {
   vizNode?: IVisualizationNode;
@@ -22,13 +22,8 @@ export const GroupAutoStartupSwitch: FunctionComponent<IGroupAutoStartupSwitchPr
     return null;
   }
 
-  const entity = vizNode.data.entity;
-  if (!entity) {
-    return null;
-  }
-
   // Get the current autoStartup value from the route definition
-  const routeDefinition: RouteDefinition = entity.getNodeDefinition(CamelRouteVisualEntity.ROOT_PATH);
+  const routeDefinition: RouteDefinition = vizNode.getNodeDefinition();
   const autoStartupValue = routeDefinition?.autoStartup;
 
   // Only treat actual boolean false as disabled; strings (including "false" or placeholders like "{{...}}")

@@ -88,7 +88,7 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
     return definition?.propertiesSchema;
   }
 
-  getNodeDefinition(path?: string): unknown {
+  getNodeDefinition(path?: string, ids?: IVisualizationNodeIds): unknown {
     if (path === CamelRestVisualEntity.ROOT_PATH) {
       return { ...this.restDef.rest };
     }
@@ -100,7 +100,7 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
       return { ...getValue(this.restDef, path) };
     }
 
-    return super.getNodeDefinition(path);
+    return super.getNodeDefinition(path, ids);
   }
 
   updateModel(path: string | undefined, value: unknown): void {

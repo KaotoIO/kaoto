@@ -6,6 +6,7 @@ import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog
 import { mockRandomValues } from '../../../stubs';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
+import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities/base-entity';
 import { NodeLabelType } from '../../settings/settings.model';
 import { IVisualizationNode } from '../base-visual-entity';
@@ -83,6 +84,20 @@ describe('Camel Route', () => {
   });
 
   describe('getNodeDefinition', () => {
+    const toStepIds = {
+      primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern },
+      secondaryNodeId: { name: 'direct', catalogKind: CatalogKind.Component },
+    };
+
+    const fromStepIds = {
+      primaryNodeId: { name: 'from', catalogKind: CatalogKind.Entity },
+      secondaryNodeId: { name: 'timer', catalogKind: CatalogKind.Component },
+    };
+
+    const logStepIds = {
+      primaryNodeId: { name: 'log', catalogKind: CatalogKind.Pattern },
+    };
+
     it('should return undefined if no path is provided', () => {
       expect(camelEntity.getNodeDefinition()).toBeUndefined();
     });
@@ -96,12 +111,9 @@ describe('Camel Route', () => {
     it('should return the updated definition for a valid path', () => {
       const getUpdatedDefinitionSpy = vi.spyOn(CamelComponentSchemaService, 'getUpdatedDefinition');
 
-      const result = camelEntity.getNodeDefinition('route.from.steps.2.to');
+      const result = camelEntity.getNodeDefinition('route.from.steps.2.to', toStepIds);
 
-      expect(getUpdatedDefinitionSpy).toHaveBeenCalledWith(
-        { processorName: 'to', componentName: 'direct' },
-        camelRouteJson.route.from.steps[2].to,
-      );
+      expect(getUpdatedDefinitionSpy).toHaveBeenCalledWith(toStepIds, camelRouteJson.route.from.steps[2].to);
       expect(result).toEqual({
         uri: 'direct',
         parameters: {
@@ -115,7 +127,7 @@ describe('Camel Route', () => {
       const mockDefinition = { uri: 'timer', parameters: null };
       getUpdatedDefinitionSpy.mockReturnValueOnce(mockDefinition);
 
-      const result = camelEntity.getNodeDefinition('route.from');
+      const result = camelEntity.getNodeDefinition('route.from', fromStepIds);
 
       expect(result).toEqual({ uri: 'timer', parameters: {} });
     });
@@ -125,12 +137,9 @@ describe('Camel Route', () => {
       const mockDefinition = { message: 'We got a one.', id: 'log-1' };
       getUpdatedDefinitionSpy.mockReturnValueOnce(mockDefinition);
 
-      camelEntity.getNodeDefinition('route.from.steps.1.choice.when.0.steps.0.log');
+      camelEntity.getNodeDefinition('route.from.steps.1.choice.when.0.steps.0.log', logStepIds);
 
-      expect(getUpdatedDefinitionSpy).toHaveBeenCalledWith(
-        { processorName: 'log' },
-        { message: 'We got a one.', id: 'log-1' },
-      );
+      expect(getUpdatedDefinitionSpy).toHaveBeenCalledWith(logStepIds, { message: 'We got a one.', id: 'log-1' });
     });
 
     it('should preserve original definition when parameters is undefined', () => {
@@ -138,7 +147,7 @@ describe('Camel Route', () => {
       const mockDefinition = { uri: 'direct' };
       spy.mockReturnValueOnce(mockDefinition);
 
-      const result = camelEntity.getNodeDefinition('route.from.steps.2.to');
+      const result = camelEntity.getNodeDefinition('route.from.steps.2.to', toStepIds);
 
       expect(result).toEqual({ uri: 'direct' });
     });

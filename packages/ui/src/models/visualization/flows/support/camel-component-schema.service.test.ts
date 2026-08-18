@@ -5,10 +5,11 @@ import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
 import { DATAMAPPER_ID_PREFIX, XSLT_COMPONENT_NAME } from '../../../../utils';
 import { ICamelComponentDefinition } from '../../../camel/camel-components-catalog';
 import { CatalogKind } from '../../../catalog-kind';
+import { IVisualizationNodeIds } from '../../base-visual-entity';
 import { IClipboardContent } from '../../clipboard';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelComponentSchemaService } from './camel-component-schema.service';
-import { CamelProcessorStepsProperties, ICamelElementLookupResult } from './camel-component-types';
+import { CamelProcessorStepsProperties } from './camel-component-types';
 
 describe('CamelComponentSchemaService', () => {
   beforeAll(async () => {
@@ -138,11 +139,11 @@ describe('CamelComponentSchemaService', () => {
   });
 
   describe('getUpdatedDefinition', () => {
-    const textBasedProcessors: [ICamelElementLookupResult, string, object][] = [
+    const textBasedProcessors: [IVisualizationNodeIds, string, object][] = [
       [
         {
-          processorName: 'to',
-          componentName: 'bean',
+          primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern },
+          secondaryNodeId: { name: 'bean', catalogKind: CatalogKind.Component },
         },
         'bean:myBean?method=hello',
         {
@@ -155,8 +156,8 @@ describe('CamelComponentSchemaService', () => {
       ],
       [
         {
-          processorName: 'toD',
-          componentName: 'bean',
+          primaryNodeId: { name: 'toD', catalogKind: CatalogKind.Pattern },
+          secondaryNodeId: { name: 'bean', catalogKind: CatalogKind.Component },
         },
         'bean:myBean?method=hello',
         {
@@ -169,7 +170,7 @@ describe('CamelComponentSchemaService', () => {
       ],
       [
         {
-          processorName: 'log',
+          primaryNodeId: { name: 'log', catalogKind: CatalogKind.Pattern },
         },
         '${body}',
         {
@@ -178,14 +179,11 @@ describe('CamelComponentSchemaService', () => {
       ],
     ];
 
-    it.each(textBasedProcessors)(
-      'should transform string-based processors',
-      (componentLookup, definition, expectedResult) => {
-        const result = CamelComponentSchemaService.getUpdatedDefinition(componentLookup, definition);
+    it.each(textBasedProcessors)('should transform string-based processors', (ids, definition, expectedResult) => {
+      const result = CamelComponentSchemaService.getUpdatedDefinition(ids, definition);
 
-        expect(result).toMatchObject(expectedResult);
-      },
-    );
+      expect(result).toMatchObject(expectedResult);
+    });
 
     it(`should clone the component's definition`, () => {
       const toLogDefinition = {
@@ -199,7 +197,10 @@ describe('CamelComponentSchemaService', () => {
       };
 
       const result = CamelComponentSchemaService.getUpdatedDefinition(
-        { processorName: 'to', componentName: 'log' },
+        {
+          primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern },
+          secondaryNodeId: { name: 'log', catalogKind: CatalogKind.Component },
+        },
         toLogDefinition,
       );
 
@@ -213,7 +214,10 @@ describe('CamelComponentSchemaService', () => {
       };
 
       const result = CamelComponentSchemaService.getUpdatedDefinition(
-        { processorName: 'from' as keyof ProcessorDefinition, componentName: 'timer' },
+        {
+          primaryNodeId: { name: 'from', catalogKind: CatalogKind.Entity },
+          secondaryNodeId: { name: 'timer', catalogKind: CatalogKind.Component },
+        },
         toLogDefinition,
       );
 
@@ -232,7 +236,10 @@ describe('CamelComponentSchemaService', () => {
       };
 
       const result = CamelComponentSchemaService.getUpdatedDefinition(
-        { processorName: 'to', componentName: 'non-existing-component' },
+        {
+          primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern },
+          secondaryNodeId: { name: 'non-existing-component', catalogKind: CatalogKind.Component },
+        },
         toNonExistingDefinition,
       );
 

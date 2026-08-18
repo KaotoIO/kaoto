@@ -13,6 +13,7 @@ import { NodeLabelType } from '../../settings';
 import { AddStepMode, IVisualizationNodeData } from '../base-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRouteVisualEntity } from './camel-route-visual-entity';
+import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 
 describe('AbstractCamelVisualEntity', () => {
   let abstractVisualEntity: CamelRouteVisualEntity;
@@ -36,6 +37,16 @@ describe('AbstractCamelVisualEntity', () => {
   beforeEach(() => {
     abstractVisualEntity = new CamelRouteVisualEntity(cloneDeep(camelRouteJson));
   });
+
+  const toStepIds = {
+    primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern },
+    secondaryNodeId: { name: 'direct', catalogKind: CatalogKind.Component },
+  };
+
+  const fromStepIds = {
+    primaryNodeId: { name: 'from', catalogKind: CatalogKind.Entity },
+    secondaryNodeId: { name: 'timer', catalogKind: CatalogKind.Component },
+  };
 
   // Test helper to create mock node data with consistent defaults
   const createMockNodeData = (overrides: Partial<IVisualizationNodeData> = {}): IVisualizationNodeData => ({
@@ -157,7 +168,7 @@ describe('AbstractCamelVisualEntity', () => {
         primaryNodeId: { name: 'from', catalogKind: CatalogKind.Entity },
         secondaryNodeId: { name: 'timer', catalogKind: CatalogKind.Component },
       });
-      const result = abstractVisualEntity.getNodeValidationText('route.from', schema);
+      const result = abstractVisualEntity.getNodeValidationText('route.from', schema, fromStepIds);
 
       expect(result).toBe('2 required parameters are not yet configured: [ uri,timerName ]');
     });
@@ -176,7 +187,7 @@ describe('AbstractCamelVisualEntity', () => {
         parameters: { name: 'my-route', bridgeErrorHandler: true },
       };
 
-      const result = abstractVisualEntity.getNodeDefinition(path);
+      const result = abstractVisualEntity.getNodeDefinition(path, toStepIds);
       expect(result).toEqual(definition);
     });
 
@@ -188,7 +199,7 @@ describe('AbstractCamelVisualEntity', () => {
         (abstractVisualEntity.entityDef.route.from.steps[2].to as NonStringEIP<To>).parameters =
           parameters as unknown as Record<string, unknown>;
 
-        const definition = abstractVisualEntity.getNodeDefinition(path);
+        const definition = abstractVisualEntity.getNodeDefinition(path, toStepIds);
         expect((definition as NonStringEIP<To>).parameters).toEqual({});
       },
     );
@@ -198,12 +209,26 @@ describe('AbstractCamelVisualEntity', () => {
       (abstractVisualEntity.entityDef.route.from.steps[2].to as NonStringEIP<To>).uri = 'direct';
       (abstractVisualEntity.entityDef.route.from.steps[2].to as NonStringEIP<To>).parameters = { prop: true };
 
-      const definition = abstractVisualEntity.getNodeDefinition(path);
+      const definition = abstractVisualEntity.getNodeDefinition(path, toStepIds);
 
       expect(definition).toEqual({
         uri: 'direct',
         parameters: { prop: true },
       });
+    });
+
+    it('should pass the kamelet component name to getUpdatedDefinition', () => {
+      const entity = new CamelRouteVisualEntity(cloneDeep(camelRouteWithKameletJson));
+      const getUpdatedDefinitionSpy = vi.spyOn(CamelComponentSchemaService, 'getUpdatedDefinition');
+      const kameletFromIds = {
+        primaryNodeId: { name: 'from', catalogKind: CatalogKind.Entity },
+        secondaryNodeId: { name: 'kamelet', catalogKind: CatalogKind.Component },
+        tertiaryNodeId: { name: 'avro-deserialize-action', catalogKind: CatalogKind.Kamelet },
+      };
+
+      entity.getNodeDefinition('route.from', kameletFromIds);
+
+      expect(getUpdatedDefinitionSpy).toHaveBeenCalledWith(kameletFromIds, camelRouteWithKameletJson.route.from);
     });
   });
 
@@ -228,7 +253,7 @@ describe('AbstractCamelVisualEntity', () => {
 
       abstractVisualEntity.updateModel('route.from.steps.2.to.parameters', parameters);
 
-      expect(abstractVisualEntity.getNodeDefinition('route.from.steps.2.to')).toEqual({
+      expect(abstractVisualEntity.getNodeDefinition('route.from.steps.2.to', toStepIds)).toEqual({
         uri: 'direct',
         parameters: {
           name: 'my-route',

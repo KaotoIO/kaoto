@@ -21,6 +21,14 @@ import { CitrusTestSchemaService } from './support/citrus-test-schema.service';
 describe('CitrusTestVisualEntity', () => {
   let citrusTestEntity: CitrusTestVisualEntity;
 
+  const printActionIds = {
+    primaryNodeId: { name: 'print', catalogKind: CatalogKind.TestAction },
+  };
+
+  const rootTestIds = {
+    primaryNodeId: { name: CITRUS_TEST_ROOT_ENTITY_NAME, catalogKind: CatalogKind.Entity },
+  };
+
   beforeAll(async () => {
     const catalogsMap = await getFirstCitrusCatalogMap(catalogLibrary as CatalogLibrary);
     CamelCatalogService.setCatalogKey(CatalogKind.TestAction, catalogsMap.actionsCatalogMap);
@@ -216,19 +224,19 @@ describe('CitrusTestVisualEntity', () => {
     });
 
     it('should return the test object for root path', () => {
-      const result = citrusTestEntity.getNodeDefinition('test');
+      const result = citrusTestEntity.getNodeDefinition('test', rootTestIds);
 
       expect(result).toEqual(citrusTestEntity.test);
     });
 
     it('should return an empty object if path does not exist in the entity', () => {
-      const result = citrusTestEntity.getNodeDefinition('invalid.path');
+      const result = citrusTestEntity.getNodeDefinition('invalid.path', printActionIds);
 
       expect(result).toEqual({});
     });
 
     it('should return action definition for a valid path', () => {
-      const result = citrusTestEntity.getNodeDefinition('actions.0.print');
+      const result = citrusTestEntity.getNodeDefinition('actions.0.print', printActionIds);
 
       expect(result).toEqual({
         message: 'Hello from Citrus!',
@@ -243,7 +251,7 @@ describe('CitrusTestVisualEntity', () => {
         },
       });
 
-      const result = citrusTestEntity.getNodeDefinition('actions.1.iterate.actions.0.print');
+      const result = citrusTestEntity.getNodeDefinition('actions.1.iterate.actions.0.print', printActionIds);
 
       expect(result).toEqual({
         message: '${i}: Hello World!',
@@ -262,7 +270,9 @@ describe('CitrusTestVisualEntity', () => {
         },
       });
 
-      const result = citrusTestEntity.getNodeDefinition('actions.1.http-sendRequest');
+      const result = citrusTestEntity.getNodeDefinition('actions.1.http-sendRequest', {
+        primaryNodeId: { name: 'http-sendRequest', catalogKind: CatalogKind.TestAction },
+      });
 
       expect(result).toEqual({
         client: 'fooClient',
@@ -909,7 +919,7 @@ describe('CitrusTestVisualEntity', () => {
       const entity = new CitrusTestVisualEntity(invalidModel);
       const schema = CitrusTestSchemaService.getNodeSchema('print');
 
-      const result = entity.getNodeValidationText('actions.0.print', schema);
+      const result = entity.getNodeValidationText('actions.0.print', schema, printActionIds);
 
       expect(result).toBe('1 required parameter is not yet configured: [ message ]');
     });

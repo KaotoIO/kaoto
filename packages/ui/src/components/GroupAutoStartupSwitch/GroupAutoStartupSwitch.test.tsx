@@ -16,26 +16,6 @@ describe('GroupAutoStartupSwitch', () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it('should return null when entity is undefined', async () => {
-    const vizNode = createVisualizationNode('test-node', {
-      name: 'route',
-      path: 'route',
-      isPlaceholder: false,
-      isGroup: false,
-      iconUrl: '',
-      title: '',
-      description: '',
-    });
-
-    const { Provider } = await TestProvidersWrapper();
-    const { container } = render(
-      <Provider>
-        <GroupAutoStartupSwitch vizNode={vizNode} />
-      </Provider>,
-    );
-    expect(container.firstChild).toBeNull();
-  });
-
   it('should render switch as checked when autoStartup is enabled (undefined)', async () => {
     const entity = new CamelRouteVisualEntity({
       route: { from: { uri: 'direct:test', steps: [] } },
