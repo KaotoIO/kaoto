@@ -8,4 +8,6 @@ RUN set -x \
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
 COPY packages/ui/dist .
 
+USER 1001
+
 CMD ["nginx", "-g", "daemon off;"]
