@@ -2,10 +2,7 @@ import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 import { cloneDeep } from 'lodash';
 
-import { DynamicCatalogRegistry } from '../../../../dynamic-catalog/dynamic-catalog-registry';
 import { CamelUriHelper, DATAMAPPER_ID_PREFIX, isDataMapperNode, ParsedParameters } from '../../../../utils';
-import { ICamelComponentDefinition } from '../../../camel/camel-components-catalog';
-import { IKameletDefinition } from '../../../camel/kamelets-catalog';
 import { CatalogKind } from '../../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../../kaoto-schema';
 import { REST_DSL_VERBS } from '../../../special-processors.constants';
@@ -40,15 +37,6 @@ const CAMEL_REST_DSL_STEP_PROPERTIES: CamelProcessorStepsProperties[] = REST_DSL
 }));
 const CAMEL_REST_VERB_STEP_PROPERTIES: CamelProcessorStepsProperties[] = [{ name: 'to', type: 'single-clause' }];
 
-type CatalogLookupResult =
-  | {
-      catalogKind: CatalogKind.Component;
-      definition?: ICamelComponentDefinition;
-    }
-  | {
-      catalogKind: CatalogKind.Kamelet;
-      definition?: IKameletDefinition;
-    };
 export class CamelComponentSchemaService {
   static readonly DISABLED_SIBLING_STEPS = [
     'route',
@@ -310,37 +298,6 @@ export class CamelComponentSchemaService {
 
     const queryParams = CamelUriHelper.getParametersFromQueryString(query);
     return { uri: componentName, parameters: { ...pathParams, ...queryParams } };
-  }
-
-  static async resolveCatalogLookup(
-    componentName: string,
-    options: { forceFresh?: boolean } = {},
-  ): Promise<CatalogLookupResult | undefined> {
-    if (!componentName) {
-      return undefined;
-    }
-
-    if (componentName.startsWith('kamelet:')) {
-      const kameletName = componentName.replace('kamelet:', '');
-      const definition = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Kamelet, kameletName, options);
-
-      if (definition) {
-        return {
-          catalogKind: CatalogKind.Kamelet,
-          definition,
-        };
-      }
-
-      return {
-        catalogKind: CatalogKind.Component,
-        definition: await DynamicCatalogRegistry.get().getEntity(CatalogKind.Component, 'kamelet', options),
-      };
-    }
-
-    return {
-      catalogKind: CatalogKind.Component,
-      definition: await DynamicCatalogRegistry.get().getEntity(CatalogKind.Component, componentName, options),
-    };
   }
 
   /**

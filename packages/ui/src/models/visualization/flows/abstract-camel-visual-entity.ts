@@ -309,7 +309,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       `${this.getRootPath()}.from`,
       {
         primaryNodeId: {
-          name: 'from' as keyof ProcessorDefinition,
+          name: 'from',
           catalogKind: CatalogKind.Entity,
         } satisfies NodeIdentity,
       },
