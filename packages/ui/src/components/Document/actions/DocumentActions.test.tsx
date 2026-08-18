@@ -16,7 +16,7 @@ describe('DocumentActions', () => {
         </MappingLinksProvider>
       </DataMapperProvider>,
     );
-    expect(await screen.findByTestId('attach-schema-sourceBody-Body-button'));
+    expect(await screen.findByTestId('attach-schema-sourceBody-Body-button')).toBeInTheDocument();
   });
 
   it('should render for Parameters', async () => {
@@ -28,9 +28,9 @@ describe('DocumentActions', () => {
         </MappingLinksProvider>
       </DataMapperProvider>,
     );
-    expect(await screen.findByTestId('attach-schema-param-testparam1-button'));
-    expect(await screen.findByTestId('detach-schema-param-testparam1-button'));
-    expect(await screen.findByTestId('rename-parameter-testparam1-button'));
-    expect(await screen.findByTestId('delete-parameter-testparam1-button'));
+    expect(await screen.findByTestId('attach-schema-param-testparam1-button')).toBeInTheDocument();
+    expect(await screen.findByTestId('detach-schema-param-testparam1-button')).toBeInTheDocument();
+    expect(await screen.findByTestId('rename-parameter-testparam1-button')).toBeInTheDocument();
+    expect(await screen.findByTestId('delete-parameter-testparam1-button')).toBeInTheDocument();
   });
 });
