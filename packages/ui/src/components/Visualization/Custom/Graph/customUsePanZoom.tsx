@@ -28,6 +28,24 @@ const propagatePanZoomMouseEvent = (e: Event): void => {
   document.dispatchEvent(new MouseEvent(e.type, e));
 };
 
+/**
+ * Returns true when the event target is contained within a topology node or edge
+ * (i.e. an element that carries a data-kind attribute with a value other than "graph").
+ */
+const isWithinNodeOrEdge = (target: EventTarget | null, svg: SVGSVGElement | null): boolean => {
+  let p: EventTarget | ParentNode | null | undefined = target;
+  while (p && p !== svg) {
+    if (p instanceof Element) {
+      const kind = p.getAttribute(ATTR_DATA_KIND);
+      if (kind) {
+        return kind !== ModelKind.graph;
+      }
+    }
+    p = p instanceof Node ? p.parentNode : undefined;
+  }
+  return false;
+};
+
 export const usePanZoom = (options: PanZoomOptions = {}): PanZoomRef => {
   const { enableSpacebarPanning = false } = options;
   const element = useContext(ElementContext);
@@ -191,22 +209,8 @@ export const usePanZoom = (options: PanZoomOptions = {}): PanZoomRef => {
             return false;
           }
           // only allow zoom from double clicking the graph directly
-          if (event.type === 'dblclick') {
-            // check if target is not within a node or edge
-            const svg = node.ownerSVGElement;
-            let p: EventTarget | ParentNode | null | undefined = event.target;
-            while (p && p !== svg) {
-              if (p instanceof Element) {
-                const kind = p.getAttribute(ATTR_DATA_KIND);
-                if (kind) {
-                  if (kind !== ModelKind.graph) {
-                    return false;
-                  }
-                  break;
-                }
-              }
-              p = p instanceof Node ? p.parentNode : undefined;
-            }
+          if (event.type === 'dblclick' && isWithinNodeOrEdge(event.target, node.ownerSVGElement)) {
+            return false;
           }
           return true;
         });

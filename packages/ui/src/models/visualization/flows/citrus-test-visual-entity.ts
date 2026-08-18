@@ -628,21 +628,30 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
    */
   private updateTestActionModel(path: string, actionName: string, actionModel: TestAction) {
     const actionDefinition = CitrusTestSchemaService.getTestActionDefinition(actionName);
-    if (isDefined(actionDefinition?.group)) {
-      const groups = CitrusTestSchemaService.getTestActionGroups(actionDefinition) || [];
-      const basePath = path.split('.').slice(0, -1).join('.');
-      let groupPath = '';
-      for (const group of groups) {
-        groupPath = groupPath.length === 0 ? group.name : `${groupPath}.${group.name}`;
-        if (group.propertiesSchema?.properties) {
-          for (const [key, _schema] of Object.entries(group.propertiesSchema.properties)) {
-            const value = getValue(this.test, `${basePath}.${groupPath}.${key}`);
-            if (isDefined(value)) {
-              // set value to action node
-              setValue(actionModel, key, value);
-            }
-          }
-        }
+    if (!isDefined(actionDefinition?.group)) {
+      return;
+    }
+    const groups = CitrusTestSchemaService.getTestActionGroups(actionDefinition) || [];
+    const basePath = path.split('.').slice(0, -1).join('.');
+    let groupPath = '';
+    for (const group of groups) {
+      groupPath = groupPath.length === 0 ? group.name : `${groupPath}.${group.name}`;
+      this.applyGroupPropertiesToActionModel(group, `${basePath}.${groupPath}`, actionModel);
+    }
+  }
+
+  private applyGroupPropertiesToActionModel(
+    group: { propertiesSchema?: { properties?: Record<string, unknown> }; name: string },
+    sourcePath: string,
+    actionModel: TestAction,
+  ) {
+    if (!group.propertiesSchema?.properties) {
+      return;
+    }
+    for (const key of Object.keys(group.propertiesSchema.properties)) {
+      const value = getValue(this.test, `${sourcePath}.${key}`);
+      if (isDefined(value)) {
+        setValue(actionModel, key, value);
       }
     }
   }
@@ -660,30 +669,40 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
       const actionName = CitrusTestSchemaService.getTestActionName(action);
       const actionDefinition = CitrusTestSchemaService.getTestActionDefinition(actionName);
       if (isDefined(actionDefinition?.group)) {
-        const groups = CitrusTestSchemaService.getTestActionGroups(actionDefinition) || [];
-        let groupPath = '';
-        for (const group of groups) {
-          groupPath = groupPath.length === 0 ? group.name : `${groupPath}.${group.name}`;
-          if (group.propertiesSchema?.properties) {
-            for (const [key, _schema] of Object.entries(group.propertiesSchema.properties)) {
-              const value = getValue(action, `${this.toModelPath(actionName)}.${key}`);
-              if (isDefined(value)) {
-                // remove the original value set in child node
-                setValue(action, `${this.toModelPath(actionName)}.${key}`, undefined);
-                // set value to parent group node instead
-                setValue(action, `${groupPath}.${key}`, value);
-              }
-            }
-          }
+        this.moveGroupPropertiesFromAction(action, actionName, actionDefinition);
+      }
+      this.recurseIntoContainerActions(action, actionName);
+    }
+  }
+
+  private moveGroupPropertiesFromAction(
+    action: TestActions,
+    actionName: string,
+    actionDefinition: ReturnType<typeof CitrusTestSchemaService.getTestActionDefinition>,
+  ) {
+    const groups = CitrusTestSchemaService.getTestActionGroups(actionDefinition) || [];
+    let groupPath = '';
+    for (const group of groups) {
+      groupPath = groupPath.length === 0 ? group.name : `${groupPath}.${group.name}`;
+      if (!group.propertiesSchema?.properties) {
+        continue;
+      }
+      for (const key of Object.keys(group.propertiesSchema.properties)) {
+        const value = getValue(action, `${this.toModelPath(actionName)}.${key}`);
+        if (isDefined(value)) {
+          setValue(action, `${this.toModelPath(actionName)}.${key}`, undefined);
+          setValue(action, `${groupPath}.${key}`, value);
         }
       }
+    }
+  }
 
-      const containerSettings = CitrusTestSchemaService.getTestContainerSettings(actionName);
-      if (containerSettings) {
-        const nested: TestActions[] = getValue(action, `${this.toModelPath(actionName)}.${containerSettings.name}`, []);
-        if (nested.length) {
-          this.updateTestGroupModel(nested);
-        }
+  private recurseIntoContainerActions(action: TestActions, actionName: string) {
+    const containerSettings = CitrusTestSchemaService.getTestContainerSettings(actionName);
+    if (containerSettings) {
+      const nested: TestActions[] = getValue(action, `${this.toModelPath(actionName)}.${containerSettings.name}`, []);
+      if (nested.length) {
+        this.updateTestGroupModel(nested);
       }
     }
   }
