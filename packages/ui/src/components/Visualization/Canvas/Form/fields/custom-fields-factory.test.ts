@@ -114,14 +114,11 @@ describe('customFieldsFactoryfactory', () => {
     expect(result).toBeUndefined();
   });
 
-  it('returns undefined for string type with title "Ref" but non-string type', () => {
-    const schema: KaotoSchemaDefinition['schema'] = { type: 'number', title: 'Ref' };
-    const result = customFieldsFactoryfactory(schema);
-    expect(result).toBeUndefined();
-  });
-
-  it('returns undefined for string type with case-sensitive title mismatch', () => {
-    const schema: KaotoSchemaDefinition['schema'] = { type: 'string', title: 'ref' };
+  it.each([
+    [{ type: 'number', title: 'Ref' }, 'non-string type with title "Ref"'],
+    [{ type: 'string', title: 'ref' }, 'case-sensitive title mismatch for Ref'],
+    [{ type: 'string', title: 'uri' }, 'case-sensitive title mismatch for Uri'],
+  ] as [KaotoSchemaDefinition['schema'], string][])('returns undefined for %s', (schema) => {
     const result = customFieldsFactoryfactory(schema);
     expect(result).toBeUndefined();
   });
@@ -155,12 +152,6 @@ describe('customFieldsFactoryfactory', () => {
     expect(result).toBe(UriField);
   });
 
-  it('returns undefined for string type with case-sensitive title mismatch for Uri', () => {
-    const schema: KaotoSchemaDefinition['schema'] = { type: 'string', title: 'uri' };
-    const result = customFieldsFactoryfactory(schema);
-    expect(result).toBeUndefined();
-  });
-
   it('returns DataSourceBeanField for string type with title containing "Data Source"', () => {
     const schema: KaotoSchemaDefinition['schema'] = { type: 'string', title: 'My Data Source Bean' };
     const result = customFieldsFactoryfactory(schema);
@@ -179,66 +170,20 @@ describe('customFieldsFactoryfactory', () => {
     expect(result).toBe(EndpointPropertiesField);
   });
 
-  it('returns EndpointField for string type with title "Endpoint" and matching description', () => {
-    // used for instance in the "send" or "receive" test action "endpoint" property
+  it.each(['Endpoint', 'Client', 'Server'])('returns EndpointField for string type with title "%s"', (title) => {
     const schema: KaotoSchemaDefinition['schema'] = {
       type: 'string',
-      title: 'Endpoint',
+      title,
       description: 'Uses an endpoint URI or references an endpoint name.',
     };
     const result = customFieldsFactoryfactory(schema);
     expect(result).toBe(EndpointField);
   });
 
-  it('returns EndpointField for string type with title "Client" and matching description', () => {
-    // used for instance in the "http-sendRequest" or "http-receiveResponse" test action "client" property
+  it.each(['Data', 'Value', 'Source'])('returns TextAreaField for string type with title "%s"', (title) => {
     const schema: KaotoSchemaDefinition['schema'] = {
       type: 'string',
-      title: 'Client',
-      description: 'Uses an endpoint URI or references an endpoint name.',
-    };
-    const result = customFieldsFactoryfactory(schema);
-    expect(result).toBe(EndpointField);
-  });
-
-  it('returns EndpointField for string type with title "Server" and matching description', () => {
-    // used for instance in the "http-receiveRequest" or "http-sendResponse" test action "server" property
-    const schema: KaotoSchemaDefinition['schema'] = {
-      type: 'string',
-      title: 'Server',
-      description: 'Uses an endpoint URI or references an endpoint name.',
-    };
-    const result = customFieldsFactoryfactory(schema);
-    expect(result).toBe(EndpointField);
-  });
-
-  it('returns TextAreaField for string type with title "Data" and matching description', () => {
-    // used for instance in the "send" or "receive" test action "message" property
-    const schema: KaotoSchemaDefinition['schema'] = {
-      type: 'string',
-      title: 'Data',
-      description: 'Message body as inline data.',
-    };
-    const result = customFieldsFactoryfactory(schema);
-    expect(result).toBe(TextAreaField);
-  });
-
-  it('returns TextAreaField for string type with title "Value" and matching description', () => {
-    // used for instance in the "send" or "receive" test action within the "script" property
-    const schema: KaotoSchemaDefinition['schema'] = {
-      type: 'string',
-      title: 'Value',
-      description: 'Message body as inline data.',
-    };
-    const result = customFieldsFactoryfactory(schema);
-    expect(result).toBe(TextAreaField);
-  });
-
-  it('returns TextAreaField for string type with title "Source" and matching description', () => {
-    // used for instance in the "camel-jbang-run" test action within the "integration" property
-    const schema: KaotoSchemaDefinition['schema'] = {
-      type: 'string',
-      title: 'Source',
+      title,
       description: 'Message body as inline data.',
     };
     const result = customFieldsFactoryfactory(schema);

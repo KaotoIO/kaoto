@@ -306,40 +306,18 @@ describe('datamapper-dnd.provider', () => {
       expect(result).toBe(true);
     });
 
-    it('should allow scrolling target panel when dragging from source', () => {
-      const element = createMockElement('panel-target');
-      const activeDragSideRef = { current: 'source' as const };
+    it.each([
+      ['panel-target', 'source', true, 'target panel when dragging from source'],
+      ['panel-source', 'source', false, 'source panel when dragging from source'],
+      ['panel-source', 'target', true, 'source panel when dragging from target'],
+      ['panel-target', 'target', false, 'target panel when dragging from target'],
+    ])('should %s scrolling', (panelId, dragSide, expected, _desc) => {
+      const element = createMockElement(panelId);
+      const activeDragSideRef = { current: dragSide as 'source' | 'target' };
 
       const result = canScrollPanel(element, activeDragSideRef);
 
-      expect(result).toBe(true);
-    });
-
-    it('should block scrolling source panel when dragging from source', () => {
-      const element = createMockElement('panel-source');
-      const activeDragSideRef = { current: 'source' as const };
-
-      const result = canScrollPanel(element, activeDragSideRef);
-
-      expect(result).toBe(false);
-    });
-
-    it('should allow scrolling source panel when dragging from target', () => {
-      const element = createMockElement('panel-source');
-      const activeDragSideRef = { current: 'target' as const };
-
-      const result = canScrollPanel(element, activeDragSideRef);
-
-      expect(result).toBe(true);
-    });
-
-    it('should block scrolling target panel when dragging from target', () => {
-      const element = createMockElement('panel-target');
-      const activeDragSideRef = { current: 'target' as const };
-
-      const result = canScrollPanel(element, activeDragSideRef);
-
-      expect(result).toBe(false);
+      expect(result).toBe(expected);
     });
 
     it('should block scrolling when element is not in any panel', () => {

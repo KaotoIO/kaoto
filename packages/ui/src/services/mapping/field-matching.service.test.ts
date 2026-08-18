@@ -7,25 +7,15 @@ import { FieldMatchingService } from './field-matching.service';
 describe('FieldMatchingService', () => {
   describe('canUseCopyOf', () => {
     describe('XML → XML', () => {
-      it('should return true for matching namespace and name', () => {
-        const sourceField = createXmlField('person', 'http://example.com/ns');
-        const targetField = createXmlField('person', 'http://example.com/ns');
+      it.each([
+        ['person', 'http://example.com/ns', 'person', 'http://example.com/ns', true, 'matching namespace and name'],
+        ['person', 'http://example.com/ns1', 'person', 'http://example.com/ns2', false, 'non-matching namespace'],
+        ['person', 'http://example.com/ns', 'employee', 'http://example.com/ns', false, 'non-matching name'],
+      ])('should return %s for %s', (sourceName, sourceNs, targetName, targetNs, expected) => {
+        const sourceField = createXmlField(sourceName, sourceNs);
+        const targetField = createXmlField(targetName, targetNs);
 
-        expect(FieldMatchingService.canUseCopyOf(sourceField, targetField)).toBe(true);
-      });
-
-      it('should return false for non-matching namespace', () => {
-        const sourceField = createXmlField('person', 'http://example.com/ns1');
-        const targetField = createXmlField('person', 'http://example.com/ns2');
-
-        expect(FieldMatchingService.canUseCopyOf(sourceField, targetField)).toBe(false);
-      });
-
-      it('should return false for non-matching name', () => {
-        const sourceField = createXmlField('person', 'http://example.com/ns');
-        const targetField = createXmlField('employee', 'http://example.com/ns');
-
-        expect(FieldMatchingService.canUseCopyOf(sourceField, targetField)).toBe(false);
+        expect(FieldMatchingService.canUseCopyOf(sourceField, targetField)).toBe(expected);
       });
 
       it('should return false when source has empty namespace', () => {

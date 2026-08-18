@@ -50,36 +50,17 @@ describe('QName', () => {
 
   describe('fromString', () => {
     describe('success cases', () => {
-      it('should create QName from empty string', () => {
-        const qname = QName.fromString('');
+      it.each([
+        ['empty string', '', '', '', null],
+        ['plain localPart without namespace', 'element', '', 'element', null],
+        ['empty namespace format', '{}element', '', 'element', null],
+        ['full QName format with namespace', '{http://example.com}element', 'http://example.com', 'element', null],
+      ])('should create QName from %s', (_desc, input, expectedNs, expectedLocal, expectedPrefix) => {
+        const qname = QName.fromString(input);
 
-        expect(qname.getNamespaceURI()).toBe('');
-        expect(qname.getLocalPart()).toBe('');
-        expect(qname.getPrefix()).toBeNull();
-      });
-
-      it('should create QName from plain localPart without namespace', () => {
-        const qname = QName.fromString('element');
-
-        expect(qname.getNamespaceURI()).toBe('');
-        expect(qname.getLocalPart()).toBe('element');
-        expect(qname.getPrefix()).toBeNull();
-      });
-
-      it('should create QName from empty namespace format', () => {
-        const qname = QName.fromString('{}element');
-
-        expect(qname.getNamespaceURI()).toBe('');
-        expect(qname.getLocalPart()).toBe('element');
-        expect(qname.getPrefix()).toBeNull();
-      });
-
-      it('should create QName from full QName format with namespace', () => {
-        const qname = QName.fromString('{http://example.com}element');
-
-        expect(qname.getNamespaceURI()).toBe('http://example.com');
-        expect(qname.getLocalPart()).toBe('element');
-        expect(qname.getPrefix()).toBeNull();
+        expect(qname.getNamespaceURI()).toBe(expectedNs);
+        expect(qname.getLocalPart()).toBe(expectedLocal);
+        expect(qname.getPrefix()).toBe(expectedPrefix);
       });
 
       it('should create QName with complex namespace URI', () => {
@@ -142,36 +123,17 @@ describe('QName', () => {
   });
 
   describe('valueOf', () => {
-    it('should create QName from plain localPart', () => {
+    it.each([
+      ['plain localPart', 'element', '', 'element'],
+      ['full QName format', '{http://example.com}element', 'http://example.com', 'element'],
+      ['empty namespace format', '{}element', '', 'element'],
+      ['empty string', '', '', ''],
+    ])('should create QName from %s', (_desc, input, expectedNs, expectedLocal) => {
       const qname = new QName('', '');
-      const result = qname.valueOf('element');
+      const result = qname.valueOf(input);
 
-      expect(result.getNamespaceURI()).toBe('');
-      expect(result.getLocalPart()).toBe('element');
-    });
-
-    it('should create QName from full QName format', () => {
-      const qname = new QName('', '');
-      const result = qname.valueOf('{http://example.com}element');
-
-      expect(result.getNamespaceURI()).toBe('http://example.com');
-      expect(result.getLocalPart()).toBe('element');
-    });
-
-    it('should create QName from empty namespace format', () => {
-      const qname = new QName('', '');
-      const result = qname.valueOf('{}element');
-
-      expect(result.getNamespaceURI()).toBe('');
-      expect(result.getLocalPart()).toBe('element');
-    });
-
-    it('should create QName from empty string', () => {
-      const qname = new QName('', '');
-      const result = qname.valueOf('');
-
-      expect(result.getNamespaceURI()).toBe('');
-      expect(result.getLocalPart()).toBe('');
+      expect(result.getNamespaceURI()).toBe(expectedNs);
+      expect(result.getLocalPart()).toBe(expectedLocal);
     });
 
     it('should throw error for null input', () => {

@@ -211,24 +211,12 @@ describe('XPathService', () => {
         expect(result.exprNode).toBeDefined();
       });
 
-      it('item in both param and path', () => {
-        const result = XPathService.parse('$item/items/item/title');
-        expect(result.lexErrors).toHaveLength(0);
-        expect(result.parseErrors).toHaveLength(0);
-        expect(result.cst).toBeDefined();
-        expect(result.exprNode).toBeDefined();
-      });
-
-      it('for in both param and path', () => {
-        const result = XPathService.parse('$for/items/for');
-        expect(result.lexErrors).toHaveLength(0);
-        expect(result.parseErrors).toHaveLength(0);
-        expect(result.cst).toBeDefined();
-        expect(result.exprNode).toBeDefined();
-      });
-
-      it('node in both param and path', () => {
-        const result = XPathService.parse('$node/elements/node');
+      it.each([
+        ['item', '$item/items/item/title'],
+        ['for', '$for/items/for'],
+        ['node', '$node/elements/node'],
+      ])('%s in both param and path', (_keyword, expression) => {
+        const result = XPathService.parse(expression);
         expect(result.lexErrors).toHaveLength(0);
         expect(result.parseErrors).toHaveLength(0);
         expect(result.cst).toBeDefined();

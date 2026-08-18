@@ -1,24 +1,18 @@
 import { XmlFormatter } from './xml-formatter';
 
 describe('XmlFormatter', () => {
-  it('formats XML with default EOL', () => {
+  it.each([
+    [undefined, '<root>\n  <child>\n  </child>\n</root>'],
+    ['\r\n', '<root>\r\n  <child>\r\n  </child>\r\n</root>'],
+    ['\n', '<root>\n  <child>\n  </child>\n</root>'],
+  ])('formats XML with EOL %j', (eol, expected) => {
+    if (eol !== undefined) {
+      XmlFormatter.setEOL(eol);
+    } else {
+      XmlFormatter.setEOL();
+    }
     const xml = '<root><child></child></root>';
-    const formattedXml = XmlFormatter.formatXml(xml);
-    expect(formattedXml).toBe('<root>\n  <child>\n  </child>\n</root>');
-  });
-
-  it('formats XML with custom EOL', () => {
-    XmlFormatter.setEOL('\r\n');
-    const xml = '<root><child></child></root>';
-    const formattedXml = XmlFormatter.formatXml(xml);
-    expect(formattedXml).toBe('<root>\r\n  <child>\r\n  </child>\r\n</root>');
-  });
-
-  it('resets EOL to default', () => {
-    XmlFormatter.setEOL();
-    const xml = '<root><child></child></root>';
-    const formattedXml = XmlFormatter.formatXml(xml);
-    expect(formattedXml).toBe('<root>\n  <child>\n  </child>\n</root>');
+    expect(XmlFormatter.formatXml(xml)).toBe(expected);
   });
 
   it('formats XML with nested elements', () => {

@@ -20,20 +20,8 @@ describe('XmlSchemaDerivationMethod', () => {
       expect(method.isRestriction()).toBe(true);
     });
 
-    it('should set all flag for "#all" token', () => {
-      const method = XmlSchemaDerivationMethod.schemaValueOf('#all');
-      expect(method.isAll()).toBe(true);
-      expect(method.isExtension()).toBe(false);
-    });
-
-    it('should set all flag for case-insensitive "#ALL" token', () => {
-      const method = XmlSchemaDerivationMethod.schemaValueOf('#ALL');
-      expect(method.isAll()).toBe(true);
-      expect(method.isExtension()).toBe(false);
-    });
-
-    it('should set all flag for bare "ALL" token', () => {
-      const method = XmlSchemaDerivationMethod.schemaValueOf('ALL');
+    it.each(['#all', '#ALL', 'ALL'])('should set all flag for "%s" token', (token) => {
+      const method = XmlSchemaDerivationMethod.schemaValueOf(token);
       expect(method.isAll()).toBe(true);
       expect(method.isExtension()).toBe(false);
     });

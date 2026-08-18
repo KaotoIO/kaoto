@@ -4,18 +4,13 @@ describe('JsonSchemaCollection', () => {
   describe('resolveReference', () => {
     const mockCurrentSchema = { identifier: 'main.json', filePath: 'schemas/main.json', path: '#' };
 
-    it('should return undefined for internal reference (starts with #)', () => {
+    it.each([
+      ['#/definitions/Type', 'internal reference (starts with #)'],
+      ['#', 'empty schema part'],
+    ])('should return undefined for %s', (ref) => {
       const collection = new JsonSchemaCollection();
 
-      const result = collection.resolveReference('#/definitions/Type', mockCurrentSchema);
-
-      expect(result).toBeUndefined();
-    });
-
-    it('should return undefined for empty schema part', () => {
-      const collection = new JsonSchemaCollection();
-
-      const result = collection.resolveReference('#', mockCurrentSchema);
+      const result = collection.resolveReference(ref, mockCurrentSchema);
 
       expect(result).toBeUndefined();
     });

@@ -292,21 +292,13 @@ describe('BaseNode', () => {
       expect(screen.getByTestId('collection-field-icon')).toBeInTheDocument();
     });
 
-    it('should not render collection icon when not ARRAY type', () => {
+    it.each([
+      ['collection-field-icon', 'ARRAY type'],
+      ['choice-field-icon', 'choice type (regular FieldNodeData)'],
+      ['choice-field-icon', 'CHOICE type'],
+    ])('should not render %s for non-%s', (testId) => {
       render(<BaseNode nodeData={createMockNodeData({ type: Types.String })} title="Title" data-testid="test-node" />);
-      expect(screen.queryByTestId('collection-field-icon')).not.toBeInTheDocument();
-    });
-
-    it('should render choice icon when isChoiceField is true (ChoiceFieldNodeData)', () => {
-      // Note: Choice fields require ChoiceFieldNodeData instance, not just a type
-      // This test verifies the icon doesn't show for regular FieldNodeData
-      render(<BaseNode nodeData={createMockNodeData({ type: Types.String })} title="Title" data-testid="test-node" />);
-      expect(screen.queryByTestId('choice-field-icon')).not.toBeInTheDocument();
-    });
-
-    it('should not render choice icon when not CHOICE type', () => {
-      render(<BaseNode nodeData={createMockNodeData({ type: Types.String })} title="Title" data-testid="test-node" />);
-      expect(screen.queryByTestId('choice-field-icon')).not.toBeInTheDocument();
+      expect(screen.queryByTestId(testId)).not.toBeInTheDocument();
     });
 
     it('should render attribute icon when isAttributeField is true (ATTRIBUTE type)', () => {
@@ -322,11 +314,6 @@ describe('BaseNode', () => {
       // Attribute icon requires VisualizationService.isAttributeField to return true
       // Our mock properly sets isAttribute, so this should work
       expect(screen.getByTestId('attribute-field-icon')).toBeInTheDocument();
-    });
-
-    it('should not render attribute icon when not ATTRIBUTE type', () => {
-      render(<BaseNode nodeData={createMockNodeData({ type: Types.String })} title="Title" data-testid="test-node" />);
-      expect(screen.queryByTestId('attribute-field-icon')).not.toBeInTheDocument();
     });
   });
 

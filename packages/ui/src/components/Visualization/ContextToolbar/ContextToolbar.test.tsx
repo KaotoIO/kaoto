@@ -152,7 +152,14 @@ describe('ContextToolbar', () => {
   });
 
   describe('other toolbar buttons', () => {
-    it('should render FlowsMenu component', async () => {
+    it.each([
+      ['flows-menu', 'FlowsMenu'],
+      ['flow-clipboard', 'FlowClipboard'],
+      ['flow-export-image', 'FlowExportImage'],
+      ['export-document', 'ExportDocument'],
+      ['selected-runtime', 'SelectedRuntime'],
+      ['integration-type-selector', 'IntegrationTypeSelector'],
+    ])('should render %s component', async (testId) => {
       const { Provider } = await TestProvidersWrapper();
 
       render(
@@ -161,67 +168,7 @@ describe('ContextToolbar', () => {
         </Provider>,
       );
 
-      expect(screen.getByTestId('flows-menu')).toBeInTheDocument();
-    });
-
-    it('should render FlowClipboard component', async () => {
-      const { Provider } = await TestProvidersWrapper();
-
-      render(
-        <Provider>
-          <ContextToolbar />
-        </Provider>,
-      );
-
-      expect(screen.getByTestId('flow-clipboard')).toBeInTheDocument();
-    });
-
-    it('should render FlowExportImage component', async () => {
-      const { Provider } = await TestProvidersWrapper();
-
-      render(
-        <Provider>
-          <ContextToolbar />
-        </Provider>,
-      );
-
-      expect(screen.getByTestId('flow-export-image')).toBeInTheDocument();
-    });
-
-    it('should render ExportDocument component', async () => {
-      const { Provider } = await TestProvidersWrapper();
-
-      render(
-        <Provider>
-          <ContextToolbar />
-        </Provider>,
-      );
-
-      expect(screen.getByTestId('export-document')).toBeInTheDocument();
-    });
-
-    it('should render SelectedRuntime component', async () => {
-      const { Provider } = await TestProvidersWrapper();
-
-      render(
-        <Provider>
-          <ContextToolbar />
-        </Provider>,
-      );
-
-      expect(screen.getByTestId('selected-runtime')).toBeInTheDocument();
-    });
-
-    it('should render IntegrationTypeSelector component', async () => {
-      const { Provider } = await TestProvidersWrapper();
-
-      render(
-        <Provider>
-          <ContextToolbar />
-        </Provider>,
-      );
-
-      expect(screen.getByTestId('integration-type-selector')).toBeInTheDocument();
+      expect(screen.getByTestId(testId)).toBeInTheDocument();
     });
   });
 
