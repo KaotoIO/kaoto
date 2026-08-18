@@ -699,11 +699,18 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
 
   private recurseIntoContainerActions(action: TestActions, actionName: string) {
     const containerSettings = CitrusTestSchemaService.getTestContainerSettings(actionName);
-    if (containerSettings) {
-      const nested: TestActions[] = getValue(action, `${this.toModelPath(actionName)}.${containerSettings.name}`, []);
-      if (nested.length) {
-        this.updateTestGroupModel(nested);
-      }
+    if (!containerSettings) {
+      return;
+    }
+
+    const nestedValue = getValue(action, `${this.toModelPath(actionName)}.${containerSettings.name}`);
+    if (!isDefined(nestedValue)) {
+      return;
+    }
+
+    const nested: TestActions[] = containerSettings.type === 'single-node' ? [nestedValue] : nestedValue;
+    if (Array.isArray(nested) && nested.length) {
+      this.updateTestGroupModel(nested);
     }
   }
 }
