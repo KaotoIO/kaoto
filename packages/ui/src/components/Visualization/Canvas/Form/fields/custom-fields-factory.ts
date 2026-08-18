@@ -88,67 +88,29 @@ const isTestingRuntimeSelectorField = (schema: Parameters<CustomFieldsFactory>[0
   return schema.type === 'string' && schema.title === 'Testing runtime version';
 };
 
-export const customFieldsFactoryfactory: CustomFieldsFactory = (schema) => {
+/** Ordered list of [predicate, field component] pairs evaluated by customFieldsFactoryfactory. */
+const CUSTOM_FIELD_ENTRIES: [
+  (schema: Parameters<CustomFieldsFactory>[0]) => boolean,
+  ReturnType<CustomFieldsFactory>,
+][] = [
   /* Workaround for https://github.com/KaotoIO/kaoto/issues/2565 since the SNMP component has the wrong type */
-  if (Array.isArray(schema.enum) && schema.enum.length > 0) {
-    return EnumField;
-  }
+  [(schema) => Array.isArray(schema.enum) && schema.enum.length > 0, EnumField],
+  [isIntegrationRuntimeSelectorField, RuntimeCatalogNameField],
+  [isTestingRuntimeSelectorField, TestingCatalogNameField],
+  [isDirectEndpointName, DirectEndpointNameField],
+  [isBeanField, PrefixedBeanField],
+  [isRefField, UnprefixedBeanField],
+  [isDataSourceField, DataSourceBeanField],
+  [isMediaTypeField, MediaTypeField],
+  [isExpressionField, ExpressionField],
+  [isCustomMediaTypesField, CustomMediaTypes],
+  [isUriField, UriField],
+  [isEndpointPropertiesField, EndpointPropertiesField],
+  [isEndpointField, EndpointField],
+  [isEndpointListField, EndpointListField],
+  [isTextAreaField, TextAreaField],
+];
 
-  if (isIntegrationRuntimeSelectorField(schema)) {
-    return RuntimeCatalogNameField;
-  }
-
-  if (isTestingRuntimeSelectorField(schema)) {
-    return TestingCatalogNameField;
-  }
-
-  if (isDirectEndpointName(schema)) {
-    return DirectEndpointNameField;
-  }
-
-  if (isBeanField(schema)) {
-    return PrefixedBeanField;
-  }
-
-  if (isRefField(schema)) {
-    return UnprefixedBeanField;
-  }
-
-  if (isDataSourceField(schema)) {
-    return DataSourceBeanField;
-  }
-
-  if (isMediaTypeField(schema)) {
-    return MediaTypeField;
-  }
-
-  if (isExpressionField(schema)) {
-    return ExpressionField;
-  }
-
-  if (isCustomMediaTypesField(schema)) {
-    return CustomMediaTypes;
-  }
-
-  if (isUriField(schema)) {
-    return UriField;
-  }
-
-  if (isEndpointPropertiesField(schema)) {
-    return EndpointPropertiesField;
-  }
-
-  if (isEndpointField(schema)) {
-    return EndpointField;
-  }
-
-  if (isEndpointListField(schema)) {
-    return EndpointListField;
-  }
-
-  if (isTextAreaField(schema)) {
-    return TextAreaField;
-  }
-
-  return undefined;
+export const customFieldsFactoryfactory: CustomFieldsFactory = (schema) => {
+  return CUSTOM_FIELD_ENTRIES.find(([predicate]) => predicate(schema))?.[1];
 };
