@@ -1,6 +1,7 @@
 import { cloneDeep } from 'lodash';
 
 import { camelRouteJson } from '../../stubs/camel-route';
+import { CatalogKind } from '../catalog-kind';
 import { NodeLabelType } from '../settings';
 import { IClipboardContent } from '../visualization/clipboard';
 import {
@@ -24,6 +25,9 @@ describe('VisualizationNode', () => {
       title: '',
       description: '',
       iconUrl: '',
+      primaryNodeId: { name: 'log', catalogKind: CatalogKind.Pattern },
+      secondaryNodeId: undefined,
+      tertiaryNodeId: undefined,
     });
   });
 
@@ -95,10 +99,13 @@ describe('VisualizationNode', () => {
       title: '',
       description: '',
       iconUrl: '',
+      primaryNodeId: { name: 'log', catalogKind: CatalogKind.Pattern },
     });
     node.getNodeDefinition();
 
-    expect(getNodeDefinitionSpy).toHaveBeenCalledWith(node.data.path);
+    expect(getNodeDefinitionSpy).toHaveBeenCalledWith(node.data.path, {
+      primaryNodeId: node.data.primaryNodeId,
+    });
   });
 
   it('should delegate getOmitFormFields() to the underlying BaseVisualCamelEntity', () => {
@@ -172,7 +179,7 @@ describe('VisualizationNode', () => {
     } as unknown as BaseVisualEntity;
 
     const rootNode = createVisualizationNode('test', {
-      name: 'log',
+      name: 'root',
       path: 'test-path',
       entity: visualEntity,
       isPlaceholder: false,
@@ -180,6 +187,7 @@ describe('VisualizationNode', () => {
       title: '',
       description: '',
       iconUrl: '',
+      primaryNodeId: { name: 'route', catalogKind: CatalogKind.Entity },
     });
     node.setParentNode(rootNode);
 
@@ -187,7 +195,9 @@ describe('VisualizationNode', () => {
     node.getNodeDefinition();
 
     /** Assert */
-    expect(getNodeDefinitionSpy).toHaveBeenCalledWith(node.data.path);
+    expect(getNodeDefinitionSpy).toHaveBeenCalledWith(node.data.path, {
+      primaryNodeId: node.data.primaryNodeId,
+    });
   });
 
   describe('updateModel', () => {
@@ -433,10 +443,13 @@ describe('VisualizationNode', () => {
         description: '',
         iconUrl: '',
         schema: { type: 'object' },
+        primaryNodeId: { name: 'log', catalogKind: CatalogKind.Pattern },
       });
       const validationText = node.getNodeValidationText();
 
-      expect(getNodeValidationTextSpy).toHaveBeenCalledWith(node.data.path, node.data.schema);
+      expect(getNodeValidationTextSpy).toHaveBeenCalledWith(node.data.path, node.data.schema, {
+        primaryNodeId: node.data.primaryNodeId,
+      });
       expect(validationText).toBe('test-validation-text');
     });
   });
@@ -471,8 +484,8 @@ describe('VisualizationNode', () => {
         title: '',
         description: '',
         iconUrl: '',
-        primaryNodeId: { name: 'to', catalogKind: 'processor' as never },
-        secondaryNodeId: { name: 'log', catalogKind: 'component' as never },
+        primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern },
+        secondaryNodeId: { name: 'log', catalogKind: CatalogKind.Component },
         tertiaryNodeId: undefined,
       });
       const copiedContent = node.getCopiedContent();
@@ -480,7 +493,6 @@ describe('VisualizationNode', () => {
       expect(getCopiedContentSpy).toHaveBeenCalledWith(node.data.path, {
         primaryNodeId: node.data.primaryNodeId,
         secondaryNodeId: node.data.secondaryNodeId,
-        tertiaryNodeId: node.data.tertiaryNodeId,
       });
       expect(copiedContent).toBe('test-copied-content');
     });
@@ -592,17 +604,13 @@ describe('VisualizationNode', () => {
         iconUrl: '',
         title: '',
         description: '',
-        primaryNodeId: { name: 'log', catalogKind: 'processor' as never },
-        secondaryNodeId: undefined,
-        tertiaryNodeId: undefined,
+        primaryNodeId: { name: 'log', catalogKind: CatalogKind.Pattern },
       });
 
       const result = await node.fetchSchema();
 
       expect(fetchNodeSchemaSpy).toHaveBeenCalledWith({
         primaryNodeId: node.data.primaryNodeId,
-        secondaryNodeId: undefined,
-        tertiaryNodeId: undefined,
       });
       expect(result).toBe(mockSchema);
     });
@@ -651,8 +659,8 @@ describe('VisualizationNode', () => {
       const fetchNodeSchemaSpy = vi.fn().mockResolvedValue(undefined);
       const visualEntity = { fetchNodeSchema: fetchNodeSchemaSpy } as unknown as BaseVisualEntity;
 
-      const primaryNodeId = { name: 'to', catalogKind: 'processor' as never };
-      const secondaryNodeId = { name: 'timer', catalogKind: 'component' as never };
+      const primaryNodeId = { name: 'to', catalogKind: CatalogKind.Pattern };
+      const secondaryNodeId = { name: 'timer', catalogKind: CatalogKind.Component };
 
       node = createVisualizationNode('test', {
         name: 'timer',
@@ -672,7 +680,6 @@ describe('VisualizationNode', () => {
       expect(fetchNodeSchemaSpy).toHaveBeenCalledWith({
         primaryNodeId,
         secondaryNodeId,
-        tertiaryNodeId: undefined,
       });
     });
   });

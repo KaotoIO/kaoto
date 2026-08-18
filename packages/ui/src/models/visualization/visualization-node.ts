@@ -120,7 +120,12 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   }
 
   getNodeDefinition(): unknown {
-    return this.getBaseEntity()?.getNodeDefinition(this.data.path);
+    const { primaryNodeId, secondaryNodeId, tertiaryNodeId } = this.data;
+    return this.getBaseEntity()?.getNodeDefinition(this.data.path, {
+      primaryNodeId,
+      secondaryNodeId,
+      tertiaryNodeId,
+    });
   }
 
   getOmitFormFields(): string[] {
@@ -179,7 +184,12 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   }
 
   getNodeValidationText(): string | undefined {
-    return this.getBaseEntity()?.getNodeValidationText(this.data.path, this.data.schema);
+    const ids: IVisualizationNodeIds = {
+      primaryNodeId: this.data.primaryNodeId,
+      secondaryNodeId: this.data.secondaryNodeId,
+      tertiaryNodeId: this.data.tertiaryNodeId,
+    };
+    return this.getBaseEntity()?.getNodeValidationText(this.data.path, this.data.schema, ids);
   }
 
   /**

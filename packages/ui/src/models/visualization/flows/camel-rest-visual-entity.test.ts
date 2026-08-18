@@ -137,7 +137,7 @@ describe('CamelRestVisualEntity', () => {
       // Use a path where method is NOT in REST_DSL_METHODS
       entity.getNodeDefinition('rest.unknown.0');
 
-      expect(superGetNodeDefinitionSpy).toHaveBeenCalledWith('rest.unknown.0');
+      expect(superGetNodeDefinitionSpy).toHaveBeenCalledWith('rest.unknown.0', undefined);
     });
   });
 

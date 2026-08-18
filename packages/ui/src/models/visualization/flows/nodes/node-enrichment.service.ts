@@ -79,12 +79,7 @@ export class NodeEnrichmentService {
     await visit(root);
   }
 
-  /**
-   * Enriches a visualization node with catalog properties (icon, title, description).
-   * @param vizNode - The visualization node to enrich
-   * @param catalogKind - The catalog kind (Component or Processor)
-   */
-  static async enrichNodeFromCatalog(vizNode: IVisualizationNode, catalogKind: CatalogKind): Promise<void> {
+  private static async enrichNodeFromCatalog(vizNode: IVisualizationNode, catalogKind: CatalogKind): Promise<void> {
     // Special handling for From nodes with Entity catalog kind
     // Use the component or kamelet for enrichment instead of the processor
     let effectiveCatalogKind = catalogKind;

@@ -119,7 +119,9 @@ export const RestTree: FunctionComponent<IRestTree> = ({ entities, selected, onS
               >
                 {node.children?.map((child) => {
                   const currentEntity = entities.find((entity) => entity.id === node.entityId);
-                  const pathLabel = currentEntity?.getNodeDefinition(child?.modelPath).path;
+                  const pathLabel = currentEntity?.getNodeDefinition(child?.modelPath, {
+                    primaryNodeId: child.primaryNodeId,
+                  }).path;
                   const label = pathLabel?.trim() ? (
                     pathLabel
                   ) : (

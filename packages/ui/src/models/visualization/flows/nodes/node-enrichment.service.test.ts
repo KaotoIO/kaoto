@@ -56,6 +56,10 @@ describe('NodeEnrichmentService', () => {
     return vizNode;
   };
 
+  const enrichNode = async (vizNode: IVisualizationNode): Promise<void> => {
+    await NodeEnrichmentService.enrichVisualizationTree(vizNode);
+  };
+
   it('should enrich node with all catalog data on success', async () => {
     const mockSchema: KaotoSchemaDefinition['schema'] = {
       type: 'object' as const,
@@ -70,7 +74,8 @@ describe('NodeEnrichmentService', () => {
     mockGetTitleRequest.mockResolvedValue('Log EIP');
 
     const vizNode = createMockVizNode(async () => mockSchema);
-    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Component);
+    vizNode.data.secondaryNodeId = { catalogKind: CatalogKind.Component, name: 'log' };
+    await enrichNode(vizNode);
 
     expect(vizNode.data.iconUrl).toBe('log-icon.svg');
     expect(vizNode.data.iconAlt).toBe('Log icon');
@@ -89,7 +94,8 @@ describe('NodeEnrichmentService', () => {
     const vizNode = createMockVizNode(async () => {
       throw new Error('Schema service down');
     });
-    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Component);
+    vizNode.data.secondaryNodeId = { catalogKind: CatalogKind.Component, name: 'log' };
+    await enrichNode(vizNode);
 
     expect(vizNode.data.iconUrl).toBe('');
     expect(vizNode.data.iconAlt).toBeUndefined();
@@ -114,7 +120,8 @@ describe('NodeEnrichmentService', () => {
     mockGetTitleRequest.mockResolvedValue('Log EIP');
 
     const vizNode = createMockVizNode(async () => mockSchema);
-    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Component);
+    vizNode.data.secondaryNodeId = { catalogKind: CatalogKind.Component, name: 'log' };
+    await enrichNode(vizNode);
 
     expect(vizNode.data.iconUrl).toBe('');
     expect(vizNode.data.iconAlt).toBeUndefined();
@@ -136,10 +143,10 @@ describe('NodeEnrichmentService', () => {
     vizNode.data.name = "${header.foo} == 'bar'";
     vizNode.data.primaryNodeId = { catalogKind: CatalogKind.Pattern, name: 'when' };
 
-    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Processor);
+    await enrichNode(vizNode);
 
     // Verify getTitleRequest was called with primaryNodeId.name, not name
-    expect(mockGetTitleRequest).toHaveBeenCalledWith(CatalogKind.Processor, 'when', undefined);
+    expect(mockGetTitleRequest).toHaveBeenCalledWith(CatalogKind.Pattern, 'when', undefined);
     expect(vizNode.data.title).toBe('When EIP');
   });
 
@@ -154,7 +161,7 @@ describe('NodeEnrichmentService', () => {
     vizNode.data.primaryNodeId = { catalogKind: CatalogKind.Pattern, name: 'from' };
     vizNode.data.secondaryNodeId = { catalogKind: CatalogKind.Component, name: 'timer' };
 
-    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Component);
+    await enrichNode(vizNode);
 
     // Verify getTitleRequest was called with name (not primaryNodeId.name) for Component kind
     expect(mockGetTitleRequest).toHaveBeenCalledWith(CatalogKind.Component, 'timer', 'timer');
@@ -169,17 +176,17 @@ describe('NodeEnrichmentService', () => {
       mockGetTitleRequest.mockResolvedValue('Beer Source');
 
       const vizNode = createMockVizNode();
-      vizNode.data.name = 'kamelet';
+      vizNode.data.name = 'beer-source';
       vizNode.data.primaryNodeId = { catalogKind: CatalogKind.Entity, name: 'from' };
       vizNode.data.secondaryNodeId = { catalogKind: CatalogKind.Component, name: 'kamelet' };
       vizNode.data.tertiaryNodeId = { catalogKind: CatalogKind.Kamelet, name: 'beer-source' };
 
-      await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Entity);
+      await enrichNode(vizNode);
 
-      // Should resolve using tertiaryNodeId (Kamelet) rather than the node name
+      // deriveCatalogKind selects Kamelet; enrichment uses the kamelet name from node data
       expect(mockGetIconRequest).toHaveBeenCalledWith(CatalogKind.Kamelet, 'beer-source');
       expect(mockGetTooltipRequest).toHaveBeenCalledWith(CatalogKind.Kamelet, 'beer-source', expect.any(String));
-      expect(mockGetTitleRequest).toHaveBeenCalledWith(CatalogKind.Kamelet, 'beer-source', undefined);
+      expect(mockGetTitleRequest).toHaveBeenCalledWith(CatalogKind.Kamelet, 'beer-source', 'kamelet');
       expect(vizNode.data.title).toBe('Beer Source');
     });
 
@@ -195,7 +202,7 @@ describe('NodeEnrichmentService', () => {
       vizNode.data.secondaryNodeId = { catalogKind: CatalogKind.Component, name: 'timer' };
       vizNode.data.tertiaryNodeId = undefined;
 
-      await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Entity);
+      await enrichNode(vizNode);
 
       // Should resolve using secondaryNodeId (Component)
       expect(mockGetIconRequest).toHaveBeenCalledWith(CatalogKind.Component, 'timer');
@@ -216,7 +223,7 @@ describe('NodeEnrichmentService', () => {
       vizNode.data.secondaryNodeId = undefined;
       vizNode.data.tertiaryNodeId = undefined;
 
-      await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Entity);
+      await enrichNode(vizNode);
 
       // Should keep Entity kind with original name
       expect(mockGetIconRequest).toHaveBeenCalledWith(CatalogKind.Entity, 'from');
@@ -236,7 +243,7 @@ describe('NodeEnrichmentService', () => {
       vizNode.data.primaryNodeId = { catalogKind: CatalogKind.Entity, name: 'route' };
       vizNode.data.secondaryNodeId = { catalogKind: CatalogKind.Component, name: 'timer' };
 
-      await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Entity);
+      await enrichNode(vizNode);
 
       // Should NOT redirect to the secondaryNodeId — stays with Entity kind and original name
       expect(mockGetIconRequest).toHaveBeenCalledWith(CatalogKind.Entity, 'my-route');
@@ -253,7 +260,7 @@ describe('NodeEnrichmentService', () => {
     vizNode.data.name = 'split-expression';
     vizNode.data.primaryNodeId = { catalogKind: CatalogKind.Pattern, name: 'split' };
 
-    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Pattern);
+    await enrichNode(vizNode);
 
     // Pattern kind → titleIdentifier must be processorName, not the node name
     expect(mockGetTitleRequest).toHaveBeenCalledWith(CatalogKind.Pattern, 'split', undefined);
@@ -284,11 +291,12 @@ describe('NodeEnrichmentService', () => {
       iconUrl: '',
       title: '',
       description: '',
+      primaryNodeId: { catalogKind: CatalogKind.Entity, name: 'route' },
     } as unknown as CamelRouteVisualEntityData);
 
     vizNode.fetchSchema = vi.fn(async () => rootSchema);
 
-    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Entity);
+    await enrichNode(vizNode);
 
     expect(vizNode.fetchSchema).toHaveBeenCalled();
     expect(vizNode.data.schema).toBe(rootSchema);
@@ -317,11 +325,12 @@ describe('NodeEnrichmentService', () => {
       iconUrl: '',
       title: '',
       description: '',
+      primaryNodeId: { catalogKind: CatalogKind.Pattern, name: 'log' },
     } as unknown as CamelRouteVisualEntityData);
 
     vizNode.fetchSchema = vi.fn(async () => standardSchema);
 
-    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Processor);
+    await enrichNode(vizNode);
 
     expect(vizNode.fetchSchema).toHaveBeenCalled();
     expect(vizNode.data.schema).toBe(standardSchema);

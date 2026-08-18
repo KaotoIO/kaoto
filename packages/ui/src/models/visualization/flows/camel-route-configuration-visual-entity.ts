@@ -115,12 +115,12 @@ export class CamelRouteConfigurationVisualEntity
     return await super.fetchNodeSchema(ids);
   }
 
-  getNodeDefinition(path?: string): unknown {
+  getNodeDefinition(path?: string, ids?: IVisualizationNodeIds): unknown {
     if (path === this.getRootPath()) {
       return { ...this.routeConfigurationDef.routeConfiguration };
     }
 
-    return super.getNodeDefinition(path);
+    return super.getNodeDefinition(path, ids);
   }
 
   getOmitFormFields(): string[] {

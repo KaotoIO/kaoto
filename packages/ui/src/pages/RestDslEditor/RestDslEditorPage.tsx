@@ -65,7 +65,7 @@ export const RestDslEditorPage: FunctionComponent = () => {
     selectedElement?.ids?.primaryNodeId?.name,
   ]);
 
-  const model = selectedEntity?.getNodeDefinition(selectedElement?.modelPath);
+  const model = selectedEntity?.getNodeDefinition(selectedElement?.modelPath, selectedElement?.ids);
 
   const [treeVersion, setTreeVersion] = useState(0);
 

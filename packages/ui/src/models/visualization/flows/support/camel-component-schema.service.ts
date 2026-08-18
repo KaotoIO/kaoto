@@ -6,6 +6,7 @@ import { CamelUriHelper, DATAMAPPER_ID_PREFIX, isDataMapperNode, ParsedParameter
 import { CatalogKind } from '../../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../../kaoto-schema';
 import { REST_DSL_VERBS } from '../../../special-processors.constants';
+import { IVisualizationNodeIds } from '../../base-visual-entity';
 import { IClipboardContent } from '../../clipboard';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelProcessorStepsProperties, ICamelElementLookupResult } from './camel-component-types';
@@ -255,18 +256,29 @@ export class CamelComponentSchemaService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static getUpdatedDefinition(camelElementLookup: ICamelElementLookupResult, definition: any) {
+  static getUpdatedDefinition(ids: IVisualizationNodeIds | undefined, definition: any) {
     /** Clone the original definition since we want to preserve the original one, until the form is changed */
     let updatedDefinition = cloneDeep(definition);
 
-    const prop = this.PROCESSOR_STRING_DEFINITIONS[camelElementLookup.processorName];
-    if (prop && typeof definition === 'string') {
-      updatedDefinition = { [prop]: definition };
+    const processorName = ids?.primaryNodeId?.name;
+    const componentName =
+      ids?.secondaryNodeId?.name === 'kamelet' && ids?.tertiaryNodeId?.name !== undefined
+        ? `kamelet:${ids.tertiaryNodeId.name}`
+        : ids?.secondaryNodeId?.name;
+
+    if (processorName !== undefined) {
+      const prop = this.PROCESSOR_STRING_DEFINITIONS[processorName];
+      if (prop && typeof definition === 'string') {
+        updatedDefinition = { [prop]: definition };
+      }
     }
 
-    if (camelElementLookup.componentName !== undefined) {
+    if (componentName !== undefined) {
+      if (updatedDefinition == null) {
+        return updatedDefinition;
+      }
       updatedDefinition.parameters = updatedDefinition.parameters ?? {};
-      this.applyParametersFromSyntax(camelElementLookup.componentName, updatedDefinition);
+      this.applyParametersFromSyntax(componentName, updatedDefinition);
     }
 
     return updatedDefinition;

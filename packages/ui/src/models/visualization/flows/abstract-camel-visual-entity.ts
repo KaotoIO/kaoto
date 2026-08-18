@@ -130,12 +130,11 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     return schema;
   }
 
-  getNodeDefinition(path?: string): unknown {
+  getNodeDefinition(path?: string, ids?: IVisualizationNodeIds): unknown {
     if (!path) return undefined;
 
     const definition = getValue(this.entityDef, path);
-    const camelElementLookup = CamelComponentSchemaService.getCamelComponentLookup(path, definition);
-    const updatedDefinition = CamelComponentSchemaService.getUpdatedDefinition(camelElementLookup, definition);
+    const updatedDefinition = CamelComponentSchemaService.getUpdatedDefinition(ids, definition);
 
     /** Overriding parameters with an empty object When the parameters property is mistakenly set to null */
     if (updatedDefinition?.parameters === null) {
@@ -282,8 +281,12 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     };
   }
 
-  getNodeValidationText(path?: string | undefined, schema?: KaotoSchemaDefinition['schema']): string | undefined {
-    const definition = this.getNodeDefinition(path);
+  getNodeValidationText(
+    path?: string | undefined,
+    schema?: KaotoSchemaDefinition['schema'],
+    ids?: IVisualizationNodeIds,
+  ): string | undefined {
+    const definition = this.getNodeDefinition(path, ids);
     if (!schema || !definition) return undefined;
 
     return ModelValidationService.validateNodeStatus(schema, definition);

@@ -35,7 +35,7 @@ export interface BaseVisualEntity extends BaseEntity {
 
   /** Given a path, returns the node's underlying definition in JSON format */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getNodeDefinition(path?: string): any;
+  getNodeDefinition(path?: string, ids?: IVisualizationNodeIds): any;
 
   /** Return fields that should be omitted when configuring this entity */
   getOmitFormFields: () => string[];
@@ -77,7 +77,11 @@ export interface BaseVisualEntity extends BaseEntity {
   getNodeInteraction(data: IVisualizationNodeData): NodeInteraction;
 
   /** Given a path, retrieve the Node validation status */
-  getNodeValidationText(path?: string, schema?: KaotoSchemaDefinition['schema']): string | undefined;
+  getNodeValidationText(
+    path?: string,
+    schema?: KaotoSchemaDefinition['schema'],
+    ids?: IVisualizationNodeIds,
+  ): string | undefined;
 
   /** Generates a IVisualizationNode from the underlying Camel entity */
   toVizNode: () => Promise<IVisualizationNode>;
