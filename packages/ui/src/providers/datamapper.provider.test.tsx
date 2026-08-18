@@ -31,7 +31,7 @@ describe('DataMapperProvider', () => {
         <div data-testid="testdiv" />
       </DataMapperProvider>,
     );
-    await screen.findByTestId('testdiv');
+    expect(await screen.findByTestId('testdiv')).toBeInTheDocument();
   });
 
   it('refreshMappingTree should re-create the MappingTree instance', async () => {
