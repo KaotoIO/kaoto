@@ -4,5 +4,6 @@ import { FormTest } from './FormTest';
 const target = { kind: CatalogKind.Pattern, range: { start: 0, end: undefined } } as const;
 
 describe(`Form: ${target.kind} - [${target.range.start} - ${target.range.end}]`, () => {
+  // NOSONAR typescript:S2187 - Tests are defined in FormTest function
   FormTest(target);
-}); // NOSONAR typescript:S2187 - Tests are defined in FormTest function
+});
