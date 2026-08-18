@@ -783,7 +783,7 @@ describe('MappingService', () => {
       const orderIdFieldItem = tree.children[0].children[0];
       orderIdFieldItem.children = [];
       MappingService.mapToField(sourceDoc.fields[0].fields[0], orderIdFieldItem);
-      expect(orderIdFieldItem.children[0] instanceof ValueSelector).toBe(true);
+      expect(orderIdFieldItem.children[0]).toBeInstanceOf(ValueSelector);
       const orderIdValueSelector = orderIdFieldItem.children[0] as ValueSelector;
       expect(orderIdValueSelector.expression).toBe('/ns0:ShipOrder/@OrderId');
     });
@@ -793,7 +793,7 @@ describe('MappingService', () => {
       const orderIdFieldItem = tree.children[0].children[0];
       orderIdFieldItem.children = [];
       MappingService.mapToField(sourceDoc.fields[0].fields[0], orderIdFieldItem);
-      expect(orderIdFieldItem.children[0] instanceof ValueSelector).toBe(true);
+      expect(orderIdFieldItem.children[0]).toBeInstanceOf(ValueSelector);
       const orderIdValueSelector = orderIdFieldItem.children[0] as ValueSelector;
       expect(orderIdValueSelector.expression).toBe('/ns0:ShipOrder/@OrderId');
     });
