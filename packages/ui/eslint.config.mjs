@@ -13,6 +13,8 @@ export default [
     rules: {
       'vitest/prefer-to-have-length': 'error',
       'vitest/prefer-to-be': 'error',
+      // Prevent incomplete assertions (SonarQube typescript:S2970, S2699).
+      'vitest/valid-expect': 'error',
     },
   },
   {
