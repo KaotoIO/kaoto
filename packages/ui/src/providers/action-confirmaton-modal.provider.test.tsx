@@ -68,8 +68,8 @@ describe('ActionConfirmationModalProvider', () => {
     const modalDialog = wrapper.getByRole('dialog');
     expect(modalDialog).toMatchSnapshot();
 
-    expect(wrapper.queryByText('Custom title')).toBeInTheDocument;
-    expect(wrapper.queryByText('Custom text')).toBeInTheDocument;
+    expect(wrapper.queryByText('Custom title')).toBeInTheDocument();
+    expect(wrapper.queryByText('Custom text')).toBeInTheDocument();
   });
 
   it('should show 3 options to choose', async () => {
