@@ -8,12 +8,12 @@ describe('FieldMatchingService', () => {
   describe('canUseCopyOf', () => {
     describe('XML → XML', () => {
       it.each([
-        ['person', 'http://example.com/ns', 'person', 'http://example.com/ns', true, 'matching namespace and name'],
-        ['person', 'http://example.com/ns1', 'person', 'http://example.com/ns2', false, 'non-matching namespace'],
-        ['person', 'http://example.com/ns', 'employee', 'http://example.com/ns', false, 'non-matching name'],
-      ])('should return %s for %s', (sourceName, sourceNs, targetName, targetNs, expected) => {
-        const sourceField = createXmlField(sourceName, sourceNs);
-        const targetField = createXmlField(targetName, targetNs);
+        ['matching namespace and name', 'person', 'http://example.com/ns', 'person', 'http://example.com/ns', true],
+        ['non-matching namespace', 'person', 'http://example.com/ns1', 'person', 'http://example.com/ns2', false],
+        ['non-matching name', 'person', 'http://example.com/ns', 'employee', 'http://example.com/ns', false],
+      ])('%s', (_desc, sourceName, sourceNs, targetName, targetNs, expected) => {
+        const sourceField = createXmlField(sourceName as string, sourceNs as string);
+        const targetField = createXmlField(targetName as string, targetNs as string);
 
         expect(FieldMatchingService.canUseCopyOf(sourceField, targetField)).toBe(expected);
       });

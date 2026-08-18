@@ -63,11 +63,11 @@ describe('expansion-utils', () => {
 
   describe('calculateConstrainedDelta', () => {
     it.each([
-      [100, 200, 150, 100, 'positive delta within maxGrow limit'],
-      [300, 200, 150, 200, 'positive delta constrained to maxGrow'],
-      [-100, 200, 150, -100, 'negative delta within maxShrink limit'],
-      [-300, 200, 150, -150, 'negative delta constrained to maxShrink'],
-    ])('%s: delta=%i maxGrow=%i maxShrink=%i → %i', (delta, maxGrow, maxShrink, expected) => {
+      ['positive delta within maxGrow limit', 100, 200, 150, 100],
+      ['positive delta constrained to maxGrow', 300, 200, 150, 200],
+      ['negative delta within maxShrink limit', -100, 200, 150, -100],
+      ['negative delta constrained to maxShrink', -300, 200, 150, -150],
+    ])('%s', (_description, delta, maxGrow, maxShrink, expected) => {
       const result = calculateConstrainedDelta(delta as number, maxGrow as number, maxShrink as number);
       expect(result).toBe(expected);
     });
