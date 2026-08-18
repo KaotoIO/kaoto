@@ -526,16 +526,15 @@ describe('VisualizationService', () => {
       expect(result.error).toContain('valid NCName');
     });
 
-    it('should reject name ending with -x', () => {
-      const result = VisualizationService.validateVariableName('myVar-x', tree);
+    it.each([
+      ['myVar-x', "'-x'", 'name ending with -x'],
+      ['mapped-xml', "'mapped-xml'", 'reserved name mapped-xml'],
+      ['ns:var', 'valid NCName', 'name with colon (QName but not NCName)'],
+      ['1bad-x', 'valid NCName', 'first error only (early return)'],
+    ])('should reject %s', (name, expectedError) => {
+      const result = VisualizationService.validateVariableName(name, tree);
       expect(result.status).toEqual(NameValidationStatus.ERROR);
-      expect(result.error).toContain("'-x'");
-    });
-
-    it('should reject the reserved name mapped-xml', () => {
-      const result = VisualizationService.validateVariableName('mapped-xml', tree);
-      expect(result.status).toEqual(NameValidationStatus.ERROR);
-      expect(result.error).toContain("'mapped-xml'");
+      expect(result.error).toContain(expectedError);
     });
 
     it('should reject duplicate name within scope', () => {
@@ -553,18 +552,6 @@ describe('VisualizationService', () => {
       const result = VisualizationService.validateVariableName('gVar', tree);
       expect(result.status).toEqual(NameValidationStatus.ERROR);
       expect(result.error).toContain("'gVar' already exists");
-    });
-
-    it('should reject name with colon (QName but not NCName)', () => {
-      const result = VisualizationService.validateVariableName('ns:var', tree);
-      expect(result.status).toEqual(NameValidationStatus.ERROR);
-      expect(result.error).toContain('valid NCName');
-    });
-
-    it('should return first error only (early return)', () => {
-      const result = VisualizationService.validateVariableName('1bad-x', tree);
-      expect(result.status).toEqual(NameValidationStatus.ERROR);
-      expect(result.error).toContain('valid NCName');
     });
   });
 
