@@ -1,6 +1,6 @@
 import { CamelYamlDsl } from '@kaoto/camel-catalog/types';
 import { VisualizationProvider } from '@patternfly/react-topology';
-import { fireEvent, render, waitFor } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import { parse } from 'yaml';
 
 import { CamelRouteResource } from '../../../../models/camel';
@@ -47,14 +47,10 @@ describe('FlowExportDocument.tsx', () => {
     const showAllBtn = wrapper.getByTestId('toggle-btn-all-show');
     fireEvent.click(showAllBtn);
 
-    await waitFor(async () => {
-      const header = await wrapper.findByTestId('documentationPreviewModal');
-      expect(header).toBeInTheDocument();
-    });
+    const header = await wrapper.findByTestId('documentationPreviewModal');
+    expect(header).toBeInTheDocument();
 
-    await waitFor(async () => {
-      const tables = await wrapper.findAllByTestId('export-document-preview-body');
-      expect(tables).toHaveLength(1);
-    });
+    const tables = await wrapper.findAllByTestId('export-document-preview-body');
+    expect(tables).toHaveLength(1);
   });
 });

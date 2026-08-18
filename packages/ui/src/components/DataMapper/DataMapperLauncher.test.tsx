@@ -269,7 +269,7 @@ describe('DataMapperLauncher', () => {
 
       render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
-      const span = await waitFor(() => screen.getByTestId('xslt-document-name'));
+      const span = await screen.findByTestId('xslt-document-name');
       expect(span).toHaveTextContent('my-transformation.xsl');
     });
 
@@ -313,7 +313,7 @@ describe('DataMapperLauncher', () => {
 
       render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
-      const helpButton = await waitFor(() => screen.getByRole('button', { name: 'More info' }));
+      const helpButton = await screen.findByRole('button', { name: 'More info' });
       expect(helpButton).toBeInTheDocument();
     });
 
@@ -403,7 +403,7 @@ describe('DataMapperLauncher', () => {
         const editButton = screen.getByTestId('xslt-document-name--edit');
         fireEvent.click(editButton);
 
-        const input = await waitFor(() => screen.getByTestId('xslt-document-name--text-input'));
+        const input = await screen.findByTestId('xslt-document-name--text-input');
         fireEvent.change(input, { target: { value: '' } });
 
         await waitFor(() => {
@@ -424,7 +424,7 @@ describe('DataMapperLauncher', () => {
         const editButton = screen.getByTestId('xslt-document-name--edit');
         fireEvent.click(editButton);
 
-        const input = await waitFor(() => screen.getByTestId('xslt-document-name--text-input'));
+        const input = await screen.findByTestId('xslt-document-name--text-input');
         fireEvent.change(input, { target: { value: 'invalid.txt' } });
 
         await waitFor(() => {
@@ -450,7 +450,7 @@ describe('DataMapperLauncher', () => {
         const editButton = screen.getByTestId('xslt-document-name--edit');
         fireEvent.click(editButton);
 
-        const input = await waitFor(() => screen.getByTestId('xslt-document-name--text-input'));
+        const input = await screen.findByTestId('xslt-document-name--text-input');
         fireEvent.change(input, { target: { value: 'existing.xsl' } });
 
         await waitFor(() => {
@@ -492,7 +492,7 @@ describe('DataMapperLauncher', () => {
         const editButton = screen.getByTestId('xslt-document-name--edit');
         fireEvent.click(editButton);
 
-        const input = await waitFor(() => screen.getByTestId('xslt-document-name--text-input'));
+        const input = await screen.findByTestId('xslt-document-name--text-input');
         expect(input).toBeInTheDocument();
         expect(input).toHaveValue('test-document.xsl');
       });
@@ -529,7 +529,7 @@ describe('DataMapperLauncher', () => {
         const editButton = screen.getByTestId('xslt-document-name--edit');
         fireEvent.click(editButton);
 
-        const input = await waitFor(() => screen.getByTestId('xslt-document-name--text-input'));
+        const input = await screen.findByTestId('xslt-document-name--text-input');
         fireEvent.change(input, { target: { value: 'changed.xsl' } });
 
         const cancelButton = screen.getByTestId('xslt-document-name--cancel');
@@ -553,7 +553,7 @@ describe('DataMapperLauncher', () => {
         const editButton = screen.getByTestId('xslt-document-name--edit');
         fireEvent.click(editButton);
 
-        const input = await waitFor(() => screen.getByTestId('xslt-document-name--text-input'));
+        const input = await screen.findByTestId('xslt-document-name--text-input');
         fireEvent.change(input, { target: { value: 'invalid' } });
 
         await waitFor(() => {
@@ -580,7 +580,7 @@ describe('DataMapperLauncher', () => {
         const editButton = screen.getByTestId('xslt-document-name--edit');
         fireEvent.click(editButton);
 
-        const input = await waitFor(() => screen.getByTestId('xslt-document-name--text-input'));
+        const input = await screen.findByTestId('xslt-document-name--text-input');
         fireEvent.change(input, { target: { value: 'valid-name.xsl' } });
 
         await waitFor(() => {
@@ -602,7 +602,7 @@ describe('DataMapperLauncher', () => {
         const editButton = screen.getByTestId('xslt-document-name--edit');
         fireEvent.click(editButton);
 
-        const input = await waitFor(() => screen.getByTestId('xslt-document-name--text-input'));
+        const input = await screen.findByTestId('xslt-document-name--text-input');
         fireEvent.change(input, { target: { value: '' } });
 
         await waitFor(() => {
@@ -654,10 +654,10 @@ describe('DataMapperLauncher', () => {
         const editButton = screen.getByTestId('xslt-document-name--edit');
         fireEvent.click(editButton);
 
-        const input = await waitFor(() => screen.getByTestId('xslt-document-name--text-input'));
+        const input = await screen.findByTestId('xslt-document-name--text-input');
         fireEvent.change(input, { target: { value: 'renamed.xsl' } });
 
-        const saveButton = await waitFor(() => screen.getByTestId('xslt-document-name--save'));
+        const saveButton = await screen.findByTestId('xslt-document-name--save');
         fireEvent.click(saveButton);
 
         await waitFor(() => {
@@ -719,10 +719,10 @@ describe('DataMapperLauncher', () => {
         const editButton = screen.getByTestId('xslt-document-name--edit');
         fireEvent.click(editButton);
 
-        const input = await waitFor(() => screen.getByTestId('xslt-document-name--text-input'));
+        const input = await screen.findByTestId('xslt-document-name--text-input');
         fireEvent.change(input, { target: { value: 'renamed.xsl' } });
 
-        const saveButton = await waitFor(() => screen.getByTestId('xslt-document-name--save'));
+        const saveButton = await screen.findByTestId('xslt-document-name--save');
         fireEvent.click(saveButton);
 
         // Should not proceed with rename operations when metadata is not found
@@ -771,10 +771,10 @@ describe('DataMapperLauncher', () => {
         const editButton = screen.getByTestId('xslt-document-name--edit');
         fireEvent.click(editButton);
 
-        const input = await waitFor(() => screen.getByTestId('xslt-document-name--text-input'));
+        const input = await screen.findByTestId('xslt-document-name--text-input');
         fireEvent.change(input, { target: { value: 'renamed.xsl' } });
 
-        const saveButton = await waitFor(() => screen.getByTestId('xslt-document-name--save'));
+        const saveButton = await screen.findByTestId('xslt-document-name--save');
         fireEvent.click(saveButton);
 
         await waitFor(() => {
