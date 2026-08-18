@@ -62,44 +62,14 @@ describe('expansion-utils', () => {
   });
 
   describe('calculateConstrainedDelta', () => {
-    it('should return positive delta when within maxGrow limit', () => {
-      const delta = 100; // Want to grow by 100px
-      const maxGrow = 200; // Can grow up to 200px
-      const maxShrink = 150;
-
-      const result = calculateConstrainedDelta(delta, maxGrow, maxShrink);
-
-      expect(result).toBe(100); // Full delta allowed
-    });
-
-    it('should constrain positive delta to maxGrow', () => {
-      const delta = 300; // Want to grow by 300px
-      const maxGrow = 200; // Can only grow 200px
-      const maxShrink = 150;
-
-      const result = calculateConstrainedDelta(delta, maxGrow, maxShrink);
-
-      expect(result).toBe(200); // Constrained to maxGrow
-    });
-
-    it('should return negative delta when within maxShrink limit', () => {
-      const delta = -100; // Want to shrink by 100px
-      const maxGrow = 200;
-      const maxShrink = 150; // Can shrink up to 150px
-
-      const result = calculateConstrainedDelta(delta, maxGrow, maxShrink);
-
-      expect(result).toBe(-100); // Full delta allowed
-    });
-
-    it('should constrain negative delta to maxShrink', () => {
-      const delta = -300; // Want to shrink by 300px
-      const maxGrow = 200;
-      const maxShrink = 150; // Can only shrink 150px
-
-      const result = calculateConstrainedDelta(delta, maxGrow, maxShrink);
-
-      expect(result).toBe(-150); // Constrained to -maxShrink
+    it.each([
+      [100, 200, 150, 100, 'positive delta within maxGrow limit'],
+      [300, 200, 150, 200, 'positive delta constrained to maxGrow'],
+      [-100, 200, 150, -100, 'negative delta within maxShrink limit'],
+      [-300, 200, 150, -150, 'negative delta constrained to maxShrink'],
+    ])('%s: delta=%i maxGrow=%i maxShrink=%i → %i', (delta, maxGrow, maxShrink, expected) => {
+      const result = calculateConstrainedDelta(delta as number, maxGrow as number, maxShrink as number);
+      expect(result).toBe(expected);
     });
 
     it('should handle zero delta', () => {
@@ -191,7 +161,10 @@ describe('expansion-utils', () => {
       expect(currentPanel.height + adjacentPanel.height).toBe(600); // Total unchanged
     });
 
-    it('should constrain growth when adjacent panel reaches minHeight', () => {
+    it.each([
+      ['growth constrained by adjacent minHeight', 600, 500, 100],
+      ['shrinkage constrained by current minHeight', 50, 100, 500],
+    ])('should constrain %s', (_desc, targetHeight, expectedCurrent, expectedAdjacent) => {
       const currentPanel: PanelData = {
         id: 'current',
         height: 300,
@@ -212,39 +185,10 @@ describe('expansion-utils', () => {
         order: 2,
       };
 
-      applyConstrainedResize(currentPanel, adjacentPanel, 600, 50); // Try to grow to 600px
+      applyConstrainedResize(currentPanel, adjacentPanel, targetHeight, 50);
 
-      // Adjacent can only give up 200px (300 - 100 minHeight)
-      expect(currentPanel.height).toBe(500); // Grew by 200 (constrained)
-      expect(adjacentPanel.height).toBe(100); // At minHeight
-    });
-
-    it('should constrain shrinkage when current panel reaches minHeight', () => {
-      const currentPanel: PanelData = {
-        id: 'current',
-        height: 300,
-        minHeight: 100,
-        collapsedHeight: 50,
-        element: document.createElement('div'),
-        isExpanded: true,
-        order: 1,
-      };
-
-      const adjacentPanel: PanelData = {
-        id: 'adjacent',
-        height: 300,
-        minHeight: 100,
-        collapsedHeight: 50,
-        element: document.createElement('div'),
-        isExpanded: true,
-        order: 2,
-      };
-
-      applyConstrainedResize(currentPanel, adjacentPanel, 50, 50); // Try to shrink to 50px
-
-      // Current can only shrink 200px (300 - 100 minHeight)
-      expect(currentPanel.height).toBe(100); // At minHeight
-      expect(adjacentPanel.height).toBe(500); // Grew by 200 (constrained)
+      expect(currentPanel.height).toBe(expectedCurrent);
+      expect(adjacentPanel.height).toBe(expectedAdjacent);
     });
 
     it('should respect collapsed height for collapsed adjacent panel', () => {

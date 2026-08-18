@@ -499,23 +499,8 @@ describe('VisualizationService', () => {
       expect(result.error).toBeUndefined();
     });
 
-    it('should accept name starting with underscore', () => {
-      const result = VisualizationService.validateVariableName('_private', tree);
-      expect(result.status).toEqual(NameValidationStatus.SUCCESS);
-    });
-
-    it('should accept name with hyphens', () => {
-      const result = VisualizationService.validateVariableName('tax-rate', tree);
-      expect(result.status).toEqual(NameValidationStatus.SUCCESS);
-    });
-
-    it('should accept name with periods', () => {
-      const result = VisualizationService.validateVariableName('v1.0', tree);
-      expect(result.status).toEqual(NameValidationStatus.SUCCESS);
-    });
-
-    it('should accept single-character name', () => {
-      const result = VisualizationService.validateVariableName('x', tree);
+    it.each(['_private', 'tax-rate', 'v1.0', 'x'])('should accept name "%s"', (name) => {
+      const result = VisualizationService.validateVariableName(name, tree);
       expect(result.status).toEqual(NameValidationStatus.SUCCESS);
     });
 
@@ -530,26 +515,13 @@ describe('VisualizationService', () => {
       expect(result.status).toEqual(NameValidationStatus.EMPTY);
     });
 
-    it('should reject name starting with digit', () => {
-      const result = VisualizationService.validateVariableName('1var', tree);
-      expect(result.status).toEqual(NameValidationStatus.ERROR);
-      expect(result.error).toContain('valid NCName');
-    });
-
-    it('should reject name starting with hyphen', () => {
-      const result = VisualizationService.validateVariableName('-var', tree);
-      expect(result.status).toEqual(NameValidationStatus.ERROR);
-      expect(result.error).toContain('valid NCName');
-    });
-
-    it('should reject name with spaces', () => {
-      const result = VisualizationService.validateVariableName('tax rate', tree);
-      expect(result.status).toEqual(NameValidationStatus.ERROR);
-      expect(result.error).toContain('valid NCName');
-    });
-
-    it('should reject name with special characters', () => {
-      const result = VisualizationService.validateVariableName('var@name', tree);
+    it.each([
+      ['1var', 'starting with digit'],
+      ['-var', 'starting with hyphen'],
+      ['tax rate', 'with spaces'],
+      ['var@name', 'with special characters'],
+    ])('should reject name %s ("%s")', (name) => {
+      const result = VisualizationService.validateVariableName(name, tree);
       expect(result.status).toEqual(NameValidationStatus.ERROR);
       expect(result.error).toContain('valid NCName');
     });

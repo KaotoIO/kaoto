@@ -36,51 +36,41 @@ describe('DefaultURIResolver', () => {
         expect(result).toEqual({ content: '<schema>common</schema>', resolvedPath: 'common.xsd' });
       });
 
-      it('should resolve relative path with ./ prefix', () => {
-        const definitionFiles = {
-          'schemas/main.xsd': '<schema>main</schema>',
-          'schemas/common.xsd': '<schema>common</schema>',
-        };
-        const resolver = new DefaultURIResolver(definitionFiles);
+      it.each([
+        [
+          'relative path with ./ prefix',
+          { 'schemas/main.xsd': '<schema>main</schema>', 'schemas/common.xsd': '<schema>common</schema>' },
+          './common.xsd',
+          'schemas/main.xsd',
+          { content: '<schema>common</schema>', resolvedPath: 'schemas/common.xsd' },
+        ],
+        [
+          'relative path with baseUri',
+          { 'schemas/main.xsd': '<schema>main</schema>', 'schemas/common.xsd': '<schema>common</schema>' },
+          'common.xsd',
+          'schemas/main.xsd',
+          { content: '<schema>common</schema>', resolvedPath: 'schemas/common.xsd' },
+        ],
+        [
+          './ normalization in schemaLocation',
+          { 'schemas/types/base.xsd': '<schema>base</schema>' },
+          './types/./base.xsd',
+          'schemas/main.xsd',
+          { content: '<schema>base</schema>', resolvedPath: 'schemas/types/base.xsd' },
+        ],
+        [
+          '../ in schemaLocation',
+          { 'schemas/main.xsd': '<schema>main</schema>', 'common.xsd': '<schema>common</schema>' },
+          '../common.xsd',
+          'schemas/main.xsd',
+          { content: '<schema>common</schema>', resolvedPath: 'common.xsd' },
+        ],
+      ])('should resolve %s', (_desc, definitionFiles, schemaLocation, baseUri, expected) => {
+        const resolver = new DefaultURIResolver(definitionFiles as Record<string, string>);
 
-        const result = resolver.resolveEntity(null, './common.xsd', 'schemas/main.xsd');
+        const result = resolver.resolveEntity(null, schemaLocation as string, baseUri as string);
 
-        expect(result).toEqual({ content: '<schema>common</schema>', resolvedPath: 'schemas/common.xsd' });
-      });
-
-      it('should resolve relative path with baseUri', () => {
-        const definitionFiles = {
-          'schemas/main.xsd': '<schema>main</schema>',
-          'schemas/common.xsd': '<schema>common</schema>',
-        };
-        const resolver = new DefaultURIResolver(definitionFiles);
-
-        const result = resolver.resolveEntity(null, 'common.xsd', 'schemas/main.xsd');
-
-        expect(result).toEqual({ content: '<schema>common</schema>', resolvedPath: 'schemas/common.xsd' });
-      });
-
-      it('should normalize ./ in schemaLocation', () => {
-        const definitionFiles = {
-          'schemas/types/base.xsd': '<schema>base</schema>',
-        };
-        const resolver = new DefaultURIResolver(definitionFiles);
-
-        const result = resolver.resolveEntity(null, './types/./base.xsd', 'schemas/main.xsd');
-
-        expect(result).toEqual({ content: '<schema>base</schema>', resolvedPath: 'schemas/types/base.xsd' });
-      });
-
-      it('should resolve ../ in schemaLocation', () => {
-        const definitionFiles = {
-          'schemas/main.xsd': '<schema>main</schema>',
-          'common.xsd': '<schema>common</schema>',
-        };
-        const resolver = new DefaultURIResolver(definitionFiles);
-
-        const result = resolver.resolveEntity(null, '../common.xsd', 'schemas/main.xsd');
-
-        expect(result).toEqual({ content: '<schema>common</schema>', resolvedPath: 'common.xsd' });
+        expect(result).toEqual(expected);
       });
 
       it('should resolve nested relative paths (../../common.xsd)', () => {

@@ -204,51 +204,20 @@ describe('CstVisitor', () => {
         }
       });
 
-      it('should handle addition: price + tax', () => {
-        const cst = XPathService.parse('price + tax').cst;
+      it.each([
+        ['addition: price + tax', 'price + tax', 'Plus'],
+        ['subtraction: total - discount', 'total - discount', 'Minus'],
+        ['division: price div quantity', 'price div quantity', 'Div'],
+        ['modulo: count mod 10', 'count mod 10', 'Mod'],
+      ])('should handle %s', (_desc, expression, expectedOperator) => {
+        const cst = XPathService.parse(expression).cst;
         const root = CstVisitor.visit(cst);
 
         const arithmeticExpr = root.expressions[0];
         expect(arithmeticExpr.type).toBe(XPathNodeType.ArithmeticExpr);
 
         if (arithmeticExpr.type === XPathNodeType.ArithmeticExpr) {
-          expect(arithmeticExpr.operator).toBe('Plus');
-        }
-      });
-
-      it('should handle subtraction: total - discount', () => {
-        const cst = XPathService.parse('total - discount').cst;
-        const root = CstVisitor.visit(cst);
-
-        const arithmeticExpr = root.expressions[0];
-        expect(arithmeticExpr.type).toBe(XPathNodeType.ArithmeticExpr);
-
-        if (arithmeticExpr.type === XPathNodeType.ArithmeticExpr) {
-          expect(arithmeticExpr.operator).toBe('Minus');
-        }
-      });
-
-      it('should handle division: price div quantity', () => {
-        const cst = XPathService.parse('price div quantity').cst;
-        const root = CstVisitor.visit(cst);
-
-        const arithmeticExpr = root.expressions[0];
-        expect(arithmeticExpr.type).toBe(XPathNodeType.ArithmeticExpr);
-
-        if (arithmeticExpr.type === XPathNodeType.ArithmeticExpr) {
-          expect(arithmeticExpr.operator).toBe('Div');
-        }
-      });
-
-      it('should handle modulo: count mod 10', () => {
-        const cst = XPathService.parse('count mod 10').cst;
-        const root = CstVisitor.visit(cst);
-
-        const arithmeticExpr = root.expressions[0];
-        expect(arithmeticExpr.type).toBe(XPathNodeType.ArithmeticExpr);
-
-        if (arithmeticExpr.type === XPathNodeType.ArithmeticExpr) {
-          expect(arithmeticExpr.operator).toBe('Mod');
+          expect(arithmeticExpr.operator).toBe(expectedOperator);
         }
       });
 
@@ -480,24 +449,11 @@ describe('Edge cases and error handling', () => {
     expect(ast).toBeDefined();
   });
 
-  it('should handle empty node for range creation', () => {
-    // This tests line 111: return CstVisitor.createRangeFromToken(node)
-    const xpath = 'a';
-    const ast = XPathService.parse(xpath).exprNode;
-    expect(ast).toBeDefined();
-    expect(ast?.range).toBeDefined();
-  });
-
-  it('should handle node without valid tokens (getFirstToken/getLastToken)', () => {
-    // This tests line 144: return undefined
-    const xpath = 'test';
-    const ast = XPathService.parse(xpath).exprNode;
-    expect(ast).toBeDefined();
-  });
-
-  it('should handle invalid path expression in comparison', () => {
-    // This tests line 262: return undefined
-    const xpath = 'true()';
+  it.each([
+    ['empty node for range creation', 'a'],
+    ['node without valid tokens (getFirstToken/getLastToken)', 'test'],
+    ['invalid path expression in comparison', 'true()'],
+  ])('should handle %s', (_desc, xpath) => {
     const ast = XPathService.parse(xpath).exprNode;
     expect(ast).toBeDefined();
   });
@@ -838,44 +794,14 @@ describe('Direct method testing for processSingleArithmeticOperand coverage', ()
     expect(topExpr.operator).not.toBe((topExpr.left as ArithmeticExprNode).operator);
   });
 
-  it('should handle primary expression without function or parentheses', () => {
-    // This tests line 449: return undefined
-    const xpath = '123';
-    const ast = XPathService.parse(xpath).exprNode;
-    expect(ast).toBeDefined();
-  });
-
-  it('should handle VarRef without valid VarName', () => {
-    // This tests lines 509-513: VarRef fallback
-    const xpath = '$var';
-    const ast = XPathService.parse(xpath).exprNode;
-    expect(ast).toBeDefined();
-  });
-
-  it('should handle empty predicate list', () => {
-    // This tests lines 608, 611, 619, 622, 625: early returns in visitPredicateList
-    const xpath = 'a';
-    const ast = XPathService.parse(xpath).exprNode;
-    expect(ast).toBeDefined();
-  });
-
-  it('should handle single operand in additive expression', () => {
-    // This tests lines 706-719: single operand path in visitAdditiveExpr
-    const xpath = 'a';
-    const ast = XPathService.parse(xpath).exprNode;
-    expect(ast).toBeDefined();
-  });
-
-  it('should handle single union expression', () => {
-    // This tests lines 789: single UnionExpr return undefined
-    const xpath = 'a';
-    const ast = XPathService.parse(xpath).exprNode;
-    expect(ast).toBeDefined();
-  });
-
-  it('should handle single operand in OR expression without comparison', () => {
-    // This tests line 880: return undefined for single operand
-    const xpath = 'a';
+  it.each([
+    ['primary expression without function or parentheses', '123'],
+    ['VarRef without valid VarName', '$var'],
+    ['empty predicate list', 'a'],
+    ['single operand in additive expression', 'a'],
+    ['single union expression', 'a'],
+    ['single operand in OR expression without comparison', 'a'],
+  ])('should handle %s', (_desc, xpath) => {
     const ast = XPathService.parse(xpath).exprNode;
     expect(ast).toBeDefined();
   });
