@@ -11,9 +11,7 @@ export class EventNotifier extends EventTarget {
   }
 
   static getInstance(): EventNotifier {
-    if (!this.instance) {
-      this.instance = new EventNotifier();
-    }
+    this.instance ??= new EventNotifier();
 
     return this.instance;
   }

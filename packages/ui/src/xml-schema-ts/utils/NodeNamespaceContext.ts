@@ -16,9 +16,7 @@ export class NodeNamespaceContext implements NamespacePrefixList {
   }
 
   getDeclaredPrefixes(): string[] {
-    if (this.prefixes === undefined) {
-      this.prefixes = Object.keys(this.declarations);
-    }
+    this.prefixes ??= Object.keys(this.declarations);
     return this.prefixes;
   }
 

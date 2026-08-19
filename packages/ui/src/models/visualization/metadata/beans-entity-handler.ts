@@ -70,9 +70,7 @@ export class BeansEntityHandler {
     }
 
     let entity = this.getBeansEntity();
-    if (!entity) {
-      entity = this.createBeansEntity();
-    }
+    entity ??= this.createBeansEntity();
     if (entity) {
       entity.parent.beans = model;
     }
