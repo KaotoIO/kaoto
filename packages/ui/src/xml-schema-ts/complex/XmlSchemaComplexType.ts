@@ -21,13 +21,6 @@ export class XmlSchemaComplexType extends XmlSchemaType {
   private particle: XmlSchemaParticle | null = null;
   private _isAbstract: boolean = false;
 
-  /**
-   * Creates new XmlSchemaComplexType
-   */
-  constructor(schema: XmlSchema, topLevel: boolean) {
-    super(schema, topLevel);
-  }
-
   getAnyAttribute() {
     return this.anyAttribute;
   }
