@@ -12,9 +12,9 @@ fragments['NameChar'] = new RegExp(
 );
 fragments['Name'] = new RegExp(`(${f.NameStartChar.source})(${f.NameChar.source})*`);
 fragments['StringLiteral'] = /("(""|[^"])*")|('(''|[^'])*')/;
-fragments['Digits'] = /[0-9]+/;
-fragments['DecimalLiteral'] = /(\.[0-9]+)|([0-9]+\.[0-9]*)/;
-fragments['DoubleLiteral'] = /((\.[0-9]+)|([0-9]+(\.[0-9]*)?))[eE][+-]?[0-9]+/;
+fragments['Digits'] = /\d+/;
+fragments['DecimalLiteral'] = /(\.\d+)|(\d+\.\d*)/;
+fragments['DoubleLiteral'] = /((\.\d+)|(\d+(\.\d*)?))[eE][+-]?\d+/;
 
 const allTokens: TokenType[] = [];
 
