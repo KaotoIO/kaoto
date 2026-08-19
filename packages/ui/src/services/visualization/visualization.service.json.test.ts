@@ -24,15 +24,16 @@ import {
   getShipOrderJsonSchema,
   getShipOrderJsonXslt,
 } from '../../stubs/datamapper/data-mapper';
+import { JsonSchemaDocument } from '../document/json-schema/json-schema-document.model';
 import { JsonSchemaDocumentService } from '../document/json-schema/json-schema-document.service';
 import { MappingSerializerService } from '../mapping/mapping-serializer.service';
 import { MappingActionService } from './mapping-action.service';
 import { VisualizationService } from './visualization.service';
 
 describe('VisualizationService / JSON', () => {
-  let accountDoc: ReturnType<typeof JsonSchemaDocumentService.createJsonSchemaDocument>['document'];
-  let cartDoc: ReturnType<typeof JsonSchemaDocumentService.createJsonSchemaDocument>['document'];
-  let targetDoc: ReturnType<typeof JsonSchemaDocumentService.createJsonSchemaDocument>['document'];
+  let accountDoc: JsonSchemaDocument;
+  let cartDoc: JsonSchemaDocument;
+  let targetDoc: JsonSchemaDocument;
   let sourceParameterMap: Map<string, IDocument>;
 
   let mappingTree: MappingTree;
