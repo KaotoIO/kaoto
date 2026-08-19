@@ -11,11 +11,13 @@ export const enum LayoutType {
  * The intention of these types is to isolate the usage of the
  * underlying rendering library tokens
  */
+export interface CanvasNodeData {
+  vizNode?: IVisualizationNode;
+}
+
 export interface CanvasNode extends NodeModel {
   parentNode?: string;
-  data?: {
-    vizNode?: IVisualizationNode;
-  };
+  data?: CanvasNodeData;
 }
 
 export interface CanvasEdge extends EdgeModel {
