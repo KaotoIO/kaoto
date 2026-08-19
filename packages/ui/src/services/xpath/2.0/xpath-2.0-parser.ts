@@ -8,7 +8,7 @@ const f = fragments;
 
 fragments['NameStartChar'] = /[a-zA-Z]|\\u2070-\\u218F|\\u2C00-\\u2FEF|\\u3001-\\uD7FF|\\uF900-\\uFDCF|\\uFDF0-\\uFFFD/;
 fragments['NameChar'] = new RegExp(
-  `(${f.NameStartChar.source})|-|_|\\.|\\d|\\u00B7|[\\u0300-\\u036F]|[\\u203F-\\u2040]`,
+  String.raw`(${f.NameStartChar.source})|-|_|\.|\d|\u00B7|[\u0300-\u036F]|[\u203F-\u2040]`,
 );
 fragments['Name'] = new RegExp(`(${f.NameStartChar.source})(${f.NameChar.source})*`);
 fragments['StringLiteral'] = /("(""|[^"])*")|('(''|[^'])*')/;
