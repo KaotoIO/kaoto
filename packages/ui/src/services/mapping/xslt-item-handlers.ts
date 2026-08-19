@@ -19,9 +19,11 @@ import {
   WhenItem,
 } from '../../models/datamapper/mapping';
 import { DeserializeItemResult, MappingItemClass, XsltItemHandler } from '../../models/datamapper/serialization';
-import { NS_XSL } from '../../models/datamapper/standard-namespaces';
+import { NS_XML_SCHEMA_INSTANCE, NS_XSL } from '../../models/datamapper/standard-namespaces';
+import { FieldOverrideVariant } from '../../models/datamapper/types';
 import { FROM_JSON_SOURCE_SUFFIX } from '../document/json-schema/json-schema-document.model';
 import { XmlSchemaDocumentUtilService } from '../document/xml-schema/xml-schema-document-util.service';
+import { formatQNameWithPrefix, getPrefixForNamespaceURI } from '../namespace-util';
 import { MappingSerializerJsonAddon, TO_JSON_TARGET_VARIABLE } from './mapping-serializer-json-addon';
 
 /** Handles {@link ValueOfSelector} — maps to `xsl:value-of` or `xsl:text`. */
@@ -199,6 +201,18 @@ export class FieldItemHandler implements XsltItemHandler<FieldItem> {
     const element = mapping.field.namespaceURI
       ? doc.createElementNS(mapping.field.namespaceURI, mapping.field.name)
       : doc.createElement(mapping.field.name);
+
+    // Emit xsi:type for SAFE type overrides — enables XML Schema validators
+    // to follow type hierarchy (extension/restriction) without schema regeneration.
+    if (mapping.field.typeOverride === FieldOverrideVariant.SAFE && mapping.field.typeQName) {
+      const namespaceMap = mapping.mappingTree.namespaceMap;
+      const xsiPrefix = getPrefixForNamespaceURI(NS_XML_SCHEMA_INSTANCE, namespaceMap);
+      const xsiTypeValue = formatQNameWithPrefix(mapping.field.typeQName, namespaceMap);
+      if (xsiPrefix && xsiTypeValue) {
+        element.setAttribute(`${xsiPrefix}:type`, xsiTypeValue);
+      }
+    }
+
     parent.appendChild(element);
     return element;
   }
