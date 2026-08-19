@@ -22,11 +22,7 @@ export const TestRuntimeProviderWrapper = (
       () => ({ basePath, catalogLibrary: catalogLibraryCasted, selectedCatalog, setSelectedCatalog }),
       [],
     );
-    return (
-      <RuntimeContext.Provider key={Date.now()} value={value}>
-        {props.children}
-      </RuntimeContext.Provider>
-    );
+    return <RuntimeContext.Provider value={value}>{props.children}</RuntimeContext.Provider>;
   };
 
   return { Provider, basePath, catalogLibrary: catalogLibraryCasted, selectedCatalog, setSelectedCatalog };
