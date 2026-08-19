@@ -18,13 +18,6 @@ export class XmlSchemaRedefine extends XmlSchemaExternal {
 
   private readonly items: XmlSchemaObject[] = [];
 
-  /**
-   * Creates new XmlSchemaRedefine
-   */
-  constructor(parent: XmlSchema) {
-    super(parent);
-  }
-
   getAttributeGroups() {
     return this.attributeGroups;
   }
