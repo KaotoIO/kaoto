@@ -257,7 +257,7 @@ export class CamelRouteResource implements KaotoResource, BeansAwareResource {
   }
 
   deleteBeansEntity(entity: BeansEntity): void {
-    const index = this.entities.findIndex((e) => e === entity);
+    const index = this.entities.indexOf(entity);
     if (index !== -1) {
       this.entities.splice(index, 1);
     }
