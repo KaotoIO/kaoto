@@ -2,9 +2,12 @@ import { Edge, EdgeModel } from '@patternfly/react-topology';
 import type { Mock } from 'vitest';
 
 import { CatalogModalContextValue } from '../../../dynamic-catalog/catalog-modal.provider';
-import { AddStepMode, IVisualizationNode } from '../../../models/visualization/base-visual-entity';
+import {
+  AddStepMode,
+  IVisualizationNode,
+  IVisualizationNodeData,
+} from '../../../models/visualization/base-visual-entity';
 import { CamelComponentSchemaService } from '../../../models/visualization/flows/support/camel-component-schema.service';
-import { CamelRouteVisualEntityData } from '../../../models/visualization/flows/support/camel-component-types';
 import { EntitiesContextResult } from '../../../providers';
 import { canDragGroup, canDropOnEdge, getDropTargetContainerClassNames } from './customComponentUtils';
 
@@ -240,7 +243,7 @@ describe('canDropOnEdge', () => {
 describe('canDragGroup', () => {
   const getMockGroupVizNode = (path: string, name: string, parentProcessorName?: string): IVisualizationNode => {
     const parentData = parentProcessorName
-      ? ({ processorName: parentProcessorName } as CamelRouteVisualEntityData)
+      ? ({ processorName: parentProcessorName } as unknown as IVisualizationNodeData)
       : undefined;
     return {
       id: 'group-1',

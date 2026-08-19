@@ -3,9 +3,8 @@ import type { MockInstance } from 'vitest';
 import { CatalogKind } from '../../../catalog-kind';
 import { EntityType } from '../../../entities';
 import { KaotoSchemaDefinition } from '../../../kaoto-schema';
-import { BaseVisualEntity, IVisualizationNode } from '../../base-visual-entity';
+import { BaseVisualEntity, IVisualizationNode, IVisualizationNodeData } from '../../base-visual-entity';
 import { createVisualizationNode } from '../../visualization-node';
-import { CamelRouteVisualEntityData } from '../support/camel-component-types';
 import { NodeEnrichmentService } from './node-enrichment.service';
 import { getIconRequest } from './resolvers/icon-resolver/getIconRequest';
 import { getTitleRequest } from './resolvers/title-resolver/getTitleRequest';
@@ -36,7 +35,7 @@ describe('NodeEnrichmentService', () => {
 
   const createMockVizNode = (
     fetchSchemaImpl?: () => Promise<KaotoSchemaDefinition['schema'] | undefined>,
-  ): IVisualizationNode<CamelRouteVisualEntityData> => {
+  ): IVisualizationNode<IVisualizationNodeData> => {
     const data = {
       name: 'log',
       description: 'Logs messages',
@@ -45,7 +44,7 @@ describe('NodeEnrichmentService', () => {
       isGroup: false,
       iconUrl: '',
       title: '',
-    } as unknown as CamelRouteVisualEntityData;
+    } as unknown as IVisualizationNodeData;
     const vizNode = createVisualizationNode('test-node', data);
 
     // Mock fetchSchema method
@@ -292,7 +291,7 @@ describe('NodeEnrichmentService', () => {
       title: '',
       description: '',
       primaryNodeId: { catalogKind: CatalogKind.Entity, name: 'route' },
-    } as unknown as CamelRouteVisualEntityData);
+    } as unknown as IVisualizationNodeData);
 
     vizNode.fetchSchema = vi.fn(async () => rootSchema);
 
@@ -326,7 +325,7 @@ describe('NodeEnrichmentService', () => {
       title: '',
       description: '',
       primaryNodeId: { catalogKind: CatalogKind.Pattern, name: 'log' },
-    } as unknown as CamelRouteVisualEntityData);
+    } as unknown as IVisualizationNodeData);
 
     vizNode.fetchSchema = vi.fn(async () => standardSchema);
 
@@ -402,7 +401,7 @@ describe('NodeEnrichmentService', () => {
         title: '',
         description: '',
         primaryNodeId: { catalogKind: CatalogKind.Entity, name: 'route' },
-      } as unknown as CamelRouteVisualEntityData);
+      } as unknown as IVisualizationNodeData);
 
       const child = createVisualizationNode('route.from.steps.0.log', {
         name: 'log',
@@ -413,7 +412,7 @@ describe('NodeEnrichmentService', () => {
         title: '',
         description: '',
         primaryNodeId: { catalogKind: CatalogKind.Pattern, name: 'log' },
-      } as unknown as CamelRouteVisualEntityData);
+      } as unknown as IVisualizationNodeData);
       child.fetchSchema = vi.fn(async () => mockSchema);
 
       const placeholder = createVisualizationNode('route.from.steps.1.placeholder', {
@@ -425,7 +424,7 @@ describe('NodeEnrichmentService', () => {
         title: '',
         description: '',
         primaryNodeId: { catalogKind: CatalogKind.Pattern, name: 'placeholder' },
-      } as unknown as CamelRouteVisualEntityData);
+      } as unknown as IVisualizationNodeData);
 
       root.addChild(child);
       root.addChild(placeholder);
