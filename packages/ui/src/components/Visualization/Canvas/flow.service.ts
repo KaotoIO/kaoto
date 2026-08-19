@@ -3,7 +3,7 @@ import { EdgeStyle } from '@patternfly/react-topology';
 import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
 import { collectTopologyEndpoints } from '../Topology/topology-endpoints';
 import { CanvasDefaults } from './canvas.defaults';
-import { CanvasEdge, CanvasNode, CanvasNodesAndEdges } from './canvas.models';
+import { CanvasEdge, CanvasNode, CanvasNodeData, CanvasNodesAndEdges } from './canvas.models';
 
 export class FlowService {
   static nodes: CanvasNode[] = [];
@@ -163,7 +163,7 @@ export class FlowService {
 
   private static getGroup(
     id: string,
-    options: { label?: string; children?: string[]; parentNode?: string; data: CanvasNode['data'] } = {},
+    options: { label?: string; children?: string[]; parentNode?: string; data?: CanvasNodeData } = {},
   ): CanvasNode {
     return {
       id,
@@ -179,7 +179,7 @@ export class FlowService {
     };
   }
 
-  private static getNode(id: string, options: { parentNode?: string; data: CanvasNode['data'] } = {}): CanvasNode {
+  private static getNode(id: string, options: { parentNode?: string; data?: CanvasNodeData } = {}): CanvasNode {
     return {
       id,
       type: 'node',
