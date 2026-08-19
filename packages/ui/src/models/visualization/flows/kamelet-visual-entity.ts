@@ -124,7 +124,7 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string;
     definedComponent: DefinedComponent;
     mode: AddStepMode;
     data: IVisualizationNodeData;
-    targetProperty?: string | undefined;
+    targetProperty?: string;
   }): void {
     /** Replace the root `from` step */
     if (

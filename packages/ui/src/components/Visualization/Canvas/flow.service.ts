@@ -163,7 +163,7 @@ export class FlowService {
 
   private static getGroup(
     id: string,
-    options: { label?: string; children?: string[]; parentNode?: string; data?: CanvasNode['data'] } = {},
+    options: { label?: string; children?: string[]; parentNode?: string; data: CanvasNode['data'] } = {},
   ): CanvasNode {
     return {
       id,
@@ -179,7 +179,7 @@ export class FlowService {
     };
   }
 
-  private static getNode(id: string, options: { parentNode?: string; data?: CanvasNode['data'] } = {}): CanvasNode {
+  private static getNode(id: string, options: { parentNode?: string; data: CanvasNode['data'] } = {}): CanvasNode {
     return {
       id,
       type: 'node',

@@ -66,7 +66,7 @@ export class CamelRouteVisualEntity extends AbstractCamelVisualEntity<{ route: R
     definedComponent: DefinedComponent;
     mode: AddStepMode;
     data: IVisualizationNodeData;
-    targetProperty?: string | undefined;
+    targetProperty?: string;
   }): void {
     /** Replace the root `from` step */
     if (
