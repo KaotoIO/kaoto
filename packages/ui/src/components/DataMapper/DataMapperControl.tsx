@@ -22,12 +22,10 @@ import { SourceTargetView } from '../View/SourceTargetView';
 export const DataMapperControl: FunctionComponent = () => {
   const { activeView } = useDataMapper();
   const currentView = useMemo(() => {
-    switch (activeView) {
-      case CanvasView.SOURCE_TARGET:
-        return <SourceTargetView />;
-      default:
-        return <>View {activeView} is not supported</>;
+    if (activeView === CanvasView.SOURCE_TARGET) {
+      return <SourceTargetView />;
     }
+    return <>View {activeView} is not supported</>;
   }, [activeView]);
 
   return <>{currentView}</>;

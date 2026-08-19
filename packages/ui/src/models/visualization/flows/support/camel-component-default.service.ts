@@ -46,17 +46,15 @@ export class CamelComponentDefaultService {
   }
 
   private static getDefaultValueFromComponent(componentName: string): { to: Exclude<To, string> } {
-    switch (componentName) {
-      case 'log':
-        return parse(`
+    if (componentName === 'log') {
+      return parse(`
           to:
             id: ${getCamelRandomId('to')}
             uri: log:InfoLogger
             parameters: {}
         `);
-
-      default:
-        return parse(`
+    }
+    return parse(`
           to:
             id: ${getCamelRandomId('to')}
             uri: "${componentName}"
@@ -66,14 +64,11 @@ export class CamelComponentDefaultService {
   }
 
   private static getDefaultValueFromKamelet(kameletName: string): object {
-    switch (kameletName) {
-      default:
-        return parse(`
+    return parse(`
           to:
             uri: "${this.getPrefixedKameletName(kameletName)}"
             id: ${getCamelRandomId('to')}
         `);
-    }
   }
 
   private static getDefaultValueFromProcessor(processorName: keyof ProcessorDefinition): ProcessorDefinition {

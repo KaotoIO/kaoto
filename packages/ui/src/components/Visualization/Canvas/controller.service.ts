@@ -73,11 +73,9 @@ export class ControllerService {
   }
 
   static baselineElementFactory(kind: ModelKind): GraphElement | undefined {
-    switch (kind) {
-      case ModelKind.edge:
-        return new NoBendpointsEdge();
-      default:
-        return undefined;
+    if (kind === ModelKind.edge) {
+      return new NoBendpointsEdge();
     }
+    return undefined;
   }
 }
