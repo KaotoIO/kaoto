@@ -9,6 +9,7 @@ import {
   SourceCodeSync,
 } from '@kaoto/kaoto/testing';
 import { Meta, StoryFn } from '@storybook/react';
+import { useMemo } from 'react';
 
 export default {
   title: 'Settings/SettingsForm',
@@ -17,10 +18,10 @@ export default {
 } as Meta<typeof SettingsForm>;
 
 const Template: StoryFn<typeof SettingsForm> = (args) => {
-  const reloadPage = () => {};
   const settingsAdapter = new DefaultSettingsAdapter();
+  const reloadContextValue = useMemo(() => ({ reloadPage: () => {}, lastRender: 0 }), []);
   return (
-    <ReloadContext.Provider value={{ reloadPage, lastRender: 0 }}>
+    <ReloadContext.Provider value={reloadContextValue}>
       <SourceCodeSync initialSourceCode="">
         <KaotoResourceProvider>
           <RuntimeProvider

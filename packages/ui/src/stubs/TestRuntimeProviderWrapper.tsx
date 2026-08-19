@@ -1,6 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
-import { FunctionComponent, PropsWithChildren } from 'react';
+import { FunctionComponent, PropsWithChildren, useMemo } from 'react';
 
 import { IRuntimeContext, RuntimeContext } from '../providers/runtime.provider';
 import { CatalogSchemaLoader } from '../utils';
@@ -17,19 +17,17 @@ export const TestRuntimeProviderWrapper = (
   const selectedCatalog = catalogSelect?.(catalogLibraryCasted) ?? catalogLibraryCasted.definitions[0];
   const setSelectedCatalog = vi.fn();
 
-  const Provider: FunctionComponent<PropsWithChildren> = (props) => (
-    <RuntimeContext.Provider
-      key={Date.now()}
-      value={{
-        basePath,
-        catalogLibrary: catalogLibraryCasted,
-        selectedCatalog,
-        setSelectedCatalog,
-      }}
-    >
-      {props.children}
-    </RuntimeContext.Provider>
-  );
+  const Provider: FunctionComponent<PropsWithChildren> = (props) => {
+    const value = useMemo(
+      () => ({ basePath, catalogLibrary: catalogLibraryCasted, selectedCatalog, setSelectedCatalog }),
+      [],
+    );
+    return (
+      <RuntimeContext.Provider key={Date.now()} value={value}>
+        {props.children}
+      </RuntimeContext.Provider>
+    );
+  };
 
   return { Provider, basePath, catalogLibrary: catalogLibraryCasted, selectedCatalog, setSelectedCatalog };
 };

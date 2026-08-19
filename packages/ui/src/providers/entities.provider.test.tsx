@@ -1,5 +1,5 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { PropsWithChildren, useContext } from 'react';
+import { PropsWithChildren, useContext, useMemo } from 'react';
 import { parse } from 'yaml';
 
 import { SourceSchemaType } from '../models/camel';
@@ -49,11 +49,14 @@ const createMockResource = (overrides: Partial<KaotoResource> = {}): KaotoResour
 
 const buildMockResourceWrapper =
   (resource: KaotoResource) =>
-  ({ children }: PropsWithChildren) => (
-    <KaotoResourceContext.Provider value={{ kaotoResource: resource }}>
-      <EntitiesProvider>{children}</EntitiesProvider>
-    </KaotoResourceContext.Provider>
-  );
+  ({ children }: PropsWithChildren) => {
+    const value = useMemo(() => ({ kaotoResource: resource }), []); // resource is stable outer-scope reference
+    return (
+      <KaotoResourceContext.Provider value={value}>
+        <EntitiesProvider>{children}</EntitiesProvider>
+      </KaotoResourceContext.Provider>
+    );
+  };
 
 /**
  * Compose the real provider chain. Source code enters through the single ingress
