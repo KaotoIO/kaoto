@@ -6,10 +6,6 @@ interface Events {
 export class EventNotifier extends EventTarget {
   private static instance: EventNotifier | undefined;
 
-  constructor() {
-    super();
-  }
-
   static getInstance(): EventNotifier {
     if (!this.instance) {
       this.instance = new EventNotifier();
