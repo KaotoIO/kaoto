@@ -271,12 +271,8 @@ export class CamelUriHelper {
       return { componentName: undefined };
     }
 
-    if (componentName !== 'kamelet') {
+    if (componentName !== 'kamelet' || separatorIndex === -1) {
       return { componentName };
-    }
-
-    if (separatorIndex === -1) {
-      return { componentName: undefined };
     }
 
     const kameletSegment = trimmedUri.slice(separatorIndex + 1);
