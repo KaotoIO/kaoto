@@ -82,6 +82,7 @@ export default [
       ],
       'react/jsx-no-useless-fragment': ['error', { allowExpressions: true }],
       'react/self-closing-comp': 'error',
+      'react/jsx-no-constructed-context-values': 'error',
     },
   },
   eslintConfigPrettier,

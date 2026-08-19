@@ -9,6 +9,7 @@ import {
   SourceSchemaType,
 } from '@kaoto/kaoto/testing';
 import { StoryFn } from '@storybook/react';
+import { useMemo } from 'react';
 
 export default {
   title: 'Navigation/Navigation',
@@ -31,16 +32,18 @@ const RouteNavigationTemplate: StoryFn<typeof Navigation> = () => {
 };
 
 const KameletNavigationTemplate: StoryFn<typeof Navigation> = () => {
+  const value = useMemo(() => ({ currentSchemaType: SourceSchemaType.Kamelet }) as EntitiesContextResult, []);
   return (
-    <EntitiesContext.Provider value={{ currentSchemaType: SourceSchemaType.Kamelet } as EntitiesContextResult}>
+    <EntitiesContext.Provider value={value}>
       <Navigation isNavOpen />
     </EntitiesContext.Provider>
   );
 };
 
 const PipeNavigationTemplate: StoryFn<typeof Navigation> = () => {
+  const value = useMemo(() => ({ currentSchemaType: SourceSchemaType.Pipe }) as EntitiesContextResult, []);
   return (
-    <EntitiesContext.Provider value={{ currentSchemaType: SourceSchemaType.Pipe } as EntitiesContextResult}>
+    <EntitiesContext.Provider value={value}>
       <Navigation isNavOpen />
     </EntitiesContext.Provider>
   );

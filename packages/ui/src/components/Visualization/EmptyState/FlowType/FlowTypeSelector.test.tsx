@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { useMemo } from 'react';
 
 import { CamelRouteResource, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
 import { KaotoSchemaDefinition } from '../../../../models/kaoto-schema';
@@ -25,16 +26,17 @@ const onSelect = vi.fn();
 const FlowTypeSelectorWithContext: React.FunctionComponent<{
   currentSchemaType?: SourceSchemaType;
 }> = ({ currentSchemaType }) => {
+  const value = useMemo(
+    () =>
+      ({
+        currentSchemaType: currentSchemaType ?? SourceSchemaType.Route,
+        visualEntities: [{ id: 'entity1' } as CamelRouteVisualEntity, { id: 'entity2' } as CamelRouteVisualEntity],
+        camelResource: new CamelRouteResource(undefined),
+      }) as unknown as EntitiesContextResult,
+    [currentSchemaType],
+  );
   return (
-    <EntitiesContext.Provider
-      value={
-        {
-          currentSchemaType: currentSchemaType ?? SourceSchemaType.Route,
-          visualEntities: [{ id: 'entity1' } as CamelRouteVisualEntity, { id: 'entity2' } as CamelRouteVisualEntity],
-          camelResource: new CamelRouteResource(undefined),
-        } as unknown as EntitiesContextResult
-      }
-    >
+    <EntitiesContext.Provider value={value}>
       <FlowTypeSelector onSelect={onSelect} />
     </EntitiesContext.Provider>
   );
