@@ -29,9 +29,9 @@ export const MetadataPage: FunctionComponent = () => {
   const onChangeModel = useCallback(
     (model: Record<string, unknown>) => {
       if (Object.keys(model).length > 0) {
-        let entity = camelkResource.getMetadataEntity();
+        const entity = camelkResource.getMetadataEntity();
         if (!entity) {
-          entity = camelkResource.createMetadataEntity();
+          camelkResource.createMetadataEntity();
         } else {
           entity.parent.metadata = model;
           camelkResource.refreshVisualMetadata();
