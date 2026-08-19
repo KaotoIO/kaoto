@@ -13,8 +13,8 @@ fragments['NameChar'] = new RegExp(
 fragments['Name'] = new RegExp(`(${f.NameStartChar.source})(${f.NameChar.source})*`);
 fragments['StringLiteral'] = /("(""|[^"])*")|('(''|[^'])*')/;
 fragments['Digits'] = /\d+/;
-fragments['DecimalLiteral'] = /(\.\d+)|(\d+\.\d*)/;
-fragments['DoubleLiteral'] = /((\.\d+)|(\d+(\.\d*)?))[eE][+-]?\d+/;
+fragments['DecimalLiteral'] = /(\.\d+)|(\d+\.\d*)/; // NOSONAR typescript:S8786 - alternatives start with distinct characters (. vs digit), quantified sequences have fixed literal boundaries
+fragments['DoubleLiteral'] = /((\.\d+)|(\d+(\.\d*)?))[eE][+-]?\d+/; // NOSONAR typescript:S8786 - alternatives start with distinct characters (. vs digit), required [eE] suffix bounds quantified groups
 
 const allTokens: TokenType[] = [];
 
