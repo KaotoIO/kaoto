@@ -19,16 +19,16 @@ import {
   getShipOrderJsonSchema,
   getShipOrderJsonXslt,
 } from '../../stubs/datamapper/data-mapper';
-import { JsonSchemaField } from '../document/json-schema/json-schema-document.model';
+import { JsonSchemaDocument, JsonSchemaField } from '../document/json-schema/json-schema-document.model';
 import { JsonSchemaDocumentService } from '../document/json-schema/json-schema-document.service';
 import { MappingSerializerService } from './mapping-serializer.service';
 import { TO_JSON_TARGET_VARIABLE } from './mapping-serializer-json-addon';
 
 describe('MappingSerializerService / JSON', () => {
-  let accountParamDoc: ReturnType<typeof JsonSchemaDocumentService.createJsonSchemaDocument>['document'];
-  let cartParamDoc: ReturnType<typeof JsonSchemaDocumentService.createJsonSchemaDocument>['document'];
+  let accountParamDoc: JsonSchemaDocument;
+  let cartParamDoc: JsonSchemaDocument;
   let sourceParameterMap: Map<string, IDocument>;
-  let targetDoc: ReturnType<typeof JsonSchemaDocumentService.createJsonSchemaDocument>['document'];
+  let targetDoc: JsonSchemaDocument;
 
   beforeAll(() => {
     const accountDefinition = new DocumentDefinition(
