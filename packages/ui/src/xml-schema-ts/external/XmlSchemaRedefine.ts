@@ -18,6 +18,11 @@ export class XmlSchemaRedefine extends XmlSchemaExternal {
 
   private readonly items: XmlSchemaObject[] = [];
 
+  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
+  constructor(parent: XmlSchema) {
+    super(parent);
+  }
+
   getAttributeGroups() {
     return this.attributeGroups;
   }
