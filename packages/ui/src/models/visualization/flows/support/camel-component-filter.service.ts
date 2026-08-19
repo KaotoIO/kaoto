@@ -5,8 +5,7 @@ import {
   REST_ELEMENT_NAME,
   SPECIAL_PROCESSORS_PARENTS_MAP,
 } from '../../../special-processors.constants';
-import { AddStepMode } from '../../base-visual-entity';
-import { CamelRouteVisualEntityData } from './camel-component-types';
+import { AddStepMode, IVisualizationNodeData } from '../../base-visual-entity';
 
 export class CamelComponentFilterService {
   private static readonly SPECIAL_PROCESSORS = [
@@ -29,7 +28,7 @@ export class CamelComponentFilterService {
 
   static getCamelCompatibleComponents(
     mode: AddStepMode,
-    visualEntityData: CamelRouteVisualEntityData,
+    visualEntityData: IVisualizationNodeData,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     definition?: any,
   ): TileFilter {
@@ -57,7 +56,7 @@ export class CamelComponentFilterService {
 
   static getKameletCompatibleComponents(
     mode: AddStepMode,
-    visualEntityData: CamelRouteVisualEntityData,
+    visualEntityData: IVisualizationNodeData,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     definition?: any,
   ): TileFilter {
@@ -80,10 +79,7 @@ export class CamelComponentFilterService {
     };
   }
 
-  private static replaceFilter(
-    mode: AddStepMode,
-    visualEntityData: CamelRouteVisualEntityData,
-  ): TileFilter | undefined {
+  private static replaceFilter(mode: AddStepMode, visualEntityData: IVisualizationNodeData): TileFilter | undefined {
     if (
       mode === AddStepMode.ReplaceStep &&
       (visualEntityData.path === 'route.from' || visualEntityData.path === 'template.from')
@@ -116,7 +112,7 @@ export class CamelComponentFilterService {
     return undefined;
   }
 
-  private static specialChildrenFilter(visualEntityData: CamelRouteVisualEntityData, definition: unknown): TileFilter {
+  private static specialChildrenFilter(visualEntityData: IVisualizationNodeData, definition: unknown): TileFilter {
     const processorName = visualEntityData.primaryNodeId?.name;
     if (!processorName || !(processorName in this.SPECIAL_PROCESSORS_PARENTS_MAP)) {
       return () => false;

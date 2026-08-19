@@ -1,8 +1,7 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
-import { isDefined } from '@kaoto/forms';
 import { cloneDeep } from 'lodash';
 
-import { CamelUriHelper, DATAMAPPER_ID_PREFIX, isDataMapperNode, ParsedParameters } from '../../../../utils';
+import { CamelUriHelper, DATAMAPPER_ID_PREFIX, ParsedParameters } from '../../../../utils';
 import { CatalogKind } from '../../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../../kaoto-schema';
 import { REST_DSL_VERBS } from '../../../special-processors.constants';
@@ -80,30 +79,6 @@ export class CamelComponentSchemaService {
     removeHeaders: 'pattern',
     kamelet: 'name',
   };
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static getCamelComponentLookup(path: string, definition: any): ICamelElementLookupResult {
-    const splitPath = path.split('.');
-    const lastPathSegment = splitPath[splitPath.length - 1];
-    const pathAsIndex = Number.parseInt(lastPathSegment, 10);
-
-    /**
-     * If the last path segment is NaN, it means this is a Camel Processor
-     * for instance, `from`, `otherwise` or `to` properties in a Route
-     * and we can just return the path as the name of the component
-     */
-    if (Number.isNaN(pathAsIndex)) {
-      return this.getCamelElement(lastPathSegment as keyof ProcessorDefinition, definition);
-    }
-
-    /**
-     * The last path segment is a number, it means is an array of objects
-     * and we need to look for the previous path segment to get the name of the processor
-     * for instance, a `when` property in a `Choice` processor
-     */
-    const previousPathSegment = splitPath[splitPath.length - 2];
-    return this.getCamelElement(previousPathSegment as keyof ProcessorDefinition, definition);
-  }
 
   static canHavePreviousStep(processorName: keyof ProcessorDefinition): boolean {
     return !this.DISABLED_SIBLING_STEPS.includes(processorName);
@@ -310,51 +285,6 @@ export class CamelComponentSchemaService {
 
     const queryParams = CamelUriHelper.getParametersFromQueryString(query);
     return { uri: componentName, parameters: { ...pathParams, ...queryParams } };
-  }
-
-  /**
-   * If the processor is a `from` or `to` processor, we need to extract the component name from the uri property
-   * and return both the processor name and the underlying component name to build the combined schema
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private static getCamelElement(processorName: keyof ProcessorDefinition, definition: any): ICamelElementLookupResult {
-    if (!isDefined(definition)) {
-      return { processorName };
-    }
-
-    if (processorName === 'step' && isDataMapperNode(definition)) {
-      return {
-        processorName: DATAMAPPER_ID_PREFIX,
-      };
-    }
-
-    switch (processorName) {
-      case 'from' as keyof ProcessorDefinition:
-        return {
-          processorName,
-          componentName: this.getComponentNameFromUri(definition?.uri),
-        };
-
-      case 'to':
-      case 'toD':
-      case 'poll':
-        /** The To processor is using `to: timer:tick?period=1000` form */
-        if (typeof definition === 'string') {
-          return {
-            processorName,
-            componentName: this.getComponentNameFromUri(definition),
-          };
-        }
-
-        /** The To processor is using `to: { uri: 'timer:tick?period=1000' }` form */
-        return {
-          processorName,
-          componentName: this.getComponentNameFromUri(definition?.uri),
-        };
-
-      default:
-        return { processorName };
-    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

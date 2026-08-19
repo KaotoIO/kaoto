@@ -23,7 +23,11 @@ import { insertYamlComments } from '../../utils/yaml-comments';
 import { CatalogKind } from '../catalog-kind';
 import { BaseEntity, EntityType } from '../entities';
 import { BaseVisualEntityDefinition, BeansAwareResource, KaotoResource } from '../kaoto-resource';
-import { AddStepMode, BaseVisualCamelEntityConstructor } from '../visualization/base-visual-entity';
+import {
+  AddStepMode,
+  BaseVisualCamelEntityConstructor,
+  IVisualizationNodeData,
+} from '../visualization/base-visual-entity';
 import { CamelCatalogService, CamelRouteVisualEntity } from '../visualization/flows';
 import { CamelErrorHandlerVisualEntity } from '../visualization/flows/camel-error-handler-visual-entity';
 import { CamelInterceptFromVisualEntity } from '../visualization/flows/camel-intercept-from-visual-entity';
@@ -36,7 +40,6 @@ import { CamelRestVisualEntity } from '../visualization/flows/camel-rest-visual-
 import { CamelRouteConfigurationVisualEntity } from '../visualization/flows/camel-route-configuration-visual-entity';
 import { NonVisualEntity } from '../visualization/flows/non-visual-entity';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
-import { CamelRouteVisualEntityData } from '../visualization/flows/support/camel-component-types';
 import { FlowTemplateService } from '../visualization/flows/support/flow-templates-service';
 import { BeansEntity, isBeans } from '../visualization/metadata';
 import { EntityOrderingService } from './entity-ordering.service';
@@ -271,7 +274,7 @@ export class CamelRouteResource implements KaotoResource, BeansAwareResource {
   /** Components Catalog related methods */
   getCompatibleComponents(
     mode: AddStepMode,
-    visualEntityData: CamelRouteVisualEntityData,
+    visualEntityData: IVisualizationNodeData,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     definition?: any,
   ): TileFilter {

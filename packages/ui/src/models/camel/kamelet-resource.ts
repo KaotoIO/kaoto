@@ -3,9 +3,8 @@ import { parse } from 'yaml';
 import { TileFilter } from '../../components/Catalog/Catalog.models';
 import { setValue } from '../../utils';
 import { RouteTemplateBeansAwareResource } from '../kaoto-resource';
-import { AddStepMode } from '../visualization/base-visual-entity';
+import { AddStepMode, IVisualizationNodeData } from '../visualization/base-visual-entity';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
-import { CamelRouteVisualEntityData } from '../visualization/flows/support/camel-component-types';
 import { FlowTemplateService } from '../visualization/flows/support/flow-templates-service';
 import {
   RouteTemplateBeansEntity,
@@ -78,7 +77,7 @@ export class KameletResource extends CamelKResource implements RouteTemplateBean
   /** Components Catalog related methods */
   getCompatibleComponents(
     mode: AddStepMode,
-    visualEntityData: CamelRouteVisualEntityData,
+    visualEntityData: IVisualizationNodeData,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     definition?: any,
   ): TileFilter {

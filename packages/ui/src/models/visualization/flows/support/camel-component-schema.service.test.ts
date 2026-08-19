@@ -2,7 +2,7 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, ProcessorDefinition } from '@kaoto/camel-catalog/types';
 
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
-import { DATAMAPPER_ID_PREFIX, XSLT_COMPONENT_NAME } from '../../../../utils';
+import { DATAMAPPER_ID_PREFIX } from '../../../../utils';
 import { ICamelComponentDefinition } from '../../../camel/camel-components-catalog';
 import { CatalogKind } from '../../../catalog-kind';
 import { IVisualizationNodeIds } from '../../base-visual-entity';
@@ -253,42 +253,6 @@ describe('CamelComponentSchemaService', () => {
         },
         uri: 'non-existing-component',
       });
-    });
-  });
-
-  describe('getCamelComponentLookup', () => {
-    it.each([
-      ['route', { from: { uri: 'timer' } }, { processorName: 'route' }],
-      ['intercept', { id: 'intercept-8888', steps: [] }, { processorName: 'intercept' }],
-      ['from', { uri: 'timer' }, { processorName: 'from', componentName: 'timer' }],
-      ['from.steps.0.to', { uri: 'log' }, { processorName: 'to', componentName: 'log' }],
-      ['from.steps.1.toD', { uri: 'log' }, { processorName: 'toD', componentName: 'log' }],
-      ['from.steps.2.poll', { uri: 'http://localhost:5173' }, { processorName: 'poll', componentName: 'http' }],
-      ['from.steps.0.to', 'log', { processorName: 'to', componentName: 'log' }],
-      ['from.steps.1.toD', 'log', { processorName: 'toD', componentName: 'log' }],
-      ['from.steps.1.poll', 'log', { processorName: 'poll', componentName: 'log' }],
-      ['from.steps.2.log', { message: 'Hello World' }, { processorName: 'log' }],
-      ['from.steps.3.choice', {}, { processorName: 'choice' }],
-      ['from.steps.3.choice.when.0', {}, { processorName: 'when' }],
-      ['from.steps.3.choice.otherwise', {}, { processorName: 'otherwise' }],
-      ['from.steps.3.choice.otherwise', undefined, { processorName: 'otherwise' }],
-      ['from.steps.0.step', undefined, { processorName: 'step' }],
-      ['from.steps.0.step', { id: 'step-1234' }, { processorName: 'step' }],
-      ['from.steps.0.step', { id: `${DATAMAPPER_ID_PREFIX}-1234`, steps: [] }, { processorName: 'step' }],
-      [
-        'from.steps.0.step',
-        { id: `modified-${DATAMAPPER_ID_PREFIX}-1234`, steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:mapping.xsl` } }] },
-        { processorName: 'step' },
-      ],
-      [
-        'from.steps.0.step',
-        { id: `${DATAMAPPER_ID_PREFIX}-1234`, steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:mapping.xsl` } }] },
-        { processorName: DATAMAPPER_ID_PREFIX },
-      ],
-    ])('should return the processor and component name for %s', (path, definition, result) => {
-      const camelElementLookup = CamelComponentSchemaService.getCamelComponentLookup(path, definition);
-
-      expect(camelElementLookup).toEqual(result);
     });
   });
 
