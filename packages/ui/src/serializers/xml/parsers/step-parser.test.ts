@@ -221,7 +221,7 @@ describe('parser basics', () => {
       expect(result.onWhen).toBeDefined();
     });
 
-    it('should handle intercept elements', async () => {
+    it('should handle intercept elements with an onWhen child', async () => {
       const interceptElement = getDocument(
         '<intercept id="intercept1"><onWhen><simple>${in.body} contains \'Hello\'</simple></onWhen><to uri="mock:intercepted"/></intercept>',
       ).documentElement;

@@ -42,7 +42,7 @@ describe('RestDslImportPage', () => {
     expect(screen.getByText('Rest Editor')).toBeInTheDocument();
   });
 
-  it('navigates back to the Home page when closing the wizard', async () => {
+  it('navigates back to the Home page when closing the wizard via the Designer', async () => {
     render(
       <MemoryRouter initialEntries={[Links.RestImport]}>
         <Routes>
