@@ -126,7 +126,7 @@ export class MappingSerializerService {
     MappingSerializerService.populateStylesheetVariables(xslt, mappings);
     const root = MappingSerializerService.populateMappingRoot(xslt, mappings);
     MappingSerializerService.populateTemplateVariables(root, mappings);
-    mappings.children.sort(MappingSerializerService.sortMappingItem).forEach((mapping) => {
+    [...mappings.children].sort(MappingSerializerService.sortMappingItem).forEach((mapping) => {
       MappingSerializerService.populateMapping(root, mapping);
     });
     return xmlFormat(new XMLSerializer().serializeToString(xslt));

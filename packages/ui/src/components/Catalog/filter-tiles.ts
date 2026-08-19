@@ -56,7 +56,7 @@ export const filterTiles = (
   });
 
   // Step 3: Sort the filtered tiles by score in descending order
-  const tilesResult: ITile[] = filteredTiles.sort((a, b) => b.score - a.score).map(({ tile }) => tile);
+  const tilesResult: ITile[] = [...filteredTiles].sort((a, b) => b.score - a.score).map(({ tile }) => tile);
 
   return tilesResult;
 };
