@@ -1,6 +1,5 @@
 import type { XmlSchemaAttributeOrGroupRef } from '../attribute/XmlSchemaAttributeOrGroupRef';
 import type { XmlSchemaParticle } from '../particle/XmlSchemaParticle';
-import type { XmlSchema } from '../XmlSchema';
 import type { XmlSchemaAnyAttribute } from '../XmlSchemaAnyAttribute';
 import type { XmlSchemaContentModel } from '../XmlSchemaContentModel';
 import type { XmlSchemaContentType } from '../XmlSchemaContentType';
