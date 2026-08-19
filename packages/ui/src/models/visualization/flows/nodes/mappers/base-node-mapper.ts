@@ -22,11 +22,19 @@ export class BaseNodeMapper implements INodeMapper {
     componentLookup: IVisualizationNodeIds,
     entityDefinition: unknown,
   ): Promise<IVisualizationNode> {
-    const { componentName, kameletName } = this.getComponentAndKameletNames(
-      componentLookup.primaryNodeId,
-      entityDefinition,
-      path,
-    );
+    let componentName = undefined;
+    let kameletName = undefined;
+    if (componentLookup.primaryNodeId && URI_PROCESSORS.has(componentLookup.primaryNodeId.name)) {
+      const definition = safeGetValue(entityDefinition, path);
+      const uri = CamelUriHelper.getUriString(definition);
+      if (uri) {
+        const names = CamelUriHelper.getComponentAndKameletName(uri);
+        componentName = names.componentName;
+        if ('kameletName' in names) {
+          kameletName = names.kameletName;
+        }
+      }
+    }
 
     const { name, primaryNodeId, secondaryNodeId, tertiaryNodeId } = this.getCatalogAndNodeIds(
       componentLookup.primaryNodeId?.name,
@@ -67,33 +75,6 @@ export class BaseNodeMapper implements INodeMapper {
     }
 
     return vizNode;
-  }
-
-  private getComponentAndKameletNames(
-    primaryNodeId: NodeIdentity | undefined,
-    entityDefinition: unknown,
-    path: string,
-  ): { componentName?: string; kameletName?: string } {
-    if (!primaryNodeId || !URI_PROCESSORS.has(primaryNodeId.name)) {
-      return {};
-    }
-    const definition = safeGetValue(entityDefinition, path);
-    const uri = CamelUriHelper.getUriString(definition);
-    if (!uri) {
-      return {};
-    }
-    const names = CamelUriHelper.getComponentAndKameletName(uri);
-    if ('kameletName' in names) {
-      return { componentName: names.componentName, kameletName: names.kameletName };
-    }
-    if (names.componentName !== undefined) {
-      return { componentName: names.componentName };
-    }
-    const scheme = uri.split(':')[0].trim();
-    if (scheme) {
-      return { componentName: scheme };
-    }
-    return {};
   }
 
   private getCatalogAndNodeIds(
