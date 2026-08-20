@@ -154,7 +154,7 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualEntity {
     };
   }
 
-  getNodeValidationText(): string | undefined {
+  async getNodeValidationText(): Promise<string | undefined> {
     return undefined;
   }
 

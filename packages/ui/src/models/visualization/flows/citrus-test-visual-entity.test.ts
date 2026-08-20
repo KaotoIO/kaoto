@@ -901,25 +901,25 @@ describe('CitrusTestVisualEntity', () => {
   });
 
   describe('getNodeValidationText', () => {
-    it('should return an `undefined` if the path is `undefined`', () => {
-      const result = citrusTestEntity.getNodeValidationText();
+    it('should return an `undefined` if the path is `undefined`', async () => {
+      const result = await citrusTestEntity.getNodeValidationText();
 
       expect(result).toBeUndefined();
     });
 
-    it('should return an `undefined` if the path is empty', () => {
-      const result = citrusTestEntity.getNodeValidationText('');
+    it('should return an `undefined` if the path is empty', async () => {
+      const result = await citrusTestEntity.getNodeValidationText('');
 
       expect(result).toBeUndefined();
     });
 
-    it('should return a validation text relying on the `validateNodeStatus` method', () => {
+    it('should return a validation text relying on the `validateNodeStatus` method', async () => {
       const invalidModel = cloneDeep(citrusTestJson);
       setValue(invalidModel, 'actions[0].print.message', undefined);
       const entity = new CitrusTestVisualEntity(invalidModel);
       const schema = CitrusTestSchemaService.getNodeSchema('print');
 
-      const result = entity.getNodeValidationText('actions.0.print', schema, printActionIds);
+      const result = await entity.getNodeValidationText('actions.0.print', schema, printActionIds);
 
       expect(result).toBe('1 required parameter is not yet configured: [ message ]');
     });

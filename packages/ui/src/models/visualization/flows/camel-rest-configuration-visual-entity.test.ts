@@ -151,7 +151,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
         primaryNodeId: { name: 'restConfiguration', catalogKind: CatalogKind.Entity },
       });
 
-      expect(entity.getNodeValidationText(undefined, schema)).toBeUndefined();
+      expect(await entity.getNodeValidationText(undefined, schema)).toBeUndefined();
     });
 
     it('should not modify the original definition when validating', async () => {
@@ -161,7 +161,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
         primaryNodeId: { name: 'restConfiguration', catalogKind: CatalogKind.Entity },
       });
 
-      entity.getNodeValidationText(undefined, schema);
+      await entity.getNodeValidationText(undefined, schema);
 
       expect(restConfigurationDef.restConfiguration).toEqual(originalRestConfigurationDef);
     });
@@ -183,7 +183,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
         primaryNodeId: { name: 'restConfiguration', catalogKind: CatalogKind.Entity },
       });
 
-      expect(entity.getNodeValidationText(undefined, schema)).toBe(`'/useXForwardHeaders' must be boolean,
+      expect(await entity.getNodeValidationText(undefined, schema)).toBe(`'/useXForwardHeaders' must be boolean,
 '/apiVendorExtension' must be boolean,
 '/skipBindingOnErrorCode' must be boolean,
 '/clientRequestValidation' must be boolean,
