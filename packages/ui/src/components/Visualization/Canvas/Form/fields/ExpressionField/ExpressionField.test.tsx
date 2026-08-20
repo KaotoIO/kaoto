@@ -7,8 +7,11 @@ import {
   SchemaProvider,
 } from '@kaoto/forms';
 import { KaotoFormPageObject } from '@kaoto/forms/testing';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
+import { DynamicCatalog } from '../../../../../../dynamic-catalog/dynamic-catalog';
+import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
+import { CamelLanguageProvider } from '../../../../../../dynamic-catalog/providers/camel-components.provider';
 import { CamelCatalogService, CatalogKind } from '../../../../../../models';
 import { setHeaderExpressionSchema } from '../../../../../../stubs/expression-definition-schema';
 import { getFirstCatalogMap } from '../../../../../../stubs/test-load-catalog';
@@ -19,9 +22,17 @@ describe('ExpressionField', () => {
   beforeEach(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     CamelCatalogService.setCatalogKey(CatalogKind.Language, catalogsMap.languageCatalog);
+    DynamicCatalogRegistry.get().setCatalog(
+      CatalogKind.Language,
+      new DynamicCatalog(new CamelLanguageProvider(catalogsMap.languageCatalog)),
+    );
   });
 
-  it('renders empty expression field with schema', () => {
+  afterEach(() => {
+    DynamicCatalogRegistry.get().clearRegistry();
+  });
+
+  it('renders empty expression field with schema', async () => {
     const { container } = render(
       <ModelContextProvider model={{ id: 'setHeader-1361' }} onPropertyChange={vi.fn()}>
         <SchemaProvider schema={setHeaderExpressionSchema}>
@@ -30,10 +41,15 @@ describe('ExpressionField', () => {
       </ModelContextProvider>,
     );
 
+    // Wait for the async parseExpressionModel effect to resolve
+    await waitFor(() => {
+      expect(container.firstChild).not.toBeNull();
+    });
+
     expect(container).toMatchSnapshot();
   });
 
-  it('renders expression field with selection', () => {
+  it('renders expression field with selection', async () => {
     const { container } = render(
       <FormComponentFactoryProvider>
         <ModelContextProvider
@@ -53,6 +69,11 @@ describe('ExpressionField', () => {
         </ModelContextProvider>
       </FormComponentFactoryProvider>,
     );
+
+    // Wait for the async parseExpressionModel effect to resolve
+    await waitFor(() => {
+      expect(container.firstChild).not.toBeNull();
+    });
 
     expect(container).toMatchSnapshot();
   });
@@ -79,6 +100,8 @@ describe('ExpressionField', () => {
     );
 
     const formPageObject = new KaotoFormPageObject(screen, act);
+    // Wait for the async parseExpressionModel effect to populate the expression field
+    await screen.findByTestId(`${ROOT_PATH}__expression-list-typeahead-select-input`);
     await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
     await formPageObject.selectTypeaheadItem('csimple');
 
@@ -113,6 +136,8 @@ describe('ExpressionField', () => {
     );
 
     const formPageObject = new KaotoFormPageObject(screen, act);
+    // Wait for the async parseExpressionModel effect to populate the expression field
+    await waitFor(() => formPageObject.getFieldByDisplayName('Expression'));
     await formPageObject.inputText('Expression', '');
 
     expect(onPropertyChangeSpy).toHaveBeenCalled();
@@ -147,6 +172,8 @@ describe('ExpressionField', () => {
     );
 
     const formPageObject = new KaotoFormPageObject(screen, act);
+    // Wait for the async parseExpressionModel effect to populate the expression field
+    await screen.findByTestId(`${ROOT_PATH}__expression-list-typeahead-select-input`);
     await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
     await formPageObject.selectTypeaheadItem('csimple');
 
@@ -174,8 +201,13 @@ describe('ExpressionField', () => {
       </ModelContextProvider>,
     );
 
-    const clearButton = screen.getByTestId(`#__expression-list__clear`);
-    fireEvent.click(clearButton);
+    // Wait for the async parseExpressionModel effect to populate the expression list
+    const clearButton = await screen.findByTestId(`#__expression-list__clear`);
+    // Use act to flush the async onExpressionChange handler
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      fireEvent.click(clearButton);
+    });
 
     expect(onPropertyChangeSpy).toHaveBeenCalledTimes(1);
     expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, { id: 'setHeader-1891' });
@@ -184,7 +216,7 @@ describe('ExpressionField', () => {
   it('should update the model with `undefined` when the model is empty after clearing the expression', async () => {
     const onPropertyChangeSpy = vi.fn();
 
-    const wrapper = render(
+    const { findByTestId } = render(
       <ModelContextProvider
         model={{
           expression: {
@@ -199,9 +231,14 @@ describe('ExpressionField', () => {
       </ModelContextProvider>,
     );
 
-    const clearButton = wrapper.getByTestId(`#__expression-list__clear`);
+    // Wait for the async parseExpressionModel effect to populate the expression list
+    const clearButton = await findByTestId(`#__expression-list__clear`);
 
-    fireEvent.click(clearButton);
+    // Use act to flush the async onExpressionChange handler
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      fireEvent.click(clearButton);
+    });
 
     expect(onPropertyChangeSpy).toHaveBeenCalledTimes(1);
     expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, undefined);
