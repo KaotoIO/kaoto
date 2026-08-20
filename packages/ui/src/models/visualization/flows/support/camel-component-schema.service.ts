@@ -3,12 +3,11 @@ import { cloneDeep } from 'lodash';
 
 import { CamelUriHelper, DATAMAPPER_ID_PREFIX, ParsedParameters } from '../../../../utils';
 import { CatalogKind } from '../../../catalog-kind';
-import { KaotoSchemaDefinition } from '../../../kaoto-schema';
 import { REST_DSL_VERBS } from '../../../special-processors.constants';
 import { IVisualizationNodeIds } from '../../base-visual-entity';
 import { IClipboardContent } from '../../clipboard';
 import { CamelCatalogService } from '../camel-catalog.service';
-import { CamelProcessorStepsProperties, ICamelElementLookupResult } from './camel-component-types';
+import { CamelProcessorStepsProperties } from './camel-component-types';
 
 const CAMEL_EIP_STEP_PROPERTIES: CamelProcessorStepsProperties[] = [{ name: 'steps', type: 'branch' }];
 const CAMEL_CIRCUIT_BREAK_STEP_PROPERTIES: CamelProcessorStepsProperties[] = [
@@ -174,60 +173,6 @@ export class CamelComponentSchemaService {
     } else {
       return { [name]: defaultValue } as ProcessorDefinition;
     }
-  }
-
-  static getSchema(camelElementLookup: ICamelElementLookupResult): KaotoSchemaDefinition['schema'] {
-    let catalogKind: CatalogKind;
-    switch (camelElementLookup.processorName) {
-      case 'route' as keyof ProcessorDefinition:
-      case 'intercept' as keyof ProcessorDefinition:
-      case 'interceptFrom' as keyof ProcessorDefinition:
-      case 'interceptSendToEndpoint' as keyof ProcessorDefinition:
-      case 'onException' as keyof ProcessorDefinition:
-      case 'onCompletion' as keyof ProcessorDefinition:
-      case 'from' as keyof ProcessorDefinition:
-        catalogKind = CatalogKind.Entity;
-        break;
-      default:
-        catalogKind = CatalogKind.Pattern;
-    }
-
-    const processorDefinition = CamelCatalogService.getComponent(catalogKind, camelElementLookup.processorName);
-
-    let schema = {} as unknown as KaotoSchemaDefinition['schema'];
-    if (processorDefinition?.propertiesSchema === undefined) {
-      return schema;
-    }
-    schema = cloneDeep(processorDefinition.propertiesSchema);
-
-    if (camelElementLookup.componentName !== undefined) {
-      const catalogLookup = CamelCatalogService.getCatalogLookup(camelElementLookup.componentName);
-      const componentSchema: KaotoSchemaDefinition['schema'] =
-        catalogLookup.definition?.propertiesSchema ?? ({} as unknown as KaotoSchemaDefinition['schema']);
-
-      // Filter out producer/consumer properties depending upon the endpoint usage
-      const actualComponentProperties = Object.fromEntries(
-        Object.entries(componentSchema.properties ?? {}).filter((property) => {
-          if (camelElementLookup.processorName === ('from' as keyof ProcessorDefinition)) {
-            return !property[1].$comment?.includes('producer');
-          } else {
-            return !property[1].$comment?.includes('consumer');
-          }
-        }),
-      );
-
-      if (catalogLookup.definition !== undefined && componentSchema !== undefined) {
-        schema.properties ??= {};
-        if (!schema.properties.parameters) {
-          schema.properties.parameters = { type: 'object', properties: {} };
-        }
-        schema.properties.parameters.properties = actualComponentProperties;
-        schema.properties.parameters.required = componentSchema.required;
-        schema.properties.parameters['x-component-name'] = camelElementLookup.componentName;
-      }
-    }
-
-    return schema;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
