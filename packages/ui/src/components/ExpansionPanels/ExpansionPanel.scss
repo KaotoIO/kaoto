@@ -22,7 +22,8 @@
   }
 
   &__summary {
-    cursor: pointer;
+    display: flex;
+    align-items: center;
     font-size: var(--datamapper-panel-header-font-size, var(--pf-t--global--font--size--heading--h5));
     font-weight: var(
       --pf-t--global--font--weight--200
@@ -36,6 +37,23 @@
     box-shadow: var(--pf-t--global--box-shadow--sm--bottom);
     user-select: none;
     flex-shrink: 0;
+  }
+
+  &__summary-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__disclosure {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    padding: 0;
+    margin-right: var(--pf-t--global--spacer--sm);
+    border: none;
+    background: none;
+    color: inherit;
+    cursor: pointer;
   }
 
   &__content {

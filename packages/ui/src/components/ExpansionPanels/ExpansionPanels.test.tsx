@@ -82,10 +82,13 @@ const clickElement = async (element: HTMLElement) => {
   });
 };
 
-const clickElements = async (labels: string[]) => {
+// Expansion is driven by the panel's disclosure button, not by the summary itself.
+const getDisclosure = (panelId: string) => screen.getByTestId(`${panelId}-disclosure`);
+
+const clickDisclosures = async (panelIds: string[]) => {
   await act(() => {
-    labels.forEach((label) => {
-      screen.getByText(label).click();
+    panelIds.forEach((panelId) => {
+      getDisclosure(panelId).click();
     });
     return delay(10);
   });
@@ -320,8 +323,7 @@ describe('ExpansionPanels', () => {
       let gridTemplate = getGridTemplate(container);
       expect(gridTemplate).toContain('300px 300px');
 
-      const panel1Summary = screen.getByText('Panel 1');
-      await clickElement(panel1Summary);
+      await clickElement(getDisclosure('panel-1'));
 
       gridTemplate = getGridTemplate(container);
       const heights = parseHeights(gridTemplate);
@@ -446,8 +448,7 @@ describe('ExpansionPanels', () => {
       const { container, rerender } = renderPanels([{ id: 'panel-1', summary: 'Panel 1', minHeight: 100 }]);
       await setupBasicPanels(container);
 
-      const panel1Summary = screen.getByText('Panel 1');
-      await clickElement(panel1Summary);
+      await clickElement(getDisclosure('panel-1'));
 
       rerender(
         <ExpansionPanels>{createPanelElement({ id: 'panel-1', summary: 'Panel 1', minHeight: 150 })}</ExpansionPanels>,
@@ -552,7 +553,7 @@ describe('ExpansionPanels', () => {
       mockContainerHeight(container, 200);
       await waitForUpdate();
 
-      await clickElements(['Panel 1', 'Panel 2', 'Panel 3']);
+      await clickDisclosures(['panel-1', 'panel-2', 'panel-3']);
 
       const gridTemplate = getGridTemplate(container);
       expect(gridTemplate).toBeTruthy();
@@ -804,8 +805,7 @@ describe('ExpansionPanels', () => {
       await setupPanelMocks(container);
 
       // Collapse a panel to trigger grid template change
-      const panel1Summary = screen.getByText('Panel 1');
-      await clickElement(panel1Summary);
+      await clickElement(getDisclosure('panel-1'));
 
       // Grid template should be updated
       const gridTemplate = getGridTemplate(container);

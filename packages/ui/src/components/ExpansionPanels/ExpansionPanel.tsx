@@ -1,5 +1,7 @@
 import './ExpansionPanel.scss';
 
+import { Icon } from '@patternfly/react-core';
+import { AngleDownIcon, AngleRightIcon } from '@patternfly/react-icons';
 import {
   FunctionComponent,
   PropsWithChildren,
@@ -110,19 +112,11 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
     }
   };
 
-  const handleKeyDown = useCallback(
-    (event: React.KeyboardEvent) => {
-      if (event.target !== event.currentTarget) return;
-      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        event.stopPropagation();
-        toggleExpanded();
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isExpanded, children, collapsible],
-  );
+  // The disclosure button is the only expand/collapse control. Panels that cannot
+  // disclose anything must not advertise one to assistive technology.
+  const isDisclosable = Boolean(children) && collapsible;
+  const contentId = `${id}-content`;
+  const summaryId = `${id}-summary`;
 
   // Use refs for stable event handlers that don't change during resize
   const mouseMoveHandlerRef = useRef<(e: MouseEvent) => void>(() => {});
@@ -238,17 +232,37 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
 
   return (
     <div className="expansion-panel" data-expanded={isExpanded} data-resizing={isResizing} ref={panelRef}>
-      <div
-        className="pf-v6-u-box-shadow-sm expansion-panel__summary"
-        role="button"
-        tabIndex={0}
-        onClick={toggleExpanded}
-        onKeyDown={handleKeyDown}
-      >
-        {summary}
+      <div className="pf-v6-u-box-shadow-sm expansion-panel__summary">
+        {isDisclosable && (
+          <button
+            type="button"
+            className="expansion-panel__disclosure"
+            data-testid={`${id}-disclosure`}
+            aria-expanded={isExpanded}
+            aria-controls={contentId}
+            aria-label={isExpanded ? 'Collapse panel' : 'Expand panel'}
+            onClick={toggleExpanded}
+          >
+            <Icon isInline>{isExpanded ? <AngleDownIcon /> : <AngleRightIcon />}</Icon>
+          </button>
+        )}
+        <div className="expansion-panel__summary-content" id={summaryId}>
+          {summary}
+        </div>
       </div>
 
-      <div className="expansion-panel__content" onScroll={onScroll}>
+      {/*
+        Collapsed content is only clipped by CSS, so without `inert` its controls stay
+        in the tab order and the accessibility tree while invisible.
+      */}
+      <div
+        className="expansion-panel__content"
+        id={contentId}
+        role="region"
+        aria-labelledby={summaryId}
+        inert={!isExpanded}
+        onScroll={onScroll}
+      >
         {children}
       </div>
 
