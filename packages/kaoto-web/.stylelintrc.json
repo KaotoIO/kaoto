@@ -1,0 +1,26 @@
+{
+  "extends": ["stylelint-config-standard-scss", "stylelint-plugin-carbon-tokens/config/recommended"],
+  "plugins": ["@double-great/stylelint-a11y", "stylelint-use-logical-spec", "stylelint-plugin-carbon-tokens"],
+  "reportNeedlessDisables": true,
+  "reportInvalidScopeDisables": true,
+  "reportDescriptionlessDisables": true,
+  "rules": {
+    "a11y/media-prefers-reduced-motion": true,
+    "a11y/no-outline-none": true,
+    "a11y/selector-pseudo-class-focus": true,
+    "max-nesting-depth": [
+      2,
+      {
+        "ignoreAtRules": ["if", "else", "each", "include", "mixin"]
+      }
+    ],
+    "liberty/use-logical-spec": true,
+    "selector-class-pattern": [
+      "^([a-z]*--)*[a-z]([-]?[a-z0-9]+)*(__[a-z0-9]([-]?[a-z0-9]+)*)?(--[a-z0-9]([-]?[a-z0-9]+)*)?$",
+      {
+        "resolveNestedSelectors": true,
+        "message": "should match Harry Roberts'' style BEM [prefix--]block[__element][--modifier]"
+      }
+    ]
+  }
+}

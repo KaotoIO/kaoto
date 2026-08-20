@@ -1,0 +1,19 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/type' as *;
+@use '@carbon/react/scss/theme' as *;
+
+.cs--common-header {
+  margin-block-end: $spacing-09;
+}
+
+.cs--common-header__image-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, var(--cs-brand-alt) 20%, rgb(0 0 0 / 0%) 50%);
+}
+
+.cs--common-header__logo {
+  block-size: calc(4 * #{$spacing-09});
+  filter: var(--cs-logo-filter);
+}
