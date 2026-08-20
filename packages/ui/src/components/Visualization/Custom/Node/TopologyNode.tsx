@@ -6,6 +6,7 @@ import { IVisualizationNode } from '../../../../models/visualization/base-visual
 import { getProcessorIcon } from '../../../../utils/processor-icon';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { CanvasNode } from '../../Canvas/canvas.models';
+import { useNodeValidationText } from '../hooks/use-node-validation-text.hook';
 import { TopologySourceAnchor, TopologyTargetAnchor } from '../topology-anchor';
 import { CustomNodeContainer } from './CustomNodeContainer';
 import { CustomNodeLabel } from './CustomNodeLabel';
@@ -29,6 +30,7 @@ export const TopologyNode: FunctionComponent<TopologyRouteNodeProps> = observer(
   );
 
   const vizNode: IVisualizationNode | undefined = element.getData()?.vizNode;
+  const validationText = useNodeValidationText(vizNode);
   if (!vizNode) {
     return null;
   }
@@ -41,7 +43,6 @@ export const TopologyNode: FunctionComponent<TopologyRouteNodeProps> = observer(
   const bounds = element.getBounds();
   const width = bounds.width;
   const isDisabled = !!vizNode?.getNodeDefinition()?.disabled;
-  const validationText = vizNode?.getNodeValidationText();
   const doesHaveWarnings = !isDisabled && !!validationText;
   const labelX = (width - CanvasDefaults.DEFAULT_LABEL_WIDTH) / 2;
 

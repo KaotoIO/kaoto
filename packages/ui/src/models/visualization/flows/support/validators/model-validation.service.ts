@@ -14,6 +14,23 @@ interface IValidationResult {
 function isEmptyOrNotArray(value: unknown): boolean {
   return !Array.isArray(value) || value.length === 0;
 }
+
+function isMissingRequired(
+  schema: KaotoSchemaDefinition['schema'],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  model: any,
+  propertyName: string,
+  propertySchema: KaotoSchemaDefinition['schema'],
+): boolean {
+  return (
+    Array.isArray(schema.required) &&
+    schema.required.includes(propertyName) &&
+    propertySchema.default === undefined &&
+    propertySchema.$ref === undefined &&
+    (!model?.[propertyName] || (propertySchema.type === 'array' && isEmptyOrNotArray(model[propertyName])))
+  );
+}
+
 /**
  * Service for validating the model of a node.
  * Ideally, this should be done with a JSON schema validator, like ajv, but for our use case, it's not possible,
@@ -29,11 +46,11 @@ function isEmptyOrNotArray(value: unknown): boolean {
  * property file.
  */
 export class ModelValidationService {
-  static validateNodeStatus(schema: KaotoSchemaDefinition['schema'], definition: unknown): string {
+  static async validateNodeStatus(schema: KaotoSchemaDefinition['schema'], definition: unknown): Promise<string> {
     if (!schema) return '';
     let message = '';
 
-    const validationResult = this.validateRequiredProperties(schema, definition, '', schema.definitions);
+    const validationResult = await this.validateRequiredProperties(schema, definition, '', schema.definitions);
     const missingProperties = validationResult
       .filter((result) => result.type === 'missingRequired')
       .map((result) => result.propertyName);
@@ -48,73 +65,110 @@ export class ModelValidationService {
     return message;
   }
 
-  private static validateRequiredProperties(
+  private static async validateRequiredProperties(
     schema: KaotoSchemaDefinition['schema'],
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     model: any,
     parentPath: string,
     definitions?: Record<string, KaotoSchemaDefinition['schema']>,
-  ): IValidationResult[] {
-    const answer = [] as IValidationResult[];
+  ): Promise<IValidationResult[]> {
+    const answer: IValidationResult[] = [];
 
-    const resolvedSchema = schema;
-    if (Array.isArray(resolvedSchema.anyOf)) {
-      let parsedModel = model;
-      resolvedSchema.anyOf.forEach((anyOfSchema) => {
-        if (isDefined(anyOfSchema.format) && anyOfSchema.format === 'expression') {
-          parsedModel = ExpressionService.parseExpressionModel(model);
-        }
-        answer.push(...this.validateRequiredProperties(anyOfSchema, parsedModel, parentPath, definitions));
-      });
+    answer.push(
+      ...(await this.validateAnyOf(schema, model, parentPath, definitions)),
+      ...(await this.validateOneOf(schema, model, parentPath, definitions)),
+      ...(await this.validateRef(schema, model, parentPath, definitions)),
+      ...(await this.validateProperties(schema, model, parentPath, definitions)),
+    );
+
+    return answer;
+  }
+
+  private static async validateAnyOf(
+    schema: KaotoSchemaDefinition['schema'],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    model: any,
+    parentPath: string,
+    definitions?: Record<string, KaotoSchemaDefinition['schema']>,
+  ): Promise<IValidationResult[]> {
+    if (!Array.isArray(schema.anyOf)) return [];
+
+    const answer: IValidationResult[] = [];
+    let parsedModel = model;
+    for (const anyOfSchema of schema.anyOf) {
+      if (isDefined(anyOfSchema.format) && anyOfSchema.format === 'expression') {
+        parsedModel = await ExpressionService.parseExpressionModel(model);
+      }
+      answer.push(...(await this.validateRequiredProperties(anyOfSchema, parsedModel, parentPath, definitions)));
     }
+    return answer;
+  }
 
-    if (Array.isArray(resolvedSchema.oneOf)) {
-      resolvedSchema.oneOf.forEach((oneOfSchema) =>
-        answer.push(...this.validateRequiredProperties(oneOfSchema, model, parentPath, definitions)),
-      );
+  private static async validateOneOf(
+    schema: KaotoSchemaDefinition['schema'],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    model: any,
+    parentPath: string,
+    definitions?: Record<string, KaotoSchemaDefinition['schema']>,
+  ): Promise<IValidationResult[]> {
+    if (!Array.isArray(schema.oneOf)) return [];
+
+    const answer: IValidationResult[] = [];
+    for (const oneOfSchema of schema.oneOf) {
+      answer.push(...(await this.validateRequiredProperties(oneOfSchema, model, parentPath, definitions)));
     }
+    return answer;
+  }
 
-    if (!schema.properties && schema.$ref) {
-      // resolve the ref
-      const resolvedSchema = resolveSchemaWithRef(schema, definitions!);
-      answer.push(...this.validateRequiredProperties(resolvedSchema, model, parentPath, definitions));
+  private static async validateRef(
+    schema: KaotoSchemaDefinition['schema'],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    model: any,
+    parentPath: string,
+    definitions?: Record<string, KaotoSchemaDefinition['schema']>,
+  ): Promise<IValidationResult[]> {
+    if (schema.properties || !schema.$ref) return [];
+
+    const resolvedSchema = resolveSchemaWithRef(schema, definitions!);
+    return this.validateRequiredProperties(resolvedSchema, model, parentPath, definitions);
+  }
+
+  private static async validateProperties(
+    schema: KaotoSchemaDefinition['schema'],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    model: any,
+    parentPath: string,
+    definitions?: Record<string, KaotoSchemaDefinition['schema']>,
+  ): Promise<IValidationResult[]> {
+    if (!schema.properties) return [];
+
+    const answer: IValidationResult[] = [];
+    for (const [propertyName, propertyValue] of Object.entries(schema.properties)) {
+      const propertySchema = propertyValue as KaotoSchemaDefinition['schema'];
+      const path = parentPath ? `${parentPath}.${propertyName}` : propertyName;
+
+      if (isMissingRequired(schema, model, propertyName, propertySchema)) {
+        answer.push({
+          level: 'error',
+          type: 'missingRequired',
+          parentPath,
+          propertyName,
+          message: `Missing required property ${propertyName}`,
+        });
+        continue;
+      }
+
+      if (model?.[propertyName] && propertySchema.$ref) {
+        const resolvedPropertySchema = resolveSchemaWithRef(propertySchema, definitions!);
+        answer.push(
+          ...(await this.validateRequiredProperties(resolvedPropertySchema, model[propertyName], path, definitions)),
+        );
+      }
+
+      if (propertySchema.type === 'object' && model) {
+        answer.push(...(await this.validateRequiredProperties(propertySchema, model[propertyName], path, definitions)));
+      }
     }
-
-    if (schema.properties) {
-      Object.entries(schema.properties).forEach(([propertyName, propertyValue]) => {
-        const propertySchema = propertyValue as KaotoSchemaDefinition['schema'];
-        const path = parentPath ? `${parentPath}.${propertyName}` : propertyName;
-
-        if (
-          Array.isArray(schema.required) &&
-          schema.required.includes(propertyName) &&
-          propertySchema.default === undefined &&
-          propertySchema.$ref === undefined &&
-          (!model?.[propertyName] || (propertySchema.type === 'array' && isEmptyOrNotArray(model[propertyName])))
-        ) {
-          answer.push({
-            level: 'error',
-            type: 'missingRequired',
-            parentPath: parentPath,
-            propertyName: propertyName,
-            message: `Missing required property ${propertyName}`,
-          });
-          return;
-        }
-        if (model?.[propertyName] && propertySchema.$ref) {
-          const resolvedPropertySchema = resolveSchemaWithRef(propertySchema, definitions!);
-          answer.push(
-            ...this.validateRequiredProperties(resolvedPropertySchema, model[propertyName], path, definitions),
-          );
-        }
-        if (propertySchema.type === 'object') {
-          if (model) {
-            answer.push(...this.validateRequiredProperties(propertySchema, model[propertyName], path, definitions));
-          }
-        }
-      });
-    }
-
     return answer;
   }
 }

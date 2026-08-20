@@ -134,7 +134,7 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualEntity {
     };
   }
 
-  getNodeValidationText(_path?: string, schema?: KaotoSchemaDefinition['schema']): string | undefined {
+  async getNodeValidationText(_path?: string, schema?: KaotoSchemaDefinition['schema']): Promise<string | undefined> {
     if (!schema) return undefined;
 
     this.schemaValidator ??= getValidator<RestConfiguration>(schema, { useDefaults: 'empty' });
