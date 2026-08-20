@@ -98,6 +98,23 @@ describe('MappingActionService', () => {
         const targetDocChildren = VisualizationService.generatePrimitiveDocumentChildren(targetDocNode);
         expect(targetDocChildren).toHaveLength(0);
       });
+
+      it('should apply value-of when copy-of already exists', () => {
+        const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        MappingActionService.applyCopyOfSelector(docChildren[0] as TargetNodeData);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        const updatedDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        MappingActionService.applyValueSelector(updatedDocChildren[0] as TargetNodeData);
+
+        const shipOrderFieldItem = tree.children[0] as FieldItem;
+        expect(shipOrderFieldItem.children.filter((child) => child instanceof CopyOfSelector)).toHaveLength(1);
+        expect(shipOrderFieldItem.children.filter((child) => child instanceof ValueOfSelector)).toHaveLength(1);
+        const valueOfSelector = shipOrderFieldItem.children.find(
+          (child) => child instanceof ValueOfSelector,
+        ) as ValueOfSelector;
+        expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBe(valueOfSelector.nodePath.toString());
+      });
     });
 
     describe('applyValueOfSelector()', () => {

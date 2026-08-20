@@ -1,7 +1,13 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
-import { MappingTree, ValueOfSelector, ValueSelector } from '../../../models/datamapper/mapping';
+import {
+  CopyOfSelector,
+  CopyOfType,
+  MappingTree,
+  ValueOfSelector,
+  ValueSelector,
+} from '../../../models/datamapper/mapping';
 import { TargetDocumentNodeData } from '../../../models/datamapper/visualization';
 import { XmlSchemaDocument } from '../../../services/document/xml-schema/xml-schema-document.model';
 import { useDocumentTreeStore } from '../../../store/document-tree.store';
@@ -38,6 +44,20 @@ describe('XPathInputAction', () => {
     fireEvent.change(input, { target: { value: '/ShipOrder' } });
     expect(mapping.expression).toBe('/ShipOrder');
     expect(onUpdateMock.mock.calls).toHaveLength(1);
+  });
+
+  it('should label an inline container copy-of input', () => {
+    mapping = new CopyOfSelector(tree, CopyOfType.CONTAINER);
+
+    render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={vi.fn()} />);
+
+    expect(screen.getByTestId('xpath-input-copy-of-label')).toHaveTextContent('copy-of');
+  });
+
+  it('should not show the copy-of label for a value-of input', () => {
+    render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={vi.fn()} />);
+
+    expect(screen.queryByTestId('xpath-input-copy-of-label')).not.toBeInTheDocument();
   });
 
   it('should show error popover button if xpath has a parse error', async () => {

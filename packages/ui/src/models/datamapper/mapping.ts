@@ -322,7 +322,9 @@ export class SortItem {
 
 /**
  * How a {@link ValueOfSelector} produces its output in the generated XSLT.
- * Both types are always rendered **inline** (XPath input on the field row).
+ * Attributes and values on leaf fields render **inline**. Values on expandable
+ * fields render as dedicated tree nodes so they remain distinguishable from
+ * an inline container {@link CopyOfSelector}.
  */
 export enum ValueOfType {
   /** Emits a text value via `xsl:value-of`. */

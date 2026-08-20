@@ -589,8 +589,8 @@ describe('VisualizationService', () => {
   });
 
   describe('isInlineValueSelector()', () => {
-    it('should return true for VALUE ValueOfSelector', () => {
-      const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
+    it('should return true for VALUE ValueOfSelector on a leaf field', () => {
+      const fieldItem = new FieldItem(tree, targetDoc.fields[0].fields[0]);
       const vs = new ValueOfSelector(fieldItem, ValueOfType.VALUE);
       expect(VisualizationService.isInlineValueSelector(vs)).toBe(true);
     });
@@ -599,6 +599,12 @@ describe('VisualizationService', () => {
       const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
       const vs = new ValueOfSelector(fieldItem, ValueOfType.ATTRIBUTE);
       expect(VisualizationService.isInlineValueSelector(vs)).toBe(true);
+    });
+
+    it('should return false for VALUE ValueOfSelector on an expandable field', () => {
+      const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
+      const vs = new ValueOfSelector(fieldItem, ValueOfType.VALUE);
+      expect(VisualizationService.isInlineValueSelector(vs)).toBe(false);
     });
 
     it('should return true for CONTAINER CopyOfSelector', () => {
@@ -643,6 +649,22 @@ describe('VisualizationService', () => {
       const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
       const orderPersonNode = shipOrderChildren.find((c) => c.title === orderPersonField.name) as FieldItemNodeData;
       expect(VisualizationService.hasChildren(orderPersonNode)).toBe(false);
+    });
+
+    it('should show VALUE ValueOfSelector as a tree node child on an expandable field', () => {
+      const shipOrderFI = new FieldItem(tree, targetDoc.fields[0]);
+      tree.children.push(shipOrderFI);
+      const vs = new ValueOfSelector(shipOrderFI, ValueOfType.VALUE);
+      shipOrderFI.children.push(vs);
+      targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+      const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+      const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+      const valueNode = shipOrderChildren.find(
+        (child) => child instanceof MappingNodeData && child.mapping === vs,
+      ) as MappingNodeData;
+
+      expect(valueNode).toBeDefined();
+      expect(valueNode.title).toBe('value');
     });
 
     it('should show CONTAINER_NODE copy-of as tree node in primitive document children', () => {

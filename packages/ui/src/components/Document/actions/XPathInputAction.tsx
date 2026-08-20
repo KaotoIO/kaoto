@@ -7,6 +7,7 @@ import {
   Icon,
   InputGroup,
   InputGroupItem,
+  Label,
   List,
   ListItem,
   Popover,
@@ -15,7 +16,7 @@ import {
 import { ExclamationCircleIcon, ExclamationTriangleIcon } from '@patternfly/react-icons';
 import { FormEvent, FunctionComponent, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { IExpressionHolder } from '../../../models/datamapper/mapping';
+import { CopyOfSelector, CopyOfType, IExpressionHolder } from '../../../models/datamapper/mapping';
 import { ExpressionHolderNodeData } from '../../../models/datamapper/visualization';
 import { XPathService } from '../../../services/xpath/xpath.service';
 import { ValidatedXPathParseResult } from '../../../services/xpath/xpath-model';
@@ -83,6 +84,13 @@ export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ nodeData,
   return (
     <ActionListItem key="xpath-input" className="input-group">
       <InputGroup>
+        {mapping instanceof CopyOfSelector && mapping.valueType === CopyOfType.CONTAINER && (
+          <InputGroupItem>
+            <Label isCompact data-testid="xpath-input-copy-of-label">
+              copy-of
+            </Label>
+          </InputGroupItem>
+        )}
         <InputGroupItem className="input-group__text">
           <TextInput
             ref={inputRef}
