@@ -1,14 +1,3 @@
-import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
-
-import { IVisualizationNodeData } from '../../base-visual-entity';
-
-export interface ICamelElementLookupResult {
-  processorName: keyof ProcessorDefinition;
-  componentName?: string;
-}
-
-export type CamelRouteVisualEntityData = IVisualizationNodeData & ICamelElementLookupResult;
-
 /**
  * Interface to shape the properties from Processors that can be filled
  * with nested Camel Processors.
