@@ -183,7 +183,7 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     }
   }
 
-  getNodeValidationText(): string | undefined {
+  async getNodeValidationText(): Promise<string | undefined> {
     const ids: IVisualizationNodeIds = {
       primaryNodeId: this.data.primaryNodeId,
       secondaryNodeId: this.data.secondaryNodeId,

@@ -518,14 +518,14 @@ describe('Pipe', () => {
   });
 
   describe('getNodeValidationText', () => {
-    it('should return an `undefined` if the path is `undefined`', () => {
-      const result = pipeVisualEntity.getNodeValidationText();
+    it('should return an `undefined` if the path is `undefined`', async () => {
+      const result = await pipeVisualEntity.getNodeValidationText();
 
       expect(result).toBeUndefined();
     });
 
-    it('should return an `undefined` if the path is empty', () => {
-      const result = pipeVisualEntity.getNodeValidationText('');
+    it('should return an `undefined` if the path is empty', async () => {
+      const result = await pipeVisualEntity.getNodeValidationText('');
 
       expect(result).toBeUndefined();
     });
@@ -538,7 +538,7 @@ describe('Pipe', () => {
       const schema = await pipeVisualEntity.fetchNodeSchema({
         primaryNodeId: { name: 'delay-action', catalogKind: CatalogKind.Kamelet },
       });
-      const result = pipeVisualEntity.getNodeValidationText('steps.0', schema);
+      const result = await pipeVisualEntity.getNodeValidationText('steps.0', schema);
 
       expect(result).toBe('1 required parameter is not yet configured: [ milliseconds ]');
     });
