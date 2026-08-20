@@ -29,7 +29,7 @@ const FlowTypeSelectorWithContext: React.FunctionComponent<{
   const value = useMemo(
     () =>
       ({
-        currentSchemaType: currentSchemaType ?? SourceSchemaType.Route,
+        currentSchemaType: currentSchemaType ?? SourceSchemaType.RouteYaml,
         visualEntities: [{ id: 'entity1' } as CamelRouteVisualEntity, { id: 'entity2' } as CamelRouteVisualEntity],
         camelResource: new CamelRouteResource(undefined),
       }) as unknown as EntitiesContextResult,
