@@ -99,7 +99,7 @@ export class DocumentUtilService {
     return field;
   }
 
-  private static captureOriginalFieldState(field: IField): IOriginalFieldState {
+  static captureOriginalFieldState(field: IField): IOriginalFieldState {
     return {
       name: field.name,
       displayName: field.displayName,
