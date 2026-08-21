@@ -12,7 +12,10 @@ import { IMetadataApi, MetadataContext } from '../../providers/metadata.provider
 import { Links } from '../../router/links.models';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { DataMapperStepService } from '../../services/datamapper-step.service';
+import { DataMapperValidationStepService } from '../../services/datamapper-validation-step.service';
 import { DataMapperLauncher } from './DataMapperLauncher';
+
+vi.mock('../../services/datamapper-validation-step.service');
 
 // Mock XsltDocumentRenameInput component
 vi.mock('./XsltDocumentRenameInput', async () => {
@@ -780,6 +783,119 @@ describe('DataMapperLauncher', () => {
         await waitFor(() => {
           expect(screen.getByTestId('xslt-document-name')).toBeInTheDocument();
           expect(screen.queryByTestId('xslt-document-name--text-input')).not.toBeInTheDocument();
+        });
+      });
+    });
+
+    describe('Validate Output toggle', () => {
+      beforeEach(() => {
+        // Default: file exists, XML target, validation disabled
+        mockMetadataContext.isResourceExist = vi.fn().mockResolvedValue(true);
+        const mockMeta: IDataMapperMetadata = {
+          sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+          sourceParameters: {},
+          targetBody: { type: DocumentDefinitionType.XML_SCHEMA, filePath: ['ShipOrder.xsd'] },
+          xsltPath: 'test-document.xsl',
+        };
+        mockMetadataContext.getMetadata = vi.fn().mockResolvedValue(mockMeta);
+        (DataMapperValidationStepService.isValidationEnabled as Mock).mockReturnValue(false);
+        (DataMapperStepService.getDataMapperMetadataId as Mock).mockReturnValue('test-node-id');
+      });
+
+      it('should show Validate Output checkbox when file exists and target is not Primitive', async () => {
+        const vizNode = createMockVizNode('test-document.xsl');
+        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+
+        render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
+
+        await waitFor(() => {
+          expect(screen.getByTestId('validate-output-checkbox')).toBeInTheDocument();
+        });
+        expect(screen.getByText('Output Validation')).toBeInTheDocument();
+      });
+
+      it('should hide Validate Output checkbox when target is Primitive', async () => {
+        const vizNode = createMockVizNode('test-document.xsl');
+        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        const primitiveMeta: IDataMapperMetadata = {
+          sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+          sourceParameters: {},
+          targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+          xsltPath: 'test-document.xsl',
+        };
+        mockMetadataContext.getMetadata = vi.fn().mockResolvedValue(primitiveMeta);
+
+        render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
+
+        await waitFor(() => {
+          expect(screen.queryByText('Document')).toBeInTheDocument();
+        });
+        expect(screen.queryByTestId('validate-output-checkbox')).not.toBeInTheDocument();
+      });
+
+      it('should hide Validate Output checkbox when XSLT file does not exist', async () => {
+        const vizNode = createMockVizNode('test-document.xsl');
+        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        mockMetadataContext.isResourceExist = vi.fn().mockResolvedValue(false);
+
+        render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('validate-output-checkbox')).not.toBeInTheDocument();
+        });
+      });
+
+      it('should render checkbox as unchecked when validation is disabled', async () => {
+        const vizNode = createMockVizNode('test-document.xsl');
+        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        (DataMapperValidationStepService.isValidationEnabled as Mock).mockReturnValue(false);
+
+        render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
+
+        const checkbox = (await screen.findByTestId('validate-output-checkbox')) as HTMLInputElement;
+        expect(checkbox.checked).toBe(false);
+      });
+
+      it('should render checkbox as checked when validation is enabled', async () => {
+        const vizNode = createMockVizNode('test-document.xsl');
+        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        (DataMapperValidationStepService.isValidationEnabled as Mock).mockReturnValue(true);
+
+        render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
+
+        const checkbox = (await screen.findByTestId('validate-output-checkbox')) as HTMLInputElement;
+        expect(checkbox.checked).toBe(true);
+      });
+
+      it('should call addValidationStep when checkbox is toggled ON', async () => {
+        const vizNode = createMockVizNode('test-document.xsl');
+        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        (DataMapperValidationStepService.isValidationEnabled as Mock).mockReturnValue(false);
+        (DataMapperValidationStepService.addValidationStep as Mock).mockImplementation(() => undefined);
+
+        render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
+
+        const checkbox = await screen.findByTestId('validate-output-checkbox');
+        fireEvent.click(checkbox);
+
+        await waitFor(() => {
+          expect(DataMapperValidationStepService.addValidationStep).toHaveBeenCalled();
+        });
+      });
+
+      it('should call removeValidationStep when checkbox is toggled OFF', async () => {
+        const vizNode = createMockVizNode('test-document.xsl');
+        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        (DataMapperValidationStepService.isValidationEnabled as Mock).mockReturnValue(true);
+        (DataMapperValidationStepService.removeValidationStep as Mock).mockImplementation(() => undefined);
+
+        render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
+
+        const checkbox = (await screen.findByTestId('validate-output-checkbox')) as HTMLInputElement;
+        fireEvent.click(checkbox);
+
+        await waitFor(() => {
+          expect(DataMapperValidationStepService.removeValidationStep).toHaveBeenCalled();
         });
       });
     });
