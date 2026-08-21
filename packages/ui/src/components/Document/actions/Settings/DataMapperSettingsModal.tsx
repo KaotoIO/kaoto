@@ -9,7 +9,7 @@ import {
   ModalHeader,
   ModalVariant,
 } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
+import { FormEvent, FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { DocumentDefinitionType, IDataMapperSettings } from '../../../../models/datamapper';
@@ -23,11 +23,22 @@ export const DataMapperSettingsModal: FunctionComponent<DataMapperSettingsModalP
   isModalOpen,
   onModalClose,
 }) => {
-  const { dataMapperSettings, updateDataMapperSettings, targetBodyDocument } = useDataMapper();
+  const {
+    dataMapperSettings,
+    updateDataMapperSettings,
+    targetBodyDocument,
+    isOutputValidationEnabled,
+    setOutputValidationEnabled,
+  } = useDataMapper();
   const [localOptions, setLocalOptions] = useState<IDataMapperSettings>(dataMapperSettings);
 
   const isTargetXml = useMemo(
     () => targetBodyDocument.definitionType === DocumentDefinitionType.XML_SCHEMA,
+    [targetBodyDocument.definitionType],
+  );
+
+  const isTargetPrimitive = useMemo(
+    () => targetBodyDocument.definitionType === DocumentDefinitionType.Primitive,
     [targetBodyDocument.definitionType],
   );
 
@@ -50,6 +61,13 @@ export const DataMapperSettingsModal: FunctionComponent<DataMapperSettingsModalP
     updateDataMapperSettings(localOptions);
     onModalClose();
   }, [localOptions, updateDataMapperSettings, onModalClose]);
+
+  const handleValidationToggle = useCallback(
+    (_event: FormEvent<HTMLInputElement>, checked: boolean) => {
+      setOutputValidationEnabled(checked);
+    },
+    [setOutputValidationEnabled],
+  );
 
   const handleCancel = useCallback(() => {
     setLocalOptions(dataMapperSettings);
@@ -79,6 +97,17 @@ export const DataMapperSettingsModal: FunctionComponent<DataMapperSettingsModalP
               description={!isTargetXml ? 'Only available when target document is XML' : undefined}
             />
           </FormGroup>
+          {!isTargetPrimitive && (
+            <FormGroup label="Output Validation">
+              <Checkbox
+                id="validate-output-settings"
+                label="Validate output"
+                isChecked={isOutputValidationEnabled}
+                onChange={handleValidationToggle}
+                data-testid="validate-output-settings-checkbox"
+              />
+            </FormGroup>
+          )}
         </Form>
       </ModalBody>
       <ModalFooter>

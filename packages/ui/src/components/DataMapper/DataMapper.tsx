@@ -18,7 +18,12 @@ import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useStat
 import { DataMapperControl } from '../../components/DataMapper/DataMapperControl';
 import { Loading } from '../../components/Loading';
 import { IVisualizationNode } from '../../models';
-import { DocumentDefinition, DocumentInitializationModel, DocumentType } from '../../models/datamapper/document';
+import {
+  DocumentDefinition,
+  DocumentDefinitionType,
+  DocumentInitializationModel,
+  DocumentType,
+} from '../../models/datamapper/document';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
 import { EntitiesContext, MetadataContext } from '../../providers';
 import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
@@ -27,6 +32,7 @@ import { DataMapperDndProvider } from '../../providers/datamapper-dnd.provider';
 import { SourceTargetDnDHandler } from '../../providers/dnd/SourceTargetDnDHandler';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { DataMapperStepService } from '../../services/datamapper-step.service';
+import { DataMapperValidationStepService } from '../../services/datamapper-validation-step.service';
 import { EMPTY_XSL } from '../../services/mapping/mapping-serializer.service';
 
 export interface IDataMapperProps {
@@ -41,6 +47,7 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
   const [documentInitializationModel, setDocumentInitializationModel] = useState<DocumentInitializationModel>();
   const [initialXsltFile, setInitialXsltFile] = useState<string>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isOutputValidationEnabled, setIsOutputValidationEnabled] = useState<boolean>(false);
   const dndHandler = useMemo(() => new SourceTargetDnDHandler(), []);
 
   useEffect(() => {
@@ -63,6 +70,9 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
       setDocumentInitializationModel(initModel);
       const mappingFile = await DataMapperMetadataService.loadMappingFile(ctx, meta);
       setInitialXsltFile(mappingFile);
+      if (vizNode) {
+        setIsOutputValidationEnabled(DataMapperValidationStepService.isValidationEnabled(vizNode));
+      }
     };
     void initialize().then(() => {
       setIsLoading(false);
@@ -82,6 +92,14 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
           break;
         case DocumentType.TARGET_BODY:
           await DataMapperMetadataService.updateTargetBodyMetadata(ctx, metadataId, metadata, definition);
+          if (vizNode) {
+            if (DataMapperValidationStepService.isValidationEnabled(vizNode)) {
+              DataMapperValidationStepService.updateValidationStep(vizNode, metadata.targetBody, entitiesContext);
+            } else if (definition.definitionType !== DocumentDefinitionType.Primitive) {
+              DataMapperValidationStepService.addValidationStep(vizNode, metadata.targetBody, entitiesContext);
+            }
+            setIsOutputValidationEnabled(DataMapperValidationStepService.isValidationEnabled(vizNode));
+          }
           break;
         case DocumentType.PARAM:
           await DataMapperMetadataService.updateSourceParameterMetadata(
@@ -128,6 +146,19 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
     [ctx, metadata, metadataId],
   );
 
+  const onSetOutputValidationEnabled = useCallback(
+    (enabled: boolean) => {
+      if (!vizNode || !entitiesContext || !metadata) return;
+      if (enabled) {
+        DataMapperValidationStepService.addValidationStep(vizNode, metadata.targetBody, entitiesContext);
+      } else {
+        DataMapperValidationStepService.removeValidationStep(vizNode, entitiesContext);
+      }
+      setIsOutputValidationEnabled(DataMapperValidationStepService.isValidationEnabled(vizNode));
+    },
+    [vizNode, entitiesContext, metadata],
+  );
+
   if (!metadataId) {
     return <>No associated DataMapper step was provided.</>;
   }
@@ -145,6 +176,8 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
       initialXsltFile={initialXsltFile}
       onUpdateMappings={onUpdateMappings}
       onUpdateNamespaceMap={onUpdateNamespaceMap}
+      isOutputValidationEnabled={isOutputValidationEnabled}
+      onSetOutputValidationEnabled={onSetOutputValidationEnabled}
     >
       <DataMapperDndProvider handler={dndHandler}>
         <MappingLinksProvider>
