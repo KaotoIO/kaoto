@@ -11,6 +11,7 @@ import { isEmpty } from 'lodash';
 import { FunctionComponent, useContext, useEffect, useMemo, useState } from 'react';
 
 import { ROOT_PATH, setValue } from '../../../../../../utils';
+import { ErrorBoundary } from '../../../../../ErrorBoundary';
 import { ExpressionService } from './expression.service';
 import { ExpressionFieldInner } from './ExpressionFieldInner';
 
@@ -30,11 +31,12 @@ import { ExpressionFieldInner } from './ExpressionFieldInner';
  * - ObjectField -> property resolution -> FormComponentFactoryProvider -> ExpressionField
  * this brings an entire schema with a `anyOf` array where the languages are specified.
  */
-export const ExpressionField: FunctionComponent<FieldProps> = ({ propName, required }) => {
+const ExpressionFieldImpl: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { schema } = useContext(SchemaContext);
   const { value: originalModel, onChange } = useFieldValue<Record<string, unknown>>(propName);
 
   const isRootExpression = schema.format === 'expression';
+  const [parseError, setParseError] = useState<Error | undefined>(undefined);
   const [parsedModel, setParsedModel] = useState<ExpressionDefinition | undefined>(undefined);
   /**
    * Whether the first async `parseExpressionModel` has resolved. `ExpressionFieldInner` relies on
@@ -55,13 +57,17 @@ export const ExpressionField: FunctionComponent<FieldProps> = ({ propName, requi
           setIsModelParsed(true);
         }
       })
-      .catch((error) => {
-        console.error('Failed to parse expression model:', error);
+      .catch((error: Error) => {
+        if (!cancelled) setParseError(error);
       });
     return () => {
       cancelled = true;
     };
   }, [originalModel]);
+
+  if (parseError) {
+    throw parseError;
+  }
 
   if (!isModelParsed) {
     return null;
@@ -111,3 +117,9 @@ export const ExpressionField: FunctionComponent<FieldProps> = ({ propName, requi
     </FieldWrapper>
   );
 };
+
+export const ExpressionField: FunctionComponent<FieldProps> = (props) => (
+  <ErrorBoundary fallback={<p>Expression editor is unavailable</p>}>
+    <ExpressionFieldImpl {...props} />
+  </ErrorBoundary>
+);
