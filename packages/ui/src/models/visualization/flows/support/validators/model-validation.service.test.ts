@@ -1,12 +1,10 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
-import { DynamicCatalog } from '../../../../../dynamic-catalog/dynamic-catalog';
 import { DynamicCatalogRegistry } from '../../../../../dynamic-catalog/dynamic-catalog-registry';
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../../../stubs/test-load-catalog';
 import { CatalogKind } from '../../../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../../../kaoto-schema';
-import { CamelCatalogService } from '../../camel-catalog.service';
 import { CamelRouteVisualEntity } from '../../camel-route-visual-entity';
 import { ModelValidationService } from './model-validation.service';
 
@@ -49,22 +47,10 @@ describe('ModelValidationService', () => {
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     setupDynamicCatalogRegistry(catalogsMap);
-    /** ExpressionService.parseExpressionModel (called during setHeader validation) still reads from CamelCatalogService */
-    CamelCatalogService.setCatalogKey(CatalogKind.Language, catalogsMap.languageCatalog);
-
-    // Set up DynamicCatalogRegistry so that ExpressionService.parseExpressionModel can resolve language names
-    const languageCatalog = catalogsMap.languageCatalog;
-    const mockProvider = {
-      id: 'language-mock',
-      fetch: async (key: string) => languageCatalog[key],
-      fetchAll: async () => languageCatalog,
-    };
-    DynamicCatalogRegistry.get().setCatalog(CatalogKind.Language, new DynamicCatalog(mockProvider));
   });
 
   afterAll(() => {
     DynamicCatalogRegistry.get().clearRegistry();
-    CamelCatalogService.clearCatalogs();
   });
 
   beforeEach(() => {
