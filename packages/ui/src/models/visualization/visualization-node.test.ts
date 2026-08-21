@@ -413,7 +413,7 @@ describe('VisualizationNode', () => {
   });
 
   describe('getNodeValidationText', () => {
-    it('should return undefined when the underlying BaseVisualCamelEntity is not defined', () => {
+    it('should return undefined when the underlying BaseVisualCamelEntity is not defined', async () => {
       node = createVisualizationNode('test', {
         name: 'log',
         isGroup: false,
@@ -422,13 +422,13 @@ describe('VisualizationNode', () => {
         description: '',
         iconUrl: '',
       });
-      const validationText = node.getNodeValidationText();
+      const validationText = await node.getNodeValidationText();
 
       expect(validationText).toBeUndefined();
     });
 
-    it('should return the validation text from the underlying BaseVisualCamelEntity', () => {
-      const getNodeValidationTextSpy = vi.fn().mockReturnValue('test-validation-text');
+    it('should return the validation text from the underlying BaseVisualCamelEntity', async () => {
+      const getNodeValidationTextSpy = vi.fn().mockResolvedValue('test-validation-text');
       const visualEntity = {
         getNodeValidationText: getNodeValidationTextSpy,
       } as unknown as BaseVisualEntity;
@@ -445,7 +445,7 @@ describe('VisualizationNode', () => {
         schema: { type: 'object' },
         primaryNodeId: { name: 'log', catalogKind: CatalogKind.Pattern },
       });
-      const validationText = node.getNodeValidationText();
+      const validationText = await node.getNodeValidationText();
 
       expect(getNodeValidationTextSpy).toHaveBeenCalledWith(node.data.path, node.data.schema, {
         primaryNodeId: node.data.primaryNodeId,

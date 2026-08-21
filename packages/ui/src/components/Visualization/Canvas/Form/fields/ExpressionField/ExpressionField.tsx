@@ -1,3 +1,4 @@
+import { ExpressionDefinition } from '@kaoto/camel-catalog/types';
 import {
   FieldProps,
   FieldWrapper,
@@ -7,9 +8,10 @@ import {
   useFieldValue,
 } from '@kaoto/forms';
 import { isEmpty } from 'lodash';
-import { FunctionComponent, useContext, useMemo } from 'react';
+import { FunctionComponent, useContext, useEffect, useMemo, useState } from 'react';
 
 import { ROOT_PATH, setValue } from '../../../../../../utils';
+import { ErrorBoundary } from '../../../../../ErrorBoundary';
 import { ExpressionService } from './expression.service';
 import { ExpressionFieldInner } from './ExpressionFieldInner';
 
@@ -29,18 +31,52 @@ import { ExpressionFieldInner } from './ExpressionFieldInner';
  * - ObjectField -> property resolution -> FormComponentFactoryProvider -> ExpressionField
  * this brings an entire schema with a `anyOf` array where the languages are specified.
  */
-export const ExpressionField: FunctionComponent<FieldProps> = ({ propName, required }) => {
+const ExpressionFieldImpl: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { schema } = useContext(SchemaContext);
   const { value: originalModel, onChange } = useFieldValue<Record<string, unknown>>(propName);
 
   const isRootExpression = schema.format === 'expression';
-  const parsedModel = ExpressionService.parseExpressionModel(originalModel);
+  const [parseError, setParseError] = useState<Error | undefined>(undefined);
+  const [parsedModel, setParsedModel] = useState<ExpressionDefinition | undefined>(undefined);
+  /**
+   * Whether the first async `parseExpressionModel` has resolved. `ExpressionFieldInner` relies on
+   * `useOneOfField`, which latches its selected schema from the model on its mount render only.
+   * Mounting it before the model is parsed would latch an empty selection that never recovers, so
+   * we hold rendering until the initial parse completes. The flag stays `true` afterwards so later
+   * `originalModel` changes re-parse without remounting (and thus without dropping the selection).
+   */
+  const [isModelParsed, setIsModelParsed] = useState(false);
   const expressionsSchema = useMemo(() => ExpressionService.getExpressionsSchema(schema), [schema]);
 
-  const onExpressionChange = (propName: string, model: unknown) => {
+  useEffect(() => {
+    let cancelled = false;
+    ExpressionService.parseExpressionModel(originalModel)
+      .then((model) => {
+        if (!cancelled) {
+          setParsedModel(model);
+          setIsModelParsed(true);
+        }
+      })
+      .catch((error: Error) => {
+        if (!cancelled) setParseError(error);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [originalModel]);
+
+  if (parseError) {
+    throw parseError;
+  }
+
+  if (!isModelParsed) {
+    return null;
+  }
+
+  const onExpressionChange = async (propName: string, model: unknown) => {
     let localValue = parsedModel ?? {};
 
-    ExpressionService.updateExpressionFromModel(parsedModel, model as Record<string, unknown>);
+    await ExpressionService.updateExpressionFromModel(parsedModel, model as Record<string, unknown>);
     let updatedValue = model;
     if (typeof model === 'string' && model.trim() === '') {
       updatedValue = undefined;
@@ -81,3 +117,9 @@ export const ExpressionField: FunctionComponent<FieldProps> = ({ propName, requi
     </FieldWrapper>
   );
 };
+
+export const ExpressionField: FunctionComponent<FieldProps> = (props) => (
+  <ErrorBoundary fallback={<p>Expression editor is unavailable</p>}>
+    <ExpressionFieldImpl {...props} />
+  </ErrorBoundary>
+);

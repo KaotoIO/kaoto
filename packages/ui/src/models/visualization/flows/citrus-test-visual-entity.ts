@@ -346,15 +346,15 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     };
   }
 
-  getNodeValidationText(
+  async getNodeValidationText(
     path?: string,
     schema?: KaotoSchemaDefinition['schema'],
     ids?: IVisualizationNodeIds,
-  ): string | undefined {
+  ): Promise<string | undefined> {
     const definition = this.getNodeDefinition(path, ids);
     if (!schema || !definition) return undefined;
 
-    return ModelValidationService.validateNodeStatus(schema, definition);
+    return await ModelValidationService.validateNodeStatus(schema, definition);
   }
 
   getGroupIcons(): { icon: string; title: string }[] {

@@ -147,14 +147,14 @@ describe('AbstractCamelVisualEntity', () => {
   });
 
   describe('getNodeValidationText', () => {
-    it('should return an `undefined` if the path is `undefined`', () => {
-      const result = abstractVisualEntity.getNodeValidationText(undefined);
+    it('should return an `undefined` if the path is `undefined`', async () => {
+      const result = await abstractVisualEntity.getNodeValidationText(undefined);
 
       expect(result).toBeUndefined();
     });
 
-    it('should return an `undefined` if the path is empty', () => {
-      const result = abstractVisualEntity.getNodeValidationText('');
+    it('should return an `undefined` if the path is empty', async () => {
+      const result = await abstractVisualEntity.getNodeValidationText('');
 
       expect(result).toBeUndefined();
     });
@@ -168,7 +168,7 @@ describe('AbstractCamelVisualEntity', () => {
         primaryNodeId: { name: 'from', catalogKind: CatalogKind.Entity },
         secondaryNodeId: { name: 'timer', catalogKind: CatalogKind.Component },
       });
-      const result = abstractVisualEntity.getNodeValidationText('route.from', schema, fromStepIds);
+      const result = await abstractVisualEntity.getNodeValidationText('route.from', schema, fromStepIds);
 
       expect(result).toBe('2 required parameters are not yet configured: [ uri,timerName ]');
     });
