@@ -16,6 +16,7 @@ import { CamelCatalogService, CatalogKind } from '../../../../../../models';
 import { setHeaderExpressionSchema } from '../../../../../../stubs/expression-definition-schema';
 import { getFirstCatalogMap } from '../../../../../../stubs/test-load-catalog';
 import { ROOT_PATH } from '../../../../../../utils';
+import { ExpressionService } from './expression.service';
 import { ExpressionField } from './ExpressionField';
 
 describe('ExpressionField', () => {
@@ -242,5 +243,27 @@ describe('ExpressionField', () => {
 
     expect(onPropertyChangeSpy).toHaveBeenCalledTimes(1);
     expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, undefined);
+  });
+
+  it('should show the error boundary fallback when parseExpressionModel rejects', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(ExpressionService, 'parseExpressionModel').mockRejectedValue(new Error('catalog unavailable'));
+
+    render(
+      <ModelContextProvider model={{ id: 'setHeader-1361' }} onPropertyChange={vi.fn()}>
+        <SchemaProvider schema={setHeaderExpressionSchema}>
+          <ExpressionField propName={ROOT_PATH} required />
+        </SchemaProvider>
+      </ModelContextProvider>,
+    );
+
+    await screen.findByText('Expression editor is unavailable');
+    const expandableButton = await screen.findByLabelText('Show more');
+    expect(expandableButton).toBeInTheDocument();
+
+    fireEvent.click(expandableButton);
+    await screen.findByText('catalog unavailable');
+
+    vi.restoreAllMocks();
   });
 });
