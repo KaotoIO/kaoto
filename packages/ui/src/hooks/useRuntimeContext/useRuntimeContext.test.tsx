@@ -14,6 +14,10 @@ vi.mock('../../dynamic-catalog/support/fetch-xslt-xpath-functions', () => ({
   fetchXsltXPathFunctions: vi.fn().mockResolvedValue(undefined),
 }));
 
+vi.mock('../../dynamic-catalog/support/fetch-starter-templates', () => ({
+  fetchStarterTemplates: vi.fn().mockResolvedValue(undefined),
+}));
+
 const kaotoResource = { getType: () => SourceSchemaType.Integration } as unknown as KaotoResource;
 
 const wrapper = ({ children }: PropsWithChildren) => (

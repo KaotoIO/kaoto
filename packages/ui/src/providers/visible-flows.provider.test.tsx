@@ -13,6 +13,7 @@ describe('VisibleFlowsProvider', () => {
     mockRandomValues();
 
     const baseResource = new CamelRouteResource();
+    await baseResource.initialize();
     baseResource.addNewEntity(EntityType.Route);
     // Materialize the new entity into source so the wrapper's re-initialize()
     // (which rebuilds entities from source) preserves it — mirrors how runtime

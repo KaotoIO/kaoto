@@ -68,7 +68,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       ids.primaryNodeId.name,
     );
 
-    if (!primaryCatalogEntry?.propertiesSchema) {
+    if (typeof primaryCatalogEntry === 'string' || !primaryCatalogEntry?.propertiesSchema) {
       return;
     }
 

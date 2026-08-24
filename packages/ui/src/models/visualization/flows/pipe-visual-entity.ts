@@ -86,7 +86,7 @@ export class PipeVisualEntity implements BaseVisualEntity {
       ids.primaryNodeId.catalogKind,
       ids.primaryNodeId.name,
     );
-    return definition?.propertiesSchema;
+    return typeof definition === 'string' ? undefined : definition?.propertiesSchema;
   }
 
   getNodeDefinition(path?: string): unknown {

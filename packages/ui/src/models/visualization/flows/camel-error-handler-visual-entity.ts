@@ -120,7 +120,7 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualEntity {
       ids.primaryNodeId.catalogKind,
       ids.primaryNodeId.name,
     );
-    return definition?.propertiesSchema;
+    return typeof definition === 'string' ? undefined : definition?.propertiesSchema;
   }
 
   getNodeDefinition(): unknown {

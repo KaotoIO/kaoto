@@ -1,9 +1,13 @@
 import { CamelYamlDsl, RouteConfigurationDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { parse } from 'yaml';
 
+import { DynamicCatalog } from '../../dynamic-catalog/dynamic-catalog';
+import { DynamicCatalogRegistry } from '../../dynamic-catalog/dynamic-catalog-registry';
+import { StarterTemplatesProvider } from '../../dynamic-catalog/providers/starter-templates.provider';
 import { beansJson } from '../../stubs/beans';
 import { camelFromJson } from '../../stubs/camel-from';
 import { camelRouteJson, camelRouteYaml } from '../../stubs/camel-route';
+import { CatalogKind } from '../catalog-kind';
 import { EntityType } from '../entities';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../visualization/flows/camel-route-visual-entity';
@@ -16,6 +20,21 @@ import { CamelRouteResource } from './camel-route-resource';
 import { SourceSchemaType } from './source-schema-type';
 
 describe('CamelRouteResource', () => {
+  beforeEach(() => {
+    DynamicCatalogRegistry.get().setCatalog(
+      CatalogKind.StarterTemplate,
+      new DynamicCatalog(
+        new StarterTemplatesProvider({
+          'camel-route-yaml': '- route:\n    id: route-__KAOTO_ID__\n    from:\n      uri: timer:yaml\n      steps: []',
+        }),
+      ),
+    );
+  });
+
+  afterEach(() => {
+    DynamicCatalogRegistry.get().clearRegistry();
+  });
+
   it('should create CamelRouteResource', async () => {
     const resource = new CamelRouteResource([camelRouteJson]);
     await resource.initialize();
@@ -167,7 +186,7 @@ describe('CamelRouteResource', () => {
       resource.addNewEntity();
       const id = resource.addNewEntity(
         EntityType.Route,
-        parse(FlowTemplateService.getFlowSourceTemplate(SourceSchemaType.RouteYaml))[0],
+        parse(await FlowTemplateService.getFlowSourceTemplate(SourceSchemaType.RouteYaml))[0],
       );
 
       expect(resource.getVisualEntities()).toHaveLength(2);
@@ -931,5 +950,14 @@ describe('CamelRouteResource', () => {
     const output = await resource.toSourceCode();
 
     expect(output.startsWith('- route:')).toBe(true);
+  });
+
+  describe('new-file initialization', () => {
+    it('initializes with one route entity when no source is given', async () => {
+      const resource = new CamelRouteResource();
+      await resource.initialize();
+      resource.addNewEntity();
+      expect(resource.getVisualEntities()).toHaveLength(1);
+    });
   });
 });

@@ -52,7 +52,9 @@ describe('CamelResourceFactory.createCamelResource', () => {
     expect(resource.getType()).toEqual(SourceSchemaType.Kamelet);
     const entities = resource.getEntities();
     expect(entities).toHaveLength(1);
-    expect(entities[0].toJSON()).toEqual({ metadata: { name: expect.stringMatching(/^kamelet-\d{4}$/) } });
+    expect(entities[0].toJSON()).toEqual({
+      metadata: expect.objectContaining({ name: expect.stringMatching(/^kamelet-source-id-\d{4}$/) }),
+    });
     expect(resource.getVisualEntities()).toMatchSnapshot();
   });
 

@@ -16,22 +16,33 @@ import { IKameletDefinition } from './kamelets-catalog';
 import { SourceSchemaType } from './source-schema-type';
 
 export class KameletResource extends CamelKResource implements RouteTemplateBeansAwareResource {
-  private flow: KameletVisualEntity;
+  private flow!: KameletVisualEntity;
   private beans?: RouteTemplateBeansEntity;
+  private cachedTemplate: string = '';
+  private readonly isNew: boolean;
 
   constructor(kamelet?: IKameletDefinition) {
     super(kamelet);
-
-    if (!kamelet) {
-      this.resource = parse(FlowTemplateService.getFlowSourceTemplate(this.getType()));
-    }
-    this.flow = new KameletVisualEntity(this.resource as IKameletDefinition);
+    // Treat a kamelet with no apiVersion/kind/spec as "new" (empty placeholder
+    // created by CamelKResourceFactory when no source is provided).
+    this.isNew = !kamelet || (!kamelet.apiVersion && !kamelet.kind && !kamelet.spec);
   }
 
   async initialize(): Promise<void> {
+    this.cachedTemplate = await FlowTemplateService.getFlowSourceTemplate(this.getType());
+
+    if (this.isNew) {
+      this.resource = parse(this.cachedTemplate);
+    }
+
+    // Create the flow entity before super.initialize() so that
+    // this.resource.metadata is populated when CamelKResource.initialize()
+    // runs (KameletVisualEntity sets metadata.name when the kamelet is empty)
+    this.flow = new KameletVisualEntity(this.resource as IKameletDefinition);
+
     await super.initialize();
 
-    if (this.flow.kamelet.spec.template.beans) {
+    if (this.flow.kamelet?.spec?.template?.beans) {
       this.beans = new RouteTemplateBeansEntity(this.flow.kamelet.spec.template as RouteTemplateBeansParentType);
     }
   }
@@ -42,7 +53,7 @@ export class KameletResource extends CamelKResource implements RouteTemplateBean
 
   removeEntity(): void {
     super.removeEntity();
-    this.resource = parse(FlowTemplateService.getFlowSourceTemplate(this.getType()));
+    this.resource = parse(this.cachedTemplate);
     this.flow = new KameletVisualEntity(this.resource as IKameletDefinition);
     this.beans = undefined;
   }
@@ -52,21 +63,10 @@ export class KameletResource extends CamelKResource implements RouteTemplateBean
   }
 
   getVisualEntities(): KameletVisualEntity[] {
-    /** A kamelet always have a single flow defined, even if is empty */
     return [this.flow];
   }
 
   toJSON(): IKameletDefinition {
-    /**
-     * The underlying CamelRouteVisualEntity has a root route property which holds
-     * the route definition. Inside of this property, there's a `from` property which
-     * holds the kamelet definition.
-     *
-     * The `from` kamelet property is a reference to the underlying CamelRouteVisualEntity
-     * and this way the kamelet definition is updated when the user interacts with
-     * the CamelRouteVisualEntity.
-     */
-    // Call toJSON() on the flow entity to apply property sorting
     const flowJson = this.flow.toJSON();
     setValue(this.resource, 'metadata.name', this.flow.getId());
     setValue(this.resource, 'spec.template.from', flowJson.from);
@@ -74,7 +74,6 @@ export class KameletResource extends CamelKResource implements RouteTemplateBean
     return this.resource as IKameletDefinition;
   }
 
-  /** Components Catalog related methods */
   getCompatibleComponents(
     mode: AddStepMode,
     visualEntityData: IVisualizationNodeData,

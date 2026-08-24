@@ -30,13 +30,14 @@ describe('FlowsList.tsx', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    camelResource = new CamelRouteResource();
-    camelResource.addNewEntity(EntityType.Route);
-    camelResource.addNewEntity(EntityType.RouteConfiguration);
+    const baseResource = new CamelRouteResource();
+    await baseResource.initialize();
+    baseResource.addNewEntity(EntityType.Route);
+    baseResource.addNewEntity(EntityType.RouteConfiguration);
     // Materialize the new entities into source so the wrapper's re-initialize()
     // (which rebuilds entities from source) preserves them — mirrors how runtime
     // recreates the resource from serialized code on `code:updated`.
-    camelResource = new CamelRouteResource(parse(await camelResource.toSourceCode()) as CamelYamlDsl);
+    camelResource = new CamelRouteResource(parse(await baseResource.toSourceCode()) as CamelYamlDsl);
   });
 
   it('should render the existing flows', async () => {
@@ -75,7 +76,7 @@ describe('FlowsList.tsx', () => {
         <FlowsList />
       </Provider>,
     );
-    const flow1 = await wrapper.findByText('route-1234');
+    const flow1 = await wrapper.findByText('route-id-1234');
     const flow2 = await wrapper.findByText('routeConfiguration-1234');
 
     expect(flow1).toBeInTheDocument();
@@ -91,7 +92,7 @@ describe('FlowsList.tsx', () => {
 
     const visibleFlowsContext: VisibleFlowsContextResult = {
       allFlowsVisible: false,
-      visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: false },
+      visibleFlows: { ['route-id-1234']: true, ['routeConfiguration-1234']: false },
       visualFlowsApi,
     };
 
@@ -101,11 +102,11 @@ describe('FlowsList.tsx', () => {
         <FlowsList />
       </Provider>,
     );
-    const flowId = await wrapper.findByTestId('goto-btn-route-1234');
+    const flowId = await wrapper.findByTestId('goto-btn-route-id-1234');
 
     fireEvent.click(flowId);
 
-    expect(resId).toBe('route-1234');
+    expect(resId).toBe('route-id-1234');
   });
 
   it('should call onClose when clicking on a flow ID', async () => {
@@ -117,7 +118,7 @@ describe('FlowsList.tsx', () => {
       </Provider>,
     );
 
-    const flowId = await wrapper.findByTestId('goto-btn-route-1234');
+    const flowId = await wrapper.findByTestId('goto-btn-route-id-1234');
 
     fireEvent.click(flowId);
 
@@ -138,10 +139,10 @@ describe('FlowsList.tsx', () => {
       </Provider>,
     );
 
-    fireEvent.click(wrapper.getByTestId('delete-btn-route-1234'));
+    fireEvent.click(wrapper.getByTestId('delete-btn-route-id-1234'));
 
     expect(mockDeleteModalContext.actionConfirmation).toHaveBeenCalledWith({
-      title: "Do you want to delete the 'route-1234' Route?",
+      title: "Do you want to delete the 'route-id-1234' Route?",
       text: 'All steps will be lost.',
     });
   });
@@ -156,7 +157,7 @@ describe('FlowsList.tsx', () => {
       </Provider>,
     );
 
-    const deleteBtn = wrapper.getByTestId('delete-btn-route-1234');
+    const deleteBtn = wrapper.getByTestId('delete-btn-route-id-1234');
     fireEvent.click(deleteBtn);
 
     const actionConfirmationModalBtnConfirm = wrapper.getByTestId('action-confirmation-modal-btn-confirm');
@@ -177,7 +178,7 @@ describe('FlowsList.tsx', () => {
       </Provider>,
     );
 
-    const deleteBtn = wrapper.getByTestId('delete-btn-route-1234');
+    const deleteBtn = wrapper.getByTestId('delete-btn-route-id-1234');
     fireEvent.click(deleteBtn);
 
     const actionConfirmationModalBtnCancel = wrapper.getByTestId('action-confirmation-modal-btn-cancel');
@@ -195,7 +196,7 @@ describe('FlowsList.tsx', () => {
 
     const visibleFlowsContext: VisibleFlowsContextResult = {
       allFlowsVisible: false,
-      visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: false },
+      visibleFlows: { ['route-id-1234']: true, ['routeConfiguration-1234']: false },
       visualFlowsApi,
     };
 
@@ -206,17 +207,17 @@ describe('FlowsList.tsx', () => {
       </Provider>,
     );
 
-    const toggleFlowId = await wrapper.findByTestId('toggle-btn-route-1234');
+    const toggleFlowId = await wrapper.findByTestId('toggle-btn-route-id-1234');
 
     fireEvent.click(toggleFlowId);
 
-    expect(resId).toBe('route-1234');
+    expect(resId).toBe('route-id-1234');
   });
 
   it('should render the appropriate Eye icon', async () => {
     const visibleFlowsContext: VisibleFlowsContextResult = {
       allFlowsVisible: false,
-      visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: false },
+      visibleFlows: { ['route-id-1234']: true, ['routeConfiguration-1234']: false },
       visualFlowsApi: new VisualFlowsApi(vi.fn()),
     };
 
@@ -227,7 +228,7 @@ describe('FlowsList.tsx', () => {
       </Provider>,
     );
 
-    const flow1 = await wrapper.findByTestId('toggle-btn-route-1234-visible');
+    const flow1 = await wrapper.findByTestId('toggle-btn-route-id-1234-visible');
     expect(flow1).toBeInTheDocument();
 
     /** Eye slash icon */
@@ -238,7 +239,7 @@ describe('FlowsList.tsx', () => {
   it('should call controller clear model when clicking the Eye slash icon', async () => {
     const visibleFlowsContext: VisibleFlowsContextResult = {
       allFlowsVisible: false,
-      visibleFlows: { ['route-1234']: false, ['routeConfiguration-1234']: true },
+      visibleFlows: { ['route-id-1234']: false, ['routeConfiguration-1234']: true },
       visualFlowsApi: new VisualFlowsApi(vi.fn()),
     };
 
@@ -250,7 +251,7 @@ describe('FlowsList.tsx', () => {
     );
 
     /** Eye slash icon */
-    const flow1 = await wrapper.findByTestId('toggle-btn-route-1234-hidden');
+    const flow1 = await wrapper.findByTestId('toggle-btn-route-id-1234-hidden');
     expect(flow1).toBeInTheDocument();
     fireEvent.click(flow1);
 
@@ -267,7 +268,7 @@ describe('FlowsList.tsx', () => {
 
     const visibleFlowsContext: VisibleFlowsContextResult = {
       allFlowsVisible: false,
-      visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: false },
+      visibleFlows: { ['route-id-1234']: true, ['routeConfiguration-1234']: false },
       visualFlowsApi,
     };
 
@@ -281,17 +282,17 @@ describe('FlowsList.tsx', () => {
       </Provider>,
     );
 
-    const entityOnePencilEditIcon = await wrapper.findByTestId('goto-btn-route-1234--edit');
+    const entityOnePencilEditIcon = await wrapper.findByTestId('goto-btn-route-id-1234--edit');
     fireEvent.click(entityOnePencilEditIcon);
 
-    const input = await wrapper.findByDisplayValue('route-1234');
+    const input = await wrapper.findByDisplayValue('route-id-1234');
     fireEvent.change(input, { target: { value: 'new-name' } });
     fireEvent.blur(input);
 
-    const entityOnePencilSaveIcon = await wrapper.findByTestId('goto-btn-route-1234--save');
+    const entityOnePencilSaveIcon = await wrapper.findByTestId('goto-btn-route-id-1234--save');
     fireEvent.click(entityOnePencilSaveIcon);
 
-    expect(renameSpy).toHaveBeenCalledWith('route-1234', 'new-name');
+    expect(renameSpy).toHaveBeenCalledWith('route-id-1234', 'new-name');
     expect(camelResource.getVisualEntities()[1].id).toBe('new-name');
     expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalledTimes(1);
   });
@@ -302,7 +303,7 @@ describe('FlowsList.tsx', () => {
 
     const visibleFlowsContext: VisibleFlowsContextResult = {
       allFlowsVisible: false,
-      visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: false },
+      visibleFlows: { ['route-id-1234']: true, ['routeConfiguration-1234']: false },
       visualFlowsApi,
     };
 
@@ -326,7 +327,7 @@ describe('FlowsList.tsx', () => {
 
     const visibleFlowsContext: VisibleFlowsContextResult = {
       allFlowsVisible: true,
-      visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: true },
+      visibleFlows: { ['route-id-1234']: true, ['routeConfiguration-1234']: true },
       visualFlowsApi,
     };
 
@@ -347,7 +348,7 @@ describe('FlowsList.tsx', () => {
   it('should set the appropriate title when all flows are visible', async () => {
     const visibleFlowsContext: VisibleFlowsContextResult = {
       allFlowsVisible: true,
-      visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: true },
+      visibleFlows: { ['route-id-1234']: true, ['routeConfiguration-1234']: true },
       visualFlowsApi: new VisualFlowsApi(vi.fn()),
     };
 
@@ -366,7 +367,7 @@ describe('FlowsList.tsx', () => {
   it('should set the appropriate title when some flows are visible', async () => {
     const visibleFlowsContext: VisibleFlowsContextResult = {
       allFlowsVisible: false,
-      visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: false },
+      visibleFlows: { ['route-id-1234']: true, ['routeConfiguration-1234']: false },
       visualFlowsApi: new VisualFlowsApi(vi.fn()),
     };
 
@@ -386,7 +387,7 @@ describe('FlowsList.tsx', () => {
     const visibleFlowsContext: VisibleFlowsContextResult = {
       allFlowsVisible: false,
       visibleFlows: {
-        ['route-1234']: false,
+        ['route-id-1234']: false,
         ['routeConfiguration-1234']: true,
       },
       visualFlowsApi: new VisualFlowsApi(vi.fn()),
@@ -405,12 +406,12 @@ describe('FlowsList.tsx', () => {
 
     // Simulate typing into the search input
     const searchInput = wrapper.getByRole('textbox', { name: 'search' });
-    fireEvent.change(searchInput, { target: { value: 'route-1234' } });
+    fireEvent.change(searchInput, { target: { value: 'route-id-1234' } });
 
     // Verify only the matching flow is displayed
     flows = await wrapper.findAllByTestId(/flows-list-row-*/);
     expect(flows).toHaveLength(1);
-    expect(wrapper.getByTestId('flows-list-row-route-1234')).toBeInTheDocument();
+    expect(wrapper.getByTestId('flows-list-row-route-id-1234')).toBeInTheDocument();
 
     // Clear the search input
     const clearButton = wrapper.getByRole('button', { name: 'Reset' });
@@ -449,7 +450,7 @@ describe('FlowsList.tsx', () => {
 
     // Simulate typing into the search input to filter flows
     const searchInput = wrapper.getByRole('textbox', { name: 'search' });
-    fireEvent.change(searchInput, { target: { value: 'route-1234' } });
+    fireEvent.change(searchInput, { target: { value: 'route-id-1234' } });
 
     // Click the delete filtered button
     const deleteFilteredBtn = wrapper.getByTestId('delete-filtered-btn');
@@ -478,7 +479,7 @@ describe('FlowsList.tsx', () => {
 
     // Simulate typing into the search input to filter flows
     const searchInput = wrapper.getByRole('textbox', { name: 'search' });
-    fireEvent.change(searchInput, { target: { value: 'route-1234' } });
+    fireEvent.change(searchInput, { target: { value: 'route-id-1234' } });
 
     // Click the delete filtered button
     const deleteFilteredBtn = wrapper.getByTestId('delete-filtered-btn');

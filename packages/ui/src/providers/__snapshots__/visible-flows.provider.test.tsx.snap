@@ -6,7 +6,7 @@ exports[`VisibleFlowsProvider > should initialize visible flows correctly 1`] = 
     data-testid="visible-flows"
   >
     {
-    "route-1234": true
+    "route-id-1234": true
 }
   </div>
   <div

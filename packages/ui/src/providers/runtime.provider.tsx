@@ -5,6 +5,7 @@ import { createContext, FunctionComponent, PropsWithChildren, useEffect, useMemo
 
 import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 import { Loading } from '../components/Loading';
+import { fetchStarterTemplates } from '../dynamic-catalog/support/fetch-starter-templates';
 import { fetchXsltXPathFunctions } from '../dynamic-catalog/support/fetch-xslt-xpath-functions';
 import { useKaotoResourceContext } from '../hooks/useKaotoResourceContext/useKaotoResourceContext';
 import { LoadingStatus } from '../models';
@@ -69,9 +70,14 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<IRuntimeProvid
           setSelectedCatalog(catalogLibraryEntry);
         }
 
-        return fetchXsltXPathFunctions(basePath, catalogLibrary).catch(() => {
-          /* XSLT catalog load failure is non-fatal — XPath editor falls back to hardcoded functions */
-        });
+        return Promise.all([
+          fetchXsltXPathFunctions(basePath, catalogLibrary).catch(() => {
+            /* XSLT catalog load failure is non-fatal — XPath editor falls back to hardcoded functions */
+          }),
+          fetchStarterTemplates(basePath, catalogLibrary).catch(() => {
+            /* Starter templates load failure is non-fatal — resources will initialize with empty templates */
+          }),
+        ]);
       })
       .then(() => {
         setLoadingStatus(LoadingStatus.Loaded);

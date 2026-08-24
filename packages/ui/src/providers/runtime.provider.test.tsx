@@ -20,6 +20,7 @@ import { RuntimeProvider } from './runtime.provider';
 const CONTROLLED_LIBRARY: CatalogLibrary = {
   name: 'test-library',
   version: 1,
+  starterTemplates: '',
   definitions: [
     { name: 'Main Old', runtime: 'Main', version: '1.0.0', fileName: 'main-old.json' },
     { name: 'Main New', runtime: 'Main', version: '2.0.0', fileName: 'main-new.json' },

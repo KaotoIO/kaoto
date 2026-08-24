@@ -112,6 +112,7 @@ export class CamelRouteResource implements KaotoResource, BeansAwareResource {
   ];
   private entities: BaseEntity[] = [];
   private resolvedEntities: BaseVisualEntityDefinition | undefined;
+  private cachedRouteTemplate: string = '';
 
   /**
    * Entities this resource supports. Polymorphic so subclasses (e.g. CamelXMLRouteResource)
@@ -128,6 +129,8 @@ export class CamelRouteResource implements KaotoResource, BeansAwareResource {
   ) {}
 
   async initialize(): Promise<void> {
+    this.cachedRouteTemplate = await FlowTemplateService.getFlowSourceTemplate(this.getType());
+
     if (!this.rawEntities) {
       this.entities = [];
       return;
@@ -204,7 +207,7 @@ export class CamelRouteResource implements KaotoResource, BeansAwareResource {
   }
 
   protected getRouteTemplate(): RouteDefinition {
-    const template = parse(FlowTemplateService.getFlowSourceTemplate(this.getType()));
+    const template = parse(this.cachedRouteTemplate);
     return template[0] as RouteDefinition;
   }
 

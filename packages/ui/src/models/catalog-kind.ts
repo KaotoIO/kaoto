@@ -44,4 +44,7 @@ export const enum CatalogKind {
 
   /** Citrus test validation matcher catalog, f.i. @isNumber()@, @isEmpty()@, @matches()@ */
   TestValidationMatcher = 'testValidationMatcher',
+
+  /** Starter templates catalog, f.i. camel-route-yaml, pipe-yaml, kamelet-source-yaml */
+  StarterTemplate = 'starterTemplate',
 }

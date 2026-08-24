@@ -10,6 +10,7 @@ describe('CatalogHelper', () => {
     catalogLibrary = {
       name: 'Catalog',
       version: 1,
+      starterTemplates: '',
       definitions: [
         {
           name: 'Camel Main 1.0.0',

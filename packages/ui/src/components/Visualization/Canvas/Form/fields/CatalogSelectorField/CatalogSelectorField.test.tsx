@@ -36,6 +36,7 @@ describe('CatalogSelectorField', () => {
     ] as unknown as CatalogLibraryEntry[],
     version: 0,
     name: '',
+    starterTemplates: '',
   };
 
   const mockSchema: KaotoSchemaDefinition['schema'] = {
@@ -232,6 +233,7 @@ describe('CatalogSelectorField', () => {
           definitions: [],
           version: 0,
           name: '',
+          starterTemplates: '',
         };
 
         renderWithProviders(
@@ -261,6 +263,7 @@ describe('CatalogSelectorField', () => {
           ],
           version: 0,
           name: '',
+          starterTemplates: '',
         };
 
         renderWithProviders(
@@ -418,6 +421,7 @@ describe('CatalogSelectorField', () => {
           definitions: [],
           version: 0,
           name: '',
+          starterTemplates: '',
         };
 
         renderWithProviders(
@@ -446,6 +450,7 @@ describe('CatalogSelectorField', () => {
           ],
           version: 0,
           name: '',
+          starterTemplates: '',
         };
 
         renderWithProviders(
@@ -489,6 +494,7 @@ describe('CatalogSelectorField', () => {
         ] as unknown as CatalogLibraryEntry[],
         version: 0,
         name: '',
+        starterTemplates: '',
       };
 
       renderWithProviders(

@@ -3,7 +3,26 @@
 exports[`CamelResourceFactory.createCamelResource > should create an empty KameletResource if no args is specified 1`] = `
 [
   {
-    "from": {},
+    "from": {
+      "parameters": {
+        "period": "{{period}}",
+      },
+      "steps": [
+        {
+          "setBody": {
+            "expression": {
+              "constant": {
+                "expression": "{{message}}",
+              },
+            },
+          },
+        },
+        {
+          "to": "kamelet:sink",
+        },
+      ],
+      "uri": "timer:tick",
+    },
   },
 ]
 `;

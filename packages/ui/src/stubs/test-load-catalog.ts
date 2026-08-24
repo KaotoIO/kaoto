@@ -1,4 +1,13 @@
-import { CatalogLibrary, CatalogLibraryEntry, KaotoFunction, KaotoFunctionArgument } from '@kaoto/camel-catalog/types';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import {
+  CatalogDefinition,
+  CatalogLibrary,
+  CatalogLibraryEntry,
+  KaotoFunction,
+  KaotoFunctionArgument,
+} from '@kaoto/camel-catalog/types';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 
 import { DynamicCatalog } from '../dynamic-catalog/dynamic-catalog';
 import { DynamicCatalogRegistry } from '../dynamic-catalog/dynamic-catalog-registry';
@@ -16,6 +25,7 @@ import {
   CitrusTestContainersProvider,
   CitrusTestEndpointsProvider,
 } from '../dynamic-catalog/providers/citrus-components.provider';
+import { StarterTemplatesProvider } from '../dynamic-catalog/providers/starter-templates.provider';
 import {
   CamelCatalogIndex,
   CitrusCatalogIndex,
@@ -115,6 +125,19 @@ export const testLoadCatalog = async (catalogLibraryEntry: CatalogLibraryEntry) 
     delete functionsCatalogMapImport.default;
   }
 
+  // Load starter templates from the catalog package using the index path from catalogLibrary
+  const starterTemplatesIndexPath = resolve(
+    __dirname,
+    '../../../../node_modules/@kaoto/camel-catalog/dist/camel-catalog',
+    catalogLibrary.starterTemplates,
+  );
+  const starterTemplatesIndex = JSON.parse(readFileSync(starterTemplatesIndexPath, 'utf-8')) as CatalogDefinition;
+  const starterTemplatesDir = starterTemplatesIndexPath.substring(0, starterTemplatesIndexPath.lastIndexOf('/'));
+  const starterTemplates: Record<string, string> = {};
+  for (const [name, entry] of Object.entries(starterTemplatesIndex.catalogs)) {
+    starterTemplates[name] = readFileSync(resolve(starterTemplatesDir, entry.file), 'utf-8');
+  }
+
   return {
     catalogDefinition,
     catalogPath,
@@ -128,6 +151,7 @@ export const testLoadCatalog = async (catalogLibraryEntry: CatalogLibraryEntry) 
     loadbalancerCatalog,
     entitiesCatalog,
     functionsCatalogMap,
+    starterTemplates,
   };
 };
 
@@ -226,6 +250,10 @@ export const setupDynamicCatalogRegistry = (catalogsMap: Awaited<ReturnType<type
   DynamicCatalogRegistry.get().setCatalog(
     CatalogKind.Function,
     new DynamicCatalog(new CamelFunctionProvider(catalogsMap.functionsCatalogMap)),
+  );
+  DynamicCatalogRegistry.get().setCatalog(
+    CatalogKind.StarterTemplate,
+    new DynamicCatalog(new StarterTemplatesProvider(catalogsMap.starterTemplates)),
   );
 };
 

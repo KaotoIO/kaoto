@@ -12,13 +12,14 @@ import { FlowsMenu } from './FlowsMenu';
 describe('FlowsMenu.tsx', () => {
   let camelResource: KaotoResource;
   beforeEach(async () => {
-    camelResource = new CamelRouteResource();
-    camelResource.addNewEntity(EntityType.Route);
-    camelResource.addNewEntity(EntityType.RouteConfiguration);
+    const baseResource = new CamelRouteResource();
+    await baseResource.initialize();
+    baseResource.addNewEntity(EntityType.Route);
+    baseResource.addNewEntity(EntityType.RouteConfiguration);
     // Materialize the new entities into source so the wrapper's re-initialize()
     // (which rebuilds entities from source) preserves them — mirrors how runtime
     // recreates the resource from serialized code on `code:updated`.
-    camelResource = new CamelRouteResource(parse(await camelResource.toSourceCode()) as CamelYamlDsl);
+    camelResource = new CamelRouteResource(parse(await baseResource.toSourceCode()) as CamelYamlDsl);
   });
 
   it('should open the flows list when clicking the dropdown', async () => {
@@ -83,15 +84,14 @@ describe('FlowsMenu.tsx', () => {
   });
 
   it('should render the route id when a single route is visible', async () => {
-    let singleFlowCamelResource = new CamelRouteResource();
-    singleFlowCamelResource.addNewEntity(EntityType.Route);
-    singleFlowCamelResource = new CamelRouteResource(
-      parse(await singleFlowCamelResource.toSourceCode()) as CamelYamlDsl,
-    );
+    const singleFlowBase = new CamelRouteResource();
+    await singleFlowBase.initialize();
+    singleFlowBase.addNewEntity(EntityType.Route);
+    const singleFlowCamelResource = new CamelRouteResource(parse(await singleFlowBase.toSourceCode()) as CamelYamlDsl);
 
     const { Provider } = await TestProvidersWrapper({
       camelResource: singleFlowCamelResource,
-      visibleFlowsContext: { visibleFlows: { ['route-1234']: true } } as unknown as VisibleFlowsContextResult,
+      visibleFlowsContext: { visibleFlows: { ['route-id-1234']: true } } as unknown as VisibleFlowsContextResult,
     });
     const wrapper = render(
       <Provider>
@@ -101,7 +101,7 @@ describe('FlowsMenu.tsx', () => {
 
     const routeId = await wrapper.findByTestId('flows-list-route-id');
 
-    expect(routeId).toHaveTextContent('route-1234');
+    expect(routeId).toHaveTextContent('route-id-1234');
   });
 
   it('should NOT render the route id but "Routes" when there is no flow visible', async () => {

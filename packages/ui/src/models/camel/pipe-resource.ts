@@ -15,6 +15,7 @@ export class PipeResource extends CamelKResource {
   protected pipe: PipeType;
   private flow?: PipeVisualEntity;
   private errorHandler?: PipeErrorHandlerEntity;
+  private cachedTemplate: string = '';
 
   constructor(pipe?: PipeType) {
     super(pipe);
@@ -30,8 +31,8 @@ export class PipeResource extends CamelKResource {
   }
 
   async initialize(): Promise<void> {
+    this.cachedTemplate = await FlowTemplateService.getFlowSourceTemplate(this.getType());
     await super.initialize();
-
     this.flow = new PipeVisualEntity(this.pipe);
     this.errorHandler =
       this.pipe.spec?.errorHandler && new PipeErrorHandlerEntity(this.pipe.spec as PipeSpecErrorHandler);
@@ -39,7 +40,7 @@ export class PipeResource extends CamelKResource {
 
   removeEntity(): void {
     super.removeEntity();
-    const flowTemplate: PipeType = parse(FlowTemplateService.getFlowSourceTemplate(this.getType()));
+    const flowTemplate: PipeType = parse(this.cachedTemplate);
     this.pipe = flowTemplate;
     this.flow = new PipeVisualEntity(flowTemplate);
   }

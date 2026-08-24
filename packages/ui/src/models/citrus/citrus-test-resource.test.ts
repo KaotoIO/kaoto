@@ -3,7 +3,9 @@ import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { parse } from 'yaml';
 
 import { ITile } from '../../components/Catalog';
+import { DynamicCatalog } from '../../dynamic-catalog/dynamic-catalog';
 import { DynamicCatalogRegistry } from '../../dynamic-catalog/dynamic-catalog-registry';
+import { StarterTemplatesProvider } from '../../dynamic-catalog/providers/starter-templates.provider';
 import { citrusTestJson } from '../../stubs/citrus-test';
 import { getFirstCitrusCatalogMap, setupCitrusDynamicCatalogRegistry } from '../../stubs/test-load-catalog';
 import { SourceSchemaType } from '../camel';
@@ -35,6 +37,29 @@ describe('CitrusTestResource', () => {
     expect(vis.test.name).toBeDefined();
   });
 
+  const CITRUS_TEMPLATE = 'name: test-__KAOTO_ID__\nactions:\n  - echo:\n      message: Hello';
+
+  describe('new-file initialization', () => {
+    beforeEach(() => {
+      DynamicCatalogRegistry.get().setCatalog(
+        CatalogKind.StarterTemplate,
+        new DynamicCatalog(new StarterTemplatesProvider({ 'citrus-yaml': CITRUS_TEMPLATE })),
+      );
+    });
+
+    afterEach(() => {
+      DynamicCatalogRegistry.get().clearRegistry();
+    });
+
+    it('addNewEntity creates a test entity using the catalog template', async () => {
+      const resource = new CitrusTestResource();
+      await resource.initialize();
+      resource.addNewEntity();
+      expect(resource.getVisualEntities()).toHaveLength(1);
+      expect(JSON.stringify(resource.toJSON())).not.toContain('__KAOTO_ID__');
+    });
+  });
+
   describe('addNewEntity', () => {
     it('should add new entity and return its ID', async () => {
       const resource = new CitrusTestResource();
@@ -59,10 +84,8 @@ describe('CitrusTestResource', () => {
       const resource = new CitrusTestResource();
       await resource.initialize();
       resource.addNewEntity();
-      const id = resource.addNewEntity(
-        EntityType.Test,
-        parse(FlowTemplateService.getFlowSourceTemplate(SourceSchemaType.Test))[0],
-      );
+      const templateStr = await FlowTemplateService.getFlowSourceTemplate(SourceSchemaType.Test);
+      const id = resource.addNewEntity(EntityType.Test, parse(templateStr));
 
       expect(resource.getVisualEntities()).toHaveLength(2);
       expect(resource.getVisualEntities()[1].id).toEqual(id);

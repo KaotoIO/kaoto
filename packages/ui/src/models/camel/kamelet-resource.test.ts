@@ -1,16 +1,46 @@
 import { cloneDeep } from 'lodash';
 
+import { DynamicCatalog } from '../../dynamic-catalog/dynamic-catalog';
+import { DynamicCatalogRegistry } from '../../dynamic-catalog/dynamic-catalog-registry';
+import { StarterTemplatesProvider } from '../../dynamic-catalog/providers/starter-templates.provider';
 import { mockRandomValues } from '../../stubs';
 import { kameletJson } from '../../stubs/kamelet-route';
+import { CatalogKind } from '../catalog-kind';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
 import { CamelKResourceFactory } from './camel-k-resource-factory';
 import { KameletResource } from './kamelet-resource';
 import { SourceSchemaType } from './source-schema-type';
 
+const KAMELET_TEMPLATE = `apiVersion: camel.apache.org/v1
+kind: Kamelet
+metadata:
+  name: kamelet-source-__KAOTO_ID__
+  labels:
+    camel.apache.org/kamelet.type: source
+spec:
+  definition:
+    title: My Source Kamelet
+    description: Produces periodic messages
+  template:
+    from:
+      uri: timer:tick
+      steps: []`;
+
 describe('KameletResource', () => {
   beforeAll(() => {
     mockRandomValues();
+  });
+
+  beforeEach(() => {
+    DynamicCatalogRegistry.get().setCatalog(
+      CatalogKind.StarterTemplate,
+      new DynamicCatalog(new StarterTemplatesProvider({ 'kamelet-source-yaml': KAMELET_TEMPLATE })),
+    );
+  });
+
+  afterEach(() => {
+    DynamicCatalogRegistry.get().clearRegistry();
   });
 
   it('should create a new KameletResource', async () => {
@@ -164,5 +194,20 @@ describe('KameletResource', () => {
     kameletResource.deleteRouteTemplateBeansEntity();
     expect(model.spec.template.beans).toBeUndefined();
     expect(kameletResource.getRouteTemplateBeansEntity()).toBeUndefined();
+  });
+
+  describe('new-file initialization', () => {
+    it('initializes with a visual entity when no source is given', async () => {
+      const resource = new KameletResource();
+      await resource.initialize();
+      expect(resource.getVisualEntities()).toHaveLength(1);
+    });
+
+    it('resource name does not contain __KAOTO_ID__ after initialization', async () => {
+      const resource = new KameletResource();
+      await resource.initialize();
+      const json = resource.toJSON();
+      expect(JSON.stringify(json)).not.toContain('__KAOTO_ID__');
+    });
   });
 });

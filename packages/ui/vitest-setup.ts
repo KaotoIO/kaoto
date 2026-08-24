@@ -2,15 +2,46 @@ import '@testing-library/jest-dom/vitest';
 // Setup vitest-canvas-mock
 import 'vitest-canvas-mock';
 
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { getRandomValues, subtle } from 'node:crypto';
 import { TextDecoder, TextEncoder } from 'node:util';
 
-import { beforeEach, vi } from 'vitest';
+import { beforeAll, beforeEach, vi } from 'vitest';
 import createFetchMock from 'vitest-fetch-mock';
+
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogDefinition } from '@kaoto/camel-catalog/types';
+import { DynamicCatalog } from './src/dynamic-catalog/dynamic-catalog';
+import { DynamicCatalogRegistry } from './src/dynamic-catalog/dynamic-catalog-registry';
+import { StarterTemplatesProvider } from './src/dynamic-catalog/providers/starter-templates.provider';
+import { CatalogKind } from './src/models/catalog-kind';
 
 Object.defineProperties(globalThis, {
   TextDecoder: { value: TextDecoder },
   TextEncoder: { value: TextEncoder },
+});
+
+// Populate the StarterTemplatesRegistry once for all tests.
+// Resources like CamelRouteResource, KameletResource etc. call
+// FlowTemplateService.getFlowSourceTemplate() in initialize(), and addNewEntity()
+// reads from cachedRouteTemplate. Without this setup, cachedRouteTemplate is '',
+// parse('') returns null, and template[0] crashes.
+beforeAll(() => {
+  const catalogDir = resolve(__dirname, '../../node_modules/@kaoto/camel-catalog/dist/camel-catalog');
+  const indexPath = resolve(catalogDir, catalogLibrary.starterTemplates);
+  const index = JSON.parse(readFileSync(indexPath, 'utf-8')) as CatalogDefinition;
+  const indexDir = indexPath.substring(0, indexPath.lastIndexOf('/'));
+
+  const templates: Record<string, string> = {};
+  for (const [name, entry] of Object.entries(index.catalogs)) {
+    templates[name] = readFileSync(resolve(indexDir, entry.file), 'utf-8');
+  }
+
+  DynamicCatalogRegistry.get().setCatalog(
+    CatalogKind.StarterTemplate,
+    new DynamicCatalog(new StarterTemplatesProvider(templates)),
+  );
 });
 
 // Mock ResizeObserver for components that use it

@@ -1,7 +1,11 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
+import { DynamicCatalog } from '../../dynamic-catalog/dynamic-catalog';
+import { DynamicCatalogRegistry } from '../../dynamic-catalog/dynamic-catalog-registry';
+import { StarterTemplatesProvider } from '../../dynamic-catalog/providers/starter-templates.provider';
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../stubs/test-load-catalog';
+import { CatalogKind } from '../catalog-kind';
 import { EntityType } from '../entities';
 import { CamelCatalogService } from '../visualization/flows';
 import { CamelXMLRouteResource } from './camel-xml-route-resource';
@@ -114,6 +118,15 @@ describe('CamelXMLRouteResource', () => {
   it('adds a default route without parsing the XML template as YAML', async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     setupDynamicCatalogRegistry(catalogsMap);
+    DynamicCatalogRegistry.get().setCatalog(
+      CatalogKind.StarterTemplate,
+      new DynamicCatalog(
+        new StarterTemplatesProvider({
+          'camel-route-xml':
+            '<routes xmlns="http://camel.apache.org/schema/spring"><route id="route-__KAOTO_ID__"><from uri="timer:xml?period=1000"/><log message="${body}"/></route></routes>',
+        }),
+      ),
+    );
     const resource = new CamelXMLRouteResource(xml);
     await resource.initialize();
 
@@ -133,5 +146,27 @@ describe('CamelXMLRouteResource', () => {
     await resource.initialize();
     const output = await resource.toSourceCode();
     expect(typeof output).toBe('string');
+  });
+  describe('new-file initialization', () => {
+    const XML_TEMPLATE =
+      '<routes xmlns="http://camel.apache.org/schema/spring"><route id="route-__KAOTO_ID__"><from uri="timer:xml?period=1000"/><log message="${body}"/></route></routes>';
+
+    beforeEach(() => {
+      DynamicCatalogRegistry.get().setCatalog(
+        CatalogKind.StarterTemplate,
+        new DynamicCatalog(new StarterTemplatesProvider({ 'camel-route-xml': XML_TEMPLATE })),
+      );
+    });
+
+    afterEach(() => {
+      DynamicCatalogRegistry.get().clearRegistry();
+    });
+
+    it('initializes with one route entity when no source is given and adds a new entity', async () => {
+      const resource = new CamelXMLRouteResource();
+      await resource.initialize();
+      resource.addNewEntity();
+      expect(resource.getVisualEntities()).toHaveLength(1);
+    });
   });
 });

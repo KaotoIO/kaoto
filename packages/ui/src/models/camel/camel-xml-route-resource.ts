@@ -77,7 +77,7 @@ export class CamelXMLRouteResource extends CamelRouteResource {
     const parser = new KaotoXmlParser();
     const rawEntities = (await parser.parseXML(this.code)) as unknown as CamelYamlDsl;
     this.setRawEntities(rawEntities);
-    const xmlTemplate = FlowTemplateService.getFlowSourceTemplate(this.getType());
+    const xmlTemplate = await FlowTemplateService.getFlowSourceTemplate(this.getType());
     const parsedTemplate = (await parser.parseXML(xmlTemplate)) as Array<{ route: RouteDefinition }>;
     this.parsedRouteTemplate = parsedTemplate[0] as unknown as RouteDefinition;
     await super.initialize();

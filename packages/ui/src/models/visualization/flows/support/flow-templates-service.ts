@@ -1,30 +1,24 @@
+import { getCamelRandomId } from '../../../../camel-utils/camel-random-id';
+import { DynamicCatalogRegistry } from '../../../../dynamic-catalog/dynamic-catalog-registry';
 import { SourceSchemaType } from '../../../camel/source-schema-type';
-import { testTemplate } from '../templates/citrus';
-import { kameletTemplate } from '../templates/kamelet';
-import { pipeTemplate } from '../templates/pipe';
-import { routeTemplate } from '../templates/route';
-import { routeXmlTemplate } from '../templates/route-xml';
+import { CatalogKind } from '../../../catalog-kind';
+
+const TEMPLATE_ID_MAP: Partial<Record<SourceSchemaType, string>> = {
+  [SourceSchemaType.RouteYaml]: 'camel-route-yaml',
+  [SourceSchemaType.RouteXml]: 'camel-route-xml',
+  [SourceSchemaType.Pipe]: 'pipe-yaml',
+  [SourceSchemaType.Kamelet]: 'kamelet-source-yaml',
+  [SourceSchemaType.Test]: 'citrus-yaml',
+};
 
 export class FlowTemplateService {
-  static readonly getFlowSourceTemplate = (type: SourceSchemaType): string => {
-    switch (type) {
-      case SourceSchemaType.Pipe:
-        return pipeTemplate();
+  static async getFlowSourceTemplate(type: SourceSchemaType): Promise<string> {
+    const templateId = TEMPLATE_ID_MAP[type];
+    if (!templateId) return '';
 
-      case SourceSchemaType.RouteYaml:
-        return routeTemplate();
+    const raw = await DynamicCatalogRegistry.get().getEntity(CatalogKind.StarterTemplate, templateId);
+    if (!raw) return '';
 
-      case SourceSchemaType.RouteXml:
-        return routeXmlTemplate();
-
-      case SourceSchemaType.Test:
-        return testTemplate();
-
-      case SourceSchemaType.Kamelet:
-        return kameletTemplate();
-
-      default:
-        return '';
-    }
-  };
+    return raw.replace(/__KAOTO_ID__/g, () => getCamelRandomId('id'));
+  }
 }

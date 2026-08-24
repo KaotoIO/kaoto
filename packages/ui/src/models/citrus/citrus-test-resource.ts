@@ -44,6 +44,7 @@ export class CitrusTestResource implements KaotoResource {
   private entities: BaseEntity[] = [];
   private resolvedEntities: BaseVisualEntityDefinition | undefined;
   private endpointsSchema: KaotoSchemaDefinition['schema'] | undefined;
+  private cachedTemplate: string = '';
 
   get supportedEntities() {
     return CitrusTestResource.SUPPORTED_ENTITIES;
@@ -61,6 +62,8 @@ export class CitrusTestResource implements KaotoResource {
   constructor(private readonly rawEntities?: Test | Test[]) {}
 
   async initialize(): Promise<void> {
+    this.cachedTemplate = await FlowTemplateService.getFlowSourceTemplate(this.getType());
+
     if (!this.rawEntities) {
       this.entities = [];
       return;
@@ -137,8 +140,7 @@ export class CitrusTestResource implements KaotoResource {
     if (entityTemplate) {
       test = entityTemplate as Test;
     } else {
-      const template = parse(FlowTemplateService.getFlowSourceTemplate(this.getType()));
-      test = template[0] as Test;
+      test = parse(this.cachedTemplate) as Test;
     }
     const entity = new CitrusTestVisualEntity(test);
     this.entities.push(entity);

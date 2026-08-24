@@ -95,12 +95,14 @@ describe('EntitiesProvider', () => {
   });
 
   describe('Initialization', () => {
-    it('should use the source code to initialize the Camel Resource', () => {
+    it('should use the source code to initialize the Camel Resource', async () => {
       const { result } = renderHook(() => useContext(EntitiesContext), {
         wrapper: buildWrapper(camelRouteYaml),
       });
 
-      expect(result.current?.camelResource.toJSON()).toEqual(parse(camelRouteYaml));
+      await waitFor(() => {
+        expect(result.current?.camelResource.toJSON()).toEqual(parse(camelRouteYaml));
+      });
     });
 
     it('should create an empty Camel Resource if there is no Source Code available', () => {
@@ -111,14 +113,16 @@ describe('EntitiesProvider', () => {
       expect(result.current?.camelResource.toJSON()).toEqual([]);
     });
 
-    it('should ignore non-camel entities', () => {
+    it('should ignore non-camel entities', async () => {
       useSourceCodeStore.getState().setSourceCode('A non camel source code');
 
       const { result } = renderHook(() => useContext(EntitiesContext), {
         wrapper: buildWrapper('A non camel source code'),
       });
 
-      expect(result.current?.camelResource.toJSON()).toEqual(['A non camel source code']);
+      await waitFor(() => {
+        expect(result.current?.camelResource.toJSON()).toEqual(['A non camel source code']);
+      });
     });
 
     it('should keep resource undefined when there is a wrong Source Code at mount', () => {
@@ -180,7 +184,13 @@ describe('EntitiesProvider', () => {
     const notifierSpy = vi.spyOn(eventNotifier, 'next');
     const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: buildWrapper() });
 
+    // Wait for EntitiesProvider's async initialize() to complete before calling addNewEntity()
+    await waitFor(() => {
+      expect(result.current).not.toBeNull();
+    });
+
     await act(async () => {
+      await result.current!.camelResource.initialize();
       result.current?.camelResource.addNewEntity();
       result.current?.updateSourceCodeFromEntities();
     });
@@ -188,17 +198,18 @@ describe('EntitiesProvider', () => {
     expect(notifierSpy).toHaveBeenCalledWith(
       'entities:updated',
       `- route:
-    id: route-1234
+    id: route-id-1234
     from:
-      id: from-1234
-      uri: timer
+      uri: timer:yaml
       parameters:
         period: "1000"
-        timerName: template
-      steps:
-        - log:
-            id: log-1234
-            message: \${body}
+    steps:
+      - setBody:
+          expression:
+            simple:
+              expression: Hello Camel from \${routeId}
+      - log:
+          message: \${body}
 `,
     );
   });
@@ -223,10 +234,16 @@ describe('EntitiesProvider', () => {
     expect(secondCamelResource).toBeDefined();
   });
 
-  it('should refresh entities', () => {
+  it('should refresh entities', async () => {
     const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: buildWrapper() });
 
-    act(() => {
+    // Wait for EntitiesProvider's async initialize() to complete
+    await waitFor(() => {
+      expect(result.current).not.toBeNull();
+    });
+
+    await act(async () => {
+      await result.current!.camelResource.initialize();
       result.current?.camelResource.addNewEntity();
       result.current?.camelResource.addNewEntity();
       result.current?.updateEntitiesFromCamelResource();

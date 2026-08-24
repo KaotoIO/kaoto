@@ -37,7 +37,8 @@ export type ComponentsCatalogTypes =
   | ICamelLoadBalancerDefinition
   | IKameletDefinition
   | ICitrusComponentDefinition
-  | Record<string, KaotoFunction<KaotoFunctionArgument>>;
+  | Record<string, KaotoFunction<KaotoFunctionArgument>>
+  | string;
 export type DefinedComponent = {
   name: string;
   type: CatalogKind;
@@ -61,4 +62,5 @@ export interface ComponentsCatalog {
   [CatalogKind.TestFunction]?: Record<string, ICitrusComponentDefinition>;
   [CatalogKind.TestValidationMatcher]?: Record<string, ICitrusComponentDefinition>;
   [CatalogKind.Function]?: Record<string, Record<string, KaotoFunction<KaotoFunctionArgument>>>;
+  [CatalogKind.StarterTemplate]?: Record<string, string>;
 }
