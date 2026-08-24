@@ -87,7 +87,8 @@ export const doTryCamelRouteJson = {
   route: {
     id: 'route-1137',
     from: {
-      uri: 'direct:start',
+      uri: 'direct',
+      parameters: { name: 'start' },
       steps: [
         {
           doTry: {
@@ -99,7 +100,8 @@ export const doTryCamelRouteJson = {
               },
               {
                 to: {
-                  uri: 'mock:result',
+                  uri: 'mock',
+                  parameters: { name: 'result' },
                 },
               },
             ],
@@ -109,7 +111,8 @@ export const doTryCamelRouteJson = {
                 steps: [
                   {
                     to: {
-                      uri: 'mock:catch',
+                      uri: 'mock',
+                      parameters: { name: 'catch' },
                     },
                   },
                 ],
@@ -125,7 +128,8 @@ export const doTryCamelRouteJson = {
                 steps: [
                   {
                     to: {
-                      uri: 'mock:catchCamel',
+                      uri: 'mock',
+                      parameters: { name: 'catchCamel' },
                     },
                   },
                 ],
@@ -136,7 +140,8 @@ export const doTryCamelRouteJson = {
               steps: [
                 {
                   to: {
-                    uri: 'mock:finally',
+                    uri: 'mock',
+                    parameters: { name: 'finally' },
                   },
                 },
               ],

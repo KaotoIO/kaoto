@@ -21,7 +21,7 @@ import {
 } from '@kaoto/camel-catalog/types';
 
 export const aggregateEntity = {
-  steps: [{ to: { uri: 'mock:result' } }],
+  steps: [{ to: { uri: 'mock', parameters: { name: 'result' } } }],
   aggregationStrategy: 'myAppender',
   aggregationStrategyMethodAllowNull: 'true',
   aggregationStrategyMethodName: 'append',
@@ -39,38 +39,50 @@ export const aggregateEntity = {
 };
 
 export const circuitBreakerEntity: CircuitBreaker = {
-  steps: [{ to: { uri: 'http://fooservice.com/slow' } }],
+  steps: [{ to: { uri: 'http', parameters: { httpUri: 'fooservice.com/slow' } } }],
   onFallback: { steps: [{ transform: { constant: { expression: 'Fallback message' } } }] },
 };
 
 export const filterEntity: Filter1 = {
   xpath: { expression: "/person[@name='James']" },
-  steps: [{ to: { uri: 'mock:result' } }],
+  steps: [{ to: { uri: 'mock', parameters: { name: 'result' } } }],
 };
 
 export const loadBalanceEntity: LoadBalance = {
-  steps: [{ to: { uri: 'seda:x' } }, { to: { uri: 'seda:y' } }, { to: { uri: 'seda:z' } }],
+  steps: [
+    { to: { uri: 'seda', parameters: { name: 'x' } } },
+    { to: { uri: 'seda', parameters: { name: 'y' } } },
+    { to: { uri: 'seda', parameters: { name: 'z' } } },
+  ],
   roundRobinLoadBalancer: {},
 };
 
 export const loopEntity: Loop = {
-  steps: [{ to: { uri: 'mock:result' } }],
+  steps: [{ to: { uri: 'mock', parameters: { name: 'result' } } }],
   header: { expression: 'loop' },
 };
 
 export const multicastEntity = {
-  steps: [{ to: { uri: 'direct:b' } }, { to: { uri: 'direct:c' } }, { to: { uri: 'direct:d' } }],
+  steps: [
+    { to: { uri: 'direct', parameters: { name: 'b' } } },
+    { to: { uri: 'direct', parameters: { name: 'c' } } },
+    { to: { uri: 'direct', parameters: { name: 'd' } } },
+  ],
   parallelProcessing: 'true',
   timeout: '5000',
   aggregationStrategy: '#class:com.foo.MyAggregationStrategy',
 };
 
 export const pipelineEntity: Pipeline = {
-  steps: [{ to: { uri: 'bean:foo' } }, { to: { uri: 'bean:bar' } }, { to: { uri: 'activemq:wine' } }],
+  steps: [
+    { to: { uri: 'bean', parameters: { beanName: 'foo' } } },
+    { to: { uri: 'bean', parameters: { beanName: 'bar' } } },
+    { to: { uri: 'activemq', parameters: { destinationType: 'queue', destinationName: 'wine' } } },
+  ],
 };
 
 export const resequenceEntity: Resequence = {
-  steps: [{ to: { uri: 'mock:result' } }],
+  steps: [{ to: { uri: 'mock', parameters: { name: 'result' } } }],
   simple: { expression: 'body' },
   batchConfig: {
     batchSize: '300',
@@ -91,24 +103,28 @@ export const sagaEntity: Saga = {
 export const splitEntity: Split = {
   parallelProcessing: 'true',
   simple: { expression: 'body' },
-  steps: [{ to: { uri: 'direct:b' } }, { to: { uri: 'direct:c' } }, { to: { uri: 'direct:d' } }],
+  steps: [
+    { to: { uri: 'direct', parameters: { name: 'b' } } },
+    { to: { uri: 'direct', parameters: { name: 'c' } } },
+    { to: { uri: 'direct', parameters: { name: 'd' } } },
+  ],
 };
 
 export const choiceEntity: Choice = {
-  when: [{ xpath: { expression: '/ns1:foo/' }, steps: [{ to: { uri: 'mock:bar' } }] }],
-  otherwise: { steps: [{ to: { uri: 'mock:other' } }] },
+  when: [{ xpath: { expression: '/ns1:foo/' }, steps: [{ to: { uri: 'mock', parameters: { name: 'bar' } } }] }],
+  otherwise: { steps: [{ to: { uri: 'mock', parameters: { name: 'other' } } }] },
 };
 
 export const doTryEntity: DoTry = {
-  steps: [{ to: { uri: 'mock:try' } }],
+  steps: [{ to: { uri: 'mock', parameters: { name: 'try' } } }],
   doCatch: [
     {
       exception: ['java.lang.Exception'],
-      steps: [{ to: { uri: 'mock:catch' } }],
+      steps: [{ to: { uri: 'mock', parameters: { name: 'catch' } } }],
     },
   ],
   doFinally: {
-    steps: [{ to: { uri: 'mock:finally' } }],
+    steps: [{ to: { uri: 'mock', parameters: { name: 'finally' } } }],
   },
 };
 

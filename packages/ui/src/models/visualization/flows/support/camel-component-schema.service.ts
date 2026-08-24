@@ -1,7 +1,7 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { cloneDeep } from 'lodash';
 
-import { CamelUriHelper, DATAMAPPER_ID_PREFIX, ParsedParameters } from '../../../../utils';
+import { CamelUriHelper, DATAMAPPER_ID_PREFIX } from '../../../../utils';
 import { CatalogKind } from '../../../catalog-kind';
 import { REST_DSL_VERBS } from '../../../special-processors.constants';
 import { IVisualizationNodeIds } from '../../base-visual-entity';
@@ -212,24 +212,6 @@ export class CamelComponentSchemaService {
     const processorDefinition = CamelCatalogService.getComponent(CatalogKind.Processor, processorName);
 
     return Object.keys(processorDefinition?.properties ?? {}).includes('disabled');
-  }
-
-  static getComponentDefinitionFromUri(uri: string): { uri: string; parameters?: ParsedParameters } {
-    const componentName = CamelComponentSchemaService.getComponentNameFromUri(uri);
-    if (!componentName) return { uri: uri };
-
-    const component = CamelCatalogService.getComponent(CatalogKind.Component, componentName);
-    if (!component) {
-      return { uri: uri };
-    }
-
-    const [path, query] = uri.split('?');
-    const pathParams = CamelUriHelper.getParametersFromPathString(component?.component.syntax, path, {
-      requiredParameters: component?.propertiesSchema.required as [],
-    });
-
-    const queryParams = CamelUriHelper.getParametersFromQueryString(query);
-    return { uri: componentName, parameters: { ...pathParams, ...queryParams } };
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

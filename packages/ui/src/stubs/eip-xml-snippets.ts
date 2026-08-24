@@ -66,7 +66,7 @@ export const pipelineXml = `
 <pipeline>
   <to uri="bean:foo"/>
   <to uri="bean:bar"/>
-  <to uri="activemq:wine"/>
+  <to uri="activemq:queue:wine"/>
 </pipeline>
 `;
 

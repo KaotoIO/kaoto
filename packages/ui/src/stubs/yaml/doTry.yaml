@@ -1,14 +1,18 @@
 - route:
     id: 'route-1137'
     from:
-      uri: 'direct:start'
+      uri: 'direct'
+      parameters:
+        name: 'start'
       steps:
         - doTry:
             steps:
               - process:
                   ref: 'processorFail'
               - to:
-                  uri: 'mock:result'
+                  uri: 'mock'
+                  parameters:
+                    name: 'result'
             doCatch:
               - id: 'first'
                 exception:
@@ -19,14 +23,20 @@
                     expression: "${exception.message} contains 'Damn'"
                 steps:
                   - to:
-                      uri: 'mock:catch'
+                      uri: 'mock'
+                      parameters:
+                        name: 'catch'
               - id: 'second'
                 exception:
                   - 'org.apache.camel.CamelExchangeException'
                 steps:
                   - to:
-                      uri: 'mock:catchCamel'
+                      uri: 'mock'
+                      parameters:
+                        name: 'catchCamel'
             doFinally:
               steps:
                 - to:
-                    uri: 'mock:finally'
+                    uri: 'mock'
+                    parameters:
+                      name: 'finally'
