@@ -46,7 +46,7 @@ describe('RouteXmlParser', () => {
       intercept: {
         id: 'intercept1',
         onWhen: { simple: { expression: "${in.body} contains 'Hello'" } },
-        steps: [{ to: { uri: 'mock:intercepted' } }],
+        steps: [{ to: { uri: 'mock', parameters: { name: 'intercepted' } } }],
       },
     });
   });
@@ -60,7 +60,7 @@ describe('RouteXmlParser', () => {
       interceptFrom: {
         id: 'interceptFrom1',
         uri: 'jms*',
-        steps: [{ to: { uri: 'log:incoming' } }],
+        steps: [{ to: { uri: 'log', parameters: { loggerName: 'incoming' } } }],
       },
     });
   });
@@ -83,7 +83,8 @@ describe('RouteXmlParser', () => {
         steps: [
           {
             to: {
-              uri: 'bean:beforeKafka',
+              uri: 'bean',
+              parameters: { beanName: 'beforeKafka' },
             },
           },
         ],
@@ -130,13 +131,14 @@ describe('RouteXmlParser', () => {
                           { key: 'ns3', value: 'n3' },
                         ],
                       },
-                      steps: [{ to: { uri: 'mock:bar' } }],
+                      steps: [{ to: { uri: 'mock', parameters: { name: 'bar' } } }],
                     },
                   ],
                 },
               },
             ],
-            uri: 'direct:one',
+            uri: 'direct',
+            parameters: { name: 'one' },
           },
         },
       },

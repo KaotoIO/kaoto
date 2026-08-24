@@ -55,7 +55,7 @@ export const restWithVerbsStup = {
           ],
         },
       ],
-      to: { uri: 'direct:hello' },
+      to: { uri: 'direct', parameters: { name: 'hello' } },
     },
     {
       path: '/bye',
@@ -63,7 +63,7 @@ export const restWithVerbsStup = {
       param: undefined,
       responseMessage: undefined,
       security: undefined,
-      to: { uri: 'direct:bye' },
+      to: { uri: 'direct', parameters: { name: 'bye' } },
     },
   ],
   post: [
@@ -72,7 +72,7 @@ export const restWithVerbsStup = {
       param: undefined,
       responseMessage: undefined,
       security: undefined,
-      to: { uri: 'mock:update' },
+      to: { uri: 'mock', parameters: { name: 'update' } },
     },
   ],
 };
@@ -102,7 +102,7 @@ export const restWithSecurityRequirementsStub = {
       param: undefined,
       responseMessage: undefined,
       security: undefined,
-      to: { uri: 'direct:getUsers' },
+      to: { uri: 'direct', parameters: { name: 'getUsers' } },
     },
   ],
 };

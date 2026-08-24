@@ -4,23 +4,23 @@
         flow: application
         key: oauth2
         scopes:
-          - key: "{{oauth.scope.service.self}}"
-            value: "{{oauth.scope.service.self}}"
-          - key: "{{oauth.scope.test.person.data}}"
-            value: "{{oauth.scope.test.person.data}}"
-        tokenUrl: "{{oauth.token.url}}"
+          - key: '{{oauth.scope.service.self}}'
+            value: '{{oauth.scope.service.self}}'
+          - key: '{{oauth.scope.test.person.data}}'
+            value: '{{oauth.scope.test.person.data}}'
+        tokenUrl: '{{oauth.token.url}}'
     get:
       - param:
           - name: name
-            required: "true"
+            required: 'true'
             type: query
           - defaultValue: blah
             name: name2
-            required: "true"
+            required: 'true'
             type: query
         path: /hello
         responseMessage:
-          - code: "200"
+          - code: '200'
             examples:
               - key: example
                 value: value
@@ -29,21 +29,27 @@
             header:
               - description: header
                 allowableValues:
-                  - value: "1"
-                  - value: "2"
+                  - value: '1'
+                  - value: '2'
                 name: header
             message: hello
         security:
           - key: hello
             scopes: scope
         to:
-          uri: direct:hello
+          uri: direct
+          parameters:
+            name: hello
       - consumes: application/json
         path: /bye
         to:
-          uri: direct:bye
+          uri: direct
+          parameters:
+            name: bye
     path: /say
     post:
       - path: /bye
         to:
-          uri: mock:update
+          uri: mock
+          parameters:
+            name: update
