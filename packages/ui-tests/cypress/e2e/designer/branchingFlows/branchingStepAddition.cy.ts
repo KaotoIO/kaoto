@@ -12,8 +12,6 @@ describe('Test for Branching actions from the canvas', () => {
 
     cy.get('#otherwise').should('not.exist');
     cy.get('#when').should('be.visible').click();
-    // wait for the canvas rerender
-    cy.wait(1000);
     cy.checkNodeExist('when', 6);
   });
 
@@ -23,12 +21,8 @@ describe('Test for Branching actions from the canvas', () => {
 
     cy.checkNodeExist('when', 5);
     cy.removeNodeByName('when', 0);
-    // wait for the canvas rerender
-    cy.wait(1000);
     cy.checkNodeExist('otherwise', 2);
     cy.removeNodeByName('otherwise');
-    // wait for the canvas rerender
-    cy.wait(1000);
     cy.checkNodeExist('otherwise', 2);
     // once there are is no "otherwise" node in the canvas - it shuld be again selectable in the special node insert
     cy.selectInsertSpecialNode('choice');
