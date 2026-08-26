@@ -70,6 +70,7 @@ describe('CanvasForm', () => {
       </Provider>,
     );
 
+    await screen.findAllByRole('button', { name: 'All' });
     expect(container).toMatchSnapshot();
   });
 
@@ -86,7 +87,7 @@ describe('CanvasForm', () => {
       isPlaceholder: false,
     });
 
-    vi.spyOn(noSchemaVizNode, 'getNodeDefinition').mockReturnValue(undefined);
+    (noSchemaVizNode as IVisualizationNode).getParsedDefinition = vi.fn().mockResolvedValue(undefined);
 
     const { Provider } = await TestProvidersWrapper();
     const { container } = render(
@@ -113,7 +114,7 @@ describe('CanvasForm', () => {
       isPlaceholder: false,
     });
 
-    vi.spyOn(noSchemaVizNode, 'getNodeDefinition').mockReturnValue(null);
+    (noSchemaVizNode as IVisualizationNode).getParsedDefinition = vi.fn().mockResolvedValue(null);
 
     const { Provider } = await TestProvidersWrapper();
     const { container } = render(
@@ -124,6 +125,7 @@ describe('CanvasForm', () => {
       </Provider>,
     );
 
+    await screen.findByText('null');
     expect(container).toMatchSnapshot();
   });
 
@@ -152,7 +154,7 @@ describe('CanvasForm', () => {
       </Provider>,
     );
 
-    const idField = screen.getAllByLabelText('Description', { selector: 'textarea' })[0];
+    const [idField] = await screen.findAllByLabelText('Description', { selector: 'textarea' });
     fireEvent.change(idField, { target: { value: '' } });
 
     const closeSideBarButton = screen.getByTestId('close-side-bar');
@@ -186,7 +188,7 @@ describe('CanvasForm', () => {
       </Provider>,
     );
 
-    const idField = screen.getAllByLabelText('Description', { selector: 'textarea' })[0];
+    const [idField] = await screen.findAllByLabelText('Description', { selector: 'textarea' });
     fireEvent.change(idField, { target: { value: ' ' } });
 
     const closeSideBarButton = screen.getByTestId('close-side-bar');
@@ -221,7 +223,7 @@ describe('CanvasForm', () => {
       </Provider>,
     );
 
-    const idField = screen.getByRole('textbox', { name: 'Id' });
+    const idField = await screen.findByRole('textbox', { name: 'Id' });
     fireEvent.change(idField, { target: { value: newName } });
 
     const closeSideBarButton = screen.getByTestId('close-side-bar');
@@ -253,7 +255,7 @@ describe('CanvasForm', () => {
       </Provider>,
     );
 
-    const NameField = screen.getByDisplayValue('user-source');
+    const NameField = await screen.findByDisplayValue('user-source');
     fireEvent.change(NameField, { target: { value: newName } });
 
     const closeSideBarButton = screen.getByTestId('close-side-bar');

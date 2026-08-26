@@ -5,6 +5,7 @@ import { cloneDeep } from 'lodash';
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { getArrayProperty, getValue, setValue } from '../../../utils';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
+import { uriDefinitionParser } from '../../camel/parsers/uri-definition.parser';
 import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
@@ -133,15 +134,43 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
   getNodeDefinition(path?: string, ids?: IVisualizationNodeIds): unknown {
     if (!path) return undefined;
 
-    const definition = getValue(this.entityDef, path);
-    const updatedDefinition = CamelComponentSchemaService.getUpdatedDefinition(ids, definition);
+    let definition = cloneDeep(getValue(this.entityDef, path));
 
-    /** Overriding parameters with an empty object When the parameters property is mistakenly set to null */
-    if (updatedDefinition?.parameters === null) {
-      updatedDefinition.parameters = {};
+    // String coercion: some processors store their value as a plain string
+    const processorName = ids?.primaryNodeId?.name;
+    if (processorName !== undefined) {
+      const prop = CamelComponentSchemaService.PROCESSOR_STRING_DEFINITIONS[processorName];
+      if (prop && typeof definition === 'string') {
+        definition = { [prop]: definition };
+      }
     }
 
-    return updatedDefinition;
+    // Overriding parameters with an empty object when mistakenly set to null or undefined.
+    // Guard with typeof check: the `in` operator throws a TypeError on string primitives.
+    if (
+      definition != null &&
+      typeof definition === 'object' &&
+      'parameters' in (definition as object) &&
+      (definition as Record<string, unknown>).parameters == null
+    ) {
+      (definition as Record<string, unknown>).parameters = {};
+    }
+
+    return definition;
+  }
+
+  async getParsedDefinition(path?: string, ids?: IVisualizationNodeIds): Promise<unknown> {
+    const definition = this.getNodeDefinition(path, ids);
+    if (definition == null) return definition;
+
+    const componentName =
+      ids?.secondaryNodeId?.name === 'kamelet' && ids?.tertiaryNodeId?.name !== undefined
+        ? `kamelet:${ids.tertiaryNodeId.name}`
+        : ids?.secondaryNodeId?.name;
+
+    if (!componentName) return definition;
+
+    return uriDefinitionParser(componentName, definition as Record<string, unknown>);
   }
 
   getOmitFormFields(): string[] {
