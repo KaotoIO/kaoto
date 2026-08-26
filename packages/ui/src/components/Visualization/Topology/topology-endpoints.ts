@@ -39,7 +39,7 @@ const appendMapValue = (map: Map<string, string[]>, key: string, value: string):
 
 const recordTopologyStep = async (vizNode: IVisualizationNode, registry: TopologyEndpointRegistry): Promise<void> => {
   const processorName = vizNode.data.primaryNodeId?.name;
-  const nodeDefinition = vizNode.getNodeDefinition();
+  const nodeDefinition = await vizNode.getParsedDefinition?.();
   const uriString = CamelUriHelper.getUriString(nodeDefinition);
 
   if (!uriString) {
