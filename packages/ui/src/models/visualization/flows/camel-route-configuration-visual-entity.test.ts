@@ -274,7 +274,8 @@ describe('CamelRouteConfigurationVisualEntity', () => {
         iconUrl: '/src/assets/components/generic-component.png',
         isPlaceholder: false,
         title: 'Route Configuration',
-        description: 'routeConfiguration: Reusable configuration for Camel route(s).',
+        description:
+          'routeConfiguration: Defines reusable configuration that is automatically applied to matching routes, such as shared error handling or interceptors',
         processorIconTooltip: '',
         schema: expect.any(Object),
       });

@@ -30,6 +30,7 @@ describe('CatalogHelper', () => {
           fileName: 'citrus/1.0.0/index.js',
         },
       ],
+      starterTemplates: '',
     };
   });
 

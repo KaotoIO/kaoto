@@ -26,6 +26,7 @@ const CONTROLLED_LIBRARY: CatalogLibrary = {
     { name: 'Citrus Old', runtime: 'Citrus', version: '1.0.0', fileName: 'citrus-old.json' },
     { name: 'Citrus New', runtime: 'Citrus', version: '2.0.0', fileName: 'citrus-new.json' },
   ],
+  starterTemplates: '',
 };
 
 /** Renders `ui` under a KaotoResourceContext whose resource reports the given schema type. */

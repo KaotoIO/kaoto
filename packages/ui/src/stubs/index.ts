@@ -4,7 +4,6 @@ export * from './kamelet-binding-route';
 export * from './kamelet-route';
 export * from './mock-random-values';
 export * from './pipe';
-export * from './rest-visual-entity';
 export * from './sourceSchemaConfig';
 export * from './TestProvidersWrapper';
 export * from './TestRuntimeProviderWrapper';

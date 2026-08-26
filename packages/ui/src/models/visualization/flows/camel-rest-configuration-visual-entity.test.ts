@@ -212,7 +212,8 @@ describe('CamelRestConfigurationVisualEntity', () => {
         iconUrl: '/src/assets/components/generic-component.png',
         isPlaceholder: false,
         title: 'Rest Configuration',
-        description: 'restConfiguration: To configure rest',
+        description:
+          'restConfiguration: Configures global settings for the REST DSL, such as host, port, context path, binding mode, and the underlying HTTP component to use',
         processorIconTooltip: '',
         schema: expect.any(Object),
       });
