@@ -27,8 +27,8 @@ export function parseXmlComments(xml: string): string[] {
           .slice(1, -1)
           .filter((line) => line === '')
           .map(() => ''),
+        match[0],
       );
-      comments.push(match[0]);
       index = match.index + match[0].length;
     } else {
       break;
