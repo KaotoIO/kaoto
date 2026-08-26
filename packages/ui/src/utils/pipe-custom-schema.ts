@@ -32,8 +32,8 @@ export const updatePipeFromCustomSchema = (pipe: Pipe, value: Record<string, unk
   const previousAnnotations: Record<string, unknown> = getValue(pipe, 'metadata.annotations', {});
   const previousLabels: Record<string, unknown> = getValue(pipe, 'metadata.labels', {});
 
-  const newLabels = Object.assign({}, getValue(value, 'labels', previousLabels));
-  const newAnnotations = Object.assign({}, getValue(value, 'annotations', previousAnnotations));
+  const newLabels = { ...getValue(value, 'labels', previousLabels) };
+  const newAnnotations = { ...getValue(value, 'annotations', previousAnnotations) };
 
   setValue(pipe, 'metadata.labels', newLabels);
   setValue(pipe, 'metadata.annotations', newAnnotations);
