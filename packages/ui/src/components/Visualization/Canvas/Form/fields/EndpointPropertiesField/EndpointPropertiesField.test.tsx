@@ -1,5 +1,5 @@
 import { SchemaContext } from '@kaoto/forms';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { EndpointPropertiesField } from './EndpointPropertiesField';
@@ -67,7 +67,7 @@ describe('EndpointPropertiesField', () => {
   });
 
   describe('when schema has properties', () => {
-    it('should render toggle buttons with standard view by default', () => {
+    it('should render toggle buttons with standard view by default', async () => {
       render(
         <SchemaContext.Provider value={schemaWithProperties}>
           <EndpointPropertiesField {...defaultProps} />
@@ -76,11 +76,11 @@ describe('EndpointPropertiesField', () => {
 
       expect(screen.getByText('Standard')).toBeInTheDocument();
       expect(screen.getByText('Custom')).toBeInTheDocument();
-      expect(screen.getByTestId('object-field-testProp')).toBeInTheDocument();
-      expect(screen.queryByTestId('array-field-wrapper')).not.toBeInTheDocument();
-
-      const standardButton = screen.getByTestId('testProp-standard-toggle').querySelector('button');
-      expect(standardButton).toHaveClass('pf-m-selected');
+      await waitFor(() => {
+        expect(screen.getByTestId('object-field-testProp')).toBeInTheDocument();
+        expect(screen.queryByTestId('array-field-wrapper')).not.toBeInTheDocument();
+        expect(screen.getByTestId('testProp-standard-toggle').querySelector('button')).toHaveClass('pf-m-selected');
+      });
     });
 
     it('should switch to custom view and back', async () => {
