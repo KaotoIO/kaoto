@@ -192,7 +192,7 @@ describe('DocumentService', () => {
   });
 
   describe('hasField()', () => {
-    it('', () => {
+    it('should return true for a field belonging to the document and false for one that does not', () => {
       expect(DocumentService.hasField(sourceDoc, sourceDoc.fields[0].fields[0])).toBeTruthy();
       expect(DocumentService.hasField(sourceDoc, targetDoc.fields[0].fields[0])).toBeFalsy();
     });
@@ -373,7 +373,7 @@ describe('DocumentService', () => {
   });
 
   describe('getFieldFromPathSegments()', () => {
-    it('', () => {
+    it('should find a field by its path segments', () => {
       const pathSegments = [new PathSegment('ShipOrder', false, 'kaoto'), new PathSegment('ShipTo')];
       const field = DocumentService.getFieldFromPathSegments(namespaces, sourceDoc, pathSegments);
       expect(field?.name).toBe('ShipTo');
