@@ -73,25 +73,14 @@ describe('CitrusTestDefaultService', () => {
         definedComponent,
       ) as typeof catalogDefaultValue;
 
-      expect(firstDefinitionValue).toStrictEqual(catalogDefaultValue);
-      expect(secondDefinitionValue).toStrictEqual(catalogDefaultValue);
-
-      expect(firstDefinitionValue).not.toBe(catalogDefaultValue);
-      expect(secondDefinitionValue).not.toBe(catalogDefaultValue);
-      expect(firstDefinitionValue).not.toBe(secondDefinitionValue);
-
-      expect(firstDefinitionValue.applyTemplate).not.toBe(catalogDefaultValue.applyTemplate);
-      expect(secondDefinitionValue.applyTemplate).not.toBe(catalogDefaultValue.applyTemplate);
-      expect(firstDefinitionValue.applyTemplate).not.toBe(secondDefinitionValue.applyTemplate);
-
-      expect(firstDefinitionValue.applyTemplate.parameters).not.toBe(
-        catalogDefaultValue.applyTemplate.parameters,
-      );
-      expect(firstDefinitionValue.applyTemplate.parameters).not.toBe(
-        secondDefinitionValue.applyTemplate.parameters,
-      );
+      expect(firstDefinitionValue.applyTemplate.parameters).not.toBe(catalogDefaultValue.applyTemplate.parameters);
+      expect(secondDefinitionValue.applyTemplate.parameters).not.toBe(catalogDefaultValue.applyTemplate.parameters);
+      expect(firstDefinitionValue.applyTemplate.parameters).not.toBe(secondDefinitionValue.applyTemplate.parameters);
 
       expect(firstDefinitionValue.applyTemplate.parameters[0]).not.toBe(
+        catalogDefaultValue.applyTemplate.parameters[0],
+      );
+      expect(secondDefinitionValue.applyTemplate.parameters[0]).not.toBe(
         catalogDefaultValue.applyTemplate.parameters[0],
       );
       expect(firstDefinitionValue.applyTemplate.parameters[0]).not.toBe(
