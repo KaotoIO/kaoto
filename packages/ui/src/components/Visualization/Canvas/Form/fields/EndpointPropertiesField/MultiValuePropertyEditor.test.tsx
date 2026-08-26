@@ -1,7 +1,9 @@
 import { FieldProps, ModelContextProvider, SchemaProvider, setValue, useFieldValue } from '@kaoto/forms';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { Suspense } from 'react';
 import type { Mock } from 'vitest';
 
+import { CatalogKind } from '../../../../../../models/catalog-kind';
 import { MultiValuePropertyService } from './MultiValueProperty.service';
 import { MultiValuePropertyEditor } from './MultiValuePropertyEditor';
 
@@ -34,8 +36,14 @@ vi.mock('@kaoto/forms', async () => ({
   setValue: vi.fn(),
 }));
 
+const quartzMultiValueMap = new Map([
+  ['jobParameters', 'job.'],
+  ['triggerParameters', 'trigger.'],
+]);
+
 describe('MultiValuePropertyEditor', () => {
   const mockOnPropertyChange = vi.fn();
+  const getMultiValuePropertiesSpy = vi.spyOn(MultiValuePropertyService, 'getMultiValueProperties');
   const readMultiValueSpy = vi.spyOn(MultiValuePropertyService, 'readMultiValue');
   const getMultiValueSerializedDefinitionSpy = vi.spyOn(MultiValuePropertyService, 'getMultiValueSerializedDefinition');
 
@@ -44,8 +52,13 @@ describe('MultiValuePropertyEditor', () => {
     required: false,
   };
 
-  const renderComponent = ({
-    schema = { 'x-component-name': 'quartz' },
+  const defaultSchema = {
+    'x-component-name': 'quartz',
+    'x-endpoint-catalog-kind': CatalogKind.Component,
+  };
+
+  const renderComponent = async ({
+    schema = defaultSchema,
     model = { parameters: { 'job.name': 'daily' } },
     disabled = true,
     onPropertyChange = mockOnPropertyChange,
@@ -54,28 +67,40 @@ describe('MultiValuePropertyEditor', () => {
     model?: Record<string, unknown>;
     disabled?: boolean;
     onPropertyChange?: Mock;
-  } = {}) =>
-    render(
-      <SchemaProvider schema={schema}>
-        <ModelContextProvider model={model} onPropertyChange={onPropertyChange} disabled={disabled}>
-          <MultiValuePropertyEditor {...defaultProps} />
-        </ModelContextProvider>
-      </SchemaProvider>,
-    );
+  } = {}) => {
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      render(
+        <SchemaProvider schema={schema}>
+          <ModelContextProvider model={model} onPropertyChange={onPropertyChange} disabled={disabled}>
+            <Suspense fallback={<div>Loading...</div>}>
+              <MultiValuePropertyEditor {...defaultProps} />
+            </Suspense>
+          </ModelContextProvider>
+        </SchemaProvider>,
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+    });
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
 
+    getMultiValuePropertiesSpy.mockResolvedValue(quartzMultiValueMap);
     readMultiValueSpy.mockReturnValue({ jobParameters: { name: 'daily' } });
     getMultiValueSerializedDefinitionSpy.mockReturnValue({
       parameters: { 'job.name': 'updated' },
     } as unknown as Record<string, string>);
   });
 
-  it('should render the transformed model and disabled state', () => {
-    renderComponent();
+  it('should render the transformed model and disabled state', async () => {
+    await renderComponent();
 
-    expect(readMultiValueSpy).toHaveBeenCalledWith('quartz', { 'job.name': 'daily' });
+    expect(getMultiValuePropertiesSpy).toHaveBeenCalledWith(CatalogKind.Component, 'quartz');
+    expect(readMultiValueSpy).toHaveBeenCalledWith(quartzMultiValueMap, { 'job.name': 'daily' });
     expect(screen.getByTestId('model-context-provider-disabled')).toHaveTextContent('true');
     expect(screen.getByTestId('model-context-provider-model')).toHaveTextContent(
       JSON.stringify({ jobParameters: { name: 'daily' } }),
@@ -83,55 +108,63 @@ describe('MultiValuePropertyEditor', () => {
     expect(screen.getByTestId('object-field-parameters')).toHaveTextContent('ObjectField: parameters');
   });
 
-  it('should serialize property changes and forward flattened parameters', () => {
-    renderComponent();
+  it('should serialize property changes and forward flattened parameters', async () => {
+    await renderComponent();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Trigger property change' }));
+    const triggerPropertyChangeButton = await screen.findByRole('button', { name: 'Trigger property change' });
+    fireEvent.click(triggerPropertyChangeButton);
 
     expect(setValue).toHaveBeenCalledWith({ parameters: { jobParameters: { name: 'daily' } } }, 'parameters', {
       jobParameters: { name: 'updated' },
     });
-    expect(getMultiValueSerializedDefinitionSpy).toHaveBeenCalledWith('quartz', {
+    expect(getMultiValueSerializedDefinitionSpy).toHaveBeenCalledWith(quartzMultiValueMap, {
       parameters: { jobParameters: { name: 'daily' } },
     });
-    expect(mockOnPropertyChange).toHaveBeenCalledWith('parameters', { 'job.name': 'updated' });
+    await waitFor(() => {
+      expect(mockOnPropertyChange).toHaveBeenCalledWith('parameters', { 'job.name': 'updated' });
+    });
   });
 
-  it('should use an empty component name when schema metadata is missing', () => {
-    renderComponent({ schema: {} });
+  it('should use undefined catalog metadata when schema extensions are missing', async () => {
+    getMultiValuePropertiesSpy.mockResolvedValue(new Map());
+    await renderComponent({ schema: {} });
 
-    expect(readMultiValueSpy).toHaveBeenCalledWith('', { 'job.name': 'daily' });
+    expect(getMultiValuePropertiesSpy).toHaveBeenCalledWith(undefined, undefined);
+    expect(readMultiValueSpy).toHaveBeenCalledWith(expect.any(Map), { 'job.name': 'daily' });
+    expect(readMultiValueSpy.mock.calls[0]?.[0]).toBeInstanceOf(Map);
+    expect(readMultiValueSpy.mock.calls[0]?.[0].size).toBe(0);
   });
 
-  it('should not call onPropertyChange when serialized parameters are missing', () => {
+  it('should not call onPropertyChange when serialized parameters are missing', async () => {
     getMultiValueSerializedDefinitionSpy.mockReturnValue(undefined);
 
-    renderComponent();
+    await renderComponent();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Trigger property change' }));
+    const triggerPropertyChangeButton = await screen.findByRole('button', { name: 'Trigger property change' });
+    fireEvent.click(triggerPropertyChangeButton);
 
     expect(mockOnPropertyChange).not.toHaveBeenCalled();
   });
 
-  it('should delete property key when value is empty string', () => {
+  it('should delete property key when value is empty string', async () => {
     readMultiValueSpy.mockReturnValue({ jobParameters: { name: 'daily' } });
     getMultiValueSerializedDefinitionSpy.mockReturnValue({
       parameters: { 'job.description': 'test' },
     } as unknown as Record<string, string>);
 
-    renderComponent({
+    await renderComponent({
       model: { parameters: { 'job.name': 'daily', 'job.description': 'test' } },
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Trigger property change' }));
+    const triggerPropertyChangeButton = await screen.findByRole('button', { name: 'Trigger property change' });
+    fireEvent.click(triggerPropertyChangeButton);
 
-    // When jobParameters.name is set to empty string, it should be converted to undefined
-    // which causes setValue to delete the key
     expect(setValue).toHaveBeenCalledWith({ parameters: { jobParameters: { name: 'daily' } } }, 'parameters', {
       jobParameters: { name: 'updated' },
     });
 
-    // The final serialized result should not include the deleted property
-    expect(mockOnPropertyChange).toHaveBeenCalledWith('parameters', { 'job.description': 'test' });
+    await waitFor(() => {
+      expect(mockOnPropertyChange).toHaveBeenCalledWith('parameters', { 'job.description': 'test' });
+    });
   });
 });

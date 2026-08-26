@@ -1,20 +1,27 @@
 import { isDefined } from '@kaoto/forms';
 
-import { CamelCatalogService, CatalogKind } from '../../../../../../models';
+import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
+import { CatalogKind, ICamelComponentDefinition } from '../../../../../../models';
 import { ParsedParameters } from '../../../../../../utils';
 
 export class MultiValuePropertyService {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static readMultiValue(componentName: string, definition: any) {
-    const catalogLookup = CamelCatalogService.getCatalogLookup(componentName);
+  static async getMultiValueProperties(catalogKind: CatalogKind, componentName: string) {
+    const catalogLookup = (await DynamicCatalogRegistry.get().getEntity(
+      catalogKind,
+      componentName,
+    )) as ICamelComponentDefinition;
 
     const multiValueParameters: Map<string, string> = new Map<string, string>();
-    if (catalogLookup?.definition?.properties !== undefined) {
-      Object.entries(catalogLookup.definition.properties).forEach(([key, value]) => {
+    if (catalogLookup?.properties !== undefined) {
+      Object.entries(catalogLookup.properties).forEach(([key, value]) => {
         if (value.multiValue) multiValueParameters.set(key, value.prefix!);
       });
     }
+    return multiValueParameters;
+  }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static readMultiValue(multiValueParameters: Map<string, string>, definition: any) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let parameters: any = {};
 
@@ -51,42 +58,35 @@ export class MultiValuePropertyService {
     return parameters;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static getMultiValueSerializedDefinition(componentName: string, definition: any): ParsedParameters | undefined {
-    if (!componentName || !isDefined(definition)) {
+  static getMultiValueSerializedDefinition(
+    multiValueParameters: Map<string, string>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    definition: any,
+  ): ParsedParameters | undefined {
+    if (!isDefined(definition)) {
       return definition;
     }
 
-    const catalogLookup = CamelCatalogService.getCatalogLookup(componentName);
-    if (catalogLookup.catalogKind === CatalogKind.Component) {
-      const multiValueParameters: Map<string, string> = new Map<string, string>();
-      if (catalogLookup.definition?.properties !== undefined) {
-        Object.entries(catalogLookup.definition.properties).forEach(([key, value]) => {
-          if (value.multiValue) multiValueParameters.set(key, value.prefix!);
-        });
-      }
-      const defaultMultiValues: ParsedParameters = {};
-      const filteredParameters = { ...definition.parameters };
-      const prefixes = Array.from(multiValueParameters.values());
+    const defaultMultiValues: ParsedParameters = {};
+    const filteredParameters = { ...definition.parameters };
+    const prefixes = Array.from(multiValueParameters.values());
 
-      if (definition.parameters !== undefined) {
-        Object.keys(definition.parameters).forEach((key) => {
-          if (multiValueParameters.has(key)) {
-            if (definition.parameters[key] === undefined) {
-              return;
-            }
-            Object.keys(definition.parameters[key]).forEach((subKey) => {
-              defaultMultiValues[multiValueParameters.get(key) + subKey] = definition.parameters[key][subKey];
-            });
-            delete filteredParameters[key];
-          } else if (prefixes.some((prefix) => key.startsWith(prefix))) {
-            // Remove stale flat keys that match a multi-value prefix
-            delete filteredParameters[key];
+    if (definition.parameters !== undefined) {
+      Object.keys(definition.parameters).forEach((key) => {
+        if (multiValueParameters.has(key)) {
+          if (definition.parameters[key] === undefined) {
+            return;
           }
-        });
-      }
-      return { ...definition, parameters: { ...filteredParameters, ...defaultMultiValues } };
+          Object.keys(definition.parameters[key]).forEach((subKey) => {
+            defaultMultiValues[multiValueParameters.get(key) + subKey] = definition.parameters[key][subKey];
+          });
+          delete filteredParameters[key];
+        } else if (prefixes.some((prefix) => key.startsWith(prefix))) {
+          // Remove stale flat keys that match a multi-value prefix
+          delete filteredParameters[key];
+        }
+      });
     }
-    return definition;
+    return { ...definition, parameters: { ...filteredParameters, ...defaultMultiValues } };
   }
 }

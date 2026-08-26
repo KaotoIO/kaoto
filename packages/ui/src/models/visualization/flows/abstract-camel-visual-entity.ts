@@ -109,6 +109,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     schema.properties.parameters.properties = actualComponentProperties;
     schema.properties.parameters.required = camelComponentDefinition.propertiesSchema.required;
     schema.properties.parameters['x-component-name'] = ids.secondaryNodeId.name;
+    schema.properties.parameters['x-endpoint-catalog-kind'] = ids.secondaryNodeId.catalogKind;
 
     /* This would be a Kamelet definition being used by the kamelet component, f.i. `uri: kamelet:weather-action`, in case it's not, we can return the schema so far */
     if (ids.tertiaryNodeId?.catalogKind !== CatalogKind.Kamelet) {

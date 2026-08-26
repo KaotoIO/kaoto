@@ -1,23 +1,36 @@
 import { FieldProps, ModelContextProvider, ObjectField, SchemaContext, setValue, useFieldValue } from '@kaoto/forms';
 import { cloneDeep } from 'lodash';
-import { FunctionComponent, useContext, useMemo } from 'react';
+import { FunctionComponent, use, useContext, useMemo } from 'react';
 
 import { ParsedParameters } from '../../../../../../utils';
 import { MultiValuePropertyService } from './MultiValueProperty.service';
 
 export const MultiValuePropertyEditor: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { schema } = useContext(SchemaContext);
+
+  const multiValuePromise = useMemo(() => {
+    const catalogKind = schema['x-endpoint-catalog-kind'];
+    const componentName = schema['x-component-name'];
+    return MultiValuePropertyService.getMultiValueProperties(catalogKind, componentName);
+  }, [schema]);
+
+  return <MultiValuePropertyEditorInner propName={propName} required={required} promise={multiValuePromise} />;
+};
+
+const MultiValuePropertyEditorInner: FunctionComponent<FieldProps & { promise: Promise<Map<string, string>> }> = ({
+  propName,
+  required,
+  promise,
+}) => {
   const { value: flatParameters = {}, onChange, disabled } = useFieldValue<ParsedParameters | undefined>(propName);
 
-  const componentName = useMemo(() => {
-    const name = schema['x-component-name'] as string | undefined;
-    return name || '';
-  }, [schema]);
+  const multiValueProperties = use(promise);
+
   const parametersWithMultivalue = {
-    parameters: MultiValuePropertyService.readMultiValue(componentName, flatParameters),
+    parameters: MultiValuePropertyService.readMultiValue(multiValueProperties, flatParameters),
   };
 
-  const onPropertyChange = (path: string, value: unknown) => {
+  const onPropertyChange = async (path: string, value: unknown) => {
     const updatedDefinition = cloneDeep(parametersWithMultivalue);
 
     let updatedValue = value;
@@ -27,7 +40,7 @@ export const MultiValuePropertyEditor: FunctionComponent<FieldProps> = ({ propNa
     setValue(updatedDefinition, path, updatedValue);
 
     const multiValueParameters = MultiValuePropertyService.getMultiValueSerializedDefinition(
-      componentName,
+      multiValueProperties,
       updatedDefinition,
     );
 
