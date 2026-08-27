@@ -556,8 +556,7 @@ export class XmlSchemaDocumentService {
       return;
     }
 
-    const existing = fields.find((f) => f.name === name && !f.isAttribute && f.namespaceURI === namespaceURI);
-    if (existing) {
+    if (fields.some((f) => f.name === name && !f.isAttribute && f.namespaceURI === namespaceURI)) {
       return;
     }
 
@@ -764,8 +763,7 @@ export class XmlSchemaDocumentService {
     const namespaceURI = attr.getWireName()!.getNamespaceURI();
     const ownerDoc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
 
-    const existing = fields.find((f) => f.name === name && f.isAttribute && f.namespaceURI === namespaceURI);
-    if (existing) {
+    if (fields.some((f) => f.name === name && f.isAttribute && f.namespaceURI === namespaceURI)) {
       return;
     }
 
