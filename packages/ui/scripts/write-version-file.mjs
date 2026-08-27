@@ -1,6 +1,6 @@
 // @ts-check
 import { writeFile } from 'node:fs/promises';
-import { createRequire } from 'module';
+import { createRequire } from 'node:module';
 const packageJson = createRequire(import.meta.url)('../package.json');
 const versionJson = createRequire(import.meta.url)('../src/version.json');
 

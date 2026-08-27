@@ -226,7 +226,7 @@ describe('BeanField', () => {
       fireEvent.click(createButton);
 
       expect(onPropertyChangeSpy).not.toHaveBeenCalled();
-      expect(screen.queryByTestId('NewBeanModal-myNewBean')).toBeInTheDocument();
+      expect(screen.getByTestId('NewBeanModal-myNewBean')).toBeInTheDocument();
     });
 
     it('should appear in document export when bean is added', async () => {
