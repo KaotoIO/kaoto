@@ -41,6 +41,8 @@ export const DataMapperSettingsModal: FunctionComponent<DataMapperSettingsModalP
     () => targetBodyDocument.definitionType === DocumentDefinitionType.Primitive,
     [targetBodyDocument.definitionType],
   );
+  // Output validation UI: set to true when feature is complete
+  const showOutputValidation = false as boolean;
 
   // Sync local state with context when modal opens
   useEffect(() => {
@@ -97,7 +99,8 @@ export const DataMapperSettingsModal: FunctionComponent<DataMapperSettingsModalP
               description={!isTargetXml ? 'Only available when target document is XML' : undefined}
             />
           </FormGroup>
-          {!isTargetPrimitive && (
+          {/* Output validation UI: set to true when feature is complete */}
+          {showOutputValidation && !isTargetPrimitive && (
             <FormGroup label="Output Validation">
               <Checkbox
                 id="validate-output-settings"

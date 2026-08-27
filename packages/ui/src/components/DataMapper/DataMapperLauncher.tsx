@@ -57,6 +57,8 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
   const [isValidationEnabled, setIsValidationEnabled] = useState<boolean>(false);
   const [isValidationTogglePending, setIsValidationTogglePending] = useState<boolean>(false);
   const [isTargetPrimitive, setIsTargetPrimitive] = useState<boolean>(true);
+  // Output validation UI: set to true when feature is complete
+  const showOutputValidation = false as boolean;
 
   const xsltDocumentName = useMemo(() => {
     const xsltComponent = vizNode?.getNodeDefinition()?.steps?.find(isXSLTComponent) as XsltComponentDef;
@@ -230,7 +232,8 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
           />
         </FormGroup>
       )}
-      {xsltFileExists && !isTargetPrimitive && (
+      {/* Output validation UI: set to true when feature is complete */}
+      {showOutputValidation && xsltFileExists && !isTargetPrimitive && (
         <FormGroup label="Output Validation">
           <Checkbox
             id="validate-output"
