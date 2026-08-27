@@ -15,16 +15,6 @@ function isEmptyOrNotArray(value: unknown): boolean {
   return !Array.isArray(value) || value.length === 0;
 }
 
-/**
- * A property is considered configured when a meaningful value is set.
- * An empty string is an intentionally configured value — e.g. EIP expressions such as
- * `- setBody: constant: { expression: "" }` — whereas unset values and falsy non-string
- * values (false, 0) are treated as not configured.
- */
-function isConfiguredPropertyValue(value: unknown): boolean {
-  return typeof value === 'string' || !!value;
-}
-
 function isMissingRequired(
   schema: KaotoSchemaDefinition['schema'],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -37,8 +27,7 @@ function isMissingRequired(
     schema.required.includes(propertyName) &&
     propertySchema.default === undefined &&
     propertySchema.$ref === undefined &&
-    (!isConfiguredPropertyValue(model?.[propertyName]) ||
-      (propertySchema.type === 'array' && isEmptyOrNotArray(model[propertyName])))
+    (!model?.[propertyName] || (propertySchema.type === 'array' && isEmptyOrNotArray(model[propertyName])))
   );
 }
 

@@ -96,15 +96,12 @@ const ExpressionFieldImpl: FunctionComponent<FieldProps> = ({ propName, required
    * "Empty" checkbox persists `expression: ''` in the model.
    */
   const onToggleEmpty = (path: string, isEmptyValue: boolean) => {
-    const localValue = parsedModel ?? {};
+    const localValue = { ...(parsedModel ?? {}) };
     setValue(localValue, path, isEmptyValue ? '' : undefined);
 
-    if (isEmpty(localValue)) {
-      onChange(undefined as unknown as Record<string, unknown>);
-      return;
-    }
-
-    onChange(localValue);
+    const nextModel = isEmpty(localValue) ? undefined : localValue;
+    setParsedModel(nextModel);
+    onChange(nextModel as unknown as Record<string, unknown>);
   };
 
   if (isRootExpression) {
