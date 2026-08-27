@@ -92,7 +92,8 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
           break;
         case DocumentType.TARGET_BODY:
           await DataMapperMetadataService.updateTargetBodyMetadata(ctx, metadataId, metadata, definition);
-          if (vizNode) {
+          // Output validation auto-sync: disabled until feature is complete — remove guard to enable
+          if (vizNode && (false as boolean)) {
             if (DataMapperValidationStepService.isValidationEnabled(vizNode)) {
               DataMapperValidationStepService.updateValidationStep(vizNode, metadata.targetBody, entitiesContext);
             } else if (definition.definitionType !== DocumentDefinitionType.Primitive) {
