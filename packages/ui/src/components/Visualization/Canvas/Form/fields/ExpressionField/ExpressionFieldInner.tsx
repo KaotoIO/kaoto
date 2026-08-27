@@ -59,7 +59,7 @@ export const ExpressionFieldInner: FunctionComponent<ExpressionFieldInnerProps> 
             id={`${propName}-expression-empty`}
             label="Empty"
             isChecked={isExpressionEmpty}
-            isDisabled={!isDefined(selectedOneOfSchema)}
+            isDisabled={!isDefined(selectedOneOfSchema) || parentModelContext.disabled}
             onChange={onEmptyCheckboxChange}
             data-testid={`${propName}__expression-empty-checkbox`}
           />

@@ -131,7 +131,7 @@ describe('ModelValidationService', () => {
 
       const result = await ModelValidationService.validateNodeStatus(schema!, model);
 
-      expect(result).toBe('1 required parameter is not yet configured: [ expression ]');
+      expect(result).toBe('2 required parameters are not yet configured: [ expression,name ]');
     });
 
     it('should return an empty string if there is no missing property', async () => {
