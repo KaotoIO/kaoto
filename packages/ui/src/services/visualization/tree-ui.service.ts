@@ -1,4 +1,5 @@
 import { DocumentTree } from '../../models/datamapper/document-tree';
+import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import { DocumentNodeData } from '../../models/datamapper/visualization';
 import { TreeExpansionState, useDocumentTreeStore } from '../../store/document-tree.store';
 import { processTreeNode } from '../../utils';
@@ -45,6 +46,13 @@ export class TreeUIService {
     const newExpansion = TreeUIService.reconcileExpansion(documentNodeData.id, tree, fieldExpansion);
     useDocumentTreeStore.getState().setTreeExpansion(tree.documentNodeDataId, newExpansion);
 
+    /*
+     * Re-parse nodes that were previously expanded so their children exist in the new tree.
+     * Without this, nodes beyond INITIAL_PARSE_DEPTH have children=[] after a rebuild and
+     * flatten() will not show their children even though expansion state says true.
+     */
+    TreeUIService.reparseExpandedNodes(tree, newExpansion);
+
     return tree;
   }
 
@@ -89,23 +97,57 @@ export class TreeUIService {
     node.invalidateDescendants();
   }
 
+  /**
+   * Re-parse any nodes in the tree that are marked as expanded in the expansion state but
+   * haven't been parsed yet (i.e., nodes beyond INITIAL_PARSE_DEPTH in a freshly-built tree).
+   * This ensures flatten() can traverse their children after a tree rebuild.
+   */
+  private static reparseExpandedNodes(tree: DocumentTree, expansionState: TreeExpansionState): void {
+    const reparsePath = (node: DocumentTreeNode) => {
+      if (!node.isParsed && expansionState[node.path]) {
+        TreeParsingService.parseTreeNode(node);
+      }
+      for (const child of node.children) {
+        reparsePath(child);
+      }
+    };
+    for (const contentRoot of tree.contentRoots) {
+      reparsePath(contentRoot);
+    }
+  }
+
   private static reconcileExpansion(
     documentNodeDataId: string,
     newTree: DocumentTree,
     fieldExpansion?: Record<string, boolean>,
   ): TreeExpansionState {
     const currentExpansionState = useDocumentTreeStore.getState().expansionState[documentNodeDataId] ?? {};
-    const newExpansionState: TreeExpansionState = {};
+
+    /*
+     * Start with a full copy of the old expansion state so that entries for nodes beyond the
+     * initial parse depth (which don't exist in the new tree yet) are preserved as-is.
+     * The node walk below will then override only the entries for nodes that do exist in the
+     * new tree, applying field-identity reconciliation where needed.
+     */
+    const newExpansionState: TreeExpansionState = { ...currentExpansionState };
 
     for (const contentRoot of newTree.contentRoots) {
-      processTreeNode(contentRoot, (treeNode) => {
-        const isNodeParsed = treeNode.isParsed;
-        let savedState = currentExpansionState[treeNode.path];
-        if (savedState === undefined && fieldExpansion && 'field' in treeNode.nodeData) {
-          savedState = fieldExpansion[(treeNode.nodeData as { field: { id: string } }).field.id];
-        }
-        newExpansionState[treeNode.path] = isNodeParsed && (savedState ?? true);
-      });
+      processTreeNode(
+        contentRoot,
+        (treeNode) => {
+          const isNodeParsed = treeNode.isParsed;
+          let savedState = currentExpansionState[treeNode.path];
+          if (savedState === undefined && fieldExpansion && 'field' in treeNode.nodeData) {
+            savedState = fieldExpansion[(treeNode.nodeData as { field: { id: string } }).field.id];
+          }
+          /*
+           * Preserve any explicitly saved state. Only use isNodeParsed as a default for
+           * nodes that have never been visited before (no entry in the previous expansion state).
+           */
+          newExpansionState[treeNode.path] = savedState !== undefined ? savedState : isNodeParsed;
+        },
+        { maxDepth: Infinity, maxFields: Infinity },
+      );
     }
 
     return newExpansionState;
@@ -120,15 +162,19 @@ export class TreeUIService {
 
     const fieldExpansion: Record<string, boolean> = {};
     for (const contentRoot of oldTree.contentRoots) {
-      processTreeNode(contentRoot, (treeNode) => {
-        if ('field' in treeNode.nodeData) {
-          const fieldId = (treeNode.nodeData as { field: { id: string } }).field.id;
-          const state = currentExpansionState[treeNode.path];
-          if (state !== undefined && !(fieldId in fieldExpansion)) {
-            fieldExpansion[fieldId] = state;
+      processTreeNode(
+        contentRoot,
+        (treeNode) => {
+          if ('field' in treeNode.nodeData) {
+            const fieldId = (treeNode.nodeData as { field: { id: string } }).field.id;
+            const state = currentExpansionState[treeNode.path];
+            if (state !== undefined && !(fieldId in fieldExpansion)) {
+              fieldExpansion[fieldId] = state;
+            }
           }
-        }
-      });
+        },
+        { maxDepth: Infinity, maxFields: Infinity },
+      );
     }
     return Object.keys(fieldExpansion).length > 0 ? fieldExpansion : undefined;
   }

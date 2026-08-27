@@ -211,19 +211,20 @@ describe('TreeUIService', () => {
     });
 
     it('should not re-parse already parsed nodes', () => {
+      const parseTreeNodeSpy = vi.spyOn(TreeParsingService, 'parseTreeNode');
+
       // Get first child which is already parsed (depth 1)
       const firstChild = tree.root.children[0];
       expect(firstChild).toBeDefined();
       expect(firstChild.isParsed).toBe(true);
 
-      const childrenCountBefore = firstChild.children.length;
-      expect(childrenCountBefore).toBeGreaterThan(0);
-
       // Toggle the already-parsed node
       TreeUIService.toggleNode(documentId, firstChild.path);
 
-      // Children count should not change (no re-parsing happens)
-      expect(firstChild.children).toHaveLength(childrenCountBefore);
+      // parseTreeNode must not have been called for a node that is already parsed
+      expect(parseTreeNodeSpy).not.toHaveBeenCalledWith(firstChild);
+
+      parseTreeNodeSpy.mockRestore();
     });
 
     it('should do nothing if document ID is not found', () => {
@@ -522,6 +523,250 @@ describe('TreeUIService', () => {
       expect(newContentRoot.nodeData).toBeInstanceOf(FieldItemNodeData);
       expect(newContentRoot.path).not.toBe(contentRoot.path);
       expect(store.isExpanded(documentId, newContentRoot.path)).toBe(false);
+    });
+
+    it('should preserve expansion state for nodes beyond INITIAL_PARSE_DEPTH across tree rebuild', () => {
+      // Build the tree and navigate to a depth-3 node (which is not parsed initially)
+      const tree = TreeUIService.createTree(sourceDocNode);
+      const documentId = sourceDocNode.id;
+
+      const level1 = tree.root.children.find((n) => n.isParsed && n.children.length > 0);
+      expect(level1).toBeDefined();
+      const level2 = level1!.children.find((n) => n.isParsed && n.children.length > 0);
+      expect(level2).toBeDefined();
+      // depth-3 node: beyond INITIAL_PARSE_DEPTH, so isParsed === false initially
+      const level3 = level2!.children[0];
+      expect(level3).toBeDefined();
+      expect(level3.isParsed).toBe(false);
+
+      // Expand it — toggleNode triggers parsing then sets expansion to true
+      TreeUIService.toggleNode(documentId, level3.path);
+      expect(useDocumentTreeStore.getState().isExpanded(documentId, level3.path)).toBe(true);
+
+      // Spy BEFORE the rebuild so we can observe what reparseExpandedNodes() calls
+      const parseTreeNodeSpy = vi.spyOn(TreeParsingService, 'parseTreeNode');
+
+      // Rebuild the tree (simulating a refreshMappingTree call)
+      const tree2 = TreeUIService.createTree(sourceDocNode);
+
+      // Re-read the store after rebuild — the store reference changes on each update
+      const storeAfterRebuild = useDocumentTreeStore.getState();
+
+      // The expansion state must survive the rebuild
+      expect(storeAfterRebuild.isExpanded(documentId, level3.path)).toBe(true);
+
+      // reparseExpandedNodes() must have called parseTreeNode for level3b — this is the
+      // assertion that was impossible with the old flatten()-only checks, because level3
+      // appears in flatten() simply because level2 is expanded, regardless of whether
+      // reparseExpandedNodes() ran.
+      const level1b = tree2.root.children.find((n) => n.isParsed && n.children.length > 0);
+      const level2b = level1b!.children.find((n) => n.isParsed && n.children.length > 0);
+      const level3b = level2b!.children.find((n) => n.path === level3.path);
+      expect(level3b).toBeDefined();
+      expect(parseTreeNodeSpy).toHaveBeenCalledWith(level3b);
+
+      // flatten() should include the previously-expanded level2 node's children in the output
+      // (level2 was expanded by the initial createTree; level3 was expanded by toggleNode)
+      const expansionAfterRebuild = storeAfterRebuild.expansionState[documentId];
+      const flattenedPaths = tree2.flatten(expansionAfterRebuild).map((n) => n.path);
+      // level2 should appear in the flattened list because it was expanded
+      expect(flattenedPaths).toContain(level2!.path);
+      // level3 should appear because level2 is expanded and level3 is its child
+      expect(flattenedPaths).toContain(level3.path);
+    });
+
+    it('should preserve collapsed state for a node that is unparsed in the new tree', () => {
+      // Build the initial tree, navigate to depth-3 (unparsed), expand it, then collapse it
+      const tree = TreeUIService.createTree(sourceDocNode);
+      const documentId = sourceDocNode.id;
+      const store = useDocumentTreeStore.getState();
+
+      const level1 = tree.root.children.find((n) => n.isParsed && n.children.length > 0);
+      const level2 = level1!.children.find((n) => n.isParsed && n.children.length > 0);
+      const level3 = level2!.children[0];
+      expect(level3.isParsed).toBe(false);
+
+      // Expand then collapse so savedState is explicitly false
+      TreeUIService.toggleNode(documentId, level3.path); // → true
+      TreeUIService.toggleNode(documentId, level3.path); // → false
+      expect(store.isExpanded(documentId, level3.path)).toBe(false);
+
+      // Rebuild: even though the node is unparsed in the new tree, the saved false must be kept
+      const tree2 = TreeUIService.createTree(sourceDocNode);
+      const level1b = tree2.root.children.find((n) => n.isParsed && n.children.length > 0);
+      const level2b = level1b!.children.find((n) => n.isParsed && n.children.length > 0);
+      const level3b = level2b!.children[0];
+
+      expect(store.isExpanded(documentId, level3b.path)).toBe(false);
+    });
+
+    it('should skip reparseExpandedNodes for unparsed nodes whose expansion state is false', () => {
+      // Build tree and expand a deep node, then collapse it before rebuild
+      const tree = TreeUIService.createTree(sourceDocNode);
+      const documentId = sourceDocNode.id;
+
+      const level1 = tree.root.children.find((n) => n.isParsed && n.children.length > 0)!;
+      const level2 = level1.children.find((n) => n.isParsed && n.children.length > 0)!;
+      const level3 = level2.children[0];
+
+      // Expand then immediately collapse: the node ends up with expansionState = false
+      TreeUIService.toggleNode(documentId, level3.path); // → true
+      TreeUIService.toggleNode(documentId, level3.path); // → false
+
+      const parseTreeNodeSpy = vi.spyOn(TreeParsingService, 'parseTreeNode');
+
+      TreeUIService.createTree(sourceDocNode);
+
+      // reparseExpandedNodes must NOT add an extra parseTreeNode call beyond the single one
+      // made by parseTree during the initial build of the rebuilt tree.  We locate level3b
+      // in the rebuilt tree and check it was called at most once (the parseTree pass).
+      const rebuiltTree = TreeUIService.getTree(documentId)!;
+      const level1b = rebuiltTree.root.children.find((n) => n.isParsed && n.children.length > 0)!;
+      const level2b = level1b.children.find((n) => n.isParsed && n.children.length > 0)!;
+      const level3b = level2b.children.find((n) => n.path === level3.path)!;
+
+      const callsForLevel3b = parseTreeNodeSpy.mock.calls.filter(([arg]) => arg === level3b).length;
+      // parseTree visits every node exactly once (including depth-3 nodes within the field budget).
+      // reparseExpandedNodes must not add a second call when expansion state is false.
+      expect(callsForLevel3b).toBe(1);
+
+      parseTreeNodeSpy.mockRestore();
+    });
+
+    it('should skip reparseExpandedNodes for already-parsed nodes even if expansion state is true', () => {
+      // Build tree. level2 is parsed by the initial parseTree and expansion state is true.
+      const tree = TreeUIService.createTree(sourceDocNode);
+      const documentId = sourceDocNode.id;
+
+      const level1 = tree.root.children.find((n) => n.isParsed && n.children.length > 0)!;
+      const level2 = level1.children.find((n) => n.isParsed && n.children.length > 0)!;
+      expect(level2.isParsed).toBe(true);
+
+      const parseTreeNodeSpy = vi.spyOn(TreeParsingService, 'parseTreeNode');
+
+      TreeUIService.createTree(sourceDocNode);
+
+      const rebuiltTree = TreeUIService.getTree(documentId)!;
+      const level1b = rebuiltTree.root.children.find((n) => n.isParsed && n.children.length > 0)!;
+      const level2b = level1b.children.find((n) => n.path === level2.path)!;
+
+      // level2b is parsed by parseTree (isParsed=true after that pass).
+      // reparseExpandedNodes skips parsed nodes, so level2b must appear at most once in spy calls
+      // (the parseTree pass). A second call would mean reparseExpandedNodes incorrectly re-parsed it.
+      const callsForLevel2b = parseTreeNodeSpy.mock.calls.filter(([arg]) => arg === level2b).length;
+      // parseTree calls parseTreeNode for level2b exactly once.
+      // reparseExpandedNodes must not call it again because level2b.isParsed === true after parseTree.
+      expect(callsForLevel2b).toBe(1);
+
+      parseTreeNodeSpy.mockRestore();
+    });
+
+    it('should preserve stale expansion entries for paths absent from the new tree', () => {
+      // First create a tree and record a path that will never appear again
+      TreeUIService.createTree(sourceDocNode);
+      const documentId = sourceDocNode.id;
+
+      // Manually inject a stale entry (simulates a path that belonged to a now-removed field)
+      const stalePath = 'stale://path/that/does/not/exist';
+      useDocumentTreeStore.getState().setTreeExpansion(documentId, {
+        ...useDocumentTreeStore.getState().expansionState[documentId],
+        [stalePath]: true,
+      });
+
+      // Rebuild — the stale entry must survive in the expansion state
+      TreeUIService.createTree(sourceDocNode);
+      const stateAfterRebuild = useDocumentTreeStore.getState().expansionState[documentId];
+
+      expect(stateAfterRebuild[stalePath]).toBe(true);
+    });
+
+    it('should default new nodes to isNodeParsed when they have no prior expansion entry', () => {
+      // On the very first createTree there is no prior state, so all entries come from isNodeParsed
+      const tree = TreeUIService.createTree(sourceDocNode);
+      const documentId = sourceDocNode.id;
+      const expansionState = useDocumentTreeStore.getState().expansionState[documentId];
+
+      // Parsed nodes (depth < INITIAL_PARSE_DEPTH) default to true
+      const level1 = tree.root.children.find((n) => n.isParsed)!;
+      expect(expansionState[level1.path]).toBe(true);
+
+      // Unparsed nodes (leaf / depth ≥ INITIAL_PARSE_DEPTH) default to false
+      const level1WithChildren = tree.root.children.find((n) => n.isParsed && n.children.length > 0)!;
+      const level2 = level1WithChildren.children.find((n) => n.isParsed && n.children.length > 0)!;
+      const level3 = level2.children[0];
+      expect(level3.isParsed).toBe(false);
+      expect(expansionState[level3.path]).toBe(false);
+    });
+  });
+
+  describe('invalidateNode', () => {
+    it('should invalidate a parsed node so it becomes unparsed with no children', () => {
+      const tree = TreeUIService.createTree(sourceDocNode);
+      const documentId = sourceDocNode.id;
+
+      // Find a parsed node that has children
+      const level1 = tree.root.children.find((n) => n.isParsed && n.children.length > 0)!;
+      expect(level1.isParsed).toBe(true);
+      expect(level1.children.length).toBeGreaterThan(0);
+
+      TreeUIService.invalidateNode(documentId, level1.path);
+
+      expect(level1.isParsed).toBe(false);
+      expect(level1.children).toHaveLength(0);
+    });
+
+    it('should recursively invalidate all descendants', () => {
+      const tree = TreeUIService.createTree(sourceDocNode);
+      const documentId = sourceDocNode.id;
+
+      // Collect descendant paths before invalidation
+      const level1 = tree.root.children.find((n) => n.isParsed && n.children.length > 0)!;
+      const descendantsBefore = level1.children.flatMap((c) => [c, ...c.children]);
+      expect(descendantsBefore.length).toBeGreaterThan(0);
+
+      TreeUIService.invalidateNode(documentId, level1.path);
+
+      // After invalidation the node has no children at all
+      expect(level1.children).toHaveLength(0);
+    });
+
+    it('should allow the node to be re-parsed by toggleNode after invalidation', () => {
+      const tree = TreeUIService.createTree(sourceDocNode);
+      const documentId = sourceDocNode.id;
+
+      const level1 = tree.root.children.find((n) => n.isParsed && n.children.length > 0)!;
+      TreeUIService.invalidateNode(documentId, level1.path);
+      expect(level1.isParsed).toBe(false);
+
+      // toggleNode must re-parse it
+      const parseTreeNodeSpy = vi.spyOn(TreeParsingService, 'parseTreeNode');
+      TreeUIService.toggleNode(documentId, level1.path);
+      expect(parseTreeNodeSpy).toHaveBeenCalledWith(level1);
+
+      parseTreeNodeSpy.mockRestore();
+    });
+
+    it('should do nothing when the document ID is not registered', () => {
+      const tree = TreeUIService.createTree(sourceDocNode);
+      const level1 = tree.root.children[0]!;
+      const childrenBefore = [...level1.children];
+
+      // Unknown document ID — must be a no-op
+      TreeUIService.invalidateNode('unknown-doc-id', level1.path);
+
+      expect(level1.children).toEqual(childrenBefore);
+      expect(level1.isParsed).toBe(true);
+    });
+
+    it('should do nothing when the node path is not found in the tree', () => {
+      const tree = TreeUIService.createTree(sourceDocNode);
+      const documentId = sourceDocNode.id;
+      const level1 = tree.root.children[0]!;
+
+      TreeUIService.invalidateNode(documentId, 'non-existent-path');
+
+      // Existing tree nodes must be unaffected
+      expect(level1.isParsed).toBe(true);
     });
   });
 });
