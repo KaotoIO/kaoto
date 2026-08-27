@@ -146,6 +146,82 @@ describe('ExpressionField', () => {
     expect(lastCall[1].simple.expression).toBeUndefined();
   });
 
+  it('should set an intentionally empty expression when the Empty checkbox is checked', async () => {
+    const onPropertyChangeSpy = vi.fn();
+
+    render(
+      <FormComponentFactoryProvider>
+        <ModelContextProvider
+          model={{
+            id: 'setHeader-1891',
+            expression: {
+              csimple: {},
+            },
+          }}
+          onPropertyChange={onPropertyChangeSpy}
+        >
+          <SchemaDefinitionsProvider schema={setHeaderExpressionSchema} omitFields={[]}>
+            <SchemaProvider schema={setHeaderExpressionSchema}>
+              <ExpressionField propName={ROOT_PATH} required />
+            </SchemaProvider>
+          </SchemaDefinitionsProvider>
+        </ModelContextProvider>
+      </FormComponentFactoryProvider>,
+    );
+
+    await screen.findByTestId(`${ROOT_PATH}__expression-list-typeahead-select-input`);
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      fireEvent.click(screen.getByTestId(`${ROOT_PATH}__expression-empty-checkbox`));
+    });
+
+    expect(onPropertyChangeSpy).toHaveBeenCalled();
+    const lastCall = onPropertyChangeSpy.mock.calls[onPropertyChangeSpy.mock.calls.length - 1];
+    expect(lastCall[1].csimple.expression).toBe('');
+    expect(screen.getByLabelText(/^Expression/)).toBeDisabled();
+  });
+
+  it('should derive the Empty checkbox state from the model and restore editing when unchecked', async () => {
+    const onPropertyChangeSpy = vi.fn();
+
+    render(
+      <FormComponentFactoryProvider>
+        <ModelContextProvider
+          model={{
+            id: 'setHeader-1891',
+            expression: {
+              csimple: {
+                expression: '',
+              },
+            },
+          }}
+          onPropertyChange={onPropertyChangeSpy}
+        >
+          <SchemaDefinitionsProvider schema={setHeaderExpressionSchema} omitFields={[]}>
+            <SchemaProvider schema={setHeaderExpressionSchema}>
+              <ExpressionField propName={ROOT_PATH} required />
+            </SchemaProvider>
+          </SchemaDefinitionsProvider>
+        </ModelContextProvider>
+      </FormComponentFactoryProvider>,
+    );
+
+    await screen.findByTestId(`${ROOT_PATH}__expression-list-typeahead-select-input`);
+    const emptyCheckbox = screen.getByTestId(`${ROOT_PATH}__expression-empty-checkbox`) as HTMLInputElement;
+    expect(emptyCheckbox.checked).toBe(true);
+    expect(screen.getByLabelText(/^Expression/)).toBeDisabled();
+
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      fireEvent.click(emptyCheckbox);
+    });
+
+    expect(onPropertyChangeSpy).toHaveBeenCalled();
+    const lastCall = onPropertyChangeSpy.mock.calls[onPropertyChangeSpy.mock.calls.length - 1];
+    expect(lastCall[1].csimple.expression).toBeUndefined();
+    expect(screen.getByLabelText(/^Expression/)).not.toBeDisabled();
+  });
+
   it('should call onPropertyChange with the preserved expression after selection change', async () => {
     const onPropertyChangeSpy = vi.fn();
     const EXPRESSION_STRING = 'Test';
