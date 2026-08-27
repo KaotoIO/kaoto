@@ -1,6 +1,8 @@
 - route:
     from:
-      uri: direct:start
+      uri: direct
+      parameters:
+        name: start
       steps:
         - unmarshal:
             json:
@@ -9,7 +11,7 @@
             constant:
               id: kosnstanta
               expression: blabla
-              trim: "true"
+              trim: 'true'
             name: meno
         - choice:
             id: cojsa
@@ -26,39 +28,54 @@
                           - log:
                               message: Apple branch
                           - to:
-                              uri: mock:result
+                              uri: mock
+                              parameters:
+                                name: result
                 - to:
-                    uri: mock:result
+                    uri: mock
+                    parameters:
+                      name: result
             when:
               - steps:
                   - log:
                       message: Apple branch
                   - to:
-                      uri: mock:result
+                      uri: mock
+                      parameters:
+                        name: result
                 simple:
                   expression: ${body} contains 'Apple'
               - steps:
                   - log:
                       message: Banana branch
                   - to:
-                      uri: mock:result
+                      uri: mock
+                      parameters:
+                        name: result
                 simple:
                   expression: ${body} contains 'Banana'
               - steps:
                   - log:
                       message: Cherry branch
                   - to:
-                      uri: mock:result
+                      uri: mock
+                      parameters:
+                        name: result
                 simple:
                   id: houno
                   expression: ${body} contains 'Cherry'
         - log:
             message: Choice processing complete
         - to:
-            uri: mock:result
+            uri: mock
+            parameters:
+              name: result
 - route:
     from:
-      uri: timer://cherryTimer?period=1000
+      uri: timer
+      parameters:
+        timerName: cherryTimer
+        period: 1000
       steps:
         - setBody:
             constant:
@@ -77,13 +94,18 @@
             name: Fruit-Season
         - setHeader:
             constant:
-              expression: "2.75"
+              expression: '2.75'
             name: Fruit-Price
         - to:
-            uri: direct:start
+            uri: direct
+            parameters:
+              name: start
 - route:
     from:
-      uri: timer://bananaTimer?period=2000
+      uri: timer
+      parameters:
+        timerName: bananaTimer
+        period: 2000
       steps:
         - setBody:
             constant:
@@ -102,13 +124,18 @@
             name: Fruit-Season
         - setHeader:
             constant:
-              expression: "0.99"
+              expression: '0.99'
             name: Fruit-Price
         - to:
-            uri: direct:start
+            uri: direct
+            parameters:
+              name: start
 - route:
     from:
-      uri: timer://appleTimer?period=3000
+      uri: timer
+      parameters:
+        timerName: appleTimer
+        period: 3000
       steps:
         - setBody:
             constant:
@@ -127,7 +154,9 @@
             name: Fruit-Season
         - setHeader:
             constant:
-              expression: "1.50"
+              expression: '1.50'
             name: Fruit-Price
         - to:
-            uri: direct:start
+            uri: direct
+            parameters:
+              name: start

@@ -212,7 +212,7 @@ describe('parser basics', () => {
   });
 
   describe('special cases', () => {
-    it('should handle intercept elements', async () => {
+    it('should handle intercept elements with a mock document', async () => {
       const interceptElement = mockDocument.createElement('interceptFrom');
       const whenElement = mockDocument.createElement('onWhen');
       interceptElement.appendChild(whenElement);
@@ -221,7 +221,7 @@ describe('parser basics', () => {
       expect(result.onWhen).toBeDefined();
     });
 
-    it('should handle intercept elements', async () => {
+    it('should handle intercept elements with an XML document', async () => {
       const interceptElement = getDocument(
         '<intercept id="intercept1"><onWhen><simple>${in.body} contains \'Hello\'</simple></onWhen><to uri="mock:intercepted"/></intercept>',
       ).documentElement;
@@ -283,13 +283,46 @@ describe('parser basics', () => {
       expect(result.completion).toBe('direct:complete');
     });
 
-    it('should return empty object when uri attribute is empty', () => {
+    it('should return empty object when uri attribute is empty', async () => {
       const element = mockDocument.createElement('to');
       element.setAttribute('uri', '');
 
-      const result = StepParser['parseAttributeType']('uri', element);
+      const result = await StepParser['parseAttributeType']('uri', element);
 
       expect(result).toEqual({});
+    });
+
+    it('should return raw uri when component is not found in catalog', async () => {
+      // 'nonexistent-scheme' is not in the real catalog — confirms the "not found" round-trip path
+      const element = mockDocument.createElement('to');
+      element.setAttribute('uri', 'nonexistent-scheme:foo');
+
+      const result = await StepParser['parseAttributeType']('uri', element);
+
+      expect(result).toEqual({ uri: 'nonexistent-scheme:foo' });
+    });
+
+    it('should parse uri into componentName and parameters when component is found', async () => {
+      // 'timer' is present in the real catalog loaded in beforeAll
+      // getParsedValue coerces numeric strings to numbers — assert 1000, not '1000'
+      const element = mockDocument.createElement('to');
+      element.setAttribute('uri', 'timer:myTimer?period=1000');
+
+      const result = await StepParser['parseAttributeType']('uri', element);
+
+      expect(result).toMatchObject({
+        uri: 'timer',
+        parameters: expect.objectContaining({ timerName: 'myTimer', period: 1000 }),
+      });
+    });
+
+    it('should return raw uri for non-uri attribute names', async () => {
+      const element = mockDocument.createElement('log');
+      element.setAttribute('message', 'Hello');
+
+      const result = await StepParser['parseAttributeType']('message', element);
+
+      expect(result).toEqual({ message: 'Hello' });
     });
 
     it('should return undefined when findSingleElement has no oneOf and element not found', () => {
@@ -358,7 +391,7 @@ describe('ProcessorParser', () => {
     expect(result).toEqual({
       exception: ['java.lang.Exception'],
       handled: { constant: { expression: 'true' } },
-      steps: [{ to: { uri: 'mock:error' } }],
+      steps: [{ to: { uri: 'mock', parameters: { name: 'error' } } }],
     });
   });
 
@@ -371,7 +404,7 @@ describe('ProcessorParser', () => {
 
     const result = await StepParser.parseElement(onCompletionElement);
     expect(result).toEqual({
-      steps: [{ to: { uri: 'mock:completion' } }],
+      steps: [{ to: { uri: 'mock', parameters: { name: 'completion' } } }],
     });
   });
 
@@ -393,11 +426,11 @@ describe('ProcessorParser', () => {
       when: [
         {
           simple: { expression: "${header.foo} == 'bar'" },
-          steps: [{ to: { uri: 'mock:when' } }],
+          steps: [{ to: { uri: 'mock', parameters: { name: 'when' } } }],
         },
       ],
       otherwise: {
-        steps: [{ to: { uri: 'mock:otherwise' } }],
+        steps: [{ to: { uri: 'mock', parameters: { name: 'otherwise' } } }],
       },
     });
   });

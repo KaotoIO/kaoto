@@ -220,11 +220,11 @@ export class PipeVisualEntity implements BaseVisualEntity {
     };
   }
 
-  getNodeValidationText(path?: string, schema?: KaotoSchemaDefinition['schema']): string | undefined {
+  async getNodeValidationText(path?: string, schema?: KaotoSchemaDefinition['schema']): Promise<string | undefined> {
     const definition = this.getNodeDefinition(path);
     if (!schema || !definition) return undefined;
 
-    return ModelValidationService.validateNodeStatus(schema, definition);
+    return await ModelValidationService.validateNodeStatus(schema, definition);
   }
 
   async toVizNode(): Promise<IVisualizationNode> {

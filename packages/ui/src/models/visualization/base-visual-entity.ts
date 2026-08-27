@@ -81,7 +81,7 @@ export interface BaseVisualEntity extends BaseEntity {
     path?: string,
     schema?: KaotoSchemaDefinition['schema'],
     ids?: IVisualizationNodeIds,
-  ): string | undefined;
+  ): Promise<string | undefined>;
 
   /** Generates a IVisualizationNode from the underlying Camel entity */
   toVizNode: () => Promise<IVisualizationNode>;
@@ -163,7 +163,7 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   removeChild(): void;
 
   /** Retrieve the node's validation status, relying into the underlying entity */
-  getNodeValidationText(): string | undefined;
+  getNodeValidationText(): Promise<string | undefined>;
 }
 
 /**

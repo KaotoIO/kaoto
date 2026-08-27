@@ -18,7 +18,7 @@ import { DoCatch, DoTry, ProcessorDefinition, When1 as When } from '@kaoto/camel
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
 import { CatalogKind, ICamelProcessorDefinition, ICamelProcessorProperty } from '../../../models';
-import { CamelComponentSchemaService } from '../../../models/visualization/flows/support/camel-component-schema.service';
+import { CamelUriHelper } from '../../../utils';
 import { ARRAY_TYPE_NAMES, extractAttributesFromXmlElement, PROCESSOR_NAMES } from '../utils/xml-utils';
 import { ExpressionParser } from './expression-parser';
 
@@ -75,7 +75,7 @@ export class StepParser {
           break;
         case 'attribute':
           if (element.hasAttribute(name)) {
-            processor = { ...processor, ...this.parseAttributeType(name, element) };
+            processor = { ...processor, ...(await this.parseAttributeType(name, element)) };
           }
           break;
         case 'expression':
@@ -117,11 +117,28 @@ export class StepParser {
     return undefined;
   }
 
-  private static parseAttributeType(name: string, element: Element): { [key: string]: unknown } {
+  private static async parseAttributeType(name: string, element: Element): Promise<{ [key: string]: unknown }> {
     if (name === 'uri') {
       const uriString = element.getAttribute('uri');
       if (!uriString) return {};
-      return CamelComponentSchemaService.getComponentDefinitionFromUri(uriString) ?? {};
+
+      // Inline component name extraction (mirrors getComponentNameFromUri logic)
+      const uriParts = uriString.split(':');
+      const componentName =
+        uriParts[0] === 'kamelet' && uriParts.length > 1 ? `kamelet:${uriParts[1].split('?')[0]}` : uriParts[0];
+      if (!componentName) return { uri: uriString };
+
+      const component = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Component, componentName);
+      if (!component) return { uri: uriString };
+
+      const qIdx = uriString.indexOf('?');
+      const path = qIdx === -1 ? uriString : uriString.slice(0, qIdx);
+      const query = qIdx === -1 ? undefined : uriString.slice(qIdx + 1);
+      const pathParams = CamelUriHelper.getParametersFromPathString(component.component.syntax, path, {
+        requiredParameters: component.propertiesSchema.required as string[],
+      });
+      const queryParams = CamelUriHelper.getParametersFromQueryString(query);
+      return { uri: componentName, parameters: { ...pathParams, ...queryParams } };
     }
     if (element.hasAttribute(name)) {
       return { [name]: element.getAttribute(name) };

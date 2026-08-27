@@ -23,13 +23,15 @@ import {
   VariableItem,
 } from '../../models/datamapper/mapping';
 import { DeserializeItemResult, DeserializeResult, MappingItemClass } from '../../models/datamapper/serialization';
-import { NS_XSL } from '../../models/datamapper/standard-namespaces';
+import { NS_XML_SCHEMA_INSTANCE, NS_XSL } from '../../models/datamapper/standard-namespaces';
 import { DEFAULT_DATAMAPPER_SETTINGS, FieldOverrideVariant, IDataMapperSettings } from '../../models/datamapper/types';
 import { SendAlertProps } from '../../models/datamapper/visualization';
+import { QName } from '../../xml-schema-ts/QName';
 import { DocumentUtilService } from '../document/document-util.service';
 import { FieldOverrideService } from '../document/field-override.service';
 import { FROM_JSON_SOURCE_SUFFIX, JsonSchemaDocument } from '../document/json-schema/json-schema-document.model';
 import { XmlSchemaDocumentUtilService } from '../document/xml-schema/xml-schema-document-util.service';
+import { ensureNamespaceRegistered, parseQNameString } from '../namespace-util';
 import { MappingService } from './mapping.service';
 import { MappingSerializerJsonAddon, TO_JSON_TARGET_VARIABLE } from './mapping-serializer-json-addon';
 import { deserializeHandlers, serializeHandlers } from './xslt-item-handlers';
@@ -121,24 +123,40 @@ export class MappingSerializerService {
     dataMapperSettings?: IDataMapperSettings,
   ): string {
     const xslt = MappingSerializerService.createNew(dataMapperSettings);
-    MappingSerializerService.populateNamespaces(xslt, mappings.namespaceMap);
+    const outputNamespaceURIs = MappingSerializerService.collectOutputNamespaceURIs(mappings);
+    for (const namespaceURI of outputNamespaceURIs) {
+      ensureNamespaceRegistered(
+        namespaceURI,
+        mappings.namespaceMap,
+        namespaceURI === NS_XML_SCHEMA_INSTANCE ? 'xsi' : undefined,
+      );
+    }
+    MappingSerializerService.populateNamespaces(xslt, mappings.namespaceMap, outputNamespaceURIs);
     MappingSerializerService.populateParam(xslt, sourceParameterMap);
     MappingSerializerService.populateStylesheetVariables(xslt, mappings);
     const root = MappingSerializerService.populateMappingRoot(xslt, mappings);
     MappingSerializerService.populateTemplateVariables(root, mappings);
-    mappings.children.sort(MappingSerializerService.sortMappingItem).forEach((mapping) => {
+    [...mappings.children].sort(MappingSerializerService.sortMappingItem).forEach((mapping) => {
       MappingSerializerService.populateMapping(root, mapping);
     });
     return xmlFormat(new XMLSerializer().serializeToString(xslt));
   }
 
-  private static populateNamespaces(xslt: Document, namespaceMap: { [prefix: string]: string }) {
+  private static populateNamespaces(
+    xslt: Document,
+    namespaceMap: { [prefix: string]: string },
+    outputNamespaceURIs: Set<string> = new Set(),
+  ) {
     const rootElement = xslt.documentElement;
     const prefixes: string[] = [];
     Object.entries(namespaceMap).forEach(([prefix, uri]) => {
       if (prefix && uri) {
         rootElement.setAttribute(`xmlns:${prefix}`, uri);
-        prefixes.push(prefix);
+        // Prefixes whose namespace URIs appear in the output must NOT be excluded —
+        // the XSLT processor needs them to emit the correct namespace declarations.
+        if (!outputNamespaceURIs.has(uri)) {
+          prefixes.push(prefix);
+        }
       }
     });
     // These prefixes are only declared for matching the source document via XPath.
@@ -148,6 +166,29 @@ export class MappingSerializerService {
     // are not actually used by an output element, so this is safe.
     if (prefixes.length > 0) {
       rootElement.setAttribute('exclude-result-prefixes', prefixes.join(' '));
+    }
+  }
+
+  /** Collects namespace URIs that must appear in the output (i.e. must not be excluded). */
+  private static collectOutputNamespaceURIs(mappings: MappingTree): Set<string> {
+    const uris = new Set<string>();
+    const allRoots = [...mappings.children, ...mappings.globalVariables];
+    MappingSerializerService.walkMappingItems(allRoots, (item) => {
+      if (item instanceof FieldItem && item.field.typeOverride === FieldOverrideVariant.SAFE && item.field.typeQName) {
+        uris.add(NS_XML_SCHEMA_INSTANCE);
+        const typeNsURI = item.field.typeQName.getNamespaceURI();
+        if (typeNsURI) uris.add(typeNsURI);
+      }
+    });
+    return uris;
+  }
+
+  private static walkMappingItems(items: MappingItem[], visitor: (item: MappingItem) => void) {
+    for (const item of items) {
+      visitor(item);
+      if (item.children.length > 0) {
+        MappingSerializerService.walkMappingItems(item.children, visitor);
+      }
     }
   }
 
@@ -229,8 +270,7 @@ export class MappingSerializerService {
       return;
     }
 
-    mapping.children.sort(MappingSerializerService.sortMappingItem);
-    for (const childItem of mapping.children) {
+    for (const childItem of [...mapping.children].sort(MappingSerializerService.sortMappingItem)) {
       MappingSerializerService.populateMapping(child, childItem);
     }
   }
@@ -397,6 +437,7 @@ export class MappingSerializerService {
 
   private static isUserCreatedField(field: IField): boolean {
     if (field.typeOverride === FieldOverrideVariant.SUBSTITUTION) return true;
+    if (field.typeOverride === FieldOverrideVariant.SAFE) return true;
 
     let current: IParentType = field.parent;
     while ('ownerDocument' in current) {
@@ -463,9 +504,27 @@ export class MappingSerializerService {
     if (parentField instanceof PrimitiveDocument) return null;
     const field = MappingSerializerService.getOrCreateElementField(element, parentField);
     if (!field) return null;
+
+    // Preserve xsi:type literal attribute for round-trip support.
+    // Only apply when the field has no existing schema-driven override.
+    const xsiType = element.getAttributeNS(NS_XML_SCHEMA_INSTANCE, 'type');
+    if (xsiType && field.typeOverride === FieldOverrideVariant.NONE) {
+      MappingSerializerService.applyXsiTypeOverride(field, xsiType, element);
+    }
+
     const mappingItem = new FieldItem(parentMapping, field);
     MappingSerializerService.restoreCommentFromPreviousSibling(element, mappingItem);
     return { fieldItem: field, mappingItem };
+  }
+
+  private static applyXsiTypeOverride(field: IField, xsiTypeValue: string, element: Element): void {
+    const { prefix, localPart } = parseQNameString(xsiTypeValue);
+    const namespaceURI = element.lookupNamespaceURI(prefix || null) ?? '';
+    const typeQName = new QName(namespaceURI, localPart, prefix);
+
+    field.originalField ??= DocumentUtilService.captureOriginalFieldState(field);
+    field.typeQName = typeQName;
+    field.typeOverride = FieldOverrideVariant.SAFE;
   }
 
   private static restoreXslElement(

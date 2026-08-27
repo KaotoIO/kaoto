@@ -1,9 +1,9 @@
 import { ExpressionDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 
+import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
 import { CatalogKind } from '../../../../../../models/catalog-kind';
 import { KaotoSchemaDefinition } from '../../../../../../models/kaoto-schema';
-import { CamelCatalogService } from '../../../../../../models/visualization/flows/camel-catalog.service';
 
 export class ExpressionService {
   static getExpressionsSchema(schema: KaotoSchemaDefinition['schema']): KaotoSchemaDefinition['schema'] {
@@ -64,7 +64,7 @@ export class ExpressionService {
    * </ul>
    * @param parentModel The parent step model object which has expression as its parameter. For example `setBody` contents.
    * */
-  static parseExpressionModel(parentModel?: Record<string, unknown>): ExpressionDefinition | undefined {
+  static async parseExpressionModel(parentModel?: Record<string, unknown>): Promise<ExpressionDefinition | undefined> {
     if (!isDefined(parentModel)) {
       return undefined;
     }
@@ -78,7 +78,7 @@ export class ExpressionService {
       return { ...model, ...parsedModel };
     }
 
-    const languageNames = this.getLanguageNames();
+    const languageNames = await this.getLanguageNames();
     return Object.entries(parentModel).reduce((acc, [key, value]) => {
       if (languageNames.includes(key)) {
         acc[key] = this.parseLanguageModel({ [key]: value }, key)[key];
@@ -90,12 +90,8 @@ export class ExpressionService {
     }, {} as ExpressionDefinition);
   }
 
-  private static getLanguageNames(): string[] {
-    const languageCatalogMap = CamelCatalogService.getLanguageMap();
-
-    if (Object.keys(languageCatalogMap).length === 0) {
-      throw new Error('Language catalog is not initialized');
-    }
+  private static async getLanguageNames(): Promise<string[]> {
+    const languageCatalogMap = (await DynamicCatalogRegistry.get().getCatalog(CatalogKind.Language)?.getAll()) ?? {};
 
     return Object.values(languageCatalogMap).map((lang) => lang.model.name);
   }
@@ -118,14 +114,14 @@ export class ExpressionService {
     }
   }
 
-  static updateExpressionFromModel(
+  static async updateExpressionFromModel(
     sourceModel: Record<string, unknown> | undefined,
     targetModel: Record<string, unknown>,
-  ): void {
+  ): Promise<void> {
     if (!isDefined(sourceModel) || !isDefined(targetModel)) {
       return;
     }
-    const languageNames = this.getLanguageNames();
+    const languageNames = await this.getLanguageNames();
     const sourceKey = Object.keys(sourceModel).find((key) => languageNames.includes(key));
     const sourceExpressionString = sourceKey
       ? (sourceModel[sourceKey] as Record<string, unknown>)?.expression
@@ -133,10 +129,12 @@ export class ExpressionService {
 
     if (typeof sourceExpressionString === 'string') {
       const targetKey = Object.keys(targetModel).find((key) => languageNames.includes(key));
-      const exprModel = CamelCatalogService.getComponent(CatalogKind.Language, targetKey)?.properties;
-
-      if (targetKey && isDefined(exprModel) && 'expression' in exprModel) {
-        (targetModel[targetKey] as Record<string, unknown>).expression = sourceExpressionString;
+      if (targetKey) {
+        const exprModel =
+          (await DynamicCatalogRegistry.get().getEntity(CatalogKind.Language, targetKey))?.properties ?? {};
+        if (isDefined(exprModel) && 'expression' in exprModel) {
+          (targetModel[targetKey] as Record<string, unknown>).expression = sourceExpressionString;
+        }
       }
     }
   }

@@ -69,18 +69,6 @@ export class CamelCatalogService {
     return this.catalogs[catalogKey]?.[componentName];
   }
 
-  static getLanguageMap(): Record<string, ICamelLanguageDefinition> {
-    return this.catalogs[CatalogKind.Language] || {};
-  }
-
-  static getDataFormatMap(): Record<string, ICamelDataformatDefinition> {
-    return this.catalogs[CatalogKind.Dataformat] || {};
-  }
-
-  static getLoadBalancerMap(): Record<string, ICamelLoadBalancerDefinition> {
-    return this.catalogs[CatalogKind.Loadbalancer] || {};
-  }
-
   /**
    * Public only as a convenience method for test
    * not meant to be used in production code

@@ -14,13 +14,15 @@ import {
   ValueOfType,
   VariableItem,
 } from '../../models/datamapper/mapping';
-import { NS_XSL } from '../../models/datamapper/standard-namespaces';
+import { NS_XML_SCHEMA_INSTANCE, NS_XSL } from '../../models/datamapper/standard-namespaces';
+import { FieldOverrideVariant } from '../../models/datamapper/types';
 import {
   getForEachGroupEndingWithToShipOrderXslt,
   getForEachGroupStartingWithToShipOrderXslt,
   getForEachGroupToShipOrderXslt,
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
+import { QName } from '../../xml-schema-ts/QName';
 import { MappingSerializerService } from './mapping-serializer.service';
 import * as handlerModule from './xslt-item-handlers';
 import {
@@ -848,5 +850,115 @@ describe('UnknownMappingItemHandler', () => {
         expect(result.expression).toBe('');
       });
     });
+  });
+});
+
+describe('FieldItemHandler xsi:type emission', () => {
+  const handler = new FieldItemHandler();
+  let targetDoc: ReturnType<typeof TestUtil.createTargetOrderDoc>;
+
+  beforeEach(() => {
+    targetDoc = TestUtil.createTargetOrderDoc();
+  });
+
+  function createFieldItemWithOverride(
+    override: FieldOverrideVariant,
+    typeQName: QName | null,
+    namespaceMap: Record<string, string>,
+  ): FieldItem {
+    const field = targetDoc.fields[0];
+    field.typeOverride = override;
+    field.typeQName = typeQName;
+    const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+    mappingTree.namespaceMap = namespaceMap;
+    return new FieldItem(mappingTree, field);
+  }
+
+  it('should emit xsi:type attribute when typeOverride is SAFE', () => {
+    const namespaceMap = { xsi: NS_XML_SCHEMA_INSTANCE, ns0: 'urn:order', ns1: 'urn:ext' };
+    const fieldItem = createFieldItemWithOverride(
+      FieldOverrideVariant.SAFE,
+      new QName('urn:ext', 'ShipToExt'),
+      namespaceMap,
+    );
+    const xslt = MappingSerializerService.createNew();
+    const element = handler.serialize(xslt.documentElement, fieldItem);
+    expect(element.getAttribute('xsi:type')).toBe('ns1:ShipToExt');
+  });
+
+  it('should NOT emit xsi:type when typeOverride is NONE', () => {
+    const namespaceMap = { xsi: NS_XML_SCHEMA_INSTANCE, ns0: 'urn:order', ns1: 'urn:ext' };
+    const fieldItem = createFieldItemWithOverride(
+      FieldOverrideVariant.NONE,
+      new QName('urn:ext', 'ShipToExt'),
+      namespaceMap,
+    );
+    const xslt = MappingSerializerService.createNew();
+    const element = handler.serialize(xslt.documentElement, fieldItem);
+    expect(element.hasAttribute('xsi:type')).toBe(false);
+  });
+
+  it('should NOT emit xsi:type when typeOverride is FORCE', () => {
+    const namespaceMap = { xsi: NS_XML_SCHEMA_INSTANCE, ns0: 'urn:order', ns1: 'urn:ext' };
+    const fieldItem = createFieldItemWithOverride(
+      FieldOverrideVariant.FORCE,
+      new QName('urn:ext', 'ShipToExt'),
+      namespaceMap,
+    );
+    const xslt = MappingSerializerService.createNew();
+    const element = handler.serialize(xslt.documentElement, fieldItem);
+    expect(element.hasAttribute('xsi:type')).toBe(false);
+  });
+
+  it('should NOT emit xsi:type when typeOverride is SUBSTITUTION', () => {
+    const namespaceMap = { xsi: NS_XML_SCHEMA_INSTANCE, ns0: 'urn:order', ns1: 'urn:ext' };
+    const fieldItem = createFieldItemWithOverride(
+      FieldOverrideVariant.SUBSTITUTION,
+      new QName('urn:ext', 'ShipToExt'),
+      namespaceMap,
+    );
+    const xslt = MappingSerializerService.createNew();
+    const element = handler.serialize(xslt.documentElement, fieldItem);
+    expect(element.hasAttribute('xsi:type')).toBe(false);
+  });
+
+  it('should NOT emit xsi:type when typeQName is null', () => {
+    const namespaceMap = { xsi: NS_XML_SCHEMA_INSTANCE, ns0: 'urn:order' };
+    const fieldItem = createFieldItemWithOverride(FieldOverrideVariant.SAFE, null, namespaceMap);
+    const xslt = MappingSerializerService.createNew();
+    const element = handler.serialize(xslt.documentElement, fieldItem);
+    expect(element.hasAttribute('xsi:type')).toBe(false);
+  });
+
+  it('should NOT emit xsi:type for attribute fields', () => {
+    const namespaceMap = { xsi: NS_XML_SCHEMA_INSTANCE, ns0: 'urn:order', ns1: 'urn:ext' };
+    const field = targetDoc.fields[0];
+    field.isAttribute = true;
+    field.typeOverride = FieldOverrideVariant.SAFE;
+    field.typeQName = new QName('urn:ext', 'ShipToExt');
+    const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+    mappingTree.namespaceMap = namespaceMap;
+    const fieldItem = new FieldItem(mappingTree, field);
+    const xslt = MappingSerializerService.createNew();
+    // attribute fields produce an xsl:attribute element, not a literal element
+    const element = handler.serialize(xslt.documentElement, fieldItem);
+    expect(element.namespaceURI).toBe(NS_XSL);
+    expect(element.localName).toBe('attribute');
+    expect(element.hasAttribute('xsi:type')).toBe(false);
+  });
+
+  it('should use dynamically resolved prefix when xsi is taken by another URI', () => {
+    // xsi prefix is taken by a different namespace; NS_XML_SCHEMA_INSTANCE is registered under ns0
+    const namespaceMap = { xsi: 'urn:some-other-namespace', ns0: NS_XML_SCHEMA_INSTANCE, ns1: 'urn:ext' };
+    const fieldItem = createFieldItemWithOverride(
+      FieldOverrideVariant.SAFE,
+      new QName('urn:ext', 'ShipToExt'),
+      namespaceMap,
+    );
+    const xslt = MappingSerializerService.createNew();
+    const element = handler.serialize(xslt.documentElement, fieldItem);
+    // ns0 is the prefix that maps to NS_XML_SCHEMA_INSTANCE
+    expect(element.getAttribute('ns0:type')).toBe('ns1:ShipToExt');
+    expect(element.hasAttribute('xsi:type')).toBe(false);
   });
 });

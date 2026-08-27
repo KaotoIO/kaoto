@@ -23,7 +23,7 @@ describe('RestDslImportPage', () => {
     expect(screen.getByLabelText('Upload file')).toBeInTheDocument();
   });
 
-  it('navigates back to the Home page when closing the wizard', async () => {
+  it('navigates to the Rest Editor page when clicking Go to Rest Editor', async () => {
     render(
       <MemoryRouter initialEntries={[Links.RestImport]}>
         <Routes>

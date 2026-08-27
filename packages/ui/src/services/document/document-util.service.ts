@@ -99,7 +99,7 @@ export class DocumentUtilService {
     return field;
   }
 
-  private static captureOriginalFieldState(field: IField): IOriginalFieldState {
+  static captureOriginalFieldState(field: IField): IOriginalFieldState {
     return {
       name: field.name,
       displayName: field.displayName,
@@ -378,8 +378,7 @@ export class DocumentUtilService {
   static removeTypeOverride(document: IDocument, schemaPath: string, namespaceMap: Record<string, string>): boolean {
     if (!document.definition.fieldTypeOverrides) return false;
 
-    const override = document.definition.fieldTypeOverrides.find((o) => o.schemaPath === schemaPath);
-    if (!override) return false;
+    if (!document.definition.fieldTypeOverrides.some((o) => o.schemaPath === schemaPath)) return false;
 
     const field = SchemaPathService.navigateToField(document, schemaPath, namespaceMap);
     if (field) {

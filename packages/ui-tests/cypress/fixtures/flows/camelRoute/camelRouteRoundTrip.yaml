@@ -1,0 +1,43 @@
+- route:
+    id: route-expanded-uri-parameters
+    from:
+      id: from-expanded-uri-parameters
+      uri: timer:template
+      parameters:
+        period: '1000'
+      steps:
+        - to:
+            id: to-expanded-uri-parameters
+            uri: log
+            parameters:
+              loggerName: testing
+              showHeaders: 'true'
+- route:
+    id: route-expanded-inline-uri
+    from:
+      id: from-expanded-inline-uri
+      uri: timer:template
+      parameters:
+        period: '1000'
+      steps:
+        - to:
+            id: to-expanded-inline-uri
+            uri: log:testing?showHeaders=true
+- route:
+    id: route-scalar-uri-parameters
+    from:
+      id: from-scalar-uri-parameters
+      uri: timer:template
+      parameters:
+        period: '1000'
+      steps:
+        - to: log?loggerName=testing&showHeaders=true
+- route:
+    id: route-scalar-inline-uri
+    from:
+      id: from-scalar-inline-uri
+      uri: timer:template
+      parameters:
+        period: '1000'
+      steps:
+        - to: log:testing?showHeaders=true

@@ -1,0 +1,31 @@
+<camel xmlns="http://camel.apache.org/schema/xml-io">
+  <!-- loggerName in query string, showHeaders in query string -->
+  <route id="route-query-logger-query-headers">
+    <from id="from-query-logger-query-headers" uri="timer:template?period=1000"/>
+    <to id="to-query-logger-query-headers" uri="log?loggerName=testing&amp;showHeaders=true"/>
+  </route>
+
+  <!-- loggerName as path component, showHeaders in query string -->
+  <route id="route-path-logger-query-headers">
+    <from id="from-path-logger-query-headers" uri="timer:template?period=1000"/>
+    <to id="to-path-logger-query-headers" uri="log:testing?showHeaders=true"/>
+  </route>
+
+  <!-- loggerName as path component, no query string -->
+  <route id="route-path-logger-only">
+    <from id="from-path-logger-only" uri="timer:template?period=1000"/>
+    <to id="to-path-logger-only" uri="log:testing"/>
+  </route>
+
+  <!-- loggerName in query string only, no showHeaders -->
+  <route id="route-query-logger-only">
+    <from id="from-query-logger-only" uri="timer:template?period=1000"/>
+    <to id="to-query-logger-only" uri="log?loggerName=testing"/>
+  </route>
+
+  <!-- loggerName as path component, multiple query params -->
+  <route id="route-path-logger-multi-params">
+    <from id="from-path-logger-multi-params" uri="timer:template?period=1000"/>
+    <to id="to-path-logger-multi-params" uri="log:testing?showHeaders=true&amp;logMask=true&amp;level=WARN"/>
+  </route>
+</camel>

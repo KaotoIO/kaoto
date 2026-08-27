@@ -3,7 +3,6 @@ import { CatalogLibrary, ProcessorDefinition } from '@kaoto/camel-catalog/types'
 
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
 import { DATAMAPPER_ID_PREFIX } from '../../../../utils';
-import { ICamelComponentDefinition } from '../../../camel/camel-components-catalog';
 import { CatalogKind } from '../../../catalog-kind';
 import { IVisualizationNodeIds } from '../../base-visual-entity';
 import { IClipboardContent } from '../../clipboard';
@@ -303,48 +302,6 @@ describe('CamelComponentSchemaService', () => {
       };
       const expectedValue = CamelComponentSchemaService.getNodeDefinitionValue(clipboadContent);
       expect(expectedValue).toEqual({ id: 'when-2765', steps: [{ log: { id: 'log-2202', message: '${body}' } }] });
-    });
-  });
-
-  describe('getComponentDefinitionFromUri', () => {
-    it('returns undefined for empty uri', () => {
-      expect(CamelComponentSchemaService.getComponentDefinitionFromUri('')).toEqual({ uri: '' });
-    });
-
-    it('returns undefined for unknown component', () => {
-      vi.spyOn(CamelCatalogService, 'getComponent').mockReturnValueOnce(undefined);
-      expect(CamelComponentSchemaService.getComponentDefinitionFromUri('unknown:foo')).toEqual({ uri: 'unknown:foo' });
-    });
-
-    it('parses simple component uri', () => {
-      vi.spyOn(CamelCatalogService, 'getComponent').mockReturnValueOnce({
-        component: { syntax: 'timer:timerName' },
-        propertiesSchema: { required: ['timerName'] },
-      } as ICamelComponentDefinition);
-      expect(CamelComponentSchemaService.getComponentDefinitionFromUri('timer:myTimer')).toEqual({
-        uri: 'timer',
-        parameters: { timerName: 'myTimer' },
-      });
-    });
-
-    it('parses uri with query parameters', () => {
-      vi.spyOn(CamelCatalogService, 'getComponent').mockReturnValueOnce({
-        component: { syntax: 'timer:timerName' },
-        propertiesSchema: {
-          required: ['timerName'],
-        },
-      } as ICamelComponentDefinition);
-      expect(CamelComponentSchemaService.getComponentDefinitionFromUri('timer:myTimer?period=1000&delay=500')).toEqual({
-        uri: 'timer',
-        parameters: { timerName: 'myTimer', period: 1000, delay: 500 },
-      });
-    });
-
-    it('parses kamelet uri', () => {
-      vi.spyOn(CamelCatalogService, 'getComponent').mockReturnValueOnce(undefined);
-      expect(CamelComponentSchemaService.getComponentDefinitionFromUri('kamelet:beer-source')).toEqual({
-        uri: 'kamelet:beer-source',
-      });
     });
   });
 

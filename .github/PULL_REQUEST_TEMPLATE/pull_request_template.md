@@ -16,5 +16,5 @@ Provide information about the testing procedures, types of tests, and tools used
 - [ ] I have read the [Contributing Guidelines](CONTRIBUTING.md).
 - [ ] I have followed the coding style and conventions of the project.
 - [ ] I have tested my changes and ensured that they work as expected.
-- [ ] I have updated any relevant documentation.
+- [ ] I have updated any relevant [documentation](https://github.com/KaotoIO/kaoto.io/tree/main/content/docs).
 - [ ] I have added tests that prove my fix or feature works.

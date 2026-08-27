@@ -91,13 +91,13 @@ describe('CamelOnCompletionVisualEntity', () => {
     });
   });
 
-  it('should delegate the validation text to the ModelValidationService', () => {
-    const validateNodeStatusSpy = vi.spyOn(ModelValidationService, 'validateNodeStatus');
+  it('should delegate the validation text to the ModelValidationService', async () => {
+    const validateNodeStatusSpy = vi.spyOn(ModelValidationService, 'validateNodeStatus').mockResolvedValue('');
 
     const onCompletionVisualEntity = new CamelOnCompletionVisualEntity({
       onCompletion: { id: 'id', mode: 'AfterConsumer' },
     });
-    onCompletionVisualEntity.getNodeValidationText('onCompletion', { type: 'object', properties: {} });
+    await onCompletionVisualEntity.getNodeValidationText('onCompletion', { type: 'object', properties: {} });
 
     expect(validateNodeStatusSpy).toHaveBeenCalled();
   });

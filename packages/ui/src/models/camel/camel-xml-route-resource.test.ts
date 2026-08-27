@@ -22,7 +22,7 @@ describe('CamelXMLRouteResource', () => {
     const visualEntities = resource.getVisualEntities();
     expect(visualEntities).toHaveLength(1);
     const route = visualEntities[0].toJSON().route;
-    expect(route.from?.uri).toBe('direct:start');
+    expect(route.from?.uri).toBe('direct');
     expect(route.from?.steps).toHaveLength(2);
   });
 
