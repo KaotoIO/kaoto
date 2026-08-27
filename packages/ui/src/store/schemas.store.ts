@@ -1,4 +1,4 @@
-import type {} from '@redux-devtools/extension'; // required for devtools typing
+import type {} from '@redux-devtools/extension'; // NOSONAR typescript:S7787 - required for devtools typing augmentation; see https://github.com/pmndrs/zustand/blob/main/docs/integrations/devtools.md
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
