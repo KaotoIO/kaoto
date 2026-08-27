@@ -245,7 +245,7 @@ export class MappingService {
       return false;
     }
 
-    const stalePath = fieldPaths.find((xpath) => {
+    return fieldPaths.some((xpath) => {
       xpath.contextPath = expressionItem.parent.contextPath;
       xpath.isRelative = !!xpath.contextPath;
       const absPath = XPathService.toAbsolutePath(xpath);
@@ -261,8 +261,8 @@ export class MappingService {
         );
         return !referredField;
       }
+      return false;
     });
-    return !!stalePath;
   }
 
   /**

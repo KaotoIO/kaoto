@@ -58,7 +58,7 @@ export class CamelOnExceptionVisualEntity
     const canHavePreviousStep = CamelComponentSchemaService.canHavePreviousStep(
       data.primaryNodeId?.name as keyof ProcessorDefinition,
     );
-    const canHaveChildren = stepsProperties.find((property) => property.type === 'branch') !== undefined;
+    const canHaveChildren = stepsProperties.some((property) => property.type === 'branch');
     const canHaveSpecialChildren = Object.keys(stepsProperties).length > 1;
     const canReplaceStep = data.path !== CamelOnExceptionVisualEntity.ROOT_PATH;
     const canRemoveStep = data.path !== CamelOnExceptionVisualEntity.ROOT_PATH;
