@@ -3,7 +3,6 @@ import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { DATAMAPPER_ID_PREFIX } from '../../../../utils';
 import { CatalogKind } from '../../../catalog-kind';
 import { REST_DSL_VERBS } from '../../../special-processors.constants';
-import { IClipboardContent } from '../../clipboard';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelProcessorStepsProperties } from './camel-component-types';
 
@@ -51,14 +50,6 @@ export class CamelComponentSchemaService {
     ...REST_DSL_VERBS,
   ];
   static readonly DISABLED_REMOVE_STEPS = ['from', 'route'] as unknown as (keyof ProcessorDefinition)[];
-  static readonly SPECIAL_CHILD_PROCESSORS = [
-    'onFallback',
-    'when',
-    'otherwise',
-    'doCatch',
-    'doFinally',
-    ...REST_DSL_VERBS,
-  ];
   static readonly PROCESSOR_STRING_DEFINITIONS: Record<string, string> = {
     to: 'uri',
     toD: 'uri',
@@ -136,19 +127,6 @@ export class CamelComponentSchemaService {
         return CAMEL_REST_VERB_STEP_PROPERTIES;
       default:
         return [];
-    }
-  }
-
-  /**
-   * Get the definition for a given component and property
-   */
-  static getNodeDefinitionValue(clipboardContent: IClipboardContent): ProcessorDefinition {
-    const { name, definition: defaultValue } = clipboardContent;
-
-    if (this.SPECIAL_CHILD_PROCESSORS.includes(name)) {
-      return defaultValue as ProcessorDefinition;
-    } else {
-      return { [name]: defaultValue } as ProcessorDefinition;
     }
   }
 
