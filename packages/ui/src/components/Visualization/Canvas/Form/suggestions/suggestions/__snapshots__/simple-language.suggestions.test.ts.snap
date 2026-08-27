@@ -19,6 +19,121 @@ exports[`Properties Suggestions > should return suggestions for word="''" inputV
     "value": "\${env.name}",
   },
   {
+    "description": "Returns the resolved A2A agent card as a JSON string.",
+    "group": "Simple Language",
+    "value": "\${a2a:card}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card capabilities as a JSON string.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.capabilities}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card description.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.description}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card documentation URL.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.documentationUrl}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card icon URL.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.iconUrl}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card name.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.name}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card provider as a JSON string.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.provider}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card legacy security field as a JSON array string.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.security}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card security requirements as a JSON array string.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.securityRequirements}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card security schemes as a JSON object string.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.securitySchemes}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card skills as human-readable text.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.skills}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card skills as a JSON array string.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.skills.json}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card supported interfaces as a JSON array string.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.supportedInterfaces}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card URL.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.url}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card version.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.version}",
+  },
+  {
+    "description": "Extracts DataPart content as a JSON string from an A2A Task or Message in the message body.",
+    "group": "Simple Language",
+    "value": "\${a2a:data}",
+  },
+  {
+    "description": "Extracts DataPart content as a JSON string from an A2A Task or Message returned by the expression.",
+    "group": "Simple Language",
+    "value": "\${a2a:data(expression)}",
+  },
+  {
+    "description": "Emits an A2A task progress update with WORKING state. Requires the camel-a2a component on the classpath and an active A2A task context.",
+    "group": "Simple Language",
+    "value": "\${a2a:emit(message)}",
+  },
+  {
+    "description": "Emits an A2A task progress update with the given task state. Requires the camel-a2a component on the classpath and an active A2A task context.",
+    "group": "Simple Language",
+    "value": "\${a2a:emit(state,message)}",
+  },
+  {
+    "description": "Extracts FilePart content from an A2A Task or Message in the message body.",
+    "group": "Simple Language",
+    "value": "\${a2a:file}",
+  },
+  {
+    "description": "Extracts FilePart content from an A2A Task or Message returned by the expression.",
+    "group": "Simple Language",
+    "value": "\${a2a:file(expression)}",
+  },
+  {
+    "description": "Extracts TextPart content from an A2A Task or Message in the message body.",
+    "group": "Simple Language",
+    "value": "\${a2a:text}",
+  },
+  {
+    "description": "Extracts TextPart content from an A2A Task or Message returned by the expression.",
+    "group": "Simple Language",
+    "value": "\${a2a:text(expression)}",
+  },
+  {
     "description": "Converts the message body (or expression) to a long number and return the absolute value.",
     "group": "Simple Language",
     "value": "\${abs(exp)}",
@@ -247,6 +362,21 @@ exports[`Properties Suggestions > should return suggestions for word="''" inputV
     "description": "Returns the local hostname (may be empty if not possible to resolve).",
     "group": "Simple Language",
     "value": "\${hostName}",
+  },
+  {
+    "description": "Cleans the HTML to remove unsafe links and JavaScripts from the message body (or expression)",
+    "group": "Simple Language",
+    "value": "\${htmlClean(exp)}",
+  },
+  {
+    "description": "Decodes the HTML as plain text (removing all HTML tags) that is also suitable as input for AI and LLMs",
+    "group": "Simple Language",
+    "value": "\${htmlDecode(exp)}",
+  },
+  {
+    "description": "Parses the HTML as a JSoup object from the message body (or expression)",
+    "group": "Simple Language",
+    "value": "\${htmlParse(exp)}",
   },
   {
     "description": "The message id",
@@ -650,6 +780,121 @@ exports[`Properties Suggestions > should return suggestions for word="''" inputV
     "value": "\${env.name}",
   },
   {
+    "description": "Returns the resolved A2A agent card as a JSON string.",
+    "group": "Simple Language",
+    "value": "\${a2a:card}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card capabilities as a JSON string.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.capabilities}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card description.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.description}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card documentation URL.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.documentationUrl}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card icon URL.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.iconUrl}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card name.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.name}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card provider as a JSON string.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.provider}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card legacy security field as a JSON array string.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.security}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card security requirements as a JSON array string.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.securityRequirements}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card security schemes as a JSON object string.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.securitySchemes}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card skills as human-readable text.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.skills}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card skills as a JSON array string.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.skills.json}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card supported interfaces as a JSON array string.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.supportedInterfaces}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card URL.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.url}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card version.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.version}",
+  },
+  {
+    "description": "Extracts DataPart content as a JSON string from an A2A Task or Message in the message body.",
+    "group": "Simple Language",
+    "value": "\${a2a:data}",
+  },
+  {
+    "description": "Extracts DataPart content as a JSON string from an A2A Task or Message returned by the expression.",
+    "group": "Simple Language",
+    "value": "\${a2a:data(expression)}",
+  },
+  {
+    "description": "Emits an A2A task progress update with WORKING state. Requires the camel-a2a component on the classpath and an active A2A task context.",
+    "group": "Simple Language",
+    "value": "\${a2a:emit(message)}",
+  },
+  {
+    "description": "Emits an A2A task progress update with the given task state. Requires the camel-a2a component on the classpath and an active A2A task context.",
+    "group": "Simple Language",
+    "value": "\${a2a:emit(state,message)}",
+  },
+  {
+    "description": "Extracts FilePart content from an A2A Task or Message in the message body.",
+    "group": "Simple Language",
+    "value": "\${a2a:file}",
+  },
+  {
+    "description": "Extracts FilePart content from an A2A Task or Message returned by the expression.",
+    "group": "Simple Language",
+    "value": "\${a2a:file(expression)}",
+  },
+  {
+    "description": "Extracts TextPart content from an A2A Task or Message in the message body.",
+    "group": "Simple Language",
+    "value": "\${a2a:text}",
+  },
+  {
+    "description": "Extracts TextPart content from an A2A Task or Message returned by the expression.",
+    "group": "Simple Language",
+    "value": "\${a2a:text(expression)}",
+  },
+  {
     "description": "Converts the message body (or expression) to a long number and return the absolute value.",
     "group": "Simple Language",
     "value": "\${abs(exp)}",
@@ -878,6 +1123,21 @@ exports[`Properties Suggestions > should return suggestions for word="''" inputV
     "description": "Returns the local hostname (may be empty if not possible to resolve).",
     "group": "Simple Language",
     "value": "\${hostName}",
+  },
+  {
+    "description": "Cleans the HTML to remove unsafe links and JavaScripts from the message body (or expression)",
+    "group": "Simple Language",
+    "value": "\${htmlClean(exp)}",
+  },
+  {
+    "description": "Decodes the HTML as plain text (removing all HTML tags) that is also suitable as input for AI and LLMs",
+    "group": "Simple Language",
+    "value": "\${htmlDecode(exp)}",
+  },
+  {
+    "description": "Parses the HTML as a JSoup object from the message body (or expression)",
+    "group": "Simple Language",
+    "value": "\${htmlParse(exp)}",
   },
   {
     "description": "The message id",
@@ -1303,6 +1563,121 @@ exports[`Properties Suggestions > should return suggestions from the catalog 1`]
     "value": "\${env.name}",
   },
   {
+    "description": "Returns the resolved A2A agent card as a JSON string.",
+    "group": "Simple Language",
+    "value": "\${a2a:card}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card capabilities as a JSON string.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.capabilities}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card description.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.description}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card documentation URL.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.documentationUrl}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card icon URL.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.iconUrl}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card name.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.name}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card provider as a JSON string.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.provider}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card legacy security field as a JSON array string.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.security}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card security requirements as a JSON array string.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.securityRequirements}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card security schemes as a JSON object string.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.securitySchemes}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card skills as human-readable text.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.skills}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card skills as a JSON array string.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.skills.json}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card supported interfaces as a JSON array string.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.supportedInterfaces}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card URL.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.url}",
+  },
+  {
+    "description": "Returns the resolved A2A agent card version.",
+    "group": "Simple Language",
+    "value": "\${a2a:card.version}",
+  },
+  {
+    "description": "Extracts DataPart content as a JSON string from an A2A Task or Message in the message body.",
+    "group": "Simple Language",
+    "value": "\${a2a:data}",
+  },
+  {
+    "description": "Extracts DataPart content as a JSON string from an A2A Task or Message returned by the expression.",
+    "group": "Simple Language",
+    "value": "\${a2a:data(expression)}",
+  },
+  {
+    "description": "Emits an A2A task progress update with WORKING state. Requires the camel-a2a component on the classpath and an active A2A task context.",
+    "group": "Simple Language",
+    "value": "\${a2a:emit(message)}",
+  },
+  {
+    "description": "Emits an A2A task progress update with the given task state. Requires the camel-a2a component on the classpath and an active A2A task context.",
+    "group": "Simple Language",
+    "value": "\${a2a:emit(state,message)}",
+  },
+  {
+    "description": "Extracts FilePart content from an A2A Task or Message in the message body.",
+    "group": "Simple Language",
+    "value": "\${a2a:file}",
+  },
+  {
+    "description": "Extracts FilePart content from an A2A Task or Message returned by the expression.",
+    "group": "Simple Language",
+    "value": "\${a2a:file(expression)}",
+  },
+  {
+    "description": "Extracts TextPart content from an A2A Task or Message in the message body.",
+    "group": "Simple Language",
+    "value": "\${a2a:text}",
+  },
+  {
+    "description": "Extracts TextPart content from an A2A Task or Message returned by the expression.",
+    "group": "Simple Language",
+    "value": "\${a2a:text(expression)}",
+  },
+  {
     "description": "Converts the message body (or expression) to a long number and return the absolute value.",
     "group": "Simple Language",
     "value": "\${abs(exp)}",
@@ -1531,6 +1906,21 @@ exports[`Properties Suggestions > should return suggestions from the catalog 1`]
     "description": "Returns the local hostname (may be empty if not possible to resolve).",
     "group": "Simple Language",
     "value": "\${hostName}",
+  },
+  {
+    "description": "Cleans the HTML to remove unsafe links and JavaScripts from the message body (or expression)",
+    "group": "Simple Language",
+    "value": "\${htmlClean(exp)}",
+  },
+  {
+    "description": "Decodes the HTML as plain text (removing all HTML tags) that is also suitable as input for AI and LLMs",
+    "group": "Simple Language",
+    "value": "\${htmlDecode(exp)}",
+  },
+  {
+    "description": "Parses the HTML as a JSoup object from the message body (or expression)",
+    "group": "Simple Language",
+    "value": "\${htmlParse(exp)}",
   },
   {
     "description": "The message id",

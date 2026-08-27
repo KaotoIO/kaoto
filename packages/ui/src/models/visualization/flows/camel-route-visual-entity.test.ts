@@ -11,7 +11,6 @@ import { EntityType } from '../../entities/base-entity';
 import { NodeLabelType } from '../../settings/settings.model';
 import { IVisualizationNode } from '../base-visual-entity';
 import { CamelRouteVisualEntity } from './camel-route-visual-entity';
-import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 
 describe('Camel Route', () => {
   let camelEntity: CamelRouteVisualEntity;
@@ -108,14 +107,12 @@ describe('Camel Route', () => {
       expect(result).toBeUndefined();
     });
 
-    it('should return the updated definition for a valid path', () => {
-      const getUpdatedDefinitionSpy = vi.spyOn(CamelComponentSchemaService, 'getUpdatedDefinition');
-
+    it('should return the raw definition for a valid path', () => {
       const result = camelEntity.getNodeDefinition('route.from.steps.2.to', toStepIds);
 
-      expect(getUpdatedDefinitionSpy).toHaveBeenCalledWith(toStepIds, camelRouteJson.route.from.steps[2].to);
+      // getNodeDefinition returns raw form — URI is not split here
       expect(result).toEqual({
-        uri: 'direct',
+        uri: 'direct:my-route',
         parameters: {
           bridgeErrorHandler: true,
         },
@@ -123,33 +120,26 @@ describe('Camel Route', () => {
     });
 
     it('should override null parameters with an empty object', () => {
-      const getUpdatedDefinitionSpy = vi.spyOn(CamelComponentSchemaService, 'getUpdatedDefinition');
-      const mockDefinition = { uri: 'timer', parameters: null };
-      getUpdatedDefinitionSpy.mockReturnValueOnce(mockDefinition);
+      const clonedRoute = cloneDeep(camelRouteJson);
+      (clonedRoute.route.from as unknown as Record<string, unknown>).parameters = null;
+      const entity = new CamelRouteVisualEntity(clonedRoute);
 
-      const result = camelEntity.getNodeDefinition('route.from', fromStepIds);
+      const result = entity.getNodeDefinition('route.from', fromStepIds);
 
-      expect(result).toEqual({ uri: 'timer', parameters: {} });
+      expect((result as Record<string, unknown>).parameters).toEqual({});
     });
 
     it('should handle nested step definitions', () => {
-      const getUpdatedDefinitionSpy = vi.spyOn(CamelComponentSchemaService, 'getUpdatedDefinition');
-      const mockDefinition = { message: 'We got a one.', id: 'log-1' };
-      getUpdatedDefinitionSpy.mockReturnValueOnce(mockDefinition);
+      const result = camelEntity.getNodeDefinition('route.from.steps.1.choice.when.0.steps.0.log', logStepIds);
 
-      camelEntity.getNodeDefinition('route.from.steps.1.choice.when.0.steps.0.log', logStepIds);
-
-      expect(getUpdatedDefinitionSpy).toHaveBeenCalledWith(logStepIds, { message: 'We got a one.', id: 'log-1' });
+      expect(result).toEqual({ message: 'We got a one.', id: 'log-1' });
     });
 
-    it('should preserve original definition when parameters is undefined', () => {
-      const spy = vi.spyOn(CamelComponentSchemaService, 'getUpdatedDefinition');
-      const mockDefinition = { uri: 'direct' };
-      spy.mockReturnValueOnce(mockDefinition);
-
+    it('should return raw definition when parameters is present', () => {
       const result = camelEntity.getNodeDefinition('route.from.steps.2.to', toStepIds);
 
-      expect(result).toEqual({ uri: 'direct' });
+      // getNodeDefinition returns raw — uri is 'direct:my-route' not split
+      expect(result).toMatchObject({ uri: 'direct:my-route' });
     });
   });
 

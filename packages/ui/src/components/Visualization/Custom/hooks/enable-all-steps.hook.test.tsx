@@ -1,5 +1,5 @@
 import { ElementModel, Node } from '@patternfly/react-topology';
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
@@ -177,7 +177,9 @@ describe('useEnableAllSteps', () => {
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
-    result.current.onEnableAllSteps();
+    await act(async () => {
+      await result.current.onEnableAllSteps();
+    });
 
     expect(mockSetValue).toHaveBeenCalledTimes(2);
     expect(mockSetValue).toHaveBeenCalledWith(mockDefinition1, 'disabled', false);
@@ -204,7 +206,9 @@ describe('useEnableAllSteps', () => {
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
-    result.current.onEnableAllSteps();
+    await act(async () => {
+      await result.current.onEnableAllSteps();
+    });
 
     expect(mockSetValue).toHaveBeenCalledWith(mockDefinition, 'disabled', false);
     expect(disabledNode.updateModel).toHaveBeenCalledWith(mockDefinition);
@@ -227,7 +231,9 @@ describe('useEnableAllSteps', () => {
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
-    result.current.onEnableAllSteps();
+    await act(async () => {
+      await result.current.onEnableAllSteps();
+    });
 
     expect(mockSetValue).toHaveBeenCalledWith({}, 'disabled', false);
     expect(disabledNode.updateModel).toHaveBeenCalledWith({});
@@ -239,7 +245,7 @@ describe('useEnableAllSteps', () => {
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
-    result.current.onEnableAllSteps();
+    void result.current.onEnableAllSteps();
 
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
   });

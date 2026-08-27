@@ -220,7 +220,7 @@ exports[`SettingsForm > should render 1`] = `
           <span
             class="runtime-selector pf-v6-u-m-sm"
           >
-            Camel Main 4.18.1.redhat-00019
+            Camel Main 4.18.3.redhat-00005
           </span>
         </span>
         <span

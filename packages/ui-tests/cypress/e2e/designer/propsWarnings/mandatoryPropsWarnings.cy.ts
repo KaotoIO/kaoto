@@ -8,15 +8,15 @@ describe('Test for missing config props canvas warnings', () => {
     cy.openDesignPage();
 
     cy.selectAppendNode('setHeader');
-    cy.chooseFromCatalog('component', 'github');
+    cy.chooseFromCatalog('component', 'github2');
 
-    cy.checkNodeExist('github', 1);
+    cy.checkNodeExist('github2', 1);
 
     cy.get('[data-id^="camel-route|route.from.steps.1.to"] g')
       .find('span[data-warning="true"].pf-v6-c-icon')
       .should('have.attr', 'title', '3 required parameters are not yet configured: [ type,repoName,repoOwner ]');
 
-    cy.openStepConfigurationTab('github');
+    cy.openStepConfigurationTab('github2');
 
     cy.interactWithConfigInputObject('parameters.repoName', 'test');
     cy.closeStepConfigurationTab();

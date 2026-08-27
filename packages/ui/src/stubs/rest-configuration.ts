@@ -15,7 +15,8 @@ export const restConfigurationStub: { restConfiguration: RestConfiguration } = {
 
 export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
   title: 'Rest Configuration',
-  description: 'To configure rest',
+  description:
+    'Configures global settings for the REST DSL, such as host, port, context path, binding mode, and the underlying HTTP component to use',
   type: 'object',
   additionalProperties: false,
   properties: {
@@ -23,30 +24,28 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
       type: 'string',
       title: 'Component',
       description:
-        'The Camel Rest component to use for the REST transport (consumer), such as netty-http, jetty, servlet, undertow. If no component has been explicit configured, then Camel will lookup if there is a Camel component that integrates with the Rest DSL, or if a org.apache.camel.spi.RestConsumerFactory is registered in the registry. If either one is found, then that is being used.',
+        'The Camel Rest component to use for the REST transport (consumer), such as netty-http, jetty, servlet, undertow.',
       enum: ['platform-http', 'servlet', 'jetty', 'undertow', 'netty-http', 'coap'],
       $comment: 'group:common',
     },
     apiComponent: {
       type: 'string',
       title: 'Api Component',
-      description:
-        'The name of the Camel component to use as the REST API. If no API Component has been explicit configured, then Camel will lookup if there is a Camel component responsible for servicing and generating the REST API documentation, or if a org.apache.camel.spi.RestApiProcessorFactory is registered in the registry. If either one is found, then that is being used.',
+      description: 'The name of the Camel component to use as the REST API (such as OpenApi).',
       enum: ['openapi', 'swagger'],
       $comment: 'group:consumer (advanced)',
     },
     producerComponent: {
       type: 'string',
       title: 'Producer Component',
-      description: 'Sets the name of the Camel component to use as the REST producer',
+      description: 'Sets the name of the Camel component to use as the REST producer.',
       enum: ['vertx-http', 'http', 'undertow', 'netty-http'],
       $comment: 'group:producer (advanced)',
     },
     scheme: {
       type: 'string',
       title: 'Scheme',
-      description:
-        'The scheme to use for exposing the REST service. Usually http or https is supported. The default value is http',
+      description: 'The scheme to use for exposing the REST service. Usually http or https is supported.',
       $comment: 'group:common',
     },
     host: {
@@ -58,15 +57,14 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
     port: {
       type: 'string',
       title: 'Port',
-      description:
-        'The port number to use for exposing the REST service. Notice if you use servlet component then the port number configured here does not apply, as the port number in use is the actual port number the servlet component is using. eg if using Apache Tomcat its the tomcat http port, if using Apache Karaf its the HTTP service in Karaf that uses port 8181 by default etc. Though in those situations setting the port number here, allows tooling and JMX to know the port number, so its recommended to set the port number to the number that the servlet engine uses.',
+      description: 'The port number to use for exposing the REST service.',
       $comment: 'group:common',
     },
     apiHost: {
       type: 'string',
       title: 'Api Host',
       description:
-        'To use a specific hostname for the API documentation (such as swagger or openapi) This can be used to override the generated host with this configured hostname',
+        'To use a specific hostname for the API documentation (such as swagger or openapi). This can be used to override the generated host with this configured hostname.',
       $comment: 'group:consumer (advanced)',
     },
     useXForwardHeaders: {
@@ -74,7 +72,7 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
       default: false,
       title: 'Use XForward Headers',
       description:
-        'Whether to use X-Forward headers to set host etc. for OpenApi. This may be needed in special cases involving reverse-proxy and networking going from HTTP to HTTPS etc. Then the proxy can send X-Forward headers (X-Forwarded-Proto) that influences the host names in the OpenAPI schema that camel-openapi-java generates from Rest DSL routes.',
+        'Whether to use X-Forward headers to set host etc. for OpenApi. This may be needed in special cases involving reverse-proxy and networking going from HTTP to HTTPS etc.',
       $comment: 'group:consumer (advanced)',
     },
     validationLevels: {
@@ -91,21 +89,20 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
       type: 'string',
       title: 'Producer Api Doc',
       description:
-        'Sets the location of the api document the REST producer will use to validate the REST uri and query parameters are valid accordingly to the api document. The location of the api document is loaded from classpath by default, but you can use file: or http: to refer to resources to load from file or http url.',
+        'Sets the location of the api document the REST producer will use to validate the REST uri and query parameters are valid accordingly to the api document.',
       $comment: 'group:producer (advanced)',
     },
     contextPath: {
       type: 'string',
       title: 'Context Path',
       description:
-        'Sets a leading context-path the REST services will be using. This can be used when using components such as camel-servlet where the deployed web application is deployed using a context-path. Or for components such as camel-jetty or camel-netty-http that includes a HTTP server.',
+        'Sets a leading context-path the REST services will be using. This can be used when using components such as camel-servlet where the deployed web application is deployed using a context-path.',
       $comment: 'group:consumer',
     },
     apiContextPath: {
       type: 'string',
       title: 'Api Context Path',
-      description:
-        'Sets a leading context-path the REST API will be using. This can be used when using components such as camel-servlet where the deployed web application is deployed using a context-path.',
+      description: 'Sets a leading context-path the REST API will be using.',
       $comment: 'group:consumer',
     },
     apiContextRouteId: {
@@ -120,7 +117,7 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
       default: false,
       title: 'Api Vendor Extension',
       description:
-        'Whether vendor extension is enabled in the Rest APIs. If enabled then Camel will include additional information as vendor extension (eg keys starting with x-) such as route ids, class names etc. Not all 3rd party API gateways and tools supports vendor-extensions when importing your API docs.',
+        'Whether vendor extension is enabled in the Rest APIs. If enabled then Camel will include additional information as vendor extension (eg keys starting with x-) such as route ids, class names etc.',
       $comment: 'group:consumer (advanced)',
     },
     hostNameResolver: {
@@ -135,7 +132,8 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
     bindingMode: {
       type: 'string',
       title: 'Binding Mode',
-      description: 'Sets the binding mode to use. The default value is off',
+      description:
+        'Sets the binding mode for automatic marshalling and unmarshalling of request and response bodies. off (default) disables binding. auto detects JSON or XML from the Content-Type header. json binds using a JSON data format only. xml binds using an XML data format only. json_xml supports both JSON and XML.',
       default: 'off',
       enum: ['auto', 'json', 'json_xml', 'off', 'xml'],
       $comment: 'group:common',
@@ -160,13 +158,13 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
       default: false,
       title: 'Client Request Validation',
       description:
-        'Whether to enable validation of the client request to check: 1) Content-Type header matches what the Rest DSL consumes; returns HTTP Status 415 if validation error. 2) Accept header matches what the Rest DSL produces; returns HTTP Status 406 if validation error. 3) Missing required data (query parameters, HTTP headers, body); returns HTTP Status 400 if validation error. 4) Parsing error of the message body (JSon, XML or Auto binding mode must be enabled); returns HTTP Status 400 if validation error.',
+        'Whether to enable validation of the client request to check whether Content-Type/Accept headers, required parameters, and message body are valid.',
       $comment: 'group:consumer (advanced)',
     },
     clientResponseValidation: {
       $comment: 'group:consumer (advanced)',
       description:
-        'Whether to check what Camel is returning as response to the client: 1) Status-code and Content-Type matches Rest DSL response messages. 2) Check whether expected headers is included according to the Rest DSL repose message headers. 3) If the response body is JSon then check whether its valid JSon. Returns 500 if validation error detected.',
+        'Whether to validate what Camel is returning as response to the client, such as checking status-code, Content-Type, and headers match the Rest DSL response definition.',
       title: 'Client Response Validation',
       type: 'boolean',
       default: false,
@@ -175,7 +173,7 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
       type: 'boolean',
       default: false,
       title: 'Enable CORS',
-      description: 'Whether to enable CORS headers in the HTTP response. The default value is false.',
+      description: 'Whether to enable CORS headers in the HTTP response.',
       $comment: 'group:consumer (advanced)',
     },
     enableNoContentResponse: {
@@ -183,14 +181,14 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
       default: false,
       title: 'Enable No Content Response',
       description:
-        'Whether to return HTTP 204 with an empty body when a response contains an empty JSON object or XML root object. The default value is false.',
+        'Whether to return HTTP 204 with an empty body when a response contains an empty JSON object or XML root object.',
       $comment: 'group:consumer (advanced)',
     },
     inlineRoutes: {
       type: 'boolean',
       title: 'Inline Routes',
       description:
-        'Inline routes in rest-dsl which are linked using direct endpoints. Each service in Rest DSL is an individual route, meaning that you would have at least two routes per service (rest-dsl, and the route linked from rest-dsl). By inlining (default) allows Camel to optimize and inline this as a single route, however this requires to use direct endpoints, which must be unique per service. If a route is not using direct endpoint then the rest-dsl is not inlined, and will become an individual route. This option is default true.',
+        'Inline routes in rest-dsl which are linked using direct endpoints. By inlining, Camel can optimize and inline this as a single route, however this requires to use direct endpoints, which must be unique per service.',
       $comment: 'group:consumer',
       default: true,
     },
@@ -198,7 +196,7 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
       type: 'string',
       title: 'Json Data Format',
       description:
-        'Name of specific json data format to use. By default, jackson will be used. Important: This option is only for setting a custom name of the data format, not to refer to an existing data format instance.',
+        'Name of specific json data format to use. By default jackson will be used. Important: This option is only for setting a custom name of the data format, not to refer to an existing data format instance.',
       default: 'jackson',
       enum: ['jackson', 'jsonb', 'fastjson', 'gson'],
       $comment: 'group:advanced',
@@ -207,7 +205,7 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
       type: 'string',
       title: 'Xml Data Format',
       description:
-        'Name of specific XML data format to use. By default jaxb will be used, but jacksonXml is also supported. Important: This option is only for setting a custom name of the data format, not to refer to an existing data format instance.',
+        'Name of specific XML data format to use. By default jaxb will be used. Important: This option is only for setting a custom name of the data format, not to refer to an existing data format instance.',
       default: 'jaxb',
       enum: ['jaxb', 'jacksonXml'],
       $comment: 'group:advanced',
@@ -243,7 +241,7 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
       type: 'array',
       title: 'Data Format Property',
       description:
-        'Allows to configure as many additional properties for the data formats in use. For example set property prettyPrint to true to have json outputted in pretty mode. The properties can be prefixed to denote the option is only for either JSON or XML and for either the IN or the OUT. The prefixes are: json.in. json.out. xml.in. xml.out. For example a key with value xml.out.mustBeJAXBElement is only for the XML data format for the outgoing. A key without a prefix is a common key for all situations.',
+        'Allows to configure as many additional properties for the data formats in use. For example set property prettyPrint to true to have json outputted in pretty mode.',
       items: {
         $ref: '#/definitions/org.apache.camel.model.rest.RestPropertyDefinition',
       },
@@ -252,8 +250,7 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
     apiProperty: {
       type: 'array',
       title: 'Api Property',
-      description:
-        'Allows to configure as many additional properties for the api documentation. For example set property api.title to my cool stuff',
+      description: 'Allows to configure as many additional properties for the api documentation.',
       items: {
         $ref: '#/definitions/org.apache.camel.model.rest.RestPropertyDefinition',
       },
@@ -272,20 +269,20 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
   definitions: {
     'org.apache.camel.model.rest.RestPropertyDefinition': {
       title: 'Rest Property',
-      description: 'A key value pair',
+      description: 'Defines a key/value property for REST configuration, used to pass component-specific settings',
       type: 'object',
       additionalProperties: false,
       properties: {
         key: {
           type: 'string',
           title: 'Key',
-          description: 'Property key',
+          description: 'Property key.',
           $comment: 'group:common',
         },
         value: {
           type: 'string',
           title: 'Value',
-          description: 'Property value',
+          description: 'Property value.',
           $comment: 'group:common',
         },
       },

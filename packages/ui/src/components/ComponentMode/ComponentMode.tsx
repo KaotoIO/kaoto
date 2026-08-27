@@ -6,6 +6,7 @@ import { FunctionComponent, useCallback, useState } from 'react';
 
 import { useProcessorTooltips } from '../../hooks/use-processor-tooltips.hook';
 import { useEntityContext } from '../../hooks/useEntityContext/useEntityContext';
+import { useParsedDefinition } from '../../hooks/useParsedDefinition';
 import { IVisualizationNode } from '../../models';
 import { COMPONENT_MODE_PROCESSORS } from '../../models/special-processors.constants';
 import { getProcessorIcon } from '../../utils/processor-icon';
@@ -13,6 +14,7 @@ import { getProcessorIcon } from '../../utils/processor-icon';
 export const ComponentMode: FunctionComponent<{ vizNode?: IVisualizationNode }> = ({ vizNode }) => {
   const { updateSourceCodeFromEntities } = useEntityContext();
   const [processorName, setProcessorName] = useState(vizNode?.data.primaryNodeId?.name);
+  const parsedDefinition = useParsedDefinition(vizNode);
 
   const switchComponentMode = useCallback(
     (newProcessorName: keyof ProcessorDefinition) => {
@@ -20,8 +22,7 @@ export const ComponentMode: FunctionComponent<{ vizNode?: IVisualizationNode }> 
 
       const path = vizNode.data.path;
       const rootEipPath = path?.split('.').slice(0, -1).join('.');
-      const definition = vizNode.getNodeDefinition();
-      if (!definition || !rootEipPath) return;
+      if (!parsedDefinition || !rootEipPath) return;
 
       /**
        * Switch the used EIP for the component, it can go from 'to' to 'toD' or 'poll'
@@ -41,11 +42,11 @@ export const ComponentMode: FunctionComponent<{ vizNode?: IVisualizationNode }> 
           name: newProcessorName,
         },
       };
-      vizNode.updateModel(definition);
+      vizNode.updateModel(parsedDefinition);
       updateSourceCodeFromEntities();
       setProcessorName(newProcessorName);
     },
-    [vizNode, processorName, updateSourceCodeFromEntities],
+    [vizNode, processorName, parsedDefinition, updateSourceCodeFromEntities],
   );
 
   const ToIcon = getProcessorIcon('to');

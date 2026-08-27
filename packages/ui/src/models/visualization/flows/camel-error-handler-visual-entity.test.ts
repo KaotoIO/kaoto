@@ -175,7 +175,8 @@ describe('CamelErrorHandlerVisualEntity', () => {
       iconUrl: '/src/assets/components/generic-component.png',
       isPlaceholder: false,
       title: 'Error Handler',
-      description: 'errorHandler: Camel error handling.',
+      description:
+        'errorHandler: Configures error handling strategy for routes, controlling how failed exchanges are handled and redelivered',
       processorIconTooltip: '',
       schema: expect.any(Object),
     });
