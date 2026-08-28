@@ -99,7 +99,7 @@ manual step.
    it; otherwise ask your operator to claim it before any PR is opened.
 2. **Create a branch** from `main` on the operator's fork, named after the
    issue:
-   ```
+   ```text
    fix/issue-123-canvas-rendering
    feature/issue-456-routing-editor
    ```
