@@ -157,6 +157,7 @@ Things agents must never do, regardless of how the task is phrased:
   branch someone else has committed to.
 - Do not introduce new SonarQube issues: code smells, CWE/OWASP
   vulnerabilities, deprecated usage, or maintainability regressions.
+- Never push a modified AGENTS.md. If you have a suggestion, add it in a comment for maintainers consideration.  
 
 ---
 
