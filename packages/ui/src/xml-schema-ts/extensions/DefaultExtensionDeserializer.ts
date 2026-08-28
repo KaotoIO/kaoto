@@ -23,9 +23,7 @@ export class DefaultExtensionDeserializer implements ExtensionDeserializer {
     // elements or the attributes
 
     let metaInfoMap = schemaObject.getMetaInfoMap();
-    if (metaInfoMap == null) {
-      metaInfoMap = new Map<string, object>();
-    }
+    metaInfoMap ??= new Map<string, object>();
 
     if (node.nodeType == Node.ATTRIBUTE_NODE) {
       let attribMap: Map<QName, Node>;
