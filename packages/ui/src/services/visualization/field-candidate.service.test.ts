@@ -244,6 +244,38 @@ describe('FieldCandidateService', () => {
       expect(result.fields[1]).toBe(collectionChild);
     });
 
+    it('should include sequence-in-choice element children as add-field candidates', () => {
+      const doc = createXmlSchemaDocument();
+      const parent = new XmlSchemaField(doc, 'Parent', false);
+      parent.type = Types.Container;
+      const choiceField = new XmlSchemaField(parent, '__choice__', false);
+      choiceField.type = Types.Container;
+      choiceField.wrapperKind = 'choice';
+      choiceField.maxOccurs = 1;
+      const seqWrapper = new XmlSchemaField(choiceField, '__sequence__', false);
+      seqWrapper.wrapperKind = 'sequence';
+      const seqChildKey = new XmlSchemaField(seqWrapper, 'key', false);
+      seqChildKey.type = Types.String;
+      const seqChildValue = new XmlSchemaField(seqWrapper, 'value', false);
+      seqChildValue.type = Types.String;
+      seqWrapper.fields = [seqChildKey, seqChildValue];
+      const directMember = new XmlSchemaField(choiceField, 'dataValue', false);
+      directMember.type = Types.String;
+      choiceField.fields = [directMember, seqWrapper];
+      parent.fields = [choiceField];
+      doc.fields = [parent];
+
+      const result = FieldCandidateService.computeAddFieldCandidates(parent.fields, {}, []);
+
+      // choiceField itself: 1 direct member + 2 sequence children = 3 entries
+      // but since choice maxOccurs=1 the whole wrapper is one slot; the resolveChoiceMembers
+      // is called inside resolveFieldEntries, so we get 3 candidate entries
+      expect(result.candidates).toHaveLength(3);
+      expect(result.fields[0]).toBe(directMember);
+      expect(result.fields[1]).toBe(seqChildKey);
+      expect(result.fields[2]).toBe(seqChildValue);
+    });
+
     it('should dissolve sequences and apply forEachContext filter to members', () => {
       const doc = createXmlSchemaDocument();
       const parent = new XmlSchemaField(doc, 'Parent', false);

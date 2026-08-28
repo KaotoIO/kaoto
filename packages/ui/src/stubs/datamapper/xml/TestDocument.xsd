@@ -208,6 +208,23 @@
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
+                <!-- xs:choice whose sequence branch itself contains a nested xs:choice (XSD nestedParticle allows this).
+                     Used to verify that clearing the outer choice also clears a selection made in the choice nested
+                     inside the selected sequence branch. -->
+                <xs:element name="NestedChoiceInSequenceElement">
+                    <xs:complexType>
+                        <xs:choice>
+                            <xs:element name="plainOption" type="xs:string"/>
+                            <xs:sequence>
+                                <xs:element name="seqKey" type="xs:string"/>
+                                <xs:choice>
+                                    <xs:element name="innerA" type="xs:string"/>
+                                    <xs:element name="innerB" type="xs:string"/>
+                                </xs:choice>
+                            </xs:sequence>
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
                 <xs:group ref="ns0:Group1"/>
             </xs:sequence>
             <xs:attributeGroup ref="ns0:AttrGroup1"/>

@@ -176,6 +176,22 @@ describe('ChoiceFieldService', () => {
 
       expect(result.childrenPreview).toBeUndefined();
     });
+
+    it('should use getChoiceMemberLabel for sequence wrapper fields', () => {
+      const field = mockField({
+        wrapperKind: 'sequence',
+        type: Types.Container,
+        fields: [mockField({ name: 'key', displayName: 'key' }), mockField({ name: 'value', displayName: 'value' })],
+      });
+      vi.mocked(VisualizationService.getChoiceMemberLabel).mockReturnValue('(key | value)');
+
+      const result = ChoiceFieldService.fieldToCandidate(field, '2', 2);
+
+      expect(result.label).toBe('(key | value)');
+      expect(result.typeBadge).toBe(Types.Container);
+      expect(result.selection).toEqual({ memberIndex: 2 });
+      expect(VisualizationService.getChoiceMemberLabel).toHaveBeenCalledWith(field);
+    });
   });
 
   describe('dissolveChoiceMembers', () => {
@@ -205,12 +221,26 @@ describe('ChoiceFieldService', () => {
       );
     });
 
-    it('should skip sequence members', () => {
-      const sequenceMember = mockField({ wrapperKind: 'sequence' });
+    it('should produce one candidate for a sequence member with dissolved label', () => {
+      const sequenceMember = mockField({
+        wrapperKind: 'sequence',
+        type: Types.Container,
+        fields: [mockField({ name: 'key', displayName: 'key' }), mockField({ name: 'value', displayName: 'value' })],
+      });
+      vi.mocked(VisualizationService.getChoiceMemberLabel).mockReturnValue('(key | value)');
 
       const result = ChoiceFieldService.dissolveChoiceMembers([sequenceMember], namespaceMap);
 
-      expect(result).toHaveLength(0);
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual(
+        expect.objectContaining({
+          key: '0',
+          label: '(key | value)',
+          typeBadge: Types.Container,
+          selection: { memberIndex: 0 },
+        }),
+      );
+      expect(result[0].childrenPreview).toEqual(['key', 'value']);
     });
 
     it('should pass through normal members via fieldToCandidate', () => {
@@ -232,18 +262,24 @@ describe('ChoiceFieldService', () => {
     it('should handle mixed members in correct order', () => {
       const normal = mockField({ name: 'email', displayName: 'Email', type: Types.String });
       const abstract = mockField({ wrapperKind: 'abstract' });
-      const sequence = mockField({ wrapperKind: 'sequence' });
+      const sequence = mockField({
+        wrapperKind: 'sequence',
+        fields: [mockField({ name: 'key', displayName: 'key' }), mockField({ name: 'value', displayName: 'value' })],
+      });
       vi.mocked(FieldOverrideService.getFieldSubstitutionCandidates).mockReturnValue({
         'ns:Cat': mockSubstituteInfo('Cat'),
       });
+      vi.mocked(VisualizationService.getChoiceMemberLabel).mockReturnValue('(key | value)');
 
       const result = ChoiceFieldService.dissolveChoiceMembers([normal, abstract, sequence], namespaceMap);
 
-      expect(result).toHaveLength(2);
+      expect(result).toHaveLength(3);
       expect(result[0].key).toBe('0');
       expect(result[0].selection.memberIndex).toBe(0);
       expect(result[1].key).toBe('1:ns:Cat');
       expect(result[1].selection.memberIndex).toBe(1);
+      expect(result[2].key).toBe('2');
+      expect(result[2].selection.memberIndex).toBe(2);
     });
   });
 
