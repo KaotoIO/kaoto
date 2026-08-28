@@ -59,8 +59,8 @@ Before declaring a task complete, verify ALL of the following pass:
 ```bash
 yarn workspace @kaoto/kaoto build            # typecheck — tests and lint do NOT run tsc
 yarn workspace @kaoto/kaoto test
-yarn workspace @kaoto/kaoto lint
-yarn workspace @kaoto/kaoto lint:style
+yarn workspace @kaoto/kaoto lint:fix
+yarn workspace @kaoto/kaoto lint:style:fix
 ```
 
 Additionally:
