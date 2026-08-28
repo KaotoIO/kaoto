@@ -38,6 +38,12 @@ describe('FieldCandidateService', () => {
     vi.clearAllMocks();
   });
 
+  afterEach(() => {
+    // clearMocks (vitest.config.mts) clears call data but doesn't restore vi.spyOn implementations
+    // on static methods (e.g. resolveCandidateField), so later tests could see a stale spy.
+    vi.restoreAllMocks();
+  });
+
   describe('computeAddFieldCandidates', () => {
     function createXmlSchemaDocument(): XmlSchemaDocument {
       const definition = new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.XML_SCHEMA, 'test');
@@ -242,6 +248,88 @@ describe('FieldCandidateService', () => {
       expect(result.candidates).toHaveLength(2);
       expect(result.fields[0]).toBe(singleChild);
       expect(result.fields[1]).toBe(collectionChild);
+    });
+
+    it('should include sequence-in-choice element children as add-field candidates', () => {
+      const doc = createXmlSchemaDocument();
+      const parent = new XmlSchemaField(doc, 'Parent', false);
+      parent.type = Types.Container;
+      const choiceField = new XmlSchemaField(parent, '__choice__', false);
+      choiceField.type = Types.Container;
+      choiceField.wrapperKind = 'choice';
+      choiceField.maxOccurs = 1;
+      const seqWrapper = new XmlSchemaField(choiceField, '__sequence__', false);
+      seqWrapper.wrapperKind = 'sequence';
+      const seqChildKey = new XmlSchemaField(seqWrapper, 'key', false);
+      seqChildKey.type = Types.String;
+      const seqChildValue = new XmlSchemaField(seqWrapper, 'value', false);
+      seqChildValue.type = Types.String;
+      seqWrapper.fields = [seqChildKey, seqChildValue];
+      const directMember = new XmlSchemaField(choiceField, 'dataValue', false);
+      directMember.type = Types.String;
+      choiceField.fields = [directMember, seqWrapper];
+      parent.fields = [choiceField];
+      doc.fields = [parent];
+
+      const result = FieldCandidateService.computeAddFieldCandidates(parent.fields, {}, []);
+
+      // choiceField itself: 1 direct member + 2 sequence children = 3 entries
+      // but since choice maxOccurs=1 the whole wrapper is one slot; the resolveChoiceMembers
+      // is called inside resolveFieldEntries, so we get 3 candidate entries
+      expect(result.candidates).toHaveLength(3);
+      expect(result.fields[0]).toBe(directMember);
+      expect(result.fields[1]).toBe(seqChildKey);
+      expect(result.fields[2]).toBe(seqChildValue);
+    });
+
+    it('should dissolve a choice and an abstract wrapper nested inside a sequence-in-choice branch', () => {
+      // choice > [directOption, sequence[seqField, choice[innerA, innerB], abstract{Cat, Dog}]]
+      // per the XSD nestedParticle model, a sequence can contain further choice/abstract/sequence
+      // particles — those must be dissolved the same way as at the top level, not dropped.
+      const doc = createXmlSchemaDocument();
+      const parent = new XmlSchemaField(doc, 'Parent', false);
+      parent.type = Types.Container;
+      const choiceField = new XmlSchemaField(parent, '__choice__', false);
+      choiceField.wrapperKind = 'choice';
+      choiceField.maxOccurs = 1;
+      const directOption = new XmlSchemaField(choiceField, 'directOption', false);
+      directOption.type = Types.String;
+
+      const seqWrapper = new XmlSchemaField(choiceField, '__sequence__', false);
+      seqWrapper.wrapperKind = 'sequence';
+      const seqField = new XmlSchemaField(seqWrapper, 'seqField', false);
+      seqField.type = Types.String;
+
+      const innerChoice = new XmlSchemaField(seqWrapper, '__choice__', false);
+      innerChoice.wrapperKind = 'choice';
+      const innerA = new XmlSchemaField(innerChoice, 'innerA', false);
+      innerA.type = Types.String;
+      const innerB = new XmlSchemaField(innerChoice, 'innerB', false);
+      innerB.type = Types.String;
+      innerChoice.fields = [innerA, innerB];
+
+      const abstractField = new XmlSchemaField(seqWrapper, 'payload', false);
+      abstractField.wrapperKind = 'abstract';
+      const catField = new XmlSchemaField(abstractField, 'Cat', false);
+      const dogField = new XmlSchemaField(abstractField, 'Dog', false);
+      abstractField.fields = [catField, dogField];
+
+      seqWrapper.fields = [seqField, innerChoice, abstractField];
+      choiceField.fields = [directOption, seqWrapper];
+      parent.fields = [choiceField];
+      doc.fields = [parent];
+
+      vi.mocked(FieldOverrideService.getFieldSubstitutionCandidates).mockReturnValue({
+        'ns:Cat': mockSubstituteInfo('Cat'),
+        'ns:Dog': mockSubstituteInfo('Dog'),
+      });
+      vi.spyOn(FieldCandidateService, 'resolveCandidateField').mockImplementation((_wrapper, qname) =>
+        qname === 'ns:Cat' ? catField : dogField,
+      );
+
+      const result = FieldCandidateService.computeAddFieldCandidates(parent.fields, {}, []);
+
+      expect(result.fields).toEqual([directOption, seqField, innerA, innerB, catField, dogField]);
     });
 
     it('should dissolve sequences and apply forEachContext filter to members', () => {

@@ -107,8 +107,16 @@ const ABSTRACT_WRAPPER: WrapperSpec = {
 const SEQUENCE_WRAPPER: WrapperSpec = {
   createSourceNode: (parent, field) => new SequenceFieldNodeData(parent, field),
   createTargetNode: (parent, field, mapping) => new TargetSequenceFieldNodeData(parent, field, mapping),
-  setWrapperRef: () => {},
+  // When a sequence is the selected member of an xs:choice, keep a reference to that choice
+  // wrapper so the choice context menu recognises this node as a selected branch (change/clear).
+  setWrapperRef: (node, wrapperField) => {
+    (node as SequenceFieldNodeData | TargetSequenceFieldNodeData).choiceField = wrapperField;
+  },
   isTargetInstance: (node) => node instanceof TargetSequenceFieldNodeData,
+  // A sequence is never itself the mapped field — unlike a selected choice/abstract member,
+  // it's a transparent container whose children are mapped independently. resolveWrapperNodeMappings
+  // must keep walking up to the real mapped ancestor rather than treating the sequence's own
+  // (nonexistent) mapping as the source of its children's mappings.
   hasWrapperRef: () => false,
   isUnconfiguredTarget: () => false,
 };
@@ -171,6 +179,19 @@ export class VisualizationService {
   }
 
   /**
+   * Returns the spec to recurse into when a wrapper's selected member is itself a nested
+   * choice/abstract wrapper that should take over rendering (per {@link WrapperSelectionService.shouldFlattenNestedWrapper}),
+   * or `undefined` when no recursion is needed (no selection, a non-wrapper member, or a sequence
+   * branch — which renders in place). Keeps {@link doGenerateNodeDataFromWrapperField} flat.
+   */
+  private static resolveNestedWrapperSpec(field: IField, selectedMember: IField | undefined): WrapperSpec | undefined {
+    if (!selectedMember?.wrapperKind || !field.wrapperKind) return undefined;
+    if (selectedMember.wrapperKind === 'sequence') return undefined;
+    if (!WrapperSelectionService.shouldFlattenNestedWrapper(field.wrapperKind, selectedMember)) return undefined;
+    return selectedMember.wrapperKind === 'choice' ? CHOICE_WRAPPER : ABSTRACT_WRAPPER;
+  }
+
+  /**
    * Creates a {@link ChoiceFieldNodeData} or {@link TargetChoiceFieldNodeData} for a choice wrapper field.
    *
    * When no member is selected ({@link DocumentUtilService.getSelectedMember} returns `undefined`), the returned node's
@@ -190,17 +211,22 @@ export class VisualizationService {
   ): NodeData | null {
     const selectedMember = DocumentUtilService.getSelectedMember(field);
 
-    if (selectedMember?.wrapperKind && field.wrapperKind) {
-      if (WrapperSelectionService.shouldFlattenNestedWrapper(field.wrapperKind, selectedMember)) {
-        const innerSpec = selectedMember.wrapperKind === 'choice' ? CHOICE_WRAPPER : ABSTRACT_WRAPPER;
-        return VisualizationService.doGenerateNodeDataFromWrapperField(parent, selectedMember, mappings, innerSpec);
-      }
+    // When the selected member is itself a nested choice/abstract wrapper, it takes over rendering
+    // via its own spec — recurse so it presents its own selection UI.
+    const recurseSpec = VisualizationService.resolveNestedWrapperSpec(field, selectedMember);
+    if (recurseSpec && selectedMember) {
+      return VisualizationService.doGenerateNodeDataFromWrapperField(parent, selectedMember, mappings, recurseSpec);
     }
+
+    // A selected xs:sequence renders in place as a sequence node that keeps a back-reference to
+    // this choice wrapper (set by the spec's setWrapperRef in the shared tail below), so the
+    // choice context menu can still change or clear the branch.
+    const effectiveSpec = selectedMember?.wrapperKind === 'sequence' ? SEQUENCE_WRAPPER : spec;
 
     const nodeField = selectedMember ?? field;
     if (parent.isSource) {
-      const node = spec.createSourceNode(parent, nodeField);
-      if (selectedMember) spec.setWrapperRef(node, field);
+      const node = effectiveSpec.createSourceNode(parent, nodeField);
+      if (selectedMember) effectiveSpec.setWrapperRef(node, field);
       return node;
     }
 
@@ -208,8 +234,8 @@ export class VisualizationService {
       selectedMember && mappings ? MappingService.filterMappingsForField(mappings, selectedMember) : [];
     const mapping = mappingsForMember.find((m) => m instanceof FieldItem) as FieldItem;
     if (mappingsForMember.length > 0 && !mapping) return null;
-    const node = spec.createTargetNode(parent as TargetNodeData, nodeField, mapping);
-    if (selectedMember) spec.setWrapperRef(node, field);
+    const node = effectiveSpec.createTargetNode(parent as TargetNodeData, nodeField, mapping);
+    if (selectedMember) effectiveSpec.setWrapperRef(node, field);
     return node;
   }
 
@@ -594,31 +620,65 @@ export class VisualizationService {
   }
 
   /**
-   * Returns the member label string (e.g. `"(email | phone | fax)"`) for a choice wrapper field.
-   * Nested choice members are dissolved into their inner member names so the label
-   * reads `"(InnerA | InnerB | Plain)"` instead of `"(choice | Plain)"`.
-   * @param field - The choice wrapper field whose members should be described.
+   * Returns the member label string (e.g. `"email | phone | fax"`) for a choice wrapper field,
+   * or — when `field` is itself an xs:sequence — the comma-joined label for its own children
+   * (e.g. `"key, value"`).
+   *
+   * `|` separates choice alternatives (mutually exclusive, OR), while `,` groups an xs:sequence's
+   * fields (which must appear together, AND) — matching the convention used by other integration
+   * tools. Direct members are dissolved one level deep: a nested member whose own separator
+   * matches the outer one merges flat into the same list (e.g. an abstract's substitutes merge
+   * into the choice's `|` list); one whose separator differs — crossing the OR/AND boundary — is
+   * rendered as its own parenthesised sub-group, e.g. `"dataValue | (key, value)"`. Any wrapper
+   * found one level beyond that (e.g. a choice/abstract nested inside a sequence branch) is shown
+   * as a bracketed placeholder — `[choice]`, `[abstract]`, `[sequence]` — instead of being
+   * dissolved further, since an abstract can carry an unbounded number of substitutes and full
+   * recursive dissolution would make the label unreadable. Brackets distinguish the placeholder
+   * from a real field name, since `choice`/`abstract`/`sequence` could themselves be field names.
+   * @param field - The choice (or sequence) wrapper field whose members should be described.
    */
   static getChoiceMemberLabel(field: IField): string {
-    const members = field.fields ?? [];
-    const labels = members.flatMap((m) => {
-      if (m.wrapperKind === 'choice' || m.wrapperKind === 'abstract') {
-        const innerLabels = (m.fields ?? []).map((inner) => inner.displayName ?? inner.name);
-        return innerLabels.length > 0 ? innerLabels : [m.displayName ?? m.name];
-      }
-      return [m.displayName ?? m.name];
-    });
-    if (labels.length === 0) return '(empty)';
-    const maxVisible = 3;
-    if (labels.length > maxVisible) {
-      return `(${labels.slice(0, maxVisible).join(' | ')} | +${labels.length - maxVisible} more)`;
-    }
-    return `(${labels.join(' | ')})`;
+    const separator = field.wrapperKind === 'sequence' ? ', ' : ' | ';
+    const labels = VisualizationService.collectMemberLabels(field.fields ?? [], separator, 0);
+    return VisualizationService.joinMemberLabels(labels, separator);
   }
 
   /**
-   * Returns the candidate label string (e.g. `"(Cat | Dog | Fish)"`) for an unselected
-   * abstract wrapper node. Returns `"(no candidates)"` when the wrapper has zero candidates.
+   * Flat-maps each member into its label(s) for the given outer separator, dissolving one level
+   * of nested choice/abstract/sequence wrappers. A member reached at `depth >= 1` (i.e. nested
+   * inside an already-dissolved wrapper) is rendered as a `[wrapperKind]` placeholder rather than
+   * being dissolved further, keeping the label bounded regardless of how many substitutes or
+   * members that deeper wrapper has.
+   */
+  private static collectMemberLabels(members: IField[], outerSeparator: string, depth: number): string[] {
+    return members.flatMap((m) => {
+      if (!m.wrapperKind) return [m.displayName ?? m.name];
+      if (depth >= 1) return [`[${m.wrapperKind}]`];
+      const innerSeparator = m.wrapperKind === 'sequence' ? ', ' : ' | ';
+      const innerLabels = VisualizationService.collectMemberLabels(m.fields ?? [], innerSeparator, depth + 1);
+      if (innerLabels.length === 0) return [m.displayName ?? m.name];
+      return innerSeparator === outerSeparator ? innerLabels : [`(${innerLabels.join(innerSeparator)})`];
+    });
+  }
+
+  /**
+   * Joins member labels with `separator`, truncating to `"+N more"` beyond 3 entries. Unlike
+   * {@link collectMemberLabels}'s sub-groups, the top-level result is not itself wrapped in
+   * parentheses — the label is shown standalone (as a node title or badge), not embedded in a
+   * further list, so an outer pair would be redundant.
+   */
+  private static joinMemberLabels(labels: string[], separator: string): string {
+    if (labels.length === 0) return 'empty';
+    const maxVisible = 3;
+    if (labels.length > maxVisible) {
+      return `${labels.slice(0, maxVisible).join(separator)}${separator}+${labels.length - maxVisible} more`;
+    }
+    return labels.join(separator);
+  }
+
+  /**
+   * Returns the candidate label string (e.g. `"Cat | Dog | Fish"`) for an unselected
+   * abstract wrapper node. Returns `"no candidates"` when the wrapper has zero candidates.
    * @param node - The abstract wrapper node whose candidates should be described.
    */
   static getAbstractMemberLabel(node: AbstractFieldNodeData | TargetAbstractFieldNodeData): string {
@@ -628,19 +688,26 @@ export class VisualizationService {
   private static getAbstractMemberLabelFromField(field: IField): string {
     const members = field.fields ?? [];
     const labels = members.map((m) => m.displayName ?? m.name);
-    if (labels.length === 0) return '(no candidates)';
+    if (labels.length === 0) return 'no candidates';
     const maxVisible = 3;
     if (labels.length > maxVisible) {
-      return `(${labels.slice(0, maxVisible).join(' | ')} | +${labels.length - maxVisible} more)`;
+      return `${labels.slice(0, maxVisible).join(' | ')} | +${labels.length - maxVisible} more`;
     }
-    return `(${labels.join(' | ')})`;
+    return labels.join(' | ');
   }
 
   /**
    * Returns the display title for a node. Unselected choice wrappers delegate to
    * {@link getChoiceMemberLabel} and unselected abstract wrappers delegate to
    * {@link getAbstractMemberLabel} so the candidate list is rendered separately
-   * from the badge label. All other nodes return {@link NodeData.title}.
+   * from the badge label. Sequence wrapper nodes also delegate to
+   * {@link getChoiceMemberLabel} (selected or previewed as an unselected choice
+   * candidate) since their raw `displayName` is the synthetic literal `"sequence"`,
+   * never a meaningful name to show verbatim. All other nodes return {@link NodeData.title}.
+   *
+   * Note: a *selected* sequence renders its "sequence" badge in place of the title
+   * ({@link FieldNodeTitle}), so the label returned here is only shown for the unselected
+   * choice candidate preview, not the selected branch node itself.
    * @param nodeData - The node whose title should be resolved.
    */
   static createNodeTitle(nodeData: NodeData): string {
@@ -651,6 +718,9 @@ export class VisualizationService {
       return VisualizationService.getChoiceMemberLabel(nodeData.field);
     }
     if (nodeData instanceof FieldNodeData && VisualizationUtilService.isSelectedNestedChoice(nodeData)) {
+      return VisualizationService.getChoiceMemberLabel(nodeData.field);
+    }
+    if (nodeData instanceof SequenceFieldNodeData || nodeData instanceof TargetSequenceFieldNodeData) {
       return VisualizationService.getChoiceMemberLabel(nodeData.field);
     }
     if (

@@ -6,6 +6,7 @@ import {
   DocumentNodeData,
   FieldItemNodeData,
   FieldNodeData,
+  SequenceFieldNodeData,
   TargetAbstractFieldNodeData,
   TargetChoiceFieldNodeData,
   TargetDocumentNodeData,
@@ -142,6 +143,72 @@ describe('VisualizationUtilService', () => {
       const abstractNode = new AbstractFieldNodeData(sourceDocNode, substituteField);
       abstractNode.abstractField = wrapperField;
       expect(VisualizationUtilService.isCollectionField(abstractNode)).toBe(false);
+    });
+
+    it('should return true for a selected sequence branch when the enclosing choice is a collection', () => {
+      // The enclosing collection choice may sit above intermediate wrappers, so the sequence's own
+      // maxOccurs (and its direct parent) are 1 — collection status comes from the choice back-ref.
+      const choiceWrapper = createMockField(sourceDoc.fields[0], { name: '__choice__', maxOccurs: 'unbounded' });
+      const sequenceField = createMockField(sourceDoc.fields[0], { name: '__sequence__', maxOccurs: 1 });
+      const sequenceNode = new SequenceFieldNodeData(sourceDocNode, sequenceField);
+      sequenceNode.choiceField = choiceWrapper;
+      expect(VisualizationUtilService.isCollectionField(sequenceNode)).toBe(true);
+    });
+
+    it('should return false for a selected sequence branch when the enclosing choice is not a collection', () => {
+      const choiceWrapper = createMockField(sourceDoc.fields[0], { name: '__choice__', maxOccurs: 1 });
+      const sequenceField = createMockField(sourceDoc.fields[0], { name: '__sequence__', maxOccurs: 1 });
+      const sequenceNode = new SequenceFieldNodeData(sourceDocNode, sequenceField);
+      sequenceNode.choiceField = choiceWrapper;
+      expect(VisualizationUtilService.isCollectionField(sequenceNode)).toBe(false);
+    });
+
+    it('should return true for a source child of a sequence branch inside a collection choice', () => {
+      // choice(unbounded) > sequence(1) > key(1): on the source side the child is a plain
+      // FieldNodeData whose collection status comes from DocumentService walking up the
+      // transparent sequence compositor to the repeating choice.
+      const choiceWrapper = createMockField(sourceDoc.fields[0], {
+        name: '__choice__',
+        maxOccurs: 'unbounded',
+        wrapperKind: 'choice',
+      });
+      const sequenceField = createMockField(sourceDoc.fields[0], {
+        name: '__sequence__',
+        maxOccurs: 1,
+        wrapperKind: 'sequence',
+        parent: choiceWrapper,
+      });
+      const keyField = createMockField(sourceDoc.fields[0], { name: 'key', maxOccurs: 1, parent: sequenceField });
+      const seqNode = new SequenceFieldNodeData(sourceDocNode, sequenceField);
+      seqNode.choiceField = choiceWrapper;
+      const keyNode = new FieldNodeData(seqNode, keyField);
+      expect(VisualizationUtilService.isCollectionField(keyNode)).toBe(true);
+    });
+  });
+
+  describe('isSequenceNode', () => {
+    it('should return true for a SequenceFieldNodeData', () => {
+      const sequenceField = createMockField(sourceDoc.fields[0], { name: '__sequence__', wrapperKind: 'sequence' });
+      const sequenceNode = new SequenceFieldNodeData(sourceDocNode, sequenceField);
+      expect(VisualizationUtilService.isSequenceNode(sequenceNode)).toBe(true);
+    });
+
+    it('should return true for a per-instance FieldItemNodeData whose field is a sequence', () => {
+      // A repeating (maxOccurs>1) choice renders its selected sequence branch as a FieldItemNodeData
+      // (not a SequenceFieldNodeData), so it must still be recognised as a sequence for the badge.
+      const sequenceField = createMockField(targetDoc.fields[0], { name: '__sequence__', wrapperKind: 'sequence' });
+      const fieldItem = new FieldItem(targetDocNode.mappingTree, sequenceField);
+      const fieldItemNode = new FieldItemNodeData(targetDocNode, fieldItem);
+      expect(VisualizationUtilService.isSequenceNode(fieldItemNode)).toBe(true);
+    });
+
+    it('should return false for a non-sequence FieldNodeData', () => {
+      const fieldNode = new FieldNodeData(sourceDocNode, sourceDoc.fields[0]);
+      expect(VisualizationUtilService.isSequenceNode(fieldNode)).toBe(false);
+    });
+
+    it('should return false for a document node', () => {
+      expect(VisualizationUtilService.isSequenceNode(sourceDocNode)).toBe(false);
     });
   });
 

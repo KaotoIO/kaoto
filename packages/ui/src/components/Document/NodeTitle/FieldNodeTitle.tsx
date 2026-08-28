@@ -21,7 +21,7 @@ export const FieldNodeTitle: FunctionComponent<FieldNodeTitleProps> = ({ classNa
   const isChoiceWrapper = VisualizationUtilService.isUnselectedChoiceField(nodeData);
   const isSelectedChoiceWrapper = VisualizationUtilService.isSelectedNestedChoice(nodeData);
   const isAbstractWrapper = VisualizationUtilService.isUnselectedAbstractField(nodeData);
-  const isSequenceWrapper = VisualizationUtilService.isSequenceField(nodeData);
+  const isSequenceWrapper = VisualizationUtilService.isSequenceNode(nodeData);
   const hasNoCandidates = isAbstractWrapper && (nodeData.field.fields ?? []).length === 0;
   const optionalField = nodeData.field.minOccurs === 0;
   const repeatingField0 = nodeData.field.minOccurs >= 0 && nodeData.field.maxOccurs === 'unbounded';

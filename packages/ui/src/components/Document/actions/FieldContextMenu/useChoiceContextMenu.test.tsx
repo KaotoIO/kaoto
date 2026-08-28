@@ -314,7 +314,7 @@ describe('useChoiceContextMenu', () => {
 
     fireEvent.contextMenu(screen.getByTestId(`node-source-${memberNode.nodeData.id}`));
 
-    expect(screen.getByText("Select 'Email' in '(Email | Phone | Fax)'")).toBeInTheDocument();
+    expect(screen.getByText("Select 'Email' in 'Email | Phone | Fax'")).toBeInTheDocument();
     expect(screen.getByText('Override Field...')).toBeInTheDocument();
   });
 

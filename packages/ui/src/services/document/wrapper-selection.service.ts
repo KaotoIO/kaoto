@@ -104,10 +104,9 @@ export class WrapperSelectionService {
   }
 
   /**
-   * Recursively clears nested wrapper selections (both choice and abstract) beneath
-   * the given field's currently selected member. Walks the member chain depth-first:
-   * clears `selectedMemberIndex` for choice wrappers, reverts `selectedMemberQName`
-   * for abstract wrappers.
+   * Recursively clears nested wrapper selections (choice and abstract) beneath the given
+   * field's currently selected member. Clears `selectedMemberIndex` for choice wrappers and
+   * reverts `selectedMemberQName` for abstract wrappers.
    *
    * This operates on the live field tree only — it does not update the document
    * definition. Callers should follow up with {@link DocumentUtilService.invalidateDescendants}
@@ -116,12 +115,20 @@ export class WrapperSelectionService {
   static clearDescendantWrapperSelections(field: IField, namespaceMap: Record<string, string>): void {
     const member = DocumentUtilService.getSelectedMember(field);
     if (!member) return;
-    if (member.wrapperKind === 'choice' && member.selectedMemberIndex !== undefined) {
-      WrapperSelectionService.clearDescendantWrapperSelections(member, namespaceMap);
-      member.selectedMemberIndex = undefined;
-    }
-    if (member.wrapperKind === 'abstract' && member.selectedMemberQName) {
-      FieldOverrideService.revertFieldSubstitution(member, namespaceMap);
+    WrapperSelectionService.clearWrapperSelection(member, namespaceMap);
+  }
+
+  /** Clears the selection on a single wrapper field, descending through a transparent xs:sequence branch. */
+  private static clearWrapperSelection(field: IField, namespaceMap: Record<string, string>): void {
+    if (field.wrapperKind === 'choice' && field.selectedMemberIndex !== undefined) {
+      WrapperSelectionService.clearDescendantWrapperSelections(field, namespaceMap);
+      field.selectedMemberIndex = undefined;
+    } else if (field.wrapperKind === 'abstract' && field.selectedMemberQName) {
+      FieldOverrideService.revertFieldSubstitution(field, namespaceMap);
+    } else if (field.wrapperKind === 'sequence') {
+      for (const child of field.fields) {
+        WrapperSelectionService.clearWrapperSelection(child, namespaceMap);
+      }
     }
   }
 

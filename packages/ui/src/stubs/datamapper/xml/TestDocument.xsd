@@ -130,6 +130,19 @@
                         </xs:choice>
                     </xs:complexType>
                 </xs:element>
+                <!-- Collection choice with an xs:sequence branch: choice repeats, so the sequence's
+                     children (key/value) inherit collection semantics across choice instances -->
+                <xs:element name="CollectionSequenceInChoiceElement">
+                    <xs:complexType>
+                        <xs:choice maxOccurs="unbounded">
+                            <xs:element name="plainValue" type="xs:string"/>
+                            <xs:sequence>
+                                <xs:element name="seqKey" type="xs:string"/>
+                                <xs:element name="seqValue" type="xs:string"/>
+                            </xs:sequence>
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
                 <!-- xs:sequence directly inside xs:choice — elements grouped as one option -->
                 <xs:element name="SequenceInChoiceElement">
                     <xs:complexType>
@@ -206,6 +219,23 @@
                             <xs:group ref="ns0:Group1"/>
                             <xs:any minOccurs="0"/>
                         </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <!-- xs:choice whose sequence branch itself contains a nested xs:choice (XSD nestedParticle allows this).
+                     Used to verify that clearing the outer choice also clears a selection made in the choice nested
+                     inside the selected sequence branch. -->
+                <xs:element name="NestedChoiceInSequenceElement">
+                    <xs:complexType>
+                        <xs:choice>
+                            <xs:element name="plainOption" type="xs:string"/>
+                            <xs:sequence>
+                                <xs:element name="seqKey" type="xs:string"/>
+                                <xs:choice>
+                                    <xs:element name="innerA" type="xs:string"/>
+                                    <xs:element name="innerB" type="xs:string"/>
+                                </xs:choice>
+                            </xs:sequence>
+                        </xs:choice>
                     </xs:complexType>
                 </xs:element>
                 <xs:group ref="ns0:Group1"/>

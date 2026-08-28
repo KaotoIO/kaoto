@@ -45,10 +45,13 @@ export class ChoiceFieldService extends WrapperBaseService {
   static resolveInfo(nodeData: NodeData): IChoiceNodeInfo {
     const field = VisualizationUtilService.getField(nodeData);
     const isChoiceWrapper = field?.wrapperKind === 'choice';
-    const isSelectedChoice = VisualizationUtilService.isSelectedChoiceField(nodeData);
+    // The enclosing choice wrapper when this node is a selected branch — a directly selected
+    // choice member (ChoiceFieldNodeData) or an xs:sequence selected as one branch
+    // (SequenceFieldNodeData). Both expose it via getSelectedChoiceWrapper.
+    const selectedChoiceWrapper = VisualizationUtilService.getSelectedChoiceWrapper(nodeData);
+    const isSelectedChoice = !!selectedChoiceWrapper;
 
-    const choiceMemberField =
-      VisualizationUtilService.isChoiceField(nodeData) && nodeData.choiceField ? nodeData.choiceField : field;
+    const choiceMemberField = selectedChoiceWrapper ?? field;
     const choiceMemberParent =
       choiceMemberField?.parent && 'wrapperKind' in choiceMemberField.parent ? choiceMemberField.parent : undefined;
     const isChoiceMember = choiceMemberParent?.wrapperKind === 'choice';
@@ -60,7 +63,7 @@ export class ChoiceFieldService extends WrapperBaseService {
 
     let choiceWrapperField: IField | undefined;
     if (isSelectedChoice) {
-      choiceWrapperField = WrapperSelectionService.resolveOutermostSelectedWrapper(nodeData.choiceField).outermost;
+      choiceWrapperField = WrapperSelectionService.resolveOutermostSelectedWrapper(selectedChoiceWrapper).outermost;
     } else if (isChoiceWrapper) {
       choiceWrapperField = field;
     }
@@ -88,18 +91,22 @@ export class ChoiceFieldService extends WrapperBaseService {
     };
   }
 
+  /**
+   * Resolves the display label for a choice/sequence member field. Choice and sequence wrappers
+   * have no meaningful `displayName`/`name` of their own (an anonymous `xs:sequence` synthesizes
+   * the literal `"sequence"`), so they're described via {@link VisualizationService.getChoiceMemberLabel}
+   * instead. Abstract wrappers are excluded — their own name (the substitution head element) is
+   * already meaningful, unlike the dissolved candidate list `getChoiceMemberLabel` would produce.
+   */
   static getChoiceFieldDisplayName(field: IField): string {
-    return field.wrapperKind === 'choice'
+    return field.wrapperKind === 'choice' || field.wrapperKind === 'sequence'
       ? VisualizationService.getChoiceMemberLabel(field)
       : field.displayName || field.name;
   }
 
   /** Converts a schema field into an {@link IWrapperCandidate} for inline menus and the selection modal. */
   static fieldToCandidate(field: IField, key: string, memberIndex: number): IWrapperCandidate {
-    const label =
-      field.wrapperKind === 'choice'
-        ? VisualizationService.getChoiceMemberLabel(field)
-        : field.displayName || field.name;
+    const label = ChoiceFieldService.getChoiceFieldDisplayName(field);
     return {
       key,
       label,
@@ -129,7 +136,8 @@ export class ChoiceFieldService extends WrapperBaseService {
           selection: { memberIndex: index, substituteQName: qname },
         }));
       }
-      if (member.wrapperKind === 'sequence') return [];
+      // Plain elements and xs:sequence branches both map to a single candidate; fieldToCandidate
+      // derives a dissolved "(child | child)" label for the sequence from its children.
       return [this.fieldToCandidate(member, String(index), index)];
     });
   }

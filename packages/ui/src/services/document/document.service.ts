@@ -485,19 +485,38 @@ export class DocumentService {
     return field.fields.length > 0 || field.namedTypeFragmentRefs.length > 0;
   }
 
+  private static isRepeating(field: IField): boolean {
+    return field.maxOccurs === 'unbounded' || Number(field.maxOccurs) > 1;
+  }
+
   /**
-   * Returns true if the field's parent is a collection choice wrapper.
-   * A collection choice wrapper is an xs:choice with maxOccurs > 1, meaning its members
-   * can repeat across choice instances and should be treated as collection fields.
+   * Walks up through the chain of enclosing transparent compositors (xs:choice / xs:sequence) and
+   * returns the nearest one that repeats, or `undefined` when none does. xs:choice and xs:sequence
+   * are transparent compositors (not XML elements): when one repeats, the fields nested inside it
+   * repeat with it across instances. A real element is opaque and stops the walk — a scalar under a
+   * repeating element is not itself a collection (that repeat is handled at the element's own mapping
+   * level). This is the single source of truth for both {@link isFieldInsideCollectionChoiceWrapper}
+   * (does it repeat at all?) and the popover's effective-maxOccurs display (what is the repeat count?).
+   * @param field - The field whose ancestor compositors to inspect
+   * @returns the nearest repeating enclosing choice/sequence compositor, or `undefined`
+   */
+  static getEnclosingCollectionCompositor(field: IField): IField | undefined {
+    const parent = field.parent;
+    if (!('wrapperKind' in parent) || (parent.wrapperKind !== 'choice' && parent.wrapperKind !== 'sequence')) {
+      return undefined;
+    }
+    return DocumentService.isRepeating(parent) ? parent : DocumentService.getEnclosingCollectionCompositor(parent);
+  }
+
+  /**
+   * Returns true if the field inherits collection (repeating) semantics from an enclosing repeating
+   * xs:choice / xs:sequence compositor. See {@link getEnclosingCollectionCompositor} for how the
+   * ancestor chain is walked and why real elements stop the walk.
    * @param field - The field to inspect
-   * @returns true if the field is a direct child of a collection choice wrapper, false otherwise
+   * @returns true if the field is inside a repeating choice/sequence compositor, false otherwise
    */
   static isFieldInsideCollectionChoiceWrapper(field: IField): boolean {
-    if (!('wrapperKind' in field.parent)) return false;
-    return (
-      field.parent.wrapperKind === 'choice' &&
-      (field.parent.maxOccurs === 'unbounded' || Number(field.parent.maxOccurs) > 1)
-    );
+    return DocumentService.getEnclosingCollectionCompositor(field) !== undefined;
   }
 
   /**
@@ -508,11 +527,7 @@ export class DocumentService {
    * @returns true if the field is a collection, false otherwise
    */
   static isCollectionField(field: IField) {
-    return (
-      field.maxOccurs === 'unbounded' ||
-      Number(field.maxOccurs) > 1 ||
-      DocumentService.isFieldInsideCollectionChoiceWrapper(field)
-    );
+    return DocumentService.isRepeating(field) || DocumentService.isFieldInsideCollectionChoiceWrapper(field);
   }
 
   /**

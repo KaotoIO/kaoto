@@ -97,7 +97,13 @@ export class FieldCandidateService extends WrapperBaseService {
     for (const member of choiceField.fields) {
       if (member.wrapperKind === 'abstract') {
         entries.push(...this.resolveAbstractSubstitutes(member, namespaceMap));
-      } else if (member.wrapperKind !== 'sequence') {
+      } else if (member.wrapperKind === 'sequence') {
+        // Delegate to the general recursive resolver so choice/abstract/sequence nested inside
+        // the sequence branch (per the XSD nestedParticle model) are dissolved the same way as
+        // at the top level, instead of being dropped.
+        const nested = this.computeAddFieldCandidates(member.fields, namespaceMap);
+        entries.push(...nested.candidates.map((candidate, i) => ({ candidate, field: nested.fields[i] })));
+      } else {
         entries.push({ candidate: ChoiceFieldService.fieldToCandidate(member, '', 0), field: member });
       }
     }
