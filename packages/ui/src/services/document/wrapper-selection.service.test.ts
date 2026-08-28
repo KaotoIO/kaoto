@@ -3,6 +3,7 @@ import { NS_XML_SCHEMA } from '../../models/datamapper/standard-namespaces';
 import { FieldOverrideVariant } from '../../models/datamapper/types';
 import { getChoiceWithAbstractXsd } from '../../stubs/datamapper/data-mapper';
 import { XmlSchemaCollection } from '../../xml-schema-ts';
+import { QName } from '../../xml-schema-ts/QName';
 import { SchemaPathService } from '../schema-path.service';
 import { DocumentUtilService } from './document-util.service';
 import { FieldOverrideService } from './field-override.service';
@@ -721,6 +722,67 @@ describe('WrapperSelectionService', () => {
 
       expect(doc.definition.choiceSelections ?? []).toHaveLength(0);
       expect(doc.definition.fieldSubstitutions ?? []).toHaveLength(0);
+    });
+  });
+
+  // Regression for #3802: clearing an outer choice must also clear choice/abstract selections
+  // nested inside a selected xs:sequence branch (a sequence is a transparent compositor; XSD
+  // allows choice/abstract/sequence inside a sequence). Behaviour must match choice>choice on clear.
+  describe('clearDescendantWrapperSelections through a selected xs:sequence branch (#3802)', () => {
+    function makeSequenceField(parent: XmlSchemaField): XmlSchemaField {
+      const seq = new XmlSchemaField(parent, 'sequence', false);
+      seq.wrapperKind = 'sequence';
+      return seq;
+    }
+
+    it('clears a choice nested inside the selected sequence branch', () => {
+      // Root/{choice:0} -> [plain, sequence[ k, innerChoice[a, b] ] ]
+      const root = new XmlSchemaField(document, 'Root', false);
+      const outerChoice = makeChoiceField(root, ['plain']);
+      const seq = makeSequenceField(outerChoice);
+      const k = new XmlSchemaField(seq, 'k', false);
+      const innerChoice = makeChoiceField(seq, ['a', 'b']);
+      seq.fields = [k, innerChoice];
+      outerChoice.fields.push(seq); // sequence is member index 1
+
+      outerChoice.selectedMemberIndex = 1; // select the sequence branch
+      innerChoice.selectedMemberIndex = 0; // select a member of the choice inside the sequence
+
+      WrapperSelectionService.clearDescendantWrapperSelections(outerChoice, namespaceMap);
+
+      expect(innerChoice.selectedMemberIndex).toBeUndefined();
+    });
+
+    it('reverts an abstract substitution nested inside the selected sequence branch', () => {
+      const revertSpy = vi.spyOn(FieldOverrideService, 'revertFieldSubstitution').mockImplementation(() => {});
+      const root = new XmlSchemaField(document, 'Root', false);
+      const outerChoice = makeChoiceField(root, ['plain']);
+      const seq = makeSequenceField(outerChoice);
+      const abstractField = new XmlSchemaField(seq, 'payload', false);
+      abstractField.wrapperKind = 'abstract';
+      abstractField.selectedMemberQName = new QName('io.kaoto.test', 'Concrete');
+      seq.fields = [abstractField];
+      outerChoice.fields.push(seq);
+
+      outerChoice.selectedMemberIndex = 1;
+
+      WrapperSelectionService.clearDescendantWrapperSelections(outerChoice, namespaceMap);
+
+      expect(revertSpy).toHaveBeenCalledWith(abstractField, namespaceMap);
+      revertSpy.mockRestore();
+    });
+
+    it('is a no-op when the selected sequence has only plain elements', () => {
+      const root = new XmlSchemaField(document, 'Root', false);
+      const outerChoice = makeChoiceField(root, ['plain']);
+      const seq = makeSequenceField(outerChoice);
+      seq.fields = [new XmlSchemaField(seq, 'k', false), new XmlSchemaField(seq, 'v', false)];
+      outerChoice.fields.push(seq);
+      outerChoice.selectedMemberIndex = 1;
+
+      expect(() => {
+        WrapperSelectionService.clearDescendantWrapperSelections(outerChoice, namespaceMap);
+      }).not.toThrow();
     });
   });
 });

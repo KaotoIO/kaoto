@@ -364,32 +364,32 @@ describe('VisualizationService / abstract fields', () => {
     it('should return candidate names joined with | in parentheses', () => {
       const abstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }, { name: 'Fish' }]);
       const abstractNode = new AbstractFieldNodeData(sourceDocNode, abstractField);
-      expect(VisualizationService.getAbstractMemberLabel(abstractNode)).toBe('(Cat | Dog | Fish)');
+      expect(VisualizationService.getAbstractMemberLabel(abstractNode)).toBe('Cat | Dog | Fish');
     });
 
-    it('should return "(no candidates)" for abstract with no candidates', () => {
+    it('should return "no candidates" for abstract with no candidates', () => {
       const abstractField = createMockAbstractField([]);
       const abstractNode = new AbstractFieldNodeData(sourceDocNode, abstractField);
-      expect(VisualizationService.getAbstractMemberLabel(abstractNode)).toBe('(no candidates)');
+      expect(VisualizationService.getAbstractMemberLabel(abstractNode)).toBe('no candidates');
     });
 
     it('should truncate long candidate lists showing first 3 and count', () => {
       const candidates = Array.from({ length: 10 }, (_, i) => ({ name: `animal${i}` }));
       const abstractField = createMockAbstractField(candidates);
       const abstractNode = new AbstractFieldNodeData(sourceDocNode, abstractField);
-      expect(VisualizationService.getAbstractMemberLabel(abstractNode)).toBe('(animal0 | animal1 | animal2 | +7 more)');
+      expect(VisualizationService.getAbstractMemberLabel(abstractNode)).toBe('animal0 | animal1 | animal2 | +7 more');
     });
 
     it('should handle single candidate without truncation', () => {
       const abstractField = createMockAbstractField([{ name: 'Cat' }]);
       const abstractNode = new AbstractFieldNodeData(sourceDocNode, abstractField);
-      expect(VisualizationService.getAbstractMemberLabel(abstractNode)).toBe('(Cat)');
+      expect(VisualizationService.getAbstractMemberLabel(abstractNode)).toBe('Cat');
     });
 
     it('should handle exactly 3 candidates without truncation', () => {
       const abstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }, { name: 'Fish' }]);
       const abstractNode = new AbstractFieldNodeData(sourceDocNode, abstractField);
-      expect(VisualizationService.getAbstractMemberLabel(abstractNode)).toBe('(Cat | Dog | Fish)');
+      expect(VisualizationService.getAbstractMemberLabel(abstractNode)).toBe('Cat | Dog | Fish');
     });
   });
 
@@ -397,7 +397,7 @@ describe('VisualizationService / abstract fields', () => {
     it('should return candidate label for unselected abstract wrapper (no abstractField)', () => {
       const abstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }]);
       const abstractNode = new AbstractFieldNodeData(sourceDocNode, abstractField);
-      expect(VisualizationService.createNodeTitle(abstractNode)).toBe('(Cat | Dog)');
+      expect(VisualizationService.createNodeTitle(abstractNode)).toBe('Cat | Dog');
     });
 
     it('should return nodeData.title for selected abstract candidate (abstractField set)', () => {
@@ -421,7 +421,7 @@ describe('VisualizationService / abstract fields', () => {
     it('should return candidate label for unselected TargetAbstractFieldNodeData', () => {
       const abstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }]);
       const abstractNode = new TargetAbstractFieldNodeData(targetDocNode, abstractField);
-      expect(VisualizationService.createNodeTitle(abstractNode)).toBe('(Cat | Dog)');
+      expect(VisualizationService.createNodeTitle(abstractNode)).toBe('Cat | Dog');
     });
   });
 
@@ -975,7 +975,7 @@ describe('VisualizationService / abstract fields', () => {
         (c) => c instanceof FieldItemNodeData && c.field.wrapperKind === 'abstract',
       ) as FieldItemNodeData;
       expect(wrapperNode).toBeDefined();
-      expect(VisualizationService.createNodeTitle(wrapperNode)).toBe('(Cat | Dog | Fish | +1 more)');
+      expect(VisualizationService.createNodeTitle(wrapperNode)).toBe('Cat | Dog | Fish | +1 more');
     });
 
     it('createNodeTitle should return candidate list label for AddMappingNodeData with abstract wrapper field', () => {
@@ -989,7 +989,7 @@ describe('VisualizationService / abstract fields', () => {
       const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
       const addNode = children.find((c) => c instanceof AddMappingNodeData) as AddMappingNodeData;
       expect(addNode).toBeDefined();
-      expect(VisualizationService.createNodeTitle(addNode)).toBe('(Cat | Dog | Fish | +1 more)');
+      expect(VisualizationService.createNodeTitle(addNode)).toBe('Cat | Dog | Fish | +1 more');
     });
   });
 
@@ -1129,7 +1129,7 @@ describe('VisualizationService / abstract fields', () => {
       ) as FieldItemNodeData;
       expect(wrapperNode).toBeDefined();
       expect(wrapperNode.wrapperField).toBe(abstractField);
-      expect(VisualizationService.createNodeTitle(wrapperNode)).toBe('(Cat | Dog)');
+      expect(VisualizationService.createNodeTitle(wrapperNode)).toBe('Cat | Dog');
 
       const leafChildren = VisualizationService.generateNonDocumentNodeDataChildren(wrapperNode);
       expect(leafChildren).toHaveLength(0);

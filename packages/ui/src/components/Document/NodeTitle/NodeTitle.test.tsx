@@ -23,6 +23,7 @@ import {
   FieldItemNodeData,
   FieldNodeData,
   MappingNodeData,
+  SequenceFieldNodeData,
   TargetDocumentNodeData,
   UnknownMappingNodeData,
 } from '../../../models/datamapper/visualization';
@@ -239,7 +240,7 @@ describe('NodeTitle', () => {
     render(<NodeTitle nodeData={choiceNodeData} isDocument={false} rank={0} />);
 
     expect(screen.getByText('choice')).toBeInTheDocument();
-    const memberText = screen.getByText('(email | phone)');
+    const memberText = screen.getByText('email | phone');
     expect(memberText).toBeInTheDocument();
     expect(memberText).toHaveClass('node-title__text__choice');
   });
@@ -264,9 +265,59 @@ describe('NodeTitle', () => {
     render(<NodeTitle nodeData={abstractNodeData} isDocument={false} rank={0} />);
 
     expect(screen.getByText('abstract')).toBeInTheDocument();
-    const memberText = screen.getByText('(Cat | Dog)');
+    const memberText = screen.getByText('Cat | Dog');
     expect(memberText).toBeInTheDocument();
     expect(memberText).toHaveClass('node-title__text__abstract');
+  });
+
+  it('should render a selected sequence branch as a bare "sequence" badge without its member label', () => {
+    const shipOrderDoc = TestUtil.createSourceOrderDoc();
+    const documentNodeData = new DocumentNodeData(shipOrderDoc);
+    const baseField = shipOrderDoc.fields[0];
+    const sequenceField = {
+      ...baseField,
+      name: '__sequence__',
+      displayName: 'sequence',
+      wrapperKind: 'sequence' as const,
+      fields: [
+        { ...baseField, name: 'key', displayName: 'key', fields: [] },
+        { ...baseField, name: 'value', displayName: 'value', fields: [] },
+      ],
+    } as unknown as typeof baseField;
+    const sequenceNodeData = new SequenceFieldNodeData(documentNodeData, sequenceField);
+
+    render(<NodeTitle nodeData={sequenceNodeData} isDocument={false} rank={0} />);
+
+    expect(screen.getByText('sequence')).toBeInTheDocument();
+    // The member label must not be rendered as the node title — the children are shown as sub-nodes.
+    expect(screen.queryByText('key, value')).not.toBeInTheDocument();
+  });
+
+  it('should render a per-instance collection FieldItemNodeData whose field is a sequence as a "sequence" badge', () => {
+    // Regression for #3802: a repeating (maxOccurs>1) choice renders its selected sequence branch
+    // as a FieldItemNodeData, which must show the same bare "sequence" badge as the maxOccurs=1
+    // case — not the raw synthetic literal "sequence" nor the composed "key, value" member label.
+    const targetDoc = TestUtil.createTargetOrderDoc();
+    const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+    const targetDocNodeData = new TargetDocumentNodeData(targetDoc, tree);
+    const baseField = targetDoc.fields[0];
+    const sequenceField = {
+      ...baseField,
+      name: '__sequence__',
+      displayName: 'sequence',
+      wrapperKind: 'sequence' as const,
+      fields: [
+        { ...baseField, name: 'key', displayName: 'key', fields: [] },
+        { ...baseField, name: 'value', displayName: 'value', fields: [] },
+      ],
+    } as unknown as typeof baseField;
+    const fieldItem = new FieldItem(tree, sequenceField);
+    const fieldItemNodeData = new FieldItemNodeData(targetDocNodeData, fieldItem);
+
+    render(<NodeTitle nodeData={fieldItemNodeData} isDocument={false} rank={0} />);
+
+    expect(screen.getByText('sequence')).toBeInTheDocument();
+    expect(screen.queryByText('key, value')).not.toBeInTheDocument();
   });
 
   it('should not display popover for MappingNodeData', async () => {

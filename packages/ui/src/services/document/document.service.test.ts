@@ -707,6 +707,90 @@ describe('DocumentService', () => {
       const regularField = sourceDoc.fields[0].fields[0];
       expect(DocumentService.isFieldInsideCollectionChoiceWrapper(regularField)).toBeFalsy();
     });
+
+    it('should return true for children of an xs:sequence branch inside a collection choice', async () => {
+      const mockApi = {
+        getResourceContent: vi.fn().mockResolvedValue(getTestDocumentXsd()),
+      };
+
+      const result = await DocumentService.createDocument(
+        mockApi as unknown as IMetadataApi,
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'TestDocument',
+        ['TestDocument.xsd'],
+      );
+
+      const doc = result.document!;
+      const testDocument = doc.fields[0];
+      const element = testDocument.fields.find((f) => f.name === 'CollectionSequenceInChoiceElement')!;
+      const choiceWrapper = element.fields[0];
+      expect(choiceWrapper.wrapperKind).toBe('choice');
+      expect(choiceWrapper.maxOccurs).toBe('unbounded');
+
+      const sequenceBranch = choiceWrapper.fields.find((f) => f.wrapperKind === 'sequence')!;
+      const seqKey = sequenceBranch.fields.find((f) => f.name === 'seqKey')!;
+      const seqValue = sequenceBranch.fields.find((f) => f.name === 'seqValue')!;
+
+      // The sequence's own maxOccurs is 1, but the enclosing choice repeats — so its children,
+      // reached through the transparent sequence compositor, must inherit collection semantics.
+      expect(seqKey.maxOccurs).toBe(1);
+      expect(DocumentService.isFieldInsideCollectionChoiceWrapper(seqKey)).toBeTruthy();
+      expect(DocumentService.isFieldInsideCollectionChoiceWrapper(seqValue)).toBeTruthy();
+      expect(DocumentService.isCollectionField(seqKey)).toBeTruthy();
+      expect(DocumentService.isCollectionField(seqValue)).toBeTruthy();
+      // The plain sibling branch (direct choice member) still inherits, as before.
+      const plainValue = choiceWrapper.fields.find((f) => f.name === 'plainValue')!;
+      expect(DocumentService.isCollectionField(plainValue)).toBeTruthy();
+    });
+
+    it('should return true for a child of a repeating xs:sequence (no choice involved)', () => {
+      const seq = { wrapperKind: 'sequence', maxOccurs: 'unbounded', parent: {} as IParentType } as IField;
+      const child = { maxOccurs: 1, parent: seq } as IField;
+      expect(DocumentService.isFieldInsideCollectionChoiceWrapper(child)).toBeTruthy();
+    });
+
+    it('should return false for a child of a real repeating element (opaque, not a compositor)', () => {
+      // element(unbounded) > child: the child is a scalar inside a repeating element, not itself a
+      // collection — that repeat is handled at the element's own mapping level.
+      const element = { maxOccurs: 'unbounded', parent: {} as IParentType } as IField;
+      const child = { maxOccurs: 1, parent: element } as IField;
+      expect(DocumentService.isFieldInsideCollectionChoiceWrapper(child)).toBeFalsy();
+    });
+
+    it('should return false for a child of a non-repeating sequence not inside a repeating compositor', () => {
+      const seq = { wrapperKind: 'sequence', maxOccurs: 1, parent: {} as IParentType } as IField;
+      const child = { maxOccurs: 1, parent: seq } as IField;
+      expect(DocumentService.isFieldInsideCollectionChoiceWrapper(child)).toBeFalsy();
+    });
+  });
+
+  describe('getEnclosingCollectionCompositor()', () => {
+    it('should return the repeating choice reached through a transparent sequence', () => {
+      const choice = { wrapperKind: 'choice', maxOccurs: 'unbounded', parent: {} as IParentType } as IField;
+      const seq = { wrapperKind: 'sequence', maxOccurs: 1, parent: choice } as IField;
+      const child = { maxOccurs: 1, parent: seq } as IField;
+      expect(DocumentService.getEnclosingCollectionCompositor(child)).toBe(choice);
+    });
+
+    it('should return the nearest repeating compositor (the sequence) when it repeats itself', () => {
+      const choice = { wrapperKind: 'choice', maxOccurs: 1, parent: {} as IParentType } as IField;
+      const seq = { wrapperKind: 'sequence', maxOccurs: 'unbounded', parent: choice } as IField;
+      const child = { maxOccurs: 1, parent: seq } as IField;
+      expect(DocumentService.getEnclosingCollectionCompositor(child)).toBe(seq);
+    });
+
+    it('should return undefined when no enclosing compositor repeats', () => {
+      const seq = { wrapperKind: 'sequence', maxOccurs: 1, parent: {} as IParentType } as IField;
+      const child = { maxOccurs: 1, parent: seq } as IField;
+      expect(DocumentService.getEnclosingCollectionCompositor(child)).toBeUndefined();
+    });
+
+    it('should return undefined when the parent is a real (opaque) element', () => {
+      const element = { maxOccurs: 'unbounded', parent: {} as IParentType } as IField;
+      const child = { maxOccurs: 1, parent: element } as IField;
+      expect(DocumentService.getEnclosingCollectionCompositor(child)).toBeUndefined();
+    });
   });
 
   describe('createDocument() error handling', () => {

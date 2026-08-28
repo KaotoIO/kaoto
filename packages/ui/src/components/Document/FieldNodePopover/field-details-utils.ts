@@ -7,6 +7,7 @@ import {
   TargetAbstractFieldNodeData,
   TargetChoiceFieldNodeData,
 } from '../../../models/datamapper/visualization';
+import { DocumentService } from '../../../services/document/document.service';
 import { VisualizationUtilService } from '../../../services/visualization/visualization-util.service';
 import { QName } from '../../../xml-schema-ts/QName';
 import { getOverrideDisplayInfo } from '../actions/FieldOverride/override-util';
@@ -89,6 +90,16 @@ export const getEffectiveMaxOccurs = (field: IField, nodeData?: NodeData): IFiel
 
   if (VisualizationUtilService.isAbstractField(nodeData) && nodeData.abstractField) {
     return nodeData.abstractField.maxOccurs;
+  }
+
+  // A field nested under a repeating choice/sequence compositor (e.g. the children of an xs:sequence
+  // branch selected inside a `choice(unbounded)`) inherits the compositor's cardinality even though
+  // its own maxOccurs is 1. This mirrors DocumentService.isCollectionField so the popover's Max Occurs
+  // agrees with the collection indicator icon. Covers the source-side plain FieldNodeData, where no
+  // wrapperField/choiceField back-reference is available.
+  const enclosingCollectionCompositor = DocumentService.getEnclosingCollectionCompositor(field);
+  if (enclosingCollectionCompositor) {
+    return enclosingCollectionCompositor.maxOccurs;
   }
 
   return field.maxOccurs;

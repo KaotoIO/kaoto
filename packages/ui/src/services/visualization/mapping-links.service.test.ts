@@ -37,6 +37,7 @@ import {
   getShipOrderToShipOrderMultipleForEachXslt,
   getShipOrderToShipOrderXslt,
   getShipOrderWithCurrentXslt,
+  getTestDocumentXsd,
   getX12837PDfdlXsd,
   getX12837PXslt,
   getX12850DfdlXsd,
@@ -488,6 +489,55 @@ describe('MappingLinksService', () => {
       );
       expect(links[0].targetNodePath).not.toContain(abstractField.id);
       expect(links[0].targetNodePath).not.toContain(unboundedChoiceField.id);
+    });
+
+    it('should include the sequence wrapper segment for a field mapped inside a selected sequence-in-choice branch (#3802)', () => {
+      // Regression: selecting a sequence branch of a choice must not change how mapping links
+      // for its children resolve. The sequence's own field.id is a real intermediate segment
+      // (it renders as its own node, unlike a selected choice/abstract member which is replaced
+      // by its selection), and the mapped field itself must use its own FieldItem id — not its
+      // schema field id — otherwise the link points at a path with no matching rendered node.
+      const targetDefinition = new DocumentDefinition(
+        DocumentType.TARGET_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'testDocument.xsd': getTestDocumentXsd() },
+      );
+      const seqTargetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(targetDefinition).document!;
+      const seqTree = new MappingTree(
+        seqTargetDoc.documentType,
+        seqTargetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+
+      const rootField = seqTargetDoc.fields[0];
+      DocumentUtilService.resolveTypeFragment(rootField);
+      const seqInChoiceField = rootField.fields.find((f: IField) => f.name === 'SequenceInChoiceElement')!;
+      DocumentUtilService.resolveTypeFragment(seqInChoiceField);
+      const choiceField = seqInChoiceField.fields.find((f: IField) => f.wrapperKind === 'choice')!;
+      const sequenceField = choiceField.fields.find((f: IField) => f.wrapperKind === 'sequence')!;
+      const keyField = sequenceField.fields.find((f: IField) => f.name === 'key')!;
+
+      choiceField.selectedMemberIndex = choiceField.fields.indexOf(sequenceField);
+
+      seqTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const rootItem = new FieldItem(seqTree, rootField);
+      seqTree.children.push(rootItem);
+      const seqInChoiceItem = new FieldItem(rootItem, seqInChoiceField);
+      rootItem.children.push(seqInChoiceItem);
+      // The mapping tree has no counterpart for the sequence compositor — key's FieldItem is a
+      // direct child of seqInChoiceItem, matching MappingActionService.getOrCreateFieldItem.
+      const keyItem = new FieldItem(seqInChoiceItem, keyField);
+      seqInChoiceItem.children.push(keyItem);
+      const valueSelector = new ValueOfSelector(keyItem);
+      valueSelector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
+      keyItem.children.push(valueSelector);
+
+      const links = MappingLinksService.extractMappingLinks(seqTree, paramsMap, sourceDoc);
+      expect(links).toHaveLength(1);
+      expect(links[0].targetNodePath).toBe(
+        `targetBody:Body://${rootItem.id}/${seqInChoiceItem.id}/${sequenceField.id}/${keyItem.id}`,
+      );
     });
   });
 

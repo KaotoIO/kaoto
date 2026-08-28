@@ -192,6 +192,30 @@ describe('field-details-utils', () => {
 
       expect(getEffectiveMaxOccurs(wrapperField, choiceNode)).toBe('unbounded');
     });
+
+    it('should inherit maxOccurs from a repeating choice for a source child of a sequence branch', () => {
+      // choice(unbounded) > sequence(1) > key(1): on the source side the child is a plain
+      // FieldNodeData with no wrapperField/choiceField back-reference, so the effective maxOccurs
+      // must be resolved by walking up the transparent sequence compositor to the repeating choice —
+      // keeping the popover's Max Occurs in agreement with the collection indicator icon.
+      const shipOrderDoc = TestUtil.createSourceOrderDoc();
+      const documentNodeData = new DocumentNodeData(shipOrderDoc);
+      const choiceWrapper = {
+        ...shipOrderDoc.fields[0],
+        maxOccurs: 'unbounded',
+        wrapperKind: 'choice',
+      } as unknown as IField;
+      const sequenceField = {
+        ...shipOrderDoc.fields[0],
+        maxOccurs: 1,
+        wrapperKind: 'sequence',
+        parent: choiceWrapper,
+      } as unknown as IField;
+      const keyField = { ...shipOrderDoc.fields[0], maxOccurs: 1, parent: sequenceField } as unknown as IField;
+      const keyNode = new FieldNodeData(documentNodeData, keyField);
+
+      expect(getEffectiveMaxOccurs(keyField, keyNode)).toBe('unbounded');
+    });
   });
 
   describe('prepareFieldDetails', () => {

@@ -229,14 +229,25 @@ export class TargetAbstractFieldNodeData extends TargetFieldNodeData {
 
 /**
  * Visualization node for a source xs:sequence wrapper field inside an xs:choice.
- * Sequence wrappers have no selection mechanism — they always render all children.
+ * Sequence wrappers have no selection mechanism of their own — they always render all children.
+ *
+ * When this sequence is the selected member of an enclosing xs:choice, `choiceField` holds that
+ * choice wrapper (mirroring {@link ChoiceFieldNodeData.choiceField}). It lets the choice context
+ * menu treat the node as a selected branch so the selection can be changed or cleared. It is
+ * `undefined` for a sequence not rendered as a selected choice branch.
  */
-export class SequenceFieldNodeData extends FieldNodeData {}
+export class SequenceFieldNodeData extends FieldNodeData {
+  /** The enclosing choice wrapper when this sequence is the selected choice member; otherwise `undefined`. */
+  choiceField?: IField;
+}
 
 /**
  * Target-side counterpart of {@link SequenceFieldNodeData}.
  */
-export class TargetSequenceFieldNodeData extends TargetFieldNodeData {}
+export class TargetSequenceFieldNodeData extends TargetFieldNodeData {
+  /** The enclosing choice wrapper when this sequence is the selected choice member; otherwise `undefined`. */
+  choiceField?: IField;
+}
 
 /**
  * Visualization node for a mapping item (e.g. `if`, `choose`, `forEach`, `valueSelector`).
