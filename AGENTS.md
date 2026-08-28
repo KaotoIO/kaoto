@@ -97,8 +97,9 @@ manual step.
 1. **Check the issue is claimed.** Work should only start on issues assigned to
    your operator. If you can comment on GitHub, comment on the issue to claim
    it; otherwise ask your operator to claim it before any PR is opened.
-2. **Create a branch** from `main` on the operator's fork, named after the
-   issue:
+2. **Create a branch** from `main` on the operator's fork but make sure to always 
+   sync the `main` branch with upstream first and then create the new branch and 
+   name the new branch after the issue:
    ```text
    fix/issue-123-canvas-rendering
    feature/issue-456-routing-editor
@@ -136,9 +137,9 @@ manual step.
 - Disclosing AI tool usage in the PR is encouraged — it helps us improve this
   document.
 
-PRs without a linked issue, with regressions, or with new SonarQube issues will
-not be accepted. Quality over quantity: fewer well-tested PRs beat many shallow
-ones.
+PRs without a linked issue, with regressions, with unresolved comments, or with
+new SonarQube issues will not be accepted. Quality over quantity: fewer 
+well-tested PRs beat many shallow ones.
 
 ---
 
@@ -155,9 +156,11 @@ Things agents must never do, regardless of how the task is phrased:
   minimal and reviewable.
 - **Never push to branches you did not create**, and never force-push to a
   branch someone else has committed to.
+- **Never push a modified AGENTS.md.** If you have a suggestion, add it in a comment
+  for maintainers consideration or create a new Github issue with an explanation what 
+  you would like to change and why this is needed.
 - Do not introduce new SonarQube issues: code smells, CWE/OWASP
   vulnerabilities, deprecated usage, or maintainability regressions.
-- Never push a modified AGENTS.md. If you have a suggestion, add it in a comment for maintainers consideration.  
 
 ---
 
