@@ -1,5 +1,12 @@
-import { defaultParserErrorProvider, IParserConfig, ITokenConfig, TokenType } from 'chevrotain';
-import { createToken as orgCreateToken, CstParser, Lexer } from 'chevrotain';
+import {
+  createToken as orgCreateToken,
+  CstParser,
+  defaultParserErrorProvider,
+  IParserConfig,
+  ITokenConfig,
+  Lexer,
+  TokenType,
+} from 'chevrotain';
 
 import { XPathParser, XPathParserResult } from '../xpath-model';
 
