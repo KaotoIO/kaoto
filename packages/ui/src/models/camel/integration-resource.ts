@@ -15,7 +15,6 @@ export class IntegrationResource extends CamelKResource {
     } else {
       this.integration = this.resource as IntegrationType;
       this.integration.kind = SourceSchemaType.Integration;
-      return;
     }
   }
 
