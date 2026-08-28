@@ -412,7 +412,9 @@ describe('CanvasFormBody', () => {
     );
 
     const formPageObject = new KaotoFormPageObject(screen, act);
-    await waitFor(() => formPageObject.getFieldByDisplayName('Name'));
+    await waitFor(() => {
+      expect(formPageObject.getFieldByDisplayName('Name')).not.toBeNull();
+    });
     const inputField = formPageObject.getFieldByDisplayName('Name')!;
 
     fireEvent.focus(inputField);
