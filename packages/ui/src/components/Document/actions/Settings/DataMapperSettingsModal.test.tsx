@@ -1,35 +1,66 @@
 import { act, render, screen } from '@testing-library/react';
-import { FunctionComponent, PropsWithChildren } from 'react';
+import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
 
-import { DocumentDefinitionType, DocumentInitializationModel, DocumentType } from '../../../../models/datamapper';
+import { useDataMapper } from '../../../../hooks/useDataMapper';
+import { DocumentDefinitionType, DocumentType, IDocument } from '../../../../models/datamapper';
+import { IField } from '../../../../models/datamapper/document';
 import { DataMapperProvider } from '../../../../providers/datamapper.provider';
 import { DataMapperSettingsModal } from './DataMapperSettingsModal';
+
+/**
+ * Helper component that injects a mock target document with the given definitionType
+ * into the DataMapper context after the provider has finished loading.
+ * This is necessary because DocumentInitializationModel with XML_SCHEMA/JSON_SCHEMA
+ * but without real schema files does not produce a real document — so we bypass it
+ * and inject via setNewDocument directly.
+ */
+const TargetDocumentInjector: FunctionComponent<PropsWithChildren<{ targetDocType: DocumentDefinitionType }>> = ({
+  targetDocType,
+  children,
+}) => {
+  const { setNewDocument } = useDataMapper();
+
+  useEffect(() => {
+    if (targetDocType === DocumentDefinitionType.Primitive) return;
+
+    const mockDocument: IDocument = {
+      documentType: DocumentType.TARGET_BODY,
+      documentId: 'Body',
+      name: 'Body',
+      definitionType: targetDocType,
+      fields: [] as IField[],
+      path: { pathSegments: [] } as never,
+      namedTypeFragments: {},
+      definition: null as never,
+      totalFieldCount: 0,
+      isNamespaceAware: targetDocType === DocumentDefinitionType.XML_SCHEMA,
+      getReferenceId: () => '',
+      getExpression: () => '',
+    };
+
+    act(() => {
+      setNewDocument(DocumentType.TARGET_BODY, 'Body', mockDocument);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return <>{children}</>;
+};
 
 describe('DataMapperSettingsModal', () => {
   const mockOnModalClose = vi.fn();
 
   const createWrapper = (
     targetDocType: DocumentDefinitionType = DocumentDefinitionType.XML_SCHEMA,
+    isOutputValidationEnabled = false,
+    onSetOutputValidationEnabled?: (enabled: boolean) => void,
   ): FunctionComponent<PropsWithChildren> => {
     return ({ children }) => (
       <DataMapperProvider
-        documentInitializationModel={
-          new DocumentInitializationModel(
-            {},
-            {
-              documentType: DocumentType.SOURCE_BODY,
-              definitionType: DocumentDefinitionType.XML_SCHEMA,
-              name: 'source',
-            },
-            {
-              documentType: DocumentType.TARGET_BODY,
-              definitionType: targetDocType,
-              name: 'target',
-            },
-          )
-        }
+        isOutputValidationEnabled={isOutputValidationEnabled}
+        onSetOutputValidationEnabled={onSetOutputValidationEnabled}
       >
-        {children}
+        <TargetDocumentInjector targetDocType={targetDocType}>{children}</TargetDocumentInjector>
       </DataMapperProvider>
     );
   };
@@ -217,6 +248,90 @@ describe('DataMapperSettingsModal', () => {
       // Verify checkbox is rendered for XML target
       expect(checkbox).toBeInTheDocument();
       expect(checkbox).toHaveAttribute('id', 'omit-xml-declaration');
+    });
+  });
+
+  // Output validation UI: skipped until feature is complete
+  describe.skip('Output Validation', () => {
+    it('should show Validate output checkbox when target is XML', async () => {
+      const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA);
+      render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
+
+      await screen.findByTestId('validate-output-settings-checkbox');
+      expect(screen.getByText('Output Validation')).toBeInTheDocument();
+    });
+
+    it('should show Validate output checkbox when target is JSON', async () => {
+      const wrapper = createWrapper(DocumentDefinitionType.JSON_SCHEMA);
+      render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
+
+      await screen.findByTestId('validate-output-settings-checkbox');
+      expect(screen.getByText('Output Validation')).toBeInTheDocument();
+    });
+
+    it('should hide Validate output checkbox when target is Primitive', async () => {
+      const wrapper = createWrapper(DocumentDefinitionType.Primitive);
+      render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
+
+      await screen.findByTestId('datamapper-settings-modal');
+      expect(screen.queryByTestId('validate-output-settings-checkbox')).not.toBeInTheDocument();
+    });
+
+    it('should render checkbox as checked when isOutputValidationEnabled is true', async () => {
+      const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA, true);
+      render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
+
+      const checkbox = (await screen.findByTestId('validate-output-settings-checkbox')) as HTMLInputElement;
+      expect(checkbox.checked).toBe(true);
+    });
+
+    it('should render checkbox as unchecked when isOutputValidationEnabled is false', async () => {
+      const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA, false);
+      render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
+
+      const checkbox = (await screen.findByTestId('validate-output-settings-checkbox')) as HTMLInputElement;
+      expect(checkbox.checked).toBe(false);
+    });
+
+    it('should call onSetOutputValidationEnabled(true) when checkbox is checked', async () => {
+      const mockOnSetOutputValidationEnabled = vi.fn();
+      const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA, false, mockOnSetOutputValidationEnabled);
+      render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
+
+      const checkbox = await screen.findByTestId('validate-output-settings-checkbox');
+      act(() => {
+        checkbox.click();
+      });
+
+      expect(mockOnSetOutputValidationEnabled).toHaveBeenCalledWith(true);
+    });
+
+    it('should call onSetOutputValidationEnabled(false) when checkbox is unchecked', async () => {
+      const mockOnSetOutputValidationEnabled = vi.fn();
+      const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA, true, mockOnSetOutputValidationEnabled);
+      render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
+
+      const checkbox = await screen.findByTestId('validate-output-settings-checkbox');
+      act(() => {
+        checkbox.click();
+      });
+
+      expect(mockOnSetOutputValidationEnabled).toHaveBeenCalledWith(false);
+    });
+
+    it('should take effect immediately (not buffered until Save)', async () => {
+      const mockOnSetOutputValidationEnabled = vi.fn();
+      const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA, false, mockOnSetOutputValidationEnabled);
+      render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
+
+      const checkbox = await screen.findByTestId('validate-output-settings-checkbox');
+      act(() => {
+        checkbox.click();
+      });
+
+      // onSetOutputValidationEnabled should be called immediately, before Save is clicked
+      expect(mockOnSetOutputValidationEnabled).toHaveBeenCalledWith(true);
+      expect(mockOnModalClose).not.toHaveBeenCalled();
     });
   });
 });

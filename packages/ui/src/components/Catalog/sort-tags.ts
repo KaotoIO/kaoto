@@ -39,6 +39,6 @@ export const sortTags = (allTiles: ITile[], filterTags: string[]): { sortedTags:
       return 0;
     });
   const num = sortedTags.filter((tag) => filterTags.includes(tag) || priorityTags.includes(tag)).length;
-  const overflowIndex = num > overflowThreshold ? num : overflowThreshold;
+  const overflowIndex = Math.max(num, overflowThreshold);
   return { sortedTags, overflowIndex };
 };
