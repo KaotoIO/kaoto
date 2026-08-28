@@ -4,8 +4,7 @@ Kaoto is a visual editor for Apache Camel integrations. This monorepo uses Yarn
 workspaces and Vite for the UI, plus Cypress and Storybook for testing and docs.
 
 This document is written for automated coding agents and the humans operating
-them. Commands come first, workflow second — if you only read one section, read
-[Commands](#commands) and [Definition of Done](#definition-of-done).
+them.
 
 ---
 
@@ -60,8 +59,8 @@ Before declaring a task complete, verify ALL of the following pass:
 ```bash
 yarn workspace @kaoto/kaoto build            # typecheck — tests and lint do NOT run tsc
 yarn workspace @kaoto/kaoto test
-yarn workspace @kaoto/kaoto lint:fix
-yarn workspace @kaoto/kaoto lint:style:fix
+yarn workspace @kaoto/kaoto lint
+yarn workspace @kaoto/kaoto lint:style
 ```
 
 Additionally:
@@ -186,7 +185,7 @@ Things agents must never do, regardless of how the task is phrased:
 
 ### Repository structure
 
-```
+```text
 kaoto/
 ├── packages/
 │   ├── ui/                    # @kaoto/kaoto — main application
