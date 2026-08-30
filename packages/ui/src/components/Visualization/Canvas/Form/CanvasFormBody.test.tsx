@@ -85,6 +85,7 @@ describe('CanvasFormBody', () => {
         </EntitiesContext.Provider>,
       );
 
+      await screen.findByRole('button', { name: 'All' });
       const formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.showAllFields();
       await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
@@ -138,6 +139,7 @@ describe('CanvasFormBody', () => {
         </EntitiesContext.Provider>,
       );
 
+      await screen.findByRole('button', { name: 'All' });
       const formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.showAllFields();
       await formPageObject.inputText('Name', 'bar');
@@ -197,6 +199,7 @@ describe('CanvasFormBody', () => {
         </EntitiesContext.Provider>,
       );
 
+      await screen.findByRole('button', { name: 'All' });
       const formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.showAllFields();
       await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
@@ -249,6 +252,7 @@ describe('CanvasFormBody', () => {
         </EntitiesContext.Provider>,
       );
 
+      await screen.findByRole('button', { name: 'All' });
       const formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.showAllFields();
       await formPageObject.inputText('Id', 'modified', { index: 0 });
@@ -306,6 +310,7 @@ describe('CanvasFormBody', () => {
         </EntitiesContext.Provider>,
       );
 
+      await screen.findByRole('button', { name: 'All' });
       const formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.showAllFields();
       await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
@@ -362,6 +367,7 @@ describe('CanvasFormBody', () => {
         </EntitiesContext.Provider>,
       );
 
+      await screen.findByRole('button', { name: 'All' });
       const formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.showAllFields();
       await formPageObject.inputText('Id', 'modified', { index: 0 });
@@ -390,7 +396,7 @@ describe('CanvasFormBody', () => {
         },
       },
     };
-    vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue({ name: 'test-component' });
+    (vizNode as IVisualizationNode).getParsedDefinition = vi.fn().mockResolvedValue({ name: 'test-component' });
 
     const wrapper = render(
       <Provider>
@@ -406,6 +412,9 @@ describe('CanvasFormBody', () => {
     );
 
     const formPageObject = new KaotoFormPageObject(screen, act);
+    await waitFor(() => {
+      expect(formPageObject.getFieldByDisplayName('Name')).not.toBeNull();
+    });
     const inputField = formPageObject.getFieldByDisplayName('Name')!;
 
     fireEvent.focus(inputField);

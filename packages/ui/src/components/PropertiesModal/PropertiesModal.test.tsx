@@ -84,7 +84,7 @@ describe('PropertiesModal', () => {
       expect(screen.getByTestId('tab-0-table-0-row-0-cell-type')).toHaveTextContent('boolean');
 
       //tab 1
-      expect(screen.getByTestId('tab-1')).toHaveTextContent('Endpoint Options (24)');
+      expect(screen.getByTestId('tab-1')).toHaveTextContent('Endpoint Options (27)');
       //table1
       await act(async () => {
         screen.getByTestId('tab-1').click();
@@ -108,7 +108,7 @@ describe('PropertiesModal', () => {
 
       //table2
       expect(screen.getByTestId('tab-1-table-1-properties-modal-table-caption')).toHaveTextContent(
-        'query parameters (23)',
+        'query parameters (26)',
       );
       //headers
       expect(screen.getByTestId('tab-1-table-1-header-name')).toHaveTextContent('name');
@@ -203,7 +203,7 @@ describe('PropertiesModal', () => {
       expect(screen.getByTestId('tab-0-table-0-row-0-cell-default')).toHaveTextContent('');
       expect(screen.getByTestId('tab-0-table-0-row-0-cell-type')).toHaveTextContent('String');
       expect(screen.getByTestId('tab-0-table-0-row-0-cell-description')).toHaveTextContent(
-        'A short description for security scheme.',
+        'A short description for the security scheme.',
       );
     });
   });

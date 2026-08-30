@@ -212,7 +212,7 @@ describe('parser basics', () => {
   });
 
   describe('special cases', () => {
-    it('should handle intercept elements', async () => {
+    it('should handle intercept elements with a mock document', async () => {
       const interceptElement = mockDocument.createElement('interceptFrom');
       const whenElement = mockDocument.createElement('onWhen');
       interceptElement.appendChild(whenElement);
@@ -221,7 +221,7 @@ describe('parser basics', () => {
       expect(result.onWhen).toBeDefined();
     });
 
-    it('should handle intercept elements', async () => {
+    it('should handle intercept elements with an XML document', async () => {
       const interceptElement = getDocument(
         '<intercept id="intercept1"><onWhen><simple>${in.body} contains \'Hello\'</simple></onWhen><to uri="mock:intercepted"/></intercept>',
       ).documentElement;

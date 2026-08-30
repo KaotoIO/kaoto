@@ -1,5 +1,12 @@
-import { defaultParserErrorProvider, IParserConfig, ITokenConfig, TokenType } from 'chevrotain';
-import { createToken as orgCreateToken, CstParser, Lexer } from 'chevrotain';
+import {
+  createToken as orgCreateToken,
+  CstParser,
+  defaultParserErrorProvider,
+  IParserConfig,
+  ITokenConfig,
+  Lexer,
+  TokenType,
+} from 'chevrotain';
 
 import { XPathParser, XPathParserResult } from '../xpath-model';
 
@@ -143,7 +150,7 @@ allTokens.push(NCName, DecimalLiteral, DoubleLiteral);
  * - https://www.w3.org/TR/xpath20/#id-grammar
  */
 export class XPath2Parser extends CstParser implements XPathParser {
-  static lexer = new Lexer(allTokens);
+  static readonly lexer = new Lexer(allTokens);
 
   constructor() {
     super(allTokens, {

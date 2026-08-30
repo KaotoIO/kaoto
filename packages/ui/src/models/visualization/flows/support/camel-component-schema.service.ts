@@ -1,10 +1,8 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
-import { cloneDeep } from 'lodash';
 
-import { CamelUriHelper, DATAMAPPER_ID_PREFIX } from '../../../../utils';
+import { DATAMAPPER_ID_PREFIX } from '../../../../utils';
 import { CatalogKind } from '../../../catalog-kind';
 import { REST_DSL_VERBS } from '../../../special-processors.constants';
-import { IVisualizationNodeIds } from '../../base-visual-entity';
 import { IClipboardContent } from '../../clipboard';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelProcessorStepsProperties } from './camel-component-types';
@@ -142,27 +140,6 @@ export class CamelComponentSchemaService {
   }
 
   /**
-   * Extract the component name from the endpoint uri
-   * An URI is composed by a component name and query parameters, separated by a colon
-   * For instance:
-   *    - `log:MyLogger`
-   *    - `timer:tick?period=1000`
-   *    - `file:inbox?fileName=orders.txt&noop=true`
-   *    - `kamelet:kafka-not-secured-sink?topic=foobar&bootstrapServers=localhost`
-   */
-  static getComponentNameFromUri(uri: string): string | undefined {
-    if (!uri) {
-      return undefined;
-    }
-    const uriParts = uri.split(':');
-    if (uriParts[0] === 'kamelet' && uriParts.length > 1) {
-      const kameletName = uriParts[1].split('?')[0];
-      return uriParts[0] + ':' + kameletName;
-    }
-    return uriParts[0];
-  }
-
-  /**
    * Get the definition for a given component and property
    */
   static getNodeDefinitionValue(clipboardContent: IClipboardContent): ProcessorDefinition {
@@ -175,35 +152,6 @@ export class CamelComponentSchemaService {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static getUpdatedDefinition(ids: IVisualizationNodeIds | undefined, definition: any) {
-    /** Clone the original definition since we want to preserve the original one, until the form is changed */
-    let updatedDefinition = cloneDeep(definition);
-
-    const processorName = ids?.primaryNodeId?.name;
-    const componentName =
-      ids?.secondaryNodeId?.name === 'kamelet' && ids?.tertiaryNodeId?.name !== undefined
-        ? `kamelet:${ids.tertiaryNodeId.name}`
-        : ids?.secondaryNodeId?.name;
-
-    if (processorName !== undefined) {
-      const prop = this.PROCESSOR_STRING_DEFINITIONS[processorName];
-      if (prop && typeof definition === 'string') {
-        updatedDefinition = { [prop]: definition };
-      }
-    }
-
-    if (componentName !== undefined) {
-      if (updatedDefinition == null) {
-        return updatedDefinition;
-      }
-      updatedDefinition.parameters = updatedDefinition.parameters ?? {};
-      this.applyParametersFromSyntax(componentName, updatedDefinition);
-    }
-
-    return updatedDefinition;
-  }
-
   static canBeDisabled(processorName: keyof ProcessorDefinition): boolean {
     if (processorName == DATAMAPPER_ID_PREFIX) {
       return true;
@@ -212,36 +160,5 @@ export class CamelComponentSchemaService {
     const processorDefinition = CamelCatalogService.getComponent(CatalogKind.Processor, processorName);
 
     return Object.keys(processorDefinition?.properties ?? {}).includes('disabled');
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private static applyParametersFromSyntax(componentName: string, definition: any) {
-    const catalogLookup = CamelCatalogService.getCatalogLookup(componentName);
-    if (catalogLookup === undefined) return;
-
-    const [pathUri, queryUri] = definition.uri?.split('?') ?? [undefined, undefined];
-    if (queryUri) {
-      definition.uri = pathUri;
-      Object.assign(definition.parameters, CamelUriHelper.getParametersFromQueryString(queryUri));
-    }
-
-    if (pathUri && catalogLookup.catalogKind === CatalogKind.Component) {
-      const requiredParameters: string[] = [];
-      if (catalogLookup.definition?.properties !== undefined) {
-        Object.entries(catalogLookup.definition.properties).forEach(([key, value]) => {
-          if (value.required) {
-            requiredParameters.push(key);
-          }
-        });
-      }
-
-      const parametersFromSyntax = CamelUriHelper.getParametersFromPathString(
-        catalogLookup.definition?.component.syntax,
-        definition?.uri,
-        { requiredParameters },
-      );
-      definition.uri = this.getComponentNameFromUri(definition.uri);
-      Object.assign(definition.parameters, parametersFromSyntax);
-    }
   }
 }

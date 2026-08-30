@@ -30,7 +30,9 @@ const TestComponent: FunctionComponent<TestComponentProps> = (props) => {
 
   return (
     <p>
-      <button onClick={handleDelete}>{props.btnTitle ?? props.title}</button>
+      <button type="button" onClick={handleDelete}>
+        {props.btnTitle ?? props.title}
+      </button>
       <br />
       <h4>{confirmationResult}</h4>
     </p>

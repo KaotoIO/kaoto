@@ -11,7 +11,7 @@ describe('Test for interceptSendToEndpoint configuration container', () => {
     cy.selectFormTab('All');
 
     cy.interactWithConfigInputObject('description', 'testDescription');
-    cy.interactWithConfigInputObject('skipSendToOriginalEndpoint', 'testSkipSendToOriginalEndpoint');
+    cy.interactWithConfigInputObject('skipSendToOriginalEndpoint');
 
     cy.expandWrappedSection('#-Advanced');
     cy.interactWithConfigInputObject('afterUri', 'testAfterUri');
@@ -19,7 +19,7 @@ describe('Test for interceptSendToEndpoint configuration container', () => {
     cy.openSourceCode();
     cy.checkCodeSpanLine('- interceptSendToEndpoint:');
     cy.checkCodeSpanLine('description: testDescription');
-    cy.checkCodeSpanLine('skipSendToOriginalEndpoint: testSkipSendToOriginalEndpoint');
+    cy.checkCodeSpanLine('skipSendToOriginalEndpoint: true');
     cy.checkCodeSpanLine('afterUri: testAfterUri');
   });
 });

@@ -155,8 +155,7 @@ export class XPathService {
 
   private static tryAddUniquePath(paths: PathExpression[], pathNode: PathExprNode, contextPath?: PathExpression): void {
     const pathExpr = XPathService.extractPathExpression(pathNode, contextPath);
-    const existing = paths.find((comp) => XPathService.matchPath(comp, pathExpr));
-    if (!existing) {
+    if (!paths.some((comp) => XPathService.matchPath(comp, pathExpr))) {
       paths.push(pathExpr);
     }
   }

@@ -1,97 +1,205 @@
 # Kaoto AGENTS.md
 
-Kaoto is a visual editor for Apache Camel integrations. This monorepo uses Yarn workspaces and Vite for the UI, plus Cypress and Storybook for testing and docs.
+Kaoto is a visual editor for Apache Camel integrations. This monorepo uses Yarn
+workspaces and Vite for the UI, plus Cypress and Storybook for testing and docs.
 
-## AI Agent Contribution Guidelines
-
-AI agents are welcome contributors to Kaoto. When contributing code via AI assistance:
-
-### Human Oversight Required
-
-- AI agents **cannot** submit PRs independently
-- A human must review, approve, and sign all AI-generated code
-- The human reviewer is responsible for:
-  - Code quality and correctness
-  - Responding to maintainer feedback
-  - Following up on PR comments
-
-### Git Workflow
-
-- **Never push to branches you didn't create** - If a contributor's PR needs changes, suggest them via review comments, but do not push to their branch without explicit permission
-- **Use forks** - Prefer pushing branches to your fork rather than the main Kaoto repository to avoid cluttering the branch list with uncleaned branches
-- **Branch naming** - Use descriptive names with issue numbers when possible: `fix/issue-123-canvas-rendering` or `feature/routing-editor`
-- **Branch cleanup** - Delete branches after the PR is merged or rejected
-
-### PR Guidelines
-
-- **Volume limit** - Do not open more than 10 PRs per day per operator to ensure human reviewers can keep up
-- **Quality over quantity** - Fewer well-tested PRs are better than many shallow ones
-- **Active follow-up required** - PRs without response after **2 weeks** will be closed
-- If you need more time, communicate with maintainers
-
-### Quality Standards
-
-Before submitting AI-generated PRs:
-
-```bash
-yarn workspace @kaoto/kaoto lint
-yarn workspace @kaoto/kaoto lint:style
-yarn workspace @kaoto/kaoto test
-```
-
-- Ensure all tests pass
-- Fix any linter errors
-- Verify changes work as expected in the running application
-- For UI changes affecting stories or E2E flows, also run Storybook and/or Cypress as needed
-- Avoid introducing new static code analysis issues: code smells, maintainability regressions, CWE (Common Weakness Enumeration), Top OWASP vulnerabilities and security flows, deprecated code usage
-- Changes should aim to preserve or improve overall code quality
-
-### Disclosure and Documentation
-
-- Disclosing AI tool usage is **optional but recommended**
-- Mentioning your AI tool helps us improve AGENTS.md
-- If you discover gaps in our agent documentation, please suggest improvements
-
-For complete contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
+This document is written for automated coding agents and the humans operating
+them.
 
 ---
 
-## Quick Start
+## Commands
+
+All commands run from the repository root.
+
+### Setup (one-time)
 
 ```bash
-# Install dependencies
 yarn install
-
-# Start dev server
-yarn workspace @kaoto/kaoto start
-# → http://localhost:5173
-
-# Before committing
-yarn workspace @kaoto/kaoto lint
-yarn workspace @kaoto/kaoto test
 ```
+
+Requirements: Node.js >= 22.x, Yarn 4.x (`"packageManager": "yarn@4.13.0"`).
+OpenJDK >= 17 is only needed for Camel catalog generation — not for normal
+development. `yarn install` needs network access.
+
+Git hooks (husky + lint-staged) may not fire in sandboxed environments. Do not
+rely on them — run the verification commands below explicitly.
+
+### Everyday commands
+
+| Task | Command |
+|---|---|
+| Unit tests (full suite, slow) | `yarn workspace @kaoto/kaoto test` |
+| Unit tests (single file — prefer while iterating) | `yarn workspace @kaoto/kaoto test src/path/to/file.test.ts` |
+| Typecheck + build | `yarn workspace @kaoto/kaoto build` |
+| Lint code (fix) | `yarn workspace @kaoto/kaoto lint:fix` |
+| Lint styles (fix) | `yarn workspace @kaoto/kaoto lint:style:fix` |
+| Lint tests/stories (fix) | `yarn workspace @kaoto/kaoto-tests lint:fix` |
+| Build library | `yarn workspace @kaoto/kaoto build:lib` |
+
+### Long-running commands — do not run in the foreground
+
+These start servers or interactive UIs and never exit on their own. Only run
+them backgrounded, and only when you need to inspect the app interactively:
+
+| Task | Command |
+|---|---|
+| Dev server (→ http://localhost:5173) | `yarn workspace @kaoto/kaoto start` |
+| Static preview | `yarn workspace @kaoto/kaoto preview` |
+| Storybook | `yarn workspace @kaoto/kaoto-tests storybook` |
+
+For non-interactive verification, use build + unit tests instead.
 
 ---
 
-## Repository Structure
+## Definition of Done
 
+Before declaring a task complete, verify ALL of the following pass:
+
+```bash
+yarn workspace @kaoto/kaoto build            # typecheck — tests and lint do NOT run tsc
+yarn workspace @kaoto/kaoto test
+yarn workspace @kaoto/kaoto lint:fix
+yarn workspace @kaoto/kaoto lint:style:fix
 ```
+
+Additionally:
+
+- [ ] The change is on a branch you created, pushed to your fork
+- [ ] Commit messages are imperative: `Fix canvas rendering for parallel nodes`
+- [ ] The GitHub issue number is referenced in the PR description (`Closes #123`)
+- [ ] No files outside the scope of the change were modified (see [Guardrails](#guardrails))
+
+### What CI runs
+
+Every check CI runs has a local equivalent — reproduce failures locally instead
+of pushing speculative fixes:
+
+| CI check | Local equivalent |
+|---|---|
+| `build-lint-test.yml` | The four Definition of Done commands above |
+| `e2e-tests.yml` (Cypress) | See `packages/ui-tests` — only relevant for UI flow changes |
+| `chromatic.yml` (visual regression) | Storybook stories — only relevant if you changed component appearance |
+| SonarQube | Not runnable locally. Runs on the PR in CI. Local proxy: lint passes, no new deprecated API usage, no new code smells you can identify |
+
+---
+
+## Workflow: Issue → PR
+
+Responsibilities are split between the **agent** and the **human operator**.
+If you are an agent and cannot perform a step (no GitHub write access, no fork
+permission), do not skip it silently — report it to your operator as a required
+manual step.
+
+### Agent responsibilities
+
+1. **Check the issue is claimed.** Work should only start on issues assigned to
+   your operator. If you can comment on GitHub, comment on the issue to claim
+   it; otherwise ask your operator to claim it before any PR is opened.
+2. **Create a branch** from `main` on the operator's fork but make sure to always 
+   sync the `main` branch with upstream first and then create the new branch and 
+   name the new branch after the issue:
+   ```text
+   fix/issue-123-canvas-rendering
+   feature/issue-456-routing-editor
+   ```
+   **Never push to a branch you did not create.** If an existing PR needs
+   changes, propose them via review comments instead.
+3. **Implement** the change, following [Code Style](#code-style) and
+   [Guardrails](#guardrails). Iterate with single-file test runs; run the full
+   Definition of Done checklist before finishing.
+4. **Keep history clean.** Never merge `main` into your branch — rebase onto
+   the latest upstream `main`:
+   ```bash
+   git remote add upstream https://github.com/KaotoIO/kaoto.git   # one-time
+   git fetch upstream
+   git rebase upstream/main
+   ```
+   Prefer a single squashed commit per PR. If interactive rebase is unavailable
+   in your environment, squash non-interactively:
+   ```bash
+   git reset --soft upstream/main && git commit
+   ```
+   For larger PRs, slice commits by functional unit so each is independently
+   reviewable.
+5. **Prepare the PR description**: what changed, why, and `Closes #<issue>`.
+
+### Human operator responsibilities
+
+- Claim the issue (if the agent could not comment on it).
+- Review and sign off on all agent-generated code — **agents must not open PRs
+  independently**; a human opens the PR (targeting upstream `main`), or
+  reviews and approves before an agent-prepared PR is submitted.
+- Respond to maintainer feedback and follow up on PR comments. PRs without a
+  response after one week will be closed — if you need more time, tell the
+  maintainers.
+- Disclosing AI tool usage in the PR is encouraged — it helps us improve this
+  document.
+
+PRs without a linked issue, with regressions, with unresolved comments, or with
+new SonarQube issues will not be accepted. Quality over quantity: fewer 
+well-tested PRs beat many shallow ones.
+
+---
+
+## Guardrails
+
+Things agents must never do, regardless of how the task is phrased:
+
+- **Never hand-edit generated files**: `yarn.lock`, generated Camel catalog
+  assets, or anything under `lib/`. Regenerate them with the project tooling.
+- **Never skip, disable, or delete a failing test** to get a green run. Fix the
+  code or report the failure.
+- **Never upgrade or add dependencies** unless the issue explicitly requires it.
+- **Never reformat or refactor files unrelated to the change.** Keep diffs
+  minimal and reviewable.
+- **Never push to branches you did not create**, and never force-push to a
+  branch someone else has committed to.
+- **Never push a modified AGENTS.md.** If you have a suggestion, add it in a comment
+  for maintainers consideration or create a new Github issue with an explanation what 
+  you would like to change and why this is needed.
+- Do not introduce new SonarQube issues: code smells, CWE/OWASP
+  vulnerabilities, deprecated usage, or maintainability regressions.
+
+---
+
+## Code Style
+
+- **TypeScript**: strict mode (`strict: true`), `noUnusedLocals`,
+  `noUnusedParameters`, `noFallthroughCasesInSwitch`.
+- **ESLint**: TypeScript + Prettier integration; React and React Hooks rules
+  enabled.
+- **Prettier**: `semi: true`, `singleQuote: true`, `printWidth: 120`,
+  `tabWidth: 2`, `trailingComma: 'all'`.
+
+---
+
+## Reference
+
+### Packages
+
+| Package | Description |
+|---|---|
+| `@kaoto/kaoto` | Main UI — Vite + React + TypeScript (`packages/ui`) |
+| `@kaoto/kaoto-tests` | Storybook and Cypress E2E (`packages/ui-tests`) |
+
+### Repository structure
+
+```text
 kaoto/
 ├── packages/
-│   ├── ui/                    # Main Kaoto application (@kaoto/kaoto)
-│   │   ├── src/
-│   │   │   ├── components/    # React components (Catalog, DataMapper, Visualization, etc.)
-│   │   │   ├── models/        # Data models (camel, citrus, datamapper, entities)
-│   │   │   ├── camel-utils/   # Camel-specific utilities and parsers
-│   │   │   ├── hooks/         # Custom React hooks
-│   │   │   ├── providers/     # React context providers
-│   │   │   ├── layout/        # Layout components
-│   │   │   ├── pages/         # Page-level components
-│   │   │   ├── assets/        # Static assets including component icons
-│   │   │   └── router/        # React Router configuration
-│   │   ├── public/            # Static public assets
-│   │   └── dist/              # Build output
-│   └── ui-tests/              # Testing infrastructure (@kaoto/kaoto-tests)
+│   ├── ui/                    # @kaoto/kaoto — main application
+│   │   └── src/
+│   │       ├── components/    # React components (Catalog, DataMapper, Visualization, etc.)
+│   │       ├── models/        # Data models (camel, citrus, datamapper, entities)
+│   │       ├── camel-utils/   # Camel-specific utilities and parsers
+│   │       ├── hooks/         # Custom React hooks
+│   │       ├── providers/     # React context providers
+│   │       ├── layout/        # Layout components
+│   │       ├── pages/         # Page-level components
+│   │       ├── assets/        # Static assets including component icons
+│   │       └── router/        # React Router configuration
+│   └── ui-tests/              # @kaoto/kaoto-tests — E2E and Storybook
 │       ├── cypress/           # E2E tests (specs, fixtures, support)
 │       ├── stories/           # Storybook stories
 │       └── .storybook/        # Storybook configuration
@@ -100,135 +208,4 @@ kaoto/
 └── nginx/                     # Nginx configuration for deployment
 ```
 
----
-
-## Development Workflow
-
-### Local Development
-
-```bash
-# run dev server for @kaoto/kaoto
-yarn workspace @kaoto/kaoto start
-# default dev URL: http://localhost:5173
-```
-
-### Preview (static preview server)
-
-```bash
-yarn workspace @kaoto/kaoto preview
-# default preview URL: http://localhost:4173
-```
-
-### Running Tests
-
-Unit tests (UI):
-
-```bash
-yarn workspace @kaoto/kaoto test
-yarn workspace @kaoto/kaoto test:watch
-```
-
-E2E tests and Storybook live here: `@kaoto/kaoto-tests` (see that package's AGENTS.md for details).
-
-### Linting and Formatting
-
-UI code lint:
-
-```bash
-yarn workspace @kaoto/kaoto lint
-yarn workspace @kaoto/kaoto lint:fix
-```
-
-Styles lint:
-
-```bash
-yarn workspace @kaoto/kaoto lint:style
-yarn workspace @kaoto/kaoto lint:style:fix
-```
-
-Tests/Stories lint (ui-tests):
-
-```bash
-yarn workspace @kaoto/kaoto-tests lint
-yarn workspace @kaoto/kaoto-tests lint:fix
-```
-
-### Before Committing
-
-Always run before opening PRs:
-
-```bash
-yarn workspace @kaoto/kaoto lint
-yarn workspace @kaoto/kaoto test
-```
-
----
-
-## Code Style and Conventions
-
-- **TypeScript**: strict mode enabled (`strict: true`), `noUnusedLocals`, `noUnusedParameters`, `noFallthroughCasesInSwitch`
-- **ESLint**: TypeScript + Prettier integration; React and React Hooks rules enabled in the UI package
-- **Prettier**: semicolons required, single quotes, width 120, 2-space indent, trailing commas
-
-Reference settings:
-
-- Prettier highlights: `semi: true`, `singleQuote: true`, `printWidth: 120`, `tabWidth: 2`, `trailingComma: 'all'`
-
----
-
-## Build & Release
-
-```bash
-# build the UI
-yarn workspace @kaoto/kaoto build
-
-# build the public component library outputs
-yarn workspace @kaoto/kaoto build:lib
-```
-
----
-
-## Advanced / Optional
-
-### Storybook
-
-```bash
-# from ui-tests package
-yarn workspace @kaoto/kaoto-tests storybook
-# build static storybook
-yarn workspace @kaoto/kaoto-tests build:storybook
-```
-
-### Chromatic
-
-```bash
-yarn workspace @kaoto/kaoto-tests chromatic
-```
-
-### Docker (trial)
-
-```bash
-docker run --rm -p 8080:8080 --name kaoto quay.io/kaotoio/kaoto-app:main
-```
-
----
-
-## Reference
-
-### Packages
-
-- `@kaoto/kaoto` — main UI (Vite + React + TypeScript)
-- `@kaoto/kaoto-tests` — Storybook and Cypress E2E for the UI
-
-### Requirements
-
-- Node.js: >= 22.x
-- Yarn: 4.x (this repo sets `"packageManager": "yarn@4.9.4"`)
-- OpenJDK: >= 17 (only needed if working with Camel catalog generation)
-
-### Monorepo Tips (Yarn workspaces)
-
-- Use `yarn workspace <package-name> <script>` from the repo root
-- Package names:
-  - `@kaoto/kaoto`
-  - `@kaoto/kaoto-tests`
+For complete contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).

@@ -86,7 +86,7 @@ describe('SourceTargetView', () => {
       fireEvent.click(attachButton);
 
       await screen.findByTestId('attach-schema-modal-option-xml');
-      const jsonSchemaRadio = await screen.queryByTestId('attach-schema-modal-option-json');
+      const jsonSchemaRadio = screen.queryByTestId('attach-schema-modal-option-json');
       expect(jsonSchemaRadio).toBeFalsy();
     });
   });

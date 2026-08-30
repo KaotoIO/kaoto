@@ -37,9 +37,7 @@ export const PipeErrorHandlerPage: FunctionComponent = () => {
     (model: Record<string, unknown>) => {
       if (Object.keys(model).length > 0) {
         let entity = pipeResource.getErrorHandlerEntity();
-        if (!entity) {
-          entity = pipeResource.createErrorHandlerEntity();
-        }
+        entity ??= pipeResource.createErrorHandlerEntity();
         entity.parent.errorHandler = model;
       } else {
         pipeResource!.deleteErrorHandlerEntity();

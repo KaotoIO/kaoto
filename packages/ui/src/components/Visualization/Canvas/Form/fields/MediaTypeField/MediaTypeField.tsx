@@ -15,7 +15,7 @@ import { FunctionComponent, KeyboardEvent, MouseEvent, Ref, useCallback, useCont
 
 import { SettingsContext } from '../../../../../../providers/settings.provider';
 
-const COMMON_MEDIA_TYPES = [
+const COMMON_MEDIA_TYPES = new Set([
   'application/json',
   'application/xml',
   'text/plain',
@@ -49,7 +49,7 @@ const COMMON_MEDIA_TYPES = [
   'application/senml+xml',
   'application/pkcs7-mime',
   'application/pkcs7-signature',
-];
+]);
 
 const parseMediaTypes = (value: string | undefined): string[] => {
   if (!value) {
@@ -76,7 +76,7 @@ export const MediaTypeField: FunctionComponent<FieldProps> = ({ propName, requir
   const selectedValues = useMemo(() => parseMediaTypes(value), [value]);
 
   const options = useMemo(() => {
-    const customValues = selectedValues.filter((item) => !COMMON_MEDIA_TYPES.includes(item));
+    const customValues = selectedValues.filter((item) => !COMMON_MEDIA_TYPES.has(item));
     const merged = new Set<string>([...COMMON_MEDIA_TYPES, ...storedMediaTypes, ...customValues]);
     return Array.from(merged);
   }, [selectedValues, storedMediaTypes]);

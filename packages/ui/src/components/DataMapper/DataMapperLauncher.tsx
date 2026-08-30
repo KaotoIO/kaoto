@@ -16,18 +16,20 @@
 import './DataMapperLauncher.scss';
 
 import { isDefined } from '@kaoto/forms';
-import { Alert, Button, FormGroup, HelperText, HelperTextItem, Popover } from '@patternfly/react-core';
+import { Alert, Button, Checkbox, FormGroup, HelperText, HelperTextItem, Popover } from '@patternfly/react-core';
 import { HelpIcon, WrenchIcon } from '@patternfly/react-icons';
-import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { type FormEvent, FunctionComponent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { IVisualizationNode, ValidationResult, ValidationStatus } from '../../models';
+import { DocumentDefinitionType } from '../../models/datamapper/document';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
 import { EntitiesContext } from '../../providers';
 import { MetadataContext } from '../../providers/metadata.provider';
 import { Links } from '../../router/links.models';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { DataMapperStepService } from '../../services/datamapper-step.service';
+import { DataMapperValidationStepService } from '../../services/datamapper-validation-step.service';
 import { isXSLTComponent } from '../../utils';
 import type { XsltComponentDef } from '../../utils/is-xslt-component';
 import XsltDocumentRenameInput from './XsltDocumentRenameInput';
@@ -52,6 +54,11 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
   const [currentFileName, setCurrentFileName] = useState<string | undefined>(undefined);
   const [isEditingFilename, setIsEditingFilename] = useState<boolean>(false);
   const [isSavingFile, setIsSavingFile] = useState<boolean>(false);
+  const [isValidationEnabled, setIsValidationEnabled] = useState<boolean>(false);
+  const [isValidationTogglePending, setIsValidationTogglePending] = useState<boolean>(false);
+  const [isTargetPrimitive, setIsTargetPrimitive] = useState<boolean>(true);
+  // Output validation UI: set to true when feature is complete
+  const showOutputValidation = false as boolean;
 
   const xsltDocumentName = useMemo(() => {
     const xsltComponent = vizNode?.getNodeDefinition()?.steps?.find(isXSLTComponent) as XsltComponentDef;
@@ -65,17 +72,29 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
   }, [xsltDocumentName]);
 
   useEffect(() => {
+    let cancelled = false;
     const checkFile = async () => {
       if (!xsltDocumentName || !metadata) {
         setXsltFileExists(false);
         return;
       }
       const exists = await metadata.isResourceExist(xsltDocumentName);
+      if (cancelled) return;
       setXsltFileExists(exists);
+
+      if (vizNode) {
+        setIsValidationEnabled(DataMapperValidationStepService.isValidationEnabled(vizNode));
+        const metadataId = DataMapperStepService.getDataMapperMetadataId(vizNode);
+        const meta = await metadata.getMetadata<IDataMapperMetadata>(metadataId);
+        if (cancelled) return;
+        setIsTargetPrimitive(!meta?.targetBody || meta.targetBody.type === DocumentDefinitionType.Primitive);
+      }
     };
-    void checkFile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    checkFile().catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [xsltDocumentName, metadata, vizNode]);
 
   const validateDocumentName = useCallback(
     async (value: string): Promise<ValidationResult> => {
@@ -143,6 +162,31 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
     [xsltDocumentName, metadata, entitiesContext, vizNode],
   );
 
+  const handleValidationToggle = useCallback(
+    (_event: FormEvent<HTMLInputElement>, checked: boolean) => {
+      if (!vizNode || !entitiesContext) return;
+      if (checked) {
+        setIsValidationTogglePending(true);
+        const metadataId = DataMapperStepService.getDataMapperMetadataId(vizNode);
+        void metadata
+          ?.getMetadata<IDataMapperMetadata>(metadataId)
+          .then((meta) => {
+            if (meta?.targetBody) {
+              DataMapperValidationStepService.addValidationStep(vizNode, meta.targetBody, entitiesContext);
+            }
+            setIsValidationEnabled(DataMapperValidationStepService.isValidationEnabled(vizNode));
+          })
+          .finally(() => {
+            setIsValidationTogglePending(false);
+          });
+      } else {
+        DataMapperValidationStepService.removeValidationStep(vizNode, entitiesContext);
+        setIsValidationEnabled(DataMapperValidationStepService.isValidationEnabled(vizNode));
+      }
+    },
+    [vizNode, entitiesContext, metadata],
+  );
+
   const onClick = useCallback(async () => {
     await navigate(`${Links.DataMapper}/${vizNode?.getNodeDefinition()?.id}`);
   }, [navigate, vizNode]);
@@ -185,6 +229,19 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
             textTitle="XSLT document name"
             editTitle="Edit document name"
             data-testid="xslt-document-name"
+          />
+        </FormGroup>
+      )}
+      {/* Output validation UI: set to true when feature is complete */}
+      {showOutputValidation && xsltFileExists && !isTargetPrimitive && (
+        <FormGroup label="Output Validation">
+          <Checkbox
+            id="validate-output"
+            label="Validate output"
+            isChecked={isValidationEnabled}
+            isDisabled={isValidationTogglePending}
+            onChange={handleValidationToggle}
+            data-testid="validate-output-checkbox"
           />
         </FormGroup>
       )}

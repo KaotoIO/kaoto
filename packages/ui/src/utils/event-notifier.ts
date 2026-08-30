@@ -7,9 +7,7 @@ export class EventNotifier extends EventTarget {
   private static instance: EventNotifier | undefined;
 
   static getInstance(): EventNotifier {
-    if (!this.instance) {
-      this.instance = new EventNotifier();
-    }
+    this.instance ??= new EventNotifier();
 
     return this.instance;
   }

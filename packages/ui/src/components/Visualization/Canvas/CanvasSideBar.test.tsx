@@ -27,6 +27,7 @@ describe('CanvasSideBar', () => {
     const visualEntity = camelResource.getVisualEntities()[0];
     const node = FlowService.getFlowDiagram('test', await visualEntity.toVizNode()).nodes[0];
     selectedVizNode = node.data!.vizNode!;
+    await selectedVizNode.fetchSchema();
     Provider = (await TestProvidersWrapper({ camelResource })).Provider;
   });
 
@@ -49,6 +50,7 @@ describe('CanvasSideBar', () => {
       </Provider>,
     );
 
+    await wrapper.findByRole('button', { name: 'All' });
     expect(wrapper.asFragment()).toMatchSnapshot();
   });
 

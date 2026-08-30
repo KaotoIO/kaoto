@@ -155,7 +155,7 @@ describe('CamelRestVisualEntity', () => {
     it('should clean up empty verb arrays after removing step', () => {
       const restDefWithVerbs: { rest: Rest } = {
         rest: {
-          get: [{ id: 'get-1', path: '/hello' }],
+          get: [{ id: 'get-1', path: '/hello', to: 'direct:example' }],
           post: [],
         },
       };
@@ -370,7 +370,7 @@ describe('CamelRestVisualEntity', () => {
       const restDefWithGet: { rest: Rest } = {
         rest: {
           ...restDef.rest,
-          get: [{ id: 'get-1', path: '/hello' }],
+          get: [{ id: 'get-1', path: '/hello', to: 'direct:example' }],
         },
       };
 
@@ -468,7 +468,8 @@ describe('CamelRestVisualEntity', () => {
       iconUrl: '/src/assets/components/generic-component.png',
       isPlaceholder: false,
       title: 'Rest',
-      description: 'rest: Defines a rest service using the rest-dsl',
+      description:
+        'rest: Defines a REST service with HTTP operations (GET, POST, PUT, DELETE, etc.) using the Camel REST DSL',
       processorIconTooltip: '',
       schema: expect.any(Object),
     });

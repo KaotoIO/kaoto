@@ -8,6 +8,7 @@ import { DocumentDefinitionType } from '../../models/datamapper/document';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
 import { IMetadataApi, MetadataProvider } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
+import { DataMapperValidationStepService } from '../../services/datamapper-validation-step.service';
 import { EMPTY_XSL } from '../../services/mapping/mapping-serializer.service';
 import { getShipOrderToShipOrderXslt, getShipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { DataMapper } from './DataMapper';
@@ -237,5 +238,83 @@ describe('DataMapperPage', () => {
     });
 
     saveResourceContentSpy.mockRestore();
+  });
+
+  describe('Output Validation', () => {
+    const vizNodeWithSteps = {
+      getId: () => 'route-1234',
+      getNodeDefinition: () => ({
+        id: 'kaoto-datamapper-1234',
+        steps: [{ to: { id: 'xslt-1', uri: 'xslt-saxon:kaoto-datamapper-1234.xsl' } }],
+      }),
+      updateModel: vi.fn(),
+    } as unknown as IVisualizationNode;
+
+    beforeEach(() => {
+      vi.restoreAllMocks();
+      metadata = defaultMetadata;
+      fileContents = {};
+    });
+
+    it('should read initial validation state via isValidationEnabled on mount', async () => {
+      const isValidationEnabledSpy = vi
+        .spyOn(DataMapperValidationStepService, 'isValidationEnabled')
+        .mockReturnValue(true);
+
+      fileContents[metadata.xsltPath] = EMPTY_XSL;
+
+      renderWithVirtuoso(
+        <MetadataProvider api={api}>
+          <DataMapper vizNode={vizNodeWithSteps} />
+        </MetadataProvider>,
+      );
+
+      await screen.findByTestId('source-parameters-header');
+
+      await waitFor(() => {
+        expect(isValidationEnabledSpy).toHaveBeenCalledWith(vizNodeWithSteps);
+      });
+    });
+
+    it('should not call isValidationEnabled when vizNode has no steps', async () => {
+      const emptyVizNode = {
+        getId: () => 'route-1234',
+        getNodeDefinition: () => ({ id: 'kaoto-datamapper-1234' }),
+      } as unknown as IVisualizationNode;
+
+      const isValidationEnabledSpy = vi
+        .spyOn(DataMapperValidationStepService, 'isValidationEnabled')
+        .mockReturnValue(false);
+
+      fileContents[metadata.xsltPath] = EMPTY_XSL;
+
+      renderWithVirtuoso(
+        <MetadataProvider api={api}>
+          <DataMapper vizNode={emptyVizNode} />
+        </MetadataProvider>,
+      );
+
+      await screen.findByTestId('source-parameters-header');
+
+      expect(isValidationEnabledSpy).toHaveBeenCalledWith(emptyVizNode);
+    });
+
+    it('should pass isOutputValidationEnabled and onSetOutputValidationEnabled to DataMapperProvider', async () => {
+      vi.spyOn(DataMapperValidationStepService, 'isValidationEnabled').mockReturnValue(false);
+      vi.spyOn(DataMapperValidationStepService, 'addValidationStep').mockImplementation(() => undefined);
+      vi.spyOn(DataMapperValidationStepService, 'removeValidationStep').mockImplementation(() => undefined);
+
+      fileContents[metadata.xsltPath] = EMPTY_XSL;
+
+      renderWithVirtuoso(
+        <MetadataProvider api={api}>
+          <DataMapper vizNode={vizNodeWithSteps} />
+        </MetadataProvider>,
+      );
+
+      await screen.findByTestId('source-parameters-header');
+
+      expect(DataMapperValidationStepService.isValidationEnabled).toHaveBeenCalledWith(vizNodeWithSteps);
+    });
   });
 });

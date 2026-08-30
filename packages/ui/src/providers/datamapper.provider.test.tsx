@@ -1296,4 +1296,50 @@ describe('DataMapperProvider', () => {
       serializeSpy.mockRestore();
     });
   });
+
+  describe('Output Validation', () => {
+    it('should default isOutputValidationEnabled to false when prop is not provided', async () => {
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      expect(result.current.isOutputValidationEnabled).toBe(false);
+    });
+
+    it('should reflect isOutputValidationEnabled=true when prop is provided', async () => {
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider isOutputValidationEnabled>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      expect(result.current.isOutputValidationEnabled).toBe(true);
+    });
+
+    it('should call onSetOutputValidationEnabled callback when setOutputValidationEnabled is invoked', async () => {
+      const mockOnSetOutputValidationEnabled = vi.fn();
+
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider onSetOutputValidationEnabled={mockOnSetOutputValidationEnabled}>
+          {children}
+        </DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      act(() => {
+        result.current.setOutputValidationEnabled(true);
+      });
+
+      expect(mockOnSetOutputValidationEnabled).toHaveBeenCalledWith(true);
+
+      act(() => {
+        result.current.setOutputValidationEnabled(false);
+      });
+
+      expect(mockOnSetOutputValidationEnabled).toHaveBeenCalledWith(false);
+    });
+  });
 });

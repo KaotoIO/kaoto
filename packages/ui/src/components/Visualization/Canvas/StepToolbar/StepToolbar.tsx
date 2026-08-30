@@ -142,9 +142,13 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
             data-testid={`${label}|step-toolbar-button-enable-all`}
             variant="control"
             title="Enable all"
-            onClick={(event) => {
+            onClick={async (event) => {
               event.stopPropagation();
-              onEnableAllSteps();
+              try {
+                await onEnableAllSteps();
+              } catch (err) {
+                console.error('Failed to enable all steps', err);
+              }
             }}
           />
         )}

@@ -139,6 +139,9 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getNodeDefinition(): any;
 
+  /** This method returns the node's parsed definition, with URI fields split into component properties */
+  getParsedDefinition(): Promise<unknown>;
+
   /** Return fields that should be omitted when configuring this entity */
   getOmitFormFields(): string[];
 

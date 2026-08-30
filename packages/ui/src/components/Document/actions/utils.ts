@@ -4,9 +4,9 @@ import { DataMapperMetadataService } from '../../../services/datamapper-metadata
 import { DataMapperStepService } from '../../../services/datamapper-step.service';
 import { SchemaFileItem, SchemaFileMessage } from './AttachSchema/SchemaFileDataList';
 
-const VALID_XML_EXTENSIONS = ['.xml', '.xsd'];
-const VALID_JSON_EXTENSIONS = ['.json'];
-export const VALID_ALL_EXTENSIONS = [...VALID_XML_EXTENSIONS, ...VALID_JSON_EXTENSIONS];
+const VALID_XML_EXTENSIONS = new Set(['.xml', '.xsd']);
+const VALID_JSON_EXTENSIONS = new Set(['.json']);
+export const VALID_ALL_EXTENSIONS = new Set([...VALID_XML_EXTENSIONS, ...VALID_JSON_EXTENSIONS]);
 
 export function getFileExtension(filePath: string): string {
   return filePath.toLowerCase().substring(filePath.lastIndexOf('.'));
@@ -17,11 +17,11 @@ export function getFileName(filePath: string): string {
 }
 
 export function isXmlExtension(ext: string): boolean {
-  return VALID_XML_EXTENSIONS.includes(ext);
+  return VALID_XML_EXTENSIONS.has(ext);
 }
 
 export function isJsonExtension(ext: string): boolean {
-  return VALID_JSON_EXTENSIONS.includes(ext);
+  return VALID_JSON_EXTENSIONS.has(ext);
 }
 
 /** Public for tests only */
@@ -36,7 +36,7 @@ export async function validateFileExtension(ext: string, documentType: DocumentT
     }
     return undefined;
   }
-  if (!VALID_ALL_EXTENSIONS.includes(ext)) {
+  if (!VALID_ALL_EXTENSIONS.has(ext)) {
     return `Unknown file extension '${ext}'. Either XML schema (.xsd, .xml) or JSON schema (.json) file is supported.`;
   }
   return undefined;

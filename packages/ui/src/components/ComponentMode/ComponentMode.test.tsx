@@ -1,4 +1,5 @@
-import { act, render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { Mock, MockedFunction, vi } from 'vitest';
 
 import { useProcessorTooltips } from '../../hooks/use-processor-tooltips.hook';
@@ -41,6 +42,7 @@ describe('ComponentMode', () => {
     });
     vi.spyOn(node, 'getNodeDefinition').mockReturnValue({});
     vi.spyOn(node, 'updateModel').mockImplementation(vi.fn());
+    (node as IVisualizationNode).getParsedDefinition = vi.fn().mockResolvedValue({});
     return node;
   };
 
@@ -59,20 +61,20 @@ describe('ComponentMode', () => {
   });
 
   it('should not call updateSourceCodeFromEntities if we are switching to the same EIP', async () => {
+    const user = userEvent.setup();
     const vizNode = getMockVizNode('to');
     const wrapper = render(<ComponentMode vizNode={vizNode} />);
 
     const toButton = wrapper.getByText('Static');
     expect(toButton).toBeInTheDocument();
 
-    await act(async () => {
-      toButton.click();
-    });
+    await user.click(toButton);
 
     expect(mockUpdateSourceCodeFromEntities).not.toHaveBeenCalled();
   });
 
   it('should not call updateSourceCodeFromEntities if the vizNode does not contain a path', async () => {
+    const user = userEvent.setup();
     const vizNode = getMockVizNode('to');
     vizNode.data.path = undefined;
     const wrapper = render(<ComponentMode vizNode={vizNode} />);
@@ -80,23 +82,25 @@ describe('ComponentMode', () => {
     const toButton = wrapper.getByText('Static');
     expect(toButton).toBeInTheDocument();
 
-    await act(async () => {
-      toButton.click();
-    });
+    await user.click(toButton);
 
     expect(mockUpdateSourceCodeFromEntities).not.toHaveBeenCalled();
   });
 
   it('calls updateModel when switching from "to" to "poll"', async () => {
+    const user = userEvent.setup();
     const vizNode = getMockVizNode('to');
     const wrapper = render(<ComponentMode vizNode={vizNode} />);
 
     const pollButton = wrapper.getByText('Poll');
     expect(pollButton).toBeInTheDocument();
 
-    await act(async () => {
-      pollButton.click();
+    // Wait for getParsedDefinition to be called, then flush the resolved promise into React state
+    await waitFor(() => {
+      expect(vizNode.getParsedDefinition as ReturnType<typeof vi.fn>).toHaveBeenCalled();
     });
+
+    await user.click(pollButton);
 
     expect(vizNode.updateModel).toHaveBeenCalledWith(undefined);
     expect(vizNode.data.path).toBe('route.from.steps.0.poll');
@@ -104,15 +108,19 @@ describe('ComponentMode', () => {
   });
 
   it('calls updateModel when switching from "to" to "toD"', async () => {
+    const user = userEvent.setup();
     const vizNode = getMockVizNode('to');
     const wrapper = render(<ComponentMode vizNode={vizNode} />);
 
     const toDButton = wrapper.getByText('Dynamic');
     expect(toDButton).toBeInTheDocument();
 
-    await act(async () => {
-      toDButton.click();
+    // Wait for useParsedDefinition to resolve before clicking
+    await waitFor(() => {
+      expect(vizNode.getParsedDefinition as ReturnType<typeof vi.fn>).toHaveBeenCalled();
     });
+
+    await user.click(toDButton);
 
     expect(vizNode.updateModel).toHaveBeenCalledWith(undefined);
     expect(vizNode.data.path).toBe('route.from.steps.0.toD');
@@ -120,15 +128,19 @@ describe('ComponentMode', () => {
   });
 
   it('calls updateModel when switching from "poll" to "to"', async () => {
+    const user = userEvent.setup();
     const vizNode = getMockVizNode('poll');
     const wrapper = render(<ComponentMode vizNode={vizNode} />);
 
     const toButton = wrapper.getByText('Static');
     expect(toButton).toBeInTheDocument();
 
-    await act(async () => {
-      toButton.click();
+    // Wait for useParsedDefinition to resolve and flush the state update into the closure
+    await waitFor(() => {
+      expect(vizNode.getParsedDefinition as ReturnType<typeof vi.fn>).toHaveBeenCalled();
     });
+
+    await user.click(toButton);
 
     expect(vizNode.updateModel).toHaveBeenCalledWith(undefined);
     expect(vizNode.data.path).toBe('route.from.steps.0.to');
@@ -136,15 +148,19 @@ describe('ComponentMode', () => {
   });
 
   it('calls updateSourceCodeFromEntities when switching from "poll" to "to"', async () => {
+    const user = userEvent.setup();
     const vizNode = getMockVizNode('poll');
     const wrapper = render(<ComponentMode vizNode={vizNode} />);
 
     const toButton = wrapper.getByText('Static');
     expect(toButton).toBeInTheDocument();
 
-    await act(async () => {
-      toButton.click();
+    // Wait for useParsedDefinition to resolve and flush the state update into the closure
+    await waitFor(() => {
+      expect(vizNode.getParsedDefinition as ReturnType<typeof vi.fn>).toHaveBeenCalled();
     });
+
+    await user.click(toButton);
 
     expect(mockUpdateSourceCodeFromEntities).toHaveBeenCalled();
   });

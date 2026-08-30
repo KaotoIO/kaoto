@@ -4,7 +4,6 @@ import { CatalogLibrary, ProcessorDefinition } from '@kaoto/camel-catalog/types'
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
 import { DATAMAPPER_ID_PREFIX } from '../../../../utils';
 import { CatalogKind } from '../../../catalog-kind';
-import { IVisualizationNodeIds } from '../../base-visual-entity';
 import { IClipboardContent } from '../../clipboard';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelComponentSchemaService } from './camel-component-schema.service';
@@ -26,124 +25,6 @@ describe('CamelComponentSchemaService', () => {
 
   afterAll(() => {
     CamelCatalogService.clearCatalogs();
-  });
-
-  describe('getUpdatedDefinition', () => {
-    const textBasedProcessors: [IVisualizationNodeIds, string, object][] = [
-      [
-        {
-          primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern },
-          secondaryNodeId: { name: 'bean', catalogKind: CatalogKind.Component },
-        },
-        'bean:myBean?method=hello',
-        {
-          uri: 'bean',
-          parameters: {
-            beanName: 'myBean',
-            method: 'hello',
-          },
-        },
-      ],
-      [
-        {
-          primaryNodeId: { name: 'toD', catalogKind: CatalogKind.Pattern },
-          secondaryNodeId: { name: 'bean', catalogKind: CatalogKind.Component },
-        },
-        'bean:myBean?method=hello',
-        {
-          uri: 'bean',
-          parameters: {
-            beanName: 'myBean',
-            method: 'hello',
-          },
-        },
-      ],
-      [
-        {
-          primaryNodeId: { name: 'log', catalogKind: CatalogKind.Pattern },
-        },
-        '${body}',
-        {
-          message: '${body}',
-        },
-      ],
-    ];
-
-    it.each(textBasedProcessors)('should transform string-based processors', (ids, definition, expectedResult) => {
-      const result = CamelComponentSchemaService.getUpdatedDefinition(ids, definition);
-
-      expect(result).toMatchObject(expectedResult);
-    });
-
-    it(`should clone the component's definition`, () => {
-      const toLogDefinition = {
-        id: 'to-3044',
-        uri: 'log',
-        parameters: {
-          groupActiveOnly: true,
-          logMask: true,
-          level: 'ERROR',
-        },
-      };
-
-      const result = CamelComponentSchemaService.getUpdatedDefinition(
-        {
-          primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern },
-          secondaryNodeId: { name: 'log', catalogKind: CatalogKind.Component },
-        },
-        toLogDefinition,
-      );
-
-      expect(result).not.toBe(toLogDefinition);
-      expect(result).toEqual(toLogDefinition);
-    });
-
-    it(`should not apply missing syntax's path segments`, () => {
-      const toLogDefinition = {
-        uri: 'timer',
-      };
-
-      const result = CamelComponentSchemaService.getUpdatedDefinition(
-        {
-          primaryNodeId: { name: 'from', catalogKind: CatalogKind.Entity },
-          secondaryNodeId: { name: 'timer', catalogKind: CatalogKind.Component },
-        },
-        toLogDefinition,
-      );
-
-      expect(result.uri).toBe('timer');
-      expect(result.parameters).toEqual({});
-    });
-
-    it('should not build a schema for an unknown component', () => {
-      const camelCatalogServiceSpy = vi.spyOn(CamelCatalogService, 'getComponent');
-      const toNonExistingDefinition = {
-        id: 'to-3044',
-        uri: 'non-existing-component',
-        parameters: {
-          level: 'ERROR',
-        },
-      };
-
-      const result = CamelComponentSchemaService.getUpdatedDefinition(
-        {
-          primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern },
-          secondaryNodeId: { name: 'non-existing-component', catalogKind: CatalogKind.Component },
-        },
-        toNonExistingDefinition,
-      );
-
-      expect(camelCatalogServiceSpy).toHaveBeenCalledTimes(1);
-      expect(camelCatalogServiceSpy).toHaveBeenNthCalledWith(1, CatalogKind.Component, 'non-existing-component');
-      expect(camelCatalogServiceSpy).toHaveBeenNthCalledWith(1, CatalogKind.Component, 'non-existing-component');
-      expect(result).toEqual({
-        id: 'to-3044',
-        parameters: {
-          level: 'ERROR',
-        },
-        uri: 'non-existing-component',
-      });
-    });
   });
 
   describe('canHavePreviousStep', () => {
@@ -264,19 +145,6 @@ describe('CamelComponentSchemaService', () => {
         expect(stepsProperties).toEqual(result);
       },
     );
-  });
-
-  describe('getComponentNameFromUri', () => {
-    it.each([
-      ['', undefined],
-      ['kamelet:beer-source', 'kamelet:beer-source'],
-      ['kamelet:beer-source?foo=bar', 'kamelet:beer-source'],
-      ['timer:foo?delay=1000&period=1000', 'timer'],
-      ['timer', 'timer'],
-    ] as [string, string | undefined][])(`should return the component name from '%s'`, (uri, expected) => {
-      const componentName = CamelComponentSchemaService.getComponentNameFromUri(uri);
-      expect(componentName).toBe(expected);
-    });
   });
 
   describe('getNodeDefinitionValue', () => {

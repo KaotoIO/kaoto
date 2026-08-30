@@ -3,10 +3,10 @@
 exports[`BeansEntityHandler > should handle beans in CamelRouteResource > initial state 1`] = `
 {
   "additionalProperties": false,
-  "description": "Define custom beans that can be used in your Camel routes and in general.",
+  "description": "Defines a custom bean that can be used in Camel routes and other beans. The bean is created by a factory class or method.",
   "properties": {
     "builderClass": {
-      "$comment": "group:common",
+      "$comment": "group:advanced",
       "description": "Fully qualified class name of builder class to use for creating and configuring the bean. The builder will use the properties values to configure the bean.",
       "title": "Builder Class",
       "type": "string",
@@ -25,32 +25,32 @@ exports[`BeansEntityHandler > should handle beans in CamelRouteResource > initia
       "type": "object",
     },
     "destroyMethod": {
-      "$comment": "group:common",
+      "$comment": "group:advanced",
       "description": "The name of the custom destroy method to invoke on bean shutdown, such as when Camel is shutting down. The method must have no arguments, but may throw any exception.",
       "title": "Destroy Method",
       "type": "string",
     },
     "factoryBean": {
-      "$comment": "group:common",
+      "$comment": "group:advanced",
       "description": "Name of factory bean (bean id) to use for creating the bean.",
       "title": "Factory Bean",
       "type": "string",
     },
     "factoryMethod": {
-      "$comment": "group:common",
+      "$comment": "group:advanced",
       "description": "Name of method to invoke when creating the bean via a factory bean.",
       "title": "Factory Method",
       "type": "string",
     },
     "initMethod": {
-      "$comment": "group:common",
+      "$comment": "group:advanced",
       "description": "The name of the custom initialization method to invoke after setting bean properties. The method must have no arguments, but may throw any exception.",
       "title": "Init Method",
       "type": "string",
     },
     "name": {
       "$comment": "group:common",
-      "description": "The name of the bean (bean id)",
+      "description": "The name of the bean (bean id).",
       "title": "Name",
       "type": "string",
     },
@@ -62,7 +62,7 @@ exports[`BeansEntityHandler > should handle beans in CamelRouteResource > initia
     },
     "script": {
       "$comment": "group:advanced",
-      "description": "The script to execute that creates the bean when using scripting languages. If the script use the prefix resource: such as resource:classpath:com/foo/myscript.groovy, resource:file:/var/myscript.groovy, then its loaded from the external resource.",
+      "description": "The script to execute that creates the bean when using scripting languages.",
       "title": "Script",
       "type": "string",
     },
@@ -81,7 +81,7 @@ exports[`BeansEntityHandler > should handle beans in CamelRouteResource > initia
     },
     "type": {
       "$comment": "group:common",
-      "description": "The class name (fully qualified) of the bean",
+      "description": "The class name (fully qualified) of the bean.",
       "title": "Type",
       "type": "string",
     },

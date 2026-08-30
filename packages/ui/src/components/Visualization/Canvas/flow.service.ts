@@ -6,8 +6,8 @@ import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, CanvasNodeData, CanvasNodesAndEdges } from './canvas.models';
 
 export class FlowService {
-  static nodes: CanvasNode[] = [];
-  static edges: CanvasEdge[] = [];
+  static nodes: CanvasNode[] = []; // NOSONAR typescript:S1444 - intentionally reassigned on each diagram rebuild
+  static edges: CanvasEdge[] = []; // NOSONAR typescript:S1444 - intentionally reassigned on each diagram rebuild
   private static visitedNodes: string[] = [];
 
   static getFlowDiagram(
