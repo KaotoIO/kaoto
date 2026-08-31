@@ -9,7 +9,7 @@ import { Router } from './routes';
 // App level imports
 import { initializeTheme } from './utils/theme';
 
-const basename = import.meta.env.BASE_URL ?? '/';
+const basename = '/';
 
 try {
   initializeTheme();
