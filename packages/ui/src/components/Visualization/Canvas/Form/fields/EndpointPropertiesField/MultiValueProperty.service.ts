@@ -78,7 +78,9 @@ export class MultiValuePropertyService {
             return;
           }
           Object.keys(definition.parameters[key]).forEach((subKey) => {
-            defaultMultiValues[multiValueParameters.get(key) + subKey] = definition.parameters[key][subKey];
+            if (definition.parameters[key][subKey] !== undefined) {
+              defaultMultiValues[multiValueParameters.get(key) + subKey] = definition.parameters[key][subKey];
+            }
           });
           delete filteredParameters[key];
         } else if (prefixes.some((prefix) => key.startsWith(prefix))) {
