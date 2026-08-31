@@ -6,5 +6,5 @@
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true
   },
-  "include": ["vite.config.mjs"]
+  "include": ["vite.config.mjs", "vitest.config.mts", "vitest-setup.ts", "vitest-mocks-setup.ts"]
 }
