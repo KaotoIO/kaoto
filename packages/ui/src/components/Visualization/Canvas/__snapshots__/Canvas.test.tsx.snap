@@ -29,7 +29,6 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                 >
                   <svg
                     class="pf-topology-visualization-surface__svg"
-                    style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
                   >
                     <g
                       data-id="g1"
@@ -82,7 +81,6 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                                   <div
                                     class="custom-group__container__text"
                                     data-testid="route-8888|route|drag-handle"
-                                    style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
                                     title="route: route"
                                   >
                                     <img
@@ -128,7 +126,6 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                                   <div
                                     class="custom-group__container__text custom-group__container__text__draggable"
                                     data-testid="route-8888|route.from.steps.1.choice|drag-handle"
-                                    style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
                                     title="choice: choice"
                                   >
                                     <img
@@ -174,7 +171,6 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                                   <div
                                     class="custom-group__container__text custom-group__container__text__draggable"
                                     data-testid="route-8888|route.from.steps.1.choice.when.0|drag-handle"
-                                    style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
                                     title="when: when"
                                   >
                                     <img
@@ -1006,7 +1002,6 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                 >
                   <svg
                     class="pf-topology-visualization-surface__svg"
-                    style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
                   >
                     <g
                       data-id="g1"
@@ -1059,7 +1054,6 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                                   <div
                                     class="custom-group__container__text"
                                     data-testid="route-8888|route|drag-handle"
-                                    style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
                                     title="route: route"
                                   >
                                     <img
@@ -1105,7 +1099,6 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                                   <div
                                     class="custom-group__container__text custom-group__container__text__draggable"
                                     data-testid="route-8888|route.from.steps.1.choice|drag-handle"
-                                    style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
                                     title="choice: choice"
                                   >
                                     <img
@@ -1151,7 +1144,6 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                                   <div
                                     class="custom-group__container__text custom-group__container__text__draggable"
                                     data-testid="route-8888|route.from.steps.1.choice.when.0|drag-handle"
-                                    style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
                                     title="when: when"
                                   >
                                     <img
@@ -2015,7 +2007,6 @@ exports[`Canvas > should render correctly 1`] = `
                 >
                   <svg
                     class="pf-topology-visualization-surface__svg"
-                    style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
                   >
                     <g
                       data-id="g1"
@@ -2068,7 +2059,6 @@ exports[`Canvas > should render correctly 1`] = `
                                   <div
                                     class="custom-group__container__text"
                                     data-testid="route-8888|route|drag-handle"
-                                    style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
                                     title="route: route"
                                   >
                                     <img
@@ -2114,7 +2104,6 @@ exports[`Canvas > should render correctly 1`] = `
                                   <div
                                     class="custom-group__container__text custom-group__container__text__draggable"
                                     data-testid="route-8888|route.from.steps.1.choice|drag-handle"
-                                    style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
                                     title="choice: choice"
                                   >
                                     <img
@@ -2160,7 +2149,6 @@ exports[`Canvas > should render correctly 1`] = `
                                   <div
                                     class="custom-group__container__text custom-group__container__text__draggable"
                                     data-testid="route-8888|route.from.steps.1.choice.when.0|drag-handle"
-                                    style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
                                     title="when: when"
                                   >
                                     <img
