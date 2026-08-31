@@ -15,42 +15,46 @@ const isPathActive = (menuPath: string | undefined, currentPath: string): boolea
   return currentPath.startsWith(`${menuPath}/`);
 };
 
+const renderNavItem = (
+  path: string | undefined,
+  carbon: NonNullable<RouteConfigArray[number]['carbon']>,
+  currentPath: string,
+) => {
+  if (carbon.subMenu) {
+    return (
+      <HeaderMenu aria-label={carbon.label!} key={path} menuLinkName={carbon.label!}>
+        {carbon.subMenu.map((subRoute) => {
+          const subPath = 'path' in subRoute ? subRoute.path : undefined;
+          if (!subPath) return null;
+          return (
+            <HeaderMenuItem as={RouterLink} to={subPath} key={subPath} isActive={isPathActive(subPath, currentPath)}>
+              {subRoute.carbon?.label}
+            </HeaderMenuItem>
+          );
+        })}
+      </HeaderMenu>
+    );
+  }
+
+  if (!path) return null;
+  return (
+    <HeaderMenuItem as={RouterLink} key={path} to={path} isActive={isPathActive(path, currentPath)}>
+      {carbon.label}
+    </HeaderMenuItem>
+  );
+};
+
 interface NavHeaderItemsProps {
   routesInHeader: RouteConfigArray;
   currentPath: string;
 }
 
-export const NavHeaderItems = ({ routesInHeader, currentPath }: NavHeaderItemsProps) => {
-  const renderNavItem = (path: string | undefined, carbon: NonNullable<RouteConfigArray[number]['carbon']>) => {
-    if (carbon.subMenu) {
-      return (
-        <HeaderMenu aria-label={carbon.label!} key={path} menuLinkName={carbon.label!}>
-          {carbon.subMenu.map((subRoute) => (
-            <HeaderMenuItem
-              as={RouterLink}
-              to={subRoute.path}
-              key={subRoute.path}
-              isActive={isPathActive(subRoute.path, currentPath)}
-            >
-              {subRoute.carbon?.label}
-            </HeaderMenuItem>
-          ))}
-        </HeaderMenu>
-      );
-    }
-
-    return (
-      <HeaderMenuItem as={RouterLink} key={path} to={path!} isActive={isPathActive(path, currentPath)}>
-        {carbon.label}
-      </HeaderMenuItem>
-    );
-  };
-
-  return (
-    <>
-      {routesInHeader.map(({ path, carbon }) =>
-        !carbon?.inSubMenu && carbon?.label ? renderNavItem(path, carbon) : null,
-      )}
-    </>
-  );
-};
+export const NavHeaderItems = ({ routesInHeader, currentPath }: NavHeaderItemsProps) => (
+  <>
+    {routesInHeader.map((route) => {
+      const path = 'path' in route ? route.path : undefined;
+      const { carbon } = route;
+      return !carbon?.inSubMenu && carbon?.label ? renderNavItem(path, carbon, currentPath) : null;
+    })}
+  </>
+);

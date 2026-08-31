@@ -25,15 +25,8 @@ export interface CarbonRoute {
   href?: string;
 }
 
-/**
- * Route configuration object that combines React Router properties with Carbon navigation metadata.
- * Used to define application routes with their corresponding navigation behavior.
- */
-export interface RouteConfig {
-  /** React Router path pattern (e.g., "/dashboard", "/users/:id") */
-  path: string;
-  /** Whether this is an index route (renders at parent's path) */
-  index?: boolean;
+/** Shared fields for all route configuration objects. */
+interface RouteConfigBase {
   /** React component to render for this route */
   element?: ComponentType;
   /** HTTP status code for error routes (e.g., 404, 500) */
@@ -41,5 +34,23 @@ export interface RouteConfig {
   /** Carbon-specific navigation configuration */
   carbon?: CarbonRoute;
 }
+
+/** Index route — renders at the parent's path; must not carry a path of its own. */
+export interface IndexRouteConfig extends RouteConfigBase {
+  index: true;
+  path?: never;
+}
+
+/** Path route — renders at an explicit path pattern; must not be an index route. */
+export interface PathRouteConfig extends RouteConfigBase {
+  path: string;
+  index?: false;
+}
+
+/**
+ * Route configuration object that combines React Router properties with Carbon navigation metadata.
+ * Used to define application routes with their corresponding navigation behavior.
+ */
+export type RouteConfig = IndexRouteConfig | PathRouteConfig;
 
 export type RouteConfigArray = RouteConfig[];
