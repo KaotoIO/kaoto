@@ -1,4 +1,5 @@
 import react from '@vitejs/plugin-react';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -27,17 +28,10 @@ export default defineConfig({
     },
     alias: {
       // Force all packages to use the same React instance
-      react: new URL('../../node_modules/react', import.meta.url).pathname,
-      'react-dom': new URL('../../node_modules/react-dom', import.meta.url).pathname,
+      react: fileURLToPath(new URL('../../node_modules/react', import.meta.url)),
+      'react-dom': fileURLToPath(new URL('../../node_modules/react-dom', import.meta.url)),
       // Use native ESM build to avoid CJS interop issues in wrapper.mjs
-      uuid: new URL('../../node_modules/uuid/dist/esm-node/index.js', import.meta.url).pathname,
-    },
-  },
-  css: {
-    preprocessorOptions: {
-      scss: {
-        api: 'modern-compiler',
-      },
+      uuid: fileURLToPath(new URL('../../node_modules/uuid/dist/esm-node/index.js', import.meta.url)),
     },
   },
   resolve: {

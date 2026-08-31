@@ -234,23 +234,3 @@ Object.defineProperty(globalThis, 'fail', {
     throw new Error(message || 'Test failed');
   },
 });
-
-// Suppress Monaco Editor CancellationError from unhandled rejections
-// Monaco Editor's clipboard service creates deferred promises that get cancelled
-// during test cleanup, which causes unhandled rejection errors
-// Use process.on instead of window event listeners as Vitest intercepts errors before window listeners
-if (typeof process !== 'undefined') {
-  // Remove any existing listeners to avoid duplicates
-  process.removeAllListeners('unhandledRejection');
-
-  // Add our custom handler
-  process.on('unhandledRejection', (reason: unknown) => {
-    // Suppress Monaco Editor clipboard cancellation errors
-    const error = reason as { name?: string; message?: string };
-    if (error?.name !== 'CancellationError' && error?.message !== 'Canceled') {
-      // Re-throw other unhandled rejections so they get reported
-      throw reason;
-    }
-    // Silently ignore Monaco CancellationError
-  });
-}
