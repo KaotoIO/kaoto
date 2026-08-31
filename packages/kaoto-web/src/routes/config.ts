@@ -8,7 +8,6 @@ import { RouteConfigArray } from '../types/routes';
 export const routes: RouteConfigArray = [
   {
     index: true,
-    path: '/',
     element: Dashboard,
     carbon: {
       label: 'Dashboard',
@@ -30,14 +29,14 @@ const routesProcessed: RouteConfigArray = routes.map((route) => {
     return route;
   }
 
-  const path = route.path || route.carbon.virtualPath;
+  const path = ('path' in route ? route.path : undefined) ?? route.carbon.virtualPath;
   if (!path) return route;
 
   const subMenu = routes.filter((subRoute) => {
     // Only include routes with carbon config in navigation menus
     if (!subRoute.carbon) return false;
 
-    const subPath = subRoute.path || subRoute.carbon.virtualPath;
+    const subPath = ('path' in subRoute ? subRoute.path : undefined) ?? subRoute.carbon.virtualPath;
     // TODO: Re-enable when adding nested routes
     // const childPath = new RegExp(`^${escapeRegExp(path)}/[^/]+$`); // match direct parent only
 
@@ -50,7 +49,7 @@ const routesProcessed: RouteConfigArray = routes.map((route) => {
 
     // mark child as in sub menu
     subMenu.forEach((menu) => {
-      const subPath = menu.path || menu.carbon?.virtualPath;
+      const subPath = ('path' in menu ? menu.path : undefined) ?? menu.carbon?.virtualPath;
       // Carbon should never be blank
       menu.carbon = menu.carbon || { label: subPath || '' };
       menu.carbon.inSubMenu = true;

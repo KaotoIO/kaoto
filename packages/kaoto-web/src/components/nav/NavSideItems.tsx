@@ -24,7 +24,8 @@ const renderSideNavLink = (path: string | undefined, carbon: CarbonRoute, curren
 };
 
 const renderSideNavMenuItem = (subRoute: RouteConfigArray[number], currentPath: string) => {
-  const { path, carbon } = subRoute;
+  const path = 'path' in subRoute ? subRoute.path : undefined;
+  const { carbon } = subRoute;
   if (path) {
     return (
       <SideNavMenuItem key={path} as={RouterLink} to={path} isActive={path === currentPath}>
@@ -52,8 +53,10 @@ const renderNavItem = (path: string | undefined, carbon: CarbonRoute, currentPat
 
 export const NavSideItems = ({ routesInSideNav, currentPath }: NavSideItemsProps) => (
   <>
-    {routesInSideNav.map(({ path, carbon }) =>
-      !carbon?.inSubMenu && carbon?.label ? renderNavItem(path, carbon, currentPath) : null,
-    )}
+    {routesInSideNav.map((route) => {
+      const path = 'path' in route ? route.path : undefined;
+      const { carbon } = route;
+      return !carbon?.inSubMenu && carbon?.label ? renderNavItem(path, carbon, currentPath) : null;
+    })}
   </>
 );
