@@ -146,5 +146,38 @@ describe('MultiValuePropertyService', () => {
         parameters: { 'job.test': 'test', 'trigger.test': 'test' },
       });
     });
+
+    it('should omit nested child entries whose value is undefined', async () => {
+      const multiValueMap = await MultiValuePropertyService.getMultiValueProperties(CatalogKind.Component, 'quartz');
+      const definition = {
+        uri: 'quartz',
+        parameters: {
+          jobParameters: { name: 'myJob', description: undefined },
+          triggerParameters: { cron: '0 0 * * *' },
+        },
+      };
+      const result = MultiValuePropertyService.getMultiValueSerializedDefinition(multiValueMap, definition);
+
+      // 'job.description' must NOT appear in the output — its value is undefined
+      expect(result).toEqual({
+        uri: 'quartz',
+        parameters: { 'job.name': 'myJob', 'trigger.cron': '0 0 * * *' },
+      });
+      expect(result!.parameters).not.toHaveProperty('job.description');
+    });
+
+    it('should not emit any flat key when the entire nested object has only undefined values (delete/clear flow)', async () => {
+      const multiValueMap = await MultiValuePropertyService.getMultiValueProperties(CatalogKind.Component, 'quartz');
+      const definition = {
+        uri: 'quartz',
+        parameters: {
+          jobParameters: { name: undefined },
+        },
+      };
+      const result = MultiValuePropertyService.getMultiValueSerializedDefinition(multiValueMap, definition);
+
+      // The key must be entirely absent — not present with value undefined
+      expect(Object.prototype.hasOwnProperty.call(result!.parameters, 'job.name')).toBe(false);
+    });
   });
 });
