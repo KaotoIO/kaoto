@@ -4,7 +4,6 @@ import { CatalogLibrary, ProcessorDefinition } from '@kaoto/camel-catalog/types'
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
 import { DATAMAPPER_ID_PREFIX } from '../../../../utils';
 import { CatalogKind } from '../../../catalog-kind';
-import { IClipboardContent } from '../../clipboard';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelComponentSchemaService } from './camel-component-schema.service';
 import { CamelProcessorStepsProperties } from './camel-component-types';
@@ -145,32 +144,6 @@ describe('CamelComponentSchemaService', () => {
         expect(stepsProperties).toEqual(result);
       },
     );
-  });
-
-  describe('getNodeDefinitionValue', () => {
-    it('should return Node definition for a simple processor', () => {
-      const clipboadContent: IClipboardContent = {
-        name: 'log',
-        definition: {
-          id: 'log-3245',
-          message: '${body}',
-        },
-      };
-      const expectedValue = CamelComponentSchemaService.getNodeDefinitionValue(clipboadContent);
-      expect(expectedValue).toEqual({ log: { id: 'log-3245', message: '${body}' } });
-    });
-
-    it('should return Node definition for a Special processor', () => {
-      const clipboadContent: IClipboardContent = {
-        name: 'when',
-        definition: {
-          id: 'when-2765',
-          steps: [{ log: { id: 'log-2202', message: '${body}' } }],
-        },
-      };
-      const expectedValue = CamelComponentSchemaService.getNodeDefinitionValue(clipboadContent);
-      expect(expectedValue).toEqual({ id: 'when-2765', steps: [{ log: { id: 'log-2202', message: '${body}' } }] });
-    });
   });
 
   describe('canBeDisabled', () => {

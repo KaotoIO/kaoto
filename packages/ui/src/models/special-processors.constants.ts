@@ -39,3 +39,13 @@ export const SPECIAL_PROCESSORS_PARENTS_MAP = {
   routeConfiguration: ['intercept', 'interceptFrom', 'interceptSendToEndpoint', 'onException', 'onCompletion'],
   rest: REST_DSL_VERBS,
 } as const;
+
+/**
+ * Flat list of all special child processors (i.e. processors that are
+ * stored directly as the definition value rather than wrapped in
+ * `{ [name]: definition }`).
+ * Derived from SPECIAL_PROCESSORS_PARENTS_MAP, excluding routeConfiguration children.
+ */
+export const SPECIAL_CHILD_PROCESSORS = Object.entries(SPECIAL_PROCESSORS_PARENTS_MAP)
+  .filter(([key]) => key !== 'routeConfiguration')
+  .flatMap(([, values]) => values);

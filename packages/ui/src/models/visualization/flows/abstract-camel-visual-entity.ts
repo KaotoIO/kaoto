@@ -11,6 +11,7 @@ import { EntityType } from '../../entities';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { PlaceholderType } from '../../placeholder.constants';
 import { NodeLabelType } from '../../settings/settings.model';
+import { SPECIAL_CHILD_PROCESSORS } from '../../special-processors.constants';
 import {
   AddStepMode,
   BaseVisualEntity,
@@ -224,7 +225,10 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     data: IVisualizationNodeData;
     insertAtStart?: boolean;
   }) {
-    const defaultValue = CamelComponentSchemaService.getNodeDefinitionValue(options.clipboardContent);
+    const { name, definition } = options.clipboardContent;
+    const defaultValue = (SPECIAL_CHILD_PROCESSORS as readonly string[]).includes(name)
+      ? (definition as ProcessorDefinition)
+      : ({ [name]: definition } as ProcessorDefinition);
     this.addNewStep(defaultValue, options.mode, options.data, options.clipboardContent.name, options.insertAtStart);
   }
 

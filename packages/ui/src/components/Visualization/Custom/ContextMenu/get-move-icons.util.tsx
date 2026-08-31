@@ -10,8 +10,8 @@ import {
 } from '@patternfly/react-icons';
 import { ReactElement } from 'react';
 
+import { SPECIAL_CHILD_PROCESSORS } from '../../../../models/special-processors.constants';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
 import { LayoutType } from '../../Canvas/canvas.models';
 
 export interface MoveIcons {
@@ -77,5 +77,5 @@ function isSpecialChildNode(vizNode?: IVisualizationNode): boolean {
 
   // Check if this processor is in the list of special child processors
   // These are processors that are part of array-clause properties and use inverted direction
-  return CamelComponentSchemaService.SPECIAL_CHILD_PROCESSORS.includes(processorName);
+  return (SPECIAL_CHILD_PROCESSORS as readonly string[]).includes(processorName);
 }
