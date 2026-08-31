@@ -150,12 +150,10 @@ export class BeansEntityHandler {
   stripReferenceQuote(inputValue: string) {
     switch (this.type) {
       case 'beans':
-        return inputValue && inputValue.startsWith('#') ? inputValue.substring(1) : inputValue;
+        return inputValue?.startsWith('#') ? inputValue.substring(1) : inputValue;
       case 'routeTemplateBean': {
-        const leftStripped = inputValue && inputValue.startsWith('#bean:{{') ? inputValue.substring(8) : inputValue;
-        return leftStripped && leftStripped.endsWith('}}')
-          ? leftStripped.substring(0, leftStripped.length - 2)
-          : leftStripped;
+        const leftStripped = inputValue?.startsWith('#bean:{{') ? inputValue.substring(8) : inputValue;
+        return leftStripped?.endsWith('}}') ? leftStripped.substring(0, leftStripped.length - 2) : leftStripped;
       }
     }
   }

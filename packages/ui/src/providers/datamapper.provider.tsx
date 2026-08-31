@@ -171,7 +171,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     let latestSourceParameterMap = sourceParameterMap;
     let latestTargetBodyDocument = targetBodyDocument;
     if (documents) {
-      documents.sourceBodyDocument && setSourceBodyDocument(documents.sourceBodyDocument);
+      if (documents.sourceBodyDocument) setSourceBodyDocument(documents.sourceBodyDocument);
       setSourceParameterMap(documents.sourceParameterMap);
       latestSourceParameterMap = documents.sourceParameterMap;
       if (documents.targetBodyDocument) {
@@ -237,7 +237,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     (name: string) => {
       sourceParameterMap.delete(name);
       refreshSourceParameters();
-      onDeleteParameter && onDeleteParameter(name);
+      onDeleteParameter?.(name);
     },
     [onDeleteParameter, refreshSourceParameters, sourceParameterMap],
   );

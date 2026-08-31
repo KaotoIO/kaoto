@@ -126,32 +126,31 @@ export class RouteParser {
       parsedTable.data.push([model.id ?? '', '', '', '', '', '']);
       return;
     }
-    parsedSteps &&
-      parsedSteps.forEach((step, stepIndex) => {
-        const paramsWithDesc = step.description ? { description: step.description } : {};
-        step.parameters && Object.assign(paramsWithDesc, step.parameters);
-        if (Object.keys(paramsWithDesc).length === 0) {
-          parsedTable.data.push([
-            objectParamsLength === 0 && stepIndex === 0 && model.id ? model.id : '',
-            step.id,
-            step.name,
-            step.uri,
-            '',
-            '',
-          ]);
-          return;
-        }
-        Object.entries(paramsWithDesc).forEach(([paramKey, paramValue], paramIndex) =>
-          parsedTable.data.push([
-            objectParamsLength === 0 && stepIndex === 0 && paramIndex === 0 && model.id ? model.id : '',
-            paramIndex === 0 ? step.id : '',
-            paramIndex === 0 ? step.name : '',
-            paramIndex === 0 ? step.uri : '',
-            paramKey,
-            paramValue,
-          ]),
-        );
-      });
+    parsedSteps?.forEach((step, stepIndex) => {
+      const paramsWithDesc = step.description ? { description: step.description } : {};
+      step.parameters && Object.assign(paramsWithDesc, step.parameters);
+      if (Object.keys(paramsWithDesc).length === 0) {
+        parsedTable.data.push([
+          objectParamsLength === 0 && stepIndex === 0 && model.id ? model.id : '',
+          step.id,
+          step.name,
+          step.uri,
+          '',
+          '',
+        ]);
+        return;
+      }
+      Object.entries(paramsWithDesc).forEach(([paramKey, paramValue], paramIndex) =>
+        parsedTable.data.push([
+          objectParamsLength === 0 && stepIndex === 0 && paramIndex === 0 && model.id ? model.id : '',
+          paramIndex === 0 ? step.id : '',
+          paramIndex === 0 ? step.name : '',
+          paramIndex === 0 ? step.uri : '',
+          paramKey,
+          paramValue,
+        ]),
+      );
+    });
   }
 
   static parseInterceptFromEntity(entity: CamelInterceptFromVisualEntity): ParsedTable | undefined {
