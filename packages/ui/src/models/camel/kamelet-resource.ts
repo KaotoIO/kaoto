@@ -2,6 +2,7 @@ import { parse } from 'yaml';
 
 import { TileFilter } from '../../components/Catalog/Catalog.models';
 import { setValue } from '../../utils';
+import { EntityType } from '../entities';
 import { RouteTemplateBeansAwareResource } from '../kaoto-resource';
 import { AddStepMode, IVisualizationNodeData } from '../visualization/base-visual-entity';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
@@ -49,6 +50,18 @@ export class KameletResource extends CamelKResource implements RouteTemplateBean
 
   getType(): SourceSchemaType {
     return SourceSchemaType.Kamelet;
+  }
+
+  addNewEntity(_entityType?: EntityType, entityTemplate?: unknown): string {
+    if (entityTemplate) {
+      this.resource = entityTemplate as IKameletDefinition;
+      this.flow = new KameletVisualEntity(this.resource as IKameletDefinition);
+      this.beans = this.flow.kamelet.spec.template.beans
+        ? new RouteTemplateBeansEntity(this.flow.kamelet.spec.template as RouteTemplateBeansParentType)
+        : undefined;
+      this.syncMetadataFromResource();
+    }
+    return this.flow.getId();
   }
 
   getVisualEntities(): KameletVisualEntity[] {
