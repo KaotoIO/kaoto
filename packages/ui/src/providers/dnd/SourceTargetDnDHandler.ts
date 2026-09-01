@@ -7,7 +7,11 @@ import { MappingValidationService } from '../../services/visualization/mapping-v
 import { DnDHandler, DnDResult } from './DnDHandler';
 
 export class SourceTargetDnDHandler implements DnDHandler {
-  handleDragEnd(event: DragEndEvent, mappingTree: MappingTree, onUpdate: () => void): DnDResult {
+  handleDragEnd(
+    event: DragEndEvent,
+    mappingTree: MappingTree,
+    onUpdate: (options?: { structural?: boolean }) => void,
+  ): DnDResult {
     const fromNode = event.active.data.current as NodeData;
     const toNode = event.over?.data.current as NodeData;
     if (!fromNode || !toNode) return { success: false };
@@ -18,8 +22,8 @@ export class SourceTargetDnDHandler implements DnDHandler {
     }
 
     if (!validation.sourceNode || !validation.targetNode) return { success: false };
-    MappingActionService.engageMapping(mappingTree, validation.sourceNode, validation.targetNode);
-    onUpdate();
+    const structural = MappingActionService.engageMapping(mappingTree, validation.sourceNode, validation.targetNode);
+    onUpdate({ structural });
     return { success: true };
   }
 

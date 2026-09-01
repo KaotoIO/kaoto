@@ -19,8 +19,12 @@ export const AddMappingNode: FunctionComponent<{ nodeData: AddMappingNodeData; r
 
   const handleAddMapping = useCallback(() => {
     MappingActionService.addMapping(nodeData);
-    refreshMappingTree();
+    refreshMappingTree({ structural: true });
   }, [nodeData, refreshMappingTree]);
+
+  const handleContextMenuUpdate = useCallback(() => {
+    refreshMappingTree({ structural: true });
+  }, [refreshMappingTree]);
 
   return (
     <div data-testid={`node-target-${nodeData.id}`} className="node__container">
@@ -57,7 +61,7 @@ export const AddMappingNode: FunctionComponent<{ nodeData: AddMappingNodeData; r
             <MappingContextMenuAction
               nodeData={nodeData}
               dropdownLabel="Add Mapping Instruction"
-              onUpdate={refreshMappingTree}
+              onUpdate={handleContextMenuUpdate}
             />
           </ActionListGroup>
         </ActionList>

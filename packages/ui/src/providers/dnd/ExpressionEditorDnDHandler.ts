@@ -5,7 +5,11 @@ import { MappingService } from '../../services/mapping/mapping.service';
 import { DnDHandler, DnDResult } from './DnDHandler';
 
 export class ExpressionEditorDnDHandler implements DnDHandler {
-  handleDragEnd(event: DragEndEvent, _mappingTree: MappingTree, onUpdate: () => void): DnDResult {
+  handleDragEnd(
+    event: DragEndEvent,
+    _mappingTree: MappingTree,
+    onUpdate: (options?: { structural?: boolean }) => void,
+  ): DnDResult {
     const fromNode = event.active.data.current as NodeData;
     const toNode = event.over?.data.current as NodeData;
     if (

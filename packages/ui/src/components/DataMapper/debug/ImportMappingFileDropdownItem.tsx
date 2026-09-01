@@ -41,7 +41,7 @@ export const ImportMappingFileDropdownItem: FunctionComponent<ImportMappingFileD
           for (const msg of messages) {
             sendAlert(msg);
           }
-          refreshMappingTree();
+          refreshMappingTree({ structural: true });
           onComplete();
         })
         .catch((error: unknown) => {

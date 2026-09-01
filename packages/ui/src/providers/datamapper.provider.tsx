@@ -66,7 +66,12 @@ export interface IDataMapperContext {
   setSourceParametersExpanded: (expanded: boolean) => void;
 
   mappingTree: MappingTree;
-  refreshMappingTree(): void;
+  /** Snapshot of `mappingTree` at the last structural change (node add/remove/move/rename).
+   * Stable across value-only updates (e.g. typing an XPath expression), so components that
+   * drive expensive rebuilds — such as `TargetPanel`'s `createTree` call — can depend on this
+   * instead of `mappingTree` to avoid rebuilding on every keystroke. */
+  structuralMappingTree: MappingTree;
+  refreshMappingTree(options?: { structural?: boolean }): void;
   resetMappingTree(): void;
   setMappingTree(mappings: MappingTree): void;
   variables: VariableItem[];
@@ -154,6 +159,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   );
   initialMappingTree.namespaceMap = { ...initialNamespaceMap };
   const [mappingTree, setMappingTree] = useState<MappingTree>(initialMappingTree);
+  const [structuralMappingTree, setStructuralMappingTree] = useState<MappingTree>(initialMappingTree);
 
   const [alerts, setAlerts] = useState<SendAlertProps[]>([]);
 
@@ -200,6 +206,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       WrapperAutoDetectionService.autoDetectWrapperSelections(loaded, latestTargetBodyDocument, effectiveNamespaceMap);
       setDataMapperSettings(restoredDataMapperSettings);
       setMappingTree(loaded);
+      setStructuralMappingTree(loaded);
       for (const msg of messages) {
         sendAlert(msg);
       }
@@ -214,7 +221,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   // Update mapping tree when target document changes
   useEffect(() => {
     if (isLoading) return;
-    refreshMappingTree();
+    refreshMappingTree({ structural: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading, targetBodyDocument]);
 
@@ -242,32 +249,37 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     [onDeleteParameter, refreshSourceParameters, sourceParameterMap],
   );
 
-  const refreshMappingTree = useCallback(() => {
-    const newMapping = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, targetBodyDocument.definitionType);
-    newMapping.children = mappingTree.children.map((child) => {
-      child.parent = newMapping;
-      return child;
-    });
-    newMapping.globalVariables = mappingTree.globalVariables.map((gv) => {
-      gv.parent = newMapping;
-      return gv;
-    });
-    newMapping.namespaceMap = mappingTree.namespaceMap;
-    setMappingTree(newMapping);
-    onUpdateMappings?.(MappingSerializerService.serialize(newMapping, sourceParameterMap, dataMapperSettings));
-    onUpdateNamespaceMap?.(newMapping.namespaceMap);
-  }, [
-    dataMapperSettings,
-    mappingTree,
-    onUpdateMappings,
-    onUpdateNamespaceMap,
-    sourceParameterMap,
-    targetBodyDocument.definitionType,
-  ]);
+  const refreshMappingTree = useCallback(
+    (options?: { structural?: boolean }) => {
+      const newMapping = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, targetBodyDocument.definitionType);
+      newMapping.children = mappingTree.children.map((child) => {
+        child.parent = newMapping;
+        return child;
+      });
+      newMapping.globalVariables = mappingTree.globalVariables.map((gv) => {
+        gv.parent = newMapping;
+        return gv;
+      });
+      newMapping.namespaceMap = mappingTree.namespaceMap;
+      setMappingTree(newMapping);
+      if (options?.structural) setStructuralMappingTree(newMapping);
+      onUpdateMappings?.(MappingSerializerService.serialize(newMapping, sourceParameterMap, dataMapperSettings));
+      onUpdateNamespaceMap?.(newMapping.namespaceMap);
+    },
+    [
+      dataMapperSettings,
+      mappingTree,
+      onUpdateMappings,
+      onUpdateNamespaceMap,
+      sourceParameterMap,
+      targetBodyDocument.definitionType,
+    ],
+  );
   const resetMappingTree = useCallback(() => {
     const newMapping = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, targetBodyDocument.definitionType);
     newMapping.namespaceMap = { ...initialNamespaceMap };
     setMappingTree(newMapping);
+    setStructuralMappingTree(newMapping);
     onUpdateMappings?.(MappingSerializerService.serialize(newMapping, sourceParameterMap, dataMapperSettings));
     onUpdateNamespaceMap?.(newMapping.namespaceMap);
   }, [
@@ -313,7 +325,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
 
       // Update mapping tree to reflect the parameter name change
       MappingService.renameParameterInMappings(mappingTree, oldName, newName);
-      refreshMappingTree();
+      refreshMappingTree({ structural: true });
 
       onRenameParameter?.(oldName, newName);
     },
@@ -375,7 +387,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
         Object.assign(Object.create(Object.getPrototypeOf(document)), document),
       );
 
-      refreshMappingTree();
+      refreshMappingTree({ structural: true });
       onUpdateDocument?.(definition);
     },
     [onUpdateDocument, refreshMappingTree, removeStaleMappings, setNewDocument],
@@ -412,6 +424,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       setNewDocument,
       updateDocument,
       mappingTree,
+      structuralMappingTree,
       refreshMappingTree,
       resetMappingTree,
       setMappingTree,
@@ -438,6 +451,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     setNewDocument,
     updateDocument,
     mappingTree,
+    structuralMappingTree,
     refreshMappingTree,
     resetMappingTree,
     variables,

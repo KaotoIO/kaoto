@@ -30,12 +30,14 @@ import {
 } from '../ExpansionPanels/panel-dimensions';
 
 export const TargetPanel: FunctionComponent = () => {
-  const { targetBodyDocument, mappingTree, refreshMappingTree } = useDataMapper();
+  const { targetBodyDocument, mappingTree, structuralMappingTree, refreshMappingTree } = useDataMapper();
 
-  // Create tree for target body
+  // `structuralMappingTree` is the snapshot of `mappingTree` at the last structural change.
+  // It is stable across value-only updates (e.g. typing in an XPath field), so `createTree`
+  // is only called when nodes are actually added, removed, or moved — not on every keystroke.
   const targetBodyNodeData = useMemo(
-    () => new TargetDocumentNodeData(targetBodyDocument, mappingTree),
-    [targetBodyDocument, mappingTree],
+    () => new TargetDocumentNodeData(targetBodyDocument, structuralMappingTree),
+    [targetBodyDocument, structuralMappingTree],
   );
   const [targetBodyTree, setTargetBodyTree] = useState<DocumentTree | undefined>(undefined);
 
@@ -65,6 +67,10 @@ export const TargetPanel: FunctionComponent = () => {
 
   const handleUpdate = useCallback(() => {
     refreshMappingTree();
+  }, [refreshMappingTree]);
+
+  const handleStructuralUpdate = useCallback(() => {
+    refreshMappingTree({ structural: true });
   }, [refreshMappingTree]);
 
   // Get expression item for primitive target body (if it has a mapping)
@@ -135,19 +141,27 @@ export const TargetPanel: FunctionComponent = () => {
     // Condition menu (kebab menu) before delete
     if (allowedActions.has(MappingActionKind.ContextMenu)) {
       actions.push(
-        <MappingContextMenuAction key="condition-menu" nodeData={targetBodyNodeData} onUpdate={handleUpdate} />,
+        <MappingContextMenuAction
+          key="condition-menu"
+          nodeData={targetBodyNodeData}
+          onUpdate={handleStructuralUpdate}
+        />,
       );
     }
 
     // Delete action comes last (bin icon at the end)
     if (expressionItem && allowedActions.has(MappingActionKind.Delete)) {
       actions.push(
-        <DeleteMappingItemAction key="delete-mapping" nodeData={targetBodyNodeData} onDelete={handleUpdate} />,
+        <DeleteMappingItemAction
+          key="delete-mapping"
+          nodeData={targetBodyNodeData}
+          onDelete={handleStructuralUpdate}
+        />,
       );
     }
 
     return actions;
-  }, [edgeMarkers, expressionItem, targetBodyNodeData, handleUpdate]);
+  }, [edgeMarkers, expressionItem, targetBodyNodeData, handleUpdate, handleStructuralUpdate]);
 
   return (
     <div id="panel-target" className="target-panel">

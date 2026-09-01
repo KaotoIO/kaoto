@@ -342,58 +342,76 @@ export class MappingActionService {
    * @param mappingTree - The root mapping tree.
    * @param sourceNode - The source node being mapped from.
    * @param targetNode - The target node being mapped to.
+   * @returns `true` when the mapping tree's shape changed (a {@link MappingItem} such as a
+   * `FieldItem`/`ForEachItem`/`ChooseItem` was added, removed, or replaced), `false` when only
+   * an already-materialized target's value/copy-of expression was extended — e.g. dropping a
+   * second source onto a field that's already mapped. Selectors never have their own tree node,
+   * so mutating one on an existing target is never structural.
    */
-  static engageMapping(mappingTree: MappingTree, sourceNode: SourceNodeDataType, targetNode: TargetNodeData) {
+  static engageMapping(mappingTree: MappingTree, sourceNode: SourceNodeDataType, targetNode: TargetNodeData): boolean {
     if (sourceNode instanceof SourceVariableNodeData) {
-      MappingActionService.engageVariableMapping(sourceNode, targetNode, mappingTree);
-      return;
+      return MappingActionService.engageVariableMapping(sourceNode, targetNode, mappingTree);
     }
 
     const sourceField = 'document' in sourceNode ? (sourceNode.document as PrimitiveDocument) : sourceNode.field;
 
     if (sourceNode instanceof ChoiceFieldNodeData && VisualizationUtilService.isFieldNode(targetNode)) {
-      MappingActionService.engageChoiceMapping(sourceNode, targetNode, sourceField);
-      return;
+      return MappingActionService.engageChoiceMapping(sourceNode, targetNode, sourceField);
     }
 
-    if (MappingActionService.tryEngageContainerMapping(sourceNode, targetNode)) return;
+    const targetWasUnmapped = !targetNode.mapping;
+    const containerResult = MappingActionService.tryEngageContainerMapping(sourceNode, targetNode);
+    if (containerResult.handled) return containerResult.structural;
 
     if (VisualizationUtilService.isFieldNode(targetNode)) {
       const item = MappingActionService.getOrCreateFieldItem(targetNode);
       MappingActionService.removeParentContainerCopyOf(item);
       MappingService.mapToField(sourceField, item);
+      return targetWasUnmapped;
     } else if (targetNode instanceof MappingNodeData) {
       MappingService.mapToCondition(targetNode.mapping, sourceField);
+      return false;
     } else if (targetNode instanceof TargetDocumentNodeData) {
+      const hadRootValueSelector = mappingTree.children.some((c) => c instanceof ValueOfSelector);
       MappingService.mapToDocument(mappingTree, sourceField);
+      return !hadRootValueSelector;
     }
+    return false;
   }
 
   private static engageVariableMapping(
     sourceNode: SourceVariableNodeData,
     targetNode: TargetNodeData,
     mappingTree: MappingTree,
-  ) {
+  ): boolean {
     const pathExpr = MappingService.variablePathExpression(sourceNode.variable.name);
+    const structural =
+      targetNode instanceof TargetDocumentNodeData
+        ? !mappingTree.children.some((c) => c instanceof ValueOfSelector)
+        : !targetNode.mapping;
     const target = MappingActionService.resolveTarget(targetNode, mappingTree);
-    if (target) MappingService.applyMapping(pathExpr, target);
+    if (!target) return false;
+    MappingService.applyMapping(pathExpr, target);
+    return structural;
   }
 
   private static engageChoiceMapping(
     sourceNode: ChoiceFieldNodeData,
     targetNode: TargetFieldNodeData | FieldItemNodeData,
     sourceField: IField,
-  ) {
+  ): boolean {
     if (sourceNode.choiceField) {
+      const structural = !targetNode.mapping;
       const item = MappingActionService.getOrCreateFieldItem(targetNode);
       MappingService.mapToField(sourceField, item);
+      return structural;
     } else if (
       VisualizationUtilService.isCollectionField(sourceNode) &&
       VisualizationUtilService.isCollectionField(targetNode)
     ) {
-      MappingActionService.createForEachWithChooseFromChoice(sourceNode.field, targetNode);
+      return MappingActionService.createForEachWithChooseFromChoice(sourceNode.field, targetNode);
     } else {
-      MappingActionService.createChooseFromChoice(sourceNode.field, targetNode);
+      return MappingActionService.createChooseFromChoice(sourceNode.field, targetNode);
     }
   }
 
@@ -446,13 +464,22 @@ export class MappingActionService {
     return undefined;
   }
 
-  private static tryEngageContainerMapping(sourceNode: SourceNodeDataType, targetNode: TargetNodeData): boolean {
+  /**
+   * @returns `{ handled: false }` when this pair isn't a container mapping and the caller
+   * should fall through to regular field/condition/document dispatch; otherwise
+   * `{ handled: true, structural }`, where `structural` reports whether a new
+   * {@link MappingItem} was materialized (see {@link engageMapping}).
+   */
+  private static tryEngageContainerMapping(
+    sourceNode: SourceNodeDataType,
+    targetNode: TargetNodeData,
+  ): { handled: boolean; structural: boolean } {
     if (
       !('field' in sourceNode) ||
       !sourceNode.field ||
       !(targetNode instanceof TargetFieldNodeData || targetNode instanceof FieldItemNodeData)
     ) {
-      return false;
+      return { handled: false, structural: false };
     }
     const sourceFieldFromNode = sourceNode.field;
     const targetFieldFromNode = targetNode.field;
@@ -461,17 +488,19 @@ export class MappingActionService {
     const anyTypeInvolved = sourceFieldFromNode.type === Types.AnyType || targetFieldFromNode.type === Types.AnyType;
 
     if (!sourceHasChildren && !targetHasChildren && !anyTypeInvolved) {
-      return false;
+      return { handled: false, structural: false };
     }
+
+    const structural = !targetNode.mapping;
 
     if (anyTypeInvolved && (!sourceHasChildren || !targetHasChildren)) {
       const item = MappingActionService.getOrCreateFieldItem(targetNode);
       MappingService.mapToFieldWithValueType(sourceFieldFromNode, item, CopyOfType.CONTAINER_NODE);
-      return true;
+      return { handled: true, structural };
     }
 
     if (!sourceHasChildren || !targetHasChildren) {
-      return false;
+      return { handled: false, structural: false };
     }
 
     const item = MappingActionService.getOrCreateFieldItem(targetNode);
@@ -483,23 +512,29 @@ export class MappingActionService {
       if (guardResult !== undefined) return guardResult;
 
       MappingActionService.createCollectionForEach(item, sourceFieldFromNode, targetFieldFromNode);
-    } else {
-      MappingService.applyContainerMapping(sourceFieldFromNode, targetFieldFromNode, item);
+      return { handled: true, structural: true };
     }
-    return true;
+
+    // generateAutoChildMappings (the non-copy-of branch of applyContainerMapping) always adds new
+    // child FieldItems, so it's structural regardless of whether `item` itself pre-existed.
+    const canUseCopyOf = FieldMatchingService.canUseCopyOf(sourceFieldFromNode, targetFieldFromNode);
+    MappingService.applyContainerMapping(sourceFieldFromNode, targetFieldFromNode, item);
+    return { handled: true, structural: structural || !canUseCopyOf };
   }
 
   /**
    * Checks whether a container auto-mapping ForEachItem already exists for this target field.
-   * Returns `true` (handled), `false` (defer to regular mapping), or `undefined` (proceed with auto-mapping).
+   * Returns `{ handled: true, structural }` (fully handled here — either a no-op reuse or a
+   * stray sibling `ForEachItem` was removed), `{ handled: false, structural: false }` (defer to
+   * regular mapping), or `undefined` (proceed with auto-mapping via {@link createCollectionForEach}).
    */
-  private static guardExistingForEach(item: MappingItem): boolean | undefined {
-    if (item.children.some((c) => c instanceof ForEachItem)) return true;
-    if (item.parent instanceof ForEachItem) return false;
+  private static guardExistingForEach(item: MappingItem): { handled: boolean; structural: boolean } | undefined {
+    if (item.children.some((c) => c instanceof ForEachItem)) return { handled: true, structural: false };
+    if (item.parent instanceof ForEachItem) return { handled: false, structural: false };
     if (item.parent.children.some((c) => c !== item && c instanceof ForEachItem)) {
       const idx = item.parent.children.indexOf(item);
       if (idx !== -1) item.parent.children.splice(idx, 1);
-      return true;
+      return { handled: true, structural: true };
     }
     return undefined;
   }
@@ -523,18 +558,21 @@ export class MappingActionService {
     parentOfItem.children.push(forEachItem);
   }
 
-  private static createChooseFromChoice(sourceField: IField, targetNode: TargetNodeData) {
+  /** @returns whether a new `ChooseItem` was created (`false` if one already existed — a no-op). */
+  private static createChooseFromChoice(sourceField: IField, targetNode: TargetNodeData): boolean {
     const targetItem = MappingActionService.getOrCreateFieldItem(targetNode);
-    if (targetItem.children.some((c) => c instanceof ChooseItem)) return;
+    if (targetItem.children.some((c) => c instanceof ChooseItem)) return false;
     targetItem.children = targetItem.children.filter((c) => !(c instanceof ValueSelector));
 
     const chooseItem = MappingActionService.buildChooseFromChoiceMembers(targetItem, sourceField, targetItem);
     targetItem.children.push(chooseItem);
+    return true;
   }
 
-  private static createForEachWithChooseFromChoice(sourceField: IField, targetNode: TargetNodeData) {
+  /** @returns whether a new `ForEachItem` was created (`false` if one already existed — a no-op). */
+  private static createForEachWithChooseFromChoice(sourceField: IField, targetNode: TargetNodeData): boolean {
     const targetItem = MappingActionService.getOrCreateFieldItem(targetNode);
-    if (targetItem.children.some((c) => c instanceof ForEachItem)) return;
+    if (targetItem.children.some((c) => c instanceof ForEachItem)) return false;
     targetItem.children = targetItem.children.filter((c) => !(c instanceof ValueSelector));
 
     const forEachItem = new ForEachItem(targetItem);
@@ -543,6 +581,7 @@ export class MappingActionService {
     const chooseItem = MappingActionService.buildChooseFromChoiceMembers(forEachItem, sourceField, targetItem);
     forEachItem.children.push(chooseItem);
     targetItem.children.push(forEachItem);
+    return true;
   }
 
   private static buildChooseFromChoiceMembers(

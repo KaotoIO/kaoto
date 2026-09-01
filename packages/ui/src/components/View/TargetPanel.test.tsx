@@ -1,6 +1,7 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
+import { useDataMapper } from '../../hooks/useDataMapper';
 import {
   DocumentDefinition,
   DocumentDefinitionType,
@@ -9,6 +10,7 @@ import {
 } from '../../models/datamapper/document';
 import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
+import { TreeUIService } from '../../services/visualization/tree-ui.service';
 import { getShipOrderJsonSchema } from '../../stubs/datamapper/data-mapper';
 import { TargetPanel } from './TargetPanel';
 
@@ -96,5 +98,73 @@ describe('TargetPanel', () => {
     // Settings button should be within the document header actions
     const settingsButton = container.querySelector('button[aria-label*="Settings"]');
     expect(settingsButton).toBeInTheDocument();
+  });
+
+  describe('tree rebuild decoupling', () => {
+    /**
+     * Helper component that renders TargetPanel and exposes context actions
+     * as imperative handles, all inside a single shared DataMapperProvider instance.
+     */
+    const TargetPanelWithActions: FunctionComponent<{
+      onReady: (ctx: ReturnType<typeof useDataMapper>) => void;
+    }> = ({ onReady }) => {
+      const ctx = useDataMapper();
+      onReady(ctx);
+      return <TargetPanel />;
+    };
+
+    it('should not call TreeUIService.createTree on value-only refreshMappingTree', async () => {
+      const createTreeSpy = vi.spyOn(TreeUIService, 'createTree');
+
+      let ctx: ReturnType<typeof useDataMapper> | null = null;
+
+      render(
+        <DataMapperProvider>
+          <MappingLinksProvider>
+            <TargetPanelWithActions onReady={(c) => (ctx = c)} />
+          </MappingLinksProvider>
+        </DataMapperProvider>,
+      );
+      await screen.findByTestId('document-doc-targetBody-Body');
+
+      const callCountAfterMount = createTreeSpy.mock.calls.length;
+
+      // Simulate a value-only update (no structural option)
+      act(() => {
+        ctx!.refreshMappingTree();
+      });
+
+      // createTree should NOT have been called again
+      expect(createTreeSpy.mock.calls).toHaveLength(callCountAfterMount);
+
+      createTreeSpy.mockRestore();
+    });
+
+    it('should call TreeUIService.createTree on structural refreshMappingTree', async () => {
+      const createTreeSpy = vi.spyOn(TreeUIService, 'createTree');
+
+      let ctx: ReturnType<typeof useDataMapper> | null = null;
+
+      render(
+        <DataMapperProvider>
+          <MappingLinksProvider>
+            <TargetPanelWithActions onReady={(c) => (ctx = c)} />
+          </MappingLinksProvider>
+        </DataMapperProvider>,
+      );
+      await screen.findByTestId('document-doc-targetBody-Body');
+
+      const callCountAfterMount = createTreeSpy.mock.calls.length;
+
+      // Simulate a structural update
+      act(() => {
+        ctx!.refreshMappingTree({ structural: true });
+      });
+
+      // createTree should have been called at least once more
+      expect(createTreeSpy.mock.calls.length).toBeGreaterThan(callCountAfterMount);
+
+      createTreeSpy.mockRestore();
+    });
   });
 });

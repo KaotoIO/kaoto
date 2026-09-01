@@ -16,9 +16,15 @@ type TargetNodeActionsProps = {
   className?: string;
   nodeData: TargetNodeData;
   onUpdate: () => void;
+  onStructuralUpdate: () => void;
 };
 
-export const TargetNodeActions: FunctionComponent<TargetNodeActionsProps> = ({ className, nodeData, onUpdate }) => {
+export const TargetNodeActions: FunctionComponent<TargetNodeActionsProps> = ({
+  className,
+  nodeData,
+  onUpdate,
+  onStructuralUpdate,
+}) => {
   const expressionItem = VisualizationService.getExpressionItemForNode(nodeData);
   const allowedActions = new Set(MappingActionRegistryService.getAllowedActions(nodeData));
 
@@ -31,10 +37,10 @@ export const TargetNodeActions: FunctionComponent<TargetNodeActionsProps> = ({ c
         </>
       )}
       {allowedActions.has(MappingActionKind.ContextMenu) && (
-        <MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdate} />
+        <MappingContextMenuAction nodeData={nodeData} onUpdate={onStructuralUpdate} />
       )}
       {allowedActions.has(MappingActionKind.Delete) && (
-        <DeleteMappingItemAction nodeData={nodeData} onDelete={onUpdate} />
+        <DeleteMappingItemAction nodeData={nodeData} onDelete={onStructuralUpdate} />
       )}
     </ActionListGroup>
   );

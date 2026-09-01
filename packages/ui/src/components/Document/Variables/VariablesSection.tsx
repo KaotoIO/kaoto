@@ -44,7 +44,7 @@ export const VariablesSection: FunctionComponent<VariablesSectionProps> = ({
     (variable: VariableItem) => {
       MappingService.removeVariableReferences(variable);
       MappingService.removeVariable(variable);
-      refreshMappingTree();
+      refreshMappingTree({ structural: true });
     },
     [refreshMappingTree],
   );
@@ -67,7 +67,7 @@ export const VariablesSection: FunctionComponent<VariablesSectionProps> = ({
     (name: string) => {
       MappingService.addVariable(mappingTree, name, undefined, 'template');
       setIsAddingVariable(false);
-      refreshMappingTree();
+      refreshMappingTree({ structural: true });
     },
     [mappingTree, refreshMappingTree],
   );
