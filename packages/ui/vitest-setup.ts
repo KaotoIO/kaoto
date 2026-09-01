@@ -235,19 +235,6 @@ Object.defineProperty(globalThis, 'fail', {
   },
 });
 
-// Polyfill for Blob.text() / File.text() - not implemented in JSDOM
-// See https://github.com/jsdom/jsdom/issues/3405
-if (typeof Blob !== 'undefined' && !Blob.prototype.text) {
-  Blob.prototype.text = async function (this: Blob): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = () => reject(reader.error);
-      reader.readAsText(this);
-    });
-  };
-}
-
 // Suppress Monaco Editor CancellationError from unhandled rejections
 // Monaco Editor's clipboard service creates deferred promises that get cancelled
 // during test cleanup, which causes unhandled rejection errors
