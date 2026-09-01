@@ -109,13 +109,15 @@ export class NodeEnrichmentService {
     const titleIdentifier = isProcessorLike ? (vizNode.data.primaryNodeId?.name ?? effectiveName) : effectiveName;
     const titleComponentName = redirected ? undefined : vizNode.data.secondaryNodeId?.name;
 
-    const [iconResult, tooltipResult, processorTooltipResult, titleResult, schemaResult] = await Promise.allSettled([
-      getIconRequest(effectiveCatalogKind, effectiveName),
-      getTooltipRequest(effectiveCatalogKind, effectiveName, vizNode.data.description),
-      getProcessorIconTooltipRequest(vizNode.data.primaryNodeId?.name),
-      getTitleRequest(effectiveCatalogKind, titleIdentifier, titleComponentName),
-      vizNode.fetchSchema(),
-    ]);
+    const [iconResult, tooltipResult, processorTooltipResult, titleResult, schemaResult, definitionResult] =
+      await Promise.allSettled([
+        getIconRequest(effectiveCatalogKind, effectiveName),
+        getTooltipRequest(effectiveCatalogKind, effectiveName, vizNode.data.description),
+        getProcessorIconTooltipRequest(vizNode.data.primaryNodeId?.name),
+        getTitleRequest(effectiveCatalogKind, titleIdentifier, titleComponentName),
+        vizNode.fetchSchema(),
+        vizNode.fetchNodeDefinition(),
+      ]);
 
     NodeEnrichmentService.applyEnrichmentResults(vizNode, {
       iconResult,
@@ -123,6 +125,7 @@ export class NodeEnrichmentService {
       processorTooltipResult,
       titleResult,
       schemaResult,
+      definitionResult,
     });
   }
 
@@ -134,6 +137,7 @@ export class NodeEnrichmentService {
       processorTooltipResult,
       titleResult,
       schemaResult,
+      definitionResult,
     }: {
       iconResult: PromiseSettledResult<{ icon: string; alt: string }>;
       tooltipResult: PromiseSettledResult<string>;
@@ -142,6 +146,7 @@ export class NodeEnrichmentService {
       schemaResult: PromiseSettledResult<
         ReturnType<IVisualizationNode['fetchSchema']> extends Promise<infer R> ? R : never
       >;
+      definitionResult: PromiseSettledResult<unknown>;
     },
   ): void {
     if (iconResult.status === 'fulfilled') {
@@ -176,6 +181,12 @@ export class NodeEnrichmentService {
       vizNode.data.schema = schemaResult.value;
     } else {
       console.warn(`Failed to fetch schema for ${vizNode.data.name}:`, schemaResult.reason);
+    }
+
+    if (definitionResult.status === 'fulfilled') {
+      vizNode.data.definition = definitionResult.value;
+    } else {
+      console.warn(`Failed to fetch definition for ${vizNode.data.name}:`, definitionResult.reason);
     }
   }
 }

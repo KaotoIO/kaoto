@@ -65,12 +65,12 @@ export class CamelRestConfigurationVisualEntity implements RestEntity {
     return definition?.propertiesSchema;
   }
 
-  getNodeDefinition(): unknown {
-    return { ...this.restConfigurationDef.restConfiguration };
+  async fetchNodeDefinition(): Promise<unknown> {
+    return undefined;
   }
 
-  async getParsedDefinition(): Promise<unknown> {
-    return this.getNodeDefinition();
+  getNodeDefinition(): unknown {
+    return { ...this.restConfigurationDef.restConfiguration };
   }
 
   updateModel(path: string | undefined, value: unknown): void {

@@ -108,6 +108,37 @@ describe('VisualizationNode', () => {
     });
   });
 
+  it('should delegate fetchNodeDefinition() to the underlying BaseVisualCamelEntity and store the result', async () => {
+    const expectedDefinition = { uri: 'timer', parameters: { timerName: 'tick' } };
+    const fetchNodeDefinitionSpy = vi.fn().mockResolvedValue(expectedDefinition);
+    const visualEntity = {
+      fetchNodeDefinition: fetchNodeDefinitionSpy,
+    } as unknown as BaseVisualEntity;
+
+    node = createVisualizationNode('test', {
+      name: 'timer',
+      path: 'route.from',
+      entity: visualEntity,
+      isPlaceholder: false,
+      isGroup: false,
+      title: '',
+      description: '',
+      iconUrl: '',
+      primaryNodeId: { name: 'from', catalogKind: CatalogKind.Pattern },
+      secondaryNodeId: { name: 'timer', catalogKind: CatalogKind.Component },
+    });
+
+    const result = await node.fetchNodeDefinition();
+
+    expect(fetchNodeDefinitionSpy).toHaveBeenCalledWith(node.data.path, {
+      primaryNodeId: node.data.primaryNodeId,
+      secondaryNodeId: node.data.secondaryNodeId,
+      tertiaryNodeId: node.data.tertiaryNodeId,
+    });
+    expect(result).toBe(expectedDefinition);
+    expect(node.data.definition).toBe(expectedDefinition);
+  });
+
   it('should delegate getOmitFormFields() to the underlying BaseVisualCamelEntity', () => {
     const getOmitFormFieldsSpy = vi.fn();
     const visualEntity = {

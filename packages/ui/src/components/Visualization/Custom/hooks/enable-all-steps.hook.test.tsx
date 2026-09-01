@@ -146,7 +146,7 @@ describe('useEnableAllSteps', () => {
     expect(filterFunction?.(disabledNode)).toBe(true);
   });
 
-  it('should enable all disabled steps when onEnableAllSteps is called', async () => {
+  it('should enable all disabled steps when onEnableAllSteps is called', () => {
     const disabledNode1 = createVisualizationNode('disabled-step-1', {
       name: EntityType.Route,
       disabled: true,
@@ -177,8 +177,8 @@ describe('useEnableAllSteps', () => {
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
-    await act(async () => {
-      await result.current.onEnableAllSteps();
+    act(() => {
+      result.current.onEnableAllSteps();
     });
 
     expect(mockSetValue).toHaveBeenCalledTimes(2);
@@ -189,7 +189,7 @@ describe('useEnableAllSteps', () => {
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
   });
 
-  it('should handle nodes with empty definition objects', async () => {
+  it('should handle nodes with empty definition objects', () => {
     const disabledNode = createVisualizationNode('disabled-step', {
       name: EntityType.Route,
       isPlaceholder: false,
@@ -206,8 +206,8 @@ describe('useEnableAllSteps', () => {
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
-    await act(async () => {
-      await result.current.onEnableAllSteps();
+    act(() => {
+      result.current.onEnableAllSteps();
     });
 
     expect(mockSetValue).toHaveBeenCalledWith(mockDefinition, 'disabled', false);
@@ -215,7 +215,7 @@ describe('useEnableAllSteps', () => {
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
   });
 
-  it('should handle nodes with undefined definition', async () => {
+  it('should handle nodes with undefined definition', () => {
     const disabledNode = createVisualizationNode('disabled-step', {
       name: EntityType.Route,
       isPlaceholder: false,
@@ -231,8 +231,8 @@ describe('useEnableAllSteps', () => {
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
-    await act(async () => {
-      await result.current.onEnableAllSteps();
+    act(() => {
+      result.current.onEnableAllSteps();
     });
 
     expect(mockSetValue).toHaveBeenCalledWith({}, 'disabled', false);
@@ -240,12 +240,12 @@ describe('useEnableAllSteps', () => {
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
   });
 
-  it('should not call updateEntitiesFromCamelResource when no disabled steps', async () => {
+  it('should not call updateEntitiesFromCamelResource when no disabled steps', () => {
     mockGetVisualizationNodesFromGraph.mockReturnValue([]);
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
-    void result.current.onEnableAllSteps();
+    result.current.onEnableAllSteps();
 
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
   });

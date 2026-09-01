@@ -227,7 +227,7 @@ describe('AbstractCamelVisualEntity', () => {
 
       const result = entity.getNodeDefinition('route.from', kameletFromIds);
 
-      // getNodeDefinition returns raw form — no URI split here, that's getParsedDefinition's job
+      // getNodeDefinition returns raw form — no URI split; normalizeDefinition is handled by fetchNodeDefinition
       expect(result).toEqual(camelRouteWithKameletJson.route.from);
     });
 
@@ -256,26 +256,29 @@ describe('AbstractCamelVisualEntity', () => {
     });
   });
 
-  describe('getParsedDefinition', () => {
+  describe('fetchNodeDefinition', () => {
+    it('should return undefined when path is not provided', async () => {
+      const result = await abstractVisualEntity.fetchNodeDefinition(undefined, {});
+      expect(result).toBeUndefined();
+    });
+
     it('should return raw definition for a processor node with no secondaryNodeId', async () => {
-      // Use a route entity with a setHeader step — setHeader is a processor, not a component
-      const entity = new CamelRouteVisualEntity(cloneDeep(camelRouteJson));
       const ids = {
         primaryNodeId: { name: 'setHeader', catalogKind: CatalogKind.Pattern },
       };
-      const result = await entity.getParsedDefinition('route.from.steps.0.setHeader', ids);
-      // No secondaryNodeId => no componentName => returns raw form unchanged
-      expect(result).toEqual(entity.getNodeDefinition('route.from.steps.0.setHeader', ids));
+      const result = await abstractVisualEntity.fetchNodeDefinition('route.from.steps.0.setHeader', ids);
+      // setHeader has no component; normalizeDefinition returns the raw object (with null-param guard applied)
+      expect(result).toEqual(abstractVisualEntity.getNodeDefinition('route.from.steps.0.setHeader', ids));
     });
 
-    it('should split URI for a component node with secondaryNodeId', async () => {
+    it('should split URI for a component node', async () => {
       const routeWithUri = { route: { from: { uri: 'timer:tick?period=1000', steps: [] } } };
       const entity = new CamelRouteVisualEntity(cloneDeep(routeWithUri));
       const ids = {
         primaryNodeId: { name: 'from', catalogKind: CatalogKind.Pattern },
         secondaryNodeId: { name: 'timer', catalogKind: CatalogKind.Component },
       };
-      const result = (await entity.getParsedDefinition('route.from', ids)) as Record<string, unknown>;
+      const result = (await entity.fetchNodeDefinition('route.from', ids)) as Record<string, unknown>;
       expect(result.uri).toBe('timer');
       expect((result.parameters as Record<string, unknown>).timerName).toBe('tick');
       expect((result.parameters as Record<string, unknown>).period).toBe(1000);

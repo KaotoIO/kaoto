@@ -87,7 +87,7 @@ describe('CanvasForm', () => {
       isPlaceholder: false,
     });
 
-    (noSchemaVizNode as IVisualizationNode).getParsedDefinition = vi.fn().mockResolvedValue(undefined);
+    (noSchemaVizNode as IVisualizationNode).data.definition = undefined;
 
     const { Provider } = await TestProvidersWrapper();
     const { container } = render(
@@ -114,7 +114,7 @@ describe('CanvasForm', () => {
       isPlaceholder: false,
     });
 
-    (noSchemaVizNode as IVisualizationNode).getParsedDefinition = vi.fn().mockResolvedValue(null);
+    (noSchemaVizNode as IVisualizationNode).data.definition = undefined;
 
     const { Provider } = await TestProvidersWrapper();
     const { container } = render(
@@ -125,7 +125,6 @@ describe('CanvasForm', () => {
       </Provider>,
     );
 
-    await screen.findByText('null');
     expect(container).toMatchSnapshot();
   });
 
@@ -242,6 +241,7 @@ describe('CanvasForm', () => {
     const { nodes } = FlowService.getFlowDiagram('test', await kameletVisualEntity.toVizNode());
     const lastVizNode = nodes[nodes.length - 1].data!.vizNode!;
     await lastVizNode.fetchSchema();
+    await lastVizNode.fetchNodeDefinition();
 
     const { Provider } = await TestProvidersWrapper({
       visibleFlowsContext: { allFlowsVisible: true, visibleFlows: { [flowId]: true }, visualFlowsApi },
@@ -490,13 +490,20 @@ describe('CanvasForm', () => {
     it('normal text field', async () => {
       const { Provider } = await TestProvidersWrapper();
 
-      render(
-        <Provider>
-          <CanvasFormTabsProvider>
-            <CanvasForm vizNode={vizNode} onClose={vi.fn()} />
-          </CanvasFormTabsProvider>
-        </Provider>,
-      );
+      // The form opens on the Required tab by default, which means showRequiredFields()
+      // would be a no-op click that provides no re-render to flush the Suspense boundary
+      // inside MultiValuePropertyEditor. Wrapping render in act() drains all pending
+      // microtasks (including the DynamicCatalogRegistry promise) before asserting.
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <Provider>
+            <CanvasFormTabsProvider>
+              <CanvasForm vizNode={vizNode} onClose={vi.fn()} />
+            </CanvasFormTabsProvider>
+          </Provider>,
+        );
+      });
 
       const formPageObject = new KaotoFormPageObject(screen, act);
 
