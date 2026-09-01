@@ -119,13 +119,19 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     return schema;
   }
 
-  async getParsedDefinition(): Promise<unknown> {
-    const { primaryNodeId, secondaryNodeId, tertiaryNodeId } = this.data;
-    type EntityWithParsed = {
-      getParsedDefinition?: (path?: string, ids?: IVisualizationNodeIds) => Promise<unknown>;
+  async fetchNodeDefinition(): Promise<unknown> {
+    const baseEntity = this.getBaseEntity();
+    if (!baseEntity) {
+      return undefined;
+    }
+    const ids: IVisualizationNodeIds = {
+      primaryNodeId: this.data.primaryNodeId,
+      secondaryNodeId: this.data.secondaryNodeId,
+      tertiaryNodeId: this.data.tertiaryNodeId,
     };
-    const entity = this.getBaseEntity() as EntityWithParsed | undefined;
-    return entity?.getParsedDefinition?.(this.data.path, { primaryNodeId, secondaryNodeId, tertiaryNodeId });
+    const definition = await baseEntity.fetchNodeDefinition(this.data.path, ids);
+    this.data.definition = definition;
+    return definition;
   }
 
   getNodeDefinition(): unknown {

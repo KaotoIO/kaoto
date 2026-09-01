@@ -396,7 +396,7 @@ describe('CanvasFormBody', () => {
         },
       },
     };
-    (vizNode as IVisualizationNode).getParsedDefinition = vi.fn().mockResolvedValue({ name: 'test-component' });
+    vizNode.data.definition = { name: 'test-component' };
 
     const wrapper = render(
       <Provider>

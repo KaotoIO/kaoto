@@ -125,6 +125,30 @@ describe('KameletVisualEntity', () => {
     });
   });
 
+  describe('fetchNodeDefinition', () => {
+    it('should return the custom schema (with kameletProperties) when querying ROOT_PATH', async () => {
+      const kamelet = new KameletVisualEntity(kameletDef);
+      const result = await kamelet.fetchNodeDefinition(KameletVisualEntity.ROOT_PATH);
+
+      expect(result).toMatchObject({
+        name: 'My Kamelet',
+        title: 'My Kamelet',
+        kameletProperties: expect.arrayContaining([
+          expect.objectContaining({ name: 'schedule' }),
+          expect.objectContaining({ name: 'message' }),
+        ]),
+      });
+    });
+
+    it('should delegate to AbstractCamelVisualEntity for non-root paths', async () => {
+      const superSpy = vi.spyOn(AbstractCamelVisualEntity.prototype, 'fetchNodeDefinition');
+      const kamelet = new KameletVisualEntity(kameletDef);
+      await kamelet.fetchNodeDefinition('template.from');
+
+      expect(superSpy).toHaveBeenCalledWith('template.from', undefined);
+    });
+  });
+
   it('should return the kamelet root schema when querying with KameletConfiguration primaryNodeId', async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     setupDynamicCatalogRegistry(catalogsMap);

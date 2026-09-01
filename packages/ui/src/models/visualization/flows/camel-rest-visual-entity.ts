@@ -4,7 +4,6 @@ import { isDefined } from '@kaoto/forms';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { getValue, setValue } from '../../../utils';
-import { uriDefinitionParser } from '../../camel/parsers/uri-definition.parser';
 import { EntityType } from '../../entities/base-entity';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { REST_DSL_VERBS, RestMethods, SPECIAL_PROCESSORS_PARENTS_MAP } from '../../special-processors.constants';
@@ -96,20 +95,6 @@ export class CamelRestVisualEntity implements RestEntity {
     }
 
     return getValue(this.restDef, path);
-  }
-
-  async getParsedDefinition(path?: string, ids?: IVisualizationNodeIds): Promise<unknown> {
-    const definition = this.getNodeDefinition(path, ids);
-    if (definition == null) return definition;
-
-    const componentName =
-      ids?.secondaryNodeId?.name === 'kamelet' && ids?.tertiaryNodeId?.name !== undefined
-        ? `kamelet:${ids.tertiaryNodeId.name}`
-        : ids?.secondaryNodeId?.name;
-
-    if (!componentName) return definition;
-
-    return uriDefinitionParser(componentName, definition as Record<string, unknown>);
   }
 
   updateModel(path: string | undefined, value: unknown): void {
