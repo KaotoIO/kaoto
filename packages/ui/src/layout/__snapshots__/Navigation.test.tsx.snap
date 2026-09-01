@@ -374,7 +374,7 @@ exports[`Navigation Component > navigation sidebar for: Kamelet 1`] = `
                     </a>
                   </li>
                   <li
-                    class="pf-v6-c-nav__item"
+                    class="pf-v6-c-nav__item pf-v6-u-hidden"
                     data-ouia-component-id="OUIA-Generated-NavItem-_r_16_"
                     data-ouia-component-type="PF6/NavItem"
                     data-ouia-safe="true"
@@ -650,7 +650,7 @@ exports[`Navigation Component > navigation sidebar for: KameletBinding 1`] = `
                     </a>
                   </li>
                   <li
-                    class="pf-v6-c-nav__item"
+                    class="pf-v6-c-nav__item pf-v6-u-hidden"
                     data-ouia-component-id="OUIA-Generated-NavItem-_r_26_"
                     data-ouia-component-type="PF6/NavItem"
                     data-ouia-safe="true"
@@ -926,7 +926,7 @@ exports[`Navigation Component > navigation sidebar for: Pipe 1`] = `
                     </a>
                   </li>
                   <li
-                    class="pf-v6-c-nav__item"
+                    class="pf-v6-c-nav__item pf-v6-u-hidden"
                     data-ouia-component-id="OUIA-Generated-NavItem-_r_1m_"
                     data-ouia-component-type="PF6/NavItem"
                     data-ouia-safe="true"
