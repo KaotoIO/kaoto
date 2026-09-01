@@ -22,7 +22,11 @@ export const Navigation: FunctionComponent<INavigationSidebar> = (props) => {
         children: [
           { title: 'Design', to: Links.Home },
           { title: 'Source Code', to: Links.SourceCode },
-          { title: 'Topology', to: Links.Topology },
+          {
+            title: 'Topology',
+            to: Links.Topology,
+            hidden: () => !NAVIGATION_ELEMENTS.Topology.includes(currentSchemaType),
+          },
         ],
       },
       {
@@ -136,4 +140,5 @@ const NAVIGATION_ELEMENTS = {
   ],
   PipeErrorHandler: [SourceSchemaType.KameletBinding, SourceSchemaType.Pipe],
   DataMapper: [SourceSchemaType.RouteYaml, SourceSchemaType.Kamelet],
+  Topology: [SourceSchemaType.RouteYaml, SourceSchemaType.RouteXml, SourceSchemaType.Integration],
 };
