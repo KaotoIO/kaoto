@@ -3,7 +3,7 @@ import { parse } from 'yaml';
 
 import { ITile, TileFilter } from '../../components/Catalog/Catalog.models';
 import { CatalogKind } from '../catalog-kind';
-import { BaseEntity, PipeSpecErrorHandler } from '../entities';
+import { BaseEntity, EntityType, PipeSpecErrorHandler } from '../entities';
 import { AddStepMode, IVisualizationNodeData } from '../visualization/base-visual-entity';
 import { PipeVisualEntity } from '../visualization/flows';
 import { FlowTemplateService } from '../visualization/flows/support/flow-templates-service';
@@ -54,6 +54,22 @@ export class PipeResource extends CamelKResource {
 
   getType(): SourceSchemaType {
     return SourceSchemaType.Pipe;
+  }
+
+  addNewEntity(_entityType?: EntityType, entityTemplate?: unknown): string {
+    if (entityTemplate) {
+      this.pipe = entityTemplate as PipeType;
+      this.resource = this.pipe;
+      if (!this.pipe.spec) {
+        this.pipe.spec = {};
+      }
+      this.flow = new PipeVisualEntity(this.pipe);
+      this.errorHandler = this.pipe.spec.errorHandler
+        ? new PipeErrorHandlerEntity(this.pipe.spec as PipeSpecErrorHandler)
+        : undefined;
+      this.syncMetadataFromResource();
+    }
+    return this.flow?.id ?? '';
   }
 
   refreshVisualMetadata() {

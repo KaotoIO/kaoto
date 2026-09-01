@@ -1,3 +1,5 @@
+import { cloneDeep } from 'lodash';
+
 import { pipeJson } from '../../stubs/pipe';
 import { PipeResource } from './pipe-resource';
 import { SourceSchemaType } from './source-schema-type';
@@ -55,6 +57,46 @@ describe('PipeResource', () => {
       const compatibleRuntimes = resource.getCompatibleRuntimes();
 
       expect(compatibleRuntimes).toEqual(['Main', 'Quarkus', 'Spring Boot']);
+    });
+  });
+
+  describe('addNewEntity', () => {
+    it('should apply a pasted pipe template including intermediate steps', async () => {
+      const resource = new PipeResource();
+      await resource.initialize();
+      resource.removeEntity();
+
+      const id = resource.addNewEntity(undefined, cloneDeep(pipeJson));
+
+      expect(id).toBe('webhook-binding');
+      const vis = resource.getVisualEntities()[0];
+      expect(vis.pipe.spec!.source!.ref!.name).toBe('webhook-source');
+      expect(vis.pipe.spec!.steps![0].ref?.name).toBe('delay-action');
+      expect(vis.pipe.spec!.sink!.ref!.name).toBe('log-sink');
+    });
+
+    it('should rebuild the error handler from the replacement template', async () => {
+      const resource = new PipeResource();
+      await resource.initialize();
+      resource.createErrorHandlerEntity();
+
+      resource.addNewEntity(undefined, cloneDeep(pipeJson));
+
+      expect(resource.getErrorHandlerEntity()?.parent.errorHandler!.log).toBeDefined();
+    });
+
+    it('should clear the error handler when the replacement template has none', async () => {
+      const resource = new PipeResource(cloneDeep(pipeJson));
+      await resource.initialize();
+      expect(resource.getErrorHandlerEntity()).toBeDefined();
+
+      const withoutErrorHandler = cloneDeep(pipeJson);
+      delete withoutErrorHandler.spec!.errorHandler;
+
+      resource.addNewEntity(undefined, withoutErrorHandler);
+
+      expect(resource.getErrorHandlerEntity()).toBeUndefined();
+      expect(resource.toJSON().spec!.errorHandler).toBeUndefined();
     });
   });
 
