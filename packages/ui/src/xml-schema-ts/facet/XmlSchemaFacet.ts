@@ -1,16 +1,18 @@
 import { XmlSchemaAnnotated } from '../XmlSchemaAnnotated';
 
+type FacetValue = object | string | number | bigint | null;
+
 export abstract class XmlSchemaFacet extends XmlSchemaAnnotated {
   fixed: boolean | undefined;
-  value: object | string | number | bigint | null;
+  value: FacetValue;
 
-  constructor(value?: object | string | number | bigint | null, fixed?: boolean) {
+  constructor(value?: FacetValue, fixed?: boolean) {
     super();
     this.value = value || null;
     this.fixed = fixed;
   }
 
-  getValue(): object | string | number | bigint | null {
+  getValue(): FacetValue {
     return this.value;
   }
   isFixed(): boolean {
@@ -19,7 +21,7 @@ export abstract class XmlSchemaFacet extends XmlSchemaAnnotated {
   setFixed(fixed: boolean) {
     this.fixed = fixed;
   }
-  setValue(value: object | string | number | bigint | null) {
+  setValue(value: FacetValue) {
     this.value = value;
   }
 }
