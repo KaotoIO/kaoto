@@ -1,0 +1,12 @@
+- route:
+    id: route-2167
+    from:
+      id: from-7598
+      uri: timer
+      parameters:
+        period: '1000'
+        timerName: template
+      steps:
+        - log:
+            id: log-3310
+            message: ${body}

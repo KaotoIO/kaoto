@@ -1,0 +1,9 @@
+- route:
+    id: camelroute51
+    from:
+      id: timerID
+      uri: timer:demo
+      parameters: {}
+      steps:
+        - log:
+            message: my message logged

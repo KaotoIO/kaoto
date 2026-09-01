@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run (spring-boot:run)",
+      "type": "node",
+      "request": "launch",
+      "runtimeArgs": ["-e", "process.exit(0)"],
+      "preLaunchTask": "Run (spring-boot:run)",
+      "console": "internalConsole",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "name": "Deploy on OpenShift (Spring Boot)",
+      "type": "node",
+      "request": "launch",
+      "runtimeArgs": ["-e", "process.exit(0)"],
+      "preLaunchTask": "Deploy on OpenShift (Spring Boot)",
+      "console": "internalConsole",
+      "internalConsoleOptions": "neverOpen"
+    }
+  ]
+}

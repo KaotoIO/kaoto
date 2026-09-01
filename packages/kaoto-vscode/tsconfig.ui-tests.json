@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "ignoreDeprecations": "5.0",
+    "rootDir": "src/ui-test",
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "declarationMap": true,
+    "resolveJsonModule": true,
+    "outDir": "out"
+  },
+  "include": ["src/ui-test"]
+}

@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "exclude": ["node_modules", ".vscode-test", "test-resources"],
+  "include": ["src"],
+  "compilerOptions": {
+    /* Build target — webpack bundles this, so override the base's ESNext/noEmit/isolatedModules */
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "target": "ES2023",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": false,
+    "isolatedModules": false,
+
+    /* kaoto-vscode-specific flags */
+    "removeComments": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": true
+  }
+}

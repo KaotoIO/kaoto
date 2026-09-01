@@ -1,0 +1,40 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run (quarkus:dev)",
+      "type": "shell",
+      "command": "./mvnw",
+      "args": ["quarkus:dev"],
+      "isBackground": true,
+      "problemMatcher": [
+        {
+          "pattern": {
+            "regexp": ".",
+            "file": 1,
+            "location": 2,
+            "message": 3
+          },
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": ".",
+            "endsPattern": "Started"
+          }
+        }
+      ],
+      "presentation": {
+        "reveal": "always"
+      }
+    },
+    {
+      "label": "Deploy on OpenShift (Quarkus)",
+      "type": "shell",
+      "command": "./mvnw",
+      "args": ["package", "-Dquarkus.openshift.deploy=true"],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always"
+      }
+    }
+  ]
+}

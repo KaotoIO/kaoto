@@ -1,0 +1,1476 @@
+{
+  "name": "vscode-kaoto",
+  "publisher": "redhat",
+  "displayName": "Kaoto",
+  "description": "Kaoto - The Integration Designer for Apache Camel",
+  "version": "2.12.0-dev",
+  "federatedModuleName": "kaoto",
+  "preview": false,
+  "private": true,
+  "license": "Apache-2.0",
+  "repository": "https://github.com/KaotoIO/kaoto",
+  "repositoryDirectory": "packages/kaoto-vscode",
+  "bugs": "https://github.com/KaotoIO/kaoto/issues",
+  "homepage": "https://kaoto.io/",
+  "author": "The Kaoto Team",
+  "scripts": {
+    "lint": "eslint src",
+    "build:prod": "rimraf dist && yarn run compile && yarn run lint",
+    "build:dev": "rimraf dist && yarn run watch && yarn run lint",
+    "build:test:ui": "rimraf ./out && tsc --project tsconfig.ui-tests.json --skipLibCheck --sourceMap true && yarn run lint",
+    "build:test:unit": "rimraf ./out && tsc --project tsconfig.unit-tests.json --skipLibCheck --sourceMap true && yarn run lint",
+    "build:vsix": "yarn vsce package --no-dependencies --yarn",
+    "compile": "webpack",
+    "sbom:generate": "cdxgen -o manifest.json",
+    "watch": "webpack --env dev",
+    "run:webmode": "yarn vscode-test-web --browserType=chromium --extensionDevelopmentPath=. --open-devtools ./resources",
+    "test:unit": "yarn build:test:unit && vscode-test",
+    "test:ui": "yarn build:test:ui && extest setup-and-run",
+    "test:ui:clean": "rimraf ./test-resources && rimraf ./out && rimraf *.vsix"
+  },
+  "dependencies": {
+    "@kaoto/camel-catalog": "^0.9.11",
+    "@kaoto/kaoto": "workspace:*",
+    "@kie-tools-core/backend": "10.0.0",
+    "@kie-tools-core/editor": "10.0.0",
+    "@kie-tools-core/i18n": "10.0.0",
+    "@kie-tools-core/vscode-extension": "10.0.0",
+    "@patternfly/patternfly": "^6.5.2",
+    "@patternfly/react-code-editor": "^6.5.1",
+    "@patternfly/react-core": "^6.5.1",
+    "@patternfly/react-drag-drop": "^6.5.1",
+    "@patternfly/react-icons": "^6.5.1",
+    "@patternfly/react-table": "^6.5.1",
+    "@patternfly/react-topology": "^6.5.0",
+    "@redhat-developer/vscode-extension-proposals": "^0.0.23",
+    "@redhat-developer/vscode-redhat-telemetry": "^0.10.2",
+    "compare-versions": "^6.1.1",
+    "dompurify": "3.3.2",
+    "get-port-please": "^3.2.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "valid-filename": "5.0.0",
+    "wait-on": "^9.1.0",
+    "yaml": "^2.9.0"
+  },
+  "devDependencies": {
+    "@cyclonedx/cdxgen": "12.8.4",
+    "@types/chai": "^4.3.20",
+    "@types/fs-extra": "^11.0.4",
+    "@types/mocha": "^10.0.10",
+    "@types/openapi-v3": "^3.0.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@types/vscode": "^1.100.0",
+    "@types/wait-on": "^5.3.4",
+    "@typescript-eslint/eslint-plugin": "^8.67.0",
+    "@typescript-eslint/parser": "^8.67.0",
+    "@vscode/test-cli": "^0.0.15",
+    "@vscode/test-electron": "^3.1.0",
+    "@vscode/test-web": "^0.0.81",
+    "@vscode/vsce": "^3.9.2",
+    "async-wait-until": "^2.0.31",
+    "buffer": "^6.0.3",
+    "chai": "^4.3.10",
+    "constants-browserify": "^1.0.0",
+    "copy-webpack-plugin": "^14.0.0",
+    "css-loader": "6.8.1",
+    "eslint": "^10.9.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-chai-friendly": "^1.2.1",
+    "eslint-plugin-prettier": "^5.5.6",
+    "fs-extra": "^11.4.0",
+    "mocha": "^11.8.0",
+    "mocha-jenkins-reporter": "^0.4.8",
+    "node-fetch": "2",
+    "os-browserify": "^0.3.0",
+    "path-browserify": "^1.0.1",
+    "prettier": "3.7.4",
+    "rimraf": "^6.1.3",
+    "sass": "^1.103.1",
+    "sass-loader": "^16.0.4",
+    "source-map-loader": "4.0.1",
+    "style-loader": "3.3.3",
+    "ts-loader": "9.4.4",
+    "typescript": "^5.5.4",
+    "vscode-extension-tester": "^8.25.0",
+    "web-worker": "^1.5.0",
+    "webpack": "5.109.2",
+    "webpack-cli": "7.2.2",
+    "webpack-merge": "6.0.1"
+  },
+  "icon": "icon.png",
+  "main": "./dist/extension/extension.js",
+  "browser": "./dist/extension/extensionWeb.js",
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "Kaoto",
+    "Apache Camel",
+    "Low Code Integration",
+    "No Code Integration"
+  ],
+  "activationEvents": [
+    "workspaceContains:**/*.camel.yaml",
+    "workspaceContains:**/*.camel.yml",
+    "workspaceContains:**/*.kamelet.yaml",
+    "workspaceContains:**/*.kamelet.yml",
+    "workspaceContains:**/*.pipe.yaml",
+    "workspaceContains:**/*.pipe.yml",
+    "workspaceContains:**/*-pipe.yaml",
+    "workspaceContains:**/*-pipe.yml",
+    "workspaceContains:**/*.camel.xml",
+    "workspaceContains:**/*.citrus.yaml",
+    "workspaceContains:**/*.citrus.test.yaml",
+    "workspaceContains:**/*.citrus.it.yaml",
+    "workspaceContains:**/*.citrus-test.yaml",
+    "workspaceContains:**/*.citrus-it.yaml",
+    "onStartupFinished"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false
+    },
+    "virtualWorkspaces": {
+      "supported": "limited",
+      "description": "In virtual workspaces, actions which requires Camel CLI cannot be working because of missing Shell Execution environment."
+    }
+  },
+  "contributes": {
+    "icons": {
+      "export-icon": {
+        "description": "Export icon",
+        "default": {
+          "fontPath": "./icons/integrations/export-icons.woff",
+          "fontCharacter": "\\E900"
+        }
+      }
+    },
+    "walkthroughs": [
+      {
+        "id": "kaoto.walkthrough",
+        "title": "Kaoto first steps",
+        "description": "Let's start with Kaoto Integration Designer",
+        "icon": "icons/kaoto.png",
+        "steps": [
+          {
+            "id": "kaoto.walkthrough.step0",
+            "title": "Open Kaoto view",
+            "description": "Click the **Kaoto icon** in the Activity Bar to open the Kaoto view.\n\n[Open Kaoto View](command:workbench.view.extension.kaoto-view)",
+            "media": {
+              "image": "images/walkthrough/activity-bar.png",
+              "altText": "Kaoto Activity Bar icon"
+            },
+            "completionEvents": [
+              "onView:kaoto.integrations",
+              "onView:kaoto.deployments",
+              "onView:kaoto.help",
+              "onCommand:workbench.view.extension.kaoto-view"
+            ]
+          },
+          {
+            "id": "kaoto.walkthrough.step1",
+            "title": "Open workspace",
+            "description": "Open an existing workspace or create a new one.\n\n[Open Workspace](command:vscode.openFolder)",
+            "media": {
+              "image": "images/walkthrough/open-workspace.png",
+              "altText": "Open Workspace"
+            },
+            "when": "workspaceFolderCount == 0",
+            "completionEvents": [
+              "onWorkspaceOpen",
+              "onCommand:workbench.action.openWorkspace",
+              "onCommand:vscode.openFolder"
+            ]
+          },
+          {
+            "id": "kaoto.walkthrough.step2",
+            "title": "Create a new Camel Route",
+            "description": "Click the ``New File...`` button inside Integrations view to create a new Camel Route.\n\n[New Camel Route...](command:kaoto.new.camel.file)",
+            "media": {
+              "image": "images/walkthrough/new-camel-route.png",
+              "altText": "New Camel Route"
+            },
+            "completionEvents": [
+              "onCommand:kaoto.new.camel.file",
+              "onCommand:kaoto.camel.jbang.init.route",
+              "onCommand:kaoto.camel.jbang.init.kamelet.yaml",
+              "onCommand:kaoto.camel.jbang.init.pipe.yaml"
+            ]
+          },
+          {
+            "id": "kaoto.walkthrough.step3",
+            "title": "Run the Camel Route",
+            "description": "Click the ``Run`` button inside Integrations view to run the Camel Route.",
+            "media": {
+              "image": "images/walkthrough/run-camel-route.png",
+              "altText": "Run Camel Route"
+            },
+            "completionEvents": [
+              "onCommand:kaoto.integrations.run"
+            ]
+          },
+          {
+            "id": "kaoto.walkthrough.step4",
+            "title": "Pause the Camel Route",
+            "description": "Click the ``Pause`` button inside Deployments view to pause the Camel Route.",
+            "media": {
+              "image": "images/walkthrough/pause-camel-route.png",
+              "altText": "Pause Camel Route"
+            },
+            "completionEvents": [
+              "onCommand:kaoto.deployments.route.suspend"
+            ]
+          },
+          {
+            "id": "kaoto.walkthrough.step5",
+            "title": "Resume the Camel Route",
+            "description": "Click the ``Resume`` button inside Deployments view to resume the Camel Route.",
+            "media": {
+              "image": "images/walkthrough/resume-camel-route.png",
+              "altText": "Resume Camel Route"
+            },
+            "completionEvents": [
+              "onCommand:kaoto.deployments.route.resume"
+            ]
+          },
+          {
+            "id": "kaoto.walkthrough.step6",
+            "title": "Terminate the Camel Route",
+            "description": "Click the ``Terminate`` button inside Deployments view to terminate the Camel Route.",
+            "media": {
+              "image": "images/walkthrough/terminate-camel-route.png",
+              "altText": "Terminate Camel Route"
+            },
+            "completionEvents": [
+              "onCommand:kaoto.deployments.stop"
+            ]
+          },
+          {
+            "id": "kaoto.walkthrough.step7",
+            "title": "Show the Camel Route source code",
+            "description": "Click the ``Show Source`` button inside Integrations view or click the Source Code icon in the editor title to show the Camel Route source code.",
+            "media": {
+              "image": "images/walkthrough/show-source-code.png",
+              "altText": "Show Camel Route Source Code"
+            },
+            "completionEvents": [
+              "onCommand:kaoto.integrations.showSource",
+              "onCommand:kaoto.open.source"
+            ]
+          },
+          {
+            "id": "kaoto.walkthrough.step8",
+            "title": "Explore extension settings",
+            "description": "Explore extension settings to customize Kaoto behavior.\n\n[Open Kaoto Settings](command:workbench.action.openSettings?%5B%22@ext:redhat.vscode-kaoto%22%5D)",
+            "media": {
+              "image": "images/walkthrough/extension-settings.png",
+              "altText": "Explore Extension Settings"
+            },
+            "completionEvents": [
+              "onCommand:workbench.action.openSettings"
+            ]
+          },
+          {
+            "id": "kaoto.walkthrough.step9",
+            "title": "Create a new Citrus Test",
+            "description": "Click the ``New Citrus Test...`` button inside Tests view to create a new Citrus Test.",
+            "media": {
+              "image": "images/walkthrough/new-citrus-test.png",
+              "altText": "New Citrus Test"
+            },
+            "completionEvents": [
+              "onCommand:kaoto.citrus.jbang.init.test"
+            ]
+          },
+          {
+            "id": "kaoto.walkthrough.step10",
+            "title": "Run a Citrus Test(s)",
+            "description": "Click the ``Run`` button inside Tests view to run a Citrus Test(s).",
+            "media": {
+              "image": "images/walkthrough/run-citrus-test.png",
+              "altText": "Run Citrus Test"
+            },
+            "completionEvents": [
+              "onCommand:kaoto.tests.run",
+              "onCommand:kaoto.tests.run.folder"
+            ]
+          },
+          {
+            "id": "kaoto.walkthrough.step11",
+            "title": "Check out the documentation",
+            "description": "Check out the documentation to learn more about Kaoto.\n\n[Open Documentation](https://kaoto.io/docs/)",
+            "media": {
+              "image": "images/logo-kaoto.png",
+              "altText": "Check out the Documentation"
+            },
+            "completionEvents": [
+              "onLink:https://kaoto.io/docs/"
+            ]
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "command": "kaoto.whatsNew.show",
+        "title": "Show What's New",
+        "category": "Kaoto"
+      },
+      {
+        "command": "kaoto.selectCamelCatalog",
+        "title": "Select Camel Catalog Version",
+        "category": "Kaoto"
+      },
+      {
+        "command": "kaoto.open",
+        "title": "Open with Kaoto Graphical Editor for Camel"
+      },
+      {
+        "command": "kaoto.open.source",
+        "title": "Open Source Code",
+        "shortTitle": "Show Source",
+        "enablement": "activeCustomEditorId == webviewEditorsKaoto",
+        "category": "Kaoto",
+        "icon": {
+          "dark": "./icons/commands/source_inactive_dark.png",
+          "light": "./icons/commands/source_inactive_light.png"
+        }
+      },
+      {
+        "command": "kaoto.close.source",
+        "title": "Close Source Code",
+        "shortTitle": "Close Source",
+        "enablement": "(resourceFilename =~ /\\.(camel|kamelet|pipe).yaml$/ || resourceFilename =~ /\\-pipe.yaml$/ || resourceFilename =~ /\\.camel.xml$/ || resourceFilename =~ /\\.citrus(-test|-it|\\.test|\\.it)?\\.yaml$/)",
+        "category": "Kaoto",
+        "icon": "./icons/commands/source_active.png"
+      },
+      {
+        "command": "kaoto.new.camel.file",
+        "title": "Camel File...",
+        "category": "Kaoto",
+        "enablement": "false",
+        "icon": "$(new-file)"
+      },
+      {
+        "command": "kaoto.camel.jbang.init.route",
+        "shortTitle": "New Camel Route...",
+        "title": "Create a Camel Route using YAML DSL",
+        "category": "Kaoto"
+      },
+      {
+        "command": "kaoto.camel.jbang.init.kamelet.yaml",
+        "shortTitle": "New Kamelet...",
+        "title": "Create a Kamelet using YAML DSL",
+        "category": "Kaoto"
+      },
+      {
+        "command": "kaoto.camel.jbang.init.pipe.yaml",
+        "shortTitle": "New Pipe...",
+        "title": "Create a Custom Resource Pipe using YAML DSL",
+        "category": "Kaoto"
+      },
+      {
+        "command": "kaoto.camel.jbang.export",
+        "title": "Export: File",
+        "category": "Kaoto",
+        "icon": "$(export-icon)"
+      },
+      {
+        "command": "kaoto.camel.jbang.export.folder",
+        "title": "Export: Folder",
+        "category": "Kaoto",
+        "icon": "$(export-icon)"
+      },
+      {
+        "command": "kaoto.camel.jbang.export.workspace",
+        "title": "Export: Workspace",
+        "category": "Kaoto",
+        "icon": "$(export-icon)"
+      },
+      {
+        "command": "kaoto.integrations.kubernetes.run",
+        "title": "Deploy: File",
+        "category": "Kaoto",
+        "icon": {
+          "dark": "./icons/kubernetes/kube-dark.png",
+          "light": "./icons/kubernetes/kube-light.png"
+        }
+      },
+      {
+        "command": "kaoto.integrations.refresh",
+        "title": "Refresh",
+        "category": "Kaoto",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "kaoto.integrations.showSource",
+        "title": "Show Source",
+        "category": "Kaoto",
+        "icon": "$(code)"
+      },
+      {
+        "command": "kaoto.integrations.delete",
+        "title": "Delete",
+        "category": "Kaoto",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "kaoto.integrations.updateDependencies",
+        "title": "Update Camel Dependencies",
+        "shortTitle": "Update Dependencies",
+        "category": "Kaoto",
+        "icon": "$(sync)"
+      },
+      {
+        "command": "kaoto.integrations.run",
+        "title": "Run: File",
+        "category": "Kaoto",
+        "icon": {
+          "dark": "./icons/kaoto-run/kaoto-run-dark.png",
+          "light": "./icons/kaoto-run/kaoto-run-light.png"
+        }
+      },
+      {
+        "command": "kaoto.integrations.run.workspace",
+        "title": "Run: Workspace",
+        "category": "Kaoto",
+        "icon": "$(run-all)"
+      },
+      {
+        "command": "kaoto.integrations.run.all.workspaces",
+        "title": "Run: All Workspaces",
+        "category": "Kaoto",
+        "icon": "$(run-all)"
+      },
+      {
+        "command": "kaoto.integrations.run.folder",
+        "title": "Run: Folder",
+        "category": "Kaoto",
+        "icon": "$(play)"
+      },
+      {
+        "command": "kaoto.deployments.refresh",
+        "title": "Refresh",
+        "category": "Kaoto",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "kaoto.deployments.stop",
+        "title": "Terminate",
+        "category": "Kaoto",
+        "icon": "$(circle-slash)"
+      },
+      {
+        "command": "kaoto.deployments.logs",
+        "title": "Follow Logs",
+        "category": "Kaoto",
+        "icon": "$(terminal)"
+      },
+      {
+        "command": "kaoto.deployments.route.start",
+        "title": "Start",
+        "category": "Kaoto",
+        "icon": "$(debug-start)"
+      },
+      {
+        "command": "kaoto.deployments.route.resume",
+        "title": "Resume",
+        "category": "Kaoto",
+        "icon": "$(debug-continue)"
+      },
+      {
+        "command": "kaoto.deployments.route.suspend",
+        "title": "Suspend",
+        "category": "Kaoto",
+        "icon": "$(debug-pause)"
+      },
+      {
+        "command": "kaoto.deployments.route.stop",
+        "title": "Stop",
+        "category": "Kaoto",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "kaoto.undo",
+        "title": "Undo",
+        "category": "Kaoto"
+      },
+      {
+        "command": "kaoto.redo",
+        "title": "Redo",
+        "category": "Kaoto"
+      },
+      {
+        "command": "kaoto.tests.refresh",
+        "title": "Refresh",
+        "category": "Kaoto",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "kaoto.tests.showSource",
+        "title": "Show Source",
+        "category": "Kaoto",
+        "icon": "$(code)"
+      },
+      {
+        "command": "kaoto.tests.delete",
+        "title": "Delete",
+        "category": "Kaoto",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "kaoto.citrus.jbang.init.test",
+        "title": "New Citrus Test...",
+        "category": "Kaoto",
+        "icon": "$(new-file)"
+      },
+      {
+        "command": "kaoto.tests.run",
+        "title": "Run",
+        "category": "Kaoto",
+        "icon": "$(run)"
+      },
+      {
+        "command": "kaoto.tests.run.folder",
+        "title": "Run: Folder",
+        "category": "Kaoto",
+        "icon": "$(run)"
+      },
+      {
+        "command": "kaoto.tests.clearResults",
+        "title": "Clear Results",
+        "category": "Kaoto",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "kaoto.infrastructure.start",
+        "title": "Start Infra Service...",
+        "category": "Kaoto",
+        "icon": "$(add)",
+        "enablement": "!kaoto.infrastructureStarting"
+      },
+      {
+        "command": "kaoto.infrastructure.refresh",
+        "title": "Refresh",
+        "category": "Kaoto",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "kaoto.infrastructure.stop",
+        "title": "Stop Infra Service",
+        "category": "Kaoto",
+        "icon": "$(circle-slash)"
+      },
+      {
+        "command": "kaoto.infrastructure.logs",
+        "title": "Follow Infra Logs",
+        "category": "Kaoto",
+        "icon": "$(terminal)"
+      },
+      {
+        "command": "kaoto.infrastructure.copyUrl",
+        "title": "Copy URL",
+        "category": "Kaoto"
+      },
+      {
+        "command": "kaoto.infrastructure.copyPort",
+        "title": "Copy Port",
+        "category": "Kaoto"
+      },
+      {
+        "command": "kaoto.openapi.refresh",
+        "title": "Refresh",
+        "category": "Kaoto",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "kaoto.openapi.showSource",
+        "title": "Show Source",
+        "category": "Kaoto",
+        "icon": "$(code)"
+      },
+      {
+        "command": "kaoto.openapi.delete",
+        "title": "Delete",
+        "category": "Kaoto",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "kaoto.openapi.import",
+        "title": "Import",
+        "category": "Kaoto",
+        "icon": "$(symbol-reference)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "kaoto.open.source",
+        "key": "ctrl+k v",
+        "mac": "cmd+k v",
+        "when": "activeCustomEditorId == webviewEditorsKaoto"
+      },
+      {
+        "command": "kaoto.undo",
+        "key": "ctrl+z",
+        "mac": "cmd+z",
+        "when": "activeCustomEditorId == webviewEditorsKaoto"
+      },
+      {
+        "command": "kaoto.redo",
+        "key": "ctrl+shift+z",
+        "mac": "cmd+shift+z",
+        "when": "activeCustomEditorId == webviewEditorsKaoto"
+      },
+      {
+        "command": "kaoto.redo",
+        "key": "ctrl+y",
+        "mac": "cmd+shift+z",
+        "when": "activeCustomEditorId == webviewEditorsKaoto"
+      }
+    ],
+    "menus": {
+      "kaoto.new.file": [
+        {
+          "command": "kaoto.camel.jbang.init.route",
+          "group": "kaoto@1"
+        },
+        {
+          "command": "kaoto.camel.jbang.init.kamelet.yaml",
+          "group": "kaoto@2"
+        },
+        {
+          "command": "kaoto.camel.jbang.init.pipe.yaml",
+          "group": "kaoto@3"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "kaoto.selectCamelCatalog",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.open",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.open.source",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.close.source",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.camel.jbang.init.route",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.camel.jbang.init.kamelet.yaml",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.camel.jbang.init.pipe.yaml",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.camel.jbang.export",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.camel.jbang.export.folder",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.camel.jbang.export.workspace",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.integrations.run",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.integrations.run.workspace",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.integrations.run.all.workspaces",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.integrations.run.folder",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.integrations.kubernetes.run",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.integrations.showSource",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.integrations.delete",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.integrations.updateDependencies",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.deployments.stop",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.deployments.logs",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.deployments.route.start",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.deployments.route.resume",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.deployments.route.suspend",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.deployments.route.stop",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.undo",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.redo",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.tests.showSource",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.tests.delete",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.citrus.jbang.init.test",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.tests.run",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.tests.run.folder",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.tests.clearResults",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.openapi.showSource",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.openapi.delete",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.openapi.import",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.infrastructure.start",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.infrastructure.stop",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.infrastructure.logs",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.infrastructure.copyUrl",
+          "when": "false"
+        },
+        {
+          "command": "kaoto.infrastructure.copyPort",
+          "when": "false"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "kaoto.open.source",
+          "when": "activeCustomEditorId == webviewEditorsKaoto",
+          "group": "navigation@99"
+        },
+        {
+          "command": "kaoto.close.source",
+          "when": "(resourceFilename =~ /\\.(camel|kamelet|pipe).yaml$/ || resourceFilename =~ /\\-pipe.yaml$/ || resourceFilename =~ /\\.camel.xml$/ || resourceFilename =~ /\\.citrus(-test|-it|\\.test|\\.it)?\\.yaml$/) && activeCustomEditorId !== webviewEditorsKaoto",
+          "group": "navigation@99"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "kaoto.open",
+          "when": "resourceExtname == .yaml || resourceExtname == .yml || resourceExtname == .xml",
+          "group": "1_belowOpenWith"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "kaoto.integrations.run.workspace",
+          "group": "navigation@1",
+          "when": "view == kaoto.integrations && !virtualWorkspace && kaoto.executorAvailable && workspaceFolderCount == 1 && !kaoto.workspaceHasPomXml"
+        },
+        {
+          "command": "kaoto.integrations.run.all.workspaces",
+          "group": "navigation@1",
+          "when": "view == kaoto.integrations && !virtualWorkspace && kaoto.executorAvailable && workspaceFolderCount > 1"
+        },
+        {
+          "submenu": "kaoto.new.file",
+          "group": "navigation@2",
+          "when": "view == kaoto.integrations && !virtualWorkspace && kaoto.executorAvailable && workspaceFolderCount > 0"
+        },
+        {
+          "command": "kaoto.camel.jbang.export.workspace",
+          "group": "navigation@3",
+          "when": "view == kaoto.integrations && !virtualWorkspace && kaoto.executorAvailable && workspaceFolderCount == 1 && !kaoto.workspaceHasPomXml"
+        },
+        {
+          "command": "kaoto.integrations.refresh",
+          "group": "navigation@4",
+          "when": "view == kaoto.integrations"
+        },
+        {
+          "command": "kaoto.deployments.refresh",
+          "group": "navigation",
+          "when": "view == kaoto.deployments"
+        },
+        {
+          "command": "kaoto.tests.refresh",
+          "group": "navigation@3",
+          "when": "view == kaoto.tests"
+        },
+        {
+          "command": "kaoto.citrus.jbang.init.test",
+          "group": "navigation@1",
+          "when": "view == kaoto.tests && !virtualWorkspace && kaoto.executorAvailable && workspaceFolderCount > 0"
+        },
+        {
+          "command": "kaoto.tests.clearResults",
+          "group": "navigation@2",
+          "when": "view == kaoto.tests && kaoto.testResultsExist"
+        },
+        {
+          "command": "kaoto.infrastructure.start",
+          "group": "navigation@1",
+          "when": "view == kaoto.infrastructure && !virtualWorkspace && kaoto.executorAvailable && config.kaoto.infrastructure.enabled"
+        },
+        {
+          "command": "kaoto.infrastructure.refresh",
+          "group": "navigation@2",
+          "when": "view == kaoto.infrastructure && config.kaoto.infrastructure.enabled"
+        },
+        {
+          "command": "kaoto.openapi.refresh",
+          "group": "navigation@2",
+          "when": "view == kaoto.openapi"
+        },
+        {
+          "command": "kaoto.openapi.import",
+          "group": "navigation@1",
+          "when": "view == kaoto.openapi"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "kaoto.integrations.run.folder",
+          "when": "view == kaoto.integrations && viewItem == folder && !virtualWorkspace && kaoto.executorAvailable",
+          "group": "inline@1"
+        },
+        {
+          "command": "kaoto.camel.jbang.export.folder",
+          "when": "view == kaoto.integrations && viewItem == folder && !virtualWorkspace && kaoto.executorAvailable",
+          "group": "inline@2"
+        },
+        {
+          "command": "kaoto.integrations.showSource",
+          "when": "view == kaoto.integrations && (viewItem == integration || viewItem == integration-standalone-child || viewItem == integration-maven-child || viewItem == file)",
+          "group": "navigation@1"
+        },
+        {
+          "command": "kaoto.integrations.delete",
+          "when": "view == kaoto.integrations && (viewItem == integration || viewItem == integration-standalone-child || viewItem == integration-maven-child || viewItem == file || viewItem == folder || viewItem == folder-maven-child || viewItem == folder-maven-root)",
+          "group": "navigation@2"
+        },
+        {
+          "command": "kaoto.integrations.updateDependencies",
+          "when": "view == kaoto.integrations && viewItem == integration-maven-child && !virtualWorkspace && kaoto.executorAvailable",
+          "group": "navigation@3"
+        },
+        {
+          "command": "kaoto.integrations.run",
+          "when": "view == kaoto.integrations && (viewItem == integration || viewItem == integration-standalone-child) && !virtualWorkspace && kaoto.executorAvailable",
+          "group": "inline@1"
+        },
+        {
+          "command": "kaoto.integrations.kubernetes.run",
+          "when": "view == kaoto.integrations && (viewItem == integration || viewItem == integration-standalone-child) && !virtualWorkspace && kaoto.executorAvailable",
+          "group": "inline@2"
+        },
+        {
+          "command": "kaoto.camel.jbang.export",
+          "when": "view == kaoto.integrations && (viewItem == integration || viewItem == integration-standalone-child) && !virtualWorkspace && kaoto.executorAvailable",
+          "group": "inline@3"
+        },
+        {
+          "command": "kaoto.deployments.stop",
+          "group": "inline@1",
+          "when": "view == kaoto.deployments && viewItem == parent-localhost"
+        },
+        {
+          "command": "kaoto.deployments.logs",
+          "group": "inline@2",
+          "when": "view == kaoto.deployments && viewItem == parent-localhost"
+        },
+        {
+          "command": "kaoto.deployments.route.start",
+          "group": "inline@1",
+          "when": "view == kaoto.deployments && viewItem =~ /^.*startEnabled.*$/"
+        },
+        {
+          "command": "kaoto.deployments.route.resume",
+          "group": "inline@2",
+          "when": "view == kaoto.deployments && viewItem =~ /^.*resumeEnabled.*$/"
+        },
+        {
+          "command": "kaoto.deployments.route.suspend",
+          "group": "inline@3",
+          "when": "view == kaoto.deployments && viewItem =~ /^.*suspendEnabled.*$/"
+        },
+        {
+          "command": "kaoto.deployments.route.stop",
+          "group": "inline@4",
+          "when": "view == kaoto.deployments && viewItem =~ /^.*stopEnabled.*$/"
+        },
+        {
+          "command": "kaoto.tests.showSource",
+          "when": "view == kaoto.tests && viewItem =~ /^citrus-test-file/ || viewItem == testing-properties-file",
+          "group": "navigation@1"
+        },
+        {
+          "command": "kaoto.tests.delete",
+          "when": "view == kaoto.tests && (viewItem =~ /^citrus-test-file/ || viewItem == test-folder || viewItem == testing-properties-file || viewItem =~ /^test-folder-maven/)",
+          "group": "navigation@2"
+        },
+        {
+          "command": "kaoto.tests.run",
+          "when": "view == kaoto.tests && viewItem =~ /^citrus-test-file(-passed|-failed)?$/ && kaoto.executorAvailable",
+          "group": "inline@1"
+        },
+        {
+          "command": "kaoto.tests.run.folder",
+          "when": "view == kaoto.tests && viewItem == test-folder && kaoto.executorAvailable",
+          "group": "inline@1"
+        },
+        {
+          "command": "kaoto.infrastructure.stop",
+          "when": "view == kaoto.infrastructure && viewItem =~ /^infrastructure-service.*/ && config.kaoto.infrastructure.enabled",
+          "group": "inline@1"
+        },
+        {
+          "command": "kaoto.infrastructure.logs",
+          "when": "view == kaoto.infrastructure && viewItem =~ /^infrastructure-service(?!-external).*/ && config.kaoto.infrastructure.enabled",
+          "group": "inline@2"
+        },
+        {
+          "command": "kaoto.infrastructure.copyUrl",
+          "when": "view == kaoto.infrastructure && viewItem =~ /.*-has-url.*/ && config.kaoto.infrastructure.enabled",
+          "group": "navigation@1"
+        },
+        {
+          "command": "kaoto.infrastructure.copyPort",
+          "when": "view == kaoto.infrastructure && viewItem =~ /.*-has-port.*/ && config.kaoto.infrastructure.enabled",
+          "group": "navigation@2"
+        },
+        {
+          "command": "kaoto.openapi.showSource",
+          "when": "view == kaoto.openapi && viewItem == openapi",
+          "group": "navigation@1"
+        },
+        {
+          "command": "kaoto.openapi.delete",
+          "when": "view == kaoto.openapi && (viewItem == openapi || viewItem =~ /^openapi-folder/)",
+          "group": "navigation@2"
+        }
+      ]
+    },
+    "submenus": [
+      {
+        "id": "kaoto.new.file",
+        "label": "New File...",
+        "icon": "$(new-file)"
+      }
+    ],
+    "viewsWelcome": [
+      {
+        "view": "kaoto.integrations",
+        "contents": "In order to start with Apache Camel, you can create a standalone Camel File.\n[Camel File...](command:kaoto.new.camel.file)\nTo learn more about Apache Camel [read docs](https://camel.apache.org/docs/).",
+        "when": "!virtualWorkspace && kaoto.executorAvailable && workspaceFolderCount > 0"
+      },
+      {
+        "view": "kaoto.integrations",
+        "contents": "You have not yet added a folder to the workspace.\n[Open Folder](command:vscode.openFolder)",
+        "when": "workspaceFolderCount == 0"
+      },
+      {
+        "view": "kaoto.tests",
+        "contents": "You have not yet added a folder to the workspace.\n[Open Folder](command:vscode.openFolder)",
+        "when": "workspaceFolderCount == 0"
+      },
+      {
+        "view": "kaoto.tests",
+        "contents": "In order to start with Citrus, you can create a new Citrus Test file.\n[New Citrus Test...](command:kaoto.citrus.jbang.init.test)\nTo learn more about Camel Testing [read docs](https://camel.apache.org/manual/camel-jbang-test.html).",
+        "when": "!virtualWorkspace && kaoto.executorAvailable && workspaceFolderCount > 0"
+      },
+      {
+        "view": "kaoto.openapi",
+        "contents": "You have not yet added a folder to the workspace.\n[Open Folder](command:vscode.openFolder)",
+        "when": "workspaceFolderCount == 0"
+      },
+      {
+        "view": "kaoto.openapi",
+        "contents": "You can import an existing OpenAPI specification to use with your Camel integrations.\n[Import...](command:kaoto.openapi.import)\nTo learn more about OpenAPI and Kaoto [read docs](https://kaoto.io/docs/rest/).",
+        "when": "!virtualWorkspace && workspaceFolderCount > 0"
+      },
+      {
+        "view": "kaoto.infrastructure",
+        "contents": "Run local infrastructure services with Camel Infra.\n[Start Infrastructure Service...](command:kaoto.infrastructure.start)\nRunning services appear here with startup status, logs, stop actions, and service details.",
+        "when": "!virtualWorkspace && kaoto.executorAvailable && workspaceFolderCount > 0"
+      },
+      {
+        "view": "kaoto.infrastructure",
+        "contents": "You have not yet added a folder to the workspace.\n[Open Folder](command:vscode.openFolder)",
+        "when": "workspaceFolderCount == 0"
+      }
+    ],
+    "configuration": [
+      {
+        "id": "kaoto",
+        "title": "Kaoto",
+        "properties": {
+          "kaoto.catalog.url": {
+            "type": "string",
+            "default": null,
+            "markdownDescription": "URL to a Kaoto catalog. For instance `https://raw.githubusercontent.com/KaotoIO/camel-catalog/refs/heads/main/catalog/index.json `. Documentation to generate your own set of catalog is available [here](https://kaoto.io/docs/designer/04-runtime-selector/).\n\nIt requires to reopen the Kaoto editors to be effective.\n\n**Note**: Use the Kaoto editor status bar to select from a custom catalogs.",
+            "scope": "window",
+            "order": 0
+          },
+          "kaoto.localKameletDirectories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "additionalProperties": false,
+            "markdownDescription": "List of local directories to be used for Kamelet files. It is used for every run by adding `--local-kamelet-dir` argument into `#kaoto.executor.runArguments#` or `#kaoto.executor.runFolderOrWorkspaceArguments#` settings.\n\n**Note**: The setting can be overridden by the `--local-kamelet-dir` argument set in mentioned run arguments settings.\n\nSupports common variables - `${workspaceFolder}`, `${workspaceFolderBasename}`, `${cwd}`",
+            "default": [
+              "."
+            ],
+            "scope": "window",
+            "order": 3
+          },
+          "redhat.telemetry.enabled": {
+            "type": "boolean",
+            "default": null,
+            "markdownDescription": "Enable usage data and errors to be sent to Red Hat servers. Read our [privacy statement](https://developers.redhat.com/article/tool-data-collection).",
+            "tags": [
+              "telemetry"
+            ],
+            "scope": "window",
+            "order": 4
+          }
+        }
+      },
+      {
+        "id": "canvas",
+        "title": "Canvas",
+        "properties": {
+          "kaoto.nodeLabel": {
+            "type": "string",
+            "default": "description",
+            "markdownDescription": "Node label, which will be used for nodes in the canvas. Can be either `description` or `id`. If `description` is selected, it will be displayed only if it is available, otherwise `id` will be displayed by default.\n\nIt requires to reopen the Kaoto editors to be effective.",
+            "enum": [
+              "description",
+              "id"
+            ],
+            "scope": "window"
+          },
+          "kaoto.nodeToolbarTrigger": {
+            "type": "string",
+            "default": "onHover",
+            "markdownDescription": "Choose when to open the Node toolbar. Can be either `onHover` or `onSelection`. If `onHover` is selected, the toolbar will be automatically open upon hovering a node, otherwise, it will be open when selecting a node.\n\nIt requires to reopen the Kaoto editors to be effective.",
+            "enum": [
+              "onHover",
+              "onSelection"
+            ]
+          },
+          "kaoto.colorTheme": {
+            "type": "string",
+            "markdownDescription": "Choose the color theme for the UI. `auto` will follow VS Code theme, `light` and `dark` will set that theme regardless of VS Code theme.\n\nIt requires to reopen the Kaoto editors to be effective.",
+            "default": "auto",
+            "enum": [
+              "auto",
+              "light",
+              "dark"
+            ]
+          },
+          "kaoto.canvasLayoutDirection": {
+            "type": "string",
+            "markdownDescription": "Choose the layout direction for the canvas. `SelectInCanvas` will allow to select nodes in the canvas, `Horizontal` and `Vertical` will set the layout direction.\n\nIt requires to reopen the Kaoto editors to be effective.",
+            "default": "SelectInCanvas",
+            "enum": [
+              "SelectInCanvas",
+              "Horizontal",
+              "Vertical"
+            ]
+          }
+        }
+      },
+      {
+        "id": "views",
+        "title": "Views",
+        "properties": {
+          "kaoto.views.refresh.interval": {
+            "type": "number",
+            "markdownDescription": "Set default auto-refresh interval in milliseconds for a views (Deployments, Infrastructure). **Default recommended interval is 30s.**",
+            "enum": [
+              1000,
+              5000,
+              15000,
+              30000,
+              60000
+            ],
+            "enumItemLabels": [
+              "1s",
+              "5s",
+              "15s",
+              "30s",
+              "60s"
+            ],
+            "default": 30000,
+            "scope": "window",
+            "order": 0
+          },
+          "kaoto.integrations.files.regexp": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "additionalProperties": false,
+            "default": [
+              "*.camel.yaml",
+              "*.camel.xml",
+              "*.kamelet.yaml",
+              "*.pipe.yaml",
+              "*-pipe.yaml",
+              "application*.properties",
+              "*.xsl",
+              "pom.xml"
+            ],
+            "markdownDescription": "Regular expression to filter files to be displayed in `Kaoto > Integrations` view.",
+            "scope": "window",
+            "order": 1
+          },
+          "kaoto.tests.files.regexp": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "additionalProperties": false,
+            "default": [
+              "*.citrus.yaml",
+              "*.citrus.test.yaml",
+              "*.citrus.it.yaml",
+              "*.citrus-test.yaml",
+              "*.citrus-it.yaml",
+              "jbang.properties",
+              "citrus*.properties"
+            ],
+            "markdownDescription": "Regular expression to filter files to be displayed in `Kaoto > Tests` view.",
+            "scope": "window",
+            "order": 2
+          },
+          "kaoto.openapi.files.regexp": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "additionalProperties": false,
+            "default": [
+              "*openapi.yaml",
+              "*openapi.yml",
+              "*openapi.json"
+            ],
+            "markdownDescription": "Regular expression to filter files to be displayed in `Kaoto > OpenAPI` view.",
+            "scope": "window",
+            "order": 3
+          }
+        }
+      },
+      {
+        "id": "executor",
+        "title": "Executor",
+        "order": 0,
+        "properties": {
+          "kaoto.executor.type": {
+            "type": "string",
+            "enum": [
+              "jbang",
+              "camel-launcher"
+            ],
+            "enumDescriptions": [
+              "Use JBang to execute Camel commands (requires JBang installation)",
+              "(experimental) Use Camel Launcher to execute Camel commands"
+            ],
+            "markdownDescription": "Select the executor type for running Camel integrations.\n\n**JBang**: Traditional approach using JBang CLI (requires JBang installation).\n\n**Camel Launcher**: (experimental) New approach using standalone Camel Launcher (no JBang required, automatically downloaded).",
+            "default": "jbang",
+            "order": 1
+          },
+          "kaoto.executor.runArguments": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            },
+            "additionalProperties": false,
+            "markdownDescription": "User defined arguments to be applied at every launch. In case of spaces, the values needs to be enclosed with quotes.\n\n**User settings take priority:** If you define arguments like `--management-port`, `--port`, `--console`, `--camel-version`, or `--repos`, your values will override the extension's defaults. Warnings will be shown in the output when conflicts are detected.\n\n**Port resolution:** When you specify `--management-port` or `--port`, the Deployments view will automatically monitor the port you defined instead of the default port. This ensures proper tracking of running integrations.\n\nFor possible values see [official docs](https://camel.apache.org/manual/camel-jbang.html#_creating_and_running_camel_routes).",
+            "default": [
+              "--dev",
+              "--logging-level=info",
+              "*.xsl"
+            ],
+            "order": 2
+          },
+          "kaoto.executor.runFolderOrWorkspaceArguments": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            },
+            "additionalProperties": false,
+            "markdownDescription": "User defined arguments to be applied at every launch of a folder or workspace. In case of spaces, the values needs to be enclosed with quotes.\n\n**User settings take priority:** If you define arguments like `--management-port`, `--port`, `--console`, `--camel-version`, or `--repos`, your values will override the extension's defaults. Warnings will be shown in the output when conflicts are detected.\n\n**Port resolution:** When you specify `--management-port` or `--port`, the Deployments view will automatically monitor the port you defined instead of the default port. This ensures proper tracking of running integrations.\n\nFor possible values see [official docs](https://camel.apache.org/manual/camel-jbang.html#_creating_and_running_camel_routes).",
+            "default": [
+              "--dev"
+            ],
+            "order": 3
+          },
+          "kaoto.executor.redHatMavenRepository": {
+            "type": "string",
+            "markdownDescription": "Define Red Hat Maven Repository, which is used automatically in case the `#kaoto.camelVersion#` uses Red Hat productized Camel version (e.g. `4.8.0.redhat-00017`).",
+            "default": "https://maven.repository.redhat.com/ga/",
+            "order": 4
+          },
+          "kaoto.executor.redHatMavenRepository.global": {
+            "type": "boolean",
+            "markdownDescription": "The `#repos` placeholder will be added by default to use also repositories defined in global Camel configuration file.\n\n**Note**: The placeholder is available for versions `3.20.7/3.21` onwards.",
+            "default": true,
+            "order": 5
+          },
+          "kaoto.executor.kubernetesRunArguments": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            },
+            "additionalProperties": false,
+            "markdownDescription": "User defined arguments to be applied at every deploy (See [Camel Kubernetes plugin](https://camel.apache.org/manual/camel-jbang-kubernetes.html)). In case of spaces, the values needs to be enclosed with quotes.\n\n**User settings take priority:** If you define `--camel-version`, your value will override the extension's default from `#kaoto.camelVersion#`. Warnings will be shown in the output when conflicts are detected.\n\nBeware that `--disable-auto`, which is provided by default, requires Camel 4.11+.",
+            "default": [
+              "--cluster-type=openshift",
+              "--disable-auto",
+              "--dev"
+            ],
+            "order": 5
+          },
+          "kaoto.executor.infraArguments": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            },
+            "additionalProperties": false,
+            "markdownDescription": "User defined arguments to be applied by default when starting services from `Kaoto > Infrastructure`. (See [Camel Infra Run](https://camel.apache.org/manual/jbang-commands/camel-jbang-infra-run.html))",
+            "default": [
+              "--log"
+            ],
+            "order": 6
+          }
+        }
+      },
+      {
+        "id": "maven",
+        "title": "Maven Projects",
+        "properties": {
+          "kaoto.maven.dependenciesUpdate.onSave": {
+            "type": "boolean",
+            "default": true,
+            "markdownDescription": "Enable automatic update of Camel dependencies in pom.xml on save.",
+            "order": 0
+          },
+          "kaoto.maven.executor.exportProjectArguments": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            },
+            "additionalProperties": false,
+            "markdownDescription": "User defined arguments to be applied at every export of a Maven project. In case of spaces, the values needs to be enclosed with quotes.\n\n**User settings take priority:** If you define arguments like `--camel-version` or `--repos`, your values will override the extension's defaults. Warnings will be shown in the output when conflicts are detected.\n\nFor possible values see [official docs](https://camel.apache.org/manual/camel-jbang.html#_creating_projects).",
+            "default": [
+              "--cluster-type=openshift"
+            ],
+            "order": 1
+          }
+        }
+      },
+      {
+        "id": "restConfiguration",
+        "title": "REST Configuration",
+        "properties": {
+          "kaoto.restConfiguration.apicurioRegistryUrl": {
+            "type": "string",
+            "markdownDescription": "URL to the Apicurio Registry. It is used to store and manage REST API specifications. Example: `https://registry.example.com/apis/registry/v3`",
+            "default": null,
+            "order": 0
+          },
+          "kaoto.restConfiguration.customMediaTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "additionalProperties": false,
+            "markdownDescription": "These values are available in Rest DSL Consumes/Produces fields. Add media type (e.g. `application/vnd.api+json`).",
+            "default": null,
+            "order": 1
+          }
+        }
+      },
+      {
+        "id": "advanced",
+        "title": "Advanced",
+        "properties": {
+          "kaoto.runtimeCatalogName": {
+            "type": "string",
+            "default": null,
+            "markdownDescription": "⚠️ **WORKSPACE-ONLY SETTING** - This setting only works in Workspace/Folder settings, not User settings.\n\nSelected runtime catalog name for integration files (e.g., 'Camel Main 4.14.7', 'Camel Quarkus 3.35.0').\n\n**Note**: Use the status bar to select from available catalogs.",
+            "scope": "resource",
+            "order": 0
+          },
+          "kaoto.testingCatalogName": {
+            "type": "string",
+            "default": null,
+            "markdownDescription": "⚠️ **WORKSPACE-ONLY SETTING** - This setting only works in Workspace/Folder settings, not User settings.\n\nSelected testing catalog name for test files (e.g., 'Citrus 4.10.1').\n\n**Note**: Use the status bar to select from available catalogs.",
+            "scope": "resource",
+            "order": 1
+          },
+          "kaoto.infrastructure.enabled": {
+            "type": "boolean",
+            "default": false,
+            "markdownDescription": "Enable the `Infrastructure` view and its related commands. When disabled (default), the view is hidden. Enable this setting to try out Camel Infra service management.",
+            "scope": "window",
+            "order": 2,
+            "tags": [
+              "experimental"
+            ]
+          }
+        }
+      }
+    ],
+    "customEditors": [
+      {
+        "viewType": "webviewEditorsKaoto",
+        "displayName": "Kaoto Editor",
+        "selector": [
+          {
+            "filenamePattern": "*{.camel,.kamelet,.pipe,-pipe}.{yaml,yml}"
+          },
+          {
+            "filenamePattern": "*.camel.xml"
+          },
+          {
+            "filenamePattern": "*{.citrus,.citrus.test,.citrus.it,.citrus-test,.citrus-it}.yaml"
+          }
+        ]
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "kaoto-view",
+          "title": "Kaoto",
+          "icon": "icons/kaoto.png"
+        }
+      ]
+    },
+    "views": {
+      "kaoto-view": [
+        {
+          "id": "kaoto.integrations",
+          "name": "Integrations",
+          "contextualTitle": "Kaoto",
+          "icon": "icons/kaoto.png",
+          "initialSize": 2
+        },
+        {
+          "id": "kaoto.deployments",
+          "name": "Deployments",
+          "contextualTitle": "Kaoto",
+          "icon": "icons/kaoto.png",
+          "initialSize": 2,
+          "when": "!virtualWorkspace"
+        },
+        {
+          "id": "kaoto.openapi",
+          "name": "OpenAPI",
+          "contextualTitle": "Kaoto",
+          "icon": "icons/kaoto.png",
+          "initialSize": 2
+        },
+        {
+          "id": "kaoto.tests",
+          "name": "Tests",
+          "contextualTitle": "Kaoto",
+          "icon": "icons/kaoto.png",
+          "initialSize": 2
+        },
+        {
+          "id": "kaoto.infrastructure",
+          "name": "Infrastructure",
+          "contextualTitle": "Kaoto",
+          "icon": "icons/kaoto.png",
+          "initialSize": 2,
+          "when": "!virtualWorkspace && config.kaoto.infrastructure.enabled"
+        },
+        {
+          "id": "kaoto.help",
+          "name": "Help & Feedback",
+          "contextualTitle": "Kaoto",
+          "icon": "icons/kaoto.png",
+          "initialSize": 1
+        }
+      ]
+    }
+  }
+}

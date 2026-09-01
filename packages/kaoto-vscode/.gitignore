@@ -1,0 +1,53 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+dist
+
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# testing
+/coverage
+.vscode-test-web
+.vscode-test
+/uitest-resources
+/test-extensions
+/test-resources
+/out
+/reports
+
+# production
+/build
+
+# misc
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# logs
+build-storybook.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+*.vsix
+
+# the camel-jbang folders
+.camel-jbang
+.camel-jbang-run
+.citrus-jbang
+
+# AI agent delegation run logs
+.bob-runs
+
+# AI agent planning and design docs (local only)
+docs/superpowers/

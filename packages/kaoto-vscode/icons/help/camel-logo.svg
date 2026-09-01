@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="40.978458mm"
+   height="40.978458mm"
+   viewBox="0 0 40.978459 40.978458"
+   version="1.1"
+   id="svg2343"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   sodipodi:docname="Apache_Camel_Logo.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs2337">
+    <linearGradient
+       id="SVGID_1_-0"
+       gradientUnits="userSpaceOnUse"
+       x1="-4229.6655"
+       y1="-4143.6401"
+       x2="-3987.5886"
+       y2="-3860.573"
+       gradientTransform="matrix(0.4226,-0.9063,0.9063,0.4226,6189.0356,-1936.8361)">
+      <stop
+         offset="0"
+         style="stop-color:#F69923"
+         id="stop3286-8" />
+      <stop
+         offset="0.10995827"
+         style="stop-color:#F79A23"
+         id="stop3288-2" />
+      <stop
+         offset="0.94502056"
+         style="stop-color:#E97826"
+         id="stop3290-2" />
+    </linearGradient>
+    <linearGradient
+       gradientTransform="matrix(0.4226,-0.9063,0.9063,0.4226,6189.0356,-1936.8361)"
+       y2="-3860.573"
+       x2="-3987.5886"
+       y1="-4143.6401"
+       x1="-4229.6655"
+       gradientUnits="userSpaceOnUse"
+       id="linearGradient3949">
+      <stop
+         id="stop3951"
+         style="stop-color:#F69923"
+         offset="0" />
+      <stop
+         id="stop3953"
+         style="stop-color:#F79A23"
+         offset="0.08047844" />
+      <stop
+         id="stop3955"
+         style="stop-color:#E97826"
+         offset="0.41874287" />
+    </linearGradient>
+    <linearGradient
+       gradientTransform="matrix(0.4226,-0.9063,0.9063,0.4226,6189.0356,-1936.8361)"
+       y2="-3860.573"
+       x2="-3987.5886"
+       y1="-4143.6401"
+       x1="-4229.6655"
+       gradientUnits="userSpaceOnUse"
+       id="linearGradient4556">
+      <stop
+         id="stop4558"
+         style="stop-color:#f6e423;stop-opacity:1"
+         offset="0" />
+      <stop
+         id="stop4560"
+         style="stop-color:#F79A23"
+         offset="0.41190839" />
+      <stop
+         id="stop4562"
+         style="stop-color:#E97826"
+         offset="0.73270744" />
+    </linearGradient>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="3.6203867"
+     inkscape:cx="81.344902"
+     inkscape:cy="93.636406"
+     inkscape:document-units="mm"
+     inkscape:current-layer="g4801"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="1920"
+     inkscape:window-height="1043"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:pagecheckerboard="0" />
+  <metadata
+     id="metadata2340">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(210.45846,-18.464318)">
+    <g
+       id="g4839"
+       transform="matrix(0.31520401,0,0,0.31520401,-253.46401,-173.70098)">
+      <g
+         id="g4763"
+         transform="translate(73.918961,19.51005)"
+         inkscape:export-filename="/home/zregvart/workspaces/camel-salesforce/camel/docs/img/logo-medium.png"
+         inkscape:export-xdpi="106.96"
+         inkscape:export-ydpi="106.96">
+        <g
+           transform="translate(-72.023152,20.160046)"
+           id="g4765">
+          <g
+             style="font-size:27.9203px;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#6c5d53"
+             id="g4767" />
+        </g>
+        <g
+           transform="translate(-5.4017408,7.3976335)"
+           id="g4795" />
+      </g>
+      <g
+         id="g4801"
+         transform="translate(-386.87395,-169.40258)">
+        <circle
+           cy="844.05627"
+           cx="588.51764"
+           style="fill:#f69923;stroke:#f69923;stroke-width:4.96186581;stroke-linejoin:round;fill-opacity:1;fill-rule:nonzero;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="path4805"
+           r="62.519852" />
+        <path
+           id="path4809"
+           d="m 566.5625,818.34375 c -16.02688,6.46762 -29.84419,17.16254 -43,28.15625 0.55272,29.26613 23.55538,56.20934 52.3991,61.30758 5.95049,1.46083 12.96752,2.72682 13.86154,-5.19045 10.34244,-24.79902 5.20339,-55.22138 -13.12735,-74.95794 -3.07476,-3.41462 -6.47233,-6.5385 -10.13329,-9.31544 z"
+           style="opacity:0.75;fill:#28170b"
+           inkscape:connector-curvature="0" />
+        <g
+           id="g4811">
+          <path
+             id="path4813"
+             d="m 590.31114,806.30878 c -9.40547,2.42878 2.88403,13.91811 -5.16801,17.86079 -8.36202,8.88971 -9.90111,22.15058 -18.46147,30.83026 -7.18716,5.90781 -17.7753,3.53389 -24.4378,-2.00499 -6.46701,-4.45515 -12.155,-9.93858 -18.68272,-14.31106 -2.47385,24.91646 11.27718,50.4764 33.21875,62.43751 14.0007,-0.80701 25.02875,-11.19248 32.25259,-22.4162 7.95277,-12.06177 12.11619,-26.13256 19.53286,-38.46533 5.8438,-6.62441 15.43859,-6.70292 23.49189,-8.21494 6.53927,0.48793 14.53161,-5.13965 8.50353,-11.52612 -3.21511,-6.28317 -10.55825,-5.95543 -16.54242,-5.54033 -8.16549,1.52269 -15.02147,-2.01975 -22.68566,-2.77459 -5.0946,1.68346 -6.5209,-5.39161 -11.02154,-5.875 z"
+             style="fill:#ffffff"
+             inkscape:connector-curvature="0" />
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

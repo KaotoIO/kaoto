@@ -1,0 +1,11 @@
+coverage/
+out/
+dist/
+resources/
+node_modules/
+test-resources/
+test-extensions/
+.test-extensions/
+.vscode-test/
+.vscode-test-web/
+.yarn

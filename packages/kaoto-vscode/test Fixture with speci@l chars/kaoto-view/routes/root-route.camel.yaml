@@ -1,0 +1,12 @@
+- route:
+    id: route-3606
+    from:
+      id: from-1326
+      uri: timer
+      parameters:
+        period: '1000'
+        timerName: template
+      steps:
+        - log:
+            id: log-2614
+            message: '{{demo.name.root}}'

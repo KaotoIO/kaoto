@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run Camel Quarkus JVM application and attach Camel debugger",
+      "type": "apache.camel",
+      "request": "attach",
+      "preLaunchTask": "Start Camel application with Maven Quarkus Dev with camel.debug profile"
+    },
+    {
+      "name": "Run Camel native application and attach Camel debugger",
+      "type": "apache.camel",
+      "request": "attach",
+      "preLaunchTask": "Start Camel native application debug-ready"
+    }
+  ],
+  "compounds": []
+}
