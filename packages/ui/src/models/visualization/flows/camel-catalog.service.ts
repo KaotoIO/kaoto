@@ -76,43 +76,4 @@ export class CamelCatalogService {
   static clearCatalogs(): void {
     this.catalogs = {};
   }
-
-  /** Method to return whether this is a Camel Component or a Kamelet */
-  static getCatalogLookup(componentName: string): {
-    catalogKind: CatalogKind.Component;
-    definition?: ICamelComponentDefinition;
-  };
-  static getCatalogLookup(componentName: string): {
-    catalogKind: CatalogKind.Kamelet;
-    definition?: IKameletDefinition;
-  };
-  static getCatalogLookup(
-    componentName: string,
-  ): { catalogKind: CatalogKind; definition?: ComponentsCatalogTypes } | undefined {
-    if (!componentName) {
-      return undefined;
-    }
-
-    if (componentName.startsWith('kamelet:')) {
-      const definition = this.getComponent(CatalogKind.Kamelet, componentName.replace('kamelet:', ''));
-
-      if (definition) {
-        return {
-          catalogKind: CatalogKind.Kamelet,
-          definition,
-        };
-      }
-
-      // If the Kamelet is not found, we fallback to the Kamelet component
-      return {
-        catalogKind: CatalogKind.Component,
-        definition: this.getComponent(CatalogKind.Component, 'kamelet'),
-      };
-    }
-
-    return {
-      catalogKind: CatalogKind.Component,
-      definition: this.getComponent(CatalogKind.Component, componentName),
-    };
-  }
 }
