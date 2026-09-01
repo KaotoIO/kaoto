@@ -11,7 +11,6 @@ import {
   MappingParentType,
   MappingTree,
   ValueOfSelector,
-  ValueOfType,
   ValueSelector,
 } from '../../models/datamapper/mapping';
 import { Types } from '../../models/datamapper/types';
@@ -292,36 +291,28 @@ export class MappingActionService {
   }
 
   /**
-   * Adds a {@link ValueSelector} child to the node's mapping.
+   * Adds a {@link ValueOfSelector} child to the node's mapping.
    * Creates the underlying field item first if the node is a {@link TargetFieldNodeData} without a mapping.
-   * No-op if a `ValueSelector` already exists.
+   * Resolves the value type (VALUE vs ATTRIBUTE) via {@link MappingService.createValueOfSelector}.
+   * No-op if a `ValueOfSelector` already exists.
    * @param nodeData - The target node to add the value selector to.
    */
-  static applyValueSelector(nodeData: TargetNodeData) {
-    const mapping =
-      nodeData instanceof TargetFieldNodeData && !nodeData.mapping
-        ? MappingActionService.getOrCreateFieldItem(nodeData)
-        : nodeData.mapping;
-    if (!mapping) return;
-    if (!mapping.children.some((c: MappingItem) => c instanceof ValueSelector)) {
-      const valueSelector = MappingService.createValueOfSelector(mapping);
-      mapping.children.push(valueSelector);
-      useDocumentTreeStore.getState().requestXPathInputFocus(mapping.nodePath.toString());
-    }
-  }
-
   static applyValueOfSelector(nodeData: TargetNodeData) {
     const mapping =
       nodeData instanceof TargetFieldNodeData && !nodeData.mapping
         ? MappingActionService.getOrCreateFieldItem(nodeData)
         : nodeData.mapping;
     if (!mapping) return;
-    if (mapping.children.some((c) => c instanceof ValueOfSelector)) return;
-    const valueType =
-      nodeData instanceof TargetFieldNodeData && nodeData.field.isAttribute ? ValueOfType.ATTRIBUTE : ValueOfType.VALUE;
-    const valueSelector = new ValueOfSelector(mapping, valueType);
+    if (mapping.children.some((c: MappingItem) => c instanceof ValueOfSelector)) return;
+    const valueSelector = MappingService.createValueOfSelector(mapping);
     mapping.children.push(valueSelector);
-    useDocumentTreeStore.getState().requestXPathInputFocus(mapping.nodePath.toString());
+    MappingActionService.requestValueOfSelectorFocus(mapping, valueSelector);
+  }
+
+  private static requestValueOfSelectorFocus(mapping: MappingParentType, valueSelector: ValueOfSelector) {
+    const focusTarget =
+      mapping instanceof FieldItem && DocumentService.hasChildren(mapping.field) ? valueSelector : mapping;
+    useDocumentTreeStore.getState().requestXPathInputFocus(focusTarget.nodePath.toString());
   }
 
   static applyCopyOfSelector(nodeData: TargetNodeData) {

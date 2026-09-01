@@ -1,5 +1,5 @@
 import { DocumentDefinitionType, IField } from '../../models/datamapper/document';
-import { FieldItem, MappingTree } from '../../models/datamapper/mapping';
+import { CopyOfSelector, CopyOfType, FieldItem, MappingTree } from '../../models/datamapper/mapping';
 import {
   AbstractFieldNodeData,
   ChoiceFieldNodeData,
@@ -343,6 +343,34 @@ describe('VisualizationUtilService', () => {
       // Use the existing field which has children (complex type)
       const fieldNode = new FieldNodeData(sourceDocNode, sourceDoc.fields[0]);
       expect(VisualizationUtilService.isTerminalField(fieldNode)).toBe(false);
+    });
+  });
+
+  describe('getInlineContainerCopyOf', () => {
+    const createFieldItemNodeDataWithCopyOf = (copyOfType: CopyOfType) => {
+      const tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+      const treeNode = new TargetDocumentNodeData(targetDoc, tree);
+      const shipOrderFI = new FieldItem(tree, targetDoc.fields[0]);
+      tree.children.push(shipOrderFI);
+      shipOrderFI.children.push(new CopyOfSelector(shipOrderFI, copyOfType));
+      return new FieldItemNodeData(treeNode, shipOrderFI);
+    };
+
+    it('should return the CopyOfSelector for a CONTAINER-typed copy-of', () => {
+      const nodeData = createFieldItemNodeDataWithCopyOf(CopyOfType.CONTAINER);
+      const result = VisualizationUtilService.getInlineContainerCopyOf(nodeData);
+      expect(result).toBeInstanceOf(CopyOfSelector);
+      expect(result?.valueType).toBe(CopyOfType.CONTAINER);
+    });
+
+    it('should return undefined for a CONTAINER_NODE-typed copy-of', () => {
+      const nodeData = createFieldItemNodeDataWithCopyOf(CopyOfType.CONTAINER_NODE);
+      expect(VisualizationUtilService.getInlineContainerCopyOf(nodeData)).toBeUndefined();
+    });
+
+    it('should return undefined for a plain FieldNodeData with no mapping', () => {
+      const fieldNode = new FieldNodeData(sourceDocNode, sourceDoc.fields[0]);
+      expect(VisualizationUtilService.getInlineContainerCopyOf(fieldNode)).toBeUndefined();
     });
   });
 });

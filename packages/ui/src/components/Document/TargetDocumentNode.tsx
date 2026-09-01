@@ -124,7 +124,7 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
         return;
       }
 
-      MappingActionService.applyValueSelector(nodeData);
+      MappingActionService.applyValueOfSelector(nodeData);
       handleStructuralUpdate();
     }, [nodeData, handleStructuralUpdate]);
 

@@ -764,7 +764,9 @@ describe('VisualizationService / abstract fields', () => {
       ) as FieldItem;
 
       const candidateChildren = VisualizationService.generateNonDocumentNodeDataChildren(freshAbstractNode);
-      expect(candidateChildren.map((c) => c.title)).toEqual(['catName']);
+      // The value-of selector on an expandable field (Cat has catName) renders as an explicit 'value' tree node
+      // rather than inline. The schema child catName also appears as a separate field node.
+      expect(candidateChildren.map((c) => c.title)).toEqual(['catName', 'value']);
     });
   });
 
