@@ -1,0 +1,40 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run (spring-boot:run)",
+      "type": "shell",
+      "command": "./mvnw",
+      "args": ["spring-boot:run"],
+      "isBackground": true,
+      "problemMatcher": [
+        {
+          "pattern": {
+            "regexp": ".",
+            "file": 1,
+            "location": 2,
+            "message": 3
+          },
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": ".",
+            "endsPattern": "Started"
+          }
+        }
+      ],
+      "presentation": {
+        "reveal": "always"
+      }
+    },
+    {
+      "label": "Deploy on OpenShift (Spring Boot)",
+      "type": "shell",
+      "command": "./mvnw",
+      "args": ["package", "oc:build", "oc:apply"],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always"
+      }
+    }
+  ]
+}

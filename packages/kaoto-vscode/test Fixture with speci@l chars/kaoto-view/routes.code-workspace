@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "routes/folderA",
+		},
+		{
+			"path": "routes/folderB",
+		},
+	],
+	"settings": {
+		"git.openRepositoryInParentFolders": "never",
+		"redhat.telemetry.enabled": false,
+		"workbench.secondarySideBar.defaultVisibility": "hidden",
+		"window.zoomLevel": -1.5,
+		"window.openFoldersInNewWindow": "off",
+	},
+}

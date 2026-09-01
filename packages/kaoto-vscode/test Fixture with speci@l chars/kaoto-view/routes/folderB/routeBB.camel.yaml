@@ -1,0 +1,12 @@
+- route:
+    id: route-4222
+    from:
+      id: from-8283
+      uri: timer
+      parameters:
+        period: '1000'
+        timerName: template
+      steps:
+        - log:
+            id: log-1920
+            message: Hello Route BB

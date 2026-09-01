@@ -1,0 +1,22 @@
+{
+  "$schema": "../../node_modules/vscode-extension-tester/resources/extester.schema.json",
+  "setup": {
+    "extensionsDir": "./test-resources",
+    "packageOptions": {
+      "useYarn": true,
+      "dependencies": false
+    }
+  },
+  "run": {
+    "testFiles": [
+      "out/settings/*.test.js",
+      "out/views/*.test.js",
+      "out/editor/*.test.js",
+      "out/**/*NewProject.test.js"
+    ],
+    "resources": ["./test Fixture with speci@l chars"],
+    "extensionsDir": "./test-resources",
+    "settings": "./src/ui-test/vscode-settings.json",
+    "customPageObjects": "./out/pageObjects/locators.js"
+  }
+}

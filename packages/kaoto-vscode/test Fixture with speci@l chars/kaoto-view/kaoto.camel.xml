@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<camel>
+  <route id="route-1643">
+    <from uri="timer:xml?period=1000"/>
+    <setBody>
+      <simple>Hello Camel from ${routeId}</simple>
+      </setBody>
+      <log message="${body}"/>
+  </route>
+  <route id="route-1813">
+    <from id="from-2068" uri="timer:template?period=1000"/>
+    <log id="log-1952" message="${body}"/>
+  </route>
+</camel>

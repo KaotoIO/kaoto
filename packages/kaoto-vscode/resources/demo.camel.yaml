@@ -1,0 +1,58 @@
+- route:
+    id: route-8660
+    description: sensors-to-kafka
+    from:
+      id: from-4254
+      description: sensor_events
+      uri: amqp
+      parameters:
+        destinationName: sensor_events
+      steps:
+        - transform:
+            id: transform-3580
+        - choice:
+            id: choice-2856
+            otherwise:
+              id: otherwise-7547
+              description: any deviation?
+              steps:
+                - to:
+                    id: to-2617
+                    description: alert-service
+                    uri: direct
+                    parameters:
+                      name: alerts
+            when:
+              - id: when-1621
+                description: in normal range?
+                steps:
+                  - to:
+                      id: to-2739
+                      uri: kafka
+                      parameters:
+                        topic: x
+                expression:
+                  simple:
+                    expression: ${header.foo} == 1
+- route:
+    id: route-4232
+    description: alert-service
+    from:
+      id: from-3279
+      description: alert-service
+      uri: direct
+      parameters:
+        name: a
+      steps:
+        - setBody:
+            id: setBody-2152
+            description: set insert query
+            expression:
+              simple:
+                expression: a
+        - to:
+            id: to-1159
+            description: store alert
+            uri: jdbc
+            parameters:
+              dataSourceName: x

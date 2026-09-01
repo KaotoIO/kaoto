@@ -1,0 +1,6 @@
+<camel xmlns="http://camel.apache.org/schema/spring">
+    <route id="route-3976">
+        <from id="from-3035" uri="timer:template?period=1000"/>
+        <log id="log-2626" message="{{demo.name.routeB}}"/>
+    </route>
+</camel>

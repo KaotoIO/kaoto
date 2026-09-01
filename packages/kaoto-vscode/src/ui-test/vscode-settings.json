@@ -1,0 +1,9 @@
+{
+  "extensions.ignoreRecommendations": true,
+  "git.openRepositoryInParentFolders": "never",
+  "redhat.telemetry.enabled": false,
+  "window.openFoldersInNewWindow": "off",
+  "window.zoomLevel": -3,
+  "workbench.editor.useModal": "off",
+  "workbench.secondarySideBar.defaultVisibility": "hidden"
+}
