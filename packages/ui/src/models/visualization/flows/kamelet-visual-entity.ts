@@ -1,4 +1,4 @@
-import { FromDefinition } from '@kaoto/camel-catalog/types';
+import { RouteDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
@@ -15,18 +15,26 @@ import { IClipboardContent } from '../clipboard';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelComponentDefaultService } from './support/camel-component-default.service';
 
-export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string; template: { from: FromDefinition } }> {
+export class KameletVisualEntity extends AbstractCamelVisualEntity<{
+  id: string;
+  template: { route: RouteDefinition };
+}> {
   id: string;
   readonly type = EntityType.Kamelet;
-  static readonly ROOT_PATH = 'template';
+  static readonly ROOT_PATH = 'template.route';
 
   constructor(public kamelet: IKameletDefinition) {
+    const { route, from, ...templateWithoutFrom } = kamelet.spec?.template ?? {};
+
     const spec: IKameletSpec = {
       ...kamelet.spec,
       template: {
-        ...kamelet.spec?.template,
-        from: {
-          ...kamelet.spec?.template?.from,
+        ...templateWithoutFrom,
+        route: {
+          ...route,
+          from: {
+            ...(from ?? route?.from),
+          },
         },
       },
       definition: {
@@ -35,7 +43,7 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string;
         ...(kamelet.spec?.definition?.description ? { description: kamelet.spec?.definition?.description } : {}),
       },
     };
-    super({ id: kamelet.metadata?.name, template: { from: spec.template.from } });
+    super({ id: kamelet.metadata?.name, template: { route: spec.template.route } });
     this.id = (kamelet?.metadata?.name as string) ?? getCamelRandomId('kamelet');
     this.kamelet.metadata = kamelet?.metadata ?? { name: this.id };
     this.kamelet.metadata.name = kamelet?.metadata.name ?? this.id;
@@ -71,8 +79,8 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string;
     return super.getNodeLabel(path, labelType, ids);
   }
 
-  toJSON(): { from: FromDefinition } {
-    return { from: this.entityDef.template.from };
+  toJSON(): { route: RouteDefinition } {
+    return { route: this.entityDef.template.route };
   }
 
   async fetchNodeSchema(ids: IVisualizationNodeIds): Promise<KaotoSchemaDefinition['schema'] | undefined> {
@@ -130,10 +138,10 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string;
     if (
       options.mode === AddStepMode.ReplaceStep &&
       options.data.path === `${this.getRootPath()}.from` &&
-      isDefined(this.entityDef.template.from)
+      isDefined(this.entityDef.template.route.from)
     ) {
       const fromValue = CamelComponentDefaultService.getDefaultFromDefinitionValue(options.definedComponent);
-      Object.assign(this.entityDef.template.from, fromValue);
+      Object.assign(this.entityDef.template.route.from, fromValue);
       return;
     }
 
@@ -166,7 +174,7 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string;
   }
 
   protected getRootUri(): string | undefined {
-    return this.kamelet.spec.template.from?.uri;
+    return this.kamelet.spec.template.route.from.uri;
   }
 
   private async getRootKameletSchema(): Promise<KaotoSchemaDefinition['schema']> {

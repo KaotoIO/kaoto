@@ -9,7 +9,7 @@ export class KameletParser {
   static parseKameletEntity(entity: KameletVisualEntity): ParsedTable[] {
     const answer: ParsedTable[] = [];
 
-    const routeTable = KameletParser.parseRoute(entity.kamelet.spec.template.from);
+    const routeTable = KameletParser.parseRoute(entity.kamelet.spec.template.route.from);
     answer.push(routeTable);
 
     const definitionTable = KameletParser.parseDefinition(entity.kamelet.spec.definition);

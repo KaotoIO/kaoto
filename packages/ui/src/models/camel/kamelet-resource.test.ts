@@ -43,12 +43,14 @@ describe('KameletResource', () => {
         },
         dependencies: [],
         template: {
-          from: {
-            id: 'from',
-            uri: 'kamelet:source',
-            steps: [],
-          },
           beans: [],
+          route: {
+            from: {
+              id: 'from',
+              uri: 'kamelet:source',
+              steps: [],
+            },
+          },
         },
       },
     });

@@ -54,7 +54,9 @@ describe('KameletVisualEntity', () => {
           type: 'source',
         },
         template: {
-          from: camelFromJson.from,
+          route: {
+            from: camelFromJson.from,
+          },
         },
         dependencies: [],
       },
@@ -63,6 +65,12 @@ describe('KameletVisualEntity', () => {
 
   it('should create an instance', () => {
     expect(new KameletVisualEntity(kameletDef)).toBeTruthy();
+  });
+
+  it('should normalize template.from to template.route.from and remove template.from', () => {
+    const kameletVisualEntity = new KameletVisualEntity(kameletDef);
+    expect(kameletVisualEntity.kamelet.spec.template.from).toBeUndefined();
+    expect(kameletVisualEntity.kamelet.spec.template.route?.from).toEqual(camelFromJson.from);
   });
 
   it('should set the id to the name if provided', () => {
@@ -138,12 +146,27 @@ describe('KameletVisualEntity', () => {
     expect(fetchNodeSchemaSpy).toHaveBeenCalledWith(ids);
   });
 
-  it('should return the root uri', () => {
+  it('should return the root uri when using template.from (short syntax)', () => {
     class KameletVisualEntityTest extends KameletVisualEntity {
       getRootUri(): string | undefined {
         return super.getRootUri();
       }
     }
+    const kamelet = new KameletVisualEntityTest(kameletDef);
+    expect(kamelet.getRootUri()).toBe('timer');
+  });
+
+  it('should return the root uri when using template.route.from', () => {
+    class KameletVisualEntityTest extends KameletVisualEntity {
+      getRootUri(): string | undefined {
+        return super.getRootUri();
+      }
+    }
+    kameletDef.spec.template = {
+      route: {
+        from: camelFromJson.from,
+      },
+    };
     const kamelet = new KameletVisualEntityTest(kameletDef);
     expect(kamelet.getRootUri()).toBe('timer');
   });
