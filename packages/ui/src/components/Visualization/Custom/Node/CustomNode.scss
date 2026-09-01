@@ -36,23 +36,6 @@
         border-left: var(--custom-component-border-possibleDropTarget);
       }
 
-      &__draggable {
-        @include dnd.cursor-grab;
-
-        &:active {
-          cursor: grabbing;
-        }
-      }
-
-      // Drag preview under the pointer (already dragging — use grabbing, not grab).
-      &__grabbing-cursor {
-        @include dnd.cursor-grabbing;
-      }
-
-      &__draggedNode {
-        @include custom.drag-node;
-      }
-
       &__image {
         position: relative;
         display: flex;
@@ -70,6 +53,23 @@
           max-width: 100%;
           height: 100%;
         }
+      }
+
+      &__draggable {
+        @include dnd.cursor-grab;
+
+        &:active {
+          cursor: grabbing;
+        }
+      }
+
+      // Drag preview under the pointer (already dragging — use grabbing, not grab).
+      &__grabbing-cursor {
+        @include dnd.cursor-grabbing;
+      }
+
+      &__draggedNode {
+        @include custom.drag-node;
       }
 
       &:hover &__image,

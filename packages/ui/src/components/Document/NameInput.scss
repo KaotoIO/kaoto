@@ -17,18 +17,18 @@
     background: var(--pf-t--global--background--color--primary--default);
     color: var(--pf-t--global--text--color--regular);
 
-    &:focus {
-      outline: 2px solid var(--pf-t--global--border--color--clicked);
-      outline-offset: -2px;
-      border-color: var(--pf-t--global--border--color--clicked);
-    }
-
     &--success {
       border-color: var(--pf-t--global--border--color--status--success--default);
     }
 
     &--error {
       border-color: var(--pf-t--global--border--color--status--danger--default);
+    }
+
+    &:focus {
+      outline: 2px solid var(--pf-t--global--border--color--clicked);
+      outline-offset: -2px;
+      border-color: var(--pf-t--global--border--color--clicked);
     }
 
     &::placeholder {
