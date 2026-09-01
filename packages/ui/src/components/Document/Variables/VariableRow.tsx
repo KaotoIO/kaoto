@@ -82,17 +82,18 @@ export const VariableRow: FunctionComponent<VariableRowProps> = ({
     (newName: string) => {
       MappingService.renameVariableReferences(variable, newName);
       MappingService.updateVariable(variable, newName, variable.expression);
-      refreshMappingTree();
+      refreshMappingTree({ structural: true });
       onStopRename();
     },
     [variable, refreshMappingTree, onStopRename],
   );
 
   const handleExpressionUpdate = useCallback(() => {
-    if (variable.rawElement && variable.expression) {
+    const isStructural = !!(variable.rawElement && variable.expression);
+    if (isStructural) {
       variable.rawElement = undefined;
     }
-    refreshMappingTree();
+    refreshMappingTree(isStructural ? { structural: true } : undefined);
   }, [variable, refreshMappingTree]);
 
   if (isRenaming) {
