@@ -10,7 +10,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  /* stylelint-disable carbon/theme-use -- custom brand gradient, not a Carbon token */
   background: radial-gradient(circle, var(--cs-brand-alt) 20%, rgb(0 0 0 / 0%) 50%);
+  /* stylelint-enable carbon/theme-use */
 }
 
 .cs--common-header__logo {
