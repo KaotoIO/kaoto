@@ -1,4 +1,4 @@
-import { BeanFactory, FromDefinition, Kamelet } from '@kaoto/camel-catalog/types';
+import { BeanFactory, FromDefinition, Kamelet, RouteDefinition } from '@kaoto/camel-catalog/types';
 
 import { KaotoSchemaDefinition } from '../kaoto-schema';
 import { SourceSchemaType } from './source-schema-type';
@@ -49,7 +49,8 @@ export interface IKameletSpec {
   dependencies: string[];
   template: {
     beans?: BeanFactory[];
-    from: FromDefinition;
+    route: RouteDefinition;
+    from?: FromDefinition;
   };
   dataTypes?: {
     in?: {

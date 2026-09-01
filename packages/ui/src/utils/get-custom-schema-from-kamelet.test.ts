@@ -44,26 +44,28 @@ describe('getCustomSchemaFromKamelet', () => {
         },
         dependencies: ['camel:timer', 'camel:http', 'camel:kamelet'],
         template: {
-          from: {
-            steps: [
-              {
-                to: {
-                  uri: 'https',
-                  parameters: {
-                    httpUri: 'random-data-api.com/api/v2/users',
+          route: {
+            from: {
+              steps: [
+                {
+                  to: {
+                    uri: 'https',
+                    parameters: {
+                      httpUri: 'random-data-api.com/api/v2/users',
+                    },
                   },
                 },
+                {
+                  to: 'kamelet:sink',
+                },
+              ],
+              id: 'from-3836',
+              parameters: {
+                period: '{{period}}',
+                timerName: 'user',
               },
-              {
-                to: 'kamelet:sink',
-              },
-            ],
-            id: 'from-3836',
-            parameters: {
-              period: '{{period}}',
-              timerName: 'user',
+              uri: 'timer',
             },
-            uri: 'timer',
           },
         },
         types: {

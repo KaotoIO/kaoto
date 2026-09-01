@@ -38,26 +38,28 @@ exports[`KameletResource > should convert to JSON 1`] = `
     ],
     "template": {
       "beans": undefined,
-      "from": {
-        "id": "from-1234",
-        "parameters": {
-          "period": "{{period}}",
-          "timerName": "user",
-        },
-        "steps": [
-          {
-            "to": {
-              "parameters": {
-                "httpUri": "random-data-api.com/api/v2/users",
+      "route": {
+        "from": {
+          "id": "from-1234",
+          "parameters": {
+            "period": "{{period}}",
+            "timerName": "user",
+          },
+          "steps": [
+            {
+              "to": {
+                "parameters": {
+                  "httpUri": "random-data-api.com/api/v2/users",
+                },
+                "uri": "https",
               },
-              "uri": "https",
             },
-          },
-          {
-            "to": "kamelet:sink",
-          },
-        ],
-        "uri": "timer",
+            {
+              "to": "kamelet:sink",
+            },
+          ],
+          "uri": "timer",
+        },
       },
     },
     "types": {
@@ -107,26 +109,28 @@ exports[`KameletResource > should create a new KameletResource 1`] = `
     ],
     "template": {
       "beans": undefined,
-      "from": {
-        "id": "from-1234",
-        "parameters": {
-          "period": "{{period}}",
-          "timerName": "user",
-        },
-        "steps": [
-          {
-            "to": {
-              "parameters": {
-                "httpUri": "random-data-api.com/api/v2/users",
+      "route": {
+        "from": {
+          "id": "from-1234",
+          "parameters": {
+            "period": "{{period}}",
+            "timerName": "user",
+          },
+          "steps": [
+            {
+              "to": {
+                "parameters": {
+                  "httpUri": "random-data-api.com/api/v2/users",
+                },
+                "uri": "https",
               },
-              "uri": "https",
             },
-          },
-          {
-            "to": "kamelet:sink",
-          },
-        ],
-        "uri": "timer",
+            {
+              "to": "kamelet:sink",
+            },
+          ],
+          "uri": "timer",
+        },
       },
     },
     "types": {
@@ -163,10 +167,12 @@ exports[`KameletResource > should create a new KameletResource with a kamelet 1`
     "dependencies": [],
     "template": {
       "beans": [],
-      "from": {
-        "id": "from",
-        "steps": [],
-        "uri": "kamelet:source",
+      "route": {
+        "from": {
+          "id": "from",
+          "steps": [],
+          "uri": "kamelet:source",
+        },
       },
     },
   },
@@ -176,26 +182,28 @@ exports[`KameletResource > should create a new KameletResource with a kamelet 1`
 exports[`KameletResource > should get the visual entities (Camel Route Visual Entity) 1`] = `
 [
   {
-    "from": {
-      "id": "from-1234",
-      "parameters": {
-        "period": "{{period}}",
-        "timerName": "user",
-      },
-      "steps": [
-        {
-          "to": {
-            "parameters": {
-              "httpUri": "random-data-api.com/api/v2/users",
+    "route": {
+      "from": {
+        "id": "from-1234",
+        "parameters": {
+          "period": "{{period}}",
+          "timerName": "user",
+        },
+        "steps": [
+          {
+            "to": {
+              "parameters": {
+                "httpUri": "random-data-api.com/api/v2/users",
+              },
+              "uri": "https",
             },
-            "uri": "https",
           },
-        },
-        {
-          "to": "kamelet:sink",
-        },
-      ],
-      "uri": "timer",
+          {
+            "to": "kamelet:sink",
+          },
+        ],
+        "uri": "timer",
+      },
     },
   },
 ]
