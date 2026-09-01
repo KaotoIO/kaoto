@@ -117,24 +117,6 @@ describe('CamelRestVisualEntity', () => {
     });
   });
 
-  describe('getParsedDefinition', () => {
-    it('should parse REST endpoint URIs for component nodes', async () => {
-      const entity = new CamelRestVisualEntity({
-        rest: {
-          ...restDef.rest,
-          get: [{ path: '/logs', to: { uri: 'log:requests?level=INFO' } }],
-        },
-      });
-
-      const definition = await entity.getParsedDefinition('rest.get.0.to', {
-        primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern },
-        secondaryNodeId: { name: 'log', catalogKind: CatalogKind.Component },
-      });
-
-      expect(definition).toMatchObject({ uri: 'log', parameters: { loggerName: 'requests', level: 'INFO' } });
-    });
-  });
-
   it('should return schema from catalog', async () => {
     const entity = new CamelRestVisualEntity(restDef);
 

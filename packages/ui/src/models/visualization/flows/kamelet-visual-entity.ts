@@ -87,6 +87,14 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string;
     return await super.fetchNodeSchema(ids);
   }
 
+  async fetchNodeDefinition(path?: string, ids?: IVisualizationNodeIds): Promise<unknown> {
+    if (path === this.getRootPath()) {
+      return getCustomSchemaFromKamelet(this.kamelet);
+    }
+
+    return super.fetchNodeDefinition(path, ids);
+  }
+
   getNodeDefinition(path?: string, ids?: IVisualizationNodeIds): unknown {
     if (path === this.getRootPath()) {
       return getCustomSchemaFromKamelet(this.kamelet);

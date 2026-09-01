@@ -89,6 +89,10 @@ export class PipeVisualEntity implements BaseVisualEntity {
     return definition?.propertiesSchema;
   }
 
+  async fetchNodeDefinition(): Promise<unknown> {
+    return undefined;
+  }
+
   getNodeDefinition(path?: string): unknown {
     if (!path) return undefined;
     if (path === this.getRootPath()) {

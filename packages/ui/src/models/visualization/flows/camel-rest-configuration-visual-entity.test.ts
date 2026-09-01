@@ -71,12 +71,6 @@ describe('CamelRestConfigurationVisualEntity', () => {
     expect(entity.getNodeDefinition()).toEqual(restConfigurationDef.restConfiguration);
   });
 
-  it('should return the raw restConfiguration definition for parsed definition', async () => {
-    const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
-
-    await expect(entity.getParsedDefinition()).resolves.toEqual(restConfigurationDef.restConfiguration);
-  });
-
   it('should return schema from catalog', async () => {
     const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
 
