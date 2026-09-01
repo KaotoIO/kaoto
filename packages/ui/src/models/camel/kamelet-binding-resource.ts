@@ -23,9 +23,4 @@ export class KameletBindingResource extends PipeResource {
   getType(): SourceSchemaType {
     return SourceSchemaType.KameletBinding;
   }
-
-  addNewEntity(): string {
-    //TODO
-    return '';
-  }
 }

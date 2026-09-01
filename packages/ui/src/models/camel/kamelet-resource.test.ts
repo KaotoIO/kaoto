@@ -153,6 +153,44 @@ describe('KameletResource', () => {
     });
   });
 
+  describe('addNewEntity', () => {
+    it('should apply a pasted kamelet template including intermediate steps', async () => {
+      const resource = new KameletResource();
+      await resource.initialize();
+      resource.removeEntity();
+
+      const id = resource.addNewEntity(undefined, cloneDeep(kameletJson));
+
+      expect(id).toBe('user-source');
+      const from = resource.getVisualEntities()[0].toJSON().from;
+      expect(from.uri).toBe('timer');
+      expect(from.steps).toHaveLength(2);
+    });
+
+    it('should rebuild beans from the replacement template', async () => {
+      const withBeans = cloneDeep(kameletJson);
+      withBeans.spec.template.beans = [{ name: 'myBean' }];
+      const resource = new KameletResource();
+      await resource.initialize();
+      resource.createRouteTemplateBeansEntity();
+
+      resource.addNewEntity(undefined, withBeans);
+
+      expect(resource.getRouteTemplateBeansEntity()?.parent.beans).toEqual([{ name: 'myBean' }]);
+    });
+
+    it('should clear beans when the replacement template has none', async () => {
+      const resource = new KameletResource(cloneDeep(kameletJson));
+      await resource.initialize();
+      resource.createRouteTemplateBeansEntity();
+      expect(resource.getRouteTemplateBeansEntity()).toBeDefined();
+
+      resource.addNewEntity(undefined, cloneDeep(kameletJson));
+
+      expect(resource.getRouteTemplateBeansEntity()).toBeUndefined();
+    });
+  });
+
   it('should support RouteTemplateBeansAwareResource methods', async () => {
     const model = cloneDeep(kameletJson);
     expect(model.spec.template.beans).toBeUndefined();
