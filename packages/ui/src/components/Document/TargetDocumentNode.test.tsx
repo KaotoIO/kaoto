@@ -698,7 +698,7 @@ describe('TargetDocumentNode', () => {
       expect(nodeContainer).toHaveAttribute('data-selected', 'true');
     });
 
-    it('should call applyValueSelector and handleUpdate on double click', () => {
+    it('should call applyValueOfSelector and handleUpdate on double click', () => {
       const document = new PrimitiveDocument(
         new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
       );
@@ -708,7 +708,7 @@ describe('TargetDocumentNode', () => {
       const getAllowedActionsSpy = vi
         .spyOn(MappingActionRegistryService, 'getAllowedActions')
         .mockReturnValue([MappingActionKind.ValueSelector]);
-      const applyValueSelectorSpy = vi.spyOn(MappingActionService, 'applyValueSelector');
+      const applyValueOfSelectorSpy = vi.spyOn(MappingActionService, 'applyValueOfSelector');
 
       render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
 
@@ -718,14 +718,14 @@ describe('TargetDocumentNode', () => {
       fireEvent.doubleClick(nodeContainer);
 
       expect(getAllowedActionsSpy).toHaveBeenCalledWith(documentNodeData);
-      expect(applyValueSelectorSpy).toHaveBeenCalledWith(documentNodeData);
-      expect(applyValueSelectorSpy).toHaveBeenCalledTimes(1);
+      expect(applyValueOfSelectorSpy).toHaveBeenCalledWith(documentNodeData);
+      expect(applyValueOfSelectorSpy).toHaveBeenCalledTimes(1);
 
       getAllowedActionsSpy.mockRestore();
-      applyValueSelectorSpy.mockRestore();
+      applyValueOfSelectorSpy.mockRestore();
     });
 
-    it('should not call applyValueSelector when allowValueSelector is false', () => {
+    it('should not call applyValueOfSelector when allowValueSelector is false', () => {
       const document = new PrimitiveDocument(
         new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
       );
@@ -733,7 +733,7 @@ describe('TargetDocumentNode', () => {
       const tree = new DocumentTree(documentNodeData);
 
       const getAllowedActionsSpy = vi.spyOn(MappingActionRegistryService, 'getAllowedActions').mockReturnValue([]);
-      const applyValueSelectorSpy = vi.spyOn(MappingActionService, 'applyValueSelector');
+      const applyValueOfSelectorSpy = vi.spyOn(MappingActionService, 'applyValueOfSelector');
 
       render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
 
@@ -743,10 +743,10 @@ describe('TargetDocumentNode', () => {
       fireEvent.doubleClick(nodeContainer);
 
       expect(getAllowedActionsSpy).toHaveBeenCalledWith(documentNodeData);
-      expect(applyValueSelectorSpy).not.toHaveBeenCalled();
+      expect(applyValueOfSelectorSpy).not.toHaveBeenCalled();
 
       getAllowedActionsSpy.mockRestore();
-      applyValueSelectorSpy.mockRestore();
+      applyValueOfSelectorSpy.mockRestore();
     });
   });
 

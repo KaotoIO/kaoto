@@ -405,7 +405,7 @@ export class CopyOfSelector extends ValueSelector {
     public parent: MappingParentType,
     public valueType: CopyOfType = CopyOfType.CONTAINER,
   ) {
-    super(parent, 'copy-of');
+    super(parent, 'copy');
   }
   doClone() {
     return new CopyOfSelector(this.parent, this.valueType);

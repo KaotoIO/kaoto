@@ -27,8 +27,11 @@ export const FieldNodeTitle: FunctionComponent<FieldNodeTitleProps> = ({ classNa
   const repeatingField0 = nodeData.field.minOccurs >= 0 && nodeData.field.maxOccurs === 'unbounded';
   const repeatingField1 = nodeData.field.minOccurs >= 1 && nodeData.field.maxOccurs === 'unbounded';
 
+  const inlineCopyOf = VisualizationUtilService.getInlineContainerCopyOf(nodeData);
+
   return (
     <div className={clsx('node-title-container', { 'node-title-container__abstract': isAbstractWrapper })}>
+      {inlineCopyOf && <Label data-testid="field-copy-of-label">{inlineCopyOf.name}</Label>}
       {isChoiceWrapper && <Label>choice</Label>}
       {isSelectedChoiceWrapper && (
         <Label color="green" icon={<CheckIcon />}>

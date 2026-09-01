@@ -589,10 +589,20 @@ describe('VisualizationService', () => {
   });
 
   describe('isInlineValueSelector()', () => {
-    it('should return true for VALUE ValueOfSelector', () => {
-      const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
-      const vs = new ValueOfSelector(fieldItem, ValueOfType.VALUE);
+    it('should return true for VALUE ValueOfSelector on a leaf field', () => {
+      // targetDoc.fields[0] is ShipOrder (container). Its first child field is a leaf (no children).
+      const shipOrderFI = new FieldItem(tree, targetDoc.fields[0]);
+      const leafField = targetDoc.fields[0].fields[0]; // e.g. OrderId — a leaf field
+      const leafFI = new FieldItem(shipOrderFI, leafField);
+      const vs = new ValueOfSelector(leafFI, ValueOfType.VALUE);
       expect(VisualizationService.isInlineValueSelector(vs)).toBe(true);
+    });
+
+    it('should return false for VALUE ValueOfSelector on an expandable field (has children)', () => {
+      // ShipOrder has child fields, so value-of on it renders as an explicit tree node
+      const shipOrderFI = new FieldItem(tree, targetDoc.fields[0]);
+      const vs = new ValueOfSelector(shipOrderFI, ValueOfType.VALUE);
+      expect(VisualizationService.isInlineValueSelector(vs)).toBe(false);
     });
 
     it('should return true for ATTRIBUTE ValueOfSelector', () => {
