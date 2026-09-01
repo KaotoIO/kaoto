@@ -4,37 +4,19 @@ import { isDefined } from '@kaoto/forms';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { getValue, setValue } from '../../../utils';
-import { DefinedComponent } from '../../camel/camel-catalog-index';
-import { CatalogKind } from '../../catalog-kind';
+import { uriDefinitionParser } from '../../camel/parsers/uri-definition.parser';
 import { EntityType } from '../../entities/base-entity';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
-import { NodeLabelType } from '../../settings/settings.model';
-import {
-  REST_DSL_VERBS,
-  REST_ELEMENT_NAME,
-  RestMethods,
-  SPECIAL_PROCESSORS_PARENTS_MAP,
-} from '../../special-processors.constants';
-import {
-  AddStepMode,
-  BaseVisualEntity,
-  IVisualizationNode,
-  IVisualizationNodeData,
-  IVisualizationNodeIds,
-  NodeInteraction,
-} from '../base-visual-entity';
-import { NodeIdentity } from '../node-identity';
-import { createVisualizationNode } from '../visualization-node';
-import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
-import { NodeEnrichmentService } from './nodes/node-enrichment.service';
+import { REST_DSL_VERBS, RestMethods, SPECIAL_PROCESSORS_PARENTS_MAP } from '../../special-processors.constants';
+import { IVisualizationNodeIds } from '../base-visual-entity';
+import { RestEntity } from './rest-entity';
 
-export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Rest }> implements BaseVisualEntity {
+export class CamelRestVisualEntity implements RestEntity {
   id: string;
   readonly type = EntityType.Rest;
   static readonly ROOT_PATH = 'rest';
 
   constructor(public restDef: { rest: Rest } = { rest: {} }) {
-    super(restDef);
     const id = restDef.rest.id ?? getCamelRandomId(CamelRestVisualEntity.ROOT_PATH);
     this.id = id;
     this.restDef.rest.id = id;
@@ -48,16 +30,23 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
     return Object.keys(restDef).length === 1 && this.ROOT_PATH in restDef && typeof restDef.rest === 'object';
   }
 
-  getNodeLabel(path?: string, labelType?: NodeLabelType, ids?: IVisualizationNodeIds): string {
-    if (path === 'rest.placeholder') {
-      return 'verb';
-    }
-
-    return super.getNodeLabel(path, labelType, ids);
-  }
-
   removeStep(path?: string): void {
-    super.removeStep(path);
+    if (!path) return;
+
+    const pathArray = path.split('.');
+    const last = pathArray[pathArray.length - 1];
+    const penultimate = pathArray[pathArray.length - 2];
+
+    if (Number.isInteger(Number(last))) {
+      const array = getValue(this.restDef, pathArray.slice(0, -1), []);
+      if (Array.isArray(array)) array.splice(Number(last), 1);
+    } else if (Number.isInteger(Number(penultimate))) {
+      const array = getValue(this.restDef, pathArray.slice(0, -2), []);
+      if (Array.isArray(array)) array.splice(Number(penultimate), 1);
+    } else {
+      const object = getValue(this.restDef, pathArray.slice(0, -1), {});
+      if (object && typeof object === 'object') delete object[last];
+    }
 
     const restVerbs = SPECIAL_PROCESSORS_PARENTS_MAP['rest'];
     for (const verb of restVerbs) {
@@ -70,6 +59,10 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
 
   getRootPath() {
     return CamelRestVisualEntity.ROOT_PATH;
+  }
+
+  getId(): string {
+    return this.id;
   }
 
   setId(id: string): void {
@@ -88,7 +81,9 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
     return definition?.propertiesSchema;
   }
 
-  getNodeDefinition(path?: string, ids?: IVisualizationNodeIds): unknown {
+  getNodeDefinition(path?: string, _ids?: IVisualizationNodeIds): unknown {
+    if (!path) return undefined;
+
     if (path === CamelRestVisualEntity.ROOT_PATH) {
       return { ...this.restDef.rest };
     }
@@ -100,7 +95,21 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
       return { ...getValue(this.restDef, path) };
     }
 
-    return super.getNodeDefinition(path, ids);
+    return getValue(this.restDef, path);
+  }
+
+  async getParsedDefinition(path?: string, ids?: IVisualizationNodeIds): Promise<unknown> {
+    const definition = this.getNodeDefinition(path, ids);
+    if (definition == null) return definition;
+
+    const componentName =
+      ids?.secondaryNodeId?.name === 'kamelet' && ids?.tertiaryNodeId?.name !== undefined
+        ? `kamelet:${ids.tertiaryNodeId.name}`
+        : ids?.secondaryNodeId?.name;
+
+    if (!componentName) return definition;
+
+    return uriDefinitionParser(componentName, definition as Record<string, unknown>);
   }
 
   updateModel(path: string | undefined, value: unknown): void {
@@ -113,61 +122,7 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
     }
   }
 
-  addStep(options: {
-    definedComponent: DefinedComponent;
-    mode: AddStepMode;
-    data: IVisualizationNodeData;
-    targetProperty?: string;
-  }): void {
-    const path = options.data.path?.replace('.placeholder', '');
-    const updatedOptions = { ...options, data: { ...options.data, path } };
-
-    super.addStep(updatedOptions);
-  }
-
-  getNodeInteraction(data: IVisualizationNodeData): NodeInteraction {
-    const isRootPath = data.path === CamelRestVisualEntity.ROOT_PATH;
-    if (isRootPath || data.path?.endsWith('to')) {
-      return {
-        canHavePreviousStep: false,
-        canHaveNextStep: false,
-        canHaveChildren: false,
-        canHaveSpecialChildren: isRootPath,
-        canRemoveStep: !isRootPath,
-        canReplaceStep: false,
-        canRemoveFlow: isRootPath,
-        canBeDisabled: isRootPath,
-      };
-    }
-
-    return super.getNodeInteraction(data);
-  }
-
-  async toVizNode(): Promise<IVisualizationNode<IVisualizationNodeData>> {
-    const restGroupNode = createVisualizationNode(this.getRootPath(), {
-      name: this.type,
-      path: this.getRootPath(),
-      entity: this,
-      isPlaceholder: false,
-      isGroup: true,
-      iconUrl: '',
-      title: '',
-      description: '',
-      processorIconTooltip: '',
-      processorName: REST_ELEMENT_NAME,
-      primaryNodeId: { name: this.type, catalogKind: CatalogKind.Entity } satisfies NodeIdentity,
-    });
-
-    await NodeEnrichmentService.enrichVisualizationTree(restGroupNode);
-
-    return restGroupNode;
-  }
-
   toJSON(): { rest: Rest } {
     return { rest: this.restDef.rest };
-  }
-
-  protected getRootUri(): string | undefined {
-    return undefined;
   }
 }

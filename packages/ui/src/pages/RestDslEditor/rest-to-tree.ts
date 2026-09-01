@@ -1,9 +1,10 @@
 import { Rest } from '@kaoto/camel-catalog/types';
 
-import { BaseVisualEntity, CatalogKind, IVisualizationNodeIds } from '../../models';
+import { CatalogKind, IVisualizationNodeIds } from '../../models';
 import { REST_DSL_VERBS } from '../../models/special-processors.constants';
 import { CamelRestConfigurationVisualEntity } from '../../models/visualization/flows/camel-rest-configuration-visual-entity';
 import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';
+import { RestEntity } from '../../models/visualization/flows/rest-entity';
 
 /**
  * Represents a node in the REST DSL tree structure.
@@ -19,17 +20,17 @@ export interface RestTreeNode extends IVisualizationNodeIds {
 }
 
 /**
- * Converts visual entities into a tree structure for REST DSL display.
+ * Converts REST entities into a tree structure for REST DSL display.
  * Processes RestConfiguration and Rest entities, organizing REST methods as child nodes.
  *
- * @param visualEntities - Array of visual entities to convert
+ * @param restEntities - Array of REST entities to convert
  * @returns Array of tree nodes representing the REST DSL hierarchy
  */
-export const restToTree = (visualEntities: BaseVisualEntity[]): RestTreeNode[] => {
-  const restConfigEntities: CamelRestConfigurationVisualEntity[] = visualEntities.filter(
+export const restToTree = (restEntities: RestEntity[]): RestTreeNode[] => {
+  const restConfigEntities: CamelRestConfigurationVisualEntity[] = restEntities.filter(
     (entity) => entity instanceof CamelRestConfigurationVisualEntity,
   );
-  const restEntities = visualEntities.filter((entity) => entity instanceof CamelRestVisualEntity);
+  const restVisualEntities = restEntities.filter((entity) => entity instanceof CamelRestVisualEntity);
 
   const restConfigNodes: RestTreeNode[] = restConfigEntities.map((entity) => {
     const entityId = entity.getId();
@@ -47,7 +48,7 @@ export const restToTree = (visualEntities: BaseVisualEntity[]): RestTreeNode[] =
     };
   });
 
-  const restNodes: RestTreeNode[] = restEntities.map((entity) => {
+  const restNodes: RestTreeNode[] = restVisualEntities.map((entity) => {
     const entityId = entity.getId();
     const methodsTreeNodes: RestTreeNode[] = [];
     const restDef = entity.getNodeDefinition(entity.getRootPath()) as Rest;

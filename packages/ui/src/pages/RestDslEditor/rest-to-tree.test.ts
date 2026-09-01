@@ -1,18 +1,18 @@
 import { CamelResourceFactory } from '../../models/camel/camel-resource-factory';
 import { CatalogKind } from '../../models/catalog-kind';
 import { KaotoResource } from '../../models/kaoto-resource';
-import { BaseVisualEntity } from '../../models/visualization/base-visual-entity';
 import { CamelRestConfigurationVisualEntity } from '../../models/visualization/flows/camel-rest-configuration-visual-entity';
 import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';
+import { RestEntity } from '../../models/visualization/flows/rest-entity';
 import { restToTree, RestTreeNode } from './rest-to-tree';
 
 /** Helper to get REST-related entities (non-visual after refactor) */
-const getRestEntities = (camelResource: KaotoResource): BaseVisualEntity[] =>
+const getRestEntities = (camelResource: KaotoResource): RestEntity[] =>
   camelResource
     .getEntities()
     .filter(
       (e) => e instanceof CamelRestVisualEntity || e instanceof CamelRestConfigurationVisualEntity,
-    ) as BaseVisualEntity[];
+    ) as RestEntity[];
 
 describe('restToTree', () => {
   let camelResource: KaotoResource;

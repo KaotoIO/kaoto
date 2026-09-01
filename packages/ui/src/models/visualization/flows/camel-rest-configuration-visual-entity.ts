@@ -1,29 +1,18 @@
-import { ProcessorDefinition, RestConfiguration } from '@kaoto/camel-catalog/types';
-import { getValidator, isDefined } from '@kaoto/forms';
+import { RestConfiguration } from '@kaoto/camel-catalog/types';
+import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { setValue } from '../../../utils';
-import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities/base-entity';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
-import {
-  BaseVisualEntity,
-  IVisualizationNode,
-  IVisualizationNodeData,
-  IVisualizationNodeIds,
-  NodeInteraction,
-} from '../base-visual-entity';
-import { IClipboardContent } from '../clipboard';
-import { NodeIdentity } from '../node-identity';
-import { createVisualizationNode } from '../visualization-node';
-import { NodeEnrichmentService } from './nodes/node-enrichment.service';
+import { IVisualizationNodeIds } from '../base-visual-entity';
+import { RestEntity } from './rest-entity';
 
-export class CamelRestConfigurationVisualEntity implements BaseVisualEntity {
+export class CamelRestConfigurationVisualEntity implements RestEntity {
   id: string;
   readonly type = EntityType.RestConfiguration;
   static readonly ROOT_PATH = 'restConfiguration';
-  private schemaValidator: ReturnType<typeof getValidator>;
 
   constructor(public restConfigurationDef: { restConfiguration: RestConfiguration } = { restConfiguration: {} }) {
     const id = getCamelRandomId('restConfiguration');
@@ -60,33 +49,6 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualEntity {
     this.id = id;
   }
 
-  getNodeLabel(): string {
-    return 'restConfiguration';
-  }
-
-  addStep(): void {
-    return;
-  }
-
-  getCopiedContent(): IClipboardContent | undefined {
-    return {
-      name: CamelRestConfigurationVisualEntity.ROOT_PATH,
-      definition: this.restConfigurationDef.restConfiguration,
-    };
-  }
-
-  pasteStep(): void {
-    return;
-  }
-
-  canDragNode(_path?: string) {
-    return false;
-  }
-
-  canDropOnNode(_path?: string) {
-    return false;
-  }
-
   removeStep(): void {
     return;
   }
@@ -107,8 +69,8 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualEntity {
     return { ...this.restConfigurationDef.restConfiguration };
   }
 
-  getOmitFormFields(): string[] {
-    return [];
+  async getParsedDefinition(): Promise<unknown> {
+    return this.getNodeDefinition();
   }
 
   updateModel(path: string | undefined, value: unknown): void {
@@ -119,49 +81,6 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualEntity {
     if (!isDefined(this.restConfigurationDef.restConfiguration)) {
       this.restConfigurationDef.restConfiguration = {};
     }
-  }
-
-  getNodeInteraction(): NodeInteraction {
-    return {
-      canHavePreviousStep: false,
-      canHaveNextStep: false,
-      canHaveChildren: false,
-      canHaveSpecialChildren: false,
-      canRemoveStep: false,
-      canReplaceStep: false,
-      canRemoveFlow: true,
-      canBeDisabled: false,
-    };
-  }
-
-  async getNodeValidationText(_path?: string, schema?: KaotoSchemaDefinition['schema']): Promise<string | undefined> {
-    if (!schema) return undefined;
-
-    this.schemaValidator ??= getValidator<RestConfiguration>(schema, { useDefaults: 'empty' });
-
-    this.schemaValidator?.({ ...this.restConfigurationDef.restConfiguration });
-
-    return this.schemaValidator?.errors?.map((error) => `'${error.instancePath}' ${error.message}`).join(',\n');
-  }
-
-  async toVizNode(): Promise<IVisualizationNode<IVisualizationNodeData>> {
-    const restConfigurationGroupNode = createVisualizationNode(this.getRootPath(), {
-      name: this.type,
-      path: this.getRootPath(),
-      entity: this,
-      isPlaceholder: false,
-      isGroup: true,
-      iconUrl: '',
-      title: '',
-      description: '',
-      processorIconTooltip: '',
-      processorName: 'restConfiguration' as keyof ProcessorDefinition,
-      primaryNodeId: { name: this.type, catalogKind: CatalogKind.Entity } satisfies NodeIdentity,
-    });
-
-    await NodeEnrichmentService.enrichVisualizationTree(restConfigurationGroupNode);
-
-    return restConfigurationGroupNode;
   }
 
   toJSON(): { restConfiguration: RestConfiguration } {

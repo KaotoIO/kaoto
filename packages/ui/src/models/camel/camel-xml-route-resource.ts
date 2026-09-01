@@ -23,7 +23,7 @@ import { EntityDefinition } from '../../serializers/xml/serializers/entitiy-defi
 import { KaotoXmlSerializer } from '../../serializers/xml/serializers/kaoto-xml-serializer';
 import { insertXmlComments, parseXmlComments } from '../../utils/xml-comments';
 import { EntityType } from '../entities';
-import { BaseVisualCamelEntityConstructor } from '../visualization/base-visual-entity';
+import { BaseEntityConstructor } from '../visualization/base-visual-entity';
 import { FlowTemplateService } from '../visualization/flows/support/flow-templates-service';
 import { CamelRouteResource } from './camel-route-resource';
 import { SourceSchemaType } from './source-schema-type';
@@ -31,7 +31,7 @@ import { SourceSchemaType } from './source-schema-type';
 type SupportedEntity = {
   type: EntityType;
   group: string;
-  Entity: BaseVisualCamelEntityConstructor;
+  Entity: BaseEntityConstructor;
   isVisualEntity: boolean;
   isYamlOnly?: boolean;
 };

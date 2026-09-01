@@ -2,16 +2,16 @@ import { Add, TrashCan } from '@carbon/icons-react';
 import { MenuButton, MenuItem, MenuItemDivider } from '@carbon/react';
 import { FunctionComponent, RefObject, useLayoutEffect, useMemo, useRef } from 'react';
 
-import { BaseVisualEntity } from '../../../models';
 import { CamelRestConfigurationVisualEntity } from '../../../models/visualization/flows/camel-rest-configuration-visual-entity';
 import { CamelRestVisualEntity } from '../../../models/visualization/flows/camel-rest-visual-entity';
+import { RestEntity } from '../../../models/visualization/flows/rest-entity';
 import { IRestTreeSelection } from './RestTree';
 
 /**
  * Props for the RestTreeToolbar component.
  */
 export interface RestTreeToolbarProps {
-  entities: BaseVisualEntity[];
+  entities: RestEntity[];
   selectedElement?: IRestTreeSelection;
   launcherButtonRef?: RefObject<HTMLButtonElement | null>;
   onAddRestConfiguration: () => void;

@@ -2,8 +2,8 @@ import { fireEvent, render, screen } from '@testing-library/react';
 
 import { CamelResourceFactory } from '../../../models/camel/camel-resource-factory';
 import { CatalogKind } from '../../../models/catalog-kind';
-import { BaseVisualEntity } from '../../../models/visualization/base-visual-entity';
 import { CamelRestConfigurationVisualEntity } from '../../../models/visualization/flows/camel-rest-configuration-visual-entity';
+import { RestEntity } from '../../../models/visualization/flows/rest-entity';
 import { clickToolbarActionUtil } from '../test-utils';
 import { getRestEntities } from './get-rest-entities';
 import { RestTreeToolbar } from './RestTreeToolbar';
@@ -75,7 +75,7 @@ describe('RestTreeToolbar', () => {
     });
 
     it('should fire callback when clicked', async () => {
-      const entities: BaseVisualEntity[] = [];
+      const entities: RestEntity[] = [];
 
       render(
         <RestTreeToolbar
@@ -94,7 +94,7 @@ describe('RestTreeToolbar', () => {
 
   describe('Add Rest button', () => {
     it('should always be enabled', async () => {
-      const entities: BaseVisualEntity[] = [];
+      const entities: RestEntity[] = [];
 
       render(
         <RestTreeToolbar
@@ -142,7 +142,7 @@ describe('RestTreeToolbar', () => {
     });
 
     it('should fire callback when clicked', async () => {
-      const entities: BaseVisualEntity[] = [];
+      const entities: RestEntity[] = [];
 
       render(
         <RestTreeToolbar
@@ -161,7 +161,7 @@ describe('RestTreeToolbar', () => {
 
   describe('Add Method button', () => {
     it('should be disabled when nothing is selected', async () => {
-      const entities: BaseVisualEntity[] = [];
+      const entities: RestEntity[] = [];
 
       render(
         <RestTreeToolbar
@@ -356,7 +356,7 @@ describe('RestTreeToolbar', () => {
 
   describe('Delete button', () => {
     it('should be disabled when nothing is selected', async () => {
-      const entities: BaseVisualEntity[] = [];
+      const entities: RestEntity[] = [];
 
       render(
         <RestTreeToolbar
