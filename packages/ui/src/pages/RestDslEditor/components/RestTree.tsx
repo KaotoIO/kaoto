@@ -4,7 +4,8 @@ import { TrashCan } from '@carbon/icons-react';
 import { Menu, MenuItem, TreeNode, TreeView, useContextMenu } from '@carbon/react';
 import { FunctionComponent, PropsWithChildren, useEffect, useRef, useState } from 'react';
 
-import { BaseVisualEntity, IVisualizationNodeIds } from '../../../models/visualization/base-visual-entity';
+import { IVisualizationNodeIds } from '../../../models/visualization/base-visual-entity';
+import { RestEntity } from '../../../models/visualization/flows/rest-entity';
 import { restToTree } from '../rest-to-tree';
 import { MethodBadge } from './MethodBadge';
 
@@ -15,7 +16,7 @@ export type IRestTreeSelection = { entityId: string; modelPath: string; ids: IVi
  * Props for the RestTree component.
  */
 export interface IRestTree extends PropsWithChildren {
-  entities: BaseVisualEntity[];
+  entities: RestEntity[];
   selected?: IRestTreeSelection;
   onSelect: (selection: IRestTreeSelection) => void;
   onDelete: () => void;
@@ -119,9 +120,11 @@ export const RestTree: FunctionComponent<IRestTree> = ({ entities, selected, onS
               >
                 {node.children?.map((child) => {
                   const currentEntity = entities.find((entity) => entity.id === node.entityId);
-                  const pathLabel = currentEntity?.getNodeDefinition(child?.modelPath, {
-                    primaryNodeId: child.primaryNodeId,
-                  }).path;
+                  const pathLabel = (
+                    currentEntity?.getNodeDefinition(child.modelPath, {
+                      primaryNodeId: child.primaryNodeId,
+                    }) as { path?: string } | undefined
+                  )?.path;
                   const label = pathLabel?.trim() ? (
                     pathLabel
                   ) : (

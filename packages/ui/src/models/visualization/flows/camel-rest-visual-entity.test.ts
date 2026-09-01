@@ -1,17 +1,12 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { CatalogLibrary, ProcessorDefinition, Rest, To2 } from '@kaoto/camel-catalog/types';
+import { CatalogLibrary, Rest } from '@kaoto/camel-catalog/types';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { restStub } from '../../../stubs/rest';
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
-import { DefinedComponent } from '../../camel/camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
-import { PlaceholderType } from '../../placeholder.constants';
-import { REST_ELEMENT_NAME } from '../../special-processors.constants';
-import { AddStepMode } from '../base-visual-entity';
-import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRestVisualEntity } from './camel-rest-visual-entity';
 
@@ -80,21 +75,6 @@ describe('CamelRestVisualEntity', () => {
     expect(entity.getId()).toEqual(newId);
   });
 
-  it('should delegate to super return node label', () => {
-    const superGetNodeLabelSpy = vi
-      .spyOn(AbstractCamelVisualEntity.prototype, 'getNodeLabel')
-      .mockReturnValueOnce('label');
-    const entity = new CamelRestVisualEntity(restDef);
-
-    expect(entity.getNodeLabel()).toBe('label');
-    expect(superGetNodeLabelSpy).toHaveBeenCalled();
-  });
-
-  it('should return "verb" for placeholder path', () => {
-    const entity = new CamelRestVisualEntity(restDef);
-    expect(entity.getNodeLabel('rest.placeholder')).toBe('verb');
-  });
-
   it('should return entity current definition', () => {
     const entity = new CamelRestVisualEntity(restDef);
 
@@ -130,14 +110,28 @@ describe('CamelRestVisualEntity', () => {
       expect(definition).toEqual({ path: '/update', to: { uri: 'direct:update' } });
     });
 
-    it('should delegate to super for non-REST method paths', () => {
+    it('should return undefined for non-REST method paths', () => {
       const entity = new CamelRestVisualEntity(restDef);
-      const superGetNodeDefinitionSpy = vi.spyOn(AbstractCamelVisualEntity.prototype, 'getNodeDefinition');
 
-      // Use a path where method is NOT in REST_DSL_METHODS
-      entity.getNodeDefinition('rest.unknown.0');
+      expect(entity.getNodeDefinition('rest.unknown.0')).toBeUndefined();
+    });
+  });
 
-      expect(superGetNodeDefinitionSpy).toHaveBeenCalledWith('rest.unknown.0', undefined);
+  describe('getParsedDefinition', () => {
+    it('should parse REST endpoint URIs for component nodes', async () => {
+      const entity = new CamelRestVisualEntity({
+        rest: {
+          ...restDef.rest,
+          get: [{ path: '/logs', to: { uri: 'log:requests?level=INFO' } }],
+        },
+      });
+
+      const definition = await entity.getParsedDefinition('rest.get.0.to', {
+        primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern },
+        secondaryNodeId: { name: 'log', catalogKind: CatalogKind.Component },
+      });
+
+      expect(definition).toMatchObject({ uri: 'log', parameters: { loggerName: 'requests', level: 'INFO' } });
     });
   });
 
@@ -199,20 +193,6 @@ describe('CamelRestVisualEntity', () => {
     });
   });
 
-  it('should return omit form fields', () => {
-    const entity = new CamelRestVisualEntity(restDef);
-
-    expect(entity.getOmitFormFields()).toEqual([
-      'from',
-      'outputs',
-      'steps',
-      'when',
-      'otherwise',
-      'doCatch',
-      'doFinally',
-    ]);
-  });
-
   it('should return root path', () => {
     const entity = new CamelRestVisualEntity(restDef);
 
@@ -257,221 +237,6 @@ describe('CamelRestVisualEntity', () => {
       // The updateModel should reinitialize rest to an empty object
       expect(restDef.rest).toBeDefined();
       expect(restDef.rest).toEqual({});
-    });
-  });
-
-  describe('getNodeInteraction', () => {
-    it('should return interactions for root path', () => {
-      const entity = new CamelRestVisualEntity(restDef);
-
-      expect(
-        entity.getNodeInteraction({
-          name: REST_ELEMENT_NAME,
-          path: 'rest',
-          isPlaceholder: false,
-          isGroup: true,
-          iconUrl: '',
-          title: '',
-          description: '',
-        }),
-      ).toEqual({
-        canHavePreviousStep: false,
-        canHaveNextStep: false,
-        canHaveChildren: false,
-        canHaveSpecialChildren: true,
-        canRemoveStep: false,
-        canReplaceStep: false,
-        canRemoveFlow: true,
-        canBeDisabled: true,
-      });
-    });
-
-    it('should return interactions for to path', () => {
-      const restDefWithGet = {
-        rest: {
-          ...restDef.rest,
-          get: [{ path: '/hello', to: { uri: 'direct:hello' } }],
-        },
-      };
-      const entity = new CamelRestVisualEntity(restDefWithGet);
-
-      expect(
-        entity.getNodeInteraction({
-          name: 'direct',
-          path: 'rest.get.0.to',
-          processorName: 'to',
-          isPlaceholder: false,
-          isGroup: false,
-          iconUrl: '',
-          title: '',
-          description: '',
-        }),
-      ).toEqual({
-        canHavePreviousStep: false,
-        canHaveNextStep: false,
-        canHaveChildren: false,
-        canHaveSpecialChildren: false,
-        canRemoveStep: true,
-        canReplaceStep: false,
-        canRemoveFlow: false,
-        canBeDisabled: false,
-      });
-    });
-
-    it('should delegate to super for verb path', () => {
-      const restDefWithGet = {
-        rest: {
-          ...restDef.rest,
-          get: [{ path: '/hello', to: { uri: 'direct:hello' } }],
-        },
-      };
-      const entity = new CamelRestVisualEntity(restDefWithGet);
-      const superGetNodeInteractionSpy = vi.spyOn(AbstractCamelVisualEntity.prototype, 'getNodeInteraction');
-
-      entity.getNodeInteraction({
-        name: 'get',
-        path: 'rest.get.0',
-        processorName: 'get' as keyof ProcessorDefinition,
-        isPlaceholder: false,
-        isGroup: false,
-        iconUrl: '',
-        title: '',
-        description: '',
-      });
-
-      expect(superGetNodeInteractionSpy).toHaveBeenCalled();
-    });
-  });
-
-  describe('addStep', () => {
-    it('should delegate to super for root path', () => {
-      const entity = new CamelRestVisualEntity(restDef);
-      const superAddStepSpy = vi.spyOn(AbstractCamelVisualEntity.prototype, 'addStep');
-
-      entity.addStep({
-        definedComponent: { type: CatalogKind.Processor, name: 'get' } as DefinedComponent,
-        mode: AddStepMode.InsertSpecialChildStep,
-        data: {
-          name: REST_ELEMENT_NAME,
-          path: CamelRestVisualEntity.ROOT_PATH,
-          isPlaceholder: false,
-          isGroup: true,
-          iconUrl: '',
-          title: '',
-          description: '',
-        },
-        targetProperty: 'get',
-      });
-
-      expect(superAddStepSpy).toHaveBeenCalled();
-    });
-
-    it('should add to directive for verb placeholder path', () => {
-      const restDefWithGet: { rest: Rest } = {
-        rest: {
-          ...restDef.rest,
-          get: [{ id: 'get-1', path: '/hello', to: 'direct:example' }],
-        },
-      };
-
-      const entity = new CamelRestVisualEntity(restDefWithGet);
-
-      entity.addStep({
-        definedComponent: { type: CatalogKind.Component, name: 'direct' } as DefinedComponent,
-        mode: AddStepMode.ReplaceStep,
-        data: {
-          name: PlaceholderType.Placeholder,
-          path: 'rest.get.0.to.placeholder',
-          isPlaceholder: true,
-          isGroup: false,
-          iconUrl: '',
-          title: '',
-          description: '',
-        },
-      });
-
-      const toLocal = restDefWithGet.rest.get?.[0].to as Exclude<To2, string>;
-
-      expect(toLocal).toBeDefined();
-      expect(toLocal?.uri).toBe('direct');
-    });
-
-    it('should not add step when path is undefined', () => {
-      const entity = new CamelRestVisualEntity(restDef);
-
-      entity.addStep({
-        definedComponent: { type: CatalogKind.Component, name: 'direct' } as DefinedComponent,
-        mode: AddStepMode.ReplaceStep,
-        data: {
-          name: PlaceholderType.Placeholder,
-          path: undefined,
-          isPlaceholder: true,
-          isGroup: false,
-          iconUrl: '',
-          title: '',
-          description: '',
-        },
-      });
-
-      // Should not throw and rest should remain unchanged
-      expect(restDef.rest).toEqual(restStub.rest);
-    });
-  });
-
-  describe('getNodeValidationText', () => {
-    it('should return undefined for valid definitions', async () => {
-      const entity = new CamelRestVisualEntity({
-        rest: {
-          ...restDef.rest,
-          bindingMode: 'json',
-        },
-      });
-
-      expect(await entity.getNodeValidationText()).toBeUndefined();
-    });
-
-    it('should not modify the original definition when validating', async () => {
-      const originalRestDef: Rest = { ...restDef.rest };
-      const entity = new CamelRestVisualEntity(restDef);
-
-      await entity.getNodeValidationText();
-
-      expect(restDef.rest).toEqual(originalRestDef);
-    });
-
-    it('should NOT return errors when there is an invalid property', async () => {
-      const invalidRestDef: Rest = {
-        ...restDef.rest,
-        bindingMode: 'true' as unknown as Rest['bindingMode'],
-        openApi: 'true' as unknown as Rest['openApi'],
-      };
-      const entity = new CamelRestVisualEntity({ rest: invalidRestDef });
-
-      expect(await entity.getNodeValidationText()).toBeUndefined();
-    });
-  });
-
-  it('toVizNode should return visualization node', async () => {
-    const entity = new CamelRestVisualEntity(restDef);
-
-    const vizNode = await entity.toVizNode();
-    await vizNode.fetchSchema();
-
-    expect(vizNode.data).toEqual({
-      entity,
-      name: 'rest',
-      isGroup: true,
-      path: 'rest',
-      processorName: 'rest',
-      primaryNodeId: { name: entity.type, catalogKind: CatalogKind.Entity },
-      iconAlt: 'Entity icon',
-      iconUrl: '/src/assets/components/generic-component.png',
-      isPlaceholder: false,
-      title: 'Rest',
-      description:
-        'rest: Defines a REST service with HTTP operations (GET, POST, PUT, DELETE, etc.) using the Camel REST DSL',
-      processorIconTooltip: '',
-      schema: expect.any(Object),
     });
   });
 

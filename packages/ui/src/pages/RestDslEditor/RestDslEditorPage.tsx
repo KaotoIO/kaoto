@@ -76,8 +76,6 @@ export const RestDslEditorPage: FunctionComponent = () => {
       return;
     }
 
-    if (!(selectedEntity instanceof CamelRestVisualEntity)) return;
-
     selectedEntity
       .getParsedDefinition(modelPath, ids)
       .then((resolved) => {

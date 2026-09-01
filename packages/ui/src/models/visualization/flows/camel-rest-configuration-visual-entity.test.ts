@@ -65,16 +65,16 @@ describe('CamelRestConfigurationVisualEntity', () => {
     expect(entity.getId()).toEqual(newId);
   });
 
-  it('should return node label', () => {
-    const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
-
-    expect(entity.getNodeLabel()).toBe('restConfiguration');
-  });
-
   it('should return entity current definition', () => {
     const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
 
     expect(entity.getNodeDefinition()).toEqual(restConfigurationDef.restConfiguration);
+  });
+
+  it('should return the raw restConfiguration definition for parsed definition', async () => {
+    const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
+
+    await expect(entity.getParsedDefinition()).resolves.toEqual(restConfigurationDef.restConfiguration);
   });
 
   it('should return schema from catalog', async () => {
@@ -113,126 +113,6 @@ describe('CamelRestConfigurationVisualEntity', () => {
       entity.updateModel('restConfiguration', {});
 
       expect(restConfigurationDef.restConfiguration).toEqual({});
-    });
-  });
-
-  it('return no interactions', () => {
-    const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
-
-    expect(entity.getNodeInteraction()).toEqual({
-      canHavePreviousStep: false,
-      canHaveNextStep: false,
-      canHaveChildren: false,
-      canHaveSpecialChildren: false,
-      canRemoveStep: false,
-      canReplaceStep: false,
-      canRemoveFlow: true,
-      canBeDisabled: false,
-    });
-  });
-
-  describe('getNodeValidationText', () => {
-    it('should return undefined for valid definitions', async () => {
-      const entity = new CamelRestConfigurationVisualEntity({
-        restConfiguration: {
-          ...restConfigurationDef.restConfiguration,
-          useXForwardHeaders: true,
-          apiVendorExtension: true,
-          skipBindingOnErrorCode: true,
-          clientRequestValidation: true,
-          clientResponseValidation: true,
-          enableCORS: true,
-          enableNoContentResponse: true,
-          inlineRoutes: true,
-        },
-      });
-
-      const schema = await entity.fetchNodeSchema({
-        primaryNodeId: { name: 'restConfiguration', catalogKind: CatalogKind.Entity },
-      });
-
-      expect(await entity.getNodeValidationText(undefined, schema)).toBeUndefined();
-    });
-
-    it('should not modify the original definition when validating', async () => {
-      const originalRestConfigurationDef: RestConfiguration = { ...restConfigurationDef.restConfiguration };
-      const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
-      const schema = await entity.fetchNodeSchema({
-        primaryNodeId: { name: 'restConfiguration', catalogKind: CatalogKind.Entity },
-      });
-
-      await entity.getNodeValidationText(undefined, schema);
-
-      expect(restConfigurationDef.restConfiguration).toEqual(originalRestConfigurationDef);
-    });
-
-    it('should return errors when there is an invalid property', async () => {
-      const invalidRestConfigurationDef: RestConfiguration = {
-        ...restConfigurationDef.restConfiguration,
-        useXForwardHeaders: 'true' as unknown as RestConfiguration['useXForwardHeaders'],
-        apiVendorExtension: 'true' as unknown as RestConfiguration['apiVendorExtension'],
-        skipBindingOnErrorCode: 'true' as unknown as RestConfiguration['skipBindingOnErrorCode'],
-        clientRequestValidation: 'true' as unknown as RestConfiguration['clientRequestValidation'],
-        clientResponseValidation: 'true' as unknown as RestConfiguration['clientResponseValidation'],
-        enableCORS: 'true' as unknown as RestConfiguration['enableCORS'],
-        enableNoContentResponse: 'true' as unknown as RestConfiguration['enableNoContentResponse'],
-        inlineRoutes: 'true' as unknown as RestConfiguration['inlineRoutes'],
-      };
-      const entity = new CamelRestConfigurationVisualEntity({ restConfiguration: invalidRestConfigurationDef });
-      const schema = await entity.fetchNodeSchema({
-        primaryNodeId: { name: 'restConfiguration', catalogKind: CatalogKind.Entity },
-      });
-
-      expect(await entity.getNodeValidationText(undefined, schema)).toBe(`'/useXForwardHeaders' must be boolean,
-'/apiVendorExtension' must be boolean,
-'/skipBindingOnErrorCode' must be boolean,
-'/clientRequestValidation' must be boolean,
-'/clientResponseValidation' must be boolean,
-'/enableCORS' must be boolean,
-'/enableNoContentResponse' must be boolean,
-'/inlineRoutes' must be boolean`);
-    });
-  });
-
-  describe('toVizNode', () => {
-    it('toVizNode should return visualization node', async () => {
-      const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
-
-      const vizNode = await entity.toVizNode();
-      await vizNode.fetchSchema();
-
-      expect(vizNode.data).toEqual({
-        entity,
-        name: 'restConfiguration',
-        isGroup: true,
-        path: 'restConfiguration',
-        processorName: 'restConfiguration',
-        primaryNodeId: { name: entity.type, catalogKind: CatalogKind.Entity },
-        iconAlt: 'Entity icon',
-        iconUrl: '/src/assets/components/generic-component.png',
-        isPlaceholder: false,
-        title: 'Rest Configuration',
-        description:
-          'restConfiguration: Configures global settings for the REST DSL, such as host, port, context path, binding mode, and the underlying HTTP component to use',
-        processorIconTooltip: '',
-        schema: expect.any(Object),
-      });
-    });
-
-    it('should return schema title from enriched data', async () => {
-      const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
-      const vizNode = await entity.toVizNode();
-
-      expect(vizNode.getNodeTitle()).toBe('Rest Configuration');
-    });
-  });
-
-  it('getCopiedContent should return the content to be copied', () => {
-    const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
-
-    expect(entity.getCopiedContent()).toEqual({
-      name: 'restConfiguration',
-      definition: restConfigurationDef.restConfiguration,
     });
   });
 

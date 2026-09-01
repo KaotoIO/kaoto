@@ -9,11 +9,7 @@ import { CatalogKind } from '../catalog-kind';
 import { BaseEntity, EntityType } from '../entities';
 import { BaseVisualEntityDefinition, KaotoResource } from '../kaoto-resource';
 import { KaotoSchemaDefinition } from '../kaoto-schema';
-import {
-  AddStepMode,
-  BaseVisualCamelEntityConstructor,
-  IVisualizationNodeData,
-} from '../visualization/base-visual-entity';
+import { AddStepMode, BaseEntityConstructor, IVisualizationNodeData } from '../visualization/base-visual-entity';
 import { CamelCatalogService, CitrusTestVisualEntity } from '../visualization/flows';
 import { NonVisualEntity } from '../visualization/flows/non-visual-entity';
 import { FlowTemplateService } from '../visualization/flows/support/flow-templates-service';
@@ -38,7 +34,7 @@ export class CitrusTestResource implements KaotoResource {
   static readonly SUPPORTED_ENTITIES: {
     type: EntityType;
     group: string;
-    Entity: BaseVisualCamelEntityConstructor;
+    Entity: BaseEntityConstructor;
     isYamlOnly?: boolean;
   }[] = [{ type: EntityType.Test, group: '', Entity: CitrusTestVisualEntity }];
   private entities: BaseEntity[] = [];

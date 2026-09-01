@@ -87,9 +87,9 @@ export interface BaseVisualEntity extends BaseEntity {
   toVizNode: () => Promise<IVisualizationNode>;
 }
 
-export interface BaseVisualCamelEntityConstructor {
+export interface BaseEntityConstructor {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  new (...args: any[]): BaseVisualEntity;
+  new (...args: any[]): BaseEntity;
   isApplicable: (entity: unknown) => boolean;
 }
 

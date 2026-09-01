@@ -4,3 +4,4 @@ export * from './citrus-test-visual-entity';
 export * from './kamelet-binding-visual-entity';
 export * from './kamelet-visual-entity';
 export * from './pipe-visual-entity';
+export * from './rest-entity';
