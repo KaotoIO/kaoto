@@ -15,14 +15,12 @@ export const useEnableAllSteps = () => {
   }, [controller]);
   const areMultipleStepsDisabled = disabledNodes.length > 1;
 
-  const onEnableAllSteps = useCallback(async () => {
+  const onEnableAllSteps = useCallback(() => {
     if (disabledNodes.length > 0) {
-      const models = await Promise.all(
-        disabledNodes.map(async (node) => (await node.getParsedDefinition()) ?? node.getNodeDefinition() ?? {}),
-      );
-      models.forEach((newModel, index) => {
-        setValue(newModel as Record<string, unknown>, 'disabled', false);
-        disabledNodes[index].updateModel(newModel);
+      disabledNodes.forEach((node) => {
+        const newModel = (node.data.definition as Record<string, unknown>) ?? node.getNodeDefinition() ?? {};
+        setValue(newModel, 'disabled', false);
+        node.updateModel(newModel);
       });
     }
     entitiesContext?.updateEntitiesFromCamelResource();

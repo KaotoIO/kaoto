@@ -35,6 +35,7 @@ describe('NodeEnrichmentService', () => {
 
   const createMockVizNode = (
     fetchSchemaImpl?: () => Promise<KaotoSchemaDefinition['schema'] | undefined>,
+    fetchNodeDefinitionImpl?: () => Promise<unknown>,
   ): IVisualizationNode<IVisualizationNodeData> => {
     const data = {
       name: 'log',
@@ -47,9 +48,11 @@ describe('NodeEnrichmentService', () => {
     } as unknown as IVisualizationNodeData;
     const vizNode = createVisualizationNode('test-node', data);
 
-    // Mock fetchSchema method
     if (fetchSchemaImpl) {
       vizNode.fetchSchema = vi.fn(fetchSchemaImpl);
+    }
+    if (fetchNodeDefinitionImpl) {
+      vizNode.fetchNodeDefinition = vi.fn(fetchNodeDefinitionImpl);
     }
 
     return vizNode;
@@ -90,9 +93,14 @@ describe('NodeEnrichmentService', () => {
     mockGetProcessorIconTooltipRequest.mockRejectedValue(new Error('Processor service down'));
     mockGetTitleRequest.mockRejectedValue(new Error('Title service down'));
 
-    const vizNode = createMockVizNode(async () => {
-      throw new Error('Schema service down');
-    });
+    const vizNode = createMockVizNode(
+      async () => {
+        throw new Error('Schema service down');
+      },
+      async () => {
+        throw new Error('Definition service down');
+      },
+    );
     vizNode.data.secondaryNodeId = { catalogKind: CatalogKind.Component, name: 'log' };
     await enrichNode(vizNode);
 
@@ -102,7 +110,7 @@ describe('NodeEnrichmentService', () => {
     expect(vizNode.data.processorIconTooltip).toBeUndefined();
     expect(vizNode.data.title).toBe('');
     expect(vizNode.data.schema).toBeUndefined();
-    expect(consoleWarnSpy).toHaveBeenCalledTimes(5);
+    expect(consoleWarnSpy).toHaveBeenCalledTimes(6);
   });
 
   it('should handle partial failures and still enrich successfully fetched data', async () => {
@@ -437,5 +445,25 @@ describe('NodeEnrichmentService', () => {
       expect(child.data.schema).toBe(mockSchema);
       expect(placeholder.data.iconUrl).toBe('');
     });
+  });
+
+  it('should populate vizNode.data.definition after enrichment', async () => {
+    const expectedDefinition = { uri: 'timer', parameters: { timerName: 'tick' } };
+
+    mockGetIconRequest.mockResolvedValue({ icon: 'timer-icon.svg', alt: 'Timer icon' });
+    mockGetTooltipRequest.mockResolvedValue('Timer component');
+    mockGetProcessorIconTooltipRequest.mockResolvedValue('');
+    mockGetTitleRequest.mockResolvedValue('Timer');
+
+    const vizNode = createMockVizNode(
+      async () => undefined,
+      async () => expectedDefinition,
+    );
+    vizNode.data.primaryNodeId = { catalogKind: CatalogKind.Pattern, name: 'from' };
+    vizNode.data.secondaryNodeId = { catalogKind: CatalogKind.Component, name: 'timer' };
+
+    await enrichNode(vizNode);
+
+    expect(vizNode.data.definition).toBe(expectedDefinition);
   });
 });

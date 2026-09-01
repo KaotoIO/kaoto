@@ -185,6 +185,10 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     return CitrusTestSchemaService.getNodeSchema(ids.primaryNodeId.name);
   }
 
+  async fetchNodeDefinition(): Promise<unknown> {
+    return undefined;
+  }
+
   getNodeDefinition(path?: string, ids?: IVisualizationNodeIds): unknown {
     if (!path || !ids?.primaryNodeId?.name) return undefined;
     if (path === this.getRootPath()) {
