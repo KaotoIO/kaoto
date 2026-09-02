@@ -3,6 +3,7 @@ import { cloneDeep } from 'lodash';
 import { FunctionComponent, Suspense, use, useContext, useMemo } from 'react';
 
 import { ParsedParameters } from '../../../../../../utils';
+import { ErrorBoundary } from '../../../../../ErrorBoundary';
 import { Loading } from '../../../../../Loading';
 import { MultiValuePropertyService } from './MultiValueProperty.service';
 
@@ -16,9 +17,11 @@ export const MultiValuePropertyEditor: FunctionComponent<FieldProps> = ({ propNa
   }, [catalogKind, componentName]);
 
   return (
-    <Suspense fallback={<Loading />}>
-      <MultiValuePropertyEditorInner propName={propName} required={required} promise={multiValuePromise} />
-    </Suspense>
+    <ErrorBoundary fallback={<p>Field editor is unavailable</p>}>
+      <Suspense fallback={<Loading />}>
+        <MultiValuePropertyEditorInner propName={propName} required={required} promise={multiValuePromise} />
+      </Suspense>
+    </ErrorBoundary>
   );
 };
 

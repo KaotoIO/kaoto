@@ -64,7 +64,10 @@ export class ExpressionService {
    * </ul>
    * @param parentModel The parent step model object which has expression as its parameter. For example `setBody` contents.
    * */
-  static async parseExpressionModel(parentModel?: Record<string, unknown>): Promise<ExpressionDefinition | undefined> {
+  static parseExpressionModel(
+    languageNames: string[],
+    parentModel?: Record<string, unknown>,
+  ): ExpressionDefinition | undefined {
     if (!isDefined(parentModel)) {
       return undefined;
     }
@@ -78,7 +81,6 @@ export class ExpressionService {
       return { ...model, ...parsedModel };
     }
 
-    const languageNames = await this.getLanguageNames();
     return Object.entries(parentModel).reduce((acc, [key, value]) => {
       if (languageNames.includes(key)) {
         acc[key] = this.parseLanguageModel({ [key]: value }, key)[key];
@@ -90,7 +92,7 @@ export class ExpressionService {
     }, {} as ExpressionDefinition);
   }
 
-  private static async getLanguageNames(): Promise<string[]> {
+  static async getLanguageNames(): Promise<string[]> {
     const languageCatalogMap = (await DynamicCatalogRegistry.get().getCatalog(CatalogKind.Language)?.getAll()) ?? {};
 
     return Object.values(languageCatalogMap).map((lang) => lang.model.name);
@@ -117,11 +119,11 @@ export class ExpressionService {
   static async updateExpressionFromModel(
     sourceModel: Record<string, unknown> | undefined,
     targetModel: Record<string, unknown>,
+    languageNames: string[],
   ): Promise<void> {
     if (!isDefined(sourceModel) || !isDefined(targetModel)) {
       return;
     }
-    const languageNames = await this.getLanguageNames();
     const sourceKey = Object.keys(sourceModel).find((key) => languageNames.includes(key));
     const sourceExpressionString = sourceKey
       ? (sourceModel[sourceKey] as Record<string, unknown>)?.expression

@@ -95,9 +95,10 @@ export class ModelValidationService {
 
     const answer: IValidationResult[] = [];
     let parsedModel = model;
+    const languageNames = await ExpressionService.getLanguageNames();
     for (const anyOfSchema of schema.anyOf) {
       if (isDefined(anyOfSchema.format) && anyOfSchema.format === 'expression') {
-        parsedModel = await ExpressionService.parseExpressionModel(model);
+        parsedModel = ExpressionService.parseExpressionModel(languageNames, model);
       }
       answer.push(...(await this.validateRequiredProperties(anyOfSchema, parsedModel, parentPath, definitions)));
     }
