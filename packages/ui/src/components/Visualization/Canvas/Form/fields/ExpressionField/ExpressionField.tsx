@@ -1,4 +1,3 @@
-import { ExpressionDefinition } from '@kaoto/camel-catalog/types';
 import {
   FieldProps,
   FieldWrapper,
@@ -8,12 +7,13 @@ import {
   useFieldValue,
 } from '@kaoto/forms';
 import { isEmpty } from 'lodash';
-import { FunctionComponent, useContext, useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, Suspense, use, useContext, useMemo } from 'react';
 
 import { ROOT_PATH, setValue } from '../../../../../../utils';
-import { ErrorBoundary } from '../../../../../ErrorBoundary';
 import { ExpressionService } from './expression.service';
 import { ExpressionFieldInner } from './ExpressionFieldInner';
+import { Loading } from '../../../../../Loading';
+import { ICamelLanguageDefinition } from '../../../../../../models/camel/camel-languages-catalog';
 
 /**
  * ExpressionField component.
@@ -31,52 +31,20 @@ import { ExpressionFieldInner } from './ExpressionFieldInner';
  * - ObjectField -> property resolution -> FormComponentFactoryProvider -> ExpressionField
  * this brings an entire schema with a `anyOf` array where the languages are specified.
  */
-const ExpressionFieldImpl: FunctionComponent<FieldProps> = ({ propName, required }) => {
+const ExpressionFieldImpl: FunctionComponent<FieldProps & { promise: Promise<Record<string, ICamelLanguageDefinition>> }> = ({ propName, required, promise }) => {
   const { schema } = useContext(SchemaContext);
   const { value: originalModel, onChange } = useFieldValue<Record<string, unknown>>(propName);
+  const languageCatalogMap = use(promise);
+  const languageNames = new Set(Object.values(languageCatalogMap).map((lang) => lang.model.name));
 
   const isRootExpression = schema.format === 'expression';
-  const [parseError, setParseError] = useState<Error | undefined>(undefined);
-  const [parsedModel, setParsedModel] = useState<ExpressionDefinition | undefined>(undefined);
-  /**
-   * Whether the first async `parseExpressionModel` has resolved. `ExpressionFieldInner` relies on
-   * `useOneOfField`, which latches its selected schema from the model on its mount render only.
-   * Mounting it before the model is parsed would latch an empty selection that never recovers, so
-   * we hold rendering until the initial parse completes. The flag stays `true` afterwards so later
-   * `originalModel` changes re-parse without remounting (and thus without dropping the selection).
-   */
-  const [isModelParsed, setIsModelParsed] = useState(false);
+  const parsedModel = ExpressionService.parseExpressionModel(languageNames, originalModel);
   const expressionsSchema = useMemo(() => ExpressionService.getExpressionsSchema(schema), [schema]);
 
-  useEffect(() => {
-    let cancelled = false;
-    ExpressionService.parseExpressionModel(originalModel)
-      .then((model) => {
-        if (!cancelled) {
-          setParsedModel(model);
-          setIsModelParsed(true);
-        }
-      })
-      .catch((error: Error) => {
-        if (!cancelled) setParseError(error);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [originalModel]);
-
-  if (parseError) {
-    throw parseError;
-  }
-
-  if (!isModelParsed) {
-    return null;
-  }
-
-  const onExpressionChange = async (propName: string, model: unknown) => {
+  const onExpressionChange = (propName: string, model: unknown) => {
     let localValue = parsedModel ?? {};
 
-    await ExpressionService.updateExpressionFromModel(parsedModel, model as Record<string, unknown>);
+    ExpressionService.updateExpressionFromModel(parsedModel, model as Record<string, unknown>, languageCatalogMap);
     let updatedValue = model;
     if (typeof model === 'string' && model.trim() === '') {
       updatedValue = undefined;
@@ -118,8 +86,14 @@ const ExpressionFieldImpl: FunctionComponent<FieldProps> = ({ propName, required
   );
 };
 
-export const ExpressionField: FunctionComponent<FieldProps> = (props) => (
-  <ErrorBoundary fallback={<p>Expression editor is unavailable</p>}>
-    <ExpressionFieldImpl {...props} />
-  </ErrorBoundary>
-);
+export const ExpressionField: FunctionComponent<FieldProps> = (props) => {
+  const languageNamesPromise = useMemo(() => {
+    return ExpressionService.getLanguages();
+  }, [] );
+
+  return (
+  <Suspense fallback={<Loading />}>
+    <ExpressionFieldImpl {...props} promise={languageNamesPromise} />
+  </Suspense>
+  );
+};

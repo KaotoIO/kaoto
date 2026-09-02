@@ -4,6 +4,7 @@ import { isDefined } from '@kaoto/forms';
 import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
 import { CatalogKind } from '../../../../../../models/catalog-kind';
 import { KaotoSchemaDefinition } from '../../../../../../models/kaoto-schema';
+import { ICamelLanguageDefinition } from '../../../../../../models/camel/camel-languages-catalog';
 
 export class ExpressionService {
   static getExpressionsSchema(schema: KaotoSchemaDefinition['schema']): KaotoSchemaDefinition['schema'] {
@@ -64,7 +65,7 @@ export class ExpressionService {
    * </ul>
    * @param parentModel The parent step model object which has expression as its parameter. For example `setBody` contents.
    * */
-  static async parseExpressionModel(parentModel?: Record<string, unknown>): Promise<ExpressionDefinition | undefined> {
+  static parseExpressionModel(languageNames: Set<string>, parentModel?: Record<string, unknown>): ExpressionDefinition | undefined {
     if (!isDefined(parentModel)) {
       return undefined;
     }
@@ -78,9 +79,8 @@ export class ExpressionService {
       return { ...model, ...parsedModel };
     }
 
-    const languageNames = await this.getLanguageNames();
     return Object.entries(parentModel).reduce((acc, [key, value]) => {
-      if (languageNames.includes(key)) {
+      if (languageNames.has(key)) {
         acc[key] = this.parseLanguageModel({ [key]: value }, key)[key];
       } else {
         acc[key] = value;
@@ -90,10 +90,10 @@ export class ExpressionService {
     }, {} as ExpressionDefinition);
   }
 
-  private static async getLanguageNames(): Promise<string[]> {
+  static async getLanguages(): Promise<Record<string, ICamelLanguageDefinition>> {
     const languageCatalogMap = (await DynamicCatalogRegistry.get().getCatalog(CatalogKind.Language)?.getAll()) ?? {};
 
-    return Object.values(languageCatalogMap).map((lang) => lang.model.name);
+    return languageCatalogMap;
   }
 
   /**
@@ -114,24 +114,25 @@ export class ExpressionService {
     }
   }
 
-  static async updateExpressionFromModel(
+  static updateExpressionFromModel(
     sourceModel: Record<string, unknown> | undefined,
     targetModel: Record<string, unknown>,
-  ): Promise<void> {
+    languageCatalogMap: Record<string, ICamelLanguageDefinition>,
+  ): void {
     if (!isDefined(sourceModel) || !isDefined(targetModel)) {
       return;
     }
-    const languageNames = await this.getLanguageNames();
-    const sourceKey = Object.keys(sourceModel).find((key) => languageNames.includes(key));
+
+    const languageNames = new Set(Object.values(languageCatalogMap).map((lang) => lang.model.name));
+    const sourceKey = Object.keys(sourceModel).find((key) => languageNames.has(key));
     const sourceExpressionString = sourceKey
       ? (sourceModel[sourceKey] as Record<string, unknown>)?.expression
       : undefined;
 
     if (typeof sourceExpressionString === 'string') {
-      const targetKey = Object.keys(targetModel).find((key) => languageNames.includes(key));
+      const targetKey = Object.keys(targetModel).find((key) => languageNames.has(key));
       if (targetKey) {
-        const exprModel =
-          (await DynamicCatalogRegistry.get().getEntity(CatalogKind.Language, targetKey))?.properties ?? {};
+        const exprModel = languageCatalogMap[targetKey].properties ?? {};
         if (isDefined(exprModel) && 'expression' in exprModel) {
           (targetModel[targetKey] as Record<string, unknown>).expression = sourceExpressionString;
         }
