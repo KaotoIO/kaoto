@@ -237,7 +237,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
   canDragNode(path?: string) {
     if (!isDefined(path)) return false;
 
-    return path !== 'route' && path !== 'route.from' && path !== 'template.from';
+    return path !== 'route' && path !== 'route.from' && path !== 'template.route.from';
   }
 
   canDropOnNode(path?: string) {

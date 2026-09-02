@@ -338,7 +338,7 @@ describe('CamelComponentFilterService', () => {
     it('should not provide ProducerOnly components', () => {
       const filterFn = CamelComponentFilterService.getKameletCompatibleComponents(AddStepMode.ReplaceStep, {
         name: 'from',
-        path: 'template.from',
+        path: 'template.route.from',
         processorName: 'from' as keyof ProcessorDefinition,
         label: 'timer',
         isPlaceholder: false,
