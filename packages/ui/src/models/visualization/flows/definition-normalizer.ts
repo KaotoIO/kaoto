@@ -39,7 +39,9 @@ export const normalizeDefinition = async (definition: unknown, ids?: IVisualizat
   const fullUri = def.uri as string | undefined;
   if (!fullUri) return def;
 
-  const [pathPortion, queryStringPortion] = fullUri.split('?');
+  const questionMarkIndex = fullUri.indexOf('?');
+  const pathPortion = questionMarkIndex === -1 ? fullUri : fullUri.slice(0, questionMarkIndex);
+  const queryStringPortion = questionMarkIndex === -1 ? undefined : fullUri.slice(questionMarkIndex + 1);
 
   const componentDefinition = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Component, componentName);
   if (!componentDefinition) {

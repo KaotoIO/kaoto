@@ -241,7 +241,7 @@ describe('CanvasForm', () => {
     const { nodes } = FlowService.getFlowDiagram('test', await kameletVisualEntity.toVizNode());
     const lastVizNode = nodes[nodes.length - 1].data!.vizNode!;
     await lastVizNode.fetchSchema();
-    (lastVizNode as IVisualizationNode).data.definition = lastVizNode.getNodeDefinition() as Record<string, unknown>;
+    await lastVizNode.fetchNodeDefinition();
 
     const { Provider } = await TestProvidersWrapper({
       visibleFlowsContext: { allFlowsVisible: true, visibleFlows: { [flowId]: true }, visualFlowsApi },

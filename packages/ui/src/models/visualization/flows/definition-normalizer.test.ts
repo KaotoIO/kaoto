@@ -125,4 +125,16 @@ describe('normalizeDefinition', () => {
     });
     expect(result).toEqual(definition);
   });
+
+  it('should preserve a question mark embedded in a query parameter value', async () => {
+    // URI where the query value itself contains a '?': non-existing:thing?pattern=a?b
+    // A naive split('?') would truncate the value to 'a' and discard 'b'.
+    const result = await normalizeDefinition(
+      { uri: 'non-existing:thing?pattern=a?b' },
+      {
+        secondaryNodeId: { name: 'non-existing', catalogKind: CatalogKind.Component },
+      },
+    );
+    expect(result).toEqual({ uri: 'non-existing:thing', parameters: { pattern: 'a?b' } });
+  });
 });
