@@ -70,7 +70,7 @@ describe('MultiValuePropertyEditor', () => {
     });
 
     await waitFor(() => {
-      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Loading')).not.toBeInTheDocument();
     });
   };
 
@@ -201,7 +201,21 @@ describe('MultiValuePropertyEditor', () => {
     await renderComponent({ schema: {} });
 
     expect(getMultiValuePropertiesSpy).toHaveBeenCalledWith(undefined, undefined);
-    expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Loading')).not.toBeInTheDocument();
+  });
+
+  it('should show the error boundary fallback when getMultiValueProperties rejects', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    getMultiValuePropertiesSpy.mockRejectedValue(new Error('catalog unavailable'));
+
+    await renderComponent();
+
+    expect(await screen.findByText('Field editor is unavailable')).toBeInTheDocument();
+    const expandableButton = await screen.findByLabelText('Show more');
+    expect(expandableButton).toBeInTheDocument();
+
+    fireEvent.click(expandableButton);
+    expect(await screen.findByText('catalog unavailable')).toBeInTheDocument();
   });
 
   it('should pass standard properties through unmodified when the schema has no catalog extension fields', async () => {

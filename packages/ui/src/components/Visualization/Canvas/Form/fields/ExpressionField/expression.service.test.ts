@@ -3,11 +3,13 @@ import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
 import { DynamicCatalog } from '../../../../../../dynamic-catalog/dynamic-catalog';
 import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
-import { CamelCatalogService, CatalogKind, KaotoSchemaDefinition } from '../../../../../../models';
+import { CatalogKind, KaotoSchemaDefinition } from '../../../../../../models';
 import { getFirstCatalogMap } from '../../../../../../stubs/test-load-catalog';
 import { ExpressionService } from './expression.service';
 
 describe('ExpressionService', () => {
+  let languageNames: string[];
+
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     const languageCatalog = catalogsMap.languageCatalog;
@@ -19,6 +21,8 @@ describe('ExpressionService', () => {
       fetchAll: async () => languageCatalog,
     };
     DynamicCatalogRegistry.get().setCatalog(CatalogKind.Language, new DynamicCatalog(mockProvider));
+
+    languageNames = await ExpressionService.getLanguageNames();
   });
 
   describe('getExpressionsSchema', () => {
@@ -109,108 +113,127 @@ describe('ExpressionService', () => {
     });
   });
 
-  const expressionsArray: [Record<string, unknown>, Record<string, unknown>][] = [
-    [
-      {
-        name: 'MY_HEADER',
-        expression: {
+  describe('getLanguageNames', () => {
+    it('should return a non-empty list of language names from the catalog', async () => {
+      const result = await ExpressionService.getLanguageNames();
+
+      expect(Array.isArray(result)).toBe(true);
+      expect(result.length).toBeGreaterThan(0);
+    });
+
+    it('should include known language names such as simple and constant', async () => {
+      const result = await ExpressionService.getLanguageNames();
+
+      expect(result).toContain('simple');
+      expect(result).toContain('constant');
+    });
+  });
+
+  describe('parseExpressionModel', () => {
+    it('should return undefined when parentModel is undefined', () => {
+      const result = ExpressionService.parseExpressionModel(languageNames, undefined);
+
+      expect(result).toBeUndefined();
+    });
+
+    const expressionsArray: [Record<string, unknown>, Record<string, unknown>][] = [
+      [
+        {
+          name: 'MY_HEADER',
+          expression: {
+            simple: {
+              expression: '${body}',
+              trim: true,
+            },
+          },
+        },
+        {
+          name: 'MY_HEADER',
           simple: {
             expression: '${body}',
             trim: true,
           },
         },
-      },
-      {
-        name: 'MY_HEADER',
-        simple: {
-          expression: '${body}',
-          trim: true,
+      ],
+      [
+        {
+          name: 'MY_HEADER',
+          expression: {
+            simple: '${body}',
+          },
         },
-      },
-    ],
-    [
-      {
-        name: 'MY_HEADER',
-        expression: {
+        {
+          name: 'MY_HEADER',
+          simple: {
+            expression: '${body}',
+          },
+        },
+      ],
+      [
+        {
+          name: 'MY_HEADER',
+          simple: {
+            id: 'simple',
+            expression: '${body}',
+          },
+        },
+        {
+          name: 'MY_HEADER',
+          simple: {
+            id: 'simple',
+            expression: '${body}',
+          },
+        },
+      ],
+      [
+        {
+          name: 'MY_HEADER',
           simple: '${body}',
         },
-      },
-      {
-        name: 'MY_HEADER',
-        simple: {
-          expression: '${body}',
+        {
+          name: 'MY_HEADER',
+          simple: {
+            expression: '${body}',
+          },
         },
-      },
-    ],
-    [
-      {
-        name: 'MY_HEADER',
-        simple: {
-          id: 'simple',
-          expression: '${body}',
+      ],
+      [
+        {
+          simple: {
+            expression: '${body}',
+            trim: true,
+          },
         },
-      },
-      {
-        name: 'MY_HEADER',
-        simple: {
-          id: 'simple',
-          expression: '${body}',
+        {
+          simple: {
+            expression: '${body}',
+            trim: true,
+          },
         },
-      },
-    ],
-    [
-      {
-        name: 'MY_HEADER',
-        simple: '${body}',
-      },
-      {
-        name: 'MY_HEADER',
-        simple: {
-          expression: '${body}',
+      ],
+      [
+        { simple: '${body}' },
+        {
+          simple: {
+            expression: '${body}',
+          },
         },
-      },
-    ],
-    [
-      {
-        simple: {
-          expression: '${body}',
-          trim: true,
-        },
-      },
-      {
-        simple: {
-          expression: '${body}',
-          trim: true,
-        },
-      },
-    ],
-    [
-      { simple: '${body}' },
-      {
-        simple: {
-          expression: '${body}',
-        },
-      },
-    ],
-  ];
+      ],
+    ];
 
-  it.each(expressionsArray)('should parse %s', async (parentModel, expected) => {
-    const result = await ExpressionService.parseExpressionModel(parentModel);
+    it.each(expressionsArray)('should parse %s', (parentModel, expected) => {
+      const result = ExpressionService.parseExpressionModel(languageNames, parentModel);
 
-    expect(result).toEqual(expected);
-  });
-  describe('updateExpressionFromModel', () => {
-    beforeAll(async () => {
-      const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-      const languageCatalog = catalogsMap.languageCatalog;
-      CamelCatalogService.setCatalogKey(CatalogKind.Language, languageCatalog);
+      expect(result).toEqual(expected);
     });
+  });
 
+  describe('updateExpressionFromModel', () => {
     it('should update the target model expression if supported', async () => {
       const sourceModel = { simple: { expression: 'sourceExpr' } };
       const targetModel = { constant: { expression: undefined } };
 
-      await ExpressionService.updateExpressionFromModel(sourceModel, targetModel);
+      await ExpressionService.updateExpressionFromModel(sourceModel, targetModel, languageNames);
 
       expect(targetModel.constant.expression).toBe('sourceExpr');
     });
@@ -219,9 +242,17 @@ describe('ExpressionService', () => {
       const sourceModel = { simple: { expression: 'sourceExpr' } };
       const targetModel = { bean: { expression: undefined } };
 
-      await ExpressionService.updateExpressionFromModel(sourceModel, targetModel);
+      await ExpressionService.updateExpressionFromModel(sourceModel, targetModel, languageNames);
 
       expect(targetModel.bean.expression).toBeUndefined();
+    });
+
+    it('should do nothing if sourceModel is undefined', async () => {
+      const targetModel = { csimple: { expression: undefined } };
+
+      await ExpressionService.updateExpressionFromModel(undefined, targetModel, languageNames);
+
+      expect(targetModel.csimple.expression).toBeUndefined();
     });
   });
 });
