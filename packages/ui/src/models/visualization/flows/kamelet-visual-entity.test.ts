@@ -1,5 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { CatalogLibrary, RouteDefinition } from '@kaoto/camel-catalog/types';
+import { cloneDeep } from 'lodash';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { mockRandomValues } from '../../../stubs';
@@ -68,7 +69,11 @@ describe('KameletVisualEntity', () => {
   });
 
   it('should normalize template.from to template.route.from and remove template.from', () => {
-    const kameletVisualEntity = new KameletVisualEntity(kameletDef);
+    const kameletDefWithFrom = cloneDeep(kameletDef);
+    kameletDefWithFrom.spec.template.from = kameletDefWithFrom.spec.template.route.from;
+    kameletDefWithFrom.spec.template.route = undefined as unknown as RouteDefinition;
+
+    const kameletVisualEntity = new KameletVisualEntity(kameletDefWithFrom);
     expect(kameletVisualEntity.kamelet.spec.template.from).toBeUndefined();
     expect(kameletVisualEntity.kamelet.spec.template.route?.from).toEqual(camelFromJson.from);
   });
