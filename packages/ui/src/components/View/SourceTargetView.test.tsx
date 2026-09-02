@@ -229,8 +229,8 @@ describe('SourceTargetView', () => {
         </BrowserFilePickerMetadataProvider>,
       );
 
-      const zoomInButton = screen.getByLabelText('Zoom in');
-      const zoomOutButton = screen.getByLabelText('Zoom out');
+      const zoomInButton = await screen.findByLabelText('Zoom in');
+      const zoomOutButton = await screen.findByLabelText('Zoom out');
 
       expect(zoomInButton).toBeInTheDocument();
       expect(zoomOutButton).toBeInTheDocument();
@@ -247,7 +247,7 @@ describe('SourceTargetView', () => {
         </BrowserFilePickerMetadataProvider>,
       );
 
-      const zoomInButton = screen.getByLabelText('Zoom in');
+      const zoomInButton = await screen.findByLabelText('Zoom in');
       const sourceTargetView = container.querySelector('.source-target-view') as HTMLElement;
 
       // Initial scale should be 1
@@ -272,7 +272,7 @@ describe('SourceTargetView', () => {
         </BrowserFilePickerMetadataProvider>,
       );
 
-      const zoomOutButton = screen.getByLabelText('Zoom out');
+      const zoomOutButton = await screen.findByLabelText('Zoom out');
       const sourceTargetView = container.querySelector('.source-target-view') as HTMLElement;
 
       // Initial scale should be 1
@@ -297,7 +297,7 @@ describe('SourceTargetView', () => {
         </BrowserFilePickerMetadataProvider>,
       );
 
-      const zoomInButton = screen.getByLabelText('Zoom in');
+      const zoomInButton = await screen.findByLabelText('Zoom in');
       const sourceTargetView = container.querySelector('.source-target-view') as HTMLElement;
 
       // Click zoom in 3 times (1.0 -> 1.1 -> 1.2 -> should stay at 1.2)
@@ -321,7 +321,7 @@ describe('SourceTargetView', () => {
         </BrowserFilePickerMetadataProvider>,
       );
 
-      const zoomOutButton = screen.getByLabelText('Zoom out');
+      const zoomOutButton = await screen.findByLabelText('Zoom out');
       const sourceTargetView = container.querySelector('.source-target-view') as HTMLElement;
 
       // Click zoom out 4 times (1.0 -> 0.9 -> 0.8 -> 0.7 -> should stay at 0.7)

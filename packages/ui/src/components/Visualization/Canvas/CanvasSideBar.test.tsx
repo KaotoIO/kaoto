@@ -65,7 +65,7 @@ describe('CanvasSideBar', () => {
       </Provider>,
     );
 
-    const closeButton = wrapper.getByTestId('close-side-bar');
+    const closeButton = await wrapper.findByTestId('close-side-bar');
     fireEvent.click(closeButton);
 
     expect(onCloseSpy).toHaveBeenCalledTimes(1);

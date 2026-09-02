@@ -123,7 +123,7 @@ describe('CustomGroupExpanded', () => {
 
     await renderInContext(<CustomGroupExpanded element={element} />);
 
-    const group = screen.getByTestId('custom-group__choice-1');
+    const group = await screen.findByTestId('custom-group__choice-1');
     expect(group).toBeInTheDocument();
     expect(group).toHaveAttribute('data-grouplabel', 'Choice');
   });
@@ -152,7 +152,7 @@ describe('CustomGroupExpanded', () => {
 
     await renderInContext(<CustomGroupExpanded element={element} />);
 
-    expect(screen.getByRole('img')).toHaveAttribute('alt', 'Choice icon');
+    expect(await screen.findByRole('img')).toHaveAttribute('alt', 'Choice icon');
   });
 
   it('should render icon placeholder when group has validation warnings', async () => {
@@ -207,7 +207,7 @@ describe('CustomGroupExpanded', () => {
       </SettingsProvider>,
     );
 
-    expect(screen.getByTestId('step-toolbar')).toBeInTheDocument();
+    expect(await screen.findByTestId('step-toolbar')).toBeInTheDocument();
   });
 
   it('calls getNodeDragAndDropDirection when droppable, canDrop and hover are true (line 162)', async () => {

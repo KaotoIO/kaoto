@@ -46,12 +46,12 @@ describe('ComponentMode', () => {
     return node;
   };
 
-  it('renders the three toggle buttons', () => {
+  it('renders the three toggle buttons', async () => {
     const wrapper = render(<ComponentMode vizNode={getMockVizNode('to')} />);
 
-    expect(wrapper.getByText('Static')).toBeInTheDocument();
-    expect(wrapper.getByText('Dynamic')).toBeInTheDocument();
-    expect(wrapper.getByText('Poll')).toBeInTheDocument();
+    expect(await wrapper.findByText('Static')).toBeInTheDocument();
+    expect(await wrapper.findByText('Dynamic')).toBeInTheDocument();
+    expect(await wrapper.findByText('Poll')).toBeInTheDocument();
   });
 
   it('should not call updateSourceCodeFromEntities if there is no VizNode', () => {
@@ -165,7 +165,7 @@ describe('ComponentMode', () => {
     expect(mockUpdateSourceCodeFromEntities).toHaveBeenCalled();
   });
 
-  it('should render buttons even when tooltips are empty', () => {
+  it('should render buttons even when tooltips are empty', async () => {
     // Override tooltips with empty strings for this test
     mockUseProcessorTooltips.mockReturnValue({
       to: '',
@@ -177,9 +177,9 @@ describe('ComponentMode', () => {
     const wrapper = render(<ComponentMode vizNode={vizNode} />);
 
     // Buttons should still render with empty tooltips
-    const toButton = wrapper.getByRole('button', { name: /static/i });
-    const toDButton = wrapper.getByRole('button', { name: /dynamic/i });
-    const pollButton = wrapper.getByRole('button', { name: /poll/i });
+    const toButton = await wrapper.findByRole('button', { name: /static/i });
+    const toDButton = await wrapper.findByRole('button', { name: /dynamic/i });
+    const pollButton = await wrapper.findByRole('button', { name: /poll/i });
 
     expect(toButton).toBeInTheDocument();
     expect(toDButton).toBeInTheDocument();
