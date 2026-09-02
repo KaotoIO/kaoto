@@ -4,6 +4,9 @@ import { CatalogKind } from '../../catalog-kind';
 import { IVisualizationNodeIds } from '../base-visual-entity';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 
+const parseQueryParameters = (queryString: string | undefined): Record<string, unknown> =>
+  queryString ? CamelUriHelper.getParametersFromQueryString(queryString) : {};
+
 export const normalizeDefinition = async (definition: unknown, ids?: IVisualizationNodeIds): Promise<unknown> => {
   if (definition == null) return definition;
 
@@ -45,13 +48,12 @@ export const normalizeDefinition = async (definition: unknown, ids?: IVisualizat
 
   const componentDefinition = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Component, componentName);
   if (!componentDefinition) {
-    const queryParameters = queryStringPortion ? CamelUriHelper.getParametersFromQueryString(queryStringPortion) : {};
     return {
       ...def,
       uri: pathPortion,
       parameters: {
         ...(def.parameters as Record<string, unknown>),
-        ...queryParameters,
+        ...parseQueryParameters(queryStringPortion),
       },
     };
   }
