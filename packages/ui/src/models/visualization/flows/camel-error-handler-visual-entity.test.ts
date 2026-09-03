@@ -83,10 +83,10 @@ describe('CamelErrorHandlerVisualEntity', () => {
     });
   });
 
-  it('should return entity current definition', () => {
+  it('should return entity current definition', async () => {
     const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
 
-    expect(entity.getNodeDefinition()).toEqual(errorHandlerDef.errorHandler);
+    expect(await entity.fetchNodeDefinition()).toEqual(errorHandlerDef.errorHandler);
   });
 
   it('should return schema from catalog', async () => {
@@ -179,6 +179,7 @@ describe('CamelErrorHandlerVisualEntity', () => {
         'errorHandler: Configures error handling strategy for routes, controlling how failed exchanges are handled and redelivered',
       processorIconTooltip: '',
       schema: expect.any(Object),
+      definition: { noErrorHandler: { id: 'noErrorHandlerId' } },
     });
   });
 

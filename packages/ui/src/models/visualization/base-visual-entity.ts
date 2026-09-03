@@ -39,10 +39,6 @@ export interface BaseVisualEntity extends BaseEntity {
    */
   fetchNodeDefinition(path?: string, ids?: IVisualizationNodeIds): Promise<unknown>;
 
-  /** Given a path, returns the node's underlying definition in JSON format */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getNodeDefinition(path?: string, ids?: IVisualizationNodeIds): any;
-
   /** Return fields that should be omitted when configuring this entity */
   getOmitFormFields: () => string[];
 
@@ -143,10 +139,6 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
 
   /** Returns the node's normalized definition asynchronously */
   fetchNodeDefinition(): Promise<unknown>;
-
-  /** This method returns the node's underlying definition in JSON format */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getNodeDefinition(): any;
 
   /** Return fields that should be omitted when configuring this entity */
   getOmitFormFields(): string[];

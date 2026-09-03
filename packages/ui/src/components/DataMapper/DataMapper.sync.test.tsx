@@ -62,10 +62,12 @@ describe.skip('DataMapper sync — onUpdateDocument validation step synchronizat
   const createVizNodeWithValidator = (...stepUris: string[]) =>
     ({
       getId: () => 'route-1234',
-      getNodeDefinition: () => ({
-        id: 'kaoto-datamapper-1234',
-        steps: stepUris.map((uri) => ({ to: { id: `id-${uri}`, uri } })),
-      }),
+      data: {
+        definition: {
+          id: 'kaoto-datamapper-1234',
+          steps: stepUris.map((uri) => ({ to: { id: `id-${uri}`, uri } })),
+        },
+      },
       updateModel: vi.fn(),
     }) as unknown as IVisualizationNode;
 

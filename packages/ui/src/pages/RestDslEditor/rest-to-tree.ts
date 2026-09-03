@@ -1,5 +1,3 @@
-import { Rest } from '@kaoto/camel-catalog/types';
-
 import { CatalogKind, IVisualizationNodeIds } from '../../models';
 import { REST_DSL_VERBS } from '../../models/special-processors.constants';
 import { CamelRestConfigurationVisualEntity } from '../../models/visualization/flows/camel-rest-configuration-visual-entity';
@@ -51,7 +49,7 @@ export const restToTree = (restEntities: RestEntity[]): RestTreeNode[] => {
   const restNodes: RestTreeNode[] = restVisualEntities.map((entity) => {
     const entityId = entity.getId();
     const methodsTreeNodes: RestTreeNode[] = [];
-    const restDef = entity.getNodeDefinition(entity.getRootPath()) as Rest;
+    const restDef = entity.getRawRestDef();
 
     REST_DSL_VERBS.forEach((method) => {
       const methodArray = restDef?.[method];

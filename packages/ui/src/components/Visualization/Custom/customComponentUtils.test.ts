@@ -81,7 +81,6 @@ describe('canDropOnEdge', () => {
       getNextNode: vi.fn(),
       getPreviousNode: vi.fn(),
       getCopiedContent: vi.fn().mockReturnValue({ name: 'test-component' }),
-      getNodeDefinition: vi.fn().mockReturnValue({}),
     } as unknown as IVisualizationNode;
   };
 
@@ -207,7 +206,7 @@ describe('canDropOnEdge', () => {
     expect(camelResource.getCompatibleComponents).toHaveBeenCalledWith(
       AddStepMode.PrependStep,
       targetVizNode.data,
-      targetVizNode.getNodeDefinition(),
+      targetVizNode.data?.definition,
     );
     expect(catalogModalContext.checkCompatibility).toHaveBeenCalledWith('test-component', mockFilter);
   });
@@ -223,7 +222,7 @@ describe('canDropOnEdge', () => {
     expect(camelResource.getCompatibleComponents).toHaveBeenCalledWith(
       AddStepMode.PrependStep,
       targetVizNode.data,
-      targetVizNode.getNodeDefinition(),
+      targetVizNode.data?.definition,
     );
     expect(catalogModalContext.checkCompatibility).toHaveBeenCalledWith('test-component', mockFilter);
   });

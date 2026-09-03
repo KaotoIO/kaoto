@@ -6,7 +6,6 @@ import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog
 import { mockRandomValues } from '../../../stubs';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
-import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities/base-entity';
 import { NodeLabelType } from '../../settings/settings.model';
 import { IVisualizationNode } from '../base-visual-entity';
@@ -79,67 +78,6 @@ describe('Camel Route', () => {
       const result = await camelEntity.fetchNodeSchema(fromNode!.data);
 
       expect(result?.properties?.parameters?.['x-component-name']).toBe('timer');
-    });
-  });
-
-  describe('getNodeDefinition', () => {
-    const toStepIds = {
-      primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern },
-      secondaryNodeId: { name: 'direct', catalogKind: CatalogKind.Component },
-    };
-
-    const fromStepIds = {
-      primaryNodeId: { name: 'from', catalogKind: CatalogKind.Entity },
-      secondaryNodeId: { name: 'timer', catalogKind: CatalogKind.Component },
-    };
-
-    const logStepIds = {
-      primaryNodeId: { name: 'log', catalogKind: CatalogKind.Pattern },
-    };
-
-    it('should return undefined if no path is provided', () => {
-      expect(camelEntity.getNodeDefinition()).toBeUndefined();
-    });
-
-    it('should return undefined if path does not exist in the entity', () => {
-      const result = camelEntity.getNodeDefinition('invalid.path');
-
-      expect(result).toBeUndefined();
-    });
-
-    it('should return the raw definition for a valid path', () => {
-      const result = camelEntity.getNodeDefinition('route.from.steps.2.to', toStepIds);
-
-      // getNodeDefinition returns raw form — URI is not split here
-      expect(result).toEqual({
-        uri: 'direct:my-route',
-        parameters: {
-          bridgeErrorHandler: true,
-        },
-      });
-    });
-
-    it('should override null parameters with an empty object', () => {
-      const clonedRoute = cloneDeep(camelRouteJson);
-      (clonedRoute.route.from as unknown as Record<string, unknown>).parameters = null;
-      const entity = new CamelRouteVisualEntity(clonedRoute);
-
-      const result = entity.getNodeDefinition('route.from', fromStepIds);
-
-      expect((result as Record<string, unknown>).parameters).toEqual({});
-    });
-
-    it('should handle nested step definitions', () => {
-      const result = camelEntity.getNodeDefinition('route.from.steps.1.choice.when.0.steps.0.log', logStepIds);
-
-      expect(result).toEqual({ message: 'We got a one.', id: 'log-1' });
-    });
-
-    it('should return raw definition when parameters is present', () => {
-      const result = camelEntity.getNodeDefinition('route.from.steps.2.to', toStepIds);
-
-      // getNodeDefinition returns raw — uri is 'direct:my-route' not split
-      expect(result).toMatchObject({ uri: 'direct:my-route' });
     });
   });
 

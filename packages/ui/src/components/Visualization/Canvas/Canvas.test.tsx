@@ -547,7 +547,11 @@ describe('Canvas', () => {
       .find(
         (element) =>
           isNode(element) &&
-          (element.getData()?.vizNode as IVisualizationNode | undefined)?.getNodeDefinition()?.id === 'route-8888',
+          (
+            (element.getData()?.vizNode as IVisualizationNode | undefined)?.data?.definition as
+              | { id?: string }
+              | undefined
+          )?.id === 'route-8888',
       );
     expect(routeGroup && isNode(routeGroup)).toBe(true);
     if (!routeGroup || !isNode(routeGroup)) {
@@ -598,7 +602,11 @@ describe('Canvas', () => {
       .find(
         (element) =>
           isNode(element) &&
-          (element.getData()?.vizNode as IVisualizationNode | undefined)?.getNodeDefinition()?.id === 'route-8888',
+          (
+            (element.getData()?.vizNode as IVisualizationNode | undefined)?.data?.definition as
+              | { id?: string }
+              | undefined
+          )?.id === 'route-8888',
       );
     expect(remountedRouteGroup && isNode(remountedRouteGroup) && remountedRouteGroup.isCollapsed()).toBe(true);
   });

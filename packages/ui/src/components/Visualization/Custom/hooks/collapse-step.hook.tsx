@@ -24,7 +24,7 @@ export const useCollapseStep = (element: GraphElement<ElementModel, unknown>) =>
         controller.getGraph().layout();
 
         const vNode = element.getData()?.vizNode as IVisualizationNode | undefined;
-        const id = ((vNode?.data?.definition ?? vNode?.getNodeDefinition()) as { id?: string } | undefined)?.id;
+        const id = (vNode?.data?.definition as { id?: string } | undefined)?.id;
         if (!id) return;
 
         const state = controller.getState<CollapseHandlerState>();

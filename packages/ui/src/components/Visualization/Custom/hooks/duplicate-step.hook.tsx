@@ -46,7 +46,7 @@ export const useDuplicateStep = (vizNode: IVisualizationNode) => {
       const filter = entitiesContext.camelResource.getCompatibleComponents(
         AddStepMode.AppendStep,
         vizNode.data,
-        vizNode.data?.definition ?? vizNode.getNodeDefinition(),
+        vizNode.data?.definition,
       );
 
       /** Check paste compatibility */
@@ -58,7 +58,7 @@ export const useDuplicateStep = (vizNode: IVisualizationNode) => {
       const filter = entitiesContext.camelResource.getCompatibleComponents(
         AddStepMode.InsertSpecialChildStep,
         parentVizNode.data,
-        parentVizNode.data?.definition ?? parentVizNode.getNodeDefinition(),
+        parentVizNode.data?.definition,
       );
 
       /** Check paste compatibility */

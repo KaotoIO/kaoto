@@ -80,14 +80,19 @@ export class CamelRestVisualEntity implements RestEntity {
     return definition?.propertiesSchema;
   }
 
-  getNodeDefinition(path?: string, _ids?: IVisualizationNodeIds): unknown {
+  /** Returns the full rest definition for tree-building (synchronous, in-memory). */
+  getRawRestDef(): Rest {
+    return { ...this.restDef.rest };
+  }
+
+  async fetchNodeDefinition(path?: string, _ids?: IVisualizationNodeIds): Promise<unknown> {
     if (!path) return undefined;
 
     if (path === CamelRestVisualEntity.ROOT_PATH) {
       return { ...this.restDef.rest };
     }
 
-    /** If we're targetting a Rest method, the path would be `rest.get.0` */
+    /** If we're targeting a Rest method, the path would be `rest.get.0` */
     const pathSegments = path?.split('.') ?? [];
     const method = (pathSegments[1] ?? '') as RestMethods;
     if (isDefined(path) && pathSegments.length === 3 && REST_DSL_VERBS.includes(method)) {
