@@ -110,8 +110,8 @@ describe('Tests for Design page', { browser: '!firefox' }, () => {
             route: {
               from: {
                 id: 'from-1870',
-                uri: 'timer:user',
-                parameters: { period: '{{period}}' },
+                uri: 'timer',
+                parameters: { period: '{{period}}', timerName: 'user' },
                 steps: [
                   { setBody: { id: 'setBody-3387', expression: { simple: {} } } },
                   { marshal: { id: 'marshal-1414' } },

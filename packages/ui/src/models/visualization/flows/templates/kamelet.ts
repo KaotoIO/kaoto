@@ -34,16 +34,18 @@ spec:
     - "camel:http"
     - "camel:kamelet"
   template:
-    from:
-      id: ${getCamelRandomId('from')}
-      uri: timer
-      parameters:
-        period: "{{period}}"
-        timerName: user
-      steps:
-      - to:
-          uri: https
-          parameters:
-            httpUri: random-data-api.com/api/v2/users
-      - to: "kamelet:sink"`;
+    route:
+      id: ${getCamelRandomId('route')}
+      from:
+        id: ${getCamelRandomId('from')}
+        uri: timer
+        parameters:
+          period: "{{period}}"
+          timerName: user
+        steps:
+        - to:
+            uri: https
+            parameters:
+              httpUri: random-data-api.com/api/v2/users
+        - to: "kamelet:sink"`;
 };
