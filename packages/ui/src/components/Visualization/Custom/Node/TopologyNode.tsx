@@ -38,11 +38,13 @@ export const TopologyNode: FunctionComponent<TopologyRouteNodeProps> = observer(
   const processorName = vizNode.data.primaryNodeId?.name;
   const ProcessorIcon = getProcessorIcon(processorName as keyof ProcessorDefinition);
   const processorDescription = vizNode.data.processorIconTooltip ?? '';
-  const definition = vizNode.getNodeDefinition() as { disabled?: boolean; description?: string } | undefined;
+  const definition = (vizNode.data?.definition ?? vizNode.getNodeDefinition()) as
+    | { disabled?: boolean; description?: string }
+    | undefined;
   const label = definition?.description?.trim() || vizNode.getNodeLabel();
   const bounds = element.getBounds();
   const width = bounds.width;
-  const isDisabled = !!vizNode?.getNodeDefinition()?.disabled;
+  const isDisabled = !!definition?.disabled;
   const doesHaveWarnings = !isDisabled && !!validationText;
   const labelX = (width - CanvasDefaults.DEFAULT_LABEL_WIDTH) / 2;
 

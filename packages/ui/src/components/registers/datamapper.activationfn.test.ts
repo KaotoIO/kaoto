@@ -13,6 +13,7 @@ describe('datamapperActivationFn', () => {
 
   it('should return false if stepDefinition is undefined', () => {
     const result = datamapperActivationFn({
+      data: {},
       getNodeDefinition: () => undefined,
     } as unknown as IVisualizationNode);
 
@@ -21,6 +22,7 @@ describe('datamapperActivationFn', () => {
 
   it('should return `true` if stepDefinition is a DataMapper node', () => {
     const result = datamapperActivationFn({
+      data: {},
       getNodeDefinition: () => datamapperRouteDefinitionStub.from.steps[0].step as Step,
     } as unknown as IVisualizationNode);
 
