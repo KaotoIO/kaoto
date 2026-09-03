@@ -1,7 +1,7 @@
 import { useLocation } from 'react-router';
 
-import { CommonHeader } from '../../components/commonHeader/CommonHeader';
-import { PageLayout } from '../../layouts/page-layout';
+import { CommonHeader } from '../../components/CommonHeader/CommonHeader';
+import { PageLayout } from '../../layouts/PageLayout';
 
 const NotFound = () => {
   const location = useLocation();

@@ -1,0 +1,18 @@
+@use '@carbon/react/scss/theme' as *;
+
+.cs--project-layout {
+  display: flex;
+  flex-direction: column;
+  block-size: 100%;
+}
+
+.cs--project-layout__body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.cs--project-layout__outlet {
+  flex: 1;
+  overflow: auto;
+}

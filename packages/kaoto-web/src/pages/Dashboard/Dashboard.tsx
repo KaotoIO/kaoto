@@ -1,7 +1,7 @@
 import { PageHeader } from '@carbon/ibm-products';
 
-import { Footer } from '../../components/footer/Footer';
-import { PageLayout } from '../../layouts/page-layout';
+import { Footer } from '../../components/Footer/Footer';
+import { PageLayout } from '../../layouts/PageLayout';
 // The styles are imported into index.scss by default.
 // Do the same unless you have a good reason not to.
 
