@@ -27,9 +27,7 @@ export class NewCamelRouteCommand extends AbstractNewCamelRouteCommand {
 		if (!dslPick) {
 			return;
 		}
-		if (!this.camelDSL) {
-			this.camelDSL = this.getDSL(dslPick.label);
-		}
+		this.camelDSL ??= this.getDSL(dslPick.label);
 
 		const wsFolder = await this.showWorkspaceFolderPick();
 		if (wsFolder || this.singleWorkspaceFolder) {
