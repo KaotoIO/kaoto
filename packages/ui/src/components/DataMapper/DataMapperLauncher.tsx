@@ -61,7 +61,9 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
   const showOutputValidation = false as boolean;
 
   const xsltDocumentName = useMemo(() => {
-    const xsltComponent = vizNode?.getNodeDefinition()?.steps?.find(isXSLTComponent) as XsltComponentDef;
+    const xsltComponent = (vizNode?.data.definition ?? vizNode?.getNodeDefinition())?.steps?.find(
+      isXSLTComponent,
+    ) as XsltComponentDef;
     const fileName = DataMapperStepService.getXsltFileName(xsltComponent);
     // Use local state if set, otherwise use the value from vizNode
     return currentFileName ?? fileName;
@@ -188,7 +190,7 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
   );
 
   const onClick = useCallback(async () => {
-    await navigate(`${Links.DataMapper}/${vizNode?.getNodeDefinition()?.id}`);
+    await navigate(`${Links.DataMapper}/${(vizNode?.data.definition ?? vizNode?.getNodeDefinition())?.id}`);
   }, [navigate, vizNode]);
 
   if (!isDefined(metadata)) {

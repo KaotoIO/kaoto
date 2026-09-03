@@ -194,6 +194,7 @@ describe('DataMapperLauncher', () => {
     };
 
     return {
+      data: {},
       getNodeDefinition: vi.fn().mockReturnValue(mockModel),
       updateModel: vi.fn(),
     } as unknown as IVisualizationNode;
