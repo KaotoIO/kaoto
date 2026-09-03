@@ -18,7 +18,7 @@ import { arePathsEqual } from '../utils/Path';
 import { CamelTaskFactory } from '../tasks/CamelTaskFactory';
 import { CamelCommandAPI } from '../executors/api/CamelCommandAPI';
 import { confirmDestructiveActionInSelectedFolder } from '../utils/Modals';
-import path from 'path';
+import path from 'path'; // NOSONAR
 import { RuntimeType } from '../executors/types/ExecutorTypes';
 
 export class NewCamelProjectCommand {

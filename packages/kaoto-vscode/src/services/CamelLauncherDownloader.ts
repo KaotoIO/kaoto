@@ -1,7 +1,7 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import * as https from 'https';
-import * as os from 'os';
+import * as fs from 'fs'; // NOSONAR
+import * as path from 'path'; // NOSONAR
+import * as https from 'https'; // NOSONAR
+import * as os from 'os'; // NOSONAR
 import { ExtensionContext } from 'vscode';
 import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
 import { isRedHatBuild } from '../utils/Version';

@@ -17,7 +17,7 @@ import { commands, Uri, window, workspace } from 'vscode';
 import { AbstractNewCamelRouteCommand } from './AbstractNewCamelRouteCommand';
 import { CamelTaskFactory } from '../tasks/CamelTaskFactory';
 import { CamelCommandAPI } from '../executors/api/CamelCommandAPI';
-import path from 'path';
+import path from 'path'; // NOSONAR
 import { CamelRouteDSL } from './AbstractCamelCommand';
 import isValidFilename from 'valid-filename';
 

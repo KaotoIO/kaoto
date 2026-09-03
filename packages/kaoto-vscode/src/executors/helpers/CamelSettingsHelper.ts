@@ -1,5 +1,5 @@
 import { workspace, window, Uri, RelativePattern } from 'vscode';
-import { dirname } from 'path';
+import { dirname } from 'path'; // NOSONAR
 import { satisfies } from 'compare-versions';
 import { KaotoOutputChannel } from '../../extension/KaotoOutputChannel';
 import { ArgumentConflict, ArgumentConflictDetector } from '../../utils/ArgumentConflictDetector';

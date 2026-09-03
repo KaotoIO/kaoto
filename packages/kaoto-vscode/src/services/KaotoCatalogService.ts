@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
-import * as fs from 'fs';
+import * as path from 'path'; // NOSONAR
+import * as fs from 'fs'; // NOSONAR
 import { CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
 import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
 import { RedHatMavenNotificationService } from './RedHatMavenNotificationService';

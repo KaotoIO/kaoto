@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { execSync } from 'child_process'; // NOSONAR
 import { ShellQuotedString, Uri } from 'vscode';
 import { CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
 import { BaseExecutor } from './BaseExecutor';

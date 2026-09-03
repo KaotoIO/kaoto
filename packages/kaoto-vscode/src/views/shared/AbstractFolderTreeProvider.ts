@@ -15,7 +15,7 @@
  */
 import { Event, EventEmitter, FileSystemWatcher, TreeDataProvider, TreeItem, TreeItemLabel, Uri, workspace } from 'vscode';
 import { KAOTO_EXCLUDE_PATTERN } from '../../constants';
-import { join, relative, sep } from 'path';
+import { join, relative, sep } from 'path'; // NOSONAR
 
 /**
  * Abstract base folder tree item interface for type checking

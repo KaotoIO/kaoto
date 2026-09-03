@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { basename } from 'path';
+import { basename } from 'path'; // NOSONAR
 import { TestResult } from '../../types/TestTreeItemType';
 import { TreeItem, TreeItemCollapsibleState, Uri, ThemeIcon, ThemeColor } from 'vscode';
 

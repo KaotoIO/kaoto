@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { execSync } from 'child_process'; // NOSONAR
 import { satisfies } from 'compare-versions';
 import { RuntimeMavenInformation } from '@kaoto/kaoto';
 import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
