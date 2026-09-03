@@ -67,7 +67,7 @@ suite('LifecycleRegistrar - showRecommendedExtensions', function () {
 		await registrar.showRecommendedExtensions();
 
 		// Assert that exactly two recommendations were created
-		assert.strictEqual(createdRecommendations.length, 2, 'Expected exactly 2 recommendations to be created');
+		assert.lengthOf(createdRecommendations, 2, 'Expected exactly 2 recommendations to be created');
 
 		// Assert XML recommendation
 		const xmlRec = createdRecommendations.find((r) => r.extensionId === 'redhat.vscode-xml');
@@ -82,7 +82,7 @@ suite('LifecycleRegistrar - showRecommendedExtensions', function () {
 		assert.strictEqual(yamlRec?.shouldShowOnStartup, true);
 
 		// Assert that both recommendations were registered
-		assert.strictEqual(registeredRecommendations.length, 2, 'Expected exactly 2 recommendations to be registered');
+		assert.lengthOf(registeredRecommendations, 2, 'Expected exactly 2 recommendations to be registered');
 
 		// Verify the registered extension IDs
 		const registeredIds = registeredRecommendations.map((r) => r.extensionId);
