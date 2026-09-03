@@ -6,7 +6,7 @@ import { useCallback, useContext, useMemo } from 'react';
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { DefinedComponent } from '../../../../models';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
+import { ProcessorStepsService } from '../../../../models/visualization/flows/support/processor-steps.service';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 
 export interface UseInsertStepOptions {
@@ -45,7 +45,7 @@ export const useInsertStep = (
 
     // Set an empty model to clear the graph, Fixes an issue rendering child nodes incorrectly
     if (mode === AddStepMode.InsertSpecialChildStep) {
-      const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
+      const stepsProperties = ProcessorStepsService.getProcessorStepsProperties(
         vizNode.data.primaryNodeId?.name as keyof ProcessorDefinition,
       );
       if (

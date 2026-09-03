@@ -8,8 +8,8 @@ import { SPECIAL_PROCESSORS_PARENTS_MAP } from '../../../../special-processors.c
 import { IVisualizationNode, IVisualizationNodeData, IVisualizationNodeIds } from '../../../base-visual-entity';
 import { NodeIdentity } from '../../../node-identity';
 import { createVisualizationNode } from '../../../visualization-node';
-import { CamelComponentSchemaService } from '../../support/camel-component-schema.service';
 import { CamelProcessorStepsProperties } from '../../support/camel-component-types';
+import { ProcessorStepsService } from '../../support/processor-steps.service';
 import { INodeMapper } from '../node-mapper';
 
 const URI_PROCESSORS = new Set<string>(['to', 'toD', 'poll']);
@@ -58,7 +58,7 @@ export class BaseNodeMapper implements INodeMapper {
 
     const vizNode = createVisualizationNode(path, data);
 
-    const childrenStepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
+    const childrenStepsProperties = ProcessorStepsService.getProcessorStepsProperties(
       componentLookup.primaryNodeId?.name as keyof ProcessorDefinition,
     );
 
