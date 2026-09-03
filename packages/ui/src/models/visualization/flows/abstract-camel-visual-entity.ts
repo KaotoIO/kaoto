@@ -28,6 +28,7 @@ import { NodeMapperService } from './nodes/node-mapper.service';
 import { CamelComponentDefaultService } from './support/camel-component-default.service';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 import { CamelProcessorStepsProperties } from './support/camel-component-types';
+import { ProcessorStepsService } from './support/processor-steps.service';
 import { ModelValidationService } from './support/validators/model-validation.service';
 
 export abstract class AbstractCamelVisualEntity<T extends object> implements BaseVisualEntity {
@@ -294,11 +295,11 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
 
   getNodeInteraction(data: IVisualizationNodeData): NodeInteraction {
     const processorName = data.primaryNodeId?.name as keyof ProcessorDefinition;
-    const canHavePreviousStep = CamelComponentSchemaService.canHavePreviousStep(processorName);
-    const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(processorName);
+    const canHavePreviousStep = ProcessorStepsService.canHavePreviousStep(processorName);
+    const stepsProperties = ProcessorStepsService.getProcessorStepsProperties(processorName);
     const canHaveChildren = stepsProperties.some((property) => property.type === 'branch');
     const canHaveSpecialChildren = Object.keys(stepsProperties).length > 1;
-    const canReplaceStep = CamelComponentSchemaService.canReplaceStep(processorName);
+    const canReplaceStep = ProcessorStepsService.canReplaceStep(processorName);
     const canRemoveFlow = data.path === this.getRootPath();
     const canRemoveStep = !canRemoveFlow && !CamelComponentSchemaService.DISABLED_REMOVE_STEPS.includes(processorName);
     const canBeDisabled = CamelComponentSchemaService.canBeDisabled(processorName);
@@ -402,7 +403,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     insertAtStart?: boolean,
   ) {
     if (data.path === undefined) return;
-    const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
+    const stepsProperties = ProcessorStepsService.getProcessorStepsProperties(
       data.primaryNodeId?.name as keyof ProcessorDefinition,
     );
 

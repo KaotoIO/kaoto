@@ -49,3 +49,16 @@ export const SPECIAL_PROCESSORS_PARENTS_MAP = {
 export const SPECIAL_CHILD_PROCESSORS = Object.entries(SPECIAL_PROCESSORS_PARENTS_MAP)
   .filter(([key]) => key !== 'routeConfiguration')
   .flatMap(([, values]) => values);
+
+/**
+ * Processors that cannot have a sibling step in the canvas.
+ * Includes flow-level nodes and all special clause children.
+ */
+export const DISABLED_SIBLING_STEPS = [
+  'route',
+  'from',
+  'onWhen',
+  ...Object.values(SPECIAL_PROCESSORS_PARENTS_MAP)
+    .flat()
+    .filter((v) => v !== 'onFallback'),
+] as const;

@@ -5,7 +5,7 @@ import { ElementModel, GraphElement, Node } from '@patternfly/react-topology';
 import { PlaceholderType } from '../../../../models/placeholder.constants';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { IClipboardContent } from '../../../../models/visualization/clipboard';
-import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
+import { ProcessorStepsService } from '../../../../models/visualization/flows/support/processor-steps.service';
 import { EntitiesContextResult } from '../../../../providers/entities.provider';
 import {
   IInteractionType,
@@ -194,13 +194,12 @@ export const getVizNodeChildrenInfo = (vizNode: IVisualizationNode | undefined):
   const hasGroupChildren = vizNodeChildren.some((child) => {
     const childProcessorName = child.data.primaryNodeId?.name;
     return childProcessorName
-      ? CamelComponentSchemaService.getProcessorStepsProperties(childProcessorName as keyof ProcessorDefinition)
-          .length > 0
+      ? ProcessorStepsService.getProcessorStepsProperties(childProcessorName as keyof ProcessorDefinition).length > 0
       : false;
   });
   const isContainerType =
     !!processorName &&
-    CamelComponentSchemaService.getProcessorStepsProperties(processorName as keyof ProcessorDefinition).length > 0;
+    ProcessorStepsService.getProcessorStepsProperties(processorName as keyof ProcessorDefinition).length > 0;
   const isCollapsedGroup = isContainerType && childCount > 0;
   return { childCount, hasGroupChildren, isCollapsedGroup };
 };

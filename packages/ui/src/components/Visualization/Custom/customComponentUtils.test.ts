@@ -7,7 +7,6 @@ import {
   IVisualizationNode,
   IVisualizationNodeData,
 } from '../../../models/visualization/base-visual-entity';
-import { CamelComponentSchemaService } from '../../../models/visualization/flows/support/camel-component-schema.service';
 import { EntitiesContextResult } from '../../../providers';
 import { canDragGroup, canDropOnEdge, getDropTargetContainerClassNames } from './customComponentUtils';
 
@@ -252,37 +251,23 @@ describe('canDragGroup', () => {
     } as unknown as IVisualizationNode;
   };
 
-  beforeEach(() => {
-    vi.spyOn(CamelComponentSchemaService, 'getProcessorStepsProperties').mockReturnValue([]);
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   it('should return false when groupVizNode is undefined', () => {
     expect(canDragGroup()).toBe(false);
-    expect(CamelComponentSchemaService.getProcessorStepsProperties).not.toHaveBeenCalled();
   });
 
   it('should return false when path is top-level (single segment)', () => {
     const groupVizNode = getMockGroupVizNode('Route', 'route');
 
     expect(canDragGroup(groupVizNode)).toBe(false);
-    expect(CamelComponentSchemaService.getProcessorStepsProperties).not.toHaveBeenCalled();
   });
 
-  it('should return true when group is otherwise(single-clause)', () => {
+  it('should return true when group has a multi-segment path', () => {
     const groupVizNode = getMockGroupVizNode('route.from.steps.0.choice.otherwise', 'otherwise', 'choice');
 
     expect(canDragGroup(groupVizNode)).toBe(true);
   });
 
-  it('should return true when group does not match single-clause property', () => {
-    (CamelComponentSchemaService.getProcessorStepsProperties as Mock).mockReturnValue([
-      { name: 'otherwise', type: 'single-clause' },
-      { name: 'when', type: 'array-clause' },
-    ]);
+  it('should return true when group has a multi-segment path (when clause)', () => {
     const groupVizNode = getMockGroupVizNode('route.from.steps.0.choice.when', 'when', 'choice');
 
     expect(canDragGroup(groupVizNode)).toBe(true);

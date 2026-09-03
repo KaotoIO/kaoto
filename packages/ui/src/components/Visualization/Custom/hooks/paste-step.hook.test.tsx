@@ -7,7 +7,7 @@ import { CatalogKind } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { IClipboardContent } from '../../../../models/visualization/clipboard';
-import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
+import { ProcessorStepsService } from '../../../../models/visualization/flows/support/processor-steps.service';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
 import { ClipboardService } from '../../../../services/visualization/clipboard.service';
@@ -181,7 +181,7 @@ describe('usePasteStep', () => {
     });
     mockChoiceVizNode.pasteBaseEntityStep = vi.fn();
 
-    const getProcessorStepsPropertiesMock = vi.spyOn(CamelComponentSchemaService, 'getProcessorStepsProperties');
+    const getProcessorStepsPropertiesMock = vi.spyOn(ProcessorStepsService, 'getProcessorStepsProperties');
 
     const whenContent = {
       name: 'when',

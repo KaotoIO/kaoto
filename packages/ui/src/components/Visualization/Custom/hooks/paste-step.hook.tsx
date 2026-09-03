@@ -7,7 +7,7 @@ import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'r
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { IClipboardContent } from '../../../../models/visualization/clipboard';
-import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
+import { ProcessorStepsService } from '../../../../models/visualization/flows/support/processor-steps.service';
 import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { ClipboardService } from '../../../../services/visualization/clipboard.service';
@@ -98,7 +98,7 @@ export const usePasteStep = (vizNode: IVisualizationNode, mode: AddStepMode) => 
 
     // Set an empty model to clear the graph, Fixes an issue rendering child nodes incorrectly
     if (mode === AddStepMode.InsertSpecialChildStep) {
-      const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
+      const stepsProperties = ProcessorStepsService.getProcessorStepsProperties(
         vizNode.data.primaryNodeId?.name as keyof ProcessorDefinition,
       );
       if (

@@ -10,6 +10,7 @@ import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
+import { ProcessorStepsService } from './support/processor-steps.service';
 
 export class CamelOnCompletionVisualEntity
   extends AbstractCamelVisualEntity<{ onCompletion: OnCompletion }>
@@ -52,10 +53,10 @@ export class CamelOnCompletionVisualEntity
   }
 
   getNodeInteraction(data: IVisualizationNodeData): NodeInteraction {
-    const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
+    const stepsProperties = ProcessorStepsService.getProcessorStepsProperties(
       data.primaryNodeId?.name as keyof ProcessorDefinition,
     );
-    const canHavePreviousStep = CamelComponentSchemaService.canHavePreviousStep(
+    const canHavePreviousStep = ProcessorStepsService.canHavePreviousStep(
       data.primaryNodeId?.name as keyof ProcessorDefinition,
     );
     const canHaveChildren = stepsProperties.some((property) => property.type === 'branch');

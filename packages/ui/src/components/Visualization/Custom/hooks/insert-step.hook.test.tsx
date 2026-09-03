@@ -6,7 +6,7 @@ import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.p
 import { CatalogKind } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
+import { ProcessorStepsService } from '../../../../models/visualization/flows/support/processor-steps.service';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
 import { createMockEntitiesContext } from '../../../../stubs';
@@ -42,7 +42,7 @@ describe('useInsertStep', () => {
   };
 
   const mockCompatibleComponents = (item: ITile) => ['log', 'to'].includes(item.type);
-  const getProcessorStepsPropertiesMock = vi.spyOn(CamelComponentSchemaService, 'getProcessorStepsProperties');
+  const getProcessorStepsPropertiesMock = vi.spyOn(ProcessorStepsService, 'getProcessorStepsProperties');
 
   beforeEach(() => {
     mockVizNode = createVisualizationNode('test', {
