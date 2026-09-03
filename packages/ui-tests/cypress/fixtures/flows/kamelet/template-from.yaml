@@ -24,20 +24,18 @@ spec:
     - camel:http
     - camel:kamelet
   template:
-    route:
-      from:
-        id: from-1870
-        uri: timer
-        parameters:
-          period: "{{period}}"
-          timerName: user
-        steps:
-          - setBody:
-              id: setBody-3387
-              expression:
-                simple: {}
-          - marshal:
-              id: marshal-1414
-          - to:
-              uri: kamelet:sink
-              parameters: {}
+    from:
+      id: from-1870
+      uri: timer:user
+      parameters:
+        period: "1000"
+      steps:
+        - setBody:
+            id: setBody-3387
+            expression:
+              simple: {}
+        - marshal:
+            id: marshal-1414
+        - to:
+            uri: kamelet:sink
+            parameters: {}

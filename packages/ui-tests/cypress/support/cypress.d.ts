@@ -105,8 +105,16 @@ declare global {
       DnDOnEdge(sourceNode: string, targetEdge: string): Chainable<JQuery<Element>>;
       retryClickDropdown(dropdownSelector: string, listSelector: string): Chainable<JQuery<Element>>;
       // nodeConfiguration
-      interactWithConfigInputObject(inputName: string, value?: string): Chainable<JQuery<Element>>;
-      interactWithExpressionInputObject(inputName: string, value?: string, index?: number): Chainable<JQuery<Element>>;
+      interactWithConfigInputObject(
+        inputName: string,
+        value?: string,
+        options?: Partial<Cypress.TypeOptions>,
+      ): Chainable<JQuery<Element>>;
+      interactWithExpressionInputObject(
+        inputName: string,
+        value?: string,
+        options?: Partial<Cypress.TypeOptions>,
+      ): Chainable<JQuery<Element>>;
       addExpressionResultType(value: string, index?: number): Chainable<JQuery<Element>>;
       checkExpressionResultType(value: string): Chainable<JQuery<Element>>;
       checkConfigCheckboxObject(inputName: string, value: boolean): Chainable<JQuery<Element>>;
@@ -117,7 +125,6 @@ declare global {
       configureBeanReference(inputName: string, value: string): Chainable<JQuery<Element>>;
       configureNewBeanReference(inputName: string): Chainable<JQuery<Element>>;
       selectDataformat(dataformat: string): Chainable<JQuery<Element>>;
-      selectCustomMetadataEditor(type: string, expression: string): Chainable<JQuery<Element>>;
       configureDropdownValue(inputName: string, value: string): Chainable<JQuery<Element>>;
       deselectNodeBean(inputName: string): Chainable<JQuery<Element>>;
       addProperty(propertyName: string): Chainable<JQuery<Element>>;

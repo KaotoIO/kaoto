@@ -1,16 +1,22 @@
-Cypress.Commands.add('interactWithConfigInputObject', (inputName: string, value?: string) => {
-  cy.interactWithExpressionInputObject(`#.${inputName}`, value);
-});
+Cypress.Commands.add(
+  'interactWithConfigInputObject',
+  (inputName: string, value?: string, options?: Partial<Cypress.TypeOptions>) => {
+    cy.interactWithExpressionInputObject(`#.${inputName}`, value, options);
+  },
+);
 
-Cypress.Commands.add('interactWithExpressionInputObject', (inputName: string, value?: string) => {
-  if (value !== undefined && value !== null) {
-    cy.get(`input[name="${inputName}"], textarea[name="${inputName}"]`).clear();
-    cy.get(`input[name="${inputName}"], textarea[name="${inputName}"]`).type(value);
-  } else {
-    /** We need to use {force:true} because the `Switch` component is wrapped by a label component, blocking the click event */
-    cy.get(`input[name="${inputName}"], textarea[name="${inputName}"]`).click({ force: true });
-  }
-});
+Cypress.Commands.add(
+  'interactWithExpressionInputObject',
+  (inputName: string, value?: string, options?: Partial<Cypress.TypeOptions>) => {
+    if (value !== undefined && value !== null) {
+      cy.get(`input[name="${inputName}"], textarea[name="${inputName}"]`).clear();
+      cy.get(`input[name="${inputName}"], textarea[name="${inputName}"]`).type(value, options);
+    } else {
+      /** We need to use {force:true} because the `Switch` component is wrapped by a label component, blocking the click event */
+      cy.get(`input[name="${inputName}"], textarea[name="${inputName}"]`).click({ force: true });
+    }
+  },
+);
 
 Cypress.Commands.add('addExpressionResultType', (value: string) => {
   cy.get(`input.pf-v6-c-text-input-group__text-input`).clear();
@@ -91,12 +97,8 @@ Cypress.Commands.add('configureNewBeanReference', (inputName: string) => {
 });
 
 Cypress.Commands.add('selectDataformat', (dataformat: string) => {
-  cy.selectCustomMetadataEditor('dataformat', dataformat);
-});
-
-Cypress.Commands.add('selectCustomMetadataEditor', (type: string, format: string) => {
   cy.get(`div[data-testid="#__oneof-list-typeahead-select-input"]`).click();
-  cy.get('.pf-v6-c-menu__item-text').contains(format).first().click();
+  cy.get('.pf-v6-c-menu__item-text').contains(dataformat).first().click();
 });
 
 Cypress.Commands.add('configureDropdownValue', (inputName: string, value?: string) => {

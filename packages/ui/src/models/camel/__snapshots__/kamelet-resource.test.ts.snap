@@ -60,6 +60,7 @@ exports[`KameletResource > should convert to JSON 1`] = `
           ],
           "uri": "timer",
         },
+        "id": "route-1234",
       },
     },
     "types": {
@@ -131,6 +132,7 @@ exports[`KameletResource > should create a new KameletResource 1`] = `
           ],
           "uri": "timer",
         },
+        "id": "route-1234",
       },
     },
     "types": {
@@ -204,6 +206,7 @@ exports[`KameletResource > should get the visual entities (Camel Route Visual En
         ],
         "uri": "timer",
       },
+      "id": "route-1234",
     },
   },
 ]
