@@ -213,7 +213,7 @@ export class VSCodeKaotoEditorChannelApi extends DefaultVsCodeKieEditorChannelAp
 					const targetFile = path.resolve(path.dirname(kaotoMetadataFile.fsPath), relativePath);
 					return new TextDecoder().decode(await vscode.workspace.fs.readFile(vscode.Uri.file(targetFile)));
 				}
-			} catch (ex2) {
+			} catch (error_) {
 				const errorMessage = `Cannot retrieve content of ${relativePath} relatively to the classpath root ${classpathRoot} neither the .kaoto metadata file ${kaotoMetadataFile}`;
 				vscode.window.showErrorMessage(errorMessage);
 				KaotoOutputChannel.logError(errorMessage, ex);
