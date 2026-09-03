@@ -87,7 +87,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const processorName = vizNode?.data.primaryNodeId?.name;
     const ProcessorIcon = processorName ? getProcessorIcon(processorName as keyof ProcessorDefinition) : null;
     const processorDescription = vizNode?.data.processorIconTooltip ?? '';
-    const isDisabled = !!vizNode?.getNodeDefinition()?.disabled;
+    const isDisabled = !!(vizNode?.data?.definition ?? vizNode?.getNodeDefinition())?.disabled;
     const validationText = useNodeValidationText(vizNode);
     const doesHaveWarnings = !isDisabled && !!validationText;
     const [isGHover, gHoverRef] = useHover<SVGGElement>(CanvasDefaults.HOVER_DELAY_IN, CanvasDefaults.HOVER_DELAY_OUT);
@@ -179,7 +179,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
               const filter = entitiesContext.camelResource.getCompatibleComponents(
                 mode,
                 filterNode.data,
-                filterNode.getNodeDefinition(),
+                filterNode.data?.definition ?? filterNode.getNodeDefinition(),
               );
               return catalogModalContext?.checkCompatibility(compatibilityCheckNodeName, filter) ?? false;
             },

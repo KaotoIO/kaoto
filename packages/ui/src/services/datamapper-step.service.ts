@@ -38,7 +38,7 @@ export class DataMapperStepService {
    * @returns The metadata ID
    */
   static getDataMapperMetadataId(vizNode: IVisualizationNode): string {
-    const model = vizNode.getNodeDefinition();
+    const model = vizNode.data?.definition ?? vizNode.getNodeDefinition();
     return model.id;
   }
 
@@ -55,7 +55,7 @@ export class DataMapperStepService {
     metadataId: string,
     entitiesContext: EntitiesContextResult,
   ): string {
-    const model = vizNode.getNodeDefinition();
+    const model = vizNode.data?.definition ?? vizNode.getNodeDefinition();
     const xsltStep = (model.steps as ProcessorDefinition[]).find(isXSLTComponent)!;
     const documentName = `${metadataId}.xsl`;
 
@@ -100,7 +100,7 @@ export class DataMapperStepService {
     isUseJsonBody: boolean,
     entitiesContext: EntitiesContextResult,
   ): void {
-    const model = vizNode.getNodeDefinition();
+    const model = vizNode.data?.definition ?? vizNode.getNodeDefinition();
     const xsltStep = (model.steps as ProcessorDefinition[])?.find(isXSLTComponent);
 
     if (!xsltStep?.to || typeof xsltStep.to !== 'object') {
@@ -133,7 +133,7 @@ export class DataMapperStepService {
     newFileName: string,
     entitiesContext: EntitiesContextResult,
   ): void {
-    const model = vizNode.getNodeDefinition();
+    const model = vizNode.data?.definition ?? vizNode.getNodeDefinition();
     const xsltStep = (model.steps as ProcessorDefinition[]).find(isXSLTComponent);
 
     if (!xsltStep?.to || typeof xsltStep.to !== 'object') {
@@ -201,7 +201,7 @@ export class DataMapperStepService {
     isBodyUsed: boolean,
     entitiesContext: EntitiesContextResult,
   ): void {
-    const model = vizNode.getNodeDefinition();
+    const model = vizNode.data?.definition ?? vizNode.getNodeDefinition();
     const steps = model.steps as ProcessorDefinition[];
     if (!steps) return;
 

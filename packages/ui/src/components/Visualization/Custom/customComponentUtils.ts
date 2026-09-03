@@ -54,7 +54,7 @@ const canDropOnEdge = (
   const filter = camelResource.getCompatibleComponents(
     AddStepMode.PrependStep,
     followingVizNode.data,
-    followingVizNode.getNodeDefinition(),
+    followingVizNode.data?.definition ?? followingVizNode.getNodeDefinition(),
   );
   return catalogModalContext.checkCompatibility(draggedVizNode.getCopiedContent()!.name, filter) ?? false;
 };
