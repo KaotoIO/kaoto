@@ -21,7 +21,7 @@ import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/
 import { ExpressionXmlSerializer } from './expression-xml-serializer';
 import { getDocument, testSerializer } from './serializer-test-utils';
 
-const oneOf = ['constant', 'csimple', 'simple', 'datasonnet', 'exchangeProperty', 'groovy', 'header', 'hl7terser'];
+const oneOf = ['constant', 'simple', 'datasonnet', 'exchangeProperty', 'groovy', 'header', 'hl7terser'];
 describe('ExpressionSerialisation tests', () => {
   const doc = getDocument();
   beforeAll(async () => {
@@ -88,12 +88,12 @@ describe('ExpressionSerialisation tests', () => {
 
   it('serialize expression with attributes', async () => {
     const entity = {
-      csimple: {
-        expression: '${body}',
+      constant: {
+        expression: 'a=b',
         resultType: 'String',
       },
     };
-    const expected = `<when><csimple resultType="String">\${body}</csimple></when>`;
+    const expected = `<when><constant resultType="String">a=b</constant></when>`;
     const element = doc.createElement('when');
     await ExpressionXmlSerializer.serialize('expression', entity, oneOf, doc, element);
     testSerializer(expected, element);
@@ -101,12 +101,12 @@ describe('ExpressionSerialisation tests', () => {
 
   it('serialize expression with namespace', async () => {
     const entity = {
-      csimple: {
-        expression: '${body}',
+      constant: {
+        expression: 'a=b',
         namespace: [{ key: 'ns1', value: 'http://example.com/ns1' }],
       },
     };
-    const expected = `<when><csimple>\${body}</csimple></when>`;
+    const expected = `<when><constant>a=b</constant></when>`;
     const element = doc.createElement('when');
     const routeParent = doc.createElement('route');
     await ExpressionXmlSerializer.serialize('expression', entity, oneOf, doc, element, routeParent);

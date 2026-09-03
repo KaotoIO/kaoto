@@ -26,9 +26,6 @@ export const setHeaderDefinitions: KaotoSchemaDefinition['schema']['definitions'
                   required: ['constant'],
                 },
                 {
-                  required: ['csimple'],
-                },
-                {
                   required: ['datasonnet'],
                 },
                 {
@@ -141,7 +138,6 @@ export const setHeaderDefinitions: KaotoSchemaDefinition['schema']['definitions'
           'Name of message header to set a new value The simple language can be used to define a dynamic evaluated header name to be used. Otherwise a constant name will be used.',
       },
       constant: {},
-      csimple: {},
       datasonnet: {},
       exchangeProperty: {},
       groovy: {},
@@ -173,42 +169,6 @@ export const setHeaderDefinitions: KaotoSchemaDefinition['schema']['definitions'
 };
 
 export const expressionDefinitions: KaotoSchemaDefinition['schema']['definitions'] = {
-  'org.apache.camel.model.language.CSimpleExpression': {
-    title: 'CSimple',
-    description: 'Evaluate a compiled simple expression.',
-    oneOf: [
-      {
-        type: 'string',
-      },
-      {
-        type: 'object',
-        additionalProperties: false,
-        properties: {
-          expression: {
-            type: 'string',
-            title: 'Expression',
-            description: 'The expression value in your chosen language syntax',
-          },
-          id: {
-            type: 'string',
-            title: 'Id',
-            description: 'Sets the id of this node',
-          },
-          resultType: {
-            type: 'string',
-            title: 'Result Type',
-            description: 'Sets the class of the result type (type from output)',
-          },
-          trim: {
-            type: 'boolean',
-            title: 'Trim',
-            description: 'Whether to trim the value to remove leading and trailing whitespaces and line breaks',
-          },
-        },
-      },
-    ],
-    required: ['expression'],
-  },
   'org.apache.camel.model.language.ConstantExpression': {
     title: 'Constant',
     description: 'A fixed value set only once during the route startup.',
@@ -339,15 +299,6 @@ export const expressionDefinitions: KaotoSchemaDefinition['schema']['definitions
             properties: {
               constant: {
                 $ref: '#/definitions/org.apache.camel.model.language.ConstantExpression',
-              },
-            },
-          },
-          {
-            type: 'object',
-            required: ['csimple'],
-            properties: {
-              csimple: {
-                $ref: '#/definitions/org.apache.camel.model.language.CSimpleExpression',
               },
             },
           },
@@ -572,7 +523,6 @@ export const expressionDefinitions: KaotoSchemaDefinition['schema']['definitions
     ],
     properties: {
       constant: {},
-      csimple: {},
       datasonnet: {},
       exchangeProperty: {},
       groovy: {},
@@ -1650,9 +1600,9 @@ export const setHeaderExpressionSchema: KaotoSchemaDefinition['schema'] = {
   description: 'Test Description',
   default: 'default value',
   definitions: {
-    'org.apache.camel.model.language.CSimpleExpression': {
-      title: 'CSimple',
-      description: 'Evaluate a compiled simple expression.',
+    'org.apache.camel.model.language.ConstantExpression': {
+      title: 'Constant',
+      description: 'A fixed value set only once during the route startup.',
       required: ['expression'],
       type: 'object',
       additionalProperties: false,
@@ -1727,10 +1677,10 @@ export const setHeaderExpressionSchema: KaotoSchemaDefinition['schema'] = {
           oneOf: [
             {
               type: 'object',
-              required: ['csimple'],
+              required: ['constant'],
               properties: {
-                csimple: {
-                  $ref: '#/definitions/org.apache.camel.model.language.CSimpleExpression',
+                constant: {
+                  $ref: '#/definitions/org.apache.camel.model.language.ConstantExpression',
                 },
               },
             },
@@ -1784,7 +1734,6 @@ export const setHeaderExpressionSchema: KaotoSchemaDefinition['schema'] = {
       ],
       properties: {
         constant: {},
-        csimple: {},
         datasonnet: {},
         exchangeProperty: {},
         groovy: {},
@@ -1819,9 +1768,6 @@ export const setHeaderExpressionSchema: KaotoSchemaDefinition['schema'] = {
           },
           {
             required: ['constant'],
-          },
-          {
-            required: ['csimple'],
           },
           {
             required: ['datasonnet'],
