@@ -84,10 +84,10 @@ describe('CamelRouteConfigurationVisualEntity', () => {
     expect(entity.getNodeLabel('routeConfiguration.placeholder')).toBe('Add configuration');
   });
 
-  it('should return entity current definition', () => {
+  it('should return entity current definition', async () => {
     const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
 
-    expect(entity.getNodeDefinition(CamelRouteConfigurationVisualEntity.ROOT_PATH)).toEqual(
+    expect(await entity.fetchNodeDefinition(CamelRouteConfigurationVisualEntity.ROOT_PATH)).toEqual(
       routeConfigurationDef.routeConfiguration,
     );
   });

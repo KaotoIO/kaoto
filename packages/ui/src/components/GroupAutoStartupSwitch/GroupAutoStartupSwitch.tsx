@@ -23,7 +23,7 @@ export const GroupAutoStartupSwitch: FunctionComponent<IGroupAutoStartupSwitchPr
   }
 
   // Get the current autoStartup value from the route definition
-  const routeDefinition: RouteDefinition = (vizNode.data?.definition ?? vizNode.getNodeDefinition()) as RouteDefinition;
+  const routeDefinition: RouteDefinition = vizNode.data?.definition as RouteDefinition;
   const autoStartupValue = routeDefinition?.autoStartup;
 
   // Only treat actual boolean false as disabled; strings (including "false" or placeholders like "{{...}}")

@@ -30,7 +30,7 @@ describe('useCollapseStep', () => {
       getId: vi.fn().mockReturnValue('mock-node-id'),
       getData: vi.fn().mockReturnValue({
         vizNode: {
-          getNodeDefinition: vi.fn().mockReturnValue({ id: 'mock-node-id' }),
+          data: { definition: { id: 'mock-node-id' } },
         },
       }),
     } as unknown as Node<ElementModel, unknown>;
@@ -234,7 +234,7 @@ describe('useCollapseStep', () => {
   it('should handle elements with no node definition id', async () => {
     mockElement.getData = vi.fn().mockReturnValue({
       vizNode: {
-        getNodeDefinition: vi.fn().mockReturnValue({}),
+        data: { definition: {} },
       },
     });
 

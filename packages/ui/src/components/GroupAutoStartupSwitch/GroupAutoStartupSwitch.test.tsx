@@ -62,6 +62,7 @@ describe('GroupAutoStartupSwitch', () => {
       iconUrl: '',
       title: '',
       description: '',
+      definition: { from: { uri: 'direct:test', steps: [] }, autoStartup: false },
     }) as IVisualizationNode;
 
     const { Provider } = await TestProvidersWrapper();
@@ -134,6 +135,7 @@ describe('GroupAutoStartupSwitch', () => {
       iconUrl: '',
       title: '',
       description: '',
+      definition: { from: { uri: 'direct:test', steps: [] }, autoStartup: false },
     }) as IVisualizationNode;
 
     const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
@@ -170,6 +172,7 @@ describe('GroupAutoStartupSwitch', () => {
       iconUrl: '',
       title: '',
       description: '',
+      definition: { from: { uri: 'direct:test', steps: [] }, autoStartup: 'true' as unknown as boolean },
     }) as IVisualizationNode;
 
     const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
@@ -205,6 +208,10 @@ describe('GroupAutoStartupSwitch', () => {
       iconUrl: '',
       title: '',
       description: '',
+      definition: {
+        from: { uri: 'direct:test', steps: [] },
+        autoStartup: '{{autoStartup}}' as unknown as boolean,
+      },
     }) as IVisualizationNode;
 
     const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
@@ -245,6 +252,12 @@ describe('GroupAutoStartupSwitch', () => {
       iconUrl: '',
       title: '',
       description: '',
+      definition: {
+        id: 'my-route',
+        description: 'Test route',
+        from: { uri: 'direct:test', steps: [] },
+        autoStartup: true,
+      },
     }) as IVisualizationNode;
 
     const updateModelSpy = vi.spyOn(vizNode, 'updateModel');

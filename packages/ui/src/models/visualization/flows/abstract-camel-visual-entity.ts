@@ -312,7 +312,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     schema?: KaotoSchemaDefinition['schema'],
     ids?: IVisualizationNodeIds,
   ): Promise<string | undefined> {
-    const definition = this.getNodeDefinition(path, ids);
+    const definition = await this.fetchNodeDefinition(path, ids);
     if (!schema || !definition) return undefined;
 
     return await ModelValidationService.validateNodeStatus(schema, definition);

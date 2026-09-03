@@ -6,9 +6,7 @@ import { EntitiesContext } from '../../../../providers/entities.provider';
 
 export const useDisableStep = (vizNode: IVisualizationNode) => {
   const entitiesContext = useContext(EntitiesContext);
-  const parsedDefinition = (vizNode.data.definition ?? vizNode.getNodeDefinition()) as
-    | Record<string, unknown>
-    | undefined;
+  const parsedDefinition = vizNode.data.definition as Record<string, unknown> | undefined;
   const isDisabled = !!parsedDefinition?.disabled;
 
   const parsedDefinitionRef = useRef(parsedDefinition);
@@ -18,7 +16,8 @@ export const useDisableStep = (vizNode: IVisualizationNode) => {
   isDisabledRef.current = isDisabled;
 
   const onToggleDisableNode = useCallback(() => {
-    const newModel = parsedDefinitionRef.current ?? vizNode.getNodeDefinition();
+    const newModel = parsedDefinitionRef.current;
+    if (!newModel) return;
     setValue(newModel, 'disabled', !isDisabledRef.current);
     vizNode.updateModel(newModel);
     entitiesContext?.updateEntitiesFromCamelResource();

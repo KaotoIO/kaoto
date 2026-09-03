@@ -31,7 +31,6 @@ describe('useDisableStep', () => {
       title: '',
       description: '',
     });
-    mockVizNode.getNodeDefinition = vi.fn().mockReturnValue({});
     mockVizNode.updateModel = vi.fn();
   });
 
@@ -128,20 +127,17 @@ describe('useDisableStep', () => {
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
   });
 
-  it('should use node definition as fallback when data.definition is undefined', () => {
-    const nodeDefinition = { id: 'test-step', uri: 'direct:start' };
+  it('should do nothing when data.definition is undefined', () => {
     mockVizNode.data.definition = undefined;
-    mockVizNode.getNodeDefinition = vi.fn().mockReturnValue(nodeDefinition);
 
     const { result } = renderHook(() => useDisableStep(mockVizNode), { wrapper });
 
     expect(result.current.isDisabled).toBe(false);
     result.current.onToggleDisableNode();
 
-    expect(mockVizNode.getNodeDefinition).toHaveBeenCalled();
-    expect(setValue).toHaveBeenCalledWith(nodeDefinition, 'disabled', true);
-    expect(mockVizNode.updateModel).toHaveBeenCalledWith(nodeDefinition);
-    expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
+    expect(setValue).not.toHaveBeenCalled();
+    expect(mockVizNode.updateModel).not.toHaveBeenCalled();
+    expect(mockEntitiesContext.updateEntitiesFromCamelResource).not.toHaveBeenCalled();
   });
 
   it('should maintain stable reference when dependencies do not change', () => {

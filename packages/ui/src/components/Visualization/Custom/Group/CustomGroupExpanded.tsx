@@ -73,7 +73,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
     const processorName = groupVizNode?.data.primaryNodeId?.name as keyof ProcessorDefinition;
     const ProcessorIcon = getProcessorIcon(processorName);
     const processorDescription = groupVizNode?.data?.processorIconTooltip ?? '';
-    const isDisabled = !!(groupVizNode?.data?.definition ?? groupVizNode?.getNodeDefinition())?.disabled;
+    const isDisabled = !!(groupVizNode?.data?.definition as { disabled?: unknown } | undefined)?.disabled;
     const validationText = useNodeValidationText(groupVizNode);
     const doesHaveWarnings = !isDisabled && !!validationText;
     const { childCount, hasGroupChildren } = getVizNodeChildrenInfo(groupVizNode);
@@ -143,7 +143,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
               const filter = entitiesContext.camelResource.getCompatibleComponents(
                 mode,
                 filterNode.data,
-                filterNode.data?.definition ?? filterNode.getNodeDefinition(),
+                filterNode.data?.definition,
               );
               return catalogModalContext?.checkCompatibility(compatibilityCheckNodeName, filter) ?? false;
             },

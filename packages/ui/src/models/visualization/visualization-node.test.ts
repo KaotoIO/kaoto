@@ -84,30 +84,6 @@ describe('VisualizationNode', () => {
     expect(node.getId()).toBe('route-8888');
   });
 
-  it('should return the node definition from the underlying BaseVisualCamelEntity', () => {
-    const getNodeDefinitionSpy = vi.fn();
-    const visualEntity = {
-      getNodeDefinition: getNodeDefinitionSpy,
-    } as unknown as BaseVisualEntity;
-
-    node = createVisualizationNode('test', {
-      name: 'log',
-      path: 'test-path',
-      entity: visualEntity,
-      isPlaceholder: false,
-      isGroup: false,
-      title: '',
-      description: '',
-      iconUrl: '',
-      primaryNodeId: { name: 'log', catalogKind: CatalogKind.Pattern },
-    });
-    node.getNodeDefinition();
-
-    expect(getNodeDefinitionSpy).toHaveBeenCalledWith(node.data.path, {
-      primaryNodeId: node.data.primaryNodeId,
-    });
-  });
-
   it('should delegate fetchNodeDefinition() to the underlying BaseVisualCamelEntity and store the result', async () => {
     const expectedDefinition = { uri: 'timer', parameters: { timerName: 'tick' } };
     const fetchNodeDefinitionSpy = vi.fn().mockResolvedValue(expectedDefinition);
@@ -199,35 +175,6 @@ describe('VisualizationNode', () => {
       const label = node.getNodeLabel();
 
       expect(label).toEqual(node.id);
-    });
-  });
-
-  it('should return the node definition from the root node', () => {
-    /** Arrange */
-    const getNodeDefinitionSpy = vi.fn();
-    const visualEntity = {
-      getNodeDefinition: getNodeDefinitionSpy,
-    } as unknown as BaseVisualEntity;
-
-    const rootNode = createVisualizationNode('test', {
-      name: 'root',
-      path: 'test-path',
-      entity: visualEntity,
-      isPlaceholder: false,
-      isGroup: false,
-      title: '',
-      description: '',
-      iconUrl: '',
-      primaryNodeId: { name: 'route', catalogKind: CatalogKind.Entity },
-    });
-    node.setParentNode(rootNode);
-
-    /** Act */
-    node.getNodeDefinition();
-
-    /** Assert */
-    expect(getNodeDefinitionSpy).toHaveBeenCalledWith(node.data.path, {
-      primaryNodeId: node.data.primaryNodeId,
     });
   });
 

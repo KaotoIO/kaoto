@@ -23,7 +23,7 @@ vi.mock('monaco-editor', () => ({
 describe('DataMapperPage', () => {
   const vizNode = {
     getId: () => 'route-1234',
-    getNodeDefinition: () => ({ id: 'kaoto-datamapper-1234' }),
+    data: { definition: { id: 'kaoto-datamapper-1234' } },
   } as unknown as IVisualizationNode;
   const defaultMetadata: IDataMapperMetadata = {
     sourceBody: {
@@ -243,10 +243,12 @@ describe('DataMapperPage', () => {
   describe('Output Validation', () => {
     const vizNodeWithSteps = {
       getId: () => 'route-1234',
-      getNodeDefinition: () => ({
-        id: 'kaoto-datamapper-1234',
-        steps: [{ to: { id: 'xslt-1', uri: 'xslt-saxon:kaoto-datamapper-1234.xsl' } }],
-      }),
+      data: {
+        definition: {
+          id: 'kaoto-datamapper-1234',
+          steps: [{ to: { id: 'xslt-1', uri: 'xslt-saxon:kaoto-datamapper-1234.xsl' } }],
+        },
+      },
       updateModel: vi.fn(),
     } as unknown as IVisualizationNode;
 
@@ -279,7 +281,7 @@ describe('DataMapperPage', () => {
     it('should not call isValidationEnabled when vizNode has no steps', async () => {
       const emptyVizNode = {
         getId: () => 'route-1234',
-        getNodeDefinition: () => ({ id: 'kaoto-datamapper-1234' }),
+        data: { definition: { id: 'kaoto-datamapper-1234' } },
       } as unknown as IVisualizationNode;
 
       const isValidationEnabledSpy = vi

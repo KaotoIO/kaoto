@@ -10,7 +10,7 @@ export const useEnableAllSteps = () => {
   const controller = useVisualizationController();
   const disabledNodes = useMemo(() => {
     return getVisualizationNodesFromGraph(controller.getGraph(), (node) => {
-      return (node.data?.definition ?? node.getNodeDefinition())?.disabled;
+      return !!(node.data?.definition as { disabled?: unknown } | undefined)?.disabled;
     });
   }, [controller]);
   const areMultipleStepsDisabled = disabledNodes.length > 1;
@@ -18,7 +18,7 @@ export const useEnableAllSteps = () => {
   const onEnableAllSteps = useCallback(() => {
     if (disabledNodes.length > 0) {
       disabledNodes.forEach((node) => {
-        const newModel = (node.data?.definition as Record<string, unknown>) ?? node.getNodeDefinition() ?? {};
+        const newModel = (node.data?.definition as Record<string, unknown>) ?? {};
         setValue(newModel, 'disabled', false);
         node.updateModel(newModel);
       });
