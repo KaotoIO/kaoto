@@ -152,11 +152,11 @@ suite('ArgumentConflictDetector', () => {
 			const userArgs: string[] = [TEST_ARGS.DEV, TEST_ARGS.LOGGING_LEVEL_INFO];
 			const result = ArgumentConflictDetector.mergeArguments(codeArgs, userArgs, 'test');
 
-			assert.strictEqual(result.merged.length, 3);
+			assert.lengthOf(result.merged, 3);
 			assert.include(result.merged, TEST_ARGS.DEV);
 			assert.include(result.merged, TEST_ARGS.LOGGING_LEVEL_INFO);
 			assert.include(result.merged, TEST_ARGS.CONSOLE);
-			assert.strictEqual(result.conflicts.length, 0);
+			assert.lengthOf(result.conflicts, 0);
 		});
 
 		test('should detect conflict and prioritize user argument', () => {
@@ -164,10 +164,10 @@ suite('ArgumentConflictDetector', () => {
 			const userArgs: string[] = [TEST_ARGS.CONSOLE, TEST_ARGS.DEV];
 			const result = ArgumentConflictDetector.mergeArguments(codeArgs, userArgs, 'test');
 
-			assert.strictEqual(result.merged.length, 2);
+			assert.lengthOf(result.merged, 2);
 			assert.include(result.merged, TEST_ARGS.CONSOLE);
 			assert.include(result.merged, TEST_ARGS.DEV);
-			assert.strictEqual(result.conflicts.length, 1);
+			assert.lengthOf(result.conflicts, 1);
 			assertConflict(result.conflicts[0], {
 				argument: 'console',
 				context: 'test',
@@ -179,10 +179,10 @@ suite('ArgumentConflictDetector', () => {
 			const userArgs: string[] = [TEST_ARGS.MANAGEMENT_PORT_9090, TEST_ARGS.DEV];
 			const result = ArgumentConflictDetector.mergeArguments(codeArgs, userArgs, 'run');
 
-			assert.strictEqual(result.merged.length, 2);
+			assert.lengthOf(result.merged, 2);
 			assert.include(result.merged, TEST_ARGS.MANAGEMENT_PORT_9090);
 			assert.include(result.merged, TEST_ARGS.DEV);
-			assert.strictEqual(result.conflicts.length, 1);
+			assert.lengthOf(result.conflicts, 1);
 			assertConflict(result.conflicts[0], {
 				argument: 'management-port',
 				codeValue: '8080',
@@ -195,8 +195,8 @@ suite('ArgumentConflictDetector', () => {
 			const userArgs: string[] = [TEST_ARGS.CONSOLE, TEST_ARGS.MANAGEMENT_PORT_9090, TEST_ARGS.DEV];
 			const result = ArgumentConflictDetector.mergeArguments(codeArgs, userArgs, 'test');
 
-			assert.strictEqual(result.merged.length, 3);
-			assert.strictEqual(result.conflicts.length, 2);
+			assert.lengthOf(result.merged, 3);
+			assert.lengthOf(result.conflicts, 2);
 		});
 	});
 
@@ -227,7 +227,7 @@ suite('ArgumentConflictDetector', () => {
 			const toRemove: string[] = ['management-port', 'console'];
 			const result: string[] = ArgumentConflictDetector.removeArguments(args, toRemove);
 
-			assert.strictEqual(result.length, 1);
+			assert.lengthOf(result, 1);
 			assert.include(result, TEST_ARGS.DEV);
 		});
 
@@ -236,7 +236,7 @@ suite('ArgumentConflictDetector', () => {
 			const toRemove: string[] = ['port'];
 			const result: string[] = ArgumentConflictDetector.removeArguments(args, toRemove);
 
-			assert.strictEqual(result.length, 2);
+			assert.lengthOf(result, 2);
 			assert.include(result, TEST_ARGS.DEV);
 			assert.include(result, TEST_ARGS.CONSOLE);
 		});
@@ -246,7 +246,7 @@ suite('ArgumentConflictDetector', () => {
 			const toRemove: string[] = ['management-port'];
 			const result: string[] = ArgumentConflictDetector.removeArguments(args, toRemove);
 
-			assert.strictEqual(result.length, 1);
+			assert.lengthOf(result, 1);
 			assert.include(result, TEST_ARGS.DEV);
 		});
 	});

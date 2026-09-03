@@ -257,7 +257,7 @@ paths: {}
 			const spec = createSpecWithMultipleOperations();
 			const result = await service.parseOpenApi(spec, { shouldGenerateRoutes: true });
 
-			expect(result.length).to.equal(3); // 3 operations
+			expect(result).to.have.lengthOf(3); // 3 operations
 			result.forEach((item) => {
 				const routeDef = item as RouteDefinition;
 				expect(routeDef.from).to.not.be.undefined;

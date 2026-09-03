@@ -190,7 +190,7 @@ suite('Channel API', () => {
 
 		test(`should get all properties for 'Quarkus' word with their values, in right order, from all .properties files`, async () => {
 			const suggestions = await getSuggestions('properties', 'Quarkus', { propertyName: 'Property', inputValue: '' }, standaloneFile);
-			expect(suggestions.length).to.equal(3);
+			expect(suggestions).to.have.lengthOf(3);
 
 			const values = suggestions.map((s) => s.value);
 			expect(values.indexOf('quarkus.camel.runtime-catalog.components')).to.be.lessThan(values.indexOf('quarkus.native.resources.includes'));
@@ -207,7 +207,7 @@ suite('Channel API', () => {
 
 		test('should get properties for maven structure project file', async () => {
 			const suggestions = await getSuggestions('properties', '', { propertyName: 'Property', inputValue: '' }, mavenFile);
-			expect(suggestions.length).to.equal(1);
+			expect(suggestions).to.have.lengthOf(1);
 			expect(suggestions[0].value).equals('camel.main.basePackageScan');
 			expect(suggestions[0].description).equals('org.example.project.mycamelmainroute');
 			expect(suggestions[0].group).equals('application.properties');
@@ -215,7 +215,7 @@ suite('Channel API', () => {
 
 		test('should get properties for maven structure project TEST file', async () => {
 			const suggestions = await getSuggestions('properties', '', { propertyName: 'Property', inputValue: '' }, mavenTestFile);
-			expect(suggestions.length).to.equal(1);
+			expect(suggestions).to.have.lengthOf(1);
 			expect(suggestions[0].value).equals('test');
 			expect(suggestions[0].description).equals('This is a test file');
 			expect(suggestions[0].group).equals('application-dev.properties');
@@ -239,13 +239,13 @@ suite('Channel API', () => {
 
 		test(`should return substring matches when no prefix matches`, async () => {
 			const suggestions = await getSuggestions('properties', 'includes', { propertyName: 'Property', inputValue: '' }, standaloneFile);
-			expect(suggestions.length).to.equal(1);
+			expect(suggestions).to.have.lengthOf(1);
 			expect(suggestions[0].value).to.equal('quarkus.native.resources.includes');
 		});
 
 		test(`should return empty array when no match is found`, async () => {
 			const suggestions = await getSuggestions('properties', 'foobar', { propertyName: 'Property', inputValue: '' }, standaloneFile);
-			expect(suggestions.length).to.equal(0);
+			expect(suggestions).to.have.lengthOf(0);
 		});
 	});
 });
