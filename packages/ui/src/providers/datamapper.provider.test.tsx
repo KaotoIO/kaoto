@@ -16,12 +16,14 @@ import { CanvasView } from '../models/datamapper/view';
 import { DocumentService } from '../services/document/document.service';
 import { MappingService } from '../services/mapping/mapping.service';
 import { MappingSerializerService } from '../services/mapping/mapping-serializer.service';
+import { MappingLinksService } from '../services/visualization/mapping-links.service';
 import {
   getAccountJsonSchema,
   getCartJsonSchema,
   getShipOrderJsonSchema,
   getShipOrderJsonXslt,
 } from '../stubs/datamapper/data-mapper';
+import { MappingLinksProvider } from './data-mapping-links.provider';
 import { DataMapperContext, DataMapperProvider } from './datamapper.provider';
 
 describe('DataMapperProvider', () => {
@@ -1340,6 +1342,110 @@ describe('DataMapperProvider', () => {
       });
 
       expect(mockOnSetOutputValidationEnabled).toHaveBeenCalledWith(false);
+    });
+  });
+
+  describe('structuralMappingTree', () => {
+    it('should not change structuralMappingTree identity when refreshMappingTree is called without { structural: true }', () => {
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      const initialStructuralTree = result.current.structuralMappingTree;
+
+      act(() => {
+        result.current.refreshMappingTree();
+      });
+      act(() => {
+        result.current.refreshMappingTree();
+      });
+
+      expect(result.current.structuralMappingTree).toBe(initialStructuralTree);
+    });
+
+    it('should update structuralMappingTree identity when refreshMappingTree is called with { structural: true }', () => {
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      const initialStructuralTree = result.current.structuralMappingTree;
+
+      act(() => {
+        result.current.refreshMappingTree();
+      });
+      act(() => {
+        result.current.refreshMappingTree();
+      });
+      act(() => {
+        result.current.refreshMappingTree({ structural: true });
+      });
+
+      expect(result.current.structuralMappingTree).not.toBe(initialStructuralTree);
+    });
+
+    it('structuralMappingTree should equal mappingTree after a structural update', () => {
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      act(() => {
+        result.current.refreshMappingTree({ structural: true });
+      });
+
+      expect(result.current.structuralMappingTree).toBe(result.current.mappingTree);
+    });
+
+    it('should call onUpdateMappings on a value-only edit even though structuralMappingTree does not change', () => {
+      const mockOnUpdateMappings = vi.fn();
+
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider onUpdateMappings={mockOnUpdateMappings}>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      const initialStructuralTree = result.current.structuralMappingTree;
+      mockOnUpdateMappings.mockClear();
+
+      act(() => {
+        // Simulates a value-only edit (e.g. typing an XPath expression), which does not pass { structural: true }
+        result.current.refreshMappingTree();
+      });
+
+      expect(mockOnUpdateMappings).toHaveBeenCalledTimes(1);
+      expect(result.current.structuralMappingTree).toBe(initialStructuralTree);
+    });
+
+    it('should still recompute MappingLinksService.extractMappingLinks() on a value-only edit', () => {
+      const extractMappingLinksSpy = vi.spyOn(MappingLinksService, 'extractMappingLinks');
+
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider>
+          <MappingLinksProvider>{children}</MappingLinksProvider>
+        </DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      const initialStructuralTree = result.current.structuralMappingTree;
+      const callCountAfterMount = extractMappingLinksSpy.mock.calls.length;
+      expect(callCountAfterMount).toBeGreaterThan(0);
+
+      act(() => {
+        // Simulates a value-only edit (e.g. typing an XPath expression), which does not pass { structural: true }
+        result.current.refreshMappingTree();
+      });
+
+      expect(result.current.structuralMappingTree).toBe(initialStructuralTree);
+      expect(extractMappingLinksSpy).toHaveBeenCalledTimes(callCountAfterMount + 1);
+
+      extractMappingLinksSpy.mockRestore();
     });
   });
 });

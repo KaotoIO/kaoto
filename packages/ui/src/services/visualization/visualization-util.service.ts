@@ -1,4 +1,5 @@
 import { IField } from '../../models/datamapper/document';
+import { CopyOfSelector, CopyOfType, FieldItem } from '../../models/datamapper/mapping';
 import {
   AbstractFieldNodeData,
   AddMappingNodeData,
@@ -221,5 +222,17 @@ export class VisualizationUtilService {
 
   static isMappingNode(nodeData: NodeData): nodeData is MappingNodeData {
     return nodeData instanceof MappingNodeData;
+  }
+
+  /**
+   * Returns the inline `CONTAINER`-typed {@link CopyOfSelector} for a {@link FieldItemNodeData}
+   * whose mapping is a {@link FieldItem}, or `undefined` if no such selector exists.
+   * Used by {@link FieldNodeTitle} to render the "copy" badge on container fields.
+   */
+  static getInlineContainerCopyOf(nodeData: NodeData): CopyOfSelector | undefined {
+    if (!(nodeData instanceof FieldItemNodeData) || !(nodeData.mapping instanceof FieldItem)) return undefined;
+    return nodeData.mapping.children.find(
+      (c): c is CopyOfSelector => c instanceof CopyOfSelector && c.valueType === CopyOfType.CONTAINER,
+    );
   }
 }

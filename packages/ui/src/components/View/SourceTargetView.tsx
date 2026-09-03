@@ -23,8 +23,12 @@ export const SourceTargetView: FunctionComponent<SourceTargetViewProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [scaleFactor, setScaleFactor] = useState(initialScaleFactor);
 
+  const handleDeleteHotkey = useCallback(() => {
+    refreshMappingTree({ structural: true });
+  }, [refreshMappingTree]);
+
   // Enable Delete key support for removing selected mappings
-  useDataMapperDeleteHotkey(refreshMappingTree);
+  useDataMapperDeleteHotkey(handleDeleteHotkey);
 
   const handleZoomIn = useCallback(() => {
     setScaleFactor((prev) => Math.min(prev + 0.1, 1.2)); // Max 1.2x zoom

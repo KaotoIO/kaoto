@@ -15,14 +15,13 @@ export const DeleteParameterButton: FunctionComponent<DeleteParameterProps> = ({
   parameterName,
   parameterReferenceId,
 }) => {
-  const { mappingTree, setMappingTree, refreshMappingTree, deleteSourceParameter } = useDataMapper();
+  const { mappingTree, refreshMappingTree, deleteSourceParameter } = useDataMapper();
 
   const onConfirmDelete = useCallback(() => {
-    const cleaned = MappingService.removeAllMappingsForDocument(mappingTree, DocumentType.PARAM, parameterReferenceId);
-    setMappingTree(cleaned);
+    MappingService.removeAllMappingsForDocument(mappingTree, DocumentType.PARAM, parameterReferenceId);
     deleteSourceParameter(parameterName);
-    refreshMappingTree();
-  }, [deleteSourceParameter, mappingTree, parameterName, parameterReferenceId, refreshMappingTree, setMappingTree]);
+    refreshMappingTree({ structural: true });
+  }, [deleteSourceParameter, mappingTree, parameterName, parameterReferenceId, refreshMappingTree]);
 
   return (
     <ConfirmActionButton

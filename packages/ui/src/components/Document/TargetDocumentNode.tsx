@@ -67,8 +67,13 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
     const mappingItem = nodeData.mapping instanceof MappingItem ? nodeData.mapping : undefined;
 
     const { mappingTree, refreshMappingTree } = useDataMapper();
+
     const handleUpdate = useCallback(() => {
       refreshMappingTree();
+    }, [refreshMappingTree]);
+
+    const handleStructuralUpdate = useCallback(() => {
+      refreshMappingTree({ structural: true });
     }, [refreshMappingTree]);
 
     const addingVariableToNodePath = useDocumentTreeStore((s) => s.addingVariableToNodePath);
@@ -90,7 +95,7 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
         }
         useDocumentTreeStore.getState().setAddingVariableTo(null);
         useDocumentTreeStore.getState().setRenamingVariable(null);
-        refreshMappingTree();
+        refreshMappingTree({ structural: true });
       },
       [isRenamingThisVariable, nodeData, refreshMappingTree],
     );
@@ -119,9 +124,9 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
         return;
       }
 
-      MappingActionService.applyValueSelector(nodeData);
-      handleUpdate();
-    }, [nodeData, handleUpdate]);
+      MappingActionService.applyValueOfSelector(nodeData);
+      handleStructuralUpdate();
+    }, [nodeData, handleStructuralUpdate]);
 
     const handleKeyDown = useCallback(
       (event: KeyboardEvent) => {
@@ -190,6 +195,7 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
                     className="node__target__actions"
                     nodeData={nodeData as TargetNodeData}
                     onUpdate={handleUpdate}
+                    onStructuralUpdate={handleStructuralUpdate}
                   />
                 ) : (
                   <span className="node__target__actions" />

@@ -8,16 +8,25 @@ import {
   DocumentType,
   PrimitiveDocument,
 } from '../../../models/datamapper/document';
-import { IfItem, MappingTree, UnknownMappingItem } from '../../../models/datamapper/mapping';
+import {
+  CopyOfSelector,
+  CopyOfType,
+  FieldItem,
+  IfItem,
+  MappingTree,
+  UnknownMappingItem,
+} from '../../../models/datamapper/mapping';
 import {
   AbstractFieldNodeData,
   ChoiceFieldNodeData,
   DocumentNodeData,
+  FieldItemNodeData,
   FieldNodeData,
   MappingNodeData,
   TargetDocumentNodeData,
   UnknownMappingNodeData,
 } from '../../../models/datamapper/visualization';
+import { VisualizationService } from '../../../services/visualization/visualization.service';
 import { TestUtil } from '../../../stubs/datamapper/data-mapper';
 import { NodeTitle } from './NodeTitle';
 
@@ -282,5 +291,44 @@ describe('NodeTitle', () => {
       },
       { timeout: 1000 },
     );
+  });
+
+  describe('copy-of label on FieldNodeTitle', () => {
+    const createFieldItemNodeData = (copyOfType: CopyOfType) => {
+      const targetDoc = TestUtil.createTargetOrderDoc();
+      const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      const targetDocNodeData = new TargetDocumentNodeData(targetDoc, tree);
+      const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNodeData);
+      const shipOrderField = (docChildren[0] as FieldNodeData).field;
+      const shipOrderFI = new FieldItem(tree, shipOrderField);
+      tree.children.push(shipOrderFI);
+      shipOrderFI.children.push(new CopyOfSelector(shipOrderFI, copyOfType));
+      return new FieldItemNodeData(targetDocNodeData, shipOrderFI);
+    };
+
+    it('should show copy-of label badge on FieldItemNodeData with inline CopyOfSelector (CONTAINER)', () => {
+      render(<NodeTitle nodeData={createFieldItemNodeData(CopyOfType.CONTAINER)} isDocument={false} rank={0} />);
+
+      const badge = screen.getByTestId('field-copy-of-label');
+      expect(badge).toBeInTheDocument();
+      expect(badge).toHaveTextContent('copy');
+    });
+
+    it('should NOT show copy-of label badge when CopyOfSelector has CONTAINER_NODE type', () => {
+      render(<NodeTitle nodeData={createFieldItemNodeData(CopyOfType.CONTAINER_NODE)} isDocument={false} rank={0} />);
+
+      expect(screen.queryByTestId('field-copy-of-label')).not.toBeInTheDocument();
+    });
+
+    it('should NOT show copy-of label on a plain FieldNodeData without mapping', () => {
+      const targetDoc = TestUtil.createTargetOrderDoc();
+      const documentNodeData = new DocumentNodeData(targetDoc);
+      const shipOrderField = targetDoc.fields[0];
+      const fieldNodeData = new FieldNodeData(documentNodeData, shipOrderField);
+
+      render(<NodeTitle nodeData={fieldNodeData} isDocument={false} rank={0} />);
+
+      expect(screen.queryByTestId('field-copy-of-label')).not.toBeInTheDocument();
+    });
   });
 });

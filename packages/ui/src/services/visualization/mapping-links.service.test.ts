@@ -853,6 +853,37 @@ describe('MappingLinksService', () => {
       expect(links[0].lineStyle).toBe(MappingLineStyle.COPY_OF);
       expect(links[0].targetNodePath).toContain(vs.id);
     });
+
+    it('should connect mixed container value-of to its node with a regular line', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+
+      const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      const rootItem = new FieldItem(manualTree, targetRoot);
+      manualTree.children.push(rootItem);
+      const shipToItem = new FieldItem(rootItem, targetShipTo);
+      rootItem.children.push(shipToItem);
+
+      const copyOf = new CopyOfSelector(shipToItem, CopyOfType.CONTAINER);
+      copyOf.expression = '/ns0:ShipOrder/ShipTo';
+      shipToItem.children.push(copyOf);
+      const valueOf = new ValueOfSelector(shipToItem);
+      valueOf.expression = '/ns0:ShipOrder/ns0:OrderPerson';
+      shipToItem.children.push(valueOf);
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const copyOfLink = links.find((link) => link.sourceNodePath.includes('ShipTo'))!;
+      const valueOfLink = links.find((link) => link.sourceNodePath.includes('OrderPerson'))!;
+
+      expect(copyOfLink.targetNodePath).toBe(shipToItem.nodePath.toString());
+      expect(copyOfLink.lineStyle).toBe(MappingLineStyle.COPY_OF);
+      expect(valueOfLink.targetNodePath).toBe(valueOf.nodePath.toString());
+      expect(valueOfLink.lineStyle).toBe(MappingLineStyle.REGULAR);
+    });
   });
 
   describe('variable reference links', () => {

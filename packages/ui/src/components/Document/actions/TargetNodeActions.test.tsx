@@ -22,7 +22,7 @@ describe('TargetNodeActions', () => {
     render(
       <DataMapperProvider>
         <MappingLinksProvider>
-          <TargetNodeActions nodeData={nodeData} onUpdate={vi.fn()} />
+          <TargetNodeActions nodeData={nodeData} onUpdate={vi.fn()} onStructuralUpdate={vi.fn()} />
         </MappingLinksProvider>
       </DataMapperProvider>,
     );
@@ -38,7 +38,7 @@ describe('TargetNodeActions', () => {
     render(
       <DataMapperProvider>
         <MappingLinksProvider>
-          <TargetNodeActions nodeData={nodeData} onUpdate={vi.fn()} />
+          <TargetNodeActions nodeData={nodeData} onUpdate={vi.fn()} onStructuralUpdate={vi.fn()} />
         </MappingLinksProvider>
       </DataMapperProvider>,
     );
@@ -55,7 +55,7 @@ describe('TargetNodeActions', () => {
     render(
       <DataMapperProvider>
         <MappingLinksProvider>
-          <TargetNodeActions nodeData={mappingData} onUpdate={vi.fn()} />
+          <TargetNodeActions nodeData={mappingData} onUpdate={vi.fn()} onStructuralUpdate={vi.fn()} />
         </MappingLinksProvider>
       </DataMapperProvider>,
     );

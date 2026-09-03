@@ -72,17 +72,17 @@ describe('MappingActionService', () => {
       targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
     });
 
-    describe('applyValueSelector()', () => {
-      it('should apply value selector', () => {
+    describe('applyValueOfSelector()', () => {
+      it('should apply value-of selector on a container field', () => {
         expect(tree.children).toHaveLength(0);
         const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
-        MappingActionService.applyValueSelector(docChildren[0] as TargetNodeData);
+        MappingActionService.applyValueOfSelector(docChildren[0] as TargetNodeData);
 
         expect(tree.children).toHaveLength(1);
         expect(tree.children[0].children[0] instanceof ValueSelector).toBeTruthy();
       });
 
-      it('should apply value selector on primitive target body', () => {
+      it('should apply value-of selector on primitive target body', () => {
         const primitiveTargetDoc = new PrimitiveDocument(
           new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
         );
@@ -92,15 +92,30 @@ describe('MappingActionService', () => {
           DocumentDefinitionType.XML_SCHEMA,
         );
         targetDocNode = new TargetDocumentNodeData(primitiveTargetDoc, tree);
-        MappingActionService.applyValueSelector(targetDocNode);
+        MappingActionService.applyValueOfSelector(targetDocNode);
 
         expect(VisualizationService.hasChildren(targetDocNode)).toBeFalsy();
         const targetDocChildren = VisualizationService.generatePrimitiveDocumentChildren(targetDocNode);
         expect(targetDocChildren).toHaveLength(0);
       });
-    });
 
-    describe('applyValueOfSelector()', () => {
+      it('should apply value-of when copy-of already exists', () => {
+        const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        MappingActionService.applyCopyOfSelector(docChildren[0] as TargetNodeData);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        const updatedDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        MappingActionService.applyValueOfSelector(updatedDocChildren[0] as TargetNodeData);
+
+        const shipOrderFieldItem = tree.children[0] as FieldItem;
+        expect(shipOrderFieldItem.children.filter((child) => child instanceof CopyOfSelector)).toHaveLength(1);
+        expect(shipOrderFieldItem.children.filter((child) => child instanceof ValueOfSelector)).toHaveLength(1);
+        const valueOfSelector = shipOrderFieldItem.children.find(
+          (child) => child instanceof ValueOfSelector,
+        ) as ValueOfSelector;
+        expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBe(valueOfSelector.nodePath.toString());
+      });
+
       it('should create VALUE ValueSelector for element field', () => {
         expect(tree.children).toHaveLength(0);
         const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
@@ -256,6 +271,22 @@ describe('MappingActionService', () => {
         expect(valueSelectorAction!.isDisabled!(updatedShipOrderChildren[0] as TargetNodeData)).toBe(true);
         const copyOfAction = menuItems.find((item) => item.key === MappingActionKind.CopyOfSelector);
         expect(copyOfAction!.isDisabled).toBeUndefined();
+      });
+
+      it('should NOT disable ValueSelector when only copy-of exists', () => {
+        const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        MappingActionService.applyCopyOfSelector(shipOrderChildren[0] as TargetNodeData);
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        const updatedDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const updatedShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(
+          updatedDocChildren[0],
+        );
+        const menuItems = MappingActionRegistryService.getMappingContextMenuItems(
+          updatedShipOrderChildren[0] as TargetNodeData,
+        );
+        const valueSelectorAction = menuItems.find((item) => item.key === MappingActionKind.ValueSelector);
+        expect(valueSelectorAction!.isDisabled!(updatedShipOrderChildren[0] as TargetNodeData)).toBe(false);
       });
     });
 

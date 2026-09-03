@@ -14,6 +14,7 @@ import {
   MappingTree,
   UnknownMappingItem,
   ValueOfSelector,
+  ValueOfType,
   ValueSelector,
   VariableItem,
 } from '../../models/datamapper/mapping';
@@ -565,7 +566,9 @@ export class VisualizationService {
 
   static isInlineValueSelector(item: MappingItem): item is ValueSelector {
     if (item instanceof CopyOfSelector) return item.valueType !== CopyOfType.CONTAINER_NODE;
-    return item instanceof ValueOfSelector;
+    if (!(item instanceof ValueOfSelector)) return false;
+    if (item.valueType === ValueOfType.ATTRIBUTE) return true;
+    return !(item.parent instanceof FieldItem && DocumentService.hasChildren(item.parent.field));
   }
 
   private static getFieldValueSelector(nodeData: TargetNodeData) {

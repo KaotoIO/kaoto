@@ -76,13 +76,24 @@ describe('SourceTargetDnDHandler', () => {
       expect(mockEngageMapping).not.toHaveBeenCalled();
     });
 
-    it('should call engageMapping and onUpdate and return { success: true } when validation passes with nodes', () => {
+    it('should call engageMapping and onUpdate({ structural: true }) when engageMapping reports a structural change', () => {
       const fromNode = { isSource: true } as unknown as NodeData;
       const toNode = { isSource: false } as unknown as NodeData;
       mockValidateMappingPair.mockReturnValue({ isValid: true, sourceNode: fromNode, targetNode: toNode });
+      mockEngageMapping.mockReturnValue(true);
       const result = handler.handleDragEnd(makeDragEvent(fromNode, toNode), mockMappingTree, mockOnUpdate);
       expect(mockEngageMapping).toHaveBeenCalledWith(mockMappingTree, fromNode, toNode);
-      expect(mockOnUpdate).toHaveBeenCalled();
+      expect(mockOnUpdate).toHaveBeenCalledWith({ structural: true });
+      expect(result).toEqual({ success: true });
+    });
+
+    it('should call onUpdate({ structural: false }) when engageMapping reports a value-only update', () => {
+      const fromNode = { isSource: true } as unknown as NodeData;
+      const toNode = { isSource: false } as unknown as NodeData;
+      mockValidateMappingPair.mockReturnValue({ isValid: true, sourceNode: fromNode, targetNode: toNode });
+      mockEngageMapping.mockReturnValue(false);
+      const result = handler.handleDragEnd(makeDragEvent(fromNode, toNode), mockMappingTree, mockOnUpdate);
+      expect(mockOnUpdate).toHaveBeenCalledWith({ structural: false });
       expect(result).toEqual({ success: true });
     });
   });
