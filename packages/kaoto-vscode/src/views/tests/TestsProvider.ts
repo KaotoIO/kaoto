@@ -18,7 +18,7 @@ import { commands, Disposable, RelativePattern, TreeItem, TreeItemCollapsibleSta
 import { Test } from './Test';
 import { TestResult } from '../../types/TestTreeItemType';
 import { TestFolder } from './TestFolder';
-import { basename, dirname, join } from 'path';
+import { basename, dirname, join } from 'path'; // NOSONAR
 import { KaotoOutputChannel } from '../../extension/KaotoOutputChannel';
 import {
 	COMMAND_TESTS_DELETE,

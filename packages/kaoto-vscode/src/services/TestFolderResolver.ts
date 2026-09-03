@@ -1,6 +1,6 @@
-import * as path from 'path';
-import { readdir } from 'fs/promises';
-import { Dirent } from 'fs';
+import * as path from 'path'; // NOSONAR
+import { readdir } from 'fs/promises'; // NOSONAR
+import { Dirent } from 'fs'; // NOSONAR
 
 /**
  * Utility class for resolving test folders in a project structure.

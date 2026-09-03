@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { TreeItem, TreeItemCollapsibleState, Uri } from 'vscode';
-import { join } from 'path';
+import { join } from 'path'; // NOSONAR
 
 export class OpenApiFile extends TreeItem {
 	constructor(

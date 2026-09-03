@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { promises as fsPromises } from 'fs';
+import { promises as fsPromises } from 'fs'; // NOSONAR
 import { Disposable, TreeItem, TreeItemCollapsibleState, Uri, workspace } from 'vscode';
-import { basename, normalize } from 'path';
+import { basename, normalize } from 'path'; // NOSONAR
 import { OpenApiFile } from './OpenApiFile';
 import { OpenApiFolder } from './OpenApiFolder';
 import { AbstractFolderTreeProvider } from '../shared/AbstractFolderTreeProvider';

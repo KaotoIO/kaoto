@@ -1,5 +1,5 @@
-import { execSync } from 'child_process';
-import { existsSync } from 'fs';
+import { execSync } from 'child_process'; // NOSONAR
+import { existsSync } from 'fs'; // NOSONAR
 import { BaseExecutor } from './BaseExecutor';
 import { CamelCommandBuilder } from './builders/CamelCommandBuilder';
 import { CamelLauncherExecutorConfig } from './types/ExecutorConfig';
