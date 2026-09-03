@@ -44,7 +44,6 @@ describe('ExpressionService', () => {
       const schema: KaotoSchemaDefinition['schema'] = {
         oneOf: [
           { simple: { type: 'string' } },
-          { csimple: { type: 'string' } },
           { constant: { type: 'string' } },
           { expression: { type: 'string' } },
           { groovy: { type: 'string' } },
@@ -62,7 +61,6 @@ describe('ExpressionService', () => {
           {
             oneOf: [
               { simple: { type: 'string' } },
-              { csimple: { type: 'string' } },
               { constant: { type: 'string' } },
               { expression: { type: 'string' } },
               { groovy: { type: 'string' } },
@@ -86,7 +84,6 @@ describe('ExpressionService', () => {
                   {
                     oneOf: [
                       { simple: { type: 'string' } },
-                      { csimple: { type: 'string' } },
                       { constant: { type: 'string' } },
                       { expression: { type: 'string' } },
                       { groovy: { type: 'string' } },
@@ -104,7 +101,6 @@ describe('ExpressionService', () => {
       expect(result).toEqual({
         oneOf: [
           { simple: { type: 'string' } },
-          { csimple: { type: 'string' } },
           { constant: { type: 'string' } },
           { expression: { type: 'string' } },
           { groovy: { type: 'string' } },
@@ -212,11 +208,11 @@ describe('ExpressionService', () => {
 
     it('should update the target model expression if supported', async () => {
       const sourceModel = { simple: { expression: 'sourceExpr' } };
-      const targetModel = { csimple: { expression: undefined } };
+      const targetModel = { constant: { expression: undefined } };
 
       await ExpressionService.updateExpressionFromModel(sourceModel, targetModel);
 
-      expect(targetModel.csimple.expression).toBe('sourceExpr');
+      expect(targetModel.constant.expression).toBe('sourceExpr');
     });
 
     it('should not update the target model if language does not support expression', async () => {

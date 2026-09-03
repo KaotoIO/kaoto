@@ -104,7 +104,7 @@ describe('ExpressionField', () => {
     // Wait for the async parseExpressionModel effect to populate the expression field
     await screen.findByTestId(`${ROOT_PATH}__expression-list-typeahead-select-input`);
     await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
-    await formPageObject.selectTypeaheadItem('csimple');
+    await formPageObject.selectTypeaheadItem('constant');
 
     const expressionField = formPageObject.getFieldByDisplayName('Expression');
     expect(expressionField).toBeInTheDocument();
@@ -176,11 +176,11 @@ describe('ExpressionField', () => {
     // Wait for the async parseExpressionModel effect to populate the expression field
     await screen.findByTestId(`${ROOT_PATH}__expression-list-typeahead-select-input`);
     await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
-    await formPageObject.selectTypeaheadItem('csimple');
+    await formPageObject.selectTypeaheadItem('constant');
 
     expect(onPropertyChangeSpy).toHaveBeenCalled();
     const lastCall = onPropertyChangeSpy.mock.calls[onPropertyChangeSpy.mock.calls.length - 1];
-    expect(lastCall[1].csimple.expression).toBe(EXPRESSION_STRING);
+    expect(lastCall[1].constant.expression).toBe(EXPRESSION_STRING);
   });
 
   it('should clear the expression when using the clear button', async () => {
