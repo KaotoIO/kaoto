@@ -16,7 +16,7 @@ export function applyCollapseState(controller: Controller): void {
     collapsedIds.forEach((id) => {
       const node = controller.getElements().find((el) => {
         const vNode = el.getData()?.vizNode as IVisualizationNode | undefined;
-        const def = vNode?.data?.definition ?? vNode?.getNodeDefinition();
+        const def = vNode?.data?.definition;
         return isNode(el) && (def as { id?: string } | undefined)?.id === id;
       });
       if (node) {

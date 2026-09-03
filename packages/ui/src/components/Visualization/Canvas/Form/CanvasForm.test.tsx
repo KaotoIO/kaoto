@@ -87,7 +87,7 @@ describe('CanvasForm', () => {
       isPlaceholder: false,
     });
 
-    (noSchemaVizNode as IVisualizationNode).data.definition = undefined;
+    await noSchemaVizNode.fetchNodeDefinition();
 
     const { Provider } = await TestProvidersWrapper();
     const { container } = render(
@@ -114,7 +114,7 @@ describe('CanvasForm', () => {
       isPlaceholder: false,
     });
 
-    (noSchemaVizNode as IVisualizationNode).data.definition = undefined;
+    await noSchemaVizNode.fetchNodeDefinition();
 
     const { Provider } = await TestProvidersWrapper();
     const { container } = render(

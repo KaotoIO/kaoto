@@ -108,8 +108,8 @@ describe('RestDslEditorPage', () => {
         expect(updateSourceCodeFromEntitiesSpy).toHaveBeenCalled();
       });
 
-      const restEntity = getRestEntities(camelResource).find((e) => e.id === 'rest-1');
-      expect(restEntity?.getNodeDefinition('rest')).toMatchObject({ path: '/api/v2' });
+      const restEntity = getRestEntities(camelResource).find((e) => e.id === 'rest-1') as CamelRestVisualEntity;
+      expect(restEntity?.getRawRestDef()).toMatchObject({ path: '/api/v2' });
     });
 
     it('should add REST configuration', async () => {

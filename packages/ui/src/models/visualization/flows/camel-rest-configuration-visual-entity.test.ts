@@ -65,10 +65,9 @@ describe('CamelRestConfigurationVisualEntity', () => {
     expect(entity.getId()).toEqual(newId);
   });
 
-  it('should return entity current definition', () => {
+  it('should return entity current definition via fetchNodeDefinition', async () => {
     const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
-
-    expect(entity.getNodeDefinition()).toEqual(restConfigurationDef.restConfiguration);
+    expect(await entity.fetchNodeDefinition()).toEqual(restConfigurationDef.restConfiguration);
   });
 
   it('should return schema from catalog', async () => {

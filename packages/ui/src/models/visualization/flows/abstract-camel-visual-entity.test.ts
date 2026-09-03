@@ -1,12 +1,12 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { CatalogLibrary, ProcessorDefinition, To } from '@kaoto/camel-catalog/types';
+import { CatalogLibrary, ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { cloneDeep } from 'lodash';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { mockRandomValues } from '../../../stubs';
 import { camelRouteJson, camelRouteWithKameletJson } from '../../../stubs/camel-route';
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
-import { NonStringEIP } from '../../camel/types';
+import { getValue } from '../../../utils';
 import { CatalogKind } from '../../catalog-kind';
 import { PlaceholderType } from '../../placeholder.constants';
 import { NodeLabelType } from '../../settings';
@@ -36,11 +36,6 @@ describe('AbstractCamelVisualEntity', () => {
   beforeEach(() => {
     abstractVisualEntity = new CamelRouteVisualEntity(cloneDeep(camelRouteJson));
   });
-
-  const toStepIds = {
-    primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern },
-    secondaryNodeId: { name: 'direct', catalogKind: CatalogKind.Component },
-  };
 
   const fromStepIds = {
     primaryNodeId: { name: 'from', catalogKind: CatalogKind.Entity },
@@ -173,89 +168,6 @@ describe('AbstractCamelVisualEntity', () => {
     });
   });
 
-  describe('getNodeDefinition', () => {
-    it('should return undefined if path is not provided', () => {
-      const result = abstractVisualEntity.getNodeDefinition();
-      expect(result).toBeUndefined();
-    });
-
-    it('should return raw node definition when path is valid', () => {
-      const path = 'route.from.steps.2.to';
-      // getNodeDefinition returns raw — URI is not split
-      const definition = {
-        uri: 'direct:my-route',
-        parameters: { bridgeErrorHandler: true },
-      };
-
-      const result = abstractVisualEntity.getNodeDefinition(path, toStepIds);
-      expect(result).toEqual(definition);
-    });
-
-    it.each([null, undefined])(
-      'should override parameters with an empty object when parameters is null or undefined',
-      (parameters) => {
-        const path = 'route.from.steps.2.to';
-        (abstractVisualEntity.entityDef.route.from.steps[2].to as NonStringEIP<To>).uri = 'direct';
-        (abstractVisualEntity.entityDef.route.from.steps[2].to as NonStringEIP<To>).parameters =
-          parameters as unknown as Record<string, unknown>;
-
-        const definition = abstractVisualEntity.getNodeDefinition(path, toStepIds);
-        expect((definition as NonStringEIP<To>).parameters).toEqual({});
-      },
-    );
-
-    it('should not do anything when parameters is not null', () => {
-      const path = 'route.from.steps.2.to';
-      (abstractVisualEntity.entityDef.route.from.steps[2].to as NonStringEIP<To>).uri = 'direct';
-      (abstractVisualEntity.entityDef.route.from.steps[2].to as NonStringEIP<To>).parameters = { prop: true };
-
-      const definition = abstractVisualEntity.getNodeDefinition(path, toStepIds);
-
-      expect(definition).toEqual({
-        uri: 'direct',
-        parameters: { prop: true },
-      });
-    });
-
-    it('should return raw definition for a kamelet from node (no URI split)', () => {
-      const entity = new CamelRouteVisualEntity(cloneDeep(camelRouteWithKameletJson));
-      const kameletFromIds = {
-        primaryNodeId: { name: 'from', catalogKind: CatalogKind.Entity },
-        secondaryNodeId: { name: 'kamelet', catalogKind: CatalogKind.Component },
-        tertiaryNodeId: { name: 'avro-deserialize-action', catalogKind: CatalogKind.Kamelet },
-      };
-
-      const result = entity.getNodeDefinition('route.from', kameletFromIds);
-
-      // getNodeDefinition returns raw form — no URI split; normalizeDefinition is handled by fetchNodeDefinition
-      expect(result).toEqual(camelRouteWithKameletJson.route.from);
-    });
-
-    it('should apply string coercion for a string-valued processor', () => {
-      const entity = new CamelRouteVisualEntity(cloneDeep(camelRouteJson));
-      const logIds = {
-        primaryNodeId: { name: 'log', catalogKind: CatalogKind.Pattern },
-      };
-      // Temporarily set steps[0] to a string-valued log processor
-      (entity.entityDef.route.from.steps as unknown as Record<string, unknown>[])[0] = { log: '${body}' };
-
-      const result = entity.getNodeDefinition('route.from.steps.0.log', logIds);
-      expect(result).toEqual({ message: '${body}' });
-    });
-
-    it('should return the string value without throwing when the definition is a string primitive for an unknown processor', () => {
-      const entity = new CamelRouteVisualEntity(cloneDeep(camelRouteJson));
-      const unknownIds = {
-        primaryNodeId: { name: 'id', catalogKind: CatalogKind.Pattern },
-      };
-      // Simulates the malformed step `- id: setBody-3518` in unknownNode.yaml
-      (entity.entityDef.route.from.steps as unknown as Record<string, unknown>[])[0] = { id: 'setBody-3518' };
-
-      expect(() => entity.getNodeDefinition('route.from.steps.0.id', unknownIds)).not.toThrow();
-      expect(entity.getNodeDefinition('route.from.steps.0.id', unknownIds)).toBe('setBody-3518');
-    });
-  });
-
   describe('fetchNodeDefinition', () => {
     it('should return undefined when path is not provided', async () => {
       const result = await abstractVisualEntity.fetchNodeDefinition(undefined, {});
@@ -264,11 +176,11 @@ describe('AbstractCamelVisualEntity', () => {
 
     it('should return raw definition for a processor node with no secondaryNodeId', async () => {
       const ids = {
-        primaryNodeId: { name: 'setHeader', catalogKind: CatalogKind.Pattern },
+        primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern },
       };
-      const result = await abstractVisualEntity.fetchNodeDefinition('route.from.steps.0.setHeader', ids);
-      // setHeader has no component; normalizeDefinition returns the raw object (with null-param guard applied)
-      expect(result).toEqual(abstractVisualEntity.getNodeDefinition('route.from.steps.0.setHeader', ids));
+      const result = await abstractVisualEntity.fetchNodeDefinition('route.from.steps.2.to', ids);
+      // `to` has no secondaryNodeId component; normalizeDefinition returns the raw object
+      expect(result).toEqual(getValue(abstractVisualEntity.entityDef, 'route.from.steps.2.to'));
     });
 
     it('should split URI for a component node', async () => {
@@ -306,11 +218,11 @@ describe('AbstractCamelVisualEntity', () => {
 
       abstractVisualEntity.updateModel('route.from.steps.2.to.parameters', parameters);
 
-      expect(abstractVisualEntity.getNodeDefinition('route.from.steps.2.to', toStepIds)).toEqual({
+      // Read back from entityDef directly
+      const updated = getValue(abstractVisualEntity.entityDef, 'route.from.steps.2.to');
+      expect(updated).toEqual({
         uri: 'direct:my-route',
-        parameters: {
-          ...parameters,
-        },
+        parameters: { ...parameters },
       });
     });
   });

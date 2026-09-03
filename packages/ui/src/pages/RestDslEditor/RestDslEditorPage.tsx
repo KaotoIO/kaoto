@@ -40,17 +40,22 @@ export const RestDslEditorPage: FunctionComponent = () => {
   const name = ids?.primaryNodeId?.name;
 
   const selectedEntity = restRelatedEntities.find((entity) => entity.id === entityId);
-  const parsedModel = selectedEntity?.getNodeDefinition(modelPath, ids);
+  const [parsedModel, setParsedModel] = useState<unknown>(undefined);
 
   useEffect(() => {
     let cancelled = false;
+    setParsedModel(undefined);
     setSchema(undefined);
-    if (!selectedEntity || !ids) return;
+
+    if (!selectedEntity || !modelPath || !ids) return;
+
     setIsSchemaLoading(true);
-    selectedEntity
-      .fetchNodeSchema(ids)
-      .then((resolved) => {
-        if (!cancelled) setSchema(resolved);
+    Promise.all([selectedEntity.fetchNodeDefinition(modelPath, ids), selectedEntity.fetchNodeSchema(ids)])
+      .then(([model, resolved]) => {
+        if (!cancelled) {
+          setParsedModel(model);
+          setSchema(resolved);
+        }
       })
       .catch((err) => {
         console.error('Failed to fetch REST DSL schema:', err);
@@ -58,6 +63,7 @@ export const RestDslEditorPage: FunctionComponent = () => {
       .finally(() => {
         if (!cancelled) setIsSchemaLoading(false);
       });
+
     return () => {
       cancelled = true;
     };

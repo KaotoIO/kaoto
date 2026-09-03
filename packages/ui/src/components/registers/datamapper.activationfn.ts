@@ -6,7 +6,7 @@ export const datamapperActivationFn = (vizNode?: IVisualizationNode): boolean =>
     return false;
   }
 
-  const stepDefinition = vizNode.data?.definition ?? vizNode.getNodeDefinition();
+  const stepDefinition = vizNode.data?.definition;
 
   if (!stepDefinition) {
     return false;

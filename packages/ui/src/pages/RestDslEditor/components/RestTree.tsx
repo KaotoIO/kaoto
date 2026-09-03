@@ -5,7 +5,9 @@ import { Menu, MenuItem, TreeNode, TreeView, useContextMenu } from '@carbon/reac
 import { FunctionComponent, PropsWithChildren, useEffect, useRef, useState } from 'react';
 
 import { IVisualizationNodeIds } from '../../../models/visualization/base-visual-entity';
+import { CamelRestVisualEntity } from '../../../models/visualization/flows/camel-rest-visual-entity';
 import { RestEntity } from '../../../models/visualization/flows/rest-entity';
+import { getValue } from '../../../utils';
 import { restToTree } from '../rest-to-tree';
 import { MethodBadge } from './MethodBadge';
 
@@ -119,11 +121,13 @@ export const RestTree: FunctionComponent<IRestTree> = ({ entities, selected, onS
                 }}
               >
                 {node.children?.map((child) => {
-                  const currentEntity = entities.find((entity) => entity.id === node.entityId);
+                  const currentEntity = entities.find(
+                    (entity) => entity.id === node.entityId && entity instanceof CamelRestVisualEntity,
+                  ) as CamelRestVisualEntity | undefined;
                   const pathLabel = (
-                    currentEntity?.getNodeDefinition(child.modelPath, {
-                      primaryNodeId: child.primaryNodeId,
-                    }) as { path?: string } | undefined
+                    currentEntity !== undefined
+                      ? (getValue(currentEntity.restDef, child.modelPath) as { path?: string } | undefined)
+                      : undefined
                   )?.path;
                   const label = pathLabel?.trim() ? (
                     pathLabel

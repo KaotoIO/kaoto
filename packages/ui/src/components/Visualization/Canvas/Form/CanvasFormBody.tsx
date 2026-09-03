@@ -21,7 +21,7 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = ({ vizNode
     return !isDefined(schema) || Object.keys(schema).length === 0;
   }, [schema]);
 
-  const model = (vizNode.data.definition ?? vizNode.getNodeDefinition()) as Record<string, unknown> | undefined;
+  const model = vizNode.data.definition as Record<string, unknown> | undefined;
 
   // Keep a ref to the current model so that handleOnChangeIndividualProp always writes
   // back to the same object that the form is rendering.
@@ -35,7 +35,7 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = ({ vizNode
         updatedValue = undefined;
       }
 
-      const newModel = modelRef.current ?? vizNode.getNodeDefinition() ?? {};
+      const newModel = modelRef.current ?? {};
       setValue(newModel, path, updatedValue);
       vizNode.updateModel(newModel);
       entitiesContext?.updateSourceCodeFromEntities();

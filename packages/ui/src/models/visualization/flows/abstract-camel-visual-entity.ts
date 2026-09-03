@@ -140,34 +140,6 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     return normalizeDefinition(raw, ids);
   }
 
-  getNodeDefinition(path?: string, ids?: IVisualizationNodeIds): unknown {
-    if (!path) return undefined;
-
-    let definition = cloneDeep(getValue(this.entityDef, path));
-
-    // String coercion: some processors store their value as a plain string
-    const processorName = ids?.primaryNodeId?.name;
-    if (processorName !== undefined) {
-      const prop = CamelComponentSchemaService.PROCESSOR_STRING_DEFINITIONS[processorName];
-      if (prop && typeof definition === 'string') {
-        definition = { [prop]: definition };
-      }
-    }
-
-    // Overriding parameters with an empty object when mistakenly set to null or undefined.
-    // Guard with typeof check: the `in` operator throws a TypeError on string primitives.
-    if (
-      definition != null &&
-      typeof definition === 'object' &&
-      'parameters' in (definition as object) &&
-      (definition as Record<string, unknown>).parameters == null
-    ) {
-      (definition as Record<string, unknown>).parameters = {};
-    }
-
-    return definition;
-  }
-
   getOmitFormFields(): string[] {
     return ['from', 'outputs', 'steps', 'when', 'otherwise', 'doCatch', 'doFinally'];
   }
@@ -313,7 +285,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     schema?: KaotoSchemaDefinition['schema'],
     ids?: IVisualizationNodeIds,
   ): Promise<string | undefined> {
-    const definition = this.getNodeDefinition(path, ids);
+    const definition = await this.fetchNodeDefinition(path, ids);
     if (!schema || !definition) return undefined;
 
     return await ModelValidationService.validateNodeStatus(schema, definition);

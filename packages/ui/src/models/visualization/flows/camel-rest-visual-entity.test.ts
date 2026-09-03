@@ -75,14 +75,18 @@ describe('CamelRestVisualEntity', () => {
     expect(entity.getId()).toEqual(newId);
   });
 
-  it('should return entity current definition', () => {
+  it('should return entity current definition via fetchNodeDefinition', async () => {
     const entity = new CamelRestVisualEntity(restDef);
-
-    expect(entity.getNodeDefinition(CamelRestVisualEntity.ROOT_PATH)).toEqual(restDef.rest);
+    expect(await entity.fetchNodeDefinition(CamelRestVisualEntity.ROOT_PATH)).toEqual(restDef.rest);
   });
 
-  describe('getNodeDefinition', () => {
-    it('should return REST method definition for REST DSL methods', () => {
+  it('should return raw rest def via getRawRestDef()', () => {
+    const entity = new CamelRestVisualEntity(restDef);
+    expect(entity.getRawRestDef()).toEqual(restDef.rest);
+  });
+
+  describe('fetchNodeDefinition', () => {
+    it('should return REST method definition for REST DSL methods', async () => {
       const restDefWithGet = {
         rest: {
           ...restDef.rest,
@@ -91,12 +95,12 @@ describe('CamelRestVisualEntity', () => {
       };
       const entity = new CamelRestVisualEntity(restDefWithGet);
 
-      const definition = entity.getNodeDefinition('rest.get.0');
+      const definition = await entity.fetchNodeDefinition('rest.get.0');
 
       expect(definition).toEqual({ path: '/hello', to: { uri: 'direct:hello' } });
     });
 
-    it('should return REST method definition for POST method', () => {
+    it('should return REST method definition for POST method', async () => {
       const restDefWithPost = {
         rest: {
           ...restDef.rest,
@@ -105,15 +109,15 @@ describe('CamelRestVisualEntity', () => {
       };
       const entity = new CamelRestVisualEntity(restDefWithPost);
 
-      const definition = entity.getNodeDefinition('rest.post.0');
+      const definition = await entity.fetchNodeDefinition('rest.post.0');
 
       expect(definition).toEqual({ path: '/update', to: { uri: 'direct:update' } });
     });
 
-    it('should return undefined for non-REST method paths', () => {
+    it('should return undefined for non-REST method paths', async () => {
       const entity = new CamelRestVisualEntity(restDef);
 
-      expect(entity.getNodeDefinition('rest.unknown.0')).toBeUndefined();
+      expect(await entity.fetchNodeDefinition('rest.unknown.0')).toBeUndefined();
     });
   });
 
