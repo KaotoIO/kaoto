@@ -5,6 +5,7 @@ import { MappingLinksProvider } from '../../providers/data-mapping-links.provide
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { BrowserFilePickerMetadataProvider } from '../../stubs/BrowserFilePickerMetadataProvider';
 import { getCamelYamlDslJsonSchema, getShipOrderJsonSchema, getShipOrderXsd } from '../../stubs/datamapper/data-mapper';
+import { createFile } from '../../stubs/read-file-as-string';
 import { SourceTargetView } from './SourceTargetView';
 
 // Mock ResizeObserver for ExpansionPanels
@@ -50,7 +51,7 @@ describe('SourceTargetView', () => {
       const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
       fireEvent.click(importButton);
 
-      const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
+      const fileContent = createFile(getShipOrderXsd(), 'ShipOrder.xsd');
       fireEvent.click(attachButton);
       const fileInput = screen.getByTestId('attach-schema-file-input');
       fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
@@ -107,7 +108,7 @@ describe('SourceTargetView', () => {
       const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
       fireEvent.click(importButton);
 
-      const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
+      const fileContent = createFile(getShipOrderXsd(), 'ShipOrder.xsd');
       fireEvent.click(attachButton);
       const fileInput = screen.getByTestId('attach-schema-file-input');
       fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
@@ -148,7 +149,7 @@ describe('SourceTargetView', () => {
       const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
       fireEvent.click(importButton);
 
-      const fileContent = new File([new Blob([getShipOrderJsonSchema()])], 'ShipOrder.json', { type: 'text/plain' });
+      const fileContent = createFile(getShipOrderJsonSchema(), 'ShipOrder.json');
       fireEvent.click(attachButton);
       const fileInput = screen.getByTestId('attach-schema-file-input');
       fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
@@ -190,9 +191,7 @@ describe('SourceTargetView', () => {
       const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
       fireEvent.click(importButton);
 
-      const fileContent = new File([new Blob([getCamelYamlDslJsonSchema()])], 'CamelYamlDsl.json', {
-        type: 'text/plain',
-      });
+      const fileContent = createFile(getCamelYamlDslJsonSchema(), 'CamelYamlDsl.json');
       fireEvent.click(attachButton);
       const fileInput = screen.getByTestId('attach-schema-file-input');
       fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
