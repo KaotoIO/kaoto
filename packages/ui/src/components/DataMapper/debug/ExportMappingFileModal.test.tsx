@@ -155,7 +155,7 @@ describe('ExportMappingFileModal', () => {
 
   it('should serialize and display mappings when mappings exist', async () => {
     const TestLoader: FunctionComponent<PropsWithChildren> = ({ children }) => {
-      const { mappingTree, setMappingTree, sourceParameterMap, setSourceBodyDocument, setTargetBodyDocument } =
+      const { mappingTree, refreshMappingTree, sourceParameterMap, setSourceBodyDocument, setTargetBodyDocument } =
         useDataMapper();
       useEffect(() => {
         const sourceDoc = TestUtil.createSourceOrderDoc();
@@ -163,7 +163,7 @@ describe('ExportMappingFileModal', () => {
         const targetDoc = TestUtil.createTargetOrderDoc();
         setTargetBodyDocument(targetDoc);
         MappingSerializerService.deserialize(getShipOrderToShipOrderXslt(), targetDoc, mappingTree, sourceParameterMap);
-        setMappingTree(mappingTree);
+        refreshMappingTree({ structural: true });
         // eslint-disable-next-line react-hooks/exhaustive-deps
       }, []);
       return <>{children}</>;
@@ -209,14 +209,14 @@ describe('ExportMappingFileModal', () => {
 
   it('should update serialized mappings when mappingTree changes', async () => {
     const TestLoader: FunctionComponent<PropsWithChildren> = ({ children }) => {
-      const { mappingTree, setMappingTree, setSourceBodyDocument, setTargetBodyDocument } = useDataMapper();
+      const { refreshMappingTree, setSourceBodyDocument, setTargetBodyDocument } = useDataMapper();
       useEffect(() => {
         const sourceDoc = TestUtil.createSourceOrderDoc();
         setSourceBodyDocument(sourceDoc);
         const targetDoc = TestUtil.createTargetOrderDoc();
         setTargetBodyDocument(targetDoc);
         // Initially no mappings
-        setMappingTree(mappingTree);
+        refreshMappingTree({ structural: true });
         // eslint-disable-next-line react-hooks/exhaustive-deps
       }, []);
       return <>{children}</>;

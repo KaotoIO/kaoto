@@ -73,7 +73,6 @@ export interface IDataMapperContext {
   structuralMappingTree: MappingTree;
   refreshMappingTree(options?: { structural?: boolean }): void;
   resetMappingTree(): void;
-  setMappingTree(mappings: MappingTree): void;
   variables: VariableItem[];
 
   alerts: SendAlertProps[];
@@ -427,7 +426,6 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       structuralMappingTree,
       refreshMappingTree,
       resetMappingTree,
-      setMappingTree,
       variables,
       alerts,
       sendAlert,
