@@ -138,7 +138,7 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
           <Choices />
         </Icon>
       )}
-      {isChoiceField && isSelectedChoice && (
+      {isSelectedChoice && (
         <Label className="node__spacer" color="green" icon={<Choices />} isCompact data-testid="choice-field-icon">
           {choiceDepth >= 2 ? <>&times;{choiceDepth}</> : ''}
         </Label>

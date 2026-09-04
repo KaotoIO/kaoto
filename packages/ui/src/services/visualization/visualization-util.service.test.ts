@@ -6,6 +6,7 @@ import {
   DocumentNodeData,
   FieldItemNodeData,
   FieldNodeData,
+  SequenceFieldNodeData,
   TargetAbstractFieldNodeData,
   TargetChoiceFieldNodeData,
   TargetDocumentNodeData,
@@ -142,6 +143,24 @@ describe('VisualizationUtilService', () => {
       const abstractNode = new AbstractFieldNodeData(sourceDocNode, substituteField);
       abstractNode.abstractField = wrapperField;
       expect(VisualizationUtilService.isCollectionField(abstractNode)).toBe(false);
+    });
+
+    it('should return true for a selected sequence branch when the enclosing choice is a collection', () => {
+      // The enclosing collection choice may sit above intermediate wrappers, so the sequence's own
+      // maxOccurs (and its direct parent) are 1 — collection status comes from the choice back-ref.
+      const choiceWrapper = createMockField(sourceDoc.fields[0], { name: '__choice__', maxOccurs: 'unbounded' });
+      const sequenceField = createMockField(sourceDoc.fields[0], { name: '__sequence__', maxOccurs: 1 });
+      const sequenceNode = new SequenceFieldNodeData(sourceDocNode, sequenceField);
+      sequenceNode.choiceField = choiceWrapper;
+      expect(VisualizationUtilService.isCollectionField(sequenceNode)).toBe(true);
+    });
+
+    it('should return false for a selected sequence branch when the enclosing choice is not a collection', () => {
+      const choiceWrapper = createMockField(sourceDoc.fields[0], { name: '__choice__', maxOccurs: 1 });
+      const sequenceField = createMockField(sourceDoc.fields[0], { name: '__sequence__', maxOccurs: 1 });
+      const sequenceNode = new SequenceFieldNodeData(sourceDocNode, sequenceField);
+      sequenceNode.choiceField = choiceWrapper;
+      expect(VisualizationUtilService.isCollectionField(sequenceNode)).toBe(false);
     });
   });
 

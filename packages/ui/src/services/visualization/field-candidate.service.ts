@@ -97,7 +97,13 @@ export class FieldCandidateService extends WrapperBaseService {
     for (const member of choiceField.fields) {
       if (member.wrapperKind === 'abstract') {
         entries.push(...this.resolveAbstractSubstitutes(member, namespaceMap));
-      } else if (member.wrapperKind !== 'sequence') {
+      } else if (member.wrapperKind === 'sequence') {
+        for (const seqChild of member.fields) {
+          if (seqChild.wrapperKind !== 'choice' && seqChild.wrapperKind !== 'abstract') {
+            entries.push({ candidate: ChoiceFieldService.fieldToCandidate(seqChild, '', 0), field: seqChild });
+          }
+        }
+      } else {
         entries.push({ candidate: ChoiceFieldService.fieldToCandidate(member, '', 0), field: member });
       }
     }

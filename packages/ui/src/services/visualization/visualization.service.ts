@@ -107,9 +107,13 @@ const ABSTRACT_WRAPPER: WrapperSpec = {
 const SEQUENCE_WRAPPER: WrapperSpec = {
   createSourceNode: (parent, field) => new SequenceFieldNodeData(parent, field),
   createTargetNode: (parent, field, mapping) => new TargetSequenceFieldNodeData(parent, field, mapping),
-  setWrapperRef: () => {},
+  // When a sequence is the selected member of an xs:choice, keep a reference to that choice
+  // wrapper so the choice context menu recognises this node as a selected branch (change/clear).
+  setWrapperRef: (node, wrapperField) => {
+    (node as SequenceFieldNodeData | TargetSequenceFieldNodeData).choiceField = wrapperField;
+  },
   isTargetInstance: (node) => node instanceof TargetSequenceFieldNodeData,
-  hasWrapperRef: () => false,
+  hasWrapperRef: (node) => !!(node as TargetSequenceFieldNodeData).choiceField,
   isUnconfiguredTarget: () => false,
 };
 
@@ -171,6 +175,19 @@ export class VisualizationService {
   }
 
   /**
+   * Returns the spec to recurse into when a wrapper's selected member is itself a nested
+   * choice/abstract wrapper that should take over rendering (per {@link WrapperSelectionService.shouldFlattenNestedWrapper}),
+   * or `undefined` when no recursion is needed (no selection, a non-wrapper member, or a sequence
+   * branch — which renders in place). Keeps {@link doGenerateNodeDataFromWrapperField} flat.
+   */
+  private static resolveNestedWrapperSpec(field: IField, selectedMember: IField | undefined): WrapperSpec | undefined {
+    if (!selectedMember?.wrapperKind || !field.wrapperKind) return undefined;
+    if (selectedMember.wrapperKind === 'sequence') return undefined;
+    if (!WrapperSelectionService.shouldFlattenNestedWrapper(field.wrapperKind, selectedMember)) return undefined;
+    return selectedMember.wrapperKind === 'choice' ? CHOICE_WRAPPER : ABSTRACT_WRAPPER;
+  }
+
+  /**
    * Creates a {@link ChoiceFieldNodeData} or {@link TargetChoiceFieldNodeData} for a choice wrapper field.
    *
    * When no member is selected ({@link DocumentUtilService.getSelectedMember} returns `undefined`), the returned node's
@@ -190,17 +207,22 @@ export class VisualizationService {
   ): NodeData | null {
     const selectedMember = DocumentUtilService.getSelectedMember(field);
 
-    if (selectedMember?.wrapperKind && field.wrapperKind) {
-      if (WrapperSelectionService.shouldFlattenNestedWrapper(field.wrapperKind, selectedMember)) {
-        const innerSpec = selectedMember.wrapperKind === 'choice' ? CHOICE_WRAPPER : ABSTRACT_WRAPPER;
-        return VisualizationService.doGenerateNodeDataFromWrapperField(parent, selectedMember, mappings, innerSpec);
-      }
+    // When the selected member is itself a nested choice/abstract wrapper, it takes over rendering
+    // via its own spec — recurse so it presents its own selection UI.
+    const recurseSpec = VisualizationService.resolveNestedWrapperSpec(field, selectedMember);
+    if (recurseSpec && selectedMember) {
+      return VisualizationService.doGenerateNodeDataFromWrapperField(parent, selectedMember, mappings, recurseSpec);
     }
+
+    // A selected xs:sequence renders in place as a sequence node that keeps a back-reference to
+    // this choice wrapper (set by the spec's setWrapperRef in the shared tail below), so the
+    // choice context menu can still change or clear the branch.
+    const effectiveSpec = selectedMember?.wrapperKind === 'sequence' ? SEQUENCE_WRAPPER : spec;
 
     const nodeField = selectedMember ?? field;
     if (parent.isSource) {
-      const node = spec.createSourceNode(parent, nodeField);
-      if (selectedMember) spec.setWrapperRef(node, field);
+      const node = effectiveSpec.createSourceNode(parent, nodeField);
+      if (selectedMember) effectiveSpec.setWrapperRef(node, field);
       return node;
     }
 
@@ -208,8 +230,8 @@ export class VisualizationService {
       selectedMember && mappings ? MappingService.filterMappingsForField(mappings, selectedMember) : [];
     const mapping = mappingsForMember.find((m) => m instanceof FieldItem) as FieldItem;
     if (mappingsForMember.length > 0 && !mapping) return null;
-    const node = spec.createTargetNode(parent as TargetNodeData, nodeField, mapping);
-    if (selectedMember) spec.setWrapperRef(node, field);
+    const node = effectiveSpec.createTargetNode(parent as TargetNodeData, nodeField, mapping);
+    if (selectedMember) effectiveSpec.setWrapperRef(node, field);
     return node;
   }
 
@@ -602,7 +624,7 @@ export class VisualizationService {
   static getChoiceMemberLabel(field: IField): string {
     const members = field.fields ?? [];
     const labels = members.flatMap((m) => {
-      if (m.wrapperKind === 'choice' || m.wrapperKind === 'abstract') {
+      if (m.wrapperKind === 'choice' || m.wrapperKind === 'abstract' || m.wrapperKind === 'sequence') {
         const innerLabels = (m.fields ?? []).map((inner) => inner.displayName ?? inner.name);
         return innerLabels.length > 0 ? innerLabels : [m.displayName ?? m.name];
       }

@@ -41,8 +41,12 @@ export class VisualizationUtilService {
       return DocumentService.isCollectionField(nodeData.wrapperField);
     }
     if (DocumentService.isCollectionField(nodeData.field)) return true;
-    if (VisualizationUtilService.isChoiceField(nodeData)) {
-      return !!nodeData.choiceField && DocumentService.isCollectionField(nodeData.choiceField);
+    // A selected choice branch (choice member or an xs:sequence branch) inherits the repeating
+    // nature from its enclosing choice, which may sit above intermediate wrappers — so read it
+    // from the choice back-reference rather than the node's direct parent.
+    const selectedChoiceWrapper = VisualizationUtilService.getSelectedChoiceWrapper(nodeData);
+    if (selectedChoiceWrapper) {
+      return DocumentService.isCollectionField(selectedChoiceWrapper);
     }
     if (VisualizationUtilService.isAbstractField(nodeData)) {
       return !!nodeData.abstractField && DocumentService.isCollectionField(nodeData.abstractField);
@@ -72,12 +76,28 @@ export class VisualizationUtilService {
   }
 
   /**
-   * Returns `true` if the node is a choice field with a selected member (choiceField is set).
-   * Delegates to {@link isChoiceField} for the type check to avoid duplicating `instanceof` guards.
+   * Returns the enclosing choice wrapper of a node that represents a *selected* choice branch,
+   * or `undefined`. Both {@link ChoiceFieldNodeData} (a directly selected member) and
+   * {@link SequenceFieldNodeData} (an xs:sequence selected as one choice branch) carry this
+   * back-reference in their `choiceField`; this helper is the single place that knows which node
+   * types do, so the selection/menu code does not need per-type `instanceof` chains.
+   * @param nodeData - The node to inspect.
+   */
+  static getSelectedChoiceWrapper(nodeData: NodeData): IField | undefined {
+    if (VisualizationUtilService.isChoiceField(nodeData)) return nodeData.choiceField;
+    if (VisualizationUtilService.isSequenceField(nodeData)) return nodeData.choiceField;
+    return undefined;
+  }
+
+  /**
+   * Returns `true` if the node represents a choice branch that has a member selected. This is
+   * true for a {@link ChoiceFieldNodeData} with `choiceField` set, and also for a
+   * {@link SequenceFieldNodeData} rendered as the selected branch of an xs:choice — both cases
+   * are detected via {@link getSelectedChoiceWrapper}.
    * @param nodeData - The node to test.
    */
-  static isSelectedChoiceField(nodeData: NodeData): nodeData is ChoiceFieldNodeData | TargetChoiceFieldNodeData {
-    return VisualizationUtilService.isChoiceField(nodeData) && !!nodeData.choiceField;
+  static isSelectedChoiceField(nodeData: NodeData): boolean {
+    return !!VisualizationUtilService.getSelectedChoiceWrapper(nodeData);
   }
 
   /**
@@ -110,7 +130,10 @@ export class VisualizationUtilService {
    * @param nodeData - The node to test.
    */
   static isSelectedNestedChoice(nodeData: NodeData): boolean {
-    return VisualizationUtilService.isSelectedChoiceField(nodeData) && nodeData.field.wrapperKind === 'choice';
+    return (
+      VisualizationUtilService.isSelectedChoiceField(nodeData) &&
+      VisualizationUtilService.getField(nodeData)?.wrapperKind === 'choice'
+    );
   }
 
   /**
@@ -120,8 +143,9 @@ export class VisualizationUtilService {
    * Returns 0 for non-choice nodes.
    */
   static getSelectedChoiceDepth(nodeData: NodeData): number {
-    if (!VisualizationUtilService.isSelectedChoiceField(nodeData)) return 0;
-    return WrapperSelectionService.resolveOutermostSelectedWrapper(nodeData.choiceField).depth;
+    const choiceWrapper = VisualizationUtilService.getSelectedChoiceWrapper(nodeData);
+    if (!choiceWrapper) return 0;
+    return WrapperSelectionService.resolveOutermostSelectedWrapper(choiceWrapper).depth;
   }
 
   /**
