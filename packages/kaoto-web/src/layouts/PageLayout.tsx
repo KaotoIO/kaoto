@@ -2,8 +2,6 @@ import { Content } from '@carbon/react';
 import classNames from 'classnames';
 import { Children, PropsWithChildren, ReactElement, ReactNode, Suspense } from 'react';
 
-import { Nav } from '../components/nav/Nav';
-
 interface PageLayoutProps {
   className?: string;
   fallback?: ReactNode;
@@ -26,7 +24,6 @@ export const PageLayout = ({ children, className, fallback }: PropsWithChildren<
   return (
     <Suspense fallback={fallback}>
       <div className={classNames('cs--page-layout', className)}>
-        <Nav />
         <Content className="cs--content">
           <div className="cs--page-layout__content">
             {Header}

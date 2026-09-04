@@ -45,6 +45,8 @@ export interface IndexRouteConfig extends RouteConfigBase {
 export interface PathRouteConfig extends RouteConfigBase {
   path: string;
   index?: false;
+  /** Nested child routes rendered via React Router's Outlet */
+  children?: RouteConfigArray;
 }
 
 /**

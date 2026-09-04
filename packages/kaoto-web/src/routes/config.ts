@@ -1,9 +1,12 @@
-import Dashboard from '../pages/dashboard/Dashboard';
-import NotFound from '../pages/not-found/NotFound';
+import { lazy } from 'react';
+
 import { RouteConfigArray } from '../types/routes';
 
-// TODO: Uncomment when adding nested routes
-// const escapeRegExp = (value: string) => value.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+const Dashboard = lazy(() => import('../pages/Dashboard/Dashboard'));
+const NotFound = lazy(() => import('../pages/NotFound/NotFound'));
+const ProjectPage = lazy(() => import('../pages/Project/ProjectPage'));
+const ConfigPage = lazy(() => import('../pages/Config/ConfigPage'));
+const ProjectConfigPage = lazy(() => import('../pages/ProjectConfig/ProjectConfigPage'));
 
 export const routes: RouteConfigArray = [
   {
@@ -13,6 +16,31 @@ export const routes: RouteConfigArray = [
       label: 'Dashboard',
       inHeader: true,
     },
+  },
+  {
+    path: 'config',
+    element: ConfigPage,
+  },
+  {
+    path: 'projects',
+    children: [
+      {
+        path: ':projectId',
+        element: ProjectPage,
+        children: [
+          {
+            index: true,
+          },
+          {
+            path: 'integration/:integrationId',
+          },
+          {
+            path: 'config',
+            element: ProjectConfigPage,
+          },
+        ],
+      },
+    ],
   },
   {
     path: '*',
@@ -33,24 +61,16 @@ const routesProcessed: RouteConfigArray = routes.map((route) => {
   if (!path) return route;
 
   const subMenu = routes.filter((subRoute) => {
-    // Only include routes with carbon config in navigation menus
     if (!subRoute.carbon) return false;
 
     const subPath = ('path' in subRoute ? subRoute.path : undefined) ?? subRoute.carbon.virtualPath;
-    // TODO: Re-enable when adding nested routes
-    // const childPath = new RegExp(`^${escapeRegExp(path)}/[^/]+$`); // match direct parent only
-
-    return !route.index && subPath; // && childPath.test(subPath);
+    return !route.index && subPath;
   });
 
   if (subMenu && subMenu.length > 0) {
-    // add sub menu to parent
     route.carbon.subMenu = subMenu;
-
-    // mark child as in sub menu
     subMenu.forEach((menu) => {
       const subPath = ('path' in menu ? menu.path : undefined) ?? menu.carbon?.virtualPath;
-      // Carbon should never be blank
       menu.carbon = menu.carbon || { label: subPath || '' };
       menu.carbon.inSubMenu = true;
     });

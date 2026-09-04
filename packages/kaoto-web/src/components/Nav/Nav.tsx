@@ -2,7 +2,6 @@ import {
   Header,
   HeaderGlobalBar,
   HeaderMenuButton,
-  HeaderName,
   HeaderNavigation,
   HeaderSideNavItems,
   SideNav,
@@ -12,6 +11,7 @@ import {
 import { useState } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router';
 
+import logoKaoto from '../../assets/logo-kaoto-text.svg';
 import { routesInHeader, routesInSideNav } from '../../routes/config';
 import { NavHeaderItems } from './NavHeaderItems';
 import { NavSideItems } from './NavSideItems';
@@ -37,9 +37,9 @@ export const Nav = () => {
           isActive={isSideNavExpanded}
           aria-expanded={isSideNavExpanded}
         />
-        <HeaderName as={RouterLink} to="/" prefix="Kaoto">
-          Designer
-        </HeaderName>
+        <RouterLink to="/" className="cds--header__name">
+          <img src={logoKaoto} alt="Kaoto" className="cs--nav__logo" />
+        </RouterLink>
         {routesInHeader.length > 0 && (
           <HeaderNavigation>
             <NavHeaderItems routesInHeader={routesInHeader} currentPath={location.pathname} />

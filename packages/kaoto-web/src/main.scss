@@ -14,10 +14,14 @@
    not "flashing style" - everything will be at the right
    place from the start. In most case, avoid loading styles
    from the JavaScript. */
-@use 'layouts/page-layout';
-@use 'pages/dashboard/dashboard';
-@use 'components/commonHeader/commonHeader';
-@use 'components/footer/footer';
+@use 'components/Nav/Nav';
+@use 'layouts/PageLayout';
+@use 'layouts/ProjectLayout';
+@use 'pages/Dashboard/Dashboard';
+@use 'components/CommonHeader/CommonHeader';
+@use 'components/Explorer/Explorer';
+@use 'components/ProjectBanner/ProjectBanner';
+@use 'components/Footer/Footer';
 
 @mixin light-brand {
   --light: 'true';
