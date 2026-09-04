@@ -109,6 +109,17 @@ describe('ModelValidationService', () => {
       expect(result).toBe('');
     });
 
+    it('should still report a required expression as missing when it is not configured', async () => {
+      const schema = await camelEntity.fetchNodeSchema({
+        primaryNodeId: { name: 'setHeader', catalogKind: CatalogKind.Pattern },
+      });
+      const model = { constant: {} };
+
+      const result = await ModelValidationService.validateNodeStatus(schema!, model);
+
+      expect(result).toBe('2 required parameters are not yet configured: [ expression,name ]');
+    });
+
     it('should return an empty string if there is no missing property', async () => {
       const schema = await camelEntity.fetchNodeSchema({
         primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern },
