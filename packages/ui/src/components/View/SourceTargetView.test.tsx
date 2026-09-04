@@ -22,6 +22,16 @@ beforeAll(() => {
   };
 });
 
+// Helper to create a File with mocked .text() for JSDOM (which lacks File.text())
+const createFile = (content: string, name: string) => {
+  const file = new File([content], name, { type: 'text/plain' });
+  Object.defineProperty(file, 'text', {
+    value: vi.fn().mockResolvedValue(content),
+    configurable: true,
+  });
+  return file;
+};
+
 describe('SourceTargetView', () => {
   // Helper to wrap components with VirtuosoMockContext for testing
   const renderWithVirtuoso = (component: React.ReactElement) => {
@@ -50,7 +60,7 @@ describe('SourceTargetView', () => {
       const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
       fireEvent.click(importButton);
 
-      const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
+      const fileContent = createFile(getShipOrderXsd(), 'ShipOrder.xsd');
       fireEvent.click(attachButton);
       const fileInput = screen.getByTestId('attach-schema-file-input');
       fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
@@ -107,7 +117,7 @@ describe('SourceTargetView', () => {
       const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
       fireEvent.click(importButton);
 
-      const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
+      const fileContent = createFile(getShipOrderXsd(), 'ShipOrder.xsd');
       fireEvent.click(attachButton);
       const fileInput = screen.getByTestId('attach-schema-file-input');
       fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
@@ -148,7 +158,7 @@ describe('SourceTargetView', () => {
       const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
       fireEvent.click(importButton);
 
-      const fileContent = new File([new Blob([getShipOrderJsonSchema()])], 'ShipOrder.json', { type: 'text/plain' });
+      const fileContent = createFile(getShipOrderJsonSchema(), 'ShipOrder.json');
       fireEvent.click(attachButton);
       const fileInput = screen.getByTestId('attach-schema-file-input');
       fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
@@ -190,9 +200,7 @@ describe('SourceTargetView', () => {
       const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
       fireEvent.click(importButton);
 
-      const fileContent = new File([new Blob([getCamelYamlDslJsonSchema()])], 'CamelYamlDsl.json', {
-        type: 'text/plain',
-      });
+      const fileContent = createFile(getCamelYamlDslJsonSchema(), 'CamelYamlDsl.json');
       fireEvent.click(attachButton);
       const fileInput = screen.getByTestId('attach-schema-file-input');
       fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });

@@ -16,6 +16,16 @@ import { DebugLayout } from './DebugLayout';
 
 const dndHandler = new SourceTargetDnDHandler();
 
+// Helper to create a File with mocked .text() for JSDOM (which lacks File.text())
+const createFile = (content: string, name: string) => {
+  const file = new File([content], name, { type: 'text/plain' });
+  Object.defineProperty(file, 'text', {
+    value: vi.fn().mockResolvedValue(content),
+    configurable: true,
+  });
+  return file;
+};
+
 const TestProviders: FunctionComponent<PropsWithChildren> = ({ children }) => (
   <DataMapperProvider>
     <DataMapperDndProvider handler={dndHandler}>
@@ -150,9 +160,7 @@ describe('DebugLayout', () => {
       fireEvent.click(mainMenuButton);
       const importButton = screen.getByTestId('dm-debug-import-mappings-button');
       fireEvent.click(importButton);
-      const fileContent = new File([new Blob([getShipOrderToShipOrderXslt()])], 'ShipOrderToShipOrder.xsl', {
-        type: 'text/plain',
-      });
+      const fileContent = createFile(getShipOrderToShipOrderXslt(), 'ShipOrderToShipOrder.xsl');
       const fileInput = screen.getByTestId('dm-debug-import-mappings-file-input');
       expect(spyOnMappingTree!.children).toHaveLength(0);
       fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });

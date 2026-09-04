@@ -20,6 +20,16 @@ describe('ParametersSection', () => {
     });
   };
 
+  // Helper to create a File with mocked .text() for JSDOM (which lacks File.text())
+  const createFile = (content: string, name: string) => {
+    const file = new File([content], name, { type: 'text/plain' });
+    Object.defineProperty(file, 'text', {
+      value: vi.fn().mockResolvedValue(content),
+      configurable: true,
+    });
+    return file;
+  };
+
   it('should add, rename, and remove a parameter', async () => {
     const mockUpdateDocument = vi.fn();
     const mockDeleteParameter = vi.fn();
@@ -131,7 +141,7 @@ describe('ParametersSection', () => {
     const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
     fireEvent.click(importButton);
 
-    const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
+    const fileContent = createFile(getShipOrderXsd(), 'ShipOrder.xsd');
     const fileInput = screen.getByTestId('attach-schema-file-input');
     fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
 
@@ -181,7 +191,7 @@ describe('ParametersSection', () => {
     const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
     fireEvent.click(importButton);
 
-    const fileContent = new File([new Blob([getShipOrderJsonSchema()])], 'ShipOrder.json', { type: 'text/plain' });
+    const fileContent = createFile(getShipOrderJsonSchema(), 'ShipOrder.json');
     const fileInput = screen.getByTestId('attach-schema-file-input');
     fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
 
