@@ -278,6 +278,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
           'routeConfiguration: Defines reusable configuration that is automatically applied to matching routes, such as shared error handling or interceptors',
         processorIconTooltip: '',
         schema: expect.any(Object),
+        definition: expect.any(Object),
       });
     });
 

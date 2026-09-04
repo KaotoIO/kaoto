@@ -5,7 +5,6 @@ import { cloneDeep } from 'lodash';
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { getArrayProperty, getValue, setValue } from '../../../utils';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
-import { uriDefinitionParser } from '../../camel/parsers/uri-definition.parser';
 import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
@@ -23,6 +22,7 @@ import {
 import { IClipboardContent } from '../clipboard';
 import { NodeIdentity } from '../node-identity';
 import { createVisualizationNode } from '../visualization-node';
+import { normalizeDefinition } from './definition-normalizer';
 import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
 import { CamelComponentDefaultService } from './support/camel-component-default.service';
@@ -134,6 +134,12 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     return schema;
   }
 
+  async fetchNodeDefinition(path?: string, ids?: IVisualizationNodeIds): Promise<unknown> {
+    if (!path) return undefined;
+    const raw = cloneDeep(getValue(this.entityDef, path));
+    return normalizeDefinition(raw, ids);
+  }
+
   getNodeDefinition(path?: string, ids?: IVisualizationNodeIds): unknown {
     if (!path) return undefined;
 
@@ -160,20 +166,6 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     }
 
     return definition;
-  }
-
-  async getParsedDefinition(path?: string, ids?: IVisualizationNodeIds): Promise<unknown> {
-    const definition = this.getNodeDefinition(path, ids);
-    if (definition == null) return definition;
-
-    const componentName =
-      ids?.secondaryNodeId?.name === 'kamelet' && ids?.tertiaryNodeId?.name !== undefined
-        ? `kamelet:${ids.tertiaryNodeId.name}`
-        : ids?.secondaryNodeId?.name;
-
-    if (!componentName) return definition;
-
-    return uriDefinitionParser(componentName, definition as Record<string, unknown>);
   }
 
   getOmitFormFields(): string[] {

@@ -87,7 +87,7 @@ describe('CanvasForm', () => {
       isPlaceholder: false,
     });
 
-    (noSchemaVizNode as IVisualizationNode).getParsedDefinition = vi.fn().mockResolvedValue(undefined);
+    (noSchemaVizNode as IVisualizationNode).data.definition = undefined;
 
     const { Provider } = await TestProvidersWrapper();
     const { container } = render(
@@ -114,7 +114,7 @@ describe('CanvasForm', () => {
       isPlaceholder: false,
     });
 
-    (noSchemaVizNode as IVisualizationNode).getParsedDefinition = vi.fn().mockResolvedValue(null);
+    (noSchemaVizNode as IVisualizationNode).data.definition = undefined;
 
     const { Provider } = await TestProvidersWrapper();
     const { container } = render(
@@ -125,7 +125,6 @@ describe('CanvasForm', () => {
       </Provider>,
     );
 
-    await screen.findByText('null');
     expect(container).toMatchSnapshot();
   });
 
@@ -242,6 +241,7 @@ describe('CanvasForm', () => {
     const { nodes } = FlowService.getFlowDiagram('test', await kameletVisualEntity.toVizNode());
     const lastVizNode = nodes[nodes.length - 1].data!.vizNode!;
     await lastVizNode.fetchSchema();
+    await lastVizNode.fetchNodeDefinition();
 
     const { Provider } = await TestProvidersWrapper({
       visibleFlowsContext: { allFlowsVisible: true, visibleFlows: { [flowId]: true }, visualFlowsApi },
