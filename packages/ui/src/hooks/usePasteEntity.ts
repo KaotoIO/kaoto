@@ -136,10 +136,11 @@ export const usePasteEntity = () => {
     // Clone and update IDs to prevent duplication
     const updatedContent = updateIds(cloneDeep(clipboardContent));
 
-    // Add the new entity
-    const newId = camelResource.addNewEntity(updatedContent.name as EntityType, {
-      [updatedContent.name]: updatedContent.definition,
-    });
+    const entityTemplate = supportsMultiple
+      ? { [updatedContent.name]: updatedContent.definition }
+      : updatedContent.definition;
+
+    const newId = camelResource.addNewEntity(updatedContent.name as EntityType, entityTemplate);
 
     // Make the new entity visible
     if (newId) {

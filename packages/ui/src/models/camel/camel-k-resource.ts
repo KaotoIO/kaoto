@@ -80,6 +80,10 @@ export abstract class CamelKResource implements KaotoResource {
     this.metadata = undefined;
   }
 
+  protected syncMetadataFromResource(): void {
+    this.metadata = this.resource.metadata ? new MetadataEntity(this.resource) : undefined;
+  }
+
   getEntities(): BaseEntity[] {
     const answer = [];
     if (this.resource.metadata && this.metadata) {
