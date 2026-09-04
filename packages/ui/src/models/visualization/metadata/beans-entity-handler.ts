@@ -1,11 +1,11 @@
 import { BeanFactory, BeansDeserializer } from '@kaoto/camel-catalog/types';
 import { isDefined, resolveSchemaWithRef } from '@kaoto/forms';
 
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities';
 import { BeansAwareResource, KaotoResource, RouteTemplateBeansAwareResource } from '../../kaoto-resource';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
-import { CamelCatalogService } from '../flows/camel-catalog.service';
 import { BeansEntity } from './beansEntity';
 import { RouteTemplateBeansEntity } from './routeTemplateBeansEntity';
 
@@ -32,12 +32,12 @@ export class BeansEntityHandler {
     return this.type !== undefined;
   }
 
-  getBeanSchema(): KaotoSchemaDefinition['schema'] | undefined {
+  async getBeanSchema(): Promise<KaotoSchemaDefinition['schema'] | undefined> {
     if (!isDefined(this.type)) {
       return undefined;
     }
 
-    const rootSchema = this.getBeansSchema();
+    const rootSchema = await this.getBeansSchema();
     if (!isDefined(rootSchema?.items)) {
       return undefined;
     }
@@ -45,12 +45,13 @@ export class BeansEntityHandler {
     return resolveSchemaWithRef(rootSchema.items, rootSchema.definitions ?? {});
   }
 
-  getBeansSchema(): KaotoSchemaDefinition['schema'] | undefined {
+  async getBeansSchema(): Promise<KaotoSchemaDefinition['schema'] | undefined> {
     if (!isDefined(this.type)) {
       return undefined;
     }
 
-    const beansSchema = CamelCatalogService.getComponent(CatalogKind.Entity, 'bean')?.propertiesSchema;
+    const definition = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Entity, 'bean');
+    const beansSchema = definition?.propertiesSchema ? { ...definition.propertiesSchema } : undefined;
     if (isDefined(beansSchema?.items)) {
       beansSchema.items = resolveSchemaWithRef(beansSchema.items, beansSchema.definitions ?? {});
     }

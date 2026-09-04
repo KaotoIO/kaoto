@@ -1,12 +1,10 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { PipeResource } from '../../models/camel';
-import { CatalogKind } from '../../models/catalog-kind';
-import { CamelCatalogService } from '../../models/visualization/flows/camel-catalog.service';
 import { EntitiesContext } from '../../providers/entities.provider';
-import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../stubs/test-load-catalog';
 import { MetadataPage } from './MetadataPage';
 
 const camelResource = new PipeResource();
@@ -20,9 +18,13 @@ const mockEntitiesContext = {
 };
 
 describe('MetadataPage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
+    setupDynamicCatalogRegistry(catalogsMap);
   });
 
   it('renders "Not applicable" when the resource type is not supported', () => {
@@ -32,22 +34,37 @@ describe('MetadataPage', () => {
     expect(screen.getByText('Not applicable')).toBeInTheDocument();
   });
 
-  it('renders the KaotoForm when the resource type is supported', () => {
-    const { container } = render(
-      <EntitiesContext.Provider value={mockEntitiesContext}>
-        <MetadataPage />
-      </EntitiesContext.Provider>,
-    );
+  it('renders the KaotoForm when the resource type is supported', async () => {
+    let container: HTMLElement;
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      ({ container } = render(
+        <EntitiesContext.Provider value={mockEntitiesContext}>
+          <MetadataPage />
+        </EntitiesContext.Provider>,
+      ));
+    });
 
-    expect(container).toMatchSnapshot();
+    await waitFor(() => {
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+    });
+
+    expect(container!).toMatchSnapshot();
   });
 
-  it('calls updateSourceCodeFromEntities when the model changes', () => {
-    render(
-      <EntitiesContext.Provider value={mockEntitiesContext}>
-        <MetadataPage />
-      </EntitiesContext.Provider>,
-    );
+  it('calls updateEntitiesFromCamelResource when the model changes', async () => {
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      render(
+        <EntitiesContext.Provider value={mockEntitiesContext}>
+          <MetadataPage />
+        </EntitiesContext.Provider>,
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+    });
 
     const addButton = screen.getAllByRole('button', { name: 'Add a new property' });
     fireEvent.click(addButton[0]);
