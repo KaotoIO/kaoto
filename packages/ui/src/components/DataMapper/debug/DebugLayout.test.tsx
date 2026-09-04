@@ -40,7 +40,7 @@ describe('DebugLayout', () => {
     const LoadMappings: FunctionComponent<PropsWithChildren> = ({ children }) => {
       const {
         mappingTree,
-        setMappingTree,
+        refreshMappingTree,
         sourceParameterMap,
         setSourceBodyDocument,
         setTargetBodyDocument,
@@ -52,7 +52,7 @@ describe('DebugLayout', () => {
         const targetDoc = TestUtil.createTargetOrderDoc();
         setTargetBodyDocument(targetDoc);
         MappingSerializerService.deserialize(getShipOrderToShipOrderXslt(), targetDoc, mappingTree, sourceParameterMap);
-        setMappingTree(mappingTree);
+        refreshMappingTree({ structural: true });
         // eslint-disable-next-line react-hooks/exhaustive-deps
       }, []);
       useEffect(() => {
@@ -83,7 +83,7 @@ describe('DebugLayout', () => {
   // Skipped: JSDOM cannot render the full DataMapperControl layout (expansion panels require real dimensions)
   it.skip('should update store selection when clicking a node', async () => {
     const LoadMappings: FunctionComponent<PropsWithChildren> = ({ children }) => {
-      const { mappingTree, setMappingTree, sourceParameterMap, setSourceBodyDocument, setTargetBodyDocument } =
+      const { mappingTree, refreshMappingTree, sourceParameterMap, setSourceBodyDocument, setTargetBodyDocument } =
         useDataMapper();
       useEffect(() => {
         const sourceDoc = TestUtil.createSourceOrderDoc();
@@ -91,7 +91,7 @@ describe('DebugLayout', () => {
         const targetDoc = TestUtil.createTargetOrderDoc();
         setTargetBodyDocument(targetDoc);
         MappingSerializerService.deserialize(getShipOrderToShipOrderXslt(), targetDoc, mappingTree, sourceParameterMap);
-        setMappingTree(mappingTree);
+        refreshMappingTree({ structural: true });
         // eslint-disable-next-line react-hooks/exhaustive-deps
       }, []);
       return <>{children}</>;
@@ -180,7 +180,7 @@ describe('DebugLayout', () => {
         const {
           setDebug,
           mappingTree,
-          setMappingTree,
+          refreshMappingTree,
           sourceParameterMap,
           setSourceBodyDocument,
           setTargetBodyDocument,
@@ -197,7 +197,7 @@ describe('DebugLayout', () => {
             mappingTree,
             sourceParameterMap,
           );
-          setMappingTree(mappingTree);
+          refreshMappingTree({ structural: true });
           // eslint-disable-next-line react-hooks/exhaustive-deps
         }, []);
         return <>{children}</>;
