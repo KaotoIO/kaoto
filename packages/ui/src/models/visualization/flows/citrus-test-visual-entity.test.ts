@@ -218,32 +218,32 @@ describe('CitrusTestVisualEntity', () => {
     });
   });
 
-  describe('getNodeDefinition', () => {
-    it('should return undefined if no path is provided', () => {
-      expect(citrusTestEntity.getNodeDefinition()).toBeUndefined();
+  describe('fetchNodeDefinition', () => {
+    it('should return undefined if no path is provided', async () => {
+      expect(await citrusTestEntity.fetchNodeDefinition()).toBeUndefined();
     });
 
-    it('should return the test object for root path', () => {
-      const result = citrusTestEntity.getNodeDefinition('test', rootTestIds);
+    it('should return the test object for root path', async () => {
+      const result = await citrusTestEntity.fetchNodeDefinition('test', rootTestIds);
 
       expect(result).toEqual(citrusTestEntity.test);
     });
 
-    it('should return an empty object if path does not exist in the entity', () => {
-      const result = citrusTestEntity.getNodeDefinition('invalid.path', printActionIds);
+    it('should return an empty object if path does not exist in the entity', async () => {
+      const result = await citrusTestEntity.fetchNodeDefinition('invalid.path', printActionIds);
 
       expect(result).toEqual({});
     });
 
-    it('should return action definition for a valid path', () => {
-      const result = citrusTestEntity.getNodeDefinition('actions.0.print', printActionIds);
+    it('should return action definition for a valid path', async () => {
+      const result = await citrusTestEntity.fetchNodeDefinition('actions.0.print', printActionIds);
 
       expect(result).toEqual({
         message: 'Hello from Citrus!',
       });
     });
 
-    it('should handle nested action definitions', () => {
+    it('should handle nested action definitions', async () => {
       citrusTestEntity.test.actions.push({
         iterate: {
           condition: 'i < 5',
@@ -251,14 +251,14 @@ describe('CitrusTestVisualEntity', () => {
         },
       });
 
-      const result = citrusTestEntity.getNodeDefinition('actions.1.iterate.actions.0.print', printActionIds);
+      const result = await citrusTestEntity.fetchNodeDefinition('actions.1.iterate.actions.0.print', printActionIds);
 
       expect(result).toEqual({
         message: '${i}: Hello World!',
       });
     });
 
-    it('should handle test action group definitions', () => {
+    it('should handle test action group definitions', async () => {
       citrusTestEntity.test.actions.push({
         http: {
           client: 'fooClient',
@@ -270,7 +270,7 @@ describe('CitrusTestVisualEntity', () => {
         },
       });
 
-      const result = citrusTestEntity.getNodeDefinition('actions.1.http-sendRequest', {
+      const result = await citrusTestEntity.fetchNodeDefinition('actions.1.http-sendRequest', {
         primaryNodeId: { name: 'http-sendRequest', catalogKind: CatalogKind.TestAction },
       });
 

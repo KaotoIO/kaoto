@@ -15,6 +15,7 @@
 */
 import './DataMapperLauncher.scss';
 
+import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 import { Alert, Button, Checkbox, FormGroup, HelperText, HelperTextItem, Popover } from '@patternfly/react-core';
 import { HelpIcon, WrenchIcon } from '@patternfly/react-icons';
@@ -61,7 +62,10 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
   const showOutputValidation = false as boolean;
 
   const xsltDocumentName = useMemo(() => {
-    const xsltComponent = vizNode?.getNodeDefinition()?.steps?.find(isXSLTComponent) as XsltComponentDef;
+    const defModel = vizNode?.data.definition as Record<string, unknown> | undefined;
+    const xsltComponent = (defModel?.steps as ProcessorDefinition[] | undefined)?.find(isXSLTComponent) as
+      | XsltComponentDef
+      | undefined;
     const fileName = DataMapperStepService.getXsltFileName(xsltComponent);
     // Use local state if set, otherwise use the value from vizNode
     return currentFileName ?? fileName;
@@ -188,7 +192,7 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
   );
 
   const onClick = useCallback(async () => {
-    await navigate(`${Links.DataMapper}/${vizNode?.getNodeDefinition()?.id}`);
+    await navigate(`${Links.DataMapper}/${(vizNode?.data.definition as Record<string, unknown> | undefined)?.id}`);
   }, [navigate, vizNode]);
 
   if (!isDefined(metadata)) {

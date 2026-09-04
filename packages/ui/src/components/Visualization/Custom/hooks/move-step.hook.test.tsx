@@ -70,7 +70,7 @@ describe('useMoveStep', () => {
   };
 
   beforeEach(() => {
-    vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue({ id: 'testSchema' });
+    (vizNode as IVisualizationNode).data.definition = { id: 'testSchema' };
     vi.clearAllMocks();
   });
 
@@ -207,10 +207,9 @@ describe('useMoveStep', () => {
       const VizNodePasteBaseEntityStepSpy = vi.spyOn(vizNode, 'pasteBaseEntityStep');
 
       const targetVizNode = {
-        data: {},
+        data: { definition: { id: 'test' } },
         getCopiedContent: vi.fn().mockReturnValue(undefined),
         pasteBaseEntityStep: vi.fn(),
-        getNodeDefinition: vi.fn().mockReturnValue({ id: 'test' }),
       } as unknown as IVisualizationNode;
 
       mockGetPotentialPath.mockReturnValue('route.from.steps.2');
@@ -241,6 +240,10 @@ describe('useMoveStep', () => {
         description: '',
         primaryNodeId: { name: 'kaoto-datamapper', catalogKind: CatalogKind.Processor },
       });
+      (dataMapperVizNode as IVisualizationNode).data.definition = {
+        id: 'kaoto-datamapper-657b6637',
+        steps: [{ to: { uri: 'xslt-saxon' } }],
+      };
 
       const dataMapperVizNodeCopiedContent = {
         name: 'kaoto-datamapper',
@@ -302,10 +305,9 @@ describe('useMoveStep', () => {
       const dataMapperVizNodePasteBaseEntityStepSpy = vi.spyOn(dataMapperVizNode, 'pasteBaseEntityStep');
 
       const targetVizNode = {
-        data: {},
+        data: { definition: { id: 'test' } },
         getCopiedContent: vi.fn().mockReturnValue(targetVizNodeCopiedContent),
         pasteBaseEntityStep: vi.fn(),
-        getNodeDefinition: vi.fn().mockReturnValue({ id: 'test' }),
       } as unknown as IVisualizationNode;
 
       mockGetPotentialPath.mockReturnValue('route.from.steps.1');
@@ -334,10 +336,9 @@ describe('useMoveStep', () => {
       const VizNodePasteBaseEntityStepSpy = vi.spyOn(vizNode, 'pasteBaseEntityStep');
 
       const targetVizNode = {
-        data: {},
+        data: { definition: { id: 'test' } },
         getCopiedContent: vi.fn().mockReturnValue(targetVizNodeCopiedContent),
         pasteBaseEntityStep: vi.fn(),
-        getNodeDefinition: vi.fn().mockReturnValue({ id: 'test' }),
       } as unknown as IVisualizationNode;
 
       mockGetPotentialPath.mockReturnValue('route.from.steps.2');

@@ -14,9 +14,11 @@ export function applyCollapseState(controller: Controller): void {
   const collapsedIds = controller.getState<CollapseHandlerState>()[COLLAPSE_STATE];
   if (collapsedIds?.length) {
     collapsedIds.forEach((id) => {
-      const node = controller
-        .getElements()
-        .find((el) => isNode(el) && (el.getData()?.vizNode as IVisualizationNode)?.getNodeDefinition()?.id === id);
+      const node = controller.getElements().find((el) => {
+        const vNode = el.getData()?.vizNode as IVisualizationNode | undefined;
+        const def = vNode?.data?.definition;
+        return isNode(el) && (def as { id?: string } | undefined)?.id === id;
+      });
       if (node) {
         (node as Node).setCollapsed(true);
         (node as Node).setDimensions(

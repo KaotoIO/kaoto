@@ -89,12 +89,11 @@ export class PipeVisualEntity implements BaseVisualEntity {
     return definition?.propertiesSchema;
   }
 
-  getNodeDefinition(path?: string): unknown {
+  async fetchNodeDefinition(path?: string): Promise<unknown> {
     if (!path) return undefined;
     if (path === this.getRootPath()) {
       return getCustomSchemaFromPipe(this.pipe);
     }
-
     const stepModel: PipeStep = getValue(this.pipe.spec, path);
     return stepModel?.properties ?? {};
   }
@@ -221,7 +220,7 @@ export class PipeVisualEntity implements BaseVisualEntity {
   }
 
   async getNodeValidationText(path?: string, schema?: KaotoSchemaDefinition['schema']): Promise<string | undefined> {
-    const definition = this.getNodeDefinition(path);
+    const definition = await this.fetchNodeDefinition(path);
     if (!schema || !definition) return undefined;
 
     return await ModelValidationService.validateNodeStatus(schema, definition);

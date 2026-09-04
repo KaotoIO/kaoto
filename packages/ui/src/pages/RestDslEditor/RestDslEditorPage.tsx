@@ -12,7 +12,6 @@ import { useEntityContext } from '../../hooks/useEntityContext/useEntityContext'
 import { CatalogKind } from '../../models/catalog-kind';
 import { EntityType } from '../../models/entities';
 import { KaotoSchemaDefinition } from '../../models/kaoto-schema';
-import { CamelRestConfigurationVisualEntity } from '../../models/visualization/flows/camel-rest-configuration-visual-entity';
 import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';
 import { AddMethodFormModel } from './components/add-method-schema';
 import { AddMethodModal } from './components/AddMethodModal';
@@ -41,6 +40,7 @@ export const RestDslEditorPage: FunctionComponent = () => {
   const name = ids?.primaryNodeId?.name;
 
   const selectedEntity = restRelatedEntities.find((entity) => entity.id === entityId);
+  const parsedModel = selectedEntity?.getNodeDefinition(modelPath, ids);
 
   useEffect(() => {
     let cancelled = false;
@@ -57,32 +57,6 @@ export const RestDslEditorPage: FunctionComponent = () => {
       })
       .finally(() => {
         if (!cancelled) setIsSchemaLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedEntity, entityId, modelPath, name]);
-
-  const [parsedModel, setParsedModel] = useState<unknown>(undefined);
-
-  useEffect(() => {
-    let cancelled = false;
-    setParsedModel(undefined);
-    if (!selectedEntity || !modelPath || !ids) return;
-
-    if (selectedEntity instanceof CamelRestConfigurationVisualEntity) {
-      setParsedModel(selectedEntity.getNodeDefinition());
-      return;
-    }
-
-    selectedEntity
-      .getParsedDefinition(modelPath, ids)
-      .then((resolved) => {
-        if (!cancelled) setParsedModel(resolved);
-      })
-      .catch((err) => {
-        console.error('Failed to fetch parsed definition:', err);
       });
     return () => {
       cancelled = true;

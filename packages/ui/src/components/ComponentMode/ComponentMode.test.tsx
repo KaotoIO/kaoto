@@ -1,4 +1,4 @@
-import { render, waitFor } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Mock, MockedFunction, vi } from 'vitest';
 
@@ -40,9 +40,8 @@ describe('ComponentMode', () => {
       description: '',
       iconUrl: '',
     });
-    vi.spyOn(node, 'getNodeDefinition').mockReturnValue({});
     vi.spyOn(node, 'updateModel').mockImplementation(vi.fn());
-    (node as IVisualizationNode).getParsedDefinition = vi.fn().mockResolvedValue({});
+    (node as IVisualizationNode).data.definition = {};
     return node;
   };
 
@@ -95,11 +94,6 @@ describe('ComponentMode', () => {
     const pollButton = wrapper.getByText('Poll');
     expect(pollButton).toBeInTheDocument();
 
-    // Wait for getParsedDefinition to be called, then flush the resolved promise into React state
-    await waitFor(() => {
-      expect(vizNode.getParsedDefinition as ReturnType<typeof vi.fn>).toHaveBeenCalled();
-    });
-
     await user.click(pollButton);
 
     expect(vizNode.updateModel).toHaveBeenCalledWith(undefined);
@@ -114,11 +108,6 @@ describe('ComponentMode', () => {
 
     const toDButton = wrapper.getByText('Dynamic');
     expect(toDButton).toBeInTheDocument();
-
-    // Wait for useParsedDefinition to resolve before clicking
-    await waitFor(() => {
-      expect(vizNode.getParsedDefinition as ReturnType<typeof vi.fn>).toHaveBeenCalled();
-    });
 
     await user.click(toDButton);
 
@@ -135,11 +124,6 @@ describe('ComponentMode', () => {
     const toButton = wrapper.getByText('Static');
     expect(toButton).toBeInTheDocument();
 
-    // Wait for useParsedDefinition to resolve and flush the state update into the closure
-    await waitFor(() => {
-      expect(vizNode.getParsedDefinition as ReturnType<typeof vi.fn>).toHaveBeenCalled();
-    });
-
     await user.click(toButton);
 
     expect(vizNode.updateModel).toHaveBeenCalledWith(undefined);
@@ -154,11 +138,6 @@ describe('ComponentMode', () => {
 
     const toButton = wrapper.getByText('Static');
     expect(toButton).toBeInTheDocument();
-
-    // Wait for useParsedDefinition to resolve and flush the state update into the closure
-    await waitFor(() => {
-      expect(vizNode.getParsedDefinition as ReturnType<typeof vi.fn>).toHaveBeenCalled();
-    });
 
     await user.click(toButton);
 

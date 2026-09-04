@@ -84,10 +84,10 @@ describe('CamelRouteConfigurationVisualEntity', () => {
     expect(entity.getNodeLabel('routeConfiguration.placeholder')).toBe('Add configuration');
   });
 
-  it('should return entity current definition', () => {
+  it('should return entity current definition', async () => {
     const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
 
-    expect(entity.getNodeDefinition(CamelRouteConfigurationVisualEntity.ROOT_PATH)).toEqual(
+    expect(await entity.fetchNodeDefinition(CamelRouteConfigurationVisualEntity.ROOT_PATH)).toEqual(
       routeConfigurationDef.routeConfiguration,
     );
   });
@@ -278,6 +278,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
           'routeConfiguration: Defines reusable configuration that is automatically applied to matching routes, such as shared error handling or interceptors',
         processorIconTooltip: '',
         schema: expect.any(Object),
+        definition: expect.any(Object),
       });
     });
 

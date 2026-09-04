@@ -1,13 +1,12 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 
-import { createVisualizationNode, IVisualizationNode } from '../models';
+import { createVisualizationNode } from '../models';
 import { DocumentDefinitionType } from '../models/datamapper/document';
 import { IDocumentMetadata } from '../models/datamapper/metadata';
 import { EntitiesContextResult } from '../providers';
 import { DataMapperValidationStepService } from './datamapper-validation-step.service';
 
 describe('DataMapperValidationStepService', () => {
-  let vizNode: IVisualizationNode;
   let mockEntitiesContext: Mocked<EntitiesContextResult>;
 
   const xmlMetadata = { type: DocumentDefinitionType.XML_SCHEMA, filePath: ['ShipOrder.xsd'] } as IDocumentMetadata;
@@ -20,15 +19,18 @@ describe('DataMapperValidationStepService', () => {
     steps: stepUris.map((uri) => ({ to: { uri } }) as ProcessorDefinition),
   });
 
-  beforeEach(() => {
-    vizNode = createVisualizationNode('test', {
+  const createVizNode = (model: ReturnType<typeof createModel>) =>
+    createVisualizationNode('test', {
       name: 'step',
       isPlaceholder: false,
       isGroup: false,
       title: '',
       description: '',
       iconUrl: '',
+      definition: model,
     });
+
+  beforeEach(() => {
     mockEntitiesContext = {
       updateSourceCodeFromEntities: vi.fn(),
     } as unknown as Mocked<EntitiesContextResult>;
@@ -41,14 +43,14 @@ describe('DataMapperValidationStepService', () => {
   describe('getValidationStep', () => {
     it('should return undefined when only XSLT step is present', () => {
       const model = createModel('xslt-saxon:transform.xsl');
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVizNode(model);
 
       expect(DataMapperValidationStepService.getValidationStep(vizNode)).toBeUndefined();
     });
 
     it('should return the validator step when present', () => {
       const model = createModel('xslt-saxon:transform.xsl', 'validator:ShipOrder.xsd');
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVizNode(model);
 
       const result = DataMapperValidationStepService.getValidationStep(vizNode);
       expect(result).toBeDefined();
@@ -57,7 +59,7 @@ describe('DataMapperValidationStepService', () => {
 
     it('should return the json-validator step when present', () => {
       const model = createModel('xslt-saxon:transform.xsl', 'json-validator:schema.json');
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVizNode(model);
 
       const result = DataMapperValidationStepService.getValidationStep(vizNode);
       expect(result).toBeDefined();
@@ -68,21 +70,21 @@ describe('DataMapperValidationStepService', () => {
   describe('isValidationEnabled', () => {
     it('should return false when no validator step is present', () => {
       const model = createModel('xslt-saxon:transform.xsl');
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVizNode(model);
 
       expect(DataMapperValidationStepService.isValidationEnabled(vizNode)).toBe(false);
     });
 
     it('should return true when validator step is present', () => {
       const model = createModel('xslt-saxon:transform.xsl', 'validator:ShipOrder.xsd');
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVizNode(model);
 
       expect(DataMapperValidationStepService.isValidationEnabled(vizNode)).toBe(true);
     });
 
     it('should return true when json-validator step is present', () => {
       const model = createModel('xslt-saxon:transform.xsl', 'json-validator:schema.json');
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVizNode(model);
 
       expect(DataMapperValidationStepService.isValidationEnabled(vizNode)).toBe(true);
     });
@@ -91,7 +93,7 @@ describe('DataMapperValidationStepService', () => {
   describe('addValidationStep', () => {
     it('should add validator step for XML_SCHEMA target', () => {
       const model = createModel('xslt-saxon:transform.xsl');
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVizNode(model);
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperValidationStepService.addValidationStep(vizNode, xmlMetadata, mockEntitiesContext);
@@ -105,7 +107,7 @@ describe('DataMapperValidationStepService', () => {
 
     it('should add json-validator step for JSON_SCHEMA target', () => {
       const model = createModel('xslt-saxon:transform.xsl');
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVizNode(model);
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperValidationStepService.addValidationStep(vizNode, jsonMetadata, mockEntitiesContext);
@@ -118,7 +120,7 @@ describe('DataMapperValidationStepService', () => {
 
     it('should generate step ID starting with kaoto-datamapper-validator- for XML target', () => {
       const model = createModel('xslt-saxon:transform.xsl');
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVizNode(model);
 
       DataMapperValidationStepService.addValidationStep(vizNode, xmlMetadata, mockEntitiesContext);
 
@@ -128,7 +130,7 @@ describe('DataMapperValidationStepService', () => {
 
     it('should generate step ID starting with kaoto-datamapper-json-validator- for JSON target', () => {
       const model = createModel('xslt-saxon:transform.xsl');
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVizNode(model);
 
       DataMapperValidationStepService.addValidationStep(vizNode, jsonMetadata, mockEntitiesContext);
 
@@ -138,7 +140,7 @@ describe('DataMapperValidationStepService', () => {
 
     it('should do nothing for Primitive target', () => {
       const model = createModel('xslt-saxon:transform.xsl');
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVizNode(model);
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperValidationStepService.addValidationStep(vizNode, primitiveMetadata, mockEntitiesContext);
@@ -150,7 +152,7 @@ describe('DataMapperValidationStepService', () => {
 
     it('should do nothing when filePath is empty', () => {
       const model = createModel('xslt-saxon:transform.xsl');
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVizNode(model);
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperValidationStepService.addValidationStep(vizNode, emptyFilePathMetadata, mockEntitiesContext);
@@ -164,7 +166,7 @@ describe('DataMapperValidationStepService', () => {
   describe('removeValidationStep', () => {
     it('should remove validator step and preserve XSLT step', () => {
       const model = createModel('xslt-saxon:transform.xsl', 'validator:ShipOrder.xsd');
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVizNode(model);
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperValidationStepService.removeValidationStep(vizNode, mockEntitiesContext);
@@ -177,7 +179,7 @@ describe('DataMapperValidationStepService', () => {
 
     it('should remove json-validator step and preserve XSLT step', () => {
       const model = createModel('xslt-saxon:transform.xsl', 'json-validator:schema.json');
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVizNode(model);
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperValidationStepService.removeValidationStep(vizNode, mockEntitiesContext);
@@ -190,7 +192,7 @@ describe('DataMapperValidationStepService', () => {
 
     it('should do nothing when no validator step is present', () => {
       const model = createModel('xslt-saxon:transform.xsl');
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVizNode(model);
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperValidationStepService.removeValidationStep(vizNode, mockEntitiesContext);
@@ -204,7 +206,7 @@ describe('DataMapperValidationStepService', () => {
   describe('updateValidationStep', () => {
     it('should update URI when file changes for same type (XML)', () => {
       const model = createModel('xslt-saxon:transform.xsl', 'validator:Old.xsd');
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVizNode(model);
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
       const newMetadata = { type: DocumentDefinitionType.XML_SCHEMA, filePath: ['New.xsd'] } as IDocumentMetadata;
 
@@ -217,7 +219,7 @@ describe('DataMapperValidationStepService', () => {
 
     it('should update URI when file changes for same type (JSON)', () => {
       const model = createModel('xslt-saxon:transform.xsl', 'json-validator:old-schema.json');
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVizNode(model);
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
       const newMetadata = {
         type: DocumentDefinitionType.JSON_SCHEMA,
@@ -233,7 +235,7 @@ describe('DataMapperValidationStepService', () => {
 
     it('should replace step in place when type changes from XML to JSON', () => {
       const model = createModel('xslt-saxon:transform.xsl', 'validator:ShipOrder.xsd');
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVizNode(model);
 
       DataMapperValidationStepService.updateValidationStep(vizNode, jsonMetadata, mockEntitiesContext);
 
@@ -244,7 +246,7 @@ describe('DataMapperValidationStepService', () => {
 
     it('should replace step in place when type changes from JSON to XML', () => {
       const model = createModel('xslt-saxon:transform.xsl', 'json-validator:schema.json');
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVizNode(model);
 
       DataMapperValidationStepService.updateValidationStep(vizNode, xmlMetadata, mockEntitiesContext);
 
@@ -255,7 +257,7 @@ describe('DataMapperValidationStepService', () => {
 
     it('should remove step when target becomes Primitive', () => {
       const model = createModel('xslt-saxon:transform.xsl', 'validator:ShipOrder.xsd');
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVizNode(model);
 
       DataMapperValidationStepService.updateValidationStep(vizNode, primitiveMetadata, mockEntitiesContext);
 
@@ -265,7 +267,7 @@ describe('DataMapperValidationStepService', () => {
 
     it('should do nothing when no existing validator step', () => {
       const model = createModel('xslt-saxon:transform.xsl');
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVizNode(model);
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperValidationStepService.updateValidationStep(vizNode, xmlMetadata, mockEntitiesContext);

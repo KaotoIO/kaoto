@@ -202,17 +202,17 @@ describe('Pipe', () => {
     });
   });
 
-  describe('getNodeDefinition', () => {
-    it('should return undefined if no path is provided', () => {
-      expect(pipeVisualEntity.getNodeDefinition()).toBeUndefined();
+  describe('fetchNodeDefinition', () => {
+    it('should return undefined if no path is provided', async () => {
+      expect(await pipeVisualEntity.fetchNodeDefinition()).toBeUndefined();
     });
 
-    it('should return custom schema from pipe when path is root path', () => {
-      const result = pipeVisualEntity.getNodeDefinition('pipe');
+    it('should return custom schema from pipe when path is root path', async () => {
+      const result = await pipeVisualEntity.fetchNodeDefinition('pipe');
       expect(result).toBeDefined();
     });
 
-    it('should return empty object when step has no properties', () => {
+    it('should return empty object when step has no properties', async () => {
       pipeVisualEntity.pipe.spec!.steps!.push({
         ref: {
           apiVersion: 'camel.apache.org/v1',
@@ -220,12 +220,12 @@ describe('Pipe', () => {
           name: 'log-action',
         },
       });
-      const result = pipeVisualEntity.getNodeDefinition('steps.1');
+      const result = await pipeVisualEntity.fetchNodeDefinition('steps.1');
 
       expect(result).toEqual({});
     });
 
-    it('should return the node definition', () => {
+    it('should return the node definition', async () => {
       pipeVisualEntity.pipe.spec!.steps!.push({
         ref: {
           apiVersion: 'camel.apache.org/v1',
@@ -238,7 +238,7 @@ describe('Pipe', () => {
           showHeaders: true,
         },
       });
-      const result = pipeVisualEntity.getNodeDefinition('steps.1');
+      const result = await pipeVisualEntity.fetchNodeDefinition('steps.1');
 
       expect(result).toEqual({
         level: 'DEBUG',

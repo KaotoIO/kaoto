@@ -32,7 +32,7 @@ export const usePasteStep = (vizNode: IVisualizationNode, mode: AddStepMode) => 
       const filter = entitiesContext.camelResource.getCompatibleComponents(
         mode,
         vizNode.data,
-        vizNode.getNodeDefinition(),
+        vizNode.data?.definition,
       );
       return catalogModalContext?.checkCompatibility(pastedNodeValue.name, filter) ?? false;
     },

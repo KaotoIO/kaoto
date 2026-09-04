@@ -1,13 +1,12 @@
 import { setValue } from '@kaoto/forms';
 import { useCallback, useContext, useMemo, useRef } from 'react';
 
-import { useParsedDefinition } from '../../../../hooks/useParsedDefinition';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 
 export const useDisableStep = (vizNode: IVisualizationNode) => {
   const entitiesContext = useContext(EntitiesContext);
-  const parsedDefinition = useParsedDefinition(vizNode);
+  const parsedDefinition = vizNode.data.definition as Record<string, unknown> | undefined;
   const isDisabled = !!parsedDefinition?.disabled;
 
   const parsedDefinitionRef = useRef(parsedDefinition);
@@ -17,7 +16,8 @@ export const useDisableStep = (vizNode: IVisualizationNode) => {
   isDisabledRef.current = isDisabled;
 
   const onToggleDisableNode = useCallback(() => {
-    const newModel = parsedDefinitionRef.current ?? vizNode.getNodeDefinition();
+    const newModel = parsedDefinitionRef.current;
+    if (!newModel) return;
     setValue(newModel, 'disabled', !isDisabledRef.current);
     vizNode.updateModel(newModel);
     entitiesContext?.updateEntitiesFromCamelResource();

@@ -4,6 +4,7 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { EntityType } from '../../../../models/entities';
+import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
 import { createMockEntitiesContext } from '../../../../stubs';
@@ -129,7 +130,7 @@ describe('useEnableAllSteps', () => {
       title: '',
       description: '',
     });
-    enabledNode.getNodeDefinition = vi.fn().mockReturnValue({ disabled: false });
+    (enabledNode as IVisualizationNode).data.definition = { disabled: false };
 
     const disabledNode = createVisualizationNode('disabled', {
       name: EntityType.Route,
@@ -140,13 +141,13 @@ describe('useEnableAllSteps', () => {
       title: '',
       description: '',
     });
-    disabledNode.getNodeDefinition = vi.fn().mockReturnValue({ disabled: true });
+    (disabledNode as IVisualizationNode).data.definition = { disabled: true };
 
     expect(filterFunction?.(enabledNode)).toBe(false);
     expect(filterFunction?.(disabledNode)).toBe(true);
   });
 
-  it('should enable all disabled steps when onEnableAllSteps is called', async () => {
+  it('should enable all disabled steps when onEnableAllSteps is called', () => {
     const disabledNode1 = createVisualizationNode('disabled-step-1', {
       name: EntityType.Route,
       disabled: true,
@@ -157,7 +158,7 @@ describe('useEnableAllSteps', () => {
       description: '',
     });
     const mockDefinition1 = { disabled: true, id: 'step1' };
-    disabledNode1.getNodeDefinition = vi.fn().mockReturnValue(mockDefinition1);
+    (disabledNode1 as IVisualizationNode).data.definition = mockDefinition1;
     disabledNode1.updateModel = vi.fn();
 
     const disabledNode2 = createVisualizationNode('disabled-step-2', {
@@ -170,15 +171,15 @@ describe('useEnableAllSteps', () => {
       description: '',
     });
     const mockDefinition2 = { disabled: true, id: 'step2' };
-    disabledNode2.getNodeDefinition = vi.fn().mockReturnValue(mockDefinition2);
+    (disabledNode2 as IVisualizationNode).data.definition = mockDefinition2;
     disabledNode2.updateModel = vi.fn();
 
     mockGetVisualizationNodesFromGraph.mockReturnValue([disabledNode1, disabledNode2]);
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
-    await act(async () => {
-      await result.current.onEnableAllSteps();
+    act(() => {
+      result.current.onEnableAllSteps();
     });
 
     expect(mockSetValue).toHaveBeenCalledTimes(2);
@@ -189,7 +190,7 @@ describe('useEnableAllSteps', () => {
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
   });
 
-  it('should handle nodes with empty definition objects', async () => {
+  it('should handle nodes with empty definition objects', () => {
     const disabledNode = createVisualizationNode('disabled-step', {
       name: EntityType.Route,
       isPlaceholder: false,
@@ -199,15 +200,15 @@ describe('useEnableAllSteps', () => {
       description: '',
     });
     const mockDefinition = {};
-    disabledNode.getNodeDefinition = vi.fn().mockReturnValue(mockDefinition);
+    (disabledNode as IVisualizationNode).data.definition = mockDefinition;
     disabledNode.updateModel = vi.fn();
 
     mockGetVisualizationNodesFromGraph.mockReturnValue([disabledNode]);
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
-    await act(async () => {
-      await result.current.onEnableAllSteps();
+    act(() => {
+      result.current.onEnableAllSteps();
     });
 
     expect(mockSetValue).toHaveBeenCalledWith(mockDefinition, 'disabled', false);
@@ -215,7 +216,7 @@ describe('useEnableAllSteps', () => {
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
   });
 
-  it('should handle nodes with undefined definition', async () => {
+  it('should handle nodes with undefined definition', () => {
     const disabledNode = createVisualizationNode('disabled-step', {
       name: EntityType.Route,
       isPlaceholder: false,
@@ -224,15 +225,15 @@ describe('useEnableAllSteps', () => {
       title: '',
       description: '',
     });
-    disabledNode.getNodeDefinition = vi.fn().mockReturnValue(undefined);
+    (disabledNode as IVisualizationNode).data.definition = undefined;
     disabledNode.updateModel = vi.fn();
 
     mockGetVisualizationNodesFromGraph.mockReturnValue([disabledNode]);
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
-    await act(async () => {
-      await result.current.onEnableAllSteps();
+    act(() => {
+      result.current.onEnableAllSteps();
     });
 
     expect(mockSetValue).toHaveBeenCalledWith({}, 'disabled', false);
@@ -240,12 +241,12 @@ describe('useEnableAllSteps', () => {
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
   });
 
-  it('should not call updateEntitiesFromCamelResource when no disabled steps', async () => {
+  it('should not call updateEntitiesFromCamelResource when no disabled steps', () => {
     mockGetVisualizationNodesFromGraph.mockReturnValue([]);
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
-    void result.current.onEnableAllSteps();
+    result.current.onEnableAllSteps();
 
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
   });
@@ -278,7 +279,7 @@ describe('useEnableAllSteps', () => {
       title: '',
       description: '',
     });
-    disabledNode1.getNodeDefinition = vi.fn().mockReturnValue({ disabled: true });
+    (disabledNode1 as IVisualizationNode).data.definition = { disabled: true };
     const disabledNode2 = createVisualizationNode('disabled-step-2', {
       name: EntityType.Route,
       isPlaceholder: false,
@@ -287,7 +288,7 @@ describe('useEnableAllSteps', () => {
       title: '',
       description: '',
     });
-    disabledNode2.getNodeDefinition = vi.fn().mockReturnValue({ disabled: true });
+    (disabledNode2 as IVisualizationNode).data.definition = { disabled: true };
 
     mockGetVisualizationNodesFromGraph.mockReturnValue([disabledNode1, disabledNode2]);
 

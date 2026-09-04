@@ -123,10 +123,9 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualEntity {
     return definition?.propertiesSchema;
   }
 
-  getNodeDefinition(): unknown {
+  async fetchNodeDefinition(): Promise<unknown> {
     return { ...this.errorHandlerDef.errorHandler };
   }
-
   getOmitFormFields(): string[] {
     return [];
   }

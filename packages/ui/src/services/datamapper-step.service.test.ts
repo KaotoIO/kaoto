@@ -1,7 +1,7 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 
 import { DynamicCatalogRegistry } from '../dynamic-catalog/dynamic-catalog-registry';
-import { CatalogKind, createVisualizationNode, IVisualizationNode } from '../models';
+import { CatalogKind, createVisualizationNode } from '../models';
 import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../models/datamapper/document';
 import { EntitiesContextResult } from '../providers';
 import { XSLT_COMPONENT_NAME, XsltComponentDef } from '../utils';
@@ -31,8 +31,8 @@ describe('DataMapperStepService', () => {
         title: '',
         description: '',
         iconUrl: '',
+        definition: { id: 'custom-metadata-id' },
       });
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue({ id: 'custom-metadata-id' });
 
       const metadataId = DataMapperStepService.getDataMapperMetadataId(vizNode);
 
@@ -41,19 +41,7 @@ describe('DataMapperStepService', () => {
   });
 
   describe('initializeXsltStep', () => {
-    let vizNode: IVisualizationNode;
     const metadataId = 'test-metadata-id';
-
-    beforeEach(() => {
-      vizNode = createVisualizationNode('test', {
-        name: 'step',
-        isPlaceholder: false,
-        isGroup: false,
-        title: '',
-        description: '',
-        iconUrl: '',
-      });
-    });
 
     it('should initialize XSLT step with document name based on metadata ID', () => {
       const model = {
@@ -67,7 +55,15 @@ describe('DataMapperStepService', () => {
         ],
       };
 
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+        definition: model,
+      });
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       const documentName = DataMapperStepService.initializeXsltStep(vizNode, metadataId, mockEntitiesContext);
@@ -93,7 +89,15 @@ describe('DataMapperStepService', () => {
         ],
       };
 
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+        definition: model,
+      });
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       const documentName = DataMapperStepService.initializeXsltStep(vizNode, metadataId, mockEntitiesContext);
@@ -216,19 +220,6 @@ describe('DataMapperStepService', () => {
   });
 
   describe('setUseJsonBody', () => {
-    let vizNode: IVisualizationNode;
-
-    beforeEach(() => {
-      vizNode = createVisualizationNode('test', {
-        name: 'step',
-        isPlaceholder: false,
-        isGroup: false,
-        title: '',
-        description: '',
-        iconUrl: '',
-      });
-    });
-
     it('should set useJsonBody parameter when isUseJsonBody is true', () => {
       const model = {
         id: 'step-id',
@@ -242,7 +233,15 @@ describe('DataMapperStepService', () => {
         ],
       };
 
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+        definition: model,
+      });
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperStepService.setUseJsonBody(vizNode, true, mockEntitiesContext);
@@ -278,7 +277,15 @@ describe('DataMapperStepService', () => {
         ],
       };
 
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+        definition: model,
+      });
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperStepService.setUseJsonBody(vizNode, false, mockEntitiesContext);
@@ -304,7 +311,15 @@ describe('DataMapperStepService', () => {
         ],
       };
 
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+        definition: model,
+      });
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperStepService.setUseJsonBody(vizNode, true, mockEntitiesContext);
@@ -336,7 +351,15 @@ describe('DataMapperStepService', () => {
         ],
       };
 
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+        definition: model,
+      });
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperStepService.setUseJsonBody(vizNode, true, mockEntitiesContext);
@@ -355,7 +378,15 @@ describe('DataMapperStepService', () => {
         ],
       };
 
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+        definition: model,
+      });
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperStepService.setUseJsonBody(vizNode, true, mockEntitiesContext);
@@ -366,19 +397,6 @@ describe('DataMapperStepService', () => {
   });
 
   describe('updateXsltFileName', () => {
-    let vizNode: IVisualizationNode;
-
-    beforeEach(() => {
-      vizNode = createVisualizationNode('test', {
-        name: 'step',
-        isPlaceholder: false,
-        isGroup: false,
-        title: '',
-        description: '',
-        iconUrl: '',
-      });
-    });
-
     it('should update XSLT filename in the URI', () => {
       const model = {
         id: 'step-id',
@@ -391,7 +409,15 @@ describe('DataMapperStepService', () => {
         ],
       };
 
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+        definition: model,
+      });
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperStepService.updateXsltFileName(vizNode, 'new-file.xsl', mockEntitiesContext);
@@ -416,7 +442,15 @@ describe('DataMapperStepService', () => {
         ],
       };
 
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+        definition: model,
+      });
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperStepService.updateXsltFileName(vizNode, 'transform.xslt', mockEntitiesContext);
@@ -440,7 +474,15 @@ describe('DataMapperStepService', () => {
         ],
       };
 
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+        definition: model,
+      });
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperStepService.updateXsltFileName(vizNode, 'new-file.xsl', mockEntitiesContext);
@@ -461,7 +503,15 @@ describe('DataMapperStepService', () => {
         ],
       };
 
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+        definition: model,
+      });
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperStepService.updateXsltFileName(vizNode, 'new-file.xsl', mockEntitiesContext);
@@ -472,26 +522,21 @@ describe('DataMapperStepService', () => {
   });
 
   describe('setSourceBody', () => {
-    let vizNode: IVisualizationNode;
-
-    beforeEach(() => {
-      vizNode = createVisualizationNode('test', {
-        name: 'step',
-        isPlaceholder: false,
-        isGroup: false,
-        title: '',
-        description: '',
-        iconUrl: '',
-      });
-    });
-
     it('should set useJsonBody but not insert setBody(null) when source body is JSON_SCHEMA (non-Primitive)', () => {
       const model = {
         id: 'step-id',
         steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl`, parameters: {} } } as ProcessorDefinition],
       };
 
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+        definition: model,
+      });
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       const sourceBodyDocument = new DocumentDefinition(
@@ -519,7 +564,15 @@ describe('DataMapperStepService', () => {
         steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl`, parameters: {} } } as ProcessorDefinition],
       };
 
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+        definition: model,
+      });
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       const sourceBodyDocument = new DocumentDefinition(
@@ -548,7 +601,15 @@ describe('DataMapperStepService', () => {
         ],
       };
 
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+        definition: model,
+      });
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       const sourceBodyDocument = new DocumentDefinition(
@@ -570,7 +631,15 @@ describe('DataMapperStepService', () => {
         steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl`, parameters: {} } } as ProcessorDefinition],
       };
 
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+        definition: model,
+      });
 
       DataMapperStepService.setSourceBody(vizNode, undefined, mockEntitiesContext);
 
@@ -581,25 +650,20 @@ describe('DataMapperStepService', () => {
   });
 
   describe('syncSetBodyNullStep', () => {
-    let vizNode: IVisualizationNode;
-
-    beforeEach(() => {
-      vizNode = createVisualizationNode('test', {
+    it('should insert setBody with ${null} expression at index 0 when body is not used and no managed setBody exists', () => {
+      const model = {
+        id: 'step-id',
+        steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition],
+      };
+      const vizNode = createVisualizationNode('test', {
         name: 'step',
         isPlaceholder: false,
         isGroup: false,
         title: '',
         description: '',
         iconUrl: '',
+        definition: model,
       });
-    });
-
-    it('should insert setBody with ${null} expression at index 0 when body is not used and no managed setBody exists', () => {
-      const model = {
-        id: 'step-id',
-        steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition],
-      };
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperStepService.syncSetBodyNullStep(vizNode, false, mockEntitiesContext);
@@ -616,7 +680,15 @@ describe('DataMapperStepService', () => {
         id: 'step-id',
         steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition],
       };
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+        definition: model,
+      });
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperStepService.syncSetBodyNullStep(vizNode, true, mockEntitiesContext);
@@ -635,7 +707,15 @@ describe('DataMapperStepService', () => {
           { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
         ],
       };
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+        definition: model,
+      });
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperStepService.syncSetBodyNullStep(vizNode, true, mockEntitiesContext);
@@ -656,7 +736,15 @@ describe('DataMapperStepService', () => {
           { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
         ],
       };
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+        definition: model,
+      });
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperStepService.syncSetBodyNullStep(vizNode, true, mockEntitiesContext);
@@ -675,7 +763,15 @@ describe('DataMapperStepService', () => {
           { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
         ],
       };
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+        definition: model,
+      });
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperStepService.syncSetBodyNullStep(vizNode, true, mockEntitiesContext);
@@ -694,7 +790,15 @@ describe('DataMapperStepService', () => {
           { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
         ],
       };
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+        definition: model,
+      });
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperStepService.syncSetBodyNullStep(vizNode, false, mockEntitiesContext);
@@ -705,7 +809,15 @@ describe('DataMapperStepService', () => {
 
     it('should do nothing when steps is undefined', () => {
       const model = { id: 'step-id' };
-      vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+        definition: model,
+      });
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperStepService.syncSetBodyNullStep(vizNode, false, mockEntitiesContext);

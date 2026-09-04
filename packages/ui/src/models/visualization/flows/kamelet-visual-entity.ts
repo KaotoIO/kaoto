@@ -95,12 +95,12 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{
     return await super.fetchNodeSchema(ids);
   }
 
-  getNodeDefinition(path?: string, ids?: IVisualizationNodeIds): unknown {
+  async fetchNodeDefinition(path?: string, ids?: IVisualizationNodeIds): Promise<unknown> {
     if (path === this.getRootPath()) {
       return getCustomSchemaFromKamelet(this.kamelet);
     }
 
-    return super.getNodeDefinition(path, ids);
+    return super.fetchNodeDefinition(path, ids);
   }
 
   getCopiedContent(path?: string, ids?: IVisualizationNodeIds): IClipboardContent | undefined {

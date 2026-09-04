@@ -99,7 +99,7 @@ describe('getVisualizationNodesFromGraph', () => {
     visualizationController.fromModel(model);
 
     const predicate = (vizNode: IVisualizationNode) => {
-      return vizNode.getNodeDefinition()?.disabled;
+      return !!(vizNode.data?.definition as { disabled?: unknown } | undefined)?.disabled;
     };
     const vizNodes = getVisualizationNodesFromGraph(visualizationController.getGraph(), predicate);
 

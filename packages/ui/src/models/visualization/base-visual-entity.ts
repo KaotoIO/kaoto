@@ -33,9 +33,11 @@ export interface BaseVisualEntity extends BaseEntity {
    */
   fetchNodeSchema(ids?: IVisualizationNodeIds): Promise<KaotoSchemaDefinition['schema'] | undefined>;
 
-  /** Given a path, returns the node's underlying definition in JSON format */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getNodeDefinition(path?: string, ids?: IVisualizationNodeIds): any;
+  /**
+   * Async, path + ID-based definition resolution.
+   * Returns the fully normalized definition (string coercion, null-param guard, URI expansion).
+   */
+  fetchNodeDefinition(path?: string, ids?: IVisualizationNodeIds): Promise<unknown>;
 
   /** Return fields that should be omitted when configuring this entity */
   getOmitFormFields: () => string[];
@@ -135,12 +137,8 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   /** This method returns the node's associated schema asynchronously from the catalog */
   fetchSchema(): Promise<KaotoSchemaDefinition['schema'] | undefined>;
 
-  /** This method returns the node's underlying definition in JSON format */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getNodeDefinition(): any;
-
-  /** This method returns the node's parsed definition, with URI fields split into component properties */
-  getParsedDefinition(): Promise<unknown>;
+  /** Returns the node's normalized definition asynchronously */
+  fetchNodeDefinition(): Promise<unknown>;
 
   /** Return fields that should be omitted when configuring this entity */
   getOmitFormFields(): string[];
@@ -246,6 +244,9 @@ export interface IVisualizationNodeData extends IVisualizationNodeIds {
   processorIconTooltip?: string;
   /** Schema resolved from the catalog at mapping time */
   schema?: KaotoSchemaDefinition['schema'];
+
+  /** Normalized definition resolved at enrichment time */
+  definition?: unknown;
 
   /** Alt text for the icon */
   iconAlt?: string;

@@ -185,22 +185,18 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     return CitrusTestSchemaService.getNodeSchema(ids.primaryNodeId.name);
   }
 
-  getNodeDefinition(path?: string, ids?: IVisualizationNodeIds): unknown {
+  async fetchNodeDefinition(path?: string, ids?: IVisualizationNodeIds): Promise<unknown> {
     if (!path || !ids?.primaryNodeId?.name) return undefined;
     if (path === this.getRootPath()) {
       return this.test;
     }
-
     const actionName = ids.primaryNodeId.name;
     const actionModel: TestAction = getValue(this.test, this.toModelPath(path));
-
     if (actionModel) {
       this.updateTestActionModel(path, actionName, actionModel);
     }
-
     return actionModel ?? {};
   }
-
   getOmitFormFields(): string[] {
     return [];
   }
@@ -351,7 +347,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     schema?: KaotoSchemaDefinition['schema'],
     ids?: IVisualizationNodeIds,
   ): Promise<string | undefined> {
-    const definition = this.getNodeDefinition(path, ids);
+    const definition = await this.fetchNodeDefinition(path, ids);
     if (!schema || !definition) return undefined;
 
     return await ModelValidationService.validateNodeStatus(schema, definition);

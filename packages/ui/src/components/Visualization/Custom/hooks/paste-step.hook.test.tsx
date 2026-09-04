@@ -107,6 +107,7 @@ describe('usePasteStep', () => {
   it('should call pasteBaseEntityStep() and updateEntitiesFromCamelResource()', async () => {
     vi.spyOn(navigator.permissions, 'query').mockResolvedValue({ state: 'granted' } as PermissionStatus);
     const mockVizNode = {
+      data: {},
       getNodeDefinition: vi.fn(),
       pasteBaseEntityStep: vi.fn(),
     } as unknown as IVisualizationNode;
@@ -139,6 +140,7 @@ describe('usePasteStep', () => {
   it('should not call pasteBaseEntityStep() and updateEntitiesFromCamelResource()', async () => {
     vi.spyOn(navigator.permissions, 'query').mockRejectedValueOnce(new Error('Permission error'));
     const mockVizNode = {
+      data: {},
       getNodeDefinition: vi.fn(),
       pasteBaseEntityStep: vi.fn(),
     } as unknown as IVisualizationNode;
