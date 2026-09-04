@@ -5,6 +5,7 @@ import { MappingLinksProvider } from '../../providers/data-mapping-links.provide
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { BrowserFilePickerMetadataProvider } from '../../stubs/BrowserFilePickerMetadataProvider';
 import { getCamelYamlDslJsonSchema, getShipOrderJsonSchema, getShipOrderXsd } from '../../stubs/datamapper/data-mapper';
+import { createFile } from '../../stubs/read-file-as-string';
 import { SourceTargetView } from './SourceTargetView';
 
 // Mock ResizeObserver for ExpansionPanels
@@ -21,16 +22,6 @@ beforeAll(() => {
     }
   };
 });
-
-// Helper to create a File with mocked .text() for JSDOM (which lacks File.text())
-const createFile = (content: string, name: string) => {
-  const file = new File([content], name, { type: 'text/plain' });
-  Object.defineProperty(file, 'text', {
-    value: vi.fn().mockResolvedValue(content),
-    configurable: true,
-  });
-  return file;
-};
 
 describe('SourceTargetView', () => {
   // Helper to wrap components with VirtuosoMockContext for testing

@@ -12,19 +12,10 @@ import { MappingSerializerService } from '../../../services/mapping/mapping-seri
 import { MappingLinksService } from '../../../services/visualization/mapping-links.service';
 import { useDocumentTreeStore } from '../../../store';
 import { getShipOrderToShipOrderXslt, TestUtil } from '../../../stubs/datamapper/data-mapper';
+import { createFile } from '../../../stubs/read-file-as-string';
 import { DebugLayout } from './DebugLayout';
 
 const dndHandler = new SourceTargetDnDHandler();
-
-// Helper to create a File with mocked .text() for JSDOM (which lacks File.text())
-const createFile = (content: string, name: string) => {
-  const file = new File([content], name, { type: 'text/plain' });
-  Object.defineProperty(file, 'text', {
-    value: vi.fn().mockResolvedValue(content),
-    configurable: true,
-  });
-  return file;
-};
 
 const TestProviders: FunctionComponent<PropsWithChildren> = ({ children }) => (
   <DataMapperProvider>

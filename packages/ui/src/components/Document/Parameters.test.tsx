@@ -5,6 +5,7 @@ import { MappingLinksProvider } from '../../providers/data-mapping-links.provide
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { BrowserFilePickerMetadataProvider } from '../../stubs/BrowserFilePickerMetadataProvider';
 import { getShipOrderJsonSchema, getShipOrderXsd } from '../../stubs/datamapper/data-mapper';
+import { createFile } from '../../stubs/read-file-as-string';
 import { ExpansionPanels } from '../ExpansionPanels/ExpansionPanels';
 import { ParametersSection } from './Parameters';
 
@@ -18,16 +19,6 @@ describe('ParametersSection', () => {
         </VirtuosoMockContext.Provider>
       ),
     });
-  };
-
-  // Helper to create a File with mocked .text() for JSDOM (which lacks File.text())
-  const createFile = (content: string, name: string) => {
-    const file = new File([content], name, { type: 'text/plain' });
-    Object.defineProperty(file, 'text', {
-      value: vi.fn().mockResolvedValue(content),
-      configurable: true,
-    });
-    return file;
   };
 
   it('should add, rename, and remove a parameter', async () => {
