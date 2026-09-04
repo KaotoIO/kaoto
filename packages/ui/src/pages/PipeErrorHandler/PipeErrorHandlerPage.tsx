@@ -1,32 +1,54 @@
 import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoForm, KaotoFormProps } from '@kaoto/forms';
 import { Content } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
+import { FunctionComponent, Suspense, use, useCallback, useContext, useMemo } from 'react';
 
+import { Loading } from '../../components/Loading';
 import { PipeResource, SourceSchemaType } from '../../models/camel';
-import { CatalogKind } from '../../models/catalog-kind';
 import { KaotoSchemaDefinition } from '../../models/kaoto-schema';
-import { CamelCatalogService } from '../../models/visualization/flows/camel-catalog.service';
-import { EntitiesContext } from '../../providers/entities.provider';
+import { EntitiesContext, EntitiesContextResult } from '../../providers/entities.provider';
+import { PipeErrorHandlerService } from './pipe-error-handler.service';
 
 export const PipeErrorHandlerPage: FunctionComponent = () => {
-  const formTabsValue: CanvasFormTabsContextResult = useMemo(
-    () => ({ selectedTab: 'All', setSelectedTab: () => {} }),
-    [],
-  );
   const entitiesContext = useContext(EntitiesContext);
   const pipeResource = entitiesContext?.camelResource as PipeResource;
-
-  const errorHandlerSchema = (CamelCatalogService.getComponent(CatalogKind.Entity, 'PipeErrorHandler')
-    ?.propertiesSchema || {}) as KaotoSchemaDefinition['schema'];
-
-  if (Array.isArray(errorHandlerSchema.oneOf) && !Array.isArray(errorHandlerSchema.anyOf)) {
-    errorHandlerSchema.anyOf = [{ oneOf: errorHandlerSchema.oneOf }];
-    delete errorHandlerSchema.oneOf;
-  }
 
   const isSupported = useMemo(() => {
     return pipeResource && [SourceSchemaType.Pipe, SourceSchemaType.KameletBinding].includes(pipeResource.getType());
   }, [pipeResource]);
+
+  const errorHandlerSchemaPromise = useMemo(() => {
+    if (!isSupported) {
+      return Promise.resolve(undefined);
+    }
+
+    return PipeErrorHandlerService.getErrorHandlerSchema();
+  }, [isSupported]);
+
+  if (!isSupported) {
+    return <Content>Not applicable</Content>;
+  }
+
+  return (
+    <Suspense fallback={<Loading />}>
+      <PipeErrorHandlerPageInner
+        pipeResource={pipeResource}
+        entitiesContext={entitiesContext!}
+        errorHandlerSchemaPromise={errorHandlerSchemaPromise}
+      />
+    </Suspense>
+  );
+};
+
+const PipeErrorHandlerPageInner: FunctionComponent<{
+  pipeResource: PipeResource;
+  entitiesContext: EntitiesContextResult;
+  errorHandlerSchemaPromise: Promise<KaotoSchemaDefinition['schema'] | undefined>;
+}> = ({ pipeResource, entitiesContext, errorHandlerSchemaPromise }) => {
+  const formTabsValue: CanvasFormTabsContextResult = useMemo(
+    () => ({ selectedTab: 'All', setSelectedTab: () => {} }),
+    [],
+  );
+  const errorHandlerSchema = use(errorHandlerSchemaPromise);
 
   const getErrorHandlerModel = useCallback(() => {
     const found = pipeResource.getErrorHandlerEntity();
@@ -40,14 +62,14 @@ export const PipeErrorHandlerPage: FunctionComponent = () => {
         entity ??= pipeResource.createErrorHandlerEntity();
         entity.parent.errorHandler = model;
       } else {
-        pipeResource!.deleteErrorHandlerEntity();
+        pipeResource.deleteErrorHandlerEntity();
       }
-      entitiesContext!.updateSourceCodeFromEntities();
+      entitiesContext.updateSourceCodeFromEntities();
     },
     [entitiesContext, pipeResource],
   );
 
-  return isSupported ? (
+  return (
     <CanvasFormTabsContext.Provider value={formTabsValue}>
       <KaotoForm
         data-testid="pipe-error-handler-form"
@@ -56,7 +78,5 @@ export const PipeErrorHandlerPage: FunctionComponent = () => {
         onChange={onChangeModel as KaotoFormProps['onChange']}
       />
     </CanvasFormTabsContext.Provider>
-  ) : (
-    <Content>Not applicable</Content>
   );
 };

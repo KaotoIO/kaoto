@@ -5,7 +5,7 @@ import { FunctionComponent, Suspense, use, useContext, useMemo } from 'react';
 import { ParsedParameters } from '../../../../../../utils';
 import { ErrorBoundary } from '../../../../../ErrorBoundary';
 import { Loading } from '../../../../../Loading';
-import { MultiValuePropertyService } from './MultiValueProperty.service';
+import { MultiValuePropertyService } from './multi-value-property.service';
 
 export const MultiValuePropertyEditor: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { schema } = useContext(SchemaContext);

@@ -1,25 +1,54 @@
 import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoForm, KaotoFormProps } from '@kaoto/forms';
 import { Content } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
+import { FunctionComponent, Suspense, use, useCallback, useContext, useMemo } from 'react';
 
+import { Loading } from '../../components/Loading';
 import { CamelKResource, CamelKResourceKinds } from '../../models/camel/camel-k-resource';
-import { CatalogKind } from '../../models/catalog-kind';
 import { KaotoSchemaDefinition } from '../../models/kaoto-schema';
-import { CamelCatalogService } from '../../models/visualization/flows/camel-catalog.service';
-import { EntitiesContext } from '../../providers/entities.provider';
+import { EntitiesContext, EntitiesContextResult } from '../../providers/entities.provider';
+import { MetadataService } from './metadata.service';
 
 export const MetadataPage: FunctionComponent = () => {
-  const formTabsValue: CanvasFormTabsContextResult = useMemo(
-    () => ({ selectedTab: 'All', setSelectedTab: () => {} }),
-    [],
-  );
   const entitiesContext = useContext(EntitiesContext);
   const camelkResource = entitiesContext?.camelResource as CamelKResource;
-  const metadataSchema = CamelCatalogService.getComponent(CatalogKind.Entity, 'ObjectMeta')?.propertiesSchema || {};
 
   const isSupported = useMemo(() => {
     return camelkResource && camelkResource.getType() in CamelKResourceKinds;
   }, [camelkResource]);
+
+  const metadataSchemaPromise = useMemo(() => {
+    if (!isSupported) {
+      return Promise.resolve(undefined);
+    }
+
+    return MetadataService.getMetadataSchema();
+  }, [isSupported]);
+
+  if (!isSupported) {
+    return <Content>Not applicable</Content>;
+  }
+
+  return (
+    <Suspense fallback={<Loading />}>
+      <MetadataPageInner
+        camelkResource={camelkResource}
+        entitiesContext={entitiesContext!}
+        metadataSchemaPromise={metadataSchemaPromise}
+      />
+    </Suspense>
+  );
+};
+
+const MetadataPageInner: FunctionComponent<{
+  camelkResource: CamelKResource;
+  entitiesContext: EntitiesContextResult;
+  metadataSchemaPromise: Promise<KaotoSchemaDefinition['schema'] | undefined>;
+}> = ({ camelkResource, entitiesContext, metadataSchemaPromise }) => {
+  const formTabsValue: CanvasFormTabsContextResult = useMemo(
+    () => ({ selectedTab: 'All', setSelectedTab: () => {} }),
+    [],
+  );
+  const metadataSchema = use(metadataSchemaPromise);
 
   const getMetadataModel = useCallback(() => {
     const found = camelkResource.getMetadataEntity();
@@ -39,21 +68,19 @@ export const MetadataPage: FunctionComponent = () => {
       } else {
         camelkResource.deleteMetadataEntity();
       }
-      entitiesContext?.updateEntitiesFromCamelResource();
+      entitiesContext.updateEntitiesFromCamelResource();
     },
     [camelkResource, entitiesContext],
   );
 
-  return isSupported ? (
+  return (
     <CanvasFormTabsContext.Provider value={formTabsValue}>
       <KaotoForm
         data-testid="metadata-form"
-        schema={metadataSchema as KaotoSchemaDefinition['schema']}
+        schema={metadataSchema}
         model={getMetadataModel()}
         onChange={onChangeModel as KaotoFormProps['onChange']}
       />
     </CanvasFormTabsContext.Provider>
-  ) : (
-    <Content>Not applicable</Content>
   );
 };
