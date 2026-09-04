@@ -9,7 +9,7 @@ import { FunctionComponent, PropsWithChildren, useState } from 'react';
 import type { Mock } from 'vitest';
 
 import { CatalogKind, KaotoSchemaDefinition } from '../../../../../../models';
-import { MultiValuePropertyService } from './MultiValueProperty.service';
+import { MultiValuePropertyService } from './multi-value-property.service';
 import { MultiValuePropertyEditor } from './MultiValuePropertyEditor';
 
 type OnPropertyChange = Mock<(path: string, value: unknown) => void>;

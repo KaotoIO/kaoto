@@ -4,7 +4,7 @@ import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
 import { CatalogKind } from '../../../../../../models';
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../../../../stubs/test-load-catalog';
-import { MultiValuePropertyService } from './MultiValueProperty.service';
+import { MultiValuePropertyService } from './multi-value-property.service';
 
 describe('MultiValuePropertyService', () => {
   beforeAll(async () => {

@@ -9,11 +9,13 @@ import {
   TypeaheadItem,
   useFieldValue,
 } from '@kaoto/forms';
-import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
+import { FunctionComponent, Suspense, use, useCallback, useContext, useMemo, useState } from 'react';
 
+import { KaotoSchemaDefinition } from '../../../../../../models/kaoto-schema';
 import { BeansEntityHandler } from '../../../../../../models/visualization/metadata/beans-entity-handler';
 import { EntitiesContext } from '../../../../../../providers';
 import { getSerializedModel } from '../../../../../../utils';
+import { Loading } from '../../../../../Loading';
 import { NewBeanModal } from './NewBeanModal';
 
 const DEFAULT_DATASOURCE_NAMES = [
@@ -49,20 +51,35 @@ interface BeanFieldProps extends FieldProps {
   defaultItems?: TypeaheadItem<string>[];
 }
 
-const BeanFieldBase: FunctionComponent<BeanFieldProps> = ({
-  propName,
-  required,
-  shouldPrefixBeanName,
-  filterFn,
-  defaultItems = [],
-}) => {
-  const { schema } = useContext(SchemaContext);
-  const { value = '', onChange, disabled } = useFieldValue<string | undefined>(propName);
+const BeanFieldBase: FunctionComponent<BeanFieldProps> = (props) => {
   const entitiesContext = useContext(EntitiesContext);
   const camelResource = entitiesContext?.camelResource;
-  const beanReference = value;
   const beansHandler = useMemo(() => new BeansEntityHandler(camelResource), [camelResource]);
-  const beanSchema = useMemo(() => beansHandler.getBeanSchema(), [beansHandler]);
+  const beanSchemaPromise = useMemo(() => {
+    if (!beansHandler.isSupported()) {
+      return Promise.resolve(undefined);
+    }
+
+    return beansHandler.getBeanSchema();
+  }, [beansHandler]);
+
+  return (
+    <Suspense fallback={<Loading />}>
+      <BeanFieldBaseInner {...props} beansHandler={beansHandler} beanSchemaPromise={beanSchemaPromise} />
+    </Suspense>
+  );
+};
+
+const BeanFieldBaseInner: FunctionComponent<
+  BeanFieldProps & {
+    beansHandler: BeansEntityHandler;
+    beanSchemaPromise: Promise<KaotoSchemaDefinition['schema'] | undefined>;
+  }
+> = ({ propName, required, shouldPrefixBeanName, filterFn, defaultItems = [], beansHandler, beanSchemaPromise }) => {
+  const { schema } = useContext(SchemaContext);
+  const { value = '', onChange, disabled } = useFieldValue<string | undefined>(propName);
+  const beanSchema = use(beanSchemaPromise);
+  const beanReference = value;
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>(beanReference);
   const [lastUpdated, setLastUpdated] = useState<number>(Date.now());

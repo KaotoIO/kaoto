@@ -7,12 +7,12 @@ import { FunctionComponent, ReactElement } from 'react';
 import type { Mock } from 'vitest';
 
 import { useEntityContext } from '../../../../../../hooks/useEntityContext/useEntityContext';
-import { CamelCatalogService, CatalogKind, KaotoSchemaDefinition } from '../../../../../../models';
+import { KaotoSchemaDefinition } from '../../../../../../models';
 import { BeansEntity } from '../../../../../../models/visualization/metadata';
 import { EntitiesContextResult } from '../../../../../../providers';
 import { DocumentationService } from '../../../../../../services/documentation.service';
 import { TestProvidersWrapper } from '../../../../../../stubs';
-import { getFirstCatalogMap } from '../../../../../../stubs/test-load-catalog';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../../../../stubs/test-load-catalog';
 import { IVisibleFlows, ROOT_PATH } from '../../../../../../utils';
 import { DataSourceBeanField, PrefixedBeanField, UnprefixedBeanField } from './BeanField';
 
@@ -24,10 +24,12 @@ describe('BeanField', () => {
   const refSchema: KaotoSchemaDefinition['schema'] = { title: 'Ref', type: 'string' };
   const beanReferenceSchema: KaotoSchemaDefinition['schema'] = { title: 'Bean Reference', type: 'string' };
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
+    setupDynamicCatalogRegistry(catalogsMap);
+  });
 
+  beforeEach(async () => {
     onPropertyChangeSpy = vi.fn();
     cleanup();
   });
@@ -40,15 +42,18 @@ describe('BeanField', () => {
   ) => {
     const { Provider } = await TestProvidersWrapper();
 
-    render(
-      <Provider>
-        <SchemaProvider schema={schema}>
-          <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
-            {component}
-          </ModelContextProvider>
-        </SchemaProvider>
-      </Provider>,
-    );
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      render(
+        <Provider>
+          <SchemaProvider schema={schema}>
+            <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
+              {component}
+            </ModelContextProvider>
+          </SchemaProvider>
+        </Provider>,
+      );
+    });
 
     formPageObject = new KaotoFormPageObject(screen, act);
 
@@ -77,31 +82,39 @@ describe('BeanField', () => {
     it('should render', async () => {
       const { Provider } = await TestProvidersWrapper();
 
-      const { container } = render(
-        <Provider>
-          <ModelContextProvider model="#dataSource" onPropertyChange={vi.fn()}>
-            <PrefixedBeanField propName={ROOT_PATH} />
-          </ModelContextProvider>
-        </Provider>,
-      );
+      let container: HTMLElement;
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        ({ container } = render(
+          <Provider>
+            <ModelContextProvider model="#dataSource" onPropertyChange={vi.fn()}>
+              <PrefixedBeanField propName={ROOT_PATH} />
+            </ModelContextProvider>
+          </Provider>,
+        ));
+      });
 
-      expect(container).toMatchSnapshot();
+      await screen.findByRole('textbox');
+      expect(container!).toMatchSnapshot();
     });
 
     it('should set the appropriate placeholder', async () => {
       const { Provider } = await TestProvidersWrapper();
 
-      const wrapper = render(
-        <Provider>
-          <ModelContextProvider model={undefined} onPropertyChange={vi.fn()}>
-            <SchemaProvider schema={{ type: 'string', default: 'Default Value' }}>
-              <PrefixedBeanField propName={ROOT_PATH} />
-            </SchemaProvider>
-          </ModelContextProvider>
-        </Provider>,
-      );
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <Provider>
+            <ModelContextProvider model={undefined} onPropertyChange={vi.fn()}>
+              <SchemaProvider schema={{ type: 'string', default: 'Default Value' }}>
+                <PrefixedBeanField propName={ROOT_PATH} />
+              </SchemaProvider>
+            </ModelContextProvider>
+          </Provider>,
+        );
+      });
 
-      const input = wrapper.getByRole('textbox');
+      const input = screen.getByRole('textbox');
       expect(input).toHaveAttribute('placeholder', 'Default Value');
     });
 
@@ -109,13 +122,16 @@ describe('BeanField', () => {
       const onPropertyChangeSpy = vi.fn();
       const { Provider } = await TestProvidersWrapper();
 
-      render(
-        <Provider>
-          <ModelContextProvider model="#dataSource" onPropertyChange={onPropertyChangeSpy}>
-            <PrefixedBeanField propName={ROOT_PATH} />
-          </ModelContextProvider>
-        </Provider>,
-      );
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <Provider>
+            <ModelContextProvider model="#dataSource" onPropertyChange={onPropertyChangeSpy}>
+              <PrefixedBeanField propName={ROOT_PATH} />
+            </ModelContextProvider>
+          </Provider>,
+        );
+      });
 
       const formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.clearForProperty(ROOT_PATH);
@@ -128,15 +144,18 @@ describe('BeanField', () => {
       const onPropertyChangeSpy = vi.fn();
       const { Provider } = await TestProvidersWrapper();
 
-      render(
-        <Provider>
-          <SchemaProvider schema={beanSchema}>
-            <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
-              <PrefixedBeanField propName={ROOT_PATH} />
-            </ModelContextProvider>
-          </SchemaProvider>
-        </Provider>,
-      );
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <Provider>
+            <SchemaProvider schema={beanSchema}>
+              <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
+                <PrefixedBeanField propName={ROOT_PATH} />
+              </ModelContextProvider>
+            </SchemaProvider>
+          </Provider>,
+        );
+      });
 
       const formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
@@ -155,15 +174,18 @@ describe('BeanField', () => {
 
       const { Provider } = await TestProvidersWrapper();
 
-      render(
-        <Provider>
-          <SchemaProvider schema={beanSchema}>
-            <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
-              <PrefixedBeanField propName={ROOT_PATH} />
-            </ModelContextProvider>
-          </SchemaProvider>
-        </Provider>,
-      );
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <Provider>
+            <SchemaProvider schema={beanSchema}>
+              <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
+                <PrefixedBeanField propName={ROOT_PATH} />
+              </ModelContextProvider>
+            </SchemaProvider>
+          </Provider>,
+        );
+      });
 
       formPageObject = new KaotoFormPageObject(screen, act);
     });
@@ -238,15 +260,18 @@ describe('BeanField', () => {
 
       const { Provider } = await TestProvidersWrapper();
       cleanup();
-      render(
-        <Provider>
-          <SchemaProvider schema={beanSchema}>
-            <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
-              <CaptureEntitiesWrapper />
-            </ModelContextProvider>
-          </SchemaProvider>
-        </Provider>,
-      );
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <Provider>
+            <SchemaProvider schema={beanSchema}>
+              <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
+                <CaptureEntitiesWrapper />
+              </ModelContextProvider>
+            </SchemaProvider>
+          </Provider>,
+        );
+      });
       formPageObject = new KaotoFormPageObject(screen, act);
 
       await createBean('myNewBean', 'Bean');
@@ -270,31 +295,39 @@ describe('BeanField', () => {
     it('should render', async () => {
       const { Provider } = await TestProvidersWrapper();
 
-      const { container } = render(
-        <Provider>
-          <ModelContextProvider model="dataSource" onPropertyChange={vi.fn()}>
-            <UnprefixedBeanField propName={ROOT_PATH} />
-          </ModelContextProvider>
-        </Provider>,
-      );
+      let container: HTMLElement;
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        ({ container } = render(
+          <Provider>
+            <ModelContextProvider model="dataSource" onPropertyChange={vi.fn()}>
+              <UnprefixedBeanField propName={ROOT_PATH} />
+            </ModelContextProvider>
+          </Provider>,
+        ));
+      });
 
-      expect(container).toMatchSnapshot();
+      await screen.findByRole('textbox');
+      expect(container!).toMatchSnapshot();
     });
 
     it('should set the appropriate placeholder', async () => {
       const { Provider } = await TestProvidersWrapper();
 
-      const wrapper = render(
-        <Provider>
-          <ModelContextProvider model={undefined} onPropertyChange={vi.fn()}>
-            <SchemaProvider schema={{ type: 'string', default: 'Default Value' }}>
-              <UnprefixedBeanField propName={ROOT_PATH} />
-            </SchemaProvider>
-          </ModelContextProvider>
-        </Provider>,
-      );
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <Provider>
+            <ModelContextProvider model={undefined} onPropertyChange={vi.fn()}>
+              <SchemaProvider schema={{ type: 'string', default: 'Default Value' }}>
+                <UnprefixedBeanField propName={ROOT_PATH} />
+              </SchemaProvider>
+            </ModelContextProvider>
+          </Provider>,
+        );
+      });
 
-      const input = wrapper.getByRole('textbox');
+      const input = screen.getByRole('textbox');
       expect(input).toHaveAttribute('placeholder', 'Default Value');
     });
 
@@ -302,13 +335,16 @@ describe('BeanField', () => {
       const onPropertyChangeSpy = vi.fn();
       const { Provider } = await TestProvidersWrapper();
 
-      render(
-        <Provider>
-          <ModelContextProvider model="dataSource" onPropertyChange={onPropertyChangeSpy}>
-            <UnprefixedBeanField propName={ROOT_PATH} />
-          </ModelContextProvider>
-        </Provider>,
-      );
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <Provider>
+            <ModelContextProvider model="dataSource" onPropertyChange={onPropertyChangeSpy}>
+              <UnprefixedBeanField propName={ROOT_PATH} />
+            </ModelContextProvider>
+          </Provider>,
+        );
+      });
 
       const formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.clearForProperty(ROOT_PATH);
@@ -321,15 +357,18 @@ describe('BeanField', () => {
       const onPropertyChangeSpy = vi.fn();
       const { Provider } = await TestProvidersWrapper();
 
-      render(
-        <Provider>
-          <SchemaProvider schema={refSchema}>
-            <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
-              <UnprefixedBeanField propName={ROOT_PATH} />
-            </ModelContextProvider>
-          </SchemaProvider>
-        </Provider>,
-      );
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <Provider>
+            <SchemaProvider schema={refSchema}>
+              <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
+                <UnprefixedBeanField propName={ROOT_PATH} />
+              </ModelContextProvider>
+            </SchemaProvider>
+          </Provider>,
+        );
+      });
 
       const formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
@@ -348,15 +387,18 @@ describe('BeanField', () => {
 
       const { Provider } = await TestProvidersWrapper();
 
-      render(
-        <Provider>
-          <SchemaProvider schema={refSchema}>
-            <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
-              <UnprefixedBeanField propName={ROOT_PATH} />
-            </ModelContextProvider>
-          </SchemaProvider>
-        </Provider>,
-      );
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <Provider>
+            <SchemaProvider schema={refSchema}>
+              <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
+                <UnprefixedBeanField propName={ROOT_PATH} />
+              </ModelContextProvider>
+            </SchemaProvider>
+          </Provider>,
+        );
+      });
 
       formPageObject = new KaotoFormPageObject(screen, act);
     });
@@ -436,15 +478,18 @@ describe('BeanField', () => {
       const { Provider } = await TestProvidersWrapper();
 
       // First create a bean using UnprefixedBeanField to add it to the system
-      render(
-        <Provider>
-          <SchemaProvider schema={beanReferenceSchema}>
-            <ModelContextProvider model={undefined} onPropertyChange={vi.fn()}>
-              <UnprefixedBeanField propName={ROOT_PATH} />
-            </ModelContextProvider>
-          </SchemaProvider>
-        </Provider>,
-      );
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <Provider>
+            <SchemaProvider schema={beanReferenceSchema}>
+              <ModelContextProvider model={undefined} onPropertyChange={vi.fn()}>
+                <UnprefixedBeanField propName={ROOT_PATH} />
+              </ModelContextProvider>
+            </SchemaProvider>
+          </Provider>,
+        );
+      });
 
       let formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
@@ -458,15 +503,18 @@ describe('BeanField', () => {
       cleanup();
 
       // Now test that PrefixedBeanField shows the bean with prefix in dropdown
-      render(
-        <Provider>
-          <SchemaProvider schema={beanReferenceSchema}>
-            <ModelContextProvider model={undefined} onPropertyChange={vi.fn()}>
-              <PrefixedBeanField propName={ROOT_PATH} />
-            </ModelContextProvider>
-          </SchemaProvider>
-        </Provider>,
-      );
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <Provider>
+            <SchemaProvider schema={beanReferenceSchema}>
+              <ModelContextProvider model={undefined} onPropertyChange={vi.fn()}>
+                <PrefixedBeanField propName={ROOT_PATH} />
+              </ModelContextProvider>
+            </SchemaProvider>
+          </Provider>,
+        );
+      });
 
       formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
@@ -480,15 +528,18 @@ describe('BeanField', () => {
       const { Provider } = await TestProvidersWrapper();
 
       // First create a bean using PrefixedBeanField to add it to the system
-      render(
-        <Provider>
-          <SchemaProvider schema={beanReferenceSchema}>
-            <ModelContextProvider model={undefined} onPropertyChange={vi.fn()}>
-              <PrefixedBeanField propName={ROOT_PATH} />
-            </ModelContextProvider>
-          </SchemaProvider>
-        </Provider>,
-      );
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <Provider>
+            <SchemaProvider schema={beanReferenceSchema}>
+              <ModelContextProvider model={undefined} onPropertyChange={vi.fn()}>
+                <PrefixedBeanField propName={ROOT_PATH} />
+              </ModelContextProvider>
+            </SchemaProvider>
+          </Provider>,
+        );
+      });
 
       let formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
@@ -502,15 +553,18 @@ describe('BeanField', () => {
       cleanup();
 
       // Now test that UnprefixedBeanField shows the bean without prefix in dropdown
-      render(
-        <Provider>
-          <SchemaProvider schema={beanReferenceSchema}>
-            <ModelContextProvider model={undefined} onPropertyChange={vi.fn()}>
-              <UnprefixedBeanField propName={ROOT_PATH} />
-            </ModelContextProvider>
-          </SchemaProvider>
-        </Provider>,
-      );
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <Provider>
+            <SchemaProvider schema={beanReferenceSchema}>
+              <ModelContextProvider model={undefined} onPropertyChange={vi.fn()}>
+                <UnprefixedBeanField propName={ROOT_PATH} />
+              </ModelContextProvider>
+            </SchemaProvider>
+          </Provider>,
+        );
+      });
 
       formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
@@ -529,9 +583,6 @@ describe('BeanField', () => {
     const dataSourceSchema: KaotoSchemaDefinition['schema'] = { title: 'Data Source', type: 'string' };
 
     beforeEach(async () => {
-      const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-      CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
-
       onPropertyChangeSpy = vi.fn();
       cleanup();
     });
@@ -539,15 +590,18 @@ describe('BeanField', () => {
     it('should include default items in dropdown options', async () => {
       const { Provider } = await TestProvidersWrapper();
 
-      render(
-        <Provider>
-          <SchemaProvider schema={dataSourceSchema}>
-            <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
-              <DataSourceBeanField propName={ROOT_PATH} />
-            </ModelContextProvider>
-          </SchemaProvider>
-        </Provider>,
-      );
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <Provider>
+            <SchemaProvider schema={dataSourceSchema}>
+              <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
+                <DataSourceBeanField propName={ROOT_PATH} />
+              </ModelContextProvider>
+            </SchemaProvider>
+          </Provider>,
+        );
+      });
 
       formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
@@ -564,15 +618,18 @@ describe('BeanField', () => {
     it('should allow selection of default items', async () => {
       const { Provider } = await TestProvidersWrapper();
 
-      render(
-        <Provider>
-          <SchemaProvider schema={dataSourceSchema}>
-            <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
-              <DataSourceBeanField propName={ROOT_PATH} />
-            </ModelContextProvider>
-          </SchemaProvider>
-        </Provider>,
-      );
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <Provider>
+            <SchemaProvider schema={dataSourceSchema}>
+              <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
+                <DataSourceBeanField propName={ROOT_PATH} />
+              </ModelContextProvider>
+            </SchemaProvider>
+          </Provider>,
+        );
+      });
 
       formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
@@ -585,15 +642,18 @@ describe('BeanField', () => {
       const { Provider } = await TestProvidersWrapper();
 
       // First create regular bean and DataSource bean
-      render(
-        <Provider>
-          <SchemaProvider schema={dataSourceSchema}>
-            <ModelContextProvider model={undefined} onPropertyChange={vi.fn()}>
-              <UnprefixedBeanField propName={ROOT_PATH} />
-            </ModelContextProvider>
-          </SchemaProvider>
-        </Provider>,
-      );
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <Provider>
+            <SchemaProvider schema={dataSourceSchema}>
+              <ModelContextProvider model={undefined} onPropertyChange={vi.fn()}>
+                <UnprefixedBeanField propName={ROOT_PATH} />
+              </ModelContextProvider>
+            </SchemaProvider>
+          </Provider>,
+        );
+      });
 
       let formPageObject = new KaotoFormPageObject(screen, act);
 
@@ -609,15 +669,18 @@ describe('BeanField', () => {
       cleanup();
 
       // Create DataSource bean
-      render(
-        <Provider>
-          <SchemaProvider schema={dataSourceSchema}>
-            <ModelContextProvider model={undefined} onPropertyChange={vi.fn()}>
-              <UnprefixedBeanField propName={ROOT_PATH} />
-            </ModelContextProvider>
-          </SchemaProvider>
-        </Provider>,
-      );
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <Provider>
+            <SchemaProvider schema={dataSourceSchema}>
+              <ModelContextProvider model={undefined} onPropertyChange={vi.fn()}>
+                <UnprefixedBeanField propName={ROOT_PATH} />
+              </ModelContextProvider>
+            </SchemaProvider>
+          </Provider>,
+        );
+      });
 
       formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
@@ -631,15 +694,18 @@ describe('BeanField', () => {
       cleanup();
 
       // Now test DataSourceBeanField only shows DataSource beans
-      render(
-        <Provider>
-          <SchemaProvider schema={dataSourceSchema}>
-            <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
-              <DataSourceBeanField propName={ROOT_PATH} />
-            </ModelContextProvider>
-          </SchemaProvider>
-        </Provider>,
-      );
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <Provider>
+            <SchemaProvider schema={dataSourceSchema}>
+              <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
+                <DataSourceBeanField propName={ROOT_PATH} />
+              </ModelContextProvider>
+            </SchemaProvider>
+          </Provider>,
+        );
+      });
 
       formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
@@ -655,15 +721,18 @@ describe('BeanField', () => {
     it('should show new bean modal when creating DataSource bean', async () => {
       const { Provider } = await TestProvidersWrapper();
 
-      render(
-        <Provider>
-          <SchemaProvider schema={dataSourceSchema}>
-            <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
-              <DataSourceBeanField propName={ROOT_PATH} />
-            </ModelContextProvider>
-          </SchemaProvider>
-        </Provider>,
-      );
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <Provider>
+            <SchemaProvider schema={dataSourceSchema}>
+              <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
+                <DataSourceBeanField propName={ROOT_PATH} />
+              </ModelContextProvider>
+            </SchemaProvider>
+          </Provider>,
+        );
+      });
 
       formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);

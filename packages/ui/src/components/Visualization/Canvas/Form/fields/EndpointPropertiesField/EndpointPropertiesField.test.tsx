@@ -3,7 +3,7 @@ import { act, render, screen, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { EndpointPropertiesField } from './EndpointPropertiesField';
-import { MultiValuePropertyService } from './MultiValueProperty.service';
+import { MultiValuePropertyService } from './multi-value-property.service';
 
 const mockOnChange = vi.fn();
 const mockUseFieldValue = vi.fn();
