@@ -6,7 +6,6 @@ import { FunctionComponent, useCallback, useState } from 'react';
 
 import { useProcessorTooltips } from '../../hooks/use-processor-tooltips.hook';
 import { useEntityContext } from '../../hooks/useEntityContext/useEntityContext';
-import { useParsedDefinition } from '../../hooks/useParsedDefinition';
 import { IVisualizationNode } from '../../models';
 import { COMPONENT_MODE_PROCESSORS } from '../../models/special-processors.constants';
 import { getProcessorIcon } from '../../utils/processor-icon';
@@ -14,7 +13,7 @@ import { getProcessorIcon } from '../../utils/processor-icon';
 export const ComponentMode: FunctionComponent<{ vizNode?: IVisualizationNode }> = ({ vizNode }) => {
   const { updateSourceCodeFromEntities } = useEntityContext();
   const [processorName, setProcessorName] = useState(vizNode?.data.primaryNodeId?.name);
-  const parsedDefinition = useParsedDefinition(vizNode);
+  const parsedDefinition = vizNode?.data.definition;
 
   const switchComponentMode = useCallback(
     (newProcessorName: keyof ProcessorDefinition) => {

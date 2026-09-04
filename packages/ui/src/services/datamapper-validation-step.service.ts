@@ -40,7 +40,7 @@ export class DataMapperValidationStepService {
    * @returns The validator step definition, or `undefined` if none exists
    */
   static getValidationStep(vizNode: IVisualizationNode): ValidatorComponentDef | undefined {
-    const model = vizNode.getNodeDefinition();
+    const model = vizNode.data?.definition ?? vizNode.getNodeDefinition();
     return (model.steps as ProcessorDefinition[])?.find(
       (s): s is ValidatorComponentDef => isValidatorComponent(s) || isJsonValidatorComponent(s),
     );
@@ -93,7 +93,7 @@ export class DataMapperValidationStepService {
       return;
     }
 
-    const model = vizNode.getNodeDefinition();
+    const model = vizNode.data?.definition ?? vizNode.getNodeDefinition();
     const steps = model.steps as ProcessorDefinition[] | undefined;
     const xsltIndex = steps?.findIndex((s) => isXSLTComponent(s)) ?? -1;
     if (!steps || xsltIndex < 0) {
@@ -113,7 +113,7 @@ export class DataMapperValidationStepService {
    * @param entitiesContext The entities context for updating source code
    */
   static removeValidationStep(vizNode: IVisualizationNode, entitiesContext: EntitiesContextResult): void {
-    const model = vizNode.getNodeDefinition();
+    const model = vizNode.data?.definition ?? vizNode.getNodeDefinition();
     const steps = model.steps as ProcessorDefinition[];
     const index = steps?.findIndex((s) => isValidatorComponent(s) || isJsonValidatorComponent(s));
     if (index === undefined || index < 0) {
@@ -165,7 +165,7 @@ export class DataMapperValidationStepService {
         return;
     }
 
-    const model = vizNode.getNodeDefinition();
+    const model = vizNode.data?.definition ?? vizNode.getNodeDefinition();
     const currentComponent = existingStep.to.uri.split(':')[0];
     if (currentComponent !== componentName) {
       existingStep.to.id = getCamelRandomId(

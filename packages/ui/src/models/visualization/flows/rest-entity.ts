@@ -9,7 +9,6 @@ export interface RestEntity extends BaseEntity {
   setId(id: string): void;
   fetchNodeSchema(ids?: IVisualizationNodeIds): Promise<KaotoSchemaDefinition['schema'] | undefined>;
   getNodeDefinition(path?: string, ids?: IVisualizationNodeIds): unknown;
-  getParsedDefinition(path?: string, ids?: IVisualizationNodeIds): Promise<unknown>;
   updateModel(path: string | undefined, value: unknown): void;
   removeStep(path?: string): void;
 }
