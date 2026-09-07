@@ -1,0 +1,54 @@
+name: Setup Tools (kaoto-vscode)
+description: Sets up Node.js with yarn cache; optionally sets up Java and JBang for integration tests
+
+inputs:
+  node-version:
+    description: Node.js version
+    required: false
+    default: '24'
+  install-jbang:
+    description: Whether to install Java and JBang (needed for editor/view integration tests)
+    required: false
+    default: 'false'
+  allow-unprivileged-userns:
+    description: Enable unprivileged user namespaces on Linux (required for VS Code)
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: yarn
+
+    - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+      if: ${{ inputs.install-jbang == 'true' }}
+      with:
+        distribution: temurin
+        java-version: '21'
+
+    - name: Setup JBang
+      if: ${{ inputs.install-jbang == 'true' && runner.os != 'Windows' }}
+      uses: jbangdev/setup-jbang@2b1b465a7b75f4222b81426f23a01e013aa7b95c # v0.1.1
+
+    - name: Setup JBang (Windows)
+      if: ${{ inputs.install-jbang == 'true' && runner.os == 'Windows' }}
+      shell: pwsh
+      run: choco install jbang
+
+    - name: Allow unprivileged user namespace
+      if: ${{ inputs.allow-unprivileged-userns == 'true' && runner.os == 'Linux' }}
+      shell: bash
+      run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
+    - name: Add Camel trusted source to JBang
+      if: ${{ inputs.install-jbang == 'true' }}
+      shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
+      run: jbang trust add https://github.com/apache/camel/
+
+    - name: Add Citrus trusted source to JBang
+      if: ${{ inputs.install-jbang == 'true' }}
+      shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
+      run: jbang trust add https://github.com/citrusframework/citrus/

@@ -1,51 +1,144 @@
 name: 📦 Build npm Package
+
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
+concurrency:
+  group: monorepo-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
-  build:
+  changes:
+    name: Select CI jobs
+    runs-on: ubuntu-latest
+    outputs:
+      ui: ${{ steps.changes.outputs.ui }}
+      web: ${{ steps.changes.outputs.web }}
+      vscode-smoke: ${{ steps.changes.outputs['vscode-smoke'] }}
+      vscode-full: ${{ steps.changes.outputs['vscode-full'] }}
+      deploy: ${{ steps.changes.outputs.deploy }}
+      e2e: ${{ steps.changes.outputs.e2e }}
+      chromatic: ${{ steps.changes.outputs.chromatic }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: '24.x'
+      - name: Test CI selection
+        run: node --test .github/scripts/ci-changes.test.mjs
+      - name: Select affected jobs
+        id: changes
+        run: node .github/scripts/ci-changes.mjs
+
+  ui:
+    name: UI
+    needs: changes
+    if: needs.changes.outputs.ui == 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: 'Checkout source code'
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: '24.x'
           registry-url: 'https://registry.npmjs.org'
           scope: '@kaoto'
-          cache: 'yarn'
-
-      # Install dependencies
-      - name: 🔧 Install dependencies
+          cache: yarn
+      - name: Install dependencies
         run: yarn install --immutable --mode=skip-build
-
-      # Lint files
-      - name: 💅 Run eslint
-        run: yarn workspaces foreach --verbose --all --topological-dev run lint
-
-      # Lint style files
-      - name: 💅 Run stylelint
-        run: yarn workspace @kaoto/kaoto run lint:style
-
-      # Build packages excluding @kaoto/camel-catalog since it was build during installing dependencies
-      - name: Build packages
-        run: yarn workspaces foreach --verbose --all --topological-dev  run build
-
-      # Run tests
-      - name: 🧪 Run tests
-        run: yarn workspaces foreach --verbose --all --topological-dev run test
-
-      - name: Upload results to Codecov
+      - name: Lint UI and test sources
+        run: |
+          yarn workspace @kaoto/kaoto lint
+          yarn workspace @kaoto/kaoto lint:style
+          yarn workspace @kaoto/kaoto-tests lint
+      - name: Build UI and library
+        run: |
+          yarn workspace @kaoto/kaoto build
+          yarn workspace @kaoto/kaoto build:lib
+      - name: Run UI tests
+        run: yarn workspace @kaoto/kaoto test
+      - name: Upload coverage
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
-      # Build lib
-      - name: Build @kaoto/kaoto package in lib mode
-        run: yarn workspace @kaoto/kaoto run build:lib
+  web:
+    name: Web
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: '24.x'
+          cache: yarn
+      - name: Install dependencies
+        run: yarn install --immutable --mode=skip-build
+      - name: Validate web
+        run: |
+          yarn workspace @kaoto/kaoto-web lint
+          yarn workspace @kaoto/kaoto-web build
+          yarn workspace @kaoto/kaoto-web test
+      - name: Upload coverage
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  vscode-smoke:
+    name: VS Code (smoke)
+    needs: changes
+    if: needs.changes.outputs['vscode-smoke'] == 'true' && needs.changes.outputs['vscode-full'] != 'true'
+    uses: ./.github/workflows/kaoto-vscode-build-lint-test.yml
+    with:
+      run-full-ui-tests: false
+      run-deploy-tests: false
+
+  vscode-full:
+    name: VS Code (full)
+    needs: changes
+    if: needs.changes.outputs['vscode-full'] == 'true'
+    uses: ./.github/workflows/kaoto-vscode-build-lint-test.yml
+    with:
+      run-full-ui-tests: true
+      run-deploy-tests: ${{ needs.changes.outputs.deploy == 'true' }}
+
+  e2e:
+    name: Cypress
+    needs: changes
+    if: needs.changes.outputs.e2e == 'true'
+    uses: ./.github/workflows/e2e-tests.yml
+    secrets: inherit
+
+  chromatic:
+    name: Chromatic
+    needs: changes
+    if: needs.changes.outputs.chromatic == 'true' && (github.event_name != 'pull_request' || github.base_ref == 'main')
+    uses: ./.github/workflows/chromatic.yml
+
+  # Keep the existing required check name, including on documentation-only PRs.
+  build:
+    needs: [changes, ui, web, vscode-smoke, vscode-full, e2e, chromatic]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check selected job results
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: node .github/scripts/check-job-results.mjs

@@ -1,0 +1,30 @@
+name: Upload Test Artifacts (kaoto-vscode)
+description: Uploads VS Code logs and screenshots from the kaoto-vscode test run on failure
+
+inputs:
+  test-group:
+    description: Test group used to distinguish artifacts from jobs on the same OS
+    required: true
+  os-name:
+    description: OS name used for artifact naming (e.g. ubuntu, macos, windows)
+    required: true
+  storage-path:
+    description: Path to the ExTester storage directory (matches TEST_RESOURCES env var)
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Upload VS Code logs
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with:
+        name: vscode-logs-${{ inputs.test-group }}-${{ inputs.os-name }}
+        path: ${{ inputs.storage-path }}/settings/logs
+        retention-days: 7
+
+    - name: Upload test screenshots
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with:
+        name: ui-test-screenshots-${{ inputs.test-group }}-${{ inputs.os-name }}
+        path: ${{ inputs.storage-path }}/screenshots
+        retention-days: 7
