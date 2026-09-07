@@ -7,6 +7,12 @@ import { IExpressionHolder } from '../../models/datamapper';
 import { XPathService } from '../../services/xpath/xpath.service';
 import { xpathEditorConstrufctionOption, xpathEditorTheme } from './monaco-options';
 
+// Expose monaco on window so Cypress helpers can reach editor instances through
+// the standard win.monaco.editor.getEditors() API
+if (typeof window !== 'undefined' && 'Cypress' in window) {
+  (globalThis as typeof globalThis & { monaco: typeof monaco }).monaco = monaco;
+}
+
 type XPathEditorProps = {
   mapping: IExpressionHolder;
   onChange: (expression: string | undefined) => void;
@@ -14,7 +20,7 @@ type XPathEditorProps = {
 
 export const XPathEditor: FunctionComponent<XPathEditorProps> = ({ mapping, onChange }) => {
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
-  const monacoEl = useRef(null);
+  const monacoEl = useRef<HTMLDivElement>(null);
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
   const xpathLanguage = XPathService.getMonacoXPathLanguageMetadata();

@@ -187,13 +187,22 @@ declare global {
       ): Chainable<JQuery<Element>>;
       checkMappingLineSelected(selected: boolean): Chainable<JQuery<Element>>;
       countMappingLines(num: number): Chainable<JQuery<Element>>;
-      getDataMapperNode(nodePath: string[]): Chainable<JQuery<HTMLElement>>;
+      getDataMapperNode(nodePath: string[], panelClass?: string): Chainable<JQuery<HTMLElement>>;
+      getDataMapperSourceNode(nodePath: string[]): Chainable<JQuery<HTMLElement>>;
+      getDataMapperTargetNode(nodePath: string[]): Chainable<JQuery<HTMLElement>>;
       engageMapping(sourceNodePath: string[], targetNodePath: string[], testXPath: string): Chainable<JQuery<Element>>;
       engageForEachMapping(
         sourceNodePath: string[],
         targetNodePath: string[],
         testXPath: string,
       ): Chainable<JQuery<Element>>;
+      openXPathEditor(targetNodePath: string[]): Chainable<JQuery<Element>>;
+      typeInXPathEditor(text: string): Chainable<JQuery<Element>>;
+      dragToXPathEditor(draggableSelector: string): Chainable<void>;
+      verifyXPathEditorModelIncludes(expected: string): Chainable<void>;
+      verifyXPathEditorOutput(targetNodePath: string[], expectedValue: string): Chainable<void>;
+      closeXPathEditor(): Chainable<void>;
+      openXPathFunctionTab(): Chainable<void>;
     }
   }
 }
