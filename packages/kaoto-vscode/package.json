@@ -29,7 +29,7 @@
     "test:ui:clean": "rimraf ./test-resources && rimraf ./out && rimraf *.vsix"
   },
   "dependencies": {
-    "@kaoto/camel-catalog": "^0.9.11",
+    "@kaoto/camel-catalog": "^0.10.1",
     "@kaoto/kaoto": "workspace:*",
     "@kie-tools-core/backend": "10.0.0",
     "@kie-tools-core/editor": "10.0.0",

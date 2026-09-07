@@ -3741,10 +3741,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kaoto/camel-catalog@npm:^0.9.11":
-  version: 0.9.12
-  resolution: "@kaoto/camel-catalog@npm:0.9.12"
-  checksum: 10/cae289aec8efac627c8b539bab8e562a2d5e9b5671176038b983368ceff0c55deee07877ed5621d580b1e05fb403b51fbcddb81bf9d6ea0c7f227cd8aa79caee
+"@kaoto/camel-catalog@npm:^0.10.1":
+  version: 0.10.1
+  resolution: "@kaoto/camel-catalog@npm:0.10.1"
+  checksum: 10/54e46c9c441d49b1eac388f7f8197305bb75f1dcab25a4c168d18bd9f0edc9f2a0d34448c99a8ed2a330373c6680435174497179ea70575289dd8204349553a0
   languageName: node
   linkType: hard
 
@@ -3772,7 +3772,7 @@ __metadata:
   dependencies:
     "@cypress/grep": "npm:^4.1.0"
     "@eslint/js": "npm:^9.10.0"
-    "@kaoto/camel-catalog": "npm:^0.9.11"
+    "@kaoto/camel-catalog": "npm:^0.10.1"
     "@kaoto/forms": "npm:^1.8.0"
     "@kaoto/kaoto": "workspace:*"
     "@patternfly/patternfly": "npm:^6.5.2"
@@ -3832,7 +3832,7 @@ __metadata:
     "@double-great/stylelint-a11y": "npm:^3.0.4"
     "@eslint/js": "npm:^9.10.0"
     "@ibm/plex": "npm:^6.4.1"
-    "@kaoto/camel-catalog": "npm:^0.9.11"
+    "@kaoto/camel-catalog": "npm:^0.10.1"
     "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/jest-dom": "npm:^6.9.1"
     "@testing-library/react": "npm:^16.3.2"
@@ -3895,7 +3895,7 @@ __metadata:
     "@dnd-kit/core": "npm:^6.1.0"
     "@dnd-kit/modifiers": "npm:^9.0.0"
     "@eslint/js": "npm:^9.10.0"
-    "@kaoto/camel-catalog": "npm:^0.9.11"
+    "@kaoto/camel-catalog": "npm:^0.10.1"
     "@kaoto/forms": "npm:^1.8.0"
     "@kie-tools-core/editor": "npm:^10.0.0"
     "@kie-tools-core/notifications": "npm:^10.0.0"
@@ -3988,7 +3988,7 @@ __metadata:
     zundo: "npm:^2.3.0"
     zustand: "npm:^5.0.11"
   peerDependencies:
-    "@kaoto/camel-catalog": ^0.9.11
+    "@kaoto/camel-catalog": ^0.10.1
     "@patternfly/patternfly": ^6.5.2
     "@patternfly/react-code-editor": ^6.5.1
     "@patternfly/react-core": ^6.5.1
@@ -27675,7 +27675,7 @@ __metadata:
   resolution: "vscode-kaoto@workspace:packages/kaoto-vscode"
   dependencies:
     "@cyclonedx/cdxgen": "npm:12.8.4"
-    "@kaoto/camel-catalog": "npm:^0.9.11"
+    "@kaoto/camel-catalog": "npm:^0.10.1"
     "@kaoto/kaoto": "workspace:*"
     "@kie-tools-core/backend": "npm:10.0.0"
     "@kie-tools-core/editor": "npm:10.0.0"
