@@ -10,9 +10,10 @@
   "run": {
     "testFiles": [
       "out/settings/*.test.js",
-      "out/views/*.test.js",
       "out/editor/*.test.js",
-      "out/**/*NewProject.test.js"
+      "out/views/*.test.js",
+      "out/deploy/*.test.js",
+      "out/export/*.test.js"
     ],
     "resources": ["./test Fixture with speci@l chars"],
     "extensionsDir": "./test-resources",

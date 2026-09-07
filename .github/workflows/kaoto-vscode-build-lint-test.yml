@@ -1,0 +1,83 @@
+name: 🏗️ VS Code Kaoto Build
+
+on:
+  workflow_call:
+    inputs:
+      run-full-ui-tests:
+        description: Run all four integration test groups (views + export in addition to settings + editor)
+        required: true
+        type: boolean
+      run-deploy-tests:
+        description: Run Linux deployment tests for extension or shared-tooling changes
+        required: true
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup tools
+        uses: ./.github/actions/kaoto-vscode-setup-tools
+        with:
+          allow-unprivileged-userns: 'true'
+
+      - name: Install dependencies
+        run: yarn install --immutable --mode=skip-build
+
+      - name: Build UI lib
+        run: yarn workspace @kaoto/kaoto build:lib
+
+      - name: Build and lint extension
+        run: yarn workspace vscode-kaoto build:prod
+
+      - name: Run unit tests
+        run: xvfb-run -a yarn workspace vscode-kaoto test:unit
+
+      - name: Build VSIX
+        run: yarn workspace vscode-kaoto build:vsix --out kaoto-ci.vsix
+
+      - name: Generate SBOM
+        run: yarn workspace vscode-kaoto sbom:generate
+
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: vscode-kaoto-vsix
+          path: packages/kaoto-vscode/kaoto-ci.vsix
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sbom
+          path: packages/kaoto-vscode/manifest.json
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload unit test logs
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: unit-test-logs
+          path: packages/kaoto-vscode/.vscode-test/user-data/logs/*
+          include-hidden-files: true
+          retention-days: 7
+
+  ui-tests:
+    needs: build
+    uses: ./.github/workflows/kaoto-vscode-ui-tests.yml
+    with:
+      vsix-artifact-name: vscode-kaoto-vsix
+      run-full-ui-tests: ${{ inputs.run-full-ui-tests }}
+      run-deploy-tests: ${{ inputs.run-deploy-tests }}

@@ -15,4 +15,4 @@
  */
 import { integrationRunTests } from '../utils/integration-run';
 
-integrationRunTests('Run');
+integrationRunTests('Deploy');

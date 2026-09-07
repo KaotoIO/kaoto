@@ -1,11 +1,7 @@
 name: 🏗️ E2E Tests (Cypress)
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    types: [opened, synchronize, reopened]
+  workflow_call:
 jobs:
   install:
     runs-on: ubuntu-latest

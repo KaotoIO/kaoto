@@ -1,0 +1,13 @@
+name: Setup Minikube (kaoto-vscode)
+description: Starts the Linux deployment-test cluster and its local image registry
+
+runs:
+  using: composite
+  steps:
+    - name: Start Minikube
+      uses: medyagh/setup-minikube@e9e035a86bbc3caea26a450bd4dbf9d0c453682e # v0.0.21
+      with:
+        driver: docker
+        addons: registry,registry-aliases
+        container-runtime: docker
+        insecure-registry: '10.0.0.0/24'
