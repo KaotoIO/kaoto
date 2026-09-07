@@ -5,6 +5,7 @@ import { MappingLinksProvider } from '../../providers/data-mapping-links.provide
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { BrowserFilePickerMetadataProvider } from '../../stubs/BrowserFilePickerMetadataProvider';
 import { getShipOrderJsonSchema, getShipOrderXsd } from '../../stubs/datamapper/data-mapper';
+import { createFile } from '../../stubs/read-file-as-string';
 import { ExpansionPanels } from '../ExpansionPanels/ExpansionPanels';
 import { ParametersSection } from './Parameters';
 
@@ -131,7 +132,7 @@ describe('ParametersSection', () => {
     const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
     fireEvent.click(importButton);
 
-    const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
+    const fileContent = createFile(getShipOrderXsd(), 'ShipOrder.xsd');
     const fileInput = screen.getByTestId('attach-schema-file-input');
     fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
 
@@ -181,7 +182,7 @@ describe('ParametersSection', () => {
     const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
     fireEvent.click(importButton);
 
-    const fileContent = new File([new Blob([getShipOrderJsonSchema()])], 'ShipOrder.json', { type: 'text/plain' });
+    const fileContent = createFile(getShipOrderJsonSchema(), 'ShipOrder.json');
     const fileInput = screen.getByTestId('attach-schema-file-input');
     fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
 

@@ -12,6 +12,7 @@ import { MappingSerializerService } from '../../../services/mapping/mapping-seri
 import { MappingLinksService } from '../../../services/visualization/mapping-links.service';
 import { useDocumentTreeStore } from '../../../store';
 import { getShipOrderToShipOrderXslt, TestUtil } from '../../../stubs/datamapper/data-mapper';
+import { createFile } from '../../../stubs/read-file-as-string';
 import { DebugLayout } from './DebugLayout';
 
 const dndHandler = new SourceTargetDnDHandler();
@@ -150,9 +151,7 @@ describe('DebugLayout', () => {
       fireEvent.click(mainMenuButton);
       const importButton = screen.getByTestId('dm-debug-import-mappings-button');
       fireEvent.click(importButton);
-      const fileContent = new File([new Blob([getShipOrderToShipOrderXslt()])], 'ShipOrderToShipOrder.xsl', {
-        type: 'text/plain',
-      });
+      const fileContent = createFile(getShipOrderToShipOrderXslt(), 'ShipOrderToShipOrder.xsl');
       const fileInput = screen.getByTestId('dm-debug-import-mappings-file-input');
       expect(spyOnMappingTree!.children).toHaveLength(0);
       fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });

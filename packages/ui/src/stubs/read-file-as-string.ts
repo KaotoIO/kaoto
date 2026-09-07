@@ -1,15 +1,13 @@
 export const readFileAsString = (file: File): Promise<string> => {
-  const reader = new FileReader();
-  return new Promise<string>((resolve, reject) => {
-    reader.onload = (e) => {
-      e.target ? resolve(e.target.result as string) : reject(new Error('Failed to read file'));
-    };
-    reader.onerror = () => {
-      reject(new Error('Error reading file'));
-    };
-    reader.onabort = () => {
-      reject(new Error('File reading aborted'));
-    };
-    reader.readAsText(file);
+  return file.text();
+};
+
+// Test helper to create a File with mocked .text() for JSDOM (which lacks File.text())
+export const createFile = (content: string, name: string) => {
+  const file = new File([content], name, { type: 'text/plain' });
+  Object.defineProperty(file, 'text', {
+    value: () => Promise.resolve(content),
+    configurable: true,
   });
+  return file;
 };
