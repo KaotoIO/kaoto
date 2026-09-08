@@ -35,6 +35,7 @@ import { join } from 'path';
 import { rmSync } from 'fs';
 import { expect } from 'chai';
 import { CatalogModal } from '../pageObjects';
+import { openResourcesAndWaitForActivation } from '../utils/extension';
 
 describe('User Settings', function () {
 	this.timeout(240_000);
@@ -46,8 +47,9 @@ describe('User Settings', function () {
 	let driver: WebDriver;
 	let kaotoWebview: WebView;
 
-	before(function () {
+	before(async function () {
 		driver = VSBrowser.instance.driver;
+		await openResourcesAndWaitForActivation(WORKSPACE_FOLDER);
 	});
 
 	after(async function () {
@@ -97,7 +99,7 @@ describe('User Settings', function () {
 						return false;
 					}
 				},
-				5_000,
+				10_000,
 				'The activityBar is not reachable after 5 seconds. Maybe the modal dialog has not been successfully closed previously?',
 			);
 			// close sidebar

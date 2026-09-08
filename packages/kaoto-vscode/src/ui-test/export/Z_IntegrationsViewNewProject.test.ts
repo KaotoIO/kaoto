@@ -40,7 +40,7 @@ import { expandFolderItemsInTreeStructuredView, expandViews, getKaotoViewControl
 describe('Integrations View', function () {
 	this.timeout(240_000);
 
-	const WORKSPACE_FOLDER = join(__dirname, '../test Fixture with speci@l chars', 'kaoto-view');
+	const WORKSPACE_FOLDER = join(__dirname, '../../test Fixture with speci@l chars', 'kaoto-view');
 
 	let driver: WebDriver;
 	let kaotoViewContainer: ViewControl | undefined;

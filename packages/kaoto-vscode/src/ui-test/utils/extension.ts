@@ -43,7 +43,7 @@ export async function openResourcesAndWaitForActivation(
  * @param timeout Maximum time to wait for activation in milliseconds
  * @param interval Polling interval in milliseconds
  */
-export async function waitForExtensionActivation(extensionName: string, timeout: number, interval: number): Promise<void> {
+export async function waitForExtensionActivation(extensionName: string = 'Kaoto', timeout: number = 150_000, interval: number = 2_500): Promise<void> {
 	const driver = VSBrowser.instance.driver;
 	let sawKaotoMessage = false;
 
