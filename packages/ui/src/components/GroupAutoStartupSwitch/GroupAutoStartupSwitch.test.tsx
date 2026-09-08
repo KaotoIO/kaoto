@@ -81,12 +81,13 @@ describe('GroupAutoStartupSwitch', () => {
     expect(containerDiv).toBeInTheDocument();
   });
 
-  it('should toggle autoStartup from undefined to false', async () => {
+  it('should not toggle when definition is undefined (guard against data loss)', async () => {
     const user = userEvent.setup();
     const entity = new CamelRouteVisualEntity({
-      route: { from: { uri: 'direct:test', steps: [] } },
+      route: { id: 'my-route', from: { uri: 'direct:test', steps: [] } },
     });
 
+    // No `definition` provided — simulates a node whose definition hasn't been enriched yet
     const vizNode = createVisualizationNode('route-1', {
       name: 'route',
       path: 'route',
@@ -112,8 +113,51 @@ describe('GroupAutoStartupSwitch', () => {
 
     await user.click(switchElement);
 
+    // Toggle must be a no-op: spreading undefined would produce {} and erase `from`, `id`, etc.
+    expect(updateModelSpy).not.toHaveBeenCalled();
+    expect(updateEntitiesFromCamelResourceSpy).not.toHaveBeenCalled();
+
+    // The underlying entity's route fields must be untouched
+    expect(entity.entityDef.route?.id).toBe('my-route');
+    expect(entity.entityDef.route?.from?.uri).toBe('direct:test');
+  });
+
+  it('should toggle autoStartup from undefined to false when definition is present', async () => {
+    const user = userEvent.setup();
+    const entity = new CamelRouteVisualEntity({
+      route: { id: 'my-route', from: { uri: 'direct:test', steps: [] } },
+    });
+
+    const vizNode = createVisualizationNode('route-1', {
+      name: 'route',
+      path: 'route',
+      entity,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+      definition: { id: 'my-route', from: { uri: 'direct:test', steps: [] } },
+    }) as IVisualizationNode;
+
+    const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
+    const { Provider, updateEntitiesFromCamelResourceSpy } = await TestProvidersWrapper();
+
+    render(
+      <Provider>
+        <GroupAutoStartupSwitch vizNode={vizNode} />
+      </Provider>,
+    );
+
+    const switchElement = screen.getByRole('switch', { name: 'Auto Startup' });
+    expect(switchElement).toBeChecked();
+
+    await user.click(switchElement);
+
     expect(updateModelSpy).toHaveBeenCalledWith(
       expect.objectContaining({
+        id: 'my-route',
+        from: { uri: 'direct:test', steps: [] },
         autoStartup: false,
       }),
     );

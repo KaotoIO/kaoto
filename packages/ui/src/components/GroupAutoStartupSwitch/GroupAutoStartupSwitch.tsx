@@ -39,6 +39,12 @@ export const GroupAutoStartupSwitch: FunctionComponent<IGroupAutoStartupSwitchPr
       return;
     }
 
+    // Guard: if definition hasn't been enriched yet, spreading undefined would
+    // produce an empty object and overwrite the existing route (losing from, id, etc.)
+    if (routeDefinition === undefined) {
+      return;
+    }
+
     // Get the current route definition and update only the autoStartup property
     const updatedRoute = { ...routeDefinition };
 
