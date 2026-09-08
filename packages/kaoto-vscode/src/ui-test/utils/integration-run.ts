@@ -38,7 +38,7 @@ export function integrationRunTests(label: 'Run' | 'Deploy'): void {
 
 		before(async function () {
 			driver = VSBrowser.instance.driver;
-			await openResourcesAndWaitForActivation(workspaceFolder, false);
+			await openResourcesAndWaitForActivation(workspaceFolder);
 			const control = await getKaotoViewControl();
 			kaotoViewContainer = control.kaotoViewContainer;
 			integrationsSection = await control.kaotoView?.getContent().getSection('Integrations');

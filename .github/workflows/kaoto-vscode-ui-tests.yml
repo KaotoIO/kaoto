@@ -49,6 +49,7 @@ jobs:
       - name: Run settings tests
         shell: bash
         env:
+          KAOTO_DISABLE_WHATS_NEW: 'true'
           TEST_RESOURCES: ${{ runner.temp }}/kaoto-tests
           VSIX_FILE: kaoto-ci.vsix
         run: |
@@ -94,6 +95,7 @@ jobs:
       - name: Run editor tests
         shell: bash
         env:
+          KAOTO_DISABLE_WHATS_NEW: 'true'
           TEST_RESOURCES: ${{ runner.temp }}/kaoto-tests
           VSIX_FILE: kaoto-ci.vsix
         run: |
@@ -140,6 +142,7 @@ jobs:
       - name: Run views tests
         shell: bash
         env:
+          KAOTO_DISABLE_WHATS_NEW: 'true'
           TEST_RESOURCES: ${{ runner.temp }}/kaoto-tests
           VSIX_FILE: kaoto-ci.vsix
         run: |
@@ -186,6 +189,7 @@ jobs:
       - name: Run export tests
         shell: bash
         env:
+          KAOTO_DISABLE_WHATS_NEW: 'true'
           TEST_RESOURCES: ${{ runner.temp }}/kaoto-tests
           VSIX_FILE: kaoto-ci.vsix
         run: |
@@ -224,6 +228,7 @@ jobs:
         run: yarn install --immutable --mode=skip-build
       - name: Run deployment tests
         env:
+          KAOTO_DISABLE_WHATS_NEW: 'true'
           TEST_RESOURCES: ${{ runner.temp }}/kaoto-tests
           VSIX_FILE: kaoto-ci.vsix
         run: |
