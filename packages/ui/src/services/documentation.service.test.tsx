@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import JSZip from 'jszip';
 import { PropsWithChildren, useContext } from 'react';
 
@@ -39,14 +39,15 @@ describe('DocumentationService', () => {
       eventNotifier.next('code:updated', { code: yaml });
     });
 
+    // Wait for the EntitiesProvider to finish initializing the resource; this avoids
+    // racing with the provider's own async initialize() call.
+    await waitFor(() => {
+      expect(entitiesContext.current?.entities.length).toBeGreaterThan(0);
+    });
+
     if (entitiesContext.current === null) {
       throw new Error('EntitiesContext is null');
     }
-
-    // initialize() is async and re-runnable; await it on the context's resource so the
-    // entities/visual entities are fully built before we read them (the EntitiesProvider
-    // also initializes it, but asynchronously — this guarantees completion here).
-    await entitiesContext.current.camelResource.initialize();
 
     const visibleFlows = entitiesContext.current.camelResource.getVisualEntities().reduce((acc, entity) => {
       acc[entity.id] = true;

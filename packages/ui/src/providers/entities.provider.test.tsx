@@ -86,39 +86,51 @@ describe('EntitiesProvider', () => {
     [CamelRouteResource, undefined],
     [CamelXMLRouteResource, 'camel.xml'],
     [CamelRouteResource, 'camel.yaml'],
-  ])('should initialize the camelResource as `%s` provided a `%s` file extension', (ResourceClass, fileExtension) => {
-    const { result } = renderHook(() => useContext(EntitiesContext), {
-      wrapper: buildWrapper(undefined, fileExtension),
-    });
+  ])(
+    'should initialize the camelResource as `%s` provided a `%s` file extension',
+    async (ResourceClass, fileExtension) => {
+      const { result } = renderHook(() => useContext(EntitiesContext), {
+        wrapper: buildWrapper(undefined, fileExtension),
+      });
 
-    expect(result.current?.camelResource).toBeInstanceOf(ResourceClass);
-  });
+      // Wait for initialize() to complete so the async state update is flushed
+      await waitFor(() => {
+        expect(result.current?.camelResource).toBeInstanceOf(ResourceClass);
+      });
+    },
+  );
 
   describe('Initialization', () => {
-    it('should use the source code to initialize the Camel Resource', () => {
+    it('should use the source code to initialize the Camel Resource', async () => {
       const { result } = renderHook(() => useContext(EntitiesContext), {
         wrapper: buildWrapper(camelRouteYaml),
       });
 
-      expect(result.current?.camelResource.toJSON()).toEqual(parse(camelRouteYaml));
+      await waitFor(() => {
+        expect(result.current?.camelResource.toJSON()).toEqual(parse(camelRouteYaml));
+      });
     });
 
-    it('should create an empty Camel Resource if there is no Source Code available', () => {
+    it('should create an empty Camel Resource if there is no Source Code available', async () => {
       const { result } = renderHook(() => useContext(EntitiesContext), {
         wrapper: buildWrapper(),
       });
 
-      expect(result.current?.camelResource.toJSON()).toEqual([]);
+      await waitFor(() => {
+        expect(result.current?.camelResource.toJSON()).toEqual([]);
+      });
     });
 
-    it('should ignore non-camel entities', () => {
+    it('should ignore non-camel entities', async () => {
       useSourceCodeStore.getState().setSourceCode('A non camel source code');
 
       const { result } = renderHook(() => useContext(EntitiesContext), {
         wrapper: buildWrapper('A non camel source code'),
       });
 
-      expect(result.current?.camelResource.toJSON()).toEqual(['A non camel source code']);
+      await waitFor(() => {
+        expect(result.current?.camelResource.toJSON()).toEqual(['A non camel source code']);
+      });
     });
 
     it('should keep resource undefined when there is a wrong Source Code at mount', () => {
@@ -133,8 +145,13 @@ describe('EntitiesProvider', () => {
     });
   });
 
-  it('updating the source code should NOT recreate the Camel Resource', () => {
+  it('updating the source code should NOT recreate the Camel Resource', async () => {
     const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: buildWrapper() });
+
+    // Wait for initialize() to settle before exercising the resource
+    await waitFor(() => {
+      expect(result.current?.entities).toBeDefined();
+    });
 
     act(() => {
       const firstCamelResource = result.current?.camelResource;
@@ -180,6 +197,11 @@ describe('EntitiesProvider', () => {
     const notifierSpy = vi.spyOn(eventNotifier, 'next');
     const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: buildWrapper() });
 
+    // Wait for initialize() to settle before exercising the resource
+    await waitFor(() => {
+      expect(result.current?.entities).toBeDefined();
+    });
+
     await act(async () => {
       result.current?.camelResource.addNewEntity();
       result.current?.updateSourceCodeFromEntities();
@@ -203,11 +225,16 @@ describe('EntitiesProvider', () => {
     );
   });
 
-  it('updating entities should NOT recreate the Camel Resource', () => {
+  it('updating entities should NOT recreate the Camel Resource', async () => {
     let firstCamelResource: KaotoResource | undefined;
     let secondCamelResource: KaotoResource | undefined;
 
     const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: buildWrapper() });
+
+    // Wait for initialize() to settle before exercising the resource
+    await waitFor(() => {
+      expect(result.current?.entities).toBeDefined();
+    });
 
     act(() => {
       firstCamelResource = result.current?.camelResource;
@@ -223,8 +250,13 @@ describe('EntitiesProvider', () => {
     expect(secondCamelResource).toBeDefined();
   });
 
-  it('should refresh entities', () => {
+  it('should refresh entities', async () => {
     const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: buildWrapper() });
+
+    // Wait for initialize() to settle before exercising the resource
+    await waitFor(() => {
+      expect(result.current?.entities).toBeDefined();
+    });
 
     act(() => {
       result.current?.camelResource.addNewEntity();
@@ -274,6 +306,11 @@ describe('EntitiesProvider', () => {
 
     act(() => {
       eventNotifier.next('code:updated', { code });
+    });
+
+    // Wait for initialize() to complete so comments are parsed into the resource
+    await waitFor(() => {
+      expect(result.current?.visualEntities).toHaveLength(1);
     });
 
     const output = await result.current?.camelResource.toSourceCode();
