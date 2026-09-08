@@ -51,6 +51,7 @@ export class ProcessorStepsService {
       /** choice */ case 'otherwise' as keyof ProcessorDefinition:
       /** doTry */ case 'doCatch':
       /** doTry */ case 'doFinally':
+      case 'a2aSubTask':
       case 'aggregate':
       case 'filter':
       case 'loadBalance':

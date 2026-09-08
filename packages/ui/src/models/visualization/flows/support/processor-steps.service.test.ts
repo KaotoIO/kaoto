@@ -11,6 +11,7 @@ describe('ProcessorStepsService', () => {
       ['otherwise', false],
       ['doCatch', false],
       ['doFinally', false],
+      ['a2aSubTask', true],
       ['aggregate', true],
       ['onFallback', true],
       ['saga', true],
@@ -33,6 +34,7 @@ describe('ProcessorStepsService', () => {
       ['interceptSendToEndpoint', false],
       ['onException', false],
       ['onCompletion', false],
+      ['a2aSubTask', true],
       ['aggregate', true],
       ['onFallback', true],
       ['saga', true],
@@ -50,6 +52,7 @@ describe('ProcessorStepsService', () => {
       ['otherwise', [{ name: 'steps', type: 'branch' }]],
       ['doCatch', [{ name: 'steps', type: 'branch' }]],
       ['doFinally', [{ name: 'steps', type: 'branch' }]],
+      ['a2aSubTask', [{ name: 'steps', type: 'branch' }]],
       ['aggregate', [{ name: 'steps', type: 'branch' }]],
       [
         'circuitBreaker',
