@@ -1,9 +1,17 @@
-import { CamelYamlDsl, RouteConfigurationDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import {
+  CamelYamlDsl,
+  CatalogLibrary,
+  RouteConfigurationDefinition,
+  RouteDefinition,
+} from '@kaoto/camel-catalog/types';
 import { parse } from 'yaml';
 
+import { DynamicCatalogRegistry } from '../../dynamic-catalog/dynamic-catalog-registry';
 import { beansJson } from '../../stubs/beans';
 import { camelFromJson } from '../../stubs/camel-from';
 import { camelRouteJson, camelRouteYaml } from '../../stubs/camel-route';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../stubs/test-load-catalog';
 import { EntityType } from '../entities';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../visualization/flows/camel-route-visual-entity';
@@ -571,6 +579,15 @@ describe('CamelRouteResource', () => {
   });
 
   describe('getCanvasEntityList', () => {
+    beforeAll(async () => {
+      const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+      setupDynamicCatalogRegistry(catalogsMap);
+    });
+
+    afterAll(() => {
+      DynamicCatalogRegistry.get().clearRegistry();
+    });
+
     it('should return all entities', async () => {
       const resource = new CamelRouteResource();
       await resource.initialize();
@@ -633,6 +650,19 @@ describe('CamelRouteResource', () => {
 
       // Route should be in common (empty group)
       expect(entityList.common).toEqual([expect.objectContaining({ name: EntityType.Route })]);
+    });
+
+    it('should use title and description from DynamicCatalogRegistry', async () => {
+      const resource = new CamelRouteResource();
+      await resource.initialize();
+
+      const entityList = resource.getCanvasEntityList();
+      const routeEntity = entityList.common.find((e) => e.name === EntityType.Route);
+
+      expect(routeEntity).toBeDefined();
+      // The catalog has a proper title for 'route' — it should NOT fall back to the raw type string
+      expect(routeEntity!.title).not.toBe(EntityType.Route);
+      expect(routeEntity!.title.length).toBeGreaterThan(0);
     });
   });
 

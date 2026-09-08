@@ -19,12 +19,13 @@ import { isDefined } from '@kaoto/forms';
 import { parse, stringify } from 'yaml';
 
 import { TileFilter } from '../../components/Catalog';
+import { DynamicCatalogRegistry } from '../../dynamic-catalog/dynamic-catalog-registry';
 import { insertYamlComments } from '../../utils/yaml-comments';
 import { CatalogKind } from '../catalog-kind';
 import { BaseEntity, EntityType } from '../entities';
 import { BaseVisualEntityDefinition, BeansAwareResource, KaotoResource } from '../kaoto-resource';
 import { AddStepMode, BaseEntityConstructor, IVisualizationNodeData } from '../visualization/base-visual-entity';
-import { CamelCatalogService, CamelRouteVisualEntity } from '../visualization/flows';
+import { CamelRouteVisualEntity } from '../visualization/flows';
 import { CamelErrorHandlerVisualEntity } from '../visualization/flows/camel-error-handler-visual-entity';
 import { CamelInterceptFromVisualEntity } from '../visualization/flows/camel-intercept-from-visual-entity';
 import { CamelInterceptSendToEndpointVisualEntity } from '../visualization/flows/camel-intercept-send-to-endpoint-visual-entity';
@@ -124,21 +125,22 @@ export class CamelRouteResource implements KaotoResource, BeansAwareResource {
   ) {}
 
   async initialize(): Promise<void> {
-    if (!this.rawEntities) {
+    await this.resolveCanvasEntityList();
+
+    if (this.rawEntities) {
+      const entities = Array.isArray(this.rawEntities) ? this.rawEntities : [this.rawEntities];
+      const parsedEntities = entities.reduce((acc, rawItem) => {
+        const entity = this.getEntity(rawItem);
+        if (isDefined(entity) && typeof entity === 'object') {
+          acc.push(entity);
+        }
+        return acc;
+      }, [] as BaseEntity[]);
+
+      this.entities = EntityOrderingService.sortEntitiesForSerialization(parsedEntities);
+    } else {
       this.entities = [];
-      return;
     }
-
-    const entities = Array.isArray(this.rawEntities) ? this.rawEntities : [this.rawEntities];
-    const parsedEntities = entities.reduce((acc, rawItem) => {
-      const entity = this.getEntity(rawItem);
-      if (isDefined(entity) && typeof entity === 'object') {
-        acc.push(entity);
-      }
-      return acc;
-    }, [] as BaseEntity[]);
-
-    this.entities = EntityOrderingService.sortEntitiesForSerialization(parsedEntities);
   }
 
   protected setRawEntities(rawEntities?: CamelYamlDsl): void {
@@ -146,30 +148,7 @@ export class CamelRouteResource implements KaotoResource, BeansAwareResource {
   }
 
   getCanvasEntityList(): BaseVisualEntityDefinition {
-    this.resolvedEntities = this.supportedEntities
-      .filter(({ isVisualEntity }) => isVisualEntity)
-      .reduce(
-        (acc, { type, group }) => {
-          const catalogEntity = CamelCatalogService.getComponent(CatalogKind.Entity, type);
-          const entityDefinition = {
-            name: type,
-            title: catalogEntity?.model.title || type,
-            description: catalogEntity?.model.description || '',
-          };
-
-          if (group === '') {
-            acc.common.push(entityDefinition);
-            return acc;
-          }
-
-          acc.groups[group] ??= [];
-          acc.groups[group].push(entityDefinition);
-          return acc;
-        },
-        { common: [], groups: {} } as BaseVisualEntityDefinition,
-      );
-
-    return this.resolvedEntities;
+    return this.resolvedEntities ?? { common: [], groups: {} };
   }
 
   addNewEntity(entityType?: EntityType, entityTemplate?: unknown, insertAfterEntityId?: string): string {
@@ -202,6 +181,40 @@ export class CamelRouteResource implements KaotoResource, BeansAwareResource {
   protected getRouteTemplate(): RouteDefinition {
     const template = parse(FlowTemplateService.getFlowSourceTemplate(this.getType()));
     return template[0] as RouteDefinition;
+  }
+
+  private async resolveCanvasEntityList(): Promise<void> {
+    if (this.resolvedEntities) {
+      return;
+    }
+
+    const items = await Promise.all(
+      this.supportedEntities
+        .filter(({ isVisualEntity }) => isVisualEntity)
+        .map(async ({ type, group }) => {
+          const catalogEntity = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Entity, type);
+          return {
+            type,
+            group,
+            title: catalogEntity?.model.title ?? type,
+            description: catalogEntity?.model.description ?? '',
+          };
+        }),
+    );
+
+    this.resolvedEntities = items.reduce(
+      (acc, { type, group, title, description }) => {
+        const entityDefinition = { name: type, title, description };
+        if (group === '') {
+          acc.common.push(entityDefinition);
+        } else {
+          acc.groups[group] ??= [];
+          acc.groups[group].push(entityDefinition);
+        }
+        return acc;
+      },
+      { common: [], groups: {} } as BaseVisualEntityDefinition,
+    );
   }
 
   /**

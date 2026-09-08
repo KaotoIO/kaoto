@@ -2,21 +2,22 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { fireEvent, render, waitFor } from '@testing-library/react';
 
-import { CamelCatalogService, CatalogKind } from '../../../../models';
+import { DynamicCatalogRegistry } from '../../../../dynamic-catalog/dynamic-catalog-registry';
 import { CamelRouteResource } from '../../../../models/camel';
 import { configureSourceSchemaTypes, TestProvidersWrapper } from '../../../../stubs';
 import { camelRouteJson } from '../../../../stubs/camel-route';
-import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../../stubs/test-load-catalog';
 import { NewEntity } from './NewEntity';
 
 describe('NewEntity', () => {
-  beforeAll(() => {
+  beforeAll(async () => {
     configureSourceSchemaTypes();
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    setupDynamicCatalogRegistry(catalogsMap);
   });
 
-  beforeEach(async () => {
-    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
+  afterAll(() => {
+    DynamicCatalogRegistry.get().clearRegistry();
   });
 
   it('component renders', async () => {
