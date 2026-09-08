@@ -127,10 +127,10 @@ const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = obser
     return null;
   }
   const { onReplaceNode } = useReplaceStep(vizNode);
+  const placeholderName = vizNode.data.primaryNodeId?.name ?? vizNode.data.name;
   const isSpecialPlaceholder =
-    vizNode.data.primaryNodeId?.name !== PlaceholderType.Placeholder &&
-    vizNode.data.primaryNodeId?.name !== PlaceholderType.PlaceholderSpecialChild;
-  const isSpecialChildPlaceholder = vizNode.data.primaryNodeId?.name === PlaceholderType.PlaceholderSpecialChild;
+    placeholderName !== PlaceholderType.Placeholder && placeholderName !== PlaceholderType.PlaceholderSpecialChild;
+  const isSpecialChildPlaceholder = placeholderName === PlaceholderType.PlaceholderSpecialChild;
 
   const parentVizNode = vizNode.getParentNode();
   const insertStepTargetNode = isSpecialPlaceholder ? (parentVizNode ?? vizNode) : vizNode;

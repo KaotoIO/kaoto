@@ -41,6 +41,8 @@ export const storybookCamelRoute = `
               maxOverlap: 1500
               maxTokens: 200000
               tokenizerType: QWEN
+        - loadBalance:
+            id: loadBalance-4001
 - beans:
     - name: aggregationStrategy
       type: org.apache.camel.AggregationStrategy
