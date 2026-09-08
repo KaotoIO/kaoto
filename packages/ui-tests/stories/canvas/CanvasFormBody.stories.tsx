@@ -5,6 +5,7 @@ import {
   CatalogLoaderProvider,
   CatalogSchemaLoader,
   createVisualizationNode,
+  IVisualizationNode,
   KaotoResourceProvider,
   RuntimeProvider,
   SchemasLoaderProvider,
@@ -12,7 +13,7 @@ import {
   VisibleFlowsProvider,
 } from '@kaoto/kaoto/testing';
 import { Meta, StoryFn, StoryObj } from '@storybook/react';
-import { ComponentProps, useEffect, useState } from 'react';
+import { FunctionComponent, useEffect, useState } from 'react';
 
 import { storybookCamelRoute, storybookCamelRouteEntity } from './canvas.stub';
 
@@ -51,50 +52,45 @@ export default {
   ],
 } as Meta<typeof CanvasFormBody>;
 
-type CanvasFormBodyProps = ComponentProps<typeof CanvasFormBody>;
-
-const Template: StoryFn<CanvasFormBodyProps> = (args) => {
-  const [isSchemaLoaded, setIsSchemaLoaded] = useState(false);
+/**
+ * Wrapper that creates a vizNode and hydrates its schema + definition inside
+ * the provider tree (after CatalogLoaderProvider has populated DynamicCatalogRegistry).
+ */
+const HydratedCanvasFormBody: FunctionComponent<{ vizNode: IVisualizationNode }> = ({ vizNode }) => {
+  const [hydrated, setHydrated] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
-    // Reset loading state when vizNode changes
-    setIsSchemaLoaded(false);
+    let cancelled = false;
+    setHydrated(false);
+    setFailed(false);
 
-    let isCancelled = false;
+    Promise.all([vizNode.fetchSchema(), vizNode.fetchNodeDefinition()])
+      .then(() => {
+        if (!cancelled) setHydrated(true);
+      })
+      .catch(() => {
+        if (!cancelled) setFailed(true);
+      });
 
-    const fetchSchema = async () => {
-      try {
-        await args.vizNode.fetchSchema();
-
-        // Only update state if this request is still current
-        if (!isCancelled) {
-          setIsSchemaLoaded(true);
-        }
-      } catch (error) {
-        // Ignore errors from stale requests
-        if (!isCancelled) {
-          console.error('[CanvasFormBody Story] Failed to fetch schema:', error);
-          setIsSchemaLoaded(true); // Still render to show the error
-        }
-      }
-    };
-
-    void fetchSchema();
-
-    // Cleanup: mark this request as stale when vizNode changes
     return () => {
-      isCancelled = true;
+      cancelled = true;
     };
-  }, [args.vizNode]);
+  }, [vizNode]);
 
-  if (!isSchemaLoaded) {
-    return <div>Loading schema...</div>;
+  if (failed) return <div>Failed to load form data.</div>;
+  if (!hydrated) {
+    return <div>Loading…</div>;
   }
 
-  return <CanvasFormBody {...args} />;
+  return <CanvasFormBody vizNode={vizNode} />;
 };
 
-export const AggregateNode: StoryObj<CanvasFormBodyProps> = {
+const Template: StoryFn<{ vizNode: IVisualizationNode }> = ({ vizNode }) => (
+  <HydratedCanvasFormBody vizNode={vizNode} />
+);
+
+export const AggregateNode: StoryObj<{ vizNode: IVisualizationNode }> = {
   render: Template,
   args: {
     vizNode: createVisualizationNode('aggregate', {
@@ -113,7 +109,7 @@ export const AggregateNode: StoryObj<CanvasFormBodyProps> = {
   },
 };
 
-export const MarshalNode: StoryObj<CanvasFormBodyProps> = {
+export const MarshalNode: StoryObj<{ vizNode: IVisualizationNode }> = {
   render: Template,
   args: {
     vizNode: createVisualizationNode('marshal', {
@@ -132,7 +128,7 @@ export const MarshalNode: StoryObj<CanvasFormBodyProps> = {
   },
 };
 
-export const ResequenceNode: StoryObj<CanvasFormBodyProps> = {
+export const ResequenceNode: StoryObj<{ vizNode: IVisualizationNode }> = {
   render: Template,
   args: {
     vizNode: createVisualizationNode('resequence', {
@@ -151,7 +147,7 @@ export const ResequenceNode: StoryObj<CanvasFormBodyProps> = {
   },
 };
 
-export const SagaNode: StoryObj<CanvasFormBodyProps> = {
+export const SagaNode: StoryObj<{ vizNode: IVisualizationNode }> = {
   render: Template,
   args: {
     vizNode: createVisualizationNode('saga', {
@@ -170,7 +166,7 @@ export const SagaNode: StoryObj<CanvasFormBodyProps> = {
   },
 };
 
-export const SetHeaderNode: StoryObj<CanvasFormBodyProps> = {
+export const SetHeaderNode: StoryObj<{ vizNode: IVisualizationNode }> = {
   render: Template,
   args: {
     vizNode: createVisualizationNode('setHeader', {
@@ -189,7 +185,7 @@ export const SetHeaderNode: StoryObj<CanvasFormBodyProps> = {
   },
 };
 
-export const TokenizerNode: StoryObj<CanvasFormBodyProps> = {
+export const TokenizerNode: StoryObj<{ vizNode: IVisualizationNode }> = {
   render: Template,
   args: {
     vizNode: createVisualizationNode('tokenizer', {
@@ -204,6 +200,45 @@ export const TokenizerNode: StoryObj<CanvasFormBodyProps> = {
       description: '',
       // @ts-expect-error Cannot access ambient const enums when 'isolatedModules' is enabled
       primaryNodeId: { name: 'tokenizer', catalogKind: CatalogKind.Pattern },
+    }),
+  },
+};
+
+export const LoadBalanceNode: StoryObj<{ vizNode: IVisualizationNode }> = {
+  render: Template,
+  args: {
+    vizNode: createVisualizationNode('loadBalance', {
+      path: 'route.from.steps.6.loadBalance',
+      name: 'loadBalance',
+      entity: storybookCamelRouteEntity,
+      processorName: 'loadBalance',
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+      // @ts-expect-error Cannot access ambient const enums when 'isolatedModules' is enabled
+      primaryNodeId: { name: 'loadBalance', catalogKind: CatalogKind.Pattern },
+    }),
+  },
+};
+
+export const TimerNode: StoryObj<{ vizNode: IVisualizationNode }> = {
+  render: Template,
+  args: {
+    vizNode: createVisualizationNode('from', {
+      path: 'route.from',
+      name: 'timer',
+      entity: storybookCamelRouteEntity,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+      // @ts-expect-error Cannot access ambient const enums when 'isolatedModules' is enabled
+      primaryNodeId: { name: 'from', catalogKind: CatalogKind.Entity },
+      // @ts-expect-error Cannot access ambient const enums when 'isolatedModules' is enabled
+      secondaryNodeId: { name: 'timer', catalogKind: CatalogKind.Component },
     }),
   },
 };

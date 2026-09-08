@@ -1,3 +1,4 @@
+import { SuggestionRegistryProvider } from '@kaoto/forms';
 import {
   BaseVisualEntity,
   buildDesignerCanvasModel,
@@ -96,9 +97,11 @@ const ContextDecorator = (Story: StoryFn) => {
               <EntitiesProvider>
                 <CatalogTilesProvider>
                   <VisibleFlowsProvider>
-                    <VisualizationProvider controller={controller}>
-                      <Story />
-                    </VisualizationProvider>
+                    <SuggestionRegistryProvider>
+                      <VisualizationProvider controller={controller}>
+                        <Story />
+                      </VisualizationProvider>
+                    </SuggestionRegistryProvider>
                   </VisibleFlowsProvider>
                 </CatalogTilesProvider>
               </EntitiesProvider>
