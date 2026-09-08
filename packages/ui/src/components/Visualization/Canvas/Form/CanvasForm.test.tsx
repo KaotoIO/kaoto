@@ -114,8 +114,7 @@ describe('CanvasForm', () => {
       isPlaceholder: false,
     });
 
-    await noSchemaVizNode.fetchNodeDefinition();
-
+    (noSchemaVizNode as IVisualizationNode).fetchNodeDefinition = vi.fn().mockResolvedValue(null);
     const { Provider } = await TestProvidersWrapper();
     const { container } = render(
       <Provider>
