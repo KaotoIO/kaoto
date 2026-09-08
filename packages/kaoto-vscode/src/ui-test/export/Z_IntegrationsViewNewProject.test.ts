@@ -31,8 +31,8 @@ import {
 	VSBrowser,
 	WebDriver,
 } from 'vscode-extension-tester';
-import { openResourcesAndWaitForActivation } from './utils/extension';
-import { expandFolderItemsInTreeStructuredView, expandViews, getKaotoViewControl, getTreeItem, getTreeItemActionButton } from './utils/tree-view';
+import { openResourcesAndWaitForActivation } from '../utils/extension';
+import { expandFolderItemsInTreeStructuredView, expandViews, getKaotoViewControl, getTreeItem, getTreeItemActionButton } from '../utils/tree-view';
 
 /**
  * This test needs to be always executed as last in suite
