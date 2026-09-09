@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": ["--disable-extensions", "--extensionDevelopmentPath=${workspaceFolder}/packages/kaoto-vscode"],
+      "outFiles": ["${workspaceFolder}/packages/kaoto-vscode/dist/**/*.js"],
+      "preLaunchTask": "build:lib then watch",
+      "env": {
+        "VSCODE_REDHAT_TELEMETRY_DEBUG": "true"
+      }
+    },
+    {
+      "name": "Run Web Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": ["--disable-extensions", "--extensionDevelopmentPath=${workspaceFolder}/packages/kaoto-vscode", "--extensionDevelopmentKind=web"],
+      "outFiles": ["${workspaceFolder}/packages/kaoto-vscode/dist/**/*.js"],
+      "preLaunchTask": "build:lib then watch",
+      "env": {
+        "VSCODE_REDHAT_TELEMETRY_DEBUG": "true"
+      }
+    }
+  ]
+}

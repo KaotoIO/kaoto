@@ -1,0 +1,36 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "path": "packages/ui",
+      "type": "npm",
+      "label": "build: @kaoto/kaoto build:lib",
+      "script": "build:lib",
+      "problemMatcher": "$tsc",
+      "presentation": {
+        "reveal": "always"
+      }
+    },
+    {
+      "path": "packages/kaoto-vscode",
+      "type": "npm",
+      "label": "build: vscode-kaoto build:dev",
+      "script": "build:dev",
+      "problemMatcher": "$tsc-watch",
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "build:lib then watch",
+      "dependsOrder": "sequence",
+      "dependsOn": ["build: @kaoto/kaoto build:lib", "build: vscode-kaoto build:dev"],
+      "problemMatcher": []
+    }
+  ]
+}

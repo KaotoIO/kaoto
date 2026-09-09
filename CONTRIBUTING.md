@@ -101,7 +101,7 @@ We welcome contributions created with AI assistance! AI tools can help accelerat
   - Do not introduce regressions nor sonarqube issues.
   - See the Testing and Code Style sections above
 
-For technical details on using AI tools with Kaoto, see [AGENTS.md](AGENTS.md) and [CLAUDE.md](CLAUDE.md).
+For technical details on using AI tools with Kaoto, see [AGENTS.md](AGENTS.md).
 
 ## Questions or Need Help?
 
