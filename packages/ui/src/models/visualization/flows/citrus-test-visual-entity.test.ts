@@ -2,6 +2,9 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { cloneDeep } from 'lodash';
 
+import { DynamicCatalog } from '../../../dynamic-catalog/dynamic-catalog';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
+import { CamelProcessorsProvider } from '../../../dynamic-catalog/providers/camel-components.provider';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { citrusTestJson } from '../../../stubs/citrus-test';
 import { getFirstCitrusCatalogMap } from '../../../stubs/test-load-catalog';
@@ -187,15 +190,20 @@ describe('CitrusTestVisualEntity', () => {
     });
 
     it('should return root test schema from the catalog', async () => {
-      CamelCatalogService.setCatalogKey(CatalogKind.Entity, {
-        [CITRUS_TEST_ROOT_ENTITY_NAME]: {
-          propertiesSchema: {
-            name: 'Test',
-            description: 'desc',
-            properties: { name: {}, variables: {}, actions: { type: 'array' }, finally: { type: 'array' } },
-          },
-        } as unknown as ICamelProcessorDefinition,
-      });
+      DynamicCatalogRegistry.get().setCatalog(
+        CatalogKind.Entity,
+        new DynamicCatalog(
+          new CamelProcessorsProvider({
+            [CITRUS_TEST_ROOT_ENTITY_NAME]: {
+              propertiesSchema: {
+                name: 'Test',
+                description: 'desc',
+                properties: { name: {}, variables: {}, actions: { type: 'array' }, finally: { type: 'array' } },
+              },
+            } as unknown as ICamelProcessorDefinition,
+          }),
+        ),
+      );
       const result = await citrusTestEntity.fetchNodeSchema({
         primaryNodeId: { name: CITRUS_TEST_ROOT_ENTITY_NAME, catalogKind: CatalogKind.Entity },
       });

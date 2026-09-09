@@ -2,6 +2,7 @@ import { isDefined } from '@kaoto/forms';
 import { cloneDeep } from 'lodash';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { getArrayProperty, getValue, setValue } from '../../../utils';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
@@ -22,7 +23,6 @@ import {
 import { IClipboardContent } from '../clipboard';
 import { NodeIdentity } from '../node-identity';
 import { createVisualizationNode } from '../visualization-node';
-import { CamelCatalogService } from './camel-catalog.service';
 import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 import { CitrusTestDefaultService } from './support/citrus-test-default.service';
 import { CitrusTestContainerSettings, CitrusTestSchemaService } from './support/citrus-test-schema.service';
@@ -177,8 +177,8 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     }
 
     if (ids.primaryNodeId.catalogKind === CatalogKind.Entity) {
-      // Root test group node — use the static catalog (same as getNodeSchema at root path)
-      return this.getRootTestSchema();
+      // Root test group node — use the dynamic catalog registry
+      return await this.getRootTestSchema();
     }
 
     // Test action / container nodes — use CitrusTestSchemaService (static catalog)
@@ -197,6 +197,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     }
     return actionModel ?? {};
   }
+
   getOmitFormFields(): string[] {
     return [];
   }
@@ -518,8 +519,11 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     return vizNodes;
   }
 
-  private getRootTestSchema(): KaotoSchemaDefinition['schema'] {
-    const testRootDefinition = CamelCatalogService.getComponent(CatalogKind.Entity, CITRUS_TEST_ROOT_ENTITY_NAME);
+  private async getRootTestSchema(): Promise<KaotoSchemaDefinition['schema']> {
+    const testRootDefinition = await DynamicCatalogRegistry.get().getEntity(
+      CatalogKind.Entity,
+      CITRUS_TEST_ROOT_ENTITY_NAME,
+    );
     const schema = cloneDeep(testRootDefinition?.propertiesSchema ?? {});
 
     if (schema.properties) {
