@@ -37,6 +37,13 @@ html body {
   > div[role='region'] {
     flex-grow: 0;
     flex-shrink: 0;
+
+    // Each Tab is wrapped in a react-router <Link>, i.e. an <a>. PatternFly 6 base styles
+    // underline every anchor by default and that decoration propagates to the tab text.
+    // Tabs are navigation controls, not inline links, so drop it here.
+    a {
+      text-decoration: none;
+    }
   }
 
   // Tab content for Design canvas is not scrollable
