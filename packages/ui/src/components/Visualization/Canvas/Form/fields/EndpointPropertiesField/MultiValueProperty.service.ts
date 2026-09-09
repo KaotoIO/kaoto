@@ -5,9 +5,9 @@ import { CatalogKind, ICamelComponentDefinition } from '../../../../../../models
 import { ParsedParameters } from '../../../../../../utils';
 
 export class MultiValuePropertyService {
-  static async getMultiValueProperties(catalogKind: CatalogKind, componentName: string) {
+  static async getMultiValueProperties(componentName: string) {
     const catalogLookup = (await DynamicCatalogRegistry.get().getEntity(
-      catalogKind,
+      CatalogKind.Component,
       componentName,
     )) as ICamelComponentDefinition;
 
