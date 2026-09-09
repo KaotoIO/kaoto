@@ -67,6 +67,23 @@ describe('CamelOnExceptionVisualEntity', () => {
       } as IVisualizationNodeData);
       expect(result).toMatchSnapshot();
     });
+
+    it('should determine whether a node can be disabled from its schema', () => {
+      const entity = new CamelOnExceptionVisualEntity();
+      const result = entity.getNodeInteraction({
+        name: 'from',
+        primaryNodeId: { name: 'from', catalogKind: CatalogKind.Entity },
+        schema: { type: 'object', properties: { disabled: { type: 'boolean' } } },
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
+        processorIconTooltip: '',
+      });
+
+      expect(result.canBeDisabled).toBe(true);
+    });
   });
 
   describe('toVizNode', () => {

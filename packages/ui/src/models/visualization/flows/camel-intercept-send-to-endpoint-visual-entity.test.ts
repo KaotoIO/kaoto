@@ -90,6 +90,24 @@ describe('CamelInterceptSendToEndpointVisualEntity', () => {
       } as IVisualizationNodeData);
       expect(result).toMatchSnapshot();
     });
+
+    it('should determine whether a node can be disabled from its schema', () => {
+      const entity = new CamelInterceptSendToEndpointVisualEntity({
+        interceptSendToEndpoint: { id: 'id', uri: 'direct:a-reference' },
+      });
+      const result = entity.getNodeInteraction({
+        name: 'from',
+        primaryNodeId: { name: 'from', catalogKind: CatalogKind.Entity },
+        schema: { type: 'object', properties: { disabled: { type: 'boolean' } } },
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
+      });
+
+      expect(result.canBeDisabled).toBe(true);
+    });
   });
 
   it('should delegate the validation text to the ModelValidationService', async () => {

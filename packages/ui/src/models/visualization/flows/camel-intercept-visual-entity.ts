@@ -9,7 +9,6 @@ import { NodeIdentity } from '../node-identity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
-import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 import { ProcessorStepsService } from './support/processor-steps.service';
 
 export class CamelInterceptVisualEntity
@@ -61,9 +60,7 @@ export class CamelInterceptVisualEntity
     const canHaveSpecialChildren = Object.keys(stepsProperties).length > 1;
     const canReplaceStep = data.path !== CamelInterceptVisualEntity.ROOT_PATH;
     const canRemoveStep = data.path !== CamelInterceptVisualEntity.ROOT_PATH;
-    const canBeDisabled = CamelComponentSchemaService.canBeDisabled(
-      data.primaryNodeId?.name as keyof ProcessorDefinition,
-    );
+    const canBeDisabled = data.schema?.properties?.disabled !== undefined;
 
     return {
       canHavePreviousStep,
