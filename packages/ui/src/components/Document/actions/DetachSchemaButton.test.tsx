@@ -14,10 +14,10 @@ describe('DetachSchemaButton', () => {
     let sourceDoc: IDocument;
     let setInitialDoc = true;
     const DetachTest: FunctionComponent<PropsWithChildren> = ({ children }) => {
-      const { sourceBodyDocument, setSourceBodyDocument } = useDataMapper();
+      const { sourceBodyDocument, setNewDocument } = useDataMapper();
       useEffect(() => {
         if (setInitialDoc) {
-          setSourceBodyDocument(TestUtil.createSourceOrderDoc());
+          setNewDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID, TestUtil.createSourceOrderDoc());
           setInitialDoc = false;
         }
       });
