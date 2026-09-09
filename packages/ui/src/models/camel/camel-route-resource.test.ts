@@ -664,6 +664,19 @@ describe('CamelRouteResource', () => {
       expect(routeEntity!.title).not.toBe(EntityType.Route);
       expect(routeEntity!.title.length).toBeGreaterThan(0);
     });
+
+    it('should resolve the entity list only once across multiple initialize() calls', async () => {
+      const resource = new CamelRouteResource();
+      await resource.initialize();
+      const firstList = resource.getCanvasEntityList();
+
+      // resolveCanvasEntityList() has a guard: if resolvedEntities is already set it returns early.
+      // A second initialize() must return the same object reference, not a newly built one.
+      await resource.initialize();
+      const secondList = resource.getCanvasEntityList();
+
+      expect(secondList).toBe(firstList);
+    });
   });
 
   describe('isVisualEntity classification', () => {

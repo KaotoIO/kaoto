@@ -10,7 +10,7 @@ import { BaseEntity, EntityType } from '../entities';
 import { BaseVisualEntityDefinition, KaotoResource } from '../kaoto-resource';
 import { KaotoSchemaDefinition } from '../kaoto-schema';
 import { AddStepMode, BaseEntityConstructor, IVisualizationNodeData } from '../visualization/base-visual-entity';
-import { CamelCatalogService, CitrusTestVisualEntity } from '../visualization/flows';
+import { CitrusTestVisualEntity } from '../visualization/flows';
 import { NonVisualEntity } from '../visualization/flows/non-visual-entity';
 import { FlowTemplateService } from '../visualization/flows/support/flow-templates-service';
 import { Test } from './entities/Test';
@@ -59,40 +59,29 @@ export class CitrusTestResource implements KaotoResource {
   async initialize(): Promise<void> {
     if (!this.rawEntities) {
       this.entities = [];
-      return;
+    } else {
+      const entities = Array.isArray(this.rawEntities) ? this.rawEntities : [this.rawEntities];
+      const parsedEntities = entities.reduce((acc, rawItem) => {
+        const entity = this.getEntity(rawItem);
+        if (isDefined(entity) && typeof entity === 'object') {
+          acc.push(entity);
+        }
+        return acc;
+      }, [] as BaseEntity[]);
+
+      this.entities = EntityOrderingService.sortEntitiesForSerialization(parsedEntities);
     }
 
-    const entities = Array.isArray(this.rawEntities) ? this.rawEntities : [this.rawEntities];
-    const parsedEntities = entities.reduce((acc, rawItem) => {
-      const entity = this.getEntity(rawItem);
-      if (isDefined(entity) && typeof entity === 'object') {
-        acc.push(entity);
-      }
-      return acc;
-    }, [] as BaseEntity[]);
-
-    this.entities = EntityOrderingService.sortEntitiesForSerialization(parsedEntities);
-
-    // Fetch and cache endpoints schema
-    await this.fetchEndpointsSchema();
-  }
-
-  /**
-   * Gets the list of entity types that can be added to the canvas.
-   *
-   * Filters entities based on the current serializer type (some entities are YAML-only).
-   * Returns entity definitions organized into common entities and grouped entities.
-   *
-   * @returns Entity definitions with metadata for display in the visual editor
-   */
-  getCanvasEntityList(): BaseVisualEntityDefinition {
+    // Pre-populate the canvas entity list so getCanvasEntityList() stays synchronous.
+    // The lookup CamelCatalogService.getComponent(CatalogKind.TestAction, EntityType.Test) always
+    // returned undefined because the 'test' key does not exist in any Citrus catalog — the fallback
+    // (type as title, empty description) was always used. We therefore build the list directly here.
     this.resolvedEntities = this.supportedEntities.reduce(
       (acc, { type, group }) => {
-        const catalogEntity = CamelCatalogService.getComponent(CatalogKind.TestAction, type);
         const entityDefinition = {
           name: type,
-          title: catalogEntity?.title || type,
-          description: catalogEntity?.description || '',
+          title: type,
+          description: '',
         };
 
         if (group === '') {
@@ -107,7 +96,12 @@ export class CitrusTestResource implements KaotoResource {
       { common: [], groups: {} } as BaseVisualEntityDefinition,
     );
 
-    return this.resolvedEntities;
+    // Fetch and cache endpoints schema
+    await this.fetchEndpointsSchema();
+  }
+
+  getCanvasEntityList(): BaseVisualEntityDefinition {
+    return this.resolvedEntities ?? { common: [], groups: {} };
   }
 
   /**

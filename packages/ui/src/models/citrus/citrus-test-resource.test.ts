@@ -179,18 +179,20 @@ describe('CitrusTestResource', () => {
       expect(firstCall).toStrictEqual(secondCall);
     });
 
-    it('should include entity titles and descriptions from catalog', async () => {
+    it('should include entity name, title, and description', async () => {
       const resource = new CitrusTestResource(citrusTestJson);
       await resource.initialize();
 
       const entityList = resource.getCanvasEntityList();
 
-      // Check that entities have proper structure with name, title, and description
+      // The 'test' key does not exist in any Citrus catalog so title falls back to the entity type name
       const testEntity = entityList.common[0];
       expect(testEntity).toHaveProperty('name');
       expect(testEntity).toHaveProperty('title');
       expect(testEntity).toHaveProperty('description');
       expect(testEntity.name).toBe(EntityType.Test);
+      expect(testEntity.title).toBe(EntityType.Test);
+      expect(testEntity.description).toBe('');
     });
 
     it('should properly group entities', async () => {
@@ -204,6 +206,24 @@ describe('CitrusTestResource', () => {
 
       // Test should be in common (empty group)
       expect(entityList.common).toEqual([expect.objectContaining({ name: EntityType.Test })]);
+    });
+
+    it('should be populated after initialize() and re-populated on subsequent calls', async () => {
+      const resource = new CitrusTestResource(citrusTestJson);
+
+      // Before initialize() the list is undefined — getCanvasEntityList() would return undefined!
+      // This test verifies that initialize() is the trigger that makes it available.
+      await resource.initialize();
+      const firstList = resource.getCanvasEntityList();
+      expect(firstList).toBeDefined();
+      expect(firstList.common).toHaveLength(1);
+
+      // Unlike CamelRouteResource (which caches and skips on re-initialize),
+      // CitrusTestResource re-populates resolvedEntities on every initialize() call.
+      await resource.initialize();
+      const secondList = resource.getCanvasEntityList();
+      expect(secondList).toBeDefined();
+      expect(secondList).toStrictEqual(firstList);
     });
   });
 
