@@ -13,6 +13,7 @@ import { FormEvent, FunctionComponent, useCallback, useEffect, useMemo, useState
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { DocumentDefinitionType, IDataMapperSettings } from '../../../../models/datamapper';
+import { DataMapperSettingsService } from '../../../../services/datamapper-settings.service';
 
 type DataMapperSettingsModalProps = {
   isModalOpen: boolean;
@@ -32,8 +33,8 @@ export const DataMapperSettingsModal: FunctionComponent<DataMapperSettingsModalP
   } = useDataMapper();
   const [localOptions, setLocalOptions] = useState<IDataMapperSettings>(dataMapperSettings);
 
-  const isTargetXml = useMemo(
-    () => targetBodyDocument.definitionType === DocumentDefinitionType.XML_SCHEMA,
+  const isOmitXmlDeclarationSupported = useMemo(
+    () => DataMapperSettingsService.isOmitXmlDeclarationSupported(targetBodyDocument.definitionType),
     [targetBodyDocument.definitionType],
   );
 
@@ -90,13 +91,13 @@ export const DataMapperSettingsModal: FunctionComponent<DataMapperSettingsModalP
             <Checkbox
               id="omit-xml-declaration"
               label="Omit XML declaration"
-              isChecked={isTargetXml ? localOptions.omitXmlDeclaration : false}
+              isChecked={isOmitXmlDeclarationSupported ? localOptions.omitXmlDeclaration : false}
               onChange={(_event, checked) => {
                 handleFieldChange('omitXmlDeclaration', checked);
               }}
-              isDisabled={!isTargetXml}
+              isDisabled={!isOmitXmlDeclarationSupported}
               data-testid="omit-xml-declaration-checkbox"
-              description={!isTargetXml ? 'Only available when target document is XML' : undefined}
+              description={!isOmitXmlDeclarationSupported ? 'Only available when target document is XML' : undefined}
             />
           </FormGroup>
           {/* Output validation UI: set to true when feature is complete */}

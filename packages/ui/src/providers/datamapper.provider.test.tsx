@@ -1110,6 +1110,97 @@ describe('DataMapperProvider', () => {
       });
     });
 
+    it('should serialize the refreshed mapping tree, not the render-stale one, when a target type change also resets settings', async () => {
+      const serializeSpy = vi.spyOn(MappingSerializerService, 'serialize');
+
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider onUpdateMappings={vi.fn()}>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      const xmlDocDef = new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.XML_SCHEMA, 'Body', {});
+      const mockXmlDocument = {
+        documentType: DocumentType.TARGET_BODY,
+        documentId: 'Body',
+        definitionType: DocumentDefinitionType.XML_SCHEMA,
+      } as IDocument;
+
+      act(() => {
+        result.current.updateDocument(mockXmlDocument, xmlDocDef, 'test');
+      });
+
+      await waitFor(() => {
+        expect(result.current.targetBodyDocument.definitionType).toBe(DocumentDefinitionType.XML_SCHEMA);
+      });
+
+      act(() => {
+        result.current.updateDataMapperSettings({ omitXmlDeclaration: true });
+      });
+
+      await waitFor(() => {
+        expect(result.current.dataMapperSettings.omitXmlDeclaration).toBe(true);
+      });
+
+      serializeSpy.mockClear();
+
+      const jsonDocDef = new DocumentDefinition(
+        DocumentType.TARGET_BODY,
+        DocumentDefinitionType.JSON_SCHEMA,
+        'Body',
+        {},
+      );
+      const mockJsonDocument = {
+        documentType: DocumentType.TARGET_BODY,
+        documentId: 'Body',
+        definitionType: DocumentDefinitionType.JSON_SCHEMA,
+      } as IDocument;
+
+      act(() => {
+        result.current.updateDocument(mockJsonDocument, jsonDocDef, 'test');
+      });
+
+      await waitFor(() => {
+        expect(result.current.dataMapperSettings.omitXmlDeclaration).toBe(false);
+      });
+
+      expect(serializeSpy).toHaveBeenCalled();
+      expect(serializeSpy.mock.lastCall?.[0].documentDefinitionType).toBe(DocumentDefinitionType.JSON_SCHEMA);
+
+      serializeSpy.mockRestore();
+    });
+
+    it('should keep the same dataMapperSettings reference when the target change needs no sanitization', async () => {
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider onUpdateMappings={vi.fn()}>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+      const settingsBefore = result.current.dataMapperSettings;
+
+      const jsonDocDef = new DocumentDefinition(
+        DocumentType.TARGET_BODY,
+        DocumentDefinitionType.JSON_SCHEMA,
+        'Body',
+        {},
+      );
+      const mockJsonDocument = {
+        documentType: DocumentType.TARGET_BODY,
+        documentId: 'Body',
+        definitionType: DocumentDefinitionType.JSON_SCHEMA,
+      } as IDocument;
+
+      act(() => {
+        result.current.updateDocument(mockJsonDocument, jsonDocDef, 'test');
+      });
+
+      await waitFor(() => {
+        expect(result.current.targetBodyDocument.definitionType).toBe(DocumentDefinitionType.JSON_SCHEMA);
+      });
+
+      expect(result.current.dataMapperSettings).toBe(settingsBefore);
+    });
+
     it('should not reset omitXmlDeclaration when target remains XML', async () => {
       const wrapper = ({ children }: { children: React.ReactNode }) => (
         <DataMapperProvider>{children}</DataMapperProvider>
