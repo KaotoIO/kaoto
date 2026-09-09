@@ -39,4 +39,20 @@ describe('Nav', () => {
     await userEvent.click(button);
     expect(screen.getByRole('button', { name: /close menu/i })).toBeInTheDocument();
   });
+
+  it('renders the Open Project link in both the header and side nav', () => {
+    renderNav();
+    const links = screen.getAllByRole('link', { name: /open project/i });
+    expect(links).toHaveLength(2);
+    links.forEach((link) => expect(link).toHaveAttribute('href', '/projects/project50'));
+  });
+
+  it('closes the side nav when the Open Project link in the side nav is clicked', async () => {
+    renderNav();
+    await userEvent.click(screen.getByRole('button', { name: /open menu/i }));
+    expect(screen.getByRole('button', { name: /close menu/i })).toBeInTheDocument();
+    const [, sideNavLink] = screen.getAllByRole('link', { name: /open project/i });
+    await userEvent.click(sideNavLink);
+    expect(screen.getByRole('button', { name: /open menu/i })).toBeInTheDocument();
+  });
 });

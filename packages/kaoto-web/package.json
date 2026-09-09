@@ -81,6 +81,7 @@
     "rimraf": "^6.0.0",
     "sass": "npm:sass-embedded@^1.79.5",
     "sass-embedded": "^1.79.5",
+    "simple-git": "^3.22.0",
     "stylelint": "^17.0.0",
     "stylelint-config-standard-scss": "^17.0.0",
     "stylelint-plugin-carbon-tokens": "^5.0.6",

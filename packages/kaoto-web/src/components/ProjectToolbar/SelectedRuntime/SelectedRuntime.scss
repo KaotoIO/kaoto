@@ -1,0 +1,19 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+
+.cs--selected-runtime {
+  padding-inline: $spacing-05;
+}
+
+.selected-runtime-label {
+  @include type-style('label-02');
+
+  color: $text-secondary;
+  white-space: nowrap;
+}
+
+.selected-runtime-toggletip {
+  display: flex;
+  align-items: center;
+}

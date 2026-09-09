@@ -6,8 +6,8 @@
       "@/*": ["./src/*"]
     },
     /* Typings */
-    "types": ["@testing-library/jest-dom", "vitest/globals", "@types/node", "vite/client"]
+    "types": ["@testing-library/jest-dom/vitest", "vitest/globals", "@types/node", "vite/client"]
   },
-  "include": ["src"],
+  "include": ["src/**/*"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

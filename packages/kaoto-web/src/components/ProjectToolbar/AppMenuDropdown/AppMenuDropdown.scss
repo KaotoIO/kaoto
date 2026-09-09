@@ -1,0 +1,20 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+
+.cs--app-menu-dropdown {
+  display: flex;
+  align-items: stretch;
+
+  &.cs--app-menu-dropdown__toggle {
+    // Stretch the MenuButton trigger to fill the toolbar height
+    block-size: 100%;
+
+    // Re-center the label and chevron inside the stretched button
+    // Override Carbon ghost button's blue link color to match the toolbar's neutral palette
+    > button {
+      block-size: 100%;
+      align-items: center;
+      color: $text-primary;
+    }
+  }
+}
