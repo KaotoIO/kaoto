@@ -200,7 +200,7 @@ describe('MultiValuePropertyEditor', () => {
 
     await renderComponent({ schema: {} });
 
-    expect(getMultiValuePropertiesSpy).toHaveBeenCalledWith(undefined, undefined);
+    expect(getMultiValuePropertiesSpy).toHaveBeenCalledWith(undefined);
     expect(screen.queryByLabelText('Loading')).not.toBeInTheDocument();
   });
 
@@ -224,7 +224,7 @@ describe('MultiValuePropertyEditor', () => {
       model: { parameters: { cron: '0 0 * * *' } },
     });
 
-    expect(getMultiValuePropertiesSpy).toHaveBeenCalledWith(undefined, undefined);
+    expect(getMultiValuePropertiesSpy).toHaveBeenCalledWith(undefined);
 
     const cronInput = await screen.findByRole('textbox', { name: 'Cron' });
     fireEvent.change(cronInput, { target: { value: '0 1 * * *' } });

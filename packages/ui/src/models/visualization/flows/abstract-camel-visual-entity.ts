@@ -30,10 +30,7 @@ import { CamelProcessorStepsProperties } from './support/camel-component-types';
 import { ProcessorStepsService } from './support/processor-steps.service';
 import { ModelValidationService } from './support/validators/model-validation.service';
 
-const DISABLED_REMOVE_STEPS: (keyof ProcessorDefinition)[] = [
-  'from',
-  'route',
-] as unknown as (keyof ProcessorDefinition)[];
+const DISABLED_REMOVE_STEPS = new Set(['from', 'route']);
 
 export abstract class AbstractCamelVisualEntity<T extends object> implements BaseVisualEntity {
   constructor(public entityDef: T) {}
@@ -269,7 +266,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     const canHaveSpecialChildren = Object.keys(stepsProperties).length > 1;
     const canReplaceStep = ProcessorStepsService.canReplaceStep(processorName);
     const canRemoveFlow = data.path === this.getRootPath();
-    const canRemoveStep = !canRemoveFlow && !DISABLED_REMOVE_STEPS.includes(processorName);
+    const canRemoveStep = !canRemoveFlow && !DISABLED_REMOVE_STEPS.has(processorName);
     const canBeDisabled = data.schema?.properties?.disabled !== undefined;
 
     return {

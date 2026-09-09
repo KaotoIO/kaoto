@@ -20,19 +20,19 @@ describe('MultiValuePropertyService', () => {
     it('should query the dynamic catalog service', async () => {
       const dynamicCatalogServiceSpy = vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity');
 
-      await MultiValuePropertyService.getMultiValueProperties(CatalogKind.Component, 'log');
+      await MultiValuePropertyService.getMultiValueProperties('log');
 
       expect(dynamicCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Component, 'log');
     });
 
     it('should return an empty map for components without multi-value parameters', async () => {
-      const result = await MultiValuePropertyService.getMultiValueProperties(CatalogKind.Component, 'log');
+      const result = await MultiValuePropertyService.getMultiValueProperties('log');
 
       expect(result.size).toBe(0);
     });
 
     it('should return multi-value prefixes for quartz', async () => {
-      const result = await MultiValuePropertyService.getMultiValueProperties(CatalogKind.Component, 'quartz');
+      const result = await MultiValuePropertyService.getMultiValueProperties('quartz');
 
       expect(result.get('jobParameters')).toBe('job.');
       expect(result.get('triggerParameters')).toBe('trigger.');
@@ -41,7 +41,7 @@ describe('MultiValuePropertyService', () => {
 
   describe('readMultiValue', () => {
     it('should return original properties if component has no multi-value parameters', async () => {
-      const multiValueMap = await MultiValuePropertyService.getMultiValueProperties(CatalogKind.Component, 'log');
+      const multiValueMap = await MultiValuePropertyService.getMultiValueProperties('log');
       const definition = { message: 'Hello World', level: 'INFO' };
       const result = MultiValuePropertyService.readMultiValue(multiValueMap, definition);
 
@@ -49,10 +49,7 @@ describe('MultiValuePropertyService', () => {
     });
 
     it('should return original properties if component is not found', async () => {
-      const multiValueMap = await MultiValuePropertyService.getMultiValueProperties(
-        CatalogKind.Component,
-        'unknown-component',
-      );
+      const multiValueMap = await MultiValuePropertyService.getMultiValueProperties('unknown-component');
       const definition = { param1: 'value1', param2: 'value2' };
       const result = MultiValuePropertyService.readMultiValue(multiValueMap, definition);
 
@@ -60,7 +57,7 @@ describe('MultiValuePropertyService', () => {
     });
 
     it('should convert flat multi-value parameters to nested structure', async () => {
-      const multiValueMap = await MultiValuePropertyService.getMultiValueProperties(CatalogKind.Component, 'quartz');
+      const multiValueMap = await MultiValuePropertyService.getMultiValueProperties('quartz');
       const definition = {
         'job.name': 'myJob',
         'job.description': 'My job description',
@@ -84,7 +81,7 @@ describe('MultiValuePropertyService', () => {
     });
 
     it('should handle mixed parameters correctly', async () => {
-      const multiValueMap = await MultiValuePropertyService.getMultiValueProperties(CatalogKind.Component, 'quartz');
+      const multiValueMap = await MultiValuePropertyService.getMultiValueProperties('quartz');
       const definition = {
         'job.name': 'testJob',
         regularParam: 'value',
@@ -104,7 +101,7 @@ describe('MultiValuePropertyService', () => {
     });
 
     it('should handle empty definition', async () => {
-      const multiValueMap = await MultiValuePropertyService.getMultiValueProperties(CatalogKind.Component, 'quartz');
+      const multiValueMap = await MultiValuePropertyService.getMultiValueProperties('quartz');
       const definition = {};
       const result = MultiValuePropertyService.readMultiValue(multiValueMap, definition);
 
@@ -134,7 +131,7 @@ describe('MultiValuePropertyService', () => {
     });
 
     it('should return the serialized definition', async () => {
-      const multiValueMap = await MultiValuePropertyService.getMultiValueProperties(CatalogKind.Component, 'quartz');
+      const multiValueMap = await MultiValuePropertyService.getMultiValueProperties('quartz');
       const definition = {
         uri: 'quartz',
         parameters: { jobParameters: { test: 'test' }, triggerParameters: { test: 'test' } },
@@ -148,7 +145,7 @@ describe('MultiValuePropertyService', () => {
     });
 
     it('should omit nested child entries whose value is undefined', async () => {
-      const multiValueMap = await MultiValuePropertyService.getMultiValueProperties(CatalogKind.Component, 'quartz');
+      const multiValueMap = await MultiValuePropertyService.getMultiValueProperties('quartz');
       const definition = {
         uri: 'quartz',
         parameters: {
@@ -167,7 +164,7 @@ describe('MultiValuePropertyService', () => {
     });
 
     it('should not emit any flat key when the entire nested object has only undefined values (delete/clear flow)', async () => {
-      const multiValueMap = await MultiValuePropertyService.getMultiValueProperties(CatalogKind.Component, 'quartz');
+      const multiValueMap = await MultiValuePropertyService.getMultiValueProperties('quartz');
       const definition = {
         uri: 'quartz',
         parameters: {

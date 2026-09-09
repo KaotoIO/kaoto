@@ -9,12 +9,11 @@ import { MultiValuePropertyService } from './MultiValueProperty.service';
 
 export const MultiValuePropertyEditor: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { schema } = useContext(SchemaContext);
-  const catalogKind = schema['x-endpoint-catalog-kind'];
   const componentName = schema['x-component-name'];
 
   const multiValuePromise = useMemo(() => {
-    return MultiValuePropertyService.getMultiValueProperties(catalogKind, componentName);
-  }, [catalogKind, componentName]);
+    return MultiValuePropertyService.getMultiValueProperties(componentName);
+  }, [componentName]);
 
   return (
     <ErrorBoundary fallback={<p>Field editor is unavailable</p>}>
