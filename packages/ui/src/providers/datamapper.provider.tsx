@@ -39,6 +39,7 @@ import {
 import { MappingTree, VariableItem } from '../models/datamapper/mapping';
 import { NS_XML_SCHEMA, NS_XPATH_FUNCTIONS, NS_XSL } from '../models/datamapper/standard-namespaces';
 import { CanvasView } from '../models/datamapper/view';
+import { DataMapperSettingsService } from '../services/datamapper-settings.service';
 import { DocumentService } from '../services/document/document.service';
 import { MappingService } from '../services/mapping/mapping.service';
 import { MappingSerializerService } from '../services/mapping/mapping-serializer.service';
@@ -157,6 +158,19 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   initialMappingTree.namespaceMap = { ...initialNamespaceMap };
   const [mappingTree, setMappingTree] = useState<MappingTree>(initialMappingTree);
   const [structuralMappingTree, setStructuralMappingTree] = useState<MappingTree>(initialMappingTree);
+  const latestMappingTree = useRef<MappingTree>(initialMappingTree);
+
+  /**
+   * Single writer for the mapping tree state. Effects run in declaration order within one commit,
+   * so an effect declared below another can still close over a `mappingTree` that its sibling has
+   * already replaced. Keeping `latestMappingTree` in step means such an effect can serialize the
+   * current tree rather than a render-stale snapshot.
+   */
+  const applyMappingTree = useCallback((tree: MappingTree, options?: { structural?: boolean }) => {
+    latestMappingTree.current = tree;
+    setMappingTree(tree);
+    if (options?.structural) setStructuralMappingTree(tree);
+  }, []);
 
   const [alerts, setAlerts] = useState<SendAlertProps[]>([]);
 
@@ -201,14 +215,13 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
         latestSourceParameterMap,
       );
       WrapperAutoDetectionService.autoDetectWrapperSelections(loaded, latestTargetBodyDocument, effectiveNamespaceMap);
-      const sanitizedSettings =
-        latestTargetBodyDocument.definitionType !== DocumentDefinitionType.XML_SCHEMA &&
-        restoredDataMapperSettings.omitXmlDeclaration
-          ? { ...restoredDataMapperSettings, omitXmlDeclaration: DEFAULT_DATAMAPPER_SETTINGS.omitXmlDeclaration }
-          : restoredDataMapperSettings;
-      setDataMapperSettings(sanitizedSettings);
-      setMappingTree(loaded);
-      setStructuralMappingTree(loaded);
+      setDataMapperSettings(
+        DataMapperSettingsService.sanitizeForTarget(
+          restoredDataMapperSettings,
+          latestTargetBodyDocument.definitionType,
+        ),
+      );
+      applyMappingTree(loaded, { structural: true });
       for (const msg of messages) {
         sendAlert(msg);
       }
@@ -252,12 +265,12 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
         return gv;
       });
       newMapping.namespaceMap = mappingTree.namespaceMap;
-      setMappingTree(newMapping);
-      if (options?.structural) setStructuralMappingTree(newMapping);
+      applyMappingTree(newMapping, options);
       onUpdateMappings?.(MappingSerializerService.serialize(newMapping, sourceParameterMap, dataMapperSettings));
       onUpdateNamespaceMap?.(newMapping.namespaceMap);
     },
     [
+      applyMappingTree,
       dataMapperSettings,
       mappingTree,
       onUpdateMappings,
@@ -269,11 +282,11 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   const resetMappingTree = useCallback(() => {
     const newMapping = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, targetBodyDocument.definitionType);
     newMapping.namespaceMap = { ...initialNamespaceMap };
-    setMappingTree(newMapping);
-    setStructuralMappingTree(newMapping);
+    applyMappingTree(newMapping, { structural: true });
     onUpdateMappings?.(MappingSerializerService.serialize(newMapping, sourceParameterMap, dataMapperSettings));
     onUpdateNamespaceMap?.(newMapping.namespaceMap);
   }, [
+    applyMappingTree,
     dataMapperSettings,
     initialNamespaceMap,
     onUpdateMappings,
@@ -295,8 +308,10 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     if (previousSettings.current === dataMapperSettings) return;
 
     previousSettings.current = dataMapperSettings;
-    onUpdateMappings?.(MappingSerializerService.serialize(mappingTree, sourceParameterMap, dataMapperSettings));
-  }, [dataMapperSettings, isLoading, mappingTree, onUpdateMappings, sourceParameterMap]);
+    onUpdateMappings?.(
+      MappingSerializerService.serialize(latestMappingTree.current, sourceParameterMap, dataMapperSettings),
+    );
+  }, [dataMapperSettings, isLoading, onUpdateMappings, sourceParameterMap]);
 
   const renameSourceParameter = useCallback(
     (oldName: string, newName: string) => {
@@ -341,9 +356,9 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
         isFromPrimitive || isToPrimitive
           ? MappingService.removeAllMappingsForDocument(mappingTree, documentType, documentReferenceId)
           : MappingService.removeStaleMappingsForDocument(mappingTree, newDocument);
-      setMappingTree(cleaned);
+      applyMappingTree(cleaned);
     },
-    [mappingTree, sourceBodyDocument, sourceParameterMap, targetBodyDocument],
+    [applyMappingTree, mappingTree, sourceBodyDocument, sourceParameterMap, targetBodyDocument],
   );
 
   const setNewDocument = useCallback(
@@ -354,12 +369,9 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
           break;
         case DocumentType.TARGET_BODY:
           setTargetBodyDocument(newDocument);
-          if (
-            newDocument.definitionType !== DocumentDefinitionType.XML_SCHEMA &&
-            dataMapperSettings.omitXmlDeclaration
-          ) {
-            updateDataMapperSettings({ omitXmlDeclaration: DEFAULT_DATAMAPPER_SETTINGS.omitXmlDeclaration });
-          }
+          setDataMapperSettings((prev) =>
+            DataMapperSettingsService.sanitizeForTarget(prev, newDocument.definitionType),
+          );
           break;
         case DocumentType.PARAM:
           sourceParameterMap!.set(documentId, newDocument);
@@ -367,7 +379,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
           break;
       }
     },
-    [dataMapperSettings, refreshSourceParameters, sourceParameterMap, updateDataMapperSettings],
+    [refreshSourceParameters, sourceParameterMap],
   );
 
   const updateDocument = useCallback(
