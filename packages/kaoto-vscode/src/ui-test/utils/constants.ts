@@ -15,3 +15,5 @@
  */
 
 export const CATALOG_VERSION_ID = 'kaoto.camelJbang.version';
+
+// dummy change to test CI execution
