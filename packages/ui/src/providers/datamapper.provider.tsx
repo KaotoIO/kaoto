@@ -56,9 +56,7 @@ export interface IDataMapperContext {
   deleteSourceParameter: (name: string) => void;
   renameSourceParameter: (oldName: string, newName: string) => void;
   sourceBodyDocument: IDocument;
-  setSourceBodyDocument: (doc: IDocument) => void;
   targetBodyDocument: IDocument;
-  setTargetBodyDocument: (doc: IDocument) => void;
   setNewDocument: (documentType: DocumentType, documentId: string, document: IDocument) => void;
   updateDocument: (document: IDocument, definition: DocumentDefinition, previousDocumentReferenceId: string) => void;
 
@@ -203,7 +201,12 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
         latestSourceParameterMap,
       );
       WrapperAutoDetectionService.autoDetectWrapperSelections(loaded, latestTargetBodyDocument, effectiveNamespaceMap);
-      setDataMapperSettings(restoredDataMapperSettings);
+      const sanitizedSettings =
+        latestTargetBodyDocument.definitionType !== DocumentDefinitionType.XML_SCHEMA &&
+        restoredDataMapperSettings.omitXmlDeclaration
+          ? { ...restoredDataMapperSettings, omitXmlDeclaration: DEFAULT_DATAMAPPER_SETTINGS.omitXmlDeclaration }
+          : restoredDataMapperSettings;
+      setDataMapperSettings(sanitizedSettings);
       setMappingTree(loaded);
       setStructuralMappingTree(loaded);
       for (const msg of messages) {
@@ -223,17 +226,6 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     refreshMappingTree({ structural: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading, targetBodyDocument]);
-
-  // Reset omitXmlDeclaration when target changes to non-XML
-  useEffect(() => {
-    if (
-      targetBodyDocument.definitionType !== DocumentDefinitionType.XML_SCHEMA &&
-      dataMapperSettings.omitXmlDeclaration
-    ) {
-      updateDataMapperSettings({ omitXmlDeclaration: DEFAULT_DATAMAPPER_SETTINGS.omitXmlDeclaration });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [targetBodyDocument.definitionType]);
 
   const refreshSourceParameters = useCallback(() => {
     setSourceParameterMap(new Map(sourceParameterMap));
@@ -362,6 +354,12 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
           break;
         case DocumentType.TARGET_BODY:
           setTargetBodyDocument(newDocument);
+          if (
+            newDocument.definitionType !== DocumentDefinitionType.XML_SCHEMA &&
+            dataMapperSettings.omitXmlDeclaration
+          ) {
+            updateDataMapperSettings({ omitXmlDeclaration: DEFAULT_DATAMAPPER_SETTINGS.omitXmlDeclaration });
+          }
           break;
         case DocumentType.PARAM:
           sourceParameterMap!.set(documentId, newDocument);
@@ -369,7 +367,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
           break;
       }
     },
-    [refreshSourceParameters, sourceParameterMap],
+    [dataMapperSettings, refreshSourceParameters, sourceParameterMap, updateDataMapperSettings],
   );
 
   const updateDocument = useCallback(
@@ -417,9 +415,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       deleteSourceParameter,
       renameSourceParameter,
       sourceBodyDocument,
-      setSourceBodyDocument,
       targetBodyDocument,
-      setTargetBodyDocument,
       setNewDocument,
       updateDocument,
       mappingTree,
