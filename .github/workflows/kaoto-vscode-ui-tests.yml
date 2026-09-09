@@ -7,6 +7,11 @@ on:
         description: Name of the VSIX artifact to download
         required: true
         type: string
+      vsix-file:
+        description: Filename of the VSIX inside the artifact (defaults to kaoto-ci.vsix)
+        required: false
+        type: string
+        default: kaoto-ci.vsix
       run-full-ui-tests:
         description: Run all four integration test groups (views + export in addition to settings + editor)
         required: true
@@ -51,7 +56,7 @@ jobs:
         env:
           KAOTO_DISABLE_WHATS_NEW: 'true'
           TEST_RESOURCES: ${{ runner.temp }}/kaoto-tests
-          VSIX_FILE: kaoto-ci.vsix
+          VSIX_FILE: ${{ inputs.vsix-file }}
         run: |
           if [ "$RUNNER_OS" = Linux ]; then
             xvfb-run -a yarn workspace vscode-kaoto test:ui:vsix:settings
@@ -97,7 +102,7 @@ jobs:
         env:
           KAOTO_DISABLE_WHATS_NEW: 'true'
           TEST_RESOURCES: ${{ runner.temp }}/kaoto-tests
-          VSIX_FILE: kaoto-ci.vsix
+          VSIX_FILE: ${{ inputs.vsix-file }}
         run: |
           if [ "$RUNNER_OS" = Linux ]; then
             xvfb-run -a yarn workspace vscode-kaoto test:ui:vsix:editor
@@ -144,7 +149,7 @@ jobs:
         env:
           KAOTO_DISABLE_WHATS_NEW: 'true'
           TEST_RESOURCES: ${{ runner.temp }}/kaoto-tests
-          VSIX_FILE: kaoto-ci.vsix
+          VSIX_FILE: ${{ inputs.vsix-file }}
         run: |
           if [ "$RUNNER_OS" = Linux ]; then
             xvfb-run -a yarn workspace vscode-kaoto test:ui:vsix:views
@@ -191,7 +196,7 @@ jobs:
         env:
           KAOTO_DISABLE_WHATS_NEW: 'true'
           TEST_RESOURCES: ${{ runner.temp }}/kaoto-tests
-          VSIX_FILE: kaoto-ci.vsix
+          VSIX_FILE: ${{ inputs.vsix-file }}
         run: |
           if [ "$RUNNER_OS" = Linux ]; then
             xvfb-run -a yarn workspace vscode-kaoto test:ui:vsix:export
@@ -230,7 +235,7 @@ jobs:
         env:
           KAOTO_DISABLE_WHATS_NEW: 'true'
           TEST_RESOURCES: ${{ runner.temp }}/kaoto-tests
-          VSIX_FILE: kaoto-ci.vsix
+          VSIX_FILE: ${{ inputs.vsix-file }}
         run: |
           eval "$(minikube -p minikube docker-env)"
           xvfb-run -a yarn workspace vscode-kaoto test:ui:vsix:deploy
