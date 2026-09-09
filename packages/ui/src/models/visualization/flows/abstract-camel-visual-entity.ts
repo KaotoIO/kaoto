@@ -26,10 +26,14 @@ import { normalizeDefinition } from './definition-normalizer';
 import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
 import { CamelComponentDefaultService } from './support/camel-component-default.service';
-import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 import { CamelProcessorStepsProperties } from './support/camel-component-types';
 import { ProcessorStepsService } from './support/processor-steps.service';
 import { ModelValidationService } from './support/validators/model-validation.service';
+
+const DISABLED_REMOVE_STEPS: (keyof ProcessorDefinition)[] = [
+  'from',
+  'route',
+] as unknown as (keyof ProcessorDefinition)[];
 
 export abstract class AbstractCamelVisualEntity<T extends object> implements BaseVisualEntity {
   constructor(public entityDef: T) {}
@@ -265,8 +269,8 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     const canHaveSpecialChildren = Object.keys(stepsProperties).length > 1;
     const canReplaceStep = ProcessorStepsService.canReplaceStep(processorName);
     const canRemoveFlow = data.path === this.getRootPath();
-    const canRemoveStep = !canRemoveFlow && !CamelComponentSchemaService.DISABLED_REMOVE_STEPS.includes(processorName);
-    const canBeDisabled = CamelComponentSchemaService.canBeDisabled(processorName);
+    const canRemoveStep = !canRemoveFlow && !DISABLED_REMOVE_STEPS.includes(processorName);
+    const canBeDisabled = data.schema?.properties?.disabled !== undefined;
 
     return {
       canHavePreviousStep,

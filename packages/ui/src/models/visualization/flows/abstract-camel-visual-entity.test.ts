@@ -134,6 +134,10 @@ describe('AbstractCamelVisualEntity', () => {
         createMockNodeData({
           name: processorName,
           primaryNodeId: { name: processorName, catalogKind: CatalogKind.Pattern },
+          schema: {
+            type: 'object',
+            properties: ['route', 'from'].includes(processorName) ? {} : { disabled: { type: 'boolean' } },
+          },
         }),
       );
       expect(result).toMatchSnapshot();

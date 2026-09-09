@@ -2,7 +2,24 @@ import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
 import { CamelUriHelper } from '../../../utils/camel-uri-helper';
 import { CatalogKind } from '../../catalog-kind';
 import { IVisualizationNodeIds } from '../base-visual-entity';
-import { CamelComponentSchemaService } from './support/camel-component-schema.service';
+
+const PROCESSOR_STRING_DEFINITIONS: Record<string, string> = {
+  to: 'uri',
+  toD: 'uri',
+  log: 'message',
+  convertBodyTo: 'type',
+  setExchangePattern: 'pattern',
+  bean: 'ref',
+  customLoadBalancer: 'ref',
+  routingSlip: 'expression',
+  routeBuilder: 'ref',
+  removeVariable: 'name',
+  removeProperty: 'name',
+  removeProperties: 'pattern',
+  removeHeader: 'name',
+  removeHeaders: 'pattern',
+  kamelet: 'name',
+};
 
 const parseQueryParameters = (queryString: string | undefined): Record<string, unknown> =>
   queryString ? CamelUriHelper.getParametersFromQueryString(queryString) : {};
@@ -14,7 +31,7 @@ export const normalizeDefinition = async (definition: unknown, ids?: IVisualizat
   const processorName = ids?.primaryNodeId?.name;
   let normalized: unknown = definition;
   if (processorName !== undefined) {
-    const prop = CamelComponentSchemaService.PROCESSOR_STRING_DEFINITIONS[processorName];
+    const prop = PROCESSOR_STRING_DEFINITIONS[processorName];
     if (prop && typeof normalized === 'string') {
       normalized = { [prop]: normalized };
     }
