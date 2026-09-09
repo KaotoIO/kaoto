@@ -19,6 +19,7 @@ const renderNavItem = (
   path: string | undefined,
   carbon: NonNullable<RouteConfigArray[number]['carbon']>,
   currentPath: string,
+  onNavigate?: () => void,
 ) => {
   if (carbon.subMenu) {
     return (
@@ -27,7 +28,13 @@ const renderNavItem = (
           const subPath = 'path' in subRoute ? subRoute.path : undefined;
           if (!subPath) return null;
           return (
-            <HeaderMenuItem as={RouterLink} to={subPath} key={subPath} isActive={isPathActive(subPath, currentPath)}>
+            <HeaderMenuItem
+              as={RouterLink}
+              to={subPath}
+              key={subPath}
+              isActive={isPathActive(subPath, currentPath)}
+              onClick={onNavigate}
+            >
               {subRoute.carbon?.label}
             </HeaderMenuItem>
           );
@@ -36,9 +43,16 @@ const renderNavItem = (
     );
   }
 
-  if (!path) return null;
+  const linkPath = carbon.virtualPath ?? path;
+  if (!linkPath) return null;
   return (
-    <HeaderMenuItem as={RouterLink} key={path} to={path} isActive={isPathActive(path, currentPath)}>
+    <HeaderMenuItem
+      as={RouterLink}
+      key={linkPath}
+      to={linkPath}
+      isActive={isPathActive(linkPath, currentPath)}
+      onClick={onNavigate}
+    >
       {carbon.label}
     </HeaderMenuItem>
   );
@@ -47,14 +61,16 @@ const renderNavItem = (
 interface NavHeaderItemsProps {
   routesInHeader: RouteConfigArray;
   currentPath: string;
+  /** Called when a nav item is clicked — use to close the side nav when rendered inside HeaderSideNavItems. */
+  onNavigate?: () => void;
 }
 
-export const NavHeaderItems = ({ routesInHeader, currentPath }: NavHeaderItemsProps) => (
+export const NavHeaderItems = ({ routesInHeader, currentPath, onNavigate }: NavHeaderItemsProps) => (
   <>
     {routesInHeader.map((route) => {
       const path = 'path' in route ? route.path : undefined;
       const { carbon } = route;
-      return !carbon?.inSubMenu && carbon?.label ? renderNavItem(path, carbon, currentPath) : null;
+      return !carbon?.inSubMenu && carbon?.label ? renderNavItem(path, carbon, currentPath, onNavigate) : null;
     })}
   </>
 );

@@ -14,7 +14,7 @@ describe('ProjectPage', () => {
         </Routes>
       </MemoryRouter>,
     );
-    expect(screen.getByTestId('project-banner')).toBeInTheDocument();
+    expect(screen.getByTestId('project-toolbar')).toBeInTheDocument();
     expect(screen.getByTestId('explorer')).toBeInTheDocument();
   });
 });

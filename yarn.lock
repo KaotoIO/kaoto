@@ -3864,6 +3864,7 @@ __metadata:
     rimraf: "npm:^6.0.0"
     sass: "npm:sass-embedded@^1.79.5"
     sass-embedded: "npm:^1.79.5"
+    simple-git: "npm:^3.22.0"
     stylelint: "npm:^17.0.0"
     stylelint-config-standard-scss: "npm:^17.0.0"
     stylelint-plugin-carbon-tokens: "npm:^5.0.6"

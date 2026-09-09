@@ -2,6 +2,7 @@ import {
   Header,
   HeaderGlobalBar,
   HeaderMenuButton,
+  HeaderMenuItem,
   HeaderNavigation,
   HeaderSideNavItems,
   SideNav,
@@ -16,6 +17,9 @@ import { routesInHeader, routesInSideNav } from '../../routes/config';
 import { NavHeaderItems } from './NavHeaderItems';
 import { NavSideItems } from './NavSideItems';
 
+/** Temporary path for the "Open Project" nav link. Will be replaced with dynamic project selection. */
+const OPEN_PROJECT_PATH = '/projects/project50';
+
 export const Nav = () => {
   const location = useLocation();
   const [isSideNavExpanded, setIsSideNavExpanded] = useState(false);
@@ -24,6 +28,10 @@ export const Nav = () => {
     // Reason for this implementation of state change through an updater function:
     // https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state
     setIsSideNavExpanded((isExpanded) => !isExpanded);
+  };
+
+  const closeNav = (): void => {
+    setIsSideNavExpanded(false);
   };
 
   return (
@@ -40,20 +48,27 @@ export const Nav = () => {
         <RouterLink to="/" className="cds--header__name">
           <img src={logoKaoto} alt="Kaoto" className="cs--nav__logo" />
         </RouterLink>
-        {routesInHeader.length > 0 && (
-          <HeaderNavigation>
-            <NavHeaderItems routesInHeader={routesInHeader} currentPath={location.pathname} />
-          </HeaderNavigation>
-        )}
+        <HeaderNavigation>
+          <HeaderMenuItem as={RouterLink} to={OPEN_PROJECT_PATH} isActive={location.pathname.startsWith('/projects/')}>
+            Open Project
+          </HeaderMenuItem>
+          <NavHeaderItems routesInHeader={routesInHeader} currentPath={location.pathname} />
+        </HeaderNavigation>
         <HeaderGlobalBar />
       </Header>
       <SideNav aria-label="Side navigation" expanded={isSideNavExpanded} isPersistent={false}>
         <SideNavItems>
-          {routesInHeader.length > 0 && (
-            <HeaderSideNavItems hasDivider>
-              <NavHeaderItems routesInHeader={routesInHeader} currentPath={location.pathname} />
-            </HeaderSideNavItems>
-          )}
+          <HeaderSideNavItems>
+            <HeaderMenuItem
+              as={RouterLink}
+              to={OPEN_PROJECT_PATH}
+              isActive={location.pathname.startsWith('/projects/')}
+              onClick={closeNav}
+            >
+              Open Project
+            </HeaderMenuItem>
+            <NavHeaderItems routesInHeader={routesInHeader} currentPath={location.pathname} onNavigate={closeNav} />
+          </HeaderSideNavItems>
 
           <NavSideItems routesInSideNav={routesInSideNav} currentPath={location.pathname} />
         </SideNavItems>

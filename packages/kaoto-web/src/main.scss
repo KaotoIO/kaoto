@@ -20,7 +20,7 @@
 @use 'pages/Dashboard/Dashboard';
 @use 'components/CommonHeader/CommonHeader';
 @use 'components/Explorer/Explorer';
-@use 'components/ProjectBanner/ProjectBanner';
+@use 'components/ProjectToolbar/ProjectToolbar';
 @use 'components/Footer/Footer';
 
 @mixin light-brand {
