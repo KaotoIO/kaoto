@@ -9,7 +9,6 @@ import { Virtuoso } from 'react-virtuoso';
 import { useConnectionPortSync } from '../../hooks/useConnectionPortSync.hook';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { DocumentType, IDocument } from '../../models/datamapper/document';
-import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentNodeData } from '../../models/datamapper/visualization';
 import { TreeUIService } from '../../services/visualization/tree-ui.service';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
@@ -112,11 +111,7 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
 }) => {
   const { mappingTree } = useDataMapper();
   const parameterNodeData = useMemo(() => new DocumentNodeData(document), [document]);
-  const [parameterTree, setParameterTree] = useState<DocumentTree | undefined>(undefined);
-
-  useEffect(() => {
-    setParameterTree(TreeUIService.createTree(parameterNodeData));
-  }, [parameterNodeData]);
+  const parameterTree = useMemo(() => TreeUIService.createTree(parameterNodeData), [parameterNodeData]);
 
   // Optimize: Select only the expansion state for this document
   const documentExpansionState = useDocumentTreeStore((state) => state.expansionState[parameterNodeData.id] || {});
