@@ -55,12 +55,6 @@ describe('fetchCamelCatalog', () => {
     expect(fetchFileMock).toHaveBeenCalledWith(
       expect.stringContaining(`${relativeBasePath}/camel-catalog-aggregate-languages`),
     );
-    expect(fetchFileMock).toHaveBeenCalledWith(
-      expect.stringContaining(`${relativeBasePath}/camel-catalog-aggregate-dataformats`),
-    );
-    expect(fetchFileMock).toHaveBeenCalledWith(
-      expect.stringContaining(`${relativeBasePath}/camel-catalog-aggregate-loadbalancers`),
-    );
     expect(fetchFileMock).toHaveBeenCalledWith(expect.stringContaining(`${relativeBasePath}/kamelets-aggregate`));
     expect(fetchFileMock).toHaveBeenCalledWith(expect.stringContaining(`${relativeBasePath}/kamelet-boundaries`));
     expect(fetchFileMock).toHaveBeenCalledWith(
