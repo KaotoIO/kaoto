@@ -3,7 +3,6 @@ import {
   HeaderGlobalBar,
   HeaderMenuButton,
   HeaderMenuItem,
-  HeaderNavigation,
   HeaderSideNavItems,
   SideNav,
   SideNavItems,
@@ -48,12 +47,6 @@ export const Nav = () => {
         <RouterLink to="/" className="cds--header__name">
           <img src={logoKaoto} alt="Kaoto" className="cs--nav__logo" />
         </RouterLink>
-        <HeaderNavigation>
-          <HeaderMenuItem as={RouterLink} to={OPEN_PROJECT_PATH} isActive={location.pathname.startsWith('/projects/')}>
-            Open Project
-          </HeaderMenuItem>
-          <NavHeaderItems routesInHeader={routesInHeader} currentPath={location.pathname} />
-        </HeaderNavigation>
         <HeaderGlobalBar />
       </Header>
       <SideNav aria-label="Side navigation" expanded={isSideNavExpanded} isPersistent={false}>
