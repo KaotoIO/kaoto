@@ -1,0 +1,231 @@
+name: 🏷️ VS Code Kaoto Release Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_version:
+        type: string
+        description: |
+          The tag version to release without prefix (e.g. 2.12.0)
+        required: true
+      snapshot:
+        type: boolean
+        description: |
+          Snapshot release? Creates a pre-release tagged <tag_version>-SNAPSHOT-<short-sha>.
+          Skips SBOM generation and marketplace publish.
+        required: false
+        default: true
+      run_ui_tests:
+        type: boolean
+        description: |
+          Run full UI + deploy tests (minikube) before packaging?
+        required: false
+        default: true
+
+jobs:
+  release:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    outputs:
+      release_tag: ${{ steps.compute.outputs.release_tag }}
+      vsix_name: ${{ steps.compute.outputs.vsix_name }}
+
+    steps:
+      - name: '🛰️ Checkout source code'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.ref }}
+          persist-credentials: false
+
+      - name: '🔍 Validate version consistency'
+        env:
+          TAG_VERSION: ${{ github.event.inputs.tag_version }}
+        run: node .github/scripts/check-version.mjs "${TAG_VERSION}"
+
+      - name: '🔧 Setup tools'
+        uses: ./.github/actions/kaoto-vscode-setup-tools
+        with:
+          allow-unprivileged-userns: 'true'
+
+      - name: '🔧 Install dependencies'
+        run: yarn install --immutable --mode=skip-build
+
+      - name: '🔧 Build UI lib'
+        run: yarn workspace @kaoto/kaoto build:lib
+
+      - name: '🔧 Build and lint extension'
+        run: yarn workspace vscode-kaoto build:prod
+
+      - name: '🧪 Run unit tests'
+        run: xvfb-run -a yarn workspace vscode-kaoto test:unit
+
+      - name: '🔢 Compute VSIX filename and release tag'
+        id: compute
+        # Security: use environment variables to prevent script injection from user-supplied tag_version input
+        env:
+          TAG_VERSION: ${{ github.event.inputs.tag_version }}
+          SNAPSHOT: ${{ github.event.inputs.snapshot }}
+        run: |
+          SHORT_SHA="${GITHUB_SHA::7}"
+          if [ "$SNAPSHOT" = "true" ]; then
+            RELEASE_TAG="${TAG_VERSION}-SNAPSHOT-${SHORT_SHA}"
+          else
+            RELEASE_TAG="${TAG_VERSION}"
+          fi
+          VSIX_NAME="vscode-kaoto-${RELEASE_TAG}.vsix"
+          echo "release_tag=${RELEASE_TAG}" >> "$GITHUB_OUTPUT"
+          echo "vsix_name=${VSIX_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: '📦 Build release VSIX'
+        env:
+          VSIX_NAME: ${{ steps.compute.outputs.vsix_name }}
+        run: yarn workspace vscode-kaoto build:vsix --out "${VSIX_NAME}"
+
+      - name: '📤 Upload VSIX artifact'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: vscode-kaoto-vsix-release
+          path: packages/kaoto-vscode/${{ steps.compute.outputs.vsix_name }}
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: '📋 Generate SBOM'
+        if: ${{ !inputs.snapshot }}
+        run: yarn workspace vscode-kaoto sbom:generate
+
+      - name: '📤 Upload SBOM artifact'
+        if: ${{ !inputs.snapshot }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: vscode-kaoto-sbom
+          path: packages/kaoto-vscode/manifest.json
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: '📤 Upload unit test logs on failure'
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: unit-test-logs
+          path: packages/kaoto-vscode/.vscode-test/user-data/logs/*
+          include-hidden-files: true
+          retention-days: 7
+
+  ui-tests:
+    needs: release
+    if: ${{ inputs.run_ui_tests }}
+    uses: ./.github/workflows/kaoto-vscode-ui-tests.yml
+    with:
+      vsix-artifact-name: vscode-kaoto-vsix-release
+      vsix-file: ${{ needs.release.outputs.vsix_name }}
+      run-full-ui-tests: true
+      run-deploy-tests: true
+
+  tag-and-release:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    needs:
+      - release
+      - ui-tests
+    # Create tag and release only after UI tests pass (or when UI tests are skipped)
+    if: |
+      needs.release.result == 'success' &&
+      (needs.ui-tests.result == 'success' || needs.ui-tests.result == 'skipped')
+
+    steps:
+      - name: '🛰️ Checkout source code'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.ref }}
+          persist-credentials: false
+
+      - name: '📥 Download VSIX artifact'
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: vscode-kaoto-vsix-release
+
+      - name: '📥 Download SBOM artifact'
+        if: ${{ !inputs.snapshot }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: vscode-kaoto-sbom
+
+      - name: '🏷️ Create and push git tag'
+        id: tag_version
+        uses: mathieudutour/github-tag-action@a22cf08638b34d5badda920f9daf6e72c477b07b # v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          custom_tag: ${{ needs.release.outputs.release_tag }}
+          create_annotated_tag: true
+          tag_prefix: ''
+
+      - name: '🚀 Create GitHub Release (with SBOM)'
+        if: ${{ !inputs.snapshot }}
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
+        with:
+          tag: ${{ needs.release.outputs.release_tag }}
+          name: Release ${{ needs.release.outputs.release_tag }}
+          prerelease: false
+          artifacts: >-
+            ${{ needs.release.outputs.vsix_name }},
+            manifest.json
+
+      - name: '🚀 Create GitHub Pre-Release (snapshot)'
+        if: ${{ inputs.snapshot }}
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
+        with:
+          tag: ${{ needs.release.outputs.release_tag }}
+          name: Release ${{ needs.release.outputs.release_tag }}
+          prerelease: true
+          artifacts: ${{ needs.release.outputs.vsix_name }}
+
+  publish:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    needs:
+      - release
+      - tag-and-release
+    # Run when: not a snapshot, AND tag-and-release succeeded
+    if: |
+      !inputs.snapshot &&
+      needs.tag-and-release.result == 'success'
+
+    steps:
+      - name: '🛰️ Checkout source code'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: '🔧 Setup Node.js'
+        uses: ./.github/actions/kaoto-vscode-setup-tools
+        # Node.js + yarn cache needed to resolve locally installed vsce and ovsx binaries
+
+      - name: '🔧 Install dependencies'
+        run: yarn install --immutable --mode=skip-build
+        # Installs @vscode/vsce and ovsx from devDependencies so they can be invoked below
+
+      - name: '📥 Download VSIX from release'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ needs.release.outputs.release_tag }}
+          VSIX_NAME: ${{ needs.release.outputs.vsix_name }}
+        run: |
+          gh release download "${RELEASE_TAG}" \
+            --pattern "${VSIX_NAME}" \
+            --dir packages/kaoto-vscode \
+            --repo "${{ github.repository }}"
+
+      - name: '📤 Publish to VS Code Marketplace'
+        env:
+          VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
+          VSIX_NAME: ${{ needs.release.outputs.vsix_name }}
+        run: yarn workspace vscode-kaoto vsce publish -p "${VSCE_TOKEN}" --packagePath "${VSIX_NAME}"
+
+      - name: '📤 Publish to Open-VSX'
+        env:
+          OVSX_TOKEN: ${{ secrets.OVSX_TOKEN }}
+          VSIX_NAME: ${{ needs.release.outputs.vsix_name }}
+        run: yarn workspace vscode-kaoto ovsx publish -p "${OVSX_TOKEN}" "${VSIX_NAME}"
