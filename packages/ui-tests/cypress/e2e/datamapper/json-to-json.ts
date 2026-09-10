@@ -22,13 +22,13 @@ describe('Test for DataMapper : JSON to JSON', () => {
 
   it('attach schema, import mappings, select a mapping, export mappings and reset mappings', () => {
     cy.openDataMapper();
-    cy.attachTargetBodySchema('datamapper/jsonSchema/ShipOrder.schema.json');
+    cy.attachTargetBodySchema('cypress/fixtures/datamapper/jsonSchema/ShipOrder.schema.json');
     cy.addParameter('Account');
-    cy.attachParameterSchema('Account', 'datamapper/jsonSchema/Account.schema.json');
+    cy.attachParameterSchema('Account', 'cypress/fixtures/datamapper/jsonSchema/Account.schema.json');
     cy.addParameter('Cart');
-    cy.attachParameterSchema('Cart', 'datamapper/jsonSchema/Cart.schema.json');
+    cy.attachParameterSchema('Cart', 'cypress/fixtures/datamapper/jsonSchema/Cart.schema.json');
     cy.addParameter('OrderSequence');
-    cy.importMappings('datamapper/xslt/ShipOrderJson.xsl');
+    cy.importMappings('cypress/fixtures/datamapper/xslt/ShipOrderJson.xsl');
 
     cy.get('[data-testid^="node-source-fj-string-AccountId"]').click({ force: true });
 
@@ -47,11 +47,11 @@ describe('Test for DataMapper : JSON to JSON', () => {
 
   it('Establish mappings by DnD', () => {
     cy.openDataMapper();
-    cy.attachTargetBodySchema('datamapper/jsonSchema/ShipOrder.schema.json');
+    cy.attachTargetBodySchema('cypress/fixtures/datamapper/jsonSchema/ShipOrder.schema.json');
     cy.addParameter('Account');
-    cy.attachParameterSchema('Account', 'datamapper/jsonSchema/Account.schema.json');
+    cy.attachParameterSchema('Account', 'cypress/fixtures/datamapper/jsonSchema/Account.schema.json');
     cy.addParameter('Cart');
-    cy.attachParameterSchema('Cart', 'datamapper/jsonSchema/Cart.schema.json');
+    cy.attachParameterSchema('Cart', 'cypress/fixtures/datamapper/jsonSchema/Cart.schema.json');
     cy.addParameter('OrderSequence');
 
     cy.engageMapping(
@@ -124,9 +124,9 @@ describe('Test for DataMapper : JSON to JSON', () => {
 
   it('attach parameter schema, engage mappings, detach parameter schema', () => {
     cy.openDataMapper();
-    cy.attachTargetBodySchema('datamapper/jsonSchema/ShipOrder.schema.json');
+    cy.attachTargetBodySchema('cypress/fixtures/datamapper/jsonSchema/ShipOrder.schema.json');
     cy.addParameter('Account');
-    cy.attachParameterSchema('Account', 'datamapper/jsonSchema/Account.schema.json');
+    cy.attachParameterSchema('Account', 'cypress/fixtures/datamapper/jsonSchema/Account.schema.json');
 
     cy.engageMapping(
       ['document-doc-param-Account', 'node-source-fj-string-AccountId'],
@@ -188,8 +188,8 @@ describe('Test for DataMapper : JSON to JSON', () => {
     cy.selectIntegrationRuntime(catalogLabel);
     cy.openDesignPage();
     cy.openDataMapper();
-    cy.attachSourceBodySchema('datamapper/jsonSchema/ShipOrder.schema.json');
-    cy.attachTargetBodySchema('datamapper/jsonSchema/ShipOrder.schema.json');
+    cy.attachSourceBodySchema('cypress/fixtures/datamapper/jsonSchema/ShipOrder.schema.json');
+    cy.attachTargetBodySchema('cypress/fixtures/datamapper/jsonSchema/ShipOrder.schema.json');
 
     cy.engageMapping(
       ['document-doc-sourceBody-Body', 'node-source-fj-string-OrderPerson'],
@@ -201,9 +201,9 @@ describe('Test for DataMapper : JSON to JSON', () => {
 
   it('attach parameter schema, engage mappings, delete parameter', () => {
     cy.openDataMapper();
-    cy.attachTargetBodySchema('datamapper/jsonSchema/ShipOrder.schema.json');
+    cy.attachTargetBodySchema('cypress/fixtures/datamapper/jsonSchema/ShipOrder.schema.json');
     cy.addParameter('Account');
-    cy.attachParameterSchema('Account', 'datamapper/jsonSchema/Account.schema.json');
+    cy.attachParameterSchema('Account', 'cypress/fixtures/datamapper/jsonSchema/Account.schema.json');
 
     cy.engageMapping(
       ['document-doc-param-Account', 'node-source-fj-string-AccountId'],

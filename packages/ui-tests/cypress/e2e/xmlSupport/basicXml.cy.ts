@@ -50,7 +50,7 @@ describe('Tests for basic XML operations', () => {
     cy.openStepConfigurationTab('setHeader');
     cy.selectFormTab('All');
     cy.selectExpression('Simple');
-    cy.interactWithExpressionInputObject('simple.expression', `{{}{{}header.baz}}`);
+    cy.interactWithExpressionInputObject('simple.expression', `{{}{{}header.baz}}`, { delay: 50 });
     cy.interactWithExpressionInputObject('simple.id', 'simpleExpressionId');
     cy.interactWithExpressionInputObject('simple.resultType', 'java.lang.String');
 

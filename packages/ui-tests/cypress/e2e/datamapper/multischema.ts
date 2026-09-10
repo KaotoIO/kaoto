@@ -6,12 +6,12 @@ describe('Test for DataMapper : multiple schemas', () => {
   it('Datamapper - multiple schema', () => {
     cy.openDataMapper();
     cy.attachTargetBodySchema([
-      'datamapper/xsd/MultiIncludeMain.xsd',
-      'datamapper/xsd/MultiIncludeComponentA.xsd',
-      'datamapper/xsd/MultiIncludeComponentB.xsd',
+      'cypress/fixtures/datamapper/xsd/MultiIncludeMain.xsd',
+      'cypress/fixtures/datamapper/xsd/MultiIncludeComponentA.xsd',
+      'cypress/fixtures/datamapper/xsd/MultiIncludeComponentB.xsd',
     ]);
 
-    cy.attachSourceBodySchema('datamapper/xsd/Cart.xsd');
+    cy.attachSourceBodySchema('cypress/fixtures/datamapper/xsd/Cart.xsd');
 
     cy.engageMapping(
       ['document-doc-sourceBody-Body', 'node-source-fx-Title'],
@@ -38,7 +38,7 @@ describe('Test for DataMapper : multiple schemas', () => {
 
   it('Datamapper - multiple schema, missing required schemas', () => {
     cy.openDataMapper();
-    cy.addTargetBodySchema(['datamapper/xsd/MultiIncludeMain.xsd']);
+    cy.addTargetBodySchema(['cypress/fixtures/datamapper/xsd/MultiIncludeMain.xsd']);
 
     cy.get('[data-testid="attach-schema-modal"]')
       .should('be.visible')

@@ -21,7 +21,7 @@ import './next-commands/design';
 import './next-commands/metadata';
 import './next-commands/datamapper';
 
-import registerCypressGrep from '@cypress/grep/src/support';
+import { register as registerCypressGrep } from '@cypress/grep';
 registerCypressGrep();
 
 Cypress.on('uncaught:exception', (_err, _runnable) => {
