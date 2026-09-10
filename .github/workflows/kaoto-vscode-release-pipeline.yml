@@ -222,10 +222,10 @@ jobs:
         env:
           VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
           VSIX_NAME: ${{ needs.release.outputs.vsix_name }}
-        run: yarn workspace vscode-kaoto vsce publish -p "${VSCE_TOKEN}" --packagePath "packages/kaoto-vscode/${VSIX_NAME}"
+        run: yarn workspace vscode-kaoto vsce publish -p "${VSCE_TOKEN}" --packagePath "${VSIX_NAME}"
 
       - name: '📤 Publish to Open-VSX'
         env:
           OVSX_TOKEN: ${{ secrets.OVSX_TOKEN }}
           VSIX_NAME: ${{ needs.release.outputs.vsix_name }}
-        run: yarn workspace vscode-kaoto ovsx publish -p "${OVSX_TOKEN}" "packages/kaoto-vscode/${VSIX_NAME}"
+        run: yarn workspace vscode-kaoto ovsx publish -p "${OVSX_TOKEN}" "${VSIX_NAME}"
