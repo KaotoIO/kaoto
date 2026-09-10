@@ -1,4 +1,4 @@
-import { CamelCatalogService, FileTypes, FileTypesResponse } from '../../models';
+import { FileTypes, FileTypesResponse } from '../../models';
 import { CamelCatalogIndex, ComponentsCatalog } from '../../models/camel/camel-catalog-index';
 import { CatalogKind } from '../../models/catalog-kind';
 import { CatalogSchemaLoader } from '../../utils/catalog-schema-loader';
@@ -6,10 +6,8 @@ import { DynamicCatalog } from '../dynamic-catalog';
 import { DynamicCatalogRegistry } from '../dynamic-catalog-registry';
 import {
   CamelComponentsProvider,
-  CamelDataformatProvider,
   CamelFunctionProvider,
   CamelLanguageProvider,
-  CamelLoadbalancerProvider,
   CamelProcessorsProvider,
 } from '../providers/camel-components.provider';
 import { CamelKameletsProvider } from '../providers/camel-kamelets.provider';
@@ -41,14 +39,6 @@ export async function fetchCamelCatalog(options: {
   const camelLanguagesFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Language]>(
     `${relativeBasePath}/${catalogIndex.catalogs.languages.file}`,
   );
-  /** Camel Dataformats list */
-  const camelDataformatsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Dataformat]>(
-    `${relativeBasePath}/${catalogIndex.catalogs.dataformats.file}`,
-  );
-  /** Camel Loadbalancers list */
-  const camelLoadbalancersFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Loadbalancer]>(
-    `${relativeBasePath}/${catalogIndex.catalogs.loadbalancers.file}`,
-  );
   /** Camel Kamelets definitions list (CRDs) */
   const kameletsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Kamelet]>(
     `${relativeBasePath}/${catalogIndex.catalogs.kamelets.file}`,
@@ -68,8 +58,6 @@ export async function fetchCamelCatalog(options: {
     camelPatterns,
     camelEntities,
     camelLanguages,
-    camelDataformats,
-    camelLoadbalancers,
     kamelets,
     kameletBoundaries,
     functions,
@@ -79,26 +67,10 @@ export async function fetchCamelCatalog(options: {
     camelPatternsFiles,
     camelEntitiesFiles,
     camelLanguagesFiles,
-    camelDataformatsFiles,
-    camelLoadbalancersFiles,
     kameletsFiles,
     kameletBoundariesFiles,
     functionsFiles,
   ]);
-
-  /**
-   * Temporary while we switch all sync API to ASYNC from the DynamicCatalogRegistry.
-   * This will be removed once all consumers are refactored to use DynamicCatalogRegistry
-   */
-  CamelCatalogService.setCatalogKey(CatalogKind.Component, camelComponents.body);
-  CamelCatalogService.setCatalogKey(CatalogKind.Processor, camelModels.body);
-  CamelCatalogService.setCatalogKey(CatalogKind.Pattern, camelPatterns.body);
-  CamelCatalogService.setCatalogKey(CatalogKind.Entity, camelEntities.body);
-  CamelCatalogService.setCatalogKey(CatalogKind.Language, camelLanguages.body);
-  CamelCatalogService.setCatalogKey(CatalogKind.Dataformat, camelDataformats.body);
-  CamelCatalogService.setCatalogKey(CatalogKind.Loadbalancer, camelLoadbalancers.body);
-  CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, { ...kameletBoundaries.body, ...kamelets.body });
-  CamelCatalogService.setCatalogKey(CatalogKind.Function, functions.body);
 
   DynamicCatalogRegistry.get().setCatalog(
     CatalogKind.Component,
@@ -119,14 +91,6 @@ export async function fetchCamelCatalog(options: {
   DynamicCatalogRegistry.get().setCatalog(
     CatalogKind.Language,
     new DynamicCatalog(new CamelLanguageProvider(camelLanguages.body)),
-  );
-  DynamicCatalogRegistry.get().setCatalog(
-    CatalogKind.Dataformat,
-    new DynamicCatalog(new CamelDataformatProvider(camelDataformats.body)),
-  );
-  DynamicCatalogRegistry.get().setCatalog(
-    CatalogKind.Loadbalancer,
-    new DynamicCatalog(new CamelLoadbalancerProvider(camelLoadbalancers.body)),
   );
   DynamicCatalogRegistry.get().setCatalog(
     CatalogKind.Kamelet,
