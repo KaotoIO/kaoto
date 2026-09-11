@@ -162,7 +162,7 @@ describe('KameletResource', () => {
       const id = resource.addNewEntity(undefined, cloneDeep(kameletJson));
 
       expect(id).toBe('user-source');
-      const from = resource.getVisualEntities()[0].toJSON().from;
+      const from = resource.getVisualEntities()[0].toJSON().route.from;
       expect(from.uri).toBe('timer');
       expect(from.steps).toHaveLength(2);
     });
