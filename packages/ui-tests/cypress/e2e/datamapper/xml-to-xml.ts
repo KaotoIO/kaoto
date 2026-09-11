@@ -5,11 +5,11 @@ describe('Test for DataMapper : XML to XML', () => {
 
   it('attach schema, import mappings, select a mapping, export mappings and reset mappings', () => {
     cy.openDataMapper();
-    cy.attachSourceBodySchema('datamapper/xsd/ShipOrder.xsd');
-    cy.attachTargetBodySchema('datamapper/xsd/ShipOrder.xsd');
+    cy.attachSourceBodySchema('cypress/fixtures/datamapper/xsd/ShipOrder.xsd');
+    cy.attachTargetBodySchema('cypress/fixtures/datamapper/xsd/ShipOrder.xsd');
     cy.addParameter('Account');
-    cy.attachParameterSchema('Account', 'datamapper/xsd/Account.xsd');
-    cy.importMappings('datamapper/xslt/ShipOrderToShipOrder.xsl');
+    cy.attachParameterSchema('Account', 'cypress/fixtures/datamapper/xsd/Account.xsd');
+    cy.importMappings('cypress/fixtures/datamapper/xslt/ShipOrderToShipOrder.xsl');
 
     cy.get('[data-testid^="node-source-fx-OrderId"]').click({ force: true });
 
@@ -28,10 +28,10 @@ describe('Test for DataMapper : XML to XML', () => {
 
   it('Establish mappings by DnD', () => {
     cy.openDataMapper();
-    cy.attachSourceBodySchema('datamapper/xsd/Cart.xsd');
-    cy.attachTargetBodySchema('datamapper/xsd/ShipOrder.xsd');
+    cy.attachSourceBodySchema('cypress/fixtures/datamapper/xsd/Cart.xsd');
+    cy.attachTargetBodySchema('cypress/fixtures/datamapper/xsd/ShipOrder.xsd');
     cy.addParameter('Account');
-    cy.attachParameterSchema('Account', 'datamapper/xsd/Account.xsd');
+    cy.attachParameterSchema('Account', 'cypress/fixtures/datamapper/xsd/Account.xsd');
 
     cy.engageMapping(
       ['document-doc-param-Account', 'node-source-fx-AccountId'],
@@ -96,9 +96,9 @@ describe('Test for DataMapper : XML to XML', () => {
 
   it('attach parameter schema, engage mappings, detach parameter schema', () => {
     cy.openDataMapper();
-    cy.attachTargetBodySchema('datamapper/xsd/ShipOrder.xsd');
+    cy.attachTargetBodySchema('cypress/fixtures/datamapper/xsd/ShipOrder.xsd');
     cy.addParameter('Account');
-    cy.attachParameterSchema('Account', 'datamapper/xsd/Account.xsd');
+    cy.attachParameterSchema('Account', 'cypress/fixtures/datamapper/xsd/Account.xsd');
 
     cy.engageMapping(
       ['document-doc-param-Account', 'node-source-fx-AccountId'],
@@ -135,9 +135,9 @@ describe('Test for DataMapper : XML to XML', () => {
 
   it('attach parameter schema, engage mappings, delete parameter', () => {
     cy.openDataMapper();
-    cy.attachTargetBodySchema('datamapper/xsd/ShipOrder.xsd');
+    cy.attachTargetBodySchema('cypress/fixtures/datamapper/xsd/ShipOrder.xsd');
     cy.addParameter('Account');
-    cy.attachParameterSchema('Account', 'datamapper/xsd/Account.xsd');
+    cy.attachParameterSchema('Account', 'cypress/fixtures/datamapper/xsd/Account.xsd');
 
     cy.engageMapping(
       ['document-doc-param-Account', 'node-source-fx-AccountId'],
@@ -174,9 +174,9 @@ describe('Test for DataMapper : XML to XML', () => {
 
   it('import mappings with XPath if-else expression', () => {
     cy.openDataMapper();
-    cy.attachSourceBodySchema('datamapper/xsd/ShipOrder.xsd');
-    cy.attachTargetBodySchema('datamapper/xsd/ShipOrder.xsd');
-    cy.importMappings('datamapper/xslt/ShipOrderWithIfElse.xsl');
+    cy.attachSourceBodySchema('cypress/fixtures/datamapper/xsd/ShipOrder.xsd');
+    cy.attachTargetBodySchema('cypress/fixtures/datamapper/xsd/ShipOrder.xsd');
+    cy.importMappings('cypress/fixtures/datamapper/xslt/ShipOrderWithIfElse.xsl');
 
     cy.get('[data-testid^="node-source-fx-OrderPerson"]').should('exist');
     cy.get('[data-testid^="node-target-fx-OrderPerson"]').should('exist');
@@ -191,9 +191,9 @@ describe('Test for DataMapper : XML to XML', () => {
 
   it('import mappings with XPath arithmetic and logical operators', () => {
     cy.openDataMapper();
-    cy.attachSourceBodySchema('datamapper/xsd/ShipOrder.xsd');
-    cy.attachTargetBodySchema('datamapper/xsd/ShipOrder.xsd');
-    cy.importMappings('datamapper/xslt/ShipOrderWithOperators.xsl');
+    cy.attachSourceBodySchema('cypress/fixtures/datamapper/xsd/ShipOrder.xsd');
+    cy.attachTargetBodySchema('cypress/fixtures/datamapper/xsd/ShipOrder.xsd');
+    cy.importMappings('cypress/fixtures/datamapper/xslt/ShipOrderWithOperators.xsl');
 
     // Verify that fields used in operators are present
     cy.get('[data-testid^="node-source-fx-OrderPerson"]').should('exist');

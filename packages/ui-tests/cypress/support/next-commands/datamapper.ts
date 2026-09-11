@@ -4,7 +4,7 @@ Cypress.Commands.add('attachSourceBodySchema', (filePath: string) => {
     cy.get('[data-testid="attach-schema-modal-option-json"]').click();
   }
   cy.get('[data-testid="attach-schema-modal-btn-file"]').click();
-  cy.get('[data-testid="attach-schema-file-input"]').attachFile(filePath);
+  cy.get('[data-testid="attach-schema-file-input"]').selectFile(filePath, { force: true });
   cy.get('[data-testid="attach-schema-file-list"]').should('exist');
   cy.get('[data-testid="attach-schema-modal-btn-attach"]').click();
   // Verify schema was attached by checking for child nodes in source body
@@ -32,8 +32,7 @@ Cypress.Commands.add('addTargetBodySchema', (filePath: string | string[]) => {
   cy.get('[data-testid="attach-schema-modal-btn-file"]').click();
 
   // Attach each file
-  cy.get('[data-testid="attach-schema-file-input"]').attachFile(filePaths);
-
+  cy.get('[data-testid="attach-schema-file-input"]').selectFile(filePaths, { force: true });
   cy.get('[data-testid="attach-schema-file-list"]').should('exist');
 
   // Check file type based on the first file
@@ -64,7 +63,7 @@ Cypress.Commands.add('attachParameterSchema', (name: string, filePath: string) =
     cy.get('[data-testid="attach-schema-modal-option-json"]').click();
   }
   cy.get('[data-testid="attach-schema-modal-btn-file"]').click();
-  cy.get('[data-testid="attach-schema-file-input"]').attachFile(filePath);
+  cy.get('[data-testid="attach-schema-file-input"]').selectFile(filePath, { force: true });
 
   cy.get('[data-testid="attach-schema-file-list"]').should('exist');
   if (filePath.endsWith('json')) {
@@ -88,7 +87,7 @@ Cypress.Commands.add('detachParameterSchema', (name: string) => {
 Cypress.Commands.add('importMappings', (filePath: string) => {
   cy.get('[data-testid="dm-debug-main-menu-button"]').click();
   cy.get('[data-testid="dm-debug-import-mappings-button"]').click();
-  cy.get('[data-testid="dm-debug-import-mappings-file-input"]').attachFile(filePath);
+  cy.get('[data-testid="dm-debug-import-mappings-file-input"]').selectFile(filePath, { force: true });
 });
 
 Cypress.Commands.add('exportMappings', () => {

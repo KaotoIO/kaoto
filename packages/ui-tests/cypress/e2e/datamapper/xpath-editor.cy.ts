@@ -5,10 +5,10 @@ describe('Test for DataMapper : XPath Editor', () => {
     cy.openHomePage();
     cy.openDataMapper();
     // Use ShipOrder → ShipOrder as a symmetric source/target so all fields are available
-    cy.attachSourceBodySchema('datamapper/xsd/ShipOrder.xsd');
-    cy.attachTargetBodySchema('datamapper/xsd/ShipOrder.xsd');
+    cy.attachSourceBodySchema('cypress/fixtures/datamapper/xsd/ShipOrder.xsd');
+    cy.attachTargetBodySchema('cypress/fixtures/datamapper/xsd/ShipOrder.xsd');
     // Import an existing XSLT mapping so fields already have XPath expressions to edit
-    cy.importMappings('datamapper/xslt/ShipOrderToShipOrder.xsl');
+    cy.importMappings('cypress/fixtures/datamapper/xslt/ShipOrderToShipOrder.xsl');
   });
 
   it('open XPath Editor via fx button and close it → modal opens and closes correctly', () => {
