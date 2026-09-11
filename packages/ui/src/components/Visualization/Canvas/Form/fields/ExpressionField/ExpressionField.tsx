@@ -61,11 +61,25 @@ const ExpressionFieldImpl: FunctionComponent<FieldProps & { promise: Promise<str
     onChange(localValue);
   };
 
+  /**
+   * Toggles the intentional empty-string state of an expression value. This must bypass
+   * `onExpressionChange`, which converts empty strings to `undefined`, so that checking the
+   * "Empty" checkbox persists `expression: ''` in the model.
+   */
+  const onToggleEmpty = (path: string, isEmptyValue: boolean) => {
+    const localValue = { ...(parsedModel ?? {}) };
+    setValue(localValue, path, isEmptyValue ? '' : undefined);
+
+    const nextModel = isEmpty(localValue) ? undefined : localValue;
+    setParsedModel(nextModel);
+    onChange(nextModel as unknown as Record<string, unknown>);
+  };
+
   if (isRootExpression) {
     return (
       <ModelContextProvider model={parsedModel} onPropertyChange={onExpressionChange}>
         <SchemaProvider schema={expressionsSchema}>
-          <ExpressionFieldInner propName={ROOT_PATH} required={required} />
+          <ExpressionFieldInner propName={ROOT_PATH} required={required} onToggleEmpty={onToggleEmpty} />
         </SchemaProvider>
       </ModelContextProvider>
     );
@@ -82,7 +96,7 @@ const ExpressionFieldImpl: FunctionComponent<FieldProps & { promise: Promise<str
     >
       <ModelContextProvider model={parsedModel} onPropertyChange={onExpressionChange}>
         <SchemaProvider schema={expressionsSchema}>
-          <ExpressionFieldInner propName={ROOT_PATH} required={required} />
+          <ExpressionFieldInner propName={ROOT_PATH} required={required} onToggleEmpty={onToggleEmpty} />
         </SchemaProvider>
       </ModelContextProvider>
     </FieldWrapper>
