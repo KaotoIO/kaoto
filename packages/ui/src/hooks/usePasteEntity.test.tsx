@@ -193,7 +193,9 @@ describe('usePasteEntity', () => {
       await result.current.onPasteEntity();
     });
 
-    expect(addNewEntitySpy).toHaveBeenCalled();
+    expect(addNewEntitySpy).toHaveBeenCalledWith('route', {
+      route: expect.objectContaining({ from: { uri: 'timer:tick' } }),
+    });
     expect(toggleFlowVisibleSpy).toHaveBeenCalledWith('new-route-id');
     expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
   });
@@ -232,7 +234,44 @@ describe('usePasteEntity', () => {
         }),
       );
       expect(removeEntitySpy).toHaveBeenCalledWith(['existing-entity']);
-      expect(addNewEntitySpy).toHaveBeenCalled();
+      expect(addNewEntitySpy).toHaveBeenCalledWith('route', expect.objectContaining({ from: { uri: 'timer:tick' } }));
+    });
+
+    it('should pass the raw pipe definition instead of wrapping it', async () => {
+      vi.spyOn(navigator.permissions, 'query').mockResolvedValueOnce({ state: 'granted' } as PermissionStatus);
+      const pipeContent: IClipboardContent = {
+        name: 'pipe',
+        definition: {
+          metadata: { name: 'copied-pipe' },
+          spec: { steps: [{ ref: { name: 'delay-action' } }] },
+        },
+      };
+      vi.spyOn(ClipboardService, 'paste').mockResolvedValue(pipeContent);
+      vi.spyOn(camelResource, 'getType').mockReturnValue(SourceSchemaType.Pipe);
+      vi.spyOn(camelResource, 'getVisualEntities').mockReturnValue([
+        { id: 'existing-entity' } as unknown as CamelRouteVisualEntity,
+      ]);
+      mockActionConfirmationContext.actionConfirmation.mockResolvedValue(ACTION_ID_CONFIRM);
+      addNewEntitySpy.mockReturnValue('copied-pipe');
+
+      const { result } = renderHook(() => usePasteEntity(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isCompatible).toBe(true);
+      });
+
+      await act(async () => {
+        await result.current.onPasteEntity();
+      });
+
+      expect(addNewEntitySpy).toHaveBeenCalledWith(
+        'pipe',
+        expect.objectContaining({
+          metadata: { name: 'copied-pipe' },
+          spec: { steps: [{ ref: { name: 'delay-action' } }] },
+        }),
+      );
+      expect(addNewEntitySpy).not.toHaveBeenCalledWith('pipe', expect.objectContaining({ pipe: expect.anything() }));
     });
 
     it('should not paste when user cancels replacement', async () => {
