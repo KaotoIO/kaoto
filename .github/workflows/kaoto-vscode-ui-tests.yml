@@ -119,13 +119,12 @@ jobs:
 
   views:
     name: Views (${{ matrix.os }})
-    if: inputs.run-full-ui-tests
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: ${{ inputs.run-full-ui-tests && fromJSON('["ubuntu-latest", "macos-latest", "windows-latest"]') || fromJSON('[]') }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -166,13 +165,12 @@ jobs:
 
   export:
     name: Project Export (${{ matrix.os }})
-    if: inputs.run-full-ui-tests
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: ${{ inputs.run-full-ui-tests && fromJSON('["ubuntu-latest", "macos-latest", "windows-latest"]') || fromJSON('[]') }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -212,10 +210,13 @@ jobs:
           storage-path: ${{ runner.temp }}/kaoto-tests
 
   deployment:
-    name: Deployment (ubuntu-latest)
-    if: inputs.run-deploy-tests
-    runs-on: ubuntu-latest
+    name: Deployment (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ inputs.run-deploy-tests && fromJSON('["ubuntu-latest"]') || fromJSON('[]') }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -244,5 +245,5 @@ jobs:
         uses: ./.github/actions/kaoto-vscode-upload-test-artifacts
         with:
           test-group: deployment
-          os-name: ubuntu-latest
+          os-name: ${{ matrix.os }}
           storage-path: ${{ runner.temp }}/kaoto-tests
