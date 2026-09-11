@@ -19,6 +19,32 @@ describe('CitrusTestDefaultService', () => {
   });
 
   describe('getDefaultTestActionDefinitionValue', () => {
+    const createCatalogPresetFixture = () => {
+      const catalogDefaultValue = {
+        applyTemplate: {
+          name: 'company-login',
+          parameters: [
+            {
+              name: 'username',
+              value: '${username}',
+            },
+          ],
+        },
+      };
+
+      const definedComponent: DefinedComponent = {
+        name: 'company-login',
+        type: CatalogKind.TestAction,
+        definition: {
+          kind: CatalogKind.TestAction,
+          name: 'company-login',
+          defaultValue: catalogDefaultValue,
+        },
+      };
+
+      return { catalogDefaultValue, definedComponent };
+    };
+
     it('should return the default value for a print action', () => {
       const definitionValue = CitrusTestDefaultService.getDefaultTestActionDefinitionValue({
         type: 'testAction',
@@ -28,14 +54,55 @@ describe('CitrusTestDefaultService', () => {
       expect(definitionValue.print).toBeDefined();
     });
 
+    it('should return the complete catalog-defined default value', () => {
+      const { catalogDefaultValue, definedComponent } = createCatalogPresetFixture();
+
+      const definitionValue = CitrusTestDefaultService.getDefaultTestActionDefinitionValue(definedComponent);
+
+      expect(definitionValue).toStrictEqual(catalogDefaultValue);
+    });
+
+    it('should return deeply independent copies of a catalog-defined default value', () => {
+      const { catalogDefaultValue, definedComponent } = createCatalogPresetFixture();
+
+      const firstDefinitionValue = CitrusTestDefaultService.getDefaultTestActionDefinitionValue(
+        definedComponent,
+      ) as typeof catalogDefaultValue;
+
+      const secondDefinitionValue = CitrusTestDefaultService.getDefaultTestActionDefinitionValue(
+        definedComponent,
+      ) as typeof catalogDefaultValue;
+
+      expect(firstDefinitionValue.applyTemplate.parameters).not.toBe(catalogDefaultValue.applyTemplate.parameters);
+      expect(secondDefinitionValue.applyTemplate.parameters).not.toBe(catalogDefaultValue.applyTemplate.parameters);
+      expect(firstDefinitionValue.applyTemplate.parameters).not.toBe(secondDefinitionValue.applyTemplate.parameters);
+
+      expect(firstDefinitionValue.applyTemplate.parameters[0]).not.toBe(
+        catalogDefaultValue.applyTemplate.parameters[0],
+      );
+      expect(secondDefinitionValue.applyTemplate.parameters[0]).not.toBe(
+        catalogDefaultValue.applyTemplate.parameters[0],
+      );
+      expect(firstDefinitionValue.applyTemplate.parameters[0]).not.toBe(
+        secondDefinitionValue.applyTemplate.parameters[0],
+      );
+
+      firstDefinitionValue.applyTemplate.parameters[0].value = 'changed';
+
+      expect(firstDefinitionValue.applyTemplate.parameters[0].value).toBe('changed');
+      expect(secondDefinitionValue.applyTemplate.parameters[0].value).toBe('${username}');
+      expect(catalogDefaultValue.applyTemplate.parameters[0].value).toBe('${username}');
+    });
+
     it('should return the default value for a custom action', () => {
       const definitionValue = CitrusTestDefaultService.getDefaultTestActionDefinitionValue({
         type: 'testAction',
         name: 'custom',
       } as DefinedComponent);
-      expect(definitionValue).toBeDefined();
-      const json = definitionValue as Record<string, unknown>;
-      expect(json.custom).toBeDefined();
+
+      expect(definitionValue).toStrictEqual({
+        custom: {},
+      });
     });
 
     it('should return the default iterate container', () => {
