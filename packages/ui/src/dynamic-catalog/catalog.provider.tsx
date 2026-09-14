@@ -7,6 +7,7 @@ import { Loading } from '../components/Loading';
 import { useRuntimeContext } from '../hooks/useRuntimeContext/useRuntimeContext';
 import { CamelCatalogIndex, CamelCatalogService, FileTypes, FileTypesResponse, LoadingStatus } from '../models';
 import { CitrusCatalogIndex } from '../models/citrus/citrus-catalog-index';
+import { CitrusTestSchemaService } from '../models/visualization/flows/support/citrus-test-schema.service';
 import { CatalogSchemaLoader } from '../utils';
 import { DynamicCatalogRegistry } from './dynamic-catalog-registry';
 import { IDynamicCatalogRegistry } from './models';
@@ -58,6 +59,7 @@ export const CatalogLoaderProvider: FunctionComponent<
     return () => {
       CamelCatalogService.clearCatalogs();
       DynamicCatalogRegistry.get().clearRegistry();
+      CitrusTestSchemaService.clearKindMap();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCatalogIndexFile, getResourcesContentByType]);

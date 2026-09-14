@@ -7,7 +7,7 @@ import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog
 import { CamelProcessorsProvider } from '../../../dynamic-catalog/providers/camel-components.provider';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { citrusTestJson } from '../../../stubs/citrus-test';
-import { getFirstCitrusCatalogMap } from '../../../stubs/test-load-catalog';
+import { getFirstCitrusCatalogMap, setupCitrusDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
 import { setValue } from '../../../utils';
 import { ICamelProcessorDefinition } from '../../camel/camel-processors-catalog';
 import { CatalogKind } from '../../catalog-kind';
@@ -36,6 +36,11 @@ describe('CitrusTestVisualEntity', () => {
     const catalogsMap = await getFirstCitrusCatalogMap(catalogLibrary as CatalogLibrary);
     CamelCatalogService.setCatalogKey(CatalogKind.TestAction, catalogsMap.actionsCatalogMap);
     CamelCatalogService.setCatalogKey(CatalogKind.TestContainer, catalogsMap.containersCatalogMap);
+    setupCitrusDynamicCatalogRegistry(catalogsMap);
+  });
+
+  afterEach(() => {
+    CitrusTestSchemaService.clearKindMap();
   });
 
   beforeEach(() => {
@@ -925,7 +930,8 @@ describe('CitrusTestVisualEntity', () => {
       const invalidModel = cloneDeep(citrusTestJson);
       setValue(invalidModel, 'actions[0].print.message', undefined);
       const entity = new CitrusTestVisualEntity(invalidModel);
-      const schema = CitrusTestSchemaService.getNodeSchema('print');
+      const definition = CitrusTestSchemaService.getTestActionDefinition('print');
+      const schema = definition?.propertiesSchema || {};
 
       const result = await entity.getNodeValidationText('actions.0.print', schema, printActionIds);
 
@@ -1363,6 +1369,41 @@ describe('CitrusTestVisualEntity', () => {
         name: PlaceholderType.Placeholder,
         catalogKind: CatalogKind.TestAction,
       });
+    });
+  });
+  describe('double-resolution fix', () => {
+    it('should call getTestActionName exactly once per action in getVizNodesFromSteps', async () => {
+      const spy = vi.spyOn(CitrusTestSchemaService, 'getTestActionName');
+      const entity = new CitrusTestVisualEntity({
+        name: 'spy-test',
+        actions: [{ print: { message: 'a' } }, { delay: { milliseconds: 100 } }],
+      });
+
+      await entity.toVizNode();
+
+      // 2 real actions → exactly 2 calls (not 4)
+      expect(spy).toHaveBeenCalledTimes(2);
+      spy.mockRestore();
+    });
+
+    it('should call getTestActionName exactly once per action in getChildrenFromArrayClause (parallel)', async () => {
+      const spy = vi.spyOn(CitrusTestSchemaService, 'getTestActionName');
+      const entity = new CitrusTestVisualEntity({
+        name: 'spy-test-parallel',
+        actions: [
+          {
+            parallel: {
+              actions: [{ print: { message: 'p1' } }, { print: { message: 'p2' } }],
+            },
+          },
+        ],
+      });
+
+      await entity.toVizNode();
+
+      // 1 call for the top-level 'parallel' action + 2 calls for parallel children = 3 total
+      expect(spy).toHaveBeenCalledTimes(3);
+      spy.mockRestore();
     });
   });
 });
