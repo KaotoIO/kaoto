@@ -26,7 +26,7 @@ permissions:
 
 jobs:
   settings:
-    name: User Settings (${{ matrix.os }})
+    name: User Settings
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:
@@ -72,7 +72,7 @@ jobs:
           storage-path: ${{ runner.temp }}/kaoto-tests
 
   editor:
-    name: Editor (${{ matrix.os }})
+    name: Editor
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:
@@ -118,13 +118,14 @@ jobs:
           storage-path: ${{ runner.temp }}/kaoto-tests
 
   views:
-    name: Views (${{ matrix.os }})
+    name: Views
+    if: inputs.run-full-ui-tests
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ inputs.run-full-ui-tests && fromJSON('["ubuntu-latest", "macos-latest", "windows-latest"]') || fromJSON('[]') }}
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -164,13 +165,14 @@ jobs:
           storage-path: ${{ runner.temp }}/kaoto-tests
 
   export:
-    name: Project Export (${{ matrix.os }})
+    name: Project Export
+    if: inputs.run-full-ui-tests
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ inputs.run-full-ui-tests && fromJSON('["ubuntu-latest", "macos-latest", "windows-latest"]') || fromJSON('[]') }}
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -210,13 +212,10 @@ jobs:
           storage-path: ${{ runner.temp }}/kaoto-tests
 
   deployment:
-    name: Deployment (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
+    name: Deployment
+    if: inputs.run-deploy-tests
+    runs-on: ubuntu-latest
     timeout-minutes: 60
-    strategy:
-      fail-fast: false
-      matrix:
-        os: ${{ inputs.run-deploy-tests && fromJSON('["ubuntu-latest"]') || fromJSON('[]') }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -245,5 +244,5 @@ jobs:
         uses: ./.github/actions/kaoto-vscode-upload-test-artifacts
         with:
           test-group: deployment
-          os-name: ${{ matrix.os }}
+          os-name: ubuntu-latest
           storage-path: ${{ runner.temp }}/kaoto-tests
