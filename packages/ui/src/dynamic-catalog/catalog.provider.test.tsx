@@ -3,6 +3,7 @@ import { CatalogDefinition, CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { act, render, screen } from '@testing-library/react';
 import type { Mock } from 'vitest';
 
+import { CitrusTestSchemaService } from '../models/visualization/flows/support/citrus-test-schema.service';
 import { ReloadContext } from '../providers/reload.provider';
 import { TestRuntimeProviderWrapper } from '../stubs';
 import { citrusCatalogSelector, getFirstCatalogMap, getFirstCitrusCatalogMap } from '../stubs/test-load-catalog';
@@ -255,5 +256,33 @@ describe('CitrusCatalogLoaderProvider', () => {
     });
 
     expect(screen.getByTestId('catalogs-loaded')).toBeInTheDocument();
+  });
+});
+
+describe('CatalogLoaderProvider cleanup', () => {
+  let clearKindMapSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    clearKindMapSpy = vi.spyOn(CitrusTestSchemaService, 'clearKindMap');
+  });
+
+  afterEach(() => {
+    clearKindMapSpy.mockRestore();
+  });
+
+  it('should call CitrusTestSchemaService.clearKindMap on unmount', async () => {
+    const { Provider } = TestRuntimeProviderWrapper();
+    const fetchMock = vi.spyOn(globalThis, 'fetch');
+    fetchMock.mockResolvedValueOnce({
+      json: () => Promise.resolve({ runtime: 'Camel' }),
+    } as unknown as Response);
+
+    const { unmount } = render(
+      <Provider>
+        <CatalogLoaderProvider>{null}</CatalogLoaderProvider>
+      </Provider>,
+    );
+    unmount();
+    expect(clearKindMapSpy).toHaveBeenCalledOnce();
   });
 });

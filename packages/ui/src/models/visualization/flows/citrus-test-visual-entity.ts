@@ -181,8 +181,9 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
       return await this.getRootTestSchema();
     }
 
-    // Test action / container nodes — use CitrusTestSchemaService (static catalog)
-    return CitrusTestSchemaService.getNodeSchema(ids.primaryNodeId.name);
+    // Test action / container nodes
+    const definition = CitrusTestSchemaService.getTestActionDefinition(ids.primaryNodeId.name);
+    return definition?.propertiesSchema || ({} as KaotoSchemaDefinition['schema']);
   }
 
   async fetchNodeDefinition(path?: string, ids?: IVisualizationNodeIds): Promise<unknown> {
@@ -444,8 +445,12 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     }
   }
 
-  private async getVizNodeFromStep(action: TestActions, path: string): Promise<IVisualizationNode> {
-    const actionName = CitrusTestSchemaService.getTestActionName(action);
+  private async getVizNodeFromStep(
+    action: TestActions,
+    path: string,
+    preResolvedName?: string,
+  ): Promise<IVisualizationNode> {
+    const actionName = preResolvedName ?? (await CitrusTestSchemaService.getTestActionName(action));
     const data: IVisualizationNodeData = {
       name: actionName,
       path,
@@ -484,8 +489,8 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     const vizNodes: IVisualizationNode[] = [];
     for (let index = 0; index < actions.length; index++) {
       const action = actions[index];
-      const actionName = CitrusTestSchemaService.getTestActionName(action);
-      const vizNode = await this.getVizNodeFromStep(action, `${actionsPath}.${index}.${actionName}`);
+      const actionName = await CitrusTestSchemaService.getTestActionName(action);
+      const vizNode = await this.getVizNodeFromStep(action, `${actionsPath}.${index}.${actionName}`, actionName);
 
       if (index > 0) {
         const previousVizNode = vizNodes[index - 1];
@@ -577,8 +582,8 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
       return [placeholderNode];
     }
 
-    const actionName = CitrusTestSchemaService.getTestActionName(action);
-    const stepVizNode = await this.getVizNodeFromStep(action, `${path}.${actionName}`);
+    const actionName = await CitrusTestSchemaService.getTestActionName(action);
+    const stepVizNode = await this.getVizNodeFromStep(action, `${path}.${actionName}`, actionName);
     return [stepVizNode];
   }
 
@@ -593,8 +598,8 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     const children: IVisualizationNode[] = [];
     for (let index = 0; index < actions.length; index++) {
       const action = actions[index];
-      const actionName = CitrusTestSchemaService.getTestActionName(action);
-      const vizNode = await this.getVizNodeFromStep(action, `${path}.${index}.${actionName}`);
+      const actionName = await CitrusTestSchemaService.getTestActionName(action);
+      const vizNode = await this.getVizNodeFromStep(action, `${path}.${index}.${actionName}`, actionName);
       children.push(vizNode);
     }
 
@@ -670,12 +675,29 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     }
 
     for (const action of actions) {
-      const actionName = CitrusTestSchemaService.getTestActionName(action);
+      this.updateActionGroupModel(action);
+    }
+  }
+
+  private updateActionGroupModel(action: TestActions): void {
+    const jsonRecord = action as Record<string, unknown>;
+    for (const key in jsonRecord) {
+      if (jsonRecord[key] === undefined) continue;
+      const topDef = CitrusTestSchemaService.getTestActionDefinition(key);
+      if (!topDef) {
+        this.recurseIntoContainerActions(action, key);
+        break;
+      }
+      const actionName =
+        topDef.kind === CatalogKind.TestActionGroup
+          ? CitrusTestVisualEntity.resolveGroupActionNameSync(jsonRecord[key] as TestAction, key)
+          : key;
       const actionDefinition = CitrusTestSchemaService.getTestActionDefinition(actionName);
       if (isDefined(actionDefinition?.group)) {
         this.moveGroupPropertiesFromAction(action, actionName, actionDefinition);
       }
       this.recurseIntoContainerActions(action, actionName);
+      break;
     }
   }
 
@@ -699,6 +721,26 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
         }
       }
     }
+  }
+
+  /**
+   * Resolves the fully qualified action name for a TestActionGroup using
+   * CamelCatalogService (synchronous, no kind map required).
+   * Used by updateTestGroupModel which runs synchronously inside toJSON().
+   */
+  private static resolveGroupActionNameSync(action: TestAction, groupName: string): string {
+    const jsonRecord = action as Record<string, unknown>;
+    for (const key in jsonRecord) {
+      if (jsonRecord[key] === undefined) continue;
+      const candidateName = `${groupName}-${key}`;
+      const candidateDef = CitrusTestSchemaService.getTestActionDefinition(candidateName);
+      if (!candidateDef) continue;
+      if (candidateDef.kind === CatalogKind.TestActionGroup) {
+        return CitrusTestVisualEntity.resolveGroupActionNameSync(jsonRecord[key] as TestAction, candidateName);
+      }
+      return candidateName;
+    }
+    return groupName;
   }
 
   private recurseIntoContainerActions(action: TestActions, actionName: string) {

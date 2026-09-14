@@ -1,7 +1,8 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
-import { getFirstCitrusCatalogMap } from '../../../../stubs/test-load-catalog';
+import { DynamicCatalogRegistry } from '../../../../dynamic-catalog/dynamic-catalog-registry';
+import { getFirstCitrusCatalogMap, setupCitrusDynamicCatalogRegistry } from '../../../../stubs/test-load-catalog';
 import { CatalogKind } from '../../../catalog-kind';
 import { TestActions } from '../../../citrus/entities/Test';
 import { CamelCatalogService } from '../camel-catalog.service';
@@ -12,50 +13,77 @@ describe('CitrusTestSchemaService', () => {
     const catalogsMap = await getFirstCitrusCatalogMap(catalogLibrary as CatalogLibrary);
     CamelCatalogService.setCatalogKey(CatalogKind.TestAction, catalogsMap.actionsCatalogMap);
     CamelCatalogService.setCatalogKey(CatalogKind.TestContainer, catalogsMap.containersCatalogMap);
+    setupCitrusDynamicCatalogRegistry(catalogsMap);
+  });
+
+  afterAll(() => {
+    CamelCatalogService.clearCatalogs();
+    DynamicCatalogRegistry.get().clearRegistry();
+    CitrusTestSchemaService.clearKindMap();
   });
 
   afterEach(() => {
     vi.clearAllMocks();
   });
 
-  afterAll(() => {
-    CamelCatalogService.clearCatalogs();
-  });
-
-  describe('getNodeSchema', () => {
-    it.each([
-      ['print', CatalogKind.TestAction],
-      ['iterate', CatalogKind.TestContainer],
-      ['kubernetes-createService', CatalogKind.TestAction],
-      ['camel-jbang-run', CatalogKind.TestAction],
-    ])('should leverage the CamelCatalogService.getComponent method', (actionName, catalogKind) => {
-      const getComponentSpy = vi.spyOn(CamelCatalogService, 'getComponent');
-
-      CitrusTestSchemaService.getNodeSchema(actionName);
-
-      expect(getComponentSpy).toHaveBeenCalledWith(catalogKind, actionName);
+  describe('getTestActionName', () => {
+    afterEach(() => {
+      CitrusTestSchemaService.clearKindMap();
     });
 
-    it.each([undefined, { kind: CatalogKind.TestAction, name: 'test-action', propertiesSchema: undefined } as const])(
-      'should return an empty schema when the action is not found',
-      (schema) => {
-        vi.spyOn(CamelCatalogService, 'getComponent').mockReturnValueOnce(schema);
-        const result = CitrusTestSchemaService.getNodeSchema('non-existing');
-        expect(result).toEqual({});
-      },
-    );
+    it('should get test action name for simple action models', async () => {
+      const actionModel: TestActions = { print: { message: 'Hello World' } };
+      expect(await CitrusTestSchemaService.getTestActionName(actionModel)).toBe('print');
+    });
+
+    it('should get test action name for a grouped action', async () => {
+      // http is a TestActionGroup; the inner key 'sendRequest' resolves to 'http-sendRequest'
+      const actionModel: TestActions = {
+        http: { client: 'c1', sendRequest: { message: { body: { data: 'hi' } } } },
+      };
+      expect(await CitrusTestSchemaService.getTestActionName(actionModel)).toBe('http-sendRequest');
+    });
+
+    it('should get test action name for a multi-level grouped action', async () => {
+      // camel -> camel-jbang -> camel-jbang-run
+      const actionModel = { camel: { jbang: { run: { integrationFile: 'foo.yaml' } } } } as unknown as TestActions;
+      expect(await CitrusTestSchemaService.getTestActionName(actionModel)).toBe('camel-jbang-run');
+    });
+
+    it('should return unknown for undefined action', async () => {
+      expect(await CitrusTestSchemaService.getTestActionName(undefined as unknown as TestActions)).toBe('unknown');
+    });
   });
 
-  describe('getTestActionName', () => {
-    it(`should get test action name for simple action models`, () => {
-      const actionModel: TestActions = {
-        print: {
-          message: 'Hello World',
-        },
-      };
+  describe('clearKindMap', () => {
+    it('should force map rebuild on next getTestActionName call', async () => {
+      // First call — warms the map
+      await CitrusTestSchemaService.getTestActionName({ print: { message: 'hi' } });
 
-      const result = CitrusTestSchemaService.getTestActionName(actionModel);
+      CitrusTestSchemaService.clearKindMap();
+
+      // Second call — must still return correct result (rebuilds the map)
+      const result = await CitrusTestSchemaService.getTestActionName({ print: { message: 'hi' } });
       expect(result).toBe('print');
+    });
+  });
+
+  describe('getTestActionDefinition', () => {
+    it('should return the definition for a simple action', () => {
+      const def = CitrusTestSchemaService.getTestActionDefinition('print');
+      expect(def).toBeDefined();
+      expect(def?.name).toBe('print');
+    });
+
+    it('should return undefined for an unknown action', () => {
+      const def = CitrusTestSchemaService.getTestActionDefinition('nonexistent-action-xyz');
+      expect(def).toBeUndefined();
+    });
+
+    it('should return a resolved definition for a grouped action', () => {
+      const def = CitrusTestSchemaService.getTestActionDefinition('camel-jbang-run');
+      expect(def).toBeDefined();
+      expect(def?.propertiesSchema).toBeDefined();
     });
   });
 
@@ -70,9 +98,7 @@ describe('CitrusTestSchemaService', () => {
       const actionDefinition = CitrusTestSchemaService.getTestActionDefinition('camel-jbang-run');
       const groups = CitrusTestSchemaService.getTestActionGroups(actionDefinition);
       expect(groups).toHaveLength(2);
-      expect(groups[0]).toHaveProperty('name');
       expect(groups[0].name).toBe('camel');
-      expect(groups[1]).toHaveProperty('name');
       expect(groups[1].name).toBe('camel-jbang');
     });
   });
@@ -103,16 +129,6 @@ describe('CitrusTestSchemaService', () => {
     it('should handle settings not found', () => {
       const settings = CitrusTestSchemaService.getTestContainerSettings('unknown');
       expect(settings).toBeUndefined();
-    });
-  });
-
-  describe('extractTestActionName', () => {
-    it.each([
-      ['iterate', 'iterate'],
-      ['actions.0.iterate.actions.0.print', 'print'],
-      ['actions.1.iterate', 'iterate'],
-    ])('should get test action name from path', (path, expected) => {
-      expect(CitrusTestSchemaService.extractTestActionName(path)).toEqual(expected);
     });
   });
 });

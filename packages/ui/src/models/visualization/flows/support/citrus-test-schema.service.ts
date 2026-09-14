@@ -1,5 +1,7 @@
 import { isDefined } from '@kaoto/forms';
+import { cloneDeep } from 'lodash';
 
+import { DynamicCatalogRegistry } from '../../../../dynamic-catalog/dynamic-catalog-registry';
 import { CatalogKind } from '../../../catalog-kind';
 import { ICitrusComponentDefinition } from '../../../citrus/citrus-catalog';
 import { TestAction, TestActions } from '../../../citrus/entities/Test';
@@ -17,48 +19,65 @@ import { CamelCatalogService } from '../camel-catalog.service';
  * - Extracting metadata like titles and descriptions
  */
 export class CitrusTestSchemaService {
+  /** Lazy kind-only map populated on first getTestActionName call. Null = not yet built. */
+  private static kindMap: Record<string, CatalogKind> | null = null;
+
+  private static async ensureKindMap(): Promise<void> {
+    if (CitrusTestSchemaService.kindMap !== null) return;
+
+    const registry = DynamicCatalogRegistry.get();
+    const kindMap: Record<string, CatalogKind> = {};
+
+    const actions = (await registry.getCatalog(CatalogKind.TestAction)?.getAll()) ?? {};
+    for (const [key, val] of Object.entries(actions)) {
+      kindMap[key] = (val as ICitrusComponentDefinition).kind;
+    }
+
+    const containers = (await registry.getCatalog(CatalogKind.TestContainer)?.getAll()) ?? {};
+    for (const [key, val] of Object.entries(containers)) {
+      kindMap[key] ??= (val as ICitrusComponentDefinition).kind;
+    }
+
+    CitrusTestSchemaService.kindMap = kindMap;
+  }
+
   /**
-   * Gets the JSON schema for a test action node.
-   *
-   * @param name - The name of the test action
-   * @returns The JSON schema for the action's properties, or undefined if not found
+   * Clears the cached kind map, forcing a rebuild on the next call to getTestActionName.
+   * Must be called in CatalogLoaderProvider's cleanup alongside clearRegistry().
    */
-  static getNodeSchema(name: string): KaotoSchemaDefinition['schema'] | undefined {
-    const definition = this.getTestActionDefinition(name);
-    return definition?.propertiesSchema || ({} as KaotoSchemaDefinition['schema']);
+  static clearKindMap(): void {
+    CitrusTestSchemaService.kindMap = null;
   }
 
   /**
    * Extracts the test action name from a test action object.
    *
-   * Searches through the action's properties to find a matching catalog definition.
-   * Handles both regular actions and action groups with nested structures.
+   * Awaits ensureKindMap() once (only on cold start or after clearKindMap()), then
+   * all subsequent lookups within the call are synchronous O(1) map reads.
    *
    * @param action - The test action object to analyze
    * @returns The name of the test action, or 'custom' if not recognized
    */
-  static getTestActionName(action: TestActions): string {
-    if (action === undefined) {
-      return 'unknown';
-    }
+  static async getTestActionName(action: TestActions): Promise<string> {
+    if (action === undefined) return 'unknown';
+
+    await CitrusTestSchemaService.ensureKindMap();
 
     const jsonRecord = action as Record<string, unknown>;
     let name = 'custom';
+
     for (const key in jsonRecord) {
-      if (jsonRecord[key] !== undefined) {
-        const definition = this.getTestActionDefinition(key);
-        if (!definition) {
-          // not a known test action, continue searching for a better fit
-          name = key;
-          continue;
-        }
+      if (jsonRecord[key] === undefined) continue;
 
-        if (definition.kind === CatalogKind.TestActionGroup) {
-          return this.resolveTestActionName(jsonRecord[key] as TestAction, definition);
-        }
-
-        return key;
+      const kind = CitrusTestSchemaService.kindMap![key];
+      if (kind === undefined) {
+        name = key;
+        continue;
       }
+      if (kind === CatalogKind.TestActionGroup) {
+        return CitrusTestSchemaService.resolveTestActionName(jsonRecord[key] as TestAction, key);
+      }
+      return key;
     }
 
     return name;
@@ -82,18 +101,16 @@ export class CitrusTestSchemaService {
       actionDef = CamelCatalogService.getComponent(CatalogKind.TestActionGroup, actionName);
     }
 
-    if (!isDefined(actionDef)) {
-      return undefined;
-    }
+    if (!isDefined(actionDef)) return undefined;
 
     // Clone to avoid mutating the shared catalog entry
-    actionDef = {
-      ...actionDef,
-      propertiesSchema: actionDef.propertiesSchema ? { ...actionDef.propertiesSchema } : undefined,
-    };
+    actionDef = cloneDeep(actionDef);
 
     if (actionDef.group !== undefined) {
-      this.resolveTestActionGroup(actionDef.group, actionDef);
+      const groupDef = this.getTestActionDefinition(actionDef.group);
+      if (isDefined(groupDef)) {
+        this.resolveTestActionGroup(groupDef, actionDef);
+      }
     }
 
     return actionDef;
@@ -109,13 +126,13 @@ export class CitrusTestSchemaService {
    * @returns Array of group definitions ordered from root to immediate parent
    */
   static getTestActionGroups(actionDef?: ICitrusComponentDefinition): ICitrusComponentDefinition[] {
-    if (!actionDef) {
+    if (!isDefined(actionDef)) {
       return [];
     }
 
     if (actionDef.group !== undefined) {
       const groupDef = this.getTestActionDefinition(actionDef.group);
-      if (groupDef) {
+      if (isDefined(groupDef)) {
         return [...this.getTestActionGroups(groupDef), groupDef];
       }
     }
@@ -175,84 +192,52 @@ export class CitrusTestSchemaService {
   }
 
   private static resolveTestActionGroup(
-    group: string,
+    groupDef: ICitrusComponentDefinition,
     actionDef: ICitrusComponentDefinition,
-  ): ICitrusComponentDefinition {
-    // get test action group component from test action catalog, because all test action groups are included in this catalog
-    let groupDef: ICitrusComponentDefinition | undefined = CamelCatalogService.getComponent(
-      CatalogKind.TestAction,
-      group,
-    );
-
-    if (!isDefined(groupDef)) {
-      return actionDef;
-    }
-
-    // Clone to avoid mutating the shared catalog entry
-    groupDef = {
-      ...groupDef,
-      propertiesSchema: groupDef.propertiesSchema ? { ...groupDef.propertiesSchema } : undefined,
-    };
-
-    if (groupDef.group !== undefined) {
-      groupDef = this.resolveTestActionGroup(groupDef.group, groupDef);
-    }
+  ): void {
+    // groupDef is already resolved by getTestActionDefinition (which handles all CatalogKinds,
+    // recursion, and cloning) — no CamelCatalogService lookup needed here.
 
     if (actionDef.propertiesSchema) {
       const schemaProperties = {
-        ...(actionDef.propertiesSchema?.properties ?? ({} as Record<string, KaotoSchemaDefinition['schema']>)),
+        ...(actionDef.propertiesSchema.properties ?? ({} as Record<string, KaotoSchemaDefinition['schema']>)),
       };
       for (const propertiesKey in groupDef.propertiesSchema?.properties) {
-        schemaProperties[propertiesKey] = groupDef.propertiesSchema?.properties[propertiesKey];
+        schemaProperties[propertiesKey] = groupDef.propertiesSchema.properties[propertiesKey];
       }
       actionDef.propertiesSchema.properties = schemaProperties;
     } else {
       actionDef.propertiesSchema = groupDef.propertiesSchema;
     }
-
-    return actionDef;
-  }
-
-  /**
-   * Extracts the test action name from a path string.
-   *
-   * @param path - The path string (e.g., 'actions.0.echo')
-   * @returns The last segment of the path (e.g., 'echo')
-   */
-  static extractTestActionName(path: string) {
-    return path.split('.').pop() ?? '';
   }
 
   /**
    * Resolves the full test action name including group prefixes.
    *
-   * Recursively searches through action groups to build the complete
-   * action name with group hierarchy
-   * (e.g., 'http-send' where 'http' represents the test action group).
+   * The kind map is already warm when this is called (ensureKindMap was awaited
+   * in getTestActionName). All lookups are synchronous O(1) map reads.
    *
    * @param action - The test action object
-   * @param groupDef - The parent group definition
-   * @returns The fully qualified action name with group prefixes
+   * @param groupName - The name of the parent group (e.g. 'http')
+   * @returns The fully qualified action name (e.g. 'http-sendRequest')
    */
-  private static resolveTestActionName(action: TestAction, groupDef: ICitrusComponentDefinition): string {
+  private static resolveTestActionName(action: TestAction, groupName: string): string {
+    if (!CitrusTestSchemaService.kindMap) return groupName;
+
     const jsonRecord = action as Record<string, unknown>;
     for (const key in jsonRecord) {
-      if (jsonRecord[key] !== undefined) {
-        const definition = this.getTestActionDefinition(`${groupDef.name}-${key}`);
-        if (!definition) {
-          // not a known test action, continue searching for a better fit
-          continue;
-        }
+      if (jsonRecord[key] === undefined) continue;
 
-        if (definition.kind == CatalogKind.TestActionGroup) {
-          return this.resolveTestActionName(jsonRecord[key] as TestAction, definition);
-        }
+      const candidateName = `${groupName}-${key}`;
+      const kind = CitrusTestSchemaService.kindMap[candidateName];
+      if (kind === undefined) continue;
 
-        return `${groupDef.name}-${key}`;
+      if (kind === CatalogKind.TestActionGroup) {
+        return CitrusTestSchemaService.resolveTestActionName(jsonRecord[key] as TestAction, candidateName);
       }
+      return candidateName;
     }
-
-    return groupDef.name;
+    return groupName;
   }
 }
 
