@@ -2,9 +2,6 @@ import { devtools } from 'zustand/middleware';
 import { shallow } from 'zustand/shallow';
 import { createWithEqualityFn } from 'zustand/traditional';
 
-import { DocumentTree } from '../models/datamapper/document-tree';
-import { processTreeNode } from '../utils';
-
 /** [NodePath]: expansion state */
 export type TreeExpansionState = Record<string, boolean>;
 export type TreeConnectionPorts = Record<string, [number, number]>;
@@ -39,9 +36,6 @@ export interface DocumentTreeState {
 
   /** Set the document's expansion state with fresh data */
   setTreeExpansion: (documentId: string, expansionState: TreeExpansionState) => void;
-
-  /** Reconcile expansion state from a DocumentTree, preserving matching entries by path */
-  updateTreeExpansion: (documentTree: DocumentTree) => void;
 
   /** Get expansion state of a node */
   isExpanded: (documentId: string, nodePath: string) => boolean;
@@ -119,21 +113,6 @@ export const useDocumentTreeStore = createWithEqualityFn<DocumentTreeState>()(
           expansionState: { ...state.expansionState, [documentId]: expansionState },
           expansionStateArray: { ...state.expansionStateArray, [documentId]: Object.keys(expansionState) },
         }));
-      },
-
-      updateTreeExpansion: (documentTree: DocumentTree) => {
-        const currentExpansionState: TreeExpansionState = get().expansionState[documentTree.documentNodeDataId] ?? {};
-        const newExpansionState: TreeExpansionState = {};
-
-        for (const contentRoot of documentTree.contentRoots) {
-          processTreeNode(contentRoot, (treeNode) => {
-            const isNodeParsed = treeNode.isParsed;
-            const savedState = currentExpansionState[treeNode.path];
-            newExpansionState[treeNode.path] = isNodeParsed && (savedState ?? true);
-          });
-        }
-
-        get().setTreeExpansion(documentTree.documentNodeDataId, newExpansionState);
       },
 
       isExpanded: (documentId: string, nodePath: string) => {
