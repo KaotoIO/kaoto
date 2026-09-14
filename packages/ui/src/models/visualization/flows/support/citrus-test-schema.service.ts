@@ -84,60 +84,44 @@ export class CitrusTestSchemaService {
   }
 
   /**
-   * Gets the catalog definition for a test action.
+   * Gets the catalog definition and ordered group chain for a test action.
    *
    * Searches through test actions, containers, and action groups in the catalog.
-   * Resolves action group hierarchies by merging properties from parent groups.
+   * Resolves the group hierarchy by merging properties from parent groups into
+   * the returned definition, and collects the ancestor groups ordered from
+   * root to immediate parent.
    *
    * @param actionName - The name of the test action
-   * @returns The component definition with resolved properties, or undefined if not found
+   * @returns Object with the resolved definition and groups array, or undefined if not found
    */
-  static getTestActionDefinition(actionName: string): ICitrusComponentDefinition | undefined {
+  static getTestActionDefinition(
+    actionName: string,
+  ): { definition: ICitrusComponentDefinition; groups: ICitrusComponentDefinition[] } | undefined {
     let actionDef: ICitrusComponentDefinition | undefined =
       CamelCatalogService.getComponent(CatalogKind.TestAction, actionName) ??
-      CamelCatalogService.getComponent(CatalogKind.TestContainer, actionName);
-
-    if (!isDefined(actionDef)) {
-      actionDef = CamelCatalogService.getComponent(CatalogKind.TestActionGroup, actionName);
-    }
+      CamelCatalogService.getComponent(CatalogKind.TestContainer, actionName) ??
+      CamelCatalogService.getComponent(CatalogKind.TestActionGroup, actionName);
 
     if (!isDefined(actionDef)) return undefined;
 
     // Clone to avoid mutating the shared catalog entry
     actionDef = cloneDeep(actionDef);
 
-    if (actionDef.group !== undefined) {
-      const groupDef = this.getTestActionDefinition(actionDef.group);
-      if (isDefined(groupDef)) {
-        this.resolveTestActionGroup(groupDef, actionDef);
-      }
+    if (actionDef.group === undefined) {
+      return { definition: actionDef, groups: [] };
     }
 
-    return actionDef;
-  }
-
-  /**
-   * Gets the hierarchy of action groups for a test action.
-   *
-   * Recursively resolves parent groups to build the complete group hierarchy
-   * from root to the immediate parent.
-   *
-   * @param actionDef - The action definition to get groups for
-   * @returns Array of group definitions ordered from root to immediate parent
-   */
-  static getTestActionGroups(actionDef?: ICitrusComponentDefinition): ICitrusComponentDefinition[] {
-    if (!isDefined(actionDef)) {
-      return [];
+    const parentResult = this.getTestActionDefinition(actionDef.group);
+    if (!isDefined(parentResult)) {
+      return { definition: actionDef, groups: [] };
     }
 
-    if (actionDef.group !== undefined) {
-      const groupDef = this.getTestActionDefinition(actionDef.group);
-      if (isDefined(groupDef)) {
-        return [...this.getTestActionGroups(groupDef), groupDef];
-      }
-    }
+    this.resolveTestActionGroup(parentResult.definition, actionDef);
 
-    return [];
+    return {
+      definition: actionDef,
+      groups: [...parentResult.groups, parentResult.definition],
+    };
   }
 
   /**

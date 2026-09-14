@@ -30,12 +30,11 @@ export class CitrusTestDefaultService {
    * @returns A TestActions object with default structure and values
    */
   static getDefaultTestActionDefinitionValue(definedComponent: DefinedComponent): TestActions {
-    let definition: ICitrusComponentDefinition | undefined = definedComponent.definition as ICitrusComponentDefinition;
-    if (!definition) {
-      definition = CitrusTestSchemaService.getTestActionDefinition(definedComponent.name);
+    let groups: ICitrusComponentDefinition[] = [];
+    if (!(definedComponent.definition as ICitrusComponentDefinition)) {
+      const result = CitrusTestSchemaService.getTestActionDefinition(definedComponent.name);
+      groups = result?.groups ?? [];
     }
-
-    const groups: ICitrusComponentDefinition[] = CitrusTestSchemaService.getTestActionGroups(definition);
 
     let yamlCode = '';
     let indent: number = 1;
