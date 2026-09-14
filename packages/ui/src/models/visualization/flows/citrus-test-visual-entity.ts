@@ -182,8 +182,8 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     }
 
     // Test action / container nodes
-    const definition = CitrusTestSchemaService.getTestActionDefinition(ids.primaryNodeId.name);
-    return definition?.propertiesSchema || ({} as KaotoSchemaDefinition['schema']);
+    const result = CitrusTestSchemaService.getTestActionDefinition(ids.primaryNodeId.name);
+    return result?.definition.propertiesSchema || ({} as KaotoSchemaDefinition['schema']);
   }
 
   async fetchNodeDefinition(path?: string, ids?: IVisualizationNodeIds): Promise<unknown> {
@@ -636,11 +636,11 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
    * Goes through the list of parent groups if any and sets the properties directly on the action model.
    */
   private updateTestActionModel(path: string, actionName: string, actionModel: TestAction) {
-    const actionDefinition = CitrusTestSchemaService.getTestActionDefinition(actionName);
-    if (!isDefined(actionDefinition?.group)) {
+    const result = CitrusTestSchemaService.getTestActionDefinition(actionName);
+    if (!isDefined(result?.definition.group)) {
       return;
     }
-    const groups = CitrusTestSchemaService.getTestActionGroups(actionDefinition) || [];
+    const groups = result?.groups ?? [];
     const basePath = path.split('.').slice(0, -1).join('.');
     let groupPath = '';
     for (const group of groups) {
@@ -683,18 +683,18 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     const jsonRecord = action as Record<string, unknown>;
     for (const key in jsonRecord) {
       if (jsonRecord[key] === undefined) continue;
-      const topDef = CitrusTestSchemaService.getTestActionDefinition(key);
-      if (!topDef) {
+      const topResult = CitrusTestSchemaService.getTestActionDefinition(key);
+      if (!topResult) {
         this.recurseIntoContainerActions(action, key);
         break;
       }
       const actionName =
-        topDef.kind === CatalogKind.TestActionGroup
+        topResult.definition.kind === CatalogKind.TestActionGroup
           ? CitrusTestVisualEntity.resolveGroupActionNameSync(jsonRecord[key] as TestAction, key)
           : key;
-      const actionDefinition = CitrusTestSchemaService.getTestActionDefinition(actionName);
-      if (isDefined(actionDefinition?.group)) {
-        this.moveGroupPropertiesFromAction(action, actionName, actionDefinition);
+      const actionResult = CitrusTestSchemaService.getTestActionDefinition(actionName);
+      if (isDefined(actionResult?.definition.group)) {
+        this.moveGroupPropertiesFromAction(action, actionName, actionResult);
       }
       this.recurseIntoContainerActions(action, actionName);
       break;
@@ -704,9 +704,9 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
   private moveGroupPropertiesFromAction(
     action: TestActions,
     actionName: string,
-    actionDefinition: ReturnType<typeof CitrusTestSchemaService.getTestActionDefinition>,
+    actionResult: ReturnType<typeof CitrusTestSchemaService.getTestActionDefinition>,
   ) {
-    const groups = CitrusTestSchemaService.getTestActionGroups(actionDefinition) || [];
+    const groups = actionResult?.groups ?? [];
     let groupPath = '';
     for (const group of groups) {
       groupPath = groupPath.length === 0 ? group.name : `${groupPath}.${group.name}`;
@@ -733,9 +733,9 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     for (const key in jsonRecord) {
       if (jsonRecord[key] === undefined) continue;
       const candidateName = `${groupName}-${key}`;
-      const candidateDef = CitrusTestSchemaService.getTestActionDefinition(candidateName);
-      if (!candidateDef) continue;
-      if (candidateDef.kind === CatalogKind.TestActionGroup) {
+      const candidateResult = CitrusTestSchemaService.getTestActionDefinition(candidateName);
+      if (!candidateResult) continue;
+      if (candidateResult.definition.kind === CatalogKind.TestActionGroup) {
         return CitrusTestVisualEntity.resolveGroupActionNameSync(jsonRecord[key] as TestAction, candidateName);
       }
       return candidateName;

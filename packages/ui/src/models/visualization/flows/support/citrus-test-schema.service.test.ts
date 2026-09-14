@@ -69,37 +69,25 @@ describe('CitrusTestSchemaService', () => {
   });
 
   describe('getTestActionDefinition', () => {
-    it('should return the definition for a simple action', () => {
-      const def = CitrusTestSchemaService.getTestActionDefinition('print');
-      expect(def).toBeDefined();
-      expect(def?.name).toBe('print');
-    });
-
     it('should return undefined for an unknown action', () => {
-      const def = CitrusTestSchemaService.getTestActionDefinition('nonexistent-action-xyz');
-      expect(def).toBeUndefined();
+      const result = CitrusTestSchemaService.getTestActionDefinition('nonexistent-action-xyz');
+      expect(result).toBeUndefined();
     });
 
-    it('should return a resolved definition for a grouped action', () => {
-      const def = CitrusTestSchemaService.getTestActionDefinition('camel-jbang-run');
-      expect(def).toBeDefined();
-      expect(def?.propertiesSchema).toBeDefined();
-    });
-  });
-
-  describe('getTestActionGroups', () => {
-    it('should return empty groups of an action definition', () => {
-      const actionDefinition = CitrusTestSchemaService.getTestActionDefinition('print');
-      const groups = CitrusTestSchemaService.getTestActionGroups(actionDefinition);
-      expect(groups).toHaveLength(0);
+    it('should return definition and empty groups for a simple ungrouped action', () => {
+      const result = CitrusTestSchemaService.getTestActionDefinition('print');
+      expect(result).toBeDefined();
+      expect(result?.definition.name).toBe('print');
+      expect(result?.groups).toHaveLength(0);
     });
 
-    it('should return the groups of an action definition', () => {
-      const actionDefinition = CitrusTestSchemaService.getTestActionDefinition('camel-jbang-run');
-      const groups = CitrusTestSchemaService.getTestActionGroups(actionDefinition);
-      expect(groups).toHaveLength(2);
-      expect(groups[0].name).toBe('camel');
-      expect(groups[1].name).toBe('camel-jbang');
+    it('should return definition and resolved groups for a multi-level grouped action', () => {
+      const result = CitrusTestSchemaService.getTestActionDefinition('camel-jbang-run');
+      expect(result).toBeDefined();
+      expect(result?.definition.propertiesSchema).toBeDefined();
+      expect(result?.groups).toHaveLength(2);
+      expect(result?.groups[0].name).toBe('camel');
+      expect(result?.groups[1].name).toBe('camel-jbang');
     });
   });
 
