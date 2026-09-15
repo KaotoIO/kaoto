@@ -23,8 +23,12 @@ export async function getIconRequest(
       iconName = `kamelet:${name}`;
       alt = altProps ?? 'Kamelet icon';
       break;
-    case CatalogKind.TestAction:
     case CatalogKind.TestActionTemplate:
+      return {
+        icon: await NodeIconResolver.getIcon('applyTemplate', CatalogKind.TestAction),
+        alt: altProps ?? 'Test ActionTemplate icon',
+      };
+    case CatalogKind.TestAction:
     case CatalogKind.TestActionGroup:
     case CatalogKind.TestContainer:
     case CatalogKind.TestEndpoint:
