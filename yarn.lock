@@ -5661,28 +5661,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@redhat-developer/locators@npm:^1.23.1":
-  version: 1.23.1
-  resolution: "@redhat-developer/locators@npm:1.23.1"
+"@redhat-developer/locators@npm:^1.24.0":
+  version: 1.24.0
+  resolution: "@redhat-developer/locators@npm:1.24.0"
   peerDependencies:
     "@redhat-developer/page-objects": ">=1.0.0"
-    selenium-webdriver: ^4.48.0
-  checksum: 10/fd1a3840f825ea92729768f08595f181d565223d8746011319d8f1e7167c916b84fca037794dbb76a651a5effd33f9c8ae0cb331be3730e1fad11c6ed8ae5bdd
+    selenium-webdriver: ^4.49.0
+  checksum: 10/c4d7edb115a7ce3143c6bfde419743ab2061b6fcfd56ea8694e2e2c3e24df5dc99f1f7c183185c25574cdf0987fed03a3787a1c50e58830b74a46007022f519b
   languageName: node
   linkType: hard
 
-"@redhat-developer/page-objects@npm:^1.23.1":
-  version: 1.23.1
-  resolution: "@redhat-developer/page-objects@npm:1.23.1"
+"@redhat-developer/page-objects@npm:^1.24.0":
+  version: 1.24.0
+  resolution: "@redhat-developer/page-objects@npm:1.24.0"
   dependencies:
     clipboardy: "npm:^5.3.2"
     clone-deep: "npm:^4.0.1"
     compare-versions: "npm:^6.1.1"
     fs-extra: "npm:^11.4.0"
   peerDependencies:
-    selenium-webdriver: ^4.48.0
+    selenium-webdriver: ^4.49.0
     typescript: ">=4.6.2"
-  checksum: 10/b5b9fa80c913d45d26646463dc3a0628cf8cdd2f2cb3213e84278d4ff5c4fea745d18f809e4e93b59d5dc1747024f24cc9b7f42889b238288095e8b902c6fbca
+  checksum: 10/65e5748a62dba3ba457a2476e349db202f466e1fbd39d97b40d3111444b52ab1baec94fd9abc6a58758d7f42bc62096c2676b0cd55e222246ceca09cb7f4c61c
   languageName: node
   linkType: hard
 
@@ -24691,15 +24691,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"selenium-webdriver@npm:^4.48.0":
-  version: 4.48.0
-  resolution: "selenium-webdriver@npm:4.48.0"
+"selenium-webdriver@npm:^4.49.0":
+  version: 4.49.0
+  resolution: "selenium-webdriver@npm:4.49.0"
   dependencies:
     "@bazel/runfiles": "npm:^6.5.0"
     jszip: "npm:^3.10.1"
     tmp: "npm:^0.2.7"
     ws: "npm:^8.21.3"
-  checksum: 10/e967af95a1dbf03b5be96be3a7d6381cac41e605fc410bc1e1ef19954c286c8fdbb9ad21374fc490105b744f33c497e88b4bbceabb8661603cf48d72fa5cc4ca
+  checksum: 10/59bab5563c7ed7c3bd3b8f3e634f58e0351231f097fced6394d1571a897afed506e09e6d1f90f37a32b2a2211b109f923e8b1a89ae8d7f174d056af443b9f6f2
   languageName: node
   linkType: hard
 
@@ -28031,12 +28031,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vscode-extension-tester@npm:^8.26.1":
-  version: 8.26.1
-  resolution: "vscode-extension-tester@npm:8.26.1"
+"vscode-extension-tester@npm:^8.27.0":
+  version: 8.27.0
+  resolution: "vscode-extension-tester@npm:8.27.0"
   dependencies:
-    "@redhat-developer/locators": "npm:^1.23.1"
-    "@redhat-developer/page-objects": "npm:^1.23.1"
+    "@redhat-developer/locators": "npm:^1.24.0"
+    "@redhat-developer/page-objects": "npm:^1.24.0"
     "@types/selenium-webdriver": "npm:^4.35.6"
     "@vscode/vsce": "npm:^3.9.2"
     c8: "npm:^12.0.0"
@@ -28050,7 +28050,7 @@ __metadata:
     js-yaml: "npm:^5.4.1"
     jsonc-parser: "npm:^3.2.0"
     sanitize-filename: "npm:^1.6.4"
-    selenium-webdriver: "npm:^4.48.0"
+    selenium-webdriver: "npm:^4.49.0"
     tar: "npm:^7.5.22"
     unzipper: "npm:^0.12.5"
   peerDependencies:
@@ -28058,7 +28058,7 @@ __metadata:
     typescript: ">=4.6.2"
   bin:
     extest: out/cli.js
-  checksum: 10/184c015fdab6cd7c4d4b97309857d7c9780de56f2aa6708089b17e70fa28abeb784cfd785dd8a552e2121648f5454ffddb89ab9222f640ad540a6b1b46635fd4
+  checksum: 10/9c393c7908755f28d2c0ba03db774e98c450db5de9745024649e7868d0449e84dde72fda35f3c9d2d9798f0eebbcf83c9a2089bac981a95e57f1ac85226216a5
   languageName: node
   linkType: hard
 
@@ -28127,7 +28127,7 @@ __metadata:
     ts-loader: "npm:9.4.4"
     typescript: "npm:^5.5.4"
     valid-filename: "npm:5.0.0"
-    vscode-extension-tester: "npm:^8.26.1"
+    vscode-extension-tester: "npm:^8.27.0"
     wait-on: "npm:^9.1.0"
     web-worker: "npm:^1.5.0"
     webpack: "npm:5.109.2"
