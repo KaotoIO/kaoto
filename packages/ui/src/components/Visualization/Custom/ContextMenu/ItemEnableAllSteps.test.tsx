@@ -3,10 +3,9 @@ import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { Model, VisualizationProvider } from '@patternfly/react-topology';
 import { fireEvent, render, waitFor } from '@testing-library/react';
 
-import { CamelCatalogService, CatalogKind } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { camelRouteJson, camelRouteWithDisabledSteps } from '../../../../stubs/camel-route';
-import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../../stubs/test-load-catalog';
 import { TestProvidersWrapper } from '../../../../stubs/TestProvidersWrapper';
 import { getVisualizationNodesFromGraph } from '../../../../utils';
 import { ControllerService } from '../../Canvas/controller.service';
@@ -16,8 +15,7 @@ import { ItemEnableAllSteps } from './ItemEnableAllSteps';
 describe('ItemEnableAllSteps', () => {
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Pattern, catalogsMap.patternCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Component, catalogsMap.componentCatalogMap);
+    setupDynamicCatalogRegistry(catalogsMap);
   });
 
   it('should NOT render an ItemEnableAllSteps if there are not at least 2 or more disabled steps', async () => {

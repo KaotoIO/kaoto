@@ -5,7 +5,6 @@ import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog
 import { restConfigurationSchema, restConfigurationStub } from '../../../stubs/rest-configuration';
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
 import { CatalogKind } from '../../catalog-kind';
-import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRestConfigurationVisualEntity } from './camel-rest-configuration-visual-entity';
 
 describe('CamelRestConfigurationVisualEntity', () => {
@@ -14,12 +13,10 @@ describe('CamelRestConfigurationVisualEntity', () => {
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
     setupDynamicCatalogRegistry(catalogsMap);
   });
 
   afterAll(() => {
-    CamelCatalogService.clearCatalogs();
     DynamicCatalogRegistry.get().clearRegistry();
   });
 

@@ -5,17 +5,11 @@ import { render } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 import type { Mock } from 'vitest';
 
-import {
-  CamelCatalogService,
-  CatalogKind,
-  createVisualizationNode,
-  IVisualizationNode,
-  NodeInteraction,
-} from '../../../../models';
+import { createVisualizationNode, IVisualizationNode, NodeInteraction } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel';
 import { EntityType } from '../../../../models/entities';
 import { camelRouteWithDisabledSteps, TestProvidersWrapper } from '../../../../stubs';
-import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../../stubs/test-load-catalog';
 import { CanvasNode } from '../../Canvas';
 import { ControllerService } from '../../Canvas/controller.service';
 import { FlowService } from '../../Canvas/flow.service';
@@ -40,8 +34,7 @@ describe('NodeContextMenu', () => {
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Pattern, catalogsMap.patternCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Component, catalogsMap.componentCatalogMap);
+    setupDynamicCatalogRegistry(catalogsMap);
 
     (useDuplicateStep as Mock).mockReturnValue({
       canDuplicate: false,

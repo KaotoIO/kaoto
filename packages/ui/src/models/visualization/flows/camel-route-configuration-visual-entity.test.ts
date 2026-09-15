@@ -9,7 +9,6 @@ import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities';
 import { AddStepMode } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
-import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRouteConfigurationVisualEntity } from './camel-route-configuration-visual-entity';
 
 describe('CamelRouteConfigurationVisualEntity', () => {
@@ -18,12 +17,10 @@ describe('CamelRouteConfigurationVisualEntity', () => {
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
     setupDynamicCatalogRegistry(catalogsMap);
   });
 
   afterAll(() => {
-    CamelCatalogService.clearCatalogs();
     DynamicCatalogRegistry.get().clearRegistry();
   });
 

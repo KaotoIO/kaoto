@@ -7,7 +7,6 @@ import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/
 import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
-import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRestVisualEntity } from './camel-rest-visual-entity';
 
 describe('CamelRestVisualEntity', () => {
@@ -17,13 +16,11 @@ describe('CamelRestVisualEntity', () => {
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
     restSchema = catalogsMap.entitiesCatalog[EntityType.Rest].propertiesSchema as KaotoSchemaDefinition['schema'];
     setupDynamicCatalogRegistry(catalogsMap);
   });
 
   afterAll(() => {
-    CamelCatalogService.clearCatalogs();
     DynamicCatalogRegistry.get().clearRegistry();
   });
 

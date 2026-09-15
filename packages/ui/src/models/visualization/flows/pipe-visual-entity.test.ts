@@ -11,7 +11,6 @@ import { IKameletDefinition } from '../../camel/kamelets-catalog';
 import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities';
 import { AddStepMode } from '../base-visual-entity';
-import { CamelCatalogService } from './camel-catalog.service';
 import { PipeVisualEntity } from './pipe-visual-entity';
 import { KameletSchemaService } from './support/kamelet-schema.service';
 
@@ -72,8 +71,6 @@ describe('Pipe', () => {
         },
       },
     } as IKameletDefinition;
-
-    CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, kameletCatalogMap);
 
     // Mock DynamicCatalogRegistry to return kamelets from the catalog map
     (DynamicCatalogRegistry.get as Mock).mockReturnValue({
