@@ -176,8 +176,17 @@ export class CitrusTestResource implements KaotoResource {
 
   /**
    * Converts this resource to a string representation in YAML format.
+   *
+   * Runs the group-model normalisation pass on the first visual entity before
+   * serialising, ensuring that action group properties are placed at the
+   * correct level in the output YAML.
    */
   async toSourceCode(): Promise<string> {
+    const entity = this.getVisualEntities()[0];
+    if (entity) {
+      const snapshot = await entity.normaliseForSerialisation();
+      return stringify(snapshot, { schema: 'yaml-1.1' }) || '';
+    }
     return stringify(this.toJSON(), { schema: 'yaml-1.1' }) || '';
   }
 

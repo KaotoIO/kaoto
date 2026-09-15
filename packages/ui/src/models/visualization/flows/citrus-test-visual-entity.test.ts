@@ -12,7 +12,7 @@ import { setValue } from '../../../utils';
 import { ICamelProcessorDefinition } from '../../camel/camel-processors-catalog';
 import { CatalogKind } from '../../catalog-kind';
 import { CITRUS_TEST_ROOT_ENTITY_NAME } from '../../citrus/citrus-catalog-index';
-import { Test } from '../../citrus/entities/Test';
+import { Test, TestActions } from '../../citrus/entities/Test';
 import { EntityType } from '../../entities/base-entity';
 import { PlaceholderType } from '../../placeholder.constants';
 import { NodeLabelType } from '../../settings/settings.model';
@@ -307,7 +307,7 @@ describe('CitrusTestVisualEntity', () => {
       expect(citrusTestEntity.toJSON()).toEqual(citrusTestJson);
     });
 
-    it('should return the json with sanitized test group properties', () => {
+    it('should return the json with sanitized test group properties', async () => {
       citrusTestEntity.test.actions.push({
         http: {
           sendRequest: {
@@ -318,7 +318,8 @@ describe('CitrusTestVisualEntity', () => {
           },
         },
       });
-      expect(citrusTestEntity.toJSON()).toEqual({
+      const snapshot = await citrusTestEntity.normaliseForSerialisation();
+      expect(snapshot).toEqual({
         name: 'sample-test',
         actions: [
           { print: { message: 'Hello from Citrus!' } },
@@ -334,6 +335,32 @@ describe('CitrusTestVisualEntity', () => {
           },
         ],
       });
+    });
+
+    it('should normalise multi-level group properties to sibling keys (camel-cli-run)', async () => {
+      // flat canvas model: camelContext (camel group) and camelVersion (camel-cli group)
+      // are both nested inside run — normalisation must lift them to their respective group keys
+      citrusTestEntity.test.actions.push({
+        camel: {
+          cli: {
+            run: {},
+          },
+          camelContext: 'ctx1',
+          'camel-cli': {
+            camelVersion: '4.0',
+          },
+        },
+      } as unknown as TestActions);
+      const snapshot = await citrusTestEntity.normaliseForSerialisation();
+      const action = snapshot.actions[1] as Record<string, unknown>;
+      // camelContext belongs to the 'camel' group → must be a sibling of 'cli' inside camel
+      const camelGroup = action['camel'] as Record<string, unknown>;
+      expect(camelGroup['camelContext']).toBe('ctx1');
+      expect((camelGroup['cli'] as Record<string, unknown>)['run']).not.toHaveProperty('camelContext');
+      // camelVersion belongs to the 'camel-cli' group → must be a sibling of 'cli' inside camel
+      const camelCliGroup = camelGroup['camel-cli'] as Record<string, unknown>;
+      expect(camelCliGroup['camelVersion']).toBe('4.0');
+      expect((camelGroup['cli'] as Record<string, unknown>)['run']).not.toHaveProperty('camelVersion');
     });
   });
 
