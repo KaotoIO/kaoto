@@ -37,4 +37,10 @@ export interface ICitrusComponentDefinition {
 
   /** Optional JSON schema defining the component's configurable properties */
   propertiesSchema?: KaotoSchemaDefinition['schema'];
+
+  /**
+   * Complete initial Citrus step inserted when this catalog entry is selected.
+   * The value must contain one valid action or container root key.
+   */
+  defaultValue?: Record<string, unknown>;
 }

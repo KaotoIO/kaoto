@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash';
 import { parse } from 'yaml';
 
 import { DefinedComponent } from '../../../camel/camel-catalog-index';
@@ -33,6 +34,10 @@ export class CitrusTestDefaultService {
     let definition: ICitrusComponentDefinition | undefined = definedComponent.definition as ICitrusComponentDefinition;
     if (!definition) {
       definition = CitrusTestSchemaService.getTestActionDefinition(definedComponent.name);
+    }
+
+    if (definition?.defaultValue !== undefined) {
+      return cloneDeep(definition.defaultValue) as TestActions;
     }
 
     const groups: ICitrusComponentDefinition[] = CitrusTestSchemaService.getTestActionGroups(definition);
