@@ -1,7 +1,7 @@
 import catalogLibraryJson from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
-import { CamelCatalogService, CatalogKind } from '../../models';
+import { CatalogKind } from '../../models';
 import { CITRUS_TEST_ROOT_ENTITY_NAME } from '../../models/citrus/citrus-catalog-index';
 import { citrusCatalogSelector, getFirstCitrusCatalogMap } from '../../stubs/test-load-catalog';
 import { CatalogSchemaLoader } from '../../utils/catalog-schema-loader';
@@ -12,7 +12,6 @@ const catalogLibrary = catalogLibraryJson as CatalogLibrary;
 
 describe('fetchCitrusCatalog', () => {
   let fetchFileMock: SpyInstance;
-  let setCatalogKeySpy: SpyInstance;
   let catalogDefinition: Awaited<ReturnType<typeof getFirstCitrusCatalogMap>>['catalogDefinition'];
   let relativeBasePath: string;
 
@@ -31,15 +30,14 @@ describe('fetchCitrusCatalog', () => {
     fetchFileMock.mockImplementation((uri: string) => {
       return Promise.resolve({ body: { [uri]: 'dummy-data' } });
     });
-
-    setCatalogKeySpy = vi.spyOn(CamelCatalogService, 'setCatalogKey');
   });
 
   afterEach(() => {
     vi.clearAllMocks();
+    DynamicCatalogRegistry.get().clearRegistry();
   });
 
-  it('should register the root test schema (citrus-yaml) as a catalog entity', async () => {
+  it('should register the root test schema (citrus-yaml) as a catalog entity in DynamicCatalogRegistry', async () => {
     const setCatalogSpy = vi.spyOn(DynamicCatalogRegistry.get(), 'setCatalog');
 
     await fetchCitrusCatalog({ catalogIndex: catalogDefinition, relativeBasePath });
@@ -47,13 +45,7 @@ describe('fetchCitrusCatalog', () => {
     // The citrus-yaml schema file referenced in the index `schemas` section is fetched
     expect(fetchFileMock).toHaveBeenCalledWith(expect.stringContaining(`${relativeBasePath}/citrus-testcase`));
 
-    // Registered into CamelCatalogService under CatalogKind.Entity, shaped like a propertiesSchema entity
-    const entityCall = setCatalogKeySpy.mock.calls.find((call: CatalogKind[]) => call[0] === CatalogKind.Entity);
-    expect(entityCall).toBeDefined();
-    expect(entityCall![1]).toHaveProperty(CITRUS_TEST_ROOT_ENTITY_NAME);
-    expect(entityCall![1][CITRUS_TEST_ROOT_ENTITY_NAME]).toHaveProperty('propertiesSchema');
-
-    // And registered into the DynamicCatalogRegistry, consistent with the other Citrus catalogs
+    // Registered into the DynamicCatalogRegistry under CatalogKind.Entity
     expect(setCatalogSpy).toHaveBeenCalledWith(CatalogKind.Entity, expect.anything());
     await expect(
       DynamicCatalogRegistry.get().getEntity(CatalogKind.Entity, CITRUS_TEST_ROOT_ENTITY_NAME),
@@ -80,43 +72,16 @@ describe('fetchCitrusCatalog', () => {
     );
   });
 
-  it('should set CamelCatalogService keys with the correct CatalogKind for each file', async () => {
+  it('should register all catalogs into DynamicCatalogRegistry', async () => {
+    const setCatalogSpy = vi.spyOn(DynamicCatalogRegistry.get(), 'setCatalog');
+
     await fetchCitrusCatalog({ catalogIndex: catalogDefinition, relativeBasePath });
 
-    let count = 0;
-    setCatalogKeySpy.mock.calls.forEach((call: ({ [s: string]: unknown } | ArrayLike<unknown>)[]) => {
-      if (Object.keys(call[1])[0].endsWith(`${relativeBasePath}/citrus-catalog-aggregate-test-actions.json`)) {
-        expect(call[0]).toEqual(CatalogKind.TestAction);
-        expect(Object.values(call[1])[0]).toBe('dummy-data');
-        count++;
-      } else if (
-        Object.keys(call[1])[0].endsWith(`${relativeBasePath}/citrus-catalog-aggregate-test-containers.json`)
-      ) {
-        expect(call[0]).toEqual(CatalogKind.TestContainer);
-        expect(Object.values(call[1])[0]).toBe('dummy-data');
-        count++;
-      } else if (Object.keys(call[1])[0].endsWith(`${relativeBasePath}/citrus-catalog-aggregate-endpoints.json`)) {
-        expect(call[0]).toEqual(CatalogKind.TestEndpoint);
-        expect(Object.values(call[1])[0]).toBe('dummy-data');
-        count++;
-      } else if (Object.keys(call[1])[0].endsWith(`${relativeBasePath}/citrus-catalog-aggregate-functions.json`)) {
-        expect(call[0]).toEqual(CatalogKind.TestFunction);
-        expect(Object.values(call[1])[0]).toBe('dummy-data');
-        count++;
-      } else if (
-        Object.keys(call[1])[0].endsWith(`${relativeBasePath}/citrus-catalog-aggregate-validation-matcher.json`)
-      ) {
-        expect(call[0]).toEqual(CatalogKind.TestValidationMatcher);
-        expect(Object.values(call[1])[0]).toBe('dummy-data');
-        count++;
-      } else if (Object.keys(call[1])[0] === CITRUS_TEST_ROOT_ENTITY_NAME) {
-        expect(call[0]).toEqual(CatalogKind.Entity);
-        expect(Object.values(call[1])[0]).toHaveProperty('propertiesSchema');
-        count++;
-      } else {
-        throw new Error(`Unexpected setCatalogKey call: ${JSON.stringify(call)}`);
-      }
-    });
-    expect(count).toEqual(setCatalogKeySpy.mock.calls.length);
+    expect(setCatalogSpy).toHaveBeenCalledWith(CatalogKind.Entity, expect.anything());
+    expect(setCatalogSpy).toHaveBeenCalledWith(CatalogKind.TestAction, expect.anything());
+    expect(setCatalogSpy).toHaveBeenCalledWith(CatalogKind.TestContainer, expect.anything());
+    expect(setCatalogSpy).toHaveBeenCalledWith(CatalogKind.TestEndpoint, expect.anything());
+    expect(setCatalogSpy).toHaveBeenCalledWith(CatalogKind.TestFunction, expect.anything());
+    expect(setCatalogSpy).toHaveBeenCalledWith(CatalogKind.TestValidationMatcher, expect.anything());
   });
 });

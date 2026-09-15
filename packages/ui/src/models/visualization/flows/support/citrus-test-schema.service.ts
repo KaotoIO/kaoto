@@ -6,7 +6,6 @@ import { CatalogKind } from '../../../catalog-kind';
 import { ICitrusComponentDefinition } from '../../../citrus/citrus-catalog';
 import { TestAction, TestActions } from '../../../citrus/entities/Test';
 import { KaotoSchemaDefinition } from '../../../kaoto-schema';
-import { CamelCatalogService } from '../camel-catalog.service';
 
 /**
  * Service for managing Citrus test action schemas and metadata.
@@ -86,7 +85,7 @@ export class CitrusTestSchemaService {
   /**
    * Gets the catalog definition and ordered group chain for a test action.
    *
-   * Searches through test actions, containers, and action groups in the catalog.
+   * Searches through test actions and containers in the dynamic catalog registry.
    * Resolves the group hierarchy by merging properties from parent groups into
    * the returned definition, and collects the ancestor groups ordered from
    * root to immediate parent.
@@ -94,13 +93,13 @@ export class CitrusTestSchemaService {
    * @param actionName - The name of the test action
    * @returns Object with the resolved definition and groups array, or undefined if not found
    */
-  static getTestActionDefinition(
+  static async getTestActionDefinition(
     actionName: string,
-  ): { definition: ICitrusComponentDefinition; groups: ICitrusComponentDefinition[] } | undefined {
+  ): Promise<{ definition: ICitrusComponentDefinition; groups: ICitrusComponentDefinition[] } | undefined> {
+    const registry = DynamicCatalogRegistry.get();
     let actionDef: ICitrusComponentDefinition | undefined =
-      CamelCatalogService.getComponent(CatalogKind.TestAction, actionName) ??
-      CamelCatalogService.getComponent(CatalogKind.TestContainer, actionName) ??
-      CamelCatalogService.getComponent(CatalogKind.TestActionGroup, actionName);
+      (await registry.getEntity(CatalogKind.TestAction, actionName)) ??
+      (await registry.getEntity(CatalogKind.TestContainer, actionName));
 
     if (!isDefined(actionDef)) return undefined;
 
@@ -111,7 +110,7 @@ export class CitrusTestSchemaService {
       return { definition: actionDef, groups: [] };
     }
 
-    const parentResult = this.getTestActionDefinition(actionDef.group);
+    const parentResult = await this.getTestActionDefinition(actionDef.group);
     if (!isDefined(parentResult)) {
       return { definition: actionDef, groups: [] };
     }

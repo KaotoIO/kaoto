@@ -6,7 +6,6 @@ import type { Mock } from 'vitest';
 
 import { CatalogModalContext } from '../../../../../../dynamic-catalog/catalog-modal.provider';
 import { CatalogKind, KaotoSchemaDefinition } from '../../../../../../models';
-import { CamelCatalogService } from '../../../../../../models/visualization/flows';
 import { getFirstCitrusCatalogMap } from '../../../../../../stubs/test-load-catalog';
 import { EndpointModalProps, NewEndpointModal } from './NewEndpointModal';
 
@@ -19,7 +18,6 @@ describe('NewEndpointModal', () => {
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCitrusCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.TestEndpoint, catalogsMap.endpointsCatalogMap);
 
     const endpointsCatalog = catalogsMap.endpointsCatalogMap ?? {};
     const endpoints: KaotoSchemaDefinition['schema'][] = [];
