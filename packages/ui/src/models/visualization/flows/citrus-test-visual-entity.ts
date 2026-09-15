@@ -1,5 +1,5 @@
 import { isDefined } from '@kaoto/forms';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, unset } from 'lodash';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
@@ -204,8 +204,23 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
   }
 
   toJSON(): Test {
-    this.updateTestGroupModel(this.test.actions);
     return this.test;
+  }
+
+  /**
+   * Runs the group-model normalisation pass in-place on `this.test.actions`.
+   *
+   * Must be called before serialising to YAML (i.e. from `toSourceCode()`).
+   * Moves properties that belong to ancestor test action groups from the flat
+   * action model back into the correct nested YAML hierarchy.
+   *
+   * Separated from `toJSON()` so that normalisation can be made async and
+   * eventually read from the DynamicCatalogRegistry.
+   */
+  async normaliseForSerialisation(): Promise<Test> {
+    const snapshot = cloneDeep(this.test);
+    this.updateTestGroupModel(snapshot.actions);
+    return snapshot;
   }
 
   updateModel(path: string | undefined, value: Record<string, unknown>): void {
@@ -716,7 +731,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
       for (const key of Object.keys(group.propertiesSchema.properties)) {
         const value = getValue(action, `${this.toModelPath(actionName)}.${key}`);
         if (isDefined(value)) {
-          setValue(action, `${this.toModelPath(actionName)}.${key}`, undefined);
+          unset(action, `${this.toModelPath(actionName)}.${key}`);
           setValue(action, `${groupPath}.${key}`, value);
         }
       }

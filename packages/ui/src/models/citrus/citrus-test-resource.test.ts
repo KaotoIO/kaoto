@@ -10,11 +10,20 @@ import { SourceSchemaType } from '../camel';
 import { CatalogKind } from '../catalog-kind';
 import { EntityType } from '../entities';
 import { AddStepMode, CitrusTestVisualEntity } from '../visualization';
+import { CamelCatalogService } from '../visualization/flows/camel-catalog.service';
 import { FlowTemplateService } from '../visualization/flows/support/flow-templates-service';
 import { CitrusTestResource } from './citrus-test-resource';
 import { Test } from './entities/Test';
 
 describe('CitrusTestResource', () => {
+  // Loaded once for the whole suite — getFirstCitrusCatalogMap destructively modifies the
+  // module cache on first call (deletes `default`), so a single shared load is required.
+  let citrusCatalogsMap: Awaited<ReturnType<typeof getFirstCitrusCatalogMap>>;
+
+  beforeAll(async () => {
+    citrusCatalogsMap = await getFirstCitrusCatalogMap(catalogLibrary as CatalogLibrary);
+  });
+
   it('should initialize Citrus test if no args is specified', async () => {
     const resource = new CitrusTestResource();
     await resource.initialize();
@@ -244,6 +253,45 @@ describe('CitrusTestResource', () => {
       const yamlOutput = await resource.toSourceCode();
       expect(yamlOutput).toContain('actions:');
     });
+
+    describe('with Citrus catalog loaded', () => {
+      beforeAll(() => {
+        CamelCatalogService.setCatalogKey(CatalogKind.TestAction, citrusCatalogsMap.actionsCatalogMap);
+        CamelCatalogService.setCatalogKey(CatalogKind.TestContainer, citrusCatalogsMap.containersCatalogMap);
+      });
+
+      it('should produce group-normalised YAML — group properties lifted out of action', async () => {
+        // Build a test where http.sendRequest has a "client" property that belongs
+        // to the http group, not to sendRequest itself.
+        const testWithGroupedAction = {
+          name: 'group-test',
+          actions: [
+            {
+              http: {
+                sendRequest: {
+                  client: 'fooClient',
+                  message: { body: { data: 'hello' } },
+                },
+              },
+            },
+          ],
+        };
+        const resource = new CitrusTestResource(testWithGroupedAction);
+        await resource.initialize();
+
+        const yaml = await resource.toSourceCode();
+
+        // After normalisation, "client" must be a sibling of "sendRequest" under
+        // "http", not nested inside "sendRequest".
+        expect(yaml).toContain('client: fooClient');
+        // Verify it appears at the http level (not inside sendRequest)
+        const parsed = parse(yaml) as { actions: { http: Record<string, unknown> }[] };
+        expect(parsed.actions[0].http).toHaveProperty('client', 'fooClient');
+        expect(parsed.actions[0].http).toHaveProperty('sendRequest');
+        const sendRequest = parsed.actions[0].http.sendRequest as Record<string, unknown>;
+        expect(sendRequest).not.toHaveProperty('client');
+      });
+    });
   });
 
   describe('getCompatibleRuntimes', () => {
@@ -395,9 +443,8 @@ describe('CitrusTestResource', () => {
 
   describe('getEndpointsSchema', () => {
     describe('with catalog registered', () => {
-      beforeAll(async () => {
-        const catalogsMap = await getFirstCitrusCatalogMap(catalogLibrary as CatalogLibrary);
-        setupCitrusDynamicCatalogRegistry(catalogsMap);
+      beforeAll(() => {
+        setupCitrusDynamicCatalogRegistry(citrusCatalogsMap);
       });
 
       afterAll(() => {
