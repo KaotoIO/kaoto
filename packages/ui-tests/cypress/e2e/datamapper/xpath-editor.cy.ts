@@ -151,4 +151,52 @@ describe('Test for DataMapper : XPath Editor', () => {
 
     cy.closeXPathEditor();
   });
+
+  it('type "json-to-xml" in XPath editor → monaco editor suggestion widget is opened', () => {
+    cy.openXPathEditor(['document-doc-targetBody-Body', 'node-target-fx-OrderPerson']);
+
+    cy.typeInXPathEditor('json-to-xml');
+
+    cy.get('[data-testid="xpath-editor"] .suggest-widget').should('be.visible');
+    cy.get('[data-testid="xpath-editor"] .suggest-widget').contains('json-to-xml').should('be.visible');
+
+    cy.closeXPathEditor();
+  });
+
+  it('type "json-to-xml()" in XPath editor → hover over the function shows specific hover help for json-to-xml', () => {
+    cy.openXPathEditor(['document-doc-targetBody-Body', 'node-target-fx-OrderPerson']);
+
+    // Type the function call into the Monaco editor
+    cy.typeInXPathEditor('json-to-xml()');
+
+    // Move the Monaco cursor to a position inside the "json-to-xml" word (column 5)
+    // and trigger the built-in "Show Hover" action so Monaco calls provideHover()
+    // and displays the language-specific hover widget.
+    cy.window().then((win) => {
+      const container = Cypress.$('[data-testid="xpath-editor"]')[0];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const xpathEditor = win.monaco.editor.getEditors().find((e: any) => container.contains(e.getDomNode()));
+      // Position inside "json-to-xml" — column 5 lands on "n" which is unambiguously inside the token
+      xpathEditor?.setPosition({ lineNumber: 1, column: 5 });
+      // Trigger the built-in hover action that calls all registered hover providers
+      xpathEditor?.trigger('cypress', 'editor.action.showHover', {});
+    });
+
+    // The Monaco hover widget should become visible and contain the json-to-xml description
+    cy.get('[data-testid="xpath-editor"] .monaco-hover').should('be.visible');
+
+    // The first hover row contains the function signature, the second the documentation.
+    // Assert the display name and the function description are both present.
+    // Use .first() because Monaco renders a persistent (empty) hover container in addition
+    // to the visible one — without it cy.within() would fail on a multi-element subject.
+    cy.get('[data-testid="xpath-editor"] .monaco-hover')
+      .first()
+      .within(() => {
+        cy.contains('json-to-xml').should('be.visible');
+        cy.contains('Json To Xml').should('be.visible');
+        cy.contains('Parses a string supplied in the form of a JSON text').should('be.visible');
+      });
+
+    cy.closeXPathEditor();
+  });
 });
