@@ -3,6 +3,7 @@ import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { render, renderHook, screen, waitFor } from '@testing-library/react';
 import { useContext } from 'react';
 import type { Mock } from 'vitest';
+import { stringify } from 'yaml';
 
 import { camelComponentToTile, camelProcessorToTile, citrusComponentToTile, kameletToTile } from '../camel-utils';
 import {
@@ -10,6 +11,7 @@ import {
   ICamelComponentDefinition,
   ICamelProcessorDefinition,
   ICitrusComponentDefinition,
+  ICitrusTestActionTemplateDefinition,
   IKameletDefinition,
 } from '../models';
 import { ITile } from '../public-api';
@@ -23,6 +25,7 @@ import { CamelComponentsProvider, CamelProcessorsProvider } from './providers/ca
 import { CamelKameletsProvider } from './providers/camel-kamelets.provider';
 import {
   CitrusTestActionsProvider,
+  CitrusTestActionTemplatesProvider,
   CitrusTestContainersProvider,
   CitrusTestEndpointsProvider,
 } from './providers/citrus-components.provider';
@@ -42,6 +45,12 @@ vi.mock('../camel-utils', async () => {
 
 describe('CatalogTilesProvider', () => {
   let mockRegistry: IDynamicCatalogRegistry;
+  const template: ICitrusTestActionTemplateDefinition = {
+    kind: CatalogKind.TestActionTemplate,
+    name: 'prepare-order',
+    description: 'Prepare an order',
+    parameters: [{ name: 'region', value: '${region}' }],
+  };
 
   beforeEach(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
@@ -86,12 +95,21 @@ describe('CatalogTilesProvider', () => {
     mockRegistry.setCatalog(CatalogKind.Entity, entityCatalog);
     mockRegistry.setCatalog(CatalogKind.Kamelet, kameletCatalog);
     mockRegistry.setCatalog(CatalogKind.TestAction, testActionCatalog);
+    mockRegistry.setCatalog(
+      CatalogKind.TestActionTemplate,
+      new DynamicCatalog(
+        new CitrusTestActionTemplatesProvider(async () => [
+          { filename: 'prepare-order.citrus.yaml', content: stringify(template) },
+        ]),
+      ),
+    );
     mockRegistry.setCatalog(CatalogKind.TestContainer, testContainerCatalog);
     mockRegistry.setCatalog(CatalogKind.TestEndpoint, testEndpointCatalog);
   });
 
   afterEach(() => {
     vi.clearAllMocks();
+    mockRegistry.clearRegistry();
   });
 
   it('should render children', async () => {
@@ -177,6 +195,32 @@ describe('CatalogTilesProvider', () => {
     expect(getAllSpyTestAction).toHaveBeenCalled();
     expect(getAllSpyTestContainer).toHaveBeenCalled();
     expect(getAllSpyTestEndpoint).toHaveBeenCalled();
+  });
+
+  it('includes reusable template tiles in the catalog', async () => {
+    const getAllSpy = vi.spyOn(mockRegistry.getCatalog(CatalogKind.TestActionTemplate)!, 'getAll');
+    const templateTile = {
+      type: CatalogKind.TestActionTemplate,
+      name: template.name,
+      title: template.name,
+    } as ITile;
+    vi.mocked(citrusComponentToTile).mockImplementation(async (component) =>
+      component.kind === CatalogKind.TestActionTemplate ? templateTile : ({ name: component.name } as ITile),
+    );
+    const { result } = renderHook(() => useContext(CatalogTilesContext), {
+      wrapper: ({ children }) => (
+        <CatalogContext.Provider value={mockRegistry}>
+          <CatalogTilesProvider>{children}</CatalogTilesProvider>
+        </CatalogContext.Provider>
+      ),
+    });
+
+    const tiles = await result.current?.fetchTiles();
+
+    expect(citrusComponentToTile).toHaveBeenCalledWith(template);
+    expect(getAllSpy).toHaveBeenCalledWith({ forceFresh: true });
+    expect(tiles).toContainEqual(templateTile);
+    expect(result.current?.getTiles()).toContainEqual(templateTile);
   });
 
   it('should avoid building the tiles if the catalog is empty', async () => {

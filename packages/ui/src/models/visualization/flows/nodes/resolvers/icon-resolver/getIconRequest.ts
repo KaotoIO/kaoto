@@ -24,6 +24,7 @@ export async function getIconRequest(
       alt = altProps ?? 'Kamelet icon';
       break;
     case CatalogKind.TestAction:
+    case CatalogKind.TestActionTemplate:
     case CatalogKind.TestActionGroup:
     case CatalogKind.TestContainer:
     case CatalogKind.TestEndpoint:

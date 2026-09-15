@@ -16,6 +16,7 @@ export * from './models';
 export * from './models/camel';
 export * from './models/datamapper';
 export * from './models/visualization/flows/nodes/resolvers/icon-resolver/getIconRequest';
+export { DesignPage } from './pages/Design/DesignPage';
 export * from './providers';
 export type { EntitiesContextResult } from './providers/entities.provider';
 export * from './stubs/camel-route';

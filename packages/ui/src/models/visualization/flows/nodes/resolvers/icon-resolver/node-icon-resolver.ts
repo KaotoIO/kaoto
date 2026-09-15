@@ -276,12 +276,14 @@ export class NodeIconResolver {
       return this.getUnknownIcon();
     }
 
-    if (elementName.startsWith('kamelet:')) {
+    if (type !== CatalogKind.TestActionTemplate && elementName.startsWith('kamelet:')) {
       const kameletIcon = await this.getKameletIcon(elementName);
       return kameletIcon ?? this.getUnknownIcon();
     }
 
     switch (type) {
+      case CatalogKind.TestActionTemplate:
+        return this.getCitrusComponentIcon('applyTemplate') ?? this.getDefaultCitrusIcon();
       case CatalogKind.Kamelet:
         return this.getDefaultCamelIcon();
       case CatalogKind.Component:

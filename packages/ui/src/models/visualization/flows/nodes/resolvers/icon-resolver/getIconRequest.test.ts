@@ -49,6 +49,15 @@ describe('getIconRequest', () => {
     expect(NodeIconResolver.getIcon).toHaveBeenCalledWith('print', CatalogKind.TestAction);
   });
 
+  it('should resolve the template icon through the Citrus template catalog kind', async () => {
+    await expect(getIconRequest(CatalogKind.TestActionTemplate, 'prepare-order')).resolves.toEqual({
+      icon: 'mock-icon-url',
+      alt: 'Test ActionTemplate icon',
+    });
+
+    expect(NodeIconResolver.getIcon).toHaveBeenCalledWith('prepare-order', CatalogKind.TestActionTemplate);
+  });
+
   it('should return default camel icon for unknown catalog kind', async () => {
     await expect(getIconRequest('unknown' as CatalogKind, 'test')).resolves.toEqual({
       icon: 'default-camel-icon-url',

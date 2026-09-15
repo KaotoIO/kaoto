@@ -1,6 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { cloneDeep } from 'lodash';
+import { parse, stringify } from 'yaml';
 
 import { DynamicCatalog } from '../../../dynamic-catalog/dynamic-catalog';
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
@@ -11,6 +12,7 @@ import { getFirstCitrusCatalogMap } from '../../../stubs/test-load-catalog';
 import { setValue } from '../../../utils';
 import { ICamelProcessorDefinition } from '../../camel/camel-processors-catalog';
 import { CatalogKind } from '../../catalog-kind';
+import { ICitrusTestActionTemplateDefinition } from '../../citrus/citrus-catalog';
 import { CITRUS_TEST_ROOT_ENTITY_NAME } from '../../citrus/citrus-catalog-index';
 import { Test } from '../../citrus/entities/Test';
 import { EntityType } from '../../entities/base-entity';
@@ -356,6 +358,45 @@ describe('CitrusTestVisualEntity', () => {
   });
 
   describe('addStep', () => {
+    it.each(['prepare-order', 'http-send'])(
+      'inserts and reopens %s as a regular applyTemplate action',
+      async (name) => {
+        const entity = new CitrusTestVisualEntity({ name: 'template-test', actions: [] });
+        const template: ICitrusTestActionTemplateDefinition = {
+          kind: CatalogKind.TestActionTemplate,
+          name,
+          parameters: [{ name: 'region', value: '${region}' }],
+        };
+        entity.addStep({
+          definedComponent: { name, type: CatalogKind.TestActionTemplate, definition: template },
+          mode: AddStepMode.ReplaceStep,
+          data: (await entity.toVizNode()).getChildren()![0].data,
+        });
+
+        const node = (await entity.toVizNode()).getChildren()![0];
+        expect(node.data.path).toBe('actions.0.applyTemplate');
+        expect(node.data.primaryNodeId).toEqual({ name: 'applyTemplate', catalogKind: CatalogKind.TestAction });
+        expect(node.getNodeLabel()).toBe('applyTemplate');
+        expect(await node.fetchNodeDefinition()).toEqual({ name, parameters: template.parameters });
+        expect(await node.fetchSchema()).toEqual(CitrusTestSchemaService.getNodeSchema('applyTemplate'));
+
+        const updatedCall = { name, parameters: [{ name: 'region', value: 'eu-central' }] };
+        entity.updateModel(node.data.path!, updatedCall);
+        expect(entity.getCopiedContent(node.data.path, node.data)).toEqual({
+          name: 'applyTemplate',
+          definition: { applyTemplate: updatedCall },
+        });
+
+        const saved = parse(stringify(entity.toJSON())) as Test;
+        expect(saved).toEqual({ name: 'template-test', actions: [{ applyTemplate: updatedCall }] });
+        const reopened = new CitrusTestVisualEntity(saved);
+        const reopenedNode = (await reopened.toVizNode()).getChildren()![0];
+        expect(reopenedNode.data.primaryNodeId).toEqual(node.data.primaryNodeId);
+        expect(await reopenedNode.fetchNodeDefinition()).toEqual(updatedCall);
+        expect(template.parameters).toEqual([{ name: 'region', value: '${region}' }]);
+      },
+    );
+
     it('should not add step when path is undefined', () => {
       const originalLength = citrusTestEntity.test.actions.length;
 

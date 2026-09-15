@@ -3,7 +3,7 @@ import { isDefined } from '@kaoto/forms';
 import { ICatalogProvider, IDynamicCatalog } from './models';
 
 export class DynamicCatalog<T = unknown> implements IDynamicCatalog<T> {
-  protected readonly cache: Record<string, T> = {};
+  protected readonly cache: Record<string, T> = Object.create(null);
   private fetchedAll = false;
 
   constructor(protected readonly provider: ICatalogProvider<T>) {}
@@ -16,6 +16,8 @@ export class DynamicCatalog<T = unknown> implements IDynamicCatalog<T> {
     const entity = await this.provider.fetch(key);
     if (entity !== undefined) {
       this.cache[key] = entity;
+    } else if (options.forceFresh) {
+      delete this.cache[key];
     }
 
     return entity;
@@ -25,11 +27,12 @@ export class DynamicCatalog<T = unknown> implements IDynamicCatalog<T> {
     options: { forceFresh?: boolean; filterFn?: (key: string, entity: T) => boolean } = {},
   ): Promise<Record<string, T>> {
     if (options.forceFresh || !this.fetchedAll) {
-      this.fetchedAll = true;
       const entities = await this.provider.fetchAll();
+      this.clearCache();
       Object.entries(entities).forEach(([key, entity]) => {
         this.cache[key] = entity;
       });
+      this.fetchedAll = true;
     }
 
     const { filterFn } = options;

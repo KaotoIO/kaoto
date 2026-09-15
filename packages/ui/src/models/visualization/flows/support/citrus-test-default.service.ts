@@ -1,7 +1,9 @@
+import { cloneDeep } from 'lodash';
 import { parse } from 'yaml';
 
 import { DefinedComponent } from '../../../camel/camel-catalog-index';
-import { ICitrusComponentDefinition } from '../../../citrus/citrus-catalog';
+import { CatalogKind } from '../../../catalog-kind';
+import { ICitrusComponentDefinition, ICitrusTestActionTemplateDefinition } from '../../../citrus/citrus-catalog';
 import { TestActions } from '../../../citrus/entities/Test';
 import { CitrusTestSchemaService } from './citrus-test-schema.service';
 
@@ -30,6 +32,16 @@ export class CitrusTestDefaultService {
    * @returns A TestActions object with default structure and values
    */
   static getDefaultTestActionDefinitionValue(definedComponent: DefinedComponent): TestActions {
+    if (definedComponent.type === CatalogKind.TestActionTemplate) {
+      const definition = definedComponent.definition as ICitrusTestActionTemplateDefinition | undefined;
+      const template = definition?.kind === CatalogKind.TestActionTemplate ? definition : undefined;
+      const applyTemplate = {
+        name: template?.name ?? definedComponent.name,
+        ...(template?.parameters?.length ? { parameters: cloneDeep(template.parameters) } : {}),
+      };
+      return { applyTemplate };
+    }
+
     let definition: ICitrusComponentDefinition | undefined = definedComponent.definition as ICitrusComponentDefinition;
     if (!definition) {
       definition = CitrusTestSchemaService.getTestActionDefinition(definedComponent.name);
