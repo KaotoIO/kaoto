@@ -182,7 +182,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     }
 
     // Test action / container nodes
-    const result = CitrusTestSchemaService.getTestActionDefinition(ids.primaryNodeId.name);
+    const result = await CitrusTestSchemaService.getTestActionDefinition(ids.primaryNodeId.name);
     return result?.definition.propertiesSchema || ({} as KaotoSchemaDefinition['schema']);
   }
 
@@ -194,7 +194,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     const actionName = ids.primaryNodeId.name;
     const actionModel: TestAction = getValue(this.test, this.toModelPath(path));
     if (actionModel) {
-      this.updateTestActionModel(path, actionName, actionModel);
+      await this.updateTestActionModel(path, actionName, actionModel);
     }
     return actionModel ?? {};
   }
@@ -219,7 +219,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
    */
   async normaliseForSerialisation(): Promise<Test> {
     const snapshot = cloneDeep(this.test);
-    this.updateTestGroupModel(snapshot.actions);
+    await this.updateTestGroupModel(snapshot.actions);
     return snapshot;
   }
 
@@ -650,8 +650,8 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
    * Enhance the provided action model with properties set on the parent test action groups.
    * Goes through the list of parent groups if any and sets the properties directly on the action model.
    */
-  private updateTestActionModel(path: string, actionName: string, actionModel: TestAction) {
-    const result = CitrusTestSchemaService.getTestActionDefinition(actionName);
+  private async updateTestActionModel(path: string, actionName: string, actionModel: TestAction): Promise<void> {
+    const result = await CitrusTestSchemaService.getTestActionDefinition(actionName);
     if (!isDefined(result?.definition.group)) {
       return;
     }
@@ -684,34 +684,34 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
    * Go through the list of test actions and rebuild proper test action group hierarchy.
    * Properties that belong to the test action group are removed from the test action model.
    */
-  private updateTestGroupModel(actions: TestActions[]): void {
+  private async updateTestGroupModel(actions: TestActions[]): Promise<void> {
     if (!Array.isArray(actions)) {
       return;
     }
 
     for (const action of actions) {
-      this.updateActionGroupModel(action);
+      await this.updateActionGroupModel(action);
     }
   }
 
-  private updateActionGroupModel(action: TestActions): void {
+  private async updateActionGroupModel(action: TestActions): Promise<void> {
     const jsonRecord = action as Record<string, unknown>;
     for (const key in jsonRecord) {
       if (jsonRecord[key] === undefined) continue;
-      const topResult = CitrusTestSchemaService.getTestActionDefinition(key);
+      const topResult = await CitrusTestSchemaService.getTestActionDefinition(key);
       if (!topResult) {
-        this.recurseIntoContainerActions(action, key);
+        await this.recurseIntoContainerActions(action, key);
         break;
       }
       const actionName =
         topResult.definition.kind === CatalogKind.TestActionGroup
-          ? CitrusTestVisualEntity.resolveGroupActionNameSync(jsonRecord[key] as TestAction, key)
+          ? await CitrusTestVisualEntity.resolveGroupActionName(jsonRecord[key] as TestAction, key)
           : key;
-      const actionResult = CitrusTestSchemaService.getTestActionDefinition(actionName);
+      const actionResult = await CitrusTestSchemaService.getTestActionDefinition(actionName);
       if (isDefined(actionResult?.definition.group)) {
         this.moveGroupPropertiesFromAction(action, actionName, actionResult);
       }
-      this.recurseIntoContainerActions(action, actionName);
+      await this.recurseIntoContainerActions(action, actionName);
       break;
     }
   }
@@ -719,7 +719,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
   private moveGroupPropertiesFromAction(
     action: TestActions,
     actionName: string,
-    actionResult: ReturnType<typeof CitrusTestSchemaService.getTestActionDefinition>,
+    actionResult: Awaited<ReturnType<typeof CitrusTestSchemaService.getTestActionDefinition>>,
   ) {
     const groups = actionResult?.groups ?? [];
     let groupPath = '';
@@ -739,26 +739,24 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
   }
 
   /**
-   * Resolves the fully qualified action name for a TestActionGroup using
-   * CamelCatalogService (synchronous, no kind map required).
-   * Used by updateTestGroupModel which runs synchronously inside toJSON().
+   * Resolves the fully qualified action name for a TestActionGroup using DynamicCatalogRegistry.
    */
-  private static resolveGroupActionNameSync(action: TestAction, groupName: string): string {
+  private static async resolveGroupActionName(action: TestAction, groupName: string): Promise<string> {
     const jsonRecord = action as Record<string, unknown>;
     for (const key in jsonRecord) {
       if (jsonRecord[key] === undefined) continue;
       const candidateName = `${groupName}-${key}`;
-      const candidateResult = CitrusTestSchemaService.getTestActionDefinition(candidateName);
+      const candidateResult = await CitrusTestSchemaService.getTestActionDefinition(candidateName);
       if (!candidateResult) continue;
       if (candidateResult.definition.kind === CatalogKind.TestActionGroup) {
-        return CitrusTestVisualEntity.resolveGroupActionNameSync(jsonRecord[key] as TestAction, candidateName);
+        return CitrusTestVisualEntity.resolveGroupActionName(jsonRecord[key] as TestAction, candidateName);
       }
       return candidateName;
     }
     return groupName;
   }
 
-  private recurseIntoContainerActions(action: TestActions, actionName: string) {
+  private async recurseIntoContainerActions(action: TestActions, actionName: string): Promise<void> {
     const containerSettings = CitrusTestSchemaService.getTestContainerSettings(actionName);
     if (!containerSettings) {
       return;
@@ -771,7 +769,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
 
     const nested: TestActions[] = containerSettings.type === 'single-node' ? [nestedValue] : nestedValue;
     if (Array.isArray(nested) && nested.length) {
-      this.updateTestGroupModel(nested);
+      await this.updateTestGroupModel(nested);
     }
   }
 }

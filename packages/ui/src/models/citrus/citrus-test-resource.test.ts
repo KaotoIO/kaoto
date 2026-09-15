@@ -10,7 +10,6 @@ import { SourceSchemaType } from '../camel';
 import { CatalogKind } from '../catalog-kind';
 import { EntityType } from '../entities';
 import { AddStepMode, CitrusTestVisualEntity } from '../visualization';
-import { CamelCatalogService } from '../visualization/flows/camel-catalog.service';
 import { FlowTemplateService } from '../visualization/flows/support/flow-templates-service';
 import { CitrusTestResource } from './citrus-test-resource';
 import { Test } from './entities/Test';
@@ -256,8 +255,11 @@ describe('CitrusTestResource', () => {
 
     describe('with Citrus catalog loaded', () => {
       beforeAll(() => {
-        CamelCatalogService.setCatalogKey(CatalogKind.TestAction, citrusCatalogsMap.actionsCatalogMap);
-        CamelCatalogService.setCatalogKey(CatalogKind.TestContainer, citrusCatalogsMap.containersCatalogMap);
+        setupCitrusDynamicCatalogRegistry(citrusCatalogsMap);
+      });
+
+      afterAll(() => {
+        DynamicCatalogRegistry.get().clearRegistry();
       });
 
       it('should produce group-normalised YAML — group properties lifted out of action', async () => {

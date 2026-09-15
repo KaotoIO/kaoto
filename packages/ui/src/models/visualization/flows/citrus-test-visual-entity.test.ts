@@ -17,7 +17,6 @@ import { EntityType } from '../../entities/base-entity';
 import { PlaceholderType } from '../../placeholder.constants';
 import { NodeLabelType } from '../../settings/settings.model';
 import { AddStepMode } from '../base-visual-entity';
-import { CamelCatalogService } from './camel-catalog.service';
 import { CitrusTestVisualEntity, isCitrusTest } from './citrus-test-visual-entity';
 import { CitrusTestSchemaService } from './support/citrus-test-schema.service';
 
@@ -34,8 +33,6 @@ describe('CitrusTestVisualEntity', () => {
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCitrusCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.TestAction, catalogsMap.actionsCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.TestContainer, catalogsMap.containersCatalogMap);
     setupCitrusDynamicCatalogRegistry(catalogsMap);
   });
 
@@ -957,7 +954,7 @@ describe('CitrusTestVisualEntity', () => {
       const invalidModel = cloneDeep(citrusTestJson);
       setValue(invalidModel, 'actions[0].print.message', undefined);
       const entity = new CitrusTestVisualEntity(invalidModel);
-      const result1 = CitrusTestSchemaService.getTestActionDefinition('print');
+      const result1 = await CitrusTestSchemaService.getTestActionDefinition('print');
       const schema = result1?.definition.propertiesSchema || {};
 
       const result = await entity.getNodeValidationText('actions.0.print', schema, printActionIds);

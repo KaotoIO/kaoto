@@ -3,21 +3,16 @@ import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
 import { DynamicCatalogRegistry } from '../../../../dynamic-catalog/dynamic-catalog-registry';
 import { getFirstCitrusCatalogMap, setupCitrusDynamicCatalogRegistry } from '../../../../stubs/test-load-catalog';
-import { CatalogKind } from '../../../catalog-kind';
 import { TestActions } from '../../../citrus/entities/Test';
-import { CamelCatalogService } from '../camel-catalog.service';
 import { CitrusTestSchemaService } from './citrus-test-schema.service';
 
 describe('CitrusTestSchemaService', () => {
   beforeAll(async () => {
     const catalogsMap = await getFirstCitrusCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.TestAction, catalogsMap.actionsCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.TestContainer, catalogsMap.containersCatalogMap);
     setupCitrusDynamicCatalogRegistry(catalogsMap);
   });
 
   afterAll(() => {
-    CamelCatalogService.clearCatalogs();
     DynamicCatalogRegistry.get().clearRegistry();
     CitrusTestSchemaService.clearKindMap();
   });
@@ -69,20 +64,20 @@ describe('CitrusTestSchemaService', () => {
   });
 
   describe('getTestActionDefinition', () => {
-    it('should return undefined for an unknown action', () => {
-      const result = CitrusTestSchemaService.getTestActionDefinition('nonexistent-action-xyz');
+    it('should return undefined for an unknown action', async () => {
+      const result = await CitrusTestSchemaService.getTestActionDefinition('nonexistent-action-xyz');
       expect(result).toBeUndefined();
     });
 
-    it('should return definition and empty groups for a simple ungrouped action', () => {
-      const result = CitrusTestSchemaService.getTestActionDefinition('print');
+    it('should return definition and empty groups for a simple ungrouped action', async () => {
+      const result = await CitrusTestSchemaService.getTestActionDefinition('print');
       expect(result).toBeDefined();
       expect(result?.definition.name).toBe('print');
       expect(result?.groups).toHaveLength(0);
     });
 
-    it('should return definition and resolved groups for a multi-level grouped action', () => {
-      const result = CitrusTestSchemaService.getTestActionDefinition('camel-jbang-run');
+    it('should return definition and resolved groups for a multi-level grouped action', async () => {
+      const result = await CitrusTestSchemaService.getTestActionDefinition('camel-jbang-run');
       expect(result).toBeDefined();
       expect(result?.definition.propertiesSchema).toBeDefined();
       expect(result?.groups).toHaveLength(2);

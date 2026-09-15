@@ -1,4 +1,3 @@
-import { CamelCatalogService } from '../../models';
 import { ComponentsCatalog } from '../../models/camel/camel-catalog-index';
 import { ICamelProcessorDefinition } from '../../models/camel/camel-processors-catalog';
 import { CatalogKind } from '../../models/catalog-kind';
@@ -69,13 +68,6 @@ export async function fetchCitrusCatalog(options: {
   const testRootEntity: ComponentsCatalog[CatalogKind.Entity] = {
     [CITRUS_TEST_ROOT_ENTITY_NAME]: { propertiesSchema: testRootSchema.body } as ICamelProcessorDefinition,
   };
-
-  CamelCatalogService.setCatalogKey(CatalogKind.TestAction, testActions.body);
-  CamelCatalogService.setCatalogKey(CatalogKind.TestContainer, testContainers.body);
-  CamelCatalogService.setCatalogKey(CatalogKind.TestEndpoint, testEndpoints.body);
-  CamelCatalogService.setCatalogKey(CatalogKind.TestFunction, testFunctions.body);
-  CamelCatalogService.setCatalogKey(CatalogKind.TestValidationMatcher, testValidationMatcher.body);
-  CamelCatalogService.setCatalogKey(CatalogKind.Entity, testRootEntity);
 
   DynamicCatalogRegistry.get().setCatalog(
     CatalogKind.Entity,

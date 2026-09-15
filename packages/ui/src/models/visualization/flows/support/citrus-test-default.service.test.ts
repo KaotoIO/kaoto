@@ -1,23 +1,7 @@
-import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { CatalogLibrary } from '@kaoto/camel-catalog/types';
-
-import { getFirstCitrusCatalogMap } from '../../../../stubs/test-load-catalog';
 import { DefinedComponent } from '../../../camel/camel-catalog-index';
-import { CatalogKind } from '../../../catalog-kind';
-import { CamelCatalogService } from '../camel-catalog.service';
 import { CitrusTestDefaultService } from './citrus-test-default.service';
 
 describe('CitrusTestDefaultService', () => {
-  beforeAll(async () => {
-    const catalogsMap = await getFirstCitrusCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.TestAction, catalogsMap.actionsCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.TestContainer, catalogsMap.containersCatalogMap);
-  });
-
-  afterAll(() => {
-    CamelCatalogService.clearCatalogs();
-  });
-
   describe('getDefaultTestActionDefinitionValue', () => {
     it('should return the default value for a print action', () => {
       const definitionValue = CitrusTestDefaultService.getDefaultTestActionDefinitionValue({
