@@ -59,17 +59,21 @@ export const CatalogModalProvider: FunctionComponent<PropsWithChildren> = (props
   const handleSelectComponent = useCallback(
     async (tile: ITile) => {
       setIsModalOpen(false);
-
-      const definition = await catalogRegistry.getEntity(tile.type as CatalogKind, tile.name, {
-        forceFresh: tile.type === CatalogKind.Kamelet,
-      });
-      const resolvedComponent: DefinedComponent = {
-        name: tile.name,
-        type: tile.type as CatalogKind,
-        definition,
-      };
-
-      componentSelectionRef.current?.resolve(resolvedComponent);
+      const selection = componentSelectionRef.current;
+      try {
+        const definition = await catalogRegistry.getEntity(tile.type as CatalogKind, tile.name, {
+          forceFresh: tile.type === CatalogKind.Kamelet || tile.type === CatalogKind.TestActionTemplate,
+        });
+        if (tile.type === CatalogKind.TestActionTemplate && !definition) {
+          console.warn(`Citrus template ${tile.name} is no longer available`);
+          selection?.resolve(undefined);
+          return;
+        }
+        selection?.resolve({ name: tile.name, type: tile.type as CatalogKind, definition });
+      } catch (error) {
+        console.error(`Failed to load catalog entry ${tile.name}`, error);
+        selection?.resolve(undefined);
+      }
     },
     [catalogRegistry],
   );

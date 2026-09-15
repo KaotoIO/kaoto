@@ -197,11 +197,15 @@ export class CitrusTestResource implements KaotoResource {
    *
    * @param _mode - The add step mode (unused for Citrus tests)
    * @param _visualEntityData - The visualization node data (unused for Citrus tests)
-   * @returns A filter function that accepts test actions and containers
+   * @returns A filter function that accepts test actions, templates, and containers
    */
   getCompatibleComponents(_mode: AddStepMode, _visualEntityData: IVisualizationNodeData): TileFilter {
     return (item: ITile) => {
-      return item.type === CatalogKind.TestAction || item.type === CatalogKind.TestContainer;
+      return (
+        item.type === CatalogKind.TestAction ||
+        item.type === CatalogKind.TestActionTemplate ||
+        item.type === CatalogKind.TestContainer
+      );
     };
   }
 

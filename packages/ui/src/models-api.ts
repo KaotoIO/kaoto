@@ -4,6 +4,7 @@
  * This file shouldn't export anything other than models, for instance, no components, no hooks, etc.
  */
 export * from './models/catalog-kind';
+export type { ICitrusTestActionTemplateDefinition } from './models/citrus/citrus-catalog';
 export * from './models/file-types';
 export * from './models/runtime-maven-information';
 export * from './models/settings';

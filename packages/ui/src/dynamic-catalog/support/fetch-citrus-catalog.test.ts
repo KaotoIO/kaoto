@@ -1,7 +1,8 @@
 import catalogLibraryJson from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { stringify } from 'yaml';
 
-import { CamelCatalogService, CatalogKind } from '../../models';
+import { CamelCatalogService, CatalogKind, FileTypes, ICitrusTestActionTemplateDefinition } from '../../models';
 import { CITRUS_TEST_ROOT_ENTITY_NAME } from '../../models/citrus/citrus-catalog-index';
 import { citrusCatalogSelector, getFirstCitrusCatalogMap } from '../../stubs/test-load-catalog';
 import { CatalogSchemaLoader } from '../../utils/catalog-schema-loader';
@@ -18,6 +19,12 @@ describe('fetchCitrusCatalog', () => {
 
   const catalogLibraryEntry = citrusCatalogSelector(catalogLibrary)!;
   const catalogPath = catalogLibraryEntry.fileName.substring(0, catalogLibraryEntry.fileName.lastIndexOf('/'));
+  const template: ICitrusTestActionTemplateDefinition = {
+    kind: CatalogKind.TestActionTemplate,
+    name: 'prepare-order',
+    description: 'Prepare an order',
+    parameters: [{ name: 'region', value: '${region}' }],
+  };
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCitrusCatalogMap(catalogLibrary);
@@ -37,6 +44,50 @@ describe('fetchCitrusCatalog', () => {
 
   afterEach(() => {
     vi.clearAllMocks();
+    CamelCatalogService.clearCatalogs();
+    DynamicCatalogRegistry.get().clearRegistry();
+  });
+
+  it('registers host templates only in the dynamic registry', async () => {
+    const getResourcesContentByType = vi
+      .fn()
+      .mockResolvedValue([{ filename: 'prepare-order.citrus.yaml', content: stringify(template) }]);
+
+    await fetchCitrusCatalog({ catalogIndex: catalogDefinition, relativeBasePath, getResourcesContentByType });
+
+    await expect(
+      DynamicCatalogRegistry.get().getEntity(CatalogKind.TestActionTemplate, template.name),
+    ).resolves.toEqual(template);
+    expect(getResourcesContentByType).toHaveBeenCalledWith(FileTypes.CitrusTemplates);
+    expect(setCatalogKeySpy).not.toHaveBeenCalledWith(CatalogKind.TestActionTemplate, expect.anything());
+  });
+
+  it('clears previous host templates when loading without a resource callback', async () => {
+    await fetchCitrusCatalog({
+      catalogIndex: catalogDefinition,
+      relativeBasePath,
+      getResourcesContentByType: async () => [{ filename: 'prepare-order.citrus.yaml', content: stringify(template) }],
+    });
+    await expect(
+      DynamicCatalogRegistry.get().getEntity(CatalogKind.TestActionTemplate, template.name),
+    ).resolves.toEqual(template);
+
+    await fetchCitrusCatalog({ catalogIndex: catalogDefinition, relativeBasePath });
+
+    await expect(DynamicCatalogRegistry.get().getCatalog(CatalogKind.TestActionTemplate)?.getAll()).resolves.toEqual(
+      {},
+    );
+  });
+
+  it('rejects failed built-in catalog requests before changing either registry', async () => {
+    const error = new Error('Catalog unavailable');
+    fetchFileMock.mockRejectedValue(error);
+    const setCatalogSpy = vi.spyOn(DynamicCatalogRegistry.get(), 'setCatalog');
+
+    await expect(fetchCitrusCatalog({ catalogIndex: catalogDefinition, relativeBasePath })).rejects.toThrow(error);
+
+    expect(setCatalogKeySpy).not.toHaveBeenCalled();
+    expect(setCatalogSpy).not.toHaveBeenCalled();
   });
 
   it('should register the root test schema (citrus-yaml) as a catalog entity', async () => {

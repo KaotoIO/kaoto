@@ -69,6 +69,12 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
             break;
           }
 
+          case CatalogKind.TestActionTemplate: {
+            const component = await catalogRegistry.getEntity(CatalogKind.TestAction, 'applyTemplate');
+            transformedTabs = transformCitrusComponentIntoTab(component);
+            break;
+          }
+
           case CatalogKind.TestContainer: {
             const component = await catalogRegistry.getEntity(CatalogKind.TestContainer, props.tile.name);
             transformedTabs = transformCitrusComponentIntoTab(component);

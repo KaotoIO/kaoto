@@ -1,0 +1,8 @@
+name: prepare-order
+description: Prepare an order for the selected region.
+parameters:
+  - name: region
+    value: ${region}
+actions:
+  - print:
+      message: Preparing an order in ${region}

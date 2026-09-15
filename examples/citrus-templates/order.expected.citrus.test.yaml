@@ -1,0 +1,12 @@
+name: order-test
+variables:
+  - name: region
+    value: eu-west
+actions:
+  - print:
+      message: Starting the order test
+  - applyTemplate:
+      name: prepare-order
+      parameters:
+        - name: region
+          value: eu-central

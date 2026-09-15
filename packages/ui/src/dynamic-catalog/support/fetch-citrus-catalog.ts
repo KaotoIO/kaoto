@@ -1,4 +1,4 @@
-import { CamelCatalogService } from '../../models';
+import { CamelCatalogService, FileTypes, FileTypesResponse } from '../../models';
 import { ComponentsCatalog } from '../../models/camel/camel-catalog-index';
 import { ICamelProcessorDefinition } from '../../models/camel/camel-processors-catalog';
 import { CatalogKind } from '../../models/catalog-kind';
@@ -13,6 +13,7 @@ import { DynamicCatalogRegistry } from '../dynamic-catalog-registry';
 import { CamelProcessorsProvider } from '../providers/camel-components.provider';
 import {
   CitrusTestActionsProvider,
+  CitrusTestActionTemplatesProvider,
   CitrusTestContainersProvider,
   CitrusTestEndpointsProvider,
   CitrusTestFunctionsProvider,
@@ -22,8 +23,9 @@ import {
 export async function fetchCitrusCatalog(options: {
   catalogIndex: CitrusCatalogIndex;
   relativeBasePath: string;
+  getResourcesContentByType?: (filetype: FileTypes) => Promise<FileTypesResponse[]>;
 }): Promise<void> {
-  const { catalogIndex, relativeBasePath } = options;
+  const { catalogIndex, relativeBasePath, getResourcesContentByType } = options;
 
   /** Citrus test actions */
   const actionsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.TestAction]>(
@@ -84,6 +86,10 @@ export async function fetchCitrusCatalog(options: {
   DynamicCatalogRegistry.get().setCatalog(
     CatalogKind.TestAction,
     new DynamicCatalog(new CitrusTestActionsProvider(testActions.body)),
+  );
+  DynamicCatalogRegistry.get().setCatalog(
+    CatalogKind.TestActionTemplate,
+    new DynamicCatalog(new CitrusTestActionTemplatesProvider(getResourcesContentByType)),
   );
   DynamicCatalogRegistry.get().setCatalog(
     CatalogKind.TestContainer,

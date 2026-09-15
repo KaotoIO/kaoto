@@ -1,8 +1,26 @@
 import { IKameletDefinition } from '../../models/camel/kamelets-catalog';
 import { FileTypes } from '../../models/file-types';
+import { DynamicCatalog } from '../dynamic-catalog';
 import { CamelKameletsProvider } from './camel-kamelets.provider';
 
 describe('CamelKameletsProvider', () => {
+  it('restores embedded entries and removes deleted host entries when refreshing the dynamic catalog', async () => {
+    const embedded = { demo: { metadata: { name: 'demo' }, kind: 'Kamelet' } as IKameletDefinition };
+    const client = vi
+      .fn()
+      .mockResolvedValueOnce([
+        { filename: 'demo.yaml', content: 'kind: Kamelet\nmetadata:\n  name: demo\n  labels:\n    source: host' },
+        { filename: 'removed.yaml', content: 'kind: Kamelet\nmetadata:\n  name: removed' },
+      ])
+      .mockResolvedValue([]);
+    const catalog = new DynamicCatalog(new CamelKameletsProvider(embedded, client));
+
+    await expect(catalog.getAll()).resolves.toHaveProperty('demo.metadata.labels.source', 'host');
+    await expect(catalog.getAll({ forceFresh: true })).resolves.toEqual(embedded);
+    await expect(catalog.get('removed', { forceFresh: true })).resolves.toBeUndefined();
+    expect(client).toHaveBeenCalledWith(FileTypes.Kamelets);
+  });
+
   describe('fetchAll', () => {
     it('should return only embedded kamelets when no client is provided', async () => {
       const embedded = { 'timer-source': { metadata: { name: 'timer-source' } } as IKameletDefinition };

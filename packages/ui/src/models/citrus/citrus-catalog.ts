@@ -4,7 +4,7 @@ import { KaotoSchemaDefinition } from '../kaoto-schema';
 /**
  * Interface representing a Citrus component definition in the catalog.
  *
- * Citrus components represent test actions, containers, endpoints, functions, or validation matchers.
+ * Citrus components represent test actions, templates, containers, endpoints, functions, or validation matchers.
  * Each component has metadata and an optional JSON schema for its properties.
  */
 export interface ICitrusComponentDefinition {
@@ -15,6 +15,7 @@ export interface ICitrusComponentDefinition {
   kind:
     | CatalogKind.TestActionGroup
     | CatalogKind.TestAction
+    | CatalogKind.TestActionTemplate
     | CatalogKind.TestContainer
     | CatalogKind.TestEndpoint
     | CatalogKind.TestFunction
@@ -37,4 +38,12 @@ export interface ICitrusComponentDefinition {
 
   /** Optional JSON schema defining the component's configurable properties */
   propertiesSchema?: KaotoSchemaDefinition['schema'];
+}
+
+/** A reusable Citrus template exposed as an applyTemplate action in the catalog. */
+export interface ICitrusTestActionTemplateDefinition extends ICitrusComponentDefinition {
+  kind: CatalogKind.TestActionTemplate;
+
+  /** Ordered input parameters and their initial values for each template invocation. */
+  parameters?: Array<{ name: string; value: string | number | boolean | null }>;
 }
