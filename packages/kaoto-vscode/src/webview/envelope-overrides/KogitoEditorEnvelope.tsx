@@ -22,7 +22,7 @@
  * meant to override how React apps are bootstrapped.
  */
 import { Editor, KogitoEditorChannelApi, KogitoEditorEnvelopeApi, KogitoEditorEnvelopeContextType } from '@kie-tools-core/editor/dist/api';
-import { EditorEnvelopeViewApi } from '@kie-tools-core/editor/dist/envelope';
+import { EditorEnvelopeViewApi } from '@kie-tools-core/editor/dist/envelope/EditorEnvelopeView';
 import { Envelope, EnvelopeApiFactory } from '@kie-tools-core/envelope';
 import { ApiDefinition } from '@kie-tools-core/envelope-bus/dist/api';
 import { I18nService } from '@kie-tools-core/i18n/dist/envelope';
@@ -42,12 +42,13 @@ export class KogitoEditorEnvelope<
 			EnvelopeApi,
 			ChannelApi,
 			EditorEnvelopeViewApi<E>,
-			KogitoEditorEnvelopeContextType<ChannelApi>
+			KogitoEditorEnvelopeContextType<EnvelopeApi, ChannelApi>
 		>,
-		private readonly keyboardShortcutsService: KeyboardShortcutsService,
+		keyboardShortcutsService: KeyboardShortcutsService,
 		i18nService: I18nService,
-		private readonly envelope: Envelope<EnvelopeApi, ChannelApi, EditorEnvelopeViewApi<E>, KogitoEditorEnvelopeContextType<ChannelApi>>,
-		private readonly context: KogitoEditorEnvelopeContextType<ChannelApi> = {
+		private readonly envelope: Envelope<EnvelopeApi, ChannelApi, EditorEnvelopeViewApi<E>, KogitoEditorEnvelopeContextType<EnvelopeApi, ChannelApi>>,
+		private readonly context: KogitoEditorEnvelopeContextType<EnvelopeApi, ChannelApi> = {
+			shared: envelope.shared,
 			channelApi: envelope.channelApi,
 			operatingSystem: getOperatingSystem(),
 			services: {
@@ -70,9 +71,7 @@ export class KogitoEditorEnvelope<
 
 			setTimeout(() => {
 				const root = createRoot(container);
-				root.render(
-					<KogitoEditorEnvelopeApp callback={callback} context={this.context} showKeyBindingsOverlay={this.keyboardShortcutsService.isEnabled()} />,
-				);
+				root.render(<KogitoEditorEnvelopeApp callback={callback} context={this.context} />);
 			}, 0);
 		});
 	}

@@ -18,7 +18,7 @@
  */
 
 import { Editor, KogitoEditorChannelApi, KogitoEditorEnvelopeApi, KogitoEditorEnvelopeContextType } from '@kie-tools-core/editor/dist/api';
-import { EditorEnvelopeViewApi } from '@kie-tools-core/editor/dist/envelope';
+import { EditorEnvelopeViewApi } from '@kie-tools-core/editor/dist/envelope/EditorEnvelopeView';
 import { Envelope, EnvelopeApiFactory } from '@kie-tools-core/envelope';
 import { ApiDefinition, EnvelopeBus } from '@kie-tools-core/envelope-bus/dist/api';
 import { I18nService } from '@kie-tools-core/i18n/dist/envelope';
@@ -34,12 +34,12 @@ export function initCustom<
 >(args: {
 	container: HTMLElement;
 	bus: EnvelopeBus;
-	apiImplFactory: EnvelopeApiFactory<EnvelopeApi, ChannelApi, EditorEnvelopeViewApi<E>, KogitoEditorEnvelopeContextType<ChannelApi>>;
+	apiImplFactory: EnvelopeApiFactory<EnvelopeApi, ChannelApi, EditorEnvelopeViewApi<E>, KogitoEditorEnvelopeContextType<EnvelopeApi, ChannelApi>>;
 	keyboardShortcutsService?: KeyboardShortcutsService;
 }) {
 	const keyboardShortcutsService = args.keyboardShortcutsService ?? new DefaultKeyboardShortcutsService({ os: getOperatingSystem() });
 	const i18nService = new I18nService();
-	const envelope = new Envelope<EnvelopeApi, ChannelApi, EditorEnvelopeViewApi<E>, KogitoEditorEnvelopeContextType<ChannelApi>>(args.bus);
+	const envelope = new Envelope<EnvelopeApi, ChannelApi, EditorEnvelopeViewApi<E>, KogitoEditorEnvelopeContextType<EnvelopeApi, ChannelApi>>(args.bus);
 
 	return new KogitoEditorEnvelope(args.apiImplFactory, keyboardShortcutsService, i18nService, envelope).start(args.container);
 }

@@ -9,6 +9,11 @@
     "packages/*"
   ],
   "resolutions": {
+    "@kie-tools-core/backend": "10.0.0",
+    "@kie-tools-core/editor": "10.2.0",
+    "@kie-tools-core/i18n": "10.2.0",
+    "@kie-tools-core/notifications": "10.2.0",
+    "@kie-tools-core/vscode-extension": "10.2.0",
     "@patternfly/patternfly": "^6.6.1",
     "@patternfly/react-code-editor": "6.6.1",
     "@patternfly/react-core": "6.6.1",

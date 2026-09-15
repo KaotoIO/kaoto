@@ -5,6 +5,7 @@ import {
   EditorApi,
   EditorInitArgs,
   EditorTheme,
+  KogitoEditorEnvelopeApi,
   KogitoEditorEnvelopeContextType,
   StateControlCommand,
 } from '@kie-tools-core/editor/dist/api';
@@ -28,7 +29,7 @@ describe('KaotoEditorApp', () => {
   let kaotoEditorApp: KaotoEditorAppTest;
   let editService: EditService;
   let editorRef: RefObject<EditorApi>;
-  let envelopeContext: KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>;
+  let envelopeContext: KogitoEditorEnvelopeContextType<KogitoEditorEnvelopeApi, KaotoEditorChannelApi>;
   let initArgs: EditorInitArgs;
   let settingsAdapter: AbstractSettingsAdapter;
 
@@ -48,6 +49,8 @@ describe('KaotoEditorApp', () => {
     };
 
     envelopeContext = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      shared: {} as any,
       supportedThemes: [EditorTheme.DARK, EditorTheme.LIGHT],
       channelApi: {
         notifications: {

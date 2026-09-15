@@ -5,6 +5,7 @@ import {
   Editor,
   EditorInitArgs,
   EditorTheme,
+  KogitoEditorEnvelopeApi,
   KogitoEditorEnvelopeContextType,
   StateControlCommand,
 } from '@kie-tools-core/editor/dist/api';
@@ -39,7 +40,7 @@ export class KaotoEditorApp implements Editor {
   af_componentTitle = 'Kaoto Editor';
 
   constructor(
-    protected readonly envelopeContext: KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>,
+    protected readonly envelopeContext: KogitoEditorEnvelopeContextType<KogitoEditorEnvelopeApi, KaotoEditorChannelApi>,
     protected readonly initArgs: EditorInitArgs,
     protected readonly settingsAdapter: AbstractSettingsAdapter,
   ) {

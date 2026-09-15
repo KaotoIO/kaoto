@@ -1,6 +1,10 @@
 vi.mock('./KaotoEditorApp');
 vi.mock('react-router-dom');
-import { EditorInitArgs, KogitoEditorEnvelopeContextType } from '@kie-tools-core/editor/dist/api';
+import {
+  EditorInitArgs,
+  KogitoEditorEnvelopeApi,
+  KogitoEditorEnvelopeContextType,
+} from '@kie-tools-core/editor/dist/api';
 
 import { CanvasLayoutDirection, ColorScheme, ISettingsModel, NodeLabelType, NodeToolbarTrigger } from '../models';
 import { KaotoEditorApp } from './KaotoEditorApp';
@@ -36,7 +40,7 @@ describe('KaotoEditorFactory', () => {
           },
         },
       },
-    } as KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>;
+    } as KogitoEditorEnvelopeContextType<KogitoEditorEnvelopeApi, KaotoEditorChannelApi>;
     const initArgs = {} as EditorInitArgs;
     const factory = new KaotoEditorFactory();
 
@@ -70,7 +74,7 @@ describe('KaotoEditorFactory', () => {
           getCatalogURL: getCatalogURLSpy,
         },
       },
-    } as unknown as KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>;
+    } as unknown as KogitoEditorEnvelopeContextType<KogitoEditorEnvelopeApi, KaotoEditorChannelApi>;
     const initArgs = {} as EditorInitArgs;
     const factory = new KaotoEditorFactory();
 
@@ -92,7 +96,7 @@ describe('KaotoEditorFactory', () => {
           getCatalogURL: getCatalogURLSpy,
         },
       },
-    } as unknown as KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>;
+    } as unknown as KogitoEditorEnvelopeContextType<KogitoEditorEnvelopeApi, KaotoEditorChannelApi>;
     const initArgs = {} as EditorInitArgs;
     const factory = new KaotoEditorFactory();
 
@@ -141,7 +145,7 @@ describe('KaotoEditorFactory', () => {
           getCatalogURL: getCatalogURLSpy,
         },
       },
-    } as unknown as KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>;
+    } as unknown as KogitoEditorEnvelopeContextType<KogitoEditorEnvelopeApi, KaotoEditorChannelApi>;
     const initArgs = {
       resourcesPathPrefix: 'path-prefix',
     } as EditorInitArgs;

@@ -3,6 +3,7 @@ import {
   Editor,
   EditorFactory,
   EditorInitArgs,
+  KogitoEditorEnvelopeApi,
   KogitoEditorEnvelopeContextType,
 } from '@kie-tools-core/editor/dist/api';
 
@@ -11,9 +12,9 @@ import { CatalogSchemaLoader, promiseTimeout } from '../utils';
 import { KaotoEditorApp } from './KaotoEditorApp';
 import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
 
-export class KaotoEditorFactory implements EditorFactory<Editor, KaotoEditorChannelApi> {
+export class KaotoEditorFactory implements EditorFactory<Editor, KogitoEditorEnvelopeApi, KaotoEditorChannelApi> {
   public async createEditor(
-    envelopeContext: KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>,
+    envelopeContext: KogitoEditorEnvelopeContextType<KogitoEditorEnvelopeApi, KaotoEditorChannelApi>,
     initArgs: EditorInitArgs,
   ): Promise<Editor> {
     const settings = await this.getSettings(envelopeContext);
@@ -28,7 +29,7 @@ export class KaotoEditorFactory implements EditorFactory<Editor, KaotoEditorChan
    * Get the settings from the envelope context
    */
   private async getSettings(
-    envelopeContext: KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>,
+    envelopeContext: KogitoEditorEnvelopeContextType<KogitoEditorEnvelopeApi, KaotoEditorChannelApi>,
   ): Promise<ISettingsModel> {
     let settings: ISettingsModel;
 

@@ -4042,8 +4042,8 @@ __metadata:
     "@eslint/js": "npm:^9.10.0"
     "@kaoto/camel-catalog": "npm:^0.9.11"
     "@kaoto/forms": "npm:^1.8.0"
-    "@kie-tools-core/editor": "npm:^10.0.0"
-    "@kie-tools-core/notifications": "npm:^10.0.0"
+    "@kie-tools-core/editor": "npm:^10.2.0"
+    "@kie-tools-core/notifications": "npm:^10.2.0"
     "@monaco-editor/react": "npm:^4.7.0"
     "@patternfly/patternfly": "npm:^6.6.1"
     "@patternfly/react-code-editor": "npm:6.6.1"
@@ -4176,79 +4176,81 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kie-tools-core/editor@npm:10.0.0, @kie-tools-core/editor@npm:^10.0.0":
-  version: 10.0.0
-  resolution: "@kie-tools-core/editor@npm:10.0.0"
+"@kie-tools-core/editor@npm:10.2.0":
+  version: 10.2.0
+  resolution: "@kie-tools-core/editor@npm:10.2.0"
   dependencies:
-    "@kie-tools-core/backend": "npm:10.0.0"
-    "@kie-tools-core/envelope": "npm:10.0.0"
-    "@kie-tools-core/envelope-bus": "npm:10.0.0"
-    "@kie-tools-core/i18n": "npm:10.0.0"
-    "@kie-tools-core/keyboard-shortcuts": "npm:10.0.0"
-    "@kie-tools-core/notifications": "npm:10.0.0"
-    "@kie-tools-core/operating-system": "npm:10.0.0"
-    "@kie-tools-core/patternfly-base": "npm:10.0.0"
-    "@kie-tools-core/workspace": "npm:10.0.0"
-    "@patternfly/react-core": "npm:^4.276.6"
-    "@patternfly/react-icons": "npm:^4.93.6"
+    "@kie-tools-core/envelope": "npm:10.2.0"
+    "@kie-tools-core/envelope-bus": "npm:10.2.0"
+    "@kie-tools-core/i18n": "npm:10.2.0"
+    "@kie-tools-core/keyboard-shortcuts": "npm:10.2.0"
+    "@kie-tools-core/notifications": "npm:10.2.0"
+    "@kie-tools-core/operating-system": "npm:10.2.0"
+    "@kie-tools-core/patternfly-base": "npm:10.2.0"
+    "@kie-tools-core/workspace": "npm:10.2.0"
+    "@patternfly/react-core": "npm:^5.4.1"
+    "@patternfly/react-icons": "npm:^5.4.1"
     csstype: "npm:^3.0.11"
     minimatch: "npm:^3.0.5"
-    react: "npm:^17.0.2"
-    react-dom: "npm:^17.0.2"
-  checksum: 10/a17f99f537dfb5408cbc4e2672f8435246552d0945809a5daa43eef19502a4d187563630598c2e2d028339d7cacd9136a3b4a032fef55ab18aa1a1f10b9ef180
+  peerDependencies:
+    react: ">=17.0.2 <19.0.0"
+    react-dom: ">=17.0.2 <19.0.0"
+  checksum: 10/ff9c59de691697b407f7a842a4074ba12b44255df6057f491ad876b4fb4bf6a98361e87dcbd8bda576b89bf61e5cc5c4c2a79e5b377afe53156b21f7b9faeb9c
   languageName: node
   linkType: hard
 
-"@kie-tools-core/envelope-bus@npm:10.0.0":
-  version: 10.0.0
-  resolution: "@kie-tools-core/envelope-bus@npm:10.0.0"
-  dependencies:
-    react: "npm:^17.0.2"
-    react-dom: "npm:^17.0.2"
-  checksum: 10/3b152757d1c990ab85cba78ce4b63ebe22c5c6220cbe6d4a5c9e0eafe44f89dd7a9e5f21e555b520ee47bb12536d799ebfbd38284890c26a62504e7b3684ef43
+"@kie-tools-core/envelope-bus@npm:10.2.0":
+  version: 10.2.0
+  resolution: "@kie-tools-core/envelope-bus@npm:10.2.0"
+  peerDependencies:
+    react: ">=17.0.2 <19.0.0"
+    react-dom: ">=17.0.2 <19.0.0"
+  checksum: 10/38724cf715e05b1ed66a5a2adfac350471661f99ed73bee9979def340ce675bc96f4a8af6669b32da48001a059290dcfc38fc879c661569474d76975cc97770e
   languageName: node
   linkType: hard
 
-"@kie-tools-core/envelope@npm:10.0.0":
-  version: 10.0.0
-  resolution: "@kie-tools-core/envelope@npm:10.0.0"
+"@kie-tools-core/envelope@npm:10.2.0":
+  version: 10.2.0
+  resolution: "@kie-tools-core/envelope@npm:10.2.0"
   dependencies:
-    "@kie-tools-core/envelope-bus": "npm:10.0.0"
+    "@kie-tools-core/envelope-bus": "npm:10.2.0"
     csstype: "npm:^3.0.11"
-    react: "npm:^17.0.2"
-    react-dom: "npm:^17.0.2"
-  checksum: 10/de6e4f5173dbdf220595f72fef192c131d91ac7258e5c0f1a20c3ab8f5f9eac9ac6196b8ec16e83bdb2d107ee9054f445b3628a1e2ed1ebd57e90ae47d8267d1
+  peerDependencies:
+    react: ">=17.0.2 <19.0.0"
+    react-dom: ">=17.0.2 <19.0.0"
+  checksum: 10/d652970e7ae6183305e7d708f0f9ed8ac25170378e6d34c6cf11873f6a80f5e0389657195da3217bef4ad63bb6a3d7869ce1babc518f45c41cfd3f2a8f3a92d7
   languageName: node
   linkType: hard
 
-"@kie-tools-core/i18n@npm:10.0.0":
-  version: 10.0.0
-  resolution: "@kie-tools-core/i18n@npm:10.0.0"
-  dependencies:
-    react: "npm:^17.0.2"
-    react-dom: "npm:^17.0.2"
-  checksum: 10/54964ee26047ab9b9a6719fe7a2fcc7d2449a8861d7026f7ee9b0c505962e69c1ac8021cae9c984b6734f852da8ddc4f52e65e1fa78e7aee24067059467f76ed
+"@kie-tools-core/i18n@npm:10.2.0":
+  version: 10.2.0
+  resolution: "@kie-tools-core/i18n@npm:10.2.0"
+  peerDependencies:
+    react: ">=17.0.2 <19.0.0"
+    react-dom: ">=17.0.2 <19.0.0"
+  checksum: 10/931168363016bcf25a997b399140afbefb536b40121b7c4d871fb08977cc617907da3c0a4ec4e87b47bb717e3b03c258a4a3c1dc00d393a7baef7f84ebfde718
   languageName: node
   linkType: hard
 
-"@kie-tools-core/keyboard-shortcuts@npm:10.0.0":
-  version: 10.0.0
-  resolution: "@kie-tools-core/keyboard-shortcuts@npm:10.0.0"
+"@kie-tools-core/keyboard-shortcuts@npm:10.2.0":
+  version: 10.2.0
+  resolution: "@kie-tools-core/keyboard-shortcuts@npm:10.2.0"
   dependencies:
-    "@kie-tools-core/envelope-bus": "npm:10.0.0"
-    "@kie-tools-core/operating-system": "npm:10.0.0"
-    react: "npm:^17.0.2"
-  checksum: 10/4399642c1dc54399c40a1ba5af0301d15dd99a4482885281f821b4d7328dc0b2d902bcd5009f8231b79165215087c5598165221b5f12f128baa8c88140d10d63
+    "@kie-tools-core/envelope-bus": "npm:10.2.0"
+    "@kie-tools-core/operating-system": "npm:10.2.0"
+  peerDependencies:
+    react: ">=17.0.2 <19.0.0"
+  checksum: 10/8db656dd031a4b4160a8d64cf30ccbf3b4645309bc45b63bcecea314d68d2ed8e29f40853f5a4be9e601be231f1f37ec6b09d4d4ad863cfe351e6e098668c623
   languageName: node
   linkType: hard
 
-"@kie-tools-core/notifications@npm:10.0.0, @kie-tools-core/notifications@npm:^10.0.0":
-  version: 10.0.0
-  resolution: "@kie-tools-core/notifications@npm:10.0.0"
+"@kie-tools-core/notifications@npm:10.2.0":
+  version: 10.2.0
+  resolution: "@kie-tools-core/notifications@npm:10.2.0"
   dependencies:
-    "@kie-tools-core/i18n": "npm:10.0.0"
-    "@kie-tools-core/workspace": "npm:10.0.0"
-  checksum: 10/925acb957b86360f7dbab42675b808b783cb1788168a320904ceea3221388a747af2db5852f8f13f54d603fea52e38bf11639d8a73b75d28a64977af38a362cc
+    "@kie-tools-core/i18n": "npm:10.2.0"
+    "@kie-tools-core/workspace": "npm:10.2.0"
+  checksum: 10/2a16cab1922490eb4905e0ca5eb7442d326b768c760995cb5891d3b3bd7288a9831aa2040f0e5c47f421760add0f48355c9801926fb5a4e3cadef62bfb31ba26
   languageName: node
   linkType: hard
 
@@ -4259,36 +4261,42 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kie-tools-core/patternfly-base@npm:10.0.0":
-  version: 10.0.0
-  resolution: "@kie-tools-core/patternfly-base@npm:10.0.0"
-  checksum: 10/9759c356bd5af574bda5c5ec18d0f4e504e6bb3082a651dd353428aff18164d9d0870adc1495804dbfa837c562979a64dd8ce591011b957d08be1420ceb04e87
+"@kie-tools-core/operating-system@npm:10.2.0":
+  version: 10.2.0
+  resolution: "@kie-tools-core/operating-system@npm:10.2.0"
+  checksum: 10/b43c163282e2c14655b5bae144f2d6cf0dccf56fb992e7af3bc967570e097ed30813fd2b862bff8969ef6981f0a689a5a8c8af0d60098629a9fc89a9a748855a
   languageName: node
   linkType: hard
 
-"@kie-tools-core/vscode-extension@npm:10.0.0":
-  version: 10.0.0
-  resolution: "@kie-tools-core/vscode-extension@npm:10.0.0"
+"@kie-tools-core/patternfly-base@npm:10.2.0":
+  version: 10.2.0
+  resolution: "@kie-tools-core/patternfly-base@npm:10.2.0"
+  checksum: 10/60deb440926257603940ae88d96f98f3f8e70ec3933e8c9b4a7cc922a6b8ba7219d2a46f32b54278b3d2c266d586b7035a18118830a23468c43d50ab0ed61952
+  languageName: node
+  linkType: hard
+
+"@kie-tools-core/vscode-extension@npm:10.2.0":
+  version: 10.2.0
+  resolution: "@kie-tools-core/vscode-extension@npm:10.2.0"
   dependencies:
-    "@kie-tools-core/backend": "npm:10.0.0"
-    "@kie-tools-core/editor": "npm:10.0.0"
-    "@kie-tools-core/envelope-bus": "npm:10.0.0"
-    "@kie-tools-core/i18n": "npm:10.0.0"
-    "@kie-tools-core/keyboard-shortcuts": "npm:10.0.0"
-    "@kie-tools-core/notifications": "npm:10.0.0"
-    "@kie-tools-core/vscode-java-code-completion": "npm:10.0.0"
-    "@kie-tools-core/workspace": "npm:10.0.0"
+    "@kie-tools-core/editor": "npm:10.2.0"
+    "@kie-tools-core/envelope-bus": "npm:10.2.0"
+    "@kie-tools-core/i18n": "npm:10.2.0"
+    "@kie-tools-core/keyboard-shortcuts": "npm:10.2.0"
+    "@kie-tools-core/notifications": "npm:10.2.0"
+    "@kie-tools-core/vscode-java-code-completion": "npm:10.2.0"
+    "@kie-tools-core/workspace": "npm:10.2.0"
     "@types/vscode": "npm:1.67.0"
-    isomorphic-git: "npm:^1.11.1"
+    isomorphic-git: "npm:^1.30.1"
     minimatch: "npm:^3.0.5"
-  checksum: 10/dd87b3978ff43e7c24eb4458d6dd3ece03d8b62a6437a60edab7622df95ef6d0bb6645976295b75b14f8db58035ffdccdc8a1972a88f47f5d0936b2b17709b4c
+  checksum: 10/1f11d4b77149f1a6dbfb7540c8b44ef0f00484aa7262cff1f4d48a13c2ebd4fb8db6407bd2d90ffdaba8d01ff7ab7bd9609dae24e70493a9a89061e87beef97f
   languageName: node
   linkType: hard
 
-"@kie-tools-core/vscode-java-code-completion@npm:10.0.0":
-  version: 10.0.0
-  resolution: "@kie-tools-core/vscode-java-code-completion@npm:10.0.0"
-  checksum: 10/0815bccd36e9eec1284f34fc97c87602bed949d82d84fbaa2c50c29ed45e53fc698056528883997f17d632c115072d03d40a679ab2a4184c5e215ec8e48013c8
+"@kie-tools-core/vscode-java-code-completion@npm:10.2.0":
+  version: 10.2.0
+  resolution: "@kie-tools-core/vscode-java-code-completion@npm:10.2.0"
+  checksum: 10/49d39385253360ce73162818e798ff069edf1b8df4bbb8167a4600d29758e829bef10d40e920e3c0b00bedb27852e75035c662419fce90c3b904477e2efd4d2e
   languageName: node
   linkType: hard
 
@@ -4298,6 +4306,15 @@ __metadata:
   dependencies:
     "@kie-tools-core/operating-system": "npm:10.0.0"
   checksum: 10/4b4db2acb0839894ae25b6ce3390789353f6cccb0b57bd43dabe53276b44bae99a9a09eaee43a423d6cda8d0434a79cbfd17bd9bb78c8324a6613038af239087
+  languageName: node
+  linkType: hard
+
+"@kie-tools-core/workspace@npm:10.2.0":
+  version: 10.2.0
+  resolution: "@kie-tools-core/workspace@npm:10.2.0"
+  dependencies:
+    "@kie-tools-core/operating-system": "npm:10.2.0"
+  checksum: 10/a9d90fe275a1a9cfe74d4aad1f6f3127bf285cd432875ffa0c963f07a57e16cb384abbfc635536694c07a437ffe0a7c11b26a3b3b734a9cda9efd267aaba67eb
   languageName: node
   linkType: hard
 
@@ -17950,9 +17967,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"isomorphic-git@npm:^1.11.1":
-  version: 1.41.9
-  resolution: "isomorphic-git@npm:1.41.9"
+"isomorphic-git@npm:^1.30.1":
+  version: 1.42.2
+  resolution: "isomorphic-git@npm:1.42.2"
   dependencies:
     async-lock: "npm:^1.4.1"
     clean-git-ref: "npm:^2.0.1"
@@ -17967,7 +17984,7 @@ __metadata:
     simple-get: "npm:^4.0.1"
   bin:
     isogit: cli.cjs
-  checksum: 10/ac3d4a582b4cb117533406ade5e10741968f78b0202d03083d0bf052dd0fb998f42601a52343d6bd0ee631c3d78f7e2bb926fe9bf4c6f98c72af2a85fe9b2767
+  checksum: 10/9a4c66cc3b97983ef04fa63eeea0c1e9a9dab15123d3f66ce977cf259079fdac7a64cc025d4f51d26b22c823f39a4a1735bfcc31ab4962f114bfa7ce427c950c
   languageName: node
   linkType: hard
 
@@ -28077,9 +28094,9 @@ __metadata:
     "@kaoto/camel-catalog": "npm:^0.9.11"
     "@kaoto/kaoto": "workspace:*"
     "@kie-tools-core/backend": "npm:10.0.0"
-    "@kie-tools-core/editor": "npm:10.0.0"
-    "@kie-tools-core/i18n": "npm:10.0.0"
-    "@kie-tools-core/vscode-extension": "npm:10.0.0"
+    "@kie-tools-core/editor": "npm:10.2.0"
+    "@kie-tools-core/i18n": "npm:10.2.0"
+    "@kie-tools-core/vscode-extension": "npm:10.2.0"
     "@redhat-developer/vscode-extension-proposals": "npm:^0.0.23"
     "@redhat-developer/vscode-redhat-telemetry": "npm:^0.10.2"
     "@types/chai": "npm:^4.3.20"

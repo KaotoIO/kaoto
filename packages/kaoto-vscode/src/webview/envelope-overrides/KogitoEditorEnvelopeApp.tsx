@@ -22,23 +22,18 @@
  * meant to override how React apps are bootstrapped.
  */
 import { Editor, KogitoEditorEnvelopeContext, KogitoEditorEnvelopeContextType } from '@kie-tools-core/editor/dist/api';
-import { EditorEnvelopeView, EditorEnvelopeViewApi } from '@kie-tools-core/editor/dist/envelope/EditorEnvelopeView';
-import { EditorEnvelopeI18nContext, editorEnvelopeI18nDefaults, editorEnvelopeI18nDictionaries } from '@kie-tools-core/editor/dist/envelope/i18n';
-import { I18nDictionariesProvider } from '@kie-tools-core/i18n/dist/react-components';
+import { EditorEnvelopeViewApi } from '@kie-tools-core/editor/dist/envelope/EditorEnvelopeView';
 import { createRef, FunctionComponent, RefObject, useCallback } from 'react';
+import { KaotoEditorEnvelopeView } from './KaotoEditorEnvelopeView';
 
 interface KogitoEditorEnvelopeAppProps {
 	callback: (ref: RefObject<EditorEnvelopeViewApi<Editor> | null>) => void;
-	context: KogitoEditorEnvelopeContextType<any>;
-	showKeyBindingsOverlay: boolean;
+
+	context: KogitoEditorEnvelopeContextType<any, any>;
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export const KogitoEditorEnvelopeApp: FunctionComponent<KogitoEditorEnvelopeAppProps> = ({
-	callback,
-	context,
-	showKeyBindingsOverlay,
-}: KogitoEditorEnvelopeAppProps) => {
+export const KogitoEditorEnvelopeApp: FunctionComponent<KogitoEditorEnvelopeAppProps> = ({ callback, context }: KogitoEditorEnvelopeAppProps) => {
 	const editorEnvelopeViewRef = createRef<EditorEnvelopeViewApi<Editor>>();
 
 	const onMountFn = useCallback(() => {
@@ -48,18 +43,7 @@ export const KogitoEditorEnvelopeApp: FunctionComponent<KogitoEditorEnvelopeAppP
 	return (
 		<div ref={onMountFn}>
 			<KogitoEditorEnvelopeContext.Provider value={context}>
-				<I18nDictionariesProvider
-					defaults={editorEnvelopeI18nDefaults}
-					dictionaries={editorEnvelopeI18nDictionaries}
-					ctx={EditorEnvelopeI18nContext}
-					initialLocale={navigator.language}
-				>
-					<EditorEnvelopeI18nContext.Consumer>
-						{({ setLocale }) => (
-							<EditorEnvelopeView ref={editorEnvelopeViewRef} setLocale={setLocale} showKeyBindingsOverlay={showKeyBindingsOverlay} />
-						)}
-					</EditorEnvelopeI18nContext.Consumer>
-				</I18nDictionariesProvider>
+				<KaotoEditorEnvelopeView ref={editorEnvelopeViewRef} />
 			</KogitoEditorEnvelopeContext.Provider>
 		</div>
 	);

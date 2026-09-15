@@ -170,14 +170,6 @@ const webpack = async (env) => [
     entry: {
       'webview/KaotoEditorEnvelopeApp': './src/webview/KaotoEditorEnvelopeApp.ts',
     },
-    resolve: {
-      alias: {
-        // @kie-tools-core/editor@10.0.0 references @patternfly/react-core/dist/js/components/Text
-        // which was removed in PatternFly 6. Alias to false so webpack provides an empty module;
-        // the KeyBindingsHelpOverlay that uses it is not activated in the Kaoto extension.
-        '@patternfly/react-core/dist/js/components/Text': false,
-      },
-    },
     module: {
       rules: [
         {

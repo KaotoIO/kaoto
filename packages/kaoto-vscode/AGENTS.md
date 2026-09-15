@@ -125,3 +125,24 @@ The full test file globs are defined in [`extester.config.json`](./extester.conf
 | `@kie-tools-core/*`              | Editor envelope and backend (VS Code integration) |
 | PatternFly React                 | UI components                                     |
 | Camel JBang / Camel Launcher CLI | Running and deploying integrations                |
+
+### @kie-tools-core/\* versioning
+
+All `@kie-tools-core/*` packages are versioned together (same release tag). Their versions
+are pinned centrally in the **root `package.json` `resolutions` block**. To bump them:
+
+1. Update the version for each entry in root `resolutions`.
+2. Update the direct `dependencies` entries in `packages/kaoto-vscode/package.json` and
+   `packages/ui/package.json` to match.
+3. Run `yarn install` from the repo root to update the lockfile.
+
+`@kie-tools-core/backend` has no release beyond `10.0.0` at the time of writing — keep it
+pinned separately until a new version is published.
+
+### Webview PatternFly version
+
+The editor webview is built against **PatternFly 6 only**. Kaoto owns the `EditorEnvelopeView`
+layer (`src/webview/envelope-overrides/KaotoEditorEnvelopeView.tsx`) to prevent
+`@kie-tools-core/editor`'s PatternFly stylesheet from being injected into the webview bundle.
+This means `@kie-tools-core/*` version bumps are safe regardless of which PatternFly major
+KIE ships — KIE's stylesheet can never reach the webview.

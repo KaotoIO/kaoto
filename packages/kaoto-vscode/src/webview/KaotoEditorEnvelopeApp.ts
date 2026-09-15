@@ -15,7 +15,7 @@
  */
 
 import { KaotoEditorFactory } from '@kaoto/kaoto';
-import { KogitoEditorEnvelopeApiImpl } from '@kie-tools-core/editor/dist/envelope';
+import { KogitoEditorEnvelopeApiImpl } from '@kie-tools-core/editor/dist/envelope/KogitoEditorEnvelopeApiImpl';
 import { NoOpKeyboardShortcutsService } from '@kie-tools-core/keyboard-shortcuts/dist/envelope';
 import { initCustom } from './envelope-overrides/envelope-init';
 

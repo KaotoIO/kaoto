@@ -47,8 +47,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Initialize executor factory with extension context
 	CamelExecutorFactory.initialize(context);
 
-	const backendI18n = new I18n(backendI18nDefaults, backendI18nDictionaries, vscode.env.language);
-	backendProxy = new VsCodeBackendProxy(context, backendI18n);
+	backendProxy = new VsCodeBackendProxy(context, new I18n(backendI18nDefaults as any, backendI18nDictionaries as any, vscode.env.language));
 
 	const kieEditorStore = await KogitoVsCode.startExtension({
 		extensionName: 'redhat.vscode-kaoto',
@@ -66,7 +65,6 @@ export async function activate(context: vscode.ExtensionContext) {
 			}),
 		]),
 		channelApiProducer: new VSCodeKaotoChannelApiProducer(),
-		backendProxy: backendProxy,
 	});
 
 	const portManager = new PortManager();
