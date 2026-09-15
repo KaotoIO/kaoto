@@ -5,13 +5,6 @@ import { ICitrusComponentDefinition } from '../../../citrus/citrus-catalog';
 import { TestActions } from '../../../citrus/entities/Test';
 import { CitrusTestSchemaService } from './citrus-test-schema.service';
 
-/**
- * Service for providing default values for Citrus test actions.
- *
- * This service generates working default definitions for test actions based on
- * their catalog definitions. It handles action groups and creates properly
- * structured YAML representations that can be parsed into test action objects.
- */
 export class CitrusTestDefaultService {
   /**
    * Gets the default definition for a test action.
@@ -26,29 +19,41 @@ export class CitrusTestDefaultService {
    *   send: {}
    * ```
    *
+   * Reads the group ancestry from `definedComponent.definition`, which is
+   * already populated by the async catalog call in the hook before `addStep`
+   * is invoked. Falls back gracefully when `definition` is absent.
+   *
    * @param definedComponent - The catalog component definition for the test action
    * @returns A TestActions object with default structure and values
    */
   static getDefaultTestActionDefinitionValue(definedComponent: DefinedComponent): TestActions {
-    let groups: ICitrusComponentDefinition[] = [];
-    if (!(definedComponent.definition as ICitrusComponentDefinition)) {
-      const result = CitrusTestSchemaService.getTestActionDefinition(definedComponent.name);
-      groups = result?.groups ?? [];
-    }
+    const def = definedComponent.definition as ICitrusComponentDefinition | undefined;
+    const groups = CitrusTestDefaultService.resolveGroupChain(def);
 
     let yamlCode = '';
-    let indent: number = 1;
-    groups.forEach((group) => {
-      yamlCode += `
-      ${' '.repeat(indent * 2)}${group.name.split('-').pop()}:
-      `;
+    let indent = 1;
+    for (const group of groups) {
+      yamlCode += `\n${' '.repeat(indent * 2)}${group.name.split('-').pop()}:`;
       indent++;
-    });
-
-    yamlCode += `
-      ${' '.repeat(indent * 2)}${definedComponent.name.split('-').pop()}: {}
-    `;
+    }
+    yamlCode += `\n${' '.repeat(indent * 2)}${definedComponent.name.split('-').pop()}: {}`;
 
     return parse(yamlCode);
+  }
+
+  /**
+   * Walks the group ancestry chain of a Citrus component definition,
+   * returning groups ordered from root to immediate parent.
+   *
+   * Uses `def.group` to identify the immediate parent group name and then
+   * delegates to `CitrusTestSchemaService.getTestActionDefinition` to obtain
+   * the full ancestor list. Returns an empty array when `def` is absent or
+   * has no group.
+   */
+  private static resolveGroupChain(def: ICitrusComponentDefinition | undefined): ICitrusComponentDefinition[] {
+    if (!def?.group) return [];
+    const result = CitrusTestSchemaService.getTestActionDefinition(def.group);
+    if (!result) return [];
+    return [...result.groups, result.definition];
   }
 }

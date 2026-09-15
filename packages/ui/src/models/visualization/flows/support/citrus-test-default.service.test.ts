@@ -60,6 +60,7 @@ describe('CitrusTestDefaultService', () => {
       const definitionValue = CitrusTestDefaultService.getDefaultTestActionDefinitionValue({
         type: 'testAction',
         name: 'kubernetes-createService',
+        definition: { group: 'kubernetes' },
       } as DefinedComponent);
       expect(definitionValue).toBeDefined();
       expect(definitionValue.kubernetes).toBeDefined();
@@ -71,6 +72,7 @@ describe('CitrusTestDefaultService', () => {
       const definitionValue = CitrusTestDefaultService.getDefaultTestActionDefinitionValue({
         type: 'testAction',
         name: 'camel-jbang-run',
+        definition: { group: 'camel-jbang' },
       } as DefinedComponent);
       expect(definitionValue).toBeDefined();
       expect(definitionValue.camel).toBeDefined();
