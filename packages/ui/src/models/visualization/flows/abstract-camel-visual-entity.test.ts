@@ -11,7 +11,6 @@ import { CatalogKind } from '../../catalog-kind';
 import { PlaceholderType } from '../../placeholder.constants';
 import { NodeLabelType } from '../../settings';
 import { AddStepMode, IVisualizationNodeData } from '../base-visual-entity';
-import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRouteVisualEntity } from './camel-route-visual-entity';
 
 describe('AbstractCamelVisualEntity', () => {
@@ -21,15 +20,10 @@ describe('AbstractCamelVisualEntity', () => {
     mockRandomValues();
 
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Component, catalogsMap.componentCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Pattern, catalogsMap.patternCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
     setupDynamicCatalogRegistry(catalogsMap);
   });
 
   afterAll(() => {
-    CamelCatalogService.clearCatalogs();
     DynamicCatalogRegistry.get().clearRegistry();
   });
 

@@ -3,7 +3,6 @@ import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../stubs/test-load-catalog';
 import { EntityType } from '../entities';
-import { CamelCatalogService } from '../visualization/flows';
 import { CamelXMLRouteResource } from './camel-xml-route-resource';
 import { SourceSchemaType } from './source-schema-type';
 
@@ -11,7 +10,6 @@ describe('CamelXMLRouteResource', () => {
   const xml = `<camel><routes><route><from uri="direct:start"/><log message="hi"/><to uri="mock:result"/></route></routes></camel>`;
 
   it('defers catalog-dependent parsing to initialize() so steps survive a cold catalog', async () => {
-    CamelCatalogService.clearCatalogs(); // boot state: empty catalog at construction time
     const resource = new CamelXMLRouteResource(xml);
 
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);

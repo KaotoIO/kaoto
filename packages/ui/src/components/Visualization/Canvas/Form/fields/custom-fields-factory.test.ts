@@ -3,9 +3,7 @@ import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { EnumField, TextAreaField } from '@kaoto/forms';
 
 import { ICamelComponentDefinition } from '../../../../../models/camel/camel-components-catalog';
-import { CatalogKind } from '../../../../../models/catalog-kind';
 import { KaotoSchemaDefinition } from '../../../../../models/kaoto-schema';
-import { CamelCatalogService } from '../../../../../models/visualization/flows/camel-catalog.service';
 import { getFirstCatalogMap } from '../../../../../stubs/test-load-catalog';
 import { CustomMediaTypes } from './ArrayBadgesField/CustomMediaTypes';
 import { DataSourceBeanField, PrefixedBeanField, UnprefixedBeanField } from './BeanField/BeanField';
@@ -27,12 +25,6 @@ describe('customFieldsFactoryfactory', () => {
   beforeEach(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary);
     componentCatalogMap = catalogsMap.componentCatalogMap;
-
-    CamelCatalogService.setCatalogKey(CatalogKind.Component, catalogsMap.componentCatalogMap);
-  });
-
-  afterEach(() => {
-    CamelCatalogService.clearCatalogs();
   });
 
   it('returns EnumField for enums regardless of the schema type', () => {

@@ -4,7 +4,6 @@ import { CatalogLibrary, ErrorHandlerDeserializer, NoErrorHandler } from '@kaoto
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
 import { CatalogKind } from '../../catalog-kind';
-import { CamelCatalogService } from './camel-catalog.service';
 import { CamelErrorHandlerVisualEntity } from './camel-error-handler-visual-entity';
 
 describe('CamelErrorHandlerVisualEntity', () => {
@@ -13,12 +12,10 @@ describe('CamelErrorHandlerVisualEntity', () => {
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
     setupDynamicCatalogRegistry(catalogsMap);
   });
 
   afterAll(() => {
-    CamelCatalogService.clearCatalogs();
     DynamicCatalogRegistry.get().clearRegistry();
   });
 

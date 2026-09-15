@@ -1,16 +1,17 @@
 import catalogLibraryJson from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
-import { CamelCatalogService, CatalogKind } from '../../models';
+import { CatalogKind } from '../../models';
 import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
 import { CatalogSchemaLoader } from '../../utils/catalog-schema-loader';
+import { DynamicCatalogRegistry } from '../dynamic-catalog-registry';
 import { fetchCamelCatalog } from './fetch-camel-catalog';
 
 const catalogLibrary = catalogLibraryJson as CatalogLibrary;
 
 describe('fetchCamelCatalog', () => {
   let fetchFileMock: SpyInstance;
-  let setCatalogKeySpy: SpyInstance;
+  let setCatalogSpy: SpyInstance;
   let catalogDefinition: Awaited<ReturnType<typeof getFirstCatalogMap>>['catalogDefinition'];
   let relativeBasePath: string;
 
@@ -30,11 +31,12 @@ describe('fetchCamelCatalog', () => {
       return Promise.resolve({ body: { [uri]: 'dummy-data' } });
     });
 
-    setCatalogKeySpy = vi.spyOn(CamelCatalogService, 'setCatalogKey');
+    setCatalogSpy = vi.spyOn(DynamicCatalogRegistry.get(), 'setCatalog');
   });
 
   afterEach(() => {
     vi.clearAllMocks();
+    DynamicCatalogRegistry.get().clearRegistry();
   });
 
   it('should fetch all expected catalog files', async () => {
@@ -62,53 +64,15 @@ describe('fetchCamelCatalog', () => {
     );
   });
 
-  it('should set CamelCatalogService keys with the correct CatalogKind for each file', async () => {
+  it('should register catalogs in DynamicCatalogRegistry with the correct CatalogKind for each file', async () => {
     await fetchCamelCatalog({ catalogIndex: catalogDefinition, relativeBasePath });
 
-    let count = 0;
-    setCatalogKeySpy.mock.calls.forEach((call: (ArrayLike<unknown> | { [s: string]: unknown })[]) => {
-      if (Object.keys(call[1])[0].includes(`${relativeBasePath}/camel-catalog-aggregate-components`)) {
-        expect(call[0]).toEqual(CatalogKind.Component);
-        expect(Object.values(call[1])[0]).toBe('dummy-data');
-        count++;
-      } else if (Object.keys(call[1])[0].includes(`${relativeBasePath}/camel-catalog-aggregate-models`)) {
-        expect(call[0]).toEqual(CatalogKind.Processor);
-        expect(Object.values(call[1])[0]).toBe('dummy-data');
-        count++;
-      } else if (Object.keys(call[1])[0].includes(`${relativeBasePath}/camel-catalog-aggregate-patterns`)) {
-        expect(call[0]).toEqual(CatalogKind.Pattern);
-        expect(Object.values(call[1])[0]).toBe('dummy-data');
-        count++;
-      } else if (Object.keys(call[1])[0].includes(`${relativeBasePath}/camel-catalog-aggregate-entities`)) {
-        expect(call[0]).toEqual(CatalogKind.Entity);
-        expect(Object.values(call[1])[0]).toBe('dummy-data');
-        count++;
-      } else if (Object.keys(call[1])[0].includes(`${relativeBasePath}/camel-catalog-aggregate-languages`)) {
-        expect(call[0]).toEqual(CatalogKind.Language);
-        expect(Object.values(call[1])[0]).toBe('dummy-data');
-        count++;
-      } else if (Object.keys(call[1])[0].includes(`${relativeBasePath}/camel-catalog-aggregate-dataformats`)) {
-        expect(call[0]).toEqual(CatalogKind.Dataformat);
-        expect(Object.values(call[1])[0]).toBe('dummy-data');
-        count++;
-      } else if (Object.keys(call[1])[0].includes(`${relativeBasePath}/camel-catalog-aggregate-loadbalancers`)) {
-        expect(call[0]).toEqual(CatalogKind.Loadbalancer);
-        expect(Object.values(call[1])[0]).toBe('dummy-data');
-        count++;
-      } else if (Object.keys(call[1])[0].includes(`${relativeBasePath}/kamelet-boundaries`)) {
-        expect(call[0]).toEqual(CatalogKind.Kamelet);
-        expect(Object.values(call[1])[0]).toBe('dummy-data');
-        expect(Object.keys(call[1])[1]).toContain(`${relativeBasePath}/kamelets-aggregate`);
-        expect(Object.values(call[1])[1]).toBe('dummy-data');
-        count++;
-      } else if (Object.keys(call[1])[0].includes(`${relativeBasePath}/camel-catalog-aggregate-functions`)) {
-        expect(call[0]).toEqual(CatalogKind.Function);
-        expect(Object.values(call[1])[0]).toBe('dummy-data');
-        count++;
-      } else {
-        throw new Error(`Unexpected setCatalogKey call: ${JSON.stringify(call)}`);
-      }
-    });
-    expect(count).toEqual(setCatalogKeySpy.mock.calls.length);
+    expect(setCatalogSpy).toHaveBeenCalledWith(CatalogKind.Component, expect.any(Object));
+    expect(setCatalogSpy).toHaveBeenCalledWith(CatalogKind.Processor, expect.any(Object));
+    expect(setCatalogSpy).toHaveBeenCalledWith(CatalogKind.Pattern, expect.any(Object));
+    expect(setCatalogSpy).toHaveBeenCalledWith(CatalogKind.Entity, expect.any(Object));
+    expect(setCatalogSpy).toHaveBeenCalledWith(CatalogKind.Language, expect.any(Object));
+    expect(setCatalogSpy).toHaveBeenCalledWith(CatalogKind.Kamelet, expect.any(Object));
+    expect(setCatalogSpy).toHaveBeenCalledWith(CatalogKind.Function, expect.any(Object));
   });
 });

@@ -2,9 +2,7 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, Rest } from '@kaoto/camel-catalog/types';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 
-import { CamelCatalogService } from '../../models';
 import { CamelResourceFactory } from '../../models/camel/camel-resource-factory';
-import { CatalogKind } from '../../models/catalog-kind';
 import { EntityType } from '../../models/entities';
 import { KaotoResource } from '../../models/kaoto-resource';
 import { CamelRestConfigurationVisualEntity } from '../../models/visualization/flows/camel-rest-configuration-visual-entity';
@@ -71,8 +69,6 @@ describe('RestDslEditorPage', () => {
 
   beforeEach(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
-    CamelCatalogService.setCatalogKey(CatalogKind.Pattern, catalogsMap.patternCatalogMap);
     setupDynamicCatalogRegistry(catalogsMap);
   });
 

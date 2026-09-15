@@ -5,7 +5,7 @@ import { createContext, FunctionComponent, PropsWithChildren, useEffect, useStat
 import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 import { Loading } from '../components/Loading';
 import { useRuntimeContext } from '../hooks/useRuntimeContext/useRuntimeContext';
-import { CamelCatalogIndex, CamelCatalogService, FileTypes, FileTypesResponse, LoadingStatus } from '../models';
+import { CamelCatalogIndex, FileTypes, FileTypesResponse, LoadingStatus } from '../models';
 import { CitrusCatalogIndex } from '../models/citrus/citrus-catalog-index';
 import { CitrusTestSchemaService } from '../models/visualization/flows/support/citrus-test-schema.service';
 import { CatalogSchemaLoader } from '../utils';
@@ -57,7 +57,6 @@ export const CatalogLoaderProvider: FunctionComponent<
       });
 
     return () => {
-      CamelCatalogService.clearCatalogs();
       DynamicCatalogRegistry.get().clearRegistry();
       CitrusTestSchemaService.clearKindMap();
     };

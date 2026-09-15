@@ -4,14 +4,7 @@ import { CanvasFormTabsContext } from '@kaoto/forms';
 import { KaotoFormPageObject } from '@kaoto/forms/testing';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
-import {
-  CamelCatalogService,
-  CamelRouteVisualEntity,
-  CatalogKind,
-  ICamelComponentDefinition,
-  ICamelProcessorDefinition,
-  IKameletDefinition,
-} from '../../../../models';
+import { CamelRouteVisualEntity } from '../../../../models';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
@@ -20,25 +13,8 @@ import { ROOT_PATH } from '../../../../utils';
 import { CanvasFormBody } from './CanvasFormBody';
 
 describe('CanvasFormBody', () => {
-  let componentCatalogMap: Record<string, ICamelComponentDefinition>;
-  let patternCatalogMap: Record<string, ICamelProcessorDefinition>;
-  let kameletCatalogMap: Record<string, IKameletDefinition>;
-
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    componentCatalogMap = catalogsMap.componentCatalogMap;
-    patternCatalogMap = catalogsMap.patternCatalogMap;
-    kameletCatalogMap = catalogsMap.kameletsCatalogMap;
-
-    CamelCatalogService.setCatalogKey(CatalogKind.Component, componentCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Pattern, patternCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, kameletCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Language, catalogsMap.languageCatalog);
-    CamelCatalogService.setCatalogKey(CatalogKind.Dataformat, catalogsMap.dataformatCatalog);
-    CamelCatalogService.setCatalogKey(CatalogKind.Loadbalancer, catalogsMap.loadbalancerCatalog);
-    CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
-
     setupDynamicCatalogRegistry(catalogsMap);
   });
 
