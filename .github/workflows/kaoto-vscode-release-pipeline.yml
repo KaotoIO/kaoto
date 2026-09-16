@@ -38,11 +38,6 @@ jobs:
           ref: ${{ github.ref }}
           persist-credentials: false
 
-      - name: '🔍 Validate version consistency'
-        env:
-          TAG_VERSION: ${{ github.event.inputs.tag_version }}
-        run: node .github/scripts/check-version.mjs "${TAG_VERSION}"
-
       - name: '🔧 Setup tools'
         uses: ./.github/actions/kaoto-vscode-setup-tools
         with:
@@ -50,15 +45,6 @@ jobs:
 
       - name: '🔧 Install dependencies'
         run: yarn install --immutable --mode=skip-build
-
-      - name: '🔧 Build UI lib'
-        run: yarn workspace @kaoto/kaoto build:lib
-
-      - name: '🔧 Build and lint extension'
-        run: yarn workspace vscode-kaoto build:prod
-
-      - name: '🧪 Run unit tests'
-        run: xvfb-run -a yarn workspace vscode-kaoto test:unit
 
       - name: '🔢 Compute VSIX filename and release tag'
         id: compute
@@ -76,6 +62,22 @@ jobs:
           VSIX_NAME="vscode-kaoto-${RELEASE_TAG}.vsix"
           echo "release_tag=${RELEASE_TAG}" >> "$GITHUB_OUTPUT"
           echo "vsix_name=${VSIX_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: '🔄 Synchronize package versions in-place'
+        env:
+          RELEASE_TAG: ${{ steps.compute.outputs.release_tag }}
+        run: |
+          node .github/scripts/set-version.mjs "${RELEASE_TAG}"
+          node .github/scripts/check-version.mjs "${RELEASE_TAG}"
+
+      - name: '🔧 Build UI lib'
+        run: yarn workspace @kaoto/kaoto build:lib
+
+      - name: '🔧 Build and lint extension'
+        run: yarn workspace vscode-kaoto build:prod
+
+      - name: '🧪 Run unit tests'
+        run: xvfb-run -a yarn workspace vscode-kaoto test:unit
 
       - name: '📦 Build release VSIX'
         env:

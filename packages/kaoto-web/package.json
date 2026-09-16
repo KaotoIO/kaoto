@@ -1,6 +1,6 @@
 {
   "name": "@kaoto/kaoto-web",
-  "version": "2.12.1",
+  "version": "0.0.0-dev",
   "type": "module",
   "private": true,
   "repository": "https://github.com/KaotoIO/kaoto",
