@@ -13,54 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { backendI18nDefaults, backendI18nDictionaries } from '@kie-tools-core/backend/dist/i18n';
-import { VsCodeBackendProxy } from '@kie-tools-core/backend/dist/vscode';
-import { EditorEnvelopeLocator, EnvelopeContentType, EnvelopeMapping } from '@kie-tools-core/editor/dist/api';
-import { I18n } from '@kie-tools-core/i18n/dist/core';
-import * as KogitoVsCode from '@kie-tools-core/vscode-extension/dist';
 import * as vscode from 'vscode';
-import { KAOTO_EDITOR_VIEW_TYPE, KAOTO_FILE_PATH_GLOB, VIEW_HELP, VIEW_INTEGRATIONS, COMMAND_INTEGRATIONS_REFRESH } from '../constants';
-import { VSCodeKaotoChannelApiProducer } from './../webview/VSCodeKaotoChannelApiProducer';
+import { VIEW_HELP, VIEW_INTEGRATIONS, COMMAND_INTEGRATIONS_REFRESH } from '../constants';
 import { KaotoOutputChannel } from './KaotoOutputChannel';
 import { HelpFeedbackProvider } from '../views/help/HelpFeedbackProvider';
 import { IntegrationsProvider } from '../views/integrations/IntegrationsProvider';
+import { registerKaotoEditorProvider } from './KaotoEditorProvider';
 import { EditorRegistrar } from './registrars/EditorRegistrar';
 import { LifecycleRegistrar } from './registrars/LifecycleRegistrar';
 import { TestsRegistrar } from './registrars/TestsRegistrar';
-
-let backendProxy: VsCodeBackendProxy;
 
 export async function activate(context: vscode.ExtensionContext) {
 	KaotoOutputChannel.logInfo('Kaoto extension is alive.');
 	KaotoOutputChannel.logStartupInfo(context, 'web');
 
-	const backendI18n = new I18n(backendI18nDefaults, backendI18nDictionaries, vscode.env.language);
-	backendProxy = new VsCodeBackendProxy(context, backendI18n);
-
-	const kieEditorStore = await KogitoVsCode.startExtension({
-		extensionName: 'redhat.vscode-kaoto',
-		context: context,
-		viewType: KAOTO_EDITOR_VIEW_TYPE,
-		editorEnvelopeLocator: new EditorEnvelopeLocator('vscode', [
-			new EnvelopeMapping({
-				type: 'kaoto',
-				filePathGlob: KAOTO_FILE_PATH_GLOB,
-				resourcesPathPrefix: 'dist/webview/editors/kaoto',
-				envelopeContent: {
-					type: EnvelopeContentType.PATH,
-					path: 'dist/webview/KaotoEditorEnvelopeApp.js',
-				},
-			}),
-		]),
-		channelApiProducer: new VSCodeKaotoChannelApiProducer(),
-		backendProxy: backendProxy,
-	});
+	const editors = registerKaotoEditorProvider(context);
 
 	/*
 	 * register commands for a toggle source code (open/close camel file in a side textual editor)
 	 * and open with Kaoto Editor
 	 */
-	await new EditorRegistrar(context, kieEditorStore, undefined).register();
+	await new EditorRegistrar(context, editors, undefined).register();
 
 	/*
 	 * register 'Integrations' view provider
@@ -93,6 +66,5 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {
-	backendProxy?.stopServices();
 	KaotoOutputChannel.dispose();
 }

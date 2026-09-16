@@ -66,7 +66,7 @@ export class LifecycleRegistrar implements IRegistrar {
 				}
 			}),
 		);
-		if (process.env['KAOTO_DISABLE_WHATS_NEW'] === 'true') {
+		if (typeof process !== 'undefined' && process.env['KAOTO_DISABLE_WHATS_NEW'] === 'true') {
 			return;
 		}
 		try {
