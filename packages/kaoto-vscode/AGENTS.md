@@ -52,11 +52,11 @@ Running a single test group or a prebuilt VSIX is described in that package's RE
 
 ### Entry points
 
-| File                                    | Purpose                                     |
-| --------------------------------------- | ------------------------------------------- |
-| `src/extension/extension.ts`            | Main extension activation (desktop VS Code) |
-| `src/extension/extensionWeb.ts`         | Web extension entry point                   |
-| `src/webview/KaotoEditorEnvelopeApp.ts` | Webview editor application                  |
+| File                            | Purpose                                                              |
+| ------------------------------- | -------------------------------------------------------------------- |
+| `src/extension/extension.ts`    | Main extension activation (desktop VS Code)                          |
+| `src/extension/extensionWeb.ts` | Web extension entry point                                            |
+| `assets/kaoto-host-shim.js`     | Host shim: defines `window.__kaotoHost` for the Kaoto editor webview |
 
 ### Source layout
 
@@ -78,7 +78,7 @@ Running a single test group or a prebuilt VSIX is described in that package's RE
 - **`src/types/`** — Shared TypeScript types and enums
 - **`src/utils/`** — Pure, stateless helpers (no domain logic): `ArgumentConflictDetector`, `ClasspathRootFinder`, `DockerErrorDetector`, `Modals`, `Path`, `Process`, `Version`, `Vscode`
 - **`src/views/`** — Tree view providers by domain: `deployments/`, `help/`, `infrastructure/`, `integrations/`, `openapi/`, `shared/`, `tests/`
-- **`src/webview/`** — Webview integration with the Kaoto editor envelope
+- **`assets/`** — Host-side files for the Kaoto editor webview: `kaoto-editor.html` (production page template with the CSP, nonce and asset URLs) and `kaoto-host-shim.js` (the host shim). The editor bundle itself is built by `@kaoto/kaoto` (`build:webview`) and copied to `dist/webview/` by webpack.
 
 ### Test layout
 
@@ -106,9 +106,8 @@ Running a single test group or a prebuilt VSIX is described in that package's RE
 
 ## Key dependencies
 
-| Dependency                       | Purpose                                           |
-| -------------------------------- | ------------------------------------------------- |
-| `@kaoto/kaoto`                   | Main Kaoto editor library                         |
-| `@kie-tools-core/*`              | Editor envelope and backend (VS Code integration) |
-| PatternFly React                 | UI components                                     |
-| Camel JBang / Camel Launcher CLI | Running and deploying integrations                |
+| Dependency                       | Purpose                            |
+| -------------------------------- | ---------------------------------- |
+| `@kaoto/kaoto`                   | Main Kaoto editor library          |
+| PatternFly React                 | UI components                      |
+| Camel JBang / Camel Launcher CLI | Running and deploying integrations |

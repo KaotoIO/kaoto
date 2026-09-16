@@ -1,4 +1,4 @@
-import '../styles/carbon-overrides.scss';
+import '../../styles/carbon-overrides.scss';
 import './KaotoEditor.scss';
 
 import { Http } from '@carbon/icons-react';
@@ -8,12 +8,12 @@ import clsx from 'clsx';
 import { useContext, useMemo } from 'react';
 import { Link, Outlet, useLocation } from 'react-router';
 
-import icon_component_datamapper from '../assets/components/datamapper.png';
-import bean from '../assets/eip/bean.png';
-import camelIcon from '../assets/logo-kaoto.svg';
-import { SourceSchemaType } from '../models/camel/source-schema-type';
-import { EntitiesContext } from '../providers/entities.provider';
-import { Links } from '../router/links.models';
+import icon_component_datamapper from '../../assets/components/datamapper.png';
+import bean from '../../assets/eip/bean.png';
+import camelIcon from '../../assets/logo-kaoto.svg';
+import { SourceSchemaType } from '../../models/camel/source-schema-type';
+import { EntitiesContext } from '../../providers/entities.provider';
+import { Links } from '../../router/links.models';
 
 const TAB_INSET: TabsProps['inset'] = { default: 'insetSm' };
 
@@ -49,7 +49,7 @@ const SCHEMA_TABS: Record<SourceSchemaType, TabList[]> = {
   [SourceSchemaType.Test]: [TabList.Design, TabList.About],
 };
 
-export const KaotoEditor = () => {
+export const KaotoEditorLayout = () => {
   const entitiesContext = useContext(EntitiesContext);
   const resource = entitiesContext?.camelResource;
   const currentLocation = useLocation();

@@ -8,6 +8,7 @@ Terms are organized from broad to specific:
 - **DSL** -- the supported file formats and their capabilities.
 - **Generic layer** -- concepts that belong to the visual editor itself and are DSL-agnostic.
 - **Camel DSL layer** -- concepts specific to Apache Camel Routes, Kamelet, and Pipe DSLs.
+- **Host integration layer** -- how a host application embeds the Kaoto editor and talks to it.
 
 ---
 
@@ -334,3 +335,84 @@ The three ways a processor can contain nested processors, as defined by
 
 These types determine how the node mapper creates child visualization nodes and how placeholders are
 generated for each slot.
+
+---
+
+## Host Integration Layer
+
+Kaoto's editor is one static webview that a **host** application embeds. The terms below describe how the two
+sides talk to each other, and are the same for every host (the VS Code extension, Podman Desktop, IntelliJ).
+
+### Host
+
+The application that embeds Kaoto and owns the document, the files and the settings. It answers the editor's
+requests and pushes events to it.
+
+**Code:** `EndpointRole = 'host'`; in this repository, `KaotoEditorProvider` in `packages/kaoto-vscode`.
+
+**Deprecated aliases:** *channel* (as in "the Channel API").
+
+---
+
+### Editor
+
+The Kaoto side: the single static webview bundle (a React app) that runs inside the host's embedded browser
+surface. The editor is larger than the canvas: it also contains forms, the toolbar and the source panel. *Canvas*
+keeps its meaning from the Generic Layer.
+
+**Code:** `KaotoEditor`, `startKaotoWebview`, `EndpointRole = 'editor'`.
+
+**Deprecated aliases:** *envelope*.
+
+---
+
+### Webview
+
+The embedded browser surface the editor runs in: a VS Code webview, an iframe, a JCEF panel. It is a place, not
+a component.
+
+---
+
+### Bridge
+
+The protocol endpoint on each side. It performs the handshake, tracks the session, and delivers requests,
+responses and events over a transport. One bridge per side.
+
+**Code:** `createPostMessageBridge`, `BridgeConnection`.
+
+---
+
+### Transport
+
+The raw message pipe under a bridge, such as `postMessage` or a JCEF JavaScript bridge. A transport only moves
+messages; it knows nothing about the protocol.
+
+**Code:** `MessageTransport` (`send`, `onMessage`, `dispose`); `createIframeTransport`.
+
+---
+
+### Event bus
+
+The typed events and requests that application code uses on each side, independent of the transport underneath.
+
+**Code:** `IEventBus`, `createEventBus`.
+
+**Deprecated aliases:** *Channel API*.
+
+---
+
+### Host shim
+
+The small script a host adds to its page, before the editor bundle, to tell the editor how to reach the host. It
+defines `window.__kaotoHost`, whose `createTransport()` returns the host's transport. The editor bundle contains
+no host-specific code.
+
+**Code:** `KaotoHost` and `createHostTransport` in `packages/ui/src/webview/host.ts`; for VS Code,
+`packages/kaoto-vscode/assets/kaoto-host-shim.js`.
+
+---
+
+### Session
+
+One handshake between a host and an editor, identified by a `sessionId`. A reloaded or restarted editor starts a
+new session.

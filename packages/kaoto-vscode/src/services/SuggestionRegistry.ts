@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-import { findAllApplicationPropertiesFiles, parseMultipleApplicationPropertiesFiles } from './ApplicationPropertiesFinder';
+import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
 import { Uri } from 'vscode';
-import { Suggestion, SuggestionRequestContext } from '@kaoto/kaoto';
+import { findAllApplicationPropertiesFiles, parseMultipleApplicationPropertiesFiles } from './ApplicationPropertiesFinder';
 
 export type SuggestionProviderFunction = (word: string, context: SuggestionRequestContext, fsPath?: string | Uri) => Suggestion[] | Promise<Suggestion[]>;
 
@@ -72,12 +72,12 @@ export function filterSuggestionsByWord(suggestions: Suggestion[], word: string)
 		.map(({ suggestion }) => suggestion);
 }
 
-const provideEnvSuggestions: SuggestionProviderFunction = (word, _context) => {
-	const allEnvSuggestions = Object.keys(process.env).map((envVar) => ({
-		value: envVar,
-	}));
-	return filterSuggestionsByWord(allEnvSuggestions, word);
-};
+export function getEnvironmentSuggestions(word: string, environment: Record<string, string | undefined>): Suggestion[] {
+	return filterSuggestionsByWord(
+		Object.keys(environment).map((value) => ({ value })),
+		word,
+	);
+}
 
 const provideApplicationPropertiesSuggestions: SuggestionProviderFunction = async (word, _context, fsPath) => {
 	if (!fsPath) {
@@ -94,11 +94,6 @@ const provideApplicationPropertiesSuggestions: SuggestionProviderFunction = asyn
 	const allPropertiesSuggestions = await parseMultipleApplicationPropertiesFiles(propFiles);
 	return filterSuggestionsByWord(allPropertiesSuggestions, word);
 };
-
-/**
- * Register 'env' suggestion provider
- */
-registerSuggestionProvider('env', provideEnvSuggestions);
 
 /**
  * Register 'application.properties' suggestion provider
