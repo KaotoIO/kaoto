@@ -35,9 +35,15 @@ export const CatalogLoaderProvider: FunctionComponent<
     // inside the fetch's `.then` leaves a window where the toolbar renders as interactive while a
     // catalog reload is already pending, which loses clicks (E2E flakiness) during the remount.
     setLoadingStatus(LoadingStatus.Loading);
+
+    // Capture a generation token so that a stale in-flight load cannot register its catalogs
+    // or update React state after the cleanup for a newer selection has already run.
+    let stale = false;
+
     fetch(indexFile)
       .then((response) => response.json())
       .then((catalogIndex: CatalogDefinition) => {
+        if (stale) return;
         if (catalogIndex.runtime === 'Citrus') {
           return fetchCitrusCatalog({ catalogIndex: catalogIndex as CitrusCatalogIndex, relativeBasePath });
         } else {
@@ -49,14 +55,17 @@ export const CatalogLoaderProvider: FunctionComponent<
         }
       })
       .then(() => {
+        if (stale) return;
         setLoadingStatus(LoadingStatus.Loaded);
       })
       .catch((error) => {
+        if (stale) return;
         setErrorMessage(error.message);
         setLoadingStatus(LoadingStatus.Error);
       });
 
     return () => {
+      stale = true;
       DynamicCatalogRegistry.get().clearRegistry();
       CitrusTestSchemaService.clearKindMap();
     };
