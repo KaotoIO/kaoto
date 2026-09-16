@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 import { cloneDeep } from 'lodash';
 
+=======
+import { kameletBindingJson } from '../../stubs';
+>>>>>>> 15262e2d (fix: replace deprecated KameletBinding and XPath APIs)
 import { pipeJson } from '../../stubs/pipe';
 import { PipeResource } from './pipe-resource';
 import { SourceSchemaType } from './source-schema-type';
@@ -31,6 +35,14 @@ describe('PipeResource', () => {
     expect(vis.pipe.spec?.source).toBeUndefined();
     expect(vis.pipe.spec?.steps).toBeUndefined();
     expect(vis.pipe.spec?.sink).toBeUndefined();
+  });
+
+  it('should preserve KameletBinding source type', async () => {
+    const resource = new PipeResource(kameletBindingJson);
+
+    await resource.initialize();
+
+    expect(resource.getType()).toEqual(SourceSchemaType.KameletBinding);
   });
 
   describe('getCompatibleRuntimes', () => {
