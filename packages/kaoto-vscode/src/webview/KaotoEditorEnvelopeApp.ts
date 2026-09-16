@@ -14,18 +14,84 @@
  * limitations under the License.
  */
 
-import { KaotoEditorFactory } from '@kaoto/kaoto';
-import { KogitoEditorEnvelopeApiImpl } from '@kie-tools-core/editor/dist/envelope';
-import { NoOpKeyboardShortcutsService } from '@kie-tools-core/keyboard-shortcuts/dist/envelope';
-import { initCustom } from './envelope-overrides/envelope-init';
+import { createRoot, type Root } from 'react-dom/client';
+import { BridgeError, createEventBus, createPostMessageBridge } from '@kaoto/kaoto/host-bridge';
+import { createKaotoEditor, type KaotoEditorApp } from '@kaoto/kaoto';
 
-declare const acquireVsCodeApi: any;
+declare const acquireVsCodeApi: () => { postMessage(message: unknown): void };
 
-void initCustom({
-	container: document.getElementById('envelope-app')!,
-	bus: acquireVsCodeApi(),
-	apiImplFactory: {
-		create: (createArgs) => new KogitoEditorEnvelopeApiImpl(createArgs, new KaotoEditorFactory()),
-	},
-	keyboardShortcutsService: new NoOpKeyboardShortcutsService(),
-});
+const api = acquireVsCodeApi();
+const container = document.getElementById('envelope-app')!;
+void startNativeEditor();
+
+async function startNativeEditor(): Promise<void> {
+	let app: KaotoEditorApp | undefined;
+	let root: Root | undefined;
+	let disposed = false;
+	const report = (error: Error) => {
+		console.error('Kaoto host bridge:', error);
+		// Dropped foreign or stale frames leave the established connection usable.
+		if (!(error instanceof BridgeError && error.code === 'INVALID_MESSAGE')) {
+			app?.suspend(error);
+		}
+	};
+	const bus = createEventBus({ role: 'editor', onError: report });
+	const bridge = createPostMessageBridge({
+		bus,
+		transport: {
+			send: (message) => api.postMessage(message),
+			onMessage: (handler) => {
+				const listener = (event: MessageEvent) => handler(event.data);
+				window.addEventListener('message', listener);
+				return () => window.removeEventListener('message', listener);
+			},
+			dispose: () => {},
+		},
+	});
+	const dispose = () => {
+		if (disposed) {
+			return;
+		}
+		disposed = true;
+		window.removeEventListener('pagehide', dispose);
+		root?.unmount();
+		app?.dispose();
+		bridge.dispose();
+		bus.dispose();
+	};
+	window.addEventListener('pagehide', dispose, { once: true });
+	container.textContent = 'Loading Kaoto…';
+	try {
+		await bridge.connect();
+		app = await createKaotoEditor(bus, {
+			fileExtension: container.dataset.fileExtension ?? 'camel.yaml',
+			resourcesPathPrefix: container.dataset.resourcesPathPrefix ?? '',
+			isReadOnly: false,
+			onRetry: () => {
+				dispose();
+				void startNativeEditor();
+			},
+		});
+		if (disposed) {
+			app.dispose();
+			return;
+		}
+		root = createRoot(container);
+		root.render(app.af_componentRoot());
+		app.af_onOpen();
+	} catch (error) {
+		report(error instanceof Error ? error : new Error(String(error)));
+		if (disposed) {
+			return;
+		}
+		dispose();
+		const alert = document.createElement('div');
+		alert.setAttribute('role', 'alert');
+		alert.textContent = error instanceof Error ? error.message : 'Could not open Kaoto.';
+		const retry = document.createElement('button');
+		retry.type = 'button';
+		retry.textContent = 'Retry';
+		retry.addEventListener('click', () => void startNativeEditor(), { once: true });
+		container.replaceChildren(alert, retry);
+	}
+}

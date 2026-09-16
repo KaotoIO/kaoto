@@ -1,356 +1,291 @@
-vi.mock('react-router-dom');
-import { SuggestionRequestContext } from '@kaoto/forms';
+import { act, fireEvent, render, waitFor } from '@testing-library/react';
+import { StrictMode } from 'react';
+
 import {
-  ChannelType,
-  EditorApi,
-  EditorInitArgs,
-  EditorTheme,
-  KogitoEditorEnvelopeContextType,
-  StateControlCommand,
-} from '@kie-tools-core/editor/dist/api';
-import { ApiRequests } from '@kie-tools-core/envelope-bus/dist/api';
-import { I18nService } from '@kie-tools-core/i18n/dist/envelope/I18nService';
-import { KeyboardShortcutsService } from '@kie-tools-core/keyboard-shortcuts/dist/envelope/KeyboardShortcutsService';
-import { OperatingSystem } from '@kie-tools-core/operating-system/dist/OperatingSystem';
-import { RefObject } from 'react';
-import type { Mock } from 'vitest';
-
-import { CatalogKind, FileTypes, StepUpdateAction } from '../models';
-import { AbstractSettingsAdapter, ColorScheme, DefaultSettingsAdapter } from '../models/settings';
+  BridgeError,
+  createEventBus,
+  createMemoryTransports,
+  createPostMessageBridge,
+  type IEventBus,
+  type SettingsSnapshot,
+} from '../host-bridge';
+import { CatalogKind, ColorScheme, FileTypes, SettingsModel, StepUpdateAction } from '../models';
+import { useSourceCodeStore } from '../store';
+import { EventNotifier } from '../utils';
 import { setColorScheme } from '../utils/color-scheme';
-import { EditService } from './EditService';
-import { KaotoEditorApp } from './KaotoEditorApp';
-import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
+import { createKaotoEditor, type KaotoEditorApp } from './KaotoEditorApp';
 
+vi.mock('react-router-dom');
 vi.mock('../utils/color-scheme');
+vi.mock('../providers/runtime.provider', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../providers/runtime.provider')>()),
+  RuntimeProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+vi.mock('../dynamic-catalog/catalog.provider', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../dynamic-catalog/catalog.provider')>()),
+  CatalogLoaderProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
 
-describe('KaotoEditorApp', () => {
-  let kaotoEditorApp: KaotoEditorAppTest;
-  let editService: EditService;
-  let editorRef: RefObject<EditorApi>;
-  let envelopeContext: KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>;
-  let initArgs: EditorInitArgs;
-  let settingsAdapter: AbstractSettingsAdapter;
+const init = { fileExtension: 'yaml', resourcesPathPrefix: 'embedded', isReadOnly: false };
+const documentInit = {
+  reason: 'init',
+  fileUri: 'route.camel.yaml',
+  content: '',
+  isDirty: null,
+  readonly: false,
+  saveAcknowledgements: false,
+} as const;
 
-  beforeEach(() => {
-    vi.resetModules();
-    editService = EditService.getInstance();
-    editorRef = {
-      current: {
-        setContent: vi.fn(),
-        getContent: vi.fn(),
-        getPreview: vi.fn(),
-        undo: vi.fn(),
-        redo: vi.fn(),
-        setTheme: vi.fn(),
-        validate: vi.fn(),
+describe('KaotoEditorApp bridge', () => {
+  let host: IEventBus;
+  let editor: IEventBus;
+  let app: KaotoEditorApp | undefined;
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    host = createEventBus({ role: 'host', onError: vi.fn() });
+    editor = createEventBus({
+      role: 'editor',
+      onError: (error) => {
+        app?.suspend(error);
       },
-    };
-
-    envelopeContext = {
-      supportedThemes: [EditorTheme.DARK, EditorTheme.LIGHT],
-      channelApi: {
-        notifications: {
-          kogitoEditor_ready: getNotificationMock(),
-          kogitoEditor_setContentError: getNotificationMock(),
-          kogitoEditor_stateControlCommandUpdate: getNotificationMock(),
-          kogitoNotifications_createNotification: getNotificationMock(),
-          kogitoNotifications_removeNotifications: getNotificationMock(),
-          kogitoNotifications_setNotifications: getNotificationMock(),
-          kogitoWorkspace_newEdit: getNotificationMock(),
-          kogitoWorkspace_openFile: getNotificationMock(),
-        },
-        requests: {
-          getMetadata: vi.fn(),
-          setMetadata: vi.fn(),
-          getResourcesContentByType: vi.fn(),
-          getResourceContent: vi.fn(),
-          saveResourceContent: vi.fn(),
-          isResourceExist: vi.fn(),
-          deleteResource: vi.fn(),
-          askUserForFileSelection: vi.fn(),
-          getSuggestions: vi.fn(),
-          onStepUpdated: vi.fn(),
-        } as unknown as ApiRequests<KaotoEditorChannelApi>,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        shared: {} as any,
-      },
-      operatingSystem: OperatingSystem.LINUX,
-      services: {
-        keyboardShortcuts: {} as KeyboardShortcutsService,
-        i18n: {} as I18nService,
-      },
-    };
-
-    initArgs = {
-      resourcesPathPrefix: 'route.camel',
-      fileExtension: 'yaml',
-      initialLocale: 'en-us',
-      isReadOnly: false,
-      channel: ChannelType.VSCODE_DESKTOP,
-      workspaceRootAbsolutePosixPath: '/workspace',
-    };
-
-    settingsAdapter = new DefaultSettingsAdapter();
-
-    kaotoEditorApp = new KaotoEditorAppTest(envelopeContext, initArgs, settingsAdapter);
-    kaotoEditorApp.setEditorRef(editorRef);
+    });
+    const transports = createMemoryTransports();
+    await Promise.all([
+      createPostMessageBridge({ bus: host, transport: transports.host }).connect(),
+      createPostMessageBridge({ bus: editor, transport: transports.editor }).connect(),
+    ]);
   });
-
   afterEach(() => {
-    editService.clearEdits();
+    app?.dispose();
+    app = undefined;
+    host.dispose();
+    editor.dispose();
   });
-
-  describe('setContent', () => {
-    it('should check if the edit is stale', async () => {
-      const isStaleEditSpy = vi.spyOn(editService, 'isStaleEdit').mockResolvedValueOnce(true);
-
-      await kaotoEditorApp.setContent('path', 'content');
-
-      expect(isStaleEditSpy).toHaveBeenCalledWith('content');
-    });
-
-    it('should not do anything if the edit is stale', async () => {
-      vi.spyOn(editService, 'isStaleEdit').mockResolvedValueOnce(true);
-
-      await kaotoEditorApp.setContent('path', 'content');
-
-      expect(editorRef.current!.setContent).not.toHaveBeenCalled();
-    });
-
-    it('should clear the hashes when the edit is not stale', async () => {
-      vi.spyOn(editService, 'isStaleEdit').mockResolvedValueOnce(false);
-      const clearHashesSpy = vi.spyOn(editService, 'clearEdits');
-
-      await kaotoEditorApp.setContent('path', 'content');
-
-      expect(clearHashesSpy).toHaveBeenCalled();
-    });
-
-    it('should delegate to the channelApi if the edit is not stale', async () => {
-      vi.spyOn(editService, 'isStaleEdit').mockResolvedValueOnce(false);
-
-      await kaotoEditorApp.setContent('path', 'content');
-
-      expect(editorRef.current!.setContent).toHaveBeenCalledWith('path', 'content');
-    });
-  });
-
-  it('getContent', async () => {
-    (editorRef.current!.getContent as Mock).mockResolvedValue('content');
-
-    const content = await kaotoEditorApp.getContent();
-
-    expect(content).toBe('content');
-  });
-
-  it('getPreview', async () => {
-    (editorRef.current!.getPreview as Mock).mockResolvedValue('preview');
-
-    const preview = await kaotoEditorApp.getPreview();
-
-    expect(preview).toBe('preview');
-  });
-
-  it('undo', async () => {
-    await kaotoEditorApp.undo();
-
-    expect(editorRef.current!.undo).toHaveBeenCalled();
-  });
-
-  it('redo', async () => {
-    await kaotoEditorApp.redo();
-
-    expect(editorRef.current!.redo).toHaveBeenCalled();
-  });
-
-  it('validate', async () => {
-    (editorRef.current!.validate as Mock).mockResolvedValue([]);
-
-    const notifications = await kaotoEditorApp.validate();
-
-    expect(notifications).toEqual([]);
-  });
-
-  it('setTheme', async () => {
-    await kaotoEditorApp.setTheme(EditorTheme.DARK);
-
-    expect(editorRef.current!.setTheme).toHaveBeenCalledWith(EditorTheme.DARK);
-  });
-
-  it('sendReady', async () => {
-    await kaotoEditorApp.sendReady();
-
-    expect(envelopeContext.channelApi.notifications.kogitoEditor_ready.send).toHaveBeenCalled();
-  });
-
-  describe('sendNewEdit', () => {
-    it('should register the content with the EditService', async () => {
-      const registerSpy = vi.spyOn(editService, 'registerEdit');
-      await kaotoEditorApp.sendNewEdit('content');
-
-      expect(registerSpy).toHaveBeenCalledWith('content');
-    });
-
-    it('should delegate to the channelApi', async () => {
-      await kaotoEditorApp.sendNewEdit('content');
-
-      expect(envelopeContext.channelApi.notifications.kogitoWorkspace_newEdit.send).toHaveBeenCalledWith(
-        expect.objectContaining({ id: 'content' }),
-      );
-    });
-  });
-
-  it('sendNotifications', () => {
-    kaotoEditorApp.sendNotifications('path', []);
-
-    expect(envelopeContext.channelApi.notifications.kogitoNotifications_setNotifications.send).toHaveBeenCalled();
-  });
-
-  it('sendStateControlCommand', () => {
-    kaotoEditorApp.sendStateControlCommand(StateControlCommand.REDO);
-
-    expect(envelopeContext.channelApi.notifications.kogitoEditor_stateControlCommandUpdate.send).toHaveBeenCalledWith(
-      StateControlCommand.REDO,
-    );
-  });
-
-  it('should delegate to the channelApi getting metadata from the Kaoto metadata file', async () => {
-    await kaotoEditorApp.getMetadata('path');
-
-    expect(envelopeContext.channelApi.requests.getMetadata).toHaveBeenCalledWith('path');
-  });
-
-  it('should delegate to the channelApi setting metadata from the Kaoto metadata file', async () => {
-    await kaotoEditorApp.setMetadata('key', 'value');
-
-    expect(envelopeContext.channelApi.requests.setMetadata).toHaveBeenCalledWith('key', 'value');
-  });
-
-  it('should delegate to the channelApi getting resources content by type', async () => {
-    const mockResponse = [{ filename: 'my-kamelet.kamelet.yaml', content: 'kind: Kamelet' }];
-    (envelopeContext.channelApi.requests.getResourcesContentByType as Mock).mockResolvedValue(mockResponse);
-
-    const result = await kaotoEditorApp.getResourcesContentByType(FileTypes.Kamelets);
-
-    expect(envelopeContext.channelApi.requests.getResourcesContentByType).toHaveBeenCalledWith(FileTypes.Kamelets);
-    expect(result).toEqual(mockResponse);
-  });
-
-  it('should delegate to the channelApi getting a file resource content', async () => {
-    await kaotoEditorApp.getResourceContent('path');
-
-    expect(envelopeContext.channelApi.requests.getResourceContent).toHaveBeenCalledWith('path');
-  });
-
-  it('should delegate to the channelApi saving file resource content', async () => {
-    await kaotoEditorApp.saveResourceContent('path', 'content');
-
-    expect(envelopeContext.channelApi.requests.saveResourceContent).toHaveBeenCalledWith('path', 'content');
-  });
-
-  it('should set the color theme upon opening the editor', async () => {
-    kaotoEditorApp.af_onOpen();
-
-    expect(setColorScheme).toHaveBeenCalledWith(ColorScheme.Auto);
-  });
-
-  it('should delegate to the channelApi checking if a resource exists', async () => {
-    (envelopeContext.channelApi.requests.isResourceExist as Mock).mockResolvedValue(true);
-
-    const exists = await kaotoEditorApp.isResourceExist('path');
-
-    expect(envelopeContext.channelApi.requests.isResourceExist).toHaveBeenCalledWith('path');
-    expect(exists).toBe(true);
-  });
-
-  it('should return false when resource does not exist', async () => {
-    (envelopeContext.channelApi.requests.isResourceExist as Mock).mockResolvedValue(false);
-
-    const exists = await kaotoEditorApp.isResourceExist('path');
-
-    expect(envelopeContext.channelApi.requests.isResourceExist).toHaveBeenCalledWith('path');
-    expect(exists).toBe(false);
-  });
-
-  it('should delegate to the channelApi deleting a resource', async () => {
-    (envelopeContext.channelApi.requests.deleteResource as Mock).mockResolvedValue(true);
-
-    const result = await kaotoEditorApp.deleteResource('path');
-
-    expect(envelopeContext.channelApi.requests.deleteResource).toHaveBeenCalledWith('path');
-    expect(result).toBe(true);
-  });
-
-  it('should delegate to the channelApi asking user for file selection', async () => {
-    (envelopeContext.channelApi.requests.askUserForFileSelection as Mock).mockResolvedValue(['file1.txt']);
-
-    const result = await kaotoEditorApp.askUserForFileSelection('**/*.txt', '**/*.log', { multiSelect: true });
-
-    expect(envelopeContext.channelApi.requests.askUserForFileSelection).toHaveBeenCalledWith('**/*.txt', '**/*.log', {
-      multiSelect: true,
-    });
-    expect(result).toEqual(['file1.txt']);
-  });
-
-  it('should delegate to the channelApi getting suggestions', async () => {
-    const mockSuggestions = [{ label: 'test', value: 'test' }];
-    const mockContext = {} as SuggestionRequestContext;
-    (envelopeContext.channelApi.requests.getSuggestions as Mock).mockResolvedValue(mockSuggestions);
-
-    const result = await kaotoEditorApp.getSuggestions('topic', 'word', mockContext);
-
-    expect(envelopeContext.channelApi.requests.getSuggestions).toHaveBeenCalledWith('topic', 'word', mockContext);
-    expect(result).toEqual(mockSuggestions);
-  });
-
-  it('should return empty array when getSuggestions times out', async () => {
-    const mockContext = {} as SuggestionRequestContext;
-    (envelopeContext.channelApi.requests.getSuggestions as Mock).mockImplementation(
-      () =>
-        new Promise((resolve) =>
-          setTimeout(() => {
-            resolve([{ label: 'test' }]);
-          }, 3000),
-        ),
-    );
-
-    const result = await kaotoEditorApp.getSuggestions('topic', 'word', mockContext);
-
-    expect(result).toEqual([]);
-  });
-
-  it('should return empty array when getSuggestions throws an error', async () => {
-    const mockContext = {} as SuggestionRequestContext;
-    (envelopeContext.channelApi.requests.getSuggestions as Mock).mockRejectedValue(new Error('test error'));
-
-    const result = await kaotoEditorApp.getSuggestions('topic', 'word', mockContext);
-
-    expect(result).toEqual([]);
-  });
-
-  it('should notify when a new step is added', async () => {
-    const stepType = CatalogKind.Component;
-    const stepName = 'amqp';
-
-    await kaotoEditorApp.onStepUpdated(StepUpdateAction.Add, stepType, stepName);
-
-    expect(envelopeContext.channelApi.requests.onStepUpdated).toHaveBeenCalledWith(
-      StepUpdateAction.Add,
-      stepType,
-      stepName,
-    );
-  });
-});
-
-const getNotificationMock = () => ({
-  subscribe: vi.fn(),
-  unsubscribe: vi.fn(),
-  send: vi.fn(),
-});
-
-class KaotoEditorAppTest extends KaotoEditorApp {
-  setEditorRef(editorRef: RefObject<EditorApi>) {
-    this.editorRef = editorRef;
+  async function createApp() {
+    host.onRequest('editor:settings:get', () => ({ settings: { ...new SettingsModel() }, settingsVersion: 0 }));
+    app = await createKaotoEditor(editor, init);
+    return app;
   }
+
+  it('uses a newer pushed settings snapshot instead of a late initial response', async () => {
+    const initial = deferred<SettingsSnapshot>();
+    const requested = vi.fn(() => initial.promise);
+    host.onRequest('editor:settings:get', requested);
+    const pending = createKaotoEditor(editor, init);
+    await vi.waitFor(() => {
+      expect(requested).toHaveBeenCalled();
+    });
+    host.emit('editor:settings:updated', {
+      settings: { ...new SettingsModel({ colorScheme: ColorScheme.Dark }) },
+      settingsVersion: 2,
+    });
+    initial.resolve({ settings: { ...new SettingsModel({ colorScheme: ColorScheme.Light }) }, settingsVersion: 1 });
+    app = await pending;
+    app.af_onOpen();
+    expect(setColorScheme).toHaveBeenLastCalledWith(ColorScheme.Dark);
+    host.emit('editor:settings:updated', {
+      settings: { ...new SettingsModel({ colorScheme: ColorScheme.Light }) },
+      settingsVersion: 0,
+    });
+    await host.request('editor:document:getContent', null).catch(() => {});
+    app.af_onOpen();
+    expect(setColorScheme).toHaveBeenLastCalledWith(ColorScheme.Dark);
+  });
+
+  it('fails settings initialization and removes the failed attempt listener', async () => {
+    const unsubscribe = host.onRequest('editor:settings:get', () => {
+      throw new BridgeError('IO_ERROR', 'settings unavailable');
+    });
+    await expect(createKaotoEditor(editor, init)).rejects.toMatchObject({ code: 'IO_ERROR' });
+    unsubscribe();
+    await createApp();
+    app!.af_onOpen();
+    expect(setColorScheme).toHaveBeenLastCalledWith(ColorScheme.Auto);
+  });
+
+  it('keeps the existing tree disabled until content is installed and preserves it on disconnect', async () => {
+    await createApp();
+    const ready = vi.fn();
+    host.on('editor:ready', ready);
+    const view = render(app!.af_componentRoot());
+    await waitFor(() => {
+      expect(ready).toHaveBeenCalledTimes(1);
+    });
+    expect(view.container.querySelector('[inert]')).not.toBeNull();
+    await act(async () => {
+      await host.request('editor:document:setContent', documentInit);
+    });
+    expect(view.container.querySelector('[inert]')).toBeNull();
+    act(() => {
+      EventNotifier.getInstance().next('code:updated', { code: 'unsaved' });
+    });
+    await expect(host.request('editor:document:getContent', null)).resolves.toEqual({
+      content: 'unsaved',
+      revision: 1,
+    });
+    act(() => {
+      app!.suspend(new BridgeError('NOT_CONNECTED', 'Connection lost'));
+    });
+    expect(view.getByRole('alert')).toHaveTextContent('Connection lost');
+    expect(view.queryByRole('button', { name: 'Retry' })).not.toBeInTheDocument();
+    expect(view.container.querySelector('[inert]')).not.toBeNull();
+    view.unmount();
+  });
+
+  it('offers a reload before initialization without enabling edits after a read failure', async () => {
+    await createApp();
+    const view = render(app!.af_componentRoot());
+    act(() => {
+      app!.suspend(new BridgeError('IO_ERROR', 'Could not read document'));
+    });
+    expect(view.getByRole('alert')).toHaveTextContent('Could not read document');
+    expect(view.getByRole('button', { name: 'Retry' })).toBeEnabled();
+    expect(view.container.querySelector('[inert]')).not.toBeNull();
+    await expect(host.request('editor:document:getContent', null)).rejects.toMatchObject({ code: 'IO_ERROR' });
+    view.unmount();
+  });
+
+  it('lets the host restart a failed initialization without navigating its webview', async () => {
+    const onRetry = vi.fn();
+    const retryInit = { ...init, onRetry };
+    host.onRequest('editor:settings:get', () => ({ settings: { ...new SettingsModel() }, settingsVersion: 0 }));
+    app = await createKaotoEditor(editor, retryInit);
+    const view = render(app.af_componentRoot());
+    act(() => {
+      app!.suspend(new BridgeError('TIMEOUT', 'Initialization timed out'));
+    });
+    fireEvent.click(view.getByRole('button', { name: 'Retry' }));
+    expect(onRetry).toHaveBeenCalledTimes(1);
+    await expect(host.request('editor:document:getContent', null)).rejects.toMatchObject({ code: 'NOT_CONNECTED' });
+    view.unmount();
+  });
+
+  it('retains one ready signal and history through Strict Mode and later settings updates', async () => {
+    await createApp();
+    const ready = vi.fn();
+    host.on('editor:ready', ready);
+    const view = render(<StrictMode>{app!.af_componentRoot()}</StrictMode>);
+    await waitFor(() => {
+      expect(ready).toHaveBeenCalledTimes(1);
+    });
+    await act(async () => {
+      await host.request('editor:document:setContent', documentInit);
+    });
+    act(() => {
+      useSourceCodeStore.getState().setCodeAndNotify('edited');
+    });
+    const history = useSourceCodeStore.temporal.getState().pastStates;
+    await act(async () => {
+      host.emit('editor:settings:updated', {
+        settings: { ...new SettingsModel({ colorScheme: ColorScheme.Dark }) },
+        settingsVersion: 3,
+      });
+      await host.request('editor:document:setContent', documentInit);
+    });
+    expect(useSourceCodeStore.temporal.getState().pastStates).toBe(history);
+    await expect(host.request('editor:document:getContent', null)).resolves.toEqual({ content: 'edited', revision: 1 });
+    expect(ready).toHaveBeenCalledTimes(1);
+    view.unmount();
+  });
+
+  it('translates existing metadata and resource facades to JSON requests', async () => {
+    await createApp();
+    const metadata = vi.fn(() => ({ value: null }));
+    host.onRequest('editor:metadata:get', metadata);
+    const setMetadata = vi.fn(() => null);
+    host.onRequest('editor:metadata:set', setMetadata);
+    const getContent = vi.fn(() => ({ content: null }));
+    host.onRequest('editor:resource:getContent', getContent);
+    const save = vi.fn(() => null);
+    host.onRequest('editor:resource:save', save);
+    host.onRequest('editor:resource:exists', () => ({ exists: true }));
+    host.onRequest('editor:resource:delete', () => ({ success: false }));
+    const resources = [{ filename: 'nested/test.kamelet.yaml', content: 'kind: Kamelet' }];
+    host.onRequest('editor:resource:getByType', () => ({ resources }));
+    await expect(app!.getMetadata('key')).resolves.toBeUndefined();
+    await app!.setMetadata('key', undefined);
+    expect(setMetadata).toHaveBeenCalledWith({ key: 'key', value: null }, expect.anything());
+    await expect(app!.getResourceContent('path')).resolves.toBeUndefined();
+    await app!.saveResourceContent('path', 'content');
+    expect(save).toHaveBeenCalledWith({ path: 'path', content: 'content' }, expect.anything());
+    await expect(app!.isResourceExist('path')).resolves.toBe(true);
+    await expect(app!.deleteResource('path')).resolves.toBe(false);
+    await expect(app!.getResourcesContentByType(FileTypes.Kamelets)).resolves.toEqual(resources);
+  });
+
+  it('preserves picker cancellation, selection shapes and suggestion fallback', async () => {
+    await createApp();
+    const pick = vi
+      .fn()
+      .mockResolvedValueOnce({ selection: null })
+      .mockResolvedValueOnce({ selection: 'one' })
+      .mockResolvedValueOnce({ selection: ['one', 'two'] });
+    host.onRequest('host:ui:pickFile', pick);
+    await expect(app!.askUserForFileSelection('**/*')).resolves.toBeUndefined();
+    await expect(app!.askUserForFileSelection('**/*', '**/*.log', { canPickMany: false, title: 'Pick' })).resolves.toBe(
+      'one',
+    );
+    await expect(app!.askUserForFileSelection('**/*')).resolves.toEqual(['one', 'two']);
+    const suggest = vi
+      .fn()
+      .mockResolvedValueOnce({ suggestions: [{ value: 'test' }] })
+      .mockRejectedValueOnce(new Error('suggest failed'));
+    host.onRequest('editor:suggestions:get', suggest);
+    const context = { propertyName: 'uri', inputValue: 't', cursorPosition: undefined };
+    await expect(app!.getSuggestions('uri', 't', context)).resolves.toEqual([{ value: 'test' }]);
+    expect(suggest).toHaveBeenCalledWith(
+      { topic: 'uri', word: 't', context: { propertyName: 'uri', inputValue: 't' } },
+      expect.anything(),
+    );
+    await expect(app!.getSuggestions('uri', 't', context)).resolves.toEqual([]);
+  });
+
+  it('times out suggestions without breaking the existing facade', async () => {
+    await createApp();
+    host.onRequest('editor:suggestions:get', () => new Promise(() => {}));
+    await expect(app!.getSuggestions('uri', 't', { propertyName: 'uri', inputValue: 't' })).resolves.toEqual([]);
+  });
+
+  it('emits step updates and notifications once and keeps Maven information available', async () => {
+    await createApp();
+    const step = vi.fn();
+    host.on('editor:step:updated', step);
+    const notifications = vi.fn();
+    host.on('editor:notifications:set', notifications);
+    host.onRequest('editor:maven:getRuntimeInfo', () => ({ runtimeInfo: null }));
+    await app!.onStepUpdated(StepUpdateAction.Add, CatalogKind.Component, 'amqp');
+    app!.sendNotifications('path', [{ severity: 'error', message: 'invalid' }]);
+    await expect(app!.getRuntimeInfoFromMavenContext()).resolves.toBeUndefined();
+    expect(step).toHaveBeenCalledExactlyOnceWith({
+      action: StepUpdateAction.Add,
+      stepType: CatalogKind.Component,
+      stepName: 'amqp',
+    });
+    expect(notifications).toHaveBeenCalledExactlyOnceWith({
+      path: 'path',
+      notifications: [{ severity: 'error', message: 'invalid' }],
+    });
+  });
+
+  it('treats unavailable Maven discovery as optional runtime information', async () => {
+    await createApp();
+    // A worker host has no Maven handler, so the bridge rejects immediately.
+    await expect(app!.getRuntimeInfoFromMavenContext()).resolves.toBeUndefined();
+  });
+
+  it('keeps Maven discovery failures visible when the host supports the operation', async () => {
+    await createApp();
+    host.onRequest('editor:maven:getRuntimeInfo', () => {
+      throw new BridgeError('IO_ERROR', 'Cannot read pom.xml');
+    });
+    await expect(app!.getRuntimeInfoFromMavenContext()).rejects.toMatchObject({ code: 'IO_ERROR' });
+  });
+});
+
+function deferred<T>() {
+  let resolve!: (value: T | PromiseLike<T>) => void;
+  const promise = new Promise<T>((res) => {
+    resolve = res;
+  });
+  return { promise, resolve };
 }

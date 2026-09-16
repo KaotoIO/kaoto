@@ -22,7 +22,7 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = ({ vizNode
   }, [schema]);
 
   const model = vizNode.data.definition as Record<string, unknown> | undefined;
-
+  // The forms patch applies incoming models in place so nested editors keep their state.
   // Keep a ref to the current model so that handleOnChangeIndividualProp always writes
   // back to the same object that the form is rendering.
   const modelRef = useRef(model);

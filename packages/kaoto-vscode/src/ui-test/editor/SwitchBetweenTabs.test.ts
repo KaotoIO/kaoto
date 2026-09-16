@@ -38,7 +38,8 @@ describe('Switching between editor tabs', function () {
 
 	it('Open "my.camel.yaml" file and check "Design" tab is active by default', async function () {
 		kaotoWebview = (await openAndSwitchToKaotoFrame(WORKSPACE_FOLDER, 'my.camel.yaml', driver, true)).kaotoWebview;
-		await driver.wait(until.elementLocated(By.className(kaotoLocators.EditorTabs.tabsList)), 5_000, 'Editor tabs are not displayed properly!');
+		const tabsList = await driver.wait(until.elementLocated(By.className(kaotoLocators.EditorTabs.tabsList)), 5_000, 'Editor tabs are not rendered!');
+		await driver.wait(until.elementIsVisible(tabsList), 5_000, 'Editor tabs are not displayed properly!');
 		const tabs = new EditorTabs();
 		expect(await tabs.getActiveTabName()).to.equal('Design');
 	});
@@ -62,5 +63,23 @@ describe('Switching between editor tabs', function () {
 		await tabs.switchToTab('Design canvas');
 		await EditorTabs.waitForDesignTab(driver);
 		expect(await tabs.getActiveTabName()).to.equal('Design');
+	});
+
+	it('keeps the canvas zoom and layout controls visible and reachable', async function () {
+		const controlIds = ['zoom-in', 'zoom-out', 'reset-view', 'topology-control-bar-h_layout-button', 'topology-control-bar-v_layout-button'];
+		for (const id of controlIds) {
+			const button = await driver.wait(until.elementLocated(By.id(id)), 5_000, `Canvas control '${id}' was not rendered`);
+			await driver.wait(
+				() =>
+					driver.executeScript<boolean>((element: HTMLElement) => {
+						const bounds = element.getBoundingClientRect();
+						const target = document.elementFromPoint(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+						return bounds.width > 0 && bounds.height > 0 && bounds.top >= 0 && bounds.bottom <= window.innerHeight && element.contains(target);
+					}, button),
+				5_000,
+				`Canvas control '${id}' is clipped or covered`,
+			);
+			await button.click();
+		}
 	});
 });

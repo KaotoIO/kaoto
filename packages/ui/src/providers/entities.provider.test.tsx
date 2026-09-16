@@ -1,7 +1,8 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { PropsWithChildren, useContext, useMemo } from 'react';
-import { parse } from 'yaml';
+import { PropsWithChildren, StrictMode, useContext, useMemo } from 'react';
+import { parse, stringify } from 'yaml';
 
+import * as camelRandomId from '../camel-utils/camel-random-id';
 import { SourceSchemaType } from '../models/camel';
 import { CamelRouteResource } from '../models/camel/camel-route-resource';
 import { CamelXMLRouteResource } from '../models/camel/camel-xml-route-resource';
@@ -173,6 +174,122 @@ describe('EntitiesProvider', () => {
       expect(result.current?.entities).toEqual([]);
       expect(result.current?.visualEntities).toEqual([new CamelRouteVisualEntity(camelRouteJson)]);
     });
+  });
+
+  it.each([false, true])('keeps generated route IDs across source edits (StrictMode: %s)', async (strict) => {
+    let generatedId = 0;
+    const randomId = vi
+      .spyOn(camelRandomId, 'getCamelRandomId')
+      .mockImplementation((kind) => `${kind}-${++generatedId}`);
+    const routes = ['first', 'second'].map((name) => ({
+      route: { from: { uri: `timer:${name}`, steps: [{ log: { id: name, message: 'Before' } }] } },
+    }));
+    const Wrapper = buildWrapper(stringify(routes));
+    try {
+      const { result } = renderHook(() => useContext(EntitiesContext), {
+        wrapper: ({ children }: PropsWithChildren) =>
+          strict ? (
+            <StrictMode>
+              <Wrapper>{children}</Wrapper>
+            </StrictMode>
+          ) : (
+            <Wrapper>{children}</Wrapper>
+          ),
+      });
+      await waitFor(() => {
+        expect(result.current?.visualEntities).toHaveLength(2);
+      });
+      const initialIds = result.current!.visualEntities.map(({ id }) => id);
+
+      routes[1].route.from.steps[0].log.id = 'changed-in-source';
+      const updatedSource = stringify(routes);
+      const previousEntities = result.current!.visualEntities;
+      act(() => {
+        useSourceCodeStore.getState().setCodeAndNotify(updatedSource);
+      });
+      await waitFor(() => {
+        expect(result.current!.visualEntities).not.toBe(previousEntities);
+      });
+
+      expect(result.current!.visualEntities.map(({ id }) => id)).toEqual(initialIds);
+      expect(result.current!.visualEntities[1].toJSON()).toMatchObject({
+        route: { from: { steps: [{ log: { id: 'changed-in-source' } }] } },
+      });
+      expect(useSourceCodeStore.getState().sourceCode).toBe(updatedSource);
+    } finally {
+      randomId.mockRestore();
+    }
+  });
+
+  it.each(['document', 'route-count', 'explicit-id'] as const)(
+    'does not reuse a generated route ID across a %s change',
+    async (change) => {
+      let generatedId = 0;
+      const randomId = vi
+        .spyOn(camelRandomId, 'getCamelRandomId')
+        .mockImplementation((kind) => `${kind}-${++generatedId}`);
+      const routes = ['first', 'second'].map((name) => ({
+        route: { from: { uri: `timer:${name}`, steps: [{ log: { message: name } }] } },
+      }));
+      try {
+        const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: buildWrapper(stringify(routes)) });
+        await waitFor(() => {
+          expect(result.current?.visualEntities).toHaveLength(2);
+        });
+        const previousEntities = result.current!.visualEntities;
+        const initialId = previousEntities[0].id;
+        const nextRoutes = change === 'route-count' ? routes.slice(1) : routes;
+        if (change === 'explicit-id') {
+          Object.assign(nextRoutes[1].route, { id: initialId });
+        }
+        act(() => {
+          useSourceCodeStore
+            .getState()
+            .setCodeAndNotify(stringify(nextRoutes), change === 'document' ? 'another.camel.yaml' : undefined);
+        });
+        await waitFor(() => {
+          expect(result.current!.visualEntities).not.toBe(previousEntities);
+        });
+        expect(result.current!.visualEntities[0].id).not.toBe(initialId);
+        if (change === 'explicit-id') {
+          expect(result.current!.visualEntities[1].id).toBe(initialId);
+        }
+      } finally {
+        randomId.mockRestore();
+      }
+    },
+  );
+
+  it.each([
+    ['route-b', 'route-c'],
+    ['route-c', 'route-a'],
+  ])('ignores temporary generated ID collisions (%s, %s)', async (firstId, secondId) => {
+    const randomId = vi
+      .spyOn(camelRandomId, 'getCamelRandomId')
+      .mockReturnValueOnce('route-a')
+      .mockReturnValueOnce('route-b')
+      .mockReturnValueOnce(firstId)
+      .mockReturnValueOnce(secondId);
+    const routes = ['first', 'second'].map((name) => ({
+      route: { from: { uri: `timer:${name}`, steps: [{ log: { message: name } }] } },
+    }));
+    try {
+      const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: buildWrapper(stringify(routes)) });
+      await waitFor(() => {
+        expect(result.current?.visualEntities).toHaveLength(2);
+      });
+      const previousEntities = result.current!.visualEntities;
+      routes[1].route.from.steps[0].log.message = 'Updated';
+      act(() => {
+        useSourceCodeStore.getState().setCodeAndNotify(stringify(routes));
+      });
+      await waitFor(() => {
+        expect(result.current!.visualEntities).not.toBe(previousEntities);
+      });
+      expect(result.current!.visualEntities.map(({ id }) => id)).toEqual(['route-a', 'route-b']);
+    } finally {
+      randomId.mockRestore();
+    }
   });
 
   it('should serialize using YAML 1.1', async () => {
