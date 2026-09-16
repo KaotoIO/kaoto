@@ -53,7 +53,7 @@ export class PipeResource extends CamelKResource {
   }
 
   getType(): SourceSchemaType {
-    return SourceSchemaType.Pipe;
+    return this.pipe.kind === SourceSchemaType.KameletBinding ? SourceSchemaType.KameletBinding : SourceSchemaType.Pipe;
   }
 
   refreshVisualMetadata() {
