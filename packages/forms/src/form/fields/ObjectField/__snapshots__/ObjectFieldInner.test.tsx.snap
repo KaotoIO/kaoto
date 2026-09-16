@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ObjectFieldInner should set the property name and propagate the required status 1`] = `
+<DocumentFragment>
+  <pre>
+    { propName: '#.name', required: true, onRemove: undefined }
+  </pre>
+</DocumentFragment>
+`;

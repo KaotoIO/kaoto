@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`KeyValueField renders with correct props 1`] = `
+<input
+  class="cds--text-input"
+  data-testid="keyvalue-input"
+  id="test-id"
+  name="test-name"
+  placeholder="Enter value"
+  title="Enter value"
+  type="text"
+  value="initial"
+/>
+`;

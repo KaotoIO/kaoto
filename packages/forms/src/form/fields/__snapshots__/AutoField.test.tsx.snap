@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AutoField Required mode it should not render object with undefined properties 1`] = `<div />`;
+
+exports[`AutoField it should not render object with undefined properties in \`Modified\` mode with no modified properties 1`] = `<div />`;
+
+exports[`AutoField it should not render when in \`Modified\` mode with no modified properties 1`] = `<div />`;
+
+exports[`AutoField it should not render when in \`Required\` mode but no required properties 1`] = `<div />`;
+
+exports[`AutoField should provide properties to the rendered field 1`] = `
+<DocumentFragment>
+  <pre>
+    { propName: '#', required: undefined, onRemove: undefined }
+  </pre>
+</DocumentFragment>
+`;
