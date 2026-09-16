@@ -1,6 +1,7 @@
 // @ts-check
 import { readFileSync } from 'node:fs';
 import { extname, relative } from 'node:path';
+
 import { normalizePath } from 'vite';
 
 /**
@@ -35,10 +36,16 @@ export function camelCatalogPlugin(basePath, catalogFiles) {
          */
         (req, res, next) => {
           const url = req.url?.split('?')[0];
-          if (!url?.startsWith(CATALOG_PREFIX)) return next();
+          if (!url?.startsWith(CATALOG_PREFIX)) {
+            next();
+            return;
+          }
 
           const filePath = fileMap.get(url);
-          if (!filePath) return next();
+          if (!filePath) {
+            next();
+            return;
+          }
 
           const content = readFileSync(filePath, 'utf-8');
           const contentType = extname(filePath) === '.json' ? 'application/json' : 'application/xml';
