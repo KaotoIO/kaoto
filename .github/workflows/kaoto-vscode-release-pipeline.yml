@@ -37,28 +37,12 @@ jobs:
         with:
           ref: ${{ github.ref }}
           persist-credentials: false
-
-      - name: '🔍 Validate version consistency'
-        env:
-          TAG_VERSION: ${{ github.event.inputs.tag_version }}
-        run: node .github/scripts/check-version.mjs "${TAG_VERSION}"
+          fetch-depth: 0
 
       - name: '🔧 Setup tools'
         uses: ./.github/actions/kaoto-vscode-setup-tools
         with:
           allow-unprivileged-userns: 'true'
-
-      - name: '🔧 Install dependencies'
-        run: yarn install --immutable --mode=skip-build
-
-      - name: '🔧 Build UI lib'
-        run: yarn workspace @kaoto/kaoto build:lib
-
-      - name: '🔧 Build and lint extension'
-        run: yarn workspace vscode-kaoto build:prod
-
-      - name: '🧪 Run unit tests'
-        run: xvfb-run -a yarn workspace vscode-kaoto test:unit
 
       - name: '🔢 Compute VSIX filename and release tag'
         id: compute
@@ -77,15 +61,34 @@ jobs:
           echo "release_tag=${RELEASE_TAG}" >> "$GITHUB_OUTPUT"
           echo "vsix_name=${VSIX_NAME}" >> "$GITHUB_OUTPUT"
 
+      - name: '🔄 Synchronize package versions in-place'
+        env:
+          RELEASE_TAG: ${{ steps.compute.outputs.release_tag }}
+        run: |
+          yarn workspaces foreach --all version "${RELEASE_TAG}"
+
+      - name: '🔧 Install dependencies'
+        run: yarn install --immutable --mode=skip-build
+
+      - name: '🔧 Build UI lib'
+        run: yarn workspace @kaoto/kaoto build:lib
+
+      - name: '🔧 Build and lint extension'
+        run: yarn workspace vscode-kaoto build:prod
+
+      - name: '🧪 Run unit tests'
+        run: xvfb-run -a yarn workspace vscode-kaoto test:unit
+
       - name: '📦 Build release VSIX'
         env:
           VSIX_NAME: ${{ steps.compute.outputs.vsix_name }}
           RELEASE_TAG: ${{ steps.compute.outputs.release_tag }}
+          REPO_URL: ${{ github.server_url }}/${{ github.repository }}
         run: |
           yarn workspace vscode-kaoto build:vsix \
             --out "${VSIX_NAME}" \
-            --baseContentUrl "https://github.com/KaotoIO/kaoto/blob/refs/tags/${RELEASE_TAG}/packages/kaoto-vscode" \
-            --baseImagesUrl "https://github.com/KaotoIO/kaoto/raw/refs/tags/${RELEASE_TAG}/packages/kaoto-vscode"
+            --baseContentUrl "${REPO_URL}/blob/refs/tags/${RELEASE_TAG}/packages/kaoto-vscode" \
+            --baseImagesUrl "${REPO_URL}/raw/refs/tags/${RELEASE_TAG}/packages/kaoto-vscode"
 
       - name: '📤 Upload VSIX artifact'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
