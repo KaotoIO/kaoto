@@ -334,30 +334,29 @@ describe('CitrusTestVisualEntity', () => {
       });
     });
 
-    it('should normalise multi-level group properties to sibling keys (camel-cli-run)', async () => {
-      // flat canvas model: camelContext (camel group) and camelVersion (camel-cli group)
+    it('should normalise multi-level group properties to sibling keys (camel-jbang-run)', async () => {
+      // flat canvas model: camelContext (camel group) and camelVersion (camel-jbang group)
       // are both nested inside run — normalisation must lift them to their respective group keys
       citrusTestEntity.test.actions.push({
         camel: {
-          cli: {
-            run: {},
-          },
-          camelContext: 'ctx1',
-          'camel-cli': {
-            camelVersion: '4.0',
+          jbang: {
+            run: {
+              camelContext: 'ctx1',
+              camelVersion: '4.0',
+            },
           },
         },
       } as unknown as TestActions);
       const snapshot = await citrusTestEntity.normaliseForSerialisation();
       const action = snapshot.actions[1] as Record<string, unknown>;
-      // camelContext belongs to the 'camel' group → must be a sibling of 'cli' inside camel
+      // camelContext belongs to the 'camel' group → must be lifted to a sibling of 'jbang' inside camel
       const camelGroup = action['camel'] as Record<string, unknown>;
       expect(camelGroup['camelContext']).toBe('ctx1');
-      expect((camelGroup['cli'] as Record<string, unknown>)['run']).not.toHaveProperty('camelContext');
-      // camelVersion belongs to the 'camel-cli' group → must be a sibling of 'cli' inside camel
-      const camelCliGroup = camelGroup['camel-cli'] as Record<string, unknown>;
-      expect(camelCliGroup['camelVersion']).toBe('4.0');
-      expect((camelGroup['cli'] as Record<string, unknown>)['run']).not.toHaveProperty('camelVersion');
+      expect((camelGroup['jbang'] as Record<string, unknown>)['run']).not.toHaveProperty('camelContext');
+      // camelVersion belongs to the 'camel-jbang' group → must be lifted to camel-jbang inside camel
+      const camelJbangGroup = camelGroup['camel-jbang'] as Record<string, unknown>;
+      expect(camelJbangGroup['camelVersion']).toBe('4.0');
+      expect((camelGroup['jbang'] as Record<string, unknown>)['run']).not.toHaveProperty('camelVersion');
     });
   });
 
