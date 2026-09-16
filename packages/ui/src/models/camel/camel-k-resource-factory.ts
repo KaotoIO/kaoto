@@ -7,7 +7,6 @@ import { isDefined } from '@kaoto/forms';
 
 import { KaotoResource } from '../kaoto-resource';
 import { IntegrationResource } from './integration-resource';
-import { KameletBindingResource } from './kamelet-binding-resource';
 import { KameletResource } from './kamelet-resource';
 import { IKameletDefinition } from './kamelets-catalog';
 import { PipeResource } from './pipe-resource';
@@ -32,7 +31,10 @@ export class CamelKResourceFactory {
       case SourceSchemaType.Kamelet:
         return new KameletResource(jsonRecord as IKameletDefinition);
       case SourceSchemaType.KameletBinding:
-        return new KameletBindingResource(jsonRecord as KameletBindingType);
+        return new PipeResource({
+          ...jsonRecord,
+          kind: SourceSchemaType.KameletBinding,
+        } as KameletBindingType);
       case SourceSchemaType.Pipe:
         return new PipeResource(jsonRecord as PipeType);
       default:
