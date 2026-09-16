@@ -2,16 +2,29 @@ Cypress.Commands.add('fitToScreen', () => {
   cy.get('.fit-to-screen').click();
 });
 
+function openConfigurationTab(selector: string, index = 0) {
+  cy.get(selector)
+    .eq(index)
+    .then(($node) => {
+      // Clicking an already selected node toggles its properties panel closed.
+      if ($node.attr('data-selected') !== 'true') {
+        cy.wrap($node).click({ force: true });
+      }
+    });
+  cy.get('.pf-topology-resizable-side-bar').should('be.visible');
+  return cy.get(selector).eq(index).should('have.attr', 'data-selected', 'true');
+}
+
 Cypress.Commands.add('openStepConfigurationTab', (step: string, stepIndex = 0) => {
-  cy.get(`g[data-nodelabel^="${step}"]`).eq(stepIndex).click({ force: true });
+  return openConfigurationTab(`g[data-nodelabel^="${step}"]`, stepIndex);
 });
 
 Cypress.Commands.add('openStepConfigurationTabByPath', (path: string) => {
-  cy.get(`g[data-testid="${path}"]`).click({ force: true });
+  return openConfigurationTab(`g[data-testid="${path}"]`);
 });
 
 Cypress.Commands.add('openGroupConfigurationTab', (group: string, groupIndex = 0) => {
-  cy.get(`g[data-grouplabel^="${group}"]`).eq(groupIndex).click({ force: true });
+  return openConfigurationTab(`g[data-grouplabel^="${group}"]`, groupIndex);
 });
 
 Cypress.Commands.add('toggleExpandGroup', (groupName: string) => {
