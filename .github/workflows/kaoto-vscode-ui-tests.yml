@@ -20,6 +20,11 @@ on:
         description: Run Linux deployment tests with Minikube
         required: true
         type: boolean
+      retention-days:
+        description: Number of days to retain uploaded test artifacts (logs, screenshots)
+        required: false
+        type: number
+        default: 2
 
 permissions:
   contents: read
@@ -70,6 +75,7 @@ jobs:
           test-group: settings
           os-name: ${{ matrix.os }}
           storage-path: ${{ runner.temp }}/kaoto-tests
+          retention-days: ${{ inputs.retention-days }}
 
   editor:
     name: Editor
@@ -116,6 +122,7 @@ jobs:
           test-group: editor
           os-name: ${{ matrix.os }}
           storage-path: ${{ runner.temp }}/kaoto-tests
+          retention-days: ${{ inputs.retention-days }}
 
   views:
     name: Views
@@ -163,6 +170,7 @@ jobs:
           test-group: views
           os-name: ${{ matrix.os }}
           storage-path: ${{ runner.temp }}/kaoto-tests
+          retention-days: ${{ inputs.retention-days }}
 
   export:
     name: Project Export
@@ -210,6 +218,7 @@ jobs:
           test-group: export
           os-name: ${{ matrix.os }}
           storage-path: ${{ runner.temp }}/kaoto-tests
+          retention-days: ${{ inputs.retention-days }}
 
   deployment:
     name: Deployment
@@ -246,3 +255,4 @@ jobs:
           test-group: deployment
           os-name: ubuntu-latest
           storage-path: ${{ runner.temp }}/kaoto-tests
+          retention-days: ${{ inputs.retention-days }}

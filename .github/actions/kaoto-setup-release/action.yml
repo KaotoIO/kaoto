@@ -1,0 +1,33 @@
+name: Setup Release Environment
+description: Sets up Node.js with yarn cache, synchronizes workspace package versions in-place, and installs dependencies
+
+inputs:
+  node-version:
+    description: Node.js version
+    required: false
+    default: '24'
+  release-tag:
+    description: The release tag / version to apply to all workspaces in package.json
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: yarn
+
+    - name: '🔄 Synchronize package versions in-place'
+      if: ${{ inputs.release-tag != '' }}
+      shell: bash
+      env:
+        RELEASE_TAG: ${{ inputs.release-tag }}
+        YARN_CHANGESET_BASE_REFS: 'HEAD'
+      run: |
+        yarn workspaces foreach --all version "${RELEASE_TAG}"
+
+    - name: '🔧 Install dependencies'
+      shell: bash
+      run: yarn install --immutable --mode=skip-build

@@ -1,0 +1,51 @@
+name: 🏷️ Release Container — build and publish container image to Quay.io
+
+on:
+  workflow_call:
+    inputs:
+      release_tag:
+        type: string
+        description: The release tag / version (e.g. 2.13.0)
+        required: true
+
+jobs:
+  container-image-release:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: '🛰️ Checkout source code'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: '🔧 Setup tools and sync versions'
+        uses: ./.github/actions/kaoto-setup-release
+        with:
+          release-tag: ${{ inputs.release_tag }}
+
+      - name: '🔧 Build packages'
+        run: yarn workspace @kaoto/kaoto run build
+
+      - name: '🛰️ Login to Container Registry'
+        uses: docker/login-action@371161bbe7024a29a25c5e19bfcbc0804fe9ad2c # v4.5.2
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+
+      - name: '🔧 Build Container Image'
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          docker build -t "quay.io/kaotoio/kaoto-app:${RELEASE_TAG}" -t "quay.io/kaotoio/kaoto-app:stable" .
+
+      - name: '📤 Upload Container Image'
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          docker push "quay.io/kaotoio/kaoto-app:${RELEASE_TAG}"
+          docker push "quay.io/kaotoio/kaoto-app:stable"

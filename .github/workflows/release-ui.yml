@@ -1,0 +1,43 @@
+name: 🏷️ Release UI — publish NPM package
+
+on:
+  workflow_call:
+    inputs:
+      release_tag:
+        type: string
+        description: The release tag / version (e.g. 2.13.0)
+        required: true
+
+jobs:
+  npm-release:
+    permissions:
+      id-token: write  # Required for OIDC
+      contents: read
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: '🛰️ Checkout source code'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: '🔧 Setup tools and sync versions'
+        uses: ./.github/actions/kaoto-setup-release
+        with:
+          release-tag: ${{ inputs.release_tag }}
+
+      - name: '🔧 Build @kaoto/kaoto package in lib mode'
+        run: yarn workspace @kaoto/kaoto run build:lib
+
+      - name: '📤 Version and publish'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if npm view "@kaoto/kaoto@${RELEASE_TAG}" version > /dev/null 2>&1; then
+            echo "Version ${RELEASE_TAG} already published on NPM, skipping."
+          else
+            yarn workspace @kaoto/kaoto npm publish --access public
+          fi
