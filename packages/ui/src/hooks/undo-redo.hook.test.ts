@@ -1,8 +1,9 @@
 import { act, renderHook } from '@testing-library/react';
+import { createElement, type PropsWithChildren } from 'react';
 
 import { useSourceCodeStore } from '../store';
 import { EventNotifier } from '../utils';
-import { useUndoRedo } from './undo-redo.hook';
+import { UndoRedoContext, useUndoRedo } from './undo-redo.hook';
 
 const mockController = vi.hoisted(() => ({
   fromModel: vi.fn(),
@@ -13,6 +14,30 @@ vi.mock('@patternfly/react-topology', () => ({
 }));
 
 describe('useUndoRedo', () => {
+  beforeEach(() => {
+    useSourceCodeStore.setState({ sourceCode: '', path: '' });
+    useSourceCodeStore.temporal.getState().clear();
+  });
+
+  it('delegates host history actions without changing source or local history', () => {
+    const host = { undo: vi.fn(), redo: vi.fn(), canUndo: true, canRedo: true };
+    const { result } = renderHook(() => useUndoRedo(), {
+      wrapper: ({ children }: PropsWithChildren) => createElement(UndoRedoContext.Provider, { value: host }, children),
+    });
+    act(() => {
+      useSourceCodeStore.setState({ sourceCode: 'edited' });
+    });
+    const history = useSourceCodeStore.temporal.getState();
+    act(() => {
+      result.current.undo();
+      result.current.redo();
+    });
+    expect(host.undo).toHaveBeenCalledOnce();
+    expect(host.redo).toHaveBeenCalledOnce();
+    expect(useSourceCodeStore.getState().sourceCode).toBe('edited');
+    expect(useSourceCodeStore.temporal.getState()).toBe(history);
+  });
+
   it('should return initial state', () => {
     const { result } = renderHook(() => useUndoRedo());
     expect(result.current.canUndo).toBe(false);

@@ -14,7 +14,7 @@
     limitations under the License.
 */
 import { useVisualizationController } from '@patternfly/react-topology';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import type { Mock } from 'vitest';
 
 import { IVisualizationNode } from '../models/visualization/base-visual-entity';
@@ -133,6 +133,75 @@ describe('useSelectedVizNode', () => {
 
     // Selection should remain undefined
     expect(result.current).toBeUndefined();
+  });
+
+  it.each(['resolve', 'reject', 'deselect'] as const)(
+    'keeps the selected node visible during a schema refresh (%s)',
+    async (completion) => {
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      const controller = makeController(mockVizNode);
+      (useVisualizationController as Mock).mockReturnValue(controller);
+      const { result, rerender } = renderHook(({ ids }) => useSelectedVizNode(ids), {
+        initialProps: { ids: ['scope|timer-1'] },
+      });
+      await waitFor(() => {
+        expect(result.current).toBe(mockVizNode);
+      });
+
+      const refreshedNode = createVisualizationNode('timer-1', {} as never);
+      let resolveSchema!: () => void;
+      let rejectSchema!: (error: Error) => void;
+      refreshedNode.fetchSchema = () =>
+        new Promise<undefined>((resolve, reject) => {
+          resolveSchema = () => {
+            resolve(undefined);
+          };
+          rejectSchema = reject;
+        });
+      controller.getNodeById.mockReturnValue({ getData: () => ({ vizNode: refreshedNode }) });
+      rerender({ ids: ['scope|timer-1'] });
+      expect(result.current).toBe(mockVizNode);
+
+      if (completion === 'deselect') {
+        rerender({ ids: [] });
+        expect(result.current).toBeUndefined();
+      }
+      await act(async () => {
+        if (completion === 'reject') {
+          rejectSchema(new Error('Schema refresh failed'));
+        } else {
+          resolveSchema();
+        }
+      });
+      expect(result.current).toBe(completion === 'resolve' ? refreshedNode : undefined);
+    },
+  );
+
+  it('clears the previous node when selecting the same step path in a different route', async () => {
+    const controller = makeController(mockVizNode);
+    (useVisualizationController as Mock).mockReturnValue(controller);
+    const { result, rerender } = renderHook(({ ids }) => useSelectedVizNode(ids), {
+      initialProps: { ids: ['scope|timer-1'] },
+    });
+    await waitFor(() => {
+      expect(result.current).toBe(mockVizNode);
+    });
+
+    const otherNode = createVisualizationNode('timer-1', {} as never);
+    let resolveSchema!: () => void;
+    otherNode.fetchSchema = () =>
+      new Promise<undefined>((resolve) => {
+        resolveSchema = () => {
+          resolve(undefined);
+        };
+      });
+    controller.getNodeById.mockReturnValue({ getData: () => ({ vizNode: otherNode }) });
+    rerender({ ids: ['other-route|timer-1'] });
+    expect(result.current).toBeUndefined();
+    await act(async () => {
+      resolveSchema();
+    });
+    expect(result.current).toBe(otherNode);
   });
 
   it('does not log when fetchSchema rejects after the request was cancelled', async () => {

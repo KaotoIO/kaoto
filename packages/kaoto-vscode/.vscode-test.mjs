@@ -14,7 +14,8 @@ fs.writeFileSync(
   JSON.stringify(
     {
       folders: [{ path: path.join(projectRoot, 'test Fixture with speci@l chars') }],
-      settings: {},
+      // Keep the chat input from retaining native editor focus during automated Undo/type commands.
+      settings: { 'chat.disableAIFeatures': true },
     },
     null,
     '\t',
@@ -24,7 +25,7 @@ fs.writeFileSync(
 const launchArgs = process.env.CI ? [] : ['--user-data-dir', path.join(os.tmpdir(), 'vscode-kaoto-test')];
 
 export default defineConfig({
-  files: 'out/test/**/*.test.js',
+  files: ['out/test/**/*.test.js', 'dist/test/bridge/*.test.js'],
   workspaceFolder: tempWorkspace,
   launchArgs,
   mocha: {

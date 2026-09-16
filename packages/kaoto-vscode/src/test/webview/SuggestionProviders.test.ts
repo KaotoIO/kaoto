@@ -16,7 +16,7 @@
  */
 import path from 'path';
 import { expect } from 'chai';
-import { filterSuggestionsByWord, getSuggestions } from '../../services/SuggestionRegistry';
+import { filterSuggestionsByWord, getSuggestions, getEnvironmentSuggestions } from '../../services/SuggestionRegistry';
 import { Suggestion } from '@kaoto/kaoto';
 
 suite('Channel API', () => {
@@ -40,14 +40,14 @@ suite('Channel API', () => {
 		});
 
 		test('includes case-sensitive startsWith matches and ranks them first', async () => {
-			const suggestions = await getSuggestions('env', 'TEST_', { propertyName: 'Test', inputValue: '' });
+			const suggestions = await getEnvironmentSuggestions('TEST_', process.env);
 			const values = suggestions.map((s) => s.value);
 
 			expect(values).to.deep.include.members(['TEST_ALPHA', 'TEST_BETA']);
 		});
 
 		test('includes case-sensitive and insensitive matches, with case-sensitive ranked first', async () => {
-			const suggestions = await getSuggestions('env', 'Te', { propertyName: 'Test', inputValue: '' });
+			const suggestions = await getEnvironmentSuggestions('Te', process.env);
 			const values = suggestions.map((s) => s.value);
 
 			expect(values).to.include('Test_Mixed');
@@ -62,7 +62,7 @@ suite('Channel API', () => {
 		});
 
 		test('includes exact match and ranks it high', async () => {
-			const suggestions = await getSuggestions('env', 'PATH', { propertyName: 'Test', inputValue: '' });
+			const suggestions = await getEnvironmentSuggestions('PATH', process.env);
 			const values = suggestions.map((s) => s.value);
 
 			expect(values).to.include('PATH');
@@ -70,12 +70,12 @@ suite('Channel API', () => {
 		});
 
 		test('returns empty array for no matches', async () => {
-			const suggestions = await getSuggestions('env', 'UNMATCHED_VAR', { propertyName: 'Test', inputValue: '' });
+			const suggestions = await getEnvironmentSuggestions('UNMATCHED_VAR', process.env);
 			expect(suggestions).to.be.an('array').that.is.empty;
 		});
 
 		test('returns all env variables for empty string input', async () => {
-			const suggestions = await getSuggestions('env', '', { propertyName: 'Test', inputValue: '' });
+			const suggestions = await getEnvironmentSuggestions('', process.env);
 			const expectedKeys = Object.keys(process.env);
 			const suggestionValues = suggestions.map((s) => s.value);
 
@@ -87,7 +87,7 @@ suite('Channel API', () => {
 			process.env.PathLib = 'x'; // add a more complex mixed-case match
 			process.env.NODEx_PATH = 'y'; // partial match
 
-			const suggestions = await getSuggestions('env', 'Pat', { propertyName: 'Test', inputValue: '' });
+			const suggestions = await getEnvironmentSuggestions('Pat', process.env);
 			const values = suggestions.map((s) => s.value);
 
 			expect(values.indexOf('PathLib')).to.be.lessThan(values.indexOf('PATH'));
@@ -98,7 +98,7 @@ suite('Channel API', () => {
 			process.env.MyPath = 'foo'; // startsWith (case-insensitive)
 			process.env.FooMyPath = 'bar'; // includes
 
-			const suggestions = await getSuggestions('env', 'myp', { propertyName: 'Test', inputValue: '' });
+			const suggestions = await getEnvironmentSuggestions('myp', process.env);
 			const values = suggestions.map((s) => s.value);
 
 			expect(values.indexOf('MyPath')).to.be.lessThan(values.indexOf('FooMyPath'));

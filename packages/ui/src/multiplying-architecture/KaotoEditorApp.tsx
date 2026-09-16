@@ -1,219 +1,320 @@
 import '@patternfly/react-core/dist/styles/base.css'; // This import needs to be first
 
 import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
-import {
-  Editor,
-  EditorInitArgs,
-  EditorTheme,
-  KogitoEditorEnvelopeContextType,
-  StateControlCommand,
-} from '@kie-tools-core/editor/dist/api';
-import { Notification } from '@kie-tools-core/notifications/dist/api';
-import { WorkspaceEdit } from '@kie-tools-core/workspace/dist/api';
-import { createRef, RefObject } from 'react';
+import { Button } from '@patternfly/react-core';
+import { createRef, useEffect, useSyncExternalStore } from 'react';
 import { RouterProvider } from 'react-router-dom';
 
 import { CatalogLoaderProvider } from '../dynamic-catalog/catalog.provider';
+import {
+  BridgeError,
+  type IEventBus,
+  type JsonObject,
+  type KaotoRequests,
+  type KaotoResponses,
+  type SettingsSnapshot,
+  type Unsubscribe,
+  type ValidationNotification,
+} from '../host-bridge';
+import { isJsonValue } from '../host-bridge/contracts';
 import { CatalogKind, FileTypes, FileTypesResponse, StepUpdateAction } from '../models';
-import { AbstractSettingsAdapter, SettingsModel } from '../models/settings';
+import { AbstractSettingsAdapter, DefaultSettingsAdapter } from '../models/settings';
 import { KaotoResourceProvider } from '../providers';
 import { EntitiesProvider } from '../providers/entities.provider';
 import { ReloadProvider } from '../providers/reload.provider';
 import { RuntimeProvider } from '../providers/runtime.provider';
 import { SettingsProvider } from '../providers/settings.provider';
 import { SourceCodeSync } from '../providers/source-code-sync';
-import { promiseTimeout } from '../utils';
 import { setColorScheme } from '../utils/color-scheme';
-import { SourceCodeBridgeProviderRef } from './Bridge/editor-api';
+import { bindEditorDocument, type EditorDocumentState, type SourceCodeBridgeProviderRef } from './Bridge/editor-api';
 import { KaotoBridge } from './Bridge/KaotoBridge';
 import { SourceCodeBridgeProvider } from './Bridge/SourceCodeBridgeProvider';
-import { EditService } from './EditService';
-import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
 import { kaotoEditorRouter } from './KaotoEditorRouter';
 
-export class KaotoEditorApp implements Editor {
-  protected editorRef: RefObject<SourceCodeBridgeProviderRef | null>;
-  protected settings: SettingsModel;
+export interface KaotoEditorInit {
+  fileExtension: string;
+  resourcesPathPrefix: string;
+  isReadOnly: boolean;
+  /** Restart the embedding after a pre-edit failure without navigating its frame. */
+  onRetry?: () => void;
+}
+
+/** Subscribe before requesting settings so a late response cannot overwrite a newer push. */
+export async function createKaotoEditor(bus: IEventBus, init: KaotoEditorInit): Promise<KaotoEditorApp> {
+  let newest: SettingsSnapshot | undefined;
+  let app: KaotoEditorApp | undefined;
+  const apply = (snapshot: SettingsSnapshot) => {
+    if (newest && snapshot.settingsVersion <= newest.settingsVersion) return;
+    newest = snapshot;
+    app?.updateSettings(new DefaultSettingsAdapter(snapshot.settings));
+  };
+  const unsubscribe = bus.on('editor:settings:updated', apply);
+  try {
+    apply(await bus.request('editor:settings:get', null));
+    app = new KaotoEditorApp(bus, init, new DefaultSettingsAdapter(newest!.settings), unsubscribe);
+    return app;
+  } catch (error) {
+    unsubscribe();
+    throw error;
+  }
+}
+
+export class KaotoEditorApp {
+  protected readonly editorRef = createRef<SourceCodeBridgeProviderRef>();
+  private readonly listeners = new Set<() => void>();
+  private readonly document;
+  private state: { settingsAdapter: AbstractSettingsAdapter; document: EditorDocumentState };
+  private disposed = false;
+  private mounts = 0;
   af_isReact = true;
   af_componentId = 'kaoto-editor';
   af_componentTitle = 'Kaoto Editor';
 
   constructor(
-    protected readonly envelopeContext: KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>,
-    protected readonly initArgs: EditorInitArgs,
-    protected readonly settingsAdapter: AbstractSettingsAdapter,
+    private readonly bus: IEventBus,
+    private readonly initArgs: KaotoEditorInit,
+    settingsAdapter: AbstractSettingsAdapter,
+    private readonly unsubscribeSettings: Unsubscribe = () => {},
   ) {
-    this.editorRef = createRef<SourceCodeBridgeProviderRef>();
-    this.settings = this.settingsAdapter.getSettings();
-    this.sendReady = this.sendReady.bind(this);
-    this.sendNewEdit = this.sendNewEdit.bind(this);
-    this.sendNotifications = this.sendNotifications.bind(this);
-    this.sendStateControlCommand = this.sendStateControlCommand.bind(this);
-    this.getMetadata = this.getMetadata.bind(this);
-    this.setMetadata = this.setMetadata.bind(this);
-    this.getResourcesContentByType = this.getResourcesContentByType.bind(this);
-    this.getResourceContent = this.getResourceContent.bind(this);
-    this.isResourceExist = this.isResourceExist.bind(this);
-    this.saveResourceContent = this.saveResourceContent.bind(this);
-    this.deleteResource = this.deleteResource.bind(this);
-    this.askUserForFileSelection = this.askUserForFileSelection.bind(this);
-    this.getSuggestions = this.getSuggestions.bind(this);
-    this.onStepUpdated = this.onStepUpdated.bind(this);
+    this.document = bindEditorDocument(bus, this.editorRef, () => {
+      this.state = { ...this.state, document: this.document.getState() };
+      this.listeners.forEach((listener) => {
+        listener();
+      });
+    });
+    this.state = { settingsAdapter, document: this.document.getState() };
   }
 
-  async setContent(path: string, content: string): Promise<void> {
-    const isStaleEdit = await EditService.getInstance().isStaleEdit(content);
+  updateSettings(settingsAdapter: AbstractSettingsAdapter) {
+    if (this.disposed) return;
+    this.state = { ...this.state, settingsAdapter };
+    setColorScheme(settingsAdapter.getSettings().colorScheme);
+    this.listeners.forEach((listener) => {
+      listener();
+    });
+  }
 
-    if (isStaleEdit) {
-      return;
+  suspend(error: Error) {
+    if (!this.disposed) this.document.suspend(error);
+  }
+
+  dispose() {
+    if (this.disposed) return;
+    this.disposed = true;
+    this.unsubscribeSettings();
+    this.document.dispose();
+    this.bus.dispose();
+    this.listeners.clear();
+  }
+
+  private async request<R extends keyof KaotoRequests>(
+    request: R,
+    payload: KaotoRequests[R],
+  ): Promise<KaotoResponses[R]> {
+    try {
+      return await this.bus.request(request, payload);
+    } catch (error) {
+      if (error instanceof BridgeError && ['NOT_CONNECTED', 'DISPOSED'].includes(error.code)) this.suspend(error);
+      throw error;
     }
-
-    EditService.getInstance().clearEdits();
-
-    await this.editorRef.current?.setContent(path, content);
   }
 
-  async getContent(): Promise<string> {
-    const content = await this.editorRef.current?.getContent();
+  sendReady = () => {
+    this.document.ready();
+  };
+  sendNewEdit = async (content: string) => {
+    this.document.notifyChange(content);
+  };
+  private applyHistory = (command: 'undo' | 'redo') => {
+    void this.document.applyHistory(command).catch((error: unknown) => {
+      if (this.disposed) return;
+      this.bus.emit('host:notification:show', {
+        type: 'error',
+        message: error instanceof Error ? error.message : 'Could not apply document history',
+      });
+    });
+  };
+  sendNotifications = (path: string, notifications: ValidationNotification[]) => {
+    this.bus.emit('editor:notifications:set', { path, notifications });
+  };
 
-    return content ?? '';
-  }
-
-  async getPreview(): Promise<string | undefined> {
-    return this.editorRef.current?.getPreview();
-  }
-
-  async undo(): Promise<void> {
-    return this.editorRef.current?.undo();
-  }
-
-  async redo(): Promise<void> {
-    return this.editorRef.current?.redo();
-  }
-
-  async validate(): Promise<Notification[]> {
-    return this.editorRef.current?.validate() ?? [];
-  }
-
-  async setTheme(theme: EditorTheme): Promise<void> {
-    return this.editorRef.current?.setTheme(theme);
-  }
-
-  async sendReady(): Promise<void> {
-    this.envelopeContext.channelApi.notifications.kogitoEditor_ready.send();
-  }
-
-  async sendNewEdit(content: string): Promise<void> {
-    await EditService.getInstance().registerEdit(content);
-
-    const edit = new WorkspaceEdit(content);
-    this.envelopeContext.channelApi.notifications.kogitoWorkspace_newEdit.send(edit);
-  }
-
-  sendNotifications(path: string, notifications: Notification[]): void {
-    this.envelopeContext.channelApi.notifications.kogitoNotifications_setNotifications.send(path, notifications);
-  }
-
-  sendStateControlCommand(command: StateControlCommand): void {
-    this.envelopeContext.channelApi.notifications.kogitoEditor_stateControlCommandUpdate.send(command);
-  }
-
-  async getMetadata<T>(key: string): Promise<T | undefined> {
-    return this.envelopeContext.channelApi.requests.getMetadata(key);
-  }
-
-  async setMetadata<T>(key: string, preferences: T): Promise<void> {
-    return this.envelopeContext.channelApi.requests.setMetadata(key, preferences);
-  }
-
-  async getResourcesContentByType(fileType: FileTypes): Promise<FileTypesResponse[]> {
-    return this.envelopeContext.channelApi.requests.getResourcesContentByType(fileType);
-  }
-
-  async getResourceContent(path: string): Promise<string | undefined> {
-    return this.envelopeContext.channelApi.requests.getResourceContent(path);
-  }
-
-  async isResourceExist(path: string): Promise<boolean> {
-    return await this.envelopeContext.channelApi.requests.isResourceExist(path);
-  }
-
-  async saveResourceContent(path: string, content: string): Promise<void> {
-    return this.envelopeContext.channelApi.requests.saveResourceContent(path, content);
-  }
-
-  async deleteResource(path: string): Promise<boolean> {
-    return this.envelopeContext.channelApi.requests.deleteResource(path);
-  }
-
-  async askUserForFileSelection(
+  getMetadata = async <T,>(key: string): Promise<T | undefined> => {
+    const { value } = await this.request('editor:metadata:get', { key });
+    return value === null ? undefined : (value as T);
+  };
+  setMetadata = async <T,>(key: string, preferences: T): Promise<void> => {
+    const value = preferences ?? null;
+    if (!isJsonValue(value)) throw new BridgeError('INVALID_MESSAGE', 'Metadata must be JSON');
+    await this.request('editor:metadata:set', { key, value });
+  };
+  getResourcesContentByType = async (fileType: FileTypes): Promise<FileTypesResponse[]> => {
+    return (await this.request('editor:resource:getByType', { fileType })).resources;
+  };
+  getResourceContent = async (path: string): Promise<string | undefined> => {
+    return (await this.request('editor:resource:getContent', { path })).content ?? undefined;
+  };
+  isResourceExist = async (path: string): Promise<boolean> => {
+    return (await this.request('editor:resource:exists', { path })).exists;
+  };
+  saveResourceContent = async (path: string, content: string): Promise<void> => {
+    await this.request('editor:resource:save', { path, content });
+  };
+  deleteResource = async (path: string): Promise<boolean> => {
+    return (await this.request('editor:resource:delete', { path })).success;
+  };
+  askUserForFileSelection = async (
     include: string,
     exclude?: string,
     options?: Record<string, unknown>,
-  ): Promise<string[] | string | undefined> {
-    return this.envelopeContext.channelApi.requests.askUserForFileSelection(include, exclude, options);
-  }
-
-  async getSuggestions(topic: string, word: string, context: SuggestionRequestContext): Promise<Suggestion[]> {
+  ): Promise<string[] | string | undefined> => {
+    return (
+      (
+        await this.request('host:ui:pickFile', {
+          include,
+          ...(exclude === undefined ? {} : { exclude }),
+          ...(options === undefined
+            ? {}
+            : { options: Object.fromEntries(Object.entries(options).filter(([, value]) => value !== undefined)) }),
+        })
+      ).selection ?? undefined
+    );
+  };
+  getSuggestions = async (topic: string, word: string, context?: SuggestionRequestContext): Promise<Suggestion[]> => {
     try {
-      return await promiseTimeout(
-        this.envelopeContext.channelApi.requests.getSuggestions(topic, word, context),
-        2_000,
-        [],
-      );
-    } catch (error) {
-      return []; // Return an empty array in case of error to avoid breaking the editor
+      return (
+        await this.request('editor:suggestions:get', {
+          topic,
+          word,
+          context: Object.fromEntries(
+            Object.entries(context ?? {}).filter(([, value]) => value !== undefined),
+          ) as JsonObject,
+        })
+      ).suggestions;
+    } catch {
+      return [];
     }
-  }
-
-  async onStepUpdated(action: StepUpdateAction, stepType: CatalogKind, stepName: string): Promise<void> {
-    return this.envelopeContext.channelApi.requests.onStepUpdated(action, stepType, stepName);
-  }
+  };
+  getRuntimeInfoFromMavenContext = async () => {
+    try {
+      return (await this.request('editor:maven:getRuntimeInfo', null)).runtimeInfo ?? undefined;
+    } catch (error) {
+      if (error instanceof BridgeError && error.code === 'UNSUPPORTED_REQUEST') return undefined;
+      throw error;
+    }
+  };
+  onStepUpdated = async (action: StepUpdateAction, stepType: CatalogKind, stepName: string): Promise<void> => {
+    this.bus.emit('editor:step:updated', { action, stepType, stepName });
+  };
 
   af_onOpen(): void {
-    setColorScheme(this.settingsAdapter.getSettings().colorScheme);
+    setColorScheme(this.state.settingsAdapter.getSettings().colorScheme);
   }
 
-  af_componentRoot() {
+  private subscribe = (listener: () => void) => {
+    this.listeners.add(listener);
+    return () => {
+      this.listeners.delete(listener);
+    };
+  };
+  private getState = () => this.state;
+
+  private Root = () => {
+    const state = useSyncExternalStore(this.subscribe, this.getState);
+    const settings = state.settingsAdapter.getSettings();
+    // VS Code exposes history commands, but not native stack availability. Let it decide at the boundary.
+    const history = state.document.nativeUndoRedo
+      ? {
+          undo: () => {
+            this.applyHistory('undo');
+          },
+          redo: () => {
+            this.applyHistory('redo');
+          },
+          canUndo: !state.document.historyPending,
+          canRedo: !state.document.historyPending,
+        }
+      : undefined;
+    useEffect(() => {
+      this.mounts++;
+      return () => {
+        this.mounts--;
+        // React Strict Mode replays mount effects. Dispose only after a real unmount.
+        queueMicrotask(() => {
+          if (this.mounts === 0) this.dispose();
+        });
+      };
+    }, []);
     return (
-      <ReloadProvider>
-        <SettingsProvider adapter={this.settingsAdapter}>
-          <SourceCodeSync>
-            <SourceCodeBridgeProvider ref={this.editorRef} onNewEdit={this.sendNewEdit}>
-              <KaotoResourceProvider fileExtension={this.initArgs.fileExtension}>
-                <RuntimeProvider
-                  catalogUrl={this.settings.catalogUrl}
-                  runtimeCatalogName={this.settings.runtimeCatalogName}
-                  testingCatalogName={this.settings.testingCatalogName}
-                >
-                  <CatalogLoaderProvider getResourcesContentByType={this.getResourcesContentByType}>
-                    <EntitiesProvider>
-                      <KaotoBridge
-                        channelType={this.initArgs.channel}
-                        onReady={this.sendReady}
-                        setNotifications={this.sendNotifications}
-                        onStateControlCommandUpdate={this.sendStateControlCommand}
-                        getMetadata={this.getMetadata}
-                        setMetadata={this.setMetadata}
-                        getResourceContent={this.getResourceContent}
-                        saveResourceContent={this.saveResourceContent}
-                        isResourceExist={this.isResourceExist}
-                        deleteResource={this.deleteResource}
-                        askUserForFileSelection={this.askUserForFileSelection}
-                        getSuggestions={this.getSuggestions}
-                        shouldSaveSchema={false}
-                        onStepUpdated={this.onStepUpdated}
-                      >
-                        <RouterProvider router={kaotoEditorRouter} />
-                      </KaotoBridge>
-                    </EntitiesProvider>
-                  </CatalogLoaderProvider>
-                </RuntimeProvider>
-              </KaotoResourceProvider>
-            </SourceCodeBridgeProvider>
-          </SourceCodeSync>
-        </SettingsProvider>
-      </ReloadProvider>
+      <>
+        {state.document.error && (
+          <div role="alert">
+            {state.document.error.message}
+            {!state.document.initialized && (
+              <Button
+                variant="link"
+                onClick={() => {
+                  this.dispose();
+                  if (this.initArgs.onRetry) this.initArgs.onRetry();
+                  else window.location.reload();
+                }}
+              >
+                Retry
+              </Button>
+            )}
+          </div>
+        )}
+        {!state.document.initialized && !state.document.error && <div role="status">Loading document…</div>}
+        <div
+          inert={
+            !state.document.initialized ||
+            state.document.readonly ||
+            this.initArgs.isReadOnly ||
+            !!state.document.error ||
+            state.document.historyPending
+          }
+          aria-busy={!state.document.initialized}
+        >
+          <ReloadProvider>
+            <SettingsProvider adapter={state.settingsAdapter}>
+              <SourceCodeSync>
+                <SourceCodeBridgeProvider ref={this.editorRef} onNewEdit={this.sendNewEdit} history={history}>
+                  <KaotoResourceProvider fileExtension={this.initArgs.fileExtension}>
+                    <RuntimeProvider
+                      catalogUrl={settings.catalogUrl}
+                      runtimeCatalogName={settings.runtimeCatalogName}
+                      testingCatalogName={settings.testingCatalogName}
+                    >
+                      <CatalogLoaderProvider getResourcesContentByType={this.getResourcesContentByType}>
+                        <EntitiesProvider>
+                          <KaotoBridge
+                            onReady={this.sendReady}
+                            getMetadata={this.getMetadata}
+                            setMetadata={this.setMetadata}
+                            getResourceContent={this.getResourceContent}
+                            saveResourceContent={this.saveResourceContent}
+                            isResourceExist={this.isResourceExist}
+                            deleteResource={this.deleteResource}
+                            askUserForFileSelection={this.askUserForFileSelection}
+                            getSuggestions={this.getSuggestions}
+                            shouldSaveSchema={false}
+                            onStepUpdated={this.onStepUpdated}
+                          >
+                            <RouterProvider router={kaotoEditorRouter} />
+                          </KaotoBridge>
+                        </EntitiesProvider>
+                      </CatalogLoaderProvider>
+                    </RuntimeProvider>
+                  </KaotoResourceProvider>
+                </SourceCodeBridgeProvider>
+              </SourceCodeSync>
+            </SettingsProvider>
+          </ReloadProvider>
+        </div>
+      </>
     );
+  };
+
+  af_componentRoot() {
+    return <this.Root />;
   }
 }
