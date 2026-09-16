@@ -3931,7 +3931,7 @@ __metadata:
     "@storybook/react-vite": "npm:^10.2.14"
     "@storybook/testing-library": "npm:^0.2.2"
     "@types/eslint__js": "npm:^8.42.3"
-    chromatic: "npm:^11.0.0"
+    chromatic: "npm:^18.8.1"
     cypress: "npm:^16.0.0"
     cypress-file-upload: "npm:^5.0.8"
     cypress-real-events: "npm:^1.15.0"
@@ -11272,22 +11272,32 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chromatic@npm:^11.0.0":
-  version: 11.29.0
-  resolution: "chromatic@npm:11.29.0"
+"chromatic@npm:^18.8.1":
+  version: 18.8.1
+  resolution: "chromatic@npm:18.8.1"
+  dependencies:
+    semver: "npm:^7.3.5"
   peerDependencies:
     "@chromatic-com/cypress": ^0.*.* || ^1.0.0
     "@chromatic-com/playwright": ^0.*.* || ^1.0.0
+    "@chromatic-com/vitest": ^0.*.* || ^1.0.0
+  dependenciesMeta:
+    "@sentry/cli":
+      built: true
+    esbuild:
+      built: true
   peerDependenciesMeta:
     "@chromatic-com/cypress":
       optional: true
     "@chromatic-com/playwright":
       optional: true
+    "@chromatic-com/vitest":
+      optional: true
   bin:
-    chroma: dist/bin.js
-    chromatic: dist/bin.js
-    chromatic-cli: dist/bin.js
-  checksum: 10/8416acc2f5d61bbbaffb232906244c1a84b6068b2801ae166b76c880a45bc42282bc79ea36c58811a9e6d9e9ea142de5610165940fac2c7bf1d4fc1ba6bc091c
+    chroma: dist/bin.cjs
+    chromatic: dist/bin.cjs
+    chromatic-cli: dist/bin.cjs
+  checksum: 10/91f11b4b0505cc603f4e198e2d66078d99e4dba3af41af25f72f2c0cb0b5734a3a708da36fcc60015c15414688f6778e3ef9588c810be68619462fba5c381da4
   languageName: node
   linkType: hard
 

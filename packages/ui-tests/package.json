@@ -31,7 +31,7 @@
     "@storybook/react-vite": "^10.2.14",
     "@storybook/testing-library": "^0.2.2",
     "@types/eslint__js": "^8.42.3",
-    "chromatic": "^11.0.0",
+    "chromatic": "^18.8.1",
     "cypress": "^16.0.0",
     "cypress-file-upload": "^5.0.8",
     "cypress-real-events": "^1.15.0",
