@@ -76,24 +76,20 @@ describe('Toggle Source Code', function () {
 		expect(groupsNum).to.equal(2);
 
 		const editor = new TextEditor(await editorView.getEditorGroup(1));
-		// Ensure the editor is focused so the status bar updates its cursor position.
-		// On slow CI runners (especially Windows) the status bar may not reflect a
-		// valid "Ln X, Col Y" within the library's default 5 s timeout unless the
-		// editor is explicitly activated first.
-		await editor.click();
-
+		// Read the rendered source directly; getTextAtLine also drives the command
+		// palette and clipboard and waits for status-bar cursor coordinates.
 		let text = '';
 		await editor.getDriver().wait(
 			async () => {
 				try {
-					text = await editor.getTextAtLine(1);
-					return true;
+					text = await editor.findElement(By.css('.view-lines .view-line')).getText();
+					return text.includes('- route:');
 				} catch {
 					return false;
 				}
 			},
 			10_000,
-			'Text editor was not ready within 10s',
+			'Source editor did not render the route within 10s',
 		);
 		expect(text).contains('- route:');
 	});

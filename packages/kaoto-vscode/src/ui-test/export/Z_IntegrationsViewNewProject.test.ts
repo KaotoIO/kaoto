@@ -97,8 +97,8 @@ describe('Integrations View', function () {
 			} finally {
 				await driver.switchTo().window(originalWindowHandle);
 			}
-			// Allow closing processes to release their file handles before removing the project.
-			fs.rmSync(PROJECT_OUTPUT_DIR, { force: true, recursive: true, maxRetries: 5, retryDelay: 200 });
+			// Async removal retries Windows permission errors that Node 24's rmSync can fail on immediately.
+			await fs.promises.rm(PROJECT_OUTPUT_DIR, { force: true, recursive: true, maxRetries: 5, retryDelay: 200 });
 		});
 
 		// prettier-ignore

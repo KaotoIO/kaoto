@@ -3,16 +3,19 @@ Cypress.Commands.add('fitToScreen', () => {
 });
 
 function openConfigurationTab(selector: string, index = 0) {
-  cy.get(selector)
+  return cy
+    .get(selector)
     .eq(index)
     .then(($node) => {
+      const nodeId = Cypress.$.escapeSelector($node.closest('[data-id]').attr('data-id')!);
       // Clicking an already selected node toggles its properties panel closed.
       if ($node.attr('data-selected') !== 'true') {
         cy.wrap($node).click({ force: true });
       }
+      cy.get('.pf-topology-resizable-side-bar').should('be.visible');
+      // Selection can reorder or remount nodes, so re-query the same node by its topology ID.
+      return cy.get(`[data-id="${nodeId}"] > ${selector}`).should('have.attr', 'data-selected', 'true');
     });
-  cy.get('.pf-topology-resizable-side-bar').should('be.visible');
-  return cy.get(selector).eq(index).should('have.attr', 'data-selected', 'true');
 }
 
 Cypress.Commands.add('openStepConfigurationTab', (step: string, stepIndex = 0) => {
