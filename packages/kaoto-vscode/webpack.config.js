@@ -227,7 +227,7 @@ const webpack = async (env) => [
   }),
 ];
 
-module.exports = async (env) => {
+module.exports = async function createWebpackConfig(env) {
   if (env.bridgeTests || env.bridgeWebTests) {
     // The unit runner is CommonJS; bundle the suites that import ESM UI subpaths.
     return {

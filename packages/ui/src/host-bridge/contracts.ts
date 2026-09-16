@@ -211,7 +211,8 @@ const record = (value: unknown): value is Record<string, unknown> =>
 const jsonObject: Validator<JsonObject> = (value): value is JsonObject => record(value) && isJsonValue(value);
 
 function oneOf<const T extends string>(...values: T[]): Validator<T> {
-  return (value): value is T => values.some((candidate) => candidate === value);
+  const allowedValues: readonly unknown[] = values;
+  return (value): value is T => allowedValues.includes(value);
 }
 function optional<T>(validate: Validator<T>): Validator<T | undefined> {
   return (value): value is T | undefined => value === undefined || validate(value);

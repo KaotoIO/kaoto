@@ -684,6 +684,30 @@ describe('untrusted frames', () => {
 });
 
 describe('transport boundaries', () => {
+  it('applies memory listener changes to the next message while completing the current delivery', async () => {
+    const { host, editor } = createMemoryTransports();
+    cleanup.push(() => {
+      host.dispose();
+    });
+    const calls: string[] = [];
+    const late = () => calls.push('late');
+    editor.onMessage(() => {
+      calls.push('first');
+      unsubscribeSecond();
+      editor.onMessage(late);
+    });
+    const unsubscribeSecond = editor.onMessage(() => calls.push('second'));
+    const hello = { ...header, kind: 'hello' as const, editorBootId: 'snapshot' };
+
+    const delivery = host.send(hello);
+    expect(calls).toEqual([]);
+    await delivery;
+    expect(calls).toEqual(['first', 'second']);
+
+    await host.send(hello);
+    expect(calls).toEqual(['first', 'second', 'first', 'late']);
+  });
+
   it('finishes cleanup even when the local error callback throws', async () => {
     const fixture = supplied();
     await fixture.establish();

@@ -323,7 +323,7 @@ export class KaotoHostServices implements vscode.Disposable {
 	}
 
 	private rejectHostLocalPath(value: string): void {
-		if (/^(?:[a-z][a-z\d+.-]*:|[\/\\])/i.test(value)) {
+		if (/^(?:[a-z][a-z\d+.-]*:|[/\\])/i.test(value)) {
 			throw new BridgeError('UNSUPPORTED_REQUEST', 'Host-local paths are unavailable in this workspace');
 		}
 	}

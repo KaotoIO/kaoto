@@ -157,6 +157,14 @@ export function bindEditorDocument(
     );
     return result;
   };
+  const failInitialization = (error: unknown) => {
+    if (state.initialized || disposed) return;
+    clearTimeout(initializationTimer);
+    updateState({
+      ...state,
+      error: error instanceof Error ? error : new BridgeError('INTERNAL_ERROR', 'Could not initialize the document'),
+    });
+  };
   const setContent = async (request: SetContentRequest, signal: AbortSignal) => {
     const api = requireApi(request.reason === 'init');
     if (request.reason === 'init' && state.initialized) return { applied: false, revision };
@@ -181,14 +189,7 @@ export function bindEditorDocument(
       }
       return { applied: true, revision };
     } catch (error) {
-      if (!state.initialized && !disposed) {
-        clearTimeout(initializationTimer);
-        updateState({
-          ...state,
-          error:
-            error instanceof Error ? error : new BridgeError('INTERNAL_ERROR', 'Could not initialize the document'),
-        });
-      }
+      failInitialization(error);
       throw error;
     } finally {
       applyingHostContent = false;

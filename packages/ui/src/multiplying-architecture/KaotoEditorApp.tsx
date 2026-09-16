@@ -125,7 +125,7 @@ export class KaotoEditorApp {
   sendNewEdit = async (content: string) => {
     this.document.notifyChange(content);
   };
-  private applyHistory = (command: 'undo' | 'redo') => {
+  private readonly applyHistory = (command: 'undo' | 'redo') => {
     void this.document.applyHistory(command).catch((error: unknown) => {
       if (this.disposed) return;
       this.bus.emit('host:notification:show', {
@@ -143,9 +143,9 @@ export class KaotoEditorApp {
     return value === null ? undefined : (value as T);
   };
   setMetadata = async <T,>(key: string, preferences: T): Promise<void> => {
-    const value = preferences ?? null;
-    if (!isJsonValue(value)) throw new BridgeError('INVALID_MESSAGE', 'Metadata must be JSON');
-    await this.request('editor:metadata:set', { key, value });
+    const payload = { key, value: preferences ?? null };
+    if (!isJsonValue(payload.value)) throw new BridgeError('INVALID_MESSAGE', 'Metadata must be JSON');
+    await this.request('editor:metadata:set', payload);
   };
   getResourcesContentByType = async (fileType: FileTypes): Promise<FileTypesResponse[]> => {
     return (await this.request('editor:resource:getByType', { fileType })).resources;
@@ -210,15 +210,15 @@ export class KaotoEditorApp {
     setColorScheme(this.state.settingsAdapter.getSettings().colorScheme);
   }
 
-  private subscribe = (listener: () => void) => {
+  private readonly subscribe = (listener: () => void) => {
     this.listeners.add(listener);
     return () => {
       this.listeners.delete(listener);
     };
   };
-  private getState = () => this.state;
+  private readonly getState = () => this.state;
 
-  private Root = () => {
+  private readonly Root = () => {
     const state = useSyncExternalStore(this.subscribe, this.getState);
     const settings = state.settingsAdapter.getSettings();
     // VS Code exposes history commands, but not native stack availability. Let it decide at the boundary.
@@ -263,7 +263,7 @@ export class KaotoEditorApp {
             )}
           </div>
         )}
-        {!state.document.initialized && !state.document.error && <div role="status">Loading document…</div>}
+        {!state.document.initialized && !state.document.error && <output>Loading document…</output>}
         <div
           inert={
             !state.document.initialized ||
