@@ -28,6 +28,10 @@
     "./testing": {
       "types": "./lib/testing-api.d.ts",
       "import": "./lib/testing-api.js"
+    },
+    "./host-bridge": {
+      "types": "./lib/host-bridge/index.d.ts",
+      "import": "./lib/host-bridge/index.js"
     }
   },
   "sideEffects": [
@@ -56,9 +60,7 @@
     "@carbon/react": "^1.102.0",
     "@dnd-kit/core": "^6.1.0",
     "@dnd-kit/modifiers": "^9.0.0",
-    "@kaoto/forms": "^1.8.0",
-    "@kie-tools-core/editor": "^10.0.0",
-    "@kie-tools-core/notifications": "^10.0.0",
+    "@kaoto/forms": "patch:@kaoto/forms@npm%3A1.8.0#~/.yarn/patches/@kaoto-forms-npm-1.8.0-71c932c020.patch",
     "@monaco-editor/react": "^4.7.0",
     "@patternfly/patternfly": "^6.6.1",
     "@patternfly/react-code-editor": "6.6.1",

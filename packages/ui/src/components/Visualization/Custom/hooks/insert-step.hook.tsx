@@ -8,6 +8,7 @@ import { DefinedComponent } from '../../../../models';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { ProcessorStepsService } from '../../../../models/visualization/flows/support/processor-steps.service';
 import { EntitiesContext } from '../../../../providers/entities.provider';
+import { requestNodeSelection } from '../../Canvas/node-selection-state';
 
 export interface UseInsertStepOptions {
   predefinedComponent?: DefinedComponent;
@@ -41,7 +42,8 @@ export const useInsertStep = (
     const targetProperty = mode === AddStepMode.InsertChildStep ? 'steps' : undefined;
 
     /** Add new node to the entities */
-    vizNode.addBaseEntityStep(definedComponent, mode, targetProperty, options?.insertAtStart);
+    const newStepPath = vizNode.addBaseEntityStep(definedComponent, mode, targetProperty, options?.insertAtStart);
+    requestNodeSelection(controller, vizNode, newStepPath);
 
     // Set an empty model to clear the graph, Fixes an issue rendering child nodes incorrectly
     if (mode === AddStepMode.InsertSpecialChildStep) {

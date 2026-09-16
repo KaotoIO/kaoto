@@ -42,6 +42,7 @@ vi.mock('@patternfly/react-icons', () => {
     ExclamationCircleIcon: createMockIcon('exclamation-circle-icon'),
     ExclamationTriangleIcon: createMockIcon('exclamation-triangle-icon'),
     ExpandArrowsAltIcon: createMockIcon('expand-arrows-alt-icon'),
+    ExpandIcon: createMockIcon('expand-icon'),
     ExportIcon: createMockIcon('export-icon'),
     ExternalLinkAltIcon: createMockIcon('external-link-alt-icon'),
     EyeIcon: createMockIcon('eye-icon'),

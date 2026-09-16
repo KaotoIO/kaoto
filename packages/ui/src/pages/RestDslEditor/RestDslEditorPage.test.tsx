@@ -1,6 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, Rest } from '@kaoto/camel-catalog/types';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 
 import { CamelCatalogService } from '../../models';
 import { CamelResourceFactory } from '../../models/camel/camel-resource-factory';
@@ -9,6 +9,8 @@ import { EntityType } from '../../models/entities';
 import { KaotoResource } from '../../models/kaoto-resource';
 import { CamelRestConfigurationVisualEntity } from '../../models/visualization/flows/camel-rest-configuration-visual-entity';
 import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';
+import { EntitiesProvider } from '../../providers/entities.provider';
+import { KaotoResourceContext } from '../../providers/kaoto-resource.provider';
 import { TestProvidersWrapper } from '../../stubs';
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../stubs/test-load-catalog';
 import { RestDslEditorPage } from './RestDslEditorPage';
@@ -65,7 +67,7 @@ describe('RestDslEditorPage', () => {
    * Helper function to select a tree node
    */
   const selectTreeNode = async (nodeName: string) => {
-    const node = await screen.findByText(nodeName);
+    const node = await within(screen.getByRole('tree', { name: 'Rest DSL Configuration' })).findByText(nodeName);
     fireEvent.click(node);
   };
 
@@ -81,7 +83,125 @@ describe('RestDslEditorPage', () => {
     vi.clearAllMocks();
   });
 
+  it.each([
+    { type: 'Configuration', path: 'restConfiguration', before: 'localhost', after: 'example.org' },
+    { type: 'Service', path: 'rest', before: '/api', after: '/api/v2' },
+    { type: 'Service ID', path: 'rest', before: 'rest-1', after: 'renamed-rest' },
+    { type: 'Operation', path: 'rest.get.0', before: '/users', after: '/people' },
+  ])('refreshes $type properties in place after source changes', async ({ path, before, after }) => {
+    const source = `
+- restConfiguration:
+    host: localhost
+- rest:
+    id: rest-1
+    path: /api
+    get:
+      - id: get-1
+        path: /users
+        to:
+          uri: direct:before
+`;
+    const original = CamelResourceFactory.createCamelResource(source);
+    const updated = CamelResourceFactory.createCamelResource(source.replace(before, after));
+    const originalSerialize = vi.spyOn(original, 'toSourceCode');
+    const updatedSerialize = vi.spyOn(updated, 'toSourceCode');
+    let finishInitialization!: () => void;
+    const pending = new Promise<void>((resolve) => {
+      finishInitialization = resolve;
+    });
+    const initialize = updated.initialize.bind(updated);
+    vi.spyOn(updated, 'initialize').mockImplementation(async () => {
+      await pending;
+      await initialize();
+    });
+    const { Provider } = await TestProvidersWrapper();
+    const page = (resource: KaotoResource) => (
+      <KaotoResourceContext.Provider value={{ kaotoResource: resource }}>
+        <EntitiesProvider>
+          <RestDslEditorPage />
+        </EntitiesProvider>
+      </KaotoResourceContext.Provider>
+    );
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    const { rerender } = await act(async () => render(page(original), { wrapper: Provider }));
+    const entity = getRestEntities(original).find((item) => path.startsWith(item.getRootPath()))!;
+    await selectTreeNode(path === 'rest.get.0' ? '/users' : entity.id);
+    const input = await screen.findByDisplayValue(before);
+    await selectTreeNode(path === 'rest.get.0' ? '/users' : entity.id);
+    expect(screen.getByDisplayValue(before)).toBe(input);
+    input.focus();
+    const loadingShown = vi.fn();
+    const observer = new MutationObserver((records) => {
+      records.forEach((record) => {
+        record.addedNodes.forEach((node) => {
+          if (
+            node instanceof Element &&
+            (node.matches('[aria-label="Loading"]') || node.querySelector('[aria-label="Loading"]'))
+          ) {
+            loadingShown();
+          }
+        });
+      });
+    });
+    observer.observe(screen.getByLabelText('Right panel'), { childList: true, subtree: true });
+    try {
+      rerender(page(updated));
+      expect(input).toBeVisible();
+      expect(input).toHaveValue(before);
+      const wasInertWhileInitializing = input.closest('[inert]') !== null;
+      await act(async () => {
+        finishInitialization();
+      });
+      await waitFor(() => {
+        expect(input).toHaveValue(after);
+      });
+      expect(screen.getByDisplayValue(after)).toBe(input);
+      expect(input).toBeVisible();
+      expect(input).toHaveFocus();
+      expect(input.closest('[inert]')).toBeNull();
+      expect(loadingShown).not.toHaveBeenCalled();
+      expect(wasInertWhileInitializing).toBe(true);
+      expect(updatedSerialize).not.toHaveBeenCalled();
+      if (before === 'rest-1') {
+        const tree = within(screen.getByRole('tree', { name: 'Rest DSL Configuration' }));
+        expect(tree.getByText(after)).toBeVisible();
+        expect(tree.queryByText(before)).not.toBeInTheDocument();
+      }
+      fireEvent.change(input, { target: { value: 'edited' } });
+      await waitFor(() => {
+        expect(updatedSerialize).toHaveBeenCalledTimes(1);
+      });
+      expect(await updated.toSourceCode()).toContain('edited');
+      expect(originalSerialize).not.toHaveBeenCalled();
+    } finally {
+      observer.disconnect();
+    }
+  });
+
   describe('Entity Updates', () => {
+    it('updates the service tree label after editing its ID without replacing the form', async () => {
+      const { camelResource, updateSourceCodeFromEntitiesSpy } = await renderPage(`
+- rest:
+    id: rest-1
+    path: /api
+`);
+      await selectTreeNode('rest-1');
+      const input = await screen.findByDisplayValue('rest-1');
+
+      for (const id of ['renamed-rest', 'renamed-again']) {
+        fireEvent.change(input, { target: { value: id } });
+
+        const tree = within(screen.getByRole('tree', { name: 'Rest DSL Configuration' }));
+        expect(tree.getByText(id)).toBeVisible();
+        expect(tree.queryByText('rest-1')).not.toBeInTheDocument();
+        expect(screen.getByText('Edit').parentElement).toHaveTextContent(`Edit ${id}`);
+        expect(screen.getByDisplayValue(id)).toBe(input);
+        expect(input).toBeVisible();
+        expect(await camelResource.toSourceCode()).toContain(`id: ${id}`);
+      }
+      expect(updateSourceCodeFromEntitiesSpy).toHaveBeenCalledTimes(2);
+    });
+
     it('should update entity on property change', async () => {
       const { camelResource, updateSourceCodeFromEntitiesSpy } = await renderPage(`
 - rest:

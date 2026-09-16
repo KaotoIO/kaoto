@@ -44,20 +44,19 @@ describe('RestRouteEndpointField', () => {
     await camelResource.initialize();
     const { Provider } = await TestProvidersWrapper({ camelResource });
 
+    const view = (currentModel: Record<string, unknown>) => (
+      <Provider>
+        <SchemaProvider schema={schema}>
+          <ModelContextProvider model={currentModel} onPropertyChange={onPropertyChange} disabled={options.disabled}>
+            <Suspense fallback={<div>Loading...</div>}>
+              <RestRouteEndpointField propName={PROP_NAME} required={options.required} />
+            </Suspense>
+          </ModelContextProvider>
+        </SchemaProvider>
+      </Provider>
+    );
     // eslint-disable-next-line testing-library/no-unnecessary-act
-    await act(async () => {
-      render(
-        <Provider>
-          <SchemaProvider schema={schema}>
-            <ModelContextProvider model={model} onPropertyChange={onPropertyChange} disabled={options.disabled}>
-              <Suspense fallback={<div>Loading...</div>}>
-                <RestRouteEndpointField propName={PROP_NAME} required={options.required} />
-              </Suspense>
-            </ModelContextProvider>
-          </SchemaProvider>
-        </Provider>,
-      );
-    });
+    const { rerender } = await act(async () => render(view(model)));
 
     // Wait for Suspense to resolve
     await waitFor(
@@ -68,6 +67,9 @@ describe('RestRouteEndpointField', () => {
     );
 
     return {
+      refresh: (currentModel: Record<string, unknown>) => {
+        rerender(view(currentModel));
+      },
       getInput: () => screen.getByRole('textbox', { name: 'Endpoint Name' }),
       getCreateButton: () => screen.getByRole('button', { name: 'Create Route' }),
     };
@@ -122,6 +124,34 @@ describe('RestRouteEndpointField', () => {
   });
 
   describe('value changes', () => {
+    it.each(['direct:billing?timeout=7000', { uri: 'direct', parameters: { name: 'billing', timeout: 7000 } }])(
+      'refreshes the endpoint without hiding it or writing back stale parameters (%j)',
+      async (to) => {
+        const onPropertyChange = vi.fn();
+        const { getInput, refresh } = await renderField({ to: 'direct:orders?timeout=5000' }, onPropertyChange);
+        const input = getInput();
+        input.focus();
+
+        refresh({ to });
+
+        expect(input).toBeVisible();
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+        await waitFor(() => {
+          expect(input).toHaveValue('billing');
+        });
+        expect(getInput()).toBe(input);
+        expect(input).toHaveFocus();
+        expect(onPropertyChange).not.toHaveBeenCalled();
+        fireEvent.click(input);
+        fireEvent.change(input, { target: { value: 'start' } });
+        fireEvent.click(screen.getByRole('option', { name: 'option start' }));
+        expect(onPropertyChange).toHaveBeenCalledWith(PROP_NAME, {
+          uri: 'direct',
+          parameters: { name: 'start', timeout: 7000 },
+        });
+      },
+    );
+
     it('should call onPropertyChange with updated To object when value changes', async () => {
       const onPropertyChange = vi.fn();
       const initialTo: To = {

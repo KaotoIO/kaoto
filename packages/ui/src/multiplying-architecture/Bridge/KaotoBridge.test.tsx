@@ -1,4 +1,3 @@
-import { ChannelType } from '@kie-tools-core/editor/dist/api';
 import { render } from '@testing-library/react';
 import { ComponentProps } from 'react';
 
@@ -6,8 +5,6 @@ import { KaotoBridge } from './KaotoBridge';
 
 describe('KaotoBridge', () => {
   const mockOnReady = vi.fn();
-  const mockOnStateControlCommandUpdate = vi.fn();
-  const mockSetNotifications = vi.fn();
   const mockGetMetadata = vi.fn();
   const mockSetMetadata = vi.fn();
   const mockGetResourceContent = vi.fn();
@@ -19,8 +16,6 @@ describe('KaotoBridge', () => {
 
   const defaultProps: ComponentProps<typeof KaotoBridge> = {
     onReady: mockOnReady,
-    onStateControlCommandUpdate: mockOnStateControlCommandUpdate,
-    setNotifications: mockSetNotifications,
     getMetadata: mockGetMetadata,
     setMetadata: mockSetMetadata,
     getResourceContent: mockGetResourceContent,
@@ -31,7 +26,6 @@ describe('KaotoBridge', () => {
     getSuggestions: mockGetSuggestions,
     shouldSaveSchema: false,
     onStepUpdated: vi.fn(),
-    channelType: ChannelType.VSCODE_DESKTOP,
   };
 
   beforeEach(() => {

@@ -136,6 +136,33 @@ describe('RuntimeProvider', () => {
       fetchMock.mockResolvedValue({ json: () => CONTROLLED_LIBRARY } as unknown as Response);
     });
 
+    it('applies updated host catalog settings and ignores an older pending load', async () => {
+      let resolveOld!: (response: Response) => void;
+      fetchMock.mockImplementationOnce(
+        () =>
+          new Promise<Response>((resolve) => {
+            resolveOld = resolve;
+          }),
+      );
+      const kaotoResource = { getType: () => SourceSchemaType.Integration } as unknown as KaotoResource;
+      const tree = (catalogUrl: string, runtimeCatalogName: string) => (
+        <KaotoResourceContext.Provider value={{ kaotoResource }}>
+          <RuntimeProvider catalogUrl={catalogUrl} runtimeCatalogName={runtimeCatalogName} testingCatalogName="">
+            <SelectedCatalogProbe />
+          </RuntimeProvider>
+        </KaotoResourceContext.Provider>
+      );
+      const view = render(tree('/old/index.json', 'Main Old'));
+      view.rerender(tree('/new/index.json', 'Main New'));
+      expect(await screen.findByTestId('selected-catalog')).toHaveTextContent('Main New');
+      await act(async () => {
+        resolveOld({ json: () => CONTROLLED_LIBRARY } as unknown as Response);
+      });
+      expect(screen.getByTestId('selected-catalog')).toHaveTextContent('Main New');
+      view.rerender(tree('/new/index.json', 'Main Old'));
+      expect(await screen.findByTestId('selected-catalog')).toHaveTextContent('Main Old');
+    });
+
     it('selects the catalog named by runtimeCatalogName for non-test sources', async () => {
       renderInRuntime(
         <RuntimeProvider catalogUrl="/index.json" runtimeCatalogName="Main Old" testingCatalogName="Citrus New">

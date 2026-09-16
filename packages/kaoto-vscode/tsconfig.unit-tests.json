@@ -7,6 +7,7 @@
     "rootDir": ".",
     "paths": {
       "@kaoto/camel-catalog/types": ["../../node_modules/@kaoto/camel-catalog/dist/types/index.ts"],
+      "@kaoto/kaoto/host-bridge": ["../../node_modules/@kaoto/kaoto/lib/host-bridge/index.d.ts"],
       "@kaoto/kaoto/models": ["../../node_modules/@kaoto/kaoto/lib/models-api.d.ts"],
       "@kaoto/kaoto": ["../../node_modules/@kaoto/kaoto/lib/public-api.d.ts"]
     },
@@ -16,5 +17,13 @@
     "resolveJsonModule": true,
     "outDir": "out/test"
   },
-  "include": ["src/test"]
+  "include": ["src/test"],
+  "exclude": [
+    "node_modules",
+    ".vscode-test",
+    "test-resources",
+    "src/test/services/KaotoHostServices.test.ts",
+    "src/test/extension/KaotoEditorProvider.test.ts",
+    "src/test/web/**"
+  ]
 }

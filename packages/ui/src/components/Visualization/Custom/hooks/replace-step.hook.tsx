@@ -1,3 +1,4 @@
+import { useVisualizationController } from '@patternfly/react-topology';
 import { useCallback, useContext, useMemo } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
@@ -12,6 +13,7 @@ import {
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { IInteractionType, IOnDeleteAddon } from '../../../registers/interactions/node-interaction-addon.model';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
+import { requestNodeSelection } from '../../Canvas/node-selection-state';
 import {
   findOnDeleteModalCustomizationRecursively,
   processOnDeleteAddonRecursively,
@@ -21,6 +23,7 @@ export const useReplaceStep = (vizNode: IVisualizationNode) => {
   const entitiesContext = useContext(EntitiesContext);
   const catalogModalContext = useContext(CatalogModalContext);
   const metadataContext = useContext(MetadataContext);
+  const controller = useVisualizationController();
   const replaceModalContext = useContext(ActionConfirmationModalContext);
   const childrenNodes = vizNode.getChildren();
   const hasChildren = childrenNodes !== undefined && childrenNodes.length > 0;
@@ -63,7 +66,8 @@ export const useReplaceStep = (vizNode: IVisualizationNode) => {
     );
 
     /** Add new node to the entities */
-    vizNode.addBaseEntityStep(definedComponent, AddStepMode.ReplaceStep);
+    const newStepPath = vizNode.addBaseEntityStep(definedComponent, AddStepMode.ReplaceStep);
+    requestNodeSelection(controller, vizNode, newStepPath);
 
     /** Update entity */
     entitiesContext.updateEntitiesFromCamelResource();
@@ -72,6 +76,7 @@ export const useReplaceStep = (vizNode: IVisualizationNode) => {
     await metadataContext?.onStepUpdated?.(StepUpdateAction.Replace, definedComponent.type, definedComponent.name);
   }, [
     catalogModalContext,
+    controller,
     entitiesContext,
     getRegisteredInteractionAddons,
     hasChildren,

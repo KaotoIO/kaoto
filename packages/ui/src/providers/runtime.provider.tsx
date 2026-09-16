@@ -48,6 +48,7 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<IRuntimeProvid
   const basePath = catalogUrl.substring(0, catalogUrl.lastIndexOf('/'));
 
   useEffect(() => {
+    let active = true;
     // Engage Loading synchronously, before the fetch. When currentSchemaType changes, doing this
     // inside the fetch's `.then` leaves a window where the library is reloading but loadingStatus
     // is still `Loaded`, so children (the whole toolbar) keep rendering as interactive while a
@@ -56,6 +57,7 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<IRuntimeProvid
     fetch(catalogUrl)
       .then((response) => response.json())
       .then((catalogLibrary: CatalogLibrary) => {
+        if (!active) return;
         let catalogLibraryEntry: CatalogLibraryEntry | undefined = undefined;
         if (isDefined(catalogName)) {
           catalogLibraryEntry = catalogLibrary.definitions.find((c: CatalogLibraryEntry) => c.name === catalogName);
@@ -65,27 +67,26 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<IRuntimeProvid
         }
 
         setCatalogLibrary(catalogLibrary);
-        if (isDefined(catalogLibraryEntry)) {
-          setSelectedCatalog(catalogLibraryEntry);
-        }
+        setSelectedCatalog(catalogLibraryEntry);
 
         return fetchXsltXPathFunctions(basePath, catalogLibrary).catch(() => {
           /* XSLT catalog load failure is non-fatal — XPath editor falls back to hardcoded functions */
         });
       })
       .then(() => {
-        setLoadingStatus(LoadingStatus.Loaded);
+        if (active) setLoadingStatus(LoadingStatus.Loaded);
       })
       .catch((error) => {
+        if (!active) return;
         setErrorMessage(error.message);
         setLoadingStatus(LoadingStatus.Error);
       });
 
     return () => {
+      active = false;
       XPathFunctionCatalogService.clear();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentSchemaType]);
+  }, [basePath, catalogName, catalogUrl, currentSchemaType]);
 
   const runtimeContext: IRuntimeContext = useMemo(
     () => ({

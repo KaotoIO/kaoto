@@ -81,6 +81,29 @@ describe('RenderingProvider', () => {
     expect(anotherComponent).toBeNull();
   });
 
+  it('should render each registration once after repeated renders', () => {
+    const activationFn = () => true;
+    const components: IRegisteredComponent[] = [
+      { anchor: anchorExample, activationFn, component: () => <p>First component</p> },
+      { anchor: anchorExample, activationFn, component: () => <p>Second component</p> },
+    ];
+    const content = () => (
+      <RenderingProvider>
+        <ProviderConsumer
+          anchorTag={anchorExample}
+          registerComponents={components.map((component) => ({ ...component }))}
+        />
+      </RenderingProvider>
+    );
+    const wrapper = render(content());
+
+    wrapper.rerender(content());
+    wrapper.rerender(content());
+
+    expect(wrapper.getAllByText('First component')).toHaveLength(1);
+    expect(wrapper.getAllByText('Second component')).toHaveLength(1);
+  });
+
   it('should filter components by activationFn', async () => {
     const { getByText, queryByText } = render(
       <RenderingProvider>

@@ -5,7 +5,7 @@
 }
 
 .canvas-sidebar {
-  width: calc(100% - 10px);
+  width: calc(100% - var(--pf-v6-c-drawer__splitter--m-vertical--Width));
   position: absolute;
   height: 100%;
 }
