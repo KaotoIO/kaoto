@@ -26,6 +26,31 @@ import { RestTreeToolbar } from './components/RestTreeToolbar';
 const DEFAULT_TREE_PANEL_WIDTH_PERCENT = 30;
 const DEFAULT_REST_METHOD_URI = 'direct';
 
+function reconcileRestSelection(
+  selection: IRestTreeSelection | undefined,
+  previousEntities: RestEntity[],
+  entities: RestEntity[],
+): IRestTreeSelection | undefined {
+  if (!selection) return selection;
+  const index = previousEntities.findIndex((entity) => entity.id === selection.entityId);
+  if (index === -1) return selection;
+
+  let nextEntity = entities.find((entity) => entity.id === selection.entityId);
+  // Configuration IDs are generated on every parse; service IDs can be edited in source.
+  // Retain the selection by position only when the entity list has the same shape.
+  const candidate = entities[index];
+  if (
+    !nextEntity &&
+    previousEntities.length === entities.length &&
+    candidate?.type === previousEntities[index].type &&
+    !previousEntities.some((entity) => entity.id === candidate.id)
+  ) {
+    nextEntity = candidate;
+  }
+  if (!nextEntity || getValue(nextEntity.toJSON(), selection.modelPath) === undefined) return undefined;
+  return nextEntity.id === selection.entityId ? selection : { ...selection, entityId: nextEntity.id };
+}
+
 /**
  * Main page component for editing REST DSL configurations.
  * Provides a split-panel interface with a tree view on the left and a form editor on the right.
@@ -45,25 +70,9 @@ export const RestDslEditorPage: FunctionComponent = () => {
 
   if (!isLoading && previousEntities !== restRelatedEntities) {
     setPreviousEntities(restRelatedEntities);
-    const index = previousEntities.findIndex((entity) => entity.id === selectedElement?.entityId);
-    if (selectedElement && index !== -1) {
-      let nextEntity = restRelatedEntities.find((entity) => entity.id === selectedElement.entityId);
-      // Configuration IDs are generated on every parse; service IDs can be edited in source.
-      // Retain the selection by position only when the entity list has the same shape.
-      const candidate = restRelatedEntities[index];
-      if (
-        !nextEntity &&
-        previousEntities.length === restRelatedEntities.length &&
-        candidate?.type === previousEntities[index].type &&
-        !previousEntities.some((entity) => entity.id === candidate.id)
-      ) {
-        nextEntity = candidate;
-      }
-      if (!nextEntity || getValue(nextEntity.toJSON(), selectedElement.modelPath) === undefined) {
-        setSelectedElement(undefined);
-      } else if (nextEntity.id !== selectedElement.entityId) {
-        setSelectedElement({ ...selectedElement, entityId: nextEntity.id });
-      }
+    const nextSelection = reconcileRestSelection(selectedElement, previousEntities, restRelatedEntities);
+    if (nextSelection !== selectedElement) {
+      setSelectedElement(nextSelection);
     }
   }
 
