@@ -1,150 +1,158 @@
-name: 🏷️ Release Pipeline, create a tag/release for Kaoto Next, publish the NPM and release a container image
+name: 🏷️ Release Pipeline — unified release orchestrator for Kaoto
+
 on:
   workflow_dispatch:
     inputs:
       tag_version:
         type: string
         description: |
-          The tag version we want to release without prefix (e.g. 2.0.0)
+          The tag version to release without prefix (e.g. 2.13.0)
         required: true
-      stable:
+      snapshot:
         type: boolean
         description: |
-          Is this a stable release? If so we are going to tag also a stable container image to be used in the Kaoto Operator
+          Snapshot/pre-release mode — skips UI package & container image release;
+          creates a snapshot VS Code VSIX and a GitHub pre-release tagged <tag_version>-SNAPSHOT-<sha>
+        required: false
+        default: true
+      run_ui_tests:
+        type: boolean
+        description: |
+          Run full VS Code UI + deploy tests (minikube) before packaging
         required: false
         default: true
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      release_tag: ${{ steps.compute.outputs.release_tag }}
+    steps:
+      - name: '🔢 Compute release tag'
+        id: compute
+        env:
+          TAG_VERSION: ${{ inputs.tag_version }}
+          SNAPSHOT: ${{ inputs.snapshot }}
+        run: |
+          if [[ ! "${TAG_VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::tag_version '${TAG_VERSION}' is not a valid X.Y.Z version (no prefix, no whitespace, no pre-release suffix)."
+            exit 1
+          fi
+          SHORT_SHA="${GITHUB_SHA::7}"
+          if [ "$SNAPSHOT" = "true" ]; then
+            RELEASE_TAG="${TAG_VERSION}-SNAPSHOT-${SHORT_SHA}"
+          else
+            RELEASE_TAG="${TAG_VERSION}"
+          fi
+          echo "release_tag=${RELEASE_TAG}" >> "$GITHUB_OUTPUT"
+
+  call-release-vscode:
+    needs: setup
+    uses: ./.github/workflows/release-vscode.yml
+    with:
+      release_tag: ${{ needs.setup.outputs.release_tag }}
+      snapshot: ${{ inputs.snapshot }}
+      run_ui_tests: ${{ inputs.run_ui_tests }}
+    secrets: inherit
+
+  call-release-ui:
+    needs: setup
+    if: ${{ !inputs.snapshot }}
+    uses: ./.github/workflows/release-ui.yml
+    with:
+      release_tag: ${{ needs.setup.outputs.release_tag }}
+    secrets: inherit
+
+  call-release-container:
+    needs: setup
+    if: ${{ !inputs.snapshot }}
+    uses: ./.github/workflows/release-container.yml
+    with:
+      release_tag: ${{ needs.setup.outputs.release_tag }}
+    secrets: inherit
+
   tag-and-release:
     permissions:
       contents: write
     runs-on: ubuntu-latest
+    needs:
+      - setup
+      - call-release-vscode
+      - call-release-ui
+      - call-release-container
+    # always() prevents GitHub Actions from propagating the skip when UI or Container jobs are
+    # skipped on snapshot runs.
+    if: |
+      always() &&
+      needs.setup.result == 'success' &&
+      needs.call-release-vscode.result == 'success' &&
+      (needs.call-release-ui.result == 'success' || needs.call-release-ui.result == 'skipped') &&
+      (needs.call-release-container.result == 'success' || needs.call-release-container.result == 'skipped')
+
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: '🛰️ Checkout source code'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
 
-      - name: Bump version and push tag
-        id: tag_version
+      - name: '🔧 Setup Node.js'
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: '24.x'
+          cache: 'yarn'
+
+      - name: '🔍 Check if git tag already exists'
+        id: check_tag
+        env:
+          RELEASE_TAG: ${{ needs.setup.outputs.release_tag }}
+        run: |
+          if git ls-remote --tags origin "refs/tags/${RELEASE_TAG}" | grep -q .; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: '🏷️ Create and push git tag'
+        if: ${{ steps.check_tag.outputs.exists == 'false' }}
         uses: mathieudutour/github-tag-action@a22cf08638b34d5badda920f9daf6e72c477b07b # v6.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          custom_tag: ${{ github.event.inputs.tag_version }}
+          custom_tag: ${{ needs.setup.outputs.release_tag }}
           create_annotated_tag: true
           tag_prefix: ''
 
-      - name: Create a GitHub release
+      - name: '📋 Generate changelog'
+        id: changelog
+        if: ${{ !inputs.snapshot }}
+        run: |
+          body=$(node .github/scripts/generate-changelog.mjs)
+          {
+            echo 'changelog_body<<EOF'
+            echo "$body"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: '📥 Download VSIX artifact'
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: vscode-kaoto-vsix-release
+          path: release-artifacts
+
+      - name: '📥 Download SBOM artifact'
+        if: ${{ !inputs.snapshot }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: vscode-kaoto-sbom
+          path: release-artifacts
+
+      - name: '🚀 Create or update GitHub Release'
         uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
-          tag: ${{ steps.tag_version.outputs.new_tag }}
-          name: Release ${{ steps.tag_version.outputs.new_tag }}
-
-  npm-release:
-    permissions:
-      id-token: write  # Required for OIDC
-      contents: write
-    runs-on: ubuntu-latest
-    needs:
-      - tag-and-release
-
-    steps:
-      - name: '🛰️ Checkout source code'
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
-        with:
-          node-version: '24.x'
-          registry-url: 'https://registry.npmjs.org'
-          scope: '@kaoto'
-          cache: 'yarn'
-
-      # Install dependencies
-      - name: 🔧 Install dependencies
-        run: yarn install --immutable --mode=skip-build
-
-      # Build lib
-      - name: Build @kaoto/kaoto package in lib mode
-        run: yarn workspace @kaoto/kaoto run build:lib
-
-      # Version and publish
-      - name: 'Version and publish'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          yarn publish
-
-  container-image-release:
-    permissions:
-      contents: write
-    runs-on: ubuntu-latest
-    needs:
-      - tag-and-release
-      - npm-release
-    steps:
-      - name: '🛰️ Checkout source code'
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
-        with:
-          node-version: '24.x'
-          registry-url: 'https://registry.npmjs.org'
-          scope: '@kaoto'
-          cache: 'yarn'
-
-      # Install dependencies
-      - name: 🔧 Install dependencies
-        run: yarn install --immutable --mode=skip-build
-
-      - name: '🔧 Build packages'
-        run: |
-          yarn workspaces foreach --verbose --all --topological-dev run build
-
-      - name: '🛰️ Login to Container Registry'
-        uses: docker/login-action@371161bbe7024a29a25c5e19bfcbc0804fe9ad2c # v4.5.2
-        with:
-          registry: quay.io
-          username: ${{ secrets.QUAY_USERNAME }}
-          password: ${{ secrets.QUAY_PASSWORD }}
-
-      - name: '🔧 Build Container Image'
-        shell: bash
-        # Security: Prevent script injection by using environment variables instead of direct expression syntax.
-        # The ${{ ... }} expression is evaluated when setting the env var (safely, as a value), and the shell
-        # only sees ${GITHUB_EVENT_INPUTS_TAG_VERSION} as a variable reference. This ensures user input is
-        # treated as data, not executable code, preventing injection attacks like: 2.0.0"; malicious-command; "
-        # Reference: https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions
-        run: |
-          docker build -t "quay.io/kaotoio/kaoto-app:${GITHUB_EVENT_INPUTS_TAG_VERSION}" .
-        env:
-          GITHUB_EVENT_INPUTS_TAG_VERSION: ${{ github.event.inputs.tag_version }}
-
-      - name: '📤 Upload Container Image'
-        shell: bash
-        # Security: Prevent script injection by using environment variables instead of direct expression syntax.
-        # The ${{ ... }} expression is evaluated when setting the env var (safely, as a value), and the shell
-        # only sees ${GITHUB_EVENT_INPUTS_TAG_VERSION} as a variable reference. This ensures user input is
-        # treated as data, not executable code, preventing injection attacks like: 2.0.0"; malicious-command; "
-        # Reference: https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions
-        run: |
-          docker push "quay.io/kaotoio/kaoto-app:${GITHUB_EVENT_INPUTS_TAG_VERSION}"
-        env:
-          GITHUB_EVENT_INPUTS_TAG_VERSION: ${{ github.event.inputs.tag_version }}
-
-      - name: '🔧 Build Container Image'
-        shell: bash
-        run: |
-          docker build -t "quay.io/kaotoio/kaoto-app:stable" .
-        if: ${{ github.event.inputs.stable }}
-
-      - name: '📤 Upload Container Image'
-        shell: bash
-        run: |
-          docker push quay.io/kaotoio/kaoto-app:stable
-        if: ${{ github.event.inputs.stable }}
+          tag: ${{ needs.setup.outputs.release_tag }}
+          name: Release ${{ needs.setup.outputs.release_tag }}
+          prerelease: ${{ inputs.snapshot }}
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          body: ${{ inputs.snapshot && format('Snapshot pre-release for Kaoto {0}.', needs.setup.outputs.release_tag) || steps.changelog.outputs.changelog_body }}
+          artifacts: release-artifacts/*
