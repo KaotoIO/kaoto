@@ -480,7 +480,7 @@ export function createIframeTransport({
   if (origin === 'null' || origin !== targetOrigin)
     throw new BridgeError('INVALID_MESSAGE', 'An exact non-opaque iframe origin is required');
   let disposed = false;
-  const listeners = new Set<EventListener>();
+  const listeners = new Set<(event: MessageEvent<unknown>) => void>();
   const assertOpen = () => {
     if (disposed) throw new BridgeError('DISPOSED', 'The iframe transport has been disposed');
   };
@@ -491,9 +491,8 @@ export function createIframeTransport({
     },
     onMessage(handler) {
       assertOpen();
-      const listener: EventListener = (event) => {
-        const message = event as MessageEvent<unknown>;
-        if (message.source === peerWindow && message.origin === targetOrigin) handler(message.data);
+      const listener = (event: MessageEvent<unknown>) => {
+        if (event.source === peerWindow && event.origin === targetOrigin) handler(event.data);
       };
       listeners.add(listener);
       localWindow.addEventListener('message', listener);
