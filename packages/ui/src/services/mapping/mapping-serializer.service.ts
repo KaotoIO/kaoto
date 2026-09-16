@@ -194,7 +194,7 @@ export class MappingSerializerService {
 
   private static getRootStyleSheet(xsltDocument: Document) {
     const prefix = xsltDocument.lookupPrefix(NS_XSL);
-    const nsResolver = xsltDocument.createNSResolver(xsltDocument);
+    const nsResolver = xsltDocument;
     return xsltDocument
       .evaluate(`/${prefix}:stylesheet`, xsltDocument, nsResolver, XPathResult.ANY_TYPE)
       .iterateNext()! as Element;
@@ -216,7 +216,7 @@ export class MappingSerializerService {
     const stylesheet = MappingSerializerService.getRootStyleSheet(xsltDocument);
     sourceParameterMap.forEach((doc, paramName) => {
       const prefix = xsltDocument.lookupPrefix(NS_XSL);
-      const nsResolver = xsltDocument.createNSResolver(xsltDocument);
+      const nsResolver = xsltDocument;
       const existing = xsltDocument
         .evaluate(
           `/${prefix}:stylesheet/${prefix}:param[@name='${paramName}']`,
@@ -326,7 +326,7 @@ export class MappingSerializerService {
 
   private static restoreParam(xsltDocument: Document, sourceParameterMap: Map<string, IDocument>) {
     const prefix = xsltDocument.lookupPrefix(NS_XSL);
-    const nsResolver = xsltDocument.createNSResolver(xsltDocument);
+    const nsResolver = xsltDocument;
     const params = xsltDocument.evaluate(
       `/${prefix}:stylesheet/${prefix}:param`,
       xsltDocument,

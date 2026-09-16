@@ -1,5 +1,4 @@
-import { KameletBindingVisualEntity } from '../models/visualization/flows';
-
+import { PipeVisualEntity } from '../models/visualization/flows';
 /**
  * This is a stub KameletBinding in YAML format.
  * It is used to test the Canvas component.
@@ -101,4 +100,4 @@ export const kameletBindingJson = {
   },
 };
 
-export const kameletBinding = new KameletBindingVisualEntity(kameletBindingJson);
+export const kameletBinding = new PipeVisualEntity(kameletBindingJson);

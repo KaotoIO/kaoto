@@ -116,7 +116,7 @@ export class MappingSerializerJsonAddon {
     if (mappingTree.documentDefinitionType !== DocumentDefinitionType.JSON_SCHEMA) return null;
 
     const prefix = xsltDoc.lookupPrefix(NS_XSL);
-    const nsResolver = xsltDoc.createNSResolver(xsltDoc);
+    const nsResolver = xsltDoc;
     return xsltDoc
       .evaluate(
         `/${prefix}:stylesheet/${prefix}:variable[@name='${TO_JSON_TARGET_VARIABLE}']`,
