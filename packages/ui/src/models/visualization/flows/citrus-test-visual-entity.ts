@@ -220,6 +220,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
   async normaliseForSerialisation(): Promise<Test> {
     const snapshot = cloneDeep(this.test);
     await this.updateTestGroupModel(snapshot.actions);
+    await this.updateTestGroupModel(snapshot.finally ?? []);
     return snapshot;
   }
 
