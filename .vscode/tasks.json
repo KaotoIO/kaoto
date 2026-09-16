@@ -1,6 +1,68 @@
 {
   "version": "2.0.0",
   "tasks": [
+    /* Vite dev server */
+    {
+      "label": "watch:vscode-kaoto",
+      "dependsOrder": "parallel",
+      "dependsOn": ["start: @kaoto/kaoto vite dev server", "build: vscode-kaoto build:dev"],
+      "problemMatcher": []
+    },
+    {
+      "type": "process",
+      "label": "start: @kaoto/kaoto vite dev server",
+      "command": "node",
+      "args": ["${workspaceFolder}/packages/ui/scripts/vscode-vite-dev-server.mjs", "start"],
+      "options": {
+        "cwd": "${workspaceFolder}/packages/ui",
+        "env": {
+          "KAOTO_DEV_URL": "http://127.0.0.1:5173"
+        }
+      },
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^$"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^$",
+          "endsPattern": "ready in"
+        }
+      },
+      "isBackground": true
+    },
+    {
+      "label": "stop: @kaoto/kaoto vite dev server",
+      "type": "process",
+      "command": "node",
+      "args": ["${workspaceFolder}/packages/ui/scripts/vscode-vite-dev-server.mjs", "stop"],
+      "options": {
+        "cwd": "${workspaceFolder}/packages/ui"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "never",
+        "close": true
+      }
+    },
+
+    /* Standard build */
+    {
+      "label": "build:webview then watch",
+      "dependsOrder": "sequence",
+      "dependsOn": ["build: @kaoto/kaoto build:webview", "build: vscode-kaoto build:dev"],
+      "problemMatcher": []
+    },
+    {
+      "path": "packages/ui",
+      "type": "npm",
+      "label": "build: @kaoto/kaoto build:webview",
+      "script": "build:webview",
+      "problemMatcher": "$tsc",
+      "presentation": {
+        "reveal": "always"
+      }
+    },
     {
       "path": "packages/kaoto-vscode",
       "type": "npm",

@@ -1,3 +1,1 @@
-export * from './KaotoEditorChannelApi';
-export * from './KaotoEditorFactory';
-export type { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
+export { KaotoEditor, type KaotoEditorInit } from './KaotoEditor';
