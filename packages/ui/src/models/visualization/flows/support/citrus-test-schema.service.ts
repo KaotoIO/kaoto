@@ -20,10 +20,13 @@ import { KaotoSchemaDefinition } from '../../../kaoto-schema';
 export class CitrusTestSchemaService {
   /** Lazy kind-only map populated on first getTestActionName call. Null = not yet built. */
   private static kindMap: Record<string, CatalogKind> | null = null;
+  /** Incremented on every clearKindMap() call; used to discard in-flight builds. */
+  private static kindMapGeneration = 0;
 
   private static async ensureKindMap(): Promise<void> {
     if (CitrusTestSchemaService.kindMap !== null) return;
 
+    const generation = CitrusTestSchemaService.kindMapGeneration;
     const registry = DynamicCatalogRegistry.get();
     const kindMap: Record<string, CatalogKind> = {};
 
@@ -37,7 +40,10 @@ export class CitrusTestSchemaService {
       kindMap[key] ??= (val as ICitrusComponentDefinition).kind;
     }
 
-    CitrusTestSchemaService.kindMap = kindMap;
+    // Discard the result if clearKindMap() was called while we were building it.
+    if (generation === CitrusTestSchemaService.kindMapGeneration) {
+      CitrusTestSchemaService.kindMap = kindMap;
+    }
   }
 
   /**
@@ -45,6 +51,7 @@ export class CitrusTestSchemaService {
    * Must be called in CatalogLoaderProvider's cleanup alongside clearRegistry().
    */
   static clearKindMap(): void {
+    CitrusTestSchemaService.kindMapGeneration++;
     CitrusTestSchemaService.kindMap = null;
   }
 
