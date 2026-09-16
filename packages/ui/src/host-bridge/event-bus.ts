@@ -65,11 +65,8 @@ export function createEventBus({ role, onError }: EventBusOptions): IEventBus {
       try {
         handler(payload);
       } catch (error) {
-        report(
-          error instanceof Error
-            ? error
-            : new BridgeError('INTERNAL_ERROR', typeof error === 'string' ? error : 'An event subscriber failed'),
-        );
+        const message = typeof error === 'string' ? error : 'An event subscriber failed';
+        report(error instanceof Error ? error : new BridgeError('INTERNAL_ERROR', message));
       }
     }
   };

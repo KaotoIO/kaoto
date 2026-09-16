@@ -140,8 +140,13 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 					}
 					state.savedContent = content;
 					const session = state.session;
-					if (session?.initialized && saved && session === saved.session && session.epoch === saved.epoch) {
-						const revision = this.normalizedContent(state) === content ? state.revision : saved.content === content ? saved.revision : undefined;
+					if (session?.initialized && session === saved?.session && session.epoch === saved.epoch) {
+						let revision: number | undefined;
+						if (this.normalizedContent(state) === content) {
+							revision = state.revision;
+						} else if (saved.content === content) {
+							revision = saved.revision;
+						}
 						if (revision !== undefined) {
 							session.bus.emit('host:document:saved', { revision, isDirty: this.isDirty(state) });
 						}
@@ -317,33 +322,37 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 				void state.services.onStepUpdated(action, stepType, stepName).catch(report);
 			}),
 			session.bus.on('host:notification:show', ({ message, type }) => {
-				const show =
-					type === 'error'
-						? vscode.window.showErrorMessage
-						: type === 'warning'
-							? vscode.window.showWarningMessage
-							: vscode.window.showInformationMessage;
+				let show = vscode.window.showInformationMessage;
+				if (type === 'error') {
+					show = vscode.window.showErrorMessage;
+				} else if (type === 'warning') {
+					show = vscode.window.showWarningMessage;
+				}
 				void show(message);
 			}),
 			session.bus.on('editor:notifications:set', ({ path, notifications }) => {
-				const uri = !path ? document.uri : /^[a-z][a-z\d+.-]*:/i.test(path) ? vscode.Uri.parse(path) : vscode.Uri.joinPath(document.uri, '..', path);
+				let uri = document.uri;
+				if (path) {
+					uri = /^[a-z][a-z\d+.-]*:/i.test(path) ? vscode.Uri.parse(path) : vscode.Uri.joinPath(document.uri, '..', path);
+				}
 				state.diagnostics.add(uri.toString());
 				this.diagnostics.set(
 					uri,
-					notifications.map(
-						({ message, severity, range }) =>
-							new vscode.Diagnostic(
-								range
-									? new vscode.Range(range.start.line, range.start.character, range.end.line, range.end.character)
-									: new vscode.Range(0, 0, 0, 0),
-								message,
-								severity === 'error'
-									? vscode.DiagnosticSeverity.Error
-									: severity === 'warning'
-										? vscode.DiagnosticSeverity.Warning
-										: vscode.DiagnosticSeverity.Information,
-							),
-					),
+					notifications.map(({ message, severity, range }) => {
+						let diagnosticSeverity = vscode.DiagnosticSeverity.Information;
+						if (severity === 'error') {
+							diagnosticSeverity = vscode.DiagnosticSeverity.Error;
+						} else if (severity === 'warning') {
+							diagnosticSeverity = vscode.DiagnosticSeverity.Warning;
+						}
+						return new vscode.Diagnostic(
+							range
+								? new vscode.Range(range.start.line, range.start.character, range.end.line, range.end.character)
+								: new vscode.Range(0, 0, 0, 0),
+							message,
+							diagnosticSeverity,
+						);
+					}),
 				);
 			}),
 		);

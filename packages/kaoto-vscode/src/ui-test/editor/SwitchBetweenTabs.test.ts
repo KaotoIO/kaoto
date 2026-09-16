@@ -69,7 +69,7 @@ describe('Switching between editor tabs', function () {
 		const controlIds = ['zoom-in', 'zoom-out', 'reset-view', 'topology-control-bar-h_layout-button', 'topology-control-bar-v_layout-button'];
 		for (const id of controlIds) {
 			const button = await driver.wait(until.elementLocated(By.id(id)), 5_000, `Canvas control '${id}' was not rendered`);
-			await driver.wait(
+			const isReachable = await driver.wait(
 				() =>
 					driver.executeScript<boolean>((element: HTMLElement) => {
 						const bounds = element.getBoundingClientRect();
@@ -79,6 +79,7 @@ describe('Switching between editor tabs', function () {
 				5_000,
 				`Canvas control '${id}' is clipped or covered`,
 			);
+			expect(isReachable, `Canvas control '${id}' must be visible and reachable`).to.equal(true);
 			await button.click();
 		}
 	});

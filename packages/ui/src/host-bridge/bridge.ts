@@ -46,10 +46,8 @@ function freshId(): string {
 }
 function bridgeError(error: unknown, code: BridgeErrorCode = 'INTERNAL_ERROR'): BridgeError {
   if (error instanceof BridgeError && isBridgeErrorData({ code: error.code, message: error.message })) return error;
-  return new BridgeError(
-    code,
-    error instanceof Error ? error.message : typeof error === 'string' ? error : 'Bridge operation failed',
-  );
+  if (error instanceof Error) return new BridgeError(code, error.message);
+  return new BridgeError(code, typeof error === 'string' ? error : 'Bridge operation failed');
 }
 function validDuration(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value) && value > 0;
@@ -433,7 +431,11 @@ export function createMemoryTransports(): { host: MessageTransport; editor: Mess
         const copy: unknown = JSON.parse(JSON.stringify(message));
         return new Promise<void>((resolve) => {
           queueMicrotask(() => {
-            if (!disposed) for (const listener of [...peer]) listener(copy);
+            if (!disposed) {
+              // Subscription changes during delivery apply to the next message.
+              const snapshot = [...peer];
+              for (const listener of snapshot) listener(copy);
+            }
             resolve();
           });
         });
@@ -450,7 +452,8 @@ export function createMemoryTransports(): { host: MessageTransport; editor: Mess
         disposed = true;
         hostListeners.clear();
         editorListeners.clear();
-        for (const listener of [...closeListeners]) listener();
+        const snapshot = [...closeListeners];
+        for (const listener of snapshot) listener();
         closeListeners.clear();
       },
     };

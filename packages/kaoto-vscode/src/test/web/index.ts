@@ -61,7 +61,7 @@ async function services(): Promise<void> {
 		await vscode.workspace.fs.createDirectory(vscode.Uri.joinPath(documentUri, '..'));
 		await write(documentUri, '- route: {}');
 		await write(vscode.Uri.joinPath(owned, '.kaoto'), '{}');
-		await service.setMetadata('schema', { filePath: ['schemas\\test.xsd'] });
+		await service.setMetadata('schema', { filePath: [String.raw`schemas\test.xsd`] });
 		assert(
 			((await service.getMetadata('schema')) as { filePath: string[] }).filePath[0] === 'schemas/test.xsd',
 			'Metadata must preserve URI and normalize paths',
