@@ -1,5 +1,3 @@
-import { parse } from 'yaml';
-
 import { DefinedComponent } from '../../../camel/camel-catalog-index';
 import { ICitrusComponentDefinition } from '../../../citrus/citrus-catalog';
 import { TestActions } from '../../../citrus/entities/Test';
@@ -9,34 +7,28 @@ export class CitrusTestDefaultService {
    * Gets the default definition for a test action.
    *
    * Creates a default test action structure including any parent action groups.
-   * The returned object is a parsed YAML structure with proper nesting for
-   * action groups and the action itself.
+   * For example, an HTTP send action nested under an 'http' group produces:
+   * `{ http: { sendRequest: {} } }`
    *
-   * For example, an HTTP send action might be nested under an 'http' group:
-   * ```yaml
-   * http:
-   *   send: {}
-   * ```
-   *
-   * Reads the group ancestry from `definedComponent.name` / `definedComponent.definition`,
-   * splitting the hyphenated group prefixes (e.g. `camel-jbang-run` under group `camel-jbang`
-   * yields segments `camel` -> `jbang` -> `run`).
+   * Reads the group ancestry from `definedComponent.definition.group`,
+   * splitting the hyphenated group string into nesting levels
+   * (e.g. group `camel-jbang` for name `camel-jbang-run` yields
+   * `{ camel: { jbang: { run: {} } } }`).
    *
    * @param definedComponent - The catalog component definition for the test action
-   * @returns A TestActions object with default structure and values
+   * @returns A TestActions object with the proper nested structure
    */
   static getDefaultTestActionDefinitionValue(definedComponent: DefinedComponent): TestActions {
     const def = definedComponent.definition as ICitrusComponentDefinition | undefined;
     const groupSegments = def?.group ? def.group.split('-') : [];
+    const leafKey = definedComponent.name.split('-').pop()!;
 
-    let yamlCode = '';
-    let indent = 1;
-    for (const segment of groupSegments) {
-      yamlCode += `\n${' '.repeat(indent * 2)}${segment}:`;
-      indent++;
+    // Build inside-out: start from the leaf, wrap in each group segment outermost-last
+    let result: Record<string, unknown> = { [leafKey]: {} };
+    for (const segment of [...groupSegments].reverse()) {
+      result = { [segment]: result };
     }
-    yamlCode += `\n${' '.repeat(indent * 2)}${definedComponent.name.split('-').pop()}: {}`;
 
-    return parse(yamlCode);
+    return result as TestActions;
   }
 }
