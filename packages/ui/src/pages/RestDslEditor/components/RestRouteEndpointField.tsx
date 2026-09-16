@@ -1,7 +1,8 @@
 import { To } from '@kaoto/camel-catalog/types';
 import { FieldProps, ModelContextProvider, SchemaProvider, useFieldValue } from '@kaoto/forms';
-import { FunctionComponent, use, useCallback, useMemo, useState } from 'react';
+import { FunctionComponent, useCallback, useEffect, useState } from 'react';
 
+import { Loading } from '../../../components/Loading';
 import { DirectEndpointNameField } from '../../../components/Visualization/Canvas/Form/fields/DirectEndpointNameField';
 import { toParser } from '../../../models/camel/parsers/to.parser';
 import { KaotoSchemaDefinition } from '../../../models/kaoto-schema';
@@ -31,31 +32,53 @@ export const RestRouteEndpointField: FunctionComponent<FieldProps> = ({
   onRemove,
 }) => {
   const { value, disabled, onChange } = useFieldValue<To | undefined>(propName);
-  const toPromise = useMemo(() => toParser(value), [value]);
-  const parsedTo = use(toPromise);
-  const [typedInputValue, setTypedInputValue] = useState((parsedTo.parameters.name as string) ?? '');
+  const [resolved, setResolved] = useState<{ value: To | undefined; parsedTo: Awaited<ReturnType<typeof toParser>> }>();
+  const isParsing = !resolved || resolved.value !== value;
+  useEffect(() => {
+    let cancelled = false;
+    toParser(value)
+      .then((parsedTo) => {
+        if (!cancelled) setResolved({ value, parsedTo });
+      })
+      .catch((error) => {
+        if (!cancelled) console.error('Failed to parse REST endpoint:', error);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [value]);
 
   const onPropertyChangeCallback = useCallback(
     (_: string, name: unknown) => {
+      if (isParsing || !resolved) return;
+      const { parsedTo } = resolved;
       const updatedTo = { ...parsedTo, parameters: { ...parsedTo.parameters, name } };
 
       onChange(updatedTo);
-      setTypedInputValue(name as string);
+      setResolved({ value, parsedTo: updatedTo });
     },
-    [onChange, parsedTo],
+    [isParsing, onChange, resolved, value],
   );
 
+  if (!resolved) return <Loading />;
+
   return (
-    <SchemaProvider schema={NAME_FIELD_SCHEMA}>
-      <ModelContextProvider onPropertyChange={onPropertyChangeCallback} model={typedInputValue} disabled={disabled}>
-        <DirectEndpointNameField
-          propName="#"
-          required={required}
-          aria-label={ariaLabel}
-          data-testid={dataTestId}
-          onRemove={onRemove}
-        />
-      </ModelContextProvider>
-    </SchemaProvider>
+    <div inert={isParsing || undefined}>
+      <SchemaProvider schema={NAME_FIELD_SCHEMA}>
+        <ModelContextProvider
+          onPropertyChange={onPropertyChangeCallback}
+          model={(resolved.parsedTo.parameters.name as string) ?? ''}
+          disabled={disabled}
+        >
+          <DirectEndpointNameField
+            propName="#"
+            required={required}
+            aria-label={ariaLabel}
+            data-testid={dataTestId}
+            onRemove={onRemove}
+          />
+        </ModelContextProvider>
+      </SchemaProvider>
+    </div>
   );
 };

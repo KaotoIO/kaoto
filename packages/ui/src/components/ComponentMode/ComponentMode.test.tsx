@@ -1,10 +1,15 @@
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Fragment, StrictMode } from 'react';
 import { Mock, MockedFunction, vi } from 'vitest';
 
 import { useProcessorTooltips } from '../../hooks/use-processor-tooltips.hook';
 import { CatalogKind, IVisualizationNode } from '../../models';
 import { createVisualizationNode } from '../../models/visualization/visualization-node';
+import { Anchors } from '../registers/anchors';
+import { RegisterComponents } from '../registers/RegisterComponents';
+import { RenderingProvider } from '../RenderingAnchor/rendering.provider';
+import { RenderingAnchor } from '../RenderingAnchor/RenderingAnchor';
 import { ComponentMode } from './ComponentMode';
 
 let mockUpdateSourceCodeFromEntities: Mock;
@@ -52,6 +57,34 @@ describe('ComponentMode', () => {
     expect(await wrapper.findByText('Dynamic')).toBeInTheDocument();
     expect(await wrapper.findByText('Poll')).toBeInTheDocument();
   });
+
+  it.each([false, true])(
+    'renders one Avro mode toolbar across rerenders and remounts (StrictMode: %s)',
+    async (strict) => {
+      const Wrapper = strict ? StrictMode : Fragment;
+      const vizNode = getMockVizNode('to');
+      vizNode.data.definition = { uri: 'avro:localhost:1234' };
+      const content = (showPanel: boolean, registrationKey = 'initial') => (
+        <Wrapper>
+          <RenderingProvider>
+            <RegisterComponents key={registrationKey}>
+              {showPanel && <RenderingAnchor anchorTag={Anchors.CanvasFormHeader} vizNode={vizNode} />}
+            </RegisterComponents>
+          </RenderingProvider>
+        </Wrapper>
+      );
+      const wrapper = render(content(false));
+
+      for (const registrationKey of ['initial', 'initial', 'remounted']) {
+        wrapper.rerender(content(true, registrationKey));
+
+        expect(await wrapper.findAllByRole('group', { name: 'Component Mode Toggle Group' })).toHaveLength(1);
+        expect(wrapper.getAllByRole('button', { name: /static/i })).toHaveLength(1);
+        expect(wrapper.getAllByRole('button', { name: /dynamic/i })).toHaveLength(1);
+        expect(wrapper.getAllByRole('button', { name: /poll/i })).toHaveLength(1);
+      }
+    },
+  );
 
   it('should not call updateSourceCodeFromEntities if there is no VizNode', () => {
     render(<ComponentMode vizNode={undefined} />);

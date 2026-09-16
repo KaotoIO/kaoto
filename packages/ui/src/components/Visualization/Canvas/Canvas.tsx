@@ -1,6 +1,6 @@
 import './Canvas.scss';
 
-import { CatalogIcon } from '@patternfly/react-icons';
+import { CatalogIcon, ExpandIcon, SearchMinusIcon, SearchPlusIcon } from '@patternfly/react-icons';
 import {
   action,
   createTopologyControlButtons,
@@ -40,6 +40,7 @@ import { applyCollapseState } from './apply-collapse-state';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
 import { CanvasSideBar } from './CanvasSideBar';
+import { consumeNodeSelection } from './node-selection-state';
 
 interface CanvasProps {
   nodes: CanvasNode[];
@@ -96,15 +97,21 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   }, []);
 
   const selectedVizNode = useSelectedVizNode(selectedIds);
-  useDeleteHotkey(selectedVizNode, clearSelection);
+  const isUpdating =
+    isModelResolving ||
+    (selectedVizNode !== undefined &&
+      selectedVizNode !== nodes.find((node) => node.id === selectedIds[0])?.data?.vizNode);
+  useDeleteHotkey(isUpdating ? undefined : selectedVizNode, clearSelection);
 
   /** Draw graph */
   useEffect(() => {
-    clearSelection();
-
     if (isModelResolving) {
       return;
     }
+
+    // Keep existing steps selected and resolve their refreshed data after the model update.
+    const requestedSelection = consumeNodeSelection(controller, nodes);
+    setSelectedIds((ids) => requestedSelection ?? ids.filter((id) => nodes.some((node) => node.id === id)));
 
     const model: Model = {
       nodes,
@@ -181,12 +188,15 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     return createTopologyControlButtons({
       ...defaultControlButtonsOptions,
       fitToScreen: false,
+      zoomInIcon: <SearchPlusIcon />,
       zoomInCallback: action(() => {
         controller.getGraph().scaleBy(4 / 3);
       }),
+      zoomOutIcon: <SearchMinusIcon />,
       zoomOutCallback: action(() => {
         controller.getGraph().scaleBy(3 / 4);
       }),
+      resetViewIcon: <ExpandIcon />,
       resetViewCallback: action(() => {
         controller.getGraph().reset();
         controller.getGraph().layout();
@@ -209,12 +219,14 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
 
   const isSidebarOpen = useMemo(() => selectedIds.length > 0, [selectedIds.length]);
 
-  if (isModelResolving) {
+  // Keep the current canvas and properties mounted while a replacement model resolves.
+  if (isModelResolving && !initialized) {
     return null;
   }
 
   return (
     <TopologyView
+      inert={isUpdating}
       className={clsx({ hidden: !initialized })}
       defaultSideBarSize={sidebarWidth + 'px'}
       minSideBarSize="210px"

@@ -170,14 +170,6 @@ const webpack = async (env) => [
     entry: {
       'webview/KaotoEditorEnvelopeApp': './src/webview/KaotoEditorEnvelopeApp.ts',
     },
-    resolve: {
-      alias: {
-        // @kie-tools-core/editor@10.0.0 references @patternfly/react-core/dist/js/components/Text
-        // which was removed in PatternFly 6. Alias to false so webpack provides an empty module;
-        // the KeyBindingsHelpOverlay that uses it is not activated in the Kaoto extension.
-        '@patternfly/react-core/dist/js/components/Text': false,
-      },
-    },
     module: {
       rules: [
         {
@@ -235,4 +227,42 @@ const webpack = async (env) => [
   }),
 ];
 
-module.exports = webpack;
+module.exports = async function createWebpackConfig(env) {
+  if (env.bridgeTests || env.bridgeWebTests) {
+    // The unit runner is CommonJS; bundle the suites that import ESM UI subpaths.
+    return {
+      mode: 'development',
+      target: env.bridgeWebTests ? 'webworker' : 'node',
+      entry: env.bridgeWebTests
+        ? { index: './src/test/web/index.ts' }
+        : {
+            'KaotoHostServices.test': './src/test/services/KaotoHostServices.test.ts',
+            'KaotoEditorProvider.test': './src/test/extension/KaotoEditorProvider.test.ts',
+          },
+      output: {
+        path: path.resolve(env.bridgeWebTests ? './dist/test/web' : './dist/test/bridge'),
+        filename: '[name].js',
+        libraryTarget: 'commonjs2',
+      },
+      externals: { vscode: 'commonjs vscode', chai: 'commonjs chai' },
+      resolve: {
+        extensions: ['.ts', '.tsx', '.js'],
+        fallback: env.bridgeWebTests ? { path: require.resolve('path-browserify') } : {},
+      },
+      module: {
+        rules: [
+          {
+            test: /\.m?js$/,
+            resolve: { fullySpecified: false },
+          },
+          {
+            test: /\.tsx?$/,
+            loader: 'ts-loader',
+            options: { configFile: 'tsconfig.json', onlyCompileBundledFiles: true },
+          },
+        ],
+      },
+    };
+  }
+  return webpack(env);
+};

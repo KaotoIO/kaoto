@@ -14,7 +14,7 @@
     limitations under the License.
 */
 import { useVisualizationController } from '@patternfly/react-topology';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { IVisualizationNode } from '../models/visualization/base-visual-entity';
 
@@ -28,19 +28,30 @@ import { IVisualizationNode } from '../models/visualization/base-visual-entity';
 export const useSelectedVizNode = (selectedIds: string[]): IVisualizationNode | undefined => {
   const controller = useVisualizationController();
   const [selectedVizNode, setSelectedVizNode] = useState<IVisualizationNode | undefined>(undefined);
+  const previousSelection = useRef<{ id: string; controller: typeof controller } | undefined>(undefined);
 
   useEffect(() => {
     let isCancelled = false;
 
     const selectVizNode = async () => {
-      setSelectedVizNode(undefined);
-
       if (selectedIds.length !== 1) {
+        previousSelection.current = undefined;
+        setSelectedVizNode(undefined);
         return;
       }
 
       const graphNode = controller.getNodeById(selectedIds[0]);
       const vizNode = graphNode?.getData()?.vizNode as IVisualizationNode | undefined;
+
+      // Refresh the same selection in place so its form keeps its state while the schema loads.
+      if (
+        previousSelection.current?.id !== selectedIds[0] ||
+        previousSelection.current?.controller !== controller ||
+        !vizNode
+      ) {
+        setSelectedVizNode(undefined);
+      }
+      previousSelection.current = { id: selectedIds[0], controller };
 
       if (!vizNode) {
         return;
@@ -54,6 +65,7 @@ export const useSelectedVizNode = (selectedIds: string[]): IVisualizationNode | 
         }
       } catch (error) {
         if (!isCancelled) {
+          setSelectedVizNode(undefined);
           console.error('Failed to fetch schema for the selected node:', error);
         }
       }

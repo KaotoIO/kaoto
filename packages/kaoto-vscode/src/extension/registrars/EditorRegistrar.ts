@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 import * as vscode from 'vscode';
-import * as KogitoVsCode from '@kie-tools-core/vscode-extension/dist';
 import { TelemetryService } from '@redhat-developer/vscode-redhat-telemetry';
 import { COMMAND_CLOSE_SOURCE, COMMAND_OPEN_SOURCE, COMMAND_OPEN_WITH_KAOTO, COMMAND_REDO, COMMAND_UNDO } from '../../constants';
 import { sendCommandTrackingEvent } from './TrackingEvent';
 import { IRegistrar } from './IRegistrar';
 
+export interface ActiveKaotoDocument {
+	readonly activeDocumentUri: vscode.Uri | undefined;
+	applyHistory(command: 'undo' | 'redo'): Promise<void>;
+}
+
 export class EditorRegistrar implements IRegistrar {
 	constructor(
 		private readonly context: vscode.ExtensionContext,
-		private readonly kieEditorStore: KogitoVsCode.VsCodeKieEditorStore,
+		private readonly editors: ActiveKaotoDocument,
 		private readonly telemetryService: TelemetryService | undefined,
 	) {}
 
@@ -33,20 +37,14 @@ export class EditorRegistrar implements IRegistrar {
 		this.registerOpenWithKaoto();
 	}
 
-	/**
-	 * a workaround which is temporarily disabling shortcuts for undo/redo in Kaoto Editor
-	 * Related issues:
-	 * - https://github.com/KaotoIO/kaoto/issues/2521
-	 * - https://github.com/KaotoIO/kaoto/issues/2524
-	 * - https://github.com/KaotoIO/kaoto/issues/2525
-	 */
+	/** Canvas shortcuts use the same native text history as the source editor. */
 	public registerUndoRedoCommands() {
 		this.context.subscriptions.push(
 			vscode.commands.registerCommand(COMMAND_UNDO, async () => {
-				// do nothing
+				await this.editors.applyHistory('undo');
 			}),
 			vscode.commands.registerCommand(COMMAND_REDO, async () => {
-				// do nothing
+				await this.editors.applyHistory('redo');
 			}),
 		);
 	}
@@ -57,8 +55,8 @@ export class EditorRegistrar implements IRegistrar {
 
 		this.context.subscriptions.push(
 			vscode.commands.registerCommand(OPEN_SOURCE_COMMAND_ID, async () => {
-				if (this.kieEditorStore.activeEditor !== undefined) {
-					const doc = await vscode.workspace.openTextDocument(this.kieEditorStore.activeEditor?.document.document.uri);
+				if (this.editors.activeDocumentUri !== undefined) {
+					const doc = await vscode.workspace.openTextDocument(this.editors.activeDocumentUri);
 					await vscode.window.showTextDocument(doc, vscode.ViewColumn.Beside);
 					await sendCommandTrackingEvent(this.telemetryService, OPEN_SOURCE_COMMAND_ID);
 				}

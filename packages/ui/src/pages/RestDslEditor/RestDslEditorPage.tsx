@@ -13,6 +13,8 @@ import { CatalogKind } from '../../models/catalog-kind';
 import { EntityType } from '../../models/entities';
 import { KaotoSchemaDefinition } from '../../models/kaoto-schema';
 import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';
+import { RestEntity } from '../../models/visualization/flows/rest-entity';
+import { getValue } from '../../utils';
 import { AddMethodFormModel } from './components/add-method-schema';
 import { AddMethodModal } from './components/AddMethodModal';
 import { getRestEntities } from './components/get-rest-entities';
@@ -24,51 +26,93 @@ import { RestTreeToolbar } from './components/RestTreeToolbar';
 const DEFAULT_TREE_PANEL_WIDTH_PERCENT = 30;
 const DEFAULT_REST_METHOD_URI = 'direct';
 
+function reconcileRestSelection(
+  selection: IRestTreeSelection | undefined,
+  previousEntities: RestEntity[],
+  entities: RestEntity[],
+): IRestTreeSelection | undefined {
+  if (!selection) return selection;
+  const index = previousEntities.findIndex((entity) => entity.id === selection.entityId);
+  if (index === -1) return selection;
+
+  let nextEntity = entities.find((entity) => entity.id === selection.entityId);
+  // Configuration IDs are generated on every parse; service IDs can be edited in source.
+  // Retain the selection by position only when the entity list has the same shape.
+  const candidate = entities[index];
+  if (
+    !nextEntity &&
+    previousEntities.length === entities.length &&
+    candidate?.type === previousEntities[index].type &&
+    !previousEntities.some((entity) => entity.id === candidate.id)
+  ) {
+    nextEntity = candidate;
+  }
+  if (!nextEntity || getValue(nextEntity.toJSON(), selection.modelPath) === undefined) return undefined;
+  return nextEntity.id === selection.entityId ? selection : { ...selection, entityId: nextEntity.id };
+}
+
 /**
  * Main page component for editing REST DSL configurations.
  * Provides a split-panel interface with a tree view on the left and a form editor on the right.
  * Supports adding/editing REST configurations, REST services, and REST methods.
  */
 export const RestDslEditorPage: FunctionComponent = () => {
-  const { entities, camelResource, updateEntitiesFromCamelResource, updateSourceCodeFromEntities } = useEntityContext();
+  const { entities, camelResource, isLoading, updateEntitiesFromCamelResource, updateSourceCodeFromEntities } =
+    useEntityContext();
   const [selectedElement, setSelectedElement] = useState<IRestTreeSelection | undefined>();
-  const [schema, setSchema] = useState<KaotoSchemaDefinition['schema'] | undefined>();
-  const [isSchemaLoading, setIsSchemaLoading] = useState(false);
+  const selectElement = useCallback((selection: IRestTreeSelection) => {
+    setSelectedElement((current) =>
+      current?.entityId === selection.entityId && current.modelPath === selection.modelPath ? current : selection,
+    );
+  }, []);
   const restRelatedEntities = useMemo(() => getRestEntities(entities), [entities]);
+  const [previousEntities, setPreviousEntities] = useState(restRelatedEntities);
+
+  if (!isLoading && previousEntities !== restRelatedEntities) {
+    setPreviousEntities(restRelatedEntities);
+    const nextSelection = reconcileRestSelection(selectedElement, previousEntities, restRelatedEntities);
+    if (nextSelection !== selectedElement) {
+      setSelectedElement(nextSelection);
+    }
+  }
 
   const { entityId, modelPath, ids } = selectedElement ?? {};
-  const name = ids?.primaryNodeId?.name;
-
   const selectedEntity = restRelatedEntities.find((entity) => entity.id === entityId);
-  const [parsedModel, setParsedModel] = useState<unknown>(undefined);
+  const selectedEntityLabel =
+    selectedEntity instanceof CamelRestVisualEntity ? (selectedEntity.getRawRestDef().id ?? entityId) : entityId;
+  const [loadedForm, setLoadedForm] = useState<{
+    entity: RestEntity;
+    selection: IRestTreeSelection;
+    model: unknown;
+    schema: KaotoSchemaDefinition['schema'] | undefined;
+  }>();
+  const isSameSelection = loadedForm?.selection.ids === ids && loadedForm?.selection.modelPath === modelPath;
+  const schema = isSameSelection ? loadedForm?.schema : undefined;
+  const parsedModel = isSameSelection ? loadedForm?.model : undefined;
+  const isFormRefreshing =
+    !!selectedElement && (isLoading || loadedForm?.entity !== selectedEntity || !isSameSelection);
 
   useEffect(() => {
+    if (isLoading || !selectedEntity || !selectedElement) return;
     let cancelled = false;
-    setParsedModel(undefined);
-    setSchema(undefined);
-
-    if (!selectedEntity || !modelPath || !ids) return;
-
-    setIsSchemaLoading(true);
+    const { modelPath, ids } = selectedElement;
     Promise.all([selectedEntity.fetchNodeDefinition(modelPath, ids), selectedEntity.fetchNodeSchema(ids)])
       .then(([model, resolved]) => {
         if (!cancelled) {
-          setParsedModel(model);
-          setSchema(resolved);
+          setLoadedForm({ entity: selectedEntity, selection: selectedElement, model, schema: resolved });
         }
       })
       .catch((err) => {
-        console.error('Failed to fetch REST DSL schema:', err);
-      })
-      .finally(() => {
-        if (!cancelled) setIsSchemaLoading(false);
+        if (!cancelled) {
+          setLoadedForm(undefined);
+          console.error('Failed to fetch REST DSL schema:', err);
+        }
       });
 
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedEntity, entityId, modelPath, name]);
+  }, [selectedEntity, selectedElement, isLoading]);
 
   const [treeVersion, setTreeVersion] = useState(0);
 
@@ -90,7 +134,7 @@ export const RestDslEditorPage: FunctionComponent = () => {
   /** Handles changes to individual properties in the form editor */
   const handleOnChangeIndividualProp = useCallback(
     (path: string, value: unknown) => {
-      if (!selectedElement || !selectedEntity) return;
+      if (isFormRefreshing || !selectedElement || !selectedEntity) return;
 
       let updatedValue = value;
       if (typeof value === 'string' && value.trim() === '') {
@@ -102,11 +146,12 @@ export const RestDslEditorPage: FunctionComponent = () => {
       updateSourceCodeFromEntities();
       setTreeVersion((version) => version + 1);
     },
-    [modelPath, selectedElement, selectedEntity, updateSourceCodeFromEntities],
+    [isFormRefreshing, modelPath, selectedElement, selectedEntity, updateSourceCodeFromEntities],
   );
 
   /** Adds a new REST configuration entity to the resource */
   const handleAddRestConfiguration = useCallback(() => {
+    if (isLoading) return;
     const newId = camelResource.addNewEntity(EntityType.RestConfiguration);
     updateEntitiesFromCamelResource();
     setSelectedElement({
@@ -115,10 +160,11 @@ export const RestDslEditorPage: FunctionComponent = () => {
       ids: { primaryNodeId: { name: 'restConfiguration', catalogKind: CatalogKind.Entity } },
     });
     setTreeVersion((version) => version + 1);
-  }, [camelResource, updateEntitiesFromCamelResource]);
+  }, [camelResource, isLoading, updateEntitiesFromCamelResource]);
 
   /** Adds a new REST service entity to the resource */
   const handleAddRest = useCallback(() => {
+    if (isLoading) return;
     const newId = camelResource.addNewEntity(EntityType.Rest);
     setSelectedElement({
       modelPath: 'rest',
@@ -127,12 +173,12 @@ export const RestDslEditorPage: FunctionComponent = () => {
     });
     updateEntitiesFromCamelResource();
     setTreeVersion((version) => version + 1);
-  }, [camelResource, updateEntitiesFromCamelResource]);
+  }, [camelResource, isLoading, updateEntitiesFromCamelResource]);
 
   /** Adds a new REST method to the selected REST service */
   const handleAddMethod = useCallback(
     (model: AddMethodFormModel) => {
-      if (!selectedEntity || !(selectedEntity instanceof CamelRestVisualEntity)) return;
+      if (isLoading || !selectedEntity || !(selectedEntity instanceof CamelRestVisualEntity)) return;
 
       const restDefinition = selectedEntity.toJSON().rest;
       restDefinition[model.method] ??= [];
@@ -158,12 +204,12 @@ export const RestDslEditorPage: FunctionComponent = () => {
       });
       setTreeVersion((version) => version + 1);
     },
-    [selectedEntity, updateEntitiesFromCamelResource],
+    [isLoading, selectedEntity, updateEntitiesFromCamelResource],
   );
 
   /** Deletes the selected REST entity or method */
   const handleDelete = useCallback(() => {
-    if (!selectedEntity || !selectedElement) return;
+    if (isLoading || !selectedEntity || !selectedElement) return;
 
     if (selectedElement.modelPath === selectedEntity.getRootPath()) {
       /* Remove the entire Rest or RestConfiguration */
@@ -175,7 +221,7 @@ export const RestDslEditorPage: FunctionComponent = () => {
 
     setSelectedElement(undefined);
     updateEntitiesFromCamelResource();
-  }, [selectedEntity, selectedElement, updateEntitiesFromCamelResource, camelResource]);
+  }, [isLoading, selectedEntity, selectedElement, updateEntitiesFromCamelResource, camelResource]);
 
   return (
     <>
@@ -185,7 +231,7 @@ export const RestDslEditorPage: FunctionComponent = () => {
           <RestTree
             entities={restRelatedEntities}
             selected={selectedElement}
-            onSelect={setSelectedElement}
+            onSelect={selectElement}
             onDelete={handleDelete}
             key={treeVersion}
           >
@@ -201,13 +247,13 @@ export const RestDslEditorPage: FunctionComponent = () => {
           </RestTree>
         }
         rightPanel={
-          <div className="rest-right-panel">
+          <div className="rest-right-panel" inert={isFormRefreshing || undefined}>
             {!entityId && <div>Select an entity from the list to edit its configuration</div>}
             {selectedElement && (
               <>
                 <div className="form-rest-title">
                   <span>Edit </span>
-                  <span>{entityId} </span>
+                  <span>{selectedEntityLabel} </span>
                   {modelPath?.startsWith('rest.') && (
                     <>
                       <span>/ {modelPath?.split('.')[1]?.toUpperCase()} /</span>
@@ -217,16 +263,15 @@ export const RestDslEditorPage: FunctionComponent = () => {
                     </>
                   )}
                 </div>
-                {isSchemaLoading || !schema || Object.keys(schema).length === 0 ? (
+                {!schema || Object.keys(schema).length === 0 ? (
                   <Loading>Loading schemas...</Loading>
                 ) : (
                   <Suspense fallback={<Loading>Loading form...</Loading>}>
                     <CanvasFormTabsProvider tab="All">
-                      <FilteredFieldProvider key={`${entityId}__${modelPath}`}>
+                      <FilteredFieldProvider>
                         <RestDslFormHeader />
                         <SuggestionRegistrar>
                           <KaotoForm
-                            key={`${entityId}__${modelPath}`}
                             schema={schema}
                             onChangeProp={handleOnChangeIndividualProp}
                             model={parsedModel}

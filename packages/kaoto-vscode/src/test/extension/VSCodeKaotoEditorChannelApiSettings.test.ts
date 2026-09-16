@@ -28,7 +28,7 @@ import {
 	KAOTO_LOCAL_KAMELET_DIRECTORIES_SETTING_ID,
 } from '../../constants';
 
-suite('VSCodeKaotoEditorChannelApi', function () {
+suite('Kaoto settings', function () {
 	let testDocument: vscode.TextDocument;
 	let testWorkspaceFolder: vscode.WorkspaceFolder;
 
@@ -50,10 +50,6 @@ suite('VSCodeKaotoEditorChannelApi', function () {
 		} catch (error) {
 			throw new Error(`Failed to create test document: ${error}`);
 		}
-
-		// Note: Creating a full VSCodeKaotoEditorChannelApi instance requires many dependencies
-		// For now, we'll test the methods that can be tested in isolation
-		// Full integration tests would require mocking the entire editor infrastructure
 	});
 
 	teardown(async function () {

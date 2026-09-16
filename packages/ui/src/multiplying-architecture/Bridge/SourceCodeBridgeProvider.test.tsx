@@ -1,5 +1,5 @@
 import { act, render, waitFor } from '@testing-library/react';
-import { FunctionComponent, useRef } from 'react';
+import { createRef, FunctionComponent, useLayoutEffect, useRef } from 'react';
 
 import { SourceCodeSync } from '../../providers/source-code-sync';
 import { useSourceCodeStore } from '../../store';
@@ -24,6 +24,19 @@ describe('SourceCodeBridgeProvider', () => {
     );
 
     expect(getByText('Test Child')).toBeInTheDocument();
+  });
+
+  it('pauses local history in host mode and restores tracking on unmount', () => {
+    const history = { undo: vi.fn(), redo: vi.fn(), canUndo: true, canRedo: true };
+    const { unmount } = render(<SourceCodeBridgeProvider history={history} onNewEdit={vi.fn()} />);
+    act(() => {
+      useSourceCodeStore.getState().setSourceCode('canvas change');
+      useSourceCodeStore.getState().setCodeAndNotify('native undo result');
+    });
+    expect(useSourceCodeStore.temporal.getState().pastStates).toEqual([]);
+    expect(useSourceCodeStore.temporal.getState().futureStates).toEqual([]);
+    unmount();
+    expect(useSourceCodeStore.temporal.getState().isTracking).toBe(true);
   });
 
   it('should call onNewEdit when the entities:updated event is emitted', () => {
@@ -127,6 +140,45 @@ describe('SourceCodeBridgeProvider', () => {
 
     expect(unsubscribeFromEntitiesMock).toHaveBeenCalled();
     expect(unsubscribeFromSourceCodeMock).toHaveBeenCalled();
+  });
+
+  it('reports the first source edit after empty host initialization', async () => {
+    const ref = createRef<SourceCodeBridgeProviderRef>();
+    const onNewEdit = vi.fn().mockResolvedValue(undefined);
+    render(<SourceCodeBridgeProvider ref={ref} onNewEdit={onNewEdit} />);
+    await act(async () => {
+      await ref.current!.setContent('empty.camel.yaml', '');
+    });
+    act(() => {
+      EventNotifier.getInstance().next('code:updated', { code: 'first edit' });
+    });
+    expect(onNewEdit).toHaveBeenCalledExactlyOnceWith('first edit');
+  });
+
+  it('reports the first edit when host initialization precedes passive subscriptions', () => {
+    const onNewEdit = vi.fn().mockResolvedValue(undefined);
+    const Host = () => {
+      const ref = useRef<SourceCodeBridgeProviderRef>(null);
+      useLayoutEffect(() => {
+        void ref.current!.setContent('empty.camel.yaml', '');
+      }, []);
+      return <SourceCodeBridgeProvider ref={ref} onNewEdit={onNewEdit} />;
+    };
+    render(<Host />);
+    act(() => {
+      EventNotifier.getInstance().next('code:updated', { code: 'first edit' });
+    });
+    expect(onNewEdit).toHaveBeenCalledExactlyOnceWith('first edit');
+  });
+
+  it('publishes matching entity and source notifications only once', () => {
+    const onNewEdit = vi.fn().mockResolvedValue(undefined);
+    render(<SourceCodeBridgeProvider onNewEdit={onNewEdit} />);
+    act(() => {
+      EventNotifier.getInstance().next('entities:updated', mockCamelRoute);
+      EventNotifier.getInstance().next('code:updated', { code: mockCamelRoute });
+    });
+    expect(onNewEdit).toHaveBeenCalledExactlyOnceWith(mockCamelRoute);
   });
 
   it('should not call setContent if the new content is the same as the current one', () => {

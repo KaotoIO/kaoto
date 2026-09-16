@@ -1,19 +1,28 @@
-import { action, isNode, Point, VisualizationProvider } from '@patternfly/react-topology';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { CanvasFormTabsProvider } from '@kaoto/forms';
+import { action, isNode, Point, SELECTION_EVENT, VisualizationProvider } from '@patternfly/react-topology';
 import { act, fireEvent, render, RenderResult, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 
 import { CatalogModalContext } from '../../../dynamic-catalog/catalog-modal.provider';
+import { CatalogKind } from '../../../models';
 import { CamelRouteResource, KameletResource } from '../../../models/camel';
 import { LocalStorageKeys } from '../../../models/local-storage-keys';
 import { DefaultSettingsAdapter } from '../../../models/settings';
 import { CanvasLayoutDirection } from '../../../models/settings/settings.model';
-import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
+import { AddStepMode, IVisualizationNode } from '../../../models/visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../../../models/visualization/flows';
 import { ActionConfirmationModalContextProvider } from '../../../providers/action-confirmation-modal.provider';
 import { SettingsProvider } from '../../../providers/settings.provider';
 import { TestProvidersWrapper, TestRuntimeProviderWrapper } from '../../../stubs';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { kameletJson } from '../../../stubs/kamelet-route';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
+import { useAddStep } from '../Custom/hooks/add-step.hook';
+import { useInsertStep } from '../Custom/hooks/insert-step.hook';
+import { useReplaceStep } from '../Custom/hooks/replace-step.hook';
 import { buildDesignerCanvasModel } from '../designer-canvas-model';
 import { Canvas } from './Canvas';
 import { LayoutType } from './canvas.models';
@@ -609,5 +618,157 @@ describe('Canvas', () => {
           )?.id === 'route-8888',
       );
     expect(remountedRouteGroup && isNode(remountedRouteGroup) && remountedRouteGroup.isCollapsed()).toBe(true);
+  });
+
+  it.each([false, true])(
+    'refreshes the selected step without remounting its properties panel (resolving: %s)',
+    async (resolving) => {
+      setupDynamicCatalogRegistry(await getFirstCatalogMap(catalogLibrary as CatalogLibrary));
+      const { Provider } = await TestProvidersWrapper();
+      const controller = ControllerService.createController();
+      const route = (id: string) =>
+        new CamelRouteVisualEntity({
+          route: { id: 'route-1', from: { uri: 'timer:test', steps: [{ log: { id, message: 'Hello' } }] } },
+        });
+      const initial = getCanvasPropsFromVizNodes([await route('log-before').toVizNode()], 1);
+      const updated = getCanvasPropsFromVizNodes([await route('log-after').toVizNode()], 1);
+      const updatedStep = updated.nodes.find((node) => node.id === 'route-1|route.from.steps.0.log')!.data!.vizNode!;
+      const fetchSchema = updatedStep.fetchSchema.bind(updatedStep);
+      let finishSchema!: () => void;
+      vi.spyOn(updatedStep, 'fetchSchema').mockImplementation(async () => {
+        await new Promise<void>((resolve) => {
+          finishSchema = resolve;
+        });
+        return fetchSchema();
+      });
+      const withoutStep = getCanvasPropsFromVizNodes(
+        [
+          await new CamelRouteVisualEntity({
+            route: { id: 'route-1', from: { uri: 'timer:test', steps: [] } },
+          }).toVizNode(),
+        ],
+        1,
+      );
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <Provider>
+          <CanvasFormTabsProvider>
+            <VisualizationProvider controller={controller}>{children}</VisualizationProvider>
+          </CanvasFormTabsProvider>
+        </Provider>
+      );
+      const { rerender } = render(<Canvas {...initial} />, { wrapper });
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
+
+      act(() => {
+        controller.fireEvent(SELECTION_EVENT, ['route-1|route.from.steps.0.log']);
+      });
+      fireEvent.click((await screen.findAllByRole('button', { name: 'All' }))[0]);
+      const idInput = await screen.findByDisplayValue('log-before');
+      const closeButton = screen.getByTestId('close-side-bar');
+      const filter = screen.getByPlaceholderText('Find properties by name');
+      fireEvent.change(filter, { target: { value: 'id' } });
+
+      if (resolving) {
+        rerender(<Canvas nodes={[]} edges={[]} isModelResolving />);
+        expect(idInput).toBeInTheDocument();
+        expect(filter).toHaveValue('id');
+        expect(idInput.closest('[inert]')).not.toBeNull();
+      }
+      rerender(<Canvas {...updated} />);
+      expect(idInput).toBeInTheDocument();
+      expect(idInput.closest('[inert]')).not.toBeNull();
+      await act(async () => {
+        finishSchema();
+      });
+      expect(await screen.findByDisplayValue('log-after')).toBeInTheDocument();
+      expect(filter.closest('[inert]')).toBeNull();
+      expect(filter).toBeInTheDocument();
+      expect(filter).toHaveValue('id');
+      expect(screen.getByTestId('close-side-bar')).toBe(closeButton);
+
+      rerender(<Canvas {...withoutStep} />);
+      await waitFor(() => {
+        expect(screen.queryByTestId('close-side-bar')).not.toBeInTheDocument();
+      });
+      rerender(<Canvas {...updated} />);
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
+      expect(screen.queryByTestId('close-side-bar')).not.toBeInTheDocument();
+    },
+    30_000,
+  );
+
+  it.each([
+    [AddStepMode.ReplaceStep, 'route.from.steps.1.placeholder', 'route.from.steps.1.to'],
+    [AddStepMode.PrependStep, 'route.from.steps.0.split', 'route.from.steps.0.to'],
+    [AddStepMode.AppendStep, 'route.from.steps.0.split', 'route.from.steps.1.to'],
+    [AddStepMode.InsertChildStep, 'route.from.steps.0.split', 'route.from.steps.0.split.steps.0.to'],
+  ])('selects an inserted Avro step and opens its properties (%s)', async (mode, targetPath, expectedPath) => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    setupDynamicCatalogRegistry(await getFirstCatalogMap(catalogLibrary as CatalogLibrary));
+    const resource = new CamelRouteResource([
+      {
+        route: {
+          id: 'route-1',
+          from: {
+            uri: 'timer:test',
+            steps: [{ split: { simple: '${body}', steps: [{ log: { message: 'Hello' } }] } }],
+          },
+        },
+      },
+    ]);
+    const { Provider } = await TestProvidersWrapper({ camelResource: resource });
+    const entity = resource.getVisualEntities()[0];
+    const initial = getCanvasPropsFromVizNodes([await entity.toVizNode()], 1);
+    const target = initial.nodes.find((node) => node.data?.vizNode?.data.path === targetPath)!.data!.vizNode!;
+    const controller = ControllerService.createController();
+    const catalog = {
+      getNewComponent: vi.fn().mockResolvedValue({ type: CatalogKind.Component, name: 'avro' }),
+      checkCompatibility: vi.fn(),
+    };
+    const InsertButton = () => {
+      const { onAddStep } = useAddStep(target, mode as AddStepMode.PrependStep | AddStepMode.AppendStep);
+      const { onInsertStep } = useInsertStep(target);
+      const { onReplaceNode } = useReplaceStep(target);
+      const onClick =
+        mode === AddStepMode.ReplaceStep
+          ? onReplaceNode
+          : mode === AddStepMode.InsertChildStep
+            ? onInsertStep
+            : onAddStep;
+      return <button onClick={onClick}>Insert Avro</button>;
+    };
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <Provider>
+        <CanvasFormTabsProvider>
+          <CatalogModalContext.Provider value={catalog}>
+            <VisualizationProvider controller={controller}>
+              <InsertButton />
+              {children}
+            </VisualizationProvider>
+          </CatalogModalContext.Provider>
+        </CanvasFormTabsProvider>
+      </Provider>
+    );
+    const { rerender } = render(<Canvas {...initial} />, { wrapper });
+    expect(screen.queryByTestId('close-side-bar')).not.toBeInTheDocument();
+
+    await user.click(screen.getByText('Insert Avro'));
+    rerender(<Canvas nodes={[]} edges={[]} isModelResolving />);
+    rerender(<Canvas {...getCanvasPropsFromVizNodes([await entity.toVizNode()], 1)} />);
+
+    expect(await screen.findByTestId('close-side-bar')).toBeInTheDocument();
+    expect(await screen.findByText('Avro RPC')).toBeInTheDocument();
+    expect(controller.getState<{ selectedIds: string[] }>().selectedIds).toEqual([`route-1|${expectedPath}`]);
+
+    fireEvent.click(screen.getByTestId('close-side-bar'));
+    rerender(<Canvas {...getCanvasPropsFromVizNodes([await entity.toVizNode()], 1)} />);
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+    expect(screen.queryByTestId('close-side-bar')).not.toBeInTheDocument();
   });
 });

@@ -16,7 +16,6 @@
  */
 
 import { FileTypesResponse } from '@kaoto/kaoto/models';
-import * as path from 'path'; // NOSONAR: node: prefix is unsupported by the webpack path-browserify polyfill fallback
 import * as vscode from 'vscode';
 import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
 
@@ -27,13 +26,14 @@ import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
  * (an error is logged). Individual files that cannot be read are also skipped
  * with an error log.
  *
- * @param dir Absolute path to the directory to read
+ * @param directory Directory URI, or an absolute filesystem path for existing desktop callers
  * @returns An array of {@link FileTypesResponse} objects, one per kamelet file found
  */
-export async function readKameletsFromDirectory(dir: string): Promise<FileTypesResponse[]> {
+export async function readKameletsFromDirectory(directory: string | vscode.Uri): Promise<FileTypesResponse[]> {
+	const dir = typeof directory === 'string' ? vscode.Uri.file(directory) : directory;
 	let entries: [string, vscode.FileType][];
 	try {
-		entries = await vscode.workspace.fs.readDirectory(vscode.Uri.file(dir));
+		entries = await vscode.workspace.fs.readDirectory(dir);
 	} catch (ex) {
 		// Directory does not exist or is not accessible — skip it
 		KaotoOutputChannel.logError(`Cannot read kamelet folder: ${dir}`, ex);
@@ -45,7 +45,7 @@ export async function readKameletsFromDirectory(dir: string): Promise<FileTypesR
 		if (type !== vscode.FileType.File || !name.endsWith('.kamelet.yaml')) {
 			continue;
 		}
-		const fileUri = vscode.Uri.file(path.join(dir, name));
+		const fileUri = vscode.Uri.joinPath(dir, name);
 		try {
 			const content = new TextDecoder().decode(await vscode.workspace.fs.readFile(fileUri));
 			resources.push({ filename: name, content });

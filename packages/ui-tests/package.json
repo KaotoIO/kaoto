@@ -57,7 +57,7 @@
   },
   "dependencies": {
     "@kaoto/camel-catalog": "^0.9.11",
-    "@kaoto/forms": "^1.8.0",
+    "@kaoto/forms": "patch:@kaoto/forms@npm%3A1.8.0#~/.yarn/patches/@kaoto-forms-npm-1.8.0-71c932c020.patch",
     "@kaoto/kaoto": "workspace:*",
     "storybook": "^10.2.14"
   },

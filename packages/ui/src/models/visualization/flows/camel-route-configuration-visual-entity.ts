@@ -141,11 +141,11 @@ export class CamelRouteConfigurationVisualEntity
     mode: AddStepMode;
     data: IVisualizationNodeData;
     targetProperty?: string;
-  }): void {
+  }): string | undefined {
     const path = options.data.path?.replace('.placeholder', '');
     const updatedOptions = { ...options, data: { ...options.data, path } };
 
-    super.addStep(updatedOptions);
+    return super.addStep(updatedOptions);
   }
 
   getNodeInteraction(data: IVisualizationNodeData): NodeInteraction {
