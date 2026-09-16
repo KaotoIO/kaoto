@@ -533,13 +533,14 @@ describe('Toggle Source Code', function () {
 		await clickCanvasHistory('Undo');
 		await driver.wait(async () => !(await editor.isDirty()) && !(await kaotoEditor.isDirty()), 5_000, 'Undo should clear both dirty markers');
 		await editor.click();
-		expect(await editor.getText()).to.equal(original);
+		// TextEditor.getText() reads the clipboard, which uses CRLF on Windows.
+		expect((await editor.getText()).replaceAll('\r\n', '\n')).to.equal(original.replaceAll('\r\n', '\n'));
 		expect(await readFile(path.join(temporaryFolder, CAMEL_FILE), 'utf8')).to.equal(original);
 
 		await clickCanvasHistory('Redo');
 		await driver.wait(async () => (await editor.isDirty()) && (await kaotoEditor.isDirty()), 5_000, 'Redo should dirty both editors');
 		await editor.click();
-		expect(await editor.getText()).to.equal(updated);
+		expect((await editor.getText()).replaceAll('\r\n', '\n')).to.equal(updated.replaceAll('\r\n', '\n'));
 
 		// The global command palette can focus the other group when a webview is open.
 		await editor.focus();
@@ -548,7 +549,7 @@ describe('Toggle Source Code', function () {
 		await clickCanvasHistory('Redo');
 		await driver.wait(async () => (await editor.isDirty()) && (await kaotoEditor.isDirty()), 5_000, 'Canvas Redo should restore the source edit');
 		await editor.click();
-		expect(await editor.getText()).to.equal(updated);
+		expect((await editor.getText()).replaceAll('\r\n', '\n')).to.equal(updated.replaceAll('\r\n', '\n'));
 		expect(await readFile(path.join(temporaryFolder, CAMEL_FILE), 'utf8')).to.equal(original);
 	});
 
@@ -575,7 +576,7 @@ describe('Toggle Source Code', function () {
 		await clickCanvasHistory('Undo');
 		await driver.wait(async () => !(await source.isDirty()) && !(await canvas.kaotoEditor.isDirty()), 5_000, 'Undo should clear both dirty markers');
 		await source.click();
-		expect(await source.getText()).to.equal(original);
+		expect((await source.getText()).replaceAll('\r\n', '\n')).to.equal(original.replaceAll('\r\n', '\n'));
 		await clickCanvasHistory('Redo');
 		await driver.wait(async () => (await source.isDirty()) && (await canvas.kaotoEditor.isDirty()), 5_000, 'Redo should dirty both editors');
 		await source.click();

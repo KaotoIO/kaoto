@@ -73,8 +73,12 @@ describe('Integrations View', function () {
 
 		let input: InputBox;
 		let exportButton: ViewItemAction | undefined;
+		let originalWindowHandle: string;
+		let originalWindowHandles: string[];
 
 		before(async function () {
+			originalWindowHandle = await driver.getWindowHandle();
+			originalWindowHandles = await driver.getAllWindowHandles();
 			fs.mkdirSync(PROJECT_OUTPUT_DIR, { recursive: true });
 			exportButton = await getItemExportButton('routes', 'Export: Folder');
 			await exportButton?.click();
@@ -82,7 +86,19 @@ describe('Integrations View', function () {
 
 		after(async function () {
 			await new EditorView().closeAllEditors();
-			fs.rmSync(PROJECT_OUTPUT_DIR, { force: true, recursive: true });
+			// Export opens the project in a new window, which keeps the directory in use on Windows.
+			try {
+				for (const windowHandle of await driver.getAllWindowHandles()) {
+					if (!originalWindowHandles.includes(windowHandle)) {
+						await driver.switchTo().window(windowHandle);
+						await driver.close();
+					}
+				}
+			} finally {
+				await driver.switchTo().window(originalWindowHandle);
+			}
+			// Allow closing processes to release their file handles before removing the project.
+			fs.rmSync(PROJECT_OUTPUT_DIR, { force: true, recursive: true, maxRetries: 5, retryDelay: 200 });
 		});
 
 		// prettier-ignore
@@ -122,6 +138,11 @@ describe('Integrations View', function () {
 			await dialog.getDriver().wait(until.stalenessOf(dialog), 2_500, 'Dialog did not disappeared');
 
 			await waitUntilNewCamelProjectHasCrucialFiles();
+			await driver.wait(
+				async () => (await driver.getAllWindowHandles()).some((handle) => !originalWindowHandles.includes(handle)),
+				30_000,
+				'Exported project window was not opened',
+			);
 		});
 
 		async function waitUntilNewCamelProjectHasCrucialFiles(): Promise<void> {
