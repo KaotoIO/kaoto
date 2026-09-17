@@ -46,6 +46,7 @@ Before you start contributing, ensure that you have the following installed:
 
 ### Commit and Push Your Changes
 
+- Follow [Conventional Commits](https://www.conventionalcommits.org/) (e.g. `feat(vscode): ...`, `fix(ui): ...`, `chore: ...`). Commit messages are validated locally via Husky and commitlint, and feed into automated release changelogs.
 - Write a clear and concise commit message describing what you've done.
 - Push your changes to your GitHub fork.
 

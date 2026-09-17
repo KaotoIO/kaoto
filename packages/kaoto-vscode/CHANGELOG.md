@@ -1,3 +1,7 @@
+> **Note:** This file is no longer maintained. Starting with version 2.13.0,
+> release notes are published automatically in
+> [GitHub Releases](https://github.com/KaotoIO/kaoto/releases).
+
 # 2.12.0
 
 - Add launch config for a simple run of exported Camel (Maven) Application
