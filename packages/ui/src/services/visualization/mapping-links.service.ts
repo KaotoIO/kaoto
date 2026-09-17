@@ -72,11 +72,9 @@ export class MappingLinksService {
       item.children.forEach((child) => {
         const isInlineValueSelector =
           child instanceof ValueSelector && VisualizationService.isInlineValueSelector(child);
-        if (
-          item instanceof FieldItem &&
-          !(item.field.ownerDocument instanceof PrimitiveDocument) &&
-          isInlineValueSelector
-        ) {
+        const isNonPrimitiveFieldItem =
+          item instanceof FieldItem && !(item.field.ownerDocument instanceof PrimitiveDocument);
+        if (isInlineValueSelector && (isNonPrimitiveFieldItem || item instanceof MappingTree)) {
           const links = MappingLinksService.doExtractMappingLinks(
             child,
             targetNodePath,
@@ -341,6 +339,7 @@ export class MappingLinksService {
    * Returns an empty array when the field has no unselected wrapper ancestors.
    */
   private static computeVisualSourceNodePath(field: IField): NodePath {
+    if (field instanceof PrimitiveDocument) return field.path;
     const segments: string[] = [];
     let current: IParentType = field;
     while ('parent' in current && current.parent !== current) {

@@ -904,6 +904,30 @@ describe('MappingLinksService', () => {
       expect(links[0].targetNodePath).toContain(vs.id);
     });
 
+    it('should point a root-level CONTAINER_NODE copy-of to its own node, not the document root', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+
+      const valueOf = new ValueOfSelector(manualTree);
+      valueOf.expression = '/ns0:ShipOrder/OrderId';
+      manualTree.children.push(valueOf);
+      const copyOf = new CopyOfSelector(manualTree, CopyOfType.CONTAINER_NODE);
+      copyOf.expression = '/ns0:ShipOrder/ShipTo';
+      manualTree.children.push(copyOf);
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const valueOfLink = links.find((link) => link.sourceNodePath.includes('OrderId'))!;
+      const copyOfLink = links.find((link) => link.sourceNodePath.includes('ShipTo'))!;
+
+      expect(valueOfLink.targetNodePath).toBe(manualTree.nodePath.toString());
+      expect(copyOfLink.targetNodePath).toBe(copyOf.nodePath.toString());
+      expect(copyOfLink.targetNodePath).not.toBe(valueOfLink.targetNodePath);
+    });
+
     it('should connect mixed container value-of to its node with a regular line', () => {
       const manualTree = new MappingTree(
         targetDoc.documentType,

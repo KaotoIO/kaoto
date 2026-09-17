@@ -45,10 +45,12 @@ export class ConnectionPortSyncHelper {
 
   /**
    * Elements without a `.expansion-panel__content` ancestor (e.g. primitive
-   * document header ports in `.expansion-panel__summary`) are always visible.
+   * document header ports in `.expansion-panel__summary`) skip the inner-content
+   * check (which is a no-op for them anyway) but still must respect the outer
+   * `.expansion-panels` viewport, since a header row can scroll out of view
+   * when several panels share one outer scroll container (e.g. source parameters).
    */
   static isElementVisible(element: HTMLElement): boolean {
-    if (!element.closest('.expansion-panel__content')) return true;
     return this.isVisibleWithinPanelContent(element) && this.isVisibleWithinPanelsViewport(element);
   }
 

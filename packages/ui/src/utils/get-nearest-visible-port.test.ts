@@ -133,7 +133,7 @@ describe('getNearestVisiblePort', () => {
     expect(result).toEqual({ connectionTarget: 'parent', position: [120, 220] });
   });
 
-  it('should return node for primitive parameter without child attachment', () => {
+  it('should return edge when a primitive parameter port is scrolled out of view', () => {
     const options: NearestVisiblePortOptions = {
       nodesConnectionPorts: {
         'p:EDGE:top': [0, 0],
@@ -146,7 +146,24 @@ describe('getNearestVisiblePort', () => {
 
     const result = getNearestVisiblePort('param:p://', options);
 
-    expect(result).toEqual({ connectionTarget: 'node', position: [0, 500] });
+    expect(result).toEqual({ connectionTarget: 'edge', position: [0, 500] });
+  });
+
+  it('should return node when a primitive parameter port is visible', () => {
+    const options: NearestVisiblePortOptions = {
+      nodesConnectionPorts: {
+        'param:p://': [120, 220],
+        'p:EDGE:top': [0, 0],
+        'p:EDGE:bottom': [0, 500],
+      },
+      nodesConnectionPortsArray: ['param:p://'],
+      expansionState: {},
+      expansionStateArray: [],
+    };
+
+    const result = getNearestVisiblePort('param:p://', options);
+
+    expect(result).toEqual({ connectionTarget: 'node', position: [120, 220] });
   });
 
   it('should prefer closer ancestors over distant ones', () => {
