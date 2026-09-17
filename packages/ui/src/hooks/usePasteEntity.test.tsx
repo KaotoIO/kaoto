@@ -29,7 +29,7 @@ describe('usePasteEntity', () => {
   let removeEntitySpy: Mock;
   let supportsMultipleVisualEntitiesSpy: Mock;
   let updateEntitiesFromCamelResourceSpy: Mock;
-  let toggleFlowVisibleSpy: Mock;
+  let showFlowsSpy: Mock;
   let WrapperProvider: FunctionComponent<PropsWithChildren>;
 
   const mockActionConfirmationContext = {
@@ -50,7 +50,7 @@ describe('usePasteEntity', () => {
     supportsMultipleVisualEntitiesSpy = vi.spyOn(camelResource, 'supportsMultipleVisualEntities').mockReturnValue(true);
 
     const visualFlowsApi = new VisualFlowsApi(vi.fn());
-    toggleFlowVisibleSpy = vi.spyOn(visualFlowsApi, 'toggleFlowVisible');
+    showFlowsSpy = vi.spyOn(visualFlowsApi, 'showFlows');
     const { Provider, updateEntitiesFromCamelResourceSpy: updateSpy } = await TestProvidersWrapper({
       camelResource,
       visibleFlowsContext: {
@@ -196,7 +196,7 @@ describe('usePasteEntity', () => {
     expect(addNewEntitySpy).toHaveBeenCalledWith('route', {
       route: expect.objectContaining({ from: { uri: 'timer:tick' } }),
     });
-    expect(toggleFlowVisibleSpy).toHaveBeenCalledWith('new-route-id');
+    expect(showFlowsSpy).toHaveBeenCalledWith(['new-route-id']);
     expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
   });
 
@@ -316,7 +316,7 @@ describe('usePasteEntity', () => {
       expect(mockActionConfirmationContext.actionConfirmation).not.toHaveBeenCalled();
       expect(removeEntitySpy).not.toHaveBeenCalled();
       expect(addNewEntitySpy).toHaveBeenCalled();
-      expect(toggleFlowVisibleSpy).toHaveBeenCalledWith('new-route-id');
+      expect(showFlowsSpy).toHaveBeenCalledWith(['new-route-id']);
     });
   });
 
@@ -434,7 +434,7 @@ describe('usePasteEntity', () => {
     });
 
     expect(addNewEntitySpy).toHaveBeenCalled();
-    expect(toggleFlowVisibleSpy).not.toHaveBeenCalled();
+    expect(showFlowsSpy).not.toHaveBeenCalled();
     expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
   });
 });
