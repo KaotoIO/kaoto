@@ -144,7 +144,7 @@ export const usePasteEntity = () => {
 
     // Make the new entity visible
     if (newId) {
-      visibleFlowsContext.visualFlowsApi.toggleFlowVisible(newId);
+      visibleFlowsContext.visualFlowsApi.showFlows([newId]);
     }
 
     // Update entities in context
