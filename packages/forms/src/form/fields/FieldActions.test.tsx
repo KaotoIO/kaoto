@@ -6,12 +6,12 @@ describe('FieldActions', () => {
     propName: 'testProp',
     clearAriaLabel: 'Clear field',
     toggleRawAriaLabel: 'Toggle RAW wrap for field',
-    onRemove: jest.fn(),
-    toggleRawValueWrap: jest.fn(),
+    onRemove: vi.fn(),
+    toggleRawValueWrap: vi.fn(),
   };
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders the MenuToggle button', () => {

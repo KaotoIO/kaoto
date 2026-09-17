@@ -27,7 +27,7 @@ describe('AnyOfField', () => {
   });
 
   it('should set the property name and propagate the required status', () => {
-    const factorySpy = jest.fn().mockReturnValue((props: Record<string, string>) => {
+    const factorySpy = vi.fn().mockReturnValue((props: Record<string, string>) => {
       const { schema } = useContext(SchemaContext);
 
       return (

@@ -6,7 +6,7 @@ import { SuggestionContext } from '../providers/SuggestionRegistryProvider';
 import { ROOT_PATH } from '../utils';
 import { PasswordField } from './PasswordField';
 
-const StatefulSuggestionProvider = ({ children, getProviders }: { children: ReactNode; getProviders: jest.Mock }) => {
+const StatefulSuggestionProvider = ({ children, getProviders }: { children: ReactNode; getProviders: vi.Mock }) => {
   const [currentOpenMenu, setCurrentOpenMenu] = useState<string | null>(null);
   return (
     <SuggestionContext.Provider value={{ getProviders, currentOpenMenu, setCurrentOpenMenu }}>
@@ -18,26 +18,26 @@ const StatefulSuggestionProvider = ({ children, getProviders }: { children: Reac
 describe('PasswordField', () => {
   const mockSuggestionProvider = {
     id: 'test-provider',
-    appliesTo: jest.fn().mockReturnValue(true),
-    getSuggestions: jest.fn().mockResolvedValue([
+    appliesTo: vi.fn().mockReturnValue(true),
+    getSuggestions: vi.fn().mockResolvedValue([
       { value: 'test-suggestion-1', description: 'First test suggestion' },
       { value: 'test-suggestion-2', description: 'Second test suggestion' },
     ]),
   };
 
-  const getProvidersMock = jest.fn().mockReturnValue([mockSuggestionProvider]);
+  const getProvidersMock = vi.fn().mockReturnValue([mockSuggestionProvider]);
 
   const renderWithSuggestions = (children: React.ReactNode) => {
     return render(<StatefulSuggestionProvider getProviders={getProvidersMock}>{children}</StatefulSuggestionProvider>);
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render', () => {
     const { container } = render(
-      <ModelContextProvider model="Value" onPropertyChange={jest.fn()}>
+      <ModelContextProvider model="Value" onPropertyChange={vi.fn()}>
         <PasswordField propName={ROOT_PATH} />
       </ModelContextProvider>,
     );
@@ -47,7 +47,7 @@ describe('PasswordField', () => {
 
   it('should set the appropriate placeholder', () => {
     const wrapper = render(
-      <ModelContextProvider model={undefined} onPropertyChange={jest.fn()}>
+      <ModelContextProvider model={undefined} onPropertyChange={vi.fn()}>
         <SchemaProvider schema={{ type: 'string', default: 'Default Value' }}>
           <PasswordField propName={ROOT_PATH} />
         </SchemaProvider>
@@ -59,7 +59,7 @@ describe('PasswordField', () => {
   });
 
   it('should notify when the value changes', () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
 
     const wrapper = render(
       <ModelContextProvider model="Value" onPropertyChange={onPropertyChangeSpy}>
@@ -77,7 +77,7 @@ describe('PasswordField', () => {
   });
 
   it('should clear the input when using the clear button', async () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
 
     const wrapper = render(
       <ModelContextProvider model="Value" onPropertyChange={onPropertyChangeSpy}>
@@ -100,8 +100,8 @@ describe('PasswordField', () => {
   });
 
   it('should use onRemoveProps callback if specified when using the clear button', async () => {
-    const onPropertyChangeSpy = jest.fn();
-    const onRemoveSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
+    const onRemoveSpy = vi.fn();
 
     const wrapper = render(
       <ModelContextProvider model="Value" onPropertyChange={onPropertyChangeSpy}>
@@ -125,7 +125,7 @@ describe('PasswordField', () => {
   });
 
   it('should show errors if available for its property path', () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
 
     const wrapper = render(
       <ModelContextProvider
@@ -143,7 +143,7 @@ describe('PasswordField', () => {
 
   it('should hide password by default', () => {
     const wrapper = render(
-      <ModelContextProvider model="Value" onPropertyChange={jest.fn()}>
+      <ModelContextProvider model="Value" onPropertyChange={vi.fn()}>
         <PasswordField propName={ROOT_PATH} />
       </ModelContextProvider>,
     );
@@ -155,7 +155,7 @@ describe('PasswordField', () => {
 
   it('should toggle the password visibility', () => {
     const wrapper = render(
-      <ModelContextProvider model="Value" onPropertyChange={jest.fn()}>
+      <ModelContextProvider model="Value" onPropertyChange={vi.fn()}>
         <PasswordField propName={ROOT_PATH} />
       </ModelContextProvider>,
     );
@@ -171,7 +171,7 @@ describe('PasswordField', () => {
   });
 
   it('wraps value with RAW when Raw button is clicked', async () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
 
     const wrapper = render(
       <ModelContextProvider model="SecretPassword" onPropertyChange={onPropertyChangeSpy}>
@@ -194,7 +194,7 @@ describe('PasswordField', () => {
   });
 
   it('unwraps value from RAW when already wrapped', async () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
 
     const wrapper = render(
       <ModelContextProvider model="RAW(SecretPassword)" onPropertyChange={onPropertyChangeSpy}>
@@ -217,7 +217,7 @@ describe('PasswordField', () => {
   });
 
   it('should show suggestions when Ctrl+Space is pressed', async () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
 
     const wrapper = renderWithSuggestions(
       <ModelContextProvider model="" onPropertyChange={onPropertyChangeSpy}>
@@ -241,7 +241,7 @@ describe('PasswordField', () => {
   });
 
   it('should apply suggestion when clicked', async () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
 
     const wrapper = renderWithSuggestions(
       <ModelContextProvider model="" onPropertyChange={onPropertyChangeSpy}>

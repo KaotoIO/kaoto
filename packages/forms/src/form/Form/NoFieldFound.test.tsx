@@ -6,7 +6,7 @@ describe('NoFieldFound Component', () => {
   it('should render the alert with the correct tab name', () => {
     const mockContextValue: CanvasFormTabsContextResult = {
       selectedTab: 'Required',
-      setSelectedTab: jest.fn(),
+      setSelectedTab: vi.fn(),
     };
 
     render(
@@ -22,7 +22,7 @@ describe('NoFieldFound Component', () => {
   it('should not suggest switching tabs when the All tab is already selected', () => {
     const mockContextValue: CanvasFormTabsContextResult = {
       selectedTab: 'All',
-      setSelectedTab: jest.fn(),
+      setSelectedTab: vi.fn(),
     };
 
     render(
@@ -39,7 +39,7 @@ describe('NoFieldFound Component', () => {
   it('should call onTabChange when the link is clicked', () => {
     const mockContextValue: CanvasFormTabsContextResult = {
       selectedTab: 'Required',
-      setSelectedTab: jest.fn(),
+      setSelectedTab: vi.fn(),
     };
 
     render(

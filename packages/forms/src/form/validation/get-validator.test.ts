@@ -37,7 +37,7 @@ describe('getValidator', () => {
       },
     } as unknown as JSONSchema4;
 
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const validator = getValidator(invalidSchema);
     expect(validator).toBeUndefined();
     consoleErrorSpy.mockRestore();
@@ -51,7 +51,7 @@ describe('getValidator', () => {
       },
     } as unknown as JSONSchema4;
 
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     getValidator(invalidSchema);
     expect(consoleErrorSpy).toHaveBeenCalledWith('[KaotoForm Validator]: Could not compile schema', expect.any(Error));
     consoleErrorSpy.mockRestore();

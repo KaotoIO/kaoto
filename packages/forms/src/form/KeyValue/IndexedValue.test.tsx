@@ -10,14 +10,14 @@ describe('IndexedValue', () => {
   });
 
   it('renders empty key-value with button disabled', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const wrapper = render(<IndexedValue propName={propName} onChange={onChange} disabled={true} />);
 
     expect(wrapper.getByTestId(`${propName}__add`)).toBeDisabled();
   });
 
   it('renders initial key-value pairs', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const wrapper = render(<IndexedValue propName={propName} initialModel={initialModel} onChange={onChange} />);
 
     expect(wrapper.getByText('0')).toBeInTheDocument();
@@ -29,7 +29,7 @@ describe('IndexedValue', () => {
   });
 
   it('renders initial key-value pairs with button disabled', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const wrapper = render(
       <IndexedValue propName={propName} initialModel={initialModel} onChange={onChange} disabled={true} />,
     );
@@ -43,7 +43,7 @@ describe('IndexedValue', () => {
   });
 
   it('adds a new key-value pair', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const wrapper = render(<IndexedValue propName={propName} initialModel={initialModel} onChange={onChange} />);
 
     fireEvent.click(wrapper.getByTestId(`${propName}__add`));
@@ -52,7 +52,7 @@ describe('IndexedValue', () => {
   });
 
   it('adds a new duplicate key-value pair', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const wrapper = render(<IndexedValue propName={propName} initialModel={initialModel} onChange={onChange} />);
     expect(wrapper.getByText('0')).toBeInTheDocument();
     expect(wrapper.getByDisplayValue('value1')).toBeInTheDocument();
@@ -65,7 +65,7 @@ describe('IndexedValue', () => {
   });
 
   it('removes a key-value pair', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const wrapper = render(<IndexedValue propName={propName} initialModel={initialModel} onChange={onChange} />);
 
     fireEvent.click(wrapper.getByTestId(`${propName}__remove__1`));
@@ -74,7 +74,7 @@ describe('IndexedValue', () => {
   });
 
   it('updates a value', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const wrapper = render(<IndexedValue propName={propName} initialModel={initialModel} onChange={onChange} />);
 
     fireEvent.change(wrapper.getByDisplayValue('value1'), { target: { value: 'newValue1' } });

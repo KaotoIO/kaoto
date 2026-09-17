@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Typeahead should renders the Typeahead component 1`] = `
+exports[`Typeahead > should renders the Typeahead component 1`] = `
 <div>
   <div>
     <div
@@ -67,7 +67,7 @@ exports[`Typeahead should renders the Typeahead component 1`] = `
 </div>
 `;
 
-exports[`Typeahead should renders the Typeahead component with disabled button 1`] = `
+exports[`Typeahead > should renders the Typeahead component with disabled button 1`] = `
 <div>
   <div>
     <div

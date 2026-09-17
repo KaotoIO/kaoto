@@ -1,4 +1,3 @@
-import '@testing-library/jest-dom';
 import { act, createEvent, fireEvent, render, screen } from '@testing-library/react';
 import { useRef, useState } from 'react';
 import { KaotoForm, KaotoFormApi, KaotoFormProps } from './KaotoForm';
@@ -27,7 +26,7 @@ describe('KaotoForm', () => {
     const form = getByTestId('kaoto-form');
 
     const mockEvent = createEvent.submit(form);
-    const preventDefaultSpy = jest.spyOn(mockEvent, 'preventDefault');
+    const preventDefaultSpy = vi.spyOn(mockEvent, 'preventDefault');
 
     act(() => {
       fireEvent(form, mockEvent);
@@ -37,21 +36,21 @@ describe('KaotoForm', () => {
   });
 
   it('displays "Schema not defined" when schema is not provided', () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {}); // Suppress error logs
+    vi.spyOn(console, 'error').mockImplementation(() => {}); // Suppress error logs
 
     expect(() => render(<KaotoForm {...defaultProps} schema={undefined} />)).toThrow('[KaotoForm]: Schema is required');
 
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('should not call onChange when loading the form for the first time', () => {
-    const onChangeMock = jest.fn();
+    const onChangeMock = vi.fn();
     render(<KaotoForm {...defaultProps} onChange={onChangeMock} />);
     expect(onChangeMock).not.toHaveBeenCalled();
   });
 
   it('should call onChange when the model changes', async () => {
-    const onChangeMock = jest.fn();
+    const onChangeMock = vi.fn();
     render(<KaotoForm {...defaultProps} onChange={onChangeMock} />);
 
     const value = 'new value';
@@ -65,7 +64,7 @@ describe('KaotoForm', () => {
   });
 
   it('should call onChangeProp when a property changes', async () => {
-    const onChangePropMock = jest.fn();
+    const onChangePropMock = vi.fn();
     render(<KaotoForm {...defaultProps} onChangeProp={onChangePropMock} />);
 
     const propName = 'name';
@@ -78,7 +77,7 @@ describe('KaotoForm', () => {
   });
 
   it('should call onChangeProp when a primitive property changes', async () => {
-    const onChangePropMock = jest.fn();
+    const onChangePropMock = vi.fn();
     render(<KaotoForm {...defaultProps} model="" onChangeProp={onChangePropMock} />);
 
     const value = 'new value';

@@ -7,7 +7,7 @@ import { SchemaProvider } from '../providers/SchemaProvider';
 import { ROOT_PATH } from '../utils';
 import { StringField } from './StringField';
 
-const StatefulSuggestionProvider = ({ children, getProviders }: { children: ReactNode; getProviders: jest.Mock }) => {
+const StatefulSuggestionProvider = ({ children, getProviders }: { children: ReactNode; getProviders: vi.Mock }) => {
   const [currentOpenMenu, setCurrentOpenMenu] = useState<string | null>(null);
   return (
     <SuggestionContext.Provider value={{ getProviders, currentOpenMenu, setCurrentOpenMenu }}>
@@ -19,26 +19,26 @@ const StatefulSuggestionProvider = ({ children, getProviders }: { children: Reac
 describe('StringField', () => {
   const mockSuggestionProvider = {
     id: 'test-provider',
-    appliesTo: jest.fn().mockReturnValue(true),
-    getSuggestions: jest.fn().mockResolvedValue([
+    appliesTo: vi.fn().mockReturnValue(true),
+    getSuggestions: vi.fn().mockResolvedValue([
       { value: 'test-suggestion-1', description: 'First test suggestion' },
       { value: 'test-suggestion-2', description: 'Second test suggestion' },
     ]),
   };
 
-  const getProvidersMock = jest.fn().mockReturnValue([mockSuggestionProvider]);
+  const getProvidersMock = vi.fn().mockReturnValue([mockSuggestionProvider]);
 
   const renderWithSuggestions = (children: React.ReactNode) => {
     return render(<StatefulSuggestionProvider getProviders={getProvidersMock}>{children}</StatefulSuggestionProvider>);
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render', () => {
     const { container } = render(
-      <ModelContextProvider model="Value" onPropertyChange={jest.fn()}>
+      <ModelContextProvider model="Value" onPropertyChange={vi.fn()}>
         <StringField propName={ROOT_PATH} />
       </ModelContextProvider>,
     );
@@ -48,7 +48,7 @@ describe('StringField', () => {
 
   it('should set the appropriate placeholder', () => {
     const wrapper = render(
-      <ModelContextProvider model={undefined} onPropertyChange={jest.fn()}>
+      <ModelContextProvider model={undefined} onPropertyChange={vi.fn()}>
         <SchemaProvider schema={{ type: 'string', default: 'Default Value' }}>
           <StringField propName={ROOT_PATH} />
         </SchemaProvider>
@@ -78,7 +78,7 @@ describe('StringField', () => {
     it.each(cases)(
       'should emit `$expectedValue` when the user writes `$newValue`',
       ({ initialValue, newValue, expectedValue, schema }) => {
-        const onPropertyChangeSpy = jest.fn();
+        const onPropertyChangeSpy = vi.fn();
 
         const wrapper = render(
           <ModelContextProvider model={initialValue} onPropertyChange={onPropertyChangeSpy}>
@@ -100,7 +100,7 @@ describe('StringField', () => {
   });
 
   it('should clear the input when using the clear button', async () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
 
     const wrapper = render(
       <ModelContextProvider model="Value" onPropertyChange={onPropertyChangeSpy}>
@@ -123,8 +123,8 @@ describe('StringField', () => {
   });
 
   it('should use onRemoveProps callback if specified when using the clear button', async () => {
-    const onPropertyChangeSpy = jest.fn();
-    const onRemoveSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
+    const onRemoveSpy = vi.fn();
 
     const wrapper = render(
       <ModelContextProvider model="Value" onPropertyChange={onPropertyChangeSpy}>
@@ -148,7 +148,7 @@ describe('StringField', () => {
   });
 
   it('should show errors if available for its property path', () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
 
     const wrapper = render(
       <ModelContextProvider
@@ -165,7 +165,7 @@ describe('StringField', () => {
   });
 
   it('wraps value with RAW when Raw button is clicked', async () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
 
     const wrapper = render(
       <ModelContextProvider model="Value" onPropertyChange={onPropertyChangeSpy}>
@@ -188,7 +188,7 @@ describe('StringField', () => {
   });
 
   it('unwraps value from RAW when already wrapped', async () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
 
     const wrapper = render(
       <ModelContextProvider model="RAW(Test Value)" onPropertyChange={onPropertyChangeSpy}>
@@ -213,7 +213,7 @@ describe('StringField', () => {
   it('should show additional utility if provided', () => {
     const additionalUtility = <span data-testid="additional-utility">Utility</span>;
     const wrapper = render(
-      <ModelContextProvider model="Value" onPropertyChange={jest.fn()}>
+      <ModelContextProvider model="Value" onPropertyChange={vi.fn()}>
         <StringField propName={ROOT_PATH} additionalUtility={additionalUtility} />
       </ModelContextProvider>,
     );
@@ -222,7 +222,7 @@ describe('StringField', () => {
   });
 
   it('should not wrap non-string values with RAW', async () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
 
     const wrapper = render(
       <ModelContextProvider model={123} onPropertyChange={onPropertyChangeSpy}>
@@ -244,7 +244,7 @@ describe('StringField', () => {
   });
 
   it('should handle integer schema type', () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
 
     const wrapper = render(
       <ModelContextProvider model="" onPropertyChange={onPropertyChangeSpy}>
@@ -264,7 +264,7 @@ describe('StringField', () => {
 
   it('should set field type correctly', () => {
     const wrapper = render(
-      <ModelContextProvider model="Value" onPropertyChange={jest.fn()}>
+      <ModelContextProvider model="Value" onPropertyChange={vi.fn()}>
         <StringField propName={ROOT_PATH} fieldType="password" />
       </ModelContextProvider>,
     );
@@ -275,7 +275,7 @@ describe('StringField', () => {
 
   it('should handle disabled state', () => {
     const wrapper = render(
-      <ModelContext.Provider value={{ disabled: true, model: 'value', onPropertyChange: jest.fn() }}>
+      <ModelContext.Provider value={{ disabled: true, model: 'value', onPropertyChange: vi.fn() }}>
         <StringField propName={ROOT_PATH} />
       </ModelContext.Provider>,
     );
@@ -285,7 +285,7 @@ describe('StringField', () => {
   });
 
   it('should handle empty string conversion for number schema', () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
 
     const wrapper = render(
       <ModelContextProvider model=" " onPropertyChange={onPropertyChangeSpy}>
@@ -304,7 +304,7 @@ describe('StringField', () => {
   });
 
   it('should handle NaN values for number schema', () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
 
     const wrapper = render(
       <ModelContextProvider model="" onPropertyChange={onPropertyChangeSpy}>
@@ -323,7 +323,7 @@ describe('StringField', () => {
   });
 
   it('should show suggestions when Ctrl+Space is pressed', async () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
 
     const wrapper = renderWithSuggestions(
       <ModelContextProvider model="" onPropertyChange={onPropertyChangeSpy}>
@@ -347,7 +347,7 @@ describe('StringField', () => {
   });
 
   it('should apply suggestion when clicked', async () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
 
     const wrapper = renderWithSuggestions(
       <ModelContextProvider model="" onPropertyChange={onPropertyChangeSpy}>

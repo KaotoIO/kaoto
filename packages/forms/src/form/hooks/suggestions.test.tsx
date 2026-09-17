@@ -4,7 +4,7 @@ import { SuggestionProvider } from '../models/suggestions';
 import { SuggestionContext } from '../providers';
 import { useSuggestions } from './suggestions';
 
-const StatefulSuggestionProvider = ({ children, getProviders }: { children: ReactNode; getProviders: jest.Mock }) => {
+const StatefulSuggestionProvider = ({ children, getProviders }: { children: ReactNode; getProviders: vi.Mock }) => {
   const [currentOpenMenu, setCurrentOpenMenu] = useState<string | null>(null);
   return (
     <SuggestionContext.Provider value={{ getProviders, currentOpenMenu, setCurrentOpenMenu }}>
@@ -14,9 +14,9 @@ const StatefulSuggestionProvider = ({ children, getProviders }: { children: Reac
 };
 
 describe('useSuggestions', () => {
-  let setValueMock: jest.Mock;
+  let setValueMock: vi.Mock;
   let mockProvider: SuggestionProvider;
-  let getProvidersMock: jest.Mock;
+  let getProvidersMock: vi.Mock;
 
   const TestComponent = () => {
     const inputRef = useRef<HTMLInputElement>(null);
@@ -59,13 +59,13 @@ describe('useSuggestions', () => {
   };
 
   beforeEach(() => {
-    setValueMock = jest.fn();
-    getProvidersMock = jest.fn();
+    setValueMock = vi.fn();
+    getProvidersMock = vi.fn();
 
     mockProvider = {
       id: 'test-provider',
-      appliesTo: jest.fn().mockReturnValue(true),
-      getSuggestions: jest.fn().mockResolvedValue([
+      appliesTo: vi.fn().mockReturnValue(true),
+      getSuggestions: vi.fn().mockResolvedValue([
         { value: 'suggestion1', description: 'First suggestion' },
         { value: 'suggestion2', description: 'Second suggestion', group: 'group1' },
       ]),
@@ -75,7 +75,8 @@ describe('useSuggestions', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
+    vi.useRealTimers();
   });
 
   it('should not render anything if not visible', async () => {
@@ -94,7 +95,7 @@ describe('useSuggestions', () => {
       {
         wrapper: ({ children }) => (
           <SuggestionContext.Provider
-            value={{ getProviders: getProvidersMock, currentOpenMenu: null, setCurrentOpenMenu: jest.fn() }}
+            value={{ getProviders: getProvidersMock, currentOpenMenu: null, setCurrentOpenMenu: vi.fn() }}
           >
             {children}
           </SuggestionContext.Provider>
@@ -120,7 +121,7 @@ describe('useSuggestions', () => {
     const { result } = renderHook(() => useSuggestions(propsWithoutSetValue), {
       wrapper: ({ children }) => (
         <SuggestionContext.Provider
-          value={{ getProviders: getProvidersMock, currentOpenMenu: null, setCurrentOpenMenu: jest.fn() }}
+          value={{ getProviders: getProvidersMock, currentOpenMenu: null, setCurrentOpenMenu: vi.fn() }}
         >
           {children}
         </SuggestionContext.Provider>
@@ -131,7 +132,7 @@ describe('useSuggestions', () => {
   });
 
   it('should not register event listeners if there is no inputRef', async () => {
-    const addEventListenerSpy = jest.spyOn(HTMLInputElement.prototype, 'addEventListener');
+    const addEventListenerSpy = vi.spyOn(HTMLInputElement.prototype, 'addEventListener');
     const inputRef = { current: null };
 
     await act(async () => {
@@ -147,7 +148,7 @@ describe('useSuggestions', () => {
         {
           wrapper: ({ children }) => (
             <SuggestionContext.Provider
-              value={{ getProviders: getProvidersMock, currentOpenMenu: null, setCurrentOpenMenu: jest.fn() }}
+              value={{ getProviders: getProvidersMock, currentOpenMenu: null, setCurrentOpenMenu: vi.fn() }}
             >
               {children}
             </SuggestionContext.Provider>
@@ -160,7 +161,7 @@ describe('useSuggestions', () => {
   });
 
   it('should register event listeners immediately when input is already focused', async () => {
-    const addEventListenerSpy = jest.spyOn(HTMLInputElement.prototype, 'addEventListener');
+    const addEventListenerSpy = vi.spyOn(HTMLInputElement.prototype, 'addEventListener');
 
     // Create an input element and focus it before creating the hook
     const inputElement = document.createElement('input');
@@ -185,7 +186,7 @@ describe('useSuggestions', () => {
         {
           wrapper: ({ children }) => (
             <SuggestionContext.Provider
-              value={{ getProviders: getProvidersMock, currentOpenMenu: null, setCurrentOpenMenu: jest.fn() }}
+              value={{ getProviders: getProvidersMock, currentOpenMenu: null, setCurrentOpenMenu: vi.fn() }}
             >
               {children}
             </SuggestionContext.Provider>
@@ -203,8 +204,8 @@ describe('useSuggestions', () => {
   });
 
   it('should cleanup event listeners when input ref changes', () => {
-    const addEventListenerSpy = jest.spyOn(HTMLInputElement.prototype, 'addEventListener');
-    const removeEventListenerSpy = jest.spyOn(HTMLInputElement.prototype, 'removeEventListener');
+    const addEventListenerSpy = vi.spyOn(HTMLInputElement.prototype, 'addEventListener');
+    const removeEventListenerSpy = vi.spyOn(HTMLInputElement.prototype, 'removeEventListener');
 
     const props: Parameters<typeof useSuggestions>[0] = {
       propName: 'testProp',
@@ -217,7 +218,7 @@ describe('useSuggestions', () => {
     const { rerender } = renderHook(() => useSuggestions(props), {
       wrapper: ({ children }) => (
         <SuggestionContext.Provider
-          value={{ getProviders: getProvidersMock, currentOpenMenu: null, setCurrentOpenMenu: jest.fn() }}
+          value={{ getProviders: getProvidersMock, currentOpenMenu: null, setCurrentOpenMenu: vi.fn() }}
         >
           {children}
         </SuggestionContext.Provider>
@@ -316,7 +317,7 @@ describe('useSuggestions', () => {
       const result = renderWithContext(<TestComponent />);
 
       const input = result.getByRole('textbox');
-      const focusSpy = jest.spyOn(input, 'focus');
+      const focusSpy = vi.spyOn(input, 'focus');
 
       // Open suggestions menu
       await act(async () => {
@@ -370,8 +371,8 @@ describe('useSuggestions', () => {
     const result = renderWithContext(<TestComponent />);
 
     const input = result.getByRole('textbox') as HTMLInputElement;
-    const focusSpy = jest.spyOn(input, 'focus');
-    const selectionRangeSpy = jest.spyOn(input, 'setSelectionRange');
+    const focusSpy = vi.spyOn(input, 'focus');
+    const selectionRangeSpy = vi.spyOn(input, 'setSelectionRange');
 
     // Open suggestions menu
     await act(async () => {
@@ -392,8 +393,8 @@ describe('useSuggestions', () => {
     const result = renderWithContext(<TestComponent />);
 
     const input = result.getByRole('textbox') as HTMLInputElement;
-    const focusSpy = jest.spyOn(input, 'focus');
-    const selectionRangeSpy = jest.spyOn(input, 'setSelectionRange');
+    const focusSpy = vi.spyOn(input, 'focus');
+    const selectionRangeSpy = vi.spyOn(input, 'setSelectionRange');
 
     // Open suggestions menu
     await act(async () => {
@@ -411,7 +412,7 @@ describe('useSuggestions', () => {
   });
 
   it('should group suggestions correctly', async () => {
-    mockProvider.getSuggestions = jest.fn().mockResolvedValue([
+    mockProvider.getSuggestions = vi.fn().mockResolvedValue([
       { value: 'root1', description: 'Root suggestion' },
       { value: 'grouped1', description: 'Grouped suggestion', group: 'TestGroup' },
       { value: 'grouped2', description: 'Another grouped suggestion', group: 'TestGroup' },
@@ -431,7 +432,7 @@ describe('useSuggestions', () => {
 
   describe('when no suggestions are available', () => {
     it('should show "No suggestions available" when no suggestions are provided', async () => {
-      mockProvider.getSuggestions = jest.fn().mockResolvedValue([]);
+      mockProvider.getSuggestions = vi.fn().mockResolvedValue([]);
 
       const result = renderWithContext(<TestComponent />);
       await act(async () => {
@@ -444,7 +445,7 @@ describe('useSuggestions', () => {
     });
 
     it('should not show "No suggestions available" when there are grouped suggestions', async () => {
-      mockProvider.getSuggestions = jest
+      mockProvider.getSuggestions = vi
         .fn()
         .mockResolvedValue([{ value: 'grouped1', description: 'Grouped suggestion', group: 'TestGroup' }]);
 
@@ -460,7 +461,7 @@ describe('useSuggestions', () => {
     });
 
     it('should not render empty groups', async () => {
-      mockProvider.getSuggestions = jest.fn().mockResolvedValue([
+      mockProvider.getSuggestions = vi.fn().mockResolvedValue([
         { value: 'root1', description: 'Root suggestion' },
         { value: 'grouped1', description: 'Grouped suggestion', group: 'TestGroup' },
       ]);
@@ -492,15 +493,15 @@ describe('useSuggestions', () => {
   it('should handle async suggestion providers', async () => {
     const asyncProvider: SuggestionProvider = {
       id: 'async-provider',
-      appliesTo: jest.fn().mockReturnValue(true),
-      getSuggestions: jest
+      appliesTo: vi.fn().mockReturnValue(true),
+      getSuggestions: vi
         .fn()
         .mockImplementation(
           () => new Promise((resolve) => setTimeout(() => resolve([{ value: 'async-suggestion' }]), 1_000)),
         ),
     };
     getProvidersMock.mockReturnValue([asyncProvider]);
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const result = renderWithContext(<TestComponent />);
     await act(async () => {
@@ -509,15 +510,13 @@ describe('useSuggestions', () => {
 
     expect(result.queryByTestId('async-suggestion')).not.toBeInTheDocument();
 
+    // Advance fake timers and flush all pending async work
     await act(async () => {
-      jest.advanceTimersByTime(1_000); // Fast-forward time to resolve async suggestions
+      await vi.runAllTimersAsync();
     });
 
     // Should eventually show async suggestions
-    await waitFor(() => {
-      expect(result.getByTestId('suggestions-menu')).toBeInTheDocument();
-    });
-    jest.useRealTimers();
+    expect(result.getByTestId('suggestions-menu')).toBeInTheDocument();
   });
 
   it('should apply suggestion when clicked', async () => {

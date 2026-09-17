@@ -6,18 +6,19 @@ import { OneOfSchemas, ROOT_PATH } from '../../utils';
 import { OneOfField } from './OneOfField';
 
 // Mock the useOneOfField hook
-jest.mock('../../hooks/one-of-field', () => ({
-  useOneOfField: jest.fn(),
+vi.mock('../../hooks/one-of-field', () => ({
+  useOneOfField: vi.fn(),
 }));
 
 import { useOneOfField } from '../../hooks/one-of-field';
+import { type MockedFunction } from 'vitest';
 
-const mockUseOneOfField = useOneOfField as jest.MockedFunction<typeof useOneOfField>;
+const mockUseOneOfField = useOneOfField as MockedFunction<typeof useOneOfField>;
 
 describe('OneOfField', () => {
   beforeEach(() => {
     // Reset mock
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   const mockOneOfSchemas = [
@@ -36,7 +37,7 @@ describe('OneOfField', () => {
   const defaultMockReturn = {
     selectedOneOfSchema: mockOneOfSchemas[0],
     oneOfSchemas: mockOneOfSchemas,
-    onSchemaChange: jest.fn(),
+    onSchemaChange: vi.fn(),
     shouldRender: true,
   };
 
@@ -105,7 +106,7 @@ describe('OneOfField', () => {
   });
 
   it('should handle schema selection and change functionality', () => {
-    const mockOnSchemaChange = jest.fn();
+    const mockOnSchemaChange = vi.fn();
     mockUseOneOfField.mockReturnValue({
       ...defaultMockReturn,
       onSchemaChange: mockOnSchemaChange,

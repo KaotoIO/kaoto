@@ -10,7 +10,7 @@ import { ObjectFieldInner } from './ObjectFieldInner';
 describe('ObjectFieldInner', () => {
   it('should ignore empty properties', () => {
     const wrapper = render(
-      <ModelContextProvider model={undefined} onPropertyChange={jest.fn()}>
+      <ModelContextProvider model={undefined} onPropertyChange={vi.fn()}>
         <SchemaProvider schema={{ type: 'object', properties: { simple: {}, csimple: {}, name: { type: 'string' } } }}>
           <ObjectFieldInner propName={ROOT_PATH} requiredProperties={[]} />
         </SchemaProvider>
@@ -23,10 +23,10 @@ describe('ObjectFieldInner', () => {
   });
 
   it('should set the property name and propagate the required status', () => {
-    const factorySpy = jest.fn().mockReturnValue((props: Record<string, string>) => <pre>{inspect(props)}</pre>);
+    const factorySpy = vi.fn().mockReturnValue((props: Record<string, string>) => <pre>{inspect(props)}</pre>);
     const wrapper = render(
       <FormComponentFactoryContext.Provider value={factorySpy}>
-        <ModelContextProvider model={undefined} onPropertyChange={jest.fn()}>
+        <ModelContextProvider model={undefined} onPropertyChange={vi.fn()}>
           <SchemaProvider schema={{ type: 'object', properties: { name: { type: 'string' } }, required: ['name'] }}>
             <ObjectFieldInner propName={ROOT_PATH} requiredProperties={['name']} />
           </SchemaProvider>

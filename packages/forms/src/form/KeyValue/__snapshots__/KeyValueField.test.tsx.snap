@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`KeyValueField renders with correct props 1`] = `
+exports[`KeyValueField > renders with correct props 1`] = `
 <input
   class="cds--text-input"
   data-testid="keyvalue-input"

@@ -13,7 +13,7 @@ describe('ModelContextProvider', () => {
   it('should return the provided value', () => {
     const model = { foo: 'bar' };
     const errors: Record<string, string[]> = { foo: ['error'] };
-    const onPropertyChange = jest.fn();
+    const onPropertyChange = vi.fn();
 
     const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
       <ModelContextProvider model={model} errors={errors} onPropertyChange={onPropertyChange}>

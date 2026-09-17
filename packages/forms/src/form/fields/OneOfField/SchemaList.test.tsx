@@ -24,11 +24,11 @@ describe('SchemaList', () => {
     { name: 'Schema 6', description: 'Sixth schema', schema: { type: 'string' } },
   );
 
-  const mockOnChange = jest.fn();
-  const mockOnCleanInput = jest.fn();
+  const mockOnChange = vi.fn();
+  const mockOnCleanInput = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render correctly with basic props when schema is selected', () => {

@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import { FunctionComponent, PropsWithChildren } from 'react';
 import { isDefined } from '../utils';
 import { KaotoFormProps } from '../KaotoForm';
@@ -9,7 +10,7 @@ import { SchemaProvider } from '../providers/SchemaProvider';
 export const FieldTestProvider: (props: Partial<KaotoFormProps>) => {
   Provider: FunctionComponent<PropsWithChildren>;
   onChange: KaotoFormProps['onChangeProp'];
-} = ({ schema, onChangeProp: onChange = jest.fn(), model, omitFields = [] }) => {
+} = ({ schema, onChangeProp: onChange = vi.fn(), model, omitFields = [] }) => {
   if (!isDefined(schema)) {
     throw new Error('FieldTestProvider: Schema not defined');
   }

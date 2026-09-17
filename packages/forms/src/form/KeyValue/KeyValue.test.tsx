@@ -10,14 +10,14 @@ describe('KeyValue', () => {
   });
 
   it('renders empty key-value with button disabled', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const wrapper = render(<KeyValue propName={propName} onChange={onChange} disabled={true} />);
 
     expect(wrapper.getByTestId(`${propName}__add`)).toBeDisabled();
   });
 
   it('renders initial key-value pairs', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const wrapper = render(<KeyValue propName={propName} initialModel={initialModel} onChange={onChange} />);
 
     expect(wrapper.getByDisplayValue('key1')).toBeInTheDocument();
@@ -27,7 +27,7 @@ describe('KeyValue', () => {
   });
 
   it('renders initial key-value pairs with button disabled', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const wrapper = render(
       <KeyValue propName={propName} initialModel={initialModel} onChange={onChange} disabled={true} />,
     );
@@ -41,7 +41,7 @@ describe('KeyValue', () => {
   });
 
   it('adds a new key-value pair', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const wrapper = render(<KeyValue propName={propName} initialModel={initialModel} onChange={onChange} />);
 
     fireEvent.click(wrapper.getByTestId(`${propName}__add`));
@@ -50,7 +50,7 @@ describe('KeyValue', () => {
   });
 
   it('removes a key-value pair', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const wrapper = render(<KeyValue propName={propName} initialModel={initialModel} onChange={onChange} />);
 
     fireEvent.click(wrapper.getByTestId(`${propName}__remove__key1`));
@@ -59,7 +59,7 @@ describe('KeyValue', () => {
   });
 
   it('updates a key', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const wrapper = render(<KeyValue propName={propName} initialModel={initialModel} onChange={onChange} />);
 
     fireEvent.change(wrapper.getByDisplayValue('key1'), { target: { value: 'newKey1' } });
@@ -68,7 +68,7 @@ describe('KeyValue', () => {
   });
 
   it('updates a value', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const wrapper = render(<KeyValue propName={propName} initialModel={initialModel} onChange={onChange} />);
 
     fireEvent.change(wrapper.getByDisplayValue('value1'), { target: { value: 'newValue1' } });

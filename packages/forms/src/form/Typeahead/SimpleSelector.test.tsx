@@ -1,4 +1,3 @@
-import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { SimpleSelector } from './SimpleSelector';
 import { TypeaheadItem } from './Typeahead.types';
@@ -11,19 +10,19 @@ describe('SimpleSelector', () => {
   ];
 
   it('renders without crashing', () => {
-    render(<SimpleSelector items={items} onChange={jest.fn()} />);
+    render(<SimpleSelector items={items} onChange={vi.fn()} />);
     expect(screen.getByRole('tablist')).toBeInTheDocument();
   });
 
   it('renders all items', () => {
-    render(<SimpleSelector items={items} onChange={jest.fn()} />);
+    render(<SimpleSelector items={items} onChange={vi.fn()} />);
     items.forEach((item) => {
       expect(screen.getByText(item.name)).toBeInTheDocument();
     });
   });
 
   it('calls onChange when an item is selected', () => {
-    const handleChange = jest.fn();
+    const handleChange = vi.fn();
     render(<SimpleSelector items={items} onChange={handleChange} />);
 
     fireEvent.click(screen.getByText('Item 1'));
@@ -31,7 +30,7 @@ describe('SimpleSelector', () => {
   });
 
   it('updates selected state when an item is clicked', () => {
-    render(<SimpleSelector items={items} onChange={jest.fn()} />);
+    render(<SimpleSelector items={items} onChange={vi.fn()} />);
 
     const itemButton1 = screen.getByRole('tab', {
       name: /item 1/i,
@@ -42,7 +41,7 @@ describe('SimpleSelector', () => {
   });
 
   it('does not call onChange if the same item is clicked again', () => {
-    const handleChange = jest.fn();
+    const handleChange = vi.fn();
     render(<SimpleSelector items={items} onChange={handleChange} selectedItem={items[0]} />);
 
     fireEvent.click(screen.getByText('Item 1'));

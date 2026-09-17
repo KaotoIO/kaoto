@@ -6,6 +6,8 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "target": "es5",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,

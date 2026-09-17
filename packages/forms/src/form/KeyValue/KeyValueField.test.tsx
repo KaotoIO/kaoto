@@ -3,7 +3,7 @@ import { ReactNode, useState } from 'react';
 import { SuggestionContext } from '../providers/SuggestionRegistryProvider';
 import { KeyValueField } from './KeyValueField';
 
-const StatefulSuggestionProvider = ({ children, getProviders }: { children: ReactNode; getProviders: jest.Mock }) => {
+const StatefulSuggestionProvider = ({ children, getProviders }: { children: ReactNode; getProviders: vi.Mock }) => {
   const [currentOpenMenu, setCurrentOpenMenu] = useState<string | null>(null);
   return (
     <SuggestionContext.Provider value={{ getProviders, currentOpenMenu, setCurrentOpenMenu }}>
@@ -15,14 +15,14 @@ const StatefulSuggestionProvider = ({ children, getProviders }: { children: Reac
 describe('KeyValueField', () => {
   const mockSuggestionProvider = {
     id: 'test-provider',
-    appliesTo: jest.fn().mockReturnValue(true),
-    getSuggestions: jest.fn().mockResolvedValue([
+    appliesTo: vi.fn().mockReturnValue(true),
+    getSuggestions: vi.fn().mockResolvedValue([
       { value: 'test-suggestion-1', description: 'First test suggestion' },
       { value: 'test-suggestion-2', description: 'Second test suggestion' },
     ]),
   };
 
-  const getProvidersMock = jest.fn().mockReturnValue([mockSuggestionProvider]);
+  const getProvidersMock = vi.fn().mockReturnValue([mockSuggestionProvider]);
 
   const defaultProps = {
     id: 'test-id',
@@ -30,9 +30,9 @@ describe('KeyValueField', () => {
     'data-testid': 'keyvalue-input',
     placeholder: 'Enter value',
     value: 'initial',
-    onChange: jest.fn(),
-    onFocus: jest.fn(),
-    onBlur: jest.fn(),
+    onChange: vi.fn(),
+    onFocus: vi.fn(),
+    onBlur: vi.fn(),
   };
 
   const renderWithSuggestions = (children: React.ReactNode) => {
@@ -40,7 +40,7 @@ describe('KeyValueField', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders with correct props', () => {
@@ -52,7 +52,7 @@ describe('KeyValueField', () => {
   });
 
   it('calls onChange when value changes', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const { getByRole } = render(<KeyValueField {...defaultProps} onChange={onChange} />);
     const input = getByRole('textbox');
 
@@ -75,8 +75,8 @@ describe('KeyValueField', () => {
   });
 
   it('calls onFocus and onBlur', async () => {
-    const onFocus = jest.fn();
-    const onBlur = jest.fn();
+    const onFocus = vi.fn();
+    const onBlur = vi.fn();
 
     const { getByRole } = render(<KeyValueField {...defaultProps} onFocus={onFocus} onBlur={onBlur} />);
     const input = getByRole('textbox');
