@@ -129,8 +129,11 @@ jobs:
     needs:
       - release
       - ui-tests
-    # Create tag and release only after UI tests pass (or when UI tests are skipped)
+    # always() prevents GitHub Actions from propagating the skip when ui-tests is
+    # conditionally skipped (run_ui_tests: false). Without it, a skipped ui-tests
+    # job causes tag-and-release to be skipped before its if: is evaluated.
     if: |
+      always() &&
       needs.release.result == 'success' &&
       (needs.ui-tests.result == 'success' || needs.ui-tests.result == 'skipped')
 
@@ -140,6 +143,24 @@ jobs:
         with:
           ref: ${{ github.ref }}
           persist-credentials: false
+          # Full history required so generate-changelog.mjs can locate the previous tag
+          fetch-depth: 0
+
+      - name: '🔧 Setup tools'
+        uses: ./.github/actions/kaoto-vscode-setup-tools
+
+      - name: '🔧 Install dependencies'
+        run: yarn install --immutable --mode=skip-build
+
+      - name: '📋 Generate changelog'
+        id: changelog
+        run: |
+          body=$(node .github/scripts/generate-changelog.mjs)
+          {
+            echo 'changelog_body<<EOF'
+            echo "$body"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
 
       - name: '📥 Download VSIX artifact'
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -168,6 +189,7 @@ jobs:
           tag: ${{ needs.release.outputs.release_tag }}
           name: Release ${{ needs.release.outputs.release_tag }}
           prerelease: false
+          body: ${{ steps.changelog.outputs.changelog_body }}
           artifacts: >-
             ${{ needs.release.outputs.vsix_name }},
             manifest.json
@@ -179,6 +201,7 @@ jobs:
           tag: ${{ needs.release.outputs.release_tag }}
           name: Release ${{ needs.release.outputs.release_tag }}
           prerelease: true
+          body: ${{ steps.changelog.outputs.changelog_body }}
           artifacts: ${{ needs.release.outputs.vsix_name }}
 
   publish:
@@ -188,8 +211,10 @@ jobs:
     needs:
       - release
       - tag-and-release
-    # Run when: not a snapshot, AND tag-and-release succeeded
+    # always() prevents silent skip propagation if tag-and-release is ever skipped.
+    # The explicit result check ensures publish only runs when tag-and-release succeeded.
     if: |
+      always() &&
       !inputs.snapshot &&
       needs.tag-and-release.result == 'success'
 
