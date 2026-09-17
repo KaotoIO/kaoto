@@ -49,10 +49,15 @@ export function getNearestVisiblePort(
       return { connectionTarget: 'parent', position: nodesConnectionPorts[parentPath] };
     }
   }
-
-  // no ports && no expansion states, means it's a primitive document (including header and params)
+  /*
+   * No ports && no expansion states means this is a primitive document (header-only,
+   * e.g. a schema-less parameter). Its only port lives in `.expansion-panel__summary` and,
+   * since it isn't registered here, it's currently scrolled out of the outer
+   * `.expansion-panels` viewport (a visible port would have matched the check above) -
+   * so it must be treated the same as any other out-of-view node.
+   */
   if (nodesConnectionPortsArray.length === 0 && expansionStateArray.length === 0) {
-    return { connectionTarget: 'node', position: nodesConnectionPorts[edgeBottomKey] };
+    return { connectionTarget: 'edge', position: nodesConnectionPorts[edgeBottomKey] };
   }
 
   const firstVisiblePath = nodesConnectionPortsArray.at(0);

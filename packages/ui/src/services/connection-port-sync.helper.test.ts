@@ -104,9 +104,14 @@ describe('ConnectionPortSyncHelper', () => {
   });
 
   describe('isElementVisible', () => {
-    it('should return true when element has no panel content ancestor (e.g. in summary)', () => {
-      const element = createMockElement({ top: -50, bottom: -20 }, { panels: { top: 0, bottom: 500 } });
+    it('should return true when element has no panel content ancestor but is within the panels viewport (e.g. in summary)', () => {
+      const element = createMockElement({ top: 100, bottom: 130 }, { panels: { top: 0, bottom: 500 } });
       expect(ConnectionPortSyncHelper.isElementVisible(element)).toBe(true);
+    });
+
+    it('should return false when element has no panel content ancestor and scrolled out of the panels viewport (e.g. a summary row scrolled off via the outer scroll)', () => {
+      const element = createMockElement({ top: -50, bottom: -20 }, { panels: { top: 0, bottom: 500 } });
+      expect(ConnectionPortSyncHelper.isElementVisible(element)).toBe(false);
     });
 
     it('should return true when element has no panel content and no panels ancestor', () => {

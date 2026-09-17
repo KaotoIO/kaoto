@@ -105,6 +105,49 @@ describe('DocumentHeader', () => {
     const store = useDocumentTreeStore.getState();
     expect(store.selectedNodePath).toBeTruthy();
   });
+
+  it('should render a connection port span for a primitive document (no schema)', () => {
+    const document = new PrimitiveDocument(
+      new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, 'p'),
+    );
+
+    const { container } = render(
+      <DataMapperProvider>
+        <DocumentHeader
+          header={<div>Param p</div>}
+          document={document}
+          documentType={DocumentType.PARAM}
+          isReadOnly={false}
+        />
+      </DataMapperProvider>,
+    );
+
+    const port = container.querySelector('[data-connection-port="true"]');
+    expect(port).toBeInTheDocument();
+    // data-document-id must match DocumentNodeData.getId(document) = "doc-param-p"
+    expect(port).toHaveAttribute('data-document-id', 'doc-param-p');
+    // data-node-path must match NodePath.fromDocument(DocumentType.PARAM, "p").toString() = "param:p://"
+    expect(port).toHaveAttribute('data-node-path', 'param:p://');
+  });
+
+  it('should NOT render a connection port span for a document that has a schema', () => {
+    const document = TestUtil.createSourceOrderDoc();
+
+    const { container } = render(
+      <DataMapperProvider>
+        <DocumentHeader
+          header={<div>Source Body</div>}
+          document={document}
+          documentType={DocumentType.SOURCE_BODY}
+          isReadOnly={false}
+        />
+      </DataMapperProvider>,
+    );
+
+    // Schema-having documents use BaseNode per field, not a header-level port
+    const port = container.querySelector('[data-connection-port="true"]');
+    expect(port).not.toBeInTheDocument();
+  });
 });
 
 describe('DocumentContent', () => {
