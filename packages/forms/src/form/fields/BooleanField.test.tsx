@@ -7,7 +7,7 @@ import { BooleanField } from './BooleanField';
 describe('BooleanField', () => {
   const renderWithProviders = (children: React.ReactNode) => {
     return render(
-      <ModelContextProvider model={false} onPropertyChange={jest.fn()}>
+      <ModelContextProvider model={false} onPropertyChange={vi.fn()}>
         <SchemaProvider
           schema={{ type: 'boolean', title: 'Boolean Field', description: 'A boolean field', default: false }}
         >
@@ -26,7 +26,7 @@ describe('BooleanField', () => {
 
   it('should render checked if value is true', () => {
     const { getByRole } = render(
-      <ModelContextProvider model={true} onPropertyChange={jest.fn()}>
+      <ModelContextProvider model={true} onPropertyChange={vi.fn()}>
         <SchemaProvider schema={{ type: 'boolean', title: 'Boolean Field', default: false }}>
           <BooleanField propName={ROOT_PATH} />
         </SchemaProvider>
@@ -38,7 +38,7 @@ describe('BooleanField', () => {
 
   it('should use schema default if value is undefined', () => {
     const { getByRole } = render(
-      <ModelContextProvider model={undefined} onPropertyChange={jest.fn()}>
+      <ModelContextProvider model={undefined} onPropertyChange={vi.fn()}>
         <SchemaProvider schema={{ type: 'boolean', title: 'Boolean Field', default: true }}>
           <BooleanField propName={ROOT_PATH} />
         </SchemaProvider>
@@ -49,7 +49,7 @@ describe('BooleanField', () => {
   });
 
   it('should call onChange when toggled', () => {
-    const onPropertyChange = jest.fn();
+    const onPropertyChange = vi.fn();
     const { getByRole } = render(
       <ModelContextProvider model={false} onPropertyChange={onPropertyChange}>
         <SchemaProvider schema={{ type: 'boolean', title: 'Boolean Field', default: false }}>
@@ -66,7 +66,7 @@ describe('BooleanField', () => {
 
   it('should be disabled if disabled from context', () => {
     const { getByRole } = render(
-      <ModelContextProvider model={false} onPropertyChange={jest.fn()} disabled>
+      <ModelContextProvider model={false} onPropertyChange={vi.fn()} disabled>
         <SchemaProvider schema={{ type: 'boolean', title: 'Boolean Field', default: false }}>
           <BooleanField propName={ROOT_PATH} />
         </SchemaProvider>

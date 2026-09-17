@@ -1,8 +1,41 @@
 import React from 'react';
 
-
 // This file contains all vi.mock() calls and runs before other setup files
 // to ensure mocks are properly hoisted
+
+// Mock Carbon's Toggletip with a passthrough that renders its children but
+// avoids activating @floating-ui/react's useFloating (which happens when
+// Toggletip's underlying Popover has autoAlign set). In React 19's act(), the
+// useFloating → computePosition → flushSync(setData) chain loops indefinitely
+// via recursivelyFlushAsyncActWork and prevents tests from settling in jsdom.
+//
+// @kaoto/forms is inlined by vitest (server.deps.inline in vitest.config.mts),
+// so its @carbon/react imports resolve inside this environment. The identical
+// mock in @kaoto/forms' own vitest-setup.ts has no effect here.
+vi.mock('@carbon/react', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@carbon/react')>();
+  const React = await import('react');
+
+  // Simple passthrough: renders children directly, content always visible.
+  // ToggletipButton forwards its `label` prop as aria-label so tests using
+  // getByLabelText() can still locate the button.
+  const Toggletip: React.FC<React.ComponentProps<typeof actual.Toggletip>> = ({ children }) =>
+    React.createElement(React.Fragment, null, children);
+  Toggletip.displayName = 'Toggletip';
+
+  const ToggletipButton: React.FC<React.ComponentProps<typeof actual.ToggletipButton>> = ({
+    label,
+    children,
+  }) => React.createElement('button', { type: 'button', 'aria-label': label }, children);
+  ToggletipButton.displayName = 'ToggletipButton';
+
+  const ToggletipContent: React.FC<React.ComponentProps<typeof actual.ToggletipContent>> = ({ children }) =>
+    React.createElement(React.Fragment, null, children);
+  ToggletipContent.displayName = 'ToggletipContent';
+
+  return { ...actual, Toggletip, ToggletipButton, ToggletipContent };
+});
+
 
 // Mock @patternfly/react-icons to avoid ESM resolution issues
 vi.mock('@patternfly/react-icons', () => {

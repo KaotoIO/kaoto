@@ -15,7 +15,7 @@ describe('EnumField', () => {
 
   it('renders the EnumField as a Typeahead', () => {
     render(
-      <ModelContextProvider model={undefined} onPropertyChange={jest.fn()}>
+      <ModelContextProvider model={undefined} onPropertyChange={vi.fn()}>
         <SchemaProvider schema={enumSchema}>
           <EnumField propName={ROOT_PATH} />
         </SchemaProvider>
@@ -29,7 +29,7 @@ describe('EnumField', () => {
 
   it('shows all enum options in the dropdown when opened', async () => {
     render(
-      <ModelContextProvider model={undefined} onPropertyChange={jest.fn()}>
+      <ModelContextProvider model={undefined} onPropertyChange={vi.fn()}>
         <SchemaProvider schema={enumSchema}>
           <EnumField propName={ROOT_PATH} />
         </SchemaProvider>
@@ -47,7 +47,7 @@ describe('EnumField', () => {
   });
 
   it('calls onChange when an option is selected', async () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
     render(
       <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
         <SchemaProvider schema={enumSchema}>
@@ -71,7 +71,7 @@ describe('EnumField', () => {
   });
 
   it('calls onCleanInput when the clear button is clicked', async () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
     const { container } = render(
       <ModelContextProvider model={'Option1'} onPropertyChange={onPropertyChangeSpy}>
         <SchemaProvider schema={enumSchema}>
@@ -94,7 +94,7 @@ describe('EnumField', () => {
   });
 
   it('shows errors if available for its property path', () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
     render(
       <ModelContextProvider
         model={'Option1'}
@@ -110,7 +110,7 @@ describe('EnumField', () => {
   });
 
   it('supports custom input values like property placeholders', async () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
     render(
       <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
         <SchemaProvider schema={enumSchema}>
@@ -130,7 +130,7 @@ describe('EnumField', () => {
   });
 
   it('preserves custom values that are not in the enum', () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
     render(
       <ModelContextProvider model={'{{custom.value}}'} onPropertyChange={onPropertyChangeSpy}>
         <SchemaProvider schema={enumSchema}>

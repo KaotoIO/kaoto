@@ -90,7 +90,7 @@ describe('SuggestionRegistryProvider', () => {
       getSuggestions: () => [{ value: 'suggestion2' }],
     };
 
-    const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation();
 
     act(() => {
       result.current.registerProvider(provider1);
@@ -125,12 +125,12 @@ describe('SuggestionRegistryProvider', () => {
   });
 
   it('should throw error when useSuggestionRegistry is used outside provider', () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {}); // Suppress error logs
+    vi.spyOn(console, 'error').mockImplementation(() => {}); // Suppress error logs
 
     expect(() => {
       renderHook(() => useSuggestionRegistry());
     }).toThrow('useSuggestionRegistry must be used within a SuggestionRegistryProvider');
 
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 });

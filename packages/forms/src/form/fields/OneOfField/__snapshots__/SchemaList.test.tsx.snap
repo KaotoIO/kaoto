@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`SchemaList should render correctly with basic props when no schema is selected 1`] = `
+exports[`SchemaList > should render correctly with basic props when no schema is selected 1`] = `
 <div>
   <div
     class="cds--stack-vertical cds--stack-scale-3"
@@ -46,7 +46,7 @@ exports[`SchemaList should render correctly with basic props when no schema is s
 </div>
 `;
 
-exports[`SchemaList should render correctly with basic props when schema is selected 1`] = `
+exports[`SchemaList > should render correctly with basic props when schema is selected 1`] = `
 <div>
   <div
     class="cds--stack-vertical cds--stack-scale-3"
@@ -92,7 +92,7 @@ exports[`SchemaList should render correctly with basic props when schema is sele
 </div>
 `;
 
-exports[`SchemaList should use Typeahead when items > 5, none selected 1`] = `
+exports[`SchemaList > should use Typeahead when items > 5, none selected 1`] = `
 <div>
   <div
     class="cds--stack-vertical cds--stack-scale-3"
@@ -167,7 +167,7 @@ exports[`SchemaList should use Typeahead when items > 5, none selected 1`] = `
 </div>
 `;
 
-exports[`SchemaList should use Typeahead when items > 5, one selected 1`] = `
+exports[`SchemaList > should use Typeahead when items > 5, one selected 1`] = `
 <div>
   <div
     class="cds--stack-vertical cds--stack-scale-3"

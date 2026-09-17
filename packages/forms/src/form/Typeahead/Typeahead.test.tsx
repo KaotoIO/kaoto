@@ -11,22 +11,22 @@ const defaultProps: TypeaheadProps = {
   selectedItem: undefined,
   items: mockItems,
   id: 'test-typeahead',
-  onChange: jest.fn(),
-  onCleanInput: jest.fn(),
+  onChange: vi.fn(),
+  onCleanInput: vi.fn(),
   'aria-label': 'Typeahead',
   'data-testid': 'typeahead',
 };
 
 describe('Typeahead', () => {
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
     act(() => {
-      jest.runAllTimers();
+      vi.runAllTimers();
     });
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('should renders the Typeahead component', async () => {
@@ -104,7 +104,7 @@ describe('Typeahead', () => {
     render(<Typeahead {...defaultProps} selectedItem={mockItems[0]} />);
 
     await act(async () => {
-      jest.runAllTimers();
+      vi.runAllTimers();
     });
 
     const clearButton = screen.getByRole('button', { name: /clear selected item/i });
@@ -114,7 +114,7 @@ describe('Typeahead', () => {
   });
 
   it('should allow users to create a new item if the onCreate callback is set', async () => {
-    render(<Typeahead {...defaultProps} onCreate={jest.fn()} onCreatePrefix="multiverse" />);
+    render(<Typeahead {...defaultProps} onCreate={vi.fn()} onCreatePrefix="multiverse" />);
 
     const input = screen.getByPlaceholderText('Select or write an option');
     await act(async () => {
@@ -126,7 +126,7 @@ describe('Typeahead', () => {
   });
 
   it('should allow users to create a new item if the onCreate callback is set and there is a value', async () => {
-    render(<Typeahead {...defaultProps} onCreate={jest.fn()} onCreatePrefix="brick" />);
+    render(<Typeahead {...defaultProps} onCreate={vi.fn()} onCreatePrefix="brick" />);
 
     const input = screen.getByPlaceholderText('Select or write an option');
     await act(async () => {
@@ -146,7 +146,7 @@ describe('Typeahead', () => {
     const customInputProps = {
       ...defaultProps,
       allowCustomInput: true,
-      onChange: jest.fn(),
+      onChange: vi.fn(),
     };
 
     beforeEach(() => {
@@ -253,7 +253,7 @@ describe('Typeahead', () => {
   });
 
   describe('onInputValueChange', () => {
-    const onInputValueChange = jest.fn();
+    const onInputValueChange = vi.fn();
     const propsWithInputValueListener = {
       ...defaultProps,
       onInputValueChange,
@@ -278,7 +278,7 @@ describe('Typeahead', () => {
       render(<Typeahead {...propsWithInputValueListener} selectedItem={mockItems[0]} />);
 
       await act(async () => {
-        jest.runAllTimers();
+        vi.runAllTimers();
       });
 
       const clearButton = screen.getByRole('button', { name: /clear selected item/i });

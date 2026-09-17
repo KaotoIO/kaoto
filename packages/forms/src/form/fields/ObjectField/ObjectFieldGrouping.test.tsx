@@ -50,7 +50,7 @@ describe('ObjectFieldGrouping', () => {
     it('should render properties matching the property name filter', () => {
       const wrapper = render(
         <FilteredFieldContext.Provider
-          value={{ filteredFieldText: 'desc', onFilterChange: jest.fn(), isGroupExpanded: false }}
+          value={{ filteredFieldText: 'desc', onFilterChange: vi.fn(), isGroupExpanded: false }}
         >
           <ObjectFieldGrouping propName={ROOT_PATH} />
         </FilteredFieldContext.Provider>,
@@ -115,7 +115,7 @@ describe('ObjectFieldGrouping', () => {
   it('should strip spaces from the filter before matching', () => {
     const wrapper = render(
       <FilteredFieldContext.Provider
-        value={{ filteredFieldText: 'cor rel', onFilterChange: jest.fn(), isGroupExpanded: false }}
+        value={{ filteredFieldText: 'cor rel', onFilterChange: vi.fn(), isGroupExpanded: false }}
       >
         <ObjectFieldGrouping propName={ROOT_PATH} />
       </FilteredFieldContext.Provider>,

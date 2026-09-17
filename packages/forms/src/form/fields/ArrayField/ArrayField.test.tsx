@@ -4,13 +4,13 @@ import { FieldTestProvider } from '../../testing/FieldTestProvider';
 import { ROOT_PATH } from '../../utils';
 import { ArrayField } from './ArrayField';
 
-jest.mock('../../utils', () => {
-  const actual = jest.requireActual('../../utils');
+vi.mock('../../utils', async () => {
+  const actual = await vi.importActual('../../utils');
   let idCounter = 0;
 
   return {
     ...actual,
-    getHexaDecimalRandomId: jest.fn().mockImplementation(() => `mocked-id-${idCounter++}`),
+    getHexaDecimalRandomId: vi.fn().mockImplementation(() => `mocked-id-${idCounter++}`),
   };
 });
 

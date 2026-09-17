@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`ObjectFieldInner should set the property name and propagate the required status 1`] = `
+exports[`ObjectFieldInner > should set the property name and propagate the required status 1`] = `
 <DocumentFragment>
   <pre>
     { propName: '#.name', required: true, onRemove: undefined }

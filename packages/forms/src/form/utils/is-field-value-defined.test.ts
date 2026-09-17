@@ -2,8 +2,10 @@ import { isFieldValueDefined } from './is-field-value-defined';
 
 describe('isFieldValueDefined', () => {
   describe('when value is undefined or null', () => {
-    expect(isFieldValueDefined('string', undefined)).toBe(false);
-    expect(isFieldValueDefined('object', null)).toBe(false);
+    it('should return false for undefined and null', () => {
+      expect(isFieldValueDefined('string', undefined)).toBe(false);
+      expect(isFieldValueDefined('object', null)).toBe(false);
+    });
   });
 
   describe('when schema type is object', () => {

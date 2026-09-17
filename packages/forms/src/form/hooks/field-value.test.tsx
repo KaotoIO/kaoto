@@ -6,7 +6,7 @@ import { useFieldValue } from './field-value';
 describe('useFieldValue', () => {
   const mockModel = { name: 'Test Name' };
   const mockErrors: Record<string, string[]> = { ['#.name']: ['Name is required'] };
-  const mockOnPropertyChange = jest.fn();
+  const mockOnPropertyChange = vi.fn();
 
   const Wrapper: FunctionComponent<PropsWithChildren<{ model?: unknown; errors?: Record<string, string[]> }>> = ({
     children,

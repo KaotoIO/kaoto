@@ -13,22 +13,22 @@ describe('AutoField', () => {
   let modifiedValue: CanvasFormTabsContextResult;
 
   beforeEach(() => {
-    requiredValue = { selectedTab: 'Required', setSelectedTab: jest.fn() };
-    modifiedValue = { selectedTab: 'Modified', setSelectedTab: jest.fn() };
+    requiredValue = { selectedTab: 'Required', setSelectedTab: vi.fn() };
+    modifiedValue = { selectedTab: 'Modified', setSelectedTab: vi.fn() };
   });
 
   it('should throw an error if schema is not defined', () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     expect(() => render(<AutoField propName={ROOT_PATH} />)).toThrow(
       `AutoField: schema is not defined for ${ROOT_PATH}`,
     );
 
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('should throw an error if formComponentFactory is not defined', () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
     expect(() =>
       render(
         <SchemaProvider schema={{ type: 'string' }}>
@@ -37,7 +37,7 @@ describe('AutoField', () => {
       ),
     ).toThrow(`AutoField: formComponentFactory is not defined for ${ROOT_PATH}`);
 
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('it should not render when in `Required` mode but no required properties', () => {
@@ -87,7 +87,7 @@ describe('AutoField', () => {
                 properties: { options: { type: 'object', properties: { key: { type: 'string' } }, required: ['key'] } },
               }}
             >
-              <ModelContextProvider model={{ options: { key: 'MainKey' } }} onPropertyChange={jest.fn()}>
+              <ModelContextProvider model={{ options: { key: 'MainKey' } }} onPropertyChange={vi.fn()}>
                 <AutoField propName={ROOT_PATH} />
               </ModelContextProvider>
             </SchemaProvider>
@@ -116,7 +116,7 @@ describe('AutoField', () => {
                   },
                 }}
               >
-                <ModelContextProvider model={{ keys: [{ name: 'MainKey' }] }} onPropertyChange={jest.fn()}>
+                <ModelContextProvider model={{ keys: [{ name: 'MainKey' }] }} onPropertyChange={vi.fn()}>
                   <AutoField propName={ROOT_PATH} />
                 </ModelContextProvider>
               </SchemaProvider>
@@ -145,7 +145,7 @@ describe('AutoField', () => {
                 ],
               }}
             >
-              <ModelContextProvider model={{ options: { key: 'MainKey' } }} onPropertyChange={jest.fn()}>
+              <ModelContextProvider model={{ options: { key: 'MainKey' } }} onPropertyChange={vi.fn()}>
                 <AutoField propName={ROOT_PATH} />
               </ModelContextProvider>
             </SchemaProvider>
@@ -176,7 +176,7 @@ describe('AutoField', () => {
                 properties: { name: { type: 'string' } },
               }}
             >
-              <ModelContextProvider model={{ options: { lastname: 'Smith' } }} onPropertyChange={jest.fn()}>
+              <ModelContextProvider model={{ options: { lastname: 'Smith' } }} onPropertyChange={vi.fn()}>
                 <AutoField propName={ROOT_PATH} />
               </ModelContextProvider>
             </SchemaProvider>
@@ -214,7 +214,7 @@ describe('AutoField', () => {
       <CanvasFormTabsContext.Provider value={modifiedValue}>
         <FormComponentFactoryProvider>
           <SchemaProvider schema={{ type: 'object', properties: { name: { type: 'string' } } }}>
-            <ModelContextProvider model={{}} onPropertyChange={jest.fn()}>
+            <ModelContextProvider model={{}} onPropertyChange={vi.fn()}>
               <AutoField propName={ROOT_PATH} />
             </ModelContextProvider>
           </SchemaProvider>
@@ -230,7 +230,7 @@ describe('AutoField', () => {
       <CanvasFormTabsContext.Provider value={modifiedValue}>
         <FormComponentFactoryProvider>
           <SchemaProvider schema={{ type: 'object', title: 'labels' }}>
-            <ModelContextProvider model={{}} onPropertyChange={jest.fn()}>
+            <ModelContextProvider model={{}} onPropertyChange={vi.fn()}>
               <AutoField propName={ROOT_PATH} />
             </ModelContextProvider>
           </SchemaProvider>
@@ -254,7 +254,7 @@ describe('AutoField', () => {
               },
             }}
           >
-            <ModelContextProvider model={{ name: 'test' }} onPropertyChange={jest.fn()}>
+            <ModelContextProvider model={{ name: 'test' }} onPropertyChange={vi.fn()}>
               <AutoField propName={ROOT_PATH} />
             </ModelContextProvider>
           </SchemaProvider>
@@ -280,7 +280,7 @@ describe('AutoField', () => {
               },
             }}
           >
-            <ModelContextProvider model={{ name: 'test', disabled: true }} onPropertyChange={jest.fn()}>
+            <ModelContextProvider model={{ name: 'test', disabled: true }} onPropertyChange={vi.fn()}>
               <AutoField propName={ROOT_PATH} />
             </ModelContextProvider>
           </SchemaProvider>
@@ -296,12 +296,12 @@ describe('AutoField', () => {
   });
 
   it('should get the component to render from the fromComponentFactory callback', () => {
-    const factorySpy = jest.fn().mockReturnValue(() => <input aria-label="test" name="name" />);
+    const factorySpy = vi.fn().mockReturnValue(() => <input aria-label="test" name="name" />);
 
     render(
       <FormComponentFactoryContext.Provider value={factorySpy}>
         <SchemaProvider schema={{ type: 'string' }}>
-          <ModelContextProvider model="test" onPropertyChange={jest.fn()}>
+          <ModelContextProvider model="test" onPropertyChange={vi.fn()}>
             <AutoField propName={ROOT_PATH} />
           </ModelContextProvider>
         </SchemaProvider>
@@ -312,12 +312,12 @@ describe('AutoField', () => {
   });
 
   it('should provide properties to the rendered field', () => {
-    const factorySpy = jest.fn().mockReturnValue((props: Record<string, string>) => <pre>{inspect(props)}</pre>);
+    const factorySpy = vi.fn().mockReturnValue((props: Record<string, string>) => <pre>{inspect(props)}</pre>);
 
     const wrapper = render(
       <FormComponentFactoryContext.Provider value={factorySpy}>
         <SchemaProvider schema={{ type: 'string' }}>
-          <ModelContextProvider model="test" onPropertyChange={jest.fn()}>
+          <ModelContextProvider model="test" onPropertyChange={vi.fn()}>
             <AutoField propName={ROOT_PATH} />
           </ModelContextProvider>
         </SchemaProvider>
