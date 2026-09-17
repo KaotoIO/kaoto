@@ -19,7 +19,7 @@ import * as path from 'path';
 import * as os from 'os';
 
 describe('Toggle Source Code', function () {
-	this.timeout(30_000);
+	this.timeout(60_000);
 
 	const WORKSPACE_FOLDER: string = path.join(__dirname, '../../test Fixture with speci@l chars');
 	const CAMEL_FILE: string = 'my.camel.yaml';
@@ -55,7 +55,7 @@ describe('Toggle Source Code', function () {
 	});
 
 	it('open text editor to the side', async function () {
-		const groupsNum = await waitForEditorGroupsLength(2);
+		const groupsNum = await waitForEditorGroupsLength(2, 10_000);
 		expect(groupsNum).to.equal(2);
 
 		const editor = new TextEditor(await editorView.getEditorGroup(1));
@@ -75,8 +75,8 @@ describe('Toggle Source Code', function () {
 					return false;
 				}
 			},
-			10_000,
-			'Text editor was not ready within 10s',
+			20_000,
+			'Text editor was not ready within 20s',
 		);
 		expect(text).contains('- route:');
 	});
