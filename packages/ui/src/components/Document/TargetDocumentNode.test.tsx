@@ -66,7 +66,7 @@ describe('TargetDocumentNode', () => {
     TreeParsingService.parseTree(tree);
     const fieldNode = tree.root.children[0];
 
-    render(<TargetDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} rank={1} />, {
+    render(<TargetDocumentNode treeNode={fieldNode} documentNodeId={documentNodeData.id} rank={1} />, {
       wrapper,
     });
 
@@ -80,7 +80,7 @@ describe('TargetDocumentNode', () => {
     const tree = new DocumentTree(documentNodeData);
     TreeParsingService.parseTree(tree);
 
-    render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+    render(<TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />, {
       wrapper,
     });
 
@@ -95,7 +95,7 @@ describe('TargetDocumentNode', () => {
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
 
-    render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+    render(<TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />, {
       wrapper,
     });
 
@@ -122,7 +122,7 @@ describe('TargetDocumentNode', () => {
     const collectionFieldNode = findCollectionField(tree.root);
     expect(collectionFieldNode).toBeDefined();
 
-    render(<TargetDocumentNode treeNode={collectionFieldNode!} documentId={documentNodeData.id} rank={1} />, {
+    render(<TargetDocumentNode treeNode={collectionFieldNode!} documentNodeId={documentNodeData.id} rank={1} />, {
       wrapper,
     });
 
@@ -150,7 +150,7 @@ describe('TargetDocumentNode', () => {
     const attributeFieldNode = findAttributeField(tree.root);
     expect(attributeFieldNode).toBeDefined();
 
-    render(<TargetDocumentNode treeNode={attributeFieldNode!} documentId={documentNodeData.id} rank={2} />, {
+    render(<TargetDocumentNode treeNode={attributeFieldNode!} documentNodeId={documentNodeData.id} rank={2} />, {
       wrapper,
     });
 
@@ -177,7 +177,7 @@ describe('TargetDocumentNode', () => {
     const choiceNodeData = new TargetChoiceFieldNodeData(documentNodeData, choiceField);
     const choiceTreeNode = new DocumentTreeNode(choiceNodeData);
 
-    render(<TargetDocumentNode treeNode={choiceTreeNode} documentId={documentNodeData.id} rank={1} />, {
+    render(<TargetDocumentNode treeNode={choiceTreeNode} documentNodeId={documentNodeData.id} rank={1} />, {
       wrapper,
     });
 
@@ -192,7 +192,7 @@ describe('TargetDocumentNode', () => {
     const fieldNode = tree.root.children[0];
 
     const { container } = render(
-      <TargetDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} rank={1} />,
+      <TargetDocumentNode treeNode={fieldNode} documentNodeId={documentNodeData.id} rank={1} />,
       {
         wrapper,
       },
@@ -209,7 +209,7 @@ describe('TargetDocumentNode', () => {
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
 
-    render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+    render(<TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />, {
       wrapper,
     });
 
@@ -223,7 +223,7 @@ describe('TargetDocumentNode', () => {
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
 
-    render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+    render(<TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />, {
       wrapper,
     });
 
@@ -239,7 +239,7 @@ describe('TargetDocumentNode', () => {
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
 
-    const result = render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+    const result = render(<TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />, {
       wrapper,
     });
 
@@ -264,7 +264,7 @@ describe('TargetDocumentNode', () => {
         },
       });
 
-      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+      render(<TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />, {
         wrapper,
       });
 
@@ -287,7 +287,7 @@ describe('TargetDocumentNode', () => {
       const leafNode = findLeafNode(tree.root);
       expect(leafNode).toBeDefined();
 
-      render(<TargetDocumentNode treeNode={leafNode!} documentId={documentNodeData.id} rank={2} />, {
+      render(<TargetDocumentNode treeNode={leafNode!} documentNodeId={documentNodeData.id} rank={2} />, {
         wrapper,
       });
 
@@ -312,7 +312,7 @@ describe('TargetDocumentNode', () => {
         },
       });
 
-      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+      render(<TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />, {
         wrapper,
       });
 
@@ -337,7 +337,7 @@ describe('TargetDocumentNode', () => {
         },
       });
 
-      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+      render(<TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />, {
         wrapper,
       });
 
@@ -364,7 +364,7 @@ describe('TargetDocumentNode', () => {
         },
       });
 
-      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+      render(<TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />, {
         wrapper,
       });
 
@@ -387,7 +387,7 @@ describe('TargetDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+      render(<TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />, {
         wrapper,
       });
 
@@ -406,7 +406,7 @@ describe('TargetDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+      render(<TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />, {
         wrapper,
       });
 
@@ -430,7 +430,7 @@ describe('TargetDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, {
+      render(<TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />, {
         wrapper,
       });
 
@@ -457,7 +457,7 @@ describe('TargetDocumentNode', () => {
 
       render(
         <div onClick={parentClickHandler}>
-          <TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />
+          <TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />
         </div>,
         { wrapper },
       );
@@ -479,7 +479,7 @@ describe('TargetDocumentNode', () => {
       const tree = new DocumentTree(documentNodeData);
 
       const { container } = render(
-        <TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />,
+        <TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />,
         {
           wrapper,
         },
@@ -498,7 +498,7 @@ describe('TargetDocumentNode', () => {
       const tree = new DocumentTree(documentNodeData);
 
       const { rerender } = render(
-        <TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />,
+        <TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />,
         {
           wrapper,
         },
@@ -509,7 +509,7 @@ describe('TargetDocumentNode', () => {
       rerender(
         <DataMapperProvider>
           <MappingLinksProvider>
-            <TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />
+            <TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />
           </MappingLinksProvider>
         </DataMapperProvider>,
       );
@@ -527,7 +527,7 @@ describe('TargetDocumentNode', () => {
       const fieldNode = tree.root.children[0];
 
       const { container } = render(
-        <TargetDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} rank={1} />,
+        <TargetDocumentNode treeNode={fieldNode} documentNodeId={documentNodeData.id} rank={1} />,
         {
           wrapper,
         },
@@ -545,7 +545,7 @@ describe('TargetDocumentNode', () => {
       const tree = new DocumentTree(documentNodeData);
 
       const { container } = render(
-        <TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />,
+        <TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />,
         {
           wrapper,
         },
@@ -561,7 +561,7 @@ describe('TargetDocumentNode', () => {
       const tree = new DocumentTree(documentNodeData);
 
       const { container } = render(
-        <TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />,
+        <TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />,
         {
           wrapper,
         },
@@ -586,7 +586,7 @@ describe('TargetDocumentNode', () => {
       const addMappingNodeData = new AddMappingNodeData(documentNodeData, document.fields[0]);
       const treeNode = new DocumentTreeNode(addMappingNodeData);
 
-      render(<TargetDocumentNode treeNode={treeNode} documentId={documentNodeData.id} rank={1} />, { wrapper });
+      render(<TargetDocumentNode treeNode={treeNode} documentNodeId={documentNodeData.id} rank={1} />, { wrapper });
 
       expect(screen.getByText('Add Mapping')).toBeInTheDocument();
     });
@@ -603,7 +603,7 @@ describe('TargetDocumentNode', () => {
       const treeNode = new DocumentTreeNode(addMappingNodeData);
 
       const { container } = render(
-        <TargetDocumentNode treeNode={treeNode} documentId={documentNodeData.id} rank={1} />,
+        <TargetDocumentNode treeNode={treeNode} documentNodeId={documentNodeData.id} rank={1} />,
         { wrapper },
       );
 
@@ -636,7 +636,7 @@ describe('TargetDocumentNode', () => {
 
       render(
         <div onClick={parentClickHandler}>
-          <TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />
+          <TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />
         </div>,
         { wrapper },
       );
@@ -660,7 +660,7 @@ describe('TargetDocumentNode', () => {
 
       render(
         <div onClick={parentClickHandler}>
-          <TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />
+          <TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />
         </div>,
         { wrapper },
       );
@@ -682,7 +682,7 @@ describe('TargetDocumentNode', () => {
       const leafNode = findLeafNode(tree.root);
       expect(leafNode).toBeDefined();
 
-      render(<TargetDocumentNode treeNode={leafNode!} documentId={documentNodeData.id} rank={2} />, {
+      render(<TargetDocumentNode treeNode={leafNode!} documentNodeId={documentNodeData.id} rank={2} />, {
         wrapper,
       });
 
@@ -710,7 +710,7 @@ describe('TargetDocumentNode', () => {
         .mockReturnValue([MappingActionKind.ValueSelector]);
       const applyValueOfSelectorSpy = vi.spyOn(MappingActionService, 'applyValueOfSelector');
 
-      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
+      render(<TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />, { wrapper });
 
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
       expect(nodeContainer).toBeInTheDocument();
@@ -735,7 +735,7 @@ describe('TargetDocumentNode', () => {
       const getAllowedActionsSpy = vi.spyOn(MappingActionRegistryService, 'getAllowedActions').mockReturnValue([]);
       const applyValueOfSelectorSpy = vi.spyOn(MappingActionService, 'applyValueOfSelector');
 
-      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
+      render(<TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />, { wrapper });
 
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
       expect(nodeContainer).toBeInTheDocument();
@@ -758,7 +758,7 @@ describe('TargetDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
+      render(<TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />, { wrapper });
 
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
 
@@ -774,7 +774,7 @@ describe('TargetDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
+      render(<TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />, { wrapper });
 
       const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
 
@@ -798,7 +798,7 @@ describe('TargetDocumentNode', () => {
       const variableNodeData = new VariableNodeData(targetDocNode, variableItem);
       const variableTreeNode = new DocumentTreeNode(variableNodeData);
 
-      render(<TargetDocumentNode treeNode={variableTreeNode} documentId={targetDocNode.id} rank={1} />, {
+      render(<TargetDocumentNode treeNode={variableTreeNode} documentNodeId={targetDocNode.id} rank={1} />, {
         wrapper,
       });
 
@@ -822,7 +822,7 @@ describe('TargetDocumentNode', () => {
       const nodePath = fieldNode.path.toString();
       useDocumentTreeStore.getState().setAddingVariableTo(nodePath);
 
-      render(<TargetDocumentNode treeNode={fieldTreeNode} documentId={targetDocNode.id} rank={1} />, {
+      render(<TargetDocumentNode treeNode={fieldTreeNode} documentNodeId={targetDocNode.id} rank={1} />, {
         wrapper,
       });
 
@@ -846,7 +846,7 @@ describe('TargetDocumentNode', () => {
 
       useDocumentTreeStore.getState().setRenamingVariable(variableItem.id);
 
-      render(<TargetDocumentNode treeNode={variableTreeNode} documentId={targetDocNode.id} rank={1} />, {
+      render(<TargetDocumentNode treeNode={variableTreeNode} documentNodeId={targetDocNode.id} rank={1} />, {
         wrapper,
       });
 
@@ -873,7 +873,7 @@ describe('TargetDocumentNode', () => {
       const nodePath = fieldNode.path.toString();
       useDocumentTreeStore.getState().setAddingVariableTo(nodePath);
 
-      render(<TargetDocumentNode treeNode={fieldTreeNode} documentId={targetDocNode.id} rank={1} />, {
+      render(<TargetDocumentNode treeNode={fieldTreeNode} documentNodeId={targetDocNode.id} rank={1} />, {
         wrapper,
       });
 
@@ -902,7 +902,7 @@ describe('TargetDocumentNode', () => {
       const nodePath = fieldNode.path.toString();
       useDocumentTreeStore.getState().setAddingVariableTo(nodePath);
 
-      render(<TargetDocumentNode treeNode={fieldTreeNode} documentId={targetDocNode.id} rank={1} />, {
+      render(<TargetDocumentNode treeNode={fieldTreeNode} documentNodeId={targetDocNode.id} rank={1} />, {
         wrapper,
       });
 
@@ -933,7 +933,7 @@ describe('TargetDocumentNode', () => {
       const updateVariableSpy = vi.spyOn(MappingService, 'updateVariable');
       useDocumentTreeStore.getState().setRenamingVariable(variableItem.id);
 
-      render(<TargetDocumentNode treeNode={variableTreeNode} documentId={targetDocNode.id} rank={1} />, {
+      render(<TargetDocumentNode treeNode={variableTreeNode} documentNodeId={targetDocNode.id} rank={1} />, {
         wrapper,
       });
 
@@ -963,7 +963,7 @@ describe('TargetDocumentNode', () => {
 
       useDocumentTreeStore.getState().setRenamingVariable(variableItem.id);
 
-      render(<TargetDocumentNode treeNode={variableTreeNode} documentId={targetDocNode.id} rank={1} />, {
+      render(<TargetDocumentNode treeNode={variableTreeNode} documentNodeId={targetDocNode.id} rank={1} />, {
         wrapper,
       });
 
@@ -982,7 +982,7 @@ describe('TargetDocumentNode', () => {
       const tree = new DocumentTree(documentNodeData);
 
       const { container } = render(
-        <TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />,
+        <TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />,
         {
           wrapper,
         },
@@ -1001,7 +1001,7 @@ describe('TargetDocumentNode', () => {
       const fieldNode = tree.root.children[0];
 
       const { container } = render(
-        <TargetDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} rank={1} />,
+        <TargetDocumentNode treeNode={fieldNode} documentNodeId={documentNodeData.id} rank={1} />,
         {
           wrapper,
         },

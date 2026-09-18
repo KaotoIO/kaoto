@@ -154,7 +154,7 @@ export class MappingLinksService {
     selectedNodeIsSource: boolean,
     lineStyle: MappingLineStyle = MappingLineStyle.REGULAR,
   ) {
-    const targetDocNodeId = DocumentNodeData.formatNodeId(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+    const targetDocumentNodeId = DocumentNodeData.formatNodeId(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
     const resolvedFields = MappingLinksService.resolveSourceFields(
       sourceExpressionItem,
       sourceParameterMap,
@@ -163,7 +163,7 @@ export class MappingLinksService {
     const links = resolvedFields.reduce((acc, { field, document }) => {
       const sourceNodePath = MappingLinksService.computeVisualSourceNodePath(field);
       const sourceNodePathString = sourceNodePath.toString();
-      const sourceDocNodeId = DocumentNodeData.getId(document);
+      const sourceDocumentNodeId = DocumentNodeData.getId(document);
       const isSelected = MappingLinksService.isLinkSelected(
         sourceNodePathString,
         targetNodePath,
@@ -173,8 +173,8 @@ export class MappingLinksService {
       acc.push({
         sourceNodePath: sourceNodePathString,
         targetNodePath: targetNodePath,
-        sourceDocumentId: sourceDocNodeId,
-        targetDocumentId: targetDocNodeId,
+        sourceDocumentNodeId,
+        targetDocumentNodeId,
         isSelected,
         lineStyle,
       });
@@ -184,7 +184,7 @@ export class MappingLinksService {
     const varRefs = MappingLinksService.resolveVariableReferences(sourceExpressionItem);
     for (const variable of varRefs) {
       const sourceNodePathString = variableNodePath(variable.id);
-      const sourceDocNodeId = VARIABLES_DOCUMENT_ID;
+      const sourceDocumentNodeId = VARIABLES_DOCUMENT_ID;
       const isSelected = MappingLinksService.isLinkSelected(
         sourceNodePathString,
         targetNodePath,
@@ -194,8 +194,8 @@ export class MappingLinksService {
       links.push({
         sourceNodePath: sourceNodePathString,
         targetNodePath: targetNodePath,
-        sourceDocumentId: sourceDocNodeId,
-        targetDocumentId: targetDocNodeId,
+        sourceDocumentNodeId,
+        targetDocumentNodeId,
         isSelected,
         lineStyle,
       });

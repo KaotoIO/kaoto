@@ -981,7 +981,7 @@ describe('MappingLinksService', () => {
       fieldItem.children.push(vs);
 
       const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
-      const varLinks = links.filter((l) => l.sourceDocumentId === VARIABLES_DOCUMENT_ID);
+      const varLinks = links.filter((l) => l.sourceDocumentNodeId === VARIABLES_DOCUMENT_ID);
       expect(varLinks).toHaveLength(1);
       expect(varLinks[0].sourceNodePath).toBe(`Var:${VARIABLES_DOCUMENT_ID}://${variable.id}`);
     });
@@ -1005,7 +1005,7 @@ describe('MappingLinksService', () => {
       fieldItem.children.push(vs);
 
       const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
-      const varLinks = links.filter((l) => l.sourceDocumentId === VARIABLES_DOCUMENT_ID);
+      const varLinks = links.filter((l) => l.sourceDocumentNodeId === VARIABLES_DOCUMENT_ID);
       expect(varLinks).toHaveLength(0);
     });
 
@@ -1030,8 +1030,8 @@ describe('MappingLinksService', () => {
       fieldItem.children.push(vs);
 
       const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
-      const varLinks = links.filter((l) => l.sourceDocumentId === VARIABLES_DOCUMENT_ID);
-      const fieldLinks = links.filter((l) => l.sourceDocumentId !== VARIABLES_DOCUMENT_ID);
+      const varLinks = links.filter((l) => l.sourceDocumentNodeId === VARIABLES_DOCUMENT_ID);
+      const fieldLinks = links.filter((l) => l.sourceDocumentNodeId !== VARIABLES_DOCUMENT_ID);
       expect(varLinks).toHaveLength(1);
       expect(varLinks[0].sourceNodePath).toBe(variableNodePath(variable.id));
       expect(fieldLinks).toHaveLength(0);
@@ -1058,7 +1058,7 @@ describe('MappingLinksService', () => {
       fieldItem.children.push(vs);
 
       const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
-      const varLinks = links.filter((l) => l.sourceDocumentId === VARIABLES_DOCUMENT_ID);
+      const varLinks = links.filter((l) => l.sourceDocumentNodeId === VARIABLES_DOCUMENT_ID);
       expect(varLinks).toHaveLength(2);
       expect(varLinks.map((l) => l.sourceNodePath).sort()).toEqual(
         [variableNodePath(variable1.id), variableNodePath(variable2.id)].sort(),

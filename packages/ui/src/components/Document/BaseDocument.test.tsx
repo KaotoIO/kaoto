@@ -124,8 +124,8 @@ describe('DocumentHeader', () => {
 
     const port = container.querySelector('[data-connection-port="true"]');
     expect(port).toBeInTheDocument();
-    // data-document-id must match DocumentNodeData.getId(document) = "doc-param-p"
-    expect(port).toHaveAttribute('data-document-id', 'doc-param-p');
+    // data-document-node-id must match DocumentNodeData.getId(document) = "doc-param-p"
+    expect(port).toHaveAttribute('data-document-node-id', 'doc-param-p');
     // data-node-path must match NodePath.fromDocument(DocumentType.PARAM, "p").toString() = "param:p://"
     expect(port).toHaveAttribute('data-node-path', 'param:p://');
   });
@@ -164,7 +164,7 @@ describe('DocumentContent', () => {
           treeNode={tree!.root}
           isReadOnly={false}
           renderNodes={(childNode) => (
-            <TargetDocumentNode treeNode={childNode} documentId={documentNodeData.id} rank={1} />
+            <TargetDocumentNode treeNode={childNode} documentNodeId={documentNodeData.id} rank={1} />
           )}
         />
       </DataMapperProvider>,

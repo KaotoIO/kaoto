@@ -82,13 +82,13 @@ export const VariablesSection: FunctionComponent<VariablesSectionProps> = ({
         <span
           className="expansion-panel__edge-marker expansion-panel__edge-marker--top expansion-panel__edge-marker--source"
           data-connection-port="true"
-          data-document-id={VARIABLES_DOCUMENT_ID}
+          data-document-node-id={VARIABLES_DOCUMENT_ID}
           data-node-path={`${VARIABLES_DOCUMENT_ID}:EDGE:top`}
         />
         <span
           className="expansion-panel__edge-marker expansion-panel__edge-marker--bottom expansion-panel__edge-marker--source"
           data-connection-port="true"
-          data-document-id={VARIABLES_DOCUMENT_ID}
+          data-document-node-id={VARIABLES_DOCUMENT_ID}
           data-node-path={`${VARIABLES_DOCUMENT_ID}:EDGE:bottom`}
         />
       </>

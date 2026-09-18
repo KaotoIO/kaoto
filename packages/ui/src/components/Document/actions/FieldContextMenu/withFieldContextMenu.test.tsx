@@ -30,7 +30,7 @@ describe('withFieldContextMenu', () => {
     render(
       <SourceDocumentNodeWithContextMenu
         treeNode={fieldNode}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={1}
       />,
@@ -46,7 +46,12 @@ describe('withFieldContextMenu', () => {
     const { documentNodeData, fieldNode } = createFieldNode();
 
     render(
-      <SourceDocumentNodeWithContextMenu treeNode={fieldNode} documentId={documentNodeData.id} isReadOnly rank={1} />,
+      <SourceDocumentNodeWithContextMenu
+        treeNode={fieldNode}
+        documentNodeId={documentNodeData.id}
+        isReadOnly
+        rank={1}
+      />,
       { wrapper },
     );
 
@@ -63,7 +68,7 @@ describe('withFieldContextMenu', () => {
     render(
       <SourceDocumentNodeWithContextMenu
         treeNode={tree.root}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={0}
       />,

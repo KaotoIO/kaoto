@@ -43,8 +43,8 @@ interface BaseNodeProps extends IDataTestID {
   /** Callback when mapping is updated */
   onUpdate?: () => void;
 
-  /** Document ID for connection port identification */
-  documentId?: string;
+  /** Document node ID for connection port identification */
+  documentNodeId?: string;
 
   /** Namespace map for field details */
   namespaceMap?: Record<string, string>;
@@ -61,7 +61,7 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
   rank,
   isSelected,
   nodePath,
-  documentId,
+  documentNodeId,
   namespaceMap = {},
   'data-testid': dataTestId,
   children,
@@ -103,13 +103,13 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
       data-selected={isSelected}
       style={{ '--node-rank': rank } as React.CSSProperties}
     >
-      {nodePath && documentId && (
+      {nodePath && documentNodeId && (
         <span
           className={`node__connection-port ${isSource ? 'node__connection-port--source' : 'node__connection-port--target'}`}
           data-testid={`connection-port-${dataTestId}`}
           data-connection-port="true"
           data-node-path={nodePath}
-          data-document-id={documentId}
+          data-document-node-id={documentNodeId}
         />
       )}
 

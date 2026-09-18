@@ -143,7 +143,7 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
         <SourceDocumentNodeWithContextMenu
           key={flattenedNode.path}
           treeNode={flattenedNode.treeNode}
-          documentId={parameterNodeData.id}
+          documentNodeId={parameterNodeData.id}
           isReadOnly={isReadOnly}
           rank={flattenedNode.depth + 1}
         />
@@ -161,14 +161,14 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
         key="edge-top"
         className="expansion-panel__edge-marker expansion-panel__edge-marker--top expansion-panel__edge-marker--source"
         data-connection-port="true"
-        data-document-id={parameterNodeData.id}
+        data-document-node-id={parameterNodeData.id}
         data-node-path={`${parameterName}:EDGE:top`}
       />,
       <span
         key="edge-bottom"
         className="expansion-panel__edge-marker expansion-panel__edge-marker--bottom expansion-panel__edge-marker--source"
         data-connection-port="true"
-        data-document-id={parameterNodeData.id}
+        data-document-node-id={parameterNodeData.id}
         data-node-path={`${parameterName}:EDGE:bottom`}
       />,
     ],
