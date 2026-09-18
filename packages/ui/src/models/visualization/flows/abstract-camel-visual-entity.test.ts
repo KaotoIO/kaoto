@@ -613,6 +613,28 @@ describe('AbstractCamelVisualEntity', () => {
       expect(result?.properties?.parameters?.required).toEqual(timerEntry!.propertiesSchema.required);
     });
 
+    it('should fetch the Kamelet definition with forceFresh: true so updated properties are reflected', async () => {
+      // Arrange: build an entity whose `from` uses a kamelet
+      const entity = new CamelRouteVisualEntity(cloneDeep(camelRouteWithKameletJson));
+      const routeNode = await entity.toVizNode();
+      const fromNode = routeNode.getChildren()?.[0];
+      const ids = fromNode!.data;
+
+      // Spy on the registry's getEntity to capture call options
+      const getEntitySpy = vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity');
+
+      try {
+        await entity.fetchNodeSchema(ids);
+
+        // The kamelet lookup (tertiaryNodeId) must always use forceFresh: true
+        const kameletCall = getEntitySpy.mock.calls.find((call) => call[0] === CatalogKind.Kamelet);
+        expect(kameletCall).toBeDefined();
+        expect(kameletCall![2]).toEqual({ forceFresh: true });
+      } finally {
+        getEntitySpy.mockRestore();
+      }
+    });
+
     it('should not mutate the catalog Kamelet definition', async () => {
       // Build a real route entity whose `from` sources from a real catalog kamelet
       const entity = new CamelRouteVisualEntity(cloneDeep(camelRouteWithKameletJson));
@@ -637,6 +659,59 @@ describe('AbstractCamelVisualEntity', () => {
 
       // The result must not be the same object reference as the catalog entry
       expect(result?.properties?.parameters).not.toBe(kameletEntry!.spec.definition);
+    });
+
+    it('should return undefined when the primaryNodeId entry has no propertiesSchema', async () => {
+      const getEntitySpy = vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity');
+      // Return a catalog entry that deliberately has no propertiesSchema
+      getEntitySpy.mockResolvedValueOnce({ propertiesSchema: undefined } as never);
+
+      try {
+        const result = await abstractVisualEntity.fetchNodeSchema({
+          primaryNodeId: { name: 'choice', catalogKind: CatalogKind.Pattern },
+        });
+
+        expect(result).toBeUndefined();
+      } finally {
+        getEntitySpy.mockRestore();
+      }
+    });
+
+    it('should return the primary schema when secondaryNodeId is not a Component', async () => {
+      // A `to` step whose secondary is a Pattern (not a Component) must short-circuit
+      // after the primary lookup and return the primary schema unchanged — no component
+      // properties are merged, so x-component-name is absent.
+      const result = await abstractVisualEntity.fetchNodeSchema({
+        primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern },
+        secondaryNodeId: { name: 'choice', catalogKind: CatalogKind.Pattern },
+      });
+
+      // The result is the plain Pattern schema — the component-injection block is never reached
+      expect(result).toMatchObject({ type: 'object' });
+      expect(result?.properties?.parameters?.['x-component-name']).toBeUndefined();
+    });
+
+    it('should return the primary schema when the Component secondaryNodeId is not found in the catalog', async () => {
+      const getEntitySpy = vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity');
+      // First call (primary Entity) succeeds; second call (Component) returns undefined
+      getEntitySpy.mockResolvedValueOnce(
+        (await DynamicCatalogRegistry.get().getEntity(CatalogKind.Entity, 'from')) as never,
+      );
+      getEntitySpy.mockResolvedValueOnce(undefined);
+
+      try {
+        const result = await abstractVisualEntity.fetchNodeSchema({
+          primaryNodeId: { name: 'from', catalogKind: CatalogKind.Entity },
+          secondaryNodeId: { name: 'unknown-component', catalogKind: CatalogKind.Component },
+        });
+
+        // The component was not found so the component-injection block is skipped.
+        // The schema is returned as-is from the primary entity — no x-component-name decoration.
+        expect(result?.type).toBeDefined();
+        expect(result?.properties?.parameters?.['x-component-name']).toBeUndefined();
+      } finally {
+        getEntitySpy.mockRestore();
+      }
     });
   });
 });
