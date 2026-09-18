@@ -1,4 +1,4 @@
-import { IParentType } from '../../models/datamapper/document';
+import { IField, IParentType } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import { FieldItem, MappingItem, MappingTree } from '../../models/datamapper/mapping';
@@ -31,7 +31,8 @@ import { TreeParsingService } from './tree-parsing.service';
  *    exists in one tree but not the other (create: absent in old → present in new; remove:
  *    present in old → absent in new). `FieldItem` objects are stable across rebuilds —
  *    `refreshMappingTree` re-parents the same instances — so identity comparison gives exact
- *    pairs. The mapped (new) path is the item's own `nodePath`; the unmapped (old) path is
+ *    pairs. The mapped (new) path is derived by `collectFieldItems` (the mapping id, or the
+ *    member's `field.id` for a substituted non-collection member); the unmapped (old) path is
  *    reconstructed by `computeOldUnmappedPath` (using `field.id`, and the wrapper id for a
  *    substituted non-collection member). The map is applied via `applyPathMigration` using
  *    prefix replacement, so entire subtrees are migrated in one pass regardless of depth.
@@ -251,13 +252,19 @@ export class TreeUIService {
    * Collect all {@link FieldItem} instances reachable from `tree.children`, mapped to their
    * visual document tree path strings.
    *
-   * The visual tree path for a `FieldItemNodeData` node is `item.nodePath.toString()` —
-   * `NodePath.childOf(parent.nodePath, item.id)` applied recursively, identical to how
-   * `MappingNodeData` constructs its `path` field.
+   * The visual tree path for a `FieldItemNodeData` node is `NodePath.childOf(parentPath, item.id)`
+   * applied recursively, identical to how `MappingNodeData` constructs its `path` field — with one
+   * exception. A substituted member of a non-collection wrapper is rendered by
+   * `doGenerateNodeDataFromWrapperField` from the member field itself, so its node is a
+   * `TargetAbstractFieldNodeData`/`TargetChoiceFieldNodeData` whose segment is `field.id`, not the
+   * mapping id. See {@link isNonCollectionSelectedWrapper}. The path is therefore built down the
+   * walk rather than read from `item.nodePath`, so that the substituted segment also propagates to
+   * every descendant.
    *
-   * NOTE: do NOT use `MappingLinksService.computeVisualTargetNodePath` here — that method
-   * inserts `field.id` for selected wrapper members and is for edge-rendering port lookup
-   * only, not for the document tree node paths stored in the expansion state.
+   * NOTE: do NOT use `MappingLinksService.computeVisualTargetNodePath` here — it applies the
+   * `field.id` substitution to every selected wrapper member, including collection wrappers, which
+   * do render at the mapping id. It is for edge-rendering port lookup, where that distinction does
+   * not surface.
    *
    * This snapshot is stored at tree-creation time so that a subsequent diff can correctly
    * identify which FieldItems were added or removed since the previous render — even if the
@@ -265,16 +272,21 @@ export class TreeUIService {
    */
   private static collectFieldItems(tree: MappingTree): Map<FieldItem, string> {
     const result = new Map<FieldItem, string>();
-    const visit = (item: MappingItem): void => {
+    const visit = (item: MappingItem, parentPath: NodePath): void => {
+      const segment =
+        item instanceof FieldItem && TreeUIService.isNonCollectionSelectedWrapper(item.field.parent)
+          ? item.field.id
+          : item.id;
+      const path = NodePath.childOf(parentPath, segment);
       if (item instanceof FieldItem) {
-        result.set(item, item.nodePath.toString());
+        result.set(item, path.toString());
       }
       for (const child of item.children) {
-        visit(child);
+        visit(child, path);
       }
     };
     for (const child of tree.children) {
-      visit(child);
+      visit(child, tree.nodePath);
     }
     return result;
   }
@@ -290,8 +302,8 @@ export class TreeUIService {
    * identifies a create or remove transition.
    *
    * Visual paths (not mapping-tree paths) are used because expansion state keys are keyed on
-   * visual paths: the new (mapped) path is the item's own `nodePath`; the old (unmapped) path
-   * is reconstructed by `computeOldUnmappedPath`.
+   * visual paths: the new (mapped) path comes from the `collectFieldItems` snapshot; the old
+   * (unmapped) path is reconstructed by `computeOldUnmappedPath`.
    *
    * **Known gap:** if-wrapping of a selected wrapper member changes the visual path of an
    * already-mapped node in a way that cannot be expressed as a prefix substitution. Expansion
@@ -307,7 +319,7 @@ export class TreeUIService {
     TreeUIService.collectUnambiguousTransitions(
       newItems,
       oldItems,
-      (item, snapshotPath) => [TreeUIService.computeOldUnmappedPath(item), snapshotPath],
+      (snapshotPath, counterpart) => [counterpart, snapshotPath],
       pathMap,
     );
 
@@ -316,7 +328,7 @@ export class TreeUIService {
     TreeUIService.collectUnambiguousTransitions(
       oldItems,
       newItems,
-      (item, snapshotPath) => [snapshotPath, TreeUIService.computeOldUnmappedPath(item)],
+      (snapshotPath, counterpart) => [snapshotPath, counterpart],
       pathMap,
     );
 
@@ -332,21 +344,23 @@ export class TreeUIService {
   private static collectUnambiguousTransitions(
     source: Map<FieldItem, string>,
     other: Map<FieldItem, string>,
-    resolvePair: (item: FieldItem, snapshotPath: string) => [oldPath: string, newPath: string],
+    resolvePair: (snapshotPath: string, counterpart: string) => [oldPath: string, newPath: string],
     pathMap: Map<string, string>,
   ): void {
     // The "counterpart" path (the reconstructed side) is what can collide across siblings; count
     // its occurrences first, then only emit pairs whose counterpart is unique.
+    const counterparts = new Map<FieldItem, string>();
     const counterpartCounts = new Map<string, number>();
     for (const [item] of source) {
       if (other.has(item)) continue;
       const counterpart = TreeUIService.computeOldUnmappedPath(item);
+      counterparts.set(item, counterpart);
       counterpartCounts.set(counterpart, (counterpartCounts.get(counterpart) ?? 0) + 1);
     }
     for (const [item, snapshotPath] of source) {
-      if (other.has(item)) continue;
-      const [oldPath, newPath] = resolvePair(item, snapshotPath);
-      const counterpart = TreeUIService.computeOldUnmappedPath(item);
+      const counterpart = counterparts.get(item);
+      if (counterpart === undefined) continue;
+      const [oldPath, newPath] = resolvePair(snapshotPath, counterpart);
       if (oldPath !== newPath && counterpartCounts.get(counterpart) === 1) {
         pathMap.set(oldPath, newPath);
       }
@@ -361,6 +375,21 @@ export class TreeUIService {
     if (!('wrapperKind' in node) || !node.wrapperKind) return false;
     if (node.wrapperKind === 'abstract') return node.selectedMemberQName !== undefined;
     return node.selectedMemberIndex !== undefined;
+  }
+
+  /**
+   * Returns true when `node` is a selected wrapper that collapses onto a single member —
+   * i.e. `maxOccurs === 1`, so the member is rendered in the wrapper's own slot rather than at
+   * one path per instance.
+   *
+   * This is the condition under which the visual path of the member and of the wrapper diverge
+   * from the mapping tree, and it must be applied symmetrically: `collectFieldItems` substitutes
+   * the member's `field.id` for the mapping id on the new side, and `computeOldUnmappedPath`
+   * substitutes the wrapper's id on the old side. Collection wrappers (`maxOccurs !== 1`) render
+   * each member at its own per-instance path, so neither substitution applies there.
+   */
+  private static isNonCollectionSelectedWrapper(node: IParentType): node is IField {
+    return TreeUIService.isSelectedWrapper(node) && 'maxOccurs' in node && node.maxOccurs === 1;
   }
 
   /**
@@ -385,7 +414,7 @@ export class TreeUIService {
     let isLeaf = true;
     while ('parent' in current && current.parent !== current) {
       const parent: IParentType = current.parent;
-      if (isLeaf && TreeUIService.isSelectedWrapper(parent) && 'maxOccurs' in parent && parent.maxOccurs === 1) {
+      if (isLeaf && TreeUIService.isNonCollectionSelectedWrapper(parent)) {
         // Substituted member of a NON-collection wrapper (maxOccurs=1): before selection /
         // after revert the visible node is the (unselected) wrapper, so the leaf segment is the
         // wrapper's id, not the member's. Collection wrappers (maxOccurs!==1) render each member
@@ -449,7 +478,6 @@ export class TreeUIService {
       }
       result[newKey] = value;
       if (isMigrated) migratedKeys.add(newKey);
-      else migratedKeys.delete(newKey);
     }
     return result;
   }
