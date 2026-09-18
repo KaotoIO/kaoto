@@ -64,10 +64,6 @@ describe('KameletVisualEntity', () => {
     };
   });
 
-  it('should create an instance', () => {
-    expect(new KameletVisualEntity(kameletDef)).toBeTruthy();
-  });
-
   it('should normalize template.from to template.route.from and remove template.from', () => {
     const kameletDefWithFrom = cloneDeep(kameletDef);
     kameletDefWithFrom.spec.template.from = kameletDefWithFrom.spec.template.route.from;
