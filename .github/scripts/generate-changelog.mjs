@@ -116,9 +116,12 @@ function runGit(args) {
   }
 }
 
-/** Find the tag immediately before HEAD (the most recent existing tag). */
+/**
+ * Find the most recent reachable release tag before HEAD,
+ * ignoring ephemeral snapshot tags (-SNAPSHOT-<short-sha>).
+ */
 function getPreviousTag() {
-  const tag = runGit(['describe', '--tags', '--abbrev=0', 'HEAD']);
+  const tag = runGit(['describe', '--tags', '--abbrev=0', '--exclude=*-SNAPSHOT-*', 'HEAD']);
   return tag ?? null;
 }
 
