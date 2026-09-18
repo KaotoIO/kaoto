@@ -1,0 +1,201 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`StringField > should render 1`] = `
+<div>
+  <div
+    class="cds--stack-vertical cds--stack-scale-3"
+    data-testid="#__field-wrapper"
+  >
+    <div
+      class="kaoto-field-wrapper__label-container"
+    >
+      <label
+        class="kaoto-field-wrapper__label"
+      >
+        #
+      </label>
+      <button
+        aria-label="More info for # field"
+        type="button"
+      >
+        <svg
+          aria-hidden="true"
+          fill="currentColor"
+          focusable="false"
+          height="16"
+          preserveAspectRatio="xMidYMid meet"
+          viewBox="0 0 16 16"
+          width="16"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
+          />
+          <path
+            d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
+          />
+        </svg>
+      </button>
+      <p>
+        <strong>
+          #
+           
+          &lt;unknown&gt;
+        </strong>
+      </p>
+      <p />
+      <p>
+        Default: 
+        no default value
+      </p>
+      <span
+        class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
+      >
+        <div
+          class="cds--tooltip-trigger__wrapper"
+        >
+          <button
+            aria-labelledby="tooltip-_r_2_"
+            class="cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+            data-testid="#__open-suggestions-button"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              focusable="false"
+              height="16"
+              preserveAspectRatio="xMidYMid meet"
+              viewBox="0 0 32 32"
+              width="16"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M11 24H21V26H11zM13 28H19V30H13zM16 2A10 10 0 006 12a9.19 9.19 0 003.46 7.62c1 .93 1.54 1.46 1.54 2.38h2c0-1.84-1.11-2.87-2.19-3.86A7.2 7.2 0 018 12a8 8 0 0116 0 7.2 7.2 0 01-2.82 6.14c-1.07 1-2.18 2-2.18 3.86h2c0-.92.53-1.45 1.54-2.39A9.18 9.18 0 0026 12 10 10 0 0016 2z"
+              />
+            </svg>
+          </button>
+        </div>
+        <span
+          aria-hidden="true"
+          class="cds--popover"
+          id="tooltip-_r_2_"
+          role="tooltip"
+        >
+          <span
+            class="cds--popover-content cds--tooltip-content"
+          >
+            Open suggestions (Ctrl+Space)
+          </span>
+          <span
+            class="cds--popover-caret"
+          />
+        </span>
+      </span>
+    </div>
+    <div
+      class="string-field-container"
+    >
+      <div
+        class="string-field-input-wrapper"
+      >
+        <div
+          class="cds--form-item cds--text-input-wrapper"
+        >
+          <div
+            class="cds--text-input__label-wrapper"
+          />
+          <div
+            class="cds--text-input__field-outer-wrapper"
+          >
+            <div
+              class="cds--text-input__field-wrapper"
+            >
+              <input
+                aria-describedby="#-popover"
+                class="cds--text-input"
+                data-testid="#"
+                id="#"
+                name="#"
+                role="textbox"
+                type="text"
+                value="Value"
+              />
+              <span
+                aria-atomic="true"
+                aria-live="assertive"
+                class="cds--text-input__counter-alert"
+                role="alert"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <span
+        class="cds--overflow-menu__wrapper"
+      >
+        <span
+          class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
+        >
+          <div
+            class="cds--tooltip-trigger__wrapper"
+          >
+            <button
+              aria-expanded="false"
+              aria-haspopup="true"
+              aria-labelledby="tooltip-_r_6_"
+              class="cds--overflow-menu cds--overflow-menu--sm cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+              data-testid="#__field-actions"
+              type="button"
+            >
+              <svg
+                aria-label="Options"
+                class="cds--overflow-menu__icon"
+                fill="currentColor"
+                focusable="false"
+                height="16"
+                preserveAspectRatio="xMidYMid meet"
+                role="img"
+                viewBox="0 0 32 32"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle
+                  cx="16"
+                  cy="8"
+                  r="2"
+                />
+                <circle
+                  cx="16"
+                  cy="16"
+                  r="2"
+                />
+                <circle
+                  cx="16"
+                  cy="24"
+                  r="2"
+                />
+              </svg>
+            </button>
+          </div>
+          <span
+            aria-hidden="true"
+            class="cds--popover"
+            id="tooltip-_r_6_"
+            role="tooltip"
+          >
+            <span
+              class="cds--popover-content cds--tooltip-content"
+            >
+              Options
+            </span>
+            <span
+              class="cds--popover-caret"
+            />
+          </span>
+        </span>
+      </span>
+    </div>
+  </div>
+</div>
+`;

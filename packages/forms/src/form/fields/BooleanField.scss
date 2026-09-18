@@ -1,0 +1,11 @@
+.boolean-field-toggle-wrapper {
+  width: fit-content;
+
+  label {
+    pointer-events: none;
+
+    .cds--toggle__switch {
+      pointer-events: auto;
+    }
+  }
+}

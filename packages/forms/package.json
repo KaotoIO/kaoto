@@ -1,0 +1,109 @@
+{
+  "name": "@kaoto/forms",
+  "version": "2.12.0-dev",
+  "description": "Forms library for Kaoto",
+  "license": "Apache-2.0",
+  "author": {
+    "name": "The Kaoto Team"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [],
+  "homepage": "https://github.com/KaotoIO/forms",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KaotoIO/forms.git"
+  },
+  "bugs": {
+    "url": "https://github.com/KaotoIO/forms/issues"
+  },
+  "types": "./dist/index.d.ts",
+  "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./testing": "./dist/testing.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "e2e": "cypress open --config-file=cypress.config.ts",
+    "e2e:headless": "cypress run",
+    "start": "vite --mode=dev",
+    "build": "yarn rimraf dist && yarn build:lib",
+    "build:lib": "tsc --project tsconfig.lib.json && copyfiles -u 2 ./src/form/**/*.scss ./dist",
+    "build:lib:watch": "tsc --project tsconfig.lib.json --watch",
+    "build:site": "vite build  --config vite.config.mjs",
+    "test": "vitest run --config vitest.config.mts",
+    "preview": "vite preview",
+    "publish": "lerna publish"
+  },
+  "dependencies": {
+    "ajv": "^8.12.0",
+    "clsx": "^2.1.0",
+    "lodash.clonedeep": "^4.5.0",
+    "usehooks-ts": "^3.0.0"
+  },
+  "peerDependencies": {
+    "@carbon/icons-react": "^11.67.0",
+    "@carbon/react": "^1.102.0",
+    "@carbon/styles": "^1.99.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@carbon/icons-react": "^11.67.0",
+    "@carbon/react": "^1.102.0",
+    "@carbon/styles": "^1.99.0",
+    "@eslint/js": "^9.10.0",
+    "@kaoto/camel-catalog": "^0.9.11",
+    "@lerna-lite/cli": "^4.11.2",
+    "@lerna-lite/publish": "^4.11.2",
+    "@lerna-lite/version": "^4.11.2",
+    "@patternfly/react-code-editor": "6.6.1",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/json-schema": "^7.0.15",
+    "@types/lodash": "^4",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "@vitest/coverage-v8": "^4.0.18",
+    "@vitest/eslint-plugin": "^1.6.20",
+    "copyfiles": "^2.4.1",
+    "cypress": "^14.5.0",
+    "eslint": "^9.10.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-react": "^7.35.2",
+    "eslint-plugin-react-hooks": "5.1.0-rc-eb3ad065-20240822",
+    "globals": "^15.9.0",
+    "jsdom": "^26.1.0",
+    "monaco-editor": "^0.55.1",
+    "postcss": "^8.4.45",
+    "prettier": "^3.0.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-is": "^19.0.0",
+    "react-monaco-editor": "^0.59.0",
+    "react-test-renderer": "^19.2.4",
+    "rimraf": "^6.0.0",
+    "sass": "npm:sass-embedded@^1.79.5",
+    "sass-embedded": "^1.79.5",
+    "stylelint": "^17.0.0",
+    "stylelint-config-standard-scss": "^13.0.0",
+    "stylelint-prettier": "^5.0.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.4.2",
+    "typescript-eslint": "^8.5.0",
+    "vite": "^8.0.3",
+    "vite-plugin-dts": "^4.5.4",
+    "vite-plugin-static-copy": "^4.1.1",
+    "vitest": "^4.0.18"
+  },
+  "packageManager": "yarn@4.13.0"
+}

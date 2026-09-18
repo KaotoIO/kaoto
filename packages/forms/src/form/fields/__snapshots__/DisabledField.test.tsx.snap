@@ -1,0 +1,73 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`DisabledField > should render 1`] = `
+<div>
+  <div
+    class="cds--tile"
+  >
+    <h4
+      class="cds--tile-heading"
+    >
+      test
+    </h4>
+    <div>
+      <p>
+        Configuring this field is not yet supported
+      </p>
+      <ul
+        class="cds--accordion cds--accordion--end"
+      >
+        <li
+          class="cds--accordion__item"
+        >
+          <button
+            aria-controls="accordion-item-_r_0_"
+            aria-expanded="false"
+            class="cds--accordion__heading"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              class="cds--accordion__arrow"
+              fill="currentColor"
+              focusable="false"
+              height="16"
+              preserveAspectRatio="xMidYMid meet"
+              viewBox="0 0 16 16"
+              width="16"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M11 8 6 13 5.3 12.3 9.6 8 5.3 3.7 6 3z"
+              />
+            </svg>
+            <div
+              class="cds--accordion__title"
+              dir="auto"
+            >
+              Test properties
+            </div>
+          </button>
+          <div
+            class="cds--accordion__wrapper"
+          >
+            <div
+              class="cds--accordion__content"
+              id="accordion-item-_r_0_"
+            >
+              <code>
+                <pre>
+                  {
+  "data-testid": "disabled-field-id",
+  "propName": "test"
+}
+                </pre>
+              </code>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+`;

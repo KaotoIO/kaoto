@@ -1,0 +1,265 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`SchemaList > should render correctly with basic props when no schema is selected 1`] = `
+<div>
+  <div
+    class="cds--stack-vertical cds--stack-scale-3"
+  >
+    <div
+      role="group"
+    >
+      <div
+        class="cds--content-switcher cds--content-switcher--md cds--layout--size-md cds--layout-constraint--size__default-md cds--layout-constraint--size__min-sm cds--layout-constraint--size__max-lg"
+        role="tablist"
+      >
+        <button
+          aria-selected="false"
+          class="cds--content-switcher-btn"
+          role="tab"
+          tabindex="-1"
+          type="button"
+        >
+          <span
+            class="cds--content-switcher__label"
+            title="Schema 1"
+          >
+            Schema 1
+          </span>
+        </button>
+        <button
+          aria-selected="false"
+          class="cds--content-switcher-btn"
+          role="tab"
+          tabindex="-1"
+          type="button"
+        >
+          <span
+            class="cds--content-switcher__label"
+            title="Schema 2"
+          >
+            Schema 2
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`SchemaList > should render correctly with basic props when schema is selected 1`] = `
+<div>
+  <div
+    class="cds--stack-vertical cds--stack-scale-3"
+  >
+    <div
+      role="group"
+    >
+      <div
+        class="cds--content-switcher cds--content-switcher--md cds--layout--size-md cds--layout-constraint--size__default-md cds--layout-constraint--size__min-sm cds--layout-constraint--size__max-lg"
+        role="tablist"
+      >
+        <button
+          aria-selected="true"
+          class="cds--content-switcher-btn cds--content-switcher--selected"
+          role="tab"
+          tabindex="0"
+          type="button"
+        >
+          <span
+            class="cds--content-switcher__label"
+            title="Schema 1"
+          >
+            Schema 1
+          </span>
+        </button>
+        <button
+          aria-selected="false"
+          class="cds--content-switcher-btn"
+          role="tab"
+          tabindex="-1"
+          type="button"
+        >
+          <span
+            class="cds--content-switcher__label"
+            title="Schema 2"
+          >
+            Schema 2
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`SchemaList > should use Typeahead when items > 5, none selected 1`] = `
+<div>
+  <div
+    class="cds--stack-vertical cds--stack-scale-3"
+  >
+    <div
+      role="group"
+    >
+      <div>
+        <div
+          class="cds--list-box__wrapper"
+        >
+          <div
+            class="cds--combo-box cds--list-box"
+          >
+            <div
+              class="cds--list-box__field"
+            >
+              <input
+                aria-activedescendant=""
+                aria-autocomplete="list"
+                aria-controls="downshift-_r_2_-menu"
+                aria-expanded="false"
+                aria-haspopup="listbox"
+                aria-label="Choose an item"
+                autocomplete="off"
+                class="cds--text-input cds--text-input--empty"
+                data-testid="test-schema-list"
+                id="testProp"
+                placeholder="Select or write an option"
+                role="combobox"
+                tabindex="0"
+                type="text"
+                value=""
+              />
+              <button
+                aria-controls="downshift-_r_2_-menu"
+                aria-expanded="false"
+                aria-label="Open"
+                class="cds--list-box__menu-icon"
+                id="downshift-_r_2_-toggle-button"
+                tabindex="-1"
+                title="Open"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="currentColor"
+                  focusable="false"
+                  height="16"
+                  preserveAspectRatio="xMidYMid meet"
+                  viewBox="0 0 16 16"
+                  width="16"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M8 11 3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"
+                  />
+                </svg>
+              </button>
+            </div>
+            <ul
+              aria-labelledby="downshift-_r_2_-label"
+              class="cds--list-box__menu"
+              id="downshift-_r_2_-menu"
+              role="listbox"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`SchemaList > should use Typeahead when items > 5, one selected 1`] = `
+<div>
+  <div
+    class="cds--stack-vertical cds--stack-scale-3"
+  >
+    <div
+      role="group"
+    >
+      <div>
+        <div
+          class="cds--list-box__wrapper"
+        >
+          <div
+            class="cds--combo-box cds--list-box"
+          >
+            <div
+              class="cds--list-box__field"
+            >
+              <input
+                aria-activedescendant=""
+                aria-autocomplete="list"
+                aria-controls="downshift-_r_5_-menu"
+                aria-expanded="false"
+                aria-haspopup="listbox"
+                aria-label="Choose an item"
+                autocomplete="off"
+                class="cds--text-input"
+                data-testid="test-schema-list"
+                id="testProp"
+                placeholder="Select or write an option"
+                role="combobox"
+                tabindex="0"
+                type="text"
+                value="Schema 5"
+              />
+              <button
+                aria-label="Clear selected item"
+                class="cds--list-box__selection"
+                tabindex="-1"
+                title="Clear selected item"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="currentColor"
+                  focusable="false"
+                  height="16"
+                  preserveAspectRatio="xMidYMid meet"
+                  viewBox="0 0 32 32"
+                  width="16"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M17.4141 16 24 9.4141 22.5859 8 16 14.5859 9.4143 8 8 9.4141 14.5859 16 8 22.5859 9.4143 24 16 17.4141 22.5859 24 24 22.5859 17.4141 16z"
+                  />
+                </svg>
+              </button>
+              <button
+                aria-controls="downshift-_r_5_-menu"
+                aria-expanded="false"
+                aria-label="Open"
+                class="cds--list-box__menu-icon"
+                id="downshift-_r_5_-toggle-button"
+                tabindex="-1"
+                title="Open"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="currentColor"
+                  focusable="false"
+                  height="16"
+                  preserveAspectRatio="xMidYMid meet"
+                  viewBox="0 0 16 16"
+                  width="16"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M8 11 3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"
+                  />
+                </svg>
+              </button>
+            </div>
+            <ul
+              aria-labelledby="downshift-_r_5_-label"
+              class="cds--list-box__menu"
+              id="downshift-_r_5_-menu"
+              role="listbox"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

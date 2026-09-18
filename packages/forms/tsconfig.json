@@ -1,0 +1,25 @@
+{
+  "exclude": ["node_modules", "./cypress.config.ts"],
+  "compilerOptions": {
+    "lib": ["es6", "dom", "es2018.promise", "es2019", "esnext"],
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "target": "es5",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "noImplicitAny": false,
+    "noImplicitThis": true,
+    "removeComments": true,
+    "strictNullChecks": true,
+    "experimentalDecorators": true,
+    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "jsx": "react-jsx"
+  }
+}

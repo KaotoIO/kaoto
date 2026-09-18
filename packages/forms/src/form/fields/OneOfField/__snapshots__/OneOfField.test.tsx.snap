@@ -1,0 +1,107 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`OneOfField > should render correctly with basic oneOf schema 1`] = `
+<div>
+  <div
+    class="cds--tile array-field-wrapper-tile"
+    data-testid="#__field-wrapper"
+  >
+    <div
+      class="array-field-wrapper-header array-field-wrapper-header--with-children"
+    >
+      <div
+        class="array-field-wrapper-title-section"
+      >
+        <h4
+          class="cds--tile-heading array-field-wrapper-heading"
+        >
+          Test Schema 1
+        </h4>
+        <button
+          aria-label="More info for Test Schema 1 field"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            fill="currentColor"
+            focusable="false"
+            height="16"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 16 16"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
+            />
+            <path
+              d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
+            />
+          </svg>
+        </button>
+        <p>
+          <strong>
+            Test Schema 1
+             
+            &lt;expression&gt;
+          </strong>
+        </p>
+        <p>
+          First test schema
+        </p>
+        <p>
+          Default: 
+          no default value
+        </p>
+      </div>
+      <div>
+        <div
+          class="cds--stack-vertical cds--stack-scale-3"
+        >
+          <div
+            role="group"
+          >
+            <div
+              class="cds--content-switcher cds--content-switcher--md cds--layout--size-md cds--layout-constraint--size__default-md cds--layout-constraint--size__min-sm cds--layout-constraint--size__max-lg"
+              role="tablist"
+            >
+              <button
+                aria-selected="true"
+                class="cds--content-switcher-btn cds--content-switcher--selected"
+                role="tab"
+                tabindex="0"
+                type="button"
+              >
+                <span
+                  class="cds--content-switcher__label"
+                  title="Test Schema 1"
+                >
+                  Test Schema 1
+                </span>
+              </button>
+              <button
+                aria-selected="false"
+                class="cds--content-switcher-btn"
+                role="tab"
+                tabindex="-1"
+                type="button"
+              >
+                <span
+                  class="cds--content-switcher__label"
+                  title="Test Schema 2"
+                >
+                  Test Schema 2
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="kaoto-form kaoto-form__label"
+      data-testid="#__children"
+    />
+  </div>
+</div>
+`;
