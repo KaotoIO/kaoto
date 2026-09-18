@@ -40,23 +40,23 @@ export class TreeUIService {
     const tree = new DocumentTree(documentNodeData);
     TreeParsingService.parseTree(tree);
 
-    this.trees.set(tree.documentNodeDataId, tree);
+    this.trees.set(tree.documentNodeId, tree);
 
     const newExpansion = TreeUIService.reconcileExpansion(documentNodeData.id, tree, fieldExpansion);
-    useDocumentTreeStore.getState().setTreeExpansion(tree.documentNodeDataId, newExpansion);
+    useDocumentTreeStore.getState().setTreeExpansion(tree.documentNodeId, newExpansion);
 
     return tree;
   }
 
-  static getTree(documentNodeDataId: string): DocumentTree | undefined {
-    return this.trees.get(documentNodeDataId);
+  static getTree(documentNodeId: string): DocumentTree | undefined {
+    return this.trees.get(documentNodeId);
   }
 
   /**
    * Toggle node expansion and update store
    */
-  static toggleNode(documentId: string, nodePath: string): void {
-    const tree = this.trees.get(documentId);
+  static toggleNode(documentNodeId: string, nodePath: string): void {
+    const tree = this.trees.get(documentNodeId);
     if (!tree) return;
 
     const node = tree.findNodeByPath(nodePath);
@@ -68,7 +68,7 @@ export class TreeUIService {
       TreeParsingService.parseTreeNode(node);
     }
 
-    store.toggleExpansion(documentId, nodePath);
+    store.toggleExpansion(documentNodeId, nodePath);
   }
 
   /**
@@ -76,11 +76,11 @@ export class TreeUIService {
    * Used when a type override or choice selection changes the field structure.
    * The node will be re-parsed on next expansion.
    *
-   * @param documentId - The document ID containing the node
+   * @param documentNodeId - The document node ID containing the node
    * @param nodePath - The path of the node to invalidate
    */
-  static invalidateNode(documentId: string, nodePath: string): void {
-    const tree = this.trees.get(documentId);
+  static invalidateNode(documentNodeId: string, nodePath: string): void {
+    const tree = this.trees.get(documentNodeId);
     if (!tree) return;
 
     const node = tree.findNodeByPath(nodePath);
@@ -90,11 +90,11 @@ export class TreeUIService {
   }
 
   private static reconcileExpansion(
-    documentNodeDataId: string,
+    documentNodeId: string,
     newTree: DocumentTree,
     fieldExpansion?: Record<string, boolean>,
   ): TreeExpansionState {
-    const currentExpansionState = useDocumentTreeStore.getState().expansionState[documentNodeDataId] ?? {};
+    const currentExpansionState = useDocumentTreeStore.getState().expansionState[documentNodeId] ?? {};
     const newExpansionState: TreeExpansionState = {};
 
     for (const contentRoot of newTree.contentRoots) {
@@ -111,11 +111,11 @@ export class TreeUIService {
     return newExpansionState;
   }
 
-  private static buildFieldExpansionMap(documentNodeDataId: string): Record<string, boolean> | undefined {
-    const oldTree = this.trees.get(documentNodeDataId);
+  private static buildFieldExpansionMap(documentNodeId: string): Record<string, boolean> | undefined {
+    const oldTree = this.trees.get(documentNodeId);
     if (!oldTree) return undefined;
 
-    const currentExpansionState = useDocumentTreeStore.getState().expansionState[documentNodeDataId];
+    const currentExpansionState = useDocumentTreeStore.getState().expansionState[documentNodeId];
     if (!currentExpansionState) return undefined;
 
     const fieldExpansion: Record<string, boolean> = {};

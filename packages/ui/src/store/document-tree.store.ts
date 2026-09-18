@@ -10,14 +10,14 @@ export type TreeExpansionState = Record<string, boolean>;
 export type TreeConnectionPorts = Record<string, [number, number]>;
 
 export interface DocumentTreeState {
-  /** Map of [document ID]: {[nodePath]: expansion state} */
+  /** Map of [document node ID]: {[nodePath]: expansion state} */
   expansionState: Record<string, TreeExpansionState>;
-  /** Array of [document ID]: [nodePath] */
+  /** Array of [document node ID]: [nodePath] */
   expansionStateArray: Record<string, string[]>;
 
-  /** Map of [document ID]: {[nodePath]: connector circle position} */
+  /** Map of [document node ID]: {[nodePath]: connector circle position} */
   nodesConnectionPorts: Record<string, TreeConnectionPorts>;
-  /** Array of [document ID]: [nodePath] */
+  /** Array of [document node ID]: [nodePath] */
   nodesConnectionPortsArray: Record<string, string[]>;
 
   /** Currently selected node for mapping */
@@ -32,19 +32,19 @@ export interface DocumentTreeState {
   targetXPathInputForFocus: string | null;
 
   /** Set the document's connection ports map with fresh data */
-  setNodesConnectionPorts: (documentId: string, ports: TreeConnectionPorts) => void;
+  setNodesConnectionPorts: (documentNodeId: string, ports: TreeConnectionPorts) => void;
 
   /** Toggle expansion state of a node */
-  toggleExpansion: (documentId: string, nodePath: string) => void;
+  toggleExpansion: (documentNodeId: string, nodePath: string) => void;
 
   /** Set the document's expansion state with fresh data */
-  setTreeExpansion: (documentId: string, expansionState: TreeExpansionState) => void;
+  setTreeExpansion: (documentNodeId: string, expansionState: TreeExpansionState) => void;
 
   /** Reconcile expansion state from a DocumentTree, preserving matching entries by path */
   updateTreeExpansion: (documentTree: DocumentTree) => void;
 
   /** Get expansion state of a node */
-  isExpanded: (documentId: string, nodePath: string) => boolean;
+  isExpanded: (documentNodeId: string, nodePath: string) => boolean;
 
   /** Selection state management */
   setSelectedNode: (nodePath: string | null, isSource: boolean) => void;
@@ -88,41 +88,41 @@ export const useDocumentTreeStore = createWithEqualityFn<DocumentTreeState>()(
       renamingVariableId: null,
       openMappingMenuId: null,
 
-      setNodesConnectionPorts: (documentId: string, ports: TreeConnectionPorts) => {
+      setNodesConnectionPorts: (documentNodeId: string, ports: TreeConnectionPorts) => {
         set((state) => ({
           nodesConnectionPorts: {
             ...state.nodesConnectionPorts,
-            [documentId]: ports,
+            [documentNodeId]: ports,
           },
           nodesConnectionPortsArray: {
             ...state.nodesConnectionPortsArray,
-            [documentId]: Object.keys(ports).filter((nodePath) => !nodePath.includes(':EDGE:')),
+            [documentNodeId]: Object.keys(ports).filter((nodePath) => !nodePath.includes(':EDGE:')),
           },
         }));
       },
 
-      toggleExpansion: (documentId: string, nodePath: string) => {
-        const isExpanded = get().isExpanded(documentId, nodePath);
+      toggleExpansion: (documentNodeId: string, nodePath: string) => {
+        const isExpanded = get().isExpanded(documentNodeId, nodePath);
         set((state) => ({
           expansionState: {
             ...state.expansionState,
-            [documentId]: {
-              ...state.expansionState[documentId],
+            [documentNodeId]: {
+              ...state.expansionState[documentNodeId],
               [nodePath]: !isExpanded,
             },
           },
         }));
       },
 
-      setTreeExpansion: (documentId: string, expansionState: TreeExpansionState) => {
+      setTreeExpansion: (documentNodeId: string, expansionState: TreeExpansionState) => {
         set((state) => ({
-          expansionState: { ...state.expansionState, [documentId]: expansionState },
-          expansionStateArray: { ...state.expansionStateArray, [documentId]: Object.keys(expansionState) },
+          expansionState: { ...state.expansionState, [documentNodeId]: expansionState },
+          expansionStateArray: { ...state.expansionStateArray, [documentNodeId]: Object.keys(expansionState) },
         }));
       },
 
       updateTreeExpansion: (documentTree: DocumentTree) => {
-        const currentExpansionState: TreeExpansionState = get().expansionState[documentTree.documentNodeDataId] ?? {};
+        const currentExpansionState: TreeExpansionState = get().expansionState[documentTree.documentNodeId] ?? {};
         const newExpansionState: TreeExpansionState = {};
 
         for (const contentRoot of documentTree.contentRoots) {
@@ -133,11 +133,11 @@ export const useDocumentTreeStore = createWithEqualityFn<DocumentTreeState>()(
           });
         }
 
-        get().setTreeExpansion(documentTree.documentNodeDataId, newExpansionState);
+        get().setTreeExpansion(documentTree.documentNodeId, newExpansionState);
       },
 
-      isExpanded: (documentId: string, nodePath: string) => {
-        return get().expansionState[documentId]?.[nodePath] ?? false;
+      isExpanded: (documentNodeId: string, nodePath: string) => {
+        return get().expansionState[documentNodeId]?.[nodePath] ?? false;
       },
 
       setSelectedNode: (nodePath, isSource) => {

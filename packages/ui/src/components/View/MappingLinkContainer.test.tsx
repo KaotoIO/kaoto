@@ -33,8 +33,8 @@ const buildLink = (
 ): IMappingLink => ({
   sourceNodePath,
   targetNodePath,
-  sourceDocumentId: 'doc-SOURCE_BODY-body',
-  targetDocumentId: 'doc-TARGET_BODY-body',
+  sourceDocumentNodeId: 'doc-SOURCE_BODY-body',
+  targetDocumentNodeId: 'doc-TARGET_BODY-body',
   isSelected,
   lineStyle,
 });

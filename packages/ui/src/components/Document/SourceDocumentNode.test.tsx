@@ -53,9 +53,12 @@ describe('SourceDocumentNode', () => {
     TreeParsingService.parseTree(tree);
     const fieldNode = tree.root.children[0];
 
-    render(<SourceDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} isReadOnly={false} rank={1} />, {
-      wrapper,
-    });
+    render(
+      <SourceDocumentNode treeNode={fieldNode} documentNodeId={documentNodeData.id} isReadOnly={false} rank={1} />,
+      {
+        wrapper,
+      },
+    );
 
     expect(screen.getByText(fieldNode.nodeData.title)).toBeInTheDocument();
     expect(screen.getByTestId(`node-source-${fieldNode.nodeData.id}`)).toBeInTheDocument();
@@ -67,9 +70,12 @@ describe('SourceDocumentNode', () => {
     const tree = new DocumentTree(documentNodeData);
     TreeParsingService.parseTree(tree);
 
-    render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
-      wrapper,
-    });
+    render(
+      <SourceDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} isReadOnly={false} rank={0} />,
+      {
+        wrapper,
+      },
+    );
 
     expect(screen.getByText(document.documentId)).toBeInTheDocument();
     expect(screen.getByTestId(`node-source-${documentNodeData.id}`)).toBeInTheDocument();
@@ -82,9 +88,12 @@ describe('SourceDocumentNode', () => {
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
 
-    render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
-      wrapper,
-    });
+    render(
+      <SourceDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} isReadOnly={false} rank={0} />,
+      {
+        wrapper,
+      },
+    );
 
     expect(screen.getByText(BODY_DOCUMENT_ID)).toBeInTheDocument();
   });
@@ -112,7 +121,7 @@ describe('SourceDocumentNode', () => {
     render(
       <SourceDocumentNode
         treeNode={collectionFieldNode!}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={1}
       />,
@@ -145,7 +154,7 @@ describe('SourceDocumentNode', () => {
     render(
       <SourceDocumentNode
         treeNode={attributeFieldNode!}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={2}
       />,
@@ -174,7 +183,7 @@ describe('SourceDocumentNode', () => {
     const choiceTreeNode = new DocumentTreeNode(choiceNodeData);
 
     render(
-      <SourceDocumentNode treeNode={choiceTreeNode} documentId={documentNodeData.id} isReadOnly={false} rank={1} />,
+      <SourceDocumentNode treeNode={choiceTreeNode} documentNodeId={documentNodeData.id} isReadOnly={false} rank={1} />,
       { wrapper },
     );
 
@@ -189,7 +198,7 @@ describe('SourceDocumentNode', () => {
     const fieldNode = tree.root.children[0];
 
     const { container } = render(
-      <SourceDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} isReadOnly={false} rank={1} />,
+      <SourceDocumentNode treeNode={fieldNode} documentNodeId={documentNodeData.id} isReadOnly={false} rank={1} />,
       {
         wrapper,
       },
@@ -206,9 +215,12 @@ describe('SourceDocumentNode', () => {
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
 
-    render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
-      wrapper,
-    });
+    render(
+      <SourceDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} isReadOnly={false} rank={0} />,
+      {
+        wrapper,
+      },
+    );
 
     const container = screen.getByTestId(`node-source-${documentNodeData.id}`);
     const draggableSection = container.querySelector('[data-draggable="true"]');
@@ -220,9 +232,12 @@ describe('SourceDocumentNode', () => {
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
 
-    render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
-      wrapper,
-    });
+    render(
+      <SourceDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} isReadOnly={false} rank={0} />,
+      {
+        wrapper,
+      },
+    );
 
     const container = screen.getByTestId(`node-source-${documentNodeData.id}`);
     const draggableSection = container.querySelector('[data-draggable="true"]');
@@ -237,7 +252,7 @@ describe('SourceDocumentNode', () => {
     const tree = new DocumentTree(documentNodeData);
 
     const result = render(
-      <SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />,
+      <SourceDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} isReadOnly={false} rank={0} />,
       {
         wrapper,
       },
@@ -264,9 +279,12 @@ describe('SourceDocumentNode', () => {
         },
       });
 
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
-        wrapper,
-      });
+      render(
+        <SourceDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} isReadOnly={false} rank={0} />,
+        {
+          wrapper,
+        },
+      );
 
       const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
       expect(expandIcon).toBeInTheDocument();
@@ -287,9 +305,12 @@ describe('SourceDocumentNode', () => {
       const leafNode = findLeafNode(tree.root);
       expect(leafNode).toBeDefined();
 
-      render(<SourceDocumentNode treeNode={leafNode!} documentId={documentNodeData.id} isReadOnly={false} rank={2} />, {
-        wrapper,
-      });
+      render(
+        <SourceDocumentNode treeNode={leafNode!} documentNodeId={documentNodeData.id} isReadOnly={false} rank={2} />,
+        {
+          wrapper,
+        },
+      );
 
       const expandIcon = screen.queryByTestId(`expand-icon-${leafNode!.nodeData.title}`);
       const collapseIcon = screen.queryByTestId(`collapse-icon-${leafNode!.nodeData.title}`);
@@ -312,9 +333,12 @@ describe('SourceDocumentNode', () => {
         },
       });
 
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
-        wrapper,
-      });
+      render(
+        <SourceDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} isReadOnly={false} rank={0} />,
+        {
+          wrapper,
+        },
+      );
 
       const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
       expect(expandIcon).toBeInTheDocument();
@@ -337,9 +361,12 @@ describe('SourceDocumentNode', () => {
         },
       });
 
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
-        wrapper,
-      });
+      render(
+        <SourceDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} isReadOnly={false} rank={0} />,
+        {
+          wrapper,
+        },
+      );
 
       const collapseIcon = screen.getByTestId(`collapse-icon-${tree.root.nodeData.title}`);
       expect(collapseIcon).toBeInTheDocument();
@@ -364,9 +391,12 @@ describe('SourceDocumentNode', () => {
         },
       });
 
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
-        wrapper,
-      });
+      render(
+        <SourceDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} isReadOnly={false} rank={0} />,
+        {
+          wrapper,
+        },
+      );
 
       const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
 
@@ -387,9 +417,12 @@ describe('SourceDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
-        wrapper,
-      });
+      render(
+        <SourceDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} isReadOnly={false} rank={0} />,
+        {
+          wrapper,
+        },
+      );
 
       const nodeContainer = screen.getByTestId(`node-source-${documentNodeData.id}`);
       expect(nodeContainer).toBeInTheDocument();
@@ -406,9 +439,12 @@ describe('SourceDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
-        wrapper,
-      });
+      render(
+        <SourceDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} isReadOnly={false} rank={0} />,
+        {
+          wrapper,
+        },
+      );
 
       const nodeContainer = screen.getByTestId(`node-source-${documentNodeData.id}`);
 
@@ -430,9 +466,12 @@ describe('SourceDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
-        wrapper,
-      });
+      render(
+        <SourceDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} isReadOnly={false} rank={0} />,
+        {
+          wrapper,
+        },
+      );
 
       const nodeContainer = screen.getByTestId(`node-source-${documentNodeData.id}`);
       expect(nodeContainer).toBeInTheDocument();
@@ -457,7 +496,7 @@ describe('SourceDocumentNode', () => {
 
       render(
         <div onClick={parentClickHandler}>
-          <SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />
+          <SourceDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} isReadOnly={false} rank={0} />
         </div>,
         { wrapper },
       );
@@ -479,7 +518,7 @@ describe('SourceDocumentNode', () => {
       const tree = new DocumentTree(documentNodeData);
 
       const { container } = render(
-        <SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />,
+        <SourceDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} isReadOnly={false} rank={0} />,
         {
           wrapper,
         },
@@ -498,7 +537,7 @@ describe('SourceDocumentNode', () => {
       const tree = new DocumentTree(documentNodeData);
 
       const { rerender } = render(
-        <SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />,
+        <SourceDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} isReadOnly={false} rank={0} />,
         {
           wrapper,
         },
@@ -509,7 +548,7 @@ describe('SourceDocumentNode', () => {
       rerender(
         <DataMapperProvider>
           <MappingLinksProvider>
-            <SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />
+            <SourceDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} isReadOnly={false} rank={0} />
           </MappingLinksProvider>
         </DataMapperProvider>,
       );
@@ -532,9 +571,12 @@ describe('SourceDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
-        wrapper,
-      });
+      render(
+        <SourceDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} isReadOnly={false} rank={0} />,
+        {
+          wrapper,
+        },
+      );
 
       const nodeContainer = screen.getByTestId(`node-source-${documentNodeData.id}`);
 
@@ -550,9 +592,12 @@ describe('SourceDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
-        wrapper,
-      });
+      render(
+        <SourceDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} isReadOnly={false} rank={0} />,
+        {
+          wrapper,
+        },
+      );
 
       const nodeContainer = screen.getByTestId(`node-source-${documentNodeData.id}`);
 
@@ -577,7 +622,7 @@ describe('SourceDocumentNode', () => {
         },
       });
 
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly rank={0} />, {
+      render(<SourceDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} isReadOnly rank={0} />, {
         wrapper,
       });
 
@@ -612,7 +657,7 @@ describe('SourceDocumentNode', () => {
 
       render(
         <div onClick={parentClickHandler}>
-          <SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />
+          <SourceDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} isReadOnly={false} rank={0} />
         </div>,
         { wrapper },
       );
@@ -636,7 +681,7 @@ describe('SourceDocumentNode', () => {
 
       render(
         <div onClick={parentClickHandler}>
-          <SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />
+          <SourceDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} isReadOnly={false} rank={0} />
         </div>,
         { wrapper },
       );
@@ -660,9 +705,12 @@ describe('SourceDocumentNode', () => {
       const leafNode = findLeafNode(tree.root);
       expect(leafNode).toBeDefined();
 
-      render(<SourceDocumentNode treeNode={leafNode!} documentId={documentNodeData.id} isReadOnly={false} rank={2} />, {
-        wrapper,
-      });
+      render(
+        <SourceDocumentNode treeNode={leafNode!} documentNodeId={documentNodeData.id} isReadOnly={false} rank={2} />,
+        {
+          wrapper,
+        },
+      );
 
       // Should not have expand/collapse icons
       expect(screen.queryByTestId(`expand-icon-${leafNode!.nodeData.title}`)).not.toBeInTheDocument();

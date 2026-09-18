@@ -4,7 +4,7 @@ import { VirtuosoProps } from 'react-virtuoso';
 import { ConnectionPortSyncHelper } from '../services/connection-port-sync.helper';
 import { TreeConnectionPorts, useDocumentTreeStore } from '../store/document-tree.store';
 
-export const useConnectionPortSync = (documentId: string) => {
+export const useConnectionPortSync = (documentNodeId: string) => {
   const setNodesConnectionPorts = useDocumentTreeStore((state) => state.setNodesConnectionPorts);
   const rafId = useRef<number | null>(null);
 
@@ -30,7 +30,7 @@ export const useConnectionPortSync = (documentId: string) => {
 
       /* Query document-specific ports (includes both node ports and EDGE markers) */
       const documentPortElements = document.querySelectorAll<HTMLElement>(
-        `[data-connection-port="true"][data-document-id="${documentId}"]`,
+        `[data-connection-port="true"][data-document-node-id="${documentNodeId}"]`,
       );
 
       const documentVisiblePorts: TreeConnectionPorts = {};
@@ -50,9 +50,9 @@ export const useConnectionPortSync = (documentId: string) => {
         }
       }
 
-      setNodesConnectionPorts(documentId, documentVisiblePorts);
+      setNodesConnectionPorts(documentNodeId, documentVisiblePorts);
     });
-  }, [documentId, setNodesConnectionPorts]);
+  }, [documentNodeId, setNodesConnectionPorts]);
 
   // Create Virtuoso components object with custom Scroller that triggers sync on scroll
   const virtuosoComponents = useMemo<VirtuosoProps<unknown, unknown>['components']>(() => {

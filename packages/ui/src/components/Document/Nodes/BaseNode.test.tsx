@@ -358,18 +358,20 @@ describe('BaseNode', () => {
           title="Title"
           data-testid="test-node"
           nodePath="source://path"
-          documentId="doc-123"
+          documentNodeId="doc-123"
         />,
       );
       expect(screen.getByTestId('connection-port-test-node')).toBeInTheDocument();
     });
 
     it('should not render connection port when nodePath is missing', () => {
-      render(<BaseNode nodeData={createMockNodeData()} title="Title" data-testid="test-node" documentId="doc-123" />);
+      render(
+        <BaseNode nodeData={createMockNodeData()} title="Title" data-testid="test-node" documentNodeId="doc-123" />,
+      );
       expect(screen.queryByTestId('connection-port-test-node')).not.toBeInTheDocument();
     });
 
-    it('should not render connection port when documentId is missing', () => {
+    it('should not render connection port when documentNodeId is missing', () => {
       render(
         <BaseNode nodeData={createMockNodeData()} title="Title" data-testid="test-node" nodePath="source://path" />,
       );
@@ -383,7 +385,7 @@ describe('BaseNode', () => {
           title="Title"
           data-testid="test-node"
           nodePath="source://path"
-          documentId="doc-123"
+          documentNodeId="doc-123"
         />,
       );
       const port = screen.getByTestId('connection-port-test-node');
@@ -397,7 +399,7 @@ describe('BaseNode', () => {
           title="Title"
           data-testid="test-node"
           nodePath="source://path"
-          documentId="doc-123"
+          documentNodeId="doc-123"
         />,
       );
       const port = screen.getByTestId('connection-port-test-node');
@@ -412,7 +414,7 @@ describe('BaseNode', () => {
           title="Title"
           data-testid="test-node"
           nodePath="source://path"
-          documentId="doc-123"
+          documentNodeId="doc-123"
         />,
       );
       const port = screen.getByTestId('connection-port-test-node');
@@ -427,25 +429,25 @@ describe('BaseNode', () => {
           title="Title"
           data-testid="test-node"
           nodePath="source://path/to/node"
-          documentId="doc-123"
+          documentNodeId="doc-123"
         />,
       );
       const port = screen.getByTestId('connection-port-test-node');
       expect(port).toHaveAttribute('data-node-path', 'source://path/to/node');
     });
 
-    it('should set data-document-id attribute when documentId is provided', () => {
+    it('should set data-document-node-id attribute when documentNodeId is provided', () => {
       render(
         <BaseNode
           nodeData={createMockNodeData()}
           title="Title"
           data-testid="test-node"
           nodePath="source://path"
-          documentId="doc-123"
+          documentNodeId="doc-123"
         />,
       );
       const port = screen.getByTestId('connection-port-test-node');
-      expect(port).toHaveAttribute('data-document-id', 'doc-123');
+      expect(port).toHaveAttribute('data-document-node-id', 'doc-123');
     });
   });
 
