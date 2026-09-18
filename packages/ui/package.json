@@ -108,6 +108,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/eslint-plugin-jsx-a11y": "^6.10.1",
     "@types/eslint__js": "^8.42.3",
+    "@types/jsdom": "^30.0.0",
     "@types/json-schema": "^7.0.15",
     "@types/lodash": "^4",
     "@types/node": "^22.0.0",

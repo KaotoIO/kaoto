@@ -4059,6 +4059,7 @@ __metadata:
     "@testing-library/user-event": "npm:^14.6.1"
     "@types/eslint-plugin-jsx-a11y": "npm:^6.10.1"
     "@types/eslint__js": "npm:^8.42.3"
+    "@types/jsdom": "npm:^30.0.0"
     "@types/json-schema": "npm:^7.0.15"
     "@types/lodash": "npm:^4"
     "@types/node": "npm:^22.0.0"
@@ -8044,6 +8045,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/jsdom@npm:^30.0.0":
+  version: 30.0.0
+  resolution: "@types/jsdom@npm:30.0.0"
+  dependencies:
+    "@types/node": "npm:*"
+    "@types/tough-cookie": "npm:*"
+    parse5: "npm:^8.0.0"
+    undici-types: "npm:^8.9.0"
+  checksum: 10/f430fe309267733e6df8fecdc9724ffd035cee2da21f504e21cf6e879fb91796b56b96794bdec5e134cdb025be63292e258dca25fe7059861b60542b220a86f5
+  languageName: node
+  linkType: hard
+
 "@types/json-schema@npm:*, @types/json-schema@npm:^7.0.15, @types/json-schema@npm:^7.0.9":
   version: 7.0.15
   resolution: "@types/json-schema@npm:7.0.15"
@@ -8235,6 +8248,13 @@ __metadata:
   version: 0.2.6
   resolution: "@types/tmp@npm:0.2.6"
   checksum: 10/e14a094c10569d3b56805552b21417860ef21060d969000d5d5b53604a78c2bdac216f064b03797d4b07a081e0141dd3ab22bc36923e75300eb1c023f7252cc7
+  languageName: node
+  linkType: hard
+
+"@types/tough-cookie@npm:*":
+  version: 4.0.5
+  resolution: "@types/tough-cookie@npm:4.0.5"
+  checksum: 10/01fd82efc8202670865928629697b62fe9bf0c0dcbc5b1c115831caeb073a2c0abb871ff393d7df1ae94ea41e256cb87d2a5a91fd03cdb1b0b4384e08d4ee482
   languageName: node
   linkType: hard
 
@@ -13884,6 +13904,13 @@ __metadata:
   version: 7.0.1
   resolution: "entities@npm:7.0.1"
   checksum: 10/3c0c58d869c45148463e96d21dee2d1b801bd3fe4cf47aa470cd26dfe81d59e9e0a9be92ae083fa02fa441283c883a471486e94538dcfb8544428aa80a55271b
+  languageName: node
+  linkType: hard
+
+"entities@npm:^8.0.0":
+  version: 8.1.0
+  resolution: "entities@npm:8.1.0"
+  checksum: 10/bd2fadbcabcf2cbd5de6b8155289acec9394d004fc095b9c7b3fdb4135468d8823a6de12275b07085e5dc077a142ede24e71098ffeb064000312d2a6960330a2
   languageName: node
   linkType: hard
 
@@ -21968,6 +21995,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"parse5@npm:^8.0.0":
+  version: 8.0.1
+  resolution: "parse5@npm:8.0.1"
+  dependencies:
+    entities: "npm:^8.0.0"
+  checksum: 10/671dedfe7cbf4714414317bc8c6b2a14c61ef44f8fd90c983b5b1870653af5aa2e3b4e25e38e9538a7120ea2b688c50908830da2bd0930d8fd4bce34aed024eb
+  languageName: node
+  linkType: hard
+
 "parseurl@npm:^1.3.3, parseurl@npm:~1.3.3":
   version: 1.3.3
   resolution: "parseurl@npm:1.3.3"
@@ -26961,6 +26997,13 @@ __metadata:
   version: 1.13.8
   resolution: "underscore@npm:1.13.8"
   checksum: 10/b50ac5806d059cc180b1bd9adea6f7ed500021f4dc782dfc75d66a90337f6f0506623c1b37863f4a9bf64ffbeb5769b638a54b7f2f5966816189955815953139
+  languageName: node
+  linkType: hard
+
+"undici-types@npm:^8.9.0":
+  version: 8.10.2
+  resolution: "undici-types@npm:8.10.2"
+  checksum: 10/f3e52c2e111c7b9f0da421a9dc3c2a8ae0558f050c45688f7cfe0484d9095ab436e131482b316b8eeed6ab9bf4758cdf01c18ed8baff51e68b23c84b856b2047
   languageName: node
   linkType: hard
 

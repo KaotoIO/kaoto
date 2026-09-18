@@ -113,16 +113,15 @@ describe('Typeahead', () => {
     expect(defaultProps.onCleanInput).toHaveBeenCalled();
   });
 
-  it('should allow users to create a new item if the onCreate callback is set', async () => {
+  it('should allow users to create a new item if the onCreate callback is set without typing input', async () => {
     render(<Typeahead {...defaultProps} onCreate={vi.fn()} onCreatePrefix="multiverse" />);
 
-    const input = screen.getByPlaceholderText('Select or write an option');
+    const toggle = screen.getByLabelText('Open');
     await act(async () => {
-      fireEvent.click(input);
-      fireEvent.change(input, { target: { value: 'test' } });
+      fireEvent.click(toggle);
     });
 
-    expect(screen.getByText(/Create new multiverse/)).toBeInTheDocument();
+    expect(screen.getByText('Create new multiverse')).toBeInTheDocument();
   });
 
   it('should allow users to create a new item if the onCreate callback is set and there is a value', async () => {

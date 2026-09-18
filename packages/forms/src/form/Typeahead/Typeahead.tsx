@@ -168,9 +168,9 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
       description: item.description,
     }));
 
-    if (onCreate && inputValue && inputValue.trim()) {
-      const createNewText = onCreatePrefix
-        ? `Create new ${onCreatePrefix} '${inputValue}'`
+    if (onCreate) {
+      const createNewText = inputValue && inputValue.trim()
+        ? `Create new ${onCreatePrefix ?? ''} '${inputValue}'`
         : `Create new ${onCreatePrefix ?? ''}`;
 
       const createNewItem = {

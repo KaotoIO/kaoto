@@ -117,7 +117,7 @@ const BeanFieldBaseInner: FunctionComponent<
 
   const onItemChange = useCallback(
     (item?: TypeaheadItem<string>) => {
-      onChange(item!.name);
+      onChange(item?.name);
     },
     [onChange],
   );
