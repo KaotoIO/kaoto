@@ -121,6 +121,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     const kameletDefinition = await DynamicCatalogRegistry.get().getEntity(
       ids.tertiaryNodeId.catalogKind,
       ids.tertiaryNodeId.name,
+      { forceFresh: true },
     );
 
     /* If the kamelet entry cannot be found in the Catalog, we can return the schema so far */
