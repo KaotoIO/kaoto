@@ -31,7 +31,7 @@ import { VariableInputPlaceholder } from './Variables/VariableInputPlaceholder';
 
 type DocumentNodeProps = {
   treeNode: DocumentTreeNode;
-  documentId: string;
+  documentNodeId: string;
   isReadOnly?: boolean;
   rank: number;
   onContextMenu?: MouseEventHandler;
@@ -42,10 +42,10 @@ type DocumentNodeProps = {
  * for improved performance with large schemas
  */
 export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
-  ({ treeNode, documentId, rank, onContextMenu }) => {
+  ({ treeNode, documentNodeId, rank, onContextMenu }) => {
     const toggleSelectedNode = useDocumentTreeStore((state) => state.toggleSelectedNode);
 
-    const isExpanded = useDocumentTreeStore((state) => state.isExpanded(documentId, treeNode.path));
+    const isExpanded = useDocumentTreeStore((state) => state.isExpanded(documentNodeId, treeNode.path));
     const nodeData = treeNode.nodeData as TargetDocumentNodeData;
 
     const isDocument = nodeData.isDocument;
@@ -56,9 +56,9 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
       (event: MouseEvent) => {
         event.stopPropagation();
         if (!hasChildren) return;
-        TreeUIService.toggleNode(documentId, treeNode.path);
+        TreeUIService.toggleNode(documentNodeId, treeNode.path);
       },
-      [hasChildren, documentId, treeNode.path],
+      [hasChildren, documentNodeId, treeNode.path],
     );
 
     const nodePathString = nodeData.path.toString();
@@ -186,7 +186,7 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
                 rank={rank}
                 isSelected={isSelected}
                 nodePath={nodePathString}
-                documentId={documentId}
+                documentNodeId={documentNodeId}
                 namespaceMap={mappingTree.namespaceMap}
               >
                 <OverrideIndicator field={field} namespaceMap={mappingTree.namespaceMap} />

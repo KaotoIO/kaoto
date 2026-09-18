@@ -42,18 +42,18 @@ export const MappingLinksContainer: FunctionComponent = () => {
   const svgOffsetTop = svgRect?.top ?? 0;
 
   const lineCoordList: LineProps[] = mappingLinks
-    .map(({ sourceNodePath, targetNodePath, sourceDocumentId, targetDocumentId, isSelected, lineStyle }) => {
+    .map(({ sourceNodePath, targetNodePath, sourceDocumentNodeId, targetDocumentNodeId, isSelected, lineStyle }) => {
       const sourcePort = getNearestVisiblePort(sourceNodePath, {
-        nodesConnectionPorts: nodesConnectionPorts[sourceDocumentId] ?? {},
-        nodesConnectionPortsArray: nodesConnectionPortsArray[sourceDocumentId] ?? [],
-        expansionState: expansionState[sourceDocumentId] ?? {},
-        expansionStateArray: expansionStateArray[sourceDocumentId] ?? [],
+        nodesConnectionPorts: nodesConnectionPorts[sourceDocumentNodeId] ?? {},
+        nodesConnectionPortsArray: nodesConnectionPortsArray[sourceDocumentNodeId] ?? [],
+        expansionState: expansionState[sourceDocumentNodeId] ?? {},
+        expansionStateArray: expansionStateArray[sourceDocumentNodeId] ?? [],
       });
       const targetPort = getNearestVisiblePort(targetNodePath, {
-        nodesConnectionPorts: nodesConnectionPorts[targetDocumentId] ?? {},
-        nodesConnectionPortsArray: nodesConnectionPortsArray[targetDocumentId] ?? [],
-        expansionState: expansionState[targetDocumentId] ?? {},
-        expansionStateArray: expansionStateArray[targetDocumentId] ?? [],
+        nodesConnectionPorts: nodesConnectionPorts[targetDocumentNodeId] ?? {},
+        nodesConnectionPortsArray: nodesConnectionPortsArray[targetDocumentNodeId] ?? [],
+        expansionState: expansionState[targetDocumentNodeId] ?? {},
+        expansionStateArray: expansionStateArray[targetDocumentNodeId] ?? [],
       });
       const isSourceEdge = sourcePort.connectionTarget === 'edge';
       const isTargetEdge = targetPort.connectionTarget === 'edge';

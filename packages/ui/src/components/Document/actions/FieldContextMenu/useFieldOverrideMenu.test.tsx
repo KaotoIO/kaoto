@@ -60,7 +60,7 @@ describe('useFieldOverrideMenu', () => {
     render(
       <SourceDocumentNodeWithContextMenu
         treeNode={fieldNode}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={1}
       />,
@@ -91,7 +91,7 @@ describe('useFieldOverrideMenu', () => {
     render(
       <SourceDocumentNodeWithContextMenu
         treeNode={fieldNode}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={1}
       />,
@@ -123,7 +123,7 @@ describe('useFieldOverrideMenu', () => {
     render(
       <SourceDocumentNodeWithContextMenu
         treeNode={fieldNode}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={1}
       />,
@@ -156,7 +156,7 @@ describe('useFieldOverrideMenu', () => {
     render(
       <SourceDocumentNodeWithContextMenu
         treeNode={fieldNode}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={1}
       />,
@@ -207,7 +207,7 @@ describe('useFieldOverrideMenu', () => {
     render(
       <SourceDocumentNodeWithContextMenu
         treeNode={fieldNode}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={1}
       />,
@@ -238,7 +238,7 @@ describe('useFieldOverrideMenu', () => {
       render(
         <SourceDocumentNodeWithContextMenu
           treeNode={abstractNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -257,7 +257,7 @@ describe('useFieldOverrideMenu', () => {
       render(
         <SourceDocumentNodeWithContextMenu
           treeNode={abstractNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,

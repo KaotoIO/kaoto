@@ -426,8 +426,8 @@ export enum MappingLineStyle {
 export interface IMappingLink {
   sourceNodePath: string;
   targetNodePath: string;
-  sourceDocumentId: string;
-  targetDocumentId: string;
+  sourceDocumentNodeId: string;
+  targetDocumentNodeId: string;
   isSelected: boolean;
   lineStyle: MappingLineStyle;
 }

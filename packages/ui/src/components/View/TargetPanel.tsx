@@ -86,14 +86,14 @@ export const TargetPanel: FunctionComponent = () => {
         key="edge-top"
         className="expansion-panel__edge-marker expansion-panel__edge-marker--top expansion-panel__edge-marker--target"
         data-connection-port="true"
-        data-document-id={targetBodyNodeData.id}
+        data-document-node-id={targetBodyNodeData.id}
         data-node-path={`${targetBodyDocument.documentId}:EDGE:top`}
       />,
       <span
         key="edge-bottom"
         className="expansion-panel__edge-marker expansion-panel__edge-marker--bottom expansion-panel__edge-marker--target"
         data-connection-port="true"
-        data-document-id={targetBodyNodeData.id}
+        data-document-node-id={targetBodyNodeData.id}
         data-node-path={`${targetBodyDocument.documentId}:EDGE:bottom`}
       />,
     ],
@@ -107,7 +107,7 @@ export const TargetPanel: FunctionComponent = () => {
         <TargetDocumentNodeWithContextMenu
           key={flattenedNode.path}
           treeNode={flattenedNode.treeNode}
-          documentId={targetBodyNodeData.id}
+          documentNodeId={targetBodyNodeData.id}
           rank={flattenedNode.depth + 1}
         />
       );
