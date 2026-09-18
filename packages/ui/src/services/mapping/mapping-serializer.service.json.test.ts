@@ -201,6 +201,25 @@ describe('MappingSerializerService / JSON', () => {
       const priceValue = price.children[0] as ValueSelector;
       expect(priceValue.expression).toBe("fn:number[@key='Price']");
     });
+    it('should restore a missing XSLT parameter during deserialization', () => {
+      const parameterMap = new Map<string, IDocument>([
+        ['Account', accountParamDoc],
+        ['Cart', cartParamDoc],
+      ]);
+
+      const mappingTree = new MappingTree(
+        DocumentType.TARGET_BODY,
+        BODY_DOCUMENT_ID,
+        DocumentDefinitionType.JSON_SCHEMA,
+      );
+
+      expect(parameterMap.has('OrderSequence')).toBe(false);
+
+      MappingSerializerService.deserialize(getShipOrderJsonXslt(), targetDoc, mappingTree, parameterMap);
+
+      expect(parameterMap.has('OrderSequence')).toBe(true);
+      expect(parameterMap.get('OrderSequence')).toBeInstanceOf(PrimitiveDocument);
+    });
   });
 
   describe('serialize()', () => {
