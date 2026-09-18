@@ -4,11 +4,13 @@ import {
   DocumentDefinitionType,
   DocumentType,
 } from '../../models/datamapper/document';
+import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import { MappingTree } from '../../models/datamapper/mapping';
 import { FieldItemNodeData, TargetDocumentNodeData, TargetFieldNodeData } from '../../models/datamapper/visualization';
 import { MappingService } from '../../services/mapping/mapping.service';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
 import { getFieldSubstitutionXsd, getWideDeepXsd, TestUtil } from '../../stubs/datamapper/data-mapper';
+import { processTreeNode } from '../../utils';
 import { FieldOverrideService } from '../document/field-override.service';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { AbstractFieldService } from './abstract-field.service';
@@ -512,16 +514,20 @@ describe('TreeUIService — deep expansion preservation (issue #3811)', () => {
 
     const expansionAfter = useDocumentTreeStore.getState().expansionState[documentId];
 
-    const findByTitle = (title: string) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let found: any;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const walk = (n: any) => {
-        if (n.nodeData.title === title) found = n;
-        n.children.forEach(walk);
+    const findByTitle = (title: string): DocumentTreeNode | undefined => {
+      const walk = (node: DocumentTreeNode): DocumentTreeNode | undefined => {
+        if (node.nodeData.title === title) return node;
+        for (const child of node.children) {
+          const found = walk(child);
+          if (found) return found;
+        }
+        return undefined;
       };
-      for (const r of tree2.contentRoots) walk(r);
-      return found;
+      for (const root of tree2.contentRoots) {
+        const found = walk(root);
+        if (found) return found;
+      }
+      return undefined;
     };
     const newDeepChain = findByTitle('deep_chain');
     const newL2 = findByTitle('L2');
@@ -537,6 +543,16 @@ describe('TreeUIService — deep expansion preservation (issue #3811)', () => {
     const visiblePaths = new Set(tree2.flatten(expansionAfter).map((f) => f.path));
     expect(visiblePaths.has(newL2!.path)).toBe(true);
     expect(visiblePaths.has(newL3!.path)).toBe(true);
+
+    // Key order is a contract: getNearestVisiblePort resolves edges by position in
+    // expansionStateArray. The frontier walk emits DFS order; survivors are appended after it.
+    const dfsOrder: string[] = [];
+    for (const root of tree2.contentRoots) {
+      processTreeNode(root, (node) => {
+        dfsOrder.push(node.path);
+      });
+    }
+    expect(Object.keys(expansionAfter).slice(0, dfsOrder.length)).toEqual(dfsOrder);
   });
 
   it('should preserve descendant expansion across mapping create and remove on substituted wrapper member', () => {
@@ -685,7 +701,9 @@ describe('TreeUIService — deep expansion preservation (issue #3811)', () => {
     const documentId = targetDocNode1.id;
     const store = useDocumentTreeStore.getState();
 
-    // Navigate Zoo → Equipment → Primary → AbstractVehicle and expand the wrapper.
+    // Navigate Zoo → Equipment → Primary → AbstractVehicle and collapse the wrapper. Collapsed
+    // (false) is asserted rather than expanded, because true is also what the frontier overlay
+    // writes by default for a newly parsed node — so only false can prove the key migrated.
     const zoo = tree1.contentRoots[0];
     if (!zoo.isParsed) TreeParsingService.parseTreeNode(zoo);
     const equipment = zoo.children.find((c) => c.nodeData.title === 'Equipment')!;
@@ -694,9 +712,9 @@ describe('TreeUIService — deep expansion preservation (issue #3811)', () => {
     if (!primary.isParsed) TreeParsingService.parseTreeNode(primary);
     const vehicle = primary.children.find((c) => /Vehicle/i.test(c.nodeData.title))!;
     expect(vehicle).toBeDefined();
-    if (!store.isExpanded(documentId, vehicle.path)) TreeUIService.toggleNode(documentId, vehicle.path);
+    if (store.isExpanded(documentId, vehicle.path)) TreeUIService.toggleNode(documentId, vehicle.path);
     const wrapperPathBefore = vehicle.path;
-    expect(useDocumentTreeStore.getState().isExpanded(documentId, wrapperPathBefore)).toBe(true);
+    expect(useDocumentTreeStore.getState().isExpanded(documentId, wrapperPathBefore)).toBe(false);
 
     // Select Car through the real UI entry point (creates the FieldItem chain).
     const wrapperField = (vehicle.nodeData as TargetFieldNodeData).field;
@@ -734,13 +752,20 @@ describe('TreeUIService — deep expansion preservation (issue #3811)', () => {
     expect(carNode.path).not.toBe(wrapperPathBefore);
 
     const expansionAfter = useDocumentTreeStore.getState().expansionState[documentId];
-    // The member node keeps the wrapper's expanded state (true) under its new path.
-    expect(expansionAfter[carNode.path]).toBe(true);
+    // The member node keeps the wrapper's collapsed state (false) under its new path.
+    expect(expansionAfter[carNode.path]).toBe(false);
     // No stale key under the old wrapper path prefix.
     expect(
       Object.keys(expansionAfter).filter((k) => k === wrapperPathBefore || k.startsWith(wrapperPathBefore + '/')),
     ).toHaveLength(0);
-    // And no stale AbstractVehicle key survives under the migrated Primary prefix.
-    expect(Object.keys(expansionAfter).some((k) => k.endsWith('/' + wrapperField.id))).toBe(false);
+    // Every surviving key addresses a node that actually exists in the rebuilt tree. Checking the
+    // live paths rather than an id suffix catches an orphan keyed on the mapping id too.
+    const livePaths = new Set<string>();
+    for (const root of tree2.contentRoots) {
+      processTreeNode(root, (node) => {
+        livePaths.add(node.path);
+      });
+    }
+    expect(Object.keys(expansionAfter).filter((k) => !livePaths.has(k))).toEqual([]);
   });
 });
