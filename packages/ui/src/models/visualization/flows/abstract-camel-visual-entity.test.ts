@@ -613,6 +613,57 @@ describe('AbstractCamelVisualEntity', () => {
       expect(result?.properties?.parameters?.required).toEqual(timerEntry!.propertiesSchema.required);
     });
 
+    it('should fetch the Kamelet definition with forceFresh: true so updated properties are reflected', async () => {
+      // Arrange: build an entity whose `from` uses a kamelet
+      const entity = new CamelRouteVisualEntity(cloneDeep(camelRouteWithKameletJson));
+      const routeNode = await entity.toVizNode();
+      const fromNode = routeNode.getChildren()?.[0];
+      const ids = fromNode!.data;
+
+      // Spy on the registry's getEntity to capture call options
+      const getEntitySpy = vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity');
+
+      await entity.fetchNodeSchema(ids);
+
+      // The kamelet lookup (tertiaryNodeId) must always use forceFresh: true
+      const kameletCall = getEntitySpy.mock.calls.find((call) => call[0] === CatalogKind.Kamelet);
+      expect(kameletCall).toBeDefined();
+      expect(kameletCall![2]).toEqual({ forceFresh: true });
+
+      getEntitySpy.mockRestore();
+    });
+
+    it('should reflect updated Kamelet properties on a second fetchNodeSchema call after the definition changes', async () => {
+      // Arrange: build an entity whose `from` uses a kamelet
+      const entity = new CamelRouteVisualEntity(cloneDeep(camelRouteWithKameletJson));
+      const routeNode = await entity.toVizNode();
+      const fromNode = routeNode.getChildren()?.[0];
+      const ids = fromNode!.data;
+
+      // First call — primes the DynamicCatalog cache
+      const firstResult = await entity.fetchNodeSchema(ids);
+      expect(firstResult?.properties?.parameters?.properties).not.toHaveProperty('newProp');
+
+      // Simulate a user saving a modified .kamelet.yaml: mutate the cached entry's
+      // spec.definition directly, which is what a fresh provider fetch would return
+      // on the next disk read.
+      const kameletCatalog = DynamicCatalogRegistry.get().getCatalog(CatalogKind.Kamelet);
+      const cachedEntry = await kameletCatalog!.get('avro-deserialize-action');
+      const originalProperties = cachedEntry!.spec.definition.properties;
+      cachedEntry!.spec.definition.properties = {
+        ...originalProperties,
+        newProp: { title: 'New prop', description: 'A newly added property', type: 'string' },
+      };
+
+      // Second call — forceFresh: true bypasses the cache, so the provider re-fetches
+      // and the schema now includes the newly added property.
+      const secondResult = await entity.fetchNodeSchema(ids);
+      expect(secondResult?.properties?.parameters?.properties).toHaveProperty('newProp');
+
+      // Restore the catalog entry to avoid polluting other tests
+      cachedEntry!.spec.definition.properties = originalProperties;
+    });
+
     it('should not mutate the catalog Kamelet definition', async () => {
       // Build a real route entity whose `from` sources from a real catalog kamelet
       const entity = new CamelRouteVisualEntity(cloneDeep(camelRouteWithKameletJson));
