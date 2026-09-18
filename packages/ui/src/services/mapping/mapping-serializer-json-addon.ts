@@ -116,12 +116,12 @@ export class MappingSerializerJsonAddon {
     if (mappingTree.documentDefinitionType !== DocumentDefinitionType.JSON_SCHEMA) return null;
 
     const prefix = xsltDoc.lookupPrefix(NS_XSL);
-    const nsResolver = xsltDoc;
+    // The document is used both as the XPath context node and as the namespace resolver.
     return xsltDoc
       .evaluate(
         `/${prefix}:stylesheet/${prefix}:variable[@name='${TO_JSON_TARGET_VARIABLE}']`,
         xsltDoc,
-        nsResolver,
+        xsltDoc,
         XPathResult.ANY_TYPE,
       )
       .iterateNext() as Element;

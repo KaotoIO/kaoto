@@ -1092,6 +1092,25 @@ describe('MappingSerializerService', () => {
       expect(gv.expression).toBe('0.08');
     });
 
+    it('should deserialize stylesheet-level variable with a custom XSLT prefix', () => {
+      const xslt = getVariableStylesheetXslt()
+        .replace(/xmlns:xsl=/g, 'xmlns:transform=')
+        .replace(/(<\/?)xsl:/g, '$1transform:');
+
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+
+      ({ mappingTree } = MappingSerializerService.deserialize(xslt, targetDoc, mappingTree, sourceParameterMap));
+
+      expect(mappingTree.globalVariables).toHaveLength(1);
+
+      const gv = mappingTree.globalVariables[0];
+
+      expect(gv).toBeInstanceOf(VariableItem);
+      expect(gv.name).toBe('globalTax');
+      expect(gv.scope).toBe('stylesheet');
+      expect(gv.expression).toBe('0.08');
+    });
+
     it('should deserialize template-level variable', () => {
       let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
       ({ mappingTree } = MappingSerializerService.deserialize(
