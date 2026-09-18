@@ -73,7 +73,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
     render(
       <SourceDocumentNodeWithContextMenu
         treeNode={abstractNode}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={1}
       />,
@@ -95,7 +95,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
     render(
       <SourceDocumentNodeWithContextMenu
         treeNode={abstractNode}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={1}
       />,
@@ -114,7 +114,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
     render(
       <SourceDocumentNodeWithContextMenu
         treeNode={abstractNode}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={1}
       />,
@@ -135,7 +135,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
     render(
       <SourceDocumentNodeWithContextMenu
         treeNode={abstractNode}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={1}
       />,
@@ -157,7 +157,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
     render(
       <SourceDocumentNodeWithContextMenu
         treeNode={abstractNode}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={1}
       />,
@@ -178,7 +178,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
     render(
       <SourceDocumentNodeWithContextMenu
         treeNode={abstractNode}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={1}
       />,
@@ -220,7 +220,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
       render(
         <TargetDocumentNodeWithContextMenu
           treeNode={abstractNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -242,7 +242,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
       render(
         <TargetDocumentNodeWithContextMenu
           treeNode={abstractNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -266,7 +266,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
       render(
         <TargetDocumentNodeWithContextMenu
           treeNode={abstractNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -305,7 +305,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
       render(
         <TargetDocumentNodeWithContextMenu
           treeNode={abstractNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -362,7 +362,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
       render(
         <TargetDocumentNodeWithContextMenu
           treeNode={abstractNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -387,7 +387,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
       render(
         <TargetDocumentNodeWithContextMenu
           treeNode={abstractNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -409,7 +409,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
       render(
         <TargetDocumentNodeWithContextMenu
           treeNode={abstractNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -491,7 +491,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
       render(
         <TargetDocumentNodeWithContextMenu
           treeNode={memberTreeNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -513,7 +513,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
       render(
         <TargetDocumentNodeWithContextMenu
           treeNode={memberTreeNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -532,7 +532,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
       render(
         <TargetDocumentNodeWithContextMenu
           treeNode={memberTreeNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -554,7 +554,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
       render(
         <TargetDocumentNodeWithContextMenu
           treeNode={memberTreeNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -578,7 +578,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
       render(
         <SourceDocumentNodeWithContextMenu
           treeNode={abstractNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,

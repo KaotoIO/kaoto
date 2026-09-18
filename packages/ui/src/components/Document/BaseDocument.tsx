@@ -163,7 +163,7 @@ export const DocumentHeader: FunctionComponent<DocumentHeaderProps> = ({
           data-testid={`connection-port-${nodeData.id}`}
           data-connection-port="true"
           data-node-path={nodePathString}
-          data-document-id={nodeData.id}
+          data-document-node-id={nodeData.id}
         />
       )}
       {enableDnD ? (

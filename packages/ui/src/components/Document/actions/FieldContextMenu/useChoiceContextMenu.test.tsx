@@ -99,7 +99,7 @@ describe('useChoiceContextMenu', () => {
     render(
       <SourceDocumentNodeWithContextMenu
         treeNode={choiceNode}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={1}
       />,
@@ -120,7 +120,7 @@ describe('useChoiceContextMenu', () => {
     render(
       <SourceDocumentNodeWithContextMenu
         treeNode={choiceNode}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={1}
       />,
@@ -140,7 +140,7 @@ describe('useChoiceContextMenu', () => {
     render(
       <SourceDocumentNodeWithContextMenu
         treeNode={choiceNode}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={1}
       />,
@@ -162,7 +162,7 @@ describe('useChoiceContextMenu', () => {
     render(
       <SourceDocumentNodeWithContextMenu
         treeNode={choiceNode}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={1}
       />,
@@ -186,7 +186,7 @@ describe('useChoiceContextMenu', () => {
     render(
       <SourceDocumentNodeWithContextMenu
         treeNode={choiceNode}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={1}
       />,
@@ -207,7 +207,7 @@ describe('useChoiceContextMenu', () => {
     render(
       <SourceDocumentNodeWithContextMenu
         treeNode={choiceNode}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={1}
       />,
@@ -227,7 +227,7 @@ describe('useChoiceContextMenu', () => {
     render(
       <SourceDocumentNodeWithContextMenu
         treeNode={choiceNode}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={1}
       />,
@@ -261,7 +261,7 @@ describe('useChoiceContextMenu', () => {
     render(
       <SourceDocumentNodeWithContextMenu
         treeNode={choiceNode}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={1}
       />,
@@ -280,7 +280,7 @@ describe('useChoiceContextMenu', () => {
     render(
       <SourceDocumentNodeWithContextMenu
         treeNode={choiceNode}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={1}
       />,
@@ -305,7 +305,7 @@ describe('useChoiceContextMenu', () => {
     render(
       <SourceDocumentNodeWithContextMenu
         treeNode={memberNode}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={1}
       />,
@@ -327,7 +327,7 @@ describe('useChoiceContextMenu', () => {
     render(
       <SourceDocumentNodeWithContextMenu
         treeNode={memberNode}
-        documentId={documentNodeData.id}
+        documentNodeId={documentNodeData.id}
         isReadOnly={false}
         rank={1}
       />,
@@ -394,7 +394,7 @@ describe('useChoiceContextMenu', () => {
       render(
         <SourceDocumentNodeWithContextMenu
           treeNode={choiceNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -417,7 +417,7 @@ describe('useChoiceContextMenu', () => {
       render(
         <SourceDocumentNodeWithContextMenu
           treeNode={choiceNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -440,7 +440,7 @@ describe('useChoiceContextMenu', () => {
       render(
         <SourceDocumentNodeWithContextMenu
           treeNode={choiceNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -461,7 +461,7 @@ describe('useChoiceContextMenu', () => {
       render(
         <SourceDocumentNodeWithContextMenu
           treeNode={choiceNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -522,7 +522,7 @@ describe('useChoiceContextMenu', () => {
       render(
         <SourceDocumentNodeWithContextMenu
           treeNode={choiceNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -584,7 +584,7 @@ describe('useChoiceContextMenu', () => {
       render(
         <TargetDocumentNodeWithContextMenu
           treeNode={choiceNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -605,7 +605,7 @@ describe('useChoiceContextMenu', () => {
       render(
         <TargetDocumentNodeWithContextMenu
           treeNode={choiceNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -631,7 +631,7 @@ describe('useChoiceContextMenu', () => {
       render(
         <TargetDocumentNodeWithContextMenu
           treeNode={choiceNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -658,7 +658,7 @@ describe('useChoiceContextMenu', () => {
       render(
         <TargetDocumentNodeWithContextMenu
           treeNode={choiceNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -689,7 +689,7 @@ describe('useChoiceContextMenu', () => {
       render(
         <TargetDocumentNodeWithContextMenu
           treeNode={choiceNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -714,7 +714,7 @@ describe('useChoiceContextMenu', () => {
       render(
         <TargetDocumentNodeWithContextMenu
           treeNode={choiceNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -736,7 +736,7 @@ describe('useChoiceContextMenu', () => {
       render(
         <TargetDocumentNodeWithContextMenu
           treeNode={choiceNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -808,7 +808,7 @@ describe('useChoiceContextMenu', () => {
       render(
         <SourceDocumentNodeWithContextMenu
           treeNode={choiceNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -881,7 +881,7 @@ describe('useChoiceContextMenu', () => {
       render(
         <SourceDocumentNodeWithContextMenu
           treeNode={choiceNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -905,7 +905,7 @@ describe('useChoiceContextMenu', () => {
       render(
         <SourceDocumentNodeWithContextMenu
           treeNode={choiceNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -933,7 +933,7 @@ describe('useChoiceContextMenu', () => {
       render(
         <TargetDocumentNodeWithContextMenu
           treeNode={choiceNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -962,7 +962,7 @@ describe('useChoiceContextMenu', () => {
       render(
         <TargetDocumentNodeWithContextMenu
           treeNode={choiceNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -1032,7 +1032,7 @@ describe('useChoiceContextMenu', () => {
       render(
         <TargetDocumentNodeWithContextMenu
           treeNode={choiceNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,
@@ -1061,7 +1061,7 @@ describe('useChoiceContextMenu', () => {
       render(
         <SourceDocumentNodeWithContextMenu
           treeNode={choiceNode}
-          documentId={documentNodeData.id}
+          documentNodeId={documentNodeData.id}
           isReadOnly={false}
           rank={1}
         />,

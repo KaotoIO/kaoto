@@ -163,7 +163,7 @@ export const VariableRow: FunctionComponent<VariableRowProps> = ({
               title={variableTitle}
               rank={0}
               nodePath={nodeData.path.toString()}
-              documentId={VARIABLES_DOCUMENT_ID}
+              documentNodeId={VARIABLES_DOCUMENT_ID}
             >
               {isGlobal && !isReadOnly && (
                 <>

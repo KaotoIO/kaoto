@@ -59,7 +59,7 @@ export class TreeUIService {
   private static readonly trees: Map<string, DocumentTree> = new Map();
   /**
    * Snapshot of `FieldItem` instances present in the MappingTree at the time `createTree`
-   * was last called for a given document ID.
+   * was last called for a given document node ID.
    *
    * The MappingTree is mutated in place between renders (items are added/removed before
    * `refreshMappingTree` creates a new tree shell). A direct diff of old vs new MappingTree
@@ -72,7 +72,7 @@ export class TreeUIService {
   /**
    * Create and register a tree for a document node.
    *
-   * When a tree already exists for the same document ID (i.e., a rebuild):
+   * When a tree already exists for the same document node ID (i.e., a rebuild):
    * 1. For target documents, `buildPathMap` diffs the previous FieldItem snapshot against the
    *    new MappingTree to produce a full-path substitution map for create/remove transitions,
    *    then `applyPathMigration` rewrites the current expansion state in-memory.
@@ -125,20 +125,20 @@ export class TreeUIService {
     TreeUIService.reparseExpandedNodes(tree, migratedExpansion);
     const newExpansion = TreeUIService.reconcileExpansion(tree, migratedExpansion);
     // Single atomic store write — React never sees a half-migrated intermediate state.
-    useDocumentTreeStore.getState().setTreeExpansion(tree.documentNodeDataId, newExpansion);
+    useDocumentTreeStore.getState().setTreeExpansion(tree.documentNodeId, newExpansion);
 
     return tree;
   }
 
-  static getTree(documentNodeDataId: string): DocumentTree | undefined {
-    return this.trees.get(documentNodeDataId);
+  static getTree(documentNodeId: string): DocumentTree | undefined {
+    return this.trees.get(documentNodeId);
   }
 
   /**
    * Toggle node expansion and update store
    */
-  static toggleNode(documentId: string, nodePath: string): void {
-    const tree = this.trees.get(documentId);
+  static toggleNode(documentNodeId: string, nodePath: string): void {
+    const tree = this.trees.get(documentNodeId);
     if (!tree) return;
 
     const node = tree.findNodeByPath(nodePath);
@@ -150,7 +150,7 @@ export class TreeUIService {
       TreeParsingService.parseTreeNode(node);
     }
 
-    store.toggleExpansion(documentId, nodePath);
+    store.toggleExpansion(documentNodeId, nodePath);
   }
 
   /**
@@ -183,11 +183,11 @@ export class TreeUIService {
    * Used when a type override or choice selection changes the field structure.
    * The node will be re-parsed on next expansion.
    *
-   * @param documentId - The document ID containing the node
+   * @param documentNodeId - The document node ID containing the node
    * @param nodePath - The path of the node to invalidate
    */
-  static invalidateNode(documentId: string, nodePath: string): void {
-    const tree = this.trees.get(documentId);
+  static invalidateNode(documentNodeId: string, nodePath: string): void {
+    const tree = this.trees.get(documentNodeId);
     if (!tree) return;
 
     const node = tree.findNodeByPath(nodePath);

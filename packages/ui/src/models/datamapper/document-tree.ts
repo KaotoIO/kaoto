@@ -28,13 +28,13 @@ export interface FlattenedNode {
  * from {@link flatten} output to avoid duplicating the panel header in the tree.
  */
 export class DocumentTree {
-  readonly documentNodeDataId: string;
+  readonly documentNodeId: string;
   readonly documentNodeData: DocumentNodeData;
   readonly root: DocumentTreeNode;
 
   constructor(documentNodeData: DocumentNodeData) {
     this.documentNodeData = documentNodeData;
-    this.documentNodeDataId = documentNodeData.id;
+    this.documentNodeId = documentNodeData.id;
     this.root = new DocumentTreeNode(documentNodeData);
   }
 

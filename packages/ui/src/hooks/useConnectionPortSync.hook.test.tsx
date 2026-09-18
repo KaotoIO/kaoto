@@ -91,7 +91,7 @@ describe('useConnectionPortSync', () => {
       });
 
       expect(querySelectorAllSpy).toHaveBeenCalledWith(
-        `[data-connection-port="true"][data-document-id="${documentId}"]`,
+        `[data-connection-port="true"][data-document-node-id="${documentId}"]`,
       );
       querySelectorAllSpy.mockRestore();
     });

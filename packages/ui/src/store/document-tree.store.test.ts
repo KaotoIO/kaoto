@@ -30,60 +30,59 @@ describe('useDocumentTreeStore', () => {
 
     expect(state).toMatchObject({ expansionState: {} });
   });
-
   describe('setTreeExpansion', () => {
     it('should set expansion state and array for a document', () => {
-      const documentId = 'test-doc-id';
+      const documentNodeId = 'test-doc-id';
       const expansionState = { path1: true, path2: false, path3: true };
 
-      useDocumentTreeStore.getState().setTreeExpansion(documentId, expansionState);
+      useDocumentTreeStore.getState().setTreeExpansion(documentNodeId, expansionState);
       const state = useDocumentTreeStore.getState();
 
-      expect(state.expansionState[documentId]).toEqual(expansionState);
-      expect(state.expansionStateArray[documentId]).toEqual(['path1', 'path2', 'path3']);
+      expect(state.expansionState[documentNodeId]).toEqual(expansionState);
+      expect(state.expansionStateArray[documentNodeId]).toEqual(['path1', 'path2', 'path3']);
     });
 
     it('should overwrite previous expansion state for the same document', () => {
-      const documentId = 'test-doc-id';
-      useDocumentTreeStore.getState().setTreeExpansion(documentId, { path1: true, path2: false });
-      useDocumentTreeStore.getState().setTreeExpansion(documentId, { path3: true });
+      const documentNodeId = 'test-doc-id';
+      useDocumentTreeStore.getState().setTreeExpansion(documentNodeId, { path1: true, path2: false });
+      useDocumentTreeStore.getState().setTreeExpansion(documentNodeId, { path3: true });
       const state = useDocumentTreeStore.getState();
 
-      expect(state.expansionState[documentId]).toEqual({ path3: true });
-      expect(state.expansionStateArray[documentId]).toEqual(['path3']);
+      expect(state.expansionState[documentNodeId]).toEqual({ path3: true });
+      expect(state.expansionStateArray[documentNodeId]).toEqual(['path3']);
     });
   });
 
   describe('setNodesConnectionPorts', () => {
     it('should set connection ports for a document', () => {
-      const documentId = 'test-doc-id';
+      const documentNodeId = 'test-doc-id';
       const ports: TreeConnectionPorts = {
         path1: [10, 20],
         path2: [30, 40],
       };
 
-      useDocumentTreeStore.getState().setNodesConnectionPorts(documentId, ports);
+      useDocumentTreeStore.getState().setNodesConnectionPorts(documentNodeId, ports);
       const state = useDocumentTreeStore.getState();
 
-      expect(state.nodesConnectionPorts[documentId]).toEqual(ports);
-      expect(state.nodesConnectionPortsArray[documentId]).toEqual(['path1', 'path2']);
+      expect(state.nodesConnectionPorts[documentNodeId]).toEqual(ports);
+      expect(state.nodesConnectionPortsArray[documentNodeId]).toEqual(['path1', 'path2']);
     });
 
     it('should update connection ports for an existing document', () => {
-      const documentId = 'test-doc-id';
+      const documentNodeId = 'test-doc-id';
       const initialPorts: TreeConnectionPorts = { path1: [10, 20] };
       const updatedPorts: TreeConnectionPorts = { path1: [15, 25], path2: [30, 40] };
 
-      useDocumentTreeStore.getState().setNodesConnectionPorts(documentId, initialPorts);
-      useDocumentTreeStore.getState().setNodesConnectionPorts(documentId, updatedPorts);
+      useDocumentTreeStore.getState().setNodesConnectionPorts(documentNodeId, initialPorts);
+      useDocumentTreeStore.getState().setNodesConnectionPorts(documentNodeId, updatedPorts);
       const state = useDocumentTreeStore.getState();
 
-      expect(state.nodesConnectionPorts[documentId]).toEqual(updatedPorts);
-      expect(state.nodesConnectionPortsArray[documentId]).toEqual(['path1', 'path2']);
+      expect(state.nodesConnectionPorts[documentNodeId]).toEqual(updatedPorts);
+      expect(state.nodesConnectionPortsArray[documentNodeId]).toEqual(['path1', 'path2']);
     });
 
     it('should filter out paths containing :EDGE: from nodesConnectionPortsArray', () => {
-      const documentId = 'test-doc-id';
+      const documentNodeId = 'test-doc-id';
       const ports: TreeConnectionPorts = {
         path1: [10, 20],
         'path2:EDGE:': [30, 40],
@@ -91,66 +90,66 @@ describe('useDocumentTreeStore', () => {
         'some:EDGE:path': [70, 80],
       };
 
-      useDocumentTreeStore.getState().setNodesConnectionPorts(documentId, ports);
+      useDocumentTreeStore.getState().setNodesConnectionPorts(documentNodeId, ports);
       const state = useDocumentTreeStore.getState();
 
       // All ports should be in nodesConnectionPorts
-      expect(state.nodesConnectionPorts[documentId]).toEqual(ports);
+      expect(state.nodesConnectionPorts[documentNodeId]).toEqual(ports);
 
       // Only non-EDGE paths should be in nodesConnectionPortsArray
-      expect(state.nodesConnectionPortsArray[documentId]).toEqual(['path1', 'path3']);
-      expect(state.nodesConnectionPortsArray[documentId]).not.toContain('path2:EDGE:');
-      expect(state.nodesConnectionPortsArray[documentId]).not.toContain('some:EDGE:path');
+      expect(state.nodesConnectionPortsArray[documentNodeId]).toEqual(['path1', 'path3']);
+      expect(state.nodesConnectionPortsArray[documentNodeId]).not.toContain('path2:EDGE:');
+      expect(state.nodesConnectionPortsArray[documentNodeId]).not.toContain('some:EDGE:path');
     });
   });
 
   describe('toggleExpansion', () => {
     it('should toggle expansion state from false to true', () => {
-      const documentId = tree.documentNodeDataId;
+      const documentNodeId = tree.documentNodeId;
       const nodePath = 'sourceBody:Body://';
 
       // Set initial state to false
       useDocumentTreeStore.setState({
         expansionState: {
-          [documentId]: {
+          [documentNodeId]: {
             [nodePath]: false,
           },
         },
       });
 
-      useDocumentTreeStore.getState().toggleExpansion(documentId, nodePath);
+      useDocumentTreeStore.getState().toggleExpansion(documentNodeId, nodePath);
       const state = useDocumentTreeStore.getState();
 
-      expect(state.expansionState[documentId][nodePath]).toBe(true);
+      expect(state.expansionState[documentNodeId][nodePath]).toBe(true);
     });
 
     it('should toggle expansion state from true to false', () => {
-      const documentId = tree.documentNodeDataId;
+      const documentNodeId = tree.documentNodeId;
       const nodePath = 'sourceBody:Body://';
 
       // Set initial state to true
       useDocumentTreeStore.setState({
         expansionState: {
-          [documentId]: {
+          [documentNodeId]: {
             [nodePath]: true,
           },
         },
       });
 
-      useDocumentTreeStore.getState().toggleExpansion(documentId, nodePath);
+      useDocumentTreeStore.getState().toggleExpansion(documentNodeId, nodePath);
       const state = useDocumentTreeStore.getState();
 
-      expect(state.expansionState[documentId][nodePath]).toBe(false);
+      expect(state.expansionState[documentNodeId][nodePath]).toBe(false);
     });
 
     it('should create expansion state for new document', () => {
-      const documentId = 'new-doc-id';
+      const documentNodeId = 'new-doc-id';
       const nodePath = 'new:path://';
 
-      useDocumentTreeStore.getState().toggleExpansion(documentId, nodePath);
+      useDocumentTreeStore.getState().toggleExpansion(documentNodeId, nodePath);
       const state = useDocumentTreeStore.getState();
 
-      expect(state.expansionState[documentId][nodePath]).toBe(true);
+      expect(state.expansionState[documentNodeId][nodePath]).toBe(true);
     });
   });
 
@@ -191,44 +190,44 @@ describe('useDocumentTreeStore', () => {
 
   describe('isExpanded', () => {
     it('should return true for expanded node', () => {
-      const documentId = tree.documentNodeDataId;
+      const documentNodeId = tree.documentNodeId;
       const nodePath = 'sourceBody:Body://';
 
       useDocumentTreeStore.setState({
         expansionState: {
-          [documentId]: {
+          [documentNodeId]: {
             [nodePath]: true,
           },
         },
       });
 
-      const isExpanded = useDocumentTreeStore.getState().isExpanded(documentId, nodePath);
+      const isExpanded = useDocumentTreeStore.getState().isExpanded(documentNodeId, nodePath);
 
       expect(isExpanded).toBe(true);
     });
 
     it('should return false for collapsed node', () => {
-      const documentId = tree.documentNodeDataId;
+      const documentNodeId = tree.documentNodeId;
       const nodePath = 'sourceBody:Body://';
 
       useDocumentTreeStore.setState({
         expansionState: {
-          [documentId]: {
+          [documentNodeId]: {
             [nodePath]: false,
           },
         },
       });
 
-      const isExpanded = useDocumentTreeStore.getState().isExpanded(documentId, nodePath);
+      const isExpanded = useDocumentTreeStore.getState().isExpanded(documentNodeId, nodePath);
 
       expect(isExpanded).toBe(false);
     });
 
     it('should return false for non-existent node', () => {
-      const documentId = 'non-existent-doc';
+      const documentNodeId = 'non-existent-doc';
       const nodePath = 'non-existent:path://';
 
-      const isExpanded = useDocumentTreeStore.getState().isExpanded(documentId, nodePath);
+      const isExpanded = useDocumentTreeStore.getState().isExpanded(documentNodeId, nodePath);
 
       expect(isExpanded).toBe(false);
     });
