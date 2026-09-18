@@ -4,6 +4,7 @@
 
 # 2.12.0
 
+- Upgrade default Camel CLI / Camel Launcher version from 4.20.0 to 4.22.1
 - Add launch config for a simple run of exported Camel (Maven) Application
 - Add `Infrastructure` section into Kaoto view (experimental)
   - list running infrastructure services
