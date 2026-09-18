@@ -194,9 +194,9 @@ export class MappingSerializerService {
 
   private static getRootStyleSheet(xsltDocument: Document) {
     const prefix = xsltDocument.lookupPrefix(NS_XSL);
-    const nsResolver = xsltDocument;
+    // The document is used both as the XPath context node and as the namespace resolver.
     return xsltDocument
-      .evaluate(`/${prefix}:stylesheet`, xsltDocument, nsResolver, XPathResult.ANY_TYPE)
+      .evaluate(`/${prefix}:stylesheet`, xsltDocument, xsltDocument, XPathResult.ANY_TYPE)
       .iterateNext()! as Element;
   }
 
@@ -216,12 +216,12 @@ export class MappingSerializerService {
     const stylesheet = MappingSerializerService.getRootStyleSheet(xsltDocument);
     sourceParameterMap.forEach((doc, paramName) => {
       const prefix = xsltDocument.lookupPrefix(NS_XSL);
-      const nsResolver = xsltDocument;
+      // The document is used both as the XPath context node and as the namespace resolver.
       const existing = xsltDocument
         .evaluate(
           `/${prefix}:stylesheet/${prefix}:param[@name='${paramName}']`,
           xsltDocument,
-          nsResolver,
+          xsltDocument,
           XPathResult.ANY_TYPE,
         )
         .iterateNext();
@@ -326,11 +326,11 @@ export class MappingSerializerService {
 
   private static restoreParam(xsltDocument: Document, sourceParameterMap: Map<string, IDocument>) {
     const prefix = xsltDocument.lookupPrefix(NS_XSL);
-    const nsResolver = xsltDocument;
+    // The document is used both as the XPath context node and as the namespace resolver.
     const params = xsltDocument.evaluate(
       `/${prefix}:stylesheet/${prefix}:param`,
       xsltDocument,
-      nsResolver,
+      xsltDocument,
       XPathResult.ANY_TYPE,
     );
     let param: Node | null;

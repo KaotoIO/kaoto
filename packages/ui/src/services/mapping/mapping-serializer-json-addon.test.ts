@@ -118,6 +118,19 @@ describe('mappingSerializerJsonAddon', () => {
     });
   });
 
+  describe('getJsonTargetBase()', () => {
+    it('should retrieve the existing JSON target variable', () => {
+      const xsltDocument = new DOMParser().parseFromString(getCartToShipOrderJsonXslt(), 'application/xml');
+      const mappings = new MappingTree(DocumentType.TARGET_BODY, 'Body', DocumentDefinitionType.JSON_SCHEMA);
+      const root = MappingSerializerJsonAddon.getJsonTargetBase(xsltDocument, mappings);
+
+      expect(root).not.toBeNull();
+      expect(root?.namespaceURI).toBe(NS_XSL);
+      expect(root?.localName).toBe('variable');
+      expect(root?.getAttribute('name')).toBe(TO_JSON_TARGET_VARIABLE);
+    });
+  });
+
   describe('populateFieldItem()', () => {
     const xsltDocument = MappingSerializerService.createNew();
     const stylesheet = xsltDocument.children[0];
