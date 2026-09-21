@@ -3,7 +3,7 @@ import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 're
 import { useConnectionPortSync } from '../../../hooks/useConnectionPortSync.hook';
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { VariableItem } from '../../../models/datamapper/mapping';
-import { VARIABLES_DOCUMENT_ID } from '../../../models/datamapper/visualization';
+import { VARIABLES_DOCUMENT_ID } from '../../../models/datamapper/nodepath';
 import { MappingService } from '../../../services/mapping/mapping.service';
 import { ExpansionPanel } from '../../ExpansionPanels/ExpansionPanel';
 import { PANEL_COLLAPSED_HEIGHT, PANEL_MIN_HEIGHT } from '../../ExpansionPanels/panel-dimensions';
@@ -45,15 +45,17 @@ export const VariablesSection: FunctionComponent<VariablesSectionProps> = ({
       MappingService.removeVariableReferences(variable);
       MappingService.removeVariable(variable);
       refreshMappingTree({ structural: true });
+      syncConnectionPorts();
     },
-    [refreshMappingTree],
+    [refreshMappingTree, syncConnectionPorts],
   );
 
   const handleAddVariable = useCallback(() => {
     setIsAddingVariable(true);
     // Auto-show variables when adding a new one
     setShowVariables(true);
-  }, []);
+    syncConnectionPorts();
+  }, [syncConnectionPorts]);
 
   const handleToggleVariables = useCallback(() => {
     setShowVariables((prev) => !prev);
@@ -68,13 +70,15 @@ export const VariablesSection: FunctionComponent<VariablesSectionProps> = ({
       MappingService.addVariable(mappingTree, name, undefined, 'template');
       setIsAddingVariable(false);
       refreshMappingTree({ structural: true });
+      syncConnectionPorts();
     },
-    [mappingTree, refreshMappingTree],
+    [mappingTree, refreshMappingTree, syncConnectionPorts],
   );
 
   const handleCancelAdd = useCallback(() => {
     setIsAddingVariable(false);
-  }, []);
+    syncConnectionPorts();
+  }, [syncConnectionPorts]);
 
   const edgeMarkers = useMemo(
     () => (

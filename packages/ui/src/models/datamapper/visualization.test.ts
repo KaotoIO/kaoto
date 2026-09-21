@@ -1,7 +1,8 @@
 import { DocumentType } from './document';
 import { MappingTree, VariableItem } from './mapping';
 import { NodePath } from './nodepath';
-import { SourceVariableNodeData, VARIABLES_DOCUMENT_ID } from './visualization';
+import { VARIABLES_DOCUMENT_ID } from './nodepath';
+import { SourceVariableNodeData } from './visualization';
 
 describe('visualization.ts', () => {
   describe('NodeIdentifier', () => {

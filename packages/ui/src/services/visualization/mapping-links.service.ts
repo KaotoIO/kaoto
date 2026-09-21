@@ -4,6 +4,7 @@ import {
   DocumentNodeData,
   DocumentType,
   FieldItem,
+  getSectionAnchor,
   IDocument,
   IExpressionHolder,
   IField,
@@ -21,6 +22,7 @@ import {
   VariableItem,
   variableNodePath,
   VARIABLES_DOCUMENT_ID,
+  VARIABLES_SECTION_ANCHOR,
 } from '../../models/datamapper';
 import { DocumentService } from '../document/document.service';
 import { MappingService } from '../mapping/mapping.service';
@@ -177,6 +179,7 @@ export class MappingLinksService {
         targetDocumentNodeId,
         isSelected,
         lineStyle,
+        sourceSectionAnchor: getSectionAnchor(document.documentType),
       });
       return acc;
     }, [] as IMappingLink[]);
@@ -198,6 +201,7 @@ export class MappingLinksService {
         targetDocumentNodeId,
         isSelected,
         lineStyle,
+        sourceSectionAnchor: VARIABLES_SECTION_ANCHOR,
       });
     }
 

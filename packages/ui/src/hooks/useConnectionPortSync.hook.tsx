@@ -13,8 +13,10 @@ export const useConnectionPortSync = (documentNodeId: string) => {
       if (rafId.current !== null && typeof cancelAnimationFrame !== 'undefined') {
         cancelAnimationFrame(rafId.current);
       }
+      /* Clear this document's port map when it unmounts or the document changes, to avoid stale entries */
+      setNodesConnectionPorts(documentNodeId, {});
     };
-  }, []);
+  }, [documentNodeId, setNodesConnectionPorts]);
 
   const syncConnectionPorts = useCallback(() => {
     /* Cancel any pending update */

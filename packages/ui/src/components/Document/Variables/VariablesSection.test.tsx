@@ -1,7 +1,9 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
+import { VARIABLES_SECTION_ANCHOR } from '../../../models/datamapper/connection-port';
 import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
+import { useDocumentTreeStore } from '../../../store/document-tree.store';
 import { ExpansionPanels } from '../../ExpansionPanels/ExpansionPanels';
 import { VariablesSection } from './VariablesSection';
 
@@ -155,6 +157,105 @@ describe('VariablesSection', () => {
       renderVariablesSection(true);
 
       expect(screen.queryByTestId('toggle-variables-button')).not.toBeInTheDocument();
+    });
+
+    it('should render connection port on VariablesHeader', async () => {
+      renderVariablesSection();
+
+      const port = await screen.findByTestId('connection-port-variables-header');
+      expect(port).toBeInTheDocument();
+      expect(port).toHaveAttribute('data-connection-port', 'true');
+      expect(port).toHaveAttribute('data-node-path', 'Var:_variables://');
+      expect(port).toHaveAttribute('data-document-node-id', VARIABLES_SECTION_ANCHOR.documentNodeId);
+    });
+
+    it('should keep header connection port in DOM when variables are hidden', async () => {
+      renderVariablesSection();
+
+      // Add a variable so there is something to hide
+      const addButton = await screen.findByTestId('add-variable-button');
+      fireEvent.click(addButton);
+      fireEvent.change(screen.getByTestId('new-variable-name-input'), { target: { value: 'v1' } });
+      fireEvent.click(screen.getByTestId('new-variable-submit-btn'));
+      await screen.findByTestId('variable-row-v1');
+
+      // Hide all variables
+      fireEvent.click(screen.getByTestId('toggle-variables-button'));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('variable-row-v1')).not.toBeInTheDocument();
+      });
+
+      // Header port must still be in the DOM so syncConnectionPorts can measure it
+      expect(screen.getByTestId('connection-port-variables-header')).toBeInTheDocument();
+    });
+
+    it('should register the header port under the section anchor key on mount', async () => {
+      renderVariablesSection();
+
+      // Header port exists in DOM from mount
+      const port = await screen.findByTestId('connection-port-variables-header');
+      expect(port).toBeInTheDocument();
+      expect(port).toHaveAttribute('data-connection-port', 'true');
+      expect(port).toHaveAttribute('data-node-path', 'Var:_variables://');
+      expect(port).toHaveAttribute('data-document-node-id', VARIABLES_SECTION_ANCHOR.documentNodeId);
+
+      // Asserted against the store rather than the screen: a port registered under the wrong
+      // key renders identically, so only the store shows which bucket it landed in. jsdom
+      // reports zero-size rects, so the coordinates themselves carry no information here.
+      await waitFor(() => {
+        const state = useDocumentTreeStore.getState();
+        const headerPorts = state.nodesConnectionPorts[VARIABLES_SECTION_ANCHOR.documentNodeId];
+        expect(headerPorts).toBeDefined();
+        expect(headerPorts[VARIABLES_SECTION_ANCHOR.nodePath]).toBeDefined();
+        expect(Array.isArray(headerPorts[VARIABLES_SECTION_ANCHOR.nodePath])).toBe(true);
+      });
+    });
+
+    it('should keep header port in store after hide/show cycle', async () => {
+      renderVariablesSection();
+
+      // Add a variable
+      const addButton = await screen.findByTestId('add-variable-button');
+      fireEvent.click(addButton);
+      fireEvent.change(screen.getByTestId('new-variable-name-input'), { target: { value: 'v1' } });
+      fireEvent.click(screen.getByTestId('new-variable-submit-btn'));
+      await screen.findByTestId('variable-row-v1');
+
+      // Existence checks throughout: they show the anchor is never dropped from the store
+      // across the cycle, not that a re-sync ran at each step.
+      await waitFor(() => {
+        const state = useDocumentTreeStore.getState();
+        const headerPorts = state.nodesConnectionPorts[VARIABLES_SECTION_ANCHOR.documentNodeId];
+        expect(headerPorts).toBeDefined();
+        expect(headerPorts[VARIABLES_SECTION_ANCHOR.nodePath]).toBeDefined();
+      });
+
+      // Hide variables
+      fireEvent.click(screen.getByTestId('toggle-variables-button'));
+      await waitFor(() => {
+        expect(screen.queryByTestId('variable-row-v1')).not.toBeInTheDocument();
+      });
+
+      // Anchor survives hiding all variables
+      await waitFor(() => {
+        const state = useDocumentTreeStore.getState();
+        const headerPorts = state.nodesConnectionPorts[VARIABLES_SECTION_ANCHOR.documentNodeId];
+        expect(headerPorts).toBeDefined();
+        expect(headerPorts[VARIABLES_SECTION_ANCHOR.nodePath]).toBeDefined();
+      });
+
+      // Show variables again
+      fireEvent.click(screen.getByTestId('toggle-variables-button'));
+      await screen.findByTestId('variable-row-v1');
+
+      // Anchor survives showing them again
+      await waitFor(() => {
+        const state = useDocumentTreeStore.getState();
+        const headerPorts = state.nodesConnectionPorts[VARIABLES_SECTION_ANCHOR.documentNodeId];
+        expect(headerPorts).toBeDefined();
+        expect(headerPorts[VARIABLES_SECTION_ANCHOR.nodePath]).toBeDefined();
+      });
     });
   });
 });

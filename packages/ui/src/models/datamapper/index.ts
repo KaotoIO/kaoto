@@ -1,3 +1,4 @@
+export * from './connection-port';
 export * from './document';
 export * from './mapping';
 export * from './nodepath';

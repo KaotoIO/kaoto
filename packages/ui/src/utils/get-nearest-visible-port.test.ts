@@ -256,4 +256,32 @@ describe('getNearestVisiblePort', () => {
 
     expect(result).toEqual({ connectionTarget: 'edge', position: [0, 50] });
   });
+
+  it('should fall back to sectionAnchorPort for variable when section is hidden (edge markers absent)', () => {
+    const options: NearestVisiblePortOptions = {
+      nodesConnectionPorts: {},
+      nodesConnectionPortsArray: [],
+      expansionState: {},
+      expansionStateArray: [],
+      sectionAnchorPort: [120, 50],
+    };
+
+    const result = getNearestVisiblePort('Var:_variables://var1', options);
+
+    expect(result).toEqual({ connectionTarget: 'parent', position: [120, 50] });
+  });
+
+  it('should fall back to sectionAnchorPort when document connection ports / edge markers are missing', () => {
+    const options: NearestVisiblePortOptions = {
+      nodesConnectionPorts: {},
+      nodesConnectionPortsArray: [],
+      expansionState: {},
+      expansionStateArray: [],
+      sectionAnchorPort: [130, 80],
+    };
+
+    const result = getNearestVisiblePort('SOURCE_PARAM:param1://data/nested/field', options);
+
+    expect(result).toEqual({ connectionTarget: 'parent', position: [130, 80] });
+  });
 });

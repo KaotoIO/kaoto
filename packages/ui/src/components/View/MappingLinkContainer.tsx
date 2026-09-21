@@ -3,8 +3,9 @@ import './MappingLinkContainer.scss';
 import { FunctionComponent, useRef as useReactRef } from 'react';
 
 import { useMappingLinks } from '../../hooks/useMappingLinks';
-import { LineProps, MappingLineStyle } from '../../models/datamapper';
+import { ConnectionPortRef, LineProps, MappingLineStyle } from '../../models/datamapper';
 import { useDocumentTreeStore } from '../../store';
+import type { TreeConnectionPorts } from '../../store/document-tree.store';
 import { getNearestVisiblePort } from '../../utils';
 import { MappingLink } from './MappingLink';
 
@@ -18,6 +19,11 @@ const deduplicateByCoords = () => {
     return true;
   };
 };
+
+const resolveConnectionPort = (
+  nodesConnectionPorts: Record<string, TreeConnectionPorts>,
+  ref?: ConnectionPortRef,
+): [number, number] | undefined => (ref ? nodesConnectionPorts[ref.documentNodeId]?.[ref.nodePath] : undefined);
 
 const sortMappingLines = (a: LineProps, b: LineProps): 0 | 1 | -1 => {
   // Selected lines should be drawn last (on top)
@@ -42,12 +48,15 @@ export const MappingLinksContainer: FunctionComponent = () => {
   const svgOffsetTop = svgRect?.top ?? 0;
 
   const lineCoordList: LineProps[] = mappingLinks
-    .map(({ sourceNodePath, targetNodePath, sourceDocumentNodeId, targetDocumentNodeId, isSelected, lineStyle }) => {
+    .map((link) => {
+      const { sourceNodePath, targetNodePath, sourceDocumentNodeId, targetDocumentNodeId, isSelected, lineStyle } =
+        link;
       const sourcePort = getNearestVisiblePort(sourceNodePath, {
         nodesConnectionPorts: nodesConnectionPorts[sourceDocumentNodeId] ?? {},
         nodesConnectionPortsArray: nodesConnectionPortsArray[sourceDocumentNodeId] ?? [],
         expansionState: expansionState[sourceDocumentNodeId] ?? {},
         expansionStateArray: expansionStateArray[sourceDocumentNodeId] ?? [],
+        sectionAnchorPort: resolveConnectionPort(nodesConnectionPorts, link.sourceSectionAnchor),
       });
       const targetPort = getNearestVisiblePort(targetNodePath, {
         nodesConnectionPorts: nodesConnectionPorts[targetDocumentNodeId] ?? {},

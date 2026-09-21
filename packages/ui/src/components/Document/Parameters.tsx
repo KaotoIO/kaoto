@@ -8,6 +8,7 @@ import { Virtuoso } from 'react-virtuoso';
 
 import { useConnectionPortSync } from '../../hooks/useConnectionPortSync.hook';
 import { useDataMapper } from '../../hooks/useDataMapper';
+import { PARAMETERS_SECTION_ANCHOR } from '../../models/datamapper/connection-port';
 import { DocumentType, IDocument } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentNodeData } from '../../models/datamapper/visualization';
@@ -51,6 +52,13 @@ export const ParametersHeader: FunctionComponent<ParametersHeaderProps> = ({
   onToggleParameters,
 }) => (
   <div className="parameters-header" data-testid="source-parameters-header">
+    <span
+      className="node__connection-port node__connection-port--source"
+      data-testid="connection-port-parameters-header"
+      data-connection-port="true"
+      data-node-path={PARAMETERS_SECTION_ANCHOR.nodePath}
+      data-document-node-id={PARAMETERS_SECTION_ANCHOR.documentNodeId}
+    />
     <span className="parameters-header__title panel-header-text">
       <Label>Source</Label> Parameters
     </span>
@@ -244,6 +252,7 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
  */
 export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({ isReadOnly, onLayoutChange }) => {
   const { sourceParameterMap } = useDataMapper();
+  const { syncConnectionPorts } = useConnectionPortSync(PARAMETERS_SECTION_ANCHOR.documentNodeId);
 
   // State for adding new parameter
   const [isAddingParameter, setIsAddingParameter] = useState(false);
@@ -254,16 +263,22 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({ i
   // State for showing/hiding all parameters
   const [showParameters, setShowParameters] = useState(true);
 
+  useEffect(() => {
+    syncConnectionPorts();
+  }, [syncConnectionPorts]);
+
   // Handlers for parameter operations
   const handleAddParameter = useCallback(() => {
     setIsAddingParameter(true);
     // Auto-show parameters when adding a new one
     setShowParameters(true);
-  }, []);
+    syncConnectionPorts();
+  }, [syncConnectionPorts]);
 
   const handleCompleteAddParameter = useCallback(() => {
     setIsAddingParameter(false);
-  }, []);
+    syncConnectionPorts();
+  }, [syncConnectionPorts]);
 
   const handleStartRename = useCallback((parameterName: string) => {
     setRenamingParameter(parameterName);
@@ -275,6 +290,7 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({ i
 
   const handleToggleParameters = useCallback(() => {
     setShowParameters((prev) => !prev);
+    syncConnectionPorts();
     // Trigger layout change to update mapping lines when parameters are hidden/shown
     if (onLayoutChange) {
       // Use setTimeout to ensure state has updated before triggering layout change
@@ -282,7 +298,12 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({ i
         onLayoutChange();
       }, 0);
     }
-  }, [onLayoutChange]);
+  }, [onLayoutChange, syncConnectionPorts]);
+
+  const handleHeaderLayoutChange = useCallback(() => {
+    syncConnectionPorts();
+    onLayoutChange?.();
+  }, [syncConnectionPorts, onLayoutChange]);
 
   return (
     <>
@@ -300,7 +321,7 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({ i
         defaultExpanded={false}
         defaultHeight={PANEL_COLLAPSED_HEIGHT}
         minHeight={PANEL_MIN_HEIGHT}
-        onLayoutChange={onLayoutChange}
+        onLayoutChange={handleHeaderLayoutChange}
       >
         {/* NO CHILDREN - header only panel */}
       </ExpansionPanel>

@@ -1,5 +1,6 @@
 import { AlertProps } from '@patternfly/react-core';
 
+import { ConnectionPortRef } from './connection-port';
 import { DocumentType, IDocument, IField, PrimitiveDocument } from './document';
 import {
   FieldItem,
@@ -11,7 +12,7 @@ import {
   UnknownMappingItem,
   VariableItem,
 } from './mapping';
-import { NodePath } from './nodepath';
+import { NodePath, variableNodePath } from './nodepath';
 import { Types } from './types';
 
 /**
@@ -389,12 +390,6 @@ export class FunctionNodeData implements NodeData {
  * just a synthetic node whose DnD produces a `$varName` XPath expression.
  * Always on the source side (`isSource: true`, `isPrimitive: true`).
  */
-export const VARIABLES_DOCUMENT_ID = '_variables';
-
-export function variableNodePath(varId: string): string {
-  return `Var:${VARIABLES_DOCUMENT_ID}://${varId}`;
-}
-
 export class SourceVariableNodeData implements ExpressionHolderNodeData {
   constructor(public variable: VariableItem) {
     this.id = `var-${variable.id}`;
@@ -430,6 +425,13 @@ export interface IMappingLink {
   targetDocumentNodeId: string;
   isSelected: boolean;
   lineStyle: MappingLineStyle;
+  /**
+   * Where the source end of this line retracts to once the source document's ports disappear
+   * because its section was collapsed or hidden. Resolved here, by the producer that still holds
+   * the typed document, so the renderer never has to infer a section from an ID string.
+   * Undefined for body documents, which have no collapsible section.
+   */
+  sourceSectionAnchor?: ConnectionPortRef;
 }
 
 /** SVG line endpoint coordinates. */

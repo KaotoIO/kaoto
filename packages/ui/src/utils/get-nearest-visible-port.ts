@@ -6,6 +6,7 @@ export interface NearestVisiblePortOptions {
   nodesConnectionPortsArray: string[];
   expansionState: TreeExpansionState;
   expansionStateArray: string[];
+  sectionAnchorPort?: [number, number];
 }
 
 /**
@@ -13,7 +14,7 @@ export interface NearestVisiblePortOptions {
  * If the exact node path doesn't have a connection port (i.e., it's collapsed),
  * walks up the parent hierarchy to find the first ancestor with a registered port.
  *
- * @param path - The full path of the node (e.g., "SOURCE_BODY:customer://customer/address/zipcode")
+ * @param path - The full path of the node (e.g., "sourceBody:customer://customer/address/zipcode")
  * @param nodesConnectionPorts - Map of registered connection ports
  * @param expansionState - Map of document's nodes expansion state
  * @returns The position of the nearest visible port, or null if none found
@@ -30,8 +31,15 @@ export function getNearestVisiblePort(
   const edgeTopKey = `${documentName}:EDGE:top`;
   const edgeBottomKey = `${documentName}:EDGE:bottom`;
 
-  /* If the document's connection ports don't exist, return edge bottom fallback */
+  /*
+   * A missing edge marker means the whole section unmounted and `useConnectionPortSync` cleared its
+   * port map, so no exact node port can exist either - hence this runs ahead of the lookup below.
+   * The section anchor, registered by the still-mounted section header, is the only port left.
+   */
   if (!nodesConnectionPorts?.[edgeBottomKey]) {
+    if (options.sectionAnchorPort) {
+      return { connectionTarget: 'parent', position: options.sectionAnchorPort };
+    }
     return { connectionTarget: 'edge', position: [0, 0] };
   }
 

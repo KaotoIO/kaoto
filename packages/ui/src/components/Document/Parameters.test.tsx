@@ -1,8 +1,10 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { VirtuosoMockContext } from 'react-virtuoso';
 
+import { PARAMETERS_SECTION_ANCHOR } from '../../models/datamapper/connection-port';
 import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
+import { useDocumentTreeStore } from '../../store/document-tree.store';
 import { BrowserFilePickerMetadataProvider } from '../../stubs/BrowserFilePickerMetadataProvider';
 import { getShipOrderJsonSchema, getShipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { createFile } from '../../stubs/read-file-as-string';
@@ -415,6 +417,145 @@ describe('ParametersSection', () => {
       // Back to "Hide all parameters"
       expect(toggleButton).toHaveAttribute('title', 'Hide all parameters');
       expect(toggleButton).toHaveAttribute('aria-label', 'Hide all parameters');
+    });
+
+    it('should render connection port on ParametersHeader', async () => {
+      renderWithVirtuoso(
+        <BrowserFilePickerMetadataProvider>
+          <DataMapperProvider>
+            <MappingLinksProvider>
+              <ExpansionPanels>
+                <ParametersSection isReadOnly={false} />
+              </ExpansionPanels>
+            </MappingLinksProvider>
+          </DataMapperProvider>
+        </BrowserFilePickerMetadataProvider>,
+      );
+
+      const port = await screen.findByTestId('connection-port-parameters-header');
+      expect(port).toBeInTheDocument();
+      expect(port).toHaveAttribute('data-connection-port', 'true');
+      expect(port).toHaveAttribute('data-node-path', 'param:_parameters_header://');
+      expect(port).toHaveAttribute('data-document-node-id', PARAMETERS_SECTION_ANCHOR.documentNodeId);
+    });
+
+    it('should keep header connection port in DOM when parameters are hidden', async () => {
+      renderWithVirtuoso(
+        <BrowserFilePickerMetadataProvider>
+          <DataMapperProvider>
+            <MappingLinksProvider>
+              <ExpansionPanels>
+                <ParametersSection isReadOnly={false} />
+              </ExpansionPanels>
+            </MappingLinksProvider>
+          </DataMapperProvider>
+        </BrowserFilePickerMetadataProvider>,
+      );
+
+      // Add a parameter so there is something to hide
+      const addButton = await screen.findByTestId('add-parameter-button');
+      fireEvent.click(addButton);
+      fireEvent.change(screen.getByTestId('new-parameter-name-input'), { target: { value: 'p1' } });
+      fireEvent.click(screen.getByTestId('new-parameter-submit-btn'));
+      await screen.findByTestId('document-doc-param-p1');
+
+      // Hide all parameters
+      fireEvent.click(screen.getByTestId('toggle-parameters-button'));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('document-doc-param-p1')).not.toBeInTheDocument();
+      });
+
+      // Header port must still be in the DOM so syncConnectionPorts can measure it
+      expect(screen.getByTestId('connection-port-parameters-header')).toBeInTheDocument();
+    });
+
+    it('should register the header port under the section anchor key on mount', async () => {
+      renderWithVirtuoso(
+        <BrowserFilePickerMetadataProvider>
+          <DataMapperProvider>
+            <MappingLinksProvider>
+              <ExpansionPanels>
+                <ParametersSection isReadOnly={false} />
+              </ExpansionPanels>
+            </MappingLinksProvider>
+          </DataMapperProvider>
+        </BrowserFilePickerMetadataProvider>,
+      );
+
+      // Header port exists in DOM from mount
+      const port = await screen.findByTestId('connection-port-parameters-header');
+      expect(port).toBeInTheDocument();
+      expect(port).toHaveAttribute('data-connection-port', 'true');
+      expect(port).toHaveAttribute('data-node-path', 'param:_parameters_header://');
+      expect(port).toHaveAttribute('data-document-node-id', PARAMETERS_SECTION_ANCHOR.documentNodeId);
+
+      // Asserted against the store rather than the screen: a port registered under the wrong
+      // key renders identically, so only the store shows which bucket it landed in. jsdom
+      // reports zero-size rects, so the coordinates themselves carry no information here.
+      await waitFor(() => {
+        const state = useDocumentTreeStore.getState();
+        const headerPorts = state.nodesConnectionPorts[PARAMETERS_SECTION_ANCHOR.documentNodeId];
+        expect(headerPorts).toBeDefined();
+        expect(headerPorts[PARAMETERS_SECTION_ANCHOR.nodePath]).toBeDefined();
+        expect(Array.isArray(headerPorts[PARAMETERS_SECTION_ANCHOR.nodePath])).toBe(true);
+      });
+    });
+
+    it('should keep header port in store after hide/show cycle', async () => {
+      renderWithVirtuoso(
+        <BrowserFilePickerMetadataProvider>
+          <DataMapperProvider>
+            <MappingLinksProvider>
+              <ExpansionPanels>
+                <ParametersSection isReadOnly={false} />
+              </ExpansionPanels>
+            </MappingLinksProvider>
+          </DataMapperProvider>
+        </BrowserFilePickerMetadataProvider>,
+      );
+
+      // Add a parameter
+      const addButton = await screen.findByTestId('add-parameter-button');
+      fireEvent.click(addButton);
+      fireEvent.change(screen.getByTestId('new-parameter-name-input'), { target: { value: 'p1' } });
+      fireEvent.click(screen.getByTestId('new-parameter-submit-btn'));
+      await screen.findByTestId('document-doc-param-p1');
+
+      // Existence checks throughout: they show the anchor is never dropped from the store
+      // across the cycle, not that a re-sync ran at each step.
+      await waitFor(() => {
+        const state = useDocumentTreeStore.getState();
+        const headerPorts = state.nodesConnectionPorts[PARAMETERS_SECTION_ANCHOR.documentNodeId];
+        expect(headerPorts).toBeDefined();
+        expect(headerPorts[PARAMETERS_SECTION_ANCHOR.nodePath]).toBeDefined();
+      });
+
+      // Hide parameters
+      fireEvent.click(screen.getByTestId('toggle-parameters-button'));
+      await waitFor(() => {
+        expect(screen.queryByTestId('document-doc-param-p1')).not.toBeInTheDocument();
+      });
+
+      // Anchor survives hiding all parameters
+      await waitFor(() => {
+        const state = useDocumentTreeStore.getState();
+        const headerPorts = state.nodesConnectionPorts[PARAMETERS_SECTION_ANCHOR.documentNodeId];
+        expect(headerPorts).toBeDefined();
+        expect(headerPorts[PARAMETERS_SECTION_ANCHOR.nodePath]).toBeDefined();
+      });
+
+      // Show parameters again
+      fireEvent.click(screen.getByTestId('toggle-parameters-button'));
+      await screen.findByTestId('document-doc-param-p1');
+
+      // Anchor survives showing them again
+      await waitFor(() => {
+        const state = useDocumentTreeStore.getState();
+        const headerPorts = state.nodesConnectionPorts[PARAMETERS_SECTION_ANCHOR.documentNodeId];
+        expect(headerPorts).toBeDefined();
+        expect(headerPorts[PARAMETERS_SECTION_ANCHOR.nodePath]).toBeDefined();
+      });
     });
   });
 

@@ -7,7 +7,8 @@ import { FunctionComponent, KeyboardEvent, MouseEvent, useCallback } from 'react
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { IFieldMenuGroup } from '../../../models/datamapper/field-action';
 import { FieldItem, MappingItem, VariableItem } from '../../../models/datamapper/mapping';
-import { SourceVariableNodeData, VARIABLES_DOCUMENT_ID } from '../../../models/datamapper/visualization';
+import { VARIABLES_DOCUMENT_ID } from '../../../models/datamapper/nodepath';
+import { SourceVariableNodeData } from '../../../models/datamapper/visualization';
 import { MappingService } from '../../../services/mapping/mapping.service';
 import { ConfirmActionButton } from '../actions/ConfirmActionButton';
 import { FieldContextMenu } from '../actions/FieldContextMenu';
