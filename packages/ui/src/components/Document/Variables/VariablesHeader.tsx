@@ -2,6 +2,8 @@ import { ActionList, ActionListItem, Button, Divider, Icon, Label } from '@patte
 import { EyeIcon, EyeSlashIcon, PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, isValidElement } from 'react';
 
+import { VARIABLES_SECTION_ANCHOR } from '../../../models/datamapper/connection-port';
+
 type VariablesHeaderProps = {
   isReadOnly: boolean;
   onAddVariable: () => void;
@@ -18,6 +20,13 @@ export const VariablesHeader: FunctionComponent<VariablesHeaderProps> = ({
   actionItems,
 }) => (
   <div className="parameters-header" data-testid="source-variables-header">
+    <span
+      className="node__connection-port node__connection-port--source"
+      data-testid="connection-port-variables-header"
+      data-connection-port="true"
+      data-node-path={VARIABLES_SECTION_ANCHOR.nodePath}
+      data-document-node-id={VARIABLES_SECTION_ANCHOR.documentNodeId}
+    />
     <span className="parameters-header__title panel-header-text">
       <Label>Source</Label> Variables
     </span>

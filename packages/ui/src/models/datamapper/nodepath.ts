@@ -47,3 +47,28 @@ export class NodePath {
     return answer;
   }
 }
+
+/**
+ * Path scheme for `xsl:variable` references.
+ *
+ * Deliberately NOT a {@link DocumentType} member: `DocumentType` is serialized into the route
+ * metadata, and every value must be handled by the exhaustive switches in `datamapper.provider.tsx`
+ * that rely on it for definite assignment. Variables are a source-panel-only visual concept with no
+ * backing {@link IDocument}, so they occupy the scheme slot without joining the enum.
+ */
+export const VARIABLE_PATH_SCHEME = 'Var';
+
+/**
+ * Synthetic document ID grouping every variable into one addressable pseudo-document.
+ *
+ * This is the one identifier that legitimately serves as both a node path document ID (the
+ * `_variables` in `Var:_variables://myVar`) and a document node ID (the `nodesConnectionPorts` key
+ * and `data-document-node-id` value for the variables section). The two vocabularies coincide here
+ * because the variables section has no `DocumentNodeData` to derive a `doc-<type>-<id>` node ID from.
+ */
+export const VARIABLES_DOCUMENT_ID = '_variables';
+
+/** Builds the node path addressing a single variable within the variables pseudo-document. */
+export function variableNodePath(variableId: string): string {
+  return `${VARIABLE_PATH_SCHEME}:${VARIABLES_DOCUMENT_ID}://${variableId}`;
+}

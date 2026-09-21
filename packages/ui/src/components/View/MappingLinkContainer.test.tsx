@@ -1,6 +1,15 @@
 import { render } from '@testing-library/react';
 
-import { IMappingLink, MappingLineStyle } from '../../models/datamapper';
+import {
+  BODY_DOCUMENT_ID,
+  DocumentNodeData,
+  DocumentType,
+  IMappingLink,
+  MappingLineStyle,
+  PARAMETERS_SECTION_ANCHOR,
+  VARIABLES_SECTION_ANCHOR,
+} from '../../models/datamapper';
+import { TreeConnectionPorts } from '../../store/document-tree.store';
 import { MappingLinksContainer } from './MappingLinkContainer';
 
 const mockGetNearestVisiblePort = vi.fn();
@@ -15,10 +24,13 @@ vi.mock('../../hooks/useMappingLinks', () => ({
   }),
 }));
 
+const mockStoreState: { nodesConnectionPorts: Record<string, TreeConnectionPorts> } = {
+  nodesConnectionPorts: {},
+};
 vi.mock('../../store', () => ({
   useDocumentTreeStore: (selector: (state: Record<string, unknown>) => unknown) =>
     selector({
-      nodesConnectionPorts: {},
+      nodesConnectionPorts: mockStoreState.nodesConnectionPorts,
       nodesConnectionPortsArray: {},
       expansionState: {},
       expansionStateArray: {},
@@ -33,14 +45,15 @@ const buildLink = (
 ): IMappingLink => ({
   sourceNodePath,
   targetNodePath,
-  sourceDocumentNodeId: 'doc-SOURCE_BODY-body',
-  targetDocumentNodeId: 'doc-TARGET_BODY-body',
+  sourceDocumentNodeId: DocumentNodeData.formatNodeId(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID),
+  targetDocumentNodeId: DocumentNodeData.formatNodeId(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID),
   isSelected,
   lineStyle,
 });
 
 describe('MappingLinksContainer', () => {
   beforeEach(() => {
+    mockStoreState.nodesConnectionPorts = {};
     mockGetNearestVisiblePort.mockReturnValue({ connectionTarget: 'node', position: [100, 200] });
   });
 
@@ -195,5 +208,70 @@ describe('MappingLinksContainer', () => {
     const link = container.querySelector('[data-testid^="mapping-link-"]');
     expect(link).toHaveClass('mapping-link--partial');
     expect(link).not.toHaveClass('mapping-link--complete');
+  });
+
+  describe('source section anchors', () => {
+    const anchoredLink = (anchor: IMappingLink['sourceSectionAnchor']): IMappingLink => ({
+      ...buildLink('source/1', 'target/1', false),
+      sourceSectionAnchor: anchor,
+    });
+
+    it.each([
+      ['parameters', PARAMETERS_SECTION_ANCHOR, [42, 84] as [number, number]],
+      ['variables', VARIABLES_SECTION_ANCHOR, [17, 23] as [number, number]],
+    ])('should resolve the registered %s section anchor port', (_name, anchor, position) => {
+      mockStoreState.nodesConnectionPorts = { [anchor.documentNodeId]: { [anchor.nodePath]: position } };
+      mockGetMappingLinks.mockReturnValue([anchoredLink(anchor)]);
+
+      render(<MappingLinksContainer />);
+
+      expect(mockGetNearestVisiblePort).toHaveBeenNthCalledWith(
+        1,
+        'source/1',
+        expect.objectContaining({ sectionAnchorPort: position }),
+      );
+    });
+
+    it('should pass no anchor port while the section header has not registered one', () => {
+      mockGetMappingLinks.mockReturnValue([anchoredLink(PARAMETERS_SECTION_ANCHOR)]);
+
+      render(<MappingLinksContainer />);
+
+      expect(mockGetNearestVisiblePort).toHaveBeenNthCalledWith(
+        1,
+        'source/1',
+        expect.objectContaining({ sectionAnchorPort: undefined }),
+      );
+    });
+
+    it('should pass no anchor port for a link without a section anchor', () => {
+      mockStoreState.nodesConnectionPorts = {
+        [PARAMETERS_SECTION_ANCHOR.documentNodeId]: { [PARAMETERS_SECTION_ANCHOR.nodePath]: [42, 84] },
+      };
+      mockGetMappingLinks.mockReturnValue([anchoredLink(undefined)]);
+
+      render(<MappingLinksContainer />);
+
+      expect(mockGetNearestVisiblePort).toHaveBeenNthCalledWith(
+        1,
+        'source/1',
+        expect.objectContaining({ sectionAnchorPort: undefined }),
+      );
+    });
+
+    it('should never anchor the target end of a link', () => {
+      mockStoreState.nodesConnectionPorts = {
+        [PARAMETERS_SECTION_ANCHOR.documentNodeId]: { [PARAMETERS_SECTION_ANCHOR.nodePath]: [42, 84] },
+      };
+      mockGetMappingLinks.mockReturnValue([anchoredLink(PARAMETERS_SECTION_ANCHOR)]);
+
+      render(<MappingLinksContainer />);
+
+      expect(mockGetNearestVisiblePort).toHaveBeenNthCalledWith(
+        2,
+        'target/1',
+        expect.not.objectContaining({ sectionAnchorPort: expect.anything() }),
+      );
+    });
   });
 });

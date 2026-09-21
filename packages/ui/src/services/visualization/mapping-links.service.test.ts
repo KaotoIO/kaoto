@@ -1,3 +1,4 @@
+import { PARAMETERS_SECTION_ANCHOR, VARIABLES_SECTION_ANCHOR } from '../../models/datamapper/connection-port';
 import {
   BaseField,
   BODY_DOCUMENT_ID,
@@ -19,7 +20,8 @@ import {
   VariableItem,
   WhenItem,
 } from '../../models/datamapper/mapping';
-import { MappingLineStyle, variableNodePath, VARIABLES_DOCUMENT_ID } from '../../models/datamapper/visualization';
+import { variableNodePath, VARIABLES_DOCUMENT_ID } from '../../models/datamapper/nodepath';
+import { MappingLineStyle } from '../../models/datamapper/visualization';
 import { useDocumentTreeStore } from '../../store';
 import { mockRandomValues } from '../../stubs';
 import {
@@ -1063,6 +1065,56 @@ describe('MappingLinksService', () => {
       expect(varLinks.map((l) => l.sourceNodePath).sort()).toEqual(
         [variableNodePath(variable1.id), variableNodePath(variable2.id)].sort(),
       );
+    });
+  });
+
+  describe('source section anchors', () => {
+    const buildTreeWithExpression = (expression: string) => {
+      const rootField = targetDoc.fields[0];
+      const targetField = rootField.fields[0];
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const rootItem = new FieldItem(manualTree, rootField);
+      manualTree.children.push(rootItem);
+      const fieldItem = new FieldItem(rootItem, targetField);
+      rootItem.children.push(fieldItem);
+      const vs = new ValueOfSelector(fieldItem);
+      vs.expression = expression;
+      fieldItem.children.push(vs);
+      return manualTree;
+    };
+
+    it('should anchor variable links to the variables section', () => {
+      const manualTree = buildTreeWithExpression('$myVar');
+      manualTree.children.unshift(new VariableItem(manualTree, 'myVar'));
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const varLinks = links.filter((l) => l.sourceDocumentNodeId === VARIABLES_DOCUMENT_ID);
+
+      expect(varLinks).toHaveLength(1);
+      expect(varLinks[0].sourceSectionAnchor).toBe(VARIABLES_SECTION_ANCHOR);
+    });
+
+    it('should anchor parameter links to the parameters section', () => {
+      const manualTree = buildTreeWithExpression('$sourceParam1/ns0:ShipOrder/ns0:OrderPerson');
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+
+      expect(links).toHaveLength(1);
+      expect(links[0].sourceSectionAnchor).toBe(PARAMETERS_SECTION_ANCHOR);
+    });
+
+    it('should leave source body links unanchored', () => {
+      const manualTree = buildTreeWithExpression('/ns0:ShipOrder/ns0:OrderPerson');
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+
+      expect(links).toHaveLength(1);
+      expect(links[0].sourceSectionAnchor).toBeUndefined();
     });
   });
 
