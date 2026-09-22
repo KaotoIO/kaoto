@@ -156,3 +156,69 @@ storybook-static
 # Superpowers skill
 docs/superpowers/**
 .worktrees/
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+release.properties
+.flattened-pom.xml
+
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+
+# IntelliJ IDEA
+.idea/
+*.ipr
+*.iml
+*.iws
+
+# NetBeans
+nb-configuration.xml
+
+# Visual Studio Code
+.vscode/
+.factorypath
+
+# Quarkus
+/.quarkus/
+
+# Local environment
+.env
+.certs/
+.superpowers/
+.worktrees/
+
+# Operating systems and editors
+.DS_Store
+*.swp
+*.swo
+
+# Patch artifacts
+*.orig
+*.rej
+
+# Java build artifacts outside Maven's target directory
+*.class
+*.log
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# JVM crash logs
+hs_err_pid*
+replay_pid*
+
+# Other Java tooling
+*.ctxt
+.mtj.tmp/
+
+.camel-jbang

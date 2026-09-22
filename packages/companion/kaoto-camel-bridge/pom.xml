@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.kaoto</groupId>
+        <artifactId>kaoto-companion-parent</artifactId>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>kaoto-camel-bridge-parent</artifactId>
+    <packaging>pom</packaging>
+    <description>Parent for all kaoto-camel-bridge modules</description>
+
+    <modules>
+        <module>core</module>
+        <module>plugin</module>
+        <module>dist</module>
+        <module>it-spring-boot</module>
+        <module>it-quarkus</module>
+    </modules>
+
+    <build>
+        <plugins>
+            <!-- Resolve ${revision} in the installed POM so consumers outside the reactor
+                 (e.g. demo-apps) can resolve this parent without needing the full source tree.
+                 updatePomFile=true is required for pom-packaged modules: without it, flatten
+                 generates .flattened-pom.xml but the raw source pom is what gets installed. -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
