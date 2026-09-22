@@ -196,6 +196,44 @@ describe('KameletVisualEntity', () => {
     expect(kamelet.getRootUri()).toBe('timer');
   });
 
+  describe('getNodeInteraction', () => {
+    it('should return canHavePreviousStep: false and canHaveNextStep: false for the root path', () => {
+      const kamelet = new KameletVisualEntity(kameletDef);
+      const result = kamelet.getNodeInteraction({
+        path: KameletVisualEntity.ROOT_PATH,
+        name: 'My Kamelet',
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
+        processorIconTooltip: '',
+      });
+
+      expect(result.canHavePreviousStep).toBe(false);
+      expect(result.canHaveNextStep).toBe(false);
+      expect(result.canRemoveFlow).toBe(true);
+      expect(result.canRemoveStep).toBe(false);
+    });
+
+    it('should delegate to super for non-root paths', () => {
+      const superSpy = vi.spyOn(AbstractCamelVisualEntity.prototype, 'getNodeInteraction');
+      const kamelet = new KameletVisualEntity(kameletDef);
+      kamelet.getNodeInteraction({
+        path: 'template.route.from',
+        name: 'timer',
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
+        processorIconTooltip: '',
+      });
+
+      expect(superSpy).toHaveBeenCalled();
+    });
+  });
+
   describe('toVizNode', () => {
     it('should delegate to the super class toVizNode', async () => {
       const toVizNodeSpy = vi.spyOn(AbstractCamelVisualEntity.prototype, 'toVizNode');

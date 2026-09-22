@@ -10,7 +10,13 @@ import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { NodeLabelType } from '../../settings';
-import { AddStepMode, IVisualizationNode, IVisualizationNodeData, IVisualizationNodeIds } from '../base-visual-entity';
+import {
+  AddStepMode,
+  IVisualizationNode,
+  IVisualizationNodeData,
+  IVisualizationNodeIds,
+  NodeInteraction,
+} from '../base-visual-entity';
 import { IClipboardContent } from '../clipboard';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelComponentDefaultService } from './support/camel-component-default.service';
@@ -126,6 +132,23 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{
 
     super.updateModel(path, value);
     if (isDefined(this.entityDef.id)) this.id = this.entityDef.id;
+  }
+
+  getNodeInteraction(data: IVisualizationNodeData): NodeInteraction {
+    if (data.path === this.getRootPath()) {
+      return {
+        canHavePreviousStep: false,
+        canHaveNextStep: false,
+        canHaveChildren: false,
+        canHaveSpecialChildren: false,
+        canReplaceStep: false,
+        canRemoveStep: false,
+        canRemoveFlow: true,
+        canBeDisabled: false,
+      };
+    }
+
+    return super.getNodeInteraction(data);
   }
 
   addStep(options: {
