@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ExpressionDefinition } from '@kaoto/camel-catalog/types';
+import { ExpressionDefinition$Inline as ExpressionDefinition } from '@kaoto/camel-catalog/types';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
 import { CatalogKind, ICamelProcessorProperty } from '../../../models';
