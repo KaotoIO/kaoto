@@ -2,19 +2,23 @@
 /**
  * generate-changelog.mjs
  *
- * Generates a structured Markdown changelog from git history between the
- * previous release tag and HEAD.  Commits are routed into per-package sections
- * and categorised by conventional-commit type.
+ * Generates a structured Markdown changelog from merged PRs between the
+ * previous release tag and HEAD.  PRs are routed into per-package sections
+ * and categorised by conventional-commit type in their PR title.
  *
  * Output is written to stdout so the calling workflow can capture it:
  *   body=$(node .github/scripts/generate-changelog.mjs)
  *
+ * Requires GH_TOKEN (or GITHUB_TOKEN) to call the GitHub API.
+ * Falls back to a git-log based changelog when the token is absent.
+ *
  * Extensibility: to add a new sub-package, insert one entry into PACKAGES.
- * The first entry whose scopePatterns matches wins.  Commits with no scope, or
+ * The first entry whose scopePatterns matches wins.  PRs with no scope, or
  * a scope not matched by any entry, fall into the FALLBACK_PACKAGE.
  */
 
 import { execFileSync } from 'node:child_process';
+import { env } from 'node:process';
 
 // ---------------------------------------------------------------------------
 // Package bucket definitions
@@ -25,11 +29,11 @@ import { execFileSync } from 'node:child_process';
 //                 (multi-scope like "ci,vscode" is split on commas first)
 //
 // Routing rules:
-//   • A commit whose scope matches ANY pattern in a package's scopePatterns
+//   • A PR whose scope matches ANY pattern in a package's scopePatterns
 //     goes exclusively into that package.
-//   • A commit with no scope, or whose scope matches nothing, goes into the
+//   • A PR with no scope, or whose scope matches nothing, goes into the
 //     FALLBACK_PACKAGE (the last entry that has fallback: true).
-//   • Commits that explicitly match multiple packages are duplicated into each.
+//   • PRs that explicitly match multiple packages are duplicated into each.
 // ---------------------------------------------------------------------------
 const PACKAGES = [
   {
@@ -40,7 +44,7 @@ const PACKAGES = [
   {
     name: '@kaoto/kaoto',
     label: 'Kaoto Core',
-    fallback: true, // receives unscoped commits and unknown scopes
+    fallback: true, // receives unscoped PRs and unknown scopes
     scopePatterns: [
       /^ui$/i,
       /^kaoto$/i,
@@ -116,6 +120,16 @@ function runGit(args) {
   }
 }
 
+/** Returns true if sha is reachable from HEAD (i.e. merged into the checked-out branch). */
+function isAncestor(sha) {
+  try {
+    execFileSync('git', ['merge-base', '--is-ancestor', sha, 'HEAD'], { stdio: 'ignore' });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Find the most recent reachable release tag before HEAD,
  * ignoring ephemeral snapshot tags (-SNAPSHOT-<short-sha>).
@@ -125,8 +139,17 @@ function getPreviousTag() {
   return tag ?? null;
 }
 
+/** Get the ISO timestamp of a tag (or null). */
+function getTagDate(tag) {
+  // for-each-ref returns the correct creation date for both annotated and lightweight tags
+  return runGit(['for-each-ref', `refs/tags/${tag}`, '--format=%(creatordate:iso-strict)']);
+}
+
 /** Conventional commit regex — captures type, scope, breaking marker, and description. */
 const CC_RE = /^(\w+)(\(([^)]+)\))?(!)?: (.+)$/;
+
+/** Bot accounts to exclude from author attribution. */
+const BOT_PATTERN = /\[bot\]$/i;
 
 /**
  * Scopes that always map to Maintenance regardless of the commit type prefix.
@@ -140,16 +163,12 @@ const MAINTENANCE_SCOPES = /^(sonar(qube)?|lint(er)?|eslint)$/i;
  * Returns the CATEGORIES header string, or a sentinel for the fallback bucket.
  */
 function resolveCategory(type, scope) {
-  // Scope-based overrides take priority over the commit type prefix
   if (scope) {
     const tokens = scope
       .split(',')
       .map((t) => t.trim())
       .filter(Boolean);
-
-    // Any scope that is a tooling/quality tool → Maintenance
     if (tokens.some((token) => MAINTENANCE_SCOPES.test(token))) return '🔧 Maintenance';
-    // chore with a deps/deps-dev scope → Dependencies
     if (type === 'chore' && tokens.some((token) => token.startsWith('deps'))) return '__deps__';
   }
   for (const cat of CATEGORIES) {
@@ -161,9 +180,6 @@ function resolveCategory(type, scope) {
 /**
  * Split a (potentially multi-value) scope string like "ci,vscode" into tokens,
  * then match each token against the package scope patterns.
- *
- * Returns the matched package names, or [FALLBACK_PACKAGE.name] when nothing
- * matches (including when scope is null/empty).
  */
 function resolvePackages(scope) {
   if (!scope) return [FALLBACK_PACKAGE.name];
@@ -185,11 +201,61 @@ function resolvePackages(scope) {
   return matched.size > 0 ? [...matched] : [FALLBACK_PACKAGE.name];
 }
 
-/** Format a single commit as a Markdown bullet. */
-function formatBullet(description, isBreaking, hash) {
-  const short = hash.slice(0, 7);
+/** Format a single PR as a Markdown bullet. */
+function formatBullet(description, isBreaking, login, prNumber, repo) {
   const prefix = isBreaking ? '⚠️ **BREAKING CHANGE** ' : '';
-  return `- ${prefix}${description} (\`${short}\`)`;
+  const author = login ? ` by @${login}` : '';
+  const pr = prNumber ? ` ([#${prNumber}](https://github.com/${repo}/pull/${prNumber}))` : '';
+  return `- ${prefix}${description}${author}${pr}`;
+}
+
+/**
+ * Fetch all merged PRs from the GitHub API between prevTagDate and HEAD.
+ * Uses pagination to get all results.
+ *
+ * @param {string} repo  e.g. "KaotoIO/kaoto"
+ * @param {string} token GitHub token
+ * @param {string|null} since ISO date string — only PRs merged after this date
+ * @returns {Promise<Array>} array of PR objects
+ */
+async function fetchMergedPRs(repo, token, since) {
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    Accept: 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+  };
+
+  const prs = [];
+  let page = 1;
+
+  while (true) {
+    const url = `https://api.github.com/repos/${repo}/pulls?state=closed&sort=updated&direction=desc&per_page=100&page=${page}`;
+    const res = await fetch(url, { headers });
+
+    if (!res.ok) {
+      throw new Error(`GitHub API error ${res.status} fetching PRs from ${repo}`);
+    }
+
+    const batch = await res.json();
+    if (!Array.isArray(batch) || batch.length === 0) break;
+
+    for (const pr of batch) {
+      // Skip unmerged PRs
+      if (!pr.merged_at) continue;
+      // Skip PRs merged before the previous tag — but keep paginating since
+      // results are sorted by updated_at, not merged_at
+      if (since && pr.merged_at <= since) continue;
+      // Skip PRs whose merge commit is not reachable from HEAD
+      if (pr.merge_commit_sha && !isAncestor(pr.merge_commit_sha)) continue;
+
+      prs.push(pr);
+    }
+
+    if (batch.length < 100) break;
+    page++;
+  }
+
+  return prs;
 }
 
 // ---------------------------------------------------------------------------
@@ -197,66 +263,113 @@ function formatBullet(description, isBreaking, hash) {
 // ---------------------------------------------------------------------------
 
 const prevTag = getPreviousTag();
-const range = prevTag ? `${prevTag}..HEAD` : 'HEAD';
+console.error(`Generating changelog since tag: ${prevTag ?? '(beginning)'}`);
 
-console.error(`Generating changelog for range: ${range}`); // status to stderr
+const token = env.GH_TOKEN ?? env.GITHUB_TOKEN;
+// GITHUB_REPOSITORY is always set in GitHub Actions (e.g. "KaotoIO/kaoto").
+// Falls back to parsing the git remote URL for local runs.
+const repo =
+  env.GITHUB_REPOSITORY ??
+  (runGit(['remote', 'get-url', 'origin']) ?? '').match(/[:/]([^/:]+\/[^/.]+?)(\.git)?$/)?.[1] ??
+  null;
 
-const logOutput = runGit(['log', range, '--pretty=format:%H%x09%s%x09%B%x00', '--']);
+if (!token || !repo) {
+  // Fallback: git log based changelog without author attribution
+  console.error('Warning: GH_TOKEN not set or remote URL unresolvable — falling back to git log.');
 
-if (logOutput === null) {
-  console.error(`Error: Failed to retrieve git log for range ${range}`);
-  process.exit(1);
+  const range = prevTag ? `${prevTag}..HEAD` : 'HEAD';
+  const logOutput = runGit(['log', range, '--pretty=format:%H%x09%s%x09%B%x00', '--']);
+
+  if (!logOutput) {
+    process.stdout.write('_No changes since last release._\n');
+    process.exit(0);
+  }
+
+  const sections = new Map(PACKAGES.map((p) => [p.name, new Map()]));
+
+  for (const raw of logOutput.split('\0').map((s) => s.trim()).filter(Boolean)) {
+    const [hash, subject, ...bodyParts] = raw.split('\t');
+    if (!hash || !subject) continue;
+    const body = bodyParts.join('\n');
+    const match = CC_RE.exec(subject);
+    const type = match?.[1] ?? '__other__';
+    const scope = match?.[3] ?? null;
+    const description = match?.[5] ?? subject;
+    const breaking = Boolean(match?.[4]) || /^BREAKING[- ]CHANGE:/m.test(body);
+    const categoryKey = resolveCategory(type, scope);
+    let categoryHeader = categoryKey;
+    if (categoryKey === '__deps__') categoryHeader = '📦 Dependencies';
+    else if (categoryKey === '__other__') categoryHeader = '🔀 Other';
+    const bullet = `- ${breaking ? '⚠️ **BREAKING CHANGE** ' : ''}${description} (\`${hash.slice(0, 7)}\`)`;
+    for (const pkgName of resolvePackages(scope)) {
+      const sec = sections.get(pkgName);
+      if (!sec) continue;
+      if (!sec.has(categoryHeader)) sec.set(categoryHeader, []);
+      sec.get(categoryHeader).push(bullet);
+    }
+  }
+
+  const orderedHeaders = CATEGORIES.map((c) => c.header);
+  const outputParts = [];
+  for (const pkg of PACKAGES) {
+    const pkgSection = sections.get(pkg.name);
+    if (!pkgSection || pkgSection.size === 0) continue;
+    const lines = [`## ${pkg.label}`, ''];
+    for (const header of orderedHeaders) {
+      const bullets = pkgSection.get(header);
+      if (bullets?.length) lines.push(`### ${header}`, ...bullets, '');
+    }
+    outputParts.push(lines.join('\n'));
+  }
+
+  process.stdout.write(outputParts.length ? outputParts.join('\n---\n\n') : '_No categorised changes since last release._\n');
+  process.exit(0);
 }
 
-if (logOutput === '') {
+const prevTagDate = prevTag ? getTagDate(prevTag) : null;
+
+console.error(`Fetching merged PRs from ${repo} since ${prevTagDate ?? 'beginning'}...`);
+
+const prs = await fetchMergedPRs(repo, token, prevTagDate);
+
+if (prs.length === 0) {
   process.stdout.write('_No changes since last release._\n');
   process.exit(0);
 }
 
-// Split on the NUL delimiter so multi-line commit bodies don't corrupt parsing
-const rawCommits = logOutput
-  .split('\0')
-  .map((s) => s.trim())
-  .filter(Boolean);
+console.error(`Found ${prs.length} merged PRs.`);
 
 // Structure: packageName → categoryHeader → bullet[]
 /** @type {Map<string, Map<string, string[]>>} */
 const sections = new Map(PACKAGES.map((p) => [p.name, new Map()]));
 
-for (const raw of rawCommits) {
-  const [hash, subject, ...bodyParts] = raw.split('\t');
-  const body = bodyParts.join('\n');
+for (const pr of prs) {
+  const title = pr.title?.trim() ?? '';
+  const login = pr.user?.login ?? null;
+  const prNumber = pr.number ?? null;
+  const effectiveLogin = login && !BOT_PATTERN.test(login) ? login : null;
 
-  if (!hash || !subject) continue;
-
-  const hasBreakingFooter = /^BREAKING[- ]CHANGE:\s+/m.test(body);
-  const match = CC_RE.exec(subject);
-
+  const match = CC_RE.exec(title);
   let scope, breaking, description, categoryKey;
 
   if (match) {
     const type = match[1];
     scope = match[3] ?? null;
-    breaking = Boolean(match[4]) || hasBreakingFooter;
+    breaking = Boolean(match[4]);
     description = match[5];
     categoryKey = resolveCategory(type, scope);
   } else {
-    // Unparseable commit — preserve full subject in the Other fallback
     scope = null;
-    breaking = hasBreakingFooter;
-    description = subject;
+    breaking = false;
+    description = title;
     categoryKey = '__other__';
   }
 
-  // Resolve display header from category key
-  const categoryHeader =
-    categoryKey === '__other__'
-      ? '🔀 Other'
-      : categoryKey === '__deps__'
-        ? '📦 Dependencies'
-        : categoryKey;
+  let categoryHeader = categoryKey;
+  if (categoryKey === '__other__') categoryHeader = '🔀 Other';
+  else if (categoryKey === '__deps__') categoryHeader = '📦 Dependencies';
 
-  const bullet = formatBullet(description, breaking, hash);
+  const bullet = formatBullet(description, breaking, effectiveLogin, prNumber, repo);
 
   for (const pkgName of resolvePackages(scope)) {
     const pkgSection = sections.get(pkgName);
@@ -277,7 +390,6 @@ for (const pkg of PACKAGES) {
   const pkgSection = sections.get(pkg.name);
   if (!pkgSection || pkgSection.size === 0) continue;
 
-  // Use the human-friendly label as the section heading
   const sectionLines = [`## ${pkg.label}`, ''];
 
   for (const header of orderedHeaders) {
