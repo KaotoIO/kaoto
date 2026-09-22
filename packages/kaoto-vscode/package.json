@@ -3,7 +3,7 @@
   "publisher": "redhat",
   "displayName": "Kaoto",
   "description": "Kaoto - The Integration Designer for Apache Camel",
-  "version": "2.12.0-dev",
+  "version": "2.12.0",
   "federatedModuleName": "kaoto",
   "preview": false,
   "private": true,
