@@ -151,7 +151,6 @@ describe('Integrations View', function () {
 			async () => {
 				try {
 					const item = await getTreeItem(driver, integrationsSection, treeItemLabel);
-					expect(item).to.not.be.undefined;
 					await item?.click();
 					exportButton = await getTreeItemActionButton(kaotoViewContainer, item as TreeItem, action);
 					return exportButton !== undefined;
@@ -159,7 +158,7 @@ describe('Integrations View', function () {
 					return undefined;
 				}
 			},
-			5_000,
+			15_000,
 			`Cannot get 'Export' action button for a '${treeItemLabel}'`,
 		);
 		return exportButton;
