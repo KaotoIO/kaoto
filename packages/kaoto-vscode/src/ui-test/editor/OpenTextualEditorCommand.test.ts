@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { EditorView, TextEditor, VSBrowser } from 'vscode-extension-tester';
+import { EditorView, TextEditor, VSBrowser, WebDriver } from 'vscode-extension-tester';
 import { expect } from 'chai';
 import * as path from 'path';
 import * as os from 'os';
+import { openResourcesAndWaitForActivation } from '../utils/extension';
 
 describe('Toggle Source Code', function () {
 	this.timeout(60_000);
@@ -24,6 +25,7 @@ describe('Toggle Source Code', function () {
 	const WORKSPACE_FOLDER: string = path.join(__dirname, '../../test Fixture with speci@l chars');
 	const CAMEL_FILE: string = 'my.camel.yaml';
 
+	let driver: WebDriver;
 	let editorView: EditorView;
 
 	let actionTitle = 'Open Source Code';
@@ -33,19 +35,23 @@ describe('Toggle Source Code', function () {
 		actionTitle += ' (Ctrl+K V)';
 	}
 
+	before(async function () {
+		driver = VSBrowser.instance.driver;
+		await openResourcesAndWaitForActivation(WORKSPACE_FOLDER);
+	});
+
 	beforeEach(async function () {
-		await VSBrowser.instance.openResources(path.join(WORKSPACE_FOLDER, CAMEL_FILE), async (timeout: number = 5_000, interval: number = 1_000) => {
-			await VSBrowser.instance.driver.sleep(interval);
-			await VSBrowser.instance.driver.wait(
+		await VSBrowser.instance.openResources(path.join(WORKSPACE_FOLDER, CAMEL_FILE), async () => {
+			await driver.wait(
 				async () => {
-					const editor = await new EditorView().getActiveTab();
-					return (await editor?.getTitle()) === CAMEL_FILE;
+					const editorTitles = await new EditorView().getOpenEditorTitles();
+					return editorTitles.includes(CAMEL_FILE);
 				},
-				timeout,
-				`Cannot open file '${CAMEL_FILE}' in ${timeout}ms`,
-				interval,
+				5000,
+				`Cannot open file '${CAMEL_FILE}'`,
 			);
 		});
+
 		editorView = new EditorView();
 		await clickEditorAction(editorView, actionTitle);
 	});

@@ -122,7 +122,7 @@ export async function getTreeItemActionButton(
 		},
 		timeout,
 		`'${action}' action button was not found!`,
-		500,
+		1_000,
 	);
 }
 
@@ -133,7 +133,7 @@ export async function getTreeItemActionButton(
  */
 async function reopenKaotoView(kaotoViewContainer: ViewControl | undefined): Promise<void> {
 	await kaotoViewContainer?.closeView();
-	await kaotoViewContainer?.getDriver().sleep(500);
+	await kaotoViewContainer?.getDriver().sleep(1_000);
 	await kaotoViewContainer?.openView();
 }
 
