@@ -152,7 +152,7 @@ describe('CanvasFormBody', () => {
             },
           ],
         },
-      } as RouteDefinition;
+      } as unknown as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const marshalNode = rootNode.getChildren()![1];
@@ -205,7 +205,7 @@ describe('CanvasFormBody', () => {
             },
           ],
         },
-      } as RouteDefinition;
+      } as unknown as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const marshalNode = rootNode.getChildren()![1];

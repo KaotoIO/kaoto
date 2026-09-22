@@ -1,4 +1,4 @@
-import { ExpressionDefinition } from '@kaoto/camel-catalog/types';
+import { ExpressionDefinition$Inline as ExpressionDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 
 import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
