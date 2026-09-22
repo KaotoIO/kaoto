@@ -1,5 +1,109 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the correct interaction for the '{ primaryNodeId: [Object], path: 'log' }' processor 1`] = `
+{
+  "canBeDisabled": false,
+  "canHaveChildren": false,
+  "canHaveNextStep": true,
+  "canHavePreviousStep": true,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": false,
+  "canRemoveStep": true,
+  "canReplaceStep": true,
+}
+`;
+
+exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the correct interaction for the '{ primaryNodeId: [Object], path: 'to' }' processor 1`] = `
+{
+  "canBeDisabled": false,
+  "canHaveChildren": false,
+  "canHaveNextStep": true,
+  "canHavePreviousStep": true,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": false,
+  "canRemoveStep": true,
+  "canReplaceStep": true,
+}
+`;
+
+exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the correct interaction for the '{ primaryNodeId: [Object], …(1) }' processor 1`] = `
+{
+  "canBeDisabled": false,
+  "canHaveChildren": false,
+  "canHaveNextStep": false,
+  "canHavePreviousStep": false,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": false,
+  "canRemoveStep": true,
+  "canReplaceStep": true,
+}
+`;
+
+exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the correct interaction for the '{ primaryNodeId: [Object], …(1) }' processor 2`] = `
+{
+  "canBeDisabled": false,
+  "canHaveChildren": true,
+  "canHaveNextStep": false,
+  "canHavePreviousStep": false,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": false,
+  "canRemoveStep": true,
+  "canReplaceStep": true,
+}
+`;
+
+exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the correct interaction for the '{ primaryNodeId: [Object], …(1) }' processor 3`] = `
+{
+  "canBeDisabled": false,
+  "canHaveChildren": true,
+  "canHaveNextStep": false,
+  "canHavePreviousStep": false,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": false,
+  "canRemoveStep": true,
+  "canReplaceStep": true,
+}
+`;
+
+exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the correct interaction for the '{ primaryNodeId: [Object], …(1) }' processor 4`] = `
+{
+  "canBeDisabled": false,
+  "canHaveChildren": true,
+  "canHaveNextStep": false,
+  "canHavePreviousStep": false,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": false,
+  "canRemoveStep": true,
+  "canReplaceStep": true,
+}
+`;
+
+exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the correct interaction for the '{ primaryNodeId: [Object], …(1) }' processor 5`] = `
+{
+  "canBeDisabled": false,
+  "canHaveChildren": true,
+  "canHaveNextStep": false,
+  "canHavePreviousStep": false,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": true,
+  "canRemoveStep": false,
+  "canReplaceStep": false,
+}
+`;
+
+exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the correct interaction for the '{ primaryNodeId: [Object], …(1) }' processor 6`] = `
+{
+  "canBeDisabled": false,
+  "canHaveChildren": true,
+  "canHaveNextStep": false,
+  "canHavePreviousStep": false,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": false,
+  "canRemoveStep": true,
+  "canReplaceStep": true,
+}
+`;
+
 exports[`CamelInterceptVisualEntity > getNodeInteraction > should return the correct interaction for the '{ primaryNodeId: { name: 'from', catalogKind: 'entity' }, path: 'from' }' processor 1`] = `
 {
   "canBeDisabled": false,
