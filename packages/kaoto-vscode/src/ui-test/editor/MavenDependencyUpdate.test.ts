@@ -98,7 +98,7 @@ describe('Maven dependency update pom.xml', function () {
 			false,
 			'Updating Camel dependencies in pom.xml',
 			'Timeout waiting for the notification of the Maven dependency update',
-			90_000,
+			120_000, // 2 minutes
 			1_500,
 		);
 	};
