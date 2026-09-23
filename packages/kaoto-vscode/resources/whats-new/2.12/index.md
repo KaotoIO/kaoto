@@ -6,7 +6,7 @@ We are happy to announce that new version of extension was released!
 
 ## Key highlights of this release
 
-This release delivers three headline themes: a brand-new **Infrastructure view** for managing Camel infra services directly from VS Code; a dramatically more powerful **DataMapper** with XPath 3.1 / XSLT 3.0 function support, advanced schema handling (abstract types, `xs:choice` sequences, output validation), and a rebuilt XPath editor with function completion; and a set of **canvas and editor improvements**. Powered by Apache Camel 4.22.1.
+This release delivers three headline themes: a brand-new **Infrastructure view** for managing Camel infra services directly from VS Code; a dramatically more powerful **DataMapper** with XPath 3.1 / XSLT 3.0 function support, advanced schema handling (substitution group, abstract types, `xs:choice`), and improved XPath editor with function completion; and a set of **canvas and editor improvements**. Powered by Apache Camel 4.22.1.
 
 ---
 
@@ -37,7 +37,19 @@ Each running service is shown as a tree item with its name, port (if known), and
 
 ---
 
-### DataMapper: XPath 3.1 Editor & XSLT 3.0 Functions
+### DataMapper: Enhanced mapping context menu
+
+- **`Add copy selector`/`Add value selector`/`Duplicate` mapping context menu** - Mapping context menu now offers `Add value selector` to add  `xsl:value-of`, `Add copy selector` to add `xsl:copy-of` and `Duplicate` to add multiple mappings on a collection target field
+- **`Wrap with Instruction`/`Inner Instruction` mapping context menu** - `Wrap with Instruction` and `Inner Instruction` sub categories are added to the mapping context menu, offering more flexible mapping instruction control 
+- **Double click short cut for adding a mapping** - if you double click the target field, input field is shown right away to quickly write down a mapping XPath expression  
+
+<p align="center">
+    <img src="./datamapper-mapping-context-menu.png" alt="DataMapper showing xs:choice branch selection and type override" width="65%">
+</p>
+
+---
+
+### DataMapper: XPath 3.1 & XSLT 3.0 Functions
 
 The XPath expression editor has been significantly upgraded:
 
@@ -46,7 +58,7 @@ The XPath expression editor has been significantly upgraded:
 - **XSLT 3.0 / XPath 3.1 function catalog** — a comprehensive catalog of function categories is now available, covering Math, Map, Array, Higher-Order functions, and XSLT-specific constructs
 
 <p align="center">
-    <img src="./xpath-editor.png" alt="XPath editor showing function auto-completion and hover help" width="65%">
+    <img src="./xpath-editor.gif" alt="XPath editor showing function auto-completion and hover help" width="65%">
 </p>
 
 ---
@@ -56,35 +68,15 @@ The XPath expression editor has been significantly upgraded:
 Several long-standing schema edge cases are now fully handled:
 
 - **`xs:sequence` inside `xs:choice`** — you can now select a sequence branch within a choice field; Change/Clear context menu options, collection/cardinality inheritance, and nested choice clearing all work correctly
-- **`xsi:type` attribute generation** — the XSLT serializer now emits `xsi:type` attributes when a SAFE type override is active, making the output self-documenting and allowing XML Schema validators to follow the type hierarchy without schema regeneration
+- **`xsi:type` attribute generation** — the XSLT output now emits `xsi:type` attributes when a SAFE type override is active, making the output self-documenting and allowing XML Schema validators to follow the type hierarchy without schema regeneration
 - **Abstract type auto-detection** — XSLT-based auto-detection of wrapper field selections and substitutions, with automatic pruning of user-created fields that are no longer valid
-
-<p align="center">
-    <img src="./datamapper-schema.png" alt="DataMapper showing xs:choice branch selection and type override" width="65%">
-</p>
 
 ---
 
 ### DataMapper: Variables & Grouping
 
-- **`xsl:variable` as source elements** — variables defined in the mapping can now be used as source document nodes, mapped and referenced just like body or parameter fields
-- **Global variable support** — variables declared at the global (stylesheet) level are now supported alongside local variables
-- **`xsl:for-each-group` rendering** — UI components for rendering grouping constructs are now available in the DataMapper canvas
-- **Expose all variables via `getAllVariables()`** — the provider now surfaces a consolidated list of all in-scope variables, enabling richer context for XPath expressions
-
----
-
-### DataMapper: Output Validation
-
-A new **output validation** feature has been added to the DataMapper:
-
-- A dedicated `DataMapperValidationStepService` manages a validator `to:` step placed immediately after the XSLT step, making it straightforward to enable or disable schema validation of the transformation output
-- A checkbox in both the Properties panel and the DataMapper Settings modal lets you toggle output validation without leaving the editor
-- The validator step is automatically kept in sync when the target schema, type, or file changes
-
-<p align="center">
-    <img src="./datamapper-validation.png" alt="DataMapper Settings modal with output validation toggle" width="50%">
-</p>
+- **`xsl:variable` support** — xsl:variable is now fully supported. variables defined inside the mapping context as well as the global level variables can now be used as source document nodes, mapped and referenced just like body or parameter fields
+- **`xsl:for-each-group` support** — `xsl:for-each-group` is now fully supported including `xsl:sort`. It allows to create complex collection mapping with grouping and sort functionality enabled
 
 ---
 
