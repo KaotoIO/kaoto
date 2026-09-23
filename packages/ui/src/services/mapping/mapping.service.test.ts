@@ -319,6 +319,35 @@ describe('MappingService', () => {
       expect(forEachItem.children).toHaveLength(1);
       expect(forEachItem.children[0]).toBe(itemItem);
     });
+
+    it('should retain a childless isUserCreated FieldItem (target wrapper selection) when a new source parameter is added', () => {
+      // Regression for https://github.com/KaotoIO/kaoto/issues/3929
+      //
+      // When a new (primitive) source parameter is added, DataMapperProvider calls:
+      //   removeStaleMappings → removeAllMappingsForDocument(tree, PARAM, newName)
+      // because isToPrimitive=true. The new param name is NOT yet in sourceParameterMap so
+      // hasStaleSourceDocument always returns false — but the old childless-FieldItem prune
+      // at the end of doRemoveAllMappingsForSourceDocument still fired, wiping any
+      // isUserCreated FieldItem (= a target choice/abstract selection with no mapped children).
+      const parentItem = tree.children[0] as FieldItem;
+      const selectedMemberField = targetDoc.fields[0].fields[0];
+      const selectionItem = new FieldItem(parentItem, selectedMemberField);
+      selectionItem.isUserCreated = true;
+      selectionItem.children = []; // no mappings yet — the bug trigger
+      parentItem.children.push(selectionItem);
+
+      const childrenBefore = parentItem.children.length;
+
+      // Simulate adding a brand-new primitive parameter — its name does not exist yet in
+      // any mappings, so the stale-document check is vacuously false for every child.
+      MappingService.removeAllMappingsForDocument(tree, DocumentType.PARAM, 'brandNewParam');
+
+      expect(parentItem.children).toHaveLength(childrenBefore);
+      const retained = parentItem.children.find(
+        (c) => c instanceof FieldItem && (c as FieldItem).field === selectedMemberField && c.isUserCreated,
+      );
+      expect(retained).toBeDefined();
+    });
   });
 
   describe('renameParameterInMappings()', () => {
@@ -671,6 +700,69 @@ describe('MappingService', () => {
       expect(replacedParent.children).toContain(variable);
       // Its parent pointer must be updated to the replacement FieldItem it now lives under.
       expect(variable.parent).toBe(replacedParent);
+    });
+  });
+
+  describe('removeStaleMappingsForDocument() — isUserCreated FieldItem survives source-document reconciliation', () => {
+    /**
+     * Regression for https://github.com/KaotoIO/kaoto/issues/3929
+     *
+     * When a target xs:choice / xs:abstract member is selected (no children mapped yet),
+     * the selection is represented as a childless FieldItem with `isUserCreated = true`.
+     * Previously, `doRemoveStaleMappingsForSourceDocument` pruned every childless FieldItem
+     * regardless of the `isUserCreated` flag, wiping the selection when a source parameter
+     * was added/updated.
+     */
+    it('should retain a childless isUserCreated FieldItem (target wrapper selection) when a source document is reconciled', () => {
+      // A childless isUserCreated FieldItem on the target side represents a choice/abstract
+      // selection that has not yet been mapped onto — e.g. the user selected "Email" from a
+      // xs:choice but has not dragged any source field onto it yet.
+      const parentItem = tree.children[0] as FieldItem;
+      const selectedMemberField = targetDoc.fields[0].fields[0]; // any target field is fine
+      const selectionItem = new FieldItem(parentItem, selectedMemberField);
+      selectionItem.isUserCreated = true;
+      selectionItem.children = []; // no mappings yet — the bug trigger
+      parentItem.children.push(selectionItem);
+
+      const childrenBefore = parentItem.children.length;
+
+      // Simulate adding a new source parameter: removeStaleMappingsForDocument is called
+      // with the *source* document (not the target), dispatching to the source-side path.
+      MappingService.removeStaleMappingsForDocument(tree, sourceDoc);
+
+      // The selection FieldItem must survive because it is isUserCreated.
+      expect(parentItem.children).toHaveLength(childrenBefore);
+      const retained = parentItem.children.find(
+        (c) => c instanceof FieldItem && (c as FieldItem).field === selectedMemberField && c.isUserCreated,
+      );
+      expect(retained).toBeDefined();
+    });
+
+    it('should still remove a non-isUserCreated childless FieldItem during source-document reconciliation', () => {
+      // Only isUserCreated items are protected. An ordinary childless FieldItem on the target
+      // side (e.g. a parent container with all its value-selectors already removed) must
+      // still be pruned.
+      const parentItem = tree.children[0] as FieldItem;
+      const targetField = targetDoc.fields[0].fields[0];
+      const orphanItem = new FieldItem(parentItem, targetField);
+      orphanItem.isUserCreated = false;
+      orphanItem.children = [];
+      parentItem.children.push(orphanItem);
+
+      const childrenBefore = parentItem.children.length;
+
+      MappingService.removeStaleMappingsForDocument(tree, sourceDoc);
+
+      // The orphan must be pruned.
+      const stillPresent = parentItem.children.find(
+        (c) =>
+          c instanceof FieldItem &&
+          (c as FieldItem).field === targetField &&
+          !c.isUserCreated &&
+          c.children.length === 0,
+      );
+      expect(stillPresent).toBeUndefined();
+      expect(parentItem.children.length).toBeLessThan(childrenBefore);
     });
   });
 
