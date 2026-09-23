@@ -1,7 +1,6 @@
 import { KaotoFunction, KaotoFunctionArgument } from '@kaoto/camel-catalog/types';
 
 import { ICamelComponentDefinition } from '../models/camel/camel-components-catalog';
-import { ICamelDataformatDefinition } from '../models/camel/camel-dataformats-catalog';
 import { ICamelLanguageDefinition } from '../models/camel/camel-languages-catalog';
 import { ICamelProcessorDefinition } from '../models/camel/camel-processors-catalog';
 import { IKameletDefinition } from '../models/camel/kamelets-catalog';
@@ -14,8 +13,6 @@ export type DynamicCatalogTypeMap = {
   [CatalogKind.Pattern]: ICamelProcessorDefinition;
   [CatalogKind.Entity]: ICamelProcessorDefinition;
   [CatalogKind.Language]: ICamelLanguageDefinition;
-  [CatalogKind.Dataformat]: ICamelDataformatDefinition;
-  [CatalogKind.Loadbalancer]: ICamelProcessorDefinition;
   [CatalogKind.Kamelet]: IKameletDefinition;
   [CatalogKind.TestAction]: ICitrusComponentDefinition;
   [CatalogKind.TestActionGroup]: ICitrusComponentDefinition;

@@ -4,10 +4,8 @@ import { DynamicCatalog } from '../dynamic-catalog/dynamic-catalog';
 import { DynamicCatalogRegistry } from '../dynamic-catalog/dynamic-catalog-registry';
 import {
   CamelComponentsProvider,
-  CamelDataformatProvider,
   CamelFunctionProvider,
   CamelLanguageProvider,
-  CamelLoadbalancerProvider,
   CamelProcessorsProvider,
 } from '../dynamic-catalog/providers/camel-components.provider';
 import { CamelKameletsProvider } from '../dynamic-catalog/providers/camel-kamelets.provider';
@@ -20,9 +18,7 @@ import {
   CamelCatalogIndex,
   CitrusCatalogIndex,
   ICamelComponentDefinition,
-  ICamelDataformatDefinition,
   ICamelLanguageDefinition,
-  ICamelLoadBalancerDefinition,
   ICamelProcessorDefinition,
   ICitrusComponentDefinition,
   IKameletDefinition,
@@ -85,20 +81,6 @@ export const testLoadCatalog = async (catalogLibraryEntry: CatalogLibraryEntry) 
     delete languageCatalogImport.default;
   }
 
-  const dataformatCatalogImport = await import(`${catalogPath}${catalogDefinition.catalogs.dataformats.file}`);
-  const dataformatCatalog: Record<string, ICamelDataformatDefinition> =
-    dataformatCatalogImport.default || dataformatCatalogImport;
-  if (dataformatCatalogImport.default) {
-    delete dataformatCatalogImport.default;
-  }
-
-  const loadbalancerCatalogImport = await import(`${catalogPath}${catalogDefinition.catalogs.loadbalancers.file}`);
-  const loadbalancerCatalog: Record<string, ICamelLoadBalancerDefinition> =
-    loadbalancerCatalogImport.default || loadbalancerCatalogImport;
-  if (loadbalancerCatalogImport.default) {
-    delete loadbalancerCatalogImport.default;
-  }
-
   const entitiesCatalogImport = await import(`${catalogPath}${catalogDefinition.catalogs.entities.file}`);
   const entitiesCatalog: Record<string, ICamelProcessorDefinition> =
     entitiesCatalogImport.default || entitiesCatalogImport;
@@ -124,8 +106,6 @@ export const testLoadCatalog = async (catalogLibraryEntry: CatalogLibraryEntry) 
     kameletsCatalogMap,
     kameletsBoundariesCatalog,
     languageCatalog,
-    dataformatCatalog,
-    loadbalancerCatalog,
     entitiesCatalog,
     functionsCatalogMap,
   };
@@ -214,14 +194,6 @@ export const setupDynamicCatalogRegistry = (catalogsMap: Awaited<ReturnType<type
   DynamicCatalogRegistry.get().setCatalog(
     CatalogKind.Language,
     new DynamicCatalog(new CamelLanguageProvider(catalogsMap.languageCatalog)),
-  );
-  DynamicCatalogRegistry.get().setCatalog(
-    CatalogKind.Dataformat,
-    new DynamicCatalog(new CamelDataformatProvider(catalogsMap.dataformatCatalog)),
-  );
-  DynamicCatalogRegistry.get().setCatalog(
-    CatalogKind.Loadbalancer,
-    new DynamicCatalog(new CamelLoadbalancerProvider(catalogsMap.loadbalancerCatalog)),
   );
   DynamicCatalogRegistry.get().setCatalog(
     CatalogKind.Function,

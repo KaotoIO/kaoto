@@ -2,7 +2,6 @@ import { KaotoFunction, KaotoFunctionArgument } from '@kaoto/camel-catalog/types
 
 import {
   ICamelComponentDefinition,
-  ICamelDataformatDefinition,
   ICamelLanguageDefinition,
   ICamelProcessorDefinition,
   IKameletDefinition,
@@ -98,11 +97,6 @@ describe('DynamicCatalogRegistry', () => {
         fetch: () => Promise.resolve(undefined),
         fetchAll: () => Promise.resolve({}),
       };
-      const dataformatProvider: ICatalogProvider<ICamelDataformatDefinition> = {
-        id: 'dataformat-provider',
-        fetch: () => Promise.resolve(undefined),
-        fetchAll: () => Promise.resolve({}),
-      };
       const kameletProvider: ICatalogProvider<IKameletDefinition> = {
         id: 'kamelet-provider',
         fetch: () => Promise.resolve(undefined),
@@ -114,8 +108,6 @@ describe('DynamicCatalogRegistry', () => {
       registry.setCatalog(CatalogKind.Pattern, new DynamicCatalog(processorProvider));
       registry.setCatalog(CatalogKind.Entity, new DynamicCatalog(processorProvider));
       registry.setCatalog(CatalogKind.Language, new DynamicCatalog(languageProvider));
-      registry.setCatalog(CatalogKind.Dataformat, new DynamicCatalog(dataformatProvider));
-      registry.setCatalog(CatalogKind.Loadbalancer, new DynamicCatalog(processorProvider));
       registry.setCatalog(CatalogKind.Kamelet, new DynamicCatalog(kameletProvider));
 
       expect(registry.getCatalog(CatalogKind.Component)).toBeDefined();
@@ -123,8 +115,6 @@ describe('DynamicCatalogRegistry', () => {
       expect(registry.getCatalog(CatalogKind.Pattern)).toBeDefined();
       expect(registry.getCatalog(CatalogKind.Entity)).toBeDefined();
       expect(registry.getCatalog(CatalogKind.Language)).toBeDefined();
-      expect(registry.getCatalog(CatalogKind.Dataformat)).toBeDefined();
-      expect(registry.getCatalog(CatalogKind.Loadbalancer)).toBeDefined();
       expect(registry.getCatalog(CatalogKind.Kamelet)).toBeDefined();
     });
   });
@@ -280,17 +270,17 @@ describe('DynamicCatalogRegistry', () => {
 
     it('should bypass cache when forceFresh is true', async () => {
       const mockEntity1 = {
-        model: { name: 'dataformat-v1' },
+        model: { name: 'language-v1' },
         properties: {},
         propertiesSchema: {},
-      } as unknown as ICamelDataformatDefinition;
+      } as unknown as ICamelLanguageDefinition;
       const mockEntity2 = {
-        model: { name: 'dataformat-v2' },
+        model: { name: 'language-v2' },
         properties: {},
         propertiesSchema: {},
-      } as unknown as ICamelDataformatDefinition;
+      } as unknown as ICamelLanguageDefinition;
 
-      const mockProvider: ICatalogProvider<ICamelDataformatDefinition> = {
+      const mockProvider: ICatalogProvider<ICamelLanguageDefinition> = {
         id: 'test-provider',
         fetch: () => Promise.resolve(undefined),
         fetchAll: () => Promise.resolve({}),
@@ -299,14 +289,14 @@ describe('DynamicCatalogRegistry', () => {
       fetchSpy.mockResolvedValueOnce(mockEntity1).mockResolvedValueOnce(mockEntity2);
 
       const catalog = new DynamicCatalog(mockProvider);
-      registry.setCatalog(CatalogKind.Dataformat, catalog);
+      registry.setCatalog(CatalogKind.Language, catalog);
 
       // First call
-      const firstResult = await registry.getEntity(CatalogKind.Dataformat, 'test-key');
+      const firstResult = await registry.getEntity(CatalogKind.Language, 'test-key');
       expect(firstResult).toBe(mockEntity1);
 
       // Second call with forceFresh
-      const secondResult = await registry.getEntity(CatalogKind.Dataformat, 'test-key', { forceFresh: true });
+      const secondResult = await registry.getEntity(CatalogKind.Language, 'test-key', { forceFresh: true });
       expect(secondResult).toBe(mockEntity2);
       expect(fetchSpy).toHaveBeenCalledTimes(2);
     });

@@ -19,12 +19,10 @@ export interface CamelCatalogIndex extends Omit<CatalogDefinition, 'catalogs'> {
     models: CatalogDefinitionEntry;
     components: CatalogDefinitionEntry;
     languages: CatalogDefinitionEntry;
-    dataformats: CatalogDefinitionEntry;
     kamelets: CatalogDefinitionEntry;
     kameletBoundaries: CatalogDefinitionEntry;
     patterns: CatalogDefinitionEntry;
     entities: CatalogDefinitionEntry;
-    loadbalancers: CatalogDefinitionEntry;
     functions: CatalogDefinitionEntry;
   };
 }
@@ -51,8 +49,6 @@ export interface ComponentsCatalog {
   [CatalogKind.Pattern]?: Record<string, ICamelProcessorDefinition>;
   [CatalogKind.Entity]?: Record<string, ICamelProcessorDefinition>;
   [CatalogKind.Language]?: Record<string, ICamelLanguageDefinition>;
-  [CatalogKind.Dataformat]?: Record<string, ICamelDataformatDefinition>;
-  [CatalogKind.Loadbalancer]?: Record<string, ICamelLoadBalancerDefinition>;
   [CatalogKind.Kamelet]?: Record<string, IKameletDefinition>;
   [CatalogKind.TestActionGroup]?: Record<string, ICitrusComponentDefinition>;
   [CatalogKind.TestAction]?: Record<string, ICitrusComponentDefinition>;
