@@ -1,10 +1,23 @@
 import { ComboBox } from '@carbon/react';
 import type { OnChangeData as ComboOnChangeData } from '@carbon/react/lib/components/ComboBox/ComboBox';
 import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
 import { isDefined } from '../utils';
 import { TypeaheadProps } from './Typeahead.types';
 
 export const CREATE_NEW_ITEM = 'create-new-with-name';
+
+const renderComboBoxItem = (item: { text: string; description?: string }) => (
+  <span>
+    {item.text}
+    {item.description && (
+      <>
+        {' '}
+        <small aria-hidden="true">{item.description}</small>
+      </>
+    )}
+  </span>
+);
 
 export const Typeahead: FunctionComponent<TypeaheadProps> = ({
   selectedItem,
@@ -111,16 +124,19 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
 
       if (!selected) {
         if (allowCustomInput) {
-          if (!inputValue || !inputValue.trim()) {
+          if (!inputValue?.trim()) {
             setInputValue('');
             return;
           }
           onCleanInput?.();
           return;
         }
-        onChange?.(undefined);
         setInputValue('');
-        onCleanInput?.();
+        if (onCleanInput) {
+          onCleanInput();
+        } else {
+          onChange?.(undefined);
+        }
         return;
       }
 
@@ -144,7 +160,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
         return;
       }
 
-      if (allowCustomInput && selected.text && selected.text.trim()) {
+      if (allowCustomInput && selected.text?.trim()) {
         const customItem = { name: selected.text, value: selected.text, description: '' };
         onChange?.(customItem);
       }
@@ -169,7 +185,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
     }));
 
     if (onCreate) {
-      const createNewText = inputValue && inputValue.trim()
+      const createNewText = inputValue?.trim()
         ? `Create new ${onCreatePrefix ?? ''} '${inputValue}'`
         : `Create new ${onCreatePrefix ?? ''}`;
 
@@ -198,6 +214,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
         placeholder={placeholder}
         items={comboBoxItems}
         itemToString={(item) => (item ? item.text : '')}
+        itemToElement={renderComboBoxItem}
         selectedItem={selectedComboBoxItem}
         onChange={handleChange}
         onInputChange={handleInputChange}

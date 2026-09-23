@@ -3,135 +3,123 @@
 exports[`ExpressionField > renders empty expression field with schema 1`] = `
 <div>
   <div
-    class="pf-v6-c-card"
-    data-ouia-component-id="OUIA-Generated-Card-_r_0_"
-    data-ouia-component-type="PF6/Card"
-    data-ouia-safe="true"
+    class="cds--tile array-field-wrapper-tile"
     data-testid="#__field-wrapper"
-    id=""
   >
     <div
-      class="pf-v6-c-card__header"
+      class="array-field-wrapper-header "
     >
       <div
-        class="pf-v6-c-card__actions"
+        class="array-field-wrapper-title-section"
       >
+        <h4
+          class="cds--tile-heading array-field-wrapper-heading"
+        >
+          Expression
+        </h4>
+        <button
+          aria-label="More info for Expression field"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            fill="currentColor"
+            focusable="false"
+            height="16"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 16 16"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
+            />
+            <path
+              d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
+            />
+          </svg>
+        </button>
+        <p>
+          <strong>
+            Expression
+             
+            &lt;expression&gt;
+          </strong>
+        </p>
+        <p />
+        <p>
+          Default: 
+          no default value
+        </p>
+      </div>
+      <div>
         <div
-          aria-labelledby="#-legend"
-          class="pf-v6-c-form__group"
-          role="group"
+          class="cds--stack-vertical cds--stack-scale-3"
         >
           <div
-            class="pf-v6-c-form__group-control pf-m-stack"
+            role="group"
           >
-            <div
-              class="pf-v6-c-menu-toggle pf-m-full-width pf-m-typeahead"
-              id="#"
-            >
+            <div>
               <div
-                class="pf-v6-c-text-input-group pf-m-plain"
+                class="cds--list-box__wrapper"
               >
                 <div
-                  autocomplete="off"
-                  class="pf-v6-c-text-input-group__main"
-                  data-testid="#__expression-list-typeahead-select-input"
-                  id="#-typeahead-select-input"
+                  class="cds--combo-box cds--list-box"
                 >
-                  <span
-                    class="pf-v6-c-text-input-group__text"
+                  <div
+                    class="cds--list-box__field"
                   >
                     <input
+                      aria-activedescendant=""
+                      aria-autocomplete="list"
+                      aria-controls="downshift-_r_2_-menu"
+                      aria-expanded="false"
+                      aria-haspopup="listbox"
                       aria-label="# expression list"
-                      class="pf-v6-c-text-input-group__text-input"
+                      autocomplete="off"
+                      class="cds--text-input cds--text-input--empty"
+                      data-testid="#__expression-list"
+                      id="#"
                       placeholder="Select or write an expression"
+                      role="combobox"
+                      tabindex="0"
                       type="text"
                       value=""
                     />
-                  </span>
-                </div>
-                <div
-                  class="pf-v6-c-text-input-group__utilities"
-                />
-              </div>
-              <button
-                aria-expanded="false"
-                aria-label="# expression list toggle"
-                class="pf-v6-c-menu-toggle__button"
-                data-ouia-component-id="OUIA-Generated-MenuToggle-typeahead-_r_5_"
-                data-ouia-component-type="PF6/MenuToggle"
-                data-ouia-safe="true"
-                tabindex="-1"
-                type="button"
-              >
-                <span
-                  class="pf-v6-c-menu-toggle__controls"
-                >
-                  <span
-                    class="pf-v6-c-menu-toggle__toggle-icon"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      class="pf-v6-svg"
-                      fill="currentColor"
-                      height="1em"
-                      role="img"
-                      viewBox="0 0 20 20"
-                      width="1em"
+                    <button
+                      aria-controls="downshift-_r_2_-menu"
+                      aria-expanded="false"
+                      aria-label="Open"
+                      class="cds--list-box__menu-icon"
+                      id="downshift-_r_2_-toggle-button"
+                      tabindex="-1"
+                      title="Open"
+                      type="button"
                     >
-                      <path
-                        d="m17.65 8.76-6.674 5.72a1.496 1.496 0 0 1-.976.365c-.347 0-.694-.122-.978-.366l-6.673-5.72A1 1 0 0 1 3 7h14a1 1 0 0 1 .65 1.76Z"
-                      />
-                    </svg>
-                  </span>
-                </span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div
-        class="pf-v6-c-card__header-main"
-      >
-        <div
-          class="pf-v6-c-card__title"
-        >
-          <div
-            class="pf-v6-c-card__title-text"
-          >
-             
-            Expression
-             
-            <div
-              style="display: contents;"
-            >
-              <span
-                aria-label="More info for Expression field"
-                class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                data-ouia-component-id="OUIA-Generated-Button-plain-_r_7_"
-                data-ouia-component-type="PF6/Button"
-                data-ouia-safe="true"
-                role="button"
-                tabindex="0"
-                type="button"
-              >
-                <span
-                  class="pf-v6-c-button__icon"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="pf-v6-svg"
-                    fill="currentColor"
-                    height="1em"
-                    role="img"
-                    viewBox="0 0 1024 1024"
-                    width="1em"
-                  >
-                    <path
-                      d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
-                    />
-                  </svg>
-                </span>
-              </span>
+                      <svg
+                        aria-hidden="true"
+                        fill="currentColor"
+                        focusable="false"
+                        height="16"
+                        preserveAspectRatio="xMidYMid meet"
+                        viewBox="0 0 16 16"
+                        width="16"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M8 11 3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                  <ul
+                    aria-labelledby="downshift-_r_2_-label"
+                    class="cds--list-box__menu"
+                    id="downshift-_r_2_-menu"
+                    role="listbox"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -144,298 +132,358 @@ exports[`ExpressionField > renders empty expression field with schema 1`] = `
 exports[`ExpressionField > renders expression field with selection 1`] = `
 <div>
   <div
-    class="pf-v6-c-card"
-    data-ouia-component-id="OUIA-Generated-Card-_r_8_"
-    data-ouia-component-type="PF6/Card"
-    data-ouia-safe="true"
+    class="cds--tile array-field-wrapper-tile"
     data-testid="#__field-wrapper"
-    id=""
   >
     <div
-      class="pf-v6-c-card__header"
+      class="array-field-wrapper-header array-field-wrapper-header--with-children"
     >
       <div
-        class="pf-v6-c-card__actions"
+        class="array-field-wrapper-title-section"
       >
+        <h4
+          class="cds--tile-heading array-field-wrapper-heading"
+        >
+          Simple
+        </h4>
+        <button
+          aria-label="More info for Simple field"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            fill="currentColor"
+            focusable="false"
+            height="16"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 16 16"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
+            />
+            <path
+              d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
+            />
+          </svg>
+        </button>
+        <p>
+          <strong>
+            Simple
+             
+            &lt;expression&gt;
+          </strong>
+        </p>
+        <p>
+          Evaluates a Camel simple expression.
+        </p>
+        <p>
+          Default: 
+          no default value
+        </p>
+      </div>
+      <div>
         <div
-          aria-labelledby="#-legend"
-          class="pf-v6-c-form__group"
-          role="group"
+          class="cds--stack-vertical cds--stack-scale-3"
         >
           <div
-            class="pf-v6-c-form__group-control pf-m-stack"
+            role="group"
           >
-            <div
-              class="pf-v6-c-menu-toggle pf-m-full-width pf-m-typeahead"
-              id="#"
-            >
+            <div>
               <div
-                class="pf-v6-c-text-input-group pf-m-plain"
+                class="cds--list-box__wrapper"
               >
                 <div
-                  autocomplete="off"
-                  class="pf-v6-c-text-input-group__main"
-                  data-testid="#__expression-list-typeahead-select-input"
-                  id="#-typeahead-select-input"
+                  class="cds--combo-box cds--list-box"
                 >
-                  <span
-                    class="pf-v6-c-text-input-group__text"
+                  <div
+                    class="cds--list-box__field"
                   >
                     <input
+                      aria-activedescendant=""
+                      aria-autocomplete="list"
+                      aria-controls="downshift-_r_5_-menu"
+                      aria-expanded="false"
+                      aria-haspopup="listbox"
                       aria-label="# expression list"
-                      class="pf-v6-c-text-input-group__text-input"
+                      autocomplete="off"
+                      class="cds--text-input"
+                      data-testid="#__expression-list"
+                      id="#"
                       placeholder="Select or write an expression"
+                      role="combobox"
+                      tabindex="0"
                       type="text"
                       value="Simple"
                     />
-                  </span>
-                </div>
-                <div
-                  class="pf-v6-c-text-input-group__utilities"
-                >
-                  <button
-                    aria-label="Clear input value"
-                    class="pf-v6-c-button pf-m-plain"
-                    data-ouia-component-id="OUIA-Generated-Button-plain-_r_e_"
-                    data-ouia-component-type="PF6/Button"
-                    data-ouia-safe="true"
-                    data-testid="#__expression-list__clear"
-                    type="button"
-                  >
-                    <span
-                      class="pf-v6-c-button__icon"
+                    <button
+                      aria-label="Clear selected item"
+                      class="cds--list-box__selection"
+                      tabindex="-1"
+                      title="Clear selected item"
+                      type="button"
                     >
                       <svg
                         aria-hidden="true"
-                        data-testid="times-icon"
-                        role="img"
+                        fill="currentColor"
+                        focusable="false"
+                        height="16"
+                        preserveAspectRatio="xMidYMid meet"
+                        viewBox="0 0 32 32"
+                        width="16"
+                        xmlns="http://www.w3.org/2000/svg"
                       >
-                        <path />
+                        <path
+                          d="M17.4141 16 24 9.4141 22.5859 8 16 14.5859 9.4143 8 8 9.4141 14.5859 16 8 22.5859 9.4143 24 16 17.4141 22.5859 24 24 22.5859 17.4141 16z"
+                        />
                       </svg>
-                    </span>
-                  </button>
+                    </button>
+                    <button
+                      aria-controls="downshift-_r_5_-menu"
+                      aria-expanded="false"
+                      aria-label="Open"
+                      class="cds--list-box__menu-icon"
+                      id="downshift-_r_5_-toggle-button"
+                      tabindex="-1"
+                      title="Open"
+                      type="button"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        fill="currentColor"
+                        focusable="false"
+                        height="16"
+                        preserveAspectRatio="xMidYMid meet"
+                        viewBox="0 0 16 16"
+                        width="16"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M8 11 3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                  <ul
+                    aria-labelledby="downshift-_r_5_-label"
+                    class="cds--list-box__menu"
+                    id="downshift-_r_5_-menu"
+                    role="listbox"
+                  />
                 </div>
               </div>
-              <button
-                aria-expanded="false"
-                aria-label="# expression list toggle"
-                class="pf-v6-c-menu-toggle__button"
-                data-ouia-component-id="OUIA-Generated-MenuToggle-typeahead-_r_d_"
-                data-ouia-component-type="PF6/MenuToggle"
-                data-ouia-safe="true"
-                tabindex="-1"
-                type="button"
-              >
-                <span
-                  class="pf-v6-c-menu-toggle__controls"
-                >
-                  <span
-                    class="pf-v6-c-menu-toggle__toggle-icon"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      class="pf-v6-svg"
-                      fill="currentColor"
-                      height="1em"
-                      role="img"
-                      viewBox="0 0 20 20"
-                      width="1em"
-                    >
-                      <path
-                        d="m17.65 8.76-6.674 5.72a1.496 1.496 0 0 1-.976.365c-.347 0-.694-.122-.978-.366l-6.673-5.72A1 1 0 0 1 3 7h14a1 1 0 0 1 .65 1.76Z"
-                      />
-                    </svg>
-                  </span>
-                </span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div
-        class="pf-v6-c-card__header-main"
-      >
-        <div
-          class="pf-v6-c-card__title"
-        >
-          <div
-            class="pf-v6-c-card__title-text"
-          >
-             
-            Simple
-             
-            <div
-              style="display: contents;"
-            >
-              <span
-                aria-label="More info for Simple field"
-                class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                data-ouia-component-id="OUIA-Generated-Button-plain-_r_g_"
-                data-ouia-component-type="PF6/Button"
-                data-ouia-safe="true"
-                role="button"
-                tabindex="0"
-                type="button"
-              >
-                <span
-                  class="pf-v6-c-button__icon"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="pf-v6-svg"
-                    fill="currentColor"
-                    height="1em"
-                    role="img"
-                    viewBox="0 0 1024 1024"
-                    width="1em"
-                  >
-                    <path
-                      d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
-                    />
-                  </svg>
-                </span>
-              </span>
             </div>
           </div>
         </div>
       </div>
     </div>
     <div
-      class="pf-v6-c-card__body pf-v6-c-form kaoto-form__label"
+      class="kaoto-form kaoto-form__label"
       data-testid="#__children"
     >
       <div
-        class="pf-v6-c-form__group"
+        class="cds--stack-vertical cds--stack-scale-3"
         data-testid="simple.expression__field-wrapper"
       >
         <div
-          class="pf-v6-c-form__group-label"
+          class="kaoto-field-wrapper__label-container"
         >
           <label
-            class="pf-v6-c-form__label"
-            for="simple.expression"
+            class="kaoto-field-wrapper__label"
           >
             <span
-              class="pf-v6-c-form__label-text"
+              class="kaoto-field-wrapper__required"
             >
-              Expression
-            </span>
-            <span
-              aria-hidden="true"
-              class="pf-v6-c-form__label-required"
-            >
-               
               *
             </span>
+            Expression
           </label>
-            
+          <button
+            aria-label="More info for Expression field"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              focusable="false"
+              height="16"
+              preserveAspectRatio="xMidYMid meet"
+              viewBox="0 0 16 16"
+              width="16"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
+              />
+              <path
+                d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
+              />
+            </svg>
+          </button>
+          <p>
+            <strong>
+              Expression
+               
+              &lt;string&gt;
+            </strong>
+          </p>
+          <p>
+            The expression value in your chosen language syntax
+          </p>
+          <p>
+            Default: 
+            no default value
+          </p>
           <span
-            class="pf-v6-c-form__group-label-help"
+            class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
           >
             <div
-              style="display: contents;"
+              class="cds--tooltip-trigger__wrapper"
             >
-              <span
-                aria-label="More info for Expression field"
-                class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                data-ouia-component-id="OUIA-Generated-Button-plain-_r_k_"
-                data-ouia-component-type="PF6/Button"
-                data-ouia-safe="true"
-                role="button"
-                tabindex="0"
+              <button
+                aria-labelledby="tooltip-_r_8_"
+                class="cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+                data-testid="simple.expression__open-suggestions-button"
                 type="button"
               >
-                <span
-                  class="pf-v6-c-button__icon"
+                <svg
+                  aria-hidden="true"
+                  fill="currentColor"
+                  focusable="false"
+                  height="16"
+                  preserveAspectRatio="xMidYMid meet"
+                  viewBox="0 0 32 32"
+                  width="16"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <svg
-                    aria-hidden="true"
-                    class="pf-v6-svg"
-                    fill="currentColor"
-                    height="1em"
-                    role="img"
-                    viewBox="0 0 1024 1024"
-                    width="1em"
-                  >
-                    <path
-                      d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
-                    />
-                  </svg>
-                </span>
-              </span>
+                  <path
+                    d="M11 24H21V26H11zM13 28H19V30H13zM16 2A10 10 0 006 12a9.19 9.19 0 003.46 7.62c1 .93 1.54 1.46 1.54 2.38h2c0-1.84-1.11-2.87-2.19-3.86A7.2 7.2 0 018 12a8 8 0 0116 0 7.2 7.2 0 01-2.82 6.14c-1.07 1-2.18 2-2.18 3.86h2c0-.92.53-1.45 1.54-2.39A9.18 9.18 0 0026 12 10 10 0 0016 2z"
+                  />
+                </svg>
+              </button>
             </div>
+            <span
+              aria-hidden="true"
+              class="cds--popover"
+              id="tooltip-_r_8_"
+              role="tooltip"
+            >
+              <span
+                class="cds--popover-content cds--tooltip-content"
+              >
+                Open suggestions (Ctrl+Space)
+              </span>
+              <span
+                class="cds--popover-caret"
+              />
+            </span>
           </span>
         </div>
         <div
-          class="pf-v6-c-form__group-control"
+          class="textarea-field-container"
         >
           <div
-            class="pf-v6-c-input-group"
+            class="textarea-field-input-wrapper"
           >
             <div
-              class="pf-v6-c-input-group__item pf-m-fill"
+              class="cds--form-item"
             >
-              <span
-                class="pf-v6-c-form-control pf-m-textarea pf-m-resize-both"
+              <div
+                class="cds--text-area__label-wrapper"
+              >
+                <label
+                  class="cds--label"
+                  dir="auto"
+                  for="simple.expression"
+                />
+              </div>
+              <div
+                class="cds--text-area__wrapper"
               >
                 <textarea
-                  aria-describedby="simple.expression-popover"
                   aria-invalid="false"
+                  class="cds--text-area"
                   id="simple.expression"
                   name="simple.expression"
+                  placeholder=""
                   role="textbox"
                   rows="2"
-                  type="text"
+                  style="width: 100%;"
                 />
-              </span>
-            </div>
-            <div
-              class="pf-v6-c-input-group__item"
-            >
-              <button
-                aria-label="Open suggestions"
-                class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-                data-ouia-component-id="OUIA-Generated-Button-plain-_r_l_"
-                data-ouia-component-type="PF6/Button"
-                data-ouia-safe="true"
-                data-testid="simple.expression__open-suggestions-button"
-                title="Open suggestions (Ctrl+Space)"
-                type="button"
-              >
                 <span
-                  class="pf-v6-c-button__icon"
-                >
-                  <svg
-                    data-testid="lightbulb-icon"
-                    role="img"
-                  >
-                    <path />
-                  </svg>
-                </span>
-              </button>
-              <button
-                aria-label="Clear expression field"
-                class="pf-v6-c-button pf-m-plain"
-                data-ouia-component-id="OUIA-Generated-Button-plain-_r_m_"
-                data-ouia-component-type="PF6/Button"
-                data-ouia-safe="true"
-                data-testid="simple.expression__clear"
-                title="Clear expression field"
-                type="button"
-              >
-                <span
-                  class="pf-v6-c-button__icon"
-                >
-                  <svg
-                    data-testid="times-icon"
-                    role="img"
-                  >
-                    <path />
-                  </svg>
-                </span>
-              </button>
+                  aria-atomic="true"
+                  aria-live="assertive"
+                  class="cds--text-area__counter-alert"
+                  role="alert"
+                />
+              </div>
             </div>
           </div>
+          <span
+            class="cds--overflow-menu__wrapper"
+          >
+            <span
+              class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
+            >
+              <div
+                class="cds--tooltip-trigger__wrapper"
+              >
+                <button
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  aria-labelledby="tooltip-_r_d_"
+                  class="cds--overflow-menu cds--overflow-menu--sm cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+                  data-testid="simple.expression__field-actions"
+                  type="button"
+                >
+                  <svg
+                    aria-label="Options"
+                    class="cds--overflow-menu__icon"
+                    fill="currentColor"
+                    focusable="false"
+                    height="16"
+                    preserveAspectRatio="xMidYMid meet"
+                    role="img"
+                    viewBox="0 0 32 32"
+                    width="16"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      cx="16"
+                      cy="8"
+                      r="2"
+                    />
+                    <circle
+                      cx="16"
+                      cy="16"
+                      r="2"
+                    />
+                    <circle
+                      cx="16"
+                      cy="24"
+                      r="2"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <span
+                aria-hidden="true"
+                class="cds--popover"
+                id="tooltip-_r_d_"
+                role="tooltip"
+              >
+                <span
+                  class="cds--popover-content cds--tooltip-content"
+                >
+                  Options
+                </span>
+                <span
+                  class="cds--popover-caret"
+                />
+              </span>
+            </span>
+          </span>
         </div>
       </div>
     </div>

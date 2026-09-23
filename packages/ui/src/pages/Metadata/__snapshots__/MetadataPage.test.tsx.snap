@@ -17,1838 +17,2637 @@ exports[`MetadataPage > renders "Not applicable" when the resource type is not s
 exports[`MetadataPage > renders the KaotoForm when the resource type is supported 1`] = `
 <div>
   <form
-    class="pf-v6-c-form kaoto-form kaoto-form__label"
+    class="cds--form kaoto-form kaoto-form__label"
     data-testid="metadata-form"
-    novalidate=""
   >
     <div
-      class="pf-v6-c-form__group"
+      class="cds--stack-vertical cds--stack-scale-3"
       data-testid="#.annotations__field-wrapper"
     >
       <div
-        class="pf-v6-c-form__group-label"
+        class="kaoto-field-wrapper__label-container"
       >
         <label
-          class="pf-v6-c-form__label"
-          for="#.annotations"
+          class="kaoto-field-wrapper__label"
         >
-          <span
-            class="pf-v6-c-form__label-text"
-          >
+          <span>
             annotations
              
-            <span
-              class="pf-v6-c-badge pf-m-unread"
-              title="0 properties"
+            <div
+              class="cds--tag"
+              id="tag-id-_r_1_"
             >
-              0
-            </span>
+              <span
+                class="cds--tag__label"
+                dir="auto"
+                title=""
+              >
+                0
+              </span>
+            </div>
           </span>
         </label>
-          
-        <span
-          class="pf-v6-c-form__group-label-help"
+        <button
+          aria-label="More info for [object Object] field"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            fill="currentColor"
+            focusable="false"
+            height="16"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 16 16"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
+            />
+            <path
+              d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
+            />
+          </svg>
+        </button>
+        <p>
+          <strong>
+            <span>
+              annotations
+               
+              <div
+                class="cds--tag"
+                id="tag-id-_r_2_"
+              >
+                <span
+                  class="cds--tag__label"
+                  dir="auto"
+                  title=""
+                >
+                  0
+                </span>
+              </div>
+            </span>
+             
+            &lt;object&gt;
+          </strong>
+        </p>
+        <p>
+          Annotations is an unstructured key value map stored with a resource that may be set by external tools to store and retrieve arbitrary metadata. They are not queryable and should be preserved when modifying objects. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations
+        </p>
+        <p>
+          Default: 
+          no default value
+        </p>
+      </div>
+      <div>
+        <div
+          class="cds--css-grid"
         >
           <div
-            style="display: contents;"
+            class="cds--sm:col-span-2 cds--md:col-span-3 cds--lg:col-span-7 cds--css-grid-column"
+          >
+            <strong>
+              Key
+            </strong>
+          </div>
+          <div
+            class="cds--sm:col-span-2 cds--md:col-span-3 cds--lg:col-span-7 cds--css-grid-column"
+          >
+            <strong>
+              Value
+            </strong>
+          </div>
+          <div
+            class="cds--sm:col-span-0 cds--md:col-span-2 cds--lg:col-span-2 cds--css-grid-column"
           >
             <span
-              aria-label="More info for [object Object] field"
-              class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_3_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
-              role="button"
-              tabindex="0"
-              type="button"
+              class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
             >
-              <span
-                class="pf-v6-c-button__icon"
+              <div
+                class="cds--tooltip-trigger__wrapper"
               >
-                <svg
-                  aria-hidden="true"
-                  class="pf-v6-svg"
-                  fill="currentColor"
-                  height="1em"
-                  role="img"
-                  viewBox="0 0 1024 1024"
-                  width="1em"
+                <button
+                  aria-labelledby="tooltip-_r_4_"
+                  class="cds--btn cds--btn--ghost cds--btn--icon-only"
+                  data-testid="#.annotations__add"
+                  type="button"
                 >
-                  <path
-                    d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
-                  />
-                </svg>
+                  <svg
+                    aria-hidden="true"
+                    fill="currentColor"
+                    focusable="false"
+                    height="16"
+                    preserveAspectRatio="xMidYMid meet"
+                    viewBox="0 0 32 32"
+                    width="16"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <span
+                aria-hidden="true"
+                class="cds--popover"
+                id="tooltip-_r_4_"
+                role="tooltip"
+              >
+                <span
+                  class="cds--popover-content cds--tooltip-content"
+                >
+                  Add a new property
+                </span>
+                <span
+                  class="cds--popover-caret"
+                />
               </span>
             </span>
           </div>
-        </span>
-      </div>
-      <div
-        class="pf-v6-c-form__group-control"
-      >
-        <div
-          class="pf-v6-l-split pf-m-gutter"
-        >
-          <div
-            class="pf-v6-l-split__item pf-m-fill"
-          >
-            Key
-          </div>
-          <div
-            class="pf-v6-l-split__item pf-m-fill"
-          >
-            Value
-          </div>
-          <div
-            class="pf-v6-l-split__item"
-          >
-            <button
-              aria-label="Add a new property"
-              class="pf-v6-c-button pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_4_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
-              data-testid="#.annotations__add"
-              title="Add a new property"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-button__icon"
-              >
-                <svg
-                  data-testid="plus-icon"
-                  role="img"
-                >
-                  <path />
-                </svg>
-              </span>
-            </button>
-          </div>
         </div>
-        <hr
-          class="pf-v6-c-content--hr"
-          data-ouia-component-id="OUIA-Generated-Content-_r_5_"
-          data-ouia-component-type="PF6/Content"
-          data-ouia-safe="true"
-          data-pf-content="true"
-        />
+        <hr />
       </div>
     </div>
     <div
-      class="pf-v6-c-form__group"
+      class="cds--stack-vertical cds--stack-scale-3"
       data-testid="#.creationTimestamp__field-wrapper"
     >
       <div
-        class="pf-v6-c-form__group-label"
+        class="kaoto-field-wrapper__label-container"
       >
         <label
-          class="pf-v6-c-form__label"
-          for="#.creationTimestamp"
+          class="kaoto-field-wrapper__label"
         >
-          <span
-            class="pf-v6-c-form__label-text"
-          >
-            creationTimestamp
-          </span>
+          creationTimestamp
         </label>
-          
+        <button
+          aria-label="More info for creationTimestamp field"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            fill="currentColor"
+            focusable="false"
+            height="16"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 16 16"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
+            />
+            <path
+              d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
+            />
+          </svg>
+        </button>
+        <p>
+          <strong>
+            creationTimestamp
+             
+            &lt;string&gt;
+          </strong>
+        </p>
+        <p>
+          Time is a wrapper around time.Time which supports correct marshaling to YAML and JSON.  Wrappers are provided for many of the factory methods that the time package offers.
+        </p>
+        <p>
+          Default: 
+          no default value
+        </p>
         <span
-          class="pf-v6-c-form__group-label-help"
+          class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
         >
           <div
-            style="display: contents;"
+            class="cds--tooltip-trigger__wrapper"
           >
-            <span
-              aria-label="More info for creationTimestamp field"
-              class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_9_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
-              role="button"
-              tabindex="0"
+            <button
+              aria-labelledby="tooltip-_r_9_"
+              class="cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+              data-testid="#.creationTimestamp__open-suggestions-button"
               type="button"
             >
-              <span
-                class="pf-v6-c-button__icon"
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                focusable="false"
+                height="16"
+                preserveAspectRatio="xMidYMid meet"
+                viewBox="0 0 32 32"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <svg
-                  aria-hidden="true"
-                  class="pf-v6-svg"
-                  fill="currentColor"
-                  height="1em"
-                  role="img"
-                  viewBox="0 0 1024 1024"
-                  width="1em"
-                >
-                  <path
-                    d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
-                  />
-                </svg>
-              </span>
-            </span>
+                <path
+                  d="M11 24H21V26H11zM13 28H19V30H13zM16 2A10 10 0 006 12a9.19 9.19 0 003.46 7.62c1 .93 1.54 1.46 1.54 2.38h2c0-1.84-1.11-2.87-2.19-3.86A7.2 7.2 0 018 12a8 8 0 0116 0 7.2 7.2 0 01-2.82 6.14c-1.07 1-2.18 2-2.18 3.86h2c0-.92.53-1.45 1.54-2.39A9.18 9.18 0 0026 12 10 10 0 0016 2z"
+                />
+              </svg>
+            </button>
           </div>
+          <span
+            aria-hidden="true"
+            class="cds--popover"
+            id="tooltip-_r_9_"
+            role="tooltip"
+          >
+            <span
+              class="cds--popover-content cds--tooltip-content"
+            >
+              Open suggestions (Ctrl+Space)
+            </span>
+            <span
+              class="cds--popover-caret"
+            />
+          </span>
         </span>
       </div>
       <div
-        class="pf-v6-c-form__group-control"
+        class="string-field-container"
       >
         <div
-          class="pf-v6-c-text-input-group"
+          class="string-field-input-wrapper"
         >
           <div
-            aria-describedby="#.creationTimestamp-popover"
-            class="pf-v6-c-text-input-group__main pf-m-icon kaoto-form__string-field"
-            id="#.creationTimestamp"
+            class="cds--form-item cds--text-input-wrapper"
           >
-            <span
-              class="pf-v6-c-text-input-group__text"
+            <div
+              class="cds--text-input__label-wrapper"
+            />
+            <div
+              class="cds--text-input__field-outer-wrapper"
             >
-              <input
-                aria-label="Type to filter"
-                class="pf-v6-c-text-input-group__text-input"
-                name="#.creationTimestamp"
-                role="textbox"
-                type="text"
-                value=""
-              />
-            </span>
-          </div>
-          <div
-            class="pf-v6-c-text-input-group__utilities"
-          >
-            <button
-              aria-label="Open suggestions"
-              class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_a_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
-              data-testid="#.creationTimestamp__open-suggestions-button"
-              title="Open suggestions (Ctrl+Space)"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-button__icon"
+              <div
+                class="cds--text-input__field-wrapper"
               >
-                <svg
-                  data-testid="lightbulb-icon"
-                  role="img"
-                >
-                  <path />
-                </svg>
-              </span>
-            </button>
-            <button
-              aria-expanded="false"
-              aria-label="#.creationTimestamp__field-actions"
-              class="pf-v6-c-menu-toggle pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_e_"
-              data-ouia-component-type="PF6/MenuToggle"
-              data-ouia-safe="true"
-              data-testid="#.creationTimestamp__field-actions"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-menu-toggle__icon"
-              >
-                <svg
-                  data-testid="ellipsis-v-icon"
-                  role="img"
-                >
-                  <path />
-                </svg>
-              </span>
-            </button>
+                <input
+                  aria-describedby="#.creationTimestamp-popover"
+                  class="cds--text-input"
+                  data-testid="#.creationTimestamp"
+                  id="#.creationTimestamp"
+                  name="#.creationTimestamp"
+                  role="textbox"
+                  type="text"
+                  value=""
+                />
+                <span
+                  aria-atomic="true"
+                  aria-live="assertive"
+                  class="cds--text-input__counter-alert"
+                  role="alert"
+                />
+              </div>
+            </div>
           </div>
         </div>
+        <span
+          class="cds--overflow-menu__wrapper"
+        >
+          <span
+            class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
+          >
+            <div
+              class="cds--tooltip-trigger__wrapper"
+            >
+              <button
+                aria-expanded="false"
+                aria-haspopup="true"
+                aria-labelledby="tooltip-_r_d_"
+                class="cds--overflow-menu cds--overflow-menu--sm cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+                data-testid="#.creationTimestamp__field-actions"
+                type="button"
+              >
+                <svg
+                  aria-label="Options"
+                  class="cds--overflow-menu__icon"
+                  fill="currentColor"
+                  focusable="false"
+                  height="16"
+                  preserveAspectRatio="xMidYMid meet"
+                  role="img"
+                  viewBox="0 0 32 32"
+                  width="16"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="16"
+                    cy="8"
+                    r="2"
+                  />
+                  <circle
+                    cx="16"
+                    cy="16"
+                    r="2"
+                  />
+                  <circle
+                    cx="16"
+                    cy="24"
+                    r="2"
+                  />
+                </svg>
+              </button>
+            </div>
+            <span
+              aria-hidden="true"
+              class="cds--popover"
+              id="tooltip-_r_d_"
+              role="tooltip"
+            >
+              <span
+                class="cds--popover-content cds--tooltip-content"
+              >
+                Options
+              </span>
+              <span
+                class="cds--popover-caret"
+              />
+            </span>
+          </span>
+        </span>
       </div>
     </div>
     <div
-      class="pf-v6-c-form__group"
+      class="cds--stack-vertical cds--stack-scale-3"
       data-testid="#.deletionGracePeriodSeconds__field-wrapper"
     >
       <div
-        class="pf-v6-c-form__group-label"
+        class="kaoto-field-wrapper__label-container"
       >
         <label
-          class="pf-v6-c-form__label"
-          for="#.deletionGracePeriodSeconds"
+          class="kaoto-field-wrapper__label"
         >
-          <span
-            class="pf-v6-c-form__label-text"
-          >
-            deletionGracePeriodSeconds
-          </span>
+          deletionGracePeriodSeconds
         </label>
-          
+        <button
+          aria-label="More info for deletionGracePeriodSeconds field"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            fill="currentColor"
+            focusable="false"
+            height="16"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 16 16"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
+            />
+            <path
+              d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
+            />
+          </svg>
+        </button>
+        <p>
+          <strong>
+            deletionGracePeriodSeconds
+             
+            &lt;integer&gt;
+          </strong>
+        </p>
+        <p>
+          Number of seconds allowed for this object to gracefully terminate before it will be removed from the system. Only set when deletionTimestamp is also set. May only be shortened. Read-only.
+        </p>
+        <p>
+          Default: 
+          no default value
+        </p>
         <span
-          class="pf-v6-c-form__group-label-help"
+          class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
         >
           <div
-            style="display: contents;"
+            class="cds--tooltip-trigger__wrapper"
           >
-            <span
-              aria-label="More info for deletionGracePeriodSeconds field"
-              class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_i_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
-              role="button"
-              tabindex="0"
+            <button
+              aria-labelledby="tooltip-_r_i_"
+              class="cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+              data-testid="#.deletionGracePeriodSeconds__open-suggestions-button"
               type="button"
             >
-              <span
-                class="pf-v6-c-button__icon"
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                focusable="false"
+                height="16"
+                preserveAspectRatio="xMidYMid meet"
+                viewBox="0 0 32 32"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <svg
-                  aria-hidden="true"
-                  class="pf-v6-svg"
-                  fill="currentColor"
-                  height="1em"
-                  role="img"
-                  viewBox="0 0 1024 1024"
-                  width="1em"
-                >
-                  <path
-                    d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
-                  />
-                </svg>
-              </span>
-            </span>
+                <path
+                  d="M11 24H21V26H11zM13 28H19V30H13zM16 2A10 10 0 006 12a9.19 9.19 0 003.46 7.62c1 .93 1.54 1.46 1.54 2.38h2c0-1.84-1.11-2.87-2.19-3.86A7.2 7.2 0 018 12a8 8 0 0116 0 7.2 7.2 0 01-2.82 6.14c-1.07 1-2.18 2-2.18 3.86h2c0-.92.53-1.45 1.54-2.39A9.18 9.18 0 0026 12 10 10 0 0016 2z"
+                />
+              </svg>
+            </button>
           </div>
+          <span
+            aria-hidden="true"
+            class="cds--popover"
+            id="tooltip-_r_i_"
+            role="tooltip"
+          >
+            <span
+              class="cds--popover-content cds--tooltip-content"
+            >
+              Open suggestions (Ctrl+Space)
+            </span>
+            <span
+              class="cds--popover-caret"
+            />
+          </span>
         </span>
       </div>
       <div
-        class="pf-v6-c-form__group-control"
+        class="string-field-container"
       >
         <div
-          class="pf-v6-c-text-input-group"
+          class="string-field-input-wrapper"
         >
           <div
-            aria-describedby="#.deletionGracePeriodSeconds-popover"
-            class="pf-v6-c-text-input-group__main pf-m-icon kaoto-form__string-field"
-            id="#.deletionGracePeriodSeconds"
+            class="cds--form-item cds--text-input-wrapper"
           >
-            <span
-              class="pf-v6-c-text-input-group__text"
+            <div
+              class="cds--text-input__label-wrapper"
+            />
+            <div
+              class="cds--text-input__field-outer-wrapper"
             >
-              <input
-                aria-label="Type to filter"
-                class="pf-v6-c-text-input-group__text-input"
-                name="#.deletionGracePeriodSeconds"
-                role="textbox"
-                type="text"
-                value=""
-              />
-            </span>
-          </div>
-          <div
-            class="pf-v6-c-text-input-group__utilities"
-          >
-            <button
-              aria-label="Open suggestions"
-              class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_j_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
-              data-testid="#.deletionGracePeriodSeconds__open-suggestions-button"
-              title="Open suggestions (Ctrl+Space)"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-button__icon"
+              <div
+                class="cds--text-input__field-wrapper"
               >
-                <svg
-                  data-testid="lightbulb-icon"
-                  role="img"
-                >
-                  <path />
-                </svg>
-              </span>
-            </button>
-            <button
-              aria-expanded="false"
-              aria-label="#.deletionGracePeriodSeconds__field-actions"
-              class="pf-v6-c-menu-toggle pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_n_"
-              data-ouia-component-type="PF6/MenuToggle"
-              data-ouia-safe="true"
-              data-testid="#.deletionGracePeriodSeconds__field-actions"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-menu-toggle__icon"
-              >
-                <svg
-                  data-testid="ellipsis-v-icon"
-                  role="img"
-                >
-                  <path />
-                </svg>
-              </span>
-            </button>
+                <input
+                  aria-describedby="#.deletionGracePeriodSeconds-popover"
+                  class="cds--text-input"
+                  data-testid="#.deletionGracePeriodSeconds"
+                  id="#.deletionGracePeriodSeconds"
+                  name="#.deletionGracePeriodSeconds"
+                  role="textbox"
+                  type="text"
+                  value=""
+                />
+                <span
+                  aria-atomic="true"
+                  aria-live="assertive"
+                  class="cds--text-input__counter-alert"
+                  role="alert"
+                />
+              </div>
+            </div>
           </div>
         </div>
+        <span
+          class="cds--overflow-menu__wrapper"
+        >
+          <span
+            class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
+          >
+            <div
+              class="cds--tooltip-trigger__wrapper"
+            >
+              <button
+                aria-expanded="false"
+                aria-haspopup="true"
+                aria-labelledby="tooltip-_r_m_"
+                class="cds--overflow-menu cds--overflow-menu--sm cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+                data-testid="#.deletionGracePeriodSeconds__field-actions"
+                type="button"
+              >
+                <svg
+                  aria-label="Options"
+                  class="cds--overflow-menu__icon"
+                  fill="currentColor"
+                  focusable="false"
+                  height="16"
+                  preserveAspectRatio="xMidYMid meet"
+                  role="img"
+                  viewBox="0 0 32 32"
+                  width="16"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="16"
+                    cy="8"
+                    r="2"
+                  />
+                  <circle
+                    cx="16"
+                    cy="16"
+                    r="2"
+                  />
+                  <circle
+                    cx="16"
+                    cy="24"
+                    r="2"
+                  />
+                </svg>
+              </button>
+            </div>
+            <span
+              aria-hidden="true"
+              class="cds--popover"
+              id="tooltip-_r_m_"
+              role="tooltip"
+            >
+              <span
+                class="cds--popover-content cds--tooltip-content"
+              >
+                Options
+              </span>
+              <span
+                class="cds--popover-caret"
+              />
+            </span>
+          </span>
+        </span>
       </div>
     </div>
     <div
-      class="pf-v6-c-form__group"
+      class="cds--stack-vertical cds--stack-scale-3"
       data-testid="#.deletionTimestamp__field-wrapper"
     >
       <div
-        class="pf-v6-c-form__group-label"
+        class="kaoto-field-wrapper__label-container"
       >
         <label
-          class="pf-v6-c-form__label"
-          for="#.deletionTimestamp"
+          class="kaoto-field-wrapper__label"
         >
-          <span
-            class="pf-v6-c-form__label-text"
-          >
-            deletionTimestamp
-          </span>
+          deletionTimestamp
         </label>
-          
+        <button
+          aria-label="More info for deletionTimestamp field"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            fill="currentColor"
+            focusable="false"
+            height="16"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 16 16"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
+            />
+            <path
+              d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
+            />
+          </svg>
+        </button>
+        <p>
+          <strong>
+            deletionTimestamp
+             
+            &lt;string&gt;
+          </strong>
+        </p>
+        <p>
+          Time is a wrapper around time.Time which supports correct marshaling to YAML and JSON.  Wrappers are provided for many of the factory methods that the time package offers.
+        </p>
+        <p>
+          Default: 
+          no default value
+        </p>
         <span
-          class="pf-v6-c-form__group-label-help"
+          class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
         >
           <div
-            style="display: contents;"
+            class="cds--tooltip-trigger__wrapper"
           >
-            <span
-              aria-label="More info for deletionTimestamp field"
-              class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_r_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
-              role="button"
-              tabindex="0"
+            <button
+              aria-labelledby="tooltip-_r_r_"
+              class="cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+              data-testid="#.deletionTimestamp__open-suggestions-button"
               type="button"
             >
-              <span
-                class="pf-v6-c-button__icon"
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                focusable="false"
+                height="16"
+                preserveAspectRatio="xMidYMid meet"
+                viewBox="0 0 32 32"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <svg
-                  aria-hidden="true"
-                  class="pf-v6-svg"
-                  fill="currentColor"
-                  height="1em"
-                  role="img"
-                  viewBox="0 0 1024 1024"
-                  width="1em"
-                >
-                  <path
-                    d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
-                  />
-                </svg>
-              </span>
-            </span>
+                <path
+                  d="M11 24H21V26H11zM13 28H19V30H13zM16 2A10 10 0 006 12a9.19 9.19 0 003.46 7.62c1 .93 1.54 1.46 1.54 2.38h2c0-1.84-1.11-2.87-2.19-3.86A7.2 7.2 0 018 12a8 8 0 0116 0 7.2 7.2 0 01-2.82 6.14c-1.07 1-2.18 2-2.18 3.86h2c0-.92.53-1.45 1.54-2.39A9.18 9.18 0 0026 12 10 10 0 0016 2z"
+                />
+              </svg>
+            </button>
           </div>
+          <span
+            aria-hidden="true"
+            class="cds--popover"
+            id="tooltip-_r_r_"
+            role="tooltip"
+          >
+            <span
+              class="cds--popover-content cds--tooltip-content"
+            >
+              Open suggestions (Ctrl+Space)
+            </span>
+            <span
+              class="cds--popover-caret"
+            />
+          </span>
         </span>
       </div>
       <div
-        class="pf-v6-c-form__group-control"
+        class="string-field-container"
       >
         <div
-          class="pf-v6-c-text-input-group"
+          class="string-field-input-wrapper"
         >
           <div
-            aria-describedby="#.deletionTimestamp-popover"
-            class="pf-v6-c-text-input-group__main pf-m-icon kaoto-form__string-field"
-            id="#.deletionTimestamp"
-          >
-            <span
-              class="pf-v6-c-text-input-group__text"
-            >
-              <input
-                aria-label="Type to filter"
-                class="pf-v6-c-text-input-group__text-input"
-                name="#.deletionTimestamp"
-                role="textbox"
-                type="text"
-                value=""
-              />
-            </span>
-          </div>
-          <div
-            class="pf-v6-c-text-input-group__utilities"
-          >
-            <button
-              aria-label="Open suggestions"
-              class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_s_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
-              data-testid="#.deletionTimestamp__open-suggestions-button"
-              title="Open suggestions (Ctrl+Space)"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-button__icon"
-              >
-                <svg
-                  data-testid="lightbulb-icon"
-                  role="img"
-                >
-                  <path />
-                </svg>
-              </span>
-            </button>
-            <button
-              aria-expanded="false"
-              aria-label="#.deletionTimestamp__field-actions"
-              class="pf-v6-c-menu-toggle pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_10_"
-              data-ouia-component-type="PF6/MenuToggle"
-              data-ouia-safe="true"
-              data-testid="#.deletionTimestamp__field-actions"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-menu-toggle__icon"
-              >
-                <svg
-                  data-testid="ellipsis-v-icon"
-                  role="img"
-                >
-                  <path />
-                </svg>
-              </span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div
-      class="pf-v6-c-card"
-      data-ouia-component-id="OUIA-Generated-Card-_r_11_"
-      data-ouia-component-type="PF6/Card"
-      data-ouia-safe="true"
-      data-testid="#.finalizers__field-wrapper"
-      id=""
-    >
-      <div
-        class="pf-v6-c-card__header"
-      >
-        <div
-          class="pf-v6-c-card__actions"
-        >
-          <button
-            aria-label="Add new item"
-            class="pf-v6-c-button pf-m-plain"
-            data-ouia-component-id="OUIA-Generated-Button-plain-_r_13_"
-            data-ouia-component-type="PF6/Button"
-            data-ouia-safe="true"
-            data-testid="#.finalizers__add"
-            title="Add new item"
-            type="button"
-          >
-            <span
-              class="pf-v6-c-button__icon"
-            >
-              <svg
-                data-testid="plus-icon"
-                role="img"
-              >
-                <path />
-              </svg>
-            </span>
-          </button>
-        </div>
-        <div
-          class="pf-v6-c-card__header-main"
-        >
-          <div
-            class="pf-v6-c-card__title"
+            class="cds--form-item cds--text-input-wrapper"
           >
             <div
-              class="pf-v6-c-card__title-text"
+              class="cds--text-input__label-wrapper"
+            />
+            <div
+              class="cds--text-input__field-outer-wrapper"
             >
-               
-              finalizers
-               
               <div
-                style="display: contents;"
+                class="cds--text-input__field-wrapper"
               >
+                <input
+                  aria-describedby="#.deletionTimestamp-popover"
+                  class="cds--text-input"
+                  data-testid="#.deletionTimestamp"
+                  id="#.deletionTimestamp"
+                  name="#.deletionTimestamp"
+                  role="textbox"
+                  type="text"
+                  value=""
+                />
                 <span
-                  aria-label="More info for finalizers field"
-                  class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                  data-ouia-component-id="OUIA-Generated-Button-plain-_r_15_"
-                  data-ouia-component-type="PF6/Button"
-                  data-ouia-safe="true"
-                  role="button"
-                  tabindex="0"
-                  type="button"
-                >
-                  <span
-                    class="pf-v6-c-button__icon"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      class="pf-v6-svg"
-                      fill="currentColor"
-                      height="1em"
-                      role="img"
-                      viewBox="0 0 1024 1024"
-                      width="1em"
-                    >
-                      <path
-                        d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
-                      />
-                    </svg>
-                  </span>
-                </span>
+                  aria-atomic="true"
+                  aria-live="assertive"
+                  class="cds--text-input__counter-alert"
+                  role="alert"
+                />
               </div>
             </div>
           </div>
         </div>
+        <span
+          class="cds--overflow-menu__wrapper"
+        >
+          <span
+            class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
+          >
+            <div
+              class="cds--tooltip-trigger__wrapper"
+            >
+              <button
+                aria-expanded="false"
+                aria-haspopup="true"
+                aria-labelledby="tooltip-_r_v_"
+                class="cds--overflow-menu cds--overflow-menu--sm cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+                data-testid="#.deletionTimestamp__field-actions"
+                type="button"
+              >
+                <svg
+                  aria-label="Options"
+                  class="cds--overflow-menu__icon"
+                  fill="currentColor"
+                  focusable="false"
+                  height="16"
+                  preserveAspectRatio="xMidYMid meet"
+                  role="img"
+                  viewBox="0 0 32 32"
+                  width="16"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="16"
+                    cy="8"
+                    r="2"
+                  />
+                  <circle
+                    cx="16"
+                    cy="16"
+                    r="2"
+                  />
+                  <circle
+                    cx="16"
+                    cy="24"
+                    r="2"
+                  />
+                </svg>
+              </button>
+            </div>
+            <span
+              aria-hidden="true"
+              class="cds--popover"
+              id="tooltip-_r_v_"
+              role="tooltip"
+            >
+              <span
+                class="cds--popover-content cds--tooltip-content"
+              >
+                Options
+              </span>
+              <span
+                class="cds--popover-caret"
+              />
+            </span>
+          </span>
+        </span>
       </div>
     </div>
     <div
-      class="pf-v6-c-form__group"
+      class="cds--tile array-field-wrapper-tile"
+      data-testid="#.finalizers__field-wrapper"
+    >
+      <div
+        class="array-field-wrapper-header "
+      >
+        <div
+          class="array-field-wrapper-title-section"
+        >
+          <h4
+            class="cds--tile-heading array-field-wrapper-heading"
+          >
+            finalizers
+          </h4>
+          <button
+            aria-label="More info for finalizers field"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              focusable="false"
+              height="16"
+              preserveAspectRatio="xMidYMid meet"
+              viewBox="0 0 16 16"
+              width="16"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
+              />
+              <path
+                d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
+              />
+            </svg>
+          </button>
+          <p>
+            <strong>
+              finalizers
+               
+              &lt;array&gt;
+            </strong>
+          </p>
+          <p>
+            Must be empty before the object is deleted from the registry. Each entry is an identifier for the responsible component that will remove the entry from the list. If the deletionTimestamp of the object is non-nil, entries in this list can only be removed. Finalizers may be processed and removed in any order.  Order is NOT enforced because it introduces significant risk of stuck finalizers. finalizers is a shared field, any actor with permission can reorder it. If the finalizer list is processed in order, then this can lead to a situation in which the component responsible for the first finalizer in the list is waiting for a signal (field value, external system, or other) produced by a component responsible for a finalizer later in the list, resulting in a deadlock. Without enforced ordering finalizers are free to order amongst themselves and are not vulnerable to ordering changes in the list.
+          </p>
+          <p>
+            Default: 
+            no default value
+          </p>
+        </div>
+        <div>
+          <span
+            class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
+          >
+            <div
+              class="cds--tooltip-trigger__wrapper"
+            >
+              <button
+                aria-labelledby="tooltip-_r_13_"
+                class="cds--btn cds--btn--ghost cds--btn--icon-only"
+                data-testid="#.finalizers__add"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="currentColor"
+                  focusable="false"
+                  height="16"
+                  preserveAspectRatio="xMidYMid meet"
+                  viewBox="0 0 32 32"
+                  width="16"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"
+                  />
+                </svg>
+              </button>
+            </div>
+            <span
+              aria-hidden="true"
+              class="cds--popover"
+              id="tooltip-_r_13_"
+              role="tooltip"
+            >
+              <span
+                class="cds--popover-content cds--tooltip-content"
+              >
+                Add new item
+              </span>
+              <span
+                class="cds--popover-caret"
+              />
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div
+      class="cds--stack-vertical cds--stack-scale-3"
       data-testid="#.generateName__field-wrapper"
     >
       <div
-        class="pf-v6-c-form__group-label"
+        class="kaoto-field-wrapper__label-container"
       >
         <label
-          class="pf-v6-c-form__label"
-          for="#.generateName"
+          class="kaoto-field-wrapper__label"
         >
-          <span
-            class="pf-v6-c-form__label-text"
-          >
-            generateName
-          </span>
+          generateName
         </label>
-          
+        <button
+          aria-label="More info for generateName field"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            fill="currentColor"
+            focusable="false"
+            height="16"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 16 16"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
+            />
+            <path
+              d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
+            />
+          </svg>
+        </button>
+        <p>
+          <strong>
+            generateName
+             
+            &lt;string&gt;
+          </strong>
+        </p>
+        <p>
+          GenerateName is an optional prefix, used by the server, to generate a unique name ONLY IF the Name field has not been provided. If this field is used, the name returned to the client will be different than the name passed. This value will also be combined with a unique suffix. The provided value has the same validation rules as the Name field, and may be truncated by the length of the suffix required to make the value unique on the server.
+
+If this field is specified and the generated name exists, the server will return a 409.
+
+Applied only if Name is not specified. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#idempotency
+        </p>
+        <p>
+          Default: 
+          no default value
+        </p>
         <span
-          class="pf-v6-c-form__group-label-help"
+          class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
         >
           <div
-            style="display: contents;"
+            class="cds--tooltip-trigger__wrapper"
           >
-            <span
-              aria-label="More info for generateName field"
-              class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_19_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
-              role="button"
-              tabindex="0"
+            <button
+              aria-labelledby="tooltip-_r_18_"
+              class="cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+              data-testid="#.generateName__open-suggestions-button"
               type="button"
             >
-              <span
-                class="pf-v6-c-button__icon"
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                focusable="false"
+                height="16"
+                preserveAspectRatio="xMidYMid meet"
+                viewBox="0 0 32 32"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <svg
-                  aria-hidden="true"
-                  class="pf-v6-svg"
-                  fill="currentColor"
-                  height="1em"
-                  role="img"
-                  viewBox="0 0 1024 1024"
-                  width="1em"
-                >
-                  <path
-                    d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
-                  />
-                </svg>
-              </span>
-            </span>
+                <path
+                  d="M11 24H21V26H11zM13 28H19V30H13zM16 2A10 10 0 006 12a9.19 9.19 0 003.46 7.62c1 .93 1.54 1.46 1.54 2.38h2c0-1.84-1.11-2.87-2.19-3.86A7.2 7.2 0 018 12a8 8 0 0116 0 7.2 7.2 0 01-2.82 6.14c-1.07 1-2.18 2-2.18 3.86h2c0-.92.53-1.45 1.54-2.39A9.18 9.18 0 0026 12 10 10 0 0016 2z"
+                />
+              </svg>
+            </button>
           </div>
+          <span
+            aria-hidden="true"
+            class="cds--popover"
+            id="tooltip-_r_18_"
+            role="tooltip"
+          >
+            <span
+              class="cds--popover-content cds--tooltip-content"
+            >
+              Open suggestions (Ctrl+Space)
+            </span>
+            <span
+              class="cds--popover-caret"
+            />
+          </span>
         </span>
       </div>
       <div
-        class="pf-v6-c-form__group-control"
+        class="string-field-container"
       >
         <div
-          class="pf-v6-c-text-input-group"
+          class="string-field-input-wrapper"
         >
           <div
-            aria-describedby="#.generateName-popover"
-            class="pf-v6-c-text-input-group__main pf-m-icon kaoto-form__string-field"
-            id="#.generateName"
+            class="cds--form-item cds--text-input-wrapper"
           >
-            <span
-              class="pf-v6-c-text-input-group__text"
+            <div
+              class="cds--text-input__label-wrapper"
+            />
+            <div
+              class="cds--text-input__field-outer-wrapper"
             >
-              <input
-                aria-label="Type to filter"
-                class="pf-v6-c-text-input-group__text-input"
-                name="#.generateName"
-                role="textbox"
-                type="text"
-                value=""
-              />
-            </span>
-          </div>
-          <div
-            class="pf-v6-c-text-input-group__utilities"
-          >
-            <button
-              aria-label="Open suggestions"
-              class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_1a_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
-              data-testid="#.generateName__open-suggestions-button"
-              title="Open suggestions (Ctrl+Space)"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-button__icon"
+              <div
+                class="cds--text-input__field-wrapper"
               >
-                <svg
-                  data-testid="lightbulb-icon"
-                  role="img"
-                >
-                  <path />
-                </svg>
-              </span>
-            </button>
-            <button
-              aria-expanded="false"
-              aria-label="#.generateName__field-actions"
-              class="pf-v6-c-menu-toggle pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_1e_"
-              data-ouia-component-type="PF6/MenuToggle"
-              data-ouia-safe="true"
-              data-testid="#.generateName__field-actions"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-menu-toggle__icon"
-              >
-                <svg
-                  data-testid="ellipsis-v-icon"
-                  role="img"
-                >
-                  <path />
-                </svg>
-              </span>
-            </button>
+                <input
+                  aria-describedby="#.generateName-popover"
+                  class="cds--text-input"
+                  data-testid="#.generateName"
+                  id="#.generateName"
+                  name="#.generateName"
+                  role="textbox"
+                  type="text"
+                  value=""
+                />
+                <span
+                  aria-atomic="true"
+                  aria-live="assertive"
+                  class="cds--text-input__counter-alert"
+                  role="alert"
+                />
+              </div>
+            </div>
           </div>
         </div>
+        <span
+          class="cds--overflow-menu__wrapper"
+        >
+          <span
+            class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
+          >
+            <div
+              class="cds--tooltip-trigger__wrapper"
+            >
+              <button
+                aria-expanded="false"
+                aria-haspopup="true"
+                aria-labelledby="tooltip-_r_1c_"
+                class="cds--overflow-menu cds--overflow-menu--sm cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+                data-testid="#.generateName__field-actions"
+                type="button"
+              >
+                <svg
+                  aria-label="Options"
+                  class="cds--overflow-menu__icon"
+                  fill="currentColor"
+                  focusable="false"
+                  height="16"
+                  preserveAspectRatio="xMidYMid meet"
+                  role="img"
+                  viewBox="0 0 32 32"
+                  width="16"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="16"
+                    cy="8"
+                    r="2"
+                  />
+                  <circle
+                    cx="16"
+                    cy="16"
+                    r="2"
+                  />
+                  <circle
+                    cx="16"
+                    cy="24"
+                    r="2"
+                  />
+                </svg>
+              </button>
+            </div>
+            <span
+              aria-hidden="true"
+              class="cds--popover"
+              id="tooltip-_r_1c_"
+              role="tooltip"
+            >
+              <span
+                class="cds--popover-content cds--tooltip-content"
+              >
+                Options
+              </span>
+              <span
+                class="cds--popover-caret"
+              />
+            </span>
+          </span>
+        </span>
       </div>
     </div>
     <div
-      class="pf-v6-c-form__group"
+      class="cds--stack-vertical cds--stack-scale-3"
       data-testid="#.generation__field-wrapper"
     >
       <div
-        class="pf-v6-c-form__group-label"
+        class="kaoto-field-wrapper__label-container"
       >
         <label
-          class="pf-v6-c-form__label"
-          for="#.generation"
+          class="kaoto-field-wrapper__label"
         >
-          <span
-            class="pf-v6-c-form__label-text"
-          >
-            generation
-          </span>
+          generation
         </label>
-          
+        <button
+          aria-label="More info for generation field"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            fill="currentColor"
+            focusable="false"
+            height="16"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 16 16"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
+            />
+            <path
+              d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
+            />
+          </svg>
+        </button>
+        <p>
+          <strong>
+            generation
+             
+            &lt;integer&gt;
+          </strong>
+        </p>
+        <p>
+          A sequence number representing a specific generation of the desired state. Populated by the system. Read-only.
+        </p>
+        <p>
+          Default: 
+          no default value
+        </p>
         <span
-          class="pf-v6-c-form__group-label-help"
+          class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
         >
           <div
-            style="display: contents;"
+            class="cds--tooltip-trigger__wrapper"
           >
-            <span
-              aria-label="More info for generation field"
-              class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_1i_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
-              role="button"
-              tabindex="0"
+            <button
+              aria-labelledby="tooltip-_r_1h_"
+              class="cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+              data-testid="#.generation__open-suggestions-button"
               type="button"
             >
-              <span
-                class="pf-v6-c-button__icon"
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                focusable="false"
+                height="16"
+                preserveAspectRatio="xMidYMid meet"
+                viewBox="0 0 32 32"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <svg
-                  aria-hidden="true"
-                  class="pf-v6-svg"
-                  fill="currentColor"
-                  height="1em"
-                  role="img"
-                  viewBox="0 0 1024 1024"
-                  width="1em"
-                >
-                  <path
-                    d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
-                  />
-                </svg>
-              </span>
-            </span>
+                <path
+                  d="M11 24H21V26H11zM13 28H19V30H13zM16 2A10 10 0 006 12a9.19 9.19 0 003.46 7.62c1 .93 1.54 1.46 1.54 2.38h2c0-1.84-1.11-2.87-2.19-3.86A7.2 7.2 0 018 12a8 8 0 0116 0 7.2 7.2 0 01-2.82 6.14c-1.07 1-2.18 2-2.18 3.86h2c0-.92.53-1.45 1.54-2.39A9.18 9.18 0 0026 12 10 10 0 0016 2z"
+                />
+              </svg>
+            </button>
           </div>
+          <span
+            aria-hidden="true"
+            class="cds--popover"
+            id="tooltip-_r_1h_"
+            role="tooltip"
+          >
+            <span
+              class="cds--popover-content cds--tooltip-content"
+            >
+              Open suggestions (Ctrl+Space)
+            </span>
+            <span
+              class="cds--popover-caret"
+            />
+          </span>
         </span>
       </div>
       <div
-        class="pf-v6-c-form__group-control"
+        class="string-field-container"
       >
         <div
-          class="pf-v6-c-text-input-group"
+          class="string-field-input-wrapper"
         >
           <div
-            aria-describedby="#.generation-popover"
-            class="pf-v6-c-text-input-group__main pf-m-icon kaoto-form__string-field"
-            id="#.generation"
+            class="cds--form-item cds--text-input-wrapper"
           >
-            <span
-              class="pf-v6-c-text-input-group__text"
+            <div
+              class="cds--text-input__label-wrapper"
+            />
+            <div
+              class="cds--text-input__field-outer-wrapper"
             >
-              <input
-                aria-label="Type to filter"
-                class="pf-v6-c-text-input-group__text-input"
-                name="#.generation"
-                role="textbox"
-                type="text"
-                value=""
-              />
-            </span>
-          </div>
-          <div
-            class="pf-v6-c-text-input-group__utilities"
-          >
-            <button
-              aria-label="Open suggestions"
-              class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_1j_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
-              data-testid="#.generation__open-suggestions-button"
-              title="Open suggestions (Ctrl+Space)"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-button__icon"
+              <div
+                class="cds--text-input__field-wrapper"
               >
-                <svg
-                  data-testid="lightbulb-icon"
-                  role="img"
-                >
-                  <path />
-                </svg>
-              </span>
-            </button>
-            <button
-              aria-expanded="false"
-              aria-label="#.generation__field-actions"
-              class="pf-v6-c-menu-toggle pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_1n_"
-              data-ouia-component-type="PF6/MenuToggle"
-              data-ouia-safe="true"
-              data-testid="#.generation__field-actions"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-menu-toggle__icon"
-              >
-                <svg
-                  data-testid="ellipsis-v-icon"
-                  role="img"
-                >
-                  <path />
-                </svg>
-              </span>
-            </button>
+                <input
+                  aria-describedby="#.generation-popover"
+                  class="cds--text-input"
+                  data-testid="#.generation"
+                  id="#.generation"
+                  name="#.generation"
+                  role="textbox"
+                  type="text"
+                  value=""
+                />
+                <span
+                  aria-atomic="true"
+                  aria-live="assertive"
+                  class="cds--text-input__counter-alert"
+                  role="alert"
+                />
+              </div>
+            </div>
           </div>
         </div>
+        <span
+          class="cds--overflow-menu__wrapper"
+        >
+          <span
+            class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
+          >
+            <div
+              class="cds--tooltip-trigger__wrapper"
+            >
+              <button
+                aria-expanded="false"
+                aria-haspopup="true"
+                aria-labelledby="tooltip-_r_1l_"
+                class="cds--overflow-menu cds--overflow-menu--sm cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+                data-testid="#.generation__field-actions"
+                type="button"
+              >
+                <svg
+                  aria-label="Options"
+                  class="cds--overflow-menu__icon"
+                  fill="currentColor"
+                  focusable="false"
+                  height="16"
+                  preserveAspectRatio="xMidYMid meet"
+                  role="img"
+                  viewBox="0 0 32 32"
+                  width="16"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="16"
+                    cy="8"
+                    r="2"
+                  />
+                  <circle
+                    cx="16"
+                    cy="16"
+                    r="2"
+                  />
+                  <circle
+                    cx="16"
+                    cy="24"
+                    r="2"
+                  />
+                </svg>
+              </button>
+            </div>
+            <span
+              aria-hidden="true"
+              class="cds--popover"
+              id="tooltip-_r_1l_"
+              role="tooltip"
+            >
+              <span
+                class="cds--popover-content cds--tooltip-content"
+              >
+                Options
+              </span>
+              <span
+                class="cds--popover-caret"
+              />
+            </span>
+          </span>
+        </span>
       </div>
     </div>
     <div
-      class="pf-v6-c-form__group"
+      class="cds--stack-vertical cds--stack-scale-3"
       data-testid="#.labels__field-wrapper"
     >
       <div
-        class="pf-v6-c-form__group-label"
+        class="kaoto-field-wrapper__label-container"
       >
         <label
-          class="pf-v6-c-form__label"
-          for="#.labels"
+          class="kaoto-field-wrapper__label"
         >
-          <span
-            class="pf-v6-c-form__label-text"
-          >
+          <span>
             labels
              
-            <span
-              class="pf-v6-c-badge pf-m-unread"
-              title="0 properties"
-            >
-              0
-            </span>
-          </span>
-        </label>
-          
-        <span
-          class="pf-v6-c-form__group-label-help"
-        >
-          <div
-            style="display: contents;"
-          >
-            <span
-              aria-label="More info for [object Object] field"
-              class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_1q_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
-              role="button"
-              tabindex="0"
-              type="button"
+            <div
+              class="cds--tag"
+              id="tag-id-_r_1o_"
             >
               <span
-                class="pf-v6-c-button__icon"
+                class="cds--tag__label"
+                dir="auto"
+                title=""
+              >
+                0
+              </span>
+            </div>
+          </span>
+        </label>
+        <button
+          aria-label="More info for [object Object] field"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            fill="currentColor"
+            focusable="false"
+            height="16"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 16 16"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
+            />
+            <path
+              d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
+            />
+          </svg>
+        </button>
+        <p>
+          <strong>
+            <span>
+              labels
+               
+              <div
+                class="cds--tag"
+                id="tag-id-_r_1p_"
+              >
+                <span
+                  class="cds--tag__label"
+                  dir="auto"
+                  title=""
+                >
+                  0
+                </span>
+              </div>
+            </span>
+             
+            &lt;object&gt;
+          </strong>
+        </p>
+        <p>
+          Map of string keys and values that can be used to organize and categorize (scope and select) objects. May match selectors of replication controllers and services. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels
+        </p>
+        <p>
+          Default: 
+          no default value
+        </p>
+      </div>
+      <div>
+        <div
+          class="cds--css-grid"
+        >
+          <div
+            class="cds--sm:col-span-2 cds--md:col-span-3 cds--lg:col-span-7 cds--css-grid-column"
+          >
+            <strong>
+              Key
+            </strong>
+          </div>
+          <div
+            class="cds--sm:col-span-2 cds--md:col-span-3 cds--lg:col-span-7 cds--css-grid-column"
+          >
+            <strong>
+              Value
+            </strong>
+          </div>
+          <div
+            class="cds--sm:col-span-0 cds--md:col-span-2 cds--lg:col-span-2 cds--css-grid-column"
+          >
+            <span
+              class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
+            >
+              <div
+                class="cds--tooltip-trigger__wrapper"
+              >
+                <button
+                  aria-labelledby="tooltip-_r_1r_"
+                  class="cds--btn cds--btn--ghost cds--btn--icon-only"
+                  data-testid="#.labels__add"
+                  type="button"
+                >
+                  <svg
+                    aria-hidden="true"
+                    fill="currentColor"
+                    focusable="false"
+                    height="16"
+                    preserveAspectRatio="xMidYMid meet"
+                    viewBox="0 0 32 32"
+                    width="16"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <span
+                aria-hidden="true"
+                class="cds--popover"
+                id="tooltip-_r_1r_"
+                role="tooltip"
+              >
+                <span
+                  class="cds--popover-content cds--tooltip-content"
+                >
+                  Add a new property
+                </span>
+                <span
+                  class="cds--popover-caret"
+                />
+              </span>
+            </span>
+          </div>
+        </div>
+        <hr />
+      </div>
+    </div>
+    <div
+      class="cds--tile array-field-wrapper-tile"
+      data-testid="#.managedFields__field-wrapper"
+    >
+      <div
+        class="array-field-wrapper-header "
+      >
+        <div
+          class="array-field-wrapper-title-section"
+        >
+          <h4
+            class="cds--tile-heading array-field-wrapper-heading"
+          >
+            managedFields
+          </h4>
+          <button
+            aria-label="More info for managedFields field"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              focusable="false"
+              height="16"
+              preserveAspectRatio="xMidYMid meet"
+              viewBox="0 0 16 16"
+              width="16"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
+              />
+              <path
+                d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
+              />
+            </svg>
+          </button>
+          <p>
+            <strong>
+              managedFields
+               
+              &lt;array&gt;
+            </strong>
+          </p>
+          <p>
+            ManagedFields maps workflow-id and version to the set of fields that are managed by that workflow. This is mostly for internal housekeeping, and users typically shouldn't need to set or understand this field. A workflow can be the user's name, a controller's name, or the name of a specific apply path like "ci-cd". The set of fields is always in the version that the workflow used when modifying the object.
+          </p>
+          <p>
+            Default: 
+            no default value
+          </p>
+        </div>
+        <div>
+          <span
+            class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
+          >
+            <div
+              class="cds--tooltip-trigger__wrapper"
+            >
+              <button
+                aria-labelledby="tooltip-_r_1v_"
+                class="cds--btn cds--btn--ghost cds--btn--icon-only"
+                data-testid="#.managedFields__add"
+                type="button"
               >
                 <svg
                   aria-hidden="true"
-                  class="pf-v6-svg"
                   fill="currentColor"
-                  height="1em"
-                  role="img"
-                  viewBox="0 0 1024 1024"
-                  width="1em"
+                  focusable="false"
+                  height="16"
+                  preserveAspectRatio="xMidYMid meet"
+                  viewBox="0 0 32 32"
+                  width="16"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
-                    d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
+                    d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"
                   />
                 </svg>
-              </span>
-            </span>
-          </div>
-        </span>
-      </div>
-      <div
-        class="pf-v6-c-form__group-control"
-      >
-        <div
-          class="pf-v6-l-split pf-m-gutter"
-        >
-          <div
-            class="pf-v6-l-split__item pf-m-fill"
-          >
-            Key
-          </div>
-          <div
-            class="pf-v6-l-split__item pf-m-fill"
-          >
-            Value
-          </div>
-          <div
-            class="pf-v6-l-split__item"
-          >
-            <button
-              aria-label="Add a new property"
-              class="pf-v6-c-button pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_1r_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
-              data-testid="#.labels__add"
-              title="Add a new property"
-              type="button"
+              </button>
+            </div>
+            <span
+              aria-hidden="true"
+              class="cds--popover"
+              id="tooltip-_r_1v_"
+              role="tooltip"
             >
               <span
-                class="pf-v6-c-button__icon"
+                class="cds--popover-content cds--tooltip-content"
               >
-                <svg
-                  data-testid="plus-icon"
-                  role="img"
-                >
-                  <path />
-                </svg>
+                Add new item
               </span>
-            </button>
-          </div>
-        </div>
-        <hr
-          class="pf-v6-c-content--hr"
-          data-ouia-component-id="OUIA-Generated-Content-_r_1s_"
-          data-ouia-component-type="PF6/Content"
-          data-ouia-safe="true"
-          data-pf-content="true"
-        />
-      </div>
-    </div>
-    <div
-      class="pf-v6-c-card"
-      data-ouia-component-id="OUIA-Generated-Card-_r_1t_"
-      data-ouia-component-type="PF6/Card"
-      data-ouia-safe="true"
-      data-testid="#.managedFields__field-wrapper"
-      id=""
-    >
-      <div
-        class="pf-v6-c-card__header"
-      >
-        <div
-          class="pf-v6-c-card__actions"
-        >
-          <button
-            aria-label="Add new item"
-            class="pf-v6-c-button pf-m-plain"
-            data-ouia-component-id="OUIA-Generated-Button-plain-_r_1v_"
-            data-ouia-component-type="PF6/Button"
-            data-ouia-safe="true"
-            data-testid="#.managedFields__add"
-            title="Add new item"
-            type="button"
-          >
-            <span
-              class="pf-v6-c-button__icon"
-            >
-              <svg
-                data-testid="plus-icon"
-                role="img"
-              >
-                <path />
-              </svg>
+              <span
+                class="cds--popover-caret"
+              />
             </span>
-          </button>
-        </div>
-        <div
-          class="pf-v6-c-card__header-main"
-        >
-          <div
-            class="pf-v6-c-card__title"
-          >
-            <div
-              class="pf-v6-c-card__title-text"
-            >
-               
-              managedFields
-               
-              <div
-                style="display: contents;"
-              >
-                <span
-                  aria-label="More info for managedFields field"
-                  class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                  data-ouia-component-id="OUIA-Generated-Button-plain-_r_21_"
-                  data-ouia-component-type="PF6/Button"
-                  data-ouia-safe="true"
-                  role="button"
-                  tabindex="0"
-                  type="button"
-                >
-                  <span
-                    class="pf-v6-c-button__icon"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      class="pf-v6-svg"
-                      fill="currentColor"
-                      height="1em"
-                      role="img"
-                      viewBox="0 0 1024 1024"
-                      width="1em"
-                    >
-                      <path
-                        d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
-                      />
-                    </svg>
-                  </span>
-                </span>
-              </div>
-            </div>
-          </div>
+          </span>
         </div>
       </div>
     </div>
     <div
-      class="pf-v6-c-form__group"
+      class="cds--stack-vertical cds--stack-scale-3"
       data-testid="#.name__field-wrapper"
     >
       <div
-        class="pf-v6-c-form__group-label"
+        class="kaoto-field-wrapper__label-container"
       >
         <label
-          class="pf-v6-c-form__label"
-          for="#.name"
+          class="kaoto-field-wrapper__label"
         >
-          <span
-            class="pf-v6-c-form__label-text"
+          name
+        </label>
+        <button
+          aria-label="More info for name field"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            fill="currentColor"
+            focusable="false"
+            height="16"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 16 16"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
           >
+            <path
+              d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
+            />
+            <path
+              d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
+            />
+          </svg>
+        </button>
+        <p>
+          <strong>
             name
-          </span>
-        </label>
-          
+             
+            &lt;string&gt;
+          </strong>
+        </p>
+        <p>
+          Name must be unique within a namespace. Is required when creating resources, although some resources may allow a client to request the generation of an appropriate name automatically. Name is primarily intended for creation idempotence and configuration definition. Cannot be updated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#names
+        </p>
+        <p>
+          Default: 
+          no default value
+        </p>
         <span
-          class="pf-v6-c-form__group-label-help"
+          class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
         >
           <div
-            style="display: contents;"
-          >
-            <span
-              aria-label="More info for name field"
-              class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_25_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
-              role="button"
-              tabindex="0"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-button__icon"
-              >
-                <svg
-                  aria-hidden="true"
-                  class="pf-v6-svg"
-                  fill="currentColor"
-                  height="1em"
-                  role="img"
-                  viewBox="0 0 1024 1024"
-                  width="1em"
-                >
-                  <path
-                    d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
-                  />
-                </svg>
-              </span>
-            </span>
-          </div>
-        </span>
-      </div>
-      <div
-        class="pf-v6-c-form__group-control"
-      >
-        <div
-          class="pf-v6-c-text-input-group"
-        >
-          <div
-            aria-describedby="#.name-popover"
-            class="pf-v6-c-text-input-group__main pf-m-icon kaoto-form__string-field"
-            id="#.name"
-          >
-            <span
-              class="pf-v6-c-text-input-group__text"
-            >
-              <input
-                aria-label="Type to filter"
-                class="pf-v6-c-text-input-group__text-input"
-                name="#.name"
-                role="textbox"
-                type="text"
-                value=""
-              />
-            </span>
-          </div>
-          <div
-            class="pf-v6-c-text-input-group__utilities"
+            class="cds--tooltip-trigger__wrapper"
           >
             <button
-              aria-label="Open suggestions"
-              class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_26_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
+              aria-labelledby="tooltip-_r_24_"
+              class="cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
               data-testid="#.name__open-suggestions-button"
-              title="Open suggestions (Ctrl+Space)"
               type="button"
-            >
-              <span
-                class="pf-v6-c-button__icon"
-              >
-                <svg
-                  data-testid="lightbulb-icon"
-                  role="img"
-                >
-                  <path />
-                </svg>
-              </span>
-            </button>
-            <button
-              aria-expanded="false"
-              aria-label="#.name__field-actions"
-              class="pf-v6-c-menu-toggle pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_2a_"
-              data-ouia-component-type="PF6/MenuToggle"
-              data-ouia-safe="true"
-              data-testid="#.name__field-actions"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-menu-toggle__icon"
-              >
-                <svg
-                  data-testid="ellipsis-v-icon"
-                  role="img"
-                >
-                  <path />
-                </svg>
-              </span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div
-      class="pf-v6-c-form__group"
-      data-testid="#.namespace__field-wrapper"
-    >
-      <div
-        class="pf-v6-c-form__group-label"
-      >
-        <label
-          class="pf-v6-c-form__label"
-          for="#.namespace"
-        >
-          <span
-            class="pf-v6-c-form__label-text"
-          >
-            namespace
-          </span>
-        </label>
-          
-        <span
-          class="pf-v6-c-form__group-label-help"
-        >
-          <div
-            style="display: contents;"
-          >
-            <span
-              aria-label="More info for namespace field"
-              class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_2e_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
-              role="button"
-              tabindex="0"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-button__icon"
-              >
-                <svg
-                  aria-hidden="true"
-                  class="pf-v6-svg"
-                  fill="currentColor"
-                  height="1em"
-                  role="img"
-                  viewBox="0 0 1024 1024"
-                  width="1em"
-                >
-                  <path
-                    d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
-                  />
-                </svg>
-              </span>
-            </span>
-          </div>
-        </span>
-      </div>
-      <div
-        class="pf-v6-c-form__group-control"
-      >
-        <div
-          class="pf-v6-c-text-input-group"
-        >
-          <div
-            aria-describedby="#.namespace-popover"
-            class="pf-v6-c-text-input-group__main pf-m-icon kaoto-form__string-field"
-            id="#.namespace"
-          >
-            <span
-              class="pf-v6-c-text-input-group__text"
-            >
-              <input
-                aria-label="Type to filter"
-                class="pf-v6-c-text-input-group__text-input"
-                name="#.namespace"
-                role="textbox"
-                type="text"
-                value=""
-              />
-            </span>
-          </div>
-          <div
-            class="pf-v6-c-text-input-group__utilities"
-          >
-            <button
-              aria-label="Open suggestions"
-              class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_2f_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
-              data-testid="#.namespace__open-suggestions-button"
-              title="Open suggestions (Ctrl+Space)"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-button__icon"
-              >
-                <svg
-                  data-testid="lightbulb-icon"
-                  role="img"
-                >
-                  <path />
-                </svg>
-              </span>
-            </button>
-            <button
-              aria-expanded="false"
-              aria-label="#.namespace__field-actions"
-              class="pf-v6-c-menu-toggle pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_2j_"
-              data-ouia-component-type="PF6/MenuToggle"
-              data-ouia-safe="true"
-              data-testid="#.namespace__field-actions"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-menu-toggle__icon"
-              >
-                <svg
-                  data-testid="ellipsis-v-icon"
-                  role="img"
-                >
-                  <path />
-                </svg>
-              </span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div
-      class="pf-v6-c-card"
-      data-ouia-component-id="OUIA-Generated-Card-_r_2k_"
-      data-ouia-component-type="PF6/Card"
-      data-ouia-safe="true"
-      data-testid="#.ownerReferences__field-wrapper"
-      id=""
-    >
-      <div
-        class="pf-v6-c-card__header"
-      >
-        <div
-          class="pf-v6-c-card__actions"
-        >
-          <button
-            aria-label="Add new item"
-            class="pf-v6-c-button pf-m-plain"
-            data-ouia-component-id="OUIA-Generated-Button-plain-_r_2m_"
-            data-ouia-component-type="PF6/Button"
-            data-ouia-safe="true"
-            data-testid="#.ownerReferences__add"
-            title="Add new item"
-            type="button"
-          >
-            <span
-              class="pf-v6-c-button__icon"
             >
               <svg
-                data-testid="plus-icon"
-                role="img"
+                aria-hidden="true"
+                fill="currentColor"
+                focusable="false"
+                height="16"
+                preserveAspectRatio="xMidYMid meet"
+                viewBox="0 0 32 32"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <path />
+                <path
+                  d="M11 24H21V26H11zM13 28H19V30H13zM16 2A10 10 0 006 12a9.19 9.19 0 003.46 7.62c1 .93 1.54 1.46 1.54 2.38h2c0-1.84-1.11-2.87-2.19-3.86A7.2 7.2 0 018 12a8 8 0 0116 0 7.2 7.2 0 01-2.82 6.14c-1.07 1-2.18 2-2.18 3.86h2c0-.92.53-1.45 1.54-2.39A9.18 9.18 0 0026 12 10 10 0 0016 2z"
+                />
               </svg>
+            </button>
+          </div>
+          <span
+            aria-hidden="true"
+            class="cds--popover"
+            id="tooltip-_r_24_"
+            role="tooltip"
+          >
+            <span
+              class="cds--popover-content cds--tooltip-content"
+            >
+              Open suggestions (Ctrl+Space)
             </span>
-          </button>
-        </div>
+            <span
+              class="cds--popover-caret"
+            />
+          </span>
+        </span>
+      </div>
+      <div
+        class="string-field-container"
+      >
         <div
-          class="pf-v6-c-card__header-main"
+          class="string-field-input-wrapper"
         >
           <div
-            class="pf-v6-c-card__title"
+            class="cds--form-item cds--text-input-wrapper"
           >
             <div
-              class="pf-v6-c-card__title-text"
+              class="cds--text-input__label-wrapper"
+            />
+            <div
+              class="cds--text-input__field-outer-wrapper"
             >
-               
-              ownerReferences
-               
               <div
-                style="display: contents;"
+                class="cds--text-input__field-wrapper"
               >
+                <input
+                  aria-describedby="#.name-popover"
+                  class="cds--text-input"
+                  data-testid="#.name"
+                  id="#.name"
+                  name="#.name"
+                  role="textbox"
+                  type="text"
+                  value=""
+                />
                 <span
-                  aria-label="More info for ownerReferences field"
-                  class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                  data-ouia-component-id="OUIA-Generated-Button-plain-_r_2o_"
-                  data-ouia-component-type="PF6/Button"
-                  data-ouia-safe="true"
-                  role="button"
-                  tabindex="0"
-                  type="button"
-                >
-                  <span
-                    class="pf-v6-c-button__icon"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      class="pf-v6-svg"
-                      fill="currentColor"
-                      height="1em"
-                      role="img"
-                      viewBox="0 0 1024 1024"
-                      width="1em"
-                    >
-                      <path
-                        d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
-                      />
-                    </svg>
-                  </span>
-                </span>
+                  aria-atomic="true"
+                  aria-live="assertive"
+                  class="cds--text-input__counter-alert"
+                  role="alert"
+                />
               </div>
             </div>
           </div>
         </div>
+        <span
+          class="cds--overflow-menu__wrapper"
+        >
+          <span
+            class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
+          >
+            <div
+              class="cds--tooltip-trigger__wrapper"
+            >
+              <button
+                aria-expanded="false"
+                aria-haspopup="true"
+                aria-labelledby="tooltip-_r_28_"
+                class="cds--overflow-menu cds--overflow-menu--sm cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+                data-testid="#.name__field-actions"
+                type="button"
+              >
+                <svg
+                  aria-label="Options"
+                  class="cds--overflow-menu__icon"
+                  fill="currentColor"
+                  focusable="false"
+                  height="16"
+                  preserveAspectRatio="xMidYMid meet"
+                  role="img"
+                  viewBox="0 0 32 32"
+                  width="16"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="16"
+                    cy="8"
+                    r="2"
+                  />
+                  <circle
+                    cx="16"
+                    cy="16"
+                    r="2"
+                  />
+                  <circle
+                    cx="16"
+                    cy="24"
+                    r="2"
+                  />
+                </svg>
+              </button>
+            </div>
+            <span
+              aria-hidden="true"
+              class="cds--popover"
+              id="tooltip-_r_28_"
+              role="tooltip"
+            >
+              <span
+                class="cds--popover-content cds--tooltip-content"
+              >
+                Options
+              </span>
+              <span
+                class="cds--popover-caret"
+              />
+            </span>
+          </span>
+        </span>
       </div>
     </div>
     <div
-      class="pf-v6-c-form__group"
+      class="cds--stack-vertical cds--stack-scale-3"
+      data-testid="#.namespace__field-wrapper"
+    >
+      <div
+        class="kaoto-field-wrapper__label-container"
+      >
+        <label
+          class="kaoto-field-wrapper__label"
+        >
+          namespace
+        </label>
+        <button
+          aria-label="More info for namespace field"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            fill="currentColor"
+            focusable="false"
+            height="16"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 16 16"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
+            />
+            <path
+              d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
+            />
+          </svg>
+        </button>
+        <p>
+          <strong>
+            namespace
+             
+            &lt;string&gt;
+          </strong>
+        </p>
+        <p>
+          Namespace defines the space within which each name must be unique. An empty namespace is equivalent to the "default" namespace, but "default" is the canonical representation. Not all objects are required to be scoped to a namespace - the value of this field for those objects will be empty.
+
+Must be a DNS_LABEL. Cannot be updated. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces
+        </p>
+        <p>
+          Default: 
+          no default value
+        </p>
+        <span
+          class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
+        >
+          <div
+            class="cds--tooltip-trigger__wrapper"
+          >
+            <button
+              aria-labelledby="tooltip-_r_2d_"
+              class="cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+              data-testid="#.namespace__open-suggestions-button"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                focusable="false"
+                height="16"
+                preserveAspectRatio="xMidYMid meet"
+                viewBox="0 0 32 32"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M11 24H21V26H11zM13 28H19V30H13zM16 2A10 10 0 006 12a9.19 9.19 0 003.46 7.62c1 .93 1.54 1.46 1.54 2.38h2c0-1.84-1.11-2.87-2.19-3.86A7.2 7.2 0 018 12a8 8 0 0116 0 7.2 7.2 0 01-2.82 6.14c-1.07 1-2.18 2-2.18 3.86h2c0-.92.53-1.45 1.54-2.39A9.18 9.18 0 0026 12 10 10 0 0016 2z"
+                />
+              </svg>
+            </button>
+          </div>
+          <span
+            aria-hidden="true"
+            class="cds--popover"
+            id="tooltip-_r_2d_"
+            role="tooltip"
+          >
+            <span
+              class="cds--popover-content cds--tooltip-content"
+            >
+              Open suggestions (Ctrl+Space)
+            </span>
+            <span
+              class="cds--popover-caret"
+            />
+          </span>
+        </span>
+      </div>
+      <div
+        class="string-field-container"
+      >
+        <div
+          class="string-field-input-wrapper"
+        >
+          <div
+            class="cds--form-item cds--text-input-wrapper"
+          >
+            <div
+              class="cds--text-input__label-wrapper"
+            />
+            <div
+              class="cds--text-input__field-outer-wrapper"
+            >
+              <div
+                class="cds--text-input__field-wrapper"
+              >
+                <input
+                  aria-describedby="#.namespace-popover"
+                  class="cds--text-input"
+                  data-testid="#.namespace"
+                  id="#.namespace"
+                  name="#.namespace"
+                  role="textbox"
+                  type="text"
+                  value=""
+                />
+                <span
+                  aria-atomic="true"
+                  aria-live="assertive"
+                  class="cds--text-input__counter-alert"
+                  role="alert"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <span
+          class="cds--overflow-menu__wrapper"
+        >
+          <span
+            class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
+          >
+            <div
+              class="cds--tooltip-trigger__wrapper"
+            >
+              <button
+                aria-expanded="false"
+                aria-haspopup="true"
+                aria-labelledby="tooltip-_r_2h_"
+                class="cds--overflow-menu cds--overflow-menu--sm cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+                data-testid="#.namespace__field-actions"
+                type="button"
+              >
+                <svg
+                  aria-label="Options"
+                  class="cds--overflow-menu__icon"
+                  fill="currentColor"
+                  focusable="false"
+                  height="16"
+                  preserveAspectRatio="xMidYMid meet"
+                  role="img"
+                  viewBox="0 0 32 32"
+                  width="16"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="16"
+                    cy="8"
+                    r="2"
+                  />
+                  <circle
+                    cx="16"
+                    cy="16"
+                    r="2"
+                  />
+                  <circle
+                    cx="16"
+                    cy="24"
+                    r="2"
+                  />
+                </svg>
+              </button>
+            </div>
+            <span
+              aria-hidden="true"
+              class="cds--popover"
+              id="tooltip-_r_2h_"
+              role="tooltip"
+            >
+              <span
+                class="cds--popover-content cds--tooltip-content"
+              >
+                Options
+              </span>
+              <span
+                class="cds--popover-caret"
+              />
+            </span>
+          </span>
+        </span>
+      </div>
+    </div>
+    <div
+      class="cds--tile array-field-wrapper-tile"
+      data-testid="#.ownerReferences__field-wrapper"
+    >
+      <div
+        class="array-field-wrapper-header "
+      >
+        <div
+          class="array-field-wrapper-title-section"
+        >
+          <h4
+            class="cds--tile-heading array-field-wrapper-heading"
+          >
+            ownerReferences
+          </h4>
+          <button
+            aria-label="More info for ownerReferences field"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              focusable="false"
+              height="16"
+              preserveAspectRatio="xMidYMid meet"
+              viewBox="0 0 16 16"
+              width="16"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
+              />
+              <path
+                d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
+              />
+            </svg>
+          </button>
+          <p>
+            <strong>
+              ownerReferences
+               
+              &lt;array&gt;
+            </strong>
+          </p>
+          <p>
+            List of objects depended by this object. If ALL objects in the list have been deleted, this object will be garbage collected. If this object is managed by a controller, then an entry in this list will point to this controller, with the controller field set to true. There cannot be more than one managing controller.
+          </p>
+          <p>
+            Default: 
+            no default value
+          </p>
+        </div>
+        <div>
+          <span
+            class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
+          >
+            <div
+              class="cds--tooltip-trigger__wrapper"
+            >
+              <button
+                aria-labelledby="tooltip-_r_2l_"
+                class="cds--btn cds--btn--ghost cds--btn--icon-only"
+                data-testid="#.ownerReferences__add"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="currentColor"
+                  focusable="false"
+                  height="16"
+                  preserveAspectRatio="xMidYMid meet"
+                  viewBox="0 0 32 32"
+                  width="16"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"
+                  />
+                </svg>
+              </button>
+            </div>
+            <span
+              aria-hidden="true"
+              class="cds--popover"
+              id="tooltip-_r_2l_"
+              role="tooltip"
+            >
+              <span
+                class="cds--popover-content cds--tooltip-content"
+              >
+                Add new item
+              </span>
+              <span
+                class="cds--popover-caret"
+              />
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div
+      class="cds--stack-vertical cds--stack-scale-3"
       data-testid="#.resourceVersion__field-wrapper"
     >
       <div
-        class="pf-v6-c-form__group-label"
+        class="kaoto-field-wrapper__label-container"
       >
         <label
-          class="pf-v6-c-form__label"
-          for="#.resourceVersion"
+          class="kaoto-field-wrapper__label"
         >
-          <span
-            class="pf-v6-c-form__label-text"
-          >
-            resourceVersion
-          </span>
+          resourceVersion
         </label>
-          
+        <button
+          aria-label="More info for resourceVersion field"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            fill="currentColor"
+            focusable="false"
+            height="16"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 16 16"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
+            />
+            <path
+              d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
+            />
+          </svg>
+        </button>
+        <p>
+          <strong>
+            resourceVersion
+             
+            &lt;string&gt;
+          </strong>
+        </p>
+        <p>
+          An opaque value that represents the internal version of this object that can be used by clients to determine when objects have changed. May be used for optimistic concurrency, change detection, and the watch operation on a resource or set of resources. Clients must treat these values as opaque and passed unmodified back to the server. They may only be valid for a particular resource or set of resources.
+
+Populated by the system. Read-only. Value must be treated as opaque by clients and . More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
+        </p>
+        <p>
+          Default: 
+          no default value
+        </p>
         <span
-          class="pf-v6-c-form__group-label-help"
+          class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
         >
           <div
-            style="display: contents;"
+            class="cds--tooltip-trigger__wrapper"
           >
-            <span
-              aria-label="More info for resourceVersion field"
-              class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_2s_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
-              role="button"
-              tabindex="0"
+            <button
+              aria-labelledby="tooltip-_r_2q_"
+              class="cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+              data-testid="#.resourceVersion__open-suggestions-button"
               type="button"
             >
-              <span
-                class="pf-v6-c-button__icon"
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                focusable="false"
+                height="16"
+                preserveAspectRatio="xMidYMid meet"
+                viewBox="0 0 32 32"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <svg
-                  aria-hidden="true"
-                  class="pf-v6-svg"
-                  fill="currentColor"
-                  height="1em"
-                  role="img"
-                  viewBox="0 0 1024 1024"
-                  width="1em"
-                >
-                  <path
-                    d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
-                  />
-                </svg>
-              </span>
-            </span>
+                <path
+                  d="M11 24H21V26H11zM13 28H19V30H13zM16 2A10 10 0 006 12a9.19 9.19 0 003.46 7.62c1 .93 1.54 1.46 1.54 2.38h2c0-1.84-1.11-2.87-2.19-3.86A7.2 7.2 0 018 12a8 8 0 0116 0 7.2 7.2 0 01-2.82 6.14c-1.07 1-2.18 2-2.18 3.86h2c0-.92.53-1.45 1.54-2.39A9.18 9.18 0 0026 12 10 10 0 0016 2z"
+                />
+              </svg>
+            </button>
           </div>
+          <span
+            aria-hidden="true"
+            class="cds--popover"
+            id="tooltip-_r_2q_"
+            role="tooltip"
+          >
+            <span
+              class="cds--popover-content cds--tooltip-content"
+            >
+              Open suggestions (Ctrl+Space)
+            </span>
+            <span
+              class="cds--popover-caret"
+            />
+          </span>
         </span>
       </div>
       <div
-        class="pf-v6-c-form__group-control"
+        class="string-field-container"
       >
         <div
-          class="pf-v6-c-text-input-group"
+          class="string-field-input-wrapper"
         >
           <div
-            aria-describedby="#.resourceVersion-popover"
-            class="pf-v6-c-text-input-group__main pf-m-icon kaoto-form__string-field"
-            id="#.resourceVersion"
+            class="cds--form-item cds--text-input-wrapper"
           >
-            <span
-              class="pf-v6-c-text-input-group__text"
+            <div
+              class="cds--text-input__label-wrapper"
+            />
+            <div
+              class="cds--text-input__field-outer-wrapper"
             >
-              <input
-                aria-label="Type to filter"
-                class="pf-v6-c-text-input-group__text-input"
-                name="#.resourceVersion"
-                role="textbox"
-                type="text"
-                value=""
-              />
-            </span>
-          </div>
-          <div
-            class="pf-v6-c-text-input-group__utilities"
-          >
-            <button
-              aria-label="Open suggestions"
-              class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_2t_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
-              data-testid="#.resourceVersion__open-suggestions-button"
-              title="Open suggestions (Ctrl+Space)"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-button__icon"
+              <div
+                class="cds--text-input__field-wrapper"
               >
-                <svg
-                  data-testid="lightbulb-icon"
-                  role="img"
-                >
-                  <path />
-                </svg>
-              </span>
-            </button>
-            <button
-              aria-expanded="false"
-              aria-label="#.resourceVersion__field-actions"
-              class="pf-v6-c-menu-toggle pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_31_"
-              data-ouia-component-type="PF6/MenuToggle"
-              data-ouia-safe="true"
-              data-testid="#.resourceVersion__field-actions"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-menu-toggle__icon"
-              >
-                <svg
-                  data-testid="ellipsis-v-icon"
-                  role="img"
-                >
-                  <path />
-                </svg>
-              </span>
-            </button>
+                <input
+                  aria-describedby="#.resourceVersion-popover"
+                  class="cds--text-input"
+                  data-testid="#.resourceVersion"
+                  id="#.resourceVersion"
+                  name="#.resourceVersion"
+                  role="textbox"
+                  type="text"
+                  value=""
+                />
+                <span
+                  aria-atomic="true"
+                  aria-live="assertive"
+                  class="cds--text-input__counter-alert"
+                  role="alert"
+                />
+              </div>
+            </div>
           </div>
         </div>
+        <span
+          class="cds--overflow-menu__wrapper"
+        >
+          <span
+            class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
+          >
+            <div
+              class="cds--tooltip-trigger__wrapper"
+            >
+              <button
+                aria-expanded="false"
+                aria-haspopup="true"
+                aria-labelledby="tooltip-_r_2u_"
+                class="cds--overflow-menu cds--overflow-menu--sm cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+                data-testid="#.resourceVersion__field-actions"
+                type="button"
+              >
+                <svg
+                  aria-label="Options"
+                  class="cds--overflow-menu__icon"
+                  fill="currentColor"
+                  focusable="false"
+                  height="16"
+                  preserveAspectRatio="xMidYMid meet"
+                  role="img"
+                  viewBox="0 0 32 32"
+                  width="16"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="16"
+                    cy="8"
+                    r="2"
+                  />
+                  <circle
+                    cx="16"
+                    cy="16"
+                    r="2"
+                  />
+                  <circle
+                    cx="16"
+                    cy="24"
+                    r="2"
+                  />
+                </svg>
+              </button>
+            </div>
+            <span
+              aria-hidden="true"
+              class="cds--popover"
+              id="tooltip-_r_2u_"
+              role="tooltip"
+            >
+              <span
+                class="cds--popover-content cds--tooltip-content"
+              >
+                Options
+              </span>
+              <span
+                class="cds--popover-caret"
+              />
+            </span>
+          </span>
+        </span>
       </div>
     </div>
     <div
-      class="pf-v6-c-form__group"
+      class="cds--stack-vertical cds--stack-scale-3"
       data-testid="#.selfLink__field-wrapper"
     >
       <div
-        class="pf-v6-c-form__group-label"
+        class="kaoto-field-wrapper__label-container"
       >
         <label
-          class="pf-v6-c-form__label"
-          for="#.selfLink"
+          class="kaoto-field-wrapper__label"
         >
-          <span
-            class="pf-v6-c-form__label-text"
-          >
-            selfLink
-          </span>
+          selfLink
         </label>
-          
+        <button
+          aria-label="More info for selfLink field"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            fill="currentColor"
+            focusable="false"
+            height="16"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 16 16"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
+            />
+            <path
+              d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
+            />
+          </svg>
+        </button>
+        <p>
+          <strong>
+            selfLink
+             
+            &lt;string&gt;
+          </strong>
+        </p>
+        <p>
+          Deprecated: selfLink is a legacy read-only field that is no longer populated by the system.
+        </p>
+        <p>
+          Default: 
+          no default value
+        </p>
         <span
-          class="pf-v6-c-form__group-label-help"
+          class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
         >
           <div
-            style="display: contents;"
+            class="cds--tooltip-trigger__wrapper"
           >
-            <span
-              aria-label="More info for selfLink field"
-              class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_35_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
-              role="button"
-              tabindex="0"
+            <button
+              aria-labelledby="tooltip-_r_33_"
+              class="cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+              data-testid="#.selfLink__open-suggestions-button"
               type="button"
             >
-              <span
-                class="pf-v6-c-button__icon"
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                focusable="false"
+                height="16"
+                preserveAspectRatio="xMidYMid meet"
+                viewBox="0 0 32 32"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <svg
-                  aria-hidden="true"
-                  class="pf-v6-svg"
-                  fill="currentColor"
-                  height="1em"
-                  role="img"
-                  viewBox="0 0 1024 1024"
-                  width="1em"
-                >
-                  <path
-                    d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
-                  />
-                </svg>
-              </span>
-            </span>
+                <path
+                  d="M11 24H21V26H11zM13 28H19V30H13zM16 2A10 10 0 006 12a9.19 9.19 0 003.46 7.62c1 .93 1.54 1.46 1.54 2.38h2c0-1.84-1.11-2.87-2.19-3.86A7.2 7.2 0 018 12a8 8 0 0116 0 7.2 7.2 0 01-2.82 6.14c-1.07 1-2.18 2-2.18 3.86h2c0-.92.53-1.45 1.54-2.39A9.18 9.18 0 0026 12 10 10 0 0016 2z"
+                />
+              </svg>
+            </button>
           </div>
+          <span
+            aria-hidden="true"
+            class="cds--popover"
+            id="tooltip-_r_33_"
+            role="tooltip"
+          >
+            <span
+              class="cds--popover-content cds--tooltip-content"
+            >
+              Open suggestions (Ctrl+Space)
+            </span>
+            <span
+              class="cds--popover-caret"
+            />
+          </span>
         </span>
       </div>
       <div
-        class="pf-v6-c-form__group-control"
+        class="string-field-container"
       >
         <div
-          class="pf-v6-c-text-input-group"
+          class="string-field-input-wrapper"
         >
           <div
-            aria-describedby="#.selfLink-popover"
-            class="pf-v6-c-text-input-group__main pf-m-icon kaoto-form__string-field"
-            id="#.selfLink"
+            class="cds--form-item cds--text-input-wrapper"
           >
-            <span
-              class="pf-v6-c-text-input-group__text"
+            <div
+              class="cds--text-input__label-wrapper"
+            />
+            <div
+              class="cds--text-input__field-outer-wrapper"
             >
-              <input
-                aria-label="Type to filter"
-                class="pf-v6-c-text-input-group__text-input"
-                name="#.selfLink"
-                role="textbox"
-                type="text"
-                value=""
-              />
-            </span>
-          </div>
-          <div
-            class="pf-v6-c-text-input-group__utilities"
-          >
-            <button
-              aria-label="Open suggestions"
-              class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_36_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
-              data-testid="#.selfLink__open-suggestions-button"
-              title="Open suggestions (Ctrl+Space)"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-button__icon"
+              <div
+                class="cds--text-input__field-wrapper"
               >
-                <svg
-                  data-testid="lightbulb-icon"
-                  role="img"
-                >
-                  <path />
-                </svg>
-              </span>
-            </button>
-            <button
-              aria-expanded="false"
-              aria-label="#.selfLink__field-actions"
-              class="pf-v6-c-menu-toggle pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_3a_"
-              data-ouia-component-type="PF6/MenuToggle"
-              data-ouia-safe="true"
-              data-testid="#.selfLink__field-actions"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-menu-toggle__icon"
-              >
-                <svg
-                  data-testid="ellipsis-v-icon"
-                  role="img"
-                >
-                  <path />
-                </svg>
-              </span>
-            </button>
+                <input
+                  aria-describedby="#.selfLink-popover"
+                  class="cds--text-input"
+                  data-testid="#.selfLink"
+                  id="#.selfLink"
+                  name="#.selfLink"
+                  role="textbox"
+                  type="text"
+                  value=""
+                />
+                <span
+                  aria-atomic="true"
+                  aria-live="assertive"
+                  class="cds--text-input__counter-alert"
+                  role="alert"
+                />
+              </div>
+            </div>
           </div>
         </div>
+        <span
+          class="cds--overflow-menu__wrapper"
+        >
+          <span
+            class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
+          >
+            <div
+              class="cds--tooltip-trigger__wrapper"
+            >
+              <button
+                aria-expanded="false"
+                aria-haspopup="true"
+                aria-labelledby="tooltip-_r_37_"
+                class="cds--overflow-menu cds--overflow-menu--sm cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+                data-testid="#.selfLink__field-actions"
+                type="button"
+              >
+                <svg
+                  aria-label="Options"
+                  class="cds--overflow-menu__icon"
+                  fill="currentColor"
+                  focusable="false"
+                  height="16"
+                  preserveAspectRatio="xMidYMid meet"
+                  role="img"
+                  viewBox="0 0 32 32"
+                  width="16"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="16"
+                    cy="8"
+                    r="2"
+                  />
+                  <circle
+                    cx="16"
+                    cy="16"
+                    r="2"
+                  />
+                  <circle
+                    cx="16"
+                    cy="24"
+                    r="2"
+                  />
+                </svg>
+              </button>
+            </div>
+            <span
+              aria-hidden="true"
+              class="cds--popover"
+              id="tooltip-_r_37_"
+              role="tooltip"
+            >
+              <span
+                class="cds--popover-content cds--tooltip-content"
+              >
+                Options
+              </span>
+              <span
+                class="cds--popover-caret"
+              />
+            </span>
+          </span>
+        </span>
       </div>
     </div>
     <div
-      class="pf-v6-c-form__group"
+      class="cds--stack-vertical cds--stack-scale-3"
       data-testid="#.uid__field-wrapper"
     >
       <div
-        class="pf-v6-c-form__group-label"
+        class="kaoto-field-wrapper__label-container"
       >
         <label
-          class="pf-v6-c-form__label"
-          for="#.uid"
+          class="kaoto-field-wrapper__label"
         >
-          <span
-            class="pf-v6-c-form__label-text"
-          >
-            uid
-          </span>
+          uid
         </label>
-          
+        <button
+          aria-label="More info for uid field"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            fill="currentColor"
+            focusable="false"
+            height="16"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 16 16"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
+            />
+            <path
+              d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
+            />
+          </svg>
+        </button>
+        <p>
+          <strong>
+            uid
+             
+            &lt;string&gt;
+          </strong>
+        </p>
+        <p>
+          UID is the unique in time and space value for this object. It is typically generated by the server on successful creation of a resource and is not allowed to change on PUT operations.
+
+Populated by the system. Read-only. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
+        </p>
+        <p>
+          Default: 
+          no default value
+        </p>
         <span
-          class="pf-v6-c-form__group-label-help"
+          class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
         >
           <div
-            style="display: contents;"
+            class="cds--tooltip-trigger__wrapper"
           >
-            <span
-              aria-label="More info for uid field"
-              class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_3e_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
-              role="button"
-              tabindex="0"
+            <button
+              aria-labelledby="tooltip-_r_3c_"
+              class="cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+              data-testid="#.uid__open-suggestions-button"
               type="button"
             >
-              <span
-                class="pf-v6-c-button__icon"
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                focusable="false"
+                height="16"
+                preserveAspectRatio="xMidYMid meet"
+                viewBox="0 0 32 32"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <svg
-                  aria-hidden="true"
-                  class="pf-v6-svg"
-                  fill="currentColor"
-                  height="1em"
-                  role="img"
-                  viewBox="0 0 1024 1024"
-                  width="1em"
-                >
-                  <path
-                    d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
-                  />
-                </svg>
-              </span>
-            </span>
+                <path
+                  d="M11 24H21V26H11zM13 28H19V30H13zM16 2A10 10 0 006 12a9.19 9.19 0 003.46 7.62c1 .93 1.54 1.46 1.54 2.38h2c0-1.84-1.11-2.87-2.19-3.86A7.2 7.2 0 018 12a8 8 0 0116 0 7.2 7.2 0 01-2.82 6.14c-1.07 1-2.18 2-2.18 3.86h2c0-.92.53-1.45 1.54-2.39A9.18 9.18 0 0026 12 10 10 0 0016 2z"
+                />
+              </svg>
+            </button>
           </div>
+          <span
+            aria-hidden="true"
+            class="cds--popover"
+            id="tooltip-_r_3c_"
+            role="tooltip"
+          >
+            <span
+              class="cds--popover-content cds--tooltip-content"
+            >
+              Open suggestions (Ctrl+Space)
+            </span>
+            <span
+              class="cds--popover-caret"
+            />
+          </span>
         </span>
       </div>
       <div
-        class="pf-v6-c-form__group-control"
+        class="string-field-container"
       >
         <div
-          class="pf-v6-c-text-input-group"
+          class="string-field-input-wrapper"
         >
           <div
-            aria-describedby="#.uid-popover"
-            class="pf-v6-c-text-input-group__main pf-m-icon kaoto-form__string-field"
-            id="#.uid"
+            class="cds--form-item cds--text-input-wrapper"
           >
-            <span
-              class="pf-v6-c-text-input-group__text"
+            <div
+              class="cds--text-input__label-wrapper"
+            />
+            <div
+              class="cds--text-input__field-outer-wrapper"
             >
-              <input
-                aria-label="Type to filter"
-                class="pf-v6-c-text-input-group__text-input"
-                name="#.uid"
-                role="textbox"
-                type="text"
-                value=""
-              />
-            </span>
-          </div>
-          <div
-            class="pf-v6-c-text-input-group__utilities"
-          >
-            <button
-              aria-label="Open suggestions"
-              class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_3f_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
-              data-testid="#.uid__open-suggestions-button"
-              title="Open suggestions (Ctrl+Space)"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-button__icon"
+              <div
+                class="cds--text-input__field-wrapper"
               >
-                <svg
-                  data-testid="lightbulb-icon"
-                  role="img"
-                >
-                  <path />
-                </svg>
-              </span>
-            </button>
-            <button
-              aria-expanded="false"
-              aria-label="#.uid__field-actions"
-              class="pf-v6-c-menu-toggle pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_3j_"
-              data-ouia-component-type="PF6/MenuToggle"
-              data-ouia-safe="true"
-              data-testid="#.uid__field-actions"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-menu-toggle__icon"
-              >
-                <svg
-                  data-testid="ellipsis-v-icon"
-                  role="img"
-                >
-                  <path />
-                </svg>
-              </span>
-            </button>
+                <input
+                  aria-describedby="#.uid-popover"
+                  class="cds--text-input"
+                  data-testid="#.uid"
+                  id="#.uid"
+                  name="#.uid"
+                  role="textbox"
+                  type="text"
+                  value=""
+                />
+                <span
+                  aria-atomic="true"
+                  aria-live="assertive"
+                  class="cds--text-input__counter-alert"
+                  role="alert"
+                />
+              </div>
+            </div>
           </div>
         </div>
+        <span
+          class="cds--overflow-menu__wrapper"
+        >
+          <span
+            class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
+          >
+            <div
+              class="cds--tooltip-trigger__wrapper"
+            >
+              <button
+                aria-expanded="false"
+                aria-haspopup="true"
+                aria-labelledby="tooltip-_r_3g_"
+                class="cds--overflow-menu cds--overflow-menu--sm cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+                data-testid="#.uid__field-actions"
+                type="button"
+              >
+                <svg
+                  aria-label="Options"
+                  class="cds--overflow-menu__icon"
+                  fill="currentColor"
+                  focusable="false"
+                  height="16"
+                  preserveAspectRatio="xMidYMid meet"
+                  role="img"
+                  viewBox="0 0 32 32"
+                  width="16"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="16"
+                    cy="8"
+                    r="2"
+                  />
+                  <circle
+                    cx="16"
+                    cy="16"
+                    r="2"
+                  />
+                  <circle
+                    cx="16"
+                    cy="24"
+                    r="2"
+                  />
+                </svg>
+              </button>
+            </div>
+            <span
+              aria-hidden="true"
+              class="cds--popover"
+              id="tooltip-_r_3g_"
+              role="tooltip"
+            >
+              <span
+                class="cds--popover-content cds--tooltip-content"
+              >
+                Options
+              </span>
+              <span
+                class="cds--popover-caret"
+              />
+            </span>
+          </span>
+        </span>
       </div>
     </div>
   </form>
   <div
-    class="pf-v6-c-card kaoto-form kaoto-form__empty"
-    data-ouia-component-id="OUIA-Generated-Card-_r_3k_"
-    data-ouia-component-type="PF6/Card"
-    data-ouia-safe="true"
+    class="cds--tile kaoto-form kaoto-form__empty"
     data-testid="no-field-found"
-    id=""
   >
     <div
-      class="pf-v6-c-card__body"
+      class="cds--inline-notification cds--inline-notification--info cds--inline-notification--hide-close-button"
+      role="status"
     >
       <div
-        class="pf-v6-c-alert pf-m-info"
-        data-ouia-component-id="OUIA-Generated-Alert-info-_r_3l_"
-        data-ouia-component-type="PF6/Alert"
-        data-ouia-safe="true"
+        class="cds--inline-notification__details"
       >
+        <svg
+          aria-hidden="true"
+          class="cds--inline-notification__icon"
+          fill="currentColor"
+          focusable="false"
+          height="20"
+          preserveAspectRatio="xMidYMid meet"
+          viewBox="0 0 32 32"
+          width="20"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M16,8a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,16,8Zm4,13.875H17.125v-8H13v2.25h1.875v5.75H12v2.25h8Z"
+            data-icon-path="inner-path"
+            fill="none"
+          />
+          <path
+            d="M16,2A14,14,0,1,0,30,16,14,14,0,0,0,16,2Zm0,6a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,16,8Zm4,16.125H12v-2.25h2.875v-5.75H13v-2.25h4.125v8H20Z"
+          />
+          <title>
+            info icon
+          </title>
+        </svg>
         <div
-          class="pf-v6-c-alert__icon"
+          class="cds--inline-notification__text-wrapper"
         >
-          <svg
-            aria-hidden="true"
-            class="pf-v6-svg"
-            fill="currentColor"
-            height="1em"
-            role="img"
-            viewBox="0 0 32 32"
-            width="1em"
+          <div
+            class="cds--inline-notification__title"
+            dir="auto"
           >
-            <path
-              d="M16 1C7.729 1 1 7.729 1 16s6.729 15 15 15 15-6.729 15-15S24.271 1 16 1Zm1.5 22a1.5 1.5 0 1 1-3 0v-5.157l-.188.04a1.5 1.5 0 0 1-.625-2.934l1.956-.416c.112-.024.223-.032.333-.03l.024-.002a1.5 1.5 0 0 1 1.5 1.5v7Zm-.08-12.58c-.38.37-.89.58-1.42.58a1.998 1.998 0 0 1-1.851-2.76c.051-.13.11-.24.19-.35.07-.11.15-.21.25-.3.74-.75 2.08-.75 2.83 0 .09.09.17.19.24.3.08.11.14.22.189.35.05.12.09.24.11.37.03.13.04.26.04.39 0 .53-.21 1.04-.58 1.42Z"
-            />
-          </svg>
-        </div>
-        <h4
-          class="pf-v6-c-alert__title"
-        >
-          <span
-            class="pf-v6-screen-reader"
+            No fields found
+          </div>
+          <div
+            class="cds--inline-notification__subtitle"
+            dir="auto"
           >
-            Info alert:
-          </span>
-          No All fields found
-        </h4>
-        <div
-          class="pf-v6-c-alert__description"
-        >
-          No field found matching this criteria. Please switch to the
-           
-          <button
-            class="pf-v6-c-button pf-m-link pf-m-inline"
-            data-ouia-component-id="OUIA-Generated-Button-link-_r_3m_"
-            data-ouia-component-type="PF6/Button"
-            data-ouia-safe="true"
-            type="button"
-          >
-            <span
-              class="pf-v6-c-button__text"
-            >
-              <b>
-                All
-              </b>
-            </span>
-          </button>
-           
-          tab.
+            No field found matching this criteria.
+          </div>
         </div>
       </div>
     </div>

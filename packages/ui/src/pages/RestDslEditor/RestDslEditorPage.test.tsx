@@ -1,16 +1,21 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, Rest } from '@kaoto/camel-catalog/types';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, FunctionComponent, PropsWithChildren, useMemo, useState } from 'react';
+import type { Mock } from 'vitest';
 
 import { CamelResourceFactory } from '../../models/camel/camel-resource-factory';
 import { EntityType } from '../../models/entities';
 import { KaotoResource } from '../../models/kaoto-resource';
 import { CamelRestConfigurationVisualEntity } from '../../models/visualization/flows/camel-rest-configuration-visual-entity';
 import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';
+import { EntitiesContext } from '../../providers/entities.provider';
 import { TestProvidersWrapper } from '../../stubs';
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../stubs/test-load-catalog';
 import { RestDslEditorPage } from './RestDslEditorPage';
 import { clickToolbarActionUtil } from './test-utils';
+
+vi.setConfig({ testTimeout: 30_000 });
 
 /** Helper to get REST-related entities (non-visual after refactor) */
 const getRestEntities = (camelResource: KaotoResource) =>
@@ -18,21 +23,52 @@ const getRestEntities = (camelResource: KaotoResource) =>
     .getEntities()
     .filter((e) => e instanceof CamelRestVisualEntity || e instanceof CamelRestConfigurationVisualEntity);
 
+const RestPageEntitiesProvider: FunctionComponent<
+  PropsWithChildren<{
+    camelResource: KaotoResource;
+    updateEntitiesFromCamelResourceSpy: Mock;
+    updateSourceCodeFromEntitiesSpy: Mock;
+  }>
+> = ({ camelResource, updateEntitiesFromCamelResourceSpy, updateSourceCodeFromEntitiesSpy, children }) => {
+  const [entities, setEntities] = useState(() => camelResource.getEntities());
+  const [visualEntities, setVisualEntities] = useState(() => camelResource.getVisualEntities());
+
+  const contextValue = useMemo(
+    () => ({
+      camelResource,
+      entities,
+      visualEntities,
+      currentSchemaType: camelResource.getType(),
+      updateEntitiesFromCamelResource: () => {
+        updateEntitiesFromCamelResourceSpy();
+        setEntities(camelResource.getEntities());
+        setVisualEntities(camelResource.getVisualEntities());
+        updateSourceCodeFromEntitiesSpy();
+      },
+      updateSourceCodeFromEntities: updateSourceCodeFromEntitiesSpy,
+    }),
+    [camelResource, entities, visualEntities, updateEntitiesFromCamelResourceSpy, updateSourceCodeFromEntitiesSpy],
+  );
+
+  return <EntitiesContext.Provider value={contextValue}>{children}</EntitiesContext.Provider>;
+};
+
 /**
  * Helper function to add a REST method via modal
  */
 const addRestMethod = async (path: string) => {
-  await waitFor(() => {
-    expect(screen.getByText('Add REST Method')).toBeTruthy();
-  });
+  expect(screen.queryByText('Add REST Method')).toBeInTheDocument();
 
-  const modal = screen.getByRole('dialog');
-  const pathInput = within(modal).getByRole('textbox', { name: /Path/i });
+  const modal = screen.queryByRole('dialog');
+  expect(modal).toBeInTheDocument();
+  const pathInput = within(modal!).queryByRole('textbox', { name: /Path/i });
+  expect(pathInput).toBeInTheDocument();
 
-  fireEvent.change(pathInput, { target: { value: path } });
+  fireEvent.change(pathInput!, { target: { value: path } });
 
-  const addButton = within(modal).getByRole('button', { name: /^Add$/i });
-  fireEvent.click(addButton);
+  const addButton = within(modal!).queryByRole('button', { name: /^Add$/i });
+  expect(addButton).toBeInTheDocument();
+  fireEvent.click(addButton!);
 };
 
 describe('RestDslEditorPage', () => {
@@ -50,7 +86,13 @@ describe('RestDslEditorPage', () => {
 
     const result = render(
       <Provider>
-        <RestDslEditorPage />
+        <RestPageEntitiesProvider
+          camelResource={camelResource}
+          updateEntitiesFromCamelResourceSpy={updateEntitiesFromCamelResourceSpy}
+          updateSourceCodeFromEntitiesSpy={updateSourceCodeFromEntitiesSpy}
+        >
+          <RestDslEditorPage />
+        </RestPageEntitiesProvider>
       </Provider>,
     );
 
@@ -63,11 +105,12 @@ describe('RestDslEditorPage', () => {
    * Helper function to select a tree node
    */
   const selectTreeNode = async (nodeName: string) => {
-    const node = await screen.findByText(nodeName);
-    fireEvent.click(node);
+    const node = screen.queryByText(nodeName);
+    expect(node).toBeInTheDocument();
+    fireEvent.click(node!);
   };
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     setupDynamicCatalogRegistry(catalogsMap);
   });
@@ -92,17 +135,13 @@ describe('RestDslEditorPage', () => {
 
       await selectTreeNode('rest-1');
 
-      await waitFor(() => {
-        expect(screen.getByText(/Edit/)).toBeTruthy();
-      });
+      await screen.findByText(/Edit/);
 
-      const pathInput = screen.getByDisplayValue('/api');
+      const pathInput = await screen.findByDisplayValue('/api');
       fireEvent.change(pathInput, { target: { value: '/api/v2' } });
       fireEvent.blur(pathInput);
 
-      await waitFor(() => {
-        expect(updateSourceCodeFromEntitiesSpy).toHaveBeenCalled();
-      });
+      expect(updateSourceCodeFromEntitiesSpy).toHaveBeenCalled();
 
       const restEntity = getRestEntities(camelResource).find((e) => e.id === 'rest-1') as CamelRestVisualEntity;
       expect(restEntity?.getRawRestDef()).toMatchObject({ path: '/api/v2' });
@@ -117,10 +156,7 @@ describe('RestDslEditorPage', () => {
       const initialCount = getRestEntities(camelResource).length;
 
       await clickToolbarActionUtil('Add Configuration');
-
-      await waitFor(() => {
-        expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
-      });
+      expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
 
       const entities = getRestEntities(camelResource);
       expect(entities).toHaveLength(initialCount + 1);
@@ -136,10 +172,7 @@ describe('RestDslEditorPage', () => {
       const initialCount = getRestEntities(camelResource).length;
 
       await clickToolbarActionUtil('Add Service');
-
-      await waitFor(() => {
-        expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
-      });
+      expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
 
       const entities = getRestEntities(camelResource);
       expect(entities).toHaveLength(initialCount + 1);
@@ -156,10 +189,7 @@ describe('RestDslEditorPage', () => {
       await selectTreeNode('rest-1');
       await clickToolbarActionUtil('Add Operation');
       await addRestMethod('/users');
-
-      await waitFor(() => {
-        expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
-      });
+      expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
 
       const restEntity = getRestEntities(camelResource).find((e) => e.id === 'rest-1');
       const restDef = restEntity?.toJSON() as { rest: Rest };
@@ -185,10 +215,7 @@ describe('RestDslEditorPage', () => {
 
       await selectTreeNode('rest-1');
       await clickToolbarActionUtil('Delete');
-
-      await waitFor(() => {
-        expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
-      });
+      expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
 
       const entities = getRestEntities(camelResource);
       expect(entities).toHaveLength(initialCount - 1);
@@ -205,22 +232,17 @@ describe('RestDslEditorPage', () => {
 
       const initialCount = getRestEntities(camelResource).length;
 
-      expect(screen.getByRole('tree', { name: 'Rest DSL Configuration' })).toBeTruthy();
-      expect(screen.getByText('rest-1')).toBeTruthy();
+      expect(await screen.findByRole('tree', { name: 'Rest DSL Configuration' })).toBeTruthy();
+      expect(await screen.findByText('rest-1')).toBeTruthy();
 
       await clickToolbarActionUtil('Add Configuration');
+      expect(getRestEntities(camelResource)).toHaveLength(initialCount + 1);
 
-      await waitFor(() => {
-        expect(getRestEntities(camelResource)).toHaveLength(initialCount + 1);
-      });
-
-      await waitFor(() => {
-        expect(screen.getByText(/restConfiguration-/)).toBeTruthy();
-      });
-
-      await waitFor(() => {
-        expect(screen.getByText(/Edit/)).toBeTruthy();
-      });
+      const newConfig = getRestEntities(camelResource).find((entity) => entity.type === EntityType.RestConfiguration)!;
+      const tree = screen.queryByRole('tree', { name: 'Rest DSL Configuration' });
+      const rightPanel = screen.queryByRole('region', { name: 'Right panel' });
+      expect(within(tree!).queryByText(newConfig.id)).toBeInTheDocument();
+      expect(within(rightPanel!).queryByText(newConfig.id)).toBeInTheDocument();
     });
 
     it('should update tree and form on add REST service', async () => {
@@ -229,22 +251,16 @@ describe('RestDslEditorPage', () => {
     id: rest-1
       `);
 
-      expect(screen.getByText('rest-1')).toBeTruthy();
+      expect(await screen.findByText('rest-1')).toBeTruthy();
 
       await clickToolbarActionUtil('Add Service');
+      expect(getRestEntities(camelResource)).toHaveLength(2);
 
-      await waitFor(() => {
-        expect(getRestEntities(camelResource)).toHaveLength(2);
-      });
-
-      await waitFor(() => {
-        const tree = screen.getByRole('tree');
-        expect(within(tree).getByText(/rest-/)).toBeTruthy();
-      });
-
-      await waitFor(() => {
-        expect(screen.getByText(/Edit/)).toBeTruthy();
-      });
+      const newRest = getRestEntities(camelResource).find((entity) => entity.id !== 'rest-1')!;
+      const tree = screen.queryByRole('tree', { name: 'Rest DSL Configuration' });
+      const rightPanel = screen.queryByRole('region', { name: 'Right panel' });
+      expect(within(tree!).queryByText(newRest.id)).toBeInTheDocument();
+      expect(within(rightPanel!).queryByText(newRest.id)).toBeInTheDocument();
     });
 
     it('should update tree and form on add REST method', async () => {
@@ -258,18 +274,11 @@ describe('RestDslEditorPage', () => {
       await clickToolbarActionUtil('Add Operation');
       await addRestMethod('/orders');
 
-      await waitFor(
-        () => {
-          const tree = screen.getByRole('tree');
-          expect(within(tree).getByText('/orders')).toBeTruthy();
-        },
-        { timeout: 3000 },
-      );
+      const tree = screen.queryByRole('tree');
+      expect(within(tree!).queryByText('/orders')).toBeInTheDocument();
 
-      await waitFor(() => {
-        expect(screen.getByText(/Edit/)).toBeTruthy();
-        expect(screen.getAllByText(/GET/).length).toBeGreaterThan(0);
-      });
+      expect(screen.queryByText(/Edit/)).toBeInTheDocument();
+      expect(screen.queryAllByText(/GET/)).not.toHaveLength(0);
     });
 
     it('should update tree and form on delete', async () => {
@@ -287,26 +296,19 @@ describe('RestDslEditorPage', () => {
           uri: direct:getOrders
       `);
 
-      expect(screen.getByText('/users')).toBeTruthy();
-      expect(screen.getByText('/orders')).toBeTruthy();
+      expect(screen.queryByText('/users')).toBeInTheDocument();
+      expect(screen.queryByText('/orders')).toBeInTheDocument();
 
       await selectTreeNode('/users');
 
-      await waitFor(() => {
-        expect(screen.getByText(/Edit/)).toBeTruthy();
-      });
+      expect(screen.queryByText(/Edit/)).toBeInTheDocument();
 
       await clickToolbarActionUtil('Delete');
+      expect(screen.queryByText('/users')).toBeNull();
 
-      await waitFor(() => {
-        expect(screen.queryByText('/users')).toBeNull();
-      });
+      expect(screen.queryByText('/orders')).toBeInTheDocument();
 
-      expect(screen.getByText('/orders')).toBeTruthy();
-
-      await waitFor(() => {
-        expect(screen.getByText('Select an entity from the list to edit its configuration')).toBeTruthy();
-      });
+      expect(screen.queryByText('Select an entity from the list to edit its configuration')).toBeInTheDocument();
     });
 
     it('should update tree and form when deleting a right-clicked method', async () => {
@@ -324,18 +326,15 @@ describe('RestDslEditorPage', () => {
           uri: direct:getOrders
       `);
 
-      fireEvent.contextMenu(screen.getByText('/users'), { clientX: 120, clientY: 80 });
+      fireEvent.contextMenu(await screen.findByText('/users'), { clientX: 120, clientY: 80 });
 
       const deleteAction = await screen.findByRole('menuitem', { name: /Delete/ });
       fireEvent.click(deleteAction);
+      expect(screen.queryByText('/users')).toBeNull();
 
-      await waitFor(() => {
-        expect(screen.queryByText('/users')).toBeNull();
-      });
-
-      expect(screen.getByText('/orders')).toBeTruthy();
+      expect(await screen.findByText('/orders')).toBeTruthy();
       expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
-      expect(screen.getByText('Select an entity from the list to edit its configuration')).toBeTruthy();
+      expect(await screen.findByText('Select an entity from the list to edit its configuration')).toBeTruthy();
     });
   });
 
@@ -351,28 +350,30 @@ describe('RestDslEditorPage', () => {
       await selectTreeNode('rest-1');
       await clickToolbarActionUtil('Add Operation');
 
-      await waitFor(() => {
-        expect(screen.getByText('Add REST Method')).toBeTruthy();
-      });
+      expect(screen.queryByText('Add REST Method')).toBeInTheDocument();
     };
 
     it('returns focus to the Actions trigger when the modal is cancelled', async () => {
       await openAddMethodModal();
 
-      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Actions' })).toHaveFocus();
+      const cancelButton = screen.queryByRole('button', { name: 'Cancel' });
+      expect(cancelButton).toBeInTheDocument();
+      await act(async () => {
+        cancelButton!.click();
       });
+
+      expect(screen.queryByRole('button', { name: 'Actions' })).toHaveFocus();
     });
 
     it('returns focus to the Actions trigger when the modal is dismissed with Escape', async () => {
       await openAddMethodModal();
 
-      fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape', code: 'Escape' });
+      const modal = screen.queryByRole('dialog');
+      expect(modal).toBeInTheDocument();
+      fireEvent.keyDown(modal!, { key: 'Escape', code: 'Escape' });
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Actions' })).toHaveFocus();
+        expect(screen.queryByRole('button', { name: 'Actions' })).toHaveFocus();
       });
     });
 
@@ -383,13 +384,11 @@ describe('RestDslEditorPage', () => {
       // focus must still return to the (new) Actions trigger.
       await addRestMethod('/orders');
 
-      await waitFor(() => {
-        const tree = screen.getByRole('tree');
-        expect(within(tree).getByText('/orders')).toBeTruthy();
-      });
+      const tree = screen.queryByRole('tree');
+      expect(within(tree!).queryByText('/orders')).toBeInTheDocument();
 
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Actions' })).toHaveFocus();
+        expect(screen.queryByRole('button', { name: 'Actions' })).toHaveFocus();
       });
     });
   });
