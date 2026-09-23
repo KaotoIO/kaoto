@@ -80,7 +80,11 @@ jobs:
       - name: '📦 Build release VSIX'
         env:
           VSIX_NAME: ${{ steps.compute.outputs.vsix_name }}
-        run: yarn workspace vscode-kaoto build:vsix --out "${VSIX_NAME}"
+          RELEASE_TAG: ${{ steps.compute.outputs.release_tag }}
+        run: |
+          yarn workspace vscode-kaoto build:vsix \
+            --out "${VSIX_NAME}" \
+            --baseImagesUrl "https://github.com/KaotoIO/kaoto/raw/refs/tags/${RELEASE_TAG}/packages/kaoto-vscode"
 
       - name: '📤 Upload VSIX artifact'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
