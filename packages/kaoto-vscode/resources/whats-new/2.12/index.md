@@ -6,7 +6,7 @@ We are happy to announce that new version of extension was released!
 
 ## Key highlights of this release
 
-This release delivers three headline themes: a brand-new **Infrastructure view** for managing Camel infra services directly from VS Code; a dramatically more powerful **DataMapper** with XPath 3.1 / XSLT 3.0 function support, advanced schema handling (substitution group, abstract types, `xs:choice`), and improved XPath editor with function completion; and a set of **canvas and editor improvements**. Powered by Apache Camel 4.22.1.
+This release delivers three headline themes: a brand-new **Infrastructure view** for managing Camel infra services directly from VS Code; a dramatically more powerful **DataMapper** with an enriched mapping context menu, full `xsl:variable` and `xsl:for-each-group` support, advanced schema handling (substitution groups, abstract types, `xs:choice` sequences, `xsi:type` generation), and an upgraded XPath editor with XSLT 3.0 / XPath 3.1 function completion; and a set of **canvas and editor improvements** including custom Kamelet live refresh and `a2aSubTask` EIP support. Powered by Apache Camel 4.22.1.
 
 ---
 
@@ -15,6 +15,10 @@ This release delivers three headline themes: a brand-new **Infrastructure view**
 A brand-new **Infrastructure** view has been added to the Kaoto sidebar. It integrates with `camel infra` to let you start, monitor, and stop Camel infrastructure services (databases, message brokers, and other backing services) without leaving VS Code.
 
 > **This feature is experimental and hidden by default.** To try it out, enable the `kaoto.infrastructure.enabled` setting in your VS Code settings.
+
+<p align="center">
+    <img src="./infrastructure-settings.png" alt="Infrastructure view User Setting" width="80%">
+</p>
 
 #### Start infrastructure services
 
@@ -39,9 +43,9 @@ Each running service is shown as a tree item with its name, port (if known), and
 
 ### DataMapper: Enhanced mapping context menu
 
-- **`Add copy selector`/`Add value selector`/`Duplicate` mapping context menu** - Mapping context menu now offers `Add value selector` to add  `xsl:value-of`, `Add copy selector` to add `xsl:copy-of` and `Duplicate` to add multiple mappings on a collection target field
-- **`Wrap with Instruction`/`Inner Instruction` mapping context menu** - `Wrap with Instruction` and `Inner Instruction` sub categories are added to the mapping context menu, offering more flexible mapping instruction control 
-- **Double click short cut for adding a mapping** - if you double click the target field, input field is shown right away to quickly write down a mapping XPath expression  
+- **`Add copy selector`/`Add value selector`/`Duplicate` mapping context menu** - Mapping context menu now offers `Add value selector` to add `xsl:value-of`, `Add copy selector` to add `xsl:copy-of` and `Duplicate` to add multiple mappings on a collection target field
+- **`Wrap with Instruction`/`Inner Instruction` mapping context menu** - `Wrap with Instruction` and `Inner Instruction` sub categories are added to the mapping context menu, offering more flexible mapping instruction control
+- **Double click short cut for adding a mapping** - if you double click the target field, input field is shown right away to quickly write down a mapping XPath expression
 
 <p align="center">
     <img src="./datamapper-mapping-context-menu.png" alt="DataMapper showing xs:choice branch selection and type override" width="65%">
