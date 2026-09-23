@@ -130,7 +130,16 @@ export class MappingService {
       ) {
         return acc;
       }
-      if (!(child.parent instanceof InstructionItem) && child instanceof FieldItem && child.children.length === 0)
+      // Preserve a childless FieldItem that is marked isUserCreated — it represents an active
+      // target wrapper selection (xs:choice / abstract) that has no mapped children yet.
+      // Mirrors the identical guard in doRemoveStaleMappingsForTargetDocument.
+      // See https://github.com/KaotoIO/kaoto/issues/3929
+      if (
+        !(child.parent instanceof InstructionItem) &&
+        child instanceof FieldItem &&
+        child.children.length === 0 &&
+        !child.isUserCreated
+      )
         return acc;
       acc.push(child);
       return acc;
@@ -225,7 +234,16 @@ export class MappingService {
       if (isExpressionHolder(child) && MappingService.hasStaleSourceField(child, document)) {
         return acc;
       }
-      if (!(child.parent instanceof InstructionItem) && child instanceof FieldItem && child.children.length === 0) {
+      // Preserve a childless FieldItem that is marked isUserCreated — it represents an active
+      // target wrapper selection (xs:choice / abstract) that has no mapped children yet.
+      // Mirrors the identical guard in doRemoveStaleMappingsForTargetDocument.
+      // See https://github.com/KaotoIO/kaoto/issues/3929
+      if (
+        !(child.parent instanceof InstructionItem) &&
+        child instanceof FieldItem &&
+        child.children.length === 0 &&
+        !child.isUserCreated
+      ) {
         return acc;
       }
       acc.push(child);
