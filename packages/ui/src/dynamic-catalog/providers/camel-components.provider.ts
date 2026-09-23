@@ -1,9 +1,7 @@
 import { KaotoFunction, KaotoFunctionArgument } from '@kaoto/camel-catalog/types';
 
 import { ICamelComponentDefinition } from '../../models/camel/camel-components-catalog';
-import { ICamelDataformatDefinition } from '../../models/camel/camel-dataformats-catalog';
 import { ICamelLanguageDefinition } from '../../models/camel/camel-languages-catalog';
-import { ICamelLoadBalancerDefinition } from '../../models/camel/camel-loadbalancers-catalog';
 import { ICamelProcessorDefinition } from '../../models/camel/camel-processors-catalog';
 import { ICatalogProvider } from '../models';
 
@@ -31,14 +29,6 @@ export class CamelProcessorsProvider extends BaseCamelProvider<ICamelProcessorDe
 
 export class CamelLanguageProvider extends BaseCamelProvider<ICamelLanguageDefinition> {
   readonly id = 'camel-languages-provider';
-}
-
-export class CamelDataformatProvider extends BaseCamelProvider<ICamelDataformatDefinition> {
-  readonly id = 'camel-dataformats-provider';
-}
-
-export class CamelLoadbalancerProvider extends BaseCamelProvider<ICamelLoadBalancerDefinition> {
-  readonly id = 'camel-loadbalancers-provider';
 }
 
 export class CamelFunctionProvider extends BaseCamelProvider<Record<string, KaotoFunction<KaotoFunctionArgument>>> {

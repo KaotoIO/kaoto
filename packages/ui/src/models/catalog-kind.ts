@@ -15,12 +15,6 @@ export const enum CatalogKind {
   /** Camel languages catalog, f.i. simple, groovy, kotlin */
   Language = 'language',
 
-  /** Camel dataformats catalog, f.i. json, xml, csv */
-  Dataformat = 'dataformat',
-
-  /** Camel loadbalancer catalog, f.i. round-robin, failover, random */
-  Loadbalancer = 'loadbalancer',
-
   /** Camel kamelets catalog, f.i. xj-template-action */
   Kamelet = 'kamelet',
 
