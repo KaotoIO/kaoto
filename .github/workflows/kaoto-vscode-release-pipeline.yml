@@ -154,6 +154,8 @@ jobs:
 
       - name: '📋 Generate changelog'
         id: changelog
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           body=$(node .github/scripts/generate-changelog.mjs)
           {
