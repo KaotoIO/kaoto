@@ -27,6 +27,9 @@ export class DynamicCatalog<T = unknown> implements IDynamicCatalog<T> {
     if (options.forceFresh || !this.fetchedAll) {
       this.fetchedAll = true;
       const entities = await this.provider.fetchAll();
+      Object.keys(this.cache).forEach((key) => {
+        delete this.cache[key];
+      });
       Object.entries(entities).forEach(([key, entity]) => {
         this.cache[key] = entity;
       });
