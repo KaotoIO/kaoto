@@ -31,6 +31,7 @@ describe('CatalogHelper', () => {
         },
       ],
       starterTemplates: '',
+      xsltCatalogs: '',
     };
   });
 
