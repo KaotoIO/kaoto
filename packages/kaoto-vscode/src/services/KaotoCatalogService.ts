@@ -616,8 +616,14 @@ export class KaotoCatalogService {
 			// Filter catalogs based on file type:
 			// - For Citrus test files: show ONLY Citrus catalogs
 			// - For integration files: show all catalogs EXCEPT Citrus
+			// - XSLT catalogs are never shown in either context
 			const filteredCatalogs = catalogs.filter((catalog) => {
-				const isCitrusCatalog = catalog.runtime.toLowerCase() === RuntimeType.CITRUS;
+				const runtimeLower = catalog.runtime.toLowerCase();
+				const isCitrusCatalog = runtimeLower === RuntimeType.CITRUS;
+				const isXsltCatalog = runtimeLower === 'xslt';
+				if (isXsltCatalog) {
+					return false;
+				}
 				if (isCitrusTestFile) {
 					// For test files, only show Citrus catalogs
 					return isCitrusCatalog;
