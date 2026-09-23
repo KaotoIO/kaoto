@@ -1,0 +1,19 @@
+.shell {
+  &__logo {
+    max-width: 100px;
+  }
+
+  &__link {
+    margin-left: auto;
+  }
+
+  &__body {
+    height: 100%;
+    position: relative;
+  }
+
+  &__page-section {
+    flex: 1;
+    overflow: auto;
+  }
+}

@@ -13,11 +13,14 @@ import { fireEvent, screen } from '@testing-library/react';
  * ```
  */
 export const clickToolbarActionUtil = async (actionName: string): Promise<void> => {
-  const menuButton = screen.getAllByRole('button', { name: 'Actions' })[0];
+  const [menuButton] = screen.queryAllByRole('button', { name: 'Actions' });
+  if (!menuButton) {
+    throw new Error('Actions menu button not found');
+  }
   fireEvent.click(menuButton);
 
-  const actionButton = await screen.findByText(actionName);
-  const actionLi = actionButton.closest('li');
+  // Carbon renders the menu item during the click; a findBy query waits for an unnecessary timer here.
+  const actionLi = screen.queryByText(actionName)?.closest('li');
   if (!actionLi) {
     throw new Error(`Action "${actionName}" not found in the Actions menu`);
   }

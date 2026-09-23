@@ -1,0 +1,137 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Typeahead > should renders the Typeahead component 1`] = `
+<div>
+  <div>
+    <div
+      class="cds--list-box__wrapper"
+    >
+      <div
+        class="cds--combo-box cds--list-box"
+      >
+        <div
+          class="cds--list-box__field"
+        >
+          <input
+            aria-activedescendant=""
+            aria-autocomplete="list"
+            aria-controls="downshift-_r_2_-menu"
+            aria-expanded="false"
+            aria-haspopup="listbox"
+            aria-label="Typeahead"
+            autocomplete="off"
+            class="cds--text-input cds--text-input--empty"
+            data-testid="typeahead"
+            id="test-typeahead"
+            placeholder="Select or write an option"
+            role="combobox"
+            tabindex="0"
+            type="text"
+            value=""
+          />
+          <button
+            aria-controls="downshift-_r_2_-menu"
+            aria-expanded="false"
+            aria-label="Open"
+            class="cds--list-box__menu-icon"
+            id="downshift-_r_2_-toggle-button"
+            tabindex="-1"
+            title="Open"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              focusable="false"
+              height="16"
+              preserveAspectRatio="xMidYMid meet"
+              viewBox="0 0 16 16"
+              width="16"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 11 3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"
+              />
+            </svg>
+          </button>
+        </div>
+        <ul
+          aria-labelledby="downshift-_r_2_-label"
+          class="cds--list-box__menu"
+          id="downshift-_r_2_-menu"
+          role="listbox"
+        />
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Typeahead > should renders the Typeahead component with disabled button 1`] = `
+<div>
+  <div>
+    <div
+      class="cds--list-box__wrapper"
+    >
+      <div
+        class="cds--combo-box cds--list-box cds--list-box--disabled"
+      >
+        <div
+          class="cds--list-box__field"
+        >
+          <input
+            aria-activedescendant=""
+            aria-autocomplete="list"
+            aria-controls="downshift-_r_5_-menu"
+            aria-expanded="false"
+            aria-haspopup="listbox"
+            aria-label="Typeahead"
+            autocomplete="off"
+            class="cds--text-input cds--text-input--empty"
+            data-testid="typeahead"
+            disabled=""
+            id="test-typeahead"
+            placeholder="Select or write an option"
+            role="combobox"
+            tabindex="0"
+            type="text"
+            value=""
+          />
+          <button
+            aria-controls="downshift-_r_5_-menu"
+            aria-expanded="false"
+            aria-label="Open"
+            class="cds--list-box__menu-icon"
+            disabled=""
+            id="downshift-_r_5_-toggle-button"
+            tabindex="-1"
+            title="Open"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              focusable="false"
+              height="16"
+              preserveAspectRatio="xMidYMid meet"
+              viewBox="0 0 16 16"
+              width="16"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 11 3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"
+              />
+            </svg>
+          </button>
+        </div>
+        <ul
+          aria-labelledby="downshift-_r_5_-label"
+          class="cds--list-box__menu"
+          id="downshift-_r_5_-menu"
+          role="listbox"
+        />
+      </div>
+    </div>
+  </div>
+</div>
+`;

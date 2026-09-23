@@ -171,75 +171,62 @@ exports[`CanvasForm > should render 1`] = `
       class="pf-v6-c-card__body canvas-form__body"
     >
       <form
-        class="pf-v6-c-form kaoto-form kaoto-form__label"
-        novalidate=""
+        class="cds--form kaoto-form kaoto-form__label"
       />
       <div
-        class="pf-v6-c-card kaoto-form kaoto-form__empty"
-        data-ouia-component-id="OUIA-Generated-Card-_r_4_"
-        data-ouia-component-type="PF6/Card"
-        data-ouia-safe="true"
+        class="cds--tile kaoto-form kaoto-form__empty"
         data-testid="no-field-found"
-        id=""
       >
         <div
-          class="pf-v6-c-card__body"
+          class="cds--inline-notification cds--inline-notification--info cds--inline-notification--hide-close-button"
+          role="status"
         >
           <div
-            class="pf-v6-c-alert pf-m-info"
-            data-ouia-component-id="OUIA-Generated-Alert-info-_r_5_"
-            data-ouia-component-type="PF6/Alert"
-            data-ouia-safe="true"
+            class="cds--inline-notification__details"
           >
+            <svg
+              aria-hidden="true"
+              class="cds--inline-notification__icon"
+              fill="currentColor"
+              focusable="false"
+              height="20"
+              preserveAspectRatio="xMidYMid meet"
+              viewBox="0 0 32 32"
+              width="20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M16,8a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,16,8Zm4,13.875H17.125v-8H13v2.25h1.875v5.75H12v2.25h8Z"
+                data-icon-path="inner-path"
+                fill="none"
+              />
+              <path
+                d="M16,2A14,14,0,1,0,30,16,14,14,0,0,0,16,2Zm0,6a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,16,8Zm4,16.125H12v-2.25h2.875v-5.75H13v-2.25h4.125v8H20Z"
+              />
+              <title>
+                info icon
+              </title>
+            </svg>
             <div
-              class="pf-v6-c-alert__icon"
+              class="cds--inline-notification__text-wrapper"
             >
-              <svg
-                aria-hidden="true"
-                class="pf-v6-svg"
-                fill="currentColor"
-                height="1em"
-                role="img"
-                viewBox="0 0 32 32"
-                width="1em"
+              <div
+                class="cds--inline-notification__title"
+                dir="auto"
               >
-                <path
-                  d="M16 1C7.729 1 1 7.729 1 16s6.729 15 15 15 15-6.729 15-15S24.271 1 16 1Zm1.5 22a1.5 1.5 0 1 1-3 0v-5.157l-.188.04a1.5 1.5 0 0 1-.625-2.934l1.956-.416c.112-.024.223-.032.333-.03l.024-.002a1.5 1.5 0 0 1 1.5 1.5v7Zm-.08-12.58c-.38.37-.89.58-1.42.58a1.998 1.998 0 0 1-1.851-2.76c.051-.13.11-.24.19-.35.07-.11.15-.21.25-.3.74-.75 2.08-.75 2.83 0 .09.09.17.19.24.3.08.11.14.22.189.35.05.12.09.24.11.37.03.13.04.26.04.39 0 .53-.21 1.04-.58 1.42Z"
-                />
-              </svg>
-            </div>
-            <h4
-              class="pf-v6-c-alert__title"
-            >
-              <span
-                class="pf-v6-screen-reader"
+                No Required fields found
+              </div>
+              <div
+                class="cds--inline-notification__subtitle"
+                dir="auto"
               >
-                Info alert:
-              </span>
-              No Required fields found
-            </h4>
-            <div
-              class="pf-v6-c-alert__description"
-            >
-              No field found matching this criteria. Please switch to the
-               
-              <button
-                class="pf-v6-c-button pf-m-link pf-m-inline"
-                data-ouia-component-id="OUIA-Generated-Button-link-_r_6_"
-                data-ouia-component-type="PF6/Button"
-                data-ouia-safe="true"
-                type="button"
+                No field found matching this criteria. Please switch to the All tab.
+              </div>
+              <a
+                class="cds--link cds--link--inline"
               >
-                <span
-                  class="pf-v6-c-button__text"
-                >
-                  <b>
-                    All
-                  </b>
-                </span>
-              </button>
-               
-              tab.
+                Switch to All tab
+              </a>
             </div>
           </div>
         </div>
@@ -253,7 +240,7 @@ exports[`CanvasForm > should render nothing if no schema and no definition is av
 <div>
   <div
     class="pf-v6-c-card canvas-form"
-    data-ouia-component-id="OUIA-Generated-Card-_r_e_"
+    data-ouia-component-id="OUIA-Generated-Card-_r_b_"
     data-ouia-component-type="PF6/Card"
     data-ouia-safe="true"
     id=""
@@ -272,7 +259,7 @@ exports[`CanvasForm > should render nothing if no schema and no definition is av
           >
             <h2
               class="pf-v6-c-title pf-m-h2 form-header__title"
-              data-ouia-component-id="OUIA-Generated-Title-_r_g_"
+              data-ouia-component-id="OUIA-Generated-Title-_r_d_"
               data-ouia-component-type="PF6/Title"
               data-ouia-safe="true"
             >
@@ -284,7 +271,7 @@ exports[`CanvasForm > should render nothing if no schema and no definition is av
           >
             <button
               class="pf-v6-c-button pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_h_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_e_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="close-side-bar"
@@ -416,7 +403,7 @@ exports[`CanvasForm > should render nothing if no schema and no definition is av
     >
       <div
         class="pf-v6-c-card"
-        data-ouia-component-id="OUIA-Generated-Card-_r_i_"
+        data-ouia-component-id="OUIA-Generated-Card-_r_f_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         id=""
@@ -462,7 +449,7 @@ exports[`CanvasForm > should render nothing if no schema and no definition is av
         >
           <div
             class="pf-v6-c-alert pf-m-warning"
-            data-ouia-component-id="OUIA-Generated-Alert-warning-_r_k_"
+            data-ouia-component-id="OUIA-Generated-Alert-warning-_r_h_"
             data-ouia-component-type="PF6/Alert"
             data-ouia-safe="true"
           >
@@ -510,7 +497,7 @@ exports[`CanvasForm > should render nothing if no schema is available 1`] = `
 <div>
   <div
     class="pf-v6-c-card canvas-form"
-    data-ouia-component-id="OUIA-Generated-Card-_r_7_"
+    data-ouia-component-id="OUIA-Generated-Card-_r_4_"
     data-ouia-component-type="PF6/Card"
     data-ouia-safe="true"
     id=""
@@ -529,7 +516,7 @@ exports[`CanvasForm > should render nothing if no schema is available 1`] = `
           >
             <h2
               class="pf-v6-c-title pf-m-h2 form-header__title"
-              data-ouia-component-id="OUIA-Generated-Title-_r_9_"
+              data-ouia-component-id="OUIA-Generated-Title-_r_6_"
               data-ouia-component-type="PF6/Title"
               data-ouia-safe="true"
             >
@@ -541,7 +528,7 @@ exports[`CanvasForm > should render nothing if no schema is available 1`] = `
           >
             <button
               class="pf-v6-c-button pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_a_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_7_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="close-side-bar"
@@ -673,7 +660,7 @@ exports[`CanvasForm > should render nothing if no schema is available 1`] = `
     >
       <div
         class="pf-v6-c-card"
-        data-ouia-component-id="OUIA-Generated-Card-_r_b_"
+        data-ouia-component-id="OUIA-Generated-Card-_r_8_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         id=""
@@ -750,7 +737,7 @@ from:
         >
           <div
             class="pf-v6-c-alert pf-m-warning"
-            data-ouia-component-id="OUIA-Generated-Alert-warning-_r_d_"
+            data-ouia-component-id="OUIA-Generated-Alert-warning-_r_a_"
             data-ouia-component-type="PF6/Alert"
             data-ouia-safe="true"
           >

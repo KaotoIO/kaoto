@@ -1,0 +1,23 @@
+.kaoto-form-container {
+  height: 100vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.kaoto-form {
+  padding: 0.5rem;
+  background-color: var(--cds-layer-01);
+  border: 1px solid var(--cds-border-subtle-01);
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 100%;
+  box-sizing: border-box;
+
+  &__empty {
+    display: none;
+  }
+
+  &:empty + &__empty {
+    display: block;
+  }
+}

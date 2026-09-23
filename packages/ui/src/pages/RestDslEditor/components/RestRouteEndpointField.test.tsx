@@ -68,24 +68,24 @@ describe('RestRouteEndpointField', () => {
     );
 
     return {
-      getInput: () => screen.getByRole('textbox', { name: 'Endpoint Name' }),
-      getCreateButton: () => screen.getByRole('button', { name: 'Create Route' }),
+      findInput: () => screen.findByRole('combobox', { name: 'Endpoint Name' }),
+      findCreateButton: () => screen.findByRole('button', { name: 'Create Route' }),
     };
   };
 
   describe('rendering', () => {
     it('should render with undefined value', async () => {
-      const { getInput } = await renderField({ to: undefined });
+      const { findInput } = await renderField({ to: undefined });
 
-      const input = getInput();
+      const input = await findInput();
       expect(input).toBeInTheDocument();
       expect(input).toHaveValue('');
     });
 
     it('should render with string To value', async () => {
-      const { getInput } = await renderField({ to: 'direct:orders' });
+      const { findInput } = await renderField({ to: 'direct:orders' });
 
-      const input = getInput();
+      const input = await findInput();
       expect(input).toHaveValue('orders');
     });
 
@@ -93,9 +93,9 @@ describe('RestRouteEndpointField', () => {
       const toValue: To = {
         uri: 'direct:billing',
       };
-      const { getInput } = await renderField({ to: toValue });
+      const { findInput } = await renderField({ to: toValue });
 
-      const input = getInput();
+      const input = await findInput();
       expect(input).toHaveValue('billing');
     });
 
@@ -106,17 +106,17 @@ describe('RestRouteEndpointField', () => {
           name: 'start',
         },
       };
-      const { getInput } = await renderField({ to: toValue });
+      const { findInput } = await renderField({ to: toValue });
 
-      const input = getInput();
+      const input = await findInput();
       expect(input).toHaveValue('start');
     });
 
     it('should render with complex uri containing query parameters', async () => {
       const toValue: To = 'direct:orders?timeout=5000';
-      const { getInput } = await renderField({ to: toValue });
+      const { findInput } = await renderField({ to: toValue });
 
-      const input = getInput();
+      const input = await findInput();
       expect(input).toHaveValue('orders');
     });
   });
@@ -130,16 +130,16 @@ describe('RestRouteEndpointField', () => {
           name: 'orders',
         },
       };
-      const { getInput } = await renderField({ to: initialTo }, onPropertyChange);
+      const { findInput } = await renderField({ to: initialTo }, onPropertyChange);
 
-      const input = getInput();
+      const input = await findInput();
       expect(input).toHaveValue('orders');
 
       // Change the input value
       fireEvent.click(input);
       fireEvent.change(input, { target: { value: 'billing' } });
 
-      const option = screen.getByRole('option', { name: 'option billing' });
+      const option = await screen.findByRole('option', { name: 'billing' });
       fireEvent.click(option);
 
       await waitFor(() => {
@@ -162,16 +162,14 @@ describe('RestRouteEndpointField', () => {
           block: true,
         },
       };
-      const { getInput } = await renderField({ to: initialTo }, onPropertyChange);
+      const { findInput } = await renderField({ to: initialTo }, onPropertyChange);
 
-      const input = getInput();
+      const input = await findInput();
       expect(input).toHaveValue('orders');
 
       fireEvent.click(input);
       fireEvent.change(input, { target: { value: 'new-endpoint' } });
-
-      const option = screen.getByRole('option', { name: 'use custom value new-endpoint' });
-      fireEvent.click(option);
+      fireEvent.blur(input);
 
       await waitFor(() => {
         expect(onPropertyChange).toHaveBeenCalledWith(PROP_NAME, {
@@ -188,16 +186,14 @@ describe('RestRouteEndpointField', () => {
     it('should handle clearing the input', async () => {
       const onPropertyChange = vi.fn();
       const initialTo: To = 'direct:orders';
-      const { getInput } = await renderField({ to: initialTo }, onPropertyChange);
+      const { findInput } = await renderField({ to: initialTo }, onPropertyChange);
 
-      const input = getInput();
+      const input = await findInput();
       expect(input).toHaveValue('orders');
 
       // Find and click the clear button
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: /clear/i })).toBeInTheDocument();
-      });
-      const clearButton = screen.getByRole('button', { name: /clear/i });
+      await screen.findByRole('button', { name: /clear/i });
+      const clearButton = await screen.findByRole('button', { name: /clear/i });
 
       fireEvent.click(clearButton);
 
@@ -213,24 +209,20 @@ describe('RestRouteEndpointField', () => {
 
     it('should update when selecting from dropdown suggestions', async () => {
       const onPropertyChange = vi.fn();
-      const { getInput } = await renderField({ to: undefined }, onPropertyChange);
+      const { findInput } = await renderField({ to: undefined }, onPropertyChange);
 
-      getInput(); // Ensure component is loaded
+      await findInput(); // Ensure component is loaded
 
       // Open the dropdown
-      await waitFor(() => {
-        expect(screen.getByLabelText('Endpoint Name toggle')).toBeInTheDocument();
-      });
-      const toggle = screen.getByLabelText('Endpoint Name toggle');
+      await screen.findByRole('button', { name: 'Open' });
+      const toggle = await screen.findByRole('button', { name: 'Open' });
 
       fireEvent.click(toggle);
 
       // Wait for options to appear and select one
-      await waitFor(() => {
-        expect(screen.getByText('billing')).toBeInTheDocument();
-      });
+      await screen.findByText('billing');
 
-      const option = screen.getByRole('option', { name: 'option billing' });
+      const option = await screen.findByRole('option', { name: 'billing' });
       fireEvent.click(option);
 
       await waitFor(() => {
@@ -242,32 +234,32 @@ describe('RestRouteEndpointField', () => {
         });
       });
 
-      const input = getInput();
+      const input = await findInput();
       expect(input).toHaveValue('billing');
     });
   });
 
   it('should forward required prop to DirectEndpointNameField', async () => {
-    const { getInput } = await renderField({ to: undefined }, vi.fn(), { required: true });
+    const { findInput } = await renderField({ to: undefined }, vi.fn(), { required: true });
 
-    const input = getInput();
+    const input = await findInput();
     // The field should show required indicator when required prop is passed
-    const formGroup = input.closest('.pf-v6-c-form__group');
-    expect(formGroup).toBeInTheDocument();
+    const fieldWrapper = input.closest('[data-testid="#__field-wrapper"]');
+    expect(fieldWrapper).toBeInTheDocument();
 
     // Check for the required label indicator
-    const requiredLabel = formGroup?.querySelector('.pf-v6-c-form__label-required');
+    const requiredLabel = fieldWrapper?.querySelector('.kaoto-field-wrapper__required');
     expect(requiredLabel).toBeInTheDocument();
   });
 
   describe('Create Route functionality', () => {
     it('should enable Create Route button for new endpoint names', async () => {
-      const { getInput, getCreateButton } = await renderField({ to: undefined });
+      const { findInput, findCreateButton } = await renderField({ to: undefined });
 
-      const button = getCreateButton();
+      const button = await findCreateButton();
       expect(button).toBeDisabled();
 
-      const input = getInput();
+      const input = await findInput();
       fireEvent.change(input, { target: { value: 'new-endpoint' } });
 
       await waitFor(() => {
@@ -276,12 +268,12 @@ describe('RestRouteEndpointField', () => {
     });
 
     it('should disable Create Route button for existing endpoint names', async () => {
-      const { getInput, getCreateButton } = await renderField({ to: undefined });
+      const { findInput, findCreateButton } = await renderField({ to: undefined });
 
-      const input = getInput();
+      const input = await findInput();
       fireEvent.change(input, { target: { value: 'orders' } });
 
-      const button = getCreateButton();
+      const button = await findCreateButton();
       await waitFor(() => {
         expect(button).toBeDisabled();
       });
@@ -289,12 +281,12 @@ describe('RestRouteEndpointField', () => {
 
     it('should create a new direct route when Create Route is clicked', async () => {
       const onPropertyChange = vi.fn();
-      const { getInput, getCreateButton } = await renderField({ to: undefined }, onPropertyChange);
+      const { findInput, findCreateButton } = await renderField({ to: undefined }, onPropertyChange);
 
-      const input = getInput();
+      const input = await findInput();
       fireEvent.change(input, { target: { value: 'new-route' } });
 
-      const button = getCreateButton();
+      const button = await findCreateButton();
       await waitFor(() => {
         expect(button).toBeEnabled();
       });

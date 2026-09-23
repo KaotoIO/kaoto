@@ -15,16 +15,16 @@ describe('Tests for side panel step filtering', () => {
     cy.get(`input[name="#.id"]`).should('exist');
     cy.get(`textarea[name="#.description"]`).should('exist');
     cy.get(`input[name="#.name"]`).should('exist');
-    cy.get(`input[name="#.disabled"]`).should('exist');
-    cy.get(`[data-testid="#__expression-list-typeahead-select-input"]`).should('exist');
+    cy.get(`button[name="#.disabled"]`).should('exist');
+    cy.get(`[data-testid="#__expression-list"]`).should('exist');
 
     // filter fields
     cy.filterFields('name');
-    cy.get(`[data-testid="#__expression-list-typeahead-select-input"]`).should('exist');
+    cy.get(`[data-testid="#__expression-list"]`).should('exist');
     cy.get(`input[name="#.name"]`).should('exist');
     cy.get(`input[name="#.id"]`).should('not.exist');
     cy.get(`textarea[name="#.description"]`).should('not.exist');
-    cy.get(`input[name="#.disabled"]`).should('not.exist');
+    cy.get(`button[name="#.disabled"]`).should('not.exist');
   });
 
   it('Side panel step filtering uppercase', () => {
@@ -40,13 +40,13 @@ describe('Tests for side panel step filtering', () => {
     cy.get(`input[name="#.id"]`).should('exist');
     cy.get(`textarea[name="#.description"]`).should('exist');
     cy.get(`input[name="#.name"]`).should('exist');
-    cy.get(`input[name="#.disabled"]`).should('exist');
-    cy.get(`[data-testid="#__expression-list-typeahead-select-input"]`).should('exist');
+    cy.get(`button[name="#.disabled"]`).should('exist');
+    cy.get(`[data-testid="#__expression-list"]`).should('exist');
 
     // filter fields
     cy.filterFields('DISABLED');
-    cy.get(`[data-testid="#__expression-list-typeahead-select-input"]`).should('exist');
-    cy.get(`input[name="#.disabled"]`).should('exist');
+    cy.get(`[data-testid="#__expression-list"]`).should('exist');
+    cy.get(`button[name="#.disabled"]`).should('exist');
     cy.get(`input[name="#.name"]`).should('not.exist');
     cy.get(`input[name="#.id"]`).should('not.exist');
     cy.get(`textarea[name="#.description"]`).should('not.exist');
@@ -63,13 +63,13 @@ describe('Tests for side panel step filtering', () => {
     // check all fields are present
     cy.get(`input[name="#.id"]`).should('exist');
     cy.get(`textarea[name="#.description"]`).should('exist');
-    cy.get(`input[name="#.disabled"]`).should('exist');
+    cy.get(`button[name="#.disabled"]`).should('exist');
 
     // filter fields
     cy.filterFields('show all');
     cy.expandWrappedSection('#.parameters-Formatting');
-    cy.get(`input[name="#.parameters.showAll"]`).should('exist');
-    cy.get(`input[name="#.parameters.showAllProperties"]`).should('exist');
+    cy.get(`button[name="#.parameters.showAll"]`).should('exist');
+    cy.get(`button[name="#.parameters.showAllProperties"]`).should('exist');
     cy.get(`input[name="#.id"]`).should('not.exist');
     cy.get(`textarea[name="#.description"]`).should('not.exist');
   });
@@ -114,7 +114,7 @@ describe('Tests for side panel step filtering', () => {
 
     cy.selectFormTab('Required');
 
-    cy.get('.pf-v6-c-alert__title').should('contain', 'No Required fields found');
+    cy.get('.cds--inline-notification__title').should('contain', 'No Required fields found');
   });
 
   it('Side panel to retain user specified fields filter', () => {

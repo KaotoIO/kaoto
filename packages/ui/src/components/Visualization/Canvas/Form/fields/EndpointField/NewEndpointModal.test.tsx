@@ -62,9 +62,7 @@ describe('NewEndpointModal', () => {
       { wrapper: SuggestionRegistryProvider },
     );
 
-    await waitFor(() => {
-      expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
-    });
+    await screen.findByTestId('NewEndpointModal');
   });
 
   it('should not render anything if there is no schema', () => {
@@ -88,9 +86,7 @@ describe('NewEndpointModal', () => {
       { wrapper: SuggestionRegistryProvider },
     );
 
-    await waitFor(() => {
-      expect(screen.getByText('Create endpoint')).toBeInTheDocument();
-    });
+    await screen.findByText('Create endpoint');
   });
 
   it('should display correct title for Update mode', async () => {
@@ -104,9 +100,7 @@ describe('NewEndpointModal', () => {
       { wrapper: SuggestionRegistryProvider },
     );
 
-    await waitFor(() => {
-      expect(screen.getByText('Update endpoint')).toBeInTheDocument();
-    });
+    await screen.findByText('Update endpoint');
   });
 
   it('should call onCancel when cancel button is clicked', async () => {
@@ -119,16 +113,12 @@ describe('NewEndpointModal', () => {
       { wrapper: SuggestionRegistryProvider },
     );
 
-    await waitFor(() => {
-      expect(screen.getByTestId('endpoint-modal-cancel-btn')).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId('endpoint-modal-cancel-btn'));
+    fireEvent.click(await screen.findByTestId('endpoint-modal-cancel-btn'));
     expect(mockOnCancel).toHaveBeenCalled();
   });
 
   it('should call onConfirm when confirm button is clicked with valid data', async () => {
-    const endpoint = { name: 'testEndpoint', url: 'http://localhost:8080' };
+    const endpoint = { name: 'testEndpoint', requestUrl: 'http://localhost:8080' };
     mockGetNewComponent.mockResolvedValue({ name: 'http-client' });
 
     render(
@@ -138,11 +128,7 @@ describe('NewEndpointModal', () => {
       { wrapper: SuggestionRegistryProvider },
     );
 
-    await waitFor(() => {
-      expect(screen.getByTestId('endpoint-modal-confirm-btn')).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId('endpoint-modal-confirm-btn'));
+    fireEvent.click(await screen.findByTestId('endpoint-modal-confirm-btn'));
 
     expect(mockOnConfirm).toHaveBeenCalledWith('http-client', endpoint);
   });
@@ -173,7 +159,7 @@ describe('NewEndpointModal', () => {
       { wrapper: SuggestionRegistryProvider },
     );
 
-    const confirmButton = screen.getByTestId('endpoint-modal-confirm-btn');
+    const confirmButton = await screen.findByTestId('endpoint-modal-confirm-btn');
     fireEvent.click(confirmButton);
 
     expect(mockOnConfirm).not.toHaveBeenCalled();
@@ -202,7 +188,7 @@ describe('NewEndpointModal', () => {
   it('should handle endpoint with simple properties', async () => {
     const endpoint = {
       name: 'testEndpoint',
-      url: 'http://localhost:8080',
+      requestUrl: 'http://localhost:8080',
     };
     mockGetNewComponent.mockResolvedValue({ name: 'http-client' });
 
@@ -213,19 +199,9 @@ describe('NewEndpointModal', () => {
       { wrapper: SuggestionRegistryProvider },
     );
 
-    await waitFor(() => {
-      expect(screen.getByTestId('endpoint-modal-confirm-btn')).toBeInTheDocument();
-    });
+    fireEvent.click(await screen.findByTestId('endpoint-modal-confirm-btn'));
 
-    fireEvent.click(screen.getByTestId('endpoint-modal-confirm-btn'));
-
-    expect(mockOnConfirm).toHaveBeenCalledWith(
-      'http-client',
-      expect.objectContaining({
-        name: 'testEndpoint',
-        url: 'http://localhost:8080',
-      }),
-    );
+    expect(mockOnConfirm).toHaveBeenCalledWith('http-client', expect.objectContaining(endpoint));
   });
 
   it('should show description text', async () => {
@@ -238,13 +214,9 @@ describe('NewEndpointModal', () => {
       { wrapper: SuggestionRegistryProvider },
     );
 
-    await waitFor(() => {
-      expect(
-        screen.getByText(
-          'Send and receive test actions may reference this endpoint by its name when sending and receiving messages during the test.',
-        ),
-      ).toBeInTheDocument();
-    });
+    await screen.findByText(
+      'Send and receive test actions may reference this endpoint by its name when sending and receiving messages during the test.',
+    );
   });
 
   it('should use provided endpoint and type when both are given', async () => {
@@ -257,9 +229,7 @@ describe('NewEndpointModal', () => {
       { wrapper: SuggestionRegistryProvider },
     );
 
-    await waitFor(() => {
-      expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
-    });
+    await screen.findByTestId('NewEndpointModal');
 
     // Should not call getNewComponent when endpoint and type are provided
     expect(mockGetNewComponent).not.toHaveBeenCalled();

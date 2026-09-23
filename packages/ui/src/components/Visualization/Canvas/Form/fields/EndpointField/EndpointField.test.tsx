@@ -88,7 +88,7 @@ describe('EndpointField', () => {
     );
 
     return {
-      getInput: () => screen.getByRole('textbox', { name: schema.title }),
+      findInput: () => screen.findByRole('combobox', { name: schema.title }),
     };
   };
 
@@ -99,9 +99,9 @@ describe('EndpointField', () => {
         actions: [],
       };
 
-      const { getInput } = await renderField({ endpoint: undefined }, testModel);
+      const { findInput } = await renderField({ endpoint: undefined }, testModel);
 
-      const input = getInput();
+      const input = await findInput();
       expect(input).toBeInTheDocument();
       expect(input).toHaveValue('');
     });
@@ -122,9 +122,9 @@ describe('EndpointField', () => {
         ],
       };
 
-      const { getInput } = await renderField({ endpoint: 'httpClient' }, testModel);
+      const { findInput } = await renderField({ endpoint: 'httpClient' }, testModel);
 
-      const input = getInput();
+      const input = await findInput();
       expect(input).toHaveValue('httpClient');
     });
 
@@ -138,7 +138,7 @@ describe('EndpointField', () => {
 
       // When disabled, the component should render but interaction should be prevented
       // Note: The Typeahead component may not set the disabled attribute on the input itself
-      const input = screen.getByRole('textbox', { name: schema.title });
+      const input = await screen.findByRole('combobox', { name: schema.title });
       expect(input).toBeInTheDocument();
     });
 
@@ -148,14 +148,12 @@ describe('EndpointField', () => {
         actions: [],
       };
 
-      const { getInput } = await renderField({ endpoint: undefined }, testModel, vi.fn(), { required: true });
+      const { findInput } = await renderField({ endpoint: undefined }, testModel, vi.fn(), { required: true });
 
-      const input = getInput();
-      const formGroup = input.closest('.pf-v6-c-form__group');
-      expect(formGroup).toBeInTheDocument();
-
-      const requiredLabel = formGroup?.querySelector('.pf-v6-c-form__label-required');
-      expect(requiredLabel).toBeInTheDocument();
+      const input = await findInput();
+      const fieldWrapper = input.closest('[data-testid="endpoint__field-wrapper"]');
+      expect(fieldWrapper).toBeInTheDocument();
+      expect(fieldWrapper?.querySelector('.kaoto-field-wrapper__required')).toBeInTheDocument();
     });
 
     it('should display available endpoints from test resource', async () => {
@@ -186,18 +184,13 @@ describe('EndpointField', () => {
       await renderField({ endpoint: undefined }, testModel);
 
       // Open the dropdown
-      await waitFor(() => {
-        expect(screen.getByLabelText('Endpoint toggle')).toBeInTheDocument();
-      });
-      const toggle = screen.getByLabelText('Endpoint toggle');
+      const toggle = await screen.findByRole('button', { name: 'Open' });
 
       fireEvent.click(toggle);
 
       // Check that both endpoints appear in the dropdown
-      await waitFor(() => {
-        expect(screen.getByText('httpClient')).toBeInTheDocument();
-        expect(screen.getByText('jmsQueue')).toBeInTheDocument();
-      });
+      await screen.findByText('httpClient');
+      await screen.findByText('jmsQueue');
     });
   });
 
@@ -211,47 +204,33 @@ describe('EndpointField', () => {
     await renderField({ endpoint: undefined }, testModel, onPropertyChange);
 
     // Open the dropdown
-    await waitFor(() => {
-      expect(screen.getByLabelText('Endpoint toggle')).toBeInTheDocument();
-    });
-    const toggle = screen.getByLabelText('Endpoint toggle');
+    const toggle = await screen.findByRole('button', { name: 'Open' });
 
     fireEvent.click(toggle);
 
     // Create new endpoint
-    await waitFor(() => {
-      expect(screen.getByRole('option', { name: 'option create-new-with-name' })).toBeInTheDocument();
-    });
-
-    const createNew = screen.getByRole('option', { name: 'option create-new-with-name' });
+    const createNew = await screen.findByRole('option', { name: /Create new/i });
     fireEvent.click(createNew);
 
     // Modal should appear
-    await waitFor(() => {
-      expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
-      // Modal should be in Create mode
-      expect(screen.getByText('Create endpoint')).toBeInTheDocument();
-    });
+    await screen.findByTestId('NewEndpointModal');
+    // Modal should be in Create mode
+    await screen.findByText('Create endpoint');
 
     // Select endpoint from catalog
-    await waitFor(() => {
-      expect(screen.getByTestId('tile-header-http-client')).toBeInTheDocument();
-    });
-
-    // Click on a tile
-    const httpClientTile = screen.getByTestId('tile-header-http-client');
+    const httpClientTile = await screen.findByTestId('tile-header-http-client');
     // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
       fireEvent.click(httpClientTile);
     });
 
-    const nameInput = screen.getByLabelText('Name');
+    const nameInput = await screen.findByLabelText('Name');
     fireEvent.change(nameInput, { target: { value: 'httpClient' } });
 
-    const url = screen.getByLabelText('RequestUrl');
+    const url = await screen.findByLabelText('RequestUrl');
     fireEvent.change(url, { target: { value: 'http://localhost:8080' } });
 
-    const confirmButton = screen.getByTestId('endpoint-modal-confirm-btn');
+    const confirmButton = await screen.findByTestId('endpoint-modal-confirm-btn');
     fireEvent.click(confirmButton);
 
     await waitFor(() => {
@@ -286,29 +265,22 @@ describe('EndpointField', () => {
         ],
       };
 
-      const { getInput } = await renderField({ endpoint: undefined }, testModel, onPropertyChange);
+      const { findInput } = await renderField({ endpoint: undefined }, testModel, onPropertyChange);
 
       // Open the dropdown
-      await waitFor(() => {
-        expect(screen.getByLabelText('Endpoint toggle')).toBeInTheDocument();
-      });
-      const toggle = screen.getByLabelText('Endpoint toggle');
+      const toggle = await screen.findByRole('button', { name: 'Open' });
 
       fireEvent.click(toggle);
 
       // Select an endpoint
-      await waitFor(() => {
-        expect(screen.getByText('httpClient')).toBeInTheDocument();
-      });
-
-      const option = screen.getByRole('option', { name: 'option httpclient' });
+      const option = await screen.findByRole('option', { name: 'httpClient' });
       fireEvent.click(option);
 
       await waitFor(() => {
         expect(onPropertyChange).toHaveBeenCalledWith(PROP_NAME, 'httpClient');
       });
 
-      const input = getInput();
+      const input = await findInput();
       expect(input).toHaveValue('httpClient');
     });
 
@@ -329,16 +301,14 @@ describe('EndpointField', () => {
         ],
       };
 
-      const { getInput } = await renderField({ endpoint: 'httpClient' }, testModel, onPropertyChange);
+      const { findInput } = await renderField({ endpoint: 'httpClient' }, testModel, onPropertyChange);
 
-      const input = getInput();
+      const input = await findInput();
       expect(input).toHaveValue('httpClient');
 
       // Find and click the clear button
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: /clear/i })).toBeInTheDocument();
-      });
-      const clearButton = screen.getByRole('button', { name: /clear/i });
+      await screen.findByRole('button', { name: /clear/i });
+      const clearButton = await screen.findByRole('button', { name: /clear/i });
 
       fireEvent.click(clearButton);
 
@@ -373,24 +343,17 @@ describe('EndpointField', () => {
         ],
       };
 
-      const { getInput } = await renderField({ endpoint: 'httpClient' }, testModel, onPropertyChange);
+      const { findInput } = await renderField({ endpoint: 'httpClient' }, testModel, onPropertyChange);
 
-      const input = getInput();
+      const input = await findInput();
       expect(input).toHaveValue('httpClient');
 
       // Open dropdown and select different endpoint
-      await waitFor(() => {
-        expect(screen.getByLabelText('Endpoint toggle')).toBeInTheDocument();
-      });
-      const toggle = screen.getByLabelText('Endpoint toggle');
+      const toggle = await screen.findByRole('button', { name: 'Open' });
 
       fireEvent.click(toggle);
 
-      await waitFor(() => {
-        expect(screen.getByText('jmsQueue')).toBeInTheDocument();
-      });
-
-      const option = screen.getByRole('option', { name: 'option jmsqueue' });
+      const option = await screen.findByRole('option', { name: 'jmsQueue' });
       fireEvent.click(option);
 
       await waitFor(() => {
@@ -405,9 +368,9 @@ describe('EndpointField', () => {
         actions: [],
       };
 
-      const { getInput } = await renderField({ endpoint: undefined }, testModel, onPropertyChange);
+      const { findInput } = await renderField({ endpoint: undefined }, testModel, onPropertyChange);
 
-      const input = getInput();
+      const input = await findInput();
 
       fireEvent.click(input);
       fireEvent.change(input, { target: { value: 'customEndpoint' } });
@@ -437,19 +400,13 @@ describe('EndpointField', () => {
       await renderField({ endpoint: undefined }, testModel);
 
       // Open the dropdown
-      await waitFor(() => {
-        expect(screen.getByLabelText('Endpoint toggle')).toBeInTheDocument();
-      });
-      const toggle = screen.getByLabelText('Endpoint toggle');
+      const toggle = await screen.findByRole('button', { name: 'Open' });
 
       fireEvent.click(toggle);
 
       // The endpoint type should be shown in the description
-      await waitFor(() => {
-        const httpClientOption = screen.getByRole('option', { name: 'option httpclient' });
-        expect(httpClientOption).toBeInTheDocument();
-        expect(httpClientOption).toHaveTextContent('http.client');
-      });
+      const httpClientOption = await screen.findByRole('option', { name: 'httpClient' });
+      expect(httpClientOption).toHaveTextContent('http.client');
     });
 
     it('should handle endpoints from createEndpoint actions', async () => {
@@ -471,17 +428,12 @@ describe('EndpointField', () => {
       await renderField({ endpoint: undefined }, testModel);
 
       // Open the dropdown
-      await waitFor(() => {
-        expect(screen.getByLabelText('Endpoint toggle')).toBeInTheDocument();
-      });
-      const toggle = screen.getByLabelText('Endpoint toggle');
+      const toggle = await screen.findByRole('button', { name: 'Open' });
 
       fireEvent.click(toggle);
 
       // Check that the dynamic endpoint appears
-      await waitFor(() => {
-        expect(screen.getByText('dynamicJmsEndpoint')).toBeInTheDocument();
-      });
+      await screen.findByText('dynamicJmsEndpoint');
     });
   });
 
@@ -492,9 +444,9 @@ describe('EndpointField', () => {
     };
 
     const objectValue = { uri: 'http://localhost:8080' };
-    const { getInput } = await renderField({ endpoint: objectValue }, testModel);
+    const { findInput } = await renderField({ endpoint: objectValue }, testModel);
 
-    const input = getInput();
+    const input = await findInput();
     expect(input).toHaveValue(JSON.stringify(objectValue));
   });
 
@@ -535,24 +487,14 @@ describe('EndpointField', () => {
     await renderField({ endpoint: 'httpClient' }, testModel, onPropertyChange);
 
     // Open dropdown and select "create new" option to open the modal
-    await waitFor(() => {
-      expect(screen.getByLabelText('Endpoint toggle')).toBeInTheDocument();
-    });
+    fireEvent.click(await screen.findByRole('button', { name: 'Open' }));
 
-    fireEvent.click(screen.getByLabelText('Endpoint toggle'));
+    fireEvent.click(await screen.findByRole('option', { name: /Create new/i }));
 
-    await waitFor(() => {
-      expect(screen.getByRole('option', { name: 'option create-new-with-name' })).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByRole('option', { name: 'option create-new-with-name' }));
-
-    await waitFor(() => {
-      expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
-    });
+    await screen.findByTestId('NewEndpointModal');
 
     // Cancel the modal
-    fireEvent.click(screen.getByTestId('endpoint-modal-cancel-btn'));
+    fireEvent.click(await screen.findByTestId('endpoint-modal-cancel-btn'));
 
     await waitFor(() => {
       expect(screen.queryByTestId('NewEndpointModal')).not.toBeInTheDocument();

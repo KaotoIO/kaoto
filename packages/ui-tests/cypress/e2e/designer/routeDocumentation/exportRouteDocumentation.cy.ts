@@ -140,7 +140,7 @@ describe('Test documentation generation functionality', () => {
     cy.get(`input[name="#.name"]`).clear().type('test');
     cy.get(`input[name="#.type"]`).clear().type('org.acme');
 
-    cy.get('button[aria-label="Toggle Advanced group"]').click();
+    cy.expandWrappedSection('#-Advanced');
     cy.get(`input[name="#.initMethod"]`).clear().type('initMethodTest');
     cy.get(`input[name="#.destroyMethod"]`).clear().type('destroyMethodTest');
     cy.get(`input[name="#.factoryMethod"]`).clear().type('factoryMethodTest');
