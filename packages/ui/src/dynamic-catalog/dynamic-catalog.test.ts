@@ -300,6 +300,26 @@ describe('DynamicCatalog', () => {
       await expect(catalog.getAll()).rejects.toThrow('FetchAll failed');
     });
 
+    it('should not let an older overlapping forceFresh overwrite a newer snapshot', async () => {
+      // Two concurrent forceFresh calls must share one fetchAll invocation;
+      // the cache must reflect the single resolved snapshot, not be
+      // overwritten by a second in-flight response.
+      const entities = { key1: { id: '1', name: 'shared', value: 1 } };
+      const fetchAllSpy = vi.spyOn(mockProvider, 'fetchAll').mockResolvedValue(entities);
+
+      // Fire two concurrent forceFresh calls without awaiting between them.
+      const [result1, result2] = await Promise.all([
+        catalog.getAll({ forceFresh: true }),
+        catalog.getAll({ forceFresh: true }),
+      ]);
+
+      // Only one fetchAll should have been issued.
+      expect(fetchAllSpy).toHaveBeenCalledTimes(1);
+      // Both callers receive the same snapshot.
+      expect(result1).toEqual(entities);
+      expect(result2).toEqual(entities);
+    });
+
     it('should use cache even if filterFn is provided on second call', async () => {
       const entities = {
         entity1: { id: '1', name: 'first', value: 10 },
