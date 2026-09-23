@@ -37,6 +37,7 @@ describe('CatalogSelectorField', () => {
     version: 0,
     name: '',
     starterTemplates: '',
+    xsltCatalogs: '',
   };
 
   const mockSchema: KaotoSchemaDefinition['schema'] = {
@@ -234,6 +235,7 @@ describe('CatalogSelectorField', () => {
           version: 0,
           name: '',
           starterTemplates: '',
+          xsltCatalogs: '',
         };
 
         renderWithProviders(
@@ -264,6 +266,7 @@ describe('CatalogSelectorField', () => {
           version: 0,
           name: '',
           starterTemplates: '',
+          xsltCatalogs: '',
         };
 
         renderWithProviders(
@@ -422,6 +425,7 @@ describe('CatalogSelectorField', () => {
           version: 0,
           name: '',
           starterTemplates: '',
+          xsltCatalogs: '',
         };
 
         renderWithProviders(
@@ -451,6 +455,7 @@ describe('CatalogSelectorField', () => {
           version: 0,
           name: '',
           starterTemplates: '',
+          xsltCatalogs: '',
         };
 
         renderWithProviders(
@@ -495,6 +500,7 @@ describe('CatalogSelectorField', () => {
         version: 0,
         name: '',
         starterTemplates: '',
+        xsltCatalogs: '',
       };
 
       renderWithProviders(

@@ -11,14 +11,13 @@ import { CatalogSchemaLoader } from '../../utils/catalog-schema-loader';
  * is determined by {@link XSLT_CATALOG_VERSION}.
  */
 export async function fetchXsltXPathFunctions(basePath: string, catalogLibrary: CatalogLibrary): Promise<void> {
-  const xsltEntry = catalogLibrary.definitions.find((d) => d.runtime === 'XSLT' && d.version === XSLT_CATALOG_VERSION);
-  if (!xsltEntry) return;
+  if (!catalogLibrary.xsltCatalogs) return;
 
-  const indexFile = `${basePath}/${xsltEntry.fileName}`;
+  const indexFile = `${basePath}/${catalogLibrary.xsltCatalogs}`;
   const relativeBasePath = CatalogSchemaLoader.getRelativeBasePath(indexFile);
 
-  const subIndex = await CatalogSchemaLoader.fetchFile<CatalogDefinition>(indexFile);
-  const xpathFunctionsEntry = subIndex.body.catalogs['xpathFunctions'];
+  const xsltIndex = await CatalogSchemaLoader.fetchFile<CatalogDefinition>(indexFile);
+  const xpathFunctionsEntry = xsltIndex.body.catalogs[XSLT_CATALOG_VERSION];
   if (!xpathFunctionsEntry) return;
 
   const functionsData = await CatalogSchemaLoader.fetchFile<Record<string, Record<string, XPathFunction>>>(
