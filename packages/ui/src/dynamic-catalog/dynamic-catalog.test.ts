@@ -168,6 +168,18 @@ describe('DynamicCatalog', () => {
       expect(fetchAllSpy).toHaveBeenCalledTimes(2);
     });
 
+    it('should not retain stale keys when an entity is renamed on forceFresh', async () => {
+      const firstEntities = { 'old-name': { id: '1', name: 'old-name', value: 1 } };
+      const secondEntities = { 'new-name': { id: '1', name: 'new-name', value: 1 } };
+      vi.spyOn(mockProvider, 'fetchAll').mockResolvedValueOnce(firstEntities).mockResolvedValueOnce(secondEntities);
+
+      await catalog.getAll();
+      const result = await catalog.getAll({ forceFresh: true });
+
+      expect(result).toHaveProperty('new-name');
+      expect(result).not.toHaveProperty('old-name');
+    });
+
     it('should filter entities when filterFn is provided', async () => {
       const entities = {
         entity1: { id: '1', name: 'first', value: 10 },
