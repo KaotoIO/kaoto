@@ -84,6 +84,7 @@ jobs:
         run: |
           yarn workspace vscode-kaoto build:vsix \
             --out "${VSIX_NAME}" \
+            --baseContentUrl "https://github.com/KaotoIO/kaoto/blob/refs/tags/${RELEASE_TAG}/packages/kaoto-vscode" \
             --baseImagesUrl "https://github.com/KaotoIO/kaoto/raw/refs/tags/${RELEASE_TAG}/packages/kaoto-vscode"
 
       - name: '📤 Upload VSIX artifact'
