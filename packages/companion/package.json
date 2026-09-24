@@ -1,0 +1,34 @@
+{
+  "name": "@kaoto/companion",
+  "version": "2.12.0-dev",
+  "type": "commonjs",
+  "description": "Kaoto companion",
+  "repository": "https://github.com/KaotoIO/kaoto",
+  "repositoryDirectory": "packages/companion",
+  "author": "The Kaoto Team",
+  "license": "Apache License v2.0",
+  "main": "./index.js",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    "./client": "./dist/client/client/index.js",
+    "./client/*": "./dist/client/client/*.js",
+    "./model": "./dist/model/model/index.js",
+    "./model/*": "./dist/model/model/*.js",
+    "./openapi": "./dist/openapi/openapi.json"
+  },
+  "scripts": {
+    "build": "node scripts/mvnw.mjs clean install && yarn build:sdk",
+    "build:companion": "node scripts/mvnw.mjs clean package -pl kaoto-companion -am",
+    "build:sdk": "orval --config orval.config.ts && tsc --project tsconfig.sdk.json",
+    "lint": "yarn eslint \"scripts/*.mjs\" && node scripts/mvnw.mjs spotless:check",
+    "lint:fix": "yarn eslint \"scripts/*.mjs\" --fix && node scripts/mvnw.mjs spotless:apply",
+    "test": "node scripts/mvnw.mjs test",
+    "test:e2e": "yarn build:companion && node scripts/mvnw.mjs verify -pl kaoto-e2e"
+  },
+  "devDependencies": {
+    "orval": "^8.36.0",
+    "typescript": "^5.5.4"
+  }
+}

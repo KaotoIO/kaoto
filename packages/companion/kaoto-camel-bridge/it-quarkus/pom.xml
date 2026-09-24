@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+     <modelVersion>4.0.0</modelVersion>
+
+     <parent>
+         <groupId>io.kaoto</groupId>
+         <artifactId>kaoto-camel-bridge-parent</artifactId>
+         <version>${revision}</version>
+         <relativePath>../pom.xml</relativePath>
+     </parent>
+
+     <artifactId>bridge-it-quarkus</artifactId>
+     <packaging>jar</packaging>
+     <description>Proves the bridge activates inside a Quarkus host via camel.beans (tests only)</description>
+
+     <dependencyManagement>
+         <dependencies>
+             <dependency>
+                 <groupId>io.quarkus.platform</groupId>
+                 <artifactId>quarkus-bom</artifactId>
+                 <version>${bridge-it.quarkus.platform.version}</version>
+                 <type>pom</type>
+                 <scope>import</scope>
+             </dependency>
+             <dependency>
+                 <groupId>io.quarkus.platform</groupId>
+                 <artifactId>quarkus-camel-bom</artifactId>
+                 <version>${bridge-it.quarkus.platform.version}</version>
+                 <type>pom</type>
+                 <scope>import</scope>
+             </dependency>
+         </dependencies>
+     </dependencyManagement>
+
+     <dependencies>
+         <!-- the bridge is an ordinary application dependency: Quarkus class loading is build-time -->
+         <dependency>
+             <groupId>io.kaoto</groupId>
+             <artifactId>bridge-core</artifactId>
+             <version>${revision}</version>
+         </dependency>
+         <dependency>
+             <groupId>org.apache.camel.quarkus</groupId>
+             <artifactId>camel-quarkus-core</artifactId>
+         </dependency>
+         <dependency>
+             <groupId>io.quarkus</groupId>
+             <artifactId>quarkus-junit5</artifactId>
+             <scope>test</scope>
+         </dependency>
+     </dependencies>
+
+     <build>
+         <plugins>
+             <plugin>
+                 <groupId>io.quarkus.platform</groupId>
+                 <artifactId>quarkus-maven-plugin</artifactId>
+                 <version>${bridge-it.quarkus.platform.version}</version>
+                 <extensions>true</extensions>
+                 <executions>
+                     <execution>
+                         <goals>
+                             <goal>build</goal>
+                             <goal>generate-code</goal>
+                             <goal>generate-code-tests</goal>
+                         </goals>
+                     </execution>
+                 </executions>
+             </plugin>
+             <plugin>
+                 <artifactId>maven-surefire-plugin</artifactId>
+                 <configuration>
+                     <systemPropertyVariables>
+                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                         <kaoto.companion.address>127.0.0.1:1</kaoto.companion.address>
+                         <kaoto.companion.execution-id>quarkus-it</kaoto.companion.execution-id>
+                     </systemPropertyVariables>
+                 </configuration>
+             </plugin>
+             <plugin>
+                 <groupId>com.diffplug.spotless</groupId>
+                 <artifactId>spotless-maven-plugin</artifactId>
+             </plugin>
+         </plugins>
+     </build>
+</project>
