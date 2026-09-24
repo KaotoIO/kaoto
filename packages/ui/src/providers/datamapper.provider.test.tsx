@@ -861,6 +861,36 @@ describe('DataMapperProvider', () => {
       expect(result.current!.sourceParameterMap).toBeDefined();
       expect(result.current!.targetBodyDocument.definitionType).toEqual(DocumentDefinitionType.Primitive);
     });
+
+    it('should call onUpdateMappings and onUpdateNamespaceMap on mount when there is no initialXsltFile', async () => {
+      const mockOnUpdateMappings = vi.fn();
+      const mockOnUpdateNamespaceMap = vi.fn();
+
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider onUpdateMappings={mockOnUpdateMappings} onUpdateNamespaceMap={mockOnUpdateNamespaceMap}>
+          {children}
+        </DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useContext(DataMapperContext), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current!.isLoading).toBe(false);
+      });
+
+      expect(mockOnUpdateMappings.mock.calls[0][0]).toBe(
+        MappingSerializerService.serialize(
+          result.current!.mappingTree,
+          result.current!.sourceParameterMap,
+          result.current!.dataMapperSettings,
+        ),
+      );
+      expect(mockOnUpdateNamespaceMap.mock.calls[0][0]).toEqual({
+        fn: 'http://www.w3.org/2005/xpath-functions',
+        xs: 'http://www.w3.org/2001/XMLSchema',
+        xsl: 'http://www.w3.org/1999/XSL/Transform',
+      });
+    });
   });
 
   describe('Namespace synchronization', () => {

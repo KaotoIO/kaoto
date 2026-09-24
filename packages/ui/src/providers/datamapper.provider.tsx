@@ -70,7 +70,11 @@ export interface IDataMapperContext {
    * drive expensive rebuilds — such as `TargetPanel`'s `createTree` call — can depend on this
    * instead of `mappingTree` to avoid rebuilding on every keystroke. */
   structuralMappingTree: MappingTree;
-  refreshMappingTree(options?: { structural?: boolean }): void;
+  refreshMappingTree(options?: {
+    structural?: boolean;
+    targetDefinitionType?: DocumentDefinitionType;
+    dataMapperSettings?: IDataMapperSettings;
+  }): void;
   resetMappingTree(): void;
   variables: VariableItem[];
 
@@ -215,30 +219,26 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
         latestSourceParameterMap,
       );
       WrapperAutoDetectionService.autoDetectWrapperSelections(loaded, latestTargetBodyDocument, effectiveNamespaceMap);
-      setDataMapperSettings(
-        DataMapperSettingsService.sanitizeForTarget(
-          restoredDataMapperSettings,
-          latestTargetBodyDocument.definitionType,
-        ),
+      const sanitizedSettings = DataMapperSettingsService.sanitizeForTarget(
+        restoredDataMapperSettings,
+        latestTargetBodyDocument.definitionType,
       );
+      setDataMapperSettings(sanitizedSettings);
       applyMappingTree(loaded, { structural: true });
+      onUpdateMappings?.(MappingSerializerService.serialize(loaded, latestSourceParameterMap, sanitizedSettings));
+      onUpdateNamespaceMap?.(loaded.namespaceMap);
       for (const msg of messages) {
         sendAlert(msg);
       }
     } else {
       mappingTree.documentDefinitionType = latestTargetBodyDocument.definitionType;
+      onUpdateMappings?.(MappingSerializerService.serialize(mappingTree, latestSourceParameterMap, dataMapperSettings));
+      onUpdateNamespaceMap?.(mappingTree.namespaceMap);
     }
 
     setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // Update mapping tree when target document changes
-  useEffect(() => {
-    if (isLoading) return;
-    refreshMappingTree({ structural: true });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, targetBodyDocument]);
 
   const refreshSourceParameters = useCallback(() => {
     setSourceParameterMap(new Map(sourceParameterMap));
@@ -254,8 +254,16 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   );
 
   const refreshMappingTree = useCallback(
-    (options?: { structural?: boolean }) => {
-      const newMapping = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, targetBodyDocument.definitionType);
+    (options?: {
+      structural?: boolean;
+      targetDefinitionType?: DocumentDefinitionType;
+      dataMapperSettings?: IDataMapperSettings;
+    }) => {
+      const newMapping = new MappingTree(
+        DocumentType.TARGET_BODY,
+        BODY_DOCUMENT_ID,
+        options?.targetDefinitionType ?? targetBodyDocument.definitionType,
+      );
       newMapping.children = mappingTree.children.map((child) => {
         child.parent = newMapping;
         return child;
@@ -266,7 +274,8 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       });
       newMapping.namespaceMap = mappingTree.namespaceMap;
       applyMappingTree(newMapping, options);
-      onUpdateMappings?.(MappingSerializerService.serialize(newMapping, sourceParameterMap, dataMapperSettings));
+      const settingsToSerialize = options?.dataMapperSettings ?? dataMapperSettings;
+      onUpdateMappings?.(MappingSerializerService.serialize(newMapping, sourceParameterMap, settingsToSerialize));
       onUpdateNamespaceMap?.(newMapping.namespaceMap);
     },
     [
@@ -279,6 +288,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       targetBodyDocument.definitionType,
     ],
   );
+
   const resetMappingTree = useCallback(() => {
     const newMapping = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, targetBodyDocument.definitionType);
     newMapping.namespaceMap = { ...initialNamespaceMap };
@@ -367,19 +377,27 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
         case DocumentType.SOURCE_BODY:
           setSourceBodyDocument(newDocument);
           break;
-        case DocumentType.TARGET_BODY:
+        case DocumentType.TARGET_BODY: {
           setTargetBodyDocument(newDocument);
-          setDataMapperSettings((prev) =>
-            DataMapperSettingsService.sanitizeForTarget(prev, newDocument.definitionType),
+          const sanitizedSettings = DataMapperSettingsService.sanitizeForTarget(
+            dataMapperSettings,
+            newDocument.definitionType,
           );
+          setDataMapperSettings(sanitizedSettings);
+          refreshMappingTree({
+            structural: true,
+            targetDefinitionType: newDocument.definitionType,
+            dataMapperSettings: sanitizedSettings,
+          });
           break;
+        }
         case DocumentType.PARAM:
           sourceParameterMap!.set(documentId, newDocument);
           refreshSourceParameters();
           break;
       }
     },
-    [refreshSourceParameters, sourceParameterMap],
+    [dataMapperSettings, refreshMappingTree, refreshSourceParameters, sourceParameterMap],
   );
 
   const updateDocument = useCallback(
@@ -396,7 +414,10 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
         Object.assign(Object.create(Object.getPrototypeOf(document)), document),
       );
 
-      refreshMappingTree({ structural: true });
+      if (document.documentType !== DocumentType.TARGET_BODY) {
+        // TARGET_BODY is handled by setNewDocument which calls refreshMappingTree
+        refreshMappingTree({ structural: true });
+      }
       onUpdateDocument?.(definition);
     },
     [onUpdateDocument, refreshMappingTree, removeStaleMappings, setNewDocument],
