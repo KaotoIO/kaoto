@@ -21,7 +21,7 @@ export const VisibleFlowsProvider: FunctionComponent<PropsWithChildren> = (props
   );
 
   const [visibleFlows, dispatch] = useReducer(VisibleFlowsReducer, {}, () => initVisibleFlows(visualEntitiesIds));
-  const allFlowsVisible = Object.values(visibleFlows).every((visible) => visible);
+  const allFlowsVisible = Object.values(visibleFlows).every(Boolean);
   const visualFlowsApi = useMemo(() => {
     return new VisualFlowsApi(dispatch);
   }, [dispatch]);
