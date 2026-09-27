@@ -96,6 +96,26 @@ describe('CitrusTestDefaultService', () => {
       ).toEqual({ applyTemplate: { name: template.name, parameters } });
     });
 
+    it('preserves an independent copy of a non-template action default value', () => {
+      const defaultValue = {
+        http: { sendRequest: { client: 'testClient', message: { body: { data: 'Hello' } } } },
+      };
+      const component: DefinedComponent = {
+        type: CatalogKind.TestAction,
+        name: 'http-sendRequest',
+        definition: { kind: CatalogKind.TestAction, name: 'http-sendRequest', group: 'http' },
+        defaultValue,
+      };
+
+      const first = CitrusTestDefaultService.getDefaultTestActionDefinitionValue(component);
+      const second = CitrusTestDefaultService.getDefaultTestActionDefinitionValue(component);
+
+      expect(first).toEqual(defaultValue);
+      first.http!.sendRequest!.message!.body!.data = 'Changed';
+      expect(second).toEqual(defaultValue);
+      expect(defaultValue.http.sendRequest.message.body.data).toBe('Hello');
+    });
+
     it('should return the default value for a print action', () => {
       const definitionValue = CitrusTestDefaultService.getDefaultTestActionDefinitionValue({
         type: 'testAction',

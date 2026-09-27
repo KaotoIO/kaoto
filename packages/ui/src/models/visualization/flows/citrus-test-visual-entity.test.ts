@@ -386,6 +386,24 @@ describe('CitrusTestVisualEntity', () => {
   });
 
   describe('addStep', () => {
+    it('inserts independent copies of a regular action defaultValue', async () => {
+      const defaultValue = { print: { message: 'Preset message' } };
+      const entity = new CitrusTestVisualEntity({
+        name: 'preset-test',
+        actions: [{ print: { message: 'Original message' } }],
+      });
+      const definedComponent = { name: 'print', type: CatalogKind.TestAction, defaultValue };
+      const data = (await entity.toVizNode()).getChildren()![0].data;
+
+      entity.addStep({ definedComponent, mode: AddStepMode.AppendStep, data });
+      entity.addStep({ definedComponent, mode: AddStepMode.AppendStep, data });
+
+      expect(entity.test.actions).toEqual([{ print: { message: 'Original message' } }, defaultValue, defaultValue]);
+      entity.test.actions[1].print!.message = 'Edited message';
+      expect(entity.test.actions[2]).toEqual(defaultValue);
+      expect(defaultValue.print.message).toBe('Preset message');
+    });
+
     it.each(['prepare-order', 'http-send'])(
       'inserts and reopens %s as a regular applyTemplate action',
       async (name) => {

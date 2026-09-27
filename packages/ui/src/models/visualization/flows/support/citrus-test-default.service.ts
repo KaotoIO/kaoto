@@ -19,9 +19,10 @@ export class CitrusTestDefaultService {
    * `{ camel: { jbang: { run: {} } } }`).
    * A test action template instead produces an `applyTemplate` action using its name
    * and a deep copy of its declared parameters.
+   * A non-template action with a supplied default value uses a deep copy of that value.
    *
    * @param definedComponent - The catalog component definition for the test action
-   * @returns A generated test action structure
+   * @returns A cloned default value or a generated test action structure
    */
   static getDefaultTestActionDefinitionValue(definedComponent: DefinedComponent): TestActions {
     const definition = definedComponent.definition as ICitrusComponentDefinition | undefined;
@@ -35,6 +36,10 @@ export class CitrusTestDefaultService {
         ...(template?.parameters?.length ? { parameters: cloneDeep(template.parameters) } : {}),
       };
       return { applyTemplate };
+    }
+
+    if (definedComponent.defaultValue !== undefined) {
+      return cloneDeep(definedComponent.defaultValue) as TestActions;
     }
 
     const groupSegments = definition?.group ? definition.group.split('-') : [];
