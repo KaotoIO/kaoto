@@ -84,6 +84,44 @@ describe('fetchCitrusCatalog', () => {
     expect(setCatalogSpy).not.toHaveBeenCalled();
   });
 
+  it('does not replace a newer host catalog when an obsolete load finishes later', async () => {
+    let resolveOldActions!: (value: { body: Record<string, string> }) => void;
+    const oldActions = new Promise<{ body: Record<string, string> }>((resolve) => {
+      resolveOldActions = resolve;
+    });
+    fetchFileMock.mockImplementationOnce(() => oldActions);
+
+    let oldContextActive = true;
+    const oldResources = vi.fn().mockResolvedValue([]);
+    const oldLoad = fetchCitrusCatalog({
+      catalogIndex: catalogDefinition,
+      relativeBasePath,
+      getResourcesContentByType: oldResources,
+      isCurrent: () => oldContextActive,
+    });
+
+    oldContextActive = false;
+    const currentResources = vi
+      .fn()
+      .mockResolvedValue([{ filename: 'prepare-order.citrus.yaml', content: stringify(template) }]);
+    await fetchCitrusCatalog({
+      catalogIndex: catalogDefinition,
+      relativeBasePath,
+      getResourcesContentByType: currentResources,
+    });
+    const currentCatalog = DynamicCatalogRegistry.get().getCatalog(CatalogKind.TestActionTemplate);
+
+    resolveOldActions({ body: { old: 'catalog' } });
+    await oldLoad;
+
+    expect(DynamicCatalogRegistry.get().getCatalog(CatalogKind.TestActionTemplate)).toBe(currentCatalog);
+    await expect(
+      DynamicCatalogRegistry.get().getEntity(CatalogKind.TestActionTemplate, template.name),
+    ).resolves.toEqual(template);
+    expect(oldResources).not.toHaveBeenCalled();
+    expect(currentResources).toHaveBeenCalledWith(FileTypes.CitrusTemplates);
+  });
+
   it('should register the root test schema (citrus-yaml) as a catalog entity in DynamicCatalogRegistry', async () => {
     const setCatalogSpy = vi.spyOn(DynamicCatalogRegistry.get(), 'setCatalog');
 

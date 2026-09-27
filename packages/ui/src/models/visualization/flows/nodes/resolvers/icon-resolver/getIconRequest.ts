@@ -6,6 +6,7 @@ export interface IconRequestResult {
   alt: string;
 }
 
+/** Resolves the icon and accessible label for a catalog entry, including Citrus templates. */
 export async function getIconRequest(
   catalogKind: CatalogKind,
   name: string,

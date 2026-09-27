@@ -105,7 +105,7 @@ describe('CatalogLoaderProvider', () => {
 
   it('should call fetchCamelCatalog for a Camel catalog', async () => {
     const { Provider } = TestRuntimeProviderWrapper();
-    render(
+    const { unmount } = render(
       <Provider>
         <CatalogLoaderProvider>
           <span data-testid="catalogs-loaded">Loaded</span>
@@ -118,6 +118,10 @@ describe('CatalogLoaderProvider', () => {
     });
 
     expect(fetchCamelCatalog).toHaveBeenCalledTimes(1);
+    const isCurrent = (fetchCamelCatalog as Mock).mock.calls[0][0].isCurrent as () => boolean;
+    expect(isCurrent()).toBe(true);
+    unmount();
+    expect(isCurrent()).toBe(false);
   });
 
   it('should set loading to false after fetching the catalogs', async () => {
@@ -227,7 +231,7 @@ describe('CitrusCatalogLoaderProvider', () => {
   it('should pass the host resource callback to fetchCitrusCatalog', async () => {
     const { Provider } = TestRuntimeProviderWrapper(citrusCatalogSelector);
     const getResourcesContentByType = vi.fn();
-    render(
+    const { unmount } = render(
       <Provider>
         <CatalogLoaderProvider getResourcesContentByType={getResourcesContentByType}>
           <span data-testid="catalogs-loaded">Loaded</span>
@@ -241,6 +245,10 @@ describe('CitrusCatalogLoaderProvider', () => {
 
     expect(fetchCitrusCatalog).toHaveBeenCalledTimes(1);
     expect(fetchCitrusCatalog).toHaveBeenCalledWith(expect.objectContaining({ getResourcesContentByType }));
+    const isCurrent = (fetchCitrusCatalog as Mock).mock.calls[0][0].isCurrent as () => boolean;
+    expect(isCurrent()).toBe(true);
+    unmount();
+    expect(isCurrent()).toBe(false);
   });
 
   it('should set loading to false after fetching the catalogs', async () => {

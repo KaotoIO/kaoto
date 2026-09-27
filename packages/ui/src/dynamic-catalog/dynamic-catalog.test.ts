@@ -31,6 +31,47 @@ describe('DynamicCatalog', () => {
       expect(fetchSpy).toHaveBeenCalledTimes(3);
     });
 
+    it('keeps an entry installed by getAll when an earlier fresh lookup returns undefined', async () => {
+      let resolveMissing!: (entity: TestEntity | undefined) => void;
+      const missingFetch = new Promise<TestEntity | undefined>((resolve) => {
+        resolveMissing = resolve;
+      });
+      const fetchSpy = vi.spyOn(mockProvider, 'fetch').mockImplementationOnce(() => missingFetch);
+      const refreshed = { id: '1', name: 'refreshed', value: 2 };
+      vi.spyOn(mockProvider, 'fetchAll').mockResolvedValue({ entry: refreshed });
+
+      const oldLookup = catalog.get('entry', { forceFresh: true });
+      await expect(catalog.getAll()).resolves.toEqual({ entry: refreshed });
+      resolveMissing(undefined);
+
+      await expect(oldLookup).resolves.toBeUndefined();
+      await expect(catalog.get('entry')).resolves.toBe(refreshed);
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not restore an entry from an older lookup after a fresh lookup removes it', async () => {
+      const original = { id: '1', name: 'original', value: 1 };
+      const stale = { id: '1', name: 'stale', value: 2 };
+      let resolveStale!: (entity: TestEntity) => void;
+      const staleFetch = new Promise<TestEntity>((resolve) => {
+        resolveStale = resolve;
+      });
+      const fetchSpy = vi
+        .spyOn(mockProvider, 'fetch')
+        .mockResolvedValueOnce(original)
+        .mockImplementationOnce(() => staleFetch)
+        .mockResolvedValue(undefined);
+
+      await catalog.get('entry');
+      const oldLookup = catalog.get('entry', { forceFresh: true });
+      await expect(catalog.get('entry', { forceFresh: true })).resolves.toBeUndefined();
+      resolveStale(stale);
+
+      await expect(oldLookup).resolves.toBe(stale);
+      await expect(catalog.get('entry')).resolves.toBeUndefined();
+      expect(fetchSpy).toHaveBeenCalledTimes(4);
+    });
+
     it('does not cache a lookup that finishes after the cache is cleared', async () => {
       const stale = { id: '1', name: 'stale', value: 1 };
       const current = { id: '1', name: 'current', value: 2 };

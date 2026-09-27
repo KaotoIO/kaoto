@@ -88,6 +88,9 @@ export class CitrusTestActionTemplatesProvider implements ICatalogProvider<ICitr
           name: template.name,
           ...(template.description !== undefined ? { description: template.description } : {}),
           ...(template.parameters !== undefined ? { parameters: parseTemplateParameters(template.parameters) } : {}),
+          ...(template.defaultValue !== undefined
+            ? { defaultValue: parseTemplateDefaultValue(template.defaultValue) }
+            : {}),
         };
         entries.push([definition.name, definition]);
       } catch (error) {
@@ -125,6 +128,21 @@ function parseTemplateParameters(value: unknown): NonNullable<ICitrusTestActionT
     }
     return { name: parameter.name, value: parameter.value as string | number | boolean | null };
   });
+}
+
+/**
+ * Accepts a complete Citrus step with one action name and an object of action properties.
+ * @throws TypeError when the preset is not a complete step object.
+ */
+function parseTemplateDefaultValue(value: unknown): NonNullable<ICitrusTestActionTemplateDefinition['defaultValue']> {
+  if (!isRecord(value)) {
+    throw new TypeError('Template defaultValue must be a complete test action object');
+  }
+  const actionNames = Object.keys(value);
+  if (actionNames.length !== 1 || !actionNames[0].trim() || !isRecord(value[actionNames[0]])) {
+    throw new TypeError('Template defaultValue must be a complete test action object');
+  }
+  return value;
 }
 
 /**

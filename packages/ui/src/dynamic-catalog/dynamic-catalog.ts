@@ -7,12 +7,14 @@ export class DynamicCatalog<T = unknown> implements IDynamicCatalog<T> {
   private fetchedAll = false;
   private refreshPromise: Promise<void> | null = null;
   private cacheGeneration = 0;
+  private readonly entryWriteVersions = new Map<string, number>();
+  private entryWriteVersion = 0;
 
   constructor(protected readonly provider: ICatalogProvider<T>) {}
 
   /**
    * Gets one entry, reloading it when requested or absent from the cache.
-   * A lookup invalidated by clearCache cannot repopulate the cache.
+   * A lookup invalidated by clearCache or a newer cache write cannot replace that write.
    */
   async get(key: string, options: { forceFresh?: boolean } = {}): Promise<T | undefined> {
     if (!options.forceFresh && isDefined(this.cache[key])) {
@@ -20,12 +22,15 @@ export class DynamicCatalog<T = unknown> implements IDynamicCatalog<T> {
     }
 
     const generation = this.cacheGeneration;
+    const entryWriteVersion = this.entryWriteVersions.get(key);
     const entity = await this.provider.fetch(key);
-    if (generation === this.cacheGeneration) {
+    if (generation === this.cacheGeneration && entryWriteVersion === this.entryWriteVersions.get(key)) {
       if (entity !== undefined) {
         this.cache[key] = entity;
+        this.entryWriteVersions.set(key, ++this.entryWriteVersion);
       } else if (options.forceFresh) {
         delete this.cache[key];
+        this.entryWriteVersions.set(key, ++this.entryWriteVersion);
       }
     }
 
@@ -52,6 +57,8 @@ export class DynamicCatalog<T = unknown> implements IDynamicCatalog<T> {
             Object.entries(entities).forEach(([key, entity]) => {
               this.cache[key] = entity;
             });
+            this.cacheGeneration++;
+            this.entryWriteVersions.clear();
             this.fetchedAll = true;
           })
           .finally(() => {
@@ -86,6 +93,7 @@ export class DynamicCatalog<T = unknown> implements IDynamicCatalog<T> {
     Object.keys(this.cache).forEach((key) => {
       delete this.cache[key];
     });
+    this.entryWriteVersions.clear();
     this.fetchedAll = false;
     this.refreshPromise = null;
   }
