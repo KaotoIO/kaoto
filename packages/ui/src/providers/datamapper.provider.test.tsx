@@ -1,9 +1,11 @@
 import { render, renderHook, screen, waitFor } from '@testing-library/react';
 import { act, useContext, useEffect } from 'react';
+import type { Mock } from 'vitest';
 
 import { useDataMapper } from '../hooks/useDataMapper';
 import { SendAlertProps } from '../models/datamapper';
 import {
+  BODY_DOCUMENT_ID,
   DocumentDefinition,
   DocumentDefinitionType,
   DocumentInitializationModel,
@@ -11,7 +13,7 @@ import {
   IDocument,
   IField,
 } from '../models/datamapper/document';
-import { FieldItem, ForEachItem, MappingTree, ValueSelector } from '../models/datamapper/mapping';
+import { FieldItem, ForEachItem, MappingTree, ValueOfSelector, ValueSelector } from '../models/datamapper/mapping';
 import { CanvasView } from '../models/datamapper/view';
 import { DocumentService } from '../services/document/document.service';
 import { MappingService } from '../services/mapping/mapping.service';
@@ -23,6 +25,7 @@ import {
   getShipOrderJsonSchema,
   getShipOrderJsonXslt,
   getShipOrderXsd,
+  TestUtil,
 } from '../stubs/datamapper/data-mapper';
 import { MappingLinksProvider } from './data-mapping-links.provider';
 import { DataMapperContext, DataMapperProvider } from './datamapper.provider';
@@ -752,6 +755,86 @@ describe('DataMapperProvider', () => {
     });
   });
 
+  describe('stale mapping cleanup on target document replacement', () => {
+    /** `updateDocument` prunes through `removeStaleMappings` and then rebuilds the tree through
+     * `refreshMappingTree` in the same synchronous pass. These tests pin that the rebuild carries
+     * the pruned children forward rather than a pre-prune snapshot. */
+    const renderWithOneTargetMapping = async (onUpdateMappings: Mock<(xsltFile: string) => void>) => {
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider onUpdateMappings={onUpdateMappings}>{children}</DataMapperProvider>
+      );
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      const xmlTargetDoc = TestUtil.createTargetOrderDoc();
+      act(() => {
+        result.current.updateDocument(xmlTargetDoc, xmlTargetDoc.definition, BODY_DOCUMENT_ID);
+      });
+      await waitFor(() => {
+        expect(result.current.targetBodyDocument.definitionType).toBe(DocumentDefinitionType.XML_SCHEMA);
+      });
+
+      act(() => {
+        const fieldItem = new FieldItem(result.current.mappingTree, result.current.targetBodyDocument.fields[0]);
+        fieldItem.children.push(new ValueOfSelector(fieldItem));
+        result.current.mappingTree.children.push(fieldItem);
+        result.current.refreshMappingTree({ structural: true });
+      });
+      expect(result.current.mappingTree.children).toHaveLength(1);
+
+      return result;
+    };
+
+    it('should not restore pruned mappings when the target schema is detached', async () => {
+      const onUpdateMappings = vi.fn<(xsltFile: string) => void>();
+      const result = await renderWithOneTargetMapping(onUpdateMappings);
+
+      const primitive = DocumentService.createPrimitiveDocument(
+        DocumentType.TARGET_BODY,
+        DocumentDefinitionType.Primitive,
+        BODY_DOCUMENT_ID,
+      );
+      onUpdateMappings.mockClear();
+
+      act(() => {
+        result.current.updateDocument(primitive.document!, primitive.documentDefinition!, BODY_DOCUMENT_ID);
+      });
+      await waitFor(() => {
+        expect(result.current.targetBodyDocument.definitionType).toBe(DocumentDefinitionType.Primitive);
+      });
+
+      expect(result.current.mappingTree.children).toHaveLength(0);
+      expect(onUpdateMappings.mock.calls[0][0]).not.toContain('ShipOrder');
+    });
+
+    it('should not restore pruned mappings when the target schema is replaced with an incompatible one', async () => {
+      const onUpdateMappings = vi.fn<(xsltFile: string) => void>();
+      const result = await renderWithOneTargetMapping(onUpdateMappings);
+
+      const jsonTargetDoc = TestUtil.createJSONTargetOrderDoc();
+      onUpdateMappings.mockClear();
+
+      act(() => {
+        result.current.updateDocument(jsonTargetDoc, jsonTargetDoc.definition, BODY_DOCUMENT_ID);
+      });
+      await waitFor(() => {
+        expect(result.current.targetBodyDocument.definitionType).toBe(DocumentDefinitionType.JSON_SCHEMA);
+      });
+
+      expect(result.current.mappingTree.children).toHaveLength(0);
+      expect(onUpdateMappings.mock.calls[0][0]).not.toContain('ShipOrder');
+    });
+
+    it('should prune in place and hand back the same MappingTree instance', () => {
+      const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      tree.children.push(new FieldItem(tree, {} as IField));
+
+      const cleaned = MappingService.removeAllMappingsForDocument(tree, DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+
+      expect(cleaned).toBe(tree);
+      expect(tree.children).toHaveLength(0);
+    });
+  });
+
   describe('XPath functions namespace initialization', () => {
     it('should always have fn namespace initialized for XPath functions', async () => {
       const wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -890,6 +973,38 @@ describe('DataMapperProvider', () => {
         xs: 'http://www.w3.org/2001/XMLSchema',
         xsl: 'http://www.w3.org/1999/XSL/Transform',
       });
+    });
+
+    it('should call onUpdateMappings and onUpdateNamespaceMap on mount when there is an initialXsltFile', async () => {
+      const mockOnUpdateMappings = vi.fn();
+      const mockOnUpdateNamespaceMap = vi.fn();
+
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider
+          initialXsltFile={getShipOrderJsonXslt()}
+          onUpdateMappings={mockOnUpdateMappings}
+          onUpdateNamespaceMap={mockOnUpdateNamespaceMap}
+        >
+          {children}
+        </DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useContext(DataMapperContext), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current!.isLoading).toBe(false);
+      });
+
+      expect(mockOnUpdateMappings).toHaveBeenCalledTimes(1);
+      expect(mockOnUpdateMappings.mock.calls[0][0]).toBe(
+        MappingSerializerService.serialize(
+          result.current!.mappingTree,
+          result.current!.sourceParameterMap,
+          result.current!.dataMapperSettings,
+        ),
+      );
+      expect(mockOnUpdateNamespaceMap).toHaveBeenCalledTimes(1);
+      expect(mockOnUpdateNamespaceMap.mock.calls[0][0]).toEqual(result.current!.mappingTree.namespaceMap);
     });
   });
 
@@ -1196,6 +1311,73 @@ describe('DataMapperProvider', () => {
 
       expect(serializeSpy).toHaveBeenCalled();
       expect(serializeSpy.mock.lastCall?.[0].documentDefinitionType).toBe(DocumentDefinitionType.JSON_SCHEMA);
+
+      serializeSpy.mockRestore();
+    });
+
+    it('should never emit an XML-shaped payload while switching the target from XML to JSON', async () => {
+      const serializeSpy = vi.spyOn(MappingSerializerService, 'serialize');
+      const onUpdateMappings = vi.fn();
+
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider onUpdateMappings={onUpdateMappings}>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      const xmlDocDef = new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.XML_SCHEMA, 'Body', {});
+      const mockXmlDocument = {
+        documentType: DocumentType.TARGET_BODY,
+        documentId: 'Body',
+        definitionType: DocumentDefinitionType.XML_SCHEMA,
+      } as IDocument;
+
+      act(() => {
+        result.current.updateDocument(mockXmlDocument, xmlDocDef, 'test');
+      });
+
+      await waitFor(() => {
+        expect(result.current.targetBodyDocument.definitionType).toBe(DocumentDefinitionType.XML_SCHEMA);
+      });
+
+      act(() => {
+        result.current.updateDataMapperSettings({ omitXmlDeclaration: true });
+      });
+
+      await waitFor(() => {
+        expect(result.current.dataMapperSettings.omitXmlDeclaration).toBe(true);
+      });
+
+      serializeSpy.mockClear();
+      onUpdateMappings.mockClear();
+
+      const jsonDocDef = new DocumentDefinition(
+        DocumentType.TARGET_BODY,
+        DocumentDefinitionType.JSON_SCHEMA,
+        'Body',
+        {},
+      );
+      const mockJsonDocument = {
+        documentType: DocumentType.TARGET_BODY,
+        documentId: 'Body',
+        definitionType: DocumentDefinitionType.JSON_SCHEMA,
+      } as IDocument;
+
+      act(() => {
+        result.current.updateDocument(mockJsonDocument, jsonDocDef, 'test');
+      });
+
+      // The inline refresh emits once, the settings watcher once more after the sanitized
+      // settings commit. Neither may describe the tree as XML once the target is JSON.
+      await waitFor(() => {
+        expect(onUpdateMappings).toHaveBeenCalledTimes(2);
+      });
+
+      const serializedTypes = serializeSpy.mock.calls.map((call) => call[0].documentDefinitionType);
+      expect(serializedTypes).not.toContain(DocumentDefinitionType.XML_SCHEMA);
+
+      const serializedOmitFlags = serializeSpy.mock.calls.map((call) => call[2]?.omitXmlDeclaration);
+      expect(serializedOmitFlags).not.toContain(true);
 
       serializeSpy.mockRestore();
     });
