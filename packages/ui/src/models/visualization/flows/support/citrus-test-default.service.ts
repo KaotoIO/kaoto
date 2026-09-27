@@ -17,19 +17,14 @@ export class CitrusTestDefaultService {
    * splitting the hyphenated group string into nesting levels
    * (e.g. group `camel-jbang` for name `camel-jbang-run` yields
    * `{ camel: { jbang: { run: {} } } }`).
-   * A complete default value takes precedence and is deep-cloned for each insertion.
-   * A value supplied on the selected component takes precedence over its catalog definition.
+   * A test action template instead produces an `applyTemplate` action using its name
+   * and a deep copy of its declared parameters.
    *
    * @param definedComponent - The catalog component definition for the test action
-   * @returns A deep-cloned preset or a generated test action structure
+   * @returns A generated test action structure
    */
   static getDefaultTestActionDefinitionValue(definedComponent: DefinedComponent): TestActions {
     const definition = definedComponent.definition as ICitrusComponentDefinition | undefined;
-    const defaultValue = definedComponent.defaultValue ?? definition?.defaultValue;
-    if (defaultValue !== undefined) {
-      return cloneDeep(defaultValue) as TestActions;
-    }
-
     if (definedComponent.type === CatalogKind.TestActionTemplate) {
       const template =
         definition?.kind === CatalogKind.TestActionTemplate

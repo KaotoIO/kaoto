@@ -38,9 +38,6 @@ export interface ICitrusComponentDefinition {
 
   /** Optional JSON schema defining the component's configurable properties */
   propertiesSchema?: KaotoSchemaDefinition['schema'];
-
-  /** Complete initial action or container value to insert instead of generating one from the catalog name. */
-  defaultValue?: Record<string, unknown>;
 }
 
 /** A reusable Citrus template exposed as an applyTemplate action in the catalog. */

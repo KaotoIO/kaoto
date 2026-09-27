@@ -28,6 +28,7 @@ describe('CitrusTestActionTemplatesProvider', () => {
           name: 'prepare-order',
           description: 'Prepare an order',
           parameters,
+          defaultValue: { applyTemplate: { name: 'alternate-template' } },
           actions: [{ print: { message: '${undeclared}' } }],
         }),
       },
@@ -53,32 +54,6 @@ describe('CitrusTestActionTemplatesProvider', () => {
     expect(client).toHaveBeenCalledWith(FileTypes.CitrusTemplates);
   });
 
-  it('preserves an explicit complete step for insertion without copying the template body', async () => {
-    const defaultValue = {
-      applyTemplate: { name: 'alternate-template', parameters: [{ name: 'region', value: 'eu-central' }] },
-    };
-    const provider = new CitrusTestActionTemplatesProvider(async () => [
-      {
-        filename: 'prepare-order.citrus.yaml',
-        content: stringify({
-          name: 'prepare-order',
-          defaultValue,
-          actions: [{ print: { message: 'Template body' } }],
-        }),
-      },
-    ]);
-    const definition = await provider.fetch('prepare-order');
-
-    expect(definition).toEqual({ kind: CatalogKind.TestActionTemplate, name: 'prepare-order', defaultValue });
-    expect(
-      CitrusTestDefaultService.getDefaultTestActionDefinitionValue({
-        type: CatalogKind.TestActionTemplate,
-        name: 'prepare-order',
-        definition,
-      }),
-    ).toEqual(defaultValue);
-  });
-
   it.each([
     ': invalid: yaml: {[',
     'null',
@@ -88,11 +63,6 @@ describe('CitrusTestActionTemplatesProvider', () => {
     'name: demo\nparameters: {}',
     'name: demo\nparameters: [{name: input}]',
     'name: demo\nparameters: [{name: input, value: {nested: object}}]',
-    'name: demo\ndefaultValue: null',
-    'name: demo\ndefaultValue: []',
-    'name: demo\ndefaultValue: {}',
-    'name: demo\ndefaultValue: {applyTemplate: invalid}',
-    'name: demo\ndefaultValue: {applyTemplate: {}, print: {}}',
   ])('skips malformed templates and still reads valid documents: %s', async (content) => {
     const diagnostic = vi.spyOn(console, 'error').mockImplementation(() => {});
     const provider = new CitrusTestActionTemplatesProvider(async () => [
