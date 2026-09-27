@@ -56,11 +56,21 @@ export class CitrusTestActionTemplatesProvider implements ICatalogProvider<ICitr
     private readonly client: (filetype: FileTypes) => Promise<FileTypesResponse[]> = () => Promise.resolve([]),
   ) {}
 
+  /**
+   * Reloads host-provided templates before looking up a template by name.
+   * @param key - Name of the template to find.
+   * @returns The current template, or undefined if it has been removed.
+   */
   async fetch(key: string): Promise<ICitrusTestActionTemplateDefinition | undefined> {
     const templates = await this.fetchAll();
     return Object.prototype.hasOwnProperty.call(templates, key) ? templates[key] : undefined;
   }
 
+  /**
+   * Reads host resources and returns valid Citrus templates indexed by name.
+   * Invalid resources are logged and skipped so other templates remain available.
+   * @returns Valid template definitions keyed by their names.
+   */
   async fetchAll(): Promise<Record<string, ICitrusTestActionTemplateDefinition>> {
     const resources = (await this.client(FileTypes.CitrusTemplates)) ?? [];
     const entries: [string, ICitrusTestActionTemplateDefinition][] = [];
@@ -88,10 +98,18 @@ export class CitrusTestActionTemplatesProvider implements ICatalogProvider<ICitr
   }
 }
 
+/**
+ * Checks whether a parsed YAML value is a non-array object.
+ * @param value - The value to check.
+ */
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
+/**
+ * Validates template parameters and preserves their scalar values.
+ * @throws TypeError when the value is not a list or contains an invalid parameter.
+ */
 function parseTemplateParameters(value: unknown): NonNullable<ICitrusTestActionTemplateDefinition['parameters']> {
   if (!Array.isArray(value)) {
     throw new TypeError('Template parameters must be an array');
