@@ -40,12 +40,14 @@ export const CatalogTilesProvider: FunctionComponent<PropsWithChildren> = (props
   const tilesRef = useRef<ITile[]>([]);
 
   const fetchTiles = useCallback(async () => {
+    const templateCatalog = catalogRegistry.getCatalog(CatalogKind.TestActionTemplate);
     const [
       componentsCatalog,
       patternsCatalog,
       entitiesCatalog,
       kameletsCatalog,
       testActions,
+      testTemplates,
       testContainers,
       testEndpoints,
     ] = await Promise.all([
@@ -54,6 +56,10 @@ export const CatalogTilesProvider: FunctionComponent<PropsWithChildren> = (props
       catalogRegistry.getCatalog(CatalogKind.Entity)?.getAll(),
       catalogRegistry.getCatalog(CatalogKind.Kamelet)?.getAll({ forceFresh: true }),
       catalogRegistry.getCatalog(CatalogKind.TestAction)?.getAll(),
+      templateCatalog?.getAll({ forceFresh: true }).catch((error) => {
+        console.error('Failed to fetch Citrus templates:', error);
+        return undefined;
+      }),
       catalogRegistry.getCatalog(CatalogKind.TestContainer)?.getAll(),
       catalogRegistry.getCatalog(CatalogKind.TestEndpoint)?.getAll(),
     ]);
@@ -89,6 +95,9 @@ export const CatalogTilesProvider: FunctionComponent<PropsWithChildren> = (props
     });
     Object.values(testContainers ?? {}).forEach((container) => {
       tilePromises.push(citrusComponentToTile(container));
+    });
+    Object.values(testTemplates ?? {}).forEach((template) => {
+      tilePromises.push(citrusComponentToTile(template));
     });
     Object.values(testEndpoints ?? {}).forEach((endpoint) => {
       tilePromises.push(citrusComponentToTile(endpoint));

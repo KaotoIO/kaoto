@@ -21,6 +21,25 @@ describe('DynamicCatalog', () => {
   });
 
   describe('get', () => {
+    it('removes a cached entry when a fresh lookup no longer finds it', async () => {
+      const entity = { id: '1', name: 'removed', value: 1 };
+      const fetchSpy = vi.spyOn(mockProvider, 'fetch').mockResolvedValueOnce(entity).mockResolvedValue(undefined);
+
+      await catalog.get('removed');
+      await expect(catalog.get('removed', { forceFresh: true })).resolves.toBeUndefined();
+      await expect(catalog.get('removed')).resolves.toBeUndefined();
+      expect(fetchSpy).toHaveBeenCalledTimes(3);
+    });
+
+    it.each(['constructor', '__proto__'])('caches arbitrary provider keys such as %s', async (key) => {
+      const entity = { id: '1', name: key, value: 1 };
+      const fetchSpy = vi.spyOn(mockProvider, 'fetch').mockResolvedValue(entity);
+
+      await expect(catalog.get(key)).resolves.toEqual(entity);
+      await expect(catalog.get(key)).resolves.toEqual(entity);
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+    });
+
     it('should fetch entity from provider when not in cache', async () => {
       const mockEntity: TestEntity = { id: '1', name: 'test-entity', value: 42 };
       const fetchSpy = vi.spyOn(mockProvider, 'fetch').mockResolvedValue(mockEntity);
@@ -126,6 +145,33 @@ describe('DynamicCatalog', () => {
   });
 
   describe('getAll', () => {
+    it('replaces cached snapshots and removes keys missing from a fresh response', async () => {
+      vi.spyOn(mockProvider, 'fetchAll')
+        .mockResolvedValueOnce({ removed: { id: '1', name: 'removed', value: 1 } })
+        .mockResolvedValueOnce({ added: { id: '2', name: 'added', value: 2 } })
+        .mockResolvedValueOnce({});
+
+      await catalog.getAll();
+      await expect(catalog.getAll({ forceFresh: true })).resolves.toEqual({
+        added: { id: '2', name: 'added', value: 2 },
+      });
+      await expect(catalog.get('removed')).resolves.toBeUndefined();
+      await expect(catalog.getAll({ forceFresh: true })).resolves.toEqual({});
+    });
+
+    it('retries after an initial fetch fails and preserves a snapshot when its refresh fails', async () => {
+      const snapshot = { entry: { id: '1', name: 'entry', value: 1 } };
+      vi.spyOn(mockProvider, 'fetchAll')
+        .mockRejectedValueOnce(new Error('Initial failure'))
+        .mockResolvedValueOnce(snapshot)
+        .mockRejectedValueOnce(new Error('Refresh failure'));
+
+      await expect(catalog.getAll()).rejects.toThrow('Initial failure');
+      await expect(catalog.getAll()).resolves.toEqual(snapshot);
+      await expect(catalog.getAll({ forceFresh: true })).rejects.toThrow('Refresh failure');
+      await expect(catalog.getAll()).resolves.toEqual(snapshot);
+    });
+
     it('should fetch all entities from provider when cache is empty', async () => {
       const entities = {
         entity1: { id: '1', name: 'first', value: 10 },

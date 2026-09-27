@@ -6,7 +6,7 @@ import { ICamelLanguageDefinition } from '../models/camel/camel-languages-catalo
 import { ICamelProcessorDefinition } from '../models/camel/camel-processors-catalog';
 import { IKameletDefinition } from '../models/camel/kamelets-catalog';
 import { CatalogKind } from '../models/catalog-kind';
-import { ICitrusComponentDefinition } from '../models/citrus/citrus-catalog';
+import { ICitrusComponentDefinition, ICitrusTestActionTemplateDefinition } from '../models/citrus/citrus-catalog';
 
 export type DynamicCatalogTypeMap = {
   [CatalogKind.Component]: ICamelComponentDefinition;
@@ -18,6 +18,7 @@ export type DynamicCatalogTypeMap = {
   [CatalogKind.Loadbalancer]: ICamelProcessorDefinition;
   [CatalogKind.Kamelet]: IKameletDefinition;
   [CatalogKind.TestAction]: ICitrusComponentDefinition;
+  [CatalogKind.TestActionTemplate]: ICitrusTestActionTemplateDefinition;
   [CatalogKind.TestActionGroup]: ICitrusComponentDefinition;
   [CatalogKind.TestContainer]: ICitrusComponentDefinition;
   [CatalogKind.TestEndpoint]: ICitrusComponentDefinition;

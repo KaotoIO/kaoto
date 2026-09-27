@@ -3,7 +3,7 @@ import { isDefined } from '@kaoto/forms';
 import { ICatalogProvider, IDynamicCatalog } from './models';
 
 export class DynamicCatalog<T = unknown> implements IDynamicCatalog<T> {
-  protected readonly cache: Record<string, T> = {};
+  protected readonly cache: Record<string, T> = Object.create(null);
   private fetchedAll = false;
   private refreshPromise: Promise<void> | null = null;
 
@@ -17,6 +17,8 @@ export class DynamicCatalog<T = unknown> implements IDynamicCatalog<T> {
     const entity = await this.provider.fetch(key);
     if (entity !== undefined) {
       this.cache[key] = entity;
+    } else if (options.forceFresh) {
+      delete this.cache[key];
     }
 
     return entity;
@@ -26,16 +28,20 @@ export class DynamicCatalog<T = unknown> implements IDynamicCatalog<T> {
     options: { forceFresh?: boolean; filterFn?: (key: string, entity: T) => boolean } = {},
   ): Promise<Record<string, T>> {
     if (options.forceFresh || !this.fetchedAll) {
-      this.refreshPromise ??= this.provider.fetchAll().then((entities) => {
-        Object.keys(this.cache).forEach((key) => {
-          delete this.cache[key];
+      this.refreshPromise ??= this.provider
+        .fetchAll()
+        .then((entities) => {
+          Object.keys(this.cache).forEach((key) => {
+            delete this.cache[key];
+          });
+          Object.entries(entities).forEach(([key, entity]) => {
+            this.cache[key] = entity;
+          });
+          this.fetchedAll = true;
+        })
+        .finally(() => {
+          this.refreshPromise = null;
         });
-        Object.entries(entities).forEach(([key, entity]) => {
-          this.cache[key] = entity;
-        });
-        this.fetchedAll = true;
-        this.refreshPromise = null;
-      });
       await this.refreshPromise;
     }
 

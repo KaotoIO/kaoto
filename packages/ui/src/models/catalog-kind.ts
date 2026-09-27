@@ -33,6 +33,9 @@ export const enum CatalogKind {
   /** Citrus test action catalog, f.i. echo, delay, send, receive */
   TestAction = 'testAction',
 
+  /** Citrus reusable test action templates, invoked with applyTemplate */
+  TestActionTemplate = 'testActionTemplate',
+
   /** Citrus test action container catalog, f.i. iterate, conditional, sequential, parallel */
   TestContainer = 'testContainer',
 

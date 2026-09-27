@@ -6,7 +6,7 @@ import {
 } from '@kaoto/camel-catalog/types';
 
 import { CatalogKind } from '../catalog-kind';
-import { ICitrusComponentDefinition } from '../citrus/citrus-catalog';
+import { ICitrusComponentDefinition, ICitrusTestActionTemplateDefinition } from '../citrus/citrus-catalog';
 import { ICamelComponentDefinition } from './camel-components-catalog';
 import { ICamelDataformatDefinition } from './camel-dataformats-catalog';
 import { ICamelLanguageDefinition } from './camel-languages-catalog';
@@ -37,6 +37,7 @@ export type ComponentsCatalogTypes =
   | ICamelLoadBalancerDefinition
   | IKameletDefinition
   | ICitrusComponentDefinition
+  | ICitrusTestActionTemplateDefinition
   | Record<string, KaotoFunction<KaotoFunctionArgument>>;
 export type DefinedComponent = {
   name: string;
@@ -56,6 +57,7 @@ export interface ComponentsCatalog {
   [CatalogKind.Kamelet]?: Record<string, IKameletDefinition>;
   [CatalogKind.TestActionGroup]?: Record<string, ICitrusComponentDefinition>;
   [CatalogKind.TestAction]?: Record<string, ICitrusComponentDefinition>;
+  [CatalogKind.TestActionTemplate]?: Record<string, ICitrusTestActionTemplateDefinition>;
   [CatalogKind.TestContainer]?: Record<string, ICitrusComponentDefinition>;
   [CatalogKind.TestEndpoint]?: Record<string, ICitrusComponentDefinition>;
   [CatalogKind.TestFunction]?: Record<string, ICitrusComponentDefinition>;

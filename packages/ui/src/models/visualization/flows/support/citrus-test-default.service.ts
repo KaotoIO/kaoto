@@ -1,5 +1,8 @@
+import { cloneDeep } from 'lodash';
+
 import { DefinedComponent } from '../../../camel/camel-catalog-index';
-import { ICitrusComponentDefinition } from '../../../citrus/citrus-catalog';
+import { CatalogKind } from '../../../catalog-kind';
+import { ICitrusComponentDefinition, ICitrusTestActionTemplateDefinition } from '../../../citrus/citrus-catalog';
 import { TestActions } from '../../../citrus/entities/Test';
 
 export class CitrusTestDefaultService {
@@ -19,6 +22,16 @@ export class CitrusTestDefaultService {
    * @returns A TestActions object with the proper nested structure
    */
   static getDefaultTestActionDefinitionValue(definedComponent: DefinedComponent): TestActions {
+    if (definedComponent.type === CatalogKind.TestActionTemplate) {
+      const definition = definedComponent.definition as ICitrusTestActionTemplateDefinition | undefined;
+      const template = definition?.kind === CatalogKind.TestActionTemplate ? definition : undefined;
+      const applyTemplate = {
+        name: template?.name ?? definedComponent.name,
+        ...(template?.parameters?.length ? { parameters: cloneDeep(template.parameters) } : {}),
+      };
+      return { applyTemplate };
+    }
+
     const def = definedComponent.definition as ICitrusComponentDefinition | undefined;
     const groupSegments = def?.group ? def.group.split('-') : [];
     const leafKey = definedComponent.name.split('-').pop()!;
