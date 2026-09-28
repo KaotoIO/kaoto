@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { EditorView, TextEditor, VSBrowser, WebDriver } from 'vscode-extension-tester';
+import { By, EditorView, TextEditor, VSBrowser, WebDriver } from 'vscode-extension-tester';
 import { expect } from 'chai';
 import * as path from 'path';
 import * as os from 'os';
@@ -36,6 +36,7 @@ describe('Toggle Source Code', function () {
 	}
 
 	before(async function () {
+		this.timeout(180_000);
 		driver = VSBrowser.instance.driver;
 		await openResourcesAndWaitForActivation(WORKSPACE_FOLDER);
 	});
@@ -53,6 +54,7 @@ describe('Toggle Source Code', function () {
 		});
 
 		editorView = new EditorView();
+		await editorView.openEditor(CAMEL_FILE, 0);
 		await clickEditorAction(editorView, actionTitle);
 	});
 
@@ -65,24 +67,20 @@ describe('Toggle Source Code', function () {
 		expect(groupsNum).to.equal(2);
 
 		const editor = new TextEditor(await editorView.getEditorGroup(1));
-		// Ensure the editor is focused so the status bar updates its cursor position.
-		// On slow CI runners (especially Windows) the status bar may not reflect a
-		// valid "Ln X, Col Y" within the library's default 5 s timeout unless the
-		// editor is explicitly activated first.
-		await editor.click();
-
+		// Read the rendered source directly; getTextAtLine also drives the command
+		// palette and clipboard and waits for status-bar cursor coordinates.
 		let text = '';
 		await editor.getDriver().wait(
 			async () => {
 				try {
-					text = await editor.getTextAtLine(1);
-					return true;
+					text = await editor.findElement(By.css('.view-lines .view-line')).getText();
+					return text.includes('- route:');
 				} catch {
 					return false;
 				}
 			},
 			20_000,
-			'Text editor was not ready within 20s',
+			'Source editor did not render the route within 20s',
 		);
 		expect(text).contains('- route:');
 	});
