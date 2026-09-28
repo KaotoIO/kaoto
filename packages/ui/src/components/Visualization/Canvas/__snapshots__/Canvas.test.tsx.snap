@@ -731,17 +731,10 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                                   class="pf-v6-c-button__text"
                                 >
                                   <svg
-                                    aria-hidden="true"
-                                    class="pf-v6-svg"
-                                    fill="currentColor"
-                                    height="1em"
+                                    data-testid="search-plus-icon"
                                     role="img"
-                                    viewBox="0 0 32 32"
-                                    width="1em"
                                   >
-                                    <path
-                                      d="m30.707 29.293-8.552-8.552A11.942 11.942 0 0 0 25 13c0-6.617-5.383-12-12-12S1 6.383 1 13s5.383 12 12 12c2.949 0 5.649-1.074 7.741-2.845l8.552 8.552a.997.997 0 0 0 1.414 0 .999.999 0 0 0 0-1.414ZM13 23C7.486 23 3 18.514 3 13S7.486 3 13 3s10 4.486 10 10-4.486 10-10 10Zm5-10a1 1 0 0 1-1 1h-3v3a1 1 0 1 1-2 0v-3H9a1 1 0 1 1 0-2h3V9a1 1 0 1 1 2 0v3h3a1 1 0 0 1 1 1Z"
-                                    />
+                                    <path />
                                   </svg>
                                   <span
                                     class="pf-v6-screen-reader"
@@ -771,17 +764,10 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                                   class="pf-v6-c-button__text"
                                 >
                                   <svg
-                                    aria-hidden="true"
-                                    class="pf-v6-svg"
-                                    fill="currentColor"
-                                    height="1em"
+                                    data-testid="search-minus-icon"
                                     role="img"
-                                    viewBox="0 0 32 32"
-                                    width="1em"
                                   >
-                                    <path
-                                      d="m30.707 29.293-8.552-8.552A11.942 11.942 0 0 0 25 13c0-6.617-5.383-12-12-12S1 6.383 1 13s5.383 12 12 12c2.949 0 5.649-1.074 7.741-2.845l8.552 8.552a.997.997 0 0 0 1.414 0 .999.999 0 0 0 0-1.414ZM13 23C7.486 23 3 18.514 3 13S7.486 3 13 3s10 4.486 10 10-4.486 10-10 10Zm6-10a1 1 0 0 1-1 1H8a1 1 0 1 1 0-2h10a1 1 0 0 1 1 1Z"
-                                    />
+                                    <path />
                                   </svg>
                                   <span
                                     class="pf-v6-screen-reader"
@@ -811,17 +797,10 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                                   class="pf-v6-c-button__text"
                                 >
                                   <svg
-                                    aria-hidden="true"
-                                    class="pf-v6-svg"
-                                    fill="currentColor"
-                                    height="1em"
+                                    data-testid="expand-icon"
                                     role="img"
-                                    viewBox="0 0 32 32"
-                                    width="1em"
                                   >
-                                    <path
-                                      d="M30 3.5V10a1 1 0 0 1-2 0V4h-6a1 1 0 0 1 0-2h6.5c.827 0 1.5.673 1.5 1.5ZM10 2H3.5C2.673 2 2 2.673 2 3.5V10a1 1 0 0 0 2 0V4h6a1 1 0 0 0 0-2Zm0 26H4v-6a1 1 0 0 0-2 0v6.5c0 .827.673 1.5 1.5 1.5H10a1 1 0 0 0 0-2Zm19-7a1 1 0 0 0-1 1v6h-6a1 1 0 0 0 0 2h6.5c.827 0 1.5-.673 1.5-1.5V22a1 1 0 0 0-1-1Z"
-                                    />
+                                    <path />
                                   </svg>
                                   <span
                                     class="pf-v6-screen-reader"
@@ -1668,17 +1647,10 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                                   class="pf-v6-c-button__text"
                                 >
                                   <svg
-                                    aria-hidden="true"
-                                    class="pf-v6-svg"
-                                    fill="currentColor"
-                                    height="1em"
+                                    data-testid="search-plus-icon"
                                     role="img"
-                                    viewBox="0 0 32 32"
-                                    width="1em"
                                   >
-                                    <path
-                                      d="m30.707 29.293-8.552-8.552A11.942 11.942 0 0 0 25 13c0-6.617-5.383-12-12-12S1 6.383 1 13s5.383 12 12 12c2.949 0 5.649-1.074 7.741-2.845l8.552 8.552a.997.997 0 0 0 1.414 0 .999.999 0 0 0 0-1.414ZM13 23C7.486 23 3 18.514 3 13S7.486 3 13 3s10 4.486 10 10-4.486 10-10 10Zm5-10a1 1 0 0 1-1 1h-3v3a1 1 0 1 1-2 0v-3H9a1 1 0 1 1 0-2h3V9a1 1 0 1 1 2 0v3h3a1 1 0 0 1 1 1Z"
-                                    />
+                                    <path />
                                   </svg>
                                   <span
                                     class="pf-v6-screen-reader"
@@ -1708,17 +1680,10 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                                   class="pf-v6-c-button__text"
                                 >
                                   <svg
-                                    aria-hidden="true"
-                                    class="pf-v6-svg"
-                                    fill="currentColor"
-                                    height="1em"
+                                    data-testid="search-minus-icon"
                                     role="img"
-                                    viewBox="0 0 32 32"
-                                    width="1em"
                                   >
-                                    <path
-                                      d="m30.707 29.293-8.552-8.552A11.942 11.942 0 0 0 25 13c0-6.617-5.383-12-12-12S1 6.383 1 13s5.383 12 12 12c2.949 0 5.649-1.074 7.741-2.845l8.552 8.552a.997.997 0 0 0 1.414 0 .999.999 0 0 0 0-1.414ZM13 23C7.486 23 3 18.514 3 13S7.486 3 13 3s10 4.486 10 10-4.486 10-10 10Zm6-10a1 1 0 0 1-1 1H8a1 1 0 1 1 0-2h10a1 1 0 0 1 1 1Z"
-                                    />
+                                    <path />
                                   </svg>
                                   <span
                                     class="pf-v6-screen-reader"
@@ -1748,17 +1713,10 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                                   class="pf-v6-c-button__text"
                                 >
                                   <svg
-                                    aria-hidden="true"
-                                    class="pf-v6-svg"
-                                    fill="currentColor"
-                                    height="1em"
+                                    data-testid="expand-icon"
                                     role="img"
-                                    viewBox="0 0 32 32"
-                                    width="1em"
                                   >
-                                    <path
-                                      d="M30 3.5V10a1 1 0 0 1-2 0V4h-6a1 1 0 0 1 0-2h6.5c.827 0 1.5.673 1.5 1.5ZM10 2H3.5C2.673 2 2 2.673 2 3.5V10a1 1 0 0 0 2 0V4h6a1 1 0 0 0 0-2Zm0 26H4v-6a1 1 0 0 0-2 0v6.5c0 .827.673 1.5 1.5 1.5H10a1 1 0 0 0 0-2Zm19-7a1 1 0 0 0-1 1v6h-6a1 1 0 0 0 0 2h6.5c.827 0 1.5-.673 1.5-1.5V22a1 1 0 0 0-1-1Z"
-                                    />
+                                    <path />
                                   </svg>
                                   <span
                                     class="pf-v6-screen-reader"
@@ -2637,17 +2595,10 @@ exports[`Canvas > should render correctly 1`] = `
                                   class="pf-v6-c-button__text"
                                 >
                                   <svg
-                                    aria-hidden="true"
-                                    class="pf-v6-svg"
-                                    fill="currentColor"
-                                    height="1em"
+                                    data-testid="search-plus-icon"
                                     role="img"
-                                    viewBox="0 0 32 32"
-                                    width="1em"
                                   >
-                                    <path
-                                      d="m30.707 29.293-8.552-8.552A11.942 11.942 0 0 0 25 13c0-6.617-5.383-12-12-12S1 6.383 1 13s5.383 12 12 12c2.949 0 5.649-1.074 7.741-2.845l8.552 8.552a.997.997 0 0 0 1.414 0 .999.999 0 0 0 0-1.414ZM13 23C7.486 23 3 18.514 3 13S7.486 3 13 3s10 4.486 10 10-4.486 10-10 10Zm5-10a1 1 0 0 1-1 1h-3v3a1 1 0 1 1-2 0v-3H9a1 1 0 1 1 0-2h3V9a1 1 0 1 1 2 0v3h3a1 1 0 0 1 1 1Z"
-                                    />
+                                    <path />
                                   </svg>
                                   <span
                                     class="pf-v6-screen-reader"
@@ -2677,17 +2628,10 @@ exports[`Canvas > should render correctly 1`] = `
                                   class="pf-v6-c-button__text"
                                 >
                                   <svg
-                                    aria-hidden="true"
-                                    class="pf-v6-svg"
-                                    fill="currentColor"
-                                    height="1em"
+                                    data-testid="search-minus-icon"
                                     role="img"
-                                    viewBox="0 0 32 32"
-                                    width="1em"
                                   >
-                                    <path
-                                      d="m30.707 29.293-8.552-8.552A11.942 11.942 0 0 0 25 13c0-6.617-5.383-12-12-12S1 6.383 1 13s5.383 12 12 12c2.949 0 5.649-1.074 7.741-2.845l8.552 8.552a.997.997 0 0 0 1.414 0 .999.999 0 0 0 0-1.414ZM13 23C7.486 23 3 18.514 3 13S7.486 3 13 3s10 4.486 10 10-4.486 10-10 10Zm6-10a1 1 0 0 1-1 1H8a1 1 0 1 1 0-2h10a1 1 0 0 1 1 1Z"
-                                    />
+                                    <path />
                                   </svg>
                                   <span
                                     class="pf-v6-screen-reader"
@@ -2717,17 +2661,10 @@ exports[`Canvas > should render correctly 1`] = `
                                   class="pf-v6-c-button__text"
                                 >
                                   <svg
-                                    aria-hidden="true"
-                                    class="pf-v6-svg"
-                                    fill="currentColor"
-                                    height="1em"
+                                    data-testid="expand-icon"
                                     role="img"
-                                    viewBox="0 0 32 32"
-                                    width="1em"
                                   >
-                                    <path
-                                      d="M30 3.5V10a1 1 0 0 1-2 0V4h-6a1 1 0 0 1 0-2h6.5c.827 0 1.5.673 1.5 1.5ZM10 2H3.5C2.673 2 2 2.673 2 3.5V10a1 1 0 0 0 2 0V4h6a1 1 0 0 0 0-2Zm0 26H4v-6a1 1 0 0 0-2 0v6.5c0 .827.673 1.5 1.5 1.5H10a1 1 0 0 0 0-2Zm19-7a1 1 0 0 0-1 1v6h-6a1 1 0 0 0 0 2h6.5c.827 0 1.5-.673 1.5-1.5V22a1 1 0 0 0-1-1Z"
-                                    />
+                                    <path />
                                   </svg>
                                   <span
                                     class="pf-v6-screen-reader"
