@@ -173,7 +173,13 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     insertAtStart?: boolean;
   }) {
     const defaultValue = CamelComponentDefaultService.getDefaultNodeDefinitionValue(options.definedComponent);
-    this.addNewStep(defaultValue, options.mode, options.data, options.definedComponent.name, options.insertAtStart);
+    return this.addNewStep(
+      defaultValue,
+      options.mode,
+      options.data,
+      options.definedComponent.name,
+      options.insertAtStart,
+    );
   }
 
   getCopiedContent(path?: string, ids?: IVisualizationNodeIds): IClipboardContent | undefined {
@@ -374,8 +380,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     );
 
     if (mode === AddStepMode.InsertChildStep || mode === AddStepMode.InsertSpecialChildStep) {
-      this.insertChildStep(mode, data, childName, stepsProperties, defaultValue, insertAtStart);
-      return;
+      return this.insertChildStep(mode, data, childName, stepsProperties, defaultValue, insertAtStart);
     }
 
     const pathArray = data.path.split('.');
@@ -400,7 +405,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       const stepsArray: ProcessorDefinition[] = getArrayProperty(this.entityDef, pathArray.slice(0, -2).join('.'));
       stepsArray.splice(desiredStartIndex, deleteCount, defaultValue);
 
-      return;
+      return [...pathArray.slice(0, -2), desiredStartIndex].join('.');
     }
 
     /**
@@ -419,6 +424,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
 
       const stepsArray = getArrayProperty(this.entityDef, pathArray.slice(0, -1).join('.'));
       stepsArray.splice(desiredStartIndex, deleteCount, defaultValue);
+      return [...pathArray.slice(0, -1), desiredStartIndex].join('.');
     }
   }
 
@@ -486,10 +492,12 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
 
     if (property.type === 'single-clause') {
       setValue(this.entityDef, `${data.path}.${property.name}`, defaultValue);
+      return `${data.path}.${property.name}`;
     } else {
       const arrayPath: ProcessorDefinition[] = getArrayProperty(this.entityDef, `${data.path}.${property.name}`);
       const addAtStart = insertAtStart ?? mode === AddStepMode.InsertChildStep;
       addAtStart ? arrayPath.unshift(defaultValue) : arrayPath.push(defaultValue);
+      return `${data.path}.${property.name}.${addAtStart ? 0 : arrayPath.length - 1}`;
     }
   }
 }

@@ -45,7 +45,7 @@ export interface BaseVisualEntity extends BaseEntity {
   /** Given a path, update the model */
   updateModel(path: string | undefined, value: unknown): void;
 
-  /** Add a step to the underlying Camel entity */
+  /** Add a step to the underlying Camel entity and return its path when supported. */
   addStep: (options: {
     definedComponent: DefinedComponent;
     mode: AddStepMode;
@@ -53,7 +53,7 @@ export interface BaseVisualEntity extends BaseEntity {
     targetProperty?: string;
     /** When true and target is an array-clause (e.g. when), insert at start instead of end */
     insertAtStart?: boolean;
-  }) => void;
+  }) => string | void;
 
   /** Given a path, get the content to be copied */
   getCopiedContent: (path?: string, ids?: IVisualizationNodeIds) => IClipboardContent | undefined;
@@ -121,7 +121,7 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
     mode: AddStepMode,
     targetProperty?: string,
     insertAtStart?: boolean,
-  ): void;
+  ): string | void;
 
   /** This method return the content to be copied for the node */
   getCopiedContent(): IClipboardContent | undefined;

@@ -40,6 +40,7 @@ import { applyCollapseState } from './apply-collapse-state';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
 import { CanvasSideBar } from './CanvasSideBar';
+import { consumeNodeSelection } from './node-selection-state';
 
 interface CanvasProps {
   nodes: CanvasNode[];
@@ -100,11 +101,12 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
 
   /** Draw graph */
   useEffect(() => {
-    clearSelection();
-
     if (isModelResolving) {
       return;
     }
+
+    const requestedSelection = consumeNodeSelection(controller, nodes);
+    setSelectedIds(requestedSelection ?? []);
 
     const model: Model = {
       nodes,

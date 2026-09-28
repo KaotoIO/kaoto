@@ -258,7 +258,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     targetProperty?: string;
   }) {
     const action = CitrusTestDefaultService.getDefaultTestActionDefinitionValue(options.definedComponent);
-    this.addNewStep(action, options.mode, options.data);
+    return this.addNewStep(action, options.mode, options.data);
   }
 
   getCopiedContent(path?: string, ids?: IVisualizationNodeIds): IClipboardContent | undefined {
@@ -425,7 +425,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
       const array: TestActions[] = getArrayProperty(this.test, this.toModelPath(pathArray.slice(0, -2).join('.')));
       array.splice(desiredStartIndex, deleteCount, action);
 
-      return;
+      return [...pathArray.slice(0, -2), desiredStartIndex].join('.');
     }
 
     /**
@@ -439,7 +439,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     if (!Number.isInteger(Number(last)) && !Number.isInteger(Number(penultimate))) {
       /** Whatever mode append or replace, we replace the current node as we have a single nested node */
       setValue(this.test, this.toModelPath(path.substring(0, path.lastIndexOf('.'))), action);
-      return;
+      return path.substring(0, path.lastIndexOf('.'));
     }
 
     /**
@@ -458,6 +458,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
 
       const array: TestActions[] = getArrayProperty(this.test, this.toModelPath(pathArray.slice(0, -1).join('.')));
       array.splice(desiredStartIndex, deleteCount, action);
+      return [...pathArray.slice(0, -1), desiredStartIndex].join('.');
     }
   }
 

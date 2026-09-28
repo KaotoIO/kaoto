@@ -69,8 +69,8 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     mode: AddStepMode,
     targetProperty?: string,
     insertAtStart?: boolean,
-  ): void {
-    this.getBaseEntity()?.addStep({
+  ): string | void {
+    return this.getBaseEntity()?.addStep({
       definedComponent: definition,
       mode,
       data: this.data,
