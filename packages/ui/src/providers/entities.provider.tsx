@@ -12,6 +12,8 @@ export interface EntitiesContextResult {
   currentSchemaType: SourceSchemaType;
   visualEntities: BaseVisualEntity[];
   camelResource: KaotoResource;
+  /** A source replacement is still being initialized. */
+  isLoading?: boolean;
 
   /**
    * Notify that a property in an entity has changed, hence the source
@@ -92,6 +94,9 @@ export const EntitiesProvider: FunctionComponent<PropsWithChildren> = ({ childre
     }),
     [entities, visualEntities, kaotoResource, updateEntitiesFromCamelResource, updateSourceCodeFromEntities],
   );
+  // isLoading is intentionally not added here — this worktree only targets the
+  // Beans and REST DSL editor selection retention, not the full initializedResource tracking.
+  // We expose it as always-false so the page components compile correctly.
 
   return <EntitiesContext.Provider value={value}>{children}</EntitiesContext.Provider>;
 };
