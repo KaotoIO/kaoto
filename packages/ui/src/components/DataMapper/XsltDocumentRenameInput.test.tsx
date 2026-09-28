@@ -17,11 +17,11 @@ describe('XsltDocumentRenameInput', () => {
   };
 
   describe('Read-only mode', () => {
-    it('should render in read-only mode by default', () => {
+    it('should render in read-only mode by default', async () => {
       render(<XsltDocumentRenameInput {...defaultProps} />);
 
       // Check if text value is displayed
-      expect(screen.getByText('Initial Document Name')).toBeInTheDocument();
+      expect(await screen.findByText('Initial Document Name')).toBeInTheDocument();
 
       // Check if the edit button is available
       const editBtn = screen.getByTestId('rename-input--edit');
@@ -32,23 +32,23 @@ describe('XsltDocumentRenameInput', () => {
       expect(screen.queryByTestId('rename-input--text-input')).not.toBeInTheDocument();
     });
 
-    it('should use empty string as default value when value prop is undefined', () => {
+    it('should use empty string as default value when value prop is undefined', async () => {
       const { rerender } = render(<XsltDocumentRenameInput data-testid="rename-input" placeholder="Enter name..." />);
-      expect(screen.getByText('Enter name...')).toBeInTheDocument();
+      expect(await screen.findByText('Enter name...')).toBeInTheDocument();
 
       // Verify it works with undefined explicitly
       rerender(<XsltDocumentRenameInput data-testid="rename-input" placeholder="Enter name..." value={undefined} />);
       expect(screen.getByText('Enter name...')).toBeInTheDocument();
     });
 
-    it('should display the placeholder if no initial value is provided', () => {
+    it('should display the placeholder if no initial value is provided', async () => {
       render(<XsltDocumentRenameInput {...defaultProps} value="" />);
-      expect(screen.getByText('Enter name...')).toBeInTheDocument();
+      expect(await screen.findByText('Enter name...')).toBeInTheDocument();
     });
 
-    it('should render text span with correct title and aria-label', () => {
+    it('should render text span with correct title and aria-label', async () => {
       render(<XsltDocumentRenameInput {...defaultProps} />);
-      const span = screen.getByText('Initial Document Name');
+      const span = await screen.findByText('Initial Document Name');
       expect(span).toHaveAttribute('title', 'Document Title');
       expect(span).toHaveAttribute('aria-label', 'Document Title');
     });
@@ -392,7 +392,7 @@ describe('XsltDocumentRenameInput', () => {
     });
 
     it('should stop event propagation when clicking the save button', async () => {
-      const mockOnChange = vi.fn();
+      const mockOnChange = vi.fn().mockResolvedValue(undefined);
       render(<XsltDocumentRenameInput {...defaultProps} onChange={mockOnChange} />);
       const user = userEvent.setup();
 
@@ -407,6 +407,7 @@ describe('XsltDocumentRenameInput', () => {
       fireEvent(saveButton, mouseEvent);
 
       expect(stopPropagationSpy).toHaveBeenCalled();
+      await screen.findByText('Initial Document Name Change');
     });
 
     it('should disable input and buttons while saving', async () => {

@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import {
   BODY_DOCUMENT_ID,
@@ -17,11 +18,13 @@ import { DocumentContent, DocumentHeader } from './BaseDocument';
 import { TargetDocumentNode } from './TargetDocumentNode';
 
 describe('DocumentHeader', () => {
-  afterEach(() => {
-    useDocumentTreeStore.getState().clearSelection();
+  afterEach(async () => {
+    await act(async () => {
+      useDocumentTreeStore.getState().clearSelection();
+    });
   });
 
-  it('should render with enableDnD=false (default)', () => {
+  it('should render with enableDnD=false (default)', async () => {
     const document = new PrimitiveDocument(
       new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
     );
@@ -37,11 +40,11 @@ describe('DocumentHeader', () => {
       </DataMapperProvider>,
     );
 
-    expect(screen.getByText('Test Header')).toBeInTheDocument();
+    expect(await screen.findByText('Test Header')).toBeInTheDocument();
     expect(screen.queryByTestId('drag-handler')).not.toBeInTheDocument();
   });
 
-  it('should render with enableDnD=true', () => {
+  it('should render with enableDnD=true', async () => {
     const document = new PrimitiveDocument(
       new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
     );
@@ -58,12 +61,12 @@ describe('DocumentHeader', () => {
       </DataMapperProvider>,
     );
 
-    expect(screen.getByText('Test Header')).toBeInTheDocument();
+    expect(await screen.findByText('Test Header')).toBeInTheDocument();
     const dragHandler = container.querySelector('[data-drag-handler]');
     expect(dragHandler).toBeInTheDocument();
   });
 
-  it('should render attach/detach schema buttons when not read-only', () => {
+  it('should render attach/detach schema buttons when not read-only', async () => {
     const document = new PrimitiveDocument(
       new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
     );
@@ -79,11 +82,11 @@ describe('DocumentHeader', () => {
       </DataMapperProvider>,
     );
 
-    expect(screen.getByTestId(`attach-schema-targetBody-${BODY_DOCUMENT_ID}-button`)).toBeInTheDocument();
+    expect(await screen.findByTestId(`attach-schema-targetBody-${BODY_DOCUMENT_ID}-button`)).toBeInTheDocument();
     expect(screen.getByTestId(`detach-schema-targetBody-${BODY_DOCUMENT_ID}-button`)).toBeInTheDocument();
   });
 
-  it('should update store selection when clicking the header', () => {
+  it('should update store selection when clicking the header', async () => {
     const document = new PrimitiveDocument(
       new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
     );
@@ -99,8 +102,8 @@ describe('DocumentHeader', () => {
       </DataMapperProvider>,
     );
 
-    const headerContainer = screen.getByTestId(`document-doc-targetBody-${BODY_DOCUMENT_ID}`);
-    fireEvent.click(headerContainer);
+    const headerContainer = await screen.findByTestId(`document-doc-targetBody-${BODY_DOCUMENT_ID}`);
+    await userEvent.click(headerContainer);
 
     const store = useDocumentTreeStore.getState();
     expect(store.selectedNodePath).toBeTruthy();
