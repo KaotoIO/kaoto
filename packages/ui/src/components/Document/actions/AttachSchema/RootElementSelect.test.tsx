@@ -1,16 +1,18 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { RootElementOption } from '../../../../models/datamapper/document';
 import { RootElementSelect } from './RootElementSelect';
 
 describe('RootElementSelect', () => {
+  const user = userEvent.setup();
   const createOptions = (names: string[], namespaceUri = 'urn:test'): RootElementOption[] =>
     names.map((name) => ({ name, namespaceUri }));
 
   const getInput = () => screen.getByTestId('attach-schema-root-element').querySelector('input') as HTMLInputElement;
 
-  const openDropdown = () => {
-    fireEvent.focus(getInput());
+  const openDropdown = async () => {
+    await user.click(getInput());
   };
 
   it('should render with selected option', async () => {
@@ -46,7 +48,7 @@ describe('RootElementSelect', () => {
     const onChange = vi.fn();
     render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={onChange} />);
 
-    openDropdown();
+    await openDropdown();
     expect(screen.getByRole('listbox')).toBeInTheDocument();
 
     fireEvent.click(screen.getByText('Invoice'));
@@ -102,7 +104,7 @@ describe('RootElementSelect', () => {
     render(<RootElementSelect rootElementOptions={options} selectedOption={options[1]} onChange={onChange} />);
     expect(getInput().value).toBe('Root');
 
-    openDropdown();
+    await openDropdown();
     const listbox = screen.getByRole('listbox');
     const rootOptions = listbox.querySelectorAll('[role="option"]');
     expect(rootOptions).toHaveLength(2);
@@ -119,7 +121,7 @@ describe('RootElementSelect', () => {
     const onChange = vi.fn();
     render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={onChange} />);
 
-    openDropdown();
+    await openDropdown();
     const listbox = screen.getByRole('listbox');
     const rootOptions = listbox.querySelectorAll('[role="option"]');
 
@@ -131,7 +133,7 @@ describe('RootElementSelect', () => {
     const options = createOptions(['Order', 'Invoice'], '');
     render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={vi.fn()} />);
 
-    openDropdown();
+    await openDropdown();
     const orderOption = screen.getByText('Order');
     expect(orderOption).toBeInTheDocument();
     expect(orderOption.closest('[role="option"]')?.textContent).not.toContain('Namespace URI');
@@ -141,7 +143,7 @@ describe('RootElementSelect', () => {
     const options = createOptions(['Order', 'Invoice', 'Shipment']);
     render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={vi.fn()} />);
 
-    openDropdown();
+    await openDropdown();
     fireEvent.change(getInput(), { target: { value: 'Inv' } });
     const listbox = screen.getByRole('listbox');
     const visibleOptions = listbox.querySelectorAll('[role="option"]');
@@ -157,7 +159,7 @@ describe('RootElementSelect', () => {
     ];
     render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={vi.fn()} />);
 
-    openDropdown();
+    await openDropdown();
     fireEvent.change(getInput(), { target: { value: 'ns-a' } });
     const listbox = screen.getByRole('listbox');
     const visibleOptions = listbox.querySelectorAll('[role="option"]');
@@ -169,7 +171,7 @@ describe('RootElementSelect', () => {
     const onChange = vi.fn();
     render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={onChange} />);
 
-    openDropdown();
+    await openDropdown();
     fireEvent.change(getInput(), { target: { value: 'Inv' } });
     expect(onChange).not.toHaveBeenCalled();
   });
@@ -178,7 +180,7 @@ describe('RootElementSelect', () => {
     const options = createOptions(['Order', 'Invoice']);
     render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={vi.fn()} />);
 
-    openDropdown();
+    await openDropdown();
     fireEvent.change(getInput(), { target: { value: 'Inv' } });
     expect(getInput().value).toBe('Inv');
 
