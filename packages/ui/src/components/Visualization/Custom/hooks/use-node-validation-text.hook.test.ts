@@ -14,11 +14,16 @@ const createNode = (text: string | undefined): FakeNode => ({
 });
 
 describe('useNodeValidationText', () => {
-  it('should return undefined before the async validation resolves', () => {
+  it('should return undefined before the async validation resolves', async () => {
     const node = createNode('Some warning');
     const { result } = renderHook(() => useNodeValidationText(node as unknown as IVisualizationNode));
 
     expect(result.current).toBeUndefined();
+
+    // Wait for the async validation to settle so resolution doesn't leak into subsequent tests
+    await waitFor(() => {
+      expect(result.current).toBe('Some warning');
+    });
   });
 
   it('should return the resolved validation text', async () => {
