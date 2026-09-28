@@ -1,51 +1,17 @@
-import { act, render, screen } from '@testing-library/react';
-import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { FunctionComponent, PropsWithChildren } from 'react';
 
-import { useDataMapper } from '../../../../hooks/useDataMapper';
-import { DocumentDefinitionType, DocumentType, IDocument } from '../../../../models/datamapper';
-import { IField } from '../../../../models/datamapper/document';
+import {
+  BODY_DOCUMENT_ID,
+  DocumentDefinition,
+  DocumentDefinitionType,
+  DocumentInitializationModel,
+  DocumentType,
+} from '../../../../models/datamapper';
 import { DataMapperProvider } from '../../../../providers/datamapper.provider';
+import { getCartJsonSchema, getShipOrderXsd } from '../../../../stubs/datamapper/data-mapper';
 import { DataMapperSettingsModal } from './DataMapperSettingsModal';
-
-/**
- * Helper component that injects a mock target document with the given definitionType
- * into the DataMapper context after the provider has finished loading.
- * This is necessary because DocumentInitializationModel with XML_SCHEMA/JSON_SCHEMA
- * but without real schema files does not produce a real document — so we bypass it
- * and inject via setNewDocument directly.
- */
-const TargetDocumentInjector: FunctionComponent<PropsWithChildren<{ targetDocType: DocumentDefinitionType }>> = ({
-  targetDocType,
-  children,
-}) => {
-  const { setNewDocument } = useDataMapper();
-
-  useEffect(() => {
-    if (targetDocType === DocumentDefinitionType.Primitive) return;
-
-    const mockDocument: IDocument = {
-      documentType: DocumentType.TARGET_BODY,
-      documentId: 'Body',
-      name: 'Body',
-      definitionType: targetDocType,
-      fields: [] as IField[],
-      path: { pathSegments: [] } as never,
-      namedTypeFragments: {},
-      definition: null as never,
-      totalFieldCount: 0,
-      isNamespaceAware: targetDocType === DocumentDefinitionType.XML_SCHEMA,
-      getReferenceId: () => '',
-      getExpression: () => '',
-    };
-
-    act(() => {
-      setNewDocument(DocumentType.TARGET_BODY, 'Body', mockDocument);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return <>{children}</>;
-};
 
 describe('DataMapperSettingsModal', () => {
   const mockOnModalClose = vi.fn();
@@ -55,12 +21,37 @@ describe('DataMapperSettingsModal', () => {
     isOutputValidationEnabled = false,
     onSetOutputValidationEnabled?: (enabled: boolean) => void,
   ): FunctionComponent<PropsWithChildren> => {
+    let targetDocDef: DocumentDefinition;
+    if (targetDocType === DocumentDefinitionType.XML_SCHEMA) {
+      targetDocDef = new DocumentDefinition(
+        DocumentType.TARGET_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'shipOrder.xsd': getShipOrderXsd() },
+      );
+    } else if (targetDocType === DocumentDefinitionType.JSON_SCHEMA) {
+      targetDocDef = new DocumentDefinition(
+        DocumentType.TARGET_BODY,
+        DocumentDefinitionType.JSON_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'cart.json': getCartJsonSchema() },
+      );
+    } else {
+      targetDocDef = new DocumentDefinition(
+        DocumentType.TARGET_BODY,
+        DocumentDefinitionType.Primitive,
+        BODY_DOCUMENT_ID,
+      );
+    }
+    const documentInitializationModel = new DocumentInitializationModel({}, undefined, targetDocDef);
+
     return ({ children }) => (
       <DataMapperProvider
+        documentInitializationModel={documentInitializationModel}
         isOutputValidationEnabled={isOutputValidationEnabled}
         onSetOutputValidationEnabled={onSetOutputValidationEnabled}
       >
-        <TargetDocumentInjector targetDocType={targetDocType}>{children}</TargetDocumentInjector>
+        {children}
       </DataMapperProvider>
     );
   };
@@ -106,14 +97,12 @@ describe('DataMapperSettingsModal', () => {
 
   describe('Save Functionality', () => {
     it('should call onModalClose when Save is clicked', async () => {
+      const user = userEvent.setup();
       const wrapper = createWrapper();
       render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
 
       const saveButton = await screen.findByTestId('datamapper-settings-save-btn');
-
-      act(() => {
-        saveButton.click();
-      });
+      await user.click(saveButton);
 
       expect(mockOnModalClose).toHaveBeenCalledTimes(1);
     });
@@ -121,14 +110,12 @@ describe('DataMapperSettingsModal', () => {
 
   describe('Cancel Functionality', () => {
     it('should call onModalClose when Cancel is clicked', async () => {
+      const user = userEvent.setup();
       const wrapper = createWrapper();
       render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
 
       const cancelButton = await screen.findByTestId('datamapper-settings-cancel-btn');
-
-      act(() => {
-        cancelButton.click();
-      });
+      await user.click(cancelButton);
 
       expect(mockOnModalClose).toHaveBeenCalledTimes(1);
     });
@@ -136,15 +123,13 @@ describe('DataMapperSettingsModal', () => {
 
   describe('Modal Close Behavior', () => {
     it('should call onModalClose when modal close button is clicked', async () => {
+      const user = userEvent.setup();
       const wrapper = createWrapper();
       render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
 
       await screen.findByTestId('datamapper-settings-modal');
       const closeButton = screen.getByLabelText('Close');
-
-      act(() => {
-        closeButton.click();
-      });
+      await user.click(closeButton);
 
       expect(mockOnModalClose).toHaveBeenCalled();
     });
@@ -207,6 +192,7 @@ describe('DataMapperSettingsModal', () => {
     });
 
     it('should reset local state when modal is reopened after cancel', async () => {
+      const user = userEvent.setup();
       const wrapper = createWrapper();
       const { rerender } = render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, {
         wrapper,
@@ -216,9 +202,7 @@ describe('DataMapperSettingsModal', () => {
       const cancelButton = screen.getByTestId('datamapper-settings-cancel-btn');
 
       // Close modal
-      act(() => {
-        cancelButton.click();
-      });
+      await user.click(cancelButton);
 
       // Reopen modal
       rerender(<DataMapperSettingsModal isModalOpen={false} onModalClose={mockOnModalClose} />);
@@ -294,40 +278,37 @@ describe('DataMapperSettingsModal', () => {
     });
 
     it('should call onSetOutputValidationEnabled(true) when checkbox is checked', async () => {
+      const user = userEvent.setup();
       const mockOnSetOutputValidationEnabled = vi.fn();
       const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA, false, mockOnSetOutputValidationEnabled);
       render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
 
       const checkbox = await screen.findByTestId('validate-output-settings-checkbox');
-      act(() => {
-        checkbox.click();
-      });
+      await user.click(checkbox);
 
       expect(mockOnSetOutputValidationEnabled).toHaveBeenCalledWith(true);
     });
 
     it('should call onSetOutputValidationEnabled(false) when checkbox is unchecked', async () => {
+      const user = userEvent.setup();
       const mockOnSetOutputValidationEnabled = vi.fn();
       const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA, true, mockOnSetOutputValidationEnabled);
       render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
 
       const checkbox = await screen.findByTestId('validate-output-settings-checkbox');
-      act(() => {
-        checkbox.click();
-      });
+      await user.click(checkbox);
 
       expect(mockOnSetOutputValidationEnabled).toHaveBeenCalledWith(false);
     });
 
     it('should take effect immediately (not buffered until Save)', async () => {
+      const user = userEvent.setup();
       const mockOnSetOutputValidationEnabled = vi.fn();
       const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA, false, mockOnSetOutputValidationEnabled);
       render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
 
       const checkbox = await screen.findByTestId('validate-output-settings-checkbox');
-      act(() => {
-        checkbox.click();
-      });
+      await user.click(checkbox);
 
       // onSetOutputValidationEnabled should be called immediately, before Save is clicked
       expect(mockOnSetOutputValidationEnabled).toHaveBeenCalledWith(true);
