@@ -16,6 +16,7 @@
 
 import * as path from 'path'; // NOSONAR
 import fs from 'fs'; // NOSONAR
+import * as os from 'os';
 import { workspace, WorkspaceFolder } from 'vscode';
 
 /**
@@ -77,8 +78,16 @@ export function resolvePaths(paths: string[], cwd: string): Set<string> {
  */
 // The cwd parameter changes based on which file/folder is clicked in the integrations view.
 function resolvePathAgainstCwd(pathString: string, cwd: string): string {
+	// Expand tilde (~) to home directory
+	let expandedTilde = pathString;
+	if (pathString === '~') {
+		expandedTilde = os.homedir();
+	} else if (pathString.startsWith('~/') || pathString.startsWith('~\\')) {
+		expandedTilde = path.join(os.homedir(), pathString.slice(2));
+	}
+
 	// Expand VS Code variables first
-	const expandedPath = expandVSCodeVariables(pathString, cwd);
+	const expandedPath = expandVSCodeVariables(expandedTilde, cwd);
 
 	// resolve absolute paths first
 	if (path.isAbsolute(expandedPath)) {
