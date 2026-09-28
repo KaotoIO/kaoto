@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { TypeaheadInput, TypeaheadInputOption } from './TypeaheadInput';
 
@@ -31,79 +31,86 @@ describe('TypeaheadInput', () => {
     expect(getInput()).toHaveAttribute('placeholder', 'Type to search');
   });
 
-  it('should call onChange when typing', () => {
+  it('should call onChange when typing', async () => {
     const onChange = vi.fn();
     render(<TypeaheadInput value="" onChange={onChange} options={OPTIONS} data-testid="xpath-input" />);
     fireEvent.change(getInput(), { target: { value: 'Ti' } });
+    // findByRole drains Popper's deferred positioning inside act()
+    await screen.findByRole('listbox');
     expect(onChange).toHaveBeenCalledWith('Ti');
   });
 
-  it('should show only matching options when value filters', () => {
+  it('should show only matching options when value filters', async () => {
     const { rerender } = render(
       <TypeaheadInput value="" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />,
     );
     fireEvent.change(getInput(), { target: { value: 'Ti' } });
     rerender(<TypeaheadInput value="Ti" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />);
-    expect(screen.getByRole('listbox')).toBeInTheDocument();
+    // findByRole waits for Popper to finish positioning the menu inside act()
+    expect(await screen.findByRole('listbox')).toBeInTheDocument();
     expect(screen.getByText('Title')).toBeInTheDocument();
     expect(screen.queryByText('Price')).not.toBeInTheDocument();
   });
 
-  it('should close dropdown when no options match', () => {
+  it('should close dropdown when no options match', async () => {
     const onChange = vi.fn();
     render(<TypeaheadInput value="" onChange={onChange} options={OPTIONS} data-testid="xpath-input" />);
     fireEvent.change(getInput(), { target: { value: 'string-length(' } });
-    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument());
   });
 
-  it('should filter options by description as well', () => {
+  it('should filter options by description as well', async () => {
     const { rerender } = render(
       <TypeaheadInput value="" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />,
     );
     fireEvent.change(getInput(), { target: { value: 'decimal' } });
     rerender(<TypeaheadInput value="decimal" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />);
-    expect(screen.getByRole('listbox')).toBeInTheDocument();
+    // findByRole waits for Popper to finish positioning the menu inside act()
+    expect(await screen.findByRole('listbox')).toBeInTheDocument();
     expect(screen.getByText('Price')).toBeInTheDocument();
     expect(screen.queryByText('Title')).not.toBeInTheDocument();
   });
 
-  it('should call onChange with selected value and close dropdown', () => {
+  it('should call onChange with selected value and close dropdown', async () => {
     const onChange = vi.fn();
     render(<TypeaheadInput value="" onChange={onChange} options={OPTIONS} data-testid="xpath-input" />);
 
     fireEvent.change(getInput(), { target: { value: 'Ti' } });
-    expect(screen.getByRole('listbox')).toBeInTheDocument();
+    // findByRole waits for Popper to finish positioning the menu inside act()
+    await screen.findByRole('listbox');
 
     fireEvent.click(screen.getByText('Title'));
     expect(onChange).toHaveBeenCalledWith('Title');
-    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument());
   });
 
-  it('should open dropdown on focus when value is empty and options exist', () => {
+  it('should open dropdown on focus when value is empty and options exist', async () => {
     render(<TypeaheadInput value="" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />);
     fireEvent.focus(getInput());
-    expect(screen.getByRole('listbox')).toBeInTheDocument();
+    // findByRole waits for Popper to finish positioning the menu inside act()
+    expect(await screen.findByRole('listbox')).toBeInTheDocument();
   });
 
-  it('should not open dropdown on focus when value is non-empty', () => {
+  it('should not open dropdown on focus when value is non-empty', async () => {
     render(<TypeaheadInput value="Title" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />);
     fireEvent.focus(getInput());
-    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument());
   });
 
-  it('should not open dropdown on focus when no options exist', () => {
+  it('should not open dropdown on focus when no options exist', async () => {
     render(<TypeaheadInput value="" onChange={vi.fn()} options={[]} data-testid="xpath-input" />);
     fireEvent.focus(getInput());
-    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument());
   });
 
-  it('should close dropdown on blur', () => {
+  it('should close dropdown on blur', async () => {
     render(<TypeaheadInput value="" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />);
     fireEvent.focus(getInput());
-    expect(screen.getByRole('listbox')).toBeInTheDocument();
+    // findByRole waits for Popper to finish positioning the menu inside act()
+    await screen.findByRole('listbox');
 
     fireEvent.blur(getInput(), { relatedTarget: document.body });
-    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument());
   });
 
   it('should show clear button when value is non-empty', () => {
@@ -116,17 +123,21 @@ describe('TypeaheadInput', () => {
     expect(screen.queryByLabelText('Clear expression')).not.toBeInTheDocument();
   });
 
-  it('should call onChange with empty string when clear button is clicked', () => {
+  it('should call onChange with empty string when clear button is clicked', async () => {
     const onChange = vi.fn();
     render(<TypeaheadInput value="Title" onChange={onChange} options={OPTIONS} data-testid="xpath-input" />);
     fireEvent.click(screen.getByLabelText('Clear expression'));
-    expect(onChange).toHaveBeenCalledWith('');
+    await waitFor(() => {
+      expect(onChange).toHaveBeenCalledWith('');
+    });
   });
 
-  it('should set Select id with suffix when id is provided', () => {
+  it('should set Select id with suffix when id is provided', async () => {
     render(<TypeaheadInput value="" onChange={vi.fn()} options={OPTIONS} id="my-input" data-testid="xpath-input" />);
     fireEvent.focus(getInput());
-    expect(screen.getByRole('listbox').closest('[id="my-input-select"]')).toBeInTheDocument();
+    // findByRole waits for Popper to finish positioning the menu inside act()
+    const listbox = await screen.findByRole('listbox');
+    expect(listbox.closest('[id="my-input-select"]')).toBeInTheDocument();
   });
 
   it('should pass aria-label to the input', () => {
@@ -142,18 +153,20 @@ describe('TypeaheadInput', () => {
     expect(getInput()).toHaveAttribute('aria-label', 'Sort expression 1');
   });
 
-  it('should not open dropdown on focus after external value update from empty to non-empty', () => {
+  it('should not open dropdown on focus after external value update from empty to non-empty', async () => {
     const { rerender } = render(
       <TypeaheadInput value="" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />,
     );
     rerender(<TypeaheadInput value="Title" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />);
     fireEvent.focus(getInput());
-    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument());
   });
 
-  it('should show all options when value is empty and dropdown is open', () => {
+  it('should show all options when value is empty and dropdown is open', async () => {
     render(<TypeaheadInput value="" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />);
     fireEvent.focus(getInput());
+    // findByRole waits for Popper to finish positioning the menu inside act()
+    await screen.findByRole('listbox');
     for (const opt of OPTIONS) {
       expect(screen.getByText(opt.value)).toBeInTheDocument();
     }
