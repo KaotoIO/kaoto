@@ -145,7 +145,7 @@ export class PipeVisualEntity implements BaseVisualEntity {
       },
     };
 
-    this.addNewStep(step, options.mode, options.data);
+    return this.addNewStep(step, options.mode, options.data);
   }
 
   getCopiedContent(path?: string, ids?: IVisualizationNodeIds): IClipboardContent | undefined {
@@ -284,7 +284,7 @@ export class PipeVisualEntity implements BaseVisualEntity {
     /** Replace an existing Kamelet */
     if (mode === AddStepMode.ReplaceStep) {
       setValue(this.pipe.spec, path, step);
-      return;
+      return path;
     }
 
     /** Add a new Kamelet to the Kamelets array */
@@ -297,6 +297,8 @@ export class PipeVisualEntity implements BaseVisualEntity {
     } else if (mode === AddStepMode.PrependStep) {
       kameletArray.splice(index, 0, step);
     }
+    const insertedIndex = kameletArray.indexOf(step);
+    return insertedIndex === -1 ? undefined : `steps.${insertedIndex}`;
   }
 
   private async getVizNodeFromStep(step: PipeStep, path: string, isRoot = false): Promise<IVisualizationNode> {

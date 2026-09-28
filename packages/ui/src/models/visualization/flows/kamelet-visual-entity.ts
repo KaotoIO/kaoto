@@ -156,7 +156,7 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{
     mode: AddStepMode;
     data: IVisualizationNodeData;
     targetProperty?: string;
-  }): void {
+  }): string | undefined {
     /** Replace the root `from` step */
     if (
       options.mode === AddStepMode.ReplaceStep &&
@@ -165,10 +165,10 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{
     ) {
       const fromValue = CamelComponentDefaultService.getDefaultFromDefinitionValue(options.definedComponent);
       Object.assign(this.entityDef.template.route.from, fromValue);
-      return;
+      return options.data.path;
     }
 
-    super.addStep(options);
+    return super.addStep(options);
   }
 
   removeStep(path?: string): void {
