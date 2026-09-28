@@ -85,9 +85,9 @@ describe('Integrations View', function () {
 		});
 
 		after(async function () {
-			await new EditorView().closeAllEditors();
 			// Export opens the project in a new window, which keeps the directory in use on Windows.
 			try {
+				await new EditorView().closeAllEditors();
 				for (const windowHandle of await driver.getAllWindowHandles()) {
 					if (!originalWindowHandles.includes(windowHandle)) {
 						await driver.switchTo().window(windowHandle);
@@ -95,10 +95,13 @@ describe('Integrations View', function () {
 					}
 				}
 			} finally {
-				await driver.switchTo().window(originalWindowHandle);
+				try {
+					await driver.switchTo().window(originalWindowHandle);
+				} finally {
+					// Async removal retries Windows permission errors that Node 24's rmSync can fail on immediately.
+					await fs.promises.rm(PROJECT_OUTPUT_DIR, { force: true, recursive: true, maxRetries: 5, retryDelay: 200 });
+				}
 			}
-			// Async removal retries Windows permission errors that Node 24's rmSync can fail on immediately.
-			await fs.promises.rm(PROJECT_OUTPUT_DIR, { force: true, recursive: true, maxRetries: 5, retryDelay: 200 });
 		});
 
 		// prettier-ignore
@@ -171,7 +174,7 @@ describe('Integrations View', function () {
 		await driver.wait(
 			async () => {
 				try {
-					const item = await getTreeItem(driver, integrationsSection, treeItemLabel);
+					const item = await getTreeItem(driver, integrationsSection, treeItemLabel, 5_000);
 					await item?.click();
 					exportButton = await getTreeItemActionButton(kaotoViewContainer, item as TreeItem, action);
 					return exportButton !== undefined;
