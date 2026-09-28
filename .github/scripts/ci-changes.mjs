@@ -1,6 +1,7 @@
-import { execFileSync } from 'node:child_process';
 import { appendFileSync, readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
+
+import { git } from './git-client.mjs';
 
 /**
  * Select the existing CI jobs that need to run for a monorepo change.
@@ -91,13 +92,14 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       // Push two-dot diff: difference between the before and after trees.
       // --no-renames reports a move as deletion + addition, selecting both affected packages.
       // -z separates paths with NUL bytes so spaces, tabs and newlines in names remain intact.
-      files = execFileSync(
-        'git',
-        ['diff', '--name-only', '--no-renames', '-z', `${base}${pullRequest ? '...' : '..'}${head}`, '--'],
-        {
-          encoding: 'utf8',
-        },
-      )
+      files = git([
+        'diff',
+        '--name-only',
+        '--no-renames',
+        '-z',
+        `${base}${pullRequest ? '...' : '..'}${head}`,
+        '--',
+      ])
         .split('\0')
         .filter(Boolean);
     } catch {

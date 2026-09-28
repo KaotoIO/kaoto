@@ -14,7 +14,7 @@
  * a scope not matched by any entry, fall into the FALLBACK_PACKAGE.
  */
 
-import { execFileSync } from 'node:child_process';
+import { git } from './git-client.mjs';
 
 // ---------------------------------------------------------------------------
 // Package bucket definitions
@@ -110,7 +110,7 @@ const CATEGORIES = [
 /** Run git with arguments array avoiding shell interpolation. */
 function runGit(args) {
   try {
-    return execFileSync('git', args, { encoding: 'utf8' }).trim();
+    return git(args).trim();
   } catch {
     return null;
   }
