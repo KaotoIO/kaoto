@@ -3,7 +3,6 @@ import { RedoIcon } from '@patternfly/react-icons';
 import { FunctionComponent } from 'react';
 
 interface IRedoIcon {
-  isVisible: boolean;
   onClick: () => void;
 }
 

@@ -78,8 +78,8 @@ export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
 
   const customControls = useMemo(() => {
     return [
-      <UndoButton key="undo-button" isVisible onClick={undoAction} />,
-      <RedoButton key="redo-button" isVisible onClick={redoAction} />,
+      <UndoButton key="undo-button" onClick={undoAction} />,
+      <RedoButton key="redo-button" onClick={redoAction} />,
     ];
   }, []);
 
