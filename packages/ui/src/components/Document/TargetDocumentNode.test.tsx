@@ -1,10 +1,11 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
 import {
   BODY_DOCUMENT_ID,
   DocumentDefinition,
   DocumentDefinitionType,
+  DocumentInitializationModel,
   DocumentType,
   PrimitiveDocument,
 } from '../../models/datamapper/document';
@@ -35,7 +36,23 @@ import { TargetDocumentNode } from './TargetDocumentNode';
 
 describe('TargetDocumentNode', () => {
   const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-    <DataMapperProvider>
+    <DataMapperProvider
+      documentInitializationModel={
+        new DocumentInitializationModel(
+          {},
+          {
+            documentType: DocumentType.SOURCE_BODY,
+            definitionType: DocumentDefinitionType.Primitive,
+            name: BODY_DOCUMENT_ID,
+          },
+          {
+            documentType: DocumentType.TARGET_BODY,
+            definitionType: DocumentDefinitionType.Primitive,
+            name: BODY_DOCUMENT_ID,
+          },
+        )
+      }
+    >
       <MappingLinksProvider>{children}</MappingLinksProvider>
     </DataMapperProvider>
   );
@@ -507,7 +524,23 @@ describe('TargetDocumentNode', () => {
       expect(screen.getByTestId(`node-target-${documentNodeData.id}`)).toBeInTheDocument();
 
       rerender(
-        <DataMapperProvider>
+        <DataMapperProvider
+          documentInitializationModel={
+            new DocumentInitializationModel(
+              {},
+              {
+                documentType: DocumentType.SOURCE_BODY,
+                definitionType: DocumentDefinitionType.Primitive,
+                name: BODY_DOCUMENT_ID,
+              },
+              {
+                documentType: DocumentType.TARGET_BODY,
+                definitionType: DocumentDefinitionType.Primitive,
+                name: BODY_DOCUMENT_ID,
+              },
+            )
+          }
+        >
           <MappingLinksProvider>
             <TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />
           </MappingLinksProvider>
@@ -786,8 +819,10 @@ describe('TargetDocumentNode', () => {
 
   describe('Variable Node', () => {
     afterEach(() => {
-      useDocumentTreeStore.getState().setAddingVariableTo(null);
-      useDocumentTreeStore.getState().setRenamingVariable(null);
+      act(() => {
+        useDocumentTreeStore.getState().setAddingVariableTo(null);
+        useDocumentTreeStore.getState().setRenamingVariable(null);
+      });
     });
 
     it('should render variable node with $name label', () => {
@@ -820,7 +855,9 @@ describe('TargetDocumentNode', () => {
       const fieldTreeNode = new DocumentTreeNode(fieldNode);
 
       const nodePath = fieldNode.path.toString();
-      useDocumentTreeStore.getState().setAddingVariableTo(nodePath);
+      act(() => {
+        useDocumentTreeStore.getState().setAddingVariableTo(nodePath);
+      });
 
       render(<TargetDocumentNode treeNode={fieldTreeNode} documentNodeId={targetDocNode.id} rank={1} />, {
         wrapper,
@@ -844,7 +881,9 @@ describe('TargetDocumentNode', () => {
       const variableNodeData = new VariableNodeData(targetDocNode, variableItem);
       const variableTreeNode = new DocumentTreeNode(variableNodeData);
 
-      useDocumentTreeStore.getState().setRenamingVariable(variableItem.id);
+      act(() => {
+        useDocumentTreeStore.getState().setRenamingVariable(variableItem.id);
+      });
 
       render(<TargetDocumentNode treeNode={variableTreeNode} documentNodeId={targetDocNode.id} rank={1} />, {
         wrapper,
@@ -871,7 +910,9 @@ describe('TargetDocumentNode', () => {
       const fieldTreeNode = new DocumentTreeNode(fieldNode);
 
       const nodePath = fieldNode.path.toString();
-      useDocumentTreeStore.getState().setAddingVariableTo(nodePath);
+      act(() => {
+        useDocumentTreeStore.getState().setAddingVariableTo(nodePath);
+      });
 
       render(<TargetDocumentNode treeNode={fieldTreeNode} documentNodeId={targetDocNode.id} rank={1} />, {
         wrapper,
@@ -900,7 +941,9 @@ describe('TargetDocumentNode', () => {
 
       const addVariableSpy = vi.spyOn(MappingService, 'addVariable');
       const nodePath = fieldNode.path.toString();
-      useDocumentTreeStore.getState().setAddingVariableTo(nodePath);
+      act(() => {
+        useDocumentTreeStore.getState().setAddingVariableTo(nodePath);
+      });
 
       render(<TargetDocumentNode treeNode={fieldTreeNode} documentNodeId={targetDocNode.id} rank={1} />, {
         wrapper,
@@ -931,7 +974,9 @@ describe('TargetDocumentNode', () => {
       const variableTreeNode = new DocumentTreeNode(variableNodeData);
 
       const updateVariableSpy = vi.spyOn(MappingService, 'updateVariable');
-      useDocumentTreeStore.getState().setRenamingVariable(variableItem.id);
+      act(() => {
+        useDocumentTreeStore.getState().setRenamingVariable(variableItem.id);
+      });
 
       render(<TargetDocumentNode treeNode={variableTreeNode} documentNodeId={targetDocNode.id} rank={1} />, {
         wrapper,
@@ -961,7 +1006,9 @@ describe('TargetDocumentNode', () => {
       const variableNodeData = new VariableNodeData(targetDocNode, variableItem);
       const variableTreeNode = new DocumentTreeNode(variableNodeData);
 
-      useDocumentTreeStore.getState().setRenamingVariable(variableItem.id);
+      act(() => {
+        useDocumentTreeStore.getState().setRenamingVariable(variableItem.id);
+      });
 
       render(<TargetDocumentNode treeNode={variableTreeNode} documentNodeId={targetDocNode.id} rank={1} />, {
         wrapper,
