@@ -16,7 +16,9 @@
  */
 import { expect } from 'chai';
 import * as path from 'path';
+import * as os from 'os';
 import * as vscode from 'vscode';
+import { resolvePaths } from '../../utils/Path';
 import {
 	KAOTO_CATALOG_URL_SETTING_ID,
 	KAOTO_NODE_LABEL_SETTING_ID,
@@ -648,6 +650,18 @@ suite('VSCodeKaotoEditorChannelApi', function () {
 			const mixedPath = 'path/to\\file.yaml';
 			const normalized = path.normalize(mixedPath);
 			expect(normalized).to.be.a('string');
+		});
+
+		test('should expand tilde (~) to home directory', function () {
+			const homeDir = os.homedir();
+			const result = Array.from(resolvePaths(['~/my-workspace/kamelets'], '/some/cwd'));
+			expect(result[0]).to.equal(path.normalize(path.join(homeDir, 'my-workspace/kamelets')));
+		});
+
+		test('should expand single tilde (~) to home directory', function () {
+			const homeDir = os.homedir();
+			const result = Array.from(resolvePaths(['~'], '/some/cwd'));
+			expect(result[0]).to.equal(path.normalize(homeDir));
 		});
 	});
 
