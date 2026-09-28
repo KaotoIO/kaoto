@@ -32,10 +32,10 @@ describe('DataMappingLinksProvider', () => {
     const TestConsumer = () => {
       const ctx = useContext(MappingLinksContext)!;
       capturedFn = ctx.isNodeInSelectedMapping;
-      return null;
+      return <div data-testid="test-consumer" />;
     };
 
-    beforeEach(() => {
+    beforeEach(async () => {
       capturedFn = undefined;
       render(
         <DataMapperProvider>
@@ -44,18 +44,21 @@ describe('DataMappingLinksProvider', () => {
           </MappingLinksProvider>
         </DataMapperProvider>,
       );
+      await screen.findByTestId('test-consumer');
     });
 
-    afterEach(() => {
-      useDocumentTreeStore.getState().clearSelection();
+    afterEach(async () => {
+      await act(async () => {
+        useDocumentTreeStore.getState().clearSelection();
+      });
     });
 
     it('should return false when no node is selected', () => {
       expect(capturedFn?.('any/path')).toBe(false);
     });
 
-    it('should call MappingLinksService when a node is selected', () => {
-      act(() => {
+    it('should call MappingLinksService when a node is selected', async () => {
+      await act(async () => {
         useDocumentTreeStore.getState().setSelectedNode('some/source/path', true);
       });
 

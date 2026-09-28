@@ -2,7 +2,7 @@ vi.mock('./utils/color-scheme', () => ({
   setColorScheme: vi.fn(),
 }));
 
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
 import App from './App';
 import { ColorScheme } from './models';
@@ -17,6 +17,7 @@ describe('App', () => {
       </ReloadProvider>,
     );
 
+    await screen.findByTestId('load-default-catalog');
     expect(setColorScheme).toHaveBeenCalledWith(ColorScheme.Auto);
   });
 });

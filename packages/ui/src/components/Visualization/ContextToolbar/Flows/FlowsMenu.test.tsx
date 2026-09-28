@@ -1,5 +1,6 @@
 import { CamelYamlDsl } from '@kaoto/camel-catalog/types';
 import { fireEvent, render, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { parse } from 'yaml';
 
 import { CamelRouteResource } from '../../../../models/camel';
@@ -32,10 +33,10 @@ describe('FlowsMenu.tsx', () => {
     const dropdown = await wrapper.findByTestId('flows-list-dropdown');
 
     /** Open List */
-    fireEvent.click(dropdown);
+    await userEvent.click(dropdown);
 
     /** Wait for the List to appear */
-    const flowsList = wrapper.queryByTestId('flows-list-table');
+    const flowsList = await wrapper.findByTestId('flows-list-table');
     expect(flowsList).toBeInTheDocument();
   });
 
@@ -50,10 +51,10 @@ describe('FlowsMenu.tsx', () => {
     const dropdown = await wrapper.findByTestId('flows-list-dropdown');
 
     /** Open List */
-    fireEvent.click(dropdown);
+    await userEvent.click(dropdown);
 
     /** Wait for the List to appear */
-    const flowsList = wrapper.queryByTestId('flows-list-table');
+    const flowsList = await wrapper.findByTestId('flows-list-table');
     expect(flowsList).toBeInTheDocument();
   });
 
