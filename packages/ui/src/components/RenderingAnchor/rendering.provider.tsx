@@ -15,6 +15,12 @@ export const RenderingProvider: FunctionComponent<PropsWithChildren> = ({ childr
   const registeredComponents = useRef<({ key: string } & IRegisteredComponent)[]>([]);
 
   const registerComponent = useCallback((props: IRegisteredComponent) => {
+    const isRegistered = registeredComponents.current.some(
+      ({ anchor, activationFn, component }) =>
+        anchor === props.anchor && activationFn === props.activationFn && component === props.component,
+    );
+    if (isRegistered) return;
+
     const key = getCamelRandomId(props.anchor, 6);
     registeredComponents.current.push({ key, ...props });
   }, []);
