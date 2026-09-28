@@ -3,7 +3,6 @@ import { UndoIcon } from '@patternfly/react-icons';
 import { FunctionComponent } from 'react';
 
 interface IUndoIcon {
-  isVisible: boolean;
   onClick: () => void;
 }
 

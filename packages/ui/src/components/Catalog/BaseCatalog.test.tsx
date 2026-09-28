@@ -9,12 +9,7 @@ describe('BaseCatalog', () => {
     expect.assertions(1);
 
     const { container } = render(
-      <BaseCatalog
-        className="catalog__base"
-        tiles={longTileList}
-        catalogLayout={CatalogLayout.Gallery}
-        onTagClick={vi.fn()}
-      />,
+      <BaseCatalog tiles={longTileList} catalogLayout={CatalogLayout.Gallery} onTagClick={vi.fn()} />,
     );
 
     expect(container).toMatchSnapshot();
@@ -24,26 +19,14 @@ describe('BaseCatalog', () => {
     expect.assertions(1);
 
     const { container } = render(
-      <BaseCatalog
-        className="catalog__base"
-        tiles={longTileList}
-        catalogLayout={CatalogLayout.List}
-        onTagClick={vi.fn()}
-      />,
+      <BaseCatalog tiles={longTileList} catalogLayout={CatalogLayout.List} onTagClick={vi.fn()} />,
     );
 
     expect(container).toMatchSnapshot();
   });
 
   it('Render BaseCatalog with 60 tiles, 2 pages with 50 tiles on the 1st page and 10 tiles on the 2nd page', async () => {
-    render(
-      <BaseCatalog
-        className="catalog__base"
-        tiles={longTileList}
-        catalogLayout={CatalogLayout.List}
-        onTagClick={vi.fn()}
-      />,
-    );
+    render(<BaseCatalog tiles={longTileList} catalogLayout={CatalogLayout.List} onTagClick={vi.fn()} />);
 
     expect(screen.getByRole('spinbutton', { name: 'Current page' })).toHaveValue(1);
 
@@ -63,14 +46,7 @@ describe('BaseCatalog', () => {
   });
 
   it('Render BaseCatalog with 60 tiles, change per page setting to 20', async () => {
-    render(
-      <BaseCatalog
-        className="catalog__base"
-        tiles={longTileList}
-        catalogLayout={CatalogLayout.List}
-        onTagClick={vi.fn()}
-      />,
-    );
+    render(<BaseCatalog tiles={longTileList} catalogLayout={CatalogLayout.List} onTagClick={vi.fn()} />);
 
     expect(screen.getByRole('spinbutton', { name: 'Current page' })).toHaveValue(1);
 

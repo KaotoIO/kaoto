@@ -8,7 +8,6 @@ import { CatalogDataListItem } from './DataListItem';
 import { Tile } from './Tile';
 
 interface BaseCatalogProps {
-  className?: string;
   tiles: ITile[];
   catalogLayout: CatalogLayout;
   onTileClick?: (tile: ITile) => void;

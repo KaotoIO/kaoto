@@ -118,7 +118,6 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
         onSelectProvider={onSelectProvider}
       />
       <BaseCatalog
-        className="catalog__base"
         tiles={filteredTilesByGroup}
         catalogLayout={activeLayout}
         onTileClick={onTileClick}
