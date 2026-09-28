@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs';
 
 const CANDIDATES =
   process.platform === 'win32'
-    ? ['C:\\Program Files\\Git\\cmd\\git.exe']
+    ? [String.raw`C:\Program Files\Git\cmd\git.exe`]
     : ['/usr/bin/git', '/usr/local/bin/git', '/opt/homebrew/bin/git'];
 
 export const GIT_BIN = CANDIDATES.find((p) => existsSync(p));
