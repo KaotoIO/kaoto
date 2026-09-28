@@ -15,13 +15,18 @@ describe('useVisibleVizNodes', () => {
   const nodeA = { id: 'viz-a' } as IVisualizationNode;
   const nodeB = { id: 'viz-b' } as IVisualizationNode;
 
-  it('starts with an empty list and isResolving true before async resolution', () => {
+  it('starts with an empty list and isResolving true before async resolution', async () => {
     const entity = mockEntity('e1', nodeA);
     const entities = [entity];
     const visibleFlows: IVisibleFlows = { e1: true };
     const { result } = renderHook(() => useVisibleVizNodes(entities, visibleFlows));
     expect(result.current.vizNodes).toEqual([]);
     expect(result.current.isResolving).toBe(true);
+
+    // Wait for the async resolution to settle so it doesn't leak into subsequent tests
+    await waitFor(() => {
+      expect(result.current.isResolving).toBe(false);
+    });
   });
 
   it('resolves to viz nodes for entities that are visible in visibleFlows', async () => {
