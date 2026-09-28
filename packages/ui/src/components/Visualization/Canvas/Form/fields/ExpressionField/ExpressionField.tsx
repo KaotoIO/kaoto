@@ -47,7 +47,9 @@ const ExpressionFieldImpl: FunctionComponent<FieldProps & { promise: Promise<str
   const onExpressionChange = async (propName: string, model: unknown) => {
     let localValue = parsedModel ?? {};
 
-    await ExpressionService.updateExpressionFromModel(parsedModel, model as Record<string, unknown>, languageNames);
+    if (propName === ROOT_PATH) {
+      await ExpressionService.updateExpressionFromModel(parsedModel, model as Record<string, unknown>, languageNames);
+    }
     let updatedValue = model;
     if (typeof model === 'string' && model.trim() === '') {
       updatedValue = undefined;
