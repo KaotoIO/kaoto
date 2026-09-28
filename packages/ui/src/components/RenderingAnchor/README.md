@@ -130,14 +130,14 @@ Add your component registration to `RegisterComponents`:
 import { lazy } from 'react';
 import { yourFeatureActivationFn } from './your-feature.activationfn';
 
-const componentsToRegister = useRef<IRegisteredComponent[]>([
+const componentsToRegister: IRegisteredComponent[] = [
   // ... existing registrations
   {
     anchor: Anchors.YourNewAnchor,
     activationFn: yourFeatureActivationFn,
     component: lazy(() => import('../YourFeature/YourFeatureComponent')),
   },
-]);
+];
 ```
 
 ### Step 5: Create Your Component
