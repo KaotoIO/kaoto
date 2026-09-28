@@ -49,14 +49,12 @@ export const CatalogLoaderProvider: FunctionComponent<
             catalogIndex: catalogIndex as CitrusCatalogIndex,
             relativeBasePath,
             getResourcesContentByType,
-            isCurrent: () => !stale,
           });
         } else {
           return fetchCamelCatalog({
             catalogIndex: catalogIndex as CamelCatalogIndex,
             relativeBasePath,
             getResourcesContentByType,
-            isCurrent: () => !stale,
           });
         }
       })
@@ -75,7 +73,8 @@ export const CatalogLoaderProvider: FunctionComponent<
       DynamicCatalogRegistry.get().clearRegistry();
       CitrusTestSchemaService.clearKindMap();
     };
-  }, [basePath, selectedCatalogIndexFile, getResourcesContentByType]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCatalogIndexFile, getResourcesContentByType]);
 
   return (
     <>

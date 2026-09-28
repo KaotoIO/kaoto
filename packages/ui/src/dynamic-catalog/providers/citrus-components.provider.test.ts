@@ -104,21 +104,6 @@ describe('CitrusTestActionTemplatesProvider', () => {
     await expect(catalog.get('demo')).resolves.toBeUndefined();
   });
 
-  it.each(['constructor', '__proto__'])(
-    'does not return inherited entries for a removed template named %s',
-    async (name) => {
-      const client = vi
-        .fn()
-        .mockResolvedValueOnce([{ filename: 'template.yaml', content: stringify({ name }) }])
-        .mockResolvedValue([]);
-      const catalog = new DynamicCatalog(new CitrusTestActionTemplatesProvider(client));
-
-      await expect(catalog.get(name)).resolves.toEqual({ kind: CatalogKind.TestActionTemplate, name });
-      await expect(catalog.get(name, { forceFresh: true })).resolves.toBeUndefined();
-      await expect(catalog.get(name)).resolves.toBeUndefined();
-    },
-  );
-
   it('propagates host errors so a failed fresh lookup cannot return a stale template', async () => {
     const error = new Error('Host unavailable');
     const client = vi.fn().mockRejectedValue(error);

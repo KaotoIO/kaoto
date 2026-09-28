@@ -57,6 +57,7 @@ export const CatalogTilesProvider: FunctionComponent<PropsWithChildren> = (props
       catalogRegistry.getCatalog(CatalogKind.Kamelet)?.getAll({ forceFresh: true }),
       catalogRegistry.getCatalog(CatalogKind.TestAction)?.getAll(),
       templateCatalog?.getAll({ forceFresh: true }).catch((error) => {
+        templateCatalog.clearCache();
         console.error('Failed to fetch Citrus templates:', error);
         return undefined;
       }),

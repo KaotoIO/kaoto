@@ -20,14 +20,13 @@ import {
   CitrusTestValidationMatcherProvider,
 } from '../providers/citrus-components.provider';
 
-/** Loads and registers Citrus catalogs while the requesting context remains active. */
+/** Loads and registers Citrus catalogs, including host-provided test action templates. */
 export async function fetchCitrusCatalog(options: {
   catalogIndex: CitrusCatalogIndex;
   relativeBasePath: string;
   getResourcesContentByType?: (filetype: FileTypes) => Promise<FileTypesResponse[]>;
-  isCurrent?: () => boolean;
 }): Promise<void> {
-  const { catalogIndex, relativeBasePath, getResourcesContentByType, isCurrent } = options;
+  const { catalogIndex, relativeBasePath, getResourcesContentByType } = options;
 
   /** Citrus test actions */
   const actionsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.TestAction]>(
@@ -63,8 +62,6 @@ export async function fetchCitrusCatalog(options: {
       validationMatcherFiles,
       testRootSchemaFile,
     ]);
-
-  if (isCurrent && !isCurrent()) return;
 
   /**
    * Expose the root test schema as a catalog entity (mirroring Kamelet's `KameletConfiguration`)

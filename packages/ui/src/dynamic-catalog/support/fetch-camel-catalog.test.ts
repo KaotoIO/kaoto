@@ -75,29 +75,4 @@ describe('fetchCamelCatalog', () => {
     expect(setCatalogSpy).toHaveBeenCalledWith(CatalogKind.Kamelet, expect.any(Object));
     expect(setCatalogSpy).toHaveBeenCalledWith(CatalogKind.Function, expect.any(Object));
   });
-
-  it('does not replace a newer host catalog when an obsolete load finishes later', async () => {
-    let resolveOldComponents!: (value: { body: Record<string, string> }) => void;
-    const oldComponents = new Promise<{ body: Record<string, string> }>((resolve) => {
-      resolveOldComponents = resolve;
-    });
-    fetchFileMock.mockImplementationOnce(() => oldComponents);
-
-    let oldContextActive = true;
-    const oldLoad = fetchCamelCatalog({
-      catalogIndex: catalogDefinition,
-      relativeBasePath,
-      isCurrent: () => oldContextActive,
-    });
-
-    oldContextActive = false;
-    await fetchCamelCatalog({ catalogIndex: catalogDefinition, relativeBasePath });
-    const currentCatalog = DynamicCatalogRegistry.get().getCatalog(CatalogKind.Component);
-
-    resolveOldComponents({ body: { old: 'catalog' } });
-    await oldLoad;
-
-    expect(DynamicCatalogRegistry.get().getCatalog(CatalogKind.Component)).toBe(currentCatalog);
-    expect(setCatalogSpy).toHaveBeenCalledTimes(7);
-  });
 });

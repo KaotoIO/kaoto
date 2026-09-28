@@ -252,6 +252,47 @@ describe('CatalogTilesProvider', () => {
     consoleErrorSpy.mockRestore();
   });
 
+  it('retries loading templates after a temporary host failure', async () => {
+    const error = new Error('Template host unavailable');
+    const client = vi
+      .fn()
+      .mockRejectedValueOnce(error)
+      .mockResolvedValue([{ filename: 'prepare-order.citrus.yaml', content: stringify(template) }]);
+    mockRegistry.setCatalog(
+      CatalogKind.TestActionTemplate,
+      new DynamicCatalog(new CitrusTestActionTemplatesProvider(client)),
+    );
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.mocked(citrusComponentToTile).mockImplementation(async (component) => ({
+      type: component.kind,
+      name: component.name,
+      title: component.name,
+      tags: [],
+      iconUrl: '',
+    }));
+
+    const { result } = renderHook(() => useContext(CatalogTilesContext), {
+      wrapper: ({ children }) => (
+        <CatalogContext.Provider value={mockRegistry}>
+          <CatalogTilesProvider>{children}</CatalogTilesProvider>
+        </CatalogContext.Provider>
+      ),
+    });
+
+    await waitFor(() => {
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to fetch Citrus templates:', error);
+    });
+
+    const tiles = await result.current?.fetchTiles();
+
+    expect(client).toHaveBeenCalledTimes(2);
+    expect(tiles).toContainEqual(
+      expect.objectContaining({ type: CatalogKind.TestActionTemplate, name: template.name }),
+    );
+    expect(tiles).toContainEqual(expect.objectContaining({ type: CatalogKind.TestAction, name: 'print' }));
+    consoleErrorSpy.mockRestore();
+  });
+
   it('should avoid building the tiles if the catalog is empty', async () => {
     const emptyRegistry: IDynamicCatalogRegistry = {
       setCatalog: vi.fn(),

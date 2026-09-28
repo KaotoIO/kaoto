@@ -71,6 +71,7 @@ export const CatalogModalProvider: FunctionComponent<PropsWithChildren> = (props
         }
         selection?.resolve({ name: tile.name, type: tile.type as CatalogKind, definition });
       } catch (error) {
+        if (tile.type !== CatalogKind.TestActionTemplate) throw error;
         console.error(`Failed to load catalog entry ${tile.name}`, error);
         selection?.resolve(undefined);
       }

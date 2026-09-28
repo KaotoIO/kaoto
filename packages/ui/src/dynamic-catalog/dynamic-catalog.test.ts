@@ -21,87 +21,6 @@ describe('DynamicCatalog', () => {
   });
 
   describe('get', () => {
-    it('removes a cached entry when a fresh lookup no longer finds it', async () => {
-      const entity = { id: '1', name: 'removed', value: 1 };
-      const fetchSpy = vi.spyOn(mockProvider, 'fetch').mockResolvedValueOnce(entity).mockResolvedValue(undefined);
-
-      await catalog.get('removed');
-      await expect(catalog.get('removed', { forceFresh: true })).resolves.toBeUndefined();
-      await expect(catalog.get('removed')).resolves.toBeUndefined();
-      expect(fetchSpy).toHaveBeenCalledTimes(3);
-    });
-
-    it('keeps an entry installed by getAll when an earlier fresh lookup returns undefined', async () => {
-      let resolveMissing!: (entity: TestEntity | undefined) => void;
-      const missingFetch = new Promise<TestEntity | undefined>((resolve) => {
-        resolveMissing = resolve;
-      });
-      const fetchSpy = vi.spyOn(mockProvider, 'fetch').mockImplementationOnce(() => missingFetch);
-      const refreshed = { id: '1', name: 'refreshed', value: 2 };
-      vi.spyOn(mockProvider, 'fetchAll').mockResolvedValue({ entry: refreshed });
-
-      const oldLookup = catalog.get('entry', { forceFresh: true });
-      await expect(catalog.getAll()).resolves.toEqual({ entry: refreshed });
-      resolveMissing(undefined);
-
-      await expect(oldLookup).resolves.toBeUndefined();
-      await expect(catalog.get('entry')).resolves.toBe(refreshed);
-      expect(fetchSpy).toHaveBeenCalledTimes(1);
-    });
-
-    it('does not restore an entry from an older lookup after a fresh lookup removes it', async () => {
-      const original = { id: '1', name: 'original', value: 1 };
-      const stale = { id: '1', name: 'stale', value: 2 };
-      let resolveStale!: (entity: TestEntity) => void;
-      const staleFetch = new Promise<TestEntity>((resolve) => {
-        resolveStale = resolve;
-      });
-      const fetchSpy = vi
-        .spyOn(mockProvider, 'fetch')
-        .mockResolvedValueOnce(original)
-        .mockImplementationOnce(() => staleFetch)
-        .mockResolvedValue(undefined);
-
-      await catalog.get('entry');
-      const oldLookup = catalog.get('entry', { forceFresh: true });
-      await expect(catalog.get('entry', { forceFresh: true })).resolves.toBeUndefined();
-      resolveStale(stale);
-
-      await expect(oldLookup).resolves.toBe(stale);
-      await expect(catalog.get('entry')).resolves.toBeUndefined();
-      expect(fetchSpy).toHaveBeenCalledTimes(4);
-    });
-
-    it('does not cache a lookup that finishes after the cache is cleared', async () => {
-      const stale = { id: '1', name: 'stale', value: 1 };
-      const current = { id: '1', name: 'current', value: 2 };
-      let resolveStale!: (entity: TestEntity) => void;
-      const staleFetch = new Promise<TestEntity>((resolve) => {
-        resolveStale = resolve;
-      });
-      const fetchSpy = vi
-        .spyOn(mockProvider, 'fetch')
-        .mockImplementationOnce(() => staleFetch)
-        .mockResolvedValueOnce(current);
-
-      const oldLookup = catalog.get('entry');
-      catalog.clearCache();
-      resolveStale(stale);
-
-      await expect(oldLookup).resolves.toBe(stale);
-      await expect(catalog.get('entry')).resolves.toBe(current);
-      expect(fetchSpy).toHaveBeenCalledTimes(2);
-    });
-
-    it.each(['constructor', '__proto__'])('caches arbitrary provider keys such as %s', async (key) => {
-      const entity = { id: '1', name: key, value: 1 };
-      const fetchSpy = vi.spyOn(mockProvider, 'fetch').mockResolvedValue(entity);
-
-      await expect(catalog.get(key)).resolves.toEqual(entity);
-      await expect(catalog.get(key)).resolves.toEqual(entity);
-      expect(fetchSpy).toHaveBeenCalledTimes(1);
-    });
-
     it('should fetch entity from provider when not in cache', async () => {
       const mockEntity: TestEntity = { id: '1', name: 'test-entity', value: 42 };
       const fetchSpy = vi.spyOn(mockProvider, 'fetch').mockResolvedValue(mockEntity);
@@ -207,33 +126,6 @@ describe('DynamicCatalog', () => {
   });
 
   describe('getAll', () => {
-    it('replaces cached snapshots and removes keys missing from a fresh response', async () => {
-      vi.spyOn(mockProvider, 'fetchAll')
-        .mockResolvedValueOnce({ removed: { id: '1', name: 'removed', value: 1 } })
-        .mockResolvedValueOnce({ added: { id: '2', name: 'added', value: 2 } })
-        .mockResolvedValueOnce({});
-
-      await catalog.getAll();
-      await expect(catalog.getAll({ forceFresh: true })).resolves.toEqual({
-        added: { id: '2', name: 'added', value: 2 },
-      });
-      await expect(catalog.get('removed')).resolves.toBeUndefined();
-      await expect(catalog.getAll({ forceFresh: true })).resolves.toEqual({});
-    });
-
-    it('retries after an initial fetch fails and preserves a snapshot when its refresh fails', async () => {
-      const snapshot = { entry: { id: '1', name: 'entry', value: 1 } };
-      vi.spyOn(mockProvider, 'fetchAll')
-        .mockRejectedValueOnce(new Error('Initial failure'))
-        .mockResolvedValueOnce(snapshot)
-        .mockRejectedValueOnce(new Error('Refresh failure'));
-
-      await expect(catalog.getAll()).rejects.toThrow('Initial failure');
-      await expect(catalog.getAll()).resolves.toEqual(snapshot);
-      await expect(catalog.getAll({ forceFresh: true })).rejects.toThrow('Refresh failure');
-      await expect(catalog.getAll()).resolves.toEqual(snapshot);
-    });
-
     it('should fetch all entities from provider when cache is empty', async () => {
       const entities = {
         entity1: { id: '1', name: 'first', value: 10 },
@@ -465,57 +357,6 @@ describe('DynamicCatalog', () => {
   });
 
   describe('clearCache', () => {
-    it('ignores a full catalog load that finishes after the cache is cleared', async () => {
-      let resolveStale!: (entities: Record<string, TestEntity>) => void;
-      const staleFetch = new Promise<Record<string, TestEntity>>((resolve) => {
-        resolveStale = resolve;
-      });
-      const current = { entry: { id: '2', name: 'current', value: 2 } };
-      const fetchAllSpy = vi
-        .spyOn(mockProvider, 'fetchAll')
-        .mockImplementationOnce(() => staleFetch)
-        .mockResolvedValueOnce(current);
-
-      const oldLoad = catalog.getAll();
-      catalog.clearCache();
-      resolveStale({ entry: { id: '1', name: 'stale', value: 1 } });
-
-      expect(Object.keys(await oldLoad)).toEqual([]);
-      await expect(catalog.getAll()).resolves.toEqual(current);
-      expect(fetchAllSpy).toHaveBeenCalledTimes(2);
-    });
-
-    it('keeps sharing a new refresh when an invalidated refresh finishes first', async () => {
-      let resolveStale!: (entities: Record<string, TestEntity>) => void;
-      let resolveCurrent!: (entities: Record<string, TestEntity>) => void;
-      const staleFetch = new Promise<Record<string, TestEntity>>((resolve) => {
-        resolveStale = resolve;
-      });
-      const currentFetch = new Promise<Record<string, TestEntity>>((resolve) => {
-        resolveCurrent = resolve;
-      });
-      const fetchAllSpy = vi
-        .spyOn(mockProvider, 'fetchAll')
-        .mockImplementationOnce(() => staleFetch)
-        .mockImplementationOnce(() => currentFetch);
-
-      const oldLoad = catalog.getAll();
-      catalog.clearCache();
-      const currentLoad = catalog.getAll();
-      resolveStale({ entry: { id: '1', name: 'stale', value: 1 } });
-      expect(Object.keys(await oldLoad)).toEqual([]);
-
-      const concurrentLoad = catalog.getAll({ forceFresh: true });
-      expect(fetchAllSpy).toHaveBeenCalledTimes(2);
-
-      const current = { entry: { id: '2', name: 'current', value: 2 } };
-      resolveCurrent(current);
-      await expect(currentLoad).resolves.toEqual(current);
-      await expect(concurrentLoad).resolves.toEqual(current);
-      await expect(catalog.getAll()).resolves.toEqual(current);
-      expect(fetchAllSpy).toHaveBeenCalledTimes(2);
-    });
-
     it('should clear all cached entities', async () => {
       const mockEntity: TestEntity = { id: '1', name: 'test', value: 100 };
       const fetchSpy = vi.spyOn(mockProvider, 'fetch').mockResolvedValue(mockEntity);

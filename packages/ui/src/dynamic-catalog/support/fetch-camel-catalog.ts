@@ -12,14 +12,12 @@ import {
 } from '../providers/camel-components.provider';
 import { CamelKameletsProvider } from '../providers/camel-kamelets.provider';
 
-/** Loads and registers Camel catalogs while the requesting context remains active. */
 export async function fetchCamelCatalog(options: {
   catalogIndex: CamelCatalogIndex;
   relativeBasePath: string;
   getResourcesContentByType?: (filetype: FileTypes) => Promise<FileTypesResponse[]>;
-  isCurrent?: () => boolean;
 }): Promise<void> {
-  const { catalogIndex, relativeBasePath, getResourcesContentByType, isCurrent } = options;
+  const { catalogIndex, relativeBasePath, getResourcesContentByType } = options;
 
   /** Camel Component list */
   const camelComponentsFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.Component]>(
@@ -73,8 +71,6 @@ export async function fetchCamelCatalog(options: {
     kameletBoundariesFiles,
     functionsFiles,
   ]);
-
-  if (isCurrent && !isCurrent()) return;
 
   DynamicCatalogRegistry.get().setCatalog(
     CatalogKind.Component,
