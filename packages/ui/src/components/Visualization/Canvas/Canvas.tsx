@@ -1,6 +1,6 @@
 import './Canvas.scss';
 
-import { CatalogIcon } from '@patternfly/react-icons';
+import { CatalogIcon, ExpandIcon, SearchMinusIcon, SearchPlusIcon } from '@patternfly/react-icons';
 import {
   action,
   createTopologyControlButtons,
@@ -181,12 +181,15 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     return createTopologyControlButtons({
       ...defaultControlButtonsOptions,
       fitToScreen: false,
+      zoomInIcon: <SearchPlusIcon />,
       zoomInCallback: action(() => {
         controller.getGraph().scaleBy(4 / 3);
       }),
+      zoomOutIcon: <SearchMinusIcon />,
       zoomOutCallback: action(() => {
         controller.getGraph().scaleBy(3 / 4);
       }),
+      resetViewIcon: <ExpandIcon />,
       resetViewCallback: action(() => {
         controller.getGraph().reset();
         controller.getGraph().layout();
