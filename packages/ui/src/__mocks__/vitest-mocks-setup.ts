@@ -3,9 +3,101 @@ import React from 'react';
 // This file contains all vi.mock() calls and runs before other setup files
 // to ensure mocks are properly hoisted
 
+// Mock Carbon's Toggletip with a passthrough that renders its children but
+// avoids activating @floating-ui/react's useFloating (which happens when
+// Toggletip's underlying Popover has autoAlign set). In React 19's act(), the
+// useFloating → computePosition → flushSync(setData) chain loops indefinitely
+// via recursivelyFlushAsyncActWork and prevents tests from settling in jsdom.
+//
+// @kaoto/forms is inlined by vitest (server.deps.inline in vitest.config.mts),
+// so its @carbon/react imports resolve inside this environment. The identical
+// mock in @kaoto/forms' own vitest-setup.ts has no effect here.
+vi.mock('@carbon/react', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@carbon/react')>();
+  const React = await import('react');
+
+  // MenuButton positions its popup with floating-ui. Unit tests only need its
+  // trigger and action callbacks, so avoid the positioning work in jsdom.
+  const MockMenuButtonContext = React.createContext(false);
+  const MenuButton = React.forwardRef<
+    HTMLDivElement,
+    React.ComponentProps<typeof actual.MenuButton> & { 'data-testid'?: string }
+  >(({ label, children, 'data-testid': testId }, ref) => {
+    const [open, setOpen] = React.useState(false);
+    return React.createElement(
+      'div',
+      { ref, 'data-testid': testId },
+      React.createElement(
+        'button',
+        {
+          type: 'button',
+          onClick: () => {
+            setOpen(!open);
+          },
+        },
+        label,
+      ),
+      open &&
+        React.createElement(
+          'ul',
+          { role: 'menu' },
+          React.createElement(MockMenuButtonContext.Provider, { value: true }, children),
+        ),
+    );
+  });
+  MenuButton.displayName = 'MenuButton';
+
+  const MenuItem = React.forwardRef<
+    HTMLLIElement,
+    React.ComponentProps<typeof actual.MenuItem> & { 'data-testid'?: string }
+  >((props, ref) => {
+    if (!React.useContext(MockMenuButtonContext)) {
+      return React.createElement(actual.MenuItem, { ...props, ref });
+    }
+
+    const { label, children, disabled, onClick, 'data-testid': testId } = props;
+    return React.createElement(
+      'li',
+      {
+        ref,
+        role: 'menuitem',
+        'aria-disabled': disabled || undefined,
+        'data-testid': testId,
+        onClick: disabled ? undefined : onClick,
+      },
+      label,
+      children,
+    );
+  });
+  MenuItem.displayName = 'MenuItem';
+
+  const MenuItemDivider = () =>
+    React.useContext(MockMenuButtonContext)
+      ? React.createElement('li', { role: 'separator' })
+      : React.createElement(actual.MenuItemDivider);
+  MenuItemDivider.displayName = 'MenuItemDivider';
+
+  // Simple passthrough: renders children directly, content always visible.
+  // ToggletipButton forwards its `label` prop as aria-label so tests using
+  // getByLabelText() can still locate the button.
+  const Toggletip: React.FC<React.ComponentProps<typeof actual.Toggletip>> = ({ children }) =>
+    React.createElement(React.Fragment, null, children);
+  Toggletip.displayName = 'Toggletip';
+
+  const ToggletipButton: React.FC<React.ComponentProps<typeof actual.ToggletipButton>> = ({ label, children }) =>
+    React.createElement('button', { type: 'button', 'aria-label': label }, children);
+  ToggletipButton.displayName = 'ToggletipButton';
+
+  const ToggletipContent: React.FC<React.ComponentProps<typeof actual.ToggletipContent>> = ({ children }) =>
+    React.createElement(React.Fragment, null, children);
+  ToggletipContent.displayName = 'ToggletipContent';
+
+  return { ...actual, MenuButton, MenuItem, MenuItemDivider, Toggletip, ToggletipButton, ToggletipContent };
+});
+
 // Mock @patternfly/react-icons to avoid ESM resolution issues
-vi.mock('@patternfly/react-icons', () => {
-  const React = require('react');
+vi.mock('@patternfly/react-icons', async () => {
+  const React = await import('react');
   const createMockIcon = (name: string) => (props: React.SVGProps<SVGSVGElement>) =>
     React.createElement('svg', { 'data-testid': name, role: 'img', ...props }, React.createElement('path'));
   return {
@@ -41,6 +133,7 @@ vi.mock('@patternfly/react-icons', () => {
     ExclamationCircleIcon: createMockIcon('exclamation-circle-icon'),
     ExclamationTriangleIcon: createMockIcon('exclamation-triangle-icon'),
     ExpandArrowsAltIcon: createMockIcon('expand-arrows-alt-icon'),
+    ExpandIcon: createMockIcon('expand-icon'),
     ExportIcon: createMockIcon('export-icon'),
     ExternalLinkAltIcon: createMockIcon('external-link-alt-icon'),
     EyeIcon: createMockIcon('eye-icon'),
@@ -82,13 +175,14 @@ vi.mock('@patternfly/react-icons', () => {
 
 // Mock hotkeys-js to avoid ESM resolution issues
 vi.mock('hotkeys-js', () => {
-  const hotkeyMock = vi.fn();
-  hotkeyMock.unbind = vi.fn();
-  hotkeyMock.setScope = vi.fn();
-  hotkeyMock.getScope = vi.fn();
-  hotkeyMock.deleteScope = vi.fn();
-  hotkeyMock.noConflict = vi.fn();
-  hotkeyMock.filter = vi.fn();
+  const hotkeyMock = Object.assign(vi.fn(), {
+    unbind: vi.fn(),
+    setScope: vi.fn(),
+    getScope: vi.fn(),
+    deleteScope: vi.fn(),
+    noConflict: vi.fn(),
+    filter: vi.fn(),
+  });
 
   return {
     __esModule: true,

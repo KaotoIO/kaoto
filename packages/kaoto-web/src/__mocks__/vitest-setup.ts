@@ -114,7 +114,9 @@ vi.spyOn(console, 'warn').mockImplementation((...args) => {
 function rafMock(callback: FrameRequestCallback): number {
   // Execute in next microtask to avoid stack overflow from animation loops (e.g., d3-timer)
   // while still being fast and deterministic
-  queueMicrotask(() => callback(performance.now()));
+  queueMicrotask(() => {
+    callback(performance.now());
+  });
   return 0;
 }
 

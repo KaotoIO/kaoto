@@ -1,5 +1,6 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { ReactNode, useMemo, useState } from 'react';
+import type { Mock } from 'vitest';
 
 import { ModelContextProvider } from '../providers/ModelProvider';
 import { SchemaProvider } from '../providers/SchemaProvider';
@@ -7,7 +8,7 @@ import { SuggestionContext } from '../providers/SuggestionRegistryProvider';
 import { ROOT_PATH } from '../utils';
 import { TextAreaField } from './TextAreaField';
 
-const StatefulSuggestionProvider = ({ children, getProviders }: { children: ReactNode; getProviders: vi.Mock }) => {
+const StatefulSuggestionProvider = ({ children, getProviders }: { children: ReactNode; getProviders: Mock }) => {
   const [currentOpenMenu, setCurrentOpenMenu] = useState<string | null>(null);
   const contextValue = useMemo(
     () => ({ getProviders, currentOpenMenu, setCurrentOpenMenu }),

@@ -1,4 +1,5 @@
-import { KaotoSchemaDefinition } from '../models';
+import type { JSONSchema4 } from 'json-schema';
+
 import { getValidator } from './get-validator';
 
 describe('getValidator', () => {

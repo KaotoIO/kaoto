@@ -7,7 +7,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: ['./vitest-setup.ts'],
+    setupFiles: ['./src/__mocks__/vitest-setup.ts'],
     include: ['**/?(*.)+(test).[tj]s?(x)'],
     testTimeout: 10_000,
     hookTimeout: 20_000,
