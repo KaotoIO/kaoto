@@ -1,10 +1,15 @@
 .canvas-form {
+  display: flex;
+  flex-direction: column;
   height: 100%;
 
-  &__body {
-    overflow: auto;
+  &__header {
+    padding: var(--cds-spacing-05);
+  }
 
-    /** Added a transparent border to the card body. [https://github.com/KaotoIO/kaoto/issues/2053] */
-    border: var(--pf-v6-c-card--BorderWidth) var(--pf-v6-c-card--BorderStyle) transparent;
+  &__body {
+    flex: 1;
+    overflow: hidden auto;
+    padding: 0 var(--cds-spacing-05) var(--cds-spacing-05);
   }
 }

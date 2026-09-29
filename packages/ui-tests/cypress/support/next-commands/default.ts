@@ -147,9 +147,7 @@ Cypress.Commands.add('openSettings', () => {
 Cypress.Commands.add('selectIntegrationRuntime', (catalogName: string) => {
   cy.openSettings();
 
-  cy.get('[data-testid="#.runtimeCatalogName-catalog-selector-toggle"]').should('be.visible').click();
-
-  cy.contains('.pf-v6-c-menu__item', catalogName, { timeout: 10000 }).should('be.visible').click();
+  cy.get('[data-testid="#.runtimeCatalogName-catalog-selector-toggle"]').should('be.visible').select(catalogName);
 
   cy.get('[data-testid="settings-form-save-btn"]').click();
   cy.waitSchemasLoading();
@@ -158,9 +156,7 @@ Cypress.Commands.add('selectIntegrationRuntime', (catalogName: string) => {
 Cypress.Commands.add('selectTestingRuntime', (catalogName: string) => {
   cy.openSettings();
 
-  cy.get('[data-testid="#.testingCatalogName-catalog-selector-toggle"]').should('be.visible').click();
-
-  cy.contains('.pf-v6-c-menu__item', catalogName, { timeout: 10000 }).should('be.visible').click();
+  cy.get('[data-testid="#.testingCatalogName-catalog-selector-toggle"]').should('be.visible').select(catalogName);
 
   cy.get('[data-testid="settings-form-save-btn"]').click();
   cy.waitSchemasLoading();
@@ -171,13 +167,23 @@ Cypress.Commands.add('verifySelectedRuntime', (expectedName: string) => {
 });
 
 Cypress.Commands.add('selectRuntimeVersion', (type: string, version?: string) => {
-  const catalogName = version ? `Camel ${type} ${version}` : `Camel ${type}`;
-
   cy.openSettings();
 
-  cy.get('[data-testid="#.runtimeCatalogName-catalog-selector-toggle"]').should('be.visible').click();
-
-  cy.contains('.pf-v6-c-menu__item', catalogName, { timeout: 10000 }).should('be.visible').click();
+  if (version) {
+    cy.get('[data-testid="#.runtimeCatalogName-catalog-selector-toggle"]')
+      .should('be.visible')
+      .select(`Camel ${type} ${version}`);
+  } else {
+    // Select the first option that contains the runtime name (e.g. "Camel Quarkus" or "Camel Spring Boot")
+    cy.get('[data-testid="#.runtimeCatalogName-catalog-selector-toggle"]')
+      .should('be.visible')
+      .find('option')
+      .filter((_index, option) => (option.textContent ?? '').includes(`Camel ${type}`))
+      .first()
+      .then((option) => {
+        cy.get('[data-testid="#.runtimeCatalogName-catalog-selector-toggle"]').select(option.val() as string);
+      });
+  }
 
   cy.get('[data-testid="settings-form-save-btn"]').click();
   cy.waitSchemasLoading();

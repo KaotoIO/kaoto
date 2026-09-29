@@ -41,10 +41,10 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      const menuButton = await screen.findByRole('button', { name: 'Actions' });
       fireEvent.click(menuButton);
 
-      const addRestConfigButton = screen.getByText('Add Configuration').closest('li');
+      const addRestConfigButton = screen.queryByText('Add Configuration')?.closest('li');
       expect(addRestConfigButton).toHaveAttribute('aria-disabled', 'true');
     });
 
@@ -67,10 +67,10 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      const menuButton = await screen.findByRole('button', { name: 'Actions' });
       fireEvent.click(menuButton);
 
-      const addRestConfigButton = screen.getByText('Add Configuration').closest('li');
+      const addRestConfigButton = screen.queryByText('Add Configuration')?.closest('li');
       expect(addRestConfigButton).not.toHaveAttribute('aria-disabled', 'true');
     });
 
@@ -106,10 +106,10 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      const menuButton = await screen.findByRole('button', { name: 'Actions' });
       fireEvent.click(menuButton);
 
-      const addRestButton = screen.getByText('Add Service').closest('li');
+      const addRestButton = screen.queryByText('Add Service')?.closest('li');
       expect(addRestButton).not.toHaveAttribute('aria-disabled', 'true');
     });
 
@@ -134,10 +134,10 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      const menuButton = await screen.findByRole('button', { name: 'Actions' });
       fireEvent.click(menuButton);
 
-      const addRestButton = screen.getByText('Add Service').closest('li');
+      const addRestButton = screen.queryByText('Add Service')?.closest('li');
       expect(addRestButton).not.toHaveAttribute('aria-disabled', 'true');
     });
 
@@ -173,10 +173,10 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      const menuButton = await screen.findByRole('button', { name: 'Actions' });
       fireEvent.click(menuButton);
 
-      const addMethodButton = screen.getByText('Add Operation').closest('li');
+      const addMethodButton = screen.queryByText('Add Operation')?.closest('li');
       expect(addMethodButton).toHaveAttribute('aria-disabled', 'true');
     });
 
@@ -206,10 +206,10 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      const menuButton = await screen.findByRole('button', { name: 'Actions' });
       fireEvent.click(menuButton);
 
-      const addMethodButton = screen.getByText('Add Operation').closest('li');
+      const addMethodButton = screen.queryByText('Add Operation')?.closest('li');
       expect(addMethodButton).toHaveAttribute('aria-disabled', 'true');
     });
 
@@ -242,10 +242,10 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      const menuButton = await screen.findByRole('button', { name: 'Actions' });
       fireEvent.click(menuButton);
 
-      const addMethodButton = screen.getByText('Add Operation').closest('li');
+      const addMethodButton = screen.queryByText('Add Operation')?.closest('li');
       expect(addMethodButton).not.toHaveAttribute('aria-disabled', 'true');
     });
 
@@ -278,10 +278,10 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      const menuButton = await screen.findByRole('button', { name: 'Actions' });
       fireEvent.click(menuButton);
 
-      const addMethodButton = screen.getByText('Add Operation').closest('li');
+      const addMethodButton = screen.queryByText('Add Operation')?.closest('li');
       expect(addMethodButton).not.toHaveAttribute('aria-disabled', 'true');
     });
 
@@ -318,10 +318,10 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      const menuButton = await screen.findByRole('button', { name: 'Actions' });
       fireEvent.click(menuButton);
 
-      const addMethodButton = screen.getByText('Add Operation').closest('li');
+      const addMethodButton = screen.queryByText('Add Operation')?.closest('li');
       expect(addMethodButton).toHaveAttribute('aria-disabled', 'true');
     });
 
@@ -368,10 +368,10 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      const menuButton = await screen.findByRole('button', { name: 'Actions' });
       fireEvent.click(menuButton);
 
-      const deleteButton = screen.getByText('Delete').closest('li');
+      const deleteButton = screen.queryByText('Delete')?.closest('li');
       expect(deleteButton).toHaveAttribute('aria-disabled', 'true');
     });
 
@@ -399,10 +399,10 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      const menuButton = await screen.findByRole('button', { name: 'Actions' });
       fireEvent.click(menuButton);
 
-      const deleteButton = screen.getByText('Delete').closest('li');
+      const deleteButton = screen.queryByText('Delete')?.closest('li');
       expect(deleteButton).not.toHaveAttribute('aria-disabled', 'true');
     });
 

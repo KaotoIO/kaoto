@@ -1,5 +1,5 @@
+import { Button } from '@carbon/react';
 import { FieldProps, FieldWrapper, SchemaContext, Typeahead, useFieldValue } from '@kaoto/forms';
-import { Button, InputGroup, InputGroupItem } from '@patternfly/react-core';
 import { FunctionComponent, useContext, useEffect, useState } from 'react';
 
 import { EntitiesContext } from '../../../../../providers/entities.provider';
@@ -42,8 +42,8 @@ export const DirectEndpointNameField: FunctionComponent<FieldProps> = ({ propNam
       description={schema.description}
       defaultValue={schema.default?.toString()}
     >
-      <InputGroup>
-        <InputGroupItem isFill>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
+        <div style={{ flex: 1 }}>
           <Typeahead
             aria-label={schema.title ?? propName}
             data-testid={propName}
@@ -63,13 +63,11 @@ export const DirectEndpointNameField: FunctionComponent<FieldProps> = ({ propNam
             disabled={disabled}
             allowCustomInput
           />
-        </InputGroupItem>
-        <InputGroupItem>
-          <Button variant="secondary" onClick={onCreateRoute} isDisabled={!canCreateRoute}>
-            Create Route
-          </Button>
-        </InputGroupItem>
-      </InputGroup>
+        </div>
+        <Button kind="secondary" onClick={onCreateRoute} disabled={!canCreateRoute}>
+          Create Route
+        </Button>
+      </div>
     </FieldWrapper>
   );
 };

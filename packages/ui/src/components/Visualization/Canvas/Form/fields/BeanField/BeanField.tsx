@@ -10,6 +10,7 @@ import {
   useFieldValue,
 } from '@kaoto/forms';
 import { FunctionComponent, Suspense, use, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 import { KaotoSchemaDefinition } from '../../../../../../models/kaoto-schema';
 import { BeansEntityHandler } from '../../../../../../models/visualization/metadata/beans-entity-handler';
@@ -103,7 +104,7 @@ const BeanFieldBase: FunctionComponent<BeanFieldProps> = ({
 
   const onItemChange = useCallback(
     (item?: TypeaheadItem<string>) => {
-      onChange(item!.name);
+      onChange(item?.name);
     },
     [onChange],
   );
@@ -189,18 +190,21 @@ const BeanFieldBase: FunctionComponent<BeanFieldProps> = ({
         />
       </FieldWrapper>
 
-      {isOpen && beanSchemaPromiseRef.current && (
-        <Suspense fallback={<Loading />}>
-          <NewBeanModalWithSchema
-            beanSchemaPromise={beanSchemaPromiseRef.current}
-            beanName={beanName}
-            propertyTitle={schema.title ?? ''}
-            javaType={javaType}
-            onCreateBean={handleCreateBean}
-            onCancelCreateBean={handleCancelCreateBean}
-          />
-        </Suspense>
-      )}
+      {isOpen &&
+        beanSchemaPromiseRef.current &&
+        createPortal(
+          <Suspense fallback={<Loading />}>
+            <NewBeanModalWithSchema
+              beanSchemaPromise={beanSchemaPromiseRef.current}
+              beanName={beanName}
+              propertyTitle={schema.title ?? ''}
+              javaType={javaType}
+              onCreateBean={handleCreateBean}
+              onCancelCreateBean={handleCancelCreateBean}
+            />
+          </Suspense>,
+          document.body,
+        )}
     </>
   );
 };

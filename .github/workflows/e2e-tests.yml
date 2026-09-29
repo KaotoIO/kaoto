@@ -28,7 +28,10 @@ jobs:
       - name: 🔧 Install dependencies
         run: yarn install --immutable --mode=skip-build
 
-      - name: Build packages
+      - name: Build @kaoto/forms package
+        run: yarn workspace @kaoto/forms run build
+
+      - name: Build @kaoto/kaoto package
         run: yarn workspace @kaoto/kaoto run build:dev
 
       # Build lib

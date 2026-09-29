@@ -1,3 +1,20 @@
-.uri-group {
-  text-transform: none;
+.uri-field-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.uri-field-icon {
+  flex-shrink: 0;
+  align-self: center;
+  color: var(--cds-icon-secondary);
+}
+
+.uri-field-input-wrapper {
+  flex: 1;
+}
+
+.uri-field-input {
+  font-family: var(--cds-code-01-font-family, 'IBM Plex Mono', monospace);
+  font-size: var(--cds-code-01-font-size, 0.75rem);
 }

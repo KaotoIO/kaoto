@@ -95,7 +95,7 @@ describe('EndpointListField', () => {
     );
 
     return {
-      getTable: () => screen.getByRole('grid', { name: 'endpoint-table' }),
+      getTable: () => screen.getByRole('table', { name: 'endpoint-table' }),
       getAddButton: () => screen.getByTestId('create-new-endpoint-btn'),
     };
   };
@@ -181,14 +181,14 @@ describe('EndpointListField', () => {
       await renderField({ endpoints: testModel.endpoints }, testModel);
 
       // Check for edit button
-      const editButton = screen.getByTestId('endpoint-edit-0-btn');
+      expect(screen.getByTestId('endpoint-edit-0-btn')).toBeInTheDocument();
+      const editButton = screen.getByLabelText('Edit httpClient');
       expect(editButton).toBeInTheDocument();
-      expect(editButton).toHaveAttribute('title', 'Edit httpClient');
 
       // Check for delete button
-      const deleteButton = screen.getByTestId('endpoint-delete-0-btn');
+      expect(screen.getByTestId('endpoint-delete-0-btn')).toBeInTheDocument();
+      const deleteButton = screen.getByLabelText('Delete httpClient');
       expect(deleteButton).toBeInTheDocument();
-      expect(deleteButton).toHaveAttribute('title', 'Delete httpClient');
     });
 
     it('should render with required prop', async () => {
@@ -551,7 +551,7 @@ describe('EndpointListField', () => {
       });
 
       // Table should still be present but empty
-      const table = screen.getByRole('grid', { name: 'endpoint-table' });
+      const table = screen.getByRole('table', { name: 'endpoint-table' });
       expect(table).toBeInTheDocument();
     });
 
@@ -829,7 +829,10 @@ describe('EndpointListField', () => {
         expect(screen.getByTestId('tile-header-http-client')).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByTestId('tile-header-http-client'));
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('tile-header-http-client'));
+      });
 
       // Confirm without filling in a name — the guard in handleCreateOrEdit returns early
       const confirmButton = screen.getByTestId('endpoint-modal-confirm-btn');

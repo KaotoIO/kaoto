@@ -7,23 +7,19 @@ exports[`CanvasSideBar > displays selected node information 1`] = `
     role="dialog"
   >
     <div
-      class="pf-v6-c-card canvas-form"
-      data-ouia-component-id="OUIA-Generated-Card-_r_0_"
-      data-ouia-component-type="PF6/Card"
-      data-ouia-safe="true"
-      id=""
+      class="cds--layer-two canvas-sidebar__layer"
     >
       <div
-        class="pf-v6-c-card__header"
+        class="canvas-form"
       >
         <div
-          class="pf-v6-c-card__header-main"
+          class="canvas-form__header"
         >
           <div
-            class="pf-v6-l-grid pf-m-gutter"
+            class="form-header-row"
           >
             <div
-              class="pf-v6-l-grid__item pf-m-11-col form-header"
+              class="form-header"
             >
               <img
                 alt="timer"
@@ -31,189 +27,217 @@ exports[`CanvasSideBar > displays selected node information 1`] = `
                 src="/src/assets/components/timer.svg"
               />
               <h2
-                class="pf-v6-c-title pf-m-h2 form-header__title"
-                data-ouia-component-id="OUIA-Generated-Title-_r_2_"
-                data-ouia-component-type="PF6/Title"
-                data-ouia-safe="true"
+                class="form-header__title"
               >
                 timer
               </h2>
             </div>
-            <div
-              class="pf-v6-l-grid__item pf-m-1-col canvas-header-close"
+            <span
+              class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
             >
-              <button
-                class="pf-v6-c-button pf-m-plain"
-                data-ouia-component-id="OUIA-Generated-Button-plain-_r_3_"
-                data-ouia-component-type="PF6/Button"
-                data-ouia-safe="true"
-                data-testid="close-side-bar"
-                type="button"
+              <div
+                class="cds--tooltip-trigger__wrapper"
               >
-                <span
-                  class="pf-v6-c-button__icon"
-                >
-                  <svg
-                    data-testid="times-icon"
-                    role="img"
-                  >
-                    <path />
-                  </svg>
-                </span>
-              </button>
-            </div>
-          </div>
-          <div
-            aria-label="Single selectable form tabs"
-            class="pf-v6-c-toggle-group form-tabs"
-            role="group"
-          >
-            <div
-              class="pf-v6-c-toggle-group__item"
-              title="Shows Required fields only"
-            >
-              <button
-                aria-pressed="true"
-                class="pf-v6-c-toggle-group__button pf-m-selected"
-                id="Required"
-                type="button"
-              >
-                <span
-                  class="pf-v6-c-toggle-group__text"
-                >
-                  Required
-                </span>
-              </button>
-            </div>
-            <div
-              class="pf-v6-c-toggle-group__item"
-              title="Shows All fields"
-            >
-              <button
-                aria-pressed="false"
-                class="pf-v6-c-toggle-group__button"
-                id="All"
-                type="button"
-              >
-                <span
-                  class="pf-v6-c-toggle-group__text"
-                >
-                  All
-                </span>
-              </button>
-            </div>
-            <div
-              class="pf-v6-c-toggle-group__item"
-              title="Shows Modified fields only"
-            >
-              <button
-                aria-pressed="false"
-                class="pf-v6-c-toggle-group__button"
-                id="Modified"
-                type="button"
-              >
-                <span
-                  class="pf-v6-c-toggle-group__text"
-                >
-                  Modified
-                </span>
-              </button>
-            </div>
-          </div>
-          <div
-            class="pf-v6-c-text-input-group filter-fields"
-            data-testid="filter-fields"
-          >
-            <div
-              class="pf-v6-c-text-input-group__main pf-m-icon"
-            >
-              <span
-                class="pf-v6-c-text-input-group__text"
-              >
-                <span
-                  class="pf-v6-c-text-input-group__icon"
+                <button
+                  aria-labelledby="tooltip-_r_1_"
+                  class="canvas-header-close cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+                  data-testid="close-side-bar"
+                  type="button"
                 >
                   <svg
                     aria-hidden="true"
-                    class="pf-v6-svg"
                     fill="currentColor"
-                    height="1em"
-                    role="img"
-                    width="1em"
+                    focusable="false"
+                    height="16"
+                    preserveAspectRatio="xMidYMid meet"
+                    viewBox="0 0 32 32"
+                    width="16"
+                    xmlns="http://www.w3.org/2000/svg"
                   >
-                    <svg
-                      class="pf-v6-icon-default"
-                      viewBox="0 0 512 512"
-                    >
-                      <path
-                        d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
-                      />
-                    </svg>
-                    <svg
-                      class="pf-v6-icon-rh-ui"
-                      viewBox="0 0 32 32"
-                    >
-                      <path
-                        d="m30.796 29.205-8.557-8.557A11.945 11.945 0 0 0 25 13c0-6.617-5.383-12-12-12S1 6.383 1 13s5.383 12 12 12c2.904 0 5.57-1.038 7.648-2.761l8.556 8.556a1.122 1.122 0 0 0 1.592 0 1.127 1.127 0 0 0 0-1.591ZM3 13C3 7.486 7.486 3 13 3s10 4.486 10 10-4.486 10-10 10S3 18.514 3 13Z"
-                      />
-                    </svg>
+                    <path
+                      d="M17.4141 16L24 9.4141 22.5859 8 16 14.5859 9.4143 8 8 9.4141 14.5859 16 8 22.5859 9.4143 24 16 17.4141 22.5859 24 24 22.5859 17.4141 16z"
+                    />
                   </svg>
+                </button>
+              </div>
+              <span
+                aria-hidden="true"
+                class="cds--popover"
+                id="tooltip-_r_1_"
+                role="tooltip"
+              >
+                <span
+                  class="cds--popover-content cds--tooltip-content"
+                >
+                  Close
                 </span>
-                <input
-                  aria-label="Search input"
-                  class="pf-v6-c-text-input-group__text-input"
-                  placeholder="Find properties by name"
-                  type="text"
-                  value=""
+                <span
+                  class="cds--popover-caret"
                 />
               </span>
-            </div>
+            </span>
           </div>
-        </div>
-      </div>
-      <div
-        class="pf-v6-c-card__body canvas-form__body"
-      >
-        <div
-          class="pf-v6-c-card"
-          data-ouia-component-id="OUIA-Generated-Card-_r_4_"
-          data-ouia-component-type="PF6/Card"
-          data-ouia-safe="true"
-          id=""
-        >
           <div
-            class="pf-v6-c-card__header"
+            aria-label="Single selectable form tabs"
+            class="cds--content-switcher form-tabs cds--layout-constraint--size__default-md cds--layout-constraint--size__min-sm cds--layout-constraint--size__max-lg"
+            role="tablist"
+          >
+            <button
+              aria-selected="false"
+              class="cds--content-switcher-btn"
+              data-testid="tab-Required"
+              role="tab"
+              tabindex="-1"
+              title="Shows Required fields only"
+              type="button"
+            >
+              <span
+                class="cds--content-switcher__label"
+                title="Required"
+              >
+                Required
+              </span>
+            </button>
+            <button
+              aria-selected="true"
+              class="cds--content-switcher-btn cds--content-switcher--selected"
+              data-testid="tab-All"
+              role="tab"
+              tabindex="0"
+              title="Shows All fields"
+              type="button"
+            >
+              <span
+                class="cds--content-switcher__label"
+                title="All"
+              >
+                All
+              </span>
+            </button>
+            <button
+              aria-selected="false"
+              class="cds--content-switcher-btn"
+              data-testid="tab-Modified"
+              role="tab"
+              tabindex="-1"
+              title="Shows Modified fields only"
+              type="button"
+            >
+              <span
+                class="cds--content-switcher__label"
+                title="Modified"
+              >
+                Modified
+              </span>
+            </button>
+          </div>
+          <div
+            aria-label="Find properties by name"
+            class="cds--search cds--search--sm filter-fields"
+            role="search"
           >
             <div
-              class="pf-v6-c-card__header-main"
+              class="cds--search-magnifier"
+              tabindex="-1"
+            >
+              <svg
+                aria-hidden="true"
+                class="cds--search-magnifier-icon"
+                fill="currentColor"
+                focusable="false"
+                height="16"
+                preserveAspectRatio="xMidYMid meet"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M15,14.3L10.7,10c1.9-2.3,1.6-5.8-0.7-7.7S4.2,0.7,2.3,3S0.7,8.8,3,10.7c2,1.7,5,1.7,7,0l4.3,4.3L15,14.3z M2,6.5 C2,4,4,2,6.5,2S11,4,11,6.5S9,11,6.5,11S2,9,2,6.5z"
+                />
+              </svg>
+            </div>
+            <label
+              class="cds--label"
+              for="search-input-_r_4_"
+              id="search-input-_r_4_-search"
+            >
+              Find properties by name
+            </label>
+            <input
+              autocomplete="off"
+              class="cds--search-input"
+              data-testid="filter-fields"
+              id="search-input-_r_4_"
+              placeholder="Find properties by name"
+              type="search"
+              value=""
+            />
+            <button
+              aria-label="Clear search input"
+              class="cds--search-close cds--search-close--hidden"
+              title="Clear search input"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                focusable="false"
+                height="16"
+                preserveAspectRatio="xMidYMid meet"
+                viewBox="0 0 32 32"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M17.4141 16 24 9.4141 22.5859 8 16 14.5859 9.4143 8 8 9.4141 14.5859 16 8 22.5859 9.4143 24 16 17.4141 22.5859 24 24 22.5859 17.4141 16z"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div
+          class="canvas-form__body"
+        >
+          <div
+            class="pf-v6-c-card"
+            data-ouia-component-id="OUIA-Generated-Card-_r_5_"
+            data-ouia-component-type="PF6/Card"
+            data-ouia-safe="true"
+            id=""
+          >
+            <div
+              class="pf-v6-c-card__header"
             >
               <div
-                class="pf-v6-c-card__title"
+                class="pf-v6-c-card__header-main"
               >
                 <div
-                  class="pf-v6-c-card__title-text"
+                  class="pf-v6-c-card__title"
                 >
-                  Node source
+                  <div
+                    class="pf-v6-c-card__title-text"
+                  >
+                    Node source
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div
-            class="pf-v6-c-card__body"
-          >
             <div
-              class="pf-v6-c-code-block"
+              class="pf-v6-c-card__body"
             >
               <div
-                class="pf-v6-c-code-block__content"
+                class="pf-v6-c-code-block"
               >
-                <pre
-                  class="pf-v6-c-code-block__pre"
+                <div
+                  class="pf-v6-c-code-block__content"
                 >
-                  <code
-                    class="pf-v6-c-code-block__code"
+                  <pre
+                    class="pf-v6-c-code-block__pre"
                   >
-                    id: from-1234
+                    <code
+                      class="pf-v6-c-code-block__code"
+                    >
+                      id: from-1234
 uri: timer
 parameters:
   period: "1000"
@@ -223,51 +247,52 @@ steps:
       id: log-1234
       message: \${body}
 
-                  </code>
-                </pre>
+                    </code>
+                  </pre>
+                </div>
               </div>
             </div>
-          </div>
-          <div
-            class="pf-v6-c-card__footer"
-          >
             <div
-              class="pf-v6-c-alert pf-m-warning"
-              data-ouia-component-id="OUIA-Generated-Alert-warning-_r_6_"
-              data-ouia-component-type="PF6/Alert"
-              data-ouia-safe="true"
+              class="pf-v6-c-card__footer"
             >
               <div
-                class="pf-v6-c-alert__icon"
+                class="pf-v6-c-alert pf-m-warning"
+                data-ouia-component-id="OUIA-Generated-Alert-warning-_r_7_"
+                data-ouia-component-type="PF6/Alert"
+                data-ouia-safe="true"
               >
-                <svg
-                  aria-hidden="true"
-                  class="pf-v6-svg"
-                  fill="currentColor"
-                  height="1em"
-                  role="img"
-                  viewBox="0 0 32 32"
-                  width="1em"
+                <div
+                  class="pf-v6-c-alert__icon"
                 >
-                  <path
-                    d="m31.874 28.514-15.011-27a1.001 1.001 0 0 0-1.748 0l-15.011 27A1 1 0 0 0 .978 30H31a1 1 0 0 0 .874-1.486ZM14.5 12a1.5 1.5 0 0 1 3 0v5a1.5 1.5 0 0 1-3 0v-5ZM16 26.001a2 2 0 1 1-.001-3.999A2 2 0 0 1 16 26.001Z"
-                  />
-                </svg>
-              </div>
-              <h4
-                class="pf-v6-c-alert__title"
-              >
-                <span
-                  class="pf-v6-screen-reader"
+                  <svg
+                    aria-hidden="true"
+                    class="pf-v6-svg"
+                    fill="currentColor"
+                    height="1em"
+                    role="img"
+                    viewBox="0 0 32 32"
+                    width="1em"
+                  >
+                    <path
+                      d="m31.874 28.514-15.011-27a1.001 1.001 0 0 0-1.748 0l-15.011 27A1 1 0 0 0 .978 30H31a1 1 0 0 0 .874-1.486ZM14.5 12a1.5 1.5 0 0 1 3 0v5a1.5 1.5 0 0 1-3 0v-5ZM16 26.001a2 2 0 1 1-.001-3.999A2 2 0 0 1 16 26.001Z"
+                    />
+                  </svg>
+                </div>
+                <h4
+                  class="pf-v6-c-alert__title"
                 >
-                  Warning alert:
-                </span>
-                Unknow node type
-              </h4>
-              <div
-                class="pf-v6-c-alert__description"
-              >
-                The configuration for an unknown node cannot be changed in the configuration form. Please switch to the source code and correct the node type. Another option is to replace the step in the graphical editor but in that case you will probably lose the existing configuration.
+                  <span
+                    class="pf-v6-screen-reader"
+                  >
+                    Warning alert:
+                  </span>
+                  Unknow node type
+                </h4>
+                <div
+                  class="pf-v6-c-alert__description"
+                >
+                  The configuration for an unknown node cannot be changed in the configuration form. Please switch to the source code and correct the node type. Another option is to replace the step in the graphical editor but in that case you will probably lose the existing configuration.
+                </div>
               </div>
             </div>
           </div>

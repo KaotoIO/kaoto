@@ -3,245 +3,251 @@
 exports[`CanvasForm > should render 1`] = `
 <div>
   <div
-    class="pf-v6-c-card canvas-form"
-    data-ouia-component-id="OUIA-Generated-Card-_r_0_"
-    data-ouia-component-type="PF6/Card"
-    data-ouia-safe="true"
-    id=""
+    class="canvas-form"
   >
     <div
-      class="pf-v6-c-card__header"
+      class="canvas-form__header"
     >
       <div
-        class="pf-v6-c-card__header-main"
+        class="form-header-row"
       >
         <div
-          class="pf-v6-l-grid pf-m-gutter"
+          class="form-header"
+        >
+          <img
+            alt="Choice"
+            class="form-header__icon-route.from.steps.1.choice"
+            src="/src/assets/eip/choice.png"
+          />
+          <h2
+            class="form-header__title"
+          >
+            Choice
+          </h2>
+        </div>
+        <span
+          class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
         >
           <div
-            class="pf-v6-l-grid__item pf-m-11-col form-header"
-          >
-            <img
-              alt="Choice"
-              class="form-header__icon-route.from.steps.1.choice"
-              src="/src/assets/eip/choice.png"
-            />
-            <h2
-              class="pf-v6-c-title pf-m-h2 form-header__title"
-              data-ouia-component-id="OUIA-Generated-Title-_r_2_"
-              data-ouia-component-type="PF6/Title"
-              data-ouia-safe="true"
-            >
-              Choice
-            </h2>
-          </div>
-          <div
-            class="pf-v6-l-grid__item pf-m-1-col canvas-header-close"
+            class="cds--tooltip-trigger__wrapper"
           >
             <button
-              class="pf-v6-c-button pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_3_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
+              aria-labelledby="tooltip-_r_1_"
+              class="canvas-header-close cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
               data-testid="close-side-bar"
               type="button"
             >
-              <span
-                class="pf-v6-c-button__icon"
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                focusable="false"
+                height="16"
+                preserveAspectRatio="xMidYMid meet"
+                viewBox="0 0 32 32"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <svg
-                  data-testid="times-icon"
-                  role="img"
-                >
-                  <path />
-                </svg>
-              </span>
+                <path
+                  d="M17.4141 16L24 9.4141 22.5859 8 16 14.5859 9.4143 8 8 9.4141 14.5859 16 8 22.5859 9.4143 24 16 17.4141 22.5859 24 24 22.5859 17.4141 16z"
+                />
+              </svg>
             </button>
           </div>
-        </div>
-        <div
-          aria-label="Single selectable form tabs"
-          class="pf-v6-c-toggle-group form-tabs"
-          role="group"
-        >
-          <div
-            class="pf-v6-c-toggle-group__item"
-            title="Shows Required fields only"
-          >
-            <button
-              aria-pressed="true"
-              class="pf-v6-c-toggle-group__button pf-m-selected"
-              id="Required"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-toggle-group__text"
-              >
-                Required
-              </span>
-            </button>
-          </div>
-          <div
-            class="pf-v6-c-toggle-group__item"
-            title="Shows All fields"
-          >
-            <button
-              aria-pressed="false"
-              class="pf-v6-c-toggle-group__button"
-              id="All"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-toggle-group__text"
-              >
-                All
-              </span>
-            </button>
-          </div>
-          <div
-            class="pf-v6-c-toggle-group__item"
-            title="Shows Modified fields only"
-          >
-            <button
-              aria-pressed="false"
-              class="pf-v6-c-toggle-group__button"
-              id="Modified"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-toggle-group__text"
-              >
-                Modified
-              </span>
-            </button>
-          </div>
-        </div>
-        <div
-          class="pf-v6-c-text-input-group filter-fields"
-          data-testid="filter-fields"
-        >
-          <div
-            class="pf-v6-c-text-input-group__main pf-m-icon"
+          <span
+            aria-hidden="true"
+            class="cds--popover"
+            id="tooltip-_r_1_"
+            role="tooltip"
           >
             <span
-              class="pf-v6-c-text-input-group__text"
+              class="cds--popover-content cds--tooltip-content"
             >
-              <span
-                class="pf-v6-c-text-input-group__icon"
-              >
-                <svg
-                  aria-hidden="true"
-                  class="pf-v6-svg"
-                  fill="currentColor"
-                  height="1em"
-                  role="img"
-                  width="1em"
-                >
-                  <svg
-                    class="pf-v6-icon-default"
-                    viewBox="0 0 512 512"
-                  >
-                    <path
-                      d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
-                    />
-                  </svg>
-                  <svg
-                    class="pf-v6-icon-rh-ui"
-                    viewBox="0 0 32 32"
-                  >
-                    <path
-                      d="m30.796 29.205-8.557-8.557A11.945 11.945 0 0 0 25 13c0-6.617-5.383-12-12-12S1 6.383 1 13s5.383 12 12 12c2.904 0 5.57-1.038 7.648-2.761l8.556 8.556a1.122 1.122 0 0 0 1.592 0 1.127 1.127 0 0 0 0-1.591ZM3 13C3 7.486 7.486 3 13 3s10 4.486 10 10-4.486 10-10 10S3 18.514 3 13Z"
-                    />
-                  </svg>
-                </svg>
-              </span>
-              <input
-                aria-label="Search input"
-                class="pf-v6-c-text-input-group__text-input"
-                placeholder="Find properties by name"
-                type="text"
-                value=""
-              />
+              Close
             </span>
-          </div>
+            <span
+              class="cds--popover-caret"
+            />
+          </span>
+        </span>
+      </div>
+      <div
+        aria-label="Single selectable form tabs"
+        class="cds--content-switcher form-tabs cds--layout-constraint--size__default-md cds--layout-constraint--size__min-sm cds--layout-constraint--size__max-lg"
+        role="tablist"
+      >
+        <button
+          aria-selected="true"
+          class="cds--content-switcher-btn cds--content-switcher--selected"
+          data-testid="tab-Required"
+          role="tab"
+          tabindex="0"
+          title="Shows Required fields only"
+          type="button"
+        >
+          <span
+            class="cds--content-switcher__label"
+            title="Required"
+          >
+            Required
+          </span>
+        </button>
+        <button
+          aria-selected="false"
+          class="cds--content-switcher-btn"
+          data-testid="tab-All"
+          role="tab"
+          tabindex="-1"
+          title="Shows All fields"
+          type="button"
+        >
+          <span
+            class="cds--content-switcher__label"
+            title="All"
+          >
+            All
+          </span>
+        </button>
+        <button
+          aria-selected="false"
+          class="cds--content-switcher-btn"
+          data-testid="tab-Modified"
+          role="tab"
+          tabindex="-1"
+          title="Shows Modified fields only"
+          type="button"
+        >
+          <span
+            class="cds--content-switcher__label"
+            title="Modified"
+          >
+            Modified
+          </span>
+        </button>
+      </div>
+      <div
+        aria-label="Find properties by name"
+        class="cds--search cds--search--sm filter-fields"
+        role="search"
+      >
+        <div
+          class="cds--search-magnifier"
+          tabindex="-1"
+        >
+          <svg
+            aria-hidden="true"
+            class="cds--search-magnifier-icon"
+            fill="currentColor"
+            focusable="false"
+            height="16"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 16 16"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M15,14.3L10.7,10c1.9-2.3,1.6-5.8-0.7-7.7S4.2,0.7,2.3,3S0.7,8.8,3,10.7c2,1.7,5,1.7,7,0l4.3,4.3L15,14.3z M2,6.5 C2,4,4,2,6.5,2S11,4,11,6.5S9,11,6.5,11S2,9,2,6.5z"
+            />
+          </svg>
         </div>
+        <label
+          class="cds--label"
+          for="search-input-_r_4_"
+          id="search-input-_r_4_-search"
+        >
+          Find properties by name
+        </label>
+        <input
+          autocomplete="off"
+          class="cds--search-input"
+          data-testid="filter-fields"
+          id="search-input-_r_4_"
+          placeholder="Find properties by name"
+          type="search"
+          value=""
+        />
+        <button
+          aria-label="Clear search input"
+          class="cds--search-close cds--search-close--hidden"
+          title="Clear search input"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            fill="currentColor"
+            focusable="false"
+            height="16"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 32 32"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M17.4141 16 24 9.4141 22.5859 8 16 14.5859 9.4143 8 8 9.4141 14.5859 16 8 22.5859 9.4143 24 16 17.4141 22.5859 24 24 22.5859 17.4141 16z"
+            />
+          </svg>
+        </button>
       </div>
     </div>
     <div
-      class="pf-v6-c-card__body canvas-form__body"
+      class="canvas-form__body"
     >
       <form
-        class="pf-v6-c-form kaoto-form kaoto-form__label"
-        novalidate=""
+        class="cds--form kaoto-form kaoto-form__label"
       />
       <div
-        class="pf-v6-c-card kaoto-form kaoto-form__empty"
-        data-ouia-component-id="OUIA-Generated-Card-_r_4_"
-        data-ouia-component-type="PF6/Card"
-        data-ouia-safe="true"
+        class="cds--tile kaoto-form kaoto-form__empty"
         data-testid="no-field-found"
-        id=""
       >
         <div
-          class="pf-v6-c-card__body"
+          class="cds--inline-notification cds--inline-notification--info cds--inline-notification--hide-close-button"
+          role="status"
         >
           <div
-            class="pf-v6-c-alert pf-m-info"
-            data-ouia-component-id="OUIA-Generated-Alert-info-_r_5_"
-            data-ouia-component-type="PF6/Alert"
-            data-ouia-safe="true"
+            class="cds--inline-notification__details"
           >
+            <svg
+              aria-hidden="true"
+              class="cds--inline-notification__icon"
+              fill="currentColor"
+              focusable="false"
+              height="20"
+              preserveAspectRatio="xMidYMid meet"
+              viewBox="0 0 32 32"
+              width="20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M16,8a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,16,8Zm4,13.875H17.125v-8H13v2.25h1.875v5.75H12v2.25h8Z"
+                data-icon-path="inner-path"
+                fill="none"
+              />
+              <path
+                d="M16,2A14,14,0,1,0,30,16,14,14,0,0,0,16,2Zm0,6a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,16,8Zm4,16.125H12v-2.25h2.875v-5.75H13v-2.25h4.125v8H20Z"
+              />
+              <title>
+                info icon
+              </title>
+            </svg>
             <div
-              class="pf-v6-c-alert__icon"
+              class="cds--inline-notification__text-wrapper"
             >
-              <svg
-                aria-hidden="true"
-                class="pf-v6-svg"
-                fill="currentColor"
-                height="1em"
-                role="img"
-                viewBox="0 0 32 32"
-                width="1em"
+              <div
+                class="cds--inline-notification__title"
+                dir="auto"
               >
-                <path
-                  d="M16 1C7.729 1 1 7.729 1 16s6.729 15 15 15 15-6.729 15-15S24.271 1 16 1Zm1.5 22a1.5 1.5 0 1 1-3 0v-5.157l-.188.04a1.5 1.5 0 0 1-.625-2.934l1.956-.416c.112-.024.223-.032.333-.03l.024-.002a1.5 1.5 0 0 1 1.5 1.5v7Zm-.08-12.58c-.38.37-.89.58-1.42.58a1.998 1.998 0 0 1-1.851-2.76c.051-.13.11-.24.19-.35.07-.11.15-.21.25-.3.74-.75 2.08-.75 2.83 0 .09.09.17.19.24.3.08.11.14.22.189.35.05.12.09.24.11.37.03.13.04.26.04.39 0 .53-.21 1.04-.58 1.42Z"
-                />
-              </svg>
-            </div>
-            <h4
-              class="pf-v6-c-alert__title"
-            >
-              <span
-                class="pf-v6-screen-reader"
+                No Required fields found
+              </div>
+              <div
+                class="cds--inline-notification__subtitle"
+                dir="auto"
               >
-                Info alert:
-              </span>
-              No Required fields found
-            </h4>
-            <div
-              class="pf-v6-c-alert__description"
-            >
-              No field found matching this criteria.
-               
-              Please switch to the
-               
-              <button
-                class="pf-v6-c-button pf-m-link pf-m-inline"
-                data-ouia-component-id="OUIA-Generated-Button-link-_r_6_"
-                data-ouia-component-type="PF6/Button"
-                data-ouia-safe="true"
-                type="button"
+                No field found matching this criteria. Please switch to the All tab.
+              </div>
+              <a
+                class="cds--link cds--link--inline"
               >
-                <span
-                  class="pf-v6-c-button__text"
-                >
-                  <b>
-                    All
-                  </b>
-                </span>
-              </button>
-               
-              tab.
+                Switch to All tab
+              </a>
             </div>
           </div>
         </div>
@@ -254,167 +260,188 @@ exports[`CanvasForm > should render 1`] = `
 exports[`CanvasForm > should render nothing if no schema and no definition is available 1`] = `
 <div>
   <div
-    class="pf-v6-c-card canvas-form"
-    data-ouia-component-id="OUIA-Generated-Card-_r_e_"
-    data-ouia-component-type="PF6/Card"
-    data-ouia-safe="true"
-    id=""
+    class="canvas-form"
   >
     <div
-      class="pf-v6-c-card__header"
+      class="canvas-form__header"
     >
       <div
-        class="pf-v6-c-card__header-main"
+        class="form-header-row"
       >
         <div
-          class="pf-v6-l-grid pf-m-gutter"
+          class="form-header"
+        >
+          <h2
+            class="form-header__title"
+          >
+            route
+          </h2>
+        </div>
+        <span
+          class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
         >
           <div
-            class="pf-v6-l-grid__item pf-m-11-col form-header"
-          >
-            <h2
-              class="pf-v6-c-title pf-m-h2 form-header__title"
-              data-ouia-component-id="OUIA-Generated-Title-_r_g_"
-              data-ouia-component-type="PF6/Title"
-              data-ouia-safe="true"
-            >
-              route
-            </h2>
-          </div>
-          <div
-            class="pf-v6-l-grid__item pf-m-1-col canvas-header-close"
+            class="cds--tooltip-trigger__wrapper"
           >
             <button
-              class="pf-v6-c-button pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_h_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
+              aria-labelledby="tooltip-_r_e_"
+              class="canvas-header-close cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
               data-testid="close-side-bar"
               type="button"
             >
-              <span
-                class="pf-v6-c-button__icon"
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                focusable="false"
+                height="16"
+                preserveAspectRatio="xMidYMid meet"
+                viewBox="0 0 32 32"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <svg
-                  data-testid="times-icon"
-                  role="img"
-                >
-                  <path />
-                </svg>
-              </span>
+                <path
+                  d="M17.4141 16L24 9.4141 22.5859 8 16 14.5859 9.4143 8 8 9.4141 14.5859 16 8 22.5859 9.4143 24 16 17.4141 22.5859 24 24 22.5859 17.4141 16z"
+                />
+              </svg>
             </button>
           </div>
-        </div>
-        <div
-          aria-label="Single selectable form tabs"
-          class="pf-v6-c-toggle-group form-tabs"
-          role="group"
-        >
-          <div
-            class="pf-v6-c-toggle-group__item"
-            title="Shows Required fields only"
-          >
-            <button
-              aria-pressed="true"
-              class="pf-v6-c-toggle-group__button pf-m-selected"
-              id="Required"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-toggle-group__text"
-              >
-                Required
-              </span>
-            </button>
-          </div>
-          <div
-            class="pf-v6-c-toggle-group__item"
-            title="Shows All fields"
-          >
-            <button
-              aria-pressed="false"
-              class="pf-v6-c-toggle-group__button"
-              id="All"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-toggle-group__text"
-              >
-                All
-              </span>
-            </button>
-          </div>
-          <div
-            class="pf-v6-c-toggle-group__item"
-            title="Shows Modified fields only"
-          >
-            <button
-              aria-pressed="false"
-              class="pf-v6-c-toggle-group__button"
-              id="Modified"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-toggle-group__text"
-              >
-                Modified
-              </span>
-            </button>
-          </div>
-        </div>
-        <div
-          class="pf-v6-c-text-input-group filter-fields"
-          data-testid="filter-fields"
-        >
-          <div
-            class="pf-v6-c-text-input-group__main pf-m-icon"
+          <span
+            aria-hidden="true"
+            class="cds--popover"
+            id="tooltip-_r_e_"
+            role="tooltip"
           >
             <span
-              class="pf-v6-c-text-input-group__text"
+              class="cds--popover-content cds--tooltip-content"
             >
-              <span
-                class="pf-v6-c-text-input-group__icon"
-              >
-                <svg
-                  aria-hidden="true"
-                  class="pf-v6-svg"
-                  fill="currentColor"
-                  height="1em"
-                  role="img"
-                  width="1em"
-                >
-                  <svg
-                    class="pf-v6-icon-default"
-                    viewBox="0 0 512 512"
-                  >
-                    <path
-                      d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
-                    />
-                  </svg>
-                  <svg
-                    class="pf-v6-icon-rh-ui"
-                    viewBox="0 0 32 32"
-                  >
-                    <path
-                      d="m30.796 29.205-8.557-8.557A11.945 11.945 0 0 0 25 13c0-6.617-5.383-12-12-12S1 6.383 1 13s5.383 12 12 12c2.904 0 5.57-1.038 7.648-2.761l8.556 8.556a1.122 1.122 0 0 0 1.592 0 1.127 1.127 0 0 0 0-1.591ZM3 13C3 7.486 7.486 3 13 3s10 4.486 10 10-4.486 10-10 10S3 18.514 3 13Z"
-                    />
-                  </svg>
-                </svg>
-              </span>
-              <input
-                aria-label="Search input"
-                class="pf-v6-c-text-input-group__text-input"
-                placeholder="Find properties by name"
-                type="text"
-                value=""
-              />
+              Close
             </span>
-          </div>
+            <span
+              class="cds--popover-caret"
+            />
+          </span>
+        </span>
+      </div>
+      <div
+        aria-label="Single selectable form tabs"
+        class="cds--content-switcher form-tabs cds--layout-constraint--size__default-md cds--layout-constraint--size__min-sm cds--layout-constraint--size__max-lg"
+        role="tablist"
+      >
+        <button
+          aria-selected="true"
+          class="cds--content-switcher-btn cds--content-switcher--selected"
+          data-testid="tab-Required"
+          role="tab"
+          tabindex="0"
+          title="Shows Required fields only"
+          type="button"
+        >
+          <span
+            class="cds--content-switcher__label"
+            title="Required"
+          >
+            Required
+          </span>
+        </button>
+        <button
+          aria-selected="false"
+          class="cds--content-switcher-btn"
+          data-testid="tab-All"
+          role="tab"
+          tabindex="-1"
+          title="Shows All fields"
+          type="button"
+        >
+          <span
+            class="cds--content-switcher__label"
+            title="All"
+          >
+            All
+          </span>
+        </button>
+        <button
+          aria-selected="false"
+          class="cds--content-switcher-btn"
+          data-testid="tab-Modified"
+          role="tab"
+          tabindex="-1"
+          title="Shows Modified fields only"
+          type="button"
+        >
+          <span
+            class="cds--content-switcher__label"
+            title="Modified"
+          >
+            Modified
+          </span>
+        </button>
+      </div>
+      <div
+        aria-label="Find properties by name"
+        class="cds--search cds--search--sm filter-fields"
+        role="search"
+      >
+        <div
+          class="cds--search-magnifier"
+          tabindex="-1"
+        >
+          <svg
+            aria-hidden="true"
+            class="cds--search-magnifier-icon"
+            fill="currentColor"
+            focusable="false"
+            height="16"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 16 16"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M15,14.3L10.7,10c1.9-2.3,1.6-5.8-0.7-7.7S4.2,0.7,2.3,3S0.7,8.8,3,10.7c2,1.7,5,1.7,7,0l4.3,4.3L15,14.3z M2,6.5 C2,4,4,2,6.5,2S11,4,11,6.5S9,11,6.5,11S2,9,2,6.5z"
+            />
+          </svg>
         </div>
+        <label
+          class="cds--label"
+          for="search-input-_r_h_"
+          id="search-input-_r_h_-search"
+        >
+          Find properties by name
+        </label>
+        <input
+          autocomplete="off"
+          class="cds--search-input"
+          data-testid="filter-fields"
+          id="search-input-_r_h_"
+          placeholder="Find properties by name"
+          type="search"
+          value=""
+        />
+        <button
+          aria-label="Clear search input"
+          class="cds--search-close cds--search-close--hidden"
+          title="Clear search input"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            fill="currentColor"
+            focusable="false"
+            height="16"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 32 32"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M17.4141 16 24 9.4141 22.5859 8 16 14.5859 9.4143 8 8 9.4141 14.5859 16 8 22.5859 9.4143 24 16 17.4141 22.5859 24 24 22.5859 17.4141 16z"
+            />
+          </svg>
+        </button>
       </div>
     </div>
     <div
-      class="pf-v6-c-card__body canvas-form__body"
+      class="canvas-form__body"
     >
       <div
         class="pf-v6-c-card"
@@ -511,171 +538,192 @@ exports[`CanvasForm > should render nothing if no schema and no definition is av
 exports[`CanvasForm > should render nothing if no schema is available 1`] = `
 <div>
   <div
-    class="pf-v6-c-card canvas-form"
-    data-ouia-component-id="OUIA-Generated-Card-_r_7_"
-    data-ouia-component-type="PF6/Card"
-    data-ouia-safe="true"
-    id=""
+    class="canvas-form"
   >
     <div
-      class="pf-v6-c-card__header"
+      class="canvas-form__header"
     >
       <div
-        class="pf-v6-c-card__header-main"
+        class="form-header-row"
       >
         <div
-          class="pf-v6-l-grid pf-m-gutter"
+          class="form-header"
+        >
+          <h2
+            class="form-header__title"
+          >
+            route
+          </h2>
+        </div>
+        <span
+          class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
         >
           <div
-            class="pf-v6-l-grid__item pf-m-11-col form-header"
-          >
-            <h2
-              class="pf-v6-c-title pf-m-h2 form-header__title"
-              data-ouia-component-id="OUIA-Generated-Title-_r_9_"
-              data-ouia-component-type="PF6/Title"
-              data-ouia-safe="true"
-            >
-              route
-            </h2>
-          </div>
-          <div
-            class="pf-v6-l-grid__item pf-m-1-col canvas-header-close"
+            class="cds--tooltip-trigger__wrapper"
           >
             <button
-              class="pf-v6-c-button pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_a_"
-              data-ouia-component-type="PF6/Button"
-              data-ouia-safe="true"
+              aria-labelledby="tooltip-_r_6_"
+              class="canvas-header-close cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
               data-testid="close-side-bar"
               type="button"
             >
-              <span
-                class="pf-v6-c-button__icon"
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                focusable="false"
+                height="16"
+                preserveAspectRatio="xMidYMid meet"
+                viewBox="0 0 32 32"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <svg
-                  data-testid="times-icon"
-                  role="img"
-                >
-                  <path />
-                </svg>
-              </span>
+                <path
+                  d="M17.4141 16L24 9.4141 22.5859 8 16 14.5859 9.4143 8 8 9.4141 14.5859 16 8 22.5859 9.4143 24 16 17.4141 22.5859 24 24 22.5859 17.4141 16z"
+                />
+              </svg>
             </button>
           </div>
-        </div>
-        <div
-          aria-label="Single selectable form tabs"
-          class="pf-v6-c-toggle-group form-tabs"
-          role="group"
-        >
-          <div
-            class="pf-v6-c-toggle-group__item"
-            title="Shows Required fields only"
-          >
-            <button
-              aria-pressed="true"
-              class="pf-v6-c-toggle-group__button pf-m-selected"
-              id="Required"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-toggle-group__text"
-              >
-                Required
-              </span>
-            </button>
-          </div>
-          <div
-            class="pf-v6-c-toggle-group__item"
-            title="Shows All fields"
-          >
-            <button
-              aria-pressed="false"
-              class="pf-v6-c-toggle-group__button"
-              id="All"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-toggle-group__text"
-              >
-                All
-              </span>
-            </button>
-          </div>
-          <div
-            class="pf-v6-c-toggle-group__item"
-            title="Shows Modified fields only"
-          >
-            <button
-              aria-pressed="false"
-              class="pf-v6-c-toggle-group__button"
-              id="Modified"
-              type="button"
-            >
-              <span
-                class="pf-v6-c-toggle-group__text"
-              >
-                Modified
-              </span>
-            </button>
-          </div>
-        </div>
-        <div
-          class="pf-v6-c-text-input-group filter-fields"
-          data-testid="filter-fields"
-        >
-          <div
-            class="pf-v6-c-text-input-group__main pf-m-icon"
+          <span
+            aria-hidden="true"
+            class="cds--popover"
+            id="tooltip-_r_6_"
+            role="tooltip"
           >
             <span
-              class="pf-v6-c-text-input-group__text"
+              class="cds--popover-content cds--tooltip-content"
             >
-              <span
-                class="pf-v6-c-text-input-group__icon"
-              >
-                <svg
-                  aria-hidden="true"
-                  class="pf-v6-svg"
-                  fill="currentColor"
-                  height="1em"
-                  role="img"
-                  width="1em"
-                >
-                  <svg
-                    class="pf-v6-icon-default"
-                    viewBox="0 0 512 512"
-                  >
-                    <path
-                      d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
-                    />
-                  </svg>
-                  <svg
-                    class="pf-v6-icon-rh-ui"
-                    viewBox="0 0 32 32"
-                  >
-                    <path
-                      d="m30.796 29.205-8.557-8.557A11.945 11.945 0 0 0 25 13c0-6.617-5.383-12-12-12S1 6.383 1 13s5.383 12 12 12c2.904 0 5.57-1.038 7.648-2.761l8.556 8.556a1.122 1.122 0 0 0 1.592 0 1.127 1.127 0 0 0 0-1.591ZM3 13C3 7.486 7.486 3 13 3s10 4.486 10 10-4.486 10-10 10S3 18.514 3 13Z"
-                    />
-                  </svg>
-                </svg>
-              </span>
-              <input
-                aria-label="Search input"
-                class="pf-v6-c-text-input-group__text-input"
-                placeholder="Find properties by name"
-                type="text"
-                value=""
-              />
+              Close
             </span>
-          </div>
+            <span
+              class="cds--popover-caret"
+            />
+          </span>
+        </span>
+      </div>
+      <div
+        aria-label="Single selectable form tabs"
+        class="cds--content-switcher form-tabs cds--layout-constraint--size__default-md cds--layout-constraint--size__min-sm cds--layout-constraint--size__max-lg"
+        role="tablist"
+      >
+        <button
+          aria-selected="true"
+          class="cds--content-switcher-btn cds--content-switcher--selected"
+          data-testid="tab-Required"
+          role="tab"
+          tabindex="0"
+          title="Shows Required fields only"
+          type="button"
+        >
+          <span
+            class="cds--content-switcher__label"
+            title="Required"
+          >
+            Required
+          </span>
+        </button>
+        <button
+          aria-selected="false"
+          class="cds--content-switcher-btn"
+          data-testid="tab-All"
+          role="tab"
+          tabindex="-1"
+          title="Shows All fields"
+          type="button"
+        >
+          <span
+            class="cds--content-switcher__label"
+            title="All"
+          >
+            All
+          </span>
+        </button>
+        <button
+          aria-selected="false"
+          class="cds--content-switcher-btn"
+          data-testid="tab-Modified"
+          role="tab"
+          tabindex="-1"
+          title="Shows Modified fields only"
+          type="button"
+        >
+          <span
+            class="cds--content-switcher__label"
+            title="Modified"
+          >
+            Modified
+          </span>
+        </button>
+      </div>
+      <div
+        aria-label="Find properties by name"
+        class="cds--search cds--search--sm filter-fields"
+        role="search"
+      >
+        <div
+          class="cds--search-magnifier"
+          tabindex="-1"
+        >
+          <svg
+            aria-hidden="true"
+            class="cds--search-magnifier-icon"
+            fill="currentColor"
+            focusable="false"
+            height="16"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 16 16"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M15,14.3L10.7,10c1.9-2.3,1.6-5.8-0.7-7.7S4.2,0.7,2.3,3S0.7,8.8,3,10.7c2,1.7,5,1.7,7,0l4.3,4.3L15,14.3z M2,6.5 C2,4,4,2,6.5,2S11,4,11,6.5S9,11,6.5,11S2,9,2,6.5z"
+            />
+          </svg>
         </div>
+        <label
+          class="cds--label"
+          for="search-input-_r_9_"
+          id="search-input-_r_9_-search"
+        >
+          Find properties by name
+        </label>
+        <input
+          autocomplete="off"
+          class="cds--search-input"
+          data-testid="filter-fields"
+          id="search-input-_r_9_"
+          placeholder="Find properties by name"
+          type="search"
+          value=""
+        />
+        <button
+          aria-label="Clear search input"
+          class="cds--search-close cds--search-close--hidden"
+          title="Clear search input"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            fill="currentColor"
+            focusable="false"
+            height="16"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 32 32"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M17.4141 16 24 9.4141 22.5859 8 16 14.5859 9.4143 8 8 9.4141 14.5859 16 8 22.5859 9.4143 24 16 17.4141 22.5859 24 24 22.5859 17.4141 16z"
+            />
+          </svg>
+        </button>
       </div>
     </div>
     <div
-      class="pf-v6-c-card__body canvas-form__body"
+      class="canvas-form__body"
     >
       <div
         class="pf-v6-c-card"
-        data-ouia-component-id="OUIA-Generated-Card-_r_b_"
+        data-ouia-component-id="OUIA-Generated-Card-_r_a_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         id=""
@@ -752,7 +800,7 @@ from:
         >
           <div
             class="pf-v6-c-alert pf-m-warning"
-            data-ouia-component-id="OUIA-Generated-Alert-warning-_r_d_"
+            data-ouia-component-id="OUIA-Generated-Alert-warning-_r_c_"
             data-ouia-component-type="PF6/Alert"
             data-ouia-safe="true"
           >
