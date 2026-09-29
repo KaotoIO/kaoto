@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+     <modelVersion>4.0.0</modelVersion>
+
+     <parent>
+         <groupId>io.kaoto</groupId>
+         <artifactId>kaoto-camel-bridge-parent</artifactId>
+         <version>${revision}</version>
+         <relativePath>../pom.xml</relativePath>
+     </parent>
+
+     <artifactId>bridge-plugin</artifactId>
+     <packaging>jar</packaging>
+     <description>ContextServicePlugin adapter for Camel 4.15+ (compiled against camel-api ${camel.plugin-api.version})</description>
+
+     <dependencies>
+         <dependency>
+             <groupId>io.kaoto</groupId>
+             <artifactId>bridge-core</artifactId>
+             <version>${revision}</version>
+         </dependency>
+         <!-- deliberately newer than the core module's camel-api: this is the only place that may see 4.15+ API -->
+         <dependency>
+             <groupId>org.apache.camel</groupId>
+             <artifactId>camel-api</artifactId>
+             <version>${camel.plugin-api.version}</version>
+             <scope>provided</scope>
+         </dependency>
+
+         <dependency>
+             <groupId>org.apache.camel</groupId>
+             <artifactId>camel-core</artifactId>
+             <version>${camel.plugin-api.version}</version>
+             <scope>test</scope>
+         </dependency>
+         <dependency>
+             <groupId>org.junit.jupiter</groupId>
+             <artifactId>junit-jupiter</artifactId>
+             <version>5.11.4</version>
+             <scope>test</scope>
+         </dependency>
+     </dependencies>
+
+     <build>
+         <plugins>
+             <plugin>
+                 <artifactId>maven-surefire-plugin</artifactId>
+                 <configuration>
+                     <systemPropertyVariables>
+                         <java.util.logging.manager>java.util.logging.LogManager</java.util.logging.manager>
+                     </systemPropertyVariables>
+                 </configuration>
+             </plugin>
+             <plugin>
+                 <groupId>com.diffplug.spotless</groupId>
+                 <artifactId>spotless-maven-plugin</artifactId>
+             </plugin>
+         </plugins>
+     </build>
+</project>

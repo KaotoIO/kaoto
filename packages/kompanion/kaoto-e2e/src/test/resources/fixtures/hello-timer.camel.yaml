@@ -1,0 +1,9 @@
+- route:
+    id: hello-route
+    from:
+      uri: timer:hello
+      parameters:
+        period: '1000'
+      steps:
+        - log:
+            message: 'Hello from Kaoto e2e: ${exchangeId}'
