@@ -33,15 +33,11 @@ describe('Test toolbar on hover actions', () => {
     cy.openStepConfigurationTab('setHeader');
     cy.get('[data-testid="setHeader|step-toolbar-button-disable"]').click();
 
-    cy.openStepConfigurationTab('setHeader');
-
     cy.selectFormTab('All');
     cy.expandWrappedSection('#-Advanced');
     cy.checkConfigCheckboxObject('disabled', true);
 
     cy.get('[data-testid="setHeader|step-toolbar-button-disable"]').click();
-
-    cy.openStepConfigurationTab('setHeader');
 
     cy.expandWrappedSection('#-Advanced');
     cy.checkConfigCheckboxObject('disabled', false);
