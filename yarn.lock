@@ -3887,9 +3887,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kaoto/forms@npm:^1.8.0":
-  version: 1.8.0
-  resolution: "@kaoto/forms@npm:1.8.0"
+"@kaoto/forms@npm:^1.9.0":
+  version: 1.9.0
+  resolution: "@kaoto/forms@npm:1.9.0"
   dependencies:
     ajv: "npm:^8.12.0"
     clsx: "npm:^2.1.0"
@@ -3901,7 +3901,7 @@ __metadata:
     "@patternfly/react-icons": ^6.5.1
     react: ^19.2.0
     react-dom: ^19.2.0
-  checksum: 10/172acd672019c65fcdf9297345cfcf5b9216127d275ec13f9011e5bd4a8f3fd1154a3bd235e41cdb1d1b1c63f5061d7ab864b54aa23c3a36b764a80dd70cd7e5
+  checksum: 10/e450f30c3e0a8f60eda703c884f192ea13263be5e14464e15e8043c8f2aee933cb4f38abc901679aef2be41ba01ff0bfc5f64c63c2574263bc3988d3d6b36d3e
   languageName: node
   linkType: hard
 
@@ -3912,7 +3912,7 @@ __metadata:
     "@cypress/grep": "npm:^7.0.0"
     "@eslint/js": "npm:^9.10.0"
     "@kaoto/camel-catalog": "npm:^0.10.4"
-    "@kaoto/forms": "npm:^1.8.0"
+    "@kaoto/forms": "npm:^1.9.0"
     "@kaoto/kaoto": "workspace:*"
     "@storybook/addon-docs": "npm:^10.2.14"
     "@storybook/addon-links": "npm:^10.2.14"
@@ -4030,7 +4030,7 @@ __metadata:
     "@dnd-kit/modifiers": "npm:^9.0.0"
     "@eslint/js": "npm:^9.10.0"
     "@kaoto/camel-catalog": "npm:^0.10.4"
-    "@kaoto/forms": "npm:^1.8.0"
+    "@kaoto/forms": "npm:^1.9.0"
     "@kie-tools-core/editor": "npm:^10.0.0"
     "@kie-tools-core/notifications": "npm:^10.0.0"
     "@monaco-editor/react": "npm:^4.7.0"

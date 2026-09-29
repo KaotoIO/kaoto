@@ -13,16 +13,12 @@ describe('AddMethodModal', () => {
   const mockOnAddMethod = vi.fn();
 
   // Helper to render modal and return common test utilities
-  const setupModal = async (options: { expandFields?: boolean } = {}) => {
-    const { expandFields = false } = options;
-
+  const setupModal = async () => {
     renderWithProviders(<AddMethodModal open onClose={mockOnClose} onAddMethod={mockOnAddMethod} />);
 
     const formPageObject = new KaotoFormPageObject(screen, act);
 
-    if (expandFields) {
-      await formPageObject.showAllFields();
-    }
+    await screen.findByPlaceholderText('get');
 
     return {
       formPageObject,
@@ -47,7 +43,7 @@ describe('AddMethodModal', () => {
   });
 
   it('should initialize form with default method "get"', async () => {
-    const { getMethodField } = await setupModal({ expandFields: true });
+    const { getMethodField } = await setupModal();
 
     // HTTP Method is rendered as a typeahead field with placeholder
     const methodField = getMethodField();
@@ -65,7 +61,7 @@ describe('AddMethodModal', () => {
   });
 
   it('should call onAddMethod with correct form data when Add button is clicked with valid data', async () => {
-    const { formPageObject, getAddButton } = await setupModal({ expandFields: true });
+    const { formPageObject, getAddButton } = await setupModal();
 
     await formPageObject.inputText('Path', '/api/users');
 

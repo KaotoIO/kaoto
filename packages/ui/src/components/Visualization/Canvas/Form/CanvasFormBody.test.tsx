@@ -61,9 +61,8 @@ describe('CanvasFormBody', () => {
         </EntitiesContext.Provider>,
       );
 
-      await screen.findByRole('button', { name: 'All' });
       const formPageObject = new KaotoFormPageObject(screen, act);
-      await formPageObject.showAllFields();
+      await screen.findByTestId(`${ROOT_PATH}__expression-list-typeahead-select-input`);
       await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
       await formPageObject.selectTypeaheadItem('simple');
       await formPageObject.inputText('Expression', '${header.foo}');
@@ -115,14 +114,13 @@ describe('CanvasFormBody', () => {
         </EntitiesContext.Provider>,
       );
 
-      await screen.findByRole('button', { name: 'All' });
       const formPageObject = new KaotoFormPageObject(screen, act);
-      await formPageObject.showAllFields();
       await formPageObject.inputText('Name', 'bar');
 
       expect(camelRoute.from.steps[0].setHeader!.simple).toBeUndefined();
       expect(camelRoute.from.steps[0].setHeader!.name).toBe('bar');
 
+      await screen.findByTestId(`${ROOT_PATH}__expression-list-typeahead-select-input`);
       await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
       await formPageObject.selectTypeaheadItem('simple');
       await formPageObject.inputText('Expression', '${header.foo}');
@@ -175,9 +173,7 @@ describe('CanvasFormBody', () => {
         </EntitiesContext.Provider>,
       );
 
-      await screen.findByRole('button', { name: 'All' });
       const formPageObject = new KaotoFormPageObject(screen, act);
-      await formPageObject.showAllFields();
       await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
       await formPageObject.selectTypeaheadItem('avro');
 
@@ -228,9 +224,7 @@ describe('CanvasFormBody', () => {
         </EntitiesContext.Provider>,
       );
 
-      await screen.findByRole('button', { name: 'All' });
       const formPageObject = new KaotoFormPageObject(screen, act);
-      await formPageObject.showAllFields();
       await formPageObject.inputText('Id', 'modified', { index: 0 });
       expect(camelRoute.from.steps[0].marshal!.id).toBe('modified');
 
@@ -286,9 +280,7 @@ describe('CanvasFormBody', () => {
         </EntitiesContext.Provider>,
       );
 
-      await screen.findByRole('button', { name: 'All' });
       const formPageObject = new KaotoFormPageObject(screen, act);
-      await formPageObject.showAllFields();
       await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
       await formPageObject.selectTypeaheadItem('weighted load balancer');
 
@@ -343,9 +335,7 @@ describe('CanvasFormBody', () => {
         </EntitiesContext.Provider>,
       );
 
-      await screen.findByRole('button', { name: 'All' });
       const formPageObject = new KaotoFormPageObject(screen, act);
-      await formPageObject.showAllFields();
       await formPageObject.inputText('Id', 'modified', { index: 0 });
       expect(camelRoute.from.steps[0].loadBalance!.id).toBe('modified');
 

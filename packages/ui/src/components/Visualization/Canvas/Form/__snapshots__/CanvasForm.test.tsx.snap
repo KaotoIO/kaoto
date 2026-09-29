@@ -221,7 +221,9 @@ exports[`CanvasForm > should render 1`] = `
             <div
               class="pf-v6-c-alert__description"
             >
-              No field found matching this criteria. Please switch to the
+              No field found matching this criteria.
+               
+              Please switch to the
                
               <button
                 class="pf-v6-c-button pf-m-link pf-m-inline"
