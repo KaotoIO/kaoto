@@ -110,7 +110,6 @@ describe('Tests for side panel step filtering', () => {
 
     cy.selectReplaceNode('marshal');
     cy.chooseFromCatalog('processor', 'transacted');
-    cy.openStepConfigurationTab('transacted');
 
     cy.selectFormTab('Required');
 

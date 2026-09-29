@@ -9,7 +9,6 @@ describe('Tests for sidebar loadBalancer step configuration', () => {
 
     cy.selectAppendNode('marshal');
     cy.chooseFromCatalog('processor', 'loadBalance');
-    cy.openGroupConfigurationTab('loadBalance');
     cy.selectFormTab('All');
 
     cy.get('[data-testid="#__oneof-list-typeahead-select-input"]').click();

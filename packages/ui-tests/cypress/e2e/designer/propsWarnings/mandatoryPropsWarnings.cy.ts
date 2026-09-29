@@ -16,8 +16,6 @@ describe('Test for missing config props canvas warnings', () => {
       .find('span[data-warning="true"].pf-v6-c-icon')
       .should('have.attr', 'title', '3 required parameters are not yet configured: [ type,repoName,repoOwner ]');
 
-    cy.openStepConfigurationTab('github2');
-
     cy.interactWithConfigInputObject('parameters.repoName', 'test');
     cy.closeStepConfigurationTab();
 
