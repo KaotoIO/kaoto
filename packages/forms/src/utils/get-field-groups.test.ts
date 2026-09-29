@@ -1,4 +1,5 @@
 import { JSONSchema4 } from 'json-schema';
+
 import { TimerComponentSchema } from '../stubs/timer.component.schema';
 import { getFieldGroups } from './get-field-groups';
 

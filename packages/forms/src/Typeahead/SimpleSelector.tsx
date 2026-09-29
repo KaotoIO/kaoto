@@ -1,5 +1,6 @@
 import { ContentSwitcher, Switch } from '@carbon/react';
 import { FunctionComponent, useCallback, useState } from 'react';
+
 import { isDefined } from '../utils';
 import { TypeaheadProps } from './Typeahead.types';
 

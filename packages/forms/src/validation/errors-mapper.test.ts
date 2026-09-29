@@ -1,5 +1,6 @@
-import { errorsMapper } from './errors-mapper';
 import { ErrorObject } from 'ajv';
+
+import { errorsMapper } from './errors-mapper';
 
 describe('errorsMapper', () => {
   const example: ErrorObject[] = [

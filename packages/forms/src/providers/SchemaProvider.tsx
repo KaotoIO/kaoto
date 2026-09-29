@@ -1,5 +1,6 @@
 import { JSONSchema4 } from 'json-schema';
 import { createContext, FunctionComponent, PropsWithChildren, useContext, useMemo } from 'react';
+
 import { resolveSchemaWithRef } from '../utils';
 import { SchemaDefinitionsContext } from './SchemaDefinitionsProvider';
 

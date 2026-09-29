@@ -1,4 +1,5 @@
 import { act, fireEvent, render } from '@testing-library/react';
+
 import { ArrayFieldWrapper } from './ArrayFieldWrapper';
 
 describe('ArrayFieldWrapper', () => {

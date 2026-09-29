@@ -1,6 +1,9 @@
+import './GroupFields.scss';
+
 import { Accordion, AccordionItem } from '@carbon/react';
 import { JSONSchema4 } from 'json-schema';
 import { FunctionComponent, useContext } from 'react';
+
 import { useFieldValue } from '../../hooks/field-value';
 import { FieldProps } from '../../models/typings';
 import { CanvasFormTabsContext } from '../../providers/canvas-form-tabs.provider';
@@ -8,7 +11,6 @@ import { SchemaProvider } from '../../providers/SchemaProvider';
 import { isDefined } from '../../utils';
 import { capitalizeString } from '../../utils/capitalize-string';
 import { ObjectFieldInner } from './ObjectFieldInner';
-import './GroupFields.scss';
 interface GroupFieldsProps extends FieldProps {
   groups: [string, Record<string, JSONSchema4>][];
   requiredProperties: string[];

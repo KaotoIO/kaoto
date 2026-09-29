@@ -1,5 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
-import { FunctionComponent, PropsWithChildren } from 'react';
+import { FunctionComponent, PropsWithChildren, useMemo } from 'react';
+
 import { ModelContext } from '../providers/ModelProvider';
 import { useFieldValue } from './field-value';
 
@@ -12,11 +13,10 @@ describe('useFieldValue', () => {
     children,
     model = mockModel,
     errors = mockErrors,
-  }) => (
-    <ModelContext.Provider value={{ model, errors, onPropertyChange: mockOnPropertyChange }}>
-      {children}
-    </ModelContext.Provider>
-  );
+  }) => {
+    const contextValue = useMemo(() => ({ model, errors, onPropertyChange: mockOnPropertyChange }), [model, errors]);
+    return <ModelContext.Provider value={contextValue}>{children}</ModelContext.Provider>;
+  };
 
   it('should return the correct value from the model', () => {
     const { result } = renderHook(() => useFieldValue<string>('#.name'), { wrapper: Wrapper });

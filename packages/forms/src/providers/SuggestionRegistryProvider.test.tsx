@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { JSONSchema4 } from 'json-schema';
 import { useContext } from 'react';
+
 import { SuggestionContext, SuggestionRegistryProvider, useSuggestionRegistry } from './SuggestionRegistryProvider';
 
 describe('SuggestionRegistryProvider', () => {

@@ -1,6 +1,7 @@
-import { IconButton, Grid, Column, TextInput } from '@carbon/react';
 import { Add, TrashCan } from '@carbon/icons-react';
+import { Column, Grid, IconButton, TextInput } from '@carbon/react';
 import { FunctionComponent, useRef, useState } from 'react';
+
 import { getCamelRandomId } from '../utils/camel-random-id';
 import { KeyValueField } from './KeyValueField';
 

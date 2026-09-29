@@ -1,6 +1,7 @@
 import { FunctionComponent, useContext } from 'react';
-import { SchemaContext, SchemaProvider } from '../../providers/SchemaProvider';
+
 import { FieldProps } from '../../models/typings';
+import { SchemaContext, SchemaProvider } from '../../providers/SchemaProvider';
 import { AutoField } from '../AutoField';
 
 export const AllOfField: FunctionComponent<FieldProps> = ({ propName, required, onRemove }) => {

@@ -16,6 +16,41 @@ vi.mock('@carbon/react', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@carbon/react')>();
   const React = await import('react');
 
+  // MenuButton positions its popup with floating-ui. Unit tests only need its
+  // trigger and action callbacks, so avoid the positioning work in jsdom.
+  const MenuButton = React.forwardRef<HTMLDivElement, React.ComponentProps<typeof actual.MenuButton>>(
+    ({ label, children, 'data-testid': testId }, ref) => {
+      const [open, setOpen] = React.useState(false);
+      return React.createElement(
+        'div',
+        { ref, 'data-testid': testId },
+        React.createElement('button', { type: 'button', onClick: () => setOpen(!open) }, label),
+        open && React.createElement('ul', { role: 'menu' }, children),
+      );
+    },
+  );
+  MenuButton.displayName = 'MenuButton';
+
+  const MenuItem = React.forwardRef<HTMLLIElement, React.ComponentProps<typeof actual.MenuItem>>(
+    ({ label, children, disabled, onClick, 'data-testid': testId }, ref) =>
+      React.createElement(
+        'li',
+        {
+          ref,
+          role: 'menuitem',
+          'aria-disabled': disabled || undefined,
+          'data-testid': testId,
+          onClick: disabled ? undefined : onClick,
+        },
+        label,
+        children,
+      ),
+  );
+  MenuItem.displayName = 'MenuItem';
+
+  const MenuItemDivider = () => React.createElement('li', { role: 'separator' });
+  MenuItemDivider.displayName = 'MenuItemDivider';
+
   // Simple passthrough: renders children directly, content always visible.
   // ToggletipButton forwards its `label` prop as aria-label so tests using
   // getByLabelText() can still locate the button.
@@ -31,7 +66,7 @@ vi.mock('@carbon/react', async (importOriginal) => {
     React.createElement(React.Fragment, null, children);
   ToggletipContent.displayName = 'ToggletipContent';
 
-  return { ...actual, Toggletip, ToggletipButton, ToggletipContent };
+  return { ...actual, MenuButton, MenuItem, MenuItemDivider, Toggletip, ToggletipButton, ToggletipContent };
 });
 
 // Mock @patternfly/react-icons to avoid ESM resolution issues

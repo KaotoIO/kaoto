@@ -1,6 +1,7 @@
 import { act, fireEvent, render, waitFor, within } from '@testing-library/react';
 import { JSONSchema4 } from 'json-schema';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useMemo, useState } from 'react';
+
 import { SuggestionContext } from '../providers';
 import { ModelContext, ModelContextProvider } from '../providers/ModelProvider';
 import { SchemaProvider } from '../providers/SchemaProvider';
@@ -9,11 +10,11 @@ import { StringField } from './StringField';
 
 const StatefulSuggestionProvider = ({ children, getProviders }: { children: ReactNode; getProviders: vi.Mock }) => {
   const [currentOpenMenu, setCurrentOpenMenu] = useState<string | null>(null);
-  return (
-    <SuggestionContext.Provider value={{ getProviders, currentOpenMenu, setCurrentOpenMenu }}>
-      {children}
-    </SuggestionContext.Provider>
+  const contextValue = useMemo(
+    () => ({ getProviders, currentOpenMenu, setCurrentOpenMenu }),
+    [getProviders, currentOpenMenu],
   );
+  return <SuggestionContext.Provider value={contextValue}>{children}</SuggestionContext.Provider>;
 };
 
 describe('StringField', () => {

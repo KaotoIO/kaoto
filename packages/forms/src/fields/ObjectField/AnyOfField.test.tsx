@@ -1,12 +1,14 @@
-import { render } from '@testing-library/react';
 import { inspect } from 'node:util';
+
+import { render } from '@testing-library/react';
+import { JSONSchema4 } from 'json-schema';
 import { useContext } from 'react';
-import { ROOT_PATH } from '../../utils';
+
 import { FormComponentFactoryContext } from '../../providers/context/form-component-factory-context';
 import { SchemaContext } from '../../providers/SchemaProvider';
 import { FormWrapper } from '../../testing/FormWrapper';
+import { ROOT_PATH } from '../../utils';
 import { AnyOfField } from './AnyOfField';
-import { JSONSchema4 } from 'json-schema';
 
 describe('AnyOfField', () => {
   const anyOf: JSONSchema4['anyOf'] = [

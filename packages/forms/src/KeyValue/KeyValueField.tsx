@@ -1,8 +1,9 @@
 import { TextInput } from '@carbon/react';
-import { forwardRef, useImperativeHandle, useRef, ChangeEvent } from 'react';
-import { IDataTestID } from '../models';
-import { useSuggestions } from '../hooks/suggestions';
 import { JSONSchema4 } from 'json-schema';
+import { ChangeEvent, forwardRef, useImperativeHandle, useRef } from 'react';
+
+import { useSuggestions } from '../hooks/suggestions';
+import { IDataTestID } from '../models';
 
 interface KeyValueFieldProps extends IDataTestID {
   id: string;

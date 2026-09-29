@@ -1,3 +1,5 @@
+import './KaotoForm.scss';
+
 import { Form } from '@carbon/react';
 import { JSONSchema4 } from 'json-schema';
 import {
@@ -10,9 +12,9 @@ import {
   useRef,
   useState,
 } from 'react';
+
 import { AutoField } from './fields/AutoField';
 import { NoFieldFound } from './Form/NoFieldFound';
-import './KaotoForm.scss';
 import { IDataTestID } from './models';
 import { CustomFieldsFactory, FormComponentFactoryProvider } from './providers/FormComponentFactoryProvider';
 import { ModelContextProvider } from './providers/ModelProvider';

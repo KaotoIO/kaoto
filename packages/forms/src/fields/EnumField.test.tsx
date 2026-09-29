@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+
 import { ModelContextProvider } from '../providers/ModelProvider';
 import { SchemaProvider } from '../providers/SchemaProvider';
 import { ROOT_PATH } from '../utils';
@@ -73,7 +74,7 @@ describe('EnumField', () => {
   it('calls onCleanInput when the clear button is clicked', async () => {
     const onPropertyChangeSpy = vi.fn();
     const { container } = render(
-      <ModelContextProvider model={'Option1'} onPropertyChange={onPropertyChangeSpy}>
+      <ModelContextProvider model="Option1" onPropertyChange={onPropertyChangeSpy}>
         <SchemaProvider schema={enumSchema}>
           <EnumField propName={ROOT_PATH} />
         </SchemaProvider>
@@ -97,7 +98,7 @@ describe('EnumField', () => {
     const onPropertyChangeSpy = vi.fn();
     render(
       <ModelContextProvider
-        model={'Option1'}
+        model="Option1"
         errors={{ [ROOT_PATH]: ['error message'] }}
         onPropertyChange={onPropertyChangeSpy}
       >
@@ -132,7 +133,7 @@ describe('EnumField', () => {
   it('preserves custom values that are not in the enum', () => {
     const onPropertyChangeSpy = vi.fn();
     render(
-      <ModelContextProvider model={'{{custom.value}}'} onPropertyChange={onPropertyChangeSpy}>
+      <ModelContextProvider model="{{custom.value}}" onPropertyChange={onPropertyChangeSpy}>
         <SchemaProvider schema={enumSchema}>
           <EnumField propName={ROOT_PATH} />
         </SchemaProvider>

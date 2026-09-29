@@ -1,5 +1,8 @@
+import './TextAreaField.scss';
+
 import { TextArea } from '@carbon/react';
 import { ChangeEvent, FunctionComponent, useContext, useRef } from 'react';
+
 import { useFieldValue } from '../hooks/field-value';
 import { useSuggestions } from '../hooks/suggestions';
 import { FieldProps } from '../models/typings';
@@ -7,7 +10,6 @@ import { SchemaContext } from '../providers/SchemaProvider';
 import { isDefined, isRawString } from '../utils';
 import { FieldActions } from './FieldActions';
 import { FieldWrapper } from './FieldWrapper';
-import './TextAreaField.scss';
 
 export const TextAreaField: FunctionComponent<FieldProps> = ({ propName, required, onRemove: onRemoveProps }) => {
   const { schema } = useContext(SchemaContext);
@@ -65,7 +67,7 @@ export const TextAreaField: FunctionComponent<FieldProps> = ({ propName, require
       <div className="textarea-field-container">
         <div className="textarea-field-input-wrapper">
           <TextArea
-            labelText={''}
+            labelText=""
             rows={rows}
             role="textbox"
             id={propName}

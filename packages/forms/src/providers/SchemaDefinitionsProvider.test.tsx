@@ -1,7 +1,8 @@
 import { renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren, useContext } from 'react';
-import { SchemaDefinitionsContext, SchemaDefinitionsProvider } from './SchemaDefinitionsProvider';
+
 import { KaotoSchemaDefinition } from '../models';
+import { SchemaDefinitionsContext, SchemaDefinitionsProvider } from './SchemaDefinitionsProvider';
 
 describe('SchemaDefinitionsProvider', () => {
   it('should have a default value', () => {

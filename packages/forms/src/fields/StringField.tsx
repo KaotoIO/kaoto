@@ -1,13 +1,15 @@
-import { FunctionComponent, ReactNode, useCallback, useContext, useRef, useState, ChangeEvent } from 'react';
+import './StringField.scss';
+
+import { TextInput } from '@carbon/react';
+import { ChangeEvent, FunctionComponent, ReactNode, useCallback, useContext, useRef, useState } from 'react';
+
 import { useFieldValue } from '../hooks/field-value';
 import { useSuggestions } from '../hooks/suggestions';
 import { FieldProps } from '../models/typings';
 import { SchemaContext } from '../providers/SchemaProvider';
 import { isDefined, isRawString } from '../utils';
-import { FieldWrapper } from './FieldWrapper';
-import { TextInput } from '@carbon/react';
 import { FieldActions } from './FieldActions';
-import './StringField.scss';
+import { FieldWrapper } from './FieldWrapper';
 
 interface StringFieldProps extends FieldProps {
   fieldType?: string;
