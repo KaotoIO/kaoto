@@ -8,7 +8,7 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     // afterAll hooks run in reverse order: vitest-setup.ts restores the spies before the application state is reset
-    setupFiles: ['./vitest-mocks-setup.ts', './src/stubs/reset-app-state.setup.ts', './vitest-setup.ts'],
+    setupFiles: ['./src/__mocks__/vitest-mocks-setup.ts', './src/stubs/reset-app-state.setup.ts', './src/__mocks__/vitest-setup.ts'],
     snapshotSerializers: ['./vitest-snapshot-serializer.ts'],
     include: ['**/?(*.)+(test).[tj]s?(x)'],
     testTimeout: 10_000,

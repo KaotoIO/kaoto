@@ -91,7 +91,7 @@ describe('SuggestionRegistryProvider', () => {
       getSuggestions: () => [{ value: 'suggestion2' }],
     };
 
-    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation();
+    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
     act(() => {
       result.current.registerProvider(provider1);

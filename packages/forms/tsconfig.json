@@ -1,4 +1,5 @@
 {
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "./cypress.config.ts"],
   "compilerOptions": {
     "lib": ["es6", "dom", "es2018.promise", "es2019", "esnext"],
@@ -20,6 +21,7 @@
     "experimentalDecorators": true,
     "downlevelIteration": true,
     "skipLibCheck": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "types": ["vitest/globals", "@testing-library/jest-dom", "node"]
   }
 }

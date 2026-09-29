@@ -1,5 +1,6 @@
 import { act, fireEvent, render, renderHook, waitFor } from '@testing-library/react';
 import { forwardRef, ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import type { Mock } from 'vitest';
 
 import { SuggestionProvider } from '../models/suggestions';
 import { SuggestionContext } from '../providers';
@@ -29,7 +30,7 @@ vi.mock('@carbon/react', async (importOriginal) => {
   return { ...actual, Menu, MenuItem };
 });
 
-const StatefulSuggestionProvider = ({ children, getProviders }: { children: ReactNode; getProviders: vi.Mock }) => {
+const StatefulSuggestionProvider = ({ children, getProviders }: { children: ReactNode; getProviders: Mock }) => {
   const [currentOpenMenu, setCurrentOpenMenu] = useState<string | null>(null);
   const contextValue = useMemo(
     () => ({ getProviders, currentOpenMenu, setCurrentOpenMenu }),
@@ -39,9 +40,9 @@ const StatefulSuggestionProvider = ({ children, getProviders }: { children: Reac
 };
 
 describe('useSuggestions', () => {
-  let setValueMock: vi.Mock;
+  let setValueMock: Mock;
   let mockProvider: SuggestionProvider;
-  let getProvidersMock: vi.Mock;
+  let getProvidersMock: Mock;
 
   const TestComponent = () => {
     const inputRef = useRef<HTMLInputElement>(null);

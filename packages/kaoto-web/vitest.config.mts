@@ -13,8 +13,8 @@ export default defineConfig({
     // afterEach/afterAll hooks of an imported setup would only apply to the first test file of each worker.
     // Append local setup files after them.
     setupFiles: [
-      fileURLToPath(new URL('../ui/vitest-mocks-setup.ts', import.meta.url)),
-      fileURLToPath(new URL('../ui/vitest-setup.ts', import.meta.url)),
+      fileURLToPath(new URL('../ui/src/__mocks__/vitest-mocks-setup.ts', import.meta.url)),
+      fileURLToPath(new URL('../ui/src/__mocks__/vitest-setup.ts', import.meta.url)),
     ],
     include: ['**/?(*.)+(test).[tj]s?(x)'],
     typecheck: {

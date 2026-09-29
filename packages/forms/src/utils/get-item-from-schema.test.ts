@@ -1,4 +1,5 @@
-import { KaotoSchemaDefinition } from '../models';
+import type { JSONSchema4 } from 'json-schema';
+
 import { getItemFromSchema } from './get-item-from-schema';
 
 describe('getItemFromSchema', () => {
