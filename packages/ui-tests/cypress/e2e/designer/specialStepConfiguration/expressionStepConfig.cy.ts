@@ -33,16 +33,11 @@ describe('Tests for sidebar expression configuration', () => {
     cy.expandWrappedSection('jq-Advanced');
     cy.interactWithExpressionInputObject('jq.trim');
 
-    // TODO: Closing the configuration panel because adding a new step keep the selection status,
-    // but closes the panel. This will be fixed in https://github.com/KaotoIO/kaoto/issues/1923
-    cy.closeStepConfigurationTab();
-
     cy.selectAppendNode('setHeader');
     cy.chooseFromCatalog('processor', 'setHeader');
 
     cy.checkNodeExist('setHeader', 2);
 
-    cy.openStepConfigurationTabByPath('custom-node__route.from.steps.1.setHeader');
     cy.selectFormTab('All');
     cy.selectExpression('JQ');
     cy.interactWithExpressionInputObject('jq.expression', '.name');

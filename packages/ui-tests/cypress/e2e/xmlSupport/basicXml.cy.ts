@@ -11,7 +11,6 @@ describe('Tests for basic XML operations', () => {
     cy.chooseFromCatalog('component', 'as2');
     cy.checkNodeExist('as2', 1);
 
-    cy.openStepConfigurationTab('as2');
     cy.selectFormTab('All');
     cy.interactWithConfigInputObject('id', 'id-1234');
 
