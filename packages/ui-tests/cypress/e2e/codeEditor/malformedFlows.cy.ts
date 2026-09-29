@@ -40,7 +40,7 @@ describe('Test for Multi route actions from the code editor', () => {
     cy.openDesignPage();
     cy.checkNodeExist('id', 1);
     cy.openStepConfigurationTab('id');
-    cy.get('[data-ouia-component-id^="OUIA-Generated-Title"]').should('have.text', 'id');
+    cy.get('.canvas-form__header .form-header__title').should('have.text', 'id');
     cy.closeStepConfigurationTab();
     // Related issue to provide more info https://github.com/KaotoIO/kaoto/issues/309
     // verify the route wasn't removed and left for the user to repair

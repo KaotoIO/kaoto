@@ -22,7 +22,8 @@
   "main": "dist/index.js",
   "exports": {
     ".": "./dist/index.js",
-    "./testing": "./dist/testing.js"
+    "./testing": "./dist/testing.js",
+    "./testing/page-object": "./dist/testing/KaotoFormPageObject.js"
   },
   "files": [
     "dist"

@@ -24,6 +24,8 @@ declare global {
     | 'container-remove';
 
   namespace Cypress {
+    type FormTab = 'Required' | 'All' | 'Modified';
+
     interface Chainable {
       // default
       openHomePage(): Chainable<JQuery<Element>>;
@@ -130,8 +132,8 @@ declare global {
       addProperty(propertyName: string): Chainable<JQuery<Element>>;
       addSingleKVProperty(propertyName: string, key: string, value: string): Chainable<JQuery<Element>>;
       filterFields(filter: string): Chainable<JQuery<Element>>;
-      selectFormTab(tab: string): Chainable<JQuery<Element>>;
-      specifiedFormTab(tab: string): Chainable<JQuery<Element>>;
+      selectFormTab(tab: FormTab): Chainable<JQuery<Element>>;
+      specifiedFormTab(tab: FormTab): Chainable<JQuery<Element>>;
       addStringProperty(selector: string, key: string, value: string): Chainable<JQuery<Element>>;
       expandWrappedSection(sectionName: string): Chainable<JQuery<Element>>;
       closeWrappedSection(sectionName: string): Chainable<JQuery<Element>>;
