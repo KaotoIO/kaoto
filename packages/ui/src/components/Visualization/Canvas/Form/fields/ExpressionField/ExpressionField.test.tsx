@@ -246,6 +246,41 @@ describe('ExpressionField', () => {
     expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, undefined);
   });
 
+  it('propagates consecutive expression edits synchronously', async () => {
+    const onPropertyChangeSpy = vi.fn();
+
+    await renderWithSuspense(
+      <FormComponentFactoryProvider>
+        <ModelContextProvider
+          model={{ id: 'setHeader-1891', expression: { simple: { expression: 'Test' } } }}
+          onPropertyChange={onPropertyChangeSpy}
+        >
+          <SchemaDefinitionsProvider schema={setHeaderExpressionSchema} omitFields={[]}>
+            <SchemaProvider schema={setHeaderExpressionSchema}>
+              <ExpressionField propName={ROOT_PATH} required />
+            </SchemaProvider>
+          </SchemaDefinitionsProvider>
+        </ModelContextProvider>
+      </FormComponentFactoryProvider>,
+    );
+
+    const input = await screen.findByDisplayValue('Test');
+
+    // Assert immediately after each edit: awaiting here would hide an asynchronous update.
+    fireEvent.change(input, { target: { value: 'Testa' } });
+    expect(onPropertyChangeSpy).toHaveBeenLastCalledWith(ROOT_PATH, {
+      id: 'setHeader-1891',
+      simple: { expression: 'Testa' },
+    });
+
+    fireEvent.change(input, { target: { value: 'Testab' } });
+    expect(onPropertyChangeSpy).toHaveBeenLastCalledWith(ROOT_PATH, {
+      id: 'setHeader-1891',
+      simple: { expression: 'Testab' },
+    });
+    expect(onPropertyChangeSpy).toHaveBeenCalledTimes(2);
+  });
+
   it('should show the error boundary fallback when getLanguageNames rejects', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.spyOn(ExpressionService, 'getLanguageNames').mockRejectedValue(new Error('catalog unavailable'));
