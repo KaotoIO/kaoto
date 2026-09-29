@@ -1,10 +1,16 @@
-import { fireEvent, Screen, waitFor } from '@testing-library/dom';
+import { BoundFunctions, fireEvent, queries, waitFor } from '@testing-library/dom';
 
 import { isDefined } from '../utils';
 
+/**
+ * Page object for driving a Kaoto form.
+ *
+ * It only relies on `@testing-library/dom`, so besides unit tests (`screen`) it can be
+ * bound to any document, f.i. the Cypress AUT: `within(doc.body)`.
+ */
 export class KaotoFormPageObject {
   constructor(
-    private readonly screen: Screen,
+    private readonly screen: BoundFunctions<typeof queries>,
     private readonly executor: (callback: () => Promise<void>) => Promise<void>,
   ) {}
 
@@ -38,19 +44,18 @@ export class KaotoFormPageObject {
     });
   }
 
-  private async findTab(name: 'Required' | 'All' | 'Modified'): Promise<HTMLElement> {
-    const tabByTestId = this.screen.queryByTestId(`tab-${name}`);
-    if (tabByTestId) {
-      return tabByTestId;
-    }
+  async findTab(name: 'Required' | 'All' | 'Modified'): Promise<HTMLElement> {
+    return this.screen.findByTestId(`tab-${name}`);
+  }
 
-    const tabs = (await this.screen.queryAllByRole('tab', { name })) ?? [];
-    if (tabs.length > 0) {
-      return tabs[0];
-    }
-
-    const buttons = await this.screen.findAllByRole('button', { name });
-    return buttons[0];
+  /**
+   * Filters the form fields by the given text using the "Find properties by name" input.
+   */
+  async filterFields(text: string): Promise<void> {
+    const filterInput = await this.screen.findByTestId('filter-fields');
+    await this.executor(async () => {
+      fireEvent.input(filterInput, { target: { value: text } });
+    });
   }
 
   getExpressionInputForProperty(propertyName: string): HTMLElement | null {
