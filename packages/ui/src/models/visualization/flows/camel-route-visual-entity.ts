@@ -22,7 +22,6 @@ const getDefaultRouteDefinition = (fromDefinition?: { from: FromDefinition }): {
 
 export class CamelRouteVisualEntity extends AbstractCamelVisualEntity<{ route: RouteDefinition }> {
   id: string;
-  readonly #hasGeneratedId: boolean;
   readonly type = EntityType.Route;
   static readonly ROOT_PATH = 'route';
 
@@ -33,22 +32,16 @@ export class CamelRouteVisualEntity extends AbstractCamelVisualEntity<{ route: R
       routeDef = getDefaultRouteDefinition(routeRaw);
       routeRawId = routeRaw.from.id;
     } else if (isCamelRoute(routeRaw)) {
+      routeDef = routeRaw;
       routeRawId = routeRaw.route?.id;
-      // Do not write a generated identity into the parsed source. initialize() can run again.
-      routeDef = isDefined(routeRawId) ? routeRaw : { route: { ...routeRaw.route } };
     } else {
       routeDef = getDefaultRouteDefinition();
     }
 
     super(routeDef);
-    this.#hasGeneratedId = !isDefined(routeRawId);
     const id = routeRawId ?? getCamelRandomId('route');
     this.id = id;
     this.entityDef.route.id = this.id;
-  }
-
-  get hasGeneratedId(): boolean {
-    return this.#hasGeneratedId;
   }
 
   static isApplicable(routeDef: unknown): routeDef is { route: RouteDefinition } | { from: FromDefinition } {
