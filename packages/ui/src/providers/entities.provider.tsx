@@ -40,6 +40,7 @@ export const EntitiesProvider: FunctionComponent<PropsWithChildren> = ({ childre
   const eventNotifier = EventNotifier.getInstance();
 
   const { kaotoResource } = useKaotoResourceContext();
+  const [initializedResource, setInitializedResource] = useState<KaotoResource>();
   const [entities, setEntities] = useState<BaseEntity[]>([]);
   const [visualEntities, setVisualEntities] = useState<BaseVisualEntity[]>([]);
 
@@ -57,6 +58,7 @@ export const EntitiesProvider: FunctionComponent<PropsWithChildren> = ({ childre
         setEntities([]);
         setVisualEntities([]);
       }
+      setInitializedResource(kaotoResource);
     };
     void init();
 
@@ -89,14 +91,19 @@ export const EntitiesProvider: FunctionComponent<PropsWithChildren> = ({ childre
       visualEntities,
       currentSchemaType: kaotoResource.getType(),
       camelResource: kaotoResource,
+      isLoading: initializedResource !== kaotoResource,
       updateEntitiesFromCamelResource,
       updateSourceCodeFromEntities,
     }),
-    [entities, visualEntities, kaotoResource, updateEntitiesFromCamelResource, updateSourceCodeFromEntities],
+    [
+      entities,
+      visualEntities,
+      kaotoResource,
+      initializedResource,
+      updateEntitiesFromCamelResource,
+      updateSourceCodeFromEntities,
+    ],
   );
-  // isLoading is intentionally not added here — this worktree only targets the
-  // Beans and REST DSL editor selection retention, not the full initializedResource tracking.
-  // We expose it as always-false so the page components compile correctly.
 
   return <EntitiesContext.Provider value={value}>{children}</EntitiesContext.Provider>;
 };

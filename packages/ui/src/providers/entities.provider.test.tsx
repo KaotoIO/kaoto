@@ -322,6 +322,59 @@ describe('EntitiesProvider', () => {
   });
 
   describe('async initialization lifecycle', () => {
+    it.each(['resolve', 'reject'] as const)(
+      'keeps loading the current resource when a superseded initialization settles with %s',
+      async (settlement) => {
+        const superseded = createDeferred<void>();
+        const current = createDeferred<void>();
+        const previousEntities = [{ id: 'previous' }];
+        const currentEntities = [{ id: 'current' }];
+        let resource = createMockResource({ getEntities: vi.fn().mockReturnValue(previousEntities) });
+        const { result, rerender } = renderHook(() => useContext(EntitiesContext), {
+          wrapper: ({ children }) => (
+            <KaotoResourceContext.Provider value={{ kaotoResource: resource }}>
+              <EntitiesProvider>{children}</EntitiesProvider>
+            </KaotoResourceContext.Provider>
+          ),
+        });
+
+        expect(result.current?.isLoading).toBe(true);
+        await waitFor(() => {
+          expect(result.current?.isLoading).toBe(false);
+        });
+
+        const supersededResource = createMockResource({ initialize: vi.fn().mockReturnValue(superseded.promise) });
+        resource = supersededResource;
+        rerender();
+        expect(result.current?.isLoading).toBe(true);
+        expect(result.current?.entities).toEqual(previousEntities);
+
+        resource = createMockResource({
+          initialize: vi.fn().mockReturnValue(current.promise),
+          getEntities: vi.fn().mockReturnValue(currentEntities),
+        });
+        rerender();
+        await act(async () => {
+          if (settlement === 'resolve') superseded.resolve();
+          else superseded.reject(new Error('superseded initialization'));
+          await superseded.promise.catch(() => {});
+        });
+
+        expect(result.current?.isLoading).toBe(true);
+        expect(result.current?.entities).toEqual(previousEntities);
+        expect(supersededResource.getEntities).not.toHaveBeenCalled();
+
+        await act(async () => {
+          current.resolve();
+          await current.promise;
+        });
+
+        expect(result.current?.isLoading).toBe(false);
+        expect(result.current?.camelResource).toBe(resource);
+        expect(result.current?.entities).toEqual(currentEntities);
+      },
+    );
+
     // WORKED EXAMPLE — the failure path (entities.provider.tsx catch block).
     it('should reset entities and log when initialization rejects', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -343,6 +396,7 @@ describe('EntitiesProvider', () => {
       });
       expect(result.current?.entities).toEqual([]);
       expect(result.current?.visualEntities).toEqual([]);
+      expect(result.current?.isLoading).toBe(false);
       // Proof we took the catch path, not the success path.
       expect(resource.getEntities).not.toHaveBeenCalled();
 
