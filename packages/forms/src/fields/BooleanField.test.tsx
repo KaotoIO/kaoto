@@ -1,4 +1,5 @@
 import { act, fireEvent, render } from '@testing-library/react';
+
 import { ModelContextProvider } from '../providers/ModelProvider';
 import { SchemaProvider } from '../providers/SchemaProvider';
 import { ROOT_PATH } from '../utils';
@@ -26,7 +27,7 @@ describe('BooleanField', () => {
 
   it('should render checked if value is true', () => {
     const { getByRole } = render(
-      <ModelContextProvider model={true} onPropertyChange={vi.fn()}>
+      <ModelContextProvider model onPropertyChange={vi.fn()}>
         <SchemaProvider schema={{ type: 'boolean', title: 'Boolean Field', default: false }}>
           <BooleanField propName={ROOT_PATH} />
         </SchemaProvider>

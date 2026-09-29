@@ -1,10 +1,11 @@
 import { FunctionComponent, useContext } from 'react';
+
 import { useOneOfField } from '../../hooks/one-of-field';
-import { SchemaContext, SchemaProvider } from '../../providers/SchemaProvider';
 import { FieldProps } from '../../models/typings';
+import { SchemaContext, SchemaProvider } from '../../providers/SchemaProvider';
+import { ArrayFieldWrapper } from '../ArrayField/ArrayFieldWrapper';
 import { AutoField } from '../AutoField';
 import { SchemaList } from './SchemaList';
-import { ArrayFieldWrapper } from '../ArrayField/ArrayFieldWrapper';
 
 export const OneOfField: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { selectedOneOfSchema, oneOfSchemas, onSchemaChange, shouldRender } = useOneOfField(propName);

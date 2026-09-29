@@ -1,6 +1,7 @@
 import { useCallback, useContext, useState } from 'react';
-import { isRawString, safeGetValue } from '../utils';
+
 import { ModelContext } from '../providers/ModelProvider';
+import { isRawString, safeGetValue } from '../utils';
 
 export const useFieldValue = <T = unknown>(propertyPath: string) => {
   const { model, errors, onPropertyChange, disabled } = useContext(ModelContext);

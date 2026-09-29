@@ -1,6 +1,7 @@
-import { IconButton } from '@carbon/react';
 import { Add } from '@carbon/icons-react';
+import { IconButton } from '@carbon/react';
 import { FunctionComponent, useContext, useEffect, useState } from 'react';
+
 import { useFieldValue } from '../../hooks/field-value';
 import { FieldProps } from '../../models/typings';
 import { SchemaContext, SchemaProvider } from '../../providers/SchemaProvider';

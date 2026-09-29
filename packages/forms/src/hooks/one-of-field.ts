@@ -1,9 +1,10 @@
 import { useContext, useMemo, useState } from 'react';
+
 import { CanvasFormTabsContext } from '../providers/canvas-form-tabs.provider';
+import { SchemaContext } from '../providers/SchemaProvider';
 import { getItemFromSchema, isDefined, setValue } from '../utils';
 import { getAppliedSchemaIndex } from '../utils/get-applied-schema-index';
-import { OneOfSchemas, getOneOfSchemaList } from '../utils/get-oneof-schema-list';
-import { SchemaContext } from '../providers/SchemaProvider';
+import { getOneOfSchemaList, OneOfSchemas } from '../utils/get-oneof-schema-list';
 import { useFieldValue } from './field-value';
 
 export const useOneOfField = (propName: string) => {
@@ -46,7 +47,10 @@ export const useOneOfField = (propName: string) => {
           );
       }
 
-      schema.schema.properties && Object.keys(schema.schema.properties).forEach((prop) => setValue(newValue, prop, {}));
+      schema.schema.properties &&
+        Object.keys(schema.schema.properties).forEach((prop) => {
+          setValue(newValue, prop, {});
+        });
       onChange(newValue as Record<string, unknown>);
     }
 

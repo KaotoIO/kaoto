@@ -1,9 +1,11 @@
 import { JSONSchema4 } from 'json-schema';
 import { FunctionComponent, PropsWithChildren, useCallback } from 'react';
+
 import { ArrayField } from '../fields/ArrayField/ArrayField';
 import { BooleanField } from '../fields/BooleanField';
 import { DisabledField } from '../fields/DisabledField';
 import { EnumField } from '../fields/EnumField';
+import { IndexedValuesField } from '../fields/IndexedValuesField/IndexedValuesField';
 import { AllOfField } from '../fields/ObjectField/AllOfField';
 import { ObjectField } from '../fields/ObjectField/ObjectField';
 import { OneOfField } from '../fields/OneOfField/OneOfField';
@@ -16,7 +18,6 @@ import {
   FormComponentFactoryContext,
   FormComponentFactoryContextValue,
 } from './context/form-component-factory-context';
-import { IndexedValuesField } from '../fields/IndexedValuesField/IndexedValuesField';
 
 export type CustomFieldsFactory = (schema: JSONSchema4) => FunctionComponent<FieldProps> | undefined;
 

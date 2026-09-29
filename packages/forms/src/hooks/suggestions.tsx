@@ -1,6 +1,7 @@
 import { Layer, Menu, MenuItem, MenuItemGroup, MenuItemSelectable, Search } from '@carbon/react';
 import { JSONSchema4 } from 'json-schema';
 import {
+  ChangeEvent,
   ReactNode,
   RefObject,
   useCallback,
@@ -10,8 +11,8 @@ import {
   useMemo,
   useRef,
   useState,
-  ChangeEvent,
 } from 'react';
+
 import { GroupedSuggestions, Suggestion, SuggestionProvider } from '../models/suggestions';
 import { SuggestionContext } from '../providers';
 import { applySuggestion } from '../utils/apply-suggestion';
@@ -145,7 +146,7 @@ export const useSuggestions = ({
       setGroupedSuggestions(newGroupedSuggestions);
     };
 
-    fetchSuggestions();
+    void fetchSuggestions();
     return () => {
       cancelled = true;
     };
@@ -231,7 +232,9 @@ export const useSuggestions = ({
       searchInputRef.current?.focus();
     }, 0);
 
-    return () => clearTimeout(focusTimeout);
+    return () => {
+      clearTimeout(focusTimeout);
+    };
   }, [isVisible, inputRef]);
 
   const suggestionsMenu = isVisible ? (

@@ -1,4 +1,5 @@
 import { set } from 'lodash';
+
 import { ROOT_PATH } from './get-value';
 import { isDefined } from './is-defined';
 

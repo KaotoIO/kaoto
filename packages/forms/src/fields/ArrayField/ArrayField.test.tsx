@@ -1,5 +1,6 @@
 import { act, fireEvent, render, RenderResult } from '@testing-library/react';
 import { JSONSchema4 } from 'json-schema';
+
 import { FieldTestProvider } from '../../testing/FieldTestProvider';
 import { ROOT_PATH } from '../../utils';
 import { ArrayField } from './ArrayField';

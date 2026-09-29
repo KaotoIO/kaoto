@@ -1,7 +1,8 @@
 import { FunctionComponent, useContext } from 'react';
-import { isDefined } from '../../utils';
-import { SchemaContext, SchemaProvider } from '../../providers/SchemaProvider';
+
 import { FieldProps } from '../../models/typings';
+import { SchemaContext, SchemaProvider } from '../../providers/SchemaProvider';
+import { isDefined } from '../../utils';
 import { AutoField } from '../AutoField';
 
 interface ObjectFieldInnerProps extends FieldProps {

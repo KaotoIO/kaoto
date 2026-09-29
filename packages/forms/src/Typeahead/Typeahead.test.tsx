@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+
 import { Typeahead } from './Typeahead';
 import { TypeaheadProps } from './Typeahead.types';
 
@@ -36,7 +37,7 @@ describe('Typeahead', () => {
   });
 
   it('should renders the Typeahead component with disabled button', async () => {
-    const { container } = render(<Typeahead {...defaultProps} disabled={true} />);
+    const { container } = render(<Typeahead {...defaultProps} disabled />);
 
     expect(container).toMatchSnapshot();
   });

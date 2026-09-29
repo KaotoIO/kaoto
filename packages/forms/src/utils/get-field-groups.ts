@@ -1,4 +1,5 @@
 import { JSONSchema4 } from 'json-schema';
+
 import { extractGroup } from './get-tagged-field-from-string';
 import { isDefined } from './is-defined';
 

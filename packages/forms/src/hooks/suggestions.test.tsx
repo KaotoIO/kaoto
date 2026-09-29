@@ -1,16 +1,41 @@
 import { act, fireEvent, render, renderHook, waitFor } from '@testing-library/react';
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { forwardRef, ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+
 import { SuggestionProvider } from '../models/suggestions';
 import { SuggestionContext } from '../providers';
 import { useSuggestions } from './suggestions';
 
+// These tests exercise the hook's menu behavior. Carbon's MenuItem uses
+// floating-ui positioning, which is expensive in jsdom for every suggestion.
+vi.mock('@carbon/react', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@carbon/react')>();
+  const MenuItem = forwardRef<HTMLLIElement, React.ComponentProps<typeof actual.MenuItem>>(
+    ({ label, children, disabled, onClick, onKeyDown }, ref) => (
+      <li ref={ref} role="menuitem" aria-label={label} aria-disabled={disabled} onClick={onClick} onKeyDown={onKeyDown}>
+        {label}
+        {children && <ul role="menu">{children}</ul>}
+      </li>
+    ),
+  );
+  MenuItem.displayName = 'MenuItem';
+
+  const Menu = ({ children, label, open }: React.ComponentProps<typeof actual.Menu>) =>
+    open ? (
+      <ul role="menu" aria-label={label}>
+        {children}
+      </ul>
+    ) : null;
+
+  return { ...actual, Menu, MenuItem };
+});
+
 const StatefulSuggestionProvider = ({ children, getProviders }: { children: ReactNode; getProviders: vi.Mock }) => {
   const [currentOpenMenu, setCurrentOpenMenu] = useState<string | null>(null);
-  return (
-    <SuggestionContext.Provider value={{ getProviders, currentOpenMenu, setCurrentOpenMenu }}>
-      {children}
-    </SuggestionContext.Provider>
+  const contextValue = useMemo(
+    () => ({ getProviders, currentOpenMenu, setCurrentOpenMenu }),
+    [getProviders, currentOpenMenu],
   );
+  return <SuggestionContext.Provider value={contextValue}>{children}</SuggestionContext.Provider>;
 };
 
 describe('useSuggestions', () => {
@@ -42,7 +67,9 @@ describe('useSuggestions', () => {
         <input
           ref={inputRef}
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => {
+            setValue(e.target.value);
+          }}
           data-testid="test-input"
           aria-label="Test input"
         />
@@ -494,11 +521,14 @@ describe('useSuggestions', () => {
     const asyncProvider: SuggestionProvider = {
       id: 'async-provider',
       appliesTo: vi.fn().mockReturnValue(true),
-      getSuggestions: vi
-        .fn()
-        .mockImplementation(
-          () => new Promise((resolve) => setTimeout(() => resolve([{ value: 'async-suggestion' }]), 1_000)),
-        ),
+      getSuggestions: vi.fn().mockImplementation(
+        () =>
+          new Promise((resolve) =>
+            setTimeout(() => {
+              resolve([{ value: 'async-suggestion' }]);
+            }, 1_000),
+          ),
+      ),
     };
     getProvidersMock.mockReturnValue([asyncProvider]);
     vi.useFakeTimers();

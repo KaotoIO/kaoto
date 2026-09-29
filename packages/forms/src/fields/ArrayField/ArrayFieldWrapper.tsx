@@ -1,7 +1,8 @@
-import { Layer, Tile, Toggletip, ToggletipButton, ToggletipContent } from '@carbon/react';
-import { Information } from '@carbon/icons-react';
-import { FunctionComponent, PropsWithChildren, ReactNode } from 'react';
 import './ArrayFieldWrapper.scss';
+
+import { Information } from '@carbon/icons-react';
+import { Layer, Tile, Toggletip, ToggletipButton, ToggletipContent } from '@carbon/react';
+import { FunctionComponent, PropsWithChildren, ReactNode } from 'react';
 
 interface FieldWrapperProps {
   propName: string;

@@ -1,6 +1,7 @@
-import { IconButton, Grid, Column } from '@carbon/react';
 import { Add, TrashCan } from '@carbon/icons-react';
+import { Column, Grid, IconButton } from '@carbon/react';
 import { FunctionComponent, useRef, useState } from 'react';
+
 import { KeyValueField } from './KeyValueField';
 
 export type KeyValueType = Record<string, string>;

@@ -1,8 +1,9 @@
 import { Tile } from '@carbon/react';
 import { FunctionComponent } from 'react';
+
+import { CustomExpandableSection } from '../Form/customField/CustomExpandableSection';
 import { IDataTestID } from '../models';
 import { FieldProps } from '../models/typings';
-import { CustomExpandableSection } from '../Form/customField/CustomExpandableSection';
 
 export const DisabledField: FunctionComponent<IDataTestID & FieldProps> = (props) => {
   return (

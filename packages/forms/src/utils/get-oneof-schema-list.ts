@@ -1,4 +1,5 @@
 import { JSONSchema4 } from 'json-schema';
+
 import { camelCaseToSpaces } from './camel-case-to-space';
 import { isDefined } from './is-defined';
 import { resolveSchemaWithRef } from './resolve-schema-with-ref';
