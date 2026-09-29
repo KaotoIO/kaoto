@@ -22,7 +22,7 @@ export const ProviderFilter: FunctionComponent<ProviderFilterProps> = ({
 
   const onSelect = useCallback(
     (_event: unknown, itemId: string | number | undefined) => {
-      if (typeof itemId === 'undefined') {
+      if (itemId === undefined) {
         return;
       }
 
