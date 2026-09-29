@@ -22,8 +22,6 @@ import { KaotoCanvas, KaotoEditor, kaotoLocators, DataMapperEditor } from '../pa
 import { waitUntil } from 'async-wait-until';
 import * as fs from 'fs-extra';
 
-const DATA_TEST_ID_DATAMAPPERSTEP_2_5 = 'custom-node__route.from.steps.0.step:kaoto-datamapper';
-
 describe('Kaoto basic development flow', function () {
 	this.timeout(90_000);
 
@@ -176,8 +174,10 @@ async function addXsdForSource(driver: WebDriver, kaotoWebview: WebView) {
 }
 
 async function openDataMapperEditor(driver: WebDriver) {
-	const nodeSelector = `g[data-testid^="custom-node__kaoto-datamapper"],g[data-testid="custom-node__route.from.steps.0.kaoto-datamapper"],g[data-testid="${DATA_TEST_ID_DATAMAPPERSTEP_2_5}"]`;
-	await DataMapperEditor.openFromNode(driver, nodeSelector);
+	// The config panel is already open after addDatamapperStep (auto-select on add).
+	// Clicking the node again would toggle it closed, so go straight to the open-editor button.
+	await driver.wait(until.elementLocated(By.css(kaotoLocators.DataMapperEditor.openEditorButton)), 5_000, 'Cannot find the button to open the DataMapper');
+	await (await driver.findElement(By.css(kaotoLocators.DataMapperEditor.openEditorButton))).click();
 }
 
 async function deleteDataMapperStep(driver: WebDriver, workspaceFolder: string, kaotoWebview: WebView) {
