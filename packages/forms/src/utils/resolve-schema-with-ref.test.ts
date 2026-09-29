@@ -1,4 +1,5 @@
-import { KaotoSchemaDefinition } from '../models';
+import type { JSONSchema4 } from 'json-schema';
+
 import { resolveSchemaWithRef } from './resolve-schema-with-ref';
 
 describe('resolveSchemaWithRef', () => {

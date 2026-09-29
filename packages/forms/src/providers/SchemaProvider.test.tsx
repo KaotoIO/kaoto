@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
+import type { JSONSchema4 } from 'json-schema';
 import { FunctionComponent, PropsWithChildren, useContext } from 'react';
 
-import { KaotoSchemaDefinition } from '../models';
 import { SchemaDefinitionsProvider } from './SchemaDefinitionsProvider';
 import { SchemaContext, SchemaProvider } from './SchemaProvider';
 

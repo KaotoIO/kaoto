@@ -1,6 +1,6 @@
-import * as matchers from '@testing-library/jest-dom/matchers';
 import '@testing-library/jest-dom/vitest';
 
+import * as matchers from '@testing-library/jest-dom/matchers';
 import { beforeEach, expect, vi } from 'vitest';
 
 expect.extend(matchers);
