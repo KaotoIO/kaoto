@@ -1,19 +1,28 @@
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { CanvasFormTabsProvider } from '@kaoto/forms';
 import { action, isNode, Point, VisualizationProvider } from '@patternfly/react-topology';
 import { act, fireEvent, render, RenderResult, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 
 import { CatalogModalContext } from '../../../dynamic-catalog/catalog-modal.provider';
+import { CatalogKind } from '../../../models';
 import { CamelRouteResource, KameletResource } from '../../../models/camel';
 import { LocalStorageKeys } from '../../../models/local-storage-keys';
 import { DefaultSettingsAdapter } from '../../../models/settings';
 import { CanvasLayoutDirection } from '../../../models/settings/settings.model';
-import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
+import { AddStepMode, IVisualizationNode } from '../../../models/visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../../../models/visualization/flows';
 import { ActionConfirmationModalContextProvider } from '../../../providers/action-confirmation-modal.provider';
 import { SettingsProvider } from '../../../providers/settings.provider';
 import { TestProvidersWrapper, TestRuntimeProviderWrapper } from '../../../stubs';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { kameletJson } from '../../../stubs/kamelet-route';
+import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
+import { useAddStep } from '../Custom/hooks/add-step.hook';
+import { useInsertStep } from '../Custom/hooks/insert-step.hook';
+import { useReplaceStep } from '../Custom/hooks/replace-step.hook';
 import { buildDesignerCanvasModel } from '../designer-canvas-model';
 import { Canvas } from './Canvas';
 import { LayoutType } from './canvas.models';
@@ -609,5 +618,78 @@ describe('Canvas', () => {
           )?.id === 'route-8888',
       );
     expect(remountedRouteGroup && isNode(remountedRouteGroup) && remountedRouteGroup.isCollapsed()).toBe(true);
+  });
+
+  it.each([
+    [AddStepMode.ReplaceStep, 'route.from.steps.1.placeholder', 'route.from.steps.1.to'],
+    [AddStepMode.PrependStep, 'route.from.steps.0.split', 'route.from.steps.0.to'],
+    [AddStepMode.AppendStep, 'route.from.steps.0.split', 'route.from.steps.1.to'],
+    [AddStepMode.InsertChildStep, 'route.from.steps.0.split', 'route.from.steps.0.split.steps.0.to'],
+  ] as const)('selects an inserted Avro step and opens its properties (%s)', async (mode, targetPath, expectedPath) => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    setupDynamicCatalogRegistry(await getFirstCatalogMap(catalogLibrary as CatalogLibrary));
+    const resource = new CamelRouteResource([
+      {
+        route: {
+          id: 'route-1',
+          from: {
+            uri: 'timer:test',
+            steps: [{ split: { simple: '${body}', steps: [{ log: { message: 'Hello' } }] } }],
+          },
+        },
+      },
+    ]);
+    const { Provider } = await TestProvidersWrapper({ camelResource: resource });
+    const entity = resource.getVisualEntities()[0];
+    const initial = getCanvasPropsFromVizNodes([await entity.toVizNode()], 1);
+    const target = initial.nodes.find((node) => node.data?.vizNode?.data.path === targetPath)?.data?.vizNode;
+    if (!target) throw new Error(`Insertion target not found: ${targetPath}`);
+    const controller = ControllerService.createController();
+    const catalog = {
+      getNewComponent: vi.fn().mockResolvedValue({ type: CatalogKind.Component, name: 'avro' }),
+      checkCompatibility: vi.fn(),
+    };
+    const InsertButton = () => {
+      const addMode = mode === AddStepMode.PrependStep ? AddStepMode.PrependStep : AddStepMode.AppendStep;
+      const { onAddStep } = useAddStep(target, addMode);
+      const { onInsertStep } = useInsertStep(target);
+      const { onReplaceNode } = useReplaceStep(target);
+      const actions = {
+        [AddStepMode.ReplaceStep]: onReplaceNode,
+        [AddStepMode.InsertChildStep]: onInsertStep,
+        [AddStepMode.AppendStep]: onAddStep,
+        [AddStepMode.PrependStep]: onAddStep,
+      };
+      return <button onClick={actions[mode]}>Insert Avro</button>;
+    };
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <Provider>
+        <CanvasFormTabsProvider>
+          <CatalogModalContext.Provider value={catalog}>
+            <VisualizationProvider controller={controller}>
+              <InsertButton />
+              {children}
+            </VisualizationProvider>
+          </CatalogModalContext.Provider>
+        </CanvasFormTabsProvider>
+      </Provider>
+    );
+    const { rerender } = render(<Canvas {...initial} />, { wrapper });
+    expect(screen.queryByTestId('close-side-bar')).not.toBeInTheDocument();
+
+    await user.click(screen.getByText('Insert Avro'));
+    rerender(<Canvas nodes={[]} edges={[]} isModelResolving />);
+    rerender(<Canvas {...getCanvasPropsFromVizNodes([await entity.toVizNode()], 1)} />);
+
+    expect(await screen.findByTestId('close-side-bar')).toBeInTheDocument();
+    expect(await screen.findByText('Avro RPC')).toBeInTheDocument();
+    expect(controller.getState<{ selectedIds: string[] }>().selectedIds).toEqual([`route-1|${expectedPath}`]);
+
+    fireEvent.click(screen.getByTestId('close-side-bar'));
+    rerender(<Canvas {...getCanvasPropsFromVizNodes([await entity.toVizNode()], 1)} />);
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+    expect(screen.queryByTestId('close-side-bar')).not.toBeInTheDocument();
   });
 });
