@@ -1,5 +1,6 @@
 import { JSONSchema4 } from 'json-schema';
 import { FunctionComponent } from 'react';
+
 import { FieldProps } from '../../models/typings';
 import { SchemaProvider } from '../../providers/SchemaProvider';
 import { AutoField } from '../AutoField';

@@ -1,11 +1,12 @@
 import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
+
+import { useFieldValue } from '../hooks/field-value';
+import { FieldProps } from '../models/typings';
+import { SchemaContext } from '../providers/SchemaProvider';
 import { Typeahead } from '../Typeahead/Typeahead';
 import { TypeaheadItem } from '../Typeahead/Typeahead.types';
-import { useFieldValue } from '../hooks/field-value';
-import { SchemaContext } from '../providers/SchemaProvider';
-import { FieldProps } from '../models/typings';
-import { FieldWrapper } from './FieldWrapper';
 import { isDefined } from '../utils';
+import { FieldWrapper } from './FieldWrapper';
 
 export const EnumField: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { schema } = useContext(SchemaContext);

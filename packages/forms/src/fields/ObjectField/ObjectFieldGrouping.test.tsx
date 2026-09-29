@@ -1,11 +1,12 @@
 import { act, fireEvent, render } from '@testing-library/react';
+import { JSONSchema4 } from 'json-schema';
 import { FunctionComponent, PropsWithChildren } from 'react';
+
 import { FilteredFieldContext } from '../../providers/filtered-field.provider';
-import { ROOT_PATH } from '../../utils';
 import { SchemaProvider } from '../../providers/SchemaProvider';
 import { FormWrapper } from '../../testing/FormWrapper';
+import { ROOT_PATH } from '../../utils';
 import { ObjectFieldGrouping } from './ObjectFieldGrouping';
-import { JSONSchema4 } from 'json-schema';
 
 describe('ObjectFieldGrouping', () => {
   const schema: JSONSchema4 = {

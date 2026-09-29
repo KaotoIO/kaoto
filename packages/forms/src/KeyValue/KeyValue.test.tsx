@@ -1,4 +1,5 @@
 import { fireEvent, render } from '@testing-library/react';
+
 import { KeyValue, KeyValueType } from './KeyValue';
 
 describe('KeyValue', () => {
@@ -11,7 +12,7 @@ describe('KeyValue', () => {
 
   it('renders empty key-value with button disabled', () => {
     const onChange = vi.fn();
-    const wrapper = render(<KeyValue propName={propName} onChange={onChange} disabled={true} />);
+    const wrapper = render(<KeyValue propName={propName} onChange={onChange} disabled />);
 
     expect(wrapper.getByTestId(`${propName}__add`)).toBeDisabled();
   });
@@ -28,9 +29,7 @@ describe('KeyValue', () => {
 
   it('renders initial key-value pairs with button disabled', () => {
     const onChange = vi.fn();
-    const wrapper = render(
-      <KeyValue propName={propName} initialModel={initialModel} onChange={onChange} disabled={true} />,
-    );
+    const wrapper = render(<KeyValue propName={propName} initialModel={initialModel} onChange={onChange} disabled />);
 
     expect(wrapper.getByDisplayValue('key1')).toBeInTheDocument();
     expect(wrapper.getByDisplayValue('value1')).toBeInTheDocument();

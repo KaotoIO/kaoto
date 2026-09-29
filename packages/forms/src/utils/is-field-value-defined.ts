@@ -1,4 +1,5 @@
 import { JSONSchema4TypeName } from 'json-schema';
+
 import { isDefined } from './is-defined';
 
 export const isFieldValueDefined = (

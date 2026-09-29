@@ -1,5 +1,6 @@
-import { vi } from 'vitest';
 import { FunctionComponent, PropsWithChildren, useMemo } from 'react';
+import { vi } from 'vitest';
+
 import { CanvasFormTabsContext } from '../providers/canvas-form-tabs.provider';
 import { FormComponentFactoryProvider } from '../providers/FormComponentFactoryProvider';
 import { ModelContextProvider } from '../providers/ModelProvider';

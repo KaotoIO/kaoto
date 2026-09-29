@@ -1,4 +1,5 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+
 import { CanvasFormTabsContextResult } from '../../providers';
 import { FormComponentFactoryProvider } from '../../providers/FormComponentFactoryProvider';
 import { SchemaProvider } from '../../providers/SchemaProvider';
@@ -10,8 +11,9 @@ vi.mock('../../hooks/one-of-field', () => ({
   useOneOfField: vi.fn(),
 }));
 
-import { useOneOfField } from '../../hooks/one-of-field';
 import { type MockedFunction } from 'vitest';
+
+import { useOneOfField } from '../../hooks/one-of-field';
 
 const mockUseOneOfField = useOneOfField as MockedFunction<typeof useOneOfField>;
 

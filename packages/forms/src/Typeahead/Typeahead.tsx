@@ -1,10 +1,11 @@
+import './Typeahead.scss';
+
 import { ComboBox } from '@carbon/react';
 import type { OnChangeData as ComboOnChangeData } from '@carbon/react/lib/components/ComboBox/ComboBox';
 import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { isDefined } from '../utils';
 import { TypeaheadProps } from './Typeahead.types';
-import './Typeahead.scss';
 
 export const CREATE_NEW_ITEM = 'create-new-with-name';
 
@@ -175,7 +176,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
         onChange?.(customItem);
       }
     },
-    [onChange, items, onCreate, inputValue, allowCustomInput, onCleanInput],
+    [onChange, items, onCreate, inputValue, allowCustomInput, onCleanInput, selectedItem],
   );
 
   const handleInputChange = useCallback(

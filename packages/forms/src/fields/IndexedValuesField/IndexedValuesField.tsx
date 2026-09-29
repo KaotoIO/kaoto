@@ -1,12 +1,14 @@
+import './IndexedValuesField.scss';
+
 import { Tag } from '@carbon/react';
 import { FunctionComponent, useContext } from 'react';
+
 import { useFieldValue } from '../../hooks/field-value';
-import { SchemaContext } from '../../providers/SchemaProvider';
-import { FieldProps } from '../../models/typings';
-import { FieldWrapper } from '../FieldWrapper';
-import { KeyValue, KeyValueType } from '../../KeyValue/KeyValue';
 import { IndexedValue } from '../../KeyValue/IndexedValue';
-import './IndexedValuesField.scss';
+import { KeyValue, KeyValueType } from '../../KeyValue/KeyValue';
+import { FieldProps } from '../../models/typings';
+import { SchemaContext } from '../../providers/SchemaProvider';
+import { FieldWrapper } from '../FieldWrapper';
 
 export const IndexedValuesField: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { schema } = useContext(SchemaContext);

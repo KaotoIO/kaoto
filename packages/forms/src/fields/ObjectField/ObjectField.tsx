@@ -1,6 +1,7 @@
 import { Edit, TrashCan } from '@carbon/icons-react';
 import { IconButton } from '@carbon/react';
 import { FunctionComponent, useContext, useState } from 'react';
+
 import { useFieldValue } from '../../hooks/field-value';
 import { FieldProps } from '../../models/typings';
 import { SchemaContext } from '../../providers/SchemaProvider';

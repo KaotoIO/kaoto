@@ -1,11 +1,12 @@
-import { vi } from 'vitest';
 import { FunctionComponent, PropsWithChildren } from 'react';
-import { isDefined } from '../utils';
+import { vi } from 'vitest';
+
 import { KaotoFormProps } from '../KaotoForm';
 import { FormComponentFactoryProvider } from '../providers/FormComponentFactoryProvider';
 import { ModelContextProvider } from '../providers/ModelProvider';
 import { SchemaDefinitionsProvider } from '../providers/SchemaDefinitionsProvider';
 import { SchemaProvider } from '../providers/SchemaProvider';
+import { isDefined } from '../utils';
 
 export const FieldTestProvider: (props: Partial<KaotoFormProps>) => {
   Provider: FunctionComponent<PropsWithChildren>;

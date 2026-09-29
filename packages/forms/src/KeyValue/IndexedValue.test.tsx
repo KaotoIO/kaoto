@@ -1,4 +1,5 @@
 import { fireEvent, render } from '@testing-library/react';
+
 import { IndexedValue, KeyValueType } from './IndexedValue';
 
 describe('IndexedValue', () => {
@@ -11,7 +12,7 @@ describe('IndexedValue', () => {
 
   it('renders empty key-value with button disabled', () => {
     const onChange = vi.fn();
-    const wrapper = render(<IndexedValue propName={propName} onChange={onChange} disabled={true} />);
+    const wrapper = render(<IndexedValue propName={propName} onChange={onChange} disabled />);
 
     expect(wrapper.getByTestId(`${propName}__add`)).toBeDisabled();
   });
@@ -31,7 +32,7 @@ describe('IndexedValue', () => {
   it('renders initial key-value pairs with button disabled', () => {
     const onChange = vi.fn();
     const wrapper = render(
-      <IndexedValue propName={propName} initialModel={initialModel} onChange={onChange} disabled={true} />,
+      <IndexedValue propName={propName} initialModel={initialModel} onChange={onChange} disabled />,
     );
 
     expect(wrapper.getByText('0')).toBeInTheDocument();

@@ -1,10 +1,12 @@
+import './BooleanField.scss';
+
 import { Toggle } from '@carbon/react';
 import { FunctionComponent, useContext } from 'react';
+
 import { useFieldValue } from '../hooks/field-value';
-import { SchemaContext } from '../providers/SchemaProvider';
 import { FieldProps } from '../models/typings';
+import { SchemaContext } from '../providers/SchemaProvider';
 import { FieldWrapper } from './FieldWrapper';
-import './BooleanField.scss';
 
 export const BooleanField: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { schema } = useContext(SchemaContext);

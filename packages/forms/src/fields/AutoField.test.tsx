@@ -1,5 +1,7 @@
-import { act, render, screen } from '@testing-library/react';
 import { inspect } from 'node:util';
+
+import { act, render, screen } from '@testing-library/react';
+
 import { CanvasFormTabsContext, CanvasFormTabsContextResult } from '../providers';
 import { FormComponentFactoryContext } from '../providers/context/form-component-factory-context';
 import { FormComponentFactoryProvider } from '../providers/FormComponentFactoryProvider';

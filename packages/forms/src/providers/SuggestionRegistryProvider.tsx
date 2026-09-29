@@ -1,5 +1,6 @@
 import { JSONSchema4 } from 'json-schema';
 import { createContext, FunctionComponent, PropsWithChildren, useCallback, useContext, useMemo, useState } from 'react';
+
 import { SuggestionProvider } from '../models/suggestions';
 
 interface SuggestionContextApi {
