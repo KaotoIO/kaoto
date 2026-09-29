@@ -1,4 +1,5 @@
-import { KaotoSchemaDefinition } from '../models';
+import type { JSONSchema4 } from 'json-schema';
+
 import { errorHandlerSchema } from '../stubs/error-handler';
 import { getOneOfSchemaList } from './get-oneof-schema-list';
 

@@ -25,10 +25,21 @@ import {
 } from '../models';
 import { CatalogKind } from '../models/catalog-kind';
 
+const firstCatalogCache = new Map<string, Promise<Awaited<ReturnType<typeof testLoadCatalog>>>>();
+
 export const getFirstCatalogMap = async (catalogLibrary: CatalogLibrary) => {
   const [firstCatalogLibraryEntry] = catalogLibrary.definitions;
+  const entry = firstCatalogLibraryEntry as CatalogLibraryEntry;
 
-  return await testLoadCatalog(firstCatalogLibraryEntry as CatalogLibraryEntry);
+  let catalog = firstCatalogCache.get(entry.fileName);
+  if (!catalog) {
+    catalog = testLoadCatalog(entry);
+    firstCatalogCache.set(entry.fileName, catalog);
+  }
+
+  // Callers may replace a map on the returned object. Keep that wrapper local
+  // while sharing the catalog maps, which dynamic imports already do.
+  return { ...(await catalog) };
 };
 
 export const testLoadCatalog = async (catalogLibraryEntry: CatalogLibraryEntry) => {

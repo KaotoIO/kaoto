@@ -29,7 +29,9 @@ describe('FilteredFieldProvider', () => {
 
     fireEvent.input(inputField, { target: { value: 'test' } });
 
-    await waitFor(() => expect(inputField.value).toBe('test'));
+    await waitFor(() => {
+      expect(inputField.value).toBe('test');
+    });
     expect(isGroupExpanded.textContent).toBe('true');
   });
 });
