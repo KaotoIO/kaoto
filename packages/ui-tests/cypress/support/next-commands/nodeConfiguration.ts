@@ -1,3 +1,20 @@
+import { KaotoFormPageObject } from '@kaoto/forms/testing/page-object';
+import { configure, within } from '@testing-library/dom';
+
+/** Let the page object's `findBy*` queries wait as long as a regular Cypress command */
+configure({ asyncUtilTimeout: Cypress.config('defaultCommandTimeout') });
+
+/**
+ * Runs the callback with a {@link KaotoFormPageObject} bound to the application under test,
+ * so the form selectors are maintained in a single place.
+ */
+const withKaotoForm = <T>(callback: (form: KaotoFormPageObject) => Promise<T>) =>
+  cy
+    .document()
+    .then({ timeout: Cypress.config('defaultCommandTimeout') * 2 }, (doc) =>
+      callback(new KaotoFormPageObject(within(doc.body), async (action) => action())),
+    );
+
 Cypress.Commands.add(
   'interactWithConfigInputObject',
   (inputName: string, value?: string, options?: Partial<Cypress.TypeOptions>) => {
@@ -107,10 +124,7 @@ Cypress.Commands.add('configureDropdownValue', (inputName: string, value?: strin
 });
 
 Cypress.Commands.add('deselectNodeBean', (inputName: string) => {
-  cy.get(`[data-testid="#.${inputName}"]`)
-    .closest('.cds--combo-box, .cds--list-box')
-    .find('button[aria-label="Clear selected item"]')
-    .click();
+  withKaotoForm((form) => form.clearForProperty(`#.${inputName}`));
 });
 
 Cypress.Commands.add('addProperty', (propertyName: string) => {
@@ -124,21 +138,18 @@ Cypress.Commands.add('addSingleKVProperty', (propertyName: string, key: string, 
 });
 
 Cypress.Commands.add('filterFields', (filter: string) => {
-  cy.get('[data-testid="filter-fields"]').within(() => {
-    cy.get('input.pf-v6-c-text-input-group__text-input').clear();
-    cy.get('input.pf-v6-c-text-input-group__text-input').type(filter);
+  withKaotoForm((form) => form.filterFields(filter));
+});
+
+Cypress.Commands.add('selectFormTab', (tab: Cypress.FormTab) => {
+  withKaotoForm((form) => form.findTab(tab)).then((tabElement) => {
+    cy.wrap(tabElement).click();
   });
 });
 
-Cypress.Commands.add('selectFormTab', (value: string) => {
-  cy.get('div.form-tabs').within(() => {
-    cy.get(`[data-testid="tab-${value}"]`).click();
-  });
-});
-
-Cypress.Commands.add('specifiedFormTab', (value: string) => {
-  cy.get('div.form-tabs').within(() => {
-    cy.get(`[data-testid="tab-${value}"]`).should('have.attr', 'aria-selected', 'true');
+Cypress.Commands.add('specifiedFormTab', (tab: Cypress.FormTab) => {
+  withKaotoForm((form) => form.findTab(tab)).then((tabElement) => {
+    cy.wrap(tabElement).should('have.attr', 'aria-selected', 'true');
   });
 });
 
@@ -172,14 +183,14 @@ Cypress.Commands.add('documentationTableCompare', (routeName: string, expectedTa
 
 Cypress.Commands.add('toggleMediaTypeField', (nodeName: string) => {
   cy.get(`[data-testid="#.${nodeName}__field-wrapper"]`).within(() => {
-    cy.get('[data-testid="media-type-field-toggle"]').click();
+    cy.get('[data-testid="media-type-field-toggle"] button.cds--list-box__field').click();
   });
 });
 
 Cypress.Commands.add('selectMediaTypes', (nodeName: string, mediaType: string[]) => {
   cy.toggleMediaTypeField(nodeName);
   mediaType.forEach((type) => {
-    cy.contains('.pf-v6-c-menu__item-text', type).click();
+    cy.contains('.cds--list-box__menu-item__option', type).click();
   });
   cy.toggleMediaTypeField(nodeName);
 });
