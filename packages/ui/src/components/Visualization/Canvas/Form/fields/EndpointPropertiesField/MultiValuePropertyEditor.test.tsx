@@ -4,7 +4,7 @@ import {
   ModelContextProvider,
   SchemaProvider,
 } from '@kaoto/forms';
-import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren, useState } from 'react';
 import type { Mock } from 'vitest';
 
@@ -93,8 +93,8 @@ describe('MultiValuePropertyEditor', () => {
     const jobAddButton = await screen.findByTestId('parameters.jobParameters__add');
     fireEvent.click(jobAddButton);
 
-    const jobKeyInput = within(await screen.findByTestId('parameters.jobParameters__key')).getByRole('textbox');
-    const jobValueInput = within(await screen.findByTestId('parameters.jobParameters__value')).getByRole('textbox');
+    const jobKeyInput = await screen.findByTestId('parameters.jobParameters__key');
+    const jobValueInput = await screen.findByTestId('parameters.jobParameters__value');
 
     fireEvent.change(jobKeyInput, { target: { value: 'name' } });
     fireEvent.change(jobValueInput, { target: { value: 'daily' } });
@@ -109,10 +109,8 @@ describe('MultiValuePropertyEditor', () => {
     const triggerAddButton = await screen.findByTestId('parameters.triggerParameters__add');
     fireEvent.click(triggerAddButton);
 
-    const triggerKeyInput = within(await screen.findByTestId('parameters.triggerParameters__key')).getByRole('textbox');
-    const triggerValueInput = within(await screen.findByTestId('parameters.triggerParameters__value')).getByRole(
-      'textbox',
-    );
+    const triggerKeyInput = await screen.findByTestId('parameters.triggerParameters__key');
+    const triggerValueInput = await screen.findByTestId('parameters.triggerParameters__value');
     fireEvent.change(triggerKeyInput, { target: { value: 'repeatCount' } });
     fireEvent.change(triggerValueInput, { target: { value: '5' } });
 
@@ -148,9 +146,7 @@ describe('MultiValuePropertyEditor', () => {
     });
 
     // Change triggerParameters.repeatCount from '3' to '10'
-    const triggerValueInput = within(await screen.findByTestId('parameters.triggerParameters__value')).getByRole(
-      'textbox',
-    );
+    const triggerValueInput = await screen.findByTestId('parameters.triggerParameters__value');
     fireEvent.change(triggerValueInput, { target: { value: '10' } });
 
     await waitFor(() => {
@@ -184,7 +180,7 @@ describe('MultiValuePropertyEditor', () => {
     });
 
     // Update jobParameters.name from 'daily' to 'weekly'
-    const jobValueInput = within(await screen.findByTestId('parameters.jobParameters__value')).getByRole('textbox');
+    const jobValueInput = await screen.findByTestId('parameters.jobParameters__value');
     fireEvent.change(jobValueInput, { target: { value: 'weekly' } });
 
     await waitFor(() => {
@@ -242,9 +238,7 @@ describe('MultiValuePropertyEditor', () => {
     const cronInput = await screen.findByRole('textbox', { name: 'Cron' });
     fireEvent.change(cronInput, { target: { value: '0 1 * * *' } });
 
-    await waitFor(() => {
-      expect(screen.getByRole('textbox', { name: 'Cron' })).toBeInTheDocument();
-    });
+    await screen.findByRole('textbox', { name: 'Cron' });
     expect(mockOnPropertyChange).not.toHaveBeenCalled();
   });
 

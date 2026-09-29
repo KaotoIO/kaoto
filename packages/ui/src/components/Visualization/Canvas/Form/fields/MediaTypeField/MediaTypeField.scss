@@ -7,8 +7,8 @@
   display: flex;
   gap: 8px;
   padding: 8px;
-}
 
-.media-type-field-custom .pf-v6-c-text-input {
-  flex: 1;
+  & > *:first-child {
+    flex: 1;
+  }
 }

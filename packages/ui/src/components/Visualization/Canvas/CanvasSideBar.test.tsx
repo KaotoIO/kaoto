@@ -1,6 +1,7 @@
 import { CamelYamlDsl } from '@kaoto/camel-catalog/types';
 import { CanvasFormTabsProvider } from '@kaoto/forms';
-import { fireEvent, render } from '@testing-library/react';
+import { KaotoFormPageObject } from '@kaoto/forms/testing';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 import { parse } from 'yaml';
 
@@ -50,7 +51,8 @@ describe('CanvasSideBar', () => {
       </Provider>,
     );
 
-    await wrapper.findByRole('button', { name: 'All' });
+    const formPageObject = new KaotoFormPageObject(screen, act);
+    await formPageObject.showAllFields();
     expect(wrapper.asFragment()).toMatchSnapshot();
   });
 

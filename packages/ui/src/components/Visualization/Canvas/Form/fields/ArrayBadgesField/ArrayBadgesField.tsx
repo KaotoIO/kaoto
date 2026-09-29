@@ -1,7 +1,7 @@
 import './ArrayBadgesField.scss';
 
+import { Button, Tag, TextInput } from '@carbon/react';
 import { FieldProps, FieldWrapper, SchemaContext, useFieldValue } from '@kaoto/forms';
-import { Button, Flex, FlexItem, Label, LabelGroup, TextInput } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
 
 interface ArrayBadgesFieldProps extends FieldProps {
@@ -13,7 +13,7 @@ interface ArrayBadgesFieldProps extends FieldProps {
  *
  * Features:
  * - Add new items via text input
- * - Display items as removable badges (PatternFly Labels)
+ * - Display items as removable badges (Carbon Tags)
  * - Alphabetical sorting
  * - Clear all functionality
  * - Duplicate prevention
@@ -64,58 +64,57 @@ export const ArrayBadgesField: FunctionComponent<ArrayBadgesFieldProps> = ({
       type="array"
       description={schema.description}
     >
-      <Flex gap={{ default: 'gapMd' }} direction={{ default: 'column' }}>
-        <FlexItem>
-          <Flex gap={{ default: 'gapSm' }}>
-            <FlexItem grow={{ default: 'grow' }}>
-              <TextInput
-                id={`${propName}-input`}
-                value={inputValue}
-                onChange={(_event, value) => {
-                  setInputValue(value);
-                }}
-                placeholder={placeholder}
-                isDisabled={disabled}
-                aria-label={schema.title ?? propName}
-              />
-            </FlexItem>
-            <FlexItem>
-              <Button variant="primary" onClick={addItem} isDisabled={disabled || inputValue.trim().length === 0}>
-                Add
-              </Button>
-            </FlexItem>
-          </Flex>
-        </FlexItem>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
+          <div style={{ flex: 1 }}>
+            <TextInput
+              id={`${propName}-input`}
+              labelText={schema.title ?? propName}
+              hideLabel
+              value={inputValue}
+              onChange={(e) => {
+                setInputValue(e.target.value);
+              }}
+              placeholder={placeholder}
+              disabled={disabled}
+              aria-label={schema.title ?? propName}
+            />
+          </div>
+          <div>
+            <Button kind="primary" onClick={addItem} disabled={disabled || inputValue.trim().length === 0}>
+              Add
+            </Button>
+          </div>
+        </div>
 
-        <FlexItem>
+        <div>
           {sortedItems.length === 0 ? (
             <span>No items added.</span>
           ) : (
-            <div className="array-badges-field">
-              <LabelGroup>
-                {sortedItems.map((item) => (
-                  <Label
-                    key={item}
-                    onClose={() => {
-                      removeItem(item);
-                    }}
-                    color="blue"
-                    isDisabled={disabled}
-                  >
-                    {item}
-                  </Label>
-                ))}
-              </LabelGroup>
+            <div className="array-badges-field" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {sortedItems.map((item) => (
+                <Tag
+                  key={item}
+                  filter
+                  onClose={() => {
+                    removeItem(item);
+                  }}
+                  type="blue"
+                  disabled={disabled}
+                >
+                  {item}
+                </Tag>
+              ))}
             </div>
           )}
-        </FlexItem>
+        </div>
 
-        <FlexItem>
-          <Button variant="link" isInline onClick={clearAll} isDisabled={disabled || sortedItems.length === 0}>
+        <div>
+          <Button kind="ghost" size="sm" onClick={clearAll} disabled={disabled || sortedItems.length === 0}>
             Clear all
           </Button>
-        </FlexItem>
-      </Flex>
+        </div>
+      </div>
     </FieldWrapper>
   );
 };

@@ -1,9 +1,9 @@
 import './CanvasFormHeader.scss';
 
+import { Close } from '@carbon/icons-react';
+import { ContentSwitcher, IconButton, Search, Switch } from '@carbon/react';
 import { CanvasFormTabsContext, FilteredFieldContext, FormTabsModes } from '@kaoto/forms';
-import { Button, Grid, GridItem, SearchInput, Title, ToggleGroup, ToggleGroupItem } from '@patternfly/react-core';
-import { TimesIcon } from '@patternfly/react-icons';
-import { FunctionComponent, useContext } from 'react';
+import { FunctionComponent, useCallback, useContext } from 'react';
 
 interface CanvasFormHeaderProps {
   nodeId: string;
@@ -16,51 +16,66 @@ export const CanvasFormHeader: FunctionComponent<CanvasFormHeaderProps> = ({ nod
   const { filteredFieldText, onFilterChange } = useContext(FilteredFieldContext);
   const canvasFormTabsContext = useContext(CanvasFormTabsContext);
 
+  const handleSearchChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      onFilterChange(event, event.target.value);
+    },
+    [onFilterChange],
+  );
+
+  const handleSearchClear = useCallback(() => {
+    onFilterChange(undefined, '');
+  }, [onFilterChange]);
+
+  const selectedTabIndex = canvasFormTabsContext
+    ? Object.keys(FormTabsModes).indexOf(canvasFormTabsContext.selectedTab)
+    : 0;
+
   return (
     <>
-      <Grid hasGutter>
-        <GridItem className="form-header" span={11}>
+      <div className="form-header-row">
+        <div className="form-header">
           {iconUrl && <img src={iconUrl} className={`form-header__icon-${nodeId}`} alt={title} />}
-
-          <Title className="form-header__title" headingLevel="h2">
-            {title}
-          </Title>
-        </GridItem>
-        <GridItem span={1} className="canvas-header-close">
-          <Button
-            data-testid="close-side-bar"
-            variant="plain"
-            icon={<TimesIcon />}
-            onClick={onClose}
-            aria-label="Close"
-          />
-        </GridItem>
-      </Grid>
+          <h2 className="form-header__title">{title}</h2>
+        </div>
+        <IconButton
+          data-testid="close-side-bar"
+          kind="ghost"
+          size="sm"
+          label="Close"
+          onClick={onClose}
+          className="canvas-header-close"
+        >
+          <Close />
+        </IconButton>
+      </div>
 
       {canvasFormTabsContext && (
-        <ToggleGroup aria-label="Single selectable form tabs" className="form-tabs">
+        <ContentSwitcher
+          aria-label="Single selectable form tabs"
+          className="form-tabs"
+          selectedIndex={selectedTabIndex}
+          onChange={({ name }: { name?: string | number }) => {
+            if (typeof name === 'string') {
+              canvasFormTabsContext.setSelectedTab(name as keyof typeof FormTabsModes);
+            }
+          }}
+        >
           {Object.entries(FormTabsModes).map(([mode, tooltip]) => (
-            <ToggleGroupItem
-              title={tooltip}
-              key={mode}
-              text={mode}
-              buttonId={mode}
-              isSelected={canvasFormTabsContext.selectedTab === mode}
-              onChange={() => {
-                canvasFormTabsContext.setSelectedTab(mode as keyof typeof FormTabsModes);
-              }}
-            />
+            <Switch key={mode} name={mode} text={mode} title={tooltip} data-testid={`tab-${mode}`} />
           ))}
-        </ToggleGroup>
+        </ContentSwitcher>
       )}
 
-      <SearchInput
+      <Search
         className="filter-fields"
+        labelText="Find properties by name"
         placeholder="Find properties by name"
         data-testid="filter-fields"
         value={filteredFieldText}
-        onChange={onFilterChange}
-        onClear={onFilterChange}
+        onChange={handleSearchChange}
+        onClear={handleSearchClear}
+        size="sm"
       />
     </>
   );
