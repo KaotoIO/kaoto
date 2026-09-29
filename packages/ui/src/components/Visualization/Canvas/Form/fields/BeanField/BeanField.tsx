@@ -9,14 +9,14 @@ import {
   TypeaheadItem,
   useFieldValue,
 } from '@kaoto/forms';
-import { FunctionComponent, Suspense, use, useCallback, useContext, useMemo, useState } from 'react';
+import { FunctionComponent, Suspense, use, useCallback, useContext, useMemo, useRef, useState } from 'react';
 
 import { KaotoSchemaDefinition } from '../../../../../../models/kaoto-schema';
 import { BeansEntityHandler } from '../../../../../../models/visualization/metadata/beans-entity-handler';
 import { EntitiesContext } from '../../../../../../providers';
 import { getSerializedModel } from '../../../../../../utils';
 import { Loading } from '../../../../../Loading';
-import { NewBeanModal } from './NewBeanModal';
+import { NewBeanModal, NewBeanModalProps } from './NewBeanModal';
 
 const DEFAULT_DATASOURCE_NAMES = [
   { name: 'default', value: 'default' },
@@ -51,34 +51,20 @@ interface BeanFieldProps extends FieldProps {
   defaultItems?: TypeaheadItem<string>[];
 }
 
-const BeanFieldBase: FunctionComponent<BeanFieldProps> = (props) => {
+const BeanFieldBase: FunctionComponent<BeanFieldProps> = ({
+  propName,
+  required,
+  shouldPrefixBeanName,
+  filterFn,
+  defaultItems = [],
+}) => {
   const entitiesContext = useContext(EntitiesContext);
   const camelResource = entitiesContext?.camelResource;
   const beansHandler = useMemo(() => new BeansEntityHandler(camelResource), [camelResource]);
-  const beanSchemaPromise = useMemo(() => {
-    if (!beansHandler.isSupported()) {
-      return Promise.resolve(undefined);
-    }
+  const beanSchemaPromiseRef = useRef<Promise<KaotoSchemaDefinition['schema'] | undefined> | undefined>(undefined);
 
-    return beansHandler.getBeanSchema();
-  }, [beansHandler]);
-
-  return (
-    <Suspense fallback={<Loading />}>
-      <BeanFieldBaseInner {...props} beansHandler={beansHandler} beanSchemaPromise={beanSchemaPromise} />
-    </Suspense>
-  );
-};
-
-const BeanFieldBaseInner: FunctionComponent<
-  BeanFieldProps & {
-    beansHandler: BeansEntityHandler;
-    beanSchemaPromise: Promise<KaotoSchemaDefinition['schema'] | undefined>;
-  }
-> = ({ propName, required, shouldPrefixBeanName, filterFn, defaultItems = [], beansHandler, beanSchemaPromise }) => {
   const { schema } = useContext(SchemaContext);
   const { value = '', onChange, disabled } = useFieldValue<string | undefined>(propName);
-  const beanSchema = use(beanSchemaPromise);
   const beanReference = value;
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>(beanReference);
@@ -128,16 +114,26 @@ const BeanFieldBaseInner: FunctionComponent<
     setIsOpen(false);
   }, [onChange]);
 
-  const onSelect = useCallback((value: string | undefined, filterValue: string | undefined) => {
-    if (value) {
-      if (value === CREATE_NEW_ITEM) {
-        setInputValue(filterValue ?? '');
-      } else {
-        setInputValue('');
+  const onSelect = useCallback(
+    (value: string | undefined, filterValue: string | undefined) => {
+      if (value) {
+        if (value === CREATE_NEW_ITEM) {
+          setInputValue(filterValue ?? '');
+        } else {
+          setInputValue('');
+        }
+        // Only creating a bean needs its catalog schema. Source refreshes must
+        // update the existing endpoint fields without suspending their rendering.
+        beanSchemaPromiseRef.current = beansHandler.getBeanSchema().catch((error) => {
+          console.error('Failed to get bean schema:', error);
+          setIsOpen(false);
+          return undefined;
+        });
+        setIsOpen(true);
       }
-      setIsOpen(true);
-    }
-  }, []);
+    },
+    [beansHandler],
+  );
 
   const handleCreateBean = useCallback(
     (model: BeanFactory) => {
@@ -193,16 +189,27 @@ const BeanFieldBaseInner: FunctionComponent<
         />
       </FieldWrapper>
 
-      {isOpen && (
-        <NewBeanModal
-          beanSchema={beanSchema}
-          beanName={beanName}
-          propertyTitle={schema.title ?? ''}
-          javaType={javaType}
-          onCreateBean={handleCreateBean}
-          onCancelCreateBean={handleCancelCreateBean}
-        />
+      {isOpen && beanSchemaPromiseRef.current && (
+        <Suspense fallback={<Loading />}>
+          <NewBeanModalWithSchema
+            beanSchemaPromise={beanSchemaPromiseRef.current}
+            beanName={beanName}
+            propertyTitle={schema.title ?? ''}
+            javaType={javaType}
+            onCreateBean={handleCreateBean}
+            onCancelCreateBean={handleCancelCreateBean}
+          />
+        </Suspense>
       )}
     </>
   );
+};
+
+const NewBeanModalWithSchema: FunctionComponent<
+  Omit<NewBeanModalProps, 'beanSchema'> & {
+    beanSchemaPromise: Promise<KaotoSchemaDefinition['schema'] | undefined>;
+  }
+> = ({ beanSchemaPromise, ...props }) => {
+  const beanSchema = use(beanSchemaPromise);
+  return <NewBeanModal {...props} beanSchema={beanSchema} />;
 };

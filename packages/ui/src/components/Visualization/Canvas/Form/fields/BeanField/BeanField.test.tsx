@@ -1,17 +1,19 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
-import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
+import { ModelContextProvider, SchemaProvider, SuggestionRegistryProvider } from '@kaoto/forms';
 import { KaotoFormPageObject } from '@kaoto/forms/testing';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { FunctionComponent, ReactElement } from 'react';
+import { FunctionComponent, PropsWithChildren, ReactElement, useMemo, useState } from 'react';
 import type { Mock } from 'vitest';
 
+import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
 import { useEntityContext } from '../../../../../../hooks/useEntityContext/useEntityContext';
 import { KaotoSchemaDefinition } from '../../../../../../models';
+import { CamelRouteResource } from '../../../../../../models/camel/camel-route-resource';
 import { BeansEntity } from '../../../../../../models/visualization/metadata';
-import { EntitiesContextResult } from '../../../../../../providers';
+import { EntitiesContext, EntitiesContextResult } from '../../../../../../providers';
 import { DocumentationService } from '../../../../../../services/documentation.service';
-import { TestProvidersWrapper } from '../../../../../../stubs';
+import { camelRouteJson, TestProvidersWrapper } from '../../../../../../stubs';
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../../../../stubs/test-load-catalog';
 import { IVisibleFlows, ROOT_PATH } from '../../../../../../utils';
 import { DataSourceBeanField, PrefixedBeanField, UnprefixedBeanField } from './BeanField';
@@ -741,6 +743,104 @@ describe('BeanField', () => {
 
       const beanModal = screen.getByTestId('NewBeanModal-MY_DATASOURCE');
       expect(beanModal).toBeInTheDocument();
+    });
+  });
+
+  describe('Source update stability', () => {
+    it('should keep the bean creation modal open and stable during a source update', async () => {
+      let updateResource: ((resource: CamelRouteResource) => void) | undefined;
+      const DynamicProvider: FunctionComponent<PropsWithChildren> = ({ children }) => {
+        const [resource, setResource] = useState(new CamelRouteResource([camelRouteJson]));
+        updateResource = setResource;
+        const entitiesContextValue: EntitiesContextResult = useMemo(
+          () => ({
+            camelResource: resource,
+            entities: resource.getEntities(),
+            visualEntities: resource.getVisualEntities(),
+            currentSchemaType: resource.getType(),
+            updateEntitiesFromCamelResource: vi.fn(),
+            updateSourceCodeFromEntities: vi.fn(),
+          }),
+          [resource],
+        );
+
+        return (
+          <EntitiesContext.Provider value={entitiesContextValue}>
+            <SuggestionRegistryProvider>{children}</SuggestionRegistryProvider>
+          </EntitiesContext.Provider>
+        );
+      };
+
+      cleanup();
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <DynamicProvider>
+            <SchemaProvider schema={beanSchema}>
+              <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
+                <PrefixedBeanField propName={ROOT_PATH} />
+              </ModelContextProvider>
+            </SchemaProvider>
+          </DynamicProvider>,
+        );
+      });
+      formPageObject = new KaotoFormPageObject(screen, act);
+
+      await createBean('myNewBean', 'Bean');
+      const [nameInput] = screen.getAllByLabelText('Name');
+      expect(nameInput).toHaveValue('myNewBean');
+
+      await formPageObject.inputText('Type', 'io.kaoto.new.MyNewBean');
+
+      // Replace the resource instance while modal is open
+      const newResource = new CamelRouteResource([camelRouteJson]);
+      await newResource.initialize();
+
+      await act(async () => {
+        updateResource?.(newResource);
+      });
+
+      // The modal should remain open and interactive
+      expect(screen.getByTestId('NewBeanModal-myNewBean')).toBeInTheDocument();
+      await clickCreateButton();
+
+      expect(onPropertyChangeSpy).toHaveBeenCalledTimes(1);
+      expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, '#myNewBean');
+    });
+
+    it('should close the modal and log an error if getBeanSchema rejects', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const { Provider } = await TestProvidersWrapper();
+      const error = new Error('Schema fetch failed');
+      const getEntitySpy = vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity').mockRejectedValue(error);
+
+      cleanup();
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <Provider>
+            <SchemaProvider schema={beanSchema}>
+              <ModelContextProvider model={undefined} onPropertyChange={onPropertyChangeSpy}>
+                <PrefixedBeanField propName={ROOT_PATH} />
+              </ModelContextProvider>
+            </SchemaProvider>
+          </Provider>,
+        );
+      });
+      formPageObject = new KaotoFormPageObject(screen, act);
+
+      await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
+      await formPageObject.inputText('Bean', 'errorBean');
+
+      await act(async () => {
+        await formPageObject.selectTypeaheadItem('create-new-with-name');
+      });
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to get bean schema:', error);
+      expect(screen.queryByTestId('NewBeanModal-errorBean')).not.toBeInTheDocument();
+
+      getEntitySpy.mockRestore();
+      consoleErrorSpy.mockRestore();
     });
   });
 });
