@@ -1,6 +1,7 @@
 import { render, renderHook } from '@testing-library/react';
 import { JSONSchema4 } from 'json-schema';
 import { FunctionComponent, useContext } from 'react';
+
 import { ArrayField } from '../fields/ArrayField/ArrayField';
 import { BooleanField } from '../fields/BooleanField';
 import { DisabledField } from '../fields/DisabledField';
@@ -12,8 +13,8 @@ import { PasswordField } from '../fields/PasswordField';
 import { PropertiesField } from '../fields/PropertiesField/PropertiesField';
 import { StringField } from '../fields/StringField';
 import { TextAreaField } from '../fields/TextAreaField';
-import { FormComponentFactoryProvider } from './FormComponentFactoryProvider';
 import { FormComponentFactoryContext } from './context/form-component-factory-context';
+import { FormComponentFactoryProvider } from './FormComponentFactoryProvider';
 
 describe('FormComponentFactoryProvider', () => {
   it('should render children', () => {

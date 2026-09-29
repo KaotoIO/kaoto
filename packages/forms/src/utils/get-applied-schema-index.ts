@@ -1,4 +1,5 @@
 import { JSONSchema4 } from 'json-schema';
+
 import { OneOfSchemas } from './get-oneof-schema-list';
 import { weightSchemaAgainstModel } from './weight-schemas-against-model';
 

@@ -64,6 +64,7 @@ jobs:
           yarn workspace @kaoto/kaoto lint
           yarn workspace @kaoto/kaoto lint:style
           yarn workspace @kaoto/kaoto-tests lint
+          yarn workspace @kaoto/forms lint
       - name: Build UI and library
         run: |
           yarn workspace @kaoto/kaoto build

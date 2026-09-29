@@ -1,4 +1,5 @@
 import { JSONSchema4 } from 'json-schema';
+
 import { SchemaPropertyFilter } from './SchemaPropertyFilter';
 
 describe('SchemaPropertyFilter', () => {

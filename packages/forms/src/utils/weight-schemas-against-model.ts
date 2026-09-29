@@ -1,4 +1,5 @@
 import { JSONSchema4 } from 'json-schema';
+
 import { isDefined } from './is-defined';
 import { resolveSchemaWithRef } from './resolve-schema-with-ref';
 

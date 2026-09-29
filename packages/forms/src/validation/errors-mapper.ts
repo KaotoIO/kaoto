@@ -1,4 +1,5 @@
 import { ErrorObject } from 'ajv';
+
 import { isDefined, ROOT_PATH } from '../utils';
 
 const EMPTY_OBJECT = {};

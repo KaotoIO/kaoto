@@ -24,7 +24,9 @@ export const CustomExpandableSection: FunctionComponent<CustomExpandableSectionP
       <AccordionItem
         title={capitalize(`${groupName} properties`)}
         open={isExpanded}
-        onHeadingClick={() => setIsExpanded(!isExpanded)}
+        onHeadingClick={() => {
+          setIsExpanded(!isExpanded);
+        }}
       >
         {children}
       </AccordionItem>

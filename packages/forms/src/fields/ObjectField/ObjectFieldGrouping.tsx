@@ -1,13 +1,14 @@
 import { FunctionComponent, useContext, useMemo } from 'react';
-import { FilteredFieldContext } from '../../providers/filtered-field.provider';
-import { getFieldGroups, safeGetValue } from '../../utils';
-import { SchemaContext, SchemaProvider } from '../../providers/SchemaProvider';
+
 import { FieldProps } from '../../models/typings';
+import { FilteredFieldContext } from '../../providers/filtered-field.provider';
+import { ModelContext } from '../../providers/ModelProvider';
+import { SchemaContext, SchemaProvider } from '../../providers/SchemaProvider';
+import { getFieldGroups, safeGetValue } from '../../utils';
+import { SchemaPropertyFilter } from '../../utils/SchemaPropertyFilter';
 import { AnyOfField } from './AnyOfField';
 import { GroupFields } from './GroupFields';
 import { ObjectFieldInner } from './ObjectFieldInner';
-import { ModelContext } from '../../providers/ModelProvider';
-import { SchemaPropertyFilter } from '../../utils/SchemaPropertyFilter';
 
 const SPACE_REGEX = /\s/g;
 

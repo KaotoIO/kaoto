@@ -30,6 +30,8 @@
   "scripts": {
     "build": "yarn rimraf dist && yarn build:lib",
     "build:lib": "tsc --project tsconfig.lib.json && copyfiles -u 1 ./src/**/*.scss ./dist",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "lint:fix": "yarn lint --fix",
     "test": "vitest run --config vitest.config.mts",
     "publish": "lerna publish"
   },

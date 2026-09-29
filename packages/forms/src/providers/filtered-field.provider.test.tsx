@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useContext } from 'react';
+
 import { FilteredFieldContext, FilteredFieldProvider } from './filtered-field.provider';
 
 describe('FilteredFieldProvider', () => {
@@ -41,7 +42,9 @@ const TestComponent = () => {
       <input
         type="text"
         value={filteredFieldText}
-        onChange={(event) => onFilterChange(null, event.target.value)}
+        onChange={(event) => {
+          onFilterChange(null, event.target.value);
+        }}
         title="Filter"
         data-testid="input"
       />

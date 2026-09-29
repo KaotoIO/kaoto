@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+
 import { SimpleSelector } from './SimpleSelector';
 import { TypeaheadItem } from './Typeahead.types';
 

@@ -1,6 +1,7 @@
 import { Stack } from '@carbon/react';
 import { JSONSchema4 } from 'json-schema';
 import { FunctionComponent, PropsWithChildren, useCallback, useMemo } from 'react';
+
 import { FieldProps } from '../../models/typings';
 import { SimpleSelector } from '../../Typeahead/SimpleSelector';
 import { Typeahead } from '../../Typeahead/Typeahead';

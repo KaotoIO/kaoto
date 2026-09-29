@@ -1,4 +1,5 @@
 import { JSONSchema4 } from 'json-schema';
+
 import { resolveSchemaWithRef } from './resolve-schema-with-ref';
 
 export const getItemFromSchema = (schema: JSONSchema4, definitions: Record<string, JSONSchema4>) => {

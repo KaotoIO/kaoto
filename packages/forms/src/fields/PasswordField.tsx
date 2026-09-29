@@ -1,5 +1,8 @@
+import './PasswordField.scss';
+
 import { PasswordInput } from '@carbon/react';
-import { FunctionComponent, useCallback, useContext, useRef, ChangeEvent } from 'react';
+import { ChangeEvent, FunctionComponent, useCallback, useContext, useRef } from 'react';
+
 import { useFieldValue } from '../hooks/field-value';
 import { useSuggestions } from '../hooks/suggestions';
 import { FieldProps } from '../models/typings';
@@ -7,7 +10,6 @@ import { SchemaContext } from '../providers/SchemaProvider';
 import { isDefined, isRawString } from '../utils';
 import { FieldActions } from './FieldActions';
 import { FieldWrapper } from './FieldWrapper';
-import './PasswordField.scss';
 
 export const PasswordField: FunctionComponent<FieldProps> = ({ propName, required, onRemove: onRemoveProps }) => {
   const { schema } = useContext(SchemaContext);

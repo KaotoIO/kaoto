@@ -1,9 +1,11 @@
-import { IconButton, Stack, Toggletip, ToggletipButton, ToggletipContent, Tag } from '@carbon/react';
-import { Idea, Information, WarningFilled } from '@carbon/icons-react';
-import { FunctionComponent, PropsWithChildren, ReactNode } from 'react';
-import { FieldProps } from '../models/typings';
-import clsx from 'clsx';
 import './FieldWrapper.scss';
+
+import { Idea, Information, WarningFilled } from '@carbon/icons-react';
+import { IconButton, Stack, Tag, Toggletip, ToggletipButton, ToggletipContent } from '@carbon/react';
+import clsx from 'clsx';
+import { FunctionComponent, PropsWithChildren, ReactNode } from 'react';
+
+import { FieldProps } from '../models/typings';
 
 interface FieldWrapperProps extends FieldProps {
   type: string;
