@@ -1,17 +1,8 @@
 import './MediaTypeField.scss';
 
+import { Button, MultiSelect, TextInput } from '@carbon/react';
 import { FieldProps, FieldWrapper, SchemaContext, useFieldValue } from '@kaoto/forms';
-import {
-  Button,
-  Divider,
-  MenuToggle,
-  MenuToggleElement,
-  Select,
-  SelectList,
-  SelectOption,
-  TextInput,
-} from '@patternfly/react-core';
-import { FunctionComponent, KeyboardEvent, MouseEvent, Ref, useCallback, useContext, useMemo, useState } from 'react';
+import { FunctionComponent, KeyboardEvent, useCallback, useContext, useMemo, useState } from 'react';
 
 import { SettingsContext } from '../../../../../../providers/settings.provider';
 
@@ -65,7 +56,6 @@ const parseMediaTypes = (value: string | undefined): string[] => {
 export const MediaTypeField: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { schema } = useContext(SchemaContext);
   const { value, onChange, disabled } = useFieldValue<string | undefined>(propName);
-  const [isOpen, setIsOpen] = useState(false);
   const [customValue, setCustomValue] = useState('');
   const settingsAdapter = useContext(SettingsContext);
   const settings = settingsAdapter.getSettings();
@@ -80,22 +70,6 @@ export const MediaTypeField: FunctionComponent<FieldProps> = ({ propName, requir
     const merged = new Set<string>([...COMMON_MEDIA_TYPES, ...storedMediaTypes, ...customValues]);
     return Array.from(merged);
   }, [selectedValues, storedMediaTypes]);
-
-  const onSelect = useCallback(
-    (_event: MouseEvent | undefined, selection: string | number | undefined) => {
-      if (typeof selection !== 'string') {
-        return;
-      }
-
-      const nextValues = selectedValues.includes(selection)
-        ? selectedValues.filter((item) => item !== selection)
-        : [...selectedValues, selection];
-
-      onChange(nextValues.length > 0 ? nextValues.join(', ') : undefined);
-      setIsOpen(true);
-    },
-    [onChange, selectedValues],
-  );
 
   const addCustomValue = useCallback(() => {
     const trimmed = customValue.trim();
@@ -131,21 +105,6 @@ export const MediaTypeField: FunctionComponent<FieldProps> = ({ propName, requir
     [addCustomValue],
   );
 
-  const toggle = (toggleRef: Ref<MenuToggleElement>) => (
-    <MenuToggle
-      ref={toggleRef}
-      onClick={() => {
-        setIsOpen((current) => !current);
-      }}
-      isExpanded={isOpen}
-      isFullWidth
-      isDisabled={disabled}
-      data-testid="media-type-field-toggle"
-    >
-      {selectedValues.length > 0 ? selectedValues.join(', ') : 'Select media types'}
-    </MenuToggle>
-  );
-
   return (
     <FieldWrapper
       propName={propName}
@@ -155,39 +114,39 @@ export const MediaTypeField: FunctionComponent<FieldProps> = ({ propName, requir
       description={schema.description}
       defaultValue={schema.default?.toString()}
     >
-      <Select
-        isOpen={isOpen}
-        selected={selectedValues}
-        onSelect={onSelect}
-        onOpenChange={(nextOpen) => {
-          setIsOpen(nextOpen);
-        }}
-        toggle={toggle}
-      >
-        <SelectList className="media-type-field-list">
-          {options.map((option) => (
-            <SelectOption key={option} itemId={option} hasCheckbox isSelected={selectedValues.includes(option)}>
-              {option}
-            </SelectOption>
-          ))}
-        </SelectList>
-        <Divider />
-        <div className="media-type-field-custom">
-          <TextInput
-            aria-label="Custom media type"
-            value={customValue}
-            onChange={(_event, nextValue) => {
-              setCustomValue(nextValue);
-            }}
-            onKeyDown={onCustomKeyDown}
-            placeholder="Add custom media type"
-            isDisabled={disabled}
-          />
-          <Button variant="secondary" onClick={addCustomValue} isDisabled={disabled || customValue.trim() === ''}>
-            Add
-          </Button>
-        </div>
-      </Select>
+      <div data-testid="media-type-field-toggle">
+        <MultiSelect
+          id={`${propName}-media-type`}
+          titleText=""
+          hideLabel
+          label={selectedValues.length > 0 ? selectedValues.join(', ') : 'Select media types'}
+          items={options}
+          itemToString={(item: string) => item}
+          selectedItems={selectedValues}
+          onChange={({ selectedItems }: { selectedItems: string[] }) => {
+            onChange(selectedItems.length > 0 ? selectedItems.join(', ') : undefined);
+          }}
+          disabled={disabled}
+        />
+      </div>
+      <div className="media-type-field-custom">
+        <TextInput
+          id={`${propName}-custom-input`}
+          labelText=""
+          hideLabel
+          aria-label="Custom media type"
+          value={customValue}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            setCustomValue(e.target.value);
+          }}
+          onKeyDown={onCustomKeyDown}
+          placeholder="Add custom media type"
+          disabled={disabled}
+        />
+        <Button kind="secondary" onClick={addCustomValue} disabled={disabled || customValue.trim() === ''}>
+          Add
+        </Button>
+      </div>
     </FieldWrapper>
   );
 };

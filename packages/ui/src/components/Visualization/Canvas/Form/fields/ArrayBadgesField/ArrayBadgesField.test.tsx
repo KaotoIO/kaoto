@@ -213,7 +213,7 @@ describe('ArrayBadgesField', () => {
         </ModelContextProvider>,
       );
 
-      const closeButtons = screen.getAllByRole('button', { name: /close/i });
+      const closeButtons = screen.getAllByRole('button', { name: /clear filter|close/i });
 
       fireEvent.click(closeButtons[1]); // Remove 'item2'
 
@@ -233,7 +233,7 @@ describe('ArrayBadgesField', () => {
 
       // Get all close buttons and click the first one (apple, since items are sorted)
 
-      const closeButtons = screen.getAllByRole('button', { name: /close/i });
+      const closeButtons = screen.getAllByRole('button', { name: /clear filter|close/i });
 
       fireEvent.click(closeButtons[0]);
 

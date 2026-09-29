@@ -1,5 +1,6 @@
 import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { KaotoFormPageObject } from '@kaoto/forms/testing';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { JSONSchema4 } from 'json-schema';
 
 import { UriField } from './UriField';
@@ -25,9 +26,9 @@ describe('UriField', () => {
   it('should render with existing URI value', () => {
     renderField({ uri: 'timer:test' });
 
-    const valueElement = screen.getByTestId('uri');
-    expect(valueElement).toHaveTextContent('timer:test');
-    expect(screen.queryByText("Click to add 'uri'")).not.toBeInTheDocument();
+    const formPageObject = new KaotoFormPageObject(screen, act);
+    const valueElement = formPageObject.getUriInputForProperty(PROP_NAME);
+    expect(valueElement).toHaveValue('timer:test');
 
     const editButton = screen.getByTestId('uri--edit');
     expect(editButton).toBeInTheDocument();
@@ -36,8 +37,10 @@ describe('UriField', () => {
   it('should render with empty value', () => {
     renderField({});
 
-    const placeholder = screen.getByText("Click to add 'uri'");
-    expect(placeholder).toBeInTheDocument();
+    const formPageObject = new KaotoFormPageObject(screen, act);
+    const valueElement = formPageObject.getUriInputForProperty(PROP_NAME);
+    expect(valueElement).toHaveValue('');
+    expect(valueElement).toHaveAttribute('placeholder', "Click to add 'uri'");
 
     const editButton = screen.getByTestId('uri--edit');
     expect(editButton).toBeInTheDocument();
@@ -46,54 +49,53 @@ describe('UriField', () => {
   it('should display placeholder when URI is empty string', () => {
     renderField({ uri: '' });
 
-    const placeholder = screen.getByText("Click to add 'uri'");
-    expect(placeholder).toBeInTheDocument();
+    const formPageObject = new KaotoFormPageObject(screen, act);
+    const valueElement = formPageObject.getUriInputForProperty(PROP_NAME);
+    expect(valueElement).toHaveValue('');
+    expect(valueElement).toHaveAttribute('placeholder', "Click to add 'uri'");
   });
 
-  it('should call onChange when editing URI value', () => {
+  it('should call onChange when editing URI value', async () => {
     const onChangeMock = vi.fn();
     renderField({ uri: 'timer:test' }, onChangeMock);
 
-    const editButton = screen.getByTestId('uri--edit');
-    fireEvent.click(editButton);
+    const formPageObject = new KaotoFormPageObject(screen, act);
+    await formPageObject.editUriForProperty(PROP_NAME);
 
     const input = screen.getByTestId('uri--text-input');
     fireEvent.change(input, { target: { value: 'timer:newtest' } });
 
-    const saveButton = screen.getByTestId('uri--save');
-    fireEvent.click(saveButton);
+    await formPageObject.saveUriForProperty(PROP_NAME);
 
     expect(onChangeMock).toHaveBeenCalledWith('uri', 'timer:newtest');
   });
 
-  it('should call onChange with undefined when clearing URI value', () => {
+  it('should call onChange with undefined when clearing URI value', async () => {
     const onChangeMock = vi.fn();
     renderField({ uri: 'timer:test' }, onChangeMock);
 
-    const editButton = screen.getByTestId('uri--edit');
-    fireEvent.click(editButton);
+    const formPageObject = new KaotoFormPageObject(screen, act);
+    await formPageObject.editUriForProperty(PROP_NAME);
 
     const input = screen.getByTestId('uri--text-input');
     fireEvent.change(input, { target: { value: '' } });
 
-    const saveButton = screen.getByTestId('uri--save');
-    fireEvent.click(saveButton);
+    await formPageObject.saveUriForProperty(PROP_NAME);
 
     expect(onChangeMock).toHaveBeenCalledWith('uri', undefined);
   });
 
-  it('should not call onChange when canceling edit', () => {
+  it('should not call onChange when canceling edit', async () => {
     const onChangeMock = vi.fn();
     renderField({ uri: 'timer:test' }, onChangeMock);
 
-    const editButton = screen.getByTestId('uri--edit');
-    fireEvent.click(editButton);
+    const formPageObject = new KaotoFormPageObject(screen, act);
+    await formPageObject.editUriForProperty(PROP_NAME);
 
     const input = screen.getByTestId('uri--text-input');
     fireEvent.change(input, { target: { value: 'timer:newtest' } });
 
-    const cancelButton = screen.getByTestId('uri--cancel');
-    fireEvent.click(cancelButton);
+    await formPageObject.cancelUriForProperty(PROP_NAME);
 
     expect(onChangeMock).not.toHaveBeenCalled();
   });

@@ -2,7 +2,7 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { CanvasFormTabsContext, KaotoForm, KeyValue } from '@kaoto/forms';
 import { KaotoFormPageObject } from '@kaoto/forms/testing';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { JSONSchema4 } from 'json-schema';
 import { useState } from 'react';
 
@@ -322,23 +322,25 @@ describe('CanvasFormBody', () => {
 
       const { Provider } = await TestProvidersWrapper();
 
-      render(
-        <EntitiesContext.Provider value={null}>
-          <Provider>
-            <CanvasFormTabsContext.Provider
-              value={{
-                selectedTab: 'All',
-                setSelectedTab: vi.fn(),
-              }}
-            >
-              <CanvasFormBody vizNode={setHeaderNode} />
-            </CanvasFormTabsContext.Provider>
-          </Provider>
-        </EntitiesContext.Provider>,
-      );
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <EntitiesContext.Provider value={null}>
+            <Provider>
+              <CanvasFormTabsContext.Provider
+                value={{
+                  selectedTab: 'All',
+                  setSelectedTab: vi.fn(),
+                }}
+              >
+                <CanvasFormBody vizNode={setHeaderNode} />
+              </CanvasFormTabsContext.Provider>
+            </Provider>
+          </EntitiesContext.Provider>,
+        );
+      });
 
       const formPageObject = new KaotoFormPageObject(screen, act);
-      await screen.findByTestId(`${ROOT_PATH}__expression-list-typeahead-select-input`);
       await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
       await formPageObject.selectTypeaheadItem('simple');
       await formPageObject.inputText('Expression', '${header.foo}');
@@ -396,7 +398,6 @@ describe('CanvasFormBody', () => {
       expect(camelRoute.from.steps[0].setHeader!.simple).toBeUndefined();
       expect(camelRoute.from.steps[0].setHeader!.name).toBe('bar');
 
-      await screen.findByTestId(`${ROOT_PATH}__expression-list-typeahead-select-input`);
       await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
       await formPageObject.selectTypeaheadItem('simple');
       await formPageObject.inputText('Expression', '${header.foo}');
@@ -654,17 +655,12 @@ describe('CanvasFormBody', () => {
     );
 
     const formPageObject = new KaotoFormPageObject(screen, act);
-    await waitFor(() => {
-      expect(formPageObject.getFieldByDisplayName('Name')).not.toBeNull();
-    });
-    const inputField = formPageObject.getFieldByDisplayName('Name')!;
+    const inputField = await formPageObject.findFieldByDisplayName('Name');
 
     fireEvent.focus(inputField);
     fireEvent.keyDown(inputField, { ctrlKey: true, code: 'Space' });
 
-    await waitFor(() => {
-      expect(wrapper.getByTestId('suggestions-menu')).toBeInTheDocument();
-    });
+    expect(wrapper.queryByTestId('suggestions-menu')).toBeInTheDocument();
   });
 
   describe('seda queue name field', () => {
