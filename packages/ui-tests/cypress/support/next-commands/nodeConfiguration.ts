@@ -12,7 +12,7 @@ const withKaotoForm = <T>(callback: (form: KaotoFormPageObject) => Promise<T>) =
   cy
     .document()
     .then({ timeout: Cypress.config('defaultCommandTimeout') * 2 }, (doc) =>
-      callback(new KaotoFormPageObject(within(doc.body), async (action) => action())),
+      callback(new KaotoFormPageObject(within(doc.body), (action) => action())),
     );
 
 Cypress.Commands.add(

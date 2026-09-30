@@ -91,8 +91,9 @@ export const KeyValue: FunctionComponent<KeyValueProps> = ({ propName, initialMo
         cause for the input to lose focus when the list is updated. */}
       {internalModel.map(([key, value], index) => {
         return (
-          // NOSONAR typescript:S6479 - intentional: using pair key as React key causes input focus loss on update
-          <Grid key={index}>
+          <Grid
+            key={index} // NOSONAR typescript:S6479 - intentional: using pair key as React key causes input focus loss on update
+          >
             <Column sm={2} md={3} lg={7}>
               <TextInput
                 labelText=""

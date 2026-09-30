@@ -11,7 +11,6 @@ interface KeyValueProps {
   initialModel?: KeyValueType;
   onChange: (model: KeyValueType) => void;
   disabled?: boolean;
-  isOrdered?: boolean;
 }
 
 type KeyValueEntry = [string, string];
@@ -98,8 +97,9 @@ export const IndexedValue: FunctionComponent<KeyValueProps> = ({
 
       {internalModel.map(([key, value], index) => {
         return (
-          // NOSONAR typescript:S6479 - intentional: using pair key as React key causes input focus loss on update
-          <Grid key={index}>
+          <Grid
+            key={index} // NOSONAR typescript:S6479 - intentional: using pair key as React key causes input focus loss on update
+          >
             <Column sm={1} md={2} lg={3}>
               <span data-testid={`${propName}__index`}>{key}</span>
             </Column>

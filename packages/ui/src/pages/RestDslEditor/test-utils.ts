@@ -7,12 +7,12 @@ import { fireEvent, screen } from '@testing-library/react';
  * @param actionName - The visible text of the action (e.g., 'Add Configuration', 'Add Service', 'Add Operation', 'Delete')
  * @example
  * ```typescript
- * await clickToolbarActionUtil('Add Configuration');
- * await clickToolbarActionUtil('Add Service');
- * await clickToolbarActionUtil('Delete');
+ * clickToolbarActionUtil('Add Configuration');
+ * clickToolbarActionUtil('Add Service');
+ * clickToolbarActionUtil('Delete');
  * ```
  */
-export const clickToolbarActionUtil = async (actionName: string): Promise<void> => {
+export const clickToolbarActionUtil = (actionName: string): void => {
   const [menuButton] = screen.queryAllByRole('button', { name: 'Actions' });
   if (!menuButton) {
     throw new Error('Actions menu button not found');

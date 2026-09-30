@@ -7,7 +7,7 @@
  * @returns
  */
 const getTagRegex = (tag: string) => {
-  return new RegExp(`${tag}:(.*?)(?:\\||$)`);
+  return new RegExp(String.raw`${tag}:(.*?)(?:\||$)`);
 };
 
 export const extractGroup = (tag: string, input?: string): string => {
