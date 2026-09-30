@@ -8,12 +8,11 @@ configure({ asyncUtilTimeout: Cypress.config('defaultCommandTimeout') });
  * Runs the callback with a {@link KaotoFormPageObject} bound to the application under test,
  * so the form selectors are maintained in a single place.
  */
-const withKaotoForm = <T>(callback: (form: KaotoFormPageObject) => Promise<T>) =>
-  cy
-    .document()
-    .then({ timeout: Cypress.config('defaultCommandTimeout') * 2 }, (doc) =>
-      callback(new KaotoFormPageObject(within(doc.body), (action) => action())),
-    );
+const withKaotoForm = <T>(callback: (form: KaotoFormPageObject) => Promise<T>) => {
+  const runWithDocument = (doc: Document) => callback(new KaotoFormPageObject(within(doc.body), (action) => action()));
+
+  return cy.document().then({ timeout: Cypress.config('defaultCommandTimeout') * 2 }, runWithDocument);
+};
 
 Cypress.Commands.add(
   'interactWithConfigInputObject',
