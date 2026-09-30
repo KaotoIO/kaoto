@@ -662,7 +662,7 @@ describe('DataMapperProvider', () => {
     expect(result.current.sourceParameterMap.has('nonExistent')).toBeFalsy();
   });
 
-  describe('setNewDocument()', () => {
+  describe('updateDocument() document-store path', () => {
     it('should update source body document', async () => {
       const wrapper = ({ children }: { children: React.ReactNode }) => (
         <DataMapperProvider>{children}</DataMapperProvider>
@@ -678,7 +678,11 @@ describe('DataMapperProvider', () => {
       } as IDocument;
 
       act(() => {
-        result.current.setNewDocument(DocumentType.SOURCE_BODY, 'Body', mockDocument);
+        result.current.updateDocument(
+          mockDocument,
+          new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'Body'),
+          '',
+        );
       });
 
       expect(result.current.sourceBodyDocument).toEqual(mockDocument);
@@ -699,13 +703,17 @@ describe('DataMapperProvider', () => {
       } as IDocument;
 
       act(() => {
-        result.current.setNewDocument(DocumentType.TARGET_BODY, 'Body', mockDocument);
+        result.current.updateDocument(
+          mockDocument,
+          new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.JSON_SCHEMA, 'Body'),
+          '',
+        );
       });
 
       expect(result.current.targetBodyDocument).toEqual(mockDocument);
     });
 
-    it('should reset omitXmlDeclaration when setNewDocument is called with a non-XML target document', async () => {
+    it('should reset omitXmlDeclaration when updateDocument is called with a non-XML target document', async () => {
       const wrapper = ({ children }: { children: React.ReactNode }) => (
         <DataMapperProvider>{children}</DataMapperProvider>
       );
@@ -726,7 +734,11 @@ describe('DataMapperProvider', () => {
       } as IDocument;
 
       act(() => {
-        result.current.setNewDocument(DocumentType.TARGET_BODY, 'Body', mockDocument);
+        result.current.updateDocument(
+          mockDocument,
+          new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.JSON_SCHEMA, 'Body'),
+          '',
+        );
       });
 
       expect(result.current.dataMapperSettings.omitXmlDeclaration).toBe(false);
@@ -747,7 +759,11 @@ describe('DataMapperProvider', () => {
       } as IDocument;
 
       act(() => {
-        result.current.setNewDocument(DocumentType.PARAM, 'testParam', mockDocument);
+        result.current.updateDocument(
+          mockDocument,
+          new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, 'testParam'),
+          '',
+        );
       });
 
       expect(result.current.sourceParameterMap.has('testParam')).toBeTruthy();

@@ -58,7 +58,6 @@ export interface IDataMapperContext {
   renameSourceParameter: (oldName: string, newName: string) => void;
   sourceBodyDocument: IDocument;
   targetBodyDocument: IDocument;
-  setNewDocument: (documentType: DocumentType, documentId: string, document: IDocument) => void;
   updateDocument: (document: IDocument, definition: DocumentDefinition, previousDocumentReferenceId: string) => void;
 
   isSourceParametersExpanded: boolean;
@@ -371,35 +370,6 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     [applyMappingTree, mappingTree, sourceBodyDocument, sourceParameterMap, targetBodyDocument],
   );
 
-  const setNewDocument = useCallback(
-    (documentType: DocumentType, documentId: string, newDocument: IDocument) => {
-      switch (documentType) {
-        case DocumentType.SOURCE_BODY:
-          setSourceBodyDocument(newDocument);
-          break;
-        case DocumentType.TARGET_BODY: {
-          setTargetBodyDocument(newDocument);
-          const sanitizedSettings = DataMapperSettingsService.sanitizeForTarget(
-            dataMapperSettings,
-            newDocument.definitionType,
-          );
-          setDataMapperSettings(sanitizedSettings);
-          refreshMappingTree({
-            structural: true,
-            targetDefinitionType: newDocument.definitionType,
-            dataMapperSettings: sanitizedSettings,
-          });
-          break;
-        }
-        case DocumentType.PARAM:
-          sourceParameterMap!.set(documentId, newDocument);
-          refreshSourceParameters();
-          break;
-      }
-    },
-    [dataMapperSettings, refreshMappingTree, refreshSourceParameters, sourceParameterMap],
-  );
-
   const updateDocument = useCallback(
     (document: IDocument, definition: DocumentDefinition, previousDocumentReferenceId: string) => {
       /** For removing stale mappings when the document structure has changed, we need to know the previous
@@ -407,20 +377,43 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
        * can be different.
        */
       removeStaleMappings(document.documentType, document.documentId, document, previousDocumentReferenceId);
-      setNewDocument(
-        document.documentType,
-        document.documentId,
-        // Shallow clone to create new reference — triggers React re-render after in-place mutations
-        Object.assign(Object.create(Object.getPrototypeOf(document)), document),
-      );
-
-      if (document.documentType !== DocumentType.TARGET_BODY) {
-        // TARGET_BODY is handled by setNewDocument which calls refreshMappingTree
-        refreshMappingTree({ structural: true });
+      // Shallow clone to create new reference — triggers React re-render after in-place mutations
+      const cloned = Object.assign(Object.create(Object.getPrototypeOf(document)), document);
+      switch (document.documentType) {
+        case DocumentType.SOURCE_BODY:
+          setSourceBodyDocument(cloned);
+          refreshMappingTree({ structural: true });
+          break;
+        case DocumentType.TARGET_BODY: {
+          setTargetBodyDocument(cloned);
+          const sanitizedSettings = DataMapperSettingsService.sanitizeForTarget(
+            dataMapperSettings,
+            document.definitionType,
+          );
+          setDataMapperSettings(sanitizedSettings);
+          refreshMappingTree({
+            structural: true,
+            targetDefinitionType: document.definitionType,
+            dataMapperSettings: sanitizedSettings,
+          });
+          break;
+        }
+        case DocumentType.PARAM:
+          sourceParameterMap!.set(document.documentId, cloned);
+          refreshSourceParameters();
+          refreshMappingTree({ structural: true });
+          break;
       }
       onUpdateDocument?.(definition);
     },
-    [onUpdateDocument, refreshMappingTree, removeStaleMappings, setNewDocument],
+    [
+      dataMapperSettings,
+      onUpdateDocument,
+      refreshMappingTree,
+      refreshSourceParameters,
+      removeStaleMappings,
+      sourceParameterMap,
+    ],
   );
 
   const sendAlert = useCallback((option: SendAlertProps) => {
@@ -449,7 +442,6 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       renameSourceParameter,
       sourceBodyDocument,
       targetBodyDocument,
-      setNewDocument,
       updateDocument,
       mappingTree,
       structuralMappingTree,
@@ -475,7 +467,6 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     renameSourceParameter,
     sourceBodyDocument,
     targetBodyDocument,
-    setNewDocument,
     updateDocument,
     mappingTree,
     structuralMappingTree,

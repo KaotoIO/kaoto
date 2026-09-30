@@ -2,7 +2,6 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
-import { DocumentType } from '../../../models/datamapper/document';
 import { MappingTree } from '../../../models/datamapper/mapping';
 import { IMappingLink } from '../../../models/datamapper/visualization';
 import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
@@ -40,13 +39,12 @@ describe('DebugLayout', () => {
   it.skip('should render Documents and mappings', async () => {
     let mappingLinks: IMappingLink[] = [];
     const LoadMappings: FunctionComponent<PropsWithChildren> = ({ children }) => {
-      const { mappingTree, refreshMappingTree, sourceParameterMap, setNewDocument, sourceBodyDocument } =
+      const { mappingTree, refreshMappingTree, sourceParameterMap, updateDocument, sourceBodyDocument } =
         useDataMapper();
       useEffect(() => {
-        const sourceDoc = TestUtil.createSourceOrderDoc();
-        setNewDocument(DocumentType.SOURCE_BODY, 'Body', sourceDoc);
+        TestUtil.seedDocument(updateDocument, TestUtil.createSourceOrderDoc());
         const targetDoc = TestUtil.createTargetOrderDoc();
-        setNewDocument(DocumentType.TARGET_BODY, 'Body', targetDoc);
+        TestUtil.seedDocument(updateDocument, targetDoc);
         MappingSerializerService.deserialize(getShipOrderToShipOrderXslt(), targetDoc, mappingTree, sourceParameterMap);
         refreshMappingTree({ structural: true });
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -79,12 +77,11 @@ describe('DebugLayout', () => {
   // Skipped: JSDOM cannot render the full DataMapperControl layout (expansion panels require real dimensions)
   it.skip('should update store selection when clicking a node', async () => {
     const LoadMappings: FunctionComponent<PropsWithChildren> = ({ children }) => {
-      const { mappingTree, refreshMappingTree, sourceParameterMap, setNewDocument } = useDataMapper();
+      const { mappingTree, refreshMappingTree, sourceParameterMap, updateDocument } = useDataMapper();
       useEffect(() => {
-        const sourceDoc = TestUtil.createSourceOrderDoc();
-        setNewDocument(DocumentType.SOURCE_BODY, 'Body', sourceDoc);
+        TestUtil.seedDocument(updateDocument, TestUtil.createSourceOrderDoc());
         const targetDoc = TestUtil.createTargetOrderDoc();
-        setNewDocument(DocumentType.TARGET_BODY, 'Body', targetDoc);
+        TestUtil.seedDocument(updateDocument, targetDoc);
         MappingSerializerService.deserialize(getShipOrderToShipOrderXslt(), targetDoc, mappingTree, sourceParameterMap);
         refreshMappingTree({ structural: true });
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -119,12 +116,10 @@ describe('DebugLayout', () => {
     it('should import and export mappings', async () => {
       let spyOnMappingTree: MappingTree;
       const TestLoader: FunctionComponent<PropsWithChildren> = ({ children }) => {
-        const { mappingTree, setNewDocument } = useDataMapper();
+        const { mappingTree, updateDocument } = useDataMapper();
         useEffect(() => {
-          const sourceDoc = TestUtil.createSourceOrderDoc();
-          setNewDocument(DocumentType.SOURCE_BODY, 'Body', sourceDoc);
-          const targetDoc = TestUtil.createTargetOrderDoc();
-          setNewDocument(DocumentType.TARGET_BODY, 'Body', targetDoc);
+          TestUtil.seedDocument(updateDocument, TestUtil.createSourceOrderDoc());
+          TestUtil.seedDocument(updateDocument, TestUtil.createTargetOrderDoc());
           // eslint-disable-next-line react-hooks/exhaustive-deps
         }, []);
         useEffect(() => {
@@ -170,13 +165,12 @@ describe('DebugLayout', () => {
   describe('debug', () => {
     it('should output debug info to console', async () => {
       const TestLoader: FunctionComponent<PropsWithChildren> = ({ children }) => {
-        const { setDebug, mappingTree, refreshMappingTree, sourceParameterMap, setNewDocument } = useDataMapper();
+        const { setDebug, mappingTree, refreshMappingTree, sourceParameterMap, updateDocument } = useDataMapper();
         useEffect(() => {
           setDebug(true);
-          const sourceDoc = TestUtil.createSourceOrderDoc();
-          setNewDocument(DocumentType.SOURCE_BODY, 'Body', sourceDoc);
+          TestUtil.seedDocument(updateDocument, TestUtil.createSourceOrderDoc());
           const targetDoc = TestUtil.createTargetOrderDoc();
-          setNewDocument(DocumentType.TARGET_BODY, 'Body', targetDoc);
+          TestUtil.seedDocument(updateDocument, targetDoc);
           MappingSerializerService.deserialize(
             getShipOrderToShipOrderXslt(),
             targetDoc,
