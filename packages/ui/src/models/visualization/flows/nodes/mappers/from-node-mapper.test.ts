@@ -70,6 +70,23 @@ describe('FromNodeMapper', () => {
     expect(kameletVizNode.data.tertiaryNodeId).toEqual({ name: 'beer-source', catalogKind: CatalogKind.Kamelet });
   });
 
+  it('should populate tertiaryNodeId from parameters.templateId for a bare kamelet URI', async () => {
+    const kameletRouteJson: { route: RouteDefinition } = parse(`
+      route:
+        from:
+          id: from-kamelet
+          uri: kamelet
+          parameters:
+            templateId: beer-source
+          steps: []`);
+
+    const kameletVizNode = await mapper.getVizNodeFromProcessor(path, PROCESSOR_OPTIONS, kameletRouteJson);
+
+    expect(kameletVizNode.data.name).toBe('beer-source');
+    expect(kameletVizNode.data.secondaryNodeId).toEqual({ name: 'kamelet', catalogKind: CatalogKind.Component });
+    expect(kameletVizNode.data.tertiaryNodeId).toEqual({ name: 'beer-source', catalogKind: CatalogKind.Kamelet });
+  });
+
   it('should populate secondaryNodeId and tertiaryNodeId for kamelet with query parameters', async () => {
     const kameletParamsRouteJson: { route: RouteDefinition } = parse(`
       route:

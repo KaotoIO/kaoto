@@ -26,13 +26,10 @@ export class BaseNodeMapper implements INodeMapper {
     let kameletName = undefined;
     if (componentLookup.primaryNodeId && URI_PROCESSORS.has(componentLookup.primaryNodeId.name)) {
       const definition = safeGetValue(entityDefinition, path);
-      const uri = CamelUriHelper.getUriString(definition);
-      if (uri) {
-        const names = CamelUriHelper.getComponentAndKameletName(uri);
-        componentName = names.componentName;
-        if ('kameletName' in names) {
-          kameletName = names.kameletName;
-        }
+      const names = CamelUriHelper.getComponentAndKameletNameFromDefinition(definition);
+      componentName = names.componentName;
+      if ('kameletName' in names) {
+        kameletName = names.kameletName;
       }
     }
 
