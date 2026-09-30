@@ -19,9 +19,7 @@ export class KaotoFormPageObject {
    */
   async showRequiredFields(): Promise<void> {
     const requiredTab = await this.findTab('Required');
-    await this.executor(async () => {
-      fireEvent.click(requiredTab);
-    });
+    await this.fire(() => fireEvent.click(requiredTab));
   }
 
   /**
@@ -29,9 +27,7 @@ export class KaotoFormPageObject {
    */
   async showAllFields(): Promise<void> {
     const allTab = await this.findTab('All');
-    await this.executor(async () => {
-      fireEvent.click(allTab);
-    });
+    await this.fire(() => fireEvent.click(allTab));
   }
 
   /**
@@ -39,12 +35,10 @@ export class KaotoFormPageObject {
    */
   async showModifiedFields(): Promise<void> {
     const modifiedTab = await this.findTab('Modified');
-    await this.executor(async () => {
-      fireEvent.click(modifiedTab);
-    });
+    await this.fire(() => fireEvent.click(modifiedTab));
   }
 
-  async findTab(name: 'Required' | 'All' | 'Modified'): Promise<HTMLElement> {
+  findTab(name: 'Required' | 'All' | 'Modified'): Promise<HTMLElement> {
     return this.screen.findByTestId(`tab-${name}`);
   }
 
@@ -53,16 +47,14 @@ export class KaotoFormPageObject {
    */
   async filterFields(text: string): Promise<void> {
     const filterInput = await this.screen.findByTestId('filter-fields');
-    await this.executor(async () => {
-      fireEvent.input(filterInput, { target: { value: text } });
-    });
+    await this.fire(() => fireEvent.input(filterInput, { target: { value: text } }));
   }
 
   getExpressionInputForProperty(propertyName: string): HTMLElement | null {
     return this.screen.queryByTestId(`${propertyName}__expression-list`);
   }
 
-  async findExpressionInputForProperty(propertyName: string): Promise<HTMLElement> {
+  findExpressionInputForProperty(propertyName: string): Promise<HTMLElement> {
     return this.screen.findByTestId(`${propertyName}__expression-list`);
   }
 
@@ -70,7 +62,7 @@ export class KaotoFormPageObject {
     return this.screen.queryByTestId(`${propertyName}__oneof-list`);
   }
 
-  async findOneOfInputForProperty(propertyName: string): Promise<HTMLElement> {
+  findOneOfInputForProperty(propertyName: string): Promise<HTMLElement> {
     return this.screen.findByTestId(`${propertyName}__oneof-list`);
   }
 
@@ -78,7 +70,7 @@ export class KaotoFormPageObject {
     return this.screen.queryByTestId(propertyName);
   }
 
-  async findTypeaheadInputForProperty(propertyName: string): Promise<HTMLElement> {
+  findTypeaheadInputForProperty(propertyName: string): Promise<HTMLElement> {
     return this.screen.findByTestId(propertyName);
   }
 
@@ -125,7 +117,7 @@ export class KaotoFormPageObject {
     );
   }
 
-  async findFieldByDisplayName(name: string, index?: number): Promise<HTMLElement> {
+  findFieldByDisplayName(name: string, index?: number): Promise<HTMLElement> {
     return waitFor(() => {
       const field = this.getFieldByDisplayName(name, index);
       if (!isDefined(field)) {
@@ -147,9 +139,7 @@ export class KaotoFormPageObject {
       throw new Error(`Option ${itemName} not found.`);
     }
 
-    await this.executor(async () => {
-      fireEvent.click(optionItem);
-    });
+    await this.fire(() => fireEvent.click(optionItem));
   }
 
   /**
@@ -160,9 +150,7 @@ export class KaotoFormPageObject {
   async inputText(name: string, text: string, options: Partial<{ index?: number }> = {}): Promise<void> {
     const inputField = await this.findFieldByDisplayName(name, options.index);
 
-    await this.executor(async () => {
-      fireEvent.input(inputField, { target: { value: text } });
-    });
+    await this.fire(() => fireEvent.input(inputField, { target: { value: text } }));
   }
 
   /**
@@ -172,9 +160,7 @@ export class KaotoFormPageObject {
   async toggleExpressionFieldForProperty(propertyName: string): Promise<void> {
     const expressionField = await this.findExpressionInputForProperty(propertyName);
 
-    await this.executor(async () => {
-      fireEvent.click(expressionField);
-    });
+    await this.fire(() => fireEvent.click(expressionField));
   }
 
   /**
@@ -184,9 +170,7 @@ export class KaotoFormPageObject {
   async toggleOneOfFieldForProperty(propertyName: string): Promise<void> {
     const oneOfField = await this.findOneOfInputForProperty(propertyName);
 
-    await this.executor(async () => {
-      fireEvent.click(oneOfField);
-    });
+    await this.fire(() => fireEvent.click(oneOfField));
   }
 
   /**
@@ -195,9 +179,7 @@ export class KaotoFormPageObject {
    */
   async toggleTypeaheadFieldForProperty(propertyName: string): Promise<void> {
     const typeaheadInput = await this.findTypeaheadInputForProperty(propertyName);
-    await this.executor(async () => {
-      fireEvent.click(typeaheadInput);
-    });
+    await this.fire(() => fireEvent.click(typeaheadInput));
   }
 
   /**
@@ -210,9 +192,7 @@ export class KaotoFormPageObject {
       throw new Error(`SetObject button for property "${propertyName}" not found.`);
     }
 
-    await this.executor(async () => {
-      fireEvent.click(setObjectButton);
-    });
+    await this.fire(() => fireEvent.click(setObjectButton));
   }
 
   /**
@@ -231,14 +211,10 @@ export class KaotoFormPageObject {
 
   async clearTextFieldForProperty(propertyName: string): Promise<void> {
     const fieldActions = await this.screen.findByTestId(`${propertyName}__field-actions`);
-    await this.executor(async () => {
-      fireEvent.click(fieldActions);
-    });
+    await this.fire(() => fireEvent.click(fieldActions));
 
     const clearButton = await this.screen.findByTestId(`${propertyName}__clear`);
-    await this.executor(async () => {
-      fireEvent.click(clearButton);
-    });
+    await this.fire(() => fireEvent.click(clearButton));
   }
 
   /**
@@ -260,9 +236,7 @@ export class KaotoFormPageObject {
    */
   async editUriForProperty(propertyName: string): Promise<void> {
     const editButton = await this.screen.findByTestId(`${propertyName}--edit`);
-    await this.executor(async () => {
-      fireEvent.click(editButton);
-    });
+    await this.fire(() => fireEvent.click(editButton));
   }
 
   /**
@@ -270,9 +244,7 @@ export class KaotoFormPageObject {
    */
   async saveUriForProperty(propertyName: string): Promise<void> {
     const saveButton = await this.screen.findByTestId(`${propertyName}--save`);
-    await this.executor(async () => {
-      fireEvent.click(saveButton);
-    });
+    await this.fire(() => fireEvent.click(saveButton));
   }
 
   /**
@@ -280,8 +252,17 @@ export class KaotoFormPageObject {
    */
   async cancelUriForProperty(propertyName: string): Promise<void> {
     const cancelButton = await this.screen.findByTestId(`${propertyName}--cancel`);
-    await this.executor(async () => {
-      fireEvent.click(cancelButton);
+    await this.fire(() => fireEvent.click(cancelButton));
+  }
+
+  /**
+   * Dispatches a DOM event through the executor (f.i. `act`). The callback returns a promise
+   * so `act` keeps flushing the updates asynchronously, like with an `async` callback.
+   */
+  private async fire(dispatchEvent: () => void): Promise<void> {
+    await this.executor(() => {
+      dispatchEvent();
+      return Promise.resolve();
     });
   }
 
@@ -291,8 +272,6 @@ export class KaotoFormPageObject {
       throw new Error(`Clear button for property "${propertyName}" not found.`);
     }
 
-    await this.executor(async () => {
-      fireEvent.click(clearButton);
-    });
+    await this.fire(() => fireEvent.click(clearButton));
   }
 }

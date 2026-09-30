@@ -74,7 +74,7 @@ describe('RestTreeToolbar', () => {
       expect(addRestConfigButton).not.toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('should fire callback when clicked', async () => {
+    it('should fire callback when clicked', () => {
       const entities: RestEntity[] = [];
 
       render(
@@ -87,7 +87,7 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      await clickToolbarActionUtil('Add Configuration');
+      clickToolbarActionUtil('Add Configuration');
       expect(mockOnAddRestConfiguration).toHaveBeenCalledTimes(1);
     });
   });
@@ -141,7 +141,7 @@ describe('RestTreeToolbar', () => {
       expect(addRestButton).not.toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('should fire callback when clicked', async () => {
+    it('should fire callback when clicked', () => {
       const entities: RestEntity[] = [];
 
       render(
@@ -154,7 +154,7 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      await clickToolbarActionUtil('Add Service');
+      clickToolbarActionUtil('Add Service');
       expect(mockOnAddRest).toHaveBeenCalledTimes(1);
     });
   });
@@ -349,7 +349,7 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      await clickToolbarActionUtil('Add Operation');
+      clickToolbarActionUtil('Add Operation');
       expect(mockOnAddMethodClick).toHaveBeenCalledTimes(1);
     });
   });
@@ -430,7 +430,7 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      await clickToolbarActionUtil('Delete');
+      clickToolbarActionUtil('Delete');
       expect(mockOnDelete).toHaveBeenCalledTimes(1);
     });
   });

@@ -7,7 +7,7 @@ import { AutoField } from '../AutoField';
 export const AllOfField: FunctionComponent<FieldProps> = ({ propName, required, onRemove }) => {
   const { schema } = useContext(SchemaContext);
   if (!Array.isArray(schema.allOf)) {
-    throw new Error('AllOfField: allOf must be an array');
+    throw new TypeError('AllOfField: allOf must be an array');
   }
 
   return (

@@ -57,7 +57,7 @@ const RestPageEntitiesProvider: FunctionComponent<
  * Helper function to add a REST method via modal
  */
 const addRestMethod = async (path: string) => {
-  expect(screen.queryByText('Add REST Method')).toBeInTheDocument();
+  expect(screen.getByText('Add REST Method')).toBeInTheDocument();
 
   const modal = screen.queryByRole('dialog');
   expect(modal).toBeInTheDocument();
@@ -155,7 +155,7 @@ describe('RestDslEditorPage', () => {
 
       const initialCount = getRestEntities(camelResource).length;
 
-      await clickToolbarActionUtil('Add Configuration');
+      clickToolbarActionUtil('Add Configuration');
       expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
 
       const entities = getRestEntities(camelResource);
@@ -171,7 +171,7 @@ describe('RestDslEditorPage', () => {
 
       const initialCount = getRestEntities(camelResource).length;
 
-      await clickToolbarActionUtil('Add Service');
+      clickToolbarActionUtil('Add Service');
       expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
 
       const entities = getRestEntities(camelResource);
@@ -187,7 +187,7 @@ describe('RestDslEditorPage', () => {
       `);
 
       await selectTreeNode('rest-1');
-      await clickToolbarActionUtil('Add Operation');
+      clickToolbarActionUtil('Add Operation');
       await addRestMethod('/users');
       expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
 
@@ -214,7 +214,7 @@ describe('RestDslEditorPage', () => {
       const initialCount = getRestEntities(camelResource).length;
 
       await selectTreeNode('rest-1');
-      await clickToolbarActionUtil('Delete');
+      clickToolbarActionUtil('Delete');
       expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
 
       const entities = getRestEntities(camelResource);
@@ -235,7 +235,7 @@ describe('RestDslEditorPage', () => {
       expect(await screen.findByRole('tree', { name: 'Rest DSL Configuration' })).toBeTruthy();
       expect(await screen.findByText('rest-1')).toBeTruthy();
 
-      await clickToolbarActionUtil('Add Configuration');
+      clickToolbarActionUtil('Add Configuration');
       expect(getRestEntities(camelResource)).toHaveLength(initialCount + 1);
 
       const newConfig = getRestEntities(camelResource).find((entity) => entity.type === EntityType.RestConfiguration)!;
@@ -253,7 +253,7 @@ describe('RestDslEditorPage', () => {
 
       expect(await screen.findByText('rest-1')).toBeTruthy();
 
-      await clickToolbarActionUtil('Add Service');
+      clickToolbarActionUtil('Add Service');
       expect(getRestEntities(camelResource)).toHaveLength(2);
 
       const newRest = getRestEntities(camelResource).find((entity) => entity.id !== 'rest-1')!;
@@ -271,13 +271,13 @@ describe('RestDslEditorPage', () => {
       `);
 
       await selectTreeNode('rest-1');
-      await clickToolbarActionUtil('Add Operation');
+      clickToolbarActionUtil('Add Operation');
       await addRestMethod('/orders');
 
       const tree = screen.queryByRole('tree');
       expect(within(tree!).queryByText('/orders')).toBeInTheDocument();
 
-      expect(screen.queryByText(/Edit/)).toBeInTheDocument();
+      expect(screen.getByText(/Edit/)).toBeInTheDocument();
       expect(screen.queryAllByText(/GET/)).not.toHaveLength(0);
     });
 
@@ -296,19 +296,19 @@ describe('RestDslEditorPage', () => {
           uri: direct:getOrders
       `);
 
-      expect(screen.queryByText('/users')).toBeInTheDocument();
-      expect(screen.queryByText('/orders')).toBeInTheDocument();
+      expect(screen.getByText('/users')).toBeInTheDocument();
+      expect(screen.getByText('/orders')).toBeInTheDocument();
 
       await selectTreeNode('/users');
 
-      expect(screen.queryByText(/Edit/)).toBeInTheDocument();
+      expect(screen.getByText(/Edit/)).toBeInTheDocument();
 
-      await clickToolbarActionUtil('Delete');
+      clickToolbarActionUtil('Delete');
       expect(screen.queryByText('/users')).toBeNull();
 
-      expect(screen.queryByText('/orders')).toBeInTheDocument();
+      expect(screen.getByText('/orders')).toBeInTheDocument();
 
-      expect(screen.queryByText('Select an entity from the list to edit its configuration')).toBeInTheDocument();
+      expect(screen.getByText('Select an entity from the list to edit its configuration')).toBeInTheDocument();
     });
 
     it('should update tree and form when deleting a right-clicked method', async () => {
@@ -348,9 +348,9 @@ describe('RestDslEditorPage', () => {
       `);
 
       await selectTreeNode('rest-1');
-      await clickToolbarActionUtil('Add Operation');
+      clickToolbarActionUtil('Add Operation');
 
-      expect(screen.queryByText('Add REST Method')).toBeInTheDocument();
+      expect(screen.getByText('Add REST Method')).toBeInTheDocument();
     };
 
     it('returns focus to the Actions trigger when the modal is cancelled', async () => {

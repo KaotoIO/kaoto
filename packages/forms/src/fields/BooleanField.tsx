@@ -18,11 +18,8 @@ export const BooleanField: FunctionComponent<FieldProps> = ({ propName, required
 
   const id = `${propName}-popover`;
 
-  let normalizedValue = value;
-  if (normalizedValue === undefined) {
-    // If the value is undefined, we check the schema default. Sometimes the default is not set, so we use false.
-    normalizedValue = schema.default === true;
-  }
+  // If the value is not set, we check the schema default. Sometimes the default is not set, so we use false.
+  const normalizedValue = value ?? schema.default === true;
 
   return (
     <FieldWrapper
