@@ -316,6 +316,19 @@ describe('parser basics', () => {
       });
     });
 
+    it.each([
+      ['kamelet:delay-action', { templateId: 'delay-action' }],
+      ['kamelet:delay-action?milliseconds=500', { templateId: 'delay-action', milliseconds: 500 }],
+      ['kamelet:delay-action/myRoute', { templateId: 'delay-action', routeId: 'myRoute' }],
+    ])('should parse kamelet uri "%s" into the kamelet component and templateId', async (uri, parameters) => {
+      const element = mockDocument.createElement('to');
+      element.setAttribute('uri', uri);
+
+      const result = await StepParser['parseAttributeType']('uri', element);
+
+      expect(result).toEqual({ uri: 'kamelet', parameters });
+    });
+
     it('should return raw uri for non-uri attribute names', async () => {
       const element = mockDocument.createElement('log');
       element.setAttribute('message', 'Hello');

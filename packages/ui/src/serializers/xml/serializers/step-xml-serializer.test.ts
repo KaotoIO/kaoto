@@ -450,6 +450,16 @@ describe('step-xml-serializer tests', () => {
       expect(result).toBe('kamelet:log-action');
     });
 
+    it.each([
+      [{ templateId: 'log-action' }, 'kamelet:log-action'],
+      [{ templateId: 'log-action', level: 'DEBUG', multiline: true }, 'kamelet:log-action?level=DEBUG&multiline=true'],
+      [{ templateId: 'log-action', routeId: 'myRoute' }, 'kamelet:log-action/myRoute'],
+    ])('builds the kamelet uri from the kamelet component and %j', async (parameters, expected) => {
+      const result = await StepXmlSerializer.createUriFromParameters({ uri: 'kamelet', parameters });
+
+      expect(result).toBe(expected);
+    });
+
     it('uses kamelet component syntax when kamelet name is not in the Kamelet catalog', async () => {
       // Use a kamelet: URI whose name does not exist in the Kamelet catalog.
       // The code falls through to the `kamelet` Component which has syntax kamelet:templateId/routeId.

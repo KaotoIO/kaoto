@@ -122,12 +122,12 @@ export class StepParser {
       const uriString = element.getAttribute('uri');
       if (!uriString) return {};
 
-      const componentName = CamelUriHelper.getComponentAndKameletName(uriString);
-      const resolvedComponentName =
-        'kameletName' in componentName ? `kamelet:${componentName.kameletName}` : componentName.componentName;
-      if (!resolvedComponentName) return { uri: uriString };
+      // Kamelets resolve through the `kamelet` component, so `kamelet:beer-source` becomes
+      // `uri: kamelet` + `parameters.templateId: beer-source`
+      const { componentName } = CamelUriHelper.getComponentAndKameletName(uriString);
+      if (!componentName) return { uri: uriString };
 
-      const component = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Component, resolvedComponentName);
+      const component = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Component, componentName);
       if (!component) return { uri: uriString };
 
       const qIdx = uriString.indexOf('?');
@@ -137,7 +137,7 @@ export class StepParser {
         requiredParameters: component.propertiesSchema.required as string[],
       });
       const queryParams = CamelUriHelper.getParametersFromQueryString(query);
-      return { uri: resolvedComponentName, parameters: { ...pathParams, ...queryParams } };
+      return { uri: componentName, parameters: { ...pathParams, ...queryParams } };
     }
     if (element.hasAttribute(name)) {
       return { [name]: element.getAttribute(name) };

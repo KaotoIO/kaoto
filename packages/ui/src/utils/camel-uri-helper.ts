@@ -251,6 +251,11 @@ export class CamelUriHelper {
    * // Kamelet with query parameters
    * getComponentAndKameletName('kamelet:beer-source?foo=bar')
    * // => { componentName: 'kamelet', kameletName: 'beer-source' }
+   *
+   * @example
+   * // Kamelet with a routeId
+   * getComponentAndKameletName('kamelet:beer-source/myRoute')
+   * // => { componentName: 'kamelet', kameletName: 'beer-source' }
    */
   static getComponentAndKameletName(
     uri: string,
@@ -275,14 +280,53 @@ export class CamelUriHelper {
       return { componentName };
     }
 
+    /** The kamelet component syntax is `kamelet:templateId/routeId`, the kamelet name is the `templateId` */
     const kameletSegment = trimmedUri.slice(separatorIndex + 1);
-    const kameletName = kameletSegment.split('?')[0];
+    const kameletName = kameletSegment.split('?')[0].split('/')[0];
 
     if (!this.isValidKameletName(kameletName)) {
       return { componentName: undefined };
     }
 
     return { componentName: 'kamelet', kameletName };
+  }
+
+  /**
+   * Extract the component name and, when applicable, the Kamelet name from a processor definition.
+   * Kamelets can be referenced in two ways, both are supported:
+   *
+   * @example
+   * // Kamelet component with the templateId parameter (preferred)
+   * getComponentAndKameletNameFromDefinition({ uri: 'kamelet', parameters: { templateId: 'beer-source' } })
+   * // => { componentName: 'kamelet', kameletName: 'beer-source' }
+   *
+   * @example
+   * // Kamelet name in the URI
+   * getComponentAndKameletNameFromDefinition({ uri: 'kamelet:beer-source' })
+   * // => { componentName: 'kamelet', kameletName: 'beer-source' }
+   *
+   * When both are present, the Kamelet name from the URI takes precedence, since Camel appends
+   * the parameters of a full URI as query parameters.
+   */
+  static getComponentAndKameletNameFromDefinition(
+    definition: unknown,
+  ): ReturnType<typeof CamelUriHelper.getComponentAndKameletName> {
+    const uri = this.getUriString(definition);
+    if (!uri) {
+      return { componentName: undefined };
+    }
+
+    const names = this.getComponentAndKameletName(uri);
+    if (names.componentName !== 'kamelet' || 'kameletName' in names) {
+      return names;
+    }
+
+    const templateId = getValue(definition, 'parameters.templateId');
+    if (typeof templateId !== 'string' || !this.isValidKameletName(templateId)) {
+      return names;
+    }
+
+    return { componentName: 'kamelet', kameletName: templateId };
   }
 
   /**

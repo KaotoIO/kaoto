@@ -43,7 +43,29 @@ describe('normalizeDefinition', () => {
         tertiaryNodeId: { name: 'beer-source', catalogKind: CatalogKind.Kamelet },
       },
     );
-    expect(result).toMatchObject({ uri: 'kamelet:beer-source', parameters: { foo: 'bar' } });
+    expect(result).toEqual({ uri: 'kamelet', parameters: { templateId: 'beer-source', foo: 'bar' } });
+  });
+
+  it('should extract the templateId and routeId path parameters from a kamelet URI', async () => {
+    const result = await normalizeDefinition(
+      { uri: 'kamelet:beer-source/myRoute' },
+      {
+        secondaryNodeId: { name: 'kamelet', catalogKind: CatalogKind.Component },
+        tertiaryNodeId: { name: 'beer-source', catalogKind: CatalogKind.Kamelet },
+      },
+    );
+    expect(result).toEqual({ uri: 'kamelet', parameters: { templateId: 'beer-source', routeId: 'myRoute' } });
+  });
+
+  it('should keep a kamelet already defined through the kamelet component and templateId', async () => {
+    const result = await normalizeDefinition(
+      { uri: 'kamelet', parameters: { templateId: 'beer-source', foo: 'bar' } },
+      {
+        secondaryNodeId: { name: 'kamelet', catalogKind: CatalogKind.Component },
+        tertiaryNodeId: { name: 'beer-source', catalogKind: CatalogKind.Kamelet },
+      },
+    );
+    expect(result).toEqual({ uri: 'kamelet', parameters: { templateId: 'beer-source', foo: 'bar' } });
   });
 
   it('should return definition with empty parameters for an unknown component with no query string', async () => {
@@ -66,7 +88,7 @@ describe('normalizeDefinition', () => {
     expect(result).toEqual({ uri: 'non-existing:thing', parameters: { foo: 'bar' } });
   });
 
-  it('should ensure parameters exists for a kamelet URI with no query string', async () => {
+  it('should move the kamelet name into parameters.templateId for a kamelet URI with no query string', async () => {
     const result = await normalizeDefinition(
       { uri: 'kamelet:log-sink' },
       {
@@ -74,7 +96,7 @@ describe('normalizeDefinition', () => {
         tertiaryNodeId: { name: 'log-sink', catalogKind: CatalogKind.Kamelet },
       },
     );
-    expect(result).toEqual({ uri: 'kamelet:log-sink', parameters: {} });
+    expect(result).toEqual({ uri: 'kamelet', parameters: { templateId: 'log-sink' } });
   });
 
   it('should return definition unchanged when uri is empty', async () => {

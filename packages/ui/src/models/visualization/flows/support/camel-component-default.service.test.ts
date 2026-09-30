@@ -87,6 +87,17 @@ describe('CamelComponentDefaultService', () => {
       expect(logDefault.to.uri).toBe('log:InfoLogger');
     });
 
+    it('should return the default value for a kamelet using the kamelet component and templateId', () => {
+      const kameletDefault = CamelComponentDefaultService.getDefaultNodeDefinitionValue({
+        type: 'kamelet',
+        name: 'delay-action',
+      } as DefinedComponent) as any;
+      expect(kameletDefault.to).toBeDefined();
+      expect(kameletDefault.to.id as string).toMatch(/^to-/);
+      expect(kameletDefault.to.uri).toBe('kamelet');
+      expect(kameletDefault.to.parameters).toEqual({ templateId: 'delay-action' });
+    });
+
     it('should return the default value for a doCatch processor', () => {
       const doCatchDefault = CamelComponentDefaultService.getDefaultNodeDefinitionValue({
         type: 'processor',
@@ -199,6 +210,28 @@ describe('CamelComponentDefaultService', () => {
         expect(verbDefault.to.id as string).toMatch(/^to-/);
       },
     );
+  });
+
+  describe('getDefaultFromDefinitionValue', () => {
+    it('should return the default value for a component', () => {
+      const fromDefault = CamelComponentDefaultService.getDefaultFromDefinitionValue({
+        type: 'component',
+        name: 'timer',
+      } as DefinedComponent) as any;
+      expect(fromDefault.id as string).toMatch(/^from-/);
+      expect(fromDefault.uri).toBe('timer');
+      expect(fromDefault.parameters).toEqual({});
+    });
+
+    it('should return the default value for a kamelet using the kamelet component and templateId', () => {
+      const fromDefault = CamelComponentDefaultService.getDefaultFromDefinitionValue({
+        type: 'kamelet',
+        name: 'beer-source',
+      } as DefinedComponent) as any;
+      expect(fromDefault.id as string).toMatch(/^from-/);
+      expect(fromDefault.uri).toBe('kamelet');
+      expect(fromDefault.parameters).toEqual({ templateId: 'beer-source' });
+    });
   });
 
   it('should return the default value for a intercept entity', () => {

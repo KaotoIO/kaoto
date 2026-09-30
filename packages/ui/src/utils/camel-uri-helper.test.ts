@@ -12,6 +12,8 @@ describe('CamelUriHelper', () => {
       ['kamelet:beer-source?foo=bar', { componentName: 'kamelet', kameletName: 'beer-source' }],
       ['kamelet:beer-source?prop1=123', { componentName: 'kamelet', kameletName: 'beer-source' }],
       ['kamelet:aws-s3-sink?bucketName=test', { componentName: 'kamelet', kameletName: 'aws-s3-sink' }],
+      ['kamelet:beer-source/myRoute', { componentName: 'kamelet', kameletName: 'beer-source' }],
+      ['kamelet:beer-source/myRoute?foo=bar', { componentName: 'kamelet', kameletName: 'beer-source' }],
       ['direct:myRoute', { componentName: 'direct' }],
       ['http://example.com', { componentName: 'http' }],
       ['javascript:alert(1)', { componentName: 'javascript' }],
@@ -32,6 +34,42 @@ describe('CamelUriHelper', () => {
 
     it('should not include kameletName for non-kamelet URIs', () => {
       expect('kameletName' in CamelUriHelper.getComponentAndKameletName('timer:tick')).toBe(false);
+    });
+  });
+
+  describe('getComponentAndKameletNameFromDefinition', () => {
+    it.each([
+      [undefined, { componentName: undefined }],
+      [{}, { componentName: undefined }],
+      ['timer:tick', { componentName: 'timer' }],
+      ['kamelet:beer-source', { componentName: 'kamelet', kameletName: 'beer-source' }],
+      [{ uri: 'timer', parameters: { timerName: 'tick' } }, { componentName: 'timer' }],
+      [{ uri: 'kamelet:beer-source?foo=bar' }, { componentName: 'kamelet', kameletName: 'beer-source' }],
+      [
+        { uri: 'kamelet', parameters: { templateId: 'beer-source' } },
+        { componentName: 'kamelet', kameletName: 'beer-source' },
+      ],
+      [
+        { uri: 'kamelet', parameters: { templateId: 'beer-source', routeId: 'myRoute' } },
+        { componentName: 'kamelet', kameletName: 'beer-source' },
+      ],
+      [{ uri: 'kamelet' }, { componentName: 'kamelet' }],
+      [{ uri: 'kamelet', parameters: {} }, { componentName: 'kamelet' }],
+      [{ uri: 'kamelet', parameters: { templateId: 'Beer-Source' } }, { componentName: 'kamelet' }],
+      [{ uri: 'kamelet', parameters: { templateId: '../../etc/passwd' } }, { componentName: 'kamelet' }],
+      [{ uri: 'kamelet', parameters: { templateId: 42 } }, { componentName: 'kamelet' }],
+      [{ uri: 'timer', parameters: { templateId: 'beer-source' } }, { componentName: 'timer' }],
+    ])('should resolve %j to %j', (definition, expected) => {
+      expect(CamelUriHelper.getComponentAndKameletNameFromDefinition(definition)).toEqual(expected);
+    });
+
+    it('should prefer the kamelet name from the URI over parameters.templateId', () => {
+      expect(
+        CamelUriHelper.getComponentAndKameletNameFromDefinition({
+          uri: 'kamelet:beer-source',
+          parameters: { templateId: 'other-kamelet' },
+        }),
+      ).toEqual({ componentName: 'kamelet', kameletName: 'beer-source' });
     });
   });
 

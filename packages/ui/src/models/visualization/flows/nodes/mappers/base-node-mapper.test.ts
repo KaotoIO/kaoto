@@ -132,6 +132,27 @@ describe('BaseNodeMapper', () => {
       expect(vizNode.data.tertiaryNodeId).toEqual({ name: 'postgresql-sink', catalogKind: CatalogKind.Kamelet });
     });
 
+    it.each(['to', 'toD', 'poll'])(
+      'should resolve the kamelet from parameters.templateId for a "%s" with a bare "kamelet" URI',
+      async (processorName) => {
+        const lookup = { primaryNodeId: { name: processorName, catalogKind: CatalogKind.Pattern } };
+        const entityDefinition = {
+          route: {
+            [processorName]: {
+              uri: 'kamelet',
+              parameters: { templateId: 'delay-action' },
+            },
+          },
+        };
+
+        const vizNode = await mapper.getVizNodeFromProcessor(`route.${processorName}`, lookup, entityDefinition);
+
+        expect(vizNode.data.name).toBe('delay-action');
+        expect(vizNode.data.secondaryNodeId).toEqual({ name: 'kamelet', catalogKind: CatalogKind.Component });
+        expect(vizNode.data.tertiaryNodeId).toEqual({ name: 'delay-action', catalogKind: CatalogKind.Kamelet });
+      },
+    );
+
     it('should handle a bare "kamelet" URI (no specific kamelet selected yet)', async () => {
       const toWithBareKameletLookup = {
         primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern },

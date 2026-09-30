@@ -47,11 +47,10 @@ export const normalizeDefinition = async (definition: unknown, ids?: IVisualizat
     (normalized as Record<string, unknown>).parameters = {};
   }
 
-  // Step 3: URI expansion — only when a component name can be derived from ids
-  const componentName =
-    ids?.secondaryNodeId?.name === 'kamelet' && ids?.tertiaryNodeId?.name !== undefined
-      ? `kamelet:${ids.tertiaryNodeId.name}`
-      : ids?.secondaryNodeId?.name;
+  // Step 3: URI expansion — only when a component name can be derived from ids.
+  // Kamelets resolve through the `kamelet` component, so `kamelet:beer-source` becomes
+  // `uri: kamelet` + `parameters.templateId: beer-source`
+  const componentName = ids?.secondaryNodeId?.name;
 
   if (!componentName) return normalized;
 

@@ -16,14 +16,16 @@ export class CamelComponentDefaultService {
    * Get the default definition for the `from` component
    */
   static getDefaultFromDefinitionValue(definedComponent: DefinedComponent): ProcessorDefinition {
-    let uri = definedComponent.name;
     if (definedComponent.type === CatalogKind.Kamelet) {
-      uri = this.getPrefixedKameletName(definedComponent.name);
+      return {
+        id: getCamelRandomId('from'),
+        ...this.getKameletEndpoint(definedComponent.name),
+      } as ProcessorDefinition;
     }
 
     return parse(`
       id: ${getCamelRandomId('from')}
-      uri: "${uri}"
+      uri: "${definedComponent.name}"
       parameters: {}
     `);
   }
@@ -63,11 +65,12 @@ export class CamelComponentDefaultService {
   }
 
   private static getDefaultValueFromKamelet(kameletName: string): object {
-    return parse(`
-          to:
-            uri: "${this.getPrefixedKameletName(kameletName)}"
-            id: ${getCamelRandomId('to')}
-        `);
+    return {
+      to: {
+        id: getCamelRandomId('to'),
+        ...this.getKameletEndpoint(kameletName),
+      },
+    };
   }
 
   private static getDefaultValueFromProcessor(processorName: keyof ProcessorDefinition): ProcessorDefinition {
@@ -229,7 +232,14 @@ export class CamelComponentDefaultService {
     }
   }
 
-  private static getPrefixedKameletName(kameletName: string): string {
-    return `kamelet:${kameletName}`;
+  /**
+   * Kamelets are referenced through the `kamelet` component using the `templateId` parameter,
+   * f.i. `uri: kamelet` + `parameters.templateId: delay-action`, rather than `uri: kamelet:delay-action`
+   */
+  private static getKameletEndpoint(kameletName: string): { uri: string; parameters: { templateId: string } } {
+    return {
+      uri: 'kamelet',
+      parameters: { templateId: kameletName },
+    };
   }
 }

@@ -23,7 +23,7 @@ export class FromNodeMapper extends BaseNodeMapper {
 
     const fromDefinition = safeGetValue(entityDefinition, path);
     if (isFromDefinition(fromDefinition)) {
-      const names = CamelUriHelper.getComponentAndKameletName(fromDefinition.uri);
+      const names = CamelUriHelper.getComponentAndKameletNameFromDefinition(fromDefinition);
       componentName = names.componentName;
       if ('kameletName' in names) {
         kameletName = names.kameletName;
