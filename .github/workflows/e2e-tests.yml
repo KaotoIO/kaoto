@@ -86,6 +86,8 @@ jobs:
           browser: firefox
           # we have already installed all dependencies above
           # install: false
+          # The Cypress support files import the form page object from the @kaoto/forms build
+          build: yarn workspace @kaoto/forms run build
           start: yarn workspace @kaoto/kaoto run preview --host
           config: baseUrl=http://localhost:4173
           working-directory: packages/ui-tests
@@ -142,6 +144,8 @@ jobs:
           browser: chrome
           # we have already installed all dependencies above
           # install: false
+          # The Cypress support files import the form page object from the @kaoto/forms build
+          build: yarn workspace @kaoto/forms run build
           start: yarn workspace @kaoto/kaoto run preview --host
           config: baseUrl=http://localhost:4173
           working-directory: packages/ui-tests
@@ -198,6 +202,8 @@ jobs:
           browser: edge
           # we have already installed all dependencies above
           # install: false
+          # The Cypress support files import the form page object from the @kaoto/forms build
+          build: yarn workspace @kaoto/forms run build
           start: yarn workspace @kaoto/kaoto run preview --host
           config: baseUrl=http://localhost:4173
           working-directory: packages/ui-tests
