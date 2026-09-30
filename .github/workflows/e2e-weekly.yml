@@ -30,6 +30,10 @@ jobs:
       - name: 🔧 Install dependencies
         run: yarn install --immutable --mode=skip-build
 
+      # @kaoto/forms has no build:dev script, so the loop below would skip it
+      - name: Build @kaoto/forms package
+        run: yarn workspace @kaoto/forms run build
+
       # Build packages excluding @kaoto/camel-catalog since it was build during installing dependencies
       - name: Build packages
         run: yarn workspaces foreach --verbose --all --topological-dev  run build:dev
@@ -70,6 +74,8 @@ jobs:
           browser: firefox
           # we have already installed all dependencies above
           # install: false
+          # The Cypress support files import the form page object from the @kaoto/forms build
+          build: yarn workspace @kaoto/forms run build
           start: yarn workspace @kaoto/kaoto run preview --host
           config: baseUrl=http://localhost:4173
           working-directory: packages/ui-tests
@@ -120,6 +126,8 @@ jobs:
           browser: chrome
           # we have already installed all dependencies above
           # install: false
+          # The Cypress support files import the form page object from the @kaoto/forms build
+          build: yarn workspace @kaoto/forms run build
           start: yarn workspace @kaoto/kaoto run preview --host
           config: baseUrl=http://localhost:4173
           working-directory: packages/ui-tests
@@ -170,6 +178,8 @@ jobs:
           browser: edge
           # we have already installed all dependencies above
           # install: false
+          # The Cypress support files import the form page object from the @kaoto/forms build
+          build: yarn workspace @kaoto/forms run build
           start: yarn workspace @kaoto/kaoto run preview --host
           config: baseUrl=http://localhost:4173
           working-directory: packages/ui-tests
