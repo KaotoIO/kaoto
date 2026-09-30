@@ -2,7 +2,6 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
-import { DocumentType } from '../../../models/datamapper/document';
 import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { DataMapperDndProvider } from '../../../providers/datamapper-dnd.provider';
@@ -156,12 +155,11 @@ describe('ExportMappingFileModal', () => {
 
   it('should serialize and display mappings when mappings exist', async () => {
     const TestLoader: FunctionComponent<PropsWithChildren> = ({ children }) => {
-      const { mappingTree, refreshMappingTree, sourceParameterMap, setNewDocument } = useDataMapper();
+      const { mappingTree, refreshMappingTree, sourceParameterMap, updateDocument } = useDataMapper();
       useEffect(() => {
-        const sourceDoc = TestUtil.createSourceOrderDoc();
-        setNewDocument(DocumentType.SOURCE_BODY, 'Body', sourceDoc);
+        TestUtil.seedDocument(updateDocument, TestUtil.createSourceOrderDoc());
         const targetDoc = TestUtil.createTargetOrderDoc();
-        setNewDocument(DocumentType.TARGET_BODY, 'Body', targetDoc);
+        TestUtil.seedDocument(updateDocument, targetDoc);
         MappingSerializerService.deserialize(getShipOrderToShipOrderXslt(), targetDoc, mappingTree, sourceParameterMap);
         refreshMappingTree({ structural: true });
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -209,12 +207,10 @@ describe('ExportMappingFileModal', () => {
 
   it('should update serialized mappings when mappingTree changes', async () => {
     const TestLoader: FunctionComponent<PropsWithChildren> = ({ children }) => {
-      const { refreshMappingTree, setNewDocument } = useDataMapper();
+      const { refreshMappingTree, updateDocument } = useDataMapper();
       useEffect(() => {
-        const sourceDoc = TestUtil.createSourceOrderDoc();
-        setNewDocument(DocumentType.SOURCE_BODY, 'Body', sourceDoc);
-        const targetDoc = TestUtil.createTargetOrderDoc();
-        setNewDocument(DocumentType.TARGET_BODY, 'Body', targetDoc);
+        TestUtil.seedDocument(updateDocument, TestUtil.createSourceOrderDoc());
+        TestUtil.seedDocument(updateDocument, TestUtil.createTargetOrderDoc());
         // Initially no mappings
         refreshMappingTree({ structural: true });
         // eslint-disable-next-line react-hooks/exhaustive-deps

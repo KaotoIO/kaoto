@@ -1,17 +1,61 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { FunctionComponent, PropsWithChildren } from 'react';
+import { act, FunctionComponent, PropsWithChildren, useEffect } from 'react';
 
+import { useDataMapper } from '../../../../hooks/useDataMapper';
 import {
   BODY_DOCUMENT_ID,
   DocumentDefinition,
   DocumentDefinitionType,
   DocumentInitializationModel,
   DocumentType,
-} from '../../../../models/datamapper';
+  IDocument,
+  IField,
+} from '../../../../models/datamapper/document';
+import { NodePath } from '../../../../models/datamapper/nodepath';
 import { DataMapperProvider } from '../../../../providers/datamapper.provider';
-import { getCartJsonSchema, getShipOrderXsd } from '../../../../stubs/datamapper/data-mapper';
+import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
 import { DataMapperSettingsModal } from './DataMapperSettingsModal';
+
+/**
+ * Helper component that injects a mock target document with the given definitionType
+ * into the DataMapper context after the provider has finished loading.
+ * This is necessary because DocumentInitializationModel with XML_SCHEMA/JSON_SCHEMA
+ * but without real schema files does not produce a real document — so we bypass it
+ * and inject via TestUtil.seedDocument directly.
+ */
+const TargetDocumentInjector: FunctionComponent<PropsWithChildren<{ targetDocType: DocumentDefinitionType }>> = ({
+  targetDocType,
+  children,
+}) => {
+  const { updateDocument } = useDataMapper();
+
+  useEffect(() => {
+    if (targetDocType === DocumentDefinitionType.Primitive) return;
+
+    const mockDocument: IDocument = {
+      documentType: DocumentType.TARGET_BODY,
+      documentId: BODY_DOCUMENT_ID,
+      name: BODY_DOCUMENT_ID,
+      definitionType: targetDocType,
+      fields: [] as IField[],
+      path: NodePath.fromDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID),
+      namedTypeFragments: {},
+      definition: new DocumentDefinition(DocumentType.TARGET_BODY, targetDocType, BODY_DOCUMENT_ID),
+      totalFieldCount: 0,
+      isNamespaceAware: targetDocType === DocumentDefinitionType.XML_SCHEMA,
+      getReferenceId: () => '',
+      getExpression: () => '',
+    };
+
+    act(() => {
+      TestUtil.seedDocument(updateDocument, mockDocument);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return <>{children}</>;
+};
 
 describe('DataMapperSettingsModal', () => {
   const mockOnModalClose = vi.fn();
@@ -21,29 +65,7 @@ describe('DataMapperSettingsModal', () => {
     isOutputValidationEnabled = false,
     onSetOutputValidationEnabled?: (enabled: boolean) => void,
   ): FunctionComponent<PropsWithChildren> => {
-    let targetDocDef: DocumentDefinition;
-    if (targetDocType === DocumentDefinitionType.XML_SCHEMA) {
-      targetDocDef = new DocumentDefinition(
-        DocumentType.TARGET_BODY,
-        DocumentDefinitionType.XML_SCHEMA,
-        BODY_DOCUMENT_ID,
-        { 'shipOrder.xsd': getShipOrderXsd() },
-      );
-    } else if (targetDocType === DocumentDefinitionType.JSON_SCHEMA) {
-      targetDocDef = new DocumentDefinition(
-        DocumentType.TARGET_BODY,
-        DocumentDefinitionType.JSON_SCHEMA,
-        BODY_DOCUMENT_ID,
-        { 'cart.json': getCartJsonSchema() },
-      );
-    } else {
-      targetDocDef = new DocumentDefinition(
-        DocumentType.TARGET_BODY,
-        DocumentDefinitionType.Primitive,
-        BODY_DOCUMENT_ID,
-      );
-    }
-    const documentInitializationModel = new DocumentInitializationModel({}, undefined, targetDocDef);
+    const documentInitializationModel = new DocumentInitializationModel();
 
     return ({ children }) => (
       <DataMapperProvider
@@ -51,7 +73,7 @@ describe('DataMapperSettingsModal', () => {
         isOutputValidationEnabled={isOutputValidationEnabled}
         onSetOutputValidationEnabled={onSetOutputValidationEnabled}
       >
-        {children}
+        <TargetDocumentInjector targetDocType={targetDocType}>{children}</TargetDocumentInjector>
       </DataMapperProvider>
     );
   };

@@ -523,4 +523,12 @@ export class TestUtil {
     );
     return XmlSchemaDocumentService.createXmlSchemaDocument(definition);
   }
+
+  static seedDocument(
+    updateDocument: (document: IDocument, definition: DocumentDefinition, previousDocumentReferenceId: string) => void,
+    document: IDocument,
+    previousDocumentReferenceId = '',
+  ) {
+    updateDocument(document, document.definition, previousDocumentReferenceId);
+  }
 }
