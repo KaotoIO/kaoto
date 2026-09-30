@@ -39,7 +39,7 @@ export const StringField: FunctionComponent<StringFieldProps> = ({
       setFieldValue(newValue);
 
       const isEmptyString = newValue === '' || newValue === undefined;
-      const isNumber = isNumberSchema && !isEmptyString && !isNaN(Number(newValue));
+      const isNumber = isNumberSchema && !isEmptyString && !Number.isNaN(Number(newValue));
       /* To handle inputs under construction, for instance 2. */
       const isPartialNumber = typeof newValue === 'string' && newValue.endsWith('.');
 

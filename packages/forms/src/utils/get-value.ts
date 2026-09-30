@@ -21,7 +21,7 @@ export const safeGetValue = (model: unknown, propertyPath: string | string[], de
     if (!isDefined(acc)) return defaultValue;
 
     if (Array.isArray(acc)) {
-      const index = parseInt(property, 10);
+      const index = Number.parseInt(property, 10);
       if (index >= 0 && index < acc.length) {
         return acc[index];
       }

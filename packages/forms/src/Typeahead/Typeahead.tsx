@@ -114,6 +114,23 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
     };
   }, [allowCustomInput, inputValue, items, selectedItem, onChange]);
 
+  const handleClearedSelection = useCallback(() => {
+    if (allowCustomInput) {
+      if (!inputValue?.trim()) {
+        setInputValue('');
+        return;
+      }
+      onCleanInput?.();
+      return;
+    }
+    setInputValue('');
+    if (onCleanInput) {
+      onCleanInput();
+    } else {
+      onChange?.(undefined);
+    }
+  }, [allowCustomInput, inputValue, onCleanInput, onChange]);
+
   const handleChange = useCallback(
     (data: ComboOnChangeData<{ id: string; text: string }>) => {
       const selected = data.selectedItem ?? null;
@@ -134,20 +151,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
       }
 
       if (!selected) {
-        if (allowCustomInput) {
-          if (!inputValue?.trim()) {
-            setInputValue('');
-            return;
-          }
-          onCleanInput?.();
-          return;
-        }
-        setInputValue('');
-        if (onCleanInput) {
-          onCleanInput();
-        } else {
-          onChange?.(undefined);
-        }
+        handleClearedSelection();
         return;
       }
 
@@ -156,18 +160,14 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
         return;
       }
 
-      const selectedFromItems = items.find((item) => String(item.value) === selected.id && item.name === selected.text);
+      // Prefer an exact match, then fall back to the value only
+      const matchingItem =
+        items.find((item) => String(item.value) === selected.id && item.name === selected.text) ??
+        items.find((item) => String(item.value) === selected.id);
 
-      if (selectedFromItems) {
-        setInputValue(selectedFromItems.name);
-        onChange?.(selectedFromItems);
-        return;
-      }
-
-      const selectedById = items.find((item) => String(item.value) === selected.id);
-      if (selectedById) {
-        setInputValue(selectedById.name);
-        onChange?.(selectedById);
+      if (matchingItem) {
+        setInputValue(matchingItem.name);
+        onChange?.(matchingItem);
         return;
       }
 
@@ -176,7 +176,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
         onChange?.(customItem);
       }
     },
-    [onChange, items, onCreate, inputValue, allowCustomInput, onCleanInput, selectedItem],
+    [onChange, items, onCreate, inputValue, allowCustomInput, selectedItem, handleClearedSelection],
   );
 
   const handleInputChange = useCallback(

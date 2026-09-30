@@ -5,12 +5,12 @@ import { isDefined } from '../utils';
 import { TypeaheadProps } from './Typeahead.types';
 
 export const SimpleSelector: FunctionComponent<TypeaheadProps> = ({ selectedItem, items, onChange }) => {
-  const [selected, setIsSelected] = useState<string | undefined>(selectedItem?.name);
+  const [selected, setSelected] = useState<string | undefined>(selectedItem?.name);
 
   const onItemChanged = useCallback(
     (data: { name?: string | number }) => {
       const name = typeof data.name === 'string' ? data.name : undefined;
-      setIsSelected(name);
+      setSelected(name);
 
       if (!isDefined(name)) {
         onChange?.(undefined);
