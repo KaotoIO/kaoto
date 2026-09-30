@@ -43,7 +43,7 @@ export const FormComponentFactoryProvider: FunctionComponent<IFormComponentFacto
 
       if (schema.format === 'password') {
         return PasswordField;
-      } else if (schema.type === 'string' && schema.title && TEXT_AREA_PROPERTY_NAMES.includes(schema.title)) {
+      } else if (schema.type === 'string' && schema.title && TEXT_AREA_PROPERTY_NAMES.has(schema.title)) {
         return TextAreaField;
       } else if (schema.type === 'string' && Array.isArray(schema.enum)) {
         return EnumField;
@@ -75,7 +75,7 @@ export const FormComponentFactoryProvider: FunctionComponent<IFormComponentFacto
       } else if (Array.isArray(schema.allOf)) {
         return AllOfField;
       } else if (Array.isArray(schema.anyOf)) {
-        throw new Error('FormComponentFactoryProvider: AnyOf should be handled in the scope of the ObjectField');
+        throw new TypeError('FormComponentFactoryProvider: AnyOf should be handled in the scope of the ObjectField');
       }
 
       return DisabledField;
@@ -87,4 +87,4 @@ export const FormComponentFactoryProvider: FunctionComponent<IFormComponentFacto
 };
 
 /* Name of the properties that should load TextAreaField */
-const TEXT_AREA_PROPERTY_NAMES = ['Expression', 'Description', 'Query', 'Script'];
+const TEXT_AREA_PROPERTY_NAMES = new Set(['Expression', 'Description', 'Query', 'Script']);

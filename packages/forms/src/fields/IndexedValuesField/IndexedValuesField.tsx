@@ -5,7 +5,7 @@ import { FunctionComponent, useContext } from 'react';
 
 import { useFieldValue } from '../../hooks/field-value';
 import { IndexedValue } from '../../KeyValue/IndexedValue';
-import { KeyValue, KeyValueType } from '../../KeyValue/KeyValue';
+import { KeyValueType } from '../../KeyValue/KeyValue';
 import { FieldProps } from '../../models/typings';
 import { SchemaContext } from '../../providers/SchemaProvider';
 import { FieldWrapper } from '../FieldWrapper';

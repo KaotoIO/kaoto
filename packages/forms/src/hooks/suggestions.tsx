@@ -1,4 +1,4 @@
-import { Layer, Menu, MenuItem, MenuItemGroup, MenuItemSelectable, Search } from '@carbon/react';
+import { Layer, Menu, MenuItem, Search } from '@carbon/react';
 import { JSONSchema4 } from 'json-schema';
 import {
   ChangeEvent,

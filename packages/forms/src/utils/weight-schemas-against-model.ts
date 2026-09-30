@@ -3,7 +3,7 @@ import { JSONSchema4 } from 'json-schema';
 import { isDefined } from './is-defined';
 import { resolveSchemaWithRef } from './resolve-schema-with-ref';
 
-const PRIMITIVE_TYPES = ['string', 'number', 'boolean'];
+const PRIMITIVE_TYPES = new Set(['string', 'number', 'boolean']);
 
 /**
  * Weights a JSON schema against model definition.
@@ -24,7 +24,7 @@ export const weightSchemaAgainstModel = (
   const resolvedSchema = resolveSchemaWithRef(schema, definitions);
 
   const modelType = typeof model;
-  if (PRIMITIVE_TYPES.includes(modelType)) {
+  if (PRIMITIVE_TYPES.has(modelType)) {
     if (resolvedSchema.type === modelType) {
       return 10;
     }
