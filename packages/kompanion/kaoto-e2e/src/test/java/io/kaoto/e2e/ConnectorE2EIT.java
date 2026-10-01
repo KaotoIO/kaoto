@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.kaoto.e2e.support.KompanionProcess;
 import io.kaoto.e2e.support.FixtureApp;
+import io.kaoto.e2e.support.KompanionProcess;
 import io.kaoto.e2e.support.SseClient;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -26,8 +26,8 @@ import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 /**
  * End-to-end test of the Kompanion driving a Camel Main app through Apache Camel's camel-cli-connector WebSocket
- * transport. The test plays the role of Kaoto: it only uses the Kompanion's HTTP/SSE API. Enabled with
- * -Pcamel-snapshot (needs a Camel SNAPSHOT with the WebSocket transport installed in ~/.m2).
+ * transport. The test plays the role of Kaoto: it only uses the Kompanion's HTTP/SSE API. Enabled with -Pcamel-snapshot
+ * (needs a Camel SNAPSHOT with the WebSocket transport installed in ~/.m2).
  */
 @EnabledIfSystemProperty(named = "connector.fixture.dir", matches = ".+")
 class ConnectorE2EIT {
@@ -44,7 +44,8 @@ class ConnectorE2EIT {
     @BeforeAll
     static void start() throws Exception {
         kompanion = KompanionProcess.start(List.of("-Dkaoto.kompanion.worker-token=" + TOKEN));
-        String wsUrl = kompanion.baseUrl().replace("http://", "ws://") + "/v1/worker/connect?executionId=" + EXECUTION_ID;
+        String wsUrl =
+                kompanion.baseUrl().replace("http://", "ws://") + "/v1/worker/connect?executionId=" + EXECUTION_ID;
         app = FixtureApp.startCamelMain(
                 Path.of(System.getProperty("connector.fixture.dir")),
                 List.of(
@@ -62,7 +63,8 @@ class ConnectorE2EIT {
                 Thread.sleep(200);
             }
         }
-        assertNotNull(sse, () -> "Worker never connected.\nApp log:\n" + app.log() + "\nKompanion log:\n" + kompanion.log());
+        assertNotNull(
+                sse, () -> "Worker never connected.\nApp log:\n" + app.log() + "\nKompanion log:\n" + kompanion.log());
     }
 
     @AfterAll
@@ -75,7 +77,8 @@ class ConnectorE2EIT {
     @Test
     void kompanionDrivesCamelMainThroughCliConnector() throws Exception {
         // 1. worker ready (replayed to the late subscriber), from the connector's hello
-        JsonNode ready = sse.await(e -> "camel.worker.ready".equals(e.path("type").asText()), Duration.ofSeconds(10));
+        JsonNode ready =
+                sse.await(e -> "camel.worker.ready".equals(e.path("type").asText()), Duration.ofSeconds(10));
         assertNotNull(ready, "no camel.worker.ready event: " + sse.events());
         assertEquals("camel-cli-connector/v1", ready.path("connectorProtocol").asText());
         assertTrue(ready.path("camelVersion").asText().startsWith("4."), ready.toString());
@@ -109,7 +112,8 @@ class ConnectorE2EIT {
         awaitRouteState("route-8276", "Stopped");
 
         // 6. failures are reported, not swallowed
-        JsonNode unknown = assertCommand("{\"type\":\"camel.cmd.route.start\",\"routeId\":\"does-not-exist\"}", "failed");
+        JsonNode unknown =
+                assertCommand("{\"type\":\"camel.cmd.route.start\",\"routeId\":\"does-not-exist\"}", "failed");
         assertTrue(unknown.path("detail").asText().contains("does-not-exist"), unknown.toString());
         // block=false: direct waits up to 30s for a stopped consumer by default, longer than the ack timeout
         JsonNode stoppedRoute = assertCommand(
@@ -120,12 +124,15 @@ class ConnectorE2EIT {
         assertEquals(400, blank.statusCode(), blank.body());
 
         // 7. raw connector frames are passed through as well
-        assertNotNull(sse.await(e -> "camel.connector.snapshot".equals(e.path("type").asText()), Duration.ofSeconds(5)));
+        assertNotNull(
+                sse.await(e -> "camel.connector.snapshot".equals(e.path("type").asText()), Duration.ofSeconds(5)));
 
         // 8. stop the worker: acked, the app exits, the kompanion sees the disconnect
         assertCommand("{\"type\":\"camel.cmd.worker.stop\"}", "acked");
         assertTrue(app.waitForExit(30, TimeUnit.SECONDS), () -> "Fixture app did not exit:\n" + app.log());
-        await(() -> kompanion.log().contains("Worker disconnected: execution=" + EXECUTION_ID), "kompanion disconnect log");
+        await(
+                () -> kompanion.log().contains("Worker disconnected: execution=" + EXECUTION_ID),
+                "kompanion disconnect log");
 
         // 9. the SSE stream survived the whole run
         assertFalse(kompanion.log().contains("BackPressureFailure"), kompanion.log());
@@ -163,7 +170,8 @@ class ConnectorE2EIT {
                 JsonNode e = events.get(i);
                 if ("camel.telemetry.snapshot".equals(e.path("type").asText())) {
                     for (JsonNode r : e.path("routes")) {
-                        if (routeId.equals(r.path("routeId").asText()) && state.equals(r.path("status").asText())) {
+                        if (routeId.equals(r.path("routeId").asText())
+                                && state.equals(r.path("status").asText())) {
                             snapshot = e;
                         }
                     }

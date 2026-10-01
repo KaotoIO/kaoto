@@ -18,8 +18,7 @@ public final class ConnectorProtocolCodec {
     private ConnectorProtocolCodec() {}
 
     /** Encodes a Kompanion command as a connector action frame, using the correlationId as requestId. */
-    public static String encode(ObjectMapper mapper, KompanionCommand command, String correlationId)
-            throws Exception {
+    public static String encode(ObjectMapper mapper, KompanionCommand command, String correlationId) throws Exception {
         ObjectNode action = mapper.createObjectNode();
         switch (command) {
             case KompanionCommand.CmdRouteStart c -> route(action, "start", c.routeId());
@@ -87,7 +86,10 @@ public final class ConnectorProtocolCodec {
 
     public static KompanionEvent.WorkerReady ready(String executionId, JsonNode hello) {
         return new KompanionEvent.WorkerReady(
-                executionId, hello.path("camelVersion").asText(null), null, "camel-cli-connector/v" + hello.path("v").asInt());
+                executionId,
+                hello.path("camelVersion").asText(null),
+                null,
+                "camel-cli-connector/v" + hello.path("v").asInt());
     }
 
     /** Maps the connector's status snapshot (the content of the CLI status file) to a telemetry snapshot. */
