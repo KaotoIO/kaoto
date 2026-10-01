@@ -305,8 +305,8 @@ export class CamelUriHelper {
    * getComponentAndKameletNameFromDefinition({ uri: 'kamelet:beer-source' })
    * // => { componentName: 'kamelet', kameletName: 'beer-source' }
    *
-   * When both are present, the Kamelet name from the URI takes precedence, since Camel appends
-   * the parameters of a full URI as query parameters.
+   * When both are present, `parameters.templateId` takes precedence over the URI path, matching
+   * Camel's runtime behaviour: `Kamelet.extractTemplateId` checks the parameter map first.
    */
   static getComponentAndKameletNameFromDefinition(
     definition: unknown,
@@ -317,16 +317,16 @@ export class CamelUriHelper {
     }
 
     const names = this.getComponentAndKameletName(uri);
-    if (names.componentName !== 'kamelet' || 'kameletName' in names) {
+    if (names.componentName !== 'kamelet') {
       return names;
     }
 
     const templateId = getValue(definition, 'parameters.templateId');
-    if (typeof templateId !== 'string' || !this.isValidKameletName(templateId)) {
-      return names;
+    if (typeof templateId === 'string' && this.isValidKameletName(templateId)) {
+      return { componentName: 'kamelet', kameletName: templateId };
     }
 
-    return { componentName: 'kamelet', kameletName: templateId };
+    return names;
   }
 
   /**
