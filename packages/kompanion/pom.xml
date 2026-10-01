@@ -16,6 +16,9 @@
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.version>3.38.2</quarkus.platform.version>
         <camel.version>4.10.3</camel.version>
+        <!-- Camel used by the camel-cli-connector e2e fixtures (-Pcamel-snapshot): needs the WebSocket transport.
+             Separate from camel.version so the bridge modules keep their own Camel line. -->
+        <connector-it.camel.version>4.23.0-SNAPSHOT</connector-it.camel.version>
         <!-- ContextServicePlugin exists from Camel 4.15; the adapter module compiles against the first LTS that has it.
              Fixed on purpose: it must NOT follow camel.version. -->
         <camel.plugin-api.version>4.18.4</camel.plugin-api.version>
@@ -126,6 +129,13 @@
     </build>
 
     <profiles>
+        <!-- camel-cli-connector WebSocket transport e2e (ConnectorE2EIT): needs the Camel SNAPSHOT installed in ~/.m2 -->
+        <profile>
+            <id>camel-snapshot</id>
+            <modules>
+                <module>kaoto-e2e-fixtures/connector-main</module>
+            </modules>
+        </profile>
         <!-- Camel 4.14 LTS: camel-spring-boot 4.14.x is on Spring Boot 3.5; camel-quarkus 3.27.x carries Camel 4.14 -->
         <profile>
             <id>camel-4.14</id>

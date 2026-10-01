@@ -1,0 +1,20 @@
+# Starts stopped so the kompanion's route.start / route.stop commands have something to do.
+- route:
+    id: route-8276
+    autoStartup: false
+    from:
+      uri: direct:incoming
+      steps:
+        - log:
+            message: "route-8276 received: ${body} (headers: ${headers})"
+
+# Always-on heartbeat so telemetry has traffic without any command.
+- route:
+    id: heartbeat
+    from:
+      uri: timer:heartbeat
+      parameters:
+        period: "1000"
+      steps:
+        - log:
+            message: "heartbeat #${header.CamelTimerCounter}"
