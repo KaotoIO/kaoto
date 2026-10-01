@@ -3628,15 +3628,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kaoto/companion@workspace:packages/companion":
-  version: 0.0.0-use.local
-  resolution: "@kaoto/companion@workspace:packages/companion"
-  dependencies:
-    orval: "npm:^8.36.0"
-    typescript: "npm:^5.5.4"
-  languageName: unknown
-  linkType: soft
-
 "@kaoto/forms@npm:^1.9.0":
   version: 1.9.0
   resolution: "@kaoto/forms@npm:1.9.0"
@@ -3876,6 +3867,15 @@ __metadata:
     monaco-yaml: ^5.5.1
     react: ^19.2.4
     react-dom: ^19.2.4
+  languageName: unknown
+  linkType: soft
+
+"@kaoto/kompanion@workspace:packages/kompanion":
+  version: 0.0.0-use.local
+  resolution: "@kaoto/kompanion@workspace:packages/kompanion"
+  dependencies:
+    orval: "npm:^8.36.0"
+    typescript: "npm:^5.5.4"
   languageName: unknown
   linkType: soft
 
