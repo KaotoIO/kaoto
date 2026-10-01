@@ -2,7 +2,6 @@ package io.kaoto.e2e.support;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.Writer;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -23,16 +22,25 @@ public class KompanionProcess implements AutoCloseable {
 
     private Process process;
     private int port;
+    private final StringBuffer output = new StringBuffer();
 
     public static KompanionProcess start() throws Exception {
+        return start(java.util.List.of());
+    }
+
+    /** Starts the kompanion with extra JVM options (e.g. -Dkaoto.kompanion.worker-token=...). */
+    public static KompanionProcess start(java.util.List<String> jvmOptions) throws Exception {
         String jarPath = System.getProperty("kaoto.kompanion.jar");
         if (jarPath == null) {
             throw new IllegalStateException("System property kaoto.kompanion.jar not set");
         }
         var cp = new KompanionProcess();
-        cp.process = new ProcessBuilder("java", "-jar", jarPath)
-                .redirectErrorStream(true)
-                .start();
+        var cmd = new java.util.ArrayList<String>();
+        cmd.add("java");
+        cmd.addAll(jvmOptions);
+        cmd.add("-jar");
+        cmd.add(jarPath);
+        cp.process = new ProcessBuilder(cmd).redirectErrorStream(true).start();
 
         var reader = new BufferedReader(new InputStreamReader(cp.process.getInputStream()));
         // Read output on a background thread so the 30-second deadline is enforced independently
@@ -46,6 +54,7 @@ public class KompanionProcess implements AutoCloseable {
         Future<Integer> portFuture = lineReader.submit(() -> {
             String line;
             while ((line = reader.readLine()) != null) {
+                cp.output.append(line).append('\n');
                 if (line.startsWith("KAOTO_KOMPANION_PORT=")) {
                     return Integer.parseInt(
                             line.substring("KAOTO_KOMPANION_PORT=".length()).trim());
@@ -73,10 +82,13 @@ public class KompanionProcess implements AutoCloseable {
             lineReader.shutdown();
         }
 
-        // Drain remaining stdout in background to prevent pipe buffer blocking
+        // Drain remaining stdout in background to prevent pipe buffer blocking (kept for log assertions)
         Thread.ofVirtual().start(() -> {
             try {
-                reader.transferTo(Writer.nullWriter());
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    cp.output.append(line).append('\n');
+                }
             } catch (Exception ignored) {
             }
         });
@@ -88,6 +100,11 @@ public class KompanionProcess implements AutoCloseable {
             throw e;
         }
         return cp;
+    }
+
+    /** The kompanion's console output so far. */
+    public String log() {
+        return output.toString();
     }
 
     public int getPort() {
