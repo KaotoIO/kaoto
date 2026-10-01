@@ -33,11 +33,10 @@ spec:
       uri: "timer:start?period=1000&delay=2000&repeatCount=10"
       parameters:
         timerName: user
-        period: "{{period}}"
       steps:
-      - setBody:
-          constant: Initial message
-      - to: log:info?showAll=true&multiline=true&logMask=true
-      - transform:
-          simple: ${body.toUpperCase()}
-      - to: file:output?fileName=output.txt&fileExist=Append
+        - setBody:
+            constant: Initial message
+        - to: log:info?showAll=true&multiline=true&logMask=true
+        - transform:
+            simple: ${body.toUpperCase()}
+        - to: file:output?fileName=output.txt&fileExist=Append
