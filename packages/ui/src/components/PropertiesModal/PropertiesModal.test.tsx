@@ -343,6 +343,24 @@ describe('PropertiesModal', () => {
     });
   });
 
+  it('shows standard applyTemplate properties for a template tile', async () => {
+    await renderModal({
+      type: CatalogKind.TestActionTemplate,
+      name: 'prepare-order',
+      title: 'Prepare order',
+      description: 'Prepare an order for the selected region.',
+      tags: [],
+      iconUrl: '',
+    });
+
+    expect(await screen.findByTestId('tab-0')).toHaveTextContent('Options');
+    expect(screen.getByText('Prepare order')).toBeInTheDocument();
+    expect(screen.getByTestId('properties-modal-description')).toHaveTextContent(
+      'Prepare an order for the selected region.',
+    );
+    expect(screen.getByRole('cell', { name: 'parameters' })).toBeInTheDocument();
+  });
+
   describe('Citrus test container tile', () => {
     const tile: ITile = {
       type: CatalogKind.TestContainer,

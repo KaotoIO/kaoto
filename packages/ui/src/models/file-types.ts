@@ -1,5 +1,6 @@
 export const enum FileTypes {
   Kamelets = 'kamelets',
+  CitrusTemplates = 'citrus-templates',
 }
 
 export interface FileTypesResponse {

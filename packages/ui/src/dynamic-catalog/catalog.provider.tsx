@@ -45,7 +45,11 @@ export const CatalogLoaderProvider: FunctionComponent<
       .then((catalogIndex: CatalogDefinition) => {
         if (stale) return;
         if (catalogIndex.runtime === 'Citrus') {
-          return fetchCitrusCatalog({ catalogIndex: catalogIndex as CitrusCatalogIndex, relativeBasePath });
+          return fetchCitrusCatalog({
+            catalogIndex: catalogIndex as CitrusCatalogIndex,
+            relativeBasePath,
+            getResourcesContentByType,
+          });
         } else {
           return fetchCamelCatalog({
             catalogIndex: catalogIndex as CamelCatalogIndex,
