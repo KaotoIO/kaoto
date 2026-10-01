@@ -1,9 +1,6 @@
-<<<<<<< HEAD
 import { cloneDeep } from 'lodash';
 
-=======
 import { kameletBindingJson } from '../../stubs';
->>>>>>> 15262e2d (fix: replace deprecated KameletBinding and XPath APIs)
 import { pipeJson } from '../../stubs/pipe';
 import { PipeResource } from './pipe-resource';
 import { SourceSchemaType } from './source-schema-type';
