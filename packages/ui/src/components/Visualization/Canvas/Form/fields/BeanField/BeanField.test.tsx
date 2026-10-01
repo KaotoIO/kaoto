@@ -26,6 +26,25 @@ describe('BeanField', () => {
   const refSchema: KaotoSchemaDefinition['schema'] = { title: 'Ref', type: 'string' };
   const beanReferenceSchema: KaotoSchemaDefinition['schema'] = { title: 'Bean Reference', type: 'string' };
 
+  const StatefulModelProvider: FunctionComponent<{
+    initialValue: string;
+    onPropertyChange: Mock;
+    children: ReactElement;
+  }> = ({ initialValue, onPropertyChange, children }) => {
+    const [model, setModel] = useState<string | undefined>(initialValue);
+    return (
+      <ModelContextProvider
+        model={model}
+        onPropertyChange={(path, value) => {
+          onPropertyChange(path, value);
+          setModel(value as string | undefined);
+        }}
+      >
+        {children}
+      </ModelContextProvider>
+    );
+  };
+
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     setupDynamicCatalogRegistry(catalogsMap);
@@ -65,7 +84,7 @@ describe('BeanField', () => {
 
     await formPageObject.inputText('Type', 'io.kaoto.test.TestBean');
 
-    const createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create')!;
+    const createButton = (await screen.findAllByRole('button')).find((b) => b.textContent === 'Create')!;
     fireEvent.click(createButton);
   };
 
@@ -76,7 +95,7 @@ describe('BeanField', () => {
   };
 
   const clickCreateButton = async () => {
-    const createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create')!;
+    const createButton = (await screen.findAllByRole('button')).find((b) => b.textContent === 'Create')!;
     fireEvent.click(createButton);
   };
 
@@ -96,7 +115,7 @@ describe('BeanField', () => {
         ));
       });
 
-      await screen.findByRole('textbox');
+      await screen.findByRole('combobox');
       expect(container!).toMatchSnapshot();
     });
 
@@ -116,7 +135,7 @@ describe('BeanField', () => {
         );
       });
 
-      const input = screen.getByRole('textbox');
+      const input = await screen.findByRole('combobox');
       expect(input).toHaveAttribute('placeholder', 'Default Value');
     });
 
@@ -128,9 +147,9 @@ describe('BeanField', () => {
       await act(async () => {
         render(
           <Provider>
-            <ModelContextProvider model="#dataSource" onPropertyChange={onPropertyChangeSpy}>
+            <StatefulModelProvider initialValue="#dataSource" onPropertyChange={onPropertyChangeSpy}>
               <PrefixedBeanField propName={ROOT_PATH} />
-            </ModelContextProvider>
+            </StatefulModelProvider>
           </Provider>,
         );
       });
@@ -140,6 +159,7 @@ describe('BeanField', () => {
 
       expect(onPropertyChangeSpy).toHaveBeenCalledTimes(1);
       expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, undefined);
+      expect(await formPageObject.findTypeaheadInputForProperty(ROOT_PATH)).toHaveValue('');
     });
 
     it('should show the new bean modal when creating a new bean', async () => {
@@ -164,7 +184,7 @@ describe('BeanField', () => {
       await formPageObject.inputText('Bean', 'MY_BEAN');
       await formPageObject.selectTypeaheadItem('create-new-with-name');
 
-      const beanModal = screen.getByTestId('NewBeanModal-MY_BEAN');
+      const beanModal = await screen.findByTestId('NewBeanModal-MY_BEAN');
 
       expect(beanModal).toBeInTheDocument();
     });
@@ -195,7 +215,7 @@ describe('BeanField', () => {
     it('should allow user to create a new bean', async () => {
       await createBean('myNewBean', 'Bean');
 
-      const [nameInput] = screen.getAllByLabelText('Name');
+      const [nameInput] = await screen.findAllByLabelText('Name');
       expect(nameInput).toHaveValue('myNewBean');
 
       await formPageObject.inputText('Type', 'io.kaoto.new.MyNewBean');
@@ -219,7 +239,7 @@ describe('BeanField', () => {
       await formPageObject.clearForProperty(ROOT_PATH);
       await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
 
-      const beanOptions = screen.getAllByRole('option');
+      const beanOptions = await screen.findAllByRole('option');
 
       expect(beanOptions).toHaveLength(3);
       expect(beanOptions[0]).toHaveTextContent('myNewBean');
@@ -230,7 +250,7 @@ describe('BeanField', () => {
     it('should not update the BeanField when closing the modal', async () => {
       await createBean('myNewBean', 'Bean');
 
-      const cancelButton = screen.getAllByRole('button').find((b) => b.textContent === 'Cancel')!;
+      const cancelButton = (await screen.findAllByRole('button')).find((b) => b.textContent === 'Cancel')!;
       fireEvent.click(cancelButton);
 
       expect(onPropertyChangeSpy).not.toHaveBeenCalled();
@@ -240,17 +260,13 @@ describe('BeanField', () => {
     it('should not allow to create a bean without a type', async () => {
       await createBean('myNewBean', 'Bean');
 
-      const fieldActions = screen.getByTestId(`#.type__field-actions`);
-      fireEvent.click(fieldActions);
+      await formPageObject.clearTextFieldForProperty('#.type');
 
-      const clearButton = await screen.findByRole('menuitem', { name: /Clear type field/i });
-      fireEvent.click(clearButton);
-
-      const createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create')!;
+      const createButton = (await screen.findAllByRole('button')).find((b) => b.textContent === 'Create')!;
       fireEvent.click(createButton);
 
       expect(onPropertyChangeSpy).not.toHaveBeenCalled();
-      expect(screen.getByTestId('NewBeanModal-myNewBean')).toBeInTheDocument();
+      expect(await screen.findByTestId('NewBeanModal-myNewBean')).toBeInTheDocument();
     });
 
     it('should appear in document export when bean is added', async () => {
@@ -277,7 +293,7 @@ describe('BeanField', () => {
       formPageObject = new KaotoFormPageObject(screen, act);
 
       await createBean('myNewBean', 'Bean');
-      const [nameInput] = screen.getAllByLabelText('Name');
+      const [nameInput] = await screen.findAllByLabelText('Name');
       expect(nameInput).toHaveValue('myNewBean');
 
       await formPageObject.inputText('Type', 'io.kaoto.new.MyNewBean');
@@ -309,7 +325,7 @@ describe('BeanField', () => {
         ));
       });
 
-      await screen.findByRole('textbox');
+      await screen.findByRole('combobox');
       expect(container!).toMatchSnapshot();
     });
 
@@ -329,7 +345,7 @@ describe('BeanField', () => {
         );
       });
 
-      const input = screen.getByRole('textbox');
+      const input = await screen.findByRole('combobox');
       expect(input).toHaveAttribute('placeholder', 'Default Value');
     });
 
@@ -341,9 +357,9 @@ describe('BeanField', () => {
       await act(async () => {
         render(
           <Provider>
-            <ModelContextProvider model="dataSource" onPropertyChange={onPropertyChangeSpy}>
+            <StatefulModelProvider initialValue="dataSource" onPropertyChange={onPropertyChangeSpy}>
               <UnprefixedBeanField propName={ROOT_PATH} />
-            </ModelContextProvider>
+            </StatefulModelProvider>
           </Provider>,
         );
       });
@@ -353,6 +369,7 @@ describe('BeanField', () => {
 
       expect(onPropertyChangeSpy).toHaveBeenCalledTimes(1);
       expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, undefined);
+      expect(await formPageObject.findTypeaheadInputForProperty(ROOT_PATH)).toHaveValue('');
     });
 
     it('should show the new bean modal when creating a new bean', async () => {
@@ -377,7 +394,7 @@ describe('BeanField', () => {
       await formPageObject.inputText('Ref', 'MY_BEAN');
       await formPageObject.selectTypeaheadItem('create-new-with-name');
 
-      const beanModal = screen.getByTestId('NewBeanModal-MY_BEAN');
+      const beanModal = await screen.findByTestId('NewBeanModal-MY_BEAN');
 
       expect(beanModal).toBeInTheDocument();
     });
@@ -408,7 +425,7 @@ describe('BeanField', () => {
     it('should create a bean reference without prefix', async () => {
       await createBean('myNewBean', 'Ref');
 
-      const [nameInput] = screen.getAllByLabelText('Name');
+      const [nameInput] = await screen.findAllByLabelText('Name');
       expect(nameInput).toHaveValue('myNewBean');
 
       await formPageObject.inputText('Type', 'io.kaoto.new.MyNewBean');
@@ -432,7 +449,7 @@ describe('BeanField', () => {
       await formPageObject.clearForProperty(ROOT_PATH);
       await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
 
-      const beanOptions = screen.getAllByRole('option');
+      const beanOptions = await screen.findAllByRole('option');
 
       expect(beanOptions).toHaveLength(3);
       expect(beanOptions[0]).toHaveTextContent('myNewBean');
@@ -443,7 +460,7 @@ describe('BeanField', () => {
     it('should not update the BeanField when closing the modal', async () => {
       await createBean('myNewBean', 'Ref');
 
-      const cancelButton = screen.getAllByRole('button').find((b) => b.textContent === 'Cancel')!;
+      const cancelButton = (await screen.findAllByRole('button')).find((b) => b.textContent === 'Cancel')!;
       fireEvent.click(cancelButton);
 
       expect(onPropertyChangeSpy).not.toHaveBeenCalled();
@@ -499,7 +516,7 @@ describe('BeanField', () => {
       await formPageObject.selectTypeaheadItem('create-new-with-name');
       await formPageObject.inputText('Type', 'io.kaoto.test.ExistingBean');
 
-      const createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create')!;
+      const createButton = (await screen.findAllByRole('button')).find((b) => b.textContent === 'Create')!;
       fireEvent.click(createButton);
 
       cleanup();
@@ -521,7 +538,7 @@ describe('BeanField', () => {
       formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
 
-      const beanOptions = screen.getAllByRole('option');
+      const beanOptions = await screen.findAllByRole('option');
       const existingBeanOption = beanOptions.find((option) => option.textContent?.includes('existingBean'));
       expect(existingBeanOption).toHaveTextContent('#existingBean');
     });
@@ -549,7 +566,7 @@ describe('BeanField', () => {
       await formPageObject.selectTypeaheadItem('create-new-with-name');
       await formPageObject.inputText('Type', 'io.kaoto.test.AnotherBean');
 
-      const createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create')!;
+      const createButton = (await screen.findAllByRole('button')).find((b) => b.textContent === 'Create')!;
       fireEvent.click(createButton);
 
       cleanup();
@@ -571,7 +588,7 @@ describe('BeanField', () => {
       formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
 
-      const beanOptions = screen.getAllByRole('option');
+      const beanOptions = await screen.findAllByRole('option');
       const anotherBeanOption = beanOptions.find((option) => option.textContent?.includes('anotherBean'));
       expect(anotherBeanOption).toHaveTextContent('anotherBean');
       expect(anotherBeanOption).not.toHaveTextContent('#anotherBean');
@@ -608,7 +625,7 @@ describe('BeanField', () => {
       formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
 
-      const beanOptions = screen.getAllByRole('option');
+      const beanOptions = await screen.findAllByRole('option');
 
       // Should have default items plus create new option
       expect(beanOptions).toHaveLength(3);
@@ -665,7 +682,7 @@ describe('BeanField', () => {
       await formPageObject.selectTypeaheadItem('create-new-with-name');
       await formPageObject.inputText('Type', 'io.kaoto.test.RegularBean');
 
-      let createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create')!;
+      let createButton = (await screen.findAllByRole('button')).find((b) => b.textContent === 'Create')!;
       fireEvent.click(createButton);
 
       cleanup();
@@ -690,7 +707,7 @@ describe('BeanField', () => {
       await formPageObject.selectTypeaheadItem('create-new-with-name');
       await formPageObject.inputText('Type', 'javax.sql.DataSource');
 
-      createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create')!;
+      createButton = (await screen.findAllByRole('button')).find((b) => b.textContent === 'Create')!;
       fireEvent.click(createButton);
 
       cleanup();
@@ -712,7 +729,7 @@ describe('BeanField', () => {
       formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.toggleTypeaheadFieldForProperty(ROOT_PATH);
 
-      const beanOptions = screen.getAllByRole('option');
+      const beanOptions = await screen.findAllByRole('option');
 
       // Should have: default, dataSource, dataSourceBean, Create new bean
       expect(beanOptions).toHaveLength(4);
@@ -741,7 +758,7 @@ describe('BeanField', () => {
       await formPageObject.inputText('Data Source', 'MY_DATASOURCE');
       await formPageObject.selectTypeaheadItem('create-new-with-name');
 
-      const beanModal = screen.getByTestId('NewBeanModal-MY_DATASOURCE');
+      const beanModal = await screen.findByTestId('NewBeanModal-MY_DATASOURCE');
       expect(beanModal).toBeInTheDocument();
     });
   });

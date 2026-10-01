@@ -1,0 +1,17 @@
+.kaoto-form-container {
+  box-sizing: border-box;
+}
+
+.kaoto-form {
+  padding: 0.5rem;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  &__empty {
+    display: block;
+  }
+
+  &:has(*) + &__empty {
+    display: none;
+  }
+}

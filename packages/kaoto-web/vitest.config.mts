@@ -8,7 +8,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: ['./vitest-mocks-setup.ts', './vitest-setup.ts'],
+    setupFiles: ['./src/__mocks__/vitest-mocks-setup.ts', './src/__mocks__/vitest-setup.ts'],
     include: ['**/?(*.)+(test).[tj]s?(x)'],
     typecheck: {
       enabled: true,

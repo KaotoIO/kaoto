@@ -1,5 +1,5 @@
 import { SchemaContext } from '@kaoto/forms';
-import { act, render, screen, within } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { EndpointPropertiesField } from './EndpointPropertiesField';
@@ -100,7 +100,7 @@ describe('EndpointPropertiesField', () => {
       expect(screen.queryByTestId('array-field-wrapper')).not.toBeInTheDocument();
 
       const standardToggle = screen.getByTestId('testProp-standard-toggle');
-      expect(within(standardToggle).getByRole('button')).toHaveClass('pf-m-selected');
+      expect(standardToggle).toHaveClass('cds--content-switcher--selected');
     });
 
     it('should switch to custom view and back', async () => {
@@ -124,7 +124,7 @@ describe('EndpointPropertiesField', () => {
       expect(screen.queryByTestId('object-field-testProp')).not.toBeInTheDocument();
 
       const customToggle = screen.getByTestId('testProp-custom-toggle');
-      expect(within(customToggle).getByRole('button')).toHaveClass('pf-m-selected');
+      expect(customToggle).toHaveClass('cds--content-switcher--selected');
 
       // Switch back to standard view
       await user.click(screen.getByText('Standard'));
@@ -146,8 +146,8 @@ describe('EndpointPropertiesField', () => {
       expect(screen.queryByText('Custom')).not.toBeInTheDocument();
 
       // Should show badge with item count
-      const badge = screen.getByText('2');
-      expect(badge).toBeInTheDocument();
+      expect(screen.getByText('2')).toBeInTheDocument();
+      const badge = screen.getByTestId('testProp__badge');
       expect(badge).toHaveAttribute('title', '2 properties');
 
       // Should show remove button to allow clearing properties
@@ -188,8 +188,8 @@ describe('EndpointPropertiesField', () => {
 
       await user.click(screen.getByText('Custom'));
 
-      const badge = await screen.findByText('2');
-      expect(badge).toBeInTheDocument();
+      expect(await screen.findByText('2')).toBeInTheDocument();
+      const badge = screen.getByTestId('testProp__badge');
       expect(badge).toHaveAttribute('title', '2 properties');
     });
 

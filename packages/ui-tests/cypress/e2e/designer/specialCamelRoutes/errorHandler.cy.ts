@@ -8,9 +8,9 @@ describe('Test for errorHandler configuration container', () => {
 
     cy.openStepConfigurationTab('errorHandler');
     cy.selectFormTab('All');
-    cy.get(`div[data-testid="#__oneof-list-typeahead-select-input"]`).clear();
+    cy.get(`input[data-testid="#__oneof-list"]`).clear();
 
-    cy.get('ul.pf-v6-c-menu__list > li:first')
+    cy.get('ul.cds--list-box__menu > li:first')
       .should('contain.text', 'Dead Letter Channel')
       .next('li')
       .should('contain.text', 'Default Error Handler')
@@ -30,8 +30,8 @@ describe('Test for errorHandler configuration container', () => {
     cy.openStepConfigurationTab('errorHandler');
     cy.selectFormTab('All');
 
-    cy.get(`div[data-testid="#__oneof-list-typeahead-select-input"]`).clear();
-    cy.get('.pf-v6-c-menu__item-text').contains('Default Error Handler').first().click();
+    cy.get(`input[data-testid="#__oneof-list"]`).clear();
+    cy.get('.cds--list-box__menu').contains('Default Error Handler').first().click();
     cy.expandWrappedSection('#.defaultErrorHandler-Advanced');
 
     cy.interactWithConfigInputObject('defaultErrorHandler.id', 'testId');
