@@ -68,6 +68,17 @@ describe('normalizeDefinition', () => {
     expect(result).toEqual({ uri: 'kamelet', parameters: { templateId: 'beer-source', foo: 'bar' } });
   });
 
+  it('should prefer an explicit parameters.templateId over the kamelet name in the URI when the user edits the URI directly', async () => {
+    const result = await normalizeDefinition(
+      { uri: 'kamelet:hola', parameters: { templateId: 'other-kamelet' } },
+      {
+        secondaryNodeId: { name: 'kamelet', catalogKind: CatalogKind.Component },
+        tertiaryNodeId: { name: 'other-kamelet', catalogKind: CatalogKind.Kamelet },
+      },
+    );
+    expect(result).toEqual({ uri: 'kamelet', parameters: { templateId: 'other-kamelet' } });
+  });
+
   it('should return definition with empty parameters for an unknown component with no query string', async () => {
     const result = await normalizeDefinition(
       { uri: 'non-existing:thing' },

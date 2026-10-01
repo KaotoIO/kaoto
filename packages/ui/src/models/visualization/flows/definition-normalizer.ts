@@ -83,9 +83,9 @@ export const normalizeDefinition = async (definition: unknown, ids?: IVisualizat
     ...def,
     uri: componentName,
     parameters: {
-      ...(def.parameters as Record<string, unknown>),
       ...pathParameters,
       ...queryParameters,
+      ...(def.parameters as Record<string, unknown>),
     },
   };
 };

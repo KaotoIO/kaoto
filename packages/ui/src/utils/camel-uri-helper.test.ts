@@ -63,13 +63,13 @@ describe('CamelUriHelper', () => {
       expect(CamelUriHelper.getComponentAndKameletNameFromDefinition(definition)).toEqual(expected);
     });
 
-    it('should prefer the kamelet name from the URI over parameters.templateId', () => {
+    it('should prefer parameters.templateId over the kamelet name in the URI, matching Camel runtime behaviour', () => {
       expect(
         CamelUriHelper.getComponentAndKameletNameFromDefinition({
           uri: 'kamelet:beer-source',
           parameters: { templateId: 'other-kamelet' },
         }),
-      ).toEqual({ componentName: 'kamelet', kameletName: 'beer-source' });
+      ).toEqual({ componentName: 'kamelet', kameletName: 'other-kamelet' });
     });
   });
 
