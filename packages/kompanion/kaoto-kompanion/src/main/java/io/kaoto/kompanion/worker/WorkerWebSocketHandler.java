@@ -12,12 +12,8 @@ import io.quarkus.websockets.next.OpenConnections;
 import io.quarkus.websockets.next.WebSocket;
 import io.quarkus.websockets.next.WebSocketConnection;
 import jakarta.inject.Inject;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 @WebSocket(path = "/v1/worker/connect")
@@ -37,9 +33,6 @@ public class WorkerWebSocketHandler {
     @Inject
     OpenConnections openConnections;
 
-    @ConfigProperty(name = "kaoto.kompanion.worker-token")
-    Optional<String> workerToken;
-
     private final ObjectMapper mapper = new ObjectMapper();
 
     // connectionId -> protocol detected from the first frame
@@ -54,11 +47,6 @@ public class WorkerWebSocketHandler {
             connection.closeAndAwait();
             return;
         }
-        if (workerToken.isPresent() && !workerToken.get().isBlank() && !tokenMatches(workerToken.get())) {
-            LOG.warnf("Worker connected with a missing or wrong token (execution=%s remote=%s) — closing", executionId, remote);
-            connection.closeAndAwait();
-            return;
-        }
         // Capture the connection ID as a plain String while the session scope is active.
         // The lambda must NOT close over `connection` (a @SessionScoped proxy) because it
         // will be called from an unscoped HTTP executor thread and would throw
@@ -66,12 +54,17 @@ public class WorkerWebSocketHandler {
         String connectionId = connection.id();
         LOG.infof("Worker connected: execution=%s remote=%s connectionId=%s", executionId, remote, connectionId);
         eventBus.open(executionId, connectionId);
+        // one send at a time: concurrent sends of large (fragmented) frames interleave on the wire, which the worker
+        // rejects as a protocol error
+        Object sendLock = new Object();
         registry.register(
                 executionId,
                 connectionId,
-                frame -> openConnections
-                        .findByConnectionId(connectionId)
-                        .ifPresent(conn -> conn.sendTextAndAwait(frame)));
+                frame -> openConnections.findByConnectionId(connectionId).ifPresent(conn -> {
+                    synchronized (sendLock) {
+                        conn.sendTextAndAwait(frame);
+                    }
+                }));
     }
 
     @OnTextMessage
@@ -106,7 +99,8 @@ public class WorkerWebSocketHandler {
         LOG.debugf("Received worker frame type=%s executionId=%s", msg.type(), msg.executionId());
         if ("camel.cmd.ack".equals(msg.type())) {
             if (!executionId.equals(msg.executionId())) {
-                LOG.warnf("Worker frame executionId mismatch: connection=%s frame=%s — ignored",
+                LOG.warnf(
+                        "Worker frame executionId mismatch: connection=%s frame=%s — ignored",
                         executionId, msg.executionId());
             } else {
                 registry.receiveAck(executionId, msg.correlationId(), msg.success(), msg.detail());
@@ -123,8 +117,9 @@ public class WorkerWebSocketHandler {
     private void onConnectorFrame(String executionId, JsonNode node, String frame) throws Exception {
         String type = node.path("type").asText();
         switch (type) {
-            case "hello" -> eventBus.publishReady(
-                    executionId, mapper.writeValueAsString(ConnectorProtocolCodec.ready(executionId, node)));
+            case "hello" ->
+                eventBus.publishReady(
+                        executionId, mapper.writeValueAsString(ConnectorProtocolCodec.ready(executionId, node)));
             case "result" -> {
                 String requestId = node.path("requestId").asText(null);
                 if (requestId != null) {
@@ -152,13 +147,6 @@ public class WorkerWebSocketHandler {
 
     private void publishEvent(String executionId, KompanionEvent event) throws Exception {
         eventBus.publish(executionId, mapper.writeValueAsString(event));
-    }
-
-    private boolean tokenMatches(String expected) {
-        String header = connection.handshakeRequest().header("Authorization");
-        String given = header != null && header.startsWith("Bearer ") ? header.substring(7) : "";
-        return MessageDigest.isEqual(
-                expected.getBytes(StandardCharsets.UTF_8), given.getBytes(StandardCharsets.UTF_8));
     }
 
     @OnClose

@@ -29,8 +29,7 @@ public class SseClient implements AutoCloseable {
                 .header("Accept", "text/event-stream")
                 .GET()
                 .build();
-        HttpResponse<Stream<String>> resp =
-                HttpClient.newHttpClient().send(req, HttpResponse.BodyHandlers.ofLines());
+        HttpResponse<Stream<String>> resp = HttpClient.newHttpClient().send(req, HttpResponse.BodyHandlers.ofLines());
         if (resp.statusCode() != 200) {
             resp.body().close();
             throw new IllegalStateException("SSE subscribe to " + url + " returned " + resp.statusCode());
