@@ -37,7 +37,7 @@ describe('Test URI node config', () => {
   it('User adds URI step to a Kamelet YAML', () => {
     cy.uploadFixture('flows/kamelet/uriConf.yaml');
     cy.openSourceCode();
-    const stepToInsert = `      - to: aws2-s3:testBucket?autoCreateBucket=true`;
+    const stepToInsert = `        - to: aws2-s3:testBucket?autoCreateBucket=true`;
     cy.editorAddText(43, stepToInsert);
     cy.openDesignPage();
 

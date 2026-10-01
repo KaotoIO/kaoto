@@ -26,8 +26,8 @@ describe('Test documentation generation functionality', () => {
     cy.generateDocumentationPreview();
 
     const expectedStepsTableData = [
-      ['from-1870', 'from', 'timer', 'period', '{{period}}'],
-      ['', '', '', 'timerName', 'user'],
+      ['from-1870', 'from', 'timer', 'timerName', 'user'],
+      ['', '', '', 'period', '{{period}}'],
       ['setBody-3387', 'setBody', '', 'expression (simple)', ''],
       ['marshal-1414', 'marshal', '', '', ''],
       ['', 'to', 'kamelet:sink', '', ''],
