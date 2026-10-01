@@ -24,7 +24,18 @@ public class WorkerRegistry {
     private final Map<String, Map<String, PendingEntry>> executions = new ConcurrentHashMap<>();
 
     public void register(String executionId, String connectionId, Consumer<String> sendFrame) {
-        channels.put(executionId, new ChannelEntry(connectionId, sendFrame, new CompletableFuture<>()));
+        ChannelEntry previous =
+                channels.put(executionId, new ChannelEntry(connectionId, sendFrame, new CompletableFuture<>()));
+        if (previous != null && !previous.connectionId().equals(connectionId)) {
+            // the worker reconnected: commands sent on the previous connection are never answered on the new one
+            Map<String, PendingEntry> entries = executions.get(executionId);
+            if (entries != null) {
+                entries.values()
+                        .forEach(entry -> entry.future()
+                                .completeExceptionally(
+                                        new IllegalStateException("Worker reconnected before ack arrived")));
+            }
+        }
         // keep the command results of a previous connection of the same execution (reconnect): replacing the map
         // made in-flight commands answer 404 on polling
         executions.computeIfAbsent(executionId, id -> new ConcurrentHashMap<>());
@@ -39,13 +50,14 @@ public class WorkerRegistry {
     }
 
     /**
-     * Returns the protocol of the connected worker, waiting until its first frame arrived. Commands must not be
-     * encoded before that, since the encoding depends on the protocol.
+     * Returns the protocol of the connected worker, waiting until its first frame arrived. Commands must not be encoded
+     * before that, since the encoding depends on the protocol.
      */
     public CompletableFuture<WorkerProtocol> protocol(String executionId) {
         ChannelEntry entry = channels.get(executionId);
         return entry == null
-                ? CompletableFuture.failedFuture(new IllegalStateException("No channel for executionId: " + executionId))
+                ? CompletableFuture.failedFuture(
+                        new IllegalStateException("No channel for executionId: " + executionId))
                 : entry.protocol();
     }
 

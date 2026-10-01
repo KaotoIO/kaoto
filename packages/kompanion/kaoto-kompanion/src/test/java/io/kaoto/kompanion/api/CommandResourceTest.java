@@ -78,8 +78,7 @@ class CommandResourceTest {
             try {
                 var node = new com.fasterxml.jackson.databind.ObjectMapper().readTree(frame);
                 String requestId = node.path("requestId").asText();
-                new Thread(() -> registry.receiveAck(executionId, requestId, false, "No route matching: nope"))
-                        .start();
+                new Thread(() -> registry.receiveAck(executionId, requestId, false, "No route matching: nope")).start();
             } catch (Exception ignored) {
             }
         });
@@ -96,10 +95,14 @@ class CommandResourceTest {
 
         var frame = new com.fasterxml.jackson.databind.ObjectMapper().readTree(sent.get());
         org.junit.jupiter.api.Assertions.assertEquals(1, frame.path("v").asInt());
-        org.junit.jupiter.api.Assertions.assertEquals("action", frame.path("type").asText());
-        org.junit.jupiter.api.Assertions.assertEquals("route", frame.path("action").path("action").asText());
-        org.junit.jupiter.api.Assertions.assertEquals("start", frame.path("action").path("command").asText());
-        org.junit.jupiter.api.Assertions.assertEquals("nope", frame.path("action").path("id").asText());
+        org.junit.jupiter.api.Assertions.assertEquals(
+                "action", frame.path("type").asText());
+        org.junit.jupiter.api.Assertions.assertEquals(
+                "route", frame.path("action").path("action").asText());
+        org.junit.jupiter.api.Assertions.assertEquals(
+                "start", frame.path("action").path("command").asText());
+        org.junit.jupiter.api.Assertions.assertEquals(
+                "nope", frame.path("action").path("id").asText());
 
         registry.unregister(executionId, "test-conn-connector");
     }
