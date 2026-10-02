@@ -14,3 +14,4 @@ export * from './models/step-update-action';
 export * from './multiplying-architecture';
 export * from './pages/Metadata/MetadataPage';
 export * from './pages/PipeErrorHandler/PipeErrorHandlerPage';
+export * from './host-bridge/hooks-index';
