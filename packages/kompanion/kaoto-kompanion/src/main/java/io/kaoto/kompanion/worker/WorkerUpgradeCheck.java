@@ -3,8 +3,10 @@ package io.kaoto.kompanion.worker;
 import io.quarkus.websockets.next.HttpUpgradeCheck;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.Locale;
 import java.util.Optional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -25,8 +27,10 @@ public class WorkerUpgradeCheck implements HttpUpgradeCheck {
 
     @Override
     public Uni<CheckResult> perform(HttpUpgradeContext context) {
-        // workers are not browsers: a web page in the developer's browser could otherwise reach this local endpoint
-        if (context.httpRequest().getHeader("Origin") != null) {
+        // a web page in the developer's browser could reach this local endpoint: refuse a remote Origin. Some worker
+        // clients (Vert.x) send their own loopback origin, which is accepted
+        String origin = context.httpRequest().getHeader("Origin");
+        if (origin != null && !isLoopback(origin)) {
             return CheckResult.rejectUpgrade(403);
         }
         if (workerToken.isPresent() && !workerToken.get().isBlank()) {
@@ -38,5 +42,18 @@ public class WorkerUpgradeCheck implements HttpUpgradeCheck {
             }
         }
         return CheckResult.permitUpgrade();
+    }
+
+    static boolean isLoopback(String origin) {
+        try {
+            String host = URI.create(origin).getHost();
+            if (host == null) {
+                return false;
+            }
+            host = host.toLowerCase(Locale.ROOT);
+            return "localhost".equals(host) || host.matches("127(\\.\\d{1,3}){3}") || "[::1]".equals(host);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 }
