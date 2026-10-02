@@ -24,9 +24,18 @@ public class WorkerRegistry {
     private final Map<String, Map<String, PendingEntry>> executions = new ConcurrentHashMap<>();
 
     public void register(String executionId, String connectionId, Consumer<String> sendFrame) {
-        ChannelEntry previous =
-                channels.put(executionId, new ChannelEntry(connectionId, sendFrame, new CompletableFuture<>()));
+        ChannelEntry current = new ChannelEntry(connectionId, sendFrame, new CompletableFuture<>());
+        ChannelEntry previous = channels.put(executionId, current);
         if (previous != null && !previous.connectionId().equals(connectionId)) {
+            // a command may be waiting on the protocol of the previous connection: let it see the one of the new
+            // connection instead of timing out
+            current.protocol().whenComplete((protocol, failure) -> {
+                if (failure == null) {
+                    previous.protocol().complete(protocol);
+                } else {
+                    previous.protocol().completeExceptionally(failure);
+                }
+            });
             // the worker reconnected: commands sent on the previous connection are never answered on the new one, so
             // fail their futures and store a terminal result (polling would otherwise report them pending forever)
             Map<String, PendingEntry> entries = executions.get(executionId);

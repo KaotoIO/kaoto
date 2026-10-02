@@ -198,4 +198,14 @@ class WorkerRegistryTest {
         registry.protocolDetected("exec-1", "conn-1", WorkerProtocol.BRIDGE);
         assertEquals(WorkerProtocol.BRIDGE, registry.protocol("exec-1").get(1, TimeUnit.SECONDS));
     }
+
+    @Test
+    void reconnectForwardsTheNewProtocolToWaitersOfThePreviousConnection() throws Exception {
+        var registry = new WorkerRegistry();
+        registry.register("exec-1", "conn-1", msg -> {});
+        var waiting = registry.protocol("exec-1");
+        registry.register("exec-1", "conn-2", msg -> {});
+        registry.protocolDetected("exec-1", "conn-2", WorkerProtocol.CONNECTOR);
+        assertEquals(WorkerProtocol.CONNECTOR, waiting.get(1, TimeUnit.SECONDS));
+    }
 }

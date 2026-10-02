@@ -83,4 +83,27 @@ class ExecutionEventBusTest {
         bus.close("exec-1", "conn-1");
         subscriber.assertCompleted();
     }
+
+    @Test
+    void reconnectingWorkerTakesOverTheStream() {
+        var bus = bus();
+        bus.open("exec-1", "conn-1");
+        bus.publishReady("exec-1", "ready-1");
+        AssertSubscriber<String> subscriber =
+                bus.streamFor("exec-1").subscribe().withSubscriber(AssertSubscriber.create(10));
+
+        bus.open("exec-1", "conn-2");
+        bus.close("exec-1", "conn-1");
+        subscriber.assertNotTerminated();
+        bus.publish("exec-1", "from-conn-2");
+        subscriber.assertItems("ready-1", "from-conn-2");
+
+        // the old ready frame is not replayed to new subscribers: the new connection says hello again
+        AssertSubscriber<String> late = bus.streamFor("exec-1").subscribe().withSubscriber(AssertSubscriber.create(10));
+        bus.publishReady("exec-1", "ready-2");
+        late.assertItems("ready-2");
+
+        bus.close("exec-1", "conn-2");
+        subscriber.assertCompleted();
+    }
 }
