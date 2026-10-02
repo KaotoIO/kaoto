@@ -99,3 +99,7 @@ A pre-commit hook enforces formatting locally — enable it once per clone:
 | `quarkus.http.port`            | `0` (random) | Port the companion binds to; printed as `KAOTO_COMPANION_PORT=<port>` on stdout |
 | `kaoto.companion.address`      | —            | `host:port` of the companion; set in the Camel app to activate the bridge       |
 | `kaoto.companion.execution-id` | —            | Execution identifier assigned by the companion; required alongside `address`    |
+| `kaoto.kompanion.token`        | —            | Bearer token the bridge sends at the handshake when the companion requires one  |
+| `kaoto.kompanion.worker-token` | —            | When set, the companion rejects workers without this bearer token (401)         |
+| `kaoto.kompanion.worker.protocol-timeout` | `5s` | How long a command waits for the worker's first frame before answering 503   |
+| `kaoto.kompanion.events.buffer` | `4096`      | Frames buffered per SSE subscriber; snapshots are superseded instead of buffered |

@@ -166,4 +166,37 @@ class CommandResourceTest {
                 .then()
                 .statusCode(404);
     }
+
+    @Test
+    void postCommandBeforeProtocolDetectionReturns503AndLaterCommandsStillWork() {
+        String executionId = "cmd-test-protocol-wait";
+        registry.register(executionId, "test-conn-protocol", frame -> {
+            try {
+                var node = new com.fasterxml.jackson.databind.ObjectMapper().readTree(frame);
+                String correlationId = node.path("correlationId").asText();
+                new Thread(() -> registry.receiveAck(executionId, correlationId, true, "started")).start();
+            } catch (Exception ignored) {
+            }
+        });
+
+        // the worker has not sent its first frame: the command waits protocol-timeout and gives up
+        given().contentType("application/json")
+                .body("{\"type\":\"camel.cmd.route.start\",\"routeId\":\"r1\"}")
+                .when()
+                .post("/v1/executions/" + executionId + "/commands")
+                .then()
+                .statusCode(503);
+
+        // the timed-out wait must not have poisoned the shared protocol future
+        registry.protocolDetected(executionId, "test-conn-protocol", WorkerProtocol.BRIDGE);
+        given().contentType("application/json")
+                .body("{\"type\":\"camel.cmd.route.start\",\"routeId\":\"r1\"}")
+                .when()
+                .post("/v1/executions/" + executionId + "/commands")
+                .then()
+                .statusCode(200)
+                .body("status", is("acked"));
+
+        registry.unregister(executionId, "test-conn-protocol");
+    }
 }

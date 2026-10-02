@@ -61,6 +61,11 @@ mvn verify -pl kaoto-companion -Pnative
 | ------------------- | ------------ | ----------------------------- |
 | `quarkus.http.port` | `0` (random) | Port the companion listens on |
 | `quarkus.http.host` | `localhost`  | Bind address                  |
+| `kaoto.kompanion.command.ack-timeout` | `10s` | Long-poll timeout of `POST .../commands` before answering 202 |
+| `kaoto.kompanion.worker.protocol-timeout` | `5s` | Wait for the worker's first frame (protocol detection) before answering 503 |
+| `kaoto.kompanion.worker-token` | — | Bearer token workers must send at the handshake (401 otherwise); a non-loopback `Origin` is rejected with 403 |
+| `kaoto.kompanion.events.buffer` | `4096` | Frames buffered per SSE subscriber; snapshots are superseded instead of buffered |
+| `quarkus.websockets-next.server.max-message-size` | `16777216` | Largest worker frame (the connector sends the status snapshot whole) |
 
 Pass `-Dquarkus.http.port=8000` (or `QUARKUS_HTTP_PORT=8000`) to fix the port for local
 development.

@@ -158,4 +158,44 @@ class WorkerRegistryTest {
         assertFalse(result.success());
         assertEquals("route not found", result.detail());
     }
+
+    @Test
+    void reconnectFailsPendingCommandsWithTerminalResult() {
+        var registry = new WorkerRegistry();
+        registry.register("exec-1", "conn-1", msg -> {});
+        var pending = registry.sendCommand("exec-1", "corr-pending", "{}");
+        registry.sendCommand("exec-1", "corr-acked", "{}");
+        registry.receiveAck("exec-1", "corr-acked", true, "ok");
+
+        registry.register("exec-1", "conn-2", msg -> {});
+
+        assertTrue(pending.isCompletedExceptionally());
+        var result = registry.getResult("exec-1", "corr-pending");
+        assertNotNull(result, "results survive a reconnect");
+        assertEquals("failed", result.status(), "polling must not report the command pending forever");
+        assertEquals("acked", registry.getResult("exec-1", "corr-acked").status());
+    }
+
+    @Test
+    void protocolOfIsNullUntilDetectedAndOnlyForTheOwner() {
+        var registry = new WorkerRegistry();
+        registry.register("exec-1", "conn-1", msg -> {});
+        assertNull(registry.protocolOf("exec-1", "conn-1"));
+        registry.protocolDetected("exec-1", "conn-other", WorkerProtocol.CONNECTOR);
+        assertNull(registry.protocolOf("exec-1", "conn-1"), "a connection that is not the owner cannot set it");
+        registry.protocolDetected("exec-1", "conn-1", WorkerProtocol.CONNECTOR);
+        assertEquals(WorkerProtocol.CONNECTOR, registry.protocolOf("exec-1", "conn-1"));
+        assertNull(registry.protocolOf("exec-1", "conn-other"));
+    }
+
+    @Test
+    void protocolFutureSurvivesACallerTimeout() throws Exception {
+        var registry = new WorkerRegistry();
+        registry.register("exec-1", "conn-1", msg -> {});
+        assertThrows(
+                java.util.concurrent.TimeoutException.class,
+                () -> registry.protocol("exec-1").get(10, TimeUnit.MILLISECONDS));
+        registry.protocolDetected("exec-1", "conn-1", WorkerProtocol.BRIDGE);
+        assertEquals(WorkerProtocol.BRIDGE, registry.protocol("exec-1").get(1, TimeUnit.SECONDS));
+    }
 }
