@@ -3,6 +3,7 @@ package io.kaoto.kompanion.api;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
+import io.kaoto.kompanion.worker.WorkerProtocol;
 import io.kaoto.kompanion.worker.WorkerRegistry;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -53,6 +54,7 @@ class CommandResourceTest {
             } catch (Exception ignored) {
             }
         });
+        registry.protocolDetected(executionId, "test-conn-ack", WorkerProtocol.BRIDGE);
 
         given().contentType("application/json")
                 .body("{\"type\":\"camel.cmd.route.start\",\"routeId\":\"my-route\"}")
@@ -68,9 +70,48 @@ class CommandResourceTest {
     }
 
     @Test
+    void postCommandIsEncodedAsConnectorActionAndResultIsAcked() throws Exception {
+        String executionId = "cmd-test-connector";
+        var sent = new java.util.concurrent.atomic.AtomicReference<String>();
+        registry.register(executionId, "test-conn-connector", frame -> {
+            sent.set(frame);
+            try {
+                var node = new com.fasterxml.jackson.databind.ObjectMapper().readTree(frame);
+                String requestId = node.path("requestId").asText();
+                new Thread(() -> registry.receiveAck(executionId, requestId, false, "No route matching: nope")).start();
+            } catch (Exception ignored) {
+            }
+        });
+        registry.protocolDetected(executionId, "test-conn-connector", WorkerProtocol.CONNECTOR);
+
+        given().contentType("application/json")
+                .body("{\"type\":\"camel.cmd.route.start\",\"routeId\":\"nope\"}")
+                .when()
+                .post("/v1/executions/" + executionId + "/commands")
+                .then()
+                .statusCode(200)
+                .body("status", is("failed"))
+                .body("detail", is("No route matching: nope"));
+
+        var frame = new com.fasterxml.jackson.databind.ObjectMapper().readTree(sent.get());
+        org.junit.jupiter.api.Assertions.assertEquals(1, frame.path("v").asInt());
+        org.junit.jupiter.api.Assertions.assertEquals(
+                "action", frame.path("type").asText());
+        org.junit.jupiter.api.Assertions.assertEquals(
+                "route", frame.path("action").path("action").asText());
+        org.junit.jupiter.api.Assertions.assertEquals(
+                "start", frame.path("action").path("command").asText());
+        org.junit.jupiter.api.Assertions.assertEquals(
+                "nope", frame.path("action").path("id").asText());
+
+        registry.unregister(executionId, "test-conn-connector");
+    }
+
+    @Test
     void postCommandReturns202WhenTimeoutExceeded() {
         String executionId = "cmd-test-timeout";
         registry.register(executionId, "test-conn-timeout", frame -> {});
+        registry.protocolDetected(executionId, "test-conn-timeout", WorkerProtocol.BRIDGE);
 
         given().contentType("application/json")
                 .body("{\"type\":\"camel.cmd.route.stop\",\"routeId\":\"my-route\"}")
@@ -124,5 +165,38 @@ class CommandResourceTest {
                 .get("/v1/executions/any-exec/commands/no-such-corr")
                 .then()
                 .statusCode(404);
+    }
+
+    @Test
+    void postCommandBeforeProtocolDetectionReturns503AndLaterCommandsStillWork() {
+        String executionId = "cmd-test-protocol-wait";
+        registry.register(executionId, "test-conn-protocol", frame -> {
+            try {
+                var node = new com.fasterxml.jackson.databind.ObjectMapper().readTree(frame);
+                String correlationId = node.path("correlationId").asText();
+                new Thread(() -> registry.receiveAck(executionId, correlationId, true, "started")).start();
+            } catch (Exception ignored) {
+            }
+        });
+
+        // the worker has not sent its first frame: the command waits protocol-timeout and gives up
+        given().contentType("application/json")
+                .body("{\"type\":\"camel.cmd.route.start\",\"routeId\":\"r1\"}")
+                .when()
+                .post("/v1/executions/" + executionId + "/commands")
+                .then()
+                .statusCode(503);
+
+        // the timed-out wait must not have poisoned the shared protocol future
+        registry.protocolDetected(executionId, "test-conn-protocol", WorkerProtocol.BRIDGE);
+        given().contentType("application/json")
+                .body("{\"type\":\"camel.cmd.route.start\",\"routeId\":\"r1\"}")
+                .when()
+                .post("/v1/executions/" + executionId + "/commands")
+                .then()
+                .statusCode(200)
+                .body("status", is("acked"));
+
+        registry.unregister(executionId, "test-conn-protocol");
     }
 }

@@ -39,4 +39,11 @@ class WorkerWebSocketClientTest {
     void closeBeforeConnectDoesNotThrow() {
         assertDoesNotThrow(unreachable()::close);
     }
+
+    @Test
+    void constructorWithTokenDoesNotConnect() {
+        var client = new WorkerWebSocketClient(UNREACHABLE_URI, UNREACHABLE_HOST_PORT, EXECUTION_ID, "secret", m -> {});
+        assertFalse(client.isConnected());
+        assertFalse(assertDoesNotThrow(client::connect));
+    }
 }

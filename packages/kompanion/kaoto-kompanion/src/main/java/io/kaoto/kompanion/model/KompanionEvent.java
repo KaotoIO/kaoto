@@ -29,7 +29,12 @@ public sealed interface KompanionEvent
                 KompanionEvent.TelemetrySnapshot,
                 KompanionEvent.CmdAck {
 
-    record WorkerReady(String executionId, String camelVersion, String bridgeVersion) implements KompanionEvent {}
+    /**
+     * @param bridgeVersion version of the Kaoto bridge (null when the worker is camel-cli-connector)
+     * @param connectorProtocol protocol of the camel-cli-connector (null when the worker is the Kaoto bridge)
+     */
+    record WorkerReady(String executionId, String camelVersion, String bridgeVersion, String connectorProtocol)
+            implements KompanionEvent {}
 
     record WorkerStopping(String executionId, String reason) implements KompanionEvent {}
 

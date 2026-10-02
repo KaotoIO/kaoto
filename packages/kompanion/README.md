@@ -197,10 +197,28 @@ curl -N http://localhost:8000/v1/executions/run-1/events
 Events are newline-delimited JSON frames forwarded verbatim from the bridge, for example:
 
 ```
-data: {"type":"camel.worker.ready","executionId":"run-1","camelVersion":"4.22.0","bridgeVersion":"1.0.0-SNAPSHOT"}
+data: {"type":"camel.worker.ready","executionId":"run-1","camelVersion":"4.22.0","bridgeVersion":"1.0.0-SNAPSHOT","connectorProtocol":null}
 data: {"type":"camel.route.started","executionId":"run-1","routeId":"route-8276","description":null}
 data: {"type":"camel.telemetry.snapshot","executionId":"run-1","routes":[...]}
 ```
+
+The `camel.worker.ready` frame is replayed to clients that subscribe after the worker connected.
+`bridgeVersion` is set for the Kaoto bridge and `connectorProtocol` for a camel-cli-connector
+worker (see below); the other one is `null`.
+
+For a camel-cli-connector worker, the companion translates `hello` to `camel.worker.ready` and the
+`status` snapshot to `camel.telemetry.snapshot`, and additionally publishes every connector frame
+raw as `camel.connector.<type>` (for example `camel.connector.snapshot`, `camel.connector.result`),
+so clients can use the richer connector data:
+
+```
+data: {"type":"camel.worker.ready","executionId":"run-1","camelVersion":"4.23.0","bridgeVersion":null,"connectorProtocol":"camel-cli-connector/v1"}
+data: {"type":"camel.connector.snapshot","executionId":"run-1","v":1,"kind":"status","data":{...}}
+```
+
+Each subscriber has its own bounded buffer (`kaoto.kompanion.events.buffer` frames). Snapshots
+(`camel.telemetry.snapshot`, `camel.connector.snapshot`) are not buffered: a subscriber that cannot
+keep up receives only the latest one.
 
 ---
 
@@ -263,6 +281,53 @@ Maven dependency:
 
 Supported Camel range: **4.10.x and newer** (community and Red Hat build). CI verifies 4.10, 4.14,
 and 4.18.
+
+Bridge system properties:
+
+| Property                       | Description                                                                                     |
+| ------------------------------ | ----------------------------------------------------------------------------------------------- |
+| `kaoto.kompanion.address`      | `host:port` of the companion; activates the bridge together with `execution-id`                 |
+| `kaoto.kompanion.execution-id` | Execution identifier assigned by the companion                                                  |
+| `kaoto.kompanion.token`        | Bearer token sent at the handshake; required when the companion sets `kaoto.kompanion.worker-token` |
+
+---
+
+## Connecting a camel-cli-connector application
+
+Camel 4.23 and newer applications that use `camel-cli-connector` can connect over its WebSocket
+transport instead of the bridge, with no Kaoto jar in the application. Set in the Camel app (with
+the companion started on port 8000 as in the quick start; otherwise use the port it printed as
+`KAOTO_COMPANION_PORT`):
+
+```properties
+camel.cli.transport=websocket
+camel.cli.websocket.url=ws://127.0.0.1:8000/v1/worker/connect?executionId=run-1
+# only when the companion is started with kaoto.kompanion.worker-token
+camel.cli.websocket.token=<token>
+```
+
+The companion detects the protocol from the first frame of each worker connection, so bridge and
+connector workers can be mixed. Commands are translated to connector actions (`correlationId` is
+sent as `requestId`) and the connector's `result` frame becomes the command ack. Commands posted
+before the worker sent its first frame wait up to `kaoto.kompanion.worker.protocol-timeout` and
+then answer `503`.
+
+---
+
+## Companion configuration
+
+| Property                                         | Default    | Description                                                                                                    |
+| ------------------------------------------------ | ---------- | -------------------------------------------------------------------------------------------------------------- |
+| `quarkus.http.port`                              | `0`        | Port the companion binds to; printed as `KAOTO_COMPANION_PORT=<port>` on stdout                                |
+| `kaoto.kompanion.command.ack-timeout`            | `10s`      | How long `POST .../commands` waits for the ack before answering `202 pending`                                  |
+| `kaoto.kompanion.worker.protocol-timeout`        | `5s`       | How long a command waits for the worker's first frame (protocol detection) before answering `503`              |
+| `kaoto.kompanion.worker-token`                   | —          | When set, workers must send `Authorization: Bearer <token>` at the handshake or are rejected with `401`        |
+| `kaoto.kompanion.events.buffer`                  | `4096`     | Frames buffered per SSE subscriber before its stream is failed (snapshots are superseded instead of buffered)  |
+| `quarkus.websockets-next.server.max-message-size` | `16777216` | Largest worker frame accepted (the connector sends the status snapshot whole, about 3 MB for 300 routes)        |
+
+The worker endpoint also rejects a handshake with a non-loopback `Origin` header with `403`: a web
+page in the developer's browser could otherwise reach the local companion. Workers that send their
+own loopback `Origin` (for example Vert.x clients on Camel Quarkus) are accepted.
 
 ---
 

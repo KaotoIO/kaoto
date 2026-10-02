@@ -3,6 +3,8 @@ package io.kaoto.kompanion.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.kaoto.kompanion.model.CommandResult;
 import io.kaoto.kompanion.model.KompanionCommand;
+import io.kaoto.kompanion.worker.ConnectorProtocolCodec;
+import io.kaoto.kompanion.worker.WorkerProtocol;
 import io.kaoto.kompanion.worker.WorkerRegistry;
 import io.smallrye.common.annotation.Blocking;
 import jakarta.inject.Inject;
@@ -18,6 +20,8 @@ import jakarta.ws.rs.core.Response;
 import java.time.Duration;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -38,6 +42,9 @@ public class CommandResource {
     @ConfigProperty(name = "kaoto.kompanion.command.ack-timeout", defaultValue = "10s")
     Duration ackTimeout;
 
+    @ConfigProperty(name = "kaoto.kompanion.worker.protocol-timeout", defaultValue = "5s")
+    Duration protocolTimeout;
+
     @POST
     @Blocking
     public Response submit(@PathParam("executionId") String executionId, KompanionCommand command) {
@@ -49,11 +56,30 @@ public class CommandResource {
         }
 
         String correlationId = UUID.randomUUID().toString();
+        WorkerProtocol protocol;
+        try {
+            // the encoding depends on the worker protocol, known once the worker sent its first frame. The future is
+            // shared by every command of the connection: wait with a per-call timeout instead of orTimeout, which
+            // would complete the shared future exceptionally and fail all later commands
+            protocol = registry.protocol(executionId).get(protocolTimeout.toMillis(), TimeUnit.MILLISECONDS);
+        } catch (TimeoutException e) {
+            return errorResponse(503, "Worker for execution " + executionId + " has not identified itself yet");
+        } catch (ExecutionException e) {
+            // the worker went away between the isConnected check and here
+            return errorResponse(404, "No active execution: " + executionId);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return errorResponse(503, "Interrupted while waiting for the worker of execution " + executionId);
+        }
         String jsonFrame;
         try {
-            var node = mapper.valueToTree(command);
-            ((com.fasterxml.jackson.databind.node.ObjectNode) node).put("correlationId", correlationId);
-            jsonFrame = mapper.writeValueAsString(node);
+            if (protocol == WorkerProtocol.CONNECTOR) {
+                jsonFrame = ConnectorProtocolCodec.encode(mapper, command, correlationId);
+            } else {
+                var node = mapper.valueToTree(command);
+                ((com.fasterxml.jackson.databind.node.ObjectNode) node).put("correlationId", correlationId);
+                jsonFrame = mapper.writeValueAsString(node);
+            }
         } catch (Exception e) {
             LOG.errorf("Failed to serialize command: %s", e.getMessage());
             return errorResponse(500, "Serialization failed");
@@ -62,7 +88,7 @@ public class CommandResource {
         var future = registry.sendCommand(executionId, correlationId, jsonFrame);
 
         try {
-            var ack = future.orTimeout(ackTimeout.toMillis(), java.util.concurrent.TimeUnit.MILLISECONDS)
+            var ack = future.orTimeout(ackTimeout.toMillis(), TimeUnit.MILLISECONDS)
                     .join();
             return Response.ok(CommandResult.acked(correlationId, ack.success(), ack.detail()))
                     .build();

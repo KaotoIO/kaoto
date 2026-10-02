@@ -42,6 +42,11 @@ class WorkerWebSocketHandlerTest {
                 .join();
 
         opened.get(5, TimeUnit.SECONDS);
+        // the client's onOpen can fire before the server's @OnOpen has registered the worker
+        long deadline = System.currentTimeMillis() + 5000;
+        while (!registry.isConnected(executionId) && System.currentTimeMillis() < deadline) {
+            Thread.sleep(20);
+        }
         assertTrue(registry.isConnected(executionId));
 
         ws.sendClose(WebSocket.NORMAL_CLOSURE, "done").join();
