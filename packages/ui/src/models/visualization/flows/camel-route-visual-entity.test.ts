@@ -41,6 +41,18 @@ describe('Camel Route', () => {
       expect(route.id).toBe('route-1234');
     });
 
+    it('does not write generated or reconciled IDs into the parsed source', () => {
+      const source = { route: { from: { uri: 'timer:tick', steps: [] } } };
+      const entity = new CamelRouteVisualEntity(source);
+
+      expect(entity.id).toEqual(expect.any(String));
+      expect(source).toEqual({ route: { from: { uri: 'timer:tick', steps: [] } } });
+
+      entity.setId('reconciled-route');
+      expect(entity.toJSON().route.id).toBe('reconciled-route');
+      expect(source).toEqual({ route: { from: { uri: 'timer:tick', steps: [] } } });
+    });
+
     it('should have a type', () => {
       expect(camelEntity.type).toEqual(EntityType.Route);
     });
