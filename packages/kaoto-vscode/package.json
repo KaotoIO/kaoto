@@ -1087,7 +1087,7 @@
               "type": "string"
             },
             "additionalProperties": false,
-            "markdownDescription": "List of local directories to be used for Kamelet files. It is used for every run by adding `--local-kamelet-dir` argument into `#kaoto.executor.runArguments#` or `#kaoto.executor.runFolderOrWorkspaceArguments#` settings.\n\n**Note**: The setting can be overridden by the `--local-kamelet-dir` argument set in mentioned run arguments settings.\n\nSupports common variables - `${workspaceFolder}`, `${workspaceFolderBasename}`, `${cwd}`",
+            "markdownDescription": "List of local directories to be used for Kamelet files. It is used for every run by adding `--local-kamelet-dir` argument into `#kaoto.executor.runArguments#` or `#kaoto.executor.runFolderOrWorkspaceArguments#` settings.\n\n**Note**: The setting can be overridden by the `--local-kamelet-dir` argument set in mentioned run arguments settings.\n\nSupports common variables - `${workspaceFolder}`, `${workspaceFolderBasename}`, `${cwd}`, `${homeDir}`",
             "default": [
               ".",
               "./kamelets"

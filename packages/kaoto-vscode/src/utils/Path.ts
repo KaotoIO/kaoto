@@ -16,7 +16,7 @@
 
 import * as path from 'path'; // NOSONAR
 import fs from 'fs'; // NOSONAR
-import * as os from 'os';
+import * as os from 'os'; // NOSONAR
 import { workspace, WorkspaceFolder } from 'vscode';
 
 /**
@@ -100,7 +100,7 @@ function resolvePathAgainstCwd(pathString: string, cwd: string): string {
 
 /**
  * Expands VS Code variables in a path string.
- * Supports common variables - ${workspaceFolder}, ${workspaceFolderBasename}, ${cwd} - in the path string.
+ * Supports common variables - ${workspaceFolder}, ${workspaceFolderBasename}, ${cwd}, ${homeDir} - in the path string.
  *
  * @param pathString The path string that may contain VS Code variables
  * @param cwd The current working directory (used for ${cwd} variable)
@@ -130,6 +130,9 @@ function expandVSCodeVariables(pathString: string, cwd: string): string {
 
 	// Handle ${cwd}
 	expanded = expanded.replaceAll('${cwd}', cwd);
+
+	// Handle ${homeDir}
+	expanded = expanded.replaceAll('${homeDir}', os.homedir());
 
 	return expanded;
 }

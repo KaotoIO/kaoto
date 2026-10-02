@@ -663,6 +663,18 @@ suite('VSCodeKaotoEditorChannelApi', function () {
 			const result = Array.from(resolvePaths(['~'], '/some/cwd'));
 			expect(result[0]).to.equal(path.normalize(homeDir));
 		});
+
+		test('should expand ${homeDir} to home directory', function () {
+			const homeDir = os.homedir();
+			const result = Array.from(resolvePaths(['${homeDir}/my-workspace/kamelets'], '/some/cwd'));
+			expect(result[0]).to.equal(path.normalize(path.join(homeDir, 'my-workspace/kamelets')));
+		});
+
+		test('should expand bare ${homeDir} to home directory', function () {
+			const homeDir = os.homedir();
+			const result = Array.from(resolvePaths(['${homeDir}'], '/some/cwd'));
+			expect(result[0]).to.equal(path.normalize(homeDir));
+		});
 	});
 
 	suite('Settings Model Validation', function () {
