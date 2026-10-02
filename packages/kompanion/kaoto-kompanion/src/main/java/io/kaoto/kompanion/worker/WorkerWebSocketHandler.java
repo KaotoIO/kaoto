@@ -113,6 +113,10 @@ public class WorkerWebSocketHandler {
     }
 
     private void onConnectorFrame(String executionId, JsonNode node) throws Exception {
+        if (!node.isObject()) {
+            LOG.debugf("Ignoring non-object connector frame for execution=%s", executionId);
+            return;
+        }
         String type = node.path("type").asText();
         switch (type) {
             case "hello" ->
