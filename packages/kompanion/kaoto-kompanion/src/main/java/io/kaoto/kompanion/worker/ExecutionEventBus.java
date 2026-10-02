@@ -24,8 +24,7 @@ public class ExecutionEventBus {
 
     /** Called by WorkerWebSocketHandler on open to create the stream before any events arrive. */
     public void open(String executionId, String connectionId) {
-        processors.computeIfAbsent(
-                executionId, id -> new ProcessorEntry(connectionId, BroadcastProcessor.create()));
+        processors.computeIfAbsent(executionId, id -> new ProcessorEntry(connectionId, BroadcastProcessor.create()));
         LOG.debugf("Event bus opened for execution=%s connectionId=%s", executionId, connectionId);
     }
 
@@ -38,8 +37,8 @@ public class ExecutionEventBus {
     }
 
     /**
-     * Complete the stream and remove the processor. Only acts when the closing connectionId still
-     * owns the processor, so a reconnecting worker does not terminate the new stream.
+     * Complete the stream and remove the processor. Only acts when the closing connectionId still owns the processor,
+     * so a reconnecting worker does not terminate the new stream.
      */
     public void close(String executionId, String connectionId) {
         ProcessorEntry entry = processors.get(executionId);

@@ -47,7 +47,8 @@ public class KompanionProcess implements AutoCloseable {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.startsWith("KAOTO_KOMPANION_PORT=")) {
-                    return Integer.parseInt(line.substring("KAOTO_KOMPANION_PORT=".length()).trim());
+                    return Integer.parseInt(
+                            line.substring("KAOTO_KOMPANION_PORT=".length()).trim());
                 }
             }
             return -1;

@@ -28,8 +28,8 @@ public class WorkerRegistry {
     }
 
     /**
-     * Unregisters the worker for the given executionId only when the closing connection still owns it.
-     * If a new worker with the same executionId has already reconnected, this is a no-op.
+     * Unregisters the worker for the given executionId only when the closing connection still owns it. If a new worker
+     * with the same executionId has already reconnected, this is a no-op.
      */
     public void unregister(String executionId, String connectionId) {
         ChannelEntry current = channels.get(executionId);
@@ -42,8 +42,7 @@ public class WorkerRegistry {
             entries.values().forEach(entry -> {
                 if (!entry.future().isDone()) {
                     entry.future()
-                            .completeExceptionally(
-                                    new IllegalStateException("Worker disconnected before ack arrived"));
+                            .completeExceptionally(new IllegalStateException("Worker disconnected before ack arrived"));
                 }
             });
         }
