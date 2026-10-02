@@ -1,0 +1,35 @@
+{
+  "name": "@kaoto/editor-api",
+  "version": "0.0.0-dev",
+  "type": "module",
+  "description": "Kaoto host-editor protocol — wire types, event bus, and transports",
+  "repository": "https://github.com/KaotoIO/kaoto",
+  "repositoryDirectory": "packages/editor-api",
+  "author": "The Kaoto Team",
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "Apache License v2.0",
+  "types": "./lib/index.d.ts",
+  "module": "./lib/index.js",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.js"
+    }
+  },
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "test": "vitest run --config vitest.config.mts",
+    "lint": "eslint \"src/**/*.ts\"",
+    "lint:fix": "eslint \"src/**/*.ts\" --fix"
+  },
+  "devDependencies": {
+    "jsdom": "^25.0.0",
+    "typescript": "^5.5.4",
+    "vitest": "^5.0.1"
+  }
+}
