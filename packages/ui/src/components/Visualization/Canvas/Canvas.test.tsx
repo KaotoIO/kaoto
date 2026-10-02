@@ -1,7 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { CanvasFormTabsProvider } from '@kaoto/forms';
-import { action, isNode, Point, VisualizationProvider } from '@patternfly/react-topology';
+import { action, isNode, Point, SELECTION_EVENT, VisualizationProvider } from '@patternfly/react-topology';
 import { act, fireEvent, render, RenderResult, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
@@ -72,6 +72,173 @@ describe('Canvas', () => {
       expect(screen.getByText('Reset View')).toBeInTheDocument();
     });
     expect(result?.asFragment()).toMatchSnapshot();
+  });
+
+  it('should clear the selection when Escape is pressed on the canvas', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { Provider } = await TestProvidersWrapper();
+    const vizNode = await entity.toVizNode();
+    const controller = ControllerService.createController();
+
+    const { container } = render(
+      <Provider>
+        <VisualizationProvider controller={controller}>
+          <Canvas {...getCanvasPropsFromVizNodes([vizNode], 1)} />
+        </VisualizationProvider>
+      </Provider>,
+    );
+
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    // Fire the SELECTION_EVENT so the Canvas useEventListener hook updates its React state —
+    // this opens the Drawer (sideBarOpen=true → Drawer isExpanded=true → pf-m-expanded CSS class)
+    act(() => {
+      controller.fireEvent(SELECTION_EVENT, ['route-8888']);
+    });
+
+    await waitFor(() => {
+      expect(container.querySelector('.pf-m-expanded')).toBeInTheDocument();
+    });
+
+    // Press Escape on the canvas container — React synthetic event path (no document.addEventListener)
+    fireEvent.keyDown(container.firstChild!, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(container.querySelector('.pf-m-expanded')).not.toBeInTheDocument();
+    });
+  });
+
+  it('should move focus to the search input when sidebar opens', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { Provider } = await TestProvidersWrapper();
+    const vizNode = await entity.toVizNode();
+    const controller = ControllerService.createController();
+
+    render(
+      <Provider>
+        <VisualizationProvider controller={controller}>
+          <Canvas {...getCanvasPropsFromVizNodes([vizNode], 1)} />
+        </VisualizationProvider>
+      </Provider>,
+    );
+
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    // Open sidebar by selecting the timer `from` step — this resolves to a real vizNode
+    act(() => {
+      controller.fireEvent(SELECTION_EVENT, ['route-8888|route.from']);
+    });
+
+    // Sidebar search input should be in the document
+    await waitFor(() => {
+      expect(screen.getByTestId('filter-fields')).toBeInTheDocument();
+    });
+
+    // Flush requestAnimationFrame so the focus() call in the useEffect fires
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    expect(screen.getByTestId('filter-fields').querySelector('input')).toHaveFocus();
+  });
+
+  it('should restore focus to the canvas container when the sidebar is closed via clearSelection', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { Provider } = await TestProvidersWrapper();
+    const vizNode = await entity.toVizNode();
+    const controller = ControllerService.createController();
+
+    const { container } = render(
+      <Provider>
+        <VisualizationProvider controller={controller}>
+          <Canvas {...getCanvasPropsFromVizNodes([vizNode], 1)} />
+        </VisualizationProvider>
+      </Provider>,
+    );
+
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    // Open sidebar by selecting the timer `from` step — this resolves to a real vizNode
+    act(() => {
+      controller.fireEvent(SELECTION_EVENT, ['route-8888|route.from']);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('close-side-bar')).toBeInTheDocument();
+    });
+
+    // Close via Escape keydown on canvas (triggers clearSelection which restores focus)
+    fireEvent.keyDown(container.firstChild!, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(container.querySelector('.pf-m-expanded')).not.toBeInTheDocument();
+    });
+
+    // Flush requestAnimationFrame so the focus() call in clearSelection fires
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    // Focus should now be on the canvas container (id=canvas-main)
+    const canvasEl = container.querySelector('[id="canvas-main"]');
+    expect(canvasEl).toHaveFocus();
+  });
+
+  it('should restore focus to the selected canvas node when closing the sidebar', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { Provider } = await TestProvidersWrapper();
+    const vizNode = await entity.toVizNode();
+    const controller = ControllerService.createController();
+
+    const { container } = render(
+      <Provider>
+        <VisualizationProvider controller={controller}>
+          <Canvas {...getCanvasPropsFromVizNodes([vizNode], 1)} />
+        </VisualizationProvider>
+      </Provider>,
+    );
+
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    // Inject a fake canvas <g> element with the expected testid for route.from
+    const fakeNode = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    fakeNode.setAttribute('class', 'custom-node');
+    fakeNode.setAttribute('data-testid', 'custom-node__route.from');
+    fakeNode.setAttribute('tabindex', '-1');
+    container.appendChild(fakeNode);
+
+    // Open sidebar by selecting the timer `from` step
+    act(() => {
+      controller.fireEvent(SELECTION_EVENT, ['route-8888|route.from']);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('close-side-bar')).toBeInTheDocument();
+    });
+
+    // Close via Escape — clearSelection should focus the canvas node, not #canvas-main
+    fireEvent.keyDown(container.firstChild!, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(container.querySelector('.pf-m-expanded')).not.toBeInTheDocument();
+    });
+
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    expect(fakeNode).toHaveFocus();
+
+    // Clean up
+    container.removeChild(fakeNode);
   });
 
   it('should schedule a graph.fit(80) upon loading', async () => {

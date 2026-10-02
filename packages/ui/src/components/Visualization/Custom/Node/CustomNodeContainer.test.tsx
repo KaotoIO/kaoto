@@ -1,7 +1,19 @@
 import { render, screen } from '@testing-library/react';
 
-import { CatalogKind, IVisualizationNode } from '../../../../models';
+import { CatalogKind, createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { CustomNodeContainer } from './CustomNodeContainer';
+
+const makeVizNode = (name: string, description: string) => {
+  return createVisualizationNode(name, {
+    name,
+    path: name,
+    isPlaceholder: false,
+    isGroup: false,
+    title: '',
+    description,
+    iconUrl: '',
+  });
+};
 
 describe('CustomNodeContainer', () => {
   const createMockVizNode = (): IVisualizationNode =>
@@ -26,22 +38,67 @@ describe('CustomNodeContainer', () => {
     isCollapsed: true,
   };
 
-  it('should render the CustomNodeContainer correctly', () => {
+  // --- Accessibility tests ---
+
+  it('exposes the node icon as a labelled image landmark', () => {
+    const vizNode = makeVizNode('log', 'Log step');
+
+    render(
+      <CustomNodeContainer
+        width={75}
+        height={75}
+        dataTestId="test-node"
+        vizNode={vizNode}
+        isCollapsed={false}
+        childCount={0}
+        ProcessorIcon={null}
+        isDisabled={false}
+      />,
+    );
+
+    const imgEl = screen.getByRole('img', { name: 'Log step' });
+    expect(imgEl).toBeInTheDocument();
+  });
+
+  it('falls back to node name when description is empty', () => {
+    const vizNode = makeVizNode('timer', '');
+
+    render(
+      <CustomNodeContainer
+        width={75}
+        height={75}
+        dataTestId="test-node"
+        vizNode={vizNode}
+        isCollapsed={false}
+        childCount={0}
+        ProcessorIcon={null}
+        isDisabled={false}
+      />,
+    );
+
+    const imgEl = screen.getByRole('img', { name: 'timer' });
+    expect(imgEl).toBeInTheDocument();
+  });
+
+  it('should apply vizNode.data.description as aria-label on image container', () => {
     const vizNode = createMockVizNode();
 
     const { container } = render(
       <CustomNodeContainer
         {...defaultContainerProps}
         vizNode={vizNode}
-        childCount={1}
+        childCount={0}
         ProcessorIcon={null}
         processorDescription=""
-        isDisabled
+        isDisabled={false}
       />,
     );
 
-    expect(container).toMatchSnapshot();
+    const contentElement = container.querySelector('.custom-node__container__image');
+    expect(contentElement).toHaveAttribute('aria-label', 'Log component description');
   });
+
+  // --- Behavioral tests (restored from original) ---
 
   it('should render child count when childCount > 0', () => {
     const vizNode = createMockVizNode();
@@ -169,24 +226,6 @@ describe('CustomNodeContainer', () => {
     expect(container.querySelector('.step-icon__disabled')).not.toBeInTheDocument();
   });
 
-  it('should apply vizNode.data.description as title attribute on content', () => {
-    const vizNode = createMockVizNode();
-
-    const { container } = render(
-      <CustomNodeContainer
-        {...defaultContainerProps}
-        vizNode={vizNode}
-        childCount={0}
-        ProcessorIcon={null}
-        processorDescription=""
-        isDisabled={false}
-      />,
-    );
-
-    const contentElement = container.querySelector('.custom-node__container__image');
-    expect(contentElement).toHaveAttribute('title', 'Log component description');
-  });
-
   it('should render container with dataTestId and content together', () => {
     const vizNode = createMockVizNode();
 
@@ -224,7 +263,6 @@ describe('CustomNodeContainer', () => {
     );
 
     expect(container.querySelector('.step-icon-collection')).toBeInTheDocument();
-    // Carbon icon is rendered inside PF Icon
     expect(container.querySelector('svg')).toBeInTheDocument();
   });
 });

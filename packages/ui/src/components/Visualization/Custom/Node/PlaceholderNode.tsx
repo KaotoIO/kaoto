@@ -22,7 +22,7 @@ import {
   useDndDrop,
 } from '@patternfly/react-topology';
 import clsx from 'clsx';
-import { FunctionComponent, useContext, useMemo, useRef } from 'react';
+import { FunctionComponent, useCallback, useContext, useMemo, useRef } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
@@ -123,25 +123,40 @@ const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = obser
     return new TargetAnchor(element);
   }, AnchorEnd.both);
 
-  if (!vizNode) {
-    return null;
-  }
-  const { onReplaceNode } = useReplaceStep(vizNode);
-  const placeholderName = vizNode.data.primaryNodeId?.name ?? vizNode.data.name;
+  const placeholderName = vizNode?.data.primaryNodeId?.name ?? vizNode?.data.name;
   const isSpecialPlaceholder =
     placeholderName !== PlaceholderType.Placeholder && placeholderName !== PlaceholderType.PlaceholderSpecialChild;
   const isSpecialChildPlaceholder = placeholderName === PlaceholderType.PlaceholderSpecialChild;
 
-  const parentVizNode = vizNode.getParentNode();
-  const insertStepTargetNode = isSpecialPlaceholder ? (parentVizNode ?? vizNode) : vizNode;
+  const parentVizNode = vizNode?.getParentNode();
+  const insertStepTargetNode = isSpecialPlaceholder ? (parentVizNode ?? vizNode!) : vizNode!;
   const insertStepOptions =
-    isSpecialPlaceholder && vizNode.data.primaryNodeId?.name !== undefined
+    isSpecialPlaceholder && vizNode?.data.primaryNodeId?.name !== undefined
       ? {
           predefinedComponent: { name: vizNode.data.primaryNodeId?.name, type: CatalogKind.Processor },
           insertAtStart: true,
         }
       : undefined;
+  const { onReplaceNode } = useReplaceStep(vizNode!);
   const { onInsertStep } = useInsertStep(insertStepTargetNode, AddStepMode.InsertSpecialChildStep, insertStepOptions);
+
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent<SVGGElement>) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        if (isSpecialPlaceholder || isSpecialChildPlaceholder) {
+          void onInsertStep();
+        } else {
+          void onReplaceNode();
+        }
+      }
+    },
+    [isSpecialPlaceholder, isSpecialChildPlaceholder, onInsertStep, onReplaceNode],
+  );
+
+  if (!vizNode) {
+    return null;
+  }
   const tooltipContent = isSpecialPlaceholder
     ? `Click to add ${vizNode?.data.primaryNodeId?.name} branch`
     : 'Click to add a step';
@@ -226,7 +241,11 @@ const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = obser
         className="placeholder-node"
         data-testid={`placeholder-node__${vizNode.id}`}
         data-nodelabel={label}
+        tabIndex={-1}
+        role="button"
+        aria-label={updatedLabel}
         onClick={isSpecialPlaceholder || isSpecialChildPlaceholder ? onInsertStep : onReplaceNode}
+        onKeyDown={handleKeyDown}
       >
         {/** The original placeholder node */}
         {(!dndDropProps.droppable || isDraggingNodeType || (isDraggingGroupType && !isDraggingWithinGroup)) && (

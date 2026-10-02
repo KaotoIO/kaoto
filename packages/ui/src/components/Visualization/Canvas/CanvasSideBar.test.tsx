@@ -70,4 +70,18 @@ describe('CanvasSideBar', () => {
 
     expect(onCloseSpy).toHaveBeenCalledTimes(1);
   });
+
+  it('should have an accessible name on the close button', async () => {
+    const wrapper = render(
+      <Provider>
+        <CanvasFormTabsProvider>
+          <CanvasSideBar vizNode={selectedVizNode} onClose={() => {}} />
+        </CanvasFormTabsProvider>
+      </Provider>,
+    );
+
+    // getByRole with name will throw if the button doesn't have an accessible name
+    const closeButton = await wrapper.findByRole('button', { name: /close/i });
+    expect(closeButton).toBeInTheDocument();
+  });
 });

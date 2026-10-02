@@ -10,6 +10,16 @@
       --custom-node-BorderColor: var(--pf-t--global--border--color--status--danger--default);
     }
 
+    /*
+     * Keyboard focus ring — uses :focus (not :focus-visible) because Chromium
+     * does not set :focus-visible on SVG <g> elements focused via .focus().
+     * These nodes are only reached via the arrow-key hook, never by mouse.
+     */
+    &:focus &__container__image {
+      outline: 3px solid var(--pf-t--global--color--brand--default);
+      outline-offset: 2px;
+    }
+
     &__container {
       @include custom.container;
 
