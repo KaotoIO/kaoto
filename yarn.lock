@@ -26023,6 +26023,7 @@ __metadata:
   dependencies:
     "@cyclonedx/cdxgen": "npm:12.8.4"
     "@kaoto/camel-catalog": "npm:^0.10.6"
+    "@kaoto/editor-api": "workspace:*"
     "@kaoto/kaoto": "workspace:*"
     "@redhat-developer/vscode-extension-proposals": "npm:^0.0.23"
     "@redhat-developer/vscode-redhat-telemetry": "npm:^0.10.2"
