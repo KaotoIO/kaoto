@@ -20,7 +20,8 @@ public class ExecutionEventBus {
     private record Frame(String json, boolean snapshot) {}
 
     private static final class ProcessorEntry {
-        private final String connectionId;
+        // the worker connection that owns the stream; a reconnecting worker takes it over (see open)
+        private volatile String connectionId;
         private final BroadcastProcessor<Frame> processor;
         // last worker-ready frame, replayed to late subscribers (the worker says hello right after connecting,
         // before any client can subscribe, since the stream only exists once the worker is connected)
@@ -76,9 +77,23 @@ public class ExecutionEventBus {
         return hot;
     }
 
-    /** Called by WorkerWebSocketHandler on open to create the stream before any events arrive. */
+    /**
+     * Called by WorkerWebSocketHandler on open to create the stream before any events arrive. When the worker of an
+     * existing execution reconnects, the new connection takes over the stream, so the SSE subscribers keep receiving
+     * and the close of the previous connection does not end it.
+     */
     public void open(String executionId, String connectionId) {
-        processors.computeIfAbsent(executionId, id -> new ProcessorEntry(connectionId, BroadcastProcessor.create()));
+        processors.compute(executionId, (id, existing) -> {
+            if (existing == null) {
+                return new ProcessorEntry(connectionId, BroadcastProcessor.create());
+            }
+            if (!existing.connectionId().equals(connectionId)) {
+                existing.connectionId = connectionId;
+                // the new connection says hello again
+                existing.readyFrame = null;
+            }
+            return existing;
+        });
         LOG.debugf("Event bus opened for execution=%s connectionId=%s", executionId, connectionId);
     }
 

@@ -295,7 +295,9 @@ Bridge system properties:
 ## Connecting a camel-cli-connector application
 
 Camel 4.23 and newer applications that use `camel-cli-connector` can connect over its WebSocket
-transport instead of the bridge, with no Kaoto jar in the application. Set in the Camel app:
+transport instead of the bridge, with no Kaoto jar in the application. Set in the Camel app (with
+the companion started on port 8000 as in the quick start; otherwise use the port it printed as
+`KAOTO_COMPANION_PORT`):
 
 ```properties
 camel.cli.transport=websocket
