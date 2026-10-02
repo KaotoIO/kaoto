@@ -1,14 +1,18 @@
-// value exports (enums, classes)
+// value exports (enums, classes, functions)
 export {
   BridgeError,
   CanvasLayoutDirection,
   CatalogKind,
   ColorScheme,
   FileTypes,
+  isJsonValue,
   NodeLabelType,
   NodeToolbarTrigger,
   StepUpdateAction,
 } from './contracts.js';
+
+// Maven runtime information (from domain, not re-exported via contracts)
+export type { CamelMainMavenInformation, CamelQuarkusMavenInformation, CamelSpringBootMavenInformation } from './domain.js';
 
 // type-only exports (interfaces, type aliases)
 export type {

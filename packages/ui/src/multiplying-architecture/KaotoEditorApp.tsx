@@ -16,7 +16,7 @@ import {
   type Unsubscribe,
   type ValidationNotification,
 } from '../host-bridge';
-import { isJsonValue } from '../host-bridge/contracts';
+import { isJsonValue } from '../host-bridge';
 import { CatalogKind, FileTypes, FileTypesResponse, StepUpdateAction } from '../models';
 import { AbstractSettingsAdapter, DefaultSettingsAdapter } from '../models/settings';
 import { KaotoResourceProvider } from '../providers';
