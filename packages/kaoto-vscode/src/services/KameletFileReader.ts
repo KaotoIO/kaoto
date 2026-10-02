@@ -23,9 +23,8 @@ import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
 /**
  * Reads all `.kamelet.yaml` files from the given directory.
  *
- * Directories that do not exist or are not accessible are silently skipped
- * (an error is logged). Individual files that cannot be read are also skipped
- * with an error log.
+ * Directories that do not exist or are not accessible are silently skipped.
+ * Individual files that cannot be read are skipped with an error log.
  *
  * @param dir Absolute path to the directory to read
  * @returns An array of {@link FileTypesResponse} objects, one per kamelet file found
@@ -34,9 +33,8 @@ export async function readKameletsFromDirectory(dir: string): Promise<FileTypesR
 	let entries: [string, vscode.FileType][];
 	try {
 		entries = await vscode.workspace.fs.readDirectory(vscode.Uri.file(dir));
-	} catch (ex) {
-		// Directory does not exist or is not accessible — skip it
-		KaotoOutputChannel.logError(`Cannot read kamelet folder: ${dir}`, ex);
+	} catch {
+		// Directory does not exist or is not accessible — skip it silently
 		return [];
 	}
 
