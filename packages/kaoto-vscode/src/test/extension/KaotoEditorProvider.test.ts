@@ -20,7 +20,7 @@ import { mkdtemp } from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
-import { createEventBus, createPostMessageBridge, type ContentSnapshot, type KaotoEvents, type SetContentRequest } from '@kaoto/kaoto/host-bridge';
+import { createEventBus, createPostMessageBridge, type ContentSnapshot, type KaotoEvents, type SetContentRequest } from '@kaoto/editor-api';
 import { KaotoEditorProvider } from '../../extension/KaotoEditorProvider';
 
 suite('Native Kaoto text document provider', () => {
