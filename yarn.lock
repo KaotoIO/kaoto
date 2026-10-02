@@ -3628,7 +3628,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kaoto/editor-api@workspace:packages/editor-api":
+"@kaoto/editor-api@workspace:*, @kaoto/editor-api@workspace:packages/editor-api":
   version: 0.0.0-use.local
   resolution: "@kaoto/editor-api@workspace:packages/editor-api"
   dependencies:
@@ -3781,6 +3781,7 @@ __metadata:
     "@dnd-kit/modifiers": "npm:^9.0.0"
     "@eslint/js": "npm:^9.10.0"
     "@kaoto/camel-catalog": "npm:^0.10.6"
+    "@kaoto/editor-api": "workspace:*"
     "@kaoto/forms": "npm:^1.9.0"
     "@monaco-editor/react": "npm:^4.7.0"
     "@patternfly/patternfly": "npm:^6.6.1"
