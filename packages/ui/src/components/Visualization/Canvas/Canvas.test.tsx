@@ -112,6 +112,7 @@ describe('Canvas', () => {
 
   it('should move focus to the search input when sidebar opens', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
+    const focusSpy = vi.spyOn(HTMLElement.prototype, 'focus');
     const { Provider } = await TestProvidersWrapper();
     const vizNode = await entity.toVizNode();
     const controller = ControllerService.createController();
@@ -143,7 +144,11 @@ describe('Canvas', () => {
       await vi.runAllTimersAsync();
     });
 
-    expect(screen.getByTestId('filter-fields').querySelector('input')).toHaveFocus();
+    const searchInput = screen.getByTestId('filter-fields').querySelector('input')!;
+    expect(searchInput).toHaveFocus();
+    // The drawer is still animating in, so focusing must not scroll its container (canvas jump)
+    expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
+    focusSpy.mockRestore();
   });
 
   it('should restore focus to the canvas container when the sidebar is closed via clearSelection', async () => {

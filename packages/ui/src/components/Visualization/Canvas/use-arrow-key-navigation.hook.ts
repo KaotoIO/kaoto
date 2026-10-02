@@ -114,7 +114,7 @@ export function useArrowKeyNavigation(): void {
           : (currentIndex - 1 + allNodes.length) % allNodes.length;
       }
 
-      allNodes[nextIndex].focus();
+      allNodes[nextIndex].focus({ preventScroll: true });
     };
 
     hotkeys(ARROW_KEYS, navigate);

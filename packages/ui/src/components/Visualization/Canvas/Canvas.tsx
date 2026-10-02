@@ -105,9 +105,9 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       // Prefer restoring focus to the canvas node that was selected (matches any type: custom-node, placeholder-node, custom-group)
       const canvasNode = vizNodeId ? document.querySelector<HTMLElement>(`[data-testid$="__${vizNodeId}"]`) : null;
       if (canvasNode) {
-        canvasNode.focus();
+        canvasNode.focus({ preventScroll: true });
       } else {
-        document.getElementById(CANVAS_MAIN_ID)?.focus();
+        document.getElementById(CANVAS_MAIN_ID)?.focus({ preventScroll: true });
       }
     });
   }, []);
@@ -247,7 +247,9 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       selectedVizNodeIdRef.current = selectedVizNode.id;
       requestAnimationFrame(() => {
         const searchInput = document.querySelector<HTMLElement>('[data-testid="filter-fields"] input');
-        searchInput?.focus();
+        // preventScroll: the drawer panel is still sliding in from off-screen at this point, so a plain
+        // focus() would scroll the drawer's overflow container and make the canvas jump sideways
+        searchInput?.focus({ preventScroll: true });
       });
     } else {
       selectedVizNodeIdRef.current = undefined;
