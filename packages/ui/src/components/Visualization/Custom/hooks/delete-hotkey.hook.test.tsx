@@ -72,7 +72,7 @@ describe('useDeleteHotkey', () => {
     expect(mockHotkeys).toHaveBeenCalledWith('Delete, backspace', expect.any(Function));
 
     unmount();
-    expect(mockHotkeys.unbind).toHaveBeenCalledWith('Delete, backspace');
+    expect(mockHotkeys.unbind).toHaveBeenCalledWith('Delete, backspace', expect.any(Function));
   });
 
   it('should do nothing if no node selected', async () => {

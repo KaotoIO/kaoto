@@ -1,6 +1,7 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { Mock } from 'vitest';
 
+import { CanvasDefaults } from '../components/Visualization/Canvas/canvas.defaults';
 import { useLocalStorage } from '../hooks/local-storage.hook';
 import { Shell } from './Shell';
 
@@ -37,6 +38,32 @@ describe('Shell', () => {
 
   afterEach(() => {
     setWindowWidth(originalInnerWidth);
+  });
+
+  it('renders a PatternFly SkipToContent link targeting #canvas-main', () => {
+    render(<Shell />);
+
+    const skipLink = screen.getByRole('link', { name: 'Skip to canvas' });
+    expect(skipLink).toBeInTheDocument();
+    expect(skipLink).toHaveAttribute('href', `#${CanvasDefaults.CANVAS_MAIN_ID}`);
+  });
+
+  it('focuses the canvas element when the skip link is clicked', () => {
+    // Create a mock canvas element with the expected id so focus can be verified
+    const canvasEl = document.createElement('div');
+    canvasEl.id = CanvasDefaults.CANVAS_MAIN_ID;
+    canvasEl.tabIndex = 0;
+    document.body.appendChild(canvasEl);
+    const focusSpy = vi.spyOn(canvasEl, 'focus');
+
+    render(<Shell />);
+
+    const skipLink = screen.getByRole('link', { name: 'Skip to canvas' });
+    fireEvent.click(skipLink);
+
+    expect(focusSpy).toHaveBeenCalled();
+
+    document.body.removeChild(canvasEl);
   });
 
   it('renders children', () => {

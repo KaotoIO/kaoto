@@ -189,6 +189,8 @@ describe('PlaceholderNode', () => {
   beforeEach(async () => {
     mockOnReplaceNode.mockClear();
     mockOnInsertStep.mockClear();
+    mockOnReplaceNode.mockResolvedValue(undefined);
+    mockOnInsertStep.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -328,6 +330,52 @@ describe('PlaceholderNode', () => {
 
       expect(mockOnReplaceNode).toHaveBeenCalledTimes(1);
       expect(mockOnInsertStep).not.toHaveBeenCalled();
+    });
+
+    it('should call onReplaceNode when Enter is pressed on a regular placeholder', async () => {
+      await setupWithVizNode({
+        name: PlaceholderType.Placeholder,
+        primaryNodeId: { name: PlaceholderType.Placeholder, catalogKind: CatalogKind.Pattern },
+      });
+
+      const placeholderNode = screen.getByTestId('placeholder-node__test-placeholder');
+      fireEvent.keyDown(placeholderNode, { key: 'Enter' });
+
+      expect(mockOnReplaceNode).toHaveBeenCalledTimes(1);
+      expect(mockOnInsertStep).not.toHaveBeenCalled();
+    });
+
+    it('should have role="button" and aria-label containing "Add step" for a regular placeholder', async () => {
+      const parentElement = new BaseGraph();
+      const element = new BaseNode() as unknown as GraphElement<ElementModel, CanvasNode['data']>;
+      const controller = ControllerService.createController();
+      parentElement.setController(controller);
+      element.setController(controller);
+      element.setParent(parentElement);
+
+      const vizNode = createVisualizationNode('test-placeholder', {
+        path: 'test.placeholder',
+        isPlaceholder: true,
+        name: PlaceholderType.Placeholder,
+        primaryNodeId: { name: PlaceholderType.Placeholder, catalogKind: CatalogKind.Pattern },
+      } as IVisualizationNodeData);
+      vi.spyOn(vizNode, 'getNodeLabel').mockReturnValue(PlaceholderType.Placeholder);
+
+      element.setData({ vizNode });
+
+      const { Provider } = await TestProvidersWrapper();
+
+      render(
+        <Provider>
+          <ElementContext.Provider value={element}>
+            <PlaceholderNodeObserver element={element} />
+          </ElementContext.Provider>
+        </Provider>,
+      );
+
+      const placeholderNode = screen.getByTestId('placeholder-node__test-placeholder');
+      expect(placeholderNode).toHaveAttribute('role', 'button');
+      expect(placeholderNode).toHaveAttribute('aria-label', expect.stringContaining('Add step'));
     });
 
     it('should call onInsertStep when clicking on otherwise placeholder', async () => {

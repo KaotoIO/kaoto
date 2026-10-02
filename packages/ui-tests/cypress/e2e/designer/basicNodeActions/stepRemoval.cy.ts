@@ -25,6 +25,11 @@ describe('Tests for Design page', () => {
     cy.openDesignPage();
     cy.checkNodeExist('marshal', 1);
     cy.openStepConfigurationTab('marshal');
+    // Move focus from the sidebar SearchInput back to the canvas node so that
+    // hotkeys-js (which skips handlers when an INPUT has focus) will fire the
+    // Delete handler.  The node stays selected because we focus the <g> element
+    // directly rather than calling clearSelection() (which {esc} would do).
+    cy.get('g[data-nodelabel^="marshal"]').first().focus();
     cy.get('body').type('{del}');
     cy.checkNodeExist('marshal', 0);
 

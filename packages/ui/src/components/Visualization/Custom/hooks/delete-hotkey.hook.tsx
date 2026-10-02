@@ -27,15 +27,17 @@ export default function useDeleteHotkey(selectedVizNode: IVisualizationNode | un
   }, [onDeleteStep, onDeleteGroup, selectedVizNode, clearSelected]);
 
   useEffect(() => {
-    hotkeys('Delete, backspace', (event) => {
+    const handler = (event: KeyboardEvent) => {
       event.preventDefault();
       handleKeyDown().catch((error) => {
         console.error('Failed to handle delete hotkey:', error);
       });
-    });
+    };
+
+    hotkeys('Delete, backspace', handler);
 
     return () => {
-      hotkeys.unbind('Delete, backspace');
+      hotkeys.unbind('Delete, backspace', handler);
     };
   }, [handleKeyDown]);
 }
