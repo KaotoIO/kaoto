@@ -31,6 +31,17 @@
       "dependsOrder": "sequence",
       "dependsOn": ["build: @kaoto/kaoto build:lib", "build: vscode-kaoto build:dev"],
       "problemMatcher": []
+    },
+    {
+      "path": "packages/kaoto-vscode",
+      "type": "npm",
+      "label": "watch:vscode-kaoto",
+      "script": "watch",
+      "problemMatcher": "$tsc-watch",
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always"
+      }
     }
   ]
 }

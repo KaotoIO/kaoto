@@ -365,8 +365,8 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 				vscode.workspace.getWorkspaceFolder(document.uri)?.uri ?? vscode.Uri.joinPath(document.uri, '..'),
 			],
 		};
-		void session.bridge.connect().catch(report);
 		panel.webview.html = this.html(document.uri, panel.webview);
+		void session.bridge.connect().catch(report);
 	}
 
 	private async prepareSave(state: DocumentState): Promise<void> {
