@@ -14,6 +14,19 @@
       }
     },
     {
+      "name": "Run Extension (Vite dev server)",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": ["--disable-extensions", "--extensionDevelopmentPath=${workspaceFolder}/packages/kaoto-vscode"],
+      "outFiles": ["${workspaceFolder}/packages/kaoto-vscode/dist/**/*.js"],
+      "preLaunchTask": "watch:vscode-kaoto",
+      "env": {
+        "VSCODE_REDHAT_TELEMETRY_DEBUG": "true",
+        "KAOTO_DEV_URL": "http://localhost:5173"
+      }
+    },
+    {
       "name": "Run Web Extension",
       "type": "extensionHost",
       "request": "launch",

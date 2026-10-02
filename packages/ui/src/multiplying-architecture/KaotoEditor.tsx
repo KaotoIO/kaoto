@@ -1,239 +1,327 @@
-import '../styles/carbon-overrides.scss';
-import './KaotoEditor.scss';
+import '@patternfly/react-core/dist/styles/base.css'; // This import needs to be first
 
-import { Http } from '@carbon/icons-react';
-import { Icon, Tab, Tabs, TabsProps, TabTitleIcon, TabTitleText } from '@patternfly/react-core';
-import { CodeIcon, ExclamationCircleIcon, QuestionIcon } from '@patternfly/react-icons';
-import clsx from 'clsx';
-import { useContext, useMemo, useRef } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import {
+  BridgeError,
+  type IEventBus,
+  isJsonValue,
+  type JsonObject,
+  type KaotoRequests,
+  type KaotoResponses,
+  type SettingsSnapshot,
+} from '@kaoto/editor-api';
+import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
+import { Button } from '@patternfly/react-core';
+import { createRef, useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { RouterProvider } from 'react-router-dom';
 
-import icon_component_datamapper from '../assets/components/datamapper.png';
-import bean from '../assets/eip/bean.png';
-import camelIcon from '../assets/logo-kaoto.svg';
-import { SourceSchemaType } from '../models/camel/source-schema-type';
-import { EntitiesContext } from '../providers/entities.provider';
-import { Links } from '../router/links.models';
+import { CatalogLoaderProvider } from '../dynamic-catalog/catalog.provider';
+import { HostBridgeProvider } from '../host-bridge/context';
+import { CatalogKind, FileTypes, FileTypesResponse, StepUpdateAction } from '../models';
+import { DefaultSettingsAdapter } from '../models/settings';
+import { KaotoResourceProvider } from '../providers';
+import { EntitiesProvider } from '../providers/entities.provider';
+import { ReloadProvider } from '../providers/reload.provider';
+import { RuntimeProvider } from '../providers/runtime.provider';
+import { SettingsProvider } from '../providers/settings.provider';
+import { SourceCodeSync } from '../providers/source-code-sync';
+import { setColorScheme } from '../utils/color-scheme';
+import { bindEditorDocument, type EditorDocumentState, type SourceCodeBridgeProviderRef } from './Bridge/editor-api';
+import { KaotoBridge } from './Bridge/KaotoBridge';
+import { SourceCodeBridgeProvider } from './Bridge/SourceCodeBridgeProvider';
+import { kaotoEditorRouter } from './KaotoEditorRouter';
 
-const enum TabList {
-  Design,
-  Beans,
-  RestEditor,
-  Metadata,
-  ErrorHandler,
-  KaotoDataMapper,
-  About,
+export interface KaotoEditorInit {
+  fileExtension: string;
+  resourcesPathPrefix: string;
+  isReadOnly: boolean;
+  /** Restart the embedding after a pre-edit failure without navigating its frame. */
+  onRetry?: () => void;
 }
 
-const SCHEMA_TABS: Record<SourceSchemaType, TabList[]> = {
-  [SourceSchemaType.RouteYaml]: [
-    TabList.Design,
-    TabList.Beans,
-    TabList.RestEditor,
-    TabList.KaotoDataMapper,
-    TabList.About,
-  ],
-  [SourceSchemaType.RouteXml]: [
-    TabList.Design,
-    TabList.Beans,
-    TabList.RestEditor,
-    TabList.KaotoDataMapper,
-    TabList.About,
-  ],
-  [SourceSchemaType.Kamelet]: [TabList.Design, TabList.Beans, TabList.Metadata, TabList.KaotoDataMapper, TabList.About],
-  [SourceSchemaType.Integration]: [],
-  [SourceSchemaType.KameletBinding]: [TabList.Design, TabList.Metadata, TabList.ErrorHandler, TabList.About],
-  [SourceSchemaType.Pipe]: [TabList.Design, TabList.Metadata, TabList.ErrorHandler, TabList.About],
-  [SourceSchemaType.Test]: [TabList.Design, TabList.About],
-};
+interface Props {
+  bus: IEventBus;
+  initialSettings: SettingsSnapshot;
+  init: KaotoEditorInit;
+}
 
-export const KaotoEditor = () => {
-  const entitiesContext = useContext(EntitiesContext);
-  const resource = entitiesContext?.camelResource;
-  const inset = useRef<TabsProps['inset']>({ default: 'insetSm' });
-  const currentLocation = useLocation();
-  const secondSlashIndex = currentLocation.pathname.indexOf('/', 1);
-  const currentPath = currentLocation.pathname.substring(0, secondSlashIndex !== -1 ? secondSlashIndex : undefined);
-  const dataMapperLink = currentLocation.pathname.startsWith(Links.DataMapper)
-    ? currentLocation.pathname
-    : Links.DataMapper;
+export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
+  const editorRef = createRef<SourceCodeBridgeProviderRef>();
 
-  const availableTabs = useMemo(() => {
-    if (!resource) {
-      return {
-        design: false,
-        beans: false,
-        restEditor: false,
-        metadata: false,
-        errorHandler: false,
-        kaotoDataMapper: false,
-        about: false,
-      };
-    }
+  // Settings state: start from initialSettings, updated by bus events
+  const [settingsAdapter, setSettingsAdapter] = useState(() => new DefaultSettingsAdapter(initialSettings.settings));
+  const settingsVersionRef = useRef(initialSettings.settingsVersion);
 
-    return {
-      design: SCHEMA_TABS[resource.getType()].includes(TabList.Design),
-      beans: SCHEMA_TABS[resource.getType()].includes(TabList.Beans),
-      restEditor: SCHEMA_TABS[resource.getType()].includes(TabList.RestEditor),
-      metadata: SCHEMA_TABS[resource.getType()].includes(TabList.Metadata),
-      errorHandler: SCHEMA_TABS[resource.getType()].includes(TabList.ErrorHandler),
-      kaotoDataMapper: SCHEMA_TABS[resource.getType()].includes(TabList.KaotoDataMapper),
-      about: SCHEMA_TABS[resource.getType()].includes(TabList.About),
+  // Document state via useSyncExternalStore
+  const docRef = useRef<ReturnType<typeof bindEditorDocument> | null>(null);
+  const listenersRef = useRef(new Set<() => void>());
+
+  if (!docRef.current) {
+    docRef.current = bindEditorDocument(bus, editorRef, () => {
+      listenersRef.current.forEach((l) => {
+        l();
+      });
+    });
+  }
+
+  const subscribe = useCallback((listener: () => void) => {
+    listenersRef.current.add(listener);
+    return () => {
+      listenersRef.current.delete(listener);
     };
-  }, [resource]);
+  }, []);
+
+  const getDocumentState = useCallback(() => docRef.current!.getState(), []);
+
+  const documentState: EditorDocumentState = useSyncExternalStore(subscribe, getDocumentState);
+
+  // Subscribe to settings updates
+  useEffect(() => {
+    const unsubscribe = bus.on('editor:settings:updated', (snapshot: SettingsSnapshot) => {
+      if (snapshot.settingsVersion <= settingsVersionRef.current) return;
+      settingsVersionRef.current = snapshot.settingsVersion;
+      const adapter = new DefaultSettingsAdapter(snapshot.settings);
+      setColorScheme(adapter.getSettings().colorScheme);
+      setSettingsAdapter(adapter);
+    });
+    // Apply initial color scheme
+    setColorScheme(settingsAdapter.getSettings().colorScheme);
+    return unsubscribe;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bus]);
+
+  // Dispose bus on unmount (with Strict Mode guard)
+  const mountsRef = useRef(0);
+  useEffect(() => {
+    mountsRef.current++;
+    return () => {
+      mountsRef.current--;
+      // React Strict Mode replays mount effects. Dispose only after a real unmount.
+      queueMicrotask(() => {
+        if (mountsRef.current === 0) {
+          docRef.current?.dispose();
+          bus.dispose();
+        }
+      });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const settings = settingsAdapter.getSettings();
+
+  // History controls (native undo/redo delegated to host)
+  const applyHistory = useCallback(
+    (command: 'undo' | 'redo') => {
+      void docRef.current?.applyHistory(command).catch((error: unknown) => {
+        bus.emit('host:notification:show', {
+          type: 'error',
+          message: error instanceof Error ? error.message : 'Could not apply document history',
+        });
+      });
+    },
+    [bus],
+  );
+
+  const history = documentState.nativeUndoRedo
+    ? {
+        undo: () => {
+          applyHistory('undo');
+        },
+        redo: () => {
+          applyHistory('redo');
+        },
+        canUndo: !documentState.historyPending,
+        canRedo: !documentState.historyPending,
+      }
+    : undefined;
+
+  // Bridge callbacks
+  const sendReady = useCallback(() => {
+    docRef.current?.ready();
+  }, []);
+
+  const sendNewEdit = useCallback(async (content: string) => {
+    docRef.current?.notifyChange(content);
+  }, []);
+
+  const request = useCallback(
+    async <R extends keyof KaotoRequests>(requestName: R, payload: KaotoRequests[R]): Promise<KaotoResponses[R]> => {
+      try {
+        return await bus.request(requestName, payload);
+      } catch (error) {
+        if (error instanceof BridgeError && ['NOT_CONNECTED', 'DISPOSED'].includes(error.code)) {
+          docRef.current?.suspend(error);
+        }
+        throw error;
+      }
+    },
+    [bus],
+  );
+
+  const getMetadata = useCallback(
+    async <T,>(key: string): Promise<T | undefined> => {
+      const { value } = await request('editor:metadata:get', { key });
+      return value === null ? undefined : (value as T);
+    },
+    [request],
+  );
+
+  const setMetadata = useCallback(
+    async <T,>(key: string, preferences: T): Promise<void> => {
+      const payload = { key, value: preferences ?? null };
+      if (!isJsonValue(payload.value)) throw new BridgeError('INVALID_MESSAGE', 'Metadata must be JSON');
+      await request('editor:metadata:set', payload);
+    },
+    [request],
+  );
+
+  const getResourcesContentByType = useCallback(
+    async (fileType: FileTypes): Promise<FileTypesResponse[]> => {
+      return (await request('editor:resource:getByType', { fileType })).resources;
+    },
+    [request],
+  );
+
+  const getResourceContent = useCallback(
+    async (path: string): Promise<string | undefined> => {
+      return (await request('editor:resource:getContent', { path })).content ?? undefined;
+    },
+    [request],
+  );
+
+  const isResourceExist = useCallback(
+    async (path: string): Promise<boolean> => {
+      return (await request('editor:resource:exists', { path })).exists;
+    },
+    [request],
+  );
+
+  const saveResourceContent = useCallback(
+    async (path: string, content: string): Promise<void> => {
+      await request('editor:resource:save', { path, content });
+    },
+    [request],
+  );
+
+  const deleteResource = useCallback(
+    async (path: string): Promise<boolean> => {
+      return (await request('editor:resource:delete', { path })).success;
+    },
+    [request],
+  );
+
+  const askUserForFileSelection = useCallback(
+    async (
+      include: string,
+      exclude?: string,
+      options?: Record<string, unknown>,
+    ): Promise<string[] | string | undefined> => {
+      return (
+        (
+          await request('host:ui:pickFile', {
+            include,
+            ...(exclude === undefined ? {} : { exclude }),
+            ...(options === undefined
+              ? {}
+              : { options: Object.fromEntries(Object.entries(options).filter(([, value]) => value !== undefined)) }),
+          })
+        ).selection ?? undefined
+      );
+    },
+    [request],
+  );
+
+  const getSuggestions = useCallback(
+    async (topic: string, word: string, context?: SuggestionRequestContext): Promise<Suggestion[]> => {
+      try {
+        return (
+          await request('editor:suggestions:get', {
+            topic,
+            word,
+            context: Object.fromEntries(
+              Object.entries(context ?? {}).filter(([, value]) => value !== undefined),
+            ) as JsonObject,
+          })
+        ).suggestions;
+      } catch {
+        return [];
+      }
+    },
+    [request],
+  );
+
+  const onStepUpdated = useCallback(
+    async (action: StepUpdateAction, stepType: CatalogKind, stepName: string): Promise<void> => {
+      bus.emit('editor:step:updated', { action, stepType, stepName });
+    },
+    [bus],
+  );
+
+  const handleRetry = useCallback(() => {
+    docRef.current?.dispose();
+    bus.dispose();
+    if (init.onRetry) init.onRetry();
+    else window.location.reload();
+  }, [bus, init]);
 
   return (
-    <div className="shell" data-envelope-context="vscode">
-      <Tabs
-        inset={inset.current}
-        isFilled
-        unmountOnExit
-        activeKey={currentPath}
-        aria-label="Tabs in the Kaoto editor"
-        role="region"
-        hasNoBorderBottom
-      >
-        {availableTabs.design && (
-          <Link data-testid="design-tab" to={Links.Home}>
-            <Tab
-              id="design-tab"
-              eventKey={Links.Home}
-              title={
-                <>
-                  <TabTitleIcon>
-                    <Icon>
-                      <img src={camelIcon} alt="Camel icon" />
-                    </Icon>
-                  </TabTitleIcon>
-                  <TabTitleText>Design</TabTitleText>
-                </>
-              }
-              aria-label="Design canvas"
-            />
-          </Link>
-        )}
-
-        {availableTabs.beans && (
-          <Link data-testid="beans-tab" to={Links.Beans}>
-            <Tab
-              id="beans-tab"
-              eventKey={Links.Beans}
-              title={
-                <>
-                  <TabTitleIcon>
-                    <Icon>
-                      <img src={bean} alt="Camel beans icon" />
-                    </Icon>
-                  </TabTitleIcon>
-                  <TabTitleText>Beans</TabTitleText>
-                </>
-              }
-              aria-label="Beans editor"
-            />
-          </Link>
-        )}
-
-        {availableTabs.restEditor && (
-          <Link data-testid="rest-editor-tab" to={Links.RestEditor}>
-            <Tab
-              id="rest-editor-tab"
-              eventKey={Links.RestEditor}
-              title={
-                <>
-                  <TabTitleIcon>
-                    <Http />
-                  </TabTitleIcon>
-                  <TabTitleText>Rest</TabTitleText>
-                </>
-              }
-              aria-label="Rest editor"
-            />
-          </Link>
-        )}
-
-        {availableTabs.metadata && (
-          <Link data-testid="metadata-tab" to={Links.Metadata}>
-            <Tab
-              id="metadata-tab"
-              eventKey={Links.Metadata}
-              title={
-                <>
-                  <TabTitleIcon>
-                    <CodeIcon />
-                  </TabTitleIcon>
-                  <TabTitleText>Metadata</TabTitleText>
-                </>
-              }
-              aria-label="Metadata editor"
-            />
-          </Link>
-        )}
-
-        {availableTabs.errorHandler && (
-          <Link data-testid="error-handler-tab" to={Links.PipeErrorHandler}>
-            <Tab
-              id="error-handler-tab"
-              eventKey={Links.PipeErrorHandler}
-              title={
-                <>
-                  <TabTitleIcon>
-                    <ExclamationCircleIcon />
-                  </TabTitleIcon>
-                  <TabTitleText>Error Handler</TabTitleText>
-                </>
-              }
-              aria-label="Error Handler editor"
-            />
-          </Link>
-        )}
-
-        {availableTabs.kaotoDataMapper && (
-          <Link data-testid="datamapper-tab" to={dataMapperLink}>
-            <Tab
-              id="datamapper-tab"
-              eventKey={Links.DataMapper}
-              title={
-                <>
-                  <TabTitleIcon>
-                    <Icon>
-                      <img src={icon_component_datamapper} alt="Kaoto DataMapper icon" />
-                    </Icon>
-                  </TabTitleIcon>
-                  <TabTitleText>DataMapper</TabTitleText>
-                </>
-              }
-              aria-label="DataMapper"
-            />
-          </Link>
-        )}
-
-        {availableTabs.about && (
-          <Link data-testid="about-tab" to={Links.About}>
-            <Tab
-              id="about-tab"
-              eventKey={Links.About}
-              title={
-                <>
-                  <TabTitleIcon>
-                    <QuestionIcon />
-                  </TabTitleIcon>
-                  <TabTitleText>About</TabTitleText>
-                </>
-              }
-              aria-label="About"
-            />
-          </Link>
-        )}
-      </Tabs>
-
+    <HostBridgeProvider bus={bus}>
+      {documentState.error && (
+        <div role="alert">
+          {documentState.error.message}
+          {!documentState.initialized && (
+            <Button variant="link" onClick={handleRetry}>
+              Retry
+            </Button>
+          )}
+        </div>
+      )}
+      {!documentState.initialized && !documentState.error && <output role="status">Loading document…</output>}
       <div
-        className={clsx({
-          'shell__tab-content': true,
-          'shell__tab-content--scrollable': currentLocation.pathname !== Links.Home,
-        })}
+        inert={
+          !documentState.initialized ||
+          documentState.readonly ||
+          init.isReadOnly ||
+          !!documentState.error ||
+          documentState.historyPending
+        }
+        aria-busy={!documentState.initialized}
       >
-        <Outlet />
+        <ReloadProvider>
+          <SettingsProvider adapter={settingsAdapter}>
+            <SourceCodeSync>
+              <SourceCodeBridgeProvider ref={editorRef} onNewEdit={sendNewEdit} history={history}>
+                <KaotoResourceProvider fileExtension={init.fileExtension}>
+                  <RuntimeProvider
+                    catalogUrl={settings.catalogUrl}
+                    runtimeCatalogName={settings.runtimeCatalogName}
+                    testingCatalogName={settings.testingCatalogName}
+                  >
+                    <CatalogLoaderProvider getResourcesContentByType={getResourcesContentByType}>
+                      <EntitiesProvider>
+                        <KaotoBridge
+                          onReady={sendReady}
+                          getMetadata={getMetadata}
+                          setMetadata={setMetadata}
+                          getResourceContent={getResourceContent}
+                          saveResourceContent={saveResourceContent}
+                          isResourceExist={isResourceExist}
+                          deleteResource={deleteResource}
+                          askUserForFileSelection={askUserForFileSelection}
+                          getSuggestions={getSuggestions}
+                          shouldSaveSchema={false}
+                          onStepUpdated={onStepUpdated}
+                        >
+                          <RouterProvider router={kaotoEditorRouter} />
+                        </KaotoBridge>
+                      </EntitiesProvider>
+                    </CatalogLoaderProvider>
+                  </RuntimeProvider>
+                </KaotoResourceProvider>
+              </SourceCodeBridgeProvider>
+            </SourceCodeSync>
+          </SettingsProvider>
+        </ReloadProvider>
       </div>
-    </div>
+    </HostBridgeProvider>
   );
 };

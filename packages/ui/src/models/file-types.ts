@@ -1,8 +1,1 @@
-export const enum FileTypes {
-  Kamelets = 'kamelets',
-}
-
-export interface FileTypesResponse {
-  filename: string;
-  content: string;
-}
+export { FileTypes, type FileTypesResponse } from '@kaoto/editor-api';

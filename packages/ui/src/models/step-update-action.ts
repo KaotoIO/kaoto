@@ -1,5 +1,1 @@
-export const enum StepUpdateAction {
-  Add = 'add',
-  Replace = 'replace',
-  Remove = 'remove',
-}
+export { StepUpdateAction } from '@kaoto/editor-api';
