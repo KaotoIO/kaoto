@@ -6,6 +6,7 @@ import { ReactNode } from 'react';
 import { useRuntimeContext } from '../hooks/useRuntimeContext/useRuntimeContext';
 import { SourceSchemaType } from '../models/camel';
 import { KaotoResource } from '../models/kaoto-resource';
+import { XPathFunctionCatalogService } from '../services/xpath/catalog/xpath-function-catalog.service';
 import { CatalogSchemaLoader } from '../utils/catalog-schema-loader';
 import { KaotoResourceContext } from './kaoto-resource.provider';
 import { ReloadContext } from './reload.provider';
@@ -135,6 +136,100 @@ describe('RuntimeProvider', () => {
     beforeEach(() => {
       fetchMock.mockReset();
       fetchMock.mockResolvedValue({ json: () => CONTROLLED_LIBRARY } as unknown as Response);
+    });
+
+    it('applies updated host catalog settings and ignores an older pending load', async () => {
+      let resolveOld!: (response: Response) => void;
+      fetchMock.mockImplementationOnce(
+        () =>
+          new Promise<Response>((resolve) => {
+            resolveOld = resolve;
+          }),
+      );
+      const kaotoResource = { getType: () => SourceSchemaType.Integration } as unknown as KaotoResource;
+      const tree = (catalogUrl: string, runtimeCatalogName: string) => (
+        <KaotoResourceContext.Provider value={{ kaotoResource }}>
+          <RuntimeProvider catalogUrl={catalogUrl} runtimeCatalogName={runtimeCatalogName} testingCatalogName="">
+            <SelectedCatalogProbe />
+          </RuntimeProvider>
+        </KaotoResourceContext.Provider>
+      );
+      const view = render(tree('/old/index.json', 'Main Old'));
+      view.rerender(tree('/new/index.json', 'Main New'));
+      expect(await screen.findByTestId('selected-catalog')).toHaveTextContent('Main New');
+      await act(async () => {
+        resolveOld({ json: () => CONTROLLED_LIBRARY } as unknown as Response);
+      });
+      expect(screen.getByTestId('selected-catalog')).toHaveTextContent('Main New');
+      view.rerender(tree('/new/index.json', 'Main Old'));
+      expect(await screen.findByTestId('selected-catalog')).toHaveTextContent('Main Old');
+    });
+
+    it('keeps the current XPath functions when an older functions download finishes last', async () => {
+      const library = { ...CONTROLLED_LIBRARY, xsltCatalogs: 'xslt/index.json' };
+      const functions = (displayName: string) => ({
+        String: {
+          concat: {
+            name: 'concat',
+            displayName,
+            description: '',
+            returnType: 'xs:string',
+            returnCollection: false,
+            arguments: [],
+            prefix: 'fn',
+            returnCardinality: '',
+            signatures: [],
+          },
+        },
+      });
+      let resolveOld!: (response: Response) => void;
+      let markStarted!: () => void;
+      const started = new Promise<void>((resolve) => {
+        markStarted = resolve;
+      });
+      fetchMock.mockImplementation((url: string) => {
+        if (url === '/old/xslt/functions.json') {
+          markStarted();
+          return new Promise<Response>((resolve) => {
+            resolveOld = resolve;
+          });
+        }
+        const body = url.endsWith('/xslt/index.json')
+          ? {
+              name: 'XSLT',
+              version: '1',
+              runtime: 'XSLT',
+              schemas: {},
+              catalogs: {
+                '3.0': { name: '3.0', version: '3.0', description: '', file: 'functions.json' },
+              },
+            }
+          : url.endsWith('/xslt/functions.json')
+            ? functions('Current functions')
+            : library;
+        return Promise.resolve(new Response(JSON.stringify(body)));
+      });
+      const tree = (catalogUrl: string) => (
+        <RuntimeProvider catalogUrl={catalogUrl} runtimeCatalogName="Main New" testingCatalogName="">
+          <SelectedCatalogProbe />
+        </RuntimeProvider>
+      );
+      const kaotoResource = { getType: () => SourceSchemaType.Integration } as unknown as KaotoResource;
+      const wrapper = ({ children }: { children: ReactNode }) => (
+        <KaotoResourceContext.Provider value={{ kaotoResource }}>{children}</KaotoResourceContext.Provider>
+      );
+      const view = render(tree('/old/index.json'), { wrapper });
+      await act(async () => {
+        await started;
+      });
+      view.rerender(tree('/new/index.json'));
+      expect(await screen.findByTestId('selected-catalog')).toHaveTextContent('Main New');
+      const currentFunctions = () => Object.values(XPathFunctionCatalogService.getCatalog() ?? {}).flat();
+      expect(currentFunctions()).toEqual([expect.objectContaining({ displayName: 'Current functions' })]);
+      await act(async () => {
+        resolveOld(new Response(JSON.stringify(functions('Old functions'))));
+      });
+      expect(currentFunctions()).toEqual([expect.objectContaining({ displayName: 'Current functions' })]);
     });
 
     it('selects the catalog named by runtimeCatalogName for non-test sources', async () => {
