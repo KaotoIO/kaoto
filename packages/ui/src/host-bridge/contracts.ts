@@ -380,8 +380,6 @@ const catalogKind = oneOf(
   CatalogKind.Pattern,
   CatalogKind.Entity,
   CatalogKind.Language,
-  CatalogKind.Dataformat,
-  CatalogKind.Loadbalancer,
   CatalogKind.Kamelet,
   CatalogKind.Function,
   CatalogKind.TestActionGroup,
