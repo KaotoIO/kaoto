@@ -20,7 +20,7 @@
     "build:test:ui": "rimraf ./out && tsc --project tsconfig.ui-tests.json --skipLibCheck --sourceMap true",
     "build:test:unit": "rimraf ./out && tsc --project tsconfig.unit-tests.json --skipLibCheck --sourceMap true && webpack --env dev --env bridgeTests=true",
     "build:vsix": "yarn vsce package --no-dependencies --yarn",
-    "compile": "webpack",
+    "compile": "yarn workspace @kaoto/kaoto build:webview && webpack",
     "sbom:generate": "cdxgen -o manifest.json",
     "watch": "webpack --env dev",
     "run:webmode": "yarn vscode-test-web --browserType=chromium --extensionDevelopmentPath=. --open-devtools ./resources",

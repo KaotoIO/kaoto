@@ -11,6 +11,7 @@ export * from './external/RouteVisualization/RouteVisualization';
 export * from './models/catalog-kind';
 export * from './models/runtime-maven-information';
 export * from './models/step-update-action';
+export type { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
 export * from './multiplying-architecture';
 export * from './pages/Metadata/MetadataPage';
 export * from './pages/PipeErrorHandler/PipeErrorHandlerPage';
