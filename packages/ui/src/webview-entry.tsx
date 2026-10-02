@@ -1,5 +1,6 @@
-import { createRoot, type Root } from 'react-dom/client';
 import { createEventBus, createPostMessageBridge, type MessageTransport } from '@kaoto/editor-api';
+import { createRoot, type Root } from 'react-dom/client';
+
 import { KaotoEditor, type KaotoEditorInit } from './multiplying-architecture/KaotoEditor';
 
 export function startKaotoWebview(transport: MessageTransport): void {

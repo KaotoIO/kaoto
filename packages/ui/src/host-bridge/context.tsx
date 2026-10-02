@@ -1,12 +1,11 @@
-import { createContext, type FunctionComponent, type ReactNode, useContext } from 'react';
 import type { IEventBus } from '@kaoto/editor-api';
+import { createContext, type FunctionComponent, type ReactNode, useContext } from 'react';
 
 export const HostBridgeContext = createContext<IEventBus | undefined>(undefined);
 
-export const HostBridgeProvider: FunctionComponent<{ bus: IEventBus; children: ReactNode }> = ({
-  bus,
-  children,
-}) => <HostBridgeContext.Provider value={bus}>{children}</HostBridgeContext.Provider>;
+export const HostBridgeProvider: FunctionComponent<{ bus: IEventBus; children: ReactNode }> = ({ bus, children }) => (
+  <HostBridgeContext.Provider value={bus}>{children}</HostBridgeContext.Provider>
+);
 
 /** Throws if called outside a HostBridgeProvider. */
 export function useHostBus(): IEventBus {

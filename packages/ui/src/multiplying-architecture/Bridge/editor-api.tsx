@@ -1,13 +1,13 @@
-import { type RefObject, useCallback, useMemo, useRef } from 'react';
-
-import { useUndoRedo } from '../../hooks/undo-redo.hook';
 import {
   BridgeError,
   type IEventBus,
   type KaotoEvents,
   type SetContentRequest,
   type ValidationNotification,
-} from '../../host-bridge';
+} from '@kaoto/editor-api';
+import { type RefObject, useCallback, useMemo, useRef } from 'react';
+
+import { useUndoRedo } from '../../hooks/undo-redo.hook';
 import { useSourceCodeStore } from '../../store';
 
 export interface SourceCodeBridgeProviderRef {

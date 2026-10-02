@@ -1,20 +1,21 @@
 import '@patternfly/react-core/dist/styles/base.css'; // This import needs to be first
 
+import {
+  BridgeError,
+  type IEventBus,
+  isJsonValue,
+  type JsonObject,
+  type KaotoRequests,
+  type KaotoResponses,
+  type SettingsSnapshot,
+} from '@kaoto/editor-api';
 import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
 import { Button } from '@patternfly/react-core';
 import { createRef, useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { RouterProvider } from 'react-router-dom';
 
 import { CatalogLoaderProvider } from '../dynamic-catalog/catalog.provider';
-import {
-  BridgeError,
-  type IEventBus,
-  type JsonObject,
-  type KaotoRequests,
-  type KaotoResponses,
-  type SettingsSnapshot,
-} from '../host-bridge';
-import { isJsonValue } from '../host-bridge';
+import { HostBridgeProvider } from '../host-bridge/context';
 import { CatalogKind, FileTypes, FileTypesResponse, StepUpdateAction } from '../models';
 import { DefaultSettingsAdapter } from '../models/settings';
 import { KaotoResourceProvider } from '../providers';
@@ -27,7 +28,6 @@ import { setColorScheme } from '../utils/color-scheme';
 import { bindEditorDocument, type EditorDocumentState, type SourceCodeBridgeProviderRef } from './Bridge/editor-api';
 import { KaotoBridge } from './Bridge/KaotoBridge';
 import { SourceCodeBridgeProvider } from './Bridge/SourceCodeBridgeProvider';
-import { HostBridgeProvider } from '../host-bridge/context';
 import { kaotoEditorRouter } from './KaotoEditorRouter';
 
 export interface KaotoEditorInit {
@@ -44,13 +44,11 @@ interface Props {
   init: KaotoEditorInit;
 }
 
-export function KaotoEditor({ bus, initialSettings, init }: Props) {
+export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
   const editorRef = createRef<SourceCodeBridgeProviderRef>();
 
   // Settings state: start from initialSettings, updated by bus events
-  const [settingsAdapter, setSettingsAdapter] = useState(
-    () => new DefaultSettingsAdapter(initialSettings.settings),
-  );
+  const [settingsAdapter, setSettingsAdapter] = useState(() => new DefaultSettingsAdapter(initialSettings.settings));
   const settingsVersionRef = useRef(initialSettings.settingsVersion);
 
   // Document state via useSyncExternalStore
@@ -59,7 +57,9 @@ export function KaotoEditor({ bus, initialSettings, init }: Props) {
 
   if (!docRef.current) {
     docRef.current = bindEditorDocument(bus, editorRef, () => {
-      listenersRef.current.forEach((l) => l());
+      listenersRef.current.forEach((l) => {
+        l();
+      });
     });
   }
 
@@ -123,8 +123,12 @@ export function KaotoEditor({ bus, initialSettings, init }: Props) {
 
   const history = documentState.nativeUndoRedo
     ? {
-        undo: () => applyHistory('undo'),
-        redo: () => applyHistory('redo'),
+        undo: () => {
+          applyHistory('undo');
+        },
+        redo: () => {
+          applyHistory('redo');
+        },
         canUndo: !documentState.historyPending,
         canRedo: !documentState.historyPending,
       }
@@ -140,10 +144,7 @@ export function KaotoEditor({ bus, initialSettings, init }: Props) {
   }, []);
 
   const request = useCallback(
-    async <R extends keyof KaotoRequests>(
-      requestName: R,
-      payload: KaotoRequests[R],
-    ): Promise<KaotoResponses[R]> => {
+    async <R extends keyof KaotoRequests>(requestName: R, payload: KaotoRequests[R]): Promise<KaotoResponses[R]> => {
       try {
         return await bus.request(requestName, payload);
       } catch (error) {
@@ -274,9 +275,7 @@ export function KaotoEditor({ bus, initialSettings, init }: Props) {
           )}
         </div>
       )}
-      {!documentState.initialized && !documentState.error && (
-        <output role="status">Loading document…</output>
-      )}
+      {!documentState.initialized && !documentState.error && <output role="status">Loading document…</output>}
       <div
         inert={
           !documentState.initialized ||
@@ -325,4 +324,4 @@ export function KaotoEditor({ bus, initialSettings, init }: Props) {
       </div>
     </HostBridgeProvider>
   );
-}
+};

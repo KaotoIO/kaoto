@@ -1,13 +1,13 @@
-import { act, renderHook } from '@testing-library/react';
-import { createRef } from 'react';
-
 import {
   BridgeError,
   createEventBus,
   createMemoryTransports,
   createPostMessageBridge,
   type IEventBus,
-} from '../../host-bridge';
+} from '@kaoto/editor-api';
+import { act, renderHook } from '@testing-library/react';
+import { createRef } from 'react';
+
 import { useSourceCodeStore } from '../../store';
 import { EventNotifier } from '../../utils';
 import { bindEditorDocument, type SourceCodeBridgeProviderRef, useEditorApi } from './editor-api';
