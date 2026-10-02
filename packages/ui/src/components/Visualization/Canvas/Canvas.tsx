@@ -97,11 +97,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   }, []);
 
   const selectedVizNode = useSelectedVizNode(selectedIds);
-  const isUpdating =
-    isModelResolving ||
-    (selectedVizNode !== undefined &&
-      selectedVizNode !== nodes.find((node) => node.id === selectedIds[0])?.data?.vizNode);
-  useDeleteHotkey(isUpdating ? undefined : selectedVizNode, clearSelection);
+  useDeleteHotkey(selectedVizNode, clearSelection);
 
   /** Draw graph */
   useEffect(() => {
@@ -109,9 +105,8 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       return;
     }
 
-    // Keep existing steps selected and resolve their refreshed data after the model update.
     const requestedSelection = consumeNodeSelection(controller, nodes);
-    setSelectedIds((ids) => requestedSelection ?? ids.filter((id) => nodes.some((node) => node.id === id)));
+    setSelectedIds(requestedSelection ?? []);
 
     const model: Model = {
       nodes,
@@ -219,14 +214,12 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
 
   const isSidebarOpen = useMemo(() => selectedIds.length > 0, [selectedIds.length]);
 
-  // Keep the current canvas and properties mounted while a replacement model resolves.
-  if (isModelResolving && !initialized) {
+  if (isModelResolving) {
     return null;
   }
 
   return (
     <TopologyView
-      inert={isUpdating}
       className={clsx({ hidden: !initialized })}
       defaultSideBarSize={sidebarWidth + 'px'}
       minSideBarSize="210px"
