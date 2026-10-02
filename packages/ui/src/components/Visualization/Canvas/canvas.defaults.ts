@@ -28,4 +28,6 @@ export class CanvasDefaults {
   static readonly HOVER_DELAY_OUT = 500;
 
   static readonly CANVAS_FIT_PADDING = 80;
+
+  static readonly CANVAS_MAIN_ID = 'canvas-main';
 }

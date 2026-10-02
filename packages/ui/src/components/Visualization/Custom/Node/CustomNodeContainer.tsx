@@ -48,9 +48,14 @@ export const CustomNodeContainer: FunctionComponent<CustomNodeContainerProps> = 
     {...(transform !== undefined && { transform })}
   >
     <div data-testid={dataTestId} className={clsx('custom-node__container', containerClassNames)}>
-      <div title={vizNode.data.description} className="custom-node__container__image">
+      <div
+        role="img"
+        aria-label={vizNode.data.description?.trim() || vizNode.data.name}
+        className="custom-node__container__image"
+      >
         {vizNode.data.iconUrl && (
-          <img src={vizNode.data.iconUrl} alt={vizNode.data.description?.trim() || (vizNode.data.iconAlt as string)} />
+          // aria-hidden: the parent div[role="img"] already labels the container; the img is presentational here
+          <img src={vizNode.data.iconUrl} aria-hidden="true" alt="" />
         )}
 
         {isCollapsed && childCount > 0 && (

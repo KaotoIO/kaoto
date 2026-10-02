@@ -27,7 +27,13 @@ export const CanvasFormHeader: FunctionComponent<CanvasFormHeaderProps> = ({ nod
           </Title>
         </GridItem>
         <GridItem span={1} className="canvas-header-close">
-          <Button data-testid="close-side-bar" variant="plain" icon={<TimesIcon />} onClick={onClose} />
+          <Button
+            data-testid="close-side-bar"
+            variant="plain"
+            icon={<TimesIcon />}
+            onClick={onClose}
+            aria-label="Close"
+          />
         </GridItem>
       </Grid>
 

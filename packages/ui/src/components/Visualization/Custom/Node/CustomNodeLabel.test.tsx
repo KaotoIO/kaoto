@@ -55,8 +55,22 @@ describe('CustomNodeLabel', () => {
 
     const warningIcon = container.querySelector('[data-warning="true"]');
     expect(warningIcon).toBeInTheDocument();
-    expect(warningIcon).toHaveAttribute('title', 'Missing URI');
+    expect(warningIcon).toHaveAttribute('aria-label', 'Missing URI');
     expect(container.querySelector('.custom-node__label__text__error')).toBeInTheDocument();
+  });
+
+  it('announces warning text to screen readers via aria-label', () => {
+    renderLabel(
+      <CustomNodeLabel label="log" x={0} y={0} doesHaveWarnings validationText="Missing required field: message" />,
+    );
+
+    const warningIcon = screen.getByRole('img', { name: 'Missing required field: message' });
+    expect(warningIcon).toBeInTheDocument();
+  });
+
+  it('does not render a warning icon when doesHaveWarnings is false', () => {
+    renderLabel(<CustomNodeLabel label="log" x={0} y={0} doesHaveWarnings={false} />);
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
   });
 
   it('allows overriding width, height, and className', () => {

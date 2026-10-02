@@ -27,7 +27,7 @@ import {
   useHover,
 } from '@patternfly/react-topology';
 import clsx from 'clsx';
-import { FunctionComponent, useContext, useMemo, useRef } from 'react';
+import { FunctionComponent, useCallback, useContext, useMemo, useRef } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
@@ -91,6 +91,27 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
     useAnchor((element: Node) => {
       return new TargetAnchor(element);
     }, AnchorEnd.both);
+
+    // handleKeyDown must be declared before any early return to satisfy Rules of Hooks
+    const handleKeyDown = useCallback(
+      (event: React.KeyboardEvent<SVGGElement>) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onSelect?.(event as unknown as React.MouseEvent);
+        } else if ((event.key === 'F10' && event.shiftKey) || event.key === 'ContextMenu') {
+          event.preventDefault();
+          const rect = event.currentTarget.getBoundingClientRect?.() ?? { left: 0, bottom: 0 };
+          onContextMenu?.({
+            preventDefault: () => {},
+            stopPropagation: () => {},
+            clientX: rect.left,
+            clientY: rect.bottom,
+            currentTarget: event.currentTarget,
+          } as unknown as React.MouseEvent);
+        }
+      },
+      [onContextMenu, onSelect],
+    );
 
     if (!groupVizNode) {
       return null;
@@ -202,7 +223,12 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
           data-disabled={isDisabled}
           data-toolbar-open={shouldShowToolbar}
           data-warnings={doesHaveWarnings}
+          tabIndex={selected ? 0 : -1}
+          role="button"
+          aria-label={label ?? groupVizNode.id}
+          aria-pressed={selected}
           onClick={onSelect}
+          onKeyDown={handleKeyDown}
           onContextMenu={onContextMenu}
         >
           {/** This node appears when nothing is dragging and acts as the dummy node when container is dragged*/}

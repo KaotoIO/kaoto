@@ -125,6 +125,16 @@
       }
     }
 
+    /*
+     * Keyboard focus ring for groups — same :focus rationale as custom-node.
+     * Must appear after &__container to satisfy no-descending-specificity.
+     * Targets the container div (the visible blue header bar).
+     */
+    &:focus &__container {
+      outline: 3px solid var(--pf-t--global--color--brand--default);
+      outline-offset: 2px;
+    }
+
     &__disabled-icon {
       position: absolute;
       top: 0;
