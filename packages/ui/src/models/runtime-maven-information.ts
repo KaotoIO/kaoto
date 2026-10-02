@@ -1,6 +1,6 @@
 export type {
   CamelMainMavenInformation,
-  CamelSpringBootMavenInformation,
   CamelQuarkusMavenInformation,
+  CamelSpringBootMavenInformation,
   RuntimeMavenInformation,
 } from '@kaoto/editor-api';

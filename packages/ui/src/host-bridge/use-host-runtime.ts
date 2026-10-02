@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
 import { BridgeError, type RuntimeMavenInformation } from '@kaoto/editor-api';
+import { useMemo } from 'react';
+
 import { useHostBus } from './context';
 
 export function useHostRuntime() {

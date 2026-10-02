@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
 import type { FilePickerOptions } from '@kaoto/editor-api';
+import { useMemo } from 'react';
+
 import { useHostBus } from './context';
 
 export function useHostUI() {
