@@ -20,7 +20,7 @@ import { mkdtemp } from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
-import { CatalogKind, FileTypes, StepUpdateAction } from '@kaoto/kaoto/models';
+import { CatalogKind, FileTypes, StepUpdateAction } from '@kaoto/editor-api';
 import { KaotoHostServices } from '../../services/KaotoHostServices';
 import { KAOTO_LOCAL_KAMELET_DIRECTORIES_SETTING_ID } from '../../constants';
 

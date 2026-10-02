@@ -15,17 +15,20 @@
  * limitations under the License.
  */
 
-import { CanvasLayoutDirection, ColorScheme, FileTypes, NodeLabelType, NodeToolbarTrigger, SettingsModel } from '@kaoto/kaoto/models';
-import type {
-	CatalogKind,
-	FileTypesResponse,
-	ISettingsModel,
-	RuntimeMavenInformation,
-	StepUpdateAction,
-	Suggestion,
-	SuggestionRequestContext,
-} from '@kaoto/kaoto/models';
-import { BridgeError } from '@kaoto/kaoto/host-bridge';
+import {
+	BridgeError,
+	CanvasLayoutDirection,
+	type CatalogKind,
+	ColorScheme,
+	FileTypes,
+	type FileTypesResponse,
+	type ISettingsModel,
+	NodeLabelType,
+	NodeToolbarTrigger,
+	type RuntimeMavenInformation,
+	type StepUpdateAction,
+} from '@kaoto/editor-api';
+import type { Suggestion, SuggestionRequestContext } from '@kaoto/kaoto/models';
 import * as vscode from 'vscode';
 import path from 'path'; // NOSONAR: webpack supplies path-browserify in the worker
 import {
@@ -87,20 +90,18 @@ export class KaotoHostServices implements vscode.Disposable {
 			vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Dark || vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.HighContrast;
 		const colorScheme = theme === ColorScheme.Dark || (theme === ColorScheme.Auto && dark) ? ColorScheme.Dark : ColorScheme.Light;
 		return {
-			...new SettingsModel({
-				catalogUrl: config.get<string | null>(KAOTO_CATALOG_URL_SETTING_ID) ?? '',
-				runtimeCatalogName: catalog && catalog.runtime.toLowerCase() !== 'citrus' ? catalog.name : '',
-				testingCatalogName: catalog?.runtime.toLowerCase() === 'citrus' ? catalog.name : '',
-				nodeLabel: config.get<NodeLabelType | null>(KAOTO_NODE_LABEL_SETTING_ID) ?? NodeLabelType.Description,
-				nodeToolbarTrigger: config.get<NodeToolbarTrigger | null>(KAOTO_NODE_TOOLBAR_TRIGGER_SETTING_ID) ?? NodeToolbarTrigger.onHover,
-				colorScheme,
-				canvasLayoutDirection:
-					config.get<CanvasLayoutDirection | null>(KAOTO_CANVAS_LAYOUT_DIRECTION_SETTING_ID) ?? CanvasLayoutDirection.SelectInCanvas,
-				rest: {
-					apicurioRegistryUrl: config.get<string | null>(KAOTO_REST_APICURIO_REGISTRY_URL_SETTING_ID) ?? '',
-					customMediaTypes: config.get<string[] | null>(KAOTO_REST_CUSTOM_MEDIA_TYPES_SETTING_ID) ?? [],
-				},
-			}),
+			catalogUrl: config.get<string | null>(KAOTO_CATALOG_URL_SETTING_ID) ?? '',
+			runtimeCatalogName: catalog && catalog.runtime.toLowerCase() !== 'citrus' ? catalog.name : '',
+			testingCatalogName: catalog?.runtime.toLowerCase() === 'citrus' ? catalog.name : '',
+			nodeLabel: (config.get<NodeLabelType | null>(KAOTO_NODE_LABEL_SETTING_ID) ?? NodeLabelType.Description) as ISettingsModel['nodeLabel'],
+			nodeToolbarTrigger: (config.get<NodeToolbarTrigger | null>(KAOTO_NODE_TOOLBAR_TRIGGER_SETTING_ID) ?? NodeToolbarTrigger.onHover) as ISettingsModel['nodeToolbarTrigger'],
+			colorScheme: colorScheme as ISettingsModel['colorScheme'],
+			canvasLayoutDirection: (config.get<CanvasLayoutDirection | null>(KAOTO_CANVAS_LAYOUT_DIRECTION_SETTING_ID) ??
+				CanvasLayoutDirection.SelectInCanvas) as ISettingsModel['canvasLayoutDirection'],
+			rest: {
+				apicurioRegistryUrl: config.get<string | null>(KAOTO_REST_APICURIO_REGISTRY_URL_SETTING_ID) ?? '',
+				customMediaTypes: config.get<string[] | null>(KAOTO_REST_CUSTOM_MEDIA_TYPES_SETTING_ID) ?? [],
+			},
 		};
 	}
 

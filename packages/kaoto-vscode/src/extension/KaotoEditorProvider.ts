@@ -22,14 +22,15 @@ import {
 	createPostMessageBridge,
 	type BridgeConnection,
 	type ContentSnapshot,
+	FileTypes,
 	type IEventBus,
 	type JsonValue,
 	type KaotoRequests,
 	type KaotoResponses,
 	type SettingsSnapshot,
 	type Unsubscribe,
-} from '@kaoto/kaoto/host-bridge';
-import type { FileTypes, SuggestionRequestContext } from '@kaoto/kaoto/models';
+} from '@kaoto/editor-api';
+import type { SuggestionRequestContext } from '@kaoto/kaoto/models';
 import { KaotoHostServices } from '../services/KaotoHostServices';
 import { KAOTO_EDITOR_VIEW_TYPE } from '../constants';
 import { KaotoOutputChannel } from './KaotoOutputChannel';

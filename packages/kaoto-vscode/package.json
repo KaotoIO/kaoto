@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "@kaoto/camel-catalog": "^0.10.6",
+    "@kaoto/editor-api": "workspace:*",
     "@kaoto/kaoto": "workspace:*",
     "@redhat-developer/vscode-extension-proposals": "^0.0.23",
     "@redhat-developer/vscode-redhat-telemetry": "^0.10.2",
