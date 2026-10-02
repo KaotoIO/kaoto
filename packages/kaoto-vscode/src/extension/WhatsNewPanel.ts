@@ -25,10 +25,17 @@ export class WhatsNewPanel {
 		const whatsNewFolder = vscode.Uri.joinPath(context.extensionUri, 'resources', 'whats-new', folderVersion);
 		const indexMdUri = vscode.Uri.joinPath(whatsNewFolder, 'index.md');
 
+		let bytes: Uint8Array;
 		try {
-			const bytes = await vscode.workspace.fs.readFile(indexMdUri);
-			const markdown = new TextDecoder('utf-8').decode(bytes);
+			bytes = await vscode.workspace.fs.readFile(indexMdUri);
+		} catch {
+			// index.md is not shipped for every version — silently skip
+			KaotoOutputChannel.logInfo(`What's New content is not available for version ${folderVersion}`);
+			return;
+		}
 
+		try {
+			const markdown = new TextDecoder('utf-8').decode(bytes);
 			const htmlContent: string = await vscode.commands.executeCommand('markdown.api.render', markdown);
 
 			const panel = vscode.window.createWebviewPanel(
@@ -53,7 +60,7 @@ export class WhatsNewPanel {
 
 			WhatsNewPanel.currentPanel = panel;
 		} catch (err) {
-			KaotoOutputChannel.logWarning(`What's New content is not available for this version. ${String(err)}`);
+			KaotoOutputChannel.logError(`Failed to render What's New panel for version ${folderVersion}`, err);
 		}
 	}
 
