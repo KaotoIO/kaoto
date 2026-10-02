@@ -2,7 +2,7 @@
   "name": "@kaoto/kompanion",
   "private": true,
   "version": "0.0.0-dev",
-  "type": "commonjs",
+  "type": "module",
   "description": "Kaoto kompanion",
   "repository": "https://github.com/KaotoIO/kaoto",
   "repositoryDirectory": "packages/kompanion",
@@ -20,13 +20,14 @@
     "./openapi": "./dist/openapi/openapi.json"
   },
   "scripts": {
-    "build": "node scripts/mvnw.mjs clean install && yarn build:sdk",
-    "build:kompanion": "node scripts/mvnw.mjs clean package -pl kaoto-kompanion -am",
+    "mvnw:run": "node scripts/mvnw.mjs",
+    "build": "yarn mvnw:run clean install && yarn build:sdk",
+    "build:kompanion": "yarn mvnw:run clean package -pl kaoto-kompanion -am",
     "build:sdk": "orval --config orval.config.ts && tsc --project tsconfig.sdk.json",
-    "lint": "yarn eslint \"scripts/*.mjs\" && node scripts/mvnw.mjs spotless:check",
-    "lint:fix": "yarn eslint \"scripts/*.mjs\" --fix && node scripts/mvnw.mjs spotless:apply",
-    "test": "node scripts/mvnw.mjs test",
-    "test:e2e": "yarn build:kompanion && node scripts/mvnw.mjs verify -pl kaoto-e2e"
+    "lint": "yarn mvnw:run spotless:check",
+    "lint:fix": "yarn mvnw:run spotless:apply",
+    "test": "yarn mvnw:run test",
+    "test:e2e": "yarn build:kompanion && yarn mvnw:run verify -pl kaoto-e2e"
   },
   "devDependencies": {
     "orval": "^8.36.0",

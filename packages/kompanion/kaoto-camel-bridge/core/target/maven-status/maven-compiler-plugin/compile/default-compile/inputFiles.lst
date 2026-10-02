@@ -1,8 +1,0 @@
-/home/ricmarti/repos/prs/kaoto-1/packages/kompanion/kaoto-camel-bridge/core/src/main/java/io/kaoto/camel/bridge/KaotoCamelBridge.java
-/home/ricmarti/repos/prs/kaoto-1/packages/kompanion/kaoto-camel-bridge/core/src/main/java/io/kaoto/camel/bridge/protocol/InboundMessage.java
-/home/ricmarti/repos/prs/kaoto-1/packages/kompanion/kaoto-camel-bridge/core/src/main/java/io/kaoto/camel/bridge/protocol/OutboundMessage.java
-/home/ricmarti/repos/prs/kaoto-1/packages/kompanion/kaoto-camel-bridge/core/src/main/java/io/kaoto/camel/bridge/spi/BridgeEventNotifier.java
-/home/ricmarti/repos/prs/kaoto-1/packages/kompanion/kaoto-camel-bridge/core/src/main/java/io/kaoto/camel/bridge/spi/BridgeLifecycleStrategy.java
-/home/ricmarti/repos/prs/kaoto-1/packages/kompanion/kaoto-camel-bridge/core/src/main/java/io/kaoto/camel/bridge/spi/BridgeRoutePolicy.java
-/home/ricmarti/repos/prs/kaoto-1/packages/kompanion/kaoto-camel-bridge/core/src/main/java/io/kaoto/camel/bridge/transport/KompanionAddress.java
-/home/ricmarti/repos/prs/kaoto-1/packages/kompanion/kaoto-camel-bridge/core/src/main/java/io/kaoto/camel/bridge/transport/WorkerWebSocketClient.java

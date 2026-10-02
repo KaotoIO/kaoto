@@ -62,7 +62,8 @@ public class WorkerWebSocketHandler {
             LOG.debugf("Received worker frame type=%s executionId=%s", msg.type(), msg.executionId());
             if ("camel.cmd.ack".equals(msg.type())) {
                 if (!executionId.equals(msg.executionId())) {
-                    LOG.warnf("Worker frame executionId mismatch: connection=%s frame=%s — ignored",
+                    LOG.warnf(
+                            "Worker frame executionId mismatch: connection=%s frame=%s — ignored",
                             executionId, msg.executionId());
                 } else {
                     registry.receiveAck(executionId, msg.correlationId(), msg.success(), msg.detail());
