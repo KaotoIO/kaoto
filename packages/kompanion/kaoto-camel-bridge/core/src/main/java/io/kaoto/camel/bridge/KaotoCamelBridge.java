@@ -36,6 +36,12 @@ public class KaotoCamelBridge implements CamelContextCustomizer, CamelConfigurat
     /** System property: execution identifier assigned by the kompanion. */
     public static final String EXECUTION_ID_PROPERTY = "kaoto.kompanion.execution-id";
 
+    /**
+     * System property: bearer token sent at the WebSocket handshake. Required when the kompanion is started with
+     * {@code kaoto.kompanion.worker-token}, otherwise it rejects the connection with 401.
+     */
+    public static final String TOKEN_PROPERTY = "kaoto.kompanion.token";
+
     /** Factory for the transport; tests inject a stub through the package-private constructor. */
     private final BiFunction<KompanionAddress, BridgeLifecycleStrategy, WorkerWebSocketClient> clientFactory;
 
@@ -45,6 +51,7 @@ public class KaotoCamelBridge implements CamelContextCustomizer, CamelConfigurat
                 address.toUri(),
                 address.host() + ":" + address.port(),
                 address.executionId(),
+                System.getProperty(TOKEN_PROPERTY),
                 strategy::handleCommand));
     }
 

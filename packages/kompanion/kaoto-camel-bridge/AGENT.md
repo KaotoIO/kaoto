@@ -2,7 +2,8 @@
 
 A host-agnostic Java library that is added to a running Camel application and connects it to the
 Kaoto Companion over WebSocket. It is a strict no-op when the two required system properties
-(`kaoto.companion.address` and `kaoto.companion.execution-id`) are absent.
+(`kaoto.kompanion.address` and `kaoto.kompanion.execution-id`) are absent. `kaoto.kompanion.token`
+is sent as bearer token at the handshake when the companion requires one.
 
 ## Sub-modules
 

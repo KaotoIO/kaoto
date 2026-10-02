@@ -26,15 +26,26 @@ public class WorkerWebSocketClient implements AutoCloseable {
     private final String uri;
     private final String hostPort;
     private final String executionId;
+    private final String token;
     private final Consumer<InboundMessage> onCommand;
     private volatile WebSocket ws;
     private final Object sendLock = new Object();
     private CompletableFuture<?> sendChain = CompletableFuture.completedFuture(null);
 
     public WorkerWebSocketClient(String uri, String hostPort, String executionId, Consumer<InboundMessage> onCommand) {
+        this(uri, hostPort, executionId, null, onCommand);
+    }
+
+    /**
+     * @param token bearer token sent as {@code Authorization} header at the handshake, or null when the kompanion does
+     *     not require one
+     */
+    public WorkerWebSocketClient(
+            String uri, String hostPort, String executionId, String token, Consumer<InboundMessage> onCommand) {
         this.uri = uri;
         this.hostPort = hostPort;
         this.executionId = executionId;
+        this.token = token;
         this.onCommand = onCommand;
     }
 
@@ -49,10 +60,12 @@ public class WorkerWebSocketClient implements AutoCloseable {
         }
         LOG.info("Connecting to Kaoto kompanion at " + uri);
         try {
-            ws = HttpClient.newHttpClient()
-                    .newWebSocketBuilder()
-                    .connectTimeout(CONNECT_TIMEOUT)
-                    .buildAsync(URI.create(uri), new Listener(mapper, onCommand))
+            WebSocket.Builder builder =
+                    HttpClient.newHttpClient().newWebSocketBuilder().connectTimeout(CONNECT_TIMEOUT);
+            if (token != null && !token.isBlank()) {
+                builder.header("Authorization", "Bearer " + token);
+            }
+            ws = builder.buildAsync(URI.create(uri), new Listener(mapper, onCommand))
                     .join();
             LOG.info("Connected to Kaoto kompanion (execution: " + executionId + ")");
             return true;
