@@ -1,14 +1,6 @@
 import { describe, expect, expectTypeOf, it, vi } from 'vitest';
 
 import {
-  CanvasLayoutDirection,
-  CatalogKind,
-  ColorScheme,
-  NodeLabelType,
-  NodeToolbarTrigger,
-  StepUpdateAction,
-} from './domain.js';
-import {
   eventCatalog,
   type IEventBus,
   isJsonValue,
@@ -17,6 +9,14 @@ import {
   type KaotoResponses,
   requestCatalog,
 } from './contracts.js';
+import {
+  CanvasLayoutDirection,
+  CatalogKind,
+  ColorScheme,
+  NodeLabelType,
+  NodeToolbarTrigger,
+  StepUpdateAction,
+} from './domain.js';
 import { createEventBus } from './event-bus.js';
 
 describe('local host bridge endpoint', () => {
