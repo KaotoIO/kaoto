@@ -28,6 +28,10 @@
     "./testing": {
       "types": "./lib/testing-api.d.ts",
       "import": "./lib/testing-api.js"
+    },
+    "./webview": {
+      "types": "./lib/webview-entry.d.ts",
+      "import": "./lib/webview-entry.js"
     }
   },
   "sideEffects": [
@@ -40,6 +44,7 @@
   "scripts": {
     "start": "vite --mode=dev",
     "build": "tsc && vite build --config vite.config.mjs",
+    "build:webview": "vite build --config vite.config.webview.mjs",
     "build:dev": "tsc && vite build --mode=dev --config vite.config.mjs",
     "build:lib": "yarn rimraf ./lib && tsc --project tsconfig.lib.json && copyfiles -u 1 './src/**/*.scss' './src/assets/**' ./lib && yarn write-version",
     "write-version": "node ./scripts/write-version-file.mjs",
