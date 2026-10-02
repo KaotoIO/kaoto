@@ -27,7 +27,7 @@ import {
   withContextMenu,
   withSelection,
 } from '@patternfly/react-topology';
-import { FunctionComponent, useContext, useMemo, useRef } from 'react';
+import { FunctionComponent, useCallback, useContext, useMemo, useRef } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
@@ -122,6 +122,28 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     useAnchor((element: Node) => {
       return new TargetAnchor(element);
     }, AnchorEnd.both);
+
+    // handleKeyDown must be declared before any early return to satisfy Rules of Hooks
+    const handleKeyDown = useCallback(
+      (event: React.KeyboardEvent<SVGGElement>) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onSelect?.(event as unknown as React.MouseEvent);
+        } else if ((event.key === 'F10' && event.shiftKey) || event.key === 'ContextMenu') {
+          event.preventDefault();
+          // Position the context menu at the bottom-left of the node (keyboard convention)
+          const rect = event.currentTarget.getBoundingClientRect?.() ?? { left: 0, bottom: 0 };
+          onContextMenu?.({
+            preventDefault: () => {},
+            stopPropagation: () => {},
+            clientX: rect.left,
+            clientY: rect.bottom,
+            currentTarget: event.currentTarget,
+          } as unknown as React.MouseEvent);
+        }
+      },
+      [onContextMenu, onSelect],
+    );
 
     if (!vizNode) {
       return null;
@@ -248,7 +270,12 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
           data-disabled={isDisabled}
           data-toolbar-open={shouldShowToolbar}
           data-warning={doesHaveWarnings}
+          tabIndex={selected ? 0 : -1}
+          role="button"
+          aria-label={label}
+          aria-pressed={selected}
           onClick={onSelect}
+          onKeyDown={handleKeyDown}
           onContextMenu={onContextMenu}
         >
           {/** The original node (appears when nothing is dragging, it also acts as the dragged node when node drag action is performed.

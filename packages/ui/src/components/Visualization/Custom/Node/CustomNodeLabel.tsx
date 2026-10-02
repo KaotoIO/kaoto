@@ -40,7 +40,7 @@ export const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
       })}
     >
       {doesHaveWarnings && (
-        <Icon status="danger" title={validationText} data-warning={doesHaveWarnings}>
+        <Icon status="danger" aria-label={validationText || 'Warning'} role="img" data-warning={doesHaveWarnings}>
           <ExclamationCircleIcon />
         </Icon>
       )}

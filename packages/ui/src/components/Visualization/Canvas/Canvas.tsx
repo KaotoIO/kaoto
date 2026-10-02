@@ -24,11 +24,13 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 
 import { CatalogModalContext } from '../../../dynamic-catalog/catalog-modal.provider';
 import { useLocalStorage, useSelectedNodePanIntoView, useSelectedVizNode } from '../../../hooks';
+import { CANVAS_MAIN_ID } from '../../../layout/Shell';
 import { LocalStorageKeys } from '../../../models';
 import { CanvasLayoutDirection } from '../../../models/settings/settings.model';
 import { SettingsContext } from '../../../providers/settings.provider';
@@ -41,6 +43,7 @@ import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
 import { CanvasSideBar } from './CanvasSideBar';
 import { consumeNodeSelection } from './node-selection-state';
+import { useArrowKeyNavigation } from './use-arrow-key-navigation.hook';
 
 interface CanvasProps {
   nodes: CanvasNode[];
@@ -92,8 +95,21 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     }
   }, [controller, isGraphEmpty, isModelResolving]);
 
+  /** Track which viz-node id was selected so focus can return to it on sidebar close */
+  const selectedVizNodeIdRef = useRef<string | undefined>(undefined);
+
   const clearSelection = useCallback(() => {
+    const vizNodeId = selectedVizNodeIdRef.current;
     setSelectedIds([]);
+    requestAnimationFrame(() => {
+      // Prefer restoring focus to the canvas node that was selected (matches any type: custom-node, placeholder-node, custom-group)
+      const canvasNode = vizNodeId ? document.querySelector<HTMLElement>(`[data-testid$="__${vizNodeId}"]`) : null;
+      if (canvasNode) {
+        canvasNode.focus({ preventScroll: true });
+      } else {
+        document.getElementById(CANVAS_MAIN_ID)?.focus({ preventScroll: true });
+      }
+    });
   }, []);
 
   const selectedVizNode = useSelectedVizNode(selectedIds);
@@ -212,7 +228,33 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     [clearSelection],
   );
 
+  useArrowKeyNavigation();
+
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        clearSelection();
+      }
+    },
+    [clearSelection],
+  );
+
   const isSidebarOpen = useMemo(() => selectedIds.length > 0, [selectedIds.length]);
+
+  /** Track the selected node id and move focus to the search bar when sidebar opens */
+  useEffect(() => {
+    if (selectedVizNode) {
+      selectedVizNodeIdRef.current = selectedVizNode.id;
+      requestAnimationFrame(() => {
+        const searchInput = document.querySelector<HTMLElement>('[data-testid="filter-fields"] input');
+        // preventScroll: the drawer panel is still sliding in from off-screen at this point, so a plain
+        // focus() would scroll the drawer's overflow container and make the canvas jump sideways
+        searchInput?.focus({ preventScroll: true });
+      });
+    } else {
+      selectedVizNodeIdRef.current = undefined;
+    }
+  }, [selectedVizNode]);
 
   if (isModelResolving) {
     return null;
@@ -220,6 +262,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
 
   return (
     <TopologyView
+      id={CANVAS_MAIN_ID}
       className={clsx({ hidden: !initialized })}
       defaultSideBarSize={sidebarWidth + 'px'}
       minSideBarSize="210px"
@@ -230,6 +273,9 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       contextToolbar={contextToolbar}
       controlBar={<TopologyControlBar controlButtons={controlButtons} />}
       onClick={handleCanvasClick}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      aria-label="Route canvas"
     >
       <VisualizationSurface state={{ selectedIds }} />
     </TopologyView>

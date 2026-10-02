@@ -6,9 +6,12 @@ exports[`PlaceholderNode > isSpecialChildPlaceholder > should render CodeBranchI
     data-testid="mock-layer"
   >
     <g
+      aria-label="Add test-placeholder"
       class="placeholder-node"
       data-nodelabel="test-placeholder"
       data-testid="placeholder-node__test-placeholder"
+      role="button"
+      tabindex="-1"
     >
       <foreignobject
         data-nodelabel="test-placeholder"
@@ -64,9 +67,12 @@ exports[`PlaceholderNode > isSpecialChildPlaceholder > should render PlusCircleI
     data-testid="mock-layer"
   >
     <g
+      aria-label="Add test-placeholder"
       class="placeholder-node"
       data-nodelabel="test-placeholder"
       data-testid="placeholder-node__test-placeholder"
+      role="button"
+      tabindex="-1"
     >
       <foreignobject
         data-nodelabel="test-placeholder"
@@ -122,9 +128,12 @@ exports[`PlaceholderNode > isSpecialChildPlaceholder > should render PlusCircleI
     data-testid="mock-layer"
   >
     <g
+      aria-label="Add test-placeholder"
       class="placeholder-node"
       data-nodelabel="test-placeholder"
       data-testid="placeholder-node__test-placeholder"
+      role="button"
+      tabindex="-1"
     >
       <foreignobject
         data-nodelabel="test-placeholder"

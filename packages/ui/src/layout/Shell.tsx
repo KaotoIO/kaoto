@@ -1,12 +1,14 @@
 import './Shell.scss';
 
-import { Page, PageSection } from '@patternfly/react-core';
-import { FunctionComponent, PropsWithChildren, useCallback, useMemo } from 'react';
+import { Page, PageSection, SkipToContent } from '@patternfly/react-core';
+import { FunctionComponent, MouseEvent, PropsWithChildren, useCallback, useMemo } from 'react';
 
 import { useLocalStorage } from '../hooks/local-storage.hook';
 import { LocalStorageKeys } from '../models';
 import { Navigation } from './Navigation';
 import { TopBar } from './TopBar';
+
+export const CANVAS_MAIN_ID = 'canvas-main';
 
 const NOOP_PAGE_RESIZE = () => {};
 
@@ -25,6 +27,19 @@ export const Shell: FunctionComponent<PropsWithChildren> = (props) => {
     setIsNavOpen(!isNavOpen);
   }, [isNavOpen, setIsNavOpen]);
 
+  /**
+   * Skip-link click handler: the browser's native anchor navigation scrolls to
+   * the target but does NOT auto-focus non-native elements (divs with tabIndex).
+   * We explicitly call .focus() so keyboard and AT users land on the canvas.
+   */
+  const handleSkipToCanvas = useCallback((e: MouseEvent) => {
+    e.preventDefault();
+    const target = document.getElementById(CANVAS_MAIN_ID);
+    if (target) {
+      target.focus();
+    }
+  }, []);
+
   return (
     <Page
       isContentFilled
@@ -35,6 +50,12 @@ export const Shell: FunctionComponent<PropsWithChildren> = (props) => {
       onPageResize={NOOP_PAGE_RESIZE}
       masthead={<TopBar navToggle={navToggle} />}
       sidebar={<Navigation isNavOpen={isNavOpen} />}
+      skipToContent={
+        /* WCAG 2.4.1 Bypass Blocks — lets keyboard/AT users jump past page chrome */
+        <SkipToContent href={`#${CANVAS_MAIN_ID}`} onClick={handleSkipToCanvas}>
+          Skip to canvas
+        </SkipToContent>
+      }
     >
       <PageSection isFilled hasBodyWrapper={false} className="shell__page-section">
         {props.children}
