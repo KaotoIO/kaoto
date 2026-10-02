@@ -9,7 +9,6 @@ import { TopmostArrayTable } from './TopmostArrayTable';
 
 interface MetadataEditorProps {
   name: string;
-  disabled?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   schema: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -26,14 +25,6 @@ export const MetadataEditor: FunctionComponent<MetadataEditorProps> = (props) =>
   const [selected, setSelected] = useState(-1);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [preparedModel, setPreparedModel] = useState<any>(null);
-  const [previousMetadata, setPreviousMetadata] = useState(props.metadata);
-
-  // Accept source edits before rendering the existing details form. Local drafts
-  // remain available until the parent supplies a new metadata model.
-  if (previousMetadata !== props.metadata) {
-    setPreviousMetadata(props.metadata);
-    setPreparedModel(null);
-  }
 
   function isFormDisabled() {
     const targetModel = preparedModel ?? props.metadata;
@@ -66,7 +57,7 @@ export const MetadataEditor: FunctionComponent<MetadataEditorProps> = (props) =>
   }
 
   return (
-    <Split hasGutter inert={props.disabled || undefined}>
+    <Split hasGutter>
       <SplitItem className="metadata-editor-modal-list-view">
         <TopmostArrayTable
           model={preparedModel === null ? props.metadata : preparedModel}

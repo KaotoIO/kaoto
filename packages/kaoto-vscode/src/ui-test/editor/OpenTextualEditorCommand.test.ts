@@ -17,12 +17,11 @@ import { By, EditorView, Key, TextEditor, until, VSBrowser, Workbench } from 'vs
 import { expect } from 'chai';
 import * as path from 'path';
 import * as os from 'os';
-import { copyFile, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { copyFile, mkdtemp, readFile, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { clickWhenClickable, dismissHoverOverlay, openAndSwitchToKaotoFrame, switchToKaotoFrame } from '../utils/editor';
 import { KaotoCanvas } from '../pageObjects/KaotoCanvas';
 import { KaotoEditor } from '../pageObjects/KaotoEditor';
-import { EditorTabs } from '../pageObjects/EditorTabs';
 import { openResourcesAndWaitForActivation } from '../utils/extension';
 import { dismissBlockingModal } from '../utils/workbench';
 
@@ -109,13 +108,12 @@ describe('Toggle Source Code', function () {
 		expect(groupsNum).to.equal(1);
 	});
 
-	it('synchronizes step IDs in both directions without remounting the properties panel', async function () {
+	it('synchronizes step IDs between the properties panel and source editor', async function () {
 		const driver = VSBrowser.instance.driver;
 		await waitForEditorGroupsLength(2);
 		const original = await readFile(path.join(temporaryFolder, CAMEL_FILE), 'utf8');
 		await editorView.openEditor(CAMEL_FILE, 0);
 		const canvas = await switchToKaotoFrame(driver, true, CAMEL_FILE);
-		let propertiesHeaderId = '';
 		try {
 			const log = await KaotoCanvas.findNodeByInnerTestId(driver, 'route.from.steps.0.log');
 			await dismissHoverOverlay(driver);
@@ -124,7 +122,6 @@ describe('Toggle Source Code', function () {
 			await clickWhenClickable(driver, await driver.findElement(By.id('All')));
 			const id = await driver.findElement(By.css('input[name="#.id"]'));
 			await driver.wait(until.elementIsVisible(id), 5_000, 'Step ID field did not become visible');
-			propertiesHeaderId = await driver.findElement(By.css('[data-testid="close-side-bar"]')).getId();
 			await id.sendKeys('log-from-properties', Key.TAB);
 		} finally {
 			await canvas.kaotoWebview.switchBack();
@@ -140,342 +137,29 @@ describe('Toggle Source Code', function () {
 		expect(await canvas.kaotoEditor.isDirty()).to.equal(true);
 		expect(await readFile(path.join(temporaryFolder, CAMEL_FILE), 'utf8')).to.equal(original);
 
-		await source.setText((await source.getText()).replace('log-from-properties', 'log-from-source'));
+		// Change the route ID as well so the canvas exposes when this source update has arrived.
+		await source.setText((await source.getText()).replace('log-from-properties', 'log-from-source').replace('camelroute51', 'source-synced-route'));
 		await editorView.openEditor(CAMEL_FILE, 0);
 		const refreshed = await switchToKaotoFrame(driver, false, CAMEL_FILE);
 		try {
+			await KaotoEditor.waitForIntegrationName(driver, 'source-synced-route');
+			const log = await KaotoCanvas.findNodeByInnerTestId(driver, 'route.from.steps.0.log');
+			await dismissHoverOverlay(driver);
+			await clickWhenClickable(driver, log);
+			await KaotoEditor.waitForPropertyPanel(driver);
+			await clickWhenClickable(driver, await driver.findElement(By.id('All')));
 			await driver.wait(
 				async () => {
 					const inputs = await driver.findElements(By.css('input[name="#.id"]'));
 					return inputs.length === 1 && (await inputs[0].isDisplayed()) && (await inputs[0].getAttribute('value')) === 'log-from-source';
 				},
 				5_000,
-				'Properties panel did not stay open with the ID from source',
+				'Properties panel did not show the ID from source after reopening',
 			);
-			expect(await driver.findElement(By.css('[data-testid="close-side-bar"]')).getId(), 'Properties header was remounted').to.equal(propertiesHeaderId);
 		} finally {
 			await refreshed.kaotoWebview.switchBack();
 		}
 	});
-
-	for (const hasRouteId of [true, false]) {
-		it(`keeps properties open for source-only edits (explicit route ID: ${hasRouteId})`, async function () {
-			this.timeout(60_000);
-			const driver = VSBrowser.instance.driver;
-			await editorView.closeAllEditors();
-			const filename = 'source-refresh.camel.yaml';
-			const original = await readFile(path.join(WORKSPACE_FOLDER, CAMEL_FILE), 'utf8');
-			const sourceText = hasRouteId ? original : original.replace('    id: camelroute51\n', '');
-			await writeFile(path.join(temporaryFolder, filename), sourceText);
-			const canvas = await openAndSwitchToKaotoFrame(temporaryFolder, filename, driver, true);
-			const log = await KaotoCanvas.findNodeByInnerTestId(driver, 'route.from.steps.0.log');
-			await dismissHoverOverlay(driver);
-			await clickWhenClickable(driver, log);
-			await KaotoEditor.waitForPropertyPanel(driver);
-			await clickWhenClickable(driver, await driver.findElement(By.id('All')));
-			const headerId = await driver.findElement(By.css('[data-testid="close-side-bar"]')).getId();
-			await canvas.kaotoWebview.switchBack();
-			await clickEditorAction(editorView, actionTitle);
-			await waitForEditorGroupsLength(2);
-			const source = new TextEditor(await editorView.getEditorGroup(1));
-			await source.click();
-			await source.setText(sourceText.replace('- log:\n', '- log:\n            id: source-only-id\n'));
-			await editorView.openEditor(filename, 0);
-			const refreshed = await switchToKaotoFrame(driver, false, filename);
-			try {
-				await driver.wait(
-					async () => {
-						const inputs = await driver.findElements(By.css('input[name="#.id"]'));
-						return inputs.length === 1 && (await inputs[0].getAttribute('value')) === 'source-only-id';
-					},
-					5_000,
-					'Properties panel closed or failed to refresh after a source-only edit',
-				);
-				expect(await driver.findElement(By.css('[data-testid="close-side-bar"]')).getId()).to.equal(headerId);
-			} finally {
-				await refreshed.kaotoWebview.switchBack();
-			}
-		});
-	}
-
-	it('refreshes a setBody expression without replacing its subform', async function () {
-		this.timeout(60_000);
-		const driver = VSBrowser.instance.driver;
-		await editorView.closeAllEditors();
-		const filename = 'expression-refresh.camel.yaml';
-		const original = [
-			'- route:',
-			'    from:',
-			'      uri: timer:test',
-			'      steps:',
-			'        - setBody:',
-			'            expression:',
-			'              simple:',
-			'                expression: before',
-			'',
-		].join('\n');
-		await writeFile(path.join(temporaryFolder, filename), original);
-		const canvas = await openAndSwitchToKaotoFrame(temporaryFolder, filename, driver, true);
-		const setBody = await KaotoCanvas.findNodeByInnerTestId(driver, 'route.from.steps.0.setBody');
-		await dismissHoverOverlay(driver);
-		await clickWhenClickable(driver, setBody);
-		await KaotoEditor.waitForPropertyPanel(driver);
-		await clickWhenClickable(driver, await driver.findElement(By.id('All')));
-		const expression = await driver.wait(until.elementLocated(By.css('textarea[name="simple.expression"]')), 5_000);
-		const expressionId = await expression.getId();
-		await canvas.kaotoWebview.switchBack();
-		await clickEditorAction(editorView, actionTitle);
-		await waitForEditorGroupsLength(2);
-		const source = new TextEditor(await editorView.getEditorGroup(1));
-		await source.click();
-		await source.setText(original.replace('expression: before', 'expression: after'));
-		await editorView.openEditor(filename, 0);
-		const refreshed = await switchToKaotoFrame(driver, false, filename);
-		try {
-			await driver.wait(
-				async () => {
-					const inputs = await driver.findElements(By.css('textarea[name="simple.expression"]'));
-					return inputs.length === 1 && (await inputs[0].getAttribute('value')) === 'after';
-				},
-				5_000,
-				'Expression did not refresh from source',
-			);
-			expect(await driver.findElement(By.css('textarea[name="simple.expression"]')).getId(), 'Expression input was remounted').to.equal(expressionId);
-		} finally {
-			await refreshed.kaotoWebview.switchBack();
-		}
-	});
-
-	it('refreshes AMQP endpoint properties without showing loading placeholders', async function () {
-		this.timeout(60_000);
-		const driver = VSBrowser.instance.driver;
-		await editorView.closeAllEditors();
-		const filename = 'amqp-refresh.camel.yaml';
-		const original = [
-			'- route:',
-			'    from:',
-			'      uri: timer:test',
-			'      steps:',
-			'        - to:',
-			'            uri: amqp',
-			'            parameters:',
-			'              destinationName: before',
-			'              connectionFactory: "#factory"',
-			'',
-		].join('\n');
-		await writeFile(path.join(temporaryFolder, filename), original);
-		const canvas = await openAndSwitchToKaotoFrame(temporaryFolder, filename, driver, true);
-		const amqp = await KaotoCanvas.findNodeByInnerTestId(driver, 'route.from.steps.0.to');
-		await dismissHoverOverlay(driver);
-		await clickWhenClickable(driver, amqp);
-		await KaotoEditor.waitForPropertyPanel(driver);
-		await clickWhenClickable(driver, await driver.findElement(By.id('All')));
-		await canvas.kaotoWebview.switchBack();
-		await clickEditorAction(editorView, actionTitle);
-		await waitForEditorGroupsLength(2);
-		const observed = await switchToKaotoFrame(driver, false, filename);
-		const connectionFactory = By.css('input[aria-label="Connection Factory"]');
-		await driver.wait(until.elementLocated(connectionFactory), 5_000);
-		await driver.wait(async () => (await driver.findElements(By.css('.canvas-form [aria-label="Loading"]'))).length === 0, 5_000);
-		const connectionFactoryId = await driver.findElement(connectionFactory).getId();
-		// Observe transient placeholders too: the same input can be hidden by Suspense
-		// and restored between two WebDriver polls without changing its element ID.
-		await driver.executeScript(`
-			const observation = { loadingShown: false };
-			const observer = new MutationObserver((records) => {
-				for (const record of records) {
-					for (const node of record.addedNodes) {
-						if (node instanceof Element &&
-							(node.matches('[aria-label="Loading"]') || node.querySelector('[aria-label="Loading"]'))) {
-							observation.loadingShown = true;
-						}
-					}
-				}
-			});
-			observer.observe(document.querySelector('.canvas-form'), { childList: true, subtree: true });
-			window.__kaotoEndpointObservation = { observation, observer };
-		`);
-		await observed.kaotoWebview.switchBack();
-		const source = new TextEditor(await editorView.getEditorGroup(1));
-		await source.click();
-		await source.setText(original.replace('destinationName: before', 'destinationName: after'));
-		await editorView.openEditor(filename, 0);
-		const refreshed = await switchToKaotoFrame(driver, false, filename);
-		try {
-			await driver.wait(
-				async () => {
-					const inputs = await driver.findElements(By.css('input[aria-label="Destination Name"]'));
-					return inputs.length === 1 && (await inputs[0].getAttribute('value')) === 'after';
-				},
-				5_000,
-				'AMQP destination did not refresh from source',
-			);
-			expect(await driver.findElement(connectionFactory).getId(), 'Connection Factory input was remounted').to.equal(connectionFactoryId);
-			expect(
-				await driver.executeScript('return window.__kaotoEndpointObservation.observation.loadingShown;'),
-				'Endpoint properties showed a loading placeholder',
-			).to.equal(false);
-		} finally {
-			await driver.executeScript('window.__kaotoEndpointObservation.observer.disconnect(); delete window.__kaotoEndpointObservation;');
-			await refreshed.kaotoWebview.switchBack();
-		}
-	});
-
-	it('refreshes a newly created bean from source without reloading its details', async function () {
-		this.timeout(60_000);
-		const driver = VSBrowser.instance.driver;
-		await waitForEditorGroupsLength(2);
-		await editorView.openEditor(CAMEL_FILE, 0);
-		const canvas = await switchToKaotoFrame(driver, true, CAMEL_FILE);
-		await new EditorTabs().switchToTab('Beans editor');
-		await EditorTabs.waitForBeansTab(driver);
-		await driver.findElement(By.css('[data-testid="metadata-add-Beans-btn"]')).click();
-		await driver.findElement(By.css('input[name="#.name"]')).sendKeys('myBean', Key.TAB);
-		await driver.findElement(By.css('input[name="#.type"]')).sendKeys('org.example.MyBean', Key.TAB);
-		await driver.findElement(By.css('[data-testid="#.properties__add"]')).click();
-		await driver.findElement(By.css('input[placeholder="Write a key"]')).sendKeys('message', Key.TAB);
-		const property = By.css('input[placeholder="Write a value"]');
-		await driver.findElement(property).sendKeys('before', Key.TAB);
-		const propertyId = await driver.findElement(property).getId();
-		await driver.executeScript(`
-			const observation = { loadingShown: false };
-			const observer = new MutationObserver((records) => {
-				observation.loadingShown ||= records.some((record) =>
-					Array.from(record.addedNodes).some((node) => node instanceof Element &&
-						(node.matches('[aria-label="Loading"]') || node.querySelector('[aria-label="Loading"]'))));
-			});
-			observer.observe(document.querySelector('#envelope-app'), { childList: true, subtree: true });
-			window.__kaotoBeansObservation = { observation, observer };
-		`);
-		await canvas.kaotoWebview.switchBack();
-		const source = new TextEditor(await editorView.getEditorGroup(1));
-		await source.click();
-		let sourceText = '';
-		await driver.wait(
-			async () => {
-				sourceText = await source.getText();
-				return sourceText.includes('myBean') && sourceText.includes('before');
-			},
-			5_000,
-			'New bean was not synchronized to source',
-		);
-		await source.setText(sourceText.replace('before', 'after'));
-		await editorView.openEditor(CAMEL_FILE, 0);
-		const refreshed = await switchToKaotoFrame(driver, false, CAMEL_FILE);
-		try {
-			await driver.wait(
-				async () => (await driver.findElement(property).getAttribute('value')) === 'after',
-				5_000,
-				'Bean properties did not refresh from source',
-			);
-			expect(await driver.findElement(property).getId(), 'Bean property input was remounted').to.equal(propertyId);
-			expect(
-				await driver.executeScript('return window.__kaotoBeansObservation.observation.loadingShown;'),
-				'Beans page showed a loading placeholder',
-			).to.equal(false);
-			await driver.findElement(property).sendKeys('-edited', Key.TAB);
-		} finally {
-			await driver.executeScript('window.__kaotoBeansObservation.observer.disconnect(); delete window.__kaotoBeansObservation;');
-			await refreshed.kaotoWebview.switchBack();
-		}
-		await source.click();
-		await driver.wait(async () => (await source.getText()).includes('after-edited'), 5_000, 'Bean edits stopped updating source after an external change');
-	});
-
-	for (const rest of [
-		{ type: 'Configuration', node: '[id$="::restConfiguration"]', property: 'host', before: 'localhost', after: 'example.org' },
-		{ type: 'Service', node: '[id="rest-1::rest"]', property: 'path', before: '/api', after: '/api/v2' },
-		{ type: 'Service ID', node: '[id="rest-1::rest"]', property: 'id', before: 'rest-1', after: 'renamed-rest' },
-		{ type: 'Operation', node: '[id="rest-1::rest.get.0"]', property: 'path', before: '/users', after: '/people' },
-	]) {
-		it(`refreshes REST ${rest.type} from source without reloading its form`, async function () {
-			this.timeout(60_000);
-			const driver = VSBrowser.instance.driver;
-			await waitForEditorGroupsLength(2);
-			const source = new TextEditor(await editorView.getEditorGroup(1));
-			const original =
-				(await readFile(path.join(temporaryFolder, CAMEL_FILE), 'utf8')) +
-				[
-					'',
-					'- restConfiguration:',
-					'    host: localhost',
-					'- rest:',
-					'    id: rest-1',
-					'    path: /api',
-					'    get:',
-					'      - id: get-1',
-					'        path: /users',
-					'        to:',
-					'          uri: direct:before',
-					'',
-				].join('\n');
-			await source.setText(original);
-			await editorView.openEditor(CAMEL_FILE, 0);
-			const canvas = await switchToKaotoFrame(driver, false, CAMEL_FILE);
-			await new EditorTabs().switchToTab('Rest editor');
-			const treeNode = await driver.wait(until.elementLocated(By.css(`.rest-tree ${rest.node}`)), 5_000);
-			await clickWhenClickable(driver, await treeNode.findElement(By.id(`${await treeNode.getAttribute('id')}__label`)));
-			const property = By.css(`input[name="#.${rest.property}"]`);
-			await driver.wait(until.elementLocated(property), 5_000);
-			expect(await driver.findElement(property).getAttribute('value'), 'Wrong REST tree selection').to.equal(rest.before);
-			await driver.wait(async () => (await driver.findElements(By.css('.rest-right-panel [aria-label="Loading"]'))).length === 0, 5_000);
-			const propertyId = await driver.findElement(property).getId();
-			const endpoint = By.css('input[aria-label="Endpoint Name"]');
-			const endpointId = rest.type === 'Operation' ? await driver.findElement(endpoint).getId() : undefined;
-			await driver.executeScript(`
-				const observation = { loadingShown: false };
-				const observer = new MutationObserver((records) => {
-					observation.loadingShown ||= records.some((record) =>
-						Array.from(record.addedNodes).some((node) => node instanceof Element &&
-							(node.matches('[aria-label="Loading"]') || node.querySelector('[aria-label="Loading"]'))));
-				});
-				observer.observe(document.querySelector('#envelope-app'), { childList: true, subtree: true });
-				window.__kaotoRestObservation = { observation, observer };
-			`);
-			await canvas.kaotoWebview.switchBack();
-			await source.click();
-			await source.setText(original.replace(rest.before, rest.after).replace('direct:before', 'direct:after'));
-			await editorView.openEditor(CAMEL_FILE, 0);
-			const refreshed = await switchToKaotoFrame(driver, false, CAMEL_FILE);
-			try {
-				await driver.wait(
-					async () => (await driver.findElement(property).getAttribute('value')) === rest.after,
-					5_000,
-					'REST property did not refresh',
-				);
-				expect(await driver.findElement(property).getId(), 'REST property input was remounted').to.equal(propertyId);
-				if (rest.property === 'id') {
-					expect(await driver.findElement(By.css('.rest-tree')).getText()).to.contain(rest.after);
-				}
-				if (endpointId) {
-					await driver.wait(
-						async () => (await driver.findElement(endpoint).getAttribute('value')) === 'after',
-						5_000,
-						'REST endpoint did not refresh',
-					);
-					expect(await driver.findElement(endpoint).getId(), 'REST endpoint input was remounted').to.equal(endpointId);
-				}
-				expect(
-					await driver.executeScript('return window.__kaotoRestObservation.observation.loadingShown;'),
-					'REST form showed a loading placeholder',
-				).to.equal(false);
-				await driver.findElement(property).sendKeys(Key.END, '-edited', Key.TAB);
-				if (rest.property === 'id') {
-					await driver.wait(
-						async () => (await driver.findElement(By.css('.rest-tree')).getText()).includes(`${rest.after}-edited`),
-						5_000,
-						'REST service label did not follow the ID edited in the form',
-					);
-					expect(await driver.findElement(By.css('.form-rest-title')).getText()).to.contain(`${rest.after}-edited`);
-				}
-			} finally {
-				await driver.executeScript('window.__kaotoRestObservation.observer.disconnect(); delete window.__kaotoRestObservation;');
-				await refreshed.kaotoWebview.switchBack();
-			}
-			await source.click();
-			await driver.wait(async () => (await source.getText()).includes(`${rest.after}-edited`), 5_000, 'REST edits stopped updating source');
-		});
-	}
 
 	it('saves source changes and restores the same canvas after window reload', async function () {
 		const driver = VSBrowser.instance.driver;

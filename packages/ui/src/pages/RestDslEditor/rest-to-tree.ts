@@ -75,7 +75,7 @@ export const restToTree = (restEntities: RestEntity[]): RestTreeNode[] => {
     });
 
     return {
-      id: restDef.id ?? entityId,
+      id: entityId,
       entityId: entityId,
       type: 'rest',
       label: 'Rest',

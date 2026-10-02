@@ -1,7 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { CanvasFormTabsProvider } from '@kaoto/forms';
-import { action, isNode, Point, SELECTION_EVENT, VisualizationProvider } from '@patternfly/react-topology';
+import { action, isNode, Point, VisualizationProvider } from '@patternfly/react-topology';
 import { act, fireEvent, render, RenderResult, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
@@ -619,87 +619,6 @@ describe('Canvas', () => {
       );
     expect(remountedRouteGroup && isNode(remountedRouteGroup) && remountedRouteGroup.isCollapsed()).toBe(true);
   });
-
-  it.each([false, true])(
-    'refreshes the selected step without remounting its properties panel (resolving: %s)',
-    async (resolving) => {
-      setupDynamicCatalogRegistry(await getFirstCatalogMap(catalogLibrary as CatalogLibrary));
-      const { Provider } = await TestProvidersWrapper();
-      const controller = ControllerService.createController();
-      const route = (id: string) =>
-        new CamelRouteVisualEntity({
-          route: { id: 'route-1', from: { uri: 'timer:test', steps: [{ log: { id, message: 'Hello' } }] } },
-        });
-      const initial = getCanvasPropsFromVizNodes([await route('log-before').toVizNode()], 1);
-      const updated = getCanvasPropsFromVizNodes([await route('log-after').toVizNode()], 1);
-      const updatedStep = updated.nodes.find((node) => node.id === 'route-1|route.from.steps.0.log')!.data!.vizNode!;
-      const fetchSchema = updatedStep.fetchSchema.bind(updatedStep);
-      let finishSchema!: () => void;
-      vi.spyOn(updatedStep, 'fetchSchema').mockImplementation(async () => {
-        await new Promise<void>((resolve) => {
-          finishSchema = resolve;
-        });
-        return fetchSchema();
-      });
-      const withoutStep = getCanvasPropsFromVizNodes(
-        [
-          await new CamelRouteVisualEntity({
-            route: { id: 'route-1', from: { uri: 'timer:test', steps: [] } },
-          }).toVizNode(),
-        ],
-        1,
-      );
-      const wrapper = ({ children }: { children: React.ReactNode }) => (
-        <Provider>
-          <CanvasFormTabsProvider>
-            <VisualizationProvider controller={controller}>{children}</VisualizationProvider>
-          </CanvasFormTabsProvider>
-        </Provider>
-      );
-      const { rerender } = render(<Canvas {...initial} />, { wrapper });
-      await act(async () => {
-        await vi.runAllTimersAsync();
-      });
-
-      act(() => {
-        controller.fireEvent(SELECTION_EVENT, ['route-1|route.from.steps.0.log']);
-      });
-      fireEvent.click((await screen.findAllByRole('button', { name: 'All' }))[0]);
-      const idInput = await screen.findByDisplayValue('log-before');
-      const closeButton = screen.getByTestId('close-side-bar');
-      const filter = screen.getByPlaceholderText('Find properties by name');
-      fireEvent.change(filter, { target: { value: 'id' } });
-
-      if (resolving) {
-        rerender(<Canvas nodes={[]} edges={[]} isModelResolving />);
-        expect(idInput).toBeInTheDocument();
-        expect(filter).toHaveValue('id');
-        expect(idInput.closest('[inert]')).not.toBeNull();
-      }
-      rerender(<Canvas {...updated} />);
-      expect(idInput).toBeInTheDocument();
-      expect(idInput.closest('[inert]')).not.toBeNull();
-      await act(async () => {
-        finishSchema();
-      });
-      expect(await screen.findByDisplayValue('log-after')).toBeInTheDocument();
-      expect(filter.closest('[inert]')).toBeNull();
-      expect(filter).toBeInTheDocument();
-      expect(filter).toHaveValue('id');
-      expect(screen.getByTestId('close-side-bar')).toBe(closeButton);
-
-      rerender(<Canvas {...withoutStep} />);
-      await waitFor(() => {
-        expect(screen.queryByTestId('close-side-bar')).not.toBeInTheDocument();
-      });
-      rerender(<Canvas {...updated} />);
-      await act(async () => {
-        await vi.runAllTimersAsync();
-      });
-      expect(screen.queryByTestId('close-side-bar')).not.toBeInTheDocument();
-    },
-    30_000,
-  );
 
   it.each([
     [AddStepMode.ReplaceStep, 'route.from.steps.1.placeholder', 'route.from.steps.1.to'],
