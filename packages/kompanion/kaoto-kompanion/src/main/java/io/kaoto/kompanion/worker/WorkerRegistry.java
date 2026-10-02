@@ -27,13 +27,18 @@ public class WorkerRegistry {
         ChannelEntry previous =
                 channels.put(executionId, new ChannelEntry(connectionId, sendFrame, new CompletableFuture<>()));
         if (previous != null && !previous.connectionId().equals(connectionId)) {
-            // the worker reconnected: commands sent on the previous connection are never answered on the new one
+            // the worker reconnected: commands sent on the previous connection are never answered on the new one, so
+            // fail their futures and store a terminal result (polling would otherwise report them pending forever)
             Map<String, PendingEntry> entries = executions.get(executionId);
             if (entries != null) {
-                entries.values()
-                        .forEach(entry -> entry.future()
-                                .completeExceptionally(
-                                        new IllegalStateException("Worker reconnected before ack arrived")));
+                String reason = "Worker reconnected before ack arrived";
+                entries.replaceAll((correlationId, entry) -> {
+                    if (entry.future().isDone()) {
+                        return entry;
+                    }
+                    entry.future().completeExceptionally(new IllegalStateException(reason));
+                    return new PendingEntry(entry.future(), CommandResult.acked(correlationId, false, reason));
+                });
             }
         }
         // keep the command results of a previous connection of the same execution (reconnect): replacing the map
@@ -50,8 +55,20 @@ public class WorkerRegistry {
     }
 
     /**
+     * Returns the protocol already detected for the given connection, or null when the connection does not own the
+     * execution or has not sent its first frame yet.
+     */
+    public WorkerProtocol protocolOf(String executionId, String connectionId) {
+        ChannelEntry entry = channels.get(executionId);
+        return entry != null && entry.connectionId().equals(connectionId)
+                ? entry.protocol().getNow(null)
+                : null;
+    }
+
+    /**
      * Returns the protocol of the connected worker, waiting until its first frame arrived. Commands must not be encoded
-     * before that, since the encoding depends on the protocol.
+     * before that, since the encoding depends on the protocol. The future is shared by every caller: wait on it with
+     * {@code get(timeout)} and never {@code orTimeout}, which would complete it exceptionally for everyone.
      */
     public CompletableFuture<WorkerProtocol> protocol(String executionId) {
         ChannelEntry entry = channels.get(executionId);

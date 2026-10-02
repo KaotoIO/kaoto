@@ -20,6 +20,7 @@ import jakarta.ws.rs.core.Response;
 import java.time.Duration;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -57,12 +58,18 @@ public class CommandResource {
         String correlationId = UUID.randomUUID().toString();
         WorkerProtocol protocol;
         try {
-            // the encoding depends on the worker protocol, known once the worker sent its first frame
-            protocol = registry.protocol(executionId)
-                    .orTimeout(protocolTimeout.toMillis(), TimeUnit.MILLISECONDS)
-                    .join();
-        } catch (Exception e) {
+            // the encoding depends on the worker protocol, known once the worker sent its first frame. The future is
+            // shared by every command of the connection: wait with a per-call timeout instead of orTimeout, which
+            // would complete the shared future exceptionally and fail all later commands
+            protocol = registry.protocol(executionId).get(protocolTimeout.toMillis(), TimeUnit.MILLISECONDS);
+        } catch (TimeoutException e) {
             return errorResponse(503, "Worker for execution " + executionId + " has not identified itself yet");
+        } catch (ExecutionException e) {
+            // the worker went away between the isConnected check and here
+            return errorResponse(404, "No active execution: " + executionId);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return errorResponse(503, "Interrupted while waiting for the worker of execution " + executionId);
         }
         String jsonFrame;
         try {
@@ -81,7 +88,7 @@ public class CommandResource {
         var future = registry.sendCommand(executionId, correlationId, jsonFrame);
 
         try {
-            var ack = future.orTimeout(ackTimeout.toMillis(), java.util.concurrent.TimeUnit.MILLISECONDS)
+            var ack = future.orTimeout(ackTimeout.toMillis(), TimeUnit.MILLISECONDS)
                     .join();
             return Response.ok(CommandResult.acked(correlationId, ack.success(), ack.detail()))
                     .build();

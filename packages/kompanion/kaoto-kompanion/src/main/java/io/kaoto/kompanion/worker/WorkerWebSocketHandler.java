@@ -3,7 +3,6 @@ package io.kaoto.kompanion.worker;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.kaoto.kompanion.model.KompanionEvent;
 import io.quarkus.websockets.next.OnClose;
 import io.quarkus.websockets.next.OnError;
 import io.quarkus.websockets.next.OnOpen;
@@ -12,8 +11,6 @@ import io.quarkus.websockets.next.OpenConnections;
 import io.quarkus.websockets.next.WebSocket;
 import io.quarkus.websockets.next.WebSocketConnection;
 import jakarta.inject.Inject;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import org.jboss.logging.Logger;
 
 @WebSocket(path = "/v1/worker/connect")
@@ -34,9 +31,6 @@ public class WorkerWebSocketHandler {
     OpenConnections openConnections;
 
     private final ObjectMapper mapper = new ObjectMapper();
-
-    // connectionId -> protocol detected from the first frame
-    private final Map<String, WorkerProtocol> protocols = new ConcurrentHashMap<>();
 
     @OnOpen
     public void onOpen() {
@@ -73,19 +67,21 @@ public class WorkerWebSocketHandler {
         String connectionId = connection.id();
         try {
             JsonNode node = mapper.readTree(frame);
-            WorkerProtocol protocol = protocols.get(connectionId);
+            // the registry owns the protocol of the connection; until the first recognized frame it is unknown
+            WorkerProtocol protocol = registry.protocolOf(executionId, connectionId);
             if (protocol == null) {
                 protocol = WorkerProtocol.detect(node);
                 if (protocol == null) {
-                    LOG.warnf("Unrecognized first worker frame for execution=%s — ignored", executionId);
+                    // not enough to tell the protocol: pass the frame through like a bridge frame and keep detecting
+                    LOG.debugf("Unrecognized worker frame before protocol detection for execution=%s", executionId);
+                    onBridgeFrame(executionId, frame);
                     return;
                 }
-                protocols.put(connectionId, protocol);
                 registry.protocolDetected(executionId, connectionId, protocol);
                 LOG.infof("Worker protocol for execution=%s: %s", executionId, protocol);
             }
             if (protocol == WorkerProtocol.CONNECTOR) {
-                onConnectorFrame(executionId, node, frame);
+                onConnectorFrame(executionId, node);
             } else {
                 onBridgeFrame(executionId, frame);
             }
@@ -109,12 +105,14 @@ public class WorkerWebSocketHandler {
         // Publish every frame to the SSE event bus (transparent pass-through)
         if ("camel.worker.ready".equals(msg.type())) {
             eventBus.publishReady(executionId, frame);
+        } else if ("camel.telemetry.snapshot".equals(msg.type())) {
+            eventBus.publishSnapshot(executionId, frame);
         } else {
             eventBus.publish(executionId, frame);
         }
     }
 
-    private void onConnectorFrame(String executionId, JsonNode node, String frame) throws Exception {
+    private void onConnectorFrame(String executionId, JsonNode node) throws Exception {
         String type = node.path("type").asText();
         switch (type) {
             case "hello" ->
@@ -133,20 +131,26 @@ public class WorkerWebSocketHandler {
             }
             case "snapshot" -> {
                 if ("status".equals(node.path("kind").asText())) {
-                    publishEvent(executionId, ConnectorProtocolCodec.telemetry(executionId, node.path("data")));
+                    // periodic: a slow SSE client only needs the latest one
+                    eventBus.publishSnapshot(
+                            executionId,
+                            mapper.writeValueAsString(
+                                    ConnectorProtocolCodec.telemetry(executionId, node.path("data"))));
                 }
             }
             default -> LOG.debugf("Unknown connector frame type=%s for execution=%s", type, executionId);
         }
-        // every connector frame is also published raw, so clients can use the richer data (trace, debug, ...)
-        ObjectNode raw = (ObjectNode) node.deepCopy();
+        // every connector frame is also published raw, so clients can use the richer data (trace, debug, ...). The
+        // parsed tree is not used after this point, so it is retagged in place (snapshots are several MB)
+        ObjectNode raw = (ObjectNode) node;
         raw.put("type", "camel.connector." + type);
         raw.put("executionId", executionId);
-        eventBus.publish(executionId, mapper.writeValueAsString(raw));
-    }
-
-    private void publishEvent(String executionId, KompanionEvent event) throws Exception {
-        eventBus.publish(executionId, mapper.writeValueAsString(event));
+        String rawFrame = mapper.writeValueAsString(raw);
+        if ("snapshot".equals(type)) {
+            eventBus.publishSnapshot(executionId, rawFrame);
+        } else {
+            eventBus.publish(executionId, rawFrame);
+        }
     }
 
     @OnClose
@@ -156,7 +160,6 @@ public class WorkerWebSocketHandler {
         String remote = remoteAddress();
         if (executionId != null) {
             LOG.infof("Worker disconnected: execution=%s remote=%s connectionId=%s", executionId, remote, connectionId);
-            protocols.remove(connectionId);
             registry.unregister(executionId, connectionId);
             eventBus.close(executionId, connectionId);
         }
