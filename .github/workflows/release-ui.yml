@@ -7,13 +7,29 @@ on:
         type: string
         description: The release tag / version (e.g. 2.13.0)
         required: true
+      run_e2e_tests:
+        type: boolean
+        description: Run Cypress E2E tests (Chrome, Firefox, Edge) before publishing?
+        required: false
+        default: true
 
 jobs:
+  e2e-tests:
+    if: ${{ inputs.run_e2e_tests }}
+    uses: ./.github/workflows/e2e-tests.yml
+    secrets: inherit
+
   npm-release:
     permissions:
       id-token: write  # Required for OIDC
       contents: read
     runs-on: ubuntu-latest
+    needs:
+      - e2e-tests
+    # always() prevents silent skip propagation when e2e-tests is skipped.
+    if: |
+      always() &&
+      (needs.e2e-tests.result == 'success' || needs.e2e-tests.result == 'skipped')
 
     steps:
       - name: '🛰️ Checkout source code'
