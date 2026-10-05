@@ -20,6 +20,11 @@ on:
         description: Run Linux deployment tests with Minikube
         required: true
         type: boolean
+      full-matrix:
+        description: Run tests on all OS platforms (Linux + macOS + Windows). When false, only Windows is used.
+        required: false
+        type: boolean
+        default: true
       retention-days:
         description: Number of days to retain uploaded test artifacts (logs, screenshots)
         required: false
@@ -37,7 +42,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: ${{ inputs.full-matrix && fromJSON('["ubuntu-latest","macos-latest","windows-latest"]') || fromJSON('["windows-latest"]') }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -85,7 +90,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: ${{ inputs.full-matrix && fromJSON('["ubuntu-latest","macos-latest","windows-latest"]') || fromJSON('["windows-latest"]') }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -134,7 +139,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: ${{ inputs.full-matrix && fromJSON('["ubuntu-latest","macos-latest","windows-latest"]') || fromJSON('["windows-latest"]') }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -183,7 +188,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: ${{ inputs.full-matrix && fromJSON('["ubuntu-latest","macos-latest","windows-latest"]') || fromJSON('["windows-latest"]') }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

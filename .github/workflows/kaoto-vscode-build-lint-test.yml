@@ -11,6 +11,11 @@ on:
         description: Run Linux deployment tests for extension or shared-tooling changes
         required: true
         type: boolean
+      full-matrix:
+        description: Run tests on all OS platforms (Linux + macOS + Windows). When false, only Windows is used.
+        required: false
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -46,24 +51,13 @@ jobs:
       - name: Build VSIX
         run: yarn workspace vscode-kaoto build:vsix --out kaoto-ci.vsix
 
-      - name: Generate SBOM
-        run: yarn workspace vscode-kaoto sbom:generate
-
       - name: Upload VSIX artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: vscode-kaoto-vsix
           path: packages/kaoto-vscode/kaoto-ci.vsix
           if-no-files-found: error
-          retention-days: 7
-
-      - name: Upload SBOM artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: sbom
-          path: packages/kaoto-vscode/manifest.json
-          if-no-files-found: error
-          retention-days: 7
+          retention-days: 2
 
       - name: Upload unit test logs
         if: failure()
@@ -72,7 +66,7 @@ jobs:
           name: unit-test-logs
           path: packages/kaoto-vscode/.vscode-test/user-data/logs/*
           include-hidden-files: true
-          retention-days: 7
+          retention-days: 2
 
   ui-tests:
     needs: build
@@ -81,3 +75,4 @@ jobs:
       vsix-artifact-name: vscode-kaoto-vsix
       run-full-ui-tests: ${{ inputs.run-full-ui-tests }}
       run-deploy-tests: ${{ inputs.run-deploy-tests }}
+      full-matrix: ${{ inputs.full-matrix }}

@@ -114,6 +114,7 @@ jobs:
       vsix-file: ${{ needs.release.outputs.vsix_name }}
       run-full-ui-tests: true
       run-deploy-tests: true
+      full-matrix: true
       retention-days: ${{ inputs.snapshot && 2 || 7 }}
 
   publish:
@@ -123,9 +124,10 @@ jobs:
     needs:
       - release
       - ui-tests
-    # always() prevents silent skip propagation if ui-tests is skipped.
+    # !cancelled() prevents publishing when the workflow is cancelled while still
+    # allowing publish to run when ui-tests was skipped (run_ui_tests=false).
     if: |
-      always() &&
+      !cancelled() &&
       !inputs.snapshot &&
       needs.release.result == 'success' &&
       (needs.ui-tests.result == 'success' || needs.ui-tests.result == 'skipped')

@@ -17,6 +17,9 @@ jobs:
   e2e-tests:
     if: ${{ inputs.run_e2e_tests }}
     uses: ./.github/workflows/e2e-tests.yml
+    with:
+      full-matrix: true
+      include-weekly-tests: true
     secrets: inherit
 
   npm-release:
@@ -26,9 +29,10 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - e2e-tests
-    # always() prevents silent skip propagation when e2e-tests is skipped.
+    # !cancelled() prevents publishing when the workflow is cancelled while still
+    # allowing npm-release to run when e2e-tests was skipped (run_e2e_tests=false).
     if: |
-      always() &&
+      !cancelled() &&
       (needs.e2e-tests.result == 'success' || needs.e2e-tests.result == 'skipped')
 
     steps:

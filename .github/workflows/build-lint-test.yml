@@ -106,6 +106,7 @@ jobs:
     with:
       run-full-ui-tests: false
       run-deploy-tests: false
+      full-matrix: false
 
   vscode-full:
     name: VS Code (full)
@@ -115,12 +116,15 @@ jobs:
     with:
       run-full-ui-tests: true
       run-deploy-tests: ${{ needs.changes.outputs.deploy == 'true' }}
+      full-matrix: false
 
   e2e:
     name: Cypress
     needs: changes
     if: needs.changes.outputs.e2e == 'true'
     uses: ./.github/workflows/e2e-tests.yml
+    with:
+      full-matrix: false
     secrets: inherit
 
   chromatic:
