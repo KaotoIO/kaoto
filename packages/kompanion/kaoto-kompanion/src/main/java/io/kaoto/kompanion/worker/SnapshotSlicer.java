@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -45,7 +47,21 @@ public class SnapshotSlicer {
     private record Published(Set<String> routes, Map<String, JsonNode> compared) {}
 
     // executionId -> what was published last
-    private final Map<String, Published> published = new ConcurrentHashMap<>();
+    final Map<String, Published> published = new ConcurrentHashMap<>();
+
+    void onStart(@Observes StartupEvent event) {
+        start();
+    }
+
+    /** Forgets an execution once its log ended (also used by the tests, outside CDI). */
+    void start() {
+        // a file transport app does not come back under the same id (pid-<pid>): what it published would stay forever
+        eventBus.onSubscriptionsChanged(executionId -> {
+            if (!eventBus.isOpen(executionId)) {
+                published.remove(executionId);
+            }
+        });
+    }
 
     /** Forgets what was published for the execution (its worker said hello: a new connection). */
     public void reset(String executionId) {

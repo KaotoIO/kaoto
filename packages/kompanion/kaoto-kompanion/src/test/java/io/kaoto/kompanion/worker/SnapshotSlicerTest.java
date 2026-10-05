@@ -152,4 +152,15 @@ class SnapshotSlicerTest {
         return "{\"routeId\":\"" + id + "\",\"state\":\"" + state + "\",\"uptime\":\"1s\",\"statistics\":"
                 + "{\"exchangesTotal\":" + total + "},\"processors\":[{\"id\":\"log-" + id + "\"}]}";
     }
+
+    @Test
+    void stateOfAnExecutionIsForgottenWhenItEnds() throws Exception {
+        slicer.start();
+        slicer.slice("exec-1", "status", status("Started", 1, "Started", 1));
+        assertTrue(slicer.published.containsKey("exec-1"));
+
+        // an app of the file transport that stops does not come back with the same id: pid-<pid>
+        bus.close("exec-1", "conn-1");
+        assertFalse(slicer.published.containsKey("exec-1"));
+    }
 }
