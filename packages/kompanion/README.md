@@ -60,8 +60,8 @@ Run it with the bridge pointing at the companion:
 
 ```bash
 mvn camel:run -pl demo-apps/demo-app-main \
-  -Dkaoto.companion.address=127.0.0.1:8000 \
-  -Dkaoto.companion.execution-id=run-1
+  -Dkaoto.kompanion.address=127.0.0.1:8000 \
+  -Dkaoto.kompanion.execution-id=run-1
 ```
 
 When the bridge connects you will see in the companion logs:
@@ -230,8 +230,8 @@ mvn quarkus:dev -pl kaoto-companion -Dquarkus.http.port=8000
 
 # Terminal 2 — demo app
 mvn camel:run -pl demo-apps/demo-app-main \
-  -Dkaoto.companion.address=127.0.0.1:8000 \
-  -Dkaoto.companion.execution-id=run-1
+  -Dkaoto.kompanion.address=127.0.0.1:8000 \
+  -Dkaoto.kompanion.execution-id=run-1
 
 # Terminal 3 — send commands
 # Start the route (it starts with autoStartup: false)
@@ -260,7 +260,7 @@ curl -s -X POST http://localhost:8000/v1/executions/run-1/commands \
 ## Installing the bridge in your own application
 
 The bridge is a single jar with no Spring, Quarkus, or camel-main dependency. It is a no-op unless
-both `kaoto.companion.address` and `kaoto.companion.execution-id` are set.
+both `kaoto.kompanion.address` and `kaoto.kompanion.execution-id` are set.
 
 | Host                        | Activate                                                                                                |
 | --------------------------- | ------------------------------------------------------------------------------------------------------- |
@@ -284,10 +284,10 @@ and 4.18.
 
 Bridge system properties:
 
-| Property                       | Description                                                                                     |
-| ------------------------------ | ----------------------------------------------------------------------------------------------- |
-| `kaoto.kompanion.address`      | `host:port` of the companion; activates the bridge together with `execution-id`                 |
-| `kaoto.kompanion.execution-id` | Execution identifier assigned by the companion                                                  |
+| Property                       | Description                                                                                         |
+| ------------------------------ | --------------------------------------------------------------------------------------------------- |
+| `kaoto.kompanion.address`      | `host:port` of the companion; activates the bridge together with `execution-id`                     |
+| `kaoto.kompanion.execution-id` | Execution identifier assigned by the companion                                                      |
 | `kaoto.kompanion.token`        | Bearer token sent at the handshake; required when the companion sets `kaoto.kompanion.worker-token` |
 
 ---
@@ -316,14 +316,14 @@ then answer `503`.
 
 ## Companion configuration
 
-| Property                                         | Default    | Description                                                                                                    |
-| ------------------------------------------------ | ---------- | -------------------------------------------------------------------------------------------------------------- |
-| `quarkus.http.port`                              | `0`        | Port the companion binds to; printed as `KAOTO_COMPANION_PORT=<port>` on stdout                                |
-| `kaoto.kompanion.command.ack-timeout`            | `10s`      | How long `POST .../commands` waits for the ack before answering `202 pending`                                  |
-| `kaoto.kompanion.worker.protocol-timeout`        | `5s`       | How long a command waits for the worker's first frame (protocol detection) before answering `503`              |
-| `kaoto.kompanion.worker-token`                   | —          | When set, workers must send `Authorization: Bearer <token>` at the handshake or are rejected with `401`        |
-| `kaoto.kompanion.events.buffer`                  | `4096`     | Frames buffered per SSE subscriber before its stream is failed (snapshots are superseded instead of buffered)  |
-| `quarkus.websockets-next.server.max-message-size` | `16777216` | Largest worker frame accepted (the connector sends the status snapshot whole, about 3 MB for 300 routes)        |
+| Property                                          | Default    | Description                                                                                                   |
+| ------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------- |
+| `quarkus.http.port`                               | `0`        | Port the companion binds to; printed as `KAOTO_COMPANION_PORT=<port>` on stdout                               |
+| `kaoto.kompanion.command.ack-timeout`             | `10s`      | How long `POST .../commands` waits for the ack before answering `202 pending`                                 |
+| `kaoto.kompanion.worker.protocol-timeout`         | `5s`       | How long a command waits for the worker's first frame (protocol detection) before answering `503`             |
+| `kaoto.kompanion.worker-token`                    | —          | When set, workers must send `Authorization: Bearer <token>` at the handshake or are rejected with `401`       |
+| `kaoto.kompanion.events.buffer`                   | `4096`     | Frames buffered per SSE subscriber before its stream is failed (snapshots are superseded instead of buffered) |
+| `quarkus.websockets-next.server.max-message-size` | `16777216` | Largest worker frame accepted (the connector sends the status snapshot whole, about 3 MB for 300 routes)      |
 
 The worker endpoint also rejects a handshake with a non-loopback `Origin` header with `403`: a web
 page in the developer's browser could otherwise reach the local companion. Workers that send their
