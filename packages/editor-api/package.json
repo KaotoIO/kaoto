@@ -24,8 +24,8 @@
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
     "test": "vitest run --config vitest.config.mts",
-    "lint": "eslint \"src/**/*.ts\"",
-    "lint:fix": "eslint \"src/**/*.ts\" --fix"
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "lint:fix": "yarn lint --fix"
   },
   "devDependencies": {
     "@eslint/js": "^9.10.0",

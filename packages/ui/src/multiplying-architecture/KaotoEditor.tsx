@@ -8,8 +8,9 @@ import {
   type KaotoRequests,
   type KaotoResponses,
   type SettingsSnapshot,
+  type Suggestion,
+  type SuggestionRequestContext,
 } from '@kaoto/editor-api';
-import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
 import { Button } from '@patternfly/react-core';
 import { createRef, useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { RouterProvider } from 'react-router-dom';

@@ -27,9 +27,9 @@ import {
 	type KaotoRequests,
 	type KaotoResponses,
 	type SettingsSnapshot,
+	type SuggestionRequestContext,
 	type Unsubscribe,
 } from '@kaoto/editor-api';
-import type { SuggestionRequestContext } from '@kaoto/kaoto/models';
 import * as vscode from 'vscode';
 import { KAOTO_EDITOR_VIEW_TYPE } from '../constants';
 import { KaotoHostServices } from '../services/KaotoHostServices';

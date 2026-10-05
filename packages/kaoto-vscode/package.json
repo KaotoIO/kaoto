@@ -14,7 +14,8 @@
   "homepage": "https://kaoto.io/",
   "author": "The Kaoto Team",
   "scripts": {
-    "lint": "eslint src",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "lint:fix": "yarn lint --fix",
     "build:prod": "rimraf dist && yarn run compile && yarn run lint",
     "build:dev": "rimraf dist && yarn run watch && yarn run lint",
     "build:test:ui": "rimraf ./out && tsc --project tsconfig.ui-tests.json --skipLibCheck --sourceMap true",

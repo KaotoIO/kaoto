@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import vscode from 'vscode';
+import { type Suggestion } from '@kaoto/editor-api';
 import path from 'path'; // NOSONAR
-import { Suggestion } from '@kaoto/kaoto';
+import vscode from 'vscode';
 
 export async function findAllApplicationPropertiesFiles(start: vscode.Uri | string): Promise<vscode.Uri[]> {
 	const startUri = typeof start === 'string' ? vscode.Uri.file(start) : start;

@@ -55,6 +55,18 @@ export enum StepUpdateAction {
   Remove = 'remove',
 }
 
+export type Suggestion = {
+  value: string;
+  description?: string;
+  group?: string;
+};
+
+export type SuggestionRequestContext = {
+  propertyName: string;
+  inputValue: string | number;
+  cursorPosition?: number | null;
+};
+
 export enum NodeLabelType {
   Id = 'id',
   Description = 'description',

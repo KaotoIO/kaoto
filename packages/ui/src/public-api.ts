@@ -15,4 +15,3 @@ export * from './models/step-update-action';
 export * from './multiplying-architecture';
 export * from './pages/Metadata/MetadataPage';
 export * from './pages/PipeErrorHandler/PipeErrorHandlerPage';
-export type { Suggestion, SuggestionRequestContext } from '@kaoto/forms';

@@ -508,7 +508,7 @@ suite('Kaoto settings', function () {
 	// Real settings should be tested through VS Code configuration API
 
 	// Step Update Actions tests removed - these were testing hardcoded arrays
-	// These enums should be tested by importing from @kaoto/kaoto if needed
+	// These enums should be tested by importing from @kaoto/editor-api if needed
 
 	suite('URI and Path Utilities', function () {
 		test('should handle forward slash conversion', function () {

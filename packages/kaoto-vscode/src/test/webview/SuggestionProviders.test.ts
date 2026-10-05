@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 import path from 'path';
+import { type Suggestion } from '@kaoto/editor-api';
 import { expect } from 'chai';
 import { filterSuggestionsByWord, getSuggestions, getEnvironmentSuggestions } from '../../services/SuggestionRegistry';
-import { Suggestion } from '@kaoto/kaoto';
 
 suite('Channel API', () => {
 	suite('get Suggestions for OS environment variables', function () {

@@ -7,9 +7,7 @@
     "rootDir": ".",
     "paths": {
       "@kaoto/camel-catalog/types": ["../../node_modules/@kaoto/camel-catalog/dist/types/index.ts"],
-      "@kaoto/kaoto/host-bridge": ["../../node_modules/@kaoto/kaoto/lib/host-bridge/index.d.ts"],
-      "@kaoto/kaoto/models": ["../../node_modules/@kaoto/kaoto/lib/models-api.d.ts"],
-      "@kaoto/kaoto": ["../../node_modules/@kaoto/kaoto/lib/public-api.d.ts"]
+      "@kaoto/editor-api": ["../editor-api/src/index.ts"]
     },
     "forceConsistentCasingInFileNames": true,
     "declaration": true,

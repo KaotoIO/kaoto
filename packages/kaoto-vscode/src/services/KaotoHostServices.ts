@@ -27,8 +27,9 @@ import {
 	NodeToolbarTrigger,
 	type RuntimeMavenInformation,
 	type StepUpdateAction,
+	type Suggestion,
+	type SuggestionRequestContext,
 } from '@kaoto/editor-api';
-import type { Suggestion, SuggestionRequestContext } from '@kaoto/kaoto/models';
 import path from 'path'; // NOSONAR: webpack supplies path-browserify in the worker
 import * as vscode from 'vscode';
 import {

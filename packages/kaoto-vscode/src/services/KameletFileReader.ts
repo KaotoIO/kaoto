@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { FileTypesResponse } from '@kaoto/kaoto/models';
+import { type FileTypesResponse } from '@kaoto/editor-api';
 import * as vscode from 'vscode';
 import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
 

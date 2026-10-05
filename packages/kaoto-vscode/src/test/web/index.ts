@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
+import { StepUpdateAction, CatalogKind } from '@kaoto/editor-api';
 import * as vscode from 'vscode';
-import { StepUpdateAction, CatalogKind } from '@kaoto/kaoto/models';
 import { KaotoHostServices } from '../../services/KaotoHostServices';
 import { COMMAND_OPEN_WITH_KAOTO, KAOTO_EDITOR_VIEW_TYPE } from '../../constants';
 

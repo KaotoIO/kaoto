@@ -13,32 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { StepUpdateAction } from '@kaoto/editor-api';
 import { getRedHatService, TelemetryService } from '@redhat-developer/vscode-redhat-telemetry';
+import path from 'path'; // NOSONAR: desktop path resolution
 import * as vscode from 'vscode';
 import { VIEW_HELP } from '../constants';
-import { KaotoOutputChannel } from './KaotoOutputChannel';
-import { PortManager } from '../services/PortManager';
 import { CamelExecutorFactory } from '../executors/CamelExecutorFactory';
-import path from 'path'; // NOSONAR: desktop path resolution
-import { StepUpdateAction } from '@kaoto/kaoto/models';
-import { findClasspathRoot } from '../utils/ClasspathRootFinder';
-import { resolvePaths } from '../utils/Path';
+import { KaotoCatalogService } from '../services/KaotoCatalogService';
+import { KaotoHostServices, type KaotoDesktopOperations } from '../services/KaotoHostServices';
 import { MavenRuntimeDetector } from '../services/MavenRuntimeDetector';
+import { PortManager } from '../services/PortManager';
 import { StepsOnSaveManager } from '../services/StepsOnSaveManager';
 import { getEnvironmentSuggestions } from '../services/SuggestionRegistry';
-import { KaotoCatalogService } from '../services/KaotoCatalogService';
+import { findClasspathRoot } from '../utils/ClasspathRootFinder';
+import { resolvePaths } from '../utils/Path';
 import { HelpFeedbackProvider } from '../views/help/HelpFeedbackProvider';
-import { IRegistrar } from './registrars/IRegistrar';
 import { registerKaotoEditorProvider } from './KaotoEditorProvider';
-import { KaotoHostServices, type KaotoDesktopOperations } from '../services/KaotoHostServices';
+import { KaotoOutputChannel } from './KaotoOutputChannel';
+import { DeploymentsRegistrar } from './registrars/DeploymentsRegistrar';
 import { EditorRegistrar } from './registrars/EditorRegistrar';
 import { ExecutorRegistrar } from './registrars/ExecutorRegistrar';
-import { LifecycleRegistrar } from './registrars/LifecycleRegistrar';
-import { IntegrationsRegistrar } from './registrars/IntegrationsRegistrar';
-import { DeploymentsRegistrar } from './registrars/DeploymentsRegistrar';
-import { TestsRegistrar } from './registrars/TestsRegistrar';
 import { InfrastructureRegistrar } from './registrars/InfrastructureRegistrar';
+import { IntegrationsRegistrar } from './registrars/IntegrationsRegistrar';
+import { IRegistrar } from './registrars/IRegistrar';
+import { LifecycleRegistrar } from './registrars/LifecycleRegistrar';
 import { OpenApiRegistrar } from './registrars/OpenApiRegistrar';
+import { TestsRegistrar } from './registrars/TestsRegistrar';
 
 let telemetryService: TelemetryService;
 

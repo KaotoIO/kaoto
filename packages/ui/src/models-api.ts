@@ -8,4 +8,3 @@ export * from './models/file-types';
 export * from './models/runtime-maven-information';
 export * from './models/settings';
 export * from './models/step-update-action';
-export type { Suggestion, SuggestionRequestContext } from '@kaoto/forms';

@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-import { findAllApplicationPropertiesFiles, parseMultipleApplicationPropertiesFiles } from './ApplicationPropertiesFinder';
+import { type Suggestion, type SuggestionRequestContext } from '@kaoto/editor-api';
 import { Uri } from 'vscode';
-import { Suggestion, SuggestionRequestContext } from '@kaoto/kaoto';
+import { findAllApplicationPropertiesFiles, parseMultipleApplicationPropertiesFiles } from './ApplicationPropertiesFinder';
 
 export type SuggestionProviderFunction = (word: string, context: SuggestionRequestContext, fsPath?: string | Uri) => Suggestion[] | Promise<Suggestion[]>;
 

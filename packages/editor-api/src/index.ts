@@ -11,11 +11,13 @@ export {
   StepUpdateAction,
 } from './contracts.js';
 
-// Maven runtime information (from domain, not re-exported via contracts)
+// Domain types not re-exported via contracts
 export type {
   CamelMainMavenInformation,
   CamelQuarkusMavenInformation,
   CamelSpringBootMavenInformation,
+  Suggestion,
+  SuggestionRequestContext,
 } from './domain.js';
 
 // type-only exports (interfaces, type aliases)
