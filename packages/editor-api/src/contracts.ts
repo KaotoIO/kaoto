@@ -9,7 +9,7 @@ import {
   NodeToolbarTrigger,
   type RuntimeMavenInformation,
   StepUpdateAction,
-} from './domain.js';
+} from './domain';
 export {
   CanvasLayoutDirection,
   CatalogKind,
@@ -21,7 +21,7 @@ export {
   NodeToolbarTrigger,
   type RuntimeMavenInformation,
   StepUpdateAction,
-} from './domain.js';
+} from './domain';
 
 export type JsonValue = null | boolean | number | string | JsonValue[] | JsonObject;
 export type JsonObject = { [key: string]: JsonValue };

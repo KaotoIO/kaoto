@@ -37,7 +37,7 @@ export default defineConfig({
       'react-dom': fileURLToPath(new URL('../../node_modules/react-dom', import.meta.url)),
       // Use native ESM build to avoid CJS interop issues in wrapper.mjs
       uuid: fileURLToPath(new URL('../../node_modules/uuid/dist/esm-node/index.js', import.meta.url)),
-      '@': path.resolve(__dirname, './src'),
+      '@kaoto/editor-api': path.resolve(__dirname, '../editor-api/src/index.ts'),
     },
   },
   resolve: {

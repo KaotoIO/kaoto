@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { useAppContext } from '@/context/useAppContext';
+import { useAppContext } from '../context/useAppContext';
 
 interface NotificationOptions {
   kind: 'success' | 'error' | 'info' | 'warning';

@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { createIframeTransport, createMemoryTransports, createPostMessageBridge } from './bridge.js';
-import { BridgeError, type ControlMessage, type MessageTransport, type WireMessage } from './contracts.js';
-import { createEventBus } from './event-bus.js';
+import { createIframeTransport, createMemoryTransports, createPostMessageBridge } from './bridge';
+import { BridgeError, type ControlMessage, type MessageTransport, type WireMessage } from './contracts';
+import { createEventBus } from './event-bus';
 
 const cleanup: Array<() => void> = [];
 afterEach(() => {

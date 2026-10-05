@@ -17,6 +17,12 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    /* Source packages — baseUrl anchors paths entries to the repo root */
+    "baseUrl": ".",
+    "paths": {
+      "@kaoto/editor-api": ["packages/editor-api/src/index.ts"]
+    }
   }
 }

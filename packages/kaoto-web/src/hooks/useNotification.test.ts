@@ -1,8 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import * as AppContextModule from '@/context/useAppContext';
-
+import * as AppContextModule from '../context/useAppContext';
 import { useNotification } from './useNotification';
 
 // Mock the AppContext

@@ -10,7 +10,7 @@ import {
   requestCatalog,
   type RequestContext,
   type RequestOptions,
-} from './contracts.js';
+} from './contracts';
 
 export type EndpointRole = 'host' | 'editor';
 

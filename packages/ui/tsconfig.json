@@ -5,6 +5,6 @@
     /* Typings */
     "types": ["@testing-library/jest-dom", "vitest/globals", "@types/node"]
   },
-  "include": ["src"],
+  "include": ["src", "../editor-api/src"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

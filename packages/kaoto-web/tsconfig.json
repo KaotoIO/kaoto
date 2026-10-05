@@ -3,11 +3,11 @@
   "compilerOptions": {
     "composite": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@kaoto/editor-api": ["../editor-api/src/index.ts"]
     },
     /* Typings */
     "types": ["@testing-library/jest-dom/vitest", "vitest/globals", "@types/node", "vite/client"]
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../editor-api/src"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

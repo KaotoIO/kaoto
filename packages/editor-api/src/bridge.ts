@@ -17,8 +17,8 @@ import {
   type RequestOptions,
   type Unsubscribe,
   type WireMessage,
-} from './contracts.js';
-import { getEndpoint } from './event-bus.js';
+} from './contracts';
+import { getEndpoint } from './event-bus';
 
 export interface BridgeOptions {
   bus: IEventBus;

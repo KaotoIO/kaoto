@@ -5,10 +5,6 @@
     "moduleResolution": "Node",
     "ignoreDeprecations": "5.0",
     "rootDir": ".",
-    "paths": {
-      "@kaoto/camel-catalog/types": ["../../node_modules/@kaoto/camel-catalog/dist/types/index.ts"],
-      "@kaoto/editor-api": ["../editor-api/src/index.ts"]
-    },
     "forceConsistentCasingInFileNames": true,
     "declaration": true,
     "declarationMap": true,

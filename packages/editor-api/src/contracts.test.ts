@@ -8,7 +8,7 @@ import {
   type KaotoRequests,
   type KaotoResponses,
   requestCatalog,
-} from './contracts.js';
+} from './contracts';
 import {
   CanvasLayoutDirection,
   CatalogKind,
@@ -16,8 +16,8 @@ import {
   NodeLabelType,
   NodeToolbarTrigger,
   StepUpdateAction,
-} from './domain.js';
-import { createEventBus } from './event-bus.js';
+} from './domain';
+import { createEventBus } from './event-bus';
 
 describe('local host bridge endpoint', () => {
   it('continues dispatch when a thrown value cannot be converted to a string', () => {

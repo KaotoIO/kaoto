@@ -9,7 +9,7 @@ export {
   NodeLabelType,
   NodeToolbarTrigger,
   StepUpdateAction,
-} from './contracts.js';
+} from './contracts';
 
 // Domain types not re-exported via contracts
 export type {
@@ -18,7 +18,7 @@ export type {
   CamelSpringBootMavenInformation,
   Suggestion,
   SuggestionRequestContext,
-} from './domain.js';
+} from './domain';
 
 // type-only exports (interfaces, type aliases)
 export {
@@ -28,7 +28,7 @@ export {
   createMemoryTransports,
   createPostMessageBridge,
   type IframeTransportOptions,
-} from './bridge.js';
+} from './bridge';
 export type {
   BridgeErrorCode,
   BridgeErrorData,
@@ -54,5 +54,5 @@ export type {
   ValidationNotification,
   WireHeader,
   WireMessage,
-} from './contracts.js';
-export { createEventBus, type EndpointRole, type EventBusOptions } from './event-bus.js';
+} from './contracts';
+export { createEventBus, type EndpointRole, type EventBusOptions } from './event-bus';
