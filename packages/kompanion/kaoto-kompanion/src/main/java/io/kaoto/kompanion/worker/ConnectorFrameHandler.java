@@ -57,8 +57,9 @@ public class ConnectorFrameHandler {
             case "snapshot" -> {
                 if ("status".equals(node.path("kind").asText())) {
                     // periodic: a slow SSE client only needs the latest one
-                    eventBus.publishSnapshot(
+                    eventBus.publishState(
                             executionId,
+                            "telemetry",
                             mapper.writeValueAsString(
                                     ConnectorProtocolCodec.telemetry(executionId, node.path("data"))));
                 }
@@ -71,9 +72,12 @@ public class ConnectorFrameHandler {
         raw.put("type", "camel.connector." + type);
         raw.put("executionId", executionId);
         String rawFrame = mapper.writeValueAsString(raw);
-        if ("snapshot".equals(type)) {
-            eventBus.publishSnapshot(executionId, rawFrame);
+        String kind = node.path("kind").asText();
+        if ("snapshot".equals(type) && !"trace".equals(kind) && !"receive".equals(kind)) {
+            // status, debug, history, error, activity: the latest value is all a client needs
+            eventBus.publishState(executionId, "connector." + kind, rawFrame);
         } else {
+            // trace and receive snapshots only hold the new messages: every one of them is an event
             eventBus.publish(executionId, rawFrame);
         }
     }
