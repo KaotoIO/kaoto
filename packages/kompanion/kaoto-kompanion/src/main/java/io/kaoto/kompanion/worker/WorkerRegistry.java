@@ -159,16 +159,26 @@ public class WorkerRegistry {
     public CompletableFuture<AckResult> sendCommand(
             String executionId, String connectionId, String correlationId, String jsonFrame) {
         var future = new CompletableFuture<AckResult>();
+        PendingEntry pending = new PendingEntry(future, CommandResult.pending(correlationId));
         Map<String, PendingEntry> entries = executions.get(executionId);
         if (entries != null) {
-            entries.put(correlationId, new PendingEntry(future, CommandResult.pending(correlationId)));
+            entries.put(correlationId, pending);
         }
         ChannelEntry channelEntry = channels.get(executionId);
         if (channelEntry == null) {
-            future.completeExceptionally(new IllegalStateException("No channel for executionId: " + executionId));
+            String reason = "No channel for executionId: " + executionId;
+            if (entries != null) {
+                entries.replace(correlationId, pending,
+                        new PendingEntry(future, CommandResult.acked(correlationId, false, reason)));
+            }
+            future.completeExceptionally(new IllegalStateException(reason));
         } else if (!channelEntry.connectionId().equals(connectionId)) {
-            future.completeExceptionally(new IllegalStateException(
-                    "Worker reconnected during command encoding for executionId: " + executionId));
+            String reason = "Worker reconnected during command encoding for executionId: " + executionId;
+            if (entries != null) {
+                entries.replace(correlationId, pending,
+                        new PendingEntry(future, CommandResult.acked(correlationId, false, reason)));
+            }
+            future.completeExceptionally(new IllegalStateException(reason));
         } else {
             channelEntry.sendFrame().accept(jsonFrame);
         }

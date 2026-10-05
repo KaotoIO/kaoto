@@ -104,6 +104,10 @@ public class CommandResource {
                         .entity(CommandResult.pending(correlationId))
                         .build();
             }
+            if (cause instanceof IllegalStateException) {
+                // worker disconnected or reconnected between encoding and sending
+                return errorResponse(404, "No active execution: " + executionId);
+            }
             LOG.errorf("Command failed for execution=%s corr=%s: %s", executionId, correlationId, e.getMessage());
             return errorResponse(500, e.getMessage());
         }

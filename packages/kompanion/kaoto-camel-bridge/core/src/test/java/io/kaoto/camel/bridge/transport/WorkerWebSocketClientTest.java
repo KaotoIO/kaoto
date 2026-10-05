@@ -110,7 +110,7 @@ class WorkerWebSocketClientTest {
 
             String uri = "ws://127.0.0.1:" + port + "/v1/worker/connect?executionId=t";
             var client = new WorkerWebSocketClient(uri, "127.0.0.1:" + port, EXECUTION_ID, "my-secret", m -> {});
-            client.connect();
+            assertTrue(client.connect(), "WebSocket handshake must succeed");
             client.close();
 
             String received = authHeader.get(5, TimeUnit.SECONDS);
