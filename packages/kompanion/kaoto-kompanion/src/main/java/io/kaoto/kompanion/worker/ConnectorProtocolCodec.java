@@ -39,6 +39,7 @@ public final class ConnectorProtocolCodec {
                 }
             }
             case KompanionCommand.CmdWorkerStop c -> action.put("action", "stop");
+            case KompanionCommand.CmdConnectorAction c -> action.setAll((ObjectNode) c.action());
         }
         ObjectNode frame = mapper.createObjectNode();
         frame.put("v", VERSION);

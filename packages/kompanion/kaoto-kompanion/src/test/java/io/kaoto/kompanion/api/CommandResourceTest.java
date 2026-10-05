@@ -199,4 +199,96 @@ class CommandResourceTest {
 
         registry.unregister(executionId, "test-conn-protocol");
     }
+
+    @Test
+    void connectorActionIsPassedThroughAsIs() throws Exception {
+        String executionId = "cmd-test-connector-action";
+        var sent = new java.util.concurrent.atomic.AtomicReference<String>();
+        registry.register(executionId, "test-conn-action", frame -> {
+            sent.set(frame);
+            try {
+                var node = new com.fasterxml.jackson.databind.ObjectMapper().readTree(frame);
+                String requestId = node.path("requestId").asText();
+                new Thread(() -> registry.receiveAck(executionId, requestId, true, "ok")).start();
+            } catch (Exception ignored) {
+            }
+        });
+        registry.protocolDetected(executionId, "test-conn-action", WorkerProtocol.CONNECTOR);
+        registry.camelVersionDetected(executionId, "4.18.4");
+
+        given().contentType("application/json")
+                .body("{\"type\":\"camel.cmd.connector.action\","
+                        + "\"action\":{\"action\":\"route-dump\",\"filter\":\"*\",\"format\":\"yaml\"}}")
+                .when()
+                .post("/v1/executions/" + executionId + "/commands")
+                .then()
+                .statusCode(200)
+                .body("status", is("acked"));
+
+        var action = new com.fasterxml.jackson.databind.ObjectMapper()
+                .readTree(sent.get())
+                .path("action");
+        org.junit.jupiter.api.Assertions.assertEquals(
+                "route-dump", action.path("action").asText());
+        org.junit.jupiter.api.Assertions.assertEquals("*", action.path("filter").asText());
+        org.junit.jupiter.api.Assertions.assertEquals(
+                "yaml", action.path("format").asText());
+
+        registry.unregister(executionId, "test-conn-action");
+    }
+
+    @Test
+    void commandsTheWorkerCannotRunAreRejectedWithoutBeingSent() {
+        String executionId = "cmd-test-unsupported";
+        var sent = new java.util.concurrent.atomic.AtomicBoolean();
+        registry.register(executionId, "test-conn-unsupported", frame -> sent.set(true));
+        registry.protocolDetected(executionId, "test-conn-unsupported", WorkerProtocol.CONNECTOR);
+        registry.camelVersionDetected(executionId, "4.18.4");
+
+        // added in 4.21
+        given().contentType("application/json")
+                .body("{\"type\":\"camel.cmd.connector.action\",\"action\":{\"action\":\"route-topology\"}}")
+                .when()
+                .post("/v1/executions/" + executionId + "/commands")
+                .then()
+                .statusCode(422)
+                .body("error", containsString("4.18.4"));
+        // 4.18 would send the base64 text as the body
+        given().contentType("application/json")
+                .body("{\"type\":\"camel.cmd.exchange.inject\",\"endpoint\":\"direct:a\",\"body\":\"aGk=\","
+                        + "\"bodyEncoding\":\"base64\"}")
+                .when()
+                .post("/v1/executions/" + executionId + "/commands")
+                .then()
+                .statusCode(422);
+        org.junit.jupiter.api.Assertions.assertFalse(sent.get());
+
+        registry.unregister(executionId, "test-conn-unsupported");
+    }
+
+    @Test
+    void connectorActionIsRejectedForTheBridge() {
+        String executionId = "cmd-test-action-bridge";
+        registry.register(executionId, "test-conn-action-bridge", frame -> {});
+        registry.protocolDetected(executionId, "test-conn-action-bridge", WorkerProtocol.BRIDGE);
+
+        given().contentType("application/json")
+                .body("{\"type\":\"camel.cmd.connector.action\",\"action\":{\"action\":\"reset-stats\"}}")
+                .when()
+                .post("/v1/executions/" + executionId + "/commands")
+                .then()
+                .statusCode(422);
+
+        registry.unregister(executionId, "test-conn-action-bridge");
+    }
+
+    @Test
+    void connectorActionWithoutActionNameIsRejected() {
+        given().contentType("application/json")
+                .body("{\"type\":\"camel.cmd.connector.action\",\"action\":{\"filter\":\"*\"}}")
+                .when()
+                .post("/v1/executions/any-exec/commands")
+                .then()
+                .statusCode(400);
+    }
 }

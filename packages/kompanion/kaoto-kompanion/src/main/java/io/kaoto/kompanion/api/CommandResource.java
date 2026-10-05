@@ -3,6 +3,7 @@ package io.kaoto.kompanion.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.kaoto.kompanion.model.CommandResult;
 import io.kaoto.kompanion.model.KompanionCommand;
+import io.kaoto.kompanion.worker.ConnectorActions;
 import io.kaoto.kompanion.worker.ConnectorProtocolCodec;
 import io.kaoto.kompanion.worker.WorkerProtocol;
 import io.kaoto.kompanion.worker.WorkerRegistry;
@@ -75,6 +76,10 @@ public class CommandResource {
             Thread.currentThread().interrupt();
             return errorResponse(503, "Interrupted while waiting for the worker of execution " + executionId);
         }
+        String unsupported = unsupported(executionId, protocol, command);
+        if (unsupported != null) {
+            return errorResponse(422, unsupported);
+        }
         String jsonFrame;
         try {
             if (protocol == WorkerProtocol.CONNECTOR) {
@@ -122,6 +127,31 @@ public class CommandResource {
             throw new NotFoundException("Unknown correlationId: " + correlationId);
         }
         return Response.ok(result).build();
+    }
+
+    /** Returns why the worker cannot run the command, or null when it can (or its Camel version is unknown). */
+    private String unsupported(String executionId, WorkerProtocol protocol, KompanionCommand command) {
+        if (protocol == WorkerProtocol.BRIDGE) {
+            return command instanceof KompanionCommand.CmdConnectorAction
+                    ? "Connector actions need a camel-cli-connector worker, execution " + executionId
+                            + " uses the Kaoto bridge"
+                    : null;
+        }
+        String camelVersion = registry.camelVersion(executionId);
+        ConnectorActions actions = ConnectorActions.of(camelVersion);
+        if (actions == null) {
+            return null;
+        }
+        if (command instanceof KompanionCommand.CmdConnectorAction c) {
+            String name = c.action().path("action").asText();
+            return actions.supports(name) ? null : "Action '" + name + "' is not supported by Camel " + camelVersion;
+        }
+        if (command instanceof KompanionCommand.CmdExchangeInject c
+                && c.bodyEncoding() != null
+                && !actions.bodyEncoding()) {
+            return "bodyEncoding is not supported by Camel " + camelVersion + " (needs 4.23 or later)";
+        }
+        return null;
     }
 
     private Response errorResponse(int status, String message) {
