@@ -51,7 +51,11 @@ public class CommandResource {
         if (command == null) {
             return errorResponse(400, "Request body must not be null");
         }
-        if (!registry.isConnected(executionId)) {
+
+        // Read channel snapshot once: both protocol detection and dispatch must target the same connection so
+        // that a frame encoded for CONNECTOR is never sent to a BRIDGE worker (or vice versa) on reconnect.
+        WorkerRegistry.ChannelSnapshot channel = registry.channelFor(executionId);
+        if (channel == null) {
             return errorResponse(404, "No active execution: " + executionId);
         }
 
@@ -61,11 +65,11 @@ public class CommandResource {
             // the encoding depends on the worker protocol, known once the worker sent its first frame. The future is
             // shared by every command of the connection: wait with a per-call timeout instead of orTimeout, which
             // would complete the shared future exceptionally and fail all later commands
-            protocol = registry.protocol(executionId).get(protocolTimeout.toMillis(), TimeUnit.MILLISECONDS);
+            protocol = channel.protocol().get(protocolTimeout.toMillis(), TimeUnit.MILLISECONDS);
         } catch (TimeoutException e) {
             return errorResponse(503, "Worker for execution " + executionId + " has not identified itself yet");
         } catch (ExecutionException e) {
-            // the worker went away between the isConnected check and here
+            // the worker went away between the channelFor call and here
             return errorResponse(404, "No active execution: " + executionId);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -85,7 +89,8 @@ public class CommandResource {
             return errorResponse(500, "Serialization failed");
         }
 
-        var future = registry.sendCommand(executionId, correlationId, jsonFrame);
+        // Use the connectionId from the same snapshot to guard against a reconnect between encoding and sending.
+        var future = registry.sendCommand(executionId, channel.connectionId(), correlationId, jsonFrame);
 
         try {
             var ack = future.orTimeout(ackTimeout.toMillis(), TimeUnit.MILLISECONDS)

@@ -12,6 +12,9 @@ public class WorkerRegistry {
 
     public record AckResult(boolean success, String detail) {}
 
+    /** Snapshot of the channel state at the moment a command is submitted. */
+    public record ChannelSnapshot(String connectionId, CompletableFuture<WorkerProtocol> protocol) {}
+
     /** Per-command state stored for the lifetime of the execution. */
     private record PendingEntry(CompletableFuture<AckResult> future, CommandResult result) {}
 
@@ -88,6 +91,16 @@ public class WorkerRegistry {
     }
 
     /**
+     * Returns a snapshot of the current channel for the given executionId, or {@code null} when no worker is
+     * connected. Callers should use the same snapshot for both protocol detection and command dispatch so that
+     * encoding and sending target the same connection.
+     */
+    public ChannelSnapshot channelFor(String executionId) {
+        ChannelEntry entry = channels.get(executionId);
+        return entry == null ? null : new ChannelSnapshot(entry.connectionId(), entry.protocol());
+    }
+
+    /**
      * Unregisters the worker for the given executionId only when the closing connection still owns it. If a new worker
      * with the same executionId has already reconnected, this is a no-op.
      */
@@ -134,6 +147,30 @@ public class WorkerRegistry {
             channelEntry.sendFrame().accept(jsonFrame);
         } else {
             future.completeExceptionally(new IllegalStateException("No channel for executionId: " + executionId));
+        }
+        return future;
+    }
+
+    /**
+     * Send a JSON command frame to the worker, but only when {@code connectionId} is still the current owner of the
+     * execution. If a reconnect replaced the channel since the command was encoded, the future is completed
+     * exceptionally so the caller does not send a frame encoded for the wrong protocol to the new worker.
+     */
+    public CompletableFuture<AckResult> sendCommand(
+            String executionId, String connectionId, String correlationId, String jsonFrame) {
+        var future = new CompletableFuture<AckResult>();
+        Map<String, PendingEntry> entries = executions.get(executionId);
+        if (entries != null) {
+            entries.put(correlationId, new PendingEntry(future, CommandResult.pending(correlationId)));
+        }
+        ChannelEntry channelEntry = channels.get(executionId);
+        if (channelEntry == null) {
+            future.completeExceptionally(new IllegalStateException("No channel for executionId: " + executionId));
+        } else if (!channelEntry.connectionId().equals(connectionId)) {
+            future.completeExceptionally(new IllegalStateException(
+                    "Worker reconnected during command encoding for executionId: " + executionId));
+        } else {
+            channelEntry.sendFrame().accept(jsonFrame);
         }
         return future;
     }
