@@ -2,8 +2,12 @@ package io.kaoto.kompanion.worker;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.kaoto.kompanion.worker.ExecutionEventBus.Filter;
+import io.kaoto.kompanion.worker.ExecutionEventBus.Tag;
 import io.smallrye.mutiny.helpers.test.AssertSubscriber;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 class ExecutionEventBusTest {
@@ -151,5 +155,74 @@ class ExecutionEventBusTest {
 
         bus.close("exec-1", "conn-2");
         subscriber.assertCompleted();
+    }
+
+    @Test
+    void clientWithoutFilterGetsTheRawViewOnly() {
+        var bus = bus();
+        bus.open("exec-1", "conn-1");
+        AssertSubscriber<String> client =
+                bus.streamFor("exec-1").subscribe().withSubscriber(AssertSubscriber.create(10));
+
+        bus.publishState("exec-1", "connector.status", Tag.raw("status"), "raw-status");
+        bus.publishState("exec-1", "status:orders", Tag.sliced("status", "orders"), "orders-status");
+        bus.publish("exec-1", Tag.of("result"), "result");
+
+        client.assertItems("raw-status", "result");
+    }
+
+    @Test
+    void filteredClientGetsItsKindsAndRoutesOfTheSlicedView() throws Exception {
+        var bus = bus();
+        bus.open("exec-1", "conn-1");
+        bus.publishReady("exec-1", "ready");
+        var client = subscribe(bus, new Filter(Set.of("status"), Set.of("orders")));
+
+        bus.publishState("exec-1", "connector.status", Tag.raw("status"), "raw-status");
+        bus.publishState("exec-1", "status:orders", Tag.sliced("status", "orders"), "orders-status");
+        bus.publishState("exec-1", "status:control", Tag.sliced("status", "control"), "control-status");
+        bus.publishState("exec-1", "status", Tag.sliced("status", null), "context-status");
+        bus.publish("exec-1", Tag.sliced("trace", "orders"), "orders-trace");
+        bus.publish("exec-1", Tag.of("result"), "result");
+
+        List<String> items = client.getItems();
+        assertEquals(
+                "kompanion.subscribed",
+                new ObjectMapper().readTree(items.get(0)).path("type").asText());
+        // results and ready whatever the filter, entries about no route with its kinds
+        assertEquals(List.of("ready", "orders-status", "context-status", "result"), items.subList(1, items.size()));
+    }
+
+    @Test
+    void changedFilterGetsTheCurrentStateOfItsNewRoutes() throws Exception {
+        var bus = bus();
+        bus.open("exec-1", "conn-1");
+        bus.publishState("exec-1", "status:orders", Tag.sliced("status", "orders"), "orders-1");
+        bus.publishState("exec-1", "status:control", Tag.sliced("status", "control"), "control-1");
+        var client = subscribe(bus, new Filter(Set.of("status"), Set.of("orders")));
+        String id = new ObjectMapper()
+                .readTree(client.getItems().get(0))
+                .path("subscriptionId")
+                .asText();
+        assertEquals(
+                List.of("orders-1"),
+                client.getItems().subList(1, client.getItems().size()));
+
+        assertTrue(bus.updateFilter("exec-1", id, new Filter(Set.of("status"), Set.of("control"))));
+        bus.publishState("exec-1", "status:orders", Tag.sliced("status", "orders"), "orders-2");
+        bus.publishState("exec-1", "status:control", Tag.sliced("status", "control"), "control-2");
+
+        assertEquals(
+                List.of("orders-1", "control-1", "control-2"),
+                client.getItems().subList(1, client.getItems().size()));
+        assertEquals(Set.of(id), bus.filters("exec-1").keySet());
+        assertFalse(bus.updateFilter("exec-1", "no-such-subscription", new Filter(null, null)));
+    }
+
+    private static AssertSubscriber<String> subscribe(ExecutionEventBus bus, Filter filter) {
+        return bus.eventsFor("exec-1", null, filter)
+                .map(ExecutionEventBus.LogEvent::json)
+                .subscribe()
+                .withSubscriber(AssertSubscriber.create(100));
     }
 }

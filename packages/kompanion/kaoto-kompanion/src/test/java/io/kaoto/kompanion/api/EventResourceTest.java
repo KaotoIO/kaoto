@@ -96,4 +96,16 @@ class EventResourceTest {
                         .toList(),
                 received.toString());
     }
+
+    @Test
+    void updatingAnUnknownSubscriptionIs404() {
+        eventBus.open("sse-test-put", "test-conn");
+        given().contentType("application/json")
+                .body("{\"kinds\":[\"status\"],\"routes\":[\"orders\"]}")
+                .when()
+                .put("/v1/executions/sse-test-put/subscriptions/nope")
+                .then()
+                .statusCode(404);
+        eventBus.close("sse-test-put", "test-conn");
+    }
 }
