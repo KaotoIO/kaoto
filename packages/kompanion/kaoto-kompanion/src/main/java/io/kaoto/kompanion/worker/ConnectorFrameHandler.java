@@ -33,9 +33,12 @@ public class ConnectorFrameHandler {
         }
         String type = node.path("type").asText();
         switch (type) {
-            case "hello" ->
+            case "hello" -> {
+                registry.camelVersionDetected(
+                        executionId, node.path("camelVersion").asText(null));
                 eventBus.publishReady(
                         executionId, mapper.writeValueAsString(ConnectorProtocolCodec.ready(executionId, node)));
+            }
             case "result" -> {
                 String requestId = node.path("requestId").asText(null);
                 if (requestId != null) {

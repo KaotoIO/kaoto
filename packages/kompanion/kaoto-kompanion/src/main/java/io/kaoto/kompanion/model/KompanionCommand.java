@@ -2,6 +2,7 @@ package io.kaoto.kompanion.model;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Map;
 import java.util.Objects;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -14,6 +15,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
     @JsonSubTypes.Type(value = KompanionCommand.CmdRouteResume.class, name = "camel.cmd.route.resume"),
     @JsonSubTypes.Type(value = KompanionCommand.CmdExchangeInject.class, name = "camel.cmd.exchange.inject"),
     @JsonSubTypes.Type(value = KompanionCommand.CmdWorkerStop.class, name = "camel.cmd.worker.stop"),
+    @JsonSubTypes.Type(value = KompanionCommand.CmdConnectorAction.class, name = "camel.cmd.connector.action"),
 })
 @Schema(
         oneOf = {
@@ -23,6 +25,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
             KompanionCommand.CmdRouteResume.class,
             KompanionCommand.CmdExchangeInject.class,
             KompanionCommand.CmdWorkerStop.class,
+            KompanionCommand.CmdConnectorAction.class,
         })
 public sealed interface KompanionCommand
         permits KompanionCommand.CmdRouteStart,
@@ -30,7 +33,8 @@ public sealed interface KompanionCommand
                 KompanionCommand.CmdRouteSuspend,
                 KompanionCommand.CmdRouteResume,
                 KompanionCommand.CmdExchangeInject,
-                KompanionCommand.CmdWorkerStop {
+                KompanionCommand.CmdWorkerStop,
+                KompanionCommand.CmdConnectorAction {
 
     @Schema(description = "Start a Camel route")
     record CmdRouteStart(String routeId) implements KompanionCommand {
@@ -77,4 +81,17 @@ public sealed interface KompanionCommand
 
     @Schema(description = "Stop the kompanion worker")
     record CmdWorkerStop() implements KompanionCommand {}
+
+    @Schema(
+            description = "Run a camel-cli-connector action as it is, e.g. {\"action\":\"reset-stats\"}. Only for"
+                    + " camel-cli-connector workers; the action must exist in the worker's Camel version")
+    record CmdConnectorAction(
+            @Schema(description = "The connector action object, with at least the 'action' name")
+            JsonNode action) implements KompanionCommand {
+        public CmdConnectorAction {
+            if (action == null || !action.isObject()) throw new IllegalArgumentException("action must be an object");
+            if (action.path("action").asText("").isBlank())
+                throw new IllegalArgumentException("action.action must not be blank");
+        }
+    }
 }

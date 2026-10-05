@@ -5,6 +5,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 @ApplicationScoped
@@ -19,7 +20,10 @@ public class WorkerRegistry {
     private record PendingEntry(CompletableFuture<AckResult> future, CommandResult result) {}
 
     private record ChannelEntry(
-            String connectionId, Consumer<String> sendFrame, CompletableFuture<WorkerProtocol> protocol) {}
+            String connectionId,
+            Consumer<String> sendFrame,
+            CompletableFuture<WorkerProtocol> protocol,
+            AtomicReference<String> camelVersion) {}
 
     // executionId → channel (including the owning connectionId)
     private final Map<String, ChannelEntry> channels = new ConcurrentHashMap<>();
@@ -27,7 +31,8 @@ public class WorkerRegistry {
     private final Map<String, Map<String, PendingEntry>> executions = new ConcurrentHashMap<>();
 
     public void register(String executionId, String connectionId, Consumer<String> sendFrame) {
-        ChannelEntry current = new ChannelEntry(connectionId, sendFrame, new CompletableFuture<>());
+        ChannelEntry current =
+                new ChannelEntry(connectionId, sendFrame, new CompletableFuture<>(), new AtomicReference<>());
         ChannelEntry previous = channels.put(executionId, current);
         if (previous != null && !previous.connectionId().equals(connectionId)) {
             // a command may be waiting on the protocol of the previous connection: let it see the one of the new
@@ -64,6 +69,20 @@ public class WorkerRegistry {
         if (entry != null && entry.connectionId().equals(connectionId)) {
             entry.protocol().complete(protocol);
         }
+    }
+
+    /** Records the Camel version the worker reported (camel-cli-connector hello). */
+    public void camelVersionDetected(String executionId, String camelVersion) {
+        ChannelEntry entry = channels.get(executionId);
+        if (entry != null) {
+            entry.camelVersion().set(camelVersion);
+        }
+    }
+
+    /** Returns the Camel version the connected worker reported, or null when unknown. */
+    public String camelVersion(String executionId) {
+        ChannelEntry entry = channels.get(executionId);
+        return entry != null ? entry.camelVersion().get() : null;
     }
 
     /**
