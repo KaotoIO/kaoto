@@ -90,7 +90,9 @@ public final class ConnectorProtocolCodec {
                 executionId,
                 hello.path("camelVersion").asText(null),
                 null,
-                "camel-cli-connector/v" + hello.path("v").asInt());
+                "file".equals(hello.path("transport").asText())
+                        ? "camel-cli-connector/file"
+                        : "camel-cli-connector/v" + hello.path("v").asInt());
     }
 
     /** Maps the connector's status snapshot (the content of the CLI status file) to a telemetry snapshot. */
