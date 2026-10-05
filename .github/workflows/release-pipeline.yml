@@ -21,6 +21,12 @@ on:
           Run full VS Code UI + deploy tests (minikube) before packaging
         required: false
         default: true
+      run_e2e_tests:
+        type: boolean
+        description: |
+          Run Cypress E2E tests (Chrome, Firefox, Edge) before publishing the UI npm package
+        required: false
+        default: true
 
 jobs:
   setup:
@@ -61,6 +67,7 @@ jobs:
     uses: ./.github/workflows/release-ui.yml
     with:
       release_tag: ${{ needs.setup.outputs.release_tag }}
+      run_e2e_tests: ${{ inputs.run_e2e_tests }}
     secrets: inherit
 
   call-release-container:
