@@ -87,10 +87,10 @@ jobs:
       - call-release-vscode
       - call-release-ui
       - call-release-container
-    # always() prevents GitHub Actions from propagating the skip when UI or Container jobs are
-    # skipped on snapshot runs.
+    # !cancelled() prevents tagging and releasing when the workflow is cancelled while still
+    # allowing tag-and-release to run when UI or Container jobs are skipped on snapshot runs.
     if: |
-      always() &&
+      !cancelled() &&
       needs.setup.result == 'success' &&
       needs.call-release-vscode.result == 'success' &&
       (needs.call-release-ui.result == 'success' || needs.call-release-ui.result == 'skipped') &&

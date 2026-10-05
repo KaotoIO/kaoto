@@ -1,0 +1,27 @@
+name: 🌙 Nightly Tests — full matrix on main
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ui-e2e:
+    name: UI E2E (all browsers)
+    uses: ./.github/workflows/e2e-tests.yml
+    with:
+      full-matrix: true
+      include-weekly-tests: true
+    secrets: inherit
+
+  vscode:
+    name: VS Code integration (all platforms)
+    uses: ./.github/workflows/kaoto-vscode-build-lint-test.yml
+    with:
+      run-full-ui-tests: true
+      run-deploy-tests: true
+      full-matrix: true
+    secrets: inherit
