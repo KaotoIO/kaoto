@@ -5,6 +5,7 @@ import { RouteConfigArray } from '../types/routes';
 const Dashboard = lazy(() => import('../pages/Dashboard/Dashboard'));
 const NotFound = lazy(() => import('../pages/NotFound/NotFound'));
 const ProjectPage = lazy(() => import('../pages/Project/ProjectPage'));
+const IntegrationShell = lazy(() => import('../pages/Project/IntegrationShell'));
 const ConfigPage = lazy(() => import('../pages/Config/ConfigPage'));
 const ProjectConfigPage = lazy(() => import('../pages/ProjectConfig/ProjectConfigPage'));
 
@@ -33,6 +34,7 @@ export const routes: RouteConfigArray = [
           },
           {
             path: 'integration/:integrationId',
+            element: IntegrationShell,
           },
           {
             path: 'config',

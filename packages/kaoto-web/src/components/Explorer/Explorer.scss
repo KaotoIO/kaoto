@@ -6,6 +6,40 @@
   flex-shrink: 0;
   block-size: 100%;
   display: flex;
-  align-items: flex-start;
-  padding: $spacing-05;
+  flex-direction: column;
+  background-color: $background;
+  border-inline-end: 1px solid $border-subtle-01;
+  overflow: hidden;
+}
+
+.cs--explorer__route-selector {
+  flex-shrink: 0;
+  min-block-size: $spacing-09;
+  border-block-end: 1px solid $border-subtle-01;
+}
+
+.cs--explorer__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: $spacing-03;
+  padding-block: $spacing-02;
+  flex-shrink: 0;
+  background-color: $background;
+  border-block-end: 1px solid $border-subtle-01;
+}
+
+.cs--explorer__search {
+  flex-shrink: 0;
+  padding: $spacing-02;
+
+  .cds--search {
+    inline-size: 100%;
+  }
+}
+
+.cs--explorer__tree {
+  flex: 1;
+  overflow-y: auto;
+  padding-block: $spacing-01;
 }
