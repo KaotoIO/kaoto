@@ -109,6 +109,8 @@ public class WorkerWebSocketHandler {
             eventBus.publishReady(executionId, frame);
         } else if ("camel.telemetry.snapshot".equals(msg.type())) {
             eventBus.publishState(executionId, "telemetry", frame);
+        } else if ("camel.cmd.ack".equals(msg.type())) {
+            eventBus.publish(executionId, ExecutionEventBus.Tag.of("result"), frame);
         } else {
             eventBus.publish(executionId, frame);
         }

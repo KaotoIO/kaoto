@@ -60,6 +60,7 @@ public class ConnectorFrameHandler {
                     eventBus.publishState(
                             executionId,
                             "telemetry",
+                            ExecutionEventBus.Tag.raw("telemetry"),
                             mapper.writeValueAsString(
                                     ConnectorProtocolCodec.telemetry(executionId, node.path("data"))));
                 }
@@ -75,9 +76,13 @@ public class ConnectorFrameHandler {
         String kind = node.path("kind").asText();
         if ("snapshot".equals(type) && !"trace".equals(kind) && !"receive".equals(kind)) {
             // status, debug, history, error, activity: the latest value is all a client needs
-            eventBus.publishState(executionId, "connector." + kind, rawFrame);
-        } else {
+            eventBus.publishState(executionId, "connector." + kind, ExecutionEventBus.Tag.raw(kind), rawFrame);
+        } else if ("snapshot".equals(type)) {
             // trace and receive snapshots only hold the new messages: every one of them is an event
+            eventBus.publish(executionId, ExecutionEventBus.Tag.raw(kind), rawFrame);
+        } else if ("result".equals(type)) {
+            eventBus.publish(executionId, ExecutionEventBus.Tag.of("result"), rawFrame);
+        } else {
             eventBus.publish(executionId, rawFrame);
         }
     }

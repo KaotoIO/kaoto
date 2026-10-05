@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,6 +29,11 @@ import org.jboss.logging.Logger;
  * status), and nothing is buffered per client. A client so slow that the ring dropped events it had not read gets a
  * {@code kompanion.gap} event saying which ones, and goes on. A client that reconnects with the sequence of the last
  * event it got goes on from there.
+ *
+ * <p>Every entry has a {@link Tag}: its kind, the route it is about (if any) and the {@link View} it belongs to. A
+ * client without a {@link Filter} gets the raw view (every frame as the worker sent it); a client with one gets the
+ * sliced view (frames cut per route), restricted to the kinds and routes of its filter, which it can change while it
+ * reads.
  */
 @ApplicationScoped
 public class ExecutionEventBus {
@@ -37,10 +43,61 @@ public class ExecutionEventBus {
     /** The state key of the worker-ready frame, replayed to every client. */
     public static final String READY = "ready";
 
+    /** Kinds every filtered client gets, whatever its filter. */
+    public static final Set<String> ALWAYS = Set.of(READY, "result", "lifecycle", "gap", "subscribed");
+
     /** An event of the log: its sequence (the SSE event id) and its JSON. */
     public record LogEvent(long seq, String json) {}
 
-    private record Entry(long seq, String key, String json, int bytes) {}
+    /** Which clients an entry is for: the ones without a filter (raw), with one (sliced), or both. */
+    public enum View {
+        RAW,
+        SLICED,
+        BOTH
+    }
+
+    /** What an entry is about: its kind (status, trace, result, ...), its route (or null) and its view. */
+    public record Tag(String kind, String routeId, View view) {
+        public static Tag of(String kind) {
+            return new Tag(kind, null, View.BOTH);
+        }
+
+        public static Tag raw(String kind) {
+            return new Tag(kind, null, View.RAW);
+        }
+
+        public static Tag sliced(String kind, String routeId) {
+            return new Tag(kind, routeId, View.SLICED);
+        }
+    }
+
+    /**
+     * What a client wants: the kinds (null: all of them) and the routes (null: all of them; entries about no route are
+     * always included). Kinds in {@link #ALWAYS} are always included.
+     */
+    public record Filter(Set<String> kinds, Set<String> routes) {
+        public Filter {
+            kinds = kinds == null ? null : Set.copyOf(kinds);
+            routes = routes == null ? null : Set.copyOf(routes);
+        }
+
+        boolean matches(Tag tag) {
+            if (tag.view() == View.RAW) {
+                return false;
+            }
+            if (ALWAYS.contains(tag.kind())) {
+                return true;
+            }
+            if (kinds != null && !kinds.contains(tag.kind())) {
+                return false;
+            }
+            return routes == null || tag.routeId() == null || routes.contains(tag.routeId());
+        }
+    }
+
+    private record Entry(long seq, String key, String json, int bytes, Tag tag) {}
+
+    private static final Tag EVENT = new Tag("event", null, View.BOTH);
 
     @ConfigProperty(name = "kaoto.kompanion.events.buffer", defaultValue = "4096")
     int bufferSize = 4096;
@@ -50,28 +107,62 @@ public class ExecutionEventBus {
 
     private final Map<String, ExecutionLog> logs = new ConcurrentHashMap<>();
 
-    /** Returns the event stream for the given executionId, or null if none exists. */
+    /** Returns the raw event stream for the given executionId, or null if none exists. */
     public Multi<String> streamFor(String executionId) {
-        Multi<LogEvent> events = eventsFor(executionId, null);
+        Multi<LogEvent> events = eventsFor(executionId, null, null);
         return events == null ? null : events.map(LogEvent::json);
     }
 
     /**
      * Returns the events of the given executionId with their sequence, or null if none exists. Without
      * {@code lastEventId} the client gets the current states and the events from now on; with it, also the events after
-     * that one still in the log (a gap event for the ones that are not).
+     * that one still in the log (a gap event for the ones that are not). Without {@code filter} the client gets the raw
+     * view; with one, the sliced view, starting with a {@code kompanion.subscribed} event carrying the id to change the
+     * filter with ({@link #updateFilter}).
      */
-    public Multi<LogEvent> eventsFor(String executionId, Long lastEventId) {
+    public Multi<LogEvent> eventsFor(String executionId, Long lastEventId, Filter filter) {
         ExecutionLog log = logs.get(executionId);
         if (log == null) {
             return null;
         }
         return Multi.createFrom().emitter(emitter -> {
-            var subscriber = log.subscribe(emitter, lastEventId);
+            var subscriber = log.subscribe(emitter, lastEventId, filter);
             emitter.onRequest(n -> subscriber.drain());
             emitter.onTermination(() -> log.unsubscribe(subscriber));
             subscriber.drain();
         });
+    }
+
+    /**
+     * Changes the filter of a filtered client: it then gets the current value of every state in its new filter, and the
+     * new events that match it. Returns false when the client is unknown (or not filtered).
+     */
+    public boolean updateFilter(String executionId, String subscriptionId, Filter filter) {
+        ExecutionLog log = logs.get(executionId);
+        Subscriber subscriber = log != null ? log.subscribers.get(subscriptionId) : null;
+        if (subscriber == null || subscriber.filter == null || filter == null) {
+            return false;
+        }
+        synchronized (log) {
+            subscriber.filter = filter;
+            subscriber.delivered.clear();
+        }
+        subscriber.drain();
+        return true;
+    }
+
+    /** The filters of the filtered clients of the given execution, by subscription id. */
+    public Map<String, Filter> filters(String executionId) {
+        ExecutionLog log = logs.get(executionId);
+        Map<String, Filter> filters = new HashMap<>();
+        if (log != null) {
+            log.subscribers.forEach((id, s) -> {
+                if (s.filter != null) {
+                    filters.put(id, s.filter);
+                }
+            });
+        }
+        return filters;
     }
 
     /**
@@ -94,22 +185,32 @@ public class ExecutionEventBus {
         LOG.debugf("Event log opened for execution=%s connectionId=%s", executionId, connectionId);
     }
 
-    /** Publishes an event: every client gets it, in order. */
+    /** Publishes an event for every client: every one of them gets it, in order. */
     public void publish(String executionId, String jsonFrame) {
+        publish(executionId, EVENT, jsonFrame);
+    }
+
+    /** Publishes an event for the clients its tag is for. */
+    public void publish(String executionId, Tag tag, String jsonFrame) {
         ExecutionLog log = logs.get(executionId);
         if (log != null) {
-            log.append(null, jsonFrame);
+            log.append(null, tag, jsonFrame);
         }
     }
 
     /**
-     * Publishes the new value of a state (status, debug, ...): a client that did not get the previous value yet only
-     * gets this one.
+     * Publishes the new value of a state (status, debug, ...) for every client: a client that did not get the previous
+     * value yet only gets this one.
      */
     public void publishState(String executionId, String key, String jsonFrame) {
+        publishState(executionId, key, Tag.of(key), jsonFrame);
+    }
+
+    /** Publishes the new value of a state for the clients its tag is for. */
+    public void publishState(String executionId, String key, Tag tag, String jsonFrame) {
         ExecutionLog log = logs.get(executionId);
         if (log != null) {
-            log.append(key, jsonFrame);
+            log.append(key, tag, jsonFrame);
         }
     }
 
@@ -139,7 +240,8 @@ public class ExecutionEventBus {
         private final ConcurrentSkipListMap<Long, Entry> events = new ConcurrentSkipListMap<>();
         // key -> latest entry
         private final Map<String, Entry> states = new LinkedHashMap<>();
-        private final Set<Subscriber> subscribers = ConcurrentHashMap.newKeySet();
+        // subscription id -> client
+        private final Map<String, Subscriber> subscribers = new ConcurrentHashMap<>();
         private long seq;
         private long eventBytes;
         // the events up to this sequence were dropped from the ring
@@ -151,12 +253,12 @@ public class ExecutionEventBus {
             this.connectionId = connectionId;
         }
 
-        void append(String key, String json) {
+        void append(String key, Tag tag, String json) {
             synchronized (this) {
                 if (closed) {
                     return;
                 }
-                Entry entry = new Entry(++seq, key, json, json.getBytes(StandardCharsets.UTF_8).length);
+                Entry entry = new Entry(++seq, key, json, json.getBytes(StandardCharsets.UTF_8).length, tag);
                 if (key != null) {
                     states.put(key, entry);
                 } else {
@@ -170,36 +272,48 @@ public class ExecutionEventBus {
                     }
                 }
             }
-            subscribers.forEach(Subscriber::drain);
+            subscribers.values().forEach(Subscriber::drain);
         }
 
         synchronized void removeState(String key) {
             states.remove(key);
         }
 
-        Subscriber subscribe(MultiEmitter<? super LogEvent> emitter, Long lastEventId) {
+        Subscriber subscribe(MultiEmitter<? super LogEvent> emitter, Long lastEventId, Filter filter) {
             Subscriber subscriber;
             synchronized (this) {
                 // a new client starts from now; a client that comes back goes on after the last event it got
-                subscriber = new Subscriber(this, emitter, lastEventId != null ? Math.min(lastEventId, seq) : seq);
+                long from = lastEventId != null ? Math.min(lastEventId, seq) : seq;
+                subscriber = new Subscriber(this, emitter, from, filter);
+                if (filter != null) {
+                    subscriber.pending = new LogEvent(
+                            from,
+                            "{\"type\":\"kompanion.subscribed\",\"executionId\":\"" + executionId
+                                    + "\",\"subscriptionId\":\"" + subscriber.id + "\"}");
+                }
             }
-            subscribers.add(subscriber);
+            subscribers.put(subscriber.id, subscriber);
             return subscriber;
         }
 
         void unsubscribe(Subscriber subscriber) {
-            subscribers.remove(subscriber);
+            subscribers.remove(subscriber.id);
         }
 
         void close() {
             synchronized (this) {
                 closed = true;
             }
-            subscribers.forEach(Subscriber::drain);
+            subscribers.values().forEach(Subscriber::drain);
         }
 
         /** The next item for the subscriber, moving its position, or null when it read everything. */
         synchronized LogEvent next(Subscriber s) {
+            if (s.pending != null) {
+                LogEvent pending = s.pending;
+                s.pending = null;
+                return pending;
+            }
             if (s.eventCursor < droppedUpTo) {
                 long from = s.eventCursor + 1;
                 s.eventCursor = droppedUpTo;
@@ -208,7 +322,7 @@ public class ExecutionEventBus {
                         "{\"type\":\"kompanion.gap\",\"executionId\":\"" + executionId + "\",\"from\":" + from
                                 + ",\"to\":" + droppedUpTo + "}");
             }
-            Map.Entry<Long, Entry> event = events.higherEntry(s.eventCursor);
+            Map.Entry<Long, Entry> event = nextEvent(s);
             Entry state = nextState(s);
             if (state != null && (event == null || state.seq() < event.getKey())) {
                 s.delivered.put(state.key(), state.seq());
@@ -218,19 +332,32 @@ public class ExecutionEventBus {
                 s.eventCursor = event.getKey();
                 return new LogEvent(event.getKey(), event.getValue().json());
             }
+            // the events the client does not want are read too
+            s.eventCursor = Math.max(s.eventCursor, events.isEmpty() ? s.eventCursor : events.lastKey());
             return null;
         }
 
         /** Whether the subscriber read everything, without moving its position. */
         synchronized boolean caughtUp(Subscriber s) {
-            return s.eventCursor >= droppedUpTo && events.higherEntry(s.eventCursor) == null && nextState(s) == null;
+            return s.pending == null && s.eventCursor >= droppedUpTo && nextEvent(s) == null && nextState(s) == null;
         }
 
-        /** The oldest state value the subscriber did not get yet. */
+        /** The next event the subscriber wants. */
+        private Map.Entry<Long, Entry> nextEvent(Subscriber s) {
+            Map.Entry<Long, Entry> event = events.higherEntry(s.eventCursor);
+            while (event != null && !s.wants(event.getValue().tag())) {
+                event = events.higherEntry(event.getKey());
+            }
+            return event;
+        }
+
+        /** The oldest state value the subscriber wants and did not get yet. */
         private Entry nextState(Subscriber s) {
             Entry next = null;
             for (Entry e : states.values()) {
-                if (e.seq() > s.delivered.getOrDefault(e.key(), 0L) && (next == null || e.seq() < next.seq())) {
+                if (s.wants(e.tag())
+                        && e.seq() > s.delivered.getOrDefault(e.key(), 0L)
+                        && (next == null || e.seq() < next.seq())) {
                     next = e;
                 }
             }
@@ -238,19 +365,30 @@ public class ExecutionEventBus {
         }
     }
 
-    /** A client of a log: its position, and the stream it reads at its own pace. */
+    /** A client of a log: its position, its filter, and the stream it reads at its own pace. */
     private static final class Subscriber {
+        private final String id = UUID.randomUUID().toString();
         private final ExecutionLog log;
         private final MultiEmitter<? super LogEvent> emitter;
         private final AtomicInteger wip = new AtomicInteger();
         // the last event read, and the sequence of the last value read of every state
         private long eventCursor;
         private final Map<String, Long> delivered = new HashMap<>();
+        // null: the raw view
+        private volatile Filter filter;
+        // sent before anything else
+        private LogEvent pending;
 
-        Subscriber(ExecutionLog log, MultiEmitter<? super LogEvent> emitter, long eventCursor) {
+        Subscriber(ExecutionLog log, MultiEmitter<? super LogEvent> emitter, long eventCursor, Filter filter) {
             this.log = log;
             this.emitter = emitter;
             this.eventCursor = eventCursor;
+            this.filter = filter;
+        }
+
+        boolean wants(Tag tag) {
+            Filter f = filter;
+            return f == null ? tag.view() != View.SLICED : f.matches(tag);
         }
 
         /** Emits what the client asked for and the log has; one thread at a time, the others leave it more to do. */
