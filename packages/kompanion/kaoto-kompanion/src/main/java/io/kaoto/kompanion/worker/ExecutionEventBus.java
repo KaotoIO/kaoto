@@ -133,6 +133,11 @@ public class ExecutionEventBus {
         }
     }
 
+    /** Whether the given execution has a log (its worker is connected, or it reconnects). */
+    public boolean isOpen(String executionId) {
+        return logs.containsKey(executionId);
+    }
+
     /** The latest value of a state of the given execution, or null. */
     public String latestState(String executionId, String key) {
         ExecutionLog log = logs.get(executionId);
