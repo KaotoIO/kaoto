@@ -18,6 +18,8 @@ class ConnectorFrameHandlerTest {
         var handler = new ConnectorFrameHandler();
         handler.eventBus = bus;
         handler.registry = new WorkerRegistry();
+        handler.slicer = new SnapshotSlicer();
+        handler.slicer.eventBus = bus;
         bus.open("exec-1", "conn-1");
         AssertSubscriber<String> client =
                 bus.streamFor("exec-1").subscribe().withSubscriber(AssertSubscriber.create(0));

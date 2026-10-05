@@ -23,6 +23,9 @@ public class ConnectorFrameHandler {
     @Inject
     ExecutionEventBus eventBus;
 
+    @Inject
+    SnapshotSlicer slicer;
+
     private final ObjectMapper mapper = new ObjectMapper();
 
     /** Handles one connector frame. The node is retagged in place and must not be used by the caller afterwards. */
@@ -34,6 +37,8 @@ public class ConnectorFrameHandler {
         String type = node.path("type").asText();
         switch (type) {
             case "hello" -> {
+                // a new connection: its slices start over
+                slicer.reset(executionId);
                 JsonNode pid = node.path("runtime").path("pid");
                 registry.workerDescribed(
                         executionId,
@@ -55,6 +60,8 @@ public class ConnectorFrameHandler {
                 }
             }
             case "snapshot" -> {
+                // for the clients that filter
+                slicer.slice(executionId, node.path("kind").asText(), node.path("data"));
                 if ("status".equals(node.path("kind").asText())) {
                     // periodic: a slow SSE client only needs the latest one
                     eventBus.publishState(
