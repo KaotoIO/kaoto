@@ -129,9 +129,8 @@ public class FileWorker {
     }
 
     /**
-     * Reads the status and returns the hello frame built from it, or null while the status holds no Camel context yet
-     * (the connector writes it once Camel is up). Also starts tailing trace and receive from their current end: the
-     * messages written before are not sent.
+     * Reads the status and returns the hello frame built from it, or null until the Camel context started. Also starts
+     * tailing trace and receive from their current end: the messages written before are not sent.
      */
     public ObjectNode hello() {
         JsonNode s = status.read();
@@ -140,7 +139,10 @@ public class FileWorker {
         }
         s = lastStatus;
         String version = s != null ? s.path("context").path("version").asText(null) : null;
-        if (version == null) {
+        // the context is in the status from the start, with no routes until it started: the WebSocket transport says
+        // hello once Camel started, so does this one
+        String state = s != null ? s.path("context").path("state").asText() : "";
+        if (version == null || !(state.equals("Started") || state.equals("Suspended"))) {
             return null;
         }
         tails.values().forEach(TailedFile::skipToEnd);
