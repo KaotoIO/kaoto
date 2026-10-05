@@ -140,10 +140,6 @@ const commonConfig = (env) => {
             from: path.resolve(require.resolve('@kaoto/camel-catalog/package.json'), '../dist/camel-catalog'),
             to: 'webview/editors/kaoto/camel-catalog',
           },
-          {
-            from: path.resolve(__dirname, '../ui/dist-webview/KaotoEditorEnvelopeApp.js'),
-            to: 'webview/KaotoEditorEnvelopeApp.js',
-          },
         ],
       }),
       new DefinePlugin({
@@ -169,6 +165,70 @@ const webpack = async (env) => [
       'extension/extensionWeb': './src/extension/extensionWeb.ts',
     },
   }),
+  ...(!env.dev || !process.env['KAOTO_DEV_URL']
+    ? [
+        merge(commonConfig(env), {
+          target: 'web',
+          entry: {
+            'webview/KaotoEditorEnvelopeApp': './src/webview/KaotoEditorEnvelopeApp.ts',
+          },
+          module: {
+            rules: [
+              {
+                test: /\.s[ac]ss$/i,
+                use: [
+                  'style-loader',
+                  'css-loader',
+                  {
+                    loader: 'sass-loader',
+                    options: {
+                      sassOptions: {
+                        quietDeps: true,
+                        silenceDeprecations: ['mixed-decls'],
+                      },
+                    },
+                  },
+                ],
+              },
+              {
+                test: /\.css$/,
+                use: ['style-loader', 'css-loader'],
+              },
+              {
+                test: /\.(svg|ttf|eot|woff|woff2)$/,
+                include: [
+                  {
+                    or: [
+                      (input) =>
+                        posixPath(input).includes('node_modules/@patternfly/react-core/dist/styles/assets/fonts'),
+                      (input) =>
+                        posixPath(input).includes('node_modules/@patternfly/react-core/dist/styles/assets/pficon'),
+                      (input) =>
+                        posixPath(input).includes('node_modules/monaco-editor/esm/vs/base/browser/ui/codicons/codicon'),
+                      (input) =>
+                        posixPath(input).includes('node_modules/monaco-editor/dev/vs/base/browser/ui/codicons/codicon'),
+                    ],
+                  },
+                ],
+                type: 'asset',
+                generator: {
+                  filename: 'fonts/[name].[ext]',
+                },
+              },
+              {
+                test: /\.(svg|jpg|jpeg|png|gif)$/i,
+                type: 'asset',
+              },
+            ],
+          },
+          ignoreWarnings: [/Failed to parse source map/],
+          stats: {
+            errorDetails: true,
+            children: true,
+          },
+        }),
+      ]
+    : []),
 ];
 
 module.exports = async function createWebpackConfig(env) {

@@ -33,10 +33,58 @@
       "problemMatcher": []
     },
     {
+      "type": "process",
+      "label": "start: @kaoto/kaoto vite dev server",
+      "command": "node",
+      "args": ["${workspaceFolder}/packages/ui/scripts/vscode-vite-dev-server.mjs", "start"],
+      "options": {
+        "cwd": "${workspaceFolder}/packages/ui",
+        "env": {
+          "KAOTO_DEV_URL": "http://127.0.0.1:5173"
+        }
+      },
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^$"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^$",
+          "endsPattern": "ready in"
+        }
+      },
+      "isBackground": true
+    },
+    {
+      "label": "watch:vscode-kaoto",
+      "dependsOrder": "parallel",
+      "dependsOn": ["start: @kaoto/kaoto vite dev server", "watch: vscode-kaoto webpack"],
+      "problemMatcher": []
+    },
+    {
+      "label": "stop: @kaoto/kaoto vite dev server",
+      "type": "process",
+      "command": "node",
+      "args": ["${workspaceFolder}/packages/ui/scripts/vscode-vite-dev-server.mjs", "stop"],
+      "options": {
+        "cwd": "${workspaceFolder}/packages/ui"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "never",
+        "close": true
+      }
+    },
+    {
       "path": "packages/kaoto-vscode",
       "type": "npm",
-      "label": "watch:vscode-kaoto",
+      "label": "watch: vscode-kaoto webpack",
       "script": "watch",
+      "options": {
+        "env": {
+          "KAOTO_DEV_URL": "http://127.0.0.1:5173"
+        }
+      },
       "problemMatcher": "$tsc-watch",
       "isBackground": true,
       "presentation": {

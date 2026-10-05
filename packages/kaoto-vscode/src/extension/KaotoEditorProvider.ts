@@ -15,14 +15,13 @@
  * limitations under the License.
  */
 
-import * as vscode from 'vscode';
 import {
 	BridgeError,
 	createEventBus,
 	createPostMessageBridge,
+	FileTypes,
 	type BridgeConnection,
 	type ContentSnapshot,
-	FileTypes,
 	type IEventBus,
 	type JsonValue,
 	type KaotoRequests,
@@ -31,8 +30,9 @@ import {
 	type Unsubscribe,
 } from '@kaoto/editor-api';
 import type { SuggestionRequestContext } from '@kaoto/kaoto/models';
-import { KaotoHostServices } from '../services/KaotoHostServices';
+import * as vscode from 'vscode';
 import { KAOTO_EDITOR_VIEW_TYPE } from '../constants';
+import { KaotoHostServices } from '../services/KaotoHostServices';
 import { KaotoOutputChannel } from './KaotoOutputChannel';
 
 export type KaotoHostServicesFactory = (getDocumentUri: () => vscode.Uri) => KaotoHostServices;
@@ -246,8 +246,10 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 				}
 			},
 		});
+		const isDevMode = !!viteDevUrl();
 		session.bridge = createPostMessageBridge({
 			bus: session.bus,
+			handshakeTimeoutMs: isDevMode ? 60_000 : undefined,
 			transport: {
 				send: async (message) => {
 					// Only validated outgoing welcome messages identify a new editor session.
@@ -365,7 +367,14 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 				vscode.workspace.getWorkspaceFolder(document.uri)?.uri ?? vscode.Uri.joinPath(document.uri, '..'),
 			],
 		};
-		panel.webview.html = this.html(document.uri, panel.webview);
+		try {
+			const html = await this.html(document.uri, panel.webview);
+			checkCancellation(token);
+			panel.webview.html = html;
+		} catch (error) {
+			this.disposeDocument(state);
+			throw error;
+		}
 		void session.bridge.connect().catch(report);
 	}
 
@@ -610,22 +619,29 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 	private resourcesPrefix(webview: vscode.Webview): string {
 		return webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'dist/webview/editors/kaoto')).toString();
 	}
-	private html(uri: vscode.Uri, webview: vscode.Webview): string {
-		const nonce = Array.from(crypto.getRandomValues(new Uint8Array(16)), (byte) => byte.toString(16).padStart(2, '0')).join('');
+	private async html(uri: vscode.Uri, webview: vscode.Webview): Promise<string> {
 		const filename = uri.path.slice(uri.path.lastIndexOf('/') + 1);
 		const extension = filename.slice(filename.indexOf('.') + 1);
-		const devUrl = process.env['KAOTO_DEV_URL'];
+		const devUrl = viteDevUrl();
 
 		if (devUrl) {
-			// Dev mode: load directly from the Vite dev server for HMR.
-			// CSP is relaxed to allow localhost scripts and WebSocket connections.
-			return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src ${webview.cspSource} '${devUrl}' 'unsafe-inline' 'unsafe-eval'; style-src ${webview.cspSource} '${devUrl}' 'unsafe-inline'; img-src ${webview.cspSource} data: blob: https:; font-src ${webview.cspSource} data:; connect-src ${webview.cspSource} ${devUrl} ws: wss: https: http: data: blob:; worker-src ${webview.cspSource} blob:;">
-<style nonce="${nonce}">html,body,#envelope-app{margin:0;border:0;padding:0;height:100%;}html body{block-size:100%;overflow:hidden;}</style></head><body>
-<div id="envelope-app" data-file-extension="${escapeAttribute(extension)}" data-resources-path-prefix="${escapeAttribute(devUrl)}"></div>
-<script type="module" nonce="${nonce}" src="${escapeAttribute(`${devUrl}/src/webview-entry.tsx`)}"></script></body></html>`;
+			const origin = new URL(devUrl).origin;
+			const response = await fetch(`${origin}/vscode.html`);
+			if (!response.ok) {
+				throw new Error(`Could not load Vite webview HTML: ${response.status} ${response.statusText}`);
+			}
+			let html = await response.text();
+			const csp = `default-src 'none'; script-src ${webview.cspSource} ${origin} 'unsafe-inline' 'unsafe-eval'; style-src ${webview.cspSource} ${origin} 'unsafe-inline'; img-src ${webview.cspSource} ${origin} data: blob: https:; font-src ${webview.cspSource} ${origin} data:; connect-src ${webview.cspSource} ${origin} ws: wss: https: http: data: blob:; worker-src ${webview.cspSource} blob:;`;
+			html = replaceDevHtmlToken(html, '__KAOTO_CSP__', escapeAttribute(csp));
+			html = replaceDevHtmlToken(html, '__KAOTO_FILE_EXTENSION__', escapeAttribute(extension));
+			html = replaceDevHtmlToken(html, '__KAOTO_RESOURCES_PATH_PREFIX__', escapeAttribute(origin));
+			for (const path of ['/@vite/client', '/@react-refresh', '/src/webview-dev-entry.tsx']) {
+				html = replaceDevHtmlToken(html, `"${path}"`, `"${escapeAttribute(origin)}${path}"`);
+			}
+			return html;
 		}
 
+		const nonce = Array.from(crypto.getRandomValues(new Uint8Array(16)), (byte) => byte.toString(16).padStart(2, '0')).join('');
 		const script = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'dist/webview/KaotoEditorEnvelopeApp.js')).toString();
 		// Shared Carbon styles reserve space for the standalone header; embedded editors need the full viewport.
 		return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -687,6 +703,15 @@ function report(error: unknown): void {
 }
 function escapeAttribute(value: string): string {
 	return value.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+}
+function viteDevUrl(): string | undefined {
+	return typeof process === 'undefined' ? undefined : process.env['KAOTO_DEV_URL'];
+}
+function replaceDevHtmlToken(html: string, token: string, replacement: string): string {
+	if (!html.includes(token)) {
+		throw new Error(`The Vite webview HTML is missing ${token}`);
+	}
+	return html.replaceAll(token, replacement);
 }
 function themeName(): KaotoEventsTheme {
 	switch (vscode.window.activeColorTheme.kind) {

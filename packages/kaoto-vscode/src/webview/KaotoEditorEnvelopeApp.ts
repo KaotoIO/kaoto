@@ -15,13 +15,13 @@ declare const acquireVsCodeApi: () => { postMessage(message: unknown): void };
 
 const api = acquireVsCodeApi();
 startKaotoWebview({
-  send: (message) => {
-    api.postMessage(message);
-  },
-  onMessage: (handler) => {
-    const listener = (event: MessageEvent) => handler(event.data);
-    window.addEventListener('message', listener);
-    return () => window.removeEventListener('message', listener);
-  },
-  dispose: () => {},
+	send: (message) => {
+		api.postMessage(message);
+	},
+	onMessage: (handler) => {
+		const listener = (event: MessageEvent) => handler(event.data);
+		window.addEventListener('message', listener);
+		return () => window.removeEventListener('message', listener);
+	},
+	dispose: () => {},
 });

@@ -2,6 +2,26 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Run Extension (Vite dev server)",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": ["--disable-extensions", "--extensionDevelopmentPath=${workspaceFolder}/packages/kaoto-vscode"],
+      "outFiles": ["${workspaceFolder}/packages/kaoto-vscode/dist/**/*.js"],
+      "debugWebviews": true,
+      "rendererDebugOptions": {
+        "webRoot": "${workspaceFolder}/packages/ui",
+        "sourceMaps": true,
+        "resolveSourceMapLocations": null
+      },
+      "preLaunchTask": "watch:vscode-kaoto",
+      "postDebugTask": "stop: @kaoto/kaoto vite dev server",
+      "env": {
+        "VSCODE_REDHAT_TELEMETRY_DEBUG": "true",
+        "KAOTO_DEV_URL": "http://127.0.0.1:5173"
+      }
+    },
+    {
       "name": "Run Extension",
       "type": "extensionHost",
       "request": "launch",
@@ -14,24 +34,15 @@
       }
     },
     {
-      "name": "Run Extension (Vite dev server)",
-      "type": "extensionHost",
-      "request": "launch",
-      "runtimeExecutable": "${execPath}",
-      "args": ["--disable-extensions", "--extensionDevelopmentPath=${workspaceFolder}/packages/kaoto-vscode"],
-      "outFiles": ["${workspaceFolder}/packages/kaoto-vscode/dist/**/*.js"],
-      "preLaunchTask": "watch:vscode-kaoto",
-      "env": {
-        "VSCODE_REDHAT_TELEMETRY_DEBUG": "true",
-        "KAOTO_DEV_URL": "http://localhost:5173"
-      }
-    },
-    {
       "name": "Run Web Extension",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
-      "args": ["--disable-extensions", "--extensionDevelopmentPath=${workspaceFolder}/packages/kaoto-vscode", "--extensionDevelopmentKind=web"],
+      "args": [
+        "--disable-extensions",
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/kaoto-vscode",
+        "--extensionDevelopmentKind=web"
+      ],
       "outFiles": ["${workspaceFolder}/packages/kaoto-vscode/dist/**/*.js"],
       "preLaunchTask": "build:lib then watch",
       "env": {

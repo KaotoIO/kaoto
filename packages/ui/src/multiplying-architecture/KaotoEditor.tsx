@@ -55,13 +55,11 @@ export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
   const docRef = useRef<ReturnType<typeof bindEditorDocument> | null>(null);
   const listenersRef = useRef(new Set<() => void>());
 
-  if (!docRef.current) {
-    docRef.current = bindEditorDocument(bus, editorRef, () => {
-      listenersRef.current.forEach((l) => {
-        l();
-      });
+  docRef.current ??= bindEditorDocument(bus, editorRef, () => {
+    listenersRef.current.forEach((l) => {
+      l();
     });
-  }
+  });
 
   const subscribe = useCallback((listener: () => void) => {
     listenersRef.current.add(listener);
@@ -92,12 +90,13 @@ export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
   // Dispose bus on unmount (with Strict Mode guard)
   const mountsRef = useRef(0);
   useEffect(() => {
-    mountsRef.current++;
+    const mounts = mountsRef;
+    mounts.current++;
     return () => {
-      mountsRef.current--;
+      mounts.current--;
       // React Strict Mode replays mount effects. Dispose only after a real unmount.
       queueMicrotask(() => {
-        if (mountsRef.current === 0) {
+        if (mounts.current === 0) {
           docRef.current?.dispose();
           bus.dispose();
         }

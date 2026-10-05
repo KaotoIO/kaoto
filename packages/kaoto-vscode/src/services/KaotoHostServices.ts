@@ -29,20 +29,20 @@ import {
 	type StepUpdateAction,
 } from '@kaoto/editor-api';
 import type { Suggestion, SuggestionRequestContext } from '@kaoto/kaoto/models';
-import * as vscode from 'vscode';
 import path from 'path'; // NOSONAR: webpack supplies path-browserify in the worker
+import * as vscode from 'vscode';
 import {
+	KAOTO_CANVAS_LAYOUT_DIRECTION_SETTING_ID,
 	KAOTO_CATALOG_URL_SETTING_ID,
+	KAOTO_COLOR_THEME_SETTING_ID,
+	KAOTO_LOCAL_KAMELET_DIRECTORIES_SETTING_ID,
 	KAOTO_NODE_LABEL_SETTING_ID,
 	KAOTO_NODE_TOOLBAR_TRIGGER_SETTING_ID,
-	KAOTO_COLOR_THEME_SETTING_ID,
-	KAOTO_CANVAS_LAYOUT_DIRECTION_SETTING_ID,
-	KAOTO_REST_CUSTOM_MEDIA_TYPES_SETTING_ID,
 	KAOTO_REST_APICURIO_REGISTRY_URL_SETTING_ID,
-	KAOTO_LOCAL_KAMELET_DIRECTORIES_SETTING_ID,
+	KAOTO_REST_CUSTOM_MEDIA_TYPES_SETTING_ID,
 } from '../constants';
-import { getSuggestions } from './SuggestionRegistry';
 import { readKameletsFromDirectory } from './KameletFileReader';
+import { getSuggestions } from './SuggestionRegistry';
 
 export interface KaotoDesktopOperations {
 	getSelectedCatalog?: (uri: vscode.Uri) => Promise<{ name: string; runtime: string } | undefined>;
@@ -94,7 +94,8 @@ export class KaotoHostServices implements vscode.Disposable {
 			runtimeCatalogName: catalog && catalog.runtime.toLowerCase() !== 'citrus' ? catalog.name : '',
 			testingCatalogName: catalog?.runtime.toLowerCase() === 'citrus' ? catalog.name : '',
 			nodeLabel: (config.get<NodeLabelType | null>(KAOTO_NODE_LABEL_SETTING_ID) ?? NodeLabelType.Description) as ISettingsModel['nodeLabel'],
-			nodeToolbarTrigger: (config.get<NodeToolbarTrigger | null>(KAOTO_NODE_TOOLBAR_TRIGGER_SETTING_ID) ?? NodeToolbarTrigger.onHover) as ISettingsModel['nodeToolbarTrigger'],
+			nodeToolbarTrigger: (config.get<NodeToolbarTrigger | null>(KAOTO_NODE_TOOLBAR_TRIGGER_SETTING_ID) ??
+				NodeToolbarTrigger.onHover) as ISettingsModel['nodeToolbarTrigger'],
 			colorScheme: colorScheme as ISettingsModel['colorScheme'],
 			canvasLayoutDirection: (config.get<CanvasLayoutDirection | null>(KAOTO_CANVAS_LAYOUT_DIRECTION_SETTING_ID) ??
 				CanvasLayoutDirection.SelectInCanvas) as ISettingsModel['canvasLayoutDirection'],
