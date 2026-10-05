@@ -57,7 +57,8 @@ public class WorkerRegistry {
 
     Clock clock = Clock.systemUTC();
 
-    private final AtomicLong lastSweep = new AtomicLong();
+    // executionId -> when its commands were last swept (epoch millis)
+    private final Map<String, AtomicLong> lastSweeps = new ConcurrentHashMap<>();
 
     public void register(String executionId, String connectionId, Consumer<String> sendFrame) {
         ChannelEntry current = new ChannelEntry(
@@ -185,6 +186,7 @@ public class WorkerRegistry {
             return;
         }
         channels.remove(executionId);
+        lastSweeps.remove(executionId);
         Map<String, PendingEntry> entries = executions.remove(executionId);
         if (entries != null) {
             entries.values().forEach(entry -> {
@@ -216,7 +218,7 @@ public class WorkerRegistry {
         Map<String, PendingEntry> entries = executions.get(executionId);
         if (entries != null) {
             // room for this one
-            sweep(entries, 1);
+            sweep(executionId, entries, 1);
             entries.put(correlationId, new PendingEntry(future, CommandResult.pending(correlationId), clock.instant()));
         }
         ChannelEntry channelEntry = channels.get(executionId);
@@ -240,7 +242,7 @@ public class WorkerRegistry {
         Map<String, PendingEntry> entries = executions.get(executionId);
         if (entries != null) {
             // room for this one
-            sweep(entries, 1);
+            sweep(executionId, entries, 1);
             entries.put(correlationId, pending);
         }
         ChannelEntry channelEntry = channels.get(executionId);
@@ -298,9 +300,10 @@ public class WorkerRegistry {
     /**
      * Keeps the stored commands within limits: results expire {@code resultTtl} after they arrived, a command not
      * answered within {@code pendingTimeout} fails, and above {@code maxResults} the oldest results go. Runs at most
-     * once a second, or when the execution has too many commands.
+     * once a second per execution, or when the execution has too many commands.
      */
-    private void sweep(Map<String, PendingEntry> entries, int adding) {
+    private void sweep(String executionId, Map<String, PendingEntry> entries, int adding) {
+        AtomicLong lastSweep = lastSweeps.computeIfAbsent(executionId, id -> new AtomicLong());
         Instant now = clock.instant();
         long last = lastSweep.get();
         if (entries.size() + adding <= maxResults && now.toEpochMilli() - last < 1000 && now.toEpochMilli() >= last) {
@@ -337,7 +340,7 @@ public class WorkerRegistry {
     public CommandResult getResult(String executionId, String correlationId) {
         Map<String, PendingEntry> entries = executions.get(executionId);
         if (entries == null) return null;
-        sweep(entries, 0);
+        sweep(executionId, entries, 0);
         PendingEntry entry = entries.get(correlationId);
         return entry == null ? null : entry.result();
     }

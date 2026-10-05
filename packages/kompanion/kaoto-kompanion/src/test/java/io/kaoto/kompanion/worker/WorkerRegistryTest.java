@@ -274,4 +274,21 @@ class WorkerRegistryTest {
         registry.receiveAck("exec-1", "corr-1", true, "ok");
         assertNull(registry.getResult("exec-1", "corr-1"));
     }
+
+    @Test
+    void activityOfOneExecutionDoesNotDelayTheExpiryOfAnother() {
+        var clock = new FakeConnector.ManualClock();
+        var registry = new WorkerRegistry();
+        registry.clock = clock;
+        registry.register("busy", "conn-busy", msg -> {});
+        registry.register("idle", "conn-idle", msg -> {});
+        registry.sendCommand("idle", "corr-idle", "{}");
+        registry.receiveAck("idle", "corr-idle", true, "ok");
+
+        clock.advance(java.time.Duration.ofMinutes(11));
+        // a command of another execution right before the poll
+        registry.sendCommand("busy", "corr-busy", "{}");
+
+        assertNull(registry.getResult("idle", "corr-idle"));
+    }
 }
