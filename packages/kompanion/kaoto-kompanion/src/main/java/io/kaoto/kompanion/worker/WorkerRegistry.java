@@ -2,11 +2,17 @@ package io.kaoto.kompanion.worker;
 
 import io.kaoto.kompanion.model.CommandResult;
 import jakarta.enterprise.context.ApplicationScoped;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
 public class WorkerRegistry {
@@ -16,8 +22,11 @@ public class WorkerRegistry {
     /** Snapshot of the channel state at the moment a command is submitted. */
     public record ChannelSnapshot(String connectionId, CompletableFuture<WorkerProtocol> protocol) {}
 
-    /** Per-command state stored for the lifetime of the execution. */
-    private record PendingEntry(CompletableFuture<AckResult> future, CommandResult result) {}
+    /**
+     * Per-command state, kept for polling while the execution lives, within limits (see {@link #sweep}). {@code since}
+     * is when it was sent while pending, and when it got its result afterwards.
+     */
+    private record PendingEntry(CompletableFuture<AckResult> future, CommandResult result, Instant since) {}
 
     private record ChannelEntry(
             String connectionId,
@@ -29,6 +38,22 @@ public class WorkerRegistry {
     private final Map<String, ChannelEntry> channels = new ConcurrentHashMap<>();
     // executionId → (correlationId → PendingEntry)
     private final Map<String, Map<String, PendingEntry>> executions = new ConcurrentHashMap<>();
+
+    /** How long the result of a command is kept for polling, once it has one. */
+    @ConfigProperty(name = "kaoto.kompanion.command.result-ttl", defaultValue = "10m")
+    Duration resultTtl = Duration.ofMinutes(10);
+
+    /** A command the worker does not answer for this long fails. */
+    @ConfigProperty(name = "kaoto.kompanion.command.pending-timeout", defaultValue = "10m")
+    Duration pendingTimeout = Duration.ofMinutes(10);
+
+    /** At most this many commands are kept per execution: the oldest results go first. */
+    @ConfigProperty(name = "kaoto.kompanion.command.max-results", defaultValue = "10000")
+    int maxResults = 10000;
+
+    Clock clock = Clock.systemUTC();
+
+    private final AtomicLong lastSweep = new AtomicLong();
 
     public void register(String executionId, String connectionId, Consumer<String> sendFrame) {
         ChannelEntry current =
@@ -54,7 +79,8 @@ public class WorkerRegistry {
                         return entry;
                     }
                     entry.future().completeExceptionally(new IllegalStateException(reason));
-                    return new PendingEntry(entry.future(), CommandResult.acked(correlationId, false, reason));
+                    return new PendingEntry(
+                            entry.future(), CommandResult.acked(correlationId, false, reason), clock.instant());
                 });
             }
         }
@@ -159,7 +185,9 @@ public class WorkerRegistry {
         var future = new CompletableFuture<AckResult>();
         Map<String, PendingEntry> entries = executions.get(executionId);
         if (entries != null) {
-            entries.put(correlationId, new PendingEntry(future, CommandResult.pending(correlationId)));
+            // room for this one
+            sweep(entries, 1);
+            entries.put(correlationId, new PendingEntry(future, CommandResult.pending(correlationId), clock.instant()));
         }
         ChannelEntry channelEntry = channels.get(executionId);
         if (channelEntry != null) {
@@ -178,9 +206,11 @@ public class WorkerRegistry {
     public CompletableFuture<AckResult> sendCommand(
             String executionId, String connectionId, String correlationId, String jsonFrame) {
         var future = new CompletableFuture<AckResult>();
-        PendingEntry pending = new PendingEntry(future, CommandResult.pending(correlationId));
+        PendingEntry pending = new PendingEntry(future, CommandResult.pending(correlationId), clock.instant());
         Map<String, PendingEntry> entries = executions.get(executionId);
         if (entries != null) {
+            // room for this one
+            sweep(entries, 1);
             entries.put(correlationId, pending);
         }
         ChannelEntry channelEntry = channels.get(executionId);
@@ -190,7 +220,7 @@ public class WorkerRegistry {
                 entries.replace(
                         correlationId,
                         pending,
-                        new PendingEntry(future, CommandResult.acked(correlationId, false, reason)));
+                        new PendingEntry(future, CommandResult.acked(correlationId, false, reason), clock.instant()));
             }
             future.completeExceptionally(new IllegalStateException(reason));
         } else if (!channelEntry.connectionId().equals(connectionId)) {
@@ -199,7 +229,7 @@ public class WorkerRegistry {
                 entries.replace(
                         correlationId,
                         pending,
-                        new PendingEntry(future, CommandResult.acked(correlationId, false, reason)));
+                        new PendingEntry(future, CommandResult.acked(correlationId, false, reason), clock.instant()));
             }
             future.completeExceptionally(new IllegalStateException(reason));
         } else {
@@ -212,16 +242,13 @@ public class WorkerRegistry {
     public void receiveAck(String executionId, String correlationId, boolean success, String detail) {
         Map<String, PendingEntry> entries = executions.get(executionId);
         if (entries != null) {
-            entries.compute(correlationId, (k, existing) -> {
-                if (existing != null && !existing.future().isDone()) {
+            entries.computeIfPresent(correlationId, (k, existing) -> {
+                if (!existing.future().isDone()) {
                     existing.future().complete(new AckResult(success, detail));
                 }
                 // Replace with final result (future is done; keep entry for polling)
                 return new PendingEntry(
-                        existing != null
-                                ? existing.future()
-                                : CompletableFuture.completedFuture(new AckResult(success, detail)),
-                        CommandResult.acked(correlationId, success, detail));
+                        existing.future(), CommandResult.acked(correlationId, success, detail), clock.instant());
             });
         }
     }
@@ -239,12 +266,48 @@ public class WorkerRegistry {
     }
 
     /**
+     * Keeps the stored commands within limits: results expire {@code resultTtl} after they arrived, a command not
+     * answered within {@code pendingTimeout} fails, and above {@code maxResults} the oldest results go. Runs at most
+     * once a second, or when the execution has too many commands.
+     */
+    private void sweep(Map<String, PendingEntry> entries, int adding) {
+        Instant now = clock.instant();
+        long last = lastSweep.get();
+        if (entries.size() + adding <= maxResults && now.toEpochMilli() - last < 1000 && now.toEpochMilli() >= last) {
+            return;
+        }
+        lastSweep.set(now.toEpochMilli());
+        entries.replaceAll((correlationId, entry) -> {
+            if (!entry.future().isDone() && now.isAfter(entry.since().plus(pendingTimeout))) {
+                String reason = "No answer from the worker after " + pendingTimeout.toSeconds() + "s";
+                entry.future().completeExceptionally(new IllegalStateException(reason));
+                return new PendingEntry(entry.future(), CommandResult.acked(correlationId, false, reason), now);
+            }
+            return entry;
+        });
+        entries.entrySet()
+                .removeIf(e -> e.getValue().future().isDone()
+                        && now.isAfter(e.getValue().since().plus(resultTtl)));
+        int excess = entries.size() + adding - maxResults;
+        if (excess > 0) {
+            entries.entrySet().stream()
+                    .filter(e -> e.getValue().future().isDone())
+                    .sorted(Comparator.comparing(e -> e.getValue().since()))
+                    .limit(excess)
+                    .map(Map.Entry::getKey)
+                    .toList()
+                    .forEach(entries::remove);
+        }
+    }
+
+    /**
      * Returns the stored CommandResult for a given correlationId, or null if the correlationId is unknown (never
      * issued, or the execution was unregistered).
      */
     public CommandResult getResult(String executionId, String correlationId) {
         Map<String, PendingEntry> entries = executions.get(executionId);
         if (entries == null) return null;
+        sweep(entries, 0);
         PendingEntry entry = entries.get(correlationId);
         return entry == null ? null : entry.result();
     }
