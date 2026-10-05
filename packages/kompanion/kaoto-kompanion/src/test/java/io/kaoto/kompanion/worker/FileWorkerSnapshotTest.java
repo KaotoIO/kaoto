@@ -37,6 +37,12 @@ class FileWorkerSnapshotTest {
         // Camel not up yet
         connector.write("status", "{\"runtime\":{\"pid\":4242}}");
         assertNull(worker.hello());
+        // the context is there before it started, without its routes
+        connector.write(
+                "status",
+                "{\"context\":{\"name\":\"app\",\"version\":\"4.18.4\",\"state\":\"Initializing\"},"
+                        + "\"routes\":[]}");
+        assertNull(worker.hello());
 
         connector.write("status", FakeConnector.status("4.18.4", "Started"));
         ObjectNode hello = worker.hello();
