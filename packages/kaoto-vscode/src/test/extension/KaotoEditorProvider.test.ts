@@ -536,6 +536,11 @@ suite('Native Kaoto text document provider', () => {
 		ok(fixture.panel.webview.html.includes('/dist/webview/KaotoEditorEnvelopeApp.css"'));
 		ok(fixture.panel.webview.html.includes('type="module"'));
 		ok(fixture.panel.webview.html.includes('/dist/webview/KaotoEditorEnvelopeApp.js"'));
+		ok(fixture.panel.webview.html.includes('<output class="kaoto-loading"'));
+		ok(!fixture.panel.webview.html.includes('role="status"'));
+		ok(fixture.panel.webview.html.includes('Loading Kaoto'));
+		ok(fixture.panel.webview.html.includes('class="kaoto-loading"'));
+		ok(!fixture.panel.webview.html.includes('__KAOTO_'));
 		await fixture.bus.request('editor:resource:save', { path: 'schema.xsd', content: 'context' });
 		equal(await read(vscode.Uri.joinPath(root, 'schema.xsd')), 'context');
 	});

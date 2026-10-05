@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy" content="__KAOTO_CSP__" />
     <title>Kaoto</title>
-    <style>
+    <link rel="stylesheet" href="__KAOTO_STYLESHEET__" />
+    <style nonce="__KAOTO_NONCE__">
+      /* The editor stylesheet reserves space for a standalone header. The webview fills its panel. */
       html,
       body,
       #envelope-app {
@@ -106,11 +108,7 @@
     </style>
   </head>
   <body>
-    <div
-      id="envelope-app"
-      data-file-extension="__KAOTO_FILE_EXTENSION__"
-      data-resources-path-prefix="__KAOTO_RESOURCES_PATH_PREFIX__"
-    >
+    <div id="envelope-app" data-file-extension="__KAOTO_FILE_EXTENSION__" data-resources-path-prefix="__KAOTO_RESOURCES_PATH_PREFIX__">
       <output class="kaoto-loading">
         <span class="kaoto-loading__content">
           <span class="kaoto-loading__mark" aria-hidden="true"></span>
@@ -120,6 +118,6 @@
         </span>
       </output>
     </div>
-    <script type="module" src="/src/webview-vscode-entry.tsx"></script>
+    <script type="module" nonce="__KAOTO_NONCE__" src="__KAOTO_SCRIPT__"></script>
   </body>
 </html>

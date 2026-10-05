@@ -29,7 +29,6 @@ async function start(container: HTMLElement, transport: MessageTransport): Promi
   };
   window.addEventListener('pagehide', dispose, { once: true });
 
-  container.textContent = 'Loading Kaoto…';
   try {
     await bridge.connect();
     const initialSettings = await bus.request('editor:settings:get', null);
