@@ -208,4 +208,70 @@ class WorkerRegistryTest {
         registry.protocolDetected("exec-1", "conn-2", WorkerProtocol.CONNECTOR);
         assertEquals(WorkerProtocol.CONNECTOR, waiting.get(1, TimeUnit.SECONDS));
     }
+
+    @Test
+    void resultsExpireAfterTheirTtl() {
+        var clock = new FakeConnector.ManualClock();
+        var registry = new WorkerRegistry();
+        registry.clock = clock;
+        registry.register("exec-1", "conn-1", msg -> {});
+        registry.sendCommand("exec-1", "corr-1", "{}");
+        clock.advance(java.time.Duration.ofMinutes(9));
+        // the clock of the result starts when it arrives, not when the command was sent
+        registry.receiveAck("exec-1", "corr-1", true, "ok");
+
+        clock.advance(java.time.Duration.ofMinutes(9));
+        assertEquals("acked", registry.getResult("exec-1", "corr-1").status());
+        clock.advance(java.time.Duration.ofMinutes(2));
+        assertNull(registry.getResult("exec-1", "corr-1"));
+    }
+
+    @Test
+    void unansweredCommandFailsAfterThePendingTimeout() throws Exception {
+        var clock = new FakeConnector.ManualClock();
+        var registry = new WorkerRegistry();
+        registry.clock = clock;
+        registry.register("exec-1", "conn-1", msg -> {});
+        var future = registry.sendCommand("exec-1", "corr-1", "{}");
+
+        clock.advance(java.time.Duration.ofMinutes(11));
+        var result = registry.getResult("exec-1", "corr-1");
+        assertEquals("failed", result.status());
+        assertTrue(result.detail().startsWith("No answer from the worker"), result.detail());
+        assertTrue(future.isCompletedExceptionally());
+        // and it then expires like any result
+        clock.advance(java.time.Duration.ofMinutes(11));
+        assertNull(registry.getResult("exec-1", "corr-1"));
+    }
+
+    @Test
+    void oldestResultsGoAboveTheLimitButPendingCommandsStay() {
+        var clock = new FakeConnector.ManualClock();
+        var registry = new WorkerRegistry();
+        registry.clock = clock;
+        registry.maxResults = 3;
+        registry.register("exec-1", "conn-1", msg -> {});
+        registry.sendCommand("exec-1", "pending", "{}");
+        for (int i = 1; i <= 4; i++) {
+            clock.advance(java.time.Duration.ofMillis(10));
+            registry.sendCommand("exec-1", "corr-" + i, "{}");
+            registry.receiveAck("exec-1", "corr-" + i, true, "ok");
+        }
+
+        assertEquals("pending", registry.getResult("exec-1", "pending").status());
+        assertNull(registry.getResult("exec-1", "corr-1"));
+        assertNull(registry.getResult("exec-1", "corr-2"));
+        assertEquals("acked", registry.getResult("exec-1", "corr-3").status());
+        assertEquals("acked", registry.getResult("exec-1", "corr-4").status());
+    }
+
+    @Test
+    void lateAckOfAForgottenCommandIsIgnored() {
+        var registry = new WorkerRegistry();
+        registry.register("exec-1", "conn-1", msg -> {});
+        registry.sendCommand("exec-1", "corr-1", "{}");
+        registry.forget("exec-1", "corr-1");
+        registry.receiveAck("exec-1", "corr-1", true, "ok");
+        assertNull(registry.getResult("exec-1", "corr-1"));
+    }
 }

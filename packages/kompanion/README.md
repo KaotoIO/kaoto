@@ -217,8 +217,11 @@ curl -s -X POST http://localhost:8000/v1/executions/pid-12345/commands \
 
 ### Poll a result
 
-If you need to check the result of a command after the fact (e.g. the ack timed out), poll by
-`correlationId`:
+When the ack did not arrive in time (`202`), poll the result by `correlationId`. Only those
+commands are kept: their result can be polled for `kaoto.kompanion.command.result-ttl` (10 minutes)
+after it arrived, and a command without an answer for `kaoto.kompanion.command.pending-timeout`
+fails. An expired or unknown `correlationId` answers `404`. A command answered `200` already carried
+its result and is not kept.
 
 ```bash
 curl -s http://localhost:8000/v1/executions/run-1/commands/<correlationId>

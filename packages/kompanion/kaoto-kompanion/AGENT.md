@@ -77,6 +77,9 @@ mvn verify -pl kaoto-companion -Pnative
 | `kaoto.kompanion.worker.protocol-timeout` | `5s` | Wait for the worker's first frame (protocol detection) before answering 503 |
 | `kaoto.kompanion.worker-token` | — | Bearer token workers must send at the handshake (401 otherwise); a non-loopback `Origin` is rejected with 403 |
 | `kaoto.kompanion.events.buffer` | `4096` | Frames buffered per SSE subscriber; snapshots are superseded instead of buffered |
+| `kaoto.kompanion.command.result-ttl` | `10m` | How long the result of a command answered `202` can be polled once it arrived (a command answered `200` is not kept) |
+| `kaoto.kompanion.command.pending-timeout` | `10m` | A command the worker does not answer for this long fails |
+| `kaoto.kompanion.command.max-results` | `10000` | Commands kept for polling per execution; the oldest results go first |
 | `kaoto.kompanion.file-transport.enabled` | `true` | Discover the Camel apps on the camel-cli-connector file transport (`<camel-home>/.camel`) |
 | `kaoto.kompanion.file-transport.camel-home` | `user.home` | Directory holding the `.camel` directory of camel-cli-connector |
 | `kaoto.kompanion.file-transport.scan-interval` / `poll-interval` | `1s` / `100ms` | How often the directory is scanned for apps / the files of each app are read |
