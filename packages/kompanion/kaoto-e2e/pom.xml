@@ -60,6 +60,37 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>file-transport</id>
+            <dependencies>
+                <!-- reactor ordering only: the fixture app is launched as a separate JVM from its target/ dir -->
+                <dependency>
+                    <groupId>io.kaoto</groupId>
+                    <artifactId>kaoto-e2e-fixture-file-main</artifactId>
+                    <version>${project.version}</version>
+                    <scope>test</scope>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>*</groupId>
+                            <artifactId>*</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <file.fixture.dir>${project.basedir}/../kaoto-e2e-fixtures/file-main/target</file.fixture.dir>
+                                <file.fixture.camel.version>${file-it.camel.version}</file.fixture.camel.version>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
     <build>

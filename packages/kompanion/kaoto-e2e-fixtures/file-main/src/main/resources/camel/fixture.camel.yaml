@@ -1,0 +1,30 @@
+# No timer: the statistics only move when the test sends a message. Every step has an id.
+- route:
+    id: orders
+    from:
+      id: from-orders
+      uri: direct:orders
+      steps:
+        - setHeader:
+            id: tag
+            name: X-Seen
+            constant: "yes"
+        - log:
+            id: log-order
+            message: "orders received: ${body}"
+        - choice:
+            id: check
+            when:
+              - id: when-fail
+                simple: "${header.fail} == 'true'"
+                steps:
+                  - throwException:
+                      id: boom
+                      exceptionType: java.lang.IllegalStateException
+                      message: boom
+            otherwise:
+              id: otherwise
+              steps:
+                - setBody:
+                    id: reply
+                    simple: "reply: ${body}"

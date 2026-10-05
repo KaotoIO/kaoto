@@ -21,6 +21,7 @@
     <flatten-maven-plugin.version>1.7.0</flatten-maven-plugin.version>
     <surefire-plugin.version>3.5.6</surefire-plugin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <file-it.camel.version>4.22.1</file-it.camel.version>
     <bridge-it.quarkus.platform.version>3.20.6.2</bridge-it.quarkus.platform.version>
     <palantir-java-format.version>2.96.0</palantir-java-format.version>
     <camel.plugin-api.version>4.18.4</camel.plugin-api.version>
@@ -126,6 +127,12 @@
       <id>camel-snapshot</id>
       <modules>
         <module>kaoto-e2e-fixtures/connector-main</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>file-transport</id>
+      <modules>
+        <module>kaoto-e2e-fixtures/file-main</module>
       </modules>
     </profile>
     <profile>
