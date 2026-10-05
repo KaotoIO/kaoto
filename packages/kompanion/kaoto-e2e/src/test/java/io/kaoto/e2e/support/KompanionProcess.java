@@ -37,6 +37,11 @@ public class KompanionProcess implements AutoCloseable {
         var cp = new KompanionProcess();
         var cmd = new java.util.ArrayList<String>();
         cmd.add("java");
+        if (jvmOptions.stream().noneMatch(o -> o.startsWith("-Dkaoto.kompanion.file-transport."))) {
+            // never discover the Camel apps of the developer's own ~/.camel
+            cmd.add("-Dkaoto.kompanion.file-transport.camel-home="
+                    + java.nio.file.Files.createTempDirectory("kompanion-camel-home"));
+        }
         cmd.addAll(jvmOptions);
         cmd.add("-jar");
         cmd.add(jarPath);
