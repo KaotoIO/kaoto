@@ -291,4 +291,35 @@ class CommandResourceTest {
                 .then()
                 .statusCode(400);
     }
+
+    @Test
+    void resultAnsweredRightAwayIsNotKept() throws Exception {
+        String executionId = "cmd-test-forget";
+        registry.register(executionId, "test-conn-forget", frame -> {
+            try {
+                var node = new com.fasterxml.jackson.databind.ObjectMapper().readTree(frame);
+                String correlationId = node.path("correlationId").asText();
+                new Thread(() -> registry.receiveAck(executionId, correlationId, true, "started")).start();
+            } catch (Exception ignored) {
+            }
+        });
+        registry.protocolDetected(executionId, "test-conn-forget", WorkerProtocol.BRIDGE);
+
+        String correlationId = given().contentType("application/json")
+                .body("{\"type\":\"camel.cmd.route.start\",\"routeId\":\"r1\"}")
+                .when()
+                .post("/v1/executions/" + executionId + "/commands")
+                .then()
+                .statusCode(200)
+                .extract()
+                .path("correlationId");
+
+        // one result per command for the lifetime of the execution filled the heap (soak: 70 MB in 30 s)
+        given().when()
+                .get("/v1/executions/" + executionId + "/commands/" + correlationId)
+                .then()
+                .statusCode(404);
+
+        registry.unregister(executionId, "test-conn-forget");
+    }
 }

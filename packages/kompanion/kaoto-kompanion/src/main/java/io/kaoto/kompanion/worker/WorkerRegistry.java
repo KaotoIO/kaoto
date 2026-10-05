@@ -227,6 +227,18 @@ public class WorkerRegistry {
     }
 
     /**
+     * Forgets the result of a command whose submitter already got it: the correlationId is only given out with the
+     * answer of the submit, so nobody can poll a command answered right away, and keeping its result only fills the
+     * memory (one entry per command for the lifetime of the execution).
+     */
+    public void forget(String executionId, String correlationId) {
+        Map<String, PendingEntry> entries = executions.get(executionId);
+        if (entries != null) {
+            entries.remove(correlationId);
+        }
+    }
+
+    /**
      * Returns the stored CommandResult for a given correlationId, or null if the correlationId is unknown (never
      * issued, or the execution was unregistered).
      */

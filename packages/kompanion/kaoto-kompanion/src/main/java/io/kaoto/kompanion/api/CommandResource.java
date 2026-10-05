@@ -101,15 +101,19 @@ public class CommandResource {
         try {
             var ack = future.orTimeout(ackTimeout.toMillis(), TimeUnit.MILLISECONDS)
                     .join();
+            // answered with the result: nobody can poll it (the correlationId is only in this answer)
+            registry.forget(executionId, correlationId);
             return Response.ok(CommandResult.acked(correlationId, ack.success(), ack.detail()))
                     .build();
         } catch (Exception e) {
             Throwable cause = e.getCause();
             if (cause instanceof TimeoutException || e instanceof TimeoutException) {
+                // kept for polling
                 return Response.status(202)
                         .entity(CommandResult.pending(correlationId))
                         .build();
             }
+            registry.forget(executionId, correlationId);
             if (cause instanceof IllegalStateException) {
                 // worker disconnected or reconnected between encoding and sending
                 return errorResponse(404, "No active execution: " + executionId);
