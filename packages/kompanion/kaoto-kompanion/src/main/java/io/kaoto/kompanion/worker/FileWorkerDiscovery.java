@@ -123,10 +123,14 @@ public class FileWorkerDiscovery {
         if (scheduler != null) {
             scheduler.shutdownNow();
             try {
-                // close the workers once the polling thread is done with them
-                scheduler.awaitTermination(1, TimeUnit.SECONDS);
+                // the workers are only used by the polling thread: close them once it stopped, never next to it
+                if (!scheduler.awaitTermination(1, TimeUnit.SECONDS)) {
+                    LOG.warn("The camel-cli-connector file polling did not stop: its pending action files are left");
+                    return;
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
+                return;
             }
         }
         tracked.values().forEach(t -> t.worker().close());
