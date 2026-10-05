@@ -1,11 +1,11 @@
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import * as AppContextModule from '../context/useAppContext';
+import { useAppContext } from '../context/useAppContext';
 import { useNotification } from './useNotification';
 
 // Mock the AppContext
-vi.mock('@/context/useAppContext', () => ({
+vi.mock('../context/useAppContext', () => ({
   useAppContext: vi.fn(),
 }));
 
@@ -16,7 +16,7 @@ describe('useNotification', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(AppContextModule.useAppContext).mockReturnValue({
+    vi.mocked(useAppContext).mockReturnValue({
       addNotification: mockAddNotification,
       removeNotification: mockRemoveNotification,
       clearNotifications: mockClearNotifications,

@@ -12,6 +12,7 @@ export default defineConfig({
     include: ['**/?(*.)+(test).[tj]s?(x)'],
     typecheck: {
       enabled: true,
+      checker: fileURLToPath(import.meta.resolve('typescript/bin/tsc')),
       include: ['**/?(*.)+(test).ts'],
     },
     testTimeout: 10_000,
