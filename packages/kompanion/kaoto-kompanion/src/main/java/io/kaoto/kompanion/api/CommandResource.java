@@ -82,7 +82,8 @@ public class CommandResource {
         }
         String jsonFrame;
         try {
-            if (protocol == WorkerProtocol.CONNECTOR) {
+            // the file transport takes the same action frames as the WebSocket one
+            if (protocol != WorkerProtocol.BRIDGE) {
                 jsonFrame = ConnectorProtocolCodec.encode(mapper, command, correlationId);
             } else {
                 var node = mapper.valueToTree(command);
