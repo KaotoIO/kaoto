@@ -78,6 +78,32 @@ Connected to Kaoto companion (execution: run-1)
 
 ---
 
+## Camel apps on the camel-cli-connector file transport
+
+A Camel app with `camel-cli-connector` on its classpath (Camel Main), `camel-cli-connector-starter`
+(Spring Boot) or `camel-quarkus-cli-connector` (Quarkus) writes its state to `~/.camel/{pid}-*.json`
+and reads actions from files there: that is the connector's default transport, the one the `camel`
+CLI uses, in every Camel release. The Kompanion finds these apps on its own and manages them as
+execution `pid-<pid>`, without launching them and without any change to the app.
+
+- Turn it off with `kaoto.kompanion.file-transport.enabled=false`; point it at another home with
+  `kaoto.kompanion.file-transport.camel-home` (the directory that holds `.camel`, `user.home` by
+  default, as Camel).
+- Same host and same user as the app only.
+- Polling: the connector reads actions and writes snapshots every second, so a command takes about
+  a second, and debug/history snapshots about two.
+- The connector only logs failures. The Kompanion infers the result: from the action output (e.g.
+  the `status` of `send`), from the route state in the next status for route commands, and an
+  unknown route is refused before writing anything. Actions without output (`reset-stats`,
+  `logger`, ...) are reported done once the connector ran them.
+- Before 4.21 an app has a single action slot, shared with the `camel` CLI: the Kompanion sends one
+  action at a time and answers `Busy` when a CLI command holds the slot; a CLI command run at the
+  same time can take the output of a Kompanion action (the action then fails).
+- `camel.cmd.worker.stop` deletes the lock file, which makes the connector stop Camel. On Camel
+  Main 4.18.x the JVM does not exit afterwards (fixed in 4.19 by CAMEL-23230); the Kompanion logs a
+  warning when the process outlives `kaoto.kompanion.file-transport.exit-timeout`.
+- Files left by a killed app are skipped, never deleted.
+
 ## Commands API
 
 All commands are sent as a `POST` to:
@@ -176,6 +202,18 @@ curl -s -X POST http://localhost:8000/v1/executions/run-1/commands \
 ```
 
 > On macOS replace `base64 -w0` with `base64 -i`.
+
+#### Run a camel-cli-connector action
+
+Only for Camel apps managed through camel-cli-connector (file or WebSocket transport). The `action`
+object is sent to the connector as it is; an action the app's Camel version does not have is
+answered `422`.
+
+```bash
+curl -s -X POST http://localhost:8000/v1/executions/pid-12345/commands \
+  -H "Content-Type: application/json" \
+  -d '{"type":"camel.cmd.connector.action","action":{"action":"trace","enabled":"true"}}'
+```
 
 ### Poll a result
 

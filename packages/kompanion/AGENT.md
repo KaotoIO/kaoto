@@ -103,3 +103,9 @@ A pre-commit hook enforces formatting locally — enable it once per clone:
 | `kaoto.kompanion.worker-token` | —            | When set, the companion rejects workers without this bearer token (401)         |
 | `kaoto.kompanion.worker.protocol-timeout` | `5s` | How long a command waits for the worker's first frame before answering 503   |
 | `kaoto.kompanion.events.buffer` | `4096`      | Frames buffered per SSE subscriber; snapshots are superseded instead of buffered |
+| `kaoto.kompanion.file-transport.enabled` | `true` | Discover the Camel apps on the camel-cli-connector file transport (`<camel-home>/.camel`) |
+| `kaoto.kompanion.file-transport.camel-home` | `user.home` | Directory holding the `.camel` directory of camel-cli-connector |
+| `kaoto.kompanion.file-transport.scan-interval` / `poll-interval` | `1s` / `100ms` | How often the directory is scanned for apps / the files of each app are read |
+| `kaoto.kompanion.file-transport.stale-after` | `30s` | An app whose status file is not updated for this long is dropped |
+| `kaoto.kompanion.file-transport.action-timeout` | `60s` | An action file the connector has not run by then is taken back and the command fails |
+| `kaoto.kompanion.file-transport.exit-timeout` | `30s` | Warn when the process still runs this long after its Camel app stopped |

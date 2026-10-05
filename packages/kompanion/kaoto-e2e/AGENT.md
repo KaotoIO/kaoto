@@ -12,6 +12,11 @@ internal classes are imported.
 - `/v1/worker/connect` (WebSocket) — verifies the companion accepts a raw WebSocket connection
   scoped to an execution ID.
 
+- camel-cli-connector file transport (`-Pfile-transport`): `FileTransportE2EIT` drives a Camel Main
+  app of `kaoto-e2e-fixtures/file-main` on the released Camel of `-Dfile-it.camel.version`
+  (default 4.22.1) only through the Kompanion's API. App and Kompanion use a camel home of their own.
+- camel-cli-connector WebSocket transport (`-Pcamel-snapshot`): `ConnectorE2EIT`.
+
 ## Key classes
 
 | Class                                                                          | Purpose                                                                         |
@@ -38,6 +43,12 @@ mvn clean package -pl kaoto-companion -am
 ```bash
 # Runs only the integration tests (unit tests are skipped — there are none)
 mvn verify -pl kaoto-e2e -am
+```
+
+```bash
+# file transport, per Camel release (clean: the fixture's target/lib keeps the jars of the previous version)
+mvn clean verify -Pfile-transport -Dfile-it.camel.version=4.18.4 -pl kaoto-e2e-fixtures/file-main,kaoto-e2e
+mvn clean verify -Pfile-transport -Dfile-it.camel.version=4.22.1 -pl kaoto-e2e-fixtures/file-main,kaoto-e2e
 ```
 
 The `kaoto.companion.jar` system property points to
