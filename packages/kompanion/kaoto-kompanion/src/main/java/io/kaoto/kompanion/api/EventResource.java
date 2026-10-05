@@ -34,7 +34,8 @@ public class EventResource {
      *
      * <p>Without {@code kinds} nor {@code routes} the client gets every frame as the worker sent it. With either, it
      * gets the frames cut per route, of those kinds and routes only (comma separated, or repeated); its first event,
-     * {@code kompanion.subscribed}, has the subscription id to change them with {@code PUT subscriptions/{id}}.
+     * {@code kompanion.subscribed}, has the subscription id to change them with {@code PUT subscriptions/{id}}. With
+     * {@code ensure} (trace, debug), the Kompanion keeps those features on in the app while the client is subscribed.
      */
     @GET
     @Path("/events")
@@ -44,10 +45,13 @@ public class EventResource {
             @HeaderParam("Last-Event-ID") String lastEventId,
             @QueryParam("kinds") List<String> kinds,
             @QueryParam("routes") List<String> routes,
+            @QueryParam("ensure") List<String> ensure,
             @Context Sse sse) {
         Set<String> k = split(kinds);
         Set<String> r = split(routes);
-        ExecutionEventBus.Filter filter = k == null && r == null ? null : new ExecutionEventBus.Filter(k, r);
+        Set<String> en = split(ensure);
+        ExecutionEventBus.Filter filter =
+                k == null && r == null && en == null ? null : new ExecutionEventBus.Filter(k, r, en);
         Multi<ExecutionEventBus.LogEvent> events = eventBus.eventsFor(executionId, parse(lastEventId), filter);
         if (events == null) {
             throw new NotFoundException("No active execution: " + executionId);
@@ -74,7 +78,7 @@ public class EventResource {
         boolean updated = eventBus.updateFilter(
                 executionId,
                 subscriptionId,
-                new ExecutionEventBus.Filter(split(filter.kinds()), split(filter.routes())));
+                new ExecutionEventBus.Filter(split(filter.kinds()), split(filter.routes()), split(filter.ensure())));
         return Response.status(updated ? 204 : 404).build();
     }
 

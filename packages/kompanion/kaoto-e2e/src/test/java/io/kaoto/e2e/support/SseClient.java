@@ -16,6 +16,8 @@ import java.util.stream.Stream;
 /** Minimal SSE subscriber that records every event (the data: payload) it receives. */
 public class SseClient implements AutoCloseable {
 
+    private volatile Stream<String> body;
+
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private final List<JsonNode> events = new CopyOnWriteArrayList<>();
@@ -34,6 +36,7 @@ public class SseClient implements AutoCloseable {
             resp.body().close();
             throw new IllegalStateException("SSE subscribe to " + url + " returned " + resp.statusCode());
         }
+        client.body = resp.body();
         client.reader = Thread.ofVirtual().start(() -> {
             try (Stream<String> lines = resp.body()) {
                 lines.forEach(line -> {
@@ -80,6 +83,10 @@ public class SseClient implements AutoCloseable {
 
     @Override
     public void close() {
+        // closing the body ends the HTTP stream, so the Kompanion sees the client go
+        if (body != null) {
+            body.close();
+        }
         if (reader != null) {
             reader.interrupt();
         }

@@ -104,6 +104,7 @@ A pre-commit hook enforces formatting locally — enable it once per clone:
 | `kaoto.kompanion.worker.protocol-timeout` | `5s` | How long a command waits for the worker's first frame before answering 503   |
 | `kaoto.kompanion.events.buffer` / `events.buffer-bytes` | `4096` / `32 MB` | Events kept per execution for the SSE clients (results, trace, ...); each client reads at its own pace, gets only the latest value of a state (status, debug, ...), a `kompanion.gap` event when it fell behind the kept events, and resumes with `Last-Event-ID` |
 | `kaoto.kompanion.events.slice-ignore-fields` | — | Fields left out when telling whether a slice of a connector snapshot changed (e.g. `uptime`), for the SSE clients that filter |
+| `kaoto.kompanion.demand.release-delay` | `0s` | How long a feature turned on for SSE clients (`ensure=trace,debug`) stays on after the last one is gone |
 | `kaoto.kompanion.command.result-ttl` | `10m` | How long the result of a command answered `202` can be polled once it arrived (a command answered `200` is not kept) |
 | `kaoto.kompanion.command.pending-timeout` | `10m` | A command the worker does not answer for this long fails |
 | `kaoto.kompanion.command.max-results` | `10000` | Commands kept for polling per execution; the oldest results go first |

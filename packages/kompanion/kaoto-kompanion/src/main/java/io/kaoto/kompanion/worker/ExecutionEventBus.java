@@ -6,12 +6,15 @@ import jakarta.enterprise.context.ApplicationScoped;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -73,12 +76,18 @@ public class ExecutionEventBus {
 
     /**
      * What a client wants: the kinds (null: all of them) and the routes (null: all of them; entries about no route are
-     * always included). Kinds in {@link #ALWAYS} are always included.
+     * always included). Kinds in {@link #ALWAYS} are always included. {@code ensure} lists the features the client asks
+     * the Kompanion to keep on in the app while it reads (trace, debug: see {@link ConnectorDemand}).
      */
-    public record Filter(Set<String> kinds, Set<String> routes) {
+    public record Filter(Set<String> kinds, Set<String> routes, Set<String> ensure) {
         public Filter {
             kinds = kinds == null ? null : Set.copyOf(kinds);
             routes = routes == null ? null : Set.copyOf(routes);
+            ensure = ensure == null ? Set.of() : Set.copyOf(ensure);
+        }
+
+        public Filter(Set<String> kinds, Set<String> routes) {
+            this(kinds, routes, null);
         }
 
         boolean matches(Tag tag) {
@@ -106,6 +115,35 @@ public class ExecutionEventBus {
     long bufferBytes = 32L * 1024 * 1024;
 
     private final Map<String, ExecutionLog> logs = new ConcurrentHashMap<>();
+    // told the executionId whenever its clients or their filters change, or its log ends
+    private final List<Consumer<String>> listeners = new CopyOnWriteArrayList<>();
+
+    /** Registers a listener told the executionId whenever its clients or their filters change, or its log ends. */
+    public void onSubscriptionsChanged(Consumer<String> listener) {
+        listeners.add(listener);
+    }
+
+    private void subscriptionsChanged(String executionId) {
+        for (Consumer<String> listener : listeners) {
+            try {
+                listener.accept(executionId);
+            } catch (RuntimeException e) {
+                LOG.warnf(e, "Subscription listener failed for execution=%s", executionId);
+            }
+        }
+    }
+
+    /** The latest value of a state of the given execution, or null. */
+    public String latestState(String executionId, String key) {
+        ExecutionLog log = logs.get(executionId);
+        if (log == null) {
+            return null;
+        }
+        synchronized (log) {
+            Entry entry = log.states.get(key);
+            return entry != null ? entry.json() : null;
+        }
+    }
 
     /** Returns the raw event stream for the given executionId, or null if none exists. */
     public Multi<String> streamFor(String executionId) {
@@ -148,6 +186,7 @@ public class ExecutionEventBus {
             subscriber.delivered.clear();
         }
         subscriber.drain();
+        subscriptionsChanged(executionId);
         return true;
     }
 
@@ -230,6 +269,7 @@ public class ExecutionEventBus {
         }
         logs.remove(executionId, log);
         log.close();
+        subscriptionsChanged(executionId);
         LOG.debugf("Event log closed for execution=%s connectionId=%s", executionId, connectionId);
     }
 
@@ -293,11 +333,16 @@ public class ExecutionEventBus {
                 }
             }
             subscribers.put(subscriber.id, subscriber);
+            if (filter != null) {
+                subscriptionsChanged(executionId);
+            }
             return subscriber;
         }
 
         void unsubscribe(Subscriber subscriber) {
-            subscribers.remove(subscriber.id);
+            if (subscribers.remove(subscriber.id) != null && subscriber.filter != null) {
+                subscriptionsChanged(executionId);
+            }
         }
 
         void close() {
