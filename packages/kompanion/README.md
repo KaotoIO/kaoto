@@ -257,6 +257,38 @@ data: {"type":"camel.worker.ready","executionId":"run-1","camelVersion":"4.23.0"
 data: {"type":"camel.connector.snapshot","executionId":"run-1","v":1,"kind":"status","data":{...}}
 ```
 
+Every event has an `id`. A client that reconnects with the last one in `Last-Event-ID` (browsers
+do) goes on after it; a client that fell too far behind gets a `kompanion.gap` event saying which
+events it missed. Each client reads at its own pace: it gets every event (results, trace, ...) and
+the latest value of every state (status, debug, ...).
+
+#### Filtered subscription (camel-cli-connector)
+
+A client can ask for some kinds of events and some routes only; it then gets the connector
+snapshots cut per route (`routeId` set; status also has a context entry without it), each state
+only when it changed, plus the events every client gets (ready, results, gaps):
+
+```bash
+curl -N 'http://localhost:8000/v1/executions/pid-12345/events?kinds=status,trace&routes=orders'
+```
+
+Its first event, `kompanion.subscribed`, carries the `subscriptionId` to change what it gets
+without reconnecting:
+
+```bash
+curl -s -X PUT http://localhost:8000/v1/executions/pid-12345/subscriptions/<subscriptionId> \
+  -H "Content-Type: application/json" -d '{"kinds":["status"],"routes":["control"]}'
+```
+
+With `ensure` (`trace`, `debug`) the Kompanion keeps that feature on in the app while the client is
+subscribed: it turns it on when the first client asks (unless it is on already, then it is left
+alone), and off when the last one is gone, after `kaoto.kompanion.demand.release-delay`. The app
+must start with `camel.trace.standby` / `camel.debug.standby`, otherwise the client gets a
+`kompanion.unavailable` event. A breakpoint added by a command sent with the header
+`X-Kompanion-Subscription: <subscriptionId>` belongs to that subscription and is removed once no
+subscription owning it is left. Tracing through camel-cli-connector goes up to about 50 events a
+second (Camel's trace console keeps the last 100, collected every other second).
+
 Each subscriber has its own bounded buffer (`kaoto.kompanion.events.buffer` frames). Snapshots
 (`camel.telemetry.snapshot`, `camel.connector.snapshot`) are not buffered: a subscriber that cannot
 keep up receives only the latest one.

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.kaoto.kompanion.model.CommandResult;
 import io.kaoto.kompanion.model.KompanionCommand;
 import io.kaoto.kompanion.worker.ConnectorActions;
+import io.kaoto.kompanion.worker.ConnectorDemand;
 import io.kaoto.kompanion.worker.ConnectorProtocolCodec;
 import io.kaoto.kompanion.worker.WorkerProtocol;
 import io.kaoto.kompanion.worker.WorkerRegistry;
@@ -11,6 +12,7 @@ import io.smallrye.common.annotation.Blocking;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -40,6 +42,9 @@ public class CommandResource {
     @Inject
     ObjectMapper mapper;
 
+    @Inject
+    ConnectorDemand demand;
+
     @ConfigProperty(name = "kaoto.kompanion.command.ack-timeout", defaultValue = "10s")
     Duration ackTimeout;
 
@@ -48,7 +53,10 @@ public class CommandResource {
 
     @POST
     @Blocking
-    public Response submit(@PathParam("executionId") String executionId, KompanionCommand command) {
+    public Response submit(
+            @PathParam("executionId") String executionId,
+            @HeaderParam("X-Kompanion-Subscription") String subscriptionId,
+            KompanionCommand command) {
         if (command == null) {
             return errorResponse(400, "Request body must not be null");
         }
@@ -103,6 +111,10 @@ public class CommandResource {
                     .join();
             // answered with the result: nobody can poll it (the correlationId is only in this answer)
             registry.forget(executionId, correlationId);
+            if (command instanceof KompanionCommand.CmdConnectorAction c) {
+                // a breakpoint added by a client belongs to its subscription
+                demand.actionDone(executionId, subscriptionId, c.action(), ack.success());
+            }
             return Response.ok(CommandResult.acked(correlationId, ack.success(), ack.detail()))
                     .build();
         } catch (Exception e) {

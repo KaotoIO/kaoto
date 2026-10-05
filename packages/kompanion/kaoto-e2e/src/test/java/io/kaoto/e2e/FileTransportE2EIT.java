@@ -161,7 +161,42 @@ class FileTransportE2EIT {
         var unsupported = post(connectorAction("{\"action\":\"no-such-action\"}"));
         assertEquals(422, unsupported.statusCode(), unsupported.body());
 
-        // 6. stop: the lock file is deleted, Camel stops, the Kompanion sees the app go away
+        // 6. a filtered client: only the routes it wants, cut per route, and trace on only while it asks for it
+        assertCommand(connectorAction("{\"action\":\"trace\",\"enabled\":\"false\"}"), "acked");
+        awaitStatus(s -> !s.path("trace").path("enabled").asBoolean(true), "trace off");
+        try (SseClient filtered = SseClient.subscribe(kompanion.baseUrl() + "/v1/executions/" + executionId
+                + "/events?kinds=status&routes=orders&ensure=trace")) {
+            JsonNode subscribed = filtered.await(
+                    e -> "kompanion.subscribed".equals(e.path("type").asText()), Duration.ofSeconds(10));
+            assertNotNull(subscribed, () -> "no kompanion.subscribed: " + filtered.events());
+            assertNotNull(
+                    filtered.await(e -> "orders".equals(e.path("routeId").asText()), Duration.ofSeconds(10)),
+                    () -> "no orders slice: " + filtered.events());
+            awaitStatus(s -> s.path("trace").path("enabled").asBoolean(false), "trace turned on for the client");
+            assertTrue(
+                    filtered.events().stream()
+                            .noneMatch(e -> "control".equals(e.path("routeId").asText())),
+                    () -> "a route the client does not want: " + filtered.events());
+
+            // switch to the control route
+            var put = HTTP.send(
+                    HttpRequest.newBuilder()
+                            .uri(URI.create(kompanion.baseUrl() + "/v1/executions/" + executionId + "/subscriptions/"
+                                    + subscribed.path("subscriptionId").asText()))
+                            .header("Content-Type", "application/json")
+                            .PUT(HttpRequest.BodyPublishers.ofString(
+                                    "{\"kinds\":[\"status\"],\"routes\":[\"control\"],\"ensure\":[\"trace\"]}"))
+                            .build(),
+                    HttpResponse.BodyHandlers.ofString());
+            assertEquals(204, put.statusCode(), put.body());
+            assertNotNull(
+                    filtered.await(e -> "control".equals(e.path("routeId").asText()), Duration.ofSeconds(10)),
+                    () -> "no control slice after the switch: " + filtered.events());
+        }
+        // the client is gone: the Kompanion turns off the trace it turned on
+        awaitStatus(s -> !s.path("trace").path("enabled").asBoolean(true), "trace turned off after the client");
+
+        // 7. stop: the lock file is deleted, Camel stops, the Kompanion sees the app go away
         assertCommand("{\"type\":\"camel.cmd.worker.stop\"}", "acked");
         await(
                 () -> kompanion.log().contains("Worker disconnected: execution=" + executionId),

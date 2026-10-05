@@ -28,3 +28,14 @@
                 - setBody:
                     id: reply
                     simple: "reply: ${body}"
+
+# A second route, for a filtered client that switches from orders to it.
+- route:
+    id: control
+    from:
+      id: from-control
+      uri: direct:control
+      steps:
+        - log:
+            id: log-control
+            message: "control received: ${body}"
