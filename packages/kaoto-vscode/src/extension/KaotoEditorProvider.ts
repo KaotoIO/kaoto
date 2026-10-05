@@ -362,7 +362,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 		panel.webview.options = {
 			enableScripts: true,
 			localResourceRoots: [
-				// Webpack emits lazy chunks and fonts beside the webview directory.
+				// Vite emits lazy chunks and fonts beneath the webview directory.
 				vscode.Uri.joinPath(this.context.extensionUri, 'dist'),
 				vscode.workspace.getWorkspaceFolder(document.uri)?.uri ?? vscode.Uri.joinPath(document.uri, '..'),
 			],
@@ -635,7 +635,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 			html = replaceDevHtmlToken(html, '__KAOTO_CSP__', escapeAttribute(csp));
 			html = replaceDevHtmlToken(html, '__KAOTO_FILE_EXTENSION__', escapeAttribute(extension));
 			html = replaceDevHtmlToken(html, '__KAOTO_RESOURCES_PATH_PREFIX__', escapeAttribute(origin));
-			for (const path of ['/@vite/client', '/@react-refresh', '/src/webview-dev-entry.tsx']) {
+			for (const path of ['/@vite/client', '/@react-refresh', '/src/webview-vscode-entry.tsx']) {
 				html = replaceDevHtmlToken(html, `"${path}"`, `"${escapeAttribute(origin)}${path}"`);
 			}
 			return html;
@@ -643,12 +643,14 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 
 		const nonce = Array.from(crypto.getRandomValues(new Uint8Array(16)), (byte) => byte.toString(16).padStart(2, '0')).join('');
 		const script = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'dist/webview/KaotoEditorEnvelopeApp.js')).toString();
+		const stylesheet = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'dist/webview/KaotoEditorEnvelopeApp.css')).toString();
 		// Shared Carbon styles reserve space for the standalone header; embedded editors need the full viewport.
 		return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src ${webview.cspSource} 'nonce-${nonce}' 'unsafe-eval'; style-src ${webview.cspSource} 'unsafe-inline'; img-src ${webview.cspSource} data: blob: https:; font-src ${webview.cspSource} data:; connect-src ${webview.cspSource} https: http: data: blob:; worker-src ${webview.cspSource} blob:;">
+<link rel="stylesheet" href="${escapeAttribute(stylesheet)}">
 <style nonce="${nonce}">html,body,#envelope-app{margin:0;border:0;padding:0;height:100%;}html body{block-size:100%;overflow:hidden;}</style></head><body>
 <div id="envelope-app" data-file-extension="${escapeAttribute(extension)}" data-resources-path-prefix="${escapeAttribute(this.resourcesPrefix(webview))}"></div>
-<script nonce="${nonce}" src="${escapeAttribute(script)}"></script></body></html>`;
+<script type="module" nonce="${nonce}" src="${escapeAttribute(script)}"></script></body></html>`;
 	}
 	private disposeDocument(state: DocumentState): void {
 		if (state.disposed) {

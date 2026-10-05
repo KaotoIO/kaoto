@@ -1,12 +1,6 @@
 const { merge } = require('webpack-merge');
 const CopyPlugin = require('copy-webpack-plugin');
 const path = require('path'); // NOSONAR
-const { DefinePlugin } = require('webpack');
-const { version } = require('./package.json');
-
-function posixPath(pathStr) {
-  return pathStr.split(path.sep).join(path.posix.sep);
-}
 
 const getEnvConfig = (env) => {
   if (env.dev) {
@@ -122,16 +116,6 @@ const commonConfig = (env) => {
       },
       extensions: ['.tsx', '.ts', '.js', '.jsx'],
       modules: ['node_modules'],
-      alias: {
-        // Pin react and react-dom to a single copy so the webview bundle and
-        // @kaoto/kaoto share the same React instance. Both are runtime deps
-        // because they are bundled into the webview JS, not resolved at runtime
-        // by Node.js.
-        // Use require.resolve to find the actual location, which works correctly
-        // whether react is in a local node_modules or hoisted to the monorepo root.
-        react: path.dirname(require.resolve('react/package.json')),
-        'react-dom': path.dirname(require.resolve('react-dom/package.json')),
-      },
     },
     plugins: [
       new CopyPlugin({
@@ -141,9 +125,6 @@ const commonConfig = (env) => {
             to: 'webview/editors/kaoto/camel-catalog',
           },
         ],
-      }),
-      new DefinePlugin({
-        __VSCODE_KAOTO_VERSION: JSON.stringify(version),
       }),
     ],
     externals: {
@@ -158,6 +139,11 @@ const webpack = async (env) => [
     entry: {
       'extension/extension': './src/extension/extension.ts',
     },
+    plugins: [
+      new CopyPlugin({
+        patterns: [{ from: path.resolve(__dirname, '../ui/dist-webview'), to: 'webview', info: { minimized: true } }],
+      }),
+    ],
   }),
   merge(commonConfig(env), {
     target: 'webworker',
@@ -165,70 +151,6 @@ const webpack = async (env) => [
       'extension/extensionWeb': './src/extension/extensionWeb.ts',
     },
   }),
-  ...(!env.dev || !process.env['KAOTO_DEV_URL']
-    ? [
-        merge(commonConfig(env), {
-          target: 'web',
-          entry: {
-            'webview/KaotoEditorEnvelopeApp': './src/webview/KaotoEditorEnvelopeApp.ts',
-          },
-          module: {
-            rules: [
-              {
-                test: /\.s[ac]ss$/i,
-                use: [
-                  'style-loader',
-                  'css-loader',
-                  {
-                    loader: 'sass-loader',
-                    options: {
-                      sassOptions: {
-                        quietDeps: true,
-                        silenceDeprecations: ['mixed-decls'],
-                      },
-                    },
-                  },
-                ],
-              },
-              {
-                test: /\.css$/,
-                use: ['style-loader', 'css-loader'],
-              },
-              {
-                test: /\.(svg|ttf|eot|woff|woff2)$/,
-                include: [
-                  {
-                    or: [
-                      (input) =>
-                        posixPath(input).includes('node_modules/@patternfly/react-core/dist/styles/assets/fonts'),
-                      (input) =>
-                        posixPath(input).includes('node_modules/@patternfly/react-core/dist/styles/assets/pficon'),
-                      (input) =>
-                        posixPath(input).includes('node_modules/monaco-editor/esm/vs/base/browser/ui/codicons/codicon'),
-                      (input) =>
-                        posixPath(input).includes('node_modules/monaco-editor/dev/vs/base/browser/ui/codicons/codicon'),
-                    ],
-                  },
-                ],
-                type: 'asset',
-                generator: {
-                  filename: 'fonts/[name].[ext]',
-                },
-              },
-              {
-                test: /\.(svg|jpg|jpeg|png|gif)$/i,
-                type: 'asset',
-              },
-            ],
-          },
-          ignoreWarnings: [/Failed to parse source map/],
-          stats: {
-            errorDetails: true,
-            children: true,
-          },
-        }),
-      ]
-    : []),
 ];
 
 module.exports = async function createWebpackConfig(env) {

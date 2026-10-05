@@ -533,7 +533,9 @@ suite('Native Kaoto text document provider', () => {
 		const settings = await fixture.bus.request('editor:settings:get', null);
 		ok(settings.settings.catalogUrl?.includes('/dist/webview/editors/kaoto/camel-catalog/index.json'));
 		ok(fixture.panel.webview.html.includes('id="envelope-app"'));
-		ok(fixture.panel.webview.html.includes('KaotoEditorEnvelopeApp.js'));
+		ok(fixture.panel.webview.html.includes('/dist/webview/KaotoEditorEnvelopeApp.css"'));
+		ok(fixture.panel.webview.html.includes('type="module"'));
+		ok(fixture.panel.webview.html.includes('/dist/webview/KaotoEditorEnvelopeApp.js"'));
 		await fixture.bus.request('editor:resource:save', { path: 'schema.xsd', content: 'context' });
 		equal(await read(vscode.Uri.joinPath(root, 'schema.xsd')), 'context');
 	});

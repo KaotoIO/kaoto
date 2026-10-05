@@ -1,7 +1,5 @@
 /**
- * Dev-mode webview entry point — loaded directly from the Vite dev server.
- * Mirrors packages/kaoto-vscode/src/webview/KaotoEditorEnvelopeApp.ts but
- * imports from source so Vite can serve it with HMR.
+ * VS Code webview entry point, served by Vite in development and bundled for production.
  *
  * NOT included in the production library build.
  */

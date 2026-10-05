@@ -22,7 +22,7 @@
     "build:vsix": "yarn vsce package --no-dependencies --yarn",
     "compile": "yarn workspace @kaoto/kaoto build:webview && webpack",
     "sbom:generate": "cdxgen -o manifest.json",
-    "watch": "webpack --env dev",
+    "watch": "yarn workspace @kaoto/kaoto build:webview && webpack --env dev",
     "run:webmode": "yarn vscode-test-web --browserType=chromium --extensionDevelopmentPath=. --open-devtools ./resources",
     "test:unit": "yarn build:test:unit && vscode-test",
     "test:ui": "yarn build:test:ui && extest setup-and-run",

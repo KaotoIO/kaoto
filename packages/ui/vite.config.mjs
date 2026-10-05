@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
 import packageJson from './package.json';
+import vscodePackageJson from '../kaoto-vscode/package.json';
 import { camelCatalogPlugin } from './scripts/camel-catalog-plugin.mjs';
 import { getCatalogFiles } from './scripts/get-catalog-files.mjs';
 import { getLastCommitInfo } from './scripts/get-last-commit-info.mjs';
@@ -22,6 +23,7 @@ export default defineConfig({
     __GIT_HASH: JSON.stringify(lastCommitInfo.hash),
     __GIT_DATE: JSON.stringify(lastCommitInfo.date),
     __KAOTO_VERSION: JSON.stringify(packageJson.version),
+    ...(vscodeDevUrl ? { __VSCODE_KAOTO_VERSION: JSON.stringify(vscodePackageJson.version) } : {}),
   },
   build: {
     outDir,
