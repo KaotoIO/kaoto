@@ -34,8 +34,12 @@ public class ConnectorFrameHandler {
         String type = node.path("type").asText();
         switch (type) {
             case "hello" -> {
-                registry.camelVersionDetected(
-                        executionId, node.path("camelVersion").asText(null));
+                JsonNode pid = node.path("runtime").path("pid");
+                registry.workerDescribed(
+                        executionId,
+                        node.path("camelVersion").asText(null),
+                        node.path("name").asText(null),
+                        pid.canConvertToLong() ? pid.asLong() : null);
                 eventBus.publishReady(
                         executionId, mapper.writeValueAsString(ConnectorProtocolCodec.ready(executionId, node)));
             }

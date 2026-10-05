@@ -2,11 +2,14 @@ package io.kaoto.kompanion.api;
 
 import io.kaoto.kompanion.engine.EngineDispatcher;
 import io.kaoto.kompanion.model.ExecutionContext;
+import io.kaoto.kompanion.model.ExecutionInfo;
 import io.kaoto.kompanion.model.ExecutionResponse;
+import io.kaoto.kompanion.worker.WorkerRegistry;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.util.List;
 import org.jboss.logging.Logger;
 
 @Path("/v1")
@@ -18,6 +21,16 @@ public class ExecutionResource {
 
     @Inject
     EngineDispatcher dispatcher;
+
+    @Inject
+    WorkerRegistry registry;
+
+    /** The workers connected to the Kompanion: the apps it can drive (launched by it or discovered). */
+    @GET
+    @Path("/executions")
+    public List<ExecutionInfo> executions() {
+        return registry.executions();
+    }
 
     @GET
     @Path("/info")
