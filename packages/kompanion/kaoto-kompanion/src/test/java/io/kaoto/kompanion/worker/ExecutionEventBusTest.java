@@ -35,7 +35,7 @@ class ExecutionEventBusTest {
     }
 
     @Test
-    void stalledSubscriberOnlyReceivesTheLatestSnapshot() {
+    void stalledSubscriberOnlyReceivesTheLatestValueOfAState() {
         var bus = bus();
         bus.open("exec-1", "conn-1");
         AssertSubscriber<String> subscriber =
@@ -43,18 +43,64 @@ class ExecutionEventBusTest {
 
         bus.publish("exec-1", "result");
         for (int i = 1; i <= 100; i++) {
-            bus.publishSnapshot("exec-1", "snapshot-" + i);
+            bus.publishState("exec-1", "status", "status-" + i);
         }
         subscriber.request(200);
 
-        List<String> items = subscriber.getItems();
-        assertTrue(items.contains("result"), items.toString());
-        assertTrue(items.contains("snapshot-100"), "the latest snapshot is delivered: " + items);
-        // the merge holds the one snapshot it prefetched, every other superseded snapshot is dropped
-        long snapshots =
-                items.stream().filter(item -> item.startsWith("snapshot-")).count();
-        assertTrue(snapshots <= 2, "a stalled subscriber retains at most two snapshots: " + items);
+        subscriber.assertItems("result", "status-100").assertNotTerminated();
+    }
+
+    @Test
+    void subscriberBehindTheRingGetsAGapThenGoesOn() {
+        var bus = bus();
+        bus.bufferSize = 4;
+        bus.open("exec-1", "conn-1");
+        AssertSubscriber<String> subscriber =
+                bus.streamFor("exec-1").subscribe().withSubscriber(AssertSubscriber.create(0));
+
+        for (int i = 1; i <= 10; i++) {
+            bus.publish("exec-1", "e" + i);
+        }
+        subscriber.request(100);
+
+        subscriber.assertItems(
+                "{\"type\":\"kompanion.gap\",\"executionId\":\"exec-1\",\"from\":1,\"to\":6}", "e7", "e8", "e9", "e10");
+        // and it is not failed: it keeps receiving
+        bus.publish("exec-1", "e11");
+        assertEquals("e11", subscriber.getItems().get(5));
         subscriber.assertNotTerminated();
+    }
+
+    @Test
+    void ringIsAlsoBoundedInBytes() {
+        var bus = bus();
+        bus.bufferBytes = 10;
+        bus.open("exec-1", "conn-1");
+        AssertSubscriber<String> subscriber =
+                bus.streamFor("exec-1").subscribe().withSubscriber(AssertSubscriber.create(0));
+
+        bus.publish("exec-1", "aaaaaa");
+        bus.publish("exec-1", "bbbbbb");
+        subscriber.request(10);
+
+        assertTrue(
+                subscriber.getItems().get(0).contains("kompanion.gap"),
+                subscriber.getItems().toString());
+        assertEquals("bbbbbb", subscriber.getItems().get(1));
+    }
+
+    @Test
+    void closeDeliversWhatIsLeftBeforeCompleting() {
+        var bus = bus();
+        bus.open("exec-1", "conn-1");
+        AssertSubscriber<String> subscriber =
+                bus.streamFor("exec-1").subscribe().withSubscriber(AssertSubscriber.create(0));
+        bus.publish("exec-1", "last");
+        bus.close("exec-1", "conn-1");
+        subscriber.assertNotTerminated();
+
+        subscriber.request(10);
+        subscriber.assertItems("last").assertCompleted();
     }
 
     @Test

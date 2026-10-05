@@ -76,7 +76,7 @@ mvn verify -pl kaoto-companion -Pnative
 | `kaoto.kompanion.command.ack-timeout` | `10s` | Long-poll timeout of `POST .../commands` before answering 202 |
 | `kaoto.kompanion.worker.protocol-timeout` | `5s` | Wait for the worker's first frame (protocol detection) before answering 503 |
 | `kaoto.kompanion.worker-token` | — | Bearer token workers must send at the handshake (401 otherwise); a non-loopback `Origin` is rejected with 403 |
-| `kaoto.kompanion.events.buffer` | `4096` | Frames buffered per SSE subscriber; snapshots are superseded instead of buffered |
+| `kaoto.kompanion.events.buffer` / `events.buffer-bytes` | `4096` / `32 MB` | Events kept per execution for the SSE clients (results, trace, ...); each client reads at its own pace, gets only the latest value of a state (status, debug, ...), a `kompanion.gap` event when it fell behind the kept events, and resumes with `Last-Event-ID` |
 | `kaoto.kompanion.command.result-ttl` | `10m` | How long the result of a command answered `202` can be polled once it arrived (a command answered `200` is not kept) |
 | `kaoto.kompanion.command.pending-timeout` | `10m` | A command the worker does not answer for this long fails |
 | `kaoto.kompanion.command.max-results` | `10000` | Commands kept for polling per execution; the oldest results go first |
