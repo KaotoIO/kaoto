@@ -33,10 +33,10 @@ jobs:
       - name: 🔧 Install dependencies
         run: yarn install --immutable --mode=skip-build
 
-      # Build packages
+      # Build packages — @kaoto/kompanion requires Java 21 and is not needed for the web distribution
       - name: '🔧 Build packages'
         run: |
-          yarn workspaces foreach --verbose --all --topological-dev run build
+          yarn workspaces foreach --verbose --all --topological-dev --exclude @kaoto/kompanion run build
 
       - name: '🔧 Tar UI Dist'
         shell: bash
