@@ -38,6 +38,8 @@ class FileWorkerDiscoveryTest {
         ConnectorFrameHandler frames = new ConnectorFrameHandler();
         frames.registry = registry;
         frames.eventBus = eventBus;
+        frames.slicer = new SnapshotSlicer();
+        frames.slicer.eventBus = eventBus;
         discovery = new FileWorkerDiscovery();
         discovery.registry = registry;
         discovery.eventBus = eventBus;
