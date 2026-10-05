@@ -51,6 +51,10 @@ public class FixtureApp implements AutoCloseable {
         return process.waitFor(timeout, unit);
     }
 
+    public long pid() {
+        return process.pid();
+    }
+
     public boolean isAlive() {
         return process.isAlive();
     }
