@@ -1,11 +1,14 @@
 package io.kaoto.kompanion.worker;
 
 import io.kaoto.kompanion.model.CommandResult;
+import io.kaoto.kompanion.model.ExecutionInfo;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,7 +35,8 @@ public class WorkerRegistry {
             String connectionId,
             Consumer<String> sendFrame,
             CompletableFuture<WorkerProtocol> protocol,
-            AtomicReference<String> camelVersion) {}
+            AtomicReference<String> camelVersion,
+            AtomicReference<ExecutionInfo> info) {}
 
     // executionId → channel (including the owning connectionId)
     private final Map<String, ChannelEntry> channels = new ConcurrentHashMap<>();
@@ -56,8 +60,8 @@ public class WorkerRegistry {
     private final AtomicLong lastSweep = new AtomicLong();
 
     public void register(String executionId, String connectionId, Consumer<String> sendFrame) {
-        ChannelEntry current =
-                new ChannelEntry(connectionId, sendFrame, new CompletableFuture<>(), new AtomicReference<>());
+        ChannelEntry current = new ChannelEntry(
+                connectionId, sendFrame, new CompletableFuture<>(), new AtomicReference<>(), new AtomicReference<>());
         ChannelEntry previous = channels.put(executionId, current);
         if (previous != null && !previous.connectionId().equals(connectionId)) {
             // a command may be waiting on the protocol of the previous connection: let it see the one of the new
@@ -103,6 +107,32 @@ public class WorkerRegistry {
         if (entry != null) {
             entry.camelVersion().set(camelVersion);
         }
+    }
+
+    /** Records what the worker said about itself (camel-cli-connector hello). */
+    public void workerDescribed(String executionId, String camelVersion, String name, Long pid) {
+        ChannelEntry entry = channels.get(executionId);
+        if (entry != null) {
+            entry.camelVersion().set(camelVersion);
+            entry.info().set(new ExecutionInfo(executionId, null, camelVersion, name, pid));
+        }
+    }
+
+    /** The connected workers. */
+    public List<ExecutionInfo> executions() {
+        List<ExecutionInfo> all = new ArrayList<>();
+        channels.forEach((executionId, entry) -> {
+            WorkerProtocol protocol = entry.protocol().getNow(null);
+            ExecutionInfo info = entry.info().get();
+            all.add(new ExecutionInfo(
+                    executionId,
+                    protocol != null ? protocol.name() : null,
+                    info != null ? info.camelVersion() : entry.camelVersion().get(),
+                    info != null ? info.name() : null,
+                    info != null ? info.pid() : null));
+        });
+        all.sort(Comparator.comparing(ExecutionInfo::executionId));
+        return all;
     }
 
     /** Returns the Camel version the connected worker reported, or null when unknown. */

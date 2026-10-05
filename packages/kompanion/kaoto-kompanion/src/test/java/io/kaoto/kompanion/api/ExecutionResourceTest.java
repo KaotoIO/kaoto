@@ -140,4 +140,25 @@ class ExecutionResourceTest {
         // We verify the bound port is a valid non-zero integer as a proxy check.
         org.junit.jupiter.api.Assertions.assertTrue(boundPort > 0, "Expected a positive bound port, got: " + boundPort);
     }
+
+    @jakarta.inject.Inject
+    io.kaoto.kompanion.worker.WorkerRegistry registry;
+
+    @Test
+    void connectedWorkersAreListed() {
+        registry.register("list-exec", "list-conn", frame -> {});
+        registry.protocolDetected("list-exec", "list-conn", io.kaoto.kompanion.worker.WorkerProtocol.FILE);
+        registry.workerDescribed("list-exec", "4.22.1", "orders-app", 4242L);
+
+        given().when()
+                .get("/v1/executions")
+                .then()
+                .statusCode(200)
+                .body("find { it.executionId == 'list-exec' }.protocol", is("FILE"))
+                .body("find { it.executionId == 'list-exec' }.camelVersion", is("4.22.1"))
+                .body("find { it.executionId == 'list-exec' }.name", is("orders-app"))
+                .body("find { it.executionId == 'list-exec' }.pid", is(4242));
+
+        registry.unregister("list-exec", "list-conn");
+    }
 }
