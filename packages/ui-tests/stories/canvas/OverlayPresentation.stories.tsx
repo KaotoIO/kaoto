@@ -48,6 +48,26 @@ const contrast = (foreground: string, background: string) => {
 };
 
 const verifyPresentation: Story['play'] = async ({ canvasElement }) => {
+  const stepAnnotations = canvasElement.querySelectorAll('.kaoto-overlay-demo__step-annotation');
+  await expect(stepAnnotations.length).toBeGreaterThan(0);
+  for (const anchor of stepAnnotations) {
+    const annotation = anchor.querySelector('.kaoto-overlay-annotation')!;
+    const bounds = annotation.getBoundingClientRect();
+    const node = anchor.parentElement!.querySelector('.custom-node__container')!.getBoundingClientRect();
+    await expect(bounds.bottom).toBeLessThan(node.top);
+    for (const badge of anchor.parentElement!.querySelectorAll('.step-icon')) {
+      await expect(bounds.bottom).toBeLessThan(badge.getBoundingClientRect().top);
+    }
+    if (anchor.classList.contains('kaoto-overlay-demo__step-annotation--vertical')) {
+      // The incoming edge is centered on this node; leave its path and arrowhead clear.
+      await expect(bounds.left).toBeGreaterThan(node.x + node.width / 2 + 4);
+    } else {
+      await expect(Math.abs(bounds.x + bounds.width / 2 - node.x - node.width / 2)).toBeLessThan(0.1);
+    }
+    const text = annotation.querySelector('.kaoto-overlay-text')!;
+    await expect(text.scrollWidth).toBeLessThanOrEqual(text.clientWidth);
+  }
+
   const route = canvasElement.querySelector('.kaoto-overlay-demo__route')!;
   const routeBackground = getComputedStyle(route).fill;
   for (const emphasis of ['normal', 'strong', 'subdued']) {
