@@ -1,7 +1,7 @@
 import { OverlayPresentationDemo } from '@kaoto/kaoto/testing';
 import { Meta, StoryObj } from '@storybook/react';
 import { useEffect } from 'react';
-import { expect } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 
 const ThemedGallery = ({ dark = false }: { dark?: boolean }) => {
   useEffect(() => {
@@ -49,6 +49,7 @@ const contrast = (foreground: string, background: string) => {
 
 const verifyPresentation: Story['play'] = async ({ canvasElement }) => {
   const mainRoute = canvasElement.querySelector('[data-demo-group="route-1837"]')!;
+  await waitFor(() => expect(mainRoute.querySelectorAll('path.kaoto-overlay')).toHaveLength(4));
   const choice = mainRoute.querySelector('[data-demo-group="choice-1601"]')!;
   await expect(choice.querySelector('[data-demo-group="when-2399"]')).not.toBeNull();
   await expect(choice.querySelector('[data-demo-group="otherwise-3621"]')).not.toBeNull();
@@ -59,7 +60,7 @@ const verifyPresentation: Story['play'] = async ({ canvasElement }) => {
   await expect(mainRoute.querySelector('[aria-label="to-3904 message count: 0"]')).not.toBeNull();
   await expect(mainRoute.querySelectorAll('path.kaoto-overlay-tone-info')).toHaveLength(4);
   for (const id of ['otherwise-3621-to-3904', 'to-3904-choice-exit']) {
-    await expect(mainRoute.querySelector(`[data-demo-edge="${id}"]`)!.classList.contains('kaoto-overlay')).toBe(false);
+    await expect(mainRoute.querySelector(`[data-demo-edge="${id}"] path.kaoto-overlay`)).toBeNull();
   }
 
   const stepAnnotations = canvasElement.querySelectorAll('.kaoto-overlay-demo__step-annotation');
@@ -115,3 +116,44 @@ const verifyPresentation: Story['play'] = async ({ canvasElement }) => {
 
 Light.play = verifyPresentation;
 Dark.play = verifyPresentation;
+
+const verifyBranchConnections = async (route: Element, branch: 'when' | 'otherwise') => {
+  const point = (id: string, end: boolean) => {
+    const path = route.querySelector<SVGPathElement>(`[data-demo-edge="${id}"] path.kaoto-overlay`)!;
+    return path.getPointAtLength(end ? path.getTotalLength() : 0);
+  };
+  const entry = branch === 'when' ? 'when-2399-to-1402' : 'otherwise-3621-to-3904';
+  const exit = branch === 'when' ? 'to-1402-choice-exit' : 'to-3904-choice-exit';
+  for (const [from, to] of [
+    ['from-1199-choice-1601', entry],
+    [exit, 'choice-1601-to-2430'],
+  ]) {
+    const a = point(from, true);
+    const b = point(to, false);
+    await expect(Math.hypot(a.x - b.x, a.y - b.y)).toBeLessThan(0.1);
+  }
+};
+
+export const StoreUpdates: Story = {
+  args: { dark: false },
+  play: async (context) => {
+    await verifyPresentation(context);
+    const canvas = within(context.canvasElement);
+    const route = context.canvasElement.querySelector('[data-demo-group="route-1837"]')!;
+    await verifyBranchConnections(route, 'when');
+    await userEvent.click(canvas.getByRole('button', { name: 'Show otherwise path' }));
+    await verifyBranchConnections(route, 'otherwise');
+    await expect(route.querySelector('[data-demo-node="to-1402"] rect.kaoto-overlay')).toBeNull();
+    await expect(route.querySelector('[data-demo-node="to-3904"] rect.kaoto-overlay')).not.toBeNull();
+    await userEvent.click(canvas.getByRole('button', { name: 'Update counts' }));
+    await expect(canvas.getByRole('img', { name: 'from-1199 message count: 43' })).toBeInTheDocument();
+    await userEvent.click(canvas.getByRole('button', { name: 'Clear counts' }));
+    await expect(route.querySelector('.kaoto-overlay-demo__step-annotation')).toBeNull();
+    await expect(route.querySelector('.kaoto-overlay-demo__edge-annotation')).not.toBeNull();
+    await userEvent.click(canvas.getByRole('button', { name: 'Disconnect metrics' }));
+    await expect(route.querySelector('.kaoto-overlay-annotation')).toBeNull();
+    await expect(route.querySelector('[data-demo-node="to-3904"] rect.kaoto-overlay')).not.toBeNull();
+    await userEvent.click(canvas.getByRole('button', { name: 'Reset demo' }));
+    await verifyPresentation(context);
+  },
+};

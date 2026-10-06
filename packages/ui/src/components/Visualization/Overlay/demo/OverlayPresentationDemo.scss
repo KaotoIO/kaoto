@@ -19,6 +19,26 @@
     font-size: 14px;
   }
 
+  &__controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    border: 1px solid var(--pf-t--global--border--color--default);
+    padding: 12px;
+
+    button {
+      border: 1px solid var(--pf-t--global--border--color--default);
+      border-radius: 4px;
+      padding: 4px 8px;
+      background: var(--pf-t--global--background--color--primary--default);
+      color: inherit;
+
+      &:disabled {
+        color: var(--pf-t--global--text--color--disabled);
+      }
+    }
+  }
+
   &__edge-annotation .kaoto-overlay-interaction {
     display: flex;
     justify-content: center;
