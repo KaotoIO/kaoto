@@ -19,6 +19,11 @@
     font-size: 14px;
   }
 
+  &__edge-annotation .kaoto-overlay-interaction {
+    display: flex;
+    justify-content: center;
+  }
+
   &__step-annotation {
     overflow: visible;
 
