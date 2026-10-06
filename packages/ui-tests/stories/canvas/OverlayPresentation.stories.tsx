@@ -1,6 +1,7 @@
 import { OverlayPresentationDemo } from '@kaoto/kaoto/testing';
 import { Meta, StoryObj } from '@storybook/react';
 import { useEffect } from 'react';
+import { expect } from 'storybook/test';
 
 const ThemedGallery = ({ dark = false }: { dark?: boolean }) => {
   useEffect(() => {
@@ -28,3 +29,36 @@ export default {
 type Story = StoryObj<typeof ThemedGallery>;
 export const Light: Story = { args: { dark: false } };
 export const Dark: Story = { args: { dark: true } };
+
+const luminance = (color: string) => {
+  const channels = color
+    .match(/[\d.]+/g)!
+    .slice(0, 3)
+    .map(Number)
+    .map((channel) => {
+      const value = channel / 255;
+      return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+    });
+  return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+};
+
+const contrast = (foreground: string, background: string) => {
+  const values = [luminance(foreground), luminance(background)];
+  return (Math.max(...values) + 0.05) / (Math.min(...values) + 0.05);
+};
+
+const verifyWarningContrast: Story['play'] = async ({ canvasElement }) => {
+  const route = canvasElement.querySelector('.kaoto-overlay-demo__route')!;
+  const routeBackground = getComputedStyle(route).fill;
+  for (const emphasis of ['normal', 'strong', 'subdued']) {
+    const marker = canvasElement.querySelector(`[aria-label="warning ${emphasis}"]`)!;
+    const style = getComputedStyle(marker);
+    // Both glyph/border and SVG highlight use this foreground. Check both demo surfaces.
+    await expect(contrast(style.color, style.backgroundColor)).toBeGreaterThanOrEqual(3);
+    await expect(contrast(style.borderTopColor, style.backgroundColor)).toBeGreaterThanOrEqual(3);
+    await expect(contrast(style.color, routeBackground)).toBeGreaterThanOrEqual(3);
+  }
+};
+
+Light.play = verifyWarningContrast;
+Dark.play = verifyWarningContrast;
