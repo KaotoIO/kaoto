@@ -1,46 +1,50 @@
+@use 'sass:map';
+@use '@carbon/react/scss/colors';
+@use '@carbon/react/scss/themes';
+
 .kaoto-overlay {
-  // Carbon support colors, scoped to overlays; no Carbon runtime dependency.
+  // Carbon tokens from the existing @carbon/react dependency, scoped to overlays.
   // https://www.carbondesignsystem.com/building-blocks/foundations/color/tokens
-  --kaoto-overlay-color: #0043ce; // Blue 70 (info)
+  --kaoto-overlay-color: #{map.get(themes.$white, 'support-info')};
 
   color: var(--kaoto-overlay-color);
 
   :where(.pf-v6-theme-dark) & {
-    --kaoto-overlay-color: #4589ff; // Blue 50
+    --kaoto-overlay-color: #{map.get(themes.$g100, 'support-info')};
   }
 
   &-tone-neutral {
-    --kaoto-overlay-color: #6f6f6f; // Gray 60
+    --kaoto-overlay-color: #{colors.$gray-60};
 
     :where(.pf-v6-theme-dark) & {
-      --kaoto-overlay-color: #a8a8a8; // Gray 40
+      --kaoto-overlay-color: #{colors.$gray-40};
     }
   }
 
   &-tone-success {
     // Green 60 retains 3:1 contrast on the light gray route surface.
-    --kaoto-overlay-color: #198038;
+    --kaoto-overlay-color: #{colors.$green-60};
 
     :where(.pf-v6-theme-dark) & {
-      --kaoto-overlay-color: #42be65; // Green 40
+      --kaoto-overlay-color: #{map.get(themes.$g100, 'support-success')};
     }
   }
 
   &-tone-warning {
     // Yellow 60 keeps thin borders visible on light canvas surfaces.
     // Carbon's support-warning Yellow 30 is used on dark surfaces.
-    --kaoto-overlay-color: #8e6a00;
+    --kaoto-overlay-color: #{colors.$yellow-60};
 
     :where(.pf-v6-theme-dark) & {
-      --kaoto-overlay-color: #f1c21b;
+      --kaoto-overlay-color: #{map.get(themes.$g100, 'support-warning')};
     }
   }
 
   &-tone-error {
-    --kaoto-overlay-color: #da1e28; // Red 60
+    --kaoto-overlay-color: #{map.get(themes.$white, 'support-error')};
 
     :where(.pf-v6-theme-dark) & {
-      --kaoto-overlay-color: #fa4d56; // Red 50
+      --kaoto-overlay-color: #{map.get(themes.$g100, 'support-error')};
     }
   }
 }
