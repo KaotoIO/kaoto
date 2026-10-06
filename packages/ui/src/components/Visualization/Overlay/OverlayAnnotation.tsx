@@ -1,5 +1,6 @@
 import './OverlayPresentation.scss';
 
+import { truncate } from 'lodash';
 import { FunctionComponent } from 'react';
 
 import { OverlayEntry } from './overlay-entries';
@@ -11,6 +12,11 @@ export const OverlayAnnotation: FunctionComponent<{ entry: Extract<OverlayEntry,
   const content = [entry.text, entry.value !== undefined ? String(entry.value) : '', entry.unit]
     .filter(Boolean)
     .join(' ');
+  const visibleContent = truncate(content, { length: 24, omission: '...' });
+  const tooltip =
+    entry.interaction.tooltip || visibleContent !== content
+      ? [content, entry.interaction.tooltip].filter(Boolean).join('\n')
+      : undefined;
   return (
     <OverlayInteraction
       key={JSON.stringify([entry.id, entry.target.kind, entry.target.id])}
@@ -18,17 +24,11 @@ export const OverlayAnnotation: FunctionComponent<{ entry: Extract<OverlayEntry,
       interaction={{
         ...entry.interaction,
         accessibleLabel: `${entry.interaction.accessibleLabel}: ${content}`,
-        tooltip: entry.interaction.tooltip
-          ? [content, entry.interaction.tooltip].filter(Boolean).join('\n')
-          : undefined,
+        tooltip,
       }}
     >
-      <span
-        className={
-          entry.interaction.tooltip ? 'kaoto-overlay-text kaoto-overlay-text--truncated' : 'kaoto-overlay-text'
-        }
-      >
-        {content}
+      <span className={tooltip ? 'kaoto-overlay-text kaoto-overlay-text--truncated' : 'kaoto-overlay-text'}>
+        {visibleContent}
       </span>
     </OverlayInteraction>
   );

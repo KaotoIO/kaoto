@@ -114,7 +114,8 @@ const DemoNode: FunctionComponent<NodeProps> = ({
 
 /** Fixed geometry only. Does not subscribe to the model, overlay store, or host bridge. */
 export const OverlayPresentationDemo: FunctionComponent = () => {
-  const selectedPaths = ['M155 138 H430', 'M520 138 H790'];
+  const annotatedEdge = { startX: 155, endX: 430, y: 138 };
+  const selectedPaths = [`M${annotatedEdge.startX} ${annotatedEdge.y} H${annotatedEdge.endX}`, 'M520 138 H790'];
   return (
     <section className="kaoto-overlay-demo" aria-label="Overlay presentation gallery">
       <h1>Canvas overlays — presentation gallery</h1>
@@ -144,7 +145,13 @@ export const OverlayPresentationDemo: FunctionComponent = () => {
         <DemoNode id="choice" label="choice" x={430} y={100} warning decorated count={0} />
         <DemoNode id="selected-log" label="selected log" x={790} y={100} selected decorated count={123456} />
         <DemoNode id="disabled-log" label="disabled log" x={790} y={295} disabled />
-        <foreignObject x={260} y={65} width={170} height={36}>
+        <foreignObject
+          className="kaoto-overlay-demo__edge-annotation"
+          x={(annotatedEdge.startX + annotatedEdge.endX) / 2 - 85}
+          y={65}
+          width={170}
+          height={36}
+        >
           <OverlayAnnotation
             entry={annotation('edge metric', { kind: 'edge', id: 'timer-choice' }, 'Edge duration', -2.75)}
           />
