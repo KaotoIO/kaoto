@@ -1,12 +1,6 @@
 const { merge } = require('webpack-merge');
 const CopyPlugin = require('copy-webpack-plugin');
 const path = require('path'); // NOSONAR
-const { DefinePlugin } = require('webpack');
-const { version } = require('./package.json');
-
-function posixPath(pathStr) {
-  return pathStr.split(path.sep).join(path.posix.sep);
-}
 
 const getEnvConfig = (env) => {
   if (env.dev) {
@@ -122,16 +116,6 @@ const commonConfig = (env) => {
       },
       extensions: ['.tsx', '.ts', '.js', '.jsx'],
       modules: ['node_modules'],
-      alias: {
-        // Pin react and react-dom to a single copy so the webview bundle and
-        // @kaoto/kaoto share the same React instance. Both are runtime deps
-        // because they are bundled into the webview JS, not resolved at runtime
-        // by Node.js.
-        // Use require.resolve to find the actual location, which works correctly
-        // whether react is in a local node_modules or hoisted to the monorepo root.
-        react: path.dirname(require.resolve('react/package.json')),
-        'react-dom': path.dirname(require.resolve('react-dom/package.json')),
-      },
     },
     plugins: [
       new CopyPlugin({
@@ -141,9 +125,6 @@ const commonConfig = (env) => {
             to: 'webview/editors/kaoto/camel-catalog',
           },
         ],
-      }),
-      new DefinePlugin({
-        __VSCODE_KAOTO_VERSION: JSON.stringify(version),
       }),
     ],
     externals: {
@@ -158,6 +139,11 @@ const webpack = async (env) => [
     entry: {
       'extension/extension': './src/extension/extension.ts',
     },
+    plugins: [
+      new CopyPlugin({
+        patterns: [{ from: path.resolve(__dirname, '../ui/dist-webview'), to: 'webview', info: { minimized: true } }],
+      }),
+    ],
   }),
   merge(commonConfig(env), {
     target: 'webworker',
@@ -165,74 +151,44 @@ const webpack = async (env) => [
       'extension/extensionWeb': './src/extension/extensionWeb.ts',
     },
   }),
-  merge(commonConfig(env), {
-    target: 'web',
-    entry: {
-      'webview/KaotoEditorEnvelopeApp': './src/webview/KaotoEditorEnvelopeApp.ts',
-    },
-    resolve: {
-      alias: {
-        // @kie-tools-core/editor@10.0.0 references @patternfly/react-core/dist/js/components/Text
-        // which was removed in PatternFly 6. Alias to false so webpack provides an empty module;
-        // the KeyBindingsHelpOverlay that uses it is not activated in the Kaoto extension.
-        '@patternfly/react-core/dist/js/components/Text': false,
-      },
-    },
-    module: {
-      rules: [
-        {
-          test: /\.s[ac]ss$/i,
-          use: [
-            'style-loader',
-            'css-loader',
-            {
-              loader: 'sass-loader',
-              options: {
-                sassOptions: {
-                  // Silence Sass mixed-decls deprecation warnings from
-                  // @carbon/styles and other third-party dependencies.
-                  quietDeps: true,
-                  silenceDeprecations: ['mixed-decls'],
-                },
-              },
-            },
-          ],
-        },
-        {
-          test: /\.css$/,
-          use: ['style-loader', 'css-loader'],
-        },
-        {
-          test: /\.(svg|ttf|eot|woff|woff2)$/,
-          include: [
-            {
-              or: [
-                (input) => posixPath(input).includes('node_modules/@patternfly/react-core/dist/styles/assets/fonts'),
-                (input) => posixPath(input).includes('node_modules/@patternfly/react-core/dist/styles/assets/pficon'),
-                (input) =>
-                  posixPath(input).includes('node_modules/monaco-editor/esm/vs/base/browser/ui/codicons/codicon'),
-                (input) =>
-                  posixPath(input).includes('node_modules/monaco-editor/dev/vs/base/browser/ui/codicons/codicon'),
-              ],
-            },
-          ],
-          type: 'asset',
-          generator: {
-            filename: 'fonts/[name].[ext]',
-          },
-        },
-        {
-          test: /\.(svg|jpg|jpeg|png|gif)$/i,
-          type: 'asset',
-        },
-      ],
-    },
-    ignoreWarnings: [/Failed to parse source map/],
-    stats: {
-      errorDetails: true,
-      children: true,
-    },
-  }),
 ];
 
-module.exports = webpack;
+module.exports = async function createWebpackConfig(env) {
+  if (env.bridgeTests || env.bridgeWebTests) {
+    // The unit runner is CommonJS; bundle the suites that import ESM UI subpaths.
+    return {
+      mode: 'development',
+      target: env.bridgeWebTests ? 'webworker' : 'node',
+      entry: env.bridgeWebTests
+        ? { index: './src/test/web/index.ts' }
+        : {
+            'KaotoHostServices.test': './src/test/services/KaotoHostServices.test.ts',
+            'KaotoEditorProvider.test': './src/test/extension/KaotoEditorProvider.test.ts',
+          },
+      output: {
+        path: path.resolve(env.bridgeWebTests ? './dist/test/web' : './dist/test/bridge'),
+        filename: '[name].js',
+        libraryTarget: 'commonjs2',
+      },
+      externals: { vscode: 'commonjs vscode', chai: 'commonjs chai' },
+      resolve: {
+        extensions: ['.ts', '.tsx', '.js'],
+        fallback: env.bridgeWebTests ? { path: require.resolve('path-browserify') } : {},
+      },
+      module: {
+        rules: [
+          {
+            test: /\.m?js$/,
+            resolve: { fullySpecified: false },
+          },
+          {
+            test: /\.tsx?$/,
+            loader: 'ts-loader',
+            options: { configFile: 'tsconfig.json', onlyCompileBundledFiles: true },
+          },
+        ],
+      },
+    };
+  }
+  return webpack(env);
+};

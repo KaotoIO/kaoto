@@ -2,12 +2,12 @@ import { createHashRouter } from 'react-router-dom';
 
 import { ErrorPage } from '../pages/ErrorPage';
 import { Links } from '../router/links.models';
-import { KaotoEditor } from './KaotoEditor';
+import { KaotoEditorLayout } from './KaotoEditorLayout';
 
 export const kaotoEditorRouter = createHashRouter([
   {
     path: Links.Home,
-    element: <KaotoEditor />,
+    element: <KaotoEditorLayout />,
     errorElement: <ErrorPage />,
     children: [
       {

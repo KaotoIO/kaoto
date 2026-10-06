@@ -30,7 +30,7 @@ import {
 	KAOTO_LOCAL_KAMELET_DIRECTORIES_SETTING_ID,
 } from '../../constants';
 
-suite('VSCodeKaotoEditorChannelApi', function () {
+suite('Kaoto settings', function () {
 	let testDocument: vscode.TextDocument;
 	let testWorkspaceFolder: vscode.WorkspaceFolder;
 
@@ -52,10 +52,6 @@ suite('VSCodeKaotoEditorChannelApi', function () {
 		} catch (error) {
 			throw new Error(`Failed to create test document: ${error}`);
 		}
-
-		// Note: Creating a full VSCodeKaotoEditorChannelApi instance requires many dependencies
-		// For now, we'll test the methods that can be tested in isolation
-		// Full integration tests would require mocking the entire editor infrastructure
 	});
 
 	teardown(async function () {
@@ -512,7 +508,7 @@ suite('VSCodeKaotoEditorChannelApi', function () {
 	// Real settings should be tested through VS Code configuration API
 
 	// Step Update Actions tests removed - these were testing hardcoded arrays
-	// These enums should be tested by importing from @kaoto/kaoto if needed
+	// These enums should be tested by importing from @kaoto/editor-api if needed
 
 	suite('URI and Path Utilities', function () {
 		test('should handle forward slash conversion', function () {

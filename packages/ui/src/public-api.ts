@@ -8,6 +8,7 @@ export * from './components/Visualization';
 export * from './components/Visualization/Canvas';
 export * from './components/Visualization/ContextToolbar';
 export * from './external/RouteVisualization/RouteVisualization';
+export * from './host-bridge/hooks-index';
 export * from './models/catalog-kind';
 export * from './models/runtime-maven-information';
 export * from './models/step-update-action';

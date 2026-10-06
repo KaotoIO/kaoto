@@ -1,4 +1,4 @@
-import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
+import { type Suggestion, type SuggestionRequestContext } from '@kaoto/editor-api';
 import { createContext, FunctionComponent, PropsWithChildren } from 'react';
 
 import { StepUpdateAction } from '../models';

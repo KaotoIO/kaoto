@@ -9,6 +9,11 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./vitest-mocks-setup.ts', './vitest-setup.ts'],
     include: ['**/?(*.)+(test).[tj]s?(x)'],
+    typecheck: {
+      enabled: true,
+      checker: fileURLToPath(import.meta.resolve('typescript/bin/tsc')),
+      include: ['**/?(*.)+(test).ts'],
+    },
     testTimeout: 10_000,
     hookTimeout: 20_000,
     clearMocks: true,

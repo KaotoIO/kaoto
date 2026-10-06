@@ -13,31 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { backendI18nDefaults, backendI18nDictionaries } from '@kie-tools-core/backend/dist/i18n';
-import { VsCodeBackendProxy } from '@kie-tools-core/backend/dist/vscode';
-import { EditorEnvelopeLocator, EnvelopeContentType, EnvelopeMapping } from '@kie-tools-core/editor/dist/api';
-import { I18n } from '@kie-tools-core/i18n/dist/core';
-import * as KogitoVsCode from '@kie-tools-core/vscode-extension/dist';
+import { StepUpdateAction } from '@kaoto/editor-api';
 import { getRedHatService, TelemetryService } from '@redhat-developer/vscode-redhat-telemetry';
+import path from 'path'; // NOSONAR: desktop path resolution
 import * as vscode from 'vscode';
-import { KAOTO_FILE_PATH_GLOB, VIEW_HELP } from '../constants';
-import { VSCodeKaotoChannelApiProducer } from './../webview/VSCodeKaotoChannelApiProducer';
-import { KaotoOutputChannel } from './KaotoOutputChannel';
-import { PortManager } from '../services/PortManager';
+import { VIEW_HELP } from '../constants';
 import { CamelExecutorFactory } from '../executors/CamelExecutorFactory';
 import { KaotoCatalogService } from '../services/KaotoCatalogService';
+import { KaotoHostServices, type KaotoDesktopOperations } from '../services/KaotoHostServices';
+import { MavenRuntimeDetector } from '../services/MavenRuntimeDetector';
+import { PortManager } from '../services/PortManager';
+import { StepsOnSaveManager } from '../services/StepsOnSaveManager';
+import { getEnvironmentSuggestions } from '../services/SuggestionRegistry';
+import { findClasspathRoot } from '../utils/ClasspathRootFinder';
+import { resolvePaths } from '../utils/Path';
 import { HelpFeedbackProvider } from '../views/help/HelpFeedbackProvider';
-import { IRegistrar } from './registrars/IRegistrar';
+import { registerKaotoEditorProvider } from './KaotoEditorProvider';
+import { KaotoOutputChannel } from './KaotoOutputChannel';
+import { DeploymentsRegistrar } from './registrars/DeploymentsRegistrar';
 import { EditorRegistrar } from './registrars/EditorRegistrar';
 import { ExecutorRegistrar } from './registrars/ExecutorRegistrar';
-import { LifecycleRegistrar } from './registrars/LifecycleRegistrar';
-import { IntegrationsRegistrar } from './registrars/IntegrationsRegistrar';
-import { DeploymentsRegistrar } from './registrars/DeploymentsRegistrar';
-import { TestsRegistrar } from './registrars/TestsRegistrar';
 import { InfrastructureRegistrar } from './registrars/InfrastructureRegistrar';
+import { IntegrationsRegistrar } from './registrars/IntegrationsRegistrar';
+import { IRegistrar } from './registrars/IRegistrar';
+import { LifecycleRegistrar } from './registrars/LifecycleRegistrar';
 import { OpenApiRegistrar } from './registrars/OpenApiRegistrar';
+import { TestsRegistrar } from './registrars/TestsRegistrar';
 
-let backendProxy: VsCodeBackendProxy;
 let telemetryService: TelemetryService;
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -47,35 +49,31 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Initialize executor factory with extension context
 	CamelExecutorFactory.initialize(context);
 
-	const backendI18n = new I18n(backendI18nDefaults, backendI18nDictionaries, vscode.env.language);
-	backendProxy = new VsCodeBackendProxy(context, backendI18n);
-
-	const kieEditorStore = await KogitoVsCode.startExtension({
-		extensionName: 'redhat.vscode-kaoto',
-		context: context,
-		viewType: 'webviewEditorsKaoto',
-		editorEnvelopeLocator: new EditorEnvelopeLocator('vscode', [
-			new EnvelopeMapping({
-				type: 'kaoto',
-				filePathGlob: KAOTO_FILE_PATH_GLOB,
-				resourcesPathPrefix: 'dist/webview/editors/kaoto',
-				envelopeContent: {
-					type: EnvelopeContentType.PATH,
-					path: 'dist/webview/KaotoEditorEnvelopeApp.js',
-				},
-			}),
-		]),
-		channelApiProducer: new VSCodeKaotoChannelApiProducer(),
-		backendProxy: backendProxy,
-	});
-
-	const portManager = new PortManager();
-
-	/*
-	 * Initialize Camel Catalog Service
-	 */
 	const catalogService = new KaotoCatalogService(context);
 	await catalogService.initialize();
+	const desktopOperations: KaotoDesktopOperations = {
+		getSelectedCatalog: async (uri) => {
+			if (await KaotoCatalogService.isMavenProject(uri)) {
+				return undefined;
+			}
+			return KaotoCatalogService.getInstance().getSelectedCatalog(uri);
+		},
+		findClasspathRoot: (uri) => vscode.Uri.file(findClasspathRoot(uri)),
+		resolveKameletDirectories: (directories, uri) =>
+			[...resolvePaths(directories, path.dirname(uri.fsPath))].map((directory) => vscode.Uri.file(directory)),
+		getEnvironmentSuggestions: (word) => getEnvironmentSuggestions(word, process.env),
+		getRuntimeInfoFromMavenContext: (uri) => MavenRuntimeDetector.getRuntimeInfoFromMavenContext(uri.fsPath),
+		onStepUpdated: (uri, action, stepType, stepName) => {
+			KaotoOutputChannel.logInfo(`Step ${stepName} of type ${stepType} - Action: ${action}`);
+			if (action === StepUpdateAction.Add || action === StepUpdateAction.Replace) {
+				StepsOnSaveManager.instance.markStepsAdded(uri);
+			}
+		},
+		disposeFor: (uri) => StepsOnSaveManager.instance.disposeFor(uri),
+	};
+	const editors = registerKaotoEditorProvider(context, (getUri) => new KaotoHostServices(getUri, desktopOperations));
+
+	const portManager = new PortManager();
 
 	// Create and register status bar item
 	const catalogStatusBar = catalogService.createStatusBarItem();
@@ -93,7 +91,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.window.registerTreeDataProvider(VIEW_HELP, new HelpFeedbackProvider(context.extensionUri.path)));
 
 	const registrars: IRegistrar[] = [
-		new EditorRegistrar(context, kieEditorStore, telemetryService),
+		new EditorRegistrar(context, editors, telemetryService),
 		new IntegrationsRegistrar(context, telemetryService, portManager),
 		new DeploymentsRegistrar(context, telemetryService, portManager),
 		new InfrastructureRegistrar(context, telemetryService),
@@ -117,7 +115,6 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 export async function deactivate() {
-	backendProxy?.stopServices();
 	await telemetryService.sendShutdownEvent();
 	KaotoOutputChannel.dispose();
 }

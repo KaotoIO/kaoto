@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "exclude": ["node_modules", ".vscode-test", "test-resources"],
-  "include": ["src"],
+  "include": ["src", "../editor-api/src"],
   "compilerOptions": {
     /* Build target — webpack bundles this, so override the base's ESNext/noEmit/isolatedModules */
     "lib": ["ES2023", "DOM", "DOM.Iterable"],

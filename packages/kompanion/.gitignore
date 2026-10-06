@@ -6,3 +6,6 @@ target/
 
 # Orval-generated TypeScript source
 build/
+
+# Java generated code
+target/
