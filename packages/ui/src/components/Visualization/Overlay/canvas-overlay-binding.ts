@@ -2,7 +2,7 @@ import { action, Controller, GraphElement, isEdge, isNode } from '@patternfly/re
 import { isEqual } from 'lodash';
 
 import type { OverlayStore } from '../../../store/overlay.store';
-import type { CanvasNodesAndEdges } from '../Canvas/canvas.models';
+import type { CanvasNode, CanvasNodesAndEdges } from '../Canvas/canvas.models';
 import type { CanvasOverlay, CanvasOverlayData } from './canvas-overlay-data';
 import type { OverlayStoreSnapshot } from './overlay-layer-snapshot';
 
@@ -10,6 +10,11 @@ import type { OverlayStoreSnapshot } from './overlay-layer-snapshot';
 export interface CanvasOverlayBinding {
   readonly model: CanvasNodesAndEdges;
   readonly store: OverlayStore;
+}
+
+function findRouteNodeId(nodes: readonly CanvasNode[], routeId: string): string | undefined {
+  const matches = nodes.filter((node) => node.group && !node.parentNode && node.data?.vizNode?.getId() === routeId);
+  return matches.length === 1 ? matches[0].id : undefined;
 }
 
 function collectElementOverlays(model: CanvasNodesAndEdges, layers: OverlayStoreSnapshot) {
@@ -23,10 +28,7 @@ function collectElementOverlays(model: CanvasNodesAndEdges, layers: OverlayStore
     for (const entry of entries) {
       let id: string | undefined;
       if (entry.target.kind === 'route') {
-        const matches = nodes.filter(
-          (node) => node.group && !node.parentNode && node.data?.vizNode?.getId() === entry.target.id,
-        );
-        if (matches.length === 1) id = matches[0].id;
+        id = findRouteNodeId(nodes, entry.target.id);
       } else if ((entry.target.kind === 'node' ? nodeIds : edgeIds).has(entry.target.id)) {
         id = entry.target.id;
       }

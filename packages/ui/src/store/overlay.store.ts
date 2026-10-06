@@ -41,6 +41,24 @@ export interface OverlayState {
 export type OverlayStore = ReturnType<typeof createOverlayStore>;
 const emptyLayers = createOverlayLayerSnapshot([]);
 
+/** Pure layer transitions keep Zustand actions small and preserve unchanged references. */
+function replaceLayerState(state: OverlayState, ownerId: string, layerId: string, entries: readonly OverlayEntry[]) {
+  const previous = state.layers.find((layer) => layer.ownerId === ownerId && layer.layerId === layerId);
+  if (isEqual(previous?.entries ?? [], entries)) return state;
+  const replacement = createOverlayLayerSnapshot([{ ownerId, layerId, entries: [...entries] }])[0];
+  const layers = state.layers.filter((layer) => layer !== previous);
+  if (entries.length > 0) {
+    const position = previous ? state.layers.indexOf(previous) : layers.length;
+    layers.splice(position, 0, replacement);
+  }
+  return { layers: Object.freeze(layers) };
+}
+
+function removeOwnerLayers(state: OverlayState, ownerId: string) {
+  const layers = state.layers.filter((layer) => layer.ownerId !== ownerId);
+  return layers.length === state.layers.length ? state : { layers: Object.freeze(layers) };
+}
+
 /** One Zustand store per model scope. Consumers own their subscription cleanup. */
 export function createOverlayStore(snapshot: OverlayTargetSnapshot) {
   const scope = { ...snapshot.scope };
@@ -67,17 +85,7 @@ export function createOverlayStore(snapshot: OverlayTargetSnapshot) {
         return undefined;
       };
       const commitLayer = (layerId: string, entries: readonly OverlayEntry[]) => {
-        set((state) => {
-          const previous = getLayer(layerId);
-          if (isEqual(previous?.entries ?? [], entries)) return state;
-          const replacement = createOverlayLayerSnapshot([{ ownerId, layerId, entries: [...entries] }])[0];
-          const layers = state.layers.filter((layer) => layer !== previous);
-          if (entries.length > 0) {
-            const position = previous ? state.layers.indexOf(previous) : layers.length;
-            layers.splice(position, 0, replacement);
-          }
-          return { layers: Object.freeze(layers) };
-        });
+        set((state) => replaceLayerState(state, ownerId, layerId, entries));
       };
       const write = (
         requestScope: OverlayScope,
@@ -133,10 +141,7 @@ export function createOverlayStore(snapshot: OverlayTargetSnapshot) {
         dispose() {
           if (ownerDisposed) return;
           ownerDisposed = true;
-          set((state) => {
-            const layers = state.layers.filter((layer) => layer.ownerId !== ownerId);
-            return layers.length === state.layers.length ? state : { layers: Object.freeze(layers) };
-          });
+          set((state) => removeOwnerLayers(state, ownerId));
         },
       };
     },
