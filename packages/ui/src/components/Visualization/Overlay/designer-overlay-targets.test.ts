@@ -33,8 +33,8 @@ describe('buildDesignerOverlayTargetSnapshot', () => {
   it('keeps repeated local step identities separate across real flow models', () => {
     const model = buildDesignerCanvasModel([createFlow('route-1'), createFlow('route-2')]);
     const routes = [
-      new CamelRouteVisualEntity({ route: { id: 'route-1', from: { uri: 'direct:one' } } }),
-      new CamelRouteVisualEntity({ route: { id: 'route-2', from: { uri: 'direct:two' } } }),
+      new CamelRouteVisualEntity({ route: { id: 'route-1', from: { uri: 'direct:one', steps: [] } } }),
+      new CamelRouteVisualEntity({ route: { id: 'route-2', from: { uri: 'direct:two', steps: [] } } }),
     ];
     const index = createOverlayTargetIndex(buildDesignerOverlayTargetSnapshot(scope, model, routes));
 
@@ -111,7 +111,9 @@ describe('buildDesignerOverlayTargetSnapshot', () => {
   });
 
   it('includes explicitly supplied routes even without a mounted entry node', () => {
-    const route = new CamelRouteVisualEntity({ route: { id: 'route-hidden', from: { uri: 'direct:hidden' } } });
+    const route = new CamelRouteVisualEntity({
+      route: { id: 'route-hidden', from: { uri: 'direct:hidden', steps: [] } },
+    });
     const snapshot = buildDesignerOverlayTargetSnapshot(scope, { nodes: [], edges: [] }, [route]);
 
     expect(snapshot.targets).toEqual([{ kind: 'route', id: 'route-hidden' }]);
@@ -121,12 +123,14 @@ describe('buildDesignerOverlayTargetSnapshot', () => {
     expect(buildDesignerOverlayTargetSnapshot(scope, { nodes: [], edges: [] }, []).targets).toEqual([]);
     const model = buildDesignerCanvasModel([createFlow('route-like-name')]);
 
-    expect(buildDesignerOverlayTargetSnapshot(scope, model, []).targets.some(({ kind }) => kind === 'route')).toBe(false);
+    expect(buildDesignerOverlayTargetSnapshot(scope, model, []).targets.some(({ kind }) => kind === 'route')).toBe(
+      false,
+    );
   });
 
   it('leaves inputs unchanged and detaches snapshot records from the model', () => {
     const model = buildDesignerCanvasModel([createFlow('route-1')]);
-    const routes = [new CamelRouteVisualEntity({ route: { id: 'route-1', from: { uri: 'direct:one' } } })];
+    const routes = [new CamelRouteVisualEntity({ route: { id: 'route-1', from: { uri: 'direct:one', steps: [] } } })];
     const inputScope = Object.freeze({ ...scope });
     const beforeModel = cloneDeep(model);
     const beforeRoutes = JSON.stringify(routes);
