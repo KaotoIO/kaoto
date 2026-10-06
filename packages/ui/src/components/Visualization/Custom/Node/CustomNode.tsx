@@ -36,6 +36,7 @@ import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { CanvasNode, LayoutType } from '../../Canvas/canvas.models';
 import { useCanvasToolbarTarget } from '../../Canvas/hooks/use-canvas-toolbar-target';
 import { CanvasNodeOverlays } from '../../Overlay/CanvasElementOverlays';
+import { useCanvasOverlays } from '../../Overlay/use-canvas-overlays';
 import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
 import { getDropTargetContainerClassNames, GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
 import { useGraphLayout } from '../hooks/use-graph-layout.hook';
@@ -74,6 +75,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
     const boxYRef = useRef<number | null>(null);
     const entitiesContext = useEntityContext();
     const catalogModalContext = useContext(CatalogModalContext);
+    const overlays = useCanvasOverlays('node', element.getId());
     const settingsAdapter = useContext(SettingsContext);
     const nodeInteractionAddonContext = useContext(NodeInteractionAddonContext);
     const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
@@ -261,7 +263,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
           onContextMenu={onContextMenu}
         >
           <CanvasNodeOverlays
-            overlays={element.getData()?.overlays}
+            overlays={overlays}
             bounds={{ x: (box.width - 60) / 2, y: (box.height - 60) / 2, width: 60, height: 60 }}
             vertical={layout === LayoutType.DagreVertical}
           />

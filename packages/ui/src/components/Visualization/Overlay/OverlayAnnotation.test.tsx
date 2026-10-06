@@ -4,8 +4,6 @@ import userEvent from '@testing-library/user-event';
 import { OverlayEntry } from './overlay-entries';
 import { OverlayAnnotation } from './OverlayAnnotation';
 
-vi.unmock('@patternfly/react-icons');
-
 const entry: Extract<OverlayEntry, { kind: 'annotation' }> = {
   id: 'metric',
   kind: 'annotation',

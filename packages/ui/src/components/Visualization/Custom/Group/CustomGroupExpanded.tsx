@@ -39,6 +39,7 @@ import { RenderingAnchor } from '../../../RenderingAnchor/RenderingAnchor';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { useCanvasToolbarTarget } from '../../Canvas/hooks/use-canvas-toolbar-target';
 import { CanvasNodeOverlays } from '../../Overlay/CanvasElementOverlays';
+import { useCanvasOverlays } from '../../Overlay/use-canvas-overlays';
 import {
   canDragGroup,
   getDropTargetContainerClassNames,
@@ -73,6 +74,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
     }
 
     const lastUpdate = groupVizNode?.lastUpdate;
+    const overlays = useCanvasOverlays('node', element.getId());
     const settingsAdapter = useContext(SettingsContext);
     const entitiesContext = useEntityContext();
     const catalogModalContext = useContext(CatalogModalContext);
@@ -233,7 +235,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
           onKeyDown={handleKeyDown}
           onContextMenu={onContextMenu}
         >
-          <CanvasNodeOverlays overlays={element.getData()?.overlays} bounds={boxRef.current} />
+          <CanvasNodeOverlays overlays={overlays} bounds={boxRef.current} />
           <rect
             className="custom-group__focus-ring"
             aria-hidden="true"
