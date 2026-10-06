@@ -107,6 +107,10 @@ describe('collectDesignerOverlayTargets', () => {
     vi.mocked(first.toVizNode).mockReturnValue(pending.promise);
     const controller = new AbortController();
     const collection = collectDesignerOverlayTargets([first, second], controller.signal);
+    await waitFor(() => {
+      expect(first.toVizNode).toHaveBeenCalledOnce();
+    });
+    expect(second.toVizNode).not.toHaveBeenCalled();
     controller.abort();
     pending.resolve(flow('route-1'));
 

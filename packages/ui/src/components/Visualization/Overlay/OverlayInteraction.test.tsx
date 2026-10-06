@@ -16,7 +16,7 @@ it('dismisses a focused tooltip with Escape without moving focus', async () => {
   expect(await screen.findByRole('tooltip')).toBeInTheDocument();
   await user.keyboard('{Escape}');
   await waitFor(() => expect(screen.queryByRole('tooltip')).not.toBeInTheDocument());
-  expect(screen.getByLabelText('Detail')).toHaveFocus();
+  expect(screen.getByRole('button', { name: 'Detail' })).toHaveFocus();
 });
 
 it('isolates tooltip annotation input from canvas selection, dragging and menus', async () => {
@@ -35,7 +35,7 @@ it('isolates tooltip annotation input from canvas selection, dragging and menus'
       </OverlayInteraction>
     </div>,
   );
-  const annotation = screen.getByRole('img', { name: 'Count' });
+  const annotation = screen.getByRole('button', { name: 'Count' });
   await user.click(annotation);
   await user.dblClick(annotation);
   await user.pointer({ target: annotation, keys: '[MouseRight]' });

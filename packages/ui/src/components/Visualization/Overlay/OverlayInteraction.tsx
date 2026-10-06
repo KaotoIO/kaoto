@@ -15,19 +15,19 @@ const stopPropagation = (event: SyntheticEvent) => {
 
 /** Keep annotation input separate from the underlying canvas controls. */
 export const OverlayInteraction: FunctionComponent<Props> = ({ interaction, children, className }) => {
-  const content = (
-    <span
-      className={className}
-      aria-label={interaction.accessibleLabel}
-      role="img"
-      tabIndex={interaction.tooltip ? 0 : undefined}
-    >
+  const content = interaction.tooltip ? (
+    <button type="button" className={className} aria-label={interaction.accessibleLabel}>
+      {children}
+    </button>
+  ) : (
+    <span className={className} aria-label={interaction.accessibleLabel} role="img">
       {children}
     </span>
   );
   return (
     <span
       className="kaoto-overlay-interaction"
+      role="presentation"
       onClick={stopPropagation}
       onDoubleClick={stopPropagation}
       onPointerDown={stopPropagation}

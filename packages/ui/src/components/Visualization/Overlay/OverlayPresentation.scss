@@ -59,6 +59,8 @@
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  margin: 0;
+  font: inherit;
   border: 1px solid var(--kaoto-overlay-color);
   border-radius: 6px;
   background: var(--pf-t--global--background--color--primary--default);
