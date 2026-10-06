@@ -15,6 +15,7 @@ import { CustomNodeLabel } from '../../Custom/Node/CustomNodeLabel';
 import { OverlayEntry, OverlayTone } from '../overlay-entries';
 import { OverlayAnnotation } from '../OverlayAnnotation';
 import { EdgeOverlayHighlight, NodeOverlayHighlight } from '../OverlayHighlight';
+import { demoAnnotatedEdge, demoEdges, DemoOverlay, useOverlayDemo } from './use-overlay-demo';
 
 const tones: OverlayTone[] = ['neutral', 'info', 'success', 'warning', 'error'];
 const annotation = (
@@ -46,6 +47,7 @@ interface NodeProps {
   icon?: string;
   consumer?: boolean;
   highlighted?: boolean;
+  overlays?: readonly DemoOverlay[];
 }
 
 const DemoNode: FunctionComponent<NodeProps> = ({
@@ -62,6 +64,7 @@ const DemoNode: FunctionComponent<NodeProps> = ({
   icon = logIcon,
   consumer = false,
   highlighted = decorated,
+  overlays,
 }) => {
   const node = createVisualizationNode(id, {
     name: label,
@@ -74,7 +77,19 @@ const DemoNode: FunctionComponent<NodeProps> = ({
   });
   return (
     <g data-demo-node={id} transform={`translate(${x} ${y})`}>
-      {highlighted && <NodeOverlayHighlight bounds={{ x: 15, y: 7.5, width: 60, height: 60 }} emphasis="strong" />}
+      {overlays
+        ? overlays.map(
+            ({ key, entry }) =>
+              entry.kind === 'highlight' && (
+                <NodeOverlayHighlight
+                  key={key}
+                  bounds={{ x: 15, y: 7.5, width: 60, height: 60 }}
+                  tone={entry.tone}
+                  emphasis={entry.emphasis}
+                />
+              ),
+          )
+        : highlighted && <NodeOverlayHighlight bounds={{ x: 15, y: 7.5, width: 60, height: 60 }} emphasis="strong" />}
       <g className="custom-node" data-selected={!!selected} data-warning={!!warning} data-disabled={!!disabled}>
         <CustomNodeContainer
           width={90}
@@ -96,25 +111,37 @@ const DemoNode: FunctionComponent<NodeProps> = ({
           validationText="Existing validation warning"
         />
       </g>
-      {decorated && (
-        <foreignObject
-          className={`kaoto-overlay-demo__step-annotation kaoto-overlay-demo__step-annotation--${layout}`}
-          x={layout === 'vertical' ? 55 : 5}
-          y={-28}
-          width={80}
-          height={24}
-        >
-          <OverlayAnnotation
-            entry={{
-              ...annotation(`${id} metric`, { kind: 'node', id }, '', count),
-              unit: '',
-              interaction: {
-                accessibleLabel: `${id} message count`,
-                tooltip: 'Messages processed by this step (demo)',
+      {(
+        overlays ??
+        (decorated
+          ? [
+              {
+                key: id,
+                entry: {
+                  ...annotation(`${id} metric`, { kind: 'node', id }, '', count),
+                  unit: '',
+                  interaction: {
+                    accessibleLabel: `${id} message count`,
+                    tooltip: 'Messages processed by this step (demo)',
+                  },
+                },
               },
-            }}
-          />
-        </foreignObject>
+            ]
+          : [])
+      ).map(
+        ({ key, entry }) =>
+          entry.kind === 'annotation' && (
+            <foreignObject
+              key={key}
+              className={`kaoto-overlay-demo__step-annotation kaoto-overlay-demo__step-annotation--${layout}`}
+              x={layout === 'vertical' ? 55 : 5}
+              y={-28}
+              width={80}
+              height={24}
+            >
+              <OverlayAnnotation entry={entry} />
+            </foreignObject>
+          ),
       )}
     </g>
   );
@@ -143,20 +170,12 @@ const DemoGroup: FunctionComponent<{
   </g>
 );
 
-/** Fixed geometry only. Does not subscribe to the model, overlay store, or host bridge. */
+/** Store-backed main route with fixed geometry; no live model or host bridge. */
 export const OverlayPresentationDemo: FunctionComponent = () => {
-  const annotatedEdge = { startX: 150, endX: 250, y: 357.5 };
-  // Explicit demo geometry for the supplied route; no runtime path inference.
-  const selectedPaths = [
-    { id: 'from-1199-choice-1601', path: `M${annotatedEdge.startX} ${annotatedEdge.y} H${annotatedEdge.endX}` },
-    { id: 'when-2399-to-1402', path: 'M250 357.5 H270 V322.5 H350' },
-    { id: 'to-1402-choice-exit', path: 'M410 322.5 H660 V357.5 H690' },
-    { id: 'choice-1601-to-2430', path: 'M690 357.5 H810' },
-  ];
-  const unvisitedPaths = [
-    { id: 'otherwise-3621-to-3904', path: 'M270 357.5 V557.5 H350' },
-    { id: 'to-3904-choice-exit', path: 'M410 557.5 H660 V357.5' },
-  ];
+  const { overlays, layers, branch, metricsConnected, actions, reset } = useOverlayDemo();
+  const forTarget = (kind: OverlayEntry['target']['kind'], id: string) =>
+    overlays.filter(({ entry }) => entry.target.kind === kind && entry.target.id === id);
+  const annotatedEdge = demoAnnotatedEdge;
   return (
     <section className="kaoto-overlay-demo" aria-label="Overlay presentation gallery">
       <h1>Canvas overlays — presentation gallery</h1>
@@ -164,8 +183,38 @@ export const OverlayPresentationDemo: FunctionComponent = () => {
         Fixed data and provisional placement. Existing corner badges, validation labels and selection remain visible.
       </p>
       <p>
-        route-1837: file-watch → choice → kamelet:pdf-action → amqp. The otherwise/xmpp branch was not visited.
-        Highlights show the message path, not its outcome. Counts are illustrative.
+        route-1837: file-watch → choice → PDF or XMPP → amqp. Highlights show the message path, not its outcome.
+        Counters and paths are independent sample datasets.
+      </p>
+      <fieldset className="kaoto-overlay-demo__controls">
+        <legend>Main route overlays</legend>
+        <button type="button" disabled={!actions} onClick={() => actions?.showPath('when')}>
+          Show when path
+        </button>
+        <button type="button" disabled={!actions} onClick={() => actions?.showPath('otherwise')}>
+          Show otherwise path
+        </button>
+        <button type="button" disabled={!actions} onClick={() => actions?.clearPath()}>
+          Clear path
+        </button>
+        <button type="button" disabled={!metricsConnected} onClick={() => actions?.updateCounts()}>
+          Update counts
+        </button>
+        <button type="button" disabled={!metricsConnected} onClick={() => actions?.removeXmppCount()}>
+          Remove XMPP count
+        </button>
+        <button type="button" disabled={!metricsConnected} onClick={() => actions?.clearCounts()}>
+          Clear counts
+        </button>
+        <button type="button" disabled={!metricsConnected} onClick={() => actions?.disconnectMetrics()}>
+          Disconnect metrics
+        </button>
+        <button type="button" onClick={reset}>
+          Reset demo
+        </button>
+      </fieldset>
+      <p role="status">
+        Selected path: {branch ?? 'none'}. Active layers: {layers.length}.
       </p>
       <svg width={1100} height={965} aria-label="route-1837 with nested choice branches and an explicit message path">
         <DemoGroup id="route-1837" label="route-1837" x={10} y={10} width={1060} height={700}>
@@ -176,22 +225,42 @@ export const OverlayPresentationDemo: FunctionComponent = () => {
             <DemoGroup id="when-2399" label="when" x={290} y={230} width={340} height={165} />
             <DemoGroup id="otherwise-3621" label="otherwise" x={290} y={465} width={340} height={165} />
           </DemoGroup>
-          <foreignObject x={800} y={45} width={180} height={36}>
-            <OverlayAnnotation
-              entry={annotation('route-1837', { kind: 'route', id: 'route-1837' }, 'Route total', 12.5)}
-            />
-          </foreignObject>
-          {unvisitedPaths.map(({ id, path }) => (
-            <path key={id} data-demo-edge={id} d={path} className="kaoto-overlay-demo__edge" />
-          ))}
-          {selectedPaths.map(({ id, path }) => (
+          {forTarget('route', 'route-1837').map(
+            ({ key, entry }) =>
+              entry.kind === 'annotation' && (
+                <foreignObject key={key} x={800} y={45} width={180} height={36}>
+                  <OverlayAnnotation entry={entry} />
+                </foreignObject>
+              ),
+          )}
+          {demoEdges.map(({ id, path }) => (
             <g key={id} data-demo-edge={id}>
-              <EdgeOverlayHighlight path={path} emphasis="strong" />
+              {forTarget('edge', id).map(
+                ({ key, entry }) =>
+                  entry.kind === 'highlight' && (
+                    <EdgeOverlayHighlight key={key} path={path} tone={entry.tone} emphasis={entry.emphasis} />
+                  ),
+              )}
               <path d={path} className="kaoto-overlay-demo__edge" />
             </g>
           ))}
-          <DemoNode id="from-1199" label="file-watch" icon={fileWatchIcon} consumer x={75} y={320} decorated />
-          <DemoNode id="to-1402" label="kamelet:pdf-action" icon={pdfIcon} x={335} y={285} decorated />
+          <DemoNode
+            id="from-1199"
+            label="file-watch"
+            icon={fileWatchIcon}
+            consumer
+            x={75}
+            y={320}
+            overlays={forTarget('node', 'from-1199')}
+          />
+          <DemoNode
+            id="to-1402"
+            label="kamelet:pdf-action"
+            icon={pdfIcon}
+            x={335}
+            y={285}
+            overlays={forTarget('node', 'to-1402')}
+          />
           <DemoNode
             id="to-3904"
             label="xmpp"
@@ -199,22 +268,24 @@ export const OverlayPresentationDemo: FunctionComponent = () => {
             x={335}
             y={520}
             warning
-            decorated
-            highlighted={false}
-            count={0}
+            overlays={forTarget('node', 'to-3904')}
           />
-          <DemoNode id="to-2430" label="amqp" icon={amqpIcon} x={795} y={320} decorated />
-          <foreignObject
-            className="kaoto-overlay-demo__edge-annotation"
-            x={(annotatedEdge.startX + annotatedEdge.endX) / 2 - 85}
-            y={250}
-            width={170}
-            height={36}
-          >
-            <OverlayAnnotation
-              entry={annotation('edge metric', { kind: 'edge', id: 'from-1199-choice-1601' }, 'Edge duration', 2.75)}
-            />
-          </foreignObject>
+          <DemoNode id="to-2430" label="amqp" icon={amqpIcon} x={795} y={320} overlays={forTarget('node', 'to-2430')} />
+          {forTarget('edge', 'from-1199-choice-1601').map(
+            ({ key, entry }) =>
+              entry.kind === 'annotation' && (
+                <foreignObject
+                  key={key}
+                  className="kaoto-overlay-demo__edge-annotation"
+                  x={(annotatedEdge.startX + annotatedEdge.endX) / 2 - 85}
+                  y={250}
+                  width={170}
+                  height={36}
+                >
+                  <OverlayAnnotation entry={entry} />
+                </foreignObject>
+              ),
+          )}
           <path d="M870 357.5 H940" className="kaoto-overlay-demo__edge" />
           <foreignObject x={940} y={340} width={40} height={40}>
             <button
