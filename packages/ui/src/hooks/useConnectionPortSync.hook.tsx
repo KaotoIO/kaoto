@@ -14,7 +14,7 @@ export const useConnectionPortSync = (documentNodeId: string) => {
         cancelAnimationFrame(rafId.current);
       }
       /* Clear this document's port map when it unmounts or the document changes, to avoid stale entries */
-      setNodesConnectionPorts(documentNodeId, {});
+      setNodesConnectionPorts(documentNodeId, { nodes: {}, edges: {} });
     };
   }, [documentNodeId, setNodesConnectionPorts]);
 
@@ -35,20 +35,19 @@ export const useConnectionPortSync = (documentNodeId: string) => {
         `[data-connection-port="true"][data-document-node-id="${documentNodeId}"]`,
       );
 
-      const documentVisiblePorts: TreeConnectionPorts = {};
+      const documentVisiblePorts: TreeConnectionPorts = { nodes: {}, edges: {} };
 
       for (const element of documentPortElements) {
-        const nodePath = element.dataset.nodePath;
-        if (!nodePath) continue;
+        const edgeSide = element.dataset.edge as 'top' | 'bottom' | undefined;
 
-        /* EDGE elements are always visible, document elements need visibility check */
-        const isEdgeElement = nodePath.endsWith(':EDGE:top') || nodePath.endsWith(':EDGE:bottom');
-
-        if (isEdgeElement) {
-          documentVisiblePorts[nodePath] = ConnectionPortSyncHelper.getClampedEdgePosition(element);
-        } else if (ConnectionPortSyncHelper.isElementVisible(element)) {
-          const rect = element.getBoundingClientRect();
-          documentVisiblePorts[nodePath] = [rect.x + rect.width / 2, rect.y + rect.height / 2];
+        if (edgeSide === 'top' || edgeSide === 'bottom') {
+          documentVisiblePorts.edges[edgeSide] = ConnectionPortSyncHelper.getClampedEdgePosition(element);
+        } else {
+          const nodePath = element.dataset.nodePath;
+          if (nodePath && ConnectionPortSyncHelper.isElementVisible(element)) {
+            const rect = element.getBoundingClientRect();
+            documentVisiblePorts.nodes[nodePath] = [rect.x + rect.width / 2, rect.y + rect.height / 2];
+          }
         }
       }
 

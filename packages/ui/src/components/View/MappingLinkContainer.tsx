@@ -23,7 +23,7 @@ const deduplicateByCoords = () => {
 const resolveConnectionPort = (
   nodesConnectionPorts: Record<string, TreeConnectionPorts>,
   ref?: ConnectionPortRef,
-): [number, number] | undefined => (ref ? nodesConnectionPorts[ref.documentNodeId]?.[ref.nodePath] : undefined);
+): [number, number] | undefined => (ref ? nodesConnectionPorts[ref.documentNodeId]?.nodes[ref.nodePath] : undefined);
 
 const sortMappingLines = (a: LineProps, b: LineProps): 0 | 1 | -1 => {
   // Selected lines should be drawn last (on top)

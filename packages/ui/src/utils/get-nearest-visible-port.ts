@@ -25,18 +25,12 @@ export function getNearestVisiblePort(
 ): { connectionTarget: 'node' | 'edge' | 'parent'; position: [number, number] } {
   const { nodesConnectionPorts, nodesConnectionPortsArray, expansionState, expansionStateArray } = options;
 
-  // Extract document name from path (format: "documentType:documentName://path/to/node")
-  const nodePath = new NodePath(path);
-  const documentName = nodePath.documentId;
-  const edgeTopKey = `${documentName}:EDGE:top`;
-  const edgeBottomKey = `${documentName}:EDGE:bottom`;
-
   /*
    * A missing edge marker means the whole section unmounted and `useConnectionPortSync` cleared its
    * port map, so no exact node port can exist either - hence this runs ahead of the lookup below.
    * The section anchor, registered by the still-mounted section header, is the only port left.
    */
-  if (!nodesConnectionPorts?.[edgeBottomKey]) {
+  if (!nodesConnectionPorts?.edges?.bottom) {
     if (options.sectionAnchorPort) {
       return { connectionTarget: 'parent', position: options.sectionAnchorPort };
     }
@@ -44,17 +38,18 @@ export function getNearestVisiblePort(
   }
 
   /* If the node is present in the connection port map, it's visible. (Not virtualized away nor collapsed) */
-  if (nodesConnectionPorts[path]) {
-    return { connectionTarget: 'node', position: nodesConnectionPorts[path] };
+  if (nodesConnectionPorts.nodes[path]) {
+    return { connectionTarget: 'node', position: nodesConnectionPorts.nodes[path] };
   }
 
+  const nodePath = new NodePath(path);
   while (nodePath.pathSegments.length > 0) {
     // Remove the last segment to get the parent path
     nodePath.pathSegments = nodePath.pathSegments.slice(0, -1);
     const parentPath = nodePath.toString();
 
-    if (nodesConnectionPorts[parentPath] && !expansionState[parentPath]) {
-      return { connectionTarget: 'parent', position: nodesConnectionPorts[parentPath] };
+    if (nodesConnectionPorts.nodes[parentPath] && !expansionState[parentPath]) {
+      return { connectionTarget: 'parent', position: nodesConnectionPorts.nodes[parentPath] };
     }
   }
   /*
@@ -65,7 +60,7 @@ export function getNearestVisiblePort(
    * so it must be treated the same as any other out-of-view node.
    */
   if (nodesConnectionPortsArray.length === 0 && expansionStateArray.length === 0) {
-    return { connectionTarget: 'edge', position: nodesConnectionPorts[edgeBottomKey] };
+    return { connectionTarget: 'edge', position: nodesConnectionPorts.edges.bottom };
   }
 
   const firstVisiblePath = nodesConnectionPortsArray.at(0);
@@ -73,12 +68,12 @@ export function getNearestVisiblePort(
   const pathIndex = expansionStateArray.indexOf(path);
 
   if (!firstVisiblePath || !lastVisiblePath || pathIndex < 0) {
-    return { connectionTarget: 'edge', position: nodesConnectionPorts[edgeBottomKey] };
+    return { connectionTarget: 'edge', position: nodesConnectionPorts.edges.bottom };
   }
 
   if (pathIndex < expansionStateArray.indexOf(firstVisiblePath)) {
-    return { connectionTarget: 'edge', position: nodesConnectionPorts[edgeTopKey] };
+    return { connectionTarget: 'edge', position: nodesConnectionPorts.edges.top ?? nodesConnectionPorts.edges.bottom };
   }
 
-  return { connectionTarget: 'edge', position: nodesConnectionPorts[edgeBottomKey] };
+  return { connectionTarget: 'edge', position: nodesConnectionPorts.edges.bottom };
 }

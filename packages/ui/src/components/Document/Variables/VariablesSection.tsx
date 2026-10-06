@@ -7,6 +7,7 @@ import { VARIABLES_DOCUMENT_ID } from '../../../models/datamapper/nodepath';
 import { MappingService } from '../../../services/mapping/mapping.service';
 import { ExpansionPanel } from '../../ExpansionPanels/ExpansionPanel';
 import { PANEL_COLLAPSED_HEIGHT, PANEL_MIN_HEIGHT } from '../../ExpansionPanels/panel-dimensions';
+import { EdgeMarkerPort } from '../EdgeMarkerPort';
 import { VariableInputPlaceholder } from './VariableInputPlaceholder';
 import { VariableRow } from './VariableRow';
 import { VariablesHeader } from './VariablesHeader';
@@ -83,18 +84,8 @@ export const VariablesSection: FunctionComponent<VariablesSectionProps> = ({
   const edgeMarkers = useMemo(
     () => (
       <>
-        <span
-          className="expansion-panel__edge-marker expansion-panel__edge-marker--top expansion-panel__edge-marker--source"
-          data-connection-port="true"
-          data-document-node-id={VARIABLES_DOCUMENT_ID}
-          data-node-path={`${VARIABLES_DOCUMENT_ID}:EDGE:top`}
-        />
-        <span
-          className="expansion-panel__edge-marker expansion-panel__edge-marker--bottom expansion-panel__edge-marker--source"
-          data-connection-port="true"
-          data-document-node-id={VARIABLES_DOCUMENT_ID}
-          data-node-path={`${VARIABLES_DOCUMENT_ID}:EDGE:bottom`}
-        />
+        <EdgeMarkerPort documentNodeId={VARIABLES_DOCUMENT_ID} isSource edge="top" />
+        <EdgeMarkerPort documentNodeId={VARIABLES_DOCUMENT_ID} isSource edge="bottom" />
       </>
     ),
     [],

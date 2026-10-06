@@ -57,8 +57,8 @@ describe('useDocumentTreeStore', () => {
     it('should set connection ports for a document', () => {
       const documentNodeId = 'test-doc-id';
       const ports: TreeConnectionPorts = {
-        path1: [10, 20],
-        path2: [30, 40],
+        nodes: { path1: [10, 20], path2: [30, 40] },
+        edges: {},
       };
 
       useDocumentTreeStore.getState().setNodesConnectionPorts(documentNodeId, ports);
@@ -70,8 +70,8 @@ describe('useDocumentTreeStore', () => {
 
     it('should update connection ports for an existing document', () => {
       const documentNodeId = 'test-doc-id';
-      const initialPorts: TreeConnectionPorts = { path1: [10, 20] };
-      const updatedPorts: TreeConnectionPorts = { path1: [15, 25], path2: [30, 40] };
+      const initialPorts: TreeConnectionPorts = { nodes: { path1: [10, 20] }, edges: {} };
+      const updatedPorts: TreeConnectionPorts = { nodes: { path1: [15, 25], path2: [30, 40] }, edges: {} };
 
       useDocumentTreeStore.getState().setNodesConnectionPorts(documentNodeId, initialPorts);
       useDocumentTreeStore.getState().setNodesConnectionPorts(documentNodeId, updatedPorts);
@@ -81,25 +81,23 @@ describe('useDocumentTreeStore', () => {
       expect(state.nodesConnectionPortsArray[documentNodeId]).toEqual(['path1', 'path2']);
     });
 
-    it('should filter out paths containing :EDGE: from nodesConnectionPortsArray', () => {
+    it('should store only nodes keys in nodesConnectionPortsArray and edges in nodesConnectionPorts', () => {
       const documentNodeId = 'test-doc-id';
       const ports: TreeConnectionPorts = {
-        path1: [10, 20],
-        'path2:EDGE:': [30, 40],
-        path3: [50, 60],
-        'some:EDGE:path': [70, 80],
+        nodes: { path1: [10, 20] },
+        edges: { top: [50, 60], bottom: [70, 80] },
       };
 
       useDocumentTreeStore.getState().setNodesConnectionPorts(documentNodeId, ports);
       const state = useDocumentTreeStore.getState();
 
-      // All ports should be in nodesConnectionPorts
-      expect(state.nodesConnectionPorts[documentNodeId]).toEqual(ports);
+      // Only node keys should appear in nodesConnectionPortsArray
+      expect(state.nodesConnectionPortsArray[documentNodeId]).toEqual(['path1']);
+      expect(state.nodesConnectionPortsArray[documentNodeId]).not.toContain('top');
+      expect(state.nodesConnectionPortsArray[documentNodeId]).not.toContain('bottom');
 
-      // Only non-EDGE paths should be in nodesConnectionPortsArray
-      expect(state.nodesConnectionPortsArray[documentNodeId]).toEqual(['path1', 'path3']);
-      expect(state.nodesConnectionPortsArray[documentNodeId]).not.toContain('path2:EDGE:');
-      expect(state.nodesConnectionPortsArray[documentNodeId]).not.toContain('some:EDGE:path');
+      // Edge positions should be stored in nodesConnectionPorts under .edges
+      expect(state.nodesConnectionPorts[documentNodeId].edges).toEqual({ top: [50, 60], bottom: [70, 80] });
     });
   });
 

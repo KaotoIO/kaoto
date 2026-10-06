@@ -26,6 +26,7 @@ import {
 import { DeleteParameterButton } from './actions/DeleteParameterButton';
 import { RenameButton } from './actions/RenameButton';
 import { DocumentHeader } from './BaseDocument';
+import { EdgeMarkerPort } from './EdgeMarkerPort';
 import { ParameterInputPlaceholder } from './ParameterInputPlaceholder';
 import { SourceDocumentNodeWithContextMenu } from './SourceDocumentNode';
 
@@ -165,22 +166,10 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
 
   const edgeMarkers = useMemo(
     () => [
-      <span
-        key="edge-top"
-        className="expansion-panel__edge-marker expansion-panel__edge-marker--top expansion-panel__edge-marker--source"
-        data-connection-port="true"
-        data-document-node-id={parameterNodeData.id}
-        data-node-path={`${parameterName}:EDGE:top`}
-      />,
-      <span
-        key="edge-bottom"
-        className="expansion-panel__edge-marker expansion-panel__edge-marker--bottom expansion-panel__edge-marker--source"
-        data-connection-port="true"
-        data-document-node-id={parameterNodeData.id}
-        data-node-path={`${parameterName}:EDGE:bottom`}
-      />,
+      <EdgeMarkerPort key="edge-top" documentNodeId={parameterNodeData.id} isSource edge="top" />,
+      <EdgeMarkerPort key="edge-bottom" documentNodeId={parameterNodeData.id} isSource edge="bottom" />,
     ],
-    [parameterNodeData.id, parameterName],
+    [parameterNodeData.id],
   );
 
   const parameterActions = useMemo(

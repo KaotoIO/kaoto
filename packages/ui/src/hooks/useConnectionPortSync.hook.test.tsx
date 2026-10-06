@@ -107,11 +107,11 @@ describe('useConnectionPortSync', () => {
         result.current.syncConnectionPorts();
       });
 
-      expect(mockSetNodesConnectionPorts).toHaveBeenCalledWith(documentId, {});
+      expect(mockSetNodesConnectionPorts).toHaveBeenCalledWith(documentId, { nodes: {}, edges: {} });
       querySelectorAllSpy.mockRestore();
     });
 
-    it('should skip elements without nodePath data attribute', () => {
+    it('should skip elements without nodePath or edge data attribute', () => {
       const mockElement = {
         dataset: {},
         getBoundingClientRect: vi.fn().mockReturnValue({ x: 100, y: 200, width: 50, height: 30 }),
@@ -124,13 +124,13 @@ describe('useConnectionPortSync', () => {
         result.current.syncConnectionPorts();
       });
 
-      expect(mockSetNodesConnectionPorts).toHaveBeenCalledWith(documentId, {});
+      expect(mockSetNodesConnectionPorts).toHaveBeenCalledWith(documentId, { nodes: {}, edges: {} });
     });
 
     it('should include EDGE elements without visibility check', () => {
       const mockElement = {
         dataset: {
-          nodePath: 'test-path:EDGE:top',
+          edge: 'top',
         },
         getBoundingClientRect: vi.fn().mockReturnValue({ x: 100, y: 200, width: 50, height: 30 }),
         closest: vi.fn().mockReturnValue(null),
@@ -144,14 +144,17 @@ describe('useConnectionPortSync', () => {
       });
 
       expect(mockSetNodesConnectionPorts).toHaveBeenCalledWith(documentId, {
-        'test-path:EDGE:top': [125, 215], // x + width/2, y + height/2
+        nodes: {},
+        edges: {
+          top: [125, 215], // x + width/2, y + height/2
+        },
       });
     });
 
     it('should include bottom EDGE elements', () => {
       const mockElement = {
         dataset: {
-          nodePath: 'test-path:EDGE:bottom',
+          edge: 'bottom',
         },
         getBoundingClientRect: vi.fn().mockReturnValue({ x: 100, y: 200, width: 50, height: 30 }),
         closest: vi.fn().mockReturnValue(null),
@@ -165,7 +168,10 @@ describe('useConnectionPortSync', () => {
       });
 
       expect(mockSetNodesConnectionPorts).toHaveBeenCalledWith(documentId, {
-        'test-path:EDGE:bottom': [125, 215],
+        nodes: {},
+        edges: {
+          bottom: [125, 215],
+        },
       });
     });
 
@@ -192,7 +198,10 @@ describe('useConnectionPortSync', () => {
 
       expect(mockElement.closest).toHaveBeenCalledWith('.expansion-panel__content');
       expect(mockSetNodesConnectionPorts).toHaveBeenCalledWith(documentId, {
-        'test-path': [125, 215],
+        nodes: {
+          'test-path': [125, 215],
+        },
+        edges: {},
       });
     });
 
@@ -217,17 +226,17 @@ describe('useConnectionPortSync', () => {
         result.current.syncConnectionPorts();
       });
 
-      expect(mockSetNodesConnectionPorts).toHaveBeenCalledWith(documentId, {});
+      expect(mockSetNodesConnectionPorts).toHaveBeenCalledWith(documentId, { nodes: {}, edges: {} });
     });
 
     it('should handle multiple elements', () => {
       const mockElement1 = {
-        dataset: { nodePath: 'path1:EDGE:top' },
+        dataset: { edge: 'top' },
         getBoundingClientRect: vi.fn().mockReturnValue({ x: 0, y: 0, width: 10, height: 10 }),
         closest: vi.fn().mockReturnValue(null),
       };
       const mockElement2 = {
-        dataset: { nodePath: 'path2:EDGE:bottom' },
+        dataset: { edge: 'bottom' },
         getBoundingClientRect: vi.fn().mockReturnValue({ x: 50, y: 50, width: 20, height: 20 }),
         closest: vi.fn().mockReturnValue(null),
       };
@@ -240,8 +249,11 @@ describe('useConnectionPortSync', () => {
       });
 
       expect(mockSetNodesConnectionPorts).toHaveBeenCalledWith(documentId, {
-        'path1:EDGE:top': [5, 5],
-        'path2:EDGE:bottom': [60, 60],
+        nodes: {},
+        edges: {
+          top: [5, 5],
+          bottom: [60, 60],
+        },
       });
     });
 
@@ -260,7 +272,10 @@ describe('useConnectionPortSync', () => {
       });
 
       expect(mockSetNodesConnectionPorts).toHaveBeenCalledWith(documentId, {
-        'test-path': [125, 215],
+        nodes: {
+          'test-path': [125, 215],
+        },
+        edges: {},
       });
     });
   });

@@ -497,8 +497,8 @@ describe('ParametersSection', () => {
         const state = useDocumentTreeStore.getState();
         const headerPorts = state.nodesConnectionPorts[PARAMETERS_SECTION_ANCHOR.documentNodeId];
         expect(headerPorts).toBeDefined();
-        expect(headerPorts[PARAMETERS_SECTION_ANCHOR.nodePath]).toBeDefined();
-        expect(Array.isArray(headerPorts[PARAMETERS_SECTION_ANCHOR.nodePath])).toBe(true);
+        expect(headerPorts.nodes[PARAMETERS_SECTION_ANCHOR.nodePath]).toBeDefined();
+        expect(Array.isArray(headerPorts.nodes[PARAMETERS_SECTION_ANCHOR.nodePath])).toBe(true);
       });
     });
 
@@ -528,7 +528,7 @@ describe('ParametersSection', () => {
         const state = useDocumentTreeStore.getState();
         const headerPorts = state.nodesConnectionPorts[PARAMETERS_SECTION_ANCHOR.documentNodeId];
         expect(headerPorts).toBeDefined();
-        expect(headerPorts[PARAMETERS_SECTION_ANCHOR.nodePath]).toBeDefined();
+        expect(headerPorts.nodes[PARAMETERS_SECTION_ANCHOR.nodePath]).toBeDefined();
       });
 
       // Hide parameters
@@ -542,7 +542,7 @@ describe('ParametersSection', () => {
         const state = useDocumentTreeStore.getState();
         const headerPorts = state.nodesConnectionPorts[PARAMETERS_SECTION_ANCHOR.documentNodeId];
         expect(headerPorts).toBeDefined();
-        expect(headerPorts[PARAMETERS_SECTION_ANCHOR.nodePath]).toBeDefined();
+        expect(headerPorts.nodes[PARAMETERS_SECTION_ANCHOR.nodePath]).toBeDefined();
       });
 
       // Show parameters again
@@ -554,7 +554,7 @@ describe('ParametersSection', () => {
         const state = useDocumentTreeStore.getState();
         const headerPorts = state.nodesConnectionPorts[PARAMETERS_SECTION_ANCHOR.documentNodeId];
         expect(headerPorts).toBeDefined();
-        expect(headerPorts[PARAMETERS_SECTION_ANCHOR.nodePath]).toBeDefined();
+        expect(headerPorts.nodes[PARAMETERS_SECTION_ANCHOR.nodePath]).toBeDefined();
       });
     });
   });
