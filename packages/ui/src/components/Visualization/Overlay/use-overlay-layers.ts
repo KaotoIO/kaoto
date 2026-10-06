@@ -1,13 +1,13 @@
-import { useSyncExternalStore } from 'react';
+import { useStore } from 'zustand';
+import { createStore } from 'zustand/vanilla';
 
-import { createOverlayLayerSnapshot, OverlayStoreSnapshot } from './overlay-layer-snapshot';
-import { OverlayLayerStore } from './overlay-layer-store';
+import { OverlayState, OverlayStore } from '../../../store/overlay.store';
+import { createOverlayLayerSnapshot } from './overlay-layer-snapshot';
 
-const empty = createOverlayLayerSnapshot([]);
-const getEmptySnapshot = () => empty;
-const subscribeToNothing = () => () => undefined;
+const emptyStore = createStore(() => ({ layers: createOverlayLayerSnapshot([]) }));
+const selectLayers = (state: Pick<OverlayState, 'layers'>) => state.layers;
 
-/** Subscribe to a supplied client-side store without taking ownership of its lifetime. */
-export function useOverlayLayers(store: OverlayLayerStore | undefined): OverlayStoreSnapshot {
-  return useSyncExternalStore(store?.subscribe ?? subscribeToNothing, store?.getSnapshot ?? getEmptySnapshot);
+/** Zustand owns React subscriptions; the caller owns the supplied store's lifetime. */
+export function useOverlayLayers(store: OverlayStore | undefined) {
+  return useStore(store ?? emptyStore, selectLayers);
 }

@@ -38,6 +38,7 @@ import { NodeInteractionAddonContext } from '../../../registers/interactions/nod
 import { RenderingAnchor } from '../../../RenderingAnchor/RenderingAnchor';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { useCanvasToolbarTarget } from '../../Canvas/hooks/use-canvas-toolbar-target';
+import { CanvasNodeOverlays } from '../../Overlay/CanvasElementOverlays';
 import {
   canDragGroup,
   getDropTargetContainerClassNames,
@@ -232,6 +233,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
           onKeyDown={handleKeyDown}
           onContextMenu={onContextMenu}
         >
+          <CanvasNodeOverlays overlays={element.getData()?.overlays} bounds={boxRef.current} />
           <rect
             className="custom-group__focus-ring"
             aria-hidden="true"

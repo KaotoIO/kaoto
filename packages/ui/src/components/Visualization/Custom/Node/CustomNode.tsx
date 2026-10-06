@@ -33,10 +33,12 @@ import { SettingsContext } from '../../../../providers';
 import { getProcessorIcon } from '../../../../utils/processor-icon';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
-import { CanvasNode } from '../../Canvas/canvas.models';
+import { CanvasNode, LayoutType } from '../../Canvas/canvas.models';
 import { useCanvasToolbarTarget } from '../../Canvas/hooks/use-canvas-toolbar-target';
+import { CanvasNodeOverlays } from '../../Overlay/CanvasElementOverlays';
 import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
 import { getDropTargetContainerClassNames, GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
+import { useGraphLayout } from '../hooks/use-graph-layout.hook';
 import { useNodeValidationText } from '../hooks/use-node-validation-text.hook';
 import { TargetAnchor } from '../target-anchor';
 import { CustomNodeContainer } from './CustomNodeContainer';
@@ -67,6 +69,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
     }
 
     const lastUpdate = vizNode?.lastUpdate;
+    const layout = useGraphLayout();
     const boxXRef = useRef<number | null>(null);
     const boxYRef = useRef<number | null>(null);
     const entitiesContext = useEntityContext();
@@ -257,6 +260,11 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
           onKeyDown={handleKeyDown}
           onContextMenu={onContextMenu}
         >
+          <CanvasNodeOverlays
+            overlays={element.getData()?.overlays}
+            bounds={{ x: (box.width - 60) / 2, y: (box.height - 60) / 2, width: 60, height: 60 }}
+            vertical={layout === LayoutType.DagreVertical}
+          />
           {/** The original node (appears when nothing is dragging, it also acts as the dragged node when node drag action is performed.
            * When a group/container is being dragged, the within-group nodes are hidden but the rest of the nodes show this original node.
            */}

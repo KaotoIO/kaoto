@@ -5,7 +5,7 @@ type DeepReadonly<T> = { readonly [Key in keyof T]: DeepReadonly<T[Key]> };
 /** Cached React view; every nested record is read-only and frozen at runtime. */
 export type OverlayStoreSnapshot = DeepReadonly<readonly OverlayLayer[]>;
 
-/** Freeze detached layer copies, never the caller's entries or the store's mutable maps. */
+/** Freeze detached presentation entries without freezing the caller's input. */
 export function createOverlayLayerSnapshot(layers: readonly OverlayLayer[]): OverlayStoreSnapshot {
   return Object.freeze(
     layers.map((layer) =>

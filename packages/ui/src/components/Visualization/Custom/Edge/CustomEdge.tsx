@@ -6,7 +6,6 @@ import {
   ConnectorArrow,
   DefaultEdge,
   DropTargetSpec,
-  EdgeModel,
   getClosestVisibleParent,
   GraphElement,
   GraphElementProps,
@@ -23,6 +22,8 @@ import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityCo
 import { AddStepMode, IVisualizationNode } from '../../../../models';
 import { LayoutType } from '../../Canvas';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
+import { CanvasEdge, CanvasEdgeData } from '../../Canvas/canvas.models';
+import { CanvasEdgeOverlays } from '../../Overlay/CanvasElementOverlays';
 import { canDropOnEdge, GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
 import { useGraphLayout } from '../hooks/use-graph-layout.hook';
 import { AddStepIcon } from './AddStepIcon';
@@ -47,8 +48,7 @@ const EdgeAddStepIconSlot: FunctionComponent<EdgeAddStepIconSlotProps> = ({ x, y
 );
 
 interface CustomEdgeProps extends DefaultEdgeProps {
-  /** We're not providing Data to edges */
-  element: GraphElement<EdgeModel, unknown>;
+  element: GraphElement<CanvasEdge, CanvasEdgeData>;
 }
 
 export const CustomEdge: FunctionComponent<CustomEdgeProps> = observer(({ element }) => {
@@ -60,6 +60,7 @@ export const CustomEdge: FunctionComponent<CustomEdgeProps> = observer(({ elemen
   const catalogModalContext = useContext(CatalogModalContext)!;
   const layout = useGraphLayout();
   const edgeDRef = useRef<string | null>(null);
+  const edgePointsRef = useRef<Point[]>([]);
   const startPointRef = useRef<Point | null>(null);
   const endPointRef = useRef<Point | null>(null);
 
@@ -127,12 +128,18 @@ export const CustomEdge: FunctionComponent<CustomEdgeProps> = observer(({ elemen
   const d = `M${startPoint.x} ${startPoint.y} ${bendPoints}`;
   if (!dndDropProps.droppable || !edgeDRef.current || !startPointRef.current || !endPointRef.current) {
     edgeDRef.current = d;
+    edgePointsRef.current = [startPoint, ...element.getBendpoints(), endPoint];
     startPointRef.current = startPoint;
     endPointRef.current = endPoint;
   }
 
   return (
     <g className="custom-edge" ref={dndDropRef}>
+      <CanvasEdgeOverlays
+        overlays={element.getData()?.overlays}
+        path={edgeDRef.current}
+        points={edgePointsRef.current}
+      />
       <path className="custom-edge__background" d={edgeDRef.current} />
       <path
         className={clsx('custom-edge__body', {

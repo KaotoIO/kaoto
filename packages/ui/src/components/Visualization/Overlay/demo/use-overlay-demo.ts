@@ -1,8 +1,8 @@
 import { useEffect, useReducer, useState } from 'react';
 
+import { createOverlayStore, OverlayStore } from '../../../../store/overlay.store';
 import { OverlayEntry } from '../overlay-entries';
 import { OverlayStoreSnapshot } from '../overlay-layer-snapshot';
-import { createOverlayLayerStore, OverlayLayerStore } from '../overlay-layer-store';
 import { OverlayScope } from '../overlay-targets';
 import { useOverlayLayers } from '../use-overlay-layers';
 
@@ -74,7 +74,7 @@ interface DemoActions {
   disconnectMetrics(): void;
 }
 interface DemoView {
-  store?: OverlayLayerStore;
+  store?: OverlayStore;
   branch?: DemoBranch;
   metricsConnected: boolean;
   actions?: DemoActions;
@@ -86,7 +86,7 @@ export function useOverlayDemo() {
   const [view, setView] = useState<DemoView>({ metricsConnected: false });
 
   useEffect(() => {
-    const store = createOverlayLayerStore({
+    const store = createOverlayStore({
       scope,
       targets: [
         ...nodeIds.map((id) => ({ kind: 'node' as const, id })),
@@ -94,8 +94,8 @@ export function useOverlayDemo() {
         { kind: 'route', id: 'route-1837' },
       ],
     });
-    const pathOwner = store.createOwner()!;
-    const metricsOwner = store.createOwner()!;
+    const pathOwner = store.getState().createOwner()!;
+    const metricsOwner = store.getState().createOwner()!;
     let active = true;
     let count = 42;
     let metricsConnected = true;
@@ -145,7 +145,7 @@ export function useOverlayDemo() {
     setView({ store, branch: 'when', metricsConnected: true, actions: demoActions });
     return () => {
       active = false;
-      store.dispose();
+      store.getState().dispose();
     };
   }, [generation]);
 
