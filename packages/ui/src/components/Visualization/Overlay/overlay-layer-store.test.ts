@@ -28,7 +28,6 @@ const annotation = (): Extract<OverlayEntry, { kind: 'annotation' }> => ({
   interaction: {
     accessibleLabel: 'Message count',
     tooltip: 'Route count',
-    contextMenu: [{ id: 'inspect', label: 'Inspect', enabled: false }],
   },
 });
 
@@ -70,21 +69,13 @@ describe('createOverlayLayerStore', () => {
       highlight('first'),
       highlight('other-route', 'route-b|log'),
       { id: 'edge', kind: 'highlight', target: { kind: 'edge', id: 'route-a|from >>> log' } },
-      {
-        id: 'marker',
-        kind: 'marker',
-        target: { kind: 'node', id: 'route-a|log' },
-        icon: 'diamond',
-        emphasis: 'subdued',
-        interaction: { accessibleLabel: 'Marker' },
-      },
       annotation(),
       { ...annotation(), id: 'edge-note', target: { kind: 'edge', id: 'route-a|from >>> log' } },
       { ...annotation(), id: 'node-note', target: { kind: 'node', id: 'route-a|log' } },
     ];
     expect(owner.replaceLayer(scope, 'layer', entries)).toEqual({
       status: 'applied',
-      applied: ['first', 'other-route', 'edge', 'marker', 'annotation', 'edge-note', 'node-note'],
+      applied: ['first', 'other-route', 'edge', 'annotation', 'edge-note', 'node-note'],
       unresolved: [],
     });
     expect(store.getLayers()).toEqual([{ ownerId: owner.ownerId, layerId: 'layer', entries }]);
@@ -201,7 +192,7 @@ describe('createOverlayLayerStore', () => {
     expect(store.getLayers()).toEqual([]);
   });
 
-  it('detaches scope, target membership, entries, nested menus, and result records', () => {
+  it('detaches scope, target membership, entries, tooltip metadata, and result records', () => {
     const input = snapshot();
     const store = createOverlayLayerStore(input);
     const owner = store.createOwner()!;
@@ -212,13 +203,12 @@ describe('createOverlayLayerStore', () => {
     const result = owner.replaceLayer(requestScope, 'layer', [entry]);
     requestScope.canvasId = 'changed';
     entry.target.id = 'changed';
-    entry.interaction.contextMenu![0].enabled = true;
+    entry.interaction.tooltip = 'Changed';
     const layers = store.getLayers();
     layers[0].ownerId = 'changed';
     const output = layers[0].entries[0];
     output.target.id = 'changed-again';
-    if (output.kind === 'annotation')
-      output.interaction.contextMenu!.push({ id: 'extra', label: 'Extra', enabled: true });
+    if (output.kind === 'annotation') output.interaction.accessibleLabel = 'Changed';
     if (result.status === 'applied') result.applied.push('extra');
     expect(store.getLayers()).toEqual([{ ownerId: owner.ownerId, layerId: 'layer', entries: [annotation()] }]);
     expect(owner.upsertEntries(scope, 'layer', [highlight('still-valid')]).status).toBe('applied');

@@ -53,28 +53,30 @@ describe('Overlay annotations', () => {
     expect(tooltip.closest('foreignObject')).toBeNull();
   });
 
-  it('dispatches the route identity from an annotation menu', async () => {
+  it('keeps annotations without a tooltip passive and out of keyboard navigation', async () => {
     const user = userEvent.setup();
-    const onAction = vi.fn();
     render(
+      <>
+        <OverlayAnnotation entry={{ ...entry, interaction: { accessibleLabel: 'Plain metric' } }} />
+        <button>Next control</button>
+      </>,
+    );
+    await user.tab();
+    expect(screen.getByRole('button', { name: 'Next control' })).toHaveFocus();
+    await user.hover(screen.getByRole('img', { name: 'Plain metric: Duration 0 ms' }));
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
+  it('keeps keyboard focus when a live metric and its tooltip update', async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(<OverlayAnnotation entry={entry} />);
+    await user.tab();
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Duration 0 ms');
+    rerender(
       <OverlayAnnotation
-        entry={{
-          ...entry,
-          target: { kind: 'route', id: 'route-1' },
-          interaction: {
-            accessibleLabel: 'Route metric',
-            contextMenu: [{ id: 'inspect', label: 'Inspect', enabled: true }],
-          },
-        }}
-        onAction={onAction}
+        entry={{ ...entry, value: 42, interaction: { ...entry.interaction, tooltip: 'Updated measurement' } }}
       />,
     );
-    await user.click(screen.getByRole('button', { name: /Route metric/ }));
-    await user.click(screen.getByRole('menuitem', { name: 'Inspect' }));
-    expect(onAction).toHaveBeenCalledExactlyOnceWith({
-      entryId: 'metric',
-      target: { kind: 'route', id: 'route-1' },
-      actionId: 'inspect',
-    });
+    expect(screen.getByRole('img', { name: 'Duration metric: Duration 42 ms' })).toHaveFocus();
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Updated measurement');
   });
 });

@@ -4,17 +4,9 @@ export type HighlightTarget = OverlayTarget & { kind: 'node' | 'edge' };
 export type OverlayTone = 'neutral' | 'info' | 'success' | 'warning' | 'error';
 export type OverlayEmphasis = 'normal' | 'strong' | 'subdued';
 
-export interface OverlayAction {
-  id: string;
-  label: string;
-  icon?: string;
-  enabled: boolean;
-}
-
 export interface OverlayInteraction {
   accessibleLabel: string;
   tooltip?: string;
-  contextMenu?: OverlayAction[];
 }
 
 interface OverlayEntryBase {
@@ -27,7 +19,6 @@ interface OverlayEntryBase {
 export type OverlayEntry = OverlayEntryBase &
   (
     | { kind: 'highlight'; target: HighlightTarget }
-    | { kind: 'marker'; target: OverlayTarget & { kind: 'node' }; icon: string; interaction: OverlayInteraction }
     | {
         kind: 'annotation';
         target: OverlayTarget;
