@@ -48,26 +48,15 @@ const contrast = (foreground: string, background: string) => {
 };
 
 const verifyPresentation: Story['play'] = async ({ canvasElement }) => {
-  // Include transformed SVG examples: text line boxes must not shift the visible marker.
-  for (const marker of canvasElement.querySelectorAll('.kaoto-overlay-marker')) {
-    const hitArea = marker.getBoundingClientRect();
-    const frame = marker.querySelector('.kaoto-overlay-icon')!.getBoundingClientRect();
-    const glyph = marker.querySelector('svg')!.getBoundingClientRect();
-    for (const bounds of [frame, glyph]) {
-      await expect(Math.abs(bounds.x + bounds.width / 2 - hitArea.x - hitArea.width / 2)).toBeLessThan(0.1);
-      await expect(Math.abs(bounds.y + bounds.height / 2 - hitArea.y - hitArea.height / 2)).toBeLessThan(0.1);
-    }
-  }
-
   const route = canvasElement.querySelector('.kaoto-overlay-demo__route')!;
   const routeBackground = getComputedStyle(route).fill;
   for (const emphasis of ['normal', 'strong', 'subdued']) {
-    const marker = canvasElement.querySelector(`[aria-label="warning ${emphasis}"]`)!;
-    const style = getComputedStyle(marker.querySelector('.kaoto-overlay-icon')!);
-    // Both glyph/border and SVG highlight use this foreground. Check both demo surfaces.
-    await expect(contrast(style.color, style.backgroundColor)).toBeGreaterThanOrEqual(3);
+    const annotation = canvasElement.querySelector(`[aria-label="warning ${emphasis} annotation: Count 42"]`)!;
+    const style = getComputedStyle(annotation);
+    // Check annotation text and its emphasis border on both demo surfaces.
+    await expect(contrast(style.color, style.backgroundColor)).toBeGreaterThanOrEqual(4.5);
     await expect(contrast(style.borderTopColor, style.backgroundColor)).toBeGreaterThanOrEqual(3);
-    await expect(contrast(style.color, routeBackground)).toBeGreaterThanOrEqual(3);
+    await expect(contrast(style.borderTopColor, routeBackground)).toBeGreaterThanOrEqual(3);
   }
 };
 
