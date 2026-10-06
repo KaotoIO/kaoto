@@ -68,6 +68,21 @@ const verifyPresentation: Story['play'] = async ({ canvasElement }) => {
     await expect(text.scrollWidth).toBeLessThanOrEqual(text.clientWidth);
   }
 
+  const edge = canvasElement.querySelector('.kaoto-overlay-demo__edge')!.getBoundingClientRect();
+  const edgeAnnotation = canvasElement.querySelector('.kaoto-overlay-demo__edge-annotation .kaoto-overlay-annotation')!;
+  const edgeText = edgeAnnotation.querySelector('.kaoto-overlay-text')!;
+  const originalText = edgeText.textContent;
+  try {
+    for (const text of [originalText, '1 ms', 'A much longer annotation that must remain centered above its edge']) {
+      edgeText.textContent = text;
+      const bounds = edgeAnnotation.getBoundingClientRect();
+      await expect(Math.abs(bounds.x + bounds.width / 2 - edge.x - edge.width / 2)).toBeLessThan(0.1);
+      await expect(bounds.bottom).toBeLessThan(edge.top);
+    }
+  } finally {
+    edgeText.textContent = originalText;
+  }
+
   const route = canvasElement.querySelector('.kaoto-overlay-demo__route')!;
   const routeBackground = getComputedStyle(route).fill;
   for (const emphasis of ['normal', 'strong', 'subdued']) {

@@ -29,7 +29,7 @@ describe('Overlay annotations', () => {
       rerender(
         <OverlayAnnotation entry={{ ...entry, text: '<img src=x onerror=alert(1)>', value: undefined, unit: '' }} />,
       );
-      expect(screen.getByText('<img src=x onerror=alert(1)>')).toBeInTheDocument();
+      expect(screen.getByRole('img', { name: 'Duration metric: <img src=x onerror=alert(1)>' })).toBeInTheDocument();
       expect(container.querySelector('img')).toBeNull();
       expect(entry.value).toBe(0);
     },
@@ -78,5 +78,34 @@ describe('Overlay annotations', () => {
     );
     expect(screen.getByRole('img', { name: 'Duration metric: Duration 42 ms' })).toHaveFocus();
     expect(await screen.findByRole('tooltip')).toHaveTextContent('Updated measurement');
+  });
+  it.each([
+    ['abcdefghijklmnopqrstuvwx', 'abcdefghijklmnopqrstuvwx'],
+    ['abcdefghijklmnopqrstuvwxy', 'abcdefghijklmnopqrstu...'],
+    ['abcdefghijklmnopqrst👨‍👩‍👧‍👦uvwx', 'abcdefghijklmnopqrst👨‍👩‍👧‍👦...'],
+    ['abcdefghijklmnopqrstéuvwx', 'abcdefghijklmnopqrsté...'],
+  ])('limits visible text without splitting characters: %s', (text, visible) => {
+    render(<OverlayAnnotation entry={{ ...entry, text, value: undefined, unit: undefined }} />);
+    expect(screen.getByText(visible)).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: `Duration metric: ${text}` })).toBeInTheDocument();
+  });
+
+  it('automatically exposes the full formatted value when the length limit is exceeded', async () => {
+    const user = userEvent.setup();
+    render(
+      <OverlayAnnotation
+        entry={{
+          ...entry,
+          text: 'abcdefghijklmnopqrst',
+          value: 123,
+          unit: 'ms',
+          interaction: { accessibleLabel: 'Metric' },
+        }}
+      />,
+    );
+    expect(screen.getByText('abcdefghijklmnopqrst ...')).toBeInTheDocument();
+    await user.tab();
+    expect(screen.getByRole('img', { name: 'Metric: abcdefghijklmnopqrst 123 ms' })).toHaveFocus();
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('abcdefghijklmnopqrst 123 ms');
   });
 });
