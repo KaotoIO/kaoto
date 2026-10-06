@@ -114,10 +114,10 @@ const DemoNode: FunctionComponent<NodeProps> = ({
       </g>
       {decorated && (
         <>
-          <foreignObject x={100} y={50} width={40} height={36}>
+          <foreignObject x={100} y={50} width={36} height={36} overflow="visible">
             <OverlayMarker entry={marker(`${id} circle`, id, 'circle')} onAction={onAction} />
           </foreignObject>
-          <foreignObject x={100} y={90} width={40} height={36}>
+          <foreignObject x={100} y={90} width={36} height={36} overflow="visible">
             <OverlayMarker entry={marker(`${id} diamond`, id, 'diamond', true)} onAction={onAction} />
           </foreignObject>
           <foreignObject x={-25} y={132} width={170} height={36}>

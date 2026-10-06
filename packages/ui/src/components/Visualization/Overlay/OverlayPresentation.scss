@@ -26,14 +26,14 @@
 
   &-icon {
     display: inline-flex;
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     align-items: center;
     justify-content: center;
 
     svg {
-      width: 20px;
-      height: 20px;
+      width: 10px;
+      height: 10px;
     }
 
     &-diamond svg {
@@ -73,8 +73,31 @@
 }
 
 .kaoto-overlay.kaoto-overlay-marker {
-  min-width: 32px;
-  min-height: 32px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-width: 0;
+  background: transparent;
+  line-height: 0;
+
+  .kaoto-overlay-icon {
+    box-sizing: border-box;
+    border: 1px solid var(--kaoto-overlay-color);
+    border-radius: 3px;
+    background: var(--pf-t--global--background--color--primary--default);
+  }
+
+  &.kaoto-overlay-emphasis-strong {
+    border-width: 0;
+
+    .kaoto-overlay-icon {
+      border-width: 2px;
+    }
+  }
+
+  &.kaoto-overlay-emphasis-subdued .kaoto-overlay-icon {
+    border-style: dashed;
+  }
 }
 
 .kaoto-overlay.kaoto-overlay-annotation {
