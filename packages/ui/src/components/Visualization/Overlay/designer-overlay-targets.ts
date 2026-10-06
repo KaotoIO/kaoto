@@ -11,6 +11,14 @@ export function buildDesignerOverlayTargetSnapshot(
   model: CanvasNodesAndEdges,
   routes: readonly { id: string }[],
 ): OverlayTargetSnapshot {
+  return { scope: { ...scope }, targets: collectDesignerModelTargets(model, routes) };
+}
+
+/** Extract exact references without assigning a session scope or deduplicating ambiguous identities. */
+export function collectDesignerModelTargets(
+  model: CanvasNodesAndEdges,
+  routes: readonly { id: string }[],
+): readonly OverlayTarget[] {
   const nodes = model.nodes.filter((node) => !node.data?.vizNode?.data.isPlaceholder);
   const nodeIds = new Set(nodes.map(({ id }) => id));
   const targets: OverlayTarget[] = nodes.map(({ id }) => ({ kind: 'node', id }));
@@ -22,5 +30,5 @@ export function buildDesignerOverlayTargetSnapshot(
     targets.push({ kind: 'route', id });
   }
 
-  return { scope: { ...scope }, targets };
+  return targets;
 }
