@@ -11,8 +11,10 @@ import { act, render } from '@testing-library/react';
 import React from 'react';
 
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
+import { createOverlayStore } from '../../../../store/overlay.store';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { ControllerService } from '../../Canvas/controller.service';
+import { CanvasOverlayContext } from '../../Overlay/use-canvas-overlays';
 import { CustomEdge } from './CustomEdge';
 
 const mockRef = { current: null };
@@ -87,20 +89,31 @@ describe('CustomEdge', () => {
     element.setParent(parentElement);
     element.setStartPoint(0, 0);
     element.setEndPoint(100, 100);
-    element.setData({
-      overlays: [
+    element.setId('edge');
+    const scope = { canvasId: 'canvas', documentId: 'route.yaml', modelRevision: '1' };
+    const store = createOverlayStore({ scope, targets: [{ kind: 'edge', id: 'edge' }] });
+    store
+      .getState()
+      .createOwner()!
+      .replaceLayer(scope, 'metrics', [
         {
-          key: 'metric',
-          entry: {
-            id: 'metric',
-            kind: 'annotation',
-            target: { kind: 'edge', id: 'edge' },
-            text: '42',
-            interaction: { accessibleLabel: 'Message count' },
-          },
+          id: 'metric',
+          kind: 'annotation',
+          target: { kind: 'edge', id: 'edge' },
+          text: '42',
+          interaction: { accessibleLabel: 'Message count' },
         },
-      ],
-    });
+      ]);
+    const source = {
+      store,
+      model: {
+        nodes: [
+          { id: 'a', type: 'node' },
+          { id: 'b', type: 'node' },
+        ],
+        edges: [{ id: 'edge', type: 'edge', source: 'a', target: 'b' }],
+      },
+    };
 
     const { Provider } = await TestProvidersWrapper();
 
@@ -108,7 +121,9 @@ describe('CustomEdge', () => {
       <Provider>
         <VisualizationProvider controller={controller}>
           <ElementContext.Provider value={element}>
-            <CustomEdge element={element} />
+            <CanvasOverlayContext.Provider value={source}>
+              <CustomEdge element={element} />
+            </CanvasOverlayContext.Provider>
           </ElementContext.Provider>
         </VisualizationProvider>
       </Provider>,

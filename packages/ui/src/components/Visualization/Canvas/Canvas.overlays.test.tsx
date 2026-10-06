@@ -7,16 +7,16 @@ import { createOverlayStore } from '../../../store/overlay.store';
 import { TestProvidersWrapper } from '../../../stubs';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { buildDesignerCanvasModel } from '../designer-canvas-model';
-import { CanvasOverlayBinding } from '../Overlay/canvas-overlay-binding';
 import { buildDesignerOverlayTargetSnapshot } from '../Overlay/designer-overlay-targets';
 import { OverlayEntry } from '../Overlay/overlay-entries';
+import { CanvasOverlaySource } from '../Overlay/use-canvas-overlays';
 import { Canvas } from './Canvas';
 import { CanvasNodesAndEdges } from './canvas.models';
 import { ControllerService } from './controller.service';
 
 const scope = { canvasId: 'canvas', documentId: 'routes.yaml', modelRevision: '1' };
 
-it('renders metadata on real nodes, edges and groups; metric updates preserve layout and selection', async () => {
+it('renders from the store without writing graph data; metric updates preserve layout and selection', async () => {
   const { Provider } = await TestProvidersWrapper();
   const entity = new CamelRouteVisualEntity(structuredClone(camelRouteJson));
   const vizNode = await entity.toVizNode();
@@ -27,7 +27,7 @@ it('renders metadata on real nodes, edges and groups; metric updates preserve la
   )!;
   const store = createOverlayStore(buildDesignerOverlayTargetSnapshot(scope, model, [{ id: entity.id }]));
   const owner = store.getState().createOwner()!;
-  const binding: CanvasOverlayBinding = { model, store };
+  const source: CanvasOverlaySource = { model, store };
   const note = (id: string, target: OverlayEntry['target'], value: number): OverlayEntry => ({
     id,
     kind: 'annotation',
@@ -47,6 +47,7 @@ it('renders metadata on real nodes, edges and groups; metric updates preserve la
   // jsdom has no viewport dimensions; keep real node renderers mounted.
   controller.setRenderConstraint(false);
   let replaceModel: (model: CanvasNodesAndEdges) => void = () => {};
+  let replaceSource: (source: CanvasOverlaySource) => void = () => {};
   let enableCollapseUpdates: () => void = () => {};
   const Content = () => {
     const [applyCollapse, setApplyCollapse] = useState(false);
@@ -54,10 +55,12 @@ it('renders metadata on real nodes, edges and groups; metric updates preserve la
       setApplyCollapse(true);
     };
     const [current, setCurrent] = useState(model);
+    const [currentSource, setSource] = useState(source);
     replaceModel = setCurrent;
+    replaceSource = setSource;
     return (
       <VisualizationProvider controller={controller}>
-        <Canvas {...current} overlayBinding={binding} applyCollapseOnUpdate={applyCollapse} />
+        <Canvas {...current} overlaySource={currentSource} applyCollapseOnUpdate={applyCollapse} />
       </VisualizationProvider>
     );
   };
@@ -80,6 +83,8 @@ it('renders metadata on real nodes, edges and groups; metric updates preserve la
   const layout = vi.spyOn(controller.getGraph(), 'layout');
   const fromModel = vi.spyOn(controller, 'fromModel');
   const oldStep = controller.getElementById(step.id);
+  const graphData = controller.getElements().map((element) => ({ element, data: element.getData() }));
+  const setData = graphData.map(({ element }) => vi.spyOn(element, 'setData'));
   act(() => {
     owner.upsertEntries(scope, 'trace', [note('Step count', { kind: 'node', id: step.id }, 43)]);
   });
@@ -88,18 +93,37 @@ it('renders metadata on real nodes, edges and groups; metric updates preserve la
   expect(controller.getElementById(step.id)).toBe(oldStep);
   expect(layout).not.toHaveBeenCalled();
   expect(fromModel).not.toHaveBeenCalled();
+  for (const spy of setData) expect(spy).not.toHaveBeenCalled();
+  for (const { element, data } of graphData) {
+    expect(element.getData()).toBe(data);
+    expect(element.getData()?.overlays).toBeUndefined();
+  }
   expect(JSON.stringify(entity.toJSON())).toBe(originalDefinition);
-  expect(step.data?.overlays).toBeUndefined();
   act(() => {
     enableCollapseUpdates();
   });
   expect(screen.getByRole('button', { name: 'Step count: Step count 43' })).toBeInTheDocument();
+  const nextModel = { nodes: [...model.nodes], edges: [...model.edges] };
   act(() => {
-    replaceModel({ nodes: [...model.nodes], edges: [...model.edges] });
+    replaceModel(nextModel);
   });
   expect(screen.queryByRole('button', { name: /Step count:/ })).not.toBeInTheDocument();
   act(() => {
     owner.upsertEntries(scope, 'trace', [note('Step count', { kind: 'node', id: step.id }, 99)]);
+  });
+  expect(screen.queryByRole('button', { name: /Step count:/ })).not.toBeInTheDocument();
+  const nextScope = { ...scope, modelRevision: '2' };
+  const nextStore = createOverlayStore(buildDesignerOverlayTargetSnapshot(nextScope, nextModel, [{ id: entity.id }]));
+  nextStore
+    .getState()
+    .createOwner()!
+    .replaceLayer(nextScope, 'trace', [note('Step count', { kind: 'node', id: step.id }, 100)]);
+  act(() => {
+    replaceSource({ model: nextModel, store: nextStore });
+  });
+  expect(screen.getByRole('button', { name: 'Step count: Step count 100' })).toBeInTheDocument();
+  act(() => {
+    nextStore.getState().dispose();
   });
   expect(screen.queryByRole('button', { name: /Step count:/ })).not.toBeInTheDocument();
   unmount();

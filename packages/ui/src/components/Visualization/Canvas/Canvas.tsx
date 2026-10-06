@@ -38,7 +38,7 @@ import { getInitialLayout } from '../../../utils/get-initial-layout';
 import { HorizontalLayoutIcon } from '../../Icons/HorizontalLayout';
 import { VerticalLayoutIcon } from '../../Icons/VerticalLayout';
 import useDeleteHotkey from '../Custom/hooks/delete-hotkey.hook';
-import { bindCanvasOverlays, CanvasOverlayBinding } from '../Overlay/canvas-overlay-binding';
+import { CanvasOverlayContext, CanvasOverlaySource } from '../Overlay/use-canvas-overlays';
 import { applyCollapseState } from './apply-collapse-state';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
@@ -46,7 +46,7 @@ import { CanvasSideBar } from './CanvasSideBar';
 import { consumeNodeSelection } from './node-selection-state';
 
 interface CanvasProps {
-  overlayBinding?: CanvasOverlayBinding;
+  overlaySource?: CanvasOverlaySource;
   nodes: CanvasNode[];
   edges: CanvasEdge[];
   isModelResolving?: boolean;
@@ -63,7 +63,7 @@ interface CanvasState {
 export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   nodes,
   edges,
-  overlayBinding,
+  overlaySource,
   isModelResolving = false,
   contextToolbar,
   applyCollapseOnUpdate = false,
@@ -153,13 +153,6 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     controller.getGraph().layout();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [controller, nodes, edges, isModelResolving, applyCollapseOnUpdate]);
-
-  // Attach after the model effect. A binding belongs to exactly one logical model;
-  // model replacement must not reuse old metrics even when element IDs match.
-  useEffect(() => {
-    if (isModelResolving || overlayBinding?.model.nodes !== nodes || overlayBinding.model.edges !== edges) return;
-    return bindCanvasOverlays(controller, overlayBinding);
-  }, [controller, nodes, edges, isModelResolving, applyCollapseOnUpdate, overlayBinding]);
 
   useEventListener<SelectionEventListener>(SELECTION_EVENT, setSelectedIds);
   useSelectedNodePanIntoView(selectedIds);
@@ -286,7 +279,11 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       tabIndex={0}
       aria-label="Route canvas"
     >
-      <VisualizationSurface state={{ selectedIds }} />
+      <CanvasOverlayContext.Provider
+        value={overlaySource?.model.nodes === nodes && overlaySource.model.edges === edges ? overlaySource : undefined}
+      >
+        <VisualizationSurface state={{ selectedIds }} />
+      </CanvasOverlayContext.Provider>
     </TopologyView>
   );
 };

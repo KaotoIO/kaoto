@@ -22,3 +22,9 @@ export function createOverlayLayerSnapshot(layers: readonly OverlayLayer[]): Ove
     ),
   );
 }
+
+/** Stable identity across owners and layers for entries selected by a renderer. */
+export interface CanvasOverlay {
+  readonly key: string;
+  readonly entry: OverlayStoreSnapshot[number]['entries'][number];
+}

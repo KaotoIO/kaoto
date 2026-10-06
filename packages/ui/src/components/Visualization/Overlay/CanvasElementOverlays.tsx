@@ -1,4 +1,4 @@
-import { CanvasOverlay } from './canvas-overlay-data';
+import { CanvasOverlay } from './overlay-layer-snapshot';
 import { OverlayAnnotation } from './OverlayAnnotation';
 import { EdgeOverlayHighlight, NodeOverlayHighlight } from './OverlayHighlight';
 

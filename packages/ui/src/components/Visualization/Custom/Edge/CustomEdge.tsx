@@ -22,8 +22,9 @@ import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityCo
 import { AddStepMode, IVisualizationNode } from '../../../../models';
 import { LayoutType } from '../../Canvas';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
-import { CanvasEdge, CanvasEdgeData } from '../../Canvas/canvas.models';
+import { CanvasEdge } from '../../Canvas/canvas.models';
 import { CanvasEdgeOverlays } from '../../Overlay/CanvasElementOverlays';
+import { useCanvasOverlays } from '../../Overlay/use-canvas-overlays';
 import { canDropOnEdge, GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
 import { useGraphLayout } from '../hooks/use-graph-layout.hook';
 import { AddStepIcon } from './AddStepIcon';
@@ -48,7 +49,7 @@ const EdgeAddStepIconSlot: FunctionComponent<EdgeAddStepIconSlotProps> = ({ x, y
 );
 
 interface CustomEdgeProps extends DefaultEdgeProps {
-  element: GraphElement<CanvasEdge, CanvasEdgeData>;
+  element: GraphElement<CanvasEdge>;
 }
 
 export const CustomEdge: FunctionComponent<CustomEdgeProps> = observer(({ element }) => {
@@ -56,6 +57,7 @@ export const CustomEdge: FunctionComponent<CustomEdgeProps> = observer(({ elemen
     throw new Error('EdgeEndWithButton must be used only on Edge elements');
   }
 
+  const overlays = useCanvasOverlays('edge', element.getId());
   const entitiesContext = useEntityContext();
   const catalogModalContext = useContext(CatalogModalContext)!;
   const layout = useGraphLayout();
@@ -135,11 +137,7 @@ export const CustomEdge: FunctionComponent<CustomEdgeProps> = observer(({ elemen
 
   return (
     <g className="custom-edge" ref={dndDropRef}>
-      <CanvasEdgeOverlays
-        overlays={element.getData()?.overlays}
-        path={edgeDRef.current}
-        points={edgePointsRef.current}
-      />
+      <CanvasEdgeOverlays overlays={overlays} path={edgeDRef.current} points={edgePointsRef.current} />
       <path className="custom-edge__background" d={edgeDRef.current} />
       <path
         className={clsx('custom-edge__body', {

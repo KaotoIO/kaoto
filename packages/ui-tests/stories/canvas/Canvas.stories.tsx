@@ -5,7 +5,7 @@ import {
   buildDesignerOverlayTargetSnapshot,
   CamelRouteVisualEntity,
   Canvas,
-  CanvasOverlayBinding,
+  CanvasOverlaySource,
   CatalogLoaderProvider,
   CatalogSchemaLoader,
   CatalogTilesProvider,
@@ -161,7 +161,7 @@ const CanvasWithOverlays: StoryFn<CanvasStoryArgs> = ({ entity }) => {
   const visibleFlows = useMemo(() => ({ [entity.id]: true }), [entity.id]);
   const { vizNodes, isResolving } = useVisibleVizNodes(entities, visibleFlows);
   const model = useMemo(() => buildDesignerCanvasModel(vizNodes), [vizNodes]);
-  const [demo, setDemo] = useState<{ binding: CanvasOverlayBinding; update(): void; clear(): void }>();
+  const [demo, setDemo] = useState<{ source: CanvasOverlaySource; update(): void; clear(): void }>();
   useEffect(() => {
     if (isResolving || model.nodes.length === 0) return;
     const scope = { canvasId: 'story', documentId: entity.id, modelRevision: 'story-model' };
@@ -193,7 +193,7 @@ const CanvasWithOverlays: StoryFn<CanvasStoryArgs> = ({ entity }) => {
     };
     write();
     setDemo({
-      binding: { model, store },
+      source: { model, store },
       update: () => {
         value++;
         write();
@@ -216,7 +216,7 @@ const CanvasWithOverlays: StoryFn<CanvasStoryArgs> = ({ entity }) => {
           Clear overlays
         </button>
       </div>
-      <Canvas {...model} isModelResolving={isResolving} overlayBinding={demo?.binding} />
+      <Canvas {...model} isModelResolving={isResolving} overlaySource={demo?.source} />
     </>
   );
 };
