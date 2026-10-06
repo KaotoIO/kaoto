@@ -3,32 +3,33 @@ import './OverlayPresentation.scss';
 import { FunctionComponent } from 'react';
 
 import { OverlayEntry } from './overlay-entries';
-import { OverlayEntryPresentationProps, overlayInteractionKey } from './overlay-presentation';
 import { OverlayInteraction } from './OverlayInteraction';
 
-export const OverlayAnnotation: FunctionComponent<
-  OverlayEntryPresentationProps<Extract<OverlayEntry, { kind: 'annotation' }>>
-> = ({ entry, onAction }) => {
+export const OverlayAnnotation: FunctionComponent<{ entry: Extract<OverlayEntry, { kind: 'annotation' }> }> = ({
+  entry,
+}) => {
   const content = [entry.text, entry.value !== undefined ? String(entry.value) : '', entry.unit]
     .filter(Boolean)
     .join(' ');
   return (
     <OverlayInteraction
-      key={overlayInteractionKey(entry)}
+      key={JSON.stringify([entry.id, entry.target.kind, entry.target.id])}
       className={`kaoto-overlay kaoto-overlay-annotation kaoto-overlay-tone-${entry.tone ?? 'info'} kaoto-overlay-emphasis-${entry.emphasis ?? 'normal'}`}
       interaction={{
         ...entry.interaction,
         accessibleLabel: `${entry.interaction.accessibleLabel}: ${content}`,
-        tooltip: [content, entry.interaction.tooltip].filter(Boolean).join('\n'),
+        tooltip: entry.interaction.tooltip
+          ? [content, entry.interaction.tooltip].filter(Boolean).join('\n')
+          : undefined,
       }}
-      onAction={
-        onAction &&
-        ((actionId) => {
-          onAction({ entryId: entry.id, target: { ...entry.target }, actionId });
-        })
-      }
     >
-      <span className="kaoto-overlay-text">{content}</span>
+      <span
+        className={
+          entry.interaction.tooltip ? 'kaoto-overlay-text kaoto-overlay-text--truncated' : 'kaoto-overlay-text'
+        }
+      >
+        {content}
+      </span>
     </OverlayInteraction>
   );
 };

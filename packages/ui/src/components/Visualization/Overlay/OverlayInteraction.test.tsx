@@ -5,27 +5,6 @@ import { OverlayInteraction } from './OverlayInteraction';
 
 vi.unmock('@patternfly/react-icons');
 
-it('closes a menu when another isolated overlay is clicked', async () => {
-  const user = userEvent.setup();
-  const interaction = { accessibleLabel: 'First', contextMenu: [{ id: 'inspect', label: 'Inspect', enabled: true }] };
-  render(
-    <>
-      <OverlayInteraction interaction={interaction} className="" onAction={vi.fn()}>
-        One
-      </OverlayInteraction>
-      <OverlayInteraction interaction={{ ...interaction, accessibleLabel: 'Second' }} className="" onAction={vi.fn()}>
-        Two
-      </OverlayInteraction>
-    </>,
-  );
-  await user.click(screen.getByRole('button', { name: 'First' }));
-  await user.click(screen.getByRole('button', { name: 'Second' }));
-  await waitFor(() => {
-    expect(screen.getAllByRole('menu')).toHaveLength(1);
-  });
-  expect(screen.getByRole('button', { name: 'First' })).toHaveAttribute('aria-expanded', 'false');
-});
-
 it('dismisses a focused tooltip with Escape without moving focus', async () => {
   const user = userEvent.setup();
   render(
@@ -38,4 +17,31 @@ it('dismisses a focused tooltip with Escape without moving focus', async () => {
   await user.keyboard('{Escape}');
   await waitFor(() => expect(screen.queryByRole('tooltip')).not.toBeInTheDocument());
   expect(screen.getByLabelText('Detail')).toHaveFocus();
+});
+
+it('isolates tooltip annotation input from canvas selection, dragging and menus', async () => {
+  const user = userEvent.setup();
+  const onCanvasInput = vi.fn();
+  render(
+    <div
+      onClick={onCanvasInput}
+      onDoubleClick={onCanvasInput}
+      onPointerDown={onCanvasInput}
+      onKeyDown={onCanvasInput}
+      onContextMenu={onCanvasInput}
+    >
+      <OverlayInteraction interaction={{ accessibleLabel: 'Count', tooltip: 'Message count' }} className="">
+        42
+      </OverlayInteraction>
+    </div>,
+  );
+  const annotation = screen.getByRole('img', { name: 'Count' });
+  await user.click(annotation);
+  await user.dblClick(annotation);
+  await user.pointer({ target: annotation, keys: '[MouseRight]' });
+  annotation.focus();
+  await user.keyboard('{Shift>}{F10}{/Shift}{Enter}');
+  expect(onCanvasInput).not.toHaveBeenCalled();
+  expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  expect(await screen.findByRole('tooltip')).toHaveTextContent('Message count');
 });
