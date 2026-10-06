@@ -53,6 +53,15 @@
     stroke: var(--pf-t--global--border--color--default);
   }
 
+  &__group-header {
+    fill: var(--pf-t--global--color--brand--100);
+  }
+
+  & &__group-title {
+    fill: var(--pf-t--global--text--color--on-brand--default);
+    font-weight: bold;
+  }
+
   &__heading {
     font-weight: bold;
   }
