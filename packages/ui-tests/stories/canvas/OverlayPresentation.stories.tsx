@@ -48,6 +48,20 @@ const contrast = (foreground: string, background: string) => {
 };
 
 const verifyPresentation: Story['play'] = async ({ canvasElement }) => {
+  const mainRoute = canvasElement.querySelector('[data-demo-group="route-1837"]')!;
+  const choice = mainRoute.querySelector('[data-demo-group="choice-1601"]')!;
+  await expect(choice.querySelector('[data-demo-group="when-2399"]')).not.toBeNull();
+  await expect(choice.querySelector('[data-demo-group="otherwise-3621"]')).not.toBeNull();
+  for (const id of ['from-1199', 'to-1402', 'to-2430']) {
+    await expect(mainRoute.querySelector(`[data-demo-node="${id}"] rect.kaoto-overlay-tone-info`)).not.toBeNull();
+  }
+  await expect(mainRoute.querySelector('[data-demo-node="to-3904"] rect.kaoto-overlay')).toBeNull();
+  await expect(mainRoute.querySelector('[aria-label="to-3904 message count: 0"]')).not.toBeNull();
+  await expect(mainRoute.querySelectorAll('path.kaoto-overlay-tone-info')).toHaveLength(4);
+  for (const id of ['otherwise-3621-to-3904', 'to-3904-choice-exit']) {
+    await expect(mainRoute.querySelector(`[data-demo-edge="${id}"]`)!.classList.contains('kaoto-overlay')).toBe(false);
+  }
+
   const stepAnnotations = canvasElement.querySelectorAll('.kaoto-overlay-demo__step-annotation');
   await expect(stepAnnotations.length).toBeGreaterThan(0);
   for (const anchor of stepAnnotations) {
@@ -68,7 +82,9 @@ const verifyPresentation: Story['play'] = async ({ canvasElement }) => {
     await expect(text.scrollWidth).toBeLessThanOrEqual(text.clientWidth);
   }
 
-  const edge = canvasElement.querySelector('.kaoto-overlay-demo__edge')!.getBoundingClientRect();
+  const edge = canvasElement
+    .querySelector('[data-demo-edge="from-1199-choice-1601"] .kaoto-overlay-demo__edge')!
+    .getBoundingClientRect();
   const edgeAnnotation = canvasElement.querySelector('.kaoto-overlay-demo__edge-annotation .kaoto-overlay-annotation')!;
   const edgeText = edgeAnnotation.querySelector('.kaoto-overlay-text')!;
   const originalText = edgeText.textContent;
