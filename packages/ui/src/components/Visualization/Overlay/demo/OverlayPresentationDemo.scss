@@ -1,0 +1,58 @@
+.kaoto-overlay-demo {
+  min-width: 1120px;
+  padding: 16px;
+  color: var(--pf-t--global--text--color--regular);
+  background: var(--pf-t--global--background--color--primary--default);
+
+  h1,
+  h2 {
+    margin-block: 12px;
+    font-weight: bold;
+  }
+
+  p {
+    margin-block: 8px;
+  }
+
+  svg text {
+    fill: currentcolor;
+    font-size: 14px;
+  }
+
+  &__route {
+    fill: var(--pf-t--global--background--color--secondary--default);
+    stroke: var(--pf-t--global--border--color--default);
+  }
+
+  &__heading {
+    font-weight: bold;
+  }
+
+  &__edge {
+    fill: none;
+    stroke: var(--pf-t--global--text--color--subtle);
+    stroke-width: 1;
+  }
+
+  &__add {
+    width: 36px;
+    height: 36px;
+    border: 1px dashed var(--pf-t--global--border--color--default);
+    border-radius: 50%;
+    background: var(--pf-t--global--background--color--primary--default);
+    color: inherit;
+    font-size: 24px;
+  }
+
+  &__samples {
+    display: flex;
+    gap: 48px;
+  }
+
+  &__sample {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-block: 8px;
+  }
+}

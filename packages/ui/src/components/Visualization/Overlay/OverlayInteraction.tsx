@@ -1,5 +1,5 @@
 import { Dropdown, DropdownItem, DropdownList, handleArrows, MenuToggle, Tooltip } from '@patternfly/react-core';
-import { FunctionComponent, KeyboardEvent, ReactNode, SyntheticEvent, useRef, useState } from 'react';
+import { FunctionComponent, KeyboardEvent, ReactNode, SyntheticEvent, useEffect, useRef, useState } from 'react';
 
 import { OverlayInteraction as InteractionData } from './overlay-entries';
 
@@ -21,6 +21,24 @@ export const OverlayInteraction: FunctionComponent<Props> = ({ interaction, chil
   const menuRef = useRef<HTMLDivElement>(null);
   const actions = interaction.contextMenu ?? [];
   const hasMenu = actions.length > 0;
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const closeOutside = (event: PointerEvent) => {
+      if (
+        event.target instanceof Node &&
+        !toggleRef.current?.contains(event.target) &&
+        !menuRef.current?.contains(event.target)
+      ) {
+        setOpen(false);
+      }
+    };
+    // Observe outside input before another overlay's propagation boundary stops it.
+    document.addEventListener('pointerdown', closeOutside, true);
+    return () => {
+      document.removeEventListener('pointerdown', closeOutside, true);
+    };
+  }, [isOpen]);
 
   const onKeyDown = (event: KeyboardEvent) => {
     event.stopPropagation();
@@ -80,7 +98,7 @@ export const OverlayInteraction: FunctionComponent<Props> = ({ interaction, chil
 
   return (
     <span
-      className="kaoto-overlay__interaction"
+      className="kaoto-overlay-interaction"
       onClick={stopPropagation}
       onDoubleClick={stopPropagation}
       onPointerDown={stopPropagation}
