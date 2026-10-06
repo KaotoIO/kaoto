@@ -5,8 +5,6 @@ import { StrictMode } from 'react';
 import { OverlayPresentationDemo } from './OverlayPresentationDemo';
 import { useOverlayDemo } from './use-overlay-demo';
 
-vi.unmock('@patternfly/react-icons');
-
 const mainRoute = () => screen.getByLabelText('route-1837 with nested choice branches and an explicit message path');
 const highlighted = (id: string) =>
   mainRoute().querySelector(`[data-demo-node="${id}"] rect.kaoto-overlay, [data-demo-edge="${id}"] path.kaoto-overlay`);

@@ -3,17 +3,19 @@ import {
   BaseEdge,
   BaseGraph,
   BaseNode,
-  ElementContext,
   DndManager,
   DndStore,
+  ElementContext,
   Point,
   VisualizationProvider,
 } from '@patternfly/react-topology';
 import { act, render } from '@testing-library/react';
 
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
+import { createOverlayStore } from '../../../../store/overlay.store';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { ControllerService } from '../../Canvas/controller.service';
+import { CanvasOverlayContext } from '../../Overlay/use-canvas-overlays';
 import { NODE_DRAG_TYPE } from '../customComponentUtils';
 import { CustomEdge } from './CustomEdge';
 
@@ -56,6 +58,7 @@ describe('CustomEdge', () => {
     const sourceNode = new BaseNode();
     const targetNode = new BaseNode();
     sourceNode.setParent(parentElement);
+    sourceNode.setData({ vizNode });
     targetNode.setParent(parentElement);
     vi.spyOn(targetNode, 'getData').mockReturnValue({ vizNode });
 
@@ -70,20 +73,31 @@ describe('CustomEdge', () => {
     element.setParent(parentElement);
     element.setStartPoint(0, 0);
     element.setEndPoint(100, 100);
-    element.setData({
-      overlays: [
+    element.setId('edge');
+    const scope = { canvasId: 'canvas', documentId: 'route.yaml', modelRevision: '1' };
+    const store = createOverlayStore({ scope, targets: [{ kind: 'edge', id: 'edge' }] });
+    store
+      .getState()
+      .createOwner()!
+      .replaceLayer(scope, 'metrics', [
         {
-          key: 'metric',
-          entry: {
-            id: 'metric',
-            kind: 'annotation',
-            target: { kind: 'edge', id: 'edge' },
-            text: '42',
-            interaction: { accessibleLabel: 'Message count' },
-          },
+          id: 'metric',
+          kind: 'annotation',
+          target: { kind: 'edge', id: 'edge' },
+          text: '42',
+          interaction: { accessibleLabel: 'Message count' },
         },
-      ],
-    });
+      ]);
+    const source = {
+      store,
+      model: {
+        nodes: [
+          { id: 'a', type: 'node' },
+          { id: 'b', type: 'node' },
+        ],
+        edges: [{ id: 'edge', type: 'edge', source: 'a', target: 'b' }],
+      },
+    };
 
     const { Provider } = await TestProvidersWrapper();
 
@@ -91,7 +105,9 @@ describe('CustomEdge', () => {
       <Provider>
         <VisualizationProvider controller={controller}>
           <ElementContext.Provider value={element}>
-            <CustomEdge element={element} />
+            <CanvasOverlayContext.Provider value={source}>
+              <CustomEdge element={element} />
+            </CanvasOverlayContext.Provider>
           </ElementContext.Provider>
         </VisualizationProvider>
       </Provider>,
@@ -103,7 +119,7 @@ describe('CustomEdge', () => {
     const before = [annotation.getAttribute('x'), annotation.getAttribute('y')];
     const path = edge.querySelector('.custom-edge__body')!.getAttribute('d');
     const manager: DndManager = controller.getStore<DndStore>().dndManager;
-    const [source] = manager.registerSource({
+    const [dragSource] = manager.registerSource({
       type: NODE_DRAG_TYPE,
       canDrag: () => true,
       beginDrag: () => sourceNode,
@@ -113,7 +129,7 @@ describe('CustomEdge', () => {
     });
     act(
       action(() => {
-        manager.beginDrag(source, undefined, 10, 10, 10, 10);
+        manager.beginDrag(dragSource, undefined, 10, 10, 10, 10);
         element.setBendpoints([new Point(1000, 0)]);
       }),
     );

@@ -3,8 +3,6 @@ import userEvent from '@testing-library/user-event';
 
 import { OverlayInteraction } from './OverlayInteraction';
 
-vi.unmock('@patternfly/react-icons');
-
 it('dismisses a focused tooltip with Escape without moving focus', async () => {
   const user = userEvent.setup();
   render(
