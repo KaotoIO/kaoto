@@ -38,9 +38,22 @@ interface NodeProps {
   warning?: boolean;
   disabled?: boolean;
   decorated?: boolean;
+  layout?: 'horizontal' | 'vertical';
+  count?: number;
 }
 
-const DemoNode: FunctionComponent<NodeProps> = ({ id, label, x, y, selected, warning, disabled, decorated }) => {
+const DemoNode: FunctionComponent<NodeProps> = ({
+  id,
+  label,
+  x,
+  y,
+  selected,
+  warning,
+  disabled,
+  decorated,
+  layout = 'horizontal',
+  count = 42,
+}) => {
   const node = createVisualizationNode(id, {
     name: label,
     path: id,
@@ -76,8 +89,23 @@ const DemoNode: FunctionComponent<NodeProps> = ({ id, label, x, y, selected, war
         />
       </g>
       {decorated && (
-        <foreignObject x={-25} y={132} width={170} height={36}>
-          <OverlayAnnotation entry={annotation(`${id} metric`, { kind: 'node', id }, 'Elapsed', 0)} />
+        <foreignObject
+          className={`kaoto-overlay-demo__step-annotation kaoto-overlay-demo__step-annotation--${layout}`}
+          x={layout === 'vertical' ? 55 : 5}
+          y={-28}
+          width={80}
+          height={24}
+        >
+          <OverlayAnnotation
+            entry={{
+              ...annotation(`${id} metric`, { kind: 'node', id }, '', count),
+              unit: '',
+              interaction: {
+                accessibleLabel: `${id} message count`,
+                tooltip: 'Messages processed by this step (demo)',
+              },
+            }}
+          />
         </foreignObject>
       )}
     </g>
@@ -113,8 +141,8 @@ export const OverlayPresentationDemo: FunctionComponent = () => {
         ))}
         <path d="M630 138 V332 H790" className="kaoto-overlay-demo__edge" />
         <DemoNode id="timer" label="timer" x={65} y={100} decorated />
-        <DemoNode id="choice" label="choice" x={430} y={100} warning decorated />
-        <DemoNode id="selected-log" label="selected log" x={790} y={100} selected decorated />
+        <DemoNode id="choice" label="choice" x={430} y={100} warning decorated count={0} />
+        <DemoNode id="selected-log" label="selected log" x={790} y={100} selected decorated count={123456} />
         <DemoNode id="disabled-log" label="disabled log" x={790} y={295} disabled />
         <foreignObject x={260} y={65} width={170} height={36}>
           <OverlayAnnotation
@@ -127,7 +155,7 @@ export const OverlayPresentationDemo: FunctionComponent = () => {
           </button>
         </foreignObject>
         <text x={50} y={405}>
-          Top badges: existing processor / disabled. Below node: existing name and validation.
+          Counts above steps; existing corner badges and validation labels remain visible.
         </text>
         <rect className="kaoto-overlay-demo__route" x={10} y={465} width={1060} height={220} rx={10} />
         <text className="kaoto-overlay-demo__heading" x={30} y={497}>
@@ -144,6 +172,26 @@ export const OverlayPresentationDemo: FunctionComponent = () => {
           />
         </foreignObject>
         <DemoNode id="route-b-log" label="log" x={65} y={545} />
+      </svg>
+      <h2>Vertical layout — incoming edges stay clear</h2>
+      <svg width={1100} height={240} aria-label="Vertical step annotation placement">
+        <defs>
+          <marker
+            id="overlay-demo-arrow"
+            viewBox="0 0 10 10"
+            refX={10}
+            refY={5}
+            markerWidth={8}
+            markerHeight={8}
+            orient="auto"
+          >
+            <path d="M0 0 L10 5 L0 10 Z" fill="currentColor" />
+          </marker>
+        </defs>
+        <path d="M125 15 V103" className="kaoto-overlay-demo__edge" markerEnd="url(#overlay-demo-arrow)" />
+        <path d="M475 15 V103" className="kaoto-overlay-demo__edge" markerEnd="url(#overlay-demo-arrow)" />
+        <DemoNode id="vertical-short" label="log" x={80} y={100} decorated disabled layout="vertical" />
+        <DemoNode id="vertical-long" label="log" x={430} y={100} decorated disabled layout="vertical" count={123456} />
       </svg>
       <h2>Independent tone and emphasis</h2>
       <div className="kaoto-overlay-demo__samples">
@@ -174,10 +222,10 @@ export const OverlayPresentationDemo: FunctionComponent = () => {
         <text x={400} y={25}>
           1.5×
         </text>
-        <g transform="translate(40 45) scale(0.75)">
+        <g transform="translate(40 85) scale(0.75)">
           <DemoNode id="small" label="small log" x={0} y={0} decorated disabled />
         </g>
-        <g transform="translate(410 45) scale(1.5)">
+        <g transform="translate(410 85) scale(1.5)">
           <DemoNode id="large" label="large log" x={0} y={0} decorated warning />
         </g>
       </svg>
