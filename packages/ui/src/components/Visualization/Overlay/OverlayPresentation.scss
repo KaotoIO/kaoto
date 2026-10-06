@@ -1,0 +1,38 @@
+.kaoto-overlay {
+  --kaoto-overlay-color: var(--pf-t--global--color--status--info--default);
+
+  color: var(--kaoto-overlay-color);
+
+  &--neutral {
+    --kaoto-overlay-color: var(--pf-t--global--color--nonstatus--gray--default);
+  }
+
+  &--success {
+    --kaoto-overlay-color: var(--pf-t--global--color--status--success--default);
+  }
+
+  &--warning {
+    --kaoto-overlay-color: var(--pf-t--global--color--status--warning--default);
+  }
+
+  &--error {
+    --kaoto-overlay-color: var(--pf-t--global--color--status--danger--default);
+  }
+
+  &__icon {
+    display: inline-flex;
+    width: 20px;
+    height: 20px;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    &--diamond svg {
+      transform: rotate(45deg) scale(0.7);
+    }
+  }
+}
