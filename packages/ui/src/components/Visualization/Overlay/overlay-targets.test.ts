@@ -26,15 +26,18 @@ describe('createOverlayTargetIndex', () => {
     expect(index.resolve(scope, { kind: 'node', id: 'route-2|log-1' })).toEqual({ status: 'missing' });
   });
 
-  it.each(['node', 'edge', 'route'] as const)('reports duplicate %s identities and omits them from discovery', (kind) => {
-    const target: OverlayTarget = { kind, id: 'duplicate' };
-    const unique: OverlayTarget = { kind, id: 'unique' };
-    const index = createOverlayTargetIndex({ scope, targets: [target, unique, { ...target }, { ...target }] });
+  it.each(['node', 'edge', 'route'] as const)(
+    'reports duplicate %s identities and omits them from discovery',
+    (kind) => {
+      const target: OverlayTarget = { kind, id: 'duplicate' };
+      const unique: OverlayTarget = { kind, id: 'unique' };
+      const index = createOverlayTargetIndex({ scope, targets: [target, unique, { ...target }, { ...target }] });
 
-    expect(index.resolve(scope, target)).toEqual({ status: 'ambiguous' });
-    expect(index.list()).toEqual([unique]);
-    expect(index.resolve(scope, unique)).toEqual({ status: 'resolved', target: unique });
-  });
+      expect(index.resolve(scope, target)).toEqual({ status: 'ambiguous' });
+      expect(index.list()).toEqual([unique]);
+      expect(index.resolve(scope, unique)).toEqual({ status: 'resolved', target: unique });
+    },
+  );
 
   it.each<keyof OverlayScope>(['canvasId', 'documentId', 'modelRevision'])(
     'rejects a different %s before attempting target resolution',
