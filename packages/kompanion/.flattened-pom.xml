@@ -29,6 +29,7 @@
     <spotless-maven-plugin.version>3.10.0</spotless-maven-plugin.version>
     <camel.version>4.10.3</camel.version>
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
+    <connector-it.camel.version>4.23.0-SNAPSHOT</connector-it.camel.version>
   </properties>
   <build>
     <pluginManagement>
@@ -121,6 +122,12 @@
     </plugins>
   </build>
   <profiles>
+    <profile>
+      <id>camel-snapshot</id>
+      <modules>
+        <module>kaoto-e2e-fixtures/connector-main</module>
+      </modules>
+    </profile>
     <profile>
       <id>camel-4.14</id>
       <properties>

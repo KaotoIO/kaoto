@@ -91,9 +91,9 @@ public class WorkerRegistry {
     }
 
     /**
-     * Returns a snapshot of the current channel for the given executionId, or {@code null} when no worker is
-     * connected. Callers should use the same snapshot for both protocol detection and command dispatch so that
-     * encoding and sending target the same connection.
+     * Returns a snapshot of the current channel for the given executionId, or {@code null} when no worker is connected.
+     * Callers should use the same snapshot for both protocol detection and command dispatch so that encoding and
+     * sending target the same connection.
      */
     public ChannelSnapshot channelFor(String executionId) {
         ChannelEntry entry = channels.get(executionId);
@@ -168,14 +168,18 @@ public class WorkerRegistry {
         if (channelEntry == null) {
             String reason = "No channel for executionId: " + executionId;
             if (entries != null) {
-                entries.replace(correlationId, pending,
+                entries.replace(
+                        correlationId,
+                        pending,
                         new PendingEntry(future, CommandResult.acked(correlationId, false, reason)));
             }
             future.completeExceptionally(new IllegalStateException(reason));
         } else if (!channelEntry.connectionId().equals(connectionId)) {
             String reason = "Worker reconnected during command encoding for executionId: " + executionId;
             if (entries != null) {
-                entries.replace(correlationId, pending,
+                entries.replace(
+                        correlationId,
+                        pending,
                         new PendingEntry(future, CommandResult.acked(correlationId, false, reason)));
             }
             future.completeExceptionally(new IllegalStateException(reason));
