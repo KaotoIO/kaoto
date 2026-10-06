@@ -213,9 +213,9 @@ export const OverlayPresentationDemo: FunctionComponent = () => {
           Reset demo
         </button>
       </fieldset>
-      <p role="status">
+      <output>
         Selected path: {branch ?? 'none'}. Active layers: {layers.length}.
-      </p>
+      </output>
       <svg width={1100} height={965} aria-label="route-1837 with nested choice branches and an explicit message path">
         <DemoGroup id="route-1837" label="route-1837" x={10} y={10} width={1060} height={700}>
           <DemoGroup id="choice-1601" label="choice" x={250} y={65} width={440} height={610}>

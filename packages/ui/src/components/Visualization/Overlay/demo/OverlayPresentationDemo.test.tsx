@@ -43,11 +43,11 @@ describe('Store-backed overlay demo', () => {
     expect(highlighted('to-3904-choice-exit')).not.toBeNull();
     expect(highlighted('from-1199')).not.toBeNull();
     expect(highlighted('to-2430')).not.toBeNull();
-    expect(within(mainRoute()).getByRole('img', { name: 'from-1199 message count: 42' })).toBeInTheDocument();
+    expect(within(mainRoute()).getByRole('button', { name: 'from-1199 message count: 42' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Clear path' }));
     expect(mainRoute().querySelector('path.kaoto-overlay, rect.kaoto-overlay')).toBeNull();
     expect(
-      within(mainRoute()).getByRole('img', { name: 'route-1837 annotation: Route total 12.5 ms' }),
+      within(mainRoute()).getByRole('button', { name: 'route-1837 annotation: Route total 12.5 ms' }),
     ).toBeInTheDocument();
   });
 
@@ -56,14 +56,14 @@ describe('Store-backed overlay demo', () => {
     render(<OverlayPresentationDemo />);
     await user.click(screen.getByRole('button', { name: 'Update counts' }));
     await user.click(screen.getByRole('button', { name: 'Update counts' }));
-    expect(within(mainRoute()).getByRole('img', { name: 'from-1199 message count: 44' })).toBeInTheDocument();
+    expect(within(mainRoute()).getByRole('button', { name: 'from-1199 message count: 44' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Remove XMPP count' }));
-    expect(within(mainRoute()).queryByRole('img', { name: /to-3904 message count/ })).not.toBeInTheDocument();
-    expect(within(mainRoute()).getByRole('img', { name: 'to-1402 message count: 44' })).toBeInTheDocument();
+    expect(within(mainRoute()).queryByRole('button', { name: /to-3904 message count/ })).not.toBeInTheDocument();
+    expect(within(mainRoute()).getByRole('button', { name: 'to-1402 message count: 44' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Clear counts' }));
     expect(mainRoute().querySelector('.kaoto-overlay-demo__step-annotation')).toBeNull();
     expect(
-      within(mainRoute()).getByRole('img', { name: 'edge metric annotation: Edge duration 2.75 ms' }),
+      within(mainRoute()).getByRole('button', { name: 'edge metric annotation: Edge duration 2.75 ms' }),
     ).toBeInTheDocument();
     expect(highlighted('to-1402')).not.toBeNull();
   });
@@ -84,7 +84,7 @@ describe('Store-backed overlay demo', () => {
     await user.click(screen.getByRole('button', { name: 'Reset demo' }));
     expect(highlighted('to-3904')).toBeNull();
     expect(highlighted('to-1402')).not.toBeNull();
-    expect(within(mainRoute()).getByRole('img', { name: 'from-1199 message count: 42' })).toBeInTheDocument();
+    expect(within(mainRoute()).getByRole('button', { name: 'from-1199 message count: 42' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Update counts' })).toBeEnabled();
   });
 });
