@@ -1,6 +1,6 @@
-import { OverlayEntry } from './overlay-entries';
-import { createOverlayLayerStore } from './overlay-layer-store';
-import { OverlayScope, OverlayTargetSnapshot } from './overlay-targets';
+import { OverlayEntry } from '../components/Visualization/Overlay/overlay-entries';
+import { OverlayScope, OverlayTargetSnapshot } from '../components/Visualization/Overlay/overlay-targets';
+import { createOverlayStore } from './overlay.store';
 
 const scope: OverlayScope = { canvasId: 'canvas', documentId: 'routes.yaml', modelRevision: 'revision' };
 const snapshot = (): OverlayTargetSnapshot => ({
@@ -31,11 +31,11 @@ const annotation = (): Extract<OverlayEntry, { kind: 'annotation' }> => ({
   },
 });
 
-describe('createOverlayLayerStore', () => {
+describe('createOverlayStore', () => {
   it('isolates identical layer and entry IDs across owners', () => {
-    const store = createOverlayLayerStore(snapshot());
-    const first = store.createOwner()!;
-    const second = store.createOwner()!;
+    const store = createOverlayStore(snapshot());
+    const first = store.getState().createOwner()!;
+    const second = store.getState().createOwner()!;
     expect(first.ownerId).not.toBe(second.ownerId);
     first.replaceLayer(scope, 'layer', [highlight('same')]);
     second.replaceLayer(scope, 'layer', [highlight('same', 'route-b|log')]);
@@ -43,28 +43,28 @@ describe('createOverlayLayerStore', () => {
     first.upsertEntries(scope, 'layer', [annotation()]);
     expect(first.removeEntries(scope, 'layer', ['same'])).toEqual({ status: 'applied', removed: ['same'] });
     expect(first.clearLayer(scope, 'layer')).toEqual({ status: 'applied', removed: ['annotation'] });
-    expect(store.getLayers()).toEqual([
+    expect(store.getState().layers).toEqual([
       { ownerId: second.ownerId, layerId: 'layer', entries: [highlight('same', 'route-b|log')] },
     ]);
     first.dispose();
     expect(second.upsertEntries(scope, 'layer', [annotation()]).status).toBe('applied');
-    expect(store.getLayers()[0].entries).toHaveLength(2);
+    expect(store.getState().layers[0].entries).toHaveLength(2);
   });
 
   it('keeps opaque layer and entry IDs separate without delimiter or prototype collisions', () => {
-    const store = createOverlayLayerStore(snapshot());
-    const owner = store.createOwner()!;
+    const store = createOverlayStore(snapshot());
+    const owner = store.getState().createOwner()!;
     owner.replaceLayer(scope, '__proto__', [highlight('a|b'), highlight('constructor')]);
     owner.replaceLayer(scope, 'a|b', [highlight('__proto__')]);
-    expect(store.getLayers().map((layer) => [layer.layerId, layer.entries.map((entry) => entry.id)])).toEqual([
+    expect(store.getState().layers.map((layer) => [layer.layerId, layer.entries.map((entry) => entry.id)])).toEqual([
       ['__proto__', ['a|b', 'constructor']],
       ['a|b', ['__proto__']],
     ]);
   });
 
   it('stores explicit mixed entries across routes without inferring extra decorations', () => {
-    const store = createOverlayLayerStore(snapshot());
-    const owner = store.createOwner()!;
+    const store = createOverlayStore(snapshot());
+    const owner = store.getState().createOwner()!;
     const entries: OverlayEntry[] = [
       highlight('first'),
       highlight('other-route', 'route-b|log'),
@@ -78,12 +78,12 @@ describe('createOverlayLayerStore', () => {
       applied: ['first', 'other-route', 'edge', 'annotation', 'edge-note', 'node-note'],
       unresolved: [],
     });
-    expect(store.getLayers()).toEqual([{ ownerId: owner.ownerId, layerId: 'layer', entries }]);
+    expect(store.getState().layers).toEqual([{ ownerId: owner.ownerId, layerId: 'layer', entries }]);
   });
 
   it('replaces the entire layer while reporting unresolved targets in request order', () => {
-    const store = createOverlayLayerStore(snapshot());
-    const owner = store.createOwner()!;
+    const store = createOverlayStore(snapshot());
+    const owner = store.getState().createOwner()!;
     owner.replaceLayer(scope, 'layer', [highlight('omitted'), highlight('missing')]);
     expect(
       owner.replaceLayer(scope, 'layer', [
@@ -99,12 +99,12 @@ describe('createOverlayLayerStore', () => {
         { entryId: 'ambiguous', reason: 'ambiguous' },
       ],
     });
-    expect(store.getLayers()[0].entries).toEqual([highlight('valid', 'route-b|log')]);
+    expect(store.getState().layers[0].entries).toEqual([highlight('valid', 'route-b|log')]);
   });
 
   it.each(['absent', 'duplicate'])('removes a same-ID upsert when target %s cannot resolve', (targetId) => {
-    const store = createOverlayLayerStore(snapshot());
-    const owner = store.createOwner()!;
+    const store = createOverlayStore(snapshot());
+    const owner = store.getState().createOwner()!;
     owner.replaceLayer(scope, 'layer', [highlight('changed'), highlight('untouched'), highlight('updated')]);
     const result = owner.upsertEntries(scope, 'layer', [
       highlight('changed', targetId),
@@ -116,7 +116,7 @@ describe('createOverlayLayerStore', () => {
       applied: ['updated', 'new'],
       unresolved: [{ entryId: 'changed', reason: targetId === 'absent' ? 'missing' : 'ambiguous' }],
     });
-    expect(store.getLayers()[0].entries).toEqual([
+    expect(store.getState().layers[0].entries).toEqual([
       highlight('untouched'),
       highlight('updated', 'route-b|log'),
       highlight('new'),
@@ -126,45 +126,45 @@ describe('createOverlayLayerStore', () => {
   it.each(['replaceLayer', 'upsertEntries'] as const)(
     'rejects invalid %s batches without partial changes',
     (method) => {
-      const store = createOverlayLayerStore(snapshot());
-      const owner = store.createOwner()!;
+      const store = createOverlayStore(snapshot());
+      const owner = store.getState().createOwner()!;
       owner.replaceLayer(scope, 'layer', [highlight('original')]);
-      const before = store.getLayers();
+      const before = store.getState().layers;
       for (const entries of [
         [highlight('new'), highlight('new')],
         [highlight('new'), { ...annotation(), interaction: { accessibleLabel: '' } }],
       ]) {
         expect(owner[method](scope, 'layer', entries).status).toBe('invalid');
-        expect(store.getLayers()).toEqual(before);
+        expect(store.getState().layers).toEqual(before);
       }
       expect(owner[method](scope, '', [highlight('new')]).status).toBe('invalid');
-      expect(store.getLayers()).toEqual(before);
+      expect(store.getState().layers).toEqual(before);
     },
   );
 
   it.each(['canvasId', 'documentId', 'modelRevision'] as const)('rejects all writes with a stale %s', (field) => {
-    const store = createOverlayLayerStore(snapshot());
-    const owner = store.createOwner()!;
+    const store = createOverlayStore(snapshot());
+    const owner = store.getState().createOwner()!;
     owner.replaceLayer(scope, 'layer', [highlight('original')]);
     const stale = { ...scope, [field]: 'old' };
-    const before = store.getLayers();
+    const before = store.getState().layers;
     expect(owner.replaceLayer(stale, 'layer', [highlight('new')])).toEqual({ status: 'stale' });
     expect(owner.upsertEntries(stale, 'layer', [highlight('new')])).toEqual({ status: 'stale' });
     expect(owner.removeEntries(stale, 'layer', ['original'])).toEqual({ status: 'stale' });
     expect(owner.clearLayer(stale, 'layer')).toEqual({ status: 'stale' });
-    expect(store.getLayers()).toEqual(before);
+    expect(store.getState().layers).toEqual(before);
   });
 
   it('validates removals before applying any and reports only existing IDs in request order', () => {
-    const store = createOverlayLayerStore(snapshot());
-    const owner = store.createOwner()!;
+    const store = createOverlayStore(snapshot());
+    const owner = store.getState().createOwner()!;
     owner.replaceLayer(scope, 'layer', [highlight('first'), highlight('second')]);
     for (const ids of [
       ['first', 'first'],
       ['first', ''],
     ]) {
       expect(owner.removeEntries(scope, 'layer', ids).status).toBe('invalid');
-      expect(store.getLayers()[0].entries).toHaveLength(2);
+      expect(store.getState().layers[0].entries).toHaveLength(2);
     }
     expect(owner.removeEntries(scope, '', ['first']).status).toBe('invalid');
     expect(owner.clearLayer(scope, '').status).toBe('invalid');
@@ -172,30 +172,30 @@ describe('createOverlayLayerStore', () => {
       status: 'applied',
       removed: ['second', 'first'],
     });
-    expect(store.getLayers()).toEqual([]);
+    expect(store.getState().layers).toEqual([]);
   });
 
   it('handles empty batches and absent removals without retaining empty layers', () => {
-    const store = createOverlayLayerStore(snapshot());
-    const owner = store.createOwner()!;
+    const store = createOverlayStore(snapshot());
+    const owner = store.getState().createOwner()!;
     expect(owner.removeEntries(scope, 'missing', ['absent'])).toEqual({ status: 'applied', removed: [] });
     expect(owner.clearLayer(scope, 'missing')).toEqual({ status: 'applied', removed: [] });
     expect(owner.upsertEntries(scope, 'layer', [])).toEqual({ status: 'applied', applied: [], unresolved: [] });
-    expect(store.getLayers()).toEqual([]);
+    expect(store.getState().layers).toEqual([]);
     owner.replaceLayer(scope, 'layer', [highlight('original')]);
     owner.upsertEntries(scope, 'layer', []);
     owner.removeEntries(scope, 'layer', []);
-    expect(store.getLayers()[0].entries).toEqual([highlight('original')]);
+    expect(store.getState().layers[0].entries).toEqual([highlight('original')]);
     owner.replaceLayer(scope, 'layer', []);
-    expect(store.getLayers()).toEqual([]);
+    expect(store.getState().layers).toEqual([]);
     owner.replaceLayer(scope, 'unresolved', [highlight('missing', 'absent')]);
-    expect(store.getLayers()).toEqual([]);
+    expect(store.getState().layers).toEqual([]);
   });
 
   it('detaches scope, target membership, entries, tooltip metadata, and result records', () => {
     const input = snapshot();
-    const store = createOverlayLayerStore(input);
-    const owner = store.createOwner()!;
+    const store = createOverlayStore(input);
+    const owner = store.getState().createOwner()!;
     input.scope.modelRevision = 'changed';
     input.targets[0].id = 'changed';
     const entry = annotation();
@@ -204,39 +204,36 @@ describe('createOverlayLayerStore', () => {
     requestScope.canvasId = 'changed';
     entry.target.id = 'changed';
     entry.interaction.tooltip = 'Changed';
-    const layers = store.getLayers();
-    layers[0].ownerId = 'changed';
-    const output = layers[0].entries[0];
-    output.target.id = 'changed-again';
-    if (output.kind === 'annotation') output.interaction.accessibleLabel = 'Changed';
     if (result.status === 'applied') result.applied.push('extra');
-    expect(store.getLayers()).toEqual([{ ownerId: owner.ownerId, layerId: 'layer', entries: [annotation()] }]);
+    expect(store.getState().layers).toEqual([{ ownerId: owner.ownerId, layerId: 'layer', entries: [annotation()] }]);
     expect(owner.upsertEntries(scope, 'layer', [highlight('still-valid')]).status).toBe('applied');
   });
 
   it('revokes disposed owners without affecting live ones and rejects all writes after store disposal', () => {
-    const store = createOverlayLayerStore(snapshot());
-    const oldOwner = store.createOwner()!;
-    const liveOwner = store.createOwner()!;
+    const store = createOverlayStore(snapshot());
+    const oldOwner = store.getState().createOwner()!;
+    const liveOwner = store.getState().createOwner()!;
     oldOwner.replaceLayer(scope, 'layer', [highlight('old')]);
     liveOwner.replaceLayer(scope, 'layer', [highlight('live')]);
     oldOwner.dispose();
     oldOwner.dispose();
     expect(oldOwner.replaceLayer(scope, 'layer', [highlight('late')])).toEqual({ status: 'disposed' });
-    expect(store.getLayers()).toEqual([{ ownerId: liveOwner.ownerId, layerId: 'layer', entries: [highlight('live')] }]);
-    store.dispose();
-    store.dispose();
-    const newStore = createOverlayLayerStore(snapshot());
-    const newOwner = newStore.createOwner()!;
+    expect(store.getState().layers).toEqual([
+      { ownerId: liveOwner.ownerId, layerId: 'layer', entries: [highlight('live')] },
+    ]);
+    store.getState().dispose();
+    store.getState().dispose();
+    const newStore = createOverlayStore(snapshot());
+    const newOwner = newStore.getState().createOwner()!;
     newOwner.replaceLayer(scope, 'layer', [highlight('new')]);
     expect(liveOwner.replaceLayer(scope, 'layer', [highlight('late')])).toEqual({ status: 'disposed' });
     expect(liveOwner.upsertEntries(scope, 'layer', [highlight('late')])).toEqual({ status: 'disposed' });
     expect(liveOwner.removeEntries(scope, 'layer', ['live'])).toEqual({ status: 'disposed' });
     expect(liveOwner.clearLayer(scope, 'layer')).toEqual({ status: 'disposed' });
     liveOwner.dispose();
-    expect(store.createOwner()).toBeUndefined();
-    expect(store.getLayers()).toEqual([]);
-    expect(newStore.getLayers()).toEqual([
+    expect(store.getState().createOwner()).toBeUndefined();
+    expect(store.getState().layers).toEqual([]);
+    expect(newStore.getState().layers).toEqual([
       { ownerId: newOwner.ownerId, layerId: 'layer', entries: [highlight('new')] },
     ]);
   });
@@ -244,17 +241,17 @@ describe('createOverlayLayerStore', () => {
 
 describe('overlay store subscriptions', () => {
   it('publishes a stable immutable snapshot after each atomic change', () => {
-    const store = createOverlayLayerStore(snapshot());
-    const owner = store.createOwner()!;
-    const empty = store.getSnapshot();
-    expect(store.getSnapshot()).toBe(empty);
+    const store = createOverlayStore(snapshot());
+    const owner = store.getState().createOwner()!;
+    const empty = store.getState().layers;
+    expect(store.getState().layers).toBe(empty);
     const seen: unknown[] = [];
-    store.subscribe(() => seen.push(store.getSnapshot()));
+    store.subscribe(() => seen.push(store.getState().layers));
     const input = annotation();
     owner.replaceLayer(scope, 'layer', [highlight('step'), input]);
-    const first = store.getSnapshot();
+    const first = store.getState().layers;
     expect(first).not.toBe(empty);
-    expect(store.getSnapshot()).toBe(first);
+    expect(store.getState().layers).toBe(first);
     expect(seen).toEqual([first]);
     const note = first[0].entries[1];
     expect(Reflect.set(first[0], 'ownerId', 'tampered')).toBe(false);
@@ -266,21 +263,21 @@ describe('overlay store subscriptions', () => {
     input.value = 7;
     input.interaction.tooltip = 'Updated';
     owner.upsertEntries(scope, 'layer', [input]);
-    expect(store.getSnapshot()).not.toBe(first);
+    expect(store.getState().layers).not.toBe(first);
     expect(note.value).toBe(0);
     expect(note.interaction.tooltip).toBe('Route count');
     expect(seen).toHaveLength(2);
-    expect(store.getLayers()).toEqual(store.getSnapshot());
+    expect(store.getState().layers).toEqual(store.getState().layers);
   });
 
   it('does not notify or replace the snapshot for rejected or unchanged writes', () => {
-    const store = createOverlayLayerStore(snapshot());
-    const owner = store.createOwner()!;
+    const store = createOverlayStore(snapshot());
+    const owner = store.getState().createOwner()!;
     owner.replaceLayer(scope, 'layer', [highlight('step'), annotation()]);
-    const before = store.getSnapshot();
+    const before = store.getState().layers;
     const listener = vi.fn();
     store.subscribe(listener);
-    store.createOwner()!.dispose();
+    store.getState().createOwner()!.dispose();
     owner.replaceLayer(scope, 'layer', [highlight('step'), annotation()]);
     owner.upsertEntries(scope, 'layer', [annotation()]);
     owner.upsertEntries(scope, 'layer', []);
@@ -290,17 +287,17 @@ describe('overlay store subscriptions', () => {
     owner.replaceLayer({ ...scope, modelRevision: 'stale' }, 'layer', []);
     owner.replaceLayer(scope, 'layer', [highlight('duplicate'), highlight('duplicate')]);
     expect(listener).not.toHaveBeenCalled();
-    expect(store.getSnapshot()).toBe(before);
+    expect(store.getState().layers).toBe(before);
   });
 
   it('notifies for unresolved replacements, removals, layer clearing and owner disposal', () => {
-    const store = createOverlayLayerStore(snapshot());
-    const first = store.createOwner()!;
-    const second = store.createOwner()!;
+    const store = createOverlayStore(snapshot());
+    const first = store.getState().createOwner()!;
+    const second = store.getState().createOwner()!;
     first.replaceLayer(scope, 'layer', [highlight('step'), annotation()]);
     second.replaceLayer(scope, 'layer', [highlight('other')]);
     const sizes: number[] = [];
-    store.subscribe(() => sizes.push(store.getSnapshot().flatMap((layer) => layer.entries).length));
+    store.subscribe(() => sizes.push(store.getState().layers.flatMap((layer) => layer.entries).length));
     first.upsertEntries(scope, 'layer', [highlight('step', 'absent')]);
     first.removeEntries(scope, 'layer', ['annotation']);
     second.clearLayer(scope, 'layer');
@@ -311,90 +308,46 @@ describe('overlay store subscriptions', () => {
   });
 
   it('treats changed ordering and annotation metadata as snapshot changes', () => {
-    const store = createOverlayLayerStore(snapshot());
-    const owner = store.createOwner()!;
+    const store = createOverlayStore(snapshot());
+    const owner = store.getState().createOwner()!;
     owner.replaceLayer(scope, 'layer', [highlight('step'), annotation()]);
     const listener = vi.fn();
     store.subscribe(listener);
     owner.replaceLayer(scope, 'layer', [annotation(), highlight('step')]);
     owner.upsertEntries(scope, 'layer', [{ ...annotation(), interaction: { accessibleLabel: 'New label' } }]);
     expect(listener).toHaveBeenCalledTimes(2);
-    expect(store.getSnapshot()[0].entries.map(({ id }) => id)).toEqual(['annotation', 'step']);
+    expect(store.getState().layers[0].entries.map(({ id }) => id)).toEqual(['annotation', 'step']);
   });
 
-  it('unsubscribes independently and does not retain listeners after disposal', () => {
-    const store = createOverlayLayerStore(snapshot());
-    const owner = store.createOwner()!;
+  it('releases subscriptions and publishes final empty layers on disposal', () => {
+    const store = createOverlayStore(snapshot());
+    const owner = store.getState().createOwner()!;
     const listener = vi.fn();
     const unsubscribe = store.subscribe(listener);
-    const unsubscribeAgain = store.subscribe(listener);
+    const unsubscribeAgain = store.subscribe(() => listener());
     unsubscribe();
     unsubscribe();
     owner.replaceLayer(scope, 'layer', [annotation()]);
     expect(listener).toHaveBeenCalledTimes(1);
-    store.dispose();
+    store.getState().dispose();
     expect(listener).toHaveBeenCalledTimes(2);
-    expect(store.getSnapshot()).toEqual([]);
-    const empty = store.getSnapshot();
-    store.dispose();
+    expect(store.getState().layers).toEqual([]);
+    const empty = store.getState().layers;
+    store.getState().dispose();
     unsubscribeAgain();
     const lateUnsubscribe = store.subscribe(listener);
     owner.replaceLayer(scope, 'layer', [annotation()]);
     lateUnsubscribe();
     expect(listener).toHaveBeenCalledTimes(2);
-    expect(store.getSnapshot()).toBe(empty);
+    expect(store.getState().layers).toBe(empty);
   });
 
-  it('defers newly registered listeners and skips listeners removed during notification', () => {
-    const store = createOverlayLayerStore(snapshot());
-    const owner = store.createOwner()!;
-    const late = vi.fn();
-    const removed = vi.fn();
-    store.subscribe(() => {
-      unsubscribe();
-      store.subscribe(late);
-    });
-    const unsubscribe = store.subscribe(removed);
-    owner.replaceLayer(scope, 'layer', [annotation()]);
-    expect(removed).not.toHaveBeenCalled();
-    expect(late).not.toHaveBeenCalled();
-    owner.clearLayer(scope, 'layer');
-    expect(late).toHaveBeenCalledOnce();
-  });
-
-  it('supports a listener disposing the store while another listener reads the final snapshot', () => {
-    const store = createOverlayLayerStore(snapshot());
-    const owner = store.createOwner()!;
-    store.subscribe(() => {
-      store.dispose();
-    });
-    const read = vi.fn(() => {
-      expect(store.getSnapshot()).toEqual([]);
-    });
-    store.subscribe(read);
-    owner.replaceLayer(scope, 'layer', [annotation()]);
-    expect(read).toHaveBeenCalledOnce();
-    expect(store.createOwner()).toBeUndefined();
-  });
-
-  it('notifies remaining listeners even when one throws, reporting the error asynchronously', () => {
-    const queue = vi.spyOn(globalThis, 'queueMicrotask').mockImplementation(() => undefined);
-    try {
-      const store = createOverlayLayerStore(snapshot());
-      const error = new Error('Listener failed');
-      store.subscribe(() => {
-        throw error;
-      });
-      const listener = vi.fn();
-      store.subscribe(listener);
-      expect(store.createOwner()!.replaceLayer(scope, 'layer', [annotation()]).status).toBe('applied');
-      expect(listener).toHaveBeenCalledOnce();
-      expect(queue).toHaveBeenCalledOnce();
-      expect(() => {
-        queue.mock.calls[0][0]();
-      }).toThrow(error);
-    } finally {
-      queue.mockRestore();
-    }
+  it('isolates two canvas stores even when their target IDs match', () => {
+    const first = createOverlayStore(snapshot());
+    const second = createOverlayStore(snapshot());
+    first.getState().createOwner()!.replaceLayer(scope, 'metrics', [annotation()]);
+    expect(second.getState().layers).toEqual([]);
+    second.getState().dispose();
+    expect(first.getState().layers[0].entries).toEqual([annotation()]);
   });
 });

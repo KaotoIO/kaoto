@@ -39,6 +39,7 @@ import { NodeInteractionAddonContext } from '../../../registers/interactions/nod
 import { RenderingAnchor } from '../../../RenderingAnchor/RenderingAnchor';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
+import { CanvasNodeOverlays } from '../../Overlay/CanvasElementOverlays';
 import {
   canDragGroup,
   getDropTargetContainerClassNames,
@@ -231,6 +232,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
           onKeyDown={handleKeyDown}
           onContextMenu={onContextMenu}
         >
+          <CanvasNodeOverlays overlays={element.getData()?.overlays} bounds={boxRef.current} />
           {/** This node appears when nothing is dragging and acts as the dummy node when container is dragged*/}
           <foreignObject
             ref={dndDropRef}

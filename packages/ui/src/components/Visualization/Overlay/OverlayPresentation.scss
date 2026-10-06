@@ -93,3 +93,22 @@
     white-space: nowrap;
   }
 }
+
+.kaoto-canvas-annotations {
+  overflow: visible;
+
+  .kaoto-overlay-interaction {
+    display: flex;
+    justify-content: center;
+  }
+
+  &--start .kaoto-overlay-interaction {
+    justify-content: flex-start;
+  }
+
+  .kaoto-overlay-annotation {
+    font-size: 11px;
+    line-height: 16px;
+    font-variant-numeric: tabular-nums;
+  }
+}

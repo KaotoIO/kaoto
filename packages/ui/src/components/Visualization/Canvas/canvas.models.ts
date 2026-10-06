@@ -1,6 +1,7 @@
 import { EdgeModel, NodeModel } from '@patternfly/react-topology';
 
 import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
+import type { CanvasOverlayData } from '../Overlay/canvas-overlay-data';
 
 export const enum LayoutType {
   DagreVertical = 'DagreVertical',
@@ -11,7 +12,7 @@ export const enum LayoutType {
  * The intention of these types is to isolate the usage of the
  * underlying rendering library tokens
  */
-export interface CanvasNodeData {
+export interface CanvasNodeData extends CanvasOverlayData {
   vizNode?: IVisualizationNode;
 }
 
@@ -20,7 +21,12 @@ export interface CanvasNode extends NodeModel {
   data?: CanvasNodeData;
 }
 
+export interface CanvasEdgeData extends CanvasOverlayData {
+  [key: string]: unknown;
+}
+
 export interface CanvasEdge extends EdgeModel {
+  data?: CanvasEdgeData;
   source: string;
   target: string;
 }

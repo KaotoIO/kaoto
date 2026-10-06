@@ -1,11 +1,11 @@
 import { act, render, renderHook, screen } from '@testing-library/react';
 import { StrictMode } from 'react';
 
-import { createOverlayLayerStore } from './overlay-layer-store';
+import { createOverlayStore } from '../../../store/overlay.store';
 import { useOverlayLayers } from './use-overlay-layers';
 
 const scope = { canvasId: 'canvas', documentId: 'route.yaml', modelRevision: '1' };
-const createStore = () => createOverlayLayerStore({ scope, targets: [{ kind: 'node', id: 'step' }] });
+const createStore = () => createOverlayStore({ scope, targets: [{ kind: 'node', id: 'step' }] });
 const note = (value: number) => ({
   id: 'count',
   kind: 'annotation' as const,
@@ -17,7 +17,7 @@ const note = (value: number) => ({
 
 it('updates multiple React consumers from external writes and disposal under StrictMode', () => {
   const store = createStore();
-  const owner = store.createOwner()!;
+  const owner = store.getState().createOwner()!;
   const Consumer = () => {
     const layers = useOverlayLayers(store);
     const entry = layers[0]?.entries[0];
@@ -43,11 +43,14 @@ it('updates multiple React consumers from external writes and disposal under Str
   });
   expect(screen.getAllByText('empty')).toHaveLength(2);
   act(() => {
-    store.createOwner()!.replaceLayer(scope, 'new', [note(99)]);
+    store
+      .getState()
+      .createOwner()!
+      .replaceLayer(scope, 'new', [note(99)]);
   });
   expect(screen.getAllByText('99')).toHaveLength(2);
   act(() => {
-    store.dispose();
+    store.getState().dispose();
   });
   expect(screen.getAllByText('empty')).toHaveLength(2);
 });
@@ -55,8 +58,8 @@ it('updates multiple React consumers from external writes and disposal under Str
 it('switches stores, stops old updates and releases subscriptions on unmount', () => {
   const first = createStore();
   const second = createStore();
-  const firstOwner = first.createOwner()!;
-  const secondOwner = second.createOwner()!;
+  const firstOwner = first.getState().createOwner()!;
+  const secondOwner = second.getState().createOwner()!;
   secondOwner.replaceLayer(scope, 'metrics', [note(2)]);
   const unsubscribeSecond = vi.fn();
   const subscribeSecond = second.subscribe;
@@ -82,14 +85,14 @@ it('switches stores, stops old updates and releases subscriptions on unmount', (
   act(() => {
     firstOwner.replaceLayer(scope, 'metrics', [note(1)]);
   });
-  expect(result.current).toBe(first.getSnapshot());
+  expect(result.current).toBe(first.getState().layers);
   rerender({ store: second });
   expect(unsubscribe).toHaveBeenCalledOnce();
-  expect(result.current).toBe(second.getSnapshot());
+  expect(result.current).toBe(second.getState().layers);
   act(() => {
     firstOwner.upsertEntries(scope, 'metrics', [note(3)]);
   });
-  expect(result.current).toBe(second.getSnapshot());
+  expect(result.current).toBe(second.getState().layers);
   unmount();
   expect(unsubscribeSecond).toHaveBeenCalledOnce();
   // The hook is a subscriber; it never owns or disposes a supplied store.
@@ -106,13 +109,13 @@ it('keeps an empty snapshot stable when no store is attached', () => {
 
 it('observes a write between rendering and attaching the subscription', () => {
   const store = createStore();
-  const owner = store.createOwner()!;
+  const owner = store.getState().createOwner()!;
   const subscribe = store.subscribe;
   vi.spyOn(store, 'subscribe').mockImplementation((listener) => {
     owner.replaceLayer(scope, 'metrics', [note(42)]);
     return subscribe(listener);
   });
   const { result } = renderHook(() => useOverlayLayers(store));
-  expect(result.current).toBe(store.getSnapshot());
+  expect(result.current).toBe(store.getState().layers);
   expect(result.current[0].entries[0]).toEqual(note(42));
 });
