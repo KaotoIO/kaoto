@@ -13,7 +13,7 @@ interface OverlayBounds {
 }
 
 const highlightProps = ({ tone = 'info', emphasis = 'normal' }: OverlayAppearance) => ({
-  className: `kaoto-overlay kaoto-overlay--${tone}`,
+  className: `kaoto-overlay kaoto-overlay-tone-${tone}`,
   fill: 'none',
   stroke: 'currentColor',
   strokeWidth: { normal: 3, strong: 5, subdued: 2 }[emphasis],

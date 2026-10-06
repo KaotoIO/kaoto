@@ -15,6 +15,7 @@ export * from './components/Visualization/Canvas/controller.service';
 export * from './components/Visualization/Canvas/Form/CanvasFormBody';
 export * from './components/Visualization/Canvas/Form/fields/BeanField/NewBeanModal';
 export * from './components/Visualization/Canvas/Form/fields/ExpressionField/ExpressionField';
+export { OverlayPresentationDemo } from './components/Visualization/Overlay/demo/OverlayPresentationDemo';
 export * from './dynamic-catalog';
 export * from './dynamic-catalog/ui';
 export * from './hooks/use-visible-viz-nodes';

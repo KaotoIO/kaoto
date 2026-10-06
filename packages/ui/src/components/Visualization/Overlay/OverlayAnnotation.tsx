@@ -15,7 +15,7 @@ export const OverlayAnnotation: FunctionComponent<
   return (
     <OverlayInteraction
       key={overlayInteractionKey(entry)}
-      className={`kaoto-overlay kaoto-overlay__annotation kaoto-overlay--${entry.tone ?? 'info'} kaoto-overlay--${entry.emphasis ?? 'normal'}`}
+      className={`kaoto-overlay kaoto-overlay-annotation kaoto-overlay-tone-${entry.tone ?? 'info'} kaoto-overlay-emphasis-${entry.emphasis ?? 'normal'}`}
       interaction={{
         ...entry.interaction,
         accessibleLabel: `${entry.interaction.accessibleLabel}: ${content}`,
@@ -28,7 +28,7 @@ export const OverlayAnnotation: FunctionComponent<
         })
       }
     >
-      <span className="kaoto-overlay__text">{content}</span>
+      <span className="kaoto-overlay-text">{content}</span>
     </OverlayInteraction>
   );
 };

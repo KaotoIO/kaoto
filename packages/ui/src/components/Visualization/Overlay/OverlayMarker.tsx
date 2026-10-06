@@ -14,7 +14,7 @@ export const OverlayMarker: FunctionComponent<
   return (
     <OverlayInteraction
       key={overlayInteractionKey(entry)}
-      className={`kaoto-overlay kaoto-overlay__marker kaoto-overlay--${knownIcon ? (entry.tone ?? 'info') : 'neutral'} kaoto-overlay--${entry.emphasis ?? 'normal'}`}
+      className={`kaoto-overlay kaoto-overlay-marker kaoto-overlay-tone-${knownIcon ? (entry.tone ?? 'info') : 'neutral'} kaoto-overlay-emphasis-${entry.emphasis ?? 'normal'}`}
       interaction={{
         ...entry.interaction,
         accessibleLabel: `${entry.interaction.accessibleLabel}${knownIcon ? '' : ' (unknown marker icon)'}`,
