@@ -54,7 +54,9 @@ describe('collectDesignerOverlayTargets', () => {
     const entities = [route('route-1'), route('route-2')];
     const visible = { 'route-1': true, 'route-2': false };
     const { result } = renderHook(() => useVisibleVizNodes(entities, visible));
-    await waitFor(() => expect(result.current.isResolving).toBe(false));
+    await waitFor(() => {
+      expect(result.current.isResolving).toBe(false);
+    });
     expect(result.current.vizNodes).toHaveLength(1);
 
     const targets = await collectDesignerOverlayTargets(entities, new AbortController().signal);
@@ -92,7 +94,9 @@ describe('collectDesignerOverlayTargets', () => {
     const controller = new AbortController();
     controller.abort();
 
-    await expect(collectDesignerOverlayTargets([entity], controller.signal)).rejects.toMatchObject({ name: 'AbortError' });
+    await expect(collectDesignerOverlayTargets([entity], controller.signal)).rejects.toMatchObject({
+      name: 'AbortError',
+    });
     expect(entity.toVizNode).not.toHaveBeenCalled();
   });
 
@@ -103,11 +107,10 @@ describe('collectDesignerOverlayTargets', () => {
     vi.mocked(first.toVizNode).mockReturnValue(pending.promise);
     const controller = new AbortController();
     const collection = collectDesignerOverlayTargets([first, second], controller.signal);
-    const rejection = expect(collection).rejects.toMatchObject({ name: 'AbortError' });
     controller.abort();
     pending.resolve(flow('route-1'));
 
-    await rejection;
+    await expect(collection).rejects.toMatchObject({ name: 'AbortError' });
     expect(second.toVizNode).not.toHaveBeenCalled();
   });
 
