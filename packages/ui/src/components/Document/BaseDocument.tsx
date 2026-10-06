@@ -13,6 +13,7 @@ import { useDocumentTreeStore } from '../../store';
 import { AttachSchemaButton } from './actions/AttachSchema';
 import { DetachSchemaButton } from './actions/DetachSchemaButton';
 import { DataMapperSettingsButton } from './actions/Settings/DataMapperSettingsButton';
+import { ConnectionPort } from './ConnectionPort';
 import { NodeContainer } from './NodeContainer';
 
 // ============================================================================
@@ -158,12 +159,11 @@ export const DocumentHeader: FunctionComponent<DocumentHeaderProps> = ({
       className="document-header__container"
     >
       {!hasSchema && (
-        <span
-          className={`node__connection-port ${nodeData.isSource ? 'node__connection-port--source' : 'node__connection-port--target'}`}
-          data-testid={`connection-port-${nodeData.id}`}
-          data-connection-port="true"
-          data-node-path={nodePathString}
-          data-document-node-id={nodeData.id}
+        <ConnectionPort
+          documentNodeId={nodeData.id}
+          nodePath={nodePathString}
+          isSource={nodeData.isSource}
+          testId={`connection-port-${nodeData.id}`}
         />
       )}
       {enableDnD ? (

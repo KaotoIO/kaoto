@@ -12,6 +12,7 @@ import { DocumentNodeData } from '../../models/datamapper/visualization';
 import { TreeUIService } from '../../services/visualization/tree-ui.service';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
 import { DocumentHeader } from '../Document/BaseDocument';
+import { EdgeMarkerPort } from '../Document/EdgeMarkerPort';
 import { ParametersSection } from '../Document/Parameters';
 import { SourceDocumentNodeWithContextMenu } from '../Document/SourceDocumentNode';
 import { VariablesSection } from '../Document/Variables';
@@ -77,22 +78,10 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
   // Edge markers for virtual scroll connection ports
   const edgeMarkers = useMemo(
     () => [
-      <span
-        key="edge-top"
-        className="expansion-panel__edge-marker expansion-panel__edge-marker--top expansion-panel__edge-marker--source"
-        data-connection-port="true"
-        data-document-node-id={sourceBodyNodeData.id}
-        data-node-path={`${sourceBodyDocument.documentId}:EDGE:top`}
-      />,
-      <span
-        key="edge-bottom"
-        className="expansion-panel__edge-marker expansion-panel__edge-marker--bottom expansion-panel__edge-marker--source"
-        data-connection-port="true"
-        data-document-node-id={sourceBodyNodeData.id}
-        data-node-path={`${sourceBodyDocument.documentId}:EDGE:bottom`}
-      />,
+      <EdgeMarkerPort key="edge-top" documentNodeId={sourceBodyNodeData.id} isSource edge="top" />,
+      <EdgeMarkerPort key="edge-bottom" documentNodeId={sourceBodyNodeData.id} isSource edge="bottom" />,
     ],
-    [sourceBodyNodeData.id, sourceBodyDocument.documentId],
+    [sourceBodyNodeData.id],
   );
 
   return (

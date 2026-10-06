@@ -11,6 +11,7 @@ import { NodeData } from '../../../models/datamapper/visualization';
 import { MappingValidationService } from '../../../services/visualization/mapping-validation.service';
 import { VisualizationUtilService } from '../../../services/visualization/visualization-util.service';
 import { CommentModal } from '../actions/MappingMenu/Comment/CommentModal';
+import { ConnectionPort } from '../ConnectionPort';
 import { FieldIcon } from '../FieldIcon';
 import { FieldNodePopover } from '../FieldNodePopover';
 
@@ -104,12 +105,11 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
       style={{ '--node-rank': rank } as React.CSSProperties}
     >
       {nodePath && documentNodeId && (
-        <span
-          className={`node__connection-port ${isSource ? 'node__connection-port--source' : 'node__connection-port--target'}`}
-          data-testid={`connection-port-${dataTestId}`}
-          data-connection-port="true"
-          data-node-path={nodePath}
-          data-document-node-id={documentNodeId}
+        <ConnectionPort
+          documentNodeId={documentNodeId}
+          nodePath={nodePath}
+          isSource={isSource}
+          testId={`connection-port-${dataTestId}`}
         />
       )}
 

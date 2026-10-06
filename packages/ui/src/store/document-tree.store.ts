@@ -4,7 +4,10 @@ import { createWithEqualityFn } from 'zustand/traditional';
 
 /** [NodePath]: expansion state */
 export type TreeExpansionState = Record<string, boolean>;
-export type TreeConnectionPorts = Record<string, [number, number]>;
+export type TreeConnectionPorts = {
+  nodes: Record<string, [number, number]>;
+  edges: { top?: [number, number]; bottom?: [number, number] };
+};
 
 export interface DocumentTreeState {
   /** Map of [document node ID]: {[nodePath]: expansion state} */
@@ -90,7 +93,7 @@ export const useDocumentTreeStore = createWithEqualityFn<DocumentTreeState>()(
           },
           nodesConnectionPortsArray: {
             ...state.nodesConnectionPortsArray,
-            [documentNodeId]: Object.keys(ports).filter((nodePath) => !nodePath.includes(':EDGE:')),
+            [documentNodeId]: Object.keys(ports.nodes),
           },
         }));
       },

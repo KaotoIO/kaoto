@@ -220,7 +220,9 @@ describe('MappingLinksContainer', () => {
       ['parameters', PARAMETERS_SECTION_ANCHOR, [42, 84] as [number, number]],
       ['variables', VARIABLES_SECTION_ANCHOR, [17, 23] as [number, number]],
     ])('should resolve the registered %s section anchor port', (_name, anchor, position) => {
-      mockStoreState.nodesConnectionPorts = { [anchor.documentNodeId]: { [anchor.nodePath]: position } };
+      mockStoreState.nodesConnectionPorts = {
+        [anchor.documentNodeId]: { nodes: { [anchor.nodePath]: position }, edges: {} },
+      };
       mockGetMappingLinks.mockReturnValue([anchoredLink(anchor)]);
 
       render(<MappingLinksContainer />);
@@ -246,7 +248,10 @@ describe('MappingLinksContainer', () => {
 
     it('should pass no anchor port for a link without a section anchor', () => {
       mockStoreState.nodesConnectionPorts = {
-        [PARAMETERS_SECTION_ANCHOR.documentNodeId]: { [PARAMETERS_SECTION_ANCHOR.nodePath]: [42, 84] },
+        [PARAMETERS_SECTION_ANCHOR.documentNodeId]: {
+          nodes: { [PARAMETERS_SECTION_ANCHOR.nodePath]: [42, 84] },
+          edges: {},
+        },
       };
       mockGetMappingLinks.mockReturnValue([anchoredLink(undefined)]);
 
@@ -261,7 +266,10 @@ describe('MappingLinksContainer', () => {
 
     it('should never anchor the target end of a link', () => {
       mockStoreState.nodesConnectionPorts = {
-        [PARAMETERS_SECTION_ANCHOR.documentNodeId]: { [PARAMETERS_SECTION_ANCHOR.nodePath]: [42, 84] },
+        [PARAMETERS_SECTION_ANCHOR.documentNodeId]: {
+          nodes: { [PARAMETERS_SECTION_ANCHOR.nodePath]: [42, 84] },
+          edges: {},
+        },
       };
       mockGetMappingLinks.mockReturnValue([anchoredLink(PARAMETERS_SECTION_ANCHOR)]);
 

@@ -19,6 +19,7 @@ import { MappingContextMenuAction } from '../Document/actions/MappingMenu/Mappin
 import { XPathEditorAction } from '../Document/actions/XPathEditorAction';
 import { XPathInputAction } from '../Document/actions/XPathInputAction';
 import { DocumentHeader } from '../Document/BaseDocument';
+import { EdgeMarkerPort } from '../Document/EdgeMarkerPort';
 import { TargetDocumentNodeWithContextMenu } from '../Document/TargetDocumentNode';
 import { ExpansionPanel } from '../ExpansionPanels/ExpansionPanel';
 import { ExpansionPanels } from '../ExpansionPanels/ExpansionPanels';
@@ -82,22 +83,10 @@ export const TargetPanel: FunctionComponent = () => {
   // Edge markers for virtual scroll connection ports
   const edgeMarkers = useMemo(
     () => [
-      <span
-        key="edge-top"
-        className="expansion-panel__edge-marker expansion-panel__edge-marker--top expansion-panel__edge-marker--target"
-        data-connection-port="true"
-        data-document-node-id={targetBodyNodeData.id}
-        data-node-path={`${targetBodyDocument.documentId}:EDGE:top`}
-      />,
-      <span
-        key="edge-bottom"
-        className="expansion-panel__edge-marker expansion-panel__edge-marker--bottom expansion-panel__edge-marker--target"
-        data-connection-port="true"
-        data-document-node-id={targetBodyNodeData.id}
-        data-node-path={`${targetBodyDocument.documentId}:EDGE:bottom`}
-      />,
+      <EdgeMarkerPort key="edge-top" documentNodeId={targetBodyNodeData.id} isSource={false} edge="top" />,
+      <EdgeMarkerPort key="edge-bottom" documentNodeId={targetBodyNodeData.id} isSource={false} edge="bottom" />,
     ],
-    [targetBodyNodeData.id, targetBodyDocument.documentId],
+    [targetBodyNodeData.id],
   );
 
   const renderTargetItem = useCallback(

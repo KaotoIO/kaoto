@@ -4,9 +4,8 @@ describe('getNearestVisiblePort', () => {
   it('should return the exact port if it exists', () => {
     const options: NearestVisiblePortOptions = {
       nodesConnectionPorts: {
-        'SOURCE_BODY:customer://customer/address/zipcode': [100, 200],
-        'customer:EDGE:top': [0, 0],
-        'customer:EDGE:bottom': [0, 500],
+        nodes: { 'SOURCE_BODY:customer://customer/address/zipcode': [100, 200] },
+        edges: { top: [0, 0], bottom: [0, 500] },
       },
       nodesConnectionPortsArray: ['SOURCE_BODY:customer://customer/address/zipcode'],
       expansionState: {},
@@ -21,9 +20,8 @@ describe('getNearestVisiblePort', () => {
   it('should return parent port when child is collapsed', () => {
     const options: NearestVisiblePortOptions = {
       nodesConnectionPorts: {
-        'SOURCE_BODY:customer://customer/address': [150, 250],
-        'customer:EDGE:top': [0, 0],
-        'customer:EDGE:bottom': [0, 500],
+        nodes: { 'SOURCE_BODY:customer://customer/address': [150, 250] },
+        edges: { top: [0, 0], bottom: [0, 500] },
       },
       nodesConnectionPortsArray: ['SOURCE_BODY:customer://customer/address'],
       expansionState: {
@@ -43,9 +41,8 @@ describe('getNearestVisiblePort', () => {
   it('should walk up multiple levels to find visible ancestor', () => {
     const options: NearestVisiblePortOptions = {
       nodesConnectionPorts: {
-        'SOURCE_BODY:customer://customer': [80, 180],
-        'customer:EDGE:top': [0, 0],
-        'customer:EDGE:bottom': [0, 500],
+        nodes: { 'SOURCE_BODY:customer://customer': [80, 180] },
+        edges: { top: [0, 0], bottom: [0, 500] },
       },
       nodesConnectionPortsArray: ['SOURCE_BODY:customer://customer'],
       expansionState: {
@@ -62,9 +59,8 @@ describe('getNearestVisiblePort', () => {
   it('should return document root port when all ancestors are collapsed', () => {
     const options: NearestVisiblePortOptions = {
       nodesConnectionPorts: {
-        'SOURCE_BODY:customer://': [50, 150],
-        'customer:EDGE:top': [0, 0],
-        'customer:EDGE:bottom': [0, 500],
+        nodes: { 'SOURCE_BODY:customer://': [50, 150] },
+        edges: { top: [0, 0], bottom: [0, 500] },
       },
       nodesConnectionPortsArray: ['SOURCE_BODY:customer://'],
       expansionState: {
@@ -81,9 +77,8 @@ describe('getNearestVisiblePort', () => {
   it('should return edge bottom when no visible ancestor exists', () => {
     const options: NearestVisiblePortOptions = {
       nodesConnectionPorts: {
-        'SOURCE_BODY:other://other/field': [100, 200],
-        'customer:EDGE:top': [0, 0],
-        'customer:EDGE:bottom': [0, 500],
+        nodes: { 'SOURCE_BODY:other://other/field': [100, 200] },
+        edges: { top: [0, 0], bottom: [0, 500] },
       },
       nodesConnectionPortsArray: ['SOURCE_BODY:other://other/field'],
       expansionState: {},
@@ -98,9 +93,8 @@ describe('getNearestVisiblePort', () => {
   it('should work with target nodes', () => {
     const options: NearestVisiblePortOptions = {
       nodesConnectionPorts: {
-        'TARGET:shipment://shipment/address': [200, 300],
-        'shipment:EDGE:top': [0, 0],
-        'shipment:EDGE:bottom': [0, 500],
+        nodes: { 'TARGET:shipment://shipment/address': [200, 300] },
+        edges: { top: [0, 0], bottom: [0, 500] },
       },
       nodesConnectionPortsArray: ['TARGET:shipment://shipment/address'],
       expansionState: {
@@ -117,9 +111,8 @@ describe('getNearestVisiblePort', () => {
   it('should work with parameter nodes', () => {
     const options: NearestVisiblePortOptions = {
       nodesConnectionPorts: {
-        'SOURCE_PARAM:param1://data': [120, 220],
-        'param1:EDGE:top': [0, 0],
-        'param1:EDGE:bottom': [0, 500],
+        nodes: { 'SOURCE_PARAM:param1://data': [120, 220] },
+        edges: { top: [0, 0], bottom: [0, 500] },
       },
       nodesConnectionPortsArray: ['SOURCE_PARAM:param1://data'],
       expansionState: {
@@ -136,8 +129,8 @@ describe('getNearestVisiblePort', () => {
   it('should return edge when a primitive parameter port is scrolled out of view', () => {
     const options: NearestVisiblePortOptions = {
       nodesConnectionPorts: {
-        'p:EDGE:top': [0, 0],
-        'p:EDGE:bottom': [0, 500],
+        nodes: {},
+        edges: { top: [0, 0], bottom: [0, 500] },
       },
       nodesConnectionPortsArray: [],
       expansionState: {},
@@ -152,9 +145,8 @@ describe('getNearestVisiblePort', () => {
   it('should return node when a primitive parameter port is visible', () => {
     const options: NearestVisiblePortOptions = {
       nodesConnectionPorts: {
-        'param:p://': [120, 220],
-        'p:EDGE:top': [0, 0],
-        'p:EDGE:bottom': [0, 500],
+        nodes: { 'param:p://': [120, 220] },
+        edges: { top: [0, 0], bottom: [0, 500] },
       },
       nodesConnectionPortsArray: ['param:p://'],
       expansionState: {},
@@ -169,10 +161,11 @@ describe('getNearestVisiblePort', () => {
   it('should prefer closer ancestors over distant ones', () => {
     const options: NearestVisiblePortOptions = {
       nodesConnectionPorts: {
-        'SOURCE_BODY:customer://customer': [80, 180],
-        'SOURCE_BODY:customer://customer/address': [150, 250],
-        'customer:EDGE:top': [0, 0],
-        'customer:EDGE:bottom': [0, 500],
+        nodes: {
+          'SOURCE_BODY:customer://customer': [80, 180],
+          'SOURCE_BODY:customer://customer/address': [150, 250],
+        },
+        edges: { top: [0, 0], bottom: [0, 500] },
       },
       nodesConnectionPortsArray: ['SOURCE_BODY:customer://customer', 'SOURCE_BODY:customer://customer/address'],
       expansionState: {
@@ -194,9 +187,8 @@ describe('getNearestVisiblePort', () => {
   it('should handle empty path segments', () => {
     const options: NearestVisiblePortOptions = {
       nodesConnectionPorts: {
-        'SOURCE_BODY:doc://': [50, 150],
-        'doc:EDGE:top': [0, 0],
-        'doc:EDGE:bottom': [0, 500],
+        nodes: { 'SOURCE_BODY:doc://': [50, 150] },
+        edges: { top: [0, 0], bottom: [0, 500] },
       },
       nodesConnectionPortsArray: ['SOURCE_BODY:doc://'],
       expansionState: {},
@@ -211,9 +203,8 @@ describe('getNearestVisiblePort', () => {
   it('should handle single-level paths', () => {
     const options: NearestVisiblePortOptions = {
       nodesConnectionPorts: {
-        'SOURCE_BODY:customer://': [50, 150],
-        'customer:EDGE:top': [0, 0],
-        'customer:EDGE:bottom': [0, 500],
+        nodes: { 'SOURCE_BODY:customer://': [50, 150] },
+        edges: { top: [0, 0], bottom: [0, 500] },
       },
       nodesConnectionPortsArray: ['SOURCE_BODY:customer://'],
       expansionState: {
@@ -229,7 +220,7 @@ describe('getNearestVisiblePort', () => {
 
   it('should return [0, 0] when edge ports are not registered', () => {
     const options: NearestVisiblePortOptions = {
-      nodesConnectionPorts: {},
+      nodesConnectionPorts: { nodes: {}, edges: {} },
       nodesConnectionPortsArray: [],
       expansionState: {},
       expansionStateArray: [],
@@ -243,9 +234,8 @@ describe('getNearestVisiblePort', () => {
   it('should return edge top when node is scrolled above the visible area', () => {
     const options: NearestVisiblePortOptions = {
       nodesConnectionPorts: {
-        'SOURCE_BODY:customer://customer/phone': [100, 300],
-        'customer:EDGE:top': [0, 50],
-        'customer:EDGE:bottom': [0, 500],
+        nodes: { 'SOURCE_BODY:customer://customer/phone': [100, 300] },
+        edges: { top: [0, 50], bottom: [0, 500] },
       },
       nodesConnectionPortsArray: ['SOURCE_BODY:customer://customer/phone'],
       expansionState: {},
@@ -259,7 +249,7 @@ describe('getNearestVisiblePort', () => {
 
   it('should fall back to sectionAnchorPort for variable when section is hidden (edge markers absent)', () => {
     const options: NearestVisiblePortOptions = {
-      nodesConnectionPorts: {},
+      nodesConnectionPorts: { nodes: {}, edges: {} },
       nodesConnectionPortsArray: [],
       expansionState: {},
       expansionStateArray: [],
@@ -273,7 +263,7 @@ describe('getNearestVisiblePort', () => {
 
   it('should fall back to sectionAnchorPort when document connection ports / edge markers are missing', () => {
     const options: NearestVisiblePortOptions = {
-      nodesConnectionPorts: {},
+      nodesConnectionPorts: { nodes: {}, edges: {} },
       nodesConnectionPortsArray: [],
       expansionState: {},
       expansionStateArray: [],
