@@ -1,13 +1,15 @@
 import { useEffect, useReducer, useState } from 'react';
 
-import { OverlayEntry, OverlayLayer } from '../overlay-entries';
-import { createOverlayLayerStore } from '../overlay-layer-store';
+import { OverlayEntry } from '../overlay-entries';
+import { OverlayStoreSnapshot } from '../overlay-layer-snapshot';
+import { createOverlayLayerStore, OverlayLayerStore } from '../overlay-layer-store';
 import { OverlayScope } from '../overlay-targets';
+import { useOverlayLayers } from '../use-overlay-layers';
 
 export type DemoBranch = 'when' | 'otherwise';
 export interface DemoOverlay {
   key: string;
-  entry: OverlayEntry;
+  entry: OverlayStoreSnapshot[number]['entries'][number];
 }
 
 export const demoAnnotatedEdge = { startX: 150, endX: 250, y: 357.5 };
@@ -72,16 +74,16 @@ interface DemoActions {
   disconnectMetrics(): void;
 }
 interface DemoView {
-  layers: readonly OverlayLayer[];
+  store?: OverlayLayerStore;
   branch?: DemoBranch;
   metricsConnected: boolean;
   actions?: DemoActions;
 }
 
-/** Demo-owned operations publish detached store views. This is not a live canvas subscription API. */
+/** Fixed demo data, rendered through the same store subscription hook as future canvas consumers. */
 export function useOverlayDemo() {
   const [generation, reset] = useReducer((value: number) => value + 1, 0);
-  const [view, setView] = useState<DemoView>({ layers: [], metricsConnected: false });
+  const [view, setView] = useState<DemoView>({ metricsConnected: false });
 
   useEffect(() => {
     const store = createOverlayLayerStore({
@@ -95,31 +97,26 @@ export function useOverlayDemo() {
     const pathOwner = store.createOwner()!;
     const metricsOwner = store.createOwner()!;
     let active = true;
-    let branch: DemoBranch | undefined = 'when';
     let count = 42;
     let metricsConnected = true;
-    const publish = () => {
-      setView({ layers: store.getLayers(), branch, metricsConnected, actions: demoActions });
-    };
     const run = (operation: () => void) => {
       if (!active) return;
       operation();
-      publish();
     };
-    pathOwner.replaceLayer(scope, 'path', pathEntries(branch));
+    pathOwner.replaceLayer(scope, 'path', pathEntries('when'));
     metricsOwner.replaceLayer(scope, 'counts', countEntries(count));
     metricsOwner.replaceLayer(scope, 'timings', timingEntries);
     const demoActions: DemoActions = {
       showPath: (next) => {
         run(() => {
           pathOwner.replaceLayer(scope, 'path', pathEntries(next));
-          branch = next;
+          setView((current) => ({ ...current, branch: next }));
         });
       },
       clearPath: () => {
         run(() => {
           pathOwner.clearLayer(scope, 'path');
-          branch = undefined;
+          setView((current) => ({ ...current, branch: undefined }));
         });
       },
       updateCounts: () => {
@@ -141,18 +138,27 @@ export function useOverlayDemo() {
         run(() => {
           metricsOwner.dispose();
           metricsConnected = false;
+          setView((current) => ({ ...current, metricsConnected: false }));
         });
       },
     };
-    publish();
+    setView({ store, branch: 'when', metricsConnected: true, actions: demoActions });
     return () => {
       active = false;
       store.dispose();
     };
   }, [generation]);
 
-  const overlays: DemoOverlay[] = view.layers.flatMap(({ ownerId, layerId, entries }) =>
+  const layers = useOverlayLayers(view.store);
+  const overlays: DemoOverlay[] = layers.flatMap(({ ownerId, layerId, entries }) =>
     entries.map((entry) => ({ key: JSON.stringify([ownerId, layerId, entry.id]), entry })),
   );
-  return { ...view, overlays, reset };
+  return {
+    layers,
+    branch: view.branch,
+    metricsConnected: view.metricsConnected,
+    actions: view.actions,
+    overlays,
+    reset,
+  };
 }

@@ -1,3 +1,4 @@
+import { isEqual } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
@@ -8,6 +9,7 @@ import {
   OverlayWriteRejection,
 } from './overlay-entries';
 import { cloneOverlayEntry, validateOverlayEntries } from './overlay-entry-validation';
+import { createOverlayLayerSnapshot, OverlayStoreSnapshot } from './overlay-layer-snapshot';
 import { createOverlayTargetIndex, OverlayScope, OverlayTargetSnapshot } from './overlay-targets';
 
 export interface OverlayOwner {
@@ -22,6 +24,10 @@ export interface OverlayOwner {
 export interface OverlayLayerStore {
   createOwner(): OverlayOwner | undefined;
   getLayers(): readonly OverlayLayer[];
+  /** Stable, deeply immutable view until a visible layer change. */
+  getSnapshot(): OverlayStoreSnapshot;
+  /** Called after atomic changes; unsubscribe is idempotent. No immediate callback. */
+  subscribe(listener: () => void): () => void;
   dispose(): void;
 }
 
@@ -33,6 +39,34 @@ export function createOverlayLayerStore(snapshot: OverlayTargetSnapshot): Overla
   let index: ReturnType<typeof createOverlayTargetIndex> | undefined = createOverlayTargetIndex(snapshot);
   const owners = new Map<string, Map<string, Entries>>();
   let disposed = false;
+  const listeners = new Set<() => void>();
+  let currentSnapshot = createOverlayLayerSnapshot([]);
+
+  const getLayers = (): OverlayLayer[] => {
+    const result: OverlayLayer[] = [];
+    owners.forEach((layers, ownerId) => {
+      layers.forEach((entries, layerId) => {
+        result.push({ ownerId, layerId, entries: Array.from(entries.values(), cloneOverlayEntry) });
+      });
+    });
+    return result;
+  };
+
+  const publish = () => {
+    currentSnapshot = createOverlayLayerSnapshot(getLayers());
+    // Snapshot listeners so subscribing/unsubscribing during a notification is safe.
+    for (const listener of [...listeners]) {
+      if (!listeners.has(listener)) continue;
+      try {
+        listener();
+      } catch (error) {
+        // An observer failure must not roll back a committed write or starve other subscribers.
+        queueMicrotask(() => {
+          throw error;
+        });
+      }
+    }
+  };
 
   return {
     createOwner() {
@@ -56,8 +90,11 @@ export function createOverlayLayerStore(snapshot: OverlayTargetSnapshot): Overla
       };
 
       const commitLayer = (layerId: string, entries: Entries) => {
+        const previous = Array.from(layers.get(layerId)?.values() ?? []);
+        if (isEqual(previous, Array.from(entries.values()))) return;
         if (entries.size === 0) layers.delete(layerId);
         else layers.set(layerId, entries);
+        publish();
       };
 
       const write = (
@@ -111,32 +148,42 @@ export function createOverlayLayerStore(snapshot: OverlayTargetSnapshot): Overla
           const rejected = reject(requestScope, layerId);
           if (rejected) return rejected;
           const removed = Array.from(layers.get(layerId)?.keys() ?? []);
-          layers.delete(layerId);
+          commitLayer(layerId, new Map());
           return { status: 'applied', removed };
         },
         dispose() {
+          if (ownerDisposed) return;
           ownerDisposed = true;
+          const hadLayers = layers.size > 0;
           layers.clear();
           owners.delete(ownerId);
+          if (hadLayers) publish();
         },
       };
     },
-    getLayers() {
-      const result: OverlayLayer[] = [];
-      owners.forEach((layers, ownerId) => {
-        layers.forEach((entries, layerId) => {
-          result.push({ ownerId, layerId, entries: Array.from(entries.values(), cloneOverlayEntry) });
-        });
-      });
-      return result;
+    getLayers,
+    getSnapshot: () => currentSnapshot,
+    subscribe(listener) {
+      if (disposed) return () => undefined;
+      // Separate registrations of the same callback have independent lifetimes.
+      const subscription = () => {
+        listener();
+      };
+      listeners.add(subscription);
+      return () => {
+        listeners.delete(subscription);
+      };
     },
     dispose() {
+      if (disposed) return;
       disposed = true;
       owners.forEach((layers) => {
         layers.clear();
       });
       owners.clear();
       index = undefined;
+      if (currentSnapshot.length > 0) publish();
+      listeners.clear();
     },
   };
 }
