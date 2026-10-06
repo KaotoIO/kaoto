@@ -345,6 +345,23 @@ describe('overlay store subscriptions', () => {
     expect(store.getSnapshot()).toBe(empty);
   });
 
+  it('defers newly registered listeners and skips listeners removed during notification', () => {
+    const store = createOverlayLayerStore(snapshot());
+    const owner = store.createOwner()!;
+    const late = vi.fn();
+    const removed = vi.fn();
+    store.subscribe(() => {
+      unsubscribe();
+      store.subscribe(late);
+    });
+    const unsubscribe = store.subscribe(removed);
+    owner.replaceLayer(scope, 'layer', [annotation()]);
+    expect(removed).not.toHaveBeenCalled();
+    expect(late).not.toHaveBeenCalled();
+    owner.clearLayer(scope, 'layer');
+    expect(late).toHaveBeenCalledOnce();
+  });
+
   it('supports a listener disposing the store while another listener reads the final snapshot', () => {
     const store = createOverlayLayerStore(snapshot());
     const owner = store.createOwner()!;
