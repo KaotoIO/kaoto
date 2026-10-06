@@ -92,6 +92,65 @@ describe('createOverlayTargetSession', () => {
     expect(next.resolve(previousScope, target)).toEqual({ status: 'stale' });
   });
 
+  it('preserves a newer refresh started by a synchronous abort listener', async () => {
+    const session = createOverlayTargetSession();
+    const initialLoad = deferred();
+    const latestLoad = deferred();
+    let latestRefresh: ReturnType<OverlayTargetSession['refresh']> | undefined;
+    const initialRefresh = session.refresh('initial.yaml', (signal) => {
+      signal.addEventListener('abort', () => {
+        latestRefresh = session.refresh('latest.yaml', () => latestLoad.promise);
+      });
+      return initialLoad.promise;
+    });
+    const initialScope = getScope(session);
+    const interruptedLoader = vi.fn(async () => [target]);
+
+    const interruptedRefresh = session.refresh('interrupted.yaml', interruptedLoader);
+    const latestScope = getScope(session);
+
+    expect(latestScope.documentId).toBe('latest.yaml');
+    expect(session.getState()).toEqual({ status: 'loading', scope: latestScope });
+    expect(session.list()).toEqual([]);
+    expect(session.resolve(initialScope, target)).toEqual({ status: 'stale' });
+    expect(await interruptedRefresh).toBe('superseded');
+    expect(interruptedLoader).not.toHaveBeenCalled();
+
+    latestLoad.resolve([other]);
+    expect(await latestRefresh).toBe('applied');
+    initialLoad.resolve([target]);
+    expect(await initialRefresh).toBe('superseded');
+    expect(session.getState()).toEqual({ status: 'ready', scope: latestScope });
+    expect(session.list()).toEqual([other]);
+    expect(session.resolve(latestScope, other)).toEqual({ status: 'resolved', target: other });
+  });
+
+  it('does not start a loader after an abort listener disposes the session', async () => {
+    const session = createOverlayTargetSession();
+    const initialLoad = deferred();
+    const initialRefresh = session.refresh('initial.yaml', (signal) => {
+      signal.addEventListener('abort', () => {
+        session.dispose();
+      });
+      return initialLoad.promise;
+    });
+    const initialScope = getScope(session);
+    const interruptedLoader = vi.fn(async () => [other]);
+
+    const interruptedRefresh = session.refresh('interrupted.yaml', interruptedLoader);
+
+    expect(session.getState()).toEqual({ status: 'disposed' });
+    expect(session.list()).toEqual([]);
+    expect(session.resolve(initialScope, target)).toEqual({ status: 'disposed' });
+    expect(await interruptedRefresh).toBe('disposed');
+    expect(interruptedLoader).not.toHaveBeenCalled();
+
+    initialLoad.reject(new Error('obsolete load failed after disposal'));
+    expect(await initialRefresh).toBe('disposed');
+    expect(session.getState()).toEqual({ status: 'disposed' });
+    expect(session.list()).toEqual([]);
+  });
+
   it.each(['throw', 'reject'] as const)('reports a current loader %s and permits recovery', async (failure) => {
     const session = createOverlayTargetSession();
     await session.refresh('routes.yaml', async () => [target]);
