@@ -10,7 +10,9 @@
     font-weight: bold;
   }
 
-  p {
+  p,
+  output {
+    display: block;
     margin-block: 8px;
   }
 

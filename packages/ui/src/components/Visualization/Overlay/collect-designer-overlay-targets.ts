@@ -17,12 +17,14 @@ export async function collectDesignerOverlayTargets(
   const routes = inputs.filter(({ type }) => type === EntityType.Route).map(({ id }) => ({ id }));
   const vizNodes: IVisualizationNode[] = [];
 
-  for (const entity of inputs) {
+  // Convert sequentially so cancellation prevents starting the remaining entities.
+  await inputs.reduce(async (previous, entity) => {
+    await previous;
     signal.throwIfAborted();
     const vizNode = await entity.toVizNode();
     signal.throwIfAborted();
     vizNodes.push(vizNode);
-  }
+  }, Promise.resolve());
 
   signal.throwIfAborted();
   return collectDesignerModelTargets(buildDesignerCanvasModel(vizNodes), routes);
