@@ -65,9 +65,7 @@ const DemoNode: FunctionComponent<NodeProps> = ({
   });
   return (
     <g transform={`translate(${x} ${y})`}>
-      {decorated && (
-        <NodeOverlayHighlight bounds={{ x: 15, y: 7.5, width: 60, height: 60 }} tone="success" emphasis="strong" />
-      )}
+      {decorated && <NodeOverlayHighlight bounds={{ x: 15, y: 7.5, width: 60, height: 60 }} emphasis="strong" />}
       <g className="custom-node" data-selected={!!selected} data-warning={!!warning} data-disabled={!!disabled}>
         <CustomNodeContainer
           width={90}
@@ -135,7 +133,7 @@ export const OverlayPresentationDemo: FunctionComponent = () => {
           <OverlayAnnotation entry={annotation('route-a', { kind: 'route', id: 'route-a' }, 'Route total', 12.5)} />
         </foreignObject>
         {selectedPaths.map((path) => (
-          <EdgeOverlayHighlight key={path} path={path} tone="success" emphasis="strong" />
+          <EdgeOverlayHighlight key={path} path={path} emphasis="strong" />
         ))}
         {selectedPaths.map((path) => (
           <path key={path} d={path} className="kaoto-overlay-demo__edge" />
