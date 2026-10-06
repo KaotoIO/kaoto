@@ -241,3 +241,143 @@ describe('createOverlayLayerStore', () => {
     ]);
   });
 });
+
+describe('overlay store subscriptions', () => {
+  it('publishes a stable immutable snapshot after each atomic change', () => {
+    const store = createOverlayLayerStore(snapshot());
+    const owner = store.createOwner()!;
+    const empty = store.getSnapshot();
+    expect(store.getSnapshot()).toBe(empty);
+    const seen: unknown[] = [];
+    store.subscribe(() => seen.push(store.getSnapshot()));
+    const input = annotation();
+    owner.replaceLayer(scope, 'layer', [highlight('step'), input]);
+    const first = store.getSnapshot();
+    expect(first).not.toBe(empty);
+    expect(store.getSnapshot()).toBe(first);
+    expect(seen).toEqual([first]);
+    const note = first[0].entries[1];
+    expect(Reflect.set(first[0], 'ownerId', 'tampered')).toBe(false);
+    expect(Reflect.set(first[0].entries, '0', input)).toBe(false);
+    expect(Reflect.set(note, 'text', 'tampered')).toBe(false);
+    expect(Reflect.set(note.target, 'id', 'tampered')).toBe(false);
+    if (note.kind !== 'annotation') throw new Error('Expected annotation');
+    expect(Reflect.set(note.interaction, 'tooltip', 'tampered')).toBe(false);
+    input.value = 7;
+    input.interaction.tooltip = 'Updated';
+    owner.upsertEntries(scope, 'layer', [input]);
+    expect(store.getSnapshot()).not.toBe(first);
+    expect(note.value).toBe(0);
+    expect(note.interaction.tooltip).toBe('Route count');
+    expect(seen).toHaveLength(2);
+    expect(store.getLayers()).toEqual(store.getSnapshot());
+  });
+
+  it('does not notify or replace the snapshot for rejected or unchanged writes', () => {
+    const store = createOverlayLayerStore(snapshot());
+    const owner = store.createOwner()!;
+    owner.replaceLayer(scope, 'layer', [highlight('step'), annotation()]);
+    const before = store.getSnapshot();
+    const listener = vi.fn();
+    store.subscribe(listener);
+    store.createOwner()!.dispose();
+    owner.replaceLayer(scope, 'layer', [highlight('step'), annotation()]);
+    owner.upsertEntries(scope, 'layer', [annotation()]);
+    owner.upsertEntries(scope, 'layer', []);
+    owner.upsertEntries(scope, 'layer', [highlight('missing', 'absent')]);
+    owner.removeEntries(scope, 'layer', ['absent']);
+    owner.clearLayer(scope, 'absent');
+    owner.replaceLayer({ ...scope, modelRevision: 'stale' }, 'layer', []);
+    owner.replaceLayer(scope, 'layer', [highlight('duplicate'), highlight('duplicate')]);
+    expect(listener).not.toHaveBeenCalled();
+    expect(store.getSnapshot()).toBe(before);
+  });
+
+  it('notifies for unresolved replacements, removals, layer clearing and owner disposal', () => {
+    const store = createOverlayLayerStore(snapshot());
+    const first = store.createOwner()!;
+    const second = store.createOwner()!;
+    first.replaceLayer(scope, 'layer', [highlight('step'), annotation()]);
+    second.replaceLayer(scope, 'layer', [highlight('other')]);
+    const sizes: number[] = [];
+    store.subscribe(() => sizes.push(store.getSnapshot().flatMap((layer) => layer.entries).length));
+    first.upsertEntries(scope, 'layer', [highlight('step', 'absent')]);
+    first.removeEntries(scope, 'layer', ['annotation']);
+    second.clearLayer(scope, 'layer');
+    second.replaceLayer(scope, 'layer', [annotation()]);
+    second.dispose();
+    second.dispose();
+    expect(sizes).toEqual([2, 1, 0, 1, 0]);
+  });
+
+  it('treats changed ordering and annotation metadata as snapshot changes', () => {
+    const store = createOverlayLayerStore(snapshot());
+    const owner = store.createOwner()!;
+    owner.replaceLayer(scope, 'layer', [highlight('step'), annotation()]);
+    const listener = vi.fn();
+    store.subscribe(listener);
+    owner.replaceLayer(scope, 'layer', [annotation(), highlight('step')]);
+    owner.upsertEntries(scope, 'layer', [{ ...annotation(), interaction: { accessibleLabel: 'New label' } }]);
+    expect(listener).toHaveBeenCalledTimes(2);
+    expect(store.getSnapshot()[0].entries.map(({ id }) => id)).toEqual(['annotation', 'step']);
+  });
+
+  it('unsubscribes independently and does not retain listeners after disposal', () => {
+    const store = createOverlayLayerStore(snapshot());
+    const owner = store.createOwner()!;
+    const listener = vi.fn();
+    const unsubscribe = store.subscribe(listener);
+    const unsubscribeAgain = store.subscribe(listener);
+    unsubscribe();
+    unsubscribe();
+    owner.replaceLayer(scope, 'layer', [annotation()]);
+    expect(listener).toHaveBeenCalledTimes(1);
+    store.dispose();
+    expect(listener).toHaveBeenCalledTimes(2);
+    expect(store.getSnapshot()).toEqual([]);
+    const empty = store.getSnapshot();
+    store.dispose();
+    unsubscribeAgain();
+    const lateUnsubscribe = store.subscribe(listener);
+    owner.replaceLayer(scope, 'layer', [annotation()]);
+    lateUnsubscribe();
+    expect(listener).toHaveBeenCalledTimes(2);
+    expect(store.getSnapshot()).toBe(empty);
+  });
+
+  it('supports a listener disposing the store while another listener reads the final snapshot', () => {
+    const store = createOverlayLayerStore(snapshot());
+    const owner = store.createOwner()!;
+    store.subscribe(() => {
+      store.dispose();
+    });
+    const read = vi.fn(() => {
+      expect(store.getSnapshot()).toEqual([]);
+    });
+    store.subscribe(read);
+    owner.replaceLayer(scope, 'layer', [annotation()]);
+    expect(read).toHaveBeenCalledOnce();
+    expect(store.createOwner()).toBeUndefined();
+  });
+
+  it('notifies remaining listeners even when one throws, reporting the error asynchronously', () => {
+    const queue = vi.spyOn(globalThis, 'queueMicrotask').mockImplementation(() => undefined);
+    try {
+      const store = createOverlayLayerStore(snapshot());
+      const error = new Error('Listener failed');
+      store.subscribe(() => {
+        throw error;
+      });
+      const listener = vi.fn();
+      store.subscribe(listener);
+      expect(store.createOwner()!.replaceLayer(scope, 'layer', [annotation()]).status).toBe('applied');
+      expect(listener).toHaveBeenCalledOnce();
+      expect(queue).toHaveBeenCalledOnce();
+      expect(() => {
+        queue.mock.calls[0][0]();
+      }).toThrow(error);
+    } finally {
+      queue.mockRestore();
+    }
+  });
+});
