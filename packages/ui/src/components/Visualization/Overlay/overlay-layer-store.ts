@@ -55,7 +55,8 @@ export function createOverlayLayerStore(snapshot: OverlayTargetSnapshot): Overla
   const publish = () => {
     currentSnapshot = createOverlayLayerSnapshot(getLayers());
     // Snapshot listeners so subscribing/unsubscribing during a notification is safe.
-    for (const listener of [...listeners]) {
+    const pendingListeners = [...listeners];
+    for (const listener of pendingListeners) {
       if (!listeners.has(listener)) continue;
       try {
         listener();
