@@ -85,13 +85,15 @@ const verifyPresentation: Story['play'] = async ({ canvasElement }) => {
 
   const route = canvasElement.querySelector('.kaoto-overlay-demo__route')!;
   const routeBackground = getComputedStyle(route).fill;
-  for (const emphasis of ['normal', 'strong', 'subdued']) {
-    const annotation = canvasElement.querySelector(`[aria-label="warning ${emphasis} annotation: Count 42"]`)!;
-    const style = getComputedStyle(annotation);
-    // Check annotation text and its emphasis border on both demo surfaces.
-    await expect(contrast(style.color, style.backgroundColor)).toBeGreaterThanOrEqual(4.5);
-    await expect(contrast(style.borderTopColor, style.backgroundColor)).toBeGreaterThanOrEqual(3);
-    await expect(contrast(style.borderTopColor, routeBackground)).toBeGreaterThanOrEqual(3);
+  for (const tone of ['neutral', 'info', 'success', 'warning', 'error']) {
+    for (const emphasis of ['normal', 'strong', 'subdued']) {
+      const annotation = canvasElement.querySelector(`[aria-label="${tone} ${emphasis} annotation: Count 42"]`)!;
+      const style = getComputedStyle(annotation);
+      // Check annotation text and its emphasis border on both demo surfaces.
+      await expect(contrast(style.color, style.backgroundColor)).toBeGreaterThanOrEqual(4.5);
+      await expect(contrast(style.borderTopColor, style.backgroundColor)).toBeGreaterThanOrEqual(3);
+      await expect(contrast(style.borderTopColor, routeBackground)).toBeGreaterThanOrEqual(3);
+    }
   }
 };
 
