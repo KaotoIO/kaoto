@@ -36,3 +36,52 @@
     }
   }
 }
+
+.kaoto-overlay__interaction {
+  display: inline-flex;
+  max-width: 100%;
+}
+
+.kaoto-overlay.kaoto-overlay__marker,
+.kaoto-overlay.kaoto-overlay__annotation {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: 1px solid var(--kaoto-overlay-color);
+  border-radius: 6px;
+  background: var(--pf-t--global--background--color--primary--default);
+  padding: 4px;
+
+  &:focus-visible {
+    outline: 2px solid var(--pf-t--global--color--brand--default);
+    outline-offset: 2px;
+  }
+
+  &.kaoto-overlay--strong {
+    border-width: 3px;
+  }
+
+  &.kaoto-overlay--subdued {
+    border-style: dashed;
+  }
+}
+
+.kaoto-overlay.kaoto-overlay__marker {
+  min-width: 32px;
+  min-height: 32px;
+}
+
+.kaoto-overlay.kaoto-overlay__annotation {
+  min-height: 28px;
+  max-width: 160px;
+  color: var(--pf-t--global--text--color--regular);
+  padding-inline: 8px;
+}
+
+.kaoto-overlay__text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
