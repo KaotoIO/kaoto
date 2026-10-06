@@ -1,27 +1,47 @@
 .kaoto-overlay {
-  --kaoto-overlay-color: var(--pf-t--global--color--status--info--default);
+  // Carbon support colors, scoped to overlays; no Carbon runtime dependency.
+  // https://www.carbondesignsystem.com/building-blocks/foundations/color/tokens
+  --kaoto-overlay-color: #0043ce; // Blue 70 (info)
 
   color: var(--kaoto-overlay-color);
 
+  :where(.pf-v6-theme-dark) & {
+    --kaoto-overlay-color: #4589ff; // Blue 50
+  }
+
   &-tone-neutral {
-    --kaoto-overlay-color: var(--pf-t--global--text--color--subtle);
+    --kaoto-overlay-color: #6f6f6f; // Gray 60
+
+    :where(.pf-v6-theme-dark) & {
+      --kaoto-overlay-color: #a8a8a8; // Gray 40
+    }
   }
 
   &-tone-success {
-    --kaoto-overlay-color: var(--pf-t--global--color--status--success--default);
+    // Green 60 retains 3:1 contrast on the light gray route surface.
+    --kaoto-overlay-color: #198038;
+
+    :where(.pf-v6-theme-dark) & {
+      --kaoto-overlay-color: #42be65; // Green 40
+    }
   }
 
   &-tone-warning {
-    // The default yellow has insufficient contrast on light canvas surfaces.
-    --kaoto-overlay-color: var(--pf-t--global--color--status--warning--400);
+    // Yellow 60 keeps thin borders visible on light canvas surfaces.
+    // Carbon's support-warning Yellow 30 is used on dark surfaces.
+    --kaoto-overlay-color: #8e6a00;
 
     :where(.pf-v6-theme-dark) & {
-      --kaoto-overlay-color: var(--pf-t--global--color--status--warning--default);
+      --kaoto-overlay-color: #f1c21b;
     }
   }
 
   &-tone-error {
-    --kaoto-overlay-color: var(--pf-t--global--color--status--danger--default);
+    --kaoto-overlay-color: #da1e28; // Red 60
+
+    :where(.pf-v6-theme-dark) & {
+      --kaoto-overlay-color: #fa4d56; // Red 50
+    }
   }
 }
 
