@@ -41,6 +41,8 @@ export default defineConfig({
       'react-dom': fileURLToPath(new URL('../../node_modules/react-dom', import.meta.url)),
       // Use native ESM build to avoid CJS interop issues in wrapper.mjs
       uuid: fileURLToPath(new URL('../../node_modules/uuid/dist/esm-node/index.js', import.meta.url)),
+      // For linking forms
+      '@kaoto/forms': fileURLToPath(new URL('../forms/src/index.ts', import.meta.url)),
     },
   },
   resolve: {

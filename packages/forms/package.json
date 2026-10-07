@@ -21,9 +21,18 @@
   "types": "./dist/index.d.ts",
   "main": "dist/index.js",
   "exports": {
-    ".": "./dist/index.js",
-    "./testing": "./dist/testing.js",
-    "./testing/page-object": "./dist/testing/KaotoFormPageObject.js"
+    ".": {
+      "source": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./testing": {
+      "source": "./src/testing.ts",
+      "default": "./dist/testing.js"
+    },
+    "./testing/page-object": {
+      "source": "./src/testing/KaotoFormPageObject.ts",
+      "default": "./dist/testing/KaotoFormPageObject.js"
+    }
   },
   "files": [
     "dist"
