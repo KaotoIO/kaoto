@@ -27,7 +27,7 @@ export const MessageTemplateActions: FunctionComponent<MessageTemplateActionsPro
   onRememberFile,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const readerRef = useRef<FileReader | null>(null);
+  const importRequestRef = useRef<symbol | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isImporting, setIsImporting] = useState(false);
   const [isNamingExport, setIsNamingExport] = useState(false);
@@ -40,7 +40,7 @@ export const MessageTemplateActions: FunctionComponent<MessageTemplateActionsPro
     .trim();
   const invalidExportName =
     /[<>:"/\\|?*]/.test(exportBaseName) ||
-    [...exportBaseName].some((character) => character.charCodeAt(0) < 32) ||
+    [...exportBaseName].some((character) => (character.codePointAt(0) ?? 32) < 32) ||
     exportBaseName === '.' ||
     exportBaseName === '..';
   const exportUnavailable = disabled || isImporting || (value.bodyType === 'file' && !value.bodyFile);
@@ -51,11 +51,8 @@ export const MessageTemplateActions: FunctionComponent<MessageTemplateActionsPro
 
   useEffect(
     () => () => {
-      const reader = readerRef.current;
-      if (reader) {
-        reader.onload = null;
-        reader.onerror = null;
-        reader.abort();
+      if (importRequestRef.current) {
+        importRequestRef.current = null;
         onImportingChange(false);
       }
     },
@@ -84,39 +81,29 @@ export const MessageTemplateActions: FunctionComponent<MessageTemplateActionsPro
     }
   };
 
-  const handleImport = (file: File) => {
-    if (disabled || isImporting) return;
+  const handleImport = async (file: File) => {
+    if (disabled || importRequestRef.current) return;
+    const request = Symbol();
+    importRequestRef.current = request;
     setError(null);
     setIsImporting(true);
     onImportingChange(true);
-    const reader = new FileReader();
-    readerRef.current = reader;
-    const finish = () => {
-      readerRef.current = null;
-      setIsImporting(false);
-      onImportingChange(false);
-    };
-    const fail = () => {
-      setError('The message file could not be read.');
-      finish();
-    };
-    reader.onload = () => {
-      try {
-        if (typeof reader.result !== 'string') throw new Error('The message file could not be read.');
-        onImport(parseMessageTemplate(reader.result));
-        // Keep an in-memory copy so quicklinks do not depend on the original file on disk.
-        onRememberFile?.(new File([reader.result], file.name, { type: file.type, lastModified: file.lastModified }));
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'The message could not be imported.');
-      } finally {
-        finish();
-      }
-    };
-    reader.onerror = fail;
     try {
-      reader.readAsText(file);
-    } catch {
-      fail();
+      const content = await file.text();
+      if (importRequestRef.current !== request) return;
+      onImport(parseMessageTemplate(content));
+      // Keep an in-memory copy so quicklinks do not depend on the original file on disk.
+      onRememberFile?.(new File([content], file.name, { type: file.type, lastModified: file.lastModified }));
+    } catch (err) {
+      if (importRequestRef.current === request) {
+        setError(err instanceof Error ? err.message : 'The message could not be imported.');
+      }
+    } finally {
+      if (importRequestRef.current === request) {
+        importRequestRef.current = null;
+        setIsImporting(false);
+        onImportingChange(false);
+      }
     }
   };
 
@@ -201,7 +188,7 @@ export const MessageTemplateActions: FunctionComponent<MessageTemplateActionsPro
               aria-label={`Import ${file.name}`}
               title={file.name}
               onClick={() => {
-                handleImport(file);
+                void handleImport(file);
               }}
             >
               <span>{file.name}</span>
@@ -217,7 +204,7 @@ export const MessageTemplateActions: FunctionComponent<MessageTemplateActionsPro
         onChange={(event) => {
           const file = event.target.files?.[0];
           event.target.value = '';
-          if (file) handleImport(file);
+          if (file) void handleImport(file);
         }}
         data-testid="send-message-template-input"
       />

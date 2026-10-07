@@ -17,7 +17,7 @@ export interface ICamelMessagePayload {
   endpoint: string;
   body?: string;
   bodyType?: MessageBodyType;
-  bodyEncoding?: 'base64' | string;
+  bodyEncoding?: string;
   bodyFile?: IMessageFileBody;
   headers?: Record<string, string>;
 }

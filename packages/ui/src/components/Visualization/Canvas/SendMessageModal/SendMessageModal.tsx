@@ -33,6 +33,25 @@ export interface SendMessageModalProps {
 let uniqueIdCounter = 0;
 const generateId = (prefix: string) => `${prefix}-${Date.now()}-${++uniqueIdCounter}`;
 
+const mergeFileHeaders = (previous: IHeaderEntry[], file: File): IHeaderEntry[] => {
+  const fileHeaders = [
+    { key: 'CamelFileName', value: file.name },
+    { key: 'CamelFileLength', value: file.size.toString() },
+    { key: 'CamelFileLastModified', value: file.lastModified.toString() },
+  ];
+  if (file.type) fileHeaders.push({ key: 'CamelFileContentType', value: file.type });
+  const updated = [...previous];
+  for (const { key, value } of fileHeaders) {
+    const index = updated.findIndex((header) => header.key === key);
+    if (index >= 0) {
+      updated[index] = { ...updated[index], value };
+    } else {
+      updated.push({ id: generateId('header'), key, value });
+    }
+  }
+  return updated;
+};
+
 export const SendMessageModal: FunctionComponent<SendMessageModalProps> = ({
   'data-testid': dataTestId = 'send-message-modal',
 }) => {
@@ -53,6 +72,14 @@ export const SendMessageModal: FunctionComponent<SendMessageModalProps> = ({
   const [headers, setHeaders] = useState<IHeaderEntry[]>([]);
   const [isImportingMessage, setIsImportingMessage] = useState(false);
   const [formatError, setFormatError] = useState<string | null>(null);
+  const bodyTextRequestRef = useRef<symbol | null>(null);
+
+  useEffect(
+    () => () => {
+      bodyTextRequestRef.current = null;
+    },
+    [isOpen, options],
+  );
 
   const headerTypes = useMemo(
     () => new Map(headersCatalog.map((header) => [header.name, header.javaType])),
@@ -142,20 +169,22 @@ export const SendMessageModal: FunctionComponent<SendMessageModalProps> = ({
     fileInputRef.current?.click();
   }, []);
 
-  const handleFileImported = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+  const handleFileImported = useCallback(async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const content = e.target?.result;
-        if (typeof content === 'string') {
-          setBody(content);
-          setFormatError(null);
-        }
-      };
-      reader.readAsText(file);
-    }
     event.target.value = '';
+    if (!file) return;
+    const request = Symbol();
+    bodyTextRequestRef.current = request;
+    try {
+      const content = await file.text();
+      if (bodyTextRequestRef.current !== request) return;
+      setBody(content);
+      setFormatError(null);
+    } catch {
+      if (bodyTextRequestRef.current === request) setFormatError('The text file could not be read.');
+    } finally {
+      if (bodyTextRequestRef.current === request) bodyTextRequestRef.current = null;
+    }
   }, []);
 
   // Body file selection handler (sets file itself as the Message Body)
@@ -178,28 +207,7 @@ export const SendMessageModal: FunctionComponent<SendMessageModalProps> = ({
             size: file.size,
           });
 
-          // Pre-populate Camel File Headers (Exchange constants)
-          const autoHeaders: Array<{ key: string; value: string }> = [
-            { key: 'CamelFileName', value: file.name },
-            { key: 'CamelFileLength', value: file.size.toString() },
-            { key: 'CamelFileLastModified', value: file.lastModified.toString() },
-          ];
-          if (file.type) {
-            autoHeaders.push({ key: 'CamelFileContentType', value: file.type });
-          }
-
-          setHeaders((prev) => {
-            const updated = [...prev];
-            autoHeaders.forEach(({ key, value }) => {
-              const existingIdx = updated.findIndex((h) => h.key === key);
-              if (existingIdx >= 0) {
-                updated[existingIdx] = { ...updated[existingIdx], value };
-              } else {
-                updated.push({ id: generateId('header'), key, value });
-              }
-            });
-            return updated;
-          });
+          setHeaders((previous) => mergeFileHeaders(previous, file));
         }
       };
       reader.readAsDataURL(file);
