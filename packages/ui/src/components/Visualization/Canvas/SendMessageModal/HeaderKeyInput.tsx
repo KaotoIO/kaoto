@@ -25,7 +25,7 @@ export const HeaderKeyInput: FunctionComponent<HeaderKeyInputProps> = ({
 
   // Filter headers based on user typing
   const filteredHeaders = useMemo(() => {
-    if (!value || !value.trim()) {
+    if (!value.trim()) {
       return headersCatalog.slice(0, 50); // Show top 50 by default when empty
     }
     const search = value.toLowerCase().trim();
@@ -119,6 +119,7 @@ export const HeaderKeyInput: FunctionComponent<HeaderKeyInputProps> = ({
                 <div
                   key={header.name}
                   role="option"
+                  tabIndex={-1}
                   aria-selected={isHighlighted}
                   className={`header-key-input__item ${isHighlighted ? 'header-key-input__item--highlighted' : ''}`}
                   onMouseDown={(e) => {

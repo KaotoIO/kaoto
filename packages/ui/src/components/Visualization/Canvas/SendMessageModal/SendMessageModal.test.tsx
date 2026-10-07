@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useEffect } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -34,6 +34,21 @@ describe('SendMessageModal', () => {
   };
 
   beforeEach(() => {
+    // JSDOM lacks File.text(); adapt its FileReader for browser API tests.
+    vi.stubGlobal(
+      'File',
+      class extends File {
+        text(): Promise<string> {
+          return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+              resolve(reader.result as string);
+            };
+            reader.readAsText(this);
+          });
+        }
+      },
+    );
     vi.clearAllMocks();
     mockCatalog.getAll.mockResolvedValue({
       kafka: {
@@ -107,6 +122,7 @@ describe('SendMessageModal', () => {
   });
 
   afterEach(() => {
+    vi.unstubAllGlobals();
     DynamicCatalogRegistry.get().clearRegistry();
   });
 
@@ -146,6 +162,42 @@ describe('SendMessageModal', () => {
     fireEvent.click(deleteBtn);
 
     expect(screen.queryByPlaceholderText('Header key')).not.toBeInTheDocument();
+  });
+
+  it('imports a text file and preserves the draft on read errors', async () => {
+    renderWithProvider({ endpoint: 'direct:orders', initialBody: 'original' });
+    const input = screen.getByTestId('send-message-file-import-input');
+    fireEvent.change(input, { target: { files: [new File(['imported text'], 'body.txt')] } });
+    await waitFor(() => expect(screen.getByTestId('send-message-body-textarea')).toHaveValue('imported text'));
+    vi.spyOn(File.prototype, 'text').mockRejectedValue(new Error('read failed'));
+    fireEvent.change(input, { target: { files: [new File([''], 'broken.txt')] } });
+    await screen.findByText('The text file could not be read.');
+    expect(screen.getByTestId('send-message-body-textarea')).toHaveValue('imported text');
+  });
+
+  it('does not apply a pending text import to a reopened dialog', async () => {
+    let finishRead: (value: string) => void = () => {};
+    vi.spyOn(File.prototype, 'text').mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          finishRead = resolve;
+        }),
+    );
+    const { rerender } = renderWithProvider({ endpoint: 'direct:first' });
+    fireEvent.change(screen.getByTestId('send-message-file-import-input'), {
+      target: { files: [new File(['late text'], 'body.txt')] },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    rerender(
+      <SendMessageModalProvider>
+        <OpenModalHelper options={{ endpoint: 'direct:second', initialBody: 'new draft' }} />
+        <SendMessageModal />
+      </SendMessageModalProvider>,
+    );
+    await act(async () => {
+      finishRead('late text');
+    });
+    expect(screen.getByTestId('send-message-body-textarea')).toHaveValue('new draft');
   });
 
   it('formats JSON correctly', () => {

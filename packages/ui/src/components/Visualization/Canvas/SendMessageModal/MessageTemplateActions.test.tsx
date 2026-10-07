@@ -1,5 +1,5 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { MessageTemplateActions } from './MessageTemplateActions';
 
@@ -13,6 +13,18 @@ const readText = (blob: Blob): Promise<string> =>
     };
     reader.readAsText(blob);
   });
+
+beforeEach(() => {
+  // JSDOM does not implement File.text(). Keep real FileReader support for the test adapter.
+  vi.stubGlobal(
+    'File',
+    class extends File {
+      text() {
+        return readText(this);
+      }
+    },
+  );
+});
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -126,7 +138,7 @@ describe('MessageTemplateActions', () => {
   });
 
   it('disables recent imports while sending or reading another file', () => {
-    vi.spyOn(FileReader.prototype, 'readAsText').mockImplementation(() => {});
+    vi.spyOn(File.prototype, 'text').mockImplementation(() => new Promise(() => {}));
     const props = {
       value: draft,
       onImport: vi.fn(),
@@ -142,9 +154,7 @@ describe('MessageTemplateActions', () => {
   });
 
   it('reports file read errors without importing anything', async () => {
-    vi.spyOn(FileReader.prototype, 'readAsText').mockImplementation(function (this: FileReader) {
-      this.dispatchEvent(new ProgressEvent('error'));
-    });
+    vi.spyOn(File.prototype, 'text').mockRejectedValue(new Error('The message file could not be read.'));
     const onImport = vi.fn();
     render(<MessageTemplateActions value={draft} onImport={onImport} onImportingChange={vi.fn()} />);
     fireEvent.change(screen.getByTestId('send-message-template-input'), {
@@ -154,19 +164,35 @@ describe('MessageTemplateActions', () => {
     expect(onImport).not.toHaveBeenCalled();
   });
 
-  it('aborts pending reads when the dialog closes', () => {
-    vi.spyOn(FileReader.prototype, 'readAsText').mockImplementation(() => {});
-    const abort = vi.spyOn(FileReader.prototype, 'abort');
+  it('ignores a pending read after the dialog closes', async () => {
+    let finishRead: (value: string) => void = () => {};
+    vi.spyOn(File.prototype, 'text').mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          finishRead = resolve;
+        }),
+    );
     const onImport = vi.fn();
+    const onRememberFile = vi.fn();
+    const onImportingChange = vi.fn();
     const { unmount } = render(
-      <MessageTemplateActions value={draft} onImport={onImport} onImportingChange={vi.fn()} />,
+      <MessageTemplateActions
+        value={draft}
+        onImport={onImport}
+        onImportingChange={onImportingChange}
+        onRememberFile={onRememberFile}
+      />,
     );
     fireEvent.change(screen.getByTestId('send-message-template-input'), {
       target: { files: [new File([''], 'x.json')] },
     });
     unmount();
-    expect(abort).toHaveBeenCalledOnce();
+    await act(async () => {
+      finishRead(JSON.stringify(template));
+    });
     expect(onImport).not.toHaveBeenCalled();
+    expect(onRememberFile).not.toHaveBeenCalled();
+    expect(onImportingChange).toHaveBeenLastCalledWith(false);
   });
 
   it('disables export until file mode has a file body', () => {
