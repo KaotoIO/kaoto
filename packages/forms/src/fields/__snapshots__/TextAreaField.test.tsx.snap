@@ -104,13 +104,7 @@ exports[`TextAreaField > should render 1`] = `
         >
           <div
             class="cds--text-area__label-wrapper"
-          >
-            <label
-              class="cds--label"
-              dir="auto"
-              for="#"
-            />
-          </div>
+          />
           <div
             class="cds--text-area__wrapper"
           >

@@ -1,3 +1,4 @@
+import { Stack } from '@carbon/react';
 import { FunctionComponent, useContext } from 'react';
 
 import { FieldProps } from '../../models/typings';
@@ -13,7 +14,7 @@ export const ObjectFieldInner: FunctionComponent<ObjectFieldInnerProps> = ({ pro
   const { schema } = useContext(SchemaContext);
 
   return (
-    <>
+    <Stack gap={5}>
       {Object.entries(schema.properties ?? {})
         .filter(([_, propertySchema]) => {
           /** Remove empty properties like `csimple: {}` */
@@ -29,6 +30,6 @@ export const ObjectFieldInner: FunctionComponent<ObjectFieldInnerProps> = ({ pro
             </SchemaProvider>
           );
         })}
-    </>
+    </Stack>
   );
 };

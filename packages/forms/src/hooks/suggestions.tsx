@@ -94,7 +94,7 @@ export const useSuggestions = ({
   );
 
   const getHandleMenuKeyDown = useCallback(
-    (inputValue: string | number, suggestion?: Suggestion, isFirst?: boolean) => (event: React.KeyboardEvent) => {
+    (inputValue: string | number, suggestion?: Suggestion, _isFirst?: boolean) => (event: React.KeyboardEvent) => {
       if (event.key === 'Enter' && suggestion) {
         event.preventDefault();
         getHandleOnClick(inputValue, suggestion)();

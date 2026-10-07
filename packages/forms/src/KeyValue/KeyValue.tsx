@@ -49,7 +49,7 @@ export const KeyValue: FunctionComponent<KeyValueProps> = ({ propName, initialMo
     updateModel(newModel);
   };
 
-  const onPropertyKeyChange = (index: number, key: string, newKey: string) => {
+  const onPropertyKeyChange = (index: number, _key: string, newKey: string) => {
     internalModel.at(index)![0] = newKey;
     updateModel([...internalModel]);
   };

@@ -22,7 +22,7 @@ describe('SuggestionRegistryProvider', () => {
 
     const provider = {
       id: 'testProvider',
-      appliesTo: (propertyName: string, schema: JSONSchema4) => true,
+      appliesTo: (_propertyName: string, _schema: JSONSchema4) => true,
       getSuggestions: () => [],
     };
 
@@ -48,13 +48,13 @@ describe('SuggestionRegistryProvider', () => {
 
     const stringProvider = {
       id: 'stringProvider',
-      appliesTo: (propertyName: string, schema: JSONSchema4) => schema.type === 'string',
+      appliesTo: (_propertyName: string, schema: JSONSchema4) => schema.type === 'string',
       getSuggestions: () => [],
     };
 
     const numberProvider = {
       id: 'numberProvider',
-      appliesTo: (propertyName: string, schema: JSONSchema4) => schema.type === 'number',
+      appliesTo: (_propertyName: string, schema: JSONSchema4) => schema.type === 'number',
       getSuggestions: () => [],
     };
 
