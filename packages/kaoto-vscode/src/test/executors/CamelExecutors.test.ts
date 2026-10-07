@@ -111,7 +111,7 @@ suite('Executor Implementation Tests', () => {
 
 		setup(() => {
 			// Create a mock launcher executable for testing
-			const testDir = path.join(__dirname, '..', '..', '..', 'test-launcher');
+			const testDir = path.join(__dirname, '..', 'test-launcher');
 			if (!fs.existsSync(testDir)) {
 				fs.mkdirSync(testDir, { recursive: true });
 			}
@@ -134,7 +134,7 @@ suite('Executor Implementation Tests', () => {
 
 		teardown(() => {
 			// Cleanup test launcher
-			const testDir = path.join(__dirname, '..', '..', '..', 'test-launcher');
+			const testDir = path.join(__dirname, '..', 'test-launcher');
 			if (fs.existsSync(testDir)) {
 				fs.rmSync(testDir, { recursive: true, force: true });
 			}

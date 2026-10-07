@@ -10,7 +10,7 @@ suite('CamelLauncherDownloader Tests', () => {
 
 	setup(() => {
 		// Create a temporary storage path for testing
-		testStoragePath = path.join(__dirname, '..', '..', '..', 'test-storage');
+		testStoragePath = path.join(__dirname, '..', 'test-storage');
 		if (!fs.existsSync(testStoragePath)) {
 			fs.mkdirSync(testStoragePath, { recursive: true });
 		}
@@ -32,7 +32,7 @@ suite('CamelLauncherDownloader Tests', () => {
 	});
 
 	test('Should create storage directory if it does not exist', () => {
-		const newStoragePath = path.join(__dirname, '..', '..', '..', 'new-test-storage');
+		const newStoragePath = path.join(__dirname, '..', 'new-test-storage');
 
 		// Remove if exists
 		if (fs.existsSync(newStoragePath)) {

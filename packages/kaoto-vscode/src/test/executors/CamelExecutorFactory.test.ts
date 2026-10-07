@@ -14,7 +14,7 @@ suite('CamelExecutorFactory Tests', () => {
 	suiteSetup(async () => {
 		await initializeKaotoCatalogService();
 
-		testStoragePath = path.join(__dirname, '..', '..', '..', 'test-factory-storage');
+		testStoragePath = path.join(__dirname, '..', 'test-factory-storage');
 		if (!fs.existsSync(testStoragePath)) {
 			fs.mkdirSync(testStoragePath, { recursive: true });
 		}

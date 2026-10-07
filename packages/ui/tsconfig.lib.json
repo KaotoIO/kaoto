@@ -5,6 +5,7 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
+    "rootDir": "./src",
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -26,11 +27,16 @@
     "noFallthroughCasesInSwitch": true,
 
     /* Typings */
-    "types": [
-      "@testing-library/jest-dom",
-    ]
+    "types": ["@testing-library/jest-dom"]
   },
-  "include": ["src/public-api.ts", "src/models-api.ts", "src/testing-api.ts","src/components-api.ts", "src/global.d.ts", "src/vite-env.d.ts"],
+  "include": [
+    "src/public-api.ts",
+    "src/models-api.ts",
+    "src/testing-api.ts",
+    "src/components-api.ts",
+    "src/global.d.ts",
+    "src/vite-env.d.ts"
+  ],
   "exclude": ["src/**/*.test.tsx", "src/**/*.test.ts", "src/**/stubs/**"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
