@@ -11,7 +11,7 @@ processes via WebSocket, and drives them through a REST API.
   to the connected worker and waits for an acknowledgement (up to 10 s by default).
 - Streams events from the worker back to the IDE as Server-Sent Events (`GET /v1/executions/{id}/events`).
 - Exposes `/v1/info` for health / version checks.
-- Prints `KAOTO_COMPANION_PORT=<port>` to stdout once ready so the host process can discover the
+- Prints `KAOTO_KOMPANION_PORT=<port>` to stdout once ready so the host process can discover the
   port when started with `quarkus.http.port=0`.
 
 ## Package layout

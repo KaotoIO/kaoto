@@ -105,33 +105,37 @@ public class CommandResource {
 
         // Use the connectionId from the same snapshot to guard against a reconnect between encoding and sending.
         var future = registry.sendCommand(executionId, channel.connectionId(), correlationId, jsonFrame);
+        if (command instanceof KompanionCommand.CmdConnectorAction c) {
+            // a breakpoint added by a client belongs to its subscription, whether the answer comes within the ack
+            // timeout (200) or later, while the client polls (202)
+            future.thenAccept(ack -> demand.actionDone(executionId, subscriptionId, c.action(), ack.success()));
+        }
 
         try {
-            var ack = future.orTimeout(ackTimeout.toMillis(), TimeUnit.MILLISECONDS)
-                    .join();
+            // wait with get(timeout), not orTimeout: the future must stay open for an answer after the ack timeout
+            var ack = future.get(ackTimeout.toMillis(), TimeUnit.MILLISECONDS);
             // answered with the result: nobody can poll it (the correlationId is only in this answer)
             registry.forget(executionId, correlationId);
-            if (command instanceof KompanionCommand.CmdConnectorAction c) {
-                // a breakpoint added by a client belongs to its subscription
-                demand.actionDone(executionId, subscriptionId, c.action(), ack.success());
-            }
             return Response.ok(CommandResult.acked(correlationId, ack.success(), ack.detail()))
                     .build();
-        } catch (Exception e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof TimeoutException || e instanceof TimeoutException) {
-                // kept for polling
-                return Response.status(202)
-                        .entity(CommandResult.pending(correlationId))
-                        .build();
-            }
+        } catch (TimeoutException e) {
+            // kept for polling
+            return Response.status(202)
+                    .entity(CommandResult.pending(correlationId))
+                    .build();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             registry.forget(executionId, correlationId);
+            return errorResponse(503, "Interrupted while waiting for the answer of execution " + executionId);
+        } catch (ExecutionException e) {
+            registry.forget(executionId, correlationId);
+            Throwable cause = e.getCause();
             if (cause instanceof IllegalStateException) {
                 // worker disconnected or reconnected between encoding and sending
                 return errorResponse(404, "No active execution: " + executionId);
             }
-            LOG.errorf("Command failed for execution=%s corr=%s: %s", executionId, correlationId, e.getMessage());
-            return errorResponse(500, e.getMessage());
+            LOG.errorf("Command failed for execution=%s corr=%s: %s", executionId, correlationId, cause.getMessage());
+            return errorResponse(500, cause.getMessage());
         }
     }
 

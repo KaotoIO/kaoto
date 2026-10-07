@@ -2,11 +2,20 @@ package io.kaoto.kompanion.api;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.kaoto.kompanion.worker.ExecutionEventBus;
 import io.kaoto.kompanion.worker.WorkerProtocol;
 import io.kaoto.kompanion.worker.WorkerRegistry;
 import io.quarkus.test.junit.QuarkusTest;
+import io.smallrye.mutiny.helpers.test.AssertSubscriber;
 import jakarta.inject.Inject;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
@@ -14,6 +23,9 @@ class CommandResourceTest {
 
     @Inject
     WorkerRegistry registry;
+
+    @Inject
+    ExecutionEventBus eventBus;
 
     @Test
     void postCommandToUnknownExecutionReturns404() {
@@ -321,5 +333,82 @@ class CommandResourceTest {
                 .statusCode(404);
 
         registry.unregister(executionId, "test-conn-forget");
+    }
+
+    @Test
+    void breakpointAddedByACommandAnsweredAfterTheAckTimeoutIsOwnedByTheSubscription() throws Exception {
+        breakpointAnsweredAfterTheAckTimeout("cmd-breakpoint-202", false);
+    }
+
+    @Test
+    void breakpointAddedByACommandAnsweredAfterTheClientLeftIsRemovedAtOnce() throws Exception {
+        breakpointAnsweredAfterTheAckTimeout("cmd-breakpoint-202-gone", true);
+    }
+
+    /**
+     * A debug add sent with a subscription is answered 202 (no ack within the timeout), then acked; the breakpoint is
+     * the subscription's, so it is removed once the client is gone, whether it left before or after the ack.
+     */
+    private void breakpointAnsweredAfterTheAckTimeout(String executionId, boolean leaveBeforeAck) throws Exception {
+        String connectionId = "test-conn-" + executionId;
+        ObjectMapper mapper = new ObjectMapper();
+        List<JsonNode> frames = new CopyOnWriteArrayList<>();
+        eventBus.open(executionId, connectionId);
+        // a connector that answers nothing by itself: the add is acked once the POST answered 202
+        registry.register(executionId, connectionId, frame -> {
+            try {
+                frames.add(mapper.readTree(frame));
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        });
+        registry.protocolDetected(executionId, connectionId, WorkerProtocol.CONNECTOR);
+        AssertSubscriber<String> client = eventBus.eventsFor(
+                        executionId, null, new ExecutionEventBus.Filter(Set.of("status"), null))
+                .map(ExecutionEventBus.LogEvent::json)
+                .subscribe()
+                .withSubscriber(AssertSubscriber.create(100));
+        String subscriptionId =
+                mapper.readTree(client.getItems().get(0)).path("subscriptionId").asText();
+
+        String correlationId = given().contentType("application/json")
+                .header("X-Kompanion-Subscription", subscriptionId)
+                .body("{\"type\":\"camel.cmd.connector.action\",\"action\":{\"action\":\"debug\",\"command\":\"add\","
+                        + "\"breakpoint\":\"log-order\"}}")
+                .when()
+                .post("/v1/executions/" + executionId + "/commands")
+                .then()
+                .statusCode(202)
+                .extract()
+                .path("correlationId");
+        if (leaveBeforeAck) {
+            client.cancel();
+        }
+        registry.receiveAck(executionId, correlationId, true, "ok");
+        given().when()
+                .get("/v1/executions/" + executionId + "/commands/" + correlationId)
+                .then()
+                .statusCode(200)
+                .body("status", is("acked"));
+        if (!leaveBeforeAck) {
+            client.cancel();
+        }
+
+        // the client is gone: the breakpoint it added goes with it
+        JsonNode remove = null;
+        long deadline = System.currentTimeMillis() + 3000;
+        while (remove == null && System.currentTimeMillis() < deadline) {
+            remove = frames.stream()
+                    .map(f -> f.path("action"))
+                    .filter(a -> "remove".equals(a.path("command").asText()))
+                    .findFirst()
+                    .orElse(null);
+            Thread.sleep(10);
+        }
+        assertNotNull(remove, () -> "breakpoint not removed: " + frames);
+        assertEquals("log-order", remove.path("breakpoint").asText());
+
+        eventBus.close(executionId, connectionId);
+        registry.unregister(executionId, connectionId);
     }
 }

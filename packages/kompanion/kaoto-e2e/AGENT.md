@@ -6,7 +6,7 @@ internal classes are imported.
 
 ## What is tested
 
-- Companion startup handshake — reads `KAOTO_COMPANION_PORT=<port>` from stdout and verifies
+- Companion startup handshake — reads `KAOTO_KOMPANION_PORT=<port>` from stdout and verifies
   `/v1/info` returns a valid response.
 - `/v1/executions` (POST) — verifies the MVP endpoint accepts a workload spec and returns `202 Accepted`.
 - `/v1/worker/connect` (WebSocket) — verifies the companion accepts a raw WebSocket connection
