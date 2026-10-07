@@ -1,3 +1,4 @@
+import { CatalogKind } from '@kaoto/editor-api';
 import {
   CanvasFormTabsProvider,
   FormComponentFactoryProvider,
@@ -8,7 +9,7 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import { FunctionComponent, PropsWithChildren, useState } from 'react';
 import type { Mock } from 'vitest';
 
-import { CatalogKind, KaotoSchemaDefinition } from '../../../../../../models';
+import { KaotoSchemaDefinition } from '../../../../../../models';
 import { MultiValuePropertyService } from './MultiValueProperty.service';
 import { MultiValuePropertyEditor } from './MultiValuePropertyEditor';
 

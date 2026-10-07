@@ -1,4 +1,6 @@
-import { CatalogKind, ICamelProcessorDefinition } from '../models';
+import { CatalogKind } from '@kaoto/editor-api';
+
+import { ICamelProcessorDefinition } from '../models';
 
 export const logModel: ICamelProcessorDefinition = {
   model: {

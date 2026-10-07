@@ -1,10 +1,10 @@
+import { CatalogKind } from '@kaoto/editor-api';
 import { MockInstance } from 'vitest';
 
 import { DynamicCatalogRegistry } from '../../../../../dynamic-catalog/dynamic-catalog-registry';
 import { IDynamicCatalogRegistry } from '../../../../../dynamic-catalog/models';
 import { ICamelComponentDefinition } from '../../../../camel/camel-components-catalog';
 import { ICamelProcessorDefinition } from '../../../../camel/camel-processors-catalog';
-import { CatalogKind } from '../../../../catalog-kind';
 import { CatalogResolverFactory } from './catalog-resolver.factory';
 
 describe('CatalogResolverFactory', () => {

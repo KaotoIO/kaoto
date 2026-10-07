@@ -1,6 +1,8 @@
+import { CanvasLayoutDirection, ColorScheme, NodeLabelType, NodeToolbarTrigger } from '@kaoto/editor-api';
+
 import { LocalStorageKeys } from '../local-storage-keys';
 import { LocalStorageSettingsAdapter } from './localstorage-settings-adapter';
-import { CanvasLayoutDirection, ColorScheme, NodeLabelType, NodeToolbarTrigger, SettingsModel } from './settings.model';
+import { SettingsModel } from './settings.model';
 
 describe('LocalStorageSettingsAdapter', () => {
   beforeEach(() => {

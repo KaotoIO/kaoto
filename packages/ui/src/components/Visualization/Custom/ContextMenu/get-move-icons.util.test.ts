@@ -1,3 +1,4 @@
+import { CatalogKind } from '@kaoto/editor-api';
 import {
   AngleDoubleDownIcon,
   AngleDoubleLeftIcon,
@@ -9,7 +10,6 @@ import {
   ArrowUpIcon,
 } from '@patternfly/react-icons';
 
-import { CatalogKind } from '../../../../models';
 import { IVisualizationNode, IVisualizationNodeData } from '../../../../models/visualization/base-visual-entity';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { LayoutType } from '../../Canvas/canvas.models';

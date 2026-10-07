@@ -4,7 +4,7 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { CamelRouteResource } from '../../models/camel/camel-route-resource';
 import { KaotoResource } from '../../models/kaoto-resource';
-import { AbstractSettingsAdapter } from '../../models/settings/settings.model';
+import { AbstractSettingsAdapter } from '../../models/settings';
 import { EntitiesContextResult, SettingsContext } from '../../providers';
 import { TestProvidersWrapper } from '../../stubs/TestProvidersWrapper';
 import { useRestDslImportWizard } from './useRestDslImportWizard';

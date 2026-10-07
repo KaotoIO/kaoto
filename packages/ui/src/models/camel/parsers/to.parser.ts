@@ -1,8 +1,8 @@
 import { To } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
 import { CamelUriHelper } from '../../../utils/camel-uri-helper';
-import { CatalogKind } from '../../catalog-kind';
 
 type ToObject = Extract<To, object>;
 interface ParsedToObject extends ToObject {

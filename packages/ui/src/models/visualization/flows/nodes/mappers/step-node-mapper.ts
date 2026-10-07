@@ -1,7 +1,7 @@
 import { ProcessorDefinition, Step } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 
 import { DATAMAPPER_ID_PREFIX, getValue } from '../../../../../utils';
-import { CatalogKind } from '../../../../catalog-kind';
 import { IVisualizationNode, IVisualizationNodeData, IVisualizationNodeIds } from '../../../base-visual-entity';
 import { NodeIdentity } from '../../../node-identity';
 import { createVisualizationNode } from '../../../visualization-node';

@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import { BeanFactory } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
-import { CatalogKind } from '../../../models';
 import { ElementType, StepXmlSerializer } from './step-xml-serializer';
 
 export class BeansXmlSerializer {

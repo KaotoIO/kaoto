@@ -1,8 +1,8 @@
 import { DoCatch, ProcessorDefinition, When1 } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 import { safeGetValue } from '@kaoto/forms';
 
 import { CamelUriHelper, getValue } from '../../../../../utils';
-import { CatalogKind } from '../../../../catalog-kind';
 import { PlaceholderType } from '../../../../placeholder.constants';
 import { SPECIAL_PROCESSORS_PARENTS_MAP } from '../../../../special-processors.constants';
 import { IVisualizationNode, IVisualizationNodeData, IVisualizationNodeIds } from '../../../base-visual-entity';

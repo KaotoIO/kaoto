@@ -16,5 +16,5 @@
     "resolveJsonModule": true,
     "outDir": "out"
   },
-  "include": ["src/test"]
+  "include": ["src", "../editor-api/src"]
 }

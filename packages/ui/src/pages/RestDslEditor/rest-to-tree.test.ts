@@ -1,5 +1,6 @@
+import { CatalogKind } from '@kaoto/editor-api';
+
 import { CamelResourceFactory } from '../../models/camel/camel-resource-factory';
-import { CatalogKind } from '../../models/catalog-kind';
 import { KaotoResource } from '../../models/kaoto-resource';
 import { CamelRestConfigurationVisualEntity } from '../../models/visualization/flows/camel-rest-configuration-visual-entity';
 import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';

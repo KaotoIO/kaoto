@@ -1,7 +1,7 @@
+import { FileTypes, FileTypesResponse } from '@kaoto/editor-api';
 import { parse } from 'yaml';
 
 import { IKameletDefinition } from '../../models/camel/kamelets-catalog';
-import { FileTypes, FileTypesResponse } from '../../models/file-types';
 import { ICatalogProvider } from '../models';
 
 export class CamelKameletsProvider implements ICatalogProvider<IKameletDefinition> {

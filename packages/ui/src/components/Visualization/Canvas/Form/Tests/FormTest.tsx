@@ -1,10 +1,11 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 import { KaotoForm } from '@kaoto/forms';
 import { render } from '@testing-library/react';
 
 import { DynamicCatalogRegistry } from '../../../../../dynamic-catalog/dynamic-catalog-registry';
-import { CatalogKind, KaotoSchemaDefinition } from '../../../../../models';
+import { KaotoSchemaDefinition } from '../../../../../models';
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../../../stubs/test-load-catalog';
 import { getSchemasSlice } from './get-schemas-slices';
 

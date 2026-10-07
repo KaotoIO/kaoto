@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import { Rest } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
-import { CatalogKind } from '../../../models';
 import { REST_DSL_VERBS, REST_ELEMENT_NAME } from '../../../models/special-processors.constants';
 import { StepXmlSerializer } from './step-xml-serializer';
 

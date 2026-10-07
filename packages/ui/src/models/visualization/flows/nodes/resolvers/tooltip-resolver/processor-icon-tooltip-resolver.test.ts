@@ -1,9 +1,9 @@
+import { CatalogKind } from '@kaoto/editor-api';
 import { MockInstance } from 'vitest';
 
 import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
 import { IDynamicCatalogRegistry } from '../../../../../../dynamic-catalog/models';
 import { ICamelProcessorDefinition } from '../../../../../camel/camel-processors-catalog';
-import { CatalogKind } from '../../../../../catalog-kind';
 import { ProcessorIconTooltipResolver } from './processor-icon-tooltip-resolver';
 
 describe('ProcessorIconTooltipResolver', () => {

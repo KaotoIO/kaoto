@@ -1,11 +1,12 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 import { screen, waitFor } from '@testing-library/dom';
 import { act, render } from '@testing-library/react';
 
 import { CatalogContext } from '../../dynamic-catalog/catalog.provider';
 import { DynamicCatalogRegistry } from '../../dynamic-catalog/dynamic-catalog-registry';
-import { CatalogKind, ICamelComponentDefinition, ICamelProcessorDefinition, IKameletDefinition } from '../../models';
+import { ICamelComponentDefinition, ICamelProcessorDefinition, IKameletDefinition } from '../../models';
 import {
   getFirstCatalogMap,
   getFirstCitrusCatalogMap,

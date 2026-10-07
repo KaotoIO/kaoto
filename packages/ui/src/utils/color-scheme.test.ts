@@ -1,4 +1,5 @@
-import { ColorScheme } from '../models';
+import { ColorScheme } from '@kaoto/editor-api';
+
 import { DARK_MODE_PATTERN_FLY_CLASS_NAME, isDarkModeEnabled, setColorScheme } from './color-scheme';
 
 describe('color-scheme utilities', () => {

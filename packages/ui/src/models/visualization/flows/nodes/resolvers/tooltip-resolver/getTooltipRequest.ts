@@ -1,4 +1,5 @@
-import { CatalogKind } from '../../../../../catalog-kind';
+import { CatalogKind } from '@kaoto/editor-api';
+
 import { NodeTooltipResolver } from './node-tooltip-resolver';
 
 /**

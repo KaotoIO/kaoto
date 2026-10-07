@@ -1,8 +1,8 @@
 import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 import { parse } from 'yaml';
 
 import { IKameletDefinition } from '../../../../camel/kamelets-catalog';
-import { CatalogKind } from '../../../../catalog-kind';
 import { IVisualizationNode } from '../../../base-visual-entity';
 import { KameletVisualEntity } from '../../kamelet-visual-entity';
 import { RootNodeMapper } from '../root-node-mapper';

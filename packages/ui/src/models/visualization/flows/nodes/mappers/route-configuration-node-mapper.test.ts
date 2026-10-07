@@ -1,6 +1,6 @@
 import { ProcessorDefinition, RouteConfigurationDefinition } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 
-import { CatalogKind } from '../../../../catalog-kind';
 import { RootNodeMapper } from '../root-node-mapper';
 import { BaseNodeMapper } from './base-node-mapper';
 import { RouteConfigurationNodeMapper } from './route-configuration-node-mapper';

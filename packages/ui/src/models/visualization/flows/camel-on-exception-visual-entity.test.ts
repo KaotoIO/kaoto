@@ -1,7 +1,7 @@
 import { OnException } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 
 import { mockRandomValues } from '../../../stubs';
-import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities/base-entity';
 import { IVisualizationNodeData } from '../base-visual-entity';
 import { CamelOnExceptionVisualEntity } from './camel-on-exception-visual-entity';

@@ -1,3 +1,4 @@
+import { CatalogKind } from '@kaoto/editor-api';
 import { isDefined } from '@kaoto/forms';
 import { parse, stringify } from 'yaml';
 
@@ -5,7 +6,6 @@ import { ITile, TileFilter } from '../../components/Catalog';
 import { DynamicCatalogRegistry } from '../../dynamic-catalog/dynamic-catalog-registry';
 import { EntityOrderingService } from '../camel/entity-ordering.service';
 import { SourceSchemaType } from '../camel/source-schema-type';
-import { CatalogKind } from '../catalog-kind';
 import { BaseEntity, EntityType } from '../entities';
 import { BaseVisualEntityDefinition, KaotoResource } from '../kaoto-resource';
 import { KaotoSchemaDefinition } from '../kaoto-schema';

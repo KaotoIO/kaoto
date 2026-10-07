@@ -1,6 +1,7 @@
+import { CatalogKind } from '@kaoto/editor-api';
 import { render, screen } from '@testing-library/react';
 
-import { CatalogKind, createVisualizationNode, IVisualizationNode } from '../../../../models';
+import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { CustomNodeContainer } from './CustomNodeContainer';
 
 const makeVizNode = (name: string, description: string) => {

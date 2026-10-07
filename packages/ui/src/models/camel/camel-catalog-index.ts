@@ -4,8 +4,8 @@ import {
   KaotoFunction,
   KaotoFunctionArgument,
 } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 
-import { CatalogKind } from '../catalog-kind';
 import { ICitrusComponentDefinition } from '../citrus/citrus-catalog';
 import { ICamelComponentDefinition } from './camel-components-catalog';
 import { ICamelDataformatDefinition } from './camel-dataformats-catalog';

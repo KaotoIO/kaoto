@@ -1,10 +1,10 @@
 import './PropertiesModal.scss';
 
+import { CatalogKind } from '@kaoto/editor-api';
 import { Modal, ModalBody, ModalHeader, Tab, Tabs } from '@patternfly/react-core';
 import { FunctionComponent, ReactElement, useContext, useEffect, useState } from 'react';
 
 import { CatalogContext } from '../../dynamic-catalog/catalog.provider';
-import { CatalogKind } from '../../models/catalog-kind';
 import { ITile } from '../Catalog';
 import { Loading } from '../Loading';
 import {

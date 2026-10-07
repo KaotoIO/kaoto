@@ -1,5 +1,6 @@
+import { CatalogKind } from '@kaoto/editor-api';
+
 import { ITile, TileFilter } from '../../../../components/Catalog/Catalog.models';
-import { CatalogKind } from '../../../catalog-kind';
 import {
   REST_DSL_VERBS,
   REST_ELEMENT_NAME,

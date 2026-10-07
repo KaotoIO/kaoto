@@ -1,6 +1,12 @@
+import {
+  CanvasLayoutDirection,
+  ColorScheme,
+  ISettingsModel,
+  NodeLabelType,
+  NodeToolbarTrigger,
+} from '@kaoto/editor-api';
 import { EditorInitArgs, KogitoEditorEnvelopeContextType } from '@kie-tools-core/editor/dist/api';
 
-import { CanvasLayoutDirection, ColorScheme, ISettingsModel, NodeLabelType, NodeToolbarTrigger } from '../models';
 import { KaotoEditorApp } from './KaotoEditorApp';
 import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
 import { KaotoEditorFactory } from './KaotoEditorFactory';

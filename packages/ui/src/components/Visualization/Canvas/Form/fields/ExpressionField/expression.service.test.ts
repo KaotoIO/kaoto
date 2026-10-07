@@ -1,9 +1,10 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 
 import { DynamicCatalog } from '../../../../../../dynamic-catalog/dynamic-catalog';
 import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
-import { CatalogKind, KaotoSchemaDefinition } from '../../../../../../models';
+import { KaotoSchemaDefinition } from '../../../../../../models';
 import { getFirstCatalogMap } from '../../../../../../stubs/test-load-catalog';
 import { ExpressionService } from './expression.service';
 

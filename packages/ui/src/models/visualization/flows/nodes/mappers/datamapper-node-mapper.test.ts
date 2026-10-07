@@ -1,11 +1,11 @@
 import { Step } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 
 import {
   datamapperRouteDefinitionStub,
   twoDataMapperRouteDefinitionStub,
 } from '../../../../../stubs/datamapper/data-mapper';
 import { DATAMAPPER_ID_PREFIX } from '../../../../../utils';
-import { CatalogKind } from '../../../../catalog-kind';
 import { RootNodeMapper } from '../root-node-mapper';
 import { DataMapperNodeMapper } from './datamapper-node-mapper';
 import { noopNodeMapper } from './testing/noop-node-mapper';

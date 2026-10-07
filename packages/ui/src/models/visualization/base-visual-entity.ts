@@ -1,7 +1,8 @@
+import { NodeLabelType } from '@kaoto/editor-api';
+
 import { DefinedComponent } from '../camel/camel-catalog-index';
 import { BaseEntity, EntityType } from '../entities';
 import { KaotoSchemaDefinition } from '../kaoto-schema';
-import { NodeLabelType } from '../settings/settings.model';
 import { IClipboardContent } from '../visualization/clipboard';
 import { NodeIdentity } from './node-identity';
 

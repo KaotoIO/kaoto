@@ -1,8 +1,5 @@
-import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
+import { CatalogKind, StepUpdateAction, Suggestion, SuggestionRequestContext } from '@kaoto/editor-api';
 import { createContext, FunctionComponent, PropsWithChildren } from 'react';
-
-import { StepUpdateAction } from '../models';
-import { CatalogKind } from '../models/catalog-kind';
 
 export interface IMetadataApi {
   /**

@@ -1,6 +1,6 @@
+import { CatalogKind } from '@kaoto/editor-api';
 import type { MockInstance } from 'vitest';
 
-import { CatalogKind } from '../../../../../catalog-kind';
 import { getIconRequest } from './getIconRequest';
 import { NodeIconResolver } from './node-icon-resolver';
 
