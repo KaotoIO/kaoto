@@ -47,40 +47,22 @@ describe('Canvas', () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
   });
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   afterAll(() => {
     vi.useRealTimers();
   });
 
-  it('should render correctly', async () => {
+  async function renderCanvas() {
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    const { Provider } = await TestProvidersWrapper();
-    const vizNode = await entity.toVizNode();
 
-    const result = render(
-      <Provider>
-        <VisualizationProvider controller={ControllerService.createController()}>
-          <Canvas {...getCanvasPropsFromVizNodes([vizNode], 1)} />
-        </VisualizationProvider>
-      </Provider>,
-    );
-
-    await act(async () => {
-      await vi.runAllTimersAsync();
-    });
-
-    await waitFor(async () => {
-      expect(screen.getByText('Reset View')).toBeInTheDocument();
-    });
-    expect(result?.asFragment()).toMatchSnapshot();
-  });
-
-  it('should clear the selection when Escape is pressed on the canvas', async () => {
-    vi.spyOn(console, 'error').mockImplementation(() => {});
     const { Provider } = await TestProvidersWrapper();
     const vizNode = await entity.toVizNode();
     const controller = ControllerService.createController();
 
-    const { container } = render(
+    const result = render(
       <Provider>
         <VisualizationProvider controller={controller}>
           <Canvas {...getCanvasPropsFromVizNodes([vizNode], 1)} />
@@ -91,6 +73,21 @@ describe('Canvas', () => {
     await act(async () => {
       await vi.runAllTimersAsync();
     });
+
+    return { ...result, Provider, vizNode, controller };
+  }
+
+  it('should render correctly', async () => {
+    const result = await renderCanvas();
+
+    await waitFor(async () => {
+      expect(screen.getByText('Reset View')).toBeInTheDocument();
+    });
+    expect(result.asFragment()).toMatchSnapshot();
+  });
+
+  it('should clear the selection when Escape is pressed on the canvas', async () => {
+    const { container, controller } = await renderCanvas();
 
     // Fire the SELECTION_EVENT so the Canvas useEventListener hook updates its React state —
     // this opens the Drawer (sideBarOpen=true → Drawer isExpanded=true → pf-m-expanded CSS class)
@@ -111,23 +108,8 @@ describe('Canvas', () => {
   });
 
   it('should move focus to the search input when sidebar opens', async () => {
-    vi.spyOn(console, 'error').mockImplementation(() => {});
     const focusSpy = vi.spyOn(HTMLElement.prototype, 'focus');
-    const { Provider } = await TestProvidersWrapper();
-    const vizNode = await entity.toVizNode();
-    const controller = ControllerService.createController();
-
-    render(
-      <Provider>
-        <VisualizationProvider controller={controller}>
-          <Canvas {...getCanvasPropsFromVizNodes([vizNode], 1)} />
-        </VisualizationProvider>
-      </Provider>,
-    );
-
-    await act(async () => {
-      await vi.runAllTimersAsync();
-    });
+    const { controller } = await renderCanvas();
 
     // Open sidebar by selecting the timer `from` step — this resolves to a real vizNode
     act(() => {
@@ -148,26 +130,10 @@ describe('Canvas', () => {
     expect(searchInput).toHaveFocus();
     // The drawer is still animating in, so focusing must not scroll its container (canvas jump)
     expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
-    focusSpy.mockRestore();
   });
 
   it('should restore focus to the canvas container when the sidebar is closed via clearSelection', async () => {
-    vi.spyOn(console, 'error').mockImplementation(() => {});
-    const { Provider } = await TestProvidersWrapper();
-    const vizNode = await entity.toVizNode();
-    const controller = ControllerService.createController();
-
-    const { container } = render(
-      <Provider>
-        <VisualizationProvider controller={controller}>
-          <Canvas {...getCanvasPropsFromVizNodes([vizNode], 1)} />
-        </VisualizationProvider>
-      </Provider>,
-    );
-
-    await act(async () => {
-      await vi.runAllTimersAsync();
-    });
+    const { container, controller } = await renderCanvas();
 
     // Open sidebar by selecting the timer `from` step — this resolves to a real vizNode
     act(() => {
@@ -196,22 +162,7 @@ describe('Canvas', () => {
   });
 
   it('should restore focus to the selected canvas node when closing the sidebar', async () => {
-    vi.spyOn(console, 'error').mockImplementation(() => {});
-    const { Provider } = await TestProvidersWrapper();
-    const vizNode = await entity.toVizNode();
-    const controller = ControllerService.createController();
-
-    const { container } = render(
-      <Provider>
-        <VisualizationProvider controller={controller}>
-          <Canvas {...getCanvasPropsFromVizNodes([vizNode], 1)} />
-        </VisualizationProvider>
-      </Provider>,
-    );
-
-    await act(async () => {
-      await vi.runAllTimersAsync();
-    });
+    const { container, controller } = await renderCanvas();
 
     // Inject a fake canvas <g> element with the expected testid for route.from
     const fakeNode = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -241,12 +192,11 @@ describe('Canvas', () => {
     });
 
     expect(fakeNode).toHaveFocus();
-
-    // Clean up
-    container.removeChild(fakeNode);
   });
 
   it('should schedule a graph.fit(80) upon loading', async () => {
+    // Cannot use renderCanvas() here: fitSpy and layoutSpy must be installed on controller.getGraph()
+    // *after* render but *before* runAllTimersAsync — a timing requirement the helper does not support.
     vi.spyOn(console, 'error').mockImplementation(() => {});
     const { Provider } = await TestProvidersWrapper();
     const vizNode = await entity.toVizNode();
@@ -588,8 +538,6 @@ describe('Canvas', () => {
       fireEvent.click(horizontalButton);
 
       expect(localStorageSetItemSpy).toHaveBeenCalledWith(LocalStorageKeys.CanvasLayout, LayoutType.DagreHorizontal);
-
-      localStorageSetItemSpy.mockRestore();
     });
 
     it('should update localStorage when vertical layout button is clicked', async () => {
@@ -626,8 +574,6 @@ describe('Canvas', () => {
       fireEvent.click(verticalButton);
 
       expect(localStorageSetItemSpy).toHaveBeenCalledWith(LocalStorageKeys.CanvasLayout, LayoutType.DagreVertical);
-
-      localStorageSetItemSpy.mockRestore();
     });
 
     it.each([CanvasLayoutDirection.Horizontal, CanvasLayoutDirection.Vertical])(

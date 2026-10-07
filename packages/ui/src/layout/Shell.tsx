@@ -22,6 +22,7 @@ export const Shell: FunctionComponent<PropsWithChildren> = (props) => {
 
   const [isNavOpen, setIsNavOpen] = useLocalStorage(LocalStorageKeys.NavigationExpanded, defaultNavState);
 
+  /** Toggles the side navigation open/closed state. */
   const navToggle = useCallback(() => {
     setIsNavOpen(!isNavOpen);
   }, [isNavOpen, setIsNavOpen]);

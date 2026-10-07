@@ -39,6 +39,56 @@ describe('CustomNode', () => {
     vi.restoreAllMocks();
   });
 
+  const renderCustomNode = async (props?: {
+    selected?: boolean;
+    onSelect?: () => void;
+    onContextMenu?: () => void;
+    description?: string;
+  }) => {
+    const vizNode = createVisualizationNode('route.from.steps.0.log', {
+      name: 'log',
+      path: 'route.from.steps.0.log',
+      isPlaceholder: false,
+      isGroup: false,
+      title: '',
+      description: props?.description ?? '',
+      iconUrl: '',
+    }) as IVisualizationNode;
+    vi.spyOn(vizNode, 'getNodeLabel').mockReturnValue('log');
+    vi.spyOn(vizNode, 'getNodeValidationText').mockResolvedValue(undefined);
+    vi.spyOn(vizNode, 'canDragNode').mockReturnValue(false);
+    vi.spyOn(vizNode, 'canDropOnNode').mockReturnValue(false);
+
+    const parentElement = new BaseGraph();
+    const element = new BaseNode();
+    const controller = ControllerService.createController();
+    parentElement.setController(controller);
+    element.setController(controller);
+    element.setParent(parentElement);
+    vi.spyOn(element, 'getData').mockReturnValue({ vizNode });
+    vi.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
+    vi.spyOn(element, 'getId').mockReturnValue('node-log');
+
+    const { Provider } = await TestProvidersWrapper();
+
+    const result = render(
+      <Provider>
+        <VisualizationProvider controller={controller}>
+          <ElementContext.Provider value={element}>
+            <CustomNodeObserver
+              element={element}
+              selected={props?.selected}
+              onSelect={props?.onSelect}
+              onContextMenu={props?.onContextMenu}
+            />
+          </ElementContext.Provider>
+        </VisualizationProvider>
+      </Provider>,
+    );
+
+    return { ...result, vizNode, element, controller };
+  };
+
   it('should throw when element is not a Node', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     const edgeElement = new BaseEdge();
@@ -73,41 +123,7 @@ describe('CustomNode', () => {
   });
 
   it('should render node container with label from vizNode', async () => {
-    const vizNode = createVisualizationNode('route.from.steps.0.log', {
-      name: 'log',
-      path: 'route.from.steps.0.log',
-      isPlaceholder: false,
-      isGroup: false,
-      title: '',
-      description: '',
-      iconUrl: '',
-    }) as IVisualizationNode;
-    vi.spyOn(vizNode, 'getNodeLabel').mockReturnValue('log');
-    vi.spyOn(vizNode, 'getNodeValidationText').mockResolvedValue(undefined);
-    vi.spyOn(vizNode, 'canDragNode').mockReturnValue(false);
-    vi.spyOn(vizNode, 'canDropOnNode').mockReturnValue(false);
-
-    const parentElement = new BaseGraph();
-    const element = new BaseNode();
-    const controller = ControllerService.createController();
-    parentElement.setController(controller);
-    element.setController(controller);
-    element.setParent(parentElement);
-    vi.spyOn(element, 'getData').mockReturnValue({ vizNode });
-    vi.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
-    vi.spyOn(element, 'getId').mockReturnValue('node-log');
-
-    const { Provider } = await TestProvidersWrapper();
-
-    render(
-      <Provider>
-        <VisualizationProvider controller={controller}>
-          <ElementContext.Provider value={element}>
-            <CustomNodeObserver element={element} />
-          </ElementContext.Provider>
-        </VisualizationProvider>
-      </Provider>,
-    );
+    await renderCustomNode();
 
     const node = screen.getByTestId('custom-node__route.from.steps.0.log');
     expect(node).toBeInTheDocument();
@@ -140,41 +156,7 @@ describe('CustomNode', () => {
   });
 
   it('should have tabIndex=-1 when not selected', async () => {
-    const vizNode = createVisualizationNode('route.from.steps.0.log', {
-      name: 'log',
-      path: 'route.from.steps.0.log',
-      isPlaceholder: false,
-      isGroup: false,
-      title: '',
-      description: 'Log step',
-      iconUrl: '',
-    }) as IVisualizationNode;
-    vi.spyOn(vizNode, 'getNodeLabel').mockReturnValue('log');
-    vi.spyOn(vizNode, 'getNodeValidationText').mockResolvedValue(undefined);
-    vi.spyOn(vizNode, 'canDragNode').mockReturnValue(false);
-    vi.spyOn(vizNode, 'canDropOnNode').mockReturnValue(false);
-
-    const parentElement = new BaseGraph();
-    const element = new BaseNode();
-    const controller = ControllerService.createController();
-    parentElement.setController(controller);
-    element.setController(controller);
-    element.setParent(parentElement);
-    vi.spyOn(element, 'getData').mockReturnValue({ vizNode });
-    vi.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
-    vi.spyOn(element, 'getId').mockReturnValue('node-log');
-
-    const { Provider } = await TestProvidersWrapper();
-
-    render(
-      <Provider>
-        <VisualizationProvider controller={controller}>
-          <ElementContext.Provider value={element}>
-            <CustomNodeObserver element={element} selected={false} />
-          </ElementContext.Provider>
-        </VisualizationProvider>
-      </Provider>,
-    );
+    await renderCustomNode({ selected: false, description: 'Log step' });
 
     const nodeG = screen.getByTestId('custom-node__route.from.steps.0.log').closest('g')!;
     expect(nodeG).toHaveAttribute('tabIndex', '-1');
@@ -184,41 +166,7 @@ describe('CustomNode', () => {
   });
 
   it('should have tabIndex=0 and aria-pressed=true when selected', async () => {
-    const vizNode = createVisualizationNode('route.from.steps.0.log', {
-      name: 'log',
-      path: 'route.from.steps.0.log',
-      isPlaceholder: false,
-      isGroup: false,
-      title: '',
-      description: 'Log step',
-      iconUrl: '',
-    }) as IVisualizationNode;
-    vi.spyOn(vizNode, 'getNodeLabel').mockReturnValue('log');
-    vi.spyOn(vizNode, 'getNodeValidationText').mockResolvedValue(undefined);
-    vi.spyOn(vizNode, 'canDragNode').mockReturnValue(false);
-    vi.spyOn(vizNode, 'canDropOnNode').mockReturnValue(false);
-
-    const parentElement = new BaseGraph();
-    const element = new BaseNode();
-    const controller = ControllerService.createController();
-    parentElement.setController(controller);
-    element.setController(controller);
-    element.setParent(parentElement);
-    vi.spyOn(element, 'getData').mockReturnValue({ vizNode });
-    vi.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
-    vi.spyOn(element, 'getId').mockReturnValue('node-log');
-
-    const { Provider } = await TestProvidersWrapper();
-
-    render(
-      <Provider>
-        <VisualizationProvider controller={controller}>
-          <ElementContext.Provider value={element}>
-            <CustomNodeObserver element={element} selected />
-          </ElementContext.Provider>
-        </VisualizationProvider>
-      </Provider>,
-    );
+    await renderCustomNode({ selected: true, description: 'Log step' });
 
     const nodeG = screen.getByTestId('custom-node__route.from.steps.0.log').closest('g')!;
     expect(nodeG).toHaveAttribute('tabIndex', '0');
@@ -226,42 +174,8 @@ describe('CustomNode', () => {
   });
 
   it('should call onSelect when Enter is pressed', async () => {
-    const vizNode = createVisualizationNode('route.from.steps.0.log', {
-      name: 'log',
-      path: 'route.from.steps.0.log',
-      isPlaceholder: false,
-      isGroup: false,
-      title: '',
-      description: 'Log step',
-      iconUrl: '',
-    }) as IVisualizationNode;
-    vi.spyOn(vizNode, 'getNodeLabel').mockReturnValue('log');
-    vi.spyOn(vizNode, 'getNodeValidationText').mockResolvedValue(undefined);
-    vi.spyOn(vizNode, 'canDragNode').mockReturnValue(false);
-    vi.spyOn(vizNode, 'canDropOnNode').mockReturnValue(false);
-
-    const parentElement = new BaseGraph();
-    const element = new BaseNode();
-    const controller = ControllerService.createController();
-    parentElement.setController(controller);
-    element.setController(controller);
-    element.setParent(parentElement);
-    vi.spyOn(element, 'getData').mockReturnValue({ vizNode });
-    vi.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
-    vi.spyOn(element, 'getId').mockReturnValue('node-log');
-
     const onSelect = vi.fn();
-    const { Provider } = await TestProvidersWrapper();
-
-    render(
-      <Provider>
-        <VisualizationProvider controller={controller}>
-          <ElementContext.Provider value={element}>
-            <CustomNodeObserver element={element} onSelect={onSelect} />
-          </ElementContext.Provider>
-        </VisualizationProvider>
-      </Provider>,
-    );
+    await renderCustomNode({ onSelect, description: 'Log step' });
 
     const nodeG = screen.getByTestId('custom-node__route.from.steps.0.log').closest('g')!;
     fireEvent.keyDown(nodeG, { key: 'Enter' });
@@ -269,42 +183,8 @@ describe('CustomNode', () => {
   });
 
   it('should call onContextMenu when Shift+F10 is pressed', async () => {
-    const vizNode = createVisualizationNode('route.from.steps.0.log', {
-      name: 'log',
-      path: 'route.from.steps.0.log',
-      isPlaceholder: false,
-      isGroup: false,
-      title: '',
-      description: 'Log step',
-      iconUrl: '',
-    }) as IVisualizationNode;
-    vi.spyOn(vizNode, 'getNodeLabel').mockReturnValue('log');
-    vi.spyOn(vizNode, 'getNodeValidationText').mockResolvedValue(undefined);
-    vi.spyOn(vizNode, 'canDragNode').mockReturnValue(false);
-    vi.spyOn(vizNode, 'canDropOnNode').mockReturnValue(false);
-
-    const parentElement = new BaseGraph();
-    const element = new BaseNode();
-    const controller = ControllerService.createController();
-    parentElement.setController(controller);
-    element.setController(controller);
-    element.setParent(parentElement);
-    vi.spyOn(element, 'getData').mockReturnValue({ vizNode });
-    vi.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
-    vi.spyOn(element, 'getId').mockReturnValue('node-log');
-
     const onContextMenu = vi.fn();
-    const { Provider } = await TestProvidersWrapper();
-
-    render(
-      <Provider>
-        <VisualizationProvider controller={controller}>
-          <ElementContext.Provider value={element}>
-            <CustomNodeObserver element={element} onContextMenu={onContextMenu} />
-          </ElementContext.Provider>
-        </VisualizationProvider>
-      </Provider>,
-    );
+    await renderCustomNode({ onContextMenu, description: 'Log step' });
 
     const nodeG = screen.getByTestId('custom-node__route.from.steps.0.log').closest('g')!;
     fireEvent.keyDown(nodeG, { key: 'F10', shiftKey: true });

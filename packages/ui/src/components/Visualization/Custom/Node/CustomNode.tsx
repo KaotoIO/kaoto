@@ -59,6 +59,7 @@ interface CustomNodeProps extends DefaultNodeProps {
   onCollapseToggle?: () => void;
 }
 
+/** Returns whether the node's step toolbar should currently be visible, based on the toolbar trigger mode and the node's hover and selection state. */
 function getShouldShowToolbar(
   trigger: NodeToolbarTrigger | undefined,
   isGHover: boolean,
