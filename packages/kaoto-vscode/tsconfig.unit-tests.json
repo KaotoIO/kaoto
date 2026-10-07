@@ -2,9 +2,8 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "module": "CommonJS",
-    "moduleResolution": "Node",
-    "ignoreDeprecations": "5.0",
-    "rootDir": ".",
+    "moduleResolution": "bundler",
+    "rootDir": "src",
     "paths": {
       "@kaoto/camel-catalog/types": ["../../node_modules/@kaoto/camel-catalog/dist/types/index.ts"],
       "@kaoto/kaoto/models": ["../../node_modules/@kaoto/kaoto/lib/models-api.d.ts"],
@@ -14,7 +13,7 @@
     "declaration": true,
     "declarationMap": true,
     "resolveJsonModule": true,
-    "outDir": "out/test"
+    "outDir": "out"
   },
   "include": ["src/test"]
 }

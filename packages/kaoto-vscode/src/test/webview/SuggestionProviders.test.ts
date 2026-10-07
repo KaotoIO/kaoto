@@ -161,17 +161,17 @@ suite('Channel API', () => {
 		let mavenTestFile: string;
 
 		setup(async () => {
-			standaloneFile = path.resolve(__dirname, '../../../../../test Fixture with speci@l chars', 'suggestions', 'route.camel.yaml');
+			standaloneFile = path.resolve(__dirname, '../../../test Fixture with speci@l chars', 'suggestions', 'route.camel.yaml');
 			mavenFile = path.resolve(
 				__dirname,
-				'../../../../../test Fixture with speci@l chars',
+				'../../../test Fixture with speci@l chars',
 				'camel-maven-main-project',
 				'src/main/resources/camel',
 				'my-camel-main-route.camel.yaml',
 			);
 			mavenTestFile = path.resolve(
 				__dirname,
-				'../../../../../test Fixture with speci@l chars',
+				'../../../test Fixture with speci@l chars',
 				'camel-maven-main-project',
 				'src/test/resources',
 				'test.camel.yaml',

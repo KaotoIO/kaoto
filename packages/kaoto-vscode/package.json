@@ -94,7 +94,7 @@
     "source-map-loader": "4.0.1",
     "style-loader": "3.3.3",
     "ts-loader": "9.4.4",
-    "typescript": "^5.5.4",
+    "typescript": "^6.0.0",
     "vscode-extension-tester": "^8.28.1",
     "web-worker": "^1.5.0",
     "webpack": "5.109.2",

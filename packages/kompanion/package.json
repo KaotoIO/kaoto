@@ -30,7 +30,7 @@
     "test:e2e": "yarn build:kompanion && yarn mvnw:run verify -pl kaoto-e2e"
   },
   "devDependencies": {
-    "orval": "^8.36.0",
-    "typescript": "^5.5.4"
+    "orval": "^8.40.0",
+    "typescript": "^6.0.0"
   }
 }

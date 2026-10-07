@@ -21,6 +21,10 @@ import jakarta.ws.rs.sse.Sse;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 
 @Path("/v1/executions/{executionId}")
 public class EventResource {
@@ -40,6 +44,10 @@ public class EventResource {
     @GET
     @Path("/events")
     @Produces(MediaType.SERVER_SENT_EVENTS)
+    @APIResponse(
+            responseCode = "200",
+            description = "Server-sent event stream",
+            content = @Content(mediaType = MediaType.SERVER_SENT_EVENTS, schema = @Schema(type = SchemaType.STRING)))
     public Multi<OutboundSseEvent> events(
             @PathParam("executionId") String executionId,
             @HeaderParam("Last-Event-ID") String lastEventId,
