@@ -30,7 +30,7 @@ import {
 	CheckboxSetting,
 	before,
 } from 'vscode-extension-tester';
-import { KaotoCanvas } from '../pageObjects';
+import { KaotoCanvas, KaotoEditor } from '../pageObjects';
 import { assert, expect } from 'chai';
 import * as fs from 'fs';
 
@@ -255,6 +255,7 @@ describe('Maven dependency update pom.xml', function () {
 
 		// filter catalog and select SQL component
 		await KaotoCanvas.filterCatalogAndSelectTile(driver, 'sql', 'sql');
+		await KaotoEditor.waitForPropertyPanel(driver);
 	}
 
 	/**
