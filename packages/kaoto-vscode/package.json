@@ -14,7 +14,6 @@
   "homepage": "https://kaoto.io/",
   "author": "The Kaoto Team",
   "scripts": {
-    "lint": "eslint src",
     "build:prod": "rimraf dist && yarn run compile && yarn run lint",
     "build:dev": "rimraf dist && yarn run watch && yarn run lint",
     "build:test:ui": "rimraf ./out && tsc --project tsconfig.ui-tests.json --skipLibCheck --sourceMap true",
@@ -33,7 +32,9 @@
     "test:ui:vsix:views": "yarn test:ui:vsix 'out/views/*.test.js'",
     "test:ui:vsix:export": "yarn test:ui:vsix 'out/export/*.test.js'",
     "test:ui:vsix:deploy": "yarn test:ui:vsix --code_settings ./src/ui-test/vscode-settings-minikube.json 'out/deploy/*.test.js'",
-    "test:ui:clean": "rimraf ./test-resources && rimraf ./out && rimraf *.vsix"
+    "test:ui:clean": "rimraf ./test-resources && rimraf ./out && rimraf *.vsix",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "lint:fix": "yarn lint --fix"
   },
   "dependencies": {
     "@kaoto/camel-catalog": "^0.10.6",

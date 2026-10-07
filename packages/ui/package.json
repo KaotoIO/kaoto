@@ -47,7 +47,7 @@
     "test": "vitest run --config vitest.config.mts",
     "test:watch": "vitest --config vitest.config.mts",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
-    "lint:fix": "eslint \"src/**/*.{ts,tsx}\" --fix",
+    "lint:fix": "yarn lint --fix",
     "lint:style": "yarn stylelint \"src/**/*.{css,scss}\"",
     "lint:style:fix": "yarn lint:style --fix"
   },
