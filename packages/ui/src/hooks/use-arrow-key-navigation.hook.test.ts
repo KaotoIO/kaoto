@@ -2,6 +2,7 @@ import { renderHook } from '@testing-library/react';
 import hotkeys from 'hotkeys-js';
 import type { Mock } from 'vitest';
 
+import { CanvasDefaults } from '../components/Visualization/Canvas/canvas.defaults';
 import { useArrowKeyNavigation } from './use-arrow-key-navigation.hook';
 
 // Mock hotkeys-js — same pattern as delete-hotkey.hook.test.tsx
@@ -19,9 +20,15 @@ describe('useArrowKeyNavigation', () => {
   let node2: SVGGElement;
   let node3: SVGGElement;
   let container: HTMLDivElement;
+  let canvasRoot: HTMLDivElement;
 
   beforeEach(() => {
     vi.clearAllMocks();
+
+    canvasRoot = document.createElement('div');
+    canvasRoot.id = CanvasDefaults.CANVAS_MAIN_ID;
+    canvasRoot.setAttribute('tabindex', '-1');
+    document.body.appendChild(canvasRoot);
 
     container = document.createElement('div');
 
@@ -44,6 +51,9 @@ describe('useArrowKeyNavigation', () => {
   });
 
   afterEach(() => {
+    if (canvasRoot.parentNode) {
+      canvasRoot.parentNode.removeChild(canvasRoot);
+    }
     if (container.parentNode) {
       container.parentNode.removeChild(container);
     }
@@ -82,30 +92,17 @@ describe('useArrowKeyNavigation', () => {
     expect(mockHotkeys.unbind).toHaveBeenCalled();
   });
 
-  it('should focus the first node when ArrowRight fires and no node is focused', () => {
+  it.each([
+    ['ArrowRight focuses the first node when canvas root is active', 'arrowright', 'canvasRoot', 'node1'] as const, // canvas root active, no node selected
+    ['ArrowLeft focuses the last node when canvas root is active', 'arrowleft', 'canvasRoot', 'node3'] as const, // canvas root active, no node selected
+    ['ArrowRight moves to the next node', 'arrowright', 'node1', 'node2'] as const,
+    ['ArrowLeft moves to the previous node', 'arrowleft', 'node2', 'node1'] as const,
+  ])('%s', (_description, key, startId, expectedId) => {
+    const nodeMap = { canvasRoot, node1, node2, node3 };
     const fire = setupHook();
-    fire('arrowright');
-    expect(document.activeElement).toBe(node1);
-  });
-
-  it('should focus the last node when ArrowLeft fires and no node is focused', () => {
-    const fire = setupHook();
-    fire('arrowleft');
-    expect(document.activeElement).toBe(node3);
-  });
-
-  it('should move focus to the next node when ArrowRight fires', () => {
-    const fire = setupHook();
-    node1.focus();
-    fire('arrowright');
-    expect(document.activeElement).toBe(node2);
-  });
-
-  it('should move focus to the previous node when ArrowLeft fires', () => {
-    const fire = setupHook();
-    node2.focus();
-    fire('arrowleft');
-    expect(document.activeElement).toBe(node1);
+    nodeMap[startId].focus();
+    fire(key);
+    expect(document.activeElement).toBe(nodeMap[expectedId]);
   });
 
   it('should wrap from last to first on ArrowRight', () => {
@@ -200,6 +197,7 @@ describe('useArrowKeyNavigation', () => {
       const fire = setupHook();
 
       // Only stepNode should be in the navigation list; routeContainer has no dot
+      canvasRoot.focus();
       fire('arrowright');
       expect(document.activeElement).toBe(stepNode);
     });

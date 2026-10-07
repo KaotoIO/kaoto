@@ -30,6 +30,7 @@ import {
 
 import { CatalogModalContext } from '../../../dynamic-catalog/catalog-modal.provider';
 import { useLocalStorage, useSelectedNodePanIntoView, useSelectedVizNode } from '../../../hooks';
+import { useArrowKeyNavigation } from '../../../hooks/use-arrow-key-navigation.hook';
 import { LocalStorageKeys } from '../../../models';
 import { CanvasLayoutDirection } from '../../../models/settings/settings.model';
 import { SettingsContext } from '../../../providers/settings.provider';
@@ -42,7 +43,6 @@ import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
 import { CanvasSideBar } from './CanvasSideBar';
 import { consumeNodeSelection } from './node-selection-state';
-import { useArrowKeyNavigation } from './use-arrow-key-navigation.hook';
 
 interface CanvasProps {
   nodes: CanvasNode[];

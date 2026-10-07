@@ -140,6 +140,13 @@ const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = obser
   const { onReplaceNode } = useReplaceStep(vizNode!);
   const { onInsertStep } = useInsertStep(insertStepTargetNode, AddStepMode.InsertSpecialChildStep, insertStepOptions);
 
+  const handleClick = () => {
+    const action = isSpecialPlaceholder || isSpecialChildPlaceholder ? onInsertStep : onReplaceNode;
+    action().catch((error: unknown) => {
+      console.error('Failed to execute placeholder action:', error);
+    });
+  };
+
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<SVGGElement>) => {
       if (event.key === 'Enter' || event.key === ' ') {
@@ -248,12 +255,7 @@ const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = obser
         tabIndex={selected ? 0 : -1}
         role="button"
         aria-label={updatedLabel}
-        onClick={() => {
-          const action = isSpecialPlaceholder || isSpecialChildPlaceholder ? onInsertStep : onReplaceNode;
-          action().catch((error: unknown) => {
-            console.error('Failed to execute placeholder action:', error);
-          });
-        }}
+        onClick={handleClick}
         onKeyDown={handleKeyDown}
       >
         {/** The original placeholder node */}

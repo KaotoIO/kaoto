@@ -1,6 +1,8 @@
 import hotkeys from 'hotkeys-js';
 import { useEffect } from 'react';
 
+import { CanvasDefaults } from '../components/Visualization/Canvas/canvas.defaults';
+
 /**
  * Explicit ordering for named EIP property segments that would otherwise sort
  * alphabetically (e.g. `otherwise` < `steps` < `when`).
@@ -24,8 +26,8 @@ const SEGMENT_ORDER: Record<string, number> = {
  * The testid format is `{type}__{path}`, e.g. `custom-node__route.from.steps.0.log`.
  * Returns an empty string if the attribute is absent or has no `__` separator.
  */
-const getNodePath = (el: Element): string => {
-  const testid = el.getAttribute('data-testid') ?? '';
+const getNodePath = (el: HTMLElement): string => {
+  const testid = el.dataset.testid ?? '';
   const sep = testid.indexOf('__');
   return sep === -1 ? '' : testid.slice(sep + 2);
 };
@@ -44,7 +46,7 @@ const compareSegment = (aSeg: string, bSeg: string): number => {
 
   const aNum = Number(aSeg);
   const bNum = Number(bSeg);
-  if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
+  if (!Number.isNaN(aNum) && !Number.isNaN(bNum)) return aNum - bNum;
 
   const aOrder = SEGMENT_ORDER[aSeg];
   const bOrder = SEGMENT_ORDER[bSeg];
@@ -60,7 +62,7 @@ const compareSegment = (aSeg: string, bSeg: string): number => {
  * EIP-property-order aware), so navigation follows the logical graph shape
  * regardless of DOM paint order.
  */
-const compareNodePaths = (a: Element, b: Element): number => {
+const compareNodePaths = (a: HTMLElement, b: HTMLElement): number => {
   const aPath = getNodePath(a);
   const bPath = getNodePath(b);
   if (!aPath && !bPath) return 0;
@@ -94,6 +96,12 @@ const ARROW_KEYS = 'arrowleft,arrowright,arrowup,arrowdown';
 export function useArrowKeyNavigation(): void {
   useEffect(() => {
     const navigate = (event: KeyboardEvent) => {
+      const active = document.activeElement as HTMLElement | null;
+      const canvasRoot = document.getElementById(CanvasDefaults.CANVAS_MAIN_ID);
+      const isCanvasFocus =
+        active === canvasRoot || !!active?.matches?.('g.custom-node, g.placeholder-node, g.custom-group');
+      if (!isCanvasFocus) return;
+
       const allNodes = Array.from(
         document.querySelectorAll<HTMLElement>('g.custom-node, g.placeholder-node, g.custom-group[data-testid*="."]'),
       ).sort(compareNodePaths);
