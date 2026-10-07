@@ -216,6 +216,8 @@ class FileTransportE2EIT {
 
         assertFalse(kompanion.log().contains("BackPressureFailure"), kompanion.log());
         assertNull(sse.failure(), () -> "SSE failed: " + sse.failure());
+        // every event had an id, so a client can resume with Last-Event-ID
+        assertTrue(sse.ids().stream().allMatch(id -> id != null), () -> "events without an id: " + sse.ids());
     }
 
     // ---- helpers ----

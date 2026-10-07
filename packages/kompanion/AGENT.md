@@ -96,7 +96,7 @@ A pre-commit hook enforces formatting locally — enable it once per clone:
 
 | Property                       | Default      | Description                                                                     |
 | ------------------------------ | ------------ | ------------------------------------------------------------------------------- |
-| `quarkus.http.port`            | `0` (random) | Port the companion binds to; printed as `KAOTO_COMPANION_PORT=<port>` on stdout |
+| `quarkus.http.port`            | `0` (random) | Port the companion binds to; printed as `KAOTO_KOMPANION_PORT=<port>` on stdout |
 | `kaoto.companion.address`      | —            | `host:port` of the companion; set in the Camel app to activate the bridge       |
 | `kaoto.companion.execution-id` | —            | Execution identifier assigned by the companion; required alongside `address`    |
 | `kaoto.kompanion.token`        | —            | Bearer token the bridge sends at the handshake when the companion requires one  |

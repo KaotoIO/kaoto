@@ -289,9 +289,12 @@ must start with `camel.trace.standby` / `camel.debug.standby`, otherwise the cli
 subscription owning it is left. Tracing through camel-cli-connector goes up to about 50 events a
 second (Camel's trace console keeps the last 100, collected every other second).
 
-Each subscriber has its own bounded buffer (`kaoto.kompanion.events.buffer` frames). Snapshots
-(`camel.telemetry.snapshot`, `camel.connector.snapshot`) are not buffered: a subscriber that cannot
-keep up receives only the latest one.
+Nothing is buffered per client. Each execution keeps one log: a ring of events (results, trace,
+receive) bounded by `kaoto.kompanion.events.buffer` entries and `events.buffer-bytes`, plus the
+latest value of every state (ready, status, debug, history, ...). A client that cannot keep up gets
+a `kompanion.gap` event for the events the ring dropped, and only the latest value of each state.
+Raw status snapshots arrive about once a second; `kaoto.kompanion.events.slice-ignore-fields` names
+the fields (`uptime`, ...) that do not count as a change of a sliced state.
 
 ---
 
@@ -370,7 +373,7 @@ Bridge system properties:
 Camel 4.23 and newer applications that use `camel-cli-connector` can connect over its WebSocket
 transport instead of the bridge, with no Kaoto jar in the application. Set in the Camel app (with
 the companion started on port 8000 as in the quick start; otherwise use the port it printed as
-`KAOTO_COMPANION_PORT`):
+`KAOTO_KOMPANION_PORT`):
 
 ```properties
 camel.cli.transport=websocket
@@ -391,11 +394,17 @@ then answer `503`.
 
 | Property                                          | Default    | Description                                                                                                   |
 | ------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------- |
-| `quarkus.http.port`                               | `0`        | Port the companion binds to; printed as `KAOTO_COMPANION_PORT=<port>` on stdout                               |
+| `quarkus.http.port`                               | `0`        | Port the companion binds to; printed as `KAOTO_KOMPANION_PORT=<port>` on stdout                               |
 | `kaoto.kompanion.command.ack-timeout`             | `10s`      | How long `POST .../commands` waits for the ack before answering `202 pending`                                 |
 | `kaoto.kompanion.worker.protocol-timeout`         | `5s`       | How long a command waits for the worker's first frame (protocol detection) before answering `503`             |
 | `kaoto.kompanion.worker-token`                    | —          | When set, workers must send `Authorization: Bearer <token>` at the handshake or are rejected with `401`       |
-| `kaoto.kompanion.events.buffer`                   | `4096`     | Frames buffered per SSE subscriber before its stream is failed (snapshots are superseded instead of buffered) |
+| `kaoto.kompanion.events.buffer`                   | `4096`     | Events kept per execution for the SSE clients (results, trace, receive); a client further behind gets a `kompanion.gap` |
+| `kaoto.kompanion.events.buffer-bytes`             | `32 MB`    | Size bound of the same ring                                                                                   |
+| `kaoto.kompanion.events.slice-ignore-fields`      | —          | Fields left out when telling whether a sliced state (status per route, ...) changed, e.g. `uptime`           |
+| `kaoto.kompanion.demand.release-delay`            | `0s`       | How long a feature turned on for SSE clients (`ensure=trace,debug`) stays on after the last one is gone        |
+| `kaoto.kompanion.command.result-ttl`              | `10m`      | How long the result of a command answered `202` can be polled once it arrived                                 |
+| `kaoto.kompanion.command.pending-timeout`         | `10m`      | A command the worker does not answer for this long fails                                                      |
+| `kaoto.kompanion.command.max-results`             | `10000`    | Commands kept for polling per execution; the oldest results go first                                          |
 | `quarkus.websockets-next.server.max-message-size` | `16777216` | Largest worker frame accepted (the connector sends the status snapshot whole, about 3 MB for 300 routes)      |
 
 The worker endpoint also rejects a handshake with a non-loopback `Origin` header with `403`: a web
@@ -442,7 +451,7 @@ Enable the pre-commit hook once per clone to catch violations before they reach 
 1. The host spawns `java -jar kaoto-companion-<version>-runner.jar`.
 2. Once ready, the companion prints one line to stdout:
    ```
-   KAOTO_COMPANION_PORT=<port>
+   KAOTO_KOMPANION_PORT=<port>
    ```
 3. The host reads the port and connects over HTTP on `127.0.0.1:<port>`.
 4. When the host exits, it terminates the process.
