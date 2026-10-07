@@ -11,7 +11,14 @@ import { CamelRouteResource } from '../../../../models/camel/camel-route-resourc
 import { ACTION_ID_CONFIRM, ActionConfirmationModalContext } from '../../../../providers';
 import { camelRouteJson, camelRouteWithDisabledSteps, TestProvidersWrapper } from '../../../../stubs';
 import { createRouteVisualizationController } from '../../../../stubs/route-visualization-controller';
+import { useSendMessageModal } from '../../../../providers/send-message-modal.provider';
 import { StepToolbar } from './StepToolbar';
+
+vi.mock('../../../../providers/send-message-modal.provider', () => ({
+  useSendMessageModal: vi.fn(),
+}));
+
+const mockUseSendMessageModal = vi.mocked(useSendMessageModal);
 
 /** The first step of `camelRouteJson`, followed by a `choice` step */
 const SET_HEADER_PATH = 'route.from.steps.0.set-header';
@@ -42,6 +49,7 @@ describe('StepToolbar', () => {
   };
 
   beforeEach(() => {
+    mockUseSendMessageModal.mockReturnValue(undefined);
     mockCatalogModalContext.getNewComponent.mockReset().mockResolvedValue(undefined);
     mockCatalogModalContext.checkCompatibility.mockReset().mockReturnValue(false);
     mockActionConfirmationModalContext.actionConfirmation.mockReset().mockResolvedValue(ACTION_ID_CONFIRM);
@@ -104,6 +112,26 @@ describe('StepToolbar', () => {
       expect(screen.queryByTestId('Test Node|step-toolbar-button-replace')).not.toBeInTheDocument();
       expect(screen.queryByTestId('Test Node|step-toolbar-button-delete')).not.toBeInTheDocument();
       expect(screen.queryByTestId('Test Node|step-toolbar-button-delete-group')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('Test Node|step-toolbar-button-send-message')).not.toBeInTheDocument();
+    });
+
+    it('should render send message button when SendMessageModal context is provided', async () => {
+      const mockOpenSendMessageModal = vi.fn();
+      mockUseSendMessageModal.mockReturnValue({
+        openSendMessageModal: mockOpenSendMessageModal,
+      });
+
+      await renderToolbar();
+
+      const sendButton = screen.getByTestId('Test Node|step-toolbar-button-send-message');
+      expect(sendButton).toBeInTheDocument();
+      expect(sendButton).toHaveAttribute('title', 'Send test message');
+
+      fireEvent.click(sendButton);
+      expect(mockOpenSendMessageModal).toHaveBeenCalledWith({
+        endpoint: 'Test Node',
+        title: 'Send a test message to Test Node',
+      });
     });
   });
 
