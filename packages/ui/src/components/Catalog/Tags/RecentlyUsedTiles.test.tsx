@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 
-import { ITile } from './Catalog.models';
+import { ITile } from '../Catalog.models';
 import { RecentlyUsedTiles } from './RecentlyUsedTiles';
 
 describe('RecentlyUsedTiles', () => {
