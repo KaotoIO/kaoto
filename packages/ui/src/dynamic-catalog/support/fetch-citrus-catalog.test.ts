@@ -1,5 +1,6 @@
 import catalogLibraryJson from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import type { MockInstance } from 'vitest';
 
 import { CatalogKind } from '../../models';
 import { CITRUS_TEST_ROOT_ENTITY_NAME } from '../../models/citrus/citrus-catalog-index';
@@ -11,7 +12,7 @@ import { fetchCitrusCatalog } from './fetch-citrus-catalog';
 const catalogLibrary = catalogLibraryJson as CatalogLibrary;
 
 describe('fetchCitrusCatalog', () => {
-  let fetchFileMock: SpyInstance;
+  let fetchFileMock: MockInstance;
   let catalogDefinition: Awaited<ReturnType<typeof getFirstCitrusCatalogMap>>['catalogDefinition'];
   let relativeBasePath: string;
 

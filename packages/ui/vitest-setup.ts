@@ -227,14 +227,6 @@ Object.defineProperty(navigator, 'clipboard', {
   },
 });
 
-// Implement fail function for Jest compatibility
-Object.defineProperty(globalThis, 'fail', {
-  writable: true,
-  value: (message?: string): never => {
-    throw new Error(message || 'Test failed');
-  },
-});
-
 // Suppress Monaco Editor CancellationError from unhandled rejections
 // Monaco Editor's clipboard service creates deferred promises that get cancelled
 // during test cleanup, which causes unhandled rejection errors

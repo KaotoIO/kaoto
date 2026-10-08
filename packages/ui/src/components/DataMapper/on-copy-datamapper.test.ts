@@ -1,3 +1,5 @@
+import type { Mocked } from 'vitest';
+
 import { IVisualizationNode } from '../../models';
 import { IClipboardContent } from '../../models/visualization/clipboard';
 import { onCopyDataMapper } from './on-copy-datamapper';

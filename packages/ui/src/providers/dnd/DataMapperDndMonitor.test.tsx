@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+import type { MockInstance } from 'vitest';
 
 import { DataMapperDnDMonitor } from './DataMapperDndMonitor';
 

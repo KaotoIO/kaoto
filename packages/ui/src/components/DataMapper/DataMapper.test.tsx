@@ -1,5 +1,3 @@
-import { fail } from 'node:assert';
-
 import { render, screen, waitFor } from '@testing-library/react';
 import { VirtuosoMockContext } from 'react-virtuoso';
 
@@ -117,12 +115,7 @@ describe('DataMapperPage', () => {
         <DataMapper vizNode={vizNode} />
       </MetadataProvider>,
     );
-    try {
-      await screen.findByTestId('main-menu-button');
-      fail();
-    } catch (e) {
-      expect(e).toBeTruthy();
-    }
+    await expect(screen.findByTestId('main-menu-button')).rejects.toThrow();
   });
 
   it('should show an error message if vizNode is not provided', async () => {

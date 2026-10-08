@@ -1,6 +1,7 @@
 import { ElementModel, Node } from '@patternfly/react-topology';
 import { act, renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
+import type { MockedFunction } from 'vitest';
 
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { EntityType } from '../../../../models/entities';

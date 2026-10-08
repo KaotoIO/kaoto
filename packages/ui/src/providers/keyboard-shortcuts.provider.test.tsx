@@ -1,5 +1,6 @@
 import { render } from '@testing-library/react';
 import hotkeys from 'hotkeys-js';
+import type { MockedFunction } from 'vitest';
 
 import { KeyboardShortcutsProvider } from './keyboard-shortcuts.provider';
 

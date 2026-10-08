@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
-import type { Mock } from 'vitest';
+import type { Mock, MockedFunction } from 'vitest';
 
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { CatalogKind } from '../../../../models/catalog-kind';
