@@ -29,37 +29,32 @@ export class NodeMapperService {
   }
 
   private static getInstance(): INodeMapper {
-    if (!this.rootNodeMapper) {
-      NodeMapperService.initializeRootNodeMapper();
-    }
+    this.rootNodeMapper ??= NodeMapperService.createRootNodeMapper();
 
     return this.rootNodeMapper;
   }
 
-  private static initializeRootNodeMapper() {
-    this.rootNodeMapper = new RootNodeMapper();
-    this.rootNodeMapper.registerDefaultMapper(new BaseNodeMapper(this.rootNodeMapper));
-    this.rootNodeMapper.registerMapper('from' as keyof ProcessorDefinition, new FromNodeMapper(this.rootNodeMapper));
-    this.rootNodeMapper.registerMapper('circuitBreaker', new CircuitBreakerNodeMapper(this.rootNodeMapper));
-    this.rootNodeMapper.registerMapper(
-      'onFallback' as keyof ProcessorDefinition,
-      new OnFallbackNodeMapper(this.rootNodeMapper),
-    );
-    this.rootNodeMapper.registerMapper('choice', new ChoiceNodeMapper(this.rootNodeMapper));
-    this.rootNodeMapper.registerMapper('when' as keyof ProcessorDefinition, new WhenNodeMapper(this.rootNodeMapper));
-    this.rootNodeMapper.registerMapper(
-      'otherwise' as keyof ProcessorDefinition,
-      new OtherwiseNodeMapper(this.rootNodeMapper),
-    );
-    this.rootNodeMapper.registerMapper('step', new StepNodeMapper(this.rootNodeMapper));
-    this.rootNodeMapper.registerMapper(DATAMAPPER_ID_PREFIX, new DataMapperNodeMapper(this.rootNodeMapper));
-    this.rootNodeMapper.registerMapper('multicast', new MulticastNodeMapper(this.rootNodeMapper));
-    this.rootNodeMapper.registerMapper('loadBalance', new LoadBalanceNodeMapper(this.rootNodeMapper));
+  /** Creates the root node mapper with the default mapper and the processor specific ones */
+  static createRootNodeMapper(): RootNodeMapper {
+    const rootNodeMapper = new RootNodeMapper();
+    rootNodeMapper.registerDefaultMapper(new BaseNodeMapper(rootNodeMapper));
+    rootNodeMapper.registerMapper('from' as keyof ProcessorDefinition, new FromNodeMapper(rootNodeMapper));
+    rootNodeMapper.registerMapper('circuitBreaker', new CircuitBreakerNodeMapper(rootNodeMapper));
+    rootNodeMapper.registerMapper('onFallback' as keyof ProcessorDefinition, new OnFallbackNodeMapper(rootNodeMapper));
+    rootNodeMapper.registerMapper('choice', new ChoiceNodeMapper(rootNodeMapper));
+    rootNodeMapper.registerMapper('when' as keyof ProcessorDefinition, new WhenNodeMapper(rootNodeMapper));
+    rootNodeMapper.registerMapper('otherwise' as keyof ProcessorDefinition, new OtherwiseNodeMapper(rootNodeMapper));
+    rootNodeMapper.registerMapper('step', new StepNodeMapper(rootNodeMapper));
+    rootNodeMapper.registerMapper(DATAMAPPER_ID_PREFIX, new DataMapperNodeMapper(rootNodeMapper));
+    rootNodeMapper.registerMapper('multicast', new MulticastNodeMapper(rootNodeMapper));
+    rootNodeMapper.registerMapper('loadBalance', new LoadBalanceNodeMapper(rootNodeMapper));
 
     /** Camel Route Configuration Node mapper */
-    this.rootNodeMapper.registerMapper(
+    rootNodeMapper.registerMapper(
       'routeConfiguration' as keyof ProcessorDefinition,
-      new RouteConfigurationNodeMapper(this.rootNodeMapper),
+      new RouteConfigurationNodeMapper(rootNodeMapper),
     );
+
+    return rootNodeMapper;
   }
 }

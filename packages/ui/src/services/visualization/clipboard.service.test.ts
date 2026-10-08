@@ -4,14 +4,7 @@ import { stringify } from 'yaml';
 import { IClipboardContent } from '../../models/visualization/clipboard';
 import { ClipboardService } from './clipboard.service';
 
-// Mock the clipboard API
-Object.assign(navigator, {
-  clipboard: {
-    write: vi.fn(),
-    read: vi.fn(),
-  },
-});
-
+/* navigator.clipboard is mocked in vitest-setup.ts */
 // Mock Blob with a .text() implementation so JSDOM's missing Blob.text doesn't break assertions
 class MockBlob {
   private readonly content: string;
@@ -26,14 +19,14 @@ class MockBlob {
 }
 
 // Mock ClipboardItem
-Object.defineProperty(globalThis, 'ClipboardItem', {
-  writable: true,
-  value: class {
+vi.stubGlobal(
+  'ClipboardItem',
+  class {
     static readonly supports: Mock = vi.fn();
     constructor(public data: Record<string, MockBlob>) {}
   },
-});
-Object.defineProperty(globalThis, 'Blob', { writable: true, value: MockBlob });
+);
+vi.stubGlobal('Blob', MockBlob);
 
 describe('ClipboardService', () => {
   const testContent: IClipboardContent = {
