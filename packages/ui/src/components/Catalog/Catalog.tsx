@@ -9,8 +9,8 @@ import { BaseCatalog } from './BaseCatalog';
 import { CatalogLayout, ITile } from './Catalog.models';
 import { CatalogFilter } from './CatalogFilter';
 import { filterTiles } from './filter-tiles';
-import { RecentlyUsedTiles } from './RecentlyUsedTiles';
 import { sortTags } from './sort-tags';
+import { RecentlyUsedTiles } from './Tags';
 
 export const MAX_RECENT_TILES = 10;
 

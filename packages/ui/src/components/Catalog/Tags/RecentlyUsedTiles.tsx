@@ -1,7 +1,7 @@
 import { Label, LabelGroup } from '@patternfly/react-core';
 import { FunctionComponent } from 'react';
 
-import { ITile } from './Catalog.models';
+import { ITile } from '../Catalog.models';
 
 interface RecentlyUsedTilesProps {
   recentTiles: ITile[];
