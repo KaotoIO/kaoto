@@ -40,64 +40,42 @@ export const testLoadCatalog = async (catalogLibraryEntry: CatalogLibraryEntry) 
   const componentCatalogMapImport = await import(`${catalogPath}${catalogDefinition.catalogs.components.file}`);
   const componentCatalogMap: Record<string, ICamelComponentDefinition> =
     componentCatalogMapImport.default || componentCatalogMapImport;
-  if (componentCatalogMapImport.default) {
-    delete componentCatalogMapImport.default;
-  }
 
   const modelCatalogMapImport = await import(`${catalogPath}${catalogDefinition.catalogs.models.file}`);
   const modelCatalogMap: Record<string, ICamelProcessorDefinition> =
     modelCatalogMapImport.default || modelCatalogMapImport;
-  if (modelCatalogMapImport.default) {
-    delete modelCatalogMapImport.default;
-  }
 
   const patternCatalogMapImport = await import(`${catalogPath}${catalogDefinition.catalogs.patterns.file}`);
   const patternCatalogMap: Record<string, ICamelProcessorDefinition> =
     patternCatalogMapImport.default || patternCatalogMapImport;
-  if (patternCatalogMapImport.default) {
-    delete patternCatalogMapImport.default;
-  }
 
   const kameletsCatalogMapImport = await import(`${catalogPath}${catalogDefinition.catalogs.kamelets.file}`);
   const kameletsCatalogMap: Record<string, IKameletDefinition> =
     kameletsCatalogMapImport.default || kameletsCatalogMapImport;
-  if (kameletsCatalogMapImport.default) {
-    delete kameletsCatalogMapImport.default;
-  }
 
   const kameletsBoundariesCatalogImport = await import(
     `${catalogPath}${catalogDefinition.catalogs.kameletBoundaries.file}`
   );
   const kameletsBoundariesCatalog: Record<string, IKameletDefinition> =
     kameletsBoundariesCatalogImport.default || kameletsBoundariesCatalogImport;
-  if (kameletsBoundariesCatalogImport.default) {
-    delete kameletsBoundariesCatalogImport.default;
-  }
 
   const languageCatalogImport = await import(`${catalogPath}${catalogDefinition.catalogs.languages.file}`);
   const languageCatalog: Record<string, ICamelLanguageDefinition> =
     languageCatalogImport.default || languageCatalogImport;
-  if (languageCatalogImport.default) {
-    delete languageCatalogImport.default;
-  }
 
   const entitiesCatalogImport = await import(`${catalogPath}${catalogDefinition.catalogs.entities.file}`);
   const entitiesCatalog: Record<string, ICamelProcessorDefinition> =
     entitiesCatalogImport.default || entitiesCatalogImport;
-  if (entitiesCatalogImport.default) {
-    delete entitiesCatalogImport.default;
-  }
 
   const functionsCatalogMapImport = await import(`${catalogPath}${catalogDefinition.catalogs.functions.file}`);
   const functionsCatalogMap: Record<
     string,
     Record<string, KaotoFunction<KaotoFunctionArgument>>
   > = functionsCatalogMapImport.default || functionsCatalogMapImport;
-  if (functionsCatalogMapImport.default) {
-    delete functionsCatalogMapImport.default;
-  }
 
-  return {
+  // The imported JSON modules are cached and shared by every test file of a worker (`isolate: false`),
+  // so hand out a copy: some tests adjust the catalogs to their needs
+  return structuredClone({
     catalogDefinition,
     catalogPath,
     componentCatalogMap,
@@ -108,7 +86,7 @@ export const testLoadCatalog = async (catalogLibraryEntry: CatalogLibraryEntry) 
     languageCatalog,
     entitiesCatalog,
     functionsCatalogMap,
-  };
+  });
 };
 
 export const citrusCatalogSelector = (catalogLibrary: CatalogLibrary) => {
@@ -133,31 +111,24 @@ export const testLoadCitrusCatalog = async (catalogLibraryEntry: CatalogLibraryE
   const actionsCatalogMapImport = await import(`${catalogPath}${catalogDefinition.catalogs.actions.file}`);
   const actionsCatalogMap: Record<string, ICitrusComponentDefinition> =
     actionsCatalogMapImport.default || actionsCatalogMapImport;
-  if (actionsCatalogMapImport.default) {
-    delete actionsCatalogMapImport.default;
-  }
 
   const containersCatalogMapImport = await import(`${catalogPath}${catalogDefinition.catalogs.containers.file}`);
   const containersCatalogMap: Record<string, ICitrusComponentDefinition> =
     containersCatalogMapImport.default || containersCatalogMapImport;
-  if (containersCatalogMapImport.default) {
-    delete containersCatalogMapImport.default;
-  }
 
   const endpointsCatalogMapImport = await import(`${catalogPath}${catalogDefinition.catalogs.endpoints.file}`);
   const endpointsCatalogMap: Record<string, ICitrusComponentDefinition> =
     endpointsCatalogMapImport.default || endpointsCatalogMapImport;
-  if (endpointsCatalogMapImport.default) {
-    delete endpointsCatalogMapImport.default;
-  }
 
-  return {
+  // The imported JSON modules are cached and shared by every test file of a worker (`isolate: false`),
+  // so hand out a copy: some tests adjust the catalogs to their needs
+  return structuredClone({
     catalogDefinition,
     catalogPath,
     actionsCatalogMap,
     containersCatalogMap,
     endpointsCatalogMap,
-  };
+  });
 };
 
 /**
