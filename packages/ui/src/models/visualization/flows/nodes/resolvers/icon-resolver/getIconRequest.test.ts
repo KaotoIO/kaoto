@@ -1,16 +1,18 @@
-import type { Mock } from 'vitest';
+import type { MockInstance } from 'vitest';
 
 import { CatalogKind } from '../../../../../catalog-kind';
 import { getIconRequest } from './getIconRequest';
 import { NodeIconResolver } from './node-icon-resolver';
 
-vi.mock('./node-icon-resolver');
-
 describe('getIconRequest', () => {
+  let mockGetIcon: MockInstance<typeof NodeIconResolver.getIcon>;
+  let mockGetDefaultCamelIcon: MockInstance<typeof NodeIconResolver.getDefaultCamelIcon>;
+
   beforeEach(() => {
-    vi.clearAllMocks();
-    (NodeIconResolver.getIcon as Mock).mockResolvedValue('mock-icon-url');
-    (NodeIconResolver.getDefaultCamelIcon as Mock).mockReturnValue('default-camel-icon-url');
+    mockGetIcon = vi.spyOn(NodeIconResolver, 'getIcon').mockResolvedValue('mock-icon-url');
+    mockGetDefaultCamelIcon = vi
+      .spyOn(NodeIconResolver, 'getDefaultCamelIcon')
+      .mockReturnValue('default-camel-icon-url');
   });
 
   it('should resolve component icon request with default alt text', async () => {
@@ -19,7 +21,7 @@ describe('getIconRequest', () => {
       alt: 'component icon',
     });
 
-    expect(NodeIconResolver.getIcon).toHaveBeenCalledWith('kafka', CatalogKind.Component);
+    expect(mockGetIcon).toHaveBeenCalledWith('kafka', CatalogKind.Component);
   });
 
   it('should resolve kamelet icon request with prefixed name', async () => {
@@ -28,7 +30,7 @@ describe('getIconRequest', () => {
       alt: 'Kamelet icon',
     });
 
-    expect(NodeIconResolver.getIcon).toHaveBeenCalledWith('kamelet:aws-s3-source', CatalogKind.Kamelet);
+    expect(mockGetIcon).toHaveBeenCalledWith('kamelet:aws-s3-source', CatalogKind.Kamelet);
   });
 
   it('should use custom alt text when provided', async () => {
@@ -37,7 +39,7 @@ describe('getIconRequest', () => {
       alt: 'Route Entity',
     });
 
-    expect(NodeIconResolver.getIcon).toHaveBeenCalledWith('route', CatalogKind.Entity);
+    expect(mockGetIcon).toHaveBeenCalledWith('route', CatalogKind.Entity);
   });
 
   it('should resolve test action alt text from catalog kind', async () => {
@@ -46,7 +48,7 @@ describe('getIconRequest', () => {
       alt: 'Test Action icon',
     });
 
-    expect(NodeIconResolver.getIcon).toHaveBeenCalledWith('print', CatalogKind.TestAction);
+    expect(mockGetIcon).toHaveBeenCalledWith('print', CatalogKind.TestAction);
   });
 
   it('should return default camel icon for unknown catalog kind', async () => {
@@ -55,7 +57,7 @@ describe('getIconRequest', () => {
       alt: 'Default icon',
     });
 
-    expect(NodeIconResolver.getDefaultCamelIcon).toHaveBeenCalled();
-    expect(NodeIconResolver.getIcon).not.toHaveBeenCalled();
+    expect(mockGetDefaultCamelIcon).toHaveBeenCalled();
+    expect(mockGetIcon).not.toHaveBeenCalled();
   });
 });

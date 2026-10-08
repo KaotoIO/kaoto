@@ -2,22 +2,31 @@ import { CatalogKind } from '../../../../../catalog-kind';
 import { NodeTooltipResolver } from './node-tooltip-resolver';
 
 /**
- * Mapping of catalog kinds to their respective resolver methods.
+ * Resolves the tooltip through the NodeTooltipResolver method matching the catalog kind.
+ * The methods are looked up on every call, so they keep their `this` binding and can be spied on.
  */
-const TOOLTIP_RESOLVER_MAP: Partial<Record<CatalogKind, (name: string, catalogKind: CatalogKind) => Promise<string>>> =
-  {
-    [CatalogKind.Entity]: NodeTooltipResolver.getEntityTooltip,
-    [CatalogKind.Kamelet]: NodeTooltipResolver.getKameletTooltip,
-    [CatalogKind.Component]: NodeTooltipResolver.getComponentTooltip,
-    [CatalogKind.Processor]: NodeTooltipResolver.getProcessorTooltip,
-    [CatalogKind.Pattern]: NodeTooltipResolver.getProcessorTooltip,
-    [CatalogKind.TestAction]: NodeTooltipResolver.getTestActionTooltip,
-    [CatalogKind.TestActionGroup]: NodeTooltipResolver.getTestActionTooltip,
-    [CatalogKind.TestContainer]: NodeTooltipResolver.getTestActionTooltip,
-    [CatalogKind.TestEndpoint]: NodeTooltipResolver.getTestActionTooltip,
-    [CatalogKind.TestFunction]: NodeTooltipResolver.getTestActionTooltip,
-    [CatalogKind.TestValidationMatcher]: NodeTooltipResolver.getTestActionTooltip,
-  };
+function resolveTooltip(catalogKind: CatalogKind, name: string): Promise<string> | undefined {
+  switch (catalogKind) {
+    case CatalogKind.Entity:
+      return NodeTooltipResolver.getEntityTooltip(name);
+    case CatalogKind.Kamelet:
+      return NodeTooltipResolver.getKameletTooltip(name);
+    case CatalogKind.Component:
+      return NodeTooltipResolver.getComponentTooltip(name);
+    case CatalogKind.Processor:
+    case CatalogKind.Pattern:
+      return NodeTooltipResolver.getProcessorTooltip(name);
+    case CatalogKind.TestAction:
+    case CatalogKind.TestActionGroup:
+    case CatalogKind.TestContainer:
+    case CatalogKind.TestEndpoint:
+    case CatalogKind.TestFunction:
+    case CatalogKind.TestValidationMatcher:
+      return NodeTooltipResolver.getTestActionTooltip(name, catalogKind);
+    default:
+      return undefined;
+  }
+}
 
 /**
  * Requests a tooltip description for a given catalog item.
@@ -29,11 +38,11 @@ const TOOLTIP_RESOLVER_MAP: Partial<Record<CatalogKind, (name: string, catalogKi
  * @returns Promise resolving to the tooltip description text in format "name: description"
  */
 export async function getTooltipRequest(catalogKind: CatalogKind, name: string, description: string): Promise<string> {
-  const resolver = TOOLTIP_RESOLVER_MAP[catalogKind];
+  const tooltipRequest = resolveTooltip(catalogKind, name);
   let tooltip: string;
 
-  if (resolver) {
-    tooltip = await resolver(name, catalogKind);
+  if (tooltipRequest) {
+    tooltip = await tooltipRequest;
   } else {
     tooltip = name;
   }

@@ -1,42 +1,37 @@
-import { SchemaContext } from '@kaoto/forms';
+import {
+  CanvasFormTabsProvider,
+  FormComponentFactoryProvider,
+  ModelContextProvider,
+  SchemaContext,
+} from '@kaoto/forms';
 import { act, render, screen, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { EndpointPropertiesField } from './EndpointPropertiesField';
 import { MultiValuePropertyService } from './MultiValueProperty.service';
 
 const mockOnChange = vi.fn();
-const mockUseFieldValue = vi.fn();
 
-vi.mock('@kaoto/forms', async () => ({
-  ...(await vi.importActual('@kaoto/forms')),
-  ObjectField: ({ propName, required }: { propName: string; required?: boolean }) => (
-    <div data-testid={`object-field-${propName}`} data-required={required}>
-      ObjectField: {propName}
-    </div>
-  ),
-  PropertiesField: ({ propName, required }: { propName: string; required?: boolean }) => (
-    <div data-testid={`properties-field-${propName}`} data-required={required}>
-      PropertiesField: {propName}
-    </div>
-  ),
-  ArrayFieldWrapper: ({
-    children,
-    title,
-    actions,
-  }: {
-    children: React.ReactNode;
-    title: string;
-    actions?: React.ReactNode;
-  }) => (
-    <div data-testid="array-field-wrapper">
-      <div data-testid="array-field-title">{title}</div>
-      <div data-testid="array-field-actions">{actions}</div>
-      {children}
-    </div>
-  ),
-  useFieldValue: (propName: string) => mockUseFieldValue(propName),
-}));
+/** Real @kaoto/forms providers, so useFieldValue('testProp') reads `model.testProp` and writes through `mockOnChange` */
+const FormProviders: FunctionComponent<PropsWithChildren<{ model: Record<string, unknown> }>> = ({
+  model,
+  children,
+}) => (
+  <CanvasFormTabsProvider tab="All">
+    <FormComponentFactoryProvider>
+      <ModelContextProvider model={model} onPropertyChange={mockOnChange}>
+        {children}
+      </ModelContextProvider>
+    </FormComponentFactoryProvider>
+  </CanvasFormTabsProvider>
+);
+
+/**
+ * The ArrayFieldWrapper header badge of EndpointPropertiesField comes first in the document,
+ * the real PropertiesField renders its own badge with the same count afterwards
+ */
+const getEndpointPropertiesBadge = (count: number) => screen.getAllByTitle(`${count} properties`)[0];
 
 describe('EndpointPropertiesField', () => {
   const schemaWithProperties = {
@@ -59,17 +54,10 @@ describe('EndpointPropertiesField', () => {
     required: false,
   };
 
-  beforeEach(() => {
-    mockOnChange.mockClear();
-    mockUseFieldValue.mockReturnValue({
-      value: { key1: 'value1', key2: 'value2' },
-      onChange: mockOnChange,
-    });
-    vi.spyOn(MultiValuePropertyService, 'getMultiValueProperties').mockReturnValue(Promise.resolve(new Map()));
-  });
+  const defaultModel = { testProp: { key1: 'value1', key2: 'value2' } };
 
-  afterEach(() => {
-    vi.restoreAllMocks();
+  beforeEach(() => {
+    vi.spyOn(MultiValuePropertyService, 'getMultiValueProperties').mockReturnValue(Promise.resolve(new Map()));
   });
 
   /**
@@ -88,16 +76,18 @@ describe('EndpointPropertiesField', () => {
   describe('when schema has properties', () => {
     it('should render toggle buttons with standard view by default', async () => {
       await renderWithSuspense(
-        <SchemaContext.Provider value={schemaWithProperties}>
-          <EndpointPropertiesField {...defaultProps} />
-        </SchemaContext.Provider>,
+        <FormProviders model={defaultModel}>
+          <SchemaContext.Provider value={schemaWithProperties}>
+            <EndpointPropertiesField {...defaultProps} />
+          </SchemaContext.Provider>
+        </FormProviders>,
       );
 
       expect(screen.getByText('Standard')).toBeInTheDocument();
       expect(screen.getByText('Custom')).toBeInTheDocument();
 
-      expect(await screen.findByTestId('object-field-testProp')).toBeInTheDocument();
-      expect(screen.queryByTestId('array-field-wrapper')).not.toBeInTheDocument();
+      expect(await screen.findByTestId('testProp.prop1__field-wrapper')).toBeInTheDocument();
+      expect(screen.queryByText('Endpoint Properties')).not.toBeInTheDocument();
 
       const standardToggle = screen.getByTestId('testProp-standard-toggle');
       expect(within(standardToggle).getByRole('button')).toHaveClass('pf-m-selected');
@@ -107,48 +97,53 @@ describe('EndpointPropertiesField', () => {
       const user = userEvent.setup();
 
       await renderWithSuspense(
-        <SchemaContext.Provider value={schemaWithProperties}>
-          <EndpointPropertiesField {...defaultProps} />
-        </SchemaContext.Provider>,
+        <FormProviders model={defaultModel}>
+          <SchemaContext.Provider value={schemaWithProperties}>
+            <EndpointPropertiesField {...defaultProps} />
+          </SchemaContext.Provider>
+        </FormProviders>,
       );
 
       // Wait for Suspense to resolve before interacting
-      await screen.findByTestId('object-field-testProp');
+      await screen.findByTestId('testProp.prop1__field-wrapper');
 
       // Switch to custom view
       await user.click(screen.getByText('Custom'));
 
-      expect(await screen.findByTestId('array-field-wrapper')).toBeInTheDocument();
-      expect(screen.getByTestId('array-field-title')).toHaveTextContent('Endpoint Properties');
-      expect(screen.getByTestId('properties-field-testProp')).toBeInTheDocument();
-      expect(screen.queryByTestId('object-field-testProp')).not.toBeInTheDocument();
+      expect(await screen.findByText('Endpoint Properties')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('key1')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('value1')).toBeInTheDocument();
+      expect(screen.queryByTestId('testProp.prop1__field-wrapper')).not.toBeInTheDocument();
 
       const customToggle = screen.getByTestId('testProp-custom-toggle');
       expect(within(customToggle).getByRole('button')).toHaveClass('pf-m-selected');
 
       // Switch back to standard view
       await user.click(screen.getByText('Standard'));
-      expect(await screen.findByTestId('object-field-testProp')).toBeInTheDocument();
-      expect(screen.queryByTestId('array-field-wrapper')).not.toBeInTheDocument();
+      expect(await screen.findByTestId('testProp.prop1__field-wrapper')).toBeInTheDocument();
+      expect(screen.queryByText('Endpoint Properties')).not.toBeInTheDocument();
     });
   });
 
   describe('when schema has no properties', () => {
     it('should render PropertiesField without toggle buttons and with badge', async () => {
       render(
-        <SchemaContext.Provider value={schemaWithoutProperties}>
-          <EndpointPropertiesField {...defaultProps} />
-        </SchemaContext.Provider>,
+        <FormProviders model={defaultModel}>
+          <SchemaContext.Provider value={schemaWithoutProperties}>
+            <EndpointPropertiesField {...defaultProps} />
+          </SchemaContext.Provider>
+        </FormProviders>,
       );
 
-      expect(await screen.findByTestId('properties-field-testProp')).toBeInTheDocument();
+      expect(await screen.findByDisplayValue('key1')).toBeInTheDocument();
+      expect(screen.getByText('Endpoint Properties')).toBeInTheDocument();
       expect(screen.queryByText('Standard')).not.toBeInTheDocument();
       expect(screen.queryByText('Custom')).not.toBeInTheDocument();
 
       // Should show badge with item count
-      const badge = screen.getByText('2');
+      const badge = getEndpointPropertiesBadge(2);
       expect(badge).toBeInTheDocument();
-      expect(badge).toHaveAttribute('title', '2 properties');
+      expect(badge).toHaveTextContent('2');
 
       // Should show remove button to allow clearing properties
       expect(screen.getByTestId('testProp__remove')).toBeInTheDocument();
@@ -158,18 +153,19 @@ describe('EndpointPropertiesField', () => {
       const schemaWithUndefined = {
         schema: { properties: undefined },
         definitions: {},
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any;
+      };
 
       render(
-        <SchemaContext.Provider value={schemaWithUndefined}>
-          <EndpointPropertiesField {...defaultProps} />
-        </SchemaContext.Provider>,
+        <FormProviders model={defaultModel}>
+          <SchemaContext.Provider value={schemaWithUndefined}>
+            <EndpointPropertiesField {...defaultProps} />
+          </SchemaContext.Provider>
+        </FormProviders>,
       );
 
-      expect(await screen.findByTestId('properties-field-testProp')).toBeInTheDocument();
+      expect(await screen.findByDisplayValue('key1')).toBeInTheDocument();
       expect(screen.queryByText('Standard')).not.toBeInTheDocument();
-      expect(screen.getByText('2')).toBeInTheDocument();
+      expect(getEndpointPropertiesBadge(2)).toHaveTextContent('2');
     });
   });
 
@@ -178,81 +174,82 @@ describe('EndpointPropertiesField', () => {
       const user = userEvent.setup();
 
       await renderWithSuspense(
-        <SchemaContext.Provider value={schemaWithProperties}>
-          <EndpointPropertiesField {...defaultProps} />
-        </SchemaContext.Provider>,
+        <FormProviders model={defaultModel}>
+          <SchemaContext.Provider value={schemaWithProperties}>
+            <EndpointPropertiesField {...defaultProps} />
+          </SchemaContext.Provider>
+        </FormProviders>,
       );
 
       // Wait for Suspense in standard view before switching
-      await screen.findByTestId('object-field-testProp');
+      await screen.findByTestId('testProp.prop1__field-wrapper');
 
       await user.click(screen.getByText('Custom'));
 
-      const badge = await screen.findByText('2');
+      await screen.findByText('Endpoint Properties');
+      const badge = getEndpointPropertiesBadge(2);
       expect(badge).toBeInTheDocument();
-      expect(badge).toHaveAttribute('title', '2 properties');
+      expect(badge).toHaveTextContent('2');
     });
 
     it('should call onChange with undefined when remove button is clicked', async () => {
       const user = userEvent.setup();
 
       await renderWithSuspense(
-        <SchemaContext.Provider value={schemaWithProperties}>
-          <EndpointPropertiesField {...defaultProps} />
-        </SchemaContext.Provider>,
+        <FormProviders model={defaultModel}>
+          <SchemaContext.Provider value={schemaWithProperties}>
+            <EndpointPropertiesField {...defaultProps} />
+          </SchemaContext.Provider>
+        </FormProviders>,
       );
 
       // Wait for Suspense in standard view before switching
-      await screen.findByTestId('object-field-testProp');
+      await screen.findByTestId('testProp.prop1__field-wrapper');
 
       await user.click(screen.getByText('Custom'));
 
       const removeButton = await screen.findByTestId('testProp__remove');
       await user.click(removeButton);
 
-      expect(mockOnChange).toHaveBeenCalledWith(undefined);
+      expect(mockOnChange).toHaveBeenCalledWith('testProp', undefined);
     });
 
     it('should display badge with 0 when value is undefined', async () => {
       const user = userEvent.setup();
 
-      mockUseFieldValue.mockReturnValue({
-        value: undefined,
-        onChange: mockOnChange,
-      });
-
       await renderWithSuspense(
-        <SchemaContext.Provider value={schemaWithProperties}>
-          <EndpointPropertiesField {...defaultProps} />
-        </SchemaContext.Provider>,
+        <FormProviders model={{}}>
+          <SchemaContext.Provider value={schemaWithProperties}>
+            <EndpointPropertiesField {...defaultProps} />
+          </SchemaContext.Provider>
+        </FormProviders>,
       );
 
       // Wait for Suspense in standard view before switching
-      await screen.findByTestId('object-field-testProp');
+      await screen.findByTestId('testProp.prop1__field-wrapper');
 
       await user.click(screen.getByText('Custom'));
-      expect(await screen.findByText('0')).toBeInTheDocument();
+      await screen.findByText('Endpoint Properties');
+      expect(getEndpointPropertiesBadge(0)).toHaveTextContent('0');
     });
 
     it('should display badge with 0 when value is empty object', async () => {
       const user = userEvent.setup();
 
-      mockUseFieldValue.mockReturnValue({
-        value: {},
-        onChange: mockOnChange,
-      });
-
       await renderWithSuspense(
-        <SchemaContext.Provider value={schemaWithProperties}>
-          <EndpointPropertiesField {...defaultProps} />
-        </SchemaContext.Provider>,
+        <FormProviders model={{ testProp: {} }}>
+          <SchemaContext.Provider value={schemaWithProperties}>
+            <EndpointPropertiesField {...defaultProps} />
+          </SchemaContext.Provider>
+        </FormProviders>,
       );
 
       // Wait for Suspense in standard view before switching
-      await screen.findByTestId('object-field-testProp');
+      await screen.findByTestId('testProp.prop1__field-wrapper');
 
       await user.click(screen.getByText('Custom'));
-      expect(await screen.findByText('0')).toBeInTheDocument();
+      await screen.findByText('Endpoint Properties');
+      expect(getEndpointPropertiesBadge(0)).toHaveTextContent('0');
     });
   });
 });

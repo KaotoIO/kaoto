@@ -1,13 +1,15 @@
+import type { MockInstance } from 'vitest';
+
 import { getProcessorIconTooltipRequest } from './getProcessorIconTooltipRequest';
 import { ProcessorIconTooltipResolver } from './processor-icon-tooltip-resolver';
 
-vi.mock('./processor-icon-tooltip-resolver');
-
 describe('getProcessorIconTooltipRequest', () => {
-  const mockGetProcessorIconTooltip = vi.mocked(ProcessorIconTooltipResolver.getProcessorIconTooltip);
+  let mockGetProcessorIconTooltip: MockInstance<typeof ProcessorIconTooltipResolver.getProcessorIconTooltip>;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    mockGetProcessorIconTooltip = vi
+      .spyOn(ProcessorIconTooltipResolver, 'getProcessorIconTooltip')
+      .mockResolvedValue(undefined);
   });
 
   it('should call resolver and return tooltip for valid processors', async () => {
@@ -36,7 +38,7 @@ describe('getProcessorIconTooltipRequest', () => {
   });
 
   it('should return empty string for undefined processor name', async () => {
-    const result = await getProcessorIconTooltipRequest(undefined as unknown as string);
+    const result = await getProcessorIconTooltipRequest(undefined);
 
     expect(mockGetProcessorIconTooltip).not.toHaveBeenCalled();
     expect(result).toBe('');
