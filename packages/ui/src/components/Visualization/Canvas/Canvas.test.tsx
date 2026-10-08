@@ -529,10 +529,10 @@ describe('Canvas', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByText('Horizontal Layout')).toBeInTheDocument();
+        expect(screen.getByText('Layout nodes horizontally')).toBeInTheDocument();
       });
 
-      const horizontalButton = screen.getByText('Horizontal Layout').closest('button')!;
+      const horizontalButton = screen.getByText('Layout nodes horizontally').closest('button')!;
       expect(horizontalButton).toBeInTheDocument();
 
       fireEvent.click(horizontalButton);
@@ -565,10 +565,10 @@ describe('Canvas', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByText('Vertical Layout')).toBeInTheDocument();
+        expect(screen.getByText('Layout nodes vertically')).toBeInTheDocument();
       });
 
-      const verticalButton = screen.getByText('Vertical Layout').closest('button')!;
+      const verticalButton = screen.getByText('Layout nodes vertically').closest('button')!;
       expect(verticalButton).toBeInTheDocument();
 
       fireEvent.click(verticalButton);
@@ -598,8 +598,8 @@ describe('Canvas', () => {
           await vi.runAllTimersAsync();
         });
 
-        expect(screen.queryByText('Horizontal Layout')).not.toBeInTheDocument();
-        expect(screen.queryByText('Vertical Layout')).not.toBeInTheDocument();
+        expect(screen.queryByText('Layout nodes horizontally')).not.toBeInTheDocument();
+        expect(screen.queryByText('Layout nodes vertically')).not.toBeInTheDocument();
       },
     );
   });
