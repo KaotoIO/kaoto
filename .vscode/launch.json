@@ -8,7 +8,7 @@
       "runtimeExecutable": "${execPath}",
       "args": ["--disable-extensions", "--extensionDevelopmentPath=${workspaceFolder}/packages/kaoto-vscode"],
       "outFiles": ["${workspaceFolder}/packages/kaoto-vscode/dist/**/*.js"],
-      "preLaunchTask": "build:lib then watch",
+      "preLaunchTask": "build: vscode-kaoto build:dev",
       "env": {
         "VSCODE_REDHAT_TELEMETRY_DEBUG": "true"
       }
@@ -20,7 +20,7 @@
       "runtimeExecutable": "${execPath}",
       "args": ["--disable-extensions", "--extensionDevelopmentPath=${workspaceFolder}/packages/kaoto-vscode", "--extensionDevelopmentKind=web"],
       "outFiles": ["${workspaceFolder}/packages/kaoto-vscode/dist/**/*.js"],
-      "preLaunchTask": "build:lib then watch",
+      "preLaunchTask": "build: vscode-kaoto build:dev",
       "env": {
         "VSCODE_REDHAT_TELEMETRY_DEBUG": "true"
       }
