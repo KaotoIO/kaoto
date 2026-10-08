@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/nginx-124
+FROM registry.access.redhat.com/ubi9/nginx-124:9.8-1791288493
 
 # Symlinking nginx logs to stdout and stderr for docker log collection
 RUN set -x \
