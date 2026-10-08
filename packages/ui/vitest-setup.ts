@@ -5,8 +5,27 @@ import 'vitest-canvas-mock';
 import { getRandomValues, subtle } from 'node:crypto';
 import { TextDecoder, TextEncoder } from 'node:util';
 
-import { beforeEach, vi } from 'vitest';
+import { cleanup } from '@testing-library/react';
+import { afterAll, afterEach, beforeEach, vi } from 'vitest';
 import createFetchMock from 'vitest-fetch-mock';
+
+// Testing Library only auto-registers cleanup when its module is first evaluated; with `isolate: false`
+// that happens once per worker, so register it here (setup files run for every test file).
+afterEach(() => {
+  cleanup();
+});
+
+afterAll(() => {
+  // Restore vi.spyOn() spies at the end of every file so they don't leak into the next file of the worker
+  vi.restoreAllMocks();
+
+  // Reset <body> like a fresh jsdom would be: cleanup() only removes Testing Library's own containers, while
+  // e.g. PatternFly modals leave `class=""` behind and the Monaco loader appends a <script> tag
+  document.body.replaceChildren();
+  for (const { name } of Array.from(document.body.attributes)) {
+    document.body.removeAttribute(name);
+  }
+});
 
 Object.defineProperties(globalThis, {
   TextDecoder: { value: TextDecoder },
