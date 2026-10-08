@@ -862,7 +862,7 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                                   <span
                                     class="pf-v6-screen-reader"
                                   >
-                                    Horizontal Layout
+                                    Layout nodes horizontally
                                   </span>
                                 </span>
                               </button>
@@ -900,7 +900,7 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                                   <span
                                     class="pf-v6-screen-reader"
                                   >
-                                    Vertical Layout
+                                    Layout nodes vertically
                                   </span>
                                 </span>
                               </button>
@@ -1797,7 +1797,7 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                                   <span
                                     class="pf-v6-screen-reader"
                                   >
-                                    Horizontal Layout
+                                    Layout nodes horizontally
                                   </span>
                                 </span>
                               </button>
@@ -1835,7 +1835,7 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                                   <span
                                     class="pf-v6-screen-reader"
                                   >
-                                    Vertical Layout
+                                    Layout nodes vertically
                                   </span>
                                 </span>
                               </button>
@@ -2764,7 +2764,7 @@ exports[`Canvas > should render correctly 1`] = `
                                   <span
                                     class="pf-v6-screen-reader"
                                   >
-                                    Horizontal Layout
+                                    Layout nodes horizontally
                                   </span>
                                 </span>
                               </button>
@@ -2802,7 +2802,7 @@ exports[`Canvas > should render correctly 1`] = `
                                   <span
                                     class="pf-v6-screen-reader"
                                   >
-                                    Vertical Layout
+                                    Layout nodes vertically
                                   </span>
                                 </span>
                               </button>
