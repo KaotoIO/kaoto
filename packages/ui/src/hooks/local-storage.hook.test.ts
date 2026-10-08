@@ -10,6 +10,7 @@ describe('useLocalStorage', () => {
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     localStorage.removeItem(key);
   });
 
@@ -58,6 +59,19 @@ describe('useLocalStorage', () => {
       setValue(888);
     });
 
+    expect(result.current[0]).toBe(888);
+  });
+
+  it.each(['getItem', 'setItem'] as const)('keeps state usable when storage %s throws', (method) => {
+    vi.spyOn(Storage.prototype, method).mockImplementation(() => {
+      throw new DOMException('Storage unavailable', 'SecurityError');
+    });
+    const { result } = renderHook(() => useLocalStorage(key, 42));
+
+    expect(result.current[0]).toBe(42);
+    act(() => {
+      result.current[1](888);
+    });
     expect(result.current[0]).toBe(888);
   });
 });
