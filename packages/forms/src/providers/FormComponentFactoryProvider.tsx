@@ -13,6 +13,7 @@ import { PasswordField } from '../fields/PasswordField';
 import { PropertiesField } from '../fields/PropertiesField/PropertiesField';
 import { StringField } from '../fields/StringField';
 import { TextAreaField } from '../fields/TextAreaField';
+import { UriField } from '../fields/UriField/UriField';
 import { FieldProps } from '../models/typings';
 import {
   FormComponentFactoryContext,
@@ -43,6 +44,8 @@ export const FormComponentFactoryProvider: FunctionComponent<IFormComponentFacto
 
       if (schema.format === 'password') {
         return PasswordField;
+      } else if (schema.type === 'string' && schema.title === 'Uri') {
+        return UriField;
       } else if (schema.type === 'string' && schema.title && TEXT_AREA_PROPERTY_NAMES.has(schema.title)) {
         return TextAreaField;
       } else if (schema.type === 'string' && Array.isArray(schema.enum)) {

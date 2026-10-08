@@ -13,6 +13,7 @@ import { PasswordField } from '../fields/PasswordField';
 import { PropertiesField } from '../fields/PropertiesField/PropertiesField';
 import { StringField } from '../fields/StringField';
 import { TextAreaField } from '../fields/TextAreaField';
+import { UriField } from '../fields/UriField/UriField';
 import { FormComponentFactoryContext } from './context/form-component-factory-context';
 import { FormComponentFactoryProvider } from './FormComponentFactoryProvider';
 
@@ -28,6 +29,7 @@ describe('FormComponentFactoryProvider', () => {
 
   it.each([
     [{ format: 'password' }, PasswordField],
+    [{ type: 'string', title: 'Uri' }, UriField],
     [{ type: 'string', title: 'Expression' }, TextAreaField],
     [{ type: 'string', title: 'Description' }, TextAreaField],
     [{ type: 'string', title: 'Query' }, TextAreaField],
