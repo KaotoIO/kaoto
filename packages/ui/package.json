@@ -14,20 +14,30 @@
   "module": "./lib/public-api.js",
   "exports": {
     ".": {
+      "@kaoto/source": "./src/public-api.ts",
       "types": "./lib/public-api.d.ts",
       "import": "./lib/public-api.js"
     },
     "./components": {
+      "@kaoto/source": "./src/components-api.ts",
       "types": "./lib/components-api.d.ts",
       "import": "./lib/components-api.js"
     },
     "./models": {
+      "@kaoto/source": "./src/models-api.ts",
       "types": "./lib/models-api.d.ts",
       "import": "./lib/models-api.js"
     },
     "./testing": {
+      "@kaoto/source": "./src/testing-api.ts",
       "types": "./lib/testing-api.d.ts",
       "import": "./lib/testing-api.js"
+    },
+    "./testing/vitest-mocks-setup": {
+      "@kaoto/source": "./vitest-mocks-setup.ts"
+    },
+    "./testing/vitest-setup": {
+      "@kaoto/source": "./vitest-setup.ts"
     }
   },
   "sideEffects": [
@@ -39,9 +49,9 @@
   ],
   "scripts": {
     "start": "vite --mode=dev",
-    "build": "tsc && vite build --config vite.config.mjs",
-    "build:dev": "tsc && vite build --mode=dev --config vite.config.mjs",
-    "build:lib": "yarn rimraf ./lib && tsc --project tsconfig.lib.json && copyfiles -u 1 './src/**/*.scss' './src/assets/**' ./lib && yarn write-version",
+    "build": "tsc -b && vite build",
+    "build:dev": "tsc -b && vite build --mode=dev",
+    "build:lib": "yarn rimraf ./lib && tsc -b tsconfig.lib.json && copyfiles -u 1 './src/**/*.scss' './src/assets/**' ./lib && yarn write-version",
     "write-version": "node ./scripts/write-version-file.mjs",
     "preview": "vite preview",
     "test": "vitest run --config vitest.config.mts",

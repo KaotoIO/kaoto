@@ -1,6 +1,5 @@
 import React from 'react';
 
-
 // This file contains all vi.mock() calls and runs before other setup files
 // to ensure mocks are properly hoisted
 
@@ -84,13 +83,14 @@ vi.mock('@patternfly/react-icons', () => {
 
 // Mock hotkeys-js to avoid ESM resolution issues
 vi.mock('hotkeys-js', () => {
-  const hotkeyMock = vi.fn();
-  hotkeyMock.unbind = vi.fn();
-  hotkeyMock.setScope = vi.fn();
-  hotkeyMock.getScope = vi.fn();
-  hotkeyMock.deleteScope = vi.fn();
-  hotkeyMock.noConflict = vi.fn();
-  hotkeyMock.filter = vi.fn();
+  const hotkeyMock = Object.assign(vi.fn(), {
+    unbind: vi.fn(),
+    setScope: vi.fn(),
+    getScope: vi.fn(),
+    deleteScope: vi.fn(),
+    noConflict: vi.fn(),
+    filter: vi.fn(),
+  });
 
   return {
     __esModule: true,

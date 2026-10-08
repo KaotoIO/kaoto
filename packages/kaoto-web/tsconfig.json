@@ -1,13 +1,4 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "composite": true,
-    "paths": {
-      "@/*": ["./src/*"]
-    },
-    /* Typings */
-    "types": ["@testing-library/jest-dom/vitest", "vitest/globals", "@types/node", "vite/client"]
-  },
-  "include": ["src/**/*"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "files": [],
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }]
 }

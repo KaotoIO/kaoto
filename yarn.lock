@@ -3744,6 +3744,7 @@ __metadata:
     "@eslint/js": "npm:^9.10.0"
     "@ibm/plex": "npm:^6.4.1"
     "@kaoto/camel-catalog": "npm:^0.10.6"
+    "@kaoto/kaoto": "workspace:*"
     "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/jest-dom": "npm:^6.9.1"
     "@testing-library/react": "npm:^16.3.2"

@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "start": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run --config vitest.config.mts",
     "test:watch": "vitest --config vitest.config.mts",
@@ -32,6 +32,7 @@
     "@carbon/icons-react": "^11.67.0",
     "@carbon/react": "^1.102.0",
     "@ibm/plex": "^6.4.1",
+    "@kaoto/kaoto": "workspace:*",
     "classnames": "^2.5.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

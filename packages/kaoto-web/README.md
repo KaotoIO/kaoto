@@ -104,11 +104,12 @@ yarn lint:format   # Prettier only
 
 ### Vitest Configuration
 
-Tests for this package are configured in the root `/vitest.config.ts` as a project:
+Tests are configured in `vitest.config.mts`:
 
-- Project name: `kaoto-web`
-- Test files: `src/**/*.{test,spec}.{ts,tsx}`
-- Setup file: `src/test/setup.ts`
+- Test files: `**/*.test.{ts,tsx}`
+- Setup files: `vitest-mocks-setup.ts` and `vitest-setup.ts`, which import the shared setup from `@kaoto/kaoto`
+  (`@kaoto/kaoto/testing/vitest-mocks-setup` and `@kaoto/kaoto/testing/vitest-setup`). Add kaoto-web specific
+  setup below those imports, or append more files to `setupFiles`.
 
 ### ESLint Configuration
 

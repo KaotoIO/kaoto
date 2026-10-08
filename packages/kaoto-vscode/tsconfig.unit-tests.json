@@ -3,12 +3,13 @@
   "compilerOptions": {
     "module": "CommonJS",
     "moduleResolution": "bundler",
+    "noEmit": false,
     "rootDir": "src",
-    "paths": {
-      "@kaoto/camel-catalog/types": ["../../node_modules/@kaoto/camel-catalog/dist/types/index.ts"],
-      "@kaoto/kaoto/models": ["../../node_modules/@kaoto/kaoto/lib/models-api.d.ts"],
-      "@kaoto/kaoto": ["../../node_modules/@kaoto/kaoto/lib/public-api.d.ts"]
-    },
+    /*
+     * Opt out of the `@kaoto/source` condition: @kaoto/kaoto sources are ESM-only (import.meta)
+     * and cannot be compiled as CommonJS, so the tests type-check against its built declarations.
+     */
+    "customConditions": [],
     "forceConsistentCasingInFileNames": true,
     "declaration": true,
     "declarationMap": true,

@@ -16,7 +16,9 @@ export default [
     languageOptions: {
       globals: globals.browser,
       parserOptions: {
-        project: true,
+        // The project service (tsserver) understands solution-style tsconfig.json files with
+        // `references`, which `project: true` does not (packages/*/tsconfig.json are solutions).
+        projectService: true,
       },
     },
   },
@@ -24,7 +26,7 @@ export default [
   ...tseslint.configs.recommended,
   // Enable type-aware linting (required for prefer-readonly / typescript:S2933).
   // Scoped to package source dirs — excludes root-level config/tooling files that
-  // have no tsconfig. Each package's own tsconfig.json is resolved via project:true.
+  // have no tsconfig. Each file's owning tsconfig is resolved by the project service.
   {
     files: [
       'packages/ui/src/**/*.{ts,tsx}',
@@ -34,7 +36,7 @@ export default [
     ],
     languageOptions: {
       parserOptions: {
-        project: true,
+        projectService: true,
         tsconfigRootDir: import.meta.dirname,
       },
     },

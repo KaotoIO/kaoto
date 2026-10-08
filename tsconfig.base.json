@@ -8,10 +8,20 @@
 
     /* Bundler mode */
     "moduleResolution": "bundler",
+    "moduleDetection": "force",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
+
+    /*
+     * Workspace packages expose their TypeScript sources through the `@kaoto/source`
+     * export condition (see packages/ui/package.json). Opting into it here makes
+     * every project in the monorepo resolve sibling packages to `src/` instead of `lib/`,
+     * so nothing has to be pre-built. Vite, Vitest and webpack opt in through their own
+     * `resolve.conditions` / `resolve.conditionNames` settings.
+     */
+    "customConditions": ["@kaoto/source"],
 
     /* Linting */
     "strict": true,
