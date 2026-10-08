@@ -2,23 +2,31 @@ import { CatalogKind } from '../../../../../catalog-kind';
 import { NodeTitleResolver } from './node-title-resolver';
 
 /**
- * Mapping of catalog kinds to their respective resolver methods.
+ * Resolves the title through the NodeTitleResolver method matching the catalog kind.
+ * The methods are looked up on every call, so they keep their `this` binding and can be spied on.
  */
-const TITLE_RESOLVER_MAP: Partial<
-  Record<CatalogKind, (name: string, catalogKind: CatalogKind, componentName?: string) => Promise<string>>
-> = {
-  [CatalogKind.Entity]: NodeTitleResolver.getEntityTitle,
-  [CatalogKind.Kamelet]: NodeTitleResolver.getKameletTitle,
-  [CatalogKind.Component]: NodeTitleResolver.getComponentTitle,
-  [CatalogKind.Processor]: NodeTitleResolver.getProcessorTitle,
-  [CatalogKind.Pattern]: NodeTitleResolver.getProcessorTitle,
-  [CatalogKind.TestAction]: NodeTitleResolver.getTestActionTitle,
-  [CatalogKind.TestActionGroup]: NodeTitleResolver.getTestActionTitle,
-  [CatalogKind.TestContainer]: NodeTitleResolver.getTestActionTitle,
-  [CatalogKind.TestEndpoint]: NodeTitleResolver.getTestActionTitle,
-  [CatalogKind.TestFunction]: NodeTitleResolver.getTestActionTitle,
-  [CatalogKind.TestValidationMatcher]: NodeTitleResolver.getTestActionTitle,
-};
+function resolveTitle(catalogKind: CatalogKind, name: string, componentName?: string): Promise<string> | undefined {
+  switch (catalogKind) {
+    case CatalogKind.Entity:
+      return NodeTitleResolver.getEntityTitle(name);
+    case CatalogKind.Kamelet:
+      return NodeTitleResolver.getKameletTitle(name);
+    case CatalogKind.Component:
+      return NodeTitleResolver.getComponentTitle(name);
+    case CatalogKind.Processor:
+    case CatalogKind.Pattern:
+      return NodeTitleResolver.getProcessorTitle(name, catalogKind, componentName);
+    case CatalogKind.TestAction:
+    case CatalogKind.TestActionGroup:
+    case CatalogKind.TestContainer:
+    case CatalogKind.TestEndpoint:
+    case CatalogKind.TestFunction:
+    case CatalogKind.TestValidationMatcher:
+      return NodeTitleResolver.getTestActionTitle(name, catalogKind, componentName);
+    default:
+      return undefined;
+  }
+}
 
 /**
  * Requests the display title for a node based on its catalog kind and name.
@@ -30,10 +38,10 @@ const TITLE_RESOLVER_MAP: Partial<
  * @returns Promise resolving to the human-readable title
  */
 export async function getTitleRequest(catalogKind: CatalogKind, name: string, componentName?: string): Promise<string> {
-  const resolver = TITLE_RESOLVER_MAP[catalogKind];
+  const titleRequest = resolveTitle(catalogKind, name, componentName);
 
-  if (resolver) {
-    const title = await resolver(name, catalogKind, componentName);
+  if (titleRequest) {
+    const title = await titleRequest;
     return title || name;
   }
 
