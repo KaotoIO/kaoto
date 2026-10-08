@@ -16,10 +16,12 @@ afterEach(() => {
 });
 
 afterAll(() => {
-  // Restore vi.spyOn() spies at the end of every file so they don't leak into the next file of the worker,
-  // and reset the vi.fn() mocks of the global mocks (vitest-mocks-setup.ts) to their default implementation
+  // Restore vi.spyOn() spies and vi.stubGlobal()/vi.stubEnv() stubs at the end of every file so they don't leak into
+  // the next file of the worker, and reset the vi.fn() mocks of the global mocks to their default implementation
   vi.restoreAllMocks();
   vi.resetAllMocks();
+  vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
 
   // Reset <body> like a fresh jsdom would be: cleanup() only removes Testing Library's own containers, while
   // e.g. PatternFly modals leave `class=""` behind and the Monaco loader appends a <script> tag
@@ -80,22 +82,22 @@ Object.defineProperty(globalThis.SVGElement.prototype, 'getScreenCTM', {
 
 Object.defineProperty(globalThis.SVGElement.prototype, 'getBBox', {
   writable: true,
-  value: vi.fn().mockReturnValue({ x: 0, y: 0 }),
+  value: vi.fn(() => ({ x: 0, y: 0 })),
 });
 
 Object.defineProperty(globalThis.SVGElement.prototype, 'getComputedTextLength', {
   writable: true,
-  value: vi.fn().mockReturnValue(0),
+  value: vi.fn(() => 0),
 });
 
 Object.defineProperty(globalThis.SVGElement.prototype, 'createSVGMatrix', {
   writable: true,
-  value: vi.fn().mockReturnValue({
+  value: vi.fn(() => ({
     x: 10,
     y: 10,
     inverse: () => {},
     multiply: () => {},
-  }),
+  })),
 });
 
 // Setup fetch mock
@@ -104,7 +106,7 @@ fetchMocker.enableMocks();
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation((query) => ({
+  value: vi.fn((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -205,7 +207,7 @@ Element.prototype.scrollIntoView = vi.fn();
 // This API has been removed from modern browsers but Monaco Editor still uses it
 Object.defineProperty(document, 'queryCommandSupported', {
   writable: true,
-  value: vi.fn().mockReturnValue(false),
+  value: vi.fn(() => false),
 });
 
 // Mock ClipboardItem for Monaco Editor
@@ -231,6 +233,7 @@ if (typeof ClipboardItem === 'undefined') {
 
   Object.defineProperty(globalThis, 'ClipboardItem', {
     writable: true,
+    configurable: true,
     value: ClipboardItemMock,
   });
 }
@@ -241,10 +244,10 @@ Object.defineProperty(navigator, 'clipboard', {
   writable: true,
   configurable: true,
   value: {
-    writeText: vi.fn().mockResolvedValue(undefined),
-    readText: vi.fn().mockResolvedValue(''),
-    write: vi.fn().mockResolvedValue(undefined),
-    read: vi.fn().mockResolvedValue([]),
+    writeText: vi.fn(async () => undefined),
+    readText: vi.fn(async () => ''),
+    write: vi.fn(async () => undefined),
+    read: vi.fn(async () => []),
   },
 });
 
