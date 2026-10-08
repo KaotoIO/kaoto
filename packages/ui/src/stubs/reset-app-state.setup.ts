@@ -9,6 +9,7 @@
 import { afterAll } from 'vitest';
 
 import { DynamicCatalogRegistry } from '../dynamic-catalog/dynamic-catalog-registry';
+import { sourceSchemaConfig } from '../models/camel/source-schema-config';
 import { TreeUIService } from '../services/visualization/tree-ui.service';
 import { XPathFunctionCatalogService } from '../services/xpath/catalog/xpath-function-catalog.service';
 import { useDocumentTreeStore } from '../store/document-tree.store';
@@ -80,6 +81,9 @@ afterAll(() => {
   DynamicCatalogRegistry.get().clearRegistry();
   XPathFunctionCatalogService.clear();
   TreeUIService.clear();
+  for (const schemaConfig of Object.values(sourceSchemaConfig.config)) {
+    schemaConfig.schema = undefined;
+  }
   useDocumentTreeStore.setState(useDocumentTreeStore.getInitialState(), true);
   useSchemasStore.setState(useSchemasStore.getInitialState(), true);
   useSourceCodeStore.setState(useSourceCodeStore.getInitialState(), true);
