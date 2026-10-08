@@ -1,6 +1,6 @@
 import './RestDslEditorPage.scss';
 
-import { CodeSnippet } from '@carbon/react';
+import { CodeSnippet, Layer } from '@carbon/react';
 import { Rest } from '@kaoto/camel-catalog/types';
 import { CanvasFormTabsProvider, FilteredFieldProvider, getCamelRandomId, KaotoForm } from '@kaoto/forms';
 import { FunctionComponent, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -221,20 +221,22 @@ export const RestDslEditorPage: FunctionComponent = () => {
                   <Loading>Loading schemas...</Loading>
                 ) : (
                   <Suspense fallback={<Loading>Loading form...</Loading>}>
-                    <CanvasFormTabsProvider tab="All">
-                      <FilteredFieldProvider key={`${entityId}__${modelPath}`}>
-                        <RestDslFormHeader />
-                        <SuggestionRegistrar>
-                          <KaotoForm
-                            key={`${entityId}__${modelPath}`}
-                            schema={schema}
-                            onChangeProp={handleOnChangeIndividualProp}
-                            model={parsedModel}
-                            customFieldsFactory={restFormFieldFactory}
-                          />
-                        </SuggestionRegistrar>
-                      </FilteredFieldProvider>
-                    </CanvasFormTabsProvider>
+                    <Layer>
+                      <CanvasFormTabsProvider tab="All">
+                        <FilteredFieldProvider key={`${entityId}__${modelPath}`}>
+                          <RestDslFormHeader />
+                          <SuggestionRegistrar>
+                            <KaotoForm
+                              key={`${entityId}__${modelPath}`}
+                              schema={schema}
+                              onChangeProp={handleOnChangeIndividualProp}
+                              model={parsedModel}
+                              customFieldsFactory={restFormFieldFactory}
+                            />
+                          </SuggestionRegistrar>
+                        </FilteredFieldProvider>
+                      </CanvasFormTabsProvider>
+                    </Layer>
                   </Suspense>
                 )}
               </>
