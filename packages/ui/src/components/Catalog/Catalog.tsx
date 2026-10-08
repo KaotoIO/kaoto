@@ -14,6 +14,8 @@ import { sortTags } from './sort-tags';
 
 export const MAX_RECENT_TILES = 10;
 
+type RecentTile = Pick<ITile, 'name' | 'type'>;
+
 interface CatalogProps {
   /** Tiles list */
   tiles: ITile[];
@@ -24,12 +26,12 @@ interface CatalogProps {
 
 export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (props) => {
   const [activeLayout, setActiveLayout] = useLocalStorage(LocalStorageKeys.CatalogLayout, CatalogLayout.Gallery);
-  const [storedRecentTiles, setRecentTiles] = useLocalStorage<unknown>(LocalStorageKeys.CatalogRecentlyUsed, []);
+  const [storedRecentTiles, setRecentTiles] = useLocalStorage<RecentTile[]>(LocalStorageKeys.CatalogRecentlyUsed, []);
   const recentTiles = useMemo(
     () =>
       Array.isArray(storedRecentTiles)
         ? storedRecentTiles.filter(
-            (tile: unknown): tile is Pick<ITile, 'name' | 'type'> =>
+            (tile: unknown): tile is RecentTile =>
               typeof tile === 'object' &&
               tile !== null &&
               'name' in tile &&
