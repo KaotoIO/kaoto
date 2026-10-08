@@ -1,12 +1,12 @@
 import { renderHook, waitFor } from '@testing-library/react';
+import { MockInstance } from 'vitest';
 
-import { getProcessorIconTooltipRequest } from '../models/visualization/flows/nodes/resolvers/tooltip-resolver/getProcessorIconTooltipRequest';
+import { ProcessorIconTooltipResolver } from '../models/visualization/flows/nodes/resolvers/tooltip-resolver/processor-icon-tooltip-resolver';
 import { useProcessorTooltips } from './use-processor-tooltips.hook';
 
-vi.mock('../models/visualization/flows/nodes/resolvers/tooltip-resolver/getProcessorIconTooltipRequest');
-
 describe('useProcessorTooltips', () => {
-  const mockGetRequest = vi.mocked(getProcessorIconTooltipRequest);
+  /** The real getProcessorIconTooltipRequest delegates to this resolver for processors with icons (to, toD, poll) */
+  let mockGetRequest: MockInstance<typeof ProcessorIconTooltipResolver.getProcessorIconTooltip>;
 
   // Use stable array references to match real-world usage with constants
   const STABLE_THREE_PROCESSORS = ['to', 'toD', 'poll'];
@@ -14,7 +14,7 @@ describe('useProcessorTooltips', () => {
   const STABLE_ONE_PROCESSOR = ['to'];
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    mockGetRequest = vi.spyOn(ProcessorIconTooltipResolver, 'getProcessorIconTooltip').mockResolvedValue(undefined);
   });
 
   it('should fetch tooltips for multiple processors', async () => {
@@ -24,7 +24,7 @@ describe('useProcessorTooltips', () => {
         toD: 'ToD: Sends messages to a dynamic endpoint',
         poll: 'Poll: Polls messages from an endpoint',
       };
-      return tooltips[name || ''] || '';
+      return tooltips[name] || '';
     });
 
     const { result } = renderHook(() => useProcessorTooltips(STABLE_THREE_PROCESSORS));
@@ -122,7 +122,7 @@ describe('useProcessorTooltips', () => {
         to: 'To: Sends messages to an endpoint',
         toD: 'ToD: Sends messages to a dynamic endpoint',
       };
-      return tooltips[name || ''] || '';
+      return tooltips[name] || '';
     });
 
     const { result, rerender } = renderHook(({ processors }) => useProcessorTooltips(processors), {

@@ -1,34 +1,24 @@
-import { render } from '@testing-library/react';
+import { Visualization, VisualizationProvider } from '@patternfly/react-topology';
+import { render as rtlRender } from '@testing-library/react';
 import hotkeys from 'hotkeys-js';
-import type { MockedFunction } from 'vitest';
+import { PropsWithChildren, ReactElement } from 'react';
 
 import { KeyboardShortcutsProvider } from './keyboard-shortcuts.provider';
 
-// Mock the useUndoRedo hook
-const mockUndo = vi.fn();
-const mockRedo = vi.fn();
-
-vi.mock('../hooks/undo-redo.hook', () => ({
-  useUndoRedo: () => ({
-    undo: mockUndo,
-    redo: mockRedo,
-  }),
-}));
-
-// Mock hotkeys
-vi.mock('hotkeys-js', () => {
-  const hotkeyMock = vi.fn();
-  (hotkeyMock as unknown as typeof hotkeys).unbind = vi.fn();
-
-  return {
-    __esModule: true,
-    default: hotkeyMock,
-  };
-});
-
-const mockHotkeys = hotkeys as MockedFunction<typeof hotkeys>;
+/* hotkeys-js is mocked globally in vitest-mocks-setup.ts */
+const mockHotkeys = vi.mocked(hotkeys);
 
 describe('KeyboardShortcutsProvider', () => {
+  /** The real useUndoRedo hook needs a topology controller */
+  const render = (ui: ReactElement) => {
+    const controller = new Visualization();
+    return rtlRender(ui, {
+      wrapper: ({ children }: PropsWithChildren) => (
+        <VisualizationProvider controller={controller}>{children}</VisualizationProvider>
+      ),
+    });
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
   });

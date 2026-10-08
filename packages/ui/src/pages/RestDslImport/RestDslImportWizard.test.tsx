@@ -1,42 +1,79 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import type { Mock } from 'vitest';
+import { FunctionComponent, PropsWithChildren } from 'react';
+import type { Mock, MockInstance } from 'vitest';
 
+import { CamelRouteResource } from '../../models/camel/camel-route-resource';
+import { DefaultSettingsAdapter } from '../../models/settings';
+import { SettingsContext } from '../../providers';
+import { TestProvidersWrapper } from '../../stubs/TestProvidersWrapper';
 import { RestDslImportWizard } from './RestDslImportWizard';
-import { useRestDslImportWizard } from './useRestDslImportWizard';
 
-vi.mock('./useRestDslImportWizard');
+/** Builds an OpenAPI specification holding the given operations, grouped by path and method */
+const createSpec = (paths: Record<string, Record<string, { operationId: string }>>) =>
+  JSON.stringify({
+    openapi: '3.0.0',
+    info: { title: 'Test API', version: '1.0.0' },
+    paths: Object.fromEntries(
+      Object.entries(paths).map(([path, operations]) => [
+        path,
+        Object.fromEntries(
+          Object.entries(operations).map(([method, operation]) => [
+            method,
+            { ...operation, responses: { '200': { description: 'ok' } } },
+          ]),
+        ),
+      ]),
+    ),
+  });
+
+const GET_PET_BY_ID_SPEC = createSpec({ '/pet/{id}': { get: { operationId: 'getPet' } } });
+const GET_PET_SPEC = createSpec({ '/pet': { get: { operationId: 'getPet' } } });
+const TWO_OPERATIONS_SPEC = createSpec({
+  '/pet': { get: { operationId: 'getPet' }, post: { operationId: 'addPet' } },
+});
 
 describe('RestDslImportWizard', () => {
-  const fetchSpy = vi.spyOn(globalThis, 'fetch');
+  let fetchSpy: MockInstance<typeof fetch>;
   const mockOnClose = vi.fn();
   const mockOnGoToDesigner = vi.fn();
+  let EntitiesProvider: FunctionComponent<PropsWithChildren>;
+  let updateEntitiesFromCamelResourceSpy: Mock;
 
-  const mockWizard = {
-    importSource: 'file' as const,
-    isOpenApiParsed: false,
-    openApiSpecText: '',
-    openApiLoadSource: undefined,
-    sourceIdentifier: '',
-    importCreateRest: false,
-    importCreateRoutes: true,
-    importSelectAll: true,
-    importOperations: [],
-    importStatus: null,
-    apicurioRegistryUrl: 'http://registry.example.com',
-    handleSchemaLoaded: vi.fn(),
-    handleImportSourceChange: vi.fn(),
-    setOpenApiSpecText: vi.fn(),
-    handleParseOpenApiSpec: vi.fn(),
-    setImportCreateRest: vi.fn(),
-    setImportCreateRoutes: vi.fn(),
-    handleToggleSelectAllOperations: vi.fn(),
-    handleToggleOperation: vi.fn(),
-    handleImportOpenApi: vi.fn(),
-    resetImportWizard: vi.fn(),
+  const settingsAdapter = new DefaultSettingsAdapter({
+    rest: { apicurioRegistryUrl: 'http://registry.example.com', customMediaTypes: [] },
+  });
+
+  /** Renders the wizard with the real useRestDslImportWizard hook, backed by real settings and entities */
+  const renderWizard = (Provider: FunctionComponent<PropsWithChildren> = EntitiesProvider) =>
+    render(
+      <SettingsContext.Provider value={settingsAdapter}>
+        <Provider>
+          <RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />
+        </Provider>
+      </SettingsContext.Provider>,
+    );
+
+  const goToOperationsStep = () => {
+    fireEvent.click(screen.getByRole('button', { name: /^Operations$/i }));
   };
 
-  beforeEach(() => {
-    (useRestDslImportWizard as Mock).mockReturnValue(mockWizard);
+  /** Goes to the Operations step, enters the specification and parses it */
+  const parseSpec = async (spec: string) => {
+    goToOperationsStep();
+    const textarea = await screen.findByRole('textbox', { name: /rest-openapi-spec/i });
+    fireEvent.change(textarea, { target: { value: spec } });
+    fireEvent.click(screen.getByRole('button', { name: /parse specification/i }));
+  };
+
+  /** Parses the specification and imports its operations, landing on the Result step */
+  const importSpec = async (spec: string) => {
+    await parseSpec(spec);
+    fireEvent.click(await screen.findByRole('button', { name: /^Import$/i }));
+  };
+
+  beforeEach(async () => {
+    fetchSpy = vi.spyOn(globalThis, 'fetch');
+    ({ Provider: EntitiesProvider, updateEntitiesFromCamelResourceSpy } = await TestProvidersWrapper());
   });
 
   afterEach(() => {
@@ -45,21 +82,23 @@ describe('RestDslImportWizard', () => {
 
   describe('Import source step', () => {
     it('renders all import source options', () => {
-      render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
+      renderWizard();
       expect(screen.getByLabelText('Upload file')).toBeInTheDocument();
       expect(screen.getByLabelText('Import from URI')).toBeInTheDocument();
       expect(screen.getByLabelText('Import from Apicurio')).toBeInTheDocument();
     });
 
     it('calls handleImportSourceChange when changing source', () => {
-      render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
+      renderWizard();
       const uriRadio = screen.getByLabelText('Import from URI');
       fireEvent.click(uriRadio);
-      expect(mockWizard.handleImportSourceChange).toHaveBeenCalledWith('uri');
+      expect(uriRadio).toBeChecked();
+      expect(screen.getByLabelText('Upload file')).not.toBeChecked();
+      expect(screen.getByPlaceholderText('https://example.com/openapi.yaml')).toBeInTheDocument();
     });
 
     it('shows FileImportSource when file source is selected', () => {
-      render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
+      renderWizard();
       // FileImportSource renders a file upload component with the ID
       const fileUpload = document.querySelector('#openapi-file-upload');
       expect(fileUpload).toBeInTheDocument();
@@ -67,8 +106,8 @@ describe('RestDslImportWizard', () => {
     });
 
     it('shows UriImportSource when URI source is selected', () => {
-      (useRestDslImportWizard as Mock).mockReturnValue({ ...mockWizard, importSource: 'uri' });
-      render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
+      renderWizard();
+      fireEvent.click(screen.getByLabelText('Import from URI'));
       // UriImportSource renders a text input and Fetch button
       expect(screen.getByPlaceholderText('https://example.com/openapi.yaml')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /fetch/i })).toBeInTheDocument();
@@ -76,76 +115,65 @@ describe('RestDslImportWizard', () => {
 
     it('shows ApicurioImportSource when Apicurio source is selected', async () => {
       // Mock the Apicurio fetch call
-      fetchSpy.mockResolvedValue({
-        ok: true,
-        json: vi.fn().mockResolvedValue({ artifacts: [] }),
-      } as unknown as Response);
+      fetchSpy.mockResolvedValue(new Response(JSON.stringify({ artifacts: [] }), { status: 200 }));
 
-      (useRestDslImportWizard as Mock).mockReturnValue({ ...mockWizard, importSource: 'apicurio' });
-      render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
+      renderWizard();
+      fireEvent.click(screen.getByLabelText('Import from Apicurio'));
 
       // ApicurioImportSource renders search input and refresh button
       await waitFor(() => {
         expect(screen.getByPlaceholderText('Search OpenAPI artifacts')).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /refresh/i })).toBeInTheDocument();
       });
+      expect(fetchSpy).toHaveBeenCalledWith('http://registry.example.com/apis/registry/v2/search/artifacts');
     });
   });
 
   describe('Operations step', () => {
     it('renders OpenAPI specification textarea', async () => {
-      render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
+      renderWizard();
       // Click on the Operations step in the nav
-      const operationsNav = screen.getByRole('button', { name: /^Operations$/i });
-      fireEvent.click(operationsNav);
+      goToOperationsStep();
       await waitFor(() => {
         expect(screen.getByRole('textbox', { name: /rest-openapi-spec/i })).toBeInTheDocument();
       });
     });
 
     it('calls setOpenApiSpecText when textarea changes', async () => {
-      render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
-      const operationsNav = screen.getByRole('button', { name: /^Operations$/i });
-      fireEvent.click(operationsNav);
+      renderWizard();
+      goToOperationsStep();
 
       const textarea = await screen.findByRole('textbox', { name: /rest-openapi-spec/i });
       fireEvent.change(textarea, { target: { value: 'openapi: 3.0.0' } });
 
       await waitFor(() => {
-        expect(mockWizard.setOpenApiSpecText).toHaveBeenCalledWith('openapi: 3.0.0');
+        expect(textarea).toHaveValue('openapi: 3.0.0');
       });
     });
 
     it('calls handleParseOpenApiSpec when Parse button is clicked', async () => {
-      render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
-      const operationsNav = screen.getByRole('button', { name: /^Operations$/i });
-      fireEvent.click(operationsNav);
+      renderWizard();
 
-      const parseButton = await screen.findByRole('button', { name: /parse specification/i });
-      fireEvent.click(parseButton);
+      await parseSpec(GET_PET_SPEC);
 
       await waitFor(() => {
-        expect(mockWizard.handleParseOpenApiSpec).toHaveBeenCalled();
+        expect(screen.getByLabelText(/GET \/pet/)).toBeInTheDocument();
       });
     });
 
     it('shows error message in operations step', async () => {
-      (useRestDslImportWizard as Mock).mockReturnValue({
-        ...mockWizard,
-        importStatus: { type: 'error', message: 'Invalid specification' },
-      });
-      render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
-      const operationsNav = screen.getByRole('button', { name: /^Operations$/i });
-      fireEvent.click(operationsNav);
+      renderWizard();
+
+      await parseSpec('Invalid specification');
+
       await waitFor(() => {
-        expect(screen.getByText('Invalid specification')).toBeInTheDocument();
+        expect(screen.getByText('Invalid OpenAPI specification.')).toBeInTheDocument();
       });
     });
 
     it('renders import options checkboxes', async () => {
-      render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
-      const operationsNav = screen.getByRole('button', { name: /^Operations$/i });
-      fireEvent.click(operationsNav);
+      renderWizard();
+      goToOperationsStep();
       await waitFor(() => {
         expect(screen.getByLabelText('Create Rest DSL operations')).toBeInTheDocument();
         expect(screen.getByLabelText('Create routes with direct endpoints')).toBeInTheDocument();
@@ -153,32 +181,23 @@ describe('RestDslImportWizard', () => {
     });
 
     it('calls setImportCreateRest when checkbox is toggled', async () => {
-      render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
-      const operationsNav = screen.getByRole('button', { name: /^Operations$/i });
-      fireEvent.click(operationsNav);
+      renderWizard();
+      goToOperationsStep();
 
       const checkbox = await screen.findByLabelText('Create Rest DSL operations');
+      expect(checkbox).not.toBeChecked();
       fireEvent.click(checkbox);
 
       await waitFor(() => {
-        expect(mockWizard.setImportCreateRest).toHaveBeenCalledWith(true);
+        expect(checkbox).toBeChecked();
       });
     });
 
     it('renders operations list when operations are available', async () => {
-      const operations = [
-        {
-          operationId: 'getPet',
-          method: 'get',
-          path: '/pet/{id}',
-          selected: true,
-          routeExists: false,
-        },
-      ];
-      (useRestDslImportWizard as Mock).mockReturnValue({ ...mockWizard, importOperations: operations });
-      render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
-      const operationsNav = screen.getByRole('button', { name: /^Operations$/i });
-      fireEvent.click(operationsNav);
+      renderWizard();
+
+      await parseSpec(GET_PET_BY_ID_SPEC);
+
       await waitFor(() => {
         expect(screen.getByText('Select all operations')).toBeInTheDocument();
         expect(screen.getByLabelText(/GET \/pet\/{id}/)).toBeInTheDocument();
@@ -186,47 +205,26 @@ describe('RestDslImportWizard', () => {
     });
 
     it('calls handleToggleOperation when individual operation is toggled', async () => {
-      const operations = [
-        {
-          operationId: 'getPet',
-          method: 'get',
-          path: '/pet',
-          selected: true,
-          routeExists: false,
-        },
-      ];
-      (useRestDslImportWizard as Mock).mockReturnValue({ ...mockWizard, importOperations: operations });
-      render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
-      const operationsNav = screen.getByRole('button', { name: /^Operations$/i });
-      fireEvent.click(operationsNav);
+      renderWizard();
+
+      await parseSpec(GET_PET_SPEC);
 
       const checkbox = await screen.findByLabelText(/GET \/pet/);
+      expect(checkbox).toBeChecked();
       fireEvent.click(checkbox);
 
       await waitFor(() => {
-        expect(mockWizard.handleToggleOperation).toHaveBeenCalledWith('getPet', 'get', '/pet', false);
+        expect(checkbox).not.toBeChecked();
       });
     });
   });
 
   describe('Result step', () => {
     it('shows success alert when import succeeds', async () => {
-      (useRestDslImportWizard as Mock).mockReturnValue({
-        ...mockWizard,
-        isOpenApiParsed: true,
-        importStatus: { type: 'success', message: 'Import succeeded. 2 operations added.' },
-        handleImportOpenApi: vi.fn().mockReturnValue(true),
-      });
-      render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
+      renderWizard();
 
-      // Navigate to Operations step
-      const operationsNav = screen.getByRole('button', { name: /^Operations$/i });
-      fireEvent.click(operationsNav);
-
-      // Find and click the Import button
-      const importButton = await screen.findByRole('button', { name: /^Import$/i });
-      expect(importButton).toBeInTheDocument();
-      fireEvent.click(importButton);
+      // Parse the specification in the Operations step and click the Import button
+      await importSpec(TWO_OPERATIONS_SPEC);
 
       // Navigate to Result step
       const resultNav = await screen.findByRole('button', { name: /^Result$/i });
@@ -235,26 +233,20 @@ describe('RestDslImportWizard', () => {
       await waitFor(() => {
         expect(screen.getByText('Import succeeded. 2 operations added.')).toBeInTheDocument();
       });
+      expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
     });
 
     it('calls onGoToDesigner when Go to Designer button is clicked', async () => {
-      (useRestDslImportWizard as Mock).mockReturnValue({
-        ...mockWizard,
-        isOpenApiParsed: true,
-        importStatus: { type: 'success', message: 'Import succeeded.' },
-        handleImportOpenApi: vi.fn().mockReturnValue(true),
-      });
-      render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
-
-      // Navigate to Result step
-      const resultNav = screen.getByRole('button', { name: /^Result$/i });
-      fireEvent.click(resultNav);
+      renderWizard();
+      await importSpec(GET_PET_SPEC);
 
       const designerButton = await screen.findByRole('button', { name: /go to designer/i });
+      expect(screen.getByText('Import succeeded. 1 operation added.')).toBeInTheDocument();
       fireEvent.click(designerButton);
 
       await waitFor(() => {
-        expect(mockWizard.resetImportWizard).toHaveBeenCalled();
+        // The wizard was reset
+        expect(screen.getByText('No import results yet.')).toBeInTheDocument();
         expect(mockOnGoToDesigner).toHaveBeenCalled();
       });
     });
@@ -262,35 +254,27 @@ describe('RestDslImportWizard', () => {
 
   describe('Wizard footer', () => {
     it('disables Back button on first step', () => {
-      render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
+      renderWizard();
       const backButton = screen.getByRole('button', { name: /back/i });
       expect(backButton).toBeDisabled();
     });
 
     it('disables Import button when spec is not parsed', async () => {
-      (useRestDslImportWizard as Mock).mockReturnValue({ ...mockWizard, isOpenApiParsed: false });
-      render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
+      renderWizard();
 
       // Navigate to Operations step
-      const operationsNav = screen.getByRole('button', { name: /^Operations$/i });
-      fireEvent.click(operationsNav);
+      goToOperationsStep();
 
       const importButton = await screen.findByRole('button', { name: /^Import$/i });
       expect(importButton).toBeDisabled();
     });
 
     it('disables Import button when neither REST nor routes are selected', async () => {
-      (useRestDslImportWizard as Mock).mockReturnValue({
-        ...mockWizard,
-        isOpenApiParsed: true,
-        importCreateRest: false,
-        importCreateRoutes: false,
-      });
-      render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
+      renderWizard();
+      await parseSpec(GET_PET_SPEC);
 
-      // Navigate to Operations step
-      const operationsNav = screen.getByRole('button', { name: /^Operations$/i });
-      fireEvent.click(operationsNav);
+      // `Create Rest DSL operations` is unchecked by default
+      fireEvent.click(await screen.findByLabelText('Create routes with direct endpoints'));
 
       await waitFor(() => {
         const importButton = screen.getByRole('button', { name: /^Import$/i });
@@ -299,41 +283,28 @@ describe('RestDslImportWizard', () => {
     });
 
     it('calls resetImportWizard and onClose when Go to Rest Editor is clicked on result step', async () => {
-      (useRestDslImportWizard as Mock).mockReturnValue({
-        ...mockWizard,
-        isOpenApiParsed: true,
-        importStatus: { type: 'success', message: 'Import succeeded.' },
-        handleImportOpenApi: vi.fn().mockReturnValue(true),
-      });
-      render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
-
-      const resultNav = screen.getByRole('button', { name: /^Result$/i });
-      fireEvent.click(resultNav);
+      renderWizard();
+      await importSpec(GET_PET_SPEC);
 
       const restEditorButton = await screen.findByRole('button', { name: /go to rest editor/i });
+      expect(screen.getByText('Import succeeded. 1 operation added.')).toBeInTheDocument();
       fireEvent.click(restEditorButton);
 
       await waitFor(() => {
-        expect(mockWizard.resetImportWizard).toHaveBeenCalled();
+        // The wizard was reset
+        expect(screen.getByText('No import results yet.')).toBeInTheDocument();
         expect(mockOnClose).toHaveBeenCalled();
       });
     });
 
     it('shows operation as disabled with "Route exists" label when routeExists is true', async () => {
-      const operations = [
-        {
-          operationId: 'getPet',
-          method: 'get',
-          path: '/pet',
-          selected: true,
-          routeExists: true,
-        },
-      ];
-      (useRestDslImportWizard as Mock).mockReturnValue({ ...mockWizard, importOperations: operations });
-      render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
+      const camelResource = new CamelRouteResource([
+        { route: { id: 'route-getPet', from: { uri: 'direct:getPet', steps: [] } } },
+      ]);
+      const { Provider } = await TestProvidersWrapper({ camelResource });
+      renderWizard(Provider);
 
-      const operationsNav = screen.getByRole('button', { name: /^Operations$/i });
-      fireEvent.click(operationsNav);
+      await parseSpec(GET_PET_SPEC);
 
       await waitFor(() => {
         const checkbox = screen.getByLabelText(/GET \/pet - Route exists/);
@@ -343,21 +314,17 @@ describe('RestDslImportWizard', () => {
     });
 
     it('does not advance to result when import fails', async () => {
-      (useRestDslImportWizard as Mock).mockReturnValue({
-        ...mockWizard,
-        isOpenApiParsed: true,
-        importCreateRoutes: true,
-        handleImportOpenApi: vi.fn().mockReturnValue(false),
-      });
-      render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
+      renderWizard();
+      await parseSpec(GET_PET_SPEC);
 
-      const operationsNav = screen.getByRole('button', { name: /^Operations$/i });
-      fireEvent.click(operationsNav);
+      // Deselect the only operation, so the import fails
+      fireEvent.click(await screen.findByLabelText(/GET \/pet/));
 
       const importButton = await screen.findByRole('button', { name: /^Import$/i });
       fireEvent.click(importButton);
 
       // Should still be on Operations step, not Result
+      expect(screen.getByText('Import failed. Select at least one operation.')).toBeInTheDocument();
       expect(screen.getByRole('textbox', { name: /rest-openapi-spec/i })).toBeInTheDocument();
     });
   });
