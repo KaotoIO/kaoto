@@ -6,7 +6,7 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "target": "es5",
+    "target": "es2020",
     "module": "esnext",
     "moduleResolution": "bundler",
     "declaration": true,
@@ -19,7 +19,6 @@
     "removeComments": true,
     "strictNullChecks": true,
     "experimentalDecorators": true,
-    "downlevelIteration": true,
     "skipLibCheck": true,
     "jsx": "react-jsx",
     "types": ["vitest/globals", "@testing-library/jest-dom", "node"]

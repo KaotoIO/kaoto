@@ -3766,7 +3766,7 @@ __metadata:
     stylelint-config-standard-scss: "npm:^17.0.0"
     stylelint-prettier: "npm:^5.0.0"
     ts-node: "npm:^10.9.1"
-    typescript: "npm:^5.5.4"
+    typescript: "npm:^6.0.0"
     typescript-eslint: "npm:^8.5.0"
     usehooks-ts: "npm:^3.0.0"
     vite: "npm:^8.3.0"

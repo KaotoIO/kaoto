@@ -245,7 +245,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     if (selectedVizNode) {
       selectedVizNodeIdRef.current = selectedVizNode.id;
       requestAnimationFrame(() => {
-        const searchInput = document.querySelector<HTMLElement>('input[data-testid="filter-fields"]');
+        const searchInput = document.querySelector<HTMLElement>('[data-testid="filter-fields"]');
         // preventScroll: the drawer panel is still sliding in from off-screen at this point, so a plain
         // focus() would scroll the drawer's overflow container and make the canvas jump sideways
         searchInput?.focus({ preventScroll: true });
