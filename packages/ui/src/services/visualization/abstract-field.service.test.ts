@@ -15,60 +15,10 @@ import { DocumentUtilService } from '../document/document-util.service';
 import { FieldOverrideService } from '../document/field-override.service';
 import { WrapperSelectionService } from '../document/wrapper-selection.service';
 import { MappingService } from '../mapping/mapping.service';
+import { SchemaPathService } from '../schema-path.service';
 import { AbstractFieldService } from './abstract-field.service';
 import { MappingActionService } from './mapping-action.service';
 import { VisualizationUtilService } from './visualization-util.service';
-
-vi.mock('../document/field-override.service', () => ({
-  FieldOverrideService: {
-    revertFieldTypeOverride: vi.fn(),
-    revertFieldSubstitution: vi.fn(),
-    getFieldSubstitutionCandidates: vi.fn().mockReturnValue({}),
-    applyFieldSubstitution: vi.fn(),
-  },
-}));
-
-vi.mock('./visualization-util.service', () => ({
-  VisualizationUtilService: {
-    getField: vi.fn(),
-    isAbstractWrapperMember: vi.fn().mockReturnValue(false),
-    isAbstractField: vi.fn().mockReturnValue(false),
-  },
-}));
-
-vi.mock('../document/document-util.service', () => ({
-  DocumentUtilService: {
-    getSelectedMember: vi.fn(),
-    invalidateDescendants: vi.fn(),
-    processOverrides: vi.fn(),
-  },
-}));
-
-vi.mock('../document/wrapper-selection.service', () => ({
-  WrapperSelectionService: {
-    clearChoiceSelection: vi.fn(),
-    findParentWrapper: vi.fn().mockReturnValue(undefined),
-  },
-}));
-
-vi.mock('../mapping/mapping.service', () => ({
-  MappingService: {
-    updateFieldItemField: vi.fn(),
-    createFieldItem: vi.fn(),
-  },
-}));
-
-vi.mock('./mapping-action.service', () => ({
-  MappingActionService: {
-    getOrCreateFieldItem: vi.fn(),
-  },
-}));
-
-vi.mock('../schema-path.service', () => ({
-  SchemaPathService: {
-    build: vi.fn().mockReturnValue('mock-schema-path'),
-  },
-}));
 
 function mockField(overrides: Partial<IField> = {}): IField {
   return {
@@ -126,15 +76,27 @@ describe('AbstractFieldService', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(FieldOverrideService, 'revertFieldSubstitution').mockImplementation(() => {});
+    vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue({});
+    vi.spyOn(FieldOverrideService, 'applyFieldSubstitution').mockImplementation(() => {});
+    vi.spyOn(VisualizationUtilService, 'getField').mockReturnValue(undefined);
+    vi.spyOn(VisualizationUtilService, 'isAbstractWrapperMember').mockReturnValue(false);
+    vi.spyOn(VisualizationUtilService, 'isAbstractField').mockReturnValue(false);
+    vi.spyOn(DocumentUtilService, 'getSelectedMember').mockReturnValue(undefined);
+    vi.spyOn(DocumentUtilService, 'invalidateDescendants').mockImplementation(() => {});
+    vi.spyOn(WrapperSelectionService, 'clearChoiceSelection').mockImplementation(() => {});
+    vi.spyOn(WrapperSelectionService, 'findParentWrapper').mockReturnValue(undefined);
+    vi.spyOn(MappingService, 'updateFieldItemField').mockImplementation((item) => item);
+    vi.spyOn(SchemaPathService, 'build').mockReturnValue('mock-schema-path');
   });
 
   describe('resolveInfo', () => {
     it('should identify an abstract wrapper field', () => {
       const field = mockField({ wrapperKind: 'abstract' });
       const nodeData = { field } as unknown as FieldNodeData;
-      vi.mocked(VisualizationUtilService.getField).mockReturnValue(field);
-      vi.mocked(VisualizationUtilService.isAbstractWrapperMember).mockReturnValue(false);
-      vi.mocked(VisualizationUtilService.isAbstractField).mockReturnValue(false);
+      vi.spyOn(VisualizationUtilService, 'getField').mockReturnValue(field);
+      vi.spyOn(VisualizationUtilService, 'isAbstractWrapperMember').mockReturnValue(false);
+      vi.spyOn(VisualizationUtilService, 'isAbstractField').mockReturnValue(false);
 
       const result = AbstractFieldService.resolveInfo(nodeData, namespaceMap);
 
@@ -146,9 +108,9 @@ describe('AbstractFieldService', () => {
       const abstractField = mockField({ wrapperKind: 'abstract' });
       const field = mockField();
       const nodeData = { field, abstractField } as unknown as TargetAbstractFieldNodeData;
-      vi.mocked(VisualizationUtilService.getField).mockReturnValue(field);
-      vi.mocked(VisualizationUtilService.isAbstractWrapperMember).mockReturnValue(false);
-      vi.mocked(VisualizationUtilService.isAbstractField).mockReturnValue(true);
+      vi.spyOn(VisualizationUtilService, 'getField').mockReturnValue(field);
+      vi.spyOn(VisualizationUtilService, 'isAbstractWrapperMember').mockReturnValue(false);
+      vi.spyOn(VisualizationUtilService, 'isAbstractField').mockReturnValue(true);
 
       const result = AbstractFieldService.resolveInfo(nodeData, namespaceMap);
 
@@ -162,9 +124,9 @@ describe('AbstractFieldService', () => {
       const tree = createMappingTree();
       const fieldItem = new FieldItem(tree, field);
       const nodeData = createFieldItemNodeData(fieldItem, wrapperField);
-      vi.mocked(VisualizationUtilService.getField).mockReturnValue(field);
-      vi.mocked(VisualizationUtilService.isAbstractWrapperMember).mockReturnValue(true);
-      vi.mocked(VisualizationUtilService.isAbstractField).mockReturnValue(false);
+      vi.spyOn(VisualizationUtilService, 'getField').mockReturnValue(field);
+      vi.spyOn(VisualizationUtilService, 'isAbstractWrapperMember').mockReturnValue(true);
+      vi.spyOn(VisualizationUtilService, 'isAbstractField').mockReturnValue(false);
 
       const result = AbstractFieldService.resolveInfo(nodeData, namespaceMap);
 
@@ -180,9 +142,9 @@ describe('AbstractFieldService', () => {
       const parentNodeData = createTargetDocNodeData();
       const parentTarget = new TargetAbstractFieldNodeData(parentNodeData, abstractField);
       const nodeData = new FieldItemNodeData(parentTarget, fieldItem);
-      vi.mocked(VisualizationUtilService.getField).mockReturnValue(field);
-      vi.mocked(VisualizationUtilService.isAbstractWrapperMember).mockReturnValue(true);
-      vi.mocked(VisualizationUtilService.isAbstractField).mockReturnValue(false);
+      vi.spyOn(VisualizationUtilService, 'getField').mockReturnValue(field);
+      vi.spyOn(VisualizationUtilService, 'isAbstractWrapperMember').mockReturnValue(true);
+      vi.spyOn(VisualizationUtilService, 'isAbstractField').mockReturnValue(false);
 
       const result = AbstractFieldService.resolveInfo(nodeData, namespaceMap);
 
@@ -194,10 +156,10 @@ describe('AbstractFieldService', () => {
       const parent = mockField({ wrapperKind: 'abstract' });
       const field = mockField({ name: 'Cat', namespaceURI: 'http://test', parent: parent as IField });
       const nodeData = { field } as unknown as FieldNodeData;
-      vi.mocked(VisualizationUtilService.getField).mockReturnValue(field);
-      vi.mocked(VisualizationUtilService.isAbstractWrapperMember).mockReturnValue(false);
-      vi.mocked(VisualizationUtilService.isAbstractField).mockReturnValue(false);
-      vi.mocked(FieldOverrideService.getFieldSubstitutionCandidates).mockReturnValue({
+      vi.spyOn(VisualizationUtilService, 'getField').mockReturnValue(field);
+      vi.spyOn(VisualizationUtilService, 'isAbstractWrapperMember').mockReturnValue(false);
+      vi.spyOn(VisualizationUtilService, 'isAbstractField').mockReturnValue(false);
+      vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue({
         'ns:Cat': mockSubstituteInfo('Cat'),
       });
 
@@ -212,9 +174,9 @@ describe('AbstractFieldService', () => {
       const parent = mockField({ wrapperKind: 'choice' });
       const field = mockField({ parent: parent as IField });
       const nodeData = { field } as unknown as FieldNodeData;
-      vi.mocked(VisualizationUtilService.getField).mockReturnValue(field);
-      vi.mocked(VisualizationUtilService.isAbstractWrapperMember).mockReturnValue(false);
-      vi.mocked(VisualizationUtilService.isAbstractField).mockReturnValue(false);
+      vi.spyOn(VisualizationUtilService, 'getField').mockReturnValue(field);
+      vi.spyOn(VisualizationUtilService, 'isAbstractWrapperMember').mockReturnValue(false);
+      vi.spyOn(VisualizationUtilService, 'isAbstractField').mockReturnValue(false);
 
       const result = AbstractFieldService.resolveInfo(nodeData, namespaceMap);
 
@@ -226,9 +188,9 @@ describe('AbstractFieldService', () => {
     it('should return all-false flags for a regular non-wrapper field', () => {
       const field = mockField();
       const nodeData = { field } as unknown as FieldNodeData;
-      vi.mocked(VisualizationUtilService.getField).mockReturnValue(field);
-      vi.mocked(VisualizationUtilService.isAbstractWrapperMember).mockReturnValue(false);
-      vi.mocked(VisualizationUtilService.isAbstractField).mockReturnValue(false);
+      vi.spyOn(VisualizationUtilService, 'getField').mockReturnValue(field);
+      vi.spyOn(VisualizationUtilService, 'isAbstractWrapperMember').mockReturnValue(false);
+      vi.spyOn(VisualizationUtilService, 'isAbstractField').mockReturnValue(false);
 
       const result = AbstractFieldService.resolveInfo(nodeData, namespaceMap);
 
@@ -245,7 +207,7 @@ describe('AbstractFieldService', () => {
   describe('buildAbstractCandidates', () => {
     it('should return candidates with memberIndex 0 and substituteQName', () => {
       const abstractField = mockField({ wrapperKind: 'abstract' });
-      vi.mocked(FieldOverrideService.getFieldSubstitutionCandidates).mockReturnValue({
+      vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue({
         'ns:Cat': mockSubstituteInfo('Cat'),
         'ns:Dog': mockSubstituteInfo('Dog'),
       });
@@ -271,7 +233,7 @@ describe('AbstractFieldService', () => {
 
     it('should return empty array when no candidates', () => {
       const abstractField = mockField({ wrapperKind: 'abstract' });
-      vi.mocked(FieldOverrideService.getFieldSubstitutionCandidates).mockReturnValue({});
+      vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue({});
 
       const result = AbstractFieldService.buildAbstractCandidates(abstractField, namespaceMap);
 
@@ -290,7 +252,7 @@ describe('AbstractFieldService', () => {
     it('should delegate to FieldOverrideService when field is present', () => {
       const field = mockField();
       const expected = { 'ns:Cat': mockSubstituteInfo('Cat') };
-      vi.mocked(FieldOverrideService.getFieldSubstitutionCandidates).mockReturnValue(expected);
+      vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue(expected);
 
       const result = AbstractFieldService.resolveSubstitutionCandidates(field, namespaceMap);
 
@@ -309,7 +271,7 @@ describe('AbstractFieldService', () => {
     it('should return QName when selectedField matches a candidate', () => {
       const field = mockField({ wrapperKind: 'abstract' });
       const selectedMember = mockField({ name: 'Cat', namespaceURI: 'http://test' });
-      vi.mocked(DocumentUtilService.getSelectedMember).mockReturnValue(selectedMember);
+      vi.spyOn(DocumentUtilService, 'getSelectedMember').mockReturnValue(selectedMember);
       const candidates: Record<string, IFieldSubstituteInfo> = {
         'ns:Cat': mockSubstituteInfo('Cat'),
       };
@@ -321,7 +283,7 @@ describe('AbstractFieldService', () => {
 
     it('should return undefined when no selectedField found', () => {
       const field = mockField({ wrapperKind: 'abstract' });
-      vi.mocked(DocumentUtilService.getSelectedMember).mockReturnValue(undefined);
+      vi.spyOn(DocumentUtilService, 'getSelectedMember').mockReturnValue(undefined);
 
       const result = AbstractFieldService.resolveSelectedQName(field, {});
 
@@ -373,10 +335,10 @@ describe('AbstractFieldService', () => {
       const candidates: Record<string, IFieldSubstituteInfo> = {
         'ns:Cat': mockSubstituteInfo('Cat'),
       };
-      vi.mocked(FieldOverrideService.getFieldSubstitutionCandidates).mockReturnValue(candidates);
+      vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue(candidates);
       const mockFieldItem = new FieldItem(tree, childField);
-      vi.mocked(MappingActionService.getOrCreateFieldItem).mockReturnValue(mockFieldItem);
-      vi.mocked(MappingService.createFieldItem).mockReturnValue(mockFieldItem);
+      vi.spyOn(MappingActionService, 'getOrCreateFieldItem').mockReturnValue(mockFieldItem);
+      vi.spyOn(MappingService, 'createFieldItem').mockReturnValue(mockFieldItem);
 
       AbstractFieldService.applyAbstractSubstitution(
         nodeData,
@@ -473,7 +435,7 @@ describe('AbstractFieldService', () => {
       const fieldItem = new FieldItem(tree, wrapperField);
       const nodeData = createTargetFieldNodeData(wrapperField, fieldItem);
 
-      vi.mocked(WrapperSelectionService.findParentWrapper).mockReturnValue(parentChoiceField);
+      vi.spyOn(WrapperSelectionService, 'findParentWrapper').mockReturnValue(parentChoiceField);
 
       AbstractFieldService.clearAbstractSubstitution(nodeData, wrapperField, namespaceMap, true);
 
@@ -491,7 +453,7 @@ describe('AbstractFieldService', () => {
       const wrapperField = mockField({ maxOccurs: -1, ownerDocument, parent: parentChoiceField });
       const nodeData = {} as FieldNodeData;
 
-      vi.mocked(WrapperSelectionService.findParentWrapper).mockReturnValue(parentChoiceField);
+      vi.spyOn(WrapperSelectionService, 'findParentWrapper').mockReturnValue(parentChoiceField);
 
       AbstractFieldService.clearAbstractSubstitution(nodeData, wrapperField, namespaceMap, false);
 
@@ -521,7 +483,7 @@ describe('AbstractFieldService', () => {
       const fieldItem = new FieldItem(tree, wrapperField);
       const nodeData = createTargetFieldNodeData(wrapperField, fieldItem);
 
-      vi.mocked(WrapperSelectionService.findParentWrapper).mockReturnValue(undefined);
+      vi.spyOn(WrapperSelectionService, 'findParentWrapper').mockReturnValue(undefined);
 
       AbstractFieldService.clearAbstractSubstitution(nodeData, wrapperField, namespaceMap, true);
 
@@ -579,7 +541,7 @@ describe('AbstractFieldService', () => {
     });
 
     it('should build inline substitution actions when candidates <= 10', () => {
-      vi.mocked(FieldOverrideService.getFieldSubstitutionCandidates).mockReturnValue({});
+      vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue({});
       const config = baseAbstractConfig({
         isAbstractWrapper: true,
         candidates: {

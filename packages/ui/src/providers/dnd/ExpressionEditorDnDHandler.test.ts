@@ -1,5 +1,5 @@
 import { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
-import type { Mock } from 'vitest';
+import type { Mock, MockInstance } from 'vitest';
 
 import { DocumentType, IField } from '../../models/datamapper/document';
 import { IExpressionHolder, IFunctionDefinition, MappingItem, MappingTree } from '../../models/datamapper/mapping';
@@ -8,13 +8,6 @@ import { Types } from '../../models/datamapper/types';
 import { EditorNodeData, FieldNodeData, FunctionNodeData, NodeData } from '../../models/datamapper/visualization';
 import { MappingService } from '../../services/mapping/mapping.service';
 import { ExpressionEditorDnDHandler } from './ExpressionEditorDnDHandler';
-
-vi.mock('../../services/mapping/mapping.service', () => ({
-  MappingService: {
-    mapToCondition: vi.fn(),
-    wrapWithFunction: vi.fn(),
-  },
-}));
 
 const makeDragEvent = (fromNode?: NodeData, toNode?: NodeData) =>
   ({
@@ -25,9 +18,9 @@ const makeDragEvent = (fromNode?: NodeData, toNode?: NodeData) =>
 describe('ExpressionEditorDnDHandler', () => {
   let handler: ExpressionEditorDnDHandler;
   let mockMappingTree: MappingTree;
-  let mockOnUpdate: Mock;
-  let mockMapToCondition: Mock;
-  let mockWrapWithFunction: Mock;
+  let mockOnUpdate: Mock<(options?: { structural?: boolean }) => void>;
+  let mockMapToCondition: MockInstance<typeof MappingService.mapToCondition>;
+  let mockWrapWithFunction: MockInstance<typeof MappingService.wrapWithFunction>;
 
   const mockParentNode = {
     path: NodePath.fromDocument(DocumentType.SOURCE_BODY, 'Body'),
@@ -56,8 +49,8 @@ describe('ExpressionEditorDnDHandler', () => {
     handler = new ExpressionEditorDnDHandler();
     mockMappingTree = {} as MappingTree;
     mockOnUpdate = vi.fn();
-    mockMapToCondition = MappingService.mapToCondition as Mock;
-    mockWrapWithFunction = MappingService.wrapWithFunction as Mock;
+    mockMapToCondition = vi.spyOn(MappingService, 'mapToCondition').mockImplementation(() => {});
+    mockWrapWithFunction = vi.spyOn(MappingService, 'wrapWithFunction').mockImplementation(() => {});
   });
 
   describe('handleDragEnd', () => {
