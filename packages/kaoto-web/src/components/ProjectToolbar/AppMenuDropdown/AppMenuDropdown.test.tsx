@@ -1,13 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { AppMenuDropdown } from './AppMenuDropdown';
-
-vi.mock('../../About/KaotoAboutModal', () => ({
-  KaotoAboutModal: ({ isOpen }: { isOpen: boolean }) => (isOpen ? <div data-testid="kaoto-about-modal" /> : null),
-}));
 
 const renderComponent = (projectId = 'my-project') =>
   render(

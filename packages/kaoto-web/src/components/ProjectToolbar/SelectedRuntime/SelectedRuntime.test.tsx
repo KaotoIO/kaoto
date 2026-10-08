@@ -2,17 +2,11 @@ import { CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
-import type { Mock } from 'vitest';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { useProjectContext } from '../../../hooks/useProjectContext';
-import { useRuntimeContext } from '../../../hooks/useRuntimeContext';
+import { ProjectContext } from '../../../context/ProjectContext';
+import { IRuntimeContext, RuntimeContext } from '../../../context/RuntimeContext';
 import { SelectedRuntime } from './SelectedRuntime';
-
-vi.mock('../../../hooks/useRuntimeContext');
-vi.mock('../../../hooks/useProjectContext');
-const mockUseRuntimeContext = useRuntimeContext as Mock<typeof useRuntimeContext>;
-const mockUseProjectContext = useProjectContext as Mock<typeof useProjectContext>;
 
 const selectedCatalog: CatalogLibraryEntry = {
   name: 'Camel Main',
@@ -21,41 +15,38 @@ const selectedCatalog: CatalogLibraryEntry = {
   fileName: 'camel-catalog.json',
 };
 
-const mockContext = {
+const mockContext: IRuntimeContext = {
   basePath: '',
   catalogLibrary: undefined,
   selectedCatalog,
   setSelectedCatalog: vi.fn(),
 };
 
-const renderComponent = () =>
+const renderComponent = (runtimeContext: IRuntimeContext = mockContext) =>
   render(
     <MemoryRouter>
-      <SelectedRuntime />
+      <ProjectContext.Provider value={{ projectId: 'my-project' }}>
+        <RuntimeContext.Provider value={runtimeContext}>
+          <SelectedRuntime />
+        </RuntimeContext.Provider>
+      </ProjectContext.Provider>
     </MemoryRouter>,
   );
 
 describe('SelectedRuntime', () => {
-  beforeEach(() => {
-    mockUseProjectContext.mockReturnValue({ projectId: 'my-project' });
-  });
-
   it('renders a placeholder when selectedCatalog is undefined', () => {
-    mockUseRuntimeContext.mockReturnValue({ ...mockContext, selectedCatalog: undefined });
-    renderComponent();
+    renderComponent({ ...mockContext, selectedCatalog: undefined });
     expect(screen.getByTestId('runtime-selector-display')).toBeInTheDocument();
     expect(screen.getByText('No runtime selected')).toBeInTheDocument();
   });
 
   it('displays catalog name and version', () => {
-    mockUseRuntimeContext.mockReturnValue(mockContext);
     renderComponent();
     expect(screen.getByText('Camel Main 4.20.0')).toBeInTheDocument();
   });
 
   describe('info button', () => {
     beforeEach(async () => {
-      mockUseRuntimeContext.mockReturnValue(mockContext);
       renderComponent();
       await userEvent.click(screen.getByRole('button', { name: 'Show information' }));
     });
