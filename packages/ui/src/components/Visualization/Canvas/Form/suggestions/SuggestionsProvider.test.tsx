@@ -1,5 +1,6 @@
 import { render } from '@testing-library/react';
 import { ReactNode } from 'react';
+import type { Mocked } from 'vitest';
 
 import { IMetadataApi, MetadataContext } from '../../../../../providers';
 import { getPropertiesSuggestionProvider } from './suggestions/properties.suggestions';
@@ -53,7 +54,7 @@ describe('SuggestionRegistrar', () => {
       getSuggestions: vi.fn(),
       shouldSaveSchema: false,
       onStepUpdated: vi.fn(),
-    };
+    } as unknown as Mocked<IMetadataApi>;
   });
 
   function renderWithMetadataProvider(children: ReactNode) {

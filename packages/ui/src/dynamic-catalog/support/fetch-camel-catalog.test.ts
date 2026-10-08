@@ -1,5 +1,6 @@
 import catalogLibraryJson from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import type { MockInstance } from 'vitest';
 
 import { CatalogKind } from '../../models';
 import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
@@ -10,8 +11,8 @@ import { fetchCamelCatalog } from './fetch-camel-catalog';
 const catalogLibrary = catalogLibraryJson as CatalogLibrary;
 
 describe('fetchCamelCatalog', () => {
-  let fetchFileMock: SpyInstance;
-  let setCatalogSpy: SpyInstance;
+  let fetchFileMock: MockInstance;
+  let setCatalogSpy: MockInstance;
   let catalogDefinition: Awaited<ReturnType<typeof getFirstCatalogMap>>['catalogDefinition'];
   let relativeBasePath: string;
 

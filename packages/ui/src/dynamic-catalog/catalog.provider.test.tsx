@@ -1,7 +1,7 @@
 import catalogLibraryJson from '@kaoto/camel-catalog/index.json';
 import { CatalogDefinition, CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { act, render, screen } from '@testing-library/react';
-import type { Mock } from 'vitest';
+import type { Mock, MockInstance } from 'vitest';
 
 import { CitrusTestSchemaService } from '../models/visualization/flows/support/citrus-test-schema.service';
 import { ReloadContext } from '../providers/reload.provider';
@@ -18,7 +18,7 @@ vi.mock('./support/fetch-citrus-catalog');
 const catalogLibrary = catalogLibraryJson as CatalogLibrary;
 
 describe('CatalogLoaderProvider', () => {
-  let fetchMock: SpyInstance;
+  let fetchMock: MockInstance;
   let fetchResolve: () => void;
   let fetchReject: () => void;
   let catalogDefinition: CatalogDefinition;
@@ -139,7 +139,7 @@ describe('CatalogLoaderProvider', () => {
 });
 
 describe('CitrusCatalogLoaderProvider', () => {
-  let fetchMock: SpyInstance;
+  let fetchMock: MockInstance;
   let fetchResolve: () => void;
   let fetchReject: () => void;
   let catalogDefinition: CatalogDefinition;

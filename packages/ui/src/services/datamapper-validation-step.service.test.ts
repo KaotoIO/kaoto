@@ -1,4 +1,5 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
+import type { Mocked } from 'vitest';
 
 import { createVisualizationNode } from '../models';
 import { DocumentDefinitionType } from '../models/datamapper/document';

@@ -151,7 +151,7 @@ describe('XmlSchemaCollection', () => {
       expect((error as any).message).toContain('an XML declaration must be at the start of the document');
       return;
     }
-    fail('No error was thrown');
+    expect.unreachable('No error was thrown');
   });
 
   it('should track explicit minOccurs/maxOccurs flags in ShipOrder elements', () => {

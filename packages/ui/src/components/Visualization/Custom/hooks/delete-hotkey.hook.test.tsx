@@ -18,7 +18,7 @@ vi.mock('hotkeys-js', () => {
   };
 });
 
-const mockHotkeys = hotkeys as MockedFunction<typeof hotkeys>;
+const mockHotkeys = hotkeys as unknown as Mock & { unbind: Mock };
 
 vi.mock('./delete-step.hook', () => ({
   useDeleteStep: vi.fn(),

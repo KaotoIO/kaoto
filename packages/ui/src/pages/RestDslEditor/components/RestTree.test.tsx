@@ -176,7 +176,7 @@ describe('RestTree', () => {
 
     const entities = getRestEntities(camelResource.getEntities());
     const configuration = entities.find((entity) => entity.getRootPath() === 'restConfiguration');
-    if (!configuration) fail('REST configuration not found');
+    if (!configuration) expect.unreachable('REST configuration not found');
 
     render(<RestTree entities={entities} onSelect={mockOnSelect} onDelete={mockOnDelete} />);
 
@@ -276,7 +276,7 @@ describe('RestTree', () => {
     render(<RestTree entities={entities} onSelect={mockOnSelect} onDelete={mockOnDelete} />);
 
     const treeItem = screen.getByText('rest-1').closest('[role="treeitem"]');
-    if (!(treeItem instanceof HTMLElement)) fail('REST tree item not found');
+    if (!(treeItem instanceof HTMLElement)) expect.unreachable('REST tree item not found');
 
     fireEvent.contextMenu(treeItem);
     const deleteAction = await screen.findByRole('menuitem', { name: /Delete/ });

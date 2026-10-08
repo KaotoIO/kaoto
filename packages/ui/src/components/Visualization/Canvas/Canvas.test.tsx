@@ -311,7 +311,7 @@ describe('Canvas', () => {
 
     const route = result?.getByText('route-8888');
     if (!route) {
-      fail('Route not found');
+      expect.unreachable('Route not found');
     }
 
     // Right click anywhere on the container label
@@ -361,7 +361,7 @@ describe('Canvas', () => {
 
     const kamelet = result?.getByText('Produces periodic events about random users!');
     if (!kamelet) {
-      fail('Kamelet not found');
+      expect.unreachable('Kamelet not found');
     }
 
     // Right click anywhere on the container label

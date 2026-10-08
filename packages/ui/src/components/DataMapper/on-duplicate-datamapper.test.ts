@@ -1,3 +1,5 @@
+import type { Mocked } from 'vitest';
+
 import { IVisualizationNode } from '../../models';
 import { DocumentDefinitionType } from '../../models/datamapper';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
