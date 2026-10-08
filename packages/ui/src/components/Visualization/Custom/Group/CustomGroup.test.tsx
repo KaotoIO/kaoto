@@ -1,26 +1,56 @@
-import { BaseEdge, BaseGraph, BaseNode, ElementContext, VisualizationProvider } from '@patternfly/react-topology';
+import { BaseEdge, NodeModel } from '@patternfly/react-topology';
 import { render, screen } from '@testing-library/react';
 
+import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { TestProvidersWrapper } from '../../../../stubs';
+import { TopologyElementWrapper } from '../../../../stubs/topology-element-wrapper';
 import { ControllerService } from '../../Canvas/controller.service';
 import { CustomGroup } from './CustomGroup';
-
-vi.mock('../Node/CustomNode', () => ({
-  CustomNodeWithSelection: ({ element }: { element: { getId: () => string } }) => (
-    <div data-testid="custom-node-collapsed">{element.getId?.() ?? 'collapsed'}</div>
-  ),
-}));
-
-vi.mock('./CustomGroupExpanded', () => ({
-  CustomGroupExpanded: ({ element }: { element: { getId: () => string } }) => (
-    <div data-testid="custom-group-expanded">{element.getId?.() ?? 'expanded'}</div>
-  ),
-}));
 
 describe('CustomGroup', () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
+
+  /** Renders the group from a real controller, holding a `choice` vizNode */
+  const renderGroup = async (collapsed: boolean) => {
+    const vizNode = createVisualizationNode('choice-1', {
+      name: 'choice',
+      path: 'route.from.steps.0.choice',
+      isPlaceholder: false,
+      isGroup: true,
+      iconUrl: '',
+      title: '',
+      description: '',
+    }) as IVisualizationNode;
+    vi.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Choice');
+    vi.spyOn(vizNode, 'getNodeValidationText').mockResolvedValue(undefined);
+
+    const groupModel: NodeModel = {
+      id: 'group-choice-1',
+      type: 'group',
+      group: true,
+      collapsed,
+      x: 0,
+      y: 0,
+      width: 100,
+      height: 50,
+      data: { vizNode },
+    };
+    const controller = ControllerService.createController();
+    controller.fromModel({ graph: { id: 'g1', type: 'graph' }, nodes: [groupModel] }, false);
+    const element = controller.getNodeById('group-choice-1')!;
+
+    const { Provider } = await TestProvidersWrapper();
+
+    render(
+      <Provider>
+        <TopologyElementWrapper controller={controller} element={element}>
+          <CustomGroup element={element} />
+        </TopologyElementWrapper>
+      </Provider>,
+    );
+  };
 
   it('should throw when element is not a Node', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -32,49 +62,16 @@ describe('CustomGroup', () => {
   });
 
   it('should render CustomNodeWithSelection when group is collapsed', async () => {
-    const parentElement = new BaseGraph();
-    const element = new BaseNode();
-    const controller = ControllerService.createController();
-    parentElement.setController(controller);
-    element.setController(controller);
-    element.setParent(parentElement);
-    element.setCollapsed(true);
+    await renderGroup(true);
 
-    const { Provider } = await TestProvidersWrapper();
-
-    render(
-      <Provider>
-        <VisualizationProvider controller={controller}>
-          <ElementContext.Provider value={element}>
-            <CustomGroup element={element} />
-          </ElementContext.Provider>
-        </VisualizationProvider>
-      </Provider>,
-    );
-
-    expect(screen.getByTestId('custom-node-collapsed')).toBeInTheDocument();
+    expect(screen.getByTestId('custom-node__choice-1')).toBeInTheDocument();
+    expect(screen.queryByTestId('custom-group__choice-1')).not.toBeInTheDocument();
   });
 
   it('should render CustomGroupExpanded when group is expanded', async () => {
-    const parentElement = new BaseGraph();
-    const element = new BaseNode();
-    const controller = ControllerService.createController();
-    parentElement.setController(controller);
-    element.setParent(parentElement);
-    element.setCollapsed(false);
+    await renderGroup(false);
 
-    const { Provider } = await TestProvidersWrapper();
-
-    render(
-      <Provider>
-        <VisualizationProvider controller={controller}>
-          <ElementContext.Provider value={element}>
-            <CustomGroup element={element} />
-          </ElementContext.Provider>
-        </VisualizationProvider>
-      </Provider>,
-    );
-
-    expect(screen.getByTestId('custom-group-expanded')).toBeInTheDocument();
+    expect(screen.getByTestId('custom-group__choice-1')).toBeInTheDocument();
+    expect(screen.queryByTestId('custom-node__choice-1')).not.toBeInTheDocument();
   });
 });

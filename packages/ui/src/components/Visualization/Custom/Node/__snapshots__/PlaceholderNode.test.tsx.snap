@@ -2,185 +2,268 @@
 
 exports[`PlaceholderNode > isSpecialChildPlaceholder > should render CodeBranchIcon for other placeholders 1`] = `
 <DocumentFragment>
-  <g
-    data-testid="mock-layer"
-  >
+  <svg>
     <g
-      aria-label="Add test-placeholder"
-      class="placeholder-node"
-      data-nodelabel="test-placeholder"
-      data-testid="placeholder-node__test-placeholder"
-      role="button"
-      tabindex="-1"
+      data-layer-id="bottom"
+    />
+    <g
+      data-layer-id="groups"
+    />
+    <g
+      data-layer-id="default"
     >
-      <foreignobject
-        data-nodelabel="test-placeholder"
-        height="75"
-        width="90"
+      <g
+        data-id="node-placeholder"
+        data-kind="node"
+        data-type="node-placeholder"
+        transform="translate(0, 0)"
       >
-        <div
-          class="placeholder-node__container"
-          data-testid="undefined|test-placeholder"
+        <g
+          aria-label="Add test-placeholder"
+          class="placeholder-node"
+          data-nodelabel="test-placeholder"
+          data-testid="placeholder-node__test-placeholder"
+          role="button"
+          tabindex="-1"
         >
-          <div
-            class="placeholder-node__container__image"
-            title="Click to add when branch"
+          <foreignobject
+            data-nodelabel="test-placeholder"
+            height="75"
+            width="90"
           >
-            <span
-              data-testid="mock-icon"
+            <div
+              class="placeholder-node__container"
+              data-testid="undefined|test-placeholder"
             >
-              <svg
-                data-testid="code-branch-icon"
-                role="img"
+              <div
+                class="placeholder-node__container__image"
+                title="Click to add when branch"
               >
-                <path />
-              </svg>
-            </span>
-          </div>
-        </div>
-      </foreignobject>
-      <foreignobject
-        class="placeholder-node__label"
-        height="24"
-        width="150"
-        x="-30"
-        y="74"
-      >
-        <div
-          class="placeholder-node__label__text"
-        >
-          <span
-            title="Add test-placeholder"
+                <span
+                  class="pf-v6-c-icon pf-m-lg"
+                >
+                  <span
+                    class="pf-v6-c-icon__content"
+                  >
+                    <svg
+                      data-testid="code-branch-icon"
+                      role="img"
+                    >
+                      <path />
+                    </svg>
+                  </span>
+                </span>
+              </div>
+            </div>
+          </foreignobject>
+          <foreignobject
+            class="placeholder-node__label"
+            height="24"
+            width="150"
+            x="-30"
+            y="74"
           >
-            Add test-placeholder
-          </span>
-        </div>
-      </foreignobject>
+            <div
+              class="placeholder-node__label__text"
+            >
+              <span
+                title="Add test-placeholder"
+              >
+                Add test-placeholder
+              </span>
+            </div>
+          </foreignobject>
+        </g>
+      </g>
     </g>
-  </g>
+    <g
+      data-layer-id="top"
+    />
+  </svg>
 </DocumentFragment>
 `;
 
 exports[`PlaceholderNode > isSpecialChildPlaceholder > should render PlusCircleIcon for regular placeholder 1`] = `
 <DocumentFragment>
-  <g
-    data-testid="mock-layer"
-  >
+  <svg>
     <g
-      aria-label="Add test-placeholder"
-      class="placeholder-node"
-      data-nodelabel="test-placeholder"
-      data-testid="placeholder-node__test-placeholder"
-      role="button"
-      tabindex="-1"
+      data-layer-id="bottom"
+    />
+    <g
+      data-layer-id="groups"
+    />
+    <g
+      data-layer-id="default"
     >
-      <foreignobject
-        data-nodelabel="test-placeholder"
-        height="75"
-        width="90"
+      <g
+        data-id="node-placeholder"
+        data-kind="node"
+        data-type="node-placeholder"
+        transform="translate(0, 0)"
       >
-        <div
-          class="placeholder-node__container"
-          data-testid="undefined|test-placeholder"
+        <g
+          aria-label="Add test-placeholder"
+          class="placeholder-node"
+          data-nodelabel="test-placeholder"
+          data-testid="placeholder-node__test-placeholder"
+          role="button"
+          tabindex="-1"
         >
-          <div
-            class="placeholder-node__container__image"
-            title="Click to add a step"
+          <foreignobject
+            data-nodelabel="test-placeholder"
+            height="75"
+            width="90"
           >
-            <span
-              data-testid="mock-icon"
+            <div
+              class="placeholder-node__container"
+              data-testid="undefined|test-placeholder"
             >
-              <svg
-                data-testid="plus-circle-icon"
-                role="img"
+              <div
+                class="placeholder-node__container__image"
+                title="Click to add a step"
               >
-                <path />
-              </svg>
-            </span>
-          </div>
-        </div>
-      </foreignobject>
-      <foreignobject
-        class="placeholder-node__label"
-        height="24"
-        width="150"
-        x="-30"
-        y="74"
-      >
-        <div
-          class="placeholder-node__label__text"
-        >
-          <span
-            title="Add test-placeholder"
+                <span
+                  class="pf-v6-c-icon pf-m-lg"
+                >
+                  <span
+                    class="pf-v6-c-icon__content"
+                  >
+                    <svg
+                      data-testid="plus-circle-icon"
+                      role="img"
+                    >
+                      <path />
+                    </svg>
+                  </span>
+                </span>
+              </div>
+            </div>
+          </foreignobject>
+          <foreignobject
+            class="placeholder-node__label"
+            height="24"
+            width="150"
+            x="-30"
+            y="74"
           >
-            Add test-placeholder
-          </span>
-        </div>
-      </foreignobject>
+            <div
+              class="placeholder-node__label__text"
+            >
+              <span
+                title="Add test-placeholder"
+              >
+                Add test-placeholder
+              </span>
+            </div>
+          </foreignobject>
+        </g>
+      </g>
     </g>
-  </g>
+    <g
+      data-layer-id="top"
+    />
+  </svg>
 </DocumentFragment>
 `;
 
 exports[`PlaceholderNode > isSpecialChildPlaceholder > should render PlusCircleIcon for special child placeholder 1`] = `
 <DocumentFragment>
-  <g
-    data-testid="mock-layer"
-  >
+  <svg>
     <g
-      aria-label="Add test-placeholder"
-      class="placeholder-node"
-      data-nodelabel="test-placeholder"
-      data-testid="placeholder-node__test-placeholder"
-      role="button"
-      tabindex="-1"
+      data-layer-id="bottom"
+    />
+    <g
+      data-layer-id="groups"
+    />
+    <g
+      data-layer-id="default"
     >
-      <foreignobject
-        data-nodelabel="test-placeholder"
-        height="75"
-        width="90"
+      <g
+        data-id="node-placeholder"
+        data-kind="node"
+        data-type="node-placeholder"
+        transform="translate(0, 0)"
       >
-        <div
-          class="placeholder-node__container"
-          data-testid="undefined|test-placeholder"
+        <g
+          aria-label="Add test-placeholder"
+          class="placeholder-node"
+          data-nodelabel="test-placeholder"
+          data-testid="placeholder-node__test-placeholder"
+          role="button"
+          tabindex="-1"
         >
-          <div
-            class="placeholder-node__container__image"
-            title="Click to add a step"
+          <foreignobject
+            data-nodelabel="test-placeholder"
+            height="75"
+            width="90"
           >
-            <span
-              data-testid="mock-icon"
+            <div
+              class="placeholder-node__container"
+              data-testid="undefined|test-placeholder"
             >
-              <svg
-                data-testid="code-branch-icon"
-                role="img"
+              <div
+                class="placeholder-node__container__image"
+                title="Click to add a step"
               >
-                <path />
-              </svg>
-            </span>
-          </div>
-        </div>
-      </foreignobject>
-      <foreignobject
-        class="placeholder-node__label"
-        height="24"
-        width="150"
-        x="-30"
-        y="74"
-      >
-        <div
-          class="placeholder-node__label__text"
-        >
-          <span
-            title="Add test-placeholder"
+                <span
+                  class="pf-v6-c-icon pf-m-lg"
+                >
+                  <span
+                    class="pf-v6-c-icon__content"
+                  >
+                    <svg
+                      data-testid="code-branch-icon"
+                      role="img"
+                    >
+                      <path />
+                    </svg>
+                  </span>
+                </span>
+              </div>
+            </div>
+          </foreignobject>
+          <foreignobject
+            class="placeholder-node__label"
+            height="24"
+            width="150"
+            x="-30"
+            y="74"
           >
-            Add test-placeholder
-          </span>
-        </div>
-      </foreignobject>
+            <div
+              class="placeholder-node__label__text"
+            >
+              <span
+                title="Add test-placeholder"
+              >
+                Add test-placeholder
+              </span>
+            </div>
+          </foreignobject>
+        </g>
+      </g>
     </g>
-  </g>
+    <g
+      data-layer-id="top"
+    />
+  </svg>
 </DocumentFragment>
 `;
 
-exports[`PlaceholderNode > should return null when element has no vizNode in data 1`] = `<DocumentFragment />`;
+exports[`PlaceholderNode > should return null when element has no vizNode in data 1`] = `
+<DocumentFragment>
+  <svg>
+    <g
+      data-layer-id="bottom"
+    />
+    <g
+      data-layer-id="groups"
+    />
+    <g
+      data-layer-id="default"
+    />
+    <g
+      data-layer-id="top"
+    />
+  </svg>
+</DocumentFragment>
+`;

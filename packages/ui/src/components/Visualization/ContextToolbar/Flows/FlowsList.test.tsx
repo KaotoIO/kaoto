@@ -1,5 +1,8 @@
 import { CamelYamlDsl } from '@kaoto/camel-catalog/types';
+import { Visualization, VisualizationProvider } from '@patternfly/react-topology';
 import { fireEvent, render, waitFor } from '@testing-library/react';
+import { PropsWithChildren, ReactElement } from 'react';
+import type { MockInstance } from 'vitest';
 import { parse } from 'yaml';
 
 import { CamelRouteResource } from '../../../../models/camel';
@@ -11,18 +14,21 @@ import {
 } from '../../../../providers/action-confirmation-modal.provider';
 import { VisibleFlowsContextResult } from '../../../../providers/visible-flows.provider';
 import { mockRandomValues, TestProvidersWrapper } from '../../../../stubs';
+import { ControllerService } from '../../Canvas/controller.service';
 import { FlowsList } from './FlowsList';
-
-const mockController = {
-  fromModel: vi.fn(),
-};
-
-vi.mock('@patternfly/react-topology', () => ({
-  useVisualizationController: () => mockController,
-}));
 
 describe('FlowsList.tsx', () => {
   let camelResource: CamelRouteResource;
+  let controller: Visualization;
+  let fromModelSpy: MockInstance<Visualization['fromModel']>;
+
+  /** Renders inside a real topology controller */
+  const renderInController = (ui: ReactElement) =>
+    render(ui, {
+      wrapper: ({ children }: PropsWithChildren) => (
+        <VisualizationProvider controller={controller}>{children}</VisualizationProvider>
+      ),
+    });
 
   beforeAll(() => {
     mockRandomValues();
@@ -30,6 +36,8 @@ describe('FlowsList.tsx', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
+    controller = ControllerService.createController();
+    fromModelSpy = vi.spyOn(controller, 'fromModel');
     camelResource = new CamelRouteResource();
     camelResource.addNewEntity(EntityType.Route);
     camelResource.addNewEntity(EntityType.RouteConfiguration);
@@ -41,7 +49,7 @@ describe('FlowsList.tsx', () => {
 
   it('should render the existing flows', async () => {
     const { Provider } = await TestProvidersWrapper({ camelResource });
-    const wrapper = render(
+    const wrapper = renderInController(
       <Provider>
         <FlowsList />
       </Provider>,
@@ -57,7 +65,7 @@ describe('FlowsList.tsx', () => {
     // memory would be undone by the wrapper's re-initialize() from source.
     const emptyResource = new CamelRouteResource();
     const { Provider } = await TestProvidersWrapper({ camelResource: emptyResource });
-    const wrapper = render(
+    const wrapper = renderInController(
       <Provider>
         <FlowsList />
       </Provider>,
@@ -70,7 +78,7 @@ describe('FlowsList.tsx', () => {
 
   it('should render the flows ids', async () => {
     const { Provider } = await TestProvidersWrapper({ camelResource });
-    const wrapper = render(
+    const wrapper = renderInController(
       <Provider>
         <FlowsList />
       </Provider>,
@@ -96,7 +104,7 @@ describe('FlowsList.tsx', () => {
     };
 
     const { Provider } = await TestProvidersWrapper({ camelResource, visibleFlowsContext });
-    const wrapper = render(
+    const wrapper = renderInController(
       <Provider>
         <FlowsList />
       </Provider>,
@@ -111,7 +119,7 @@ describe('FlowsList.tsx', () => {
   it('should call onClose when clicking on a flow ID', async () => {
     const onCloseSpy = vi.fn();
     const { Provider } = await TestProvidersWrapper({ camelResource });
-    const wrapper = render(
+    const wrapper = renderInController(
       <Provider>
         <FlowsList onClose={onCloseSpy} />
       </Provider>,
@@ -130,7 +138,7 @@ describe('FlowsList.tsx', () => {
     };
 
     const { Provider } = await TestProvidersWrapper({ camelResource });
-    const wrapper = render(
+    const wrapper = renderInController(
       <Provider>
         <ActionConfirmationModalContext.Provider value={mockDeleteModalContext}>
           <FlowsList />
@@ -148,7 +156,7 @@ describe('FlowsList.tsx', () => {
 
   it('should delete a flow when clicking the delete icon and then clicking delete', async () => {
     const { Provider } = await TestProvidersWrapper({ camelResource });
-    const wrapper = render(
+    const wrapper = renderInController(
       <Provider>
         <ActionConfirmationModalContextProvider>
           <FlowsList />
@@ -169,7 +177,7 @@ describe('FlowsList.tsx', () => {
 
   it('should not delete a flow when clicking the delete icon and then clicking cancel', async () => {
     const { Provider } = await TestProvidersWrapper({ camelResource });
-    const wrapper = render(
+    const wrapper = renderInController(
       <Provider>
         <ActionConfirmationModalContextProvider>
           <FlowsList />
@@ -200,7 +208,7 @@ describe('FlowsList.tsx', () => {
     };
 
     const { Provider } = await TestProvidersWrapper({ camelResource, visibleFlowsContext });
-    const wrapper = render(
+    const wrapper = renderInController(
       <Provider>
         <FlowsList />
       </Provider>,
@@ -221,7 +229,7 @@ describe('FlowsList.tsx', () => {
     };
 
     const { Provider } = await TestProvidersWrapper({ camelResource, visibleFlowsContext });
-    const wrapper = render(
+    const wrapper = renderInController(
       <Provider>
         <FlowsList />
       </Provider>,
@@ -243,7 +251,7 @@ describe('FlowsList.tsx', () => {
     };
 
     const { Provider } = await TestProvidersWrapper({ camelResource, visibleFlowsContext });
-    const wrapper = render(
+    const wrapper = renderInController(
       <Provider>
         <FlowsList />
       </Provider>,
@@ -254,8 +262,8 @@ describe('FlowsList.tsx', () => {
     expect(flow1).toBeInTheDocument();
     fireEvent.click(flow1);
 
-    expect(mockController.fromModel).toHaveBeenCalledTimes(1);
-    expect(mockController.fromModel).toHaveBeenCalledWith({
+    expect(fromModelSpy).toHaveBeenCalledTimes(1);
+    expect(fromModelSpy).toHaveBeenCalledWith({
       nodes: [],
       edges: [],
     });
@@ -275,7 +283,7 @@ describe('FlowsList.tsx', () => {
       camelResource,
       visibleFlowsContext,
     });
-    const wrapper = render(
+    const wrapper = renderInController(
       <Provider>
         <FlowsList />
       </Provider>,
@@ -307,7 +315,7 @@ describe('FlowsList.tsx', () => {
     };
 
     const { Provider } = await TestProvidersWrapper({ camelResource, visibleFlowsContext });
-    const wrapper = render(
+    const wrapper = renderInController(
       <Provider>
         <FlowsList />
       </Provider>,
@@ -331,7 +339,7 @@ describe('FlowsList.tsx', () => {
     };
 
     const { Provider } = await TestProvidersWrapper({ camelResource, visibleFlowsContext });
-    const wrapper = render(
+    const wrapper = renderInController(
       <Provider>
         <FlowsList />
       </Provider>,
@@ -352,7 +360,7 @@ describe('FlowsList.tsx', () => {
     };
 
     const { Provider } = await TestProvidersWrapper({ camelResource, visibleFlowsContext });
-    const wrapper = render(
+    const wrapper = renderInController(
       <Provider>
         <FlowsList />
       </Provider>,
@@ -371,7 +379,7 @@ describe('FlowsList.tsx', () => {
     };
 
     const { Provider } = await TestProvidersWrapper({ camelResource, visibleFlowsContext });
-    const wrapper = render(
+    const wrapper = renderInController(
       <Provider>
         <FlowsList />
       </Provider>,
@@ -393,7 +401,7 @@ describe('FlowsList.tsx', () => {
     };
 
     const { Provider } = await TestProvidersWrapper({ camelResource, visibleFlowsContext });
-    const wrapper = render(
+    const wrapper = renderInController(
       <Provider>
         <FlowsList />
       </Provider>,
@@ -424,7 +432,7 @@ describe('FlowsList.tsx', () => {
   it('should have the delete button disabled when there are no routes', async () => {
     const { Provider } = await TestProvidersWrapper({ camelResource });
 
-    const wrapper = render(
+    const wrapper = renderInController(
       <Provider>
         <FlowsList />
       </Provider>,
@@ -439,7 +447,7 @@ describe('FlowsList.tsx', () => {
 
   it('should delete filtered flows when clicking the delete filtered button', async () => {
     const { Provider } = await TestProvidersWrapper({ camelResource });
-    const wrapper = render(
+    const wrapper = renderInController(
       <Provider>
         <ActionConfirmationModalContextProvider>
           <FlowsList />
@@ -468,7 +476,7 @@ describe('FlowsList.tsx', () => {
 
   it('should not delete any flows when canceling the delete filtered action', async () => {
     const { Provider } = await TestProvidersWrapper({ camelResource });
-    const wrapper = render(
+    const wrapper = renderInController(
       <Provider>
         <ActionConfirmationModalContextProvider>
           <FlowsList />

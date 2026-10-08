@@ -1,38 +1,26 @@
-import { BaseEdge, BaseGraph, BaseNode, ElementContext, VisualizationProvider } from '@patternfly/react-topology';
+import { BaseEdge, NodeModel } from '@patternfly/react-topology';
 import { fireEvent, render, screen } from '@testing-library/react';
-import React from 'react';
 
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { TestProvidersWrapper } from '../../../../stubs';
+import { TopologyElementWrapper } from '../../../../stubs/topology-element-wrapper';
 import { ControllerService } from '../../Canvas/controller.service';
 import { CustomNodeObserver } from './CustomNode';
 
-const mockRef = { current: null };
+/** Creates a real controller holding a single node built from the given data */
+const createNodeInController = (data?: NodeModel['data']) => {
+  const controller = ControllerService.createController();
+  controller.fromModel(
+    {
+      graph: { id: 'g1', type: 'graph' },
+      nodes: [{ id: 'node-log', type: 'node', x: 0, y: 0, width: 90, height: 75, data }],
+    },
+    false,
+  );
+  const element = controller.getNodeById('node-log')!;
 
-vi.mock('@patternfly/react-topology', async () => {
-  const actual = await vi.importActual('@patternfly/react-topology');
-  return {
-    ...actual,
-    Layer: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
-    useDragNode: () => [{ node: undefined }, mockRef],
-    useDndDrop: () => [
-      {
-        droppable: false,
-        hover: false,
-        canDrop: false,
-        dragItemType: undefined,
-        dragItem: undefined,
-      },
-      mockRef,
-    ],
-    useAnchor: () => {},
-    useHover: () => [false, mockRef],
-  };
-});
-
-vi.mock('../../../../utils/processor-icon', () => ({
-  getProcessorIcon: () => null,
-}));
+  return { controller, element };
+};
 
 describe('CustomNode', () => {
   afterEach(() => {
@@ -59,30 +47,20 @@ describe('CustomNode', () => {
     vi.spyOn(vizNode, 'canDragNode').mockReturnValue(false);
     vi.spyOn(vizNode, 'canDropOnNode').mockReturnValue(false);
 
-    const parentElement = new BaseGraph();
-    const element = new BaseNode();
-    const controller = ControllerService.createController();
-    parentElement.setController(controller);
-    element.setController(controller);
-    element.setParent(parentElement);
-    vi.spyOn(element, 'getData').mockReturnValue({ vizNode });
-    vi.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
-    vi.spyOn(element, 'getId').mockReturnValue('node-log');
+    const { controller, element } = createNodeInController({ vizNode });
 
     const { Provider } = await TestProvidersWrapper();
 
     const result = render(
       <Provider>
-        <VisualizationProvider controller={controller}>
-          <ElementContext.Provider value={element}>
-            <CustomNodeObserver
-              element={element}
-              selected={props?.selected}
-              onSelect={props?.onSelect}
-              onContextMenu={props?.onContextMenu}
-            />
-          </ElementContext.Provider>
-        </VisualizationProvider>
+        <TopologyElementWrapper controller={controller} element={element}>
+          <CustomNodeObserver
+            element={element}
+            selected={props?.selected}
+            onSelect={props?.onSelect}
+            onContextMenu={props?.onContextMenu}
+          />
+        </TopologyElementWrapper>
       </Provider>,
     );
 
@@ -99,23 +77,15 @@ describe('CustomNode', () => {
   });
 
   it('should return null when element has no vizNode in data', async () => {
-    const parentElement = new BaseGraph();
-    const element = new BaseNode();
-    const controller = ControllerService.createController();
-    parentElement.setController(controller);
-    element.setController(controller);
-    element.setParent(parentElement);
-    vi.spyOn(element, 'getData').mockReturnValue({});
+    const { controller, element } = createNodeInController({});
 
     const { Provider } = await TestProvidersWrapper();
 
     const { container } = render(
       <Provider>
-        <VisualizationProvider controller={controller}>
-          <ElementContext.Provider value={element}>
-            <CustomNodeObserver element={element} />
-          </ElementContext.Provider>
-        </VisualizationProvider>
+        <TopologyElementWrapper controller={controller} element={element}>
+          <CustomNodeObserver element={element} />
+        </TopologyElementWrapper>
       </Provider>,
     );
 
@@ -131,23 +101,16 @@ describe('CustomNode', () => {
   });
 
   it('should return null when vizNode is undefined', async () => {
-    const parentElement = new BaseGraph();
-    const element = new BaseNode();
-    const controller = ControllerService.createController();
-    parentElement.setController(controller);
-    element.setController(controller);
-    element.setParent(parentElement);
+    const { controller, element } = createNodeInController();
     // Do NOT set vizNode in element data - it will be undefined
 
     const { Provider } = await TestProvidersWrapper();
 
     const { container } = render(
       <Provider>
-        <VisualizationProvider controller={controller}>
-          <ElementContext.Provider value={element}>
-            <CustomNodeObserver element={element} />
-          </ElementContext.Provider>
-        </VisualizationProvider>
+        <TopologyElementWrapper controller={controller} element={element}>
+          <CustomNodeObserver element={element} />
+        </TopologyElementWrapper>
       </Provider>,
     );
 
@@ -159,7 +122,7 @@ describe('CustomNode', () => {
     await renderCustomNode({ selected: false, description: 'Log step' });
 
     const nodeG = screen.getByTestId('custom-node__route.from.steps.0.log').closest('g')!;
-    expect(nodeG).toHaveAttribute('tabIndex', '-1');
+    expect(nodeG).toHaveAttribute('tabindex', '-1');
     expect(nodeG).toHaveAttribute('role', 'button');
     expect(nodeG).toHaveAttribute('aria-label', 'log');
     expect(nodeG).toHaveAttribute('aria-pressed', 'false');
@@ -169,7 +132,7 @@ describe('CustomNode', () => {
     await renderCustomNode({ selected: true, description: 'Log step' });
 
     const nodeG = screen.getByTestId('custom-node__route.from.steps.0.log').closest('g')!;
-    expect(nodeG).toHaveAttribute('tabIndex', '0');
+    expect(nodeG).toHaveAttribute('tabindex', '0');
     expect(nodeG).toHaveAttribute('aria-pressed', 'true');
   });
 

@@ -1,4 +1,4 @@
-import { GRAPH_LAYOUT_END_EVENT, useEventListener, VisualizationProvider } from '@patternfly/react-topology';
+import { GRAPH_LAYOUT_END_EVENT, Visualization, VisualizationProvider } from '@patternfly/react-topology';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { toBlob } from 'html-to-image';
@@ -8,21 +8,8 @@ import type { Mock, MockInstance } from 'vitest';
 import { CamelRouteResource } from '../../../../models/camel';
 import { DocumentationService } from '../../../../services/documentation.service';
 import { camelRouteJson, TestProvidersWrapper } from '../../../../stubs';
-import { CanvasNode } from '../../Canvas/canvas.models';
 import { ControllerService } from '../../Canvas/controller.service';
-import { FlowService } from '../../Canvas/flow.service';
 import { ExportDocumentPreviewModal } from './ExportDocumentPreviewModal';
-
-vi.mock('html-to-image', async () => ({
-  toBlob: vi.fn(),
-}));
-vi.mock('@patternfly/react-topology', async () => ({
-  ...(await vi.importActual('@patternfly/react-topology')),
-  useEventListener: vi.fn(),
-  GRAPH_LAYOUT_END_EVENT: 'graph.layout.end',
-}));
-
-vi.mock('../../Canvas/flow.service');
 
 describe('ExportDocumentPreviewModal', () => {
   const camelResource = new CamelRouteResource([camelRouteJson]);
@@ -31,7 +18,13 @@ describe('ExportDocumentPreviewModal', () => {
   let originalCreateObjectURL: typeof URL.createObjectURL;
   let originalRevokeObjectURL: typeof URL.revokeObjectURL;
   let clickSpy: MockInstance;
-  let eventListenerCallback: ((event?: Event) => void) | null = null;
+  /** The controller of the canvas hosting the modal, where the hidden canvas listens for the layout end */
+  let controller: Visualization;
+
+  /** Notifies the end of the graph layout, so the hidden canvas generates the image */
+  const fireLayoutEnd = () => {
+    controller.fireEvent(GRAPH_LAYOUT_END_EVENT, { graph: controller.getGraph() });
+  };
 
   beforeAll(async () => {
     await camelResource.initialize();
@@ -47,22 +40,14 @@ describe('ExportDocumentPreviewModal', () => {
 
     clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
 
-    (FlowService.getFlowDiagram as Mock).mockReturnValue({
-      nodes: [{ id: 'node-1', type: 'node' } as CanvasNode],
-      edges: [{ id: 'edge-1', type: 'edge' }],
-    });
+    vi.mocked(toBlob).mockResolvedValue(new Blob(['fake-image-data'], { type: 'image/png' }));
+    /* jsdom has no SVG layout, give the exported <svg> a size */
+    vi.spyOn(SVGSVGElement.prototype, 'getBBox').mockReturnValue(new DOMRect(0, 0, 100, 100));
 
-    (toBlob as Mock).mockResolvedValue(new Blob(['fake-image-data'], { type: 'image/png' }));
-
-    (useEventListener as Mock).mockImplementation((eventType: string, callback: (event?: Event) => void) => {
-      if (eventType === GRAPH_LAYOUT_END_EVENT) {
-        eventListenerCallback = callback;
-      }
-    });
-
+    controller = ControllerService.createController();
     const { Provider } = await TestProvidersWrapper({ camelResource });
     wrapper = ({ children }) => (
-      <VisualizationProvider controller={ControllerService.createController()}>
+      <VisualizationProvider controller={controller}>
         <Provider>{children}</Provider>
       </VisualizationProvider>
     );
@@ -72,7 +57,6 @@ describe('ExportDocumentPreviewModal', () => {
     URL.createObjectURL = originalCreateObjectURL;
     URL.revokeObjectURL = originalRevokeObjectURL;
     clickSpy.mockRestore();
-    eventListenerCallback = null;
   });
 
   it('renders the top toolbar', () => {
@@ -129,11 +113,11 @@ describe('ExportDocumentPreviewModal', () => {
 
     // Trigger the GRAPH_LAYOUT_END_EVENT to simulate canvas layout completion
     act(() => {
-      eventListenerCallback?.();
+      fireLayoutEnd();
     });
 
     await waitFor(() => {
-      expect(URL.createObjectURL as Mock).toHaveBeenCalled();
+      expect(vi.mocked(URL.createObjectURL)).toHaveBeenCalled();
       expect(generateMarkdownSpy).toHaveBeenCalled();
     });
   });
@@ -146,7 +130,7 @@ describe('ExportDocumentPreviewModal', () => {
 
     // Trigger the GRAPH_LAYOUT_END_EVENT to simulate canvas layout completion
     act(() => {
-      eventListenerCallback?.();
+      fireLayoutEnd();
     });
 
     // Wait for loading spinner to be removed
@@ -164,7 +148,7 @@ describe('ExportDocumentPreviewModal', () => {
 
     // Trigger blob generation
     act(() => {
-      eventListenerCallback?.();
+      fireLayoutEnd();
     });
 
     // Wait for blob to be generated
@@ -198,7 +182,7 @@ describe('ExportDocumentPreviewModal', () => {
 
     // Trigger blob generation
     act(() => {
-      eventListenerCallback?.();
+      fireLayoutEnd();
     });
 
     await waitFor(() => {
@@ -226,7 +210,7 @@ describe('ExportDocumentPreviewModal', () => {
 
     // Trigger blob generation
     act(() => {
-      eventListenerCallback?.();
+      fireLayoutEnd();
     });
 
     await waitFor(() => {
@@ -234,14 +218,14 @@ describe('ExportDocumentPreviewModal', () => {
     });
 
     // Clear previous calls to createObjectURL (from image blob)
-    (URL.createObjectURL as Mock).mockClear();
+    vi.mocked(URL.createObjectURL).mockClear();
 
     // Click download button
     const downloadButton = screen.getByRole('button', { name: /download/i });
     fireEvent.click(downloadButton);
 
     await waitFor(() => {
-      expect(URL.createObjectURL as Mock).toHaveBeenCalledWith(zipBlob);
+      expect(vi.mocked(URL.createObjectURL)).toHaveBeenCalledWith(zipBlob);
     });
   });
 });
