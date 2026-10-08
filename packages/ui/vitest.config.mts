@@ -11,6 +11,7 @@ export default defineConfig({
     include: ['**/?(*.)+(test).[tj]s?(x)'],
     testTimeout: 10_000,
     hookTimeout: 20_000,
+    isolate: false,
     clearMocks: true,
     css: false,
     server: {
