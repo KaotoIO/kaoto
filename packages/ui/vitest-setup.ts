@@ -16,8 +16,10 @@ afterEach(() => {
 });
 
 afterAll(() => {
-  // Restore vi.spyOn() spies at the end of every file so they don't leak into the next file of the worker
+  // Restore vi.spyOn() spies at the end of every file so they don't leak into the next file of the worker,
+  // and reset the vi.fn() mocks of the global mocks (vitest-mocks-setup.ts) to their default implementation
   vi.restoreAllMocks();
+  vi.resetAllMocks();
 
   // Reset <body> like a fresh jsdom would be: cleanup() only removes Testing Library's own containers, while
   // e.g. PatternFly modals leave `class=""` behind and the Monaco loader appends a <script> tag

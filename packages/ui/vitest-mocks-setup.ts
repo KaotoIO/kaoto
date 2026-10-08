@@ -1,4 +1,5 @@
 import React from 'react';
+import { vi } from 'vitest';
 
 // This file contains all vi.mock() calls and runs before other setup files
 // to ensure mocks are properly hoisted
@@ -97,3 +98,9 @@ vi.mock('hotkeys-js', () => {
     default: hotkeyMock,
   };
 });
+
+// html-to-image renders the DOM through a <canvas>, which jsdom doesn't implement.
+// The default implementation is passed to vi.fn() so vi.resetAllMocks() restores it after every file.
+vi.mock('html-to-image', () => ({
+  toBlob: vi.fn(async () => new Blob(['fake-image-data'], { type: 'image/png' })),
+}));
