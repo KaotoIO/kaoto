@@ -30,3 +30,4 @@ export * from './PasswordField';
 export * from './PropertiesField';
 export * from './StringField';
 export * from './TextAreaField';
+export * from './UriField';

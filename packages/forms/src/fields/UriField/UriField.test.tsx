@@ -1,8 +1,8 @@
-import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
-import { KaotoFormPageObject } from '@kaoto/forms/testing';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { JSONSchema4 } from 'json-schema';
 
+import { ModelContextProvider, SchemaProvider } from '../../providers';
+import { KaotoFormPageObject } from '../../testing/KaotoFormPageObject';
 import { UriField } from './UriField';
 
 describe('UriField', () => {

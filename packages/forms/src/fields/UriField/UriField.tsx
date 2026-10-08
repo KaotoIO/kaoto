@@ -2,7 +2,6 @@ import './UriField.scss';
 
 import { Checkmark, Close, Edit, Link } from '@carbon/icons-react';
 import { IconButton, TextInput } from '@carbon/react';
-import { FieldProps, FieldWrapper, SchemaContext, useFieldValue } from '@kaoto/forms';
 import {
   FunctionComponent,
   KeyboardEventHandler,
@@ -12,6 +11,11 @@ import {
   useRef,
   useState,
 } from 'react';
+
+import { useFieldValue } from '../../hooks/field-value';
+import { FieldProps } from '../../models/typings';
+import { SchemaContext } from '../../providers/SchemaProvider';
+import { FieldWrapper } from '../FieldWrapper';
 
 export const UriField: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { schema } = useContext(SchemaContext);
