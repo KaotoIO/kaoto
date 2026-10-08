@@ -1,10 +1,15 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "composite": true,
-    "skipLibCheck": true,
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "allowSyntheticDefaultImports": true
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "types": ["node"],
+
+    /* vite.config.mjs and the scripts it imports are JS checked through `// @ts-check` */
+    "allowJs": true
   },
-  "include": ["vite.config.mjs", "vitest.config.mts", "vitest-setup.ts", "vitest-mocks-setup.ts"]
+  "include": ["vite.config.mjs", "vitest.config.mts"]
 }

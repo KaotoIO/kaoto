@@ -79,6 +79,8 @@ const commonConfig = (env) => {
                 transpileOnly,
                 compilerOptions: {
                   ...importsNotUsedAsValues,
+                  // tsconfig.json inherits `noEmit: true` from the monorepo base; ts-loader needs the emit
+                  noEmit: false,
                   sourceMap: sourceMaps,
                 },
               },
@@ -120,6 +122,9 @@ const commonConfig = (env) => {
         url: false,
         stream: false,
       },
+      // Resolve workspace packages (@kaoto/kaoto) to their TypeScript sources
+      // through the `@kaoto/source` export condition; '...' keeps webpack's default conditions.
+      conditionNames: ['@kaoto/source', '...'],
       extensions: ['.tsx', '.ts', '.js', '.jsx'],
       modules: ['node_modules'],
       alias: {

@@ -1,5 +1,5 @@
 // @ts-check
-import simpleGit from 'simple-git';
+import { simpleGit } from 'simple-git';
 
 /**
  * Get the git last commit info

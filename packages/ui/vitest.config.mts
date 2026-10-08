@@ -35,6 +35,8 @@ export default defineConfig({
     },
   },
   resolve: {
-    extensions: ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json'],
+    // Resolve workspace packages to their TypeScript sources.
+    // Vitest appends its own default conditions (node, development|production) after these.
+    conditions: ['@kaoto/source'],
   },
 });

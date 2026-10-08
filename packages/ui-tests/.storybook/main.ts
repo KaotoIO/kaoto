@@ -1,6 +1,7 @@
 import type { StorybookConfig } from '@storybook/react-vite';
 import { createRequire } from 'module';
 import { dirname, join } from 'path';
+import { defaultClientConditions } from 'vite';
 
 import packageJson from '../../../package.json' with { type: 'json' };
 
@@ -50,6 +51,8 @@ const config: StorybookConfig = {
       },
       resolve: {
         ...config.resolve,
+        // Consume @kaoto/kaoto from its TypeScript sources (no build:lib needed)
+        conditions: ['@kaoto/source', ...(config.resolve?.conditions ?? defaultClientConditions)],
         alias: [
           ...(Array.isArray(config.resolve?.alias) ? config.resolve.alias : []),
           {

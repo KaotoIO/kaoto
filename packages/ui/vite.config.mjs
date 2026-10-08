@@ -1,13 +1,13 @@
 // @ts-check
 import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
+import { defaultClientConditions, defineConfig } from 'vite';
 
-import packageJson from './package.json';
+import packageJson from './package.json' with { type: 'json' };
 import { camelCatalogPlugin } from './scripts/camel-catalog-plugin.mjs';
 import { getCatalogFiles } from './scripts/get-catalog-files.mjs';
 import { getLastCommitInfo } from './scripts/get-last-commit-info.mjs';
 
-// https://vitejs.dev/config/
+// https://vite.dev/config/
 
 const outDir = './dist';
 const lastCommitInfo = await getLastCommitInfo();
@@ -37,6 +37,8 @@ export default defineConfig({
     },
   },
   resolve: {
+    // Resolve workspace packages to their TypeScript sources
+    conditions: ['@kaoto/source', ...defaultClientConditions],
     alias: [
       {
         find: /^~/,

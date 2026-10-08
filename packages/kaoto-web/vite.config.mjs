@@ -1,9 +1,9 @@
 // @ts-check
 import react from '@vitejs/plugin-react-swc';
 import path from 'node:path';
-import { defineConfig } from 'vite';
+import { defaultClientConditions, defineConfig } from 'vite';
 
-import packageJson from './package.json';
+import packageJson from './package.json' with { type: 'json' };
 import { getLastCommitInfo } from './scripts/get-last-commit-info.mjs';
 
 // https://vite.dev/config/
@@ -18,8 +18,10 @@ export default defineConfig({
     __KAOTO_VERSION: JSON.stringify(packageJson.version),
   },
   resolve: {
+    // Resolve workspace packages to their TypeScript sources
+    conditions: ['@kaoto/source', ...defaultClientConditions],
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(import.meta.dirname, './src'),
     },
   },
   css: {

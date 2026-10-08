@@ -8,11 +8,13 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
+    // Both files pull the shared setup from @kaoto/kaoto; append further local setup files here
     setupFiles: ['./vitest-mocks-setup.ts', './vitest-setup.ts'],
     include: ['**/?(*.)+(test).[tj]s?(x)'],
     typecheck: {
       enabled: true,
       include: ['**/?(*.)+(test).ts'],
+      tsconfig: './tsconfig.app.json',
     },
     testTimeout: 10_000,
     hookTimeout: 20_000,
@@ -37,10 +39,12 @@ export default defineConfig({
       'react-dom': fileURLToPath(new URL('../../node_modules/react-dom', import.meta.url)),
       // Use native ESM build to avoid CJS interop issues in wrapper.mjs
       uuid: fileURLToPath(new URL('../../node_modules/uuid/dist/esm-node/index.js', import.meta.url)),
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(import.meta.dirname, './src'),
     },
   },
   resolve: {
-    extensions: ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json'],
+    // Resolve workspace packages to their TypeScript sources.
+    // Vitest appends its own default conditions (node, development|production) after these.
+    conditions: ['@kaoto/source'],
   },
 });

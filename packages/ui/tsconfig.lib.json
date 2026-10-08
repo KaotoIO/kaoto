@@ -1,33 +1,10 @@
 {
+  "extends": "../../tsconfig.lib.base.json",
   "compilerOptions": {
-    "target": "ES2020",
-    "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "skipLibCheck": true,
-    "rootDir": "./src",
-
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": false,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": false,
-    "sourceMap": true,
-    "inlineSources": true,
-    "declaration": true,
-    "declarationMap": true,
-    "jsx": "react-jsx",
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.lib.tsbuildinfo",
+    "rootDir": "src",
     "outDir": "lib",
-
-    /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-
-    /* Typings */
-    "types": ["@testing-library/jest-dom"]
+    "inlineSources": true
   },
   "include": [
     "src/public-api.ts",
@@ -37,6 +14,5 @@
     "src/global.d.ts",
     "src/vite-env.d.ts"
   ],
-  "exclude": ["src/**/*.test.tsx", "src/**/*.test.ts", "src/**/stubs/**"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "exclude": ["src/**/*.test.tsx", "src/**/*.test.ts", "src/**/stubs/**"]
 }
