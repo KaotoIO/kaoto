@@ -34,9 +34,14 @@ export async function verifyJavaExists(): Promise<boolean> {
 	return output.success;
 }
 
-export async function verifyCamelPluginsAreInstalled(plugins: string[]): Promise<{ plugin: string; installed: boolean }[]> {
+export interface CamelPlugin {
+	name: string;
+	gav?: string;
+}
+
+export async function verifyCamelPluginsAreInstalled(plugins: CamelPlugin[]): Promise<(CamelPlugin & { installed: boolean })[]> {
 	return await runJBangCommandWithStatusBar(`camel@apache/camel plugin get`, `Checking Camel JBang plugins...`).then((output) => {
-		return plugins.map((plugin) => ({ plugin, installed: output.stdout.includes(plugin) }));
+		return plugins.map((plugin) => ({ ...plugin, installed: output.stdout.includes(plugin.name) }));
 	});
 }
 

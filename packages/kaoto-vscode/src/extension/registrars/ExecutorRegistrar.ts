@@ -29,6 +29,7 @@ import {
 	verifyJBangExists,
 	verifyJBangTrustedSources,
 	verifyCamelPluginsAreInstalled,
+	type CamelPlugin,
 } from '../../utils/Process';
 import { KaotoOutputChannel } from '../KaotoOutputChannel';
 import { KaotoCatalogService } from '../../services/KaotoCatalogService';
@@ -124,16 +125,21 @@ export class ExecutorRegistrar implements IRegistrar {
 	}
 
 	public async checkCamelJBangPlugins() {
-		const camelPlugins = await verifyCamelPluginsAreInstalled(['kubernetes', 'test']);
-		const camelPluginsToInstall = camelPlugins.filter((plugin) => !plugin.installed).map((plugin) => plugin.plugin);
+		const plugins: CamelPlugin[] = [{ name: 'kubernetes' }, { name: 'test' }, { name: 'forage', gav: 'io.kaoto.forage:camel-jbang-plugin-forage:1.6.1' }];
+		const camelPlugins = await verifyCamelPluginsAreInstalled(plugins);
+		const camelPluginsToInstall = camelPlugins.filter((plugin) => !plugin.installed);
 		if (camelPluginsToInstall.length > 0) {
 			for (const plugin of camelPluginsToInstall) {
-				const output = await runJBangCommandWithStatusBar(`camel@apache/camel plugin add ${plugin}`, `Adding Apache Camel JBang ${plugin} plugin...`);
+				const installArg = plugin.gav ? `${plugin.name} --gav ${plugin.gav}` : plugin.name;
+				const output = await runJBangCommandWithStatusBar(
+					`camel@apache/camel plugin add ${installArg}`,
+					`Adding Apache Camel JBang ${plugin.name} plugin...`,
+				);
 				if (output.stderr.length > 0 && output.stderr.toLowerCase().includes('error')) {
-					KaotoOutputChannel.logError(`Failed to add Apache Camel JBang ${plugin} plugin: ${output.stderr}`);
-					vscode.window.showWarningMessage(`Failed to add Apache Camel JBang ${plugin} plugin: ${output.stderr}`);
+					KaotoOutputChannel.logError(`Failed to add Apache Camel JBang ${plugin.name} plugin: ${output.stderr}`);
+					vscode.window.showWarningMessage(`Failed to add Apache Camel JBang ${plugin.name} plugin: ${output.stderr}`);
 				} else {
-					KaotoOutputChannel.logInfo(`Apache Camel JBang ${plugin} plugin was installed.`);
+					KaotoOutputChannel.logInfo(`Apache Camel JBang ${plugin.name} plugin was installed.`);
 				}
 			}
 		}
