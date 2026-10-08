@@ -1,17 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { ProjectContext } from '../../context/ProjectContext';
 import { RuntimeProvider } from '../../context/RuntimeProvider';
 import { ProjectToolbar } from './ProjectToolbar';
-
-vi.mock('./AppMenuDropdown/AppMenuDropdown', () => ({
-  AppMenuDropdown: () => <div data-testid="app-menu-dropdown" />,
-}));
-vi.mock('./SelectedRuntime/SelectedRuntime', () => ({
-  SelectedRuntime: () => <div data-testid="runtime-selector-display" />,
-}));
 
 const renderComponent = () =>
   render(

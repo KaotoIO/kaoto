@@ -1,23 +1,21 @@
 import { renderHook } from '@testing-library/react';
+import { createElement, PropsWithChildren } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import * as AppContextModule from '@/context/useAppContext';
+import { AppContext, AppContextType } from '@/context/AppContextDefinition';
 
 import { useNotification } from './useNotification';
-
-// Mock the AppContext
-vi.mock('@/context/useAppContext', () => ({
-  useAppContext: vi.fn(),
-}));
 
 describe('useNotification', () => {
   const mockAddNotification = vi.fn();
   const mockRemoveNotification = vi.fn();
   const mockClearNotifications = vi.fn();
 
+  let wrapper: (props: PropsWithChildren) => ReturnType<typeof createElement>;
+
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(AppContextModule.useAppContext).mockReturnValue({
+    const appContext: AppContextType = {
       addNotification: mockAddNotification,
       removeNotification: mockRemoveNotification,
       clearNotifications: mockClearNotifications,
@@ -26,11 +24,12 @@ describe('useNotification', () => {
       setIsLoading: vi.fn(),
       error: null,
       setError: vi.fn(),
-    });
+    };
+    wrapper = ({ children }) => createElement(AppContext.Provider, { value: appContext }, children);
   });
 
   it('should provide notification functions', () => {
-    const { result } = renderHook(() => useNotification());
+    const { result } = renderHook(() => useNotification(), { wrapper });
 
     expect(result.current.showSuccess).toBeDefined();
     expect(result.current.showError).toBeDefined();
@@ -42,7 +41,7 @@ describe('useNotification', () => {
   });
 
   it('should call addNotification with success kind', () => {
-    const { result } = renderHook(() => useNotification());
+    const { result } = renderHook(() => useNotification(), { wrapper });
 
     result.current.showSuccess('Success Title', 'Success message');
 
@@ -54,7 +53,7 @@ describe('useNotification', () => {
   });
 
   it('should call addNotification with error kind', () => {
-    const { result } = renderHook(() => useNotification());
+    const { result } = renderHook(() => useNotification(), { wrapper });
 
     result.current.showError('Error Title', 'Error message');
 
@@ -66,7 +65,7 @@ describe('useNotification', () => {
   });
 
   it('should call addNotification with info kind', () => {
-    const { result } = renderHook(() => useNotification());
+    const { result } = renderHook(() => useNotification(), { wrapper });
 
     result.current.showInfo('Info Title', 'Info message');
 
@@ -78,7 +77,7 @@ describe('useNotification', () => {
   });
 
   it('should call addNotification with warning kind', () => {
-    const { result } = renderHook(() => useNotification());
+    const { result } = renderHook(() => useNotification(), { wrapper });
 
     result.current.showWarning('Warning Title', 'Warning message');
 
@@ -90,7 +89,7 @@ describe('useNotification', () => {
   });
 
   it('should call addNotification with custom notification options', () => {
-    const { result } = renderHook(() => useNotification());
+    const { result } = renderHook(() => useNotification(), { wrapper });
 
     result.current.showNotification({
       kind: 'success',
@@ -106,7 +105,7 @@ describe('useNotification', () => {
   });
 
   it('should expose removeNotification from context', () => {
-    const { result } = renderHook(() => useNotification());
+    const { result } = renderHook(() => useNotification(), { wrapper });
 
     result.current.removeNotification('notification-id');
 
@@ -114,7 +113,7 @@ describe('useNotification', () => {
   });
 
   it('should expose clearNotifications from context', () => {
-    const { result } = renderHook(() => useNotification());
+    const { result } = renderHook(() => useNotification(), { wrapper });
 
     result.current.clearNotifications();
 
@@ -122,7 +121,7 @@ describe('useNotification', () => {
   });
 
   it('should maintain stable function references', () => {
-    const { result, rerender } = renderHook(() => useNotification());
+    const { result, rerender } = renderHook(() => useNotification(), { wrapper });
 
     const firstShowSuccess = result.current.showSuccess;
     const firstShowError = result.current.showError;
