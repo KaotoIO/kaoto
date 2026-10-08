@@ -24,7 +24,22 @@ interface CatalogProps {
 
 export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (props) => {
   const [activeLayout, setActiveLayout] = useLocalStorage(LocalStorageKeys.CatalogLayout, CatalogLayout.Gallery);
-  const [recentTiles, setRecentTiles] = useLocalStorage<ITile[]>(LocalStorageKeys.CatalogRecentlyUsed, []);
+  const [storedRecentTiles, setRecentTiles] = useLocalStorage<unknown>(LocalStorageKeys.CatalogRecentlyUsed, []);
+  const recentTiles = useMemo(
+    () =>
+      Array.isArray(storedRecentTiles)
+        ? storedRecentTiles.filter(
+            (tile: unknown): tile is Pick<ITile, 'name' | 'type'> =>
+              typeof tile === 'object' &&
+              tile !== null &&
+              'name' in tile &&
+              typeof tile.name === 'string' &&
+              'type' in tile &&
+              typeof tile.type === 'string',
+          )
+        : [],
+    [storedRecentTiles],
+  );
   const availableRecentTiles = useMemo(
     () =>
       recentTiles.flatMap((recent) => {
@@ -87,16 +102,17 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
 
   const onRecentTileAdded = useCallback(
     (tile: ITile) => {
-      // Read directly from localStorage to avoid the React state cycle being
-      // cut short when the Modal unmounts immediately after tile selection.
-      const stored = localStorage.getItem(LocalStorageKeys.CatalogRecentlyUsed);
-      const prev: ITile[] = stored ? (JSON.parse(stored) as ITile[]) : [];
-      const deduplicated = [tile, ...prev.filter((t) => !(t.name === tile.name && t.type === tile.type))];
+      const deduplicated = [tile, ...recentTiles.filter((t) => !(t.name === tile.name && t.type === tile.type))];
       const next = deduplicated.slice(0, MAX_RECENT_TILES);
-      localStorage.setItem(LocalStorageKeys.CatalogRecentlyUsed, JSON.stringify(next));
+      try {
+        // Persist before the selection callback can unmount the modal.
+        localStorage.setItem(LocalStorageKeys.CatalogRecentlyUsed, JSON.stringify(next));
+      } catch {
+        // Storage failures must not prevent selection or updating the in-memory history.
+      }
       setRecentTiles(next);
     },
-    [setRecentTiles],
+    [recentTiles, setRecentTiles],
   );
 
   const onTileClick = useCallback(
