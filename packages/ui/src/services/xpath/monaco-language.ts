@@ -1,6 +1,7 @@
 import * as monaco from 'monaco-editor';
 
 import { IFunctionArgumentDefinition, IFunctionDefinition } from '../../models/datamapper/mapping';
+import { XPathService } from './xpath.service';
 
 export const xpathLanguageID = 'xpath';
 
@@ -155,3 +156,14 @@ export const monacoXPathLanguageMetadata: MonacoXPathLanguageMetadata = {
     },
   },
 };
+
+/**
+ * Gets Monaco editor language metadata for XPath with function names
+ * @returns Monaco language metadata configuration
+ */
+export function getMonacoXPathLanguageMetadata(): MonacoXPathLanguageMetadata {
+  const functionDefinitions = Object.values(XPathService.getXPathFunctionDefinitions()).flat();
+  monacoXPathLanguageMetadata.tokensProvider.actions = functionDefinitions.map((f) => f.name);
+  monacoXPathLanguageMetadata.functionDefinitions = functionDefinitions;
+  return monacoXPathLanguageMetadata;
+}

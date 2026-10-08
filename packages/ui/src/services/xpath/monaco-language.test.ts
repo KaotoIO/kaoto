@@ -1,6 +1,11 @@
 import { IFunctionDefinition } from '../../models/datamapper/mapping';
 import { Types } from '../../models/datamapper/types';
-import { buildFunctionCompletionItem, buildFunctionSignature, monacoXPathLanguageMetadata } from './monaco-language';
+import {
+  buildFunctionCompletionItem,
+  buildFunctionSignature,
+  getMonacoXPathLanguageMetadata,
+  monacoXPathLanguageMetadata,
+} from './monaco-language';
 
 vi.mock('monaco-editor', () => ({
   languages: {
@@ -75,6 +80,16 @@ function createMockModel(wordAtPosition: { word: string; startColumn: number; en
 }
 
 describe('monaco-language', () => {
+  it('getMonacoXPathLanguageMetadata()', () => {
+    const metadata = getMonacoXPathLanguageMetadata();
+    expect(metadata.id).toBe('xpath');
+    expect(metadata.functionDefinitions.length).toBeGreaterThan(90);
+    expect(metadata.functionDefinitions.find((f) => f.name === 'concat')).toBeDefined();
+    expect(metadata.functionDefinitions.find((f) => f.name === 'position')).toBeDefined();
+    expect(metadata.functionDefinitions.find((f) => f.name === 'count')).toBeDefined();
+    expect(metadata.tokensProvider.actions).toContain('concat');
+  });
+
   describe('buildFunctionSignature()', () => {
     it('should build signature for function with required arguments', () => {
       expect(buildFunctionSignature(concatFn)).toBe('(args: anyAtomicType, ...): string');
