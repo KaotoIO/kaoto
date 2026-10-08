@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { FunctionComponent, PropsWithChildren, SetStateAction } from 'react';
-import { MemoryRouter } from 'react-router-dom';
-import type { Mock } from 'vitest';
+import { FunctionComponent, PropsWithChildren } from 'react';
+import { MemoryRouter, useLocation } from 'react-router-dom';
+import type { MockInstance } from 'vitest';
 
 import { IVisualizationNode, KaotoResource } from '../../models';
 import { SourceSchemaType } from '../../models/camel';
@@ -15,125 +15,11 @@ import { DataMapperStepService } from '../../services/datamapper-step.service';
 import { DataMapperValidationStepService } from '../../services/datamapper-validation-step.service';
 import { DataMapperLauncher } from './DataMapperLauncher';
 
-vi.mock('../../services/datamapper-validation-step.service');
-
-// Mock XsltDocumentRenameInput component
-vi.mock('./XsltDocumentRenameInput', async () => {
-  // Import React hooks from the outer scope
-  const {
-    useState: useStateHook,
-    useEffect: useEffectHook,
-    createElement: createElementFn,
-  } = await vi.importActual<typeof import('react')>('react');
-
-  const MockXsltDocumentRenameInput = ({
-    value,
-    onChange,
-    validator,
-    editTitle,
-    'data-testid': dataTestId,
-  }: {
-    value?: string;
-    onChange: (value: string) => void;
-    validator: (value: string) => Promise<{ status: string; errMessages: string[] }>;
-    textTitle: string;
-    editTitle: string;
-    'data-testid': string;
-  }) => {
-    const [isEditing, setIsEditing] = useStateHook(false);
-    const [currentValue, setCurrentValue] = useStateHook(value || '');
-    const [validationError, setValidationError] = useStateHook(null);
-    const [isValid, setIsValid] = useStateHook(true);
-
-    useEffectHook(() => {
-      setCurrentValue(value || '');
-    }, [value]);
-
-    useEffectHook(() => {
-      if (isEditing) {
-        void validator(currentValue).then((result: { status: string; errMessages: string[] }) => {
-          setIsValid(result.status === 'success');
-          setValidationError((result.errMessages[0] || null) as SetStateAction<null>);
-        });
-      }
-    }, [currentValue, isEditing, validator]);
-
-    const handleEdit = () => {
-      setIsEditing(true);
-      setCurrentValue(value || '');
-    };
-
-    const handleSave = async () => {
-      const result = await validator(currentValue);
-      if (result.status === 'success') {
-        onChange(currentValue);
-        setIsEditing(false);
-        setValidationError(null);
-      }
-    };
-
-    const handleCancel = () => {
-      setIsEditing(false);
-      setCurrentValue(value || '');
-      setValidationError(null);
-    };
-
-    const handleChange = (e: { target: { value: string } }) => {
-      setCurrentValue(e.target.value);
-    };
-
-    return createElementFn(
-      'div',
-      { 'data-testid': dataTestId },
-      isEditing
-        ? createElementFn(
-            'div',
-            { 'data-testid': `${dataTestId}--form` },
-            createElementFn('input', {
-              'data-testid': `${dataTestId}--text-input`,
-              value: currentValue,
-              onChange: handleChange,
-            }),
-            validationError &&
-              createElementFn(
-                'div',
-                { className: 'pf-v6-c-helper-text' },
-                createElementFn('div', { className: 'pf-v6-c-helper-text__item pf-m-error' }, validationError),
-              ),
-            createElementFn(
-              'button',
-              { 'data-testid': `${dataTestId}--save`, onClick: handleSave, disabled: !isValid },
-              'Save',
-            ),
-            createElementFn('button', { 'data-testid': `${dataTestId}--cancel`, onClick: handleCancel }, 'Cancel'),
-          )
-        : [
-            createElementFn('span', { key: 'text', 'data-testid': `${dataTestId}--text` }, value),
-            createElementFn(
-              'button',
-              { key: 'edit', 'data-testid': `${dataTestId}--edit`, onClick: handleEdit },
-              editTitle,
-            ),
-          ],
-    );
-  };
-
-  return {
-    __esModule: true,
-    default: MockXsltDocumentRenameInput,
-  };
-});
-
-// Mock the navigate function
-const mockNavigate = vi.fn();
-vi.mock('react-router-dom', async () => ({
-  ...(await vi.importActual('react-router-dom')),
-  useNavigate: () => mockNavigate,
-}));
-
-// Mock the services
-vi.mock('../../services/datamapper-step.service');
-vi.mock('../../services/datamapper-metadata.service');
+/** Renders the current router location so navigation can be asserted on */
+const LocationProbe: FunctionComponent = () => {
+  const location = useLocation();
+  return <span data-testid="current-location">{location.pathname}</span>;
+};
 
 describe('DataMapperLauncher', () => {
   const mockMetadataContext: IMetadataApi = {
@@ -204,8 +90,16 @@ describe('DataMapperLauncher', () => {
       <MetadataContext.Provider value={mockMetadataContext}>
         <EntitiesContext.Provider value={mockEntitiesContext}>{children}</EntitiesContext.Provider>
       </MetadataContext.Provider>
+      <LocationProbe />
     </MemoryRouter>
   );
+
+  let getXsltFileNameSpy: MockInstance<typeof DataMapperStepService.getXsltFileName>;
+  let getDataMapperMetadataIdSpy: MockInstance<typeof DataMapperStepService.getDataMapperMetadataId>;
+  let updateXsltFileNameSpy: MockInstance<typeof DataMapperStepService.updateXsltFileName>;
+  let isValidationEnabledSpy: MockInstance<typeof DataMapperValidationStepService.isValidationEnabled>;
+  let addValidationStepSpy: MockInstance<typeof DataMapperValidationStepService.addValidationStep>;
+  let removeValidationStepSpy: MockInstance<typeof DataMapperValidationStepService.removeValidationStep>;
 
   const noMetadataWrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
     <MemoryRouter>
@@ -215,6 +109,17 @@ describe('DataMapperLauncher', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    getXsltFileNameSpy = vi.spyOn(DataMapperStepService, 'getXsltFileName').mockReturnValue(undefined);
+    getDataMapperMetadataIdSpy = vi.spyOn(DataMapperStepService, 'getDataMapperMetadataId');
+    updateXsltFileNameSpy = vi.spyOn(DataMapperStepService, 'updateXsltFileName').mockImplementation(() => {});
+    vi.spyOn(DataMapperMetadataService, 'updateXsltPath').mockResolvedValue(undefined);
+    isValidationEnabledSpy = vi.spyOn(DataMapperValidationStepService, 'isValidationEnabled').mockReturnValue(false);
+    addValidationStepSpy = vi
+      .spyOn(DataMapperValidationStepService, 'addValidationStep')
+      .mockImplementation(() => undefined);
+    removeValidationStepSpy = vi
+      .spyOn(DataMapperValidationStepService, 'removeValidationStep')
+      .mockImplementation(() => undefined);
     const originalConsoleError = console.error;
     // Suppress act() warnings for async useEffect in component
     vi.spyOn(console, 'error').mockImplementation((message) => {
@@ -255,7 +160,7 @@ describe('DataMapperLauncher', () => {
   describe('when metadata context is available', () => {
     it('should render the data mapper launcher form', async () => {
       const vizNode = createMockVizNode('test-document.xsl');
-      (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+      getXsltFileNameSpy.mockReturnValue('test-document.xsl');
 
       render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -268,7 +173,7 @@ describe('DataMapperLauncher', () => {
 
     it('should display the XSLT document name when defined', async () => {
       const vizNode = createMockVizNode('my-transformation.xsl');
-      (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('my-transformation.xsl');
+      getXsltFileNameSpy.mockReturnValue('my-transformation.xsl');
 
       render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -278,7 +183,7 @@ describe('DataMapperLauncher', () => {
 
     it('should show error state when XSLT document is not defined', () => {
       const vizNode = createMockVizNode();
-      (DataMapperStepService.getXsltFileName as Mock).mockReturnValue(undefined);
+      getXsltFileNameSpy.mockReturnValue(undefined);
 
       render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -289,30 +194,34 @@ describe('DataMapperLauncher', () => {
       ).toBeInTheDocument();
     });
 
-    it('should navigate to DataMapper page when Configure button is clicked', () => {
+    it('should navigate to DataMapper page when Configure button is clicked', async () => {
       const vizNode = createMockVizNode('test-document.xsl');
-      (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+      getXsltFileNameSpy.mockReturnValue('test-document.xsl');
 
       render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
       const configureButton = screen.getByRole('button', { name: /Launch the Kaoto DataMapper editor/i });
       fireEvent.click(configureButton);
 
-      expect(mockNavigate).toHaveBeenCalledWith(`${Links.DataMapper}/test-node-id`);
+      await waitFor(() => {
+        expect(screen.getByTestId('current-location')).toHaveTextContent(`${Links.DataMapper}/test-node-id`);
+      });
     });
 
-    it('should handle navigation when vizNode is undefined', () => {
+    it('should handle navigation when vizNode is undefined', async () => {
       render(<DataMapperLauncher />, { wrapper });
 
       const configureButton = screen.getByRole('button', { name: /Launch the Kaoto DataMapper editor/i });
       fireEvent.click(configureButton);
 
-      expect(mockNavigate).toHaveBeenCalledWith(`${Links.DataMapper}/undefined`);
+      await waitFor(() => {
+        expect(screen.getByTestId('current-location')).toHaveTextContent(`${Links.DataMapper}/undefined`);
+      });
     });
 
     it('should render help icon with popover', async () => {
       const vizNode = createMockVizNode('test-document.xsl');
-      (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+      getXsltFileNameSpy.mockReturnValue('test-document.xsl');
 
       render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -322,7 +231,7 @@ describe('DataMapperLauncher', () => {
 
     it('should render Configure button with wrench icon', () => {
       const vizNode = createMockVizNode('test-document.xsl');
-      (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+      getXsltFileNameSpy.mockReturnValue('test-document.xsl');
 
       render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -334,7 +243,7 @@ describe('DataMapperLauncher', () => {
     describe('file existence checking', () => {
       it('should not show form when file does not exist', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
         mockMetadataContext.isResourceExist = vi.fn().mockResolvedValue(false);
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
@@ -346,7 +255,7 @@ describe('DataMapperLauncher', () => {
 
       it('should show form when file exists', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
         mockMetadataContext.isResourceExist = vi.fn().mockResolvedValue(true);
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
@@ -358,7 +267,7 @@ describe('DataMapperLauncher', () => {
 
       it('should not check file existence when xsltDocumentName is undefined', async () => {
         const vizNode = createMockVizNode();
-        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue(undefined);
+        getXsltFileNameSpy.mockReturnValue(undefined);
         const isResourceExistSpy = vi.fn();
         mockMetadataContext.isResourceExist = isResourceExistSpy;
 
@@ -372,7 +281,7 @@ describe('DataMapperLauncher', () => {
 
       it('should not check file existence when metadata is undefined', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper: noMetadataWrapper });
 
@@ -395,7 +304,7 @@ describe('DataMapperLauncher', () => {
 
       it('should show specific error message for required field', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -416,7 +325,7 @@ describe('DataMapperLauncher', () => {
 
       it('should show specific error message for invalid format', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -437,7 +346,7 @@ describe('DataMapperLauncher', () => {
 
       it('should show specific error message for existing file', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
 
         mockMetadataContext.isResourceExist = vi.fn().mockImplementation((path: string) => {
           if (path === 'test-document.xsl' || path === 'existing.xsl') return Promise.resolve(true);
@@ -471,7 +380,7 @@ describe('DataMapperLauncher', () => {
 
       it('should render InlineEdit component with correct props', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -484,7 +393,7 @@ describe('DataMapperLauncher', () => {
 
       it('should allow editing the document name', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -502,7 +411,7 @@ describe('DataMapperLauncher', () => {
 
       it('should show save and cancel buttons in edit mode', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -521,7 +430,7 @@ describe('DataMapperLauncher', () => {
 
       it('should cancel editing and restore original value', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -545,7 +454,7 @@ describe('DataMapperLauncher', () => {
 
       it('should disable save button when validation fails', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -567,7 +476,7 @@ describe('DataMapperLauncher', () => {
 
       it('should enable save button when validation passes', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
 
         mockMetadataContext.isResourceExist = vi.fn().mockImplementation((path: string) => {
           if (path === 'test-document.xsl') return Promise.resolve(true);
@@ -594,7 +503,7 @@ describe('DataMapperLauncher', () => {
 
       it('should display error message below input when errorPosition is bottom', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -630,8 +539,8 @@ describe('DataMapperLauncher', () => {
 
       it('should trigger rename when save button is clicked after editing', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
-        (DataMapperStepService.getDataMapperMetadataId as Mock) = vi.fn().mockReturnValue('test-node-id');
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
+        getDataMapperMetadataIdSpy.mockReturnValue('test-node-id');
 
         const mockMetadata: IDataMapperMetadata = {
           sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [], fieldTypeOverrides: [] },
@@ -645,8 +554,6 @@ describe('DataMapperLauncher', () => {
         mockMetadataContext.getResourceContent = vi.fn().mockResolvedValue('mock xslt content');
         mockMetadataContext.saveResourceContent = vi.fn().mockResolvedValue(undefined);
         mockMetadataContext.deleteResource = vi.fn().mockResolvedValue(undefined);
-        (DataMapperMetadataService.updateXsltPath as Mock) = vi.fn().mockResolvedValue(undefined);
-        (DataMapperStepService.updateXsltFileName as Mock) = vi.fn();
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -665,18 +572,14 @@ describe('DataMapperLauncher', () => {
 
         await waitFor(() => {
           expect(mockMetadataContext.saveResourceContent).toHaveBeenCalledWith('renamed.xsl', 'mock xslt content');
-          expect(DataMapperStepService.updateXsltFileName).toHaveBeenCalledWith(
-            vizNode,
-            'renamed.xsl',
-            mockEntitiesContext,
-          );
+          expect(updateXsltFileNameSpy).toHaveBeenCalledWith(vizNode, 'renamed.xsl', mockEntitiesContext);
           expect(mockMetadataContext.deleteResource).toHaveBeenCalledWith('test-document.xsl');
         });
       });
 
       it('should not trigger rename when save is clicked without changes', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
 
         mockMetadataContext.saveResourceContent = vi.fn();
         mockMetadataContext.deleteResource = vi.fn();
@@ -705,8 +608,8 @@ describe('DataMapperLauncher', () => {
 
       it('should handle case when metadata is not found', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
-        (DataMapperStepService.getDataMapperMetadataId as Mock) = vi.fn().mockReturnValue('test-node-id');
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
+        getDataMapperMetadataIdSpy.mockReturnValue('test-node-id');
 
         // Mock getMetadata to return null (metadata not found)
         mockMetadataContext.getMetadata = vi.fn().mockResolvedValue(null);
@@ -737,8 +640,8 @@ describe('DataMapperLauncher', () => {
 
       it('should return to readonly mode after successful save', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
-        (DataMapperStepService.getDataMapperMetadataId as Mock) = vi.fn().mockReturnValue('test-node-id');
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
+        getDataMapperMetadataIdSpy.mockReturnValue('test-node-id');
 
         const mockMetadata: IDataMapperMetadata = {
           sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [], fieldTypeOverrides: [] },
@@ -762,8 +665,6 @@ describe('DataMapperLauncher', () => {
           return Promise.resolve(undefined);
         });
         mockMetadataContext.deleteResource = vi.fn().mockResolvedValue(undefined);
-        (DataMapperMetadataService.updateXsltPath as Mock) = vi.fn().mockResolvedValue(undefined);
-        (DataMapperStepService.updateXsltFileName as Mock) = vi.fn();
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -799,13 +700,13 @@ describe('DataMapperLauncher', () => {
           xsltPath: 'test-document.xsl',
         };
         mockMetadataContext.getMetadata = vi.fn().mockResolvedValue(mockMeta);
-        (DataMapperValidationStepService.isValidationEnabled as Mock).mockReturnValue(false);
-        (DataMapperStepService.getDataMapperMetadataId as Mock).mockReturnValue('test-node-id');
+        isValidationEnabledSpy.mockReturnValue(false);
+        getDataMapperMetadataIdSpy.mockReturnValue('test-node-id');
       });
 
       it('should show Validate Output checkbox when file exists and target is not Primitive', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -817,7 +718,7 @@ describe('DataMapperLauncher', () => {
 
       it('should hide Validate Output checkbox when target is Primitive', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
         const primitiveMeta: IDataMapperMetadata = {
           sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
           sourceParameters: {},
@@ -836,7 +737,7 @@ describe('DataMapperLauncher', () => {
 
       it('should hide Validate Output checkbox when XSLT file does not exist', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
         mockMetadataContext.isResourceExist = vi.fn().mockResolvedValue(false);
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
@@ -848,8 +749,8 @@ describe('DataMapperLauncher', () => {
 
       it('should render checkbox as unchecked when validation is disabled', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
-        (DataMapperValidationStepService.isValidationEnabled as Mock).mockReturnValue(false);
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
+        isValidationEnabledSpy.mockReturnValue(false);
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -859,8 +760,8 @@ describe('DataMapperLauncher', () => {
 
       it('should render checkbox as checked when validation is enabled', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
-        (DataMapperValidationStepService.isValidationEnabled as Mock).mockReturnValue(true);
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
+        isValidationEnabledSpy.mockReturnValue(true);
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -870,9 +771,8 @@ describe('DataMapperLauncher', () => {
 
       it('should call addValidationStep when checkbox is toggled ON', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
-        (DataMapperValidationStepService.isValidationEnabled as Mock).mockReturnValue(false);
-        (DataMapperValidationStepService.addValidationStep as Mock).mockImplementation(() => undefined);
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
+        isValidationEnabledSpy.mockReturnValue(false);
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -880,15 +780,14 @@ describe('DataMapperLauncher', () => {
         fireEvent.click(checkbox);
 
         await waitFor(() => {
-          expect(DataMapperValidationStepService.addValidationStep).toHaveBeenCalled();
+          expect(addValidationStepSpy).toHaveBeenCalled();
         });
       });
 
       it('should call removeValidationStep when checkbox is toggled OFF', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
-        (DataMapperValidationStepService.isValidationEnabled as Mock).mockReturnValue(true);
-        (DataMapperValidationStepService.removeValidationStep as Mock).mockImplementation(() => undefined);
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
+        isValidationEnabledSpy.mockReturnValue(true);
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -896,7 +795,7 @@ describe('DataMapperLauncher', () => {
         fireEvent.click(checkbox);
 
         await waitFor(() => {
-          expect(DataMapperValidationStepService.removeValidationStep).toHaveBeenCalled();
+          expect(removeValidationStepSpy).toHaveBeenCalled();
         });
       });
     });

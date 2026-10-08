@@ -13,32 +13,6 @@ import { MappingLinksProvider } from '../../providers/data-mapping-links.provide
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { XPathEditorLayout } from './XPathEditorLayout';
 
-vi.mock('./XPathEditor', () => ({
-  XPathEditor: ({ mapping }: { mapping: IExpressionHolder }) => (
-    <div data-testid="xpath-editor">{mapping.expression}</div>
-  ),
-}));
-
-vi.mock('monaco-editor', () => ({
-  languages: {
-    CompletionItemKind: { Keyword: 17, Function: 1 },
-    CompletionItemInsertTextRule: { InsertAsSnippet: 4 },
-  },
-}));
-
-// Shared test setup
-globalThis.ResizeObserver = class ResizeObserver {
-  observe() {
-    // intentional noop for test mock
-  }
-  unobserve() {
-    // intentional noop for test mock
-  }
-  disconnect() {
-    // intentional noop for test mock
-  }
-};
-
 const createTestMapping = () => {
   const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
   const mapping: IExpressionHolder & MappingItem = new ValueOfSelector(tree);

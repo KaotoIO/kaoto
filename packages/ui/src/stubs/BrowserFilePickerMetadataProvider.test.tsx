@@ -1,6 +1,5 @@
 import { act, render, screen } from '@testing-library/react';
 import { useContext } from 'react';
-import type { MockedFunction } from 'vitest';
 
 import { CatalogKind, StepUpdateAction } from '../models';
 import {
@@ -11,11 +10,14 @@ import {
 } from '../models/datamapper';
 import { IMetadataApi, MetadataContext } from '../providers';
 import { BrowserFilePickerMetadataProvider } from './BrowserFilePickerMetadataProvider';
-import { readFileAsString } from './read-file-as-string';
+import { createFile } from './read-file-as-string';
 
-vi.mock('./read-file-as-string');
-
-const mockReadFileAsString = readFileAsString as MockedFunction<typeof readFileAsString>;
+/** A real `File` whose `text()` (used by `readFileAsString`) is observable; JSDOM's `File` lacks `text()`. */
+const createSpiedFile = (content: string, name: string) => {
+  const file = createFile(content, name);
+  const textSpy = vi.spyOn(file, 'text');
+  return { file, textSpy };
+};
 
 describe('BrowserFilePickerMetadataProvider', () => {
   beforeEach(() => {
@@ -105,9 +107,8 @@ describe('BrowserFilePickerMetadataProvider', () => {
     });
 
     it('should resolve with file names when files are selected', async () => {
-      const mockFile1 = new File(['content1'], 'test1.json', { type: 'application/json' });
-      const mockFile2 = new File(['content2'], 'test2.xml', { type: 'application/xml' });
-      mockReadFileAsString.mockResolvedValueOnce('content1').mockResolvedValueOnce('content2');
+      const { file: mockFile1, textSpy: textSpy1 } = createSpiedFile('content1', 'test1.json');
+      const { file: mockFile2, textSpy: textSpy2 } = createSpiedFile('content2', 'test2.xml');
 
       const { api, fileInput } = renderWithProvider();
 
@@ -116,25 +117,24 @@ describe('BrowserFilePickerMetadataProvider', () => {
       await triggerFileSelect(fileInput, [mockFile1, mockFile2]);
 
       await expect(filesPromise).resolves.toEqual(['test1.json', 'test2.xml']);
-      expect(mockReadFileAsString).toHaveBeenCalledTimes(2);
+      expect(textSpy1).toHaveBeenCalledTimes(1);
+      expect(textSpy2).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('onImport', () => {
     it('should handle file input change and read files', async () => {
-      const mockFile = new File(['test content'], 'test.json', { type: 'application/json' });
-      mockReadFileAsString.mockResolvedValue('test content');
+      const { file: mockFile, textSpy } = createSpiedFile('test content', 'test.json');
 
       const { fileInput } = renderWithProvider();
 
       await triggerFileSelect(fileInput, [mockFile]);
 
-      expect(mockReadFileAsString).toHaveBeenCalledWith(mockFile);
+      expect(textSpy).toHaveBeenCalledTimes(1);
     });
 
     it('should reset input value after import', async () => {
-      const mockFile = new File(['content'], 'test.json', { type: 'application/json' });
-      mockReadFileAsString.mockResolvedValue('content');
+      const mockFile = createFile('content', 'test.json');
 
       const { fileInput } = renderWithProvider();
 
@@ -148,14 +148,18 @@ describe('BrowserFilePickerMetadataProvider', () => {
     });
 
     it('should do nothing when no files are selected', async () => {
-      const { fileInput } = renderWithProvider();
+      const { api, fileInput } = renderWithProvider();
+      const onSelected = vi.fn();
+      void api.askUserForFileSelection(SCHEMA_FILE_NAME_PATTERN).then(onSelected);
 
       await act(async () => {
         Object.defineProperty(fileInput, 'files', { value: null, writable: false });
+        Object.defineProperty(fileInput, 'value', { value: 'test.json', writable: true });
         fileInput.dispatchEvent(new Event('change', { bubbles: true }));
       });
 
-      expect(mockReadFileAsString).not.toHaveBeenCalled();
+      expect(onSelected).not.toHaveBeenCalled();
+      expect(fileInput.value).toBe('test.json');
     });
   });
 
@@ -169,8 +173,7 @@ describe('BrowserFilePickerMetadataProvider', () => {
     });
 
     it('should return content after files are imported', async () => {
-      const mockFile = new File(['test content'], 'test.json', { type: 'application/json' });
-      mockReadFileAsString.mockResolvedValue('test content');
+      const mockFile = createFile('test content', 'test.json');
 
       const { api, fileInput } = renderWithProvider();
 
@@ -196,8 +199,7 @@ describe('BrowserFilePickerMetadataProvider', () => {
     });
 
     it('should return true after files are imported', async () => {
-      const mockFile = new File(['test content'], 'test.json', { type: 'application/json' });
-      mockReadFileAsString.mockResolvedValue('test content');
+      const mockFile = createFile('test content', 'test.json');
 
       const { api, fileInput } = renderWithProvider();
 

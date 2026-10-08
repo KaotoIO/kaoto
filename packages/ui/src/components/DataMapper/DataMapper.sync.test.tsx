@@ -13,39 +13,18 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { VirtuosoMockContext } from 'react-virtuoso';
 
-import { useDataMapper } from '../../hooks/useDataMapper';
 import { IVisualizationNode } from '../../models';
-import {
-  DocumentDefinition,
-  DocumentDefinitionType,
-  DocumentType,
-  PrimitiveDocument,
-} from '../../models/datamapper/document';
+import { DocumentDefinitionType } from '../../models/datamapper/document';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
 import { EntitiesContext, EntitiesContextResult, IMetadataApi, MetadataProvider } from '../../providers';
-import { IDataMapperContext } from '../../providers/datamapper.provider';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { DataMapperValidationStepService } from '../../services/datamapper-validation-step.service';
 import { EMPTY_XSL } from '../../services/mapping/mapping-serializer.service';
+import { getCartXsd, getShipOrderJsonSchema, getShipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { DataMapper } from './DataMapper';
-
-vi.mock('monaco-editor', () => ({
-  languages: {
-    CompletionItemKind: { Keyword: 17, Function: 1 },
-    CompletionItemInsertTextRule: { InsertAsSnippet: 4 },
-  },
-}));
-
-let capturedContext: IDataMapperContext;
-
-vi.mock('../../components/DataMapper/DataMapperControl', () => ({
-  DataMapperControl: () => {
-    capturedContext = useDataMapper();
-    return <div data-testid="source-parameters-header" />;
-  },
-}));
 
 // Output validation auto-sync: skipped until feature is complete
 describe.skip('DataMapper sync — onUpdateDocument validation step synchronization', () => {
@@ -78,17 +57,10 @@ describe.skip('DataMapper sync — onUpdateDocument validation step synchronizat
 
   const vizNodeWithoutValidator = createVizNodeWithValidator('xslt-saxon:kaoto-datamapper-1234.xsl');
 
-  const createTargetDefinition = (
-    definitionType: DocumentDefinitionType,
-    definitionFiles: Record<string, string> = {},
-  ) => new DocumentDefinition(DocumentType.TARGET_BODY, definitionType, 'Body', definitionFiles);
-
-  const primitiveDoc = new PrimitiveDocument(
-    new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, 'Body'),
-  );
-
   let metadata: IDataMapperMetadata;
   let fileContents: Record<string, string>;
+  /** The files the user picks in the attach schema modal */
+  let selectedFiles: string[];
 
   const api = {
     getMetadata: (_key: string) => Promise.resolve(metadata),
@@ -102,6 +74,11 @@ describe.skip('DataMapper sync — onUpdateDocument validation step synchronizat
       fileContents[path] = content;
       return Promise.resolve();
     },
+    deleteResource: () => Promise.resolve(true),
+    askUserForFileSelection: () => Promise.resolve(selectedFiles),
+    getSuggestions: () => Promise.resolve([]),
+    shouldSaveSchema: false,
+    onStepUpdated: () => Promise.resolve(),
   } as IMetadataApi;
 
   beforeEach(() => {
@@ -115,7 +92,12 @@ describe.skip('DataMapper sync — onUpdateDocument validation step synchronizat
     };
     fileContents = {
       'kaoto-datamapper-1234.xsl': EMPTY_XSL,
+      'ShipOrder.xsd': getShipOrderXsd(),
+      'NewOrder.xsd': getShipOrderXsd(),
+      'CustomTypes.xsd': getCartXsd(),
+      'schema.json': getShipOrderJsonSchema(),
     };
+    selectedFiles = [];
 
     // Simulate the in-place mutation that the real updateTargetBodyMetadata performs
     vi.spyOn(DataMapperMetadataService, 'updateTargetBodyMetadata').mockImplementation(
@@ -135,7 +117,36 @@ describe.skip('DataMapper sync — onUpdateDocument validation step synchronizat
           <DataMapper vizNode={vizNode} />
         </MetadataProvider>
       </EntitiesContext.Provider>,
+      {
+        wrapper: ({ children }) => (
+          <VirtuosoMockContext.Provider value={{ viewportHeight: 600, itemHeight: 40 }}>
+            {children}
+          </VirtuosoMockContext.Provider>
+        ),
+      },
     );
+  };
+
+  /** Attaches (or updates) the target body schema through the attach schema modal, picking the given files */
+  const attachTargetSchema = async (files: string[]) => {
+    selectedFiles = files;
+    fireEvent.click(screen.getByTestId('attach-schema-targetBody-Body-button'));
+    const updateWarningContinue = screen.queryByTestId('update-schema-warning-modal-btn-continue');
+    if (updateWarningContinue) fireEvent.click(updateWarningContinue);
+
+    fireEvent.click(await screen.findByTestId('attach-schema-modal-btn-file'));
+    for (const file of files) {
+      await screen.findByTestId(`attach-schema-file-item-${file}`);
+    }
+    const attachButton = screen.getByTestId('attach-schema-modal-btn-attach');
+    await waitFor(() => expect(attachButton).toBeEnabled());
+    fireEvent.click(attachButton);
+  };
+
+  /** Detaches the target body schema, turning it back into a primitive document */
+  const detachTargetSchema = async () => {
+    fireEvent.click(await screen.findByTestId('detach-schema-targetBody-Body-button'));
+    fireEvent.click(screen.getByTestId('detach-schema-modal-confirm-btn'));
   };
 
   it('1. schema file changed, validation enabled → updateValidationStep called', async () => {
@@ -146,10 +157,7 @@ describe.skip('DataMapper sync — onUpdateDocument validation step synchronizat
     renderDataMapper(vizNodeWithValidator);
     await screen.findByTestId('source-parameters-header');
 
-    const definition = createTargetDefinition(DocumentDefinitionType.XML_SCHEMA, { 'NewOrder.xsd': '<schema/>' });
-    await act(async () => {
-      capturedContext.updateDocument(primitiveDoc, definition, '');
-    });
+    await attachTargetSchema(['NewOrder.xsd']);
 
     await waitFor(() => {
       expect(DataMapperMetadataService.updateTargetBodyMetadata).toHaveBeenCalled();
@@ -174,10 +182,7 @@ describe.skip('DataMapper sync — onUpdateDocument validation step synchronizat
     renderDataMapper(vizNodeWithoutValidator);
     await screen.findByTestId('source-parameters-header');
 
-    const definition = createTargetDefinition(DocumentDefinitionType.XML_SCHEMA, { 'ShipOrder.xsd': '<schema/>' });
-    await act(async () => {
-      capturedContext.updateDocument(primitiveDoc, definition, '');
-    });
+    await attachTargetSchema(['ShipOrder.xsd']);
 
     await waitFor(() => {
       expect(DataMapperMetadataService.updateTargetBodyMetadata).toHaveBeenCalled();
@@ -199,10 +204,7 @@ describe.skip('DataMapper sync — onUpdateDocument validation step synchronizat
     renderDataMapper(vizNodeWithValidator);
     await screen.findByTestId('source-parameters-header');
 
-    const definition = createTargetDefinition(DocumentDefinitionType.JSON_SCHEMA, { 'schema.json': '{}' });
-    await act(async () => {
-      capturedContext.updateDocument(primitiveDoc, definition, '');
-    });
+    await attachTargetSchema(['schema.json']);
 
     await waitFor(() => {
       expect(DataMapperMetadataService.updateTargetBodyMetadata).toHaveBeenCalled();
@@ -223,10 +225,7 @@ describe.skip('DataMapper sync — onUpdateDocument validation step synchronizat
     renderDataMapper(vizNodeWithValidator);
     await screen.findByTestId('source-parameters-header');
 
-    const definition = createTargetDefinition(DocumentDefinitionType.Primitive, {});
-    await act(async () => {
-      capturedContext.updateDocument(primitiveDoc, definition, '');
-    });
+    await detachTargetSchema();
 
     await waitFor(() => {
       expect(DataMapperMetadataService.updateTargetBodyMetadata).toHaveBeenCalled();
@@ -241,8 +240,6 @@ describe.skip('DataMapper sync — onUpdateDocument validation step synchronizat
   });
 
   it('5. schema removed (→Primitive), validation NOT enabled → no service calls', async () => {
-    metadata.targetBody = { type: DocumentDefinitionType.Primitive, filePath: [] };
-
     const updateSpy = vi.spyOn(DataMapperValidationStepService, 'updateValidationStep').mockImplementation(() => {});
     const addSpy = vi.spyOn(DataMapperValidationStepService, 'addValidationStep').mockImplementation(() => {});
     const removeSpy = vi.spyOn(DataMapperValidationStepService, 'removeValidationStep').mockImplementation(() => {});
@@ -251,10 +248,7 @@ describe.skip('DataMapper sync — onUpdateDocument validation step synchronizat
     renderDataMapper(vizNodeWithoutValidator);
     await screen.findByTestId('source-parameters-header');
 
-    const definition = createTargetDefinition(DocumentDefinitionType.Primitive, {});
-    await act(async () => {
-      capturedContext.updateDocument(primitiveDoc, definition, '');
-    });
+    await detachTargetSchema();
 
     await waitFor(() => {
       expect(DataMapperMetadataService.updateTargetBodyMetadata).toHaveBeenCalled();
@@ -271,13 +265,7 @@ describe.skip('DataMapper sync — onUpdateDocument validation step synchronizat
     renderDataMapper(vizNodeWithValidator);
     await screen.findByTestId('source-parameters-header');
 
-    const definition = createTargetDefinition(DocumentDefinitionType.XML_SCHEMA, {
-      'ShipOrder.xsd': '<schema/>',
-      'CustomTypes.xsd': '<additional/>',
-    });
-    await act(async () => {
-      capturedContext.updateDocument(primitiveDoc, definition, '');
-    });
+    await attachTargetSchema(['ShipOrder.xsd', 'CustomTypes.xsd']);
 
     await waitFor(() => {
       expect(DataMapperMetadataService.updateTargetBodyMetadata).toHaveBeenCalled();
@@ -305,10 +293,7 @@ describe.skip('DataMapper sync — onUpdateDocument validation step synchronizat
 
     const callCountBefore = isValidationEnabledSpy.mock.calls.length;
 
-    const definition = createTargetDefinition(DocumentDefinitionType.XML_SCHEMA, { 'NewOrder.xsd': '<schema/>' });
-    await act(async () => {
-      capturedContext.updateDocument(primitiveDoc, definition, '');
-    });
+    await attachTargetSchema(['NewOrder.xsd']);
 
     await waitFor(() => {
       expect(DataMapperMetadataService.updateTargetBodyMetadata).toHaveBeenCalled();

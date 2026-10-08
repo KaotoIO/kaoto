@@ -1,3 +1,5 @@
+import { languages } from 'monaco-editor';
+
 import { IFunctionDefinition } from '../../models/datamapper/mapping';
 import { Types } from '../../models/datamapper/types';
 import {
@@ -6,13 +8,6 @@ import {
   getMonacoXPathLanguageMetadata,
   monacoXPathLanguageMetadata,
 } from './monaco-language';
-
-vi.mock('monaco-editor', () => ({
-  languages: {
-    CompletionItemKind: { Keyword: 17, Function: 1 },
-    CompletionItemInsertTextRule: { InsertAsSnippet: 4 },
-  },
-}));
 
 const testRange = {
   startLineNumber: 1,
@@ -188,9 +183,9 @@ describe('monaco-language', () => {
       };
       const item = buildFunctionCompletionItem(fn, testRange);
       expect(item.label).toBe('contains');
-      expect(item.kind).toBe(1);
+      expect(item.kind).toBe(languages.CompletionItemKind.Function);
       expect(item.insertText).toBe('contains($1)');
-      expect(item.insertTextRules).toBe(4);
+      expect(item.insertTextRules).toBe(languages.CompletionItemInsertTextRule.InsertAsSnippet);
       expect(item.detail).toBe('(arg1: string, arg2: string): boolean');
       expect(item.range).toBe(testRange);
     });
@@ -199,7 +194,7 @@ describe('monaco-language', () => {
       const item = buildFunctionCompletionItem(positionFn, testRange);
       expect(item.label).toBe('position');
       expect(item.insertText).toBe('position()$0');
-      expect(item.insertTextRules).toBe(4);
+      expect(item.insertTextRules).toBe(languages.CompletionItemInsertTextRule.InsertAsSnippet);
       expect(item.detail).toBe('(): integer');
     });
 
@@ -336,8 +331,12 @@ describe('monaco-language', () => {
         {} as never,
       );
       const list = result as { suggestions: { label: string; kind: number }[] };
-      const keywordLabels = list.suggestions.filter((s) => s.kind === 17).map((s) => s.label);
-      const functionLabels = list.suggestions.filter((s) => s.kind === 1).map((s) => s.label);
+      const keywordLabels = list.suggestions
+        .filter((s) => s.kind === languages.CompletionItemKind.Keyword)
+        .map((s) => s.label);
+      const functionLabels = list.suggestions
+        .filter((s) => s.kind === languages.CompletionItemKind.Function)
+        .map((s) => s.label);
       expect(keywordLabels).toContain('if');
       expect(keywordLabels).toContain('for');
       expect(functionLabels).toContain('concat');
