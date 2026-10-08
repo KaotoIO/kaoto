@@ -116,7 +116,7 @@ describe('useConnectionPortSync', () => {
         dataset: {},
         getBoundingClientRect: vi.fn().mockReturnValue({ x: 100, y: 200, width: 50, height: 30 }),
       };
-      document.querySelectorAll = vi.fn().mockReturnValue([mockElement]);
+      vi.spyOn(document, 'querySelectorAll').mockReturnValue([mockElement] as unknown as NodeListOf<Element>);
 
       const { result } = renderHook(() => useConnectionPortSync(documentId));
 
@@ -135,7 +135,7 @@ describe('useConnectionPortSync', () => {
         getBoundingClientRect: vi.fn().mockReturnValue({ x: 100, y: 200, width: 50, height: 30 }),
         closest: vi.fn().mockReturnValue(null),
       };
-      document.querySelectorAll = vi.fn().mockReturnValue([mockElement]);
+      vi.spyOn(document, 'querySelectorAll').mockReturnValue([mockElement] as unknown as NodeListOf<Element>);
 
       const { result } = renderHook(() => useConnectionPortSync(documentId));
 
@@ -159,7 +159,7 @@ describe('useConnectionPortSync', () => {
         getBoundingClientRect: vi.fn().mockReturnValue({ x: 100, y: 200, width: 50, height: 30 }),
         closest: vi.fn().mockReturnValue(null),
       };
-      document.querySelectorAll = vi.fn().mockReturnValue([mockElement]);
+      vi.spyOn(document, 'querySelectorAll').mockReturnValue([mockElement] as unknown as NodeListOf<Element>);
 
       const { result } = renderHook(() => useConnectionPortSync(documentId));
 
@@ -188,7 +188,7 @@ describe('useConnectionPortSync', () => {
           .mockReturnValue({ x: 100, y: 200, width: 50, height: 30, top: 200, bottom: 230 }),
         closest: vi.fn().mockReturnValue(mockContainer),
       };
-      document.querySelectorAll = vi.fn().mockReturnValue([mockElement]);
+      vi.spyOn(document, 'querySelectorAll').mockReturnValue([mockElement] as unknown as NodeListOf<Element>);
 
       const { result } = renderHook(() => useConnectionPortSync(documentId));
 
@@ -218,7 +218,7 @@ describe('useConnectionPortSync', () => {
           .mockReturnValue({ x: 100, y: 200, width: 50, height: 30, top: 200, bottom: 230 }),
         closest: vi.fn().mockReturnValue(mockContainer),
       };
-      document.querySelectorAll = vi.fn().mockReturnValue([mockElement]);
+      vi.spyOn(document, 'querySelectorAll').mockReturnValue([mockElement] as unknown as NodeListOf<Element>);
 
       const { result } = renderHook(() => useConnectionPortSync(documentId));
 
@@ -240,7 +240,10 @@ describe('useConnectionPortSync', () => {
         getBoundingClientRect: vi.fn().mockReturnValue({ x: 50, y: 50, width: 20, height: 20 }),
         closest: vi.fn().mockReturnValue(null),
       };
-      document.querySelectorAll = vi.fn().mockReturnValue([mockElement1, mockElement2]);
+      vi.spyOn(document, 'querySelectorAll').mockReturnValue([
+        mockElement1,
+        mockElement2,
+      ] as unknown as NodeListOf<Element>);
 
       const { result } = renderHook(() => useConnectionPortSync(documentId));
 
@@ -263,7 +266,7 @@ describe('useConnectionPortSync', () => {
         getBoundingClientRect: vi.fn().mockReturnValue({ x: 100, y: 200, width: 50, height: 30 }),
         closest: vi.fn().mockReturnValue(null),
       };
-      document.querySelectorAll = vi.fn().mockReturnValue([mockElement]);
+      vi.spyOn(document, 'querySelectorAll').mockReturnValue([mockElement] as unknown as NodeListOf<Element>);
 
       const { result } = renderHook(() => useConnectionPortSync(documentId));
 
@@ -302,7 +305,7 @@ describe('useConnectionPortSync', () => {
     });
 
     it('should call syncConnectionPorts on scroll event', () => {
-      document.querySelectorAll = vi.fn().mockReturnValue([]);
+      vi.spyOn(document, 'querySelectorAll').mockReturnValue([] as unknown as NodeListOf<Element>);
 
       const { result } = renderHook(() => useConnectionPortSync(documentId));
       const Scroller = result.current.virtuosoComponents?.Scroller as React.ComponentType<

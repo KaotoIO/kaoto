@@ -6,11 +6,11 @@ describe('color-scheme utilities', () => {
 
   beforeEach(() => {
     htmlElement = document.createElement('html');
-    document.querySelector = vi.fn().mockReturnValue(htmlElement);
+    vi.spyOn(document, 'querySelector').mockReturnValue(htmlElement);
   });
 
   afterEach(() => {
-    vi.clearAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe('setColorScheme', () => {
@@ -29,10 +29,9 @@ describe('color-scheme utilities', () => {
     });
 
     it('sets color scheme to system preference when scheme is Auto', () => {
-      const mockMatchMedia = vi.fn().mockImplementation((query) => ({
-        matches: query === '(prefers-color-scheme: dark)',
-      }));
-      globalThis.matchMedia = mockMatchMedia;
+      vi.spyOn(globalThis, 'matchMedia').mockImplementation(
+        (query) => ({ matches: query === '(prefers-color-scheme: dark)' }) as MediaQueryList,
+      );
 
       setColorScheme(ColorScheme.Auto);
 
@@ -40,7 +39,7 @@ describe('color-scheme utilities', () => {
     });
 
     it('does nothing if the HTML element is not found', () => {
-      document.querySelector = vi.fn().mockReturnValue(null);
+      vi.spyOn(document, 'querySelector').mockReturnValue(null);
 
       expect(() => {
         setColorScheme(ColorScheme.Light);
@@ -60,7 +59,7 @@ describe('color-scheme utilities', () => {
     });
 
     it('returns false if the HTML element is not found', () => {
-      document.querySelector = vi.fn().mockReturnValue(null);
+      vi.spyOn(document, 'querySelector').mockReturnValue(null);
 
       expect(isDarkModeEnabled()).toBe(false);
     });
