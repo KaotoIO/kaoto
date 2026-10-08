@@ -1,36 +1,32 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import type { Mock } from 'vitest';
 
-import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType, IField } from '../../../../models/datamapper/document';
 import { MappingTree } from '../../../../models/datamapper/mapping';
 import { FieldOverrideVariant, IFieldSubstituteInfo, IFieldTypeInfo, Types } from '../../../../models/datamapper/types';
 import { IMetadataApi, MetadataContext } from '../../../../providers';
-import { IDataMapperContext } from '../../../../providers/datamapper.provider';
 import { DataMapperMetadataService } from '../../../../services/datamapper-metadata.service';
 import { FieldOverrideService } from '../../../../services/document/field-override.service';
 import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
+import {
+  createDataMapperContext,
+  createDataMapperContextWrapper,
+} from '../../../../stubs/datamapper/data-mapper-context';
 import { QName } from '../../../../xml-schema-ts/QName';
 import { FieldOverrideModal } from './FieldOverrideModal';
-
-// Mock useDataMapper hook
-vi.mock('../../../../hooks/useDataMapper', () => ({
-  useDataMapper: vi.fn(),
-}));
 
 describe('FieldOverrideModal', () => {
   let testTargetDoc: ReturnType<typeof TestUtil.createTargetOrderDoc>;
   let testMappingTree: MappingTree;
   let testField: IField;
+  let wrapper: ReturnType<typeof createDataMapperContextWrapper>;
 
   beforeEach(() => {
     testTargetDoc = TestUtil.createTargetOrderDoc();
     testMappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
 
-    vi.mocked(useDataMapper).mockReturnValue({
-      mappingTree: testMappingTree,
-      updateDocument: vi.fn(),
-    } as Partial<IDataMapperContext> as IDataMapperContext);
+    wrapper = createDataMapperContextWrapper(
+      createDataMapperContext({ mappingTree: testMappingTree, updateDocument: vi.fn() }),
+    );
 
     testField = testTargetDoc.fields[0];
     testField.typeOverride = FieldOverrideVariant.NONE;
@@ -62,6 +58,7 @@ describe('FieldOverrideModal', () => {
   it('should render modal when isOpen is true', () => {
     render(
       <FieldOverrideModal onClose={vi.fn()} onSave={vi.fn()} onAttach={vi.fn()} onRemove={vi.fn()} field={testField} />,
+      { wrapper },
     );
 
     expect(screen.getByText(/Field Override:/)).toBeInTheDocument();
@@ -70,6 +67,7 @@ describe('FieldOverrideModal', () => {
   it('should display field name in modal title', () => {
     render(
       <FieldOverrideModal onClose={vi.fn()} onSave={vi.fn()} onAttach={vi.fn()} onRemove={vi.fn()} field={testField} />,
+      { wrapper },
     );
 
     const fieldName = testField.displayName || testField.name;
@@ -79,6 +77,7 @@ describe('FieldOverrideModal', () => {
   it('should open type selector when toggle is clicked', () => {
     render(
       <FieldOverrideModal onClose={vi.fn()} onSave={vi.fn()} onAttach={vi.fn()} onRemove={vi.fn()} field={testField} />,
+      { wrapper },
     );
 
     fireEvent.click(getMenuToggle());
@@ -108,6 +107,7 @@ describe('FieldOverrideModal', () => {
 
     render(
       <FieldOverrideModal onClose={vi.fn()} onSave={vi.fn()} onAttach={vi.fn()} onRemove={vi.fn()} field={testField} />,
+      { wrapper },
     );
 
     fireEvent.click(getMenuToggle());
@@ -140,6 +140,7 @@ describe('FieldOverrideModal', () => {
 
     render(
       <FieldOverrideModal onClose={vi.fn()} onSave={vi.fn()} onAttach={vi.fn()} onRemove={vi.fn()} field={testField} />,
+      { wrapper },
     );
 
     fireEvent.click(getMenuToggle());
@@ -162,6 +163,7 @@ describe('FieldOverrideModal', () => {
 
     render(
       <FieldOverrideModal onClose={vi.fn()} onSave={vi.fn()} onAttach={vi.fn()} onRemove={vi.fn()} field={testField} />,
+      { wrapper },
     );
 
     expect(screen.queryByText('Remove Override')).not.toBeInTheDocument();
@@ -178,6 +180,7 @@ describe('FieldOverrideModal', () => {
         onRemove={vi.fn()}
         field={testField}
       />,
+      { wrapper },
     );
 
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
@@ -209,6 +212,7 @@ describe('FieldOverrideModal', () => {
         onRemove={vi.fn()}
         field={testField}
       />,
+      { wrapper },
     );
 
     fireEvent.click(getMenuToggle());
@@ -258,6 +262,7 @@ describe('FieldOverrideModal', () => {
         onRemove={onRemoveMock}
         field={testField}
       />,
+      { wrapper },
     );
 
     const removeButton = screen.getByRole('button', { name: 'Remove Override' });
@@ -281,6 +286,7 @@ describe('FieldOverrideModal', () => {
 
     render(
       <FieldOverrideModal onClose={vi.fn()} onSave={vi.fn()} onAttach={vi.fn()} onRemove={vi.fn()} field={testField} />,
+      { wrapper },
     );
 
     expect(getSafeSpy).toHaveBeenCalledWith(testField, testMappingTree.namespaceMap);
@@ -291,6 +297,7 @@ describe('FieldOverrideModal', () => {
 
     render(
       <FieldOverrideModal onClose={vi.fn()} onSave={vi.fn()} onAttach={vi.fn()} onRemove={vi.fn()} field={testField} />,
+      { wrapper },
     );
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
@@ -313,6 +320,7 @@ describe('FieldOverrideModal', () => {
 
     render(
       <FieldOverrideModal onClose={vi.fn()} onSave={vi.fn()} onAttach={vi.fn()} onRemove={vi.fn()} field={testField} />,
+      { wrapper },
     );
 
     fireEvent.click(getMenuToggle());
@@ -349,6 +357,7 @@ describe('FieldOverrideModal', () => {
 
     render(
       <FieldOverrideModal onClose={vi.fn()} onSave={vi.fn()} onAttach={vi.fn()} onRemove={vi.fn()} field={testField} />,
+      { wrapper },
     );
 
     expect(getTypeSelectInput().value).toBe('xs:int');
@@ -380,6 +389,7 @@ describe('FieldOverrideModal', () => {
           onRemove={vi.fn()}
           field={testField}
         />,
+        { wrapper },
       );
 
       const substitutionRadio = screen.getByRole('radio', { name: 'Substitute Element' });
@@ -402,6 +412,7 @@ describe('FieldOverrideModal', () => {
           onRemove={vi.fn()}
           field={testField}
         />,
+        { wrapper },
       );
 
       fireEvent.click(screen.getByRole('radio', { name: 'Substitute Element' }));
@@ -424,6 +435,7 @@ describe('FieldOverrideModal', () => {
           onRemove={vi.fn()}
           field={testField}
         />,
+        { wrapper },
       );
 
       // Switch to substitution mode
@@ -470,6 +482,7 @@ describe('FieldOverrideModal', () => {
           onRemove={vi.fn()}
           field={testField}
         />,
+        { wrapper },
       );
 
       // Select a type in type mode
@@ -505,6 +518,7 @@ describe('FieldOverrideModal', () => {
           onRemove={vi.fn()}
           field={testField}
         />,
+        { wrapper },
       );
 
       // Should auto-select substitution radio and show substitution placeholder
@@ -532,6 +546,7 @@ describe('FieldOverrideModal', () => {
           onRemove={vi.fn()}
           field={testField}
         />,
+        { wrapper },
       );
 
       // The active substitute 'sub:Cat' should be pre-selected in the input
@@ -554,6 +569,7 @@ describe('FieldOverrideModal', () => {
           onRemove={vi.fn()}
           field={testField}
         />,
+        { wrapper },
       );
 
       // Substitution mode is active, so Override Type radio should be disabled
@@ -587,6 +603,7 @@ describe('FieldOverrideModal', () => {
           onRemove={vi.fn()}
           field={testField}
         />,
+        { wrapper },
       );
 
       // Type mode is active, so Substitute Element radio should be disabled
@@ -611,6 +628,7 @@ describe('FieldOverrideModal', () => {
           onRemove={vi.fn()}
           field={testField}
         />,
+        { wrapper },
       );
 
       // Both radios should be enabled when there's no override
@@ -620,10 +638,11 @@ describe('FieldOverrideModal', () => {
   });
 
   describe('Schema upload', () => {
+    const mockGetResourceContent = vi.fn<IMetadataApi['getResourceContent']>();
     const mockApi: IMetadataApi = {
       getMetadata: vi.fn(),
       setMetadata: vi.fn(),
-      getResourceContent: vi.fn(),
+      getResourceContent: mockGetResourceContent,
       isResourceExist: vi.fn(),
       saveResourceContent: vi.fn(),
       deleteResource: vi.fn(),
@@ -645,6 +664,7 @@ describe('FieldOverrideModal', () => {
             {...props}
           />
         </MetadataContext.Provider>,
+        { wrapper },
       );
     };
 
@@ -666,7 +686,7 @@ describe('FieldOverrideModal', () => {
 
     it('should show error when schema file cannot be read', async () => {
       vi.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValue(['valid.xsd']);
-      (mockApi.getResourceContent as Mock).mockResolvedValue(undefined);
+      mockGetResourceContent.mockResolvedValue(undefined);
 
       renderWithContext();
 
@@ -679,7 +699,7 @@ describe('FieldOverrideModal', () => {
 
     it('should show error when onAttach throws for invalid schema', async () => {
       vi.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValue(['bad.xsd']);
-      (mockApi.getResourceContent as Mock).mockResolvedValue('<not-a-schema>');
+      mockGetResourceContent.mockResolvedValue('<not-a-schema>');
 
       const onAttachMock = vi.fn().mockImplementation(() => {
         throw new Error('Parse error');
@@ -708,7 +728,7 @@ describe('FieldOverrideModal', () => {
 
     it('should immediately attach uploaded schema and show in existing files', async () => {
       vi.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValue(['types.xsd']);
-      (mockApi.getResourceContent as Mock).mockResolvedValue('<xs:schema/>');
+      mockGetResourceContent.mockResolvedValue('<xs:schema/>');
 
       const onAttachMock = vi.fn();
       renderWithContext({ onAttach: onAttachMock });
@@ -726,7 +746,7 @@ describe('FieldOverrideModal', () => {
 
     it('should call onAttach immediately when schema is uploaded', async () => {
       vi.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValue(['types.xsd']);
-      (mockApi.getResourceContent as Mock).mockResolvedValue('<xs:schema/>');
+      mockGetResourceContent.mockResolvedValue('<xs:schema/>');
 
       const onAttachMock = vi.fn();
       renderWithContext({ onAttach: onAttachMock });
@@ -741,7 +761,7 @@ describe('FieldOverrideModal', () => {
 
     it('should not add duplicate schemas on second upload', async () => {
       vi.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValue(['types.xsd']);
-      (mockApi.getResourceContent as Mock).mockResolvedValue('<xs:schema/>');
+      mockGetResourceContent.mockResolvedValue('<xs:schema/>');
 
       const onAttachMock = vi.fn();
       renderWithContext({ onAttach: onAttachMock });
@@ -767,7 +787,7 @@ describe('FieldOverrideModal', () => {
 
     it('should show spinner and disable button while uploading schema', async () => {
       vi.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValue(['types.xsd']);
-      (mockApi.getResourceContent as Mock).mockImplementation(
+      mockGetResourceContent.mockImplementation(
         () =>
           new Promise((resolve) =>
             setTimeout(() => {
@@ -822,7 +842,7 @@ describe('FieldOverrideModal', () => {
 
     it('should clear loading state when upload fails', async () => {
       vi.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValue(['bad.xsd']);
-      (mockApi.getResourceContent as Mock).mockRejectedValue(new Error('Network error'));
+      mockGetResourceContent.mockRejectedValue(new Error('Network error'));
 
       renderWithContext();
 
@@ -863,7 +883,7 @@ describe('FieldOverrideModal', () => {
 
     it('should clear loading state when schema attachment fails', async () => {
       vi.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValue(['bad.xsd']);
-      (mockApi.getResourceContent as Mock).mockResolvedValue('<xs:schema/>');
+      mockGetResourceContent.mockResolvedValue('<xs:schema/>');
 
       const onAttachMock = vi.fn().mockImplementation(() => {
         throw new Error('Invalid schema structure');
@@ -888,7 +908,7 @@ describe('FieldOverrideModal', () => {
     });
 
     it('should skip reading a file already present in uploadedSchemas', async () => {
-      const getResourceContentMock = mockApi.getResourceContent as Mock;
+      const getResourceContentMock = mockGetResourceContent;
 
       // First upload succeeds
       vi.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValueOnce(['types.xsd']);
@@ -914,7 +934,7 @@ describe('FieldOverrideModal', () => {
     });
 
     it('should skip reading a file already in existingFiles', async () => {
-      const getResourceContentMock = mockApi.getResourceContent as Mock;
+      const getResourceContentMock = mockGetResourceContent;
 
       // 'shipOrder.xsd' is already in existingFiles (from testTargetDoc definition)
       vi.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValue(['shipOrder.xsd']);
@@ -952,6 +972,7 @@ describe('FieldOverrideModal', () => {
           onRemove={vi.fn()}
           field={testField}
         />,
+        { wrapper },
       );
 
       // Save button is disabled when no key is selected, but click it anyway to confirm guard
@@ -982,6 +1003,7 @@ describe('FieldOverrideModal', () => {
           onRemove={vi.fn()}
           field={testField}
         />,
+        { wrapper },
       );
 
       // Select a valid type first
@@ -1023,6 +1045,7 @@ describe('FieldOverrideModal', () => {
           onRemove={vi.fn()}
           field={abstractField}
         />,
+        { wrapper },
       );
 
       // Abstract wrapper fields always start in substitution mode
@@ -1043,6 +1066,7 @@ describe('FieldOverrideModal', () => {
           onRemove={vi.fn()}
           field={abstractField}
         />,
+        { wrapper },
       );
 
       // Abstract wrapper is treated as having an existing override
@@ -1073,6 +1097,7 @@ describe('FieldOverrideModal', () => {
           onRemove={vi.fn()}
           field={testField}
         />,
+        { wrapper },
       );
 
       fireEvent.click(getMenuToggle());
@@ -1108,6 +1133,7 @@ describe('FieldOverrideModal', () => {
           onRemove={vi.fn()}
           field={testField}
         />,
+        { wrapper },
       );
 
       fireEvent.click(getMenuToggle());

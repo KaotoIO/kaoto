@@ -1,67 +1,78 @@
-import { render } from '@testing-library/react';
+import { DndContext, pointerWithin } from '@dnd-kit/core';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { MockInstance } from 'vitest';
 
+import { endPointerDrag, firePrimaryPointerDown, TestDraggable, TestDroppable } from '../../stubs/dnd-test-helpers';
 import { DataMapperDnDMonitor } from './DataMapperDndMonitor';
 
-type DndHandlers = {
-  onDragStart: (event: unknown) => void;
-  onDragOver: (event: unknown) => void;
-  onDragEnd: (event: unknown) => void;
-  onDragCancel: (event: unknown) => void;
-};
-
-let capturedHandlers: DndHandlers | undefined;
-
-vi.mock('@dnd-kit/core', async () => ({
-  ...(await vi.importActual('@dnd-kit/core')),
-  useDndMonitor: (handlers: DndHandlers) => {
-    capturedHandlers = handlers;
-  },
-}));
-
-const mockEvent = {
-  active: { data: { current: { path: { toString: () => 'source/path' } } } },
-  over: { data: { current: { path: { toString: () => 'target/path' } } } },
-};
-
 describe('DataMapperDnDMonitor', () => {
-  let consoleSpy: MockInstance;
+  let consoleSpy: MockInstance<typeof console.debug>;
 
   beforeEach(() => {
-    capturedHandlers = undefined;
     consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    // Never leave a drag running: it would swallow the clicks of later tests (see endPointerDrag)
+    await endPointerDrag();
     consoleSpy.mockRestore();
   });
 
+  /** Renders the monitor inside a real `DndContext`, next to a draggable source node and a droppable target node. */
+  const renderMonitor = () =>
+    render(
+      <DndContext collisionDetection={pointerWithin}>
+        <TestDraggable id="source" data={{ path: 'source/path' }} />
+        <TestDroppable id="target" data={{ path: 'target/path' }} />
+        <DataMapperDnDMonitor />
+      </DndContext>,
+    );
+
+  /** Starts dragging the source node; in JSDOM it is immediately over the target node (all rects are empty). */
+  const startDrag = () => {
+    firePrimaryPointerDown(screen.getByRole('button', { name: 'source' }));
+  };
+
   it('should register dnd event handlers', () => {
-    render(<DataMapperDnDMonitor />);
-    expect(capturedHandlers).toBeDefined();
+    renderMonitor();
+    expect(consoleSpy).not.toHaveBeenCalled();
+
+    startDrag();
+
+    expect(consoleSpy).toHaveBeenCalled();
   });
 
   it('should log on drag start', () => {
-    render(<DataMapperDnDMonitor />);
-    capturedHandlers?.onDragStart(mockEvent);
+    renderMonitor();
+    startDrag();
     expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('onDragStart'));
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('active: source/path'));
   });
 
-  it('should log on drag over', () => {
-    render(<DataMapperDnDMonitor />);
-    capturedHandlers?.onDragOver(mockEvent);
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('onDragOver'));
+  it('should log on drag over', async () => {
+    renderMonitor();
+    startDrag();
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('onDragOver'));
+    });
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('over:target/path'));
   });
 
-  it('should log on drag end', () => {
-    render(<DataMapperDnDMonitor />);
-    capturedHandlers?.onDragEnd(mockEvent);
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('onDragEnd'));
+  it('should log on drag end', async () => {
+    renderMonitor();
+    startDrag();
+    fireEvent.pointerUp(document);
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('onDragEnd'));
+    });
   });
 
-  it('should log on drag cancel', () => {
-    render(<DataMapperDnDMonitor />);
-    capturedHandlers?.onDragCancel(mockEvent);
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('onDragCancel'));
+  it('should log on drag cancel', async () => {
+    renderMonitor();
+    startDrag();
+    fireEvent.keyDown(document, { key: 'Escape', code: 'Escape' });
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('onDragCancel'));
+    });
   });
 });

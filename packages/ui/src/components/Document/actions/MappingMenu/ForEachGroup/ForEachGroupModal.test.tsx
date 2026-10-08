@@ -1,92 +1,25 @@
-import { DraggableObject } from '@patternfly/react-drag-drop';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { FunctionComponent } from 'react';
+import { FunctionComponent, PropsWithChildren } from 'react';
 
-import { useDataMapper } from '../../../../../hooks/useDataMapper';
-import {
-  BODY_DOCUMENT_ID,
-  DocumentDefinitionType,
-  DocumentType,
-  IDocument,
-} from '../../../../../models/datamapper/document';
+import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../../../models/datamapper/document';
 import { ForEachGroupItem, GroupingStrategy, MappingTree, SortItem } from '../../../../../models/datamapper/mapping';
-import { IDataMapperContext } from '../../../../../providers/datamapper.provider';
+import {
+  createSortModalWrapper,
+  endSortKeyDrag,
+  startSortKeyDrag,
+  typeInXPathEditor,
+} from '../../../../../stubs/datamapper/sort-modal-test-helpers';
 import { ForEachGroupModal } from './ForEachGroupModal';
 
-vi.mock('@patternfly/react-drag-drop', () => ({
-  DragDropSort: (({
-    items,
-    onDrag,
-    onDrop,
-  }: {
-    items: DraggableObject[];
-    onDrag?: () => void;
-    onDrop?: (event: unknown, newItems: DraggableObject[]) => void;
-  }) => (
-    <div data-testid="drag-drop-sort">
-      {onDrag && (
-        <button
-          data-testid="mock-drag-trigger"
-          onClick={() => {
-            onDrag();
-          }}
-        />
-      )}
-      {onDrop && (
-        <button
-          data-testid="mock-drop-trigger"
-          onClick={() => {
-            onDrop(undefined, [...items].reverse());
-          }}
-        />
-      )}
-      {items.map((item) => (
-        <div key={item.id}>{item.content}</div>
-      ))}
-    </div>
-  )) as FunctionComponent<{
-    items: DraggableObject[];
-    onDrag?: () => void;
-    onDrop?: (event: unknown, newItems: DraggableObject[]) => void;
-  }>,
-}));
-
-vi.mock('../../../../../hooks/useDataMapper', () => ({
-  useDataMapper: vi.fn(),
-}));
-
-let xpathEditorMapping: { expression: string } | undefined;
-
-vi.mock('../../../../XPath/XPathEditorModal', () => ({
-  XPathEditorModal: ({
-    onClose,
-    onUpdate,
-    title,
-    mapping,
-  }: {
-    onClose: () => void;
-    onUpdate: () => void;
-    title: string;
-    mapping: { expression: string };
-  }) => {
-    xpathEditorMapping = mapping;
-    return (
-      <div data-testid="xpath-editor-modal">
-        <span>{title}</span>
-        <button data-testid="xpath-editor-update" onClick={onUpdate} />
-        <button data-testid="xpath-editor-close" onClick={onClose} />
-      </div>
-    );
-  },
-}));
-
 describe('ForEachGroupModal', () => {
+  // Never leave a drag running: it would swallow the clicks of later tests (see endPointerDrag)
+  afterEach(async () => {
+    await endSortKeyDrag();
+  });
+
   let mappingTree: MappingTree;
   let forEachGroupItem: ForEachGroupItem;
-
-  afterEach(() => {
-    xpathEditorMapping = undefined;
-  });
+  let wrapper: FunctionComponent<PropsWithChildren>;
 
   beforeEach(() => {
     mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
@@ -95,59 +28,50 @@ describe('ForEachGroupModal', () => {
     forEachGroupItem.groupingStrategy = GroupingStrategy.GROUP_BY;
     forEachGroupItem.groupingExpression = 'Category';
 
-    vi.mocked(useDataMapper).mockReturnValue({
-      sourceBodyDocument: {
-        documentType: DocumentType.SOURCE_BODY,
-        documentId: BODY_DOCUMENT_ID,
-        name: 'Source',
-        definitionType: DocumentDefinitionType.XML_SCHEMA,
-        fields: [],
-        getReferenceId: () => '',
-      } as unknown as IDocument,
-      sourceParameterMap: new Map(),
-      mappingTree: { namespaceMap: {} } as unknown as MappingTree,
-    } as unknown as IDataMapperContext);
+    wrapper = createSortModalWrapper(mappingTree);
   });
 
   it('should render when isOpen is true', () => {
-    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />, { wrapper });
     expect(screen.getByTestId('for-each-group-modal')).toBeInTheDocument();
   });
 
   it('should not render when isOpen is false', () => {
-    render(<ForEachGroupModal isOpen={false} onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen={false} onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />, {
+      wrapper,
+    });
     expect(screen.queryByTestId('for-each-group-modal')).not.toBeInTheDocument();
   });
 
   it('should display for-each-group expression in description', () => {
-    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />, { wrapper });
     expect(screen.getByText('for-each-group: /Orders/Order')).toBeInTheDocument();
   });
 
   it('should display current grouping strategy in dropdown', () => {
-    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />, { wrapper });
     expect(screen.getByTestId('for-each-group-strategy-toggle')).toHaveTextContent('Group By');
   });
 
   it('should display current grouping expression in input', () => {
-    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />, { wrapper });
     const input = screen.getByTestId('for-each-group-expression').querySelector('input') as HTMLInputElement;
     expect(input.value).toBe('Category');
   });
 
   it('should disable Save when grouping expression is empty', () => {
     forEachGroupItem.groupingExpression = '';
-    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />, { wrapper });
     expect(screen.getByTestId('for-each-group-save-btn')).toBeDisabled();
   });
 
   it('should enable Save when grouping expression is non-empty', () => {
-    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />, { wrapper });
     expect(screen.getByTestId('for-each-group-save-btn')).toBeEnabled();
   });
 
   it('should disable Save when grouping expression is cleared', () => {
-    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />, { wrapper });
 
     const input = screen.getByTestId('for-each-group-expression').querySelector('input') as HTMLInputElement;
     fireEvent.change(input, { target: { value: '' } });
@@ -156,7 +80,7 @@ describe('ForEachGroupModal', () => {
   });
 
   it('should change grouping strategy via dropdown', () => {
-    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />, { wrapper });
 
     fireEvent.click(screen.getByTestId('for-each-group-strategy-toggle'));
 
@@ -166,7 +90,7 @@ describe('ForEachGroupModal', () => {
   });
 
   it('should update grouping expression input', () => {
-    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />, { wrapper });
 
     const input = screen.getByTestId('for-each-group-expression').querySelector('input') as HTMLInputElement;
     fireEvent.change(input, { target: { value: '@customerId' } });
@@ -177,7 +101,7 @@ describe('ForEachGroupModal', () => {
   it('should save grouping strategy and expression to mapping on Save', async () => {
     const onUpdate = vi.fn();
     const onClose = vi.fn();
-    render(<ForEachGroupModal isOpen onClose={onClose} mapping={forEachGroupItem} onUpdate={onUpdate} />);
+    render(<ForEachGroupModal isOpen onClose={onClose} mapping={forEachGroupItem} onUpdate={onUpdate} />, { wrapper });
 
     fireEvent.click(screen.getByTestId('for-each-group-strategy-toggle'));
 
@@ -200,7 +124,7 @@ describe('ForEachGroupModal', () => {
   it('should not modify mapping on Cancel', async () => {
     const onUpdate = vi.fn();
     const onClose = vi.fn();
-    render(<ForEachGroupModal isOpen onClose={onClose} mapping={forEachGroupItem} onUpdate={onUpdate} />);
+    render(<ForEachGroupModal isOpen onClose={onClose} mapping={forEachGroupItem} onUpdate={onUpdate} />, { wrapper });
 
     const input = screen.getByTestId('for-each-group-expression').querySelector('input') as HTMLInputElement;
     fireEvent.change(input, { target: { value: 'something-else' } });
@@ -216,24 +140,22 @@ describe('ForEachGroupModal', () => {
   });
 
   it('should open XPath editor for grouping expression', () => {
-    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />, { wrapper });
     expect(screen.queryByTestId('xpath-editor-modal')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId('for-each-group-edit-expression'));
 
     expect(screen.getByTestId('xpath-editor-modal')).toBeInTheDocument();
-    expect(screen.getByText('Grouping expression')).toBeInTheDocument();
+    expect(screen.getByText('XPath Editor: Grouping expression')).toBeInTheDocument();
   });
 
   it('should apply XPath editor expression to grouping expression', async () => {
     const onUpdate = vi.fn();
-    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={onUpdate} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={onUpdate} />, { wrapper });
 
     fireEvent.click(screen.getByTestId('for-each-group-edit-expression'));
 
-    xpathEditorMapping!.expression = 'NewExpression';
-
-    fireEvent.click(screen.getByTestId('xpath-editor-update'));
+    await typeInXPathEditor('NewExpression');
 
     fireEvent.click(screen.getByTestId('for-each-group-save-btn'));
 
@@ -244,18 +166,18 @@ describe('ForEachGroupModal', () => {
   });
 
   it('should close XPath editor on close callback', () => {
-    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />, { wrapper });
 
     fireEvent.click(screen.getByTestId('for-each-group-edit-expression'));
     expect(screen.getByTestId('xpath-editor-modal')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByTestId('xpath-editor-close'));
+    fireEvent.click(screen.getByTestId('close-xpath-editor-btn'));
     expect(screen.queryByTestId('xpath-editor-modal')).not.toBeInTheDocument();
   });
 
   it('should start with no sort keys when mapping has none', () => {
     forEachGroupItem.sortItems = [];
-    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />, { wrapper });
     expect(screen.queryByTestId('sort-expression-0')).not.toBeInTheDocument();
   });
 
@@ -266,7 +188,7 @@ describe('ForEachGroupModal', () => {
     sort2.expression = 'Price';
     forEachGroupItem.sortItems = [sort1, sort2];
 
-    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />, { wrapper });
 
     const getInput = (idx: number) =>
       screen.getByTestId(`sort-expression-${idx}`).querySelector('input') as HTMLInputElement;
@@ -276,7 +198,7 @@ describe('ForEachGroupModal', () => {
 
   it('should add a sort key', () => {
     forEachGroupItem.sortItems = [];
-    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />, { wrapper });
 
     fireEvent.click(screen.getByTestId('sort-add-key'));
     expect(screen.getByTestId('sort-expression-0')).toBeInTheDocument();
@@ -287,7 +209,7 @@ describe('ForEachGroupModal', () => {
     sort.expression = 'Title';
     forEachGroupItem.sortItems = [sort];
 
-    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={vi.fn()} />, { wrapper });
     expect(screen.getByTestId('sort-expression-0')).toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId('sort-remove-0'));
@@ -297,7 +219,7 @@ describe('ForEachGroupModal', () => {
   it('should save sort items to mapping on Save', async () => {
     forEachGroupItem.sortItems = [];
     const onUpdate = vi.fn();
-    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={onUpdate} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={onUpdate} />, { wrapper });
 
     fireEvent.click(screen.getByTestId('sort-add-key'));
 
@@ -318,7 +240,7 @@ describe('ForEachGroupModal', () => {
   it('should filter out empty sort expressions on Save', async () => {
     forEachGroupItem.sortItems = [];
     const onUpdate = vi.fn();
-    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={onUpdate} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={onUpdate} />, { wrapper });
 
     fireEvent.click(screen.getByTestId('sort-add-key'));
     fireEvent.click(screen.getByTestId('sort-add-key'));
@@ -342,9 +264,9 @@ describe('ForEachGroupModal', () => {
     sort.expression = 'Title';
     forEachGroupItem.sortItems = [sort];
     const onClose = vi.fn();
-    render(<ForEachGroupModal isOpen onClose={onClose} mapping={forEachGroupItem} onUpdate={vi.fn()} />);
+    render(<ForEachGroupModal isOpen onClose={onClose} mapping={forEachGroupItem} onUpdate={vi.fn()} />, { wrapper });
 
-    fireEvent.click(screen.getByTestId('mock-drag-trigger'));
+    startSortKeyDrag(0);
 
     fireEvent.keyDown(screen.getByTestId('for-each-group-modal'), { key: 'Escape' });
     expect(onClose).not.toHaveBeenCalled();
@@ -358,9 +280,11 @@ describe('ForEachGroupModal', () => {
     forEachGroupItem.sortItems = [sort1, sort2];
 
     const onUpdate = vi.fn();
-    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={onUpdate} />);
+    render(<ForEachGroupModal isOpen onClose={vi.fn()} mapping={forEachGroupItem} onUpdate={onUpdate} />, { wrapper });
 
-    fireEvent.click(screen.getByTestId('mock-drop-trigger'));
+    // Drag the second entry (Price) and drop it onto the first one (Title)
+    startSortKeyDrag(1);
+    await endSortKeyDrag();
 
     fireEvent.click(screen.getByTestId('for-each-group-save-btn'));
 

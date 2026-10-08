@@ -8,19 +8,6 @@ import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { TestUtil } from '../../../stubs/datamapper/data-mapper';
 import { XPathEditorAction } from './XPathEditorAction';
 
-vi.mock('../../XPath/XPathEditor', () => ({
-  XPathEditor: ({ mapping }: { mapping: ValueOfSelector }) => (
-    <input data-testid="xpath-editor" value={mapping.expression} readOnly />
-  ),
-}));
-
-vi.mock('monaco-editor', () => ({
-  languages: {
-    CompletionItemKind: { Keyword: 17, Function: 1 },
-    CompletionItemInsertTextRule: { InsertAsSnippet: 4 },
-  },
-}));
-
 describe('XPathEditorAction', () => {
   it('should open xpath editor modal', async () => {
     const doc = TestUtil.createTargetOrderDoc();

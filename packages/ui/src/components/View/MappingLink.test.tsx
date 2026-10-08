@@ -6,14 +6,6 @@ import { MappingLink } from './MappingLink';
 
 const mockToggleSelectedNode = vi.fn();
 
-vi.mock('../../hooks/useMappingLinks', () => ({
-  useMappingLinks: () => ({
-    mappingLinkCanvasRef: { current: { getBoundingClientRect: () => ({ left: 10, right: 110 }) } },
-    getMappingLinks: vi.fn().mockReturnValue([]),
-    isNodeInSelectedMapping: vi.fn().mockReturnValue(false),
-  }),
-}));
-
 describe('MappingLink', () => {
   beforeEach(() => {
     useDocumentTreeStore.setState({ toggleSelectedNode: mockToggleSelectedNode });
