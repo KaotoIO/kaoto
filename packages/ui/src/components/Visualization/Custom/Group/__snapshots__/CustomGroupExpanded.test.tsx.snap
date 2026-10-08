@@ -1,3 +1,20 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`CustomGroupExpanded > should return null when element has no vizNode in data 1`] = `<div />`;
+exports[`CustomGroupExpanded > should return null when element has no vizNode in data 1`] = `
+<div>
+  <svg>
+    <g
+      data-layer-id="bottom"
+    />
+    <g
+      data-layer-id="groups"
+    />
+    <g
+      data-layer-id="default"
+    />
+    <g
+      data-layer-id="top"
+    />
+  </svg>
+</div>
+`;

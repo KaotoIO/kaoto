@@ -1,6 +1,7 @@
-import { GRAPH_LAYOUT_END_EVENT, useEventListener } from '@patternfly/react-topology';
+import { GRAPH_LAYOUT_END_EVENT, Visualization, VisualizationProvider } from '@patternfly/react-topology';
 import { act, render, waitFor } from '@testing-library/react';
 import { toBlob } from 'html-to-image';
+import { FunctionComponent, PropsWithChildren } from 'react';
 import type { Mock, MockInstance } from 'vitest';
 
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
@@ -10,26 +11,23 @@ import { LayoutType } from '../../Canvas/canvas.models';
 import { ControllerService } from '../../Canvas/controller.service';
 import { HiddenCanvas } from './HiddenCanvas';
 
-vi.mock('html-to-image', async () => ({
-  toBlob: vi.fn(),
-}));
-vi.mock('@patternfly/react-topology', async () => ({
-  ...(await vi.importActual('@patternfly/react-topology')),
-  useEventListener: vi.fn(),
-}));
-
 describe('HiddenCanvas', () => {
+  /** Notifies the end of the graph layout */
+  const fireLayoutEnd = () => {
+    hostController.fireEvent(GRAPH_LAYOUT_END_EVENT, { graph: hostController.getGraph() });
+  };
+
   const entity = new CamelRouteVisualEntity(camelRouteJson);
 
   let mockOnComplete: Mock;
-  let eventListenerCallback: ((event?: Event) => void) | null = null;
+  /** The controller of the canvas hosting the hidden canvas, where it listens for the layout end */
+  let hostController: Visualization;
+  let Wrapper: FunctionComponent<PropsWithChildren>;
   let fromModelSpy: MockInstance;
   let originalCreateObjectURL: typeof URL.createObjectURL;
   let originalRevokeObjectURL: typeof URL.revokeObjectURL;
-  let originalRAF: typeof globalThis.requestAnimationFrame;
-  let originalCAF: typeof globalThis.cancelAnimationFrame;
-  let originalCT: typeof globalThis.clearTimeout;
   let clickSpy: MockInstance;
+  let createControllerSpy: MockInstance<typeof ControllerService.createController>;
 
   beforeEach(async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -37,58 +35,55 @@ describe('HiddenCanvas', () => {
     // Save original implementations
     originalCreateObjectURL = URL.createObjectURL;
     originalRevokeObjectURL = URL.revokeObjectURL;
-    originalRAF = globalThis.requestAnimationFrame;
-    originalCAF = globalThis.cancelAnimationFrame;
-    originalCT = globalThis.clearTimeout;
 
     URL.createObjectURL = vi.fn(() => 'blob:mock-url');
     URL.revokeObjectURL = vi.fn();
 
     // Mock requestAnimationFrame to execute synchronously
-    globalThis.requestAnimationFrame = vi.fn((cb: FrameRequestCallback) => {
+    vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((cb: FrameRequestCallback) => {
       cb(0);
       return 1;
-    }) as unknown as typeof globalThis.requestAnimationFrame;
-    globalThis.cancelAnimationFrame = vi.fn();
-    globalThis.clearTimeout = vi.fn();
+    });
+    vi.spyOn(globalThis, 'cancelAnimationFrame').mockImplementation(() => {});
+    vi.spyOn(globalThis, 'clearTimeout').mockImplementation(() => {});
 
     clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
     mockOnComplete = vi.fn();
 
-    (toBlob as Mock).mockResolvedValue(new Blob(['fake-image-data'], { type: 'image/png' }));
+    vi.mocked(toBlob).mockResolvedValue(new Blob(['fake-image-data'], { type: 'image/png' }));
+    /* jsdom has no SVG layout, give the exported <svg> a size */
+    vi.spyOn(SVGSVGElement.prototype, 'getBBox').mockReturnValue(new DOMRect(0, 0, 100, 100));
+
+    hostController = ControllerService.createController();
+    const { Provider } = await TestProvidersWrapper();
+    Wrapper = ({ children }) => (
+      <Provider>
+        <VisualizationProvider controller={hostController}>{children}</VisualizationProvider>
+      </Provider>
+    );
 
     const controller = ControllerService.createController();
     fromModelSpy = vi.spyOn(controller, 'fromModel');
-    vi.spyOn(ControllerService, 'createController').mockReturnValue(controller);
-
-    (useEventListener as Mock).mockImplementation((eventType: string, callback: (event?: Event) => void) => {
-      if (eventType === GRAPH_LAYOUT_END_EVENT) {
-        eventListenerCallback = callback;
-      }
-    });
+    createControllerSpy = vi.spyOn(ControllerService, 'createController').mockReturnValue(controller);
   });
 
   afterEach(() => {
     vi.clearAllMocks();
     vi.clearAllTimers();
+    /* Restore the global spies before the real timers come back */
+    vi.restoreAllMocks();
     vi.useRealTimers();
-    eventListenerCallback = null;
 
     URL.createObjectURL = originalCreateObjectURL;
     URL.revokeObjectURL = originalRevokeObjectURL;
-    globalThis.requestAnimationFrame = originalRAF;
-    globalThis.cancelAnimationFrame = originalCAF;
-    globalThis.clearTimeout = originalCT;
-    clickSpy.mockRestore();
   });
 
   it('renders the hidden canvas container', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    const { Provider } = await TestProvidersWrapper();
     const vizNode = await entity.toVizNode();
 
     const { container } = render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, {
-      wrapper: Provider,
+      wrapper: Wrapper,
     });
 
     expect(container.querySelector('.hidden-canvas')).toBeInTheDocument();
@@ -96,21 +91,19 @@ describe('HiddenCanvas', () => {
 
   it('creates a controller on mount', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    const { Provider } = await TestProvidersWrapper();
     const vizNode = await entity.toVizNode();
 
-    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Provider });
+    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Wrapper });
 
-    // Called once in beforeEach and once in render
-    expect(ControllerService.createController).toHaveBeenCalledTimes(2);
+    // Called once on render, the controller is kept across re-renders
+    expect(createControllerSpy).toHaveBeenCalledTimes(1);
   });
 
   it('builds the graph model from viz nodes', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    const { Provider } = await TestProvidersWrapper();
     const vizNode = await entity.toVizNode();
 
-    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Provider });
+    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Wrapper });
 
     expect(fromModelSpy).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -125,23 +118,21 @@ describe('HiddenCanvas', () => {
 
   it('resets and layouts the graph after model is loaded', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    const { Provider } = await TestProvidersWrapper();
     const vizNode = await entity.toVizNode();
 
-    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Provider });
+    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Wrapper });
 
     expect(globalThis.requestAnimationFrame).toHaveBeenCalled();
   });
 
   it('triggers export when GRAPH_LAYOUT_END_EVENT fires', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    const { Provider } = await TestProvidersWrapper();
     const vizNode = await entity.toVizNode();
 
-    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Provider });
+    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Wrapper });
 
     await act(async () => {
-      eventListenerCallback?.();
+      fireLayoutEnd();
       await vi.runAllTimersAsync();
     });
 
@@ -152,13 +143,12 @@ describe('HiddenCanvas', () => {
 
   it('calls toBlob with correct options', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    const { Provider } = await TestProvidersWrapper();
     const vizNode = await entity.toVizNode();
 
-    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Provider });
+    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Wrapper });
 
     await act(async () => {
-      eventListenerCallback?.();
+      fireLayoutEnd();
       await vi.runAllTimersAsync();
     });
 
@@ -175,15 +165,12 @@ describe('HiddenCanvas', () => {
 
   it('calls onComplete after successful export', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    const { Provider } = await TestProvidersWrapper();
     const vizNode = await entity.toVizNode();
 
-    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Provider });
+    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Wrapper });
 
     await act(async () => {
-      if (eventListenerCallback) {
-        eventListenerCallback();
-      }
+      fireLayoutEnd();
       await vi.runAllTimersAsync();
     });
 
@@ -197,13 +184,12 @@ describe('HiddenCanvas', () => {
     const createObjectURLSpy = vi.spyOn(URL, 'createObjectURL');
     const revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL');
 
-    const { Provider } = await TestProvidersWrapper();
     const vizNode = await entity.toVizNode();
 
-    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} autoDownload />, { wrapper: Provider });
+    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} autoDownload />, { wrapper: Wrapper });
 
     await act(async () => {
-      eventListenerCallback?.();
+      fireLayoutEnd();
       await vi.advanceTimersByTimeAsync(0);
     });
 
@@ -222,10 +208,9 @@ describe('HiddenCanvas', () => {
 
   it('triggers fallback timer if layout does not complete', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    const { Provider } = await TestProvidersWrapper();
     const vizNode = await entity.toVizNode();
 
-    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Provider });
+    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Wrapper });
 
     // Don't trigger the GRAPH_LAYOUT_END_EVENT
     await act(async () => {
@@ -241,12 +226,10 @@ describe('HiddenCanvas', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    const { Provider } = await TestProvidersWrapper();
-
-    render(<HiddenCanvas vizNodes={[]} onComplete={mockOnComplete} />, { wrapper: Provider });
+    render(<HiddenCanvas vizNodes={[]} onComplete={mockOnComplete} />, { wrapper: Wrapper });
 
     await act(async () => {
-      eventListenerCallback?.();
+      fireLayoutEnd();
       await vi.advanceTimersByTimeAsync(0);
     });
 
@@ -259,18 +242,15 @@ describe('HiddenCanvas', () => {
 
   it('handles toBlob returning null', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    (toBlob as Mock).mockResolvedValue(null);
+    vi.mocked(toBlob).mockResolvedValue(null);
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    const { Provider } = await TestProvidersWrapper();
     const vizNode = await entity.toVizNode();
 
-    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Provider });
+    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Wrapper });
 
     await act(async () => {
-      if (eventListenerCallback) {
-        eventListenerCallback();
-      }
+      fireLayoutEnd();
       await vi.advanceTimersByTimeAsync(0);
     });
 
@@ -285,16 +265,15 @@ describe('HiddenCanvas', () => {
   it('handles export error and calls onComplete', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     const error = new Error('Export failed');
-    (toBlob as Mock).mockRejectedValue(error);
+    vi.mocked(toBlob).mockRejectedValue(error);
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    const { Provider } = await TestProvidersWrapper();
     const vizNode = await entity.toVizNode();
 
-    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Provider });
+    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Wrapper });
 
     await act(async () => {
-      eventListenerCallback?.();
+      fireLayoutEnd();
       await vi.advanceTimersByTimeAsync(0);
     });
 
@@ -308,11 +287,10 @@ describe('HiddenCanvas', () => {
 
   it('uses custom layout type when provided', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    const { Provider } = await TestProvidersWrapper();
     const vizNode = await entity.toVizNode();
 
     render(<HiddenCanvas vizNodes={[vizNode]} layout={LayoutType.DagreVertical} onComplete={mockOnComplete} />, {
-      wrapper: Provider,
+      wrapper: Wrapper,
     });
 
     expect(fromModelSpy).toHaveBeenCalledWith(
@@ -329,11 +307,10 @@ describe('HiddenCanvas', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     const clearTimeoutSpy = vi.spyOn(globalThis, 'clearTimeout');
 
-    const { Provider } = await TestProvidersWrapper();
     const vizNode = await entity.toVizNode();
 
     const { unmount } = render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, {
-      wrapper: Provider,
+      wrapper: Wrapper,
     });
 
     unmount();
@@ -344,18 +321,17 @@ describe('HiddenCanvas', () => {
   it('calls onBlobGenerated callback with the generated blob', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     const mockBlob = new Blob(['fake-image-data'], { type: 'image/png' });
-    (toBlob as Mock).mockResolvedValue(mockBlob);
+    vi.mocked(toBlob).mockResolvedValue(mockBlob);
     const mockOnBlobGenerated = vi.fn();
 
-    const { Provider } = await TestProvidersWrapper();
     const vizNode = await entity.toVizNode();
 
     render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} onBlobGenerated={mockOnBlobGenerated} />, {
-      wrapper: Provider,
+      wrapper: Wrapper,
     });
 
     await act(async () => {
-      eventListenerCallback?.();
+      fireLayoutEnd();
       await vi.advanceTimersByTimeAsync(0);
     });
 
@@ -366,15 +342,14 @@ describe('HiddenCanvas', () => {
 
   it('does not auto-download when autoDownload is false', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    const { Provider } = await TestProvidersWrapper();
     const vizNode = await entity.toVizNode();
 
     render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} autoDownload={false} />, {
-      wrapper: Provider,
+      wrapper: Wrapper,
     });
 
     await act(async () => {
-      eventListenerCallback?.();
+      fireLayoutEnd();
       await vi.advanceTimersByTimeAsync(0);
     });
 
@@ -388,13 +363,12 @@ describe('HiddenCanvas', () => {
 
   it('auto-downloads when autoDownload is true', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    const { Provider } = await TestProvidersWrapper();
     const vizNode = await entity.toVizNode();
 
-    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} autoDownload />, { wrapper: Provider });
+    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} autoDownload />, { wrapper: Wrapper });
 
     await act(async () => {
-      eventListenerCallback?.();
+      fireLayoutEnd();
       await vi.advanceTimersByTimeAsync(0);
     });
 

@@ -1,31 +1,10 @@
 import { BaseEdge, BaseGraph, BaseNode, ElementContext, VisualizationProvider } from '@patternfly/react-topology';
 import { render } from '@testing-library/react';
-import React from 'react';
 
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { ControllerService } from '../../Canvas/controller.service';
 import { CustomEdge } from './CustomEdge';
-
-const mockRef = { current: null };
-
-vi.mock('@patternfly/react-topology', async () => {
-  const actual = await vi.importActual('@patternfly/react-topology');
-  return {
-    ...actual,
-    Layer: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
-    useDndDrop: () => [
-      {
-        droppable: false,
-        hover: false,
-        canDrop: false,
-        dragItemType: undefined,
-        dragItem: undefined,
-      },
-      mockRef,
-    ],
-  };
-});
 
 describe('CustomEdge', () => {
   afterEach(() => {

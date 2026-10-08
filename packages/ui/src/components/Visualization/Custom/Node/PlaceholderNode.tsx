@@ -105,11 +105,14 @@ const PlaceholderNodeContainer: FunctionComponent<PlaceholderNodeContainerProps>
   );
 };
 
-const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = observer(({ element, selected }) => {
+interface PlaceholderContentProps extends PlaceholderNodeInnerProps {
+  vizNode: IVisualizationNode;
+}
+
+const PlaceholderContent: FunctionComponent<PlaceholderContentProps> = observer(({ element, vizNode, selected }) => {
   if (!isNode(element)) {
     throw new Error('PlaceholderNodeInner must be used only on Node elements');
   }
-  const vizNode: IVisualizationNode | undefined = element.getData()?.vizNode;
   const settingsAdapter = useContext(SettingsContext);
   const entitiesContext = useEntityContext();
   const catalogModalContext = useContext(CatalogModalContext);
@@ -165,9 +168,6 @@ const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = obser
     [isSpecialPlaceholder, isSpecialChildPlaceholder, onInsertStep, onReplaceNode],
   );
 
-  if (!vizNode) {
-    return null;
-  }
   const tooltipContent = isSpecialPlaceholder
     ? `Click to add ${vizNode?.data.primaryNodeId?.name} branch`
     : 'Click to add a step';
@@ -294,6 +294,19 @@ const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = obser
       </g>
     </Layer>
   );
+});
+
+/** Renders nothing until the element holds a vizNode, since the step hooks require one */
+const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = observer(({ element, selected }) => {
+  if (!isNode(element)) {
+    throw new Error('PlaceholderNodeInner must be used only on Node elements');
+  }
+  const vizNode: IVisualizationNode | undefined = element.getData()?.vizNode;
+  if (!vizNode) {
+    return null;
+  }
+
+  return <PlaceholderContent element={element} vizNode={vizNode} selected={selected} />;
 });
 
 export const PlaceholderNode: FunctionComponent<PlaceholderNodeInnerProps> = ({
