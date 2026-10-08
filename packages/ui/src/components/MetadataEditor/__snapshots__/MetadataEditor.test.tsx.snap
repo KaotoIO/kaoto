@@ -159,6 +159,792 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
             <div
               class="pf-v6-l-stack__item pf-m-fill"
             >
+              <div
+                class="cds--layer-two"
+              >
+                <form
+                  class="cds--form kaoto-form kaoto-form__label"
+                  data-testid="metadata-editor-form-Beans"
+                >
+                  <div
+                    class="cds--stack-vertical cds--stack-scale-5"
+                  >
+                    <div
+                      class="cds--stack-vertical cds--stack-scale-3"
+                      data-testid="#.name__field-wrapper"
+                    >
+                      <div
+                        class="kaoto-field-wrapper__label-container"
+                      >
+                        <label
+                          class="kaoto-field-wrapper__label"
+                        >
+                          <span
+                            class="kaoto-field-wrapper__required"
+                          >
+                            *
+                          </span>
+                          name
+                        </label>
+                        <button
+                          aria-label="More info for name field"
+                          type="button"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            fill="currentColor"
+                            focusable="false"
+                            height="16"
+                            preserveAspectRatio="xMidYMid meet"
+                            viewBox="0 0 16 16"
+                            width="16"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
+                            />
+                            <path
+                              d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
+                            />
+                          </svg>
+                        </button>
+                        <p>
+                          <strong>
+                            name
+                             
+                            &lt;string&gt;
+                          </strong>
+                        </p>
+                        <p>
+                          Bean name
+                        </p>
+                        <p>
+                          Default: 
+                          no default value
+                        </p>
+                        <span
+                          class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
+                        >
+                          <div
+                            class="cds--tooltip-trigger__wrapper"
+                          >
+                            <button
+                              aria-labelledby="tooltip-_r_ID_"
+                              class="cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+                              data-testid="#.name__open-suggestions-button"
+                              type="button"
+                            >
+                              <svg
+                                aria-hidden="true"
+                                fill="currentColor"
+                                focusable="false"
+                                height="16"
+                                preserveAspectRatio="xMidYMid meet"
+                                viewBox="0 0 32 32"
+                                width="16"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  d="M11 24H21V26H11zM13 28H19V30H13zM16 2A10 10 0 006 12a9.19 9.19 0 003.46 7.62c1 .93 1.54 1.46 1.54 2.38h2c0-1.84-1.11-2.87-2.19-3.86A7.2 7.2 0 018 12a8 8 0 0116 0 7.2 7.2 0 01-2.82 6.14c-1.07 1-2.18 2-2.18 3.86h2c0-.92.53-1.45 1.54-2.39A9.18 9.18 0 0026 12 10 10 0 0016 2z"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+                          <span
+                            aria-hidden="true"
+                            class="cds--popover"
+                            id="tooltip-_r_ID_"
+                            role="tooltip"
+                          >
+                            <span
+                              class="cds--popover-content cds--tooltip-content"
+                            >
+                              Open suggestions (Ctrl+Space)
+                            </span>
+                            <span
+                              class="cds--popover-caret"
+                            />
+                          </span>
+                        </span>
+                      </div>
+                      <div
+                        class="string-field-container"
+                      >
+                        <div
+                          class="string-field-input-wrapper"
+                        >
+                          <div
+                            class="cds--form-item cds--text-input-wrapper"
+                          >
+                            <div
+                              class="cds--text-input__label-wrapper"
+                            />
+                            <div
+                              class="cds--text-input__field-outer-wrapper"
+                            >
+                              <div
+                                class="cds--text-input__field-wrapper"
+                              >
+                                <input
+                                  aria-describedby="#.name-popover"
+                                  class="cds--text-input"
+                                  data-testid="#.name"
+                                  disabled=""
+                                  id="#.name"
+                                  name="#.name"
+                                  role="textbox"
+                                  type="text"
+                                  value=""
+                                />
+                                <span
+                                  aria-atomic="true"
+                                  aria-live="assertive"
+                                  class="cds--text-input__counter-alert"
+                                  role="alert"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <span
+                          class="cds--overflow-menu__wrapper"
+                        >
+                          <span
+                            class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
+                          >
+                            <div
+                              class="cds--tooltip-trigger__wrapper"
+                            >
+                              <button
+                                aria-expanded="false"
+                                aria-haspopup="true"
+                                aria-labelledby="tooltip-_r_ID_"
+                                class="cds--overflow-menu cds--overflow-menu--sm cds--layout--size-sm cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+                                data-testid="#.name__field-actions"
+                                type="button"
+                              >
+                                <svg
+                                  aria-label="Options"
+                                  class="cds--overflow-menu__icon"
+                                  fill="currentColor"
+                                  focusable="false"
+                                  height="16"
+                                  preserveAspectRatio="xMidYMid meet"
+                                  role="img"
+                                  viewBox="0 0 32 32"
+                                  width="16"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <circle
+                                    cx="16"
+                                    cy="8"
+                                    r="2"
+                                  />
+                                  <circle
+                                    cx="16"
+                                    cy="16"
+                                    r="2"
+                                  />
+                                  <circle
+                                    cx="16"
+                                    cy="24"
+                                    r="2"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+                            <span
+                              aria-hidden="true"
+                              class="cds--popover"
+                              id="tooltip-_r_ID_"
+                              role="tooltip"
+                            >
+                              <span
+                                class="cds--popover-content cds--tooltip-content"
+                              >
+                                Options
+                              </span>
+                              <span
+                                class="cds--popover-caret"
+                              />
+                            </span>
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+                    <div
+                      class="cds--stack-vertical cds--stack-scale-3"
+                      data-testid="#.type__field-wrapper"
+                    >
+                      <div
+                        class="kaoto-field-wrapper__label-container"
+                      >
+                        <label
+                          class="kaoto-field-wrapper__label"
+                        >
+                          <span
+                            class="kaoto-field-wrapper__required"
+                          >
+                            *
+                          </span>
+                          type
+                        </label>
+                        <button
+                          aria-label="More info for type field"
+                          type="button"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            fill="currentColor"
+                            focusable="false"
+                            height="16"
+                            preserveAspectRatio="xMidYMid meet"
+                            viewBox="0 0 16 16"
+                            width="16"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
+                            />
+                            <path
+                              d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
+                            />
+                          </svg>
+                        </button>
+                        <p>
+                          <strong>
+                            type
+                             
+                            &lt;string&gt;
+                          </strong>
+                        </p>
+                        <p>
+                          What type to use for creating the bean. Can be one of: #class,#type,bean,groovy,joor,language,mvel,ognl. #class or #type then the bean is created via the fully qualified classname, such as #class:com.foo.MyBean The others are scripting languages that gives more power to create the bean with an inlined code in the script section, such as using groovy.
+                        </p>
+                        <p>
+                          Default: 
+                          no default value
+                        </p>
+                        <span
+                          class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
+                        >
+                          <div
+                            class="cds--tooltip-trigger__wrapper"
+                          >
+                            <button
+                              aria-labelledby="tooltip-_r_ID_"
+                              class="cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+                              data-testid="#.type__open-suggestions-button"
+                              type="button"
+                            >
+                              <svg
+                                aria-hidden="true"
+                                fill="currentColor"
+                                focusable="false"
+                                height="16"
+                                preserveAspectRatio="xMidYMid meet"
+                                viewBox="0 0 32 32"
+                                width="16"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  d="M11 24H21V26H11zM13 28H19V30H13zM16 2A10 10 0 006 12a9.19 9.19 0 003.46 7.62c1 .93 1.54 1.46 1.54 2.38h2c0-1.84-1.11-2.87-2.19-3.86A7.2 7.2 0 018 12a8 8 0 0116 0 7.2 7.2 0 01-2.82 6.14c-1.07 1-2.18 2-2.18 3.86h2c0-.92.53-1.45 1.54-2.39A9.18 9.18 0 0026 12 10 10 0 0016 2z"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+                          <span
+                            aria-hidden="true"
+                            class="cds--popover"
+                            id="tooltip-_r_ID_"
+                            role="tooltip"
+                          >
+                            <span
+                              class="cds--popover-content cds--tooltip-content"
+                            >
+                              Open suggestions (Ctrl+Space)
+                            </span>
+                            <span
+                              class="cds--popover-caret"
+                            />
+                          </span>
+                        </span>
+                      </div>
+                      <div
+                        class="string-field-container"
+                      >
+                        <div
+                          class="string-field-input-wrapper"
+                        >
+                          <div
+                            class="cds--form-item cds--text-input-wrapper"
+                          >
+                            <div
+                              class="cds--text-input__label-wrapper"
+                            />
+                            <div
+                              class="cds--text-input__field-outer-wrapper"
+                            >
+                              <div
+                                class="cds--text-input__field-wrapper"
+                              >
+                                <input
+                                  aria-describedby="#.type-popover"
+                                  class="cds--text-input"
+                                  data-testid="#.type"
+                                  disabled=""
+                                  id="#.type"
+                                  name="#.type"
+                                  role="textbox"
+                                  type="text"
+                                  value=""
+                                />
+                                <span
+                                  aria-atomic="true"
+                                  aria-live="assertive"
+                                  class="cds--text-input__counter-alert"
+                                  role="alert"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <span
+                          class="cds--overflow-menu__wrapper"
+                        >
+                          <span
+                            class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
+                          >
+                            <div
+                              class="cds--tooltip-trigger__wrapper"
+                            >
+                              <button
+                                aria-expanded="false"
+                                aria-haspopup="true"
+                                aria-labelledby="tooltip-_r_ID_"
+                                class="cds--overflow-menu cds--overflow-menu--sm cds--layout--size-sm cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
+                                data-testid="#.type__field-actions"
+                                type="button"
+                              >
+                                <svg
+                                  aria-label="Options"
+                                  class="cds--overflow-menu__icon"
+                                  fill="currentColor"
+                                  focusable="false"
+                                  height="16"
+                                  preserveAspectRatio="xMidYMid meet"
+                                  role="img"
+                                  viewBox="0 0 32 32"
+                                  width="16"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <circle
+                                    cx="16"
+                                    cy="8"
+                                    r="2"
+                                  />
+                                  <circle
+                                    cx="16"
+                                    cy="16"
+                                    r="2"
+                                  />
+                                  <circle
+                                    cx="16"
+                                    cy="24"
+                                    r="2"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+                            <span
+                              aria-hidden="true"
+                              class="cds--popover"
+                              id="tooltip-_r_ID_"
+                              role="tooltip"
+                            >
+                              <span
+                                class="cds--popover-content cds--tooltip-content"
+                              >
+                                Options
+                              </span>
+                              <span
+                                class="cds--popover-caret"
+                              />
+                            </span>
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+                    <div
+                      class="cds--stack-vertical cds--stack-scale-3"
+                      data-testid="#.properties__field-wrapper"
+                    >
+                      <div
+                        class="kaoto-field-wrapper__label-container"
+                      >
+                        <label
+                          class="kaoto-field-wrapper__label"
+                        >
+                          <span>
+                            properties
+                             
+                            <div
+                              class="cds--tag"
+                              id="tag-id-_r_ID_"
+                            >
+                              <span
+                                class="cds--tag__label"
+                                dir="auto"
+                                title=""
+                              >
+                                0
+                              </span>
+                            </div>
+                          </span>
+                        </label>
+                        <button
+                          aria-label="More info for [object Object] field"
+                          type="button"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            fill="currentColor"
+                            focusable="false"
+                            height="16"
+                            preserveAspectRatio="xMidYMid meet"
+                            viewBox="0 0 16 16"
+                            width="16"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
+                            />
+                            <path
+                              d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
+                            />
+                          </svg>
+                        </button>
+                        <p>
+                          <strong>
+                            <span>
+                              properties
+                               
+                              <div
+                                class="cds--tag"
+                                id="tag-id-_r_ID_"
+                              >
+                                <span
+                                  class="cds--tag__label"
+                                  dir="auto"
+                                  title=""
+                                >
+                                  0
+                                </span>
+                              </div>
+                            </span>
+                             
+                            &lt;object&gt;
+                          </strong>
+                        </p>
+                        <p>
+                          Optional properties to set on the created local bean
+                        </p>
+                        <p>
+                          Default: 
+                          no default value
+                        </p>
+                      </div>
+                      <div>
+                        <div
+                          class="cds--css-grid"
+                        >
+                          <div
+                            class="cds--sm:col-span-2 cds--md:col-span-3 cds--lg:col-span-7 cds--css-grid-column"
+                          >
+                            <strong>
+                              Key
+                            </strong>
+                          </div>
+                          <div
+                            class="cds--sm:col-span-2 cds--md:col-span-3 cds--lg:col-span-7 cds--css-grid-column"
+                          >
+                            <strong>
+                              Value
+                            </strong>
+                          </div>
+                          <div
+                            class="cds--sm:col-span-0 cds--md:col-span-2 cds--lg:col-span-2 cds--css-grid-column"
+                          >
+                            <span
+                              class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip cds--icon-tooltip--disabled"
+                            >
+                              <div
+                                class="cds--tooltip-trigger__wrapper"
+                              >
+                                <button
+                                  aria-labelledby="tooltip-_r_ID_"
+                                  class="cds--btn cds--btn--ghost cds--btn--disabled cds--btn--icon-only"
+                                  data-testid="#.properties__add"
+                                  disabled=""
+                                  type="button"
+                                >
+                                  <svg
+                                    aria-hidden="true"
+                                    fill="currentColor"
+                                    focusable="false"
+                                    height="16"
+                                    preserveAspectRatio="xMidYMid meet"
+                                    viewBox="0 0 32 32"
+                                    width="16"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <path
+                                      d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"
+                                    />
+                                  </svg>
+                                </button>
+                              </div>
+                              <span
+                                aria-hidden="true"
+                                class="cds--popover"
+                                id="tooltip-_r_ID_"
+                                role="tooltip"
+                              >
+                                <span
+                                  class="cds--popover-content cds--tooltip-content"
+                                >
+                                  Add a new property
+                                </span>
+                                <span
+                                  class="cds--popover-caret"
+                                />
+                              </span>
+                            </span>
+                          </div>
+                        </div>
+                        <hr />
+                      </div>
+                    </div>
+                  </div>
+                </form>
+                <div
+                  class="cds--tile kaoto-form kaoto-form__empty"
+                  data-testid="no-field-found"
+                >
+                  <div
+                    class="cds--inline-notification cds--inline-notification--info cds--inline-notification--hide-close-button"
+                    role="status"
+                  >
+                    <div
+                      class="cds--inline-notification__details"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="cds--inline-notification__icon"
+                        fill="currentColor"
+                        focusable="false"
+                        height="20"
+                        preserveAspectRatio="xMidYMid meet"
+                        viewBox="0 0 32 32"
+                        width="20"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M16,8a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,16,8Zm4,13.875H17.125v-8H13v2.25h1.875v5.75H12v2.25h8Z"
+                          data-icon-path="inner-path"
+                          fill="none"
+                        />
+                        <path
+                          d="M16,2A14,14,0,1,0,30,16,14,14,0,0,0,16,2Zm0,6a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,16,8Zm4,16.125H12v-2.25h2.875v-5.75H13v-2.25h4.125v8H20Z"
+                        />
+                        <title>
+                          info icon
+                        </title>
+                      </svg>
+                      <div
+                        class="cds--inline-notification__text-wrapper"
+                      >
+                        <div
+                          class="cds--inline-notification__title"
+                          dir="auto"
+                        >
+                          No fields found
+                        </div>
+                        <div
+                          class="cds--inline-notification__subtitle"
+                          dir="auto"
+                        >
+                          No field found matching this criteria.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>,
+  "container": <div>
+    <div
+      class="pf-v6-l-split pf-m-gutter"
+    >
+      <div
+        class="pf-v6-l-split__item metadata-editor-modal-list-view"
+      >
+        <div
+          class="pf-v6-c-scroll-outer-wrapper"
+        >
+          <div
+            class="pf-v6-c-scroll-inner-wrapper"
+          >
+            <table
+              aria-label="beans"
+              class="pf-v6-c-table pf-m-grid-md pf-m-compact pf-m-sticky-header"
+              data-ouia-component-id="OUIA-Generated-Table-_r_ID_"
+              data-ouia-component-type="PF6/Table"
+              data-ouia-safe="true"
+              role="grid"
+            >
+              <thead
+                class="pf-v6-c-table__thead"
+              >
+                <tr
+                  class="pf-v6-c-table__tr"
+                  data-ouia-component-id="OUIA-Generated-TableRow-_r_ID_"
+                  data-ouia-component-type="PF6/TableRow"
+                  data-ouia-safe="true"
+                >
+                  <th
+                    class="pf-v6-c-table__th pf-m-nowrap"
+                    scope="col"
+                    tabindex="-1"
+                  >
+                    NAME
+                  </th>
+                  <th
+                    class="pf-v6-c-table__th pf-m-nowrap"
+                    scope="col"
+                    tabindex="-1"
+                  >
+                    TYPE
+                  </th>
+                  <td
+                    class="pf-v6-c-table__td pf-v6-c-table__action pf-m-nowrap"
+                    tabindex="-1"
+                  >
+                    <button
+                      class="pf-v6-c-button pf-m-link"
+                      data-ouia-component-id="OUIA-Generated-Button-link-_r_ID_"
+                      data-ouia-component-type="PF6/Button"
+                      data-ouia-safe="true"
+                      data-testid="metadata-add-beans-btn"
+                      title="Add new beans"
+                      type="button"
+                    >
+                      <span
+                        class="pf-v6-c-button__icon"
+                      >
+                        <svg
+                          data-testid="plus-circle-icon"
+                          role="img"
+                        >
+                          <path />
+                        </svg>
+                      </span>
+                    </button>
+                  </td>
+                </tr>
+              </thead>
+              <tbody
+                class="pf-v6-c-table__tbody"
+                role="rowgroup"
+              >
+                <tr
+                  class="pf-v6-c-table__tr"
+                  data-ouia-component-id="OUIA-Generated-TableRow-_r_ID_"
+                  data-ouia-component-type="PF6/TableRow"
+                  data-ouia-safe="true"
+                >
+                  <td
+                    class="pf-v6-c-table__td"
+                    colspan="3"
+                    tabindex="-1"
+                  >
+                    <div
+                      class="pf-v6-c-empty-state"
+                    >
+                      <div
+                        class="pf-v6-c-empty-state__content"
+                      >
+                        <div
+                          class="pf-v6-c-empty-state__header"
+                        />
+                        <div
+                          class="pf-v6-c-empty-state__body"
+                        >
+                          No 
+                          beans
+                        </div>
+                        <button
+                          class="pf-v6-c-button pf-m-link"
+                          data-ouia-component-id="OUIA-Generated-Button-link-_r_ID_"
+                          data-ouia-component-type="PF6/Button"
+                          data-ouia-safe="true"
+                          data-testid="metadata-add-beans-btn"
+                          type="button"
+                        >
+                          <span
+                            class="pf-v6-c-button__icon pf-m-start"
+                          >
+                            <svg
+                              data-testid="plus-circle-icon"
+                              role="img"
+                            >
+                              <path />
+                            </svg>
+                          </span>
+                          <span
+                            class="pf-v6-c-button__text"
+                          >
+                            Add new
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div
+        class="pf-v6-l-split__item metadata-editor-modal-details-view"
+      >
+        <div
+          class="pf-v6-l-stack pf-m-gutter"
+        >
+          <div
+            class="pf-v6-l-stack__item"
+          >
+            <h2
+              class="pf-v6-c-title pf-m-h2"
+              data-ouia-component-id="OUIA-Generated-Title-_r_ID_"
+              data-ouia-component-type="PF6/Title"
+              data-ouia-safe="true"
+            >
+              Details
+            </h2>
+          </div>
+          <div
+            class="pf-v6-l-stack__item pf-m-fill"
+          >
+            <div
+              class="cds--layer-two"
+            >
               <form
                 class="cds--form kaoto-form kaoto-form__label"
                 data-testid="metadata-editor-form-Beans"
@@ -773,784 +1559,6 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                       >
                         No field found matching this criteria.
                       </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </body>,
-  "container": <div>
-    <div
-      class="pf-v6-l-split pf-m-gutter"
-    >
-      <div
-        class="pf-v6-l-split__item metadata-editor-modal-list-view"
-      >
-        <div
-          class="pf-v6-c-scroll-outer-wrapper"
-        >
-          <div
-            class="pf-v6-c-scroll-inner-wrapper"
-          >
-            <table
-              aria-label="beans"
-              class="pf-v6-c-table pf-m-grid-md pf-m-compact pf-m-sticky-header"
-              data-ouia-component-id="OUIA-Generated-Table-_r_ID_"
-              data-ouia-component-type="PF6/Table"
-              data-ouia-safe="true"
-              role="grid"
-            >
-              <thead
-                class="pf-v6-c-table__thead"
-              >
-                <tr
-                  class="pf-v6-c-table__tr"
-                  data-ouia-component-id="OUIA-Generated-TableRow-_r_ID_"
-                  data-ouia-component-type="PF6/TableRow"
-                  data-ouia-safe="true"
-                >
-                  <th
-                    class="pf-v6-c-table__th pf-m-nowrap"
-                    scope="col"
-                    tabindex="-1"
-                  >
-                    NAME
-                  </th>
-                  <th
-                    class="pf-v6-c-table__th pf-m-nowrap"
-                    scope="col"
-                    tabindex="-1"
-                  >
-                    TYPE
-                  </th>
-                  <td
-                    class="pf-v6-c-table__td pf-v6-c-table__action pf-m-nowrap"
-                    tabindex="-1"
-                  >
-                    <button
-                      class="pf-v6-c-button pf-m-link"
-                      data-ouia-component-id="OUIA-Generated-Button-link-_r_ID_"
-                      data-ouia-component-type="PF6/Button"
-                      data-ouia-safe="true"
-                      data-testid="metadata-add-beans-btn"
-                      title="Add new beans"
-                      type="button"
-                    >
-                      <span
-                        class="pf-v6-c-button__icon"
-                      >
-                        <svg
-                          data-testid="plus-circle-icon"
-                          role="img"
-                        >
-                          <path />
-                        </svg>
-                      </span>
-                    </button>
-                  </td>
-                </tr>
-              </thead>
-              <tbody
-                class="pf-v6-c-table__tbody"
-                role="rowgroup"
-              >
-                <tr
-                  class="pf-v6-c-table__tr"
-                  data-ouia-component-id="OUIA-Generated-TableRow-_r_ID_"
-                  data-ouia-component-type="PF6/TableRow"
-                  data-ouia-safe="true"
-                >
-                  <td
-                    class="pf-v6-c-table__td"
-                    colspan="3"
-                    tabindex="-1"
-                  >
-                    <div
-                      class="pf-v6-c-empty-state"
-                    >
-                      <div
-                        class="pf-v6-c-empty-state__content"
-                      >
-                        <div
-                          class="pf-v6-c-empty-state__header"
-                        />
-                        <div
-                          class="pf-v6-c-empty-state__body"
-                        >
-                          No 
-                          beans
-                        </div>
-                        <button
-                          class="pf-v6-c-button pf-m-link"
-                          data-ouia-component-id="OUIA-Generated-Button-link-_r_ID_"
-                          data-ouia-component-type="PF6/Button"
-                          data-ouia-safe="true"
-                          data-testid="metadata-add-beans-btn"
-                          type="button"
-                        >
-                          <span
-                            class="pf-v6-c-button__icon pf-m-start"
-                          >
-                            <svg
-                              data-testid="plus-circle-icon"
-                              role="img"
-                            >
-                              <path />
-                            </svg>
-                          </span>
-                          <span
-                            class="pf-v6-c-button__text"
-                          >
-                            Add new
-                          </span>
-                        </button>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-      <div
-        class="pf-v6-l-split__item metadata-editor-modal-details-view"
-      >
-        <div
-          class="pf-v6-l-stack pf-m-gutter"
-        >
-          <div
-            class="pf-v6-l-stack__item"
-          >
-            <h2
-              class="pf-v6-c-title pf-m-h2"
-              data-ouia-component-id="OUIA-Generated-Title-_r_ID_"
-              data-ouia-component-type="PF6/Title"
-              data-ouia-safe="true"
-            >
-              Details
-            </h2>
-          </div>
-          <div
-            class="pf-v6-l-stack__item pf-m-fill"
-          >
-            <form
-              class="cds--form kaoto-form kaoto-form__label"
-              data-testid="metadata-editor-form-Beans"
-            >
-              <div
-                class="cds--stack-vertical cds--stack-scale-5"
-              >
-                <div
-                  class="cds--stack-vertical cds--stack-scale-3"
-                  data-testid="#.name__field-wrapper"
-                >
-                  <div
-                    class="kaoto-field-wrapper__label-container"
-                  >
-                    <label
-                      class="kaoto-field-wrapper__label"
-                    >
-                      <span
-                        class="kaoto-field-wrapper__required"
-                      >
-                        *
-                      </span>
-                      name
-                    </label>
-                    <button
-                      aria-label="More info for name field"
-                      type="button"
-                    >
-                      <svg
-                        aria-hidden="true"
-                        fill="currentColor"
-                        focusable="false"
-                        height="16"
-                        preserveAspectRatio="xMidYMid meet"
-                        viewBox="0 0 16 16"
-                        width="16"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
-                        />
-                        <path
-                          d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
-                        />
-                      </svg>
-                    </button>
-                    <p>
-                      <strong>
-                        name
-                         
-                        &lt;string&gt;
-                      </strong>
-                    </p>
-                    <p>
-                      Bean name
-                    </p>
-                    <p>
-                      Default: 
-                      no default value
-                    </p>
-                    <span
-                      class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
-                    >
-                      <div
-                        class="cds--tooltip-trigger__wrapper"
-                      >
-                        <button
-                          aria-labelledby="tooltip-_r_ID_"
-                          class="cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
-                          data-testid="#.name__open-suggestions-button"
-                          type="button"
-                        >
-                          <svg
-                            aria-hidden="true"
-                            fill="currentColor"
-                            focusable="false"
-                            height="16"
-                            preserveAspectRatio="xMidYMid meet"
-                            viewBox="0 0 32 32"
-                            width="16"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M11 24H21V26H11zM13 28H19V30H13zM16 2A10 10 0 006 12a9.19 9.19 0 003.46 7.62c1 .93 1.54 1.46 1.54 2.38h2c0-1.84-1.11-2.87-2.19-3.86A7.2 7.2 0 018 12a8 8 0 0116 0 7.2 7.2 0 01-2.82 6.14c-1.07 1-2.18 2-2.18 3.86h2c0-.92.53-1.45 1.54-2.39A9.18 9.18 0 0026 12 10 10 0 0016 2z"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                      <span
-                        aria-hidden="true"
-                        class="cds--popover"
-                        id="tooltip-_r_ID_"
-                        role="tooltip"
-                      >
-                        <span
-                          class="cds--popover-content cds--tooltip-content"
-                        >
-                          Open suggestions (Ctrl+Space)
-                        </span>
-                        <span
-                          class="cds--popover-caret"
-                        />
-                      </span>
-                    </span>
-                  </div>
-                  <div
-                    class="string-field-container"
-                  >
-                    <div
-                      class="string-field-input-wrapper"
-                    >
-                      <div
-                        class="cds--form-item cds--text-input-wrapper"
-                      >
-                        <div
-                          class="cds--text-input__label-wrapper"
-                        />
-                        <div
-                          class="cds--text-input__field-outer-wrapper"
-                        >
-                          <div
-                            class="cds--text-input__field-wrapper"
-                          >
-                            <input
-                              aria-describedby="#.name-popover"
-                              class="cds--text-input"
-                              data-testid="#.name"
-                              disabled=""
-                              id="#.name"
-                              name="#.name"
-                              role="textbox"
-                              type="text"
-                              value=""
-                            />
-                            <span
-                              aria-atomic="true"
-                              aria-live="assertive"
-                              class="cds--text-input__counter-alert"
-                              role="alert"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <span
-                      class="cds--overflow-menu__wrapper"
-                    >
-                      <span
-                        class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
-                      >
-                        <div
-                          class="cds--tooltip-trigger__wrapper"
-                        >
-                          <button
-                            aria-expanded="false"
-                            aria-haspopup="true"
-                            aria-labelledby="tooltip-_r_ID_"
-                            class="cds--overflow-menu cds--overflow-menu--sm cds--layout--size-sm cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
-                            data-testid="#.name__field-actions"
-                            type="button"
-                          >
-                            <svg
-                              aria-label="Options"
-                              class="cds--overflow-menu__icon"
-                              fill="currentColor"
-                              focusable="false"
-                              height="16"
-                              preserveAspectRatio="xMidYMid meet"
-                              role="img"
-                              viewBox="0 0 32 32"
-                              width="16"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <circle
-                                cx="16"
-                                cy="8"
-                                r="2"
-                              />
-                              <circle
-                                cx="16"
-                                cy="16"
-                                r="2"
-                              />
-                              <circle
-                                cx="16"
-                                cy="24"
-                                r="2"
-                              />
-                            </svg>
-                          </button>
-                        </div>
-                        <span
-                          aria-hidden="true"
-                          class="cds--popover"
-                          id="tooltip-_r_ID_"
-                          role="tooltip"
-                        >
-                          <span
-                            class="cds--popover-content cds--tooltip-content"
-                          >
-                            Options
-                          </span>
-                          <span
-                            class="cds--popover-caret"
-                          />
-                        </span>
-                      </span>
-                    </span>
-                  </div>
-                </div>
-                <div
-                  class="cds--stack-vertical cds--stack-scale-3"
-                  data-testid="#.type__field-wrapper"
-                >
-                  <div
-                    class="kaoto-field-wrapper__label-container"
-                  >
-                    <label
-                      class="kaoto-field-wrapper__label"
-                    >
-                      <span
-                        class="kaoto-field-wrapper__required"
-                      >
-                        *
-                      </span>
-                      type
-                    </label>
-                    <button
-                      aria-label="More info for type field"
-                      type="button"
-                    >
-                      <svg
-                        aria-hidden="true"
-                        fill="currentColor"
-                        focusable="false"
-                        height="16"
-                        preserveAspectRatio="xMidYMid meet"
-                        viewBox="0 0 16 16"
-                        width="16"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
-                        />
-                        <path
-                          d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
-                        />
-                      </svg>
-                    </button>
-                    <p>
-                      <strong>
-                        type
-                         
-                        &lt;string&gt;
-                      </strong>
-                    </p>
-                    <p>
-                      What type to use for creating the bean. Can be one of: #class,#type,bean,groovy,joor,language,mvel,ognl. #class or #type then the bean is created via the fully qualified classname, such as #class:com.foo.MyBean The others are scripting languages that gives more power to create the bean with an inlined code in the script section, such as using groovy.
-                    </p>
-                    <p>
-                      Default: 
-                      no default value
-                    </p>
-                    <span
-                      class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
-                    >
-                      <div
-                        class="cds--tooltip-trigger__wrapper"
-                      >
-                        <button
-                          aria-labelledby="tooltip-_r_ID_"
-                          class="cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
-                          data-testid="#.type__open-suggestions-button"
-                          type="button"
-                        >
-                          <svg
-                            aria-hidden="true"
-                            fill="currentColor"
-                            focusable="false"
-                            height="16"
-                            preserveAspectRatio="xMidYMid meet"
-                            viewBox="0 0 32 32"
-                            width="16"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M11 24H21V26H11zM13 28H19V30H13zM16 2A10 10 0 006 12a9.19 9.19 0 003.46 7.62c1 .93 1.54 1.46 1.54 2.38h2c0-1.84-1.11-2.87-2.19-3.86A7.2 7.2 0 018 12a8 8 0 0116 0 7.2 7.2 0 01-2.82 6.14c-1.07 1-2.18 2-2.18 3.86h2c0-.92.53-1.45 1.54-2.39A9.18 9.18 0 0026 12 10 10 0 0016 2z"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                      <span
-                        aria-hidden="true"
-                        class="cds--popover"
-                        id="tooltip-_r_ID_"
-                        role="tooltip"
-                      >
-                        <span
-                          class="cds--popover-content cds--tooltip-content"
-                        >
-                          Open suggestions (Ctrl+Space)
-                        </span>
-                        <span
-                          class="cds--popover-caret"
-                        />
-                      </span>
-                    </span>
-                  </div>
-                  <div
-                    class="string-field-container"
-                  >
-                    <div
-                      class="string-field-input-wrapper"
-                    >
-                      <div
-                        class="cds--form-item cds--text-input-wrapper"
-                      >
-                        <div
-                          class="cds--text-input__label-wrapper"
-                        />
-                        <div
-                          class="cds--text-input__field-outer-wrapper"
-                        >
-                          <div
-                            class="cds--text-input__field-wrapper"
-                          >
-                            <input
-                              aria-describedby="#.type-popover"
-                              class="cds--text-input"
-                              data-testid="#.type"
-                              disabled=""
-                              id="#.type"
-                              name="#.type"
-                              role="textbox"
-                              type="text"
-                              value=""
-                            />
-                            <span
-                              aria-atomic="true"
-                              aria-live="assertive"
-                              class="cds--text-input__counter-alert"
-                              role="alert"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <span
-                      class="cds--overflow-menu__wrapper"
-                    >
-                      <span
-                        class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
-                      >
-                        <div
-                          class="cds--tooltip-trigger__wrapper"
-                        >
-                          <button
-                            aria-expanded="false"
-                            aria-haspopup="true"
-                            aria-labelledby="tooltip-_r_ID_"
-                            class="cds--overflow-menu cds--overflow-menu--sm cds--layout--size-sm cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--icon-only"
-                            data-testid="#.type__field-actions"
-                            type="button"
-                          >
-                            <svg
-                              aria-label="Options"
-                              class="cds--overflow-menu__icon"
-                              fill="currentColor"
-                              focusable="false"
-                              height="16"
-                              preserveAspectRatio="xMidYMid meet"
-                              role="img"
-                              viewBox="0 0 32 32"
-                              width="16"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <circle
-                                cx="16"
-                                cy="8"
-                                r="2"
-                              />
-                              <circle
-                                cx="16"
-                                cy="16"
-                                r="2"
-                              />
-                              <circle
-                                cx="16"
-                                cy="24"
-                                r="2"
-                              />
-                            </svg>
-                          </button>
-                        </div>
-                        <span
-                          aria-hidden="true"
-                          class="cds--popover"
-                          id="tooltip-_r_ID_"
-                          role="tooltip"
-                        >
-                          <span
-                            class="cds--popover-content cds--tooltip-content"
-                          >
-                            Options
-                          </span>
-                          <span
-                            class="cds--popover-caret"
-                          />
-                        </span>
-                      </span>
-                    </span>
-                  </div>
-                </div>
-                <div
-                  class="cds--stack-vertical cds--stack-scale-3"
-                  data-testid="#.properties__field-wrapper"
-                >
-                  <div
-                    class="kaoto-field-wrapper__label-container"
-                  >
-                    <label
-                      class="kaoto-field-wrapper__label"
-                    >
-                      <span>
-                        properties
-                         
-                        <div
-                          class="cds--tag"
-                          id="tag-id-_r_ID_"
-                        >
-                          <span
-                            class="cds--tag__label"
-                            dir="auto"
-                            title=""
-                          >
-                            0
-                          </span>
-                        </div>
-                      </span>
-                    </label>
-                    <button
-                      aria-label="More info for [object Object] field"
-                      type="button"
-                    >
-                      <svg
-                        aria-hidden="true"
-                        fill="currentColor"
-                        focusable="false"
-                        height="16"
-                        preserveAspectRatio="xMidYMid meet"
-                        viewBox="0 0 16 16"
-                        width="16"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
-                        />
-                        <path
-                          d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
-                        />
-                      </svg>
-                    </button>
-                    <p>
-                      <strong>
-                        <span>
-                          properties
-                           
-                          <div
-                            class="cds--tag"
-                            id="tag-id-_r_ID_"
-                          >
-                            <span
-                              class="cds--tag__label"
-                              dir="auto"
-                              title=""
-                            >
-                              0
-                            </span>
-                          </div>
-                        </span>
-                         
-                        &lt;object&gt;
-                      </strong>
-                    </p>
-                    <p>
-                      Optional properties to set on the created local bean
-                    </p>
-                    <p>
-                      Default: 
-                      no default value
-                    </p>
-                  </div>
-                  <div>
-                    <div
-                      class="cds--css-grid"
-                    >
-                      <div
-                        class="cds--sm:col-span-2 cds--md:col-span-3 cds--lg:col-span-7 cds--css-grid-column"
-                      >
-                        <strong>
-                          Key
-                        </strong>
-                      </div>
-                      <div
-                        class="cds--sm:col-span-2 cds--md:col-span-3 cds--lg:col-span-7 cds--css-grid-column"
-                      >
-                        <strong>
-                          Value
-                        </strong>
-                      </div>
-                      <div
-                        class="cds--sm:col-span-0 cds--md:col-span-2 cds--lg:col-span-2 cds--css-grid-column"
-                      >
-                        <span
-                          class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip cds--icon-tooltip--disabled"
-                        >
-                          <div
-                            class="cds--tooltip-trigger__wrapper"
-                          >
-                            <button
-                              aria-labelledby="tooltip-_r_ID_"
-                              class="cds--btn cds--btn--ghost cds--btn--disabled cds--btn--icon-only"
-                              data-testid="#.properties__add"
-                              disabled=""
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                fill="currentColor"
-                                focusable="false"
-                                height="16"
-                                preserveAspectRatio="xMidYMid meet"
-                                viewBox="0 0 32 32"
-                                width="16"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <path
-                                  d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"
-                                />
-                              </svg>
-                            </button>
-                          </div>
-                          <span
-                            aria-hidden="true"
-                            class="cds--popover"
-                            id="tooltip-_r_ID_"
-                            role="tooltip"
-                          >
-                            <span
-                              class="cds--popover-content cds--tooltip-content"
-                            >
-                              Add a new property
-                            </span>
-                            <span
-                              class="cds--popover-caret"
-                            />
-                          </span>
-                        </span>
-                      </div>
-                    </div>
-                    <hr />
-                  </div>
-                </div>
-              </div>
-            </form>
-            <div
-              class="cds--tile kaoto-form kaoto-form__empty"
-              data-testid="no-field-found"
-            >
-              <div
-                class="cds--inline-notification cds--inline-notification--info cds--inline-notification--hide-close-button"
-                role="status"
-              >
-                <div
-                  class="cds--inline-notification__details"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="cds--inline-notification__icon"
-                    fill="currentColor"
-                    focusable="false"
-                    height="20"
-                    preserveAspectRatio="xMidYMid meet"
-                    viewBox="0 0 32 32"
-                    width="20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M16,8a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,16,8Zm4,13.875H17.125v-8H13v2.25h1.875v5.75H12v2.25h8Z"
-                      data-icon-path="inner-path"
-                      fill="none"
-                    />
-                    <path
-                      d="M16,2A14,14,0,1,0,30,16,14,14,0,0,0,16,2Zm0,6a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,16,8Zm4,16.125H12v-2.25h2.875v-5.75H13v-2.25h4.125v8H20Z"
-                    />
-                    <title>
-                      info icon
-                    </title>
-                  </svg>
-                  <div
-                    class="cds--inline-notification__text-wrapper"
-                  >
-                    <div
-                      class="cds--inline-notification__title"
-                      dir="auto"
-                    >
-                      No fields found
-                    </div>
-                    <div
-                      class="cds--inline-notification__subtitle"
-                      dir="auto"
-                    >
-                      No field found matching this criteria.
                     </div>
                   </div>
                 </div>
