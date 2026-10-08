@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { useState } from 'react';
 
 import { Catalog, MAX_RECENT_TILES } from './Catalog';
 import { ITile } from './Catalog.models';
@@ -206,5 +207,36 @@ describe('Catalog — recently used tracking', () => {
       'timer-title',
       'log-title',
     ]);
+  });
+
+  it('retains selection when the parent closes and reopens the catalog in the click handler', () => {
+    const tile = makeTile('timer');
+    const ModalHost = () => {
+      const [open, setOpen] = useState(true);
+      return open ? (
+        <Catalog
+          tiles={[tile]}
+          onTileClick={() => {
+            setOpen(false);
+          }}
+        />
+      ) : (
+        <button
+          onClick={() => {
+            setOpen(true);
+          }}
+        >
+          Reopen catalog
+        </button>
+      );
+    };
+
+    render(<ModalHost />);
+    fireEvent.click(screen.getByTestId('tile-header-timer'));
+    expect(screen.getByRole('button', { name: 'Reopen catalog' })).toBeInTheDocument();
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]')).toEqual([tile]);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reopen catalog' }));
+    expect(screen.getByTestId('recently-used-tile-timer')).toBeInTheDocument();
   });
 });
