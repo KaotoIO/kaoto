@@ -1,7 +1,5 @@
-import { DraggableObject } from '@patternfly/react-drag-drop';
 import { act, createEvent, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { FunctionComponent } from 'react';
 
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../../models/datamapper/document';
 import { ChooseItem, FieldItem, ForEachItem, MappingTree, SortItem } from '../../../../models/datamapper/mapping';
@@ -17,35 +15,23 @@ import { MappingActionService } from '../../../../services/visualization/mapping
 import { MappingActionRegistryService } from '../../../../services/visualization/mapping-action-registry.service';
 import { useDocumentTreeStore } from '../../../../store/document-tree.store';
 import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
+import {
+  createDataMapperContext,
+  createDataMapperContextWrapper,
+} from '../../../../stubs/datamapper/data-mapper-context';
 import { MappingContextMenuAction } from './MappingContextMenuAction';
-
-vi.mock('@patternfly/react-drag-drop', () => ({
-  DragDropSort: (({ items }: { items: DraggableObject[] }) => (
-    <div data-testid="drag-drop-sort">
-      {items.map((item) => (
-        <div key={item.id}>{item.content}</div>
-      ))}
-    </div>
-  )) as FunctionComponent<{ items: DraggableObject[] }>,
-}));
-
-vi.mock('../../../../hooks/useDataMapper', () => ({
-  useDataMapper: vi.fn().mockReturnValue({
-    sourceBodyDocument: { fields: [], getReferenceId: () => '' },
-    sourceParameterMap: new Map(),
-    mappingTree: { namespaceMap: {} },
-  }),
-}));
 
 describe('MappingContextMenuAction', () => {
   let targetDoc: ReturnType<typeof TestUtil.createTargetOrderDoc>;
   let mappingTree: MappingTree;
   let documentNodeData: TargetDocumentNodeData;
+  let dataMapperWrapper: ReturnType<typeof createDataMapperContextWrapper>;
 
   beforeEach(() => {
     targetDoc = TestUtil.createTargetOrderDoc();
     mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     documentNodeData = new TargetDocumentNodeData(targetDoc, mappingTree);
+    dataMapperWrapper = createDataMapperContextWrapper(createDataMapperContext({ mappingTree }));
   });
 
   afterEach(() => {
@@ -64,7 +50,7 @@ describe('MappingContextMenuAction', () => {
     );
     const onUpdateMock = vi.fn();
     const spyOnApply = vi.spyOn(MappingActionService, 'applyValueOfSelector');
-    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, { wrapper: dataMapperWrapper });
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     await user.click(actionToggle);
     const selectorItem = await screen.findByTestId('transformation-actions-selector');
@@ -85,7 +71,7 @@ describe('MappingContextMenuAction', () => {
     );
     const onUpdateMock = vi.fn();
     const spyOnApply = vi.spyOn(MappingActionService, 'applyIf');
-    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, { wrapper: dataMapperWrapper });
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     await user.click(actionToggle);
     const wrapFlyout = await screen.findByTestId(
@@ -110,7 +96,7 @@ describe('MappingContextMenuAction', () => {
     );
     const onUpdateMock = vi.fn();
     const spyOnApply = vi.spyOn(MappingActionService, 'applyChooseWhenOtherwise');
-    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, { wrapper: dataMapperWrapper });
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     await user.click(actionToggle);
     const wrapFlyout = await screen.findByTestId(
@@ -131,7 +117,7 @@ describe('MappingContextMenuAction', () => {
     const nodeData = new MappingNodeData(documentNodeData, new ChooseItem(mappingTree, targetDoc.fields[0]));
     const onUpdateMock = vi.fn();
     const spyOnApply = vi.spyOn(MappingService, 'addWhen');
-    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, { wrapper: dataMapperWrapper });
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     await user.click(actionToggle);
     const whenItem = await screen.findByTestId('transformation-actions-when');
@@ -149,7 +135,7 @@ describe('MappingContextMenuAction', () => {
     const nodeData = new MappingNodeData(documentNodeData, new ChooseItem(mappingTree, targetDoc.fields[0]));
     const onUpdateMock = vi.fn();
     const spyOnApply = vi.spyOn(MappingService, 'addOtherwise');
-    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, { wrapper: dataMapperWrapper });
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     await user.click(actionToggle);
     const otherwiseItem = await screen.findByTestId('transformation-actions-otherwise');
@@ -171,7 +157,7 @@ describe('MappingContextMenuAction', () => {
     );
     const onUpdateMock = vi.fn();
     const spyOnApply = vi.spyOn(MappingActionService, 'applyForEach');
-    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, { wrapper: dataMapperWrapper });
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     await user.click(actionToggle);
     const wrapFlyout = await screen.findByTestId(
@@ -194,7 +180,9 @@ describe('MappingContextMenuAction', () => {
       new FieldItem(mappingTree, targetDoc.fields[0].fields[3]),
     );
 
-    const wrapper = render(<MappingContextMenuAction nodeData={nodeData} onUpdate={() => {}} />);
+    const wrapper = render(<MappingContextMenuAction nodeData={nodeData} onUpdate={() => {}} />, {
+      wrapper: dataMapperWrapper,
+    });
 
     const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
     const clickEvent = createEvent.click(actionToggle);
@@ -215,7 +203,9 @@ describe('MappingContextMenuAction', () => {
       new FieldItem(mappingTree, targetDoc.fields[0].fields[3]),
     );
 
-    const wrapper = render(<MappingContextMenuAction nodeData={nodeData} onUpdate={() => {}} />);
+    const wrapper = render(<MappingContextMenuAction nodeData={nodeData} onUpdate={() => {}} />, {
+      wrapper: dataMapperWrapper,
+    });
 
     await user.click(wrapper.getByTestId('transformation-actions-menu-toggle'));
 
@@ -237,6 +227,7 @@ describe('MappingContextMenuAction', () => {
     const nodeData = new AddMappingNodeData(documentNodeData, targetDoc.fields[0].fields[3]);
     const wrapper = render(
       <MappingContextMenuAction nodeData={nodeData} dropdownLabel="Add Mapping Instruction" onUpdate={onUpdateSpy} />,
+      { wrapper: dataMapperWrapper },
     );
 
     const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
@@ -263,6 +254,7 @@ describe('MappingContextMenuAction', () => {
     const spyOnApply = vi.spyOn(MappingActionService, 'applyIf');
     const wrapper = render(
       <MappingContextMenuAction nodeData={nodeData} dropdownLabel="Add Mapping Instruction" onUpdate={onUpdateSpy} />,
+      { wrapper: dataMapperWrapper },
     );
 
     const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
@@ -289,6 +281,7 @@ describe('MappingContextMenuAction', () => {
     const spyOnApply = vi.spyOn(MappingActionService, 'applyChooseWhenOtherwise');
     const wrapper = render(
       <MappingContextMenuAction nodeData={nodeData} dropdownLabel="Add Mapping Instruction" onUpdate={onUpdateSpy} />,
+      { wrapper: dataMapperWrapper },
     );
 
     const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
@@ -318,7 +311,9 @@ describe('MappingContextMenuAction', () => {
           new FieldItem(mappingTree, targetDoc.fields[0]),
         );
         const onUpdateMock = vi.fn();
-        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, {
+          wrapper: dataMapperWrapper,
+        });
 
         // Open the dropdown menu
         const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
@@ -336,7 +331,9 @@ describe('MappingContextMenuAction', () => {
         fieldItem.comment = 'Existing comment';
         const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
         const onUpdateMock = vi.fn();
-        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, {
+          wrapper: dataMapperWrapper,
+        });
 
         // Open the dropdown menu
         const actionToggle = await screen.findByTestId('transformation-actions-menu-toggle');
@@ -357,7 +354,9 @@ describe('MappingContextMenuAction', () => {
           new FieldItem(mappingTree, targetDoc.fields[0]),
         );
         const onUpdateMock = vi.fn();
-        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, {
+          wrapper: dataMapperWrapper,
+        });
 
         // Open the dropdown menu
         const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
@@ -378,7 +377,9 @@ describe('MappingContextMenuAction', () => {
         const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
         const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
         const onUpdateMock = vi.fn();
-        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, {
+          wrapper: dataMapperWrapper,
+        });
 
         // Open the dropdown menu
         const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
@@ -397,7 +398,9 @@ describe('MappingContextMenuAction', () => {
         fieldItem.comment = 'Test comment';
         const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
         const onUpdateMock = vi.fn();
-        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, {
+          wrapper: dataMapperWrapper,
+        });
 
         // Open the dropdown menu
         const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
@@ -419,7 +422,9 @@ describe('MappingContextMenuAction', () => {
         const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
         const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
         const onUpdateMock = vi.fn();
-        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, {
+          wrapper: dataMapperWrapper,
+        });
 
         // Open the dropdown menu
         const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
@@ -449,7 +454,9 @@ describe('MappingContextMenuAction', () => {
         const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
         const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
         const onUpdateMock = vi.fn();
-        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, {
+          wrapper: dataMapperWrapper,
+        });
 
         // Open the dropdown menu
         const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
@@ -483,7 +490,7 @@ describe('MappingContextMenuAction', () => {
       const forEachItem = new ForEachItem(mappingTree);
       const nodeData = new MappingNodeData(documentNodeData, forEachItem);
       const onUpdateMock = vi.fn();
-      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, { wrapper: dataMapperWrapper });
 
       const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
       await user.click(actionToggle);
@@ -501,7 +508,7 @@ describe('MappingContextMenuAction', () => {
       sort.expression = 'Title';
       forEachItem.sortItems = [sort];
       const nodeData = new MappingNodeData(documentNodeData, forEachItem);
-      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />);
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />, { wrapper: dataMapperWrapper });
 
       const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
       await user.click(actionToggle);
@@ -535,6 +542,7 @@ describe('MappingContextMenuAction', () => {
           <MappingContextMenuAction nodeData={nodeData1} onUpdate={vi.fn()} />
           <MappingContextMenuAction nodeData={nodeData2} onUpdate={vi.fn()} />
         </>,
+        { wrapper: dataMapperWrapper },
       );
 
       const [firstToggle, secondToggle] = screen.getAllByTestId('transformation-actions-menu-toggle');
@@ -560,7 +568,7 @@ describe('MappingContextMenuAction', () => {
         targetDoc.fields[0],
         new FieldItem(mappingTree, targetDoc.fields[0]),
       );
-      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />);
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />, { wrapper: dataMapperWrapper });
 
       const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
       await user.click(actionToggle);
@@ -577,7 +585,7 @@ describe('MappingContextMenuAction', () => {
         targetDoc.fields[0],
         new FieldItem(mappingTree, targetDoc.fields[0]),
       );
-      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />);
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />, { wrapper: dataMapperWrapper });
 
       const actionToggle = await screen.findByTestId('transformation-actions-menu-toggle');
       await user.click(actionToggle);
@@ -595,7 +603,7 @@ describe('MappingContextMenuAction', () => {
       const user = userEvent.setup();
       const forEachItem = new ForEachItem(mappingTree);
       const nodeData = new MappingNodeData(documentNodeData, forEachItem);
-      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />);
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />, { wrapper: dataMapperWrapper });
 
       const actionToggle = await screen.findByTestId('transformation-actions-menu-toggle');
       await user.click(actionToggle);
@@ -617,7 +625,7 @@ describe('MappingContextMenuAction', () => {
         targetDoc.fields[0],
         new FieldItem(mappingTree, targetDoc.fields[0]),
       );
-      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />);
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />, { wrapper: dataMapperWrapper });
 
       const actionToggle = await screen.findByTestId('transformation-actions-menu-toggle');
       await user.click(actionToggle);
@@ -629,7 +637,7 @@ describe('MappingContextMenuAction', () => {
     it('should not render flyout parent when all group actions are filtered out', async () => {
       const user = userEvent.setup();
       const nodeData = new MappingNodeData(documentNodeData, new ChooseItem(mappingTree, targetDoc.fields[0]));
-      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />);
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />, { wrapper: dataMapperWrapper });
 
       const actionToggle = await screen.findByTestId('transformation-actions-menu-toggle');
       await user.click(actionToggle);

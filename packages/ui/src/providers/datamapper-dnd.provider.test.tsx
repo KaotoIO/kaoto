@@ -1,36 +1,10 @@
-import { DndContext, DragEndEvent } from '@dnd-kit/core';
 import { AlertVariant } from '@patternfly/react-core';
-import { act, render } from '@testing-library/react';
-import { ReactNode } from 'react';
-import type { Mock } from 'vitest';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
-import { useDataMapper } from '../hooks/useDataMapper';
-import { MappingTree } from '../models/datamapper/mapping';
+import { createDataMapperContext, createDataMapperContextWrapper } from '../stubs/datamapper/data-mapper-context';
+import { endPointerDrag, TestDraggable } from '../stubs/dnd-test-helpers';
 import { canScrollPanel, DataMapperDndProvider, scrollAwareCollision } from './datamapper-dnd.provider';
-
-// Mock rectIntersection to control collision detection in tests
-vi.mock('@dnd-kit/core', async () => {
-  const actual = await vi.importActual('@dnd-kit/core');
-  return {
-    ...actual,
-    rectIntersection: vi.fn((args: { droppableContainers: Array<{ id: string }> }) => {
-      // Return all droppables as potential collisions (let the filtering handle it)
-      return Array.from(args.droppableContainers).map((container) => ({
-        id: container.id,
-        data: { droppableContainer: container, value: 55.9017 },
-      }));
-    }),
-    pointerWithin: vi.fn(() => []),
-    DndContext: vi.fn(),
-    DragOverlay: vi.fn(() => null),
-    useSensor: vi.fn(),
-    useSensors: vi.fn().mockReturnValue([]),
-  };
-});
-
-vi.mock('../hooks/useDataMapper', () => ({
-  useDataMapper: vi.fn(),
-}));
+import { DnDHandler } from './dnd/DnDHandler';
 
 // Helper to create mock rect object
 const createMockRect = (top: number, bottom: number, left: number, right: number) => ({
@@ -66,6 +40,12 @@ const createMockElement = (scrollContainerRect?: DOMRect | null): HTMLDivElement
   return element;
 };
 
+/** The rect of the dragged item: it overlaps every droppable rect used below, so `rectIntersection` reports them all */
+const DRAGGED_RECT = createMockRect(0, 1000, 0, 1000);
+
+/** A pointer position outside every droppable rect used below, so the `pointerWithin` fallback finds nothing */
+const POINTER_OUTSIDE_DROPPABLES = { x: 900, y: 900 };
+
 describe('datamapper-dnd.provider', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -86,12 +66,12 @@ describe('datamapper-dnd.provider', () => {
 
       const result = scrollAwareCollision({
         active: {} as unknown as Parameters<typeof scrollAwareCollision>[0]['active'],
-        collisionRect: {} as unknown as Parameters<typeof scrollAwareCollision>[0]['collisionRect'],
+        collisionRect: DRAGGED_RECT,
         droppableRects,
         droppableContainers: [droppableContainer] as unknown as Parameters<
           typeof scrollAwareCollision
         >[0]['droppableContainers'],
-        pointerCoordinates: { x: 50, y: 75 },
+        pointerCoordinates: POINTER_OUTSIDE_DROPPABLES,
       });
 
       expect(result).toHaveLength(0);
@@ -111,12 +91,12 @@ describe('datamapper-dnd.provider', () => {
 
       const result = scrollAwareCollision({
         active: {} as unknown as Parameters<typeof scrollAwareCollision>[0]['active'],
-        collisionRect: {} as unknown as Parameters<typeof scrollAwareCollision>[0]['collisionRect'],
+        collisionRect: DRAGGED_RECT,
         droppableRects,
         droppableContainers: [droppableContainer] as unknown as Parameters<
           typeof scrollAwareCollision
         >[0]['droppableContainers'],
-        pointerCoordinates: { x: 50, y: 475 },
+        pointerCoordinates: POINTER_OUTSIDE_DROPPABLES,
       });
 
       expect(result).toHaveLength(0);
@@ -136,7 +116,7 @@ describe('datamapper-dnd.provider', () => {
 
       const result = scrollAwareCollision({
         active: {} as unknown as Parameters<typeof scrollAwareCollision>[0]['active'],
-        collisionRect: {} as unknown as Parameters<typeof scrollAwareCollision>[0]['collisionRect'],
+        collisionRect: DRAGGED_RECT,
         droppableRects,
         droppableContainers: [droppableContainer] as unknown as Parameters<
           typeof scrollAwareCollision
@@ -162,7 +142,7 @@ describe('datamapper-dnd.provider', () => {
 
       const result = scrollAwareCollision({
         active: {} as unknown as Parameters<typeof scrollAwareCollision>[0]['active'],
-        collisionRect: {} as unknown as Parameters<typeof scrollAwareCollision>[0]['collisionRect'],
+        collisionRect: DRAGGED_RECT,
         droppableRects,
         droppableContainers: [droppableContainer] as unknown as Parameters<
           typeof scrollAwareCollision
@@ -187,7 +167,7 @@ describe('datamapper-dnd.provider', () => {
 
       const result = scrollAwareCollision({
         active: {} as unknown as Parameters<typeof scrollAwareCollision>[0]['active'],
-        collisionRect: {} as unknown as Parameters<typeof scrollAwareCollision>[0]['collisionRect'],
+        collisionRect: DRAGGED_RECT,
         droppableRects,
         droppableContainers: [droppableContainer] as unknown as Parameters<
           typeof scrollAwareCollision
@@ -211,7 +191,7 @@ describe('datamapper-dnd.provider', () => {
 
       const result = scrollAwareCollision({
         active: {} as unknown as Parameters<typeof scrollAwareCollision>[0]['active'],
-        collisionRect: {} as unknown as Parameters<typeof scrollAwareCollision>[0]['collisionRect'],
+        collisionRect: DRAGGED_RECT,
         droppableRects,
         droppableContainers: [droppableContainer] as unknown as Parameters<
           typeof scrollAwareCollision
@@ -234,12 +214,12 @@ describe('datamapper-dnd.provider', () => {
 
       const result = scrollAwareCollision({
         active: {} as unknown as Parameters<typeof scrollAwareCollision>[0]['active'],
-        collisionRect: {} as unknown as Parameters<typeof scrollAwareCollision>[0]['collisionRect'],
+        collisionRect: DRAGGED_RECT,
         droppableRects,
         droppableContainers: [droppableContainer] as unknown as Parameters<
           typeof scrollAwareCollision
         >[0]['droppableContainers'],
-        pointerCoordinates: { x: 150, y: 225 },
+        pointerCoordinates: POINTER_OUTSIDE_DROPPABLES,
       });
 
       expect(result).toHaveLength(0);
@@ -269,7 +249,7 @@ describe('datamapper-dnd.provider', () => {
 
       const result = scrollAwareCollision({
         active: {} as unknown as Parameters<typeof scrollAwareCollision>[0]['active'],
-        collisionRect: {} as unknown as Parameters<typeof scrollAwareCollision>[0]['collisionRect'],
+        collisionRect: DRAGGED_RECT,
         droppableRects,
         droppableContainers: droppableContainers as unknown as Parameters<
           typeof scrollAwareCollision
@@ -332,76 +312,74 @@ describe('datamapper-dnd.provider', () => {
 });
 
 describe('DataMapperDndProvider', () => {
-  const mockSendAlert = vi.fn();
-  const mockRefreshMappingTree = vi.fn();
-  const mockMappingTree = {} as MappingTree;
-
-  const mockDragEndEvent = {
-    active: { id: 'a', data: { current: null } },
-    over: null,
-  } as unknown as DragEndEvent;
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    (DndContext as unknown as Mock).mockImplementation(({ children }: { children: ReactNode }) => children);
-    (useDataMapper as Mock).mockReturnValue({
-      mappingTree: mockMappingTree,
-      refreshMappingTree: mockRefreshMappingTree,
-      sendAlert: mockSendAlert,
-    });
+  // Never leave a drag running: it would swallow the clicks of later tests (see endPointerDrag)
+  afterEach(async () => {
+    await endPointerDrag();
   });
 
-  const invokeOnDragEnd = async (event: DragEndEvent) => {
-    const onDragEnd = (DndContext as unknown as Mock).mock.calls.at(-1)![0].onDragEnd as (e: DragEndEvent) => void;
-    await act(async () => {
-      onDragEnd(event);
+  const mockSendAlert = vi.fn();
+  const dataMapperContext = createDataMapperContext({ sendAlert: mockSendAlert });
+  const wrapper = createDataMapperContextWrapper(dataMapperContext);
+
+  const createHandler = (dragEndResult: ReturnType<DnDHandler['handleDragEnd']>) => ({
+    handleDragStart: vi.fn<DnDHandler['handleDragStart']>(() => ({ success: true })),
+    handleDragOver: vi.fn<DnDHandler['handleDragOver']>(),
+    handleDragEnd: vi.fn<DnDHandler['handleDragEnd']>(() => dragEndResult),
+  });
+
+  const renderProvider = (handler: DnDHandler | undefined) =>
+    render(
+      <DataMapperDndProvider handler={handler}>
+        <TestDraggable id="a" />
+      </DataMapperDndProvider>,
+      { wrapper },
+    );
+
+  /** Performs a real mouse drag & drop of the draggable (the provider's `MouseSensor` activates after 10px). */
+  const dragAndDrop = async () => {
+    fireEvent.mouseDown(screen.getByRole('button', { name: 'a' }), { button: 0, clientX: 0, clientY: 0 });
+    fireEvent.mouseMove(document, { clientX: 20, clientY: 0 });
+    await waitFor(() => {
+      expect(document.querySelector('[data-dnd-dragging]')).toBeInTheDocument();
+    });
+    fireEvent.mouseUp(document, { clientX: 20, clientY: 0 });
+    await waitFor(() => {
+      expect(document.querySelector('[data-dnd-dragging]')).not.toBeInTheDocument();
     });
   };
 
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('should call sendAlert with danger variant when handler returns failure with error message', async () => {
-    const mockHandler = {
-      handleDragEnd: vi.fn().mockReturnValue({ success: false, errorMessage: 'error msg' }),
-      handleDragStart: vi.fn(),
-      handleDragOver: vi.fn(),
-    };
+    const handler = createHandler({ success: false, errorMessage: 'error msg' });
+    renderProvider(handler);
 
-    render(
-      <DataMapperDndProvider handler={mockHandler}>
-        <div />
-      </DataMapperDndProvider>,
+    await dragAndDrop();
+
+    expect(handler.handleDragEnd).toHaveBeenCalledWith(
+      expect.objectContaining({ active: expect.objectContaining({ id: 'a' }) }),
+      dataMapperContext.mappingTree,
+      dataMapperContext.refreshMappingTree,
     );
-
-    await invokeOnDragEnd(mockDragEndEvent);
-
     expect(mockSendAlert).toHaveBeenCalledWith({ variant: AlertVariant.danger, title: 'error msg' });
   });
 
   it('should not call sendAlert when handler returns success', async () => {
-    const mockHandler = {
-      handleDragEnd: vi.fn().mockReturnValue({ success: true }),
-      handleDragStart: vi.fn(),
-      handleDragOver: vi.fn(),
-    };
+    const handler = createHandler({ success: true });
+    renderProvider(handler);
 
-    render(
-      <DataMapperDndProvider handler={mockHandler}>
-        <div />
-      </DataMapperDndProvider>,
-    );
+    await dragAndDrop();
 
-    await invokeOnDragEnd(mockDragEndEvent);
-
+    expect(handler.handleDragEnd).toHaveBeenCalled();
     expect(mockSendAlert).not.toHaveBeenCalled();
   });
 
   it('should not crash when no handler is provided', async () => {
-    render(
-      <DataMapperDndProvider handler={undefined}>
-        <div />
-      </DataMapperDndProvider>,
-    );
+    renderProvider(undefined);
 
-    await invokeOnDragEnd(mockDragEndEvent);
+    await dragAndDrop();
     expect(mockSendAlert).not.toHaveBeenCalled();
   });
 });

@@ -1,122 +1,49 @@
-import { DraggableObject } from '@patternfly/react-drag-drop';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { FunctionComponent } from 'react';
+import { FunctionComponent, PropsWithChildren } from 'react';
 
-import { useDataMapper } from '../../../../../hooks/useDataMapper';
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../../../models/datamapper/document';
 import { ForEachItem, MappingTree, SortItem } from '../../../../../models/datamapper/mapping';
+import {
+  createSortModalWrapper,
+  endSortKeyDrag,
+  startSortKeyDrag,
+  typeInXPathEditor,
+} from '../../../../../stubs/datamapper/sort-modal-test-helpers';
 import { SortModal } from './SortModal';
-
-vi.mock('@patternfly/react-drag-drop', () => ({
-  DragDropSort: (({
-    items,
-    onDrag,
-    onDrop,
-  }: {
-    items: DraggableObject[];
-    onDrag?: () => void;
-    onDrop?: (event: unknown, newItems: DraggableObject[]) => void;
-  }) => (
-    <div data-testid="drag-drop-sort">
-      {onDrag && (
-        <button
-          data-testid="mock-drag-trigger"
-          onClick={() => {
-            onDrag();
-          }}
-        />
-      )}
-      {onDrop && (
-        <button
-          data-testid="mock-drop-trigger"
-          onClick={() => {
-            onDrop(undefined, [...items].reverse());
-          }}
-        />
-      )}
-      {items.map((item) => (
-        <div key={item.id}>{item.content}</div>
-      ))}
-    </div>
-  )) as FunctionComponent<{
-    items: DraggableObject[];
-    onDrag?: () => void;
-    onDrop?: (event: unknown, newItems: DraggableObject[]) => void;
-  }>,
-}));
-
-vi.mock('../../../../../hooks/useDataMapper', () => ({
-  useDataMapper: vi.fn(),
-}));
-
-let xpathEditorMapping: { expression: string } | undefined;
-
-vi.mock('../../../../XPath/XPathEditorModal', () => ({
-  XPathEditorModal: ({
-    onClose,
-    onUpdate,
-    title,
-    mapping,
-  }: {
-    onClose: () => void;
-    onUpdate: () => void;
-    title: string;
-    mapping: { expression: string };
-  }) => {
-    xpathEditorMapping = mapping;
-    return (
-      <div data-testid="xpath-editor-modal">
-        <span>{title}</span>
-        <button data-testid="xpath-editor-update" onClick={onUpdate} />
-        <button data-testid="xpath-editor-close" onClick={onClose} />
-      </div>
-    );
-  },
-}));
 
 const getExpressionInput = (index: number) =>
   screen.getByTestId(`sort-expression-${index}`).querySelector('input') as HTMLInputElement;
 
 describe('SortModal', () => {
+  // Never leave a drag running: it would swallow the clicks of later tests (see endPointerDrag)
+  afterEach(async () => {
+    await endSortKeyDrag();
+  });
+
   let mappingTree: MappingTree;
   let forEachItem: ForEachItem;
-
-  afterEach(() => {
-    xpathEditorMapping = undefined;
-  });
+  let wrapper: FunctionComponent<PropsWithChildren>;
 
   beforeEach(() => {
     mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     forEachItem = new ForEachItem(mappingTree);
     forEachItem.expression = '/items/item';
 
-    vi.mocked(useDataMapper).mockReturnValue({
-      sourceBodyDocument: {
-        documentType: DocumentType.SOURCE_BODY,
-        documentId: BODY_DOCUMENT_ID,
-        name: 'Source',
-        definitionType: DocumentDefinitionType.XML_SCHEMA,
-        fields: [],
-        getReferenceId: () => '',
-      },
-      sourceParameterMap: new Map(),
-      mappingTree: { namespaceMap: {} },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any);
+    wrapper = createSortModalWrapper(mappingTree);
   });
 
   it('should render when isOpen is true', () => {
-    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />, { wrapper });
     expect(screen.getByTestId('sort-modal')).toBeInTheDocument();
   });
 
   it('should not render when isOpen is false', () => {
-    render(<SortModal isOpen={false} onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen={false} onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />, { wrapper });
     expect(screen.queryByTestId('sort-modal')).not.toBeInTheDocument();
   });
 
   it('should display for-each expression in subtitle', () => {
-    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />, { wrapper });
     expect(screen.getByText('for-each: /items/item')).toBeInTheDocument();
   });
 
@@ -129,7 +56,7 @@ describe('SortModal', () => {
     sort2.order = 'descending';
     forEachItem.sortItems = [sort1, sort2];
 
-    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />, { wrapper });
 
     expect(getExpressionInput(0).value).toBe('Title');
     expect(getExpressionInput(1).value).toBe('Price');
@@ -139,13 +66,13 @@ describe('SortModal', () => {
   });
 
   it('should start with one empty sort key when no existing sort items', () => {
-    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />, { wrapper });
     expect(screen.getByTestId('sort-expression-0')).toBeInTheDocument();
     expect(screen.queryByTestId('sort-expression-1')).not.toBeInTheDocument();
   });
 
   it('should add a new sort key', () => {
-    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />, { wrapper });
     fireEvent.click(screen.getByTestId('sort-add-key'));
     expect(screen.getByTestId('sort-expression-1')).toBeInTheDocument();
   });
@@ -155,7 +82,7 @@ describe('SortModal', () => {
     sort.expression = 'Title';
     forEachItem.sortItems = [sort];
 
-    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />, { wrapper });
     expect(screen.getByTestId('sort-expression-0')).toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId('sort-remove-0'));
@@ -165,7 +92,7 @@ describe('SortModal', () => {
   it('should save sort items to mapping on Save', async () => {
     const onUpdate = vi.fn();
     const onClose = vi.fn();
-    render(<SortModal isOpen onClose={onClose} mapping={forEachItem} onUpdate={onUpdate} />);
+    render(<SortModal isOpen onClose={onClose} mapping={forEachItem} onUpdate={onUpdate} />, { wrapper });
 
     fireEvent.change(getExpressionInput(0), { target: { value: 'Title' } });
 
@@ -185,7 +112,7 @@ describe('SortModal', () => {
     forEachItem.sortItems = [];
     const onUpdate = vi.fn();
     const onClose = vi.fn();
-    render(<SortModal isOpen onClose={onClose} mapping={forEachItem} onUpdate={onUpdate} />);
+    render(<SortModal isOpen onClose={onClose} mapping={forEachItem} onUpdate={onUpdate} />, { wrapper });
 
     fireEvent.change(getExpressionInput(0), { target: { value: 'something' } });
 
@@ -200,7 +127,7 @@ describe('SortModal', () => {
 
   it('should filter out empty expressions on Save', async () => {
     const onUpdate = vi.fn();
-    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />, { wrapper });
 
     fireEvent.click(screen.getByTestId('sort-add-key'));
 
@@ -220,7 +147,7 @@ describe('SortModal', () => {
     sort.expression = 'Title';
     forEachItem.sortItems = [sort];
 
-    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />, { wrapper });
 
     const orderBtn = screen.getByTestId('sort-order-0');
     expect(orderBtn).toHaveAttribute('aria-label', 'Sort order 1: ascending');
@@ -232,9 +159,9 @@ describe('SortModal', () => {
 
   it('should not call onClose when drag just ended', () => {
     const onClose = vi.fn();
-    render(<SortModal isOpen onClose={onClose} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={onClose} mapping={forEachItem} onUpdate={vi.fn()} />, { wrapper });
 
-    fireEvent.click(screen.getByTestId('mock-drag-trigger'));
+    startSortKeyDrag(0);
 
     fireEvent.keyDown(screen.getByTestId('sort-modal'), { key: 'Escape' });
     expect(onClose).not.toHaveBeenCalled();
@@ -248,12 +175,14 @@ describe('SortModal', () => {
     forEachItem.sortItems = [sort1, sort2];
 
     const onUpdate = vi.fn();
-    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />, { wrapper });
 
     expect(getExpressionInput(0).value).toBe('Title');
     expect(getExpressionInput(1).value).toBe('Price');
 
-    fireEvent.click(screen.getByTestId('mock-drop-trigger'));
+    // Drag the second entry (Price) and drop it onto the first one (Title)
+    startSortKeyDrag(1);
+    await endSortKeyDrag();
 
     fireEvent.click(screen.getByTestId('sort-save-btn'));
 
@@ -269,13 +198,13 @@ describe('SortModal', () => {
     sort.expression = 'Title';
     forEachItem.sortItems = [sort];
 
-    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />, { wrapper });
     expect(screen.queryByTestId('xpath-editor-modal')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId('sort-edit-xpath-0'));
 
     expect(screen.getByTestId('xpath-editor-modal')).toBeInTheDocument();
-    expect(screen.getByText('Sort key 1')).toBeInTheDocument();
+    expect(screen.getByText('XPath Editor: Sort key 1')).toBeInTheDocument();
   });
 
   it('should close XPath editor on close callback', () => {
@@ -283,12 +212,12 @@ describe('SortModal', () => {
     sort.expression = 'Title';
     forEachItem.sortItems = [sort];
 
-    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />, { wrapper });
 
     fireEvent.click(screen.getByTestId('sort-edit-xpath-0'));
     expect(screen.getByTestId('xpath-editor-modal')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByTestId('xpath-editor-close'));
+    fireEvent.click(screen.getByTestId('close-xpath-editor-btn'));
     expect(screen.queryByTestId('xpath-editor-modal')).not.toBeInTheDocument();
   });
 
@@ -298,14 +227,12 @@ describe('SortModal', () => {
     forEachItem.sortItems = [sort];
 
     const onUpdate = vi.fn();
-    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />, { wrapper });
 
     fireEvent.click(screen.getByTestId('sort-edit-xpath-0'));
 
     const newExpression = 'Price';
-    xpathEditorMapping!.expression = newExpression;
-
-    fireEvent.click(screen.getByTestId('xpath-editor-update'));
+    await typeInXPathEditor(newExpression);
 
     fireEvent.click(screen.getByTestId('sort-save-btn'));
 
@@ -320,7 +247,7 @@ describe('SortModal', () => {
     sort.expression = 'Title';
     forEachItem.sortItems = [sort];
 
-    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />, { wrapper });
     expect(screen.queryByTestId('sort-advanced-panel-0')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId('sort-advanced-0'));
@@ -338,7 +265,7 @@ describe('SortModal', () => {
     forEachItem.sortItems = [sort];
 
     const onUpdate = vi.fn();
-    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />, { wrapper });
 
     fireEvent.click(screen.getByTestId('sort-save-btn'));
 
@@ -357,7 +284,7 @@ describe('SortModal', () => {
     sort.caseOrder = 'upper-first';
     forEachItem.sortItems = [sort];
 
-    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />, { wrapper });
 
     fireEvent.change(getExpressionInput(0), { target: { value: 'Price' } });
 
@@ -373,7 +300,7 @@ describe('SortModal', () => {
     sort.stable = 'yes';
     forEachItem.sortItems = [sort];
 
-    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />, { wrapper });
 
     fireEvent.click(screen.getByTestId('sort-order-0'));
 
@@ -389,7 +316,7 @@ describe('SortModal', () => {
     sort.lang = 'en';
     forEachItem.sortItems = [sort];
 
-    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />, { wrapper });
 
     const advancedBtn = screen.getByTestId('sort-advanced-0');
     expect(advancedBtn).toHaveClass('sort-modal__settings-configured');
@@ -401,7 +328,7 @@ describe('SortModal', () => {
     forEachItem.sortItems = [sort];
 
     const onUpdate = vi.fn();
-    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />, { wrapper });
 
     fireEvent.click(screen.getByTestId('sort-advanced-0'));
 
@@ -422,7 +349,7 @@ describe('SortModal', () => {
     forEachItem.sortItems = [sort];
 
     const onUpdate = vi.fn();
-    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />, { wrapper });
 
     fireEvent.click(screen.getByTestId('sort-advanced-0'));
 
@@ -443,7 +370,7 @@ describe('SortModal', () => {
     forEachItem.sortItems = [sort];
 
     const onUpdate = vi.fn();
-    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />, { wrapper });
 
     fireEvent.click(screen.getByTestId('sort-advanced-0'));
 
@@ -465,7 +392,7 @@ describe('SortModal', () => {
     forEachItem.sortItems = [sort];
 
     const onUpdate = vi.fn();
-    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={onUpdate} />, { wrapper });
 
     fireEvent.click(screen.getByTestId('sort-advanced-0'));
 
@@ -486,7 +413,7 @@ describe('SortModal', () => {
     sort.expression = 'Title';
     forEachItem.sortItems = [sort];
 
-    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />);
+    render(<SortModal isOpen onClose={vi.fn()} mapping={forEachItem} onUpdate={vi.fn()} />, { wrapper });
 
     const advancedBtn = screen.getByTestId('sort-advanced-0');
     expect(advancedBtn).not.toHaveClass('sort-modal__settings-configured');

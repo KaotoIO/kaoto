@@ -1,140 +1,105 @@
 import { renderHook } from '@testing-library/react';
-import hotkeys from 'hotkeys-js';
-import type { Mock, MockedFunction } from 'vitest';
+import hotkeys, { HotkeysEvent, KeyHandler } from 'hotkeys-js';
+import type { MockInstance } from 'vitest';
 
-import { IDocument } from '../models/datamapper';
+import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../models/datamapper/document';
+import { DocumentTree } from '../models/datamapper/document-tree';
+import { DocumentTreeNode } from '../models/datamapper/document-tree-node';
+import { MappingTree } from '../models/datamapper/mapping';
 import { MappingActionKind } from '../models/datamapper/mapping-action';
 import { DocumentNodeData, TargetDocumentNodeData } from '../models/datamapper/visualization';
 import { MappingActionService } from '../services/visualization/mapping-action.service';
 import { MappingActionRegistryService } from '../services/visualization/mapping-action-registry.service';
+import { TreeParsingService } from '../services/visualization/tree-parsing.service';
 import { TreeUIService } from '../services/visualization/tree-ui.service';
 import { useDocumentTreeStore } from '../store/document-tree.store';
-import { useDataMapper } from './useDataMapper';
+import { TestUtil } from '../stubs/datamapper/data-mapper';
+import { createDataMapperContext, createDataMapperContextWrapper } from '../stubs/datamapper/data-mapper-context';
 import { useDataMapperDeleteHotkey } from './useDataMapperDeleteHotkey.hook';
 
-// Mock dependencies
-vi.mock('hotkeys-js');
-vi.mock('./useDataMapper');
-vi.mock('../services/visualization/mapping-action-registry.service');
-vi.mock('../services/visualization/mapping-action.service');
-vi.mock('../services/visualization/tree-ui.service');
-
 describe('useDataMapperDeleteHotkey', () => {
-  let mockOnUpdate: Mock;
-  let mockClearSelection: Mock;
-  let mockHotkeys: MockedFunction<typeof hotkeys>;
-  let mockHotkeysUnbind: Mock;
-  let mockUseDataMapper: MockedFunction<typeof useDataMapper>;
-  let mockGetAllowedActions: Mock;
-  let mockDeleteMappingItem: Mock;
-  let mockGetTree: Mock;
-  let mockFindNodeByPath: Mock;
-  let mockTargetBodyDocument: { id: string; documentType: string; documentId: string };
-  let mockTreeNode: { nodeData: TargetDocumentNodeData };
-  let mockTargetDocumentNodeData: TargetDocumentNodeData;
+  const mockOnUpdate = vi.fn();
+  let targetBodyDocument: ReturnType<typeof TestUtil.createTargetOrderDoc>;
+  let targetBodyTree: DocumentTree;
+  let selectedTreeNode: DocumentTreeNode;
+  let wrapper: ReturnType<typeof createDataMapperContextWrapper>;
+  let getTreeSpy: MockInstance<typeof TreeUIService.getTree>;
+  let getAllowedActionsSpy: MockInstance<typeof MappingActionRegistryService.getAllowedActions>;
+  let deleteMappingItemSpy: MockInstance<typeof MappingActionService.deleteMappingItem>;
+
+  /** Invokes the handler registered with the (globally mocked) `hotkeys`, as if Delete was pressed. */
+  const pressDelete = () => {
+    const handler = vi.mocked(hotkeys).mock.calls[0].find((arg): arg is KeyHandler => typeof arg === 'function');
+    if (!handler) throw new Error('No hotkey handler registered');
+    handler(new KeyboardEvent('keydown', { key: 'Delete' }), { key: 'delete' } as HotkeysEvent);
+  };
+
+  const renderDeleteHotkey = () =>
+    renderHook(
+      () => {
+        useDataMapperDeleteHotkey(mockOnUpdate);
+      },
+      { wrapper },
+    );
 
   beforeEach(() => {
-    // Reset all mocks
     vi.clearAllMocks();
 
-    // Setup basic mocks
-    mockOnUpdate = vi.fn();
-    mockClearSelection = vi.fn();
-    mockHotkeysUnbind = vi.fn();
-    mockGetAllowedActions = vi.fn();
-    mockDeleteMappingItem = vi.fn();
-    mockGetTree = vi.fn();
-    mockFindNodeByPath = vi.fn();
+    targetBodyDocument = TestUtil.createTargetOrderDoc();
+    const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+    targetBodyTree = new DocumentTree(new TargetDocumentNodeData(targetBodyDocument, mappingTree));
+    TreeParsingService.parseTree(targetBodyTree);
+    selectedTreeNode = targetBodyTree.contentRoots[0];
 
-    // Mock hotkeys
-    mockHotkeys = hotkeys as MockedFunction<typeof hotkeys>;
-    mockHotkeys.unbind = mockHotkeysUnbind;
+    wrapper = createDataMapperContextWrapper(createDataMapperContext({ targetBodyDocument, mappingTree }));
 
-    // Mock useDataMapper
-    mockTargetBodyDocument = { id: 'target-doc', documentType: 'targetBody', documentId: 'Body' };
-    mockUseDataMapper = useDataMapper as MockedFunction<typeof useDataMapper>;
-    mockUseDataMapper.mockReturnValue({
-      targetBodyDocument: mockTargetBodyDocument,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any);
-
-    // Mock MappingActionService
-    (MappingActionRegistryService.getAllowedActions as Mock) = mockGetAllowedActions;
-    (MappingActionService.deleteMappingItem as Mock) = mockDeleteMappingItem;
-
-    // Mock TreeUIService
-    (TreeUIService.getTree as Mock) = mockGetTree;
-
-    // Setup mock node data
-    mockTargetDocumentNodeData = { id: 'test-node' } as TargetDocumentNodeData;
-    mockTreeNode = {
-      nodeData: mockTargetDocumentNodeData,
-    };
-
-    mockFindNodeByPath = vi.fn();
-    mockGetTree.mockReturnValue({
-      findNodeByPath: mockFindNodeByPath,
-    });
+    getTreeSpy = vi.spyOn(TreeUIService, 'getTree').mockReturnValue(targetBodyTree);
+    getAllowedActionsSpy = vi.spyOn(MappingActionRegistryService, 'getAllowedActions');
+    deleteMappingItemSpy = vi.spyOn(MappingActionService, 'deleteMappingItem').mockImplementation(() => {});
 
     // Setup default store state
     useDocumentTreeStore.setState({
       selectedNodePath: null,
       selectedNodeIsSource: false,
-      clearSelection: mockClearSelection,
     });
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
+  const expectNothingDeleted = (selectedNodePath: string | null) => {
+    expect(deleteMappingItemSpy).not.toHaveBeenCalled();
+    expect(useDocumentTreeStore.getState().selectedNodePath).toBe(selectedNodePath);
+    expect(mockOnUpdate).not.toHaveBeenCalled();
+  };
 
   describe('successful deletion', () => {
     beforeEach(() => {
       useDocumentTreeStore.setState({
-        selectedNodePath: 'test-path',
+        selectedNodePath: selectedTreeNode.path,
         selectedNodeIsSource: false,
-        clearSelection: mockClearSelection,
       });
 
-      mockFindNodeByPath.mockReturnValue(mockTreeNode);
-      mockGetAllowedActions.mockReturnValue([MappingActionKind.Delete]);
+      getAllowedActionsSpy.mockReturnValue([MappingActionKind.Delete]);
     });
 
     it('should delete mapping when valid target node is selected and Delete is allowed', () => {
-      renderHook(() => {
-        useDataMapperDeleteHotkey(mockOnUpdate);
-      });
+      renderDeleteHotkey();
 
-      const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
-      const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
+      pressDelete();
 
-      hotkeyCallback(mockEvent);
-
-      expect(mockDeleteMappingItem).toHaveBeenCalledWith(mockTargetDocumentNodeData);
+      expect(deleteMappingItemSpy).toHaveBeenCalledWith(selectedTreeNode.nodeData);
     });
 
     it('should clear selection after deletion', () => {
-      renderHook(() => {
-        useDataMapperDeleteHotkey(mockOnUpdate);
-      });
+      renderDeleteHotkey();
 
-      const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
-      const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
+      pressDelete();
 
-      hotkeyCallback(mockEvent);
-
-      expect(mockClearSelection).toHaveBeenCalled();
+      expect(useDocumentTreeStore.getState().selectedNodePath).toBeNull();
     });
 
     it('should call onUpdate callback after deletion', () => {
-      renderHook(() => {
-        useDataMapperDeleteHotkey(mockOnUpdate);
-      });
+      renderDeleteHotkey();
 
-      const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
-      const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
-
-      hotkeyCallback(mockEvent);
+      pressDelete();
 
       expect(mockOnUpdate).toHaveBeenCalled();
     });
@@ -145,181 +110,123 @@ describe('useDataMapperDeleteHotkey', () => {
       useDocumentTreeStore.setState({
         selectedNodePath: null,
         selectedNodeIsSource: false,
-        clearSelection: mockClearSelection,
       });
 
-      renderHook(() => {
-        useDataMapperDeleteHotkey(mockOnUpdate);
-      });
+      renderDeleteHotkey();
 
-      const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
-      const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
+      pressDelete();
 
-      hotkeyCallback(mockEvent);
-
-      expect(mockDeleteMappingItem).not.toHaveBeenCalled();
-      expect(mockClearSelection).not.toHaveBeenCalled();
-      expect(mockOnUpdate).not.toHaveBeenCalled();
+      expectNothingDeleted(null);
     });
 
     it('should not delete when Delete action is not allowed', () => {
       useDocumentTreeStore.setState({
-        selectedNodePath: 'test-path',
+        selectedNodePath: selectedTreeNode.path,
         selectedNodeIsSource: false,
-        clearSelection: mockClearSelection,
       });
 
-      mockFindNodeByPath.mockReturnValue(mockTreeNode);
-      mockGetAllowedActions.mockReturnValue([MappingActionKind.If, MappingActionKind.Choose]);
+      getAllowedActionsSpy.mockReturnValue([MappingActionKind.If, MappingActionKind.Choose]);
 
-      renderHook(() => {
-        useDataMapperDeleteHotkey(mockOnUpdate);
-      });
+      renderDeleteHotkey();
 
-      const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
-      const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
+      pressDelete();
 
-      hotkeyCallback(mockEvent);
-
-      expect(mockDeleteMappingItem).not.toHaveBeenCalled();
-      expect(mockClearSelection).not.toHaveBeenCalled();
-      expect(mockOnUpdate).not.toHaveBeenCalled();
+      expectNothingDeleted(selectedTreeNode.path);
     });
 
     it('should not delete when findNodeByPath returns null', () => {
+      // The selected path is not part of the target tree, so the real lookup finds nothing
+      const unknownPath = `${selectedTreeNode.path}/not-in-the-tree`;
       useDocumentTreeStore.setState({
-        selectedNodePath: 'test-path',
+        selectedNodePath: unknownPath,
         selectedNodeIsSource: false,
-        clearSelection: mockClearSelection,
       });
 
-      mockFindNodeByPath.mockReturnValue(null);
-      mockGetAllowedActions.mockReturnValue([MappingActionKind.Delete]);
+      getAllowedActionsSpy.mockReturnValue([MappingActionKind.Delete]);
 
-      renderHook(() => {
-        useDataMapperDeleteHotkey(mockOnUpdate);
-      });
+      renderDeleteHotkey();
 
-      const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
-      const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
+      pressDelete();
 
-      hotkeyCallback(mockEvent);
-
-      expect(mockDeleteMappingItem).not.toHaveBeenCalled();
-      expect(mockClearSelection).not.toHaveBeenCalled();
-      expect(mockOnUpdate).not.toHaveBeenCalled();
+      expectNothingDeleted(unknownPath);
     });
 
     it('should not delete when findNodeByPath returns undefined', () => {
       useDocumentTreeStore.setState({
-        selectedNodePath: 'test-path',
+        selectedNodePath: selectedTreeNode.path,
         selectedNodeIsSource: false,
-        clearSelection: mockClearSelection,
       });
 
-      mockFindNodeByPath.mockReturnValue(undefined);
-      mockGetAllowedActions.mockReturnValue([MappingActionKind.Delete]);
+      vi.spyOn(targetBodyTree, 'findNodeByPath').mockReturnValue(undefined);
+      getAllowedActionsSpy.mockReturnValue([MappingActionKind.Delete]);
 
-      renderHook(() => {
-        useDataMapperDeleteHotkey(mockOnUpdate);
-      });
+      renderDeleteHotkey();
 
-      const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
-      const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
+      pressDelete();
 
-      hotkeyCallback(mockEvent);
-
-      expect(mockDeleteMappingItem).not.toHaveBeenCalled();
-      expect(mockClearSelection).not.toHaveBeenCalled();
-      expect(mockOnUpdate).not.toHaveBeenCalled();
+      expectNothingDeleted(selectedTreeNode.path);
     });
 
     it('should not delete when selected node is a source node', () => {
       useDocumentTreeStore.setState({
-        selectedNodePath: 'source-path',
+        selectedNodePath: selectedTreeNode.path,
         selectedNodeIsSource: true,
-        clearSelection: mockClearSelection,
       });
 
-      mockFindNodeByPath.mockReturnValue(mockTreeNode);
-      mockGetAllowedActions.mockReturnValue([MappingActionKind.Delete]);
+      getAllowedActionsSpy.mockReturnValue([MappingActionKind.Delete]);
 
-      renderHook(() => {
-        useDataMapperDeleteHotkey(mockOnUpdate);
-      });
+      renderDeleteHotkey();
 
-      const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
-      const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
+      pressDelete();
 
-      hotkeyCallback(mockEvent);
-
-      expect(mockDeleteMappingItem).not.toHaveBeenCalled();
-      expect(mockClearSelection).not.toHaveBeenCalled();
-      expect(mockOnUpdate).not.toHaveBeenCalled();
+      expectNothingDeleted(selectedTreeNode.path);
     });
   });
 
   describe('tree lookup', () => {
     it('should not call getTree during render', () => {
-      renderHook(() => {
-        useDataMapperDeleteHotkey(mockOnUpdate);
-      });
+      renderDeleteHotkey();
 
-      expect(mockGetTree).not.toHaveBeenCalled();
+      expect(getTreeSpy).not.toHaveBeenCalled();
     });
 
     it('should call getTree when handling keypress', () => {
       useDocumentTreeStore.setState({
-        selectedNodePath: 'test-path',
+        selectedNodePath: selectedTreeNode.path,
         selectedNodeIsSource: false,
-        clearSelection: mockClearSelection,
       });
 
-      mockFindNodeByPath.mockReturnValue(mockTreeNode);
-      mockGetAllowedActions.mockReturnValue([MappingActionKind.Delete]);
+      getAllowedActionsSpy.mockReturnValue([MappingActionKind.Delete]);
 
-      renderHook(() => {
-        useDataMapperDeleteHotkey(mockOnUpdate);
-      });
+      renderDeleteHotkey();
 
-      const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
-      const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
-      hotkeyCallback(mockEvent);
+      pressDelete();
 
-      expect(mockGetTree).toHaveBeenCalledWith(DocumentNodeData.getId(mockTargetBodyDocument as unknown as IDocument));
+      expect(getTreeSpy).toHaveBeenCalledWith(DocumentNodeData.getId(targetBodyDocument));
     });
 
     it('should not delete when getTree returns undefined', () => {
       useDocumentTreeStore.setState({
-        selectedNodePath: 'test-path',
+        selectedNodePath: selectedTreeNode.path,
         selectedNodeIsSource: false,
-        clearSelection: mockClearSelection,
       });
 
-      mockGetTree.mockReturnValue(undefined);
+      getTreeSpy.mockReturnValue(undefined);
 
-      renderHook(() => {
-        useDataMapperDeleteHotkey(mockOnUpdate);
-      });
+      renderDeleteHotkey();
 
-      const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
-      const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
-      hotkeyCallback(mockEvent);
+      pressDelete();
 
-      expect(mockDeleteMappingItem).not.toHaveBeenCalled();
-      expect(mockClearSelection).not.toHaveBeenCalled();
-      expect(mockOnUpdate).not.toHaveBeenCalled();
+      expectNothingDeleted(selectedTreeNode.path);
     });
   });
 
   describe('hotkey registration', () => {
     it('should register hotkeys with delete and backspace keys', () => {
-      renderHook(() => {
-        useDataMapperDeleteHotkey(mockOnUpdate);
-      });
+      renderDeleteHotkey();
 
-      expect(mockHotkeys).toHaveBeenCalled();
-      const keyString = mockHotkeys.mock.calls[0][0] as string;
+      expect(hotkeys).toHaveBeenCalled();
+      const keyString = vi.mocked(hotkeys).mock.calls[0][0];
 
       expect(keyString.toLowerCase()).toContain('delete');
       expect(keyString.toLowerCase()).toContain('backspace');
@@ -328,13 +235,11 @@ describe('useDataMapperDeleteHotkey', () => {
 
   describe('cleanup and unmount', () => {
     it('should unbind hotkeys on unmount', () => {
-      const { unmount } = renderHook(() => {
-        useDataMapperDeleteHotkey(mockOnUpdate);
-      });
+      const { unmount } = renderDeleteHotkey();
 
       unmount();
 
-      expect(mockHotkeysUnbind).toHaveBeenCalled();
+      expect(hotkeys.unbind).toHaveBeenCalled();
     });
   });
 });
