@@ -72,6 +72,17 @@ export default {
   title: 'Catalog/Catalog',
   component: Catalog,
   decorators: [ContextDecorator],
+  beforeEach: () => {
+    const previous = localStorage.getItem('catalogRecentlyUsed');
+    localStorage.removeItem('catalogRecentlyUsed');
+    return () => {
+      if (previous === null) {
+        localStorage.removeItem('catalogRecentlyUsed');
+      } else {
+        localStorage.setItem('catalogRecentlyUsed', previous);
+      }
+    };
+  },
   render: (args, { loaded }) => <Catalog {...args} tiles={(loaded?.tiles as ITile[] | undefined) ?? args.tiles} />,
 } as Meta<typeof Catalog>;
 
@@ -81,6 +92,34 @@ export const CatalogWithSearch: StoryObj<typeof Catalog> = {
       tiles: await tilesWithIcons(catalogFixture as FixtureTile[]),
     }),
   ],
+  args: {
+    onTileClick: () => null,
+  },
+};
+
+/** Recently used strip is hidden when no tiles have been selected yet. */
+export const RecentlyUsedEmpty: StoryObj<typeof Catalog> = {
+  loaders: [
+    async () => {
+      return { tiles: await tilesWithIcons(catalogFixture as FixtureTile[]) };
+    },
+  ],
+  args: {
+    onTileClick: () => null,
+  },
+};
+
+/** Recently used strip shows the 3 most recently selected tiles. */
+export const RecentlyUsedWithTiles: StoryObj<typeof Catalog> = {
+  loaders: [
+    async () => {
+      const tiles = await tilesWithIcons(catalogFixture as FixtureTile[]);
+      return { tiles };
+    },
+  ],
+  beforeEach: ({ loaded }) => {
+    localStorage.setItem('catalogRecentlyUsed', JSON.stringify((loaded.tiles as ITile[]).slice(0, 3)));
+  },
   args: {
     onTileClick: () => null,
   },

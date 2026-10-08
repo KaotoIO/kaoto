@@ -3,7 +3,7 @@ import { FunctionComponent, PropsWithChildren, useContext } from 'react';
 import type { Mock } from 'vitest';
 
 import { ITile } from '../components/Catalog';
-import { CatalogKind, DefinedComponent } from '../models';
+import { CatalogKind, DefinedComponent, LocalStorageKeys } from '../models';
 import { CatalogContext } from './catalog.provider';
 import { CatalogModalContext, CatalogModalProvider } from './catalog-modal.provider';
 import { CatalogTilesContext } from './catalog-tiles.provider';
@@ -45,6 +45,11 @@ describe('CatalogModalProvider', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    localStorage.removeItem(LocalStorageKeys.CatalogRecentlyUsed);
+  });
+
+  afterEach(() => {
+    localStorage.removeItem(LocalStorageKeys.CatalogRecentlyUsed);
   });
 
   describe('checkCompatibility', () => {
