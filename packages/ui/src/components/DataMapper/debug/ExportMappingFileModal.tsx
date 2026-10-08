@@ -1,12 +1,16 @@
-import { Monaco } from '@monaco-editor/react';
+import { loader, Monaco } from '@monaco-editor/react';
 import { CodeEditor, Language } from '@patternfly/react-code-editor';
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from '@patternfly/react-core';
-import { editor } from 'monaco-editor';
+import * as monacoEditor from 'monaco-editor';
 import { FunctionComponent, useCallback, useMemo } from 'react';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { MappingSerializerService } from '../../../services/mapping/mapping-serializer.service';
-import IStandaloneEditorConstructionOptions = editor.IStandaloneEditorConstructionOptions;
+import IStandaloneEditorConstructionOptions = monacoEditor.editor.IStandaloneEditorConstructionOptions;
+
+// Use the bundled monaco-editor instead of @monaco-editor/react's default CDN loader
+// (same configuration as SourceCode's enable-workers, so the modal doesn't depend on it being loaded first).
+loader.config({ monaco: monacoEditor });
 
 interface ExportMappingFileModalProps {
   isOpen: boolean;
@@ -28,7 +32,7 @@ export const ExportMappingFileModal: FunctionComponent<ExportMappingFileModalPro
     return `${Math.max(lineCount * LINE_HEIGHT + EDITOR_PADDING, 200)}px`;
   }, [serializedMappings]);
 
-  const onEditorDidMount = useCallback((editor: editor.IStandaloneCodeEditor, monaco: Monaco) => {
+  const onEditorDidMount = useCallback((editor: monacoEditor.editor.IStandaloneCodeEditor, monaco: Monaco) => {
     editor.layout();
     editor.focus();
     monaco.editor.getModels()[0]?.updateOptions({ tabSize: 2 });

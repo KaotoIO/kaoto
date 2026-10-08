@@ -11,13 +11,6 @@ import { EMPTY_XSL } from '../../services/mapping/mapping-serializer.service';
 import { getShipOrderToShipOrderXslt, getShipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { DataMapper } from './DataMapper';
 
-vi.mock('monaco-editor', () => ({
-  languages: {
-    CompletionItemKind: { Keyword: 17, Function: 1 },
-    CompletionItemInsertTextRule: { InsertAsSnippet: 4 },
-  },
-}));
-
 describe('DataMapperPage', () => {
   const vizNode = {
     getId: () => 'route-1234',

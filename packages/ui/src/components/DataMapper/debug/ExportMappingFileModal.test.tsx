@@ -1,5 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { editor } from 'monaco-editor';
 import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
+import type { MockInstance } from 'vitest';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
@@ -9,35 +11,6 @@ import { SourceTargetDnDHandler } from '../../../providers/dnd/SourceTargetDnDHa
 import { MappingSerializerService } from '../../../services/mapping/mapping-serializer.service';
 import { getShipOrderToShipOrderXslt, TestUtil } from '../../../stubs/datamapper/data-mapper';
 import { ExportMappingFileModal } from './ExportMappingFileModal';
-
-// Mock CodeEditor to capture onEditorDidMount callback
-vi.mock('@patternfly/react-code-editor', async () => {
-  const actual = await vi.importActual('@patternfly/react-code-editor');
-  return {
-    ...actual,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    CodeEditor: ({ onEditorDidMount, ...props }: any) => {
-      // Store the callback for testing
-      if (onEditorDidMount && typeof onEditorDidMount === 'function') {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (globalThis as any).__onEditorDidMountCallback = onEditorDidMount;
-      }
-      // Render a mock that maintains the expected DOM structure
-      return (
-        <div className="pf-v6-c-code-editor" data-testid="mocked-code-editor">
-          <div className="pf-v6-c-code-editor__main">
-            <div className="pf-v6-c-code-editor__code">
-              <pre>{props.code}</pre>
-            </div>
-          </div>
-          <button aria-label="Download code">Download</button>
-        </div>
-      );
-    },
-  };
-});
-
-vi.mock('monaco-editor', () => ({}));
 
 const dndHandler = new SourceTargetDnDHandler();
 
@@ -281,143 +254,102 @@ describe('ExportMappingFileModal', () => {
   });
 
   describe('onEditorDidMount callback', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let mockEditor: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let mockMonaco: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let mockModel: any;
+    const originalCreate = editor.create;
+    let layoutSpies: MockInstance<editor.IStandaloneCodeEditor['layout']>[];
+    let focusSpies: MockInstance<editor.IStandaloneCodeEditor['focus']>[];
+    let getModelsSpy: MockInstance<typeof editor.getModels>;
+
+    const countCalls = (spies: MockInstance[]) => spies.reduce((total, spy) => total + spy.mock.calls.length, 0);
+
+    /** Renders the modal and waits until the real Monaco editor has been mounted (onEditorDidMount ran). */
+    const renderAndWaitForEditorMount = async () => {
+      const result = render(
+        <TestProviders>
+          <ExportMappingFileModal isOpen onClose={mockOnClose} />
+        </TestProviders>,
+      );
+      await waitFor(() => {
+        expect(getModelsSpy).toHaveBeenCalled();
+      });
+      return result;
+    };
 
     beforeEach(() => {
-      // Reset the global callback
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (globalThis as any).__onEditorDidMountCallback = undefined;
-
-      // Create mock model with updateOptions
-      mockModel = {
-        updateOptions: vi.fn(),
-      };
-
-      // Create mock editor with layout and focus methods
-      mockEditor = {
-        layout: vi.fn(),
-        focus: vi.fn(),
-      };
-
-      // Create mock monaco with getModels method
-      mockMonaco = {
-        editor: {
-          getModels: vi.fn().mockReturnValue([mockModel]),
-        },
-      };
+      layoutSpies = [];
+      focusSpies = [];
+      // Observe the real editor instances created by the CodeEditor
+      vi.spyOn(editor, 'create').mockImplementation((...args) => {
+        const instance = originalCreate(...args);
+        layoutSpies.push(vi.spyOn(instance, 'layout'));
+        focusSpies.push(vi.spyOn(instance, 'focus'));
+        return instance;
+      });
+      getModelsSpy = vi.spyOn(editor, 'getModels');
     });
 
-    afterEach(() => {
-      vi.clearAllMocks();
+    it('should call editor.layout() when editor mounts', async () => {
+      await renderAndWaitForEditorMount();
+
+      expect(layoutSpies).toHaveLength(1);
+      expect(layoutSpies[0]).toHaveBeenCalledTimes(1);
     });
 
-    it('should call editor.layout() when editor mounts', () => {
-      render(
-        <TestProviders>
-          <ExportMappingFileModal isOpen onClose={mockOnClose} />
-        </TestProviders>,
-      );
+    it('should call editor.focus() when editor mounts', async () => {
+      await renderAndWaitForEditorMount();
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const callback = (globalThis as any).__onEditorDidMountCallback;
-      expect(callback).toBeDefined();
-
-      // Invoke the callback
-      callback(mockEditor, mockMonaco);
-
-      expect(mockEditor.layout).toHaveBeenCalledTimes(1);
+      expect(focusSpies).toHaveLength(1);
+      expect(focusSpies[0]).toHaveBeenCalledTimes(1);
     });
 
-    it('should call editor.focus() when editor mounts', () => {
-      render(
-        <TestProviders>
-          <ExportMappingFileModal isOpen onClose={mockOnClose} />
-        </TestProviders>,
-      );
+    it('should call monaco.editor.getModels()[0].updateOptions with tabSize: 2', async () => {
+      await renderAndWaitForEditorMount();
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const callback = (globalThis as any).__onEditorDidMountCallback;
-      expect(callback).toBeDefined();
-
-      // Invoke the callback
-      callback(mockEditor, mockMonaco);
-
-      expect(mockEditor.focus).toHaveBeenCalledTimes(1);
+      expect(getModelsSpy).toHaveBeenCalledTimes(1);
+      const [firstModel] = getModelsSpy.mock.results[0].value;
+      expect(firstModel.getOptions().tabSize).toBe(2);
     });
 
-    it('should call monaco.editor.getModels()[0].updateOptions with tabSize: 2', () => {
-      render(
-        <TestProviders>
-          <ExportMappingFileModal isOpen onClose={mockOnClose} />
-        </TestProviders>,
-      );
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const callback = (globalThis as any).__onEditorDidMountCallback;
-      expect(callback).toBeDefined();
-
-      // Invoke the callback
-      callback(mockEditor, mockMonaco);
-
-      expect(mockMonaco.editor.getModels).toHaveBeenCalledTimes(1);
-      expect(mockModel.updateOptions).toHaveBeenCalledTimes(1);
-      expect(mockModel.updateOptions).toHaveBeenCalledWith({ tabSize: 2 });
-    });
-
-    it('should call all three operations in sequence when editor mounts', () => {
-      render(
-        <TestProviders>
-          <ExportMappingFileModal isOpen onClose={mockOnClose} />
-        </TestProviders>,
-      );
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const callback = (globalThis as any).__onEditorDidMountCallback;
-      expect(callback).toBeDefined();
-
-      // Invoke the callback
-      callback(mockEditor, mockMonaco);
+    it('should call all three operations in sequence when editor mounts', async () => {
+      await renderAndWaitForEditorMount();
 
       // Verify all three operations were called
-      expect(mockEditor.layout).toHaveBeenCalledTimes(1);
-      expect(mockEditor.focus).toHaveBeenCalledTimes(1);
-      expect(mockMonaco.editor.getModels).toHaveBeenCalledTimes(1);
-      expect(mockModel.updateOptions).toHaveBeenCalledWith({ tabSize: 2 });
+      expect(layoutSpies[0]).toHaveBeenCalledTimes(1);
+      expect(focusSpies[0]).toHaveBeenCalledTimes(1);
+      expect(getModelsSpy).toHaveBeenCalledTimes(1);
+      const [firstModel] = getModelsSpy.mock.results[0].value;
+      expect(firstModel.getOptions().tabSize).toBe(2);
 
       // Verify the order of calls
-      const layoutCallOrder = mockEditor.layout.mock.invocationCallOrder[0];
-      const focusCallOrder = mockEditor.focus.mock.invocationCallOrder[0];
-      const getModelsCallOrder = mockMonaco.editor.getModels.mock.invocationCallOrder[0];
+      const layoutCallOrder = layoutSpies[0].mock.invocationCallOrder[0];
+      const focusCallOrder = focusSpies[0].mock.invocationCallOrder[0];
+      const getModelsCallOrder = getModelsSpy.mock.invocationCallOrder[0];
 
       expect(layoutCallOrder).toBeLessThan(focusCallOrder);
       expect(focusCallOrder).toBeLessThan(getModelsCallOrder);
     });
 
-    it('should handle onEditorDidMount callback being called multiple times', () => {
-      render(
+    it('should handle onEditorDidMount callback being called multiple times', async () => {
+      const { rerender } = await renderAndWaitForEditorMount();
+
+      // Close and reopen the modal so the editor is mounted again
+      rerender(
+        <TestProviders>
+          <ExportMappingFileModal isOpen={false} onClose={mockOnClose} />
+        </TestProviders>,
+      );
+      rerender(
         <TestProviders>
           <ExportMappingFileModal isOpen onClose={mockOnClose} />
         </TestProviders>,
       );
+      await waitFor(() => {
+        expect(getModelsSpy).toHaveBeenCalledTimes(2);
+      });
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const callback = (globalThis as any).__onEditorDidMountCallback;
-      expect(callback).toBeDefined();
-
-      // Invoke the callback multiple times
-      callback(mockEditor, mockMonaco);
-      callback(mockEditor, mockMonaco);
-
-      // Each call should trigger the operations
-      expect(mockEditor.layout).toHaveBeenCalledTimes(2);
-      expect(mockEditor.focus).toHaveBeenCalledTimes(2);
-      expect(mockMonaco.editor.getModels).toHaveBeenCalledTimes(2);
-      expect(mockModel.updateOptions).toHaveBeenCalledTimes(2);
+      // Each mount should trigger the operations
+      expect(countCalls(layoutSpies)).toBe(2);
+      expect(countCalls(focusSpies)).toBe(2);
+      expect(getModelsSpy).toHaveBeenCalledTimes(2);
     });
   });
 });
