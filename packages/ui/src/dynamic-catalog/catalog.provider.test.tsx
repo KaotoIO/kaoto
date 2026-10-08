@@ -1,7 +1,7 @@
 import catalogLibraryJson from '@kaoto/camel-catalog/index.json';
 import { CatalogDefinition, CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { act, render, screen } from '@testing-library/react';
-import type { Mock, MockInstance } from 'vitest';
+import type { MockInstance } from 'vitest';
 
 import { CitrusTestSchemaService } from '../models/visualization/flows/support/citrus-test-schema.service';
 import { ReloadContext } from '../providers/reload.provider';
@@ -9,16 +9,11 @@ import { TestRuntimeProviderWrapper } from '../stubs';
 import { citrusCatalogSelector, getFirstCatalogMap, getFirstCitrusCatalogMap } from '../stubs/test-load-catalog';
 import { CatalogSchemaLoader } from '../utils/catalog-schema-loader';
 import { CatalogLoaderProvider } from './catalog.provider';
-import { fetchCamelCatalog } from './support/fetch-camel-catalog';
-import { fetchCitrusCatalog } from './support/fetch-citrus-catalog';
-
-vi.mock('./support/fetch-camel-catalog');
-vi.mock('./support/fetch-citrus-catalog');
 
 const catalogLibrary = catalogLibraryJson as CatalogLibrary;
 
 describe('CatalogLoaderProvider', () => {
-  let fetchMock: MockInstance;
+  let fetchMock: MockInstance<typeof fetch>;
   let fetchResolve: () => void;
   let fetchReject: () => void;
   let catalogDefinition: CatalogDefinition;
@@ -29,16 +24,13 @@ describe('CatalogLoaderProvider', () => {
   });
 
   beforeEach(() => {
-    (fetchCamelCatalog as Mock).mockResolvedValue(undefined);
-
     fetchMock = vi.spyOn(globalThis, 'fetch');
-    fetchMock.mockImplementationOnce((file: string | Request) => {
+    // The individual catalog files fetched by fetchCamelCatalog() resolve to empty catalogs
+    fetchMock.mockImplementation(async () => new Response('{}'));
+    fetchMock.mockImplementationOnce(() => {
       return new Promise((resolve, reject) => {
         fetchResolve = () => {
-          resolve({
-            json: () => catalogDefinition,
-            url: `http://localhost/${file}`,
-          } as unknown);
+          resolve(new Response(JSON.stringify(catalogDefinition)));
         };
         fetchReject = () => {
           reject(new Error('Error'));
@@ -104,7 +96,7 @@ describe('CatalogLoaderProvider', () => {
   });
 
   it('should call fetchCamelCatalog for a Camel catalog', async () => {
-    const { Provider } = TestRuntimeProviderWrapper();
+    const { Provider, selectedCatalog } = TestRuntimeProviderWrapper();
     render(
       <Provider>
         <CatalogLoaderProvider>
@@ -117,7 +109,11 @@ describe('CatalogLoaderProvider', () => {
       fetchResolve();
     });
 
-    expect(fetchCamelCatalog).toHaveBeenCalledTimes(1);
+    const relativeBasePath = CatalogSchemaLoader.getRelativeBasePath(
+      `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${selectedCatalog!.fileName}`,
+    );
+    expect(fetchMock).toHaveBeenCalledWith(`${relativeBasePath}/${catalogDefinition.catalogs.components.file}`);
+    expect(fetchMock).toHaveBeenCalledWith(`${relativeBasePath}/${catalogDefinition.catalogs.kamelets.file}`);
   });
 
   it('should set loading to false after fetching the catalogs', async () => {
@@ -139,7 +135,7 @@ describe('CatalogLoaderProvider', () => {
 });
 
 describe('CitrusCatalogLoaderProvider', () => {
-  let fetchMock: MockInstance;
+  let fetchMock: MockInstance<typeof fetch>;
   let fetchResolve: () => void;
   let fetchReject: () => void;
   let catalogDefinition: CatalogDefinition;
@@ -150,16 +146,13 @@ describe('CitrusCatalogLoaderProvider', () => {
   });
 
   beforeEach(() => {
-    (fetchCitrusCatalog as Mock).mockResolvedValue(undefined);
-
     fetchMock = vi.spyOn(globalThis, 'fetch');
-    fetchMock.mockImplementationOnce((file: string | Request) => {
+    // The individual catalog files fetched by fetchCitrusCatalog() resolve to empty catalogs
+    fetchMock.mockImplementation(async () => new Response('{}'));
+    fetchMock.mockImplementationOnce(() => {
       return new Promise((resolve, reject) => {
         fetchResolve = () => {
-          resolve({
-            json: () => catalogDefinition,
-            url: `http://localhost/${file}`,
-          } as unknown);
+          resolve(new Response(JSON.stringify(catalogDefinition)));
         };
         fetchReject = () => {
           reject(new Error('Error'));
@@ -225,7 +218,7 @@ describe('CitrusCatalogLoaderProvider', () => {
   });
 
   it('should call fetchCitrusCatalog for a Citrus catalog', async () => {
-    const { Provider } = TestRuntimeProviderWrapper(citrusCatalogSelector);
+    const { Provider, selectedCatalog } = TestRuntimeProviderWrapper(citrusCatalogSelector);
     render(
       <Provider>
         <CatalogLoaderProvider>
@@ -238,7 +231,11 @@ describe('CitrusCatalogLoaderProvider', () => {
       fetchResolve();
     });
 
-    expect(fetchCitrusCatalog).toHaveBeenCalledTimes(1);
+    const relativeBasePath = CatalogSchemaLoader.getRelativeBasePath(
+      `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${selectedCatalog!.fileName}`,
+    );
+    expect(fetchMock).toHaveBeenCalledWith(`${relativeBasePath}/${catalogDefinition.catalogs.actions.file}`);
+    expect(fetchMock).toHaveBeenCalledWith(`${relativeBasePath}/${catalogDefinition.catalogs.containers.file}`);
   });
 
   it('should set loading to false after fetching the catalogs', async () => {
@@ -273,9 +270,7 @@ describe('CatalogLoaderProvider cleanup', () => {
   it('should call CitrusTestSchemaService.clearKindMap on unmount', async () => {
     const { Provider } = TestRuntimeProviderWrapper();
     const fetchMock = vi.spyOn(globalThis, 'fetch');
-    fetchMock.mockResolvedValueOnce({
-      json: () => Promise.resolve({ runtime: 'Camel' }),
-    } as unknown as Response);
+    fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({ runtime: 'Camel' })));
 
     const { unmount } = render(
       <Provider>

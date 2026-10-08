@@ -2,9 +2,7 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { render, renderHook, screen, waitFor } from '@testing-library/react';
 import { useContext } from 'react';
-import type { Mock } from 'vitest';
 
-import { camelComponentToTile, camelProcessorToTile, citrusComponentToTile, kameletToTile } from '../camel-utils';
 import {
   CatalogKind,
   ICamelComponentDefinition,
@@ -26,19 +24,6 @@ import {
   CitrusTestContainersProvider,
   CitrusTestEndpointsProvider,
 } from './providers/citrus-components.provider';
-
-vi.mock('../camel-utils', async () => {
-  const actual = await vi.importActual('../camel-utils');
-
-  return {
-    ...actual,
-    camelComponentToTile: vi.fn(),
-    camelProcessorToTile: vi.fn(),
-    camelEntityToTile: vi.fn(),
-    kameletToTile: vi.fn(),
-    citrusComponentToTile: vi.fn(),
-  };
-});
 
 describe('CatalogTilesProvider', () => {
   let mockRegistry: IDynamicCatalogRegistry;
@@ -133,12 +118,16 @@ describe('CatalogTilesProvider', () => {
       ),
     });
 
-    await context?.fetchTiles();
+    const tiles = await context?.fetchTiles();
 
-    expect(camelComponentToTile).toHaveBeenCalled();
-    expect(camelProcessorToTile).toHaveBeenCalled();
-    expect(kameletToTile).toHaveBeenCalled();
-    expect(citrusComponentToTile).toHaveBeenCalled();
+    expect(tiles).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ type: CatalogKind.Component, headerTags: expect.arrayContaining(['Component']) }),
+        expect.objectContaining({ type: CatalogKind.Processor, headerTags: expect.arrayContaining(['Processor']) }),
+        expect.objectContaining({ type: CatalogKind.Kamelet, headerTags: expect.arrayContaining(['Kamelet']) }),
+        expect.objectContaining({ type: CatalogKind.TestAction, headerTags: [CatalogKind.TestAction] }),
+      ]),
+    );
   });
 
   it('should call getAll on all catalog kinds', async () => {
@@ -197,25 +186,12 @@ describe('CatalogTilesProvider', () => {
       ),
     });
 
-    await context?.fetchTiles();
+    const tiles = await context?.fetchTiles();
 
-    expect(camelComponentToTile).not.toHaveBeenCalled();
-    expect(camelProcessorToTile).not.toHaveBeenCalled();
-    expect(kameletToTile).not.toHaveBeenCalled();
-    expect(citrusComponentToTile).not.toHaveBeenCalled();
+    expect(tiles).toEqual([]);
   });
 
   it('should return combined tiles from all catalog kinds', async () => {
-    const mockComponentTile = { id: 'component-1', name: 'Component', type: 'component' };
-    const mockProcessorTile = { id: 'processor-1', name: 'Processor', type: 'processor' };
-    const mockKameletTile = { id: 'kamelet-1', name: 'Kamelet', type: 'kamelet' };
-    const mockTestAction = { id: 'action-1', name: 'Action', type: 'test-action' };
-
-    (camelComponentToTile as Mock).mockReturnValue(mockComponentTile);
-    (camelProcessorToTile as Mock).mockReturnValue(mockProcessorTile);
-    (kameletToTile as Mock).mockReturnValue(mockKameletTile);
-    (citrusComponentToTile as Mock).mockReturnValue(mockTestAction);
-
     const {
       result: { current: context },
     } = renderHook(() => useContext(CatalogTilesContext), {
@@ -249,16 +225,6 @@ describe('CatalogTilesProvider', () => {
   });
 
   it('should return cached tiles from getTiles after fetchTiles is called', async () => {
-    const mockComponentTile = { id: 'component-1', name: 'Component', type: 'component' };
-    const mockProcessorTile = { id: 'processor-1', name: 'Processor', type: 'processor' };
-    const mockKameletTile = { id: 'kamelet-1', name: 'Kamelet', type: 'kamelet' };
-    const mockTestAction = { id: 'action-1', name: 'Action', type: 'test-action' };
-
-    (camelComponentToTile as Mock).mockReturnValue(mockComponentTile);
-    (camelProcessorToTile as Mock).mockReturnValue(mockProcessorTile);
-    (kameletToTile as Mock).mockReturnValue(mockKameletTile);
-    (citrusComponentToTile as Mock).mockReturnValue(mockTestAction);
-
     const {
       result: { current: context },
     } = renderHook(() => useContext(CatalogTilesContext), {
