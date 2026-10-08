@@ -10,7 +10,6 @@ import { EndpointPropertiesField } from './EndpointPropertiesField/EndpointPrope
 import { ExpressionField } from './ExpressionField/ExpressionField';
 import { MediaTypeField } from './MediaTypeField/MediaTypeField';
 import { SedaEndpointNameField } from './SedaEndpointNameField';
-import { UriField } from './UriField/UriField';
 
 const isDirectEndpointName = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
   return (
@@ -48,10 +47,6 @@ const isExpressionField = (schema: Parameters<CustomFieldsFactory>[0]): boolean 
 
 const isCustomMediaTypesField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
   return schema.type === 'array' && schema.title === 'Custom media types';
-};
-
-const isUriField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
-  return schema.type === 'string' && schema.title === 'Uri';
 };
 
 const isEndpointPropertiesField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
@@ -110,7 +105,6 @@ const CUSTOM_FIELD_ENTRIES: [
   [isMediaTypeField, MediaTypeField],
   [isExpressionField, ExpressionField],
   [isCustomMediaTypesField, CustomMediaTypes],
-  [isUriField, UriField],
   [isEndpointPropertiesField, EndpointPropertiesField],
   [isEndpointField, EndpointField],
   [isEndpointListField, EndpointListField],

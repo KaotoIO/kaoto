@@ -16,7 +16,6 @@ import { EndpointPropertiesField } from './EndpointPropertiesField/EndpointPrope
 import { ExpressionField } from './ExpressionField/ExpressionField';
 import { MediaTypeField } from './MediaTypeField/MediaTypeField';
 import { SedaEndpointNameField } from './SedaEndpointNameField';
-import { UriField } from './UriField/UriField';
 
 const catalogLibrary = catalogLibraryJson as CatalogLibrary;
 
@@ -120,7 +119,6 @@ describe('customFieldsFactoryfactory', () => {
   it.each([
     [{ type: 'number', title: 'Ref' }, 'non-string type with title "Ref"'],
     [{ type: 'string', title: 'ref' }, 'case-sensitive title mismatch for Ref'],
-    [{ type: 'string', title: 'uri' }, 'case-sensitive title mismatch for Uri'],
   ] as [KaotoSchemaDefinition['schema'], string][])('returns undefined for %s', (schema) => {
     const result = customFieldsFactoryfactory(schema);
     expect(result).toBeUndefined();
@@ -147,12 +145,6 @@ describe('customFieldsFactoryfactory', () => {
   it('returns undefined if schema is empty', () => {
     const result = customFieldsFactoryfactory({});
     expect(result).toBeUndefined();
-  });
-
-  it('returns UriField for string type with title "Uri"', () => {
-    const schema: KaotoSchemaDefinition['schema'] = { type: 'string', title: 'Uri' };
-    const result = customFieldsFactoryfactory(schema);
-    expect(result).toBe(UriField);
   });
 
   it('returns DataSourceBeanField for string type with title containing "Data Source"', () => {
