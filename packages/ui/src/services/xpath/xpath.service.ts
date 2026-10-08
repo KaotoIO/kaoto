@@ -12,7 +12,6 @@ import { getPrefixForNamespaceURI } from '../namespace-util';
 import { XPATH_2_0_FUNCTIONS } from './2.0/xpath-2.0-functions';
 import { XPath2Parser } from './2.0/xpath-2.0-parser';
 import { XPathFunctionCatalogService } from './catalog/xpath-function-catalog.service';
-import { monacoXPathLanguageMetadata } from './monaco-language';
 import { CstVisitor } from './syntaxtree/xpath-syntaxtree-cst-visitor';
 import {
   ComparisonExprNode,
@@ -82,23 +81,6 @@ export class XPathService {
    */
   static getXPathFunctionDefinitions(): Partial<Record<FunctionGroup, IFunctionDefinition[]>> {
     return XPathFunctionCatalogService.getCatalog() ?? XPATH_2_0_FUNCTIONS;
-  }
-
-  private static getXPathFunctionNames(): string[] {
-    return Object.values(XPathService.getXPathFunctionDefinitions()).reduce((acc, functions) => {
-      acc.push(...functions.map((f) => f.name));
-      return acc;
-    }, [] as string[]);
-  }
-
-  /**
-   * Gets Monaco editor language metadata for XPath with function names
-   * @returns Monaco language metadata configuration
-   */
-  static getMonacoXPathLanguageMetadata() {
-    monacoXPathLanguageMetadata.tokensProvider.actions = XPathService.getXPathFunctionNames();
-    monacoXPathLanguageMetadata.functionDefinitions = Object.values(XPathService.getXPathFunctionDefinitions()).flat();
-    return monacoXPathLanguageMetadata;
   }
 
   /**

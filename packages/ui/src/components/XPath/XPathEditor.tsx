@@ -4,7 +4,7 @@ import * as monaco from 'monaco-editor';
 import { FunctionComponent, useEffect, useRef, useState } from 'react';
 
 import { IExpressionHolder } from '../../models/datamapper';
-import { XPathService } from '../../services/xpath/xpath.service';
+import { getMonacoXPathLanguageMetadata } from '../../services/xpath/monaco-language';
 import { xpathEditorConstrufctionOption, xpathEditorTheme } from './monaco-options';
 
 // Expose monaco on window so Cypress helpers can reach editor instances through
@@ -23,7 +23,7 @@ export const XPathEditor: FunctionComponent<XPathEditorProps> = ({ mapping, onCh
   const monacoEl = useRef<HTMLDivElement>(null);
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
-  const xpathLanguage = XPathService.getMonacoXPathLanguageMetadata();
+  const xpathLanguage = getMonacoXPathLanguageMetadata();
 
   useEffect(() => {
     const previousExpression = editor?.getModel()?.getValue();
