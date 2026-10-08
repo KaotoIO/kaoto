@@ -1,15 +1,9 @@
-import { fireEvent, render } from '@testing-library/react';
-import type { Mock } from 'vitest';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 
 import { createVisualizationNode } from '../../../../models';
 import { EntityType } from '../../../../models/entities';
-import { useCopyStep } from '../hooks/copy-step.hook';
+import { ClipboardService } from '../../../../services/visualization/clipboard.service';
 import { ItemCopyStep } from './ItemCopyStep';
-
-// Mock the `useCopyStep` hook
-vi.mock('../hooks/copy-step.hook', () => ({
-  useCopyStep: vi.fn(),
-}));
 
 describe('ItemCopyStep', () => {
   const vizNode = createVisualizationNode('test', {
@@ -20,12 +14,11 @@ describe('ItemCopyStep', () => {
     title: '',
     description: '',
   });
-  const mockOnCopyStep = vi.fn();
+  const copiedContent = { name: 'log', definition: { id: 'log-1234', message: 'hello' } };
+
   beforeEach(() => {
-    // Mock the `useCopyStep` hook to return the `onCopyStep` function
-    (useCopyStep as Mock).mockReturnValue({
-      onCopyStep: mockOnCopyStep,
-    });
+    vi.spyOn(vizNode, 'getCopiedContent').mockReturnValue(copiedContent);
+    vi.spyOn(ClipboardService, 'copy').mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -38,10 +31,14 @@ describe('ItemCopyStep', () => {
     expect(container).toMatchSnapshot();
   });
 
-  it('should call onCopyStep when the context menu item is clicked', () => {
+  it('should call onCopyStep when the context menu item is clicked', async () => {
     const wrapper = render(<ItemCopyStep vizNode={vizNode} />);
     fireEvent.click(wrapper.getByText('Copy'));
 
-    expect(mockOnCopyStep).toHaveBeenCalledTimes(1);
+    /* The real `useCopyStep` copies the node content into the clipboard */
+    await waitFor(() => {
+      expect(ClipboardService.copy).toHaveBeenCalledTimes(1);
+    });
+    expect(ClipboardService.copy).toHaveBeenCalledWith(copiedContent);
   });
 });

@@ -1,3 +1,4 @@
+import { ButtonVariant } from '@patternfly/react-core';
 import { renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 import type { Mock } from 'vitest';
@@ -19,19 +20,12 @@ import { IMetadataApi } from '../../../../providers/metadata.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
 import {
   IInteractionType,
+  IModalCustomization,
   INodeInteractionAddonContext,
+  IOnDeleteAddon,
 } from '../../../registers/interactions/node-interaction-addon.model';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
-import {
-  findOnDeleteModalCustomizationRecursively,
-  processOnDeleteAddonRecursively,
-} from '../ContextMenu/item-interaction-helper';
 import { useReplaceStep } from './replace-step.hook';
-
-vi.mock('../ContextMenu/item-interaction-helper', () => ({
-  findOnDeleteModalCustomizationRecursively: vi.fn(),
-  processOnDeleteAddonRecursively: vi.fn(),
-}));
 
 describe('useReplaceStep', () => {
   let camelResource: CamelRouteResource;
@@ -61,10 +55,13 @@ describe('useReplaceStep', () => {
     actionConfirmation: vi.fn(),
   };
 
+  const getRegisteredInteractionAddons = vi.fn<INodeInteractionAddonContext['getRegisteredInteractionAddons']>();
   const mockNodeInteractionAddonContext: INodeInteractionAddonContext = {
     registerInteractionAddon: vi.fn(),
-    getRegisteredInteractionAddons: vi.fn().mockReturnValue([]),
+    getRegisteredInteractionAddons,
   };
+  /** An ON_DELETE addon registered for every node, so the real item-interaction-helper processes it */
+  let onDeleteAddon: IOnDeleteAddon;
 
   const mockDefinedComponent = {
     type: 'log',
@@ -90,8 +87,8 @@ describe('useReplaceStep', () => {
     mockVizNode.addBaseEntityStep = vi.fn();
     mockVizNode.getChildren = vi.fn().mockReturnValue([]);
     vi.spyOn(camelResource, 'getCompatibleComponents').mockReturnValue(mockCompatibleComponents);
-    (findOnDeleteModalCustomizationRecursively as Mock).mockReturnValue([]);
-    (processOnDeleteAddonRecursively as Mock).mockImplementation(() => {});
+    onDeleteAddon = { type: IInteractionType.ON_DELETE, activationFn: () => true, callback: vi.fn() };
+    getRegisteredInteractionAddons.mockReset().mockReturnValue([onDeleteAddon]);
 
     const { Provider, updateEntitiesFromCamelResourceSpy: updateSpy } = await TestProvidersWrapper({ camelResource });
     updateEntitiesFromCamelResourceSpy = updateSpy;
@@ -293,9 +290,13 @@ describe('useReplaceStep', () => {
   });
 
   it('should handle modal customizations from interaction addons', async () => {
-    const mockModalCustomization = {
+    const buttonOptions = {
+      confirm: { buttonText: 'Replace Now', variant: ButtonVariant.danger },
+      cancel: { buttonText: 'Keep Current', variant: ButtonVariant.link },
+    };
+    const mockModalCustomization: IModalCustomization = {
       additionalText: 'Custom replace warning',
-      buttonOptions: { confirm: 'Replace Now', cancel: 'Keep Current' },
+      buttonOptions,
     };
     const nonPlaceholderChild = createVisualizationNode('child', {
       name: EntityType.Route,
@@ -306,7 +307,7 @@ describe('useReplaceStep', () => {
       description: '',
     });
     mockVizNode.getChildren = vi.fn().mockReturnValue([nonPlaceholderChild]);
-    (findOnDeleteModalCustomizationRecursively as Mock).mockReturnValue([mockModalCustomization]);
+    getRegisteredInteractionAddons.mockReturnValue([{ ...onDeleteAddon, modalCustomization: mockModalCustomization }]);
     mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(ACTION_ID_CONFIRM);
     mockCatalogModalContext.getNewComponent.mockResolvedValue(mockDefinedComponent);
 
@@ -318,7 +319,7 @@ describe('useReplaceStep', () => {
       title: 'Replace step?',
       text: 'Step and its children will be lost.',
       additionalModalText: 'Custom replace warning',
-      buttonOptions: { confirm: 'Replace Now', cancel: 'Keep Current' },
+      buttonOptions,
     });
   });
 
@@ -329,14 +330,7 @@ describe('useReplaceStep', () => {
 
     await result.current.onReplaceNode();
 
-    expect(findOnDeleteModalCustomizationRecursively).toHaveBeenCalledWith(mockVizNode, expect.any(Function));
-
-    const callback = (findOnDeleteModalCustomizationRecursively as Mock).mock.calls[0][1];
-    callback(mockVizNode);
-    expect(mockNodeInteractionAddonContext.getRegisteredInteractionAddons).toHaveBeenCalledWith(
-      IInteractionType.ON_DELETE,
-      mockVizNode,
-    );
+    expect(getRegisteredInteractionAddons).toHaveBeenCalledWith(IInteractionType.ON_DELETE, mockVizNode);
   });
 
   it('should call processOnDeleteAddonRecursively with correct parameters', async () => {
@@ -346,7 +340,7 @@ describe('useReplaceStep', () => {
 
     await result.current.onReplaceNode();
 
-    expect(processOnDeleteAddonRecursively).toHaveBeenCalledWith(mockVizNode, ACTION_ID_CONFIRM, expect.any(Function));
+    expect(onDeleteAddon.callback).toHaveBeenCalledWith({ vizNode: mockVizNode, modalAnswer: ACTION_ID_CONFIRM });
   });
 
   it('should handle missing metadata context gracefully', async () => {

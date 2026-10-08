@@ -1,6 +1,6 @@
+import { ButtonVariant } from '@patternfly/react-core';
 import { renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
-import type { Mock } from 'vitest';
 
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { EntityType } from '../../../../models/entities';
@@ -11,19 +11,12 @@ import { EntitiesContext, EntitiesContextResult } from '../../../../providers/en
 import { createMockEntitiesContext } from '../../../../stubs';
 import {
   IInteractionType,
+  IModalCustomization,
   INodeInteractionAddonContext,
+  IOnDeleteAddon,
 } from '../../../registers/interactions/node-interaction-addon.model';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
-import {
-  findOnDeleteModalCustomizationRecursively,
-  processOnDeleteAddonRecursively,
-} from '../ContextMenu/item-interaction-helper';
 import { useDeleteStep } from './delete-step.hook';
-
-vi.mock('../ContextMenu/item-interaction-helper', () => ({
-  findOnDeleteModalCustomizationRecursively: vi.fn(),
-  processOnDeleteAddonRecursively: vi.fn(),
-}));
 
 describe('useDeleteStep', () => {
   const camelResource = new CamelRouteResource();
@@ -38,10 +31,13 @@ describe('useDeleteStep', () => {
     actionConfirmation: vi.fn(),
   };
 
+  const getRegisteredInteractionAddons = vi.fn<INodeInteractionAddonContext['getRegisteredInteractionAddons']>();
   const mockNodeInteractionAddonContext: INodeInteractionAddonContext = {
     registerInteractionAddon: vi.fn(),
-    getRegisteredInteractionAddons: vi.fn().mockReturnValue([]),
+    getRegisteredInteractionAddons,
   };
+  /** An ON_DELETE addon registered for every node, so the real item-interaction-helper processes it */
+  let onDeleteAddon: IOnDeleteAddon;
 
   beforeEach(() => {
     mockVizNode = createVisualizationNode('test-step', {
@@ -54,8 +50,8 @@ describe('useDeleteStep', () => {
     });
     mockVizNode.removeChild = vi.fn();
     mockVizNode.getChildren = vi.fn().mockReturnValue([]);
-    (findOnDeleteModalCustomizationRecursively as Mock).mockReturnValue([]);
-    (processOnDeleteAddonRecursively as Mock).mockImplementation(() => {});
+    onDeleteAddon = { type: IInteractionType.ON_DELETE, activationFn: () => true, callback: vi.fn() };
+    getRegisteredInteractionAddons.mockReset().mockReturnValue([onDeleteAddon]);
   });
 
   afterEach(() => {
@@ -98,7 +94,7 @@ describe('useDeleteStep', () => {
     expect(mockActionConfirmationModalContext.actionConfirmation).not.toHaveBeenCalled();
     expect(mockVizNode.removeChild).toHaveBeenCalled();
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
-    expect(processOnDeleteAddonRecursively).toHaveBeenCalledWith(mockVizNode, ACTION_ID_CONFIRM, expect.any(Function));
+    expect(onDeleteAddon.callback).toHaveBeenCalledWith({ vizNode: mockVizNode, modalAnswer: ACTION_ID_CONFIRM });
   });
 
   it('should delete step without confirmation when only placeholder child', async () => {
@@ -166,7 +162,7 @@ describe('useDeleteStep', () => {
     expect(mockActionConfirmationModalContext.actionConfirmation).toHaveBeenCalled();
     expect(mockVizNode.removeChild).not.toHaveBeenCalled();
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).not.toHaveBeenCalled();
-    expect(processOnDeleteAddonRecursively).not.toHaveBeenCalled();
+    expect(onDeleteAddon.callback).not.toHaveBeenCalled();
   });
 
   it('should not delete step when modal returns undefined', async () => {
@@ -190,11 +186,15 @@ describe('useDeleteStep', () => {
   });
 
   it('should handle modal customizations from interaction addons', async () => {
-    const mockModalCustomization = {
-      additionalText: 'Custom warning text',
-      buttonOptions: { confirm: 'Remove Step', cancel: 'Keep Step' },
+    const buttonOptions = {
+      confirm: { buttonText: 'Remove Step', variant: ButtonVariant.danger },
+      cancel: { buttonText: 'Keep Step', variant: ButtonVariant.link },
     };
-    (findOnDeleteModalCustomizationRecursively as Mock).mockReturnValue([mockModalCustomization]);
+    const mockModalCustomization: IModalCustomization = {
+      additionalText: 'Custom warning text',
+      buttonOptions,
+    };
+    getRegisteredInteractionAddons.mockReturnValue([{ ...onDeleteAddon, modalCustomization: mockModalCustomization }]);
     mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(ACTION_ID_CONFIRM);
 
     const { result } = renderHook(() => useDeleteStep(mockVizNode), { wrapper });
@@ -205,16 +205,16 @@ describe('useDeleteStep', () => {
       title: 'Permanently delete step?',
       text: 'Step and its children will be lost.',
       additionalModalText: 'Custom warning text',
-      buttonOptions: { confirm: 'Remove Step', cancel: 'Keep Step' },
+      buttonOptions,
     });
   });
 
   it('should show confirmation modal when modal customizations exist even without children', async () => {
-    const mockModalCustomization = {
+    const mockModalCustomization: IModalCustomization = {
       additionalText: 'Custom text',
-      buttonOptions: undefined,
+      buttonOptions: {},
     };
-    (findOnDeleteModalCustomizationRecursively as Mock).mockReturnValue([mockModalCustomization]);
+    getRegisteredInteractionAddons.mockReturnValue([{ ...onDeleteAddon, modalCustomization: mockModalCustomization }]);
     mockVizNode.getChildren = vi.fn().mockReturnValue([]);
     mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(ACTION_ID_CONFIRM);
 
@@ -233,13 +233,6 @@ describe('useDeleteStep', () => {
 
     await result.current.onDeleteStep();
 
-    expect(findOnDeleteModalCustomizationRecursively).toHaveBeenCalledWith(mockVizNode, expect.any(Function));
-
-    const callback = (findOnDeleteModalCustomizationRecursively as Mock).mock.calls[0][1];
-    callback(mockVizNode);
-    expect(mockNodeInteractionAddonContext.getRegisteredInteractionAddons).toHaveBeenCalledWith(
-      IInteractionType.ON_DELETE,
-      mockVizNode,
-    );
+    expect(getRegisteredInteractionAddons).toHaveBeenCalledWith(IInteractionType.ON_DELETE, mockVizNode);
   });
 });

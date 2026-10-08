@@ -1,6 +1,6 @@
+import { ButtonVariant } from '@patternfly/react-core';
 import { renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
-import type { Mock } from 'vitest';
 
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { EntityType } from '../../../../models/entities';
@@ -11,19 +11,12 @@ import { EntitiesContext, EntitiesContextResult } from '../../../../providers/en
 import { createMockEntitiesContext } from '../../../../stubs';
 import {
   IInteractionType,
+  IModalCustomization,
   INodeInteractionAddonContext,
+  IOnDeleteAddon,
 } from '../../../registers/interactions/node-interaction-addon.model';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
-import {
-  findOnDeleteModalCustomizationRecursively,
-  processOnDeleteAddonRecursively,
-} from '../ContextMenu/item-interaction-helper';
 import { useDeleteGroup } from './delete-group.hook';
-
-vi.mock('../ContextMenu/item-interaction-helper', () => ({
-  findOnDeleteModalCustomizationRecursively: vi.fn(),
-  processOnDeleteAddonRecursively: vi.fn(),
-}));
 
 describe('useDeleteGroup', () => {
   const camelResource = new CamelRouteResource();
@@ -38,10 +31,13 @@ describe('useDeleteGroup', () => {
     actionConfirmation: vi.fn(),
   };
 
+  const getRegisteredInteractionAddons = vi.fn<INodeInteractionAddonContext['getRegisteredInteractionAddons']>();
   const mockNodeInteractionAddonContext: INodeInteractionAddonContext = {
     registerInteractionAddon: vi.fn(),
-    getRegisteredInteractionAddons: vi.fn().mockReturnValue([]),
+    getRegisteredInteractionAddons,
   };
+  /** An ON_DELETE addon registered for every node, so the real item-interaction-helper processes it */
+  let onDeleteAddon: IOnDeleteAddon;
 
   beforeEach(() => {
     mockVizNode = createVisualizationNode('test-group', {
@@ -52,8 +48,8 @@ describe('useDeleteGroup', () => {
       title: '',
       description: '',
     });
-    (findOnDeleteModalCustomizationRecursively as Mock).mockReturnValue([]);
-    (processOnDeleteAddonRecursively as Mock).mockImplementation(() => {});
+    onDeleteAddon = { type: IInteractionType.ON_DELETE, activationFn: () => true, callback: vi.fn() };
+    getRegisteredInteractionAddons.mockReset().mockReturnValue([onDeleteAddon]);
   });
 
   afterEach(() => {
@@ -103,7 +99,7 @@ describe('useDeleteGroup', () => {
     });
     expect(removeEntitySpy).toHaveBeenCalledWith(['test-group']);
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
-    expect(processOnDeleteAddonRecursively).toHaveBeenCalledWith(mockVizNode, ACTION_ID_CONFIRM, expect.any(Function));
+    expect(onDeleteAddon.callback).toHaveBeenCalledWith({ vizNode: mockVizNode, modalAnswer: ACTION_ID_CONFIRM });
   });
 
   it('should not delete group when modal is cancelled', async () => {
@@ -117,7 +113,7 @@ describe('useDeleteGroup', () => {
     expect(mockActionConfirmationModalContext.actionConfirmation).toHaveBeenCalled();
     expect(removeEntitySpy).not.toHaveBeenCalled();
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).not.toHaveBeenCalled();
-    expect(processOnDeleteAddonRecursively).not.toHaveBeenCalled();
+    expect(onDeleteAddon.callback).not.toHaveBeenCalled();
   });
 
   it('should not delete group when modal returns undefined', async () => {
@@ -133,12 +129,16 @@ describe('useDeleteGroup', () => {
   });
 
   it('should handle modal customizations from interaction addons', async () => {
-    const mockModalCustomization = {
+    const buttonOptions = {
+      confirm: { buttonText: 'Delete Now', variant: ButtonVariant.danger },
+      cancel: { buttonText: 'Keep It', variant: ButtonVariant.link },
+    };
+    const mockModalCustomization: IModalCustomization = {
       additionalText: 'Custom additional text',
-      buttonOptions: { confirm: 'Delete Now', cancel: 'Keep It' },
+      buttonOptions,
     };
     vi.spyOn(mockVizNode, 'getId').mockReturnValue('test-group');
-    (findOnDeleteModalCustomizationRecursively as Mock).mockReturnValue([mockModalCustomization]);
+    getRegisteredInteractionAddons.mockReturnValue([{ ...onDeleteAddon, modalCustomization: mockModalCustomization }]);
     mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(ACTION_ID_CONFIRM);
 
     const { result } = renderHook(() => useDeleteGroup(mockVizNode), { wrapper });
@@ -149,7 +149,7 @@ describe('useDeleteGroup', () => {
       title: "Do you want to delete the 'test-group' " + mockVizNode.getNodeTitle() + '?',
       text: 'All steps will be lost.',
       additionalModalText: 'Custom additional text',
-      buttonOptions: { confirm: 'Delete Now', cancel: 'Keep It' },
+      buttonOptions,
     });
   });
 
@@ -160,14 +160,7 @@ describe('useDeleteGroup', () => {
 
     await result.current.onDeleteGroup();
 
-    expect(findOnDeleteModalCustomizationRecursively).toHaveBeenCalledWith(mockVizNode, expect.any(Function));
-
-    const callback = (findOnDeleteModalCustomizationRecursively as Mock).mock.calls[0][1];
-    callback(mockVizNode);
-    expect(mockNodeInteractionAddonContext.getRegisteredInteractionAddons).toHaveBeenCalledWith(
-      IInteractionType.ON_DELETE,
-      mockVizNode,
-    );
+    expect(getRegisteredInteractionAddons).toHaveBeenCalledWith(IInteractionType.ON_DELETE, mockVizNode);
   });
 
   it('should handle vizNode without ID', async () => {

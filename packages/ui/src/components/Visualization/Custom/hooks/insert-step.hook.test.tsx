@@ -1,3 +1,4 @@
+import { Visualization, VisualizationProvider } from '@patternfly/react-topology';
 import { renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
@@ -12,18 +13,11 @@ import { EntitiesContext, EntitiesContextResult } from '../../../../providers/en
 import { createMockEntitiesContext } from '../../../../stubs';
 import { useInsertStep } from './insert-step.hook';
 
-const mockController = {
-  fromModel: vi.fn(),
-};
-
-vi.mock('@patternfly/react-topology', () => ({
-  useVisualizationController: () => mockController,
-}));
-
 describe('useInsertStep', () => {
   const camelResource = new CamelRouteResource();
   let mockVizNode: IVisualizationNode;
   let mockEntitiesContext: EntitiesContextResult;
+  let controller: Visualization;
 
   beforeAll(async () => {
     mockEntitiesContext = await createMockEntitiesContext(camelResource);
@@ -58,7 +52,9 @@ describe('useInsertStep', () => {
     mockVizNode.data.definition = {};
     mockVizNode.getChildren = vi.fn().mockReturnValue([mockVizNode]);
     vi.spyOn(camelResource, 'getCompatibleComponents').mockReturnValue(mockCompatibleComponents);
-    mockController.fromModel.mockClear();
+    controller = new Visualization();
+    controller.fromModel({ graph: { id: 'graph', type: 'graph' } });
+    vi.spyOn(controller, 'fromModel');
   });
 
   afterEach(() => {
@@ -66,9 +62,11 @@ describe('useInsertStep', () => {
   });
 
   const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-    <EntitiesContext.Provider value={mockEntitiesContext}>
-      <CatalogModalContext.Provider value={mockCatalogModalContext}>{children}</CatalogModalContext.Provider>
-    </EntitiesContext.Provider>
+    <VisualizationProvider controller={controller}>
+      <EntitiesContext.Provider value={mockEntitiesContext}>
+        <CatalogModalContext.Provider value={mockCatalogModalContext}>{children}</CatalogModalContext.Provider>
+      </EntitiesContext.Provider>
+    </VisualizationProvider>
   );
 
   it('should return onInsertStep function', () => {
@@ -110,9 +108,11 @@ describe('useInsertStep', () => {
 
   it('should return early when entitiesContext is null', async () => {
     const nullEntitiesWrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-      <EntitiesContext.Provider value={null}>
-        <CatalogModalContext.Provider value={mockCatalogModalContext}>{children}</CatalogModalContext.Provider>
-      </EntitiesContext.Provider>
+      <VisualizationProvider controller={controller}>
+        <EntitiesContext.Provider value={null}>
+          <CatalogModalContext.Provider value={mockCatalogModalContext}>{children}</CatalogModalContext.Provider>
+        </EntitiesContext.Provider>
+      </VisualizationProvider>
     );
 
     const { result } = renderHook(() => useInsertStep(mockVizNode), { wrapper: nullEntitiesWrapper });
@@ -183,7 +183,7 @@ describe('useInsertStep', () => {
 
     await result.current.onInsertStep();
 
-    expect(mockController.fromModel).toHaveBeenCalledWith({
+    expect(controller.fromModel).toHaveBeenCalledWith({
       nodes: [],
       edges: [],
     });

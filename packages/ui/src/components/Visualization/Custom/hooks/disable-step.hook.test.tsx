@@ -1,4 +1,3 @@
-import { setValue } from '@kaoto/forms';
 import { renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
@@ -8,10 +7,6 @@ import { createVisualizationNode } from '../../../../models/visualization/visual
 import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
 import { createMockEntitiesContext } from '../../../../stubs/create-mock-entities-context';
 import { useDisableStep } from './disable-step.hook';
-
-vi.mock('@kaoto/forms', () => ({
-  setValue: vi.fn(),
-}));
 
 describe('useDisableStep', () => {
   const camelResource = new CamelRouteResource();
@@ -94,7 +89,7 @@ describe('useDisableStep', () => {
     expect(result.current.isDisabled).toBe(true);
     result.current.onToggleDisableNode();
 
-    expect(setValue).toHaveBeenCalledWith(mockDefinition, 'disabled', false);
+    expect(mockDefinition).toEqual({ disabled: false, id: 'test-step' });
     expect(mockVizNode.updateModel).toHaveBeenCalledWith(mockDefinition);
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
   });
@@ -108,7 +103,7 @@ describe('useDisableStep', () => {
     expect(result.current.isDisabled).toBe(false);
     result.current.onToggleDisableNode();
 
-    expect(setValue).toHaveBeenCalledWith(mockDefinition, 'disabled', true);
+    expect(mockDefinition).toEqual({ disabled: true, id: 'test-step' });
     expect(mockVizNode.updateModel).toHaveBeenCalledWith(mockDefinition);
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
   });
@@ -122,7 +117,7 @@ describe('useDisableStep', () => {
     expect(result.current.isDisabled).toBe(false);
     result.current.onToggleDisableNode();
 
-    expect(setValue).toHaveBeenCalledWith(mockDefinition, 'disabled', true);
+    expect(mockDefinition).toEqual({ disabled: true });
     expect(mockVizNode.updateModel).toHaveBeenCalledWith(mockDefinition);
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
   });
@@ -135,7 +130,7 @@ describe('useDisableStep', () => {
     expect(result.current.isDisabled).toBe(false);
     result.current.onToggleDisableNode();
 
-    expect(setValue).not.toHaveBeenCalled();
+    expect(mockVizNode.data.definition).toBeUndefined();
     expect(mockVizNode.updateModel).not.toHaveBeenCalled();
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).not.toHaveBeenCalled();
   });
