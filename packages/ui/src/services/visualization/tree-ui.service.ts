@@ -135,6 +135,13 @@ export class TreeUIService {
   }
 
   /**
+   * Forgets every tree created so far.
+   */
+  static clear(): void {
+    this.trees.clear();
+  }
+
+  /**
    * Toggle node expansion and update store
    */
   static toggleNode(documentNodeId: string, nodePath: string): void {

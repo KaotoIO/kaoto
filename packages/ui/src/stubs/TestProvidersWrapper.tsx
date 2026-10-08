@@ -1,4 +1,5 @@
 import { SuggestionRegistryProvider } from '@kaoto/forms';
+import { cloneDeep } from 'lodash';
 import { FunctionComponent, PropsWithChildren } from 'react';
 import type { Mock } from 'vitest';
 
@@ -30,7 +31,8 @@ interface TestProvidersWrapperResult {
 export const TestProvidersWrapper = async (
   props: TestProviderWrapperProps = {},
 ): Promise<TestProvidersWrapperResult> => {
-  const camelResource = props.camelResource ?? new CamelRouteResource([camelRouteJson]);
+  // Copy the shared stub: the resource and the actions under test change the definition in place
+  const camelResource = props.camelResource ?? new CamelRouteResource([cloneDeep(camelRouteJson)]);
   // The wrapper is the single initialization point for the resource it renders,
   // whether created here or injected. initialize() is re-runnable, so this is
   // safe even if the caller already initialized — but callers should NOT mutate
