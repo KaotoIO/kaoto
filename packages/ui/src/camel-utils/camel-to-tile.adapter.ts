@@ -92,6 +92,8 @@ export const kameletToTile = async (kameletDef: IKameletDefinition): Promise<ITi
 
   const version = kameletDef.metadata.annotations?.[KameletKnownAnnotations.CatalogVersion];
   const iconUrl = kameletDef.metadata.annotations?.[KameletKnownAnnotations.Icon];
+  const kameletProvider = kameletDef.metadata.annotations?.[KameletKnownAnnotations.Provider];
+  const provider = kameletProvider === 'Apache Software Foundation' ? 'Community' : kameletProvider;
 
   return {
     type: CatalogKind.Kamelet,
@@ -100,6 +102,7 @@ export const kameletToTile = async (kameletDef: IKameletDefinition): Promise<ITi
     description: kameletDef.spec.definition.description,
     headerTags,
     tags,
+    provider,
     version,
     iconUrl,
   };
