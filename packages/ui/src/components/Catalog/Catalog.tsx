@@ -9,7 +9,10 @@ import { BaseCatalog } from './BaseCatalog';
 import { CatalogLayout, ITile } from './Catalog.models';
 import { CatalogFilter } from './CatalogFilter';
 import { filterTiles } from './filter-tiles';
+import { RecentlyUsedTiles } from './RecentlyUsedTiles';
 import { sortTags } from './sort-tags';
+
+export const MAX_RECENT_TILES = 10;
 
 interface CatalogProps {
   /** Tiles list */
@@ -21,6 +24,15 @@ interface CatalogProps {
 
 export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (props) => {
   const [activeLayout, setActiveLayout] = useLocalStorage(LocalStorageKeys.CatalogLayout, CatalogLayout.Gallery);
+  const [recentTiles, setRecentTiles] = useLocalStorage<ITile[]>(LocalStorageKeys.CatalogRecentlyUsed, []);
+  const availableRecentTiles = useMemo(
+    () =>
+      recentTiles.flatMap((recent) => {
+        const tile = props.tiles.find((tile) => tile.name === recent.name && tile.type === recent.type);
+        return tile ? [tile] : [];
+      }),
+    [recentTiles, props.tiles],
+  );
 
   /** Selected Group */
   const [searchTerm, setSearchTerm] = useDebounceValue('', 500, { trailing: true });
@@ -73,11 +85,26 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
     [setSearchTerm],
   );
 
+  const onRecentTileAdded = useCallback(
+    (tile: ITile) => {
+      // Read directly from localStorage to avoid the React state cycle being
+      // cut short when the Modal unmounts immediately after tile selection.
+      const stored = localStorage.getItem(LocalStorageKeys.CatalogRecentlyUsed);
+      const prev: ITile[] = stored ? (JSON.parse(stored) as ITile[]) : [];
+      const deduplicated = [tile, ...prev.filter((t) => !(t.name === tile.name && t.type === tile.type))];
+      const next = deduplicated.slice(0, MAX_RECENT_TILES);
+      localStorage.setItem(LocalStorageKeys.CatalogRecentlyUsed, JSON.stringify(next));
+      setRecentTiles(next);
+    },
+    [setRecentTiles],
+  );
+
   const onTileClick = useCallback(
     (tile: ITile) => {
+      onRecentTileAdded(tile);
       props.onTileClick?.(tile);
     },
-    [props],
+    [onRecentTileAdded, props],
   );
 
   const onTagClick = useCallback((_event: unknown, value = '') => {
@@ -117,6 +144,7 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
         setFilterTags={setFilterTags}
         onSelectProvider={onSelectProvider}
       />
+      <RecentlyUsedTiles recentTiles={availableRecentTiles} onTileClick={onTileClick} />
       <BaseCatalog
         tiles={filteredTilesByGroup}
         catalogLayout={activeLayout}
