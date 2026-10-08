@@ -1,36 +1,27 @@
+import { Visualization, VisualizationProvider } from '@patternfly/react-topology';
 import { renderHook } from '@testing-library/react';
+import { cloneDeep } from 'lodash';
 import { FunctionComponent, PropsWithChildren } from 'react';
-import type { Mock } from 'vitest';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { CatalogKind } from '../../../../models/catalog-kind';
-import { AddStepMode } from '../../../../models/visualization/base-visual-entity';
+import { AddStepMode, DISABLED_NODE_INTERACTION } from '../../../../models/visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows/camel-route-visual-entity';
 import { VisualFlowsApi } from '../../../../models/visualization/flows/support/flows-visibility';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { VisibleFlowsContext, VisibleFlowsContextResult } from '../../../../providers';
 import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
-import { camelRouteJson, createMockEntitiesContext } from '../../../../stubs';
+import { camelRouteJson, createMockEntitiesContext, mockRandomValues } from '../../../../stubs';
 import { updateIds } from '../../../../utils/update-ids';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { useDuplicateStep } from './duplicate-step.hook';
 
-const mockController = {
-  fromModel: vi.fn(),
-};
-
-vi.mock('@patternfly/react-topology', () => ({
-  useVisualizationController: () => mockController,
-}));
-
-// Mock the `updateIds` function
-vi.mock('../../../../utils/update-ids', () => ({
-  updateIds: vi.fn((node) => node),
-}));
+/** The real `updateIds` regenerates the ids; expected contents are computed the same way */
+const getUpdatedContent = (content: object) => updateIds(cloneDeep(content));
 
 describe('useDuplicateStep', () => {
-  const visualEntity = new CamelRouteVisualEntity(camelRouteJson);
+  const visualEntity = new CamelRouteVisualEntity(cloneDeep(camelRouteJson));
   const vizNode = createVisualizationNode('test', {
     name: 'to',
     path: 'route.from.steps.2.to',
@@ -110,25 +101,32 @@ describe('useDuplicateStep', () => {
   const mockVisibleFlowsContext: VisibleFlowsContextResult = {
     visibleFlows: { route: true },
     allFlowsVisible: true,
-    visualFlowsApi: {
-      toggleFlowVisible: vi.fn(),
-    } as unknown as VisualFlowsApi,
+    visualFlowsApi: new VisualFlowsApi(vi.fn()),
   };
 
+  let controller: Visualization;
+
   const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-    <EntitiesContext.Provider value={mockEntitiesContext}>
-      <CatalogModalContext.Provider value={mockCatalogModalContext}>
-        <VisibleFlowsContext.Provider value={mockVisibleFlowsContext}>
-          <NodeInteractionAddonContext.Provider value={mockNodeInteractionAddonContext}>
-            {children}
-          </NodeInteractionAddonContext.Provider>
-        </VisibleFlowsContext.Provider>
-      </CatalogModalContext.Provider>
-    </EntitiesContext.Provider>
+    <VisualizationProvider controller={controller}>
+      <EntitiesContext.Provider value={mockEntitiesContext}>
+        <CatalogModalContext.Provider value={mockCatalogModalContext}>
+          <VisibleFlowsContext.Provider value={mockVisibleFlowsContext}>
+            <NodeInteractionAddonContext.Provider value={mockNodeInteractionAddonContext}>
+              {children}
+            </NodeInteractionAddonContext.Provider>
+          </VisibleFlowsContext.Provider>
+        </CatalogModalContext.Provider>
+      </EntitiesContext.Provider>
+    </VisualizationProvider>
   );
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockRandomValues([1234]);
+    controller = new Visualization();
+    controller.fromModel({ graph: { id: 'graph', type: 'graph' } });
+    vi.spyOn(controller, 'fromModel');
+    vi.spyOn(mockVisibleFlowsContext.visualFlowsApi, 'toggleFlowVisible');
   });
 
   describe('canDuplicate logic', () => {
@@ -164,8 +162,10 @@ describe('useDuplicateStep', () => {
 
     it('should return false when no previous conditions match', () => {
       // set up the vizNode so that it does not have next step capability
-      /* eslint-disable @typescript-eslint/no-explicit-any */
-      vi.spyOn(vizNode, 'getNodeInteraction').mockReturnValueOnce({ canHaveNextStep: false } as any);
+      vi.spyOn(vizNode, 'getNodeInteraction').mockReturnValueOnce({
+        ...DISABLED_NODE_INTERACTION,
+        canHaveNextStep: false,
+      });
 
       const { result } = renderHook(() => useDuplicateStep(vizNode), { wrapper });
 
@@ -183,7 +183,7 @@ describe('useDuplicateStep', () => {
 
       expect(VizNodeGetCopiedContentSpy).toHaveBeenCalledTimes(1);
       expect(VizNodePasteBaseEntityStepSpy).not.toHaveBeenCalled();
-      expect(mockEntitiesContext.updateEntitiesFromCamelResource as Mock).not.toHaveBeenCalled();
+      expect(mockEntitiesContext.updateEntitiesFromCamelResource).not.toHaveBeenCalled();
     });
 
     it('should call pasteBaseEntityStep() and finally updateEntitiesFromCamelResource()', async () => {
@@ -194,10 +194,10 @@ describe('useDuplicateStep', () => {
 
       expect(VizNodePasteBaseEntityStepSpy).toHaveBeenCalledTimes(1);
       expect(VizNodePasteBaseEntityStepSpy).toHaveBeenCalledWith(
-        updateIds(vizNode.getCopiedContent()!),
+        getUpdatedContent(vizNode.getCopiedContent()!),
         AddStepMode.AppendStep,
       );
-      expect(mockEntitiesContext.updateEntitiesFromCamelResource as Mock).toHaveBeenCalledTimes(1);
+      expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalledTimes(1);
     });
 
     it('should call controller.fromModel() when parent node can have special children and conditions are met', async () => {
@@ -208,19 +208,19 @@ describe('useDuplicateStep', () => {
 
       expect(VizNodePasteBaseEntityStepSpy).toHaveBeenCalledTimes(1);
       expect(VizNodePasteBaseEntityStepSpy).toHaveBeenCalledWith(
-        updateIds(whenVizNode.getCopiedContent()!),
+        getUpdatedContent(whenVizNode.getCopiedContent()!),
         AddStepMode.AppendStep,
       );
-      expect(mockController.fromModel).toHaveBeenCalledWith({
+      expect(controller.fromModel).toHaveBeenCalledWith({
         nodes: [],
         edges: [],
       });
-      expect(mockEntitiesContext.updateEntitiesFromCamelResource as Mock).toHaveBeenCalledTimes(1);
+      expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalledTimes(1);
     });
 
     it('should call entitiesContext.camelResource.addNewEntity() with original entity ID and finally updateEntitiesFromCamelResource()', async () => {
       const camelResourceAddNewEntitySpy = vi.spyOn(camelResource, 'addNewEntity');
-      const routeVizNodeContent = updateIds(routeVizNode.getCopiedContent()!);
+      const routeVizNodeContent = getUpdatedContent(routeVizNode.getCopiedContent()!);
       const { result } = renderHook(() => useDuplicateStep(routeVizNode), { wrapper });
       await result.current.onDuplicate();
 
@@ -231,11 +231,11 @@ describe('useDuplicateStep', () => {
         routeVizNode.getId(),
       );
       expect(mockVisibleFlowsContext.visualFlowsApi.toggleFlowVisible).toHaveBeenCalledTimes(1);
-      expect(mockController.fromModel).toHaveBeenCalledWith({
+      expect(controller.fromModel).toHaveBeenCalledWith({
         nodes: [],
         edges: [],
       });
-      expect(mockEntitiesContext.updateEntitiesFromCamelResource as Mock).toHaveBeenCalledTimes(1);
+      expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalledTimes(1);
     });
   });
 });

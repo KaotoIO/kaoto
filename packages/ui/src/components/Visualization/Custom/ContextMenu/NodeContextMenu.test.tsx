@@ -3,46 +3,47 @@ import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { ElementModel, GraphElement, Model, VisualizationProvider } from '@patternfly/react-topology';
 import { render } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
-import type { Mock } from 'vitest';
 
+import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { createVisualizationNode, IVisualizationNode, NodeInteraction } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel';
 import { EntityType } from '../../../../models/entities';
+import { ClipboardService } from '../../../../services/visualization/clipboard.service';
 import { camelRouteWithDisabledSteps, TestProvidersWrapper } from '../../../../stubs';
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../../stubs/test-load-catalog';
 import { CanvasNode } from '../../Canvas';
 import { ControllerService } from '../../Canvas/controller.service';
 import { FlowService } from '../../Canvas/flow.service';
-import { useDuplicateStep } from '../hooks/duplicate-step.hook';
-import { usePasteStep } from '../hooks/paste-step.hook';
 import { NodeContextMenu } from './NodeContextMenu';
-
-// Mock the `usePasteStep` hook
-vi.mock('../hooks/paste-step.hook', () => ({
-  usePasteStep: vi.fn(),
-}));
-
-// Mock the `useDuplicateStep` hook
-vi.mock('../hooks/duplicate-step.hook', () => ({
-  useDuplicateStep: vi.fn(),
-}));
 
 describe('NodeContextMenu', () => {
   let element: GraphElement<ElementModel, CanvasNode['data']>;
   let vizNode: IVisualizationNode | undefined;
   let nodeInteractions: NodeInteraction;
+  let TestWrapper: FunctionComponent<PropsWithChildren>;
+
+  /** Decides whether the clipboard content can be pasted / the node duplicated (`useDuplicateStep` / `usePasteStep`) */
+  const mockCatalogModalContext = {
+    setIsModalOpen: vi.fn(),
+    getNewComponent: vi.fn(),
+    checkCompatibility: vi.fn(),
+  };
+  const copiedContent = { name: 'log', definition: { message: 'hello' } };
+
+  /** jsdom has no Permissions API: install one granting the clipboard access, and restore the original afterwards */
+  let originalPermissions: PropertyDescriptor | undefined;
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     setupDynamicCatalogRegistry(catalogsMap);
+  });
 
-    (useDuplicateStep as Mock).mockReturnValue({
-      canDuplicate: false,
-    });
-
-    (usePasteStep as Mock).mockReturnValue({
-      isCompatible: false,
-    });
+  afterEach(() => {
+    if (originalPermissions) {
+      Object.defineProperty(navigator, 'permissions', originalPermissions);
+    } else {
+      Reflect.deleteProperty(navigator, 'permissions');
+    }
   });
 
   beforeEach(async () => {
@@ -65,20 +66,35 @@ describe('NodeContextMenu', () => {
       description: '',
     });
     vi.spyOn(vizNode, 'getNodeInteraction').mockReturnValue(nodeInteractions);
-    element = {
-      getData: () => {
-        return { vizNode } as CanvasNode['data'];
-      },
-    } as unknown as GraphElement<ElementModel, CanvasNode['data']>;
-  });
+    vi.spyOn(vizNode, 'getCopiedContent').mockReturnValue(copiedContent);
 
-  const TestWrapper: FunctionComponent<PropsWithChildren> = ({ children }) => {
+    /* By default, neither the clipboard content nor the node copy are compatible */
+    mockCatalogModalContext.checkCompatibility.mockReset().mockReturnValue(false);
+    vi.spyOn(ClipboardService, 'paste').mockResolvedValue(copiedContent);
+    originalPermissions = Object.getOwnPropertyDescriptor(navigator, 'permissions');
+    Object.defineProperty(navigator, 'permissions', {
+      configurable: true,
+      value: { query: vi.fn().mockResolvedValue({ state: 'granted' }) },
+    });
+
+    /* A real canvas node holding the visualization node */
     const visualizationController = ControllerService.createController();
-    return <VisualizationProvider controller={visualizationController}>{children}</VisualizationProvider>;
-  };
+    visualizationController.fromModel({ nodes: [{ id: 'test', type: 'node', data: { vizNode } }] }, true);
+    element = visualizationController.getNodeById('test')!;
+
+    const { Provider } = await TestProvidersWrapper();
+    TestWrapper = ({ children }) => (
+      <Provider>
+        <VisualizationProvider controller={visualizationController}>
+          <CatalogModalContext.Provider value={mockCatalogModalContext}>{children}</CatalogModalContext.Provider>
+        </VisualizationProvider>
+      </Provider>
+    );
+  });
 
   it('should render an empty component when there is no vizNode', () => {
     vizNode = undefined;
+    element.setData(undefined);
     const { container } = render(<NodeContextMenu element={element} />);
 
     expect(container).toMatchSnapshot();
@@ -112,10 +128,8 @@ describe('NodeContextMenu', () => {
 
   it('should render a Duplicate item if canDuplicate is true ', () => {
     nodeInteractions.canHaveNextStep = true;
-    // Mock the `useDuplicateStep` hook
-    (useDuplicateStep as Mock).mockReturnValue({
-      canDuplicate: true,
-    });
+    // The node copy is compatible as a next step, so the real `useDuplicateStep` allows duplicating it
+    mockCatalogModalContext.checkCompatibility.mockReturnValue(true);
 
     const wrapper = render(<NodeContextMenu element={element} />, { wrapper: TestWrapper });
 
@@ -133,30 +147,26 @@ describe('NodeContextMenu', () => {
     expect(item).toBeInTheDocument();
   });
 
-  it('should render an Paste as child item if canHaveChildren and isCompatible is true', () => {
+  it('should render an Paste as child item if canHaveChildren and isCompatible is true', async () => {
     nodeInteractions.canHaveChildren = true;
-    // Mock the `usePasteStep` hook to return compatible state
-    (usePasteStep as Mock).mockReturnValue({
-      isCompatible: true,
-    });
+    // The clipboard content is compatible, so the real `usePasteStep` allows pasting it
+    mockCatalogModalContext.checkCompatibility.mockReturnValue(true);
 
     const wrapper = render(<NodeContextMenu element={element} />, { wrapper: TestWrapper });
 
-    const item = wrapper.getByTestId('context-menu-item-paste-as-child');
+    const item = await wrapper.findByTestId('context-menu-item-paste-as-child');
 
     expect(item).toBeInTheDocument();
   });
 
-  it('should render a Paste as next step item if canHaveNextStep and isCompatible is true ', () => {
+  it('should render a Paste as next step item if canHaveNextStep and isCompatible is true ', async () => {
     nodeInteractions.canHaveNextStep = true;
-    // Mock the `usePasteStep` hook to return compatible state
-    (usePasteStep as Mock).mockReturnValue({
-      isCompatible: true,
-    });
+    // The clipboard content is compatible, so the real `usePasteStep` allows pasting it
+    mockCatalogModalContext.checkCompatibility.mockReturnValue(true);
 
     const wrapper = render(<NodeContextMenu element={element} />, { wrapper: TestWrapper });
 
-    const item = wrapper.getByTestId('context-menu-item-paste-as-next-step');
+    const item = await wrapper.findByTestId('context-menu-item-paste-as-next-step');
 
     expect(item).toBeInTheDocument();
   });
@@ -170,16 +180,14 @@ describe('NodeContextMenu', () => {
     expect(item).toBeInTheDocument();
   });
 
-  it('should render an Paste as special child item if canHaveSpecialChildren and isCompatible is true', () => {
+  it('should render an Paste as special child item if canHaveSpecialChildren and isCompatible is true', async () => {
     nodeInteractions.canHaveSpecialChildren = true;
-    // Mock the `usePasteStep` hook to return compatible state
-    (usePasteStep as Mock).mockReturnValue({
-      isCompatible: true,
-    });
+    // The clipboard content is compatible, so the real `usePasteStep` allows pasting it
+    mockCatalogModalContext.checkCompatibility.mockReturnValue(true);
 
     const wrapper = render(<NodeContextMenu element={element} />, { wrapper: TestWrapper });
 
-    const item = wrapper.getByTestId('context-menu-item-paste-as-special-child');
+    const item = await wrapper.findByTestId('context-menu-item-paste-as-special-child');
 
     expect(item).toBeInTheDocument();
   });

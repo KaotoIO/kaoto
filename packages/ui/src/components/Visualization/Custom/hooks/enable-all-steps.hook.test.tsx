@@ -1,7 +1,6 @@
-import { ElementModel, Node } from '@patternfly/react-topology';
+import { Model, Visualization, VisualizationProvider } from '@patternfly/react-topology';
 import { act, renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
-import type { MockedFunction } from 'vitest';
 
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { EntityType } from '../../../../models/entities';
@@ -9,42 +8,44 @@ import { IVisualizationNode } from '../../../../models/visualization/base-visual
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
 import { createMockEntitiesContext } from '../../../../stubs';
-import { getVisualizationNodesFromGraph } from '../../../../utils/get-viznodes-from-graph';
-import { setValue } from '../../../../utils/set-value';
 import { useEnableAllSteps } from './enable-all-steps.hook';
 
-const mockController = {
-  getGraph: vi.fn(),
+/** Creates a visualization node whose definition is the given one */
+const createStepNode = (id: string, definition?: Record<string, unknown>): IVisualizationNode => {
+  const vizNode: IVisualizationNode = createVisualizationNode(id, {
+    name: EntityType.Route,
+    isPlaceholder: false,
+    isGroup: false,
+    iconUrl: '',
+    title: '',
+    description: '',
+  });
+  vizNode.data.definition = definition;
+
+  return vizNode;
 };
 
-vi.mock('@patternfly/react-topology', () => ({
-  useVisualizationController: () => mockController,
-}));
-
-vi.mock('../../../../utils/get-viznodes-from-graph');
-const mockGetVisualizationNodesFromGraph = getVisualizationNodesFromGraph as MockedFunction<
-  typeof getVisualizationNodesFromGraph
->;
-
-vi.mock('../../../../utils/set-value');
-const mockSetValue = setValue as MockedFunction<typeof setValue>;
+/** Builds the canvas nodes holding the given visualization nodes */
+const toCanvasNodes = (vizNodes: IVisualizationNode[]): Model['nodes'] =>
+  vizNodes.map((vizNode, index) => ({ id: `node-${index}`, type: 'node', data: { vizNode } }));
 
 describe('useEnableAllSteps', () => {
   const camelResource = new CamelRouteResource();
-  let mockGraph: Node<ElementModel, unknown>;
+  let controller: Visualization;
   let mockEntitiesContext: EntitiesContextResult;
 
   beforeAll(async () => {
     mockEntitiesContext = await createMockEntitiesContext(camelResource);
   });
 
-  beforeEach(() => {
-    mockGraph = {
-      getNodes: vi.fn().mockReturnValue([]),
-    } as unknown as Node<ElementModel, unknown>;
+  /** Fills the real topology controller graph with the given visualization nodes */
+  const setGraphNodes = (vizNodes: IVisualizationNode[]) => {
+    controller.fromModel({ graph: { id: 'graph', type: 'graph' }, nodes: toCanvasNodes(vizNodes) }, false);
+  };
 
-    mockController.getGraph.mockReturnValue(mockGraph);
-    mockGetVisualizationNodesFromGraph.mockReturnValue([]);
+  beforeEach(() => {
+    controller = new Visualization();
+    setGraphNodes([]);
   });
 
   afterEach(() => {
@@ -52,7 +53,9 @@ describe('useEnableAllSteps', () => {
   });
 
   const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-    <EntitiesContext.Provider value={mockEntitiesContext}>{children}</EntitiesContext.Provider>
+    <VisualizationProvider controller={controller}>
+      <EntitiesContext.Provider value={mockEntitiesContext}>{children}</EntitiesContext.Provider>
+    </VisualizationProvider>
   );
 
   it('should return onEnableAllSteps function and areMultipleStepsDisabled status', () => {
@@ -65,7 +68,7 @@ describe('useEnableAllSteps', () => {
   });
 
   it('should return areMultipleStepsDisabled as false when no disabled steps', () => {
-    mockGetVisualizationNodesFromGraph.mockReturnValue([]);
+    setGraphNodes([createStepNode('enabled-step', { disabled: false })]);
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
@@ -73,16 +76,7 @@ describe('useEnableAllSteps', () => {
   });
 
   it('should return areMultipleStepsDisabled as false when only one disabled step', () => {
-    const disabledNode = createVisualizationNode('disabled-step', {
-      name: EntityType.Route,
-      disabled: true,
-      isPlaceholder: false,
-      isGroup: false,
-      iconUrl: '',
-      title: '',
-      description: '',
-    });
-    mockGetVisualizationNodesFromGraph.mockReturnValue([disabledNode]);
+    setGraphNodes([createStepNode('disabled-step', { disabled: true })]);
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
@@ -90,25 +84,10 @@ describe('useEnableAllSteps', () => {
   });
 
   it('should return areMultipleStepsDisabled as true when multiple disabled steps', () => {
-    const disabledNode1 = createVisualizationNode('disabled-step-1', {
-      name: EntityType.Route,
-      disabled: true,
-      isPlaceholder: false,
-      isGroup: false,
-      iconUrl: '',
-      title: '',
-      description: '',
-    });
-    const disabledNode2 = createVisualizationNode('disabled-step-2', {
-      name: EntityType.Route,
-      disabled: true,
-      isPlaceholder: false,
-      isGroup: false,
-      iconUrl: '',
-      title: '',
-      description: '',
-    });
-    mockGetVisualizationNodesFromGraph.mockReturnValue([disabledNode1, disabledNode2]);
+    setGraphNodes([
+      createStepNode('disabled-step-1', { disabled: true }),
+      createStepNode('disabled-step-2', { disabled: true }),
+    ]);
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
@@ -116,66 +95,11 @@ describe('useEnableAllSteps', () => {
   });
 
   it('should call getVisualizationNodesFromGraph with correct parameters', () => {
-    renderHook(() => useEnableAllSteps(), { wrapper });
-
-    expect(mockGetVisualizationNodesFromGraph).toHaveBeenCalledWith(mockGraph, expect.any(Function));
-
-    const filterFunction = mockGetVisualizationNodesFromGraph.mock.calls[0][1];
-
-    // Test the filter function
-    const enabledNode = createVisualizationNode('enabled', {
-      name: EntityType.Route,
-      isPlaceholder: false,
-      isGroup: false,
-      iconUrl: '',
-      title: '',
-      description: '',
-    });
-    (enabledNode as IVisualizationNode).data.definition = { disabled: false };
-
-    const disabledNode = createVisualizationNode('disabled', {
-      name: EntityType.Route,
-      disabled: true,
-      isPlaceholder: false,
-      isGroup: false,
-      iconUrl: '',
-      title: '',
-      description: '',
-    });
-    (disabledNode as IVisualizationNode).data.definition = { disabled: true };
-
-    expect(filterFunction?.(enabledNode)).toBe(false);
-    expect(filterFunction?.(disabledNode)).toBe(true);
-  });
-
-  it('should enable all disabled steps when onEnableAllSteps is called', () => {
-    const disabledNode1 = createVisualizationNode('disabled-step-1', {
-      name: EntityType.Route,
-      disabled: true,
-      isPlaceholder: false,
-      isGroup: false,
-      iconUrl: '',
-      title: '',
-      description: '',
-    });
-    const mockDefinition1 = { disabled: true, id: 'step1' };
-    (disabledNode1 as IVisualizationNode).data.definition = mockDefinition1;
-    disabledNode1.updateModel = vi.fn();
-
-    const disabledNode2 = createVisualizationNode('disabled-step-2', {
-      name: EntityType.Route,
-      disabled: true,
-      isPlaceholder: false,
-      isGroup: false,
-      iconUrl: '',
-      title: '',
-      description: '',
-    });
-    const mockDefinition2 = { disabled: true, id: 'step2' };
-    (disabledNode2 as IVisualizationNode).data.definition = mockDefinition2;
-    disabledNode2.updateModel = vi.fn();
-
-    mockGetVisualizationNodesFromGraph.mockReturnValue([disabledNode1, disabledNode2]);
+    const enabledNode = createStepNode('enabled', { disabled: false });
+    const disabledNode = createStepNode('disabled', { disabled: true });
+    vi.spyOn(enabledNode, 'updateModel').mockImplementation(() => {});
+    vi.spyOn(disabledNode, 'updateModel').mockImplementation(() => {});
+    setGraphNodes([enabledNode, disabledNode]);
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
@@ -183,68 +107,74 @@ describe('useEnableAllSteps', () => {
       result.current.onEnableAllSteps();
     });
 
-    expect(mockSetValue).toHaveBeenCalledTimes(2);
-    expect(mockSetValue).toHaveBeenCalledWith(mockDefinition1, 'disabled', false);
-    expect(mockSetValue).toHaveBeenCalledWith(mockDefinition2, 'disabled', false);
+    /* Only the nodes of the controller graph whose definition is disabled are collected */
+    expect(enabledNode.updateModel).not.toHaveBeenCalled();
+    expect(disabledNode.updateModel).toHaveBeenCalledWith({ disabled: false });
+  });
+
+  it('should enable all disabled steps when onEnableAllSteps is called', () => {
+    const mockDefinition1 = { disabled: true, id: 'step1' };
+    const disabledNode1 = createStepNode('disabled-step-1', mockDefinition1);
+    vi.spyOn(disabledNode1, 'updateModel').mockImplementation(() => {});
+
+    const mockDefinition2 = { disabled: true, id: 'step2' };
+    const disabledNode2 = createStepNode('disabled-step-2', mockDefinition2);
+    vi.spyOn(disabledNode2, 'updateModel').mockImplementation(() => {});
+
+    setGraphNodes([disabledNode1, disabledNode2]);
+
+    const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
+
+    act(() => {
+      result.current.onEnableAllSteps();
+    });
+
+    expect(mockDefinition1).toEqual({ disabled: false, id: 'step1' });
+    expect(mockDefinition2).toEqual({ disabled: false, id: 'step2' });
     expect(disabledNode1.updateModel).toHaveBeenCalledWith(mockDefinition1);
     expect(disabledNode2.updateModel).toHaveBeenCalledWith(mockDefinition2);
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
   });
 
   it('should handle nodes with empty definition objects', () => {
-    const disabledNode = createVisualizationNode('disabled-step', {
-      name: EntityType.Route,
-      isPlaceholder: false,
-      isGroup: false,
-      iconUrl: '',
-      title: '',
-      description: '',
-    });
-    const mockDefinition = {};
-    (disabledNode as IVisualizationNode).data.definition = mockDefinition;
-    disabledNode.updateModel = vi.fn();
-
-    mockGetVisualizationNodesFromGraph.mockReturnValue([disabledNode]);
+    const disabledNode = createStepNode('disabled-step', { disabled: true });
+    vi.spyOn(disabledNode, 'updateModel').mockImplementation(() => {});
+    setGraphNodes([disabledNode]);
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
+
+    /* The definition changes after the disabled nodes were collected */
+    const mockDefinition = {};
+    disabledNode.data.definition = mockDefinition;
 
     act(() => {
       result.current.onEnableAllSteps();
     });
 
-    expect(mockSetValue).toHaveBeenCalledWith(mockDefinition, 'disabled', false);
+    expect(mockDefinition).toEqual({ disabled: false });
     expect(disabledNode.updateModel).toHaveBeenCalledWith(mockDefinition);
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
   });
 
   it('should handle nodes with undefined definition', () => {
-    const disabledNode = createVisualizationNode('disabled-step', {
-      name: EntityType.Route,
-      isPlaceholder: false,
-      isGroup: false,
-      iconUrl: '',
-      title: '',
-      description: '',
-    });
-    (disabledNode as IVisualizationNode).data.definition = undefined;
-    disabledNode.updateModel = vi.fn();
-
-    mockGetVisualizationNodesFromGraph.mockReturnValue([disabledNode]);
+    const disabledNode = createStepNode('disabled-step', { disabled: true });
+    vi.spyOn(disabledNode, 'updateModel').mockImplementation(() => {});
+    setGraphNodes([disabledNode]);
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
+
+    /* The definition is removed after the disabled nodes were collected */
+    disabledNode.data.definition = undefined;
 
     act(() => {
       result.current.onEnableAllSteps();
     });
 
-    expect(mockSetValue).toHaveBeenCalledWith({}, 'disabled', false);
-    expect(disabledNode.updateModel).toHaveBeenCalledWith({});
+    expect(disabledNode.updateModel).toHaveBeenCalledWith({ disabled: false });
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
   });
 
   it('should not call updateEntitiesFromCamelResource when no disabled steps', () => {
-    mockGetVisualizationNodesFromGraph.mockReturnValue([]);
-
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
     result.current.onEnableAllSteps();
@@ -253,8 +183,6 @@ describe('useEnableAllSteps', () => {
   });
 
   it('should maintain stable reference when dependencies do not change', () => {
-    mockGetVisualizationNodesFromGraph.mockReturnValue([]);
-
     const { result, rerender } = renderHook(() => useEnableAllSteps(), { wrapper });
 
     const firstResult = result.current;
@@ -264,34 +192,16 @@ describe('useEnableAllSteps', () => {
   });
 
   it('should update when disabled nodes change', () => {
-    // Start with empty array
-    mockGetVisualizationNodesFromGraph.mockReturnValue([]);
-
+    // Start with an empty graph
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
 
     expect(result.current.areMultipleStepsDisabled).toBe(false);
 
     // Now simulate nodes becoming disabled
-    const disabledNode1 = createVisualizationNode('disabled-step-1', {
-      name: EntityType.Route,
-      isPlaceholder: false,
-      isGroup: false,
-      iconUrl: '',
-      title: '',
-      description: '',
-    });
-    (disabledNode1 as IVisualizationNode).data.definition = { disabled: true };
-    const disabledNode2 = createVisualizationNode('disabled-step-2', {
-      name: EntityType.Route,
-      isPlaceholder: false,
-      isGroup: false,
-      iconUrl: '',
-      title: '',
-      description: '',
-    });
-    (disabledNode2 as IVisualizationNode).data.definition = { disabled: true };
-
-    mockGetVisualizationNodesFromGraph.mockReturnValue([disabledNode1, disabledNode2]);
+    setGraphNodes([
+      createStepNode('disabled-step-1', { disabled: true }),
+      createStepNode('disabled-step-2', { disabled: true }),
+    ]);
 
     // Re-render the hook with new disabled nodes
     const { result: newResult } = renderHook(() => useEnableAllSteps(), { wrapper });

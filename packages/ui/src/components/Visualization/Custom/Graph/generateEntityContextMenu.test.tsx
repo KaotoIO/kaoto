@@ -1,17 +1,7 @@
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, within } from '@testing-library/react';
 
 import { EntityType } from '../../../../models/entities';
 import { generateEntityContextMenu } from './generateEntityContextMenu';
-
-vi.mock('@patternfly/react-topology', () => ({
-  ContextMenuItem: vi.fn(({ children, ...props }) => <div {...props}>{children}</div>),
-  ContextSubMenuItem: vi.fn(({ label, children, ...props }) => (
-    <div {...props}>
-      <span>{label}</span>
-      {children}
-    </div>
-  )),
-}));
 
 describe('generateEntityContextMenu', () => {
   const createEntity = vi.fn();
@@ -82,46 +72,50 @@ describe('generateEntityContextMenu', () => {
 
     commonEntities.forEach((entity) => {
       const item = getByTestId(`new-entity-${entity.name}`);
-      fireEvent.click(item);
+      fireEvent.click(within(item).getByRole('menuitem'));
       expect(createEntity).toHaveBeenCalledWith(entity.name);
     });
   });
 
-  it('renders groupedEntities as submenus with correct items', () => {
+  it('renders groupedEntities as submenus with correct items', async () => {
     const items = generateEntityContextMenu({
       commonEntities: [],
       groupedEntities,
       createEntity,
     });
 
-    const { getByText, getByTestId } = render(<>{items}</>);
+    const { getByText, findByTestId } = render(<>{items}</>);
 
-    Object.entries(groupedEntities).forEach(([groupName, entities]) => {
+    for (const [groupName, entities] of Object.entries(groupedEntities)) {
       expect(getByText(groupName)).toBeInTheDocument();
-      entities.forEach((entity) => {
-        const item = getByTestId(`new-entity-${entity.name}`);
+      /* The submenu items are rendered once the submenu is hovered */
+      fireEvent.mouseEnter(getByText(groupName));
+      for (const entity of entities) {
+        const item = await findByTestId(`new-entity-${entity.name}`);
         expect(item).toBeInTheDocument();
         expect(item).toHaveTextContent(entity.title);
-      });
-    });
+      }
+    }
   });
 
-  it('calls createEntity when groupedEntities menu item is mouse downed', () => {
+  it('calls createEntity when groupedEntities menu item is mouse downed', async () => {
     const items = generateEntityContextMenu({
       commonEntities: [],
       groupedEntities,
       createEntity,
     });
 
-    const { getByTestId } = render(<>{items}</>);
+    const { getByText, findByTestId } = render(<>{items}</>);
 
-    Object.values(groupedEntities)
-      .flat()
-      .forEach((entity) => {
-        const item = getByTestId(`new-entity-${entity.name}`);
-        fireEvent.mouseDown(item);
+    for (const [groupName, entities] of Object.entries(groupedEntities)) {
+      /* The submenu items are rendered once the submenu is hovered */
+      fireEvent.mouseEnter(getByText(groupName));
+      for (const entity of entities) {
+        const item = await findByTestId(`new-entity-${entity.name}`);
+        fireEvent.mouseDown(within(item).getByRole('menuitem'));
         expect(createEntity).toHaveBeenCalledWith(entity.name);
-      });
+      }
+    }
   });
 
   it('returns empty array if no entities are provided', () => {

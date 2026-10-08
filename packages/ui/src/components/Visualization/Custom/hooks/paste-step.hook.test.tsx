@@ -1,11 +1,11 @@
+import { Visualization, VisualizationProvider } from '@patternfly/react-topology';
 import { renderHook, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
-import type { Mock } from 'vitest';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { CatalogKind } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
-import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
+import { AddStepMode } from '../../../../models/visualization/base-visual-entity';
 import { IClipboardContent } from '../../../../models/visualization/clipboard';
 import { ProcessorStepsService } from '../../../../models/visualization/flows/support/processor-steps.service';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
@@ -13,14 +13,6 @@ import { EntitiesContext, EntitiesContextResult } from '../../../../providers/en
 import { ClipboardService } from '../../../../services/visualization/clipboard.service';
 import { createMockEntitiesContext } from '../../../../stubs';
 import { usePasteStep } from './paste-step.hook';
-
-const mockController = {
-  fromModel: vi.fn(),
-};
-
-vi.mock('@patternfly/react-topology', () => ({
-  useVisualizationController: () => mockController,
-}));
 
 // Mock the permission API
 Object.assign(navigator, {
@@ -51,18 +43,45 @@ describe('usePasteStep', () => {
     definition: { id: 'test', message: 'hello' },
   };
 
+  let controller: Visualization;
+
+  beforeEach(() => {
+    controller = new Visualization();
+    controller.fromModel({ graph: { id: 'graph', type: 'graph' } });
+    vi.spyOn(controller, 'fromModel');
+  });
+
   afterEach(() => {
     vi.clearAllMocks();
   });
 
+  /** A step node whose `pasteBaseEntityStep` is spied */
+  const createStepNode = () => {
+    const vizNode = createVisualizationNode('test', {
+      name: 'test',
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
+    vi.spyOn(vizNode, 'pasteBaseEntityStep').mockImplementation(() => {});
+
+    return vizNode;
+  };
+
   const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-    <EntitiesContext.Provider value={mockEntitiesContext}>
-      <CatalogModalContext.Provider value={mockCatalogModalContext}>{children}</CatalogModalContext.Provider>
-    </EntitiesContext.Provider>
+    <VisualizationProvider controller={controller}>
+      <EntitiesContext.Provider value={mockEntitiesContext}>
+        <CatalogModalContext.Provider value={mockCatalogModalContext}>{children}</CatalogModalContext.Provider>
+      </EntitiesContext.Provider>
+    </VisualizationProvider>
   );
 
   it('should return the isCompatible false', async () => {
-    vi.spyOn(navigator.permissions, 'query').mockResolvedValueOnce({ state: 'granted' } as PermissionStatus);
+    const querySpy = vi
+      .spyOn(navigator.permissions, 'query')
+      .mockResolvedValueOnce({ state: 'granted' } as PermissionStatus);
     vi.spyOn(ClipboardService, 'paste').mockResolvedValueOnce(null);
 
     const vizNode = createVisualizationNode('test', {
@@ -79,11 +98,11 @@ describe('usePasteStep', () => {
       expect(result.current.isCompatible).toBe(false);
     });
 
-    expect(navigator.permissions.query as Mock).toHaveBeenCalledTimes(1);
+    expect(querySpy).toHaveBeenCalledTimes(1);
   });
 
   it('should return the isCompatible true when clipboard-read permission returns rejected', async () => {
-    vi.spyOn(navigator.permissions, 'query').mockRejectedValueOnce(new Error('Permission error'));
+    const querySpy = vi.spyOn(navigator.permissions, 'query').mockRejectedValueOnce(new Error('Permission error'));
     vi.spyOn(console, 'error').mockImplementation(() => {});
     const vizNode = createVisualizationNode('test', {
       name: 'test',
@@ -101,15 +120,12 @@ describe('usePasteStep', () => {
       expect(result.current.isCompatible).toBe(true);
     });
 
-    expect(navigator.permissions.query as Mock).toHaveBeenCalledTimes(1);
+    expect(querySpy).toHaveBeenCalledTimes(1);
   });
 
   it('should call pasteBaseEntityStep() and updateEntitiesFromCamelResource()', async () => {
     vi.spyOn(navigator.permissions, 'query').mockResolvedValue({ state: 'granted' } as PermissionStatus);
-    const mockVizNode = {
-      data: {},
-      pasteBaseEntityStep: vi.fn(),
-    } as unknown as IVisualizationNode;
+    const mockVizNode = createStepNode();
 
     // Mock the ClipboardService.paste() to return a valid content
     const pasteSpy = vi
@@ -124,24 +140,21 @@ describe('usePasteStep', () => {
       // ClipboardService.paste() called once by the effect to check compatibility and populate the cache
       expect(pasteSpy).toHaveBeenCalledTimes(1);
       expect(getCompatibleComponentsSpy).toHaveBeenCalledTimes(1);
-      expect(mockCatalogModalContext.checkCompatibility as Mock).toHaveBeenCalledTimes(1);
+      expect(mockCatalogModalContext.checkCompatibility).toHaveBeenCalledTimes(1);
     });
 
     await result.current.onPasteStep();
     // onPasteStep reuses the cache — no additional paste() call
     expect(pasteSpy).toHaveBeenCalledTimes(1);
     expect(getCompatibleComponentsSpy).toHaveBeenCalledTimes(2);
-    expect(mockCatalogModalContext.checkCompatibility as Mock).toHaveBeenCalledTimes(2);
-    expect(mockVizNode.pasteBaseEntityStep as Mock).toHaveBeenCalledTimes(1);
-    expect(mockEntitiesContext.updateEntitiesFromCamelResource as Mock).toHaveBeenCalledTimes(1);
+    expect(mockCatalogModalContext.checkCompatibility).toHaveBeenCalledTimes(2);
+    expect(mockVizNode.pasteBaseEntityStep).toHaveBeenCalledTimes(1);
+    expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalledTimes(1);
   });
 
   it('should not call pasteBaseEntityStep() and updateEntitiesFromCamelResource()', async () => {
     vi.spyOn(navigator.permissions, 'query').mockRejectedValueOnce(new Error('Permission error'));
-    const mockVizNode = {
-      data: {},
-      pasteBaseEntityStep: vi.fn(),
-    } as unknown as IVisualizationNode;
+    const mockVizNode = createStepNode();
 
     // Mock the ClipboardService.paste() to return a content which isn't compatible
     const pasteSpy = vi.spyOn(ClipboardService, 'paste').mockImplementation(
@@ -165,8 +178,8 @@ describe('usePasteStep', () => {
     await result.current.onPasteStep();
     // Cache is null (permission failed) → onPasteStep exits early, no paste() call
     expect(pasteSpy).toHaveBeenCalledTimes(0);
-    expect(mockVizNode.pasteBaseEntityStep as Mock).toHaveBeenCalledTimes(0);
-    expect(mockEntitiesContext.updateEntitiesFromCamelResource as Mock).toHaveBeenCalledTimes(0);
+    expect(mockVizNode.pasteBaseEntityStep).toHaveBeenCalledTimes(0);
+    expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalledTimes(0);
   });
 
   describe('onPasteStep', () => {
@@ -198,7 +211,6 @@ describe('usePasteStep', () => {
       vi.spyOn(ClipboardService, 'paste').mockResolvedValue(whenContent);
       // Mock the compatibility check to return true
       vi.spyOn(mockCatalogModalContext, 'checkCompatibility').mockReturnValue(true);
-      mockController.fromModel.mockClear();
     });
 
     it('should paste step with InsertSpecialChildStep mode', async () => {
@@ -252,7 +264,7 @@ describe('usePasteStep', () => {
       });
       await result.current.onPasteStep();
 
-      expect(mockController.fromModel).toHaveBeenCalledWith({
+      expect(controller.fromModel).toHaveBeenCalledWith({
         nodes: [],
         edges: [],
       });
