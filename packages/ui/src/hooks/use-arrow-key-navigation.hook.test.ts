@@ -1,19 +1,11 @@
 import { renderHook } from '@testing-library/react';
-import hotkeys from 'hotkeys-js';
-import type { Mock } from 'vitest';
+import hotkeys, { KeyHandler } from 'hotkeys-js';
 
 import { CanvasDefaults } from '../components/Visualization/Canvas/canvas.defaults';
 import { useArrowKeyNavigation } from './use-arrow-key-navigation.hook';
 
-// Mock hotkeys-js — same pattern as delete-hotkey.hook.test.tsx
-vi.mock('hotkeys-js', () => {
-  const mockHotkeys = vi.fn();
-  const mockUnbind = vi.fn();
-  Object.assign(mockHotkeys, { unbind: mockUnbind });
-  return { __esModule: true, default: mockHotkeys };
-});
-
-const mockHotkeys = hotkeys as unknown as Mock & { unbind: Mock };
+/* hotkeys-js is mocked globally in vitest-mocks-setup.ts */
+const mockHotkeys = vi.mocked(hotkeys);
 
 describe('useArrowKeyNavigation', () => {
   let node1: SVGGElement;
@@ -61,10 +53,11 @@ describe('useArrowKeyNavigation', () => {
 
   /** Render the hook and capture the handler registered with hotkeys */
   function setupHook(): (key: string) => void {
-    const handlers: Record<string, (e: KeyboardEvent) => void> = {};
-    mockHotkeys.mockImplementation((keys: string, handler: (e: KeyboardEvent) => void) => {
+    const handlers: Record<string, KeyHandler> = {};
+    mockHotkeys.mockImplementation((keys: string, ...args: unknown[]) => {
+      const handler = args.find((arg): arg is KeyHandler => typeof arg === 'function');
       keys.split(',').forEach((k) => {
-        handlers[k.trim()] = handler;
+        if (handler) handlers[k.trim()] = handler;
       });
     });
     renderHook(() => {
@@ -73,7 +66,14 @@ describe('useArrowKeyNavigation', () => {
     // Return a helper that fires the captured handler for the given key name
     return (key: string) => {
       const handler = handlers[key.toLowerCase()] ?? handlers[key];
-      handler?.({ key, preventDefault: vi.fn() } as unknown as KeyboardEvent);
+      handler?.(new KeyboardEvent('keydown', { key }), {
+        key,
+        keys: [],
+        method: handler,
+        mods: [],
+        scope: 'all',
+        shortcut: key,
+      });
     };
   }
 

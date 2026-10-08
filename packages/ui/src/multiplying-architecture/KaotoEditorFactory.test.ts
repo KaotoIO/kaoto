@@ -1,5 +1,3 @@
-vi.mock('./KaotoEditorApp');
-vi.mock('react-router-dom');
 import { EditorInitArgs, KogitoEditorEnvelopeContextType } from '@kie-tools-core/editor/dist/api';
 
 import { CanvasLayoutDirection, ColorScheme, ISettingsModel, NodeLabelType, NodeToolbarTrigger } from '../models';
@@ -7,11 +5,16 @@ import { KaotoEditorApp } from './KaotoEditorApp';
 import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
 import { KaotoEditorFactory } from './KaotoEditorFactory';
 
-describe('KaotoEditorFactory', () => {
-  afterAll(() => {
-    vi.clearAllMocks();
-  });
+type SettingsRequests = Pick<
+  KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>['channelApi']['requests'],
+  'getVSCodeKaotoSettings' | 'getCatalogURL'
+>;
 
+/** An envelope context exposing only the settings requests used by the factory */
+const createEnvelopeContext = (requests: SettingsRequests) =>
+  ({ channelApi: { requests } }) as KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>;
+
+describe('KaotoEditorFactory', () => {
   it('should create editor', async () => {
     const settingsModel: ISettingsModel = {
       catalogUrl: 'catalog-url',
@@ -27,16 +30,12 @@ describe('KaotoEditorFactory', () => {
       canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
     };
 
-    const envelopeContext = {
-      channelApi: {
-        requests: {
-          getVSCodeKaotoSettings: () => Promise.resolve(settingsModel),
-          getCatalogURL: function (): Promise<string | undefined> {
-            throw new Error('Function not implemented.');
-          },
-        },
+    const envelopeContext = createEnvelopeContext({
+      getVSCodeKaotoSettings: () => Promise.resolve(settingsModel),
+      getCatalogURL: function (): Promise<string | undefined> {
+        throw new Error('Function not implemented.');
       },
-    } as KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>;
+    });
     const initArgs = {} as EditorInitArgs;
     const factory = new KaotoEditorFactory();
 
@@ -60,17 +59,15 @@ describe('KaotoEditorFactory', () => {
       canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
     };
 
-    const getVSCodeKaotoSettingsSpy = vi.fn().mockResolvedValue(settingsModel);
-    const getCatalogURLSpy = vi.fn().mockRejectedValue(settingsModel);
+    const getVSCodeKaotoSettingsSpy = vi
+      .fn<SettingsRequests['getVSCodeKaotoSettings']>()
+      .mockResolvedValue(settingsModel);
+    const getCatalogURLSpy = vi.fn<SettingsRequests['getCatalogURL']>().mockRejectedValue(settingsModel);
 
-    const envelopeContext = {
-      channelApi: {
-        requests: {
-          getVSCodeKaotoSettings: getVSCodeKaotoSettingsSpy,
-          getCatalogURL: getCatalogURLSpy,
-        },
-      },
-    } as unknown as KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>;
+    const envelopeContext = createEnvelopeContext({
+      getVSCodeKaotoSettings: getVSCodeKaotoSettingsSpy,
+      getCatalogURL: getCatalogURLSpy,
+    });
     const initArgs = {} as EditorInitArgs;
     const factory = new KaotoEditorFactory();
 
@@ -82,17 +79,15 @@ describe('KaotoEditorFactory', () => {
   });
 
   it('should fallback to previous API if getVSCodeKaotoSettings is not implemented', async () => {
-    const getVSCodeKaotoSettingsSpy = vi.fn().mockImplementation(() => new Promise(() => {}));
-    const getCatalogURLSpy = vi.fn().mockResolvedValue('');
+    const getVSCodeKaotoSettingsSpy = vi
+      .fn<SettingsRequests['getVSCodeKaotoSettings']>()
+      .mockImplementation(() => new Promise(() => {}));
+    const getCatalogURLSpy = vi.fn<SettingsRequests['getCatalogURL']>().mockResolvedValue('');
 
-    const envelopeContext = {
-      channelApi: {
-        requests: {
-          getVSCodeKaotoSettings: getVSCodeKaotoSettingsSpy,
-          getCatalogURL: getCatalogURLSpy,
-        },
-      },
-    } as unknown as KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>;
+    const envelopeContext = createEnvelopeContext({
+      getVSCodeKaotoSettings: getVSCodeKaotoSettingsSpy,
+      getCatalogURL: getCatalogURLSpy,
+    });
     const initArgs = {} as EditorInitArgs;
     const factory = new KaotoEditorFactory();
 
@@ -131,17 +126,15 @@ describe('KaotoEditorFactory', () => {
       canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
     };
 
-    const getVSCodeKaotoSettingsSpy = vi.fn().mockResolvedValue(settingsModel);
-    const getCatalogURLSpy = vi.fn().mockRejectedValue(settingsModel);
+    const getVSCodeKaotoSettingsSpy = vi
+      .fn<SettingsRequests['getVSCodeKaotoSettings']>()
+      .mockResolvedValue(settingsModel);
+    const getCatalogURLSpy = vi.fn<SettingsRequests['getCatalogURL']>().mockRejectedValue(settingsModel);
 
-    const envelopeContext = {
-      channelApi: {
-        requests: {
-          getVSCodeKaotoSettings: getVSCodeKaotoSettingsSpy,
-          getCatalogURL: getCatalogURLSpy,
-        },
-      },
-    } as unknown as KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>;
+    const envelopeContext = createEnvelopeContext({
+      getVSCodeKaotoSettings: getVSCodeKaotoSettingsSpy,
+      getCatalogURL: getCatalogURLSpy,
+    });
     const initArgs = {
       resourcesPathPrefix: 'path-prefix',
     } as EditorInitArgs;
@@ -149,13 +142,16 @@ describe('KaotoEditorFactory', () => {
 
     const editor = await factory.createEditor(envelopeContext, initArgs);
 
-    expect(KaotoEditorApp).toHaveBeenCalledWith(
-      envelopeContext,
-      initArgs,
+    expect(editor).toBeInstanceOf(KaotoEditorApp);
+    /* The editor is created with the given envelope context and init args, and the updated settings */
+    expect(editor).toEqual(
       expect.objectContaining({
-        settings: expectedSettings,
+        envelopeContext,
+        initArgs,
+        settingsAdapter: expect.objectContaining({
+          settings: expectedSettings,
+        }),
       }),
     );
-    expect(editor).toBeDefined();
   });
 });

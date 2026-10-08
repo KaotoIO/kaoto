@@ -1,37 +1,40 @@
-import { render } from '@testing-library/react';
+import { render as renderWithWrapper, RenderOptions } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Fragment, StrictMode } from 'react';
-import { Mock, MockedFunction, vi } from 'vitest';
+import { Fragment, ReactElement, StrictMode } from 'react';
+import { Mock, MockInstance, vi } from 'vitest';
 
-import { useProcessorTooltips } from '../../hooks/use-processor-tooltips.hook';
 import { CatalogKind, IVisualizationNode } from '../../models';
+import { ProcessorIconTooltipResolver } from '../../models/visualization/flows/nodes/resolvers/tooltip-resolver/processor-icon-tooltip-resolver';
 import { createVisualizationNode } from '../../models/visualization/visualization-node';
+import { TestProvidersWrapper } from '../../stubs/TestProvidersWrapper';
 import { Anchors } from '../registers/anchors';
 import { RegisterComponents } from '../registers/RegisterComponents';
 import { RenderingProvider } from '../RenderingAnchor/rendering.provider';
 import { RenderingAnchor } from '../RenderingAnchor/RenderingAnchor';
 import { ComponentMode } from './ComponentMode';
 
-let mockUpdateSourceCodeFromEntities: Mock;
-vi.mock('../../hooks/useEntityContext/useEntityContext', () => ({
-  useEntityContext: () => ({ updateSourceCodeFromEntities: mockUpdateSourceCodeFromEntities }),
-}));
-
-vi.mock('../../hooks/use-processor-tooltips.hook', () => ({
-  useProcessorTooltips: vi.fn(),
-}));
-
-const mockUseProcessorTooltips = useProcessorTooltips as MockedFunction<typeof useProcessorTooltips>;
+const DEFAULT_TOOLTIPS: Record<string, string> = {
+  to: 'To: Sends messages to an endpoint',
+  toD: 'ToD: Sends messages to a dynamic endpoint',
+  poll: 'Poll: Polls messages from an endpoint',
+};
 
 describe('ComponentMode', () => {
-  beforeEach(() => {
-    mockUpdateSourceCodeFromEntities = vi.fn();
-    // Set default tooltips before each test
-    mockUseProcessorTooltips.mockReturnValue({
-      to: 'To: Sends messages to an endpoint',
-      toD: 'ToD: Sends messages to a dynamic endpoint',
-      poll: 'Poll: Polls messages from an endpoint',
-    });
+  let mockUpdateSourceCodeFromEntities: Mock;
+  let mockGetProcessorIconTooltip: MockInstance<typeof ProcessorIconTooltipResolver.getProcessorIconTooltip>;
+  let wrapper: RenderOptions['wrapper'];
+
+  /** Renders inside a real EntitiesContext whose `updateSourceCodeFromEntities` is a spy */
+  const render = (ui: ReactElement) => renderWithWrapper(ui, { wrapper });
+
+  beforeEach(async () => {
+    const { Provider, updateSourceCodeFromEntitiesSpy } = await TestProvidersWrapper();
+    wrapper = Provider;
+    mockUpdateSourceCodeFromEntities = updateSourceCodeFromEntitiesSpy;
+    // Set default tooltips before each test, the real useProcessorTooltips hook resolves them through the catalog
+    mockGetProcessorIconTooltip = vi
+      .spyOn(ProcessorIconTooltipResolver, 'getProcessorIconTooltip')
+      .mockImplementation(async (name) => DEFAULT_TOOLTIPS[name]);
   });
 
   const getMockVizNode = (processorName = 'to'): IVisualizationNode => {
@@ -179,11 +182,7 @@ describe('ComponentMode', () => {
 
   it('should render buttons even when tooltips are empty', async () => {
     // Override tooltips with empty strings for this test
-    mockUseProcessorTooltips.mockReturnValue({
-      to: '',
-      toD: '',
-      poll: '',
-    });
+    mockGetProcessorIconTooltip.mockResolvedValue('');
 
     const vizNode = getMockVizNode('to');
     const wrapper = render(<ComponentMode vizNode={vizNode} />);

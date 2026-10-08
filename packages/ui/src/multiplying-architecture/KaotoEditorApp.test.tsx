@@ -1,4 +1,3 @@
-vi.mock('react-router-dom');
 import { SuggestionRequestContext } from '@kaoto/forms';
 import {
   ChannelType,
@@ -13,16 +12,25 @@ import { I18nService } from '@kie-tools-core/i18n/dist/envelope/I18nService';
 import { KeyboardShortcutsService } from '@kie-tools-core/keyboard-shortcuts/dist/envelope/KeyboardShortcutsService';
 import { OperatingSystem } from '@kie-tools-core/operating-system/dist/OperatingSystem';
 import { RefObject } from 'react';
-import type { Mock } from 'vitest';
 
 import { CatalogKind, FileTypes, StepUpdateAction } from '../models';
 import { AbstractSettingsAdapter, ColorScheme, DefaultSettingsAdapter } from '../models/settings';
-import { setColorScheme } from '../utils/color-scheme';
+import { DARK_MODE_CARBON_ATTR_NAME, DARK_MODE_PATTERN_FLY_CLASS_NAME } from '../utils/color-scheme';
 import { EditService } from './EditService';
 import { KaotoEditorApp } from './KaotoEditorApp';
 import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
 
-vi.mock('../utils/color-scheme');
+type UsedRequests =
+  | 'getMetadata'
+  | 'setMetadata'
+  | 'getResourcesContentByType'
+  | 'getResourceContent'
+  | 'saveResourceContent'
+  | 'isResourceExist'
+  | 'deleteResource'
+  | 'askUserForFileSelection'
+  | 'getSuggestions'
+  | 'onStepUpdated';
 
 describe('KaotoEditorApp', () => {
   let kaotoEditorApp: KaotoEditorAppTest;
@@ -33,7 +41,6 @@ describe('KaotoEditorApp', () => {
   let settingsAdapter: AbstractSettingsAdapter;
 
   beforeEach(() => {
-    vi.resetModules();
     editService = EditService.getInstance();
     editorRef = {
       current: {
@@ -45,6 +52,20 @@ describe('KaotoEditorApp', () => {
         setTheme: vi.fn(),
         validate: vi.fn(),
       },
+    };
+
+    /* Only the requests used by KaotoEditorApp */
+    const requests: Pick<ApiRequests<KaotoEditorChannelApi>, UsedRequests> = {
+      getMetadata: vi.fn(),
+      setMetadata: vi.fn(),
+      getResourcesContentByType: vi.fn(),
+      getResourceContent: vi.fn(),
+      saveResourceContent: vi.fn(),
+      isResourceExist: vi.fn(),
+      deleteResource: vi.fn(),
+      askUserForFileSelection: vi.fn(),
+      getSuggestions: vi.fn(),
+      onStepUpdated: vi.fn(),
     };
 
     envelopeContext = {
@@ -60,20 +81,8 @@ describe('KaotoEditorApp', () => {
           kogitoWorkspace_newEdit: getNotificationMock(),
           kogitoWorkspace_openFile: getNotificationMock(),
         },
-        requests: {
-          getMetadata: vi.fn(),
-          setMetadata: vi.fn(),
-          getResourcesContentByType: vi.fn(),
-          getResourceContent: vi.fn(),
-          saveResourceContent: vi.fn(),
-          isResourceExist: vi.fn(),
-          deleteResource: vi.fn(),
-          askUserForFileSelection: vi.fn(),
-          getSuggestions: vi.fn(),
-          onStepUpdated: vi.fn(),
-        } as unknown as ApiRequests<KaotoEditorChannelApi>,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        shared: {} as any,
+        requests: requests as ApiRequests<KaotoEditorChannelApi>,
+        shared: {} as KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>['channelApi']['shared'],
       },
       operatingSystem: OperatingSystem.LINUX,
       services: {
@@ -137,7 +146,7 @@ describe('KaotoEditorApp', () => {
   });
 
   it('getContent', async () => {
-    (editorRef.current!.getContent as Mock).mockResolvedValue('content');
+    vi.mocked(editorRef.current!.getContent).mockResolvedValue('content');
 
     const content = await kaotoEditorApp.getContent();
 
@@ -145,7 +154,7 @@ describe('KaotoEditorApp', () => {
   });
 
   it('getPreview', async () => {
-    (editorRef.current!.getPreview as Mock).mockResolvedValue('preview');
+    vi.mocked(editorRef.current!.getPreview).mockResolvedValue('preview');
 
     const preview = await kaotoEditorApp.getPreview();
 
@@ -165,7 +174,7 @@ describe('KaotoEditorApp', () => {
   });
 
   it('validate', async () => {
-    (editorRef.current!.validate as Mock).mockResolvedValue([]);
+    vi.mocked(editorRef.current!.validate).mockResolvedValue([]);
 
     const notifications = await kaotoEditorApp.validate();
 
@@ -229,7 +238,7 @@ describe('KaotoEditorApp', () => {
 
   it('should delegate to the channelApi getting resources content by type', async () => {
     const mockResponse = [{ filename: 'my-kamelet.kamelet.yaml', content: 'kind: Kamelet' }];
-    (envelopeContext.channelApi.requests.getResourcesContentByType as Mock).mockResolvedValue(mockResponse);
+    vi.mocked(envelopeContext.channelApi.requests.getResourcesContentByType).mockResolvedValue(mockResponse);
 
     const result = await kaotoEditorApp.getResourcesContentByType(FileTypes.Kamelets);
 
@@ -249,14 +258,39 @@ describe('KaotoEditorApp', () => {
     expect(envelopeContext.channelApi.requests.saveResourceContent).toHaveBeenCalledWith('path', 'content');
   });
 
-  it('should set the color theme upon opening the editor', async () => {
-    kaotoEditorApp.af_onOpen();
+  describe('color theme', () => {
+    beforeEach(() => {
+      /* `Auto` follows the system preference, report a dark system theme */
+      vi.spyOn(window, 'matchMedia').mockImplementation((query) => ({
+        matches: query === '(prefers-color-scheme: dark)',
+        media: query,
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      }));
+    });
 
-    expect(setColorScheme).toHaveBeenCalledWith(ColorScheme.Auto);
+    afterEach(() => {
+      document.documentElement.classList.remove(DARK_MODE_PATTERN_FLY_CLASS_NAME);
+      document.documentElement.removeAttribute(DARK_MODE_CARBON_ATTR_NAME);
+    });
+
+    it('should set the color theme upon opening the editor', async () => {
+      expect(settingsAdapter.getSettings().colorScheme).toBe(ColorScheme.Auto);
+
+      kaotoEditorApp.af_onOpen();
+
+      expect(window.matchMedia).toHaveBeenCalledWith('(prefers-color-scheme: dark)');
+      expect(document.documentElement).toHaveClass(DARK_MODE_PATTERN_FLY_CLASS_NAME);
+      expect(document.documentElement).toHaveAttribute(DARK_MODE_CARBON_ATTR_NAME, 'dark');
+    });
   });
 
   it('should delegate to the channelApi checking if a resource exists', async () => {
-    (envelopeContext.channelApi.requests.isResourceExist as Mock).mockResolvedValue(true);
+    vi.mocked(envelopeContext.channelApi.requests.isResourceExist).mockResolvedValue(true);
 
     const exists = await kaotoEditorApp.isResourceExist('path');
 
@@ -265,7 +299,7 @@ describe('KaotoEditorApp', () => {
   });
 
   it('should return false when resource does not exist', async () => {
-    (envelopeContext.channelApi.requests.isResourceExist as Mock).mockResolvedValue(false);
+    vi.mocked(envelopeContext.channelApi.requests.isResourceExist).mockResolvedValue(false);
 
     const exists = await kaotoEditorApp.isResourceExist('path');
 
@@ -274,7 +308,7 @@ describe('KaotoEditorApp', () => {
   });
 
   it('should delegate to the channelApi deleting a resource', async () => {
-    (envelopeContext.channelApi.requests.deleteResource as Mock).mockResolvedValue(true);
+    vi.mocked(envelopeContext.channelApi.requests.deleteResource).mockResolvedValue(true);
 
     const result = await kaotoEditorApp.deleteResource('path');
 
@@ -283,7 +317,7 @@ describe('KaotoEditorApp', () => {
   });
 
   it('should delegate to the channelApi asking user for file selection', async () => {
-    (envelopeContext.channelApi.requests.askUserForFileSelection as Mock).mockResolvedValue(['file1.txt']);
+    vi.mocked(envelopeContext.channelApi.requests.askUserForFileSelection).mockResolvedValue(['file1.txt']);
 
     const result = await kaotoEditorApp.askUserForFileSelection('**/*.txt', '**/*.log', { multiSelect: true });
 
@@ -296,7 +330,7 @@ describe('KaotoEditorApp', () => {
   it('should delegate to the channelApi getting suggestions', async () => {
     const mockSuggestions = [{ label: 'test', value: 'test' }];
     const mockContext = {} as SuggestionRequestContext;
-    (envelopeContext.channelApi.requests.getSuggestions as Mock).mockResolvedValue(mockSuggestions);
+    vi.mocked(envelopeContext.channelApi.requests.getSuggestions).mockResolvedValue(mockSuggestions);
 
     const result = await kaotoEditorApp.getSuggestions('topic', 'word', mockContext);
 
@@ -306,11 +340,11 @@ describe('KaotoEditorApp', () => {
 
   it('should return empty array when getSuggestions times out', async () => {
     const mockContext = {} as SuggestionRequestContext;
-    (envelopeContext.channelApi.requests.getSuggestions as Mock).mockImplementation(
+    vi.mocked(envelopeContext.channelApi.requests.getSuggestions).mockImplementation(
       () =>
         new Promise((resolve) =>
           setTimeout(() => {
-            resolve([{ label: 'test' }]);
+            resolve([{ value: 'test' }]);
           }, 3000),
         ),
     );
@@ -322,7 +356,7 @@ describe('KaotoEditorApp', () => {
 
   it('should return empty array when getSuggestions throws an error', async () => {
     const mockContext = {} as SuggestionRequestContext;
-    (envelopeContext.channelApi.requests.getSuggestions as Mock).mockRejectedValue(new Error('test error'));
+    vi.mocked(envelopeContext.channelApi.requests.getSuggestions).mockRejectedValue(new Error('test error'));
 
     const result = await kaotoEditorApp.getSuggestions('topic', 'word', mockContext);
 

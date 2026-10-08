@@ -13,33 +13,36 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { action, useVisualizationController } from '@patternfly/react-topology';
+import { Model, Visualization, VisualizationProvider } from '@patternfly/react-topology';
 import { act, renderHook } from '@testing-library/react';
-import type { Mock } from 'vitest';
+import { createElement, PropsWithChildren } from 'react';
 
 import { useSelectedNodePanIntoView } from './useSelectedNodePanIntoView';
 
-vi.mock('@patternfly/react-topology', () => ({
-  useVisualizationController: vi.fn(),
-  action: vi.fn((fn) => fn),
-}));
-
+/** Creates a real topology controller holding the given nodes, spying on the graph's panIntoView */
 function makeController(nodeFound = true) {
-  const panIntoView = vi.fn();
-  const graphNode = nodeFound ? { id: 'scope|timer-1' } : undefined;
-  return {
-    panIntoView,
-    controller: {
-      getNodeById: vi.fn(() => graphNode),
-      getGraph: vi.fn(() => ({ panIntoView })),
+  const nodes: Model['nodes'] = nodeFound ? [{ id: 'scope|timer-1', type: 'node' }] : [];
+  const controller = new Visualization();
+  controller.fromModel({ graph: { id: 'graph', type: 'graph' }, nodes });
+  const panIntoView = vi.spyOn(controller.getGraph(), 'panIntoView').mockImplementation(() => {});
+
+  return { panIntoView, controller };
+}
+
+function renderPanIntoView(controller: Visualization, selectedIds: () => string[]) {
+  const wrapper = ({ children }: PropsWithChildren) => createElement(VisualizationProvider, { controller }, children);
+
+  return renderHook(
+    () => {
+      useSelectedNodePanIntoView(selectedIds());
     },
-  };
+    { wrapper },
+  );
 }
 
 describe('useSelectedNodePanIntoView', () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    (action as unknown as Mock).mockImplementation((fn: () => void) => fn);
   });
 
   afterEach(() => {
@@ -49,11 +52,8 @@ describe('useSelectedNodePanIntoView', () => {
 
   it('does not call panIntoView when selectedIds is empty', async () => {
     const { panIntoView, controller } = makeController();
-    (useVisualizationController as Mock).mockReturnValue(controller);
 
-    renderHook(() => {
-      useSelectedNodePanIntoView([]);
-    });
+    renderPanIntoView(controller, () => []);
     await act(async () => {
       vi.runAllTimers();
     });
@@ -63,11 +63,8 @@ describe('useSelectedNodePanIntoView', () => {
 
   it('does not call panIntoView when selectedIds has more than one element', async () => {
     const { panIntoView, controller } = makeController();
-    (useVisualizationController as Mock).mockReturnValue(controller);
 
-    renderHook(() => {
-      useSelectedNodePanIntoView(['scope|timer-1', 'scope|timer-2']);
-    });
+    renderPanIntoView(controller, () => ['scope|timer-1', 'scope|timer-2']);
     await act(async () => {
       vi.runAllTimers();
     });
@@ -77,11 +74,8 @@ describe('useSelectedNodePanIntoView', () => {
 
   it('does not call panIntoView when node is not found', async () => {
     const { panIntoView, controller } = makeController(false);
-    (useVisualizationController as Mock).mockReturnValue(controller);
 
-    renderHook(() => {
-      useSelectedNodePanIntoView(['scope|unknown']);
-    });
+    renderPanIntoView(controller, () => ['scope|unknown']);
     await act(async () => {
       vi.runAllTimers();
     });
@@ -91,15 +85,16 @@ describe('useSelectedNodePanIntoView', () => {
 
   it('calls panIntoView with correct options after the timeout fires', async () => {
     const { panIntoView, controller } = makeController(true);
-    (useVisualizationController as Mock).mockReturnValue(controller);
 
-    renderHook(() => {
-      useSelectedNodePanIntoView(['scope|timer-1']);
-    });
+    renderPanIntoView(controller, () => ['scope|timer-1']);
     await act(async () => {
       vi.runAllTimers();
     });
 
+    expect(panIntoView).toHaveBeenCalledWith(controller.getNodeById('scope|timer-1'), {
+      offset: 150,
+      minimumVisible: 100,
+    });
     expect(panIntoView).toHaveBeenCalledWith(expect.objectContaining({ id: 'scope|timer-1' }), {
       offset: 150,
       minimumVisible: 100,
@@ -108,12 +103,9 @@ describe('useSelectedNodePanIntoView', () => {
 
   it('cancels the timeout when selectedIds changes before it fires', async () => {
     const { panIntoView, controller } = makeController(true);
-    (useVisualizationController as Mock).mockReturnValue(controller);
 
     let ids = ['scope|timer-1'];
-    const { rerender } = renderHook(() => {
-      useSelectedNodePanIntoView(ids);
-    });
+    const { rerender } = renderPanIntoView(controller, () => ids);
 
     // Change selection before 500ms elapses
     ids = [];

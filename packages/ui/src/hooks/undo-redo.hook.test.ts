@@ -1,26 +1,40 @@
+import { Visualization, VisualizationProvider } from '@patternfly/react-topology';
 import { act, renderHook } from '@testing-library/react';
+import { createElement, PropsWithChildren } from 'react';
+import { MockInstance } from 'vitest';
 
 import { useSourceCodeStore } from '../store';
 import { EventNotifier } from '../utils';
 import { useUndoRedo } from './undo-redo.hook';
 
-const mockController = vi.hoisted(() => ({
-  fromModel: vi.fn(),
-}));
-
-vi.mock('@patternfly/react-topology', () => ({
-  useVisualizationController: () => mockController,
-}));
-
 describe('useUndoRedo', () => {
+  let controller: Visualization;
+  let fromModelSpy: MockInstance<Visualization['fromModel']>;
+
+  /** Renders the hook inside a real topology controller */
+  const renderUndoRedo = () => {
+    const wrapper = ({ children }: PropsWithChildren) => createElement(VisualizationProvider, { controller }, children);
+    return renderHook(() => useUndoRedo(), { wrapper });
+  };
+
+  beforeEach(() => {
+    controller = new Visualization();
+    controller.fromModel({ graph: { id: 'graph', type: 'graph' } });
+    fromModelSpy = vi.spyOn(controller, 'fromModel');
+
+    /* Start every test from a pristine store and an empty undo/redo history */
+    useSourceCodeStore.setState({ sourceCode: '', path: '' });
+    useSourceCodeStore.temporal.getState().clear();
+  });
+
   it('should return initial state', () => {
-    const { result } = renderHook(() => useUndoRedo());
+    const { result } = renderUndoRedo();
     expect(result.current.canUndo).toBe(false);
     expect(result.current.canRedo).toBe(false);
   });
 
   it('should update canUndo upon updating the store', () => {
-    const { result } = renderHook(() => useUndoRedo());
+    const { result } = renderUndoRedo();
 
     act(() => {
       useSourceCodeStore.setState({ sourceCode: 'new code' });
@@ -31,7 +45,7 @@ describe('useUndoRedo', () => {
   });
 
   it('should update canRedo upon undoing an action', () => {
-    const { result } = renderHook(() => useUndoRedo());
+    const { result } = renderUndoRedo();
 
     act(() => {
       useSourceCodeStore.setState({ sourceCode: 'new code' });
@@ -48,7 +62,7 @@ describe('useUndoRedo', () => {
   it('should notify the code has changed upon undo', () => {
     const eventNotifierSpy = vi.spyOn(EventNotifier.getInstance(), 'next');
 
-    const { result } = renderHook(() => useUndoRedo());
+    const { result } = renderUndoRedo();
 
     act(() => {
       useSourceCodeStore.setState({ sourceCode: 'new code' });
@@ -58,8 +72,8 @@ describe('useUndoRedo', () => {
       result.current.undo();
     });
 
-    expect(mockController.fromModel).toHaveBeenCalledTimes(1);
-    expect(mockController.fromModel).toHaveBeenCalledWith({
+    expect(fromModelSpy).toHaveBeenCalledTimes(1);
+    expect(fromModelSpy).toHaveBeenCalledWith({
       nodes: [],
       edges: [],
     });
@@ -69,7 +83,7 @@ describe('useUndoRedo', () => {
   it('should notify the code has changed upon redo', () => {
     const eventNotifierSpy = vi.spyOn(EventNotifier.getInstance(), 'next');
 
-    const { result } = renderHook(() => useUndoRedo());
+    const { result } = renderUndoRedo();
 
     act(() => {
       useSourceCodeStore.setState({ sourceCode: 'new code' });
@@ -83,8 +97,8 @@ describe('useUndoRedo', () => {
       result.current.redo();
     });
 
-    expect(mockController.fromModel).toHaveBeenCalledTimes(2);
-    expect(mockController.fromModel).toHaveBeenLastCalledWith({
+    expect(fromModelSpy).toHaveBeenCalledTimes(2);
+    expect(fromModelSpy).toHaveBeenLastCalledWith({
       nodes: [],
       edges: [],
     });

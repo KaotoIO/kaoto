@@ -1,27 +1,25 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
-import type { Mock } from 'vitest';
+import { act, fireEvent, render as rtlRender, screen } from '@testing-library/react';
+import { PropsWithChildren, ReactElement } from 'react';
+import { MemoryRouter } from 'react-router-dom';
 
 import { CanvasDefaults } from '../components/Visualization/Canvas/canvas.defaults';
-import { useLocalStorage } from '../hooks/local-storage.hook';
+import { LocalStorageKeys } from '../models';
+import { TestProvidersWrapper } from '../stubs/TestProvidersWrapper';
 import { Shell } from './Shell';
-
-vi.mock('../hooks/local-storage.hook', () => ({
-  useLocalStorage: vi.fn(),
-}));
-
-vi.mock('./Navigation', () => ({
-  Navigation: ({ isNavOpen }: { isNavOpen: boolean }) => <div data-testid="navigation" data-is-open={isNavOpen} />,
-}));
-
-vi.mock('./TopBar', () => ({
-  TopBar: ({ navToggle }: { navToggle: () => void }) => (
-    <button title="button" type="button" data-testid="topbar" onClick={navToggle} />
-  ),
-}));
 
 describe('Shell', () => {
   const originalInnerWidth = globalThis.innerWidth;
-  const mockSetNavOpen = vi.fn();
+  let EntitiesProvider: Awaited<ReturnType<typeof TestProvidersWrapper>>['Provider'];
+
+  /** Renders with what the real TopBar and Navigation need: a router and the entities context */
+  const render = (ui: ReactElement) =>
+    rtlRender(ui, {
+      wrapper: ({ children }: PropsWithChildren) => (
+        <MemoryRouter>
+          <EntitiesProvider>{children}</EntitiesProvider>
+        </MemoryRouter>
+      ),
+    });
 
   const setWindowWidth = (width: number) => {
     Object.defineProperty(globalThis, 'innerWidth', {
@@ -31,13 +29,15 @@ describe('Shell', () => {
     });
   };
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-    (useLocalStorage as Mock).mockReturnValue([true, mockSetNavOpen]);
+  beforeEach(async () => {
+    ({ Provider: EntitiesProvider } = await TestProvidersWrapper());
+    /* The navigation starts expanded */
+    localStorage.setItem(LocalStorageKeys.NavigationExpanded, 'true');
   });
 
   afterEach(() => {
     setWindowWidth(originalInnerWidth);
+    localStorage.removeItem(LocalStorageKeys.NavigationExpanded);
   });
 
   it('renders a PatternFly SkipToContent link targeting #canvas-main', () => {
@@ -79,11 +79,14 @@ describe('Shell', () => {
   it('toggles navigation when button is clicked', () => {
     render(<Shell />);
 
+    expect(document.querySelector('#vertical-sidebar')).toHaveClass('pf-m-expanded');
+
     act(() => {
-      screen.getByTestId('topbar').click();
+      screen.getByRole('button', { name: 'Global navigation' }).click();
     });
 
-    expect(mockSetNavOpen).toHaveBeenCalledWith(false);
+    expect(localStorage.getItem(LocalStorageKeys.NavigationExpanded)).toBe('false');
+    expect(document.querySelector('#vertical-sidebar')).toHaveClass('pf-m-collapsed');
   });
 
   it.each([
@@ -94,9 +97,11 @@ describe('Shell', () => {
     ['mobile', 375, false],
   ])('defaults to %s behavior at %dpx', (_, width, expectedDefault) => {
     setWindowWidth(width);
+    /* Nothing stored yet, so the width based default is used and persisted */
+    localStorage.removeItem(LocalStorageKeys.NavigationExpanded);
 
     render(<Shell />);
 
-    expect(useLocalStorage).toHaveBeenCalledWith(expect.any(String), expectedDefault);
+    expect(localStorage.getItem(LocalStorageKeys.NavigationExpanded)).toBe(String(expectedDefault));
   });
 });
