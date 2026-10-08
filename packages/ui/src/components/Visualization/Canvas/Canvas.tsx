@@ -164,7 +164,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
         {
           id: 'topology-control-bar-h_layout-button',
           icon: <HorizontalLayoutIcon />,
-          tooltip: 'Horizontal Layout',
+          tooltip: 'Layout nodes horizontally',
           callback: action(() => {
             localStorage.setItem(LocalStorageKeys.CanvasLayout, LayoutType.DagreHorizontal);
             controller.getGraph().setLayout(LayoutType.DagreHorizontal);
@@ -174,7 +174,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
         {
           id: 'topology-control-bar-v_layout-button',
           icon: <VerticalLayoutIcon />,
-          tooltip: 'Vertical Layout',
+          tooltip: 'Layout nodes vertically',
           callback: action(() => {
             localStorage.setItem(LocalStorageKeys.CanvasLayout, LayoutType.DagreVertical);
             controller.getGraph().setLayout(LayoutType.DagreVertical);
