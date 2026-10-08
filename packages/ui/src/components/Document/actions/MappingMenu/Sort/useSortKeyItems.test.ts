@@ -1,35 +1,29 @@
 import { renderHook } from '@testing-library/react';
 
-import { useDataMapper } from '../../../../../hooks/useDataMapper';
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../../../models/datamapper/document';
 import { ForEachItem, MappingTree } from '../../../../../models/datamapper/mapping';
-import { IDataMapperContext } from '../../../../../providers/datamapper.provider';
 import { TestUtil } from '../../../../../stubs/datamapper/data-mapper';
+import {
+  createDataMapperContext,
+  createDataMapperContextWrapper,
+} from '../../../../../stubs/datamapper/data-mapper-context';
 import { useSortKeyItems } from './useSortKeyItems';
-
-vi.mock('../../../../../hooks/useDataMapper', () => ({
-  useDataMapper: vi.fn(),
-}));
 
 describe('useSortKeyItems', () => {
   const sourceDoc = TestUtil.createSourceOrderDoc();
   let mappingTree: MappingTree;
+  let wrapper: ReturnType<typeof createDataMapperContextWrapper>;
 
   beforeEach(() => {
     mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
-
-    vi.mocked(useDataMapper).mockReturnValue({
-      sourceBodyDocument: sourceDoc,
-      sourceParameterMap: new Map(),
-      mappingTree,
-    } as Partial<IDataMapperContext> as IDataMapperContext);
+    wrapper = createDataMapperContextWrapper(createDataMapperContext({ sourceBodyDocument: sourceDoc, mappingTree }));
   });
 
   it('should return empty items when expression is empty', () => {
     const forEachItem = new ForEachItem(mappingTree);
     forEachItem.expression = '';
 
-    const { result } = renderHook(() => useSortKeyItems(forEachItem));
+    const { result } = renderHook(() => useSortKeyItems(forEachItem), { wrapper });
     expect(result.current).toEqual([]);
   });
 
@@ -37,7 +31,7 @@ describe('useSortKeyItems', () => {
     const forEachItem = new ForEachItem(mappingTree);
     forEachItem.expression = '/NonExistent/Path';
 
-    const { result } = renderHook(() => useSortKeyItems(forEachItem));
+    const { result } = renderHook(() => useSortKeyItems(forEachItem), { wrapper });
     expect(result.current).toEqual([]);
   });
 
@@ -45,7 +39,7 @@ describe('useSortKeyItems', () => {
     const forEachItem = new ForEachItem(mappingTree);
     forEachItem.expression = '/ShipOrder/Item';
 
-    const { result } = renderHook(() => useSortKeyItems(forEachItem));
+    const { result } = renderHook(() => useSortKeyItems(forEachItem), { wrapper });
     const xpaths = result.current.map((opt) => opt.xpath);
     expect(xpaths).toContain('Title');
     expect(xpaths).toContain('Note');
@@ -57,7 +51,7 @@ describe('useSortKeyItems', () => {
     const forEachItem = new ForEachItem(mappingTree);
     forEachItem.expression = '/ShipOrder';
 
-    const { result } = renderHook(() => useSortKeyItems(forEachItem));
+    const { result } = renderHook(() => useSortKeyItems(forEachItem), { wrapper });
     const xpaths = result.current.map((opt) => opt.xpath);
     expect(xpaths).toContain('OrderPerson');
     expect(xpaths).not.toContain('ShipTo');
@@ -71,7 +65,7 @@ describe('useSortKeyItems', () => {
     const forEachItem = new ForEachItem(mappingTree);
     forEachItem.expression = '/ShipOrder/Item';
 
-    const { result } = renderHook(() => useSortKeyItems(forEachItem));
+    const { result } = renderHook(() => useSortKeyItems(forEachItem), { wrapper });
     const titleItem = result.current.find((opt) => opt.xpath === 'Title');
     expect(titleItem).toBeDefined();
     expect(titleItem!.description).toContain('string');

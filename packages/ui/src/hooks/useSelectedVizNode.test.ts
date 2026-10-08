@@ -13,36 +13,31 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { useVisualizationController } from '@patternfly/react-topology';
+import { Model, Visualization, VisualizationProvider } from '@patternfly/react-topology';
 import { renderHook, waitFor } from '@testing-library/react';
-import type { Mock } from 'vitest';
+import { createElement, PropsWithChildren } from 'react';
 
-import { IVisualizationNode } from '../models/visualization/base-visual-entity';
 import { createVisualizationNode } from '../models/visualization/visualization-node';
 import { useSelectedVizNode } from './useSelectedVizNode';
 
-vi.mock('@patternfly/react-topology', () => ({
-  useVisualizationController: vi.fn(),
-}));
-
 const mockVizNode = createVisualizationNode('timer-1', {} as never);
 
-function makeController(vizNode?: IVisualizationNode) {
-  return {
-    getNodeById: vi.fn((id: string) => {
-      if (id === 'scope|timer-1' && vizNode) {
-        return { getData: () => ({ vizNode }) };
-      }
-      return undefined;
-    }),
-  };
-}
+/** Renders the hook inside a real topology controller holding the given nodes */
+const renderSelectedVizNode = (
+  selectedIds: () => string[],
+  nodes: Model['nodes'] = [{ id: 'scope|timer-1', type: 'node', data: { vizNode: mockVizNode } }],
+) => {
+  const controller = new Visualization();
+  controller.fromModel({ graph: { id: 'graph', type: 'graph' }, nodes });
+  const wrapper = ({ children }: PropsWithChildren) => createElement(VisualizationProvider, { controller }, children);
+
+  return renderHook(() => useSelectedVizNode(selectedIds()), { wrapper });
+};
 
 describe('useSelectedVizNode', () => {
   beforeEach(() => {
     /* Re-established per test so a test that overrides it cannot leak into the next one */
     mockVizNode.fetchSchema = vi.fn().mockResolvedValue(undefined);
-    (useVisualizationController as Mock).mockReturnValue(makeController(mockVizNode));
   });
 
   afterEach(() => {
@@ -50,34 +45,34 @@ describe('useSelectedVizNode', () => {
   });
 
   it('returns undefined when selectedIds is empty', () => {
-    const { result } = renderHook(() => useSelectedVizNode([]));
+    const { result } = renderSelectedVizNode(() => []);
     expect(result.current).toBeUndefined();
   });
 
   it('returns undefined when selectedIds has more than one element', () => {
-    const { result } = renderHook(() => useSelectedVizNode(['scope|timer-1', 'scope|timer-2']));
+    const { result } = renderSelectedVizNode(() => ['scope|timer-1', 'scope|timer-2']);
     expect(result.current).toBeUndefined();
   });
 
   it('returns the vizNode when exactly one id resolves to a node with vizNode', async () => {
-    const { result } = renderHook(() => useSelectedVizNode(['scope|timer-1']));
+    const { result } = renderSelectedVizNode(() => ['scope|timer-1']);
     await waitFor(() => {
       expect(result.current).toBe(mockVizNode);
     });
   });
 
   it('returns undefined when controller returns no node for the given id', async () => {
-    (useVisualizationController as Mock).mockReturnValue(makeController(undefined));
-    const { result } = renderHook(() => useSelectedVizNode(['scope|unknown']));
+    const { result } = renderSelectedVizNode(() => ['scope|unknown'], []);
     await waitFor(() => {
       expect(result.current).toBeUndefined();
     });
   });
 
   it('returns undefined when the node has no vizNode in its data', async () => {
-    const controller = { getNodeById: vi.fn(() => ({ getData: () => ({}) })) };
-    (useVisualizationController as Mock).mockReturnValue(controller);
-    const { result } = renderHook(() => useSelectedVizNode(['scope|timer-1']));
+    const { result } = renderSelectedVizNode(
+      () => ['scope|timer-1'],
+      [{ id: 'scope|timer-1', type: 'node', data: {} }],
+    );
     await waitFor(() => {
       expect(result.current).toBeUndefined();
     });
@@ -85,7 +80,7 @@ describe('useSelectedVizNode', () => {
 
   it('updates when selectedIds changes', async () => {
     let ids = ['scope|timer-1'];
-    const { result, rerender } = renderHook(() => useSelectedVizNode(ids));
+    const { result, rerender } = renderSelectedVizNode(() => ids);
     await waitFor(() => {
       expect(result.current).toBe(mockVizNode);
     });
@@ -104,7 +99,7 @@ describe('useSelectedVizNode', () => {
     });
     mockVizNode.fetchSchema = vi.fn().mockReturnValue(pending);
 
-    const { result } = renderHook(() => useSelectedVizNode(['scope|timer-1']));
+    const { result } = renderSelectedVizNode(() => ['scope|timer-1']);
 
     // Should be undefined while pending
     expect(result.current).toBeUndefined();
@@ -124,7 +119,7 @@ describe('useSelectedVizNode', () => {
     const testError = new Error('Schema fetch failed');
     mockVizNode.fetchSchema = vi.fn().mockRejectedValue(testError);
 
-    const { result } = renderHook(() => useSelectedVizNode(['scope|timer-1']));
+    const { result } = renderSelectedVizNode(() => ['scope|timer-1']);
 
     // Wait for the rejection to be processed
     await waitFor(() => {
@@ -144,7 +139,7 @@ describe('useSelectedVizNode', () => {
       }),
     );
 
-    const { unmount } = renderHook(() => useSelectedVizNode(['scope|timer-1']));
+    const { unmount } = renderSelectedVizNode(() => ['scope|timer-1']);
     unmount();
     rejectSchema(new Error('Schema fetch failed'));
 
