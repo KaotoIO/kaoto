@@ -28,7 +28,7 @@ const getEnvConfig = (env) => {
   }
 };
 
-const commonConfig = (env) => {
+const commonConfig = (env, buildInfoDefines) => {
   const { transpileOnly, minimize, sourceMaps, mode, live } = getEnvConfig(env);
 
   console.info(`Webpack :: ts-loader :: transpileOnly: ${transpileOnly}`);
@@ -148,6 +148,7 @@ const commonConfig = (env) => {
         ],
       }),
       new DefinePlugin({
+        ...buildInfoDefines,
         __VSCODE_KAOTO_VERSION: JSON.stringify(version),
       }),
     ],
@@ -157,87 +158,93 @@ const commonConfig = (env) => {
   };
 };
 
-const webpack = async (env) => [
-  merge(commonConfig(env), {
-    target: 'node',
-    entry: {
-      'extension/extension': './src/extension/extension.ts',
-    },
-  }),
-  merge(commonConfig(env), {
-    target: 'webworker',
-    entry: {
-      'extension/extensionWeb': './src/extension/extensionWeb.ts',
-    },
-  }),
-  merge(commonConfig(env), {
-    target: 'web',
-    entry: {
-      'webview/KaotoEditorEnvelopeApp': './src/webview/KaotoEditorEnvelopeApp.ts',
-    },
-    resolve: {
-      alias: {
-        // @kie-tools-core/editor@10.0.0 references @patternfly/react-core/dist/js/components/Text
-        // which was removed in PatternFly 6. Alias to false so webpack provides an empty module;
-        // the KeyBindingsHelpOverlay that uses it is not activated in the Kaoto extension.
-        '@patternfly/react-core/dist/js/components/Text': false,
+const webpack = async (env) => {
+  // @kaoto/kaoto is bundled from its sources, so its build metadata (src/version.ts) must be provided here
+  const { getBuildInfoDefines } = await import('../../scripts/build-info.mjs');
+  const buildInfoDefines = await getBuildInfoDefines();
+
+  return [
+    merge(commonConfig(env, buildInfoDefines), {
+      target: 'node',
+      entry: {
+        'extension/extension': './src/extension/extension.ts',
       },
-    },
-    module: {
-      rules: [
-        {
-          test: /\.s[ac]ss$/i,
-          use: [
-            'style-loader',
-            'css-loader',
-            {
-              loader: 'sass-loader',
-              options: {
-                sassOptions: {
-                  // Silence Sass mixed-decls deprecation warnings from
-                  // @carbon/styles and other third-party dependencies.
-                  quietDeps: true,
-                  silenceDeprecations: ['mixed-decls'],
+    }),
+    merge(commonConfig(env, buildInfoDefines), {
+      target: 'webworker',
+      entry: {
+        'extension/extensionWeb': './src/extension/extensionWeb.ts',
+      },
+    }),
+    merge(commonConfig(env, buildInfoDefines), {
+      target: 'web',
+      entry: {
+        'webview/KaotoEditorEnvelopeApp': './src/webview/KaotoEditorEnvelopeApp.ts',
+      },
+      resolve: {
+        alias: {
+          // @kie-tools-core/editor@10.0.0 references @patternfly/react-core/dist/js/components/Text
+          // which was removed in PatternFly 6. Alias to false so webpack provides an empty module;
+          // the KeyBindingsHelpOverlay that uses it is not activated in the Kaoto extension.
+          '@patternfly/react-core/dist/js/components/Text': false,
+        },
+      },
+      module: {
+        rules: [
+          {
+            test: /\.s[ac]ss$/i,
+            use: [
+              'style-loader',
+              'css-loader',
+              {
+                loader: 'sass-loader',
+                options: {
+                  sassOptions: {
+                    // Silence Sass mixed-decls deprecation warnings from
+                    // @carbon/styles and other third-party dependencies.
+                    quietDeps: true,
+                    silenceDeprecations: ['mixed-decls'],
+                  },
                 },
               },
-            },
-          ],
-        },
-        {
-          test: /\.css$/,
-          use: ['style-loader', 'css-loader'],
-        },
-        {
-          test: /\.(svg|ttf|eot|woff|woff2)$/,
-          include: [
-            {
-              or: [
-                (input) => posixPath(input).includes('node_modules/@patternfly/react-core/dist/styles/assets/fonts'),
-                (input) => posixPath(input).includes('node_modules/@patternfly/react-core/dist/styles/assets/pficon'),
-                (input) =>
-                  posixPath(input).includes('node_modules/monaco-editor/esm/vs/base/browser/ui/codicons/codicon'),
-                (input) =>
-                  posixPath(input).includes('node_modules/monaco-editor/dev/vs/base/browser/ui/codicons/codicon'),
-              ],
-            },
-          ],
-          type: 'asset',
-          generator: {
-            filename: 'fonts/[name].[ext]',
+            ],
           },
-        },
-        {
-          test: /\.(svg|jpg|jpeg|png|gif)$/i,
-          type: 'asset',
-        },
-      ],
-    },
-    ignoreWarnings: [/Failed to parse source map/],
-    stats: {
-      errorDetails: true,
-      children: true,
-    },
-  }),
-];
+          {
+            test: /\.css$/,
+            use: ['style-loader', 'css-loader'],
+          },
+          {
+            test: /\.(svg|ttf|eot|woff|woff2)$/,
+            include: [
+              {
+                or: [
+                  (input) => posixPath(input).includes('node_modules/@patternfly/react-core/dist/styles/assets/fonts'),
+                  (input) => posixPath(input).includes('node_modules/@patternfly/react-core/dist/styles/assets/pficon'),
+                  (input) =>
+                    posixPath(input).includes('node_modules/monaco-editor/esm/vs/base/browser/ui/codicons/codicon'),
+                  (input) =>
+                    posixPath(input).includes('node_modules/monaco-editor/dev/vs/base/browser/ui/codicons/codicon'),
+                ],
+              },
+            ],
+            type: 'asset',
+            generator: {
+              filename: 'fonts/[name].[ext]',
+            },
+          },
+          {
+            test: /\.(svg|jpg|jpeg|png|gif)$/i,
+            type: 'asset',
+          },
+        ],
+      },
+      ignoreWarnings: [/Failed to parse source map/],
+      stats: {
+        errorDetails: true,
+        children: true,
+      },
+    }),
+  ];
+};
 
 module.exports = webpack;
