@@ -7,18 +7,6 @@ import { FieldOverrideService } from '../document/field-override.service';
 import { XmlSchemaDocument, XmlSchemaField } from '../document/xml-schema/xml-schema-document.model';
 import { FieldCandidateService } from './field-candidate.service';
 
-vi.mock('../document/field-override.service', () => ({
-  FieldOverrideService: {
-    getFieldSubstitutionCandidates: vi.fn().mockReturnValue({}),
-  },
-}));
-
-vi.mock('./visualization.service', () => ({
-  VisualizationService: {
-    getChoiceMemberLabel: vi.fn().mockReturnValue('choice-label'),
-  },
-}));
-
 function mockSubstituteInfo(
   name: string,
   ns: string = 'http://test',
@@ -128,7 +116,7 @@ describe('FieldCandidateService', () => {
       const tree = new MappingTree(DocumentType.TARGET_BODY, 'test', DocumentDefinitionType.XML_SCHEMA);
       const existingFieldItem = new FieldItem(tree, concreteChild);
 
-      vi.mocked(FieldOverrideService.getFieldSubstitutionCandidates).mockReturnValue({
+      vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue({
         'ns:Concrete': mockSubstituteInfo('Concrete'),
       });
       vi.spyOn(FieldCandidateService, 'resolveCandidateField').mockReturnValue(concreteChild);
@@ -319,7 +307,7 @@ describe('FieldCandidateService', () => {
       parent.fields = [choiceField];
       doc.fields = [parent];
 
-      vi.mocked(FieldOverrideService.getFieldSubstitutionCandidates).mockReturnValue({
+      vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue({
         'ns:Cat': mockSubstituteInfo('Cat'),
         'ns:Dog': mockSubstituteInfo('Dog'),
       });

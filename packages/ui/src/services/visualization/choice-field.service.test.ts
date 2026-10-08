@@ -14,58 +14,10 @@ import { DocumentUtilService } from '../document/document-util.service';
 import { FieldOverrideService } from '../document/field-override.service';
 import { WrapperSelectionService } from '../document/wrapper-selection.service';
 import { MappingService } from '../mapping/mapping.service';
+import { SchemaPathService } from '../schema-path.service';
 import { ChoiceFieldService } from './choice-field.service';
 import { MappingActionService } from './mapping-action.service';
 import { VisualizationService } from './visualization.service';
-
-vi.mock('../document/field-override.service', () => ({
-  FieldOverrideService: {
-    revertFieldTypeOverride: vi.fn(),
-    revertFieldSubstitution: vi.fn(),
-    getFieldSubstitutionCandidates: vi.fn().mockReturnValue({}),
-    applyFieldSubstitution: vi.fn(),
-  },
-}));
-
-vi.mock('./visualization.service', () => ({
-  VisualizationService: {
-    getChoiceMemberLabel: vi.fn().mockReturnValue('choice-label'),
-  },
-}));
-
-vi.mock('../document/document-util.service', () => ({
-  DocumentUtilService: {
-    invalidateDescendants: vi.fn(),
-    processOverrides: vi.fn(),
-  },
-}));
-
-vi.mock('../document/wrapper-selection.service', () => ({
-  WrapperSelectionService: {
-    setChoiceSelection: vi.fn(),
-    clearChoiceSelection: vi.fn(),
-    clearDescendantWrapperSelections: vi.fn(),
-  },
-}));
-
-vi.mock('../mapping/mapping.service', () => ({
-  MappingService: {
-    updateFieldItemField: vi.fn(),
-    createFieldItem: vi.fn(),
-  },
-}));
-
-vi.mock('./mapping-action.service', () => ({
-  MappingActionService: {
-    getOrCreateFieldItem: vi.fn(),
-  },
-}));
-
-vi.mock('../schema-path.service', () => ({
-  SchemaPathService: {
-    build: vi.fn().mockReturnValue('mock-schema-path'),
-  },
-}));
 
 function mockField(overrides: Partial<IField> = {}): IField {
   return {
@@ -123,12 +75,22 @@ describe('ChoiceFieldService', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(FieldOverrideService, 'revertFieldSubstitution').mockImplementation(() => {});
+    vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue({});
+    vi.spyOn(FieldOverrideService, 'applyFieldSubstitution').mockImplementation(() => {});
+    vi.spyOn(VisualizationService, 'getChoiceMemberLabel').mockReturnValue('choice-label');
+    vi.spyOn(DocumentUtilService, 'invalidateDescendants').mockImplementation(() => {});
+    vi.spyOn(WrapperSelectionService, 'setChoiceSelection').mockImplementation(() => {});
+    vi.spyOn(WrapperSelectionService, 'clearChoiceSelection').mockImplementation(() => {});
+    vi.spyOn(WrapperSelectionService, 'clearDescendantWrapperSelections').mockImplementation(() => {});
+    vi.spyOn(MappingService, 'updateFieldItemField').mockImplementation((item) => item);
+    vi.spyOn(SchemaPathService, 'build').mockReturnValue('mock-schema-path');
   });
 
   describe('fieldToCandidate', () => {
     it('should use getChoiceMemberLabel for choice wrapper fields', () => {
       const field = mockField({ wrapperKind: 'choice', type: Types.Container });
-      vi.mocked(VisualizationService.getChoiceMemberLabel).mockReturnValue('(email | phone)');
+      vi.spyOn(VisualizationService, 'getChoiceMemberLabel').mockReturnValue('(email | phone)');
 
       const result = ChoiceFieldService.fieldToCandidate(field, 'key1', 0);
 
@@ -183,7 +145,7 @@ describe('ChoiceFieldService', () => {
         type: Types.Container,
         fields: [mockField({ name: 'key', displayName: 'key' }), mockField({ name: 'value', displayName: 'value' })],
       });
-      vi.mocked(VisualizationService.getChoiceMemberLabel).mockReturnValue('(key | value)');
+      vi.spyOn(VisualizationService, 'getChoiceMemberLabel').mockReturnValue('(key | value)');
 
       const result = ChoiceFieldService.fieldToCandidate(field, '2', 2);
 
@@ -197,7 +159,7 @@ describe('ChoiceFieldService', () => {
   describe('dissolveChoiceMembers', () => {
     it('should dissolve abstract members into substitution candidates', () => {
       const abstractMember = mockField({ wrapperKind: 'abstract' });
-      vi.mocked(FieldOverrideService.getFieldSubstitutionCandidates).mockReturnValue({
+      vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue({
         'ns:Cat': mockSubstituteInfo('Cat'),
         'ns:Dog': mockSubstituteInfo('Dog'),
       });
@@ -227,7 +189,7 @@ describe('ChoiceFieldService', () => {
         type: Types.Container,
         fields: [mockField({ name: 'key', displayName: 'key' }), mockField({ name: 'value', displayName: 'value' })],
       });
-      vi.mocked(VisualizationService.getChoiceMemberLabel).mockReturnValue('(key | value)');
+      vi.spyOn(VisualizationService, 'getChoiceMemberLabel').mockReturnValue('(key | value)');
 
       const result = ChoiceFieldService.dissolveChoiceMembers([sequenceMember], namespaceMap);
 
@@ -266,10 +228,10 @@ describe('ChoiceFieldService', () => {
         wrapperKind: 'sequence',
         fields: [mockField({ name: 'key', displayName: 'key' }), mockField({ name: 'value', displayName: 'value' })],
       });
-      vi.mocked(FieldOverrideService.getFieldSubstitutionCandidates).mockReturnValue({
+      vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue({
         'ns:Cat': mockSubstituteInfo('Cat'),
       });
-      vi.mocked(VisualizationService.getChoiceMemberLabel).mockReturnValue('(key | value)');
+      vi.spyOn(VisualizationService, 'getChoiceMemberLabel').mockReturnValue('(key | value)');
 
       const result = ChoiceFieldService.dissolveChoiceMembers([normal, abstract, sequence], namespaceMap);
 
@@ -304,7 +266,7 @@ describe('ChoiceFieldService', () => {
   describe('getChoiceFieldDisplayName', () => {
     it('should use getChoiceMemberLabel for choice wrapper', () => {
       const field = mockField({ wrapperKind: 'choice' });
-      vi.mocked(VisualizationService.getChoiceMemberLabel).mockReturnValue('(A | B)');
+      vi.spyOn(VisualizationService, 'getChoiceMemberLabel').mockReturnValue('(A | B)');
 
       const result = ChoiceFieldService.getChoiceFieldDisplayName(field);
 
@@ -314,7 +276,7 @@ describe('ChoiceFieldService', () => {
 
     it('should use getChoiceMemberLabel for sequence wrapper', () => {
       const field = mockField({ wrapperKind: 'sequence' });
-      vi.mocked(VisualizationService.getChoiceMemberLabel).mockReturnValue('key, value');
+      vi.spyOn(VisualizationService, 'getChoiceMemberLabel').mockReturnValue('key, value');
 
       const result = ChoiceFieldService.getChoiceFieldDisplayName(field);
 
@@ -346,8 +308,8 @@ describe('ChoiceFieldService', () => {
       const tree = createMappingTree();
       const fieldItem = new FieldItem(tree, wrapper);
       const nodeData = createFieldItemNodeData(fieldItem);
-      vi.mocked(MappingActionService.getOrCreateFieldItem).mockReturnValue(fieldItem);
-      vi.mocked(MappingService.createFieldItem).mockReturnValue(new FieldItem(tree, memberField));
+      vi.spyOn(MappingActionService, 'getOrCreateFieldItem').mockReturnValue(fieldItem);
+      vi.spyOn(MappingService, 'createFieldItem').mockReturnValue(new FieldItem(tree, memberField));
 
       ChoiceFieldService.dispatchChoiceSelection(nodeData, wrapper, { memberIndex: 0 }, namespaceMap, true);
 
@@ -465,7 +427,7 @@ describe('ChoiceFieldService', () => {
       const tree = createMappingTree();
       const fieldItem = new FieldItem(tree, memberField);
       const nodeData = createFieldItemNodeData(fieldItem);
-      vi.mocked(FieldOverrideService.getFieldSubstitutionCandidates).mockReturnValue({
+      vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue({
         'ns:Cat': mockSubstituteInfo('Cat'),
       });
       const dissolved = [

@@ -1,24 +1,11 @@
 import { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
-import type { Mock } from 'vitest';
+import type { Mock, MockInstance } from 'vitest';
 
 import { MappingTree } from '../../models/datamapper/mapping';
-import { NodeData } from '../../models/datamapper/visualization';
+import { NodeData, SourceNodeDataType, TargetNodeData } from '../../models/datamapper/visualization';
 import { MappingActionService } from '../../services/visualization/mapping-action.service';
 import { MappingValidationService } from '../../services/visualization/mapping-validation.service';
 import { SourceTargetDnDHandler } from './SourceTargetDnDHandler';
-
-vi.mock('../../services/visualization/mapping-validation.service', () => ({
-  MappingValidationService: {
-    validateMappingPair: vi.fn(),
-    isDraggable: vi.fn(),
-  },
-}));
-
-vi.mock('../../services/visualization/mapping-action.service', () => ({
-  MappingActionService: {
-    engageMapping: vi.fn(),
-  },
-}));
 
 const makeDragEvent = (fromNode?: NodeData, toNode?: NodeData) =>
   ({
@@ -29,19 +16,21 @@ const makeDragEvent = (fromNode?: NodeData, toNode?: NodeData) =>
 describe('SourceTargetDnDHandler', () => {
   let handler: SourceTargetDnDHandler;
   let mockMappingTree: MappingTree;
-  let mockOnUpdate: Mock;
-  let mockValidateMappingPair: Mock;
-  let mockEngageMapping: Mock;
-  let mockIsDraggable: Mock;
+  let mockOnUpdate: Mock<(options?: { structural?: boolean }) => void>;
+  let mockValidateMappingPair: MockInstance<typeof MappingValidationService.validateMappingPair>;
+  let mockEngageMapping: MockInstance<typeof MappingActionService.engageMapping>;
+  let mockIsDraggable: MockInstance<typeof MappingValidationService.isDraggable>;
 
   beforeEach(() => {
     vi.clearAllMocks();
     handler = new SourceTargetDnDHandler();
     mockMappingTree = {} as MappingTree;
     mockOnUpdate = vi.fn();
-    mockValidateMappingPair = MappingValidationService.validateMappingPair as Mock;
-    mockEngageMapping = MappingActionService.engageMapping as Mock;
-    mockIsDraggable = MappingValidationService.isDraggable as Mock;
+    mockValidateMappingPair = vi
+      .spyOn(MappingValidationService, 'validateMappingPair')
+      .mockReturnValue({ isValid: false });
+    mockEngageMapping = vi.spyOn(MappingActionService, 'engageMapping').mockReturnValue(false);
+    mockIsDraggable = vi.spyOn(MappingValidationService, 'isDraggable').mockReturnValue(false);
   });
 
   describe('handleDragEnd', () => {
@@ -77,8 +66,8 @@ describe('SourceTargetDnDHandler', () => {
     });
 
     it('should call engageMapping and onUpdate({ structural: true }) when engageMapping reports a structural change', () => {
-      const fromNode = { isSource: true } as unknown as NodeData;
-      const toNode = { isSource: false } as unknown as NodeData;
+      const fromNode = { isSource: true } as unknown as SourceNodeDataType;
+      const toNode = { isSource: false } as unknown as TargetNodeData;
       mockValidateMappingPair.mockReturnValue({ isValid: true, sourceNode: fromNode, targetNode: toNode });
       mockEngageMapping.mockReturnValue(true);
       const result = handler.handleDragEnd(makeDragEvent(fromNode, toNode), mockMappingTree, mockOnUpdate);
@@ -88,8 +77,8 @@ describe('SourceTargetDnDHandler', () => {
     });
 
     it('should call onUpdate({ structural: false }) when engageMapping reports a value-only update', () => {
-      const fromNode = { isSource: true } as unknown as NodeData;
-      const toNode = { isSource: false } as unknown as NodeData;
+      const fromNode = { isSource: true } as unknown as SourceNodeDataType;
+      const toNode = { isSource: false } as unknown as TargetNodeData;
       mockValidateMappingPair.mockReturnValue({ isValid: true, sourceNode: fromNode, targetNode: toNode });
       mockEngageMapping.mockReturnValue(false);
       const result = handler.handleDragEnd(makeDragEvent(fromNode, toNode), mockMappingTree, mockOnUpdate);

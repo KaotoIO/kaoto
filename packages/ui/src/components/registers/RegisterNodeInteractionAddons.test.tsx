@@ -1,8 +1,9 @@
 import { render, waitFor } from '@testing-library/react';
-import type { Mock } from 'vitest';
+import type { MockInstance } from 'vitest';
 
 import { IMetadataApi, MetadataContext } from '../../providers';
-import { onDeleteDataMapper } from '../DataMapper/on-delete-datamapper';
+import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
+import { DataMapperStepService } from '../../services/datamapper-step.service';
 import {
   IInteractionType,
   IOnDeleteAddon,
@@ -11,15 +12,32 @@ import {
 import { NodeInteractionAddonContext } from './interactions/node-interaction-addon.provider';
 import { RegisterNodeInteractionAddons } from './RegisterNodeInteractionAddons';
 
-vi.mock('../DataMapper/on-delete-datamapper', async () => {
-  const actual = await vi.importActual('../DataMapper/on-delete-datamapper');
-  return {
-    ...actual,
-    onDeleteDataMapper: vi.fn().mockResolvedValue(undefined),
-  };
-});
-
 describe('RegisterNodeInteractionAddons', () => {
+  let getDataMapperMetadataIdSpy: MockInstance<typeof DataMapperStepService.getDataMapperMetadataId>;
+  let deleteXsltFileSpy: MockInstance<typeof DataMapperMetadataService.deleteXsltFile>;
+  let deleteMetadataSpy: MockInstance<typeof DataMapperMetadataService.deleteMetadata>;
+
+  const metadataApi: IMetadataApi = {
+    getMetadata: vi.fn(),
+    setMetadata: vi.fn(),
+    getResourceContent: vi.fn(),
+    isResourceExist: vi.fn(),
+    saveResourceContent: vi.fn(),
+    deleteResource: vi.fn(),
+    askUserForFileSelection: vi.fn(),
+    getSuggestions: vi.fn(),
+    shouldSaveSchema: false,
+    onStepUpdated: vi.fn(),
+  };
+
+  beforeEach(() => {
+    getDataMapperMetadataIdSpy = vi
+      .spyOn(DataMapperStepService, 'getDataMapperMetadataId')
+      .mockReturnValue('test-metadata-id');
+    deleteXsltFileSpy = vi.spyOn(DataMapperMetadataService, 'deleteXsltFile').mockResolvedValue(undefined);
+    deleteMetadataSpy = vi.spyOn(DataMapperMetadataService, 'deleteMetadata').mockResolvedValue(undefined);
+  });
+
   const renderWithSpy = (metadataApi: IMetadataApi | undefined = undefined) => {
     const registered: IRegisteredInteractionAddon[] = [];
     const registerInteractionAddon = vi.fn((addon: IRegisteredInteractionAddon) => {
@@ -66,13 +84,15 @@ describe('RegisterNodeInteractionAddons', () => {
 
     getOnDeleteAddon(registered).callback({ vizNode: {} as never, modalAnswer: undefined });
 
-    expect(onDeleteDataMapper).not.toHaveBeenCalled();
+    expect(getDataMapperMetadataIdSpy).not.toHaveBeenCalled();
+    expect(deleteXsltFileSpy).not.toHaveBeenCalled();
+    expect(deleteMetadataSpy).not.toHaveBeenCalled();
   });
 
   it('logs an error and does not throw when the DataMapper delete rejects', async () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    (onDeleteDataMapper as Mock).mockRejectedValueOnce(new Error('delete boom'));
-    const { registered } = renderWithSpy({} as IMetadataApi);
+    deleteMetadataSpy.mockRejectedValueOnce(new Error('delete boom'));
+    const { registered } = renderWithSpy(metadataApi);
 
     expect(() => {
       getOnDeleteAddon(registered).callback({ vizNode: {} as never, modalAnswer: undefined });
@@ -81,6 +101,7 @@ describe('RegisterNodeInteractionAddons', () => {
     await waitFor(() => {
       expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to delete DataMapper mapping:', expect.any(Error));
     });
+    expect(deleteMetadataSpy).toHaveBeenCalledWith(metadataApi, 'test-metadata-id');
 
     consoleErrorSpy.mockRestore();
   });

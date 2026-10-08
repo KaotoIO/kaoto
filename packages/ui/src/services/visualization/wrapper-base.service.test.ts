@@ -4,12 +4,6 @@ import { QName } from '../../xml-schema-ts/QName';
 import { FieldOverrideService } from '../document/field-override.service';
 import { WrapperBaseService } from './wrapper-base.service';
 
-vi.mock('../document/field-override.service', () => ({
-  FieldOverrideService: {
-    getFieldSubstitutionCandidates: vi.fn().mockReturnValue({}),
-  },
-}));
-
 function mockField(overrides: Partial<IField> = {}): IField {
   return {
     name: 'field',
@@ -46,6 +40,7 @@ describe('WrapperBaseService', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue({});
   });
 
   describe('resolveCandidateField', () => {
@@ -72,7 +67,7 @@ describe('WrapperBaseService', () => {
       const childField = mockField({ name: 'Cat', namespaceURI: 'http://test' });
       const wrapperField = mockField({ fields: [childField] });
       const otherWrapper = mockField();
-      vi.mocked(FieldOverrideService.getFieldSubstitutionCandidates).mockReturnValue({
+      vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue({
         'ns:Cat': mockSubstituteInfo('Cat'),
       });
 
