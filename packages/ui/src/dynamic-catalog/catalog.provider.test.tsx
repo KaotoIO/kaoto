@@ -224,11 +224,12 @@ describe('CitrusCatalogLoaderProvider', () => {
     );
   });
 
-  it('should call fetchCitrusCatalog for a Citrus catalog', async () => {
+  it('should pass the host resource callback to fetchCitrusCatalog', async () => {
     const { Provider } = TestRuntimeProviderWrapper(citrusCatalogSelector);
+    const getResourcesContentByType = vi.fn();
     render(
       <Provider>
-        <CatalogLoaderProvider>
+        <CatalogLoaderProvider getResourcesContentByType={getResourcesContentByType}>
           <span data-testid="catalogs-loaded">Loaded</span>
         </CatalogLoaderProvider>
       </Provider>,
@@ -239,6 +240,7 @@ describe('CitrusCatalogLoaderProvider', () => {
     });
 
     expect(fetchCitrusCatalog).toHaveBeenCalledTimes(1);
+    expect(fetchCitrusCatalog).toHaveBeenCalledWith(expect.objectContaining({ getResourcesContentByType }));
   });
 
   it('should set loading to false after fetching the catalogs', async () => {

@@ -3,7 +3,7 @@ import { FunctionComponent, PropsWithChildren, useContext } from 'react';
 import type { Mock } from 'vitest';
 
 import { ITile } from '../components/Catalog';
-import { CatalogKind, DefinedComponent } from '../models';
+import { CatalogKind, DefinedComponent, ICitrusTestActionTemplateDefinition } from '../models';
 import { CatalogContext } from './catalog.provider';
 import { CatalogModalContext, CatalogModalProvider } from './catalog-modal.provider';
 import { CatalogTilesContext } from './catalog-tiles.provider';
@@ -86,6 +86,58 @@ describe('CatalogModalProvider', () => {
   });
 
   describe('getNewComponent', () => {
+    it.each(['updated', 'deleted', 'error'] as const)(
+      'resolves a fresh template selection when its host resource is %s',
+      async (status) => {
+        const template: ICitrusTestActionTemplateDefinition = {
+          kind: CatalogKind.TestActionTemplate,
+          name: 'prepare-order',
+          parameters: [{ name: 'region', value: 'updated-region' }],
+        };
+        const error = new Error('Host unavailable');
+        const diagnostic = vi.spyOn(console, status === 'deleted' ? 'warn' : 'error').mockImplementation(() => {});
+        const getEntity = vi.mocked(mockCatalogRegistry.getEntity);
+        if (status === 'error') {
+          getEntity.mockRejectedValueOnce(error);
+        } else {
+          getEntity.mockResolvedValueOnce(status === 'updated' ? template : undefined);
+        }
+        const onSelected = vi.fn();
+        const TestComponent = () => {
+          const { getNewComponent } = useContext(CatalogModalContext)!;
+          return <button onClick={async () => onSelected(await getNewComponent())}>Choose template</button>;
+        };
+        const wrapper = createWrapper(async () => [
+          {
+            name: template.name,
+            type: CatalogKind.TestActionTemplate,
+            title: 'Prepare order',
+            tags: [],
+            iconUrl: 'test-icon-url',
+          },
+        ]);
+        render(<TestComponent />, { wrapper });
+
+        fireEvent.click(screen.getByText('Choose template'));
+        fireEvent.click(await screen.findByTestId('tile-header-prepare-order'));
+
+        await waitFor(() => {
+          expect(onSelected).toHaveBeenCalledWith(
+            status === 'updated'
+              ? { name: template.name, type: CatalogKind.TestActionTemplate, definition: template }
+              : undefined,
+          );
+        });
+        expect(getEntity).toHaveBeenCalledWith(CatalogKind.TestActionTemplate, template.name, { forceFresh: true });
+        if (status === 'deleted') {
+          expect(diagnostic).toHaveBeenCalledWith('Citrus template prepare-order is no longer available');
+        } else if (status === 'error') {
+          expect(diagnostic).toHaveBeenCalledWith('Failed to load catalog entry prepare-order', error);
+        }
+        diagnostic.mockRestore();
+      },
+    );
+
     it('should open modal and fetch tiles when getNewComponent is called', async () => {
       const wrapper = createWrapper();
       const { result } = renderHook(() => useContext(CatalogModalContext), { wrapper });

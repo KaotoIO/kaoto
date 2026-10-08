@@ -348,6 +348,14 @@ describe('CitrusTestResource', () => {
 
       expect(
         tileFilter({
+          type: CatalogKind.TestActionTemplate,
+          name: 'prepare-order',
+          title: 'Prepare order',
+        } as ITile),
+      ).toBeTruthy();
+
+      expect(
+        tileFilter({
           type: CatalogKind.TestContainer,
           name: 'iterate',
           title: 'Iterate',

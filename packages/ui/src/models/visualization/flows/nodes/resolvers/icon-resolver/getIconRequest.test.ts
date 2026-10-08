@@ -49,6 +49,15 @@ describe('getIconRequest', () => {
     expect(NodeIconResolver.getIcon).toHaveBeenCalledWith('print', CatalogKind.TestAction);
   });
 
+  it.each(['prepare-order', 'kamelet:foo'])('should use the applyTemplate icon for template %s', async (name) => {
+    await expect(getIconRequest(CatalogKind.TestActionTemplate, name)).resolves.toEqual({
+      icon: 'mock-icon-url',
+      alt: 'Test ActionTemplate icon',
+    });
+
+    expect(NodeIconResolver.getIcon).toHaveBeenCalledWith('applyTemplate', CatalogKind.TestAction);
+  });
+
   it('should return default camel icon for unknown catalog kind', async () => {
     await expect(getIconRequest('unknown' as CatalogKind, 'test')).resolves.toEqual({
       icon: 'default-camel-icon-url',

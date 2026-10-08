@@ -6,6 +6,7 @@ export interface IconRequestResult {
   alt: string;
 }
 
+/** Resolves the icon and accessible label for a catalog entry, including Citrus templates. */
 export async function getIconRequest(
   catalogKind: CatalogKind,
   name: string,
@@ -23,6 +24,11 @@ export async function getIconRequest(
       iconName = `kamelet:${name}`;
       alt = altProps ?? 'Kamelet icon';
       break;
+    case CatalogKind.TestActionTemplate:
+      return {
+        icon: await NodeIconResolver.getIcon('applyTemplate', CatalogKind.TestAction),
+        alt: altProps ?? 'Test ActionTemplate icon',
+      };
     case CatalogKind.TestAction:
     case CatalogKind.TestActionGroup:
     case CatalogKind.TestContainer:
