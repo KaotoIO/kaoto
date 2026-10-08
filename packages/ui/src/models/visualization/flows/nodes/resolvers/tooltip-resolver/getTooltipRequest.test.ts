@@ -1,26 +1,25 @@
-import type { Mock } from 'vitest';
+import { MockInstance } from 'vitest';
 
 import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
+import { IDynamicCatalogRegistry } from '../../../../../../dynamic-catalog/models';
+import { ICamelComponentDefinition } from '../../../../../camel/camel-components-catalog';
+import { ICamelProcessorDefinition } from '../../../../../camel/camel-processors-catalog';
+import { IKameletDefinition } from '../../../../../camel/kamelets-catalog';
 import { CatalogKind } from '../../../../../catalog-kind';
+import { ICitrusComponentDefinition } from '../../../../../citrus/citrus-catalog';
 import { getTooltipRequest } from './getTooltipRequest';
 
-vi.mock('../../../../../../dynamic-catalog/dynamic-catalog-registry');
-
 describe('getTooltipRequest', () => {
-  let mockGetEntity: Mock;
+  let mockGetEntity: MockInstance<IDynamicCatalogRegistry['getEntity']>;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockGetEntity = vi.fn();
-    (DynamicCatalogRegistry.get as Mock).mockReturnValue({
-      getEntity: mockGetEntity,
-    });
+    mockGetEntity = vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity');
   });
 
   it('should resolve Component tooltip from catalog', async () => {
     mockGetEntity.mockResolvedValue({
       component: { description: 'Kafka component' },
-    });
+    } as ICamelComponentDefinition);
 
     const result = await getTooltipRequest(CatalogKind.Component, 'kafka', 'fallback');
 
@@ -31,7 +30,7 @@ describe('getTooltipRequest', () => {
   it('should resolve Processor tooltip from catalog', async () => {
     mockGetEntity.mockResolvedValue({
       model: { description: 'Log processor' },
-    });
+    } as ICamelProcessorDefinition);
 
     const result = await getTooltipRequest(CatalogKind.Processor, 'log', 'fallback');
 
@@ -42,7 +41,7 @@ describe('getTooltipRequest', () => {
   it('should fallback from Processor to Pattern catalog', async () => {
     mockGetEntity.mockResolvedValueOnce(undefined).mockResolvedValueOnce({
       model: { description: 'Choice pattern' },
-    });
+    } as ICamelProcessorDefinition);
 
     const result = await getTooltipRequest(CatalogKind.Pattern, 'choice', 'fallback');
 
@@ -54,7 +53,7 @@ describe('getTooltipRequest', () => {
   it('should resolve Kamelet tooltip and strip prefix', async () => {
     mockGetEntity.mockResolvedValue({
       spec: { definition: { description: 'AWS S3 Source' } },
-    });
+    } as IKameletDefinition);
 
     const result = await getTooltipRequest(CatalogKind.Kamelet, 'kamelet:aws-s3-source', 'fallback');
 
@@ -65,7 +64,7 @@ describe('getTooltipRequest', () => {
   it('should resolve Entity tooltip from catalog', async () => {
     mockGetEntity.mockResolvedValue({
       model: { description: 'Route entity' },
-    });
+    } as ICamelProcessorDefinition);
 
     const result = await getTooltipRequest(CatalogKind.Entity, 'route', 'fallback');
 
@@ -76,7 +75,7 @@ describe('getTooltipRequest', () => {
   it('should resolve TestAction tooltip from catalog', async () => {
     mockGetEntity.mockResolvedValue({
       description: 'Echo action',
-    });
+    } as ICitrusComponentDefinition);
 
     const result = await getTooltipRequest(CatalogKind.TestAction, 'echo', 'fallback');
 
@@ -87,7 +86,7 @@ describe('getTooltipRequest', () => {
   it('should use description fallback when catalog returns no description', async () => {
     mockGetEntity.mockResolvedValue({
       component: {},
-    });
+    } as ICamelComponentDefinition);
 
     const result = await getTooltipRequest(CatalogKind.Component, 'custom', 'Custom description');
 

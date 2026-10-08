@@ -1,14 +1,14 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
-import type { Mocked } from 'vitest';
+import type { Mocked, MockInstance } from 'vitest';
 
 import { DynamicCatalogRegistry } from '../dynamic-catalog/dynamic-catalog-registry';
+import { IDynamicCatalogRegistry } from '../dynamic-catalog/models';
 import { CatalogKind, createVisualizationNode } from '../models';
+import { ICamelComponentDefinition, ICamelComponentProperty } from '../models/camel/camel-components-catalog';
 import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../models/datamapper/document';
 import { EntitiesContextResult } from '../providers';
 import { XSLT_COMPONENT_NAME, XsltComponentDef } from '../utils';
 import { DataMapperStepService } from './datamapper-step.service';
-
-vi.mock('../dynamic-catalog/dynamic-catalog-registry');
 
 describe('DataMapperStepService', () => {
   let mockEntitiesContext: Mocked<EntitiesContextResult>;
@@ -162,24 +162,20 @@ describe('DataMapperStepService', () => {
   });
 
   describe('supportsJsonBody', () => {
-    let mockGetEntity: ReturnType<typeof vi.fn>;
+    let mockGetEntity: MockInstance<IDynamicCatalogRegistry['getEntity']>;
 
     beforeEach(() => {
-      mockGetEntity = vi.fn();
-      vi.mocked(DynamicCatalogRegistry.get).mockReturnValue({ getEntity: mockGetEntity } as unknown as ReturnType<
-        typeof DynamicCatalogRegistry.get
-      >);
+      mockGetEntity = vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity');
     });
 
     it('should return true when useJsonBody parameter exists in catalog', async () => {
-      mockGetEntity.mockResolvedValue({
-        properties: {
-          useJsonBody: {
-            type: 'boolean',
-            description: 'Use JSON body',
-          },
-        },
-      });
+      const properties: Record<string, ICamelComponentProperty> = {
+        useJsonBody: {
+          type: 'boolean',
+          description: 'Use JSON body',
+        } as ICamelComponentProperty,
+      };
+      mockGetEntity.mockResolvedValue({ properties } as ICamelComponentDefinition);
 
       const result = await DataMapperStepService.supportsJsonBody();
 
@@ -188,13 +184,12 @@ describe('DataMapperStepService', () => {
     });
 
     it('should return false when useJsonBody parameter does not exist in catalog', async () => {
-      mockGetEntity.mockResolvedValue({
-        properties: {
-          otherParam: {
-            type: 'string',
-          },
-        },
-      });
+      const properties: Record<string, ICamelComponentProperty> = {
+        otherParam: {
+          type: 'string',
+        } as ICamelComponentProperty,
+      };
+      mockGetEntity.mockResolvedValue({ properties } as ICamelComponentDefinition);
 
       const result = await DataMapperStepService.supportsJsonBody();
 
@@ -210,9 +205,7 @@ describe('DataMapperStepService', () => {
     });
 
     it('should return false when component has no properties', async () => {
-      mockGetEntity.mockResolvedValue({
-        properties: undefined,
-      });
+      mockGetEntity.mockResolvedValue({} as ICamelComponentDefinition);
 
       const result = await DataMapperStepService.supportsJsonBody();
 

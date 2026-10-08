@@ -1,19 +1,16 @@
-import type { Mock } from 'vitest';
+import { MockInstance } from 'vitest';
 
 import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
+import { IDynamicCatalogRegistry } from '../../../../../../dynamic-catalog/models';
+import { ICamelProcessorDefinition } from '../../../../../camel/camel-processors-catalog';
 import { CatalogKind } from '../../../../../catalog-kind';
 import { ProcessorIconTooltipResolver } from './processor-icon-tooltip-resolver';
 
-vi.mock('../../../../../../dynamic-catalog/dynamic-catalog-registry');
-
 describe('ProcessorIconTooltipResolver', () => {
-  const mockGetEntity = vi.fn();
+  let mockGetEntity: MockInstance<IDynamicCatalogRegistry['getEntity']>;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    (DynamicCatalogRegistry.get as Mock).mockReturnValue({
-      getEntity: mockGetEntity,
-    });
+    mockGetEntity = vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity');
   });
 
   describe('getProcessorIconTooltip', () => {
@@ -22,7 +19,7 @@ describe('ProcessorIconTooltipResolver', () => {
         model: {
           description: 'Consumes messages from an endpoint',
         },
-      });
+      } as ICamelProcessorDefinition);
 
       const result = await ProcessorIconTooltipResolver.getProcessorIconTooltip('from');
 
@@ -33,7 +30,7 @@ describe('ProcessorIconTooltipResolver', () => {
     it('should return undefined when catalog has no description', async () => {
       mockGetEntity.mockResolvedValue({
         model: {},
-      });
+      } as ICamelProcessorDefinition);
 
       const result = await ProcessorIconTooltipResolver.getProcessorIconTooltip('from');
 

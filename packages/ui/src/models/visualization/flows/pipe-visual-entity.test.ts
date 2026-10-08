@@ -1,9 +1,9 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, Pipe } from '@kaoto/camel-catalog/types';
 import { cloneDeep } from 'lodash';
-import type { Mock } from 'vitest';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
+import { DynamicCatalogTypeMap } from '../../../dynamic-catalog/models';
 import { pipeJson } from '../../../stubs/pipe';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
@@ -13,8 +13,6 @@ import { EntityType } from '../../entities';
 import { AddStepMode } from '../base-visual-entity';
 import { PipeVisualEntity } from './pipe-visual-entity';
 import { KameletSchemaService } from './support/kamelet-schema.service';
-
-vi.mock('../../../dynamic-catalog/dynamic-catalog-registry');
 
 describe('Pipe', () => {
   let pipeCR: Pipe;
@@ -73,13 +71,11 @@ describe('Pipe', () => {
     } as IKameletDefinition;
 
     // Mock DynamicCatalogRegistry to return kamelets from the catalog map
-    (DynamicCatalogRegistry.get as Mock).mockReturnValue({
-      getEntity: vi.fn((kind: CatalogKind, name: string) => {
-        if (kind === CatalogKind.Kamelet) {
-          return Promise.resolve(kameletCatalogMap[name]);
-        }
-        return Promise.resolve(undefined);
-      }),
+    vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity').mockImplementation(async (kind, name) => {
+      if (kind === CatalogKind.Kamelet) {
+        return kameletCatalogMap[name] as DynamicCatalogTypeMap[typeof kind];
+      }
+      return undefined;
     });
   });
 
@@ -171,16 +167,14 @@ describe('Pipe', () => {
     });
 
     it('should return the root pipe schema when primaryNodeId is PipeConfiguration', async () => {
-      (DynamicCatalogRegistry.get as Mock).mockReturnValue({
-        getEntity: vi.fn((kind: CatalogKind, name: string) => {
-          if (kind === CatalogKind.Entity && name === 'PipeConfiguration') {
-            return Promise.resolve({ propertiesSchema: { type: 'object', title: 'Pipe' } });
-          }
-          if (kind === CatalogKind.Kamelet) {
-            return Promise.resolve(kameletCatalogMap[name]);
-          }
-          return Promise.resolve(undefined);
-        }),
+      vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity').mockImplementation(async (kind, name) => {
+        if (kind === CatalogKind.Entity && name === 'PipeConfiguration') {
+          return { propertiesSchema: { type: 'object', title: 'Pipe' } } as DynamicCatalogTypeMap[typeof kind];
+        }
+        if (kind === CatalogKind.Kamelet) {
+          return kameletCatalogMap[name] as DynamicCatalogTypeMap[typeof kind];
+        }
+        return undefined;
       });
 
       const result = await pipeVisualEntity.fetchNodeSchema({
