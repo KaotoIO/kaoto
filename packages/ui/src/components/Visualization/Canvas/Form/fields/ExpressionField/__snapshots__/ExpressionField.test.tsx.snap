@@ -4,7 +4,7 @@ exports[`ExpressionField > renders empty expression field with schema 1`] = `
 <div>
   <div
     class="pf-v6-c-card"
-    data-ouia-component-id="OUIA-Generated-Card-_r_0_"
+    data-ouia-component-id="OUIA-Generated-Card-_r_ID_"
     data-ouia-component-type="PF6/Card"
     data-ouia-safe="true"
     data-testid="#__field-wrapper"
@@ -57,7 +57,7 @@ exports[`ExpressionField > renders empty expression field with schema 1`] = `
                 aria-expanded="false"
                 aria-label="# expression list toggle"
                 class="pf-v6-c-menu-toggle__button"
-                data-ouia-component-id="OUIA-Generated-MenuToggle-typeahead-_r_5_"
+                data-ouia-component-id="OUIA-Generated-MenuToggle-typeahead-_r_ID_"
                 data-ouia-component-type="PF6/MenuToggle"
                 data-ouia-safe="true"
                 tabindex="-1"
@@ -107,7 +107,7 @@ exports[`ExpressionField > renders empty expression field with schema 1`] = `
               <span
                 aria-label="More info for Expression field"
                 class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                data-ouia-component-id="OUIA-Generated-Button-plain-_r_7_"
+                data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                 data-ouia-component-type="PF6/Button"
                 data-ouia-safe="true"
                 role="button"
@@ -145,7 +145,7 @@ exports[`ExpressionField > renders expression field with selection 1`] = `
 <div>
   <div
     class="pf-v6-c-card"
-    data-ouia-component-id="OUIA-Generated-Card-_r_8_"
+    data-ouia-component-id="OUIA-Generated-Card-_r_ID_"
     data-ouia-component-type="PF6/Card"
     data-ouia-safe="true"
     data-testid="#__field-wrapper"
@@ -196,7 +196,7 @@ exports[`ExpressionField > renders expression field with selection 1`] = `
                   <button
                     aria-label="Clear input value"
                     class="pf-v6-c-button pf-m-plain"
-                    data-ouia-component-id="OUIA-Generated-Button-plain-_r_e_"
+                    data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                     data-ouia-component-type="PF6/Button"
                     data-ouia-safe="true"
                     data-testid="#__expression-list__clear"
@@ -220,7 +220,7 @@ exports[`ExpressionField > renders expression field with selection 1`] = `
                 aria-expanded="false"
                 aria-label="# expression list toggle"
                 class="pf-v6-c-menu-toggle__button"
-                data-ouia-component-id="OUIA-Generated-MenuToggle-typeahead-_r_d_"
+                data-ouia-component-id="OUIA-Generated-MenuToggle-typeahead-_r_ID_"
                 data-ouia-component-type="PF6/MenuToggle"
                 data-ouia-safe="true"
                 tabindex="-1"
@@ -270,7 +270,7 @@ exports[`ExpressionField > renders expression field with selection 1`] = `
               <span
                 aria-label="More info for Simple field"
                 class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                data-ouia-component-id="OUIA-Generated-Button-plain-_r_g_"
+                data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                 data-ouia-component-type="PF6/Button"
                 data-ouia-safe="true"
                 role="button"
@@ -338,7 +338,7 @@ exports[`ExpressionField > renders expression field with selection 1`] = `
               <span
                 aria-label="More info for Expression field"
                 class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                data-ouia-component-id="OUIA-Generated-Button-plain-_r_k_"
+                data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                 data-ouia-component-type="PF6/Button"
                 data-ouia-safe="true"
                 role="button"
@@ -395,7 +395,7 @@ exports[`ExpressionField > renders expression field with selection 1`] = `
               <button
                 aria-label="Open suggestions"
                 class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-                data-ouia-component-id="OUIA-Generated-Button-plain-_r_l_"
+                data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                 data-ouia-component-type="PF6/Button"
                 data-ouia-safe="true"
                 data-testid="simple.expression__open-suggestions-button"
@@ -416,7 +416,7 @@ exports[`ExpressionField > renders expression field with selection 1`] = `
               <button
                 aria-label="Clear expression field"
                 class="pf-v6-c-button pf-m-plain"
-                data-ouia-component-id="OUIA-Generated-Button-plain-_r_m_"
+                data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                 data-ouia-component-type="PF6/Button"
                 data-ouia-safe="true"
                 data-testid="simple.expression__clear"

@@ -6,7 +6,7 @@ exports[`CanvasFormHeader > renders correctly 1`] = `
     class="pf-v6-l-grid pf-m-gutter"
   >
     <div
-      class="pf-v6-l-grid__item pf-m-11-col form-header"
+      class="pf-v6-l-grid__item pf-m-ID-col form-header"
     >
       <img
         alt="title"
@@ -15,7 +15,7 @@ exports[`CanvasFormHeader > renders correctly 1`] = `
       />
       <h2
         class="pf-v6-c-title pf-m-h2 form-header__title"
-        data-ouia-component-id="OUIA-Generated-Title-_r_0_"
+        data-ouia-component-id="OUIA-Generated-Title-_r_ID_"
         data-ouia-component-type="PF6/Title"
         data-ouia-safe="true"
       >
@@ -23,12 +23,12 @@ exports[`CanvasFormHeader > renders correctly 1`] = `
       </h2>
     </div>
     <div
-      class="pf-v6-l-grid__item pf-m-1-col canvas-header-close"
+      class="pf-v6-l-grid__item pf-m-ID-col canvas-header-close"
     >
       <button
         aria-label="Close"
         class="pf-v6-c-button pf-m-plain"
-        data-ouia-component-id="OUIA-Generated-Button-plain-_r_1_"
+        data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
         data-ouia-component-type="PF6/Button"
         data-ouia-safe="true"
         data-testid="close-side-bar"

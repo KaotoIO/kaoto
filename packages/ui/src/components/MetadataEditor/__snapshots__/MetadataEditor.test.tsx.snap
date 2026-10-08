@@ -20,7 +20,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
               <table
                 aria-label="beans"
                 class="pf-v6-c-table pf-m-grid-md pf-m-compact pf-m-sticky-header"
-                data-ouia-component-id="OUIA-Generated-Table-_r_0_"
+                data-ouia-component-id="OUIA-Generated-Table-_r_ID_"
                 data-ouia-component-type="PF6/Table"
                 data-ouia-safe="true"
                 role="grid"
@@ -30,7 +30,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                 >
                   <tr
                     class="pf-v6-c-table__tr"
-                    data-ouia-component-id="OUIA-Generated-TableRow-_r_1_"
+                    data-ouia-component-id="OUIA-Generated-TableRow-_r_ID_"
                     data-ouia-component-type="PF6/TableRow"
                     data-ouia-safe="true"
                   >
@@ -54,7 +54,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                     >
                       <button
                         class="pf-v6-c-button pf-m-link"
-                        data-ouia-component-id="OUIA-Generated-Button-link-_r_2_"
+                        data-ouia-component-id="OUIA-Generated-Button-link-_r_ID_"
                         data-ouia-component-type="PF6/Button"
                         data-ouia-safe="true"
                         data-testid="metadata-add-beans-btn"
@@ -81,7 +81,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                 >
                   <tr
                     class="pf-v6-c-table__tr"
-                    data-ouia-component-id="OUIA-Generated-TableRow-_r_3_"
+                    data-ouia-component-id="OUIA-Generated-TableRow-_r_ID_"
                     data-ouia-component-type="PF6/TableRow"
                     data-ouia-safe="true"
                   >
@@ -107,7 +107,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                           </div>
                           <button
                             class="pf-v6-c-button pf-m-link"
-                            data-ouia-component-id="OUIA-Generated-Button-link-_r_4_"
+                            data-ouia-component-id="OUIA-Generated-Button-link-_r_ID_"
                             data-ouia-component-type="PF6/Button"
                             data-ouia-safe="true"
                             data-testid="metadata-add-beans-btn"
@@ -149,7 +149,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
             >
               <h2
                 class="pf-v6-c-title pf-m-h2"
-                data-ouia-component-id="OUIA-Generated-Title-_r_5_"
+                data-ouia-component-id="OUIA-Generated-Title-_r_ID_"
                 data-ouia-component-type="PF6/Title"
                 data-ouia-safe="true"
               >
@@ -198,7 +198,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                         <span
                           aria-label="More info for name field"
                           class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                          data-ouia-component-id="OUIA-Generated-Button-plain-_r_9_"
+                          data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                           data-ouia-component-type="PF6/Button"
                           data-ouia-safe="true"
                           role="button"
@@ -257,7 +257,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                         <button
                           aria-label="Open suggestions"
                           class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-                          data-ouia-component-id="OUIA-Generated-Button-plain-_r_a_"
+                          data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                           data-ouia-component-type="PF6/Button"
                           data-ouia-safe="true"
                           data-testid="#.name__open-suggestions-button"
@@ -279,7 +279,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                           aria-expanded="false"
                           aria-label="#.name__field-actions"
                           class="pf-v6-c-menu-toggle pf-m-plain"
-                          data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_e_"
+                          data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_ID_"
                           data-ouia-component-type="PF6/MenuToggle"
                           data-ouia-safe="true"
                           data-testid="#.name__field-actions"
@@ -334,7 +334,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                         <span
                           aria-label="More info for type field"
                           class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                          data-ouia-component-id="OUIA-Generated-Button-plain-_r_i_"
+                          data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                           data-ouia-component-type="PF6/Button"
                           data-ouia-safe="true"
                           role="button"
@@ -393,7 +393,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                         <button
                           aria-label="Open suggestions"
                           class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-                          data-ouia-component-id="OUIA-Generated-Button-plain-_r_j_"
+                          data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                           data-ouia-component-type="PF6/Button"
                           data-ouia-safe="true"
                           data-testid="#.type__open-suggestions-button"
@@ -415,7 +415,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                           aria-expanded="false"
                           aria-label="#.type__field-actions"
                           class="pf-v6-c-menu-toggle pf-m-plain"
-                          data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_n_"
+                          data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_ID_"
                           data-ouia-component-type="PF6/MenuToggle"
                           data-ouia-safe="true"
                           data-testid="#.type__field-actions"
@@ -470,7 +470,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                         <span
                           aria-label="More info for [object Object] field"
                           class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                          data-ouia-component-id="OUIA-Generated-Button-plain-_r_q_"
+                          data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                           data-ouia-component-type="PF6/Button"
                           data-ouia-safe="true"
                           role="button"
@@ -520,7 +520,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                         <button
                           aria-label="Add a new property"
                           class="pf-v6-c-button pf-m-plain"
-                          data-ouia-component-id="OUIA-Generated-Button-plain-_r_r_"
+                          data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                           data-ouia-component-type="PF6/Button"
                           data-ouia-safe="true"
                           data-testid="#.properties__add"
@@ -543,7 +543,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                     </div>
                     <hr
                       class="pf-v6-c-content--hr"
-                      data-ouia-component-id="OUIA-Generated-Content-_r_s_"
+                      data-ouia-component-id="OUIA-Generated-Content-_r_ID_"
                       data-ouia-component-type="PF6/Content"
                       data-ouia-safe="true"
                       data-pf-content="true"
@@ -553,7 +553,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
               </form>
               <div
                 class="pf-v6-c-card kaoto-form kaoto-form__empty"
-                data-ouia-component-id="OUIA-Generated-Card-_r_t_"
+                data-ouia-component-id="OUIA-Generated-Card-_r_ID_"
                 data-ouia-component-type="PF6/Card"
                 data-ouia-safe="true"
                 data-testid="no-field-found"
@@ -564,7 +564,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                 >
                   <div
                     class="pf-v6-c-alert pf-m-info"
-                    data-ouia-component-id="OUIA-Generated-Alert-info-_r_u_"
+                    data-ouia-component-id="OUIA-Generated-Alert-info-_r_ID_"
                     data-ouia-component-type="PF6/Alert"
                     data-ouia-safe="true"
                   >
@@ -625,7 +625,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
             <table
               aria-label="beans"
               class="pf-v6-c-table pf-m-grid-md pf-m-compact pf-m-sticky-header"
-              data-ouia-component-id="OUIA-Generated-Table-_r_0_"
+              data-ouia-component-id="OUIA-Generated-Table-_r_ID_"
               data-ouia-component-type="PF6/Table"
               data-ouia-safe="true"
               role="grid"
@@ -635,7 +635,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
               >
                 <tr
                   class="pf-v6-c-table__tr"
-                  data-ouia-component-id="OUIA-Generated-TableRow-_r_1_"
+                  data-ouia-component-id="OUIA-Generated-TableRow-_r_ID_"
                   data-ouia-component-type="PF6/TableRow"
                   data-ouia-safe="true"
                 >
@@ -659,7 +659,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                   >
                     <button
                       class="pf-v6-c-button pf-m-link"
-                      data-ouia-component-id="OUIA-Generated-Button-link-_r_2_"
+                      data-ouia-component-id="OUIA-Generated-Button-link-_r_ID_"
                       data-ouia-component-type="PF6/Button"
                       data-ouia-safe="true"
                       data-testid="metadata-add-beans-btn"
@@ -686,7 +686,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
               >
                 <tr
                   class="pf-v6-c-table__tr"
-                  data-ouia-component-id="OUIA-Generated-TableRow-_r_3_"
+                  data-ouia-component-id="OUIA-Generated-TableRow-_r_ID_"
                   data-ouia-component-type="PF6/TableRow"
                   data-ouia-safe="true"
                 >
@@ -712,7 +712,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                         </div>
                         <button
                           class="pf-v6-c-button pf-m-link"
-                          data-ouia-component-id="OUIA-Generated-Button-link-_r_4_"
+                          data-ouia-component-id="OUIA-Generated-Button-link-_r_ID_"
                           data-ouia-component-type="PF6/Button"
                           data-ouia-safe="true"
                           data-testid="metadata-add-beans-btn"
@@ -754,7 +754,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
           >
             <h2
               class="pf-v6-c-title pf-m-h2"
-              data-ouia-component-id="OUIA-Generated-Title-_r_5_"
+              data-ouia-component-id="OUIA-Generated-Title-_r_ID_"
               data-ouia-component-type="PF6/Title"
               data-ouia-safe="true"
             >
@@ -803,7 +803,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                       <span
                         aria-label="More info for name field"
                         class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                        data-ouia-component-id="OUIA-Generated-Button-plain-_r_9_"
+                        data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                         data-ouia-component-type="PF6/Button"
                         data-ouia-safe="true"
                         role="button"
@@ -862,7 +862,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                       <button
                         aria-label="Open suggestions"
                         class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-                        data-ouia-component-id="OUIA-Generated-Button-plain-_r_a_"
+                        data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                         data-ouia-component-type="PF6/Button"
                         data-ouia-safe="true"
                         data-testid="#.name__open-suggestions-button"
@@ -884,7 +884,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                         aria-expanded="false"
                         aria-label="#.name__field-actions"
                         class="pf-v6-c-menu-toggle pf-m-plain"
-                        data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_e_"
+                        data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_ID_"
                         data-ouia-component-type="PF6/MenuToggle"
                         data-ouia-safe="true"
                         data-testid="#.name__field-actions"
@@ -939,7 +939,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                       <span
                         aria-label="More info for type field"
                         class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                        data-ouia-component-id="OUIA-Generated-Button-plain-_r_i_"
+                        data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                         data-ouia-component-type="PF6/Button"
                         data-ouia-safe="true"
                         role="button"
@@ -998,7 +998,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                       <button
                         aria-label="Open suggestions"
                         class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-                        data-ouia-component-id="OUIA-Generated-Button-plain-_r_j_"
+                        data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                         data-ouia-component-type="PF6/Button"
                         data-ouia-safe="true"
                         data-testid="#.type__open-suggestions-button"
@@ -1020,7 +1020,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                         aria-expanded="false"
                         aria-label="#.type__field-actions"
                         class="pf-v6-c-menu-toggle pf-m-plain"
-                        data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_n_"
+                        data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_ID_"
                         data-ouia-component-type="PF6/MenuToggle"
                         data-ouia-safe="true"
                         data-testid="#.type__field-actions"
@@ -1075,7 +1075,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                       <span
                         aria-label="More info for [object Object] field"
                         class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                        data-ouia-component-id="OUIA-Generated-Button-plain-_r_q_"
+                        data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                         data-ouia-component-type="PF6/Button"
                         data-ouia-safe="true"
                         role="button"
@@ -1125,7 +1125,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                       <button
                         aria-label="Add a new property"
                         class="pf-v6-c-button pf-m-plain"
-                        data-ouia-component-id="OUIA-Generated-Button-plain-_r_r_"
+                        data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                         data-ouia-component-type="PF6/Button"
                         data-ouia-safe="true"
                         data-testid="#.properties__add"
@@ -1148,7 +1148,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                   </div>
                   <hr
                     class="pf-v6-c-content--hr"
-                    data-ouia-component-id="OUIA-Generated-Content-_r_s_"
+                    data-ouia-component-id="OUIA-Generated-Content-_r_ID_"
                     data-ouia-component-type="PF6/Content"
                     data-ouia-safe="true"
                     data-pf-content="true"
@@ -1158,7 +1158,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
             </form>
             <div
               class="pf-v6-c-card kaoto-form kaoto-form__empty"
-              data-ouia-component-id="OUIA-Generated-Card-_r_t_"
+              data-ouia-component-id="OUIA-Generated-Card-_r_ID_"
               data-ouia-component-type="PF6/Card"
               data-ouia-safe="true"
               data-testid="no-field-found"
@@ -1169,7 +1169,7 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
               >
                 <div
                   class="pf-v6-c-alert pf-m-info"
-                  data-ouia-component-id="OUIA-Generated-Alert-info-_r_u_"
+                  data-ouia-component-id="OUIA-Generated-Alert-info-_r_ID_"
                   data-ouia-component-type="PF6/Alert"
                   data-ouia-safe="true"
                 >

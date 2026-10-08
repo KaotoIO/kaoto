@@ -16,7 +16,7 @@ exports[`EmptyCanvas > should render empty state when there are no routes 1`] = 
         >
           <div
             class="pf-v6-c-card"
-            data-ouia-component-id="OUIA-Generated-Card-_r_0_"
+            data-ouia-component-id="OUIA-Generated-Card-_r_ID_"
             data-ouia-component-type="PF6/Card"
             data-ouia-safe="true"
             id=""
@@ -96,7 +96,7 @@ exports[`EmptyCanvas > should render empty state when there are no routes 1`] = 
                       <button
                         aria-expanded="false"
                         class="pf-v6-c-menu-toggle__button"
-                        data-ouia-component-id="OUIA-Generated-MenuToggle-_r_3_"
+                        data-ouia-component-id="OUIA-Generated-MenuToggle-_r_ID_"
                         data-ouia-component-type="PF6/MenuToggle"
                         data-ouia-safe="true"
                         data-testid="viz-dsl-list-dropdown"
@@ -153,7 +153,7 @@ exports[`EmptyCanvas > should render empty state when there are routes but none 
         >
           <div
             class="pf-v6-c-card"
-            data-ouia-component-id="OUIA-Generated-Card-_r_4_"
+            data-ouia-component-id="OUIA-Generated-Card-_r_ID_"
             data-ouia-component-type="PF6/Card"
             data-ouia-safe="true"
             id=""
@@ -196,7 +196,7 @@ exports[`EmptyCanvas > should render empty state when there are routes but none 
                 >
                   <button
                     class="pf-v6-c-button pf-m-control"
-                    data-ouia-component-id="OUIA-Generated-Button-control-_r_5_"
+                    data-ouia-component-id="OUIA-Generated-Button-control-_r_ID_"
                     data-ouia-component-type="PF6/Button"
                     data-ouia-safe="true"
                     data-testid="show-all-routes-button"

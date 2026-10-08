@@ -18,7 +18,7 @@ exports[`DataListItem > renders correctly 1`] = `
           class="pf-v6-l-grid"
         >
           <div
-            class="pf-v6-l-grid__item pf-m-12-col-on-sm pf-m-6-col-on-md"
+            class="pf-v6-l-grid__item pf-m-ID-col-on-sm pf-m-ID-col-on-md"
             style="--pf-v6-l-grid--item--Order: 1;"
           >
             <div
@@ -103,7 +103,7 @@ exports[`DataListItem > renders correctly 1`] = `
             </div>
           </div>
           <div
-            class="pf-v6-l-grid__item pf-m-12-col-on-sm pf-m-6-col-on-md"
+            class="pf-v6-l-grid__item pf-m-ID-col-on-sm pf-m-ID-col-on-md"
             style="--pf-v6-l-grid--item--Order: 3; --pf-v6-l-grid--item--Order-on-md: 2;"
           >
             <div
@@ -164,7 +164,7 @@ exports[`DataListItem > renders correctly 1`] = `
             </div>
           </div>
           <div
-            class="pf-v6-l-grid__item pf-m-12-col-on-sm pf-m-11-col-on-md"
+            class="pf-v6-l-grid__item pf-m-ID-col-on-sm pf-m-ID-col-on-md"
             style="--pf-v6-l-grid--item--Order: 2; --pf-v6-l-grid--item--Order-on-md: 3;"
           >
             <span
@@ -174,7 +174,7 @@ exports[`DataListItem > renders correctly 1`] = `
             </span>
           </div>
           <div
-            class="pf-v6-l-grid__item pf-m-12-col-on-sm pf-m-1-col-on-md"
+            class="pf-v6-l-grid__item pf-m-ID-col-on-sm pf-m-ID-col-on-md"
             style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
           >
             <span

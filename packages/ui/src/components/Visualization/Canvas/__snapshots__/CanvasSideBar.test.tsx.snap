@@ -8,7 +8,7 @@ exports[`CanvasSideBar > displays selected node information 1`] = `
   >
     <div
       class="pf-v6-c-card canvas-form"
-      data-ouia-component-id="OUIA-Generated-Card-_r_0_"
+      data-ouia-component-id="OUIA-Generated-Card-_r_ID_"
       data-ouia-component-type="PF6/Card"
       data-ouia-safe="true"
       id=""
@@ -23,7 +23,7 @@ exports[`CanvasSideBar > displays selected node information 1`] = `
             class="pf-v6-l-grid pf-m-gutter"
           >
             <div
-              class="pf-v6-l-grid__item pf-m-11-col form-header"
+              class="pf-v6-l-grid__item pf-m-ID-col form-header"
             >
               <img
                 alt="timer"
@@ -32,7 +32,7 @@ exports[`CanvasSideBar > displays selected node information 1`] = `
               />
               <h2
                 class="pf-v6-c-title pf-m-h2 form-header__title"
-                data-ouia-component-id="OUIA-Generated-Title-_r_2_"
+                data-ouia-component-id="OUIA-Generated-Title-_r_ID_"
                 data-ouia-component-type="PF6/Title"
                 data-ouia-safe="true"
               >
@@ -40,12 +40,12 @@ exports[`CanvasSideBar > displays selected node information 1`] = `
               </h2>
             </div>
             <div
-              class="pf-v6-l-grid__item pf-m-1-col canvas-header-close"
+              class="pf-v6-l-grid__item pf-m-ID-col canvas-header-close"
             >
               <button
                 aria-label="Close"
                 class="pf-v6-c-button pf-m-plain"
-                data-ouia-component-id="OUIA-Generated-Button-plain-_r_3_"
+                data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                 data-ouia-component-type="PF6/Button"
                 data-ouia-safe="true"
                 data-testid="close-side-bar"
@@ -177,7 +177,7 @@ exports[`CanvasSideBar > displays selected node information 1`] = `
       >
         <div
           class="pf-v6-c-card"
-          data-ouia-component-id="OUIA-Generated-Card-_r_4_"
+          data-ouia-component-id="OUIA-Generated-Card-_r_ID_"
           data-ouia-component-type="PF6/Card"
           data-ouia-safe="true"
           id=""
@@ -234,7 +234,7 @@ steps:
           >
             <div
               class="pf-v6-c-alert pf-m-warning"
-              data-ouia-component-id="OUIA-Generated-Alert-warning-_r_6_"
+              data-ouia-component-id="OUIA-Generated-Alert-warning-_r_ID_"
               data-ouia-component-type="PF6/Alert"
               data-ouia-safe="true"
             >

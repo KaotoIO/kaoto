@@ -4,7 +4,7 @@ exports[`PipeErrorHandlerPage > renders "Not applicable" when the resource type 
 <div>
   <div
     class="pf-v6-c-content"
-    data-ouia-component-id="OUIA-Generated-Content-_r_0_"
+    data-ouia-component-id="OUIA-Generated-Content-_r_ID_"
     data-ouia-component-type="PF6/Content"
     data-ouia-safe="true"
     data-pf-content="true"
@@ -23,7 +23,7 @@ exports[`PipeErrorHandlerPage > renders the KaotoForm when the resource type is 
   >
     <div
       class="pf-v6-c-card"
-      data-ouia-component-id="OUIA-Generated-Card-_r_1_"
+      data-ouia-component-id="OUIA-Generated-Card-_r_ID_"
       data-ouia-component-type="PF6/Card"
       data-ouia-safe="true"
       data-testid="#__field-wrapper"
@@ -120,7 +120,7 @@ exports[`PipeErrorHandlerPage > renders the KaotoForm when the resource type is 
                 <span
                   aria-label="More info for No Pipe ErrorHandler field"
                   class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                  data-ouia-component-id="OUIA-Generated-Button-plain-_r_5_"
+                  data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                   data-ouia-component-type="PF6/Button"
                   data-ouia-safe="true"
                   role="button"
@@ -195,7 +195,7 @@ exports[`PipeErrorHandlerPage > renders the KaotoForm when the resource type is 
                 <span
                   aria-label="More info for [object Object] field"
                   class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                  data-ouia-component-id="OUIA-Generated-Button-plain-_r_8_"
+                  data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                   data-ouia-component-type="PF6/Button"
                   data-ouia-safe="true"
                   role="button"
@@ -245,7 +245,7 @@ exports[`PipeErrorHandlerPage > renders the KaotoForm when the resource type is 
                 <button
                   aria-label="Add a new property"
                   class="pf-v6-c-button pf-m-plain"
-                  data-ouia-component-id="OUIA-Generated-Button-plain-_r_9_"
+                  data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                   data-ouia-component-type="PF6/Button"
                   data-ouia-safe="true"
                   data-testid="#.none__add"
@@ -267,7 +267,7 @@ exports[`PipeErrorHandlerPage > renders the KaotoForm when the resource type is 
             </div>
             <hr
               class="pf-v6-c-content--hr"
-              data-ouia-component-id="OUIA-Generated-Content-_r_a_"
+              data-ouia-component-id="OUIA-Generated-Content-_r_ID_"
               data-ouia-component-type="PF6/Content"
               data-ouia-safe="true"
               data-pf-content="true"
@@ -279,7 +279,7 @@ exports[`PipeErrorHandlerPage > renders the KaotoForm when the resource type is 
   </form>
   <div
     class="pf-v6-c-card kaoto-form kaoto-form__empty"
-    data-ouia-component-id="OUIA-Generated-Card-_r_b_"
+    data-ouia-component-id="OUIA-Generated-Card-_r_ID_"
     data-ouia-component-type="PF6/Card"
     data-ouia-safe="true"
     data-testid="no-field-found"
@@ -290,7 +290,7 @@ exports[`PipeErrorHandlerPage > renders the KaotoForm when the resource type is 
     >
       <div
         class="pf-v6-c-alert pf-m-info"
-        data-ouia-component-id="OUIA-Generated-Alert-info-_r_c_"
+        data-ouia-component-id="OUIA-Generated-Alert-info-_r_ID_"
         data-ouia-component-type="PF6/Alert"
         data-ouia-safe="true"
       >

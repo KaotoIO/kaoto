@@ -4,7 +4,7 @@ exports[`MetadataPage > renders "Not applicable" when the resource type is not s
 <div>
   <div
     class="pf-v6-c-content"
-    data-ouia-component-id="OUIA-Generated-Content-_r_0_"
+    data-ouia-component-id="OUIA-Generated-Content-_r_ID_"
     data-ouia-component-type="PF6/Content"
     data-ouia-safe="true"
     data-pf-content="true"
@@ -55,7 +55,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
             <span
               aria-label="More info for [object Object] field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_3_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               role="button"
@@ -105,7 +105,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
             <button
               aria-label="Add a new property"
               class="pf-v6-c-button pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_4_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="#.annotations__add"
@@ -127,7 +127,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
         </div>
         <hr
           class="pf-v6-c-content--hr"
-          data-ouia-component-id="OUIA-Generated-Content-_r_5_"
+          data-ouia-component-id="OUIA-Generated-Content-_r_ID_"
           data-ouia-component-type="PF6/Content"
           data-ouia-safe="true"
           data-pf-content="true"
@@ -161,7 +161,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
             <span
               aria-label="More info for creationTimestamp field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_9_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               role="button"
@@ -219,7 +219,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
             <button
               aria-label="Open suggestions"
               class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_a_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="#.creationTimestamp__open-suggestions-button"
@@ -241,7 +241,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
               aria-expanded="false"
               aria-label="#.creationTimestamp__field-actions"
               class="pf-v6-c-menu-toggle pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_e_"
+              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_ID_"
               data-ouia-component-type="PF6/MenuToggle"
               data-ouia-safe="true"
               data-testid="#.creationTimestamp__field-actions"
@@ -289,7 +289,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
             <span
               aria-label="More info for deletionGracePeriodSeconds field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_i_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               role="button"
@@ -347,7 +347,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
             <button
               aria-label="Open suggestions"
               class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_j_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="#.deletionGracePeriodSeconds__open-suggestions-button"
@@ -369,7 +369,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
               aria-expanded="false"
               aria-label="#.deletionGracePeriodSeconds__field-actions"
               class="pf-v6-c-menu-toggle pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_n_"
+              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_ID_"
               data-ouia-component-type="PF6/MenuToggle"
               data-ouia-safe="true"
               data-testid="#.deletionGracePeriodSeconds__field-actions"
@@ -417,7 +417,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
             <span
               aria-label="More info for deletionTimestamp field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_r_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               role="button"
@@ -475,7 +475,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
             <button
               aria-label="Open suggestions"
               class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_s_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="#.deletionTimestamp__open-suggestions-button"
@@ -497,7 +497,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
               aria-expanded="false"
               aria-label="#.deletionTimestamp__field-actions"
               class="pf-v6-c-menu-toggle pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_10_"
+              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_ID_"
               data-ouia-component-type="PF6/MenuToggle"
               data-ouia-safe="true"
               data-testid="#.deletionTimestamp__field-actions"
@@ -520,7 +520,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
     </div>
     <div
       class="pf-v6-c-card"
-      data-ouia-component-id="OUIA-Generated-Card-_r_11_"
+      data-ouia-component-id="OUIA-Generated-Card-_r_ID_"
       data-ouia-component-type="PF6/Card"
       data-ouia-safe="true"
       data-testid="#.finalizers__field-wrapper"
@@ -535,7 +535,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
           <button
             aria-label="Add new item"
             class="pf-v6-c-button pf-m-plain"
-            data-ouia-component-id="OUIA-Generated-Button-plain-_r_13_"
+            data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
             data-ouia-component-type="PF6/Button"
             data-ouia-safe="true"
             data-testid="#.finalizers__add"
@@ -572,7 +572,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
                 <span
                   aria-label="More info for finalizers field"
                   class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                  data-ouia-component-id="OUIA-Generated-Button-plain-_r_15_"
+                  data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                   data-ouia-component-type="PF6/Button"
                   data-ouia-safe="true"
                   role="button"
@@ -630,7 +630,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
             <span
               aria-label="More info for generateName field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_19_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               role="button"
@@ -688,7 +688,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
             <button
               aria-label="Open suggestions"
               class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_1a_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="#.generateName__open-suggestions-button"
@@ -710,7 +710,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
               aria-expanded="false"
               aria-label="#.generateName__field-actions"
               class="pf-v6-c-menu-toggle pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_1e_"
+              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_ID_"
               data-ouia-component-type="PF6/MenuToggle"
               data-ouia-safe="true"
               data-testid="#.generateName__field-actions"
@@ -758,7 +758,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
             <span
               aria-label="More info for generation field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_1i_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               role="button"
@@ -816,7 +816,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
             <button
               aria-label="Open suggestions"
               class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_1j_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="#.generation__open-suggestions-button"
@@ -838,7 +838,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
               aria-expanded="false"
               aria-label="#.generation__field-actions"
               class="pf-v6-c-menu-toggle pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_1n_"
+              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_ID_"
               data-ouia-component-type="PF6/MenuToggle"
               data-ouia-safe="true"
               data-testid="#.generation__field-actions"
@@ -893,7 +893,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
             <span
               aria-label="More info for [object Object] field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_1q_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               role="button"
@@ -943,7 +943,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
             <button
               aria-label="Add a new property"
               class="pf-v6-c-button pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_1r_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="#.labels__add"
@@ -965,7 +965,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
         </div>
         <hr
           class="pf-v6-c-content--hr"
-          data-ouia-component-id="OUIA-Generated-Content-_r_1s_"
+          data-ouia-component-id="OUIA-Generated-Content-_r_ID_"
           data-ouia-component-type="PF6/Content"
           data-ouia-safe="true"
           data-pf-content="true"
@@ -974,7 +974,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
     </div>
     <div
       class="pf-v6-c-card"
-      data-ouia-component-id="OUIA-Generated-Card-_r_1t_"
+      data-ouia-component-id="OUIA-Generated-Card-_r_ID_"
       data-ouia-component-type="PF6/Card"
       data-ouia-safe="true"
       data-testid="#.managedFields__field-wrapper"
@@ -989,7 +989,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
           <button
             aria-label="Add new item"
             class="pf-v6-c-button pf-m-plain"
-            data-ouia-component-id="OUIA-Generated-Button-plain-_r_1v_"
+            data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
             data-ouia-component-type="PF6/Button"
             data-ouia-safe="true"
             data-testid="#.managedFields__add"
@@ -1026,7 +1026,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
                 <span
                   aria-label="More info for managedFields field"
                   class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                  data-ouia-component-id="OUIA-Generated-Button-plain-_r_21_"
+                  data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                   data-ouia-component-type="PF6/Button"
                   data-ouia-safe="true"
                   role="button"
@@ -1084,7 +1084,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
             <span
               aria-label="More info for name field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_25_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               role="button"
@@ -1142,7 +1142,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
             <button
               aria-label="Open suggestions"
               class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_26_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="#.name__open-suggestions-button"
@@ -1164,7 +1164,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
               aria-expanded="false"
               aria-label="#.name__field-actions"
               class="pf-v6-c-menu-toggle pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_2a_"
+              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_ID_"
               data-ouia-component-type="PF6/MenuToggle"
               data-ouia-safe="true"
               data-testid="#.name__field-actions"
@@ -1212,7 +1212,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
             <span
               aria-label="More info for namespace field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_2e_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               role="button"
@@ -1270,7 +1270,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
             <button
               aria-label="Open suggestions"
               class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_2f_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="#.namespace__open-suggestions-button"
@@ -1292,7 +1292,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
               aria-expanded="false"
               aria-label="#.namespace__field-actions"
               class="pf-v6-c-menu-toggle pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_2j_"
+              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_ID_"
               data-ouia-component-type="PF6/MenuToggle"
               data-ouia-safe="true"
               data-testid="#.namespace__field-actions"
@@ -1315,7 +1315,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
     </div>
     <div
       class="pf-v6-c-card"
-      data-ouia-component-id="OUIA-Generated-Card-_r_2k_"
+      data-ouia-component-id="OUIA-Generated-Card-_r_ID_"
       data-ouia-component-type="PF6/Card"
       data-ouia-safe="true"
       data-testid="#.ownerReferences__field-wrapper"
@@ -1330,7 +1330,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
           <button
             aria-label="Add new item"
             class="pf-v6-c-button pf-m-plain"
-            data-ouia-component-id="OUIA-Generated-Button-plain-_r_2m_"
+            data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
             data-ouia-component-type="PF6/Button"
             data-ouia-safe="true"
             data-testid="#.ownerReferences__add"
@@ -1367,7 +1367,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
                 <span
                   aria-label="More info for ownerReferences field"
                   class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                  data-ouia-component-id="OUIA-Generated-Button-plain-_r_2o_"
+                  data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                   data-ouia-component-type="PF6/Button"
                   data-ouia-safe="true"
                   role="button"
@@ -1425,7 +1425,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
             <span
               aria-label="More info for resourceVersion field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_2s_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               role="button"
@@ -1483,7 +1483,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
             <button
               aria-label="Open suggestions"
               class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_2t_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="#.resourceVersion__open-suggestions-button"
@@ -1505,7 +1505,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
               aria-expanded="false"
               aria-label="#.resourceVersion__field-actions"
               class="pf-v6-c-menu-toggle pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_31_"
+              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_ID_"
               data-ouia-component-type="PF6/MenuToggle"
               data-ouia-safe="true"
               data-testid="#.resourceVersion__field-actions"
@@ -1553,7 +1553,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
             <span
               aria-label="More info for selfLink field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_35_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               role="button"
@@ -1611,7 +1611,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
             <button
               aria-label="Open suggestions"
               class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_36_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="#.selfLink__open-suggestions-button"
@@ -1633,7 +1633,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
               aria-expanded="false"
               aria-label="#.selfLink__field-actions"
               class="pf-v6-c-menu-toggle pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_3a_"
+              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_ID_"
               data-ouia-component-type="PF6/MenuToggle"
               data-ouia-safe="true"
               data-testid="#.selfLink__field-actions"
@@ -1681,7 +1681,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
             <span
               aria-label="More info for uid field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_3e_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               role="button"
@@ -1739,7 +1739,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
             <button
               aria-label="Open suggestions"
               class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-              data-ouia-component-id="OUIA-Generated-Button-plain-_r_3f_"
+              data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="#.uid__open-suggestions-button"
@@ -1761,7 +1761,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
               aria-expanded="false"
               aria-label="#.uid__field-actions"
               class="pf-v6-c-menu-toggle pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_3j_"
+              data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_ID_"
               data-ouia-component-type="PF6/MenuToggle"
               data-ouia-safe="true"
               data-testid="#.uid__field-actions"
@@ -1785,7 +1785,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
   </form>
   <div
     class="pf-v6-c-card kaoto-form kaoto-form__empty"
-    data-ouia-component-id="OUIA-Generated-Card-_r_3k_"
+    data-ouia-component-id="OUIA-Generated-Card-_r_ID_"
     data-ouia-component-type="PF6/Card"
     data-ouia-safe="true"
     data-testid="no-field-found"
@@ -1796,7 +1796,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
     >
       <div
         class="pf-v6-c-alert pf-m-info"
-        data-ouia-component-id="OUIA-Generated-Alert-info-_r_3l_"
+        data-ouia-component-id="OUIA-Generated-Alert-info-_r_ID_"
         data-ouia-component-type="PF6/Alert"
         data-ouia-safe="true"
       >
