@@ -716,10 +716,10 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                 >
                   <div
                     class="pf-v6-c-toolbar"
-                    data-ouia-component-id="OUIA-Generated-Toolbar-_r_65_"
+                    data-ouia-component-id="OUIA-Generated-Toolbar-_r_ID_"
                     data-ouia-component-type="PF6/Toolbar"
                     data-ouia-safe="true"
-                    id="pf-topology-control-bar-_r_63_"
+                    id="pf-topology-control-bar-_r_ID_"
                     style="background-color: transparent;"
                   >
                     <div
@@ -740,7 +740,7 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                               <button
                                 aria-disabled="false"
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_67_"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_ID_"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="zoom-in"
@@ -773,7 +773,7 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                               <button
                                 aria-disabled="false"
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_69_"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_ID_"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="zoom-out"
@@ -806,7 +806,7 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                               <button
                                 aria-disabled="false"
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_6b_"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_ID_"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="reset-view"
@@ -838,7 +838,7 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                             >
                               <button
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_6d_"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_ID_"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="topology-control-bar-h_layout-button"
@@ -876,7 +876,7 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                             >
                               <button
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_6f_"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_ID_"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="topology-control-bar-v_layout-button"
@@ -1651,10 +1651,10 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                 >
                   <div
                     class="pf-v6-c-toolbar"
-                    data-ouia-component-id="OUIA-Generated-Toolbar-_r_5l_"
+                    data-ouia-component-id="OUIA-Generated-Toolbar-_r_ID_"
                     data-ouia-component-type="PF6/Toolbar"
                     data-ouia-safe="true"
-                    id="pf-topology-control-bar-_r_5j_"
+                    id="pf-topology-control-bar-_r_ID_"
                     style="background-color: transparent;"
                   >
                     <div
@@ -1675,7 +1675,7 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                               <button
                                 aria-disabled="false"
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_5n_"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_ID_"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="zoom-in"
@@ -1708,7 +1708,7 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                               <button
                                 aria-disabled="false"
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_5p_"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_ID_"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="zoom-out"
@@ -1741,7 +1741,7 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                               <button
                                 aria-disabled="false"
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_5r_"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_ID_"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="reset-view"
@@ -1773,7 +1773,7 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                             >
                               <button
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_5t_"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_ID_"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="topology-control-bar-h_layout-button"
@@ -1811,7 +1811,7 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                             >
                               <button
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_5v_"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_ID_"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="topology-control-bar-v_layout-button"
@@ -1849,7 +1849,7 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                             >
                               <button
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_61_"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_ID_"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="topology-control-bar-catalog-button"
@@ -2618,10 +2618,10 @@ exports[`Canvas > should render correctly 1`] = `
                 >
                   <div
                     class="pf-v6-c-toolbar"
-                    data-ouia-component-id="OUIA-Generated-Toolbar-_r_2_"
+                    data-ouia-component-id="OUIA-Generated-Toolbar-_r_ID_"
                     data-ouia-component-type="PF6/Toolbar"
                     data-ouia-safe="true"
-                    id="pf-topology-control-bar-_r_0_"
+                    id="pf-topology-control-bar-_r_ID_"
                     style="background-color: transparent;"
                   >
                     <div
@@ -2642,7 +2642,7 @@ exports[`Canvas > should render correctly 1`] = `
                               <button
                                 aria-disabled="false"
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_4_"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_ID_"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="zoom-in"
@@ -2675,7 +2675,7 @@ exports[`Canvas > should render correctly 1`] = `
                               <button
                                 aria-disabled="false"
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_6_"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_ID_"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="zoom-out"
@@ -2708,7 +2708,7 @@ exports[`Canvas > should render correctly 1`] = `
                               <button
                                 aria-disabled="false"
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_8_"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_ID_"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="reset-view"
@@ -2740,7 +2740,7 @@ exports[`Canvas > should render correctly 1`] = `
                             >
                               <button
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_a_"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_ID_"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="topology-control-bar-h_layout-button"
@@ -2778,7 +2778,7 @@ exports[`Canvas > should render correctly 1`] = `
                             >
                               <button
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_c_"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_ID_"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="topology-control-bar-v_layout-button"

@@ -50,7 +50,7 @@ exports[`LoadDefaultCatalog > should render correctly 1`] = `
               >
                 <button
                   class="pf-v6-c-button pf-m-primary"
-                  data-ouia-component-id="OUIA-Generated-Button-primary-_r_0_"
+                  data-ouia-component-id="OUIA-Generated-Button-primary-_r_ID_"
                   data-ouia-component-type="PF6/Button"
                   data-ouia-safe="true"
                   type="button"
@@ -71,7 +71,7 @@ exports[`LoadDefaultCatalog > should render correctly 1`] = `
                   <button
                     aria-controls="expandable-section-content"
                     class="pf-v6-c-button pf-m-link"
-                    data-ouia-component-id="OUIA-Generated-Button-link-_r_3_"
+                    data-ouia-component-id="OUIA-Generated-Button-link-_r_ID_"
                     data-ouia-component-type="PF6/Button"
                     data-ouia-safe="true"
                     id="error-details-expandable-section-toggle"
@@ -171,7 +171,7 @@ exports[`LoadDefaultCatalog > should render correctly 1`] = `
             >
               <button
                 class="pf-v6-c-button pf-m-primary"
-                data-ouia-component-id="OUIA-Generated-Button-primary-_r_0_"
+                data-ouia-component-id="OUIA-Generated-Button-primary-_r_ID_"
                 data-ouia-component-type="PF6/Button"
                 data-ouia-safe="true"
                 type="button"
@@ -192,7 +192,7 @@ exports[`LoadDefaultCatalog > should render correctly 1`] = `
                 <button
                   aria-controls="expandable-section-content"
                   class="pf-v6-c-button pf-m-link"
-                  data-ouia-component-id="OUIA-Generated-Button-link-_r_3_"
+                  data-ouia-component-id="OUIA-Generated-Button-link-_r_ID_"
                   data-ouia-component-type="PF6/Button"
                   data-ouia-safe="true"
                   id="error-details-expandable-section-toggle"
