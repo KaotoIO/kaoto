@@ -1,35 +1,35 @@
-import type { Mock } from 'vitest';
+import { MockInstance } from 'vitest';
 
 import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
+import { IDynamicCatalogRegistry } from '../../../../../../dynamic-catalog/models';
+import { ICamelComponentDefinition } from '../../../../../camel/camel-components-catalog';
+import { ICamelProcessorDefinition } from '../../../../../camel/camel-processors-catalog';
+import { IKameletDefinition } from '../../../../../camel/kamelets-catalog';
 import { CatalogKind } from '../../../../../catalog-kind';
+import { ICitrusComponentDefinition } from '../../../../../citrus/citrus-catalog';
 import { NodeTitleResolver } from './node-title-resolver';
 
-vi.mock('../../../../../../dynamic-catalog/dynamic-catalog-registry');
-
 describe('NodeTitleResolver', () => {
-  const mockRegistry = {
-    getEntity: vi.fn(),
-  };
+  let getEntitySpy: MockInstance<IDynamicCatalogRegistry['getEntity']>;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    (DynamicCatalogRegistry.get as Mock).mockReturnValue(mockRegistry);
+    getEntitySpy = vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity');
   });
 
   describe('getComponentTitle', () => {
     it('should resolve title for a Camel component', async () => {
-      mockRegistry.getEntity.mockResolvedValue({
+      getEntitySpy.mockResolvedValue({
         component: { title: 'Timer Component' },
-      });
+      } as ICamelComponentDefinition);
 
       const title = await NodeTitleResolver.getComponentTitle('timer');
 
-      expect(mockRegistry.getEntity).toHaveBeenCalledWith(CatalogKind.Component, 'timer');
+      expect(getEntitySpy).toHaveBeenCalledWith(CatalogKind.Component, 'timer');
       expect(title).toBe('Timer Component');
     });
 
     it('should fallback to name if component not found', async () => {
-      mockRegistry.getEntity.mockResolvedValue(undefined);
+      getEntitySpy.mockResolvedValue(undefined);
 
       const title = await NodeTitleResolver.getComponentTitle('missing');
 
@@ -39,18 +39,18 @@ describe('NodeTitleResolver', () => {
 
   describe('getKameletTitle', () => {
     it('should resolve title for a Kamelet', async () => {
-      mockRegistry.getEntity.mockResolvedValue({
+      getEntitySpy.mockResolvedValue({
         spec: { definition: { title: 'Kafka Source' } },
-      });
+      } as IKameletDefinition);
 
       const title = await NodeTitleResolver.getKameletTitle('kafka-source');
 
-      expect(mockRegistry.getEntity).toHaveBeenCalledWith(CatalogKind.Kamelet, 'kafka-source');
+      expect(getEntitySpy).toHaveBeenCalledWith(CatalogKind.Kamelet, 'kafka-source');
       expect(title).toBe('Kafka Source');
     });
 
     it('should fallback to name if kamelet not found', async () => {
-      mockRegistry.getEntity.mockResolvedValue(undefined);
+      getEntitySpy.mockResolvedValue(undefined);
 
       const title = await NodeTitleResolver.getKameletTitle('missing');
 
@@ -60,40 +60,40 @@ describe('NodeTitleResolver', () => {
 
   describe('getProcessorTitle', () => {
     it('should resolve title from component name if provided', async () => {
-      mockRegistry.getEntity.mockResolvedValue({
+      getEntitySpy.mockResolvedValue({
         component: { title: 'Timer' },
-      });
+      } as ICamelComponentDefinition);
 
       const title = await NodeTitleResolver.getProcessorTitle('from', CatalogKind.Processor, 'timer');
 
-      expect(mockRegistry.getEntity).toHaveBeenCalledWith(CatalogKind.Component, 'timer');
+      expect(getEntitySpy).toHaveBeenCalledWith(CatalogKind.Component, 'timer');
       expect(title).toBe('Timer');
     });
 
     it('should resolve title from kamelet if component name has kamelet prefix', async () => {
-      mockRegistry.getEntity.mockResolvedValue({
+      getEntitySpy.mockResolvedValue({
         spec: { definition: { title: 'Kafka Source' } },
-      });
+      } as IKameletDefinition);
 
       const title = await NodeTitleResolver.getProcessorTitle('from', CatalogKind.Processor, 'kamelet:kafka-source');
 
-      expect(mockRegistry.getEntity).toHaveBeenCalledWith(CatalogKind.Kamelet, 'kafka-source');
+      expect(getEntitySpy).toHaveBeenCalledWith(CatalogKind.Kamelet, 'kafka-source');
       expect(title).toBe('Kafka Source');
     });
 
     it('should resolve title from processor if no component name', async () => {
-      mockRegistry.getEntity.mockResolvedValue({
+      getEntitySpy.mockResolvedValue({
         model: { title: 'Log EIP' },
-      });
+      } as ICamelProcessorDefinition);
 
       const title = await NodeTitleResolver.getProcessorTitle('log', CatalogKind.Processor);
 
-      expect(mockRegistry.getEntity).toHaveBeenCalledWith(CatalogKind.Processor, 'log');
+      expect(getEntitySpy).toHaveBeenCalledWith(CatalogKind.Processor, 'log');
       expect(title).toBe('Log EIP');
     });
 
     it('should fallback to processor name if not found', async () => {
-      mockRegistry.getEntity.mockResolvedValue(undefined);
+      getEntitySpy.mockResolvedValue(undefined);
 
       const title = await NodeTitleResolver.getProcessorTitle('missing', CatalogKind.Processor);
 
@@ -103,18 +103,18 @@ describe('NodeTitleResolver', () => {
 
   describe('getEntityTitle', () => {
     it('should resolve title for an entity', async () => {
-      mockRegistry.getEntity.mockResolvedValue({
+      getEntitySpy.mockResolvedValue({
         model: { title: 'Error Handler' },
-      });
+      } as ICamelProcessorDefinition);
 
       const title = await NodeTitleResolver.getEntityTitle('errorHandler');
 
-      expect(mockRegistry.getEntity).toHaveBeenCalledWith(CatalogKind.Entity, 'errorHandler');
+      expect(getEntitySpy).toHaveBeenCalledWith(CatalogKind.Entity, 'errorHandler');
       expect(title).toBe('Error Handler');
     });
 
     it('should fallback to formatted name if entity not found', async () => {
-      mockRegistry.getEntity.mockResolvedValue(undefined);
+      getEntitySpy.mockResolvedValue(undefined);
 
       const title = await NodeTitleResolver.getEntityTitle('missing');
 
@@ -124,30 +124,30 @@ describe('NodeTitleResolver', () => {
 
   describe('getTestActionTitle', () => {
     it('should resolve title for a test action', async () => {
-      mockRegistry.getEntity.mockResolvedValue({
+      getEntitySpy.mockResolvedValue({
         title: 'Send Action',
-      });
+      } as ICitrusComponentDefinition);
 
       const title = await NodeTitleResolver.getTestActionTitle('send', CatalogKind.TestAction);
 
-      expect(mockRegistry.getEntity).toHaveBeenCalledWith(CatalogKind.TestAction, 'send');
+      expect(getEntitySpy).toHaveBeenCalledWith(CatalogKind.TestAction, 'send');
       expect(title).toBe('Send Action');
     });
 
     it('should prioritize requested catalog kind (TestActionGroup)', async () => {
-      mockRegistry.getEntity.mockResolvedValue({
+      getEntitySpy.mockResolvedValue({
         title: 'Test Action Group Title',
-      });
+      } as ICitrusComponentDefinition);
 
       const title = await NodeTitleResolver.getTestActionTitle('myGroup', CatalogKind.TestActionGroup);
 
       // Should try TestActionGroup first since it was requested
-      expect(mockRegistry.getEntity).toHaveBeenCalledWith(CatalogKind.TestActionGroup, 'myGroup');
+      expect(getEntitySpy).toHaveBeenCalledWith(CatalogKind.TestActionGroup, 'myGroup');
       expect(title).toBe('Test Action Group Title');
     });
 
     it('should fallback to name if test action not found', async () => {
-      mockRegistry.getEntity.mockResolvedValue(undefined);
+      getEntitySpy.mockResolvedValue(undefined);
 
       const title = await NodeTitleResolver.getTestActionTitle('missing', CatalogKind.TestAction);
 

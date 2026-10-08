@@ -1,22 +1,22 @@
+import { MockInstance } from 'vitest';
+
 import { DynamicCatalogRegistry } from '../../../../../dynamic-catalog/dynamic-catalog-registry';
+import { IDynamicCatalogRegistry } from '../../../../../dynamic-catalog/models';
+import { ICamelComponentDefinition } from '../../../../camel/camel-components-catalog';
+import { ICamelProcessorDefinition } from '../../../../camel/camel-processors-catalog';
 import { CatalogKind } from '../../../../catalog-kind';
 import { CatalogResolverFactory } from './catalog-resolver.factory';
 
-vi.mock('../../../../../dynamic-catalog/dynamic-catalog-registry');
-
 describe('CatalogResolverFactory', () => {
-  const mockGetEntity = vi.fn();
+  let mockGetEntity: MockInstance<IDynamicCatalogRegistry['getEntity']>;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    vi.mocked(DynamicCatalogRegistry.get).mockReturnValue({
-      getEntity: mockGetEntity,
-    } as unknown as ReturnType<typeof DynamicCatalogRegistry.get>);
+    mockGetEntity = vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity');
   });
 
   describe('resolveProperty', () => {
     it('should resolve property when found', async () => {
-      mockGetEntity.mockResolvedValue({ component: { title: 'Timer' } });
+      mockGetEntity.mockResolvedValue({ component: { title: 'Timer' } } as ICamelComponentDefinition);
 
       const result = await CatalogResolverFactory.resolveProperty(
         CatalogKind.Component,
@@ -28,7 +28,7 @@ describe('CatalogResolverFactory', () => {
     });
 
     it('should return fallback when property not found', async () => {
-      mockGetEntity.mockResolvedValue(null);
+      mockGetEntity.mockResolvedValue(undefined);
 
       const result = await CatalogResolverFactory.resolveProperty(
         CatalogKind.Component,
@@ -41,7 +41,7 @@ describe('CatalogResolverFactory', () => {
     });
 
     it('should return undefined when no fallback provided', async () => {
-      mockGetEntity.mockResolvedValue(null);
+      mockGetEntity.mockResolvedValue(undefined);
 
       const result = await CatalogResolverFactory.resolveProperty(
         CatalogKind.Component,
@@ -68,7 +68,7 @@ describe('CatalogResolverFactory', () => {
     });
 
     it('should accept empty string as valid value', async () => {
-      mockGetEntity.mockResolvedValue({ component: { title: '' } });
+      mockGetEntity.mockResolvedValue({ component: { title: '' } } as ICamelComponentDefinition);
 
       const result = await CatalogResolverFactory.resolveProperty(
         CatalogKind.Component,
@@ -83,7 +83,7 @@ describe('CatalogResolverFactory', () => {
 
   describe('resolvePropertyWithFallbacks', () => {
     it('should return value from first matching catalog', async () => {
-      mockGetEntity.mockResolvedValue({ model: { title: 'Log' } });
+      mockGetEntity.mockResolvedValue({ model: { title: 'Log' } } as ICamelProcessorDefinition);
 
       const result = await CatalogResolverFactory.resolvePropertyWithFallbacks(
         [CatalogKind.Processor, CatalogKind.Pattern],
@@ -96,7 +96,9 @@ describe('CatalogResolverFactory', () => {
     });
 
     it('should try next catalog when first fails', async () => {
-      mockGetEntity.mockResolvedValueOnce(null).mockResolvedValueOnce({ model: { title: 'Pattern' } });
+      mockGetEntity
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce({ model: { title: 'Pattern' } } as ICamelProcessorDefinition);
 
       const result = await CatalogResolverFactory.resolvePropertyWithFallbacks(
         [CatalogKind.Processor, CatalogKind.Pattern],
@@ -109,7 +111,7 @@ describe('CatalogResolverFactory', () => {
     });
 
     it('should return fallback when all catalogs fail', async () => {
-      mockGetEntity.mockResolvedValue(null);
+      mockGetEntity.mockResolvedValue(undefined);
 
       const result = await CatalogResolverFactory.resolvePropertyWithFallbacks(
         [CatalogKind.Processor, CatalogKind.Pattern],
@@ -122,7 +124,7 @@ describe('CatalogResolverFactory', () => {
     });
 
     it('should return undefined when no fallback provided', async () => {
-      mockGetEntity.mockResolvedValue(null);
+      mockGetEntity.mockResolvedValue(undefined);
 
       const result = await CatalogResolverFactory.resolvePropertyWithFallbacks(
         [CatalogKind.Processor, CatalogKind.Pattern],
@@ -135,7 +137,9 @@ describe('CatalogResolverFactory', () => {
 
     it('should continue after catalog errors', async () => {
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      mockGetEntity.mockRejectedValueOnce(new Error('Error')).mockResolvedValueOnce({ model: { title: 'Success' } });
+      mockGetEntity
+        .mockRejectedValueOnce(new Error('Error'))
+        .mockResolvedValueOnce({ model: { title: 'Success' } } as ICamelProcessorDefinition);
 
       const result = await CatalogResolverFactory.resolvePropertyWithFallbacks(
         [CatalogKind.Processor, CatalogKind.Pattern],
