@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { ApicurioImportSource } from './ApicurioImportSource';
 
@@ -10,6 +10,44 @@ describe('ApicurioImportSource', () => {
   afterEach(() => {
     fetchSpy.mockRestore();
     mockOnSchemaLoaded.mockReset();
+  });
+
+  it('keeps a new search pending when returning to a previously loaded registry', async () => {
+    let finishSecondRegistry!: (response: Response) => void;
+    let finishReturnSearch!: (response: Response) => void;
+    const emptyResponse = { ok: true, json: async () => ({ artifacts: [] }) } as Response;
+    fetchSpy
+      .mockResolvedValueOnce(emptyResponse)
+      .mockReturnValueOnce(
+        new Promise<Response>((resolve) => {
+          finishSecondRegistry = resolve;
+        }),
+      )
+      .mockReturnValueOnce(
+        new Promise<Response>((resolve) => {
+          finishReturnSearch = resolve;
+        }),
+      );
+
+    const { rerender } = render(<ApicurioImportSource registryUrl={registryUrl} onSchemaLoaded={mockOnSchemaLoaded} />);
+    await screen.findByText('No OpenAPI artifacts found.');
+    const refresh = screen.getByRole('button', { name: /refresh/i });
+    rerender(<ApicurioImportSource registryUrl="http://second.example.com" onSchemaLoaded={mockOnSchemaLoaded} />);
+    expect(refresh).toBeDisabled();
+    rerender(<ApicurioImportSource registryUrl={registryUrl} onSchemaLoaded={mockOnSchemaLoaded} />);
+    expect(refresh).toBeDisabled();
+    expect(screen.queryByText('No OpenAPI artifacts found.')).not.toBeInTheDocument();
+
+    await act(async () => {
+      finishSecondRegistry(emptyResponse);
+    });
+    expect(refresh).toBeDisabled();
+    expect(screen.queryByText('No OpenAPI artifacts found.')).not.toBeInTheDocument();
+    await act(async () => {
+      finishReturnSearch(emptyResponse);
+    });
+    expect(refresh).toBeEnabled();
+    expect(screen.getByText('No OpenAPI artifacts found.')).toBeInTheDocument();
   });
 
   it('shows message when registry URL is not configured', () => {

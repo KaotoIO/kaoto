@@ -40,12 +40,6 @@ export const XsltDocumentRenameInput: FunctionComponent<IXsltDocumentRenameInput
   const [localValue, setLocalValue] = useState(value);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [isValidating, setIsValidating] = useState(false);
-  const [validationResult, setValidationResult] = useState<ValidationResult>({
-    status: ValidationStatus.Default,
-    errMessages: [],
-  });
-
   const [validationInputs, setValidationInputs] = useState({ localValue, value, validator });
   if (
     validationInputs.localValue !== localValue ||
@@ -53,9 +47,24 @@ export const XsltDocumentRenameInput: FunctionComponent<IXsltDocumentRenameInput
     validationInputs.validator !== validator
   ) {
     setValidationInputs({ localValue, value, validator });
-    setValidationResult({ status: ValidationStatus.Default, errMessages: [] });
-    setIsValidating(localValue !== value && typeof validator === 'function');
   }
+
+  // A completion belongs to one input snapshot. A late promise may settle before effect
+  // cleanup, but its result must never change the validation of a newer snapshot.
+  const [validation, setValidation] = useState<{
+    inputs: typeof validationInputs;
+    result: ValidationResult;
+  }>();
+  const validationResult =
+    validation?.inputs === validationInputs ? validation.result : { status: ValidationStatus.Default, errMessages: [] };
+  const isValidating =
+    localValue !== value && typeof validator === 'function' && validation?.inputs !== validationInputs;
+  const setValidationResult = useCallback(
+    (result: ValidationResult) => {
+      setValidation({ inputs: validationInputs, result });
+    },
+    [validationInputs],
+  );
 
   useEffect(() => {
     if (localValue === value || typeof validator !== 'function') return;
@@ -74,10 +83,6 @@ export const XsltDocumentRenameInput: FunctionComponent<IXsltDocumentRenameInput
             errMessages: ['Validation failed. Please try again.'],
           });
         }
-      } finally {
-        if (isCurrent) {
-          setIsValidating(false);
-        }
       }
     };
 
@@ -86,7 +91,7 @@ export const XsltDocumentRenameInput: FunctionComponent<IXsltDocumentRenameInput
     return () => {
       isCurrent = false;
     };
-  }, [localValue, value, validator]);
+  }, [localValue, value, validator, setValidationResult]);
 
   const focusTextInput = useCallback((element: HTMLInputElement) => {
     element?.focus();
@@ -127,14 +132,23 @@ export const XsltDocumentRenameInput: FunctionComponent<IXsltDocumentRenameInput
     setIsSaving(false);
     setIsEditing(false);
     onEditingStateChange?.(false);
-  }, [isValidating, isSaving, localValue, value, onChange, onEditingStateChange, validationResult.status]);
+  }, [
+    isValidating,
+    isSaving,
+    localValue,
+    value,
+    onChange,
+    onEditingStateChange,
+    validationResult.status,
+    setValidationResult,
+  ]);
 
   const cancelValue = useCallback(() => {
     setLocalValue(value);
     setValidationResult({ status: ValidationStatus.Default, errMessages: [] });
     setIsEditing(false);
     onEditingStateChange?.(false);
-  }, [value, onEditingStateChange]);
+  }, [value, onEditingStateChange, setValidationResult]);
 
   const onKeyDown: KeyboardEventHandler<HTMLInputElement> = useCallback(
     (event) => {
