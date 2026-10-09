@@ -1,10 +1,11 @@
 import './ArrayBadgesField.scss';
 
 import { Button, Tag, TextInput } from '@carbon/react';
-import { FieldProps, FieldWrapper, SchemaContext, useFieldValue } from '@kaoto/forms';
-import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
+import { FunctionComponent, KeyboardEvent, useCallback, useContext, useMemo, useState } from 'react';
 
-interface ArrayBadgesFieldProps extends FieldProps {
+import { FieldProps, FieldWrapper, SchemaContext, useFieldValue } from '../..';
+
+export interface ArrayBadgesFieldProps extends FieldProps {
   placeholder?: string;
 }
 
@@ -37,12 +38,25 @@ export const ArrayBadgesField: FunctionComponent<ArrayBadgesFieldProps> = ({
 
   const addItem = useCallback(() => {
     const trimmed = inputValue.trim();
+    if (!trimmed) {
+      return;
+    }
     const currentArray = value || [];
     if (!currentArray.includes(trimmed)) {
       onChange([...currentArray, trimmed]);
     }
     setInputValue('');
   }, [inputValue, onChange, value]);
+
+  const onKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        addItem();
+      }
+    },
+    [addItem],
+  );
 
   const removeItem = useCallback(
     (itemToRemove: string) => {
@@ -64,9 +78,9 @@ export const ArrayBadgesField: FunctionComponent<ArrayBadgesFieldProps> = ({
       type="array"
       description={schema.description}
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
-          <div style={{ flex: 1 }}>
+      <div className="array-badges-field__container">
+        <div className="array-badges-field__input-row">
+          <div className="array-badges-field__input">
             <TextInput
               id={`${propName}-input`}
               labelText={schema.title ?? propName}
@@ -75,13 +89,14 @@ export const ArrayBadgesField: FunctionComponent<ArrayBadgesFieldProps> = ({
               onChange={(e) => {
                 setInputValue(e.target.value);
               }}
+              onKeyDown={onKeyDown}
               placeholder={placeholder}
               disabled={disabled}
               aria-label={schema.title ?? propName}
             />
           </div>
           <div>
-            <Button kind="primary" onClick={addItem} disabled={disabled || inputValue.trim().length === 0}>
+            <Button kind="secondary" size="md" onClick={addItem} disabled={disabled || inputValue.trim().length === 0}>
               Add
             </Button>
           </div>
@@ -91,7 +106,7 @@ export const ArrayBadgesField: FunctionComponent<ArrayBadgesFieldProps> = ({
           {sortedItems.length === 0 ? (
             <span>No items added.</span>
           ) : (
-            <div className="array-badges-field" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <div className="array-badges-field">
               {sortedItems.map((item) => (
                 <Tag
                   key={item}

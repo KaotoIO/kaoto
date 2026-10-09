@@ -1448,13 +1448,13 @@ exports[`SettingsForm > should render 1`] = `
                 </p>
               </div>
               <div
-                style="display: flex; flex-direction: column; gap: 1rem;"
+                class="array-badges-field__container"
               >
                 <div
-                  style="display: flex; gap: 0.5rem; align-items: flex-end;"
+                  class="array-badges-field__input-row"
                 >
                   <div
-                    style="flex: 1 1 0%;"
+                    class="array-badges-field__input"
                   >
                     <div
                       class="cds--form-item cds--text-input-wrapper"
@@ -1497,7 +1497,7 @@ exports[`SettingsForm > should render 1`] = `
                   </div>
                   <div>
                     <button
-                      class="cds--btn cds--btn--primary cds--btn--disabled"
+                      class="cds--btn cds--btn--md cds--layout--size-md cds--btn--secondary cds--btn--disabled"
                       disabled=""
                       type="button"
                     >
