@@ -26,11 +26,6 @@ const TestProviders: FunctionComponent<PropsWithChildren> = ({ children }) => (
 );
 
 describe('DebugLayout', () => {
-  afterAll(() => {
-    vi.resetModules();
-    vi.resetAllMocks();
-  });
-
   afterEach(() => {
     useDocumentTreeStore.getState().clearSelection();
   });
@@ -54,8 +49,7 @@ describe('DebugLayout', () => {
       }, [mappingTree, sourceBodyDocument, sourceParameterMap]);
       return <>{children}</>;
     };
-    const mockDebug = vi.fn();
-    console.debug = mockDebug;
+    const mockDebug = vi.spyOn(console, 'debug').mockImplementation(() => {});
     render(
       <TestProviders>
         <LoadMappings>
@@ -88,7 +82,7 @@ describe('DebugLayout', () => {
       }, []);
       return <>{children}</>;
     };
-    console.debug = vi.fn();
+    vi.spyOn(console, 'debug').mockImplementation(() => {});
     render(
       <TestProviders>
         <LoadMappings>
@@ -127,8 +121,7 @@ describe('DebugLayout', () => {
         }, [mappingTree]);
         return <>{children}</>;
       };
-      const mockDebug = vi.fn();
-      console.debug = mockDebug;
+      const mockDebug = vi.spyOn(console, 'debug').mockImplementation(() => {});
       render(
         <TestProviders>
           <TestLoader>
@@ -182,10 +175,8 @@ describe('DebugLayout', () => {
         }, []);
         return <>{children}</>;
       };
-      const mockLog = vi.fn();
-      const mockDebug = vi.fn();
-      console.log = mockLog;
-      console.debug = mockDebug;
+      vi.spyOn(console, 'log').mockImplementation(() => {});
+      const mockDebug = vi.spyOn(console, 'debug').mockImplementation(() => {});
       render(
         <TestProviders>
           <TestLoader>
