@@ -66,6 +66,27 @@ describe('RegisterNodeInteractionAddons', () => {
   const getOnDeleteAddon = (registered: IRegisteredInteractionAddon[]) =>
     registered.find((addon) => addon.type === IInteractionType.ON_DELETE) as IOnDeleteAddon;
 
+  it('keeps another caller’s registration when the same addon is registered twice', () => {
+    const { result } = renderHook(() => useContext(NodeInteractionAddonContext), {
+      wrapper: NodeInteractionAddonProvider,
+    });
+    const addon: IOnDeleteAddon = {
+      type: IInteractionType.ON_DELETE,
+      activationFn: () => true,
+      callback: () => {},
+    };
+    const firstCleanup = result.current.registerInteractionAddon(addon);
+    const secondCleanup = result.current.registerInteractionAddon(addon);
+    expect(result.current.getRegisteredInteractionAddons(IInteractionType.ON_DELETE)).toEqual([addon, addon]);
+
+    secondCleanup?.();
+    expect(result.current.getRegisteredInteractionAddons(IInteractionType.ON_DELETE)).toEqual([addon]);
+    secondCleanup?.();
+    expect(result.current.getRegisteredInteractionAddons(IInteractionType.ON_DELETE)).toEqual([addon]);
+    firstCleanup?.();
+    expect(result.current.getRegisteredInteractionAddons(IInteractionType.ON_DELETE)).toEqual([]);
+  });
+
   it('registers each addon once through StrictMode and releases it on unmount', () => {
     const { result, rerender, unmount } = renderHook(() => useContext(NodeInteractionAddonContext), {
       wrapper: ({ children }) => (

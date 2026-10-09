@@ -1,6 +1,6 @@
 import { Button, List, ListItem, Radio, SearchInput } from '@patternfly/react-core';
 import { CheckCircleIcon } from '@patternfly/react-icons';
-import { FunctionComponent, useCallback, useEffect, useState } from 'react';
+import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ApicurioArtifact, ApicurioArtifactSearchResult, SchemaLoadedResult } from '../RestDslImportTypes';
 
@@ -18,9 +18,9 @@ export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> 
   const [error, setError] = useState('');
 
   const [requestVersion, setRequestVersion] = useState(0);
-  const [completedRequest, setCompletedRequest] = useState<{ registryUrl?: string; version: number }>();
-  const isFetchingArtifacts =
-    !!registryUrl && (completedRequest?.registryUrl !== registryUrl || completedRequest?.version !== requestVersion);
+  const request = useMemo(() => ({ registryUrl, requestVersion }), [registryUrl, requestVersion]);
+  const [completedRequest, setCompletedRequest] = useState<typeof request>();
+  const isFetchingArtifacts = !!registryUrl && completedRequest !== request;
 
   useEffect(() => {
     if (!registryUrl) return;
@@ -38,14 +38,14 @@ export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> 
           setError(err instanceof Error ? err.message : 'Unable to fetch artifacts from Apicurio Registry.');
         }
       } finally {
-        if (!cancelled) setCompletedRequest({ registryUrl, version: requestVersion });
+        if (!cancelled) setCompletedRequest(request);
       }
     };
     void fetchArtifacts();
     return () => {
       cancelled = true;
     };
-  }, [registryUrl, requestVersion]);
+  }, [registryUrl, request]);
 
   const fetchArtifacts = () => {
     setError('');
