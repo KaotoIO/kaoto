@@ -1,5 +1,5 @@
 import { BaseEdge, DndManager, DndManagerImpl, DndStore, NodeModel, Visualization } from '@patternfly/react-topology';
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 
 import { CatalogModalContext, CatalogModalContextValue } from '../../../../dynamic-catalog/catalog-modal.provider';
@@ -126,6 +126,70 @@ describe('CustomGroupExpanded', () => {
     await renderInContext(<CustomGroupExpanded element={element} />);
 
     expect(document.querySelector('.custom-group__container__icon-placeholder')).toBeInTheDocument();
+  });
+
+  it('hides a selected group toolbar after leaving the group and its toolbar in onHover mode', async () => {
+    const vizNode = createChoiceVizNode();
+    createController({ vizNode });
+    const element = controller.getNodeById(GROUP_ID)!;
+    const adapter = {
+      getSettings: () => new SettingsModel({ nodeToolbarTrigger: NodeToolbarTrigger.onHover }),
+      saveSettings: vi.fn(),
+    };
+    const { container } = await renderInContext(
+      <SettingsProvider adapter={adapter}>
+        <CustomGroupExpanded element={element} selected />
+      </SettingsProvider>,
+    );
+    const group = container.querySelector('.custom-group')!;
+    expect(screen.queryByTestId('step-toolbar')).not.toBeInTheDocument();
+    vi.useFakeTimers();
+    try {
+      fireEvent.mouseEnter(group);
+      await act(async () => {
+        vi.advanceTimersByTime(600);
+      });
+      expect(screen.getByTestId('step-toolbar')).toBeInTheDocument();
+      const toolbar = container.querySelector('.custom-group__toolbar')!;
+      fireEvent.mouseEnter(toolbar);
+      fireEvent.mouseLeave(group);
+      await act(async () => {
+        vi.advanceTimersByTime(600);
+      });
+      expect(group).toHaveAttribute('data-toolbar-open', 'true');
+      fireEvent.mouseLeave(toolbar);
+      await act(async () => {
+        vi.advanceTimersByTime(600);
+      });
+      expect(screen.queryByTestId('step-toolbar')).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('does not open an unselected group toolbar on hover in onSelection mode', async () => {
+    const vizNode = createChoiceVizNode();
+    createController({ vizNode });
+    const element = controller.getNodeById(GROUP_ID)!;
+    const adapter = {
+      getSettings: () => new SettingsModel({ nodeToolbarTrigger: NodeToolbarTrigger.onSelection }),
+      saveSettings: vi.fn(),
+    };
+    const { container } = await renderInContext(
+      <SettingsProvider adapter={adapter}>
+        <CustomGroupExpanded element={element} selected={false} />
+      </SettingsProvider>,
+    );
+    vi.useFakeTimers();
+    try {
+      fireEvent.mouseEnter(container.querySelector('.custom-group')!);
+      await act(async () => {
+        vi.advanceTimersByTime(600);
+      });
+      expect(screen.queryByTestId('step-toolbar')).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('should show toolbar when nodeToolbarTrigger is onSelection and group is selected (covers shouldShowToolbar branch)', async () => {
