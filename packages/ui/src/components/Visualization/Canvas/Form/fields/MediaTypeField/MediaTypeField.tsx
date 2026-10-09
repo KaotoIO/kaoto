@@ -105,6 +105,11 @@ export const MediaTypeField: FunctionComponent<FieldProps> = ({ propName, requir
     [addCustomValue],
   );
 
+  let defaultValue: string | undefined;
+  if (schema.default !== undefined && schema.default !== null) {
+    defaultValue = typeof schema.default === 'object' ? JSON.stringify(schema.default) : String(schema.default);
+  }
+
   return (
     <FieldWrapper
       propName={propName}
@@ -112,7 +117,7 @@ export const MediaTypeField: FunctionComponent<FieldProps> = ({ propName, requir
       title={schema.title}
       type="string"
       description={schema.description}
-      defaultValue={schema.default?.toString()}
+      defaultValue={defaultValue}
     >
       <div data-testid="media-type-field-toggle">
         <MultiSelect
@@ -143,7 +148,7 @@ export const MediaTypeField: FunctionComponent<FieldProps> = ({ propName, requir
           placeholder="Add custom media type"
           disabled={disabled}
         />
-        <Button kind="secondary" onClick={addCustomValue} disabled={disabled || customValue.trim() === ''}>
+        <Button kind="secondary" size="md" onClick={addCustomValue} disabled={disabled || customValue.trim() === ''}>
           Add
         </Button>
       </div>
