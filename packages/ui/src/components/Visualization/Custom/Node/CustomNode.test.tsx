@@ -1,7 +1,9 @@
 import { BaseEdge, NodeModel } from '@patternfly/react-topology';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
+import { NodeToolbarTrigger, SettingsModel } from '../../../../models/settings/settings.model';
+import { SettingsProvider } from '../../../../providers/settings.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { TopologyElementWrapper } from '../../../../stubs/topology-element-wrapper';
 import { ControllerService } from '../../Canvas/controller.service';
@@ -29,6 +31,7 @@ describe('CustomNode', () => {
 
   const renderCustomNode = async (props?: {
     selected?: boolean;
+    toolbarTrigger?: NodeToolbarTrigger;
     onSelect?: () => void;
     onContextMenu?: () => void;
     description?: string;
@@ -53,19 +56,57 @@ describe('CustomNode', () => {
 
     const result = render(
       <Provider>
-        <TopologyElementWrapper controller={controller} element={element}>
-          <CustomNodeObserver
-            element={element}
-            selected={props?.selected}
-            onSelect={props?.onSelect}
-            onContextMenu={props?.onContextMenu}
-          />
-        </TopologyElementWrapper>
+        <SettingsProvider
+          adapter={{
+            getSettings: () =>
+              new SettingsModel({ nodeToolbarTrigger: props?.toolbarTrigger ?? NodeToolbarTrigger.onHover }),
+            saveSettings: vi.fn(),
+          }}
+        >
+          <TopologyElementWrapper controller={controller} element={element}>
+            <CustomNodeObserver
+              element={element}
+              selected={props?.selected}
+              onSelect={props?.onSelect}
+              onContextMenu={props?.onContextMenu}
+            />
+          </TopologyElementWrapper>
+        </SettingsProvider>
       </Provider>,
     );
 
     return { ...result, vizNode, element, controller };
   };
+
+  it('shows a selected node toolbar only while hovered in onHover mode', async () => {
+    const { container } = await renderCustomNode({ selected: true });
+    const node = container.querySelector('.custom-node')!;
+    expect(node).toHaveAttribute('data-toolbar-open', 'false');
+    fireEvent.mouseEnter(node);
+    await waitFor(() => expect(node).toHaveAttribute('data-toolbar-open', 'true'));
+    fireEvent.mouseLeave(node);
+    await waitFor(() => expect(node).toHaveAttribute('data-toolbar-open', 'false'));
+  });
+
+  it('keeps a selected node toolbar open without hover in onSelection mode', async () => {
+    const { container } = await renderCustomNode({ selected: true, toolbarTrigger: NodeToolbarTrigger.onSelection });
+    expect(container.querySelector('.custom-node')).toHaveAttribute('data-toolbar-open', 'true');
+  });
+
+  it('does not open an unselected node toolbar on hover in onSelection mode', async () => {
+    const { container } = await renderCustomNode({ selected: false, toolbarTrigger: NodeToolbarTrigger.onSelection });
+    const node = container.querySelector('.custom-node')!;
+    vi.useFakeTimers();
+    try {
+      fireEvent.mouseEnter(node);
+      await act(async () => {
+        vi.advanceTimersByTime(600);
+      });
+      expect(node).toHaveAttribute('data-toolbar-open', 'false');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 
   it('should throw when element is not a Node', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});

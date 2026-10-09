@@ -85,7 +85,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
     const boxRef = useRef<Rect | null>(null);
     const shouldShowToolbar =
       settingsAdapter.getSettings().nodeToolbarTrigger === NodeToolbarTrigger.onHover
-        ? isGHover || isToolbarHover || selected
+        ? isGHover || isToolbarHover
         : selected;
 
     useAnchor((element: Node) => {

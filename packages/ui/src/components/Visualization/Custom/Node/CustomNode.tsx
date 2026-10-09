@@ -67,7 +67,7 @@ function getShouldShowToolbar(
   selected: boolean | undefined,
 ): boolean {
   const isHoverTrigger = trigger === NodeToolbarTrigger.onHover;
-  return isHoverTrigger ? isGHover || isToolbarHover || !!selected : !!selected;
+  return isHoverTrigger ? isGHover || isToolbarHover : !!selected;
 }
 
 const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
