@@ -9,5 +9,5 @@
     /* Typings */
     "types": ["@testing-library/jest-dom/vitest", "vitest/globals", "node", "vite/client"]
   },
-  "include": ["src", "vitest-setup.ts", "vitest-mocks-setup.ts"]
+  "include": ["src"]
 }

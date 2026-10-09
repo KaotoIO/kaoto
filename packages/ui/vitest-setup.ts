@@ -23,12 +23,14 @@ afterAll(() => {
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
 
-  // Reset <body> like a fresh jsdom would be: cleanup() only removes Testing Library's own containers, while
-  // e.g. PatternFly modals leave `class=""` behind and the Monaco loader appends a <script> tag
+  // Reset <body> and the web storage like a fresh jsdom would be: cleanup() only removes Testing Library's own
+  // containers, while e.g. PatternFly modals leave `class=""` behind and the Monaco loader appends a <script> tag
   document.body.replaceChildren();
   for (const { name } of Array.from(document.body.attributes)) {
     document.body.removeAttribute(name);
   }
+  localStorage.clear();
+  sessionStorage.clear();
 });
 
 Object.defineProperties(globalThis, {

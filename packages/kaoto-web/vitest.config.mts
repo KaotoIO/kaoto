@@ -8,8 +8,14 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    // Both files pull the shared setup from @kaoto/kaoto; append further local setup files here
-    setupFiles: ['./vitest-mocks-setup.ts', './vitest-setup.ts'],
+    // The shared setup files of @kaoto/kaoto are listed by path rather than imported from local setup files: with
+    // `isolate: false` Vitest runs the setup files again for every test file, but not the modules they import, so the
+    // afterEach/afterAll hooks of an imported setup would only apply to the first test file of each worker.
+    // Append local setup files after them.
+    setupFiles: [
+      fileURLToPath(new URL('../ui/vitest-mocks-setup.ts', import.meta.url)),
+      fileURLToPath(new URL('../ui/vitest-setup.ts', import.meta.url)),
+    ],
     include: ['**/?(*.)+(test).[tj]s?(x)'],
     typecheck: {
       enabled: true,
@@ -18,6 +24,7 @@ export default defineConfig({
     },
     testTimeout: 10_000,
     hookTimeout: 20_000,
+    isolate: false,
     clearMocks: true,
     css: false,
     server: {
