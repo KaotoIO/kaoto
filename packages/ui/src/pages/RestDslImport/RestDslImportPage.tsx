@@ -1,6 +1,6 @@
 import { Title } from '@patternfly/react-core';
 import { FunctionComponent, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import { Links } from '../../router/links.models';
 import { RestDslImportWizard } from './RestDslImportWizard';

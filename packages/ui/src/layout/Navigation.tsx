@@ -1,7 +1,7 @@
 import { Nav, NavExpandable, NavItem, NavList, PageSidebar, PageSidebarBody } from '@patternfly/react-core';
 import clsx from 'clsx';
 import { FunctionComponent, useContext, useMemo } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router';
 
 import { SourceSchemaType } from '../models/camel';
 import { EntitiesContext } from '../providers';

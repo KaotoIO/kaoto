@@ -31,6 +31,5 @@ export default defineConfig({
     ui: 'tdd',
     color: true,
     timeout: 100000,
-    reporter: 'mocha-jenkins-reporter',
   },
 });

@@ -20,7 +20,7 @@ import {
 import { EllipsisVIcon, ExternalLinkAltIcon, FireIcon, GithubIcon } from '@patternfly/react-icons';
 import { BarsIcon } from '@patternfly/react-icons/dist/js/icons/bars-icon';
 import React, { FunctionComponent, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import camelLogo from '../assets/camel-logo.svg';
 import logo from '../assets/logo-kaoto.png';

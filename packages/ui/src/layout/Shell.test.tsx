@@ -1,6 +1,6 @@
 import { act, fireEvent, render as rtlRender, screen } from '@testing-library/react';
 import { PropsWithChildren, ReactElement } from 'react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 
 import { CanvasDefaults } from '../components/Visualization/Canvas/canvas.defaults';
 import { LocalStorageKeys } from '../models';

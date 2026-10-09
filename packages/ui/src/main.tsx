@@ -1,7 +1,7 @@
 import '@patternfly/react-core/dist/styles/base.css'; // This import needs to be first
 
 import ReactDOM from 'react-dom/client';
-import { RouterProvider } from 'react-router-dom';
+import { RouterProvider } from 'react-router';
 
 import { router } from './router';
 

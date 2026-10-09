@@ -3,7 +3,7 @@ import './SelectedRuntime.scss';
 import { Information } from '@carbon/icons-react';
 import { Toggletip, ToggletipActions, ToggletipButton, ToggletipContent, ToggletipLabel } from '@carbon/react';
 import { FunctionComponent } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import { useRuntimeContext } from '../../../../hooks/useRuntimeContext/useRuntimeContext';
 import { Links } from '../../../../router/links.models';

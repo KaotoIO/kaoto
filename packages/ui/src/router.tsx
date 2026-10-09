@@ -1,4 +1,4 @@
-import { createHashRouter } from 'react-router-dom';
+import { createHashRouter } from 'react-router';
 
 import App from './App';
 import { ErrorPage } from './pages/ErrorPage';

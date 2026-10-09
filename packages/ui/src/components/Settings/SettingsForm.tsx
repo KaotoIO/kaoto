@@ -3,7 +3,7 @@ import './SettingsForm.scss';
 import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoForm } from '@kaoto/forms';
 import { Alert, Button, Card, CardBody, CardFooter, CardTitle } from '@patternfly/react-core';
 import { FunctionComponent, useContext, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import settingsSchema from '../../assets/settingsSchema.json';
 import { useReloadContext } from '../../hooks/useReloadContext/useReloadContext';
