@@ -77,8 +77,6 @@ const restoreFixture = (fixture: PlainData, pristine: PlainData) => {
 };
 
 afterAll(() => {
-  localStorage.clear();
-  sessionStorage.clear();
   DynamicCatalogRegistry.get().clearRegistry();
   XPathFunctionCatalogService.clear();
   TreeUIService.clear();
