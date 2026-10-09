@@ -2,15 +2,18 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow-x: hidden;
+  overflow: hidden auto;
 
   &__header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: var(--pf-t--global--background--color--primary--default);
     padding: var(--cds-spacing-05);
   }
 
   &__body {
     flex: 1;
-    overflow: hidden auto;
     padding: 0 var(--cds-spacing-05) var(--cds-spacing-05);
   }
 }
