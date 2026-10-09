@@ -302,11 +302,13 @@ export class VisualizationService {
     mappings: MappingItem[] | undefined,
   ): void {
     if (!mappings) return;
+    const isCopyOfContainerNode = (m: MappingItem) =>
+      m instanceof CopyOfSelector && m.valueType === CopyOfType.CONTAINER_NODE;
     let filterPriorityMappingItem: (m: MappingItem) => boolean = (m) =>
-      m instanceof UnknownMappingItem || m instanceof VariableItem;
+      m instanceof UnknownMappingItem || m instanceof VariableItem || isCopyOfContainerNode(m);
     if (parent.isPrimitive) {
       filterPriorityMappingItem = (m) =>
-        m instanceof UnknownMappingItem || VisualizationService.isInlineValueSelector(m);
+        m instanceof UnknownMappingItem || VisualizationService.isInlineValueSelector(m) || isCopyOfContainerNode(m);
     }
     for (const m of mappings.filter(filterPriorityMappingItem)) {
       answer.push(VisualizationService.createNodeDataFromMappingItem(parent as TargetNodeData, m));

@@ -253,10 +253,11 @@ describe('MappingActionService — mapping engagement', () => {
         const sourceShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceDocChildren[0]);
         const sourceItemChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceShipOrderChildren[3]);
         MappingActionService.deleteMappingItem(targetForEachChildren[0] as TargetNodeData);
+        // index 0 is the whole-element copy-of selector, which renders first; index 1 is the "Title" field
         MappingActionService.engageMapping(
           tree,
           sourceItemChildren[0] as FieldNodeData,
-          targetItemChildren[0] as TargetFieldNodeData,
+          targetItemChildren[1] as TargetFieldNodeData,
         );
 
         targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
