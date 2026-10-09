@@ -1,15 +1,14 @@
-import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
 import { fireEvent, render, screen } from '@testing-library/react';
 
-import { KaotoSchemaDefinition } from '../../../../../../models';
+import { ModelContextProvider, SchemaProvider } from '../../providers';
 import { ArrayBadgesField } from './ArrayBadgesField';
 
 describe('ArrayBadgesField', () => {
-  const mockSchema: KaotoSchemaDefinition['schema'] = {
+  const mockSchema = {
     title: 'Test Array Field',
     description: 'Test description for array field',
-    type: 'array',
-    items: { type: 'string' },
+    type: 'array' as const,
+    items: { type: 'string' as const },
   };
 
   const ROOT_PATH = '.';
@@ -198,6 +197,42 @@ describe('ArrayBadgesField', () => {
 
       fireEvent.change(input, { target: { value: 'test' } });
       expect(addButton).not.toBeDisabled();
+    });
+
+    it('should add item when pressing Enter key', () => {
+      const onPropertyChange = vi.fn();
+      render(
+        <ModelContextProvider model={{}} onPropertyChange={onPropertyChange}>
+          <SchemaProvider schema={mockSchema}>
+            <ArrayBadgesField propName={ROOT_PATH} />
+          </SchemaProvider>
+        </ModelContextProvider>,
+      );
+
+      const input = screen.getByPlaceholderText('Add new item');
+
+      fireEvent.change(input, { target: { value: 'enterItem' } });
+      fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
+
+      expect(onPropertyChange).toHaveBeenCalledWith(ROOT_PATH, ['enterItem']);
+    });
+
+    it('should not add item when pressing Enter with empty input', () => {
+      const onPropertyChange = vi.fn();
+      render(
+        <ModelContextProvider model={{}} onPropertyChange={onPropertyChange}>
+          <SchemaProvider schema={mockSchema}>
+            <ArrayBadgesField propName={ROOT_PATH} />
+          </SchemaProvider>
+        </ModelContextProvider>,
+      );
+
+      const input = screen.getByPlaceholderText('Add new item');
+
+      fireEvent.change(input, { target: { value: '   ' } });
+      fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
+
+      expect(onPropertyChange).not.toHaveBeenCalled();
     });
   });
 
