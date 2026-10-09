@@ -1,6 +1,6 @@
 import { CatalogDefinition } from '@kaoto/camel-catalog/types';
 import { Content, ContentVariants } from '@patternfly/react-core';
-import { createContext, FunctionComponent, PropsWithChildren, useEffect, useState } from 'react';
+import { createContext, FunctionComponent, PropsWithChildren, useEffect, useMemo, useState } from 'react';
 
 import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 import { Loading } from '../components/Loading';
@@ -22,19 +22,21 @@ export const CatalogContext = createContext<IDynamicCatalogRegistry>(DynamicCata
 export const CatalogLoaderProvider: FunctionComponent<
   PropsWithChildren<{ getResourcesContentByType?: (filetype: FileTypes) => Promise<FileTypesResponse[]> }>
 > = ({ getResourcesContentByType, children }) => {
-  const [loadingStatus, setLoadingStatus] = useState(LoadingStatus.Loading);
   const [errorMessage, setErrorMessage] = useState('');
   const runtimeContext = useRuntimeContext();
   const { basePath, selectedCatalog } = runtimeContext;
   const selectedCatalogIndexFile = selectedCatalog?.fileName ?? '';
+  const request = useMemo(
+    () => ({ basePath, selectedCatalogIndexFile, getResourcesContentByType }),
+    [basePath, selectedCatalogIndexFile, getResourcesContentByType],
+  );
+  const [loadState, setLoadState] = useState({ request, status: LoadingStatus.Loading });
+  // A new request hides interactive children immediately, before its effect starts fetching.
+  const loadingStatus = loadState.request === request ? loadState.status : LoadingStatus.Loading;
 
   useEffect(() => {
     const indexFile = `${basePath}/${selectedCatalogIndexFile}`;
     const relativeBasePath = CatalogSchemaLoader.getRelativeBasePath(indexFile);
-    // Engage Loading synchronously, before the fetch — see the note in RuntimeProvider. Setting it
-    // inside the fetch's `.then` leaves a window where the toolbar renders as interactive while a
-    // catalog reload is already pending, which loses clicks (E2E flakiness) during the remount.
-    setLoadingStatus(LoadingStatus.Loading);
 
     // Capture a generation token so that a stale in-flight load cannot register its catalogs
     // or update React state after the cleanup for a newer selection has already run.
@@ -56,12 +58,12 @@ export const CatalogLoaderProvider: FunctionComponent<
       })
       .then(() => {
         if (stale) return;
-        setLoadingStatus(LoadingStatus.Loaded);
+        setLoadState({ request, status: LoadingStatus.Loaded });
       })
       .catch((error) => {
         if (stale) return;
         setErrorMessage(error.message);
-        setLoadingStatus(LoadingStatus.Error);
+        setLoadState({ request, status: LoadingStatus.Error });
       });
 
     return () => {
@@ -69,8 +71,7 @@ export const CatalogLoaderProvider: FunctionComponent<
       DynamicCatalogRegistry.get().clearRegistry();
       CitrusTestSchemaService.clearKindMap();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCatalogIndexFile, getResourcesContentByType]);
+  }, [basePath, selectedCatalogIndexFile, getResourcesContentByType, request]);
 
   return (
     <>

@@ -13,16 +13,22 @@ export const NodeInteractionAddonContext = createContext<INodeInteractionAddonCo
 });
 
 export const NodeInteractionAddonProvider: FunctionComponent<PropsWithChildren> = ({ children }) => {
-  const registeredInteractionAddons = useRef<IRegisteredInteractionAddon[]>([]);
+  const registeredInteractionAddons = useRef<{ interaction: IRegisteredInteractionAddon }[]>([]);
 
   const registerInteractionAddon = useCallback((interaction: IRegisteredInteractionAddon) => {
-    registeredInteractionAddons.current.push(interaction);
+    const registration = { interaction };
+    registeredInteractionAddons.current.push(registration);
+    return () => {
+      registeredInteractionAddons.current = registeredInteractionAddons.current.filter(
+        (entry) => entry !== registration,
+      );
+    };
   }, []);
 
   const getRegisteredInteractionAddons = useCallback((interaction: IInteractionType, vizNode?: IVisualizationNode) => {
-    return registeredInteractionAddons.current.filter(
-      (addon) => addon.type === interaction && (!vizNode || addon.activationFn(vizNode)),
-    );
+    return registeredInteractionAddons.current
+      .map((entry) => entry.interaction)
+      .filter((addon) => addon.type === interaction && (!vizNode || addon.activationFn(vizNode)));
   }, []);
 
   const value = useMemo(

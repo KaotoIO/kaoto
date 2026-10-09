@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { ValidationResult, ValidationStatus } from '../../models';
@@ -208,6 +208,65 @@ describe('XsltDocumentRenameInput', () => {
       // Validation should be reset to default
       expect(screen.queryByText('Invalid value')).not.toBeInTheDocument();
       expect(input).toHaveAttribute('aria-invalid', 'false');
+    });
+
+    it.each(['original value', 'removed validator'] as const)(
+      'ignores pending validation after switching to %s',
+      async (change) => {
+        let resolveValidation!: (result: ValidationResult) => void;
+        const validator = vi.fn(
+          () =>
+            new Promise<ValidationResult>((resolve) => {
+              resolveValidation = resolve;
+            }),
+        );
+        const { rerender } = render(<XsltDocumentRenameInput {...defaultProps} validator={validator} />);
+        fireEvent.click(screen.getByTestId('rename-input--edit'));
+        const input = screen.getByTestId('rename-input--text-input');
+        fireEvent.change(input, { target: { value: 'Changed name' } });
+        expect(screen.getByTestId('rename-input--save')).toBeDisabled();
+
+        if (change === 'original value') {
+          fireEvent.change(input, { target: { value: defaultProps.value } });
+        } else {
+          rerender(<XsltDocumentRenameInput {...defaultProps} />);
+        }
+        expect(screen.getByTestId('rename-input--save')).toBeEnabled();
+
+        await act(async () => {
+          resolveValidation({ status: ValidationStatus.Error, errMessages: ['Obsolete warning'] });
+        });
+
+        expect(screen.queryByText('Obsolete warning')).not.toBeInTheDocument();
+        expect(input).toHaveAttribute('aria-invalid', 'false');
+        expect(screen.getByTestId('rename-input--save')).toBeEnabled();
+      },
+    );
+
+    it('keeps a newer validation pending when an older validation completes', async () => {
+      const pending = new Map<string, (result: ValidationResult) => void>();
+      const validator = vi.fn(
+        (name: string) =>
+          new Promise<ValidationResult>((resolve) => {
+            pending.set(name, resolve);
+          }),
+      );
+      render(<XsltDocumentRenameInput {...defaultProps} validator={validator} />);
+      fireEvent.click(screen.getByTestId('rename-input--edit'));
+      const input = screen.getByTestId('rename-input--text-input');
+      fireEvent.change(input, { target: { value: 'First name' } });
+      fireEvent.change(input, { target: { value: 'Second name' } });
+
+      await act(async () => {
+        pending.get('First name')!({ status: ValidationStatus.Error, errMessages: ['Obsolete warning'] });
+      });
+      expect(screen.queryByText('Obsolete warning')).not.toBeInTheDocument();
+      expect(screen.getByTestId('rename-input--save')).toBeDisabled();
+
+      await act(async () => {
+        pending.get('Second name')!({ status: ValidationStatus.Default, errMessages: [] });
+      });
+      expect(screen.getByTestId('rename-input--save')).toBeEnabled();
     });
 
     it('should handle async validator that returns a Promise', async () => {

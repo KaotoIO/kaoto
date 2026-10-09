@@ -71,7 +71,7 @@ export interface INodeInteractionAddonContext {
    * @param addon Registered node interaction addon
    * @returns void
    */
-  registerInteractionAddon: (addon: IRegisteredInteractionAddon) => void;
+  registerInteractionAddon: (addon: IRegisteredInteractionAddon) => void | (() => void);
 
   /**
    * Get registered interaction addons

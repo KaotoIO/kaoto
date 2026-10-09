@@ -60,10 +60,15 @@ const HydratedCanvasFormBody: FunctionComponent<{ vizNode: IVisualizationNode }>
   const [hydrated, setHydrated] = useState(false);
   const [failed, setFailed] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
+  const [requestedNode, setRequestedNode] = useState(vizNode);
+  if (requestedNode !== vizNode) {
+    setRequestedNode(vizNode);
     setHydrated(false);
     setFailed(false);
+  }
+
+  useEffect(() => {
+    let cancelled = false;
 
     Promise.all([vizNode.fetchSchema(), vizNode.fetchNodeDefinition()])
       .then(() => {

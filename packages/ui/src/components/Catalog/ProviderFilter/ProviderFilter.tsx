@@ -18,7 +18,7 @@ export const ProviderFilter: FunctionComponent<ProviderFilterProps> = ({
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [container, setContainer] = useState<HTMLDivElement | null>(null);
 
   const onSelect = useCallback(
     (_event: unknown, itemId: string | number | undefined) => {
@@ -68,13 +68,13 @@ export const ProviderFilter: FunctionComponent<ProviderFilterProps> = ({
   );
 
   return (
-    <div ref={containerRef}>
+    <div ref={setContainer}>
       <Popper
         trigger={toggle}
         triggerRef={toggleRef}
         popper={menu}
         popperRef={menuRef}
-        appendTo={containerRef.current || undefined}
+        appendTo={container || undefined}
         isVisible={isOpen}
       />
     </div>

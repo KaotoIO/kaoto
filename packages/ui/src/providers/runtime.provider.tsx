@@ -36,7 +36,6 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<IRuntimeProvid
   testingCatalogName,
   children,
 }) => {
-  const [loadingStatus, setLoadingStatus] = useState(LoadingStatus.Loading);
   const [errorMessage, setErrorMessage] = useState('');
   const [catalogLibrary, setCatalogLibrary] = useState<CatalogLibrary | undefined>(undefined);
   const [selectedCatalog, setSelectedCatalog] = useState<CatalogLibraryEntry | undefined>();
@@ -46,14 +45,16 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<IRuntimeProvid
   const catalogName = currentSchemaType === SourceSchemaType.Test ? testingCatalogName : runtimeCatalogName;
 
   const basePath = catalogUrl.substring(0, catalogUrl.lastIndexOf('/'));
+  const request = useMemo(
+    () => ({ basePath, catalogName, catalogUrl, currentSchemaType }),
+    [basePath, catalogName, catalogUrl, currentSchemaType],
+  );
+  const [loadState, setLoadState] = useState({ request, status: LoadingStatus.Loading });
+  // A new request hides interactive children immediately, before its effect starts fetching.
+  const loadingStatus = loadState.request === request ? loadState.status : LoadingStatus.Loading;
 
   useEffect(() => {
     const controller = new AbortController();
-    // Engage Loading synchronously, before the fetch. When currentSchemaType changes, doing this
-    // inside the fetch's `.then` leaves a window where the library is reloading but loadingStatus
-    // is still `Loaded`, so children (the whole toolbar) keep rendering as interactive while a
-    // remount is already pending — an untrue "ready" signal that loses clicks and flakes E2E.
-    setLoadingStatus(LoadingStatus.Loading);
     fetch(catalogUrl)
       .then((response) => response.json())
       .then((catalogLibrary: CatalogLibrary) => {
@@ -74,19 +75,19 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<IRuntimeProvid
         });
       })
       .then(() => {
-        if (!controller.signal.aborted) setLoadingStatus(LoadingStatus.Loaded);
+        if (!controller.signal.aborted) setLoadState({ request, status: LoadingStatus.Loaded });
       })
       .catch((error) => {
         if (controller.signal.aborted) return;
         setErrorMessage(error.message);
-        setLoadingStatus(LoadingStatus.Error);
+        setLoadState({ request, status: LoadingStatus.Error });
       });
 
     return () => {
       controller.abort();
       XPathFunctionCatalogService.clear();
     };
-  }, [basePath, catalogName, catalogUrl, currentSchemaType]);
+  }, [basePath, catalogName, catalogUrl, currentSchemaType, request]);
 
   const runtimeContext: IRuntimeContext = useMemo(
     () => ({

@@ -6,6 +6,7 @@ import {
   FieldItem,
   ForEachGroupItem,
   ForEachItem,
+  GroupingStrategy,
   IExpressionHolder,
   IfItem,
   IFunctionDefinition,
@@ -15,6 +16,7 @@ import {
   MappingParentType,
   MappingTree,
   OtherwiseItem,
+  SortItem,
   ValueOfSelector,
   ValueOfType,
   ValueSelector,
@@ -35,6 +37,30 @@ import { FieldMatchingService } from './field-matching.service';
  * model that corresponds to the main data mappings body placed in `<xsl:template match="/">` in the generated XSLT.
  */
 export class MappingService {
+  /** Update the XPath carried by an existing mapping without replacing its tree identity. */
+  static updateExpression(mapping: IExpressionHolder, expression: string): void {
+    mapping.expression = expression;
+  }
+
+  static updateComment(mapping: MappingItem, comment: string | undefined): void {
+    mapping.comment = comment?.trim() || undefined;
+  }
+
+  static updateSortItems(mapping: ForEachItem | ForEachGroupItem, sortItems: SortItem[]): void {
+    mapping.sortItems = sortItems;
+  }
+
+  static updateGrouping(
+    mapping: ForEachGroupItem,
+    strategy: GroupingStrategy,
+    expression: string,
+    sortItems: SortItem[],
+  ): void {
+    mapping.groupingStrategy = strategy;
+    mapping.groupingExpression = expression;
+    MappingService.updateSortItems(mapping, sortItems);
+  }
+
   /**
    * Recursively descends into {@link InstructionItem} children to find nested field references,
    * not just top-level matches.

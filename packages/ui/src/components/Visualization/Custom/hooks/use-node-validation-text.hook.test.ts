@@ -55,6 +55,20 @@ describe('useNodeValidationText', () => {
     expect(node.getNodeValidationText).toHaveBeenCalledTimes(2);
   });
 
+  it('hides a previous warning immediately while an edited node is being validated', async () => {
+    const node = createNode('Previous warning');
+    const { result, rerender } = renderHook(() => useNodeValidationText(node as unknown as IVisualizationNode));
+    await waitFor(() => {
+      expect(result.current).toBe('Previous warning');
+    });
+
+    node.lastUpdate = 1;
+    node.getNodeValidationText.mockReturnValue(new Promise(() => {}));
+    rerender();
+
+    expect(result.current).toBeUndefined();
+  });
+
   it('should return undefined when no node is provided', () => {
     const { result } = renderHook(() => useNodeValidationText());
 

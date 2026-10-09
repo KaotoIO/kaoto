@@ -16,7 +16,7 @@ import {
 } from '@patternfly/react-core';
 import { DownloadIcon } from '@patternfly/react-icons';
 import { Element } from 'hast';
-import { FunctionComponent, useContext, useEffect, useState } from 'react';
+import { FunctionComponent, useContext, useState } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -47,7 +47,7 @@ export const ExportDocumentPreviewModal: FunctionComponent<IExportDocumentPrevie
   const initialDocEntities = DocumentationService.getDocumentationEntities(camelResource, visibleFlows);
   const [documentationEntities, setDocumentationEntities] = useState<DocumentationEntity[]>(initialDocEntities);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isGeneratingImage, setIsGeneratingImage] = useState<boolean>(false);
+  const [isGeneratingImage, setIsGeneratingImage] = useState<boolean>(true);
 
   const currentLayout = useGraphLayout();
   const { vizNodes, isResolving } = useVisibleVizNodes(visualEntities, visibleFlows);
@@ -83,10 +83,12 @@ export const ExportDocumentPreviewModal: FunctionComponent<IExportDocumentPrevie
     setIsGeneratingImage(false);
   };
 
-  useEffect(() => {
+  const [previousInputs, setPreviousInputs] = useState({ documentationEntities, visibleFlows });
+  if (previousInputs.documentationEntities !== documentationEntities || previousInputs.visibleFlows !== visibleFlows) {
+    setPreviousInputs({ documentationEntities, visibleFlows });
     setIsLoading(true);
     setIsGeneratingImage(true);
-  }, [documentationEntities, visibleFlows]);
+  }
 
   const onDownload = async () => {
     if (!flowImageBlob) return;

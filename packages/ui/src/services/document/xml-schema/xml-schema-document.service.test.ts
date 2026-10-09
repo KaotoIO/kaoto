@@ -38,6 +38,31 @@ import { XmlSchemaDocumentService } from './xml-schema-document.service';
 import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
 
 describe('XmlSchemaDocumentService', () => {
+  it('should retain the original definition when changing the root element', () => {
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'roots.xsd': `<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+          <xs:element name="first" type="xs:string" />
+          <xs:element name="second" type="xs:string" />
+        </xs:schema>`,
+      },
+      { name: 'first', namespaceUri: '' },
+    );
+    const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+    const original = result.document as XmlSchemaDocument;
+    const updated = XmlSchemaDocumentService.updateRootElement(original, { name: 'second', namespaceUri: '' });
+
+    expect(updated.fields[0].name).toBe('second');
+    expect(updated.definition.rootElementChoice).toEqual({ name: 'second', namespaceUri: '' });
+    expect(updated.definition).not.toBe(original.definition);
+    expect(original.definition.rootElementChoice).toEqual({ name: 'first', namespaceUri: '' });
+    expect(original.definition.fieldTypeOverrides).toBeUndefined();
+    expect(updated.definition.fieldTypeOverrides).toEqual([]);
+  });
+
   it('should parse ShipOrder XML schema', () => {
     const definition = new DocumentDefinition(
       DocumentType.SOURCE_BODY,

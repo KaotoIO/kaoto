@@ -9,7 +9,7 @@ import {
   ModalHeader,
   ModalVariant,
 } from '@patternfly/react-core';
-import { FormEvent, FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
+import { FormEvent, FunctionComponent, useCallback, useMemo, useState } from 'react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { DocumentDefinitionType, IDataMapperSettings } from '../../../../models/datamapper';
@@ -45,12 +45,11 @@ export const DataMapperSettingsModal: FunctionComponent<DataMapperSettingsModalP
   // Output validation UI: set to true when feature is complete
   const showOutputValidation = false as boolean;
 
-  // Sync local state with context when modal opens
-  useEffect(() => {
-    if (isModalOpen) {
-      setLocalOptions(dataMapperSettings);
-    }
-  }, [isModalOpen, dataMapperSettings]);
+  const [previousSource, setPreviousSource] = useState({ isModalOpen, dataMapperSettings });
+  if (previousSource.isModalOpen !== isModalOpen || previousSource.dataMapperSettings !== dataMapperSettings) {
+    setPreviousSource({ isModalOpen, dataMapperSettings });
+    if (isModalOpen) setLocalOptions(dataMapperSettings);
+  }
 
   // Generic handler for any field in IDataMapperSettings
   const handleFieldChange = useCallback(
