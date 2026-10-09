@@ -98,7 +98,15 @@ describe('StepToolbar', () => {
     it('should render send message button when SendMessageModal context is provided', async () => {
       const mockOpenSendMessageModal = vi.fn();
       mockUseSendMessageModal.mockReturnValue({
+        isOpen: false,
+        options: null,
         openSendMessageModal: mockOpenSendMessageModal,
+        closeSendMessageModal: vi.fn(),
+        sendMessage: vi.fn().mockResolvedValue(undefined),
+        isSending: false,
+        error: null,
+        recentMessageFiles: [],
+        rememberMessageFile: vi.fn(),
       });
 
       render(<StepToolbar vizNode={mockVizNode} />);
