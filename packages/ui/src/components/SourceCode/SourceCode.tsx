@@ -3,7 +3,7 @@ import './workers/enable-workers';
 
 import { CodeEditor, CodeEditorProps, EditorDidMount, Language } from '@patternfly/react-code-editor';
 import { configureMonacoYaml, JSONSchema } from 'monaco-yaml';
-import { FunctionComponent, Ref, RefObject, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import { FunctionComponent, RefObject, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { sourceSchemaConfig, SourceSchemaType } from '../../models/camel';
 import { EntitiesContext } from '../../providers/entities.provider';
@@ -35,7 +35,7 @@ export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
   const currentSchema = sourceSchemaConfig.config[schemaType].schema;
   const monacoYamlHandlerRef: RefObject<ReturnType<typeof configureMonacoYaml> | undefined> = useRef(undefined);
 
-  const editorProps: Ref<CodeEditorProps['editorProps']> = useRef({
+  const [editorProps] = useState<CodeEditorProps['editorProps']>(() => ({
     beforeMount: (monaco) => {
       if (currentSchema) {
         const monacoYamlHandler = configureMonacoYaml(monaco, {
@@ -57,7 +57,7 @@ export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
         monacoYamlHandlerRef.current = monacoYamlHandler;
       }
     },
-  });
+  }));
 
   const handleEditorDidMount: EditorDidMount = useCallback((editor) => {
     editorRef.current = editor;
@@ -107,7 +107,7 @@ export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
       onCodeChange={props.onCodeChange}
       customControls={customControls}
       language={isXML(props.code) ? Language.xml : Language.yaml}
-      editorProps={editorProps.current!}
+      editorProps={editorProps}
       options={options}
       onEditorDidMount={handleEditorDidMount}
     />

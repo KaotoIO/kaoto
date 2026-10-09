@@ -24,11 +24,13 @@ export function useSortKeyEntries(
   onClose: () => void,
   initialEntries: SortItem[] = [],
 ): SortKeyEntriesResult {
-  const nextId = useRef(0);
+  const nextId = useRef(sortItems.length > 0 ? sortItems.length : initialEntries.length);
   const assignId = useCallback((sortItem: SortItem): SortKeyEntry => ({ id: nextId.current++, sortItem }), []);
 
   const [entries, setEntries] = useState<SortKeyEntry[]>(() =>
-    sortItems.length > 0 ? sortItems.map((s) => assignId(s.clone())) : initialEntries.map((s) => assignId(s)),
+    sortItems.length > 0
+      ? sortItems.map((s, id) => ({ id, sortItem: s.clone() }))
+      : initialEntries.map((s, id) => ({ id, sortItem: s })),
   );
 
   const isDraggingRef = useRef(false);
@@ -42,7 +44,8 @@ export function useSortKeyEntries(
   }, [onClose]);
 
   const handleAdd = useCallback(() => {
-    setEntries((prev) => [...prev, assignId(new SortItem())]);
+    const entry = assignId(new SortItem());
+    setEntries((prev) => [...prev, entry]);
   }, [assignId]);
 
   const handleRemove = useCallback((index: number) => {

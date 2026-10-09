@@ -14,12 +14,14 @@
     limitations under the License.
 */
 import { Alert, AlertActionCloseButton, AlertGroup } from '@patternfly/react-core';
+import { cloneDeep } from 'lodash';
 import {
   createContext,
   FunctionComponent,
   PropsWithChildren,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -104,6 +106,62 @@ type DataMapperProviderProps = PropsWithChildren & {
   onSetOutputValidationEnabled?: (enabled: boolean) => void;
 };
 
+const INITIAL_NAMESPACE_MAP = { xs: NS_XML_SCHEMA, fn: NS_XPATH_FUNCTIONS, xsl: NS_XSL };
+
+/** Build mutable domain objects before publishing them as React state. */
+const createInitialState = (documentInitializationModel?: DocumentInitializationModel, initialXsltFile?: string) => {
+  // Documents retain their definitions and wrapper detection updates their metadata. Own a deep
+  // copy, including override arrays, so initialization never mutates caller-owned props.
+  const initializationModel = cloneDeep(documentInitializationModel);
+  const namespaceMap = {
+    ...INITIAL_NAMESPACE_MAP,
+    ...initializationModel?.namespaceMap,
+  };
+  const documents = DocumentService.createInitialDocuments(initializationModel, namespaceMap);
+  const sourceParameterMap = documents?.sourceParameterMap ?? new Map<string, IDocument>();
+  const sourceBodyDocument =
+    documents?.sourceBodyDocument ??
+    new PrimitiveDocument(
+      new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+    );
+  const targetBodyDocument =
+    documents?.targetBodyDocument ??
+    new PrimitiveDocument(
+      new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+    );
+  const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, targetBodyDocument.definitionType);
+  tree.namespaceMap = namespaceMap;
+  if (!initialXsltFile) {
+    return {
+      sourceParameterMap,
+      sourceBodyDocument,
+      targetBodyDocument,
+      mappingTree: tree,
+      dataMapperSettings: DEFAULT_DATAMAPPER_SETTINGS,
+      alerts: [] as SendAlertProps[],
+    };
+  }
+
+  const { mappingTree, messages, dataMapperSettings } = MappingSerializerService.deserialize(
+    initialXsltFile,
+    targetBodyDocument,
+    tree,
+    sourceParameterMap,
+  );
+  WrapperAutoDetectionService.autoDetectWrapperSelections(mappingTree, targetBodyDocument, namespaceMap);
+  return {
+    sourceParameterMap,
+    sourceBodyDocument,
+    targetBodyDocument,
+    mappingTree,
+    dataMapperSettings: DataMapperSettingsService.sanitizeForTarget(
+      dataMapperSettings,
+      targetBodyDocument.definitionType,
+    ),
+    alerts: messages,
+  };
+};
+
 export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   documentInitializationModel,
   onUpdateDocument,
@@ -116,10 +174,11 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   onSetOutputValidationEnabled,
   children,
 }) => {
+  const [initialState] = useState(() => createInitialState(documentInitializationModel, initialXsltFile));
   const [debug, setDebug] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [activeView, setActiveView] = useState<CanvasView>(CanvasView.SOURCE_TARGET);
-  const [dataMapperSettings, setDataMapperSettings] = useState<IDataMapperSettings>(DEFAULT_DATAMAPPER_SETTINGS);
+  const [dataMapperSettings, setDataMapperSettings] = useState<IDataMapperSettings>(initialState.dataMapperSettings);
   const previousSettings = useRef<IDataMapperSettings | null>(null);
 
   const updateDataMapperSettings = useCallback((settings: Partial<IDataMapperSettings>) => {
@@ -133,35 +192,13 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     [onSetOutputValidationEnabled],
   );
 
-  const [sourceParameterMap, setSourceParameterMap] = useState<Map<string, IDocument>>(new Map<string, IDocument>());
+  const [sourceParameterMap, setSourceParameterMap] = useState(initialState.sourceParameterMap);
   const [isSourceParametersExpanded, setSourceParametersExpanded] = useState<boolean>(true);
-  const [sourceBodyDocument, setSourceBodyDocument] = useState<IDocument>(
-    new PrimitiveDocument(
-      new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
-    ),
-  );
-  const [targetBodyDocument, setTargetBodyDocument] = useState<IDocument>(
-    new PrimitiveDocument(
-      new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
-    ),
-  );
-
-  /**
-   * The namespace {@link NS_XPATH_FUNCTIONS} is required not only for JSON mapping,
-   * but also for the function calls in the xpath. We should prefill this from beginning.
-   */
-  const initialNamespaceMap = useMemo(() => {
-    return { xs: NS_XML_SCHEMA, fn: NS_XPATH_FUNCTIONS, xsl: NS_XSL };
-  }, []);
-  const initialMappingTree = new MappingTree(
-    DocumentType.TARGET_BODY,
-    BODY_DOCUMENT_ID,
-    targetBodyDocument.definitionType,
-  );
-  initialMappingTree.namespaceMap = { ...initialNamespaceMap };
-  const [mappingTree, setMappingTree] = useState<MappingTree>(initialMappingTree);
-  const [structuralMappingTree, setStructuralMappingTree] = useState<MappingTree>(initialMappingTree);
-  const latestMappingTree = useRef<MappingTree>(initialMappingTree);
+  const [sourceBodyDocument, setSourceBodyDocument] = useState(initialState.sourceBodyDocument);
+  const [targetBodyDocument, setTargetBodyDocument] = useState(initialState.targetBodyDocument);
+  const [mappingTree, setMappingTree] = useState(initialState.mappingTree);
+  const [structuralMappingTree, setStructuralMappingTree] = useState(initialState.mappingTree);
+  const latestMappingTree = useRef(initialState.mappingTree);
 
   /**
    * Single writer for the mapping tree state. Effects run in declaration order within one commit,
@@ -175,67 +212,19 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     if (options?.structural) setStructuralMappingTree(tree);
   }, []);
 
-  const [alerts, setAlerts] = useState<SendAlertProps[]>([]);
+  const [alerts, setAlerts] = useState<SendAlertProps[]>(initialState.alerts);
 
-  useEffect(() => {
-    const metadataNamespaceMap = documentInitializationModel?.namespaceMap;
-    const effectiveNamespaceMap = metadataNamespaceMap
-      ? { ...initialNamespaceMap, ...metadataNamespaceMap }
-      : { ...initialNamespaceMap };
-
-    if (metadataNamespaceMap) {
-      mappingTree.namespaceMap = effectiveNamespaceMap;
-    }
-
-    const documents = DocumentService.createInitialDocuments(documentInitializationModel, effectiveNamespaceMap);
-    let latestSourceParameterMap = sourceParameterMap;
-    let latestTargetBodyDocument = targetBodyDocument;
-    if (documents) {
-      if (documents.sourceBodyDocument) setSourceBodyDocument(documents.sourceBodyDocument);
-      setSourceParameterMap(documents.sourceParameterMap);
-      latestSourceParameterMap = documents.sourceParameterMap;
-      if (documents.targetBodyDocument) {
-        setTargetBodyDocument(documents.targetBodyDocument);
-        latestTargetBodyDocument = documents.targetBodyDocument;
-      }
-    }
-
-    if (initialXsltFile) {
-      const freshTree = new MappingTree(
-        DocumentType.TARGET_BODY,
-        BODY_DOCUMENT_ID,
-        latestTargetBodyDocument.definitionType,
-      );
-      freshTree.namespaceMap = { ...effectiveNamespaceMap };
-      const {
-        mappingTree: loaded,
-        messages,
-        dataMapperSettings: restoredDataMapperSettings,
-      } = MappingSerializerService.deserialize(
-        initialXsltFile,
-        latestTargetBodyDocument,
-        freshTree,
-        latestSourceParameterMap,
-      );
-      WrapperAutoDetectionService.autoDetectWrapperSelections(loaded, latestTargetBodyDocument, effectiveNamespaceMap);
-      const sanitizedSettings = DataMapperSettingsService.sanitizeForTarget(
-        restoredDataMapperSettings,
-        latestTargetBodyDocument.definitionType,
-      );
-      setDataMapperSettings(sanitizedSettings);
-      applyMappingTree(loaded, { structural: true });
-      onUpdateMappings?.(MappingSerializerService.serialize(loaded, latestSourceParameterMap, sanitizedSettings));
-      onUpdateNamespaceMap?.(loaded.namespaceMap);
-      for (const msg of messages) {
-        sendAlert(msg);
-      }
-    } else {
-      mappingTree.documentDefinitionType = latestTargetBodyDocument.definitionType;
-      onUpdateMappings?.(MappingSerializerService.serialize(mappingTree, latestSourceParameterMap, dataMapperSettings));
-      onUpdateNamespaceMap?.(mappingTree.namespaceMap);
-    }
-
-    setIsLoading(false);
+  // Notify the host before child effects can publish subsequent mapping edits.
+  useLayoutEffect(() => {
+    onUpdateMappings?.(
+      MappingSerializerService.serialize(
+        initialState.mappingTree,
+        initialState.sourceParameterMap,
+        initialState.dataMapperSettings,
+      ),
+    );
+    onUpdateNamespaceMap?.(initialState.mappingTree.namespaceMap);
+    // Initialization callbacks run once per mount, even when their identities change.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -290,14 +279,13 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
 
   const resetMappingTree = useCallback(() => {
     const newMapping = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, targetBodyDocument.definitionType);
-    newMapping.namespaceMap = { ...initialNamespaceMap };
+    newMapping.namespaceMap = { ...INITIAL_NAMESPACE_MAP };
     applyMappingTree(newMapping, { structural: true });
     onUpdateMappings?.(MappingSerializerService.serialize(newMapping, sourceParameterMap, dataMapperSettings));
     onUpdateNamespaceMap?.(newMapping.namespaceMap);
   }, [
     applyMappingTree,
     dataMapperSettings,
-    initialNamespaceMap,
     onUpdateMappings,
     onUpdateNamespaceMap,
     sourceParameterMap,

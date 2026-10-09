@@ -21,6 +21,7 @@ import { EditorNodeData, FunctionNodeData, IExpressionHolder, MappingItem } from
 import { DataMapperDndContext, DataMapperDndProvider } from '../../providers/datamapper-dnd.provider';
 import { DataMapperDnDMonitor } from '../../providers/dnd/DataMapperDndMonitor';
 import { ExpressionEditorDnDHandler } from '../../providers/dnd/ExpressionEditorDnDHandler';
+import { MappingService } from '../../services/mapping/mapping.service';
 import { XPathService } from '../../services/xpath/xpath.service';
 import { FunctionGroup } from '../../services/xpath/xpath-model';
 import { DraggableContainer, DroppableContainer } from '../Document/NodeContainer';
@@ -50,7 +51,7 @@ export const XPathEditorLayout: FunctionComponent<XPathEditorLayoutProps> = ({
 
   const handleExpressionChange = useCallback(
     (expression?: string) => {
-      mapping.expression = expression ?? '';
+      MappingService.updateExpression(mapping, expression ?? '');
       onUpdate();
     },
     [mapping, onUpdate],

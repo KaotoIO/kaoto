@@ -14,7 +14,7 @@ import {
   SelectOption,
   Title,
 } from '@patternfly/react-core';
-import { FunctionComponent, Ref, useCallback, useMemo, useRef, useState } from 'react';
+import { FunctionComponent, Ref, useCallback, useMemo, useState } from 'react';
 
 import {
   ForEachGroupItem,
@@ -24,6 +24,7 @@ import {
   ValueOfType,
   ValueSelector,
 } from '../../../../../models/datamapper/mapping';
+import { MappingService } from '../../../../../services/mapping/mapping.service';
 import { DataMapperModal } from '../../../../DataMapper/DataMapperModal';
 import { XPathEditorModal } from '../../../../XPath/XPathEditorModal';
 import { TypeaheadInput, TypeaheadInputOption } from '../../TypeaheadInput';
@@ -66,31 +67,26 @@ export const ForEachGroupModal: FunctionComponent<ForEachGroupModalProps> = ({
   } = useSortKeyEntries(mapping.sortItems, onClose);
 
   const handleSave = useCallback(() => {
-    mapping.groupingStrategy = selectedStrategy;
-    mapping.groupingExpression = groupingExpression;
-    mapping.sortItems = getSortItems();
+    MappingService.updateGrouping(mapping, selectedStrategy, groupingExpression, getSortItems());
     onUpdate();
     onClose();
   }, [selectedStrategy, groupingExpression, getSortItems, mapping, onUpdate, onClose]);
 
-  const [isGroupingXPathEditorOpen, setIsGroupingXPathEditorOpen] = useState(false);
-  const groupingXPathProxyRef = useRef<ValueSelector | null>(null);
+  const [groupingXPathProxy, setGroupingXPathProxy] = useState<ValueSelector | null>(null);
 
   const handleOpenGroupingXPathEditor = useCallback(() => {
     const proxy = new ValueOfSelector(mapping, ValueOfType.VALUE);
     proxy.expression = groupingExpression;
-    groupingXPathProxyRef.current = proxy;
-    setIsGroupingXPathEditorOpen(true);
+    setGroupingXPathProxy(proxy);
   }, [mapping, groupingExpression]);
 
   const handleGroupingXPathUpdate = useCallback(() => {
-    if (!groupingXPathProxyRef.current) return;
-    setGroupingExpression(groupingXPathProxyRef.current.expression);
-  }, []);
+    if (!groupingXPathProxy) return;
+    setGroupingExpression(groupingXPathProxy.expression);
+  }, [groupingXPathProxy]);
 
   const handleGroupingXPathClose = useCallback(() => {
-    groupingXPathProxyRef.current = null;
-    setIsGroupingXPathEditorOpen(false);
+    setGroupingXPathProxy(null);
   }, []);
 
   const strategyToggle = useCallback(
@@ -163,11 +159,11 @@ export const ForEachGroupModal: FunctionComponent<ForEachGroupModalProps> = ({
               icon={<FunctionMath />}
             />
           </div>
-          {isGroupingXPathEditorOpen && groupingXPathProxyRef.current && (
+          {groupingXPathProxy && (
             <XPathEditorModal
               isOpen
               title="Grouping expression"
-              mapping={groupingXPathProxyRef.current}
+              mapping={groupingXPathProxy}
               onClose={handleGroupingXPathClose}
               onUpdate={handleGroupingXPathUpdate}
             />

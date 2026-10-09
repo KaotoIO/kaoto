@@ -22,6 +22,8 @@ import { MappingLinksService } from '../services/visualization/mapping-links.ser
 import {
   getAccountJsonSchema,
   getCartJsonSchema,
+  getChoiceWithAbstractXsd,
+  getFieldSubstitutionXsd,
   getShipOrderJsonSchema,
   getShipOrderJsonXslt,
   getShipOrderXsd,
@@ -31,6 +33,91 @@ import { MappingLinksProvider } from './data-mapping-links.provider';
 import { DataMapperContext, DataMapperProvider } from './datamapper.provider';
 
 describe('DataMapperProvider', () => {
+  it.each([
+    {
+      name: 'choice selections',
+      schema: getChoiceWithAbstractXsd(),
+      namespace: 'http://www.example.com/CHOICE_ABSTRACT',
+      rootName: 'Notification',
+      content:
+        '<ns0:Short><ns0:id>123</ns0:id><ns0:Webhook><ns0:url>http://example.com</ns0:url></ns0:Webhook></ns0:Short>',
+      metadataKey: 'choiceSelections' as const,
+    },
+    {
+      name: 'field substitutions',
+      schema: getFieldSubstitutionXsd(),
+      namespace: 'http://www.example.com/SUBSTITUTION',
+      rootName: 'Zoo',
+      content: '<ns0:Nickname>test</ns0:Nickname>',
+      metadataKey: 'fieldSubstitutions' as const,
+    },
+  ])('owns initialized definitions when detecting $name', ({ schema, namespace, rootName, content, metadataKey }) => {
+    const targetDefinition = new DocumentDefinition(
+      DocumentType.TARGET_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      { 'target.xsd': schema },
+      { namespaceUri: namespace, name: rootName },
+      [],
+      [],
+      [],
+    );
+    const sourceDefinition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.Primitive,
+      BODY_DOCUMENT_ID,
+    );
+    const parameterDefinition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, 'param');
+    const initializationModel = new DocumentInitializationModel(
+      { param: parameterDefinition },
+      sourceDefinition,
+      targetDefinition,
+      { ns0: namespace },
+    );
+    const xslt = `<xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:ns0="${namespace}">
+      <xsl:template match="/"><ns0:${rootName}>${content}</ns0:${rootName}></xsl:template>
+    </xsl:stylesheet>`;
+    const { result } = renderHook(() => useDataMapper(), {
+      wrapper: ({ children }) => (
+        <DataMapperProvider documentInitializationModel={initializationModel} initialXsltFile={xslt}>
+          {children}
+        </DataMapperProvider>
+      ),
+    });
+
+    const initializedTarget = result.current.targetBodyDocument.definition;
+    expect(initializedTarget[metadataKey]?.length).toBeGreaterThan(0);
+    expect(targetDefinition.choiceSelections).toEqual([]);
+    expect(targetDefinition.fieldSubstitutions).toEqual([]);
+    expect(initializationModel.namespaceMap).toEqual({ ns0: namespace });
+    expect(initializedTarget).toBeInstanceOf(DocumentDefinition);
+    expect(initializedTarget).not.toBe(targetDefinition);
+    expect(initializedTarget.fieldTypeOverrides).not.toBe(targetDefinition.fieldTypeOverrides);
+    expect(initializedTarget.rootElementChoice).not.toBe(targetDefinition.rootElementChoice);
+    expect(initializedTarget.definitionFiles).not.toBe(targetDefinition.definitionFiles);
+    expect(result.current.sourceBodyDocument.definition).not.toBe(sourceDefinition);
+    expect(result.current.sourceParameterMap.get('param')?.definition).not.toBe(parameterDefinition);
+  });
+
+  it('notifies the host of initialization before child effects update mappings', () => {
+    const onUpdateMappings = vi.fn();
+    const onChildMount = vi.fn();
+    const Child = () => {
+      useEffect(() => {
+        onChildMount();
+      }, []);
+      return null;
+    };
+
+    render(
+      <DataMapperProvider onUpdateMappings={onUpdateMappings}>
+        <Child />
+      </DataMapperProvider>,
+    );
+
+    expect(onUpdateMappings.mock.invocationCallOrder[0]).toBeLessThan(onChildMount.mock.invocationCallOrder[0]);
+  });
+
   it('should render', async () => {
     render(
       <DataMapperProvider>

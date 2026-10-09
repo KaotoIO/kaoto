@@ -1,13 +1,12 @@
 import './TargetPanel.scss';
 
 import { Label } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, useCallback, useEffect, useMemo, useSyncExternalStore } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 
 import { useConnectionPortSync } from '../../hooks/useConnectionPortSync.hook';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { DocumentType } from '../../models/datamapper/document';
-import { DocumentTree } from '../../models/datamapper/document-tree';
 import { MappingActionKind } from '../../models/datamapper/mapping-action';
 import { TargetDocumentNodeData } from '../../models/datamapper/visualization';
 import { MappingActionRegistryService } from '../../services/visualization/mapping-action-registry.service';
@@ -40,10 +39,12 @@ export const TargetPanel: FunctionComponent = () => {
     () => new TargetDocumentNodeData(targetBodyDocument, structuralMappingTree),
     [targetBodyDocument, structuralMappingTree],
   );
-  const [targetBodyTree, setTargetBodyTree] = useState<DocumentTree | undefined>(undefined);
-
+  const targetBodyTree = useSyncExternalStore(
+    useDocumentTreeStore.subscribe,
+    useCallback(() => TreeUIService.getTree(targetBodyNodeData.id), [targetBodyNodeData.id]),
+  );
   useEffect(() => {
-    setTargetBodyTree(TreeUIService.createTree(targetBodyNodeData));
+    TreeUIService.createTree(targetBodyNodeData);
   }, [targetBodyNodeData]);
 
   // Optimize: Select only the expansion state for this document

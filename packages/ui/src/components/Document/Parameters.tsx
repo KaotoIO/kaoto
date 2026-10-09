@@ -3,14 +3,13 @@ import './Parameters.scss';
 
 import { ActionList, ActionListItem, Button, Icon, Label } from '@patternfly/react-core';
 import { AngleDownIcon, AngleRightIcon, EyeIcon, EyeSlashIcon, PlusIcon } from '@patternfly/react-icons';
-import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 
 import { useConnectionPortSync } from '../../hooks/useConnectionPortSync.hook';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { PARAMETERS_SECTION_ANCHOR } from '../../models/datamapper/connection-port';
 import { DocumentType, IDocument } from '../../models/datamapper/document';
-import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentNodeData } from '../../models/datamapper/visualization';
 import { TreeUIService } from '../../services/visualization/tree-ui.service';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
@@ -121,10 +120,13 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
 }) => {
   const { mappingTree } = useDataMapper();
   const parameterNodeData = useMemo(() => new DocumentNodeData(document), [document]);
-  const [parameterTree, setParameterTree] = useState<DocumentTree | undefined>(undefined);
+  const parameterTree = useSyncExternalStore(
+    useDocumentTreeStore.subscribe,
+    useCallback(() => TreeUIService.getTree(parameterNodeData.id), [parameterNodeData.id]),
+  );
 
   useEffect(() => {
-    setParameterTree(TreeUIService.createTree(parameterNodeData));
+    TreeUIService.createTree(parameterNodeData);
   }, [parameterNodeData]);
 
   // Optimize: Select only the expansion state for this document

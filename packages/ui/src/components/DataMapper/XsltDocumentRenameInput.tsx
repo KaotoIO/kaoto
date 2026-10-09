@@ -46,15 +46,20 @@ export const XsltDocumentRenameInput: FunctionComponent<IXsltDocumentRenameInput
     errMessages: [],
   });
 
-  useEffect(() => {
-    if (localValue === value || typeof validator !== 'function') {
-      setValidationResult({ status: ValidationStatus.Default, errMessages: [] });
-      setIsValidating(false);
-      return;
-    }
+  const [validationInputs, setValidationInputs] = useState({ localValue, value, validator });
+  if (
+    validationInputs.localValue !== localValue ||
+    validationInputs.value !== value ||
+    validationInputs.validator !== validator
+  ) {
+    setValidationInputs({ localValue, value, validator });
+    setValidationResult({ status: ValidationStatus.Default, errMessages: [] });
+    setIsValidating(localValue !== value && typeof validator === 'function');
+  }
 
+  useEffect(() => {
+    if (localValue === value || typeof validator !== 'function') return;
     let isCurrent = true;
-    setIsValidating(true);
 
     const runValidation = async () => {
       try {

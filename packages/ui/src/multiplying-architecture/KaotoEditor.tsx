@@ -5,7 +5,7 @@ import { Http } from '@carbon/icons-react';
 import { Icon, Tab, Tabs, TabsProps, TabTitleIcon, TabTitleText } from '@patternfly/react-core';
 import { CodeIcon, ExclamationCircleIcon, QuestionIcon } from '@patternfly/react-icons';
 import clsx from 'clsx';
-import { useContext, useMemo, useRef } from 'react';
+import { useContext, useMemo } from 'react';
 import { Link, Outlet, useLocation } from 'react-router';
 
 import icon_component_datamapper from '../assets/components/datamapper.png';
@@ -14,6 +14,8 @@ import camelIcon from '../assets/logo-kaoto.svg';
 import { SourceSchemaType } from '../models/camel/source-schema-type';
 import { EntitiesContext } from '../providers/entities.provider';
 import { Links } from '../router/links.models';
+
+const TAB_INSET: TabsProps['inset'] = { default: 'insetSm' };
 
 const enum TabList {
   Design,
@@ -50,7 +52,6 @@ const SCHEMA_TABS: Record<SourceSchemaType, TabList[]> = {
 export const KaotoEditor = () => {
   const entitiesContext = useContext(EntitiesContext);
   const resource = entitiesContext?.camelResource;
-  const inset = useRef<TabsProps['inset']>({ default: 'insetSm' });
   const currentLocation = useLocation();
   const secondSlashIndex = currentLocation.pathname.indexOf('/', 1);
   const currentPath = currentLocation.pathname.substring(0, secondSlashIndex !== -1 ? secondSlashIndex : undefined);
@@ -85,7 +86,7 @@ export const KaotoEditor = () => {
   return (
     <div className="shell" data-envelope-context="vscode">
       <Tabs
-        inset={inset.current}
+        inset={TAB_INSET}
         isFilled
         unmountOnExit
         activeKey={currentPath}

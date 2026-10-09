@@ -9,7 +9,7 @@ import {
   VisualizationSurface,
 } from '@patternfly/react-topology';
 import { toBlob } from 'html-to-image';
-import { FunctionComponent, useEffect, useRef, useState } from 'react';
+import { FunctionComponent, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { CanvasEdge, CanvasNode, LayoutType } from '../../Canvas/canvas.models';
@@ -34,14 +34,13 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [layoutComplete, setLayoutComplete] = useState(false);
   const hasExportedRef = useRef(false);
-  const controllerRef = useRef<ReturnType<typeof ControllerService.createController>>(null);
+  const [controller] = useState(() => ControllerService.createController());
   const onCompleteRef = useRef(onComplete);
 
   // Keep onCompleteRef up to date
-  onCompleteRef.current = onComplete;
-
-  controllerRef.current ??= ControllerService.createController();
-  const controller = controllerRef.current;
+  useLayoutEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
 
   useEventListener(GRAPH_LAYOUT_END_EVENT, () => {
     if (!hasExportedRef.current) {
@@ -167,7 +166,7 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
 
   return (
     <div ref={containerRef} className="hidden-canvas">
-      <VisualizationProvider controller={controllerRef.current}>
+      <VisualizationProvider controller={controller}>
         <VisualizationSurface state={{}} />
       </VisualizationProvider>
     </div>

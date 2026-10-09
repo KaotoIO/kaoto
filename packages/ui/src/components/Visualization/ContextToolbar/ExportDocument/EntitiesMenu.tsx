@@ -24,24 +24,15 @@ export const EntitiesMenu: FunctionComponent<IEntitiesMenu> = ({ documentationEn
   };
 
   const onToggleEntityVisibility = (index: number) => {
-    documentationEntities[index].isVisible = !documentationEntities[index].isVisible;
-    onUpdate(documentationEntities);
+    onUpdate(
+      documentationEntities.map((entity, entityIndex) =>
+        entityIndex === index ? { ...entity, isVisible: !entity.isVisible } : entity,
+      ),
+    );
   };
 
   const onToggleAll = () => {
-    if (allEntitiesVisible) {
-      const updated = documentationEntities.map((docEntity) => {
-        docEntity.isVisible = false;
-        return docEntity;
-      });
-      onUpdate(updated);
-    } else {
-      const updated = documentationEntities.map((docEntity) => {
-        docEntity.isVisible = true;
-        return docEntity;
-      });
-      onUpdate(updated);
-    }
+    onUpdate(documentationEntities.map((entity) => ({ ...entity, isVisible: !allEntitiesVisible })));
   };
 
   const toggle = (toggleRef: Ref<MenuToggleElement>) => (

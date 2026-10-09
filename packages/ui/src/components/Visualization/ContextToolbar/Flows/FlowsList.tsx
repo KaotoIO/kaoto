@@ -5,7 +5,7 @@ import { Button, Icon, SearchInput } from '@patternfly/react-core';
 import { EyeIcon, EyeSlashIcon, TrashIcon } from '@patternfly/react-icons';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { useVisualizationController } from '@patternfly/react-topology';
-import { FunctionComponent, MouseEvent, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { FunctionComponent, MouseEvent, useCallback, useContext, useMemo, useState } from 'react';
 
 import { ValidationResult } from '../../../../models';
 import { BaseVisualEntity } from '../../../../models/visualization/base-visual-entity';
@@ -19,6 +19,8 @@ import { InlineEdit } from '../../../InlineEdit';
 import { RouteIdValidator } from '../../../InlineEdit/routeIdValidator';
 import { FlowsListEmptyState } from './FlowsListEmptyState';
 
+const columnNames = { id: 'Route Id', isVisible: 'Visibility', delete: 'Delete' };
+
 interface IFlowsList {
   onClose?: () => void;
 }
@@ -31,12 +33,6 @@ export const FlowsList: FunctionComponent<IFlowsList> = ({ onClose }) => {
   const [searchString, setSearchString] = useState<string>('');
 
   const isListEmpty = visualEntities.length === 0;
-
-  const columnNames = useRef({
-    id: 'Route Id',
-    isVisible: 'Visibility',
-    delete: 'Delete',
-  });
 
   const filteredIds = useMemo(() => {
     return visualEntities.filter((flow) => flow.id.includes(searchString)).map((flow) => flow.id);
@@ -103,7 +99,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = ({ onClose }) => {
           <Tr>
             <Th>
               <SearchInput
-                label={columnNames.current.id}
+                label={columnNames.id}
                 aria-label="search"
                 value={searchString}
                 onClear={(event) => {
@@ -150,7 +146,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = ({ onClose }) => {
             .filter((flow) => flow.id.includes(searchString))
             .map((flow: BaseVisualEntity) => (
               <Tr key={flow.id} data-testid={`flows-list-row-${flow.id}`}>
-                <Td dataLabel={columnNames.current.id}>
+                <Td dataLabel={columnNames.id}>
                   <InlineEdit
                     editTitle={`Rename ${flow.id}`}
                     textTitle={`Focus on ${flow.id}`}
@@ -169,7 +165,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = ({ onClose }) => {
                   {/*TODO add description*/}
                 </Td>
 
-                <Td dataLabel={columnNames.current.isVisible}>
+                <Td dataLabel={columnNames.isVisible}>
                   <Button
                     data-testid={`toggle-btn-${flow.id}`}
                     icon={
@@ -199,7 +195,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = ({ onClose }) => {
                   />
                 </Td>
 
-                <Td dataLabel={columnNames.current.delete}>
+                <Td dataLabel={columnNames.delete}>
                   <Button
                     title={`Delete ${flow.id}`}
                     data-testid={`delete-btn-${flow.id}`}

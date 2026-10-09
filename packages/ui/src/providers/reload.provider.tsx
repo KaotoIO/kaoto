@@ -9,7 +9,7 @@ export const ReloadContext = createContext<
 >(undefined);
 
 export const ReloadProvider: FunctionComponent<PropsWithChildren> = ({ children }) => {
-  const [lastRender, setLastRender] = useState(Date.now());
+  const [lastRender, setLastRender] = useState(() => Date.now());
 
   const reloadPage = useCallback(() => {
     setLastRender(Date.now());

@@ -1,7 +1,7 @@
 import { Divider } from '@patternfly/react-core';
 import { EyeIcon, EyeSlashIcon, PlusIcon } from '@patternfly/react-icons';
 import { ContextSubMenuItem, ElementContext, GraphComponent, withContextMenu } from '@patternfly/react-topology';
-import { FunctionComponent, PropsWithChildren, ReactElement, useCallback, useContext, useMemo } from 'react';
+import { createContext, FunctionComponent, PropsWithChildren, ReactElement, useContext, useMemo } from 'react';
 
 import { IDataTestID } from '../../../../models';
 import { withCustomPanZoom } from './customUsePanZoom';
@@ -53,12 +53,21 @@ export const GraphContextMenuFn = ({
 
 const PanZoomGraphComponent = withCustomPanZoom({ enableSpacebarPanning: true })(GraphComponent);
 
-const BaseCustomGraph: FunctionComponent<WithEntityContextMenuProps> = ({ entityContextMenuFn, ...rest }) => {
-  const contextMenuFn = useCallback(() => GraphContextMenuFn({ entityContextMenuFn }), [entityContextMenuFn]);
-  const element = useContext(ElementContext);
-  const EnhancedGraphComponent = useMemo(() => withContextMenu(contextMenuFn)(PanZoomGraphComponent), [contextMenuFn]);
+const GraphMenuContext = createContext<GraphContextMenuOptions>({ entityContextMenuFn: () => [] });
+const GraphContextMenu: FunctionComponent = () => {
+  const options = useContext(GraphMenuContext);
+  return <>{GraphContextMenuFn(options)}</>;
+};
+const EnhancedGraphComponent = withContextMenu(() => [<GraphContextMenu key="graph-menu" />])(PanZoomGraphComponent);
 
-  return <EnhancedGraphComponent {...rest} element={element} />;
+const BaseCustomGraph: FunctionComponent<WithEntityContextMenuProps> = ({ entityContextMenuFn, ...rest }) => {
+  const element = useContext(ElementContext);
+  const menuOptions = useMemo(() => ({ entityContextMenuFn }), [entityContextMenuFn]);
+  return (
+    <GraphMenuContext.Provider value={menuOptions}>
+      <EnhancedGraphComponent {...rest} element={element} />
+    </GraphMenuContext.Provider>
+  );
 };
 
 export const CustomGraphWithSelection = withEntityContextMenu(BaseCustomGraph);

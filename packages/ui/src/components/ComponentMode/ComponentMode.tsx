@@ -10,47 +10,25 @@ import { IVisualizationNode } from '../../models';
 import { COMPONENT_MODE_PROCESSORS } from '../../models/special-processors.constants';
 import { getProcessorIcon } from '../../utils/processor-icon';
 
+const ToIcon = getProcessorIcon('to');
+const ToDIcon = getProcessorIcon('toD');
+const PollIcon = getProcessorIcon('poll');
+
 export const ComponentMode: FunctionComponent<{ vizNode?: IVisualizationNode }> = ({ vizNode }) => {
   const { updateSourceCodeFromEntities } = useEntityContext();
   const [processorName, setProcessorName] = useState(vizNode?.data.primaryNodeId?.name);
-  const parsedDefinition = vizNode?.data.definition;
 
   const switchComponentMode = useCallback(
     (newProcessorName: keyof ProcessorDefinition) => {
       if (!vizNode || newProcessorName === processorName) return;
 
-      const path = vizNode.data.path;
-      const rootEipPath = path?.split('.').slice(0, -1).join('.');
-      if (!parsedDefinition || !rootEipPath) return;
-
-      /**
-       * Switch the used EIP for the component, it can go from 'to' to 'toD' or 'poll'
-       * and vice versa.
-       */
-      vizNode.data = { ...vizNode.data, path: rootEipPath };
-      vizNode.updateModel(undefined);
-
-      const existingPrimaryNodeId = vizNode.data.primaryNodeId;
-      if (!existingPrimaryNodeId) return;
-
-      vizNode.data = {
-        ...vizNode.data,
-        path: `${rootEipPath}.${newProcessorName}`,
-        primaryNodeId: {
-          ...existingPrimaryNodeId,
-          name: newProcessorName,
-        },
-      };
-      vizNode.updateModel(parsedDefinition);
+      if (!vizNode.switchComponentMode(newProcessorName)) return;
       updateSourceCodeFromEntities();
       setProcessorName(newProcessorName);
     },
-    [vizNode, processorName, parsedDefinition, updateSourceCodeFromEntities],
+    [vizNode, processorName, updateSourceCodeFromEntities],
   );
 
-  const ToIcon = getProcessorIcon('to');
-  const ToDIcon = getProcessorIcon('toD');
-  const PollIcon = getProcessorIcon('poll');
   const tooltips = useProcessorTooltips(COMPONENT_MODE_PROCESSORS);
 
   return (
