@@ -19,3 +19,13 @@
   display: flex;
   flex-flow: row;
 }
+
+.recently-used-bar {
+  margin-bottom: var(--pf-t--global--spacer--sm);
+
+  &__label {
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+  }
+}

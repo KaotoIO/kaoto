@@ -1,27 +1,39 @@
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react';
 
 export const useLocalStorage = <T>(key: string, defaultValue: T) => {
-  const [value, setValue] = useState<T>(() => {
-    const storedValue = localStorage.getItem(key);
-
-    if (storedValue === null) {
-      return defaultValue;
-    } else if (typeof defaultValue === 'string') {
-      return storedValue;
-    }
-
+  const [state, setState] = useState<{ value: T; shouldPersist: boolean }>(() => {
     try {
-      const returnValue = JSON.parse(storedValue);
-      return returnValue;
-    } catch (error) {
-      return defaultValue;
+      const storedValue = localStorage.getItem(key);
+      let value = defaultValue;
+
+      if (storedValue !== null) {
+        value = typeof defaultValue === 'string' ? storedValue : JSON.parse(storedValue);
+      }
+
+      return { value, shouldPersist: true };
+    } catch {
+      return { value: defaultValue, shouldPersist: false };
     }
   });
 
-  useEffect(() => {
-    const valueToStore = typeof value === 'string' ? value : JSON.stringify(value);
-    localStorage.setItem(key, valueToStore);
-  }, [key, value]);
+  const setValue: Dispatch<SetStateAction<T>> = useCallback((update) => {
+    setState((previous) => {
+      const value = typeof update === 'function' ? (update as (value: T) => T)(previous.value) : update;
+      return previous.shouldPersist && Object.is(previous.value, value) ? previous : { value, shouldPersist: true };
+    });
+  }, []);
 
-  return [value, setValue] as const;
+  useEffect(() => {
+    // A failed read must not replace existing data with the fallback on mount or rerender.
+    if (!state.shouldPersist) return;
+
+    try {
+      const valueToStore = typeof state.value === 'string' ? state.value : JSON.stringify(state.value);
+      localStorage.setItem(key, valueToStore);
+    } catch {
+      // Keep the in-memory state usable when browser storage is unavailable or full.
+    }
+  }, [key, state]);
+
+  return [state.value, setValue] as const;
 };
