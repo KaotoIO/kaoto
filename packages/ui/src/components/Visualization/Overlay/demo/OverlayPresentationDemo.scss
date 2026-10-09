@@ -1,0 +1,118 @@
+.kaoto-overlay-demo {
+  min-width: 1120px;
+  padding: 16px;
+  color: var(--pf-t--global--text--color--regular);
+  background: var(--pf-t--global--background--color--primary--default);
+
+  h1,
+  h2 {
+    margin-block: 12px;
+    font-weight: bold;
+  }
+
+  p,
+  output {
+    display: block;
+    margin-block: 8px;
+  }
+
+  svg text {
+    fill: currentcolor;
+    font-size: 14px;
+  }
+
+  &__controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    border: 1px solid var(--pf-t--global--border--color--default);
+    padding: 12px;
+
+    button {
+      border: 1px solid var(--pf-t--global--border--color--default);
+      border-radius: 4px;
+      padding: 4px 8px;
+      background: var(--pf-t--global--background--color--primary--default);
+      color: inherit;
+
+      &:disabled {
+        color: var(--pf-t--global--text--color--disabled);
+      }
+    }
+  }
+
+  &__edge-annotation .kaoto-overlay-interaction {
+    display: flex;
+    justify-content: center;
+  }
+
+  &__step-annotation {
+    overflow: visible;
+
+    .kaoto-overlay-interaction {
+      display: flex;
+      justify-content: center;
+    }
+
+    .kaoto-overlay.kaoto-overlay-annotation {
+      min-width: 24px;
+      min-height: 20px;
+      max-width: 80px;
+      padding: 0 5px;
+      border-radius: 8px;
+      font-size: 11px;
+      line-height: 16px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    &--vertical .kaoto-overlay-interaction {
+      justify-content: flex-start;
+    }
+  }
+
+  &__route {
+    fill: var(--pf-t--global--background--color--secondary--default);
+    stroke: var(--pf-t--global--border--color--default);
+  }
+
+  &__group-header {
+    fill: var(--pf-t--global--color--brand--100);
+  }
+
+  & &__group-title {
+    fill: var(--pf-t--global--text--color--on-brand--default);
+    font-weight: bold;
+  }
+
+  &__heading {
+    font-weight: bold;
+  }
+
+  &__edge {
+    fill: none;
+    stroke: var(--pf-t--global--text--color--subtle);
+    stroke-width: 1;
+  }
+
+  &__add {
+    width: 36px;
+    height: 36px;
+    border: 1px dashed var(--pf-t--global--border--color--default);
+    border-radius: 50%;
+    background: var(--pf-t--global--background--color--primary--default);
+    color: inherit;
+    font-size: 24px;
+  }
+
+  &__samples {
+    display: flex;
+    gap: 48px;
+  }
+
+  &__sample {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-block: 8px;
+  }
+}

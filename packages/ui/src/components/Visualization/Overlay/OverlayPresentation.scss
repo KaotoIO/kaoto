@@ -1,0 +1,114 @@
+@use 'sass:map';
+@use '@carbon/react/scss/colors';
+@use '@carbon/react/scss/themes';
+
+.kaoto-overlay {
+  // Carbon tokens from the existing @carbon/react dependency, scoped to overlays.
+  // https://www.carbondesignsystem.com/building-blocks/foundations/color/tokens
+  --kaoto-overlay-color: #{map.get(themes.$white, 'support-info')};
+
+  color: var(--kaoto-overlay-color);
+
+  :where(.pf-v6-theme-dark) & {
+    --kaoto-overlay-color: #{map.get(themes.$g100, 'support-info')};
+  }
+
+  &-tone-neutral {
+    --kaoto-overlay-color: #{colors.$gray-60};
+
+    :where(.pf-v6-theme-dark) & {
+      --kaoto-overlay-color: #{colors.$gray-40};
+    }
+  }
+
+  &-tone-success {
+    // Green 60 retains 3:1 contrast on the light gray route surface.
+    --kaoto-overlay-color: #{colors.$green-60};
+
+    :where(.pf-v6-theme-dark) & {
+      --kaoto-overlay-color: #{map.get(themes.$g100, 'support-success')};
+    }
+  }
+
+  &-tone-warning {
+    // Yellow 60 keeps thin borders visible on light canvas surfaces.
+    // Carbon's support-warning Yellow 30 is used on dark surfaces.
+    --kaoto-overlay-color: #{colors.$yellow-60};
+
+    :where(.pf-v6-theme-dark) & {
+      --kaoto-overlay-color: #{map.get(themes.$g100, 'support-warning')};
+    }
+  }
+
+  &-tone-error {
+    --kaoto-overlay-color: #{map.get(themes.$white, 'support-error')};
+
+    :where(.pf-v6-theme-dark) & {
+      --kaoto-overlay-color: #{map.get(themes.$g100, 'support-error')};
+    }
+  }
+}
+
+.kaoto-overlay-interaction {
+  display: inline-flex;
+  max-width: 100%;
+}
+
+.kaoto-overlay.kaoto-overlay-annotation {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  margin: 0;
+  font: inherit;
+  border: 1px solid var(--kaoto-overlay-color);
+  border-radius: 6px;
+  background: var(--pf-t--global--background--color--primary--default);
+  padding: 4px 8px;
+  min-height: 28px;
+  max-width: 160px;
+  color: var(--pf-t--global--text--color--regular);
+
+  &:focus-visible {
+    outline: 2px solid var(--pf-t--global--color--brand--default);
+    outline-offset: 2px;
+  }
+
+  &.kaoto-overlay-emphasis-strong {
+    border-width: 3px;
+  }
+
+  &.kaoto-overlay-emphasis-subdued {
+    border-style: dashed;
+  }
+}
+
+.kaoto-overlay-text {
+  display: block;
+  overflow-wrap: anywhere;
+
+  &--truncated {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.kaoto-canvas-annotations {
+  overflow: visible;
+
+  .kaoto-overlay-interaction {
+    display: flex;
+    justify-content: center;
+  }
+
+  &--start .kaoto-overlay-interaction {
+    justify-content: flex-start;
+  }
+
+  .kaoto-overlay-annotation {
+    font-size: 11px;
+    line-height: 16px;
+    font-variant-numeric: tabular-nums;
+  }
+}

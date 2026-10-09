@@ -1,0 +1,164 @@
+import { useEffect, useReducer, useState } from 'react';
+
+import { createOverlayStore, OverlayStore } from '../../../../store/overlay.store';
+import { OverlayEntry } from '../overlay-entries';
+import { OverlayStoreSnapshot } from '../overlay-layer-snapshot';
+import { OverlayScope } from '../overlay-targets';
+import { useOverlayLayers } from '../use-overlay-layers';
+
+export type DemoBranch = 'when' | 'otherwise';
+export interface DemoOverlay {
+  key: string;
+  entry: OverlayStoreSnapshot[number]['entries'][number];
+}
+
+export const demoAnnotatedEdge = { startX: 150, endX: 250, y: 357.5 };
+export const demoEdges: { id: string; path: string; branch?: DemoBranch }[] = [
+  {
+    id: 'from-1199-choice-1601',
+    path: `M${demoAnnotatedEdge.startX} ${demoAnnotatedEdge.y} H${demoAnnotatedEdge.endX}`,
+  },
+  { id: 'when-2399-to-1402', path: 'M250 357.5 H270 V322.5 H350', branch: 'when' },
+  { id: 'to-1402-choice-exit', path: 'M410 322.5 H660 V357.5 H690', branch: 'when' },
+  { id: 'otherwise-3621-to-3904', path: 'M250 357.5 H270 V557.5 H350', branch: 'otherwise' },
+  { id: 'to-3904-choice-exit', path: 'M410 557.5 H660 V357.5 H690', branch: 'otherwise' },
+  { id: 'choice-1601-to-2430', path: 'M690 357.5 H810' },
+];
+const nodeIds = ['from-1199', 'to-1402', 'to-3904', 'to-2430'];
+const scope: OverlayScope = { canvasId: 'overlay-demo', documentId: 'route-1837', modelRevision: 'fixed' };
+
+const pathEntries = (branch: DemoBranch): OverlayEntry[] => [
+  ...['from-1199', branch === 'when' ? 'to-1402' : 'to-3904', 'to-2430'].map(
+    (id): OverlayEntry => ({ id, kind: 'highlight', target: { kind: 'node', id }, emphasis: 'strong' }),
+  ),
+  ...demoEdges
+    .filter((edge) => !edge.branch || edge.branch === branch)
+    .map(({ id }): OverlayEntry => ({ id, kind: 'highlight', target: { kind: 'edge', id }, emphasis: 'strong' })),
+];
+const countEntries = (count: number): OverlayEntry[] =>
+  nodeIds.map((id) => ({
+    id,
+    kind: 'annotation',
+    target: { kind: 'node', id },
+    text: '',
+    value: id === 'to-3904' ? 0 : count,
+    interaction: { accessibleLabel: `${id} message count`, tooltip: 'Messages processed by this step (demo)' },
+  }));
+const timingEntries: OverlayEntry[] = [
+  {
+    id: 'route-duration',
+    kind: 'annotation',
+    target: { kind: 'route', id: 'route-1837' },
+    text: 'Route total',
+    value: 12.5,
+    unit: 'ms',
+    interaction: { accessibleLabel: 'route-1837 annotation', tooltip: 'Fixed demonstration value' },
+  },
+  {
+    id: 'edge-duration',
+    kind: 'annotation',
+    target: { kind: 'edge', id: 'from-1199-choice-1601' },
+    text: 'Edge duration',
+    value: 2.75,
+    unit: 'ms',
+    interaction: { accessibleLabel: 'edge metric annotation', tooltip: 'Fixed demonstration value' },
+  },
+];
+
+interface DemoActions {
+  showPath(branch: DemoBranch): void;
+  clearPath(): void;
+  updateCounts(): void;
+  removeXmppCount(): void;
+  clearCounts(): void;
+  disconnectMetrics(): void;
+}
+interface DemoView {
+  store?: OverlayStore;
+  branch?: DemoBranch;
+  metricsConnected: boolean;
+  actions?: DemoActions;
+}
+
+/** Fixed demo data, rendered through the same store subscription hook as future canvas consumers. */
+export function useOverlayDemo() {
+  const [generation, reset] = useReducer((value: number) => value + 1, 0);
+  const [view, setView] = useState<DemoView>({ metricsConnected: false });
+
+  useEffect(() => {
+    const store = createOverlayStore({
+      scope,
+      targets: [
+        ...nodeIds.map((id) => ({ kind: 'node' as const, id })),
+        ...demoEdges.map(({ id }) => ({ kind: 'edge' as const, id })),
+        { kind: 'route', id: 'route-1837' },
+      ],
+    });
+    const pathOwner = store.getState().createOwner()!;
+    const metricsOwner = store.getState().createOwner()!;
+    let active = true;
+    let count = 42;
+    let metricsConnected = true;
+    const run = (operation: () => void) => {
+      if (!active) return;
+      operation();
+    };
+    pathOwner.replaceLayer(scope, 'path', pathEntries('when'));
+    metricsOwner.replaceLayer(scope, 'counts', countEntries(count));
+    metricsOwner.replaceLayer(scope, 'timings', timingEntries);
+    const demoActions: DemoActions = {
+      showPath: (next) => {
+        run(() => {
+          pathOwner.replaceLayer(scope, 'path', pathEntries(next));
+          setView((current) => ({ ...current, branch: next }));
+        });
+      },
+      clearPath: () => {
+        run(() => {
+          pathOwner.clearLayer(scope, 'path');
+          setView((current) => ({ ...current, branch: undefined }));
+        });
+      },
+      updateCounts: () => {
+        run(() => {
+          if (metricsConnected) metricsOwner.upsertEntries(scope, 'counts', countEntries(++count));
+        });
+      },
+      removeXmppCount: () => {
+        run(() => {
+          if (metricsConnected) metricsOwner.removeEntries(scope, 'counts', ['to-3904']);
+        });
+      },
+      clearCounts: () => {
+        run(() => {
+          if (metricsConnected) metricsOwner.clearLayer(scope, 'counts');
+        });
+      },
+      disconnectMetrics: () => {
+        run(() => {
+          metricsOwner.dispose();
+          metricsConnected = false;
+          setView((current) => ({ ...current, metricsConnected: false }));
+        });
+      },
+    };
+    setView({ store, branch: 'when', metricsConnected: true, actions: demoActions });
+    return () => {
+      active = false;
+      store.getState().dispose();
+    };
+  }, [generation]);
+
+  const layers = useOverlayLayers(view.store);
+  const overlays: DemoOverlay[] = layers.flatMap(({ ownerId, layerId, entries }) =>
+    entries.map((entry) => ({ key: JSON.stringify([ownerId, layerId, entry.id]), entry })),
+  );
+  return {
+    layers,
+    branch: view.branch,
+    metricsConnected: view.metricsConnected,
+    actions: view.actions,
+    overlays,
+    reset,
+  };
+}

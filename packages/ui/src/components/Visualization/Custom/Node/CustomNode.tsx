@@ -36,10 +36,13 @@ import { SettingsContext } from '../../../../providers';
 import { getProcessorIcon } from '../../../../utils/processor-icon';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
-import { CanvasNode } from '../../Canvas/canvas.models';
+import { CanvasNode, LayoutType } from '../../Canvas/canvas.models';
 import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
+import { CanvasNodeOverlays } from '../../Overlay/CanvasElementOverlays';
+import { useCanvasOverlays } from '../../Overlay/use-canvas-overlays';
 import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
 import { getDropTargetContainerClassNames, GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
+import { useGraphLayout } from '../hooks/use-graph-layout.hook';
 import { useNodeValidationText } from '../hooks/use-node-validation-text.hook';
 import { TargetAnchor } from '../target-anchor';
 import { CustomNodeContainer } from './CustomNodeContainer';
@@ -78,10 +81,12 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
 
     const vizNode: IVisualizationNode | undefined = element.getData()?.vizNode;
     const lastUpdate = vizNode?.lastUpdate;
+    const layout = useGraphLayout();
     const boxXRef = useRef<number | null>(null);
     const boxYRef = useRef<number | null>(null);
     const entitiesContext = useEntityContext();
     const catalogModalContext = useContext(CatalogModalContext);
+    const overlays = useCanvasOverlays('node', element.getId());
     const settingsAdapter = useContext(SettingsContext);
     const nodeInteractionAddonContext = useContext(NodeInteractionAddonContext);
     const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
@@ -279,6 +284,11 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
           onKeyDown={handleKeyDown}
           onContextMenu={onContextMenu}
         >
+          <CanvasNodeOverlays
+            overlays={overlays}
+            bounds={{ x: (box.width - 60) / 2, y: (box.height - 60) / 2, width: 60, height: 60 }}
+            vertical={layout === LayoutType.DagreVertical}
+          />
           {/** The original node (appears when nothing is dragging, it also acts as the dragged node when node drag action is performed.
            * When a group/container is being dragged, the within-group nodes are hidden but the rest of the nodes show this original node.
            */}

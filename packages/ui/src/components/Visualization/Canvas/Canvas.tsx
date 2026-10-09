@@ -38,6 +38,7 @@ import { getInitialLayout } from '../../../utils/get-initial-layout';
 import { HorizontalLayoutIcon } from '../../Icons/HorizontalLayout';
 import { VerticalLayoutIcon } from '../../Icons/VerticalLayout';
 import useDeleteHotkey from '../Custom/hooks/delete-hotkey.hook';
+import { CanvasOverlayContext, CanvasOverlaySource } from '../Overlay/use-canvas-overlays';
 import { applyCollapseState } from './apply-collapse-state';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
@@ -45,6 +46,7 @@ import { CanvasSideBar } from './CanvasSideBar';
 import { consumeNodeSelection } from './node-selection-state';
 
 interface CanvasProps {
+  overlaySource?: CanvasOverlaySource;
   nodes: CanvasNode[];
   edges: CanvasEdge[];
   isModelResolving?: boolean;
@@ -61,6 +63,7 @@ interface CanvasState {
 export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   nodes,
   edges,
+  overlaySource,
   isModelResolving = false,
   contextToolbar,
   applyCollapseOnUpdate = false,
@@ -276,7 +279,11 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       tabIndex={0}
       aria-label="Route canvas"
     >
-      <VisualizationSurface state={{ selectedIds }} />
+      <CanvasOverlayContext.Provider
+        value={overlaySource?.model.nodes === nodes && overlaySource.model.edges === edges ? overlaySource : undefined}
+      >
+        <VisualizationSurface state={{ selectedIds }} />
+      </CanvasOverlayContext.Provider>
     </TopologyView>
   );
 };
