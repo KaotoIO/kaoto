@@ -246,10 +246,10 @@ Object.defineProperty(navigator, 'clipboard', {
   writable: true,
   configurable: true,
   value: {
-    writeText: vi.fn(async () => undefined),
-    readText: vi.fn(async () => ''),
-    write: vi.fn(async () => undefined),
-    read: vi.fn(async () => []),
+    writeText: vi.fn(() => Promise.resolve()),
+    readText: vi.fn(() => Promise.resolve('')),
+    write: vi.fn(() => Promise.resolve()),
+    read: vi.fn(() => Promise.resolve<ClipboardItems>([])),
   },
 });
 

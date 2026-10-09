@@ -4,7 +4,7 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { MappingTree } from '../../models/datamapper/mapping';
 import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
-import { endPointerDrag, firePrimaryPointerDown } from '../dnd-test-helpers';
+import { firePrimaryPointerDown } from '../dnd-test-helpers';
 import { createDataMapperContext, createDataMapperContextWrapper } from './data-mapper-context';
 
 /**
@@ -30,7 +30,7 @@ export const startSortKeyDrag = (index: number) => {
  * Drops the dragged sort key. In JSDOM every element has an empty rect, so the drop target is the first sort key.
  * See {@link endPointerDrag}: it also waits until clicks work again.
  */
-export const endSortKeyDrag = endPointerDrag;
+export { endPointerDrag as endSortKeyDrag } from '../dnd-test-helpers';
 
 /** Replaces the content of the open (real, Monaco based) XPath editor, like a user typing into it. */
 export const typeInXPathEditor = async (expression: string) => {
