@@ -4,6 +4,7 @@ import { FunctionComponent, PropsWithChildren, useCallback } from 'react';
 import { ArrayField } from '../fields/ArrayField/ArrayField';
 import { BooleanField } from '../fields/BooleanField';
 import { DisabledField } from '../fields/DisabledField';
+import { EditInPlaceField } from '../fields/EditInPlaceField/EditInPlaceField';
 import { EnumField } from '../fields/EnumField';
 import { IndexedValuesField } from '../fields/IndexedValuesField/IndexedValuesField';
 import { AllOfField } from '../fields/ObjectField/AllOfField';
@@ -13,7 +14,6 @@ import { PasswordField } from '../fields/PasswordField';
 import { PropertiesField } from '../fields/PropertiesField/PropertiesField';
 import { StringField } from '../fields/StringField';
 import { TextAreaField } from '../fields/TextAreaField';
-import { UriField } from '../fields/UriField/UriField';
 import { FieldProps } from '../models/typings';
 import {
   FormComponentFactoryContext,
@@ -44,8 +44,8 @@ export const FormComponentFactoryProvider: FunctionComponent<IFormComponentFacto
 
       if (schema.format === 'password') {
         return PasswordField;
-      } else if (schema.type === 'string' && schema.title === 'Uri') {
-        return UriField;
+      } else if (schema.type === 'string' && schema.title?.toLowerCase() === 'uri') {
+        return EditInPlaceField;
       } else if (schema.type === 'string' && schema.title && TEXT_AREA_PROPERTY_NAMES.has(schema.title)) {
         return TextAreaField;
       } else if (schema.type === 'string' && Array.isArray(schema.enum)) {
