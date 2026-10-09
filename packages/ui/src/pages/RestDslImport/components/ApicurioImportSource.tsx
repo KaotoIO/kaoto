@@ -11,7 +11,6 @@ type ApicurioImportSourceProps = {
 
 export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> = ({ registryUrl, onSchemaLoaded }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [artifacts, setArtifacts] = useState<ApicurioArtifact[]>([]);
   const [selectedId, setSelectedId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -19,8 +18,10 @@ export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> 
 
   const [requestVersion, setRequestVersion] = useState(0);
   const request = useMemo(() => ({ registryUrl, requestVersion }), [registryUrl, requestVersion]);
+  const [artifactResult, setArtifactResult] = useState<{ request: typeof request; artifacts: ApicurioArtifact[] }>();
   const [completedRequest, setCompletedRequest] = useState<typeof request>();
   const isFetchingArtifacts = !!registryUrl && completedRequest !== request;
+  const artifacts = artifactResult?.request === request ? artifactResult.artifacts : [];
 
   useEffect(() => {
     if (!registryUrl) return;
@@ -31,7 +32,10 @@ export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> 
         if (!response.ok) throw new Error(`Failed to fetch artifacts (${response.status})`);
         const result = (await response.json()) as ApicurioArtifactSearchResult;
         if (cancelled) return;
-        setArtifacts((result.artifacts ?? []).filter((artifact) => artifact.type === 'OPENAPI'));
+        setArtifactResult({
+          request,
+          artifacts: (result.artifacts ?? []).filter((artifact) => artifact.type === 'OPENAPI'),
+        });
         setError('');
       } catch (err) {
         if (!cancelled) {

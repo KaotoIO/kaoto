@@ -12,6 +12,76 @@ describe('ApicurioImportSource', () => {
     mockOnSchemaLoaded.mockReset();
   });
 
+  it.each(['registry change', 'refresh'] as const)(
+    'hides previous artifacts during a %s and shows the new results',
+    async (change) => {
+      let finishSearch!: (response: Response) => void;
+      fetchSpy
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ artifacts: [{ id: 'old-api', name: 'Old API', type: 'OPENAPI' }] }),
+        } as Response)
+        .mockReturnValueOnce(new Promise<Response>((resolve) => (finishSearch = resolve)));
+
+      const { rerender } = render(
+        <ApicurioImportSource registryUrl={registryUrl} onSchemaLoaded={mockOnSchemaLoaded} />,
+      );
+      await screen.findByRole('radio', { name: /Old API/ });
+
+      if (change === 'registry change') {
+        rerender(<ApicurioImportSource registryUrl="http://second.example.com" onSchemaLoaded={mockOnSchemaLoaded} />);
+      } else {
+        fireEvent.click(screen.getByRole('button', { name: /refresh/i }));
+      }
+
+      expect(screen.queryByRole('radio')).not.toBeInTheDocument();
+      expect(screen.queryByText('No OpenAPI artifacts found.')).not.toBeInTheDocument();
+
+      await act(async () => {
+        finishSearch({
+          ok: true,
+          json: async () => ({ artifacts: [{ id: 'new-api', name: 'New API', type: 'OPENAPI' }] }),
+        } as Response);
+      });
+
+      expect(screen.getByRole('radio', { name: /New API/ })).toBeEnabled();
+      expect(screen.queryByRole('radio', { name: /Old API/ })).not.toBeInTheDocument();
+    },
+  );
+
+  it.each(['registry change', 'refresh'] as const)(
+    'does not restore previous artifacts after a failed %s',
+    async (change) => {
+      let failSearch!: (reason: Error) => void;
+      fetchSpy
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ artifacts: [{ id: 'old-api', name: 'Old API', type: 'OPENAPI' }] }),
+        } as Response)
+        .mockReturnValueOnce(new Promise<Response>((_resolve, reject) => (failSearch = reject)));
+
+      const { rerender } = render(
+        <ApicurioImportSource registryUrl={registryUrl} onSchemaLoaded={mockOnSchemaLoaded} />,
+      );
+      await screen.findByRole('radio', { name: /Old API/ });
+
+      if (change === 'registry change') {
+        rerender(<ApicurioImportSource registryUrl="http://second.example.com" onSchemaLoaded={mockOnSchemaLoaded} />);
+      } else {
+        fireEvent.click(screen.getByRole('button', { name: /refresh/i }));
+      }
+
+      await act(async () => {
+        failSearch(new Error('Registry unavailable'));
+      });
+
+      expect(screen.getByText('Registry unavailable')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /refresh/i })).toBeEnabled();
+      expect(screen.queryByRole('radio')).not.toBeInTheDocument();
+      expect(mockOnSchemaLoaded).not.toHaveBeenCalled();
+    },
+  );
+
   it('keeps a new search pending when returning to a previously loaded registry', async () => {
     let finishSecondRegistry!: (response: Response) => void;
     let finishReturnSearch!: (response: Response) => void;
