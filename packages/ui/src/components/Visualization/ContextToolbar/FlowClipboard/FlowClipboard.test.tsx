@@ -3,12 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { useSourceCodeStore } from '../../../../store';
 import { defaultTooltipText, FlowClipboard, successTooltipText } from './FlowClipboard';
 
-Object.defineProperty(navigator, 'clipboard', {
-  value: {
-    writeText: vi.fn(),
-  },
-});
-
+/* navigator.clipboard is stubbed in vitest-setup.ts */
 describe('FlowClipboard.tsx', () => {
   beforeEach(() => {
     act(() => {
