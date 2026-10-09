@@ -39,6 +39,8 @@ describe('Test toolbar on hover actions', () => {
     cy.expandWrappedSection('#-Advanced');
     cy.checkConfigCheckboxObject('disabled', true);
 
+    // Returning from the form must hover the step again; selection no longer keeps its toolbar open.
+    cy.get('g[data-nodelabel^="setHeader"]').trigger('mouseenter');
     cy.get('[data-testid="setHeader|step-toolbar-button-disable"]').click();
 
     cy.openStepConfigurationTab('setHeader');
@@ -86,6 +88,8 @@ describe('Test toolbar on hover actions', () => {
     cy.checkNodeExist('otherwise', 0);
     cy.checkNodeExist('log', 0);
 
+    // Collapsing replaces the group with a node, so hover the new element before expanding it.
+    cy.get('g[data-nodelabel^="choice"]').trigger('mouseenter');
     cy.get(`[data-testid="choice|step-toolbar-button-collapse"]`).click();
     cy.checkNodeExist('when', 5);
     cy.checkNodeExist('otherwise', 2);
