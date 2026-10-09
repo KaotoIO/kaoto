@@ -1,0 +1,14 @@
+.uri-field-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.uri-field-input-wrapper {
+  flex: 1;
+}
+
+.uri-field-input .c4p--edit-in-place {
+  display: flex;
+  align-items: center;
+}

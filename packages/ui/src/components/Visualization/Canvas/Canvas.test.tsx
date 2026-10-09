@@ -126,7 +126,7 @@ describe('Canvas', () => {
       await vi.runAllTimersAsync();
     });
 
-    const searchInput = screen.getByTestId('filter-fields').querySelector('input')!;
+    const searchInput = screen.getByTestId('filter-fields');
     expect(searchInput).toHaveFocus();
     // The drawer is still animating in, so focusing must not scroll its container (canvas jump)
     expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });

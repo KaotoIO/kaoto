@@ -1,0 +1,28 @@
+.array-field-wrapper-tile {
+  padding: 1rem;
+}
+
+.array-field-wrapper-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  &--with-children {
+    margin-bottom: 1rem;
+  }
+}
+
+.array-field-wrapper-title-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.array-field-wrapper-heading {
+  margin: 0;
+}
+
+.array-field-wrapper-required {
+  color: red;
+  margin-right: 0.25rem;
+}

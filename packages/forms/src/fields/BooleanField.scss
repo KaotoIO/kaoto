@@ -1,0 +1,18 @@
+.kaoto-form__wrapper--row:has(.boolean-field-toggle-wrapper) {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.boolean-field-toggle-wrapper {
+  width: fit-content;
+
+  label {
+    pointer-events: none;
+
+    .cds--toggle__switch {
+      pointer-events: auto;
+    }
+  }
+}

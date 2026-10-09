@@ -1,0 +1,8 @@
+.kaoto-typeahead {
+  // Allow Carbon ComboBox menu items to grow taller when they contain a description
+  .cds--list-box__menu-item,
+  .cds--list-box__menu-item__option {
+    height: auto;
+    min-height: 2.5rem;
+  }
+}

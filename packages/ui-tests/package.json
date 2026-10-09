@@ -33,6 +33,7 @@
     "@storybook/react": "^10.6.1",
     "@storybook/react-vite": "^10.6.1",
     "@storybook/testing-library": "^0.2.2",
+    "@testing-library/dom": "^10.4.1",
     "@types/eslint__js": "^8.42.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
@@ -65,7 +66,7 @@
   },
   "dependencies": {
     "@kaoto/camel-catalog": "^0.10.6",
-    "@kaoto/forms": "^1.9.0",
+    "@kaoto/forms": "workspace:*",
     "@kaoto/kaoto": "workspace:*",
     "storybook": "^10.6.1"
   },

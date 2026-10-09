@@ -12,7 +12,8 @@
     "src/testing-api.ts",
     "src/components-api.ts",
     "src/global.d.ts",
-    "src/vite-env.d.ts"
+    "src/vite-env.d.ts",
+    "../forms/src"
   ],
   "exclude": ["src/**/*.test.tsx", "src/**/*.test.ts", "src/**/stubs/**"]
 }

@@ -1,8 +1,8 @@
 import './ComponentMode.scss';
 
+import { ContentSwitcher, Switch } from '@carbon/react';
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
-import { ToggleGroup, ToggleGroupItem } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useState } from 'react';
+import { FunctionComponent, useCallback, useMemo, useState } from 'react';
 
 import { useProcessorTooltips } from '../../hooks/use-processor-tooltips.hook';
 import { useEntityContext } from '../../hooks/useEntityContext/useEntityContext';
@@ -53,46 +53,37 @@ export const ComponentMode: FunctionComponent<{ vizNode?: IVisualizationNode }> 
   const PollIcon = getProcessorIcon('poll');
   const tooltips = useProcessorTooltips(COMPONENT_MODE_PROCESSORS);
 
+  const processors = useMemo(
+    () => [
+      { name: 'to', text: 'Static', icon: ToIcon, tooltip: tooltips.to },
+      { name: 'toD', text: 'Dynamic', icon: ToDIcon, tooltip: tooltips.toD },
+      { name: 'poll', text: 'Poll', icon: PollIcon, tooltip: tooltips.poll },
+    ],
+    [ToIcon, ToDIcon, PollIcon, tooltips],
+  );
+
+  const selectedIndex = processors.findIndex((p) => p.name === processorName);
+
   return (
     <section className="component-mode">
-      <ToggleGroup isCompact aria-label="Component Mode Toggle Group">
-        {ToIcon && (
-          <ToggleGroupItem
-            icon={<ToIcon />}
-            text="Static"
-            buttonId="to"
-            title={tooltips.to}
-            isSelected={processorName === 'to'}
-            onChange={() => {
-              switchComponentMode('to');
-            }}
-          />
-        )}
-        {ToDIcon && (
-          <ToggleGroupItem
-            icon={<ToDIcon />}
-            text="Dynamic"
-            buttonId="toD"
-            title={tooltips.toD}
-            isSelected={processorName === 'toD'}
-            onChange={() => {
-              switchComponentMode('toD');
-            }}
-          />
-        )}
-        {PollIcon && (
-          <ToggleGroupItem
-            icon={<PollIcon />}
-            text="Poll"
-            buttonId="poll"
-            title={tooltips.poll}
-            isSelected={processorName === 'poll'}
-            onChange={() => {
-              switchComponentMode('poll');
-            }}
-          />
-        )}
-      </ToggleGroup>
+      <ContentSwitcher
+        size="sm"
+        aria-label="Component Mode Toggle Group"
+        selectedIndex={Math.max(selectedIndex, 0)}
+        onChange={({ name }: { name?: string | number }) => {
+          if (typeof name === 'string') {
+            switchComponentMode(name as keyof ProcessorDefinition);
+          }
+        }}
+      >
+        {processors
+          .filter(({ icon }) => icon !== null && icon !== undefined)
+          .map(({ name, text, icon: Icon, tooltip }) => (
+            <Switch key={name} name={name} text={text} title={tooltip}>
+              {Icon && <Icon />}
+            </Switch>
+          ))}
+      </ContentSwitcher>
     </section>
   );
 };
