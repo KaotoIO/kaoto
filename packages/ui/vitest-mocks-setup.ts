@@ -121,6 +121,6 @@ vi.mock('hotkeys-js', () =>
 // The default implementation is passed to vi.fn() so vi.resetAllMocks() restores it after every file.
 vi.mock('html-to-image', () =>
   oncePerWorker('html-to-image', () => ({
-    toBlob: vi.fn(async () => new Blob(['fake-image-data'], { type: 'image/png' })),
+    toBlob: vi.fn(() => Promise.resolve(new Blob(['fake-image-data'], { type: 'image/png' }))),
   })),
 );
