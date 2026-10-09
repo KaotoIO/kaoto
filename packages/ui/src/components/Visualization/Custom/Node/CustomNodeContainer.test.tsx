@@ -38,6 +38,34 @@ describe('CustomNodeContainer', () => {
     isCollapsed: true,
   };
 
+  it('keeps the ghost translation when centering the SVG drag preview and restores normal rendering', () => {
+    const props = {
+      ...defaultContainerProps,
+      vizNode: createMockVizNode(),
+      childCount: 0,
+      ProcessorIcon: null,
+      isDisabled: false,
+      isDragging: true,
+      transform: 'translate(-120, 80)',
+    };
+    const { container, rerender } = render(
+      <svg>
+        <CustomNodeContainer {...props} />
+      </svg>,
+    );
+    const preview = container.querySelector('foreignObject');
+    expect(preview).toHaveAttribute('transform', 'translate(-120, 80) translate(13.5, 11.25) scale(0.7)');
+    expect(preview).toHaveAttribute('opacity', '0.5');
+
+    rerender(
+      <svg>
+        <CustomNodeContainer {...props} isDragging={false} />
+      </svg>,
+    );
+    expect(preview).toHaveAttribute('transform', 'translate(-120, 80)');
+    expect(preview).not.toHaveAttribute('opacity');
+  });
+
   // --- Accessibility tests ---
 
   it('exposes the node icon as a labelled image landmark', () => {

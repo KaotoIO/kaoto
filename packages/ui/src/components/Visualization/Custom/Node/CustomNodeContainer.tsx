@@ -22,6 +22,7 @@ export interface CustomNodeContainerProps {
   ProcessorIcon: ElementType | null;
   processorDescription?: string;
   isDisabled: boolean;
+  isDragging?: boolean;
 }
 
 export const CustomNodeContainer: FunctionComponent<CustomNodeContainerProps> = ({
@@ -39,13 +40,20 @@ export const CustomNodeContainer: FunctionComponent<CustomNodeContainerProps> = 
   ProcessorIcon,
   processorDescription,
   isDisabled,
+  isDragging = false,
 }) => (
   <foreignObject
     data-nodelabel={dataNodelabel}
     width={width}
     height={height}
     ref={foreignObjectRef}
-    {...(transform !== undefined && { transform })}
+    // Keep drag effects on SVG: HTML transforms/opacity inside foreignObject can hide previews in Safari.
+    transform={
+      isDragging
+        ? [transform, `translate(${width * 0.15}, ${height * 0.15}) scale(0.7)`].filter(Boolean).join(' ')
+        : transform
+    }
+    opacity={isDragging ? 0.5 : undefined}
   >
     <div data-testid={dataTestId} className={clsx('custom-node__container', containerClassNames)}>
       <div

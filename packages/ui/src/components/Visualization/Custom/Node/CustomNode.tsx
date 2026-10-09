@@ -37,7 +37,7 @@ import { getProcessorIcon } from '../../../../utils/processor-icon';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { CanvasNode } from '../../Canvas/canvas.models';
-import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
+import { StepToolbarOverlay } from '../../Canvas/StepToolbar/StepToolbarOverlay';
 import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
 import { getDropTargetContainerClassNames, GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
 import { useNodeValidationText } from '../hooks/use-node-validation-text.hook';
@@ -240,9 +240,6 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
       boxYRef.current = box.y;
     }
     const labelX = (box.width - CanvasDefaults.DEFAULT_LABEL_WIDTH) / 2;
-    const toolbarWidth = CanvasDefaults.STEP_TOOLBAR_WIDTH;
-    const toolbarX = (box.width - toolbarWidth) / 2;
-    const toolbarY = CanvasDefaults.STEP_TOOLBAR_HEIGHT * -1;
 
     const dropDirection: 'forward' | 'backward' | null =
       dndDropProps.droppable && dndDropProps.canDrop && draggedVizNode
@@ -297,6 +294,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
               ProcessorIcon={ProcessorIcon}
               processorDescription={processorDescription}
               isDisabled={isDisabled}
+              isDragging={isDraggedNode}
             />
           )}
 
@@ -316,6 +314,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
               ProcessorIcon={ProcessorIcon}
               processorDescription={processorDescription}
               isDisabled={isDisabled}
+              isDragging={isDraggedNode}
             />
           )}
 
@@ -353,21 +352,16 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
 
           {showToolbarSection && (
             <Layer id={TOP_LAYER}>
-              <foreignObject
-                ref={toolbarHoverRef}
+              <StepToolbarOverlay
+                foreignObjectRef={toolbarHoverRef}
                 className="custom-node__toolbar"
-                x={toolbarX}
-                y={toolbarY}
-                width={toolbarWidth}
-                height={CanvasDefaults.STEP_TOOLBAR_HEIGHT}
-              >
-                <StepToolbar
-                  data-testid="step-toolbar"
-                  vizNode={vizNode}
-                  isCollapsed={element.isCollapsed() || isCollapsedGroup}
-                  onCollapseToggle={onCollapseToggle}
-                />
-              </foreignObject>
+                centerX={box.width / 2}
+                bottomY={0}
+                data-testid="step-toolbar"
+                vizNode={vizNode}
+                isCollapsed={element.isCollapsed() || isCollapsedGroup}
+                onCollapseToggle={onCollapseToggle}
+              />
             </Layer>
           )}
         </g>
