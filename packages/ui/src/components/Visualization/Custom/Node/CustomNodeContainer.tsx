@@ -50,7 +50,7 @@ export const CustomNodeContainer: FunctionComponent<CustomNodeContainerProps> = 
     // Keep drag effects on SVG: HTML transforms/opacity inside foreignObject can hide previews in Safari.
     transform={
       isDragging
-        ? `${transform ? `${transform} ` : ''}translate(${width * 0.15}, ${height * 0.15}) scale(0.7)`
+        ? [transform, `translate(${width * 0.15}, ${height * 0.15}) scale(0.7)`].filter(Boolean).join(' ')
         : transform
     }
     opacity={isDragging ? 0.5 : undefined}
