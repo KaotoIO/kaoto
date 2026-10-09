@@ -11,9 +11,24 @@
       --custom-node-BorderColor: var(--pf-t--global--border--color--status--danger--default);
     }
 
+    > foreignObject#{&}__body {
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    &__paint-area {
+      box-sizing: border-box;
+      width: 100%;
+      height: 100%;
+    }
+
     &__container {
       @include custom.container;
 
+      pointer-events: auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto 1fr;
       border: 1px solid var(--custom-node-BorderColor);
       border-radius: var(--custom-node-BorderRadius);
       background-color: var(--custom-node-BackgroundColor);
@@ -21,19 +36,19 @@
 
       @include custom.label {
         &__text {
+          grid-area: 1 / 1;
           align-items: center;
           max-width: 100%;
           cursor: pointer;
           display: flex;
-          position: relative;
           font-weight: bold;
           background-color: var(--pf-t--global--color--brand--100);
+          border-radius: calc(var(--custom-node-BorderRadius) - 1px) calc(var(--custom-node-BorderRadius) - 1px) 0 0;
           color: var(--pf-t--global--text--color--on-brand--default);
           padding: calc(var(--pf-t--global--spacer--xs) / 2) var(--pf-t--global--spacer--xs);
 
           img {
             display: inline-block;
-            position: relative;
             max-height: 20px;
             max-width: 20px;
             background-color: var(--pf-t--color--white);
@@ -65,10 +80,6 @@
         width: 20px;
         height: 20px;
         display: inline-block;
-      }
-
-      &__draggedGroup {
-        @include custom.drag-group;
       }
 
       &__dropTarget-right {
@@ -125,34 +136,87 @@
       }
     }
 
-    /*
-     * Keyboard focus ring for groups — same :focus rationale as custom-node.
-     * Must appear after &__container to satisfy no-descending-specificity.
-     * Targets the container div (the visible blue header bar).
-     */
-    &:focus &__container {
-      outline: 3px solid var(--pf-t--global--color--brand--default);
-      outline-offset: 2px;
+    // Paint the focus ring in SVG. An HTML outline overflowing foreignObject
+    // can leave trails when Safari repaints the moved group (WebKit bug 207421).
+    &__focus-ring {
+      fill: none;
+      stroke: var(--pf-t--global--color--brand--default);
+      stroke-width: 3px;
+      rx: calc(var(--custom-node-BorderRadius) + 3.5px);
+      pointer-events: none;
+      visibility: hidden;
+    }
+
+    // SVG groups focused through keyboard navigation need :focus in Chromium.
+    &:focus > &__focus-ring {
+      visibility: visible;
     }
 
     &__disabled-icon {
-      position: absolute;
-      top: 0;
-      right: 0;
+      grid-area: 1 / 1;
+      place-self: center end;
       margin: var(--pf-t--global--spacer--xs);
     }
 
     &__autostart-container {
-      position: absolute;
-      right: 8px;
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 2;
+      flex-shrink: 0;
+      margin-left: auto;
+      margin-right: 8px;
     }
 
     &__autostart-switch {
       // Make the switch smaller to fit in the header
       --pf-v6-c-switch--FontSize: 0.75rem;
+
+      // Keep the native switch input and focus styles, but avoid positioned HTML
+      // layers and transforms inside foreignObject (WebKit bug 23113).
+      position: static;
+
+      /* stylelint-disable selector-class-pattern -- PatternFly's published component class names */
+      .pf-v6-c-switch__input,
+      .pf-v6-c-switch__toggle {
+        position: static;
+        grid-area: 1 / 1;
+        margin: 0;
+      }
+
+      .pf-v6-c-switch__input {
+        width: 100%;
+        height: 100%;
+      }
+
+      .pf-v6-c-switch__toggle {
+        display: grid;
+        align-items: center;
+
+        &::before,
+        &::after,
+        .pf-v6-c-switch__toggle-icon {
+          position: static;
+          grid-area: 1 / 1;
+        }
+
+        &::before {
+          justify-self: start;
+          margin-inline: var(--pf-v6-c-switch__toggle--before--InsetInlineStart);
+          transform: none;
+        }
+
+        &::after {
+          align-self: stretch;
+        }
+
+        .pf-v6-c-switch__toggle-icon {
+          justify-self: start;
+          margin-inline-start: var(--pf-v6-c-switch__toggle-icon--InsetInlineStart);
+        }
+      }
+
+      .pf-v6-c-switch__input:checked ~ .pf-v6-c-switch__toggle::before {
+        justify-self: end;
+        transform: none;
+      }
+      /* stylelint-enable selector-class-pattern */
     }
   }
 

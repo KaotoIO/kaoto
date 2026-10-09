@@ -54,9 +54,13 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
     const edges: CanvasEdge[] = [];
 
     vizNodes.forEach((vizNode) => {
-      const { nodes: childNodes, edges: childEdges } = FlowService.getFlowDiagram(vizNode.id, vizNode, {
-        removePlaceholder: true,
-      });
+      const { nodes: childNodes, edges: childEdges } = FlowService.getFlowDiagram(
+        vizNode.getId() ?? vizNode.id,
+        vizNode,
+        {
+          removePlaceholder: true,
+        },
+      );
       nodes.push(...childNodes);
       edges.push(...childEdges);
     });
@@ -126,7 +130,6 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
           cacheBust: true,
           filter: (node: HTMLElement) => !node?.classList?.contains('pf-v6-c-toolbar__group'),
           pixelRatio: 2,
-          skipFonts: true,
           skipAutoScale: true,
         });
 

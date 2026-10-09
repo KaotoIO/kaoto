@@ -276,7 +276,8 @@ const PlaceholderContent: FunctionComponent<PlaceholderContentProps> = observer(
             data-nodelabel={label}
             width={boxRef.current.width}
             height={boxRef.current.height}
-            transform={`translate(${boxXRef.current - box.x}, ${boxYRef.current - box.y})`}
+            transform={`translate(${boxXRef.current - box.x}, ${boxYRef.current - box.y}) translate(${boxRef.current.width * 0.15}, ${boxRef.current.height * 0.15}) scale(0.7)`}
+            opacity={0.5}
           >
             <PlaceholderNodeContainer {...containerProps} />
           </foreignObject>

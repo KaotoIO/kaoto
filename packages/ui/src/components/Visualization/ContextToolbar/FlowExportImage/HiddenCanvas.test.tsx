@@ -116,6 +116,25 @@ describe('HiddenCanvas', () => {
     );
   });
 
+  it('keeps node IDs and group children distinct when exporting multiple routes', async () => {
+    const first = await new CamelRouteVisualEntity({
+      route: { id: 'first', from: { uri: 'timer', steps: [{ log: { message: 'one' } }] } },
+    }).toVizNode();
+    const second = await new CamelRouteVisualEntity({
+      route: { id: 'second', from: { uri: 'timer', steps: [{ log: { message: 'two' } }] } },
+    }).toVizNode();
+    render(<HiddenCanvas vizNodes={[first, second]} onComplete={mockOnComplete} />, { wrapper: Wrapper });
+    const model = fromModelSpy.mock.calls[0][0];
+    const ids = model.nodes.map((node: { id: string }) => node.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const scope of ['first', 'second']) {
+      const group = model.nodes.find((node: { id: string }) => node.id === `${scope}|route`);
+      expect(group).toBeDefined();
+      expect(group.children.length).toBeGreaterThan(0);
+      expect(group.children.every((id: string) => id.startsWith(`${scope}|`))).toBe(true);
+    }
+  });
+
   it('resets and layouts the graph after model is loaded', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     const vizNode = await entity.toVizNode();
@@ -157,7 +176,6 @@ describe('HiddenCanvas', () => {
         cacheBust: true,
         filter: expect.any(Function),
         pixelRatio: 2,
-        skipFonts: true,
         skipAutoScale: true,
       });
     });

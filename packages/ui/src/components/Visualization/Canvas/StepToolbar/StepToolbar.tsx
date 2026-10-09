@@ -13,7 +13,7 @@ import {
   TrashIcon,
 } from '@patternfly/react-icons';
 import clsx from 'clsx';
-import { FunctionComponent, useContext, useMemo } from 'react';
+import { FunctionComponent, Ref, useContext, useMemo } from 'react';
 
 import { AddStepMode, IDataTestID, IVisualizationNode } from '../../../../models';
 import { SettingsContext } from '../../../../providers/settings.provider';
@@ -29,6 +29,7 @@ import { useReplaceStep } from '../../Custom/hooks/replace-step.hook';
 import { useGraphLayout } from '../../Custom/hooks/use-graph-layout.hook';
 
 interface IStepToolbar extends IDataTestID {
+  toolbarRef?: Ref<HTMLDivElement>;
   vizNode: IVisualizationNode;
   className?: string;
   isCollapsed?: boolean;
@@ -37,6 +38,7 @@ interface IStepToolbar extends IDataTestID {
 }
 
 export const StepToolbar: FunctionComponent<IStepToolbar> = ({
+  toolbarRef,
   vizNode,
   className,
   isCollapsed = false,
@@ -63,7 +65,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
 
   return (
     <div className="step-toolbar-wrapper">
-      <div className={clsx(className, 'step-toolbar')} data-testid={dataTestId}>
+      <div ref={toolbarRef} className={clsx(className, 'step-toolbar')} data-testid={dataTestId}>
         {canDuplicate && (
           <Button
             icon={<BlueprintIcon />}

@@ -75,32 +75,56 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                               role="button"
                               tabindex="-1"
                             >
-                              <foreignobject
-                                data-nodelabel="route-8888"
+                              <rect
+                                aria-hidden="true"
+                                class="custom-group__focus-ring"
+                                height="1357"
+                                width="732"
+                                x="31.5"
+                                y="31.5"
+                              />
+                              <rect
+                                aria-hidden="true"
+                                class="custom-group__drop-area"
+                                fill="none"
                                 height="1350"
+                                pointer-events="none"
                                 width="725"
                                 x="35"
                                 y="35"
+                              />
+                              <foreignobject
+                                class="custom-group__body"
+                                data-nodelabel="route-8888"
+                                height="1398"
+                                width="773"
+                                x="11"
+                                y="11"
                               >
                                 <div
-                                  class="custom-group__container"
-                                  data-testid="route-8888|route"
+                                  class="custom-group__paint-area"
+                                  style="padding: 24px;"
                                 >
                                   <div
-                                    class="custom-group__container__text"
-                                    data-testid="route-8888|route|drag-handle"
-                                    style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
-                                    title="route: route"
+                                    class="custom-group__container"
+                                    data-testid="route-8888|route"
                                   >
-                                    <img
-                                      alt="route: route"
-                                      src="/src/assets/eip/route.png"
-                                    />
-                                    <span
-                                      title="route-8888"
+                                    <div
+                                      class="custom-group__container__text"
+                                      data-testid="route-8888|route|drag-handle"
+                                      style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
+                                      title="route: route"
                                     >
-                                      route-8888
-                                    </span>
+                                      <img
+                                        alt="route: route"
+                                        src="/src/assets/eip/route.png"
+                                      />
+                                      <span
+                                        title="route-8888"
+                                      >
+                                        route-8888
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
                               </foreignobject>
@@ -125,32 +149,56 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                               role="button"
                               tabindex="-1"
                             >
-                              <foreignobject
-                                data-nodelabel="choice"
+                              <rect
+                                aria-hidden="true"
+                                class="custom-group__focus-ring"
+                                height="687"
+                                width="652"
+                                x="71.5"
+                                y="376.5"
+                              />
+                              <rect
+                                aria-hidden="true"
+                                class="custom-group__drop-area"
+                                fill="none"
                                 height="680"
+                                pointer-events="none"
                                 width="645"
                                 x="75"
                                 y="380"
+                              />
+                              <foreignobject
+                                class="custom-group__body"
+                                data-nodelabel="choice"
+                                height="728"
+                                width="693"
+                                x="51"
+                                y="356"
                               >
                                 <div
-                                  class="custom-group__container"
-                                  data-testid="route-8888|route.from.steps.1.choice"
+                                  class="custom-group__paint-area"
+                                  style="padding: 24px;"
                                 >
                                   <div
-                                    class="custom-group__container__text custom-group__container__text__draggable"
-                                    data-testid="route-8888|route.from.steps.1.choice|drag-handle"
-                                    style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
-                                    title="choice: choice"
+                                    class="custom-group__container"
+                                    data-testid="route-8888|route.from.steps.1.choice"
                                   >
-                                    <img
-                                      alt="choice: choice"
-                                      src="/src/assets/eip/choice.png"
-                                    />
-                                    <span
-                                      title="choice"
+                                    <div
+                                      class="custom-group__container__text custom-group__container__text__draggable"
+                                      data-testid="route-8888|route.from.steps.1.choice|drag-handle"
+                                      style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
+                                      title="choice: choice"
                                     >
-                                      choice
-                                    </span>
+                                      <img
+                                        alt="choice: choice"
+                                        src="/src/assets/eip/choice.png"
+                                      />
+                                      <span
+                                        title="choice"
+                                      >
+                                        choice
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
                               </foreignobject>
@@ -175,32 +223,56 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                               role="button"
                               tabindex="-1"
                             >
-                              <foreignobject
-                                data-nodelabel="when"
+                              <rect
+                                aria-hidden="true"
+                                class="custom-group__focus-ring"
+                                height="297"
+                                width="177"
+                                x="256.5"
+                                y="571.5"
+                              />
+                              <rect
+                                aria-hidden="true"
+                                class="custom-group__drop-area"
+                                fill="none"
                                 height="290"
+                                pointer-events="none"
                                 width="170"
                                 x="260"
                                 y="575"
+                              />
+                              <foreignobject
+                                class="custom-group__body"
+                                data-nodelabel="when"
+                                height="338"
+                                width="218"
+                                x="236"
+                                y="551"
                               >
                                 <div
-                                  class="custom-group__container"
-                                  data-testid="route-8888|route.from.steps.1.choice.when.0"
+                                  class="custom-group__paint-area"
+                                  style="padding: 24px;"
                                 >
                                   <div
-                                    class="custom-group__container__text custom-group__container__text__draggable"
-                                    data-testid="route-8888|route.from.steps.1.choice.when.0|drag-handle"
-                                    style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
-                                    title="when: when"
+                                    class="custom-group__container"
+                                    data-testid="route-8888|route.from.steps.1.choice.when.0"
                                   >
-                                    <img
-                                      alt="when: when"
-                                      src="/src/assets/eip/when.png"
-                                    />
-                                    <span
-                                      title="when"
+                                    <div
+                                      class="custom-group__container__text custom-group__container__text__draggable"
+                                      data-testid="route-8888|route.from.steps.1.choice.when.0|drag-handle"
+                                      style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
+                                      title="when: when"
                                     >
-                                      when
-                                    </span>
+                                      <img
+                                        alt="when: when"
+                                        src="/src/assets/eip/when.png"
+                                      />
+                                      <span
+                                        title="when"
+                                      >
+                                        when
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
                               </foreignobject>
@@ -1010,32 +1082,56 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                               role="button"
                               tabindex="-1"
                             >
-                              <foreignobject
-                                data-nodelabel="route-8888"
+                              <rect
+                                aria-hidden="true"
+                                class="custom-group__focus-ring"
+                                height="1357"
+                                width="732"
+                                x="31.5"
+                                y="31.5"
+                              />
+                              <rect
+                                aria-hidden="true"
+                                class="custom-group__drop-area"
+                                fill="none"
                                 height="1350"
+                                pointer-events="none"
                                 width="725"
                                 x="35"
                                 y="35"
+                              />
+                              <foreignobject
+                                class="custom-group__body"
+                                data-nodelabel="route-8888"
+                                height="1398"
+                                width="773"
+                                x="11"
+                                y="11"
                               >
                                 <div
-                                  class="custom-group__container"
-                                  data-testid="route-8888|route"
+                                  class="custom-group__paint-area"
+                                  style="padding: 24px;"
                                 >
                                   <div
-                                    class="custom-group__container__text"
-                                    data-testid="route-8888|route|drag-handle"
-                                    style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
-                                    title="route: route"
+                                    class="custom-group__container"
+                                    data-testid="route-8888|route"
                                   >
-                                    <img
-                                      alt="route: route"
-                                      src="/src/assets/eip/route.png"
-                                    />
-                                    <span
-                                      title="route-8888"
+                                    <div
+                                      class="custom-group__container__text"
+                                      data-testid="route-8888|route|drag-handle"
+                                      style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
+                                      title="route: route"
                                     >
-                                      route-8888
-                                    </span>
+                                      <img
+                                        alt="route: route"
+                                        src="/src/assets/eip/route.png"
+                                      />
+                                      <span
+                                        title="route-8888"
+                                      >
+                                        route-8888
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
                               </foreignobject>
@@ -1060,32 +1156,56 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                               role="button"
                               tabindex="-1"
                             >
-                              <foreignobject
-                                data-nodelabel="choice"
+                              <rect
+                                aria-hidden="true"
+                                class="custom-group__focus-ring"
+                                height="687"
+                                width="652"
+                                x="71.5"
+                                y="376.5"
+                              />
+                              <rect
+                                aria-hidden="true"
+                                class="custom-group__drop-area"
+                                fill="none"
                                 height="680"
+                                pointer-events="none"
                                 width="645"
                                 x="75"
                                 y="380"
+                              />
+                              <foreignobject
+                                class="custom-group__body"
+                                data-nodelabel="choice"
+                                height="728"
+                                width="693"
+                                x="51"
+                                y="356"
                               >
                                 <div
-                                  class="custom-group__container"
-                                  data-testid="route-8888|route.from.steps.1.choice"
+                                  class="custom-group__paint-area"
+                                  style="padding: 24px;"
                                 >
                                   <div
-                                    class="custom-group__container__text custom-group__container__text__draggable"
-                                    data-testid="route-8888|route.from.steps.1.choice|drag-handle"
-                                    style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
-                                    title="choice: choice"
+                                    class="custom-group__container"
+                                    data-testid="route-8888|route.from.steps.1.choice"
                                   >
-                                    <img
-                                      alt="choice: choice"
-                                      src="/src/assets/eip/choice.png"
-                                    />
-                                    <span
-                                      title="choice"
+                                    <div
+                                      class="custom-group__container__text custom-group__container__text__draggable"
+                                      data-testid="route-8888|route.from.steps.1.choice|drag-handle"
+                                      style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
+                                      title="choice: choice"
                                     >
-                                      choice
-                                    </span>
+                                      <img
+                                        alt="choice: choice"
+                                        src="/src/assets/eip/choice.png"
+                                      />
+                                      <span
+                                        title="choice"
+                                      >
+                                        choice
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
                               </foreignobject>
@@ -1110,32 +1230,56 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                               role="button"
                               tabindex="-1"
                             >
-                              <foreignobject
-                                data-nodelabel="when"
+                              <rect
+                                aria-hidden="true"
+                                class="custom-group__focus-ring"
+                                height="297"
+                                width="177"
+                                x="256.5"
+                                y="571.5"
+                              />
+                              <rect
+                                aria-hidden="true"
+                                class="custom-group__drop-area"
+                                fill="none"
                                 height="290"
+                                pointer-events="none"
                                 width="170"
                                 x="260"
                                 y="575"
+                              />
+                              <foreignobject
+                                class="custom-group__body"
+                                data-nodelabel="when"
+                                height="338"
+                                width="218"
+                                x="236"
+                                y="551"
                               >
                                 <div
-                                  class="custom-group__container"
-                                  data-testid="route-8888|route.from.steps.1.choice.when.0"
+                                  class="custom-group__paint-area"
+                                  style="padding: 24px;"
                                 >
                                   <div
-                                    class="custom-group__container__text custom-group__container__text__draggable"
-                                    data-testid="route-8888|route.from.steps.1.choice.when.0|drag-handle"
-                                    style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
-                                    title="when: when"
+                                    class="custom-group__container"
+                                    data-testid="route-8888|route.from.steps.1.choice.when.0"
                                   >
-                                    <img
-                                      alt="when: when"
-                                      src="/src/assets/eip/when.png"
-                                    />
-                                    <span
-                                      title="when"
+                                    <div
+                                      class="custom-group__container__text custom-group__container__text__draggable"
+                                      data-testid="route-8888|route.from.steps.1.choice.when.0|drag-handle"
+                                      style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
+                                      title="when: when"
                                     >
-                                      when
-                                    </span>
+                                      <img
+                                        alt="when: when"
+                                        src="/src/assets/eip/when.png"
+                                      />
+                                      <span
+                                        title="when"
+                                      >
+                                        when
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
                               </foreignobject>
@@ -1977,32 +2121,56 @@ exports[`Canvas > should render correctly 1`] = `
                               role="button"
                               tabindex="-1"
                             >
-                              <foreignobject
-                                data-nodelabel="route-8888"
+                              <rect
+                                aria-hidden="true"
+                                class="custom-group__focus-ring"
+                                height="1357"
+                                width="732"
+                                x="31.5"
+                                y="31.5"
+                              />
+                              <rect
+                                aria-hidden="true"
+                                class="custom-group__drop-area"
+                                fill="none"
                                 height="1350"
+                                pointer-events="none"
                                 width="725"
                                 x="35"
                                 y="35"
+                              />
+                              <foreignobject
+                                class="custom-group__body"
+                                data-nodelabel="route-8888"
+                                height="1398"
+                                width="773"
+                                x="11"
+                                y="11"
                               >
                                 <div
-                                  class="custom-group__container"
-                                  data-testid="route-8888|route"
+                                  class="custom-group__paint-area"
+                                  style="padding: 24px;"
                                 >
                                   <div
-                                    class="custom-group__container__text"
-                                    data-testid="route-8888|route|drag-handle"
-                                    style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
-                                    title="route: route"
+                                    class="custom-group__container"
+                                    data-testid="route-8888|route"
                                   >
-                                    <img
-                                      alt="route: route"
-                                      src="/src/assets/eip/route.png"
-                                    />
-                                    <span
-                                      title="route-8888"
+                                    <div
+                                      class="custom-group__container__text"
+                                      data-testid="route-8888|route|drag-handle"
+                                      style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
+                                      title="route: route"
                                     >
-                                      route-8888
-                                    </span>
+                                      <img
+                                        alt="route: route"
+                                        src="/src/assets/eip/route.png"
+                                      />
+                                      <span
+                                        title="route-8888"
+                                      >
+                                        route-8888
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
                               </foreignobject>
@@ -2027,32 +2195,56 @@ exports[`Canvas > should render correctly 1`] = `
                               role="button"
                               tabindex="-1"
                             >
-                              <foreignobject
-                                data-nodelabel="choice"
+                              <rect
+                                aria-hidden="true"
+                                class="custom-group__focus-ring"
+                                height="687"
+                                width="652"
+                                x="71.5"
+                                y="376.5"
+                              />
+                              <rect
+                                aria-hidden="true"
+                                class="custom-group__drop-area"
+                                fill="none"
                                 height="680"
+                                pointer-events="none"
                                 width="645"
                                 x="75"
                                 y="380"
+                              />
+                              <foreignobject
+                                class="custom-group__body"
+                                data-nodelabel="choice"
+                                height="728"
+                                width="693"
+                                x="51"
+                                y="356"
                               >
                                 <div
-                                  class="custom-group__container"
-                                  data-testid="route-8888|route.from.steps.1.choice"
+                                  class="custom-group__paint-area"
+                                  style="padding: 24px;"
                                 >
                                   <div
-                                    class="custom-group__container__text custom-group__container__text__draggable"
-                                    data-testid="route-8888|route.from.steps.1.choice|drag-handle"
-                                    style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
-                                    title="choice: choice"
+                                    class="custom-group__container"
+                                    data-testid="route-8888|route.from.steps.1.choice"
                                   >
-                                    <img
-                                      alt="choice: choice"
-                                      src="/src/assets/eip/choice.png"
-                                    />
-                                    <span
-                                      title="choice"
+                                    <div
+                                      class="custom-group__container__text custom-group__container__text__draggable"
+                                      data-testid="route-8888|route.from.steps.1.choice|drag-handle"
+                                      style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
+                                      title="choice: choice"
                                     >
-                                      choice
-                                    </span>
+                                      <img
+                                        alt="choice: choice"
+                                        src="/src/assets/eip/choice.png"
+                                      />
+                                      <span
+                                        title="choice"
+                                      >
+                                        choice
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
                               </foreignobject>
@@ -2077,32 +2269,56 @@ exports[`Canvas > should render correctly 1`] = `
                               role="button"
                               tabindex="-1"
                             >
-                              <foreignobject
-                                data-nodelabel="when"
+                              <rect
+                                aria-hidden="true"
+                                class="custom-group__focus-ring"
+                                height="297"
+                                width="177"
+                                x="256.5"
+                                y="571.5"
+                              />
+                              <rect
+                                aria-hidden="true"
+                                class="custom-group__drop-area"
+                                fill="none"
                                 height="290"
+                                pointer-events="none"
                                 width="170"
                                 x="260"
                                 y="575"
+                              />
+                              <foreignobject
+                                class="custom-group__body"
+                                data-nodelabel="when"
+                                height="338"
+                                width="218"
+                                x="236"
+                                y="551"
                               >
                                 <div
-                                  class="custom-group__container"
-                                  data-testid="route-8888|route.from.steps.1.choice.when.0"
+                                  class="custom-group__paint-area"
+                                  style="padding: 24px;"
                                 >
                                   <div
-                                    class="custom-group__container__text custom-group__container__text__draggable"
-                                    data-testid="route-8888|route.from.steps.1.choice.when.0|drag-handle"
-                                    style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
-                                    title="when: when"
+                                    class="custom-group__container"
+                                    data-testid="route-8888|route.from.steps.1.choice.when.0"
                                   >
-                                    <img
-                                      alt="when: when"
-                                      src="/src/assets/eip/when.png"
-                                    />
-                                    <span
-                                      title="when"
+                                    <div
+                                      class="custom-group__container__text custom-group__container__text__draggable"
+                                      data-testid="route-8888|route.from.steps.1.choice.when.0|drag-handle"
+                                      style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
+                                      title="when: when"
                                     >
-                                      when
-                                    </span>
+                                      <img
+                                        alt="when: when"
+                                        src="/src/assets/eip/when.png"
+                                      />
+                                      <span
+                                        title="when"
+                                      >
+                                        when
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
                               </foreignobject>

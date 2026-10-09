@@ -1,14 +1,17 @@
 .step-icon {
-  position: absolute;
-  top: -12px;
-  margin: var(--pf-t--global--spacer--xs);
+  // Share the image's grid cell without creating a positioned HTML layer in SVG.
+  grid-area: 1 / 1;
+  align-self: start;
+  margin-top: calc(-12px + var(--pf-t--global--spacer--xs) - var(--pf-t--global--spacer--sm));
 
   &__disabled {
-    right: -12px;
+    justify-self: end;
+    margin-right: calc(-12px + var(--pf-t--global--spacer--xs) - var(--pf-t--global--spacer--sm));
   }
 
   &__processor {
-    left: -12px;
+    justify-self: start;
+    margin-left: calc(-12px + var(--pf-t--global--spacer--xs) - var(--pf-t--global--spacer--sm));
   }
 }
 
@@ -28,14 +31,19 @@
     overflow: visible;
   }
 
+  // Positioned HTML descendants of foreignObject can ignore SVG transforms in Safari.
+  // Canvas icons do not use the Icon component's absolutely positioned loading state.
+  .pf-v6-c-icon {
+    position: static;
+  }
+
   @content;
 }
 
 @mixin container {
   width: 100%;
   height: 100%;
-  position: relative;
-  overflow: auto;
+  overflow: visible;
   cursor: pointer;
 }
 
@@ -44,7 +52,8 @@
 }
 
 @mixin disabled {
-  filter: grayscale(100%);
+  // The disabled badge communicates state. HTML filters inside foreignObject
+  // can discard SVG positioning in Safari, so do not grayscale the container.
   font-style: italic;
 }
 
@@ -52,14 +61,4 @@
   text-align: center;
 
   @content;
-}
-
-@mixin drag-node {
-  opacity: 0.5;
-  transform: scale(0.7);
-  transform-origin: center;
-}
-
-@mixin drag-group {
-  opacity: 0.5;
 }

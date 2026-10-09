@@ -38,7 +38,7 @@ import { Anchors } from '../../../registers/anchors';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { RenderingAnchor } from '../../../RenderingAnchor/RenderingAnchor';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
-import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
+import { StepToolbarOverlay } from '../../Canvas/StepToolbar/StepToolbarOverlay';
 import {
   canDragGroup,
   getDropTargetContainerClassNames,
@@ -56,6 +56,11 @@ import {
 } from '../Node/CustomNodeUtils';
 import { TargetAnchor } from '../target-anchor';
 import { CustomGroupProps } from './Group.models';
+
+// The 3px stroke is centered 2px outside the group, matching the former HTML outline.
+const FOCUS_RING_OFFSET = 3.5;
+// Keep shadows inside a clipped foreignObject so WebKit repaints their old bounds.
+const GROUP_PAINT_PADDING = 24;
 
 export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = observer(
   ({ element, onContextMenu, onCollapseToggle, selected, onSelect }) => {
@@ -209,9 +214,6 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
       boxRef.current = box;
     }
 
-    const toolbarX = boxRef.current.x + (boxRef.current.width - CanvasDefaults.STEP_TOOLBAR_WIDTH) / 2;
-    const toolbarY = boxRef.current.y - CanvasDefaults.STEP_TOOLBAR_HEIGHT;
-
     return (
       <Layer id={GROUPS_LAYER} data-lastupdate={lastUpdate}>
         <g
@@ -231,50 +233,72 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
           onKeyDown={handleKeyDown}
           onContextMenu={onContextMenu}
         >
-          {/** This node appears when nothing is dragging and acts as the dummy node when container is dragged*/}
-          <foreignObject
+          <rect
+            className="custom-group__focus-ring"
+            aria-hidden="true"
+            x={boxRef.current.x - FOCUS_RING_OFFSET}
+            y={boxRef.current.y - FOCUS_RING_OFFSET}
+            width={boxRef.current.width + 2 * FOCUS_RING_OFFSET}
+            height={boxRef.current.height + 2 * FOCUS_RING_OFFSET}
+          />
+          <rect
             ref={dndDropRef}
-            data-nodelabel={label}
+            className="custom-group__drop-area"
+            aria-hidden="true"
             x={boxRef.current.x}
             y={boxRef.current.y}
             width={boxRef.current.width}
             height={boxRef.current.height}
+            fill="none"
+            pointerEvents="none"
+          />
+          {/** This node appears when nothing is dragging and acts as the dummy node when container is dragged*/}
+          <foreignObject
+            className="custom-group__body"
+            opacity={isDraggingGroup || refreshGroup ? 0.5 : undefined}
+            data-nodelabel={label}
+            x={boxRef.current.x - GROUP_PAINT_PADDING}
+            y={boxRef.current.y - GROUP_PAINT_PADDING}
+            width={boxRef.current.width + 2 * GROUP_PAINT_PADDING}
+            height={boxRef.current.height + 2 * GROUP_PAINT_PADDING}
           >
-            <div
-              data-testid={`${groupVizNode.getId()}|${groupVizNode.id}`}
-              className={clsx('custom-group__container', mainContainerClassNames)}
-            >
+            <div className="custom-group__paint-area" style={{ padding: GROUP_PAINT_PADDING }}>
               <div
-                ref={dragGroupRef}
-                data-testid={`${groupVizNode.getId()}|${groupVizNode.id}|drag-handle`}
-                className={clsx('custom-group__container__text', {
-                  'custom-group__container__text__draggable': canDragGroup(groupVizNode),
-                })}
-                title={groupVizNode.data.description}
+                data-testid={`${groupVizNode.getId()}|${groupVizNode.id}`}
+                className={clsx('custom-group__container', mainContainerClassNames)}
               >
-                {doesHaveWarnings ? (
-                  <div className="custom-group__container__icon-placeholder" />
-                ) : (
-                  groupVizNode.data.iconUrl && (
-                    <img
-                      src={groupVizNode.data.iconUrl}
-                      alt={
-                        groupVizNode.data.description ||
-                        (typeof groupVizNode.data.iconAlt === 'string' ? groupVizNode.data.iconAlt : '')
-                      }
-                    />
-                  )
+                <div
+                  ref={dragGroupRef}
+                  data-testid={`${groupVizNode.getId()}|${groupVizNode.id}|drag-handle`}
+                  className={clsx('custom-group__container__text', {
+                    'custom-group__container__text__draggable': canDragGroup(groupVizNode),
+                  })}
+                  title={groupVizNode.data.description}
+                >
+                  {doesHaveWarnings ? (
+                    <div className="custom-group__container__icon-placeholder" />
+                  ) : (
+                    groupVizNode.data.iconUrl && (
+                      <img
+                        src={groupVizNode.data.iconUrl}
+                        alt={
+                          groupVizNode.data.description ||
+                          (typeof groupVizNode.data.iconAlt === 'string' ? groupVizNode.data.iconAlt : '')
+                        }
+                      />
+                    )
+                  )}
+                  <span title={label}>{label}</span>
+
+                  <RenderingAnchor anchorTag={Anchors.CanvasGroupTitlebar} vizNode={groupVizNode} />
+                </div>
+
+                {isDisabled && !doesHaveWarnings && (
+                  <Icon className="custom-group__disabled-icon" title="Step disabled">
+                    <BanIcon />
+                  </Icon>
                 )}
-                <span title={label}>{label}</span>
-
-                <RenderingAnchor anchorTag={Anchors.CanvasGroupTitlebar} vizNode={groupVizNode} />
               </div>
-
-              {isDisabled && !doesHaveWarnings && (
-                <Icon className="custom-group__disabled-icon" title="Step disabled">
-                  <BanIcon />
-                </Icon>
-              )}
             </div>
           </foreignObject>
 
@@ -298,6 +322,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
                 ProcessorIcon={ProcessorIcon}
                 processorDescription={processorDescription}
                 isDisabled={isDisabled}
+                isDragging
               />
             </Layer>
           )}
@@ -319,21 +344,16 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
           )}
           {!dndDropProps.droppable && shouldShowToolbar && (
             <Layer id={TOP_LAYER}>
-              <foreignObject
-                ref={toolbarHoverRef}
+              <StepToolbarOverlay
+                foreignObjectRef={toolbarHoverRef}
                 className="custom-group__toolbar"
-                x={toolbarX}
-                y={toolbarY}
-                width={CanvasDefaults.STEP_TOOLBAR_WIDTH}
-                height={CanvasDefaults.STEP_TOOLBAR_HEIGHT}
-              >
-                <StepToolbar
-                  data-testid="step-toolbar"
-                  vizNode={groupVizNode}
-                  isCollapsed={element.isCollapsed()}
-                  onCollapseToggle={onCollapseToggle}
-                />
-              </foreignObject>
+                centerX={boxRef.current.x + boxRef.current.width / 2}
+                bottomY={boxRef.current.y}
+                data-testid="step-toolbar"
+                vizNode={groupVizNode}
+                isCollapsed={element.isCollapsed()}
+                onCollapseToggle={onCollapseToggle}
+              />
             </Layer>
           )}
         </g>

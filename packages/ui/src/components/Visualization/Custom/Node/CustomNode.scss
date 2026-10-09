@@ -48,9 +48,8 @@
       }
 
       &__image {
-        position: relative;
-        display: flex;
-        flex-flow: column;
+        display: grid;
+        grid-template: minmax(0, 1fr) / minmax(0, 1fr);
         align-items: center;
         border: 1px solid var(--custom-node-BorderColor);
         border-radius: var(--custom-node-BorderRadius);
@@ -61,6 +60,8 @@
         width: 60px;
 
         img {
+          grid-area: 1 / 1;
+          justify-self: center;
           max-width: 100%;
           height: 100%;
         }
@@ -77,10 +78,6 @@
       // Drag preview under the pointer (already dragging — use grabbing, not grab).
       &__grabbing-cursor {
         @include dnd.cursor-grabbing;
-      }
-
-      &__draggedNode {
-        @include custom.drag-node;
       }
 
       &:hover &__image,
