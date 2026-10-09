@@ -5,6 +5,7 @@ import { FunctionComponent, useContext } from 'react';
 import { ArrayField } from '../fields/ArrayField/ArrayField';
 import { BooleanField } from '../fields/BooleanField';
 import { DisabledField } from '../fields/DisabledField';
+import { EditInPlaceField } from '../fields/EditInPlaceField/EditInPlaceField';
 import { EnumField } from '../fields/EnumField';
 import { AllOfField } from '../fields/ObjectField/AllOfField';
 import { ObjectField } from '../fields/ObjectField/ObjectField';
@@ -13,7 +14,6 @@ import { PasswordField } from '../fields/PasswordField';
 import { PropertiesField } from '../fields/PropertiesField/PropertiesField';
 import { StringField } from '../fields/StringField';
 import { TextAreaField } from '../fields/TextAreaField';
-import { UriField } from '../fields/UriField/UriField';
 import { FormComponentFactoryContext } from './context/form-component-factory-context';
 import { FormComponentFactoryProvider } from './FormComponentFactoryProvider';
 
@@ -29,7 +29,8 @@ describe('FormComponentFactoryProvider', () => {
 
   it.each([
     [{ format: 'password' }, PasswordField],
-    [{ type: 'string', title: 'Uri' }, UriField],
+    [{ type: 'string', title: 'Uri' }, EditInPlaceField],
+    [{ type: 'string', title: 'URI' }, EditInPlaceField],
     [{ type: 'string', title: 'Expression' }, TextAreaField],
     [{ type: 'string', title: 'Description' }, TextAreaField],
     [{ type: 'string', title: 'Query' }, TextAreaField],

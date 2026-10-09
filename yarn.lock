@@ -3719,6 +3719,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kaoto/forms@workspace:packages/forms"
   dependencies:
+    "@carbon/ibm-products": "npm:^2.74.0"
     "@carbon/icons-react": "npm:^11.67.0"
     "@carbon/react": "npm:^1.102.0"
     "@carbon/styles": "npm:^1.99.0"
@@ -3774,6 +3775,7 @@ __metadata:
     vite-plugin-static-copy: "npm:^4.1.1"
     vitest: "npm:^5.0.1"
   peerDependencies:
+    "@carbon/ibm-products": ^2.74.0
     "@carbon/icons-react": ^11.67.0
     "@carbon/react": ^1.102.0
     "@carbon/styles": ^1.99.0
@@ -3908,6 +3910,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kaoto/kaoto@workspace:packages/ui"
   dependencies:
+    "@carbon/ibm-products": "npm:^2.74.0"
     "@carbon/icons-react": "npm:^11.67.0"
     "@carbon/react": "npm:^1.117.0"
     "@dnd-kit/core": "npm:^6.1.0"

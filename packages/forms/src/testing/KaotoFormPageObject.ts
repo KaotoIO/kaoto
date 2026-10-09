@@ -221,21 +221,37 @@ export class KaotoFormPageObject {
    * Returns the URI field for the specified property name.
    */
   getUriInputForProperty(propertyName: string): HTMLInputElement | null {
-    return this.screen.queryByTestId(propertyName) as HTMLInputElement | null;
+    return (
+      (this.screen.queryByTestId(propertyName) as HTMLInputElement | null) ??
+      (document.getElementById(propertyName) as HTMLInputElement | null) ??
+      (this.screen.queryByRole('textbox', { name: new RegExp(propertyName, 'i') }) as HTMLInputElement | null)
+    );
   }
 
   /**
    * Finds the URI field for the specified property name.
    */
   async findUriInputForProperty(propertyName: string): Promise<HTMLInputElement> {
-    return (await this.screen.findByTestId(propertyName)) as HTMLInputElement;
+    return waitFor(() => {
+      const input = this.getUriInputForProperty(propertyName);
+      if (!input) {
+        throw new Error(`URI input for property "${propertyName}" not found.`);
+      }
+      return input;
+    });
   }
 
   /**
    * Clicks the Edit button on a URI field.
    */
   async editUriForProperty(propertyName: string): Promise<void> {
-    const editButton = await this.screen.findByTestId(`${propertyName}--edit`);
+    const editButton =
+      this.screen.queryByTestId(`${propertyName}--edit`) ??
+      this.screen.queryByRole('button', { name: /Edit /i }) ??
+      this.screen.queryByLabelText(/Edit /i);
+    if (!editButton) {
+      throw new Error(`Edit button for property "${propertyName}" not found.`);
+    }
     await this.fire(() => fireEvent.click(editButton));
   }
 
@@ -243,7 +259,13 @@ export class KaotoFormPageObject {
    * Saves the edit on a URI field.
    */
   async saveUriForProperty(propertyName: string): Promise<void> {
-    const saveButton = await this.screen.findByTestId(`${propertyName}--save`);
+    const saveButton =
+      this.screen.queryByTestId(`${propertyName}--save`) ??
+      this.screen.queryByRole('button', { name: 'Save' }) ??
+      this.screen.queryByLabelText('Save');
+    if (!saveButton) {
+      throw new Error(`Save button for property "${propertyName}" not found.`);
+    }
     await this.fire(() => fireEvent.click(saveButton));
   }
 
@@ -251,7 +273,13 @@ export class KaotoFormPageObject {
    * Cancels the edit on a URI field.
    */
   async cancelUriForProperty(propertyName: string): Promise<void> {
-    const cancelButton = await this.screen.findByTestId(`${propertyName}--cancel`);
+    const cancelButton =
+      this.screen.queryByTestId(`${propertyName}--cancel`) ??
+      this.screen.queryByRole('button', { name: 'Cancel' }) ??
+      this.screen.queryByLabelText('Cancel');
+    if (!cancelButton) {
+      throw new Error(`Cancel button for property "${propertyName}" not found.`);
+    }
     await this.fire(() => fireEvent.click(cancelButton));
   }
 
