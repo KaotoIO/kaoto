@@ -222,7 +222,8 @@ Cypress.Commands.add('DnDOnNode', (sourceNodeName: string, targetNodeName: strin
   const sourceNode = cy.get(`[data-testid="${sourceNodeName}"]`);
   const targetNode = cy.get(`[data-testid="${targetNodeName}"]`);
 
-  sourceNode.realMouseDown({ button: 'left', position: 'topLeft' }).realMouseMove(0, 0, { position: 'center' });
+  // Rounded group-header corners can hit the parent route instead of the drag handle.
+  sourceNode.realMouseDown({ button: 'left', position: 'center' }).realMouseMove(10, 0, { position: 'center' });
   targetNode.realMouseMove(0, 0, { position: 'center' }).realMouseUp();
 });
 
@@ -231,7 +232,8 @@ Cypress.Commands.add('DnDOnEdge', (sourceNodeName: string, targetEdgeName: strin
   const sourceNode = cy.get(`[data-testid="${sourceNodeName}"]`);
   const targetEdge = cy.get(`[data-id="${targetEdgeName}"]`);
 
-  sourceNode.realMouseDown({ button: 'left', position: 'topLeft' }).realMouseMove(0, 0, { position: 'center' });
+  // Rounded group-header corners can hit the parent route instead of the drag handle.
+  sourceNode.realMouseDown({ button: 'left', position: 'center' }).realMouseMove(10, 0, { position: 'center' });
   targetEdge.realMouseMove(0, 0, { position: 'center' }).realMouseUp({ position: 'center' });
   targetEdge.realMouseMove(0, 0, { position: 'center' }).realMouseUp({ position: 'center' });
 });
