@@ -9,16 +9,10 @@ import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.p
 import { DISABLED_NODE_INTERACTION, IVisualizationNode, NodeInteraction } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { ACTION_ID_CONFIRM, ActionConfirmationModalContext } from '../../../../providers';
+import { SendMessageModalContext } from '../../../../providers/send-message-modal.provider';
 import { camelRouteJson, camelRouteWithDisabledSteps, TestProvidersWrapper } from '../../../../stubs';
 import { createRouteVisualizationController } from '../../../../stubs/route-visualization-controller';
-import { useSendMessageModal } from '../../../../providers/send-message-modal.provider';
 import { StepToolbar } from './StepToolbar';
-
-vi.mock('../../../../providers/send-message-modal.provider', () => ({
-  useSendMessageModal: vi.fn(),
-}));
-
-const mockUseSendMessageModal = vi.mocked(useSendMessageModal);
 
 /** The first step of `camelRouteJson`, followed by a `choice` step */
 const SET_HEADER_PATH = 'route.from.steps.0.set-header';
@@ -49,7 +43,6 @@ describe('StepToolbar', () => {
   };
 
   beforeEach(() => {
-    mockUseSendMessageModal.mockReturnValue(undefined);
     mockCatalogModalContext.getNewComponent.mockReset().mockResolvedValue(undefined);
     mockCatalogModalContext.checkCompatibility.mockReset().mockReturnValue(false);
     mockActionConfirmationModalContext.actionConfirmation.mockReset().mockResolvedValue(ACTION_ID_CONFIRM);
@@ -117,11 +110,25 @@ describe('StepToolbar', () => {
 
     it('should render send message button when SendMessageModal context is provided', async () => {
       const mockOpenSendMessageModal = vi.fn();
-      mockUseSendMessageModal.mockReturnValue({
+      const sendMessageContext = {
+        isOpen: false,
+        options: null,
         openSendMessageModal: mockOpenSendMessageModal,
-      });
+        closeSendMessageModal: vi.fn(),
+        sendMessage: vi.fn().mockResolvedValue(undefined),
+        isSending: false,
+        error: null,
+        recentMessageFiles: [],
+        rememberMessageFile: vi.fn(),
+      };
 
-      await renderToolbar();
+      await renderToolbar({
+        toolbar: (node) => (
+          <SendMessageModalContext.Provider value={sendMessageContext}>
+            <StepToolbar vizNode={node} />
+          </SendMessageModalContext.Provider>
+        ),
+      });
 
       const sendButton = screen.getByTestId('Test Node|step-toolbar-button-send-message');
       expect(sendButton).toBeInTheDocument();
@@ -129,7 +136,7 @@ describe('StepToolbar', () => {
 
       fireEvent.click(sendButton);
       expect(mockOpenSendMessageModal).toHaveBeenCalledWith({
-        endpoint: 'Test Node',
+        endpoint: SET_HEADER_PATH,
         title: 'Send a test message to Test Node',
       });
     });
