@@ -6,7 +6,7 @@ import { Icon, Tab, Tabs, TabsProps, TabTitleIcon, TabTitleText } from '@pattern
 import { CodeIcon, ExclamationCircleIcon, QuestionIcon } from '@patternfly/react-icons';
 import clsx from 'clsx';
 import { useContext, useMemo, useRef } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router';
 
 import icon_component_datamapper from '../assets/components/datamapper.png';
 import bean from '../assets/eip/bean.png';

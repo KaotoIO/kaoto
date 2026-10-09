@@ -3,7 +3,7 @@ import './styles/carbon-overrides.scss';
 import { isDefined, SuggestionRegistryProvider } from '@kaoto/forms';
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { useLayoutEffect, useMemo } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router';
 
 import { NodeInteractionAddonProvider } from './components/registers/interactions/node-interaction-addon.provider';
 import { RegisterComponents } from './components/registers/RegisterComponents';

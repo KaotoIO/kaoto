@@ -1,7 +1,7 @@
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { render, screen } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 
 import {
   CamelRouteResource,

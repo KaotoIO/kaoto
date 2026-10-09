@@ -11,7 +11,7 @@ import {
 import { Notification } from '@kie-tools-core/notifications/dist/api';
 import { WorkspaceEdit } from '@kie-tools-core/workspace/dist/api';
 import { createRef, RefObject } from 'react';
-import { RouterProvider } from 'react-router-dom';
+import { RouterProvider } from 'react-router';
 
 import { CatalogLoaderProvider } from '../dynamic-catalog/catalog.provider';
 import { CatalogKind, FileTypes, FileTypesResponse, StepUpdateAction } from '../models';

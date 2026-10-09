@@ -6,6 +6,7 @@ import { useEffect, useRef } from 'react';
  * @param enabled - Whether the auto-refresh is enabled (default: true)
  */
 export const useRefreshOnFocus = (refreshCallback: () => void, enabled = true) => {
+  // eslint-disable-next-line react-hooks/purity
   const lastFocusTime = useRef<number>(Date.now());
 
   useEffect(() => {

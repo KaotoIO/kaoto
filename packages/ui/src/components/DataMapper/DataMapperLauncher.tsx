@@ -20,7 +20,7 @@ import { isDefined } from '@kaoto/forms';
 import { Alert, Button, Checkbox, FormGroup, HelperText, HelperTextItem, Popover } from '@patternfly/react-core';
 import { HelpIcon, WrenchIcon } from '@patternfly/react-icons';
 import { type FormEvent, FunctionComponent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import { IVisualizationNode, ValidationResult, ValidationStatus } from '../../models';
 import { DocumentDefinitionType } from '../../models/datamapper/document';

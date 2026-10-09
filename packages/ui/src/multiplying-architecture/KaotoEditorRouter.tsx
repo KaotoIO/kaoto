@@ -1,4 +1,4 @@
-import { createHashRouter } from 'react-router-dom';
+import { createHashRouter } from 'react-router';
 
 import { ErrorPage } from '../pages/ErrorPage';
 import { Links } from '../router/links.models';
