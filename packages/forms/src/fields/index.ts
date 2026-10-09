@@ -17,6 +17,7 @@
  * under the License.
  */
 
+export * from './ArrayBadgesField';
 export * from './ArrayField';
 export * from './AutoField';
 export * from './BooleanField';
