@@ -1,4 +1,12 @@
-import { BaseEdge, DndManager, DndManagerImpl, DndStore, NodeModel, Visualization } from '@patternfly/react-topology';
+import {
+  BaseEdge,
+  DndManager,
+  DndManagerImpl,
+  DndStore,
+  NodeModel,
+  Rect,
+  Visualization,
+} from '@patternfly/react-topology';
 import { act, render, screen } from '@testing-library/react';
 import React from 'react';
 
@@ -9,7 +17,7 @@ import { SettingsProvider } from '../../../../providers/settings.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { TopologyElementWrapper } from '../../../../stubs/topology-element-wrapper';
 import { ControllerService } from '../../Canvas/controller.service';
-import { NODE_DRAG_TYPE } from '../customComponentUtils';
+import { GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
 import { CustomGroupExpanded } from './CustomGroupExpanded';
 
 const GROUP_ID = 'node-choice-1';
@@ -74,6 +82,52 @@ describe('CustomGroupExpanded', () => {
     return vizNode;
   };
 
+  it.each(['self', 'ancestor'] as const)(
+    'dims the SVG body during %s drag and restores it after cancellation',
+    async (dragTarget) => {
+      const vizNode = createChoiceVizNode();
+      const ancestor = createChoiceVizNode({ path: 'route.from.steps.0' });
+      vi.spyOn(vizNode, 'getId').mockReturnValue('route');
+      vi.spyOn(ancestor, 'getId').mockReturnValue('route');
+      createController({ vizNode }, [
+        {
+          id: 'ancestor',
+          type: 'group',
+          group: true,
+          x: 0,
+          y: 0,
+          width: 500,
+          height: 400,
+          data: { vizNode: ancestor },
+        },
+      ]);
+      const element = controller.getNodeById(GROUP_ID)!;
+      const { container } = await renderInContext(<CustomGroupExpanded element={element} />);
+      const body = container.querySelector('.custom-group__body');
+      const dropArea = container.querySelector('.custom-group__drop-area');
+      expect(body).not.toHaveAttribute('opacity');
+      const manager: DndManager = controller.getStore<DndStore>().dndManager;
+      const [source] = manager.registerSource({
+        type: GROUP_DRAG_TYPE,
+        canDrag: () => true,
+        beginDrag: () => (dragTarget === 'self' ? element : controller.getNodeById('ancestor')!),
+        drag: () => {},
+        endDrag: () => {},
+        canCancel: () => true,
+      });
+      act(() => {
+        manager.beginDrag(source, undefined, 10, 10, 10, 10);
+      });
+      expect(body).toHaveAttribute('opacity', '0.5');
+      expect(dropArea).not.toHaveAttribute('opacity');
+      await act(async () => {
+        manager.cancel();
+        await manager.endDrag();
+      });
+      expect(body).not.toHaveAttribute('opacity');
+    },
+  );
+
   it('should throw when element is not a Node', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     const edgeElement = new BaseEdge();
@@ -102,6 +156,63 @@ describe('CustomGroupExpanded', () => {
     const group = await screen.findByTestId('custom-group__choice-1');
     expect(group).toBeInTheDocument();
     expect(group).toHaveAttribute('data-grouplabel', 'Choice');
+  });
+
+  it('includes room for the group shadow inside the foreignObject paint bounds', async () => {
+    const vizNode = createChoiceVizNode();
+    createController({ vizNode });
+    const element = controller.getNodeById(GROUP_ID)!;
+    await renderInContext(<CustomGroupExpanded element={element} />);
+
+    const group = await screen.findByTestId('custom-group__choice-1');
+    const body = group.querySelector('foreignObject.custom-group__body');
+    expect(body).toHaveAttribute('x', '-24');
+    expect(body).toHaveAttribute('y', '-24');
+    expect(body).toHaveAttribute('width', '148');
+    expect(body).toHaveAttribute('height', '98');
+    const dropArea = group.querySelector('rect.custom-group__drop-area');
+    expect(dropArea).toHaveAttribute('x', '0');
+    expect(dropArea).toHaveAttribute('y', '0');
+    expect(dropArea).toHaveAttribute('width', '100');
+    expect(dropArea).toHaveAttribute('height', '50');
+
+    act(() => {
+      element.setBounds(new Rect(40, 60, 200, 100));
+    });
+
+    expect(body).toHaveAttribute('x', '16');
+    expect(body).toHaveAttribute('y', '36');
+    expect(body).toHaveAttribute('width', '248');
+    expect(body).toHaveAttribute('height', '148');
+    expect(dropArea).toHaveAttribute('x', '40');
+    expect(dropArea).toHaveAttribute('y', '60');
+    expect(dropArea).toHaveAttribute('width', '200');
+    expect(dropArea).toHaveAttribute('height', '100');
+  });
+
+  it('keeps the SVG focus ring around the group when its bounds change', async () => {
+    const vizNode = createChoiceVizNode();
+    createController({ vizNode });
+    const element = controller.getNodeById(GROUP_ID)!;
+    await renderInContext(<CustomGroupExpanded element={element} selected />);
+
+    const group = await screen.findByTestId('custom-group__choice-1');
+    const ring = group.querySelector(':scope > rect.custom-group__focus-ring');
+    expect(ring).toBeInTheDocument();
+    expect(ring).toHaveAttribute('aria-hidden', 'true');
+    expect(ring).toHaveAttribute('x', '-3.5');
+    expect(ring).toHaveAttribute('y', '-3.5');
+    expect(ring).toHaveAttribute('width', '107');
+    expect(ring).toHaveAttribute('height', '57');
+
+    act(() => {
+      element.setBounds(new Rect(40, 60, 200, 100));
+    });
+
+    expect(ring).toHaveAttribute('x', '36.5');
+    expect(ring).toHaveAttribute('y', '56.5');
+    expect(ring).toHaveAttribute('width', '207');
+    expect(ring).toHaveAttribute('height', '107');
   });
 
   it('should fall back to iconAlt for the image alt text when description is empty', async () => {
