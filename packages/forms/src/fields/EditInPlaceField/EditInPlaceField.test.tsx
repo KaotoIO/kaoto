@@ -3,9 +3,9 @@ import { JSONSchema4 } from 'json-schema';
 
 import { ModelContextProvider, SchemaProvider } from '../../providers';
 import { KaotoFormPageObject } from '../../testing/KaotoFormPageObject';
-import { UriField } from './UriField';
+import { EditInPlaceField } from './EditInPlaceField';
 
-describe('UriField', () => {
+describe('EditInPlaceField', () => {
   const PROP_NAME = 'uri';
   const schema: JSONSchema4 = {
     title: 'Uri',
@@ -17,7 +17,7 @@ describe('UriField', () => {
     render(
       <SchemaProvider schema={schema}>
         <ModelContextProvider model={model} onPropertyChange={onChange}>
-          <UriField propName={PROP_NAME} />
+          <EditInPlaceField propName={PROP_NAME} />
         </ModelContextProvider>
       </SchemaProvider>,
     );
@@ -30,7 +30,7 @@ describe('UriField', () => {
     const valueElement = formPageObject.getUriInputForProperty(PROP_NAME);
     expect(valueElement).toHaveValue('timer:test');
 
-    const editButton = screen.getByTestId('uri--edit');
+    const editButton = screen.getByRole('button', { name: /Edit Uri/i });
     expect(editButton).toBeInTheDocument();
   });
 
@@ -42,7 +42,7 @@ describe('UriField', () => {
     expect(valueElement).toHaveValue('');
     expect(valueElement).toHaveAttribute('placeholder', "Click to add 'uri'");
 
-    const editButton = screen.getByTestId('uri--edit');
+    const editButton = screen.getByRole('button', { name: /Edit Uri/i });
     expect(editButton).toBeInTheDocument();
   });
 
@@ -62,8 +62,9 @@ describe('UriField', () => {
     const formPageObject = new KaotoFormPageObject(screen, act);
     await formPageObject.editUriForProperty(PROP_NAME);
 
-    const input = screen.getByTestId('uri--text-input');
-    fireEvent.change(input, { target: { value: 'timer:newtest' } });
+    const input = formPageObject.getUriInputForProperty(PROP_NAME);
+    expect(input).toBeDefined();
+    fireEvent.change(input!, { target: { value: 'timer:newtest' } });
 
     await formPageObject.saveUriForProperty(PROP_NAME);
 
@@ -77,8 +78,9 @@ describe('UriField', () => {
     const formPageObject = new KaotoFormPageObject(screen, act);
     await formPageObject.editUriForProperty(PROP_NAME);
 
-    const input = screen.getByTestId('uri--text-input');
-    fireEvent.change(input, { target: { value: '' } });
+    const input = formPageObject.getUriInputForProperty(PROP_NAME);
+    expect(input).toBeDefined();
+    fireEvent.change(input!, { target: { value: '' } });
 
     await formPageObject.saveUriForProperty(PROP_NAME);
 
@@ -92,8 +94,9 @@ describe('UriField', () => {
     const formPageObject = new KaotoFormPageObject(screen, act);
     await formPageObject.editUriForProperty(PROP_NAME);
 
-    const input = screen.getByTestId('uri--text-input');
-    fireEvent.change(input, { target: { value: 'timer:newtest' } });
+    const input = formPageObject.getUriInputForProperty(PROP_NAME);
+    expect(input).toBeDefined();
+    fireEvent.change(input!, { target: { value: 'timer:newtest' } });
 
     await formPageObject.cancelUriForProperty(PROP_NAME);
 
