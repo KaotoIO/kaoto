@@ -170,9 +170,12 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
   const onUpdateRootElement = useCallback(
     (option: RootElementOption) => {
       if (!createDocumentResult?.document || !createDocumentResult?.documentDefinition) return;
-      createDocumentResult.documentDefinition.rootElementChoice = option;
       const updatedDoc = DocumentService.updateRootElement(createDocumentResult.document, option);
-      setCreateDocumentResult({ ...createDocumentResult, document: updatedDoc });
+      setCreateDocumentResult({
+        ...createDocumentResult,
+        document: updatedDoc,
+        documentDefinition: updatedDoc.definition,
+      });
     },
     [createDocumentResult],
   );

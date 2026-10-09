@@ -13,12 +13,12 @@ import {
   TextInput,
 } from '@patternfly/react-core';
 import { ExclamationCircleIcon, ExclamationTriangleIcon } from '@patternfly/react-icons';
-import { FormEvent, FunctionComponent, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FormEvent, FunctionComponent, MouseEvent, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { IExpressionHolder } from '../../../models/datamapper/mapping';
 import { ExpressionHolderNodeData } from '../../../models/datamapper/visualization';
+import { MappingService } from '../../../services/mapping/mapping.service';
 import { XPathService } from '../../../services/xpath/xpath.service';
-import { ValidatedXPathParseResult } from '../../../services/xpath/xpath-model';
 import { useDocumentTreeStore } from '../../../store/document-tree.store';
 
 type XPathInputProps = {
@@ -27,22 +27,13 @@ type XPathInputProps = {
   onUpdate: () => void;
 };
 export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ nodeData, mapping, onUpdate }) => {
-  const [validationResult, setValidationResult] = useState<ValidatedXPathParseResult>();
+  const validationResult = useMemo(() => XPathService.validate(mapping.expression), [mapping.expression]);
   const inputRef = useRef<HTMLInputElement>(null);
   const mappingNodePath = nodeData.mapping?.nodePath.toString() ?? '';
 
   // Check if this mapping should receive focus from the store
   const shouldFocus = useDocumentTreeStore((state) => state.shouldFocusXPathInput(mappingNodePath));
   const clearFocusRequest = useDocumentTreeStore((state) => state.clearXPathInputFocusRequest);
-
-  const validateXPath = useCallback(() => {
-    const result = XPathService.validate(mapping.expression);
-    setValidationResult(result);
-  }, [mapping.expression]);
-
-  useEffect(() => {
-    validateXPath();
-  }, [validateXPath]);
 
   // Focus input field when store indicates this mapping should be focused
   useEffect(() => {
@@ -56,7 +47,7 @@ export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ nodeData,
     (event: FormEvent, value: string) => {
       event.stopPropagation();
       if (mapping) {
-        mapping.expression = value;
+        MappingService.updateExpression(mapping, value);
         onUpdate();
       }
     },

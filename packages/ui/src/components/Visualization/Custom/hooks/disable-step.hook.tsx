@@ -1,5 +1,5 @@
 import { setValue } from '@kaoto/forms';
-import { useCallback, useContext, useMemo, useRef } from 'react';
+import { useCallback, useContext, useLayoutEffect, useMemo, useRef } from 'react';
 
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { EntitiesContext } from '../../../../providers/entities.provider';
@@ -10,10 +10,12 @@ export const useDisableStep = (vizNode: IVisualizationNode) => {
   const isDisabled = !!parsedDefinition?.disabled;
 
   const parsedDefinitionRef = useRef(parsedDefinition);
-  parsedDefinitionRef.current = parsedDefinition;
 
   const isDisabledRef = useRef(isDisabled);
-  isDisabledRef.current = isDisabled;
+  useLayoutEffect(() => {
+    parsedDefinitionRef.current = parsedDefinition;
+    isDisabledRef.current = isDisabled;
+  }, [parsedDefinition, isDisabled]);
 
   const onToggleDisableNode = useCallback(() => {
     const newModel = parsedDefinitionRef.current;

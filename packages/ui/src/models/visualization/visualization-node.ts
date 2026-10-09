@@ -143,6 +143,24 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     this.lastUpdate = Date.now();
   }
 
+  /** Replace the endpoint processor while retaining its definition and node identity. */
+  switchComponentMode(processorName: string): boolean {
+    const rootPath = this.data.path?.split('.').slice(0, -1).join('.');
+    const definition = this.data.definition;
+    const primaryNodeId = this.data.primaryNodeId;
+    if (!rootPath || !definition || !primaryNodeId) return false;
+
+    this.data = { ...this.data, path: rootPath };
+    this.updateModel(undefined);
+    this.data = {
+      ...this.data,
+      path: `${rootPath}.${processorName}`,
+      primaryNodeId: { ...primaryNodeId, name: processorName },
+    };
+    this.updateModel(definition);
+    return true;
+  }
+
   getParentNode(): IVisualizationNode | undefined {
     return this.parentNode;
   }

@@ -17,6 +17,11 @@ export const NodeInteractionAddonProvider: FunctionComponent<PropsWithChildren> 
 
   const registerInteractionAddon = useCallback((interaction: IRegisteredInteractionAddon) => {
     registeredInteractionAddons.current.push(interaction);
+    return () => {
+      registeredInteractionAddons.current = registeredInteractionAddons.current.filter(
+        (addon) => addon !== interaction,
+      );
+    };
   }, []);
 
   const getRegisteredInteractionAddons = useCallback((interaction: IInteractionType, vizNode?: IVisualizationNode) => {

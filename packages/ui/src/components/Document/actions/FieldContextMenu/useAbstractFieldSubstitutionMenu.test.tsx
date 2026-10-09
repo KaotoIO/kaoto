@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, renderHook, screen } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
 import {
@@ -29,6 +29,7 @@ import { getFieldSubstitutionXsd } from '../../../../stubs/datamapper/data-mappe
 import { QName } from '../../../../xml-schema-ts/QName';
 import { SourceDocumentNodeWithContextMenu } from '../../SourceDocumentNode';
 import { TargetDocumentNodeWithContextMenu } from '../../TargetDocumentNode';
+import { useAbstractFieldSubstitutionMenu } from './useAbstractFieldSubstitutionMenu';
 
 const NS_SUBSTITUTION = 'http://www.example.com/SUBSTITUTION';
 
@@ -66,6 +67,22 @@ describe('useAbstractFieldSubstitutionMenu', () => {
 
     return { document, documentNodeData, abstractNode, abstractAnimalField };
   };
+
+  it('should refresh the selected candidate when the existing field changes', () => {
+    const { abstractNode, abstractAnimalField } = createAbstractFieldNode(false);
+    const { result, rerender } = renderHook(() => useAbstractFieldSubstitutionMenu(abstractNode.nodeData), { wrapper });
+    const hasClearAction = () =>
+      result.current.groups.some((group) => group.actions.some((action) => action.label === 'Clear substitution'));
+
+    expect(hasClearAction()).toBe(false);
+    abstractAnimalField.selectedMemberQName = new QName(NS_SUBSTITUTION, 'Cat');
+    rerender();
+    expect(hasClearAction()).toBe(true);
+
+    abstractAnimalField.selectedMemberQName = undefined;
+    rerender();
+    expect(hasClearAction()).toBe(false);
+  });
 
   it('should show inline substitution candidates when abstract field has candidates', () => {
     const { documentNodeData, abstractNode } = createAbstractFieldNode(false);

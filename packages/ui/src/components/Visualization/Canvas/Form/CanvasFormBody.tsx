@@ -1,5 +1,5 @@
 import { isDefined, KaotoForm } from '@kaoto/forms';
-import { FunctionComponent, useCallback, useContext, useMemo, useRef } from 'react';
+import { FunctionComponent, useCallback, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import { IVisualizationNode } from '../../../../models';
 import { EntitiesContext } from '../../../../providers/entities.provider';
@@ -14,7 +14,7 @@ interface CanvasFormTabsProps {
 
 export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = ({ vizNode }) => {
   const entitiesContext = useContext(EntitiesContext);
-  const omitFields = useRef(vizNode.getOmitFormFields() ?? []);
+  const [omitFields] = useState(() => vizNode.getOmitFormFields() ?? []);
   const schema = vizNode.data.schema;
 
   const isUnknownComponent = useMemo(() => {
@@ -26,7 +26,9 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = ({ vizNode
   // Keep a ref to the current model so that handleOnChangeIndividualProp always writes
   // back to the same object that the form is rendering.
   const modelRef = useRef(model);
-  modelRef.current = model;
+  useLayoutEffect(() => {
+    modelRef.current = model;
+  }, [model]);
 
   const handleOnChangeIndividualProp = useCallback(
     (path: string, value: unknown) => {
@@ -57,7 +59,7 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = ({ vizNode
         schema={schema}
         onChangeProp={handleOnChangeIndividualProp}
         model={model}
-        omitFields={omitFields.current}
+        omitFields={omitFields}
         customFieldsFactory={customFieldsFactoryfactory}
       />
     </SuggestionRegistrar>

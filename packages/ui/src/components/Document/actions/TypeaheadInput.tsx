@@ -12,7 +12,7 @@ import {
   TextInputGroupUtilities,
 } from '@patternfly/react-core';
 import { TimesIcon } from '@patternfly/react-icons';
-import { FunctionComponent, Ref, useCallback, useMemo, useRef, useState } from 'react';
+import { FunctionComponent, Ref, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 export interface TypeaheadInputOption {
   value: string;
@@ -47,7 +47,9 @@ export const TypeaheadInput: FunctionComponent<TypeaheadInputProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const inputValueRef = useRef(inputValue);
-  inputValueRef.current = inputValue;
+  useLayoutEffect(() => {
+    inputValueRef.current = inputValue;
+  }, [inputValue]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const filteredOptions = useMemo(() => {

@@ -1,6 +1,6 @@
 import { Choices } from '@carbon/icons-react';
 import { CheckIcon } from '@patternfly/react-icons';
-import { useCallback, useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { IField } from '../../../../models/datamapper/document';
@@ -33,47 +33,38 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
 
   const [isChoiceModalOpen, setIsChoiceModalOpen] = useState(false);
 
-  const dissolved = useMemo(() => {
+  const dissolved = (() => {
     const members = effectiveChoiceWrapper?.fields ?? [];
     return ChoiceFieldService.dissolveChoiceMembers(members, mappingTree.namespaceMap);
-  }, [effectiveChoiceWrapper?.fields, mappingTree.namespaceMap]);
+  })();
 
-  const applyChoiceSelection = useCallback(
-    (wrapper: IField, selection: IMemberSelection) => {
-      ChoiceFieldService.dispatchChoiceSelection(nodeData, wrapper, selection, mappingTree.namespaceMap, isTargetSide);
-      const doc = wrapper.ownerDocument;
-      const previousRefId = doc.getReferenceId(mappingTree.namespaceMap);
-      updateDocument(doc, doc.definition, previousRefId);
-    },
-    [isTargetSide, mappingTree.namespaceMap, nodeData, updateDocument],
-  );
+  const applyChoiceSelection = (wrapper: IField, selection: IMemberSelection) => {
+    ChoiceFieldService.dispatchChoiceSelection(nodeData, wrapper, selection, mappingTree.namespaceMap, isTargetSide);
+    const doc = wrapper.ownerDocument;
+    const previousRefId = doc.getReferenceId(mappingTree.namespaceMap);
+    updateDocument(doc, doc.definition, previousRefId);
+  };
 
-  const applyClearChoice = useCallback(
-    (wrapper: IField) => {
-      ChoiceFieldService.clearChoiceSelectionOnField(nodeData, wrapper, mappingTree.namespaceMap, isTargetSide);
-      const doc = wrapper.ownerDocument;
-      const previousRefId = doc.getReferenceId(mappingTree.namespaceMap);
-      updateDocument(doc, doc.definition, previousRefId);
-    },
-    [isTargetSide, mappingTree.namespaceMap, nodeData, updateDocument],
-  );
+  const applyClearChoice = (wrapper: IField) => {
+    ChoiceFieldService.clearChoiceSelectionOnField(nodeData, wrapper, mappingTree.namespaceMap, isTargetSide);
+    const doc = wrapper.ownerDocument;
+    const previousRefId = doc.getReferenceId(mappingTree.namespaceMap);
+    updateDocument(doc, doc.definition, previousRefId);
+  };
 
   // Case A: select a member from this node's own wrapper member list
-  const handleSelectChoiceMember = useCallback(
-    (selection: IMemberSelection) => {
-      const wrapper = ChoiceFieldService.resolveChoiceWrapper(
-        isChoiceWrapperMember,
-        choiceWrapperMemberField,
-        activeChoiceWrapperForMembers,
-      );
-      if (!wrapper) return;
-      applyChoiceSelection(wrapper, selection);
-    },
-    [isChoiceWrapperMember, choiceWrapperMemberField, activeChoiceWrapperForMembers, applyChoiceSelection],
-  );
+  const handleSelectChoiceMember = (selection: IMemberSelection) => {
+    const wrapper = ChoiceFieldService.resolveChoiceWrapper(
+      isChoiceWrapperMember,
+      choiceWrapperMemberField,
+      activeChoiceWrapperForMembers,
+    );
+    if (!wrapper) return;
+    applyChoiceSelection(wrapper, selection);
+  };
 
   // Case A/B: clear selection on this node's active wrapper, cascading to parent when empty
-  const handleClearChoice = useCallback(() => {
+  const handleClearChoice = () => {
     const wrapper = ChoiceFieldService.resolveChoiceWrapper(
       isChoiceWrapperMember,
       choiceWrapperMemberField,
@@ -91,24 +82,17 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
     }
 
     applyClearChoice(wrapper);
-  }, [
-    isChoiceWrapperMember,
-    choiceWrapperMemberField,
-    activeChoiceWrapperForMembers,
-    isNestedSelectedChoice,
-    nodeData,
-    applyClearChoice,
-  ]);
+  };
 
-  const handleOpenChoiceModal = useCallback(() => {
+  const handleOpenChoiceModal = () => {
     setIsChoiceModalOpen(true);
-  }, []);
+  };
 
   // Case C: select this member within the parent choice wrapper
-  const handleSelectSelfAsChoiceMember = useCallback(() => {
+  const handleSelectSelfAsChoiceMember = () => {
     if (!parentChoiceWrapperField || choiceMemberIndex === undefined) return;
     applyChoiceSelection(parentChoiceWrapperField, { memberIndex: choiceMemberIndex });
-  }, [parentChoiceWrapperField, choiceMemberIndex, applyChoiceSelection]);
+  };
 
   const clearChoiceAction: IFieldMenuAction = {
     label: 'Clear selection',
@@ -133,28 +117,20 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
     testId: 'change-choice-member',
   };
 
-  const memberSelectedKey = useMemo<string | null>(
-    () =>
-      isChoiceWrapperMember
-        ? ChoiceFieldService.resolveMemberSelectedKey(
-            nodeData,
-            choiceWrapperMemberField,
-            dissolved,
-            mappingTree.namespaceMap,
-          )
-        : null,
-    [isChoiceWrapperMember, nodeData, choiceWrapperMemberField, dissolved, mappingTree.namespaceMap],
-  );
-
-  const selectedModalKey = useMemo<string | null>(
-    () =>
-      ChoiceFieldService.resolveSelectedModalKey(
-        isChoiceWrapperMember,
-        memberSelectedKey,
-        activeChoiceWrapperForMembers,
+  const memberSelectedKey = isChoiceWrapperMember
+    ? ChoiceFieldService.resolveMemberSelectedKey(
+        nodeData,
+        choiceWrapperMemberField,
         dissolved,
-      ),
-    [isChoiceWrapperMember, memberSelectedKey, activeChoiceWrapperForMembers, dissolved],
+        mappingTree.namespaceMap,
+      )
+    : null;
+
+  const selectedModalKey = ChoiceFieldService.resolveSelectedModalKey(
+    isChoiceWrapperMember,
+    memberSelectedKey,
+    activeChoiceWrapperForMembers,
+    dissolved,
   );
 
   const menuGroups = ChoiceFieldService.buildMenuGroups({
@@ -173,9 +149,9 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
     unselectedIcon: <Choices />,
   });
 
-  const closeChoiceModal = useCallback(() => {
+  const closeChoiceModal = () => {
     setIsChoiceModalOpen(false);
-  }, []);
+  };
 
   const effectiveWrapper = ChoiceFieldService.resolveChoiceWrapper(
     isChoiceWrapperMember,

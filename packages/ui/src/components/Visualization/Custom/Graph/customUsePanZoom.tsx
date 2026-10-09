@@ -15,7 +15,7 @@ import {
 import * as d3 from 'd3';
 import { action, autorun, IReactionDisposer } from 'mobx';
 import { observer } from 'mobx-react';
-import { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useLayoutEffect, useRef } from 'react';
 
 export type PanZoomRef = (node: SVGGElement | null) => void;
 
@@ -53,7 +53,9 @@ export const usePanZoom = (options: PanZoomOptions = {}): PanZoomRef => {
     throw new Error('usePanZoom must be used within the scope of a Graph');
   }
   const elementRef = useRef<Graph>(element);
-  elementRef.current = element;
+  useLayoutEffect(() => {
+    elementRef.current = element;
+  }, [element]);
 
   // Refs for spacebar panning (refs instead of state to avoid re-renders
   // that would tear down and recreate the D3 zoom behavior)

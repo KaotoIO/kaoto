@@ -1,6 +1,6 @@
 import { Choices } from '@carbon/icons-react';
 import { CheckIcon } from '@patternfly/react-icons';
-import { useCallback, useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { IField } from '../../../../models/datamapper/document';
@@ -28,70 +28,55 @@ export function useAbstractFieldSubstitutionMenu(nodeData: NodeData): MenuContri
 
   const [isSubstitutionModalOpen, setIsSubstitutionModalOpen] = useState(false);
 
-  const candidates = useMemo(
-    () => AbstractFieldService.resolveSubstitutionCandidates(abstractWrapperField, mappingTree.namespaceMap),
-    [abstractWrapperField, mappingTree.namespaceMap],
-  );
+  const candidates = AbstractFieldService.resolveSubstitutionCandidates(abstractWrapperField, mappingTree.namespaceMap);
 
-  const selectedQName = useMemo(
-    () => AbstractFieldService.resolveSelectedQName(abstractWrapperField, candidates),
-    [abstractWrapperField, candidates],
-  );
+  const selectedQName = AbstractFieldService.resolveSelectedQName(abstractWrapperField, candidates);
 
   const isTargetSide = !nodeData.isSource;
 
-  const applySubstitution = useCallback(
-    (wrapperField: IField, qname: string) => {
-      AbstractFieldService.applyAbstractSubstitution(
-        nodeData,
-        wrapperField,
-        qname,
-        candidates,
-        abstractWrapperField,
-        mappingTree.namespaceMap,
-        isTargetSide,
-      );
-      const doc = wrapperField.ownerDocument;
-      const previousRefId = doc.getReferenceId(mappingTree.namespaceMap);
-      updateDocument(doc, doc.definition, previousRefId);
-    },
-    [isTargetSide, candidates, abstractWrapperField, mappingTree.namespaceMap, nodeData, updateDocument],
-  );
+  const applySubstitution = (wrapperField: IField, qname: string) => {
+    AbstractFieldService.applyAbstractSubstitution(
+      nodeData,
+      wrapperField,
+      qname,
+      candidates,
+      abstractWrapperField,
+      mappingTree.namespaceMap,
+      isTargetSide,
+    );
+    const doc = wrapperField.ownerDocument;
+    const previousRefId = doc.getReferenceId(mappingTree.namespaceMap);
+    updateDocument(doc, doc.definition, previousRefId);
+  };
 
-  const applyClearSubstitution = useCallback(
-    (wrapperField: IField) => {
-      AbstractFieldService.clearAbstractSubstitution(nodeData, wrapperField, mappingTree.namespaceMap, isTargetSide);
-      const doc = wrapperField.ownerDocument;
-      const previousRefId = doc.getReferenceId(mappingTree.namespaceMap);
-      updateDocument(doc, doc.definition, previousRefId);
-    },
-    [isTargetSide, mappingTree.namespaceMap, nodeData, updateDocument],
-  );
+  const applyClearSubstitution = (wrapperField: IField) => {
+    AbstractFieldService.clearAbstractSubstitution(nodeData, wrapperField, mappingTree.namespaceMap, isTargetSide);
+    const doc = wrapperField.ownerDocument;
+    const previousRefId = doc.getReferenceId(mappingTree.namespaceMap);
+    updateDocument(doc, doc.definition, previousRefId);
+  };
 
   // Case A: select a substitute from this node's own wrapper candidate list
-  const handleSelectSubstitution = useCallback(
-    (qname: string) => {
-      if (!abstractWrapperField) return;
-      applySubstitution(abstractWrapperField, qname);
-    },
-    [abstractWrapperField, applySubstitution],
-  );
+  const handleSelectSubstitution = (qname: string) => {
+    if (!abstractWrapperField) return;
+    applySubstitution(abstractWrapperField, qname);
+  };
 
   // Case A/B: clear substitution on this node's wrapper (or the selected wrapper)
-  const handleClearSubstitution = useCallback(() => {
+  const handleClearSubstitution = () => {
     if (!abstractWrapperField) return;
     applyClearSubstitution(abstractWrapperField);
-  }, [abstractWrapperField, applyClearSubstitution]);
+  };
 
-  const handleOpenSubstitutionModal = useCallback(() => {
+  const handleOpenSubstitutionModal = () => {
     setIsSubstitutionModalOpen(true);
-  }, []);
+  };
 
   // Case C: select this candidate within the parent abstract wrapper
-  const handleSelectSelfAsCandidate = useCallback(() => {
+  const handleSelectSelfAsCandidate = () => {
     if (!parentAbstractField || !candidateQName) return;
     applySubstitution(parentAbstractField, candidateQName);
-  }, [parentAbstractField, candidateQName, applySubstitution]);
+  };
 
   const clearSubstitutionAction: IFieldMenuAction = {
     label: 'Clear substitution',
@@ -114,10 +99,11 @@ export function useAbstractFieldSubstitutionMenu(nodeData: NodeData): MenuContri
     testId: 'change-substitution',
   };
 
-  const memberSelectedQName = useMemo(
-    () =>
-      AbstractFieldService.resolveMemberSelectedQName(isAbstractWrapperMember, field, abstractWrapperField, candidates),
-    [isAbstractWrapperMember, field, abstractWrapperField, candidates],
+  const memberSelectedQName = AbstractFieldService.resolveMemberSelectedQName(
+    isAbstractWrapperMember,
+    field,
+    abstractWrapperField,
+    candidates,
   );
 
   const menuGroups = AbstractFieldService.buildMenuGroups({
@@ -137,24 +123,17 @@ export function useAbstractFieldSubstitutionMenu(nodeData: NodeData): MenuContri
     unselectedIcon: <Choices />,
   });
 
-  const closeSubstitutionModal = useCallback(() => {
+  const closeSubstitutionModal = () => {
     setIsSubstitutionModalOpen(false);
-  }, []);
+  };
 
-  const modalCandidates = useMemo(
-    () =>
-      abstractWrapperField
-        ? AbstractFieldService.buildAbstractCandidates(abstractWrapperField, mappingTree.namespaceMap)
-        : [],
-    [abstractWrapperField, mappingTree.namespaceMap],
-  );
+  const modalCandidates = abstractWrapperField
+    ? AbstractFieldService.buildAbstractCandidates(abstractWrapperField, mappingTree.namespaceMap)
+    : [];
 
-  const handleModalSelect = useCallback(
-    (selection: IMemberSelection) => {
-      if (selection.substituteQName) handleSelectSubstitution(selection.substituteQName);
-    },
-    [handleSelectSubstitution],
-  );
+  const handleModalSelect = (selection: IMemberSelection) => {
+    if (selection.substituteQName) handleSelectSubstitution(selection.substituteQName);
+  };
 
   const fieldName = abstractWrapperField?.displayName || abstractWrapperField?.name || 'Abstract';
 

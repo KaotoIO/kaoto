@@ -1,5 +1,5 @@
 import { ButtonVariant } from '@patternfly/react-core';
-import { FunctionComponent, PropsWithChildren, useContext, useRef } from 'react';
+import { FunctionComponent, PropsWithChildren, useContext, useEffect, useState } from 'react';
 
 import { MetadataContext } from '../../providers';
 import { onCopyDataMapper } from '../DataMapper/on-copy-datamapper';
@@ -24,7 +24,7 @@ import { NodeInteractionAddonContext } from './interactions/node-interaction-add
 export const RegisterNodeInteractionAddons: FunctionComponent<PropsWithChildren> = ({ children }) => {
   const metadataApi = useContext(MetadataContext);
   const { registerInteractionAddon } = useContext(NodeInteractionAddonContext);
-  const addonsToRegister = useRef<IRegisteredInteractionAddon[]>([
+  const [addonsToRegister] = useState<IRegisteredInteractionAddon[]>(() => [
     {
       type: IInteractionType.ON_DELETE,
       activationFn: datamapperActivationFn,
@@ -67,9 +67,12 @@ export const RegisterNodeInteractionAddons: FunctionComponent<PropsWithChildren>
     } as IOnPasteAddon,
   ]);
 
-  for (const interaction of addonsToRegister.current) {
-    registerInteractionAddon(interaction);
-  }
+  useEffect(() => {
+    const unregister = addonsToRegister.map(registerInteractionAddon);
+    return () => {
+      unregister.forEach((cleanup) => cleanup?.());
+    };
+  }, [addonsToRegister, registerInteractionAddon]);
 
   return <>{children}</>;
 };

@@ -9,7 +9,7 @@ import {
   TypeaheadItem,
   useFieldValue,
 } from '@kaoto/forms';
-import { FunctionComponent, Suspense, use, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { FunctionComponent, Suspense, use, useCallback, useContext, useMemo, useState } from 'react';
 
 import { KaotoSchemaDefinition } from '../../../../../../models/kaoto-schema';
 import { BeansEntityHandler } from '../../../../../../models/visualization/metadata/beans-entity-handler';
@@ -61,14 +61,14 @@ const BeanFieldBase: FunctionComponent<BeanFieldProps> = ({
   const entitiesContext = useContext(EntitiesContext);
   const camelResource = entitiesContext?.camelResource;
   const beansHandler = useMemo(() => new BeansEntityHandler(camelResource), [camelResource]);
-  const beanSchemaPromiseRef = useRef<Promise<KaotoSchemaDefinition['schema'] | undefined> | undefined>(undefined);
+  const [beanSchemaPromise, setBeanSchemaPromise] = useState<Promise<KaotoSchemaDefinition['schema'] | undefined>>();
 
   const { schema } = useContext(SchemaContext);
   const { value = '', onChange, disabled } = useFieldValue<string | undefined>(propName);
   const beanReference = value;
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>(beanReference);
-  const [lastUpdated, setLastUpdated] = useState<number>(Date.now());
+  const [lastUpdated, setLastUpdated] = useState<number>(() => Date.now());
 
   const items = useMemo(() => {
     const beanItems =
@@ -124,11 +124,13 @@ const BeanFieldBase: FunctionComponent<BeanFieldProps> = ({
         }
         // Only creating a bean needs its catalog schema. Source refreshes must
         // update the existing endpoint fields without suspending their rendering.
-        beanSchemaPromiseRef.current = beansHandler.getBeanSchema().catch((error) => {
-          console.error('Failed to get bean schema:', error);
-          setIsOpen(false);
-          return undefined;
-        });
+        setBeanSchemaPromise(
+          beansHandler.getBeanSchema().catch((error) => {
+            console.error('Failed to get bean schema:', error);
+            setIsOpen(false);
+            return undefined;
+          }),
+        );
         setIsOpen(true);
       }
     },
@@ -189,10 +191,10 @@ const BeanFieldBase: FunctionComponent<BeanFieldProps> = ({
         />
       </FieldWrapper>
 
-      {isOpen && beanSchemaPromiseRef.current && (
+      {isOpen && beanSchemaPromise && (
         <Suspense fallback={<Loading />}>
           <NewBeanModalWithSchema
-            beanSchemaPromise={beanSchemaPromiseRef.current}
+            beanSchemaPromise={beanSchemaPromise}
             beanName={beanName}
             propertyTitle={schema.title ?? ''}
             javaType={javaType}

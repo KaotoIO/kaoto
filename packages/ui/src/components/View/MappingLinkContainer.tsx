@@ -1,6 +1,6 @@
 import './MappingLinkContainer.scss';
 
-import { FunctionComponent, useRef as useReactRef } from 'react';
+import { FunctionComponent, useLayoutEffect, useRef as useReactRef, useState } from 'react';
 
 import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { ConnectionPortRef, LineProps, MappingLineStyle } from '../../models/datamapper';
@@ -42,10 +42,15 @@ export const MappingLinksContainer: FunctionComponent = () => {
   const svgRef = useReactRef<SVGSVGElement | null>(null);
   const mappingLinks = getMappingLinks();
 
-  // Get SVG container offset to convert absolute coordinates to relative
-  const svgRect = svgRef.current?.getBoundingClientRect();
-  const svgOffsetLeft = svgRect?.left ?? 0;
-  const svgOffsetTop = svgRect?.top ?? 0;
+  // Measure after the DOM commits; rendering uses the last committed offset.
+  const [svgOffset, setSvgOffset] = useState({ left: 0, top: 0 });
+  useLayoutEffect(() => {
+    const rect = svgRef.current?.getBoundingClientRect();
+    const left = rect?.left ?? 0;
+    const top = rect?.top ?? 0;
+    setSvgOffset((previous) => (previous.left === left && previous.top === top ? previous : { left, top }));
+  }, [svgRef, mappingLinks, nodesConnectionPorts, nodesConnectionPortsArray, expansionState, expansionStateArray]);
+  const { left: svgOffsetLeft, top: svgOffsetTop } = svgOffset;
 
   const lineCoordList: LineProps[] = mappingLinks
     .map((link) => {

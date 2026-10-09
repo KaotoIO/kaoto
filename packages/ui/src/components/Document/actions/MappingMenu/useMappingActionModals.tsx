@@ -57,7 +57,7 @@ export function useMappingActionModals(mapping: MappingItem | undefined, onUpdat
     setIsAddFieldOpen(false);
   }, []);
 
-  const { ancestorFieldItem, forEachContext } = useMemo(() => {
+  const { ancestorFieldItem, forEachContext } = (() => {
     if (!mapping) return { ancestorFieldItem: undefined, forEachContext: false };
     let forEach = mapping instanceof ForEachItem || mapping instanceof ForEachGroupItem;
     let current = mapping.parent;
@@ -67,7 +67,7 @@ export function useMappingActionModals(mapping: MappingItem | undefined, onUpdat
       current = current.parent;
     }
     return { ancestorFieldItem: undefined, forEachContext: forEach };
-  }, [mapping]);
+  })();
 
   const addFieldData = (() => {
     if (!ancestorFieldItem || !mapping) return undefined;

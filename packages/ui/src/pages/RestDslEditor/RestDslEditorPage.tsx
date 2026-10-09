@@ -42,14 +42,23 @@ export const RestDslEditorPage: FunctionComponent = () => {
   const selectedEntity = restRelatedEntities.find((entity) => entity.id === entityId);
   const [parsedModel, setParsedModel] = useState<unknown>(undefined);
 
-  useEffect(() => {
-    let cancelled = false;
+  const [schemaRequest, setSchemaRequest] = useState({ selectedEntity, entityId, modelPath, name });
+  if (
+    schemaRequest.selectedEntity !== selectedEntity ||
+    schemaRequest.entityId !== entityId ||
+    schemaRequest.modelPath !== modelPath ||
+    schemaRequest.name !== name
+  ) {
+    setSchemaRequest({ selectedEntity, entityId, modelPath, name });
     setParsedModel(undefined);
     setSchema(undefined);
+    setIsSchemaLoading(!!selectedEntity && !!modelPath && !!ids);
+  }
 
+  useEffect(() => {
+    let cancelled = false;
     if (!selectedEntity || !modelPath || !ids) return;
 
-    setIsSchemaLoading(true);
     Promise.all([selectedEntity.fetchNodeDefinition(modelPath, ids), selectedEntity.fetchNodeSchema(ids)])
       .then(([model, resolved]) => {
         if (!cancelled) {

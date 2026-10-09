@@ -8,6 +8,7 @@ import {
   useContext,
   useEffect,
   useId,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
@@ -54,13 +55,18 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
   const rafRef = useRef<number | null>(null);
   const isResizingRef = useRef(false);
   const onLayoutChangeRef = useRef(onLayoutChange);
-  onLayoutChangeRef.current = onLayoutChange;
+  useLayoutEffect(() => {
+    onLayoutChangeRef.current = onLayoutChange;
+  }, [onLayoutChange]);
 
-  const updateMappingLoop = useCallback(() => {
-    if (!isResizingRef.current) return;
-    onLayoutChangeRef.current?.(id);
-    rafRef.current = requestAnimationFrame(updateMappingLoop);
-  }, [id]);
+  const updateMappingLoop = useCallback(
+    function updateMappingLoop() {
+      if (!isResizingRef.current) return;
+      onLayoutChangeRef.current?.(id);
+      rafRef.current = requestAnimationFrame(updateMappingLoop);
+    },
+    [id],
+  );
 
   const startMappingUpdates = useCallback(() => {
     isResizingRef.current = true;
@@ -137,31 +143,33 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
     mouseUpHandlerRef.current();
   }, []);
 
-  // Update the ref implementations (runs every render, but doesn't cause re-bindings)
-  // Resize happens immediately on mouse move for responsiveness
-  mouseMoveHandlerRef.current = (moveEvent: MouseEvent) => {
-    if (!resizeDataRef.current) return;
+  // Publish committed handlers without changing the active document listeners.
+  useLayoutEffect(() => {
+    // Resize happens immediately on mouse move for responsiveness
+    mouseMoveHandlerRef.current = (moveEvent: MouseEvent) => {
+      if (!resizeDataRef.current) return;
 
-    const deltaY = moveEvent.clientY - resizeDataRef.current.startY;
-    const newHeight = resizeDataRef.current.startHeight + deltaY;
+      const deltaY = moveEvent.clientY - resizeDataRef.current.startY;
+      const newHeight = resizeDataRef.current.startHeight + deltaY;
 
-    const constrainedHeight = Math.max(minHeight, newHeight);
-    context.resize(id, constrainedHeight);
-  };
+      const constrainedHeight = Math.max(minHeight, newHeight);
+      context.resize(id, constrainedHeight);
+    };
 
-  mouseUpHandlerRef.current = () => {
-    setIsResizing(false);
-    resizeDataRef.current = null;
+    mouseUpHandlerRef.current = () => {
+      setIsResizing(false);
+      resizeDataRef.current = null;
 
-    document.removeEventListener('mousemove', stableMouseMoveHandler);
-    document.removeEventListener('mouseup', stableMouseUpHandler);
+      document.removeEventListener('mousemove', stableMouseMoveHandler);
+      document.removeEventListener('mouseup', stableMouseUpHandler);
 
-    // Stop the RAF loop
-    stopMappingUpdates();
+      // Stop the RAF loop
+      stopMappingUpdates();
 
-    // Trigger final update
-    onLayoutChange?.(id);
-  };
+      // Trigger final update
+      onLayoutChange?.(id);
+    };
+  }, [minHeight, context, id, stableMouseMoveHandler, stableMouseUpHandler, stopMappingUpdates, onLayoutChange]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();

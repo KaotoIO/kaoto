@@ -13,11 +13,10 @@ import {
 } from '@patternfly/react-core';
 import { QuestionCircleIcon } from '@patternfly/react-icons';
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
-import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FunctionComponent, useCallback, useMemo, useRef } from 'react';
 
 import { IExpressionHolder, MappingItem } from '../../models/datamapper';
 import { XPathService } from '../../services/xpath/xpath.service';
-import { ValidatedXPathParseResult } from '../../services/xpath/xpath-model';
 import { DataMapperModal } from '../DataMapper/DataMapperModal';
 import { XPathEditorLayout } from './XPathEditorLayout';
 
@@ -50,20 +49,10 @@ export const XPathEditorModal: FunctionComponent<XPathEditorModalProps> = ({
     onClose();
   }, [onClose]);
 
-  const [validationResult, setValidationResult] = useState<ValidatedXPathParseResult>();
-
-  const validateXPath = useCallback(() => {
-    if (mapping.expression) {
-      const validationResult = XPathService.validate(mapping.expression);
-      setValidationResult(validationResult);
-    } else {
-      setValidationResult(undefined);
-    }
-  }, [mapping.expression]);
-
-  useEffect(() => {
-    validateXPath();
-  }, [validateXPath]);
+  const validationResult = useMemo(
+    () => (mapping.expression ? XPathService.validate(mapping.expression) : undefined),
+    [mapping.expression],
+  );
 
   const errorContent = useMemo(() => {
     return (
