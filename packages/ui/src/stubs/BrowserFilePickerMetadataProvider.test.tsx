@@ -1,7 +1,7 @@
+import { CatalogKind, StepUpdateAction } from '@kaoto/editor-api';
 import { act, render, screen } from '@testing-library/react';
 import { useContext } from 'react';
 
-import { CatalogKind, StepUpdateAction } from '../models';
 import {
   SCHEMA_FILE_ACCEPT_PATTERN,
   SCHEMA_FILE_ACCEPT_PATTERN_XML,

@@ -2,6 +2,7 @@ import './RestDslEditorPage.scss';
 
 import { CodeSnippet } from '@carbon/react';
 import { Rest } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 import { CanvasFormTabsProvider, FilteredFieldProvider, getCamelRandomId, KaotoForm } from '@kaoto/forms';
 import { FunctionComponent, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -9,7 +10,6 @@ import { Loading } from '../../components/Loading';
 import { ResizableSplitPanels } from '../../components/ResizableSplitPanels/ResizableSplitPanels';
 import { SuggestionRegistrar } from '../../components/Visualization/Canvas/Form/suggestions/SuggestionsProvider';
 import { useEntityContext } from '../../hooks/useEntityContext/useEntityContext';
-import { CatalogKind } from '../../models/catalog-kind';
 import { EntityType } from '../../models/entities';
 import { KaotoSchemaDefinition } from '../../models/kaoto-schema';
 import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';

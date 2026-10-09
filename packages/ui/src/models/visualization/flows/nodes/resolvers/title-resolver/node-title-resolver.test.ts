@@ -1,3 +1,4 @@
+import { CatalogKind } from '@kaoto/editor-api';
 import { MockInstance } from 'vitest';
 
 import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
@@ -5,7 +6,6 @@ import { IDynamicCatalogRegistry } from '../../../../../../dynamic-catalog/model
 import { ICamelComponentDefinition } from '../../../../../camel/camel-components-catalog';
 import { ICamelProcessorDefinition } from '../../../../../camel/camel-processors-catalog';
 import { IKameletDefinition } from '../../../../../camel/kamelets-catalog';
-import { CatalogKind } from '../../../../../catalog-kind';
 import { ICitrusComponentDefinition } from '../../../../../citrus/citrus-catalog';
 import { NodeTitleResolver } from './node-title-resolver';
 

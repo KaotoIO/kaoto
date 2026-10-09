@@ -1,9 +1,10 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 import type { Mocked, MockInstance } from 'vitest';
 
 import { DynamicCatalogRegistry } from '../dynamic-catalog/dynamic-catalog-registry';
 import { IDynamicCatalogRegistry } from '../dynamic-catalog/models';
-import { CatalogKind, createVisualizationNode } from '../models';
+import { createVisualizationNode } from '../models';
 import { ICamelComponentDefinition, ICamelComponentProperty } from '../models/camel/camel-components-catalog';
 import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../models/datamapper/document';
 import { EntitiesContextResult } from '../providers';

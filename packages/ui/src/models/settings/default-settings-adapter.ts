@@ -1,4 +1,6 @@
-import { AbstractSettingsAdapter, ISettingsModel, SettingsModel } from './settings.model';
+import { ISettingsModel } from '@kaoto/editor-api';
+
+import { AbstractSettingsAdapter, SettingsModel } from './settings.model';
 
 export class DefaultSettingsAdapter implements AbstractSettingsAdapter {
   private readonly settings: ISettingsModel;

@@ -1,5 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { CanvasLayoutDirection, CatalogKind } from '@kaoto/editor-api';
 import { CanvasFormTabsProvider } from '@kaoto/forms';
 import { action, isNode, Point, SELECTION_EVENT, VisualizationProvider } from '@patternfly/react-topology';
 import { act, fireEvent, render, RenderResult, screen, waitFor } from '@testing-library/react';
@@ -7,11 +8,9 @@ import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 
 import { CatalogModalContext } from '../../../dynamic-catalog/catalog-modal.provider';
-import { CatalogKind } from '../../../models';
 import { CamelRouteResource, KameletResource } from '../../../models/camel';
 import { LocalStorageKeys } from '../../../models/local-storage-keys';
 import { DefaultSettingsAdapter } from '../../../models/settings';
-import { CanvasLayoutDirection } from '../../../models/settings/settings.model';
 import { AddStepMode, IVisualizationNode } from '../../../models/visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../../../models/visualization/flows';
 import { ActionConfirmationModalContextProvider } from '../../../providers/action-confirmation-modal.provider';

@@ -1,8 +1,8 @@
 import { RouteDefinition } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 import { beforeEach, vi } from 'vitest';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
-import { CatalogKind } from '../../../models/catalog-kind';
 import { CamelRouteVisualEntity } from '../../../models/visualization/flows/camel-route-visual-entity';
 import { collectTopologyEndpoints, normalizeInVmEndpoint } from './topology-endpoints';
 

@@ -1,13 +1,16 @@
-import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
-import { KogitoEditorChannelApi } from '@kie-tools-core/editor/dist/api';
-
-import { CatalogKind, FileTypes, FileTypesResponse, StepUpdateAction } from '../models';
 import {
   CamelMainMavenInformation,
   CamelQuarkusMavenInformation,
   CamelSpringBootMavenInformation,
-} from '../models/runtime-maven-information';
-import { ISettingsModel } from '../models/settings';
+  CatalogKind,
+  FileTypes,
+  FileTypesResponse,
+  ISettingsModel,
+  StepUpdateAction,
+  Suggestion,
+  SuggestionRequestContext,
+} from '@kaoto/editor-api';
+import { KogitoEditorChannelApi } from '@kie-tools-core/editor/dist/api';
 
 export interface KaotoEditorChannelApi extends KogitoEditorChannelApi {
   /**

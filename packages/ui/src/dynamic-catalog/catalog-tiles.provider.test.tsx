@@ -1,10 +1,10 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 import { render, renderHook, screen, waitFor } from '@testing-library/react';
 import { useContext } from 'react';
 
 import {
-  CatalogKind,
   ICamelComponentDefinition,
   ICamelProcessorDefinition,
   ICitrusComponentDefinition,

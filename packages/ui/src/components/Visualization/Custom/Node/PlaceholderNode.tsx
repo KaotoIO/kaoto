@@ -1,5 +1,6 @@
 import './PlaceholderNode.scss';
 
+import { CatalogKind } from '@kaoto/editor-api';
 import { isDefined } from '@kaoto/forms';
 import { Icon } from '@patternfly/react-core';
 import { CodeBranchIcon, PlusCircleIcon } from '@patternfly/react-icons';
@@ -26,7 +27,7 @@ import { FunctionComponent, useCallback, useContext, useMemo, useRef } from 'rea
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
-import { AddStepMode, CatalogKind, IVisualizationNode } from '../../../../models';
+import { AddStepMode, IVisualizationNode } from '../../../../models';
 import { PlaceholderType } from '../../../../models/placeholder.constants';
 import { SettingsContext } from '../../../../providers/settings.provider';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';

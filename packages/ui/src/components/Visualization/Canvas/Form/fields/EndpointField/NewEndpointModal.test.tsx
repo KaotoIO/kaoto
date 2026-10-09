@@ -1,11 +1,12 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { Mock } from 'vitest';
 
 import { CatalogModalContext } from '../../../../../../dynamic-catalog/catalog-modal.provider';
-import { CatalogKind, KaotoSchemaDefinition } from '../../../../../../models';
+import { KaotoSchemaDefinition } from '../../../../../../models';
 import { getFirstCitrusCatalogMap } from '../../../../../../stubs/test-load-catalog';
 import { EndpointModalProps, NewEndpointModal } from './NewEndpointModal';
 

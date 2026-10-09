@@ -1,7 +1,7 @@
+import { CatalogKind } from '@kaoto/editor-api';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { CamelResourceFactory } from '../../../models/camel/camel-resource-factory';
-import { CatalogKind } from '../../../models/catalog-kind';
 import { RestEntity } from '../../../models/visualization/flows/rest-entity';
 import { getRestEntities } from './get-rest-entities';
 import { RestTree } from './RestTree';

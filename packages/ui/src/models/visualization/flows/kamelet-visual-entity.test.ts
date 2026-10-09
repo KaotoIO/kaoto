@@ -1,5 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, RouteDefinition } from '@kaoto/camel-catalog/types';
+import { CatalogKind, NodeLabelType } from '@kaoto/editor-api';
 import { cloneDeep } from 'lodash';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
@@ -8,8 +9,6 @@ import { camelFromJson } from '../../../stubs/camel-from';
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
 import { SourceSchemaType } from '../../camel';
 import { IKameletDefinition, IKameletMetadata, IKameletSpecProperty } from '../../camel/kamelets-catalog';
-import { CatalogKind } from '../../catalog-kind';
-import { NodeLabelType } from '../../settings';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { KameletVisualEntity } from './kamelet-visual-entity';
 

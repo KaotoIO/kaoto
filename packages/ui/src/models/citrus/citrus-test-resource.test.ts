@@ -1,5 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 import { parse } from 'yaml';
 
 import { ITile } from '../../components/Catalog';
@@ -7,7 +8,6 @@ import { DynamicCatalogRegistry } from '../../dynamic-catalog/dynamic-catalog-re
 import { citrusTestJson } from '../../stubs/citrus-test';
 import { getFirstCitrusCatalogMap, setupCitrusDynamicCatalogRegistry } from '../../stubs/test-load-catalog';
 import { SourceSchemaType } from '../camel';
-import { CatalogKind } from '../catalog-kind';
 import { EntityType } from '../entities';
 import { AddStepMode, CitrusTestVisualEntity } from '../visualization';
 import { FlowTemplateService } from '../visualization/flows/support/flow-templates-service';

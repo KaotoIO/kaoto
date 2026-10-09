@@ -1,6 +1,6 @@
 import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 
-import { CatalogKind } from '../../../../catalog-kind';
 import { RootNodeMapper } from '../root-node-mapper';
 import { CircuitBreakerNodeMapper } from './circuit-breaker-node-mapper';
 import { OnFallbackNodeMapper } from './on-fallback-node-mapper';

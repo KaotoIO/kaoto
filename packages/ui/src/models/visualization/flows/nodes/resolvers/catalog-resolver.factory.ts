@@ -1,5 +1,6 @@
+import { CatalogKind } from '@kaoto/editor-api';
+
 import { DynamicCatalogRegistry } from '../../../../../dynamic-catalog/dynamic-catalog-registry';
-import { CatalogKind } from '../../../../catalog-kind';
 
 /**
  * Generic catalog property resolver factory.

@@ -1,5 +1,7 @@
+import { CanvasLayoutDirection, ISettingsModel } from '@kaoto/editor-api';
+
 import { LocalStorageKeys } from '../local-storage-keys';
-import { AbstractSettingsAdapter, CanvasLayoutDirection, ISettingsModel, SettingsModel } from './settings.model';
+import { AbstractSettingsAdapter, SettingsModel } from './settings.model';
 
 export class LocalStorageSettingsAdapter implements AbstractSettingsAdapter {
   private settings: ISettingsModel;

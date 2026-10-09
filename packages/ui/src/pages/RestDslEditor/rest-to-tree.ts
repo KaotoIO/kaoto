@@ -1,4 +1,6 @@
-import { CatalogKind, IVisualizationNodeIds } from '../../models';
+import { CatalogKind } from '@kaoto/editor-api';
+
+import { IVisualizationNodeIds } from '../../models';
 import { REST_DSL_VERBS } from '../../models/special-processors.constants';
 import { CamelRestConfigurationVisualEntity } from '../../models/visualization/flows/camel-rest-configuration-visual-entity';
 import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';

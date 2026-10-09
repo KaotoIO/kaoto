@@ -3569,6 +3569,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@kaoto/editor-api@workspace:*, @kaoto/editor-api@workspace:packages/editor-api":
+  version: 0.0.0-use.local
+  resolution: "@kaoto/editor-api@workspace:packages/editor-api"
+  dependencies:
+    "@eslint/js": "npm:^9.10.0"
+    "@types/eslint__js": "npm:^8.42.3"
+    eslint: "npm:^9.10.0"
+    eslint-config-prettier: "npm:^9.1.0"
+    eslint-plugin-import: "npm:^2.32.0"
+    eslint-plugin-jsx-a11y: "npm:^6.10.2"
+    eslint-plugin-prettier: "npm:^5.2.1"
+    eslint-plugin-simple-import-sort: "npm:^12.1.1"
+    eslint-plugin-testing-library: "npm:^7.16.2"
+    jsdom: "npm:^25.0.0"
+    typescript: "npm:^5.5.4"
+    typescript-eslint: "npm:^8.5.0"
+    vitest: "npm:^5.0.1"
+  languageName: unknown
+  linkType: soft
+
 "@kaoto/forms@npm:^1.9.0":
   version: 1.9.0
   resolution: "@kaoto/forms@npm:1.9.0"
@@ -3718,6 +3738,7 @@ __metadata:
     "@dnd-kit/modifiers": "npm:^9.0.0"
     "@eslint/js": "npm:^9.10.0"
     "@kaoto/camel-catalog": "npm:^0.10.6"
+    "@kaoto/editor-api": "workspace:*"
     "@kaoto/forms": "npm:^1.9.0"
     "@kie-tools-core/editor": "npm:^10.0.0"
     "@kie-tools-core/notifications": "npm:^10.0.0"
@@ -13687,7 +13708,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-config-prettier@npm:^9.1.2":
+"eslint-config-prettier@npm:^9.1.0, eslint-config-prettier@npm:^9.1.2":
   version: 9.1.2
   resolution: "eslint-config-prettier@npm:9.1.2"
   peerDependencies:
@@ -13784,7 +13805,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-prettier@npm:^5.5.6":
+"eslint-plugin-prettier@npm:^5.2.1, eslint-plugin-prettier@npm:^5.5.6":
   version: 5.5.6
   resolution: "eslint-plugin-prettier@npm:5.5.6"
   dependencies:
@@ -13853,6 +13874,15 @@ __metadata:
   peerDependencies:
     eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9.7
   checksum: 10/ee1bd4e0ec64f29109d5a625bb703d179c82e0159c86c3f1b52fc1209d2994625a137dae303c333fb308a2e38315e44066d5204998177e31974382f9fda25d5c
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-simple-import-sort@npm:^12.1.1":
+  version: 12.1.1
+  resolution: "eslint-plugin-simple-import-sort@npm:12.1.1"
+  peerDependencies:
+    eslint: ">=5.0.0"
+  checksum: 10/2a690cea9243fbefa70345687bca8952f5e185fa459b7a8db687a908cc31082435cfee236c619d5245548fa5f89a2f2c4f8499f80512e048d2bedc60e3662d5a
   languageName: node
   linkType: hard
 
@@ -25700,7 +25730,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript-eslint@npm:^8.71.0":
+"typescript-eslint@npm:^8.5.0, typescript-eslint@npm:^8.71.0":
   version: 8.71.0
   resolution: "typescript-eslint@npm:8.71.0"
   dependencies:
@@ -25715,7 +25745,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^5.9.3":
+"typescript@npm:^5.5.4, typescript@npm:^5.9.3":
   version: 5.9.3
   resolution: "typescript@npm:5.9.3"
   bin:
@@ -25725,7 +25755,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A^5.9.3#optional!builtin<compat/typescript>":
+"typescript@patch:typescript@npm%3A^5.5.4#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.9.3#optional!builtin<compat/typescript>":
   version: 5.9.3
   resolution: "typescript@patch:typescript@npm%3A5.9.3#optional!builtin<compat/typescript>::version=5.9.3&hash=5786d5"
   bin:
@@ -26502,6 +26532,7 @@ __metadata:
     "@cyclonedx/cdxgen": "npm:12.8.4"
     "@eslint/js": "npm:^9.10.0"
     "@kaoto/camel-catalog": "npm:^0.10.6"
+    "@kaoto/editor-api": "workspace:*"
     "@kaoto/kaoto": "workspace:*"
     "@kie-tools-core/backend": "npm:10.0.0"
     "@kie-tools-core/editor": "npm:10.0.0"

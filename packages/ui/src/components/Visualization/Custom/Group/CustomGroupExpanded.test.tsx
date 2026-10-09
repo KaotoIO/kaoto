@@ -1,10 +1,11 @@
+import { NodeToolbarTrigger } from '@kaoto/editor-api';
 import { BaseEdge, DndManager, DndManagerImpl, DndStore, NodeModel, Visualization } from '@patternfly/react-topology';
 import { act, render, screen } from '@testing-library/react';
 import React from 'react';
 
 import { CatalogModalContext, CatalogModalContextValue } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
-import { NodeToolbarTrigger, SettingsModel } from '../../../../models/settings/settings.model';
+import { SettingsModel } from '../../../../models/settings/settings.model';
 import { SettingsProvider } from '../../../../providers/settings.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { TopologyElementWrapper } from '../../../../stubs/topology-element-wrapper';

@@ -1,8 +1,8 @@
 import catalogLibraryJson from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 import type { MockInstance } from 'vitest';
 
-import { CatalogKind } from '../../models';
 import { CITRUS_TEST_ROOT_ENTITY_NAME } from '../../models/citrus/citrus-catalog-index';
 import { citrusCatalogSelector, getFirstCitrusCatalogMap } from '../../stubs/test-load-catalog';
 import { CatalogSchemaLoader } from '../../utils/catalog-schema-loader';

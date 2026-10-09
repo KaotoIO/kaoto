@@ -1,5 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 import {
   FormComponentFactoryProvider,
   ModelContextProvider,
@@ -12,7 +13,6 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { DynamicCatalog } from '../../../../../../dynamic-catalog/dynamic-catalog';
 import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
 import { CamelLanguageProvider } from '../../../../../../dynamic-catalog/providers/camel-components.provider';
-import { CatalogKind } from '../../../../../../models';
 import { setHeaderExpressionSchema } from '../../../../../../stubs/expression-definition-schema';
 import { getFirstCatalogMap } from '../../../../../../stubs/test-load-catalog';
 import { ROOT_PATH } from '../../../../../../utils';

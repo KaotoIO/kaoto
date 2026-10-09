@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import { Param, ResponseMessage, Rest, RestSecurity, SecurityDefinitions } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
-import { CatalogKind } from '../../../models';
 import { REST_DSL_VERBS } from '../../../models/special-processors.constants';
 import { extractAttributesFromXmlElement } from '../utils/xml-utils';
 import { RouteXmlParser } from './route-xml-parser';

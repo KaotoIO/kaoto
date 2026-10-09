@@ -1,6 +1,6 @@
 import { execSync } from 'child_process'; // NOSONAR
 import { satisfies } from 'compare-versions';
-import { RuntimeMavenInformation } from '@kaoto/kaoto';
+import { RuntimeMavenInformation } from '@kaoto/editor-api';
 import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
 import { KaotoCatalogService } from './KaotoCatalogService';
 import { CamelExecutorFactory } from '../executors/CamelExecutorFactory';

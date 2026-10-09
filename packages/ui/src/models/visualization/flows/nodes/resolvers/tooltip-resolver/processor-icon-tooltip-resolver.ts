@@ -1,6 +1,7 @@
+import { CatalogKind } from '@kaoto/editor-api';
+
 import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
 import { ICamelProcessorDefinition } from '../../../../../camel/camel-processors-catalog';
-import { CatalogKind } from '../../../../../catalog-kind';
 import { PROCESSOR_ICON_PREFIXES } from '../../../../../special-processors.constants';
 
 /**

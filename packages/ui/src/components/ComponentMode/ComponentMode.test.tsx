@@ -1,9 +1,10 @@
+import { CatalogKind } from '@kaoto/editor-api';
 import { render as renderWithWrapper, RenderOptions } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Fragment, ReactElement, StrictMode } from 'react';
 import { Mock, MockInstance, vi } from 'vitest';
 
-import { CatalogKind, IVisualizationNode } from '../../models';
+import { IVisualizationNode } from '../../models';
 import { ProcessorIconTooltipResolver } from '../../models/visualization/flows/nodes/resolvers/tooltip-resolver/processor-icon-tooltip-resolver';
 import { createVisualizationNode } from '../../models/visualization/visualization-node';
 import { TestProvidersWrapper } from '../../stubs/TestProvidersWrapper';

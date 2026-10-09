@@ -1,6 +1,13 @@
 import '@patternfly/react-core/dist/styles/base.css'; // This import needs to be first
 
-import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
+import {
+  CatalogKind,
+  FileTypes,
+  FileTypesResponse,
+  StepUpdateAction,
+  Suggestion,
+  SuggestionRequestContext,
+} from '@kaoto/editor-api';
 import {
   Editor,
   EditorInitArgs,
@@ -14,7 +21,6 @@ import { createRef, RefObject } from 'react';
 import { RouterProvider } from 'react-router';
 
 import { CatalogLoaderProvider } from '../dynamic-catalog/catalog.provider';
-import { CatalogKind, FileTypes, FileTypesResponse, StepUpdateAction } from '../models';
 import { AbstractSettingsAdapter, SettingsModel } from '../models/settings';
 import { KaotoResourceProvider } from '../providers';
 import { EntitiesProvider } from '../providers/entities.provider';

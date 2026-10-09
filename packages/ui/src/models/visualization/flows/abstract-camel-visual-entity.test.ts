@@ -1,5 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, ProcessorDefinition } from '@kaoto/camel-catalog/types';
+import { CatalogKind, NodeLabelType } from '@kaoto/editor-api';
 import { cloneDeep } from 'lodash';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
@@ -7,9 +8,7 @@ import { mockRandomValues } from '../../../stubs';
 import { camelRouteJson, camelRouteWithKameletJson } from '../../../stubs/camel-route';
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
 import { getValue } from '../../../utils';
-import { CatalogKind } from '../../catalog-kind';
 import { PlaceholderType } from '../../placeholder.constants';
-import { NodeLabelType } from '../../settings';
 import { AddStepMode, IVisualizationNodeData } from '../base-visual-entity';
 import { CamelRouteVisualEntity } from './camel-route-visual-entity';
 

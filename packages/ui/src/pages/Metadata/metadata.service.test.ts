@@ -1,5 +1,6 @@
+import { CatalogKind } from '@kaoto/editor-api';
+
 import { DynamicCatalogRegistry } from '../../dynamic-catalog/dynamic-catalog-registry';
-import { CatalogKind } from '../../models/catalog-kind';
 import { KaotoSchemaDefinition } from '../../models/kaoto-schema';
 import { MetadataService } from './metadata.service';
 

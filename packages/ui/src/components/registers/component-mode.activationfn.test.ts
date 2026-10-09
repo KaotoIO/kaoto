@@ -1,4 +1,6 @@
-import { CatalogKind, IVisualizationNode } from '../../models';
+import { CatalogKind } from '@kaoto/editor-api';
+
+import { IVisualizationNode } from '../../models';
 import { componentModeActivationFn } from './component-mode.activationfn';
 
 describe('componentModeActivationFn', () => {

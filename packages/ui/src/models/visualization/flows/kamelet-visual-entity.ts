@@ -1,4 +1,5 @@
 import { RouteDefinition } from '@kaoto/camel-catalog/types';
+import { CatalogKind, NodeLabelType } from '@kaoto/editor-api';
 import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
@@ -6,10 +7,8 @@ import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog
 import { getCustomSchemaFromKamelet, setValue, updateKameletFromCustomSchema } from '../../../utils';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
 import { IKameletDefinition, IKameletSpec } from '../../camel/kamelets-catalog';
-import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
-import { NodeLabelType } from '../../settings';
 import {
   AddStepMode,
   IVisualizationNode,

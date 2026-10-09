@@ -1,5 +1,6 @@
+import { CanvasLayoutDirection } from '@kaoto/editor-api';
+
 import { LayoutType } from '../components/Visualization/Canvas/canvas.models';
-import { CanvasLayoutDirection } from '../models/settings/settings.model';
 
 export const getInitialLayout = (canvasLayoutDirection: CanvasLayoutDirection): LayoutType | undefined => {
   switch (canvasLayoutDirection) {

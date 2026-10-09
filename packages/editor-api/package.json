@@ -1,0 +1,45 @@
+{
+  "name": "@kaoto/editor-api",
+  "version": "0.0.0-dev",
+  "type": "module",
+  "description": "Kaoto host-editor protocol — wire types, event bus, and transports",
+  "repository": "https://github.com/KaotoIO/kaoto",
+  "repositoryDirectory": "packages/editor-api",
+  "author": "The Kaoto Team",
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "Apache License v2.0",
+  "types": "./src/index.ts",
+  "module": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    }
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "build": "echo \"Not implemented on purpose - @kaoto/editor-api is linked through source code\"",
+    "test": "vitest run --config vitest.config.mts",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "lint:fix": "yarn lint --fix"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.10.0",
+    "@types/eslint__js": "^8.42.3",
+    "eslint": "^9.10.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "eslint-plugin-testing-library": "^7.16.2",
+    "jsdom": "^25.0.0",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.5.0",
+    "vitest": "^5.0.1"
+  }
+}

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { FileTypesResponse } from '@kaoto/kaoto/models';
+import { FileTypesResponse } from '@kaoto/editor-api';
 import * as path from 'path'; // NOSONAR: node: prefix is unsupported by the webpack path-browserify polyfill fallback
 import * as vscode from 'vscode';
 import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
