@@ -25,6 +25,12 @@ export default defineConfig({
     testTimeout: 10_000,
     hookTimeout: 20_000,
     isolate: false,
+    sequence: {
+      shuffle: {
+        files: true,
+        tests: false,
+      },
+    },
     clearMocks: true,
     css: false,
     server: {
