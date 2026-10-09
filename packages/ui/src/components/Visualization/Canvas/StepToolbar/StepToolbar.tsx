@@ -1,5 +1,6 @@
 import './StepToolbar.scss';
 
+import { SendAlt } from '@carbon/icons-react';
 import { Button } from '@patternfly/react-core';
 import {
   BanIcon,
@@ -16,6 +17,7 @@ import clsx from 'clsx';
 import { FunctionComponent, useContext, useMemo } from 'react';
 
 import { AddStepMode, IDataTestID, IVisualizationNode } from '../../../../models';
+import { useSendMessageModal } from '../../../../providers/send-message-modal.provider';
 import { SettingsContext } from '../../../../providers/settings.provider';
 import { getMoveIcons } from '../../Custom/ContextMenu/get-move-icons.util';
 import { useDeleteGroup } from '../../Custom/hooks/delete-group.hook';
@@ -44,6 +46,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
   'data-testid': dataTestId,
 }) => {
   const settingsAdapter = useContext(SettingsContext);
+  const sendMessageModal = useSendMessageModal();
   const layout = useGraphLayout();
   const { canHaveSpecialChildren, canBeDisabled, canReplaceStep, canRemoveStep, canRemoveFlow } =
     vizNode.getNodeInteraction();
@@ -64,6 +67,24 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
   return (
     <div className="step-toolbar-wrapper">
       <div className={clsx(className, 'step-toolbar')} data-testid={dataTestId}>
+        {sendMessageModal && (
+          <Button
+            icon={<SendAlt size={16} />}
+            className="step-toolbar__button"
+            data-testid={`${label}|step-toolbar-button-send-message`}
+            variant="control"
+            title="Send test message"
+            onClick={(event) => {
+              event.stopPropagation();
+              const endpoint = vizNode.data?.path || label || 'endpoint';
+              sendMessageModal.openSendMessageModal({
+                endpoint,
+                title: `Send a test message to ${label || endpoint}`,
+              });
+            }}
+          />
+        )}
+
         {canDuplicate && (
           <Button
             icon={<BlueprintIcon />}

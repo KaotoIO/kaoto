@@ -21,7 +21,13 @@ vi.mock('../../Custom/hooks/move-step.hook');
 vi.mock('../../Custom/hooks/enable-all-steps.hook');
 vi.mock('../../Custom/hooks/insert-step.hook');
 vi.mock('../../Custom/hooks/replace-step.hook');
+vi.mock('../../../../providers/send-message-modal.provider', () => ({
+  useSendMessageModal: vi.fn(),
+}));
 
+import { useSendMessageModal } from '../../../../providers/send-message-modal.provider';
+
+const mockUseSendMessageModal = useSendMessageModal as MockedFunction<typeof useSendMessageModal>;
 const mockUseDeleteGroup = useDeleteGroup as MockedFunction<typeof useDeleteGroup>;
 const mockUseDeleteStep = useDeleteStep as MockedFunction<typeof useDeleteStep>;
 const mockUseDisableStep = useDisableStep as MockedFunction<typeof useDisableStep>;
@@ -59,6 +65,7 @@ describe('StepToolbar', () => {
     mockUseEnableAllSteps.mockReturnValue({ areMultipleStepsDisabled: false, onEnableAllSteps: vi.fn() });
     mockUseInsertStep.mockReturnValue({ onInsertStep: vi.fn() });
     mockUseReplaceStep.mockReturnValue({ onReplaceNode: vi.fn() });
+    mockUseSendMessageModal.mockReturnValue(undefined);
 
     mockGetNodeInteraction.mockReturnValue(defaultNodeInteraction);
   });
@@ -85,6 +92,34 @@ describe('StepToolbar', () => {
       expect(screen.queryByTestId('Test Node|step-toolbar-button-replace')).not.toBeInTheDocument();
       expect(screen.queryByTestId('Test Node|step-toolbar-button-delete')).not.toBeInTheDocument();
       expect(screen.queryByTestId('Test Node|step-toolbar-button-delete-group')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('Test Node|step-toolbar-button-send-message')).not.toBeInTheDocument();
+    });
+
+    it('should render send message button when SendMessageModal context is provided', async () => {
+      const mockOpenSendMessageModal = vi.fn();
+      mockUseSendMessageModal.mockReturnValue({
+        isOpen: false,
+        options: null,
+        openSendMessageModal: mockOpenSendMessageModal,
+        closeSendMessageModal: vi.fn(),
+        sendMessage: vi.fn().mockResolvedValue(undefined),
+        isSending: false,
+        error: null,
+        recentMessageFiles: [],
+        rememberMessageFile: vi.fn(),
+      });
+
+      render(<StepToolbar vizNode={mockVizNode} />);
+
+      const sendButton = screen.getByTestId('Test Node|step-toolbar-button-send-message');
+      expect(sendButton).toBeInTheDocument();
+      expect(sendButton).toHaveAttribute('title', 'Send test message');
+
+      fireEvent.click(sendButton);
+      expect(mockOpenSendMessageModal).toHaveBeenCalledWith({
+        endpoint: 'Test Node',
+        title: 'Send a test message to Test Node',
+      });
     });
   });
 

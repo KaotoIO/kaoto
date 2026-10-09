@@ -16,6 +16,8 @@ import {
   PipeVisualEntity,
   RuntimeProvider,
   SchemasLoaderProvider,
+  SendMessageModal,
+  SendMessageModalProvider,
   SourceCodeSync,
   useVisibleVizNodes,
   VisibleFlowsProvider,
@@ -122,6 +124,26 @@ export default {
 export const CamelRouteVisualization: StoryObj<CanvasStoryArgs> = {
   render: CanvasFromEntity,
   args: { entity: camelRouteEntity },
+};
+
+export const SendMessageToolbar: StoryObj<CanvasStoryArgs> = {
+  render: CanvasFromEntity,
+  decorators: [
+    (Story) => (
+      <SendMessageModalProvider>
+        <Story />
+        <SendMessageModal />
+      </SendMessageModalProvider>
+    ),
+  ],
+  args: {
+    entity: new CamelRouteVisualEntity({
+      route: {
+        id: 'send-message-demo',
+        from: { uri: 'direct:orders', steps: [{ log: { message: '${body}' } }] },
+      },
+    }),
+  },
 };
 
 export const PipeVisualization: StoryObj<CanvasStoryArgs> = {
