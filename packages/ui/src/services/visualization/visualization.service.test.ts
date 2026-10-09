@@ -492,6 +492,23 @@ describe('VisualizationService', () => {
     });
   });
 
+  describe('CopyOfSelector (CONTAINER_NODE) support', () => {
+    it('should render a copy-of container node as the first child, ahead of regular fields', () => {
+      const targetDoc = TestUtil.createTargetOrderDoc();
+      const tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+      const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
+      tree.children.push(fieldItem);
+      expect(fieldItem.field.fields.length).toBeGreaterThan(0);
+      const copyOfSelector = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER_NODE);
+      fieldItem.children.push(copyOfSelector);
+      const targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+      const fieldItemNodeData = new FieldItemNodeData(targetDocNode, fieldItem);
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(fieldItemNodeData);
+      expect(children.length).toBeGreaterThan(1);
+      expect('mapping' in children[0] && (children[0] as MappingNodeData).mapping).toBe(copyOfSelector);
+    });
+  });
+
   describe('validateVariableName()', () => {
     it('should accept a valid name', () => {
       const result = VisualizationService.validateVariableName('taxRate', tree);
