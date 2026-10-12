@@ -3,6 +3,26 @@ describe('Test toolbar on hover actions', () => {
     cy.openHomePage();
   });
 
+  it('Shows one shared toolbar when moving from a step to a group', () => {
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
+    cy.openDesignPage();
+
+    cy.get('g[data-nodelabel^="setHeader"]').trigger('mouseenter');
+    cy.get('[data-testid="setHeader|step-toolbar-button-disable"]').should('be.visible');
+    cy.get('[data-testid="step-toolbar"]').should('have.length', 1);
+
+    cy.get('g[data-nodelabel^="setHeader"]').trigger('mouseleave');
+    cy.get('g[data-grouplabel^="camel-route"]').trigger('mouseenter');
+    cy.get('[data-testid="camel-route|step-toolbar-button-collapse"]').should('be.visible');
+    cy.get('[data-testid="step-toolbar"]').should('have.length', 1);
+    cy.get('[data-testid="setHeader|step-toolbar-button-disable"]').should('not.exist');
+
+    cy.get('g[data-grouplabel^="camel-route"]').trigger('mouseleave');
+    cy.get('[data-testid="step-toolbar"]').trigger('mouseenter');
+    cy.get('[data-testid="camel-route|step-toolbar-button-collapse"]').click();
+    cy.checkNodeExist('setHeader', 0);
+  });
+
   it('Replace steps in using hover toolbar', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();

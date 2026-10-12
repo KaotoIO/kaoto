@@ -191,6 +191,34 @@ describe('useEnableAllSteps', () => {
     expect(result.current).toBe(firstResult);
   });
 
+  it('refreshes a mounted toolbar after graph replacement and never mutates detached nodes', () => {
+    const old = createStepNode('old', { disabled: true });
+    const staleUpdate = vi.spyOn(old, 'updateModel');
+    setGraphNodes([old]);
+    const { result, rerender } = renderHook(() => useEnableAllSteps(), { wrapper });
+    expect(result.current.areMultipleStepsDisabled).toBe(false);
+    const current = [createStepNode('new-a', { disabled: true }), createStepNode('new-b', { disabled: true })];
+    current.forEach((node) => vi.spyOn(node, 'updateModel').mockImplementation(() => {}));
+    setGraphNodes(current);
+    rerender();
+    expect(result.current.areMultipleStepsDisabled).toBe(true);
+    result.current.onEnableAllSteps();
+    expect(staleUpdate).not.toHaveBeenCalled();
+    current.forEach((node) => {
+      expect(node.updateModel).toHaveBeenCalledWith({ disabled: false });
+    });
+  });
+
+  it('does not mutate detached nodes when the graph changes before a rerender', () => {
+    const old = createStepNode('old', { disabled: true });
+    const staleUpdate = vi.spyOn(old, 'updateModel');
+    setGraphNodes([old]);
+    const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
+    setGraphNodes([]);
+    result.current.onEnableAllSteps();
+    expect(staleUpdate).not.toHaveBeenCalled();
+  });
+
   it('should update when disabled nodes change', () => {
     // Start with an empty graph
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });

@@ -24,21 +24,20 @@ import {
   useAnchor,
   useDndDrop,
   useDragNode,
-  useHover,
 } from '@patternfly/react-topology';
 import clsx from 'clsx';
 import { FunctionComponent, useCallback, useContext, useMemo, useRef } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
-import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
+import { AddStepMode, IVisualizationNode } from '../../../../models';
 import { SettingsContext } from '../../../../providers';
 import { getProcessorIcon } from '../../../../utils/processor-icon';
 import { Anchors } from '../../../registers/anchors';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { RenderingAnchor } from '../../../RenderingAnchor/RenderingAnchor';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
-import { StepToolbarOverlay } from '../../Canvas/StepToolbar/StepToolbarOverlay';
+import { useCanvasToolbarTarget } from '../../Canvas/StepToolbar/CanvasToolbarProvider';
 import {
   canDragGroup,
   getDropTargetContainerClassNames,
@@ -68,7 +67,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
       throw new Error('CustomGroupExpanded must be used only on Node elements');
     }
 
-    const groupVizNode: IVisualizationNode | undefined = element.getData()?.vizNode;
+    const groupVizNode: IVisualizationNode = element.getData()?.vizNode;
     const lastUpdate = groupVizNode?.lastUpdate;
     const settingsAdapter = useContext(SettingsContext);
     const entitiesContext = useEntityContext();
@@ -82,16 +81,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
     const validationText = useNodeValidationText(groupVizNode);
     const doesHaveWarnings = !isDisabled && !!validationText;
     const { childCount, hasGroupChildren } = getVizNodeChildrenInfo(groupVizNode);
-    const [isGHover, gHoverRef] = useHover<SVGGElement>(CanvasDefaults.HOVER_DELAY_IN, CanvasDefaults.HOVER_DELAY_OUT);
-    const [isToolbarHover, toolbarHoverRef] = useHover<SVGForeignObjectElement>(
-      CanvasDefaults.HOVER_DELAY_IN,
-      CanvasDefaults.HOVER_DELAY_OUT,
-    );
     const boxRef = useRef<Rect | null>(null);
-    const shouldShowToolbar =
-      settingsAdapter.getSettings().nodeToolbarTrigger === NodeToolbarTrigger.onHover
-        ? isGHover || isToolbarHover
-        : selected;
 
     useAnchor((element: Node) => {
       return new TargetAnchor(element);
@@ -117,10 +107,6 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
       },
       [onContextMenu, onSelect],
     );
-
-    if (!groupVizNode) {
-      return null;
-    }
 
     const groupDragSourceSpec: DragSourceSpec<
       DragObjectWithType,
@@ -214,16 +200,26 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
       boxRef.current = box;
     }
 
+    const toolbar = useCanvasToolbarTarget(
+      element,
+      groupVizNode,
+      selected,
+      !dndDropProps.droppable,
+      element.isCollapsed(),
+      onCollapseToggle,
+    );
+
     return (
       <Layer id={GROUPS_LAYER} data-lastupdate={lastUpdate}>
         <g
-          ref={gHoverRef}
+          onMouseEnter={toolbar.onMouseEnter}
+          onMouseLeave={toolbar.onMouseLeave}
           className="custom-group"
           data-testid={`custom-group__${groupVizNode.id}`}
           data-grouplabel={label}
           data-selected={selected}
           data-disabled={isDisabled}
-          data-toolbar-open={shouldShowToolbar}
+          data-toolbar-open={toolbar.isOpen}
           data-warnings={doesHaveWarnings}
           tabIndex={selected ? 0 : -1}
           role="button"
@@ -344,24 +340,14 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
               </FloatingCircle>
             </foreignObject>
           )}
-          {!dndDropProps.droppable && shouldShowToolbar && (
-            <Layer id={TOP_LAYER}>
-              <StepToolbarOverlay
-                foreignObjectRef={toolbarHoverRef}
-                className="custom-group__toolbar"
-                centerX={boxRef.current.x + boxRef.current.width / 2}
-                bottomY={boxRef.current.y}
-                data-testid="step-toolbar"
-                vizNode={groupVizNode}
-                isCollapsed={element.isCollapsed()}
-                onCollapseToggle={onCollapseToggle}
-              />
-            </Layer>
-          )}
         </g>
       </Layer>
     );
   },
 );
 
-export const CustomGroupExpanded = CustomGroupExpandedInner;
+export const CustomGroupExpanded: FunctionComponent<CustomGroupProps> = observer((props) => {
+  if (!isNode(props.element)) throw new Error('CustomGroupExpanded must be used only on Node elements');
+  if (!props.element.getData()?.vizNode) return null;
+  return <CustomGroupExpandedInner {...props} />;
+});

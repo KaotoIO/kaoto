@@ -4,6 +4,8 @@ import { ContextSubMenuItem, ElementContext, GraphComponent, withContextMenu } f
 import { FunctionComponent, PropsWithChildren, ReactElement, useCallback, useContext, useMemo } from 'react';
 
 import { IDataTestID } from '../../../../models';
+import { CanvasToolbar } from '../../Canvas/StepToolbar/CanvasToolbar';
+import { CanvasToolbarProvider } from '../../Canvas/StepToolbar/CanvasToolbarProvider';
 import { withCustomPanZoom } from './customUsePanZoom';
 import { ItemPasteEntity } from './ItemPasteEntity';
 import { ShowOrHideAllFlows } from './ShowOrHideAllFlows';
@@ -58,7 +60,12 @@ const BaseCustomGraph: FunctionComponent<WithEntityContextMenuProps> = ({ entity
   const element = useContext(ElementContext);
   const EnhancedGraphComponent = useMemo(() => withContextMenu(contextMenuFn)(PanZoomGraphComponent), [contextMenuFn]);
 
-  return <EnhancedGraphComponent {...rest} element={element} />;
+  return (
+    <CanvasToolbarProvider>
+      <EnhancedGraphComponent {...rest} element={element} />
+      <CanvasToolbar />
+    </CanvasToolbarProvider>
+  );
 };
 
 export const CustomGraphWithSelection = withEntityContextMenu(BaseCustomGraph);
