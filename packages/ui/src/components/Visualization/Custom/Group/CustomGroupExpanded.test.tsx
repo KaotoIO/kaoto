@@ -83,7 +83,7 @@ describe('CustomGroupExpanded', () => {
   };
 
   it.each(['self', 'ancestor'] as const)(
-    'dims the SVG body during %s drag and restores it after cancellation',
+    'dims the SVG wrapper during %s drag without applying opacity to foreignObject and restores it after cancellation',
     async (dragTarget) => {
       const vizNode = createChoiceVizNode();
       const ancestor = createChoiceVizNode({ path: 'route.from.steps.0' });
@@ -104,6 +104,7 @@ describe('CustomGroupExpanded', () => {
       const element = controller.getNodeById(GROUP_ID)!;
       const { container } = await renderInContext(<CustomGroupExpanded element={element} />);
       const body = container.querySelector('.custom-group__body');
+      const bodyWrapper = body?.parentElement;
       const dropArea = container.querySelector('.custom-group__drop-area');
       expect(body).not.toHaveAttribute('opacity');
       const manager: DndManager = controller.getStore<DndStore>().dndManager;
@@ -118,13 +119,15 @@ describe('CustomGroupExpanded', () => {
       act(() => {
         manager.beginDrag(source, undefined, 10, 10, 10, 10);
       });
-      expect(body).toHaveAttribute('opacity', '0.5');
+      expect(bodyWrapper).toHaveAttribute('opacity', '0.5');
+      expect(body).not.toHaveAttribute('opacity');
       expect(dropArea).not.toHaveAttribute('opacity');
       await act(async () => {
         manager.cancel();
         await manager.endDrag();
       });
       expect(body).not.toHaveAttribute('opacity');
+      expect(bodyWrapper).not.toHaveAttribute('opacity');
     },
   );
 
