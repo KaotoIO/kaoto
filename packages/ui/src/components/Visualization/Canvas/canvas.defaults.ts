@@ -25,7 +25,7 @@ export class CanvasDefaults {
   static readonly STEP_TOOLBAR_WIDTH = 60;
   static readonly STEP_TOOLBAR_HEIGHT = 60;
 
-  static readonly HOVER_DELAY_IN = 200;
+  static readonly TOOLBAR_HOVER_DELAY_MS = 200;
   static readonly TOOLBAR_DISMISS_DELAY_MS = 250;
 
   static readonly CANVAS_FIT_PADDING = 80;

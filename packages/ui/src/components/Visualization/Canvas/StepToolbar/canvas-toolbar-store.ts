@@ -61,7 +61,7 @@ export class CanvasToolbarStore {
         this.pending = undefined;
         this.enterTimer = undefined;
       }),
-      CanvasDefaults.HOVER_DELAY_IN,
+      CanvasDefaults.TOOLBAR_HOVER_DELAY_MS,
     );
   }
 
