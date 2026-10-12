@@ -54,7 +54,11 @@ describe('CustomNodeContainer', () => {
       </svg>,
     );
     const preview = container.querySelector('foreignObject');
-    expect(preview).toHaveAttribute('transform', 'translate(-120, 80) translate(13.5, 11.25) scale(0.7)');
+    const transform = preview?.getAttribute('transform');
+    const offsets = transform?.match(/^translate\(-120, 80\) translate\(([^,]+), ([^)]+)\) scale\(0\.7\)$/);
+    expect(offsets).not.toBeNull();
+    expect(Number(offsets?.[1])).toBeCloseTo(13.5, 10);
+    expect(Number(offsets?.[2])).toBeCloseTo(11.25, 10);
     expect(preview).toHaveAttribute('opacity', '0.5');
 
     rerender(

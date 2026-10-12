@@ -30,17 +30,20 @@ export const StepToolbarOverlay = ({
     const toolbar = toolbarRef.current;
     if (!toolbar) return;
 
-    const measure = () => {
-      // offset dimensions are in local CSS pixels, independent of canvas zoom.
-      const width = toolbar.offsetWidth;
-      const height = toolbar.offsetHeight;
+    const updateSize = (width: number, height: number) => {
       if (width > 0 && height > 0) {
         setSize((previous) => (previous.width === width && previous.height === height ? previous : { width, height }));
       }
     };
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(toolbar);
+    // Correct position and clipping before first paint, in CSS pixels independent of canvas zoom.
+    updateSize(toolbar.offsetWidth, toolbar.offsetHeight);
+    const observer = new ResizeObserver(([entry]) => {
+      if (!entry) return;
+
+      const borderBox = entry.borderBoxSize?.[0];
+      updateSize(borderBox?.inlineSize ?? toolbar.offsetWidth, borderBox?.blockSize ?? toolbar.offsetHeight);
+    });
+    observer.observe(toolbar, { box: 'border-box' });
     return () => {
       observer.disconnect();
     };

@@ -11,6 +11,7 @@ export class CanvasDefaults {
   static readonly DEFAULT_NODE_SHAPE = NodeShape.rect;
   static readonly DEFAULT_NODE_WIDTH = 90;
   static readonly DEFAULT_NODE_HEIGHT = 75;
+  static readonly DRAG_PREVIEW_SCALE = 0.7;
 
   static readonly DEFAULT_PLACEHOLDER_NODE_WIDTH = 60;
   static readonly DEFAULT_PLACEHOLDER_NODE_HEIGHT = 55;

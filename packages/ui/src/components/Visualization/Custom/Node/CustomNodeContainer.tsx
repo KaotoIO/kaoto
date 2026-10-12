@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { ElementType, FunctionComponent, Ref } from 'react';
 
 import { IVisualizationNode } from '../../../../models';
+import { getDragPreviewTransform } from '../../Canvas/CanvasUtils';
 import { FloatingCircle } from '../FloatingCircle/FloatingCircle';
 
 export interface CustomNodeContainerProps {
@@ -48,11 +49,7 @@ export const CustomNodeContainer: FunctionComponent<CustomNodeContainerProps> = 
     height={height}
     ref={foreignObjectRef}
     // Keep drag effects on SVG: HTML transforms/opacity inside foreignObject can hide previews in Safari.
-    transform={
-      isDragging
-        ? [transform, `translate(${width * 0.15}, ${height * 0.15}) scale(0.7)`].filter(Boolean).join(' ')
-        : transform
-    }
+    transform={isDragging ? [transform, getDragPreviewTransform(width, height)].filter(Boolean).join(' ') : transform}
     opacity={isDragging ? 0.5 : undefined}
   >
     <div data-testid={dataTestId} className={clsx('custom-node__container', containerClassNames)}>

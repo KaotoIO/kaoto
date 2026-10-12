@@ -31,6 +31,7 @@ import { PlaceholderType } from '../../../../models/placeholder.constants';
 import { SettingsContext } from '../../../../providers/settings.provider';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { CanvasNode } from '../../Canvas/canvas.models';
+import { getDragPreviewTransform } from '../../Canvas/CanvasUtils';
 import { GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
 import { useInsertStep } from '../hooks/insert-step.hook';
 import { useReplaceStep } from '../hooks/replace-step.hook';
@@ -276,7 +277,7 @@ const PlaceholderContent: FunctionComponent<PlaceholderContentProps> = observer(
             data-nodelabel={label}
             width={boxRef.current.width}
             height={boxRef.current.height}
-            transform={`translate(${boxXRef.current - box.x}, ${boxYRef.current - box.y}) translate(${boxRef.current.width * 0.15}, ${boxRef.current.height * 0.15}) scale(0.7)`}
+            transform={`translate(${boxXRef.current - box.x}, ${boxYRef.current - box.y}) ${getDragPreviewTransform(boxRef.current.width, boxRef.current.height)}`}
             opacity={0.5}
           >
             <PlaceholderNodeContainer {...containerProps} />
