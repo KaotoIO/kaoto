@@ -253,54 +253,56 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
             pointerEvents="none"
           />
           {/** This node appears when nothing is dragging and acts as the dummy node when container is dragged*/}
-          <foreignObject
-            className="custom-group__body"
-            opacity={isDraggingGroup || refreshGroup ? 0.5 : undefined}
-            data-nodelabel={label}
-            x={boxRef.current.x - GROUP_PAINT_PADDING}
-            y={boxRef.current.y - GROUP_PAINT_PADDING}
-            width={boxRef.current.width + 2 * GROUP_PAINT_PADDING}
-            height={boxRef.current.height + 2 * GROUP_PAINT_PADDING}
-          >
-            <div className="custom-group__paint-area" style={{ padding: GROUP_PAINT_PADDING }}>
-              <div
-                data-testid={`${groupVizNode.getId()}|${groupVizNode.id}`}
-                className={clsx('custom-group__container', mainContainerClassNames)}
-              >
+          {/** WebKit can omit foreignObject backgrounds with direct opacity; composite its SVG wrapper instead. */}
+          <g opacity={isDraggingGroup || refreshGroup ? 0.5 : undefined}>
+            <foreignObject
+              className="custom-group__body"
+              data-nodelabel={label}
+              x={boxRef.current.x - GROUP_PAINT_PADDING}
+              y={boxRef.current.y - GROUP_PAINT_PADDING}
+              width={boxRef.current.width + 2 * GROUP_PAINT_PADDING}
+              height={boxRef.current.height + 2 * GROUP_PAINT_PADDING}
+            >
+              <div className="custom-group__paint-area" style={{ padding: GROUP_PAINT_PADDING }}>
                 <div
-                  ref={dragGroupRef}
-                  data-testid={`${groupVizNode.getId()}|${groupVizNode.id}|drag-handle`}
-                  className={clsx('custom-group__container__text', {
-                    'custom-group__container__text__draggable': canDragGroup(groupVizNode),
-                  })}
-                  title={groupVizNode.data.description}
+                  data-testid={`${groupVizNode.getId()}|${groupVizNode.id}`}
+                  className={clsx('custom-group__container', mainContainerClassNames)}
                 >
-                  {doesHaveWarnings ? (
-                    <div className="custom-group__container__icon-placeholder" />
-                  ) : (
-                    groupVizNode.data.iconUrl && (
-                      <img
-                        src={groupVizNode.data.iconUrl}
-                        alt={
-                          groupVizNode.data.description ||
-                          (typeof groupVizNode.data.iconAlt === 'string' ? groupVizNode.data.iconAlt : '')
-                        }
-                      />
-                    )
+                  <div
+                    ref={dragGroupRef}
+                    data-testid={`${groupVizNode.getId()}|${groupVizNode.id}|drag-handle`}
+                    className={clsx('custom-group__container__text', {
+                      'custom-group__container__text__draggable': canDragGroup(groupVizNode),
+                    })}
+                    title={groupVizNode.data.description}
+                  >
+                    {doesHaveWarnings ? (
+                      <div className="custom-group__container__icon-placeholder" />
+                    ) : (
+                      groupVizNode.data.iconUrl && (
+                        <img
+                          src={groupVizNode.data.iconUrl}
+                          alt={
+                            groupVizNode.data.description ||
+                            (typeof groupVizNode.data.iconAlt === 'string' ? groupVizNode.data.iconAlt : '')
+                          }
+                        />
+                      )
+                    )}
+                    <span title={label}>{label}</span>
+
+                    <RenderingAnchor anchorTag={Anchors.CanvasGroupTitlebar} vizNode={groupVizNode} />
+                  </div>
+
+                  {isDisabled && !doesHaveWarnings && (
+                    <Icon className="custom-group__disabled-icon" title="Step disabled">
+                      <BanIcon />
+                    </Icon>
                   )}
-                  <span title={label}>{label}</span>
-
-                  <RenderingAnchor anchorTag={Anchors.CanvasGroupTitlebar} vizNode={groupVizNode} />
                 </div>
-
-                {isDisabled && !doesHaveWarnings && (
-                  <Icon className="custom-group__disabled-icon" title="Step disabled">
-                    <BanIcon />
-                  </Icon>
-                )}
               </div>
-            </div>
-          </foreignObject>
+            </foreignObject>
+          </g>
 
           {/** This is the dragged node which is being moved */}
           {dndDropProps.droppable && isDraggingGroup && (

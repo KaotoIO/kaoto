@@ -11,7 +11,7 @@
       --custom-node-BorderColor: var(--pf-t--global--border--color--status--danger--default);
     }
 
-    > foreignObject#{&}__body {
+    foreignObject#{&}__body {
       overflow: hidden;
       pointer-events: none;
     }
