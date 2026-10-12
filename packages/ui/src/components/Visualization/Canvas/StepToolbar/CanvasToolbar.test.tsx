@@ -16,6 +16,7 @@ import { camelRouteJson, TestProvidersWrapper } from '../../../../stubs';
 import { createRouteVisualizationController } from '../../../../stubs/route-visualization-controller';
 import { CustomGroupExpanded } from '../../Custom/Group/CustomGroupExpanded';
 import { CustomNodeObserver } from '../../Custom/Node/CustomNode';
+import { CanvasDefaults } from '../canvas.defaults';
 import { CanvasToolbar, getToolbarAnchor } from './CanvasToolbar';
 import { CanvasToolbarProvider } from './CanvasToolbarProvider';
 
@@ -77,6 +78,23 @@ describe('CanvasToolbar integration', () => {
     await act(() => vi.advanceTimersByTime(200));
     expect(screen.getAllByTestId('step-toolbar')).toHaveLength(1);
     expect(screen.getByTestId('step-toolbar')).toBe(toolbar);
+    const outgoing = screen.getByTestId('canvas-toolbar-outgoing');
+    const incoming = screen.getByTestId('canvas-toolbar-active');
+    expect(outgoing).not.toBeEmptyDOMElement();
+    expect(outgoing).toHaveAttribute('aria-hidden', 'true');
+    expect(incoming).toHaveAttribute('opacity', '0');
+    expect(toolbar.closest('foreignObject')).toHaveAttribute(
+      'x',
+      String(getToolbarAnchor(b).centerX - CanvasDefaults.STEP_TOOLBAR_WIDTH / 2 - 24),
+    );
+    await act(() => vi.advanceTimersByTime(80));
+    expect(Number(incoming.getAttribute('opacity'))).toBeGreaterThan(0);
+    expect(Number(incoming.getAttribute('opacity'))).toBeLessThan(1);
+    expect(Number(outgoing.getAttribute('opacity'))).toBeGreaterThan(0);
+    expect(Number(outgoing.getAttribute('opacity'))).toBeLessThan(1);
+    await act(() => vi.advanceTimersByTime(100));
+    expect(outgoing).toBeEmptyDOMElement();
+    expect(incoming).toHaveAttribute('opacity', '1');
     expect(step).toHaveAttribute('data-toolbar-open', 'false');
     expect(group).toHaveAttribute('data-toolbar-open', 'true');
     fireEvent.click(screen.getByTitle('Collapse step'));
