@@ -6,8 +6,8 @@ import { NodeToolbarTrigger, SettingsModel } from '../../../../models/settings/s
 import { SettingsProvider } from '../../../../providers/settings.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { TopologyElementWrapper } from '../../../../stubs/topology-element-wrapper';
-import { CanvasToolbarProvider } from '../../Canvas/StepToolbar/CanvasToolbarProvider';
 import { ControllerService } from '../../Canvas/controller.service';
+import { CanvasToolbarProvider } from '../../Canvas/StepToolbar/CanvasToolbarProvider';
 import { CustomNodeObserver, CustomNodeWithSelection } from './CustomNode';
 
 /** Creates a real controller holding a single node built from the given data */
@@ -47,6 +47,7 @@ describe('CustomNode', () => {
       description: props?.description ?? '',
       iconUrl: '',
     }) as IVisualizationNode;
+    vi.spyOn(vizNode, 'getNodeInteraction').mockReturnValue({ ...vizNode.getNodeInteraction(), canRemoveStep: true });
     vi.spyOn(vizNode, 'getNodeLabel').mockReturnValue('log');
     vi.spyOn(vizNode, 'getNodeValidationText').mockResolvedValue(undefined);
     vi.spyOn(vizNode, 'canDragNode').mockReturnValue(false);
@@ -67,14 +68,14 @@ describe('CustomNode', () => {
           }}
         >
           <CanvasToolbarProvider>
-          <TopologyElementWrapper controller={controller} element={element}>
-            <NodeComponent
-              element={element}
-              selected={props?.selected}
-              onSelect={props?.onSelect}
-              onContextMenu={props?.onContextMenu}
-            />
-          </TopologyElementWrapper>
+            <TopologyElementWrapper controller={controller} element={element}>
+              <NodeComponent
+                element={element}
+                selected={props?.selected}
+                onSelect={props?.onSelect}
+                onContextMenu={props?.onContextMenu}
+              />
+            </TopologyElementWrapper>
           </CanvasToolbarProvider>
         </SettingsProvider>
       </Provider>,
