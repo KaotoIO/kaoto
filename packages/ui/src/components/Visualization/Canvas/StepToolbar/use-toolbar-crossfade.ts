@@ -8,7 +8,7 @@ const snapshotToolbar = (toolbar: SVGGElement) => {
   snapshot.setAttribute('opacity', '1');
   for (const element of [snapshot, ...snapshot.querySelectorAll<SVGElement | HTMLElement>('*')]) {
     element.removeAttribute('id');
-    element.removeAttribute('data-testid');
+    delete element.dataset.testid;
     element.removeAttribute('title');
     element.style.pointerEvents = 'none';
   }
