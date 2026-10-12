@@ -136,7 +136,7 @@ export class CanvasToolbarStore {
         this.target = undefined;
         this.leaveTimer = undefined;
       }),
-      250,
+      CanvasDefaults.TOOLBAR_DISMISS_DELAY_MS,
     );
   }
 }
