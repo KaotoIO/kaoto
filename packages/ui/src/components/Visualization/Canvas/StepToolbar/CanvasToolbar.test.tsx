@@ -87,12 +87,12 @@ describe('CanvasToolbar integration', () => {
       'x',
       String(getToolbarAnchor(b).centerX - CanvasDefaults.STEP_TOOLBAR_WIDTH / 2 - 24),
     );
-    await act(() => vi.advanceTimersByTime(80));
+    await act(() => vi.advanceTimersByTime(32));
     expect(Number(incoming.getAttribute('opacity'))).toBeGreaterThan(0);
     expect(Number(incoming.getAttribute('opacity'))).toBeLessThan(1);
     expect(Number(outgoing.getAttribute('opacity'))).toBeGreaterThan(0);
     expect(Number(outgoing.getAttribute('opacity'))).toBeLessThan(1);
-    await act(() => vi.advanceTimersByTime(100));
+    await act(() => vi.advanceTimersByTime(48));
     expect(outgoing).toBeEmptyDOMElement();
     expect(incoming).toHaveAttribute('opacity', '1');
     expect(step).toHaveAttribute('data-toolbar-open', 'false');
