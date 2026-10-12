@@ -1,6 +1,6 @@
 import { createContext, FunctionComponent, PropsWithChildren, useMemo, useState } from 'react';
 
-type TabKeys = keyof typeof FormTabsModes;
+export type TabKeys = keyof typeof FormTabsModes;
 export interface CanvasFormTabsContextResult {
   selectedTab: TabKeys;
   setSelectedTab: (key: TabKeys) => void;

@@ -34,7 +34,7 @@ describe('NoFieldFound Component', () => {
 
     expect(screen.getByText('No fields found')).toBeInTheDocument();
     expect(screen.getByText('No field found matching this criteria.')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'All' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Switch to All tab' })).not.toBeInTheDocument();
   });
 
   it('should call onTabChange when the link is clicked', () => {
@@ -49,8 +49,8 @@ describe('NoFieldFound Component', () => {
       </CanvasFormTabsContext.Provider>,
     );
 
-    const link = screen.getByText('Switch to All tab');
-    fireEvent.click(link);
+    const button = screen.getByRole('button', { name: 'Switch to All tab' });
+    fireEvent.click(button);
 
     expect(mockContextValue.setSelectedTab).toHaveBeenCalledWith('All');
   });
