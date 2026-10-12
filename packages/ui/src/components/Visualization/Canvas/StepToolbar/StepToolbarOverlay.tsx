@@ -1,4 +1,4 @@
-import { ComponentProps, Ref, useLayoutEffect, useRef, useState } from 'react';
+import { ComponentProps, useLayoutEffect, useRef, useState } from 'react';
 
 import { CanvasDefaults } from '../canvas.defaults';
 import { StepToolbar } from './StepToolbar';
@@ -6,20 +6,13 @@ import { StepToolbar } from './StepToolbar';
 interface StepToolbarOverlayProps extends Omit<ComponentProps<typeof StepToolbar>, 'toolbarRef'> {
   centerX: number;
   bottomY: number;
-  foreignObjectRef?: Ref<SVGForeignObjectElement>;
 }
 
 const PAINT_PADDING = 24;
 const TOOLBAR_GAP = 6;
 
 /** Keep the complete toolbar and its shadow inside WebKit's SVG repaint bounds. */
-export const StepToolbarOverlay = ({
-  centerX,
-  bottomY,
-  foreignObjectRef,
-  className,
-  ...toolbarProps
-}: StepToolbarOverlayProps) => {
+export const StepToolbarOverlay = ({ centerX, bottomY, className, ...toolbarProps }: StepToolbarOverlayProps) => {
   const toolbarRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({
     width: CanvasDefaults.STEP_TOOLBAR_WIDTH,
@@ -51,7 +44,6 @@ export const StepToolbarOverlay = ({
 
   return (
     <foreignObject
-      ref={foreignObjectRef}
       className={className}
       x={centerX - size.width / 2 - PAINT_PADDING}
       y={bottomY - TOOLBAR_GAP - size.height - PAINT_PADDING}
