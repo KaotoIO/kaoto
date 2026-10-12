@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef } from 'react';
 
-const FADE_DURATION = 150;
+const FADE_DURATION = 75;
 
 /** Keep a visual-only copy: no duplicate controls, focus targets or element IDs. */
 const snapshotToolbar = (toolbar: SVGGElement) => {

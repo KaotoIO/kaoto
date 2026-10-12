@@ -63,13 +63,13 @@ describe('useToolbarCrossfade', () => {
     expect(onClick).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'b' }));
     expect(onClick).toHaveBeenCalledOnce();
-    await act(() => vi.advanceTimersByTime(80));
+    await act(() => vi.advanceTimersByTime(32));
     const opacity = Number(active.getAttribute('opacity'));
     expect(opacity).toBeGreaterThan(0);
     expect(opacity).toBeLessThan(1);
     expect(Number(outgoing.getAttribute('opacity'))).toBeCloseTo(1 - opacity);
     expect(screen.getByTestId('position')).toHaveAttribute('x', '215');
-    await act(() => vi.advanceTimersByTime(100));
+    await act(() => vi.advanceTimersByTime(48));
     expect(outgoing).toBeEmptyDOMElement();
     expect(active).toHaveAttribute('opacity', '1');
   });
