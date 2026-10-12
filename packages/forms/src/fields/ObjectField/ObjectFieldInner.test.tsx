@@ -2,6 +2,7 @@ import { inspect } from 'node:util';
 
 import { render } from '@testing-library/react';
 
+import { CanvasFormTabsContext } from '../../providers/canvas-form-tabs.provider';
 import { FormComponentFactoryContext } from '../../providers/context/form-component-factory-context';
 import { ModelContextProvider } from '../../providers/ModelProvider';
 import { SchemaProvider } from '../../providers/SchemaProvider';
@@ -38,5 +39,29 @@ describe('ObjectFieldInner', () => {
     );
 
     expect(wrapper.asFragment()).toMatchSnapshot();
+  });
+
+  it('should return null when selectedTab is "Required" and no properties are required and none have values', () => {
+    const wrapper = render(
+      <CanvasFormTabsContext.Provider value={{ selectedTab: 'Required', setSelectedTab: vi.fn() }}>
+        <ModelContextProvider model={{}} onPropertyChange={vi.fn()}>
+          <SchemaProvider
+            schema={{
+              type: 'object',
+              properties: {
+                optionalField: { type: 'string' },
+                anotherOptional: { type: 'string' },
+              },
+            }}
+          >
+            <ObjectFieldInner propName={ROOT_PATH} requiredProperties={[]} />
+          </SchemaProvider>
+        </ModelContextProvider>
+      </CanvasFormTabsContext.Provider>,
+      { wrapper: FormWrapper },
+    );
+
+    // No DOM output — the Stack is not rendered
+    expect(wrapper.container.firstChild).toBeNull();
   });
 });

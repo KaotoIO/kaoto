@@ -113,7 +113,7 @@ describe('Tests for side panel step filtering', () => {
 
     cy.selectFormTab('Required');
 
-    cy.get('.cds--inline-notification__title').should('contain', 'No Required fields found');
+    cy.get('.cds--actionable-notification__title').should('contain', 'No Required fields found');
   });
 
   it('Side panel to retain user specified fields filter', () => {
@@ -124,15 +124,15 @@ describe('Tests for side panel step filtering', () => {
 
     cy.openStepConfigurationTab('timer');
 
-    cy.specifiedFormTab('All');
+    cy.get('[data-testid="tab-All"]').should('have.attr', 'aria-selected', 'true');
     cy.selectFormTab('Required');
 
     cy.openStepConfigurationTab('log');
-    cy.specifiedFormTab('Required');
+    cy.get('[data-testid="tab-Required"]').should('have.attr', 'aria-selected', 'true');
     cy.selectFormTab('Modified');
 
     cy.closeStepConfigurationTab();
     cy.openStepConfigurationTab('timer');
-    cy.specifiedFormTab('Modified');
+    cy.get('[data-testid="tab-Modified"]').should('have.attr', 'aria-selected', 'true');
   });
 });

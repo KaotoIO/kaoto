@@ -8,6 +8,7 @@ export * from './get-oneof-schema-list';
 export * from './get-tagged-field-from-string';
 export * from './get-value';
 export * from './is-defined';
+export * from './is-field-tab-visible';
 export * from './is-raw-string';
 export * from './resolve-schema-with-ref';
 export * from './set-value';
