@@ -48,7 +48,7 @@ describe('useSuggestions', () => {
     const inputRef = useRef<HTMLInputElement>(null);
     const [value, setValue] = useState<string | number>('');
 
-    const { suggestionsMenu } = useSuggestions({
+    const { suggestionsMenu, openSuggestions } = useSuggestions({
       propName: 'testProp',
       schema: { type: 'string' },
       value,
@@ -78,6 +78,9 @@ describe('useSuggestions', () => {
         {suggestionsMenu}
 
         <button type="button">Secondary focus</button>
+        <button type="button" onClick={openSuggestions}>
+          Open suggestions
+        </button>
       </>
     );
   };
@@ -598,25 +601,6 @@ describe('useSuggestions', () => {
       });
     });
 
-    it('should auto-focus the search input when menu opens', async () => {
-      const result = renderWithContext(<TestComponent />);
-
-      // Open suggestions menu
-      await act(async () => {
-        fireEvent.focus(result.getByTestId('test-input'));
-        fireEvent.keyDown(result.getByTestId('test-input'), { ctrlKey: true, code: 'Space' });
-      });
-
-      await waitFor(() => {
-        expect(result.getByTestId('suggestions-menu')).toBeInTheDocument();
-      });
-
-      await waitFor(() => {
-        const searchInput = result.getByRole('searchbox');
-        expect(searchInput).toBeInTheDocument();
-      });
-    });
-
     it('should clear the search input when Ctrl+Space is pressed', async () => {
       const result = renderWithContext(<TestComponent />);
 
@@ -654,6 +638,59 @@ describe('useSuggestions', () => {
       await waitFor(() => {
         expect((searchInput as HTMLInputElement).value).toBe('');
       });
+    });
+  });
+
+  describe('search input focus on menu open', () => {
+    let frameCallbacks: FrameRequestCallback[];
+
+    beforeEach(() => {
+      frameCallbacks = [];
+      vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => frameCallbacks.push(cb));
+    });
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    /** Fire the trigger, then run the queued animation frames as the browser would after React commits */
+    const triggerAndFlushFrames = async (trigger: () => void) => {
+      await act(async () => {
+        trigger();
+      });
+      await act(async () => {
+        for (const cb of frameCallbacks.splice(0)) cb(0);
+      });
+    };
+
+    it('should focus the search input when the menu opens via Ctrl+Space', async () => {
+      const result = renderWithContext(<TestComponent />);
+      const input = result.getByTestId('test-input');
+
+      await triggerAndFlushFrames(() => fireEvent.keyDown(input, { ctrlKey: true, code: 'Space' }));
+
+      expect(document.activeElement).toBe(result.getByRole('searchbox'));
+    });
+
+    it('should focus the search input when the menu opens via openSuggestions()', async () => {
+      const result = renderWithContext(<TestComponent />);
+      const openButton = result.getByRole('button', { name: 'Open suggestions' });
+
+      await triggerAndFlushFrames(() => fireEvent.click(openButton));
+
+      expect(document.activeElement).toBe(result.getByRole('searchbox'));
+    });
+
+    it('should not focus the search input when openSuggestions() closes the menu', async () => {
+      const result = renderWithContext(<TestComponent />);
+      const openButton = result.getByRole('button', { name: 'Open suggestions' });
+      await triggerAndFlushFrames(() => fireEvent.click(openButton));
+      const focusSpy = vi.spyOn(result.getByRole('searchbox'), 'focus');
+
+      await triggerAndFlushFrames(() => fireEvent.click(openButton));
+
+      expect(result.queryByTestId('suggestions-menu')).not.toBeInTheDocument();
+      expect(focusSpy).not.toHaveBeenCalled();
     });
   });
 });
