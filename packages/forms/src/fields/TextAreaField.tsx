@@ -67,7 +67,8 @@ export const TextAreaField: FunctionComponent<FieldProps> = ({ propName, require
       <div className="textarea-field-container">
         <div className="textarea-field-input-wrapper">
           <TextArea
-            labelText=""
+            hideLabel
+            labelText={schema.title}
             rows={rows}
             role="textbox"
             id={propName}

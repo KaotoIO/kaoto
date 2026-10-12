@@ -1,6 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 
-import { CanvasFormTabsContextResult } from '../../providers';
 import { FormComponentFactoryProvider } from '../../providers/FormComponentFactoryProvider';
 import { SchemaProvider } from '../../providers/SchemaProvider';
 import { OneOfSchemas, ROOT_PATH } from '../../utils';
@@ -43,7 +42,7 @@ describe('OneOfField', () => {
     shouldRender: true,
   };
 
-  const schema = {
+  const schema: Record<string, unknown> & { oneOf: OneOfSchemas[] } = {
     oneOf: mockOneOfSchemas,
   };
 

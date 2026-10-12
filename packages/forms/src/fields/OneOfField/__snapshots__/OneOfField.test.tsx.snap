@@ -104,7 +104,11 @@ exports[`OneOfField > should render correctly with basic oneOf schema 1`] = `
       <div
         class="kaoto-form kaoto-form__label"
         data-testid="#__children"
-      />
+      >
+        <div
+          class="cds--stack-vertical cds--stack-scale-5"
+        />
+      </div>
     </div>
   </div>
 </div>
