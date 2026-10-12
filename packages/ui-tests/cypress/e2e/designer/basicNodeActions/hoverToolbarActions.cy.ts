@@ -7,18 +7,18 @@ describe('Test toolbar on hover actions', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
 
-    cy.get('g[data-nodelabel^="setHeader"]').trigger('mouseenter');
+    cy.get('g[data-nodelabel^="setHeader"]').trigger('mouseover');
     cy.get('[data-testid="setHeader|step-toolbar-button-disable"]').should('be.visible');
     cy.get('[data-testid="step-toolbar"]').should('have.length', 1);
 
-    cy.get('g[data-nodelabel^="setHeader"]').trigger('mouseleave');
-    cy.get('g[data-grouplabel^="camel-route"]').trigger('mouseenter');
+    cy.get('g[data-nodelabel^="setHeader"]').trigger('mouseout');
+    cy.get('g[data-grouplabel="camel-route"] span[title="camel-route"]').trigger('mouseover');
     cy.get('[data-testid="camel-route|step-toolbar-button-collapse"]').should('be.visible');
     cy.get('[data-testid="step-toolbar"]').should('have.length', 1);
     cy.get('[data-testid="setHeader|step-toolbar-button-disable"]').should('not.exist');
 
-    cy.get('g[data-grouplabel^="camel-route"]').trigger('mouseleave');
-    cy.get('[data-testid="step-toolbar"]').trigger('mouseenter');
+    cy.get('g[data-grouplabel="camel-route"] span[title="camel-route"]').trigger('mouseout');
+    cy.get('[data-testid="step-toolbar"]').trigger('mouseover');
     cy.get('[data-testid="camel-route|step-toolbar-button-collapse"]').click();
     cy.checkNodeExist('setHeader', 0);
   });
@@ -60,7 +60,7 @@ describe('Test toolbar on hover actions', () => {
     cy.checkConfigCheckboxObject('disabled', true);
 
     // Returning from the form must hover the step again; selection no longer keeps its toolbar open.
-    cy.get('g[data-nodelabel^="setHeader"]').trigger('mouseenter');
+    cy.get('g[data-nodelabel^="setHeader"]').trigger('mouseover');
     cy.get('[data-testid="setHeader|step-toolbar-button-disable"]').click();
 
     cy.openStepConfigurationTab('setHeader');
@@ -109,7 +109,7 @@ describe('Test toolbar on hover actions', () => {
     cy.checkNodeExist('log', 0);
 
     // Collapsing replaces the group with a node, so hover the new element before expanding it.
-    cy.get('g[data-nodelabel^="choice"]').trigger('mouseenter');
+    cy.get('g[data-nodelabel^="choice"]').trigger('mouseover');
     cy.get(`[data-testid="choice|step-toolbar-button-collapse"]`).click();
     cy.checkNodeExist('when', 5);
     cy.checkNodeExist('otherwise', 2);
