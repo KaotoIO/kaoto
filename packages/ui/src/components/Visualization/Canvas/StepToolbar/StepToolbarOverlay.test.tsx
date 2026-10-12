@@ -5,7 +5,7 @@ import * as StepToolbarModule from './StepToolbar';
 import { StepToolbarOverlay } from './StepToolbarOverlay';
 
 describe('StepToolbarOverlay', () => {
-  let resize: () => void;
+  let resize: (borderBoxSize?: readonly ResizeObserverSize[]) => void;
   let width: number;
   let height: number;
   const disconnect = vi.fn();
@@ -22,12 +22,27 @@ describe('StepToolbarOverlay', () => {
     vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockImplementation(() => width);
     vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockImplementation(() => height);
     globalThis.ResizeObserver = class {
+      target!: Element;
+
       constructor(callback: ResizeObserverCallback) {
-        resize = () => {
-          callback([], this);
+        resize = (borderBoxSize = [{ inlineSize: width, blockSize: height }]) => {
+          callback(
+            [
+              {
+                target: this.target,
+                borderBoxSize,
+                contentBoxSize: [{ inlineSize: width, blockSize: height }],
+                devicePixelContentBoxSize: [{ inlineSize: width, blockSize: height }],
+                contentRect: new DOMRectReadOnly(0, 0, width, height),
+              },
+            ],
+            this,
+          );
         };
       }
-      observe = vi.fn();
+      observe = (target: Element) => {
+        this.target = target;
+      };
       unobserve = vi.fn();
       disconnect = disconnect;
     };
@@ -65,6 +80,36 @@ describe('StepToolbarOverlay', () => {
     expect(viewport).toHaveAttribute('y', '106');
     expect(viewport).toHaveAttribute('width', '348');
     expect(viewport).toHaveAttribute('height', '112');
+  });
+
+  it('uses fractional observer border-box dimensions without reading layout again', () => {
+    const { container } = renderOverlay();
+    const readWidth = vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockClear();
+    const readHeight = vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockClear();
+
+    act(() => {
+      resize([{ inlineSize: 300.5, blockSize: 64.5 }]);
+    });
+
+    const viewport = container.querySelector('foreignObject');
+    expect(viewport).toHaveAttribute('x', '-74.25');
+    expect(viewport).toHaveAttribute('y', '105.5');
+    expect(viewport).toHaveAttribute('width', '348.5');
+    expect(viewport).toHaveAttribute('height', '112.5');
+    expect(readWidth).not.toHaveBeenCalled();
+    expect(readHeight).not.toHaveBeenCalled();
+  });
+
+  it('falls back to offset dimensions when the observer has no border-box size', () => {
+    const { container } = renderOverlay();
+    act(() => {
+      width = 300;
+      height = 64;
+      resize([]);
+    });
+
+    expect(container.querySelector('foreignObject')).toHaveAttribute('width', '348');
+    expect(container.querySelector('foreignObject')).toHaveAttribute('height', '112');
   });
 
   it('retains the last measured bounds when temporarily hidden', () => {
