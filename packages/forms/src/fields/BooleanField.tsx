@@ -33,6 +33,7 @@ export const BooleanField: FunctionComponent<FieldProps> = ({ propName, required
     >
       <div className="boolean-field-toggle-wrapper">
         <Toggle
+          size="sm"
           labelText=""
           onToggle={onToggleChange}
           disabled={disabled}

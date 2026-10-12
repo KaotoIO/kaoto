@@ -2,8 +2,12 @@
 
 exports[`ObjectFieldInner > should set the property name and propagate the required status 1`] = `
 <DocumentFragment>
-  <pre>
-    { propName: '#.name', required: true, onRemove: undefined }
-  </pre>
+  <div
+    class="cds--stack-vertical cds--stack-scale-5"
+  >
+    <pre>
+      { propName: '#.name', required: true, onRemove: undefined }
+    </pre>
+  </div>
 </DocumentFragment>
 `;
