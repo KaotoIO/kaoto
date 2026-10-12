@@ -73,6 +73,9 @@ export const useSuggestions = ({
         event.preventDefault();
         setSearchValue('');
         setCurrentOpenMenu(menuId);
+        requestAnimationFrame(() => {
+          searchInputRef.current?.focus();
+        });
       } else if (event.key === 'Escape') {
         onEscapeKey(event);
       }
@@ -184,7 +187,15 @@ export const useSuggestions = ({
     if (input?.disabled || input?.readOnly) return;
 
     setSearchValue('');
-    setCurrentOpenMenu((prev) => (prev === menuId ? null : menuId));
+    setCurrentOpenMenu((prev) => {
+      const newValue = prev === menuId ? null : menuId;
+      if (newValue) {
+        requestAnimationFrame(() => {
+          searchInputRef.current?.focus();
+        });
+      }
+      return newValue;
+    });
   }, [menuId, setCurrentOpenMenu, inputRef]);
 
   /** Register keyboard bindings and double-click handler */
@@ -226,15 +237,6 @@ export const useSuggestions = ({
       top: rect.bottom + window.scrollY,
       left: rect.left + window.scrollX,
     });
-
-    /** Focus search input when suggestions menu opens */
-    const focusTimeout = setTimeout(() => {
-      searchInputRef.current?.focus();
-    }, 0);
-
-    return () => {
-      clearTimeout(focusTimeout);
-    };
   }, [isVisible, inputRef]);
 
   const suggestionsMenu = isVisible ? (
