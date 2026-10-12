@@ -18,12 +18,9 @@ import {
   Layer,
   Node,
   observer,
-  TOP_LAYER,
   useAnchor,
-  useCombineRefs,
   useDndDrop,
   useDragNode,
-  useHover,
   withContextMenu,
   withSelection,
 } from '@patternfly/react-topology';
@@ -31,13 +28,13 @@ import { FunctionComponent, useCallback, useContext, useMemo, useRef } from 'rea
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
-import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
+import { AddStepMode, IVisualizationNode } from '../../../../models';
 import { SettingsContext } from '../../../../providers';
 import { getProcessorIcon } from '../../../../utils/processor-icon';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { CanvasNode } from '../../Canvas/canvas.models';
-import { StepToolbarOverlay } from '../../Canvas/StepToolbar/StepToolbarOverlay';
+import { useCanvasToolbarTarget } from '../../Canvas/StepToolbar/CanvasToolbarProvider';
 import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
 import { getDropTargetContainerClassNames, GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
 import { useNodeValidationText } from '../hooks/use-node-validation-text.hook';
@@ -59,24 +56,13 @@ interface CustomNodeProps extends DefaultNodeProps {
   onCollapseToggle?: () => void;
 }
 
-/** Returns whether the node's step toolbar should currently be visible, based on the toolbar trigger mode and the node's hover and selection state. */
-function getShouldShowToolbar(
-  trigger: NodeToolbarTrigger | undefined,
-  isGHover: boolean,
-  isToolbarHover: boolean,
-  selected: boolean | undefined,
-): boolean {
-  const isHoverTrigger = trigger === NodeToolbarTrigger.onHover;
-  return isHoverTrigger ? isGHover || isToolbarHover : !!selected;
-}
-
 const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
   ({ element, onContextMenu, onCollapseToggle, selected, onSelect }) => {
     if (!isNode(element)) {
       throw new Error('CustomNodeInner must be used only on Node elements');
     }
 
-    const vizNode: IVisualizationNode | undefined = element.getData()?.vizNode;
+    const vizNode: IVisualizationNode = element.getData()?.vizNode;
     const lastUpdate = vizNode?.lastUpdate;
     const boxXRef = useRef<number | null>(null);
     const boxYRef = useRef<number | null>(null);
@@ -91,18 +77,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const isDisabled = !!(vizNode?.data?.definition as { disabled?: unknown } | undefined)?.disabled;
     const validationText = useNodeValidationText(vizNode);
     const doesHaveWarnings = !isDisabled && !!validationText;
-    const [isGHover, gHoverRef] = useHover<SVGGElement>(CanvasDefaults.HOVER_DELAY_IN, CanvasDefaults.HOVER_DELAY_OUT);
-    const [isToolbarHover, toolbarHoverRef] = useHover<SVGForeignObjectElement>(
-      CanvasDefaults.HOVER_DELAY_IN,
-      CanvasDefaults.HOVER_DELAY_OUT,
-    );
     const { childCount, hasGroupChildren, isCollapsedGroup } = getVizNodeChildrenInfo(vizNode);
-    const shouldShowToolbar = getShouldShowToolbar(
-      settingsAdapter.getSettings().nodeToolbarTrigger,
-      isGHover,
-      isToolbarHover,
-      selected,
-    );
     const canDragNode = vizNode?.canDragNode() ?? false;
 
     const hasSomeInteractions = useMemo(
@@ -145,10 +120,6 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
       },
       [onContextMenu, onSelect],
     );
-
-    if (!vizNode) {
-      return null;
-    }
 
     const nodeDragSourceSpec: DragSourceSpec<
       DragObjectWithType,
@@ -221,7 +192,6 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
 
     const [, dragNodeRef] = useDragNode(nodeDragSourceSpec);
     const [dndDropProps, dndDropRef] = useDndDrop(customNodeDropTargetSpec);
-    const gCombinedRef = useCombineRefs<SVGGElement>(gHoverRef, dragNodeRef);
     const isDraggingNode = dndDropProps.dragItem?.getId() === element.getId();
     const isDraggingNodeType = dndDropProps.dragItemType === NODE_DRAG_TYPE;
     const isDraggingGroupType = dndDropProps.dragItemType === GROUP_DRAG_TYPE;
@@ -240,7 +210,6 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
       boxYRef.current = box.y;
     }
     const labelX = (box.width - CanvasDefaults.DEFAULT_LABEL_WIDTH) / 2;
-
     const dropDirection: 'forward' | 'backward' | null =
       dndDropProps.droppable && dndDropProps.canDrop && draggedVizNode
         ? getNodeDragAndDropDirection(draggedVizNode, vizNode, false)
@@ -249,7 +218,14 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const showMainNodeContainer = !dndDropProps.droppable || isDraggingNodeType || !isDraggingWithinGroup;
     const showLabelWhenDragging =
       (isDraggingNodeType && !isDraggingNode) || (isDraggingGroupType && !isDraggingWithinGroup);
-    const showToolbarSection = !dndDropProps.droppable && shouldShowToolbar && hasSomeInteractions;
+    const toolbar = useCanvasToolbarTarget(
+      element,
+      vizNode,
+      selected,
+      !dndDropProps.droppable && hasSomeInteractions,
+      element.isCollapsed() || isCollapsedGroup,
+      onCollapseToggle,
+    );
 
     const mainContainerClassNames = {
       ...getDropTargetContainerClassNames('custom-node__container', dropDirection, dndDropProps.hover),
@@ -260,13 +236,15 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     return (
       <Layer id={DEFAULT_LAYER} data-lastupdate={lastUpdate}>
         <g
-          ref={gCombinedRef}
+          ref={dragNodeRef}
+          onMouseEnter={toolbar.onMouseEnter}
+          onMouseLeave={toolbar.onMouseLeave}
           className="custom-node"
           data-testid={`custom-node__${vizNode.id}`}
           data-nodelabel={label}
           data-selected={selected}
           data-disabled={isDisabled}
-          data-toolbar-open={shouldShowToolbar}
+          data-toolbar-open={toolbar.isOpen}
           data-warning={doesHaveWarnings}
           tabIndex={selected ? 0 : -1}
           role="button"
@@ -349,21 +327,6 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
               transform={`translate(${boxXRef.current - box.x + labelX}, ${boxYRef.current - box.y + box.height - 1})`}
             />
           )}
-
-          {showToolbarSection && (
-            <Layer id={TOP_LAYER}>
-              <StepToolbarOverlay
-                foreignObjectRef={toolbarHoverRef}
-                className="custom-node__toolbar"
-                centerX={box.width / 2}
-                bottomY={0}
-                data-testid="step-toolbar"
-                vizNode={vizNode}
-                isCollapsed={element.isCollapsed() || isCollapsedGroup}
-                onCollapseToggle={onCollapseToggle}
-              />
-            </Layer>
-          )}
         </g>
       </Layer>
     );
@@ -374,9 +337,10 @@ const CustomNode: FunctionComponent<CustomNodeProps> = ({ element, ...rest }: Cu
   if (!isNode(element)) {
     throw new Error('CustomNode must be used only on Node elements');
   }
+  if (!element.getData()?.vizNode) return null;
   return <CustomNodeInner element={element} {...rest} />;
 };
 
 export const CustomNodeObserver = observer(CustomNode);
 
-export const CustomNodeWithSelection = withSelection()(withContextMenu(NodeContextMenuFn)(CustomNode));
+export const CustomNodeWithSelection = withSelection()(withContextMenu(NodeContextMenuFn)(CustomNodeObserver));

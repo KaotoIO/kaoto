@@ -1,4 +1,4 @@
-import { BaseEdge, NodeModel } from '@patternfly/react-topology';
+import { action, BaseEdge, NodeModel } from '@patternfly/react-topology';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
@@ -6,8 +6,9 @@ import { NodeToolbarTrigger, SettingsModel } from '../../../../models/settings/s
 import { SettingsProvider } from '../../../../providers/settings.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { TopologyElementWrapper } from '../../../../stubs/topology-element-wrapper';
+import { CanvasToolbarProvider } from '../../Canvas/StepToolbar/CanvasToolbarProvider';
 import { ControllerService } from '../../Canvas/controller.service';
-import { CustomNodeObserver } from './CustomNode';
+import { CustomNodeObserver, CustomNodeWithSelection } from './CustomNode';
 
 /** Creates a real controller holding a single node built from the given data */
 const createNodeInController = (data?: NodeModel['data']) => {
@@ -32,6 +33,7 @@ describe('CustomNode', () => {
   const renderCustomNode = async (props?: {
     selected?: boolean;
     toolbarTrigger?: NodeToolbarTrigger;
+    withSelection?: boolean;
     onSelect?: () => void;
     onContextMenu?: () => void;
     description?: string;
@@ -54,6 +56,7 @@ describe('CustomNode', () => {
 
     const { Provider } = await TestProvidersWrapper();
 
+    const NodeComponent = props?.withSelection ? CustomNodeWithSelection : CustomNodeObserver;
     const result = render(
       <Provider>
         <SettingsProvider
@@ -63,14 +66,16 @@ describe('CustomNode', () => {
             saveSettings: vi.fn(),
           }}
         >
+          <CanvasToolbarProvider>
           <TopologyElementWrapper controller={controller} element={element}>
-            <CustomNodeObserver
+            <NodeComponent
               element={element}
               selected={props?.selected}
               onSelect={props?.onSelect}
               onContextMenu={props?.onContextMenu}
             />
           </TopologyElementWrapper>
+          </CanvasToolbarProvider>
         </SettingsProvider>
       </Provider>,
     );
@@ -106,6 +111,22 @@ describe('CustomNode', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it('updates the production node when visualization data disappears and returns', async () => {
+    const { element, vizNode } = await renderCustomNode({ withSelection: true });
+    act(
+      action(() => {
+        element.setData({});
+      }),
+    );
+    expect(screen.queryByTestId(`custom-node__${vizNode.id}`)).not.toBeInTheDocument();
+    act(
+      action(() => {
+        element.setData({ vizNode });
+      }),
+    );
+    expect(screen.getByTestId(`custom-node__${vizNode.id}`)).toBeInTheDocument();
   });
 
   it('should throw when element is not a Node', () => {

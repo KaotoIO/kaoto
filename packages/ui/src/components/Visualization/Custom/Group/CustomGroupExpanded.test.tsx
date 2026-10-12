@@ -17,6 +17,8 @@ import { SettingsProvider } from '../../../../providers/settings.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { TopologyElementWrapper } from '../../../../stubs/topology-element-wrapper';
 import { ControllerService } from '../../Canvas/controller.service';
+import { CanvasToolbar } from '../../Canvas/StepToolbar/CanvasToolbar';
+import { CanvasToolbarProvider } from '../../Canvas/StepToolbar/CanvasToolbarProvider';
 import { GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
 import { CustomGroupExpanded } from './CustomGroupExpanded';
 
@@ -54,7 +56,10 @@ describe('CustomGroupExpanded', () => {
     const result = render(
       <Provider>
         <TopologyElementWrapper controller={controller} element={element}>
-          {children}
+          <CanvasToolbarProvider>
+            {children}
+            <CanvasToolbar />
+          </CanvasToolbarProvider>
         </TopologyElementWrapper>
       </Provider>,
     );
@@ -252,7 +257,10 @@ describe('CustomGroupExpanded', () => {
     };
     const { container } = await renderInContext(
       <SettingsProvider adapter={adapter}>
+        <CanvasToolbarProvider>
         <CustomGroupExpanded element={element} selected />
+        <CanvasToolbar />
+        </CanvasToolbarProvider>
       </SettingsProvider>,
     );
     const group = container.querySelector('.custom-group')!;
@@ -264,7 +272,7 @@ describe('CustomGroupExpanded', () => {
         vi.advanceTimersByTime(600);
       });
       expect(screen.getByTestId('step-toolbar')).toBeInTheDocument();
-      const toolbar = container.querySelector('.custom-group__toolbar')!;
+      const toolbar = screen.getByTestId('canvas-toolbar-layer');
       fireEvent.mouseEnter(toolbar);
       fireEvent.mouseLeave(group);
       await act(async () => {
@@ -291,7 +299,10 @@ describe('CustomGroupExpanded', () => {
     };
     const { container } = await renderInContext(
       <SettingsProvider adapter={adapter}>
+        <CanvasToolbarProvider>
         <CustomGroupExpanded element={element} selected={false} />
+        <CanvasToolbar />
+        </CanvasToolbarProvider>
       </SettingsProvider>,
     );
     vi.useFakeTimers();
@@ -328,7 +339,10 @@ describe('CustomGroupExpanded', () => {
 
     await renderInContext(
       <SettingsProvider adapter={onSelectionAdapter}>
-        <CustomGroupExpanded element={element} selected />
+        <CanvasToolbarProvider>
+          <CustomGroupExpanded element={element} selected />
+          <CanvasToolbar />
+        </CanvasToolbarProvider>
       </SettingsProvider>,
     );
 
