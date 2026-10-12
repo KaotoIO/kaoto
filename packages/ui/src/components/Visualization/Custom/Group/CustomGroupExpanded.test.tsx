@@ -258,8 +258,8 @@ describe('CustomGroupExpanded', () => {
     const { container } = await renderInContext(
       <SettingsProvider adapter={adapter}>
         <CanvasToolbarProvider>
-        <CustomGroupExpanded element={element} selected />
-        <CanvasToolbar />
+          <CustomGroupExpanded element={element} selected />
+          <CanvasToolbar />
         </CanvasToolbarProvider>
       </SettingsProvider>,
     );
@@ -272,7 +272,7 @@ describe('CustomGroupExpanded', () => {
         vi.advanceTimersByTime(600);
       });
       expect(screen.getByTestId('step-toolbar')).toBeInTheDocument();
-      const toolbar = screen.getByTestId('canvas-toolbar-layer');
+      const toolbar = screen.getByTestId('canvas-toolbar-active');
       fireEvent.mouseEnter(toolbar);
       fireEvent.mouseLeave(group);
       await act(async () => {
@@ -300,8 +300,8 @@ describe('CustomGroupExpanded', () => {
     const { container } = await renderInContext(
       <SettingsProvider adapter={adapter}>
         <CanvasToolbarProvider>
-        <CustomGroupExpanded element={element} selected={false} />
-        <CanvasToolbar />
+          <CustomGroupExpanded element={element} selected={false} />
+          <CanvasToolbar />
         </CanvasToolbarProvider>
       </SettingsProvider>,
     );
