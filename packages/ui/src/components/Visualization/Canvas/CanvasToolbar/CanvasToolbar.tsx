@@ -1,9 +1,9 @@
 import { ElementContext, isNode, Node, observer, useVisualizationController } from '@patternfly/react-topology';
 import { useContext } from 'react';
 
-import { CanvasToolbarContext } from './CanvasToolbarProvider';
+import { CanvasToolbarContext } from '../../../../providers/canvas-toolbar.provider';
+import { useToolbarCrossfade } from '../hooks/use-toolbar-crossfade';
 import { StepToolbarOverlay } from './StepToolbarOverlay';
-import { useToolbarCrossfade } from './use-toolbar-crossfade';
 
 /** Match LayerContainer's coordinate accumulation, including positioned ancestors. */
 export const getToolbarAnchor = (element: Node) => {

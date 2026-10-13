@@ -4,8 +4,8 @@ import { ContextSubMenuItem, ElementContext, GraphComponent, withContextMenu } f
 import { FunctionComponent, PropsWithChildren, ReactElement, useCallback, useContext, useMemo } from 'react';
 
 import { IDataTestID } from '../../../../models';
-import { CanvasToolbar } from '../../Canvas/StepToolbar/CanvasToolbar';
-import { CanvasToolbarProvider } from '../../Canvas/StepToolbar/CanvasToolbarProvider';
+import { CanvasToolbarProvider } from '../../../../providers/canvas-toolbar.provider';
+import { CanvasToolbar } from '../../Canvas/CanvasToolbar/CanvasToolbar';
 import { withCustomPanZoom } from './customUsePanZoom';
 import { ItemPasteEntity } from './ItemPasteEntity';
 import { ShowOrHideAllFlows } from './ShowOrHideAllFlows';

@@ -12,13 +12,13 @@ import { cloneDeep } from 'lodash';
 import { NodeToolbarTrigger, SettingsModel } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { SettingsProvider } from '../../../../providers';
+import { CanvasToolbarProvider } from '../../../../providers/canvas-toolbar.provider';
 import { camelRouteJson, TestProvidersWrapper } from '../../../../stubs';
 import { createRouteVisualizationController } from '../../../../stubs/route-visualization-controller';
 import { CustomGroupExpanded } from '../../Custom/Group/CustomGroupExpanded';
 import { CustomNodeObserver } from '../../Custom/Node/CustomNode';
 import { CanvasDefaults } from '../canvas.defaults';
 import { CanvasToolbar, getToolbarAnchor } from './CanvasToolbar';
-import { CanvasToolbarProvider } from './CanvasToolbarProvider';
 
 describe('CanvasToolbar integration', () => {
   afterEach(() => {

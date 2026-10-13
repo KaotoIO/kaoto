@@ -34,7 +34,7 @@ import { getProcessorIcon } from '../../../../utils/processor-icon';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { CanvasNode } from '../../Canvas/canvas.models';
-import { useCanvasToolbarTarget } from '../../Canvas/StepToolbar/CanvasToolbarProvider';
+import { useCanvasToolbarTarget } from '../../Canvas/hooks/use-canvas-toolbar-target';
 import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
 import { getDropTargetContainerClassNames, GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
 import { useNodeValidationText } from '../hooks/use-node-validation-text.hook';

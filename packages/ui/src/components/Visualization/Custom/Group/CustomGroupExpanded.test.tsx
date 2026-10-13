@@ -13,12 +13,12 @@ import React from 'react';
 import { CatalogModalContext, CatalogModalContextValue } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { NodeToolbarTrigger, SettingsModel } from '../../../../models/settings/settings.model';
+import { CanvasToolbarProvider } from '../../../../providers/canvas-toolbar.provider';
 import { SettingsProvider } from '../../../../providers/settings.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { TopologyElementWrapper } from '../../../../stubs/topology-element-wrapper';
+import { CanvasToolbar } from '../../Canvas/CanvasToolbar/CanvasToolbar';
 import { ControllerService } from '../../Canvas/controller.service';
-import { CanvasToolbar } from '../../Canvas/StepToolbar/CanvasToolbar';
-import { CanvasToolbarProvider } from '../../Canvas/StepToolbar/CanvasToolbarProvider';
 import { GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
 import { CustomGroupExpanded } from './CustomGroupExpanded';
 
