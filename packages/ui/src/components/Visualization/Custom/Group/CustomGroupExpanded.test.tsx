@@ -7,17 +7,13 @@ import {
   Rect,
   Visualization,
 } from '@patternfly/react-topology';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import React from 'react';
 
 import { CatalogModalContext, CatalogModalContextValue } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
-import { NodeToolbarTrigger, SettingsModel } from '../../../../models/settings/settings.model';
-import { CanvasToolbarProvider } from '../../../../providers/canvas-toolbar.provider';
-import { SettingsProvider } from '../../../../providers/settings.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { TopologyElementWrapper } from '../../../../stubs/topology-element-wrapper';
-import { CanvasToolbar } from '../../Canvas/CanvasToolbar/CanvasToolbar';
 import { ControllerService } from '../../Canvas/controller.service';
 import { GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
 import { CustomGroupExpanded } from './CustomGroupExpanded';
@@ -56,10 +52,7 @@ describe('CustomGroupExpanded', () => {
     const result = render(
       <Provider>
         <TopologyElementWrapper controller={controller} element={element}>
-          <CanvasToolbarProvider>
-            {children}
-            <CanvasToolbar />
-          </CanvasToolbarProvider>
+          {children}
         </TopologyElementWrapper>
       </Provider>,
     );
@@ -245,108 +238,6 @@ describe('CustomGroupExpanded', () => {
     await renderInContext(<CustomGroupExpanded element={element} />);
 
     expect(document.querySelector('.custom-group__container__icon-placeholder')).toBeInTheDocument();
-  });
-
-  it('hides a selected group toolbar after leaving the group and its toolbar in onHover mode', async () => {
-    const vizNode = createChoiceVizNode();
-    createController({ vizNode });
-    const element = controller.getNodeById(GROUP_ID)!;
-    const adapter = {
-      getSettings: () => new SettingsModel({ nodeToolbarTrigger: NodeToolbarTrigger.onHover }),
-      saveSettings: vi.fn(),
-    };
-    const { container } = await renderInContext(
-      <SettingsProvider adapter={adapter}>
-        <CanvasToolbarProvider>
-          <CustomGroupExpanded element={element} selected />
-          <CanvasToolbar />
-        </CanvasToolbarProvider>
-      </SettingsProvider>,
-    );
-    const group = container.querySelector('.custom-group')!;
-    expect(screen.queryByTestId('step-toolbar')).not.toBeInTheDocument();
-    vi.useFakeTimers();
-    try {
-      fireEvent.mouseEnter(group);
-      await act(async () => {
-        vi.advanceTimersByTime(600);
-      });
-      expect(screen.getByTestId('step-toolbar')).toBeInTheDocument();
-      const toolbar = screen.getByTestId('canvas-toolbar-active');
-      fireEvent.mouseEnter(toolbar);
-      fireEvent.mouseLeave(group);
-      await act(async () => {
-        vi.advanceTimersByTime(600);
-      });
-      expect(group).toHaveAttribute('data-toolbar-open', 'true');
-      fireEvent.mouseLeave(toolbar);
-      await act(async () => {
-        vi.advanceTimersByTime(600);
-      });
-      expect(screen.queryByTestId('step-toolbar')).not.toBeInTheDocument();
-    } finally {
-      vi.useRealTimers();
-    }
-  });
-
-  it('does not open an unselected group toolbar on hover in onSelection mode', async () => {
-    const vizNode = createChoiceVizNode();
-    createController({ vizNode });
-    const element = controller.getNodeById(GROUP_ID)!;
-    const adapter = {
-      getSettings: () => new SettingsModel({ nodeToolbarTrigger: NodeToolbarTrigger.onSelection }),
-      saveSettings: vi.fn(),
-    };
-    const { container } = await renderInContext(
-      <SettingsProvider adapter={adapter}>
-        <CanvasToolbarProvider>
-          <CustomGroupExpanded element={element} selected={false} />
-          <CanvasToolbar />
-        </CanvasToolbarProvider>
-      </SettingsProvider>,
-    );
-    vi.useFakeTimers();
-    try {
-      fireEvent.mouseEnter(container.querySelector('.custom-group')!);
-      await act(async () => {
-        vi.advanceTimersByTime(600);
-      });
-      expect(screen.queryByTestId('step-toolbar')).not.toBeInTheDocument();
-    } finally {
-      vi.useRealTimers();
-    }
-  });
-
-  it('should show toolbar when nodeToolbarTrigger is onSelection and group is selected (covers shouldShowToolbar branch)', async () => {
-    const vizNode = createVisualizationNode('when-0', {
-      name: 'when',
-      path: 'route.from.steps.0.choice.when.0',
-      isPlaceholder: false,
-      isGroup: false,
-      iconUrl: '',
-      title: '',
-      description: '',
-    }) as IVisualizationNode;
-    vi.spyOn(vizNode, 'getNodeLabel').mockReturnValue('when-setHeader');
-    vi.spyOn(vizNode, 'getNodeValidationText').mockResolvedValue(undefined);
-    createController({ vizNode });
-    const element = controller.getNodeById(GROUP_ID)!;
-
-    const onSelectionAdapter = {
-      getSettings: () => new SettingsModel({ nodeToolbarTrigger: NodeToolbarTrigger.onSelection }),
-      saveSettings: vi.fn(),
-    };
-
-    await renderInContext(
-      <SettingsProvider adapter={onSelectionAdapter}>
-        <CanvasToolbarProvider>
-          <CustomGroupExpanded element={element} selected />
-          <CanvasToolbar />
-        </CanvasToolbarProvider>
-      </SettingsProvider>,
-    );
-
-    expect(await screen.findByTestId('step-toolbar')).toBeInTheDocument();
   });
 
   it('calls getNodeDragAndDropDirection when droppable, canDrop and hover are true (line 162)', async () => {

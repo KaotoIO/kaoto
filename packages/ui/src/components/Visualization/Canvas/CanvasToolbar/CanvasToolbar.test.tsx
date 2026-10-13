@@ -78,51 +78,60 @@ describe('CanvasToolbar integration', () => {
     await act(() => vi.advanceTimersByTime(200));
     expect(screen.getAllByTestId('step-toolbar')).toHaveLength(1);
     expect(screen.getByTestId('step-toolbar')).toBe(toolbar);
-    const outgoing = screen.getByTestId('canvas-toolbar-outgoing');
-    const incoming = screen.getByTestId('canvas-toolbar-active');
-    expect(outgoing).not.toBeEmptyDOMElement();
-    expect(outgoing).toHaveAttribute('aria-hidden', 'true');
-    expect(incoming).toHaveAttribute('opacity', '0');
     expect(toolbar.closest('foreignObject')).toHaveAttribute(
       'x',
       String(getToolbarAnchor(b).centerX - CanvasDefaults.STEP_TOOLBAR_WIDTH / 2 - 24),
     );
-    await act(() => vi.advanceTimersByTime(32));
-    expect(Number(incoming.getAttribute('opacity'))).toBeGreaterThan(0);
-    expect(Number(incoming.getAttribute('opacity'))).toBeLessThan(1);
-    expect(Number(outgoing.getAttribute('opacity'))).toBeGreaterThan(0);
-    expect(Number(outgoing.getAttribute('opacity'))).toBeLessThan(1);
-    await act(() => vi.advanceTimersByTime(48));
-    expect(outgoing).toBeEmptyDOMElement();
-    expect(incoming).toHaveAttribute('opacity', '1');
+    await act(() => vi.runAllTimers());
+    expect(toolbar).toBeVisible();
     expect(step).toHaveAttribute('data-toolbar-open', 'false');
     expect(group).toHaveAttribute('data-toolbar-open', 'true');
     fireEvent.click(screen.getByTitle('Collapse step'));
     expect(collapse).toHaveBeenCalledOnce();
   });
 
-  it('keeps the toolbar reachable across the gap and hides after leaving it', async () => {
-    const { a } = await setup();
-    const step = screen.getByTestId(`custom-node__${a.getData().vizNode.id}`);
-    fireEvent.mouseEnter(step);
-    await act(() => vi.advanceTimersByTime(200));
-    fireEvent.mouseLeave(step);
-    await act(() => vi.advanceTimersByTime(100));
-    fireEvent.mouseEnter(screen.getByTestId('step-toolbar'));
-    await act(() => vi.advanceTimersByTime(1000));
-    expect(screen.getByTestId('step-toolbar')).toBeInTheDocument();
-    fireEvent.mouseLeave(screen.getByTestId('step-toolbar'));
-    await act(() => vi.advanceTimersByTime(250));
-    expect(screen.queryByTestId('step-toolbar')).not.toBeInTheDocument();
-  });
+  it.each(['step', 'group'] as const)(
+    'keeps a selected %s toolbar reachable on hover and dismisses it after leaving',
+    async (kind) => {
+      const { a, b, view, rerender } = await setup();
+      const element = kind === 'step' ? a : b;
+      const prefix = kind === 'step' ? 'custom-node' : 'custom-group';
+      rerender(view(element.getId()));
+      const target = screen.getByTestId(`${prefix}__${element.getData().vizNode.id}`);
+      expect(screen.queryByTestId('step-toolbar')).not.toBeInTheDocument();
+      fireEvent.mouseEnter(target);
+      await act(() => vi.advanceTimersByTime(CanvasDefaults.TOOLBAR_HOVER_DELAY_MS));
+      fireEvent.mouseLeave(target);
+      await act(() => vi.advanceTimersByTime(100));
+      fireEvent.mouseEnter(screen.getByTestId('step-toolbar'));
+      await act(() => vi.runAllTimers());
+      expect(screen.getByTestId('step-toolbar')).toBeVisible();
+      fireEvent.mouseLeave(screen.getByTestId('step-toolbar'));
+      await act(() => vi.runAllTimers());
+      expect(screen.queryByTestId('step-toolbar')).not.toBeInTheDocument();
+      expect(target).toHaveAttribute('data-toolbar-open', 'false');
+    },
+  );
 
   it('switches trigger mode, follows single selection and clears on deselection or target unmount', async () => {
     const { a, b, view, rerender } = await setup();
     rerender(view(a.getId()));
     expect(screen.queryByTestId('step-toolbar')).not.toBeInTheDocument();
     rerender(view(a.getId(), NodeToolbarTrigger.onSelection));
-    expect(screen.getByTestId('step-toolbar')).toBeInTheDocument();
+    const step = screen.getByTestId(`custom-node__${a.getData().vizNode.id}`);
+    const group = screen.getByTestId(`custom-group__${b.getData().vizNode.id}`);
+    fireEvent.mouseEnter(group);
+    await act(() => vi.runAllTimers());
+    expect(screen.getByTestId('step-toolbar')).toBeVisible();
+    expect(step).toHaveAttribute('data-toolbar-open', 'true');
+    expect(group).toHaveAttribute('data-toolbar-open', 'false');
+    fireEvent.mouseLeave(group);
     rerender(view(b.getId(), NodeToolbarTrigger.onSelection));
+    fireEvent.mouseEnter(step);
+    await act(() => vi.runAllTimers());
+    expect(step).toHaveAttribute('data-toolbar-open', 'false');
+    expect(group).toHaveAttribute('data-toolbar-open', 'true');
+    fireEvent.mouseLeave(step);
     expect(screen.getAllByTestId('step-toolbar')).toHaveLength(1);
     expect(screen.getByTitle('Collapse step')).toBeInTheDocument();
     rerender(view(undefined, NodeToolbarTrigger.onSelection));

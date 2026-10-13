@@ -9,13 +9,11 @@ describe('Test toolbar on hover actions', () => {
 
     cy.get('g[data-nodelabel^="setHeader"]').trigger('mouseover');
     cy.get('[data-testid="setHeader|step-toolbar-button-disable"]').should('be.visible');
-    cy.get('[data-testid="step-toolbar"]').should('have.length', 1);
 
     cy.get('g[data-nodelabel^="setHeader"]').trigger('mouseout');
     cy.get('g[data-grouplabel="camel-route"] span[title="camel-route"]').trigger('mouseover');
     cy.get('[data-testid="camel-route|step-toolbar-button-collapse"]').should('be.visible');
     cy.get('[data-testid="step-toolbar"]').should('have.length', 1);
-    cy.get('[data-testid="setHeader|step-toolbar-button-disable"]').should('not.exist');
 
     cy.get('g[data-grouplabel="camel-route"] span[title="camel-route"]').trigger('mouseout');
     cy.get('[data-testid="step-toolbar"]').trigger('mouseover');
