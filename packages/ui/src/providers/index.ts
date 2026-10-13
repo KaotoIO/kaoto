@@ -1,4 +1,5 @@
 export * from './action-confirmation-modal.provider';
+export * from './canvas-toolbar.provider';
 export * from './entities.provider';
 export * from './kaoto-resource.provider';
 export * from './keyboard-shortcuts.provider';

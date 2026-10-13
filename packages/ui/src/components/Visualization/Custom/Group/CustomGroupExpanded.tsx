@@ -37,7 +37,7 @@ import { Anchors } from '../../../registers/anchors';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { RenderingAnchor } from '../../../RenderingAnchor/RenderingAnchor';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
-import { useCanvasToolbarTarget } from '../../Canvas/StepToolbar/CanvasToolbarProvider';
+import { useCanvasToolbarTarget } from '../../Canvas/hooks/use-canvas-toolbar-target';
 import {
   canDragGroup,
   getDropTargetContainerClassNames,
