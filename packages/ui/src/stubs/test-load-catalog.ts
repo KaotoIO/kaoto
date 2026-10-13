@@ -1,4 +1,5 @@
 import { CatalogLibrary, CatalogLibraryEntry, KaotoFunction, KaotoFunctionArgument } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 
 import { DynamicCatalog } from '../dynamic-catalog/dynamic-catalog';
 import { DynamicCatalogRegistry } from '../dynamic-catalog/dynamic-catalog-registry';
@@ -23,7 +24,6 @@ import {
   ICitrusComponentDefinition,
   IKameletDefinition,
 } from '../models';
-import { CatalogKind } from '../models/catalog-kind';
 
 export const getFirstCatalogMap = async (catalogLibrary: CatalogLibrary) => {
   const [firstCatalogLibraryEntry] = catalogLibrary.definitions;

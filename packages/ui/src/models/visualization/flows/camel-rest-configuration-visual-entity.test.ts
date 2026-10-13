@@ -1,10 +1,10 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, RestConfiguration } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { restConfigurationSchema, restConfigurationStub } from '../../../stubs/rest-configuration';
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
-import { CatalogKind } from '../../catalog-kind';
 import { CamelRestConfigurationVisualEntity } from './camel-rest-configuration-visual-entity';
 
 describe('CamelRestConfigurationVisualEntity', () => {

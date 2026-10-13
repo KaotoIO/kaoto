@@ -1,3 +1,5 @@
+import { CatalogKind } from '@kaoto/editor-api';
+
 import icon_action_camel from '../../../../../../assets/camel-logo.svg';
 import icon_action_async from '../../../../../../assets/citrus/async-action.svg';
 import icon_action_conditional from '../../../../../../assets/citrus/conditional-action.svg';
@@ -266,7 +268,6 @@ import icon_eip_wiretap from '../../../../../../assets/eip/wiretap.png';
 import expandIcon from '../../../../../../assets/expand.svg';
 import questionIcon from '../../../../../../assets/question-mark.svg';
 import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
-import { CatalogKind } from '../../../../../catalog-kind';
 import { EntityType } from '../../../../../entities';
 import { PlaceholderType } from '../../../../../placeholder.constants';
 

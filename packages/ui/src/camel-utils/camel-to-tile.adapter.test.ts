@@ -1,5 +1,6 @@
+import { CatalogKind } from '@kaoto/editor-api';
+
 import {
-  CatalogKind,
   ICamelComponentDefinition,
   ICamelProcessorDefinition,
   ICitrusComponentDefinition,

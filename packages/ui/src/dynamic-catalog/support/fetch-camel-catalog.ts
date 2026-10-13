@@ -1,6 +1,6 @@
-import { FileTypes, FileTypesResponse } from '../../models';
+import { CatalogKind, FileTypes, FileTypesResponse } from '@kaoto/editor-api';
+
 import { CamelCatalogIndex, ComponentsCatalog } from '../../models/camel/camel-catalog-index';
-import { CatalogKind } from '../../models/catalog-kind';
 import { CatalogSchemaLoader } from '../../utils/catalog-schema-loader';
 import { DynamicCatalog } from '../dynamic-catalog';
 import { DynamicCatalogRegistry } from '../dynamic-catalog-registry';

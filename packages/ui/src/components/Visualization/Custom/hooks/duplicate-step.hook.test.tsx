@@ -1,3 +1,4 @@
+import { CatalogKind } from '@kaoto/editor-api';
 import { Visualization, VisualizationProvider } from '@patternfly/react-topology';
 import { renderHook } from '@testing-library/react';
 import { cloneDeep } from 'lodash';
@@ -5,7 +6,6 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
-import { CatalogKind } from '../../../../models/catalog-kind';
 import { AddStepMode, DISABLED_NODE_INTERACTION } from '../../../../models/visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows/camel-route-visual-entity';
 import { VisualFlowsApi } from '../../../../models/visualization/flows/support/flows-visibility';

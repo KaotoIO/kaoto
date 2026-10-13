@@ -1,5 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, To } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { JSONSchema4 } from 'json-schema';
@@ -10,7 +11,6 @@ import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
 import { DynamicCatalog } from '../../../dynamic-catalog/dynamic-catalog';
 import { CamelComponentsProvider } from '../../../dynamic-catalog/providers/camel-components.provider';
 import { CamelRouteResource } from '../../../models/camel/camel-route-resource';
-import { CatalogKind } from '../../../models/catalog-kind';
 import { TestProvidersWrapper } from '../../../stubs';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { RestRouteEndpointField } from './RestRouteEndpointField';

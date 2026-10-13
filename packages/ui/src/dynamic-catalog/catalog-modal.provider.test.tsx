@@ -1,9 +1,10 @@
+import { CatalogKind } from '@kaoto/editor-api';
 import { fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren, useContext } from 'react';
 import type { Mock } from 'vitest';
 
 import { ITile } from '../components/Catalog';
-import { CatalogKind, DefinedComponent } from '../models';
+import { DefinedComponent } from '../models';
 import { CatalogContext } from './catalog.provider';
 import { CatalogModalContext, CatalogModalProvider } from './catalog-modal.provider';
 import { CatalogTilesContext } from './catalog-tiles.provider';

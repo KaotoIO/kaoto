@@ -1,7 +1,7 @@
+import { CatalogKind } from '@kaoto/editor-api';
 import { JSONSchema4 } from 'json-schema';
 
 import { DynamicCatalogRegistry } from '../../dynamic-catalog/dynamic-catalog-registry';
-import { CatalogKind } from '../../models/catalog-kind';
 import { KaotoSchemaDefinition } from '../../models/kaoto-schema';
 import { PipeErrorHandlerService } from './pipe-error-handler.service';
 

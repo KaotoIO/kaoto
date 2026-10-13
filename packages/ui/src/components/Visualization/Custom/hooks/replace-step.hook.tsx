@@ -1,8 +1,8 @@
+import { StepUpdateAction } from '@kaoto/editor-api';
 import { useVisualizationController } from '@patternfly/react-topology';
 import { useCallback, useContext, useMemo } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
-import { StepUpdateAction } from '../../../../models';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import {
   ACTION_ID_CANCEL,

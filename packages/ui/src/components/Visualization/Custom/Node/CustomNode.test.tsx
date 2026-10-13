@@ -1,8 +1,9 @@
+import { NodeToolbarTrigger } from '@kaoto/editor-api';
 import { BaseEdge, NodeModel } from '@patternfly/react-topology';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
-import { NodeToolbarTrigger, SettingsModel } from '../../../../models/settings/settings.model';
+import { SettingsModel } from '../../../../models/settings/settings.model';
 import { SettingsProvider } from '../../../../providers/settings.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { TopologyElementWrapper } from '../../../../stubs/topology-element-wrapper';

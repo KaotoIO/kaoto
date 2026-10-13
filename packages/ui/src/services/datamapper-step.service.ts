@@ -1,9 +1,9 @@
 import { ProcessorDefinition, SetBody } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 
 import { getCamelRandomId } from '../camel-utils/camel-random-id';
 import { DynamicCatalogRegistry } from '../dynamic-catalog/dynamic-catalog-registry';
 import { IVisualizationNode } from '../models';
-import { CatalogKind } from '../models/catalog-kind';
 import { DocumentDefinition, DocumentDefinitionType } from '../models/datamapper/document';
 import { EntitiesContextResult } from '../providers';
 import { isXSLTComponent, XSLT_COMPONENT_NAME } from '../utils';

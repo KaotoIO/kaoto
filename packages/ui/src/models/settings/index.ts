@@ -1,2 +1,2 @@
 export * from './default-settings-adapter';
-export * from './settings.model';
+export { type AbstractSettingsAdapter, SettingsModel } from './settings.model';

@@ -1,4 +1,5 @@
-import { CatalogKind } from '../models/catalog-kind';
+import { CatalogKind } from '@kaoto/editor-api';
+
 import { DynamicCatalogTypeMap, IDynamicCatalog, IDynamicCatalogRegistry } from './models';
 
 export class DynamicCatalogRegistry {

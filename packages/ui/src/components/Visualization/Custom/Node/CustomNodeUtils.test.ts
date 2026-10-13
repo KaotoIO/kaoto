@@ -1,8 +1,8 @@
+import { CatalogKind } from '@kaoto/editor-api';
 import { ElementModel, GraphElement } from '@patternfly/react-topology';
 import { waitFor } from '@testing-library/react';
 import type { Mock } from 'vitest';
 
-import { CatalogKind } from '../../../../models/catalog-kind';
 import { PlaceholderType } from '../../../../models/placeholder.constants';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { EntitiesContextResult } from '../../../../providers/entities.provider';

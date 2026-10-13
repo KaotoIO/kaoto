@@ -1,6 +1,6 @@
+import { CatalogKind } from '@kaoto/editor-api';
 import type { MockInstance } from 'vitest';
 
-import { CatalogKind } from '../../../catalog-kind';
 import { EntityType } from '../../../entities';
 import { KaotoSchemaDefinition } from '../../../kaoto-schema';
 import { BaseVisualEntity, IVisualizationNode, IVisualizationNodeData } from '../../base-visual-entity';

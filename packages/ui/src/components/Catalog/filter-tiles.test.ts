@@ -1,4 +1,5 @@
-import { CatalogKind } from '../../models/catalog-kind';
+import { CatalogKind } from '@kaoto/editor-api';
+
 import { ITile } from './Catalog.models';
 import { filterTiles } from './filter-tiles';
 

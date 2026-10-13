@@ -1,6 +1,7 @@
+import { CatalogKind } from '@kaoto/editor-api';
+
 import { ComponentsCatalog } from '../../models/camel/camel-catalog-index';
 import { ICamelProcessorDefinition } from '../../models/camel/camel-processors-catalog';
-import { CatalogKind } from '../../models/catalog-kind';
 import {
   CITRUS_TEST_ROOT_ENTITY_NAME,
   CITRUS_YAML_SCHEMA_KEY,

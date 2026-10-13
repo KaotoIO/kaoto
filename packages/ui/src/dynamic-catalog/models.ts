@@ -1,10 +1,10 @@
 import { KaotoFunction, KaotoFunctionArgument } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 
 import { ICamelComponentDefinition } from '../models/camel/camel-components-catalog';
 import { ICamelLanguageDefinition } from '../models/camel/camel-languages-catalog';
 import { ICamelProcessorDefinition } from '../models/camel/camel-processors-catalog';
 import { IKameletDefinition } from '../models/camel/kamelets-catalog';
-import { CatalogKind } from '../models/catalog-kind';
 import { ICitrusComponentDefinition } from '../models/citrus/citrus-catalog';
 
 export type DynamicCatalogTypeMap = {

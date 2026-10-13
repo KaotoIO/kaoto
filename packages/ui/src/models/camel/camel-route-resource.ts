@@ -15,13 +15,13 @@
  */
 
 import { CamelYamlDsl, RouteDefinition } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 import { isDefined } from '@kaoto/forms';
 import { parse, stringify } from 'yaml';
 
 import { TileFilter } from '../../components/Catalog';
 import { DynamicCatalogRegistry } from '../../dynamic-catalog/dynamic-catalog-registry';
 import { insertYamlComments } from '../../utils/yaml-comments';
-import { CatalogKind } from '../catalog-kind';
 import { BaseEntity, EntityType } from '../entities';
 import { BaseVisualEntityDefinition, BeansAwareResource, KaotoResource } from '../kaoto-resource';
 import { AddStepMode, BaseEntityConstructor, IVisualizationNodeData } from '../visualization/base-visual-entity';

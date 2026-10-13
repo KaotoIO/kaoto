@@ -1,6 +1,7 @@
 import './CustomNode.scss';
 
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
+import { NodeToolbarTrigger } from '@kaoto/editor-api';
 import { isDefined } from '@kaoto/forms';
 import {
   AnchorEnd,
@@ -31,7 +32,7 @@ import { FunctionComponent, useCallback, useContext, useMemo, useRef } from 'rea
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
-import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
+import { AddStepMode, IVisualizationNode } from '../../../../models';
 import { SettingsContext } from '../../../../providers';
 import { getProcessorIcon } from '../../../../utils/processor-icon';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';

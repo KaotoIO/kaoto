@@ -1,11 +1,12 @@
 import { CatalogDefinition } from '@kaoto/camel-catalog/types';
+import { FileTypes, FileTypesResponse } from '@kaoto/editor-api';
 import { Content, ContentVariants } from '@patternfly/react-core';
 import { createContext, FunctionComponent, PropsWithChildren, useEffect, useState } from 'react';
 
 import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 import { Loading } from '../components/Loading';
 import { useRuntimeContext } from '../hooks/useRuntimeContext/useRuntimeContext';
-import { CamelCatalogIndex, FileTypes, FileTypesResponse, LoadingStatus } from '../models';
+import { CamelCatalogIndex, LoadingStatus } from '../models';
 import { CitrusCatalogIndex } from '../models/citrus/citrus-catalog-index';
 import { CitrusTestSchemaService } from '../models/visualization/flows/support/citrus-test-schema.service';
 import { CatalogSchemaLoader } from '../utils';

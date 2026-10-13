@@ -1,7 +1,7 @@
-import { Suggestion, SuggestionProvider } from '@kaoto/forms';
+import { CatalogKind, Suggestion } from '@kaoto/editor-api';
+import { SuggestionProvider } from '@kaoto/forms';
 
 import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
-import { CatalogKind } from '../../../../../../models';
 import { IMetadataApi } from '../../../../../../providers';
 
 const SIMPLE_LANGUAGE_ACTIVATED_FIELDS = new Set([

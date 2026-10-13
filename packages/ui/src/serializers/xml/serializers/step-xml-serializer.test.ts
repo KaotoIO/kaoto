@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 
 import { DynamicCatalog } from '../../../dynamic-catalog/dynamic-catalog';
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { CamelComponentsProvider } from '../../../dynamic-catalog/providers/camel-components.provider';
 import { CamelKameletsProvider } from '../../../dynamic-catalog/providers/camel-kamelets.provider';
-import { CatalogKind } from '../../../models';
 import {
   aggregateEntity,
   choiceEntity,

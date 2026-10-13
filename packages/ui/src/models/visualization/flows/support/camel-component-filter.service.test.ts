@@ -1,4 +1,5 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 
 import {
   componentCronTile,
@@ -20,7 +21,6 @@ import {
   processorWhenTile,
   tiles,
 } from '../../../../stubs';
-import { CatalogKind } from '../../../catalog-kind';
 import { EntityType } from '../../../entities';
 import { PlaceholderType } from '../../../placeholder.constants';
 import { AddStepMode } from '../../base-visual-entity';

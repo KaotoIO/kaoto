@@ -1,3 +1,4 @@
+import { CatalogKind } from '@kaoto/editor-api';
 import { BaseEdge, NodeModel } from '@patternfly/react-topology';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
@@ -11,7 +12,6 @@ import {
   IVisualizationNode,
   IVisualizationNodeData,
 } from '../../../../models';
-import { CatalogKind } from '../../../../models/catalog-kind';
 import { PlaceholderType } from '../../../../models/placeholder.constants';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { TopologyElementWrapper } from '../../../../stubs/topology-element-wrapper';

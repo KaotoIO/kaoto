@@ -1,5 +1,6 @@
+import { FileTypes } from '@kaoto/editor-api';
+
 import { IKameletDefinition } from '../../models/camel/kamelets-catalog';
-import { FileTypes } from '../../models/file-types';
 import { CamelKameletsProvider } from './camel-kamelets.provider';
 
 describe('CamelKameletsProvider', () => {

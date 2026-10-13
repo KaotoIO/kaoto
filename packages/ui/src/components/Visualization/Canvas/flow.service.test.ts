@@ -1,7 +1,7 @@
+import { CatalogKind } from '@kaoto/editor-api';
 import { beforeEach, vi } from 'vitest';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
-import { CatalogKind } from '../../../models/catalog-kind';
 import { EntityType } from '../../../models/entities';
 import { CamelRouteVisualEntity, createVisualizationNode } from '../../../models/visualization';
 import { camelRouteJson } from '../../../stubs/camel-route';

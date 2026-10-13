@@ -1,3 +1,4 @@
+import { CatalogKind, NodeLabelType } from '@kaoto/editor-api';
 import { isDefined } from '@kaoto/forms';
 import { cloneDeep, unset } from 'lodash';
 
@@ -5,13 +6,11 @@ import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { getArrayProperty, getValue, setValue } from '../../../utils';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
-import { CatalogKind } from '../../catalog-kind';
 import { CITRUS_TEST_ROOT_ENTITY_NAME } from '../../citrus/citrus-catalog-index';
 import { Test, TestAction, TestActions } from '../../citrus/entities/Test';
 import { EntityType } from '../../entities';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { PlaceholderType } from '../../placeholder.constants';
-import { NodeLabelType } from '../../settings';
 import {
   AddStepMode,
   BaseVisualEntity,

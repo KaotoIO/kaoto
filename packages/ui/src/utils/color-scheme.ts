@@ -1,4 +1,4 @@
-import { ColorScheme } from '../models';
+import { ColorScheme } from '@kaoto/editor-api';
 
 export const DARK_MODE_PATTERN_FLY_CLASS_NAME = 'pf-v6-theme-dark';
 export const DARK_MODE_CARBON_ATTR_NAME = 'data-theme-setting';

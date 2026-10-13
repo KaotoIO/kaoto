@@ -1,3 +1,5 @@
+import { CatalogKind } from '@kaoto/editor-api';
+
 /*
  * Copyright (C) 2025 Red Hat, Inc.
  *
@@ -13,9 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
-import { CatalogKind } from '../../../models';
 import { setNamespaces } from '../utils/xml-utils';
 
 type Expression = { expression: string; [key: string]: unknown };

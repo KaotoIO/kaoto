@@ -1,9 +1,9 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, ErrorHandlerDeserializer, NoErrorHandler } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
-import { CatalogKind } from '../../catalog-kind';
 import { CamelErrorHandlerVisualEntity } from './camel-error-handler-visual-entity';
 
 describe('CamelErrorHandlerVisualEntity', () => {

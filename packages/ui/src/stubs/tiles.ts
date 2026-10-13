@@ -1,5 +1,6 @@
+import { CatalogKind } from '@kaoto/editor-api';
+
 import { ITile } from '../components/Catalog/Catalog.models';
-import { CatalogKind } from '../models/catalog-kind';
 
 export const kameletSourceTile: ITile = {
   type: CatalogKind.Kamelet,

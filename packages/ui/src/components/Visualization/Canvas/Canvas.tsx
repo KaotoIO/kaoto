@@ -1,5 +1,6 @@
 import './Canvas.scss';
 
+import { CanvasLayoutDirection } from '@kaoto/editor-api';
 import { CatalogIcon, ExpandIcon, SearchMinusIcon, SearchPlusIcon } from '@patternfly/react-icons';
 import {
   action,
@@ -32,7 +33,6 @@ import { CatalogModalContext } from '../../../dynamic-catalog/catalog-modal.prov
 import { useLocalStorage, useSelectedNodePanIntoView, useSelectedVizNode } from '../../../hooks';
 import { useArrowKeyNavigation } from '../../../hooks/use-arrow-key-navigation.hook';
 import { LocalStorageKeys } from '../../../models';
-import { CanvasLayoutDirection } from '../../../models/settings/settings.model';
 import { SettingsContext } from '../../../providers/settings.provider';
 import { getInitialLayout } from '../../../utils/get-initial-layout';
 import { HorizontalLayoutIcon } from '../../Icons/HorizontalLayout';

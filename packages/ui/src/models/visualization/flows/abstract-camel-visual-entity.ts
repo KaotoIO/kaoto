@@ -1,15 +1,14 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
+import { CatalogKind, NodeLabelType } from '@kaoto/editor-api';
 import { isDefined } from '@kaoto/forms';
 import { cloneDeep } from 'lodash';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { getArrayProperty, getValue, setValue } from '../../../utils';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
-import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { PlaceholderType } from '../../placeholder.constants';
-import { NodeLabelType } from '../../settings/settings.model';
 import { SPECIAL_CHILD_PROCESSORS } from '../../special-processors.constants';
 import {
   AddStepMode,

@@ -1,7 +1,7 @@
+import { CatalogKind } from '@kaoto/editor-api';
 import { fireEvent, render, screen } from '@testing-library/react';
 
 import { CamelResourceFactory } from '../../../models/camel/camel-resource-factory';
-import { CatalogKind } from '../../../models/catalog-kind';
 import { CamelRestConfigurationVisualEntity } from '../../../models/visualization/flows/camel-rest-configuration-visual-entity';
 import { RestEntity } from '../../../models/visualization/flows/rest-entity';
 import { clickToolbarActionUtil } from '../test-utils';

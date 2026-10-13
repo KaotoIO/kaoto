@@ -1,14 +1,13 @@
 import { ProcessorDefinition, RouteConfigurationDefinition } from '@kaoto/camel-catalog/types';
+import { CatalogKind, NodeLabelType } from '@kaoto/editor-api';
 import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { getValue, setValue } from '../../../utils';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
-import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities/base-entity';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
-import { NodeLabelType } from '../../settings/settings.model';
 import { SPECIAL_PROCESSORS_PARENTS_MAP } from '../../special-processors.constants';
 import {
   AddStepMode,

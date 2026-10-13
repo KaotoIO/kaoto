@@ -1,3 +1,4 @@
+import { CatalogKind } from '@kaoto/editor-api';
 import { isDefined } from '@kaoto/forms';
 import {
   createContext,
@@ -18,7 +19,6 @@ import {
   kameletToTile,
 } from '../camel-utils';
 import { ITile } from '../components/Catalog';
-import { CatalogKind } from '../models';
 import { CatalogContext } from './catalog.provider';
 
 export const CatalogTilesContext = createContext<

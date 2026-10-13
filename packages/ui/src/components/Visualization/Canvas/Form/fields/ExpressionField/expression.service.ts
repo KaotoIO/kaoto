@@ -1,8 +1,8 @@
 import { ExpressionDefinition$Inline as ExpressionDefinition } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 import { isDefined } from '@kaoto/forms';
 
 import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
-import { CatalogKind } from '../../../../../../models/catalog-kind';
 import { KaotoSchemaDefinition } from '../../../../../../models/kaoto-schema';
 
 export class ExpressionService {

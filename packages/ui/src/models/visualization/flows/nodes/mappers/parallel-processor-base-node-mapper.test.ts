@@ -1,4 +1,5 @@
-import { CatalogKind } from '../../../../catalog-kind';
+import { CatalogKind } from '@kaoto/editor-api';
+
 import { RootNodeMapper } from '../root-node-mapper';
 import { LoadBalanceNodeMapper } from './loadbalance-node-mapper';
 import { MulticastNodeMapper } from './multicast-node-mapper';

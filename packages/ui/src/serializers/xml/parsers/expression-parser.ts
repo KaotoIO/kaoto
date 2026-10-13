@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import { ExpressionDefinition$Inline as ExpressionDefinition } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
-import { CatalogKind, ICamelProcessorProperty } from '../../../models';
+import { ICamelProcessorProperty } from '../../../models';
 import { collectNamespaces, extractAttributesFromXmlElement } from '../utils/xml-utils';
 
 export class ExpressionParser {

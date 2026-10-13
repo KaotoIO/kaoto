@@ -2,8 +2,7 @@ import { renderHook } from '@testing-library/react';
 import { createElement, PropsWithChildren } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { AppContext, AppContextType } from '@/context/AppContextDefinition';
-
+import { AppContext, AppContextType } from '../context/AppContextDefinition';
 import { useNotification } from './useNotification';
 
 describe('useNotification', () => {

@@ -1,10 +1,10 @@
+import { StepUpdateAction } from '@kaoto/editor-api';
 import { renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 import type { Mock } from 'vitest';
 
 import { ITile } from '../../../../components/Catalog/Catalog.models';
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
-import { StepUpdateAction } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { EntityType } from '../../../../models/entities';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';

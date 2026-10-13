@@ -1,10 +1,10 @@
 import { ProcessorDefinition, To } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 import { parse } from 'yaml';
 
 import { getCamelRandomId, getHexaDecimalRandomId } from '../../../../camel-utils/camel-random-id';
 import { XSLT_COMPONENT_NAME } from '../../../../utils';
 import { DefinedComponent } from '../../../camel/camel-catalog-index';
-import { CatalogKind } from '../../../catalog-kind';
 
 /**
  * CamelComponentDefaultService

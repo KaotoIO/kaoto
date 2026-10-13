@@ -1,8 +1,8 @@
+import { CatalogKind } from '@kaoto/editor-api';
 import { isDefined } from '@kaoto/forms';
 import { cloneDeep } from 'lodash';
 
 import { DynamicCatalogRegistry } from '../../../../dynamic-catalog/dynamic-catalog-registry';
-import { CatalogKind } from '../../../catalog-kind';
 import { ICitrusComponentDefinition } from '../../../citrus/citrus-catalog';
 import { TestAction, TestActions } from '../../../citrus/entities/Test';
 import { KaotoSchemaDefinition } from '../../../kaoto-schema';

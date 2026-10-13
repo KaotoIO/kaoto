@@ -1,7 +1,8 @@
+import { CatalogKind } from '@kaoto/editor-api';
 import { isDefined } from '@kaoto/forms';
 
 import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
-import { CatalogKind, ICamelComponentDefinition } from '../../../../../../models';
+import { ICamelComponentDefinition } from '../../../../../../models';
 import { ParsedParameters } from '../../../../../../utils';
 
 export class MultiValuePropertyService {

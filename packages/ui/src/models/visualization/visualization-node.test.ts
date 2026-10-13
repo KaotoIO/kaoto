@@ -1,8 +1,7 @@
+import { CatalogKind, NodeLabelType } from '@kaoto/editor-api';
 import { cloneDeep } from 'lodash';
 
 import { camelRouteJson } from '../../stubs/camel-route';
-import { CatalogKind } from '../catalog-kind';
-import { NodeLabelType } from '../settings';
 import { IClipboardContent } from '../visualization/clipboard';
 import {
   AddStepMode,

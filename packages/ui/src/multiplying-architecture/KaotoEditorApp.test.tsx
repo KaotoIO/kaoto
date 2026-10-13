@@ -1,3 +1,4 @@
+import { CatalogKind, ColorScheme, FileTypes, StepUpdateAction } from '@kaoto/editor-api';
 import { SuggestionRequestContext } from '@kaoto/forms';
 import {
   ChannelType,
@@ -13,8 +14,7 @@ import { KeyboardShortcutsService } from '@kie-tools-core/keyboard-shortcuts/dis
 import { OperatingSystem } from '@kie-tools-core/operating-system/dist/OperatingSystem';
 import { RefObject } from 'react';
 
-import { CatalogKind, FileTypes, StepUpdateAction } from '../models';
-import { AbstractSettingsAdapter, ColorScheme, DefaultSettingsAdapter } from '../models/settings';
+import { AbstractSettingsAdapter, DefaultSettingsAdapter } from '../models/settings';
 import { DARK_MODE_CARBON_ATTR_NAME, DARK_MODE_PATTERN_FLY_CLASS_NAME } from '../utils/color-scheme';
 import { EditService } from './EditService';
 import { KaotoEditorApp } from './KaotoEditorApp';

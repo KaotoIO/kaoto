@@ -1,3 +1,4 @@
+import { CatalogKind } from '@kaoto/editor-api';
 import {
   CanvasFormTabsContext,
   CanvasFormTabsContextResult,
@@ -9,7 +10,7 @@ import { Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from
 import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { CatalogModalContext } from '../../../../../../dynamic-catalog/catalog-modal.provider';
-import { CatalogKind, KaotoSchemaDefinition } from '../../../../../../models';
+import { KaotoSchemaDefinition } from '../../../../../../models';
 import { ROOT_PATH } from '../../../../../../utils';
 import { ITile, TileFilter } from '../../../../../Catalog';
 import { EndpointFieldInner } from './EndpointFieldInner';

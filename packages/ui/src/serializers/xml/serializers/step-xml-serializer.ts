@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import { DoTry } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
-import { CatalogKind, ICamelComponentDefinition, ICamelProcessorProperty } from '../../../models';
+import { ICamelComponentDefinition, ICamelProcessorProperty } from '../../../models';
 import { CamelUriHelper, ParsedParameters } from '../../../utils';
 import { ARRAY_TYPE_NAMES, PROCESSOR_NAMES } from '../utils/xml-utils';
 import { ExpressionXmlSerializer } from './expression-xml-serializer';

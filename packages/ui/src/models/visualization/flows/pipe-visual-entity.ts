@@ -1,4 +1,5 @@
 import { Pipe } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
@@ -11,7 +12,6 @@ import {
   updatePipeFromCustomSchema,
 } from '../../../utils';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
-import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities';
 import { PipeStep } from '../../entities/pipe-overrides';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';

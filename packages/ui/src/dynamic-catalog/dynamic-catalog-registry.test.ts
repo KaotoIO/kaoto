@@ -1,4 +1,5 @@
 import { KaotoFunction, KaotoFunctionArgument } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 
 import {
   ICamelComponentDefinition,
@@ -6,7 +7,6 @@ import {
   ICamelProcessorDefinition,
   IKameletDefinition,
 } from '../models';
-import { CatalogKind } from '../models/catalog-kind';
 import { DynamicCatalog } from './dynamic-catalog';
 import { DynamicCatalogRegistry } from './dynamic-catalog-registry';
 import { ICatalogProvider, IDynamicCatalogRegistry } from './models';

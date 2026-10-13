@@ -1,8 +1,8 @@
+import { NodeLabelType } from '@kaoto/editor-api';
 import { action, makeObservable, observable } from 'mobx';
 
 import { DefinedComponent } from '../camel/camel-catalog-index';
 import { KaotoSchemaDefinition } from '../kaoto-schema';
-import { NodeLabelType } from '../settings/settings.model';
 import { IClipboardContent } from '../visualization/clipboard';
 import {
   AddStepMode,

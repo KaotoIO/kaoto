@@ -1,5 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { CatalogKind, NodeLabelType } from '@kaoto/editor-api';
 import { cloneDeep } from 'lodash';
 
 import { DynamicCatalog } from '../../../dynamic-catalog/dynamic-catalog';
@@ -10,12 +11,10 @@ import { citrusTestJson } from '../../../stubs/citrus-test';
 import { getFirstCitrusCatalogMap, setupCitrusDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
 import { setValue } from '../../../utils';
 import { ICamelProcessorDefinition } from '../../camel/camel-processors-catalog';
-import { CatalogKind } from '../../catalog-kind';
 import { CITRUS_TEST_ROOT_ENTITY_NAME } from '../../citrus/citrus-catalog-index';
 import { Test, TestActions } from '../../citrus/entities/Test';
 import { EntityType } from '../../entities/base-entity';
 import { PlaceholderType } from '../../placeholder.constants';
-import { NodeLabelType } from '../../settings/settings.model';
 import { AddStepMode } from '../base-visual-entity';
 import { CitrusTestVisualEntity, isCitrusTest } from './citrus-test-visual-entity';
 import { CitrusTestSchemaService } from './support/citrus-test-schema.service';

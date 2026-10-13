@@ -1,38 +1,10 @@
-export const enum NodeLabelType {
-  Id = 'id',
-  Description = 'description',
-}
-
-export const enum NodeToolbarTrigger {
-  onHover = 'onHover',
-  onSelection = 'onSelection',
-}
-
-export const enum ColorScheme {
-  Auto = 'auto',
-  Light = 'light',
-  Dark = 'dark',
-}
-
-export const enum CanvasLayoutDirection {
-  SelectInCanvas = 'SelectInCanvas',
-  Horizontal = 'Horizontal',
-  Vertical = 'Vertical',
-}
-
-export interface ISettingsModel {
-  catalogUrl: string;
-  runtimeCatalogName: string;
-  testingCatalogName: string;
-  nodeLabel: NodeLabelType;
-  nodeToolbarTrigger: NodeToolbarTrigger;
-  colorScheme: ColorScheme;
-  rest: {
-    apicurioRegistryUrl: string;
-    customMediaTypes: string[];
-  };
-  canvasLayoutDirection: CanvasLayoutDirection;
-}
+import {
+  CanvasLayoutDirection,
+  ColorScheme,
+  ISettingsModel,
+  NodeLabelType,
+  NodeToolbarTrigger,
+} from '@kaoto/editor-api';
 
 export interface AbstractSettingsAdapter {
   getSettings(): ISettingsModel;

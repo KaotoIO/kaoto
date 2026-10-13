@@ -1,10 +1,10 @@
+import { CatalogKind } from '@kaoto/editor-api';
 import { Visualization, VisualizationProvider } from '@patternfly/react-topology';
 import { renderHook } from '@testing-library/react';
 import { cloneDeep } from 'lodash';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
-import { CatalogKind } from '../../../../models/catalog-kind';
 import {
   AddStepMode,
   IVisualizationNode,

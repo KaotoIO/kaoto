@@ -1,4 +1,5 @@
-import { CatalogKind } from '../../../../../models';
+import { CatalogKind } from '@kaoto/editor-api';
+
 import { FormTest } from './FormTest';
 
 const target = { kind: CatalogKind.Pattern, range: { start: 0, end: undefined } } as const;

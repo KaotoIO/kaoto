@@ -1,4 +1,5 @@
-import { CatalogKind } from '../../../catalog-kind';
+import { CatalogKind } from '@kaoto/editor-api';
+
 import { EntityType } from '../../../entities';
 import { IVisualizationNode } from '../../base-visual-entity';
 import { getIconRequest } from './resolvers/icon-resolver/getIconRequest';

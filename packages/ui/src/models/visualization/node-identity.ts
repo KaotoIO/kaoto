@@ -1,5 +1,5 @@
 // packages/ui/src/models/visualization/node-identity.ts
-import { CatalogKind } from '../catalog-kind';
+import { CatalogKind } from '@kaoto/editor-api';
 
 /**
  * A single identity descriptor for a visualization node.

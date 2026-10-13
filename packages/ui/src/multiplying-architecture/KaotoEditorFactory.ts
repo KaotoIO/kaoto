@@ -1,3 +1,4 @@
+import { ISettingsModel } from '@kaoto/editor-api';
 import { isDefined } from '@kaoto/forms';
 import {
   Editor,
@@ -6,7 +7,7 @@ import {
   KogitoEditorEnvelopeContextType,
 } from '@kie-tools-core/editor/dist/api';
 
-import { DefaultSettingsAdapter, ISettingsModel, SettingsModel } from '../models';
+import { DefaultSettingsAdapter, SettingsModel } from '../models';
 import { CatalogSchemaLoader, promiseTimeout } from '../utils';
 import { KaotoEditorApp } from './KaotoEditorApp';
 import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';

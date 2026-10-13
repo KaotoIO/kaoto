@@ -1,8 +1,8 @@
 import { Pipe as PipeType } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 import { parse } from 'yaml';
 
 import { ITile, TileFilter } from '../../components/Catalog/Catalog.models';
-import { CatalogKind } from '../catalog-kind';
 import { BaseEntity, EntityType, PipeSpecErrorHandler } from '../entities';
 import { AddStepMode, IVisualizationNodeData } from '../visualization/base-visual-entity';
 import { PipeVisualEntity } from '../visualization/flows';

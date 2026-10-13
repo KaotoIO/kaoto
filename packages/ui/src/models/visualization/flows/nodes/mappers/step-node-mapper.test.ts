@@ -1,8 +1,8 @@
 import { RouteDefinition } from '@kaoto/camel-catalog/types';
+import { CatalogKind } from '@kaoto/editor-api';
 import { parse } from 'yaml';
 
 import { DATAMAPPER_ID_PREFIX } from '../../../../../utils';
-import { CatalogKind } from '../../../../catalog-kind';
 import { RootNodeMapper } from '../root-node-mapper';
 import { DataMapperNodeMapper } from './datamapper-node-mapper';
 import { StepNodeMapper } from './step-node-mapper';

@@ -1,5 +1,6 @@
+import { CatalogKind } from '@kaoto/editor-api';
+
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
-import { CatalogKind } from '../../../models/catalog-kind';
 import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
 import { CamelUriHelper, ParsedParameters } from '../../../utils/camel-uri-helper';
 import { getValue } from '../../../utils/get-value';
