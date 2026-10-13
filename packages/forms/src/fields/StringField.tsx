@@ -27,6 +27,17 @@ export const StringField: FunctionComponent<StringFieldProps> = ({
   const { value = '', errors, disabled, isRaw, onChange } = useFieldValue<string | number>(propName);
   const isNumberSchema = schema.type === 'number' || schema.type === 'integer';
   const [fieldValue, setFieldValue] = useState<string | number>(value);
+  const [previousValue, setPreviousValue] = useState(value);
+  const [lastEmittedValue, setLastEmittedValue] = useState<string | number | undefined>(undefined);
+
+  if (!Object.is(previousValue, value)) {
+    setPreviousValue(value);
+    // Keep local numeric drafts such as "2.0" when the model echoes the number 2.
+    if (!Object.is(value, lastEmittedValue)) {
+      setFieldValue(value);
+      setLastEmittedValue(undefined);
+    }
+  }
 
   const lastPropName = propName.split('.').pop();
   const clearButtonAriaLabel = isDefined(onRemoveProps) ? 'Remove' : `Clear ${lastPropName} field`;
@@ -43,12 +54,9 @@ export const StringField: FunctionComponent<StringFieldProps> = ({
       /* To handle inputs under construction, for instance 2. */
       const isPartialNumber = typeof newValue === 'string' && newValue.endsWith('.');
 
-      if (isNumber && !isPartialNumber) {
-        onChange(Number(newValue));
-        return;
-      }
-
-      onChange(newValue);
+      const emittedValue = isNumber && !isPartialNumber ? Number(newValue) : newValue;
+      setLastEmittedValue(emittedValue);
+      onChange(emittedValue);
     },
     [isNumberSchema, onChange],
   );
@@ -68,6 +76,7 @@ export const StringField: FunctionComponent<StringFieldProps> = ({
 
     /** Clear field by removing its value */
     onChange(undefined as unknown as string);
+    setLastEmittedValue('');
     setFieldValue('');
     inputRef.current?.focus();
   };
@@ -76,6 +85,7 @@ export const StringField: FunctionComponent<StringFieldProps> = ({
     if (typeof value !== 'string') return;
 
     const newValue = isRawString(value) ? value.substring(4, value.length - 1) : `RAW(${value})`;
+    setLastEmittedValue(newValue);
     onChange(newValue);
     setFieldValue(newValue);
   };
@@ -104,7 +114,7 @@ export const StringField: FunctionComponent<StringFieldProps> = ({
       title={schema.title}
       type={schemaType}
       description={schema.description}
-      defaultValue={schema.default?.toString()}
+      defaultValue={typeof schema.default === 'object' ? undefined : schema.default?.toString()}
       errors={errors}
       isRaw={isRaw}
       onOpenSuggestions={openSuggestions}
@@ -118,7 +128,7 @@ export const StringField: FunctionComponent<StringFieldProps> = ({
             id={propName}
             name={propName}
             type={fieldType}
-            placeholder={schema.default?.toString()}
+            placeholder={typeof schema.default === 'object' ? undefined : schema.default?.toString()}
             value={fieldValue}
             data-testid={propName}
             onChange={handleTextInputChange}

@@ -231,7 +231,7 @@ export class KaotoFormPageObject {
   /**
    * Finds the URI field for the specified property name.
    */
-  async findUriInputForProperty(propertyName: string): Promise<HTMLInputElement> {
+  findUriInputForProperty(propertyName: string): Promise<HTMLInputElement> {
     return waitFor(() => {
       const input = this.getUriInputForProperty(propertyName);
       if (!input) {
