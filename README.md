@@ -169,8 +169,9 @@ Let's try also our Visual Studio Code extension from the **[VS Code Marketplace]
 - Mozilla Firefox
 - Google Chrome
 - Microsoft Edge
+- Safari (experimental)
 
-> ⚠️ Microsoft Internet Explorer and Safari are not supported
+> ⚠️ Microsoft Internet Explorer is not supported
 
 ## Getting Started
 
