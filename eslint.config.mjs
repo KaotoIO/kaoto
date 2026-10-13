@@ -29,6 +29,7 @@ export default [
   // have no tsconfig. Each file's owning tsconfig is resolved by the project service.
   {
     files: [
+      'packages/editor-api/src/**/*.ts',
       'packages/ui/src/**/*.{ts,tsx}',
       'packages/ui-tests/cypress/**/*.{ts,tsx}',
       'packages/ui-tests/stories/**/*.{ts,tsx}',

@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+
+    /* Typings */
+    "types": ["@testing-library/jest-dom/vitest", "vitest/globals", "node"]
+  },
+  "include": ["src", "vitest-setup.ts", "vitest-mocks-setup.ts"]
+}

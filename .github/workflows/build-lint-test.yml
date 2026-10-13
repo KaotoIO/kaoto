@@ -57,6 +57,11 @@ jobs:
           cache: yarn
       - name: Install dependencies
         run: yarn install --immutable --mode=skip-build
+      - name: Validate editor API
+        run: |
+          yarn workspace @kaoto/editor-api lint
+          yarn workspace @kaoto/editor-api typecheck
+          yarn workspace @kaoto/editor-api test
       - name: Lint UI and test sources
         run: |
           yarn workspace @kaoto/kaoto lint
