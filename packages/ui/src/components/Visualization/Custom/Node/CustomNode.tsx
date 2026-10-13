@@ -56,13 +56,16 @@ interface CustomNodeProps extends DefaultNodeProps {
   onCollapseToggle?: () => void;
 }
 
-const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
-  ({ element, onContextMenu, onCollapseToggle, selected, onSelect }) => {
+interface CustomNodeInnerProps extends CustomNodeProps {
+  vizNode: IVisualizationNode;
+}
+
+const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
+  ({ element, vizNode, onContextMenu, onCollapseToggle, selected, onSelect }) => {
     if (!isNode(element)) {
       throw new Error('CustomNodeInner must be used only on Node elements');
     }
 
-    const vizNode: IVisualizationNode = element.getData()?.vizNode;
     const lastUpdate = vizNode?.lastUpdate;
     const boxXRef = useRef<number | null>(null);
     const boxYRef = useRef<number | null>(null);
@@ -199,9 +202,9 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const draggedVizNodePath = draggedVizNode?.data.path;
     const isDraggingWithinGroup =
       isDraggingGroupType &&
-      draggedVizNode?.getId() === element.getData().vizNode.getId() &&
+      draggedVizNode?.getId() === vizNode.getId() &&
       isDefined(draggedVizNodePath) &&
-      element.getData().vizNode.data.path.startsWith(draggedVizNodePath + '.');
+      (vizNode.data.path?.startsWith(draggedVizNodePath + '.') ?? false);
     const isDraggedNode = isDraggingNode || isDraggingWithinGroup;
     const loadGhostNode = dndDropProps.droppable && ((isDraggingGroupType && isDraggingWithinGroup) || isDraggingNode);
     const box = element.getBounds();
@@ -337,8 +340,9 @@ const CustomNode: FunctionComponent<CustomNodeProps> = ({ element, ...rest }: Cu
   if (!isNode(element)) {
     throw new Error('CustomNode must be used only on Node elements');
   }
-  if (!element.getData()?.vizNode) return null;
-  return <CustomNodeInner element={element} {...rest} />;
+  const vizNode = element.getData()?.vizNode;
+  if (!vizNode) return null;
+  return <CustomNodeInner element={element} {...rest} vizNode={vizNode} />;
 };
 
 export const CustomNodeObserver = observer(CustomNode);
