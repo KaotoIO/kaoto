@@ -5,15 +5,14 @@ import {
 	FileTypes,
 	FileTypesResponse,
 	ISettingsModel,
-	KaotoEditorChannelApi,
 	NodeLabelType,
 	NodeToolbarTrigger,
 	RuntimeMavenInformation,
-	SettingsModel,
 	StepUpdateAction,
 	Suggestion,
 	SuggestionRequestContext,
-} from '@kaoto/kaoto/models';
+} from '@kaoto/editor-api';
+import { KaotoEditorChannelApi, SettingsModel } from '@kaoto/kaoto/models';
 import { BackendProxy } from '@kie-tools-core/backend/dist/api';
 import { I18n } from '@kie-tools-core/i18n/dist/core';
 import { DefaultVsCodeKieEditorChannelApiImpl } from '@kie-tools-core/vscode-extension/dist/DefaultVsCodeKieEditorChannelApiImpl';
