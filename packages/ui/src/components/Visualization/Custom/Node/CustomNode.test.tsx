@@ -1,10 +1,7 @@
 import { action, BaseEdge, NodeModel } from '@patternfly/react-topology';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
-import { NodeToolbarTrigger, SettingsModel } from '../../../../models/settings/settings.model';
-import { CanvasToolbarProvider } from '../../../../providers/canvas-toolbar.provider';
-import { SettingsProvider } from '../../../../providers/settings.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { TopologyElementWrapper } from '../../../../stubs/topology-element-wrapper';
 import { ControllerService } from '../../Canvas/controller.service';
@@ -32,7 +29,6 @@ describe('CustomNode', () => {
 
   const renderCustomNode = async (props?: {
     selected?: boolean;
-    toolbarTrigger?: NodeToolbarTrigger;
     withSelection?: boolean;
     onSelect?: () => void;
     onContextMenu?: () => void;
@@ -47,7 +43,6 @@ describe('CustomNode', () => {
       description: props?.description ?? '',
       iconUrl: '',
     }) as IVisualizationNode;
-    vi.spyOn(vizNode, 'getNodeInteraction').mockReturnValue({ ...vizNode.getNodeInteraction(), canRemoveStep: true });
     vi.spyOn(vizNode, 'getNodeLabel').mockReturnValue('log');
     vi.spyOn(vizNode, 'getNodeValidationText').mockResolvedValue(undefined);
     vi.spyOn(vizNode, 'canDragNode').mockReturnValue(false);
@@ -60,59 +55,19 @@ describe('CustomNode', () => {
     const NodeComponent = props?.withSelection ? CustomNodeWithSelection : CustomNodeObserver;
     const result = render(
       <Provider>
-        <SettingsProvider
-          adapter={{
-            getSettings: () =>
-              new SettingsModel({ nodeToolbarTrigger: props?.toolbarTrigger ?? NodeToolbarTrigger.onHover }),
-            saveSettings: vi.fn(),
-          }}
-        >
-          <CanvasToolbarProvider>
-            <TopologyElementWrapper controller={controller} element={element}>
-              <NodeComponent
-                element={element}
-                selected={props?.selected}
-                onSelect={props?.onSelect}
-                onContextMenu={props?.onContextMenu}
-              />
-            </TopologyElementWrapper>
-          </CanvasToolbarProvider>
-        </SettingsProvider>
+        <TopologyElementWrapper controller={controller} element={element}>
+          <NodeComponent
+            element={element}
+            selected={props?.selected}
+            onSelect={props?.onSelect}
+            onContextMenu={props?.onContextMenu}
+          />
+        </TopologyElementWrapper>
       </Provider>,
     );
 
     return { ...result, vizNode, element, controller };
   };
-
-  it('shows a selected node toolbar only while hovered in onHover mode', async () => {
-    const { container } = await renderCustomNode({ selected: true });
-    const node = container.querySelector('.custom-node')!;
-    expect(node).toHaveAttribute('data-toolbar-open', 'false');
-    fireEvent.mouseEnter(node);
-    await waitFor(() => expect(node).toHaveAttribute('data-toolbar-open', 'true'));
-    fireEvent.mouseLeave(node);
-    await waitFor(() => expect(node).toHaveAttribute('data-toolbar-open', 'false'));
-  });
-
-  it('keeps a selected node toolbar open without hover in onSelection mode', async () => {
-    const { container } = await renderCustomNode({ selected: true, toolbarTrigger: NodeToolbarTrigger.onSelection });
-    expect(container.querySelector('.custom-node')).toHaveAttribute('data-toolbar-open', 'true');
-  });
-
-  it('does not open an unselected node toolbar on hover in onSelection mode', async () => {
-    const { container } = await renderCustomNode({ selected: false, toolbarTrigger: NodeToolbarTrigger.onSelection });
-    const node = container.querySelector('.custom-node')!;
-    vi.useFakeTimers();
-    try {
-      fireEvent.mouseEnter(node);
-      await act(async () => {
-        vi.advanceTimersByTime(600);
-      });
-      expect(node).toHaveAttribute('data-toolbar-open', 'false');
-    } finally {
-      vi.useRealTimers();
-    }
-  });
 
   it('updates the production node when visualization data disappears and returns', async () => {
     const { element, vizNode } = await renderCustomNode({ withSelection: true });
