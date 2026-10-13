@@ -1,4 +1,4 @@
-import { act, fireEvent, render, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { JSONSchema4 } from 'json-schema';
 import { ReactNode, useMemo, useState } from 'react';
 import type { Mock } from 'vitest';
@@ -322,6 +322,65 @@ describe('StringField', () => {
     });
 
     expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, 'invalid-number');
+  });
+
+  it('should update the displayed value when the model changes externally', () => {
+    const onPropertyChange = vi.fn();
+    const schema: JSONSchema4 = { title: 'Name', type: 'string' };
+
+    const { rerender } = render(
+      <ModelContext.Provider value={{ model: { name: 'initial' }, errors: {}, onPropertyChange }}>
+        <SchemaProvider schema={schema}>
+          <StringField propName="name" />
+        </SchemaProvider>
+      </ModelContext.Provider>,
+    );
+
+    expect(screen.getByRole('textbox')).toHaveValue('initial');
+
+    rerender(
+      <ModelContext.Provider value={{ model: { name: 'updated' }, errors: {}, onPropertyChange }}>
+        <SchemaProvider schema={schema}>
+          <StringField propName="name" />
+        </SchemaProvider>
+      </ModelContext.Provider>,
+    );
+
+    expect(screen.getByRole('textbox')).toHaveValue('updated');
+    expect(onPropertyChange).not.toHaveBeenCalled();
+  });
+
+  it('should preserve "2.0" draft when model echoes back 2', async () => {
+    const onPropertyChange = vi.fn();
+    const schema: JSONSchema4 = { title: 'Count', type: 'number' };
+
+    const { rerender } = render(
+      <ModelContext.Provider value={{ model: { count: undefined }, errors: {}, onPropertyChange }}>
+        <SchemaProvider schema={schema}>
+          <StringField propName="count" />
+        </SchemaProvider>
+      </ModelContext.Provider>,
+    );
+
+    // User types "2.0" — onChange emits Number("2.0") === 2
+    const input = screen.getByRole('textbox');
+    act(() => {
+      fireEvent.change(input, { target: { value: '2.0' } });
+    });
+    // Draft "2.0" should remain in the input
+    expect(input).toHaveValue('2.0');
+
+    // Parent echoes back model: { count: 2 }
+    rerender(
+      <ModelContext.Provider value={{ model: { count: 2 }, errors: {}, onPropertyChange }}>
+        <SchemaProvider schema={schema}>
+          <StringField propName="count" />
+        </SchemaProvider>
+      </ModelContext.Provider>,
+    );
+
+    // The draft "2.0" should be preserved because 2 === lastEmittedValue
+    expect(input).toHaveValue('2.0');
   });
 
   it('should show suggestions when Ctrl+Space is pressed', async () => {

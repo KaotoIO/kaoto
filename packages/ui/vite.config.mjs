@@ -1,11 +1,12 @@
 // @ts-check
+import { fileURLToPath } from 'node:url';
+
 import react from '@vitejs/plugin-react';
 import { defaultClientConditions, defineConfig } from 'vite';
 
 import { getBuildInfoDefines } from '../../scripts/build-info.mjs';
 import { camelCatalogPlugin } from './scripts/camel-catalog-plugin.mjs';
 import { getCatalogFiles } from './scripts/get-catalog-files.mjs';
-import { fileURLToPath } from 'url';
 
 // https://vite.dev/config/
 
@@ -40,9 +41,9 @@ export default defineConfig({
         replacement: '',
       },
       // For linking forms
-      { 
-        find: '@kaoto/forms', 
-        replacement: fileURLToPath(new URL('../forms/src/index.ts', import.meta.url)) 
+      {
+        find: '@kaoto/forms',
+        replacement: fileURLToPath(new URL('../forms/src/index.ts', import.meta.url)),
       },
     ],
   },

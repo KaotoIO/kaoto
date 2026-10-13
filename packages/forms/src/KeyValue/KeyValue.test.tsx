@@ -1,4 +1,5 @@
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { useState } from 'react';
 
 import { KeyValue, KeyValueType } from './KeyValue';
 
@@ -73,5 +74,48 @@ describe('KeyValue', () => {
     fireEvent.change(wrapper.getByDisplayValue('value1'), { target: { value: 'newValue1' } });
 
     expect(onChange).toHaveBeenCalledWith({ key1: 'newValue1', key2: 'value2' });
+  });
+
+  it('should update displayed entries when initialModel prop changes externally', () => {
+    const onChangeMock = vi.fn();
+
+    const { rerender } = render(
+      <KeyValue propName={propName} initialModel={{ key1: 'value1' }} onChange={onChangeMock} />,
+    );
+
+    expect(screen.getByDisplayValue('key1')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('value1')).toBeInTheDocument();
+
+    rerender(<KeyValue propName={propName} initialModel={{ key2: 'value2' }} onChange={onChangeMock} />);
+
+    expect(screen.getByDisplayValue('key2')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('value2')).toBeInTheDocument();
+    expect(onChangeMock).not.toHaveBeenCalled();
+  });
+
+  it('should not reset entries when the parent echoes back the emitted model', () => {
+    const onChangeMock = vi.fn();
+
+    const ControlledKeyValue = () => {
+      const [model, setModel] = useState<Record<string, string>>({ key1: 'value1' });
+      return (
+        <KeyValue
+          propName={propName}
+          initialModel={model}
+          onChange={(newModel) => {
+            onChangeMock(newModel);
+            setModel({ ...newModel }); // parent clones the emitted object
+          }}
+        />
+      );
+    };
+
+    render(<ControlledKeyValue />);
+
+    // Add a new property
+    fireEvent.click(screen.getByTestId(`${propName}__add`));
+
+    // onChange called once for the add action, not a second time for the echo
+    expect(onChangeMock).toHaveBeenCalledTimes(1);
   });
 });
