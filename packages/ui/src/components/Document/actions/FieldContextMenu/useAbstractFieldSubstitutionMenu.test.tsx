@@ -68,6 +68,50 @@ describe('useAbstractFieldSubstitutionMenu', () => {
     return { document, documentNodeData, abstractNode, abstractAnimalField };
   };
 
+  it('should reuse substitution candidates across renders and refresh them for another field', () => {
+    const { abstractNode } = createAbstractFieldNode();
+    const candidatesSpy = vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates');
+    const { result, rerender } = renderHook(({ node }) => useAbstractFieldSubstitutionMenu(node.nodeData), {
+      wrapper,
+      initialProps: { node: abstractNode },
+    });
+    expect(candidatesSpy).toHaveBeenCalled();
+    candidatesSpy.mockClear();
+
+    rerender({ node: abstractNode });
+    rerender({ node: abstractNode });
+    expect(candidatesSpy).not.toHaveBeenCalled();
+    expect(result.current.groups.flatMap((group) => group.actions.map((action) => action.label))).toContain('Cat');
+
+    const replacement = createAbstractFieldNode();
+    candidatesSpy.mockClear();
+    rerender({ node: replacement.abstractNode });
+    expect(candidatesSpy).toHaveBeenCalledWith(replacement.abstractAnimalField, expect.any(Object));
+    candidatesSpy.mockRestore();
+  });
+
+  it('should build modal candidates only when the substitution modal is opened', () => {
+    const { documentNodeData, abstractNode } = createAbstractFieldNode(true);
+    const modalSpy = vi.spyOn(AbstractFieldService, 'buildAbstractCandidates');
+    render(
+      <SourceDocumentNodeWithContextMenu
+        treeNode={abstractNode}
+        documentNodeId={documentNodeData.id}
+        isReadOnly={false}
+        rank={1}
+      />,
+      { wrapper },
+    );
+    expect(modalSpy).not.toHaveBeenCalled();
+
+    fireEvent.contextMenu(screen.getByTestId(`node-source-${abstractNode.nodeData.id}`));
+    expect(modalSpy).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByText('Select Substitute...'));
+    expect(screen.getByText('Select substitute for AbstractAnimal')).toBeInTheDocument();
+    expect(modalSpy).toHaveBeenCalled();
+    modalSpy.mockRestore();
+  });
+
   it('should refresh the selected candidate when the existing field changes', () => {
     const { abstractNode, abstractAnimalField } = createAbstractFieldNode(false);
     const { result, rerender } = renderHook(() => useAbstractFieldSubstitutionMenu(abstractNode.nodeData), { wrapper });

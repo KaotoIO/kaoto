@@ -86,6 +86,23 @@ describe('Canvas', () => {
     expect(result.asFragment()).toMatchSnapshot();
   });
 
+  it('should keep the selection listener registered while selection changes rerender the canvas', async () => {
+    const { container, controller } = await renderCanvas();
+    const addSpy = vi.spyOn(controller, 'addEventListener');
+    const removeSpy = vi.spyOn(controller, 'removeEventListener');
+
+    act(() => {
+      controller.fireEvent(SELECTION_EVENT, ['route-8888']);
+    });
+    expect(container.querySelector('.pf-m-expanded')).toBeInTheDocument();
+    act(() => {
+      controller.fireEvent(SELECTION_EVENT, []);
+    });
+    expect(container.querySelector('.pf-m-expanded')).not.toBeInTheDocument();
+    expect(addSpy.mock.calls.filter(([type]) => type === SELECTION_EVENT)).toHaveLength(0);
+    expect(removeSpy.mock.calls.filter(([type]) => type === SELECTION_EVENT)).toHaveLength(0);
+  });
+
   it('should clear the selection when Escape is pressed on the canvas', async () => {
     const { container, controller } = await renderCanvas();
 

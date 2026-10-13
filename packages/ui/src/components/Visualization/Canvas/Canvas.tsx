@@ -114,10 +114,14 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   const selectedVizNode = useSelectedVizNode(selectedIds);
   useDeleteHotkey(selectedVizNode, clearSelection);
 
-  useEventListener<SelectionEventListener>(SELECTION_EVENT, (ids) => {
-    setSelectedIds(ids);
-    setInitialized(controller.hasGraph() && controller.getGraph().getLayout() !== undefined);
-  });
+  const handleSelection = useCallback<SelectionEventListener>(
+    (ids) => {
+      setSelectedIds(ids);
+      setInitialized(controller.hasGraph() && controller.getGraph().getLayout() !== undefined);
+    },
+    [controller],
+  );
+  useEventListener<SelectionEventListener>(SELECTION_EVENT, handleSelection);
 
   /** Draw graph */
   useEffect(() => {

@@ -1,11 +1,14 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, renderHook, screen } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
+import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../../../../models/datamapper/document';
 import { DocumentTree } from '../../../../models/datamapper/document-tree';
 import { FieldItem, MappingTree } from '../../../../models/datamapper/mapping';
-import { Types } from '../../../../models/datamapper/types';
+import { NS_XML_SCHEMA } from '../../../../models/datamapper/standard-namespaces';
+import { FieldOverrideVariant, Types } from '../../../../models/datamapper/types';
 import {
+  ChoiceFieldNodeData,
   DocumentNodeData,
   FieldNodeData,
   TargetChoiceFieldNodeData,
@@ -22,8 +25,10 @@ import { ChoiceFieldService } from '../../../../services/visualization/choice-fi
 import { TreeParsingService } from '../../../../services/visualization/tree-parsing.service';
 import { VisualizationService } from '../../../../services/visualization/visualization.service';
 import { getChoiceWithAbstractXsd, getTestDocumentXsd, TestUtil } from '../../../../stubs/datamapper/data-mapper';
+import { QName } from '../../../../xml-schema-ts/QName';
 import { SourceDocumentNodeWithContextMenu } from '../../SourceDocumentNode';
 import { TargetDocumentNodeWithContextMenu } from '../../TargetDocumentNode';
+import { useChoiceContextMenu } from './useChoiceContextMenu';
 
 describe('useChoiceContextMenu', () => {
   const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
@@ -874,6 +879,77 @@ describe('useChoiceContextMenu', () => {
       const choiceField = (choiceNode.nodeData as FieldNodeData).field;
       return { document, documentNodeData, choiceNode, choiceField };
     }
+
+    it('should reuse dissolved candidates while keeping mutable choice selection current', () => {
+      const { choiceNode, choiceField } = findChoiceTreeNode();
+      const candidatesSpy = vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates');
+      const { result, rerender } = renderHook(({ node }) => useChoiceContextMenu(node.nodeData), {
+        wrapper,
+        initialProps: { node: choiceNode },
+      });
+      const hasClearAction = () =>
+        result.current.groups.some((group) => group.actions.some((action) => action.label === 'Clear selection'));
+      expect(candidatesSpy).toHaveBeenCalled();
+      expect(hasClearAction()).toBe(false);
+      candidatesSpy.mockClear();
+
+      rerender({ node: choiceNode });
+      expect(candidatesSpy).not.toHaveBeenCalled();
+      choiceField.selectedMemberIndex = 1;
+      rerender({ node: choiceNode });
+      expect(hasClearAction()).toBe(true);
+      expect(candidatesSpy).not.toHaveBeenCalled();
+      choiceField.selectedMemberIndex = undefined;
+      rerender({ node: choiceNode });
+      expect(hasClearAction()).toBe(false);
+
+      const replacement = findChoiceTreeNode();
+      candidatesSpy.mockClear();
+      rerender({ node: replacement.choiceNode });
+      expect(candidatesSpy).toHaveBeenCalled();
+      candidatesSpy.mockRestore();
+    });
+
+    it('should refresh candidate types and children after overriding an existing choice member', () => {
+      const { document, choiceNode, choiceField } = findChoiceTreeNode();
+      choiceField.selectedMemberIndex = 1;
+      const selectedNode = new ChoiceFieldNodeData(
+        (choiceNode.nodeData as FieldNodeData).parent,
+        choiceField.fields[1],
+      );
+      selectedNode.choiceField = choiceField;
+      const { result } = renderHook(() => ({ menu: useChoiceContextMenu(selectedNode), mapper: useDataMapper() }), {
+        wrapper,
+      });
+      act(() => {
+        result.current.menu.groups
+          .flatMap((group) => group.actions)
+          .find((action) => action.label === 'Select Member...')!
+          .onClick();
+      });
+      const { rerender } = render(result.current.menu.modals);
+      expect(screen.getByText('Fields: url')).toBeInTheDocument();
+
+      act(() => {
+        const { namespaceMap } = result.current.mapper.mappingTree;
+        const previousRefId = document.getReferenceId(namespaceMap);
+        FieldOverrideService.applyFieldTypeOverride(
+          choiceField.fields[1],
+          {
+            displayName: 'xs:string',
+            typeQName: new QName(NS_XML_SCHEMA, 'string'),
+            type: Types.String,
+            isBuiltIn: true,
+          },
+          namespaceMap,
+          FieldOverrideVariant.FORCE,
+        );
+        result.current.mapper.updateDocument(document, document.definition, previousRefId);
+      });
+      rerender(result.current.menu.modals);
+      expect(screen.getByText('string')).toBeInTheDocument();
+      expect(screen.queryByText('Fields: url')).not.toBeInTheDocument();
+    });
 
     it('should dissolve abstract member into substitution candidates in context menu', () => {
       const { documentNodeData, choiceNode } = findChoiceTreeNode(DocumentType.SOURCE_BODY);

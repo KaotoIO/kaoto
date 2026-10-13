@@ -1,6 +1,6 @@
 import { Choices } from '@carbon/icons-react';
 import { CheckIcon } from '@patternfly/react-icons';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { IField } from '../../../../models/datamapper/document';
@@ -28,7 +28,7 @@ export function useAbstractFieldSubstitutionMenu(nodeData: NodeData): MenuContri
 
   const [isSubstitutionModalOpen, setIsSubstitutionModalOpen] = useState(false);
 
-  const candidates = AbstractFieldService.resolveSubstitutionCandidates(abstractWrapperField, mappingTree.namespaceMap);
+  const { candidates, modalCandidates } = useSubstitutionCandidates(abstractWrapperField, isSubstitutionModalOpen);
 
   const selectedQName = AbstractFieldService.resolveSelectedQName(abstractWrapperField, candidates);
 
@@ -127,10 +127,6 @@ export function useAbstractFieldSubstitutionMenu(nodeData: NodeData): MenuContri
     setIsSubstitutionModalOpen(false);
   };
 
-  const modalCandidates = abstractWrapperField
-    ? AbstractFieldService.buildAbstractCandidates(abstractWrapperField, mappingTree.namespaceMap)
-    : [];
-
   const handleModalSelect = (selection: IMemberSelection) => {
     if (selection.substituteQName) handleSelectSubstitution(selection.substituteQName);
   };
@@ -153,4 +149,21 @@ export function useAbstractFieldSubstitutionMenu(nodeData: NodeData): MenuContri
         />
       ) : null,
   };
+}
+
+function useSubstitutionCandidates(field: IField | undefined, isModalOpen: boolean) {
+  const { structuralMappingTree } = useDataMapper();
+  // Structural edits can mutate fields in place; the snapshot invalidates the cached schema lookup.
+  const candidates = useMemo(
+    () => AbstractFieldService.resolveSubstitutionCandidates(field, structuralMappingTree.namespaceMap),
+    [field, structuralMappingTree],
+  );
+  const modalCandidates = useMemo(
+    () =>
+      isModalOpen && field
+        ? AbstractFieldService.buildAbstractCandidates(field, structuralMappingTree.namespaceMap)
+        : [],
+    [isModalOpen, field, structuralMappingTree],
+  );
+  return { candidates, modalCandidates };
 }

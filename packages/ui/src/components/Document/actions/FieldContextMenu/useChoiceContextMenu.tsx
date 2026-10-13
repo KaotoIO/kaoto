@@ -1,6 +1,6 @@
 import { Choices } from '@carbon/icons-react';
 import { CheckIcon } from '@patternfly/react-icons';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { IField } from '../../../../models/datamapper/document';
@@ -33,10 +33,7 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
 
   const [isChoiceModalOpen, setIsChoiceModalOpen] = useState(false);
 
-  const dissolved = (() => {
-    const members = effectiveChoiceWrapper?.fields ?? [];
-    return ChoiceFieldService.dissolveChoiceMembers(members, mappingTree.namespaceMap);
-  })();
+  const dissolved = useChoiceCandidates(effectiveChoiceWrapper?.fields);
 
   const applyChoiceSelection = (wrapper: IField, selection: IMemberSelection) => {
     ChoiceFieldService.dispatchChoiceSelection(nodeData, wrapper, selection, mappingTree.namespaceMap, isTargetSide);
@@ -176,4 +173,13 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
         />
       ) : null,
   };
+}
+
+function useChoiceCandidates(members: IField[] | undefined) {
+  const { structuralMappingTree } = useDataMapper();
+  // Type overrides mutate members in place, so their presentation follows the structural snapshot.
+  return useMemo(
+    () => ChoiceFieldService.dissolveChoiceMembers(members ?? [], structuralMappingTree.namespaceMap),
+    [members, structuralMappingTree],
+  );
 }
