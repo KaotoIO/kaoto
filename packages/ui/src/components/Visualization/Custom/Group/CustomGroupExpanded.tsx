@@ -61,13 +61,16 @@ const FOCUS_RING_OFFSET = 3.5;
 // Keep shadows inside a clipped foreignObject so WebKit repaints their old bounds.
 const GROUP_PAINT_PADDING = 24;
 
-export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = observer(
-  ({ element, onContextMenu, onCollapseToggle, selected, onSelect }) => {
+interface CustomGroupExpandedInnerProps extends CustomGroupProps {
+  vizNode: IVisualizationNode;
+}
+
+export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInnerProps> = observer(
+  ({ element, vizNode: groupVizNode, onContextMenu, onCollapseToggle, selected, onSelect }) => {
     if (!isNode(element)) {
       throw new Error('CustomGroupExpanded must be used only on Node elements');
     }
 
-    const groupVizNode: IVisualizationNode = element.getData()?.vizNode;
     const lastUpdate = groupVizNode?.lastUpdate;
     const settingsAdapter = useContext(SettingsContext);
     const entitiesContext = useEntityContext();
@@ -181,9 +184,9 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
     const draggedVizNodePath = draggedVizNode?.data.path;
     const isDraggingGroup = dragGroupProps.node?.getId() === element.getId();
     const refreshGroup =
-      draggedVizNode?.getId() === element.getData().vizNode.getId() &&
+      draggedVizNode?.getId() === groupVizNode.getId() &&
       isDefined(draggedVizNodePath) &&
-      element.getData().vizNode.data.path.startsWith(draggedVizNodePath + '.');
+      (groupVizNode.data.path?.startsWith(draggedVizNodePath + '.') ?? false);
 
     const dropDirection: 'forward' | 'backward' | null =
       dndDropProps.droppable && dndDropProps.canDrop && draggedVizNode
@@ -348,6 +351,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
 
 export const CustomGroupExpanded: FunctionComponent<CustomGroupProps> = observer((props) => {
   if (!isNode(props.element)) throw new Error('CustomGroupExpanded must be used only on Node elements');
-  if (!props.element.getData()?.vizNode) return null;
-  return <CustomGroupExpandedInner {...props} />;
+  const vizNode = props.element.getData()?.vizNode;
+  if (!vizNode) return null;
+  return <CustomGroupExpandedInner {...props} vizNode={vizNode} />;
 });

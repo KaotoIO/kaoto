@@ -1,4 +1,5 @@
 import {
+  action,
   BaseEdge,
   DndManager,
   DndManagerImpl,
@@ -145,6 +146,26 @@ describe('CustomGroupExpanded', () => {
     const { container } = await renderInContext(<CustomGroupExpanded element={element} />);
 
     expect(container).toMatchSnapshot();
+  });
+
+  it('updates the group when visualization data disappears and returns', async () => {
+    const vizNode = createChoiceVizNode();
+    createController({ vizNode });
+    const element = controller.getNodeById(GROUP_ID)!;
+    await renderInContext(<CustomGroupExpanded element={element} />);
+
+    act(
+      action(() => {
+        element.setData({});
+      }),
+    );
+    expect(screen.queryByTestId('custom-group__choice-1')).not.toBeInTheDocument();
+    act(
+      action(() => {
+        element.setData({ vizNode });
+      }),
+    );
+    expect(screen.getByTestId('custom-group__choice-1')).toBeInTheDocument();
   });
 
   it('should render group container with data-testid when vizNode is provided', async () => {
