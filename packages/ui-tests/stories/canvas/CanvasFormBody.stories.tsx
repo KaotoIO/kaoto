@@ -1,7 +1,7 @@
+import { CatalogKind } from '@kaoto/editor-api';
 import { CanvasFormTabsContext, SuggestionRegistryProvider } from '@kaoto/forms';
 import {
   CanvasFormBody,
-  CatalogKind,
   CatalogLoaderProvider,
   CatalogSchemaLoader,
   createVisualizationNode,

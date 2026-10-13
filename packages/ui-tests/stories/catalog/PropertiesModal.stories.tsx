@@ -1,6 +1,6 @@
+import type { CatalogKind } from '@kaoto/editor-api';
 import { ITile, PropertiesModal } from '@kaoto/kaoto';
 import {
-  type CatalogKind,
   CatalogLoaderProvider,
   CatalogSchemaLoader,
   CatalogTilesProvider,
