@@ -103,6 +103,8 @@ export const usePanZoom = (options: PanZoomOptions = {}): PanZoomRef => {
     };
   }, [enableSpacebarPanning]);
 
+  // Bind SVG listeners and reactions to this graph. Ref callbacks run before the
+  // layout effect updates elementRef when the initial graph is replaced.
   return useCallbackRef<PanZoomRef>((node: SVGGElement | null) => {
     let disposeListener: IReactionDisposer | undefined;
     let handleMouseMove: ((event: MouseEvent) => void) | undefined;
@@ -134,18 +136,16 @@ export const usePanZoom = (options: PanZoomOptions = {}): PanZoomRef => {
 
               if (!isPanningRef.current && (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2)) {
                 isPanningRef.current = true;
-                elementRef.current
-                  .getController()
-                  .fireEvent(GRAPH_AREA_DRAGGING_EVENT, { graph: elementRef.current, isDragging: true });
+                element.getController().fireEvent(GRAPH_AREA_DRAGGING_EVENT, { graph: element, isDragging: true });
                 document.body.style.cursor = 'grabbing';
               }
 
               if (isPanningRef.current) {
-                const currentBounds = elementRef.current.getBounds();
+                const currentBounds = element.getBounds();
                 const newX = currentBounds.x + deltaX;
                 const newY = currentBounds.y + deltaY;
 
-                elementRef.current.setPosition(new Point(newX, newY));
+                element.setPosition(new Point(newX, newY));
 
                 lastMousePositionRef.current = { x: event.clientX, y: event.clientY };
               }
@@ -156,9 +156,7 @@ export const usePanZoom = (options: PanZoomOptions = {}): PanZoomRef => {
             lastMousePositionRef.current = null;
             if (isPanningRef.current) {
               isPanningRef.current = false;
-              elementRef.current
-                .getController()
-                .fireEvent(GRAPH_AREA_DRAGGING_EVENT, { graph: elementRef.current, isDragging: false });
+              element.getController().fireEvent(GRAPH_AREA_DRAGGING_EVENT, { graph: element, isDragging: false });
               if (isSpacebarPressedRef.current) {
                 document.body.style.cursor = 'grab';
               }
@@ -170,9 +168,7 @@ export const usePanZoom = (options: PanZoomOptions = {}): PanZoomRef => {
             lastMousePositionRef.current = null;
             if (isPanningRef.current) {
               isPanningRef.current = false;
-              elementRef.current
-                .getController()
-                .fireEvent(GRAPH_AREA_DRAGGING_EVENT, { graph: elementRef.current, isDragging: false });
+              element.getController().fireEvent(GRAPH_AREA_DRAGGING_EVENT, { graph: element, isDragging: false });
             }
           };
 
@@ -184,26 +180,22 @@ export const usePanZoom = (options: PanZoomOptions = {}): PanZoomRef => {
       }
       const zoom = d3
         .zoom()
-        .scaleExtent(elementRef.current.getScaleExtent())
+        .scaleExtent(element.getScaleExtent())
         .on(
           'zoom',
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           action((event: d3.D3ZoomEvent<any, any>) => {
             if (event.sourceEvent?.type === 'mousemove') {
-              elementRef.current
-                .getController()
-                .fireEvent(GRAPH_AREA_DRAGGING_EVENT, { graph: elementRef.current, isDragging: true });
+              element.getController().fireEvent(GRAPH_AREA_DRAGGING_EVENT, { graph: element, isDragging: true });
             }
-            elementRef.current.setPosition(new Point(event.transform.x, event.transform.y));
-            elementRef.current.setScale(event.transform.k);
+            element.setPosition(new Point(event.transform.x, event.transform.y));
+            element.setScale(event.transform.k);
           }),
         )
         .on(
           'end',
           action(() => {
-            elementRef.current
-              .getController()
-              .fireEvent(GRAPH_AREA_DRAGGING_EVENT, { graph: elementRef.current, isDragging: false });
+            element.getController().fireEvent(GRAPH_AREA_DRAGGING_EVENT, { graph: element, isDragging: false });
           }),
         )
         .filter((event: React.MouseEvent) => {
@@ -222,13 +214,13 @@ export const usePanZoom = (options: PanZoomOptions = {}): PanZoomRef => {
       // This is kinda hacky because when d3 has already made the most recent transform update,
       // we listen for the model change, due to the above, only to update the d3 transform again.
       disposeListener = autorun(() => {
-        const scale = elementRef.current.getScale();
-        const scaleExtent = elementRef.current.getScaleExtent();
+        const scale = element.getScale();
+        const scaleExtent = element.getScaleExtent();
 
         // update the min scaling value such that the user can zoom out to the new scale in case
         // it is smaller than the default zoom out scale
         zoom.scaleExtent([Math.min(scale, scaleExtent[0]), scaleExtent[1]]);
-        const b = elementRef.current.getBounds();
+        const b = element.getBounds();
 
         // update d3 zoom data directly
 
