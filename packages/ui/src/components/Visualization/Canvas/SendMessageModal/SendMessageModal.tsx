@@ -114,6 +114,7 @@ export const SendMessageModal: FunctionComponent<SendMessageModalProps> = ({
   }, [isOpen, options]);
 
   const handleImportMessage = useCallback((template: MessageTemplate) => {
+    bodyTextRequestRef.current = null;
     bodyFileRequestRef.current = null;
     setBodyType(template.bodyType);
     setBody(template.bodyType === 'text' ? template.body : '');

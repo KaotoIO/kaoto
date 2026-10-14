@@ -202,6 +202,36 @@ describe('SendMessageModal', () => {
     expect(screen.getByTestId('send-message-body-textarea')).toHaveValue('new draft');
   });
 
+  it('preserves an imported template when a pending text-file read completes', async () => {
+    let finishRead: (value: string) => void = () => {};
+    const bodyFile = new File(['late text'], 'body.txt');
+    vi.spyOn(bodyFile, 'text').mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          finishRead = resolve;
+        }),
+    );
+    renderWithProvider({ endpoint: 'direct:orders' });
+    fireEvent.change(screen.getByTestId('send-message-file-import-input'), {
+      target: { files: [bodyFile] },
+    });
+    const template = {
+      format: 'kaoto-message',
+      version: 1,
+      bodyType: 'text',
+      body: 'template body',
+      headers: [],
+    };
+    fireEvent.change(screen.getByTestId('send-message-template-input'), {
+      target: { files: [new File([JSON.stringify(template)], 'message.json')] },
+    });
+    await waitFor(() => expect(screen.getByTestId('send-message-body-textarea')).toHaveValue('template body'));
+    await act(async () => {
+      finishRead('late text');
+    });
+    expect(screen.getByTestId('send-message-body-textarea')).toHaveValue('template body');
+  });
+
   it('does not apply a pending body file to a reopened dialog', async () => {
     const readers: FileReader[] = [];
     vi.spyOn(FileReader.prototype, 'readAsDataURL').mockImplementation(function (this: FileReader) {
