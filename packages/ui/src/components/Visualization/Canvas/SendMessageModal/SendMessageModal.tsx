@@ -95,15 +95,19 @@ export const SendMessageModal: FunctionComponent<SendMessageModalProps> = ({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const bodyFileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Synchronize initial state when modal opens
-  useEffect(() => {
+  const [previousInputs, setPreviousInputs] = useState<{ isOpen: boolean; options: typeof options }>({
+    isOpen: false,
+    options: null,
+  });
+  if (previousInputs.isOpen !== isOpen || previousInputs.options !== options) {
+    setPreviousInputs({ isOpen, options });
     if (isOpen) {
       setBodyType('text');
       setBody(options?.initialBody ?? '');
       setFileBody(null);
       setHeaders(
-        options?.initialHeaders?.map((h) => ({
-          id: generateId('header'),
+        options?.initialHeaders?.map((h, index) => ({
+          id: `initial-header-${index}`,
           key: h.key,
           value: h.value,
         })) ?? [],
@@ -111,7 +115,7 @@ export const SendMessageModal: FunctionComponent<SendMessageModalProps> = ({
       setFormatError(null);
       setIsImportingMessage(false);
     }
-  }, [isOpen, options]);
+  }
 
   const handleImportMessage = useCallback((template: MessageTemplate) => {
     bodyTextRequestRef.current = null;
@@ -255,7 +259,7 @@ export const SendMessageModal: FunctionComponent<SendMessageModalProps> = ({
         // error handled in provider
       }
     }
-  }, [options?.endpoint, headers, bodyType, body, fileBody, sendMessage, hasInvalidHeaders, isImportingMessage]);
+  }, [options, headers, bodyType, body, fileBody, sendMessage, hasInvalidHeaders, isImportingMessage]);
 
   const modalTitle = options?.title ?? `Send a test message to ${options?.endpoint ?? 'endpoint'}`;
   const modalSubtitle = options?.subtitle ?? 'It goes to the endpoint the route starts from, in the running app.';
