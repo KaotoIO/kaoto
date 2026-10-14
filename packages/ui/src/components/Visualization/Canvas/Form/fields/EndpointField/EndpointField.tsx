@@ -18,7 +18,7 @@ export const EndpointField: FunctionComponent<FieldProps> = ({ propName, require
   const endpointsHandler = useMemo(() => new EndpointsEntityHandler(testResource), [testResource]);
   const endpointsSchema = testResource?.getEndpointsSchema();
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [lastUpdated, setLastUpdated] = useState<number>(Date.now());
+  const [lastUpdated, setLastUpdated] = useState<number>(() => Date.now());
 
   const items = useMemo(() => {
     return (

@@ -5,6 +5,7 @@ import { LayerGroupIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback } from 'react';
 
 import { ForEachGroupItem, ForEachItem, SortItem } from '../../../../../models/datamapper/mapping';
+import { MappingService } from '../../../../../services/mapping/mapping.service';
 import { DataMapperModal } from '../../../../DataMapper/DataMapperModal';
 import { SortKeySection } from './SortKeySection';
 import { useSortKeyEntries } from './useSortKeyEntries';
@@ -21,7 +22,7 @@ export const SortModal: FunctionComponent<SortModalProps> = ({ isOpen, onClose, 
     useSortKeyEntries(mapping.sortItems, onClose, [new SortItem()]);
 
   const handleSave = useCallback(() => {
-    mapping.sortItems = getSortItems();
+    MappingService.updateSortItems(mapping, getSortItems());
     onUpdate();
     onClose();
   }, [getSortItems, mapping, onUpdate, onClose]);

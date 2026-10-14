@@ -1,4 +1,5 @@
-import { render, waitFor } from '@testing-library/react';
+import { render, renderHook, waitFor } from '@testing-library/react';
+import { StrictMode, useContext } from 'react';
 import type { MockInstance } from 'vitest';
 
 import { IMetadataApi, MetadataContext } from '../../providers';
@@ -9,7 +10,10 @@ import {
   IOnDeleteAddon,
   IRegisteredInteractionAddon,
 } from './interactions/node-interaction-addon.model';
-import { NodeInteractionAddonContext } from './interactions/node-interaction-addon.provider';
+import {
+  NodeInteractionAddonContext,
+  NodeInteractionAddonProvider,
+} from './interactions/node-interaction-addon.provider';
 import { RegisterNodeInteractionAddons } from './RegisterNodeInteractionAddons';
 
 describe('RegisterNodeInteractionAddons', () => {
@@ -61,6 +65,47 @@ describe('RegisterNodeInteractionAddons', () => {
 
   const getOnDeleteAddon = (registered: IRegisteredInteractionAddon[]) =>
     registered.find((addon) => addon.type === IInteractionType.ON_DELETE) as IOnDeleteAddon;
+
+  it('keeps another caller’s registration when the same addon is registered twice', () => {
+    const { result } = renderHook(() => useContext(NodeInteractionAddonContext), {
+      wrapper: NodeInteractionAddonProvider,
+    });
+    const addon: IOnDeleteAddon = {
+      type: IInteractionType.ON_DELETE,
+      activationFn: () => true,
+      callback: () => {},
+    };
+    const firstCleanup = result.current.registerInteractionAddon(addon);
+    const secondCleanup = result.current.registerInteractionAddon(addon);
+    expect(result.current.getRegisteredInteractionAddons(IInteractionType.ON_DELETE)).toEqual([addon, addon]);
+
+    secondCleanup?.();
+    expect(result.current.getRegisteredInteractionAddons(IInteractionType.ON_DELETE)).toEqual([addon]);
+    secondCleanup?.();
+    expect(result.current.getRegisteredInteractionAddons(IInteractionType.ON_DELETE)).toEqual([addon]);
+    firstCleanup?.();
+    expect(result.current.getRegisteredInteractionAddons(IInteractionType.ON_DELETE)).toEqual([]);
+  });
+
+  it('registers each addon once through StrictMode and releases it on unmount', () => {
+    const { result, rerender, unmount } = renderHook(() => useContext(NodeInteractionAddonContext), {
+      wrapper: ({ children }) => (
+        <StrictMode>
+          <NodeInteractionAddonProvider>
+            <RegisterNodeInteractionAddons>{children}</RegisterNodeInteractionAddons>
+          </NodeInteractionAddonProvider>
+        </StrictMode>
+      ),
+    });
+    const getAddons = result.current.getRegisteredInteractionAddons;
+    for (const type of Object.values(IInteractionType)) {
+      expect(getAddons(type)).toHaveLength(1);
+    }
+    rerender();
+    expect(getAddons(IInteractionType.ON_DELETE)).toHaveLength(1);
+    unmount();
+    expect(getAddons(IInteractionType.ON_DELETE)).toHaveLength(0);
+  });
 
   it('registers all four interaction addon types', () => {
     const { registered } = renderWithSpy();

@@ -433,11 +433,15 @@ export class XmlSchemaDocumentService {
       throw new Error(`Unable to find a root element ${newRootQName.toString()}`);
     }
 
-    document.definition.fieldTypeOverrides = [];
-    document.definition.choiceSelections = [];
-    document.definition.fieldSubstitutions = [];
+    const definition: DocumentDefinition = {
+      ...document.definition,
+      rootElementChoice: rootElementOption,
+      fieldTypeOverrides: [],
+      choiceSelections: [],
+      fieldSubstitutions: [],
+    };
 
-    const newDocument = new XmlSchemaDocument(document.definition, document.xmlSchemaCollection, newRootElement);
+    const newDocument = new XmlSchemaDocument(definition, document.xmlSchemaCollection, newRootElement);
 
     XmlSchemaDocumentService.populateNamedTypeFragments(newDocument);
     XmlSchemaDocumentService.populateElement(newDocument, newDocument.fields, newDocument.rootElement!);

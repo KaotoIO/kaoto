@@ -27,16 +27,13 @@ export const BaseCatalog: FunctionComponent<BaseCatalogProps> = (props) => {
     [props],
   );
 
+  // Clamp during rendering so filtering never commits an empty, out-of-range page.
+  const lastPage = Math.max(1, Math.ceil(itemCount / perPage));
+  if (page > lastPage || page < 1) setPage(Math.min(lastPage, Math.max(1, page)));
   const startIndex = Math.max(0, (page - 1) * perPage);
   const endIndex = page * perPage;
   useEffect(() => {
-    // Handling the scenario where the item count is less the page selected.
-    if (startIndex + 1 > itemCount) {
-      setPage(Math.ceil(itemCount / perPage));
-    } else if (page === 0 && itemCount > 0) setPage(1);
-
     catalogBodyRef.current!.scrollTop = 0;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.tiles]);
 
   const onSelectDataListItem = useCallback(

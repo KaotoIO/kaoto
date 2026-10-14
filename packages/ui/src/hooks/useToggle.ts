@@ -13,15 +13,17 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 type OnToggleReturnType = Promise<boolean> | boolean;
 
 export function useToggle(initialState: boolean, onToggle?: (toggled: boolean) => OnToggleReturnType) {
   const [state, setState] = useState(initialState);
-  useEffect(() => {
+  const [previousInitialState, setPreviousInitialState] = useState(initialState);
+  if (previousInitialState !== initialState) {
+    setPreviousInitialState(initialState);
     setState(initialState);
-  }, [initialState]);
+  }
   const toggle = useCallback(async () => {
     const newState = onToggle ? await onToggle(!state) : !state;
     setState(newState);

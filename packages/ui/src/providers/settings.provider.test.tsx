@@ -1,7 +1,7 @@
 import { act, render } from '@testing-library/react';
-import { useContext, useEffect, useState } from 'react';
+import { useContext } from 'react';
 
-import { DefaultSettingsAdapter, SettingsModel } from '../models/settings';
+import { DefaultSettingsAdapter } from '../models/settings';
 import { SettingsContext, SettingsProvider } from './settings.provider';
 
 describe('SettingsProvider', () => {
@@ -22,11 +22,7 @@ describe('SettingsProvider', () => {
 
 const TestProvider = () => {
   const settingsContext = useContext(SettingsContext);
-  const [settings, setSettings] = useState<SettingsModel | null>(null);
-
-  useEffect(() => {
-    setSettings(settingsContext.getSettings());
-  }, [settingsContext]);
+  const settings = settingsContext.getSettings();
 
   return <p data-testid="settings">{JSON.stringify(settings)}</p>;
 };

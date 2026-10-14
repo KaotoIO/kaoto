@@ -1,13 +1,12 @@
 import './SourcePanel.scss';
 
 import { Label } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, useCallback, useEffect, useMemo, useSyncExternalStore } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 
 import { useConnectionPortSync } from '../../hooks/useConnectionPortSync.hook';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { DocumentType } from '../../models/datamapper/document';
-import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentNodeData } from '../../models/datamapper/visualization';
 import { TreeUIService } from '../../services/visualization/tree-ui.service';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
@@ -35,10 +34,12 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
 
   // Create tree for source body
   const sourceBodyNodeData = useMemo(() => new DocumentNodeData(sourceBodyDocument), [sourceBodyDocument]);
-  const [sourceBodyTree, setSourceBodyTree] = useState<DocumentTree | undefined>(undefined);
-
+  const sourceBodyTree = useSyncExternalStore(
+    useDocumentTreeStore.subscribe,
+    useCallback(() => TreeUIService.getTree(sourceBodyNodeData.id), [sourceBodyNodeData.id]),
+  );
   useEffect(() => {
-    setSourceBodyTree(TreeUIService.createTree(sourceBodyNodeData));
+    TreeUIService.createTree(sourceBodyNodeData);
   }, [sourceBodyNodeData]);
 
   // Optimize: Select only the expansion state for this document

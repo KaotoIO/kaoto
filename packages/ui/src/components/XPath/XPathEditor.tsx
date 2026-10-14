@@ -1,7 +1,7 @@
 import './XPathEditor.scss';
 
 import * as monaco from 'monaco-editor';
-import { FunctionComponent, useEffect, useRef, useState } from 'react';
+import { FunctionComponent, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { IExpressionHolder } from '../../models/datamapper';
 import { getMonacoXPathLanguageMetadata } from '../../services/xpath/monaco-language';
@@ -22,7 +22,9 @@ export const XPathEditor: FunctionComponent<XPathEditorProps> = ({ mapping, onCh
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
   const monacoEl = useRef<HTMLDivElement>(null);
   const onChangeRef = useRef(onChange);
-  onChangeRef.current = onChange;
+  useLayoutEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
   const xpathLanguage = getMonacoXPathLanguageMetadata();
 
   useEffect(() => {

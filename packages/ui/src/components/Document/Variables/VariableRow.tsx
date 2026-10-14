@@ -92,7 +92,7 @@ export const VariableRow: FunctionComponent<VariableRowProps> = ({
   const handleExpressionUpdate = useCallback(() => {
     const isStructural = !!(variable.rawElement && variable.expression);
     if (isStructural) {
-      variable.rawElement = undefined;
+      MappingService.updateVariable(variable, variable.name, variable.expression);
     }
     refreshMappingTree(isStructural ? { structural: true } : undefined);
   }, [variable, refreshMappingTree]);

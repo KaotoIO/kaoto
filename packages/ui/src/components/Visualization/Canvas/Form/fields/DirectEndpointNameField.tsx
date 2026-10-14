@@ -1,6 +1,6 @@
 import { FieldProps, FieldWrapper, SchemaContext, Typeahead, useFieldValue } from '@kaoto/forms';
 import { Button, InputGroup, InputGroupItem } from '@patternfly/react-core';
-import { FunctionComponent, useContext, useEffect, useState } from 'react';
+import { FunctionComponent, useContext, useState } from 'react';
 
 import { EntitiesContext } from '../../../../../providers/entities.provider';
 import { VisibleFlowsContext } from '../../../../../providers/visible-flows.provider';
@@ -13,9 +13,11 @@ export const DirectEndpointNameField: FunctionComponent<FieldProps> = ({ propNam
   const visibleFlowsContext = useContext(VisibleFlowsContext);
   const [typedInputValue, setTypedInputValue] = useState(value);
 
-  useEffect(() => {
+  const [previousValue, setPreviousValue] = useState(value);
+  if (previousValue !== value) {
+    setPreviousValue(value);
     setTypedInputValue(value);
-  }, [value]);
+  }
 
   const { existingDirectRouteNames, items, selectedItem, typedName, onTypeaheadChange, onCleanInput } =
     useDirectEndpointNameOptions({

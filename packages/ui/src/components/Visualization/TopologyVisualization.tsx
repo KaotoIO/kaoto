@@ -31,9 +31,14 @@ export const TopologyVisualization: FunctionComponent<TopologyVisualizationProps
     edges: [],
   });
 
+  const [wasResolving, setWasResolving] = useState(isResolving);
+  if (wasResolving !== isResolving) {
+    setWasResolving(isResolving);
+    if (isResolving) setCanvasModel({ nodes: [], edges: [] });
+  }
+
   useEffect(() => {
     if (isResolving) {
-      setCanvasModel({ nodes: [], edges: [] });
       return;
     }
 

@@ -1,7 +1,8 @@
 import { Button, FormGroup, ModalBody, ModalFooter, ModalHeader, ModalVariant, TextArea } from '@patternfly/react-core';
-import { FormEvent, FunctionComponent, useCallback, useEffect, useState } from 'react';
+import { FormEvent, FunctionComponent, useCallback, useState } from 'react';
 
 import { MappingItem } from '../../../../../models/datamapper/mapping';
+import { MappingService } from '../../../../../services/mapping/mapping.service';
 import { DataMapperModal } from '../../../../DataMapper/DataMapperModal';
 
 interface CommentModalProps {
@@ -27,14 +28,14 @@ export const CommentModal: FunctionComponent<CommentModalProps> = ({
   showDeleteButton = true,
   withFormGroup = false,
 }) => {
-  const [commentText, setCommentText] = useState('');
+  const comment = mapping.comment || '';
+  const [commentText, setCommentText] = useState(isOpen ? comment : '');
+  const [previousSource, setPreviousSource] = useState({ isOpen, comment });
 
-  // Update commentText when modal opens or mapping changes
-  useEffect(() => {
-    if (isOpen) {
-      setCommentText(mapping.comment || '');
-    }
-  }, [isOpen, mapping.comment]);
+  if (previousSource.isOpen !== isOpen || previousSource.comment !== comment) {
+    setPreviousSource({ isOpen, comment });
+    if (isOpen) setCommentText(comment);
+  }
 
   const handleCommentChange = useCallback((_event: FormEvent, value: string) => {
     setCommentText(value);
@@ -46,13 +47,13 @@ export const CommentModal: FunctionComponent<CommentModalProps> = ({
   }, [onClose]);
 
   const handleConfirm = useCallback(() => {
-    mapping.comment = commentText.trim() || undefined;
+    MappingService.updateComment(mapping, commentText);
     onUpdate();
     handleClose();
   }, [commentText, mapping, onUpdate, handleClose]);
 
   const handleDelete = useCallback(() => {
-    mapping.comment = undefined;
+    MappingService.updateComment(mapping, undefined);
     onUpdate();
     handleClose();
   }, [mapping, onUpdate, handleClose]);

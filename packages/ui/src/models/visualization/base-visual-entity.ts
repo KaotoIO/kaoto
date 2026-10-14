@@ -144,6 +144,7 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   getOmitFormFields(): string[];
 
   updateModel(value: unknown): void;
+  switchComponentMode(processorName: string): boolean;
 
   getParentNode(): IVisualizationNode | undefined;
 

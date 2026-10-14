@@ -114,6 +114,15 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   const selectedVizNode = useSelectedVizNode(selectedIds);
   useDeleteHotkey(selectedVizNode, clearSelection);
 
+  const handleSelection = useCallback<SelectionEventListener>(
+    (ids) => {
+      setSelectedIds(ids);
+      setInitialized(controller.hasGraph() && controller.getGraph().getLayout() !== undefined);
+    },
+    [controller],
+  );
+  useEventListener<SelectionEventListener>(SELECTION_EVENT, handleSelection);
+
   /** Draw graph */
   useEffect(() => {
     if (isModelResolving) {
@@ -121,7 +130,6 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     }
 
     const requestedSelection = consumeNodeSelection(controller, nodes);
-    setSelectedIds(requestedSelection ?? []);
 
     const model: Model = {
       nodes,
@@ -135,7 +143,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
 
     if (!initialized || wasGraphEmpty) {
       controller.fromModel(model, false);
-      setInitialized(true);
+      controller.fireEvent(SELECTION_EVENT, requestedSelection ?? []);
 
       requestAnimationFrame(() => {
         controller.getGraph().fit(CanvasDefaults.CANVAS_FIT_PADDING);
@@ -148,10 +156,10 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       applyCollapseState(controller);
     }
     controller.getGraph().layout();
+    controller.fireEvent(SELECTION_EVENT, requestedSelection ?? []);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [controller, nodes, edges, isModelResolving, applyCollapseOnUpdate]);
 
-  useEventListener<SelectionEventListener>(SELECTION_EVENT, setSelectedIds);
   useSelectedNodePanIntoView(selectedIds);
 
   const controlButtons = useMemo(() => {

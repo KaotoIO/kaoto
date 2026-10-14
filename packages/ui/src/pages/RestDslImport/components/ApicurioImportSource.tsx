@@ -1,6 +1,6 @@
 import { Button, List, ListItem, Radio, SearchInput } from '@patternfly/react-core';
 import { CheckCircleIcon } from '@patternfly/react-icons';
-import { FunctionComponent, useCallback, useEffect, useState } from 'react';
+import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ApicurioArtifact, ApicurioArtifactSearchResult, SchemaLoadedResult } from '../RestDslImportTypes';
 
@@ -11,53 +11,55 @@ type ApicurioImportSourceProps = {
 
 export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> = ({ registryUrl, onSchemaLoaded }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [artifacts, setArtifacts] = useState<ApicurioArtifact[]>([]);
-  const [filteredArtifacts, setFilteredArtifacts] = useState<ApicurioArtifact[]>([]);
   const [selectedId, setSelectedId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState('');
 
-  const fetchArtifacts = useCallback(async () => {
-    setIsLoading(true);
-    setError('');
+  const [requestVersion, setRequestVersion] = useState(0);
+  const request = useMemo(() => ({ registryUrl, requestVersion }), [registryUrl, requestVersion]);
+  const [artifactResult, setArtifactResult] = useState<{ request: typeof request; artifacts: ApicurioArtifact[] }>();
+  const [completedRequest, setCompletedRequest] = useState<typeof request>();
+  const isFetchingArtifacts = !!registryUrl && completedRequest !== request;
+  const artifacts = artifactResult?.request === request ? artifactResult.artifacts : [];
 
-    try {
-      const response = await fetch(`${registryUrl}/apis/registry/v2/search/artifacts`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch artifacts (${response.status})`);
+  useEffect(() => {
+    if (!registryUrl) return;
+    let cancelled = false;
+    const fetchArtifacts = async () => {
+      try {
+        const response = await fetch(`${registryUrl}/apis/registry/v2/search/artifacts`);
+        if (!response.ok) throw new Error(`Failed to fetch artifacts (${response.status})`);
+        const result = (await response.json()) as ApicurioArtifactSearchResult;
+        if (cancelled) return;
+        setArtifactResult({
+          request,
+          artifacts: (result.artifacts ?? []).filter((artifact) => artifact.type === 'OPENAPI'),
+        });
+        setError('');
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : 'Unable to fetch artifacts from Apicurio Registry.');
+        }
+      } finally {
+        if (!cancelled) setCompletedRequest(request);
       }
-      const result = (await response.json()) as ApicurioArtifactSearchResult;
-      const openapiArtifacts = (result.artifacts ?? []).filter((artifact) => artifact.type === 'OPENAPI');
-      setArtifacts(openapiArtifacts);
-      setFilteredArtifacts(openapiArtifacts);
-      setError('');
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unable to fetch artifacts from Apicurio Registry.';
-      setError(message);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [registryUrl]);
+    };
+    void fetchArtifacts();
+    return () => {
+      cancelled = true;
+    };
+  }, [registryUrl, request]);
 
-  useEffect(() => {
-    if (registryUrl) {
-      fetchArtifacts().catch((error) => {
-        console.error('Failed to fetch artifacts:', error);
-      });
-    }
-  }, [fetchArtifacts, registryUrl]);
-
-  useEffect(() => {
-    if (!searchTerm.trim()) {
-      setFilteredArtifacts(artifacts);
-      return;
-    }
-    const lowered = searchTerm.toLowerCase();
-    setFilteredArtifacts(
-      artifacts.filter((artifact) => (artifact.name ?? artifact.id ?? '').toLowerCase().includes(lowered)),
-    );
-  }, [artifacts, searchTerm]);
+  const fetchArtifacts = () => {
+    setError('');
+    setRequestVersion((version) => version + 1);
+  };
+  const filteredArtifacts = searchTerm.trim()
+    ? artifacts.filter((artifact) =>
+        (artifact.name ?? artifact.id ?? '').toLowerCase().includes(searchTerm.toLowerCase()),
+      )
+    : artifacts;
 
   const handleLoadArtifact = useCallback(
     async (artifactId: string) => {
@@ -130,7 +132,7 @@ export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> 
             setSearchTerm(value);
           }}
         />
-        <Button variant="secondary" onClick={fetchArtifacts} isDisabled={isLoading}>
+        <Button variant="secondary" onClick={fetchArtifacts} isDisabled={isLoading || isFetchingArtifacts}>
           Refresh
         </Button>
       </div>
@@ -154,7 +156,9 @@ export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> 
               />
             </ListItem>
           ))}
-          {filteredArtifacts.length === 0 && !isLoading && <ListItem>No OpenAPI artifacts found.</ListItem>}
+          {filteredArtifacts.length === 0 && !isLoading && !isFetchingArtifacts && (
+            <ListItem>No OpenAPI artifacts found.</ListItem>
+          )}
         </List>
       </div>
       {isLoaded && (

@@ -13,16 +13,19 @@ import { IVisualizationNode } from '../../../../models';
  * @returns The validation text, or `undefined` while it resolves or when there is nothing to report.
  */
 export const useNodeValidationText = (vizNode?: IVisualizationNode): string | undefined => {
-  const [validationText, setValidationText] = useState<string | undefined>(undefined);
+  const [validation, setValidation] = useState<{
+    node: IVisualizationNode;
+    lastUpdate: number;
+    text: string | undefined;
+  }>();
   const lastUpdate = vizNode?.lastUpdate;
 
   useEffect(() => {
     let cancelled = false;
-    setValidationText(undefined);
     vizNode
       ?.getNodeValidationText()
       .then((text) => {
-        if (!cancelled) setValidationText(text);
+        if (!cancelled) setValidation({ node: vizNode, lastUpdate: lastUpdate!, text });
       })
       .catch((error) => {
         if (cancelled) return;
@@ -34,5 +37,5 @@ export const useNodeValidationText = (vizNode?: IVisualizationNode): string | un
     // `lastUpdate` is intentionally included so the text re-resolves when the node is edited in place.
   }, [vizNode, lastUpdate]);
 
-  return validationText;
+  return validation?.node === vizNode && validation?.lastUpdate === lastUpdate ? validation?.text : undefined;
 };

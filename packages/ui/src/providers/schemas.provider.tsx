@@ -1,6 +1,6 @@
 import type { CatalogDefinition } from '@kaoto/camel-catalog/types';
 import { Content, ContentVariants } from '@patternfly/react-core';
-import { createContext, FunctionComponent, PropsWithChildren, useEffect, useState } from 'react';
+import { createContext, FunctionComponent, PropsWithChildren, useEffect, useMemo, useState } from 'react';
 
 import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 import { Loading } from '../components/Loading';
@@ -16,26 +16,29 @@ export const SchemasContext = createContext<Record<string, KaotoSchemaDefinition
  * Loader for the components schemas.
  */
 export const SchemasLoaderProvider: FunctionComponent<PropsWithChildren> = (props) => {
-  const [loadingStatus, setLoadingStatus] = useState(LoadingStatus.Loading);
   const [errorMessage, setErrorMessage] = useState('');
   const runtimeContext = useRuntimeContext();
   const { basePath, selectedCatalog } = runtimeContext;
   const selectedCatalogIndexFile = selectedCatalog?.fileName ?? '';
+  const request = useMemo(() => ({ basePath, selectedCatalogIndexFile }), [basePath, selectedCatalogIndexFile]);
+  const [loadState, setLoadState] = useState({ request, status: LoadingStatus.Loading });
+  // A new request hides interactive children immediately, before its effect starts fetching.
+  const loadingStatus = loadState.request === request ? loadState.status : LoadingStatus.Loading;
+
   const setSchema = useSchemasStore((state) => state.setSchema);
   const [schemas, setSchemas] = useState<Record<string, KaotoSchemaDefinition>>({});
 
   useEffect(() => {
+    let stale = false;
     const indexFile = `${basePath}/${selectedCatalogIndexFile}`;
-    // Engage Loading synchronously, before the fetch — see the note in RuntimeProvider. Setting it
-    // inside the fetch's `.then` leaves a window where the toolbar renders as interactive while a
-    // schema reload is already pending, which loses clicks (E2E flakiness) during the remount.
-    setLoadingStatus(LoadingStatus.Loading);
+
     fetch(indexFile)
       .then((response) => response.json())
       .then(async (catalogIndex: CatalogDefinition) => {
         const schemaFilesPromise = CatalogSchemaLoader.getSchemasFiles(indexFile, catalogIndex.schemas);
 
         const loadedSchemas = await Promise.all(schemaFilesPromise);
+        if (stale) return;
         const combinedSchemas = loadedSchemas.reduce(
           (acc, schema) => {
             setSchema(schema.name, schema);
@@ -50,14 +53,18 @@ export const SchemasLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
         setSchemas(combinedSchemas);
       })
       .then(() => {
-        setLoadingStatus(LoadingStatus.Loaded);
+        if (stale) return;
+        setLoadState({ request, status: LoadingStatus.Loaded });
       })
       .catch((error) => {
+        if (stale) return;
         setErrorMessage(error.message);
-        setLoadingStatus(LoadingStatus.Error);
+        setLoadState({ request, status: LoadingStatus.Error });
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCatalogIndexFile]);
+    return () => {
+      stale = true;
+    };
+  }, [basePath, selectedCatalogIndexFile, request, setSchema]);
 
   return (
     <SchemasContext.Provider value={schemas}>
