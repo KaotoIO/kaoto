@@ -16,3 +16,14 @@
   padding-inline: $spacing-03;
   gap: $spacing-02;
 }
+
+.cs--project-toolbar__switcher {
+  flex-shrink: 0;
+  margin-inline: auto $spacing-05;
+  inline-size: 18rem;
+  align-self: center;
+
+  .cds--content-switcher-btn {
+    justify-content: center;
+  }
+}
