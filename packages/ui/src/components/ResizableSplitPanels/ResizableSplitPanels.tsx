@@ -31,6 +31,7 @@ export interface ResizableSplitPanelsProps {
   rightPanelLabel?: string;
 }
 
+const DEFAULT_GAP_PERCENT = 4.2;
 const MIN_PANEL_WIDTH = 10;
 const KEYBOARD_STEP_SMALL = 5; // 5% increment for arrow keys
 const KEYBOARD_STEP_LARGE = 10; // 10% increment for Shift+arrow keys
@@ -52,7 +53,7 @@ const KEYS = {
  * Falls back to 4.2% if elements are not available (SSR or initial render).
  */
 const getGapPercent = (container: HTMLElement | null, handle: HTMLElement | null): number => {
-  if (!container || !handle) return 4.2;
+  if (!container || !handle) return DEFAULT_GAP_PERCENT;
 
   const styles = globalThis.getComputedStyle(handle);
   const gapPx =
@@ -62,7 +63,7 @@ const getGapPercent = (container: HTMLElement | null, handle: HTMLElement | null
     (Number.parseFloat(styles.borderLeftWidth) || 0) +
     (Number.parseFloat(styles.borderRightWidth) || 0);
 
-  return container.offsetWidth > 0 ? (gapPx / container.offsetWidth) * 100 : 4.2;
+  return container.offsetWidth > 0 ? (gapPx / container.offsetWidth) * 100 : DEFAULT_GAP_PERCENT;
 };
 
 export const ResizableSplitPanels: FunctionComponent<ResizableSplitPanelsProps> = ({
@@ -88,7 +89,7 @@ export const ResizableSplitPanels: FunctionComponent<ResizableSplitPanelsProps> 
   const savedWidthRef = useRef<number>(defaultLeftWidth);
 
   // Calculate gap percentage from actual DOM element (single source of truth from CSS)
-  const [gapPercent, setGapPercent] = useState(4.2);
+  const [gapPercent, setGapPercent] = useState(DEFAULT_GAP_PERCENT);
   useLayoutEffect(() => {
     const container = containerRef.current;
     const handle = handleRef.current;
