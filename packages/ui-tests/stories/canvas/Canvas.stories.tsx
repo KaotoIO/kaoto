@@ -230,7 +230,8 @@ export const CanvasOverlays: StoryObj<CanvasStoryArgs> = {
   args: { entity: overlayRoute },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await canvas.findByRole('button', { name: 'Messages: Messages 42' });
+    // Catalog loading and canvas layout can exceed the default query timeout in CI.
+    await canvas.findByRole('button', { name: 'Messages: Messages 42' }, { timeout: 15000 });
     await expect(canvas.getByRole('button', { name: 'Traversals: Traversals 42' })).toBeVisible();
     await expect(canvas.getByRole('button', { name: 'Route total: Route total 42' })).toBeVisible();
     await Promise.all(
