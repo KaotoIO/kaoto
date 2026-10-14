@@ -1,59 +1,105 @@
-import { render, screen } from '@testing-library/react';
-import { userEvent } from '@testing-library/user-event';
-import { MemoryRouter, Route, Routes } from 'react-router';
-import { describe, expect, it } from 'vitest';
+import { act, render, screen } from '@testing-library/react';
+import { ReactNode } from 'react';
+import { MemoryRouter, Route, Routes, useNavigate } from 'react-router';
+import { describe, expect, it, vi } from 'vitest';
 
+import { IntegrationHeaderContext, ViewMode } from '../../context/IntegrationHeaderContext';
 import IntegrationShell from './IntegrationShell';
 
-const renderComponent = (projectId = 'my-project', integrationId = 'main-flow') =>
+const mockSetBreadcrumbItems = vi.fn();
+const mockSetCurrent = vi.fn();
+const mockSetViewMode = vi.fn();
+
+const renderWithContext = (
+  projectId = 'my-project',
+  integrationId = 'main-flow',
+  viewMode: ViewMode = 'design',
+  extra?: ReactNode,
+) =>
   render(
-    <MemoryRouter initialEntries={[`/projects/${projectId}/integration/${integrationId}`]}>
-      <Routes>
-        <Route path="/projects/:projectId/integration/:integrationId" element={<IntegrationShell />} />
-      </Routes>
-    </MemoryRouter>,
-  );
-
-describe('IntegrationShell', () => {
-  it.each(['integration-shell', 'integration-shell-toolbar', 'integration-body'])('renders %s', (testId) => {
-    renderComponent();
-    expect(screen.getByTestId(testId)).toBeInTheDocument();
-  });
-
-  it('renders breadcrumb with projectId and integrationId', () => {
-    renderComponent('my-project', 'main-flow');
-    expect(screen.getByRole('link', { name: 'my-project' })).toBeInTheDocument();
-    expect(screen.getByText('main-flow')).toBeInTheDocument();
-  });
-
-  it('renders the view switcher with Design/Code/Topology options', () => {
-    renderComponent();
-    expect(screen.getByTestId('view-mode-design')).toBeInTheDocument();
-    expect(screen.getByTestId('view-mode-code')).toBeInTheDocument();
-    expect(screen.getByTestId('view-mode-topology')).toBeInTheDocument();
-  });
-
-  it('has Design selected by default', () => {
-    renderComponent();
-    expect(screen.getByRole('tab', { name: 'Design' })).toHaveAttribute('aria-selected', 'true');
-  });
-
-  it('switches view mode on click', async () => {
-    const user = userEvent.setup();
-    renderComponent();
-    await user.click(screen.getByRole('tab', { name: 'Topology' }));
-    expect(screen.getByRole('tab', { name: 'Topology' })).toHaveAttribute('aria-selected', 'true');
-  });
-
-  it('redirects to the root for invalid params', () => {
-    render(
-      <MemoryRouter initialEntries={['/projects/my-project/integration/INVALID%20ID']}>
+    <IntegrationHeaderContext.Provider
+      value={{
+        breadcrumbItems: [],
+        current: '',
+        viewMode,
+        setViewMode: mockSetViewMode,
+        setBreadcrumbItems: mockSetBreadcrumbItems,
+        setCurrent: mockSetCurrent,
+      }}
+    >
+      <MemoryRouter initialEntries={[`/projects/${projectId}/integration/${integrationId}`]}>
+        {extra}
         <Routes>
           <Route path="/" element={<div data-testid="root-page" />} />
           <Route path="/projects/:projectId/integration/:integrationId" element={<IntegrationShell />} />
         </Routes>
-      </MemoryRouter>,
-    );
+      </MemoryRouter>
+    </IntegrationHeaderContext.Provider>,
+  );
+
+describe('IntegrationShell', () => {
+  it('renders the shell and body', () => {
+    renderWithContext();
+    expect(screen.getByTestId('integration-shell')).toBeInTheDocument();
+    expect(screen.getByTestId('integration-body')).toBeInTheDocument();
+  });
+
+  it('does not render its own toolbar — switcher is in ProjectToolbar', () => {
+    renderWithContext();
+    expect(screen.queryByTestId('integration-shell-toolbar')).not.toBeInTheDocument();
+  });
+
+  it('publishes full folder path as breadcrumb to context on mount', () => {
+    renderWithContext('my-project', 'main-flow');
+    expect(mockSetBreadcrumbItems).toHaveBeenCalledWith([{ label: 'Integrations', href: '/projects/my-project' }]);
+    expect(mockSetCurrent).toHaveBeenCalledWith('main-flow.camel.yaml');
+  });
+
+  it('publishes deep nested path for deeply nested integrations', () => {
+    renderWithContext('my-project', 'kafka-consumer');
+    expect(mockSetBreadcrumbItems).toHaveBeenCalledWith([
+      { label: 'Integrations', href: '/projects/my-project' },
+      { label: 'routes', href: '/projects/my-project' },
+      { label: 'async', href: '/projects/my-project' },
+    ]);
+    expect(mockSetCurrent).toHaveBeenCalledWith('kafka-consumer.camel.yaml');
+  });
+
+  it('falls back to projectId when integration id is not in the file tree', () => {
+    renderWithContext('my-project', 'unknown-id');
+    expect(mockSetBreadcrumbItems).toHaveBeenCalledWith([{ label: 'my-project', href: '/projects/my-project' }]);
+    expect(mockSetCurrent).toHaveBeenCalledWith('unknown-id');
+  });
+
+  it('resets viewMode to design on mount', () => {
+    renderWithContext('my-project', 'main-flow');
+    expect(mockSetViewMode).toHaveBeenCalledWith('design');
+  });
+
+  it('resets viewMode to design when navigating to a different integration', () => {
+    // NavCapture is rendered inside the same MemoryRouter so navigate() works in context.
+    let navigateTo: (path: string) => void = () => {};
+    const NavCapture = () => {
+      navigateTo = useNavigate();
+      return null;
+    };
+    renderWithContext('my-project', 'error-handler', 'code', <NavCapture />);
+    mockSetViewMode.mockClear();
+    act(() => {
+      navigateTo('/projects/my-project/integration/main-flow');
+    });
+    expect(mockSetViewMode).toHaveBeenCalledWith('design');
+  });
+
+  it('clears context on unmount', () => {
+    const { unmount } = renderWithContext('my-project', 'main-flow');
+    unmount();
+    expect(mockSetBreadcrumbItems).toHaveBeenLastCalledWith([]);
+    expect(mockSetCurrent).toHaveBeenLastCalledWith('');
+  });
+
+  it('redirects to root for invalid params', () => {
+    renderWithContext('my-project', 'INVALID%20ID');
     expect(screen.getByTestId('root-page')).toBeInTheDocument();
     expect(screen.queryByTestId('integration-shell')).not.toBeInTheDocument();
   });

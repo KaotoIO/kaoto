@@ -2,7 +2,8 @@
 @use '@carbon/react/scss/theme' as *;
 
 .cs--explorer {
-  inline-size: 240px;
+  // inline-size is set via inline style (resizable)
+  position: relative;
   flex-shrink: 0;
   block-size: 100%;
   display: flex;
@@ -42,4 +43,57 @@
   flex: 1;
   overflow-y: auto;
   padding-block: $spacing-01;
+
+  // Align row backgrounds with the panel ($background), override Carbon's $layer-01 default.
+  // Carbon default per-level indent is $spacing-05 (16px) — reduce to $spacing-03 (8px).
+  .cds--tree-node {
+    background-color: $background;
+    padding-inline-start: $spacing-03;
+  }
+
+  // Scoped under .cs--explorer__tree, so this outranks Carbon's li.class > .class rule.
+  li.cds--tree-node-link-parent > .cds--tree-node__children {
+    padding-inline-start: $spacing-03;
+  }
+
+  .cds--tree-node__label {
+    &:hover,
+    &:focus {
+      background-color: $background-hover;
+    }
+  }
+
+  // Leaf nodes: reduce base offset to match compact indent
+  .cds--tree-leaf-node,
+  .cds--tree-leaf-node.cds--tree-node--with-icon {
+    padding-inline-start: $spacing-05;
+  }
+}
+
+.cs--explorer__resizer {
+  position: absolute;
+  inset-inline-end: 0;
+  inset-block: 0;
+  inline-size: 4px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: col-resize;
+  z-index: 1;
+
+  &:hover,
+  &:focus {
+    background-color: $border-interactive;
+  }
+
+  &:focus-visible {
+    background-color: $border-interactive;
+    outline: 2px solid $focus;
+    outline-offset: -2px;
+  }
+}
+
+.cs--explorer__highlight {
+  background-color: $highlight;
+  color: inherit;
 }
