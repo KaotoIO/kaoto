@@ -26,7 +26,7 @@ import {
 } from '@kaoto/kaoto/testing';
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { Meta, StoryFn, StoryObj } from '@storybook/react';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { expect, userEvent, within } from 'storybook/test';
 
 import complexRouteMock from '../../cypress/fixtures/complexRouteMock.json';
@@ -161,18 +161,15 @@ const CanvasWithOverlays: StoryFn<CanvasStoryArgs> = ({ entity }) => {
   const visibleFlows = useMemo(() => ({ [entity.id]: true }), [entity.id]);
   const { vizNodes, isResolving } = useVisibleVizNodes(entities, visibleFlows);
   const model = useMemo(() => buildDesignerCanvasModel(vizNodes), [vizNodes]);
-  const [demo, setDemo] = useState<{ source: CanvasOverlaySource; update(): void; clear(): void }>();
-  useEffect(() => {
+  // This store has no external resources; canvas subscriptions follow the model's lifetime.
+  const demo = useMemo<{ source: CanvasOverlaySource; update(): void; clear(): void } | undefined>(() => {
     if (isResolving || model.nodes.length === 0) return;
+    const step = model.nodes.find((node) => node.data?.vizNode?.data.path === 'route.from');
+    const edge = model.edges.find((candidate) => candidate.source === step?.id);
+    if (!step || !edge) return;
     const scope = { canvasId: 'story', documentId: entity.id, modelRevision: 'story-model' };
     const store = createOverlayStore(buildDesignerOverlayTargetSnapshot(scope, model, [{ id: entity.id }]));
     const owner = store.getState().createOwner()!;
-    const step = model.nodes.find((node) => node.data?.vizNode?.data.path === 'route.from');
-    const edge = model.edges.find((candidate) => candidate.source === step?.id);
-    if (!step || !edge)
-      return () => {
-        store.getState().dispose();
-      };
     let value = 42;
     const write = () => {
       const note = (id: string, target: OverlayEntry['target']): OverlayEntry => ({
@@ -192,7 +189,7 @@ const CanvasWithOverlays: StoryFn<CanvasStoryArgs> = ({ entity }) => {
       ]);
     };
     write();
-    setDemo({
+    return {
       source: { model, store },
       update: () => {
         value++;
@@ -201,9 +198,6 @@ const CanvasWithOverlays: StoryFn<CanvasStoryArgs> = ({ entity }) => {
       clear: () => {
         owner.clearLayer(scope, 'trace');
       },
-    });
-    return () => {
-      store.getState().dispose();
     };
   }, [entity.id, isResolving, model]);
   return (
