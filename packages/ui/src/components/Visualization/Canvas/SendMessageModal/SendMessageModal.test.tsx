@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { useEffect } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -122,6 +123,7 @@ describe('SendMessageModal', () => {
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     vi.unstubAllGlobals();
     DynamicCatalogRegistry.get().clearRegistry();
   });
@@ -198,6 +200,53 @@ describe('SendMessageModal', () => {
       finishRead('late text');
     });
     expect(screen.getByTestId('send-message-body-textarea')).toHaveValue('new draft');
+  });
+
+  it('does not apply a pending body file to a reopened dialog', async () => {
+    const readers: FileReader[] = [];
+    vi.spyOn(FileReader.prototype, 'readAsDataURL').mockImplementation(function (this: FileReader) {
+      readers.push(this);
+    });
+    const { rerender } = renderWithProvider({ endpoint: 'direct:first' });
+    fireEvent.click(screen.getByLabelText('File payload (Binary / Document / File object)'));
+    fireEvent.change(screen.getByTestId('send-message-body-file-input'), {
+      target: { files: [new File(['old'], 'old.bin')] },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    rerender(
+      <SendMessageModalProvider>
+        <OpenModalHelper options={{ endpoint: 'direct:second', initialBody: 'new draft' }} />
+        <SendMessageModal />
+      </SendMessageModalProvider>,
+    );
+    await act(async () => {
+      Object.defineProperty(readers[0], 'result', { value: 'data:;base64,b2xk' });
+      readers[0].dispatchEvent(new ProgressEvent('load'));
+    });
+    expect(screen.getByTestId('send-message-body-textarea')).toHaveValue('new draft');
+    expect(screen.queryByDisplayValue('CamelFileName')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText('File payload (Binary / Document / File object)'));
+    expect(screen.getByTestId('send-message-body-file-path-input')).toHaveValue('');
+  });
+
+  it('keeps the latest selected body file when reads finish out of order', async () => {
+    const readers: FileReader[] = [];
+    vi.spyOn(FileReader.prototype, 'readAsDataURL').mockImplementation(function (this: FileReader) {
+      readers.push(this);
+    });
+    renderWithProvider({ endpoint: 'direct:files' });
+    fireEvent.click(screen.getByLabelText('File payload (Binary / Document / File object)'));
+    const input = screen.getByTestId('send-message-body-file-input');
+    fireEvent.change(input, { target: { files: [new File(['old'], 'old.bin')] } });
+    fireEvent.change(input, { target: { files: [new File(['new'], 'new.bin')] } });
+    await act(async () => {
+      Object.defineProperty(readers[1], 'result', { value: 'data:;base64,bmV3' });
+      readers[1].dispatchEvent(new ProgressEvent('load'));
+      Object.defineProperty(readers[0], 'result', { value: 'data:;base64,b2xk' });
+      readers[0].dispatchEvent(new ProgressEvent('load'));
+    });
+    expect(screen.getByTestId('send-message-body-file-path-input')).toHaveValue('new.bin');
+    expect(screen.queryByDisplayValue('old.bin')).not.toBeInTheDocument();
   });
 
   it('formats JSON correctly', () => {
@@ -279,6 +328,64 @@ describe('SendMessageModal', () => {
       expect(screen.getByDisplayValue('CamelFileContentType')).toBeInTheDocument();
       expect(screen.getByDisplayValue('application/pdf')).toBeInTheDocument();
     });
+  });
+
+  it('prevents sending in file mode until a file is loaded', () => {
+    const onSend = vi.fn();
+    renderWithProvider({ endpoint: 'direct:files', onSend });
+    fireEvent.click(screen.getByLabelText('File payload (Binary / Document / File object)'));
+    const submit = screen.getByTestId('send-message-submit-btn');
+    expect(submit).toBeDisabled();
+    fireEvent.click(submit);
+    expect(onSend).not.toHaveBeenCalled();
+  });
+
+  it('does not create a file body by typing a filename', async () => {
+    const user = userEvent.setup();
+    renderWithProvider({ endpoint: 'direct:files' });
+    await user.click(screen.getByLabelText('File payload (Binary / Document / File object)'));
+    const filename = screen.getByTestId('send-message-body-file-path-input');
+    await user.type(filename, 'missing.bin');
+    expect(filename).toHaveValue('');
+    expect(screen.getByTestId('send-message-submit-btn')).toBeDisabled();
+  });
+
+  it.each([
+    ['payload', 'cGF5bG9hZA==', 7],
+    ['', '', 0],
+  ])('sends an actually selected file, including an empty file: %j', async (content, base64, size) => {
+    const user = userEvent.setup();
+    const onSend = vi.fn();
+    renderWithProvider({ endpoint: 'direct:files', onSend });
+    await user.click(screen.getByLabelText('File payload (Binary / Document / File object)'));
+    fireEvent.change(screen.getByTestId('send-message-body-file-input'), {
+      target: { files: [new File([content], 'payload.bin', { type: 'application/octet-stream' })] },
+    });
+    const filename = screen.getByTestId('send-message-body-file-path-input');
+    await waitFor(() => expect(filename).toHaveValue('payload.bin'));
+    await user.type(filename, '.renamed');
+    expect(filename).toHaveValue('payload.bin');
+    const submit = screen.getByTestId('send-message-submit-btn');
+    expect(submit).toBeEnabled();
+    await user.click(submit);
+    expect(onSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        bodyType: 'file',
+        bodyEncoding: 'base64',
+        bodyFile: { name: 'payload.bin', content: base64, type: 'application/octet-stream', size },
+      }),
+    );
+  });
+
+  it('disables sending after clearing the selected file', async () => {
+    renderWithProvider({ endpoint: 'direct:files' });
+    fireEvent.click(screen.getByLabelText('File payload (Binary / Document / File object)'));
+    fireEvent.change(screen.getByTestId('send-message-body-file-input'), {
+      target: { files: [new File(['payload'], 'payload.bin')] },
+    });
+    await waitFor(() => expect(screen.getByTestId('send-message-body-file-path-input')).toHaveValue('payload.bin'));
+    fireEvent.click(screen.getByTestId('send-message-delete-body-file-btn'));
+    expect(screen.getByTestId('send-message-submit-btn')).toBeDisabled();
   });
 
   it('submits message and calls onSend callback with formatted payload', async () => {

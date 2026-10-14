@@ -73,10 +73,12 @@ export const SendMessageModal: FunctionComponent<SendMessageModalProps> = ({
   const [isImportingMessage, setIsImportingMessage] = useState(false);
   const [formatError, setFormatError] = useState<string | null>(null);
   const bodyTextRequestRef = useRef<symbol | null>(null);
+  const bodyFileRequestRef = useRef<symbol | null>(null);
 
   useEffect(
     () => () => {
       bodyTextRequestRef.current = null;
+      bodyFileRequestRef.current = null;
     },
     [isOpen, options],
   );
@@ -112,6 +114,7 @@ export const SendMessageModal: FunctionComponent<SendMessageModalProps> = ({
   }, [isOpen, options]);
 
   const handleImportMessage = useCallback((template: MessageTemplate) => {
+    bodyFileRequestRef.current = null;
     setBodyType(template.bodyType);
     setBody(template.bodyType === 'text' ? template.body : '');
     setFileBody(template.bodyType === 'file' ? template.bodyFile : null);
@@ -195,8 +198,12 @@ export const SendMessageModal: FunctionComponent<SendMessageModalProps> = ({
   const handleBodyFileSelected = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      const request = Symbol();
+      bodyFileRequestRef.current = request;
       const reader = new FileReader();
       reader.onload = (e) => {
+        if (bodyFileRequestRef.current !== request) return;
+        bodyFileRequestRef.current = null;
         const content = e.target?.result;
         if (typeof content === 'string') {
           const base64Content = content.includes(',') ? content.split(',')[1] : content;
@@ -216,12 +223,13 @@ export const SendMessageModal: FunctionComponent<SendMessageModalProps> = ({
   }, []);
 
   const handleDeleteBodyFile = useCallback(() => {
+    bodyFileRequestRef.current = null;
     setFileBody(null);
   }, []);
 
   // Submit handler
   const handleSubmit = useCallback(async () => {
-    if (!options?.endpoint || hasInvalidHeaders || isImportingMessage) return;
+    if (!options?.endpoint || hasInvalidHeaders || isImportingMessage || (bodyType === 'file' && !fileBody)) return;
 
     const headersRecord: Record<string, string> = {};
     headers.forEach((h) => {
@@ -373,21 +381,9 @@ export const SendMessageModal: FunctionComponent<SendMessageModalProps> = ({
                 <TextInput
                   id="send-message-body-file-path"
                   labelText="File Path / Name"
-                  placeholder="Select a file or enter file path..."
+                  placeholder="Select a file..."
                   value={fileBody?.name ?? ''}
-                  onChange={(e) => {
-                    const name = e.target.value;
-                    if (name.trim()) {
-                      setFileBody((prev) => ({
-                        name,
-                        content: prev?.content ?? '',
-                        type: prev?.type,
-                        size: prev?.size,
-                      }));
-                    } else {
-                      setFileBody(null);
-                    }
-                  }}
+                  readOnly
                   data-testid="send-message-body-file-path-input"
                 />
               </div>
@@ -490,7 +486,13 @@ export const SendMessageModal: FunctionComponent<SendMessageModalProps> = ({
         <Button
           kind="primary"
           onClick={handleSubmit}
-          disabled={isSending || isImportingMessage || !options?.endpoint || hasInvalidHeaders}
+          disabled={
+            isSending ||
+            isImportingMessage ||
+            !options?.endpoint ||
+            hasInvalidHeaders ||
+            (bodyType === 'file' && !fileBody)
+          }
           data-testid="send-message-submit-btn"
         >
           {isSending ? 'Sending...' : 'Send'}
