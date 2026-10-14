@@ -10,6 +10,11 @@ import { CatalogLayout, ITile } from './Catalog.models';
 import { CatalogFilter } from './CatalogFilter';
 import { filterTiles } from './filter-tiles';
 import { sortTags } from './sort-tags';
+import { RecentlyUsedTiles } from './Tags';
+
+export const MAX_RECENT_TILES = 10;
+
+type RecentTile = Pick<ITile, 'name' | 'type'>;
 
 interface CatalogProps {
   /** Tiles list */
@@ -21,6 +26,30 @@ interface CatalogProps {
 
 export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (props) => {
   const [activeLayout, setActiveLayout] = useLocalStorage(LocalStorageKeys.CatalogLayout, CatalogLayout.Gallery);
+  const [storedRecentTiles, setRecentTiles] = useLocalStorage<RecentTile[]>(LocalStorageKeys.CatalogRecentlyUsed, []);
+  const recentTiles = useMemo(
+    () =>
+      Array.isArray(storedRecentTiles)
+        ? storedRecentTiles.filter(
+            (tile: unknown): tile is RecentTile =>
+              typeof tile === 'object' &&
+              tile !== null &&
+              'name' in tile &&
+              typeof tile.name === 'string' &&
+              'type' in tile &&
+              typeof tile.type === 'string',
+          )
+        : [],
+    [storedRecentTiles],
+  );
+  const availableRecentTiles = useMemo(
+    () =>
+      recentTiles.flatMap((recent) => {
+        const tile = props.tiles.find((tile) => tile.name === recent.name && tile.type === recent.type);
+        return tile ? [tile] : [];
+      }),
+    [recentTiles, props.tiles],
+  );
 
   /** Selected Group */
   const [searchTerm, setSearchTerm] = useDebounceValue('', 500, { trailing: true });
@@ -73,11 +102,27 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
     [setSearchTerm],
   );
 
+  const onRecentTileAdded = useCallback(
+    (tile: ITile) => {
+      const deduplicated = [tile, ...recentTiles.filter((t) => !(t.name === tile.name && t.type === tile.type))];
+      const next = deduplicated.slice(0, MAX_RECENT_TILES);
+      try {
+        // Persist before the selection callback can unmount the modal.
+        localStorage.setItem(LocalStorageKeys.CatalogRecentlyUsed, JSON.stringify(next));
+      } catch {
+        // Storage failures must not prevent selection or updating the in-memory history.
+      }
+      setRecentTiles(next);
+    },
+    [recentTiles, setRecentTiles],
+  );
+
   const onTileClick = useCallback(
     (tile: ITile) => {
+      onRecentTileAdded(tile);
       props.onTileClick?.(tile);
     },
-    [props],
+    [onRecentTileAdded, props],
   );
 
   const onTagClick = useCallback((_event: unknown, value = '') => {
@@ -117,6 +162,7 @@ export const Catalog: FunctionComponent<PropsWithChildren<CatalogProps>> = (prop
         setFilterTags={setFilterTags}
         onSelectProvider={onSelectProvider}
       />
+      <RecentlyUsedTiles recentTiles={availableRecentTiles} onTileClick={onTileClick} />
       <BaseCatalog
         tiles={filteredTilesByGroup}
         catalogLayout={activeLayout}

@@ -18,7 +18,14 @@ export default [
       parserOptions: {
         // The project service (tsserver) understands solution-style tsconfig.json files with
         // `references`, which `project: true` does not (packages/*/tsconfig.json are solutions).
-        projectService: true,
+        projectService: {
+          allowDefaultProject: [
+            'eslint.config.mjs',
+            'packages/kaoto-web/eslint.config.mjs',
+            'packages/ui/eslint.config.mjs',
+            'packages/ui-tests/eslint.config.mjs',
+          ],
+        },
       },
     },
   },

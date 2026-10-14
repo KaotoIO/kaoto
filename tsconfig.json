@@ -4,6 +4,8 @@
     { "path": "./packages/ui/tsconfig.json" },
     { "path": "./packages/ui-tests/tsconfig.json" },
     { "path": "./packages/kaoto-web/tsconfig.json" },
-    { "path": "./packages/kaoto-vscode/tsconfig.json" }
+    { "path": "./packages/kaoto-vscode/tsconfig.json" },
+    { "path": "./packages/kaoto-vscode/tsconfig.ui-tests.json" },
+    { "path": "./packages/kaoto-vscode/tsconfig.unit-tests.json" }
   ]
 }
