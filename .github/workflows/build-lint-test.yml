@@ -15,6 +15,24 @@ permissions:
   contents: read
 
 jobs:
+  commitlint:
+    name: Commitlint
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: '24.x'
+          cache: yarn
+      - name: Install dependencies
+        run: yarn install --immutable --mode=skip-build
+      - name: Validate PR commits
+        run: yarn commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+
   changes:
     name: Select CI jobs
     runs-on: ubuntu-latest
@@ -135,7 +153,7 @@ jobs:
 
   # Keep the existing required check name, including on documentation-only PRs.
   build:
-    needs: [changes, ui, web, vscode-smoke, vscode-full, e2e, chromatic]
+    needs: [commitlint, changes, ui, web, vscode-smoke, vscode-full, e2e, chromatic]
     if: always()
     runs-on: ubuntu-latest
     steps:

@@ -61,12 +61,16 @@ yarn workspace @kaoto/kaoto build            # typecheck — tests and lint do N
 yarn workspace @kaoto/kaoto test
 yarn workspace @kaoto/kaoto lint:fix
 yarn workspace @kaoto/kaoto lint:style:fix
+yarn commitlint --from HEAD~1 --to HEAD      # validate the last commit message; adjust range for multiple commits
 ```
 
 Additionally:
 
 - [ ] The change is on a branch you created, pushed to your fork
-- [ ] Commit messages are imperative: `Fix canvas rendering for parallel nodes`
+- [ ] Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/):
+      `feat(ui): add canvas rendering for parallel nodes`, `fix(ui): correct routing edge overlap`, `chore: update deps`
+      Valid types: `build` `chore` `ci` `docs` `e2e` `feat` `fix` `perf` `refactor` `revert` `style` `test`
+      (enforced locally by Husky + commitlint; validated in CI)
 - [ ] The GitHub issue number is referenced in the PR description (`Closes #123`)
 - [ ] No files outside the scope of the change were modified (see [Guardrails](#guardrails))
 
@@ -77,6 +81,7 @@ of pushing speculative fixes:
 
 | CI check | Local equivalent |
 |---|---|
+| `commitlint` (in `build-lint-test.yml`) | `yarn commitlint --from HEAD~1 --to HEAD` |
 | `build-lint-test.yml` | The four Definition of Done commands above |
 | `e2e-tests.yml` (Cypress) | See `packages/ui-tests` — only relevant for UI flow changes |
 | `chromatic.yml` (visual regression) | Storybook stories — only relevant if you changed component appearance |
