@@ -104,13 +104,18 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       }),
     );
 
+    const componentName = ids.secondaryNodeId.name;
+    if (componentName === 'seda' && actualComponentProperties.name) {
+      actualComponentProperties.name = { ...actualComponentProperties.name, 'x-component-name': componentName };
+    }
+
     schema.properties ??= {};
     if (!schema.properties.parameters) {
       schema.properties.parameters = { type: 'object', properties: {} };
     }
     schema.properties.parameters.properties = actualComponentProperties;
     schema.properties.parameters.required = camelComponentDefinition.propertiesSchema.required;
-    schema.properties.parameters['x-component-name'] = ids.secondaryNodeId.name;
+    schema.properties.parameters['x-component-name'] = componentName;
     schema.properties.parameters['x-endpoint-catalog-kind'] = ids.secondaryNodeId.catalogKind;
 
     /* This would be a Kamelet definition being used by the kamelet component, f.i. `uri: kamelet:weather-action`, in case it's not, we can return the schema so far */
@@ -449,7 +454,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     if (description) return description;
 
     if (secondaryName !== undefined) {
-      if (secondaryName === 'direct') {
+      if (secondaryName === 'direct' || secondaryName === 'seda') {
         return getValue(definition, 'parameters.name') ?? secondaryName;
       }
       if (secondaryName === 'kamelet' && tertiaryName !== undefined) {

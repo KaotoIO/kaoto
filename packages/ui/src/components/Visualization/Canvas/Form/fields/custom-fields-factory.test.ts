@@ -15,6 +15,7 @@ import { EndpointListField } from './EndpointField/EndpointListField';
 import { EndpointPropertiesField } from './EndpointPropertiesField/EndpointPropertiesField';
 import { ExpressionField } from './ExpressionField/ExpressionField';
 import { MediaTypeField } from './MediaTypeField/MediaTypeField';
+import { SedaEndpointNameField } from './SedaEndpointNameField';
 import { UriField } from './UriField/UriField';
 
 const catalogLibrary = catalogLibraryJson as CatalogLibrary;
@@ -74,6 +75,16 @@ describe('customFieldsFactoryfactory', () => {
     };
     const result = customFieldsFactoryfactory(schema);
     expect(result).toBe(DirectEndpointNameField);
+  });
+
+  it('returns SedaEndpointNameField for the queue name schema tagged with the seda component', () => {
+    const schema: KaotoSchemaDefinition['schema'] = {
+      type: 'string',
+      title: 'Name',
+      description: 'Name of queue',
+      'x-component-name': 'seda',
+    };
+    expect(customFieldsFactoryfactory(schema)).toBe(SedaEndpointNameField);
   });
 
   it('returns ExpressionField for format "expression"', () => {
