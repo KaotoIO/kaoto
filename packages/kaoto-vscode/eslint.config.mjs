@@ -20,6 +20,7 @@ export default [
         ecmaFeatures: {
           impliedStrict: true,
         },
+        tsconfigRootDir: import.meta.dirname,
       },
       globals: {
         browser: 'readonly',

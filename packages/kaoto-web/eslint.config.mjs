@@ -1,8 +1,8 @@
 // @ts-check
+import vitest from '@vitest/eslint-plugin';
 import importPlugin from 'eslint-plugin-import';
 import eslintPluginJsxA11y from 'eslint-plugin-jsx-a11y';
 import pluginReactRefresh from 'eslint-plugin-react-refresh';
-import vitest from '@vitest/eslint-plugin';
 
 import rootConfig from '../../eslint.config.mjs';
 
@@ -12,7 +12,7 @@ export default [
   eslintPluginJsxA11y.flatConfigs.recommended,
   pluginReactRefresh.configs.vite,
   {
-    ignores: ['coverage/**', 'dist/**', '*.config.{js,mjs,ts}', 'prettier.config.js', 'scripts/**'],
+    ignores: ['coverage/**', 'dist/**', 'prettier.config.js', 'scripts/**'],
   },
   {
     settings: {
