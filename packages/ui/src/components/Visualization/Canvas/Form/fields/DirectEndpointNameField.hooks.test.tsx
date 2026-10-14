@@ -2,11 +2,7 @@ import { act, renderHook } from '@testing-library/react';
 
 import { EntitiesContextResult } from '../../../../../providers/entities.provider';
 import { VisibleFlowsContextResult } from '../../../../../providers/visible-flows.provider';
-import {
-  getDirectNameFromUri,
-  useCreateDirectRoute,
-  useDirectEndpointNameOptions,
-} from './DirectEndpointNameField.hooks';
+import { getDirectNameFromUri, useCreateRoute, useEndpointNameOptions } from './DirectEndpointNameField.hooks';
 
 describe('DirectEndpointNameField hooks', () => {
   describe('getDirectNameFromUri', () => {
@@ -20,7 +16,7 @@ describe('DirectEndpointNameField hooks', () => {
     });
   });
 
-  describe('useDirectEndpointNameOptions', () => {
+  describe('useEndpointNameOptions', () => {
     const visualEntities = [
       {
         getId: () => 'route-start',
@@ -36,7 +32,7 @@ describe('DirectEndpointNameField hooks', () => {
       const onChange = vi.fn();
 
       const { result } = renderHook(() =>
-        useDirectEndpointNameOptions({
+        useEndpointNameOptions({
           value: '',
           onChange,
           visualEntities,
@@ -49,10 +45,29 @@ describe('DirectEndpointNameField hooks', () => {
       expect(result.current.items.find((item) => item.name === 'start')?.description).toContain('route-start');
     });
 
+    it('only lists names for the provided scheme', () => {
+      const entities = [
+        {
+          getId: () => 'route-seda',
+          toJSON: () => ({ route: { from: { uri: 'seda:queue', steps: [{ to: { uri: 'direct:orders' } }] } } }),
+        },
+        {
+          getId: () => 'route-seda-params',
+          toJSON: () => ({ route: { from: { uri: 'seda', parameters: { name: 'other' }, steps: [] } } }),
+        },
+      ];
+      const { result } = renderHook(() =>
+        useEndpointNameOptions({ value: '', onChange: vi.fn(), visualEntities: entities, scheme: 'seda' }),
+      );
+
+      expect(result.current.items.map((item) => item.name)).toEqual(['other', 'queue']);
+      expect(result.current.existingDirectRouteNames).toEqual(['other', 'queue']);
+    });
+
     it('handles typeahead callbacks', async () => {
       const onChange = vi.fn();
       const { result } = renderHook(() =>
-        useDirectEndpointNameOptions({
+        useEndpointNameOptions({
           value: 'start',
           onChange,
           visualEntities,
@@ -76,7 +91,7 @@ describe('DirectEndpointNameField hooks', () => {
     });
   });
 
-  describe('useCreateDirectRoute', () => {
+  describe('useCreateRoute', () => {
     it('creates a route for a new direct name', async () => {
       const onChange = vi.fn();
       const addNewEntity = vi.fn().mockReturnValue('new-route-id');
@@ -91,7 +106,7 @@ describe('DirectEndpointNameField hooks', () => {
       } as unknown as VisibleFlowsContextResult;
 
       const { result } = renderHook(() =>
-        useCreateDirectRoute({
+        useCreateRoute({
           disabled: false,
           typedName: 'new-route',
           existingDirectRouteNames: ['start'],
@@ -115,10 +130,38 @@ describe('DirectEndpointNameField hooks', () => {
       expect(onChange).toHaveBeenCalledWith('new-route');
     });
 
+    it('creates a route using the provided scheme', async () => {
+      const addNewEntity = vi.fn().mockReturnValue('new-route-id');
+      const entitiesContext = {
+        camelResource: { addNewEntity },
+        updateEntitiesFromCamelResource: vi.fn(),
+      } as unknown as EntitiesContextResult;
+
+      const { result } = renderHook(() =>
+        useCreateRoute({
+          disabled: false,
+          typedName: 'queue',
+          existingDirectRouteNames: [],
+          onChange: vi.fn(),
+          entitiesContext,
+          visibleFlowsContext: undefined,
+          scheme: 'seda',
+        }),
+      );
+
+      await act(async () => {
+        result.current.onCreateRoute();
+      });
+
+      expect(addNewEntity).toHaveBeenCalledWith('route', {
+        from: { uri: 'seda', parameters: { name: 'queue' }, steps: [] },
+      });
+    });
+
     it('disables route creation for existing names', () => {
       const onChange = vi.fn();
       const { result } = renderHook(() =>
-        useCreateDirectRoute({
+        useCreateRoute({
           disabled: false,
           typedName: 'start',
           existingDirectRouteNames: ['start'],
@@ -134,7 +177,7 @@ describe('DirectEndpointNameField hooks', () => {
     it('allows route creation when the name is only referenced but has no direct from route', () => {
       const onChange = vi.fn();
       const { result } = renderHook(() =>
-        useCreateDirectRoute({
+        useCreateRoute({
           disabled: false,
           typedName: 'orders',
           existingDirectRouteNames: ['start'],
