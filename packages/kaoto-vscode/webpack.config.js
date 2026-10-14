@@ -200,10 +200,10 @@ const webpack = async (env) => {
                 loader: 'sass-loader',
                 options: {
                   sassOptions: {
-                    // Silence Sass mixed-decls deprecation warnings from
+                    // Silence Sass if-function deprecation warnings from
                     // @carbon/styles and other third-party dependencies.
                     quietDeps: true,
-                    silenceDeprecations: ['mixed-decls'],
+                    silenceDeprecations: ['if-function'],
                   },
                 },
               },

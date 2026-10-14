@@ -11,5 +11,5 @@
     /* vite.config.mjs and the scripts it imports are JS checked through `// @ts-check` */
     "allowJs": true
   },
-  "include": ["vite.config.mjs", "vitest.config.mts"]
+  "include": ["vite.config.mjs", "vitest-snapshot-serializer.ts", "vitest.config.mts"]
 }
