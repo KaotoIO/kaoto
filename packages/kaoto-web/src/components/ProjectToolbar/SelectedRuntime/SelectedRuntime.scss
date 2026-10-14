@@ -1,9 +1,25 @@
 @use '@carbon/react/scss/spacing' as *;
 @use '@carbon/react/scss/theme' as *;
 @use '@carbon/react/scss/type' as *;
+@use '../../../styles/breakpoints' as bp;
 
 .cs--selected-runtime {
   padding-inline: $spacing-05;
+
+  // ≥ $layout-compact: full width, never shrink
+  flex-shrink: 0;
+
+  // $layout-minimal–$layout-compact: allow shrinking with ellipsis
+  @media (width < bp.$layout-compact) {
+    flex-shrink: 1;
+    min-inline-size: 0;
+    overflow: hidden;
+  }
+
+  // < $layout-minimal: hide entirely so the switcher always has room
+  @media (width < bp.$layout-minimal) {
+    display: none;
+  }
 }
 
 .selected-runtime-label {
@@ -11,9 +27,22 @@
 
   color: $text-secondary;
   white-space: nowrap;
+
+  // ToggletipLabel renders as <span> (inline); block is required for text-overflow.
+  // Only clip with ellipsis in the narrow range where shrinking is allowed.
+  @media (width < bp.$layout-compact) {
+    display: block;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 .selected-runtime-toggletip {
   display: flex;
   align-items: center;
+
+  @media (width < bp.$layout-compact) {
+    min-inline-size: 0;
+  }
 }

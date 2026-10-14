@@ -12,7 +12,9 @@ import { useState } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router';
 
 import logoKaoto from '../../assets/logo-kaoto-text.svg';
+import { useIntegrationHeader } from '../../context/IntegrationHeaderContext';
 import { routesInHeader, routesInSideNav } from '../../routes/config';
+import { Breadcrumbs } from '../Breadcrumbs/Breadcrumbs';
 import { NavHeaderItems } from './NavHeaderItems';
 import { NavSideItems } from './NavSideItems';
 
@@ -22,10 +24,11 @@ const OPEN_PROJECT_PATH = '/projects/project50';
 export const Nav = () => {
   const location = useLocation();
   const [isSideNavExpanded, setIsSideNavExpanded] = useState(false);
+  const integrationHeader = useIntegrationHeader();
+
+  const isIntegrationActive = !!integrationHeader?.current;
 
   const toggleNav = (): void => {
-    // Reason for this implementation of state change through an updater function:
-    // https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state
     setIsSideNavExpanded((isExpanded) => !isExpanded);
   };
 
@@ -47,6 +50,13 @@ export const Nav = () => {
         <RouterLink to="/" className="cds--header__name">
           <img src={logoKaoto} alt="Kaoto" className="cs--nav__logo" />
         </RouterLink>
+
+        {isIntegrationActive && (
+          <div className="cs--nav__breadcrumb" data-testid="nav-breadcrumb">
+            <Breadcrumbs items={integrationHeader.breadcrumbItems} current={integrationHeader.current} />
+          </div>
+        )}
+
         <HeaderGlobalBar />
       </Header>
       <SideNav aria-label="Side navigation" expanded={isSideNavExpanded} isPersistent={false}>
