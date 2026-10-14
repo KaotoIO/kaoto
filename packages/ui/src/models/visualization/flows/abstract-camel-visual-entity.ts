@@ -449,7 +449,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     if (description) return description;
 
     if (secondaryName !== undefined) {
-      if (secondaryName === 'direct') {
+      if (secondaryName === 'direct' || secondaryName === 'seda') {
         return getValue(definition, 'parameters.name') ?? secondaryName;
       }
       if (secondaryName === 'kamelet' && tertiaryName !== undefined) {

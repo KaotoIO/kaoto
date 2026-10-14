@@ -6,7 +6,12 @@ import { EntitiesContext } from '../../../../../providers/entities.provider';
 import { VisibleFlowsContext } from '../../../../../providers/visible-flows.provider';
 import { useCreateDirectRoute, useDirectEndpointNameOptions } from './DirectEndpointNameField.hooks';
 
-export const DirectEndpointNameField: FunctionComponent<FieldProps> = ({ propName, required }) => {
+interface EndpointNameFieldProps extends FieldProps {
+  /** Camel component scheme used to find existing routes and to create new ones */
+  scheme: string;
+}
+
+export const EndpointNameField: FunctionComponent<EndpointNameFieldProps> = ({ propName, required, scheme }) => {
   const { schema } = useContext(SchemaContext);
   const { value = '', onChange, disabled } = useFieldValue<string | undefined>(propName);
   const entitiesContext = useContext(EntitiesContext);
@@ -24,6 +29,7 @@ export const DirectEndpointNameField: FunctionComponent<FieldProps> = ({ propNam
       value,
       onChange,
       visualEntities: entitiesContext?.visualEntities,
+      scheme,
     });
   const typedCandidateName = typedInputValue.trim() || typedName;
   const { canCreateRoute, onCreateRoute } = useCreateDirectRoute({
@@ -33,6 +39,7 @@ export const DirectEndpointNameField: FunctionComponent<FieldProps> = ({ propNam
     onChange,
     entitiesContext,
     visibleFlowsContext,
+    scheme,
   });
 
   return (
@@ -75,3 +82,7 @@ export const DirectEndpointNameField: FunctionComponent<FieldProps> = ({ propNam
     </FieldWrapper>
   );
 };
+
+export const DirectEndpointNameField: FunctionComponent<FieldProps> = (props) => (
+  <EndpointNameField {...props} scheme="direct" />
+);
