@@ -1,4 +1,6 @@
 import { useEffect, useReducer, useState } from 'react';
+import { useStore } from 'zustand';
+import { createStore } from 'zustand/vanilla';
 
 import { createOverlayStore, OverlayStore } from '../../../../store/overlay.store';
 import { OverlayEntry } from '../overlay-entries';
@@ -83,7 +85,8 @@ interface DemoView {
 /** Fixed demo data, rendered through the same store subscription hook as future canvas consumers. */
 export function useOverlayDemo() {
   const [generation, reset] = useReducer((value: number) => value + 1, 0);
-  const [view, setView] = useState<DemoView>({ metricsConnected: false });
+  const [viewStore] = useState(() => createStore<DemoView>(() => ({ metricsConnected: false })));
+  const view = useStore(viewStore);
 
   useEffect(() => {
     const store = createOverlayStore({
@@ -110,13 +113,13 @@ export function useOverlayDemo() {
       showPath: (next) => {
         run(() => {
           pathOwner.replaceLayer(scope, 'path', pathEntries(next));
-          setView((current) => ({ ...current, branch: next }));
+          viewStore.setState({ branch: next });
         });
       },
       clearPath: () => {
         run(() => {
           pathOwner.clearLayer(scope, 'path');
-          setView((current) => ({ ...current, branch: undefined }));
+          viewStore.setState({ branch: undefined });
         });
       },
       updateCounts: () => {
@@ -138,16 +141,16 @@ export function useOverlayDemo() {
         run(() => {
           metricsOwner.dispose();
           metricsConnected = false;
-          setView((current) => ({ ...current, metricsConnected: false }));
+          viewStore.setState({ metricsConnected: false });
         });
       },
     };
-    setView({ store, branch: 'when', metricsConnected: true, actions: demoActions });
+    viewStore.setState({ store, branch: 'when', metricsConnected: true, actions: demoActions });
     return () => {
       active = false;
       store.getState().dispose();
     };
-  }, [generation]);
+  }, [generation, viewStore]);
 
   const layers = useOverlayLayers(view.store);
   const overlays: DemoOverlay[] = layers.flatMap(({ ownerId, layerId, entries }) =>
