@@ -1,20 +1,9 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "module": "CommonJS",
-    "moduleResolution": "bundler",
-    "noEmit": false,
-    "rootDir": "src",
-    /*
-     * Opt out of the `@kaoto/source` condition: @kaoto/kaoto sources are ESM-only (import.meta)
-     * and cannot be compiled as CommonJS, so the tests type-check against its built declarations.
-     */
-    "customConditions": [],
-    "forceConsistentCasingInFileNames": true,
-    "declaration": true,
-    "declarationMap": true,
-    "resolveJsonModule": true,
-    "outDir": "out"
+    /* Typecheck workspace sources; Vite bundles the tests into CommonJS separately. */
+    "noEmit": true,
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["src/test"]
 }
