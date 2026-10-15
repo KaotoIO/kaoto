@@ -23,6 +23,27 @@ fs.writeFileSync(
 
 const launchArgs = process.env.CI ? [] : ['--user-data-dir', path.join(os.tmpdir(), 'vscode-kaoto-test')];
 
+// VS Code removes NODE_OPTIONS before launching the extension host. Preload the
+// terminal's debugger bootloader there so CLI auto-attach can reach the tests.
+const preloadPattern = /(?:^|\s)(?:--require(?:=|\s+)|-r\s+)(?:"([^"]+)"|'([^']+)'|(\S+))/g;
+function findDebugBootloader() {
+  if (!process.env.VSCODE_INSPECTOR_OPTIONS) return undefined;
+
+  const nodeOptions = process.env.NODE_OPTIONS ?? '';
+
+  for (const match of nodeOptions.matchAll(preloadPattern)) {
+    const preloadPath = match[1] ?? match[2] ?? match[3];
+
+    if (/[\\/]bootloader\.js$/.test(preloadPath)) {
+      return preloadPath;
+    }
+  }
+
+  return undefined;
+}
+
+const debugBootloader = findDebugBootloader();
+
 export default defineConfig({
   files: 'out/test/**/*.test.js',
   workspaceFolder: tempWorkspace,
@@ -30,6 +51,7 @@ export default defineConfig({
   mocha: {
     ui: 'tdd',
     color: true,
-    timeout: 100000,
+    timeout: debugBootloader ? 0 : 100000,
+    ...(debugBootloader ? { require: debugBootloader } : {}),
   },
 });
