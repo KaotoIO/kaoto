@@ -38,6 +38,16 @@ The extension depends on `@kaoto/kaoto` via `workspace:*`, so within the monorep
 
 No manual `yarn link` is needed — the workspace resolution handles it.
 
+### Run unit tests
+
+```bash
+yarn workspace vscode-kaoto test:unit
+```
+
+On Linux without a display, prefix the command with `xvfb-run -a`.
+
+The unit-test build first checks types with `tsc --noEmit`, then bundles tests and Kaoto workspace sources with Vite. It does not require rebuilding the UI library. Vite emits CommonJS bundles into `out/test/`, preserving the existing test-cli and Mocha runner. The [Vite library-mode documentation](https://vite.dev/guide/build.html#library-mode) describes support for CommonJS output.
+
 ---
 
 ## Snapshots
