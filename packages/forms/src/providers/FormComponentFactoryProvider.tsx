@@ -42,51 +42,63 @@ export const FormComponentFactoryProvider: FunctionComponent<IFormComponentFacto
         return CustomField;
       }
 
-      if (schema.format === 'password') {
-        return PasswordField;
-      } else if (schema.type === 'string' && schema.title?.toLowerCase() === 'uri') {
-        return EditInPlaceField;
-      } else if (schema.type === 'string' && schema.title && TEXT_AREA_PROPERTY_NAMES.has(schema.title)) {
-        return TextAreaField;
-      } else if (schema.type === 'string' && Array.isArray(schema.enum)) {
-        return EnumField;
-      } else if (schema.type === 'object' && schema.title?.toLowerCase().includes('constructors')) {
-        return IndexedValuesField;
-      } else if (schema.type === 'object' && Object.keys(schema?.properties ?? {}).length === 0) {
-        /*
-         * If the object has no properties, we render a generic key-value pairs field
-         * This is useful for langchain4j-tools consumer components or when configuring beans entities
-         */
-        return PropertiesField;
-      }
-
-      switch (schema.type) {
-        case 'string':
-        case 'number':
-        case 'integer':
-          return StringField;
-        case 'boolean':
-          return BooleanField;
-        case 'object':
-          return ObjectField;
-        case 'array':
-          return ArrayField;
-      }
-
-      if (Array.isArray(schema.oneOf)) {
-        return OneOfField;
-      } else if (Array.isArray(schema.allOf)) {
-        return AllOfField;
-      } else if (Array.isArray(schema.anyOf)) {
-        throw new TypeError('FormComponentFactoryProvider: AnyOf should be handled in the scope of the ObjectField');
-      }
-
-      return DisabledField;
+      return getDefaultField(schema);
     },
     [customFieldsFactory],
   );
 
   return <FormComponentFactoryContext.Provider value={factory}>{children}</FormComponentFactoryContext.Provider>;
+};
+
+/** Selects the built-in field component for a given schema. */
+const getDefaultField = (schema: JSONSchema4): FunctionComponent<FieldProps> => {
+  if (schema.format === 'password') {
+    return PasswordField;
+  }
+  if (schema.type === 'string' && schema.title?.toLowerCase() === 'uri') {
+    return EditInPlaceField;
+  }
+  if (schema.type === 'string' && schema.title && TEXT_AREA_PROPERTY_NAMES.has(schema.title)) {
+    return TextAreaField;
+  }
+  if (schema.type === 'string' && Array.isArray(schema.enum)) {
+    return EnumField;
+  }
+  if (schema.type === 'object' && schema.title?.toLowerCase().includes('constructors')) {
+    return IndexedValuesField;
+  }
+  if (schema.type === 'object' && Object.keys(schema?.properties ?? {}).length === 0) {
+    /*
+     * If the object has no properties, we render a generic key-value pairs field
+     * This is useful for langchain4j-tools consumer components or when configuring beans entities
+     */
+    return PropertiesField;
+  }
+
+  switch (schema.type) {
+    case 'string':
+    case 'number':
+    case 'integer':
+      return StringField;
+    case 'boolean':
+      return BooleanField;
+    case 'object':
+      return ObjectField;
+    case 'array':
+      return ArrayField;
+  }
+
+  if (Array.isArray(schema.oneOf)) {
+    return OneOfField;
+  }
+  if (Array.isArray(schema.allOf)) {
+    return AllOfField;
+  }
+  if (Array.isArray(schema.anyOf)) {
+    throw new TypeError('FormComponentFactoryProvider: AnyOf should be handled in the scope of the ObjectField');
+  }
+
+  return DisabledField;
 };
 
 /* Name of the properties that should load TextAreaField */
