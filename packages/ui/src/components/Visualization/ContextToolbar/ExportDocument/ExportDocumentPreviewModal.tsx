@@ -93,9 +93,10 @@ export const ExportDocumentPreviewModal: FunctionComponent<IExportDocumentPrevie
   const onDownload = async () => {
     if (!flowImageBlob) return;
 
-    const md = DocumentationService.generateMarkdown(documentationEntities, FILENAME_BASE + '.png');
+    const iconFile = DocumentationService.getKameletIcon(documentationEntities, FILENAME_BASE);
+    const md = DocumentationService.generateMarkdown(documentationEntities, FILENAME_BASE + '.png', iconFile?.fileName);
 
-    const zipBlob = await DocumentationService.generateDocumentationZip(flowImageBlob, md, FILENAME_BASE);
+    const zipBlob = await DocumentationService.generateDocumentationZip(flowImageBlob, md, FILENAME_BASE, iconFile);
     const downloadUrl = URL.createObjectURL(zipBlob);
     if (!downloadUrl) return;
     const link = document.createElement('a');
