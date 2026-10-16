@@ -1,32 +1,40 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ExpandableSection } from '@patternfly/react-core';
 import { Component, ReactNode } from 'react';
 
+import { ErrorDetails } from '../ErrorFallbacks/ErrorDetails';
+
 interface ErrorBoundaryProps {
-  fallback: ReactNode;
+  fallback: ReactNode | ((error: Error) => ReactNode);
   children: ReactNode;
 }
 
 interface ErrorBoundaryState {
   hasError: boolean;
-  isExpanded: boolean;
   error?: any;
 }
+
+const normalizeError = (error: unknown): Error => {
+  if (error instanceof Error) return error;
+  if (typeof error === 'string') return new Error(error);
+
+  let message: string;
+  try {
+    message = typeof error === 'object' && error !== null ? JSON.stringify(error) : String(error);
+  } catch {
+    message = String(error);
+  }
+  return new Error(message);
+};
 
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
-    this.state = { hasError: false, isExpanded: false, error: undefined };
-    this.onToggle = this.onToggle.bind(this);
+    this.state = { hasError: false, error: undefined };
   }
 
   static getDerivedStateFromError(error: any) {
     // Update state so the next render will show the fallback UI.
     return { hasError: true, error };
-  }
-
-  onToggle(_event: unknown, _isExpanded: boolean): void {
-    this.setState((prev) => ({ isExpanded: !prev.isExpanded }));
   }
 
   componentDidCatch(_error: any, _info: any): void {
@@ -40,19 +48,17 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   render() {
     if (this.state.hasError) {
-      // You can render any custom fallback UI
+      const { fallback } = this.props;
+      const error = normalizeError(this.state.error);
+
+      if (typeof fallback === 'function') {
+        return fallback(error);
+      }
+
       return (
         <>
-          {this.props.fallback}
-          <ExpandableSection
-            toggleText={this.state.isExpanded ? 'Show less' : 'Show more'}
-            toggleId="error-boundary-expandable-section-toggle"
-            contentId="expandable-section-content"
-            onToggle={this.onToggle}
-            isExpanded={this.state.isExpanded}
-          >
-            {this.state.error?.message}
-          </ExpandableSection>
+          {fallback}
+          <ErrorDetails message={error.message} />
         </>
       );
     }

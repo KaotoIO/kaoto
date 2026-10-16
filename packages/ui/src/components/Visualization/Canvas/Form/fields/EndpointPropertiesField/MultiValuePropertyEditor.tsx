@@ -16,7 +16,7 @@ export const MultiValuePropertyEditor: FunctionComponent<FieldProps> = ({ propNa
   }, [componentName]);
 
   return (
-    <ErrorBoundary fallback={<p>Field editor is unavailable</p>}>
+    <ErrorBoundary fallback={<p style={{ textTransform: 'none' }}>Field editor is unavailable</p>}>
       <Suspense fallback={<Loading />}>
         <MultiValuePropertyEditorInner propName={propName} required={required} promise={multiValuePromise} />
       </Suspense>
@@ -37,7 +37,7 @@ const MultiValuePropertyEditorInner: FunctionComponent<FieldProps & { promise: P
     parameters: MultiValuePropertyService.readMultiValue(multiValueProperties, flatParameters),
   };
 
-  const onPropertyChange = async (path: string, value: unknown) => {
+  const onPropertyChange = (path: string, value: unknown) => {
     const updatedDefinition = cloneDeep(parametersWithMultivalue);
 
     let updatedValue = value;
