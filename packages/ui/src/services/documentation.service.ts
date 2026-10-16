@@ -8,6 +8,7 @@ import {
   KameletVisualEntity,
   PipeVisualEntity,
 } from '../models';
+import { KameletKnownAnnotations } from '../models/camel/kamelets-catalog';
 import { DocumentationEntity, ParsedTable } from '../models/documentation';
 import { BaseEntity } from '../models/entities';
 import { KaotoResource } from '../models/kaoto-resource';
@@ -24,6 +25,7 @@ import { BeansEntity, MetadataEntity } from '../models/visualization/metadata';
 import { PipeErrorHandlerEntity } from '../models/visualization/metadata/pipeErrorHandlerEntity';
 import { RouteTemplateBeansEntity } from '../models/visualization/metadata/routeTemplateBeansEntity';
 import { IVisibleFlows } from '../utils';
+import { parseImageDataUri } from '../utils/data-uri';
 import { BeansParser } from './parsers/beans-parser';
 import { KameletParser } from './parsers/kamelet-parser';
 import { MiscParser } from './parsers/misc-parser';
@@ -31,21 +33,59 @@ import { PipeParser } from './parsers/pipe-parser';
 import { RestParser } from './parsers/rest-parser';
 import { RouteParser } from './parsers/route-parser';
 
+export interface DocumentationIconFile {
+  fileName: string;
+  data: Uint8Array;
+}
+
 export class DocumentationService {
-  static generateDocumentationZip(flowImage: Blob, markdownText: string, fileNameBase: string): Promise<Blob> {
+  static generateDocumentationZip(
+    flowImage: Blob,
+    markdownText: string,
+    fileNameBase: string,
+    iconFile?: DocumentationIconFile,
+  ): Promise<Blob> {
     const imageFileName = fileNameBase + '.png';
     const markdownFileName = fileNameBase + '.md';
     const jszip = new JSZip();
     jszip.file(imageFileName, flowImage);
     jszip.file(markdownFileName, markdownText);
+    if (iconFile) {
+      jszip.file(iconFile.fileName, iconFile.data);
+    }
     return jszip.generateAsync({ type: 'blob' });
   }
 
-  static generateMarkdown(documentationEntities: DocumentationEntity[], flowImageFileName: string) {
+  /**
+   * Extracts the Kamelet icon from the first entity that has an icon encoded as an image data URI,
+   * so it can be exported as a separate file instead of being inlined in the markdown.
+   * The file is named `<fileNameBase>-icon.<extension>`, where the extension is derived from the image type.
+   * Returns `undefined` if there is no such icon, e.g. when the icon is a remote URL.
+   */
+  static getKameletIcon(
+    documentationEntities: DocumentationEntity[],
+    fileNameBase: string,
+  ): DocumentationIconFile | undefined {
+    for (const { entity, isVisible } of documentationEntities) {
+      if (!isVisible || !(entity instanceof MetadataEntity)) continue;
+
+      const icon = parseImageDataUri(entity.parent.metadata?.annotations?.[KameletKnownAnnotations.Icon]);
+      if (icon) {
+        return { fileName: `${fileNameBase}-icon.${icon.extension}`, data: icon.bytes };
+      }
+    }
+    return undefined;
+  }
+
+  static generateMarkdown(
+    documentationEntities: DocumentationEntity[],
+    flowImageFileName: string,
+    iconFileName?: string,
+  ) {
     const markdown: MarkdownEntry[] = [{ h1: 'Diagram' }, { img: { alt: 'Diagram', source: flowImageFileName } }];
 
     documentationEntities.forEach((entity) => {
-      const parsedTables = DocumentationService.parseEntity(entity);
+      const parsedTables = DocumentationService.parseEntity(entity, iconFileName);
       parsedTables &&
         (Array.isArray(parsedTables) ? parsedTables : [parsedTables]).forEach((table) => {
           DocumentationService.populateParsedTable(markdown, table);
@@ -86,7 +126,10 @@ export class DocumentationService {
     return value.replace(/{(\r\n)|\r|\n/g, '&#10;');
   }
 
-  private static parseEntity(documentationEntity: DocumentationEntity): ParsedTable[] | ParsedTable | undefined {
+  private static parseEntity(
+    documentationEntity: DocumentationEntity,
+    iconFileName?: string,
+  ): ParsedTable[] | ParsedTable | undefined {
     if (!documentationEntity.isVisible || !documentationEntity.entity) return;
 
     const entity = documentationEntity.entity;
@@ -119,7 +162,7 @@ export class DocumentationService {
     } else if (entity instanceof BeansEntity || entity instanceof RouteTemplateBeansEntity) {
       return BeansParser.parseBeansEntity(entity, documentationEntity.label);
     } else if (entity instanceof MetadataEntity) {
-      return MiscParser.parseMetadataEntity(entity, documentationEntity.label);
+      return MiscParser.parseMetadataEntity(entity, documentationEntity.label, iconFileName);
     } else if (entity instanceof PipeErrorHandlerEntity) {
       return PipeParser.parsePipeErrorHandlerEntity(entity, documentationEntity.label);
     }

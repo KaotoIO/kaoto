@@ -190,6 +190,21 @@ describe('DocumentationService', () => {
       expect(markdown).toContain('## Metadata : Annotations');
     });
 
+    it('should inline the kamelet icon when no icon file name is provided', async () => {
+      const documentationEntities = await createDocumentationEntitiesFromYaml(kameletAwsCloudtailSourceYaml);
+      const markdown = DocumentationService.generateMarkdown(documentationEntities, 'route.png');
+
+      expect(markdown).toContain('![icon](data:image/svg+xml;base64,');
+    });
+
+    it('should reference the kamelet icon file instead of inlining it when an icon file name is provided', async () => {
+      const documentationEntities = await createDocumentationEntitiesFromYaml(kameletAwsCloudtailSourceYaml);
+      const markdown = DocumentationService.generateMarkdown(documentationEntities, 'route.png', 'route-icon.svg');
+
+      expect(markdown).toContain('![icon](route-icon.svg)');
+      expect(markdown).not.toContain('data:image');
+    });
+
     it('should generate pipe markdown', async () => {
       const documentationEntities = await createDocumentationEntitiesFromYaml(pipeYaml);
       const markdown = DocumentationService.generateMarkdown(documentationEntities, 'route.png');
@@ -261,6 +276,30 @@ describe('DocumentationService', () => {
     });
   });
 
+  describe('getKameletIcon()', () => {
+    it('should extract the kamelet icon data URI as a file named after the file name base', async () => {
+      const documentationEntities = await createDocumentationEntitiesFromYaml(kameletAwsCloudtailSourceYaml);
+
+      const icon = DocumentationService.getKameletIcon(documentationEntities, 'route');
+
+      expect(icon?.fileName).toBe('route-icon.svg');
+      expect(new TextDecoder().decode(icon!.data)).toContain('<svg');
+    });
+
+    it('should return undefined when the entities have no kamelet icon', async () => {
+      const documentationEntities = await createDocumentationEntitiesFromYaml(camelRouteYaml + beansYaml);
+
+      expect(DocumentationService.getKameletIcon(documentationEntities, 'route')).toBeUndefined();
+    });
+
+    it('should return undefined when the metadata entity is not visible', async () => {
+      const documentationEntities = await createDocumentationEntitiesFromYaml(kameletAwsCloudtailSourceYaml);
+      documentationEntities.forEach((docEntity) => (docEntity.isVisible = false));
+
+      expect(DocumentationService.getKameletIcon(documentationEntities, 'route')).toBeUndefined();
+    });
+  });
+
   describe('generateDocumentationZip()', () => {
     it('should generate a zip file', async () => {
       const documentationEntities = await createDocumentationEntitiesFromYaml(camelRouteYaml + beansYaml);
@@ -277,6 +316,26 @@ describe('DocumentationService', () => {
       expect(unzipped.files['route.md']).toBeDefined();
       const routeMd = await unzipped.files['route.md'].async('string');
       expect(routeMd).toContain('![Diagram](route.png)');
+    });
+
+    it('should include the kamelet icon as a separate file referenced by the markdown', async () => {
+      const documentationEntities = await createDocumentationEntitiesFromYaml(kameletAwsCloudtailSourceYaml);
+      const icon = DocumentationService.getKameletIcon(documentationEntities, 'route');
+      const markdown = DocumentationService.generateMarkdown(documentationEntities, 'route.png', icon?.fileName);
+      let zipfile: Blob;
+      await act(async () => {
+        zipfile = await DocumentationService.generateDocumentationZip(new Blob(), markdown, 'route', icon);
+      });
+
+      const jszip = new JSZip();
+      const unzipped = await jszip.loadAsync(zipfile!);
+      expect(Object.keys(unzipped.files)).toHaveLength(3);
+      expect(unzipped.files['route-icon.svg']).toBeDefined();
+      const iconContent = await unzipped.files['route-icon.svg'].async('string');
+      expect(iconContent).toContain('<svg');
+      const routeMd = await unzipped.files['route.md'].async('string');
+      expect(routeMd).toContain('![icon](route-icon.svg)');
+      expect(routeMd).not.toContain('data:image');
     });
   });
 });
