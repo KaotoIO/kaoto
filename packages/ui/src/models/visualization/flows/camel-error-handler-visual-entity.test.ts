@@ -166,7 +166,6 @@ describe('CamelErrorHandlerVisualEntity', () => {
       name: 'errorHandler',
       isGroup: true,
       path: 'errorHandler',
-      processorName: 'errorHandler',
       primaryNodeId: { name: entity.type, catalogKind: CatalogKind.Entity },
       iconAlt: 'Entity icon',
       iconUrl: '/src/assets/components/generic-component.png',
