@@ -358,7 +358,8 @@ export class MappingActionService {
       const item = MappingActionService.getOrCreateFieldItem(targetNode);
       MappingActionService.removeParentContainerCopyOf(item);
       MappingService.mapToField(sourceField, item);
-      return targetWasUnmapped;
+      const wrapped = MappingService.tryAutoOptionalIfWrap(item, sourceField);
+      return targetWasUnmapped || !!wrapped;
     } else if (targetNode instanceof MappingNodeData) {
       MappingService.mapToCondition(targetNode.mapping, sourceField);
       return false;
@@ -487,7 +488,8 @@ export class MappingActionService {
     if (anyTypeInvolved && (!sourceHasChildren || !targetHasChildren)) {
       const item = MappingActionService.getOrCreateFieldItem(targetNode);
       MappingService.mapToFieldWithValueType(sourceFieldFromNode, item, CopyOfType.CONTAINER_NODE);
-      return { handled: true, structural };
+      const wrapped = MappingService.tryAutoOptionalIfWrap(item, sourceFieldFromNode);
+      return { handled: true, structural: structural || !!wrapped };
     }
 
     if (!sourceHasChildren || !targetHasChildren) {
@@ -510,7 +512,8 @@ export class MappingActionService {
     // child FieldItems, so it's structural regardless of whether `item` itself pre-existed.
     const canUseCopyOf = FieldMatchingService.canUseCopyOf(sourceFieldFromNode, targetFieldFromNode);
     MappingService.applyContainerMapping(sourceFieldFromNode, targetFieldFromNode, item);
-    return { handled: true, structural: structural || !canUseCopyOf };
+    const wrapped = MappingService.tryAutoOptionalIfWrap(item, sourceFieldFromNode);
+    return { handled: true, structural: structural || !canUseCopyOf || !!wrapped };
   }
 
   /**

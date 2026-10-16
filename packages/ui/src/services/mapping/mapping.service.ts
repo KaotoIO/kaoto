@@ -31,6 +31,7 @@ import { XmlSchemaField } from '../document/xml-schema/xml-schema-document.model
 import { ensureNamespaceRegistered } from '../namespace-util';
 import { XPathService } from '../xpath/xpath.service';
 import { FieldMatchingService } from './field-matching.service';
+import { WrapperAutoDetectionService } from './wrapper-auto-detection.service';
 
 /**
  * All-static utility service for manipulating the in-memory {@link MappingTree}/{@link MappingItem}
@@ -690,6 +691,56 @@ export class MappingService {
   }
 
   /**
+   * When both `fieldItem.field` and `sourceField` are optional (`minOccurs === 0`), wraps
+   * `fieldItem` with a new {@link IfItem} whose `test` matches `sourceField`'s path, so the
+   * target element is only produced when the source is present. Reuses {@link wrapWithIf} and
+   * {@link mapToCondition}'s existing path-resolution machinery.
+   *
+   * No-op when either field is required, when `sourceField` is a {@link PrimitiveDocument}
+   * (a schemaless document root has no real occurrence semantics), or when `fieldItem` is
+   * already directly wrapped by an `IfItem` (idempotent re-entry, e.g. a second drop).
+   *
+   * `isAutoOptionalIf` is set `true` (hidden/see-through) when `fieldItem` ends up with a
+   * single terminal selector ({@link ValueOfSelector}/{@link CopyOfSelector}); `false`
+   * (rendered as a regular, visible `if`) when it has recursive child mappings instead.
+   *
+   * When `fieldItem` is already directly wrapped by an auto-optional `IfItem` (e.g. a
+   * second source just got mapped onto an already-guarded field), re-checks the guard's
+   * shape instead of wrapping again: if the just-applied mapping made it no longer match
+   * {@link WrapperAutoDetectionService.matchSimpleOptionalGuard} (e.g. the selector's
+   * expression is now a multi-source list, not a bare field reference), demotes it to a
+   * regular, visible `if` so the user isn't left with a hidden guard over something that's
+   * no longer a simple 1-to-1 mapping.
+   * @param fieldItem - the just-mapped target field item to (maybe) wrap; a no-op if this
+   * isn't actually a {@link FieldItem} (callers often hold the looser `MappingItem` type)
+   * @param sourceField - the source that was just mapped onto `fieldItem`
+   * @returns the (possibly pre-existing) {@link IfItem} if a wrap or demotion was applied,
+   * `undefined` otherwise
+   */
+  static tryAutoOptionalIfWrap(fieldItem: MappingItem, sourceField: PrimitiveDocument | IField): IfItem | undefined {
+    if (!(fieldItem instanceof FieldItem)) return undefined;
+    if (fieldItem.parent instanceof IfItem) {
+      const existingIf = fieldItem.parent;
+      if (existingIf.isAutoOptionalIf && !WrapperAutoDetectionService.matchSimpleOptionalGuard(existingIf)) {
+        existingIf.isAutoOptionalIf = false;
+        return existingIf;
+      }
+      return undefined;
+    }
+    if (sourceField instanceof PrimitiveDocument) return undefined;
+    if (fieldItem.field.minOccurs !== 0 || sourceField.minOccurs !== 0) return undefined;
+    if (fieldItem.children.length === 0) return undefined;
+
+    MappingService.wrapWithIf(fieldItem);
+    const ifItem = fieldItem.parent as IfItem;
+    MappingService.mapToCondition(ifItem, sourceField);
+    ifItem.isAutoOptionalIf =
+      fieldItem.children.length === 1 &&
+      (fieldItem.children[0] instanceof ValueOfSelector || fieldItem.children[0] instanceof CopyOfSelector);
+    return ifItem;
+  }
+
+  /**
    * Reuses an existing {@link ValueSelector} at the tree root if one exists
    * instead of creating a new one.
    * @param mappingTree - the mapping tree representing the target document root
@@ -791,10 +842,10 @@ export class MappingService {
 
     if (!DocumentService.hasChildren(sourceChild)) {
       MappingService.mapToField(sourceChild, childFieldItem);
-      return;
+    } else {
+      MappingService.applyContainerMapping(sourceChild, targetChild, childFieldItem);
     }
-
-    MappingService.applyContainerMapping(sourceChild, targetChild, childFieldItem);
+    MappingService.tryAutoOptionalIfWrap(childFieldItem, sourceChild);
   }
 
   /**
@@ -1147,12 +1198,20 @@ export class MappingService {
 
   /**
    * First removes value selector children, then for {@link InstructionItem}/{@link VariableItem},
-   * items under {@link FieldItem} parents, {@link CopyOfSelector} directly under {@link MappingTree}
+   * items under {@link FieldItem} parents, items directly under an auto-optional guard
+   * {@link IfItem} (so deleting the mapping also sheds its hidden guard, see
+   * {@link deleteFromParent}), {@link CopyOfSelector} directly under {@link MappingTree}
    * (primitive target body), or user-created {@link FieldItem}s, removes the item and recursively
-   * cleans up empty FieldItem ancestors.
+   * cleans up empty FieldItem/auto-optional-IfItem ancestors.
    * @param item - the mapping item to delete
    */
   static deleteMappingItem(item: MappingParentType) {
+    // Evaluate effective auto-optional state BEFORE stripping ValueSelector children —
+    // matchSimpleOptionalGuard inspects item.children and will fail once they are cleared.
+    const isParentAutoOptionalIf =
+      'parent' in item &&
+      item.parent instanceof IfItem &&
+      WrapperAutoDetectionService.isEffectivelyAutoOptional(item.parent);
     item.children = item.children.filter((child) => !(child instanceof ValueSelector));
     const isInstructionItem = item instanceof InstructionItem;
     const isVariableItem = item instanceof VariableItem;
@@ -1164,7 +1223,14 @@ export class MappingService {
     if (isVariableItem) {
       MappingService.removeVariableReferences(item as VariableItem);
     }
-    if (isInstructionItem || isVariableItem || isParentFieldItem || isRootLevelCopyOf || isUserCreatedFieldItem) {
+    if (
+      isInstructionItem ||
+      isVariableItem ||
+      isParentFieldItem ||
+      isRootLevelCopyOf ||
+      isUserCreatedFieldItem ||
+      isParentAutoOptionalIf
+    ) {
       MappingService.deleteFromParent(item);
     }
   }
@@ -1175,13 +1241,21 @@ export class MappingService {
       mt.globalVariables = mt.globalVariables.filter((gv) => gv !== item);
       return;
     }
-    item.parent.children = item.parent.children.filter((child) => child !== item);
-    const isParentFieldItem = item.parent instanceof FieldItem;
+    const parent = item.parent;
+    parent.children = parent.children.filter((child) => child !== item);
+    const isParentFieldItem = parent instanceof FieldItem;
     const isParentParentFieldItem =
-      'parent' in item.parent && (item.parent.parent instanceof FieldItem || item.parent.parent instanceof MappingTree);
-    const areNoChildren = item.parent.children.length === 0;
-    if (isParentFieldItem && isParentParentFieldItem && areNoChildren) {
-      MappingService.deleteFromParent(item.parent as FieldItem);
+      'parent' in parent && (parent.parent instanceof FieldItem || parent.parent instanceof MappingTree);
+    // An emptied-out auto-optional guard IfItem is just as orphaned as an emptied FieldItem —
+    // once its sole mapped field is gone, the hidden `if` wrapper has nothing left to guard.
+    // Use the raw flag here: parent.children is already empty at this point so
+    // matchSimpleOptionalGuard (which requires exactly one child) would always return
+    // undefined. The effective-state validation was already performed at the
+    // deleteMappingItem entry point before the children were modified.
+    const isParentAutoOptionalIf = parent instanceof IfItem && parent.isAutoOptionalIf;
+    const areNoChildren = parent.children.length === 0;
+    if (areNoChildren && ((isParentFieldItem && isParentParentFieldItem) || isParentAutoOptionalIf)) {
+      MappingService.deleteFromParent(parent as FieldItem | IfItem);
     }
   }
 

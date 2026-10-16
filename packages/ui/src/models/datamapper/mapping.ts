@@ -148,12 +148,14 @@ export class IfItem extends InstructionItem implements IExpressionHolder {
     super(parent, 'if');
   }
   expression = '';
+  isAutoOptionalIf = false;
   doClone() {
     return new IfItem(this.parent);
   }
   clone() {
     const cloned = super.clone() as IfItem;
     cloned.expression = this.expression;
+    cloned.isAutoOptionalIf = this.isAutoOptionalIf;
     return cloned;
   }
 }

@@ -14,6 +14,62 @@ import { XPathUtil } from './syntaxtree/xpath-syntaxtree-util';
 import { XPathService } from './xpath.service';
 
 describe('XPathService', () => {
+  describe('isSimplePath()', () => {
+    it('should return true for simple element and attribute paths', () => {
+      expect(XPathService.isSimplePath('SourceField')).toBe(true);
+      expect(XPathService.isSimplePath('/ns0:ShipOrder/ns0:Item/ns0:Note')).toBe(true);
+      expect(XPathService.isSimplePath('$Cart/items/item')).toBe(true);
+      expect(XPathService.isSimplePath('@id')).toBe(true);
+      expect(XPathService.isSimplePath('../parentField')).toBe(true);
+    });
+
+    it('should return false for empty or whitespace expressions', () => {
+      expect(XPathService.isSimplePath('')).toBe(false);
+      expect(XPathService.isSimplePath('   ')).toBe(false);
+    });
+
+    it('should return false for expressions with predicates', () => {
+      expect(XPathService.isSimplePath('/items/item[@id=1]')).toBe(false);
+      expect(XPathService.isSimplePath('$Cart/items[1]')).toBe(false);
+    });
+
+    it("should return true for a bare `[@key='literal']` predicate — JSON Schema field addressing", () => {
+      // Every fn:map/fn:string/etc. step generated for a JSON field carries this predicate
+      // (see JsonSchemaField's constructor) purely to address the map entry by key, not to
+      // filter among candidates — so it must not disqualify an otherwise-simple path.
+      expect(XPathService.isSimplePath("$Account-x/fn:map/fn:string[@key='Name']")).toBe(true);
+      expect(XPathService.isSimplePath("fn:string[@key='Title']")).toBe(true);
+      expect(XPathService.isSimplePath("$Account-x/fn:map/fn:map[@key='Address']/fn:string[@key='Street']")).toBe(true);
+    });
+
+    it('should return false when the `@key` predicate is not a plain string-literal equality', () => {
+      expect(XPathService.isSimplePath('/items/item[@key=1]')).toBe(false);
+      expect(XPathService.isSimplePath("/items/item[@notKey='Name']")).toBe(false);
+      expect(XPathService.isSimplePath("/items/item[@key!='Name']")).toBe(false);
+      expect(XPathService.isSimplePath("/items/item[@key=concat('a','b')]")).toBe(false);
+      expect(XPathService.isSimplePath("/items/item[@key='a'][@other='b']")).toBe(false);
+    });
+
+    it('should return false for expressions with functions', () => {
+      expect(XPathService.isSimplePath('concat(a, b)')).toBe(false);
+      expect(XPathService.isSimplePath('upper-case(name)')).toBe(false);
+      expect(XPathService.isSimplePath('count(items)')).toBe(false);
+    });
+
+    it('should return false for expressions with operators or arithmetic', () => {
+      expect(XPathService.isSimplePath('a + b')).toBe(false);
+      expect(XPathService.isSimplePath('a and b')).toBe(false);
+      expect(XPathService.isSimplePath('a = b')).toBe(false);
+      expect(XPathService.isSimplePath("Note != ''")).toBe(false);
+    });
+
+    it('should return false for union and intersect expressions', () => {
+      expect(XPathService.isSimplePath('/a | /b')).toBe(false);
+      expect(XPathService.isSimplePath('a union b')).toBe(false);
+      expect(XPathService.isSimplePath('a intersect b')).toBe(false);
+      expect(XPathService.isSimplePath('a except b')).toBe(false);
+    });
+  });
   describe('parse()', () => {
     it('should parse a field path', () => {
       const result = XPathService.parse('/aaa/bbb/ccc');

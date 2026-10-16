@@ -91,7 +91,7 @@ describe('Test for DataMapper : XML to XML', () => {
       'Price',
     );
 
-    cy.countMappingLines(10);
+    cy.countMappingLines(11);
   });
 
   it('attach parameter schema, engage mappings, detach parameter schema', () => {
