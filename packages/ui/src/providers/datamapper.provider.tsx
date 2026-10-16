@@ -149,6 +149,7 @@ const createInitialState = (documentInitializationModel?: DocumentInitialization
     sourceParameterMap,
   );
   WrapperAutoDetectionService.autoDetectWrapperSelections(mappingTree, targetBodyDocument, namespaceMap);
+  WrapperAutoDetectionService.autoDetectOptionalGuards(mappingTree);
   return {
     sourceParameterMap,
     sourceBodyDocument,

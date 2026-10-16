@@ -6,6 +6,7 @@ import {
   FieldItem,
   ForEachItem,
   IDocument,
+  IfItem,
   MappingTree,
   NS_XSL,
   PrimitiveDocument,
@@ -21,8 +22,10 @@ import {
 } from '../../stubs/datamapper/data-mapper';
 import { JsonSchemaDocument, JsonSchemaField } from '../document/json-schema/json-schema-document.model';
 import { JsonSchemaDocumentService } from '../document/json-schema/json-schema-document.service';
+import { MappingService } from './mapping.service';
 import { MappingSerializerService } from './mapping-serializer.service';
 import { TO_JSON_TARGET_VARIABLE } from './mapping-serializer-json-addon';
+import { WrapperAutoDetectionService } from './wrapper-auto-detection.service';
 
 describe('MappingSerializerService / JSON', () => {
   let accountParamDoc: JsonSchemaDocument;
@@ -387,6 +390,74 @@ describe('MappingSerializerService / JSON', () => {
         )
         .iterateNext();
       expect(templateValueOfSelect?.nodeValue).toBe(`xml-to-json($${TO_JSON_TARGET_VARIABLE})`);
+    });
+
+    it('should wrap an optional-to-optional JSON mapping in xsl:if and restore isAutoOptionalIf on round trip', () => {
+      // OrderPerson (target) and Name (source, under Account) are both outside their schema's
+      // `required` array, i.e. minOccurs=0 on both sides — this is the auto-optional-if guard's
+      // target case, and the lossless JSON XML representation (fn:map/fn:string) consumed by
+      // xml-to-json() omits a key exactly when its element is absent, so an xsl:if wrapping the
+      // fn:string element is the correct way to make the key conditional, same as for XML.
+      const sourceNameField = (accountParamDoc.fields[0] as JsonSchemaField).fields.find((f) => f.key === 'Name')!;
+      const targetOrderPersonField = (targetDoc.fields[0] as JsonSchemaField).fields.find(
+        (f) => f.key === 'OrderPerson',
+      )!;
+      expect(sourceNameField.minOccurs).toBe(0);
+      expect(targetOrderPersonField.minOccurs).toBe(0);
+
+      const mappingTree = new MappingTree(
+        DocumentType.TARGET_BODY,
+        BODY_DOCUMENT_ID,
+        DocumentDefinitionType.JSON_SCHEMA,
+      );
+      const rootItem = new FieldItem(mappingTree, targetDoc.fields[0]);
+      mappingTree.children.push(rootItem);
+      const fieldItem = new FieldItem(rootItem, targetOrderPersonField);
+      rootItem.children.push(fieldItem);
+      MappingService.mapToField(sourceNameField, fieldItem);
+      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceNameField)!;
+      expect(ifItem.isAutoOptionalIf).toBe(true);
+      expect(ifItem.expression).toBe("$Account-x/fn:map/fn:string[@key='Name']");
+
+      const xsltString = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+      const xsltDocument = domParser.parseFromString(xsltString, 'text/xml');
+      const varMappedXml = xsltDocument
+        .evaluate(
+          `/xsl:stylesheet/xsl:variable[@name='${TO_JSON_TARGET_VARIABLE}']`,
+          xsltDocument,
+          nsResolver,
+          XPathResult.ANY_TYPE,
+        )
+        .iterateNext() as Element;
+      const rootMap = varMappedXml.getElementsByTagNameNS(NS_XPATH_FUNCTIONS, 'map')[0];
+
+      const xslIf = rootMap.getElementsByTagNameNS(NS_XSL, 'if')[0];
+      expect(xslIf).toBeDefined();
+      expect(xslIf.getAttribute('test')).toBe("$Account-x/fn:map/fn:string[@key='Name']");
+      // The fn:string must be a DIRECT child of xsl:if (not of fn:map) — otherwise the key
+      // would always be emitted regardless of whether the source is present.
+      expect(Array.from(rootMap.children).some((c) => c.namespaceURI === NS_XPATH_FUNCTIONS)).toBe(false);
+      const orderPerson = xslIf.getElementsByTagNameNS(NS_XPATH_FUNCTIONS, 'string')[0];
+      expect(orderPerson.parentNode).toBe(xslIf);
+      expect(orderPerson.getAttribute('key')).toBe('OrderPerson');
+      const orderPersonValueOf = orderPerson.getElementsByTagNameNS(NS_XSL, 'value-of')[0];
+      expect(orderPersonValueOf.getAttribute('select')).toBe("$Account-x/fn:map/fn:string[@key='Name']");
+
+      const freshTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.JSON_SCHEMA);
+      const { mappingTree: deserialized } = MappingSerializerService.deserialize(
+        xsltString,
+        targetDoc,
+        freshTree,
+        sourceParameterMap,
+      );
+      WrapperAutoDetectionService.autoDetectOptionalGuards(deserialized);
+
+      const deserializedRootItem = deserialized.children[0] as FieldItem;
+      const deserializedIfItem = deserializedRootItem.children.find((c) => c instanceof IfItem) as IfItem;
+      expect(deserializedIfItem).toBeDefined();
+      expect(deserializedIfItem.isAutoOptionalIf).toBe(true);
+      const deserializedFieldItem = deserializedIfItem.children.find((c) => c instanceof FieldItem) as FieldItem;
+      expect((deserializedFieldItem.field as JsonSchemaField).key).toBe('OrderPerson');
     });
   });
 });

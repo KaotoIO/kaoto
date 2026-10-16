@@ -1,4 +1,11 @@
-import { DocumentDefinitionType, DocumentType, IDocument, IField } from '../../models/datamapper/document';
+import {
+  DocumentDefinition,
+  DocumentDefinitionType,
+  DocumentType,
+  IDocument,
+  IField,
+  PrimitiveDocument,
+} from '../../models/datamapper/document';
 import {
   ChooseItem,
   CopyOfSelector,
@@ -891,6 +898,159 @@ describe('MappingService', () => {
     });
   });
 
+  describe('tryAutoOptionalIfWrap()', () => {
+    let manualTree: MappingTree;
+    let rootItem: FieldItem;
+    let fieldItem: FieldItem;
+    let sourceField: IField;
+    let targetField: IField;
+
+    beforeEach(() => {
+      manualTree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      // OrderPerson is required by schema default (no minOccurs="0") — tests override it per case.
+      sourceField = sourceDoc.fields[0].fields[1];
+      targetField = targetDoc.fields[0].fields[1];
+      rootItem = new FieldItem(manualTree, targetDoc.fields[0]);
+      manualTree.children.push(rootItem);
+      fieldItem = new FieldItem(rootItem, targetField);
+      rootItem.children.push(fieldItem);
+    });
+
+    it('should wrap with a hidden IfItem when both fields are optional and the field has a single ValueOfSelector', () => {
+      sourceField.minOccurs = 0;
+      targetField.minOccurs = 0;
+      MappingService.mapToField(sourceField, fieldItem);
+
+      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField);
+
+      expect(ifItem).toBeInstanceOf(IfItem);
+      expect(ifItem!.isAutoOptionalIf).toBe(true);
+      expect(ifItem!.expression).toBe('/ns0:ShipOrder/ns0:OrderPerson');
+      expect(fieldItem.parent).toBe(ifItem);
+      expect(rootItem.children).toEqual([ifItem]);
+    });
+
+    it('should not wrap when the target field is required', () => {
+      sourceField.minOccurs = 0;
+      targetField.minOccurs = 1;
+      MappingService.mapToField(sourceField, fieldItem);
+
+      expect(MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField)).toBeUndefined();
+      expect(fieldItem.parent).toBe(rootItem);
+    });
+
+    it('should not wrap when the source field is required', () => {
+      sourceField.minOccurs = 1;
+      targetField.minOccurs = 0;
+      MappingService.mapToField(sourceField, fieldItem);
+
+      expect(MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField)).toBeUndefined();
+      expect(fieldItem.parent).toBe(rootItem);
+    });
+
+    it('should not wrap a PrimitiveDocument source, even though its minOccurs defaults to 0', () => {
+      targetField.minOccurs = 0;
+      const primitiveDoc = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, 'Body'),
+      );
+      expect(primitiveDoc.minOccurs).toBe(0);
+      MappingService.mapToField(primitiveDoc, fieldItem);
+
+      expect(MappingService.tryAutoOptionalIfWrap(fieldItem, primitiveDoc)).toBeUndefined();
+      expect(fieldItem.parent).toBe(rootItem);
+    });
+
+    it('should be idempotent when the field is already wrapped by an IfItem', () => {
+      sourceField.minOccurs = 0;
+      targetField.minOccurs = 0;
+      MappingService.mapToField(sourceField, fieldItem);
+      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField);
+      expect(ifItem).toBeDefined();
+
+      expect(MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField)).toBeUndefined();
+      expect(rootItem.children).toEqual([ifItem]);
+    });
+
+    it('should not wrap when the field has no children yet', () => {
+      sourceField.minOccurs = 0;
+      targetField.minOccurs = 0;
+      // fieldItem.children is empty — applyContainerMapping produced no matches
+
+      const result = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField);
+
+      expect(result).toBeUndefined();
+      expect(fieldItem.parent).toBe(rootItem);
+      expect(rootItem.children.some((c) => c instanceof IfItem)).toBe(false);
+    });
+
+    it('should set isAutoOptionalIf=false when the field has recursive children instead of a single selector', () => {
+      sourceField.minOccurs = 0;
+      targetField.minOccurs = 0;
+      // Stand-in for recursive auto-mapped children (generateAutoChildMappings), rather than
+      // the single ValueOfSelector/CopyOfSelector a terminal/copy-of mapping would produce.
+      fieldItem.children.push(new FieldItem(fieldItem, targetField));
+
+      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField);
+
+      expect(ifItem).toBeInstanceOf(IfItem);
+      expect(ifItem!.isAutoOptionalIf).toBe(false);
+    });
+
+    it('should not wrap a MappingItem that is not a FieldItem', () => {
+      sourceField.minOccurs = 0;
+      const valueSelector = new ValueOfSelector(rootItem);
+      expect(MappingService.tryAutoOptionalIfWrap(valueSelector, sourceField)).toBeUndefined();
+    });
+
+    it('should demote an already-hidden guard to a visible if when a second source is mapped onto the field', () => {
+      sourceField.minOccurs = 0;
+      targetField.minOccurs = 0;
+      MappingService.mapToField(sourceField, fieldItem);
+      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField);
+      expect(ifItem!.isAutoOptionalIf).toBe(true);
+
+      const secondSourceField = sourceDoc.fields[0].fields[0];
+      MappingService.mapToField(secondSourceField, fieldItem);
+      const result = MappingService.tryAutoOptionalIfWrap(fieldItem, secondSourceField);
+
+      expect(result).toBe(ifItem);
+      expect(ifItem!.isAutoOptionalIf).toBe(false);
+      expect(fieldItem.parent).toBe(ifItem);
+    });
+
+    it('should leave an already-demoted (visible) if untouched on further mapping changes', () => {
+      sourceField.minOccurs = 0;
+      targetField.minOccurs = 0;
+      MappingService.mapToField(sourceField, fieldItem);
+      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField)!;
+      ifItem.isAutoOptionalIf = false;
+
+      expect(MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField)).toBeUndefined();
+      expect(ifItem.isAutoOptionalIf).toBe(false);
+    });
+
+    it('should wrap an optional attribute field with a hidden IfItem (xsl:attribute)', () => {
+      // OrderId (fields[0] on both docs) is an attribute field — xsl:if wrapping xsl:attribute
+      // is valid XSLT, and the guard logic is agnostic to isAttribute vs. element fields.
+      const attributeSourceField = sourceDoc.fields[0].fields[0];
+      const attributeTargetField = targetDoc.fields[0].fields[0];
+      attributeSourceField.minOccurs = 0;
+      attributeTargetField.minOccurs = 0;
+      const attributeFieldItem = new FieldItem(rootItem, attributeTargetField);
+      rootItem.children.push(attributeFieldItem);
+      MappingService.mapToField(attributeSourceField, attributeFieldItem);
+
+      const ifItem = MappingService.tryAutoOptionalIfWrap(attributeFieldItem, attributeSourceField);
+
+      expect(ifItem).toBeInstanceOf(IfItem);
+      expect(ifItem!.isAutoOptionalIf).toBe(true);
+      expect(ifItem!.expression).toBe('/ns0:ShipOrder/@OrderId');
+      expect((attributeFieldItem.children[0] as ValueOfSelector).valueType).toBe(ValueOfType.ATTRIBUTE);
+      expect(attributeFieldItem.parent).toBe(ifItem);
+    });
+  });
+
   describe('createValueOfSelector()', () => {
     it('should create ValueOfSelector', () => {
       const orderIdFieldItem = tree.children[0].children[0] as FieldItem;
@@ -966,6 +1126,63 @@ describe('MappingService', () => {
       expect(tree.children).toContain(copyOf);
       MappingService.deleteMappingItem(copyOf);
       expect(tree.children).not.toContain(copyOf);
+    });
+
+    it('should remove the orphaned auto-optional guard IfItem when its sole mapped field is deleted', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const targetField = targetDoc.fields[0].fields[1];
+      const sourceField = sourceDoc.fields[0].fields[1];
+      sourceField.minOccurs = 0;
+      targetField.minOccurs = 0;
+      const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
+      MappingService.mapToField(sourceField, fieldItem);
+      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField)!;
+      expect(ifItem.isAutoOptionalIf).toBe(true);
+      expect(shipOrderItem.children).toContain(ifItem);
+
+      MappingService.deleteMappingItem(fieldItem);
+
+      expect(shipOrderItem.children).not.toContain(ifItem);
+      expect(shipOrderItem.children).not.toContain(fieldItem);
+    });
+
+    it('should not cascade-delete a visible (non-auto) if when its emptied field is deleted', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const targetField = targetDoc.fields[0].fields[1];
+      const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
+      MappingService.wrapWithIf(fieldItem);
+      const ifItem = fieldItem.parent as IfItem;
+      ifItem.isAutoOptionalIf = false;
+
+      MappingService.deleteMappingItem(fieldItem);
+
+      // Not an auto-optional guard, so the cascade this fix adds must not kick in — the
+      // (now-empty) FieldItem and its visible `if` wrapper are left exactly as before.
+      expect(ifItem.children).toContain(fieldItem);
+      expect(shipOrderItem.children).toContain(ifItem);
+    });
+
+    it('should not cascade-delete when isAutoOptionalIf is stale-true but shape no longer matches the simple guard', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const targetField = targetDoc.fields[0].fields[1];
+      const sourceField = sourceDoc.fields[0].fields[1];
+      sourceField.minOccurs = 0;
+      targetField.minOccurs = 0;
+      const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
+      MappingService.mapToField(sourceField, fieldItem);
+      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField)!;
+      expect(ifItem.isAutoOptionalIf).toBe(true);
+
+      // Invalidate the shape: add a second sibling under the guard so it no longer
+      // matches the single-field simple-guard pattern, but leave the raw flag as true.
+      const sibling = new FieldItem(ifItem, targetField);
+      ifItem.children.push(sibling);
+
+      MappingService.deleteMappingItem(fieldItem);
+
+      // Shape is invalid → isEffectivelyAutoOptional returns false → no cascade.
+      expect(ifItem.children).toContain(fieldItem);
+      expect(shipOrderItem.children).toContain(ifItem);
     });
   });
 
@@ -1616,6 +1833,43 @@ describe('MappingService', () => {
       childFieldItems.forEach((fi) => {
         const vs = fi.children.find((c) => c instanceof ValueOfSelector);
         expect(vs).toBeDefined();
+      });
+    });
+
+    it('generateAutoChildMappings should auto-wrap an optional-to-optional terminal child with a hidden if, leaving required siblings unwrapped', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+
+      const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      DocumentUtilService.resolveTypeFragment(targetShipTo);
+      const sourceShipTo = sourceRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      DocumentUtilService.resolveTypeFragment(sourceShipTo);
+      const targetName = targetShipTo.fields.find((f: IField) => f.name === 'Name')!;
+      const sourceName = sourceShipTo.fields.find((f: IField) => f.name === 'Name')!;
+      targetName.minOccurs = 0;
+      sourceName.minOccurs = 0;
+
+      const rootItem = new FieldItem(manualTree, targetRoot);
+      manualTree.children.push(rootItem);
+      const shipToItem = new FieldItem(rootItem, targetShipTo);
+      rootItem.children.push(shipToItem);
+
+      MappingService.generateAutoChildMappings(sourceShipTo, targetShipTo, shipToItem);
+
+      const nameIfItem = shipToItem.children.find(
+        (c) => c instanceof IfItem && (c.children[0] as FieldItem)?.field === targetName,
+      ) as IfItem;
+      expect(nameIfItem).toBeDefined();
+      expect(nameIfItem.isAutoOptionalIf).toBe(true);
+      expect(shipToItem.children.filter((c) => c instanceof FieldItem)).toHaveLength(3);
+
+      const otherChildren = shipToItem.children.filter((c): c is FieldItem => c instanceof FieldItem);
+      otherChildren.forEach((fi) => {
+        expect(fi.children.find((c) => c instanceof ValueOfSelector)).toBeDefined();
       });
     });
 

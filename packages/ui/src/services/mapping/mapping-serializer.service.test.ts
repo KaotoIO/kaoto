@@ -56,7 +56,9 @@ import {
 } from '../../stubs/datamapper/data-mapper';
 import { XmlSchemaField } from '../document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
+import { MappingService } from './mapping.service';
 import { EMPTY_XSL, MappingSerializerService } from './mapping-serializer.service';
+import { WrapperAutoDetectionService } from './wrapper-auto-detection.service';
 
 describe('MappingSerializerService', () => {
   const sourceParameterMap = TestUtil.createParameterMap();
@@ -1683,6 +1685,207 @@ describe('MappingSerializerService', () => {
       expect(fieldItem2.isUserCreated).toBe(false);
       const cloned2 = fieldItem2.clone() as FieldItem;
       expect(cloned2.isUserCreated).toBe(false);
+    });
+  });
+
+  describe('auto-optional-if: serialization and deserialization round trip', () => {
+    it('should serialize a value-of guard as a plain xsl:if and restore isAutoOptionalIf on round trip', () => {
+      const localSourceDoc = TestUtil.createSourceOrderDoc();
+      const localTargetDoc = TestUtil.createTargetOrderDoc();
+      const localParamsMap = TestUtil.createParameterMap();
+      const sourceField = localSourceDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+      const targetField = localTargetDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+      sourceField.minOccurs = 0;
+      targetField.minOccurs = 0;
+
+      const mappingTree = new MappingTree(
+        localTargetDoc.documentType,
+        localTargetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const rootItem = new FieldItem(mappingTree, localTargetDoc.fields[0]);
+      mappingTree.children.push(rootItem);
+      const fieldItem = new FieldItem(rootItem, targetField);
+      rootItem.children.push(fieldItem);
+      MappingService.mapToField(sourceField, fieldItem);
+      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField)!;
+      expect(ifItem.isAutoOptionalIf).toBe(true);
+
+      const xslt = MappingSerializerService.serialize(mappingTree, localParamsMap);
+      const xsltDocument = domParser.parseFromString(xslt, 'text/xml');
+      const ifTest = xsltDocument
+        .evaluate(
+          '/xsl:stylesheet/xsl:template/ShipOrder/xsl:if/@test',
+          xsltDocument,
+          xslNsResolver,
+          XPathResult.ORDERED_NODE_ITERATOR_TYPE,
+        )
+        .iterateNext();
+      expect(ifTest?.nodeValue).toBe('/ns0:ShipOrder/ns0:OrderPerson');
+      const valueOfSelect = xsltDocument
+        .evaluate(
+          '/xsl:stylesheet/xsl:template/ShipOrder/xsl:if/OrderPerson/xsl:value-of/@select',
+          xsltDocument,
+          xslNsResolver,
+          XPathResult.ORDERED_NODE_ITERATOR_TYPE,
+        )
+        .iterateNext();
+      expect(valueOfSelect?.nodeValue).toBe('/ns0:ShipOrder/ns0:OrderPerson');
+
+      const freshTree = new MappingTree(
+        localTargetDoc.documentType,
+        localTargetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const { mappingTree: deserialized } = MappingSerializerService.deserialize(
+        xslt,
+        localTargetDoc,
+        freshTree,
+        localParamsMap,
+      );
+      WrapperAutoDetectionService.autoDetectOptionalGuards(deserialized);
+
+      const deserializedShipOrder = deserialized.children[0] as FieldItem;
+      const deserializedIfItem = deserializedShipOrder.children.find((c) => c instanceof IfItem) as IfItem;
+      expect(deserializedIfItem).toBeDefined();
+      expect(deserializedIfItem.isAutoOptionalIf).toBe(true);
+    });
+
+    it('should serialize a copy-of guard as a plain xsl:if and restore isAutoOptionalIf on round trip', () => {
+      const localSourceDoc = TestUtil.createSourceOrderDoc();
+      const localTargetDoc = TestUtil.createTargetOrderDoc();
+      const localParamsMap = TestUtil.createParameterMap();
+      const sourceField = localSourceDoc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
+      const targetField = localTargetDoc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
+      sourceField.minOccurs = 0;
+      targetField.minOccurs = 0;
+
+      const mappingTree = new MappingTree(
+        localTargetDoc.documentType,
+        localTargetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const rootItem = new FieldItem(mappingTree, localTargetDoc.fields[0]);
+      mappingTree.children.push(rootItem);
+      const fieldItem = new FieldItem(rootItem, targetField);
+      rootItem.children.push(fieldItem);
+      // CONTAINER_NODE (unlike CONTAINER) always renders a dedicated target element wrapper,
+      // with the copy-of's `/node()` suffix stripped when comparing against the if's test.
+      MappingService.mapToFieldWithValueType(sourceField, fieldItem, CopyOfType.CONTAINER_NODE);
+      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField)!;
+      expect(ifItem.isAutoOptionalIf).toBe(true);
+
+      const xslt = MappingSerializerService.serialize(mappingTree, localParamsMap);
+      const xsltDocument = domParser.parseFromString(xslt, 'text/xml');
+      const ifTest = xsltDocument
+        .evaluate(
+          '/xsl:stylesheet/xsl:template/ShipOrder/xsl:if/@test',
+          xsltDocument,
+          xslNsResolver,
+          XPathResult.ORDERED_NODE_ITERATOR_TYPE,
+        )
+        .iterateNext();
+      expect(ifTest?.nodeValue).toBe('/ns0:ShipOrder/ShipTo');
+      const copyOfSelect = xsltDocument
+        .evaluate(
+          '/xsl:stylesheet/xsl:template/ShipOrder/xsl:if/ShipTo/xsl:copy-of/@select',
+          xsltDocument,
+          xslNsResolver,
+          XPathResult.ORDERED_NODE_ITERATOR_TYPE,
+        )
+        .iterateNext();
+      expect(copyOfSelect?.nodeValue).toBe('/ns0:ShipOrder/ShipTo/node()');
+
+      const freshTree = new MappingTree(
+        localTargetDoc.documentType,
+        localTargetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const { mappingTree: deserialized } = MappingSerializerService.deserialize(
+        xslt,
+        localTargetDoc,
+        freshTree,
+        localParamsMap,
+      );
+      WrapperAutoDetectionService.autoDetectOptionalGuards(deserialized);
+
+      const deserializedShipOrder = deserialized.children[0] as FieldItem;
+      const deserializedIfItem = deserializedShipOrder.children.find((c) => c instanceof IfItem) as IfItem;
+      expect(deserializedIfItem).toBeDefined();
+      expect(deserializedIfItem.isAutoOptionalIf).toBe(true);
+    });
+
+    it('should serialize a CONTAINER (skipped-wrapper) copy-of guard and restore isAutoOptionalIf on round trip', () => {
+      // Regression: CopyOfSelectorHandler only reconstructed the intermediate FieldItem when
+      // its immediate parent mapping was a FieldItem — when the copy-of sits inside an xsl:if
+      // instead (exactly what this feature produces), the parent mapping is the IfItem, so the
+      // reconstruction was skipped and the guard's shape (IfItem -> FieldItem -> selector)
+      // silently collapsed into (IfItem -> selector), which autoDetectOptionalGuards can't match.
+      const localSourceDoc = TestUtil.createSourceOrderDoc();
+      const localTargetDoc = TestUtil.createTargetOrderDoc();
+      const localParamsMap = TestUtil.createParameterMap();
+      const sourceField = localSourceDoc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
+      const targetField = localTargetDoc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
+      sourceField.minOccurs = 0;
+      targetField.minOccurs = 0;
+
+      const mappingTree = new MappingTree(
+        localTargetDoc.documentType,
+        localTargetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const rootItem = new FieldItem(mappingTree, localTargetDoc.fields[0]);
+      mappingTree.children.push(rootItem);
+      const fieldItem = new FieldItem(rootItem, targetField);
+      rootItem.children.push(fieldItem);
+      MappingService.mapToFieldWithValueType(sourceField, fieldItem, CopyOfType.CONTAINER);
+      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField)!;
+      expect(ifItem.isAutoOptionalIf).toBe(true);
+
+      const xslt = MappingSerializerService.serialize(mappingTree, localParamsMap);
+      const xsltDocument = domParser.parseFromString(xslt, 'text/xml');
+      const ifTest = xsltDocument
+        .evaluate(
+          '/xsl:stylesheet/xsl:template/ShipOrder/xsl:if/@test',
+          xsltDocument,
+          xslNsResolver,
+          XPathResult.ORDERED_NODE_ITERATOR_TYPE,
+        )
+        .iterateNext();
+      expect(ifTest?.nodeValue).toBe('/ns0:ShipOrder/ShipTo');
+      // CONTAINER skips the target element wrapper — the copy-of appears directly under the if.
+      const copyOfSelect = xsltDocument
+        .evaluate(
+          '/xsl:stylesheet/xsl:template/ShipOrder/xsl:if/xsl:copy-of/@select',
+          xsltDocument,
+          xslNsResolver,
+          XPathResult.ORDERED_NODE_ITERATOR_TYPE,
+        )
+        .iterateNext();
+      expect(copyOfSelect?.nodeValue).toBe('/ns0:ShipOrder/ShipTo');
+
+      const freshTree = new MappingTree(
+        localTargetDoc.documentType,
+        localTargetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const { mappingTree: deserialized } = MappingSerializerService.deserialize(
+        xslt,
+        localTargetDoc,
+        freshTree,
+        localParamsMap,
+      );
+      WrapperAutoDetectionService.autoDetectOptionalGuards(deserialized);
+
+      const deserializedShipOrder = deserialized.children[0] as FieldItem;
+      const deserializedIfItem = deserializedShipOrder.children.find((c) => c instanceof IfItem) as IfItem;
+      expect(deserializedIfItem).toBeDefined();
+      // The intermediate ShipTo FieldItem must be reconstructed under the IfItem for the
+      // guard's shape to match — not a bare CopyOfSelector directly under the IfItem.
+      const reconstructedFieldItem = deserializedIfItem.children.find((c) => c instanceof FieldItem) as FieldItem;
+      expect(reconstructedFieldItem).toBeDefined();
+      expect(reconstructedFieldItem.field.name).toBe('ShipTo');
+      expect(deserializedIfItem.isAutoOptionalIf).toBe(true);
     });
   });
 });
