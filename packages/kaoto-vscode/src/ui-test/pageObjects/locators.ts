@@ -51,7 +51,7 @@ export const kaotoLocators = {
 	KaotoEditor: {
 		/**
 		 * Root element the Kaoto editor envelope renders into
-		 * (see `src/webview/KaotoEditorEnvelopeApp.ts`).
+		 * (see `packages/ui/src/webview-vscode-entry.tsx`).
 		 *
 		 * Present in the Kaoto webview for every supported file type, and absent from
 		 * both the workbench DOM and any other extension webview (such as "What's New").
