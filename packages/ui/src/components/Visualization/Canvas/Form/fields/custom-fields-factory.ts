@@ -9,6 +9,7 @@ import { EndpointListField } from './EndpointField/EndpointListField';
 import { EndpointPropertiesField } from './EndpointPropertiesField/EndpointPropertiesField';
 import { ExpressionField } from './ExpressionField/ExpressionField';
 import { MediaTypeField } from './MediaTypeField/MediaTypeField';
+import { SedaEndpointNameField } from './SedaEndpointNameField';
 import { UriField } from './UriField/UriField';
 
 const isDirectEndpointName = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
@@ -17,6 +18,10 @@ const isDirectEndpointName = (schema: Parameters<CustomFieldsFactory>[0]): boole
     schema.title === 'Name' &&
     schema.description?.toLowerCase().includes('direct endpoint') === true
   );
+};
+
+const isSedaEndpointName = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
+  return schema.type === 'string' && schema.title === 'Name' && schema.description === 'Name of queue';
 };
 
 const isMediaTypeField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
@@ -98,6 +103,7 @@ const CUSTOM_FIELD_ENTRIES: [
   [isIntegrationRuntimeSelectorField, RuntimeCatalogNameField],
   [isTestingRuntimeSelectorField, TestingCatalogNameField],
   [isDirectEndpointName, DirectEndpointNameField],
+  [isSedaEndpointName, SedaEndpointNameField],
   [isBeanField, PrefixedBeanField],
   [isRefField, UnprefixedBeanField],
   [isDataSourceField, DataSourceBeanField],

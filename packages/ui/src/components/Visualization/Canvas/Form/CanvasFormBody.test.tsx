@@ -390,4 +390,30 @@ describe('CanvasFormBody', () => {
       expect(wrapper.getByTestId('suggestions-menu')).toBeInTheDocument();
     });
   });
+
+  describe('seda queue name field', () => {
+    const renderComponentNode = async (uri: string) => {
+      const entity = new CamelRouteVisualEntity({ from: { uri, steps: [] } } as RouteDefinition);
+      const rootNode = await entity.toVizNode();
+      const fromNode = rootNode.getChildren()![0];
+      await fromNode.fetchSchema();
+
+      const { Provider } = await TestProvidersWrapper();
+      render(
+        <EntitiesContext.Provider value={null}>
+          <Provider>
+            <CanvasFormTabsContext.Provider value={{ selectedTab: 'All', setSelectedTab: vi.fn() }}>
+              <CanvasFormBody vizNode={fromNode} />
+            </CanvasFormTabsContext.Provider>
+          </Provider>
+        </EntitiesContext.Provider>,
+      );
+    };
+
+    it('renders the Create Route button for the seda component', async () => {
+      await renderComponentNode('seda:foo');
+
+      expect(await screen.findByRole('button', { name: 'Create Route' })).toBeInTheDocument();
+    });
+  });
 });

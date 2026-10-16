@@ -196,6 +196,16 @@ describe('Camel Route', () => {
       expect(fromNode?.getNodeLabel()).toBe('timer');
     });
 
+    it.each(['direct', 'seda'])('should use the endpoint name as the node label for %s', async (scheme) => {
+      camelEntity = new CamelRouteVisualEntity({
+        from: { uri: scheme, parameters: { name: 'my-endpoint' }, steps: [] },
+      });
+      const vizNode = await camelEntity.toVizNode();
+      const fromNode = vizNode.getChildren()?.[0];
+
+      expect(fromNode?.getNodeLabel()).toBe('my-endpoint');
+    });
+
     it('should set a default label if the uri is not available', async () => {
       camelEntity = new CamelRouteVisualEntity({ from: {} } as RouteDefinition);
       const vizNode = await camelEntity.toVizNode();

@@ -7,7 +7,6 @@ import { EntitiesContextResult } from '../../../../../providers/entities.provide
 import { VisibleFlowsContextResult } from '../../../../../providers/visible-flows.provider';
 
 const DIRECT_URI = 'direct';
-const DIRECT_URI_PREFIX = `${DIRECT_URI}:`;
 
 interface DirectEndpointEntityLike {
   getId: () => string | undefined;
@@ -18,6 +17,8 @@ interface UseDirectEndpointNameOptionsParams {
   value: string;
   onChange: (value: string | undefined) => void;
   visualEntities?: DirectEndpointEntityLike[];
+  /** Component scheme to look up, defaults to `direct` */
+  scheme?: string;
 }
 
 interface UseCreateDirectRouteParams {
@@ -27,21 +28,24 @@ interface UseCreateDirectRouteParams {
   onChange: (value: string | undefined) => void;
   entitiesContext: EntitiesContextResult | null;
   visibleFlowsContext: VisibleFlowsContextResult | undefined;
+  /** Component scheme used for the created route, defaults to `direct` */
+  scheme?: string;
 }
 
-export const getDirectNameFromUri = (uri: string): string | undefined => {
-  if (!uri.startsWith(DIRECT_URI_PREFIX)) {
+export const getDirectNameFromUri = (uri: string, scheme: string = DIRECT_URI): string | undefined => {
+  const prefix = `${scheme}:`;
+  if (!uri.startsWith(prefix)) {
     return undefined;
   }
 
-  const [name] = uri.substring(DIRECT_URI_PREFIX.length).split('?');
+  const [name] = uri.substring(prefix.length).split('?');
   const normalizedName = name.trim();
   return normalizedName === '' ? undefined : normalizedName;
 };
 
-const getDirectNameFromEndpointDefinition = (endpointDefinition: unknown): string | undefined => {
+const getDirectNameFromEndpointDefinition = (endpointDefinition: unknown, scheme: string): string | undefined => {
   if (typeof endpointDefinition === 'string') {
-    return getDirectNameFromUri(endpointDefinition);
+    return getDirectNameFromUri(endpointDefinition, scheme);
   }
 
   if (!endpointDefinition || typeof endpointDefinition !== 'object' || Array.isArray(endpointDefinition)) {
@@ -54,12 +58,12 @@ const getDirectNameFromEndpointDefinition = (endpointDefinition: unknown): strin
     return undefined;
   }
 
-  const directNameFromUri = getDirectNameFromUri(uri);
+  const directNameFromUri = getDirectNameFromUri(uri, scheme);
   if (directNameFromUri) {
     return directNameFromUri;
   }
 
-  if (uri !== DIRECT_URI) {
+  if (uri !== scheme) {
     return undefined;
   }
 
@@ -67,9 +71,9 @@ const getDirectNameFromEndpointDefinition = (endpointDefinition: unknown): strin
   return typeof name === 'string' && name.trim() !== '' ? name.trim() : undefined;
 };
 
-export const collectDirectEndpointNames = (value: unknown, names: Set<string>) => {
+export const collectDirectEndpointNames = (value: unknown, names: Set<string>, scheme: string = DIRECT_URI) => {
   if (typeof value === 'string') {
-    const directName = getDirectNameFromUri(value);
+    const directName = getDirectNameFromUri(value, scheme);
     if (directName) {
       names.add(directName);
     }
@@ -82,7 +86,7 @@ export const collectDirectEndpointNames = (value: unknown, names: Set<string>) =
 
   if (Array.isArray(value)) {
     value.forEach((item) => {
-      collectDirectEndpointNames(item, names);
+      collectDirectEndpointNames(item, names, scheme);
     });
     return;
   }
@@ -91,12 +95,12 @@ export const collectDirectEndpointNames = (value: unknown, names: Set<string>) =
   const uri = objectValue.uri;
 
   if (typeof uri === 'string') {
-    const directNameFromUri = getDirectNameFromUri(uri);
+    const directNameFromUri = getDirectNameFromUri(uri, scheme);
     if (directNameFromUri) {
       names.add(directNameFromUri);
     }
 
-    if (uri === DIRECT_URI) {
+    if (uri === scheme) {
       const name = (objectValue.parameters as Record<string, unknown> | undefined)?.name;
       if (typeof name === 'string' && name.trim() !== '') {
         names.add(name.trim());
@@ -105,11 +109,11 @@ export const collectDirectEndpointNames = (value: unknown, names: Set<string>) =
   }
 
   Object.values(objectValue).forEach((item) => {
-    collectDirectEndpointNames(item, names);
+    collectDirectEndpointNames(item, names, scheme);
   });
 };
 
-const getRouteIdsByDirectName = (visualEntities?: DirectEndpointEntityLike[]) => {
+const getRouteIdsByDirectName = (visualEntities: DirectEndpointEntityLike[] | undefined, scheme: string) => {
   const routeIdsMap = new Map<string, string[]>();
 
   visualEntities?.forEach((entity) => {
@@ -119,7 +123,7 @@ const getRouteIdsByDirectName = (visualEntities?: DirectEndpointEntityLike[]) =>
       return;
     }
 
-    const directName = getDirectNameFromEndpointDefinition(routeDefinition.from);
+    const directName = getDirectNameFromEndpointDefinition(routeDefinition.from, scheme);
     if (!directName) {
       return;
     }
@@ -143,16 +147,17 @@ export const useDirectEndpointNameOptions = ({
   value,
   onChange,
   visualEntities,
+  scheme = DIRECT_URI,
 }: UseDirectEndpointNameOptionsParams) => {
   const existingDirectNames = useMemo(() => {
     const names = new Set<string>();
     visualEntities?.forEach((entity) => {
-      collectDirectEndpointNames(entity.toJSON(), names);
+      collectDirectEndpointNames(entity.toJSON(), names, scheme);
     });
     return [...names].sort((first, second) => first.localeCompare(second));
-  }, [visualEntities]);
+  }, [scheme, visualEntities]);
 
-  const routeIdsByDirectName = useMemo(() => getRouteIdsByDirectName(visualEntities), [visualEntities]);
+  const routeIdsByDirectName = useMemo(() => getRouteIdsByDirectName(visualEntities, scheme), [scheme, visualEntities]);
   const existingDirectRouteNames = useMemo(
     () => [...routeIdsByDirectName.keys()].sort((first, second) => first.localeCompare(second)),
     [routeIdsByDirectName],
@@ -216,6 +221,7 @@ export const useCreateDirectRoute = ({
   onChange,
   entitiesContext,
   visibleFlowsContext,
+  scheme = DIRECT_URI,
 }: UseCreateDirectRouteParams) => {
   const canCreateRoute = !disabled && typedName !== '' && !existingDirectRouteNames.includes(typedName);
 
@@ -226,7 +232,7 @@ export const useCreateDirectRoute = ({
 
     const routeTemplate: RouteDefinition = {
       from: {
-        uri: DIRECT_URI,
+        uri: scheme,
         parameters: { name: typedName },
         steps: [],
       },
@@ -236,7 +242,7 @@ export const useCreateDirectRoute = ({
     visibleFlowsContext?.visualFlowsApi.toggleFlowVisible(newRouteId);
     entitiesContext.updateEntitiesFromCamelResource();
     onChange(typedName);
-  }, [canCreateRoute, entitiesContext, onChange, typedName, visibleFlowsContext]);
+  }, [canCreateRoute, entitiesContext, onChange, scheme, typedName, visibleFlowsContext]);
 
   return { canCreateRoute, onCreateRoute };
 };
