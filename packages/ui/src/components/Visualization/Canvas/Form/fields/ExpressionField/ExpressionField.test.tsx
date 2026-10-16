@@ -294,7 +294,7 @@ describe('ExpressionField', () => {
     );
 
     expect(await screen.findByText('Expression editor is unavailable')).toBeInTheDocument();
-    const expandableButton = await screen.findByLabelText('Show more');
+    const expandableButton = await screen.findByRole('button', { name: /Show more/ });
     expect(expandableButton).toBeInTheDocument();
 
     fireEvent.click(expandableButton);
