@@ -1,11 +1,15 @@
+import { KameletKnownAnnotations } from '../../models/camel/kamelets-catalog';
 import { ParsedTable } from '../../models/documentation';
 import { MetadataEntity } from '../../models/visualization/metadata';
+import { parseImageDataUri } from '../../utils/data-uri';
 import { CommonParser } from './common-parser';
 
 export class MiscParser {
-  private static readonly KAMELET_ICON_ANNOTATION = 'camel.apache.org/kamelet.icon';
-
-  static parseMetadataEntity(entity: MetadataEntity, label: string): ParsedTable[] {
+  /**
+   * @param iconFileName When provided and the Kamelet icon is an image data URI, the icon is referenced
+   * by this file name instead of being inlined, since inline base64 images are not supported by all markdown renderers.
+   */
+  static parseMetadataEntity(entity: MetadataEntity, label: string, iconFileName?: string): ParsedTable[] {
     if (!entity.parent.metadata) return [];
 
     const parsedTables: ParsedTable[] = [
@@ -40,12 +44,13 @@ export class MiscParser {
       });
       parsedTables.push(annotationsTable);
       Object.entries(entity.parent.metadata.annotations).forEach(([annoKey, annoValue]) => {
-        if (annoKey === MiscParser.KAMELET_ICON_ANNOTATION) {
+        if (annoKey === KameletKnownAnnotations.Icon) {
+          const iconSource = iconFileName && parseImageDataUri(annoValue) ? iconFileName : annoValue;
           const iconTable = new ParsedTable({
             title: '',
             headers: ['Metadata : Annotations : Icon'],
             headingLevel: 'h5',
-            data: [[`![icon](${annoValue})`]],
+            data: [[`![icon](${iconSource})`]],
           });
           parsedTables.push(iconTable);
         } else {

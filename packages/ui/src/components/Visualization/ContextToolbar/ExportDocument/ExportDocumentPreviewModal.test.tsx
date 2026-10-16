@@ -161,10 +161,70 @@ describe('ExportDocumentPreviewModal', () => {
     fireEvent.click(downloadButton);
 
     await waitFor(() => {
-      expect(generateDocumentationZipSpy).toHaveBeenCalledWith(expect.any(Blob), expect.any(String), 'route-export');
+      expect(generateDocumentationZipSpy).toHaveBeenCalledWith(
+        expect.any(Blob),
+        expect.any(String),
+        'route-export',
+        undefined,
+      );
     });
 
     generateDocumentationZipSpy.mockRestore();
+  });
+
+  it('exports the kamelet icon as a separate file when downloading', async () => {
+    const iconFile = { fileName: 'route-export-icon.svg', data: new Uint8Array([1, 2, 3]) };
+    const getKameletIconSpy = vi.spyOn(DocumentationService, 'getKameletIcon').mockReturnValue(iconFile);
+    const generateMarkdownSpy = vi.spyOn(DocumentationService, 'generateMarkdown');
+    const generateDocumentationZipSpy = vi
+      .spyOn(DocumentationService, 'generateDocumentationZip')
+      .mockResolvedValue(new Blob(['fake-zip-data'], { type: 'application/zip' }));
+
+    render(<ExportDocumentPreviewModal onClose={onCloseSpy} />, { wrapper });
+
+    act(() => {
+      fireLayoutEnd();
+    });
+    await waitFor(() => {
+      expect(screen.queryByLabelText('Loading markdown preview')).not.toBeInTheDocument();
+    });
+    generateMarkdownSpy.mockClear();
+
+    fireEvent.click(screen.getByRole('button', { name: /download/i }));
+
+    await waitFor(() => {
+      expect(getKameletIconSpy).toHaveBeenCalledWith(expect.any(Array), 'route-export');
+      expect(generateMarkdownSpy).toHaveBeenCalledWith(expect.any(Array), 'route-export.png', 'route-export-icon.svg');
+      expect(generateDocumentationZipSpy).toHaveBeenCalledWith(
+        expect.any(Blob),
+        expect.any(String),
+        'route-export',
+        iconFile,
+      );
+    });
+
+    getKameletIconSpy.mockRestore();
+    generateMarkdownSpy.mockRestore();
+    generateDocumentationZipSpy.mockRestore();
+  });
+
+  it('keeps the preview markdown independent of the exported icon file', async () => {
+    const getKameletIconSpy = vi.spyOn(DocumentationService, 'getKameletIcon');
+    const generateMarkdownSpy = vi.spyOn(DocumentationService, 'generateMarkdown');
+
+    render(<ExportDocumentPreviewModal onClose={onCloseSpy} />, { wrapper });
+
+    act(() => {
+      fireLayoutEnd();
+    });
+
+    await waitFor(() => {
+      expect(generateMarkdownSpy).toHaveBeenCalledWith(expect.any(Array), 'blob:mock-url');
+    });
+    expect(getKameletIconSpy).not.toHaveBeenCalled();
+
+    getKameletIconSpy.mockRestore();
+    generateMarkdownSpy.mockRestore();
   });
 
   it('creates download link with correct filename', async () => {
