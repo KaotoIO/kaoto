@@ -55,6 +55,15 @@ describe('mapping.ts', () => {
       expect(cloned).not.toBe(item);
     });
 
+    it('clone() should copy isAutoOptionalIf flag', () => {
+      const item = new IfItem(tree);
+      item.isAutoOptionalIf = true;
+
+      const cloned = item.clone();
+
+      expect(cloned.isAutoOptionalIf).toBe(true);
+    });
+
     it('clone() should reparent cloned children to the cloned parent', () => {
       const item = new IfItem(tree);
       const child = new ValueOfSelector(item);

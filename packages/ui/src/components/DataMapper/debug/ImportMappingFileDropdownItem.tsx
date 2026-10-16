@@ -38,6 +38,7 @@ export const ImportMappingFileDropdownItem: FunctionComponent<ImportMappingFileD
             targetBodyDocument,
             mappingTree.namespaceMap,
           );
+          WrapperAutoDetectionService.autoDetectOptionalGuards(mappingTree);
           for (const msg of messages) {
             sendAlert(msg);
           }

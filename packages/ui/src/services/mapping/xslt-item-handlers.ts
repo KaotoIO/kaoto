@@ -64,6 +64,12 @@ export class ValueOfSelectorHandler implements XsltItemHandler<ValueOfSelector> 
  * When a CONTAINER copy-of is deserialized (wrapper element was skipped during
  * serialization), this handler reconstructs the intermediate {@link FieldItem}
  * so that the mapping model is consistent regardless of how it was created.
+ * This also applies when the copy-of's immediate parent is an {@link IfItem} (e.g. an
+ * auto-optional guard) rather than a plain {@link FieldItem} — `xsl:if` passes the
+ * surrounding field context through unchanged, so the same reconstruction logic
+ * resolves the field correctly either way. Deliberately NOT extended to
+ * {@link ForEachItem}: inside a loop body the field context is the iterated item
+ * itself, not a named sibling field, so wrapping there would be incorrect.
  */
 export class CopyOfSelectorHandler implements XsltItemHandler<MappingItem> {
   readonly itemClass = CopyOfSelector;
@@ -112,7 +118,7 @@ export class CopyOfSelectorHandler implements XsltItemHandler<MappingItem> {
     selector: CopyOfSelector,
     element: Element,
     parentField: IParentType,
-    parentMapping: FieldItem,
+    parentMapping: FieldItem | IfItem,
   ): DeserializeItemResult<MappingItem> | null {
     const { localName, namespaceURI } = CopyOfSelectorHandler.resolveFieldFromSelectExpression(
       selector.expression,
@@ -153,7 +159,7 @@ export class CopyOfSelectorHandler implements XsltItemHandler<MappingItem> {
 
     if (
       valueType === CopyOfType.CONTAINER &&
-      parentMapping instanceof FieldItem &&
+      (parentMapping instanceof FieldItem || parentMapping instanceof IfItem) &&
       !(parentField instanceof PrimitiveDocument)
     ) {
       const wrapped = CopyOfSelectorHandler.wrapContainerCopyOfInFieldItem(

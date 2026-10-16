@@ -1,3 +1,5 @@
+import { CstNode } from 'chevrotain';
+
 import { IField, PrimitiveDocument } from '../../models/datamapper/document';
 import { IFunctionDefinition } from '../../models/datamapper/mapping';
 import {
@@ -73,6 +75,102 @@ export class XPathService {
       validationResult.dataMapperErrors.push(errorString);
     }
     return validationResult;
+  }
+
+  /**
+   * Checks whether an XPath expression string is a simple path (a single PathExpr with no functions,
+   * operators, arithmetic, or predicates on any of its steps) — except a step may carry exactly one
+   * `[@key='literal']` predicate, which {@link isJsonKeyPredicate} recognizes as JSON Schema's
+   * deterministic field-addressing convention (every `fn:map`/`fn:string`/etc. step generated for a
+   * JSON field carries one) rather than an arbitrary, potentially ambiguous filter.
+   * @param expression XPath expression string to check
+   */
+  static isSimplePath(expression: string): boolean {
+    if (!expression?.trim()) return false;
+    const parsed = XPathService.parse(expression);
+    if (parsed.lexErrors.length > 0 || parsed.parseErrors.length > 0 || !parsed.exprNode) return false;
+    if (parsed.exprNode.expressions.length !== 1) return false;
+
+    const singleExpr = parsed.exprNode.expressions[0];
+    if (singleExpr.type !== XPathNodeType.PathExpr) return false;
+    if (XPathService.containsUnionOrIntersectOperator(parsed.cst)) return false;
+
+    const pathNode = singleExpr as PathExprNode;
+    if (pathNode.steps.length === 0) return false;
+
+    return pathNode.steps.every(
+      (step) => XPathService.hasOnlyAllowedPredicates(step) && XPathService.hasValidFilterExpr(step),
+    );
+  }
+
+  /**
+   * A step may carry no predicates, or exactly one `[@key='literal']` JSON key predicate
+   * (see {@link isJsonKeyPredicate}); anything else disqualifies {@link isSimplePath}.
+   */
+  private static hasOnlyAllowedPredicates(step: StepExprNode): boolean {
+    if (!step.predicates?.length) return true;
+    return step.predicates.length === 1 && XPathService.isJsonKeyPredicate(step.predicates[0]);
+  }
+
+  /**
+   * A step's filter expression (if any) must have no predicates of its own and must be
+   * a bare variable reference or context item (e.g. `$var[...]` or `.[...]`).
+   */
+  private static hasValidFilterExpr(step: StepExprNode): boolean {
+    if (!step.filterExpr) return true;
+    if (step.filterExpr.predicates?.length) return false;
+
+    return (
+      step.filterExpr.primary.type === XPathNodeType.VarRef ||
+      step.filterExpr.primary.type === XPathNodeType.ContextItemExpr
+    );
+  }
+
+  /**
+   * Recognizes a `[@key='literal']` predicate — the shape every JSON Schema field step carries
+   * (see `JsonSchemaField`'s constructor), used only to address an `fn:map` entry by key, not to
+   * filter among several candidates. Anything else (a non-literal RHS, a non-`key` attribute, a
+   * non-equality operator) is treated as a real filter and left to disqualify {@link isSimplePath}.
+   */
+  private static isJsonKeyPredicate(predicate: PredicateNode): boolean {
+    if (predicate.expr.expressions.length !== 1) return false;
+    const expr = predicate.expr.expressions[0];
+    if (expr.type !== XPathNodeType.ComparisonExpr) return false;
+    const comparison = expr as ComparisonExprNode;
+    if (comparison.operator !== PredicateOperator.Equal && comparison.operator !== PredicateOperator.Eq) return false;
+
+    const left = comparison.left;
+    if (left.type !== XPathNodeType.PathExpr) return false;
+    if (left.steps.length !== 1) return false;
+    const onlyStep = left.steps[0];
+    if (!onlyStep.isAttribute || onlyStep.predicates.length > 0) return false;
+    if (onlyStep.nodeTest?.localName !== 'key' || onlyStep.nodeTest.prefix) return false;
+
+    return (
+      comparison.right?.type === XPathNodeType.Literal && (comparison.right as LiteralNode).literalType === 'string'
+    );
+  }
+
+  /**
+   * Returns true if the CST contains an actual union (`|`, `union`) or intersect/except
+   * (`intersect`, `except`) *operator* anywhere in the tree — i.e. a `Pipe`/`Union` token
+   * directly under a `UnionExpr` node, or an `Intersect`/`Except` token directly under an
+   * `IntersectExceptExpr` node. These keywords are also valid NCName element/attribute
+   * names (e.g. `/union/except`), so matching the token key alone anywhere in the tree
+   * would misclassify such paths as containing an operator; checking the enclosing rule
+   * name disambiguates the two.
+   */
+  private static containsUnionOrIntersectOperator(node: CstNode): boolean {
+    const children = node.children;
+    if (node.name === 'UnionExpr' && ('Pipe' in children || 'Union' in children)) return true;
+    if (node.name === 'IntersectExceptExpr' && ('Intersect' in children || 'Except' in children)) return true;
+
+    for (const key of Object.keys(children)) {
+      for (const child of children[key]) {
+        if ('children' in child && XPathService.containsUnionOrIntersectOperator(child as CstNode)) return true;
+      }
+    }
+    return false;
   }
 
   /**
