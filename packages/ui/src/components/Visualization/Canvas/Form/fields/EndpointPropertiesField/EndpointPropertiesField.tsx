@@ -1,6 +1,7 @@
 import './EndpointPropertiesField.scss';
 
-import { SettingsAdjust, TableSplit } from '@carbon/icons-react';
+import { SettingsAdjust, TableSplit, TrashCan } from '@carbon/icons-react';
+import { ContentSwitcher, IconButton, Switch, Tag } from '@carbon/react';
 import {
   ArrayFieldWrapper,
   FieldProps,
@@ -9,8 +10,6 @@ import {
   SchemaContext,
   useFieldValue,
 } from '@kaoto/forms';
-import { Badge, Button, ToggleGroup, ToggleGroupItem } from '@patternfly/react-core';
-import { TrashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
 
 import { MultiValuePropertyEditor } from './MultiValuePropertyEditor';
@@ -32,32 +31,30 @@ export const EndpointPropertiesField: FunctionComponent<FieldProps> = ({ propNam
     onChange(undefined);
   }, [onChange]);
 
+  const activeIndex = activeView === 'standard' ? 0 : 1;
+
   return (
     <>
       {hasSchemaProperties && (
         <div>
-          <ToggleGroup isCompact aria-label="Mode toggle" className="custom-mode-toggle">
-            <ToggleGroupItem
-              icon={<SettingsAdjust />}
-              text="Standard"
-              buttonId="standard"
-              isSelected={activeView === 'standard'}
-              onChange={() => {
-                setActiveView('standard');
-              }}
-              data-testid={`${propName}-standard-toggle`}
-            />
-            <ToggleGroupItem
-              icon={<TableSplit />}
-              text="Custom"
-              buttonId="custom"
-              isSelected={activeView === 'custom'}
-              onChange={() => {
-                setActiveView('custom');
-              }}
-              data-testid={`${propName}-custom-toggle`}
-            />
-          </ToggleGroup>
+          <ContentSwitcher
+            size="sm"
+            selectedIndex={activeIndex}
+            onChange={({ name }: { name?: string | number }) => {
+              if (name === 'standard' || name === 'custom') {
+                setActiveView(name);
+              }
+            }}
+            className="custom-mode-toggle"
+            aria-label="Mode toggle"
+          >
+            <Switch name="standard" text="Standard" data-testid={`${propName}-standard-toggle`}>
+              <SettingsAdjust />
+            </Switch>
+            <Switch name="custom" text="Custom" data-testid={`${propName}-custom-toggle`}>
+              <TableSplit />
+            </Switch>
+          </ContentSwitcher>
         </div>
       )}
 
@@ -75,10 +72,18 @@ export const EndpointPropertiesField: FunctionComponent<FieldProps> = ({ propNam
               description="The key-value pairs of the properties to configure this endpoint"
               actions={
                 <>
-                  <Badge title={`${propsCount} properties`}>{propsCount}</Badge>
-                  <Button variant="plain" aria-label="Remove" onClick={onRemove} data-testid={`${propName}__remove`}>
-                    <TrashIcon />
-                  </Button>
+                  <span title={`${propsCount} properties`} data-testid={`${propName}__badge`}>
+                    <Tag>{propsCount}</Tag>
+                  </span>
+                  <IconButton
+                    kind="ghost"
+                    size="sm"
+                    label="Remove"
+                    onClick={onRemove}
+                    data-testid={`${propName}__remove`}
+                  >
+                    <TrashCan />
+                  </IconButton>
                 </>
               }
             >

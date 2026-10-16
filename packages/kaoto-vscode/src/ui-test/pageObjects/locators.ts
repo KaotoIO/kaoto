@@ -62,7 +62,7 @@ export const kaotoLocators = {
 		topology: `//div[@data-test-id='topology']`,
 		designTabLink: `a[data-testid="design-tab"]`,
 		closeSideBar: `//button[@data-testid='close-side-bar']`,
-		propertyPanelCard: `pf-v6-c-card`,
+		propertyPanelCard: `canvas-form`,
 		flowsListRouteId: (name: string) => `//span[@data-testid='flows-list-route-id' and contains(., '${name}')]`,
 	},
 
@@ -241,7 +241,7 @@ export const locators: LocatorDiff['locators'] = {
 		topology: By.xpath(`//div[@data-test-id='topology']`),
 		designTabLink: By.css(`a[data-testid="design-tab"]`),
 		closeSideBar: By.xpath(`//button[@data-testid='close-side-bar']`),
-		propertyPanelCard: By.className(`pf-v6-c-card`),
+		propertyPanelCard: By.className(`canvas-form`),
 	},
 
 	EditorTabs: {

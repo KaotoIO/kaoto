@@ -1,5 +1,6 @@
 import './MetadataEditor.scss';
 
+import { Layer } from '@carbon/react';
 import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoForm } from '@kaoto/forms';
 import { Split, SplitItem, Stack, StackItem, Title } from '@patternfly/react-core';
 import { cloneDeep } from 'lodash';
@@ -75,16 +76,18 @@ export const MetadataEditor: FunctionComponent<MetadataEditorProps> = (props) =>
             <Title headingLevel="h2">Details</Title>
           </StackItem>
           <StackItem isFilled>
-            <CanvasFormTabsContext.Provider value={formTabsValue}>
-              <KaotoForm
-                key={`metadata-editor-form-${selected}`}
-                data-testid="metadata-editor-form-Beans"
-                schema={getFormSchema()}
-                model={getFormModel()}
-                onChange={onChangeFormModel}
-                disabled={isFormDisabled()}
-              />
-            </CanvasFormTabsContext.Provider>
+            <Layer>
+              <CanvasFormTabsContext.Provider value={formTabsValue}>
+                <KaotoForm
+                  key={`metadata-editor-form-${selected}`}
+                  data-testid="metadata-editor-form-Beans"
+                  schema={getFormSchema()}
+                  model={getFormModel()}
+                  onChange={onChangeFormModel}
+                  disabled={isFormDisabled()}
+                />
+              </CanvasFormTabsContext.Provider>
+            </Layer>
           </StackItem>
         </Stack>
       </SplitItem>

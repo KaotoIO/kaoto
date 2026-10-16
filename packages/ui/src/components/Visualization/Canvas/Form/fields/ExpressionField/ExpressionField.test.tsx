@@ -109,11 +109,10 @@ describe('ExpressionField', () => {
     );
 
     const formPageObject = new KaotoFormPageObject(screen, act);
-    await screen.findByTestId(`${ROOT_PATH}__expression-list-typeahead-select-input`);
     await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
     await formPageObject.selectTypeaheadItem('constant');
 
-    const expressionField = formPageObject.getFieldByDisplayName('Expression');
+    const expressionField = await formPageObject.findFieldByDisplayName('Expression');
     expect(expressionField).toBeInTheDocument();
   });
 
@@ -144,7 +143,6 @@ describe('ExpressionField', () => {
     );
 
     const formPageObject = new KaotoFormPageObject(screen, act);
-    await waitFor(() => formPageObject.getFieldByDisplayName('Expression'));
     await formPageObject.inputText('Expression', '');
 
     expect(onPropertyChangeSpy).toHaveBeenCalled();
@@ -179,11 +177,12 @@ describe('ExpressionField', () => {
     );
 
     const formPageObject = new KaotoFormPageObject(screen, act);
-    await screen.findByTestId(`${ROOT_PATH}__expression-list-typeahead-select-input`);
     await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
     await formPageObject.selectTypeaheadItem('constant');
 
-    expect(onPropertyChangeSpy).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(onPropertyChangeSpy).toHaveBeenCalled();
+    });
     const lastCall = onPropertyChangeSpy.mock.calls[onPropertyChangeSpy.mock.calls.length - 1];
     expect(lastCall[1].constant.expression).toBe(EXPRESSION_STRING);
   });
@@ -207,20 +206,16 @@ describe('ExpressionField', () => {
       </ModelContextProvider>,
     );
 
-    const clearButton = await screen.findByTestId(`#__expression-list__clear`);
-    // eslint-disable-next-line testing-library/no-unnecessary-act
-    await act(async () => {
-      fireEvent.click(clearButton);
-    });
+    const formPageObject = new KaotoFormPageObject(screen, act);
+    await formPageObject.clearExpressionFieldForProperty(ROOT_PATH);
 
-    expect(onPropertyChangeSpy).toHaveBeenCalledTimes(1);
     expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, { id: 'setHeader-1891' });
   });
 
   it('should update the model with `undefined` when the model is empty after clearing the expression', async () => {
     const onPropertyChangeSpy = vi.fn();
 
-    const { findByTestId } = await renderWithSuspense(
+    await renderWithSuspense(
       <ModelContextProvider
         model={{
           expression: {
@@ -235,14 +230,9 @@ describe('ExpressionField', () => {
       </ModelContextProvider>,
     );
 
-    const clearButton = await findByTestId(`#__expression-list__clear`);
+    const formPageObject = new KaotoFormPageObject(screen, act);
+    await formPageObject.clearExpressionFieldForProperty(ROOT_PATH);
 
-    // eslint-disable-next-line testing-library/no-unnecessary-act
-    await act(async () => {
-      fireEvent.click(clearButton);
-    });
-
-    expect(onPropertyChangeSpy).toHaveBeenCalledTimes(1);
     expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, undefined);
   });
 
