@@ -1,0 +1,13 @@
+@use '@carbon/react/scss/spacing' as *;
+
+.cs--integration-shell {
+  display: flex;
+  flex-direction: column;
+  block-size: 100%;
+  inline-size: 100%;
+}
+
+.cs--integration-shell__body {
+  flex: 1;
+  overflow: hidden;
+}

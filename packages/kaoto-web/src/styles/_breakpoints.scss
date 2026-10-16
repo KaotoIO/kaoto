@@ -1,0 +1,10 @@
+// Project-specific layout breakpoints.
+// Carbon's built-in grid breakpoints (sm: 320px, md: 672px, lg: 1056px) do not
+// map cleanly to the kaoto-web toolbar layout, so we define our own thresholds here.
+// toolbar-compact          — below this width the runtime label shrinks with ellipsis
+// toolbar-minimal          — below this width the runtime label is hidden entirely
+// header-breadcrumb-shrink — below this width the nav breadcrumb starts clipping with ellipsis
+
+$toolbar-compact: 735px;
+$toolbar-minimal: 450px;
+$header-breadcrumb-shrink: 750px;

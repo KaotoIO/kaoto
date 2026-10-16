@@ -1,3 +1,7 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '../../styles/breakpoints' as bp;
+
 .cs--nav__logo {
   block-size: 1.5rem;
   inline-size: auto;
@@ -6,4 +10,80 @@
 
 .cds--side-nav__header-navigation {
   display: block;
+}
+
+// Carbon's HeaderGlobalBar has flex: 1 which would consume all remaining space
+// and push the breadcrumb out. Override it to only take what it needs so the
+// breadcrumb can grow to fill the available width.
+.cds--header__global {
+  flex: 0 0 auto;
+}
+
+// Breadcrumb in the Carbon Header bar — stretches between logo and GlobalBar,
+// always a single line, clips with ellipsis when the window is too narrow.
+.cs--nav__breadcrumb {
+  display: flex;
+  flex: 1 1 0%;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 0;
+
+  // Single fixed line height — prevents the header from growing when Carbon's
+  // breadcrumb tries to wrap. Combined with overflow: hidden this clips the
+  // breadcrumb to exactly one line at all viewport widths.
+  block-size: $spacing-09; // 48px = Carbon header height
+  overflow: hidden;
+  pointer-events: auto;
+
+  // Remove Carbon Breadcrumb bottom margin
+  .cs--breadcrumbs {
+    margin-block-end: 0;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+  }
+
+  // Carbon applies flex-wrap: wrap at md breakpoint (672px+) — override to
+  // prevent multi-line wrapping at any width. The parent-scoped selector
+  // already outranks Carbon's single-class rule, so no !important is needed.
+  .cds--breadcrumb {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+  }
+
+  // All items except the last one: never shrink, never wrap
+  .cds--breadcrumb-item {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  // Last item (current page): allowed to shrink and clips with ellipsis
+  .cds--breadcrumb-item--current {
+    flex-shrink: 1;
+    min-inline-size: 0;
+    overflow: hidden;
+
+    // The current-page text is a plain span — needs block for text-overflow
+    span,
+    [aria-current='page'] {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  // Match Carbon header text color
+  .cds--breadcrumb-item,
+  .cds--link {
+    color: $text-on-color;
+    white-space: nowrap;
+
+    &:hover,
+    &:focus {
+      color: $text-on-color;
+    }
+  }
 }
