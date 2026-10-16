@@ -1,6 +1,6 @@
 import { Add } from '@carbon/icons-react';
 import { IconButton } from '@carbon/react';
-import { FunctionComponent, useContext, useEffect, useState } from 'react';
+import { FunctionComponent, useContext, useMemo } from 'react';
 
 import { useFieldValue } from '../../hooks/field-value';
 import { FieldProps } from '../../models/typings';
@@ -12,7 +12,6 @@ import { ArrayFieldWrapper } from './ArrayFieldWrapper';
 export const ArrayField: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { schema, definitions } = useContext(SchemaContext);
   const { value, onChange, disabled } = useFieldValue<unknown[]>(propName);
-  const [itemsHash, setItemsHash] = useState<string[]>([]);
   const label = schema.title ?? propName.split('.').pop() ?? propName;
 
   const itemsSchema = Array.isArray(schema.items) ? schema.items[0] : schema.items;
@@ -34,10 +33,9 @@ export const ArrayField: FunctionComponent<FieldProps> = ({ propName, required }
     onChange(newValue);
   };
 
-  useEffect(() => {
-    if (!Array.isArray(value)) return;
-    setItemsHash(value.map(() => getHexaDecimalRandomId('array-item')));
-  }, [value]);
+  const valueLength = Array.isArray(value) ? value.length : 0;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const itemsHash = useMemo(() => value?.map(() => getHexaDecimalRandomId('array-item')) ?? [], [valueLength]);
 
   return (
     <ArrayFieldWrapper

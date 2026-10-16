@@ -1,5 +1,5 @@
 import { Accordion, AccordionItem } from '@carbon/react';
-import { FunctionComponent, PropsWithChildren, useEffect, useState } from 'react';
+import { FunctionComponent, PropsWithChildren, useState } from 'react';
 
 interface CustomExpandableSectionProps extends PropsWithChildren {
   groupName: string;
@@ -13,11 +13,7 @@ export const CustomExpandableSection: FunctionComponent<CustomExpandableSectionP
   isGroupExpanded = false,
   children,
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  useEffect(() => {
-    setIsExpanded(isGroupExpanded);
-  }, [isGroupExpanded]);
+  const [isExpanded, setIsExpanded] = useState(isGroupExpanded);
 
   return (
     <Accordion>
