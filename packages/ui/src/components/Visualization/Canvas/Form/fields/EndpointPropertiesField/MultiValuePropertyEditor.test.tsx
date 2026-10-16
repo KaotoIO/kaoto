@@ -211,7 +211,7 @@ describe('MultiValuePropertyEditor', () => {
     await renderComponent();
 
     expect(await screen.findByText('Field editor is unavailable')).toBeInTheDocument();
-    const expandableButton = await screen.findByLabelText('Show more');
+    const expandableButton = await screen.findByRole('button', { name: /Show more/ });
     expect(expandableButton).toBeInTheDocument();
 
     fireEvent.click(expandableButton);

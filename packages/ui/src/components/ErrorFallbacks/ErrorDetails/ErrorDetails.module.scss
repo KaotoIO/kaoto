@@ -1,0 +1,39 @@
+/* Carbon's BEM class names and CSS Modules' :global are not kebab-case / known pseudo-classes */
+/* stylelint-disable selector-class-pattern, selector-pseudo-class-no-unknown */
+.error-details.error-details {
+  inline-size: 100%;
+
+  // The form wrapper (.kaoto-form__label) capitalizes every word, keep the text as is
+  text-transform: none;
+
+  // Start at the same level as the fallback message and fill the full width.
+  // The doubled class raises specificity above Carbon's flush accordion rules, regardless of load order.
+  :global(.cds--accordion__item)::before,
+  :global(.cds--accordion__item)::after {
+    inline-size: 100%;
+    margin-inline-start: 0;
+  }
+
+  :global(.cds--accordion__heading) {
+    padding-inline-end: 0;
+  }
+
+  :global(.cds--accordion__title) {
+    padding-inline-start: 0;
+  }
+
+  :global(.cds--accordion__content) {
+    padding-inline: 0;
+  }
+
+  .error-details-message {
+    padding-inline: 0;
+    padding-block-end: 0;
+
+    :global(.cds--snippet-container),
+    :global(.cds--snippet-container) pre {
+      padding-block-end: 0;
+      padding-inline-end: 0;
+    }
+  }
+}

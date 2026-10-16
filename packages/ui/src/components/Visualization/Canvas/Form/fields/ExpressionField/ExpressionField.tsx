@@ -80,7 +80,11 @@ const ExpressionFieldImpl: FunctionComponent<FieldProps & { promise: Promise<str
       title={schema.title}
       type="expression"
       description={schema.description}
-      defaultValue={schema.default?.toString()}
+      defaultValue={
+        typeof schema.default === 'string' || typeof schema.default === 'number' || typeof schema.default === 'boolean'
+          ? String(schema.default)
+          : undefined
+      }
     >
       <ModelContextProvider model={parsedModel} onPropertyChange={onExpressionChange}>
         <SchemaProvider schema={expressionsSchema}>
@@ -97,7 +101,7 @@ export const ExpressionField: FunctionComponent<FieldProps> = (props) => {
   }, []);
 
   return (
-    <ErrorBoundary fallback={<p>Expression editor is unavailable</p>}>
+    <ErrorBoundary fallback={<p style={{ textTransform: 'none' }}>Expression editor is unavailable</p>}>
       <Suspense fallback={<Loading />}>
         <ExpressionFieldImpl {...props} promise={languageNamesPromise} />
       </Suspense>
