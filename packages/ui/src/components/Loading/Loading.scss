@@ -1,0 +1,22 @@
+@use '@carbon/react/scss/spacing' as *;
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-05;
+  padding: $spacing-07;
+  min-block-size: 200px;
+}
+
+.loading-small {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-inline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
