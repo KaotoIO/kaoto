@@ -35,7 +35,12 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
   disabled = false,
   allowCustomInput = false,
 }) => {
+  const [prevSelectedItem, setPrevSelectedItem] = useState(selectedItem);
   const [inputValue, setInputValue] = useState<string>(selectedItem?.name ?? '');
+  if (selectedItem !== prevSelectedItem) {
+    setPrevSelectedItem(selectedItem);
+    setInputValue(selectedItem?.name ?? '');
+  }
   const wrapperRef = useRef<HTMLDivElement>(null);
   const customInputHandledRef = useRef<boolean>(false);
   const inputValueRef = useRef<string>(inputValue);
@@ -51,13 +56,7 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
     }
 
     return localArray;
-  }, [itemsProps, selectedItem?.name, selectedItem?.value]);
-
-  useEffect(() => {
-    const nextValue = selectedItem?.name ?? '';
-    setInputValue(nextValue);
-    inputValueRef.current = nextValue;
-  }, [selectedItem]);
+  }, [itemsProps, selectedItem]);
 
   useEffect(() => {
     if (!allowCustomInput || !wrapperRef.current) return;
