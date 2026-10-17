@@ -136,6 +136,34 @@ export class CitrusTestResource implements KaotoResource {
     return entity.id;
   }
 
+  getVariables(): string[] {
+    const variables: string[] = [];
+
+    for (const entity of this.getVisualEntities()) {
+      const test = entity.toJSON();
+
+      if (test.variables) {
+        for (const v of test.variables) {
+          if (v.name && !variables.includes(v.name)) {
+            variables.push(v.name);
+          }
+        }
+      }
+
+      for (const actionGroup of test.actions ?? []) {
+        if (actionGroup.createVariables?.variables) {
+          for (const v of actionGroup.createVariables.variables) {
+            if (v.name && !variables.includes(v.name)) {
+              variables.push(v.name);
+            }
+          }
+        }
+      }
+    }
+
+    return variables;
+  }
+
   getType(): SourceSchemaType {
     return SourceSchemaType.Test;
   }
