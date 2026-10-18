@@ -18,6 +18,7 @@
     "resources": ["./test Fixture with speci@l chars"],
     "extensionsDir": "./test-resources",
     "settings": "./src/ui-test/vscode-settings.json",
+    "mochaConfig": "./src/ui-test/.mocharc.json",
     "customPageObjects": "./out/pageObjects/locators.js"
   }
 }
