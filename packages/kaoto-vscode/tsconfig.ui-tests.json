@@ -4,7 +4,8 @@
     "module": "CommonJS",
     "moduleResolution": "bundler",
     "noEmit": false,
-    "rootDir": "src",
+    /* Emit to out/<group>/: extester.config.json, test:ui:vsix:* scripts and __dirname fixture paths rely on it. */
+    "rootDir": "src/ui-test",
     "target": "ES2023",
     "lib": ["ES2023"],
     "forceConsistentCasingInFileNames": true,
