@@ -92,6 +92,7 @@ const getDefaultTest = (name: string): Test => {
 export class CitrusTestVisualEntity implements BaseVisualEntity {
   id: string;
   readonly type = EntityType.Test;
+  needsRebuild?: boolean;
   static readonly ROOT_PATH = 'test';
 
   constructor(public test: Test) {
@@ -232,7 +233,16 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
       return;
     }
 
-    setValue(this.test, this.toModelPath(path), value);
+    const modelPath = this.toModelPath(path);
+    const actionName = path.split('.').pop();
+    if (actionName === 'waitFor') {
+      const hasAction = isDefined(value?.['action']);
+      if (hasAction) {
+        this.needsRebuild = true;
+      }
+    }
+
+    setValue(this.test, modelPath, value);
   }
 
   /**
@@ -483,7 +493,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
 
     const vizNode = createVisualizationNode(path, data);
 
-    const containerSettings = CitrusTestSchemaService.getTestContainerSettings(actionName);
+    const containerSettings = CitrusTestSchemaService.getTestContainerSettings(actionName, action);
     if (containerSettings) {
       vizNode.data.isGroup = true;
 
@@ -579,7 +589,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
 
   protected async getChildrenFromSingleClause(path: string): Promise<IVisualizationNode[]> {
     const action: TestActions = getValue(this.test, path);
-    if (action === undefined) {
+    if (!isDefined(action) || Object.keys(action as Record<string, unknown>).length === 0) {
       /** Empty steps branch placeholder */
       const placeholderPath = `${path}.placeholder`;
       const placeholderNode = createVisualizationNode(placeholderPath, {
@@ -759,7 +769,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
   }
 
   private async recurseIntoContainerActions(action: TestActions, actionName: string): Promise<void> {
-    const containerSettings = CitrusTestSchemaService.getTestContainerSettings(actionName);
+    const containerSettings = CitrusTestSchemaService.getTestContainerSettings(actionName, action);
     if (!containerSettings) {
       return;
     }
