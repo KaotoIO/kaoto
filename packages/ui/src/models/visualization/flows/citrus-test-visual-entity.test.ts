@@ -381,6 +381,34 @@ describe('CitrusTestVisualEntity', () => {
 
       expect(citrusTestEntity.test.actions[0].print?.message).toBe('Updated message');
     });
+
+    it('should set needsRebuild when waitFor gains the action condition', () => {
+      citrusTestEntity.test.actions.push({ waitFor: { http: { url: 'http://localhost' } } } as unknown as TestActions);
+      citrusTestEntity.updateModel('actions.1.waitFor', { action: {} });
+
+      expect(citrusTestEntity.needsRebuild).toBe(true);
+    });
+
+    it('should not set needsRebuild when waitFor loses the action condition', () => {
+      citrusTestEntity.test.actions.push({ waitFor: { action: {} } } as unknown as TestActions);
+      citrusTestEntity.updateModel('actions.1.waitFor', { http: { url: 'http://localhost' } });
+
+      expect(citrusTestEntity.needsRebuild).toBeFalsy();
+    });
+
+    it('should set needsRebuild when waitFor has action condition even with other properties', () => {
+      citrusTestEntity.test.actions.push({ waitFor: { action: {} } } as unknown as TestActions);
+      citrusTestEntity.updateModel('actions.1.waitFor', { action: {}, timeout: '10000' });
+
+      expect(citrusTestEntity.needsRebuild).toBe(true);
+    });
+
+    it('should not set needsRebuild for waitFor without action condition', () => {
+      citrusTestEntity.test.actions.push({ waitFor: { http: { url: 'http://localhost' } } } as unknown as TestActions);
+      citrusTestEntity.updateModel('actions.1.waitFor', { http: { url: 'http://localhost:8080' } });
+
+      expect(citrusTestEntity.needsRebuild).toBeFalsy();
+    });
   });
 
   describe('addStep', () => {
@@ -1245,6 +1273,51 @@ describe('CitrusTestVisualEntity', () => {
       const placeHolderNode = vizNode.getChildren()![1];
       expect(placeHolderNode.data.path).toBe('actions.1.placeholder');
       expect(placeHolderNode.getNextNode()).toBeUndefined();
+    });
+
+    it('should populate the viz node chain with waitFor action condition using placeholder child', async () => {
+      const vizNode = await new CitrusTestVisualEntity({
+        name: 'test-1234',
+        actions: [
+          {
+            waitFor: {
+              action: {},
+            },
+          },
+        ],
+      } as unknown as Test).toVizNode();
+      expect(vizNode.getChildren()).toHaveLength(2);
+      const waitForNode = vizNode.getChildren()![0];
+
+      /** waitFor action container */
+      expect(waitForNode.data.path).toBe('actions.0.waitFor');
+      expect(waitForNode.data.isGroup).toBeTruthy();
+      expect(waitForNode.getChildren()).toHaveLength(1);
+      /** Placeholder child */
+      const placeholderNode = waitForNode.getChildren()![0];
+      expect(placeholderNode).toBeDefined();
+      expect(placeholderNode.data.path).toBe('actions.0.waitFor.action.placeholder');
+      expect(placeholderNode.data.isPlaceholder).toBeTruthy();
+    });
+
+    it('should render waitFor with non-action condition as leaf node', async () => {
+      const vizNode = await new CitrusTestVisualEntity({
+        name: 'test-1234',
+        actions: [
+          {
+            waitFor: {
+              http: { url: 'http://localhost:8080' },
+            },
+          },
+        ],
+      } as unknown as Test).toVizNode();
+      expect(vizNode.getChildren()).toHaveLength(2);
+      const waitForNode = vizNode.getChildren()![0];
+
+      /** waitFor http should be a leaf node */
+      expect(waitForNode.data.path).toBe('actions.0.waitFor');
+      expect(waitForNode.data.isGroup).toBeFalsy();
+      expect(waitForNode.getChildren()).toBeUndefined();
     });
 
     it('should populate the viz node chain with array node container', async () => {
