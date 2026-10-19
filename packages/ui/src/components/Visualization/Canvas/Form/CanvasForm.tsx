@@ -6,6 +6,7 @@ import { FunctionComponent, useCallback, useContext, useEffect, useRef } from 'r
 import { IVisualizationNode } from '../../../../models';
 import { VisibleFlowsContext } from '../../../../providers';
 import { ErrorBoundary } from '../../../ErrorBoundary';
+import { NodeFormFallback } from '../../../ErrorFallbacks/NodeFormFallback';
 import { Anchors } from '../../../registers/anchors';
 import { RenderingAnchor } from '../../../RenderingAnchor/RenderingAnchor';
 import { CanvasFormBody } from './CanvasFormBody';
@@ -15,6 +16,10 @@ interface CanvasFormProps {
   vizNode: IVisualizationNode;
   onClose: () => void;
 }
+
+const renderNodeFormFallback = (error: Error, title: string, iconUrl: string, onClose: () => void) => (
+  <NodeFormFallback title={title} iconUrl={iconUrl} onClose={onClose} message={error.message} />
+);
 
 export const CanvasForm: FunctionComponent<CanvasFormProps> = ({ vizNode, onClose }) => {
   const { visualFlowsApi } = useContext(VisibleFlowsContext)!;
@@ -36,7 +41,10 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = ({ vizNode, onClos
   }, [onClose, visualFlowsApi, vizNode]);
 
   return (
-    <ErrorBoundary key={vizNode.id} fallback={<p>This node cannot be configured yet</p>}>
+    <ErrorBoundary
+      key={vizNode.id}
+      fallback={(error) => renderNodeFormFallback(error, title, vizNode.data.iconUrl ?? '', onCloseFn)}
+    >
       <Card className="canvas-form">
         <CardHeader>
           <CanvasFormHeader nodeId={vizNode.id} title={title} onClose={onCloseFn} iconUrl={vizNode.data.iconUrl} />

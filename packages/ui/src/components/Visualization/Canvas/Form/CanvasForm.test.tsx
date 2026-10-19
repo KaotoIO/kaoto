@@ -654,4 +654,35 @@ describe('CanvasForm', () => {
       expect(inputDistributionRatio).toHaveAttribute('value', '3.5');
     });
   });
+
+  it('should render NodeFormFallback when CanvasFormBody throws', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const canvasFormBodyModule = await import('./CanvasFormBody');
+    vi.spyOn(canvasFormBodyModule, 'CanvasFormBody').mockImplementation(() => {
+      throw new Error('boom from CanvasFormBody');
+    });
+
+    const onClose = vi.fn();
+    const { Provider } = await TestProvidersWrapper();
+    render(
+      <Provider>
+        <CanvasFormTabsProvider>
+          <CanvasForm vizNode={vizNode} onClose={onClose} />
+        </CanvasFormTabsProvider>
+      </Provider>,
+    );
+
+    expect(screen.getByText(vizNode.getNodeTitle())).toBeInTheDocument();
+    expect(screen.getByTestId('error-notification')).toBeInTheDocument();
+
+    const toggle = screen.getByRole('button', { name: /Show more/i });
+    fireEvent.click(toggle);
+    expect(screen.getByTestId('error-details-message')).toHaveTextContent('boom from CanvasFormBody');
+
+    fireEvent.click(screen.getByRole('button', { name: /Close/i }));
+    expect(onClose).toHaveBeenCalledTimes(1);
+
+    vi.restoreAllMocks();
+  });
 });

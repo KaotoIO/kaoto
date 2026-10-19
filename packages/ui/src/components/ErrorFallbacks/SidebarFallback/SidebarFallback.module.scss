@@ -1,0 +1,9 @@
+.sidebar-fallback {
+  padding: 1rem;
+
+  &__close-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 0.5rem;
+  }
+}

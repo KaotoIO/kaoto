@@ -1,6 +1,6 @@
 import { CamelYamlDsl } from '@kaoto/camel-catalog/types';
 import { CanvasFormTabsProvider } from '@kaoto/forms';
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 import { parse } from 'yaml';
 
@@ -83,5 +83,32 @@ describe('CanvasSideBar', () => {
     // getByRole with name will throw if the button doesn't have an accessible name
     const closeButton = await wrapper.findByRole('button', { name: /close/i });
     expect(closeButton).toBeInTheDocument();
+  });
+
+  it('should render SidebarFallback when inner content throws', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const canvasFormModule = await import('./Form/CanvasForm');
+    vi.spyOn(canvasFormModule, 'CanvasForm').mockImplementation(() => {
+      throw new Error('boom from CanvasForm');
+    });
+
+    const onClose = vi.fn();
+    render(
+      <CanvasFormTabsProvider>
+        <CanvasSideBar vizNode={selectedVizNode} onClose={onClose} />
+      </CanvasFormTabsProvider>,
+    );
+
+    expect(screen.getByTestId('error-notification')).toBeInTheDocument();
+
+    const toggle = screen.getByRole('button', { name: /Show more/i });
+    fireEvent.click(toggle);
+    expect(screen.getByTestId('error-details-message')).toHaveTextContent('boom from CanvasForm');
+
+    fireEvent.click(screen.getByRole('button', { name: /Close/i }));
+    expect(onClose).toHaveBeenCalledTimes(1);
+
+    vi.restoreAllMocks();
   });
 });

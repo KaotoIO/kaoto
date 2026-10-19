@@ -6,12 +6,17 @@ import { FunctionComponent } from 'react';
 
 import { IVisualizationNode } from '../../../models';
 import { ErrorBoundary } from '../../ErrorBoundary';
+import { SidebarFallback } from '../../ErrorFallbacks/SidebarFallback';
 import { CanvasForm } from './Form/CanvasForm';
 
 interface CanvasSideBarProps {
   vizNode: IVisualizationNode | undefined;
   onClose: () => void;
 }
+
+const renderSidebarFallback = (error: Error, onClose: () => void) => (
+  <SidebarFallback onClose={onClose} message={error.message} />
+);
 
 export const CanvasSideBar: FunctionComponent<CanvasSideBarProps> = ({ vizNode, onClose }) => {
   if (vizNode === undefined) {
@@ -24,7 +29,7 @@ export const CanvasSideBar: FunctionComponent<CanvasSideBarProps> = ({ vizNode, 
      * and doesn't take into account the sidebar children.
      */
     <TopologySideBar resizable className="canvas-sidebar">
-      <ErrorBoundary key={vizNode.id} fallback={<p>Something did not work as expected</p>}>
+      <ErrorBoundary key={vizNode.id} fallback={(error) => renderSidebarFallback(error, onClose)}>
         <FilteredFieldProvider>
           <CanvasForm vizNode={vizNode} onClose={onClose} />
         </FilteredFieldProvider>
