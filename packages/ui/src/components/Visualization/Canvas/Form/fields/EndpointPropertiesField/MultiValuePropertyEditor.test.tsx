@@ -210,12 +210,13 @@ describe('MultiValuePropertyEditor', () => {
 
     await renderComponent();
 
-    expect(await screen.findByText('Field editor is unavailable')).toBeInTheDocument();
+    expect(await screen.findByTestId('error-notification')).toBeInTheDocument();
+    expect(await screen.findByText('Field editor unavailable')).toBeInTheDocument();
     const expandableButton = await screen.findByRole('button', { name: /Show more/ });
     expect(expandableButton).toBeInTheDocument();
 
     fireEvent.click(expandableButton);
-    expect(await screen.findByText('catalog unavailable')).toBeInTheDocument();
+    expect(await screen.findByTestId('error-details-message')).toHaveTextContent('catalog unavailable');
   });
 
   it('should pass standard properties through unmodified when the schema has no catalog extension fields', async () => {
