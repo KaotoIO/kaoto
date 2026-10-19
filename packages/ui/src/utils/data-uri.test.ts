@@ -41,6 +41,21 @@ describe('parseImageDataUri', () => {
     expect(decode(result!.bytes)).toBe(svg);
   });
 
+  it('should parse a non-base64 binary PNG data URI with percent-encoded octets', () => {
+    const result = parseImageDataUri('data:image/png,%89PNG%0D%0A%1A%0A');
+
+    expect(result?.mimeType).toBe('image/png');
+    expect(result?.extension).toBe('png');
+    expect(Array.from(result!.bytes)).toEqual([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+  });
+
+  it('should parse non-base64 data URIs containing non-ASCII Unicode characters', () => {
+    const unicodeSvg = '<svg xmlns="http://www.w3.org/2000/svg"><text>⚡日本語</text></svg>';
+    const result = parseImageDataUri(`data:image/svg+xml,${unicodeSvg}`);
+
+    expect(decode(result!.bytes)).toBe(unicodeSvg);
+  });
+
   it('should be case-insensitive for the scheme and MIME type', () => {
     expect(parseImageDataUri('DATA:IMAGE/PNG;BASE64,AAAA')?.extension).toBe('png');
   });
@@ -52,7 +67,9 @@ describe('parseImageDataUri', () => {
     ['an unsupported MIME type', 'data:image/bmp;base64,AAAA'],
     ['a non-image MIME type', 'data:text/plain;base64,AAAA'],
     ['malformed base64', 'data:image/png;base64,@@@not-base64@@@'],
-    ['malformed percent-encoding', 'data:image/svg+xml,%E0%A4%A'],
+    ['malformed percent-encoding incomplete', 'data:image/svg+xml,%E0%A4%A'],
+    ['malformed percent-encoding trailing percent', 'data:image/svg+xml,%'],
+    ['malformed percent-encoding invalid hex', 'data:image/svg+xml,%GG'],
     ['a data URI without a payload separator', 'data:image/png;base64'],
   ])('should return undefined for %s', (_label, value) => {
     expect(parseImageDataUri(value)).toBeUndefined();
