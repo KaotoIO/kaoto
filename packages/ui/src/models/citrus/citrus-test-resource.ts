@@ -136,6 +136,23 @@ export class CitrusTestResource implements KaotoResource {
     return entity.id;
   }
 
+  getVariables(): string[] {
+    const names = new Set<string>();
+    const collect = (vars?: { name?: string }[]) => {
+      vars?.forEach((v) => v.name && names.add(v.name));
+    };
+
+    for (const entity of this.getVisualEntities()) {
+      const test = entity.toJSON();
+      collect(test.variables);
+      test.actions?.forEach((actionGroup) => {
+        collect(actionGroup.createVariables?.variables);
+      });
+    }
+
+    return [...names];
+  }
+
   getType(): SourceSchemaType {
     return SourceSchemaType.Test;
   }

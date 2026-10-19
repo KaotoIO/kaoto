@@ -2,7 +2,11 @@ import { SuggestionContextApi } from '@kaoto/forms';
 import { render } from '@testing-library/react';
 import { ReactNode } from 'react';
 
-import { IMetadataApi, MetadataContext } from '../../../../../providers';
+import { SourceSchemaType } from '../../../../../models/camel';
+import { EntitiesContext, EntitiesContextResult, IMetadataApi, MetadataContext } from '../../../../../providers';
+import { testFunctionSuggestionProvider } from './suggestions/citrus/test-function.suggestions';
+import { testValidationMatcherSuggestionProvider } from './suggestions/citrus/test-validation-matcher.suggestions';
+import { getTestVariableSuggestionProvider } from './suggestions/citrus/test-variable.suggestions';
 import { getPropertiesSuggestionProvider } from './suggestions/properties.suggestions';
 import { getSimpleLanguageSuggestionProvider } from './suggestions/simple-language.suggestions';
 import { sqlSyntaxSuggestionProvider } from './suggestions/sql.suggestions';
@@ -19,6 +23,7 @@ describe('SuggestionRegistrar', () => {
   let mockMetadataApi: IMetadataApi;
 
   beforeEach(() => {
+    vi.clearAllMocks();
     mockMetadataApi = {
       getMetadata: vi.fn(),
       setMetadata: vi.fn(),
@@ -33,41 +38,86 @@ describe('SuggestionRegistrar', () => {
     };
   });
 
-  function renderWithMetadataProvider(children: ReactNode) {
+  function renderWithProviders(children: ReactNode, entitiesContextValue?: EntitiesContextResult | null) {
     return render(
       <SuggestionContextApi.Provider value={suggestionRegistry}>
-        <MetadataContext.Provider value={mockMetadataApi}>
-          <SuggestionRegistrar>{children}</SuggestionRegistrar>
-        </MetadataContext.Provider>
+        <EntitiesContext.Provider value={entitiesContextValue ?? null}>
+          <MetadataContext.Provider value={mockMetadataApi}>
+            <SuggestionRegistrar>{children}</SuggestionRegistrar>
+          </MetadataContext.Provider>
+        </EntitiesContext.Provider>
       </SuggestionContextApi.Provider>,
     );
   }
 
-  it('registers all providers on mount', () => {
-    renderWithMetadataProvider(<div>Child</div>);
+  describe('default (Camel) providers', () => {
+    it('registers all providers on mount', () => {
+      renderWithProviders(<div>Child</div>);
 
-    const simpleLanguageProvider = getSimpleLanguageSuggestionProvider(mockMetadataApi.getSuggestions);
-    const propertiesProvider = getPropertiesSuggestionProvider(mockMetadataApi.getSuggestions);
+      const simpleLanguageProvider = getSimpleLanguageSuggestionProvider(mockMetadataApi.getSuggestions);
+      const propertiesProvider = getPropertiesSuggestionProvider(mockMetadataApi.getSuggestions);
 
-    expect(registerProvider).toHaveBeenCalledWith(expect.objectContaining({ id: simpleLanguageProvider.id }));
-    expect(registerProvider).toHaveBeenCalledWith(expect.objectContaining({ id: propertiesProvider.id }));
-    expect(registerProvider).toHaveBeenCalledWith(sqlSyntaxSuggestionProvider);
+      expect(registerProvider).toHaveBeenCalledWith(expect.objectContaining({ id: simpleLanguageProvider.id }));
+      expect(registerProvider).toHaveBeenCalledWith(expect.objectContaining({ id: propertiesProvider.id }));
+      expect(registerProvider).toHaveBeenCalledWith(sqlSyntaxSuggestionProvider);
+    });
+
+    it('unregisters all providers on unmount', () => {
+      const { unmount } = renderWithProviders(<div>Child</div>);
+      unmount();
+
+      const simpleLanguageProvider = getSimpleLanguageSuggestionProvider(mockMetadataApi.getSuggestions);
+      const propertiesProvider = getPropertiesSuggestionProvider(mockMetadataApi.getSuggestions);
+
+      expect(unregisterProvider).toHaveBeenCalledWith(simpleLanguageProvider.id);
+      expect(unregisterProvider).toHaveBeenCalledWith(propertiesProvider.id);
+      expect(unregisterProvider).toHaveBeenCalledWith(sqlSyntaxSuggestionProvider.id);
+    });
   });
 
-  it('unregisters all providers on unmount', () => {
-    const { unmount } = renderWithMetadataProvider(<div>Child</div>);
-    unmount();
+  describe('Citrus (Test) providers', () => {
+    const mockCamelResource = {
+      getVariables: vi.fn().mockReturnValue([]),
+    } as unknown as EntitiesContextResult['camelResource'];
 
-    const simpleLanguageProvider = getSimpleLanguageSuggestionProvider(mockMetadataApi.getSuggestions);
-    const propertiesProvider = getPropertiesSuggestionProvider(mockMetadataApi.getSuggestions);
+    const testEntitiesContext = {
+      currentSchemaType: SourceSchemaType.Test,
+      camelResource: mockCamelResource,
+    } as unknown as EntitiesContextResult;
 
-    expect(unregisterProvider).toHaveBeenCalledWith(simpleLanguageProvider.id);
-    expect(unregisterProvider).toHaveBeenCalledWith(propertiesProvider.id);
-    expect(unregisterProvider).toHaveBeenCalledWith(sqlSyntaxSuggestionProvider.id);
+    it('registers Citrus providers when schema type is Test', () => {
+      renderWithProviders(<div>Child</div>, testEntitiesContext);
+
+      const testVariableProvider = getTestVariableSuggestionProvider(mockCamelResource);
+
+      expect(registerProvider).toHaveBeenCalledWith(expect.objectContaining({ id: testVariableProvider.id }));
+      expect(registerProvider).toHaveBeenCalledWith(testFunctionSuggestionProvider);
+      expect(registerProvider).toHaveBeenCalledWith(testValidationMatcherSuggestionProvider);
+    });
+
+    it('does not register Camel providers when schema type is Test', () => {
+      renderWithProviders(<div>Child</div>, testEntitiesContext);
+
+      expect(registerProvider).not.toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'simple-language-suggestion-provider' }),
+      );
+      expect(registerProvider).not.toHaveBeenCalledWith(sqlSyntaxSuggestionProvider);
+    });
+
+    it('unregisters Citrus providers on unmount', () => {
+      const { unmount } = renderWithProviders(<div>Child</div>, testEntitiesContext);
+      unmount();
+
+      const testVariableProvider = getTestVariableSuggestionProvider(mockCamelResource);
+
+      expect(unregisterProvider).toHaveBeenCalledWith(testVariableProvider.id);
+      expect(unregisterProvider).toHaveBeenCalledWith(testFunctionSuggestionProvider.id);
+      expect(unregisterProvider).toHaveBeenCalledWith(testValidationMatcherSuggestionProvider.id);
+    });
   });
 
   it('renders children', () => {
-    const { container } = renderWithMetadataProvider(<span>Snapshot Child</span>);
+    const { container } = renderWithProviders(<span>Snapshot Child</span>);
     expect(container).toMatchSnapshot();
   });
 });

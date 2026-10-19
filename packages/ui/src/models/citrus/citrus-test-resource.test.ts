@@ -296,6 +296,64 @@ describe('CitrusTestResource', () => {
     });
   });
 
+  describe('getVariables', () => {
+    it('should return empty array when no entities', async () => {
+      const resource = new CitrusTestResource();
+      await resource.initialize();
+      expect(resource.getVariables()).toEqual([]);
+    });
+
+    it('should return variable names from test variables', async () => {
+      const testWithVars: Test = {
+        name: 'var-test',
+        variables: [
+          { name: 'user', value: 'Alice' },
+          { name: 'password', value: 'secret' },
+        ],
+        actions: [],
+      };
+      const resource = new CitrusTestResource(testWithVars);
+      await resource.initialize();
+      expect(resource.getVariables()).toEqual(['user', 'password']);
+    });
+
+    it('should return variable names from createVariables actions', async () => {
+      const testWithCreateVars: Test = {
+        name: 'create-var-test',
+        actions: [
+          {
+            createVariables: {
+              variables: [
+                { name: 'host', value: 'localhost' },
+                { name: 'port', value: '8080' },
+              ],
+            },
+          },
+        ],
+      };
+      const resource = new CitrusTestResource(testWithCreateVars);
+      await resource.initialize();
+      expect(resource.getVariables()).toEqual(['host', 'port']);
+    });
+
+    it('should not return duplicate variable names', async () => {
+      const testWithDuplicates: Test = {
+        name: 'dup-test',
+        variables: [{ name: 'user', value: 'Alice' }],
+        actions: [
+          {
+            createVariables: {
+              variables: [{ name: 'user', value: 'Bob' }],
+            },
+          },
+        ],
+      };
+      const resource = new CitrusTestResource(testWithDuplicates);
+      await resource.initialize();
+      expect(resource.getVariables()).toEqual(['user']);
+    });
+  });
+
   describe('getCompatibleRuntimes', () => {
     it('should return the correct list of compatible runtimes', async () => {
       const resource = new CitrusTestResource();
