@@ -4,12 +4,12 @@ import { DynamicCatalogRegistry } from '../../../../../../../dynamic-catalog/dyn
 import { CatalogKind } from '../../../../../../../models';
 
 const FUNCTION_ACTIVATED_FIELDS = [
-  new RegExp(`^#.message.body.data$`),
-  new RegExp(`^#.message.headers.\\d.value$`),
-  new RegExp(`^#.response.body.\\d.data$`),
-  new RegExp(`^#.response.headers.\\d.value$`),
-  new RegExp(`^#.message.expression.\\d.value$`),
-  new RegExp(`^#.extract.body.\\d.path$`),
+  /^#\.message\.body\.data$/,
+  /^#\.message\.headers\.\d+\.value$/,
+  /^#\.response\.body\.\d+\.data$/,
+  /^#\.response\.headers\.\d+\.value$/,
+  /^#\.message\.expression\.\d+\.value$/,
+  /^#\.extract\.body\.\d+\.path$/,
 ];
 
 export const testFunctionSuggestionProvider: SuggestionProvider = {

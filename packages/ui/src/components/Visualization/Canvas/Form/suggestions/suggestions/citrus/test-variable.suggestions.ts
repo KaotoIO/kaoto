@@ -4,18 +4,18 @@ import { CitrusTestResource } from '../../../../../../../models/citrus/citrus-te
 import { KaotoResource } from '../../../../../../../models/kaoto-resource';
 
 const VARIABLE_ACTIVATED_FIELDS = [
-  new RegExp(`^#.validate.\\d.value$`),
-  new RegExp(`^#.validate.\\d.jsonPath.\\d.value$`),
-  new RegExp(`^#.validate.\\d.xpath.\\d.value$`),
-  new RegExp(`^#.ignore.\\d.path$`),
-  new RegExp(`^#.message.body.data$`),
-  new RegExp(`^#.message.headers.\\d.value$`),
-  new RegExp(`^#.response.body.\\d.data$`),
-  new RegExp(`^#.response.headers.\\d.value$`),
-  new RegExp(`^#.message.expression.\\d.path$`),
-  new RegExp(`^#.message.expression.\\d.value$`),
-  new RegExp(`^#.extract.body.\\d.path$`),
-  new RegExp(`^#.extract.header.\\d.name$`),
+  /^#\.validate\.\d+\.value$/,
+  /^#\.validate\.\d+\.jsonPath\.\d+\.value$/,
+  /^#\.validate\.\d+\.xpath\.\d+\.value$/,
+  /^#\.ignore\.\d+\.path$/,
+  /^#\.message\.body\.data$/,
+  /^#\.message\.headers\.\d+\.value$/,
+  /^#\.response\.body\.\d+\.data$/,
+  /^#\.response\.headers\.\d+\.value$/,
+  /^#\.message\.expression\.\d+\.path$/,
+  /^#\.message\.expression\.\d+\.value$/,
+  /^#\.extract\.body\.\d+\.path$/,
+  /^#\.extract\.header\.\d+\.name$/,
 ];
 
 export const getTestVariableSuggestionProvider = (camelResource: KaotoResource | undefined): SuggestionProvider => {
