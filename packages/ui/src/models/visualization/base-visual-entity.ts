@@ -42,6 +42,9 @@ export interface BaseVisualEntity extends BaseEntity {
   /** Return fields that should be omitted when configuring this entity */
   getOmitFormFields: () => string[];
 
+  /** Set by updateModel when the change requires a visualization tree rebuild (e.g. container structure changed). */
+  needsRebuild?: boolean;
+
   /** Given a path, update the model */
   updateModel(path: string | undefined, value: unknown): void;
 
@@ -143,7 +146,7 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   /** Return fields that should be omitted when configuring this entity */
   getOmitFormFields(): string[];
 
-  updateModel(value: unknown): void;
+  updateModel(value: unknown): boolean;
   switchComponentMode(processorName: string): boolean;
 
   getParentNode(): IVisualizationNode | undefined;
