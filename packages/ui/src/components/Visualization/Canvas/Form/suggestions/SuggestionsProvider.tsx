@@ -16,34 +16,31 @@ export const SuggestionRegistrar: FunctionComponent<PropsWithChildren> = ({ chil
   const entitiesContext = useContext(EntitiesContext);
 
   useEffect(() => {
-    switch (entitiesContext?.currentSchemaType) {
-      case SourceSchemaType.Test: {
-        const testVariableSuggestionProvider = getTestVariableSuggestionProvider(entitiesContext?.camelResource);
-        suggestionRegistry?.registerProvider(testVariableSuggestionProvider);
-        suggestionRegistry?.registerProvider(testFunctionSuggestionProvider);
-        suggestionRegistry?.registerProvider(testValidationMatcherSuggestionProvider);
+    if (entitiesContext?.currentSchemaType === SourceSchemaType.Test) {
+      const testVariableSuggestionProvider = getTestVariableSuggestionProvider(entitiesContext.camelResource);
+      suggestionRegistry?.registerProvider(testVariableSuggestionProvider);
+      suggestionRegistry?.registerProvider(testFunctionSuggestionProvider);
+      suggestionRegistry?.registerProvider(testValidationMatcherSuggestionProvider);
 
-        return () => {
-          suggestionRegistry?.unregisterProvider(testVariableSuggestionProvider.id);
-          suggestionRegistry?.unregisterProvider(testFunctionSuggestionProvider.id);
-          suggestionRegistry?.unregisterProvider(testValidationMatcherSuggestionProvider.id);
-        };
-      }
-      default: {
-        const simpleLanguageSuggestionProvider = getSimpleLanguageSuggestionProvider(getSuggestions);
-        const propertiesSuggestionProvider = getPropertiesSuggestionProvider(getSuggestions);
-
-        suggestionRegistry?.registerProvider(simpleLanguageSuggestionProvider);
-        suggestionRegistry?.registerProvider(propertiesSuggestionProvider);
-        suggestionRegistry?.registerProvider(sqlSyntaxSuggestionProvider);
-
-        return () => {
-          suggestionRegistry?.unregisterProvider(simpleLanguageSuggestionProvider.id);
-          suggestionRegistry?.unregisterProvider(propertiesSuggestionProvider.id);
-          suggestionRegistry?.unregisterProvider(sqlSyntaxSuggestionProvider.id);
-        };
-      }
+      return () => {
+        suggestionRegistry?.unregisterProvider(testVariableSuggestionProvider.id);
+        suggestionRegistry?.unregisterProvider(testFunctionSuggestionProvider.id);
+        suggestionRegistry?.unregisterProvider(testValidationMatcherSuggestionProvider.id);
+      };
     }
+
+    const simpleLanguageSuggestionProvider = getSimpleLanguageSuggestionProvider(getSuggestions);
+    const propertiesSuggestionProvider = getPropertiesSuggestionProvider(getSuggestions);
+
+    suggestionRegistry?.registerProvider(simpleLanguageSuggestionProvider);
+    suggestionRegistry?.registerProvider(propertiesSuggestionProvider);
+    suggestionRegistry?.registerProvider(sqlSyntaxSuggestionProvider);
+
+    return () => {
+      suggestionRegistry?.unregisterProvider(simpleLanguageSuggestionProvider.id);
+      suggestionRegistry?.unregisterProvider(propertiesSuggestionProvider.id);
+      suggestionRegistry?.unregisterProvider(sqlSyntaxSuggestionProvider.id);
+    };
   }, [entitiesContext, getSuggestions, suggestionRegistry]);
 
   return <>{children}</>;
