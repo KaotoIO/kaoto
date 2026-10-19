@@ -43,7 +43,7 @@ export const getTestVariableSuggestionProvider = (camelResource: KaotoResource |
   return {
     id: 'test-variable-suggestion-provider',
     appliesTo: (propName, schema) => {
-      return VARIABLE_ACTIVATED_FIELDS.find((expr) => expr.test(propName)) !== undefined && schema.type === 'string';
+      return VARIABLE_ACTIVATED_FIELDS.some((expr) => expr.test(propName)) && schema.type === 'string';
     },
     getSuggestions: async (word, _context) => {
       const suggestionWord = word !== '' ? extractRawName(word) : 'var_name';

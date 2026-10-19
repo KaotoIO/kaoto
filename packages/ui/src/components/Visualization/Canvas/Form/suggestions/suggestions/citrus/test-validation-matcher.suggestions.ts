@@ -20,9 +20,7 @@ const VALIDATION_MATCHER_ACTIVATED_FIELDS = [
 export const testValidationMatcherSuggestionProvider: SuggestionProvider = {
   id: 'test-validation-matcher-suggestion-provider',
   appliesTo: (propName, schema) => {
-    return (
-      VALIDATION_MATCHER_ACTIVATED_FIELDS.find((expr) => expr.test(propName)) !== undefined && schema.type === 'string'
-    );
+    return VALIDATION_MATCHER_ACTIVATED_FIELDS.some((expr) => expr.test(propName)) && schema.type === 'string';
   },
   getSuggestions: async (_word, _context) => {
     const suggestions: Suggestion[] = [];

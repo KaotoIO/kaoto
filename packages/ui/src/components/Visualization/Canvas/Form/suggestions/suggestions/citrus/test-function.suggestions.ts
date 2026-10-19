@@ -15,7 +15,7 @@ const FUNCTION_ACTIVATED_FIELDS = [
 export const testFunctionSuggestionProvider: SuggestionProvider = {
   id: 'test-function-suggestion-provider',
   appliesTo: (propName, schema) => {
-    return FUNCTION_ACTIVATED_FIELDS.find((expr) => expr.test(propName)) !== undefined && schema.type === 'string';
+    return FUNCTION_ACTIVATED_FIELDS.some((expr) => expr.test(propName)) && schema.type === 'string';
   },
   getSuggestions: async (_word, _context) => {
     const suggestions: Suggestion[] = [];
