@@ -15,6 +15,7 @@ import {
   CitrusTestContainersProvider,
   CitrusTestEndpointsProvider,
   CitrusTestFunctionsProvider,
+  CitrusTestInfraServicesProvider,
   CitrusTestValidationMatcherProvider,
 } from '../providers/citrus-components.provider';
 
@@ -44,20 +45,32 @@ export async function fetchCitrusCatalog(options: {
   const validationMatcherFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.TestValidationMatcher]>(
     `${relativeBasePath}/${catalogIndex.catalogs.validationMatcher.file}`,
   );
+  /** Citrus test infra services */
+  const infraServicesFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.TestInfraService]>(
+    `${relativeBasePath}/${catalogIndex.catalogs.infraServices.file}`,
+  );
   /** Citrus root test schema (citrus-yaml), served through the catalog like other entities */
   const testRootSchemaFile = CatalogSchemaLoader.fetchFile<ICamelProcessorDefinition['propertiesSchema']>(
     `${relativeBasePath}/${catalogIndex.schemas[CITRUS_YAML_SCHEMA_KEY].file}`,
   );
 
-  const [testActions, testContainers, testEndpoints, testFunctions, testValidationMatcher, testRootSchema] =
-    await Promise.all([
-      actionsFiles,
-      containerFiles,
-      endpointFiles,
-      functionFiles,
-      validationMatcherFiles,
-      testRootSchemaFile,
-    ]);
+  const [
+    testActions,
+    testContainers,
+    testEndpoints,
+    testFunctions,
+    testValidationMatcher,
+    testInfraServices,
+    testRootSchema,
+  ] = await Promise.all([
+    actionsFiles,
+    containerFiles,
+    endpointFiles,
+    functionFiles,
+    validationMatcherFiles,
+    infraServicesFiles,
+    testRootSchemaFile,
+  ]);
 
   /**
    * Expose the root test schema as a catalog entity (mirroring Kamelet's `KameletConfiguration`)
@@ -92,5 +105,9 @@ export async function fetchCitrusCatalog(options: {
   DynamicCatalogRegistry.get().setCatalog(
     CatalogKind.TestValidationMatcher,
     new DynamicCatalog(new CitrusTestValidationMatcherProvider(testValidationMatcher.body)),
+  );
+  DynamicCatalogRegistry.get().setCatalog(
+    CatalogKind.TestInfraService,
+    new DynamicCatalog(new CitrusTestInfraServicesProvider(testInfraServices.body)),
   );
 }

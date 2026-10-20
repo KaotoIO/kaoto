@@ -20,6 +20,7 @@ export type DynamicCatalogTypeMap = {
   [CatalogKind.TestEndpoint]: ICitrusComponentDefinition;
   [CatalogKind.TestFunction]: ICitrusComponentDefinition;
   [CatalogKind.TestValidationMatcher]: ICitrusComponentDefinition;
+  [CatalogKind.TestInfraService]: ICitrusComponentDefinition;
   [CatalogKind.Function]: Record<string, KaotoFunction<KaotoFunctionArgument>>;
 };
 

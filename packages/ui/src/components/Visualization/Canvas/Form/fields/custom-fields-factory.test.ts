@@ -14,6 +14,8 @@ import { EndpointField } from './EndpointField/EndpointField';
 import { EndpointListField } from './EndpointField/EndpointListField';
 import { EndpointPropertiesField } from './EndpointPropertiesField/EndpointPropertiesField';
 import { ExpressionField } from './ExpressionField/ExpressionField';
+import { InfraImplementationField } from './InfraServiceField/InfraImplementationField';
+import { InfraServiceField } from './InfraServiceField/InfraServiceField';
 import { MediaTypeField } from './MediaTypeField/MediaTypeField';
 import { SedaEndpointNameField } from './SedaEndpointNameField';
 import { UriField } from './UriField/UriField';
@@ -217,5 +219,41 @@ describe('customFieldsFactoryfactory', () => {
       title: 'Testing runtime version',
     });
     expect(result).toBe(TestingCatalogNameField);
+  });
+
+  it('returns InfraServiceField for infra service field', () => {
+    const result = customFieldsFactoryfactory({
+      type: 'string',
+      title: 'Service',
+      description: 'The Camel infra service name.',
+    });
+    expect(result).toBe(InfraServiceField);
+  });
+
+  it('does not return InfraServiceField for a generic Service field', () => {
+    const result = customFieldsFactoryfactory({
+      type: 'string',
+      title: 'Service',
+      description: 'A generic service name.',
+    });
+    expect(result).toBeUndefined();
+  });
+
+  it('returns InfraImplementationField for infra implementation field', () => {
+    const result = customFieldsFactoryfactory({
+      type: 'string',
+      title: 'Implementation',
+      description: 'Optional service implementation detail.',
+    });
+    expect(result).toBe(InfraImplementationField);
+  });
+
+  it('does not return InfraImplementationField for a generic Implementation field', () => {
+    const result = customFieldsFactoryfactory({
+      type: 'string',
+      title: 'Implementation',
+      description: 'A generic implementation.',
+    });
+    expect(result).toBeUndefined();
   });
 });

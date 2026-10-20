@@ -8,6 +8,8 @@ import { EndpointField } from './EndpointField/EndpointField';
 import { EndpointListField } from './EndpointField/EndpointListField';
 import { EndpointPropertiesField } from './EndpointPropertiesField/EndpointPropertiesField';
 import { ExpressionField } from './ExpressionField/ExpressionField';
+import { InfraImplementationField } from './InfraServiceField/InfraImplementationField';
+import { InfraServiceField } from './InfraServiceField/InfraServiceField';
 import { MediaTypeField } from './MediaTypeField/MediaTypeField';
 import { SedaEndpointNameField } from './SedaEndpointNameField';
 import { UriField } from './UriField/UriField';
@@ -77,6 +79,22 @@ const isEndpointListField = (schema: Parameters<CustomFieldsFactory>[0]): boolea
   );
 };
 
+const isInfraServiceField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
+  return (
+    schema.type === 'string' &&
+    schema.title === 'Service' &&
+    (schema.description || '').toLowerCase().includes('infra service')
+  );
+};
+
+const isInfraImplementationField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
+  return (
+    schema.type === 'string' &&
+    schema.title === 'Implementation' &&
+    (schema.description || '').toLowerCase().includes('service implementation')
+  );
+};
+
 const isTextAreaField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
   return (
     schema.type === 'string' &&
@@ -112,6 +130,8 @@ const CUSTOM_FIELD_ENTRIES: [
   [isCustomMediaTypesField, CustomMediaTypes],
   [isUriField, UriField],
   [isEndpointPropertiesField, EndpointPropertiesField],
+  [isInfraServiceField, InfraServiceField],
+  [isInfraImplementationField, InfraImplementationField],
   [isEndpointField, EndpointField],
   [isEndpointListField, EndpointListField],
   [isTextAreaField, TextAreaField],
