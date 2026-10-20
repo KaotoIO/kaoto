@@ -10,10 +10,8 @@ import { isEmpty } from 'lodash';
 import { FunctionComponent, Suspense, use, useContext, useMemo } from 'react';
 
 import { ROOT_PATH, setValue } from '../../../../../../utils';
-import { ErrorBoundary } from '../../../../../ErrorBoundary';
-import { ErrorDetails } from '../../../../../ErrorFallbacks/ErrorDetails';
-import { ErrorNotification } from '../../../../../ErrorFallbacks/ErrorNotification';
 import { Loading } from '../../../../../Loading';
+import { FieldErrorBoundary } from '../FieldErrorBoundary';
 import { ExpressionService } from './expression.service';
 import { ExpressionFieldInner } from './ExpressionFieldInner';
 
@@ -97,23 +95,16 @@ const ExpressionFieldImpl: FunctionComponent<FieldProps & { promise: Promise<str
   );
 };
 
-const renderExpressionFieldError = (error: Error) => (
-  <>
-    <ErrorNotification title="Expression editor unavailable" />
-    <ErrorDetails message={error.message} />
-  </>
-);
-
 export const ExpressionField: FunctionComponent<FieldProps> = (props) => {
   const languageNamesPromise = useMemo(() => {
     return ExpressionService.getLanguageNames();
   }, []);
 
   return (
-    <ErrorBoundary fallback={renderExpressionFieldError}>
+    <FieldErrorBoundary title="Expression editor unavailable">
       <Suspense fallback={<Loading />}>
         <ExpressionFieldImpl {...props} promise={languageNamesPromise} />
       </Suspense>
-    </ErrorBoundary>
+    </FieldErrorBoundary>
   );
 };

@@ -1,7 +1,7 @@
+import './ErrorDetails.scss';
+
 import { Accordion, AccordionItem, CodeSnippet } from '@carbon/react';
 import { FunctionComponent, useState } from 'react';
-
-import styles from './ErrorDetails.module.scss';
 
 interface ErrorDetailsProps {
   message?: string;
@@ -11,7 +11,7 @@ export const ErrorDetails: FunctionComponent<ErrorDetailsProps> = ({ message }) 
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <Accordion className={styles['error-details']} size="sm" isFlush>
+    <Accordion className="error-details" size="sm" isFlush>
       <AccordionItem
         title={isOpen ? 'Show less' : 'Show more'}
         open={isOpen}
@@ -19,12 +19,7 @@ export const ErrorDetails: FunctionComponent<ErrorDetailsProps> = ({ message }) 
           setIsOpen(isOpen);
         }}
       >
-        <CodeSnippet
-          className={styles['error-details-message']}
-          type="multi"
-          hideCopyButton
-          data-testid="error-details-message"
-        >
+        <CodeSnippet className="error-details-message" type="multi" hideCopyButton data-testid="error-details-message">
           {message}
         </CodeSnippet>
       </AccordionItem>
