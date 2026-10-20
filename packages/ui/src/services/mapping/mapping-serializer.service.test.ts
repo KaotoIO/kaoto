@@ -58,7 +58,6 @@ import { XmlSchemaField } from '../document/xml-schema/xml-schema-document.model
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { MappingService } from './mapping.service';
 import { EMPTY_XSL, MappingSerializerService } from './mapping-serializer.service';
-import { WrapperAutoDetectionService } from './wrapper-auto-detection.service';
 
 describe('MappingSerializerService', () => {
   const sourceParameterMap = TestUtil.createParameterMap();
@@ -1708,7 +1707,7 @@ describe('MappingSerializerService', () => {
       const fieldItem = new FieldItem(rootItem, targetField);
       rootItem.children.push(fieldItem);
       MappingService.mapToField(sourceField, fieldItem);
-      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField)!;
+      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField, false)!;
       expect(ifItem.isAutoOptionalIf).toBe(true);
 
       const xslt = MappingSerializerService.serialize(mappingTree, localParamsMap);
@@ -1743,7 +1742,6 @@ describe('MappingSerializerService', () => {
         freshTree,
         localParamsMap,
       );
-      WrapperAutoDetectionService.autoDetectOptionalGuards(deserialized);
 
       const deserializedShipOrder = deserialized.children[0] as FieldItem;
       const deserializedIfItem = deserializedShipOrder.children.find((c) => c instanceof IfItem) as IfItem;
@@ -1772,7 +1770,7 @@ describe('MappingSerializerService', () => {
       // CONTAINER_NODE (unlike CONTAINER) always renders a dedicated target element wrapper,
       // with the copy-of's `/node()` suffix stripped when comparing against the if's test.
       MappingService.mapToFieldWithValueType(sourceField, fieldItem, CopyOfType.CONTAINER_NODE);
-      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField)!;
+      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField, false)!;
       expect(ifItem.isAutoOptionalIf).toBe(true);
 
       const xslt = MappingSerializerService.serialize(mappingTree, localParamsMap);
@@ -1807,7 +1805,6 @@ describe('MappingSerializerService', () => {
         freshTree,
         localParamsMap,
       );
-      WrapperAutoDetectionService.autoDetectOptionalGuards(deserialized);
 
       const deserializedShipOrder = deserialized.children[0] as FieldItem;
       const deserializedIfItem = deserializedShipOrder.children.find((c) => c instanceof IfItem) as IfItem;
@@ -1839,7 +1836,7 @@ describe('MappingSerializerService', () => {
       const fieldItem = new FieldItem(rootItem, targetField);
       rootItem.children.push(fieldItem);
       MappingService.mapToFieldWithValueType(sourceField, fieldItem, CopyOfType.CONTAINER);
-      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField)!;
+      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField, false)!;
       expect(ifItem.isAutoOptionalIf).toBe(true);
 
       const xslt = MappingSerializerService.serialize(mappingTree, localParamsMap);
@@ -1875,7 +1872,6 @@ describe('MappingSerializerService', () => {
         freshTree,
         localParamsMap,
       );
-      WrapperAutoDetectionService.autoDetectOptionalGuards(deserialized);
 
       const deserializedShipOrder = deserialized.children[0] as FieldItem;
       const deserializedIfItem = deserializedShipOrder.children.find((c) => c instanceof IfItem) as IfItem;

@@ -102,6 +102,16 @@ export class FieldItem extends MappingItem {
     const name = field.id;
     super(parent, name, getCamelRandomId(name, 4));
   }
+  /**
+   * The single {@link ValueOfSelector}/{@link CopyOfSelector} carrying this field's value, or
+   * `undefined` when the field has none, has several children, or has non-selector children —
+   * most notably the recursive child mappings produced for an auto-mapped container.
+   */
+  get soleSelector(): ValueOfSelector | CopyOfSelector | undefined {
+    if (this.children.length !== 1) return undefined;
+    const only = this.children[0];
+    return only instanceof ValueOfSelector || only instanceof CopyOfSelector ? only : undefined;
+  }
   doClone() {
     const cloned = new FieldItem(this.parent, this.field);
     cloned.isUserCreated = this.isUserCreated;
@@ -368,6 +378,14 @@ export abstract class ValueSelector extends MappingItem implements IExpressionHo
     super(parent, label, getCamelRandomId(label, 4));
   }
   expression = '';
+  /**
+   * {@link expression} reduced to the path it addresses, so it can be compared against a path
+   * built from a source field. Only {@link CopyOfSelector} overrides this — every other selector
+   * stores the addressed path verbatim.
+   */
+  get sourcePath(): string {
+    return this.expression;
+  }
   clone() {
     const cloned = super.clone() as ValueSelector;
     cloned.expression = this.expression;
@@ -408,6 +426,15 @@ export class CopyOfSelector extends ValueSelector {
     public valueType: CopyOfType = CopyOfType.CONTAINER,
   ) {
     super(parent, 'copy');
+  }
+  /**
+   * {@link CopyOfType.CONTAINER_NODE} appends `/node()` so `xsl:copy-of` copies the children
+   * rather than the wrapper element (see {@link MappingService.mapToFieldWithValueType}); the
+   * addressed path is the expression without it. A getter rather than a stored value because
+   * {@link valueType} is reassigned when a container mapping is re-applied.
+   */
+  override get sourcePath(): string {
+    return this.valueType === CopyOfType.CONTAINER_NODE ? this.expression.replace(/\/node\(\)$/, '') : this.expression;
   }
   doClone() {
     return new CopyOfSelector(this.parent, this.valueType);

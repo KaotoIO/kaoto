@@ -491,6 +491,15 @@ describe('MappingActionService — mapping engagement', () => {
       function findByName(children: NodeData[], name: string) {
         return children.find((c) => 'field' in c && (c.field as IField).name === name);
       }
+      /**
+       * Guarding a field nests its node one level deeper, under the `if` rather than directly
+       * under ShipOrder, so a follow-up drop has to target it where the panel now renders it.
+       */
+      function findTargetFieldNode(name: string) {
+        const children = targetShipOrderChildren();
+        const nested = children.flatMap((child) => VisualizationService.generateNonDocumentNodeDataChildren(child));
+        return (findByName(children, name) ?? findByName(nested, name)) as TargetFieldNodeData;
+      }
 
       it('should wrap an optional terminal field drop with a hidden IfItem (value-of)', () => {
         const sourceOrderPerson = sourceDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
@@ -510,6 +519,56 @@ describe('MappingActionService — mapping engagement', () => {
         const fieldItem = ifItem.children.find((c) => c instanceof FieldItem) as FieldItem;
         expect(fieldItem.field.name).toBe('OrderPerson');
         expect(structural).toBe(true);
+      });
+
+      it('should report a second drop onto an already-guarded field as non-structural', () => {
+        const sourceOrderPerson = sourceDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+        const sourceOrderId = sourceDoc.fields[0].fields.find((f) => f.name === 'OrderId')!;
+        const targetOrderPerson = targetDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+        sourceOrderPerson.minOccurs = 0;
+        sourceOrderId.minOccurs = 0;
+        targetOrderPerson.minOccurs = 0;
+
+        const targetItem = findByName(targetShipOrderChildren(), 'OrderPerson') as TargetFieldNodeData;
+        MappingActionService.engageMapping(
+          tree,
+          findByName(sourceShipOrderChildren(), 'OrderPerson') as FieldNodeData,
+          targetItem,
+        );
+
+        // Only the selector's expression is extended, so the tree shape is unchanged and the
+        // target panel must not rebuild — see engageMapping's @returns contract.
+        const structural = MappingActionService.engageMapping(
+          tree,
+          findByName(sourceShipOrderChildren(), 'OrderId') as FieldNodeData,
+          findTargetFieldNode('OrderPerson'),
+        );
+
+        expect(structural).toBe(false);
+      });
+
+      it('should not guard a field that is already mapped from a required source', () => {
+        const sourceOrderId = sourceDoc.fields[0].fields.find((f) => f.name === 'OrderId')!;
+        const sourceOrderPerson = sourceDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+        const targetOrderPerson = targetDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+        sourceOrderId.minOccurs = 1;
+        sourceOrderPerson.minOccurs = 0;
+        targetOrderPerson.minOccurs = 0;
+
+        MappingActionService.engageMapping(
+          tree,
+          findByName(sourceShipOrderChildren(), 'OrderId') as FieldNodeData,
+          findByName(targetShipOrderChildren(), 'OrderPerson') as TargetFieldNodeData,
+        );
+        MappingActionService.engageMapping(
+          tree,
+          findByName(sourceShipOrderChildren(), 'OrderPerson') as FieldNodeData,
+          findByName(targetShipOrderChildren(), 'OrderPerson') as TargetFieldNodeData,
+        );
+
+        // Guarding here would gate the required source's output on the optional source's presence.
+        const shipOrderFieldItem = tree.children[0] as FieldItem;
+        expect(shipOrderFieldItem.children.some((c) => c instanceof IfItem)).toBe(false);
       });
 
       it('should wrap an optional container field drop (copy-of) with a hidden IfItem', () => {

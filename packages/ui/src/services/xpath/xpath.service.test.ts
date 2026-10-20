@@ -69,6 +69,12 @@ describe('XPathService', () => {
       expect(XPathService.isSimplePath('a intersect b')).toBe(false);
       expect(XPathService.isSimplePath('a except b')).toBe(false);
     });
+
+    it('should return true when union and intersect keywords are element names, not operators', () => {
+      expect(XPathService.isSimplePath('/union/except')).toBe(true);
+      expect(XPathService.isSimplePath('/intersect')).toBe(true);
+      expect(XPathService.isSimplePath('/ns0:Root/union')).toBe(true);
+    });
   });
   describe('parse()', () => {
     it('should parse a field path', () => {

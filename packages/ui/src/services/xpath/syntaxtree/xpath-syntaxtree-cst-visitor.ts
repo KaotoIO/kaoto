@@ -4,6 +4,8 @@ import { PredicateOperator } from '../../../models/datamapper/xpath';
 import {
   ArithmeticExprNode,
   ArithmeticOperator,
+  CombineExprNode,
+  CombineOperator,
   ComparisonExprNode,
   ExprNode,
   ExprSingleNode,
@@ -34,6 +36,7 @@ type ArithmeticResult =
   | VarRefNode
   | FunctionCallNode
   | ParenthesizedExprNode
+  | CombineExprNode
   | undefined;
 
 type LogicalResult =
@@ -42,7 +45,12 @@ type LogicalResult =
   | ArithmeticExprNode
   | PathExprNode
   | ParenthesizedExprNode
+  | CombineExprNode
   | undefined;
+
+/** What visiting a `UnionExpr`/`IntersectExceptExpr` layer yields: the combination, or — when the
+ * layer carries no operator — the single path it wraps. */
+type CombineResult = CombineExprNode | PathExprNode | undefined;
 
 type BinaryExprNode = ArithmeticExprNode | LogicalExprNode;
 
@@ -314,18 +322,12 @@ export class CstVisitor {
       }
     }
 
-    // No operators found - extract simple path expression
-    const pathExpr = CstVisitor.getSingleNode(rangeExpr, [
-      'AdditiveExpr',
-      'MultiplicativeExpr',
-      'UnionExpr',
-      'IntersectExceptExpr',
-      'InstanceofExpr',
-      'PathExpr',
-    ]);
+    // No arithmetic or comparison operator at this level — descend to the combining layer, which
+    // collapses to the bare path when it carries no operator of its own.
+    const unionExpr = CstVisitor.getSingleNode(rangeExpr, ['AdditiveExpr', 'MultiplicativeExpr', 'UnionExpr']);
 
-    if (pathExpr && 'children' in pathExpr) {
-      return CstVisitor.visitPathExpr(pathExpr);
+    if (unionExpr && 'children' in unionExpr) {
+      return CstVisitor.visitUnionExpr(unionExpr);
     }
 
     return undefined;
@@ -734,12 +736,12 @@ export class CstVisitor {
   /**
    * Extracts tokens for a specific operator type from children
    */
-  private static extractOperatorTokens(
+  private static extractOperatorTokens<TOperator>(
     children: Record<string, unknown>,
     key: string,
-    operator: ArithmeticOperator,
-  ): Array<{ offset: number; operator: ArithmeticOperator }> {
-    const result: Array<{ offset: number; operator: ArithmeticOperator }> = [];
+    operator: TOperator,
+  ): Array<{ offset: number; operator: TOperator }> {
+    const result: Array<{ offset: number; operator: TOperator }> = [];
     if (!(key in children)) return result;
 
     const tokens = children[key];
@@ -850,12 +852,102 @@ export class CstVisitor {
   }
 
   /**
-   * Extracts path expression from a UnionExpr operand
+   * Extracts the combining operators of one grammar layer in source order.
+   *
+   * Both layers accept two spellings that Chevrotain files under *different* child keys — `|` as
+   * `Pipe` and `union` as `Union`, `intersect` as `Intersect` and `except` as `Except` — so the
+   * tokens have to be merged and re-sorted by offset to recover the order they were written in.
+   * @param node - the `UnionExpr` or `IntersectExceptExpr` CST node
+   * @param operatorTypes - the child keys this layer can carry, with the operator each maps to
    */
-  private static extractPathFromUnionExpr(unionExpr: CstElement): PathExprNode | undefined {
-    const pathExpr = CstVisitor.getSingleNode(unionExpr, ['IntersectExceptExpr', 'InstanceofExpr', 'PathExpr']);
-    if (!pathExpr || !('children' in pathExpr)) return undefined;
-    return CstVisitor.visitPathExpr(pathExpr);
+  private static extractCombineOperators(
+    node: CstElement,
+    operatorTypes: Array<{ key: string; value: CombineOperator }>,
+  ): CombineOperator[] {
+    const children = 'children' in node && node.children;
+    if (!children) return [];
+
+    const operators: Array<{ offset: number; operator: CombineOperator }> = [];
+    for (const { key, value } of operatorTypes) {
+      operators.push(...CstVisitor.extractOperatorTokens(children, key, value));
+    }
+
+    operators.sort((a, b) => a.offset - b.offset);
+    return operators.map((op) => op.operator);
+  }
+
+  /**
+   * Visits a UnionExpr CST node.
+   * Handles operations: `|`, `union`
+   * Example: `/a | /b` — both operands are real sources, so both render a mapping line.
+   */
+  private static visitUnionExpr(node: CstElement): CombineResult {
+    const operators = CstVisitor.extractCombineOperators(node, [
+      { key: 'Pipe', value: CombineOperator.Union },
+      { key: 'Union', value: CombineOperator.Union },
+    ]);
+    let operatorIndex = 0;
+
+    return CstVisitor.visitBinaryExpr<CombineResult, CombineOperator>(node, {
+      operandPath: ['IntersectExceptExpr'],
+      extractOperator: () => operators[operatorIndex++],
+      visitOperand: (operand) => CstVisitor.visitIntersectExceptExpr(operand),
+      createNode: (cstNode, left, right, operator) => CstVisitor.createCombineNode(cstNode, left, right, operator),
+    });
+  }
+
+  /**
+   * Visits an IntersectExceptExpr CST node.
+   * Handles operations: `intersect`, `except`
+   * Example: `a intersect b` or the mixed chain `b intersect c except d`
+   */
+  private static visitIntersectExceptExpr(node: CstElement): CombineResult {
+    const operators = CstVisitor.extractCombineOperators(node, [
+      { key: 'Intersect', value: CombineOperator.Intersect },
+      { key: 'Except', value: CombineOperator.Except },
+    ]);
+    let operatorIndex = 0;
+
+    return CstVisitor.visitBinaryExpr<CombineResult, CombineOperator>(node, {
+      operandPath: ['InstanceofExpr'],
+      extractOperator: () => operators[operatorIndex++],
+      visitOperand: (operand) => {
+        const pathExpr = CstVisitor.getSingleNode(operand, ['PathExpr']);
+        if (!pathExpr || !('children' in pathExpr)) return undefined;
+        return CstVisitor.visitPathExpr(pathExpr);
+      },
+      createNode: (cstNode, left, right, operator) => CstVisitor.createCombineNode(cstNode, left, right, operator),
+    });
+  }
+
+  /**
+   * Creates a {@link CombineExprNode} with proper parent references.
+   * Returns the left operand when the operator or either side is missing, matching
+   * {@link createArithmeticNode} — a layer with no operator collapses to what it wraps.
+   * @param cstNode - The CST node for source range information
+   * @param left - Left operand of the combining expression
+   * @param right - Right operand of the combining expression
+   * @param operator - `|`/`union`, `intersect` or `except`
+   */
+  private static createCombineNode(
+    cstNode: CstElement,
+    left: CombineResult,
+    right: CombineResult,
+    operator: CombineOperator | undefined,
+  ): CombineResult {
+    if (!operator || !left || !right) return left;
+
+    const combineNode: CombineExprNode = {
+      type: XPathNodeType.CombineExpr,
+      range: CstVisitor.createRangeFromNode(cstNode),
+      left,
+      operator,
+      right,
+    };
+
+    left.parent = combineNode;
+    right.parent = combineNode;
+    return combineNode;
   }
 
   /**
@@ -872,7 +964,7 @@ export class CstVisitor {
     return CstVisitor.visitBinaryExpr<ArithmeticResult, ArithmeticOperator>(node, {
       operandPath: ['UnionExpr'],
       extractOperator: () => operators[operatorIndex++],
-      visitOperand: (operand) => CstVisitor.extractPathFromUnionExpr(operand),
+      visitOperand: (operand) => CstVisitor.visitUnionExpr(operand),
       createNode: (cstNode, left, right, operator) => CstVisitor.createArithmeticNode(cstNode, left, right, operator),
     });
   }
@@ -975,7 +1067,8 @@ export class CstVisitor {
             result.type === XPathNodeType.ComparisonExpr ||
             result.type === XPathNodeType.ArithmeticExpr ||
             result.type === XPathNodeType.PathExpr ||
-            result.type === XPathNodeType.ParenthesizedExpr)
+            result.type === XPathNodeType.ParenthesizedExpr ||
+            result.type === XPathNodeType.CombineExpr)
         ) {
           return result as LogicalResult;
         }
@@ -1021,24 +1114,21 @@ export class CstVisitor {
     return compNode;
   }
 
-  private static extractOperand(rangeExpr: CstElement): PathExprNode | LiteralNode | VarRefNode | undefined {
-    const pathExpr = CstVisitor.getSingleNode(rangeExpr, [
-      'AdditiveExpr',
-      'MultiplicativeExpr',
-      'UnionExpr',
-      'IntersectExceptExpr',
-      'InstanceofExpr',
-      'PathExpr',
-    ]);
+  private static extractOperand(rangeExpr: CstElement): CombineResult | LiteralNode {
+    const unionExpr = CstVisitor.getSingleNode(rangeExpr, ['AdditiveExpr', 'MultiplicativeExpr', 'UnionExpr']);
+    if (!unionExpr || !('children' in unionExpr)) return undefined;
 
-    if (!pathExpr || !('children' in pathExpr)) return undefined;
-
-    const literal = CstVisitor.getSingleNode(pathExpr, ['RelativePathExpr', 'StepExpr', 'FilterExpr', 'Literal']);
-    if (literal && 'children' in literal) {
-      return CstVisitor.visitLiteral(literal);
+    // A bare literal operand (`… = 'x'`) has to be recognised before the combining layer, which
+    // only ever yields paths and combinations of them.
+    const pathExpr = CstVisitor.getSingleNode(unionExpr, ['IntersectExceptExpr', 'InstanceofExpr', 'PathExpr']);
+    if (pathExpr && 'children' in pathExpr) {
+      const literal = CstVisitor.getSingleNode(pathExpr, ['RelativePathExpr', 'StepExpr', 'FilterExpr', 'Literal']);
+      if (literal && 'children' in literal) {
+        return CstVisitor.visitLiteral(literal);
+      }
     }
 
-    return CstVisitor.visitPathExpr(pathExpr);
+    return CstVisitor.visitUnionExpr(unionExpr);
   }
 
   private static extractComparisonOperator(comparisonExpr: CstElement): PredicateOperator {

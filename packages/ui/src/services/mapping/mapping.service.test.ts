@@ -922,7 +922,7 @@ describe('MappingService', () => {
       targetField.minOccurs = 0;
       MappingService.mapToField(sourceField, fieldItem);
 
-      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField);
+      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField, false);
 
       expect(ifItem).toBeInstanceOf(IfItem);
       expect(ifItem!.isAutoOptionalIf).toBe(true);
@@ -936,7 +936,7 @@ describe('MappingService', () => {
       targetField.minOccurs = 1;
       MappingService.mapToField(sourceField, fieldItem);
 
-      expect(MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField)).toBeUndefined();
+      expect(MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField, false)).toBeUndefined();
       expect(fieldItem.parent).toBe(rootItem);
     });
 
@@ -945,7 +945,7 @@ describe('MappingService', () => {
       targetField.minOccurs = 0;
       MappingService.mapToField(sourceField, fieldItem);
 
-      expect(MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField)).toBeUndefined();
+      expect(MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField, false)).toBeUndefined();
       expect(fieldItem.parent).toBe(rootItem);
     });
 
@@ -957,7 +957,7 @@ describe('MappingService', () => {
       expect(primitiveDoc.minOccurs).toBe(0);
       MappingService.mapToField(primitiveDoc, fieldItem);
 
-      expect(MappingService.tryAutoOptionalIfWrap(fieldItem, primitiveDoc)).toBeUndefined();
+      expect(MappingService.tryAutoOptionalIfWrap(fieldItem, primitiveDoc, false)).toBeUndefined();
       expect(fieldItem.parent).toBe(rootItem);
     });
 
@@ -965,10 +965,10 @@ describe('MappingService', () => {
       sourceField.minOccurs = 0;
       targetField.minOccurs = 0;
       MappingService.mapToField(sourceField, fieldItem);
-      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField);
+      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField, false);
       expect(ifItem).toBeDefined();
 
-      expect(MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField)).toBeUndefined();
+      expect(MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField, false)).toBeUndefined();
       expect(rootItem.children).toEqual([ifItem]);
     });
 
@@ -977,7 +977,7 @@ describe('MappingService', () => {
       targetField.minOccurs = 0;
       // fieldItem.children is empty — applyContainerMapping produced no matches
 
-      const result = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField);
+      const result = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField, false);
 
       expect(result).toBeUndefined();
       expect(fieldItem.parent).toBe(rootItem);
@@ -991,7 +991,7 @@ describe('MappingService', () => {
       // the single ValueOfSelector/CopyOfSelector a terminal/copy-of mapping would produce.
       fieldItem.children.push(new FieldItem(fieldItem, targetField));
 
-      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField);
+      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField, false);
 
       expect(ifItem).toBeInstanceOf(IfItem);
       expect(ifItem!.isAutoOptionalIf).toBe(false);
@@ -1000,34 +1000,38 @@ describe('MappingService', () => {
     it('should not wrap a MappingItem that is not a FieldItem', () => {
       sourceField.minOccurs = 0;
       const valueSelector = new ValueOfSelector(rootItem);
-      expect(MappingService.tryAutoOptionalIfWrap(valueSelector, sourceField)).toBeUndefined();
+      expect(MappingService.tryAutoOptionalIfWrap(valueSelector, sourceField, false)).toBeUndefined();
     });
 
-    it('should demote an already-hidden guard to a visible if when a second source is mapped onto the field', () => {
+    it('should demote an already-hidden guard when a second source is mapped onto the field', () => {
       sourceField.minOccurs = 0;
       targetField.minOccurs = 0;
       MappingService.mapToField(sourceField, fieldItem);
-      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField);
+      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField, false);
       expect(ifItem!.isAutoOptionalIf).toBe(true);
 
+      // The demotion happens inside mapToField, via onExpressionChanged — by the time the wrap is
+      // re-attempted the guard is already visible and there is nothing left for it to do.
       const secondSourceField = sourceDoc.fields[0].fields[0];
       MappingService.mapToField(secondSourceField, fieldItem);
-      const result = MappingService.tryAutoOptionalIfWrap(fieldItem, secondSourceField);
-
-      expect(result).toBe(ifItem);
       expect(ifItem!.isAutoOptionalIf).toBe(false);
+
+      expect(MappingService.tryAutoOptionalIfWrap(fieldItem, secondSourceField, true)).toBeUndefined();
       expect(fieldItem.parent).toBe(ifItem);
     });
 
-    it('should leave an already-demoted (visible) if untouched on further mapping changes', () => {
-      sourceField.minOccurs = 0;
+    it('should not wrap when the field already carries a mapping from another source', () => {
       targetField.minOccurs = 0;
-      MappingService.mapToField(sourceField, fieldItem);
-      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField)!;
-      ifItem.isAutoOptionalIf = false;
+      const requiredSource = sourceDoc.fields[0].fields[0];
+      requiredSource.minOccurs = 1;
+      MappingService.mapToField(requiredSource, fieldItem);
 
-      expect(MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField)).toBeUndefined();
-      expect(ifItem.isAutoOptionalIf).toBe(false);
+      const optionalSource = sourceField;
+      optionalSource.minOccurs = 0;
+      MappingService.mapToField(optionalSource, fieldItem);
+
+      expect(MappingService.tryAutoOptionalIfWrap(fieldItem, optionalSource, true)).toBeUndefined();
+      expect(fieldItem.parent).toBe(rootItem);
     });
 
     it('should wrap an optional attribute field with a hidden IfItem (xsl:attribute)', () => {
@@ -1041,7 +1045,7 @@ describe('MappingService', () => {
       rootItem.children.push(attributeFieldItem);
       MappingService.mapToField(attributeSourceField, attributeFieldItem);
 
-      const ifItem = MappingService.tryAutoOptionalIfWrap(attributeFieldItem, attributeSourceField);
+      const ifItem = MappingService.tryAutoOptionalIfWrap(attributeFieldItem, attributeSourceField, false);
 
       expect(ifItem).toBeInstanceOf(IfItem);
       expect(ifItem!.isAutoOptionalIf).toBe(true);
@@ -1136,7 +1140,7 @@ describe('MappingService', () => {
       targetField.minOccurs = 0;
       const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
       MappingService.mapToField(sourceField, fieldItem);
-      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField)!;
+      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField, false)!;
       expect(ifItem.isAutoOptionalIf).toBe(true);
       expect(shipOrderItem.children).toContain(ifItem);
 
@@ -1170,7 +1174,7 @@ describe('MappingService', () => {
       targetField.minOccurs = 0;
       const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
       MappingService.mapToField(sourceField, fieldItem);
-      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField)!;
+      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField, false)!;
       expect(ifItem.isAutoOptionalIf).toBe(true);
 
       // Invalidate the shape: add a second sibling under the guard so it no longer

@@ -344,6 +344,93 @@ describe('CstVisitor', () => {
       });
     });
 
+    describe('Union and intersect expressions', () => {
+      it('should handle union operation: /a | /b', () => {
+        const cst = XPathService.parse('/a | /b').cst;
+        const root = CstVisitor.visit(cst);
+
+        const combineExpr = root.expressions[0];
+        expect(combineExpr.type).toBe(XPathNodeType.CombineExpr);
+
+        if (combineExpr.type === XPathNodeType.CombineExpr) {
+          expect(combineExpr.operator).toBe('Union');
+          expect(combineExpr.left.type).toBe(XPathNodeType.PathExpr);
+          expect(combineExpr.right.type).toBe(XPathNodeType.PathExpr);
+        }
+      });
+
+      it.each([
+        ['pipe', '/a | /b', 'Union'],
+        ['union keyword', 'a union b', 'Union'],
+        ['intersect', 'a intersect b', 'Intersect'],
+        ['except', 'a except b', 'Except'],
+      ])('should handle %s', (_desc, expression, expected) => {
+        const root = CstVisitor.visit(XPathService.parse(expression).cst);
+
+        const combineExpr = root.expressions[0];
+        expect(combineExpr.type).toBe(XPathNodeType.CombineExpr);
+        if (combineExpr.type === XPathNodeType.CombineExpr) {
+          expect(combineExpr.operator).toBe(expected);
+        }
+      });
+
+      it('should left-fold a chained union: a | b | c', () => {
+        const root = CstVisitor.visit(XPathService.parse('a | b | c').cst);
+
+        const combineExpr = root.expressions[0];
+        expect(combineExpr.type).toBe(XPathNodeType.CombineExpr);
+        if (combineExpr.type === XPathNodeType.CombineExpr) {
+          expect(combineExpr.left.type).toBe(XPathNodeType.CombineExpr);
+          expect(combineExpr.right.type).toBe(XPathNodeType.PathExpr);
+        }
+      });
+
+      it('should keep source order for mixed intersect and except: b intersect c except d', () => {
+        const root = CstVisitor.visit(XPathService.parse('b intersect c except d').cst);
+
+        const combineExpr = root.expressions[0];
+        expect(combineExpr.type).toBe(XPathNodeType.CombineExpr);
+        if (combineExpr.type === XPathNodeType.CombineExpr) {
+          expect(combineExpr.operator).toBe('Except');
+          expect(combineExpr.left.type).toBe(XPathNodeType.CombineExpr);
+          if (combineExpr.left.type === XPathNodeType.CombineExpr) {
+            expect(combineExpr.left.operator).toBe('Intersect');
+          }
+        }
+      });
+
+      it('should bind intersect tighter than union: a | b intersect c', () => {
+        const root = CstVisitor.visit(XPathService.parse('a | b intersect c').cst);
+
+        const combineExpr = root.expressions[0];
+        expect(combineExpr.type).toBe(XPathNodeType.CombineExpr);
+        if (combineExpr.type === XPathNodeType.CombineExpr) {
+          expect(combineExpr.operator).toBe('Union');
+          expect(combineExpr.left.type).toBe(XPathNodeType.PathExpr);
+          expect(combineExpr.right.type).toBe(XPathNodeType.CombineExpr);
+          if (combineExpr.right.type === XPathNodeType.CombineExpr) {
+            expect(combineExpr.right.operator).toBe('Intersect');
+          }
+        }
+      });
+
+      it('should collapse to a plain PathExpr when the keywords are element names', () => {
+        const root = CstVisitor.visit(XPathService.parse('/union/except').cst);
+
+        expect(root.expressions[0].type).toBe(XPathNodeType.PathExpr);
+      });
+
+      it('should set parent references on both operands', () => {
+        const root = CstVisitor.visit(XPathService.parse('/a | /b').cst);
+
+        const combineExpr = root.expressions[0];
+        if (combineExpr.type === XPathNodeType.CombineExpr) {
+          expect(combineExpr.left.parent).toBe(combineExpr);
+          expect(combineExpr.right.parent).toBe(combineExpr);
+        }
+      });
+    });
+
     describe('Parent references and source ranges', () => {
       it('should set parent references correctly in arithmetic expressions', () => {
         const cst = XPathService.parse('a + b').cst;

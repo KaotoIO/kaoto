@@ -1,14 +1,12 @@
-import { IDocument, IField, IParentType } from '../../models/datamapper/document';
+import { IDocument, IField, IParentType, PrimitiveDocument } from '../../models/datamapper/document';
 import {
-  CopyOfSelector,
-  CopyOfType,
   FieldItem,
+  IExpressionHolder,
   IfItem,
   MappingItem,
   MappingParentType,
   MappingTree,
   OtherwiseItem,
-  ValueOfSelector,
   WhenItem,
 } from '../../models/datamapper/mapping';
 import { IChoiceSelection, IFieldSubstitution } from '../../models/datamapper/metadata';
@@ -19,20 +17,28 @@ import { ensureNamespaceRegistered, formatWithPrefix } from '../namespace-util';
 import { SchemaPathService } from '../schema-path.service';
 import { XPathService } from '../xpath/xpath.service';
 
+/** Whether an optional-to-optional mapping gets no guard, a regular `if`, or a see-through one. */
+export type OptionalGuardDecision = 'skip' | 'visible' | 'hidden';
+
 /**
- * Infers abstract substitutions, non-abstract substitutions, and xs:choice selections
- * from XSLT content when loading without `.kaoto` metadata.
+ * Derives and repairs target-side wrapper state from the mapping tree: abstract substitutions,
+ * non-abstract substitutions, and xs:choice selections inferred from XSLT content when loading
+ * without `.kaoto` metadata, plus the auto-optional `xsl:if` guards.
  *
- * Auto-detection is target-side only and runs after XSLT deserialization, before visualization.
- * Three conditions must all hold for auto-detection:
+ * Wrapper-selection detection runs after XSLT deserialization, before visualization. The
+ * auto-optional guard rules additionally run per-edit via {@link onExpressionChanged}, so each of
+ * them must do its cheap structural checks before any XPath parse.
+ *
+ * Three conditions must all hold for wrapper auto-detection:
  * 1. `maxOccurs = 1` on the wrapper (or field for non-abstract substitution)
  * 2. Element uniquely identifies the target (not ambiguous across branches)
  * 3. No conditional instruction wrapping (`xsl:if`, `xsl:choose`)
  *
- * Also detects `xsl:if`-wrapped target fields that match the "simple optional guard" shape
- * produced by `MappingService.tryAutoOptionalIfWrap`
- * ({@link autoDetectOptionalGuards}, {@link matchSimpleOptionalGuard}), marking them
- * `isAutoOptionalIf = true`.
+ * The auto-optional guard side owns both halves of one definition, which is why they live
+ * together: {@link decideOptionalGuard} decides whether `MappingService.tryAutoOptionalIfWrap`
+ * creates a guard and whether it is see-through, and {@link matchSimpleOptionalGuard} recognises
+ * one again afterwards. {@link applyAutoOptionalFlag} is the shared rule, reached tree-wide by
+ * {@link autoDetectOptionalGuards} and per-node by {@link onExpressionChanged}.
  */
 export class WrapperAutoDetectionService {
   static autoDetectWrapperSelections(
@@ -246,8 +252,10 @@ export class WrapperAutoDetectionService {
   }
 
   /**
-   * Walks the full mapping tree and marks `isAutoOptionalIf = true` on every `IfItem`
-   * matching {@link matchSimpleOptionalGuard}, at any nesting depth.
+   * Walks the full mapping tree and applies {@link applyAutoOptionalFlag} to every `IfItem` at any
+   * nesting depth. `isAutoOptionalIf` is not serialized, so after deserialization this is what
+   * recovers it — including for `xsl:if`s the user wrote by hand that happen to match the shape,
+   * which is indistinguishable from a generated guard once the flag is gone.
    * @param mappingTree - the mapping tree to walk, typically right after deserialization
    */
   static autoDetectOptionalGuards(mappingTree: MappingTree): void {
@@ -256,13 +264,98 @@ export class WrapperAutoDetectionService {
 
   private static walkOptionalGuards(parent: MappingParentType): void {
     for (const child of parent.children) {
-      if (child instanceof IfItem && !child.isAutoOptionalIf) {
-        if (WrapperAutoDetectionService.matchSimpleOptionalGuard(child)) {
-          child.isAutoOptionalIf = true;
-        }
+      if (child instanceof IfItem) {
+        WrapperAutoDetectionService.applyAutoOptionalFlag(child);
       }
       WrapperAutoDetectionService.walkOptionalGuards(child);
     }
+  }
+
+  /**
+   * The single definition of when a guard is see-through: exactly when its content still matches
+   * {@link matchSimpleOptionalGuard}. Applied tree-wide at load by {@link autoDetectOptionalGuards}
+   * and per-node after an edit by {@link onExpressionChanged}, so the two can never disagree about
+   * the same tree.
+   * @param ifItem - the `IfItem` whose flag should be brought in line with its current shape
+   */
+  private static applyAutoOptionalFlag(ifItem: IfItem): void {
+    ifItem.isAutoOptionalIf = !!WrapperAutoDetectionService.matchSimpleOptionalGuard(ifItem);
+  }
+
+  /**
+   * Single entry point for "the expression on this item just changed" — call sites announce the
+   * event and this decides which derived state needs bringing back in line. New post-edit
+   * invariants belong here rather than at every writer: the auto-optional guard originally
+   * re-checked itself inside `MappingService.tryAutoOptionalIfWrap`, which only ran on mapping
+   * engagement and so missed every hand-edit.
+   *
+   * Returns `void` deliberately. If callers could branch on repair work it would leak back into
+   * drag-and-drop's structural/non-structural decision and force needless tree rebuilds.
+   *
+   * Fires on every keystroke, since neither XPath editor debounces, so each rule must do its cheap
+   * structural checks before any XPath parse. That churn is safe only because keystrokes take the
+   * non-structural refresh path and the target tree is rebuilt from `structuralMappingTree`;
+   * anything rendering off these flags must likewise decide at structural cadence, or nodes will
+   * appear and disappear mid-word and steal focus from the XPath input.
+   * @param item - the expression holder that was just written to
+   */
+  static onExpressionChanged(item: IExpressionHolder): void {
+    if (!(item instanceof MappingItem)) return;
+    WrapperAutoDetectionService.evaluateAutoOptionalGuard(item);
+  }
+
+  /**
+   * Re-applies {@link applyAutoOptionalFlag} to the nearest enclosing `IfItem`, which is the only
+   * guard an expression on `item` can belong to. Two-way on purpose: load-time detection promotes
+   * any shape-matching `IfItem` regardless of origin, so demoting without re-promoting would leave
+   * in-session state disagreeing with what the same tree looks like after a reload.
+   * @param item - the mapping item whose expression changed
+   */
+  private static evaluateAutoOptionalGuard(item: MappingItem): void {
+    let current: MappingParentType = item;
+    while (current instanceof MappingItem) {
+      if (current instanceof IfItem) {
+        WrapperAutoDetectionService.applyAutoOptionalFlag(current);
+        return;
+      }
+      current = current.parent;
+    }
+  }
+
+  /**
+   * Creation-side counterpart to {@link matchSimpleOptionalGuard}, holding every reason an
+   * optional-to-optional mapping should or should not be guarded so that what gets created and
+   * what gets recognised cannot drift apart.
+   *
+   * `'hidden'` is only returned when the field's mapping is a single bare path, which is also what
+   * makes the guard recognisable again after a round trip. Because `XPathService.addSource`
+   * appends, a field that already carried a mapping reads as `"A, B"` here and is rejected — the
+   * guard's test would otherwise gate output it does not own. A freshly filled empty selector, by
+   * contrast, holds just the new path and is guarded as usual.
+   *
+   * `hadExistingContent` only arbitrates the recursive-container case, which has no single
+   * selector to inspect; callers must sample it before applying the mapping, since afterwards
+   * there is no way to tell new children from pre-existing ones.
+   * @param fieldItem - the just-mapped target field item
+   * @param sourceField - the source that was mapped onto it
+   * @param hadExistingContent - whether the field already carried mapping content beforehand
+   * @returns `'skip'` to leave the mapping unguarded, `'visible'` to guard it with a regular `if`,
+   * `'hidden'` to guard it with a see-through one
+   */
+  static decideOptionalGuard(
+    fieldItem: FieldItem,
+    sourceField: PrimitiveDocument | IField,
+    hadExistingContent: boolean,
+  ): OptionalGuardDecision {
+    if (fieldItem.parent instanceof IfItem) return 'skip';
+    // A schemaless document root has no real occurrence semantics despite minOccurs defaulting to 0.
+    if (sourceField instanceof PrimitiveDocument) return 'skip';
+    if (fieldItem.field.minOccurs !== 0 || sourceField.minOccurs !== 0) return 'skip';
+    if (fieldItem.children.length === 0) return 'skip';
+
+    const selector = fieldItem.soleSelector;
+    if (selector) return XPathService.isSimplePath(selector.sourcePath) ? 'hidden' : 'skip';
+    return hadExistingContent ? 'skip' : 'visible';
   }
 
   /**
@@ -287,44 +380,27 @@ export class WrapperAutoDetectionService {
     const fieldItem = ifItem.children[0];
     if (!(fieldItem instanceof FieldItem)) return undefined;
     if (fieldItem.field.minOccurs !== 0) return undefined;
-    if (!XPathService.isSimplePath(ifItem.expression)) return undefined;
 
-    const selector = WrapperAutoDetectionService.getSoleSelector(fieldItem);
+    const selector = fieldItem.soleSelector;
     if (!selector) return undefined;
+    if (selector.sourcePath !== ifItem.expression) return undefined;
 
-    const selectorExpression =
-      selector instanceof CopyOfSelector && selector.valueType === CopyOfType.CONTAINER_NODE
-        ? selector.expression.replace(/\/node\(\)$/, '')
-        : selector.expression;
-    return selectorExpression === ifItem.expression ? fieldItem : undefined;
-  }
-
-  /**
-   * Returns `fieldItem`'s sole `ValueOfSelector`/`CopyOfSelector` child, or `undefined` if
-   * it has zero, more than one, or non-selector children (e.g. recursive `FieldItem`
-   * children from auto-mapped containers).
-   * @param fieldItem - the field item to inspect
-   */
-  static getSoleSelector(fieldItem: FieldItem): ValueOfSelector | CopyOfSelector | undefined {
-    if (fieldItem.children.length !== 1) return undefined;
-    const only = fieldItem.children[0];
-    return only instanceof ValueOfSelector || only instanceof CopyOfSelector ? only : undefined;
+    // Parsing is the expensive part and XPathService.parse is not memoized, so it is gated behind
+    // the cheap structural checks above — this predicate is re-derived on every read.
+    return XPathService.isSimplePath(ifItem.expression) ? fieldItem : undefined;
   }
 
   /**
    * The *effective* see-through state for rendering: `true` only when `ifItem.isAutoOptionalIf`
    * is set **and** its content still matches {@link matchSimpleOptionalGuard}.
    *
-   * `isAutoOptionalIf` is set at specific trigger points (auto-wrap, manual add, XPath-blur
-   * re-collapse, deserialization), but plenty of *other* tree mutations can invalidate the
-   * shape afterwards without going through any of those — e.g. wrapping the promoted field
-   * with another instruction (`xsl:choose`, `xsl:for-each`), or adding a sibling (a node-scoped
-   * variable) directly under the guard. Rather than hunting down and patching every such
-   * mutation site to proactively demote the flag, every renderer-facing consumer calls this
-   * instead of reading the raw flag: it self-heals a stale `true` by re-deriving the real
-   * shape on every call, so a guard that's no longer "just a bare field reference" always
-   * renders as a regular, visible `if` — without ever promoting an `IfItem` the flag doesn't
-   * already mark (a user-authored visible `if` that happens to look simple stays visible).
+   * Expression changes keep the flag honest on their own, via {@link onExpressionChanged}. This
+   * covers what they cannot: *structural* mutations that invalidate the shape without touching an
+   * expression — wrapping the guarded field in another instruction (`xsl:choose`, `xsl:for-each`),
+   * or adding a sibling such as a node-scoped variable directly under the guard. Rather than
+   * patching every such mutation site, renderer-facing consumers call this and get the real shape
+   * re-derived, so a guard that is no longer "just a bare field reference" renders as a regular,
+   * visible `if`.
    * @param ifItem - the `IfItem` to check
    */
   static isEffectivelyAutoOptional(ifItem: IfItem): boolean {

@@ -1,5 +1,3 @@
-import { CstNode } from 'chevrotain';
-
 import { IField, PrimitiveDocument } from '../../models/datamapper/document';
 import { IFunctionDefinition } from '../../models/datamapper/mapping';
 import {
@@ -16,6 +14,7 @@ import { XPath2Parser } from './2.0/xpath-2.0-parser';
 import { XPathFunctionCatalogService } from './catalog/xpath-function-catalog.service';
 import { CstVisitor } from './syntaxtree/xpath-syntaxtree-cst-visitor';
 import {
+  CombineExprNode,
   ComparisonExprNode,
   ExprNode,
   FilterExprNode,
@@ -91,9 +90,10 @@ export class XPathService {
     if (parsed.lexErrors.length > 0 || parsed.parseErrors.length > 0 || !parsed.exprNode) return false;
     if (parsed.exprNode.expressions.length !== 1) return false;
 
+    // A union/intersect/except combination parses to a CombineExpr, so this one check also
+    // rejects `/a | /b` without having to inspect the raw CST for operator tokens.
     const singleExpr = parsed.exprNode.expressions[0];
     if (singleExpr.type !== XPathNodeType.PathExpr) return false;
-    if (XPathService.containsUnionOrIntersectOperator(parsed.cst)) return false;
 
     const pathNode = singleExpr as PathExprNode;
     if (pathNode.steps.length === 0) return false;
@@ -149,28 +149,6 @@ export class XPathService {
     return (
       comparison.right?.type === XPathNodeType.Literal && (comparison.right as LiteralNode).literalType === 'string'
     );
-  }
-
-  /**
-   * Returns true if the CST contains an actual union (`|`, `union`) or intersect/except
-   * (`intersect`, `except`) *operator* anywhere in the tree — i.e. a `Pipe`/`Union` token
-   * directly under a `UnionExpr` node, or an `Intersect`/`Except` token directly under an
-   * `IntersectExceptExpr` node. These keywords are also valid NCName element/attribute
-   * names (e.g. `/union/except`), so matching the token key alone anywhere in the tree
-   * would misclassify such paths as containing an operator; checking the enclosing rule
-   * name disambiguates the two.
-   */
-  private static containsUnionOrIntersectOperator(node: CstNode): boolean {
-    const children = node.children;
-    if (node.name === 'UnionExpr' && ('Pipe' in children || 'Union' in children)) return true;
-    if (node.name === 'IntersectExceptExpr' && ('Intersect' in children || 'Except' in children)) return true;
-
-    for (const key of Object.keys(children)) {
-      for (const child of children[key]) {
-        if ('children' in child && XPathService.containsUnionOrIntersectOperator(child as CstNode)) return true;
-      }
-    }
-    return false;
   }
 
   /**
@@ -439,7 +417,13 @@ export class XPathService {
     return new Predicate('', PredicateOperator.Unknown, '');
   }
 
-  private static extractOperand(operand: PathExprNode | LiteralNode | VarRefNode): PathExpression | string {
+  /**
+   * A {@link CombineExprNode} operand yields `''`, like a variable reference does: a predicate
+   * comparing against a union of sequences has no single {@link PathExpression} to report.
+   */
+  private static extractOperand(
+    operand: PathExprNode | LiteralNode | VarRefNode | CombineExprNode,
+  ): PathExpression | string {
     if ('steps' in operand) {
       return XPathService.extractPathExpression(operand);
     }

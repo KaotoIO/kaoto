@@ -41,6 +41,7 @@ export class MappingService {
   /** Update the XPath carried by an existing mapping without replacing its tree identity. */
   static updateExpression(mapping: IExpressionHolder, expression: string): void {
     mapping.expression = expression;
+    WrapperAutoDetectionService.onExpressionChanged(mapping);
   }
 
   static updateComment(mapping: MappingItem, comment: string | undefined): void {
@@ -629,6 +630,7 @@ export class MappingService {
    */
   static wrapWithFunction(condition: IExpressionHolder, func: IFunctionDefinition) {
     condition.expression = `${func.name}(${condition.expression})`;
+    WrapperAutoDetectionService.onExpressionChanged(condition);
   }
 
   /**
@@ -645,6 +647,7 @@ export class MappingService {
    * @param target - where to apply: {@link MappingTree} (document root), or any {@link MappingItem}
    */
   static applyMapping(pathExpr: PathExpression, target: MappingItem | MappingTree): void {
+    let written: IExpressionHolder;
     if (target instanceof MappingTree) {
       let vs = target.children.find((c) => c instanceof ValueOfSelector) as ValueOfSelector;
       if (!vs) {
@@ -652,14 +655,19 @@ export class MappingService {
         target.children.push(vs);
       }
       vs.expression = XPathService.addSource(vs.expression, pathExpr);
+      written = vs;
     } else if (target instanceof ForEachItem) {
       target.expression = XPathService.toXPathString(pathExpr);
+      written = target;
     } else if (isExpressionHolder(target)) {
       target.expression = XPathService.addSource(target.expression, pathExpr);
+      written = target;
     } else {
       const vs = MappingService.ensureValueOfSelector(target);
       vs.expression = XPathService.addSource(vs.expression, pathExpr);
+      written = vs;
     }
+    WrapperAutoDetectionService.onExpressionChanged(written);
   }
 
   /**
@@ -691,52 +699,37 @@ export class MappingService {
   }
 
   /**
-   * When both `fieldItem.field` and `sourceField` are optional (`minOccurs === 0`), wraps
-   * `fieldItem` with a new {@link IfItem} whose `test` matches `sourceField`'s path, so the
+   * Wraps `fieldItem` with a new {@link IfItem} whose `test` matches `sourceField`'s path, so the
    * target element is only produced when the source is present. Reuses {@link wrapWithIf} and
    * {@link mapToCondition}'s existing path-resolution machinery.
    *
-   * No-op when either field is required, when `sourceField` is a {@link PrimitiveDocument}
-   * (a schemaless document root has no real occurrence semantics), or when `fieldItem` is
-   * already directly wrapped by an `IfItem` (idempotent re-entry, e.g. a second drop).
-   *
-   * `isAutoOptionalIf` is set `true` (hidden/see-through) when `fieldItem` ends up with a
-   * single terminal selector ({@link ValueOfSelector}/{@link CopyOfSelector}); `false`
-   * (rendered as a regular, visible `if`) when it has recursive child mappings instead.
-   *
-   * When `fieldItem` is already directly wrapped by an auto-optional `IfItem` (e.g. a
-   * second source just got mapped onto an already-guarded field), re-checks the guard's
-   * shape instead of wrapping again: if the just-applied mapping made it no longer match
-   * {@link WrapperAutoDetectionService.matchSimpleOptionalGuard} (e.g. the selector's
-   * expression is now a multi-source list, not a bare field reference), demotes it to a
-   * regular, visible `if` so the user isn't left with a hidden guard over something that's
-   * no longer a simple 1-to-1 mapping.
+   * Pure wrap mechanics: whether to wrap at all and whether the guard is see-through is
+   * {@link WrapperAutoDetectionService.decideOptionalGuard}'s call, so that creating a guard and
+   * recognising one again stay governed by a single definition. Keeping a guard's flag in step
+   * afterwards is likewise not this method's job — expression edits reach it through
+   * {@link WrapperAutoDetectionService.onExpressionChanged}, which fires however the expression
+   * changed rather than only on the handful of paths that re-enter here.
    * @param fieldItem - the just-mapped target field item to (maybe) wrap; a no-op if this
    * isn't actually a {@link FieldItem} (callers often hold the looser `MappingItem` type)
    * @param sourceField - the source that was just mapped onto `fieldItem`
-   * @returns the (possibly pre-existing) {@link IfItem} if a wrap or demotion was applied,
-   * `undefined` otherwise
+   * @param hadExistingContent - whether `fieldItem` already carried mapping content before this
+   * mapping was applied; callers must sample it beforehand
+   * @returns the newly inserted {@link IfItem}, or `undefined` when nothing was wrapped
    */
-  static tryAutoOptionalIfWrap(fieldItem: MappingItem, sourceField: PrimitiveDocument | IField): IfItem | undefined {
+  static tryAutoOptionalIfWrap(
+    fieldItem: MappingItem,
+    sourceField: PrimitiveDocument | IField,
+    hadExistingContent: boolean,
+  ): IfItem | undefined {
     if (!(fieldItem instanceof FieldItem)) return undefined;
-    if (fieldItem.parent instanceof IfItem) {
-      const existingIf = fieldItem.parent;
-      if (existingIf.isAutoOptionalIf && !WrapperAutoDetectionService.matchSimpleOptionalGuard(existingIf)) {
-        existingIf.isAutoOptionalIf = false;
-        return existingIf;
-      }
-      return undefined;
-    }
-    if (sourceField instanceof PrimitiveDocument) return undefined;
-    if (fieldItem.field.minOccurs !== 0 || sourceField.minOccurs !== 0) return undefined;
-    if (fieldItem.children.length === 0) return undefined;
+
+    const decision = WrapperAutoDetectionService.decideOptionalGuard(fieldItem, sourceField, hadExistingContent);
+    if (decision === 'skip') return undefined;
 
     MappingService.wrapWithIf(fieldItem);
     const ifItem = fieldItem.parent as IfItem;
     MappingService.mapToCondition(ifItem, sourceField);
-    ifItem.isAutoOptionalIf =
-      fieldItem.children.length === 1 &&
-      (fieldItem.children[0] instanceof ValueOfSelector || fieldItem.children[0] instanceof CopyOfSelector);
+    ifItem.isAutoOptionalIf = decision === 'hidden';
     return ifItem;
   }
 
@@ -760,6 +753,7 @@ export class MappingService {
   static mapToField(source: PrimitiveDocument | IField, targetFieldItem: MappingItem) {
     const valueSelector = MappingService.ensureValueOfSelector(targetFieldItem);
     MappingService.applySourceExpression(source, targetFieldItem, valueSelector);
+    WrapperAutoDetectionService.onExpressionChanged(valueSelector);
   }
 
   /**
@@ -783,6 +777,7 @@ export class MappingService {
     if (valueType === CopyOfType.CONTAINER_NODE && !copyOfSelector.expression.endsWith('/node()')) {
       copyOfSelector.expression = `${copyOfSelector.expression}/node()`;
     }
+    WrapperAutoDetectionService.onExpressionChanged(copyOfSelector);
   }
 
   private static ensureValueOfSelector(targetFieldItem: MappingItem): ValueOfSelector {
@@ -845,7 +840,8 @@ export class MappingService {
     } else {
       MappingService.applyContainerMapping(sourceChild, targetChild, childFieldItem);
     }
-    MappingService.tryAutoOptionalIfWrap(childFieldItem, sourceChild);
+    // createFieldItem always yields a fresh FieldItem, so there is never pre-existing content here.
+    MappingService.tryAutoOptionalIfWrap(childFieldItem, sourceChild, false);
   }
 
   /**

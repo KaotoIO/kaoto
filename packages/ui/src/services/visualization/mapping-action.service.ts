@@ -12,6 +12,7 @@ import {
   MappingTree,
   ValueOfSelector,
   ValueSelector,
+  VariableItem,
 } from '../../models/datamapper/mapping';
 import { Types } from '../../models/datamapper/types';
 import {
@@ -356,9 +357,10 @@ export class MappingActionService {
 
     if (VisualizationUtilService.isFieldNode(targetNode)) {
       const item = MappingActionService.getOrCreateFieldItem(targetNode);
+      const hadExistingContent = MappingActionService.hasMappingContent(item);
       MappingActionService.removeParentContainerCopyOf(item);
       MappingService.mapToField(sourceField, item);
-      const wrapped = MappingService.tryAutoOptionalIfWrap(item, sourceField);
+      const wrapped = MappingService.tryAutoOptionalIfWrap(item, sourceField, hadExistingContent);
       return targetWasUnmapped || !!wrapped;
     } else if (targetNode instanceof MappingNodeData) {
       MappingService.mapToCondition(targetNode.mapping, sourceField);
@@ -487,8 +489,9 @@ export class MappingActionService {
 
     if (anyTypeInvolved && (!sourceHasChildren || !targetHasChildren)) {
       const item = MappingActionService.getOrCreateFieldItem(targetNode);
+      const hadExistingContent = MappingActionService.hasMappingContent(item);
       MappingService.mapToFieldWithValueType(sourceFieldFromNode, item, CopyOfType.CONTAINER_NODE);
-      const wrapped = MappingService.tryAutoOptionalIfWrap(item, sourceFieldFromNode);
+      const wrapped = MappingService.tryAutoOptionalIfWrap(item, sourceFieldFromNode, hadExistingContent);
       return { handled: true, structural: structural || !!wrapped };
     }
 
@@ -497,6 +500,7 @@ export class MappingActionService {
     }
 
     const item = MappingActionService.getOrCreateFieldItem(targetNode);
+    const hadExistingContent = MappingActionService.hasMappingContent(item);
     const bothCollections =
       VisualizationUtilService.isCollectionField(sourceNode) && VisualizationUtilService.isCollectionField(targetNode);
 
@@ -512,8 +516,25 @@ export class MappingActionService {
     // child FieldItems, so it's structural regardless of whether `item` itself pre-existed.
     const canUseCopyOf = FieldMatchingService.canUseCopyOf(sourceFieldFromNode, targetFieldFromNode);
     MappingService.applyContainerMapping(sourceFieldFromNode, targetFieldFromNode, item);
-    const wrapped = MappingService.tryAutoOptionalIfWrap(item, sourceFieldFromNode);
+    const wrapped = MappingService.tryAutoOptionalIfWrap(item, sourceFieldFromNode, hadExistingContent);
     return { handled: true, structural: structural || !canUseCopyOf || !!wrapped };
+  }
+
+  /**
+   * Whether the field item already carries output-producing mapping content. Sampled before a new
+   * mapping is applied, since afterwards an appended multi-source expression is indistinguishable
+   * from one the user typed, and newly generated children are indistinguishable from pre-existing
+   * ones. Guards must not be created over content they do not own.
+   *
+   * An empty selector does not count: {@link applyValueOfSelector}/{@link applyCopyOfSelector}
+   * create one and focus the XPath input, so dropping a source onto it is a fresh 1-to-1 mapping.
+   * Nor does a node-scoped {@link VariableItem}, which produces no output of its own.
+   * @param item - the target field item about to be mapped onto
+   */
+  private static hasMappingContent(item: MappingItem): boolean {
+    return item.children.some(
+      (child) => !(child instanceof VariableItem) && !(child instanceof ValueSelector && !child.expression),
+    );
   }
 
   /**

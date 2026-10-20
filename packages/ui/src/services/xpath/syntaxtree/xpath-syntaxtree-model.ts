@@ -38,6 +38,7 @@ export enum XPathNodeType {
   ParenthesizedExpr = 'ParenthesizedExpr',
   Expr = 'Expr',
   IfExpr = 'IfExpr',
+  CombineExpr = 'CombineExpr',
 }
 
 /**
@@ -60,6 +61,16 @@ export enum ArithmeticOperator {
 export enum LogicalOperator {
   And = 'And',
   Or = 'Or',
+}
+
+/**
+ * Operators that combine node sequences (XPath 2.0 §3.3.2).
+ * Used in CombineExprNode. `|` and `union` are synonyms in the grammar, so both map to Union.
+ */
+export enum CombineOperator {
+  Union = 'Union',
+  Intersect = 'Intersect',
+  Except = 'Except',
 }
 
 /**
@@ -160,6 +171,7 @@ export type ExprSingleNode =
   | ComparisonExprNode
   | ArithmeticExprNode
   | LogicalExprNode
+  | CombineExprNode
   | LiteralNode
   | FunctionCallNode
   | VarRefNode
@@ -248,17 +260,7 @@ export interface IfExprNode extends XPathNode {
  */
 export interface ExprNode extends XPathNode {
   type: XPathNodeType.Expr;
-  expressions: (
-    | PathExprNode
-    | ComparisonExprNode
-    | ArithmeticExprNode
-    | LogicalExprNode
-    | LiteralNode
-    | FunctionCallNode
-    | VarRefNode
-    | ParenthesizedExprNode
-    | IfExprNode
-  )[];
+  expressions: ExprSingleNode[];
 }
 
 /**
@@ -284,9 +286,9 @@ export interface PredicateNode extends XPathNode {
  */
 export interface ComparisonExprNode extends XPathNode {
   type: XPathNodeType.ComparisonExpr;
-  left: PathExprNode | LiteralNode | VarRefNode;
+  left: PathExprNode | LiteralNode | VarRefNode | CombineExprNode;
   operator: PredicateOperator;
-  right?: PathExprNode | LiteralNode | VarRefNode;
+  right?: PathExprNode | LiteralNode | VarRefNode | CombineExprNode;
 }
 
 /**
@@ -302,9 +304,23 @@ export interface ComparisonExprNode extends XPathNode {
  */
 export interface ArithmeticExprNode extends XPathNode {
   type: XPathNodeType.ArithmeticExpr;
-  left: PathExprNode | LiteralNode | VarRefNode | ArithmeticExprNode | FunctionCallNode | ParenthesizedExprNode;
+  left:
+    | PathExprNode
+    | LiteralNode
+    | VarRefNode
+    | ArithmeticExprNode
+    | FunctionCallNode
+    | ParenthesizedExprNode
+    | CombineExprNode;
   operator: ArithmeticOperator;
-  right: PathExprNode | LiteralNode | VarRefNode | ArithmeticExprNode | FunctionCallNode | ParenthesizedExprNode;
+  right:
+    | PathExprNode
+    | LiteralNode
+    | VarRefNode
+    | ArithmeticExprNode
+    | FunctionCallNode
+    | ParenthesizedExprNode
+    | CombineExprNode;
 }
 
 /**
@@ -318,7 +334,37 @@ export interface ArithmeticExprNode extends XPathNode {
  */
 export interface LogicalExprNode extends XPathNode {
   type: XPathNodeType.LogicalExpr;
-  left: ComparisonExprNode | LogicalExprNode | ArithmeticExprNode | PathExprNode | ParenthesizedExprNode;
+  left:
+    | ComparisonExprNode
+    | LogicalExprNode
+    | ArithmeticExprNode
+    | PathExprNode
+    | ParenthesizedExprNode
+    | CombineExprNode;
   operator: LogicalOperator;
-  right: ComparisonExprNode | LogicalExprNode | ArithmeticExprNode | PathExprNode | ParenthesizedExprNode;
+  right:
+    | ComparisonExprNode
+    | LogicalExprNode
+    | ArithmeticExprNode
+    | PathExprNode
+    | ParenthesizedExprNode
+    | CombineExprNode;
+}
+
+/**
+ * Expression combining two node sequences with `|`/`union`, `intersect` or `except`.
+ * Examples:
+ * - `/a | /b` (union — both operands contribute, so both render a mapping line)
+ * - `a union b` (same operator, keyword spelling)
+ * - `a intersect b`, `a except b`
+ * - `a | b | c` (chained operations, represented as nested CombineExprNode)
+ *
+ * Mixed operators nest by precedence and left-associativity, so `b intersect c except d` is
+ * `Except(Intersect(b, c), d)` and `a | b intersect c` is `Union(a, Intersect(b, c))`.
+ */
+export interface CombineExprNode extends XPathNode {
+  type: XPathNodeType.CombineExpr;
+  left: PathExprNode | LiteralNode | VarRefNode | CombineExprNode | FunctionCallNode | ParenthesizedExprNode;
+  operator: CombineOperator;
+  right: PathExprNode | LiteralNode | VarRefNode | CombineExprNode | FunctionCallNode | ParenthesizedExprNode;
 }

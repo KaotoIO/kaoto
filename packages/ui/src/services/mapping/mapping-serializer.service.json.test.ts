@@ -25,7 +25,6 @@ import { JsonSchemaDocumentService } from '../document/json-schema/json-schema-d
 import { MappingService } from './mapping.service';
 import { MappingSerializerService } from './mapping-serializer.service';
 import { TO_JSON_TARGET_VARIABLE } from './mapping-serializer-json-addon';
-import { WrapperAutoDetectionService } from './wrapper-auto-detection.service';
 
 describe('MappingSerializerService / JSON', () => {
   let accountParamDoc: JsonSchemaDocument;
@@ -415,7 +414,7 @@ describe('MappingSerializerService / JSON', () => {
       const fieldItem = new FieldItem(rootItem, targetOrderPersonField);
       rootItem.children.push(fieldItem);
       MappingService.mapToField(sourceNameField, fieldItem);
-      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceNameField)!;
+      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceNameField, false)!;
       expect(ifItem.isAutoOptionalIf).toBe(true);
       expect(ifItem.expression).toBe("$Account-x/fn:map/fn:string[@key='Name']");
 
@@ -450,7 +449,6 @@ describe('MappingSerializerService / JSON', () => {
         freshTree,
         sourceParameterMap,
       );
-      WrapperAutoDetectionService.autoDetectOptionalGuards(deserialized);
 
       const deserializedRootItem = deserialized.children[0] as FieldItem;
       const deserializedIfItem = deserializedRootItem.children.find((c) => c instanceof IfItem) as IfItem;
