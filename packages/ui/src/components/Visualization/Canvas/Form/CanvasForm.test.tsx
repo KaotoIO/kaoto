@@ -13,6 +13,7 @@ import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../../stu
 import { ROOT_PATH } from '../../../../utils';
 import { FlowService } from '../flow.service';
 import { CanvasForm } from './CanvasForm';
+import * as CanvasFormBodyModule from './CanvasFormBody';
 
 describe('CanvasForm', () => {
   let camelRouteVisualEntity: CamelRouteVisualEntity;
@@ -102,7 +103,10 @@ describe('CanvasForm', () => {
     expect(container).toMatchSnapshot();
   });
 
-  it("should serialize empty strings `''` as `undefined`", async () => {
+  it.each([
+    ['empty string', ''],
+    ['whitespace-only string', ' '],
+  ])('should serialize a %s as `undefined`', async (_label, value) => {
     const flowId = camelRouteVisualEntity.id;
     const dispatchSpy = vi.fn();
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
@@ -128,41 +132,7 @@ describe('CanvasForm', () => {
     );
 
     const [idField] = await screen.findAllByLabelText('Description', { selector: 'textarea' });
-    fireEvent.change(idField, { target: { value: '' } });
-
-    const closeSideBarButton = screen.getByTestId('close-side-bar');
-    fireEvent.click(closeSideBarButton);
-
-    expect(camelRouteVisualEntity.entityDef.route.description).toBeUndefined();
-  });
-
-  it("should serialize empty strings(with space characters) `' '` as `undefined`", async () => {
-    const flowId = camelRouteVisualEntity.id;
-    const dispatchSpy = vi.fn();
-    const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
-    const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
-    const lastVizNode = nodes[nodes.length - 1].data!.vizNode!;
-    await lastVizNode.fetchSchema();
-
-    const { Provider } = await TestProvidersWrapper({
-      visibleFlowsContext: { allFlowsVisible: true, visibleFlows: { [flowId]: true }, visualFlowsApi },
-    });
-
-    render(
-      <Provider>
-        <CanvasFormTabsContext.Provider
-          value={{
-            selectedTab: 'All',
-            setSelectedTab: vi.fn(),
-          }}
-        >
-          <CanvasForm vizNode={lastVizNode} onClose={vi.fn()} />
-        </CanvasFormTabsContext.Provider>
-      </Provider>,
-    );
-
-    const [idField] = await screen.findAllByLabelText('Description', { selector: 'textarea' });
-    fireEvent.change(idField, { target: { value: ' ' } });
+    fireEvent.change(idField, { target: { value } });
 
     const closeSideBarButton = screen.getByTestId('close-side-bar');
     fireEvent.click(closeSideBarButton);
@@ -652,6 +622,45 @@ describe('CanvasForm', () => {
       inputDistributionRatio = formPageObject.getFieldByDisplayName('Distribution Ratio');
       expect(inputDistributionRatio).toBeInTheDocument();
       expect(inputDistributionRatio).toHaveAttribute('value', '3.5');
+    });
+  });
+
+  describe('when the form body throws', () => {
+    let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
+    let canvasFormBodySpy: ReturnType<typeof vi.spyOn>;
+
+    beforeEach(() => {
+      consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      canvasFormBodySpy = vi.spyOn(CanvasFormBodyModule, 'CanvasFormBody').mockImplementation(() => {
+        throw new Error('boom from CanvasFormBody');
+      });
+    });
+
+    afterEach(() => {
+      canvasFormBodySpy.mockRestore();
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should render the error fallback with the node title and a working Close button', async () => {
+      const onClose = vi.fn();
+      const { Provider } = await TestProvidersWrapper();
+      render(
+        <Provider>
+          <CanvasFormTabsProvider>
+            <CanvasForm vizNode={vizNode} onClose={onClose} />
+          </CanvasFormTabsProvider>
+        </Provider>,
+      );
+
+      expect(screen.getByText(vizNode.getNodeTitle())).toBeInTheDocument();
+      expect(screen.getByTestId('error-notification')).toBeInTheDocument();
+      expect(screen.getByText('This node cannot be configured')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('button', { name: /Show more/i }));
+      expect(screen.getByTestId('error-details-message')).toHaveTextContent('boom from CanvasFormBody');
+
+      fireEvent.click(screen.getByRole('button', { name: /Close/i }));
+      expect(onClose).toHaveBeenCalledTimes(1);
     });
   });
 });

@@ -5,7 +5,7 @@ import { TopologySideBar } from '@patternfly/react-topology';
 import { FunctionComponent } from 'react';
 
 import { IVisualizationNode } from '../../../models';
-import { ErrorBoundary } from '../../ErrorBoundary';
+import { CanvasSidePanelErrorBoundary } from './CanvasSidePanelErrorBoundary';
 import { CanvasForm } from './Form/CanvasForm';
 
 interface CanvasSideBarProps {
@@ -24,11 +24,11 @@ export const CanvasSideBar: FunctionComponent<CanvasSideBarProps> = ({ vizNode, 
      * and doesn't take into account the sidebar children.
      */
     <TopologySideBar resizable className="canvas-sidebar">
-      <ErrorBoundary key={vizNode.id} fallback={<p>Something did not work as expected</p>}>
+      <CanvasSidePanelErrorBoundary key={vizNode.id} onClose={onClose}>
         <FilteredFieldProvider>
           <CanvasForm vizNode={vizNode} onClose={onClose} />
         </FilteredFieldProvider>
-      </ErrorBoundary>
+      </CanvasSidePanelErrorBoundary>
     </TopologySideBar>
   );
 };

@@ -1,6 +1,6 @@
 import { CamelYamlDsl } from '@kaoto/camel-catalog/types';
 import { CanvasFormTabsProvider } from '@kaoto/forms';
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 import { parse } from 'yaml';
 
@@ -11,6 +11,7 @@ import { mockRandomValues } from '../../../stubs';
 import { TestProvidersWrapper } from '../../../stubs/TestProvidersWrapper';
 import { CanvasSideBar } from './CanvasSideBar';
 import { FlowService } from './flow.service';
+import * as CanvasFormModule from './Form/CanvasForm';
 
 describe('CanvasSideBar', () => {
   let selectedVizNode: IVisualizationNode;
@@ -71,17 +72,40 @@ describe('CanvasSideBar', () => {
     expect(onCloseSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('should have an accessible name on the close button', async () => {
-    const wrapper = render(
-      <Provider>
-        <CanvasFormTabsProvider>
-          <CanvasSideBar vizNode={selectedVizNode} onClose={() => {}} />
-        </CanvasFormTabsProvider>
-      </Provider>,
-    );
+  describe('when the form throws', () => {
+    let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
+    let canvasFormSpy: ReturnType<typeof vi.spyOn>;
 
-    // getByRole with name will throw if the button doesn't have an accessible name
-    const closeButton = await wrapper.findByRole('button', { name: /close/i });
-    expect(closeButton).toBeInTheDocument();
+    beforeEach(() => {
+      consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      canvasFormSpy = vi.spyOn(CanvasFormModule, 'CanvasForm').mockImplementation(() => {
+        throw new Error('boom from CanvasForm');
+      });
+    });
+
+    afterEach(() => {
+      canvasFormSpy.mockRestore();
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should render the error fallback with a working Close button', () => {
+      const onClose = vi.fn();
+      render(
+        <Provider>
+          <CanvasFormTabsProvider>
+            <CanvasSideBar vizNode={selectedVizNode} onClose={onClose} />
+          </CanvasFormTabsProvider>
+        </Provider>,
+      );
+
+      expect(screen.getByTestId('error-notification')).toBeInTheDocument();
+      expect(screen.getByText('Something did not work as expected')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('button', { name: /Show more/i }));
+      expect(screen.getByTestId('error-details-message')).toHaveTextContent('boom from CanvasForm');
+
+      fireEvent.click(screen.getByRole('button', { name: /Close/i }));
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
   });
 });

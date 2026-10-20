@@ -5,9 +5,9 @@ import { FunctionComponent, useCallback, useContext, useEffect, useRef } from 'r
 
 import { IVisualizationNode } from '../../../../models';
 import { VisibleFlowsContext } from '../../../../providers';
-import { ErrorBoundary } from '../../../ErrorBoundary';
 import { Anchors } from '../../../registers/anchors';
 import { RenderingAnchor } from '../../../RenderingAnchor/RenderingAnchor';
+import { CanvasSidePanelErrorBoundary } from '../CanvasSidePanelErrorBoundary';
 import { CanvasFormBody } from './CanvasFormBody';
 import { CanvasFormHeader } from './CanvasFormHeader';
 
@@ -36,7 +36,12 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = ({ vizNode, onClos
   }, [onClose, visualFlowsApi, vizNode]);
 
   return (
-    <ErrorBoundary key={vizNode.id} fallback={<p>This node cannot be configured yet</p>}>
+    <CanvasSidePanelErrorBoundary
+      key={vizNode.id}
+      onClose={onCloseFn}
+      title={title || undefined}
+      errorTitle="This node cannot be configured"
+    >
       <Card className="canvas-form">
         <CardHeader>
           <CanvasFormHeader nodeId={vizNode.id} title={title} onClose={onCloseFn} iconUrl={vizNode.data.iconUrl} />
@@ -47,6 +52,6 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = ({ vizNode, onClos
           <CanvasFormBody vizNode={vizNode} />
         </CardBody>
       </Card>
-    </ErrorBoundary>
+    </CanvasSidePanelErrorBoundary>
   );
 };
