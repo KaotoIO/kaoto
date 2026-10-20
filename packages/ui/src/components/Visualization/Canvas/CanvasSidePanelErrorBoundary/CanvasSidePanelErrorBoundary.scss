@@ -1,0 +1,65 @@
+/* stylelint-disable selector-class-pattern */
+.canvas-side-panel-error {
+  padding: 1rem;
+
+  &-header {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 1rem;
+
+    &__title {
+      flex: 1;
+      min-width: 0;
+      overflow-wrap: anywhere;
+      text-transform: capitalize;
+    }
+
+    &__close {
+      margin-inline-start: auto;
+    }
+  }
+
+  &-notification {
+    min-inline-size: 0;
+  }
+}
+
+.canvas-side-panel-error-details.canvas-side-panel-error-details {
+  inline-size: 100%;
+
+  // Keep the text as is, ancestors may capitalize it
+  text-transform: none;
+
+  // Start at the same level as the notification and fill the full width.
+  // The doubled class raises specificity above Carbon's flush accordion rules, regardless of load order.
+  .cds--accordion__item::before,
+  .cds--accordion__item::after {
+    inline-size: 100%;
+    margin-inline-start: 0;
+  }
+
+  .cds--accordion__heading {
+    padding-inline-end: 0;
+  }
+
+  .cds--accordion__title {
+    padding-inline-start: 0;
+  }
+
+  .cds--accordion__content {
+    padding-inline: 0;
+  }
+
+  .canvas-side-panel-error-details-message {
+    padding-inline: 0;
+    padding-block-end: 0;
+
+    .cds--snippet-container,
+    .cds--snippet-container pre {
+      padding-block-end: 0;
+      padding-inline-end: 0;
+    }
+  }
+}
