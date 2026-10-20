@@ -18,7 +18,8 @@ export interface ICitrusComponentDefinition {
     | CatalogKind.TestContainer
     | CatalogKind.TestEndpoint
     | CatalogKind.TestFunction
-    | CatalogKind.TestValidationMatcher;
+    | CatalogKind.TestValidationMatcher
+    | CatalogKind.TestInfraService;
 
   /** The current version of the component */
   version?: string;

@@ -71,3 +71,11 @@ export class CitrusTestFunctionsProvider extends BaseCitrusProvider<ICitrusCompo
 export class CitrusTestValidationMatcherProvider extends BaseCitrusProvider<ICitrusComponentDefinition> {
   readonly id = 'citrus-test-validation-matcher-provider';
 }
+
+/**
+ * Provider for Citrus test infra service components.
+ * Manages the catalog of available Camel test infrastructure services (e.g., kafka, postgres, redis).
+ */
+export class CitrusTestInfraServicesProvider extends BaseCitrusProvider<ICitrusComponentDefinition> {
+  readonly id = 'citrus-test-infra-services-provider';
+}
