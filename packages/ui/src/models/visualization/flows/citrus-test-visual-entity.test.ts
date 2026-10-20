@@ -389,11 +389,11 @@ describe('CitrusTestVisualEntity', () => {
       expect(citrusTestEntity.needsRebuild).toBe(true);
     });
 
-    it('should not set needsRebuild when waitFor loses the action condition', () => {
+    it('should set needsRebuild when waitFor loses the action condition', () => {
       citrusTestEntity.test.actions.push({ waitFor: { action: {} } } as unknown as TestActions);
       citrusTestEntity.updateModel('actions.1.waitFor', { http: { url: 'http://localhost' } });
 
-      expect(citrusTestEntity.needsRebuild).toBeFalsy();
+      expect(citrusTestEntity.needsRebuild).toBe(true);
     });
 
     it('should set needsRebuild when waitFor has action condition even with other properties', () => {

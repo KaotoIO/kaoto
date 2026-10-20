@@ -236,8 +236,10 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     const modelPath = this.toModelPath(path);
     const actionName = path.split('.').pop();
     if (actionName === 'waitFor') {
+      const previousValue = getValue(this.test, modelPath) as Record<string, unknown> | undefined;
+      const hadAction = isDefined(previousValue?.['action']);
       const hasAction = isDefined(value?.['action']);
-      if (hasAction) {
+      if (hadAction || hasAction) {
         this.needsRebuild = true;
       }
     }
