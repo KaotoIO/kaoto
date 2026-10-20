@@ -18,7 +18,7 @@ describe('DataMapperSettingsService', () => {
 
   describe('sanitizeForTarget()', () => {
     it('should reset omitXmlDeclaration for a non-XML target', () => {
-      const settings: IDataMapperSettings = { omitXmlDeclaration: true };
+      const settings: IDataMapperSettings = { ...DEFAULT_DATAMAPPER_SETTINGS, omitXmlDeclaration: true };
 
       const answer = DataMapperSettingsService.sanitizeForTarget(settings, DocumentDefinitionType.JSON_SCHEMA);
 
@@ -27,7 +27,7 @@ describe('DataMapperSettingsService', () => {
     });
 
     it('should keep omitXmlDeclaration for an XML Schema target', () => {
-      const settings: IDataMapperSettings = { omitXmlDeclaration: true };
+      const settings: IDataMapperSettings = { ...DEFAULT_DATAMAPPER_SETTINGS, omitXmlDeclaration: true };
 
       const answer = DataMapperSettingsService.sanitizeForTarget(settings, DocumentDefinitionType.XML_SCHEMA);
 
@@ -35,7 +35,7 @@ describe('DataMapperSettingsService', () => {
     });
 
     it('should return the same reference when nothing has to be reset', () => {
-      const settings: IDataMapperSettings = { omitXmlDeclaration: false };
+      const settings: IDataMapperSettings = { ...DEFAULT_DATAMAPPER_SETTINGS, omitXmlDeclaration: false };
 
       expect(DataMapperSettingsService.sanitizeForTarget(settings, DocumentDefinitionType.JSON_SCHEMA)).toBe(settings);
       expect(DataMapperSettingsService.sanitizeForTarget(settings, DocumentDefinitionType.Primitive)).toBe(settings);

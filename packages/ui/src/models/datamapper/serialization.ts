@@ -1,6 +1,6 @@
 import { IParentType } from './document';
 import { MappingItem, MappingParentType, MappingTree, SortItem } from './mapping';
-import { IDataMapperSettings } from './types';
+import { IDataMapperSettings } from './settings';
 import { SendAlertProps } from './visualization';
 
 /**

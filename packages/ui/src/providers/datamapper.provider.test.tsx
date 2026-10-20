@@ -1221,6 +1221,8 @@ describe('DataMapperProvider', () => {
 
       expect(result.current.dataMapperSettings).toEqual({
         omitXmlDeclaration: false,
+        outputVariable: undefined,
+        isOutputValidationEnabled: false,
       });
     });
 
@@ -1285,9 +1287,7 @@ describe('DataMapperProvider', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.dataMapperSettings).toEqual({
-          omitXmlDeclaration: true,
-        });
+        expect(result.current.dataMapperSettings).toEqual(expect.objectContaining({ omitXmlDeclaration: true }));
       });
 
       // Update again - demonstrates merge behavior
@@ -1296,9 +1296,7 @@ describe('DataMapperProvider', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.dataMapperSettings).toEqual({
-          omitXmlDeclaration: false,
-        });
+        expect(result.current.dataMapperSettings).toEqual(expect.objectContaining({ omitXmlDeclaration: false }));
       });
     });
 
@@ -1794,41 +1792,91 @@ describe('DataMapperProvider', () => {
 
       const { result } = renderHook(() => useDataMapper(), { wrapper });
 
-      expect(result.current.isOutputValidationEnabled).toBe(false);
+      expect(result.current.dataMapperSettings.isOutputValidationEnabled).toBe(false);
     });
 
-    it('should reflect isOutputValidationEnabled=true when prop is provided', async () => {
+    it('should reflect isOutputValidationEnabled=true when initialStepSettings is provided', async () => {
       const wrapper = ({ children }: { children: React.ReactNode }) => (
-        <DataMapperProvider isOutputValidationEnabled>{children}</DataMapperProvider>
+        <DataMapperProvider initialStepSettings={{ isOutputValidationEnabled: true }}>{children}</DataMapperProvider>
       );
 
       const { result } = renderHook(() => useDataMapper(), { wrapper });
 
-      expect(result.current.isOutputValidationEnabled).toBe(true);
+      expect(result.current.dataMapperSettings.isOutputValidationEnabled).toBe(true);
     });
 
-    it('should call onSetOutputValidationEnabled callback when setOutputValidationEnabled is invoked', async () => {
-      const mockOnSetOutputValidationEnabled = vi.fn();
+    it('should call onUpdateStepSettings callback when updateDataMapperSettings is invoked with isOutputValidationEnabled', async () => {
+      const mockOnUpdateStepSettings = vi.fn();
 
       const wrapper = ({ children }: { children: React.ReactNode }) => (
-        <DataMapperProvider onSetOutputValidationEnabled={mockOnSetOutputValidationEnabled}>
-          {children}
-        </DataMapperProvider>
+        <DataMapperProvider onUpdateStepSettings={mockOnUpdateStepSettings}>{children}</DataMapperProvider>
       );
 
       const { result } = renderHook(() => useDataMapper(), { wrapper });
 
       act(() => {
-        result.current.setOutputValidationEnabled(true);
+        result.current.updateDataMapperSettings({ isOutputValidationEnabled: true });
       });
 
-      expect(mockOnSetOutputValidationEnabled).toHaveBeenCalledWith(true);
+      expect(mockOnUpdateStepSettings).toHaveBeenCalledTimes(1);
+      expect(mockOnUpdateStepSettings).toHaveBeenCalledWith(
+        expect.objectContaining({ isOutputValidationEnabled: true }),
+      );
 
       act(() => {
-        result.current.setOutputValidationEnabled(false);
+        result.current.updateDataMapperSettings({ isOutputValidationEnabled: false });
       });
 
-      expect(mockOnSetOutputValidationEnabled).toHaveBeenCalledWith(false);
+      expect(mockOnUpdateStepSettings).toHaveBeenCalledTimes(2);
+      expect(mockOnUpdateStepSettings).toHaveBeenCalledWith(
+        expect.objectContaining({ isOutputValidationEnabled: false }),
+      );
+    });
+  });
+
+  describe('Output Variable', () => {
+    it('should default outputVariable to undefined when prop is not provided', async () => {
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      expect(result.current.dataMapperSettings.outputVariable).toBeUndefined();
+    });
+
+    it('should reflect initialOutputVariable when initialStepSettings is provided', async () => {
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider initialStepSettings={{ outputVariable: 'myVar' }}>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      expect(result.current.dataMapperSettings.outputVariable).toBe('myVar');
+    });
+
+    it('should call onUpdateStepSettings callback when updateDataMapperSettings is invoked', async () => {
+      const mockOnUpdateStepSettings = vi.fn();
+
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider onUpdateStepSettings={mockOnUpdateStepSettings}>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      act(() => {
+        result.current.updateDataMapperSettings({ outputVariable: 'myVar' });
+      });
+
+      expect(mockOnUpdateStepSettings).toHaveBeenCalledTimes(1);
+      expect(mockOnUpdateStepSettings).toHaveBeenCalledWith(expect.objectContaining({ outputVariable: 'myVar' }));
+
+      act(() => {
+        result.current.updateDataMapperSettings({ outputVariable: undefined });
+      });
+
+      expect(mockOnUpdateStepSettings).toHaveBeenCalledTimes(2);
+      expect(mockOnUpdateStepSettings).toHaveBeenCalledWith(expect.objectContaining({ outputVariable: undefined }));
     });
   });
 

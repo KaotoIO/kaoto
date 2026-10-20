@@ -3,7 +3,7 @@ import type { Mocked, MockInstance } from 'vitest';
 
 import { DynamicCatalogRegistry } from '../dynamic-catalog/dynamic-catalog-registry';
 import { IDynamicCatalogRegistry } from '../dynamic-catalog/models';
-import { CatalogKind, createVisualizationNode } from '../models';
+import { CatalogKind, createVisualizationNode, IVisualizationNode } from '../models';
 import { ICamelComponentDefinition, ICamelComponentProperty } from '../models/camel/camel-components-catalog';
 import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../models/datamapper/document';
 import { EntitiesContextResult } from '../providers';
@@ -214,6 +214,19 @@ describe('DataMapperStepService', () => {
   });
 
   describe('setUseJsonBody', () => {
+    let vizNode: IVisualizationNode;
+
+    beforeEach(() => {
+      vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+      });
+    });
+
     it('should set useJsonBody parameter when isUseJsonBody is true', () => {
       const model = {
         id: 'step-id',
@@ -227,15 +240,7 @@ describe('DataMapperStepService', () => {
         ],
       };
 
-      const vizNode = createVisualizationNode('test', {
-        name: 'step',
-        isPlaceholder: false,
-        isGroup: false,
-        title: '',
-        description: '',
-        iconUrl: '',
-        definition: model,
-      });
+      vizNode.data.definition = model;
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperStepService.setUseJsonBody(vizNode, true, mockEntitiesContext);
@@ -271,15 +276,7 @@ describe('DataMapperStepService', () => {
         ],
       };
 
-      const vizNode = createVisualizationNode('test', {
-        name: 'step',
-        isPlaceholder: false,
-        isGroup: false,
-        title: '',
-        description: '',
-        iconUrl: '',
-        definition: model,
-      });
+      vizNode.data.definition = model;
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperStepService.setUseJsonBody(vizNode, false, mockEntitiesContext);
@@ -305,15 +302,7 @@ describe('DataMapperStepService', () => {
         ],
       };
 
-      const vizNode = createVisualizationNode('test', {
-        name: 'step',
-        isPlaceholder: false,
-        isGroup: false,
-        title: '',
-        description: '',
-        iconUrl: '',
-        definition: model,
-      });
+      vizNode.data.definition = model;
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperStepService.setUseJsonBody(vizNode, true, mockEntitiesContext);
@@ -345,15 +334,7 @@ describe('DataMapperStepService', () => {
         ],
       };
 
-      const vizNode = createVisualizationNode('test', {
-        name: 'step',
-        isPlaceholder: false,
-        isGroup: false,
-        title: '',
-        description: '',
-        iconUrl: '',
-        definition: model,
-      });
+      vizNode.data.definition = model;
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperStepService.setUseJsonBody(vizNode, true, mockEntitiesContext);
@@ -372,15 +353,7 @@ describe('DataMapperStepService', () => {
         ],
       };
 
-      const vizNode = createVisualizationNode('test', {
-        name: 'step',
-        isPlaceholder: false,
-        isGroup: false,
-        title: '',
-        description: '',
-        iconUrl: '',
-        definition: model,
-      });
+      vizNode.data.definition = model;
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperStepService.setUseJsonBody(vizNode, true, mockEntitiesContext);
@@ -391,6 +364,19 @@ describe('DataMapperStepService', () => {
   });
 
   describe('updateXsltFileName', () => {
+    let vizNode: IVisualizationNode;
+
+    beforeEach(() => {
+      vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+      });
+    });
+
     it('should update XSLT filename in the URI', () => {
       const model = {
         id: 'step-id',
@@ -403,15 +389,7 @@ describe('DataMapperStepService', () => {
         ],
       };
 
-      const vizNode = createVisualizationNode('test', {
-        name: 'step',
-        isPlaceholder: false,
-        isGroup: false,
-        title: '',
-        description: '',
-        iconUrl: '',
-        definition: model,
-      });
+      vizNode.data.definition = model;
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperStepService.updateXsltFileName(vizNode, 'new-file.xsl', mockEntitiesContext);
@@ -436,15 +414,7 @@ describe('DataMapperStepService', () => {
         ],
       };
 
-      const vizNode = createVisualizationNode('test', {
-        name: 'step',
-        isPlaceholder: false,
-        isGroup: false,
-        title: '',
-        description: '',
-        iconUrl: '',
-        definition: model,
-      });
+      vizNode.data.definition = model;
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperStepService.updateXsltFileName(vizNode, 'transform.xslt', mockEntitiesContext);
@@ -468,15 +438,7 @@ describe('DataMapperStepService', () => {
         ],
       };
 
-      const vizNode = createVisualizationNode('test', {
-        name: 'step',
-        isPlaceholder: false,
-        isGroup: false,
-        title: '',
-        description: '',
-        iconUrl: '',
-        definition: model,
-      });
+      vizNode.data.definition = model;
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperStepService.updateXsltFileName(vizNode, 'new-file.xsl', mockEntitiesContext);
@@ -497,15 +459,7 @@ describe('DataMapperStepService', () => {
         ],
       };
 
-      const vizNode = createVisualizationNode('test', {
-        name: 'step',
-        isPlaceholder: false,
-        isGroup: false,
-        title: '',
-        description: '',
-        iconUrl: '',
-        definition: model,
-      });
+      vizNode.data.definition = model;
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
       DataMapperStepService.updateXsltFileName(vizNode, 'new-file.xsl', mockEntitiesContext);
@@ -817,6 +771,411 @@ describe('DataMapperStepService', () => {
       DataMapperStepService.syncSetBodyNullStep(vizNode, false, mockEntitiesContext);
 
       expect(updateModelSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getOutputVariable', () => {
+    let vizNode: IVisualizationNode;
+
+    beforeEach(() => {
+      vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+      });
+    });
+
+    it('should return the variable name when a managed setVariable step exists', () => {
+      const model = {
+        id: 'step-id',
+        steps: [
+          { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
+          {
+            setVariable: { id: 'kaoto-datamapper-output-variable-abc123', name: 'myVar', simple: '${body}' },
+          } as ProcessorDefinition,
+        ],
+      };
+      vizNode.data.definition = model;
+
+      const result = DataMapperStepService.getOutputVariable(vizNode);
+
+      expect(result).toBe('myVar');
+    });
+
+    it('should return undefined when no managed setVariable step exists', () => {
+      const model = {
+        id: 'step-id',
+        steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition],
+      };
+      vizNode.data.definition = model;
+
+      const result = DataMapperStepService.getOutputVariable(vizNode);
+
+      expect(result).toBeUndefined();
+    });
+
+    it('should return undefined for a user-authored setVariable step (no managed id prefix)', () => {
+      const model = {
+        id: 'step-id',
+        steps: [
+          { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
+          { setVariable: { name: 'userVar', simple: '${body}' } } as ProcessorDefinition,
+        ],
+      };
+      vizNode.data.definition = model;
+
+      const result = DataMapperStepService.getOutputVariable(vizNode);
+
+      expect(result).toBeUndefined();
+    });
+
+    it('should return undefined when steps is undefined', () => {
+      const model = { id: 'step-id' };
+      vizNode.data.definition = model;
+
+      const result = DataMapperStepService.getOutputVariable(vizNode);
+
+      expect(result).toBeUndefined();
+    });
+
+    it('should return undefined when managed setVariable step has no name', () => {
+      const model = {
+        id: 'step-id',
+        steps: [{ setVariable: { id: 'kaoto-datamapper-output-variable-abc123' } } as ProcessorDefinition],
+      };
+      vizNode.data.definition = model;
+
+      const result = DataMapperStepService.getOutputVariable(vizNode);
+
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe('setOutputVariable', () => {
+    let vizNode: IVisualizationNode;
+
+    beforeEach(() => {
+      vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+      });
+    });
+
+    it('should append a managed setVariable step with id prefix when variableName is provided', () => {
+      const model = {
+        id: 'step-id',
+        steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition],
+      };
+      vizNode.data.definition = model;
+      const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.setOutputVariable(vizNode, 'myVar', mockEntitiesContext);
+
+      expect(updateModelSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          steps: expect.arrayContaining([
+            expect.objectContaining({
+              setVariable: expect.objectContaining({
+                id: expect.stringContaining('kaoto-datamapper-output-variable'),
+                name: 'myVar',
+                simple: '${body}',
+              }),
+            }),
+          ]),
+        }),
+      );
+      expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
+    });
+
+    it('should place setVariable at the end of steps', () => {
+      const model = {
+        id: 'step-id',
+        steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition],
+      };
+      vizNode.data.definition = model;
+      const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.setOutputVariable(vizNode, 'myVar', mockEntitiesContext);
+
+      const updatedModel = updateModelSpy.mock.calls[0][0] as typeof model;
+      const steps = updatedModel.steps as ProcessorDefinition[];
+      expect(steps[steps.length - 1].setVariable).toBeDefined();
+    });
+
+    it('should remove the managed setVariable step when variableName is falsy', () => {
+      const model = {
+        id: 'step-id',
+        steps: [
+          { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
+          {
+            setVariable: { id: 'kaoto-datamapper-output-variable-abc123', name: 'oldVar', simple: '${body}' },
+          } as ProcessorDefinition,
+        ],
+      };
+      vizNode.data.definition = model;
+      const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.setOutputVariable(vizNode, undefined, mockEntitiesContext);
+
+      const updatedModel = updateModelSpy.mock.calls[0][0] as typeof model;
+      expect(
+        (updatedModel.steps as ProcessorDefinition[]).some(
+          (s) =>
+            typeof (s.setVariable as Record<string, unknown> | undefined)?.id === 'string' &&
+            ((s.setVariable as Record<string, unknown>).id as string).startsWith('kaoto-datamapper-output-variable'),
+        ),
+      ).toBe(false);
+      expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
+    });
+
+    it('should NOT remove a user-authored setVariable step (no managed id prefix)', () => {
+      const model = {
+        id: 'step-id',
+        steps: [
+          { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
+          { setVariable: { name: 'userVar', simple: '${body}' } } as ProcessorDefinition,
+          {
+            setVariable: { id: 'kaoto-datamapper-output-variable-abc123', name: 'oldVar', simple: '${body}' },
+          } as ProcessorDefinition,
+        ],
+      };
+      vizNode.data.definition = model;
+      const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.setOutputVariable(vizNode, undefined, mockEntitiesContext);
+
+      const updatedModel = updateModelSpy.mock.calls[0][0] as typeof model;
+      const steps = updatedModel.steps as ProcessorDefinition[];
+      // user-authored step preserved, managed step removed
+      expect(steps.some((s) => (s.setVariable as Record<string, unknown> | undefined)?.name === 'userVar')).toBe(true);
+      expect(steps.some((s) => (s.setVariable as Record<string, unknown> | undefined)?.name === 'oldVar')).toBe(false);
+    });
+
+    it('should rename the managed setVariable step in place, keeping its id', () => {
+      const model = {
+        id: 'step-id',
+        steps: [
+          { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
+          {
+            setVariable: { id: 'kaoto-datamapper-output-variable-abc123', name: 'oldVar', simple: '${body}' },
+          } as ProcessorDefinition,
+        ],
+      };
+      vizNode.data.definition = model;
+      const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.setOutputVariable(vizNode, 'newVar', mockEntitiesContext);
+
+      const updatedModel = updateModelSpy.mock.calls[0][0] as typeof model;
+      const setVarSteps = (updatedModel.steps as ProcessorDefinition[]).filter((s) => s.setVariable !== undefined);
+      expect(setVarSteps).toHaveLength(1);
+      expect(setVarSteps[0].setVariable).toEqual({
+        id: 'kaoto-datamapper-output-variable-abc123',
+        name: 'newVar',
+        simple: '${body}',
+      });
+      expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
+    });
+
+    it('should not touch the model when the name is unchanged', () => {
+      const model = {
+        id: 'step-id',
+        steps: [
+          { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
+          {
+            setVariable: { id: 'kaoto-datamapper-output-variable-abc123', name: 'myVar', simple: '${body}' },
+          } as ProcessorDefinition,
+        ],
+      };
+      vizNode.data.definition = model;
+      const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.setOutputVariable(vizNode, 'myVar', mockEntitiesContext);
+
+      expect(updateModelSpy).not.toHaveBeenCalled();
+      expect(mockEntitiesContext.updateSourceCodeFromEntities).not.toHaveBeenCalled();
+    });
+
+    it('should treat a name differing only by surrounding whitespace as unchanged', () => {
+      const model = {
+        id: 'step-id',
+        steps: [
+          {
+            setVariable: { id: 'kaoto-datamapper-output-variable-abc123', name: 'myVar', simple: '${body}' },
+          } as ProcessorDefinition,
+        ],
+      };
+      vizNode.data.definition = model;
+      const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.setOutputVariable(vizNode, '  myVar  ', mockEntitiesContext);
+
+      expect(updateModelSpy).not.toHaveBeenCalled();
+    });
+
+    it('should trim surrounding whitespace from the persisted name', () => {
+      const model = {
+        id: 'step-id',
+        steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition],
+      };
+      vizNode.data.definition = model;
+      const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.setOutputVariable(vizNode, '  myVar ', mockEntitiesContext);
+
+      const updatedModel = updateModelSpy.mock.calls[0][0] as typeof model;
+      const steps = updatedModel.steps as ProcessorDefinition[];
+      expect((steps[steps.length - 1].setVariable as { name: string }).name).toBe('myVar');
+    });
+
+    it('should remove the managed step when the name is whitespace-only', () => {
+      const model = {
+        id: 'step-id',
+        steps: [
+          { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
+          {
+            setVariable: { id: 'kaoto-datamapper-output-variable-abc123', name: 'oldVar', simple: '${body}' },
+          } as ProcessorDefinition,
+        ],
+      };
+      vizNode.data.definition = model;
+      const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.setOutputVariable(vizNode, '   ', mockEntitiesContext);
+
+      const updatedModel = updateModelSpy.mock.calls[0][0] as typeof model;
+      expect(updatedModel.steps as ProcessorDefinition[]).toHaveLength(1);
+    });
+
+    it('should not touch the model when removing and no managed step exists', () => {
+      const model = {
+        id: 'step-id',
+        steps: [
+          { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
+          { setVariable: { name: 'userVar', simple: '${body}' } } as ProcessorDefinition,
+        ],
+      };
+      vizNode.data.definition = model;
+      const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.setOutputVariable(vizNode, undefined, mockEntitiesContext);
+
+      expect(updateModelSpy).not.toHaveBeenCalled();
+      expect(mockEntitiesContext.updateSourceCodeFromEntities).not.toHaveBeenCalled();
+    });
+
+    it('should keep the variable step after a validation step', () => {
+      const model = {
+        id: 'step-id',
+        steps: [
+          { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
+          { to: { id: 'kaoto-datamapper-validator-1', uri: 'validator:ShipOrder.xsd' } } as ProcessorDefinition,
+        ],
+      };
+      vizNode.data.definition = model;
+      const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.setOutputVariable(vizNode, 'myVar', mockEntitiesContext);
+
+      const steps = (updateModelSpy.mock.calls[0][0] as typeof model).steps as ProcessorDefinition[];
+      expect(steps).toHaveLength(3);
+      expect(steps[1].to).toMatchObject({ uri: 'validator:ShipOrder.xsd' });
+      expect(steps[2].setVariable).toBeDefined();
+    });
+
+    it('should not remove non-setVariable steps', () => {
+      const model = {
+        id: 'step-id',
+        steps: [
+          { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
+          {
+            setVariable: { id: 'kaoto-datamapper-output-variable-abc123', name: 'oldVar', simple: '${body}' },
+          } as ProcessorDefinition,
+        ],
+      };
+      vizNode.data.definition = model;
+      const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.setOutputVariable(vizNode, undefined, mockEntitiesContext);
+
+      const updatedModel = updateModelSpy.mock.calls[0][0] as typeof model;
+      const steps = updatedModel.steps as ProcessorDefinition[];
+      expect(steps).toHaveLength(1);
+      expect(steps[0].to).toBeDefined();
+    });
+
+    it('should return early without error when steps is undefined', () => {
+      const model = { id: 'step-id' };
+      vizNode.data.definition = model;
+      const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.setOutputVariable(vizNode, 'myVar', mockEntitiesContext);
+
+      expect(updateModelSpy).not.toHaveBeenCalled();
+      expect(mockEntitiesContext.updateSourceCodeFromEntities).not.toHaveBeenCalled();
+    });
+
+    it('should call updateModel and updateSourceCodeFromEntities when variableName is undefined (removal)', () => {
+      const model = {
+        id: 'step-id',
+        steps: [
+          {
+            setVariable: { id: 'kaoto-datamapper-output-variable-abc123', name: 'oldVar', simple: '${body}' },
+          } as ProcessorDefinition,
+        ],
+      };
+      vizNode.data.definition = model;
+      const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.setOutputVariable(vizNode, undefined, mockEntitiesContext);
+
+      expect(updateModelSpy).toHaveBeenCalled();
+      expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
+    });
+  });
+
+  describe('OUTPUT_VARIABLE_NAME_BLANK / isValidOutputVariableName', () => {
+    it('should expose the correct error message constant', () => {
+      expect(DataMapperStepService.OUTPUT_VARIABLE_NAME_BLANK).toBe('Variable name cannot contain only whitespace');
+    });
+
+    it('should return true for a non-empty name', () => {
+      expect(DataMapperStepService.isValidOutputVariableName('myVar')).toBe(true);
+    });
+
+    it('should return false for an empty string', () => {
+      expect(DataMapperStepService.isValidOutputVariableName('')).toBe(false);
+    });
+
+    it('should return false for a whitespace-only string', () => {
+      expect(DataMapperStepService.isValidOutputVariableName('   ')).toBe(false);
+    });
+
+    it('should return true for a name with surrounding whitespace', () => {
+      expect(DataMapperStepService.isValidOutputVariableName('  myVar  ')).toBe(true);
+    });
+  });
+
+  describe('getOutputVariableNameError', () => {
+    it('should return undefined for an empty name since the output variable is optional', () => {
+      expect(DataMapperStepService.getOutputVariableNameError('')).toBeUndefined();
+    });
+
+    it('should return the blank error for a whitespace-only name', () => {
+      expect(DataMapperStepService.getOutputVariableNameError('   ')).toBe(
+        DataMapperStepService.OUTPUT_VARIABLE_NAME_BLANK,
+      );
+    });
+
+    it('should return undefined for a valid name', () => {
+      expect(DataMapperStepService.getOutputVariableNameError('myVar')).toBeUndefined();
     });
   });
 });

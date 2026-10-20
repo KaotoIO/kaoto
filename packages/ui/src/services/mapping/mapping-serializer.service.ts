@@ -23,8 +23,9 @@ import {
   VariableItem,
 } from '../../models/datamapper/mapping';
 import { DeserializeItemResult, DeserializeResult, MappingItemClass } from '../../models/datamapper/serialization';
+import { DEFAULT_DATAMAPPER_SETTINGS, IDataMapperSettings } from '../../models/datamapper/settings';
 import { NS_XML_SCHEMA_INSTANCE, NS_XSL } from '../../models/datamapper/standard-namespaces';
-import { DEFAULT_DATAMAPPER_SETTINGS, FieldOverrideVariant, IDataMapperSettings } from '../../models/datamapper/types';
+import { FieldOverrideVariant } from '../../models/datamapper/types';
 import { SendAlertProps } from '../../models/datamapper/visualization';
 import { QName } from '../../xml-schema-ts/QName';
 import { DataMapperSettingsService } from '../datamapper-settings.service';

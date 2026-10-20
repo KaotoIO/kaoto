@@ -1,9 +1,10 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { FunctionComponent, PropsWithChildren } from 'react';
 import { MemoryRouter, useLocation } from 'react-router';
-import type { MockInstance } from 'vitest';
+import type { Mock, MockInstance } from 'vitest';
 
-import { IVisualizationNode, KaotoResource } from '../../models';
+import { createVisualizationNode, IVisualizationNode, KaotoResource } from '../../models';
 import { SourceSchemaType } from '../../models/camel';
 import { DocumentDefinitionType } from '../../models/datamapper';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
@@ -112,6 +113,8 @@ describe('DataMapperLauncher', () => {
     getXsltFileNameSpy = vi.spyOn(DataMapperStepService, 'getXsltFileName').mockReturnValue(undefined);
     getDataMapperMetadataIdSpy = vi.spyOn(DataMapperStepService, 'getDataMapperMetadataId');
     updateXsltFileNameSpy = vi.spyOn(DataMapperStepService, 'updateXsltFileName').mockImplementation(() => {});
+    vi.spyOn(DataMapperStepService, 'getOutputVariable').mockReturnValue(undefined);
+    vi.spyOn(DataMapperStepService, 'setOutputVariable').mockImplementation(() => {});
     vi.spyOn(DataMapperMetadataService, 'updateXsltPath').mockResolvedValue(undefined);
     isValidationEnabledSpy = vi.spyOn(DataMapperValidationStepService, 'isValidationEnabled').mockReturnValue(false);
     addValidationStepSpy = vi
@@ -797,6 +800,174 @@ describe('DataMapperLauncher', () => {
         await waitFor(() => {
           expect(removeValidationStepSpy).toHaveBeenCalled();
         });
+      });
+    });
+  });
+
+  describe('output variable', () => {
+    beforeEach(() => {
+      mockMetadataContext.isResourceExist = vi.fn().mockResolvedValue(true);
+      (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+    });
+
+    it('should render an empty output variable input when no output variable is set', () => {
+      const vizNode = createMockVizNode('test-document.xsl');
+      (DataMapperStepService.getOutputVariable as Mock).mockReturnValue(undefined);
+
+      render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
+
+      expect(screen.getByTestId('output-variable-name-input')).toHaveValue('');
+      expect(screen.queryByTestId('save-as-variable-toggle')).not.toBeInTheDocument();
+    });
+
+    it('should prefill the input when an output variable is set', () => {
+      const vizNode = createMockVizNode('test-document.xsl');
+      (DataMapperStepService.getOutputVariable as Mock).mockReturnValue('existingVar');
+
+      render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
+
+      expect(screen.getByTestId('output-variable-name-input')).toHaveValue('existingVar');
+    });
+
+    it('should not show an error or a success state when the input is empty', () => {
+      const vizNode = createMockVizNode('test-document.xsl');
+      (DataMapperStepService.getOutputVariable as Mock).mockReturnValue(undefined);
+
+      render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
+
+      expect(screen.queryByTestId('output-variable-name-error')).not.toBeInTheDocument();
+      expect(screen.getByTestId('output-variable-name-input').closest('.pf-m-success')).toBeNull();
+    });
+
+    it('should show the success state when a valid variable name is filled', () => {
+      const vizNode = createMockVizNode('test-document.xsl');
+      (DataMapperStepService.getOutputVariable as Mock).mockReturnValue('existingVar');
+
+      render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
+
+      expect(screen.getByTestId('output-variable-name-input').closest('.pf-m-success')).not.toBeNull();
+      expect(screen.queryByTestId('output-variable-name-error')).not.toBeInTheDocument();
+    });
+
+    it('should show the success state after typing a valid name and drop it when cleared', async () => {
+      const user = userEvent.setup();
+      const vizNode = createMockVizNode('test-document.xsl');
+      (DataMapperStepService.getOutputVariable as Mock).mockReturnValue(undefined);
+      (DataMapperStepService.setOutputVariable as Mock).mockImplementation(() => undefined);
+
+      render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
+
+      const input = screen.getByTestId('output-variable-name-input');
+      await user.type(input, 'myVar');
+      expect(input.closest('.pf-m-success')).not.toBeNull();
+
+      await user.clear(input);
+      expect(input.closest('.pf-m-success')).toBeNull();
+      expect(screen.queryByTestId('output-variable-name-error')).not.toBeInTheDocument();
+    });
+
+    it('should show an error for a whitespace-only name and clear the step', async () => {
+      const user = userEvent.setup();
+      const vizNode = createMockVizNode('test-document.xsl');
+      (DataMapperStepService.getOutputVariable as Mock).mockReturnValue(undefined);
+      (DataMapperStepService.setOutputVariable as Mock).mockImplementation(() => undefined);
+
+      render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
+
+      await user.type(screen.getByTestId('output-variable-name-input'), '   ');
+
+      expect(screen.getByTestId('output-variable-name-error')).toBeInTheDocument();
+      expect(DataMapperStepService.setOutputVariable).toHaveBeenLastCalledWith(vizNode, undefined, mockEntitiesContext);
+    });
+
+    it('should call setOutputVariable with the variable name on change', async () => {
+      const vizNode = createMockVizNode('test-document.xsl');
+      (DataMapperStepService.getOutputVariable as Mock).mockReturnValue(undefined);
+      (DataMapperStepService.setOutputVariable as Mock).mockImplementation(() => undefined);
+
+      render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
+
+      const input = screen.getByTestId('output-variable-name-input');
+      fireEvent.change(input, { target: { value: 'myOutputVar' } });
+
+      await waitFor(() => {
+        expect(DataMapperStepService.setOutputVariable).toHaveBeenCalledWith(
+          vizNode,
+          'myOutputVar',
+          mockEntitiesContext,
+        );
+      });
+    });
+
+    it('should call setOutputVariable with undefined when variable name is cleared', async () => {
+      const vizNode = createMockVizNode('test-document.xsl');
+      (DataMapperStepService.getOutputVariable as Mock).mockReturnValue(undefined);
+      (DataMapperStepService.setOutputVariable as Mock).mockImplementation(() => undefined);
+
+      render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
+
+      const input = screen.getByTestId('output-variable-name-input');
+      fireEvent.change(input, { target: { value: 'myOutputVar' } });
+      fireEvent.change(input, { target: { value: '' } });
+
+      await waitFor(() => {
+        expect(DataMapperStepService.setOutputVariable).toHaveBeenLastCalledWith(
+          vizNode,
+          undefined,
+          mockEntitiesContext,
+        );
+      });
+    });
+
+    describe('when another DataMapper step is shown by the same launcher', () => {
+      const createDataMapperVizNode = (stepId: string, outputVariable?: string): IVisualizationNode => {
+        const steps: Record<string, unknown>[] = [{ to: { uri: `xslt-saxon:${stepId}.xsl` } }];
+        if (outputVariable) {
+          steps.push({
+            setVariable: { id: `kaoto-datamapper-output-variable-${stepId}`, name: outputVariable, simple: '${body}' },
+          });
+        }
+
+        return createVisualizationNode('route.from.steps.0.step:kaoto-datamapper', {
+          name: 'kaoto-datamapper',
+          path: 'route.from.steps.0.step',
+          isPlaceholder: false,
+          isGroup: false,
+          iconUrl: '',
+          title: '',
+          description: '',
+          definition: { id: stepId, steps },
+        });
+      };
+
+      beforeEach(() => {
+        vi.mocked(DataMapperStepService.getOutputVariable).mockRestore();
+      });
+
+      it('should show the output variable of the newly shown DataMapper step', () => {
+        const { rerender } = render(
+          <DataMapperLauncher vizNode={createDataMapperVizNode('kaoto-datamapper-1111', 'firstVar')} />,
+          { wrapper },
+        );
+        expect(screen.getByTestId('output-variable-name-input')).toHaveValue('firstVar');
+
+        rerender(<DataMapperLauncher vizNode={createDataMapperVizNode('kaoto-datamapper-2222', 'secondVar')} />);
+
+        expect(screen.getByTestId('output-variable-name-input')).toHaveValue('secondVar');
+      });
+
+      it('should not carry an unsaved variable name over to another DataMapper step', async () => {
+        const user = userEvent.setup();
+        const { rerender } = render(<DataMapperLauncher vizNode={createDataMapperVizNode('kaoto-datamapper-1111')} />, {
+          wrapper,
+        });
+        await user.type(screen.getByTestId('output-variable-name-input'), '   ');
+        expect(screen.getByTestId('output-variable-name-error')).toBeInTheDocument();
+
+        rerender(<DataMapperLauncher vizNode={createDataMapperVizNode('kaoto-datamapper-2222')} />);
+
+        expect(screen.getByTestId('output-variable-name-input')).toHaveValue('');
+        expect(screen.queryByTestId('output-variable-name-error')).not.toBeInTheDocument();
       });
     });
   });

@@ -106,6 +106,21 @@ describe('DataMapperValidationStepService', () => {
       expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
     });
 
+    it('should insert the validator before an existing output variable step', () => {
+      const model = createModel('xslt-saxon:transform.xsl');
+      model.steps.push({
+        setVariable: { id: 'kaoto-datamapper-output-variable-abc123', name: 'myVar', simple: '${body}' },
+      } as unknown as (typeof model.steps)[number]);
+      const vizNode = createVizNode(model);
+
+      DataMapperValidationStepService.addValidationStep(vizNode, xmlMetadata, mockEntitiesContext);
+
+      expect(model.steps).toHaveLength(3);
+      expect((model.steps[0] as ProcessorDefinition).to).toMatchObject({ uri: 'xslt-saxon:transform.xsl' });
+      expect((model.steps[1] as ProcessorDefinition).to).toMatchObject({ uri: 'validator:ShipOrder.xsd' });
+      expect((model.steps[2] as ProcessorDefinition).setVariable).toBeDefined();
+    });
+
     it('should add json-validator step for JSON_SCHEMA target', () => {
       const model = createModel('xslt-saxon:transform.xsl');
       const vizNode = createVizNode(model);
