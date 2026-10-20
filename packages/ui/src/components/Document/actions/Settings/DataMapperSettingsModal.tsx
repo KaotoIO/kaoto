@@ -9,11 +9,13 @@ import {
   ModalHeader,
   ModalVariant,
 } from '@patternfly/react-core';
-import { FormEvent, FunctionComponent, useCallback, useMemo, useState } from 'react';
+import { FunctionComponent, useCallback, useMemo, useState } from 'react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { DocumentDefinitionType, IDataMapperSettings } from '../../../../models/datamapper';
 import { DataMapperSettingsService } from '../../../../services/datamapper-settings.service';
+import { DataMapperStepService } from '../../../../services/datamapper-step.service';
+import { OutputVariableField } from '../../../DataMapper/OutputVariableField';
 
 type DataMapperSettingsModalProps = {
   isModalOpen: boolean;
@@ -24,14 +26,13 @@ export const DataMapperSettingsModal: FunctionComponent<DataMapperSettingsModalP
   isModalOpen,
   onModalClose,
 }) => {
-  const {
-    dataMapperSettings,
-    updateDataMapperSettings,
-    targetBodyDocument,
-    isOutputValidationEnabled,
-    setOutputValidationEnabled,
-  } = useDataMapper();
+  const { dataMapperSettings, updateDataMapperSettings, targetBodyDocument } = useDataMapper();
   const [localOptions, setLocalOptions] = useState<IDataMapperSettings>(dataMapperSettings);
+  const [previousSource, setPreviousSource] = useState({ isModalOpen, dataMapperSettings });
+  if (previousSource.isModalOpen !== isModalOpen || previousSource.dataMapperSettings !== dataMapperSettings) {
+    setPreviousSource({ isModalOpen, dataMapperSettings });
+    if (isModalOpen) setLocalOptions(dataMapperSettings);
+  }
 
   const isOmitXmlDeclarationSupported = useMemo(
     () => DataMapperSettingsService.isOmitXmlDeclarationSupported(targetBodyDocument.definitionType),
@@ -45,11 +46,8 @@ export const DataMapperSettingsModal: FunctionComponent<DataMapperSettingsModalP
   // Output validation UI: set to true when feature is complete
   const showOutputValidation = false as boolean;
 
-  const [previousSource, setPreviousSource] = useState({ isModalOpen, dataMapperSettings });
-  if (previousSource.isModalOpen !== isModalOpen || previousSource.dataMapperSettings !== dataMapperSettings) {
-    setPreviousSource({ isModalOpen, dataMapperSettings });
-    if (isModalOpen) setLocalOptions(dataMapperSettings);
-  }
+  const outputVariable = localOptions.outputVariable ?? '';
+  const isSaveDisabled = !!DataMapperStepService.getOutputVariableNameError(outputVariable);
 
   // Generic handler for any field in IDataMapperSettings
   const handleFieldChange = useCallback(
@@ -63,13 +61,6 @@ export const DataMapperSettingsModal: FunctionComponent<DataMapperSettingsModalP
     updateDataMapperSettings(localOptions);
     onModalClose();
   }, [localOptions, updateDataMapperSettings, onModalClose]);
-
-  const handleValidationToggle = useCallback(
-    (_event: FormEvent<HTMLInputElement>, checked: boolean) => {
-      setOutputValidationEnabled(checked);
-    },
-    [setOutputValidationEnabled],
-  );
 
   const handleCancel = useCallback(() => {
     setLocalOptions(dataMapperSettings);
@@ -105,16 +96,30 @@ export const DataMapperSettingsModal: FunctionComponent<DataMapperSettingsModalP
               <Checkbox
                 id="validate-output-settings"
                 label="Validate output"
-                isChecked={isOutputValidationEnabled}
-                onChange={handleValidationToggle}
+                isChecked={localOptions.isOutputValidationEnabled}
+                onChange={(_event, checked) => {
+                  handleFieldChange('isOutputValidationEnabled', checked);
+                }}
                 data-testid="validate-output-settings-checkbox"
               />
             </FormGroup>
           )}
+          <OutputVariableField
+            value={outputVariable}
+            onChange={(value) => {
+              handleFieldChange('outputVariable', value === '' ? undefined : value);
+            }}
+          />
         </Form>
       </ModalBody>
       <ModalFooter>
-        <Button key="save" variant="primary" data-testid="datamapper-settings-save-btn" onClick={handleSave}>
+        <Button
+          key="save"
+          variant="primary"
+          data-testid="datamapper-settings-save-btn"
+          onClick={handleSave}
+          isDisabled={isSaveDisabled}
+        >
           Save
         </Button>
         <Button key="cancel" variant="link" data-testid="datamapper-settings-cancel-btn" onClick={handleCancel}>

@@ -28,7 +28,7 @@ import {
 } from 'react';
 
 import { Loading } from '../components/Loading';
-import { DEFAULT_DATAMAPPER_SETTINGS, IDataMapperSettings, SendAlertProps } from '../models/datamapper';
+import { DEFAULT_DATAMAPPER_SETTINGS, IDataMapperSettings, IStepSettings, SendAlertProps } from '../models/datamapper';
 import {
   BODY_DOCUMENT_ID,
   DocumentDefinition,
@@ -86,9 +86,6 @@ export interface IDataMapperContext {
 
   dataMapperSettings: IDataMapperSettings;
   updateDataMapperSettings(settings: Partial<IDataMapperSettings>): void;
-
-  isOutputValidationEnabled: boolean;
-  setOutputValidationEnabled: (enabled: boolean) => void;
 }
 
 export const DataMapperContext = createContext<IDataMapperContext | null>(null);
@@ -101,8 +98,8 @@ type DataMapperProviderProps = PropsWithChildren & {
   initialXsltFile?: string;
   onUpdateMappings?: (xsltFile: string) => void;
   onUpdateNamespaceMap?: (namespaceMap: Record<string, string>) => void;
-  isOutputValidationEnabled?: boolean;
-  onSetOutputValidationEnabled?: (enabled: boolean) => void;
+  initialStepSettings?: Partial<IStepSettings>;
+  onUpdateStepSettings?: (settings: IStepSettings) => void;
 };
 
 const INITIAL_NAMESPACE_MAP = { xs: NS_XML_SCHEMA, fn: NS_XPATH_FUNCTIONS, xsl: NS_XSL };
@@ -165,26 +162,40 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   initialXsltFile,
   onUpdateMappings,
   onUpdateNamespaceMap,
-  isOutputValidationEnabled: isOutputValidationEnabledProp,
-  onSetOutputValidationEnabled,
+  initialStepSettings,
+  onUpdateStepSettings,
   children,
 }) => {
   const [initialState] = useState(() => createInitialState(documentInitializationModel, initialXsltFile));
   const [debug, setDebug] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [activeView, setActiveView] = useState<CanvasView>(CanvasView.SOURCE_TARGET);
-  const [dataMapperSettings, setDataMapperSettings] = useState<IDataMapperSettings>(initialState.dataMapperSettings);
+  const [dataMapperSettings, setDataMapperSettings] = useState<IDataMapperSettings>({
+    ...initialState.dataMapperSettings,
+    ...initialStepSettings,
+  });
   const previousSettings = useRef<IDataMapperSettings | null>(null);
+  const dataMapperSettingsRef = useRef(dataMapperSettings);
 
-  const updateDataMapperSettings = useCallback((settings: Partial<IDataMapperSettings>) => {
-    setDataMapperSettings((prev) => ({ ...prev, ...settings }));
+  /**
+   * Single writer for the settings state. Keeps `dataMapperSettingsRef` in step with the state so that
+   * `updateDataMapperSettings` can compute `next` from the latest value, even when called more than once
+   * before React re-renders. The ref is written here rather than during render.
+   */
+  const applyDataMapperSettings = useCallback((next: IDataMapperSettings) => {
+    dataMapperSettingsRef.current = next;
+    setDataMapperSettings(next);
   }, []);
 
-  const setOutputValidationEnabled = useCallback(
-    (enabled: boolean) => {
-      onSetOutputValidationEnabled?.(enabled);
+  const updateDataMapperSettings = useCallback(
+    (settings: Partial<IDataMapperSettings>) => {
+      const next: IDataMapperSettings = { ...dataMapperSettingsRef.current, ...settings };
+      // Side-effect runs outside the setState updater — safe under React StrictMode
+      // (updaters must be pure; side-effects in updaters are double-invoked in dev).
+      onUpdateStepSettings?.(next);
+      applyDataMapperSettings(next);
     },
-    [onSetOutputValidationEnabled],
+    [applyDataMapperSettings, onUpdateStepSettings],
   );
 
   const [sourceParameterMap, setSourceParameterMap] = useState(initialState.sourceParameterMap);
@@ -373,7 +384,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
             dataMapperSettings,
             document.definitionType,
           );
-          setDataMapperSettings(sanitizedSettings);
+          applyDataMapperSettings(sanitizedSettings);
           refreshMappingTree({
             structural: true,
             targetDefinitionType: document.definitionType,
@@ -390,6 +401,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       onUpdateDocument?.(definition);
     },
     [
+      applyDataMapperSettings,
       dataMapperSettings,
       onUpdateDocument,
       refreshMappingTree,
@@ -437,8 +449,6 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       setDebug,
       dataMapperSettings,
       updateDataMapperSettings,
-      isOutputValidationEnabled: isOutputValidationEnabledProp ?? false,
-      setOutputValidationEnabled,
     };
   }, [
     isLoading,
@@ -461,8 +471,6 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     debug,
     dataMapperSettings,
     updateDataMapperSettings,
-    isOutputValidationEnabledProp,
-    setOutputValidationEnabled,
   ]);
 
   return (

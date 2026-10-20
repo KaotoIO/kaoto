@@ -1,79 +1,53 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { act, FunctionComponent, PropsWithChildren, useEffect } from 'react';
+import { FunctionComponent, PropsWithChildren } from 'react';
 
-import { useDataMapper } from '../../../../hooks/useDataMapper';
-import {
-  BODY_DOCUMENT_ID,
-  DocumentDefinition,
-  DocumentDefinitionType,
-  DocumentInitializationModel,
-  DocumentType,
-  IDocument,
-  IField,
-} from '../../../../models/datamapper/document';
-import { NodePath } from '../../../../models/datamapper/nodepath';
+import { DocumentDefinitionType, DocumentInitializationModel, DocumentType } from '../../../../models/datamapper';
 import { DataMapperProvider } from '../../../../providers/datamapper.provider';
-import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
+import { DataMapperStepService } from '../../../../services/datamapper-step.service';
 import { DataMapperSettingsModal } from './DataMapperSettingsModal';
-
-/**
- * Helper component that injects a mock target document with the given definitionType
- * into the DataMapper context after the provider has finished loading.
- * This is necessary because DocumentInitializationModel with XML_SCHEMA/JSON_SCHEMA
- * but without real schema files does not produce a real document — so we bypass it
- * and inject via TestUtil.seedDocument directly.
- */
-const TargetDocumentInjector: FunctionComponent<PropsWithChildren<{ targetDocType: DocumentDefinitionType }>> = ({
-  targetDocType,
-  children,
-}) => {
-  const { updateDocument } = useDataMapper();
-
-  useEffect(() => {
-    if (targetDocType === DocumentDefinitionType.Primitive) return;
-
-    const mockDocument: IDocument = {
-      documentType: DocumentType.TARGET_BODY,
-      documentId: BODY_DOCUMENT_ID,
-      name: BODY_DOCUMENT_ID,
-      definitionType: targetDocType,
-      fields: [] as IField[],
-      path: NodePath.fromDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID),
-      namedTypeFragments: {},
-      definition: new DocumentDefinition(DocumentType.TARGET_BODY, targetDocType, BODY_DOCUMENT_ID),
-      totalFieldCount: 0,
-      isNamespaceAware: targetDocType === DocumentDefinitionType.XML_SCHEMA,
-      getReferenceId: () => '',
-      getExpression: () => '',
-    };
-
-    act(() => {
-      TestUtil.seedDocument(updateDocument, mockDocument);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return <>{children}</>;
-};
 
 describe('DataMapperSettingsModal', () => {
   const mockOnModalClose = vi.fn();
 
   const createWrapper = (
     targetDocType: DocumentDefinitionType = DocumentDefinitionType.XML_SCHEMA,
-    isOutputValidationEnabled = false,
-    onSetOutputValidationEnabled?: (enabled: boolean) => void,
+    initialOutputVariable?: string,
+    onUpdateStepSettings?: (settings: {
+      outputVariable: string | undefined;
+      isOutputValidationEnabled: boolean;
+    }) => void,
+    isOutputValidationEnabled?: boolean,
   ): FunctionComponent<PropsWithChildren> => {
-    const documentInitializationModel = new DocumentInitializationModel();
+    const initialStepSettings =
+      initialOutputVariable !== undefined || isOutputValidationEnabled !== undefined
+        ? {
+            ...(initialOutputVariable !== undefined ? { outputVariable: initialOutputVariable } : {}),
+            ...(isOutputValidationEnabled !== undefined ? { isOutputValidationEnabled } : {}),
+          }
+        : undefined;
 
     return ({ children }) => (
       <DataMapperProvider
-        documentInitializationModel={documentInitializationModel}
-        isOutputValidationEnabled={isOutputValidationEnabled}
-        onSetOutputValidationEnabled={onSetOutputValidationEnabled}
+        documentInitializationModel={
+          new DocumentInitializationModel(
+            {},
+            {
+              documentType: DocumentType.SOURCE_BODY,
+              definitionType: DocumentDefinitionType.XML_SCHEMA,
+              name: 'source',
+            },
+            {
+              documentType: DocumentType.TARGET_BODY,
+              definitionType: targetDocType,
+              name: 'target',
+            },
+          )
+        }
+        initialStepSettings={initialStepSettings}
+        onUpdateStepSettings={onUpdateStepSettings}
       >
-        <TargetDocumentInjector targetDocType={targetDocType}>{children}</TargetDocumentInjector>
+        {children}
       </DataMapperProvider>
     );
   };
@@ -284,7 +258,7 @@ describe('DataMapperSettingsModal', () => {
     });
 
     it('should render checkbox as checked when isOutputValidationEnabled is true', async () => {
-      const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA, true);
+      const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA, undefined, undefined, true);
       render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
 
       const checkbox = (await screen.findByTestId('validate-output-settings-checkbox')) as HTMLInputElement;
@@ -292,49 +266,179 @@ describe('DataMapperSettingsModal', () => {
     });
 
     it('should render checkbox as unchecked when isOutputValidationEnabled is false', async () => {
-      const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA, false);
+      const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA);
       render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
 
       const checkbox = (await screen.findByTestId('validate-output-settings-checkbox')) as HTMLInputElement;
       expect(checkbox.checked).toBe(false);
     });
 
-    it('should call onSetOutputValidationEnabled(true) when checkbox is checked', async () => {
+    it('should call onUpdateStepSettings with isOutputValidationEnabled true when checkbox is checked', async () => {
       const user = userEvent.setup();
-      const mockOnSetOutputValidationEnabled = vi.fn();
-      const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA, false, mockOnSetOutputValidationEnabled);
+      const mockOnUpdate = vi.fn();
+      const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA, undefined, mockOnUpdate);
       render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
 
       const checkbox = await screen.findByTestId('validate-output-settings-checkbox');
       await user.click(checkbox);
 
-      expect(mockOnSetOutputValidationEnabled).toHaveBeenCalledWith(true);
+      const saveButton = screen.getByTestId('datamapper-settings-save-btn');
+      await user.click(saveButton);
+
+      expect(mockOnUpdate).toHaveBeenCalledWith(expect.objectContaining({ isOutputValidationEnabled: true }));
     });
 
-    it('should call onSetOutputValidationEnabled(false) when checkbox is unchecked', async () => {
+    it('should call onUpdateStepSettings with isOutputValidationEnabled false when checkbox is unchecked', async () => {
       const user = userEvent.setup();
-      const mockOnSetOutputValidationEnabled = vi.fn();
-      const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA, true, mockOnSetOutputValidationEnabled);
+      const mockOnUpdate = vi.fn();
+      const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA, undefined, mockOnUpdate, true);
       render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
 
       const checkbox = await screen.findByTestId('validate-output-settings-checkbox');
       await user.click(checkbox);
 
-      expect(mockOnSetOutputValidationEnabled).toHaveBeenCalledWith(false);
+      const saveButton = screen.getByTestId('datamapper-settings-save-btn');
+      await user.click(saveButton);
+
+      expect(mockOnUpdate).toHaveBeenCalledWith(expect.objectContaining({ isOutputValidationEnabled: false }));
     });
 
-    it('should take effect immediately (not buffered until Save)', async () => {
+    // NOTE: The original S6 implementation fired immediately (bypassing Save), but the modal's
+    // Save/Cancel contract should govern all fields uniformly. Cancel must be able to undo a
+    // checkbox click made inside the modal — the same expectation users have for omitXmlDeclaration.
+    // DataMapperLauncher (no Save button) fires immediately; the modal buffers until Save.
+    // This test documents the correct buffered behaviour for the modal surface.
+    it('should be buffered until Save (not take effect immediately on click)', async () => {
       const user = userEvent.setup();
-      const mockOnSetOutputValidationEnabled = vi.fn();
-      const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA, false, mockOnSetOutputValidationEnabled);
+      const mockOnUpdate = vi.fn();
+      const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA, undefined, mockOnUpdate);
       render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
 
       const checkbox = await screen.findByTestId('validate-output-settings-checkbox');
       await user.click(checkbox);
 
-      // onSetOutputValidationEnabled should be called immediately, before Save is clicked
-      expect(mockOnSetOutputValidationEnabled).toHaveBeenCalledWith(true);
+      // onUpdateStepSettings must NOT be called before Save is clicked
+      expect(mockOnUpdate).not.toHaveBeenCalled();
       expect(mockOnModalClose).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Output Variable', () => {
+    it('should render an empty output variable input when no output variable is set', async () => {
+      const wrapper = createWrapper();
+      render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
+
+      expect(await screen.findByTestId('output-variable-name-input')).toHaveValue('');
+      expect(screen.queryByTestId('save-as-variable-checkbox')).not.toBeInTheDocument();
+    });
+
+    it('should prefill the input when an output variable is set', async () => {
+      const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA, 'existingVar');
+      render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
+
+      expect(await screen.findByTestId('output-variable-name-input')).toHaveValue('existingVar');
+    });
+
+    it('should not show an error or a success state when the input is empty', async () => {
+      const wrapper = createWrapper();
+      render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
+
+      const input = await screen.findByTestId('output-variable-name-input');
+      expect(screen.queryByTestId('output-variable-name-error')).not.toBeInTheDocument();
+      expect(input.closest('.pf-m-success')).toBeNull();
+      expect(screen.getByTestId('datamapper-settings-save-btn')).not.toBeDisabled();
+    });
+
+    it('should show the success state when a valid variable name is filled', async () => {
+      const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA, 'myVar');
+      render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
+
+      const input = await screen.findByTestId('output-variable-name-input');
+      expect(input.closest('.pf-m-success')).not.toBeNull();
+      expect(screen.queryByTestId('output-variable-name-error')).not.toBeInTheDocument();
+    });
+
+    it('should show the success state after typing a valid name and drop it when cleared', async () => {
+      const user = userEvent.setup();
+      const wrapper = createWrapper();
+      render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
+
+      const input = await screen.findByTestId('output-variable-name-input');
+      await user.type(input, 'myVar');
+      expect(input.closest('.pf-m-success')).not.toBeNull();
+
+      await user.clear(input);
+      expect(input.closest('.pf-m-success')).toBeNull();
+      expect(screen.queryByTestId('output-variable-name-error')).not.toBeInTheDocument();
+    });
+
+    it('should show an error and disable Save for a whitespace-only name', async () => {
+      const user = userEvent.setup();
+      const wrapper = createWrapper();
+      render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
+
+      await user.type(await screen.findByTestId('output-variable-name-input'), '   ');
+
+      expect(screen.getByTestId('output-variable-name-error')).toHaveTextContent(
+        DataMapperStepService.OUTPUT_VARIABLE_NAME_BLANK,
+      );
+      expect(screen.getByTestId('datamapper-settings-save-btn')).toBeDisabled();
+    });
+
+    it('should call onUpdateStepSettings with outputVariable when Save is clicked', async () => {
+      const user = userEvent.setup();
+      const mockOnUpdate = vi.fn();
+      const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA, 'myVar', mockOnUpdate);
+      render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
+
+      await user.click(await screen.findByTestId('datamapper-settings-save-btn'));
+
+      expect(mockOnUpdate).toHaveBeenCalledWith(expect.objectContaining({ outputVariable: 'myVar' }));
+    });
+
+    it('should call onUpdateStepSettings with outputVariable undefined when the input is cleared and Save is clicked', async () => {
+      const user = userEvent.setup();
+      const mockOnUpdate = vi.fn();
+      const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA, 'myVar', mockOnUpdate);
+      render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
+
+      await user.clear(await screen.findByTestId('output-variable-name-input'));
+      await user.click(screen.getByTestId('datamapper-settings-save-btn'));
+
+      expect(mockOnUpdate).toHaveBeenCalledWith(expect.objectContaining({ outputVariable: undefined }));
+    });
+
+    it('should not apply the typed name until Save is clicked', async () => {
+      const user = userEvent.setup();
+      const mockOnUpdate = vi.fn();
+      const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA, undefined, mockOnUpdate);
+      render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
+
+      await user.type(await screen.findByTestId('output-variable-name-input'), 'myVar');
+      expect(mockOnUpdate).not.toHaveBeenCalled();
+
+      await user.click(screen.getByTestId('datamapper-settings-save-btn'));
+      expect(mockOnUpdate).toHaveBeenCalledWith(expect.objectContaining({ outputVariable: 'myVar' }));
+    });
+
+    it('should reset local state on Cancel', async () => {
+      const user = userEvent.setup();
+      const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA, 'myVar');
+      const { rerender } = render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
+
+      // Clear the input
+      const input = await screen.findByTestId('output-variable-name-input');
+      await user.clear(input);
+      expect(input).toHaveValue('');
+
+      // Cancel
+      await user.click(screen.getByTestId('datamapper-settings-cancel-btn'));
+
+      // Reopen
+      rerender(<DataMapperSettingsModal isModalOpen={false} onModalClose={mockOnModalClose} />);
+      rerender(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />);
+
+      expect(await screen.findByTestId('output-variable-name-input')).toHaveValue('myVar');
     });
   });
 });

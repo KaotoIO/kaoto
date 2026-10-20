@@ -3,6 +3,7 @@ export * from './document';
 export * from './mapping';
 export * from './nodepath';
 export * from './serialization';
+export * from './settings';
 export { NS_XSL } from './standard-namespaces';
 export * from './types';
 export * from './view';

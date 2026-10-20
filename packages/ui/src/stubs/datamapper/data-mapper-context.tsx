@@ -51,8 +51,6 @@ export const createDataMapperContext = (overrides: Partial<IDataMapperContext> =
     setDebug: vi.fn(),
     dataMapperSettings: DEFAULT_DATAMAPPER_SETTINGS,
     updateDataMapperSettings: vi.fn(),
-    isOutputValidationEnabled: false,
-    setOutputValidationEnabled: vi.fn(),
     ...overrides,
   };
 };
@@ -60,11 +58,6 @@ export const createDataMapperContext = (overrides: Partial<IDataMapperContext> =
 /**
  * Returns a wrapper component that provides the given context, for `render(..., { wrapper })` and `renderHook`.
  */
-export const createDataMapperContextWrapper = (
-  context: IDataMapperContext = createDataMapperContext(),
-): FunctionComponent<PropsWithChildren> => {
-  const DataMapperContextWrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-    <DataMapperContext.Provider value={context}>{children}</DataMapperContext.Provider>
-  );
-  return DataMapperContextWrapper;
-};
+export const createDataMapperContextWrapper =
+  (context: IDataMapperContext = createDataMapperContext()): FunctionComponent<PropsWithChildren> =>
+  ({ children }) => <DataMapperContext.Provider value={context}>{children}</DataMapperContext.Provider>;

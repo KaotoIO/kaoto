@@ -18,6 +18,7 @@ import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useStat
 import { DataMapperControl } from '../../components/DataMapper/DataMapperControl';
 import { Loading } from '../../components/Loading';
 import { IVisualizationNode } from '../../models';
+import { IStepSettings } from '../../models/datamapper';
 import {
   DocumentDefinition,
   DocumentDefinitionType,
@@ -46,8 +47,8 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
   const [metadata, setMetadata] = useState<IDataMapperMetadata>();
   const [documentInitializationModel, setDocumentInitializationModel] = useState<DocumentInitializationModel>();
   const [initialXsltFile, setInitialXsltFile] = useState<string>();
+  const [initialStepSettings, setInitialStepSettings] = useState<Partial<IStepSettings>>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isOutputValidationEnabled, setIsOutputValidationEnabled] = useState<boolean>(false);
   const dndHandler = useMemo(() => new SourceTargetDnDHandler(), []);
 
   useEffect(() => {
@@ -70,15 +71,31 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
       setDocumentInitializationModel(initModel);
       const mappingFile = await DataMapperMetadataService.loadMappingFile(ctx, meta);
       setInitialXsltFile(mappingFile);
-      if (vizNode) {
-        setIsOutputValidationEnabled(DataMapperValidationStepService.isValidationEnabled(vizNode));
-      }
+      setInitialStepSettings({
+        outputVariable: DataMapperStepService.getOutputVariable(vizNode),
+        isOutputValidationEnabled: DataMapperValidationStepService.isValidationEnabled(vizNode),
+      });
     };
     void initialize().then(() => {
       setIsLoading(false);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const onUpdateStepSettings = useCallback(
+    (settings: IStepSettings) => {
+      if (!vizNode || !entitiesContext) return;
+      DataMapperStepService.setOutputVariable(vizNode, settings.outputVariable, entitiesContext);
+      if (metadata) {
+        if (settings.isOutputValidationEnabled) {
+          DataMapperValidationStepService.addValidationStep(vizNode, metadata.targetBody, entitiesContext);
+        } else {
+          DataMapperValidationStepService.removeValidationStep(vizNode, entitiesContext);
+        }
+      }
+    },
+    [vizNode, entitiesContext, metadata],
+  );
 
   const onUpdateDocument = useCallback(
     async (definition: DocumentDefinition) => {
@@ -99,7 +116,10 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
             } else if (definition.definitionType !== DocumentDefinitionType.Primitive) {
               DataMapperValidationStepService.addValidationStep(vizNode, metadata.targetBody, entitiesContext);
             }
-            setIsOutputValidationEnabled(DataMapperValidationStepService.isValidationEnabled(vizNode));
+            onUpdateStepSettings({
+              outputVariable: DataMapperStepService.getOutputVariable(vizNode),
+              isOutputValidationEnabled: DataMapperValidationStepService.isValidationEnabled(vizNode),
+            });
           }
           break;
         case DocumentType.PARAM:
@@ -112,7 +132,7 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
           );
       }
     },
-    [ctx, metadata, metadataId, vizNode, entitiesContext],
+    [ctx, metadata, metadataId, vizNode, entitiesContext, onUpdateStepSettings],
   );
 
   const onDeleteParameter = useCallback(
@@ -147,19 +167,6 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
     [ctx, metadata, metadataId],
   );
 
-  const onSetOutputValidationEnabled = useCallback(
-    (enabled: boolean) => {
-      if (!vizNode || !entitiesContext || !metadata) return;
-      if (enabled) {
-        DataMapperValidationStepService.addValidationStep(vizNode, metadata.targetBody, entitiesContext);
-      } else {
-        DataMapperValidationStepService.removeValidationStep(vizNode, entitiesContext);
-      }
-      setIsOutputValidationEnabled(DataMapperValidationStepService.isValidationEnabled(vizNode));
-    },
-    [vizNode, entitiesContext, metadata],
-  );
-
   if (!metadataId) {
     return <>No associated DataMapper step was provided.</>;
   }
@@ -177,8 +184,8 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
       initialXsltFile={initialXsltFile}
       onUpdateMappings={onUpdateMappings}
       onUpdateNamespaceMap={onUpdateNamespaceMap}
-      isOutputValidationEnabled={isOutputValidationEnabled}
-      onSetOutputValidationEnabled={onSetOutputValidationEnabled}
+      initialStepSettings={initialStepSettings}
+      onUpdateStepSettings={onUpdateStepSettings}
     >
       <DataMapperDndProvider handler={dndHandler}>
         <MappingLinksProvider>

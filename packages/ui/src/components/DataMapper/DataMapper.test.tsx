@@ -1,13 +1,17 @@
+import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { VirtuosoMockContext } from 'react-virtuoso';
 
 import { IVisualizationNode } from '../../models';
+import { CamelRouteResource } from '../../models/camel';
 import { DocumentDefinitionType } from '../../models/datamapper/document';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
-import { IMetadataApi, MetadataProvider } from '../../providers';
+import { EntitiesContext, IMetadataApi, MetadataProvider } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { DataMapperValidationStepService } from '../../services/datamapper-validation-step.service';
 import { EMPTY_XSL } from '../../services/mapping/mapping-serializer.service';
+import { createMockEntitiesContext } from '../../stubs/create-mock-entities-context';
 import { getShipOrderToShipOrderXslt, getShipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { DataMapper } from './DataMapper';
 
@@ -60,6 +64,28 @@ describe('DataMapperPage', () => {
         </VirtuosoMockContext.Provider>
       ),
     });
+  };
+
+  const xsltStep: ProcessorDefinition = { to: { uri: 'xslt-saxon:kaoto-datamapper-1234.xsl' } };
+
+  const createDataMapperRoute = (dataMapperSteps: ProcessorDefinition[]): { route: RouteDefinition } => ({
+    route: {
+      id: 'route-1234',
+      from: {
+        uri: 'timer:template',
+        steps: [{ step: { id: 'kaoto-datamapper-1234', steps: dataMapperSteps } }],
+      },
+    },
+  });
+
+  const getDataMapperVizNode = async (camelResource: CamelRouteResource) =>
+    (await camelResource.getVisualEntities()[0].toVizNode()).getChildren()?.[1];
+
+  const setUpDataMapperStep = async (dataMapperSteps: ProcessorDefinition[]) => {
+    const camelResource = new CamelRouteResource([createDataMapperRoute(dataMapperSteps)]);
+    const entitiesContext = await createMockEntitiesContext(camelResource);
+    const dataMapperVizNode = await getDataMapperVizNode(camelResource);
+    return { camelResource, entitiesContext, dataMapperVizNode };
   };
 
   beforeEach(() => {
@@ -227,21 +253,13 @@ describe('DataMapperPage', () => {
   });
 
   describe('Output Validation', () => {
-    const vizNodeWithSteps = {
-      getId: () => 'route-1234',
-      data: {
-        definition: {
-          id: 'kaoto-datamapper-1234',
-          steps: [{ to: { id: 'xslt-1', uri: 'xslt-saxon:kaoto-datamapper-1234.xsl' } }],
-        },
-      },
-      updateModel: vi.fn(),
-    } as unknown as IVisualizationNode;
+    let vizNodeWithSteps: IVisualizationNode | undefined;
 
-    beforeEach(() => {
+    beforeEach(async () => {
       vi.restoreAllMocks();
       metadata = defaultMetadata;
       fileContents = {};
+      vizNodeWithSteps = (await setUpDataMapperStep([xsltStep])).dataMapperVizNode;
     });
 
     it('should read initial validation state via isValidationEnabled on mount', async () => {
@@ -265,10 +283,7 @@ describe('DataMapperPage', () => {
     });
 
     it('should not call isValidationEnabled when vizNode has no steps', async () => {
-      const emptyVizNode = {
-        getId: () => 'route-1234',
-        data: { definition: { id: 'kaoto-datamapper-1234' } },
-      } as unknown as IVisualizationNode;
+      const { dataMapperVizNode: emptyVizNode } = await setUpDataMapperStep([]);
 
       const isValidationEnabledSpy = vi
         .spyOn(DataMapperValidationStepService, 'isValidationEnabled')
@@ -287,7 +302,7 @@ describe('DataMapperPage', () => {
       expect(isValidationEnabledSpy).toHaveBeenCalledWith(emptyVizNode);
     });
 
-    it('should pass isOutputValidationEnabled and onSetOutputValidationEnabled to DataMapperProvider', async () => {
+    it('should read initial validation state via isValidationEnabled and pass to DataMapperProvider', async () => {
       vi.spyOn(DataMapperValidationStepService, 'isValidationEnabled').mockReturnValue(false);
       vi.spyOn(DataMapperValidationStepService, 'addValidationStep').mockImplementation(() => undefined);
       vi.spyOn(DataMapperValidationStepService, 'removeValidationStep').mockImplementation(() => undefined);
@@ -303,6 +318,73 @@ describe('DataMapperPage', () => {
       await screen.findByTestId('source-parameters-header');
 
       expect(DataMapperValidationStepService.isValidationEnabled).toHaveBeenCalledWith(vizNodeWithSteps);
+    });
+  });
+
+  describe('Output Variable', () => {
+    const managedSetVariableStep: ProcessorDefinition = {
+      setVariable: { id: 'kaoto-datamapper-output-variable-1234', name: 'myVar', simple: '${body}' },
+    };
+
+    const renderDataMapper = async (dataMapperSteps: ProcessorDefinition[]) => {
+      const setUp = await setUpDataMapperStep(dataMapperSteps);
+      renderWithVirtuoso(
+        <EntitiesContext.Provider value={setUp.entitiesContext}>
+          <MetadataProvider api={api}>
+            <DataMapper vizNode={setUp.dataMapperVizNode} />
+          </MetadataProvider>
+        </EntitiesContext.Provider>,
+      );
+      await screen.findByTestId('source-parameters-header');
+      return setUp;
+    };
+
+    beforeEach(() => {
+      vi.restoreAllMocks();
+      metadata = defaultMetadata;
+      fileContents = {};
+      fileContents[metadata.xsltPath] = EMPTY_XSL;
+    });
+
+    it('should prefill the settings modal with the variable of the managed setVariable step', async () => {
+      const user = userEvent.setup();
+      await renderDataMapper([xsltStep, managedSetVariableStep]);
+
+      await user.click(screen.getByTestId('datamapper-settings-button'));
+
+      expect(await screen.findByTestId('output-variable-name-input')).toHaveValue('myVar');
+    });
+
+    it('should ignore a user-authored setVariable step', async () => {
+      const user = userEvent.setup();
+      await renderDataMapper([xsltStep, { setVariable: { name: 'userVar', simple: '${header.foo}' } }]);
+
+      await user.click(screen.getByTestId('datamapper-settings-button'));
+
+      expect(await screen.findByTestId('output-variable-name-input')).toHaveValue('');
+    });
+
+    it('should write the managed setVariable step into the route when the variable is saved', async () => {
+      const user = userEvent.setup();
+      const { camelResource, entitiesContext } = await renderDataMapper([xsltStep]);
+
+      await user.click(screen.getByTestId('datamapper-settings-button'));
+      await user.type(await screen.findByTestId('output-variable-name-input'), 'newVar');
+      await user.click(screen.getByTestId('datamapper-settings-save-btn'));
+
+      expect(entitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
+      const updatedVizNode = await getDataMapperVizNode(camelResource);
+      expect(updatedVizNode?.data.definition).toMatchObject({
+        steps: expect.arrayContaining([
+          {
+            setVariable: {
+              id: expect.stringMatching(/^kaoto-datamapper-output-variable-/),
+              name: 'newVar',
+              simple: '${body}',
+            },
+          },
+        ]),
+      });
     });
   });
 });

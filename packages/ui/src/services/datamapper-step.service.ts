@@ -1,4 +1,4 @@
-import { ProcessorDefinition, SetBody } from '@kaoto/camel-catalog/types';
+import { ProcessorDefinition, SetBody, SetVariable } from '@kaoto/camel-catalog/types';
 
 import { getCamelRandomId } from '../camel-utils/camel-random-id';
 import { DynamicCatalogRegistry } from '../dynamic-catalog/dynamic-catalog-registry';
@@ -32,6 +32,30 @@ import type { XsltComponentDef } from '../utils/is-xslt-component';
  * - Capability detection (e.g., JSON body support)
  */
 export class DataMapperStepService {
+  /** Id prefix for the managed `setVariable` step that captures the DataMapper output. */
+  private static readonly OUTPUT_VARIABLE_STEP_ID_PREFIX = 'kaoto-datamapper-output-variable';
+
+  /**
+   * Error message shown when a variable name contains only whitespace.
+   * An empty name is not an error: the output variable is optional and an empty name means no variable.
+   */
+  static readonly OUTPUT_VARIABLE_NAME_BLANK = 'Variable name cannot contain only whitespace';
+
+  /** Returns true if a variable name is valid (non-empty after trimming). */
+  static isValidOutputVariableName(name: string): boolean {
+    return name.trim().length > 0;
+  }
+
+  /**
+   * Returns the validation error for an output variable name, or `undefined` when there is none.
+   * Shared by the DataMapper launcher and the DataMapper settings modal so both report the same error.
+   * @param name The variable name as typed by the user
+   */
+  static getOutputVariableNameError(name: string): string | undefined {
+    if (name === '' || DataMapperStepService.isValidOutputVariableName(name)) return undefined;
+    return DataMapperStepService.OUTPUT_VARIABLE_NAME_BLANK;
+  }
+
   /**
    * Gets the metadata ID from a DataMapper visualization node.
    * @param vizNode The visualization node
@@ -126,6 +150,73 @@ export class DataMapperStepService {
 
     vizNode.updateModel(model);
     entitiesContext.updateSourceCodeFromEntities();
+  }
+
+  /**
+   * Returns the output variable name from the managed DataMapper output `setVariable` step.
+   * Returns `undefined` if no managed output-variable step exists.
+   * @param vizNode The visualization node
+   */
+  static getOutputVariable(vizNode: IVisualizationNode): string | undefined {
+    const model = vizNode.data?.definition as Record<string, unknown>;
+    const steps = model.steps as ProcessorDefinition[] | undefined;
+    if (!steps) return undefined;
+    const setVarStep = steps.find((s) => DataMapperStepService.isManagedOutputVariableStep(s));
+    if (!setVarStep) return undefined;
+    return (setVarStep.setVariable as { name?: string } | undefined)?.name;
+  }
+
+  /**
+   * Adds, updates, or removes the managed DataMapper output `setVariable` step.
+   * Only the step whose id starts with {@link DataMapperStepService.OUTPUT_VARIABLE_STEP_ID_PREFIX} is touched —
+   * any user-authored `setVariable` steps are left intact.
+   * - When `variableName` is non-blank: the name is trimmed. An existing managed step is renamed in place
+   *   (keeping its id), or a new one is appended if none exists. Nothing is written if the name is unchanged.
+   * - When `variableName` is blank or undefined: removes any existing managed step.
+   * @param vizNode The visualization node
+   * @param variableName The variable name to set, or undefined/blank to remove
+   * @param entitiesContext The entities context for updating source code
+   */
+  static setOutputVariable(
+    vizNode: IVisualizationNode,
+    variableName: string | undefined,
+    entitiesContext: EntitiesContextResult,
+  ): void {
+    const model = vizNode.data?.definition as Record<string, unknown>;
+    const steps = model.steps as ProcessorDefinition[] | undefined;
+    if (!steps) return;
+
+    const name = variableName?.trim();
+    const existing = steps.find((s) => DataMapperStepService.isManagedOutputVariableStep(s));
+
+    if (!name) {
+      if (!existing) return;
+      model.steps = steps.filter((s) => s !== existing);
+    } else if (existing) {
+      const setVariable = existing.setVariable as SetVariable;
+      if (setVariable.name === name) return;
+      setVariable.name = name;
+    } else {
+      steps.push({
+        setVariable: {
+          id: getCamelRandomId(DataMapperStepService.OUTPUT_VARIABLE_STEP_ID_PREFIX),
+          name,
+          simple: '${body}',
+        } as SetVariable,
+      } as ProcessorDefinition);
+    }
+    vizNode.updateModel(model);
+    entitiesContext.updateSourceCodeFromEntities();
+  }
+
+  /**
+   * Returns true if the step is the managed DataMapper output `setVariable` step,
+   * identified by an id starting with {@link DataMapperStepService.OUTPUT_VARIABLE_STEP_ID_PREFIX}.
+   */
+  private static isManagedOutputVariableStep(step: ProcessorDefinition): boolean {
+    if (!step.setVariable || typeof step.setVariable !== 'object') return false;
+    const id = (step.setVariable as Record<string, unknown>).id;
+    return typeof id === 'string' && id.startsWith(DataMapperStepService.OUTPUT_VARIABLE_STEP_ID_PREFIX);
   }
 
   static updateXsltFileName(

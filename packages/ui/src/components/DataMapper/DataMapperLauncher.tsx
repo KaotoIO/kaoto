@@ -33,6 +33,7 @@ import { DataMapperStepService } from '../../services/datamapper-step.service';
 import { DataMapperValidationStepService } from '../../services/datamapper-validation-step.service';
 import { isXSLTComponent } from '../../utils';
 import type { XsltComponentDef } from '../../utils/is-xslt-component';
+import { OutputVariableField } from './OutputVariableField';
 import XsltDocumentRenameInput from './XsltDocumentRenameInput';
 
 // XSLT filename validation regex
@@ -46,7 +47,7 @@ const XSLT_FILENAME_REQUIRED = 'XSLT document name is required.';
 const XSLT_FILENAME_FORMAT_ERROR = 'XSLT document name must be a valid filename ending with .xsl.';
 const XSLT_FILENAME_ALREADY_EXISTS = 'An XSLT document with this name already exists.';
 
-export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNode }> = ({ vizNode }) => {
+const DataMapperLauncherContent: FunctionComponent<{ vizNode?: IVisualizationNode }> = ({ vizNode }) => {
   const navigate = useNavigate();
   const metadata = useContext(MetadataContext);
   const entitiesContext = useContext(EntitiesContext);
@@ -60,6 +61,10 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
   const [isTargetPrimitive, setIsTargetPrimitive] = useState<boolean>(true);
   // Output validation UI: set to true when feature is complete
   const showOutputValidation = false as boolean;
+  // useState lazy initializer: getOutputVariable is called once at mount, not on every render.
+  const [outputVariableName, setOutputVariableName] = useState<string>(
+    () => (vizNode ? DataMapperStepService.getOutputVariable(vizNode) : undefined) ?? '',
+  );
 
   const xsltDocumentName = useMemo(() => {
     const defModel = vizNode?.data.definition as Record<string, unknown> | undefined;
@@ -191,6 +196,22 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
     [vizNode, entitiesContext, metadata],
   );
 
+  const handleOutputVariableNameChange = useCallback(
+    (value: string) => {
+      setOutputVariableName(value);
+      if (vizNode && entitiesContext) {
+        // Write the valid name immediately; clear the step when empty/blank so an
+        // invalid name is never persisted to the route YAML.
+        DataMapperStepService.setOutputVariable(
+          vizNode,
+          DataMapperStepService.isValidOutputVariableName(value) ? value : undefined,
+          entitiesContext,
+        );
+      }
+    },
+    [vizNode, entitiesContext],
+  );
+
   const onClick = useCallback(async () => {
     await navigate(`${Links.DataMapper}/${(vizNode?.data.definition as Record<string, unknown> | undefined)?.id}`);
   }, [navigate, vizNode]);
@@ -249,6 +270,11 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
           />
         </FormGroup>
       )}
+      <OutputVariableField
+        value={outputVariableName}
+        onChange={handleOutputVariableNameChange}
+        isDisabled={!vizNode || !entitiesContext}
+      />
       {(!xsltFileExists || !isXsltDocumentDefined) && (
         <HelperText>
           <HelperTextItem variant="error">
@@ -269,5 +295,20 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
     </section>
   );
 };
+
+/**
+ * Canvas form header for a Kaoto DataMapper step.
+ *
+ * The content is keyed by the DataMapper step id so that its local state, such as the output variable name being
+ * edited or a renamed XSLT document name, never carries over to another DataMapper step. The canvas side panel is
+ * keyed by the path-based `vizNode.id`, which is only unique within a route, so two DataMapper steps at the same
+ * position in different routes would otherwise share one component instance.
+ */
+export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNode }> = ({ vizNode }) => (
+  <DataMapperLauncherContent
+    key={vizNode ? DataMapperStepService.getDataMapperMetadataId(vizNode) : undefined}
+    vizNode={vizNode}
+  />
+);
 
 export default DataMapperLauncher;
