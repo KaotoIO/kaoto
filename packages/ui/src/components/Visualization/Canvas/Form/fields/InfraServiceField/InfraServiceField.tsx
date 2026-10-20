@@ -30,7 +30,7 @@ export function parseInfraCatalog(
 
   const entries: InfraServiceCatalogEntry[] = [];
 
-  for (const serviceName of [...implsByService.keys()].sort()) {
+  for (const serviceName of [...implsByService.keys()].sort((a, b) => a.localeCompare(b))) {
     const explicitDef = serviceDefMap.get(serviceName);
     const fallbackTitle = serviceName.charAt(0).toUpperCase() + serviceName.slice(1);
     const def: ICitrusComponentDefinition = explicitDef ?? {
@@ -60,11 +60,14 @@ export const InfraServiceField: FunctionComponent<FieldProps> = ({ propName, req
   const [infraCatalog, setInfraCatalog] = useState<Record<string, ICitrusComponentDefinition>>({});
 
   useEffect(() => {
-    void DynamicCatalogRegistry.get()
+    DynamicCatalogRegistry.get()
       .getCatalog(CatalogKind.TestInfraService)
       ?.getAll()
       .then((catalog) => {
         if (catalog) setInfraCatalog(catalog);
+      })
+      .catch((error: unknown) => {
+        console.error('Failed to load Citrus infra services catalog', error);
       });
   }, []);
 

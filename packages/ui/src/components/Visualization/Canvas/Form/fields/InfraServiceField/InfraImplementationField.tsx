@@ -14,11 +14,14 @@ export const InfraImplementationField: FunctionComponent<FieldProps> = ({ propNa
   const [infraCatalog, setInfraCatalog] = useState<Record<string, ICitrusComponentDefinition>>({});
 
   useEffect(() => {
-    void DynamicCatalogRegistry.get()
+    DynamicCatalogRegistry.get()
       .getCatalog(CatalogKind.TestInfraService)
       ?.getAll()
       .then((catalog) => {
         if (catalog) setInfraCatalog(catalog);
+      })
+      .catch((error: unknown) => {
+        console.error('Failed to load Citrus infra services catalog', error);
       });
   }, []);
 

@@ -121,9 +121,13 @@ export const testLoadCitrusCatalog = async (catalogLibraryEntry: CatalogLibraryE
   const endpointsCatalogMap: Record<string, ICitrusComponentDefinition> =
     endpointsCatalogMapImport.default || endpointsCatalogMapImport;
 
-  const infraServicesCatalogMapImport = await import(`${catalogPath}${catalogDefinition.catalogs.infraServices.file}`);
-  const infraServicesCatalogMap: Record<string, ICitrusComponentDefinition> =
-    infraServicesCatalogMapImport.default || infraServicesCatalogMapImport;
+  let infraServicesCatalogMap: Record<string, ICitrusComponentDefinition> = {};
+  if (catalogDefinition.catalogs.infraServices) {
+    const infraServicesCatalogMapImport = await import(
+      `${catalogPath}${catalogDefinition.catalogs.infraServices.file}`
+    );
+    infraServicesCatalogMap = infraServicesCatalogMapImport.default || infraServicesCatalogMapImport;
+  }
 
   // The imported JSON modules are cached and shared by every test file of a worker (`isolate: false`),
   // so hand out a copy: some tests adjust the catalogs to their needs
