@@ -99,7 +99,11 @@ export class XPathService {
     if (pathNode.steps.length === 0) return false;
 
     return pathNode.steps.every(
-      (step) => XPathService.hasOnlyAllowedPredicates(step) && XPathService.hasValidFilterExpr(step),
+      (step) =>
+        (!step.axis || step.axis === 'child' || step.axis === 'attribute') &&
+        (!step.reverseStep || step.reverseStep.isParentReference) &&
+        XPathService.hasOnlyAllowedPredicates(step) &&
+        XPathService.hasValidFilterExpr(step),
     );
   }
 

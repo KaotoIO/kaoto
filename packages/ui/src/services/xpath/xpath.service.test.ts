@@ -21,6 +21,12 @@ describe('XPathService', () => {
       expect(XPathService.isSimplePath('$Cart/items/item')).toBe(true);
       expect(XPathService.isSimplePath('@id')).toBe(true);
       expect(XPathService.isSimplePath('../parentField')).toBe(true);
+      expect(XPathService.isSimplePath('attribute::id')).toBe(true);
+    });
+
+    it('should reject explicit non-child axes', () => {
+      expect(XPathService.isSimplePath('ancestor::x')).toBe(false);
+      expect(XPathService.isSimplePath('descendant::x')).toBe(false);
     });
 
     it('should return false for empty or whitespace expressions', () => {

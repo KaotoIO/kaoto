@@ -412,6 +412,19 @@ export class CstVisitor {
       return stepNode;
     }
 
+    const axisTokenName = [
+      'Child',
+      'Descendant',
+      'Attribute',
+      'Self',
+      'DescendantOrSelf',
+      'FollowingSibling',
+      'Following',
+      'Namespace',
+    ].find((axisName) => axisName in node.children);
+    const axis = axisTokenName
+      ? CstVisitor.extractTokenImage(CstVisitor.getSingleNode(node, [axisTokenName]))
+      : undefined;
     const isAttribute = 'children' in node && 'At' in node.children;
     const nodeTest = CstVisitor.getSingleNode(node, ['NodeTest', 'NameTest']);
     const nameTestNode = nodeTest && 'children' in nodeTest ? CstVisitor.visitNameTest(nodeTest) : undefined;
@@ -420,6 +433,7 @@ export class CstVisitor {
     const stepNode: StepExprNode = {
       type: XPathNodeType.StepExpr,
       range: CstVisitor.createRangeFromNode(node),
+      axis,
       isAttribute,
       nodeTest: nameTestNode,
       predicates,
