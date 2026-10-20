@@ -3,18 +3,9 @@ import { cloneDeep } from 'lodash';
 import { FunctionComponent, Suspense, use, useContext, useMemo } from 'react';
 
 import { ParsedParameters } from '../../../../../../utils';
-import { ErrorBoundary } from '../../../../../ErrorBoundary';
-import { ErrorDetails } from '../../../../../ErrorFallbacks/ErrorDetails';
-import { ErrorNotification } from '../../../../../ErrorFallbacks/ErrorNotification';
 import { Loading } from '../../../../../Loading';
+import { FieldErrorBoundary } from '../FieldErrorBoundary';
 import { MultiValuePropertyService } from './MultiValueProperty.service';
-
-const renderMultiValuePropertyEditorError = (error: Error) => (
-  <>
-    <ErrorNotification title="Field editor unavailable" />
-    <ErrorDetails message={error.message} />
-  </>
-);
 
 export const MultiValuePropertyEditor: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { schema } = useContext(SchemaContext);
@@ -25,11 +16,11 @@ export const MultiValuePropertyEditor: FunctionComponent<FieldProps> = ({ propNa
   }, [componentName]);
 
   return (
-    <ErrorBoundary fallback={renderMultiValuePropertyEditorError}>
+    <FieldErrorBoundary>
       <Suspense fallback={<Loading />}>
         <MultiValuePropertyEditorInner propName={propName} required={required} promise={multiValuePromise} />
       </Suspense>
-    </ErrorBoundary>
+    </FieldErrorBoundary>
   );
 };
 
