@@ -19,9 +19,21 @@ import { InfrastructureRefreshManager } from '../../../views/infrastructure/Infr
 // ─── startAutoRefresh / stopAutoRefresh ───────────────────────────────────────
 
 suite('InfrastructureRefreshManager — startAutoRefresh / stopAutoRefresh', function () {
+	// Disposed in teardown so a failing assertion never leaves an interval running into later tests
+	const managers: InfrastructureRefreshManager[] = [];
+	const createManager = (onRefresh: () => Promise<void>) => {
+		const manager = new InfrastructureRefreshManager(onRefresh);
+		managers.push(manager);
+		return manager;
+	};
+
+	teardown(() => {
+		managers.splice(0).forEach((manager) => manager.dispose());
+	});
+
 	test('onRefresh is called after the interval fires', function (done) {
 		let callCount = 0;
-		const manager = new InfrastructureRefreshManager(async () => {
+		const manager = createManager(async () => {
 			callCount++;
 			assert.isAbove(callCount, 0, 'onRefresh callback was invoked after the interval fired');
 			manager.stopAutoRefresh();
@@ -35,7 +47,7 @@ suite('InfrastructureRefreshManager — startAutoRefresh / stopAutoRefresh', fun
 
 	test('stopAutoRefresh prevents further calls', function (done) {
 		let callCount = 0;
-		const manager = new InfrastructureRefreshManager(async () => {
+		const manager = createManager(async () => {
 			callCount++;
 		});
 		(manager as any).refreshInterval = 10;
@@ -52,7 +64,7 @@ suite('InfrastructureRefreshManager — startAutoRefresh / stopAutoRefresh', fun
 
 	test('startAutoRefresh replaces any existing timer', function (done) {
 		let callCount = 0;
-		const manager = new InfrastructureRefreshManager(async () => {
+		const manager = createManager(async () => {
 			callCount++;
 		});
 		(manager as any).refreshInterval = 20;
@@ -71,7 +83,7 @@ suite('InfrastructureRefreshManager — startAutoRefresh / stopAutoRefresh', fun
 	});
 
 	test('dispose clears the auto-refresh handle', function () {
-		const manager = new InfrastructureRefreshManager(async () => {});
+		const manager = createManager(async () => {});
 		(manager as any).refreshInterval = 100;
 		manager.startAutoRefresh();
 		manager.dispose();
@@ -80,7 +92,7 @@ suite('InfrastructureRefreshManager — startAutoRefresh / stopAutoRefresh', fun
 	});
 
 	test('stopAutoRefresh is idempotent when no timer is active', function () {
-		const manager = new InfrastructureRefreshManager(async () => {});
+		const manager = createManager(async () => {});
 		// No timer started; calling stop should not throw
 		assert.doesNotThrow(() => manager.stopAutoRefresh());
 		manager.dispose();
