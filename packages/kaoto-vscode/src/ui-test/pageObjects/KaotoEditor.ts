@@ -17,6 +17,16 @@ import { AbstractElement, By, until, WebDriver } from 'vscode-extension-tester';
 import { kaotoLocators } from './locators';
 
 /**
+ * Default time to wait for the Kaoto canvas (empty canvas or topology) to appear.
+ *
+ * The first Kaoto editor opened after VS Code starts pays for a cold start: the
+ * extension activates, the webview boots and the Camel catalog loads. On fresh
+ * Windows CI runners that can take well over 10s, while later editors load in a
+ * few seconds, so the longer wait only costs time when the canvas really is missing.
+ */
+export const CANVAS_LOAD_TIMEOUT = 30_000;
+
+/**
  * Page object for the Kaoto webview editor.
  *
  * Provides high-level helpers for checking editor state (empty canvas,
@@ -35,14 +45,14 @@ export class KaotoEditor extends AbstractElement {
 	/**
 	 * Wait until the "empty canvas" placeholder is visible (no routes loaded).
 	 */
-	static async waitForEmptyCanvas(driver: WebDriver, timeout = 10_000): Promise<void> {
+	static async waitForEmptyCanvas(driver: WebDriver, timeout = CANVAS_LOAD_TIMEOUT): Promise<void> {
 		await driver.wait(until.elementLocated(By.xpath(kaotoLocators.KaotoEditor.emptyCanvas)), timeout, 'Empty Kaoto Canvas was not loaded properly');
 	}
 
 	/**
 	 * Wait until the topology (route graph) is visible.
 	 */
-	static async waitForTopology(driver: WebDriver, timeout = 10_000): Promise<void> {
+	static async waitForTopology(driver: WebDriver, timeout = CANVAS_LOAD_TIMEOUT): Promise<void> {
 		await driver.wait(until.elementLocated(By.xpath(kaotoLocators.KaotoEditor.topology)), timeout, 'Kaoto topology was not loaded properly');
 		await driver.sleep(1_000); // stabilize — topology re-renders briefly on macOS CI
 	}
