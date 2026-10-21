@@ -32,21 +32,29 @@ function makeService(name: string, overrides: Partial<RunningInfrastructureServi
 
 // ─── Setup / teardown ─────────────────────────────────────────────────────────
 
-let origCapturePs: typeof CamelCommandAPI.captureInfraPs;
+/**
+ * Registers hooks in the calling suite that report no CLI services running, which prevents the
+ * auto-registration of external services. Hooks declared at file level would apply to every
+ * suite of the run, so each suite calls this instead.
+ */
+function stubNoCliServices(): void {
+	let origCapturePs: typeof CamelCommandAPI.captureInfraPs;
 
-setup(function () {
-	origCapturePs = CamelCommandAPI.captureInfraPs;
-	// Default: no CLI services running; prevents auto-registration of external services
-	CamelCommandAPI.captureInfraPs = async () => JSON.stringify([]);
-});
+	setup(function () {
+		origCapturePs = CamelCommandAPI.captureInfraPs;
+		CamelCommandAPI.captureInfraPs = async () => JSON.stringify([]);
+	});
 
-teardown(function () {
-	CamelCommandAPI.captureInfraPs = origCapturePs;
-});
+	teardown(function () {
+		CamelCommandAPI.captureInfraPs = origCapturePs;
+	});
+}
 
 // ─── getChildren ──────────────────────────────────────────────────────────────
 
 suite('InfrastructureProvider — getChildren', function () {
+	stubNoCliServices();
+
 	test('returns empty array when no services are registered', function () {
 		const provider = new InfrastructureProvider();
 		assert.deepStrictEqual(provider.getChildren(), []);
@@ -78,6 +86,8 @@ suite('InfrastructureProvider — getChildren', function () {
 // ─── registerRunningService fires tree change event ──────────────────────────
 
 suite('InfrastructureProvider — registerRunningService', function () {
+	stubNoCliServices();
+
 	test('fires onDidChangeTreeData', function (done) {
 		const provider = new InfrastructureProvider();
 		provider.onDidChangeTreeData((e) => {
@@ -92,6 +102,8 @@ suite('InfrastructureProvider — registerRunningService', function () {
 // ─── unregisterRunningService ────────────────────────────────────────────────
 
 suite('InfrastructureProvider — unregisterRunningService', function () {
+	stubNoCliServices();
+
 	test('removes service from getChildren', function () {
 		const provider = new InfrastructureProvider();
 		provider.registerRunningService(makeService('kafka'));
@@ -106,6 +118,8 @@ suite('InfrastructureProvider — unregisterRunningService', function () {
 // ─── markServiceStopping ──────────────────────────────────────────────────────
 
 suite('InfrastructureProvider — markServiceStopping', function () {
+	stubNoCliServices();
+
 	test('service status becomes "stopping"', function () {
 		const provider = new InfrastructureProvider();
 		provider.registerRunningService(makeService('kafka', { status: 'running' }));
@@ -121,6 +135,8 @@ suite('InfrastructureProvider — markServiceStopping', function () {
 // ─── updateRunningService ─────────────────────────────────────────────────────
 
 suite('InfrastructureProvider — updateRunningService', function () {
+	stubNoCliServices();
+
 	test('updates fields on a known service', function () {
 		const provider = new InfrastructureProvider();
 		provider.registerRunningService(makeService('kafka', { status: 'running' }));
@@ -152,6 +168,8 @@ suite('InfrastructureProvider — updateRunningService', function () {
 // ─── dispose ─────────────────────────────────────────────────────────────────
 
 suite('InfrastructureProvider — dispose', function () {
+	stubNoCliServices();
+
 	test('can be disposed without throwing', function () {
 		const provider = new InfrastructureProvider();
 		assert.doesNotThrow(() => provider.dispose());
