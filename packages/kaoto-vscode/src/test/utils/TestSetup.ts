@@ -49,6 +49,34 @@ export function getTestWorkspaceFolder(): string {
 }
 
 /**
+ * Close every editor left open by earlier tests, discarding unsaved changes.
+ * Reverting first avoids the save confirmation, which would block the run.
+ */
+export async function closeAllEditors(): Promise<void> {
+	let remaining = vscode.window.tabGroups.all.reduce((count, group) => count + group.tabs.length, 0);
+	while (remaining > 0) {
+		await vscode.commands.executeCommand('workbench.action.revertAndCloseActiveEditor');
+		const left = vscode.window.tabGroups.all.reduce((count, group) => count + group.tabs.length, 0);
+		if (left >= remaining) {
+			throw new Error(`Could not close the remaining ${left} editor tab(s)`);
+		}
+		remaining = left;
+	}
+}
+
+/**
+ * Snapshot the KaotoCatalogService singleton; every `new KaotoCatalogService()` replaces it.
+ * Call the returned function to put the previous instance back.
+ */
+export function preserveKaotoCatalogServiceInstance(): () => void {
+	const holder = KaotoCatalogService as unknown as { instance: KaotoCatalogService | undefined };
+	const previous = holder.instance;
+	return () => {
+		holder.instance = previous;
+	};
+}
+
+/**
  * Initialize KaotoCatalogService for tests
  * This should be called in test setup/suiteSetup
  */
