@@ -38,6 +38,11 @@
     },
     "./testing/vitest-setup": {
       "@kaoto/source": "./vitest-setup.ts"
+    },
+    "./host-bridge": {
+      "@kaoto/source": "./src/host-bridge/index.ts",
+      "types": "./lib/host-bridge/index.d.ts",
+      "import": "./lib/host-bridge/index.js"
     }
   },
   "sideEffects": [
