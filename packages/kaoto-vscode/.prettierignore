@@ -1,5 +1,7 @@
 coverage/
 out/
+out-unit-tests/
+out-ui-tests/
 dist/
 resources/
 node_modules/

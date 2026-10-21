@@ -21,6 +21,7 @@ dist
 /test-resources
 /out
 /out-unit-tests
+/out-ui-tests
 /reports
 
 # production
