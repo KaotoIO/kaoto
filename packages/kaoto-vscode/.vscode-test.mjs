@@ -59,7 +59,9 @@ export default defineConfig({
   mocha: {
     ui: 'tdd',
     color: true,
-    timeout: debugBootloader ? 0 : 100000,
+    // The slowest test takes ~1.3s in CI and extension activation ~15s; a lower limit makes a
+    // blocked await fail fast instead of stalling the run. Raise it per test with this.timeout().
+    timeout: debugBootloader ? 0 : 20_000,
     ...(debugBootloader ? { require: debugBootloader } : {}),
   },
 });
