@@ -49,18 +49,14 @@ export function getTestWorkspaceFolder(): string {
 }
 
 /**
- * Close every editor left open by earlier tests, discarding unsaved changes.
- * Reverting first avoids the save confirmation, which would block the run.
+ * Close every editor left open by earlier tests, in every editor group.
+ * The extension test host closes dirty editors without a save prompt and discards their changes.
  */
 export async function closeAllEditors(): Promise<void> {
-	let remaining = vscode.window.tabGroups.all.reduce((count, group) => count + group.tabs.length, 0);
-	while (remaining > 0) {
-		await vscode.commands.executeCommand('workbench.action.revertAndCloseActiveEditor');
-		const left = vscode.window.tabGroups.all.reduce((count, group) => count + group.tabs.length, 0);
-		if (left >= remaining) {
-			throw new Error(`Could not close the remaining ${left} editor tab(s)`);
-		}
-		remaining = left;
+	await vscode.window.tabGroups.close(vscode.window.tabGroups.all.flatMap((group) => group.tabs));
+	const left = vscode.window.tabGroups.all.reduce((count, group) => count + group.tabs.length, 0);
+	if (left > 0) {
+		throw new Error(`Could not close the remaining ${left} editor tab(s)`);
 	}
 }
 
