@@ -358,7 +358,6 @@ describe('NodeEnrichmentService', () => {
       name: 'test-kamelet',
       path: 'template',
       entity: {} as BaseVisualEntity,
-      processorName: 'route',
       isPlaceholder: false,
       isGroup: true,
       iconUrl: '',
@@ -394,7 +393,6 @@ describe('NodeEnrichmentService', () => {
       name: 'log',
       path: 'template.from.steps.0.log', // Not a root path
       entity: {} as BaseVisualEntity,
-      processorName: 'log',
       isPlaceholder: false,
       isGroup: false,
       iconUrl: '',

@@ -315,7 +315,6 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       title: '',
       description: '',
       processorIconTooltip: '',
-      processorName: 'route',
       schema: undefined,
       primaryNodeId: { name: this.type, catalogKind: CatalogKind.Entity } satisfies NodeIdentity,
     });
