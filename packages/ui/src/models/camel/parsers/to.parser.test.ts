@@ -41,6 +41,8 @@ describe('CatalogTilesProvider', () => {
       { uri: 'log:my-log-route?level=INFO&multiline=true' },
       { uri: 'log', parameters: { loggerName: 'my-log-route', level: 'INFO', multiline: true } },
     ],
+    ['kamelet:delay-action/001', { uri: 'kamelet', parameters: { templateId: 'delay-action', routeId: '001' } }],
+    ['ftp:localhost:21/inbox', { uri: 'ftp', parameters: { host: 'localhost', port: 21, directoryName: 'inbox' } }],
     [{ uri: '' }, { parameters: {}, uri: '' }],
     [{ uri: undefined }, { parameters: {}, uri: '' }],
   ];

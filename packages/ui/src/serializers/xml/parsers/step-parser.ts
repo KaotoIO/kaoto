@@ -135,6 +135,7 @@ export class StepParser {
       const query = qIdx === -1 ? undefined : uriString.slice(qIdx + 1);
       const pathParams = CamelUriHelper.getParametersFromPathString(component.component.syntax, path, {
         requiredParameters: component.propertiesSchema.required as string[],
+        propertiesSchema: component.propertiesSchema,
       });
       const queryParams = CamelUriHelper.getParametersFromQueryString(query);
       return { uri: componentName, parameters: { ...pathParams, ...queryParams } };
