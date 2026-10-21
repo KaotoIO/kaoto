@@ -37,6 +37,18 @@ export async function getExtensionContext(): Promise<vscode.ExtensionContext> {
 }
 
 /**
+ * Absolute path of the workspace folder opened for the tests.
+ * It is a per-run copy of the fixture folder, see .vscode-test.mjs
+ */
+export function getTestWorkspaceFolder(): string {
+	const folder = vscode.workspace.workspaceFolders?.[0];
+	if (!folder) {
+		throw new Error('No workspace folder available for testing');
+	}
+	return folder.uri.fsPath;
+}
+
+/**
  * Initialize KaotoCatalogService for tests
  * This should be called in test setup/suiteSetup
  */

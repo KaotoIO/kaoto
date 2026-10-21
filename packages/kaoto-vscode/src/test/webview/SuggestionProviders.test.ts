@@ -18,6 +18,7 @@ import path from 'path';
 import { expect } from 'chai';
 import { filterSuggestionsByWord, getSuggestions } from '../../services/SuggestionRegistry';
 import { Suggestion } from '@kaoto/kaoto';
+import { getTestWorkspaceFolder } from '../utils/TestSetup';
 
 suite('Channel API', () => {
 	suite('get Suggestions for OS environment variables', function () {
@@ -161,21 +162,10 @@ suite('Channel API', () => {
 		let mavenTestFile: string;
 
 		setup(async () => {
-			standaloneFile = path.resolve(__dirname, '../../../test Fixture with speci@l chars', 'suggestions', 'route.camel.yaml');
-			mavenFile = path.resolve(
-				__dirname,
-				'../../../test Fixture with speci@l chars',
-				'camel-maven-main-project',
-				'src/main/resources/camel',
-				'my-camel-main-route.camel.yaml',
-			);
-			mavenTestFile = path.resolve(
-				__dirname,
-				'../../../test Fixture with speci@l chars',
-				'camel-maven-main-project',
-				'src/test/resources',
-				'test.camel.yaml',
-			);
+			const workspaceFolder = getTestWorkspaceFolder();
+			standaloneFile = path.join(workspaceFolder, 'suggestions', 'route.camel.yaml');
+			mavenFile = path.join(workspaceFolder, 'camel-maven-main-project', 'src/main/resources/camel', 'my-camel-main-route.camel.yaml');
+			mavenTestFile = path.join(workspaceFolder, 'camel-maven-main-project', 'src/test/resources', 'test.camel.yaml');
 		});
 
 		teardown(() => {});
