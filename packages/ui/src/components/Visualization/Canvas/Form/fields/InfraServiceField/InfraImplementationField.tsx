@@ -1,9 +1,7 @@
 import { FieldProps, FieldWrapper, SchemaContext, Typeahead, TypeaheadItem, useFieldValue } from '@kaoto/forms';
-import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
 
-import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
-import { CatalogKind, ICitrusComponentDefinition } from '../../../../../../models';
-import { parseInfraCatalog } from './InfraServiceField';
+import { useInfraCatalog } from './useInfraCatalog';
 
 export const InfraImplementationField: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { schema } = useContext(SchemaContext);
@@ -11,21 +9,7 @@ export const InfraImplementationField: FunctionComponent<FieldProps> = ({ propNa
   const lastDot = propName.lastIndexOf('.');
   const servicePropName = lastDot >= 0 ? propName.substring(0, lastDot + 1) + 'service' : 'service';
   const { value: serviceValue } = useFieldValue<string | undefined>(servicePropName);
-  const [infraCatalog, setInfraCatalog] = useState<Record<string, ICitrusComponentDefinition>>({});
-
-  useEffect(() => {
-    DynamicCatalogRegistry.get()
-      .getCatalog(CatalogKind.TestInfraService)
-      ?.getAll()
-      .then((catalog) => {
-        if (catalog) setInfraCatalog(catalog);
-      })
-      .catch((error: unknown) => {
-        console.error('Failed to load Citrus infra services catalog', error);
-      });
-  }, []);
-
-  const catalogEntries = useMemo(() => parseInfraCatalog(infraCatalog), [infraCatalog]);
+  const catalogEntries = useInfraCatalog();
 
   const items: TypeaheadItem<string>[] = useMemo(() => {
     if (!serviceValue) return [];
