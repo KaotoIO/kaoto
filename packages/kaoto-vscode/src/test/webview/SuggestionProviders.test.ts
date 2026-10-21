@@ -37,7 +37,14 @@ suite('Channel API', () => {
 		});
 
 		teardown(() => {
-			process.env = originalEnv;
+			// Restore in place: replacing process.env with a plain copy would drop its special
+			// behaviour (case-insensitive keys on Windows) for every later test.
+			for (const key of Object.keys(process.env)) {
+				if (!(key in originalEnv)) {
+					delete process.env[key];
+				}
+			}
+			Object.assign(process.env, originalEnv);
 		});
 
 		test('includes case-sensitive startsWith matches and ranks them first', async () => {
