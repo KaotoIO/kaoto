@@ -102,5 +102,60 @@ suite('KameletFileReader', () => {
 			assert.strictEqual(byFilename['a.kamelet.yaml'], contentA);
 			assert.strictEqual(byFilename['b.kamelet.yaml'], contentB);
 		});
+
+		const directoryForms = [
+			{ name: 'a filesystem path', directory: () => tmpDir.fsPath },
+			{ name: 'a Uri', directory: () => tmpDir },
+		];
+		for (const { name, directory } of directoryForms) {
+			test(`reads kamelet files from a directory given as ${name}`, async () => {
+				await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(tmpDir, 'my.kamelet.yaml'), new TextEncoder().encode('kamelet'));
+
+				const result = await readKameletsFromDirectory(directory());
+
+				assert.deepEqual(result, [{ filename: 'my.kamelet.yaml', content: 'kamelet' }]);
+			});
+		}
+
+		suite('in a virtual file system', () => {
+			const scheme = 'kaoto-kamelet-test';
+			let fileSystem: vscode.Disposable;
+
+			setup(() => {
+				// Serve tmpDir under a non-file scheme, like a remote or virtual workspace would.
+				const toDisk = (uri: vscode.Uri) => vscode.Uri.joinPath(tmpDir, uri.path);
+				fileSystem = vscode.workspace.registerFileSystemProvider(scheme, {
+					onDidChangeFile: new vscode.EventEmitter<vscode.FileChangeEvent[]>().event,
+					watch: () => ({ dispose() {} }),
+					stat: (uri) => vscode.workspace.fs.stat(toDisk(uri)),
+					readDirectory: (uri) => vscode.workspace.fs.readDirectory(toDisk(uri)),
+					readFile: (uri) => vscode.workspace.fs.readFile(toDisk(uri)),
+					writeFile: () => {
+						throw vscode.FileSystemError.NoPermissions();
+					},
+					createDirectory: () => {
+						throw vscode.FileSystemError.NoPermissions();
+					},
+					delete: () => {
+						throw vscode.FileSystemError.NoPermissions();
+					},
+					rename: () => {
+						throw vscode.FileSystemError.NoPermissions();
+					},
+				});
+			});
+
+			teardown(() => {
+				fileSystem.dispose();
+			});
+
+			test('reads kamelet files from a directory Uri with a non-file scheme', async () => {
+				await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(tmpDir, 'kamelets', 'remote.kamelet.yaml'), new TextEncoder().encode('remote kamelet'));
+
+				const result = await readKameletsFromDirectory(vscode.Uri.from({ scheme, path: '/kamelets' }));
+
+				assert.deepEqual(result, [{ filename: 'remote.kamelet.yaml', content: 'remote kamelet' }]);
+			});
+		});
 	});
 });
