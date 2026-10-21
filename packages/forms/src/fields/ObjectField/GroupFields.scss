@@ -1,3 +1,9 @@
+/* Carbon's BEM class names are not kebab-case */
+/* stylelint-disable selector-class-pattern */
 .cds--accordion__content {
   padding-inline-end: 0;
+}
+
+.kaoto-form__expandable-group .cds--accordion__item--active > .cds--accordion__heading {
+  border-bottom: 1px solid var(--cds-border-subtle);
 }
