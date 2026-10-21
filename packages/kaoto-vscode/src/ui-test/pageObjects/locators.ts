@@ -17,7 +17,7 @@
 /**
  * Kaoto IT-test custom locator contribution.
  *
- * Compiled to `out/pageObjects/locators.js` and registered with ExTester via
+ * Compiled to `out-ui-tests/pageObjects/locators.js` and registered with ExTester via
  * `extester.config.json` → `run.customPageObjects`.
  *
  * The exported `locators` object follows the `LocatorDiff` shape expected by
@@ -189,7 +189,7 @@ export const kaotoLocators = {
  * ExTester custom page-objects locator contribution.
  *
  * All selectors that require a `By` object at runtime are registered here.
- * This file is compiled to `out/pageObjects/locators.js` and loaded by
+ * This file is compiled to `out-ui-tests/pageObjects/locators.js` and loaded by
  * ExTester's `customPageObjects.locatorsPath` option before tests run.
  *
  * Page object classes extend `AbstractElement` and call

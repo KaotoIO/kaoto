@@ -50,11 +50,11 @@ To run against a prebuilt VSIX, set `VSIX_FILE` and use the group scripts:
 export VSIX_FILE=./vscode-kaoto-<version>.vsix
 
 yarn run test:ui:vsix                  # all tests (reads extester.config.json globs)
-yarn run test:ui:vsix:settings         # out/settings/*.test.js
-yarn run test:ui:vsix:editor           # out/editor/*.test.js
-yarn run test:ui:vsix:views            # out/views/*.test.js
-yarn run test:ui:vsix:export           # out/export/*.test.js
-yarn run test:ui:vsix:deploy           # out/deploy/*.test.js  (uses minikube settings)
+yarn run test:ui:vsix:settings         # out-ui-tests/settings/*.test.js
+yarn run test:ui:vsix:editor           # out-ui-tests/editor/*.test.js
+yarn run test:ui:vsix:views            # out-ui-tests/views/*.test.js
+yarn run test:ui:vsix:export           # out-ui-tests/export/*.test.js
+yarn run test:ui:vsix:deploy           # out-ui-tests/deploy/*.test.js  (uses minikube settings)
 ```
 
 The full test file globs are defined in [`extester.config.json`](./extester.config.json).

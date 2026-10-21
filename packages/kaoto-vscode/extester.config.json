@@ -9,16 +9,16 @@
   },
   "run": {
     "testFiles": [
-      "out/settings/*.test.js",
-      "out/editor/*.test.js",
-      "out/views/*.test.js",
-      "out/deploy/*.test.js",
-      "out/export/*.test.js"
+      "out-ui-tests/settings/*.test.js",
+      "out-ui-tests/editor/*.test.js",
+      "out-ui-tests/views/*.test.js",
+      "out-ui-tests/deploy/*.test.js",
+      "out-ui-tests/export/*.test.js"
     ],
     "resources": ["./test Fixture with speci@l chars"],
     "extensionsDir": "./test-resources",
     "settings": "./src/ui-test/vscode-settings.json",
     "mochaConfig": "./src/ui-test/.mocharc.json",
-    "customPageObjects": "./out/pageObjects/locators.js"
+    "customPageObjects": "./out-ui-tests/pageObjects/locators.js"
   }
 }

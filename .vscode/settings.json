@@ -2,7 +2,7 @@
   "extesterRunner.testFileGlob": "packages/kaoto-vscode/src/ui-test/**/*.test.ts",
   "extesterRunner.rootFolder": "packages/kaoto-vscode/src/ui-test",
   "extesterRunner.ignorePathPart": "packages/kaoto-vscode/",
-  "extesterRunner.outputFolder": "packages/kaoto-vscode/out",
+  "extesterRunner.outputFolder": "packages/kaoto-vscode/out-ui-tests",
   "extesterRunner.additionalArgs": [
     "--config",
     "packages/kaoto-vscode/extester.config.json",
