@@ -1,7 +1,8 @@
-import { Label, LabelGroup } from '@patternfly/react-core';
+import { LabelGroup } from '@patternfly/react-core';
 import { FunctionComponent } from 'react';
 
 import { ITile } from '../Catalog.models';
+import { CatalogClickableLabel } from './CatalogClickableLabel';
 
 interface RecentlyUsedTilesProps {
   recentTiles: ITile[];
@@ -21,28 +22,19 @@ export const RecentlyUsedTiles: FunctionComponent<RecentlyUsedTilesProps> = ({ r
       numLabels={recentTiles.length}
     >
       {recentTiles.map((tile) => (
-        <Label
-          isCompact
-          isClickable
+        <CatalogClickableLabel
           key={`${tile.type}-${tile.name}`}
           color="blue"
           variant="outline"
-          render={({ className, content }) => (
-            <button
-              type="button"
-              className={`${className} recently-used-bar__label`}
-              data-testid={`recently-used-tile-${tile.name}`}
-              onClick={() => {
-                onTileClick(tile);
-              }}
-            >
-              {content}
-            </button>
-          )}
+          buttonClassName="recently-used-bar__label"
+          data-testid={`recently-used-tile-${tile.name}`}
+          onClick={() => {
+            onTileClick(tile);
+          }}
           icon={<img src={tile.iconUrl} alt="" width={16} height={16} />}
         >
           {tile.title}
-        </Label>
+        </CatalogClickableLabel>
       ))}
     </LabelGroup>
   );
