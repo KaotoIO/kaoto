@@ -6,11 +6,11 @@ import { mockModel, mockSchema } from './TestUtil';
 
 describe('MetadataEditor.tsx', () => {
   test('component renders', () => {
-    const wrapper = render(
+    const { container } = render(
       <MetadataEditor name="beans" schema={mockSchema.beans} metadata={[]} onChangeModel={() => {}} />,
     );
 
-    expect(wrapper).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
   });
 
   test('Details disabled if empty', async () => {

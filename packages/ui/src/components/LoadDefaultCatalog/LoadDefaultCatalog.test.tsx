@@ -15,7 +15,7 @@ describe('LoadDefaultCatalog', () => {
   });
 
   it('should render correctly', () => {
-    const wrapper = render(
+    const { container } = render(
       <ReloadContext.Provider value={{ reloadPage, lastRender: 0 }}>
         <SettingsProvider adapter={settingsAdapter}>
           <LoadDefaultCatalog errorMessage="Test error message" />
@@ -23,7 +23,7 @@ describe('LoadDefaultCatalog', () => {
       </ReloadContext.Provider>,
     );
 
-    expect(wrapper).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
   });
 
   it('should render child components', () => {
