@@ -140,12 +140,8 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
 
   updateModel(value: unknown): boolean {
     const entity = this.getBaseEntity();
-    entity?.updateModel(this.data.path, value);
+    const rebuild = entity?.updateModel(this.data.path, value) ?? false;
     this.lastUpdate = Date.now();
-    const rebuild = entity?.needsRebuild ?? false;
-    if (rebuild && entity) {
-      entity.needsRebuild = false;
-    }
     return rebuild;
   }
 
