@@ -19,7 +19,7 @@ import { findAllApplicationPropertiesFiles, parseMultipleApplicationPropertiesFi
 import { Uri } from 'vscode';
 import { Suggestion, SuggestionRequestContext } from '@kaoto/kaoto';
 
-export type SuggestionProviderFunction = (word: string, context: SuggestionRequestContext, fsPath?: string) => Suggestion[] | Promise<Suggestion[]>;
+export type SuggestionProviderFunction = (word: string, context: SuggestionRequestContext, fsPath?: string | Uri) => Suggestion[] | Promise<Suggestion[]>;
 
 const suggestionRegistry = new Map<string, SuggestionProviderFunction>();
 
@@ -35,10 +35,10 @@ export function registerSuggestionProvider(topic: string, providerFn: Suggestion
  * @param topic The topic for which suggestions are being requested (e.g., "env", "properties", "kubernetes", "beans", etc.)
  * @param word The current word or input value for which suggestions are being requested
  * @param context Additional context for the suggestions, such as the property name and current input value.
- * @param fsPath A string file system path to a current active opened Kaoto editor file
+ * @param fsPath The current editor document URI, or a filesystem path for existing desktop callers
  * @returns A promise that resolves to an array of suggestions, each containing a value, optional description, and optional group.
  */
-export async function getSuggestions(topic: string, word: string, context: SuggestionRequestContext, fsPath?: string): Promise<Suggestion[]> {
+export async function getSuggestions(topic: string, word: string, context: SuggestionRequestContext, fsPath?: string | Uri): Promise<Suggestion[]> {
 	const suggestionProvider = suggestionRegistry.get(topic);
 	if (!suggestionProvider) {
 		return [];
@@ -84,7 +84,7 @@ const provideApplicationPropertiesSuggestions: SuggestionProviderFunction = asyn
 		return [];
 	}
 
-	const fileUri = Uri.file(fsPath);
+	const fileUri = typeof fsPath === 'string' ? Uri.file(fsPath) : fsPath;
 	const propFiles = await findAllApplicationPropertiesFiles(fileUri);
 
 	if (propFiles.length === 0) {

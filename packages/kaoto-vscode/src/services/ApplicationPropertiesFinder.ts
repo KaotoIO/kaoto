@@ -17,24 +17,27 @@ import vscode from 'vscode';
 import path from 'path'; // NOSONAR
 import { Suggestion } from '@kaoto/kaoto';
 
-export async function findAllApplicationPropertiesFiles(startUri: vscode.Uri): Promise<vscode.Uri[]> {
-	let currentDir = path.dirname(startUri.fsPath);
-	const workspaceFolder = vscode.workspace.getWorkspaceFolder(startUri)?.uri.fsPath;
+export async function findAllApplicationPropertiesFiles(start: vscode.Uri | string): Promise<vscode.Uri[]> {
+	const startUri = typeof start === 'string' ? vscode.Uri.file(start) : start;
+	let currentDir = vscode.Uri.joinPath(startUri, '..');
+	const workspaceFolder = vscode.workspace.getWorkspaceFolder(startUri)?.uri.toString();
+	// Let VS Code decide containment: comparing Uri paths breaks on Windows, where the drive letter case can differ.
+	const isInWorkspaceFolder = (uri: vscode.Uri) => vscode.workspace.getWorkspaceFolder(uri)?.uri.toString() === workspaceFolder;
 
-	while (workspaceFolder && currentDir.startsWith(workspaceFolder)) {
-		const entries = await vscode.workspace.fs.readDirectory(vscode.Uri.file(currentDir));
+	while (workspaceFolder && isInWorkspaceFolder(currentDir)) {
+		const entries = await vscode.workspace.fs.readDirectory(currentDir);
 		const matchingFiles = entries
 			.filter(([name, type]) => {
 				return type === vscode.FileType.File && name.startsWith('application') && name.endsWith('.properties');
 			})
-			.map(([name]) => vscode.Uri.file(path.join(currentDir, name)));
+			.map(([name]) => vscode.Uri.joinPath(currentDir, name));
 
 		if (matchingFiles.length > 0) {
 			return matchingFiles;
 		}
 
-		const parentDir = path.dirname(currentDir);
-		if (parentDir === currentDir) {
+		const parentDir = vscode.Uri.joinPath(currentDir, '..');
+		if (parentDir.path === currentDir.path) {
 			break;
 		}
 		currentDir = parentDir;
@@ -48,8 +51,8 @@ export async function parseMultipleApplicationPropertiesFiles(fileUris: vscode.U
 
 	for (const uri of fileUris) {
 		const bytes = await vscode.workspace.fs.readFile(uri);
-		const content = Buffer.from(bytes).toString('utf-8');
-		const fileName = path.basename(uri.fsPath);
+		const content = new TextDecoder().decode(bytes);
+		const fileName = path.posix.basename(uri.path);
 
 		for (const line of content.split(/\r\n|\r|\n/)) {
 			const trimmed = line.trim();
