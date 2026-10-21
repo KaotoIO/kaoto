@@ -47,6 +47,22 @@ function makePortManager(reachable: boolean): {
 	return { portManager, releasePortCalls, waitForPortReachableCalls };
 }
 
+/**
+ * Registers a teardown in the calling suite that disposes every provider created through the
+ * returned factory, so a failure before an inline dispose() never leaves its auto-refresh running.
+ */
+function useDeploymentsProviders(): (portManager: PortManager) => DeploymentsProvider {
+	const providers: DeploymentsProvider[] = [];
+	teardown(() => {
+		providers.splice(0).forEach((provider) => provider.dispose());
+	});
+	return (portManager) => {
+		const provider = new DeploymentsProvider(portManager);
+		providers.push(provider);
+		return provider;
+	};
+}
+
 /** Builds a minimal CamelTaskDefinition for use with handleTaskEnd. */
 function makeCamelTaskDef(port: number): CamelTaskDefinition {
 	return { type: 'camel', label: 'test-task', port };
@@ -73,6 +89,8 @@ suite('PortFileKey', function () {
 // ─── Port guard: task-start / task-end handlers ───────────────────────────────
 
 suite('DeploymentsProvider — port guard (NO_PORT = -1 is skipped)', function () {
+	const createProvider = useDeploymentsProviders();
+
 	test('NO_PORT (-1) is not a positive port — the port > 0 guard rejects it', function () {
 		// This is the exact expression used in both task handlers.
 		// The bug was `def.port` (truthy — -1 is truthy); the fix is `def.port > 0`.
@@ -81,7 +99,7 @@ suite('DeploymentsProvider — port guard (NO_PORT = -1 is skipped)', function (
 
 	test('releasePort is NOT called when a task ends with NO_PORT (-1)', function () {
 		const { portManager, releasePortCalls } = makePortManager(false);
-		const provider = new DeploymentsProvider(portManager);
+		const provider = createProvider(portManager);
 
 		provider.handleTaskEnd(makeCamelTaskDef(CamelTask.NO_PORT));
 
@@ -91,7 +109,7 @@ suite('DeploymentsProvider — port guard (NO_PORT = -1 is skipped)', function (
 
 	test('releasePort IS called exactly once when a task ends with a valid port', function () {
 		const { portManager, releasePortCalls } = makePortManager(false);
-		const provider = new DeploymentsProvider(portManager);
+		const provider = createProvider(portManager);
 
 		provider.handleTaskEnd(makeCamelTaskDef(8080));
 
@@ -103,13 +121,15 @@ suite('DeploymentsProvider — port guard (NO_PORT = -1 is skipped)', function (
 // ─── fetchLocalhostRoutes: no port release on transient failures ───────────────
 
 suite('DeploymentsProvider — ports are NOT released on transient poll failures', function () {
+	const createProvider = useDeploymentsProviders();
+
 	test('port is retained when waitForPortReachable returns false', async function () {
 		const { portManager, releasePortCalls } = makePortManager(false /* unreachable */);
 
 		// Register a port as active
 		portManager.getUsedPorts().add(8080);
 
-		const provider = new DeploymentsProvider(portManager);
+		const provider = createProvider(portManager);
 		await provider.refresh();
 
 		provider.dispose();
@@ -130,7 +150,7 @@ suite('DeploymentsProvider — ports are NOT released on transient poll failures
 		};
 
 		try {
-			const provider = new DeploymentsProvider(portManager);
+			const provider = createProvider(portManager);
 			await provider.refresh();
 			provider.dispose();
 
@@ -145,12 +165,14 @@ suite('DeploymentsProvider — ports are NOT released on transient poll failures
 // ─── fetchLocalhostRoutes: 3-second reachability timeout ─────────────────────
 
 suite('DeploymentsProvider — reachability poll uses 3-second timeout', function () {
+	const createProvider = useDeploymentsProviders();
+
 	test('waitForPortReachable is called with timeout 3000 during a background poll', async function () {
 		const { portManager, waitForPortReachableCalls } = makePortManager(false);
 
 		portManager.getUsedPorts().add(8080);
 
-		const provider = new DeploymentsProvider(portManager);
+		const provider = createProvider(portManager);
 		await provider.refresh();
 		provider.dispose();
 
