@@ -29,7 +29,9 @@ import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
  * @returns An array of {@link FileTypesResponse} objects, one per kamelet file found
  */
 export async function readKameletsFromDirectory(directory: string | vscode.Uri): Promise<FileTypesResponse[]> {
-	const dir = typeof directory === 'string' ? vscode.Uri.file(directory) : directory;
+	const uri = typeof directory === 'string' ? vscode.Uri.file(directory) : directory;
+	// A root Uri such as `scheme://authority` has an empty path, and Uri.joinPath rejects it.
+	const dir = uri.path ? uri : uri.with({ path: '/' });
 	let entries: [string, vscode.FileType][];
 	try {
 		entries = await vscode.workspace.fs.readDirectory(dir);

@@ -156,6 +156,14 @@ suite('KameletFileReader', () => {
 
 				assert.deepEqual(result, [{ filename: 'remote.kamelet.yaml', content: 'remote kamelet' }]);
 			});
+
+			test('reads kamelet files from a root Uri with an empty path', async () => {
+				await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(tmpDir, 'root.kamelet.yaml'), new TextEncoder().encode('root kamelet'));
+
+				const result = await readKameletsFromDirectory(vscode.Uri.from({ scheme, authority: 'repository', path: '' }));
+
+				assert.deepEqual(result, [{ filename: 'root.kamelet.yaml', content: 'root kamelet' }]);
+			});
 		});
 	});
 });
