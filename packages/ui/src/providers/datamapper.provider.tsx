@@ -45,7 +45,6 @@ import { DataMapperSettingsService } from '../services/datamapper-settings.servi
 import { DocumentService } from '../services/document/document.service';
 import { MappingService } from '../services/mapping/mapping.service';
 import { MappingSerializerService } from '../services/mapping/mapping-serializer.service';
-import { WrapperAutoDetectionService } from '../services/mapping/wrapper-auto-detection.service';
 
 export interface IDataMapperContext {
   isLoading: boolean;
@@ -148,16 +147,12 @@ const createInitialState = (documentInitializationModel?: DocumentInitialization
     tree,
     sourceParameterMap,
   );
-  WrapperAutoDetectionService.autoDetectWrapperSelections(mappingTree, targetBodyDocument, namespaceMap);
   return {
     sourceParameterMap,
     sourceBodyDocument,
     targetBodyDocument,
     mappingTree,
-    dataMapperSettings: DataMapperSettingsService.sanitizeForTarget(
-      dataMapperSettings,
-      targetBodyDocument.definitionType,
-    ),
+    dataMapperSettings,
     alerts: messages,
   };
 };

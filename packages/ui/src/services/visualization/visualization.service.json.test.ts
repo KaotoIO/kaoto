@@ -9,6 +9,7 @@ import {
   FieldNodeData,
   ForEachItem,
   IDocument,
+  IfItem,
   MappingNodeData,
   MappingTree,
   PrimitiveDocument,
@@ -119,7 +120,13 @@ describe('VisualizationService / JSON', () => {
       accountMapChildren[1] as FieldNodeData,
       targetMapChildren[1] as TargetNodeData,
     );
-    const valueSelector = mappingTree.children[0].children[0].children[0] as ValueSelector;
+    // Both Account.Name and ShipOrder.OrderPerson are optional, so engageMapping auto-wraps
+    // this field-to-field mapping with a hidden `xsl:if` guard (IfItem.isAutoOptionalIf).
+    const ifItem = mappingTree.children[0].children[0] as IfItem;
+    expect(ifItem).toBeInstanceOf(IfItem);
+    expect(ifItem.isAutoOptionalIf).toBe(true);
+    expect(ifItem.expression).toBe("$Account-x/fn:map/fn:string[@key='Name']");
+    const valueSelector = ifItem.children[0].children[0] as ValueSelector;
     expect(valueSelector.expression).toBe("$Account-x/fn:map/fn:string[@key='Name']");
 
     targetChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);

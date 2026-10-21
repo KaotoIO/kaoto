@@ -1,5 +1,6 @@
 import {
   ArithmeticExprNode,
+  CombineExprNode,
   ComparisonExprNode,
   ExprNode,
   FilterExprNode,
@@ -114,6 +115,11 @@ export class XPathUtil {
     this.traverseNode(node.right, callback);
   }
 
+  private static traverseCombineExpr(node: CombineExprNode, callback: (node: XPathNode) => void): void {
+    this.traverseNode(node.left, callback);
+    this.traverseNode(node.right, callback);
+  }
+
   private static traverseNode(node: XPathNode, callback: (node: XPathNode) => void): void {
     callback(node);
 
@@ -150,6 +156,9 @@ export class XPathUtil {
         break;
       case XPathNodeType.LogicalExpr:
         this.traverseLogicalExpr(node as LogicalExprNode, callback);
+        break;
+      case XPathNodeType.CombineExpr:
+        this.traverseCombineExpr(node as CombineExprNode, callback);
         break;
       case XPathNodeType.ReverseStep:
         this.traverseReverseStep(node as ReverseStepNode, callback);

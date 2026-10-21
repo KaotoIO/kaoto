@@ -14,6 +14,7 @@ import { XPath2Parser } from './2.0/xpath-2.0-parser';
 import { XPathFunctionCatalogService } from './catalog/xpath-function-catalog.service';
 import { CstVisitor } from './syntaxtree/xpath-syntaxtree-cst-visitor';
 import {
+  CombineExprNode,
   ComparisonExprNode,
   ExprNode,
   FilterExprNode,
@@ -73,6 +74,85 @@ export class XPathService {
       validationResult.dataMapperErrors.push(errorString);
     }
     return validationResult;
+  }
+
+  /**
+   * Checks whether an XPath expression string is a simple path (a single PathExpr with no functions,
+   * operators, arithmetic, or predicates on any of its steps) — except a step may carry exactly one
+   * `[@key='literal']` predicate, which {@link isJsonKeyPredicate} recognizes as JSON Schema's
+   * deterministic field-addressing convention (every `fn:map`/`fn:string`/etc. step generated for a
+   * JSON field carries one) rather than an arbitrary, potentially ambiguous filter.
+   * @param expression XPath expression string to check
+   */
+  static isSimplePath(expression: string): boolean {
+    if (!expression?.trim()) return false;
+    const parsed = XPathService.parse(expression);
+    if (parsed.lexErrors.length > 0 || parsed.parseErrors.length > 0 || !parsed.exprNode) return false;
+    if (parsed.exprNode.expressions.length !== 1) return false;
+
+    // A union/intersect/except combination parses to a CombineExpr, so this one check also
+    // rejects `/a | /b` without having to inspect the raw CST for operator tokens.
+    const singleExpr = parsed.exprNode.expressions[0];
+    if (singleExpr.type !== XPathNodeType.PathExpr) return false;
+
+    const pathNode = singleExpr as PathExprNode;
+    if (pathNode.steps.length === 0) return false;
+
+    return pathNode.steps.every(
+      (step) =>
+        (!step.axis || step.axis === 'child' || step.axis === 'attribute') &&
+        (!step.reverseStep || step.reverseStep.isParentReference) &&
+        XPathService.hasOnlyAllowedPredicates(step) &&
+        XPathService.hasValidFilterExpr(step),
+    );
+  }
+
+  /**
+   * A step may carry no predicates, or exactly one `[@key='literal']` JSON key predicate
+   * (see {@link isJsonKeyPredicate}); anything else disqualifies {@link isSimplePath}.
+   */
+  private static hasOnlyAllowedPredicates(step: StepExprNode): boolean {
+    if (!step.predicates?.length) return true;
+    return step.predicates.length === 1 && XPathService.isJsonKeyPredicate(step.predicates[0]);
+  }
+
+  /**
+   * A step's filter expression (if any) must have no predicates of its own and must be
+   * a bare variable reference or context item (e.g. `$var[...]` or `.[...]`).
+   */
+  private static hasValidFilterExpr(step: StepExprNode): boolean {
+    if (!step.filterExpr) return true;
+    if (step.filterExpr.predicates?.length) return false;
+
+    return (
+      step.filterExpr.primary.type === XPathNodeType.VarRef ||
+      step.filterExpr.primary.type === XPathNodeType.ContextItemExpr
+    );
+  }
+
+  /**
+   * Recognizes a `[@key='literal']` predicate — the shape every JSON Schema field step carries
+   * (see `JsonSchemaField`'s constructor), used only to address an `fn:map` entry by key, not to
+   * filter among several candidates. Anything else (a non-literal RHS, a non-`key` attribute, a
+   * non-equality operator) is treated as a real filter and left to disqualify {@link isSimplePath}.
+   */
+  private static isJsonKeyPredicate(predicate: PredicateNode): boolean {
+    if (predicate.expr.expressions.length !== 1) return false;
+    const expr = predicate.expr.expressions[0];
+    if (expr.type !== XPathNodeType.ComparisonExpr) return false;
+    const comparison = expr as ComparisonExprNode;
+    if (comparison.operator !== PredicateOperator.Equal && comparison.operator !== PredicateOperator.Eq) return false;
+
+    const left = comparison.left;
+    if (left.type !== XPathNodeType.PathExpr) return false;
+    if (left.steps.length !== 1) return false;
+    const onlyStep = left.steps[0];
+    if (!onlyStep.isAttribute || onlyStep.predicates.length > 0) return false;
+    if (onlyStep.nodeTest?.localName !== 'key' || onlyStep.nodeTest.prefix) return false;
+
+    return (
+      comparison.right?.type === XPathNodeType.Literal && (comparison.right as LiteralNode).literalType === 'string'
+    );
   }
 
   /**
@@ -341,7 +421,13 @@ export class XPathService {
     return new Predicate('', PredicateOperator.Unknown, '');
   }
 
-  private static extractOperand(operand: PathExprNode | LiteralNode | VarRefNode): PathExpression | string {
+  /**
+   * A {@link CombineExprNode} operand yields `''`, like a variable reference does: a predicate
+   * comparing against a union of sequences has no single {@link PathExpression} to report.
+   */
+  private static extractOperand(
+    operand: PathExprNode | LiteralNode | VarRefNode | CombineExprNode,
+  ): PathExpression | string {
     if ('steps' in operand) {
       return XPathService.extractPathExpression(operand);
     }

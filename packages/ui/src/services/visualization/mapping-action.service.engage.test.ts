@@ -4,6 +4,7 @@ import {
   DocumentDefinitionType,
   DocumentType,
   IDocument,
+  IField,
 } from '../../models/datamapper/document';
 import {
   CopyOfSelector,
@@ -20,6 +21,7 @@ import {
   FieldItemNodeData,
   FieldNodeData,
   MappingNodeData,
+  NodeData,
   SourceVariableNodeData,
   TargetDocumentNodeData,
   TargetFieldNodeData,
@@ -36,6 +38,7 @@ import {
 } from '../../stubs/datamapper/data-mapper';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
+import { FieldMatchingService } from '../mapping/field-matching.service';
 import { MappingSerializerService } from '../mapping/mapping-serializer.service';
 import { MappingActionService } from './mapping-action.service';
 import { VisualizationService } from './visualization.service';
@@ -469,6 +472,324 @@ describe('MappingActionService — mapping engagement', () => {
         const shipOrderFieldItem = tree.children[0] as FieldItem;
         const forEachItems = shipOrderFieldItem.children.filter((c) => c instanceof ForEachItem);
         expect(forEachItems).toHaveLength(1);
+      });
+    });
+
+    describe('auto-optional-if (drag/drop engagement)', () => {
+      afterEach(() => {
+        vi.restoreAllMocks();
+      });
+
+      function sourceShipOrderChildren() {
+        const sourceDocChildren = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
+        return VisualizationService.generateNonDocumentNodeDataChildren(sourceDocChildren[0]);
+      }
+      function targetShipOrderChildren() {
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        return VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+      }
+      function findByName(children: NodeData[], name: string) {
+        return children.find((c) => 'field' in c && (c.field as IField).name === name);
+      }
+      /**
+       * Guarding a field nests its node one level deeper, under the `if` rather than directly
+       * under ShipOrder, so a follow-up drop has to target it where the panel now renders it.
+       */
+      function findTargetFieldNode(name: string) {
+        const children = targetShipOrderChildren();
+        const nested = children.flatMap((child) => VisualizationService.generateNonDocumentNodeDataChildren(child));
+        return (findByName(children, name) ?? findByName(nested, name)) as TargetFieldNodeData;
+      }
+
+      it('should wrap an optional terminal field drop with a hidden IfItem (value-of)', () => {
+        const sourceOrderPerson = sourceDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+        const targetOrderPerson = targetDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+        sourceOrderPerson.minOccurs = 0;
+        targetOrderPerson.minOccurs = 0;
+
+        const sourceItem = findByName(sourceShipOrderChildren(), 'OrderPerson') as FieldNodeData;
+        const targetItem = findByName(targetShipOrderChildren(), 'OrderPerson') as TargetFieldNodeData;
+
+        const structural = MappingActionService.engageMapping(tree, sourceItem, targetItem);
+
+        const shipOrderFieldItem = tree.children[0] as FieldItem;
+        const ifItem = shipOrderFieldItem.children.find((c) => c instanceof IfItem) as IfItem;
+        expect(ifItem).toBeDefined();
+        expect(ifItem.isAutoOptionalIf).toBe(true);
+        const fieldItem = ifItem.children.find((c) => c instanceof FieldItem) as FieldItem;
+        expect(fieldItem.field.name).toBe('OrderPerson');
+        expect(structural).toBe(true);
+      });
+
+      it('should clear the container copy-of when re-mapping a child that sits under a guard', () => {
+        const sourceShipTo = sourceDoc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
+        const targetShipTo = targetDoc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
+        const sourceName = sourceShipTo.fields.find((f) => f.name === 'Name')!;
+        const targetName = targetShipTo.fields.find((f) => f.name === 'Name')!;
+        sourceName.minOccurs = 0;
+        targetName.minOccurs = 0;
+
+        const sourceShipToChildren = () =>
+          VisualizationService.generateNonDocumentNodeDataChildren(
+            findByName(sourceShipOrderChildren(), 'ShipTo') as FieldNodeData,
+          );
+        // Name's node moves under the guard's node once it is wrapped, so look a level deeper.
+        const targetNameNode = () => {
+          const shipToChildren = VisualizationService.generateNonDocumentNodeDataChildren(
+            findByName(targetShipOrderChildren(), 'ShipTo') as TargetFieldNodeData,
+          );
+          const nested = shipToChildren.flatMap((c) => VisualizationService.generateNonDocumentNodeDataChildren(c));
+          return (findByName(shipToChildren, 'Name') ?? findByName(nested, 'Name')) as TargetFieldNodeData;
+        };
+
+        // Guard the child first, then give the container a wholesale copy-of.
+        MappingActionService.engageMapping(
+          tree,
+          findByName(sourceShipToChildren(), 'Name') as FieldNodeData,
+          targetNameNode(),
+        );
+        MappingActionService.engageMapping(
+          tree,
+          findByName(sourceShipOrderChildren(), 'ShipTo') as FieldNodeData,
+          findByName(targetShipOrderChildren(), 'ShipTo') as TargetFieldNodeData,
+        );
+        const shipOrderFieldItem = tree.children[0] as FieldItem;
+        const shipToItem = shipOrderFieldItem.children.find(
+          (c) => c instanceof FieldItem && c.field.name === 'ShipTo',
+        ) as FieldItem;
+        expect(shipToItem.children.some((c) => c instanceof CopyOfSelector)).toBe(true);
+
+        // Re-drop onto the guarded child: the container copy-of has to go, or the output both
+        // copies the subtree and emits Name explicitly. The guard is in the way of finding it.
+        MappingActionService.engageMapping(
+          tree,
+          findByName(sourceShipToChildren(), 'City') as FieldNodeData,
+          targetNameNode(),
+        );
+
+        expect(shipToItem.children.some((c) => c instanceof CopyOfSelector)).toBe(false);
+      });
+
+      it('should unwrap the guard when a second source is dropped onto an already-guarded field', () => {
+        const sourceOrderPerson = sourceDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+        const sourceOrderId = sourceDoc.fields[0].fields.find((f) => f.name === 'OrderId')!;
+        const targetOrderPerson = targetDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+        sourceOrderPerson.minOccurs = 0;
+        sourceOrderId.minOccurs = 0;
+        targetOrderPerson.minOccurs = 0;
+
+        const targetItem = findByName(targetShipOrderChildren(), 'OrderPerson') as TargetFieldNodeData;
+        MappingActionService.engageMapping(
+          tree,
+          findByName(sourceShipOrderChildren(), 'OrderPerson') as FieldNodeData,
+          targetItem,
+        );
+
+        // Only the selector's expression is extended, so the tree shape is unchanged and the
+        // target panel must not rebuild — see engageMapping's @returns contract.
+        const structural = MappingActionService.engageMapping(
+          tree,
+          findByName(sourceShipOrderChildren(), 'OrderId') as FieldNodeData,
+          findTargetFieldNode('OrderPerson'),
+        );
+
+        expect(structural).toBe(false);
+      });
+
+      it('should not guard a field that is already mapped from a required source', () => {
+        const sourceOrderId = sourceDoc.fields[0].fields.find((f) => f.name === 'OrderId')!;
+        const sourceOrderPerson = sourceDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+        const targetOrderPerson = targetDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+        sourceOrderId.minOccurs = 1;
+        sourceOrderPerson.minOccurs = 0;
+        targetOrderPerson.minOccurs = 0;
+
+        MappingActionService.engageMapping(
+          tree,
+          findByName(sourceShipOrderChildren(), 'OrderId') as FieldNodeData,
+          findByName(targetShipOrderChildren(), 'OrderPerson') as TargetFieldNodeData,
+        );
+        MappingActionService.engageMapping(
+          tree,
+          findByName(sourceShipOrderChildren(), 'OrderPerson') as FieldNodeData,
+          findByName(targetShipOrderChildren(), 'OrderPerson') as TargetFieldNodeData,
+        );
+
+        // Guarding here would gate the required source's output on the optional source's presence.
+        const shipOrderFieldItem = tree.children[0] as FieldItem;
+        expect(shipOrderFieldItem.children.some((c) => c instanceof IfItem)).toBe(false);
+      });
+
+      it('should wrap an optional container field drop (copy-of) with a hidden IfItem', () => {
+        const sourceShipTo = sourceDoc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
+        const targetShipTo = targetDoc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
+        sourceShipTo.minOccurs = 0;
+        targetShipTo.minOccurs = 0;
+
+        const sourceItem = findByName(sourceShipOrderChildren(), 'ShipTo') as FieldNodeData;
+        const targetItem = findByName(targetShipOrderChildren(), 'ShipTo') as TargetFieldNodeData;
+
+        MappingActionService.engageMapping(tree, sourceItem, targetItem);
+
+        const shipOrderFieldItem = tree.children[0] as FieldItem;
+        const ifItem = shipOrderFieldItem.children.find((c) => c instanceof IfItem) as IfItem;
+        expect(ifItem).toBeDefined();
+        expect(ifItem.isAutoOptionalIf).toBe(true);
+        const fieldItem = ifItem.children.find((c) => c instanceof FieldItem) as FieldItem;
+        expect(fieldItem.field.name).toBe('ShipTo');
+        expect(
+          fieldItem.children.some((c) => c instanceof CopyOfSelector && c.valueType === CopyOfType.CONTAINER),
+        ).toBe(true);
+      });
+
+      it('should wrap an optional container field drop (recursive auto-children) with a VISIBLE IfItem', () => {
+        const sourceShipTo = sourceDoc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
+        const targetShipTo = targetDoc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
+        sourceShipTo.minOccurs = 0;
+        targetShipTo.minOccurs = 0;
+        vi.spyOn(FieldMatchingService, 'canUseCopyOf').mockReturnValue(false);
+
+        const sourceItem = findByName(sourceShipOrderChildren(), 'ShipTo') as FieldNodeData;
+        const targetItem = findByName(targetShipOrderChildren(), 'ShipTo') as TargetFieldNodeData;
+
+        MappingActionService.engageMapping(tree, sourceItem, targetItem);
+
+        const shipOrderFieldItem = tree.children[0] as FieldItem;
+        const ifItem = shipOrderFieldItem.children.find((c) => c instanceof IfItem) as IfItem;
+        expect(ifItem).toBeDefined();
+        expect(ifItem.isAutoOptionalIf).toBe(false);
+        const fieldItem = ifItem.children.find((c) => c instanceof FieldItem) as FieldItem;
+        expect(fieldItem.field.name).toBe('ShipTo');
+        expect(fieldItem.children.filter((c) => c instanceof FieldItem).length).toBeGreaterThan(0);
+      });
+
+      it('should NOT wrap when the source field is required even though the target is optional', () => {
+        const sourceOrderPerson = sourceDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+        const targetOrderPerson = targetDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+        sourceOrderPerson.minOccurs = 1;
+        targetOrderPerson.minOccurs = 0;
+
+        const sourceItem = findByName(sourceShipOrderChildren(), 'OrderPerson') as FieldNodeData;
+        const targetItem = findByName(targetShipOrderChildren(), 'OrderPerson') as TargetFieldNodeData;
+
+        MappingActionService.engageMapping(tree, sourceItem, targetItem);
+
+        const shipOrderFieldItem = tree.children[0] as FieldItem;
+        expect(shipOrderFieldItem.children.some((c) => c instanceof IfItem)).toBe(false);
+        expect(shipOrderFieldItem.children.some((c) => c instanceof FieldItem && c.field.name === 'OrderPerson')).toBe(
+          true,
+        );
+      });
+
+      it('should NOT wrap when the target field is required even though the source is optional', () => {
+        const sourceOrderPerson = sourceDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+        const targetOrderPerson = targetDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+        sourceOrderPerson.minOccurs = 0;
+        targetOrderPerson.minOccurs = 1;
+
+        const sourceItem = findByName(sourceShipOrderChildren(), 'OrderPerson') as FieldNodeData;
+        const targetItem = findByName(targetShipOrderChildren(), 'OrderPerson') as TargetFieldNodeData;
+
+        MappingActionService.engageMapping(tree, sourceItem, targetItem);
+
+        const shipOrderFieldItem = tree.children[0] as FieldItem;
+        expect(shipOrderFieldItem.children.some((c) => c instanceof IfItem)).toBe(false);
+        expect(shipOrderFieldItem.children.some((c) => c instanceof FieldItem && c.field.name === 'OrderPerson')).toBe(
+          true,
+        );
+      });
+
+      it('should wrap only the optional-to-optional child independently inside an already-wrapped optional container', () => {
+        const sourceShipTo = sourceDoc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
+        const targetShipTo = targetDoc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
+        sourceShipTo.minOccurs = 0;
+        targetShipTo.minOccurs = 0;
+        const sourceName = sourceShipTo.fields.find((f) => f.name === 'Name')!;
+        const targetName = targetShipTo.fields.find((f) => f.name === 'Name')!;
+        sourceName.minOccurs = 0;
+        targetName.minOccurs = 0;
+        // Address is left required (schema default) on both sides as the contrasting case.
+        vi.spyOn(FieldMatchingService, 'canUseCopyOf').mockReturnValue(false);
+
+        const sourceItem = findByName(sourceShipOrderChildren(), 'ShipTo') as FieldNodeData;
+        const targetItem = findByName(targetShipOrderChildren(), 'ShipTo') as TargetFieldNodeData;
+
+        MappingActionService.engageMapping(tree, sourceItem, targetItem);
+
+        const shipOrderFieldItem = tree.children[0] as FieldItem;
+        const outerIfItem = shipOrderFieldItem.children.find((c) => c instanceof IfItem) as IfItem;
+        // The container itself has recursive children, so its own guard is a visible if.
+        expect(outerIfItem.isAutoOptionalIf).toBe(false);
+        const shipToFieldItem = outerIfItem.children.find((c) => c instanceof FieldItem) as FieldItem;
+
+        const nameIfItem = shipToFieldItem.children.find(
+          (c) => c instanceof IfItem && (c.children[0] as FieldItem)?.field.name === 'Name',
+        ) as IfItem;
+        expect(nameIfItem).toBeDefined();
+        expect(nameIfItem.isAutoOptionalIf).toBe(true);
+
+        expect(shipToFieldItem.children.some((c) => c instanceof FieldItem && c.field.name === 'Address')).toBe(true);
+        expect(
+          shipToFieldItem.children.some(
+            (c) => c instanceof IfItem && (c.children[0] as FieldItem)?.field.name === 'Address',
+          ),
+        ).toBe(false);
+      });
+
+      it('should create a ForEach for optional collection-to-collection mapping without any additional xsl:if', () => {
+        const sourceItemField = sourceDoc.fields[0].fields.find((f) => f.name === 'Item')!;
+        const targetItemField = targetDoc.fields[0].fields.find((f) => f.name === 'Item')!;
+        sourceItemField.minOccurs = 0;
+        targetItemField.minOccurs = 0;
+
+        const sourceItem = findByName(sourceShipOrderChildren(), 'Item') as FieldNodeData;
+        const targetItem = findByName(targetShipOrderChildren(), 'Item') as TargetFieldNodeData;
+
+        MappingActionService.engageMapping(tree, sourceItem, targetItem);
+
+        const shipOrderFieldItem = tree.children[0] as FieldItem;
+        expect(shipOrderFieldItem.children.some((c) => c instanceof IfItem)).toBe(false);
+        const forEachItem = shipOrderFieldItem.children.find((c) => c instanceof ForEachItem) as ForEachItem;
+        expect(forEachItem).toBeDefined();
+      });
+
+      it('should wrap an optional child inside a ForEach iteration while leaving required siblings unwrapped', () => {
+        // OrderInfo's OrderEntry.Note and ShipOrder's Item.Note are both minOccurs=0 by schema
+        // default; Title/Quantity/Price on both sides are required.
+        const orderInfoDef = new DocumentDefinition(
+          DocumentType.SOURCE_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          BODY_DOCUMENT_ID,
+          { 'OrderInfo.xsd': getOrderInfoXsd() },
+        );
+        const orderInfoResult = XmlSchemaDocumentService.createXmlSchemaDocument(orderInfoDef);
+        const orderInfoDoc = orderInfoResult.document!;
+        const orderInfoDocNode = new DocumentNodeData(orderInfoDoc);
+
+        const orderInfoDocChildren = VisualizationService.generateStructuredDocumentChildren(orderInfoDocNode);
+        const orderInfoChildren = VisualizationService.generateNonDocumentNodeDataChildren(orderInfoDocChildren[0]);
+        const sourceOrderEntry = orderInfoChildren[0] as FieldNodeData;
+
+        const targetItem = findByName(targetShipOrderChildren(), 'Item') as TargetFieldNodeData;
+
+        MappingActionService.engageMapping(tree, sourceOrderEntry, targetItem);
+
+        const shipOrderFieldItem = tree.children[0] as FieldItem;
+        const forEachItem = shipOrderFieldItem.children.find((c) => c instanceof ForEachItem) as ForEachItem;
+        const innerFieldItem = forEachItem.children.find((c) => c instanceof FieldItem) as FieldItem;
+
+        const noteIfItem = innerFieldItem.children.find(
+          (c) => c instanceof IfItem && (c.children[0] as FieldItem)?.field.name === 'Note',
+        ) as IfItem;
+        expect(noteIfItem).toBeDefined();
+        expect(noteIfItem.isAutoOptionalIf).toBe(true);
+
+        expect(innerFieldItem.children.some((c) => c instanceof FieldItem && c.field.name === 'Title')).toBe(true);
+        expect(
+          innerFieldItem.children.some(
+            (c) => c instanceof IfItem && (c.children[0] as FieldItem)?.field.name === 'Title',
+          ),
+        ).toBe(false);
       });
     });
 

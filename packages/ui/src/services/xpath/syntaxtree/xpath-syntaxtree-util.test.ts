@@ -143,6 +143,32 @@ describe('XPathUtil', () => {
       expect(pathNames).toContain('OrderId');
     });
 
+    it('should find PathExpr nodes inside CombineExpr', () => {
+      const xpath = '/Name | /OrderId';
+      const ast = XPathService.parse(xpath).exprNode;
+      if (!ast) return;
+
+      const pathNodes = XPathUtil.getAllNodesOfType<PathExprNode>(ast, XPathNodeType.PathExpr);
+      // Both operands of a union are real sources, so both have to be reachable — this is what
+      // lets MappingLinksService draw a connection line per operand.
+      expect(pathNodes).toHaveLength(2);
+
+      const pathNames = pathNodes
+        .filter((node) => node.steps.length > 0 && node.steps[0].nodeTest?.type === XPathNodeType.NameTest)
+        .map((node) => (node.steps[0].nodeTest as NameTestNode).localName);
+      expect(pathNames).toContain('Name');
+      expect(pathNames).toContain('OrderId');
+    });
+
+    it('should find PathExpr nodes across a chained mixed combination', () => {
+      const xpath = '/A | /B intersect /C except /D';
+      const ast = XPathService.parse(xpath).exprNode;
+      if (!ast) return;
+
+      const pathNodes = XPathUtil.getAllNodesOfType<PathExprNode>(ast, XPathNodeType.PathExpr);
+      expect(pathNodes).toHaveLength(4);
+    });
+
     it('should find PathExpr nodes in nested arithmetic expressions', () => {
       const xpath = '(Price * Quantity) + (Tax * Rate)';
       const ast = XPathService.parse(xpath).exprNode;

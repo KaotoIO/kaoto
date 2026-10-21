@@ -102,6 +102,32 @@ describe('MappingLinksService', () => {
       expect(links[10].targetNodePath).toMatch(/for-each-.*fx-Item-.*fx-Price-.*/);
     });
 
+    it('should generate a link per operand of a union expression', () => {
+      // Both sides of `|` are real sources. Before union was modelled in the syntaxtree the
+      // visitor kept only the first operand, so the second never got a connection line.
+      const emptyTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      emptyTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const shipOrder = new FieldItem(emptyTree, targetDoc.fields[0]);
+      emptyTree.children.push(shipOrder);
+      const orderPerson = new FieldItem(shipOrder, targetDoc.fields[0].fields[1]);
+      shipOrder.children.push(orderPerson);
+      const selector = new ValueOfSelector(orderPerson);
+      selector.expression = '/ns0:ShipOrder/@OrderId | /ns0:ShipOrder/ns0:OrderPerson';
+      orderPerson.children.push(selector);
+
+      const links = MappingLinksService.extractMappingLinks(emptyTree, paramsMap, sourceDoc);
+
+      expect(links).toHaveLength(2);
+      expect(links[0].sourceNodePath).toMatch('OrderId');
+      expect(links[1].sourceNodePath).toMatch('OrderPerson');
+      expect(links[0].targetNodePath).toMatch('OrderPerson');
+      expect(links[1].targetNodePath).toMatch('OrderPerson');
+    });
+
     it('should generate mapping links for the cached type fragments field', () => {
       const sourceDefinition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,

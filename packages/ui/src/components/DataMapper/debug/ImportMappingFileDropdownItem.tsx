@@ -4,7 +4,6 @@ import { ChangeEvent, createRef, FunctionComponent, useCallback } from 'react';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { MappingSerializerService } from '../../../services/mapping/mapping-serializer.service';
-import { WrapperAutoDetectionService } from '../../../services/mapping/wrapper-auto-detection.service';
 import { readFileAsString } from '../../../stubs/read-file-as-string';
 
 type ImportMappingFileDropdownItemProps = {
@@ -14,7 +13,14 @@ type ImportMappingFileDropdownItemProps = {
 export const ImportMappingFileDropdownItem: FunctionComponent<ImportMappingFileDropdownItemProps> = ({
   onComplete,
 }) => {
-  const { mappingTree, sourceParameterMap, targetBodyDocument, refreshMappingTree, sendAlert } = useDataMapper();
+  const {
+    mappingTree,
+    sourceParameterMap,
+    targetBodyDocument,
+    refreshMappingTree,
+    sendAlert,
+    updateDataMapperSettings,
+  } = useDataMapper();
   const fileInputRef = createRef<HTMLInputElement>();
 
   const onClick = useCallback(() => {
@@ -27,21 +33,19 @@ export const ImportMappingFileDropdownItem: FunctionComponent<ImportMappingFileD
       if (!file) return;
       readFileAsString(file)
         .then((content) => {
-          const { messages } = MappingSerializerService.deserialize(
+          const { messages, dataMapperSettings } = MappingSerializerService.deserialize(
             content,
             targetBodyDocument,
             mappingTree,
             sourceParameterMap,
           );
-          WrapperAutoDetectionService.autoDetectWrapperSelections(
-            mappingTree,
-            targetBodyDocument,
-            mappingTree.namespaceMap,
-          );
           for (const msg of messages) {
             sendAlert(msg);
           }
-          refreshMappingTree({ structural: true });
+          // Carry the imported stylesheet's output settings over, otherwise the refresh below
+          // immediately re-serializes with the session's settings and overwrites them.
+          updateDataMapperSettings(dataMapperSettings);
+          refreshMappingTree({ structural: true, dataMapperSettings });
           onComplete();
         })
         .catch((error: unknown) => {
@@ -52,7 +56,15 @@ export const ImportMappingFileDropdownItem: FunctionComponent<ImportMappingFileD
           });
         });
     },
-    [mappingTree, onComplete, refreshMappingTree, sendAlert, sourceParameterMap, targetBodyDocument],
+    [
+      mappingTree,
+      onComplete,
+      refreshMappingTree,
+      sendAlert,
+      sourceParameterMap,
+      targetBodyDocument,
+      updateDataMapperSettings,
+    ],
   );
 
   return (

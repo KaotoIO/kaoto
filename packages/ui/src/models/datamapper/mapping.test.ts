@@ -1,6 +1,10 @@
+import { TestUtil } from '../../stubs/datamapper/data-mapper';
 import { DocumentDefinitionType, DocumentType, IField } from './document';
 import {
   ChooseItem,
+  CopyOfSelector,
+  CopyOfType,
+  FieldItem,
   ForEachGroupItem,
   ForEachItem,
   GroupingStrategy,
@@ -39,6 +43,71 @@ describe('mapping.ts', () => {
     });
   });
 
+  describe('FieldItem.soleSelector', () => {
+    let field: IField;
+
+    beforeEach(() => {
+      field = TestUtil.createTargetOrderDoc().fields[0].fields[1];
+    });
+
+    it('should return the sole ValueOfSelector', () => {
+      const fieldItem = new FieldItem(tree, field);
+      const selector = new ValueOfSelector(fieldItem);
+      fieldItem.children.push(selector);
+      expect(fieldItem.soleSelector).toBe(selector);
+    });
+
+    it('should return the sole CopyOfSelector', () => {
+      const fieldItem = new FieldItem(tree, field);
+      const selector = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER);
+      fieldItem.children.push(selector);
+      expect(fieldItem.soleSelector).toBe(selector);
+    });
+
+    it('should return undefined when there are no children', () => {
+      expect(new FieldItem(tree, field).soleSelector).toBeUndefined();
+    });
+
+    it('should return undefined when there is more than one child', () => {
+      const fieldItem = new FieldItem(tree, field);
+      fieldItem.children.push(new ValueOfSelector(fieldItem), new ValueOfSelector(fieldItem));
+      expect(fieldItem.soleSelector).toBeUndefined();
+    });
+
+    it('should return undefined when the sole child is a recursive FieldItem, not a selector', () => {
+      const fieldItem = new FieldItem(tree, field);
+      fieldItem.children.push(new FieldItem(fieldItem, field));
+      expect(fieldItem.soleSelector).toBeUndefined();
+    });
+  });
+
+  describe('ValueSelector.sourcePath', () => {
+    it('should return the expression unchanged for a ValueOfSelector', () => {
+      const selector = new ValueOfSelector(tree);
+      selector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
+      expect(selector.sourcePath).toBe('/ns0:ShipOrder/ns0:OrderPerson');
+    });
+
+    it('should strip the trailing /node() for a CONTAINER_NODE CopyOfSelector', () => {
+      const selector = new CopyOfSelector(tree, CopyOfType.CONTAINER_NODE);
+      selector.expression = '/ns0:ShipOrder/ns0:ShipTo/node()';
+      expect(selector.sourcePath).toBe('/ns0:ShipOrder/ns0:ShipTo');
+    });
+
+    it('should leave a CONTAINER CopyOfSelector expression untouched', () => {
+      const selector = new CopyOfSelector(tree, CopyOfType.CONTAINER);
+      selector.expression = '/ns0:ShipOrder/ns0:ShipTo';
+      expect(selector.sourcePath).toBe('/ns0:ShipOrder/ns0:ShipTo');
+    });
+
+    it('should follow a valueType reassignment', () => {
+      const selector = new CopyOfSelector(tree, CopyOfType.CONTAINER_NODE);
+      selector.expression = '/ns0:ShipOrder/ns0:ShipTo/node()';
+      selector.valueType = CopyOfType.CONTAINER;
+      expect(selector.sourcePath).toBe('/ns0:ShipOrder/ns0:ShipTo/node()');
+    });
+  });
+
   describe('IfItem', () => {
     it('clone() should copy expression and children', () => {
       const item = new IfItem(tree);
@@ -53,6 +122,15 @@ describe('mapping.ts', () => {
       expect(cloned.children).toHaveLength(1);
       expect((cloned.children[0] as ValueSelector).expression).toBe('$x/name');
       expect(cloned).not.toBe(item);
+    });
+
+    it('clone() should copy isAutoOptionalIf flag', () => {
+      const item = new IfItem(tree);
+      item.isAutoOptionalIf = true;
+
+      const cloned = item.clone();
+
+      expect(cloned.isAutoOptionalIf).toBe(true);
     });
 
     it('clone() should reparent cloned children to the cloned parent', () => {
