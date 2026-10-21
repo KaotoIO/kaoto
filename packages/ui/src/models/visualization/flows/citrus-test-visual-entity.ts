@@ -92,7 +92,6 @@ const getDefaultTest = (name: string): Test => {
 export class CitrusTestVisualEntity implements BaseVisualEntity {
   id: string;
   readonly type = EntityType.Test;
-  needsRebuild?: boolean;
   static readonly ROOT_PATH = 'test';
 
   constructor(public test: Test) {
@@ -194,10 +193,10 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     }
     const actionName = ids.primaryNodeId.name;
     const actionModel: TestAction = getValue(this.test, this.toModelPath(path));
-    if (actionModel) {
-      await this.updateTestActionModel(path, actionName, actionModel);
-    }
-    return actionModel ?? {};
+    if (!actionModel) return {};
+    const model = cloneDeep(actionModel);
+    await this.updateTestActionModel(path, actionName, model);
+    return model;
   }
 
   getOmitFormFields(): string[] {
@@ -225,26 +224,28 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     return snapshot;
   }
 
-  updateModel(path: string | undefined, value: Record<string, unknown>): void {
-    if (!path) return;
+  updateModel(path: string | undefined, value: Record<string, unknown>): boolean {
+    if (!path) return false;
 
     if (path === this.getRootPath()) {
       this.id = this.test.name;
-      return;
+      return false;
     }
 
     const modelPath = this.toModelPath(path);
     const actionName = path.split('.').pop();
+
+    let needsRebuild = false;
     if (actionName === 'waitFor') {
       const previousValue = getValue(this.test, modelPath) as Record<string, unknown> | undefined;
       const hadAction = isDefined(previousValue?.['action']);
       const hasAction = isDefined(value?.['action']);
-      if (hadAction || hasAction) {
-        this.needsRebuild = true;
-      }
+      needsRebuild = hasAction !== hadAction;
     }
 
     setValue(this.test, modelPath, value);
+
+    return needsRebuild;
   }
 
   /**

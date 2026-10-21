@@ -382,32 +382,32 @@ describe('CitrusTestVisualEntity', () => {
       expect(citrusTestEntity.test.actions[0].print?.message).toBe('Updated message');
     });
 
-    it('should set needsRebuild when waitFor gains the action condition', () => {
+    it('should return true when waitFor gains the action condition', () => {
       citrusTestEntity.test.actions.push({ waitFor: { http: { url: 'http://localhost' } } } as unknown as TestActions);
-      citrusTestEntity.updateModel('actions.1.waitFor', { action: {} });
+      const result = citrusTestEntity.updateModel('actions.1.waitFor', { action: {} });
 
-      expect(citrusTestEntity.needsRebuild).toBe(true);
+      expect(result).toBe(true);
     });
 
-    it('should set needsRebuild when waitFor loses the action condition', () => {
+    it('should return true when waitFor loses the action condition', () => {
       citrusTestEntity.test.actions.push({ waitFor: { action: {} } } as unknown as TestActions);
-      citrusTestEntity.updateModel('actions.1.waitFor', { http: { url: 'http://localhost' } });
+      const result = citrusTestEntity.updateModel('actions.1.waitFor', { http: { url: 'http://localhost' } });
 
-      expect(citrusTestEntity.needsRebuild).toBe(true);
+      expect(result).toBe(true);
     });
 
-    it('should set needsRebuild when waitFor has action condition even with other properties', () => {
+    it('should return false when waitFor retains action condition with other properties', () => {
       citrusTestEntity.test.actions.push({ waitFor: { action: {} } } as unknown as TestActions);
-      citrusTestEntity.updateModel('actions.1.waitFor', { action: {}, timeout: '10000' });
+      const result = citrusTestEntity.updateModel('actions.1.waitFor', { action: {}, timeout: '10000' });
 
-      expect(citrusTestEntity.needsRebuild).toBe(true);
+      expect(result).toBe(false);
     });
 
-    it('should not set needsRebuild for waitFor without action condition', () => {
+    it('should return false for waitFor without action condition', () => {
       citrusTestEntity.test.actions.push({ waitFor: { http: { url: 'http://localhost' } } } as unknown as TestActions);
-      citrusTestEntity.updateModel('actions.1.waitFor', { http: { url: 'http://localhost:8080' } });
+      const result = citrusTestEntity.updateModel('actions.1.waitFor', { http: { url: 'http://localhost:8080' } });
 
-      expect(citrusTestEntity.needsRebuild).toBeFalsy();
+      expect(result).toBe(false);
     });
   });
 
