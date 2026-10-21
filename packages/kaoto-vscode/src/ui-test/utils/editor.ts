@@ -17,7 +17,7 @@
 import { assert } from 'chai';
 import * as path from 'path'; // NOSONAR
 import { ActivityBar, By, createWaitHelper, CustomEditor, EditorView, VSBrowser, WebDriver, WebElement, WebView } from 'vscode-extension-tester';
-import { KaotoEditor } from '../pageObjects/KaotoEditor';
+import { CANVAS_LOAD_TIMEOUT, KaotoEditor } from '../pageObjects/KaotoEditor';
 import { kaotoLocators } from '../pageObjects/locators';
 import { dismissBlockingModal } from './workbench';
 
@@ -143,11 +143,11 @@ async function ensureKaotoEditorIsActive(expectedTitle?: string): Promise<void> 
 	}
 }
 
-export async function checkEmptyCanvasLoaded(driver: WebDriver, timeout: number = 10_000) {
+export async function checkEmptyCanvasLoaded(driver: WebDriver, timeout: number = CANVAS_LOAD_TIMEOUT) {
 	await KaotoEditor.waitForEmptyCanvas(driver, timeout);
 }
 
-export async function checkTopologyLoaded(driver: WebDriver, timeout: number = 10_000) {
+export async function checkTopologyLoaded(driver: WebDriver, timeout: number = CANVAS_LOAD_TIMEOUT) {
 	await KaotoEditor.waitForTopology(driver, timeout);
 }
 
