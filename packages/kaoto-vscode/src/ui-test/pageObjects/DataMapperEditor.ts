@@ -34,20 +34,25 @@ export class DataMapperEditor extends AbstractElement {
 	// ─── Open DataMapper ───────────────────────────────────────────────────────
 
 	/**
-	 * Click a DataMapper canvas node and then click the
+	 * Select a DataMapper canvas node if needed and then click the
 	 * "Click to launch the Kaoto DataMapper editor" button.
 	 *
 	 * @param nodeSelector  CSS selector that uniquely identifies the DataMapper node
 	 */
 	static async openFromNode(driver: WebDriver, nodeSelector: string, timeout = 5_000): Promise<void> {
-		const node = await driver.findElement(By.css(nodeSelector));
-		await node.click();
-		await driver.wait(
+		const node = await driver.wait(until.elementLocated(By.css(nodeSelector)), timeout, 'Cannot find the DataMapper node');
+		if ((await node.getAttribute('data-selected')) !== 'true') {
+			await driver.wait(until.elementIsVisible(node), timeout, 'DataMapper node was not visible');
+			await node.click();
+		}
+		const openEditorButton = await driver.wait(
 			until.elementLocated(By.css(kaotoLocators.DataMapperEditor.openEditorButton)),
 			timeout,
 			'Cannot find the button to open the DataMapper',
 		);
-		await (await driver.findElement(By.css(kaotoLocators.DataMapperEditor.openEditorButton))).click();
+		await driver.wait(until.elementIsVisible(openEditorButton), timeout, 'DataMapper launch button was not visible');
+		await driver.wait(until.elementIsEnabled(openEditorButton), timeout, 'DataMapper launch button was not enabled');
+		await openEditorButton.click();
 	}
 
 	// ─── Schema attachment ────────────────────────────────────────────────────
