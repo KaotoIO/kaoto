@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import * as vscode from 'vscode';
 import { CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
 import { KaotoCatalogService } from '../../services/KaotoCatalogService';
-import { initializeKaotoCatalogService, getExtensionContext } from '../utils/TestSetup';
+import { closeAllEditors, getExtensionContext, initializeKaotoCatalogService, preserveKaotoCatalogServiceInstance } from '../utils/TestSetup';
 import { RuntimeType } from '../../executors/types/ExecutorTypes';
 import { KAOTO_CATALOG_URL_SETTING_ID } from '../../constants';
 
@@ -11,9 +11,14 @@ suite('KaotoCatalogService Test Suite', () => {
 	let context: vscode.ExtensionContext;
 	let originalGetConfiguration: typeof vscode.workspace.getConfiguration;
 	let originalShowWarningMessage: typeof vscode.window.showWarningMessage;
+	let originalShowInformationMessage: typeof vscode.window.showInformationMessage;
 	let originalFetch: typeof globalThis.fetch;
+	let restoreCatalogServiceInstance: () => void;
 
 	suiteSetup(async () => {
+		restoreCatalogServiceInstance = preserveKaotoCatalogServiceInstance();
+		// Changing the catalog while a Kaoto file is active awaits a "Reopen" prompt nobody answers.
+		await closeAllEditors();
 		// Get extension context for tests that need to create custom instances
 		context = await getExtensionContext();
 		// Initialize KaotoCatalogService using the test helper
@@ -23,7 +28,13 @@ suite('KaotoCatalogService Test Suite', () => {
 	setup(async () => {
 		originalGetConfiguration = vscode.workspace.getConfiguration;
 		originalShowWarningMessage = vscode.window.showWarningMessage;
+		originalShowInformationMessage = vscode.window.showInformationMessage;
 		originalFetch = globalThis.fetch;
+		// Dismiss prompts such as "Reopen editor to apply changes" instead of waiting on them.
+		Object.defineProperty(vscode.window, 'showInformationMessage', {
+			value: async () => undefined,
+			configurable: true,
+		});
 		// Re-initialize for each test to ensure clean state
 		catalogService = await initializeKaotoCatalogService();
 	});
@@ -37,10 +48,19 @@ suite('KaotoCatalogService Test Suite', () => {
 			value: originalShowWarningMessage,
 			configurable: true,
 		});
+		Object.defineProperty(vscode.window, 'showInformationMessage', {
+			value: originalShowInformationMessage,
+			configurable: true,
+		});
 		Object.defineProperty(globalThis, 'fetch', {
 			value: originalFetch,
 			configurable: true,
 		});
+	});
+
+	suiteTeardown(() => {
+		// Instances created with stubbed configuration or fetch must not outlive this suite.
+		restoreCatalogServiceInstance();
 	});
 
 	test('should load catalogs from index.json', () => {
@@ -475,6 +495,22 @@ suite('KaotoCatalogService Test Suite', () => {
 	// These scenarios are better tested through integration tests
 
 	suite('Separate Integration and Test Catalog Storage', () => {
+		// The catalog setters persist the selection; put the workspace settings back for the next tests.
+		const catalogSettings = ['runtimeCatalogName', 'testingCatalogName'];
+		let previousSettings: unknown[];
+
+		setup(() => {
+			const config = vscode.workspace.getConfiguration('kaoto');
+			previousSettings = catalogSettings.map((key) => config.inspect(key)?.workspaceValue);
+		});
+
+		teardown(async () => {
+			const config = vscode.workspace.getConfiguration('kaoto');
+			for (const [index, key] of catalogSettings.entries()) {
+				await config.update(key, previousSettings[index], vscode.ConfigurationTarget.Workspace);
+			}
+		});
+
 		test('should store integration and test catalogs separately', async () => {
 			// Get an integration catalog (Main)
 			const integrationCatalog = catalogService.getCatalogs().find((c) => c.runtime === 'Main');
