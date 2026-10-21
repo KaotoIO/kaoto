@@ -76,6 +76,7 @@ export const normalizeDefinition = async (definition: unknown, ids?: IVisualizat
 
   const pathParameters = CamelUriHelper.getParametersFromPathString(componentDefinition.component.syntax, pathPortion, {
     requiredParameters: componentDefinition.propertiesSchema.required as string[],
+    propertiesSchema: componentDefinition.propertiesSchema,
   });
   const queryParameters = CamelUriHelper.getParametersFromQueryString(queryStringPortion);
 

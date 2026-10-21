@@ -207,6 +207,47 @@ describe('CamelUriHelper', () => {
         expect(CamelUriHelper.getParametersFromPathString(syntax, uri, { requiredParameters })).toEqual(result);
       },
     );
+
+    describe('with a propertiesSchema', () => {
+      const kameletSchema = {
+        properties: { templateId: { type: 'string' }, routeId: { type: 'string' } },
+      } as const;
+      const ftpSchema = {
+        properties: { host: { type: 'string' }, port: { type: 'integer' }, directoryName: { type: 'string' } },
+      } as const;
+
+      it('should keep numeric-looking values of string-typed parameters as strings', () => {
+        expect(
+          CamelUriHelper.getParametersFromPathString('kamelet:templateId/routeId', 'kamelet:delay-action/001', {
+            requiredParameters: ['templateId'],
+            propertiesSchema: kameletSchema,
+          }),
+        ).toEqual({ templateId: 'delay-action', routeId: '001' });
+      });
+
+      it('should round-trip a numeric-looking routeId', () => {
+        const uri = 'kamelet:delay-action/001';
+        const parameters = CamelUriHelper.getParametersFromPathString('kamelet:templateId/routeId', uri, {
+          requiredParameters: ['templateId'],
+          propertiesSchema: kameletSchema,
+        });
+
+        expect(
+          CamelUriHelper.getUriStringFromParameters('kamelet', 'kamelet:templateId/routeId', parameters, {
+            requiredParameters: ['templateId'],
+          }),
+        ).toEqual(uri);
+      });
+
+      it('should still coerce numeric parameters such as port', () => {
+        expect(
+          CamelUriHelper.getParametersFromPathString('ftp:host:port/directoryName', 'ftp://localhost:21/001', {
+            requiredParameters: ['host'],
+            propertiesSchema: ftpSchema,
+          }),
+        ).toEqual({ host: 'localhost', port: 21, directoryName: '001' });
+      });
+    });
   });
 
   describe('getUriStringFromParameters', () => {

@@ -1,5 +1,6 @@
 import { isDefined } from '@kaoto/forms';
 
+import { KaotoSchemaDefinition } from '../models/kaoto-schema';
 import { getParsedValue } from './get-parsed-value';
 import { getValue } from './get-value';
 
@@ -132,11 +133,15 @@ export class CamelUriHelper {
     return paramQueryString && paramQueryString !== '' ? uri + '?' + paramQueryString : uri;
   }
 
-  /** Transform the path string portion of a URI `atmosphere-websocket://localhost:8080/echo`, into a key-value object */
+  /**
+   * Transform the path string portion of a URI `atmosphere-websocket://localhost:8080/echo`, into a key-value object.
+   * When `propertiesSchema` is provided, values of `string`-typed parameters are kept as-is instead of being
+   * coerced, so `kamelet:delay-action/001` keeps `routeId: '001'` while `port` still becomes a number.
+   */
   static getParametersFromPathString(
     uriSyntax?: string,
     uriString?: string,
-    options?: { requiredParameters?: string[] },
+    options?: { requiredParameters?: string[]; propertiesSchema?: KaotoSchemaDefinition['schema'] },
   ): ParsedParameters {
     /** If `:` is not present in the syntax, we can return an empty object since there's nothing to parse */
     if (!uriSyntax || !uriString || !uriSyntax.includes(':')) return {};
@@ -178,11 +183,15 @@ export class CamelUriHelper {
       }
 
       keys.forEach((key, index) => {
-        let parsedValue = getParsedValue(values[index]);
+        let parsedValue = this.parsePathValue(key, values[index], options?.propertiesSchema);
         const isLastItem = index === keys.length - 1;
         /** If the values length is greater than the keys length, we need to join the remaining values, f.i. ftp component */
         if (isLastItem && values.length > keys.length) {
-          parsedValue = getParsedValue(values.slice(index).join(delimiters[index - 1]));
+          parsedValue = this.parsePathValue(
+            key,
+            values.slice(index).join(delimiters[index - 1]),
+            options?.propertiesSchema,
+          );
         }
 
         if (key !== '' && parsedValue !== '') {
@@ -192,6 +201,19 @@ export class CamelUriHelper {
     }
 
     return parameters;
+  }
+
+  /** Keep `string`-typed parameters as-is, otherwise coerce numeric and boolean-looking values */
+  private static parsePathValue(
+    key: string,
+    value: string | undefined,
+    propertiesSchema?: KaotoSchemaDefinition['schema'],
+  ): string | boolean | number {
+    if (propertiesSchema?.properties?.[key]?.type === 'string') {
+      return value ?? '';
+    }
+
+    return getParsedValue(value);
   }
 
   /** Analyze a URI syntax template once for both path serialization and parsing. */

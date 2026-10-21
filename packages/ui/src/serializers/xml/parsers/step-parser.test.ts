@@ -320,6 +320,7 @@ describe('parser basics', () => {
       ['kamelet:delay-action', { templateId: 'delay-action' }],
       ['kamelet:delay-action?milliseconds=500', { templateId: 'delay-action', milliseconds: 500 }],
       ['kamelet:delay-action/myRoute', { templateId: 'delay-action', routeId: 'myRoute' }],
+      ['kamelet:delay-action/001', { templateId: 'delay-action', routeId: '001' }],
     ])('should parse kamelet uri "%s" into the kamelet component and templateId', async (uri, parameters) => {
       const element = mockDocument.createElement('to');
       element.setAttribute('uri', uri);

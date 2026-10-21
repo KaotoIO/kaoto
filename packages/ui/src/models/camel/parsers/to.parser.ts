@@ -27,7 +27,10 @@ export const toParser = async (originalTo: To | undefined): Promise<ParsedToObje
   const pathParameters = CamelUriHelper.getParametersFromPathString(
     directComponentDefinition?.component.syntax,
     pathPortion,
-    { requiredParameters: directComponentDefinition?.propertiesSchema.required as string[] },
+    {
+      requiredParameters: directComponentDefinition?.propertiesSchema.required as string[],
+      propertiesSchema: directComponentDefinition?.propertiesSchema,
+    },
   );
   const queryParameters = CamelUriHelper.getParametersFromQueryString(queryStringPortion);
 
