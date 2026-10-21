@@ -11,6 +11,7 @@
     "src/models-api.ts",
     "src/testing-api.ts",
     "src/components-api.ts",
+    "src/host-bridge/index.ts",
     "src/global.d.ts",
     "src/vite-env.d.ts"
   ],
