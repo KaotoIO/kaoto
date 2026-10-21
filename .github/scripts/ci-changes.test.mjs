@@ -28,6 +28,14 @@ test('extension changes select full integration groups and deployment tests only
   });
 });
 
+test('extension UI-test changes select full integration groups and deployment tests only', () => {
+  assert.deepEqual(selectJobs(['packages/ui-tests-vscode/src/editor/BasicFlow.test.ts']), {
+    ...none,
+    'vscode-full': true,
+    deploy: true,
+  });
+});
+
 test('web-only changes retain web validation without unrelated packages', () => {
   assert.deepEqual(selectJobs(['packages/kaoto-web/src/App.tsx']), { ...none, web: true });
 });

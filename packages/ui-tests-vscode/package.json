@@ -1,0 +1,41 @@
+{
+  "name": "@kaoto/ui-tests-vscode",
+  "private": true,
+  "version": "0.0.0-dev",
+  "description": "ExTester UI tests for the Kaoto VS Code extension",
+  "license": "Apache-2.0",
+  "scripts": {
+    "build": "rimraf ./out && tsc --project tsconfig.json",
+    "lint": "eslint \"src/**/*.ts\"",
+    "lint:fix": "yarn lint --fix",
+    "test:ui": "yarn workspace vscode-kaoto build:vsix --out ../ui-tests-vscode/vscode-kaoto.vsix && VSIX_FILE=vscode-kaoto.vsix yarn test:ui:vsix",
+    "setup:test:ui:vsix": "yarn build && extest get-vscode && extest get-chromedriver && extest install-vsix --vsix_file \"$VSIX_FILE\"",
+    "test:ui:vsix": "yarn setup:test:ui:vsix && extest run-tests",
+    "test:ui:vsix:settings": "yarn test:ui:vsix 'out/settings/*.test.js'",
+    "test:ui:vsix:editor": "yarn test:ui:vsix 'out/editor/*.test.js'",
+    "test:ui:vsix:views": "yarn test:ui:vsix 'out/views/*.test.js'",
+    "test:ui:vsix:export": "yarn test:ui:vsix 'out/export/*.test.js'",
+    "test:ui:vsix:deploy": "yarn test:ui:vsix --code_settings ./src/vscode-settings-minikube.json 'out/deploy/*.test.js'",
+    "test:ui:clean": "rimraf ./test-resources && rimraf ./out && rimraf *.vsix"
+  },
+  "dependencies": {
+    "vscode-kaoto": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.20",
+    "@types/fs-extra": "^11.0.4",
+    "@types/mocha": "^10.0.10",
+    "async-wait-until": "^2.0.31",
+    "chai": "^4.3.10",
+    "eslint": "^9.10.0",
+    "eslint-config-prettier": "^9.1.2",
+    "eslint-plugin-chai-friendly": "^1.2.1",
+    "eslint-plugin-prettier": "^5.5.6",
+    "fs-extra": "^11.4.0",
+    "mocha": "^11.8.0",
+    "prettier": "3.7.4",
+    "rimraf": "^6.1.3",
+    "typescript": "^6.0.0",
+    "vscode-extension-tester": "^8.28.1"
+  }
+}

@@ -6,7 +6,7 @@ import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
 
 export default [
   {
-    ignores: ['**/*.test.js', 'node_modules/*', 'dist/*', 'out/*', 'out-unit-tests/*', 'out-ui-tests/*'],
+    ignores: ['**/*.test.js', 'node_modules/*', 'dist/*', 'out/*', 'out-unit-tests/*'],
   },
   eslintPluginPrettierRecommended,
   {
@@ -16,7 +16,7 @@ export default [
       parserOptions: {
         ecmaVersion: 2022,
         sourceType: 'module',
-        project: ['./tsconfig.json', './tsconfig.ui-tests.json', './tsconfig.unit-tests.json'],
+        project: ['./tsconfig.json', './tsconfig.unit-tests.json'],
         ecmaFeatures: {
           impliedStrict: true,
         },

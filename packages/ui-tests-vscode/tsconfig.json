@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["src"],
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo",
+    "lib": ["ES2023"],
+    "target": "ES2023",
+    "module": "CommonJS",
+    "moduleResolution": "bundler",
+    "isolatedModules": false,
+    "noEmit": false,
+    /* Emit to out/<group>/: extester.config.json, test:ui:vsix:* scripts and __dirname fixture paths rely on it. */
+    "rootDir": "src",
+    "outDir": "out",
+    "removeComments": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
+  }
+}

@@ -1,13 +1,13 @@
 {
-  "extesterRunner.testFileGlob": "packages/kaoto-vscode/src/ui-test/**/*.test.ts",
-  "extesterRunner.rootFolder": "packages/kaoto-vscode/src/ui-test",
-  "extesterRunner.ignorePathPart": "packages/kaoto-vscode/",
-  "extesterRunner.outputFolder": "packages/kaoto-vscode/out-ui-tests",
+  "extesterRunner.testFileGlob": "packages/ui-tests-vscode/src/**/*.test.ts",
+  "extesterRunner.rootFolder": "packages/ui-tests-vscode/src",
+  "extesterRunner.ignorePathPart": "packages/ui-tests-vscode/",
+  "extesterRunner.outputFolder": "packages/ui-tests-vscode/out",
   "extesterRunner.additionalArgs": [
     "--config",
-    "packages/kaoto-vscode/extester.config.json",
+    "packages/ui-tests-vscode/extester.config.json",
     "--package_options \"{\\\"cwd\\\":\\\"packages/kaoto-vscode\\\",\\\"useYarn\\\":true,\\\"dependencies\\\":false}\"",
     "--extensions_dir",
-    "packages/kaoto-vscode/test-resources"
+    "packages/ui-tests-vscode/test-resources"
   ]
 }

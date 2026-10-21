@@ -18,9 +18,9 @@ import { git } from './git-client.mjs';
  * `ui` includes validation of both the UI and UI-tests sources.
  * `vscode-smoke` runs only the settings and editor integration groups (triggered by UI changes,
  * where only the embedded UI library is affected). `vscode-full` runs all four groups and is
- * triggered by extension changes or the conservative all-jobs fallback. `deploy` adds Minikube
- * tests on top of `vscode-full`. `web`, `e2e` and `chromatic` select the web package, Cypress
- * and Storybook respectively.
+ * triggered by extension or extension UI-test changes, or the conservative all-jobs fallback.
+ * `deploy` adds Minikube tests on top of `vscode-full`. `web`, `e2e` and `chromatic` select the
+ * web package, Cypress and Storybook respectively.
  *
  * @param {string[] | null} files Changed paths, including deletions. null means the diff is
  *   unknown and all jobs must run; [] means a known empty diff and selects no package jobs.
@@ -44,9 +44,9 @@ export function selectJobs(files, eventName = 'pull_request') {
       // The extension embeds the UI library. Validate the embedded UI with a reduced set of
       // integration groups (settings + editor only) without starting a deployment cluster.
       Object.assign(jobs, { ui: true, 'vscode-smoke': true, e2e: true, chromatic: true });
-    } else if (file.startsWith('packages/kaoto-vscode/')) {
-      // Extension changes exercise all four integration groups and deployment tests.
-      // The build job still builds the prerequisite UI library; it does not run UI checks.
+    } else if (file.startsWith('packages/kaoto-vscode/') || file.startsWith('packages/ui-tests-vscode/')) {
+      // Extension and extension UI-test changes exercise all four integration groups and deployment
+      // tests. The build job still builds the prerequisite UI library; it does not run UI checks.
       Object.assign(jobs, { 'vscode-full': true, deploy: true });
     } else if (file.startsWith('packages/kaoto-web/')) {
       // The current web package has its own validation and does not consume the UI library.

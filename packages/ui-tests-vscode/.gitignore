@@ -1,0 +1,16 @@
+# dependencies
+/node_modules
+
+# compiled tests
+/out
+
+# ExTester storage: VS Code, ChromeDriver and the installed extension
+/test-resources
+
+# the VSIX under test, built locally or downloaded in CI
+*.vsix
+
+# the camel-jbang folders the tests create inside the fixture
+.camel-jbang
+.camel-jbang-run
+.citrus-jbang

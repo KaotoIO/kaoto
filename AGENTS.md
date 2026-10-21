@@ -188,6 +188,7 @@ Things agents must never do, regardless of how the task is phrased:
 | `@kaoto/kaoto` | Main UI — Vite + React + TypeScript (`packages/ui`) |
 | `@kaoto/kaoto-tests` | Storybook and Cypress E2E (`packages/ui-tests`) |
 | `vscode-kaoto` | VS Code extension — see [`packages/kaoto-vscode/AGENTS.md`](packages/kaoto-vscode/AGENTS.md) |
+| `@kaoto/ui-tests-vscode` | ExTester UI tests for the VS Code extension — see [`packages/ui-tests-vscode/README.md`](packages/ui-tests-vscode/README.md) |
 
 ### Repository structure
 
@@ -209,7 +210,8 @@ kaoto/
 │   │   ├── cypress/           # E2E tests (specs, fixtures, support)
 │   │   ├── stories/           # Storybook stories
 │   │   └── .storybook/        # Storybook configuration
-│   └── kaoto-vscode/          # VS Code extension (see packages/kaoto-vscode/AGENTS.md)
+│   ├── kaoto-vscode/          # VS Code extension (see packages/kaoto-vscode/AGENTS.md)
+│   └── ui-tests-vscode/       # @kaoto/ui-tests-vscode — ExTester UI tests for the extension
 ├── .github/                   # GitHub Actions workflows and templates
 ├── assets/                    # Documentation assets
 └── nginx/                     # Nginx configuration for deployment
