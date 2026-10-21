@@ -197,6 +197,10 @@ describe('CanvasFormBody', () => {
     expect(onChange).not.toHaveBeenCalled();
     fireEvent.change(screen.getByDisplayValue('second'), { target: { value: 'first' } });
     expect(screen.getAllByDisplayValue('first')).toHaveLength(2);
+
+    // The source applies the emitted model, where the duplicate keys collapse; the local draft must survive it.
+    rerender(<KaotoForm schema={schema} model={onChange.mock.lastCall?.[0]} onChange={onChange} />);
+    expect(screen.getAllByDisplayValue('first')).toHaveLength(2);
     fireEvent.change(screen.getAllByDisplayValue('first')[1], { target: { value: 'renamed' } });
     expect(onChange).toHaveBeenLastCalledWith({ parameters: { first: 'after', renamed: 'kept' } });
 
@@ -226,6 +230,8 @@ describe('CanvasFormBody', () => {
     const input = screen.getByRole('textbox', { name: 'Amount' });
     fireEvent.change(input, { target: { value: '2.' } });
     fireEvent.change(input, { target: { value: '2.0' } });
+    expect(input).toHaveValue('2.0');
+    rerender(<KaotoForm schema={schema} model={{ amount: 2 }} onChange={onChange} />);
     expect(input).toHaveValue('2.0');
     fireEvent.change(input, { target: { value: '2.05' } });
     expect(onChange).toHaveBeenLastCalledWith({ amount: 2.05 });
@@ -267,6 +273,7 @@ describe('CanvasFormBody', () => {
       properties: { name: { type: 'string', title: 'Name' } },
     };
     const onChange = vi.fn();
+    const onChangeProp = vi.fn();
     const ControlledForm = () => {
       const [model, setModel] = useState({ name: 'before' });
       return (
@@ -274,7 +281,8 @@ describe('CanvasFormBody', () => {
           schema={schema}
           model={model}
           onChange={onChange}
-          onChangeProp={(_path, value) => {
+          onChangeProp={(path, value) => {
+            onChangeProp(path, value);
             setModel({ name: String(value) });
           }}
         />
@@ -283,6 +291,7 @@ describe('CanvasFormBody', () => {
     render(<ControlledForm />);
     fireEvent.change(screen.getByRole('textbox', { name: 'Name' }), { target: { value: 'edited' } });
     expect(onChange).toHaveBeenCalledExactlyOnceWith({ name: 'edited' });
+    expect(onChangeProp).toHaveBeenCalledExactlyOnceWith(expect.anything(), 'edited');
   });
 
   describe('should persists changes from both expression editor and main form', () => {
