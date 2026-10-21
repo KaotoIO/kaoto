@@ -1,3 +1,4 @@
+export * from './CatalogClickableLabel';
 export * from './CatalogTag';
 export * from './CatalogTagsPanel';
 export * from './RecentlyUsedTiles';
