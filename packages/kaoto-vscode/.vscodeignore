@@ -2,6 +2,7 @@
 .vscode-test/**
 .vscode-test*
 out/**
+out-unit-tests/**
 src/**
 test/**
 .gitignore

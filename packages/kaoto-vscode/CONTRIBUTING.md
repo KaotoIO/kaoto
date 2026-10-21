@@ -46,7 +46,7 @@ yarn workspace vscode-kaoto test:unit
 
 On Linux without a display, prefix the command with `xvfb-run -a`.
 
-The unit-test build first checks types with `tsc --noEmit`, then bundles tests and Kaoto workspace sources with Vite. It does not require rebuilding the UI library. Vite emits CommonJS bundles into `out/test/`, preserving the existing test-cli and Mocha runner. The [Vite library-mode documentation](https://vite.dev/guide/build.html#library-mode) describes support for CommonJS output.
+The unit-test build first checks types with `tsc --noEmit`, then bundles tests and Kaoto workspace sources with Vite. It does not require rebuilding the UI library. Vite emits CommonJS bundles into `out-unit-tests/test/`, preserving the existing test-cli and Mocha runner. The [Vite library-mode documentation](https://vite.dev/guide/build.html#library-mode) describes support for CommonJS output.
 
 To debug tests, run the command in a VS Code terminal with Auto Attach enabled or in a JavaScript Debug Terminal. The test configuration preloads the terminal-provided debugger bootloader inside the extension host before loading tests. Mocha timeouts are disabled in this mode so you can pause at source-mapped TypeScript breakpoints.
 

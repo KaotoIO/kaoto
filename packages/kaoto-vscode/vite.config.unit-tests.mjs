@@ -17,7 +17,7 @@ export default defineConfig({
     conditions: ['@kaoto/source', 'node'],
   },
   build: {
-    outDir: 'out',
+    outDir: 'out-unit-tests',
     emptyOutDir: true,
     target: 'node22',
     minify: false,

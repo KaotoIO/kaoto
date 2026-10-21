@@ -45,7 +45,7 @@ function findDebugBootloader() {
 const debugBootloader = findDebugBootloader();
 
 export default defineConfig({
-  files: 'out/test/**/*.test.js',
+  files: 'out-unit-tests/test/**/*.test.js',
   workspaceFolder: tempWorkspace,
   launchArgs,
   mocha: {

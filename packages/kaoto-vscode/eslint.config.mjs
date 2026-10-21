@@ -6,7 +6,7 @@ import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
 
 export default [
   {
-    ignores: ['**/*.test.js', 'node_modules/*', 'dist/*', 'out/*'],
+    ignores: ['**/*.test.js', 'node_modules/*', 'dist/*', 'out/*', 'out-unit-tests/*'],
   },
   eslintPluginPrettierRecommended,
   {
