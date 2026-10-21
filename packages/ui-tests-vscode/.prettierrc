@@ -1,0 +1,22 @@
+{
+  "arrowParens": "always",
+  "bracketSameLine": false,
+  "bracketSpacing": true,
+  "endOfLine": "auto",
+  "printWidth": 120,
+  "semi": true,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "trailingComma": "all",
+  "useTabs": false,
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "options": {
+        "printWidth": 160,
+        "useTabs": true,
+        "tabWidth": 4
+      }
+    }
+  ]
+}

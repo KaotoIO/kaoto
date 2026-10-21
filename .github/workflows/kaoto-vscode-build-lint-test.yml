@@ -45,6 +45,11 @@ jobs:
       - name: Build and lint extension
         run: yarn workspace vscode-kaoto build:prod
 
+      - name: Build and lint UI tests
+        run: |
+          yarn workspace @kaoto/ui-tests-vscode build
+          yarn workspace @kaoto/ui-tests-vscode lint
+
       - name: Run unit tests
         run: xvfb-run -a yarn workspace vscode-kaoto test:unit
 

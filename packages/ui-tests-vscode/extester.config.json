@@ -1,0 +1,20 @@
+{
+  "$schema": "../../node_modules/vscode-extension-tester/resources/extester.schema.json",
+  "setup": {
+    "extensionsDir": "./test-resources"
+  },
+  "run": {
+    "testFiles": [
+      "out/settings/*.test.js",
+      "out/editor/*.test.js",
+      "out/views/*.test.js",
+      "out/deploy/*.test.js",
+      "out/export/*.test.js"
+    ],
+    "resources": ["./test Fixture with speci@l chars"],
+    "extensionsDir": "./test-resources",
+    "settings": "./src/vscode-settings.json",
+    "mochaConfig": "./src/.mocharc.json",
+    "customPageObjects": "./out/pageObjects/locators.js"
+  }
+}

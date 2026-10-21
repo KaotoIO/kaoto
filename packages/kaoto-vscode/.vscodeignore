@@ -3,7 +3,6 @@
 .vscode-test*
 out/**
 out-unit-tests/**
-out-ui-tests/**
 src/**
 test/**
 .gitignore
@@ -23,7 +22,6 @@ uitest-resources
 .camel-jbang
 .camel-jbang-run
 .citrus-jbang
-src/ui-test/**
 .github/**
 reports/**
 resources/demo.camel.yaml
@@ -32,4 +30,3 @@ resources/whats-new/2.8/**
 resources/whats-new/2.9/**
 resources/whats-new/2.10/**
 resources/whats-new/2.11/**
-extester.config*

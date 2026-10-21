@@ -20,7 +20,6 @@ All commands run from `packages/kaoto-vscode/` unless stated otherwise.
 | Development build            | `yarn run build:dev`   |
 | Lint                         | `yarn run lint`        |
 | Unit tests                   | `yarn run test:unit`   |
-| UI/integration tests         | `yarn run test:ui`     |
 | Build VSIX package           | `yarn run build:vsix`  |
 | Web mode (browser env)       | `yarn run run:webmode` |
 
@@ -30,34 +29,22 @@ Before declaring a change complete:
 
 ```bash
 yarn run build:dev      # compile + webpack
-yarn run lint           # lint TypeScript in src/ (incl. src/ui-test)
+yarn run lint           # lint TypeScript in src/
 yarn run test:unit      # unit tests via VS Code test framework
 ```
 
-For significant changes, also smoke-test the VSIX:
+For significant changes, also smoke-test the VSIX with the UI tests in
+[`packages/ui-tests-vscode`](../ui-tests-vscode/README.md):
 
 ```bash
-# Full UI test run — extest packages the VSIX itself, sets up VS Code, and runs all tests
-yarn run test:ui
+# Package the built extension into a VSIX, set up VS Code, and run all UI tests
+yarn workspace @kaoto/ui-tests-vscode test:ui
 
 # Headless (CI / no display)
-xvfb-run -a yarn run test:ui
+xvfb-run -a yarn workspace @kaoto/ui-tests-vscode test:ui
 ```
 
-To run against a prebuilt VSIX, set `VSIX_FILE` and use the group scripts:
-
-```bash
-export VSIX_FILE=./vscode-kaoto-<version>.vsix
-
-yarn run test:ui:vsix                  # all tests (reads extester.config.json globs)
-yarn run test:ui:vsix:settings         # out-ui-tests/settings/*.test.js
-yarn run test:ui:vsix:editor           # out-ui-tests/editor/*.test.js
-yarn run test:ui:vsix:views            # out-ui-tests/views/*.test.js
-yarn run test:ui:vsix:export           # out-ui-tests/export/*.test.js
-yarn run test:ui:vsix:deploy           # out-ui-tests/deploy/*.test.js  (uses minikube settings)
-```
-
-The full test file globs are defined in [`extester.config.json`](./extester.config.json).
+Running a single test group or a prebuilt VSIX is described in that package's README.
 
 ---
 
@@ -96,7 +83,7 @@ The full test file globs are defined in [`extester.config.json`](./extester.conf
 ### Test layout
 
 - **`src/test/`** — Unit tests (mirrors source structure): `commands/`, `executors/`, `extension/`, `services/`, `utils/`, `views/`, `webview/`
-- **`src/ui-test/`** — UI/integration tests: `editor/`, `pageObjects/`, `settings/`, `utils/`, `views/`
+- **[`packages/ui-tests-vscode`](../ui-tests-vscode/)** — UI/integration tests (ExTester) that run against the packaged VSIX
 
 ### Build
 

@@ -10,8 +10,8 @@ import tseslint from 'typescript-eslint';
 
 export default [
   { files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'] },
-  // kaoto-vscode has its own eslint config — exclude it from the monorepo root config
-  { ignores: ['packages/kaoto-vscode/**'] },
+  // kaoto-vscode and ui-tests-vscode have their own eslint configs — exclude them from the monorepo root config
+  { ignores: ['packages/kaoto-vscode/**', 'packages/ui-tests-vscode/**'] },
   {
     languageOptions: {
       globals: globals.browser,
