@@ -1,6 +1,7 @@
 import { assert } from 'chai';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as os from 'os';
 import { CamelLauncherDownloader, LauncherNotFoundError } from '../../services/CamelLauncherDownloader';
 import { isRedHatBuild } from '../../utils/Version';
 
@@ -10,10 +11,7 @@ suite('CamelLauncherDownloader Tests', () => {
 
 	setup(() => {
 		// Create a temporary storage path for testing
-		testStoragePath = path.join(__dirname, '..', 'test-storage');
-		if (!fs.existsSync(testStoragePath)) {
-			fs.mkdirSync(testStoragePath, { recursive: true });
-		}
+		testStoragePath = fs.mkdtempSync(path.join(os.tmpdir(), 'kaoto-launcher-storage-'));
 		// Pass undefined for context and use custom storage dir
 		downloader = new CamelLauncherDownloader(undefined, testStoragePath);
 	});
@@ -32,21 +30,13 @@ suite('CamelLauncherDownloader Tests', () => {
 	});
 
 	test('Should create storage directory if it does not exist', () => {
-		const newStoragePath = path.join(__dirname, '..', 'new-test-storage');
-
-		// Remove if exists
-		if (fs.existsSync(newStoragePath)) {
-			fs.rmSync(newStoragePath, { recursive: true, force: true });
-		}
+		const newStoragePath = path.join(testStoragePath, 'new-test-storage');
 
 		const newDownloader = new CamelLauncherDownloader(undefined, newStoragePath);
 
 		// Storage path should be created
 		assert.isTrue(fs.existsSync(newStoragePath));
 		assert.equal(newDownloader.getStorageDirectory(), newStoragePath);
-
-		// Cleanup
-		fs.rmSync(newStoragePath, { recursive: true, force: true });
 	});
 
 	test('Should return cached JAR path if launcher already exists', async () => {

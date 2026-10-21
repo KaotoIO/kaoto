@@ -2,6 +2,7 @@ import { assert } from 'chai';
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as os from 'os';
 import { CamelExecutorFactory } from '../../executors/CamelExecutorFactory';
 import { JBangExecutor } from '../../executors/JBangExecutor';
 import { CamelLauncherExecutor } from '../../executors/CamelLauncherExecutor';
@@ -14,10 +15,7 @@ suite('CamelExecutorFactory Tests', () => {
 	suiteSetup(async () => {
 		await initializeKaotoCatalogService();
 
-		testStoragePath = path.join(__dirname, '..', 'test-factory-storage');
-		if (!fs.existsSync(testStoragePath)) {
-			fs.mkdirSync(testStoragePath, { recursive: true });
-		}
+		testStoragePath = fs.mkdtempSync(path.join(os.tmpdir(), 'kaoto-factory-storage-'));
 	});
 
 	setup(() => {

@@ -4,24 +4,32 @@ import os from 'node:os';
 import fs from 'node:fs';
 
 const projectRoot = path.resolve('.');
+const fixtureName = 'test Fixture with speci@l chars';
 
-// Write a fresh workspace file to a temp path so VS Code never modifies the
-// committed .vscode/test-workspace.code-workspace during test runs.
-// The folders[0].path must be absolute because the file is not relative to .vscode/.
-const tempWorkspace = path.join(os.tmpdir(), 'vscode-kaoto-test-workspace.code-workspace');
-fs.writeFileSync(
-  tempWorkspace,
-  JSON.stringify(
-    {
-      folders: [{ path: path.join(projectRoot, 'test Fixture with speci@l chars') }],
-      settings: {},
-    },
-    null,
-    '\t',
-  ),
-);
+// Every run gets its own temp folder so it never depends on a previous run's cleanup:
+// tests write into the workspace and settings, and an interrupted run leaves both behind.
+const runRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'kaoto-vscode-unit-'));
+process.on('exit', () => {
+  try {
+    fs.rmSync(runRoot, { recursive: true, force: true, maxRetries: 3 });
+  } catch {
+    // A leftover VS Code process may still hold files; the OS temp cleanup takes care of it.
+  }
+});
 
-const launchArgs = process.env.CI ? [] : ['--user-data-dir', path.join(os.tmpdir(), 'vscode-kaoto-test')];
+// Open a copy of the fixture so tests never modify the committed files.
+const workspaceFolder = path.join(runRoot, fixtureName);
+fs.cpSync(path.join(projectRoot, fixtureName), workspaceFolder, { recursive: true });
+
+// A workspace file keeps workspace-scoped settings written by the tests out of the fixture.
+// The folders[0].path must be absolute because the file is not next to the folder.
+const tempWorkspace = path.join(runRoot, 'kaoto-unit-tests.code-workspace');
+fs.writeFileSync(tempWorkspace, JSON.stringify({ folders: [{ path: workspaceFolder }], settings: {} }, null, '\t'));
+
+// A fresh user data dir drops global settings left by an earlier run and does not collide with
+// a VS Code test instance an interrupted run left behind. CI keeps the default
+// .vscode-test/user-data folder, which is fresh per job and uploaded as the test logs artifact.
+const launchArgs = process.env.CI ? [] : ['--user-data-dir', path.join(runRoot, 'user-data')];
 
 // VS Code removes NODE_OPTIONS before launching the extension host. Preload the
 // terminal's debugger bootloader there so CLI auto-attach can reach the tests.
