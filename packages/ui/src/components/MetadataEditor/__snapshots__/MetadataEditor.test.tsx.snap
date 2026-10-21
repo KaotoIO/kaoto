@@ -1,68 +1,117 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`MetadataEditor.tsx > component renders 1`] = `
-{
-  "asFragment": [Function],
-  "baseElement": <body>
-    <div>
+<div>
+  <div
+    class="pf-v6-l-split pf-m-gutter"
+  >
+    <div
+      class="pf-v6-l-split__item metadata-editor-modal-list-view"
+    >
       <div
-        class="pf-v6-l-split pf-m-gutter"
+        class="pf-v6-c-scroll-outer-wrapper"
       >
         <div
-          class="pf-v6-l-split__item metadata-editor-modal-list-view"
+          class="pf-v6-c-scroll-inner-wrapper"
         >
-          <div
-            class="pf-v6-c-scroll-outer-wrapper"
+          <table
+            aria-label="beans"
+            class="pf-v6-c-table pf-m-grid-md pf-m-compact pf-m-sticky-header"
+            data-ouia-component-id="OUIA-Generated-Table-_r_ID_"
+            data-ouia-component-type="PF6/Table"
+            data-ouia-safe="true"
+            role="grid"
           >
-            <div
-              class="pf-v6-c-scroll-inner-wrapper"
+            <thead
+              class="pf-v6-c-table__thead"
             >
-              <table
-                aria-label="beans"
-                class="pf-v6-c-table pf-m-grid-md pf-m-compact pf-m-sticky-header"
-                data-ouia-component-id="OUIA-Generated-Table-_r_ID_"
-                data-ouia-component-type="PF6/Table"
+              <tr
+                class="pf-v6-c-table__tr"
+                data-ouia-component-id="OUIA-Generated-TableRow-_r_ID_"
+                data-ouia-component-type="PF6/TableRow"
                 data-ouia-safe="true"
-                role="grid"
               >
-                <thead
-                  class="pf-v6-c-table__thead"
+                <th
+                  class="pf-v6-c-table__th pf-m-nowrap"
+                  scope="col"
+                  tabindex="-1"
                 >
-                  <tr
-                    class="pf-v6-c-table__tr"
-                    data-ouia-component-id="OUIA-Generated-TableRow-_r_ID_"
-                    data-ouia-component-type="PF6/TableRow"
+                  NAME
+                </th>
+                <th
+                  class="pf-v6-c-table__th pf-m-nowrap"
+                  scope="col"
+                  tabindex="-1"
+                >
+                  TYPE
+                </th>
+                <td
+                  class="pf-v6-c-table__td pf-v6-c-table__action pf-m-nowrap"
+                  tabindex="-1"
+                >
+                  <button
+                    class="pf-v6-c-button pf-m-link"
+                    data-ouia-component-id="OUIA-Generated-Button-link-_r_ID_"
+                    data-ouia-component-type="PF6/Button"
                     data-ouia-safe="true"
+                    data-testid="metadata-add-beans-btn"
+                    title="Add new beans"
+                    type="button"
                   >
-                    <th
-                      class="pf-v6-c-table__th pf-m-nowrap"
-                      scope="col"
-                      tabindex="-1"
+                    <span
+                      class="pf-v6-c-button__icon"
                     >
-                      NAME
-                    </th>
-                    <th
-                      class="pf-v6-c-table__th pf-m-nowrap"
-                      scope="col"
-                      tabindex="-1"
+                      <svg
+                        data-testid="plus-circle-icon"
+                        role="img"
+                      >
+                        <path />
+                      </svg>
+                    </span>
+                  </button>
+                </td>
+              </tr>
+            </thead>
+            <tbody
+              class="pf-v6-c-table__tbody"
+              role="rowgroup"
+            >
+              <tr
+                class="pf-v6-c-table__tr"
+                data-ouia-component-id="OUIA-Generated-TableRow-_r_ID_"
+                data-ouia-component-type="PF6/TableRow"
+                data-ouia-safe="true"
+              >
+                <td
+                  class="pf-v6-c-table__td"
+                  colspan="3"
+                  tabindex="-1"
+                >
+                  <div
+                    class="pf-v6-c-empty-state"
+                  >
+                    <div
+                      class="pf-v6-c-empty-state__content"
                     >
-                      TYPE
-                    </th>
-                    <td
-                      class="pf-v6-c-table__td pf-v6-c-table__action pf-m-nowrap"
-                      tabindex="-1"
-                    >
+                      <div
+                        class="pf-v6-c-empty-state__header"
+                      />
+                      <div
+                        class="pf-v6-c-empty-state__body"
+                      >
+                        No 
+                        beans
+                      </div>
                       <button
                         class="pf-v6-c-button pf-m-link"
                         data-ouia-component-id="OUIA-Generated-Button-link-_r_ID_"
                         data-ouia-component-type="PF6/Button"
                         data-ouia-safe="true"
                         data-testid="metadata-add-beans-btn"
-                        title="Add new beans"
                         type="button"
                       >
                         <span
-                          class="pf-v6-c-button__icon"
+                          class="pf-v6-c-button__icon pf-m-start"
                         >
                           <svg
                             data-testid="plus-circle-icon"
@@ -71,1140 +120,482 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
                             <path />
                           </svg>
                         </span>
+                        <span
+                          class="pf-v6-c-button__text"
+                        >
+                          Add new
+                        </span>
                       </button>
-                    </td>
-                  </tr>
-                </thead>
-                <tbody
-                  class="pf-v6-c-table__tbody"
-                  role="rowgroup"
-                >
-                  <tr
-                    class="pf-v6-c-table__tr"
-                    data-ouia-component-id="OUIA-Generated-TableRow-_r_ID_"
-                    data-ouia-component-type="PF6/TableRow"
-                    data-ouia-safe="true"
-                  >
-                    <td
-                      class="pf-v6-c-table__td"
-                      colspan="3"
-                      tabindex="-1"
-                    >
-                      <div
-                        class="pf-v6-c-empty-state"
-                      >
-                        <div
-                          class="pf-v6-c-empty-state__content"
-                        >
-                          <div
-                            class="pf-v6-c-empty-state__header"
-                          />
-                          <div
-                            class="pf-v6-c-empty-state__body"
-                          >
-                            No 
-                            beans
-                          </div>
-                          <button
-                            class="pf-v6-c-button pf-m-link"
-                            data-ouia-component-id="OUIA-Generated-Button-link-_r_ID_"
-                            data-ouia-component-type="PF6/Button"
-                            data-ouia-safe="true"
-                            data-testid="metadata-add-beans-btn"
-                            type="button"
-                          >
-                            <span
-                              class="pf-v6-c-button__icon pf-m-start"
-                            >
-                              <svg
-                                data-testid="plus-circle-icon"
-                                role="img"
-                              >
-                                <path />
-                              </svg>
-                            </span>
-                            <span
-                              class="pf-v6-c-button__text"
-                            >
-                              Add new
-                            </span>
-                          </button>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div
-          class="pf-v6-l-split__item metadata-editor-modal-details-view"
-        >
-          <div
-            class="pf-v6-l-stack pf-m-gutter"
-          >
-            <div
-              class="pf-v6-l-stack__item"
-            >
-              <h2
-                class="pf-v6-c-title pf-m-h2"
-                data-ouia-component-id="OUIA-Generated-Title-_r_ID_"
-                data-ouia-component-type="PF6/Title"
-                data-ouia-safe="true"
-              >
-                Details
-              </h2>
-            </div>
-            <div
-              class="pf-v6-l-stack__item pf-m-fill"
-            >
-              <form
-                class="pf-v6-c-form kaoto-form kaoto-form__label"
-                data-testid="metadata-editor-form-Beans"
-                novalidate=""
-              >
-                <div
-                  class="pf-v6-c-form__group"
-                  data-testid="#.name__field-wrapper"
-                >
-                  <div
-                    class="pf-v6-c-form__group-label"
-                  >
-                    <label
-                      class="pf-v6-c-form__label"
-                      for="#.name"
-                    >
-                      <span
-                        class="pf-v6-c-form__label-text"
-                      >
-                        name
-                      </span>
-                      <span
-                        aria-hidden="true"
-                        class="pf-v6-c-form__label-required"
-                      >
-                         
-                        *
-                      </span>
-                    </label>
-                      
-                    <span
-                      class="pf-v6-c-form__group-label-help"
-                    >
-                      <div
-                        style="display: contents;"
-                      >
-                        <span
-                          aria-label="More info for name field"
-                          class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                          data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
-                          data-ouia-component-type="PF6/Button"
-                          data-ouia-safe="true"
-                          role="button"
-                          tabindex="0"
-                          type="button"
-                        >
-                          <span
-                            class="pf-v6-c-button__icon"
-                          >
-                            <svg
-                              aria-hidden="true"
-                              class="pf-v6-svg"
-                              fill="currentColor"
-                              height="1em"
-                              role="img"
-                              viewBox="0 0 1024 1024"
-                              width="1em"
-                            >
-                              <path
-                                d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
-                              />
-                            </svg>
-                          </span>
-                        </span>
-                      </div>
-                    </span>
-                  </div>
-                  <div
-                    class="pf-v6-c-form__group-control"
-                  >
-                    <div
-                      class="pf-v6-c-text-input-group pf-m-disabled"
-                    >
-                      <div
-                        aria-describedby="#.name-popover"
-                        class="pf-v6-c-text-input-group__main pf-m-icon kaoto-form__string-field"
-                        id="#.name"
-                      >
-                        <span
-                          class="pf-v6-c-text-input-group__text"
-                        >
-                          <input
-                            aria-label="Type to filter"
-                            class="pf-v6-c-text-input-group__text-input"
-                            disabled=""
-                            name="#.name"
-                            role="textbox"
-                            type="text"
-                            value=""
-                          />
-                        </span>
-                      </div>
-                      <div
-                        class="pf-v6-c-text-input-group__utilities"
-                      >
-                        <button
-                          aria-label="Open suggestions"
-                          class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-                          data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
-                          data-ouia-component-type="PF6/Button"
-                          data-ouia-safe="true"
-                          data-testid="#.name__open-suggestions-button"
-                          title="Open suggestions (Ctrl+Space)"
-                          type="button"
-                        >
-                          <span
-                            class="pf-v6-c-button__icon"
-                          >
-                            <svg
-                              data-testid="lightbulb-icon"
-                              role="img"
-                            >
-                              <path />
-                            </svg>
-                          </span>
-                        </button>
-                        <button
-                          aria-expanded="false"
-                          aria-label="#.name__field-actions"
-                          class="pf-v6-c-menu-toggle pf-m-plain"
-                          data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_ID_"
-                          data-ouia-component-type="PF6/MenuToggle"
-                          data-ouia-safe="true"
-                          data-testid="#.name__field-actions"
-                          type="button"
-                        >
-                          <span
-                            class="pf-v6-c-menu-toggle__icon"
-                          >
-                            <svg
-                              data-testid="ellipsis-v-icon"
-                              role="img"
-                            >
-                              <path />
-                            </svg>
-                          </span>
-                        </button>
-                      </div>
                     </div>
                   </div>
-                </div>
-                <div
-                  class="pf-v6-c-form__group"
-                  data-testid="#.type__field-wrapper"
-                >
-                  <div
-                    class="pf-v6-c-form__group-label"
-                  >
-                    <label
-                      class="pf-v6-c-form__label"
-                      for="#.type"
-                    >
-                      <span
-                        class="pf-v6-c-form__label-text"
-                      >
-                        type
-                      </span>
-                      <span
-                        aria-hidden="true"
-                        class="pf-v6-c-form__label-required"
-                      >
-                         
-                        *
-                      </span>
-                    </label>
-                      
-                    <span
-                      class="pf-v6-c-form__group-label-help"
-                    >
-                      <div
-                        style="display: contents;"
-                      >
-                        <span
-                          aria-label="More info for type field"
-                          class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                          data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
-                          data-ouia-component-type="PF6/Button"
-                          data-ouia-safe="true"
-                          role="button"
-                          tabindex="0"
-                          type="button"
-                        >
-                          <span
-                            class="pf-v6-c-button__icon"
-                          >
-                            <svg
-                              aria-hidden="true"
-                              class="pf-v6-svg"
-                              fill="currentColor"
-                              height="1em"
-                              role="img"
-                              viewBox="0 0 1024 1024"
-                              width="1em"
-                            >
-                              <path
-                                d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
-                              />
-                            </svg>
-                          </span>
-                        </span>
-                      </div>
-                    </span>
-                  </div>
-                  <div
-                    class="pf-v6-c-form__group-control"
-                  >
-                    <div
-                      class="pf-v6-c-text-input-group pf-m-disabled"
-                    >
-                      <div
-                        aria-describedby="#.type-popover"
-                        class="pf-v6-c-text-input-group__main pf-m-icon kaoto-form__string-field"
-                        id="#.type"
-                      >
-                        <span
-                          class="pf-v6-c-text-input-group__text"
-                        >
-                          <input
-                            aria-label="Type to filter"
-                            class="pf-v6-c-text-input-group__text-input"
-                            disabled=""
-                            name="#.type"
-                            role="textbox"
-                            type="text"
-                            value=""
-                          />
-                        </span>
-                      </div>
-                      <div
-                        class="pf-v6-c-text-input-group__utilities"
-                      >
-                        <button
-                          aria-label="Open suggestions"
-                          class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-                          data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
-                          data-ouia-component-type="PF6/Button"
-                          data-ouia-safe="true"
-                          data-testid="#.type__open-suggestions-button"
-                          title="Open suggestions (Ctrl+Space)"
-                          type="button"
-                        >
-                          <span
-                            class="pf-v6-c-button__icon"
-                          >
-                            <svg
-                              data-testid="lightbulb-icon"
-                              role="img"
-                            >
-                              <path />
-                            </svg>
-                          </span>
-                        </button>
-                        <button
-                          aria-expanded="false"
-                          aria-label="#.type__field-actions"
-                          class="pf-v6-c-menu-toggle pf-m-plain"
-                          data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_ID_"
-                          data-ouia-component-type="PF6/MenuToggle"
-                          data-ouia-safe="true"
-                          data-testid="#.type__field-actions"
-                          type="button"
-                        >
-                          <span
-                            class="pf-v6-c-menu-toggle__icon"
-                          >
-                            <svg
-                              data-testid="ellipsis-v-icon"
-                              role="img"
-                            >
-                              <path />
-                            </svg>
-                          </span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  class="pf-v6-c-form__group"
-                  data-testid="#.properties__field-wrapper"
-                >
-                  <div
-                    class="pf-v6-c-form__group-label"
-                  >
-                    <label
-                      class="pf-v6-c-form__label"
-                      for="#.properties"
-                    >
-                      <span
-                        class="pf-v6-c-form__label-text"
-                      >
-                        properties
-                         
-                        <span
-                          class="pf-v6-c-badge pf-m-unread"
-                          title="0 properties"
-                        >
-                          0
-                        </span>
-                      </span>
-                    </label>
-                      
-                    <span
-                      class="pf-v6-c-form__group-label-help"
-                    >
-                      <div
-                        style="display: contents;"
-                      >
-                        <span
-                          aria-label="More info for [object Object] field"
-                          class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                          data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
-                          data-ouia-component-type="PF6/Button"
-                          data-ouia-safe="true"
-                          role="button"
-                          tabindex="0"
-                          type="button"
-                        >
-                          <span
-                            class="pf-v6-c-button__icon"
-                          >
-                            <svg
-                              aria-hidden="true"
-                              class="pf-v6-svg"
-                              fill="currentColor"
-                              height="1em"
-                              role="img"
-                              viewBox="0 0 1024 1024"
-                              width="1em"
-                            >
-                              <path
-                                d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
-                              />
-                            </svg>
-                          </span>
-                        </span>
-                      </div>
-                    </span>
-                  </div>
-                  <div
-                    class="pf-v6-c-form__group-control"
-                  >
-                    <div
-                      class="pf-v6-l-split pf-m-gutter"
-                    >
-                      <div
-                        class="pf-v6-l-split__item pf-m-fill"
-                      >
-                        Key
-                      </div>
-                      <div
-                        class="pf-v6-l-split__item pf-m-fill"
-                      >
-                        Value
-                      </div>
-                      <div
-                        class="pf-v6-l-split__item"
-                      >
-                        <button
-                          aria-label="Add a new property"
-                          class="pf-v6-c-button pf-m-plain"
-                          data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
-                          data-ouia-component-type="PF6/Button"
-                          data-ouia-safe="true"
-                          data-testid="#.properties__add"
-                          disabled=""
-                          title="Add a new property"
-                          type="button"
-                        >
-                          <span
-                            class="pf-v6-c-button__icon"
-                          >
-                            <svg
-                              data-testid="plus-icon"
-                              role="img"
-                            >
-                              <path />
-                            </svg>
-                          </span>
-                        </button>
-                      </div>
-                    </div>
-                    <hr
-                      class="pf-v6-c-content--hr"
-                      data-ouia-component-id="OUIA-Generated-Content-_r_ID_"
-                      data-ouia-component-type="PF6/Content"
-                      data-ouia-safe="true"
-                      data-pf-content="true"
-                    />
-                  </div>
-                </div>
-              </form>
-              <div
-                class="pf-v6-c-card kaoto-form kaoto-form__empty"
-                data-ouia-component-id="OUIA-Generated-Card-_r_ID_"
-                data-ouia-component-type="PF6/Card"
-                data-ouia-safe="true"
-                data-testid="no-field-found"
-                id=""
-              >
-                <div
-                  class="pf-v6-c-card__body"
-                >
-                  <div
-                    class="pf-v6-c-alert pf-m-info"
-                    data-ouia-component-id="OUIA-Generated-Alert-info-_r_ID_"
-                    data-ouia-component-type="PF6/Alert"
-                    data-ouia-safe="true"
-                  >
-                    <div
-                      class="pf-v6-c-alert__icon"
-                    >
-                      <svg
-                        aria-hidden="true"
-                        class="pf-v6-svg"
-                        fill="currentColor"
-                        height="1em"
-                        role="img"
-                        viewBox="0 0 32 32"
-                        width="1em"
-                      >
-                        <path
-                          d="M16 1C7.729 1 1 7.729 1 16s6.729 15 15 15 15-6.729 15-15S24.271 1 16 1Zm1.5 22a1.5 1.5 0 1 1-3 0v-5.157l-.188.04a1.5 1.5 0 0 1-.625-2.934l1.956-.416c.112-.024.223-.032.333-.03l.024-.002a1.5 1.5 0 0 1 1.5 1.5v7Zm-.08-12.58c-.38.37-.89.58-1.42.58a1.998 1.998 0 0 1-1.851-2.76c.051-.13.11-.24.19-.35.07-.11.15-.21.25-.3.74-.75 2.08-.75 2.83 0 .09.09.17.19.24.3.08.11.14.22.189.35.05.12.09.24.11.37.03.13.04.26.04.39 0 .53-.21 1.04-.58 1.42Z"
-                        />
-                      </svg>
-                    </div>
-                    <h4
-                      class="pf-v6-c-alert__title"
-                    >
-                      <span
-                        class="pf-v6-screen-reader"
-                      >
-                        Info alert:
-                      </span>
-                      No fields found
-                    </h4>
-                    <div
-                      class="pf-v6-c-alert__description"
-                    >
-                      No field found matching this criteria.
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
-  </body>,
-  "container": <div>
     <div
-      class="pf-v6-l-split pf-m-gutter"
+      class="pf-v6-l-split__item metadata-editor-modal-details-view"
     >
       <div
-        class="pf-v6-l-split__item metadata-editor-modal-list-view"
+        class="pf-v6-l-stack pf-m-gutter"
       >
         <div
-          class="pf-v6-c-scroll-outer-wrapper"
+          class="pf-v6-l-stack__item"
         >
-          <div
-            class="pf-v6-c-scroll-inner-wrapper"
+          <h2
+            class="pf-v6-c-title pf-m-h2"
+            data-ouia-component-id="OUIA-Generated-Title-_r_ID_"
+            data-ouia-component-type="PF6/Title"
+            data-ouia-safe="true"
           >
-            <table
-              aria-label="beans"
-              class="pf-v6-c-table pf-m-grid-md pf-m-compact pf-m-sticky-header"
-              data-ouia-component-id="OUIA-Generated-Table-_r_ID_"
-              data-ouia-component-type="PF6/Table"
-              data-ouia-safe="true"
-              role="grid"
+            Details
+          </h2>
+        </div>
+        <div
+          class="pf-v6-l-stack__item pf-m-fill"
+        >
+          <form
+            class="pf-v6-c-form kaoto-form kaoto-form__label"
+            data-testid="metadata-editor-form-Beans"
+            novalidate=""
+          >
+            <div
+              class="pf-v6-c-form__group"
+              data-testid="#.name__field-wrapper"
             >
-              <thead
-                class="pf-v6-c-table__thead"
+              <div
+                class="pf-v6-c-form__group-label"
               >
-                <tr
-                  class="pf-v6-c-table__tr"
-                  data-ouia-component-id="OUIA-Generated-TableRow-_r_ID_"
-                  data-ouia-component-type="PF6/TableRow"
-                  data-ouia-safe="true"
+                <label
+                  class="pf-v6-c-form__label"
+                  for="#.name"
                 >
-                  <th
-                    class="pf-v6-c-table__th pf-m-nowrap"
-                    scope="col"
-                    tabindex="-1"
+                  <span
+                    class="pf-v6-c-form__label-text"
                   >
-                    NAME
-                  </th>
-                  <th
-                    class="pf-v6-c-table__th pf-m-nowrap"
-                    scope="col"
-                    tabindex="-1"
+                    name
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    class="pf-v6-c-form__label-required"
                   >
-                    TYPE
-                  </th>
-                  <td
-                    class="pf-v6-c-table__td pf-v6-c-table__action pf-m-nowrap"
-                    tabindex="-1"
+                     
+                    *
+                  </span>
+                </label>
+                  
+                <span
+                  class="pf-v6-c-form__group-label-help"
+                >
+                  <div
+                    style="display: contents;"
                   >
-                    <button
-                      class="pf-v6-c-button pf-m-link"
-                      data-ouia-component-id="OUIA-Generated-Button-link-_r_ID_"
+                    <span
+                      aria-label="More info for name field"
+                      class="pf-v6-c-button pf-m-plain pf-m-no-padding"
+                      data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
                       data-ouia-component-type="PF6/Button"
                       data-ouia-safe="true"
-                      data-testid="metadata-add-beans-btn"
-                      title="Add new beans"
+                      role="button"
+                      tabindex="0"
                       type="button"
                     >
                       <span
                         class="pf-v6-c-button__icon"
                       >
                         <svg
-                          data-testid="plus-circle-icon"
+                          aria-hidden="true"
+                          class="pf-v6-svg"
+                          fill="currentColor"
+                          height="1em"
+                          role="img"
+                          viewBox="0 0 1024 1024"
+                          width="1em"
+                        >
+                          <path
+                            d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
+                          />
+                        </svg>
+                      </span>
+                    </span>
+                  </div>
+                </span>
+              </div>
+              <div
+                class="pf-v6-c-form__group-control"
+              >
+                <div
+                  class="pf-v6-c-text-input-group pf-m-disabled"
+                >
+                  <div
+                    aria-describedby="#.name-popover"
+                    class="pf-v6-c-text-input-group__main pf-m-icon kaoto-form__string-field"
+                    id="#.name"
+                  >
+                    <span
+                      class="pf-v6-c-text-input-group__text"
+                    >
+                      <input
+                        aria-label="Type to filter"
+                        class="pf-v6-c-text-input-group__text-input"
+                        disabled=""
+                        name="#.name"
+                        role="textbox"
+                        type="text"
+                        value=""
+                      />
+                    </span>
+                  </div>
+                  <div
+                    class="pf-v6-c-text-input-group__utilities"
+                  >
+                    <button
+                      aria-label="Open suggestions"
+                      class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
+                      data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
+                      data-ouia-component-type="PF6/Button"
+                      data-ouia-safe="true"
+                      data-testid="#.name__open-suggestions-button"
+                      title="Open suggestions (Ctrl+Space)"
+                      type="button"
+                    >
+                      <span
+                        class="pf-v6-c-button__icon"
+                      >
+                        <svg
+                          data-testid="lightbulb-icon"
                           role="img"
                         >
                           <path />
                         </svg>
                       </span>
                     </button>
-                  </td>
-                </tr>
-              </thead>
-              <tbody
-                class="pf-v6-c-table__tbody"
-                role="rowgroup"
-              >
-                <tr
-                  class="pf-v6-c-table__tr"
-                  data-ouia-component-id="OUIA-Generated-TableRow-_r_ID_"
-                  data-ouia-component-type="PF6/TableRow"
-                  data-ouia-safe="true"
-                >
-                  <td
-                    class="pf-v6-c-table__td"
-                    colspan="3"
-                    tabindex="-1"
-                  >
-                    <div
-                      class="pf-v6-c-empty-state"
-                    >
-                      <div
-                        class="pf-v6-c-empty-state__content"
-                      >
-                        <div
-                          class="pf-v6-c-empty-state__header"
-                        />
-                        <div
-                          class="pf-v6-c-empty-state__body"
-                        >
-                          No 
-                          beans
-                        </div>
-                        <button
-                          class="pf-v6-c-button pf-m-link"
-                          data-ouia-component-id="OUIA-Generated-Button-link-_r_ID_"
-                          data-ouia-component-type="PF6/Button"
-                          data-ouia-safe="true"
-                          data-testid="metadata-add-beans-btn"
-                          type="button"
-                        >
-                          <span
-                            class="pf-v6-c-button__icon pf-m-start"
-                          >
-                            <svg
-                              data-testid="plus-circle-icon"
-                              role="img"
-                            >
-                              <path />
-                            </svg>
-                          </span>
-                          <span
-                            class="pf-v6-c-button__text"
-                          >
-                            Add new
-                          </span>
-                        </button>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-      <div
-        class="pf-v6-l-split__item metadata-editor-modal-details-view"
-      >
-        <div
-          class="pf-v6-l-stack pf-m-gutter"
-        >
-          <div
-            class="pf-v6-l-stack__item"
-          >
-            <h2
-              class="pf-v6-c-title pf-m-h2"
-              data-ouia-component-id="OUIA-Generated-Title-_r_ID_"
-              data-ouia-component-type="PF6/Title"
-              data-ouia-safe="true"
-            >
-              Details
-            </h2>
-          </div>
-          <div
-            class="pf-v6-l-stack__item pf-m-fill"
-          >
-            <form
-              class="pf-v6-c-form kaoto-form kaoto-form__label"
-              data-testid="metadata-editor-form-Beans"
-              novalidate=""
-            >
-              <div
-                class="pf-v6-c-form__group"
-                data-testid="#.name__field-wrapper"
-              >
-                <div
-                  class="pf-v6-c-form__group-label"
-                >
-                  <label
-                    class="pf-v6-c-form__label"
-                    for="#.name"
-                  >
-                    <span
-                      class="pf-v6-c-form__label-text"
-                    >
-                      name
-                    </span>
-                    <span
-                      aria-hidden="true"
-                      class="pf-v6-c-form__label-required"
-                    >
-                       
-                      *
-                    </span>
-                  </label>
-                    
-                  <span
-                    class="pf-v6-c-form__group-label-help"
-                  >
-                    <div
-                      style="display: contents;"
+                    <button
+                      aria-expanded="false"
+                      aria-label="#.name__field-actions"
+                      class="pf-v6-c-menu-toggle pf-m-plain"
+                      data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_ID_"
+                      data-ouia-component-type="PF6/MenuToggle"
+                      data-ouia-safe="true"
+                      data-testid="#.name__field-actions"
+                      type="button"
                     >
                       <span
-                        aria-label="More info for name field"
-                        class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                        data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
-                        data-ouia-component-type="PF6/Button"
-                        data-ouia-safe="true"
-                        role="button"
-                        tabindex="0"
-                        type="button"
+                        class="pf-v6-c-menu-toggle__icon"
                       >
-                        <span
-                          class="pf-v6-c-button__icon"
+                        <svg
+                          data-testid="ellipsis-v-icon"
+                          role="img"
                         >
-                          <svg
-                            aria-hidden="true"
-                            class="pf-v6-svg"
-                            fill="currentColor"
-                            height="1em"
-                            role="img"
-                            viewBox="0 0 1024 1024"
-                            width="1em"
-                          >
-                            <path
-                              d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
-                            />
-                          </svg>
-                        </span>
+                          <path />
+                        </svg>
                       </span>
-                    </div>
-                  </span>
-                </div>
-                <div
-                  class="pf-v6-c-form__group-control"
-                >
-                  <div
-                    class="pf-v6-c-text-input-group pf-m-disabled"
-                  >
-                    <div
-                      aria-describedby="#.name-popover"
-                      class="pf-v6-c-text-input-group__main pf-m-icon kaoto-form__string-field"
-                      id="#.name"
-                    >
-                      <span
-                        class="pf-v6-c-text-input-group__text"
-                      >
-                        <input
-                          aria-label="Type to filter"
-                          class="pf-v6-c-text-input-group__text-input"
-                          disabled=""
-                          name="#.name"
-                          role="textbox"
-                          type="text"
-                          value=""
-                        />
-                      </span>
-                    </div>
-                    <div
-                      class="pf-v6-c-text-input-group__utilities"
-                    >
-                      <button
-                        aria-label="Open suggestions"
-                        class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-                        data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
-                        data-ouia-component-type="PF6/Button"
-                        data-ouia-safe="true"
-                        data-testid="#.name__open-suggestions-button"
-                        title="Open suggestions (Ctrl+Space)"
-                        type="button"
-                      >
-                        <span
-                          class="pf-v6-c-button__icon"
-                        >
-                          <svg
-                            data-testid="lightbulb-icon"
-                            role="img"
-                          >
-                            <path />
-                          </svg>
-                        </span>
-                      </button>
-                      <button
-                        aria-expanded="false"
-                        aria-label="#.name__field-actions"
-                        class="pf-v6-c-menu-toggle pf-m-plain"
-                        data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_ID_"
-                        data-ouia-component-type="PF6/MenuToggle"
-                        data-ouia-safe="true"
-                        data-testid="#.name__field-actions"
-                        type="button"
-                      >
-                        <span
-                          class="pf-v6-c-menu-toggle__icon"
-                        >
-                          <svg
-                            data-testid="ellipsis-v-icon"
-                            role="img"
-                          >
-                            <path />
-                          </svg>
-                        </span>
-                      </button>
-                    </div>
+                    </button>
                   </div>
                 </div>
               </div>
-              <div
-                class="pf-v6-c-form__group"
-                data-testid="#.type__field-wrapper"
-              >
-                <div
-                  class="pf-v6-c-form__group-label"
-                >
-                  <label
-                    class="pf-v6-c-form__label"
-                    for="#.type"
-                  >
-                    <span
-                      class="pf-v6-c-form__label-text"
-                    >
-                      type
-                    </span>
-                    <span
-                      aria-hidden="true"
-                      class="pf-v6-c-form__label-required"
-                    >
-                       
-                      *
-                    </span>
-                  </label>
-                    
-                  <span
-                    class="pf-v6-c-form__group-label-help"
-                  >
-                    <div
-                      style="display: contents;"
-                    >
-                      <span
-                        aria-label="More info for type field"
-                        class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                        data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
-                        data-ouia-component-type="PF6/Button"
-                        data-ouia-safe="true"
-                        role="button"
-                        tabindex="0"
-                        type="button"
-                      >
-                        <span
-                          class="pf-v6-c-button__icon"
-                        >
-                          <svg
-                            aria-hidden="true"
-                            class="pf-v6-svg"
-                            fill="currentColor"
-                            height="1em"
-                            role="img"
-                            viewBox="0 0 1024 1024"
-                            width="1em"
-                          >
-                            <path
-                              d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
-                            />
-                          </svg>
-                        </span>
-                      </span>
-                    </div>
-                  </span>
-                </div>
-                <div
-                  class="pf-v6-c-form__group-control"
-                >
-                  <div
-                    class="pf-v6-c-text-input-group pf-m-disabled"
-                  >
-                    <div
-                      aria-describedby="#.type-popover"
-                      class="pf-v6-c-text-input-group__main pf-m-icon kaoto-form__string-field"
-                      id="#.type"
-                    >
-                      <span
-                        class="pf-v6-c-text-input-group__text"
-                      >
-                        <input
-                          aria-label="Type to filter"
-                          class="pf-v6-c-text-input-group__text-input"
-                          disabled=""
-                          name="#.type"
-                          role="textbox"
-                          type="text"
-                          value=""
-                        />
-                      </span>
-                    </div>
-                    <div
-                      class="pf-v6-c-text-input-group__utilities"
-                    >
-                      <button
-                        aria-label="Open suggestions"
-                        class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-                        data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
-                        data-ouia-component-type="PF6/Button"
-                        data-ouia-safe="true"
-                        data-testid="#.type__open-suggestions-button"
-                        title="Open suggestions (Ctrl+Space)"
-                        type="button"
-                      >
-                        <span
-                          class="pf-v6-c-button__icon"
-                        >
-                          <svg
-                            data-testid="lightbulb-icon"
-                            role="img"
-                          >
-                            <path />
-                          </svg>
-                        </span>
-                      </button>
-                      <button
-                        aria-expanded="false"
-                        aria-label="#.type__field-actions"
-                        class="pf-v6-c-menu-toggle pf-m-plain"
-                        data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_ID_"
-                        data-ouia-component-type="PF6/MenuToggle"
-                        data-ouia-safe="true"
-                        data-testid="#.type__field-actions"
-                        type="button"
-                      >
-                        <span
-                          class="pf-v6-c-menu-toggle__icon"
-                        >
-                          <svg
-                            data-testid="ellipsis-v-icon"
-                            role="img"
-                          >
-                            <path />
-                          </svg>
-                        </span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div
-                class="pf-v6-c-form__group"
-                data-testid="#.properties__field-wrapper"
-              >
-                <div
-                  class="pf-v6-c-form__group-label"
-                >
-                  <label
-                    class="pf-v6-c-form__label"
-                    for="#.properties"
-                  >
-                    <span
-                      class="pf-v6-c-form__label-text"
-                    >
-                      properties
-                       
-                      <span
-                        class="pf-v6-c-badge pf-m-unread"
-                        title="0 properties"
-                      >
-                        0
-                      </span>
-                    </span>
-                  </label>
-                    
-                  <span
-                    class="pf-v6-c-form__group-label-help"
-                  >
-                    <div
-                      style="display: contents;"
-                    >
-                      <span
-                        aria-label="More info for [object Object] field"
-                        class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                        data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
-                        data-ouia-component-type="PF6/Button"
-                        data-ouia-safe="true"
-                        role="button"
-                        tabindex="0"
-                        type="button"
-                      >
-                        <span
-                          class="pf-v6-c-button__icon"
-                        >
-                          <svg
-                            aria-hidden="true"
-                            class="pf-v6-svg"
-                            fill="currentColor"
-                            height="1em"
-                            role="img"
-                            viewBox="0 0 1024 1024"
-                            width="1em"
-                          >
-                            <path
-                              d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
-                            />
-                          </svg>
-                        </span>
-                      </span>
-                    </div>
-                  </span>
-                </div>
-                <div
-                  class="pf-v6-c-form__group-control"
-                >
-                  <div
-                    class="pf-v6-l-split pf-m-gutter"
-                  >
-                    <div
-                      class="pf-v6-l-split__item pf-m-fill"
-                    >
-                      Key
-                    </div>
-                    <div
-                      class="pf-v6-l-split__item pf-m-fill"
-                    >
-                      Value
-                    </div>
-                    <div
-                      class="pf-v6-l-split__item"
-                    >
-                      <button
-                        aria-label="Add a new property"
-                        class="pf-v6-c-button pf-m-plain"
-                        data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
-                        data-ouia-component-type="PF6/Button"
-                        data-ouia-safe="true"
-                        data-testid="#.properties__add"
-                        disabled=""
-                        title="Add a new property"
-                        type="button"
-                      >
-                        <span
-                          class="pf-v6-c-button__icon"
-                        >
-                          <svg
-                            data-testid="plus-icon"
-                            role="img"
-                          >
-                            <path />
-                          </svg>
-                        </span>
-                      </button>
-                    </div>
-                  </div>
-                  <hr
-                    class="pf-v6-c-content--hr"
-                    data-ouia-component-id="OUIA-Generated-Content-_r_ID_"
-                    data-ouia-component-type="PF6/Content"
-                    data-ouia-safe="true"
-                    data-pf-content="true"
-                  />
-                </div>
-              </div>
-            </form>
+            </div>
             <div
-              class="pf-v6-c-card kaoto-form kaoto-form__empty"
-              data-ouia-component-id="OUIA-Generated-Card-_r_ID_"
-              data-ouia-component-type="PF6/Card"
-              data-ouia-safe="true"
-              data-testid="no-field-found"
-              id=""
+              class="pf-v6-c-form__group"
+              data-testid="#.type__field-wrapper"
             >
               <div
-                class="pf-v6-c-card__body"
+                class="pf-v6-c-form__group-label"
               >
-                <div
-                  class="pf-v6-c-alert pf-m-info"
-                  data-ouia-component-id="OUIA-Generated-Alert-info-_r_ID_"
-                  data-ouia-component-type="PF6/Alert"
-                  data-ouia-safe="true"
+                <label
+                  class="pf-v6-c-form__label"
+                  for="#.type"
+                >
+                  <span
+                    class="pf-v6-c-form__label-text"
+                  >
+                    type
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    class="pf-v6-c-form__label-required"
+                  >
+                     
+                    *
+                  </span>
+                </label>
+                  
+                <span
+                  class="pf-v6-c-form__group-label-help"
                 >
                   <div
-                    class="pf-v6-c-alert__icon"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      class="pf-v6-svg"
-                      fill="currentColor"
-                      height="1em"
-                      role="img"
-                      viewBox="0 0 32 32"
-                      width="1em"
-                    >
-                      <path
-                        d="M16 1C7.729 1 1 7.729 1 16s6.729 15 15 15 15-6.729 15-15S24.271 1 16 1Zm1.5 22a1.5 1.5 0 1 1-3 0v-5.157l-.188.04a1.5 1.5 0 0 1-.625-2.934l1.956-.416c.112-.024.223-.032.333-.03l.024-.002a1.5 1.5 0 0 1 1.5 1.5v7Zm-.08-12.58c-.38.37-.89.58-1.42.58a1.998 1.998 0 0 1-1.851-2.76c.051-.13.11-.24.19-.35.07-.11.15-.21.25-.3.74-.75 2.08-.75 2.83 0 .09.09.17.19.24.3.08.11.14.22.189.35.05.12.09.24.11.37.03.13.04.26.04.39 0 .53-.21 1.04-.58 1.42Z"
-                      />
-                    </svg>
-                  </div>
-                  <h4
-                    class="pf-v6-c-alert__title"
+                    style="display: contents;"
                   >
                     <span
-                      class="pf-v6-screen-reader"
+                      aria-label="More info for type field"
+                      class="pf-v6-c-button pf-m-plain pf-m-no-padding"
+                      data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
+                      data-ouia-component-type="PF6/Button"
+                      data-ouia-safe="true"
+                      role="button"
+                      tabindex="0"
+                      type="button"
                     >
-                      Info alert:
+                      <span
+                        class="pf-v6-c-button__icon"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          class="pf-v6-svg"
+                          fill="currentColor"
+                          height="1em"
+                          role="img"
+                          viewBox="0 0 1024 1024"
+                          width="1em"
+                        >
+                          <path
+                            d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
+                          />
+                        </svg>
+                      </span>
                     </span>
-                    No fields found
-                  </h4>
-                  <div
-                    class="pf-v6-c-alert__description"
-                  >
-                    No field found matching this criteria.
                   </div>
+                </span>
+              </div>
+              <div
+                class="pf-v6-c-form__group-control"
+              >
+                <div
+                  class="pf-v6-c-text-input-group pf-m-disabled"
+                >
+                  <div
+                    aria-describedby="#.type-popover"
+                    class="pf-v6-c-text-input-group__main pf-m-icon kaoto-form__string-field"
+                    id="#.type"
+                  >
+                    <span
+                      class="pf-v6-c-text-input-group__text"
+                    >
+                      <input
+                        aria-label="Type to filter"
+                        class="pf-v6-c-text-input-group__text-input"
+                        disabled=""
+                        name="#.type"
+                        role="textbox"
+                        type="text"
+                        value=""
+                      />
+                    </span>
+                  </div>
+                  <div
+                    class="pf-v6-c-text-input-group__utilities"
+                  >
+                    <button
+                      aria-label="Open suggestions"
+                      class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
+                      data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
+                      data-ouia-component-type="PF6/Button"
+                      data-ouia-safe="true"
+                      data-testid="#.type__open-suggestions-button"
+                      title="Open suggestions (Ctrl+Space)"
+                      type="button"
+                    >
+                      <span
+                        class="pf-v6-c-button__icon"
+                      >
+                        <svg
+                          data-testid="lightbulb-icon"
+                          role="img"
+                        >
+                          <path />
+                        </svg>
+                      </span>
+                    </button>
+                    <button
+                      aria-expanded="false"
+                      aria-label="#.type__field-actions"
+                      class="pf-v6-c-menu-toggle pf-m-plain"
+                      data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_ID_"
+                      data-ouia-component-type="PF6/MenuToggle"
+                      data-ouia-safe="true"
+                      data-testid="#.type__field-actions"
+                      type="button"
+                    >
+                      <span
+                        class="pf-v6-c-menu-toggle__icon"
+                      >
+                        <svg
+                          data-testid="ellipsis-v-icon"
+                          role="img"
+                        >
+                          <path />
+                        </svg>
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              class="pf-v6-c-form__group"
+              data-testid="#.properties__field-wrapper"
+            >
+              <div
+                class="pf-v6-c-form__group-label"
+              >
+                <label
+                  class="pf-v6-c-form__label"
+                  for="#.properties"
+                >
+                  <span
+                    class="pf-v6-c-form__label-text"
+                  >
+                    properties
+                     
+                    <span
+                      class="pf-v6-c-badge pf-m-unread"
+                      title="0 properties"
+                    >
+                      0
+                    </span>
+                  </span>
+                </label>
+                  
+                <span
+                  class="pf-v6-c-form__group-label-help"
+                >
+                  <div
+                    style="display: contents;"
+                  >
+                    <span
+                      aria-label="More info for [object Object] field"
+                      class="pf-v6-c-button pf-m-plain pf-m-no-padding"
+                      data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
+                      data-ouia-component-type="PF6/Button"
+                      data-ouia-safe="true"
+                      role="button"
+                      tabindex="0"
+                      type="button"
+                    >
+                      <span
+                        class="pf-v6-c-button__icon"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          class="pf-v6-svg"
+                          fill="currentColor"
+                          height="1em"
+                          role="img"
+                          viewBox="0 0 1024 1024"
+                          width="1em"
+                        >
+                          <path
+                            d="M521.3,576 C627.5,576 713.7,502 713.7,413.7 C713.7,325.4 627.6,253.6 521.3,253.6 C366,253.6 334.5,337.7 329.2,407.2 C329.2,414.3 335.2,416 343.5,416 L445,416 C450.5,416 458,415.5 460.8,406.5 C460.8,362.6 582.9,357.1 582.9,413.6 C582.9,441.9 556.2,470.9 521.3,473 C486.4,475.1 447.3,479.8 447.3,521.7 L447.3,553.8 C447.3,570.8 456.1,576 472,576 C487.9,576 521.3,576 521.3,576 M575.3,751.3 L575.3,655.3 C575.313862,651.055109 573.620137,646.982962 570.6,644 C567.638831,640.947672 563.552355,639.247987 559.3,639.29884 L463.3,639.29884 C459.055109,639.286138 454.982962,640.979863 452,644 C448.947672,646.961169 447.247987,651.047645 447.29884,655.3 L447.29884,751.3 C447.286138,755.544891 448.979863,759.617038 452,762.6 C454.961169,765.652328 459.047645,767.352013 463.3,767.30116 L559.3,767.30116 C563.544891,767.313862 567.617038,765.620137 570.6,762.6 C573.659349,759.643612 575.360354,755.553963 575.3,751.3 M512,896 C300.2,896 128,723.9 128,512 C128,300.3 300.2,128 512,128 C723.8,128 896,300.2 896,512 C896,723.8 723.7,896 512,896 M512.1,0 C229.7,0 0,229.8 0,512 C0,794.2 229.8,1024 512.1,1024 C794.4,1024 1024,794.3 1024,512 C1024,229.7 794.4,0 512.1,0"
+                          />
+                        </svg>
+                      </span>
+                    </span>
+                  </div>
+                </span>
+              </div>
+              <div
+                class="pf-v6-c-form__group-control"
+              >
+                <div
+                  class="pf-v6-l-split pf-m-gutter"
+                >
+                  <div
+                    class="pf-v6-l-split__item pf-m-fill"
+                  >
+                    Key
+                  </div>
+                  <div
+                    class="pf-v6-l-split__item pf-m-fill"
+                  >
+                    Value
+                  </div>
+                  <div
+                    class="pf-v6-l-split__item"
+                  >
+                    <button
+                      aria-label="Add a new property"
+                      class="pf-v6-c-button pf-m-plain"
+                      data-ouia-component-id="OUIA-Generated-Button-plain-_r_ID_"
+                      data-ouia-component-type="PF6/Button"
+                      data-ouia-safe="true"
+                      data-testid="#.properties__add"
+                      disabled=""
+                      title="Add a new property"
+                      type="button"
+                    >
+                      <span
+                        class="pf-v6-c-button__icon"
+                      >
+                        <svg
+                          data-testid="plus-icon"
+                          role="img"
+                        >
+                          <path />
+                        </svg>
+                      </span>
+                    </button>
+                  </div>
+                </div>
+                <hr
+                  class="pf-v6-c-content--hr"
+                  data-ouia-component-id="OUIA-Generated-Content-_r_ID_"
+                  data-ouia-component-type="PF6/Content"
+                  data-ouia-safe="true"
+                  data-pf-content="true"
+                />
+              </div>
+            </div>
+          </form>
+          <div
+            class="pf-v6-c-card kaoto-form kaoto-form__empty"
+            data-ouia-component-id="OUIA-Generated-Card-_r_ID_"
+            data-ouia-component-type="PF6/Card"
+            data-ouia-safe="true"
+            data-testid="no-field-found"
+            id=""
+          >
+            <div
+              class="pf-v6-c-card__body"
+            >
+              <div
+                class="pf-v6-c-alert pf-m-info"
+                data-ouia-component-id="OUIA-Generated-Alert-info-_r_ID_"
+                data-ouia-component-type="PF6/Alert"
+                data-ouia-safe="true"
+              >
+                <div
+                  class="pf-v6-c-alert__icon"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="pf-v6-svg"
+                    fill="currentColor"
+                    height="1em"
+                    role="img"
+                    viewBox="0 0 32 32"
+                    width="1em"
+                  >
+                    <path
+                      d="M16 1C7.729 1 1 7.729 1 16s6.729 15 15 15 15-6.729 15-15S24.271 1 16 1Zm1.5 22a1.5 1.5 0 1 1-3 0v-5.157l-.188.04a1.5 1.5 0 0 1-.625-2.934l1.956-.416c.112-.024.223-.032.333-.03l.024-.002a1.5 1.5 0 0 1 1.5 1.5v7Zm-.08-12.58c-.38.37-.89.58-1.42.58a1.998 1.998 0 0 1-1.851-2.76c.051-.13.11-.24.19-.35.07-.11.15-.21.25-.3.74-.75 2.08-.75 2.83 0 .09.09.17.19.24.3.08.11.14.22.189.35.05.12.09.24.11.37.03.13.04.26.04.39 0 .53-.21 1.04-.58 1.42Z"
+                    />
+                  </svg>
+                </div>
+                <h4
+                  class="pf-v6-c-alert__title"
+                >
+                  <span
+                    class="pf-v6-screen-reader"
+                  >
+                    Info alert:
+                  </span>
+                  No fields found
+                </h4>
+                <div
+                  class="pf-v6-c-alert__description"
+                >
+                  No field found matching this criteria.
                 </div>
               </div>
             </div>
@@ -1212,57 +603,6 @@ exports[`MetadataEditor.tsx > component renders 1`] = `
         </div>
       </div>
     </div>
-  </div>,
-  "debug": [Function],
-  "findAllByAltText": [Function],
-  "findAllByDisplayValue": [Function],
-  "findAllByLabelText": [Function],
-  "findAllByPlaceholderText": [Function],
-  "findAllByRole": [Function],
-  "findAllByTestId": [Function],
-  "findAllByText": [Function],
-  "findAllByTitle": [Function],
-  "findByAltText": [Function],
-  "findByDisplayValue": [Function],
-  "findByLabelText": [Function],
-  "findByPlaceholderText": [Function],
-  "findByRole": [Function],
-  "findByTestId": [Function],
-  "findByText": [Function],
-  "findByTitle": [Function],
-  "getAllByAltText": [Function],
-  "getAllByDisplayValue": [Function],
-  "getAllByLabelText": [Function],
-  "getAllByPlaceholderText": [Function],
-  "getAllByRole": [Function],
-  "getAllByTestId": [Function],
-  "getAllByText": [Function],
-  "getAllByTitle": [Function],
-  "getByAltText": [Function],
-  "getByDisplayValue": [Function],
-  "getByLabelText": [Function],
-  "getByPlaceholderText": [Function],
-  "getByRole": [Function],
-  "getByTestId": [Function],
-  "getByText": [Function],
-  "getByTitle": [Function],
-  "queryAllByAltText": [Function],
-  "queryAllByDisplayValue": [Function],
-  "queryAllByLabelText": [Function],
-  "queryAllByPlaceholderText": [Function],
-  "queryAllByRole": [Function],
-  "queryAllByTestId": [Function],
-  "queryAllByText": [Function],
-  "queryAllByTitle": [Function],
-  "queryByAltText": [Function],
-  "queryByDisplayValue": [Function],
-  "queryByLabelText": [Function],
-  "queryByPlaceholderText": [Function],
-  "queryByRole": [Function],
-  "queryByTestId": [Function],
-  "queryByText": [Function],
-  "queryByTitle": [Function],
-  "rerender": [Function],
-  "unmount": [Function],
-}
+  </div>
+</div>
 `;
