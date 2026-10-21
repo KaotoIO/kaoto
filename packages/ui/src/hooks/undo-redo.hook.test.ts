@@ -5,7 +5,7 @@ import { MockInstance } from 'vitest';
 
 import { useSourceCodeStore } from '../store';
 import { EventNotifier } from '../utils';
-import { useUndoRedo } from './undo-redo.hook';
+import { UndoRedoContext, useUndoRedo } from './undo-redo.hook';
 
 describe('useUndoRedo', () => {
   let controller: Visualization;
@@ -25,6 +25,25 @@ describe('useUndoRedo', () => {
     /* Start every test from a pristine store and an empty undo/redo history */
     useSourceCodeStore.setState({ sourceCode: '', path: '' });
     useSourceCodeStore.temporal.getState().clear();
+  });
+
+  it('delegates host history actions without changing source or local history', () => {
+    const host = { undo: vi.fn(), redo: vi.fn(), canUndo: true, canRedo: true };
+    const { result } = renderHook(() => useUndoRedo(), {
+      wrapper: ({ children }: PropsWithChildren) => createElement(UndoRedoContext.Provider, { value: host }, children),
+    });
+    act(() => {
+      useSourceCodeStore.setState({ sourceCode: 'edited' });
+    });
+    const history = useSourceCodeStore.temporal.getState();
+    act(() => {
+      result.current.undo();
+      result.current.redo();
+    });
+    expect(host.undo).toHaveBeenCalledOnce();
+    expect(host.redo).toHaveBeenCalledOnce();
+    expect(useSourceCodeStore.getState().sourceCode).toBe('edited');
+    expect(useSourceCodeStore.temporal.getState()).toBe(history);
   });
 
   it('should return initial state', () => {
