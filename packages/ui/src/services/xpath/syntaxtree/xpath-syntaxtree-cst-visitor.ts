@@ -425,7 +425,10 @@ export class CstVisitor {
     const axis = axisTokenName
       ? CstVisitor.extractTokenImage(CstVisitor.getSingleNode(node, [axisTokenName]))
       : undefined;
-    const isAttribute = 'children' in node && 'At' in node.children;
+    // `@id` and `attribute::id` are the same step. Deriving this from the `At` token alone would
+    // let the explicit spelling build a PathSegment describing an *element*, so the path would
+    // resolve to the wrong field.
+    const isAttribute = 'At' in node.children || axis === 'attribute';
     const nodeTest = CstVisitor.getSingleNode(node, ['NodeTest', 'NameTest']);
     const nameTestNode = nodeTest && 'children' in nodeTest ? CstVisitor.visitNameTest(nodeTest) : undefined;
     const predicates = CstVisitor.visitPredicateList(CstVisitor.getSingleNode(node, ['PredicateList']));

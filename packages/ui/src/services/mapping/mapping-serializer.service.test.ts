@@ -1883,5 +1883,79 @@ describe('MappingSerializerService', () => {
       expect(reconstructedFieldItem.field.name).toBe('ShipTo');
       expect(deserializedIfItem.isAutoOptionalIf).toBe(true);
     });
+
+    it('should still emit the container element when its only other content sits inside a guard', () => {
+      const localSourceDoc = TestUtil.createSourceOrderDoc();
+      const localTargetDoc = TestUtil.createTargetOrderDoc();
+      const localParamsMap = TestUtil.createParameterMap();
+      const sourceShipTo = localSourceDoc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
+      const targetShipTo = localTargetDoc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
+      const sourceName = sourceShipTo.fields.find((f) => f.name === 'Name')!;
+      const targetName = targetShipTo.fields.find((f) => f.name === 'Name')!;
+      sourceName.minOccurs = 0;
+      targetName.minOccurs = 0;
+
+      const mappingTree = new MappingTree(
+        localTargetDoc.documentType,
+        localTargetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const rootItem = new FieldItem(mappingTree, localTargetDoc.fields[0]);
+      mappingTree.children.push(rootItem);
+      const shipToItem = new FieldItem(rootItem, targetShipTo);
+      rootItem.children.push(shipToItem);
+      // A guarded child alongside a wholesale container copy-of: the copy-of alone would let the
+      // ShipTo element be skipped, which would reparent the guarded Name into ShipOrder.
+      MappingService.mapToFieldWithValueType(sourceShipTo, shipToItem, CopyOfType.CONTAINER);
+      const nameItem = new FieldItem(shipToItem, targetName);
+      shipToItem.children.push(nameItem);
+      MappingService.mapToField(sourceName, nameItem);
+      MappingService.tryAutoOptionalIfWrap(nameItem, sourceName, false);
+
+      const xslt = MappingSerializerService.serialize(mappingTree, localParamsMap);
+
+      // Without the fix the ShipTo element is elided and Name is reparented into ShipOrder.
+      expect(xslt).toContain('<ShipTo');
+      const shipToBody = xslt.substring(xslt.indexOf('<ShipTo'), xslt.indexOf('</ShipTo>'));
+      expect(shipToBody).toContain('<Name>');
+    });
+
+    it('should serialize a guarded attribute before guarded element content', () => {
+      const localSourceDoc = TestUtil.createSourceOrderDoc();
+      const localTargetDoc = TestUtil.createTargetOrderDoc();
+      const localParamsMap = TestUtil.createParameterMap();
+      const sourceOrderId = localSourceDoc.fields[0].fields.find((f) => f.name === 'OrderId')!;
+      const targetOrderId = localTargetDoc.fields[0].fields.find((f) => f.name === 'OrderId')!;
+      const sourceOrderPerson = localSourceDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+      const targetOrderPerson = localTargetDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+      for (const field of [sourceOrderId, targetOrderId, sourceOrderPerson, targetOrderPerson]) {
+        field.minOccurs = 0;
+      }
+      expect(targetOrderId.isAttribute).toBe(true);
+
+      const mappingTree = new MappingTree(
+        localTargetDoc.documentType,
+        localTargetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const rootItem = new FieldItem(mappingTree, localTargetDoc.fields[0]);
+      mappingTree.children.push(rootItem);
+      // Element first, attribute second — both guarded. Without attribute-first hoisting the
+      // xsl:attribute lands after element content and Saxon raises XTDE0410 at transform time.
+      const personItem = new FieldItem(rootItem, targetOrderPerson);
+      rootItem.children.push(personItem);
+      MappingService.mapToField(sourceOrderPerson, personItem);
+      MappingService.tryAutoOptionalIfWrap(personItem, sourceOrderPerson, false);
+      const orderIdItem = new FieldItem(rootItem, targetOrderId);
+      rootItem.children.push(orderIdItem);
+      MappingService.mapToField(sourceOrderId, orderIdItem);
+      MappingService.tryAutoOptionalIfWrap(orderIdItem, sourceOrderId, false);
+
+      const xslt = MappingSerializerService.serialize(mappingTree, localParamsMap);
+
+      const shipOrderBody = xslt.substring(xslt.indexOf('<ShipOrder'), xslt.indexOf('</ShipOrder>'));
+      expect(shipOrderBody).toContain('xsl:attribute');
+      expect(shipOrderBody.indexOf('xsl:attribute')).toBeLessThan(shipOrderBody.indexOf('<OrderPerson>'));
+    });
   });
 });

@@ -521,7 +521,56 @@ describe('MappingActionService — mapping engagement', () => {
         expect(structural).toBe(true);
       });
 
-      it('should report a second drop onto an already-guarded field as non-structural', () => {
+      it('should clear the container copy-of when re-mapping a child that sits under a guard', () => {
+        const sourceShipTo = sourceDoc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
+        const targetShipTo = targetDoc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
+        const sourceName = sourceShipTo.fields.find((f) => f.name === 'Name')!;
+        const targetName = targetShipTo.fields.find((f) => f.name === 'Name')!;
+        sourceName.minOccurs = 0;
+        targetName.minOccurs = 0;
+
+        const sourceShipToChildren = () =>
+          VisualizationService.generateNonDocumentNodeDataChildren(
+            findByName(sourceShipOrderChildren(), 'ShipTo') as FieldNodeData,
+          );
+        // Name's node moves under the guard's node once it is wrapped, so look a level deeper.
+        const targetNameNode = () => {
+          const shipToChildren = VisualizationService.generateNonDocumentNodeDataChildren(
+            findByName(targetShipOrderChildren(), 'ShipTo') as TargetFieldNodeData,
+          );
+          const nested = shipToChildren.flatMap((c) => VisualizationService.generateNonDocumentNodeDataChildren(c));
+          return (findByName(shipToChildren, 'Name') ?? findByName(nested, 'Name')) as TargetFieldNodeData;
+        };
+
+        // Guard the child first, then give the container a wholesale copy-of.
+        MappingActionService.engageMapping(
+          tree,
+          findByName(sourceShipToChildren(), 'Name') as FieldNodeData,
+          targetNameNode(),
+        );
+        MappingActionService.engageMapping(
+          tree,
+          findByName(sourceShipOrderChildren(), 'ShipTo') as FieldNodeData,
+          findByName(targetShipOrderChildren(), 'ShipTo') as TargetFieldNodeData,
+        );
+        const shipOrderFieldItem = tree.children[0] as FieldItem;
+        const shipToItem = shipOrderFieldItem.children.find(
+          (c) => c instanceof FieldItem && c.field.name === 'ShipTo',
+        ) as FieldItem;
+        expect(shipToItem.children.some((c) => c instanceof CopyOfSelector)).toBe(true);
+
+        // Re-drop onto the guarded child: the container copy-of has to go, or the output both
+        // copies the subtree and emits Name explicitly. The guard is in the way of finding it.
+        MappingActionService.engageMapping(
+          tree,
+          findByName(sourceShipToChildren(), 'City') as FieldNodeData,
+          targetNameNode(),
+        );
+
+        expect(shipToItem.children.some((c) => c instanceof CopyOfSelector)).toBe(false);
+      });
+
+      it('should unwrap the guard when a second source is dropped onto an already-guarded field', () => {
         const sourceOrderPerson = sourceDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
         const sourceOrderId = sourceDoc.fields[0].fields.find((f) => f.name === 'OrderId')!;
         const targetOrderPerson = targetDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;

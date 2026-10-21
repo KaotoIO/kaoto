@@ -476,6 +476,22 @@ describe('MappingService', () => {
       expect(tree.children[0].children).toHaveLength(3);
     });
 
+    it('should keep a union mapping when only one of its operands goes stale', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const orderIdItem = shipOrderItem.children.find(
+        (c) => c instanceof FieldItem && c.field.name === 'OrderId',
+      ) as FieldItem;
+      const selector = orderIdItem.children[0] as ValueSelector;
+      // Two operands, only one of which is stale. Now that union modelling reports every operand,
+      // matching on the first would delete the still-valid half with it.
+      selector.expression = '/ns0:ShipOrder/@OrderId | /ns0:ShipOrder/ns0:Removed';
+
+      MappingService.removeStaleMappingsForDocument(tree, sourceDoc);
+
+      expect(shipOrderItem.children).toContain(orderIdItem);
+      expect(orderIdItem.children).toContain(selector);
+    });
+
     it('should not remove mappings when unrelated field is removed', () => {
       expect(tree.children[0].children).toHaveLength(4);
       const shipToCountryField = targetDoc.fields[0].fields[2].fields[3];
@@ -1132,7 +1148,7 @@ describe('MappingService', () => {
       expect(tree.children).not.toContain(copyOf);
     });
 
-    it('should remove the orphaned auto-optional guard IfItem when its sole mapped field is deleted', () => {
+    it('should keep the auto-optional guard when its sole mapped field is deleted', () => {
       const shipOrderItem = tree.children[0] as FieldItem;
       const targetField = targetDoc.fields[0].fields[1];
       const sourceField = sourceDoc.fields[0].fields[1];
@@ -1146,11 +1162,15 @@ describe('MappingService', () => {
 
       MappingService.deleteMappingItem(fieldItem);
 
-      expect(shipOrderItem.children).not.toContain(ifItem);
-      expect(shipOrderItem.children).not.toContain(fieldItem);
+      // The guard is deliberately left behind. autoDetectOptionalGuards flags any shape-matching
+      // xsl:if on load, including one the user wrote by hand, so removing it here could silently
+      // destroy their stylesheet. An emptied guard stays visible and removable.
+      expect(ifItem.children).not.toContain(fieldItem);
+      expect(ifItem.children).toHaveLength(0);
+      expect(shipOrderItem.children).toContain(ifItem);
     });
 
-    it('should not cascade-delete a visible (non-auto) if when its emptied field is deleted', () => {
+    it('should delete a field under a visible (non-auto) if without removing the if', () => {
       const shipOrderItem = tree.children[0] as FieldItem;
       const targetField = targetDoc.fields[0].fields[1];
       const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
@@ -1160,13 +1180,13 @@ describe('MappingService', () => {
 
       MappingService.deleteMappingItem(fieldItem);
 
-      // Not an auto-optional guard, so the cascade this fix adds must not kick in — the
-      // (now-empty) FieldItem and its visible `if` wrapper are left exactly as before.
-      expect(ifItem.children).toContain(fieldItem);
+      // Deleting the field is what the user asked for and has to work through any wrapper;
+      // the user's own `if` must survive it.
+      expect(ifItem.children).not.toContain(fieldItem);
       expect(shipOrderItem.children).toContain(ifItem);
     });
 
-    it('should not cascade-delete when isAutoOptionalIf is stale-true but shape no longer matches the simple guard', () => {
+    it('should delete only the targeted field when the guard holds more than one child', () => {
       const shipOrderItem = tree.children[0] as FieldItem;
       const targetField = targetDoc.fields[0].fields[1];
       const sourceField = sourceDoc.fields[0].fields[1];
@@ -1184,8 +1204,8 @@ describe('MappingService', () => {
 
       MappingService.deleteMappingItem(fieldItem);
 
-      // Shape is invalid → isEffectivelyAutoOptional returns false → no cascade.
-      expect(ifItem.children).toContain(fieldItem);
+      expect(ifItem.children).not.toContain(fieldItem);
+      expect(ifItem.children).toContain(sibling);
       expect(shipOrderItem.children).toContain(ifItem);
     });
   });

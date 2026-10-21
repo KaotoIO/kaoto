@@ -24,6 +24,7 @@ import { FieldOverrideVariant } from '../../models/datamapper/types';
 import { FROM_JSON_SOURCE_SUFFIX } from '../document/json-schema/json-schema-document.model';
 import { XmlSchemaDocumentUtilService } from '../document/xml-schema/xml-schema-document-util.service';
 import { formatQNameWithPrefix, getPrefixForNamespaceURI } from '../namespace-util';
+import { MappingService } from './mapping.service';
 import { MappingSerializerJsonAddon, TO_JSON_TARGET_VARIABLE } from './mapping-serializer-json-addon';
 
 /** Handles {@link ValueOfSelector} — maps to `xsl:value-of` or `xsl:text`. */
@@ -194,12 +195,17 @@ export class FieldItemHandler implements XsltItemHandler<FieldItem> {
       return xslAttribute;
     }
 
+    // A CONTAINER copy-of brings the element itself, so the wrapper is skipped — but only when
+    // nothing else contributes content. `producesOutput` looks through instruction wrappers:
+    // an auto-optional guard sits between the field and its content, and a direct scan of
+    // `children` would report none and reparent that content into the grandparent.
     const hasContainerCopyOf = mapping.children.some(
       (c) => c instanceof CopyOfSelector && c.valueType === CopyOfType.CONTAINER,
     );
-    const hasChildFieldItems = mapping.children.some((c) => c instanceof FieldItem);
-    const hasValueOf = mapping.children.some((c) => c instanceof ValueOfSelector);
-    if (hasContainerCopyOf && !hasChildFieldItems && !hasValueOf) return parent;
+    const hasOtherContent = mapping.children.some(
+      (c) => !(c instanceof CopyOfSelector && c.valueType === CopyOfType.CONTAINER) && MappingService.producesOutput(c),
+    );
+    if (hasContainerCopyOf && !hasOtherContent) return parent;
 
     const jsonElement = MappingSerializerJsonAddon.populateFieldItem(parent, mapping);
     if (jsonElement) return jsonElement;

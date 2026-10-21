@@ -84,7 +84,19 @@ export class MappingSerializerService {
     if (left instanceof UnknownMappingItem || right instanceof UnknownMappingItem) return 0;
     if (left instanceof OtherwiseItem) return right instanceof OtherwiseItem ? 0 : 1;
     if (right instanceof OtherwiseItem) return -1;
-    if (left instanceof InstructionItem && right instanceof InstructionItem) return 0;
+    if (left instanceof InstructionItem && right instanceof InstructionItem) {
+      // Two instructions normally keep their authored order, but an xsl:attribute must still be
+      // emitted before any element content or the transform fails at runtime (XTDE0410). Once
+      // optional attributes get wrapped in an auto-optional guard the attribute is an instruction
+      // too, so fall through to field comparison whenever one side carries one.
+      const leftHasAttribute = MappingSerializerService.hasAttributeField(
+        MappingSerializerService.getMappingItemFields(left),
+      );
+      const rightHasAttribute = MappingSerializerService.hasAttributeField(
+        MappingSerializerService.getMappingItemFields(right),
+      );
+      return leftHasAttribute === rightHasAttribute ? 0 : null;
+    }
     return null;
   }
 

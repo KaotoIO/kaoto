@@ -349,6 +349,20 @@ describe('XPathService', () => {
       expect(paths[0].pathSegments[2].name).toBe('ccc');
     });
 
+    it('should resolve the explicit attribute axis to the same segment as the @ shorthand', () => {
+      const abbreviated = XPathService.extractFieldPaths('/aaa/@id');
+      const explicit = XPathService.extractFieldPaths('/aaa/attribute::id');
+
+      expect(explicit).toHaveLength(1);
+      expect(explicit[0].pathSegments).toHaveLength(2);
+      const explicitLeaf = explicit[0].pathSegments[1];
+      expect(explicitLeaf.name).toBe('id');
+      // Without this the segment describes an element named `id` and field matching looks up
+      // the wrong thing, even though isSimplePath accepts the expression.
+      expect(explicitLeaf.isAttribute).toBe(true);
+      expect(explicitLeaf.isAttribute).toBe(abbreviated[0].pathSegments[1].isAttribute);
+    });
+
     it('should extract param field from AST', () => {
       const paths = XPathService.extractFieldPaths('$param1/aaa/bbb/ccc');
       expect(paths).toHaveLength(1);

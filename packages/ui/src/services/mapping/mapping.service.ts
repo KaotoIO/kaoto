@@ -121,6 +121,51 @@ export class MappingService {
   }
 
   /**
+   * Whether `item` contributes anything to the serialized output — a target element, a value or
+   * copy-of selector, or an instruction that in turn contains one. Used when deciding whether an
+   * element may be elided, where an instruction wrapper must not hide its contents from the
+   * decision.
+   * @param item - the mapping item to test
+   */
+  static producesOutput(item: MappingItem): boolean {
+    if (item instanceof FieldItem || item instanceof ValueSelector) return true;
+    if (item instanceof ChooseItem) {
+      return [...item.when, item.otherwise].some((branch) => !!branch && MappingService.producesOutput(branch));
+    }
+    if (item instanceof InstructionItem) return item.children.some((child) => MappingService.producesOutput(child));
+    return false;
+  }
+
+  /**
+   * The nearest enclosing {@link FieldItem}/{@link MappingTree}, looking through the instruction
+   * wrappers named by `through`. Code that used to reach `item.parent` for the owning container
+   * has to walk now that a guard can sit in between.
+   *
+   * `through` differs per caller on purpose. `'instructions'` crosses any wrapper — correct when
+   * the question is about the item's own lifecycle. `'transparentGuards'` crosses only see-through
+   * auto-optional guards, which is required wherever a `FieldItem` living under a *user* `xsl:if`,
+   * `when` or `for-each` must be preserved. Loops are never crossed: inside a loop body the field
+   * context is the iterated item, not a named sibling.
+   * @param item - the item to walk up from
+   * @param through - which wrappers may be crossed
+   */
+  static findEnclosingFieldItem(
+    item: MappingItem,
+    through: 'instructions' | 'transparentGuards',
+  ): FieldItem | MappingTree | undefined {
+    let current: MappingParentType = item.parent;
+    while (current instanceof InstructionItem) {
+      if (current instanceof ForEachItem || current instanceof ForEachGroupItem) return undefined;
+      const crossable =
+        through === 'instructions' ||
+        (current instanceof IfItem && WrapperAutoDetectionService.isEffectivelyAutoOptional(current));
+      if (!crossable) return undefined;
+      current = current.parent;
+    }
+    return current instanceof FieldItem || current instanceof MappingTree ? current : undefined;
+  }
+
+  /**
    * Removes all mappings for the specified document. When the document is a {@link DocumentType.PARAM},
    * the 3rd argument {@link documentReferenceId} should indicate the parameter's document reference ID.
    * Note that it could be different from document ID. For example, JSON document has a suffix `-x`.
@@ -179,25 +224,27 @@ export class MappingService {
     documentType: DocumentType,
     documentReferenceId?: string,
   ) {
-    let stalePath = undefined;
+    let paths: PathExpression[] = [];
     try {
-      stalePath = XPathService.extractFieldPaths(expressionItem.expression, expressionItem.contextPath).find(
-        (xpath) => {
-          return (
-            (documentType === DocumentType.SOURCE_BODY && !xpath.documentReferenceName) ||
-            (documentType === DocumentType.PARAM &&
-              documentReferenceId &&
-              xpath.documentReferenceName === documentReferenceId)
-          );
-        },
-      );
+      paths = XPathService.extractFieldPaths(expressionItem.expression, expressionItem.contextPath);
       /* eslint-disable @typescript-eslint/no-explicit-any */
     } catch (error: any) {
       // Field path extraction failed, there might be xpath parse error. Since the same error should be shown
       // on xpath input field, just ignoring here.
       console.debug('XPath field path extraction failed:', error);
+      return false;
     }
-    return !!stalePath;
+    // Every referenced path must belong to the removed document before the mapping goes. An
+    // expression can name several — `/ShipOrder/Name | $Account/Name` — and dropping it on the
+    // first match would take the still-valid half with it.
+    if (documentType === DocumentType.PARAM) {
+      // A reference to a removed xsl:param is a static XSLT error, so any such operand is fatal.
+      return !!documentReferenceId && paths.some((xpath) => xpath.documentReferenceName === documentReferenceId);
+    }
+    return (
+      paths.length > 0 &&
+      paths.every((xpath) => documentType === DocumentType.SOURCE_BODY && !xpath.documentReferenceName)
+    );
   }
 
   /**
@@ -291,24 +338,29 @@ export class MappingService {
       return false;
     }
 
-    return fieldPaths.some((xpath) => {
-      xpath.contextPath = expressionItem.parent.contextPath;
-      xpath.isRelative = !!xpath.contextPath;
-      const absPath = XPathService.toAbsolutePath(xpath);
-      if (
-        (document.documentType === DocumentType.SOURCE_BODY && !absPath.documentReferenceName) ||
-        (document.documentType === DocumentType.PARAM &&
-          absPath.documentReferenceName === document.getReferenceId(namespaces))
-      ) {
-        const referredField = DocumentService.getFieldFromPathSegments(
-          expressionItem.mappingTree.namespaceMap,
-          document,
-          absPath.pathSegments,
-        );
-        return !referredField;
-      }
-      return false;
-    });
+    // As in hasStaleSourceDocument: only a mapping whose every referenced path has gone stale is
+    // removed, so one operand of a union expression cannot take the rest of it down.
+    return (
+      fieldPaths.length > 0 &&
+      fieldPaths.every((xpath) => {
+        xpath.contextPath = expressionItem.parent.contextPath;
+        xpath.isRelative = !!xpath.contextPath;
+        const absPath = XPathService.toAbsolutePath(xpath);
+        if (
+          (document.documentType === DocumentType.SOURCE_BODY && !absPath.documentReferenceName) ||
+          (document.documentType === DocumentType.PARAM &&
+            absPath.documentReferenceName === document.getReferenceId(namespaces))
+        ) {
+          const referredField = DocumentService.getFieldFromPathSegments(
+            expressionItem.mappingTree.namespaceMap,
+            document,
+            absPath.pathSegments,
+          );
+          return !referredField;
+        }
+        return false;
+      })
+    );
   }
 
   /**
@@ -1202,16 +1254,14 @@ export class MappingService {
    * @param item - the mapping item to delete
    */
   static deleteMappingItem(item: MappingParentType) {
-    // Evaluate effective auto-optional state BEFORE stripping ValueSelector children —
-    // matchSimpleOptionalGuard inspects item.children and will fail once they are cleared.
-    const isParentAutoOptionalIf =
-      'parent' in item &&
-      item.parent instanceof IfItem &&
-      WrapperAutoDetectionService.isEffectivelyAutoOptional(item.parent);
     item.children = item.children.filter((child) => !(child instanceof ValueSelector));
     const isInstructionItem = item instanceof InstructionItem;
     const isVariableItem = item instanceof VariableItem;
-    const isParentFieldItem = 'parent' in item && item.parent instanceof FieldItem;
+    // A guard (or any other instruction) can sit between the item and its owning container, so
+    // this has to walk rather than read `item.parent` — otherwise deleting a guarded field
+    // matches no branch here and silently does nothing.
+    const isParentFieldItem =
+      item instanceof MappingItem && MappingService.findEnclosingFieldItem(item, 'instructions') instanceof FieldItem;
     // Primitive target body has no root FieldItem — CopyOfSelector sits directly under MappingTree.
     // Structured targets don't need this: their copy-of parent is a FieldItem, handled by isParentFieldItem.
     const isRootLevelCopyOf = item instanceof CopyOfSelector && item.parent instanceof MappingTree;
@@ -1219,14 +1269,7 @@ export class MappingService {
     if (isVariableItem) {
       MappingService.removeVariableReferences(item as VariableItem);
     }
-    if (
-      isInstructionItem ||
-      isVariableItem ||
-      isParentFieldItem ||
-      isRootLevelCopyOf ||
-      isUserCreatedFieldItem ||
-      isParentAutoOptionalIf
-    ) {
+    if (isInstructionItem || isVariableItem || isParentFieldItem || isRootLevelCopyOf || isUserCreatedFieldItem) {
       MappingService.deleteFromParent(item);
     }
   }
@@ -1239,19 +1282,19 @@ export class MappingService {
     }
     const parent = item.parent;
     parent.children = parent.children.filter((child) => child !== item);
+    // An emptied FieldItem is cleaned up only when its own parent is a field or the tree root —
+    // one sitting directly under an instruction is a deliberate branch member and must survive.
+    // A see-through guard doesn't count as such a branch, so look through it; a user `xsl:if`,
+    // `when` or `for-each` still blocks the cascade.
     const isParentFieldItem = parent instanceof FieldItem;
-    const isParentParentFieldItem =
-      'parent' in parent && (parent.parent instanceof FieldItem || parent.parent instanceof MappingTree);
-    // An emptied-out auto-optional guard IfItem is just as orphaned as an emptied FieldItem —
-    // once its sole mapped field is gone, the hidden `if` wrapper has nothing left to guard.
-    // Use the raw flag here: parent.children is already empty at this point so
-    // matchSimpleOptionalGuard (which requires exactly one child) would always return
-    // undefined. The effective-state validation was already performed at the
-    // deleteMappingItem entry point before the children were modified.
-    const isParentAutoOptionalIf = parent instanceof IfItem && parent.isAutoOptionalIf;
+    const hasFieldItemAncestor =
+      parent instanceof MappingItem && MappingService.findEnclosingFieldItem(parent, 'transparentGuards') !== undefined;
     const areNoChildren = parent.children.length === 0;
-    if (areNoChildren && ((isParentFieldItem && isParentParentFieldItem) || isParentAutoOptionalIf)) {
-      MappingService.deleteFromParent(parent as FieldItem | IfItem);
+    // The guard itself is deliberately never removed here. `autoDetectOptionalGuards` flags any
+    // shape-matching `xsl:if` on load, including one the user wrote by hand, so deleting it would
+    // silently destroy their stylesheet. An emptied `xsl:if` stays visible and removable instead.
+    if (areNoChildren && isParentFieldItem && hasFieldItemAncestor) {
+      MappingService.deleteFromParent(parent);
     }
   }
 
