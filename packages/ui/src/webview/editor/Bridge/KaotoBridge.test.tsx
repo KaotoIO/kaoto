@@ -27,6 +27,7 @@ describe('KaotoBridge', () => {
     getSuggestions: mockGetSuggestions,
     shouldSaveSchema: false,
     onStepUpdated: vi.fn(),
+    getTestReport: vi.fn().mockResolvedValue(undefined),
   };
 
   const entitiesContext = {

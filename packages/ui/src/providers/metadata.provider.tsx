@@ -1,7 +1,7 @@
 import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
 import { createContext, FunctionComponent, PropsWithChildren } from 'react';
 
-import { StepUpdateAction } from '../models';
+import { StepUpdateAction, TestReportEntry } from '../models';
 import { CatalogKind } from '../models/catalog-kind';
 
 export interface IMetadataApi {
@@ -80,6 +80,13 @@ export interface IMetadataApi {
    * @param stepName The name of the step that was added.
    */
   onStepUpdated(action: StepUpdateAction, stepType: CatalogKind, stepName: string): Promise<void>;
+
+  /**
+   * Retrieve the test report for a Citrus test by name.
+   * @param name The test name to look up
+   * @returns The full test report entry, or undefined if no report exists
+   */
+  getTestReport(name: string): Promise<TestReportEntry | undefined>;
 }
 
 export const MetadataContext = createContext<IMetadataApi | undefined>(undefined);
