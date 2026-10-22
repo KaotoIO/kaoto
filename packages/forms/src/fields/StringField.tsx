@@ -129,7 +129,7 @@ export const StringField: FunctionComponent<StringFieldProps> = ({
             name={propName}
             type={fieldType}
             placeholder={typeof schema.default === 'object' ? undefined : schema.default?.toString()}
-            value={fieldValue}
+            value={typeof fieldValue === 'number' && Number.isNaN(fieldValue) ? '' : fieldValue}
             data-testid={propName}
             onChange={handleTextInputChange}
             aria-label={schema.title}

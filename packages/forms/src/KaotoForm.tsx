@@ -1,10 +1,11 @@
 import './KaotoForm.scss';
 
-import { Form } from '@carbon/react';
+import { Form, Layer, useLayer } from '@carbon/react';
 import { JSONSchema4 } from 'json-schema';
 import {
-  FormEventHandler,
   forwardRef,
+  Fragment,
+  SubmitEventHandler,
   useCallback,
   useEffect,
   useImperativeHandle,
@@ -24,6 +25,12 @@ import { isDefined, ROOT_PATH, setValue } from './utils';
 import { errorsMapper } from './validation/errors-mapper';
 import { getValidator } from './validation/get-validator';
 
+interface FormState {
+  sourceModel: unknown;
+  model: unknown;
+  change?: { model: unknown };
+}
+
 export interface KaotoFormApi {
   validate: () => Record<string, string[]> | null;
 }
@@ -33,6 +40,10 @@ export interface KaotoFormProps extends IDataTestID {
   model: unknown;
   omitFields?: string[];
   disabled?: boolean;
+  /**
+   * Wrap the form in a Carbon `<Layer>` when no ancestor provides one. Defaults to `true`.
+   */
+  withLayer?: boolean;
   onChange?: (value: unknown) => void;
   onChangeProp?: (propName: string, value: unknown) => void;
   customFieldsFactory?: CustomFieldsFactory;
@@ -46,6 +57,7 @@ export const KaotoForm = forwardRef<KaotoFormApi, KaotoFormProps>(
       model,
       omitFields = [],
       disabled,
+      withLayer = true,
       onChange,
       onChangeProp,
       customFieldsFactory,
@@ -56,10 +68,18 @@ export const KaotoForm = forwardRef<KaotoFormApi, KaotoFormProps>(
       throw new Error('[KaotoForm]: Schema is required');
     }
 
-    const [formModel, setFormModel] = useState<unknown>(model);
+    /**
+     * Keep the form model in sync with the model provided by the consumer.
+     * Edits made through the form are tracked in `change`, so the consumer is only
+     * notified about local edits, not about its own model updates.
+     */
+    const [formState, setFormState] = useState<FormState>({ sourceModel: model, model });
+    if (!Object.is(formState.sourceModel, model)) {
+      setFormState({ ...formState, sourceModel: model, model });
+    }
+    const formModel = formState.model;
     const [validationErrors, setValidationErrors] = useState<Record<string, string[]>>({});
     const onChangeRef = useRef(onChange);
-    const isFirstRender = useRef(true);
 
     /**
      * This useEffect updates the onChangeRef.current value every time the onChange prop changes
@@ -72,36 +92,40 @@ export const KaotoForm = forwardRef<KaotoFormApi, KaotoFormProps>(
 
     /**
      * This useEffect notifies the consumer about the entire form being updated
-     * It depends on the formModel state, so it will be triggered every time the formModel changes
-     * but not when the onChange function changes since it's not in the dependency array
+     * It only runs for changes made through the form, not when the consumer provides a new model
      */
     useEffect(() => {
-      if (isFirstRender.current) {
-        isFirstRender.current = false;
-        return;
+      if (formState.change) {
+        onChangeRef.current?.(formState.change.model);
       }
-
-      onChangeRef.current?.(formModel);
-    }, [formModel]);
+    }, [formState.change]);
 
     /**
-     * Update the formModel state when a property changes
+     * Update the form model state when a property changes
      */
     const onPropertyChange = useCallback(
       (propName: string, value: unknown) => {
         onChangeProp?.(propName, value);
-        setFormModel((prevModel: unknown) => {
-          if (typeof prevModel !== 'object') {
-            return value;
+        setFormState((previous) => {
+          if (typeof previous.model !== 'object') {
+            return { ...previous, model: value, change: { model: value } };
           }
 
-          const newModel = { ...prevModel };
+          const newModel = { ...previous.model };
           setValue(newModel, propName, value);
-          return newModel;
+          return { ...previous, model: newModel, change: { model: newModel } };
         });
       },
       [onChangeProp],
     );
+
+    /**
+     * Carbon inputs take their background from the closest `<Layer>`. When no ancestor provides one
+     * (the default level is 1), the inputs would blend with the page background, so we add it here.
+     * If an ancestor already did (sidebar, modal, nested form...), we avoid stacking another one.
+     */
+    const { level } = useLayer();
+    const LayerWrapper = withLayer && level <= 1 ? Layer : Fragment;
 
     const validator = useMemo(() => getValidator(schema), [schema]);
 
@@ -121,7 +145,7 @@ export const KaotoForm = forwardRef<KaotoFormApi, KaotoFormProps>(
       schemaValidator,
     ]);
 
-    const onSubmit: FormEventHandler<HTMLFormElement> = useCallback((event) => {
+    const onSubmit: SubmitEventHandler<HTMLFormElement> = useCallback((event) => {
       event.preventDefault();
     }, []);
 
@@ -135,11 +159,13 @@ export const KaotoForm = forwardRef<KaotoFormApi, KaotoFormProps>(
               onPropertyChange={onPropertyChange}
               disabled={disabled}
             >
-              <Form onSubmit={onSubmit} className="kaoto-form kaoto-form__label" data-testid={dataTestId}>
-                <AutoField propName={ROOT_PATH} />
-              </Form>
+              <LayerWrapper>
+                <Form onSubmit={onSubmit} className="kaoto-form kaoto-form__label" data-testid={dataTestId}>
+                  <AutoField propName={ROOT_PATH} />
+                </Form>
 
-              <NoFieldFound className="kaoto-form kaoto-form__empty" />
+                <NoFieldFound className="kaoto-form kaoto-form__empty" />
+              </LayerWrapper>
             </ModelContextProvider>
           </SchemaProvider>
         </SchemaDefinitionsProvider>

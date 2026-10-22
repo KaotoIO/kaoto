@@ -2,7 +2,7 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { CanvasFormTabsContext, KaotoForm, KeyValue } from '@kaoto/forms';
 import { KaotoFormPageObject } from '@kaoto/forms/testing';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { JSONSchema4 } from 'json-schema';
 import { useState } from 'react';
 
@@ -67,7 +67,7 @@ describe('CanvasFormBody', () => {
     // eslint-disable-next-line testing-library/no-unnecessary-act
     const { rerender } = await act(async () => render(view(original), { wrapper: Provider }));
     const destination = screen.getByRole('textbox', { name: 'Destination Name' });
-    const connectionFactory = screen.getByRole('textbox', { name: 'Connection Factory' });
+    const connectionFactory = screen.getByRole('combobox', { name: 'Connection Factory' });
     connectionFactory.focus();
 
     rerender(view(updated));
@@ -78,9 +78,9 @@ describe('CanvasFormBody', () => {
     expect(destination).toHaveValue('after');
     expect(updated.context.updateSourceCodeFromEntities).not.toHaveBeenCalled();
     fireEvent.click(connectionFactory);
-    expect(await screen.findByRole('option', { name: 'option #factory-after' })).toBeInTheDocument();
-    expect(screen.queryByRole('option', { name: 'option #factory-before' })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Connection Factory toggle' }));
+    expect(await screen.findByRole('option', { name: /^#factory-after/ })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: /^#factory-before/ })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
     fireEvent.change(destination, { target: { value: 'edited' } });
     await waitFor(() => {
       expect(updated.node.data.definition).toMatchObject({ parameters: { destinationName: 'edited' } });
@@ -139,12 +139,11 @@ describe('CanvasFormBody', () => {
     });
 
     // Clearing and selecting locally must still work after an external language change.
-    // eslint-disable-next-line testing-library/no-unnecessary-act
-    await act(async () => fireEvent.click(screen.getByTestId('#__expression-list__clear')));
+    const formPageObject = new KaotoFormPageObject(screen, act);
+    await formPageObject.clearExpressionFieldForProperty(ROOT_PATH);
     await waitFor(() => {
       expect(screen.queryByDisplayValue('edited')).not.toBeInTheDocument();
     });
-    const formPageObject = new KaotoFormPageObject(screen, act);
     await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
     await formPageObject.selectTypeaheadItem('simple');
     await formPageObject.inputText('Expression', '${body.again}');
@@ -239,7 +238,7 @@ describe('CanvasFormBody', () => {
     rerender(<KaotoForm schema={schema} model={{ amount: 3 }} onChange={onChange} />);
     expect(input).toHaveValue('3');
     rerender(<KaotoForm schema={schema} model={{ amount: Number.NaN }} onChange={onChange} />);
-    // PatternFly displays NaN as empty; the form must remain mounted and editable.
+    // NaN is displayed as empty; the form must remain mounted and editable.
     expect(input).toHaveValue('');
     fireEvent.change(input, { target: { value: '4' } });
     expect(onChange).toHaveBeenLastCalledWith({ amount: 4 });
@@ -671,15 +670,19 @@ describe('CanvasFormBody', () => {
       await fromNode.fetchSchema();
 
       const { Provider } = await TestProvidersWrapper();
-      render(
-        <EntitiesContext.Provider value={null}>
-          <Provider>
-            <CanvasFormTabsContext.Provider value={{ selectedTab: 'All', setSelectedTab: vi.fn() }}>
-              <CanvasFormBody vizNode={fromNode} />
-            </CanvasFormTabsContext.Provider>
-          </Provider>
-        </EntitiesContext.Provider>,
-      );
+      // The endpoint properties field suspends while resolving the component catalog.
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <EntitiesContext.Provider value={null}>
+            <Provider>
+              <CanvasFormTabsContext.Provider value={{ selectedTab: 'All', setSelectedTab: vi.fn() }}>
+                <CanvasFormBody vizNode={fromNode} />
+              </CanvasFormTabsContext.Provider>
+            </Provider>
+          </EntitiesContext.Provider>,
+        );
+      });
     };
 
     it('renders the Create Route button for the seda component', async () => {

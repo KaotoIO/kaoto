@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import { FunctionComponent, PropsWithChildren, ReactNode } from 'react';
 
 import { FieldProps } from '../models/typings';
+import { capitalizeString } from '../utils/capitalize-string';
 
 interface FieldWrapperProps extends FieldProps {
   type: string;
@@ -32,7 +33,9 @@ export const FieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapperProps
   onOpenSuggestions,
 }) => {
   const id = `${propName}-popover`;
-  const label = title ?? propName.split('.').pop();
+  const rawLabel = title ?? propName.split('.').pop();
+  const label = typeof rawLabel === 'string' ? capitalizeString(rawLabel) : rawLabel;
+  const labelText = typeof label === 'string' ? label : capitalizeString(propName.split('.').pop() ?? propName);
 
   return (
     <Stack gap={3} className={clsx({ 'kaoto-form__wrapper--row': isRow })} data-testid={`${propName}__field-wrapper`}>
@@ -43,7 +46,7 @@ export const FieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapperProps
         </label>
         {isRaw && <Tag size="sm">raw</Tag>}
         <Toggletip autoAlign>
-          <ToggletipButton label={`More info for ${label} field`}>
+          <ToggletipButton label={`More info for ${labelText} field`}>
             <Information />
           </ToggletipButton>
           <ToggletipContent>

@@ -4,6 +4,8 @@ import { Information } from '@carbon/icons-react';
 import { Layer, Tile, Toggletip, ToggletipButton, ToggletipContent, useLayer } from '@carbon/react';
 import { createContext, FunctionComponent, PropsWithChildren, ReactNode, useContext } from 'react';
 
+import { capitalizeString } from '../../utils/capitalize-string';
+
 /**
  * Carbon only has 3 layers and `<Layer>` clamps at the last one, so nested tiles would end up
  * with the same background as their inputs. This context keeps track of the layer used by the
@@ -25,7 +27,7 @@ interface FieldWrapperProps {
 export const ArrayFieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapperProps>> = ({
   propName,
   type,
-  title,
+  title: rawTitle,
   description,
   defaultValue,
   actions,
@@ -34,10 +36,12 @@ export const ArrayFieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapper
 }) => {
   const formatDefaultValue = (value: unknown): string => {
     if (value === undefined || value === null) return 'no default value';
-    if (typeof value === 'object') return JSON.stringify(value);
-    return String(value);
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') return String(value);
+    return JSON.stringify(value) ?? '';
   };
 
+  const title = capitalizeString(rawTitle);
   const shouldRenderChildren = Array.isArray(children) ? children.length > 0 : !!children;
   const { level } = useLayer();
   const parentLayer = useContext(ArrayFieldLayerContext) ?? level - 1;

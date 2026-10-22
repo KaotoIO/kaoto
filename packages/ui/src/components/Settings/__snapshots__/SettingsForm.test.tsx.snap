@@ -1181,7 +1181,7 @@ exports[`SettingsForm > should render 1`] = `
         </div>
       </div>
       <div
-        class="cds--layer-two"
+        class="cds--layer-three"
       >
         <div
           class="kaoto-form kaoto-form__label"

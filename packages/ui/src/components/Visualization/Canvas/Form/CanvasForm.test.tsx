@@ -132,7 +132,7 @@ describe('CanvasForm', () => {
     );
 
     const formPageObject = new KaotoFormPageObject(screen, act);
-    await formPageObject.inputText('Description', '');
+    await formPageObject.inputText('Description', value);
 
     const closeSideBarButton = await screen.findByTestId('close-side-bar');
     fireEvent.click(closeSideBarButton);

@@ -107,7 +107,15 @@ vi.mock('@carbon/react', async (importOriginal) => {
     React.createElement(React.Fragment, null, children);
   ToggletipContent.displayName = 'ToggletipContent';
 
-  return { ...actual, MenuButton, MenuItem, MenuItemDivider, Toggletip, ToggletipButton, ToggletipContent };
+  // Popover with `autoAlign` activates floating-ui's useFloating, which never settles in jsdom
+  // (same problem as Toggletip above). Drop the prop so the popover renders with static positioning.
+  const Popover = React.forwardRef<HTMLElement, React.ComponentProps<typeof actual.Popover>>(
+    ({ autoAlign: _autoAlign, ...props }, ref) =>
+      React.createElement(actual.Popover as React.ElementType, { ...props, ref }),
+  );
+  Popover.displayName = 'Popover';
+
+  return { ...actual, MenuButton, MenuItem, MenuItemDivider, Popover, Toggletip, ToggletipButton, ToggletipContent };
 });
 
 // Mock @patternfly/react-icons to avoid ESM resolution issues

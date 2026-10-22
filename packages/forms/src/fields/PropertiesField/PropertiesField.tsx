@@ -5,6 +5,7 @@ import { useFieldValue } from '../../hooks/field-value';
 import { KeyValue, KeyValueType } from '../../KeyValue/KeyValue';
 import { FieldProps } from '../../models/typings';
 import { SchemaContext } from '../../providers/SchemaProvider';
+import { capitalizeString } from '../../utils/capitalize-string';
 import { FieldWrapper } from '../FieldWrapper';
 
 export const PropertiesField: FunctionComponent<FieldProps> = ({ propName, required }) => {
@@ -12,7 +13,7 @@ export const PropertiesField: FunctionComponent<FieldProps> = ({ propName, requi
   const { value, onChange, disabled } = useFieldValue<KeyValueType | undefined>(propName);
 
   const items = Object.entries(value ?? {});
-  const title = schema.title ?? propName.split('.').pop();
+  const title = capitalizeString(schema.title ?? propName.split('.').pop() ?? '');
 
   return (
     <FieldWrapper

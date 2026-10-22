@@ -154,7 +154,7 @@ exports[`PipeErrorHandlerPage > renders the KaotoForm when the resource type is 
                     *
                   </span>
                   <span>
-                    none
+                    None
                      
                     <div
                       class="cds--tag"
@@ -171,7 +171,7 @@ exports[`PipeErrorHandlerPage > renders the KaotoForm when the resource type is 
                   </span>
                 </label>
                 <button
-                  aria-label="More info for [object Object] field"
+                  aria-label="More info for None field"
                   type="button"
                 >
                   <svg
@@ -195,7 +195,7 @@ exports[`PipeErrorHandlerPage > renders the KaotoForm when the resource type is 
                 <p>
                   <strong>
                     <span>
-                      none
+                      None
                        
                       <div
                         class="cds--tag"

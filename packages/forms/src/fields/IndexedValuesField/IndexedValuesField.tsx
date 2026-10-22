@@ -8,6 +8,7 @@ import { IndexedValue } from '../../KeyValue/IndexedValue';
 import { KeyValueType } from '../../KeyValue/KeyValue';
 import { FieldProps } from '../../models/typings';
 import { SchemaContext } from '../../providers/SchemaProvider';
+import { capitalizeString } from '../../utils/capitalize-string';
 import { FieldWrapper } from '../FieldWrapper';
 
 export const IndexedValuesField: FunctionComponent<FieldProps> = ({ propName, required }) => {
@@ -15,7 +16,7 @@ export const IndexedValuesField: FunctionComponent<FieldProps> = ({ propName, re
   const { value, onChange, disabled } = useFieldValue<KeyValueType | undefined>(propName);
 
   const items = Object.entries(value ?? {});
-  const title = schema.title ?? propName.split('.').pop();
+  const title = capitalizeString(schema.title ?? propName.split('.').pop() ?? '');
 
   return (
     <FieldWrapper
@@ -28,7 +29,7 @@ export const IndexedValuesField: FunctionComponent<FieldProps> = ({ propName, re
       }
       type="object"
       description={schema.description}
-      defaultValue={schema.default?.toString()}
+      defaultValue={schema.default !== undefined ? JSON.stringify(schema.default) : undefined}
     >
       <IndexedValue propName={propName} onChange={onChange} initialModel={value} disabled={disabled} />
     </FieldWrapper>

@@ -191,65 +191,69 @@ exports[`CanvasForm > should render 1`] = `
     <div
       class="canvas-form__body"
     >
-      <form
-        class="cds--form kaoto-form kaoto-form__label"
-      />
       <div
-        class="no-field-found kaoto-form kaoto-form__empty cds--actionable-notification cds--actionable-notification--low-contrast cds--actionable-notification--info cds--actionable-notification--hide-close-button"
-        data-testid="no-field-found"
+        class="cds--layer-two"
       >
+        <form
+          class="cds--form kaoto-form kaoto-form__label"
+        />
         <div
-          class="cds--actionable-notification__details"
+          class="no-field-found kaoto-form kaoto-form__empty cds--actionable-notification cds--actionable-notification--low-contrast cds--actionable-notification--info cds--actionable-notification--hide-close-button"
+          data-testid="no-field-found"
         >
-          <svg
-            aria-hidden="true"
-            class="cds--inline-notification__icon"
-            fill="currentColor"
-            focusable="false"
-            height="20"
-            preserveAspectRatio="xMidYMid meet"
-            viewBox="0 0 32 32"
-            width="20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M16,8a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,16,8Zm4,13.875H17.125v-8H13v2.25h1.875v5.75H12v2.25h8Z"
-              data-icon-path="inner-path"
-              fill="none"
-            />
-            <path
-              d="M16,2A14,14,0,1,0,30,16,14,14,0,0,0,16,2Zm0,6a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,16,8Zm4,16.125H12v-2.25h2.875v-5.75H13v-2.25h4.125v8H20Z"
-            />
-            <title>
-              info icon
-            </title>
-          </svg>
           <div
-            class="cds--actionable-notification__text-wrapper"
+            class="cds--actionable-notification__details"
           >
-            <div
-              class="cds--actionable-notification__title"
-              dir="auto"
+            <svg
+              aria-hidden="true"
+              class="cds--inline-notification__icon"
+              fill="currentColor"
+              focusable="false"
+              height="20"
+              preserveAspectRatio="xMidYMid meet"
+              viewBox="0 0 32 32"
+              width="20"
+              xmlns="http://www.w3.org/2000/svg"
             >
-              No Required fields found
-            </div>
+              <path
+                d="M16,8a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,16,8Zm4,13.875H17.125v-8H13v2.25h1.875v5.75H12v2.25h8Z"
+                data-icon-path="inner-path"
+                fill="none"
+              />
+              <path
+                d="M16,2A14,14,0,1,0,30,16,14,14,0,0,0,16,2Zm0,6a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,16,8Zm4,16.125H12v-2.25h2.875v-5.75H13v-2.25h4.125v8H20Z"
+              />
+              <title>
+                info icon
+              </title>
+            </svg>
             <div
-              class="cds--actionable-notification__subtitle"
-              dir="auto"
+              class="cds--actionable-notification__text-wrapper"
             >
-              No field found matching this criteria. Please switch to the All tab.
+              <div
+                class="cds--actionable-notification__title"
+                dir="auto"
+              >
+                No Required fields found
+              </div>
+              <div
+                class="cds--actionable-notification__subtitle"
+                dir="auto"
+              >
+                No field found matching this criteria. Please switch to the All tab.
+              </div>
             </div>
           </div>
-        </div>
-        <div
-          class="cds--actionable-notification__button-wrapper"
-        >
-          <button
-            class="cds--actionable-notification__action-button cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost"
-            type="button"
+          <div
+            class="cds--actionable-notification__button-wrapper"
           >
-            Switch to All tab
-          </button>
+            <button
+              class="cds--actionable-notification__action-button cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost"
+              type="button"
+            >
+              Switch to All tab
+            </button>
+          </div>
         </div>
       </div>
     </div>

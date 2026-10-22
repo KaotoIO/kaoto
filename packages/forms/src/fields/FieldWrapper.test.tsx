@@ -18,7 +18,7 @@ describe('FieldWrapper', () => {
     expect(wrapper.getByText('Test Children')).toBeInTheDocument();
   });
 
-  it('should use the last portion of the property name as label if a label was not provided', () => {
+  it('should use the capitalized last portion of the property name as label if a label was not provided', () => {
     const propName = '#.expression.csimple';
     const wrapper = render(
       <FieldWrapper {...defaultProps} propName={propName} title={undefined}>
@@ -26,7 +26,7 @@ describe('FieldWrapper', () => {
       </FieldWrapper>,
     );
 
-    expect(wrapper.getByText('csimple')).toBeInTheDocument();
+    expect(wrapper.getByText('Csimple')).toBeInTheDocument();
   });
 
   it('should render the toggletip with correct content', async () => {
