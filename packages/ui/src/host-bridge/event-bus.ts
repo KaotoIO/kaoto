@@ -144,7 +144,7 @@ export function createEventBus({ role, onError }: EventBusOptions): IEventBus {
     async invoke(request, payload, context) {
       const handler = requestHandlers.get(request);
       if (!handler) throw new BridgeError('UNSUPPORTED_REQUEST', `No handler for ${request}`);
-      return handler(payload, context);
+      return await handler(payload, context);
     },
     attach(attachment) {
       assertActive();
