@@ -1,0 +1,28 @@
+.uri-field-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.uri-field-input-wrapper {
+  flex: 1;
+}
+
+.uri-field-input .c4p--edit-in-place {
+  display: flex;
+  align-items: center;
+  border-block-end: 1px solid var(--cds-border-strong);
+  background-color: var(--cds-field);
+}
+
+.uri-field-input .c4p--edit-in-place input {
+  border-block-end: unset;
+  background-color: transparent;
+  align-self: stretch;
+  height: auto;
+}
+
+.uri-field-input .c4p--edit-in-place > div {
+  width: 32px;
+}
+

@@ -81,10 +81,10 @@ describe('ComponentMode', () => {
       for (const registrationKey of ['initial', 'initial', 'remounted']) {
         wrapper.rerender(content(true, registrationKey));
 
-        expect(await wrapper.findAllByRole('group', { name: 'Component Mode Toggle Group' })).toHaveLength(1);
-        expect(wrapper.getAllByRole('button', { name: /static/i })).toHaveLength(1);
-        expect(wrapper.getAllByRole('button', { name: /dynamic/i })).toHaveLength(1);
-        expect(wrapper.getAllByRole('button', { name: /poll/i })).toHaveLength(1);
+        expect(await wrapper.findAllByRole('tablist', { name: 'Component Mode Toggle Group' })).toHaveLength(1);
+        expect(wrapper.getAllByRole('tab', { name: /static/i })).toHaveLength(1);
+        expect(wrapper.getAllByRole('tab', { name: /dynamic/i })).toHaveLength(1);
+        expect(wrapper.getAllByRole('tab', { name: /poll/i })).toHaveLength(1);
       }
     },
   );
@@ -188,9 +188,9 @@ describe('ComponentMode', () => {
     const wrapper = render(<ComponentMode vizNode={vizNode} />);
 
     // Buttons should still render with empty tooltips
-    const toButton = await wrapper.findByRole('button', { name: /static/i });
-    const toDButton = await wrapper.findByRole('button', { name: /dynamic/i });
-    const pollButton = await wrapper.findByRole('button', { name: /poll/i });
+    const toButton = await wrapper.findByRole('tab', { name: /static/i });
+    const toDButton = await wrapper.findByRole('tab', { name: /dynamic/i });
+    const pollButton = await wrapper.findByRole('tab', { name: /poll/i });
 
     expect(toButton).toBeInTheDocument();
     expect(toDButton).toBeInTheDocument();
