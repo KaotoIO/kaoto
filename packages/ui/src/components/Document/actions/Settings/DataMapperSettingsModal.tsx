@@ -44,7 +44,7 @@ export const DataMapperSettingsModal: FunctionComponent<DataMapperSettingsModalP
     [targetBodyDocument.definitionType],
   );
   // Output validation UI: set to true when feature is complete
-  const showOutputValidation = false as boolean;
+  const showOutputValidation = true;
 
   const outputVariable = localOptions.outputVariable ?? '';
   const isSaveDisabled = !!DataMapperStepService.getOutputVariableNameError(outputVariable);

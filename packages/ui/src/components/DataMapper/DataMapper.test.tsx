@@ -304,8 +304,8 @@ describe('DataMapperPage', () => {
 
     it('should read initial validation state via isValidationEnabled and pass to DataMapperProvider', async () => {
       vi.spyOn(DataMapperValidationStepService, 'isValidationEnabled').mockReturnValue(false);
-      vi.spyOn(DataMapperValidationStepService, 'addValidationStep').mockImplementation(() => undefined);
-      vi.spyOn(DataMapperValidationStepService, 'removeValidationStep').mockImplementation(() => undefined);
+      vi.spyOn(DataMapperValidationStepService, 'addValidationStep').mockImplementation(() => Promise.resolve());
+      vi.spyOn(DataMapperValidationStepService, 'removeValidationStep').mockImplementation(() => Promise.resolve());
 
       fileContents[metadata.xsltPath] = EMPTY_XSL;
 

@@ -6,6 +6,7 @@ import { IClipboardContent } from '../../models/visualization/clipboard';
 import { IMetadataApi } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { DataMapperStepService } from '../../services/datamapper-step.service';
+import { DataMapperValidationStepService } from '../../services/datamapper-validation-step.service';
 import { clearXsltUri, setXsltUri } from './datamapper-utils';
 
 export const onDuplicateDataMapper = async (
@@ -51,6 +52,8 @@ export const onDuplicateDataMapper = async (
   await DataMapperMetadataService.duplicateXsltFile(api, originalMetadata, newXsltPath);
 
   setXsltUri(stepDef, newXsltPath);
+
+  await DataMapperValidationStepService.duplicateWrapper(api, originalMetadata.xsltPath, newXsltPath, stepDef);
 
   return parameters.content;
 };
