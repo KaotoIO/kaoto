@@ -6,9 +6,18 @@ describe('host-bridge public API', () => {
   it('exposes only the runtime values a host needs', () => {
     expect(Object.keys(hostBridge).sort()).toEqual([
       'BridgeError',
+      'HostBridgeContext',
+      'HostBridgeProvider',
       'createEventBus',
       'createIframeTransport',
       'createPostMessageBridge',
+      'useHostBus',
+      'useHostMetadata',
+      'useHostNotifications',
+      'useHostResources',
+      'useHostRuntime',
+      'useHostSuggestions',
+      'useHostUI',
     ]);
   });
 });
