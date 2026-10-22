@@ -191,7 +191,7 @@ describe('connected host bridge', () => {
   it.each(['hostBridge', 'editor', 'transport'] as const)(
     'settles pending work and aborts receivers when %s is disposed',
     async (owner) => {
-      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] });
       const { host, editor, hostBridge, connect, transports } = pair();
       let signal: AbortSignal | undefined;
       editor.onRequest('editor:document:getContent', (_payload, context) => {
@@ -219,7 +219,7 @@ describe('request deadlines and cancellation', () => {
     ['editor', 'editor:suggestions:get', { topic: 'bean', word: '', context: {} }, 2000],
     ['editor', 'editor:maven:getRuntimeInfo', null, 60000],
   ] as const)('uses the %s deadline for %s', async (role, name, payload, deadline) => {
-    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] });
     const pairValue = pair();
     const caller = pairValue[role];
     const receiver = role === 'host' ? pairValue.editor : pairValue.host;
@@ -243,7 +243,7 @@ describe('request deadlines and cancellation', () => {
   });
 
   it.each([undefined, null])('keeps file picking pending without an automatic deadline (%s)', async (timeoutMs) => {
-    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] });
     const { host, editor, connect } = pair();
     host.onRequest('host:ui:pickFile', () => new Promise(() => {}));
     await connect();
@@ -257,7 +257,7 @@ describe('request deadlines and cancellation', () => {
   });
 
   it('honors a positive timeout override and removes its abort listener', async () => {
-    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] });
     const { host, editor, connect } = pair();
     editor.onRequest('editor:document:getContent', () => new Promise(() => {}));
     await connect();
@@ -431,8 +431,29 @@ describe('handshake and session ownership', () => {
     await expect(hostBridge.connect()).rejects.toMatchObject({ code: 'DISPOSED' });
   });
 
+  it('retries hello until the host completes handshake', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] });
+    const fixture = supplied('editor');
+    const initialHellos = fixture.sent.filter((message) => message.kind === 'hello');
+    expect(initialHellos).toHaveLength(1);
+    const bootId = (initialHellos[0] as Extract<ControlMessage, { kind: 'hello' }>).editorBootId;
+
+    await vi.advanceTimersByTimeAsync(250);
+    expect(fixture.sent.filter((message) => message.kind === 'hello')).toHaveLength(2);
+
+    await vi.advanceTimersByTimeAsync(250);
+    expect(fixture.sent.filter((message) => message.kind === 'hello')).toHaveLength(3);
+
+    fixture.receive({ ...header, kind: 'welcome', editorBootId: bootId, sessionId: 'editor-session' });
+    await fixture.connected;
+
+    await vi.advanceTimersByTimeAsync(500);
+    expect(fixture.sent.filter((message) => message.kind === 'hello')).toHaveLength(3);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
   it.each([undefined, 25])('fails a handshake at its configured deadline (%s)', async (handshakeTimeoutMs) => {
-    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] });
     const bus = createEventBus({ role: 'host', onError: vi.fn() });
     const transports = createMemoryTransports();
     const bridge = createPostMessageBridge({ bus, transport: transports.host, handshakeTimeoutMs });
@@ -724,7 +745,7 @@ describe('transport boundaries', () => {
   });
 
   it('releases request timers and abort listeners on a successful response', async () => {
-    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] });
     const { host, editor, connect } = pair();
     editor.onRequest('editor:document:getContent', () => ({ content: '', revision: 0 }));
     await connect();
@@ -750,7 +771,7 @@ describe('transport boundaries', () => {
   ] as const)(
     'rejects all pending work when sending returns %s and reports the connection failure',
     async (_name, fail) => {
-      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] });
       const fixture = supplied();
       await fixture.establish();
       const first = fixture.bus.request('editor:document:getContent', null);

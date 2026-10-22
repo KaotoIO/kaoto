@@ -82,6 +82,7 @@ export function createPostMessageBridge({
   let unsubscribe = noop;
   let unsubscribeClose = noop;
   let handshakeTimer: ReturnType<typeof setTimeout> | undefined;
+  let helloTimer: ReturnType<typeof setInterval> | undefined;
   let connected: Promise<void> | undefined;
   let resolveConnection = noop;
   let rejectConnection: (error: Error) => void = noop;
@@ -114,6 +115,7 @@ export function createPostMessageBridge({
     if (closed) return;
     closed = true;
     clearTimeout(handshakeTimer);
+    if (helloTimer !== undefined) clearInterval(helloTimer);
     unsubscribe();
     unsubscribeClose();
     detach();
@@ -147,6 +149,7 @@ export function createPostMessageBridge({
   };
   const completeHandshake = () => {
     clearTimeout(handshakeTimer);
+    if (helloTimer !== undefined) clearInterval(helloTimer);
     resolveConnection();
   };
   const invalid = (message: string) => new BridgeError('INVALID_MESSAGE', message);
@@ -397,7 +400,18 @@ export function createPostMessageBridge({
         unsubscribeClose = memoryClosures.get(transport)?.(dispose) ?? noop;
         if (endpoint.role === 'editor' && !closed) {
           bootId = freshId();
-          void send({ ...protocol, kind: 'hello', editorBootId: bootId });
+          const hello: ControlMessage = { ...protocol, kind: 'hello', editorBootId: bootId };
+          void send(hello);
+          helloTimer = setInterval(
+            () => {
+              if (sessionId || closed) {
+                if (helloTimer !== undefined) clearInterval(helloTimer);
+              } else {
+                void send(hello);
+              }
+            },
+            Math.min(250, handshakeTimeoutMs),
+          );
         }
       } catch (error) {
         close(bridgeError(error, 'IO_ERROR'));
