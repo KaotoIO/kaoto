@@ -13,6 +13,7 @@ import {
 	StepUpdateAction,
 	Suggestion,
 	SuggestionRequestContext,
+	TestReportEntry,
 } from '@kaoto/kaoto/models';
 import { BackendProxy } from '@kie-tools-core/backend/dist/api';
 import { I18n } from '@kie-tools-core/i18n/dist/core';
@@ -318,6 +319,22 @@ export class VSCodeKaotoEditorChannelApi extends DefaultVsCodeKieEditorChannelAp
 				break;
 			default:
 				break;
+		}
+	}
+
+	async getTestReport(_name: string): Promise<TestReportEntry | undefined> {
+		try {
+			const testFilePath = this.currentEditedDocument.uri.fsPath;
+			const testDir = path.dirname(testFilePath);
+			const fileName = path.basename(testFilePath, '.yaml');
+			const resultFilePath = path.join(testDir, '.citrus-jbang', 'citrus-reports', `${fileName}-flow.json`);
+
+			const resultUri = vscode.Uri.file(resultFilePath);
+			const resultContent = await vscode.workspace.fs.readFile(resultUri);
+			return JSON.parse(new TextDecoder('utf-8').decode(resultContent)) as TestReportEntry;
+		} catch (error) {
+			KaotoOutputChannel.logWarning(`Could not read test report for current document: ${error}`);
+			return undefined;
 		}
 	}
 

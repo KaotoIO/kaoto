@@ -22,5 +22,6 @@ export * from './models/step-update-action';
  * consumed by non-webview bundles (e.g. the vscode-kaoto extension host / webworker targets
  * that have no sass-loader), that breaks their build. Keep component/runtime exports out.
  */
+export type { TestReportEntry } from './models/citrus/entities/TestResult';
 export type { KaotoEditorChannelApi } from './multiplying-architecture/KaotoEditorChannelApi';
 export type { Suggestion, SuggestionRequestContext } from '@kaoto/forms';

@@ -66,6 +66,7 @@ describe('KaotoEditorApp', () => {
       askUserForFileSelection: vi.fn(),
       getSuggestions: vi.fn(),
       onStepUpdated: vi.fn(),
+      getTestReport: vi.fn().mockResolvedValue(undefined),
     };
 
     envelopeContext = {

@@ -2,7 +2,7 @@ import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { ChannelType, StateControlCommand } from '@kie-tools-core/editor/dist/api';
 import { Notification } from '@kie-tools-core/notifications/dist/api';
 import { VisualizationProvider } from '@patternfly/react-topology';
-import { FunctionComponent, PropsWithChildren, useEffect, useMemo } from 'react';
+import { FunctionComponent, PropsWithChildren, useContext, useEffect, useMemo } from 'react';
 
 import { NodeInteractionAddonProvider } from '../../components/registers/interactions/node-interaction-addon.provider';
 import { RegisterComponents } from '../../components/registers/RegisterComponents';
@@ -10,7 +10,8 @@ import { RegisterNodeInteractionAddons } from '../../components/registers/Regist
 import { RenderingProvider } from '../../components/RenderingAnchor/rendering.provider';
 import { ControllerService } from '../../components/Visualization/Canvas/controller.service';
 import { CatalogTilesProvider } from '../../dynamic-catalog/catalog-tiles.provider';
-import { IMetadataApi, MetadataProvider, VisibleFlowsProvider } from '../../providers';
+import { CitrusTestVisualEntity } from '../../models/visualization/flows';
+import { EntitiesContext, IMetadataApi, MetadataProvider, VisibleFlowsProvider } from '../../providers';
 
 interface KaotoBridgeProps extends IMetadataApi {
   /**
@@ -52,6 +53,7 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>>
   getSuggestions,
   shouldSaveSchema,
   onStepUpdated,
+  getTestReport,
 }) => {
   const controller = useMemo(() => ControllerService.createController(), []);
   const metadataApi: IMetadataApi = useMemo(
@@ -66,6 +68,7 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>>
       getSuggestions,
       shouldSaveSchema,
       onStepUpdated,
+      getTestReport,
     }),
     [
       getMetadata,
@@ -78,6 +81,7 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>>
       getSuggestions,
       shouldSaveSchema,
       onStepUpdated,
+      getTestReport,
     ],
   );
 
@@ -85,6 +89,30 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>>
   useEffect(() => {
     onReady();
   }, [onReady]);
+
+  /** Load test reports for Citrus test entities */
+  const entitiesContext = useContext(EntitiesContext);
+  useEffect(() => {
+    if (!entitiesContext?.visualEntities || !getTestReport) return;
+
+    const citrusEntities = entitiesContext.visualEntities.filter(
+      (e): e is CitrusTestVisualEntity => e instanceof CitrusTestVisualEntity,
+    );
+    if (citrusEntities.length === 0) return;
+
+    let cancelled = false;
+    for (const entity of citrusEntities) {
+      void getTestReport(entity.id).then((report) => {
+        if (!cancelled && report) {
+          entity.applyTestReport(report);
+        }
+      });
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [entitiesContext?.visualEntities, getTestReport]);
 
   return (
     <CatalogTilesProvider>
