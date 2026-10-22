@@ -23,8 +23,6 @@ import { type FormEvent, FunctionComponent, useCallback, useContext, useEffect, 
 import { useNavigate } from 'react-router';
 
 import { IVisualizationNode, ValidationResult, ValidationStatus } from '../../models';
-import { DocumentDefinitionType } from '../../models/datamapper/document';
-import { IDataMapperMetadata } from '../../models/datamapper/metadata';
 import { EntitiesContext } from '../../providers';
 import { MetadataContext } from '../../providers/metadata.provider';
 import { Links } from '../../router/links.models';
@@ -33,6 +31,8 @@ import { DataMapperStepService } from '../../services/datamapper-step.service';
 import { DataMapperValidationStepService } from '../../services/datamapper-validation-step.service';
 import { isXSLTComponent } from '../../utils';
 import type { XsltComponentDef } from '../../utils/is-xslt-component';
+import { setOutputValidation } from './on-output-validation';
+import { onRenameDataMapper } from './on-rename-datamapper';
 import { OutputVariableField } from './OutputVariableField';
 import XsltDocumentRenameInput from './XsltDocumentRenameInput';
 
@@ -60,7 +60,7 @@ const DataMapperLauncherContent: FunctionComponent<{ vizNode?: IVisualizationNod
   const [isValidationTogglePending, setIsValidationTogglePending] = useState<boolean>(false);
   const [isTargetPrimitive, setIsTargetPrimitive] = useState<boolean>(true);
   // Output validation UI: set to true when feature is complete
-  const showOutputValidation = false as boolean;
+  const showOutputValidation = true;
   // useState lazy initializer: getOutputVariable is called once at mount, not on every render.
   const [outputVariableName, setOutputVariableName] = useState<string>(
     () => (vizNode ? DataMapperStepService.getOutputVariable(vizNode) : undefined) ?? '',
@@ -94,9 +94,9 @@ const DataMapperLauncherContent: FunctionComponent<{ vizNode?: IVisualizationNod
       if (vizNode) {
         setIsValidationEnabled(DataMapperValidationStepService.isValidationEnabled(vizNode));
         const metadataId = DataMapperStepService.getDataMapperMetadataId(vizNode);
-        const meta = await metadata.getMetadata<IDataMapperMetadata>(metadataId);
+        const isPrimitive = await DataMapperMetadataService.isTargetBodyPrimitive(metadata, metadataId);
         if (cancelled) return;
-        setIsTargetPrimitive(!meta?.targetBody || meta.targetBody.type === DocumentDefinitionType.Primitive);
+        setIsTargetPrimitive(isPrimitive);
       }
     };
     checkFile().catch(() => {});
@@ -137,33 +137,13 @@ const DataMapperLauncherContent: FunctionComponent<{ vizNode?: IVisualizationNod
         return;
       }
 
-      const metadataId = DataMapperStepService.getDataMapperMetadataId(vizNode);
-      const meta = await metadata.getMetadata<IDataMapperMetadata>(metadataId);
-
-      if (!meta) {
-        return;
-      }
-
-      const oldFileExists = await metadata.isResourceExist(oldPath);
-
-      if (!oldFileExists) {
-        return;
-      }
-
       setIsSavingFile(true);
       try {
-        const content = await metadata.getResourceContent(oldPath);
-
-        if (content === undefined) {
-          return;
+        const renamed = await onRenameDataMapper(metadata, vizNode, entitiesContext, oldPath, newPath);
+        if (renamed) {
+          setCurrentFileName(newPath);
+          setXsltFileExists(true);
         }
-
-        await metadata.saveResourceContent(newPath, content);
-        await DataMapperMetadataService.updateXsltPath(metadata, metadataId, meta, newPath);
-        DataMapperStepService.updateXsltFileName(vizNode, newPath, entitiesContext);
-        await metadata.deleteResource(oldPath);
-        setCurrentFileName(newPath);
-        setXsltFileExists(true);
       } finally {
         setIsSavingFile(false);
       }
@@ -172,25 +152,16 @@ const DataMapperLauncherContent: FunctionComponent<{ vizNode?: IVisualizationNod
   );
 
   const handleValidationToggle = useCallback(
-    (_event: FormEvent<HTMLInputElement>, checked: boolean) => {
-      if (!vizNode || !entitiesContext) return;
-      if (checked) {
-        setIsValidationTogglePending(true);
-        const metadataId = DataMapperStepService.getDataMapperMetadataId(vizNode);
-        void metadata
-          ?.getMetadata<IDataMapperMetadata>(metadataId)
-          .then((meta) => {
-            if (meta?.targetBody) {
-              DataMapperValidationStepService.addValidationStep(vizNode, meta.targetBody, entitiesContext);
-            }
-            setIsValidationEnabled(DataMapperValidationStepService.isValidationEnabled(vizNode));
-          })
-          .finally(() => {
-            setIsValidationTogglePending(false);
-          });
-      } else {
-        DataMapperValidationStepService.removeValidationStep(vizNode, entitiesContext);
+    async (_event: FormEvent<HTMLInputElement>, checked: boolean) => {
+      if (!vizNode || !entitiesContext || !metadata) return;
+      setIsValidationTogglePending(true);
+      try {
+        await setOutputValidation(metadata, vizNode, checked, entitiesContext);
+      } catch (err) {
+        console.warn('[DataMapperLauncher] Failed to toggle output validation:', err);
+      } finally {
         setIsValidationEnabled(DataMapperValidationStepService.isValidationEnabled(vizNode));
+        setIsValidationTogglePending(false);
       }
     },
     [vizNode, entitiesContext, metadata],

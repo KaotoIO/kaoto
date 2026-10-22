@@ -27,6 +27,7 @@ export const onDeleteDataMapper = async (
   modalAnswer: string | undefined,
 ) => {
   const metadataId = DataMapperStepService.getDataMapperMetadataId(vizNode);
+  // The generated validation wrapper is removed by `deleteMetadata`, whichever answer the user gave.
   if (modalAnswer === ACTION_ID_DELETE_STEP_AND_FILE) {
     await DataMapperMetadataService.deleteXsltFile(api, metadataId);
   }

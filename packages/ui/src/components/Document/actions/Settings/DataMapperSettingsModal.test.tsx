@@ -5,6 +5,7 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 import { DocumentDefinitionType, DocumentInitializationModel, DocumentType } from '../../../../models/datamapper';
 import { DataMapperProvider } from '../../../../providers/datamapper.provider';
 import { DataMapperStepService } from '../../../../services/datamapper-step.service';
+import { getShipOrderJsonSchema, getShipOrderXsd } from '../../../../stubs/datamapper/data-mapper';
 import { DataMapperSettingsModal } from './DataMapperSettingsModal';
 
 describe('DataMapperSettingsModal', () => {
@@ -27,6 +28,16 @@ describe('DataMapperSettingsModal', () => {
           }
         : undefined;
 
+    const getDefinitionFiles = (): Record<string, string> => {
+      if (targetDocType === DocumentDefinitionType.XML_SCHEMA) {
+        return { 'ShipOrder.xsd': getShipOrderXsd() };
+      }
+      if (targetDocType === DocumentDefinitionType.JSON_SCHEMA) {
+        return { 'schema.json': getShipOrderJsonSchema() };
+      }
+      return {};
+    };
+
     return ({ children }) => (
       <DataMapperProvider
         documentInitializationModel={
@@ -41,6 +52,7 @@ describe('DataMapperSettingsModal', () => {
               documentType: DocumentType.TARGET_BODY,
               definitionType: targetDocType,
               name: 'target',
+              definitionFiles: getDefinitionFiles(),
             },
           )
         }
@@ -231,7 +243,7 @@ describe('DataMapperSettingsModal', () => {
     });
   });
 
-  // Output validation UI: skipped until feature is complete
+  // Output validation UI: disabled
   describe.skip('Output Validation', () => {
     it('should show Validate output checkbox when target is XML', async () => {
       const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA);

@@ -243,9 +243,10 @@ describe('onPasteDataMapper', () => {
     };
 
     mockApi.getMetadata.mockResolvedValueOnce(originalMetadata1).mockResolvedValueOnce(originalMetadata2);
-    mockApi.getResourceContent
-      .mockResolvedValueOnce('<xsl:stylesheet>1</xsl:stylesheet>')
-      .mockResolvedValueOnce('<xsl:stylesheet>2</xsl:stylesheet>');
+    const xsltContents: Record<string, string> = {};
+    xsltContents[originalMetadata1.xsltPath] = '<xsl:stylesheet>1</xsl:stylesheet>';
+    xsltContents[originalMetadata2.xsltPath] = '<xsl:stylesheet>2</xsl:stylesheet>';
+    mockApi.getResourceContent.mockImplementation((path: string) => Promise.resolve(xsltContents[path]));
 
     const originalContent: IClipboardContent = {
       name: 'choice',

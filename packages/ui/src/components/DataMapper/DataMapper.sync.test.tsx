@@ -26,7 +26,7 @@ import { EMPTY_XSL } from '../../services/mapping/mapping-serializer.service';
 import { getCartXsd, getShipOrderJsonSchema, getShipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { DataMapper } from './DataMapper';
 
-// Output validation auto-sync: skipped until feature is complete
+// Output validation auto-sync: disabled
 describe.skip('DataMapper sync — onUpdateDocument validation step synchronization', () => {
   const mockEntitiesContext = {
     updateSourceCodeFromEntities: vi.fn(),
@@ -167,6 +167,7 @@ describe.skip('DataMapper sync — onUpdateDocument validation step synchronizat
         vizNodeWithValidator,
         expect.objectContaining({ type: DocumentDefinitionType.XML_SCHEMA, filePath: ['NewOrder.xsd'] }),
         mockEntitiesContext,
+        'NewOrder.xsd',
       );
     });
     expect(addSpy).not.toHaveBeenCalled();
@@ -192,6 +193,7 @@ describe.skip('DataMapper sync — onUpdateDocument validation step synchronizat
         vizNodeWithoutValidator,
         expect.objectContaining({ type: DocumentDefinitionType.XML_SCHEMA, filePath: ['ShipOrder.xsd'] }),
         mockEntitiesContext,
+        'ShipOrder.xsd',
       );
     });
     expect(updateSpy).not.toHaveBeenCalled();
@@ -214,6 +216,7 @@ describe.skip('DataMapper sync — onUpdateDocument validation step synchronizat
         vizNodeWithValidator,
         expect.objectContaining({ type: DocumentDefinitionType.JSON_SCHEMA, filePath: ['schema.json'] }),
         mockEntitiesContext,
+        'schema.json',
       );
     });
   });
@@ -278,11 +281,12 @@ describe.skip('DataMapper sync — onUpdateDocument validation step synchronizat
           filePath: expect.arrayContaining(['ShipOrder.xsd', 'CustomTypes.xsd']),
         }),
         mockEntitiesContext,
+        expect.any(String),
       );
     });
   });
 
-  it('7. isOutputValidationEnabled state refreshed after sync', async () => {
+  it('7. the validation state is read again after sync', async () => {
     const isValidationEnabledSpy = vi
       .spyOn(DataMapperValidationStepService, 'isValidationEnabled')
       .mockReturnValue(true);

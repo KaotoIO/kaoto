@@ -462,4 +462,92 @@ export class XmlSchemaAnalysisService {
 
     return result;
   }
+
+  /**
+   * Finds the entry points of the schema dependency graph: the files from which every other file
+   * is reachable through `xs:include` / `xs:import`, and which nobody else references.
+   *
+   * Files are grouped into strongly connected components first, so that an import or include cycle
+   * yields a single entry point (the member that comes first in `fileInfos` order) instead of none.
+   * A single entry point means the whole set is already one reachable graph.
+   *
+   * @param report - Analysis report produced by {@link XmlSchemaAnalysisService.analyze}
+   * @returns Entry point file paths, in `fileInfos` (input) order
+   */
+  static findEntryPoints(report: Pick<XmlSchemaAnalysisReport, 'fileInfos' | 'edges'>): string[] {
+    return XmlSchemaAnalysisService.computeEntryPoints(Array.from(report.fileInfos.keys()), report.edges);
+  }
+
+  private static computeEntryPoints(nodes: string[], edges: DependencyEdge[]): string[] {
+    const components = XmlSchemaAnalysisService.getStronglyConnectedComponents(nodes, edges);
+    const componentOf = new Map<string, number>();
+    components.forEach((component, index) => {
+      for (const node of component) componentOf.set(node, index);
+    });
+
+    const hasIncoming = new Set<number>();
+    for (const edge of edges) {
+      const from = componentOf.get(edge.from);
+      const to = componentOf.get(edge.to);
+      if (from !== undefined && to !== undefined && from !== to) {
+        hasIncoming.add(to);
+      }
+    }
+
+    const order = new Map(nodes.map((node, index) => [node, index]));
+    const byInputOrder = (a: string, b: string) => (order.get(a) ?? 0) - (order.get(b) ?? 0);
+
+    return components
+      .filter((_component, index) => !hasIncoming.has(index))
+      .map((component) => [...component].sort(byInputOrder)[0])
+      .sort(byInputOrder);
+  }
+
+  /** Tarjan's algorithm. Nodes that are not part of any cycle form singleton components. */
+  private static getStronglyConnectedComponents(nodes: string[], edges: DependencyEdge[]): string[][] {
+    const adj = new Map<string, string[]>(nodes.map((node) => [node, []]));
+    for (const edge of edges) {
+      if (adj.has(edge.from) && adj.has(edge.to)) {
+        adj.get(edge.from)!.push(edge.to);
+      }
+    }
+
+    const index = new Map<string, number>();
+    const lowlink = new Map<string, number>();
+    const onStack = new Set<string>();
+    const stack: string[] = [];
+    const components: string[][] = [];
+
+    const strongConnect = (node: string) => {
+      index.set(node, index.size);
+      lowlink.set(node, index.get(node)!);
+      stack.push(node);
+      onStack.add(node);
+
+      for (const next of adj.get(node)!) {
+        if (!index.has(next)) {
+          strongConnect(next);
+          lowlink.set(node, Math.min(lowlink.get(node)!, lowlink.get(next)!));
+        } else if (onStack.has(next)) {
+          lowlink.set(node, Math.min(lowlink.get(node)!, index.get(next)!));
+        }
+      }
+
+      if (lowlink.get(node) === index.get(node)) {
+        const component: string[] = [];
+        let member: string;
+        do {
+          member = stack.pop()!;
+          onStack.delete(member);
+          component.push(member);
+        } while (member !== node);
+        components.push(component);
+      }
+    };
+
+    for (const node of nodes) {
+      if (!index.has(node)) strongConnect(node);
+    }
+    return components;
+  }
 }

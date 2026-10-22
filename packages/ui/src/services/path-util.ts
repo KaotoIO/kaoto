@@ -32,4 +32,23 @@ export class PathUtil {
   static isAbsolutePath(path: string): boolean {
     return path.startsWith('/');
   }
+
+  /**
+   * Computes the path of `toFile` relative to the directory containing `fromFile`.
+   * Both inputs are normalized with {@link PathUtil.normalizePath}; `/` is the only supported separator.
+   *
+   * @example PathUtil.relativePath('a/b/wrapper.xsd', 'a/c/root.xsd') // '../c/root.xsd'
+   */
+  static relativePath(fromFile: string, toFile: string): string {
+    const fromDirParts = PathUtil.normalizePath(fromFile).split('/').slice(0, -1);
+    const toParts = PathUtil.normalizePath(toFile).split('/');
+
+    let common = 0;
+    while (common < fromDirParts.length && common < toParts.length - 1 && fromDirParts[common] === toParts[common]) {
+      common++;
+    }
+
+    const ups = new Array<string>(fromDirParts.length - common).fill('..');
+    return [...ups, ...toParts.slice(common)].join('/');
+  }
 }
