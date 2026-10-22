@@ -33,6 +33,7 @@ describe('DataMapperMetadataService', () => {
       getSuggestions: vi.fn(),
       shouldSaveSchema: false,
       onStepUpdated: vi.fn(),
+      getTestReport: vi.fn().mockResolvedValue(undefined),
     } as Mocked<IMetadataApi>;
     // A resource exists when it has content, unless a test sets its own `isResourceExist`.
     mockApi.isResourceExist.mockImplementation(async (path: string) => {
