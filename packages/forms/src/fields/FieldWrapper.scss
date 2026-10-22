@@ -9,7 +9,17 @@
     display: flex;
     align-items: center;
     gap: 0.25rem;
-    margin: 0.5rem;
+    margin-block: 0.5rem;
+    margin-inline: 0;
+  }
+
+  // Long unbroken tokens (e.g. property names, URLs) must wrap instead of being clipped
+  &__toggletip-content {
+    overflow-wrap: anywhere;
+
+    .cds--toggletip-content {
+      overflow-wrap: anywhere;
+    }
   }
 
   &__error-container {

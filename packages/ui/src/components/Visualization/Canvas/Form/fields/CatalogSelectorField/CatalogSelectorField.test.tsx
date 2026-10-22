@@ -1,6 +1,6 @@
 import { CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
 import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 
 import { KaotoSchemaDefinition } from '../../../../../../models';
 import { RuntimeContext } from '../../../../../../providers/runtime.provider';
@@ -68,6 +68,14 @@ describe('CatalogSelectorField', () => {
     );
   };
 
+  const openDropdown = (propName: string) => {
+    fireEvent.click(within(screen.getByTestId(`${propName}-catalog-selector-toggle`)).getByRole('combobox'));
+  };
+
+  /** Group titles are rendered as disabled options so they are visible but not selectable. */
+  const getGroupTitle = (name: string) =>
+    screen.queryAllByRole('option').find((option) => option.textContent.trim() === name) ?? null;
+
   describe('RuntimeCatalogNameField', () => {
     describe('Rendering', () => {
       it('should render loading state when catalog library is not available', () => {
@@ -84,9 +92,7 @@ describe('CatalogSelectorField', () => {
       it('should render with default catalog value', () => {
         renderWithProviders(<RuntimeCatalogNameField propName="runtimeCatalogName" />);
 
-        const select = screen.getByTestId('runtimeCatalogName-catalog-selector-toggle');
-        expect(select).toBeInTheDocument();
-        expect((select as HTMLSelectElement).value).toBe('Camel Main 4.14.5');
+        expect(screen.getByTestId('runtimeCatalogName-catalog-selector-toggle')).toHaveTextContent('Camel Main 4.14.5');
       });
 
       it('should render with stored value from model', () => {
@@ -95,7 +101,7 @@ describe('CatalogSelectorField', () => {
         });
 
         const select = screen.getByTestId('runtimeCatalogName-catalog-selector-toggle');
-        expect((select as HTMLSelectElement).value).toBe('Camel Quarkus 3.8.0');
+        expect(select).toHaveTextContent('Camel Quarkus 3.8.0');
       });
 
       it('should render schema title and description', () => {
@@ -106,21 +112,24 @@ describe('CatalogSelectorField', () => {
 
       it('should filter to only show integration runtimes', () => {
         renderWithProviders(<RuntimeCatalogNameField propName="runtimeCatalogName" />);
+        openDropdown('runtimeCatalogName');
 
-        // Should show Main, Quarkus, Spring Boot option groups
-        expect(screen.getByRole('group', { name: 'Main' })).toBeInTheDocument();
-        expect(screen.getByRole('group', { name: 'Quarkus' })).toBeInTheDocument();
-        expect(screen.getByRole('group', { name: 'Spring Boot' })).toBeInTheDocument();
+        // Should show Main, Quarkus, Spring Boot group titles, which are not selectable
+        ['Main', 'Quarkus', 'Spring Boot'].forEach((runtime) => {
+          expect(getGroupTitle(runtime)).toHaveAttribute('aria-disabled', 'true');
+        });
 
         // Should NOT show Citrus (testing runtime)
-        expect(screen.queryByRole('group', { name: 'Citrus' })).not.toBeInTheDocument();
+        expect(getGroupTitle('Citrus')).not.toBeInTheDocument();
       });
     });
 
     describe('Select Interactions', () => {
       it('should display all catalog options in the select', () => {
         renderWithProviders(<RuntimeCatalogNameField propName="runtimeCatalogName" />);
+        openDropdown('runtimeCatalogName');
 
+        expect(screen.getByRole('option', { name: 'Camel Main 4.14.5' })).toBeInTheDocument();
         expect(screen.getByRole('option', { name: 'Camel Quarkus 3.8.0' })).toBeInTheDocument();
         expect(screen.getByRole('option', { name: 'Camel Spring Boot 4.10.0' })).toBeInTheDocument();
       });
@@ -129,39 +138,20 @@ describe('CatalogSelectorField', () => {
         const onPropertyChange = vi.fn();
         renderWithProviders(<RuntimeCatalogNameField propName="runtimeCatalogName" />, {}, onPropertyChange);
 
-        const select = screen.getByTestId('runtimeCatalogName-catalog-selector-toggle');
-        fireEvent.change(select, { target: { value: 'Camel Quarkus 3.8.0' } });
+        openDropdown('runtimeCatalogName');
+        fireEvent.click(screen.getByRole('option', { name: 'Camel Quarkus 3.8.0' }));
 
         expect(onPropertyChange).toHaveBeenCalledWith('runtimeCatalogName', 'Camel Quarkus 3.8.0');
       });
 
-      it('should reflect the selected catalog value', () => {
-        renderWithProviders(<RuntimeCatalogNameField propName="runtimeCatalogName" />, {
-          runtimeCatalogName: 'Camel Quarkus 3.8.0',
-        });
+      it('should not select a catalog when clicking a runtime group title', () => {
+        const onPropertyChange = vi.fn();
+        renderWithProviders(<RuntimeCatalogNameField propName="runtimeCatalogName" />, {}, onPropertyChange);
 
-        const select = screen.getByTestId('runtimeCatalogName-catalog-selector-toggle');
-        expect((select as HTMLSelectElement).value).toBe('Camel Quarkus 3.8.0');
-      });
-    });
+        openDropdown('runtimeCatalogName');
+        fireEvent.click(getGroupTitle('Quarkus')!);
 
-    describe('Runtime Grouping', () => {
-      it('should group catalogs by runtime', () => {
-        renderWithProviders(<RuntimeCatalogNameField propName="runtimeCatalogName" />);
-
-        // Check that runtime option groups are present
-        expect(screen.getByRole('group', { name: 'Main' })).toBeInTheDocument();
-        expect(screen.getByRole('group', { name: 'Quarkus' })).toBeInTheDocument();
-        expect(screen.getByRole('group', { name: 'Spring Boot' })).toBeInTheDocument();
-      });
-
-      it('should display catalogs under their runtime group', () => {
-        renderWithProviders(<RuntimeCatalogNameField propName="runtimeCatalogName" />);
-
-        // Verify catalog items are present as options
-        expect(screen.getAllByRole('option', { name: 'Camel Main 4.14.5' }).length).toBeGreaterThan(0);
-        expect(screen.getByRole('option', { name: 'Camel Quarkus 3.8.0' })).toBeInTheDocument();
-        expect(screen.getByRole('option', { name: 'Camel Spring Boot 4.10.0' })).toBeInTheDocument();
+        expect(onPropertyChange).not.toHaveBeenCalled();
       });
     });
 
@@ -182,9 +172,11 @@ describe('CatalogSelectorField', () => {
           createRuntimeContext(emptyCatalogLibrary),
         );
 
-        // Select should have no option groups
-        expect(screen.queryByRole('group', { name: 'Main' })).not.toBeInTheDocument();
-        expect(screen.queryByRole('group', { name: 'Quarkus' })).not.toBeInTheDocument();
+        openDropdown('runtimeCatalogName');
+
+        // Dropdown should have no group titles
+        expect(getGroupTitle('Main')).not.toBeInTheDocument();
+        expect(getGroupTitle('Quarkus')).not.toBeInTheDocument();
       });
 
       it('should handle catalog library with no matching runtimes', () => {
@@ -210,16 +202,11 @@ describe('CatalogSelectorField', () => {
           createRuntimeContext(nonMatchingCatalogLibrary),
         );
 
+        openDropdown('runtimeCatalogName');
+
         // Should not show the non-matching runtime
-        expect(screen.queryByRole('group', { name: 'Main' })).not.toBeInTheDocument();
-      });
-
-      it('should not call onChange when no new value is selected', () => {
-        const onPropertyChange = vi.fn();
-        renderWithProviders(<RuntimeCatalogNameField propName="runtimeCatalogName" />, {}, onPropertyChange);
-
-        // No interaction — onChange should not be called
-        expect(onPropertyChange).not.toHaveBeenCalled();
+        expect(getGroupTitle('Other')).not.toBeInTheDocument();
+        expect(getGroupTitle('Main')).not.toBeInTheDocument();
       });
     });
   });
@@ -240,9 +227,7 @@ describe('CatalogSelectorField', () => {
       it('should render with default catalog value', () => {
         renderWithProviders(<TestingCatalogNameField propName="testingCatalogName" />);
 
-        const select = screen.getByTestId('testingCatalogName-catalog-selector-toggle');
-        expect(select).toBeInTheDocument();
-        expect((select as HTMLSelectElement).value).toBe('Citrus 4.10.1');
+        expect(screen.getByTestId('testingCatalogName-catalog-selector-toggle')).toHaveTextContent('Citrus 4.10.1');
       });
 
       it('should render with stored value from model', () => {
@@ -251,53 +236,56 @@ describe('CatalogSelectorField', () => {
         });
 
         const select = screen.getByTestId('testingCatalogName-catalog-selector-toggle');
-        expect((select as HTMLSelectElement).value).toBe('Citrus 4.10.1');
+        expect(select).toHaveTextContent('Citrus 4.10.1');
       });
 
       it('should filter to only show testing runtimes', () => {
         renderWithProviders(<TestingCatalogNameField propName="testingCatalogName" />);
+        openDropdown('testingCatalogName');
 
-        // Should show Citrus option group
-        expect(screen.getByRole('group', { name: 'Citrus' })).toBeInTheDocument();
+        // Should show the Citrus group title, which is not selectable
+        expect(getGroupTitle('Citrus')).toHaveAttribute('aria-disabled', 'true');
 
         // Should NOT show integration runtimes
-        expect(screen.queryByRole('group', { name: 'Main' })).not.toBeInTheDocument();
-        expect(screen.queryByRole('group', { name: 'Quarkus' })).not.toBeInTheDocument();
-        expect(screen.queryByRole('group', { name: 'Spring Boot' })).not.toBeInTheDocument();
+        expect(getGroupTitle('Main')).not.toBeInTheDocument();
+        expect(getGroupTitle('Quarkus')).not.toBeInTheDocument();
+        expect(getGroupTitle('Spring Boot')).not.toBeInTheDocument();
       });
     });
 
     describe('Select Interactions', () => {
       it('should display all catalog options in the select', () => {
         renderWithProviders(<TestingCatalogNameField propName="testingCatalogName" />);
+        openDropdown('testingCatalogName');
 
-        expect(screen.getAllByRole('option', { name: 'Citrus 4.10.1' }).length).toBeGreaterThan(0);
+        expect(screen.getByRole('option', { name: 'Citrus 4.10.1' })).toBeInTheDocument();
       });
 
       it('should select catalog when changing value', () => {
         const onPropertyChange = vi.fn();
-        renderWithProviders(<TestingCatalogNameField propName="testingCatalogName" />, {}, onPropertyChange);
+        const twoCitrusLibrary = {
+          ...mockCatalogLibrary,
+          definitions: [
+            ...mockCatalogLibrary.definitions,
+            {
+              name: 'Citrus 4.9.0',
+              version: '4.9.0',
+              runtime: 'Citrus',
+              catalogs: {},
+            } as unknown as CatalogLibraryEntry,
+          ],
+        };
+        renderWithProviders(
+          <TestingCatalogNameField propName="testingCatalogName" />,
+          {},
+          onPropertyChange,
+          createRuntimeContext(twoCitrusLibrary),
+        );
 
-        const select = screen.getByTestId('testingCatalogName-catalog-selector-toggle');
-        fireEvent.change(select, { target: { value: 'Citrus 4.10.1' } });
+        openDropdown('testingCatalogName');
+        fireEvent.click(screen.getByRole('option', { name: 'Citrus 4.9.0' }));
 
-        expect(onPropertyChange).toHaveBeenCalledWith('testingCatalogName', 'Citrus 4.10.1');
-      });
-    });
-
-    describe('Runtime Grouping', () => {
-      it('should group catalogs by runtime', () => {
-        renderWithProviders(<TestingCatalogNameField propName="testingCatalogName" />);
-
-        // Check that Citrus runtime option group is present
-        expect(screen.getByRole('group', { name: 'Citrus' })).toBeInTheDocument();
-      });
-
-      it('should display catalogs under their runtime group', () => {
-        renderWithProviders(<TestingCatalogNameField propName="testingCatalogName" />);
-
-        // Verify catalog item is present as option
-        expect(screen.getAllByRole('option', { name: 'Citrus 4.10.1' }).length).toBeGreaterThan(0);
+        expect(onPropertyChange).toHaveBeenCalledWith('testingCatalogName', 'Citrus 4.9.0');
       });
     });
 
@@ -318,8 +306,10 @@ describe('CatalogSelectorField', () => {
           createRuntimeContext(emptyCatalogLibrary),
         );
 
-        // Select should have no option groups
-        expect(screen.queryByRole('group', { name: 'Citrus' })).not.toBeInTheDocument();
+        openDropdown('testingCatalogName');
+
+        // Dropdown should have no group titles
+        expect(getGroupTitle('Citrus')).not.toBeInTheDocument();
       });
 
       it('should handle catalog library with no matching runtimes', () => {
@@ -345,8 +335,10 @@ describe('CatalogSelectorField', () => {
           createRuntimeContext(nonMatchingCatalogLibrary),
         );
 
+        openDropdown('testingCatalogName');
+
         // Should not show the non-matching runtime
-        expect(screen.queryByRole('group', { name: 'Main' })).not.toBeInTheDocument();
+        expect(getGroupTitle('Main')).not.toBeInTheDocument();
       });
     });
   });
@@ -387,8 +379,11 @@ describe('CatalogSelectorField', () => {
         createRuntimeContext(multiCatalogLibrary),
       );
 
+      openDropdown('runtimeCatalogName');
+
       // All three versions should be displayed under Main runtime group
-      expect(screen.getAllByRole('option', { name: 'Camel Main 4.14.5' }).length).toBeGreaterThan(0);
+      expect(getGroupTitle('Main')).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'Camel Main 4.14.5' })).toBeInTheDocument();
       expect(screen.getByRole('option', { name: 'Camel Main 4.13.0' })).toBeInTheDocument();
       expect(screen.getByRole('option', { name: 'Camel Main 4.12.0' })).toBeInTheDocument();
     });

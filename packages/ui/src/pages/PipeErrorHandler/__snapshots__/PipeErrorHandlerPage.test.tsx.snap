@@ -222,7 +222,7 @@ exports[`PipeErrorHandlerPage > renders the KaotoForm when the resource type is 
               </div>
               <div>
                 <div
-                  class="cds--css-grid"
+                  class="key-value-grid cds--css-grid"
                 >
                   <div
                     class="cds--sm:col-span-2 cds--md:col-span-3 cds--lg:col-span-7 cds--css-grid-column"

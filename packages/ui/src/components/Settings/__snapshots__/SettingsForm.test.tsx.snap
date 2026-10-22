@@ -266,165 +266,79 @@ exports[`SettingsForm > should render 1`] = `
         </p>
       </div>
       <div
-        class="cds--form-item"
+        class="cds--dropdown__wrapper cds--list-box__wrapper"
+        data-testid="#.runtimeCatalogName-catalog-selector-toggle"
       >
         <div
-          class="cds--select"
+          class="cds--dropdown cds--list-box"
+          id="#.runtimeCatalogName-catalog-selector"
         >
-          <label
-            class="cds--label cds--visually-hidden"
-            dir="auto"
-            for="#.runtimeCatalogName-catalog-selector"
-          />
-          <div
-            class="cds--select-input__wrapper"
+          <button
+            aria-activedescendant=""
+            aria-controls="downshift-_r_ID_-menu"
+            aria-expanded="false"
+            aria-haspopup="listbox"
+            aria-labelledby="downshift-_r_ID_-label"
+            class="cds--list-box__field"
+            id="downshift-_r_ID_-toggle-button"
+            role="combobox"
+            tabindex="0"
+            title="Camel Main 4.18.3.redhat-00005"
+            type="button"
           >
-            <select
-              class="cds--select-input"
-              data-testid="#.runtimeCatalogName-catalog-selector-toggle"
-              id="#.runtimeCatalogName-catalog-selector"
-              title=""
+            <span
+              class="cds--list-box__label"
             >
-              <optgroup
-                class="cds--select-optgroup"
-                label="Main"
+              <span
+                class="catalog-selector-selected"
               >
-                <option
-                  class="cds--select-option"
-                  value="Camel Main 4.22.1"
+                <span
+                  class="pf-v6-c-icon runtime-icon"
                 >
-                  Camel Main 4.22.1
-                </option>
-                <option
-                  class="cds--select-option"
-                  value="Camel Main 4.18.4"
-                >
-                  Camel Main 4.18.4
-                </option>
-                <option
-                  class="cds--select-option"
-                  value="Camel Main 4.14.9"
-                >
-                  Camel Main 4.14.9
-                </option>
-                <option
-                  class="cds--select-option"
-                  value="Camel Main 4.10.7"
-                >
-                  Camel Main 4.10.7
-                </option>
-                <option
-                  class="cds--select-option"
-                  value="Camel Main 4.18.3.redhat-00005"
-                >
+                  <span
+                    class="pf-v6-c-icon__content"
+                  >
+                    <img
+                      alt="Red Hat logo"
+                      src="data:image/svg+xml,%3csvg%20id='Layer_1'%20data-name='Layer%201'%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20192%20145'%20height='145'%20width='192'%3e%3e%3cdefs%3e%3cstyle%3e.cls-1{fill:%23e00;}%3c/style%3e%3c/defs%3e%3ctitle%3eThe%20hat%3c/title%3e%3cmetadata%3e%3c?xpacket%20begin='%20'%20id='W5M0MpCehiHzreSzNTczkc9d'?%3e%3cx:xmpmeta%20xmlns:x='adobe:ns:meta/'%20x:xmptk='Adobe%20XMP%20Core%208.0-c001%201.000000,%200000/00/00-00:00:00%20'%3e%3crdf:RDF%20xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23'%3e%3crdf:Description%20rdf:about=''%20xmlns:xmp='http://ns.adobe.com/xap/1.0/'%20xmlns:dc='http://purl.org/dc/elements/1.1/'%20xmlns:xmpRights='http://ns.adobe.com/xap/1.0/rights/'%3e%3cxmp:rhcc-effective-on%3e2023-12-08T20:43:03.460Z%3c/xmp:rhcc-effective-on%3e%3cxmp:brand-content-subtype%3eRed%20Hat%3c/xmp:brand-content-subtype%3e%3cxmp:rhcc-rights-restricted%3eno%3c/xmp:rhcc-rights-restricted%3e%3cxmp:rhcc-metadata-complete-moderator%3epending%3c/xmp:rhcc-metadata-complete-moderator%3e%3cxmp:rhcc-translation-id%3eTRA022cc40f-37b3-4d53-bf2b-e3126cad8ffc%3c/xmp:rhcc-translation-id%3e%3cxmp:brand-content-type%3eLogo%3c/xmp:brand-content-type%3e%3cxmp:CreateDate%3e2023-12-08T20:43:03.460Z%3c/xmp:CreateDate%3e%3cxmp:brand-color-mode%3eRGB%3c/xmp:brand-color-mode%3e%3cxmp:rhcc-derivative-id%3eDER022cc40f-37b3-4d53-bf2b-e3126cad8ffc%3c/xmp:rhcc-derivative-id%3e%3cxmp:rhcc-effective-on-set-on-upload%3etrue%3c/xmp:rhcc-effective-on-set-on-upload%3e%3cxmp:brand-logo-color%3eStandard%3c/xmp:brand-logo-color%3e%3cxmp:brand-logo-version%3eHat%20only%3c/xmp:brand-logo-version%3e%3cxmp:rhcc-metadata-complete-uploader%3epending%3c/xmp:rhcc-metadata-complete-uploader%3e%3cxmp:rhcc-file-last-modified%3e2024-05-28T20:46:42.467Z%3c/xmp:rhcc-file-last-modified%3e%3cxmp:rhcc-audience%3erhcc-audience:internal%3c/xmp:rhcc-audience%3e%3cxmp:rhcc-notify-portal-subscribers-on-change%3eyes%3c/xmp:rhcc-notify-portal-subscribers-on-change%3e%3cdc:format%3eimage/svg+xml%3c/dc:format%3e%3cdc:modified%3e2024-05-29T00:37:14.455Z%3c/dc:modified%3e%3cdc:title%3e%3crdf:Alt%3e%3crdf:li%20xml:lang='x-default'%3eThe%20hat%3c/rdf:li%3e%3c/rdf:Alt%3e%3c/dc:title%3e%3cxmpRights:UsageTerms%3e%3crdf:Alt%3e%3crdf:li%20xml:lang='x-default'%3eHow%20we%20use%20the%20hat%20depends%20on%20what%20it%20represents%20in%20the%20design.%20When%20we%20use%20the%20hat%20to%20represent%20Red%20Hat%20in%20lieu%20of%20the%20full%20logo,%20the%20hat%20should%20always%20appear%20in%20red.&%23xD;&%23xA;&%23xD;&%23xA;When%20we%20use%20the%20hat%20as%20a%20decorative%20element,%20the%20full%20Red%20Hat%20logo%20should%20always%20be%20nearby.%3c/rdf:li%3e%3c/rdf:Alt%3e%3c/xmpRights:UsageTerms%3e%3c/rdf:Description%3e%3c/rdf:RDF%3e%3c/x:xmpmeta%3e%3c?xpacket%20end='w'?%3e%3c/metadata%3e%3cpath%20d='M157.77,62.61a14,14,0,0,1,.31,3.42c0,14.88-18.1,17.46-30.61,17.46C78.83,83.49,42.53,53.26,42.53,44a6.43,6.43,0,0,1,.22-1.94l-3.66,9.06a18.45,18.45,0,0,0-1.51,7.33c0,18.11,41,45.48,87.74,45.48,20.69,0,36.43-7.76,36.43-21.77,0-1.08,0-1.94-1.73-10.13Z'/%3e%3cpath%20class='cls-1'%20d='M127.47,83.49c12.51,0,30.61-2.58,30.61-17.46a14,14,0,0,0-.31-3.42l-7.45-32.36c-1.72-7.12-3.23-10.35-15.73-16.6C124.89,8.69,103.76.5,97.51.5,91.69.5,90,8,83.06,8c-6.68,0-11.64-5.6-17.89-5.6-6,0-9.91,4.09-12.93,12.5,0,0-8.41,23.72-9.49,27.16A6.43,6.43,0,0,0,42.53,44c0,9.22,36.3,39.45,84.94,39.45M160,72.07c1.73,8.19,1.73,9.05,1.73,10.13,0,14-15.74,21.77-36.43,21.77C78.54,104,37.58,76.6,37.58,58.49a18.45,18.45,0,0,1,1.51-7.33C22.27,52,.5,55,.5,74.22c0,31.48,74.59,70.28,133.65,70.28,45.28,0,56.7-20.48,56.7-36.65,0-12.72-11-27.16-30.83-35.78'/%3e%3c/svg%3e"
+                    />
+                  </span>
+                </span>
+                <span>
                   Camel Main 4.18.3.redhat-00005
-                </option>
-                <option
-                  class="cds--select-option"
-                  value="Camel Main 4.10.7.redhat-00009"
-                >
-                  Camel Main 4.10.7.redhat-00009
-                </option>
-              </optgroup>
-              <optgroup
-                class="cds--select-optgroup"
-                label="Quarkus"
-              >
-                <option
-                  class="cds--select-option"
-                  value="Camel Quarkus 3.36.0"
-                >
-                  Camel Quarkus 3.36.0
-                </option>
-                <option
-                  class="cds--select-option"
-                  value="Camel Quarkus 3.33.1"
-                >
-                  Camel Quarkus 3.33.1
-                </option>
-                <option
-                  class="cds--select-option"
-                  value="Camel Quarkus 3.27.4"
-                >
-                  Camel Quarkus 3.27.4
-                </option>
-                <option
-                  class="cds--select-option"
-                  value="Camel Quarkus 3.20.4"
-                >
-                  Camel Quarkus 3.20.4
-                </option>
-                <option
-                  class="cds--select-option"
-                  value="Camel Quarkus 3.33.0.redhat-00010"
-                >
-                  Camel Quarkus 3.33.0.redhat-00010
-                </option>
-                <option
-                  class="cds--select-option"
-                  value="Camel Quarkus 3.20.0.redhat-00011"
-                >
-                  Camel Quarkus 3.20.0.redhat-00011
-                </option>
-              </optgroup>
-              <optgroup
-                class="cds--select-optgroup"
-                label="Spring Boot"
-              >
-                <option
-                  class="cds--select-option"
-                  value="Camel Spring Boot 4.22.1"
-                >
-                  Camel Spring Boot 4.22.1
-                </option>
-                <option
-                  class="cds--select-option"
-                  value="Camel Spring Boot 4.18.4"
-                >
-                  Camel Spring Boot 4.18.4
-                </option>
-                <option
-                  class="cds--select-option"
-                  value="Camel Spring Boot 4.14.9"
-                >
-                  Camel Spring Boot 4.14.9
-                </option>
-                <option
-                  class="cds--select-option"
-                  value="Camel Spring Boot 4.10.9"
-                >
-                  Camel Spring Boot 4.10.9
-                </option>
-                <option
-                  class="cds--select-option"
-                  value="Camel Spring Boot 4.18.3.redhat-00006"
-                >
-                  Camel Spring Boot 4.18.3.redhat-00006
-                </option>
-                <option
-                  class="cds--select-option"
-                  value="Camel Spring Boot 4.10.7.redhat-00013"
-                >
-                  Camel Spring Boot 4.10.7.redhat-00013
-                </option>
-              </optgroup>
-            </select>
-            <svg
-              aria-hidden="true"
-              class="cds--select__arrow"
-              fill="currentColor"
-              focusable="false"
-              height="16"
-              preserveAspectRatio="xMidYMid meet"
-              viewBox="0 0 16 16"
-              width="16"
-              xmlns="http://www.w3.org/2000/svg"
+                </span>
+              </span>
+            </span>
+            <div
+              class="cds--list-box__menu-icon"
             >
-              <path
-                d="M8 11 3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"
-              />
-            </svg>
-          </div>
+              <svg
+                aria-label="Open menu"
+                fill="currentColor"
+                focusable="false"
+                height="16"
+                name="chevron--down"
+                preserveAspectRatio="xMidYMid meet"
+                role="img"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 11 3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"
+                />
+                <title>
+                  Open menu
+                </title>
+              </svg>
+            </div>
+          </button>
+          <ul
+            aria-labelledby="downshift-_r_ID_-label"
+            class="cds--list-box__menu"
+            id="downshift-_r_ID_-menu"
+            role="listbox"
+          />
         </div>
       </div>
     </div>
@@ -478,59 +392,79 @@ exports[`SettingsForm > should render 1`] = `
         </p>
       </div>
       <div
-        class="cds--form-item"
+        class="cds--dropdown__wrapper cds--list-box__wrapper"
+        data-testid="#.testingCatalogName-catalog-selector-toggle"
       >
         <div
-          class="cds--select"
+          class="cds--dropdown cds--list-box"
+          id="#.testingCatalogName-catalog-selector"
         >
-          <label
-            class="cds--label cds--visually-hidden"
-            dir="auto"
-            for="#.testingCatalogName-catalog-selector"
-          />
-          <div
-            class="cds--select-input__wrapper"
+          <button
+            aria-activedescendant=""
+            aria-controls="downshift-_r_ID_-menu"
+            aria-expanded="false"
+            aria-haspopup="listbox"
+            aria-labelledby="downshift-_r_ID_-label"
+            class="cds--list-box__field"
+            id="downshift-_r_ID_-toggle-button"
+            role="combobox"
+            tabindex="0"
+            title="Citrus 5.0.0"
+            type="button"
           >
-            <select
-              class="cds--select-input"
-              data-testid="#.testingCatalogName-catalog-selector-toggle"
-              id="#.testingCatalogName-catalog-selector"
-              title=""
+            <span
+              class="cds--list-box__label"
             >
-              <optgroup
-                class="cds--select-optgroup"
-                label="Citrus"
+              <span
+                class="catalog-selector-selected"
               >
-                <option
-                  class="cds--select-option"
-                  value="Citrus 4.10.3"
+                <span
+                  class="pf-v6-c-icon runtime-icon"
                 >
-                  Citrus 4.10.3
-                </option>
-                <option
-                  class="cds--select-option"
-                  value="Citrus 5.0.0"
-                >
+                  <span
+                    class="pf-v6-c-icon__content"
+                  >
+                    <img
+                      alt="Citrus logo"
+                      src="/src/assets/citrus-logo.png"
+                    />
+                  </span>
+                </span>
+                <span>
                   Citrus 5.0.0
-                </option>
-              </optgroup>
-            </select>
-            <svg
-              aria-hidden="true"
-              class="cds--select__arrow"
-              fill="currentColor"
-              focusable="false"
-              height="16"
-              preserveAspectRatio="xMidYMid meet"
-              viewBox="0 0 16 16"
-              width="16"
-              xmlns="http://www.w3.org/2000/svg"
+                </span>
+              </span>
+            </span>
+            <div
+              class="cds--list-box__menu-icon"
             >
-              <path
-                d="M8 11 3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"
-              />
-            </svg>
-          </div>
+              <svg
+                aria-label="Open menu"
+                fill="currentColor"
+                focusable="false"
+                height="16"
+                name="chevron--down"
+                preserveAspectRatio="xMidYMid meet"
+                role="img"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 11 3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"
+                />
+                <title>
+                  Open menu
+                </title>
+              </svg>
+            </div>
+          </button>
+          <ul
+            aria-labelledby="downshift-_r_ID_-label"
+            class="cds--list-box__menu"
+            id="downshift-_r_ID_-menu"
+            role="listbox"
+          />
         </div>
       </div>
     </div>
@@ -1512,7 +1446,7 @@ exports[`SettingsForm > should render 1`] = `
                 </div>
                 <div>
                   <button
-                    class="cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost cds--btn--disabled"
+                    class="cds--btn cds--btn--sm cds--layout--size-sm cds--btn--tertiary cds--btn--disabled"
                     disabled=""
                     type="button"
                   >

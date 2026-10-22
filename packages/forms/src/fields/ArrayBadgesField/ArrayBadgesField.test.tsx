@@ -4,6 +4,7 @@ import { ModelContextProvider, SchemaProvider } from '../../providers';
 import { ArrayBadgesField } from './ArrayBadgesField';
 
 describe('ArrayBadgesField', () => {
+  const PROP_NAME = 'testArray';
   const mockSchema = {
     title: 'Test Array Field',
     description: 'Test description for array field',
@@ -11,32 +12,37 @@ describe('ArrayBadgesField', () => {
     items: { type: 'string' as const },
   };
 
-  const ROOT_PATH = '.';
+  const renderField = (model: Record<string, unknown> = {}, onPropertyChange = vi.fn()) =>
+    render(
+      <ModelContextProvider model={model} onPropertyChange={onPropertyChange}>
+        <SchemaProvider schema={mockSchema}>
+          <ArrayBadgesField propName={PROP_NAME} />
+        </SchemaProvider>
+      </ModelContextProvider>,
+    );
+
+  const getInput = () => screen.getByPlaceholderText<HTMLInputElement>('Add new item');
+  const getAddButton = () => screen.getByRole('button', { name: 'Add' });
+  const getClearAllButton = () => screen.getByRole('button', { name: 'Clear all' });
 
   describe('Rendering', () => {
     it('should render empty field with no items message', () => {
-      render(
-        <ModelContextProvider model={{}} onPropertyChange={vi.fn()}>
-          <SchemaProvider schema={mockSchema}>
-            <ArrayBadgesField propName={ROOT_PATH} />
-          </SchemaProvider>
-        </ModelContextProvider>,
-      );
+      renderField();
 
       expect(screen.getByText('No items added.')).toBeInTheDocument();
-      expect(screen.getByPlaceholderText('Add new item')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Clear all' })).toBeInTheDocument();
+      expect(getInput()).toBeInTheDocument();
+      expect(getAddButton()).toBeInTheDocument();
+      expect(getClearAllButton()).toBeInTheDocument();
+    });
+
+    it.each([undefined, null])('should render the empty state when the value is %s', (value) => {
+      renderField({ [PROP_NAME]: value });
+
+      expect(screen.getByText('No items added.')).toBeInTheDocument();
     });
 
     it('should render with existing items', () => {
-      render(
-        <ModelContextProvider model={{ testArray: ['item1', 'item2', 'item3'] }} onPropertyChange={vi.fn()}>
-          <SchemaProvider schema={mockSchema}>
-            <ArrayBadgesField propName="testArray" />
-          </SchemaProvider>
-        </ModelContextProvider>,
-      );
+      renderField({ [PROP_NAME]: ['item1', 'item2', 'item3'] });
 
       expect(screen.getByText('item1')).toBeInTheDocument();
       expect(screen.getByText('item2')).toBeInTheDocument();
@@ -44,190 +50,97 @@ describe('ArrayBadgesField', () => {
       expect(screen.queryByText('No items added.')).not.toBeInTheDocument();
     });
 
-    it('should render with schema title and description', () => {
-      const { container } = render(
-        <ModelContextProvider model={{}} onPropertyChange={vi.fn()}>
-          <SchemaProvider schema={mockSchema}>
-            <ArrayBadgesField propName={ROOT_PATH} />
-          </SchemaProvider>
-        </ModelContextProvider>,
-      );
+    it('should render with schema title', () => {
+      const { container } = renderField();
 
       expect(container.querySelector('label')).toHaveTextContent('Test Array Field');
     });
 
     it('should display items in alphabetical order', () => {
-      render(
-        <ModelContextProvider model={{ testArray: ['zebra', 'apple', 'banana'] }} onPropertyChange={vi.fn()}>
-          <SchemaProvider schema={mockSchema}>
-            <ArrayBadgesField propName="testArray" />
-          </SchemaProvider>
-        </ModelContextProvider>,
-      );
+      renderField({ [PROP_NAME]: ['zebra', 'apple', 'banana'] });
 
-      // Items should be displayed in alphabetical order
+      const items = screen.getAllByText(/^(apple|banana|zebra)$/).map((item) => item.textContent);
 
-      expect(screen.getByText('apple')).toBeInTheDocument();
-
-      expect(screen.getByText('banana')).toBeInTheDocument();
-
-      expect(screen.getByText('zebra')).toBeInTheDocument();
+      expect(items).toEqual(['apple', 'banana', 'zebra']);
     });
   });
 
   describe('Add Functionality', () => {
     it('should add new item when clicking Add button', () => {
       const onPropertyChange = vi.fn();
-      render(
-        <ModelContextProvider model={{}} onPropertyChange={onPropertyChange}>
-          <SchemaProvider schema={mockSchema}>
-            <ArrayBadgesField propName={ROOT_PATH} />
-          </SchemaProvider>
-        </ModelContextProvider>,
-      );
+      renderField({}, onPropertyChange);
 
-      const input = screen.getByPlaceholderText('Add new item');
-      const addButton = screen.getByRole('button', { name: 'Add' });
+      fireEvent.change(getInput(), { target: { value: 'newItem' } });
+      fireEvent.click(getAddButton());
 
-      fireEvent.change(input, { target: { value: 'newItem' } });
-      fireEvent.click(addButton);
-
-      expect(onPropertyChange).toHaveBeenCalledWith(ROOT_PATH, ['newItem']);
+      expect(onPropertyChange).toHaveBeenCalledWith(PROP_NAME, ['newItem']);
     });
 
     it('should trim whitespace from input before adding', () => {
       const onPropertyChange = vi.fn();
-      render(
-        <ModelContextProvider model={{}} onPropertyChange={onPropertyChange}>
-          <SchemaProvider schema={mockSchema}>
-            <ArrayBadgesField propName={ROOT_PATH} />
-          </SchemaProvider>
-        </ModelContextProvider>,
-      );
+      renderField({}, onPropertyChange);
 
-      const input = screen.getByPlaceholderText('Add new item');
-      const addButton = screen.getByRole('button', { name: 'Add' });
+      fireEvent.change(getInput(), { target: { value: '  trimmed  ' } });
+      fireEvent.click(getAddButton());
 
-      fireEvent.change(input, { target: { value: '  trimmed  ' } });
-      fireEvent.click(addButton);
-
-      expect(onPropertyChange).toHaveBeenCalledWith(ROOT_PATH, ['trimmed']);
+      expect(onPropertyChange).toHaveBeenCalledWith(PROP_NAME, ['trimmed']);
     });
 
     it('should not add empty strings', () => {
       const onPropertyChange = vi.fn();
-      render(
-        <ModelContextProvider model={{}} onPropertyChange={onPropertyChange}>
-          <SchemaProvider schema={mockSchema}>
-            <ArrayBadgesField propName={ROOT_PATH} />
-          </SchemaProvider>
-        </ModelContextProvider>,
-      );
+      renderField({}, onPropertyChange);
 
-      const input = screen.getByPlaceholderText('Add new item');
-      const addButton = screen.getByRole('button', { name: 'Add' });
-
-      fireEvent.change(input, { target: { value: '   ' } });
-      fireEvent.click(addButton);
+      fireEvent.change(getInput(), { target: { value: '   ' } });
+      fireEvent.click(getAddButton());
 
       expect(onPropertyChange).not.toHaveBeenCalled();
     });
 
     it('should not add duplicate items', () => {
       const onPropertyChange = vi.fn();
-      render(
-        <ModelContextProvider model={{ testArray: ['existing'] }} onPropertyChange={onPropertyChange}>
-          <SchemaProvider schema={mockSchema}>
-            <ArrayBadgesField propName="testArray" />
-          </SchemaProvider>
-        </ModelContextProvider>,
-      );
+      renderField({ [PROP_NAME]: ['existing'] }, onPropertyChange);
 
-      const input = screen.getByPlaceholderText('Add new item');
-      const addButton = screen.getByRole('button', { name: 'Add' });
-
-      fireEvent.change(input, { target: { value: 'existing' } });
-      fireEvent.click(addButton);
+      fireEvent.change(getInput(), { target: { value: 'existing' } });
+      fireEvent.click(getAddButton());
 
       expect(onPropertyChange).not.toHaveBeenCalled();
     });
 
     it('should clear input after adding item', () => {
-      render(
-        <ModelContextProvider model={{}} onPropertyChange={vi.fn()}>
-          <SchemaProvider schema={mockSchema}>
-            <ArrayBadgesField propName={ROOT_PATH} />
-          </SchemaProvider>
-        </ModelContextProvider>,
-      );
-
-      const input = screen.getByPlaceholderText<HTMLInputElement>('Add new item');
-      const addButton = screen.getByRole('button', { name: 'Add' });
+      renderField();
+      const input = getInput();
 
       fireEvent.change(input, { target: { value: 'newItem' } });
-      fireEvent.click(addButton);
+      fireEvent.click(getAddButton());
 
       expect(input.value).toBe('');
     });
 
-    it('should disable Add button when input is empty', () => {
-      render(
-        <ModelContextProvider model={{}} onPropertyChange={vi.fn()}>
-          <SchemaProvider schema={mockSchema}>
-            <ArrayBadgesField propName={ROOT_PATH} />
-          </SchemaProvider>
-        </ModelContextProvider>,
-      );
+    it('should enable the Add button only when the input has a value', () => {
+      renderField();
 
-      const addButton = screen.getByRole('button', { name: 'Add' });
-      expect(addButton).toBeDisabled();
-    });
+      expect(getAddButton()).toBeDisabled();
 
-    it('should enable Add button when input has value', () => {
-      render(
-        <ModelContextProvider model={{}} onPropertyChange={vi.fn()}>
-          <SchemaProvider schema={mockSchema}>
-            <ArrayBadgesField propName={ROOT_PATH} />
-          </SchemaProvider>
-        </ModelContextProvider>,
-      );
+      fireEvent.change(getInput(), { target: { value: 'test' } });
 
-      const input = screen.getByPlaceholderText('Add new item');
-      const addButton = screen.getByRole('button', { name: 'Add' });
-
-      fireEvent.change(input, { target: { value: 'test' } });
-      expect(addButton).not.toBeDisabled();
+      expect(getAddButton()).not.toBeDisabled();
     });
 
     it('should add item when pressing Enter key', () => {
       const onPropertyChange = vi.fn();
-      render(
-        <ModelContextProvider model={{}} onPropertyChange={onPropertyChange}>
-          <SchemaProvider schema={mockSchema}>
-            <ArrayBadgesField propName={ROOT_PATH} />
-          </SchemaProvider>
-        </ModelContextProvider>,
-      );
-
-      const input = screen.getByPlaceholderText('Add new item');
+      renderField({}, onPropertyChange);
+      const input = getInput();
 
       fireEvent.change(input, { target: { value: 'enterItem' } });
       fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
 
-      expect(onPropertyChange).toHaveBeenCalledWith(ROOT_PATH, ['enterItem']);
+      expect(onPropertyChange).toHaveBeenCalledWith(PROP_NAME, ['enterItem']);
     });
 
     it('should not add item when pressing Enter with empty input', () => {
       const onPropertyChange = vi.fn();
-      render(
-        <ModelContextProvider model={{}} onPropertyChange={onPropertyChange}>
-          <SchemaProvider schema={mockSchema}>
-            <ArrayBadgesField propName={ROOT_PATH} />
-          </SchemaProvider>
-        </ModelContextProvider>,
-      );
-
-      const input = screen.getByPlaceholderText('Add new item');
+      renderField({}, onPropertyChange);
+      const input = getInput();
 
       fireEvent.change(input, { target: { value: '   ' } });
       fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
@@ -239,131 +152,34 @@ describe('ArrayBadgesField', () => {
   describe('Remove Functionality', () => {
     it('should remove specific item when clicking close button', () => {
       const onPropertyChange = vi.fn();
-
-      render(
-        <ModelContextProvider model={{ testArray: ['item1', 'item2', 'item3'] }} onPropertyChange={onPropertyChange}>
-          <SchemaProvider schema={mockSchema}>
-            <ArrayBadgesField propName="testArray" />
-          </SchemaProvider>
-        </ModelContextProvider>,
-      );
+      renderField({ [PROP_NAME]: ['item1', 'item2', 'item3'] }, onPropertyChange);
 
       const closeButtons = screen.getAllByRole('button', { name: /clear filter|close/i });
-
       fireEvent.click(closeButtons[1]); // Remove 'item2'
 
-      expect(onPropertyChange).toHaveBeenCalledWith('testArray', ['item1', 'item3']);
-    });
-
-    it('should update array correctly after removal', () => {
-      const onPropertyChange = vi.fn();
-
-      render(
-        <ModelContextProvider model={{ testArray: ['apple', 'banana', 'cherry'] }} onPropertyChange={onPropertyChange}>
-          <SchemaProvider schema={mockSchema}>
-            <ArrayBadgesField propName="testArray" />
-          </SchemaProvider>
-        </ModelContextProvider>,
-      );
-
-      // Get all close buttons and click the first one (apple, since items are sorted)
-
-      const closeButtons = screen.getAllByRole('button', { name: /clear filter|close/i });
-
-      fireEvent.click(closeButtons[0]);
-
-      expect(onPropertyChange).toHaveBeenCalledWith('testArray', ['banana', 'cherry']);
+      expect(onPropertyChange).toHaveBeenCalledWith(PROP_NAME, ['item1', 'item3']);
     });
   });
 
   describe('Clear All Functionality', () => {
     it('should clear all items when clicking Clear all', () => {
       const onPropertyChange = vi.fn();
+      renderField({ [PROP_NAME]: ['item1', 'item2', 'item3'] }, onPropertyChange);
 
-      render(
-        <ModelContextProvider model={{ testArray: ['item1', 'item2', 'item3'] }} onPropertyChange={onPropertyChange}>
-          <SchemaProvider schema={mockSchema}>
-            <ArrayBadgesField propName="testArray" />
-          </SchemaProvider>
-        </ModelContextProvider>,
-      );
+      fireEvent.click(getClearAllButton());
 
-      const clearAllButton = screen.getByRole('button', { name: 'Clear all' });
-
-      fireEvent.click(clearAllButton);
-
-      expect(onPropertyChange).toHaveBeenCalledWith('testArray', []);
+      expect(onPropertyChange).toHaveBeenCalledWith(PROP_NAME, []);
     });
 
-    it('should disable Clear all button when array is empty', () => {
-      render(
-        <ModelContextProvider model={{}} onPropertyChange={vi.fn()}>
-          <SchemaProvider schema={mockSchema}>
-            <ArrayBadgesField propName={ROOT_PATH} />
-          </SchemaProvider>
-        </ModelContextProvider>,
-      );
+    it('should enable the Clear all button only when the array has items', () => {
+      const { unmount } = renderField();
 
-      const clearAllButton = screen.getByRole('button', { name: 'Clear all' });
-      expect(clearAllButton).toBeDisabled();
-    });
+      expect(getClearAllButton()).toBeDisabled();
 
-    it('should enable Clear all button when array has items', () => {
-      render(
-        <ModelContextProvider model={{ testArray: ['item1'] }} onPropertyChange={vi.fn()}>
-          <SchemaProvider schema={mockSchema}>
-            <ArrayBadgesField propName="testArray" />
-          </SchemaProvider>
-        </ModelContextProvider>,
-      );
+      unmount();
+      renderField({ [PROP_NAME]: ['item1'] });
 
-      const clearAllButton = screen.getByRole('button', { name: 'Clear all' });
-      expect(clearAllButton).not.toBeDisabled();
-    });
-  });
-
-  describe('Edge Cases', () => {
-    it('should handle undefined value gracefully', () => {
-      render(
-        <ModelContextProvider model={{ testArray: undefined }} onPropertyChange={vi.fn()}>
-          <SchemaProvider schema={mockSchema}>
-            <ArrayBadgesField propName="testArray" />
-          </SchemaProvider>
-        </ModelContextProvider>,
-      );
-
-      expect(screen.getByText('No items added.')).toBeInTheDocument();
-    });
-
-    it('should handle null value gracefully', () => {
-      render(
-        <ModelContextProvider model={{ testArray: null }} onPropertyChange={vi.fn()}>
-          <SchemaProvider schema={mockSchema}>
-            <ArrayBadgesField propName="testArray" />
-          </SchemaProvider>
-        </ModelContextProvider>,
-      );
-
-      expect(screen.getByText('No items added.')).toBeInTheDocument();
-    });
-
-    it('should handle adding to undefined array', () => {
-      const onPropertyChange = vi.fn();
-      render(
-        <ModelContextProvider model={{}} onPropertyChange={onPropertyChange}>
-          <SchemaProvider schema={mockSchema}>
-            <ArrayBadgesField propName={ROOT_PATH} />
-          </SchemaProvider>
-        </ModelContextProvider>,
-      );
-
-      const input = screen.getByPlaceholderText('Add new item');
-      const addButton = screen.getByRole('button', { name: 'Add' });
-
-      fireEvent.change(input, { target: { value: 'first' } });
-      fireEvent.click(addButton);
-
-      expect(onPropertyChange).toHaveBeenCalledWith(ROOT_PATH, ['first']);
+      expect(getClearAllButton()).not.toBeDisabled();
     });
   });
 });

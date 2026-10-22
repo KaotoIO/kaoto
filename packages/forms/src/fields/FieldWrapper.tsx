@@ -49,7 +49,7 @@ export const FieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapperProps
           <ToggletipButton label={`More info for ${labelText} field`}>
             <Information />
           </ToggletipButton>
-          <ToggletipContent>
+          <ToggletipContent className="kaoto-field-wrapper__toggletip-content">
             <p>
               <strong>
                 {label} {`<${type}>`}
@@ -61,6 +61,7 @@ export const FieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapperProps
         </Toggletip>
         {onOpenSuggestions && (
           <IconButton
+            autoAlign
             kind="ghost"
             size="sm"
             label="Open suggestions (Ctrl+Space)"

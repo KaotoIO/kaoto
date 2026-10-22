@@ -324,63 +324,51 @@ describe('StringField', () => {
     expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, 'invalid-number');
   });
 
-  it('should update the displayed value when the model changes externally', () => {
-    const onPropertyChange = vi.fn();
-    const schema: JSONSchema4 = { title: 'Name', type: 'string' };
+  describe('external model updates', () => {
+    const renderWithModel = (schema: JSONSchema4, propName: string, model: unknown, onPropertyChange = vi.fn()) => {
+      const view = (currentModel: unknown) => (
+        <ModelContext.Provider value={{ model: currentModel, errors: {}, onPropertyChange }}>
+          <SchemaProvider schema={schema}>
+            <StringField propName={propName} />
+          </SchemaProvider>
+        </ModelContext.Provider>
+      );
+      const { rerender } = render(view(model));
+      return {
+        rerender: (newModel: unknown) => {
+          rerender(view(newModel));
+        },
+        onPropertyChange,
+      };
+    };
 
-    const { rerender } = render(
-      <ModelContext.Provider value={{ model: { name: 'initial' }, errors: {}, onPropertyChange }}>
-        <SchemaProvider schema={schema}>
-          <StringField propName="name" />
-        </SchemaProvider>
-      </ModelContext.Provider>,
-    );
+    it('should update the displayed value when the model changes externally', () => {
+      const { rerender, onPropertyChange } = renderWithModel({ title: 'Name', type: 'string' }, 'name', {
+        name: 'initial',
+      });
+      expect(screen.getByRole('textbox')).toHaveValue('initial');
 
-    expect(screen.getByRole('textbox')).toHaveValue('initial');
+      rerender({ name: 'updated' });
 
-    rerender(
-      <ModelContext.Provider value={{ model: { name: 'updated' }, errors: {}, onPropertyChange }}>
-        <SchemaProvider schema={schema}>
-          <StringField propName="name" />
-        </SchemaProvider>
-      </ModelContext.Provider>,
-    );
-
-    expect(screen.getByRole('textbox')).toHaveValue('updated');
-    expect(onPropertyChange).not.toHaveBeenCalled();
-  });
-
-  it('should preserve "2.0" draft when model echoes back 2', async () => {
-    const onPropertyChange = vi.fn();
-    const schema: JSONSchema4 = { title: 'Count', type: 'number' };
-
-    const { rerender } = render(
-      <ModelContext.Provider value={{ model: { count: undefined }, errors: {}, onPropertyChange }}>
-        <SchemaProvider schema={schema}>
-          <StringField propName="count" />
-        </SchemaProvider>
-      </ModelContext.Provider>,
-    );
-
-    // User types "2.0" — onChange emits Number("2.0") === 2
-    const input = screen.getByRole('textbox');
-    act(() => {
-      fireEvent.change(input, { target: { value: '2.0' } });
+      expect(screen.getByRole('textbox')).toHaveValue('updated');
+      expect(onPropertyChange).not.toHaveBeenCalled();
     });
-    // Draft "2.0" should remain in the input
-    expect(input).toHaveValue('2.0');
 
-    // Parent echoes back model: { count: 2 }
-    rerender(
-      <ModelContext.Provider value={{ model: { count: 2 }, errors: {}, onPropertyChange }}>
-        <SchemaProvider schema={schema}>
-          <StringField propName="count" />
-        </SchemaProvider>
-      </ModelContext.Provider>,
-    );
+    it('should preserve "2.0" draft when model echoes back 2', () => {
+      const { rerender } = renderWithModel({ title: 'Count', type: 'number' }, 'count', { count: undefined });
 
-    // The draft "2.0" should be preserved because 2 === lastEmittedValue
-    expect(input).toHaveValue('2.0');
+      // User types "2.0" — onChange emits Number("2.0") === 2
+      const input = screen.getByRole('textbox');
+      act(() => {
+        fireEvent.change(input, { target: { value: '2.0' } });
+      });
+      expect(input).toHaveValue('2.0');
+
+      // Parent echoes back model: { count: 2 }; the draft is preserved because 2 === lastEmittedValue
+      rerender({ count: 2 });
+
+      expect(input).toHaveValue('2.0');
+    });
   });
 
   it('should show suggestions when Ctrl+Space is pressed', async () => {

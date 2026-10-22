@@ -125,7 +125,7 @@ export const ArrayBadgesField: FunctionComponent<ArrayBadgesFieldProps> = ({
         </div>
 
         <div>
-          <Button kind="ghost" size="sm" onClick={clearAll} disabled={disabled || sortedItems.length === 0}>
+          <Button kind="tertiary" size="sm" onClick={clearAll} disabled={disabled || sortedItems.length === 0}>
             Clear all
           </Button>
         </div>

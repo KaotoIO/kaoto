@@ -76,7 +76,7 @@ export const EndpointNameField: FunctionComponent<EndpointNameFieldProps> = ({ p
             allowCustomInput
           />
         </div>
-        <Button kind="secondary" onClick={onCreateRoute} disabled={!canCreateRoute}>
+        <Button kind="secondary" size="md" onClick={onCreateRoute} disabled={!canCreateRoute}>
           Create Route
         </Button>
       </div>

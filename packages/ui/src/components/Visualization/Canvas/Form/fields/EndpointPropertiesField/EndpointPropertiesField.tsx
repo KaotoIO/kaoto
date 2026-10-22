@@ -71,7 +71,7 @@ export const EndpointPropertiesField: FunctionComponent<FieldProps> = ({ propNam
               title="Endpoint Properties"
               description="The key-value pairs of the properties to configure this endpoint"
               actions={
-                <>
+                <div className="tag-and-remove">
                   <span title={`${propsCount} properties`} data-testid={`${propName}__badge`}>
                     <Tag>{propsCount}</Tag>
                   </span>
@@ -84,7 +84,7 @@ export const EndpointPropertiesField: FunctionComponent<FieldProps> = ({ propNam
                   >
                     <TrashCan />
                   </IconButton>
-                </>
+                </div>
               }
             >
               <PropertiesField key={propsCount} propName={propName} required={required} />
