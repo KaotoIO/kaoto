@@ -30,7 +30,8 @@ type UsedRequests =
   | 'deleteResource'
   | 'askUserForFileSelection'
   | 'getSuggestions'
-  | 'onStepUpdated';
+  | 'onStepUpdated'
+  | 'getTestReport';
 
 describe('KaotoEditorApp', () => {
   let kaotoEditorApp: KaotoEditorAppTest;
