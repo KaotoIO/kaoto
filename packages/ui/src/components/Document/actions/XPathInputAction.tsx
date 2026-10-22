@@ -25,8 +25,10 @@ type XPathInputProps = {
   nodeData: ExpressionHolderNodeData;
   mapping: IExpressionHolder;
   onUpdate: () => void;
+  /** Called once editing finishes (on blur), for work that shouldn't run on every keystroke. */
+  onCommit?: () => void;
 };
-export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ nodeData, mapping, onUpdate }) => {
+export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ nodeData, mapping, onUpdate, onCommit }) => {
   const validationResult = useMemo(() => XPathService.validate(mapping.expression), [mapping.expression]);
   const inputRef = useRef<HTMLInputElement>(null);
   const mappingNodePath = nodeData.mapping?.nodePath.toString() ?? '';
@@ -82,6 +84,7 @@ export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ nodeData,
             type="text"
             value={mapping.expression}
             onChange={handleXPathChange}
+            onBlur={onCommit}
             onMouseMove={stopPropagation}
             onClick={stopPropagation}
           />

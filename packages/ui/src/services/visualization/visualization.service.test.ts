@@ -449,6 +449,95 @@ describe('VisualizationService', () => {
     });
   });
 
+  describe('auto-optional-if see-through rendering', () => {
+    beforeEach(() => {
+      targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+    });
+
+    function buildHiddenGuard(): { shipOrderItem: FieldItem; ifItem: IfItem; fieldItem: FieldItem } {
+      const shipOrderItem = new FieldItem(tree, targetDoc.fields[0]);
+      tree.children.push(shipOrderItem);
+      const orderPersonField = targetDoc.fields[0].fields[1];
+      orderPersonField.minOccurs = 0; // required by schema default — the guard's own invariant requires optional
+      const ifItem = new IfItem(shipOrderItem);
+      ifItem.expression = '/ns0:ShipOrder/ns0:OrderPerson';
+      ifItem.isAutoOptionalIf = true;
+      const fieldItem = new FieldItem(ifItem, orderPersonField);
+      const selector = new ValueOfSelector(fieldItem);
+      selector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
+      fieldItem.children.push(selector);
+      ifItem.children.push(fieldItem);
+      shipOrderItem.children.push(ifItem);
+      return { shipOrderItem, ifItem, fieldItem };
+    }
+
+    it('should promote the inner FieldItem directly, set autoOptionalIfItem, and not render the IfItem', () => {
+      const { ifItem, fieldItem } = buildHiddenGuard();
+
+      const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+      const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+
+      expect(shipOrderChildren.some((c) => c.title === 'if')).toBe(false);
+      const orderPersonNodes = shipOrderChildren.filter((c) => c.title === 'OrderPerson');
+      expect(orderPersonNodes).toHaveLength(1);
+      const orderPersonNode = orderPersonNodes[0] as FieldItemNodeData;
+      expect(orderPersonNode).toBeInstanceOf(FieldItemNodeData);
+      expect(orderPersonNode.mapping).toBe(fieldItem);
+      expect(orderPersonNode.autoOptionalIfItem).toBe(ifItem);
+    });
+
+    it('should still render a non-auto IfItem as its own visible node', () => {
+      const { ifItem } = buildHiddenGuard();
+      ifItem.isAutoOptionalIf = false;
+
+      const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+      const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+
+      const ifNode = shipOrderChildren.find((c) => c.title === 'if') as MappingNodeData;
+      expect(ifNode).toBeDefined();
+      expect(ifNode.mapping).toBe(ifItem);
+      expect(shipOrderChildren.some((c) => c.title === 'OrderPerson')).toBe(false);
+    });
+
+    it('should self-heal a stale isAutoOptionalIf=true flag and render as a visible node when a sibling has been added under the guard', () => {
+      // Simulates some other action (e.g. adding a node-scoped variable) pushing a second
+      // child under the guard without going through tryAutoOptionalIfWrap's demotion check —
+      // the flag is left stale (still true), but rendering must not hide the extra content.
+      const { ifItem, fieldItem } = buildHiddenGuard();
+      const variable = new VariableItem(ifItem, 'myVar');
+      ifItem.children.push(variable);
+
+      const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+      const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+
+      expect(ifItem.isAutoOptionalIf).toBe(true); // flag itself is left untouched (read-time self-heal only)
+      const ifNode = shipOrderChildren.find((c) => c.title === 'if') as MappingNodeData;
+      expect(ifNode).toBeDefined();
+      expect(ifNode.mapping).toBe(ifItem);
+      const orderPersonNodes = shipOrderChildren.filter((c) => c.title === 'OrderPerson');
+      expect(orderPersonNodes).toHaveLength(0);
+      expect(fieldItem.parent).toBe(ifItem);
+    });
+
+    it('should self-heal when the inner field has been wrapped by another instruction under the guard', () => {
+      // Simulates "wrap with Choose"/"wrap with ForEach" applied to the promoted field: a new
+      // instruction is inserted between the (still-flagged) guard and the field.
+      const { ifItem, fieldItem } = buildHiddenGuard();
+      const chooseItem = new ChooseItem(ifItem);
+      ifItem.children = [chooseItem];
+      fieldItem.parent = chooseItem;
+      chooseItem.children.push(fieldItem);
+
+      const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+      const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+
+      expect(ifItem.isAutoOptionalIf).toBe(true);
+      const ifNode = shipOrderChildren.find((c) => c.title === 'if') as MappingNodeData;
+      expect(ifNode).toBeDefined();
+      expect(ifNode.mapping).toBe(ifItem);
+    });
+  });
+
   describe('formatXml()', () => {
     it('should return formatted XML with indentation', () => {
       const element = document.createElementNS('http://www.w3.org/1999/XSL/Transform', 'apply-templates');

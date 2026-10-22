@@ -128,6 +128,27 @@ describe('MappingLinksService', () => {
       expect(links[1].targetNodePath).toMatch('OrderPerson');
     });
 
+    it('should draw only one link (not two) for a field guarded by an auto-optional IfItem', () => {
+      // Without isAutoOptionalIf, this same OrderPerson IfItem produces two links today
+      // (links[1]/links[2] in the test above) — one for the if's own test expression, one
+      // for the inner selector. With isAutoOptionalIf=true, only the latter should remain,
+      // landing directly on the field's path rather than an invisible `/if-...` segment.
+      const ifItem = tree.children[0].children[1] as IfItem;
+      // The real fixture's test is a "not empty" idiom (`!= ''`), not a bare field
+      // reference — simplify it to what tryAutoOptionalIfWrap/addOptionalGuard would
+      // actually produce, so the guard's shape genuinely matches isAutoOptionalIf=true.
+      ifItem.expression = '/ns0:ShipOrder/ns0:OrderPerson';
+      ifItem.isAutoOptionalIf = true;
+      (ifItem.children[0] as FieldItem).field.minOccurs = 0;
+
+      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
+      const orderPersonLinks = links.filter((l) => l.sourceNodePath.includes('OrderPerson'));
+
+      expect(orderPersonLinks).toHaveLength(1);
+      expect(orderPersonLinks[0].targetNodePath).toMatch('fx-OrderPerson');
+      expect(orderPersonLinks[0].targetNodePath).not.toMatch('/if-');
+    });
+
     it('should generate mapping links for the cached type fragments field', () => {
       const sourceDefinition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
@@ -1230,6 +1251,113 @@ describe('MappingLinksService', () => {
 
       const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
       expect(links[0].lineStyle).toBe(MappingLineStyle.COPY_OF);
+    });
+
+    // Auto-optional-if see-through: a container FieldItem with a sole CopyOfSelector (not
+    // recursive children) wrapped by a hidden guard must classify exactly as if it weren't
+    // wrapped at all (COPY_OF here, not forced REGULAR), since the user never sees the
+    // wrapping IfItem.
+    it('should classify a sole-copy-of container directly inside an auto-optional IfItem by its own shape, not REGULAR', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      DocumentUtilService.resolveTypeFragment(targetShipTo);
+      targetShipTo.minOccurs = 0;
+
+      const rootItem = new FieldItem(manualTree, targetRoot);
+      manualTree.children.push(rootItem);
+      const ifItem = new IfItem(rootItem);
+      ifItem.expression = '/ns0:ShipOrder/ShipTo';
+      ifItem.isAutoOptionalIf = true;
+      rootItem.children.push(ifItem);
+      const shipToItem = new FieldItem(ifItem, targetShipTo);
+      ifItem.children.push(shipToItem);
+      const vs = new CopyOfSelector(shipToItem, CopyOfType.CONTAINER);
+      vs.expression = '/ns0:ShipOrder/ShipTo';
+      shipToItem.children.push(vs);
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const shipToLink = links.find((l) => l.targetNodePath.includes('fx-ShipTo'));
+      expect(shipToLink).toBeDefined();
+      expect(shipToLink!.targetNodePath).not.toMatch('/if-');
+      expect(shipToLink!.lineStyle).toBe(MappingLineStyle.COPY_OF);
+    });
+
+    // Self-heal regression: a container with RECURSIVE FieldItem children never gets
+    // isAutoOptionalIf=true from tryAutoOptionalIfWrap/addOptionalGuard in the first place
+    // (only a sole terminal selector does) — but if some other mutation left a stale `true`
+    // flag on one anyway, classification must still fall back to REGULAR/visible, exactly
+    // like the "visible (non-auto) IfItem" case below, rather than trusting the stale flag.
+    it('should self-heal a stale isAutoOptionalIf=true on a recursive-children container to REGULAR, not COMPLETE', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      DocumentUtilService.resolveTypeFragment(targetShipTo);
+      const sourceShipTo = sourceRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      DocumentUtilService.resolveTypeFragment(sourceShipTo);
+
+      const rootItem = new FieldItem(manualTree, targetRoot);
+      manualTree.children.push(rootItem);
+      const ifItem = new IfItem(rootItem);
+      ifItem.expression = '/ns0:ShipOrder/ShipTo';
+      ifItem.isAutoOptionalIf = true;
+      rootItem.children.push(ifItem);
+      const shipToItem = new FieldItem(ifItem, targetShipTo);
+      ifItem.children.push(shipToItem);
+      for (const childField of targetShipTo.fields) {
+        const childItem = new FieldItem(shipToItem, childField);
+        shipToItem.children.push(childItem);
+        const vs = new ValueOfSelector(childItem);
+        vs.expression = `/ns0:ShipOrder/ShipTo/${childField.name}`;
+        childItem.children.push(vs);
+      }
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const nameLink = links.find((l) => l.targetNodePath.includes('fx-Name'));
+      expect(nameLink).toBeDefined();
+      expect(nameLink!.targetNodePath).toMatch('/if-');
+      expect(nameLink!.lineStyle).toBe(MappingLineStyle.REGULAR);
+    });
+
+    it('should still force REGULAR for a container inside a visible (non-auto) IfItem', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      DocumentUtilService.resolveTypeFragment(targetShipTo);
+      const sourceShipTo = sourceRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      DocumentUtilService.resolveTypeFragment(sourceShipTo);
+
+      const rootItem = new FieldItem(manualTree, targetRoot);
+      manualTree.children.push(rootItem);
+      const ifItem = new IfItem(rootItem);
+      ifItem.expression = '/ns0:ShipOrder/ShipTo';
+      rootItem.children.push(ifItem);
+      const shipToItem = new FieldItem(ifItem, targetShipTo);
+      ifItem.children.push(shipToItem);
+      for (const childField of targetShipTo.fields) {
+        const childItem = new FieldItem(shipToItem, childField);
+        shipToItem.children.push(childItem);
+        const vs = new ValueOfSelector(childItem);
+        vs.expression = `/ns0:ShipOrder/ShipTo/${childField.name}`;
+        childItem.children.push(vs);
+      }
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const nameLink = links.find((l) => l.targetNodePath.includes('fx-Name'));
+      expect(nameLink).toBeDefined();
+      expect(nameLink!.lineStyle).toBe(MappingLineStyle.REGULAR);
     });
 
     // N4 — bug #1: FieldItem → ChooseItem → WhenItem → CopyOfSelector  →  COPY_OF

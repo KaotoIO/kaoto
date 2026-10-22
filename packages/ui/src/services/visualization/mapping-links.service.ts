@@ -14,6 +14,7 @@ import {
   isExpressionHolder,
   MappingItem,
   MappingLineStyle,
+  MappingParentType,
   MappingTree,
   NodePath,
   PrimitiveDocument,
@@ -26,6 +27,7 @@ import {
 } from '../../models/datamapper';
 import { DocumentService } from '../document/document.service';
 import { MappingService } from '../mapping/mapping.service';
+import { WrapperAutoDetectionService } from '../mapping/wrapper-auto-detection.service';
 import { XPathService } from '../xpath/xpath.service';
 import { VisualizationService } from './visualization.service';
 
@@ -50,13 +52,15 @@ export class MappingLinksService {
         ownLineStyle = MappingLineStyle.PARTIAL;
       }
     }
-    const isFieldInsideInstruction = item instanceof FieldItem && item.parent instanceof InstructionItem;
+    const isFieldInsideInstruction =
+      item instanceof FieldItem && MappingLinksService.isRealInstructionParent(item.parent);
     const lineStyle =
       ownLineStyle === MappingLineStyle.REGULAR && !isFieldInsideInstruction
         ? (parentLineStyle ?? ownLineStyle)
         : ownLineStyle;
 
-    if (item instanceof MappingItem && isExpressionHolder(item)) {
+    const skipOwnLink = WrapperAutoDetectionService.isEffectivelyAutoOptionalGuard(item);
+    if (!skipOwnLink && item instanceof MappingItem && isExpressionHolder(item)) {
       const links = MappingLinksService.doExtractMappingLinks(
         item,
         targetNodePath,
@@ -103,7 +107,13 @@ export class MappingLinksService {
     return answer;
   }
 
-  private static resolveSourceFields(
+  /**
+   * Resolves the source `IField`(s) referenced by `expressionHolder`'s XPath expression,
+   * along with the source document each was resolved from. Returns an empty array when the
+   * expression doesn't parse, or when a referenced path can't be resolved to a concrete
+   * field (e.g. a variable reference, or an ambiguous/relative path).
+   */
+  static resolveSourceFields(
     expressionHolder: IExpressionHolder & MappingItem,
     sourceParameterMap: Map<string, IDocument>,
     sourceBody: IDocument,
@@ -246,6 +256,16 @@ export class MappingLinksService {
     return false;
   }
 
+  /**
+   * Like `parent instanceof InstructionItem`, but excludes an auto-optional-if guard: since
+   * that `IfItem` is hidden from the visual tree (see {@link VisualizationService}'s
+   * see-through rendering), a field directly inside one must be classified exactly as if
+   * it weren't wrapped at all.
+   */
+  private static isRealInstructionParent(parent: MappingParentType): boolean {
+    return parent instanceof InstructionItem && !WrapperAutoDetectionService.isEffectivelyAutoOptionalGuard(parent);
+  }
+
   private static classifyContainerLineStyle(item: FieldItem): MappingLineStyle {
     const childFieldItems = item.children.filter((c): c is FieldItem => c instanceof FieldItem);
 
@@ -254,7 +274,7 @@ export class MappingLinksService {
     }
 
     if (childFieldItems.length === 0) return MappingLineStyle.REGULAR;
-    if (item.parent instanceof InstructionItem) return MappingLineStyle.REGULAR;
+    if (MappingLinksService.isRealInstructionParent(item.parent)) return MappingLineStyle.REGULAR;
 
     const targetChildren = item.field.fields.filter((f) => !MappingLinksService.isWrapperField(f));
     if (childFieldItems.length < targetChildren.length) return MappingLineStyle.PARTIAL;
@@ -307,6 +327,11 @@ export class MappingLinksService {
   private static computeVisualTargetNodePath(item: MappingTree | MappingItem): NodePath {
     if (item instanceof MappingTree) {
       return item.nodePath;
+    }
+    if (WrapperAutoDetectionService.isEffectivelyAutoOptionalGuard(item)) {
+      // Hidden from the visual tree (see-through rendering) — it has no node/port of its
+      // own, so skip straight to its parent's path rather than inserting its invisible id.
+      return MappingLinksService.computeVisualTargetNodePath(item.parent);
     }
     const parentPath = MappingLinksService.computeVisualTargetNodePath(item.parent);
     if (item instanceof FieldItem) {

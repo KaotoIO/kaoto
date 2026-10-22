@@ -36,4 +36,8 @@ div.node-title-container {
 .datamapper-marker-field {
   width: 1.75rem;
   height: 1.25rem;
+
+  &--active-guard {
+    color: var(--pf-t--global--color--status--info--default);
+  }
 }

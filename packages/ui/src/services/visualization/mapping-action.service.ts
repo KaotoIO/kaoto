@@ -34,6 +34,7 @@ import { useDocumentTreeStore } from '../../store/document-tree.store';
 import { DocumentService } from '../document/document.service';
 import { FieldMatchingService } from '../mapping/field-matching.service';
 import { MappingService } from '../mapping/mapping.service';
+import { WrapperAutoDetectionService } from '../mapping/wrapper-auto-detection.service';
 import { VisualizationUtilService } from './visualization-util.service';
 
 /**
@@ -94,6 +95,25 @@ export class MappingActionService {
       if (!mapping) return;
       MappingService.wrapWithIf(mapping);
     }
+  }
+
+  /**
+   * Manually wraps a field's single selector with a hidden ({@link IfItem.isAutoOptionalIf})
+   * guard, using the selector's {@link ValueSelector.sourcePath} as the `test`. No-op unless
+   * {@link WrapperAutoDetectionService.getHiddenGuardSelector} accepts the field, so a guard
+   * created here is always one {@link WrapperAutoDetectionService.matchSimpleOptionalGuard}
+   * recognises — regardless of whether the caller gated on it first.
+   * @param nodeData - the field node to wrap
+   */
+  static addOptionalGuard(nodeData: FieldItemNodeData): void {
+    const fieldItem = nodeData.mapping;
+    const selector = WrapperAutoDetectionService.getHiddenGuardSelector(fieldItem);
+    if (!selector) return;
+
+    MappingService.wrapWithIf(fieldItem);
+    const ifItem = fieldItem.parent as IfItem;
+    ifItem.expression = selector.sourcePath;
+    ifItem.isAutoOptionalIf = true;
   }
 
   /**
@@ -357,11 +377,11 @@ export class MappingActionService {
 
     if (VisualizationUtilService.isFieldNode(targetNode)) {
       const item = MappingActionService.getOrCreateFieldItem(targetNode);
-      const hadExistingContent = MappingActionService.hasMappingContent(item);
-      MappingActionService.removeParentContainerCopyOf(item);
-      MappingService.mapToField(sourceField, item);
-      const wrapped = MappingService.tryAutoOptionalIfWrap(item, sourceField, hadExistingContent);
-      return targetWasUnmapped || !!wrapped;
+      const wrapOrGuardChanged = MappingActionService.applyFieldMappingWithGuard(item, sourceField, () => {
+        MappingActionService.removeParentContainerCopyOf(item);
+        MappingService.mapToField(sourceField, item);
+      });
+      return targetWasUnmapped || wrapOrGuardChanged;
     } else if (targetNode instanceof MappingNodeData) {
       MappingService.mapToCondition(targetNode.mapping, sourceField);
       return false;
@@ -489,10 +509,10 @@ export class MappingActionService {
 
     if (anyTypeInvolved && (!sourceHasChildren || !targetHasChildren)) {
       const item = MappingActionService.getOrCreateFieldItem(targetNode);
-      const hadExistingContent = MappingActionService.hasMappingContent(item);
-      MappingService.mapToFieldWithValueType(sourceFieldFromNode, item, CopyOfType.CONTAINER_NODE);
-      const wrapped = MappingService.tryAutoOptionalIfWrap(item, sourceFieldFromNode, hadExistingContent);
-      return { handled: true, structural: structural || !!wrapped };
+      const wrapOrGuardChanged = MappingActionService.applyFieldMappingWithGuard(item, sourceFieldFromNode, () => {
+        MappingService.mapToFieldWithValueType(sourceFieldFromNode, item, CopyOfType.CONTAINER_NODE);
+      });
+      return { handled: true, structural: structural || wrapOrGuardChanged };
     }
 
     if (!sourceHasChildren || !targetHasChildren) {
@@ -500,7 +520,6 @@ export class MappingActionService {
     }
 
     const item = MappingActionService.getOrCreateFieldItem(targetNode);
-    const hadExistingContent = MappingActionService.hasMappingContent(item);
     const bothCollections =
       VisualizationUtilService.isCollectionField(sourceNode) && VisualizationUtilService.isCollectionField(targetNode);
 
@@ -515,9 +534,40 @@ export class MappingActionService {
     // generateAutoChildMappings (the non-copy-of branch of applyContainerMapping) always adds new
     // child FieldItems, so it's structural regardless of whether `item` itself pre-existed.
     const canUseCopyOf = FieldMatchingService.canUseCopyOf(sourceFieldFromNode, targetFieldFromNode);
-    MappingService.applyContainerMapping(sourceFieldFromNode, targetFieldFromNode, item);
-    const wrapped = MappingService.tryAutoOptionalIfWrap(item, sourceFieldFromNode, hadExistingContent);
-    return { handled: true, structural: structural || !canUseCopyOf || !!wrapped };
+    const wrapOrGuardChanged = MappingActionService.applyFieldMappingWithGuard(item, sourceFieldFromNode, () => {
+      MappingService.applyContainerMapping(sourceFieldFromNode, targetFieldFromNode, item);
+    });
+    return { handled: true, structural: structural || !canUseCopyOf || wrapOrGuardChanged };
+  }
+
+  /**
+   * Shared tail for every call site that engages a mapping onto a {@link FieldItem} and must then
+   * let the auto-optional-if guard react to it: samples {@link hasMappingContent} before `mutate`
+   * runs (afterwards new/pre-existing content can no longer be told apart), runs `mutate`, then
+   * reports whether the mapping needs to be treated as structural because either
+   * {@link MappingService.tryAutoOptionalIfWrap} wrapped the field, or the mutation flipped the
+   * field's effective (see-through) auto-optional guard as a side effect of
+   * {@link WrapperAutoDetectionService.onExpressionChanged} — a change callers would otherwise
+   * miss, since the guard itself isn't added, removed, or replaced; only its `isAutoOptionalIf`
+   * flag flips.
+   *
+   * A field that already carries an effective guard going in is forced to demote regardless of
+   * what `mutate` did to the expression: a second drop onto an already-guarded field is, by
+   * definition, no longer "a fresh 1-to-1 mapping," even when the dropped source is identical to
+   * the one the guard was created for and {@link XPathService.addSource}'s dedup leaves the
+   * expression itself unchanged — the user action was a second drop, so the guard must stop being
+   * see-through and show as a regular, visible `if`.
+   */
+  private static applyFieldMappingWithGuard(item: MappingItem, sourceField: IField, mutate: () => void): boolean {
+    const hadExistingContent = MappingActionService.hasMappingContent(item);
+    const guardWasEffective = WrapperAutoDetectionService.isEffectivelyAutoOptionalGuard(item.parent);
+    mutate();
+    if (guardWasEffective && item.parent instanceof IfItem) {
+      item.parent.isAutoOptionalIf = false;
+    }
+    const wrapped = MappingService.tryAutoOptionalIfWrap(item, sourceField, hadExistingContent);
+    const guardChanged = WrapperAutoDetectionService.isEffectivelyAutoOptionalGuard(item.parent) !== guardWasEffective;
+    return !!wrapped || guardChanged;
   }
 
   /**

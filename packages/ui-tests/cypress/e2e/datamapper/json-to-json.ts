@@ -119,7 +119,7 @@ describe('Test for DataMapper : JSON to JSON', () => {
       "fn:number[@key='Price']",
     );
 
-    cy.countMappingLines(13);
+    cy.countMappingLines(12);
   });
 
   it('attach parameter schema, engage mappings, detach parameter schema', () => {
@@ -165,7 +165,7 @@ describe('Test for DataMapper : JSON to JSON', () => {
       "$Account-x/fn:map/fn:map[@key='Address']/fn:string[@key='Country']",
     );
 
-    cy.countMappingLines(8);
+    cy.countMappingLines(7);
 
     cy.detachParameterSchema('Account');
     cy.countMappingLines(0);
@@ -196,7 +196,7 @@ describe('Test for DataMapper : JSON to JSON', () => {
       ['document-doc-targetBody-Body', 'node-target-fj-string-OrderPerson'],
       "/fn:array/fn:map/fn:string[@key='OrderPerson']",
     );
-    cy.countMappingLines(2);
+    cy.countMappingLines(1);
   });
 
   it('attach parameter schema, engage mappings, delete parameter', () => {
@@ -242,7 +242,7 @@ describe('Test for DataMapper : JSON to JSON', () => {
       "$Account-x/fn:map/fn:map[@key='Address']/fn:string[@key='Country']",
     );
 
-    cy.countMappingLines(8);
+    cy.countMappingLines(7);
 
     cy.deleteParameter('Account');
     cy.countMappingLines(0);

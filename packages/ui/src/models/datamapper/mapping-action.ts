@@ -1,3 +1,4 @@
+import type { IDocument } from './document';
 import type { TargetNodeData } from './visualization';
 
 /**
@@ -29,6 +30,8 @@ export enum MappingActionKind {
   InnerForEachCurrentGroup = 'innerForEachCurrentGroup',
   Duplicate = 'duplicate',
   AddField = 'addField',
+  RemoveOptionalGuard = 'removeOptionalGuard',
+  AddOptionalGuard = 'addOptionalGuard',
 }
 
 /**
@@ -64,14 +67,24 @@ export interface IMappingActionCallbacks {
 }
 
 /**
+ * Source document context needed by actions whose eligibility depends on resolving a
+ * field's XPath expression back to a source field (e.g. `AddOptionalGuard`'s "is the
+ * source also optional" check) — not available from `nodeData` alone.
+ */
+export interface IMappingActionSourceContext {
+  sourceParameterMap: Map<string, IDocument>;
+  sourceBody: IDocument;
+}
+
+/**
  * Base definition for a mapping action in the action registry.
  * UI-only controls such as `ContextMenu` and `Delete` use this interface
  * directly; context menu items extend it via {@link IMappingContextMenuAction}.
  */
 export interface IMappingAction {
   key: MappingActionKind;
-  isAllowed: (nodeData: TargetNodeData) => boolean;
-  isDisabled?: (nodeData: TargetNodeData) => boolean;
+  isAllowed: (nodeData: TargetNodeData, sourceContext?: IMappingActionSourceContext) => boolean;
+  isDisabled?: (nodeData: TargetNodeData, sourceContext?: IMappingActionSourceContext) => boolean;
 }
 
 /**

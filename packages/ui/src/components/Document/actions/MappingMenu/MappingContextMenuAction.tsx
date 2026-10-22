@@ -10,6 +10,7 @@ import {
 } from '@patternfly/react-core';
 import { Fragment, FunctionComponent, MouseEvent, useCallback, useMemo, useRef } from 'react';
 
+import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { MappingItem } from '../../../../models/datamapper/mapping';
 import {
   IMappingActionCallbacks,
@@ -33,11 +34,19 @@ export const MappingContextMenuAction: FunctionComponent<MappingContextMenuProps
   nodeData,
   onUpdate,
 }) => {
+  const { sourceParameterMap, sourceBodyDocument } = useDataMapper();
   const isActionMenuOpen = useDocumentTreeStore((state) => state.openMappingMenuId === nodeData.id);
   const setOpenMappingMenuId = useDocumentTreeStore((state) => state.setOpenMappingMenuId);
   const menuRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
-  const menuItems = MappingActionRegistryService.getMappingContextMenuItems(nodeData);
+  const sourceContext = useMemo(
+    () => ({ sourceParameterMap, sourceBody: sourceBodyDocument }),
+    [sourceParameterMap, sourceBodyDocument],
+  );
+  const menuItems = useMemo(
+    () => MappingActionRegistryService.getMappingContextMenuItems(nodeData, sourceContext),
+    [nodeData, sourceContext],
+  );
 
   const mappingItem = nodeData.mapping instanceof MappingItem ? nodeData.mapping : undefined;
 
@@ -101,7 +110,7 @@ export const MappingContextMenuAction: FunctionComponent<MappingContextMenuProps
                     <MenuItem
                       key={item.key}
                       itemId={item.key}
-                      isDisabled={item.isDisabled?.(nodeData)}
+                      isDisabled={isActionMenuOpen && item.isDisabled?.(nodeData, sourceContext)}
                       data-testid={item.testId}
                     >
                       {item.getLabel(nodeData)}
@@ -120,7 +129,7 @@ export const MappingContextMenuAction: FunctionComponent<MappingContextMenuProps
                                 <MenuItem
                                   key={item.key}
                                   itemId={item.key}
-                                  isDisabled={item.isDisabled?.(nodeData)}
+                                  isDisabled={isActionMenuOpen && item.isDisabled?.(nodeData, sourceContext)}
                                   data-testid={item.testId}
                                 >
                                   {item.getLabel(nodeData)}
