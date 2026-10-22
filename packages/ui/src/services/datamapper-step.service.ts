@@ -1,4 +1,4 @@
-import { ProcessorDefinition, SetBody, SetVariable } from '@kaoto/camel-catalog/types';
+import { ProcessorDefinition, SetBody, SetVariable, Step } from '@kaoto/camel-catalog/types';
 
 import { getCamelRandomId } from '../camel-utils/camel-random-id';
 import { DynamicCatalogRegistry } from '../dynamic-catalog/dynamic-catalog-registry';
@@ -8,6 +8,7 @@ import { DocumentDefinition, DocumentDefinitionType } from '../models/datamapper
 import { EntitiesContextResult } from '../providers';
 import { isXSLTComponent, XSLT_COMPONENT_NAME } from '../utils';
 import type { XsltComponentDef } from '../utils/is-xslt-component';
+import { DataMapperValidationStepService } from './datamapper-validation-step.service';
 
 /**
  * Service for managing DataMapper step construction.
@@ -234,6 +235,83 @@ export class DataMapperStepService {
     xsltStep.to.uri = `${XSLT_COMPONENT_NAME}:${newFileName}`;
     vizNode.updateModel(model);
     entitiesContext.updateSourceCodeFromEntities();
+  }
+
+  private static setXsltFileName(definition: Step, fileName: string): void {
+    const xsltStep = definition.steps?.find(isXSLTComponent);
+    if (xsltStep?.to && typeof xsltStep.to === 'object') {
+      xsltStep.to.uri = `${XSLT_COMPONENT_NAME}:${fileName}`;
+    }
+  }
+
+  /**
+   * The XSLT file entry of a rename map: the file that is not a schema (the wrapper and its aggregators are `.xsd`).
+   */
+  private static findXsltRename(renames: Record<string, string>): [oldPath: string, newPath: string] | undefined {
+    return Object.entries(renames).find(([oldPath]) => !oldPath.endsWith('.xsd'));
+  }
+
+  /**
+   * Applies the files a DataMapper step owns having moved (rename, duplicate, paste) to a step definition: the XSLT
+   * step points to its new file and the validator follows its generated wrapper schema.
+   * The definition is only changed in memory, the caller persists it.
+   * @param definition The DataMapper step group definition
+   * @param renames The old to new path of every file that moved, see `DataMapperMetadataService`
+   */
+  static applyResourceRenames(definition: Step, renames: Record<string, string>): void {
+    const xsltRename = DataMapperStepService.findXsltRename(renames);
+    if (xsltRename) {
+      DataMapperStepService.setXsltFileName(definition, xsltRename[1]);
+    }
+    for (const [oldPath, newPath] of Object.entries(renames)) {
+      DataMapperValidationStepService.retargetValidationResource(definition, oldPath, newPath);
+    }
+  }
+
+  /**
+   * Same as {@link applyResourceRenames} for the step of a visualization node, and persists the step.
+   * @param vizNode The DataMapper step
+   * @param renames The old to new path of every file that moved
+   * @param entitiesContext The entities context for updating source code
+   */
+  static applyResourceRenamesToNode(
+    vizNode: IVisualizationNode,
+    renames: Record<string, string>,
+    entitiesContext: EntitiesContextResult,
+  ): void {
+    const definition = vizNode.data?.definition as Step;
+    DataMapperStepService.applyResourceRenames(definition, renames);
+    vizNode.updateModel(definition);
+    entitiesContext.updateSourceCodeFromEntities();
+  }
+
+  /**
+   * Applies the files of a copied DataMapper step (duplicate, paste) to its step definition. The validator is
+   * removed when it still points to the original's generated wrapper schema, i.e. the copy did not get a wrapper of
+   * its own: it must not validate against (or lose) a file that belongs to the original step.
+   * @param definition The step group definition of the copy
+   * @param renames The old to new path of every file that was copied
+   */
+  static applyCopiedResources(definition: Step, renames: Record<string, string>): void {
+    DataMapperStepService.applyResourceRenames(definition, renames);
+    const xsltRename = DataMapperStepService.findXsltRename(renames);
+    if (xsltRename) {
+      DataMapperValidationStepService.removeWrapperValidation(definition, xsltRename[0]);
+    }
+  }
+
+  /**
+   * Clears the XSLT file and detaches the validator of a copy of a DataMapper step that has no files of its own
+   * (the original has no metadata, or no metadata API is available).
+   * @param definition The step group definition of the copy
+   */
+  static clearResources(definition: Step): void {
+    const xsltStep = definition.steps?.find(isXSLTComponent);
+    const originalXsltPath = DataMapperStepService.getXsltFileName(xsltStep);
+    if (originalXsltPath) {
+      DataMapperValidationStepService.removeWrapperValidation(definition, originalXsltPath);
+    }
+    DataMapperStepService.setXsltFileName(definition, '');
   }
 
   /**

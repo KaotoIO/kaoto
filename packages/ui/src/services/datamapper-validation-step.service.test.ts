@@ -1,7 +1,7 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import type { Mocked } from 'vitest';
 
-import { createVisualizationNode } from '../models';
+import { createVisualizationNode, IVisualizationNode } from '../models';
 import { DocumentDefinitionType } from '../models/datamapper/document';
 import { IDocumentMetadata } from '../models/datamapper/metadata';
 import { EntitiesContextResult } from '../providers';
@@ -290,6 +290,235 @@ describe('DataMapperValidationStepService', () => {
 
       expect(updateModelSpy).not.toHaveBeenCalled();
       expect(mockEntitiesContext.updateSourceCodeFromEntities).not.toHaveBeenCalled();
+    });
+
+    it('should not touch the model when the validator already points to the resource', () => {
+      const model = createModel('xslt-saxon:transform.xsl', 'validator:ShipOrder.xsd');
+      const vizNode = createVizNode(model);
+      const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
+
+      DataMapperValidationStepService.updateValidationStep(vizNode, xmlMetadata, mockEntitiesContext);
+
+      expect(updateModelSpy).not.toHaveBeenCalled();
+      expect(mockEntitiesContext.updateSourceCodeFromEntities).not.toHaveBeenCalled();
+    });
+
+    it('should not touch the model when only the query options differ from the resolved resource', () => {
+      const model = createModel('xslt-saxon:transform.xsl', 'validator:ShipOrder.xsd?failOnNullBody=false');
+      const vizNode = createVizNode(model);
+      const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
+
+      DataMapperValidationStepService.updateValidationStep(vizNode, xmlMetadata, mockEntitiesContext);
+
+      expect(updateModelSpy).not.toHaveBeenCalled();
+      expect(mockEntitiesContext.updateSourceCodeFromEntities).not.toHaveBeenCalled();
+      expect((model.steps[1] as ProcessorDefinition).to).toMatchObject({
+        uri: 'validator:ShipOrder.xsd?failOnNullBody=false',
+      });
+    });
+
+    it('should keep the query options when the resource changes', () => {
+      const model = createModel('xslt-saxon:transform.xsl', 'validator:Old.xsd?failOnNullBody=false');
+      const vizNode = createVizNode(model);
+      const newMetadata = { type: DocumentDefinitionType.XML_SCHEMA, filePath: ['New.xsd'] } as IDocumentMetadata;
+
+      DataMapperValidationStepService.updateValidationStep(vizNode, newMetadata, mockEntitiesContext);
+
+      expect((model.steps[1] as ProcessorDefinition).to).toMatchObject({
+        uri: 'validator:New.xsd?failOnNullBody=false',
+      });
+      expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalledTimes(1);
+    });
+
+    it('should keep the query options and assign a new id when switching validator <-> json-validator', () => {
+      const model = {
+        id: 'step-id',
+        steps: [
+          { to: { uri: 'xslt-saxon:transform.xsl' } },
+          { to: { id: 'old-id', uri: 'validator:ShipOrder.xsd?failOnNullBody=false' } },
+        ] as ProcessorDefinition[],
+      };
+      const vizNode = createVizNode(model);
+
+      DataMapperValidationStepService.updateValidationStep(vizNode, jsonMetadata, mockEntitiesContext);
+      const toJson = (model.steps[1] as ProcessorDefinition).to as { id: string; uri: string };
+      expect(toJson.uri).toBe('json-validator:schema.json?failOnNullBody=false');
+      expect(toJson.id).toMatch(/^kaoto-datamapper-json-validator-/);
+
+      DataMapperValidationStepService.updateValidationStep(vizNode, xmlMetadata, mockEntitiesContext);
+      const toXml = (model.steps[1] as ProcessorDefinition).to as { id: string; uri: string };
+      expect(toXml.uri).toBe('validator:ShipOrder.xsd?failOnNullBody=false');
+      expect(toXml.id).toMatch(/^kaoto-datamapper-validator-/);
+    });
+
+    it('should use the resolved resource URI instead of the first schema file', () => {
+      const model = createModel('xslt-saxon:transform.xsl', 'validator:Old.xsd');
+      const vizNode = createVizNode(model);
+
+      DataMapperValidationStepService.updateValidationStep(
+        vizNode,
+        xmlMetadata,
+        mockEntitiesContext,
+        'transform-validation-wrapper.xsd',
+      );
+
+      expect((model.steps[1] as ProcessorDefinition).to).toMatchObject({
+        uri: 'validator:transform-validation-wrapper.xsd',
+      });
+    });
+  });
+
+  describe('resolved resource URI', () => {
+    it('should add the validator pointing to the given resource URI', () => {
+      const model = createModel('xslt-saxon:transform.xsl');
+      const vizNode = createVizNode(model);
+
+      DataMapperValidationStepService.addValidationStep(
+        vizNode,
+        xmlMetadata,
+        mockEntitiesContext,
+        'transform-validation-wrapper.xsd',
+      );
+
+      expect((model.steps[1] as ProcessorDefinition).to).toMatchObject({
+        uri: 'validator:transform-validation-wrapper.xsd',
+      });
+    });
+
+    it('should do nothing when the resolved resource URI is empty', () => {
+      const model = createModel('xslt-saxon:transform.xsl');
+      const vizNode = createVizNode(model);
+      const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
+
+      DataMapperValidationStepService.addValidationStep(vizNode, xmlMetadata, mockEntitiesContext, '');
+
+      expect(model.steps).toHaveLength(1);
+      expect(updateModelSpy).not.toHaveBeenCalled();
+    });
+
+    it('should not add a second validator step when one exists already', () => {
+      const model = createModel('xslt-saxon:transform.xsl', 'validator:ShipOrder.xsd');
+      const vizNode = createVizNode(model);
+
+      DataMapperValidationStepService.addValidationStep(vizNode, xmlMetadata, mockEntitiesContext, 'Other.xsd');
+
+      expect(model.steps).toHaveLength(2);
+      expect((model.steps[1] as ProcessorDefinition).to).toMatchObject({ uri: 'validator:ShipOrder.xsd' });
+    });
+  });
+
+  describe('retargetValidationResource', () => {
+    it('should rewrite the URI when it points to the expected resource', () => {
+      const model = createModel('xslt-saxon:a.xsl', 'validator:a-validation-wrapper.xsd');
+
+      const changed = DataMapperValidationStepService.retargetValidationResource(
+        model,
+        'a-validation-wrapper.xsd',
+        'b-validation-wrapper.xsd',
+      );
+
+      expect(changed).toBe(true);
+      expect((model.steps[1] as ProcessorDefinition).to).toMatchObject({
+        uri: 'validator:b-validation-wrapper.xsd',
+      });
+    });
+
+    it('should keep the component name for json-validator', () => {
+      const model = createModel('xslt-saxon:a.xsl', 'json-validator:a.json');
+
+      const changed = DataMapperValidationStepService.retargetValidationResource(model, 'a.json', 'b.json');
+
+      expect(changed).toBe(true);
+      expect((model.steps[1] as ProcessorDefinition).to).toMatchObject({ uri: 'json-validator:b.json' });
+    });
+
+    it('should leave a validator that points to a user schema untouched', () => {
+      const model = createModel('xslt-saxon:a.xsl', 'validator:ShipOrder.xsd');
+
+      const changed = DataMapperValidationStepService.retargetValidationResource(
+        model,
+        'a-validation-wrapper.xsd',
+        'b-validation-wrapper.xsd',
+      );
+
+      expect(changed).toBe(false);
+      expect((model.steps[1] as ProcessorDefinition).to).toMatchObject({ uri: 'validator:ShipOrder.xsd' });
+    });
+
+    it('should compare the resource without the query options and keep them', () => {
+      const model = createModel('xslt-saxon:a.xsl', 'validator:a-validation-wrapper.xsd?failOnNullBody=false');
+
+      const changed = DataMapperValidationStepService.retargetValidationResource(
+        model,
+        'a-validation-wrapper.xsd',
+        'b-validation-wrapper.xsd',
+      );
+
+      expect(changed).toBe(true);
+      expect((model.steps[1] as ProcessorDefinition).to).toMatchObject({
+        uri: 'validator:b-validation-wrapper.xsd?failOnNullBody=false',
+      });
+    });
+
+    it('should return false when there is no validator step or no steps at all', () => {
+      expect(
+        DataMapperValidationStepService.retargetValidationResource(createModel('xslt-saxon:a.xsl'), 'a', 'b'),
+      ).toBe(false);
+      expect(DataMapperValidationStepService.retargetValidationResource({}, 'a', 'b')).toBe(false);
+      expect(DataMapperValidationStepService.retargetValidationResource(undefined, 'a', 'b')).toBe(false);
+    });
+  });
+
+  describe('removeWrapperValidation', () => {
+    it('should remove a validator that points to the generated wrapper of the XSLT file', () => {
+      const model = createModel('xslt-saxon:a.xsl', 'validator:a-validation-wrapper.xsd?failOnNullBody=false');
+
+      expect(DataMapperValidationStepService.removeWrapperValidation(model, 'a.xsl')).toBe(true);
+      expect(model.steps).toHaveLength(1);
+    });
+
+    it('should keep a validator that points to a user schema', () => {
+      const model = createModel('xslt-saxon:a.xsl', 'validator:ShipOrder.xsd');
+
+      expect(DataMapperValidationStepService.removeWrapperValidation(model, 'a.xsl')).toBe(false);
+      expect(model.steps).toHaveLength(2);
+    });
+
+    it('should do nothing without steps, validator or XSLT path', () => {
+      expect(DataMapperValidationStepService.removeWrapperValidation(undefined, 'a.xsl')).toBe(false);
+      expect(DataMapperValidationStepService.removeWrapperValidation({}, 'a.xsl')).toBe(false);
+      expect(DataMapperValidationStepService.removeWrapperValidation(createModel('xslt-saxon:a.xsl'), 'a.xsl')).toBe(
+        false,
+      );
+      expect(
+        DataMapperValidationStepService.removeWrapperValidation(createModel('validator:a-validation-wrapper.xsd'), ''),
+      ).toBe(false);
+    });
+  });
+
+  describe('canAddValidationStep', () => {
+    it('should be true only when there is an XSLT step', () => {
+      const withXslt = { data: { definition: createModel('xslt-saxon:a.xsl') } } as unknown as IVisualizationNode;
+      const withoutXslt = { data: { definition: createModel('log:x') } } as unknown as IVisualizationNode;
+      const noSteps = { data: { definition: {} } } as unknown as IVisualizationNode;
+
+      expect(DataMapperValidationStepService.canAddValidationStep(withXslt)).toBe(true);
+      expect(DataMapperValidationStepService.canAddValidationStep(withoutXslt)).toBe(false);
+      expect(DataMapperValidationStepService.canAddValidationStep(noSteps)).toBe(false);
+    });
+  });
+
+  describe('getValidationStepFromDefinition', () => {
+    it('should find the validator step of a plain definition', () => {
+      const model = createModel('xslt-saxon:a.xsl', 'validator:ShipOrder.xsd');
+
+      expect(DataMapperValidationStepService.getValidationStepFromDefinition(model)?.to.uri).toBe(
+        'validator:ShipOrder.xsd',
+      );
+    });
+
+    it('should return undefined for a missing definition', () => {
+      expect(DataMapperValidationStepService.getValidationStepFromDefinition(undefined)).toBeUndefined();
     });
   });
 });

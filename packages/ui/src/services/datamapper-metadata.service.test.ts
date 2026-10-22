@@ -12,6 +12,10 @@ import { IMetadataApi } from '../providers';
 import { getCommonTypesJsonSchema, getCustomerJsonSchema, getOrderJsonSchema } from '../stubs/datamapper/data-mapper';
 import { DataMapperMetadataService } from './datamapper-metadata.service';
 import { JsonSchemaDocumentService } from './document/json-schema/json-schema-document.service';
+import {
+  GENERATED_WRAPPER_MARKER,
+  GENERATED_WRAPPER_NOTICE,
+} from './document/xml-schema/xml-schema-wrapper-generator.service';
 import { EMPTY_XSL } from './mapping/mapping-serializer.service';
 
 describe('DataMapperMetadataService', () => {
@@ -30,6 +34,11 @@ describe('DataMapperMetadataService', () => {
       shouldSaveSchema: false,
       onStepUpdated: vi.fn(),
     } as Mocked<IMetadataApi>;
+    // A resource exists when it has content, unless a test sets its own `isResourceExist`.
+    mockApi.isResourceExist.mockImplementation(async (path: string) => {
+      const content = await mockApi.getResourceContent(path);
+      return content !== undefined;
+    });
   });
 
   afterEach(() => {
@@ -797,10 +806,523 @@ describe('DataMapperMetadataService', () => {
   });
 
   describe('deleteMetadata', () => {
+    const GENERATED_WRAPPER = `<!-- ${GENERATED_WRAPPER_MARKER} for transform.xsl. ${GENERATED_WRAPPER_NOTICE}; it is regenerated. -->`;
+    const metadataWithXslt = {
+      sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+      sourceParameters: {},
+      targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+      xsltPath: 'transform.xsl',
+    } as IDataMapperMetadata;
+
     it('should delete metadata by setting it to undefined', async () => {
       await DataMapperMetadataService.deleteMetadata(mockApi, 'test-id');
 
       expect(mockApi.setMetadata).toHaveBeenCalledWith('test-id', undefined);
+    });
+
+    it('should delete the generated validation wrapper before clearing the metadata', async () => {
+      mockApi.getMetadata.mockResolvedValue(metadataWithXslt);
+      mockApi.getResourceContent.mockResolvedValue(GENERATED_WRAPPER);
+      const order: string[] = [];
+      mockApi.deleteResource.mockImplementation(async () => {
+        order.push('deleteResource');
+        return true;
+      });
+      mockApi.setMetadata.mockImplementation(async () => {
+        order.push('setMetadata');
+      });
+
+      await DataMapperMetadataService.deleteMetadata(mockApi, 'test-id');
+
+      expect(mockApi.getResourceContent).toHaveBeenCalledWith('transform-validation-wrapper.xsd');
+      expect(mockApi.deleteResource).toHaveBeenCalledWith('transform-validation-wrapper.xsd');
+      expect(order).toEqual(['deleteResource', 'setMetadata']);
+    });
+
+    it('should not delete a user file that happens to share the wrapper name', async () => {
+      mockApi.getMetadata.mockResolvedValue(metadataWithXslt);
+      mockApi.getResourceContent.mockResolvedValue('<xs:schema/>');
+
+      await DataMapperMetadataService.deleteMetadata(mockApi, 'test-id');
+
+      expect(mockApi.deleteResource).not.toHaveBeenCalled();
+      expect(mockApi.setMetadata).toHaveBeenCalledWith('test-id', undefined);
+    });
+
+    it('should still clear the metadata when the wrapper cannot be deleted', async () => {
+      mockApi.getMetadata.mockResolvedValue(metadataWithXslt);
+      mockApi.getResourceContent.mockResolvedValue(GENERATED_WRAPPER);
+      mockApi.deleteResource.mockRejectedValue(new Error('boom'));
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      await DataMapperMetadataService.deleteMetadata(mockApi, 'test-id');
+
+      expect(mockApi.setMetadata).toHaveBeenCalledWith('test-id', undefined);
+    });
+
+    it('should still clear the metadata when the metadata cannot be read', async () => {
+      mockApi.getMetadata.mockRejectedValue(new Error('boom'));
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      await DataMapperMetadataService.deleteMetadata(mockApi, 'test-id');
+
+      expect(mockApi.deleteResource).not.toHaveBeenCalled();
+      expect(mockApi.setMetadata).toHaveBeenCalledWith('test-id', undefined);
+    });
+  });
+
+  describe('validation wrapper', () => {
+    const GENERATED_WRAPPER = `<!-- ${GENERATED_WRAPPER_MARKER} for a.xsl. ${GENERATED_WRAPPER_NOTICE}; it is regenerated. -->`;
+
+    beforeEach(() => {
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
+    });
+
+    describe('saveValidationWrapper', () => {
+      it('should save the wrapper next to the XSLT file', async () => {
+        const saved = await DataMapperMetadataService.saveValidationWrapper(mockApi, 'dir/a.xsl', '<xs:schema/>');
+
+        expect(saved).toBeUndefined();
+        expect(mockApi.saveResourceContent).toHaveBeenCalledWith('dir/a-validation-wrapper.xsd', '<xs:schema/>');
+      });
+
+      it('should overwrite an existing generated wrapper', async () => {
+        mockApi.getResourceContent.mockResolvedValue(GENERATED_WRAPPER);
+
+        const saved = await DataMapperMetadataService.saveValidationWrapper(mockApi, 'a.xsl', '<xs:schema/>');
+
+        expect(saved).toBeUndefined();
+        expect(mockApi.saveResourceContent).toHaveBeenCalledWith('a-validation-wrapper.xsd', '<xs:schema/>');
+      });
+
+      it('should not overwrite a user file that has the wrapper name', async () => {
+        mockApi.getResourceContent.mockResolvedValue('<xs:schema>user</xs:schema>');
+
+        const saved = await DataMapperMetadataService.saveValidationWrapper(mockApi, 'a.xsl', '<xs:schema/>');
+
+        expect(saved).toContain('a-validation-wrapper.xsd');
+        expect(mockApi.saveResourceContent).not.toHaveBeenCalled();
+      });
+
+      it('should save the aggregators before the wrapper and remove stale ones', async () => {
+        const files: Record<string, string> = {
+          'a-validation-wrapper.xsd': `${GENERATED_WRAPPER}<xs:import schemaLocation="a-validation-wrapper-2.xsd"/>`,
+          'a-validation-wrapper-2.xsd': GENERATED_WRAPPER,
+        };
+        mockApi.getResourceContent.mockImplementation((path: string) => Promise.resolve(files[path]));
+
+        const saved = await DataMapperMetadataService.saveValidationWrapper(mockApi, 'a.xsl', '<xs:schema/>', {
+          'a-validation-wrapper-1.xsd': '<agg/>',
+        });
+
+        expect(saved).toBeUndefined();
+        expect(mockApi.saveResourceContent.mock.calls.map(([path]) => path)).toEqual([
+          'a-validation-wrapper-1.xsd',
+          'a-validation-wrapper.xsd',
+        ]);
+        expect(mockApi.deleteResource).toHaveBeenCalledWith('a-validation-wrapper-2.xsd');
+      });
+
+      it('should not overwrite a user file with an aggregator name', async () => {
+        mockApi.getResourceContent.mockImplementation((path: string) =>
+          Promise.resolve(path === 'a-validation-wrapper-1.xsd' ? '<xs:schema>user</xs:schema>' : undefined),
+        );
+
+        const saved = await DataMapperMetadataService.saveValidationWrapper(mockApi, 'a.xsl', '<xs:schema/>', {
+          'a-validation-wrapper-1.xsd': '<agg/>',
+        });
+
+        expect(saved).toContain('a-validation-wrapper-1.xsd');
+        expect(mockApi.saveResourceContent).not.toHaveBeenCalled();
+      });
+
+      it('should return the reason when saving fails', async () => {
+        mockApi.saveResourceContent.mockRejectedValue(new Error('boom'));
+
+        const saved = await DataMapperMetadataService.saveValidationWrapper(mockApi, 'a.xsl', '<xs:schema/>');
+
+        expect(saved).toBe('Error: boom');
+      });
+
+      it('should never write to the XSLT path itself', async () => {
+        await DataMapperMetadataService.saveValidationWrapper(mockApi, 'a.xslt', '<xs:schema/>');
+
+        expect(mockApi.saveResourceContent).toHaveBeenCalledWith('a.xslt-validation-wrapper.xsd', '<xs:schema/>');
+      });
+    });
+
+    describe('isTargetBodyPrimitive', () => {
+      it.each([
+        [undefined, true],
+        [{ targetBody: undefined }, true],
+        [{ targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] } }, true],
+        [{ targetBody: { type: DocumentDefinitionType.XML_SCHEMA, filePath: ['a.xsd'] } }, false],
+        [{ targetBody: { type: DocumentDefinitionType.JSON_SCHEMA, filePath: ['a.json'] } }, false],
+      ])('should resolve %j to %s', async (metadata, expected) => {
+        mockApi.getMetadata.mockResolvedValue(metadata);
+
+        expect(await DataMapperMetadataService.isTargetBodyPrimitive(mockApi, 'id')).toBe(expected);
+        expect(mockApi.getMetadata).toHaveBeenCalledWith('id');
+      });
+    });
+
+    describe('duplicateValidationWrapper', () => {
+      it('should copy a generated wrapper and report the moved file', async () => {
+        mockApi.getResourceContent.mockResolvedValue(GENERATED_WRAPPER);
+
+        const result = await DataMapperMetadataService.duplicateValidationWrapper(mockApi, 'a.xsl', 'b.xsl');
+
+        expect(result).toEqual({ renames: { 'a-validation-wrapper.xsd': 'b-validation-wrapper.xsd' } });
+        expect(mockApi.saveResourceContent).toHaveBeenCalledWith('b-validation-wrapper.xsd', GENERATED_WRAPPER);
+      });
+
+      it('should copy the aggregators and rewrite their references', async () => {
+        const wrapper = `${GENERATED_WRAPPER}<xs:import namespace="urn:x" schemaLocation="a-validation-wrapper-1.xsd"/>`;
+        const files: Record<string, string> = {
+          'dir/a-validation-wrapper.xsd': wrapper,
+          'dir/a-validation-wrapper-1.xsd': `${GENERATED_WRAPPER}<xs:include schemaLocation="x.xsd"/>`,
+        };
+        mockApi.getResourceContent.mockImplementation((path: string) => Promise.resolve(files[path]));
+
+        const { renames, failure } = await DataMapperMetadataService.duplicateValidationWrapper(
+          mockApi,
+          'dir/a.xsl',
+          'dir/b.xsl',
+        );
+
+        expect(failure).toBeUndefined();
+        expect(renames).toEqual({
+          'dir/a-validation-wrapper.xsd': 'dir/b-validation-wrapper.xsd',
+          'dir/a-validation-wrapper-1.xsd': 'dir/b-validation-wrapper-1.xsd',
+        });
+        expect(mockApi.saveResourceContent).toHaveBeenCalledWith(
+          'dir/b-validation-wrapper.xsd',
+          expect.stringContaining('schemaLocation="b-validation-wrapper-1.xsd"'),
+        );
+        expect(mockApi.saveResourceContent).toHaveBeenCalledWith(
+          'dir/b-validation-wrapper-1.xsd',
+          files['dir/a-validation-wrapper-1.xsd'],
+        );
+        // the wrapper is written last
+        expect(mockApi.saveResourceContent.mock.calls.at(-1)?.[0]).toBe('dir/b-validation-wrapper.xsd');
+      });
+
+      it('should copy nothing when an aggregator is missing', async () => {
+        const files: Record<string, string> = {
+          'a-validation-wrapper.xsd': `${GENERATED_WRAPPER}<xs:import schemaLocation="a-validation-wrapper-1.xsd"/>`,
+        };
+        mockApi.getResourceContent.mockImplementation((path: string) => Promise.resolve(files[path]));
+
+        const result = await DataMapperMetadataService.duplicateValidationWrapper(mockApi, 'a.xsl', 'b.xsl');
+
+        expect(result.renames).toEqual({});
+        expect(result.failure).toContain('a-validation-wrapper-1.xsd');
+        expect(mockApi.saveResourceContent).not.toHaveBeenCalled();
+      });
+
+      it('should not read a wrapper that does not exist (no editor error notification)', async () => {
+        mockApi.isResourceExist.mockResolvedValue(false);
+
+        const result = await DataMapperMetadataService.duplicateValidationWrapper(mockApi, 'a.xsl', 'b.xsl');
+
+        expect(result).toEqual({ renames: {} });
+        expect(mockApi.getResourceContent).not.toHaveBeenCalled();
+      });
+
+      it('should not copy a user file with the same name, and not report it as a failure', async () => {
+        mockApi.getResourceContent.mockResolvedValue('<xs:schema/>');
+
+        expect(await DataMapperMetadataService.duplicateValidationWrapper(mockApi, 'a.xsl', 'b.xsl')).toEqual({
+          renames: {},
+        });
+        expect(mockApi.saveResourceContent).not.toHaveBeenCalled();
+      });
+
+      it('should not overwrite a user file at the target wrapper path', async () => {
+        mockApi.getResourceContent.mockImplementation((path: string) =>
+          Promise.resolve(path === 'a-validation-wrapper.xsd' ? GENERATED_WRAPPER : '<xs:schema/>'),
+        );
+
+        const result = await DataMapperMetadataService.duplicateValidationWrapper(mockApi, 'a.xsl', 'b.xsl');
+
+        expect(result.renames).toEqual({});
+        expect(result.failure).toContain('b-validation-wrapper.xsd');
+        expect(mockApi.saveResourceContent).not.toHaveBeenCalled();
+      });
+
+      it('should report a failure when reading or writing fails', async () => {
+        mockApi.getResourceContent.mockResolvedValue(GENERATED_WRAPPER);
+        mockApi.saveResourceContent.mockRejectedValue(new Error('boom'));
+
+        expect(await DataMapperMetadataService.duplicateValidationWrapper(mockApi, 'a.xsl', 'b.xsl')).toEqual({
+          renames: {},
+          failure: 'Error: boom',
+        });
+      });
+
+      it('should return nothing for empty paths', async () => {
+        expect(await DataMapperMetadataService.duplicateValidationWrapper(mockApi, '', 'b.xsl')).toEqual({
+          renames: {},
+        });
+        expect(await DataMapperMetadataService.duplicateValidationWrapper(mockApi, 'a.xsl', '')).toEqual({
+          renames: {},
+        });
+        expect(mockApi.getResourceContent).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('deleteValidationWrapper', () => {
+      it('should delete a generated wrapper', async () => {
+        mockApi.getResourceContent.mockResolvedValue(GENERATED_WRAPPER);
+
+        await DataMapperMetadataService.deleteValidationWrapper(mockApi, 'a.xsl');
+
+        expect(mockApi.deleteResource).toHaveBeenCalledWith('a-validation-wrapper.xsd');
+      });
+
+      it('should delete the aggregators of the wrapper too', async () => {
+        const files: Record<string, string> = {
+          'a-validation-wrapper.xsd': `${GENERATED_WRAPPER}<xs:import schemaLocation="a-validation-wrapper-1.xsd"/>`,
+          'a-validation-wrapper-1.xsd': GENERATED_WRAPPER,
+        };
+        mockApi.getResourceContent.mockImplementation((path: string) => Promise.resolve(files[path]));
+
+        await DataMapperMetadataService.deleteValidationWrapper(mockApi, 'a.xsl');
+
+        expect(mockApi.deleteResource).toHaveBeenCalledWith('a-validation-wrapper-1.xsd');
+        expect(mockApi.deleteResource).toHaveBeenCalledWith('a-validation-wrapper.xsd');
+      });
+
+      it('should not touch a wrapper that does not exist (no editor error notification)', async () => {
+        mockApi.isResourceExist.mockResolvedValue(false);
+
+        await DataMapperMetadataService.deleteValidationWrapper(mockApi, 'a.xsl');
+
+        expect(mockApi.getResourceContent).not.toHaveBeenCalled();
+        expect(mockApi.deleteResource).not.toHaveBeenCalled();
+      });
+
+      it('should not delete a user file', async () => {
+        mockApi.getResourceContent.mockResolvedValue('<xs:schema/>');
+
+        await DataMapperMetadataService.deleteValidationWrapper(mockApi, 'a.xsl');
+
+        expect(mockApi.deleteResource).not.toHaveBeenCalled();
+      });
+
+      it('should not throw when the API fails', async () => {
+        mockApi.getResourceContent.mockRejectedValue(new Error('boom'));
+
+        await expect(DataMapperMetadataService.deleteValidationWrapper(mockApi, 'a.xsl')).resolves.toBeUndefined();
+      });
+
+      it('should not throw when deleting the wrapper is rejected', async () => {
+        mockApi.getResourceContent.mockResolvedValue(GENERATED_WRAPPER);
+        mockApi.deleteResource.mockRejectedValue(new Error('read-only'));
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+        await expect(DataMapperMetadataService.deleteValidationWrapper(mockApi, 'a.xsl')).resolves.toBeUndefined();
+
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('read-only'));
+      });
+
+      it('should do nothing for an empty xslt path', async () => {
+        await DataMapperMetadataService.deleteValidationWrapper(mockApi, '');
+
+        expect(mockApi.isResourceExist).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('duplicateMetadataFiles', () => {
+      const original = { xsltPath: 'a.xsl' } as IDataMapperMetadata;
+
+      it('should report the XSLT file and the wrapper', async () => {
+        const files: Record<string, string> = { 'a.xsl': '<xsl/>', 'a-validation-wrapper.xsd': GENERATED_WRAPPER };
+        mockApi.getResourceContent.mockImplementation((path: string) => Promise.resolve(files[path]));
+
+        const renames = await DataMapperMetadataService.duplicateMetadataFiles(mockApi, original, 'b.xsl');
+
+        expect(renames).toEqual({ 'a.xsl': 'b.xsl', 'a-validation-wrapper.xsd': 'b-validation-wrapper.xsd' });
+        expect(mockApi.saveResourceContent).toHaveBeenCalledWith('b.xsl', '<xsl/>');
+      });
+
+      it('should warn with the reason when the wrapper exists but could not be copied', async () => {
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        const files: Record<string, string> = { 'a.xsl': '<xsl/>', 'a-validation-wrapper.xsd': GENERATED_WRAPPER };
+        mockApi.getResourceContent.mockImplementation((path: string) => Promise.resolve(files[path]));
+        mockApi.saveResourceContent.mockImplementation((path: string) =>
+          path === 'b-validation-wrapper.xsd' ? Promise.reject(new Error('disk full')) : Promise.resolve(),
+        );
+
+        const renames = await DataMapperMetadataService.duplicateMetadataFiles(mockApi, original, 'b.xsl');
+
+        expect(renames).toEqual({ 'a.xsl': 'b.xsl' });
+        expect(warnSpy).toHaveBeenCalledTimes(1);
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('disk full'));
+      });
+
+      it('should not warn when there is no wrapper', async () => {
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        mockApi.getResourceContent.mockImplementation((path: string) =>
+          Promise.resolve(path === 'a.xsl' ? '<xsl/>' : undefined),
+        );
+
+        await DataMapperMetadataService.duplicateMetadataFiles(mockApi, original, 'b.xsl');
+
+        expect(warnSpy).not.toHaveBeenCalled();
+      });
+
+      it('should report only the XSLT file when there is no wrapper', async () => {
+        mockApi.getResourceContent.mockImplementation((path: string) =>
+          Promise.resolve(path === 'a.xsl' ? '<xsl/>' : undefined),
+        );
+
+        expect(await DataMapperMetadataService.duplicateMetadataFiles(mockApi, original, 'b.xsl')).toEqual({
+          'a.xsl': 'b.xsl',
+        });
+      });
+    });
+
+    describe('renameXsltFile', () => {
+      const metadata = { xsltPath: 'a.xsl' } as IDataMapperMetadata;
+      let files: Record<string, string>;
+
+      beforeEach(() => {
+        files = { 'a.xsl': '<xsl/>' };
+        mockApi.getMetadata.mockResolvedValue(metadata);
+        mockApi.getResourceContent.mockImplementation((path: string) => Promise.resolve(files[path]));
+        mockApi.saveResourceContent.mockImplementation((path: string, content: string) => {
+          files[path] = content;
+          return Promise.resolve();
+        });
+        mockApi.deleteResource.mockImplementation((path: string) => {
+          delete files[path];
+          return Promise.resolve(true);
+        });
+      });
+
+      it('should copy the XSLT file and update the metadata, without deleting the old file', async () => {
+        const renames = await DataMapperMetadataService.renameXsltFile(mockApi, 'id', 'b.xsl');
+
+        expect(renames).toEqual({ 'a.xsl': 'b.xsl' });
+        expect(files['b.xsl']).toBe('<xsl/>');
+        expect(files['a.xsl']).toBe('<xsl/>');
+        expect(mockApi.deleteResource).not.toHaveBeenCalled();
+        expect(mockApi.setMetadata).toHaveBeenCalledWith('id', expect.objectContaining({ xsltPath: 'b.xsl' }));
+      });
+
+      it('should copy the wrapper along, without deleting the old one', async () => {
+        files['a-validation-wrapper.xsd'] = GENERATED_WRAPPER;
+
+        const renames = await DataMapperMetadataService.renameXsltFile(mockApi, 'id', 'b.xsl');
+
+        expect(renames).toEqual({ 'a.xsl': 'b.xsl', 'a-validation-wrapper.xsd': 'b-validation-wrapper.xsd' });
+        expect(files['b-validation-wrapper.xsd']).toBe(GENERATED_WRAPPER);
+        expect(files['a-validation-wrapper.xsd']).toBe(GENERATED_WRAPPER);
+        expect(mockApi.deleteResource).not.toHaveBeenCalled();
+      });
+
+      it('should report only the XSLT file, and warn, when the wrapper could not be copied', async () => {
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        files['a-validation-wrapper.xsd'] = GENERATED_WRAPPER;
+        files['b-validation-wrapper.xsd'] = '<xs:schema>user</xs:schema>';
+
+        const renames = await DataMapperMetadataService.renameXsltFile(mockApi, 'id', 'b.xsl');
+
+        expect(renames).toEqual({ 'a.xsl': 'b.xsl' });
+        expect(files['b-validation-wrapper.xsd']).toBe('<xs:schema>user</xs:schema>');
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('b-validation-wrapper.xsd'));
+      });
+
+      it('should reject, and leave the metadata alone, when saving the new XSLT file fails', async () => {
+        mockApi.saveResourceContent.mockRejectedValue(new Error('disk full'));
+
+        await expect(DataMapperMetadataService.renameXsltFile(mockApi, 'id', 'b.xsl')).rejects.toThrow('disk full');
+
+        expect(mockApi.setMetadata).not.toHaveBeenCalled();
+        expect(mockApi.deleteResource).not.toHaveBeenCalled();
+      });
+
+      it.each<[string, () => void, string?]>([
+        [
+          'there is no metadata',
+          () => {
+            mockApi.getMetadata.mockResolvedValue(undefined);
+          },
+        ],
+        ['the path did not change', () => undefined, 'a.xsl'],
+        [
+          'the XSLT file does not exist',
+          () => {
+            delete files['a.xsl'];
+          },
+        ],
+      ])('should return undefined when %s', async (_name, arrange, target = 'b.xsl') => {
+        arrange();
+
+        expect(await DataMapperMetadataService.renameXsltFile(mockApi, 'id', target)).toBeUndefined();
+        expect(mockApi.saveResourceContent).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('deleteRenamedFiles', () => {
+      it('should delete the old XSLT file and the copied generated wrapper and aggregators', async () => {
+        const files: Record<string, string> = {
+          'a.xsl': '<xsl/>',
+          'a-validation-wrapper.xsd': GENERATED_WRAPPER,
+          'a-validation-wrapper-1.xsd': GENERATED_WRAPPER,
+        };
+        mockApi.getResourceContent.mockImplementation((path: string) => Promise.resolve(files[path]));
+
+        await DataMapperMetadataService.deleteRenamedFiles(mockApi, {
+          'a.xsl': 'b.xsl',
+          'a-validation-wrapper.xsd': 'b-validation-wrapper.xsd',
+          'a-validation-wrapper-1.xsd': 'b-validation-wrapper-1.xsd',
+        });
+
+        expect(mockApi.deleteResource).toHaveBeenCalledTimes(3);
+        expect(mockApi.deleteResource).toHaveBeenCalledWith('a.xsl');
+        expect(mockApi.deleteResource).toHaveBeenCalledWith('a-validation-wrapper.xsd');
+        expect(mockApi.deleteResource).toHaveBeenCalledWith('a-validation-wrapper-1.xsd');
+      });
+
+      it('should delete only the old XSLT file when no wrapper was copied', async () => {
+        mockApi.getResourceContent.mockResolvedValue(GENERATED_WRAPPER);
+
+        await DataMapperMetadataService.deleteRenamedFiles(mockApi, { 'a.xsl': 'b.xsl' });
+
+        expect(mockApi.deleteResource).toHaveBeenCalledTimes(1);
+        expect(mockApi.deleteResource).toHaveBeenCalledWith('a.xsl');
+      });
+
+      it('should not delete a copied wrapper that is a user file', async () => {
+        mockApi.getResourceContent.mockResolvedValue('<xs:schema/>');
+
+        await DataMapperMetadataService.deleteRenamedFiles(mockApi, {
+          'a.xsl': 'b.xsl',
+          'a-validation-wrapper.xsd': 'b-validation-wrapper.xsd',
+        });
+
+        expect(mockApi.deleteResource).toHaveBeenCalledTimes(1);
+        expect(mockApi.deleteResource).toHaveBeenCalledWith('a.xsl');
+      });
+    });
+
+    describe('loadTargetBodyDefinition', () => {
+      it('should load the target body schema files in filePath order', async () => {
+        mockApi.getResourceContent.mockImplementation((path: string) => Promise.resolve(`<${path}/>`));
+        const metadata: IDataMapperMetadata = {
+          sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+          sourceParameters: {},
+          targetBody: { type: DocumentDefinitionType.XML_SCHEMA, filePath: ['b.xsd', 'a.xsd'] },
+          xsltPath: 'a.xsl',
+        };
+
+        const definition = await DataMapperMetadataService.loadTargetBodyDefinition(mockApi, metadata);
+
+        expect(definition.documentType).toBe(DocumentType.TARGET_BODY);
+        expect(Object.keys(definition.definitionFiles ?? {})).toEqual(['b.xsd', 'a.xsd']);
+      });
     });
   });
 
@@ -855,6 +1377,49 @@ describe('DataMapperMetadataService', () => {
 
       expect(result.sourceBody).toBeDefined();
       expect(result.sourceBody.definitionFiles).toEqual({});
+    });
+
+    it('should keep definitionFiles in filePath order regardless of read completion order', async () => {
+      const delays: Record<string, number> = { 'a.xsd': 30, 'b.xsd': 0, 'c.xsd': 10 };
+      mockApi.getResourceContent.mockImplementation(
+        (path: string) =>
+          new Promise((resolve) =>
+            setTimeout(() => {
+              resolve(`<${path}/>`);
+            }, delays[path] ?? 0),
+          ),
+      );
+      const metadata: IDataMapperMetadata = {
+        sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.XML_SCHEMA, filePath: ['a.xsd', 'b.xsd', 'c.xsd'] },
+        xsltPath: 'transform.xsl',
+      };
+
+      const result = await DataMapperMetadataService.loadDocuments(mockApi, metadata);
+
+      expect(Object.keys(result.targetBody.definitionFiles ?? {})).toEqual(['a.xsd', 'b.xsd', 'c.xsd']);
+    });
+
+    it('should skip files that are empty or cannot be read, keeping the order of the rest', async () => {
+      mockApi.getResourceContent.mockImplementation((path: string) => {
+        if (path === 'broken.xsd') return Promise.reject(new Error('boom'));
+        if (path === 'empty.xsd') return Promise.resolve('');
+        return Promise.resolve(`<${path}/>`);
+      });
+      const metadata: IDataMapperMetadata = {
+        sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        sourceParameters: {},
+        targetBody: {
+          type: DocumentDefinitionType.XML_SCHEMA,
+          filePath: ['first.xsd', 'broken.xsd', 'empty.xsd', 'last.xsd'],
+        },
+        xsltPath: 'transform.xsl',
+      };
+
+      const result = await DataMapperMetadataService.loadDocuments(mockApi, metadata);
+
+      expect(Object.keys(result.targetBody.definitionFiles ?? {})).toEqual(['first.xsd', 'last.xsd']);
     });
   });
 
