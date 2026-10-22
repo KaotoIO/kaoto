@@ -344,6 +344,40 @@ describe('NodeTitle', () => {
     );
   });
 
+  describe('auto-optional-if guard highlight on the Opt icon', () => {
+    it('should highlight the Opt icon when the field has an active auto-optional guard', () => {
+      const targetDoc = TestUtil.createTargetOrderDoc();
+      const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      const targetDocNodeData = new TargetDocumentNodeData(targetDoc, tree);
+      const targetField = targetDoc.fields[0].fields[1];
+      targetField.minOccurs = 0;
+      const ifItem = new IfItem(tree);
+      const fieldItem = new FieldItem(ifItem, targetField);
+      const fieldItemNodeData = new FieldItemNodeData(targetDocNodeData, fieldItem);
+      fieldItemNodeData.autoOptionalIfItem = ifItem;
+
+      render(<NodeTitle nodeData={fieldItemNodeData} isDocument={false} rank={0} />);
+
+      const optIcon = screen.getByLabelText('Optional');
+      expect(optIcon).toHaveClass('datamapper-marker-field--active-guard');
+    });
+
+    it('should NOT highlight the Opt icon when the field has no active auto-optional guard', () => {
+      const targetDoc = TestUtil.createTargetOrderDoc();
+      const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      const targetDocNodeData = new TargetDocumentNodeData(targetDoc, tree);
+      const targetField = targetDoc.fields[0].fields[1];
+      targetField.minOccurs = 0;
+      const fieldItem = new FieldItem(tree, targetField);
+      const fieldItemNodeData = new FieldItemNodeData(targetDocNodeData, fieldItem);
+
+      render(<NodeTitle nodeData={fieldItemNodeData} isDocument={false} rank={0} />);
+
+      const optIcon = screen.getByLabelText('Optional');
+      expect(optIcon).not.toHaveClass('datamapper-marker-field--active-guard');
+    });
+  });
+
   describe('copy-of label on FieldNodeTitle', () => {
     const createFieldItemNodeData = (copyOfType: CopyOfType) => {
       const targetDoc = TestUtil.createTargetOrderDoc();

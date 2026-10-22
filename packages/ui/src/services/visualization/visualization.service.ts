@@ -7,6 +7,7 @@ import {
   CopyOfType,
   FieldItem,
   IExpressionHolder,
+  IfItem,
   InstructionItem,
   isExpressionHolder,
   MappingItem,
@@ -43,6 +44,7 @@ import { DocumentService } from '../document/document.service';
 import { DocumentUtilService } from '../document/document-util.service';
 import { WrapperSelectionService } from '../document/wrapper-selection.service';
 import { MappingService } from '../mapping/mapping.service';
+import { WrapperAutoDetectionService } from '../mapping/wrapper-auto-detection.service';
 import { VisualizationUtilService } from './visualization-util.service';
 
 interface WrapperSpec {
@@ -345,7 +347,11 @@ export class VisualizationService {
     mappings: MappingItem[] | undefined,
   ): void {
     if (!mappings || VisualizationService.isUnconfiguredTargetWrapper(parent, mappings)) return;
-    const rendered = new Set(answer.filter((n): n is TargetNodeData => 'mapping' in n).map((n) => n.mapping));
+    const rendered = new Set<MappingParentType | undefined>();
+    for (const n of answer.filter((x): x is TargetNodeData => 'mapping' in x)) {
+      rendered.add(n.mapping);
+      if (n instanceof FieldItemNodeData && n.autoOptionalIfItem) rendered.add(n.autoOptionalIfItem);
+    }
     for (const m of mappings) {
       if (
         !rendered.has(m) &&
@@ -508,6 +514,15 @@ export class VisualizationService {
   }
 
   private static createNodeDataFromMappingItem(parent: TargetNodeData, mapping: MappingItem): MappingNodeData {
+    if (mapping instanceof IfItem && mapping.isAutoOptionalIf) {
+      const innerFieldItem = WrapperAutoDetectionService.matchSimpleOptionalGuard(mapping);
+      if (innerFieldItem) {
+        const wrapperField = VisualizationService.findWrapperFieldForFieldItem(innerFieldItem);
+        const nodeData = new FieldItemNodeData(parent, innerFieldItem, wrapperField);
+        nodeData.autoOptionalIfItem = mapping;
+        return nodeData;
+      }
+    }
     if (mapping instanceof FieldItem) {
       const wrapperField = VisualizationService.findWrapperFieldForFieldItem(mapping);
       return new FieldItemNodeData(parent, mapping, wrapperField);

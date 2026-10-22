@@ -26,6 +26,7 @@ export const FieldNodeTitle: FunctionComponent<FieldNodeTitleProps> = ({ classNa
   const optionalField = nodeData.field.minOccurs === 0;
   const repeatingField0 = nodeData.field.minOccurs >= 0 && nodeData.field.maxOccurs === 'unbounded';
   const repeatingField1 = nodeData.field.minOccurs >= 1 && nodeData.field.maxOccurs === 'unbounded';
+  const hasActiveOptionalGuard = nodeData instanceof FieldItemNodeData && !!nodeData.autoOptionalIfItem;
 
   const inlineCopyOf = VisualizationUtilService.getInlineContainerCopyOf(nodeData);
 
@@ -58,7 +59,12 @@ export const FieldNodeTitle: FunctionComponent<FieldNodeTitleProps> = ({ classNa
         </span>
       )}
       {optionalField && !repeatingField0 && (
-        <OptIcon className="node__spacer datamapper-marker-field" aria-label="Optional" />
+        <OptIcon
+          className={clsx('node__spacer datamapper-marker-field', {
+            'datamapper-marker-field--active-guard': hasActiveOptionalGuard,
+          })}
+          aria-label="Optional"
+        />
       )}
       {repeatingField0 && !repeatingField1 && (
         <Repeat0Icon className="node__spacer datamapper-marker-field" aria-label="Repeat0" />

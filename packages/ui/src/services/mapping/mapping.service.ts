@@ -376,6 +376,21 @@ export class MappingService {
   }
 
   /**
+   * Inverse of {@link wrapWithItem}: removes `wrapper` from its parent's children (preserving
+   * position) and reparents its single child in its place.
+   * @param wrapper - the wrapper item to remove
+   * @returns the unwrapped, reparented child, or `undefined` if `wrapper` doesn't have exactly one child
+   */
+  static unwrapItem(wrapper: MappingItem): MappingItem | undefined {
+    if (wrapper.children.length !== 1) return undefined;
+    const child = wrapper.children[0];
+    const parent = wrapper.parent;
+    child.parent = parent;
+    parent.children = parent.children.map((m) => (m !== wrapper ? m : child));
+    return child;
+  }
+
+  /**
    * Renames a parameter in all mappings within the mapping tree.
    * This updates XPath expressions that reference the old parameter name.
    */
@@ -1245,15 +1260,22 @@ export class MappingService {
   }
 
   /**
-   * First removes value selector children, then for {@link InstructionItem}/{@link VariableItem},
-   * items under {@link FieldItem} parents, items directly under an auto-optional guard
-   * {@link IfItem} (so deleting the mapping also sheds its hidden guard, see
-   * {@link deleteFromParent}), {@link CopyOfSelector} directly under {@link MappingTree}
-   * (primitive target body), or user-created {@link FieldItem}s, removes the item and recursively
-   * cleans up empty FieldItem/auto-optional-IfItem ancestors.
+   * First removes value selector children. For a {@link VariableItem}, also cleans up any
+   * dangling `$name` references on its following siblings (see {@link removeVariableReferences})
+   * before removal. Then, for {@link InstructionItem}/{@link VariableItem}, items under a
+   * {@link FieldItem} ancestor (walking through any enclosing instructions, including a
+   * transparent auto-optional guard {@link IfItem}, so deleting a guarded field's mapping still
+   * matches), {@link CopyOfSelector} directly under {@link MappingTree} (primitive target body),
+   * or user-created {@link FieldItem}s, removes the item and recursively cleans up empty
+   * {@link FieldItem} ancestors (see {@link deleteFromParent}). A see-through auto-optional guard
+   * {@link IfItem} owning the deleted mapping is removed along with it, since the user only ever
+   * sees it as part of the field; a guard that is visible, or holds anything else, is kept.
    * @param item - the mapping item to delete
    */
   static deleteMappingItem(item: MappingParentType) {
+    // Must be resolved before the selectors below are stripped: a guard is only see-through while
+    // its field still has the sole selector it matches, so afterwards it no longer qualifies.
+    const ownedGuard = MappingService.findOwningAutoOptionalGuard(item);
     item.children = item.children.filter((child) => !(child instanceof ValueSelector));
     const isInstructionItem = item instanceof InstructionItem;
     const isVariableItem = item instanceof VariableItem;
@@ -1271,6 +1293,40 @@ export class MappingService {
     }
     if (isInstructionItem || isVariableItem || isParentFieldItem || isRootLevelCopyOf || isUserCreatedFieldItem) {
       MappingService.deleteFromParent(item);
+      if (ownedGuard) MappingService.removeEmptiedGuard(ownedGuard);
+    }
+  }
+
+  /**
+   * The see-through auto-optional guard that `item` belongs to: the one directly wrapping `item`
+   * (a field), or the one wrapping the field `item` is the container `copy-of` of.
+   */
+  private static findOwningAutoOptionalGuard(item: MappingParentType): IfItem | undefined {
+    if (!(item instanceof MappingItem)) return undefined;
+    const parent = item.parent;
+    if (WrapperAutoDetectionService.isEffectivelyAutoOptionalGuard(parent)) return parent;
+    if (
+      item instanceof CopyOfSelector &&
+      parent instanceof FieldItem &&
+      WrapperAutoDetectionService.isEffectivelyAutoOptionalGuard(parent.parent)
+    ) {
+      return parent.parent;
+    }
+    return undefined;
+  }
+
+  /**
+   * Removes a guard once its mapping has been deleted. Deleting a container `copy-of` leaves its
+   * now-empty field behind inside the guard, so that goes too; a guard that still holds anything
+   * else is left alone.
+   */
+  private static removeEmptiedGuard(guard: IfItem) {
+    const [only] = guard.children;
+    if (guard.children.length === 1 && only instanceof FieldItem && only.children.length === 0) {
+      guard.children = [];
+    }
+    if (guard.children.length === 0) {
+      MappingService.deleteFromParent(guard);
     }
   }
 
@@ -1290,9 +1346,8 @@ export class MappingService {
     const hasFieldItemAncestor =
       parent instanceof MappingItem && MappingService.findEnclosingFieldItem(parent, 'transparentGuards') !== undefined;
     const areNoChildren = parent.children.length === 0;
-    // The guard itself is deliberately never removed here. `autoDetectOptionalGuards` flags any
-    // shape-matching `xsl:if` on load, including one the user wrote by hand, so deleting it would
-    // silently destroy their stylesheet. An emptied `xsl:if` stays visible and removable instead.
+    // An emptied `xsl:if` is not cascaded into here, since it may be the user's own. A see-through
+    // guard is removed by `deleteMappingItem` instead, which knows it owned the deleted mapping.
     if (areNoChildren && isParentFieldItem && hasFieldItemAncestor) {
       MappingService.deleteFromParent(parent);
     }

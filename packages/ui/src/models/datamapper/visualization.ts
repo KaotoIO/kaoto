@@ -5,6 +5,7 @@ import { DocumentType, IDocument, IField, PrimitiveDocument } from './document';
 import {
   FieldItem,
   IExpressionHolder,
+  IfItem,
   IFunctionDefinition,
   MappingItem,
   MappingParentType,
@@ -291,6 +292,8 @@ export class FieldItemNodeData extends MappingNodeData {
     this.field = mapping.field;
   }
   public field: IField;
+  /** The hidden {@link IfItem} that auto-wraps this field with an optional guard (`isAutoOptionalIf = true`). Absent when no guard is active. */
+  public autoOptionalIfItem?: IfItem;
 }
 
 export class UnknownMappingNodeData extends MappingNodeData {

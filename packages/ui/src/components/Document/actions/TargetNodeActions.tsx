@@ -1,10 +1,12 @@
 import './TargetNodeActions.scss';
 
 import { ActionListGroup } from '@patternfly/react-core';
-import { FunctionComponent } from 'react';
+import { FunctionComponent, useCallback } from 'react';
 
+import { useDataMapper } from '../../../hooks/useDataMapper';
 import { MappingActionKind } from '../../../models/datamapper/mapping-action';
 import { TargetNodeData } from '../../../models/datamapper/visualization';
+import { WrapperAutoDetectionService } from '../../../services/mapping/wrapper-auto-detection.service';
 import { MappingActionRegistryService } from '../../../services/visualization/mapping-action-registry.service';
 import { VisualizationService } from '../../../services/visualization/visualization.service';
 import { DeleteMappingItemAction } from './DeleteMappingItemAction';
@@ -25,15 +27,41 @@ export const TargetNodeActions: FunctionComponent<TargetNodeActionsProps> = ({
   onUpdate,
   onStructuralUpdate,
 }) => {
+  const { sourceParameterMap, sourceBodyDocument } = useDataMapper();
   const expressionItem = VisualizationService.getExpressionItemForNode(nodeData);
-  const allowedActions = new Set(MappingActionRegistryService.getAllowedActions(nodeData));
+  const allowedActions = new Set(
+    MappingActionRegistryService.getAllowedActions(nodeData, {
+      sourceParameterMap,
+      sourceBody: sourceBodyDocument,
+    }),
+  );
+
+  /**
+   * Runs once the user finishes editing the XPath (input blur or editor modal close) rather than
+   * on every keystroke, since promoting/demoting an auto-optional-if guard restructures the tree
+   * and would steal focus mid-edit.
+   */
+  const handleXPathCommit = useCallback(() => {
+    if (!expressionItem) return;
+    WrapperAutoDetectionService.reconcileGuardAndDispatch(nodeData, expressionItem, onUpdate, onStructuralUpdate);
+  }, [nodeData, expressionItem, onUpdate, onStructuralUpdate]);
 
   return (
     <ActionListGroup key={`target-node-actions-${nodeData.id}`} className={className}>
       {expressionItem && (
         <>
-          <XPathInputAction nodeData={nodeData} mapping={expressionItem} onUpdate={onUpdate} />
-          <XPathEditorAction nodeData={nodeData} mapping={expressionItem} onUpdate={onUpdate} />
+          <XPathInputAction
+            nodeData={nodeData}
+            mapping={expressionItem}
+            onUpdate={onUpdate}
+            onCommit={handleXPathCommit}
+          />
+          <XPathEditorAction
+            nodeData={nodeData}
+            mapping={expressionItem}
+            onUpdate={onUpdate}
+            onCommit={handleXPathCommit}
+          />
         </>
       )}
       {allowedActions.has(MappingActionKind.ContextMenu) && (

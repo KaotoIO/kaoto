@@ -1,5 +1,6 @@
 import { IDocument, IField, IParentType, PrimitiveDocument } from '../../models/datamapper/document';
 import {
+  CopyOfSelector,
   FieldItem,
   IExpressionHolder,
   IfItem,
@@ -7,10 +8,13 @@ import {
   MappingParentType,
   MappingTree,
   OtherwiseItem,
+  ValueOfSelector,
+  ValueSelector,
   WhenItem,
 } from '../../models/datamapper/mapping';
 import { IChoiceSelection, IFieldSubstitution } from '../../models/datamapper/metadata';
 import { FieldOverrideVariant } from '../../models/datamapper/types';
+import { ExpressionHolderNodeData, FieldItemNodeData, MappingNodeData } from '../../models/datamapper/visualization';
 import { QName } from '../../xml-schema-ts/QName';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
 import { ensureNamespaceRegistered, formatWithPrefix } from '../namespace-util';
@@ -26,19 +30,12 @@ export type OptionalGuardDecision = 'skip' | 'visible' | 'hidden';
  * without `.kaoto` metadata, plus the auto-optional `xsl:if` guards.
  *
  * Wrapper-selection detection runs after XSLT deserialization, before visualization. The
- * auto-optional guard rules additionally run per-edit via {@link onExpressionChanged}, so each of
- * them must do its cheap structural checks before any XPath parse.
+ * auto-optional guard rules additionally run per-edit via {@link onExpressionChanged}.
  *
  * Three conditions must all hold for wrapper auto-detection:
  * 1. `maxOccurs = 1` on the wrapper (or field for non-abstract substitution)
  * 2. Element uniquely identifies the target (not ambiguous across branches)
  * 3. No conditional instruction wrapping (`xsl:if`, `xsl:choose`)
- *
- * The auto-optional guard side owns both halves of one definition, which is why they live
- * together: {@link decideOptionalGuard} decides whether `MappingService.tryAutoOptionalIfWrap`
- * creates a guard and whether it is see-through, and {@link matchSimpleOptionalGuard} recognises
- * one again afterwards. {@link applyAutoOptionalFlag} is the shared rule, reached tree-wide by
- * {@link autoDetectOptionalGuards} and per-node by {@link onExpressionChanged}.
  */
 export class WrapperAutoDetectionService {
   static autoDetectWrapperSelections(
@@ -273,9 +270,7 @@ export class WrapperAutoDetectionService {
 
   /**
    * The single definition of when a guard is see-through: exactly when its content still matches
-   * {@link matchSimpleOptionalGuard}. Applied tree-wide at load by {@link autoDetectOptionalGuards}
-   * and per-node after an edit by {@link onExpressionChanged}, so the two can never disagree about
-   * the same tree.
+   * {@link matchSimpleOptionalGuard}.
    * @param ifItem - the `IfItem` whose flag should be brought in line with its current shape
    */
   private static applyAutoOptionalFlag(ifItem: IfItem): void {
@@ -283,20 +278,11 @@ export class WrapperAutoDetectionService {
   }
 
   /**
-   * Single entry point for "the expression on this item just changed" — call sites announce the
-   * event and this decides which derived state needs bringing back in line. New post-edit
-   * invariants belong here rather than at every writer: the auto-optional guard originally
-   * re-checked itself inside `MappingService.tryAutoOptionalIfWrap`, which only ran on mapping
-   * engagement and so missed every hand-edit.
-   *
-   * Returns `void` deliberately. If callers could branch on repair work it would leak back into
-   * drag-and-drop's structural/non-structural decision and force needless tree rebuilds.
-   *
-   * Fires on every keystroke, since neither XPath editor debounces, so each rule must do its cheap
-   * structural checks before any XPath parse. That churn is safe only because keystrokes take the
-   * non-structural refresh path and the target tree is rebuilt from `structuralMappingTree`;
-   * anything rendering off these flags must likewise decide at structural cadence, or nodes will
-   * appear and disappear mid-word and steal focus from the XPath input.
+   * Called whenever an expression holder's expression changes (including on every keystroke,
+   * since neither XPath editor debounces), so each rule here must stay cheap. Re-applies
+   * {@link applyAutoOptionalFlag} to the nearest enclosing `IfItem` — two-way on purpose, since
+   * load-time detection promotes any shape-matching `IfItem` regardless of origin, so demoting
+   * without re-promoting would leave in-session state disagreeing with a reload.
    * @param item - the expression holder that was just written to
    */
   static onExpressionChanged(item: IExpressionHolder): void {
@@ -304,13 +290,6 @@ export class WrapperAutoDetectionService {
     WrapperAutoDetectionService.evaluateAutoOptionalGuard(item);
   }
 
-  /**
-   * Re-applies {@link applyAutoOptionalFlag} to the nearest enclosing `IfItem`, which is the only
-   * guard an expression on `item` can belong to. Two-way on purpose: load-time detection promotes
-   * any shape-matching `IfItem` regardless of origin, so demoting without re-promoting would leave
-   * in-session state disagreeing with what the same tree looks like after a reload.
-   * @param item - the mapping item whose expression changed
-   */
   private static evaluateAutoOptionalGuard(item: MappingItem): void {
     let current: MappingParentType = item;
     while (current instanceof MappingItem) {
@@ -348,14 +327,41 @@ export class WrapperAutoDetectionService {
     hadExistingContent: boolean,
   ): OptionalGuardDecision {
     if (fieldItem.parent instanceof IfItem) return 'skip';
-    // A schemaless document root has no real occurrence semantics despite minOccurs defaulting to 0.
-    if (sourceField instanceof PrimitiveDocument) return 'skip';
-    if (fieldItem.field.minOccurs !== 0 || sourceField.minOccurs !== 0) return 'skip';
+    if (fieldItem.field.minOccurs !== 0 || !WrapperAutoDetectionService.isOptionalSourceField(sourceField)) {
+      return 'skip';
+    }
     if (fieldItem.children.length === 0) return 'skip';
 
-    const selector = fieldItem.soleSelector;
-    if (selector) return XPathService.isSimplePath(selector.sourcePath) ? 'hidden' : 'skip';
+    if (fieldItem.soleSelector) {
+      return WrapperAutoDetectionService.getHiddenGuardSelector(fieldItem) ? 'hidden' : 'skip';
+    }
     return hadExistingContent ? 'skip' : 'visible';
+  }
+
+  /**
+   * The target-side half of "can this field carry a hidden guard": not already under an `IfItem`,
+   * optional on the target, and mapped by a single selector whose source path is simple — i.e. the
+   * shape {@link matchSimpleOptionalGuard} will recognise once the guard is in place. Shared by
+   * {@link decideOptionalGuard} (drag-and-drop) and the "Add optional guard" menu action, which
+   * gates on it and re-checks it in `MappingActionService.addOptionalGuard`.
+   * @param fieldItem - the target field item to inspect
+   * @returns the selector whose `sourcePath` becomes the guard's `test`, or `undefined`
+   */
+  static getHiddenGuardSelector(fieldItem: FieldItem): ValueOfSelector | CopyOfSelector | undefined {
+    if (fieldItem.parent instanceof IfItem || fieldItem.field.minOccurs !== 0) return undefined;
+    const selector = fieldItem.soleSelector;
+    return selector && XPathService.isSimplePath(selector.sourcePath) ? selector : undefined;
+  }
+
+  /**
+   * The single "is this source optional" rule shared by every optional-guard eligibility check —
+   * {@link decideOptionalGuard} (drag-and-drop) and the "Add optional guard" menu action
+   * ({@link MappingActionRegistryService}) — so the two paths cannot drift apart on what counts
+   * as an optional source. A schemaless document root has no real occurrence semantics despite
+   * `minOccurs` defaulting to 0, so it is never treated as optional.
+   */
+  static isOptionalSourceField(sourceField: PrimitiveDocument | IField): boolean {
+    return !(sourceField instanceof PrimitiveDocument) && sourceField.minOccurs === 0;
   }
 
   /**
@@ -405,5 +411,111 @@ export class WrapperAutoDetectionService {
    */
   static isEffectivelyAutoOptional(ifItem: IfItem): boolean {
     return ifItem.isAutoOptionalIf && !!WrapperAutoDetectionService.matchSimpleOptionalGuard(ifItem);
+  }
+
+  /**
+   * The single "should this node be treated as if it weren't there" rule for a tree-walking
+   * consumer: `true` only for an `IfItem` that is {@link isEffectivelyAutoOptional}. Narrows
+   * from the loosely-typed {@link MappingParentType} so every call site that previously paired
+   * its own `instanceof IfItem` check with {@link isEffectivelyAutoOptional} — risking the two
+   * drifting apart — can call this once instead.
+   * @param node - the mapping tree node (or its parent) to test
+   */
+  static isEffectivelyAutoOptionalGuard(node: MappingParentType | undefined): node is IfItem {
+    return node instanceof IfItem && WrapperAutoDetectionService.isEffectivelyAutoOptional(node);
+  }
+
+  /**
+   * Convenience wrapper around {@link reconcileGuardOnExpressionCommit} for the two UI call
+   * sites ({@link XPathInputAction}'s blur handler, {@link XPathEditorAction}'s modal close):
+   * resolves `activeGuard`/`parentIf` from `nodeData`/`mapping` and invokes the matching
+   * `onUpdate`/`onStructuralUpdate` callback, so both editing surfaces dispatch identically.
+   *
+   * The selector's `sourcePath` is what gets compared and synced into the guard's `test`, so a
+   * `CopyOfSelector(CONTAINER_NODE)`'s trailing `/node()` never leaks into it.
+   * @param nodeData - the node whose expression was just committed; a no-op unless it belongs to
+   *   a {@link FieldItemNodeData} (see {@link findGuardOwner})
+   * @param mapping - the expression holder that was edited
+   * @param onUpdate - called when the commit only synced the guard's test
+   * @param onStructuralUpdate - called when the commit promoted or demoted the guard
+   */
+  static reconcileGuardAndDispatch(
+    nodeData: ExpressionHolderNodeData,
+    mapping: IExpressionHolder,
+    onUpdate: () => void,
+    onStructuralUpdate: () => void,
+  ): void {
+    const owner = WrapperAutoDetectionService.findGuardOwner(nodeData, mapping);
+    if (!owner) return;
+    const parentIf = owner.mapping.parent instanceof IfItem ? owner.mapping.parent : undefined;
+    const result = WrapperAutoDetectionService.reconcileGuardOnExpressionCommit(
+      owner.autoOptionalIfItem,
+      parentIf,
+      mapping instanceof ValueSelector ? mapping.sourcePath : mapping.expression,
+    );
+    if (result === 'update') onUpdate();
+    else if (result === 'structural-update') onStructuralUpdate();
+  }
+
+  /**
+   * The field node whose rendered guard state an edit on `nodeData` belongs to: `nodeData` itself
+   * when it's the field (inline value selector), or its parent when `nodeData` is the separate
+   * child node a `CopyOfSelector(CONTAINER_NODE)` renders as. The rendered `autoOptionalIfItem`
+   * is used rather than the guard's live flag because keystrokes may already have flipped it.
+   */
+  private static findGuardOwner(
+    nodeData: ExpressionHolderNodeData,
+    mapping: IExpressionHolder,
+  ): FieldItemNodeData | undefined {
+    if (nodeData instanceof FieldItemNodeData) return nodeData;
+    if (
+      nodeData instanceof MappingNodeData &&
+      nodeData.parent instanceof FieldItemNodeData &&
+      mapping instanceof ValueSelector &&
+      mapping.parent === nodeData.parent.mapping
+    ) {
+      return nodeData.parent;
+    }
+    return undefined;
+  }
+
+  /**
+   * Reconciles the auto-optional-if guard state after the user commits an XPath expression
+   * edit (on blur or modal close). Mutates `activeGuard` or `parentIf` as needed and returns
+   * a discriminant so the caller can invoke the appropriate refresh callback:
+   * - `'update'` — a non-structural change was made (guard test synced); caller should call
+   *   `onUpdate()`.
+   * - `'structural-update'` — the tree structure changed (guard promoted or demoted); caller
+   *   should call `onStructuralUpdate()`.
+   * - `'none'` — no change was made.
+   *
+   * Not gated on the guards' current `isAutoOptionalIf`: keystrokes already re-evaluate it via
+   * {@link onExpressionChanged} against the still-stale expression, so by the time this commits
+   * the flag may be out of step with the shape either side wants to settle into.
+   * @param activeGuard - the existing auto-optional `IfItem` wrapping the field, or
+   *   `undefined` if the field is not currently inside one.
+   * @param parentIf - the `IfItem` that is the direct parent of the field's mapping item,
+   *   used to check whether a visible `if` can be re-collapsed into a hidden guard.
+   * @param expression - the source path that was just committed.
+   */
+  static reconcileGuardOnExpressionCommit(
+    activeGuard: IfItem | undefined,
+    parentIf: IfItem | undefined,
+    expression: string,
+  ): 'update' | 'structural-update' | 'none' {
+    if (activeGuard) {
+      if (XPathService.isSimplePath(expression)) {
+        activeGuard.expression = expression;
+        activeGuard.isAutoOptionalIf = true;
+        return 'update';
+      }
+      activeGuard.isAutoOptionalIf = false;
+      return 'structural-update';
+    }
+    if (parentIf && WrapperAutoDetectionService.matchSimpleOptionalGuard(parentIf)) {
+      parentIf.isAutoOptionalIf = true;
+      return 'structural-update';
+    }
+    return 'none';
   }
 }

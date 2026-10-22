@@ -1,11 +1,25 @@
 import { act, createEvent, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../../models/datamapper/document';
-import { ChooseItem, FieldItem, ForEachItem, MappingTree, SortItem } from '../../../../models/datamapper/mapping';
+import {
+  BODY_DOCUMENT_ID,
+  DocumentDefinitionType,
+  DocumentType,
+  IDocument,
+} from '../../../../models/datamapper/document';
+import {
+  ChooseItem,
+  FieldItem,
+  ForEachItem,
+  IfItem,
+  MappingTree,
+  SortItem,
+  ValueOfSelector,
+} from '../../../../models/datamapper/mapping';
 import { MappingActionGroup } from '../../../../models/datamapper/mapping-action';
 import {
   AddMappingNodeData,
+  FieldItemNodeData,
   MappingNodeData,
   TargetDocumentNodeData,
   TargetFieldNodeData,
@@ -13,6 +27,7 @@ import {
 import { MappingService } from '../../../../services/mapping/mapping.service';
 import { MappingActionService } from '../../../../services/visualization/mapping-action.service';
 import { MappingActionRegistryService } from '../../../../services/visualization/mapping-action-registry.service';
+import { MappingLinksService } from '../../../../services/visualization/mapping-links.service';
 import { useDocumentTreeStore } from '../../../../store/document-tree.store';
 import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
 import {
@@ -653,6 +668,142 @@ describe('MappingContextMenuAction', () => {
       expect(
         screen.queryByTestId(`transformation-actions-group-${MappingActionGroup.InnerInstruction}`),
       ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('optional guard actions', () => {
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('should remove the hidden guard via "Remove optional guard"', async () => {
+      const user = userEvent.setup();
+      const targetField = targetDoc.fields[0].fields[1];
+      targetField.minOccurs = 0;
+      const ifItem = new IfItem(mappingTree);
+      ifItem.expression = '/ns0:ShipOrder/ns0:OrderPerson';
+      ifItem.isAutoOptionalIf = true;
+      mappingTree.children.push(ifItem);
+      const fieldItem = new FieldItem(ifItem, targetField);
+      const selector = new ValueOfSelector(fieldItem);
+      selector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
+      fieldItem.children.push(selector);
+      ifItem.children.push(fieldItem);
+
+      const nodeData = new FieldItemNodeData(documentNodeData, fieldItem);
+      nodeData.autoOptionalIfItem = ifItem;
+
+      const onUpdateMock = vi.fn();
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, { wrapper: dataMapperWrapper });
+      const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+      await user.click(actionToggle);
+      const removeGuardItem = await screen.findByTestId('transformation-actions-remove-optional-guard');
+      await user.click(removeGuardItem.getElementsByTagName('button')[0]);
+
+      await waitFor(() => {
+        expect(onUpdateMock.mock.calls).toHaveLength(1);
+      });
+      expect(mappingTree.children).toEqual([fieldItem]);
+      expect(fieldItem.parent).toBe(mappingTree);
+    });
+
+    it('should wrap a simple mapping via "Add optional guard" when the resolved source is also optional', async () => {
+      const user = userEvent.setup();
+      vi.spyOn(MappingLinksService, 'resolveSourceFields').mockReturnValue([
+        { field: { minOccurs: 0 } as never, document: {} as IDocument },
+      ]);
+      const targetField = targetDoc.fields[0].fields[1];
+      targetField.minOccurs = 0;
+      const fieldItem = new FieldItem(mappingTree, targetField);
+      const selector = new ValueOfSelector(fieldItem);
+      selector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
+      fieldItem.children.push(selector);
+      mappingTree.children.push(fieldItem);
+
+      const nodeData = new FieldItemNodeData(documentNodeData, fieldItem);
+
+      const onUpdateMock = vi.fn();
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, { wrapper: dataMapperWrapper });
+      const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+      await user.click(actionToggle);
+      const addGuardItem = await screen.findByTestId('transformation-actions-add-optional-guard');
+      await user.click(addGuardItem.getElementsByTagName('button')[0]);
+
+      await waitFor(() => {
+        expect(onUpdateMock.mock.calls).toHaveLength(1);
+      });
+      expect(fieldItem.parent).toBeInstanceOf(IfItem);
+      const wrappingIf = fieldItem.parent as IfItem;
+      expect(wrappingIf.isAutoOptionalIf).toBe(true);
+      expect(wrappingIf.expression).toBe('/ns0:ShipOrder/ns0:OrderPerson');
+    });
+
+    it('should show "Add optional guard" disabled (not hidden) when the resolved source is required', async () => {
+      const user = userEvent.setup();
+      vi.spyOn(MappingLinksService, 'resolveSourceFields').mockReturnValue([
+        { field: { minOccurs: 1 } as never, document: {} as IDocument },
+      ]);
+      const targetField = targetDoc.fields[0].fields[1];
+      targetField.minOccurs = 0;
+      const fieldItem = new FieldItem(mappingTree, targetField);
+      const selector = new ValueOfSelector(fieldItem);
+      selector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
+      fieldItem.children.push(selector);
+      mappingTree.children.push(fieldItem);
+
+      const nodeData = new FieldItemNodeData(documentNodeData, fieldItem);
+
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />, { wrapper: dataMapperWrapper });
+      const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+      await user.click(actionToggle);
+      const addGuardItem = await screen.findByTestId('transformation-actions-add-optional-guard');
+
+      // Still visible — the target is optional and not already guarded — but disabled
+      // because the resolved source turned out to be required.
+      expect(addGuardItem.getElementsByTagName('button')[0]).toBeDisabled();
+    });
+
+    it('should show "Add optional guard" disabled (not hidden) for a container field with recursive children', async () => {
+      const user = userEvent.setup();
+      const targetField = targetDoc.fields[0].fields[1];
+      targetField.minOccurs = 0;
+      const fieldItem = new FieldItem(mappingTree, targetField);
+      // Recursive child mapping instead of a sole selector — there's no single expression
+      // to resolve a source from, so this can never be a "simple field reference."
+      fieldItem.children.push(new FieldItem(fieldItem, targetField));
+      mappingTree.children.push(fieldItem);
+
+      const nodeData = new FieldItemNodeData(documentNodeData, fieldItem);
+
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />, { wrapper: dataMapperWrapper });
+      const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+      await user.click(actionToggle);
+      const addGuardItem = await screen.findByTestId('transformation-actions-add-optional-guard');
+
+      expect(addGuardItem.getElementsByTagName('button')[0]).toBeDisabled();
+    });
+
+    it('should disable "Add optional guard" once the selector expression is no longer a simple path', async () => {
+      const user = userEvent.setup();
+      vi.spyOn(MappingLinksService, 'resolveSourceFields').mockReturnValue([
+        { field: { minOccurs: 0 } as never, document: {} as IDocument },
+      ]);
+      const targetField = targetDoc.fields[0].fields[1];
+      targetField.minOccurs = 0;
+      const fieldItem = new FieldItem(mappingTree, targetField);
+      const selector = new ValueOfSelector(fieldItem);
+      selector.expression = "concat(/ns0:ShipOrder/ns0:OrderPerson, '!')";
+      fieldItem.children.push(selector);
+      mappingTree.children.push(fieldItem);
+
+      const nodeData = new FieldItemNodeData(documentNodeData, fieldItem);
+
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />, { wrapper: dataMapperWrapper });
+      const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+      await user.click(actionToggle);
+      const addGuardItem = await screen.findByTestId('transformation-actions-add-optional-guard');
+
+      expect(addGuardItem.getElementsByTagName('button')[0]).toBeDisabled();
     });
   });
 });
