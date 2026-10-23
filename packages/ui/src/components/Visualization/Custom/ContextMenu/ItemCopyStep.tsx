@@ -1,4 +1,4 @@
-import { CopyIcon } from '@patternfly/react-icons';
+import { Copy } from '@carbon/icons-react';
 import { ContextMenuItem } from '@patternfly/react-topology';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
@@ -15,7 +15,7 @@ export const ItemCopyStep: FunctionComponent<ItemCopyStepProps> = (props) => {
 
   return (
     <ContextMenuItem onClick={onCopyStep} data-testid={props['data-testid']}>
-      <CopyIcon /> Copy
+      <Copy /> Copy
     </ContextMenuItem>
   );
 };

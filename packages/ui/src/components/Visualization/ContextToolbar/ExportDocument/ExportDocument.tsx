@@ -1,7 +1,7 @@
 import './ExportDocument.scss';
 
+import { Download } from '@carbon/icons-react';
 import { Button } from '@patternfly/react-core';
-import { DownloadIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useState } from 'react';
 
 import { ExportDocumentPreviewModal } from './ExportDocumentPreviewModal';
@@ -16,7 +16,7 @@ export const ExportDocument: FunctionComponent = () => {
   return (
     <>
       <Button
-        icon={<DownloadIcon />}
+        icon={<Download />}
         title="Generate Route Documentation"
         onClick={onOpenPreview}
         variant="control"

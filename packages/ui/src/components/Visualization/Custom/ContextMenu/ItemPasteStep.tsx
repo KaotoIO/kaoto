@@ -1,4 +1,4 @@
-import { PasteIcon } from '@patternfly/react-icons';
+import { Paste } from '@carbon/icons-react';
 import { ContextMenuItem } from '@patternfly/react-topology';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
@@ -19,7 +19,7 @@ export const ItemPasteStep: FunctionComponent<ItemPasteStepProps> = (props) => {
 
   return (
     <ContextMenuItem onClick={onPasteStep} data-testid={props['data-testid']}>
-      <PasteIcon /> {props.text}
+      <Paste /> {props.text}
     </ContextMenuItem>
   );
 };

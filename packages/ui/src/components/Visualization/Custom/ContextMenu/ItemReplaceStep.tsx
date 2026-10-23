@@ -1,4 +1,4 @@
-import { SyncAltIcon } from '@patternfly/react-icons';
+import { Renew } from '@carbon/icons-react';
 import { ContextMenuItem } from '@patternfly/react-topology';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
@@ -16,7 +16,7 @@ export const ItemReplaceStep: FunctionComponent<ItemReplaceStepProps> = (props) 
 
   return (
     <ContextMenuItem onClick={onReplaceNode} data-testid={props['data-testid']}>
-      <SyncAltIcon /> Replace
+      <Renew /> Replace
     </ContextMenuItem>
   );
 };

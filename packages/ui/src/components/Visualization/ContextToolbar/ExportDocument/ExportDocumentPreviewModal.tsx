@@ -1,3 +1,4 @@
+import { Download } from '@carbon/icons-react';
 import {
   Bullseye,
   Button,
@@ -14,7 +15,6 @@ import {
   Toolbar,
   ToolbarItem,
 } from '@patternfly/react-core';
-import { DownloadIcon } from '@patternfly/react-icons';
 import { Element } from 'hast';
 import { FunctionComponent, useContext, useState } from 'react';
 import Markdown from 'react-markdown';
@@ -164,7 +164,7 @@ export const ExportDocumentPreviewModal: FunctionComponent<IExportDocumentPrevie
               <SplitItem>
                 <ToolbarItem>
                   <FormGroup label=" ">
-                    <Button icon={<DownloadIcon />} variant="primary" onClick={onDownload}>
+                    <Button icon={<Download />} variant="primary" onClick={onDownload}>
                       Download
                     </Button>
                   </FormGroup>

@@ -1,8 +1,8 @@
 import './PlaceholderNode.scss';
 
+import { AddAlt, Branch } from '@carbon/icons-react';
 import { isDefined } from '@kaoto/forms';
 import { Icon } from '@patternfly/react-core';
-import { CodeBranchIcon, PlusCircleIcon } from '@patternfly/react-icons';
 import type {
   DefaultNode,
   DropTargetSpec,
@@ -100,7 +100,7 @@ const PlaceholderNodeContainer: FunctionComponent<PlaceholderNodeContainerProps>
           'placeholder-node__container__image__possibleDropTargets': canDrop && droppable && !hover,
         })}
       >
-        <Icon size="lg">{isSpecialChildPlaceholder ? <CodeBranchIcon /> : <PlusCircleIcon />}</Icon>
+        <Icon size="lg">{isSpecialChildPlaceholder ? <Branch /> : <AddAlt />}</Icon>
       </div>
     </div>
   );

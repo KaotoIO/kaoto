@@ -1,5 +1,5 @@
+import { Image as ImageIcon } from '@carbon/icons-react';
 import { Button } from '@patternfly/react-core';
-import { ImageIcon } from '@patternfly/react-icons';
 import { useContext, useState } from 'react';
 
 import { useVisibleVizNodes } from '../../../../hooks/use-visible-viz-nodes';

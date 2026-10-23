@@ -1,4 +1,4 @@
-import { PowerOffIcon } from '@patternfly/react-icons';
+import { Power } from '@carbon/icons-react';
 import { ContextMenuItem } from '@patternfly/react-topology';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
@@ -13,7 +13,7 @@ export const ItemEnableAllSteps: FunctionComponent<PropsWithChildren<IDataTestID
 
   return (
     <ContextMenuItem onClick={onEnableAllSteps} data-testid={props['data-testid']}>
-      <PowerOffIcon /> Enable All
+      <Power /> Enable All
     </ContextMenuItem>
   );
 };

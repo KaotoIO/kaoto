@@ -1,7 +1,7 @@
 import './FlowsMenu.scss';
 
-import { Badge, Icon, MenuToggle, MenuToggleElement, Select } from '@patternfly/react-core';
-import { ListIcon } from '@patternfly/react-icons';
+import { List } from '@carbon/icons-react';
+import { Badge, MenuToggle, MenuToggleElement, Select } from '@patternfly/react-core';
 import { FunctionComponent, Ref, useContext, useState } from 'react';
 
 import { getVisibleFlowsInformation } from '../../../../models/visualization/flows/support/flows-visibility';
@@ -25,15 +25,9 @@ export const FlowsMenu: FunctionComponent = () => {
       className="flows-menu"
       ref={toggleRef}
       onClick={onToggleClick}
+      icon={<List />}
     >
-      <Icon isInline>
-        <ListIcon />
-      </Icon>
-      <span
-        title={singleFlowId ?? 'Routes'}
-        data-testid="flows-list-route-id"
-        className="pf-v6-u-m-sm flows-menu-display"
-      >
+      <span title={singleFlowId ?? 'Routes'} data-testid="flows-list-route-id" className="flows-menu-display">
         {`${singleFlowId ?? 'Routes'}`}
       </span>
       <Badge

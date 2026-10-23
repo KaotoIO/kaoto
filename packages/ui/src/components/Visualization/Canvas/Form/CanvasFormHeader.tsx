@@ -1,8 +1,8 @@
 import './CanvasFormHeader.scss';
 
+import { Close } from '@carbon/icons-react';
 import { CanvasFormTabsContext, FilteredFieldContext, FormTabsModes } from '@kaoto/forms';
 import { Button, Grid, GridItem, SearchInput, Title, ToggleGroup, ToggleGroupItem } from '@patternfly/react-core';
-import { TimesIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useContext } from 'react';
 
 interface CanvasFormHeaderProps {
@@ -27,13 +27,7 @@ export const CanvasFormHeader: FunctionComponent<CanvasFormHeaderProps> = ({ nod
           </Title>
         </GridItem>
         <GridItem span={1} className="canvas-header-close">
-          <Button
-            data-testid="close-side-bar"
-            variant="plain"
-            icon={<TimesIcon />}
-            onClick={onClose}
-            aria-label="Close"
-          />
+          <Button data-testid="close-side-bar" variant="plain" icon={<Close />} onClick={onClose} aria-label="Close" />
         </GridItem>
       </Grid>
 
