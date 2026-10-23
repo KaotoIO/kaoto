@@ -1,0 +1,10 @@
+.string-field-container {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.string-field-input-wrapper {
+  flex: 1;
+}
