@@ -198,13 +198,32 @@ export class CitrusTestResource implements KaotoResource {
    * serialising, ensuring that action group properties are placed at the
    * correct level in the output YAML.
    */
+  static readonly TOP_LEVEL_PROPERTY_ORDER = ['name', 'description', 'variables', 'beans', 'endpoints', 'actions', 'finally'];
+
   async toSourceCode(): Promise<string> {
     const entity = this.getVisualEntities()[0];
     if (entity) {
       const snapshot = await entity.normaliseForSerialisation();
-      return stringify(snapshot, { schema: 'yaml-1.1' }) || '';
+      return stringify(CitrusTestResource.orderProperties(snapshot), { schema: 'yaml-1.1' }) || '';
     }
-    return stringify(this.toJSON(), { schema: 'yaml-1.1' }) || '';
+    return stringify(CitrusTestResource.orderProperties(this.toJSON()), { schema: 'yaml-1.1' }) || '';
+  }
+
+  private static orderProperties(obj: unknown): unknown {
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return obj;
+    const record = obj as Record<string, unknown>;
+    const ordered: Record<string, unknown> = {};
+    for (const key of CitrusTestResource.TOP_LEVEL_PROPERTY_ORDER) {
+      if (key in record) {
+        ordered[key] = record[key];
+      }
+    }
+    for (const key of Object.keys(record)) {
+      if (!(key in ordered)) {
+        ordered[key] = record[key];
+      }
+    }
+    return ordered;
   }
 
   /**
