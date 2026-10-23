@@ -1,4 +1,4 @@
-import { BanIcon, CheckIcon } from '@patternfly/react-icons';
+import { Checkmark, Error as ErrorIcon } from '@carbon/icons-react';
 import { ContextMenuItem } from '@patternfly/react-topology';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
@@ -17,11 +17,11 @@ export const ItemDisableStep: FunctionComponent<ItemDisableStepProps> = (props) 
     <ContextMenuItem onClick={onToggleDisableNode} data-testid={props['data-testid']}>
       {isDisabled ? (
         <>
-          <CheckIcon /> Enable
+          <Checkmark /> Enable
         </>
       ) : (
         <>
-          <BanIcon /> Disable
+          <ErrorIcon /> Disable
         </>
       )}
     </ContextMenuItem>

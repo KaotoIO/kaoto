@@ -125,3 +125,33 @@ body {
 .pf-v6-c-form__label-text {
   --pf-v6-c-form__label-text--FontWeight: var(--pf-t--global--font--weight--400);
 }
+
+/*
+  PatternFly components align their children on the text baseline and relied on the
+  PatternFly icons being 1em SVGs with `vertical-align: -0.125em`. Carbon icons are
+  fixed-size SVGs without that offset, so they ride high next to the label.
+  Center the element that holds the icon instead of depending on baselines:
+  - `__icon`: the wrapper Button, MenuToggle, ToggleGroupItem and Label render for their `icon` prop.
+  - the topology control bar passes its icon as a bare child, so it lands in `__text`.
+*/
+/* stylelint-disable selector-class-pattern */
+.pf-v6-c-button .pf-v6-c-button__icon,
+.pf-v6-c-menu-toggle .pf-v6-c-menu-toggle__icon,
+.pf-v6-c-toggle-group .pf-v6-c-toggle-group__icon,
+.pf-v6-c-label .pf-v6-c-label__icon,
+.pf-topology-control-bar__button .pf-v6-c-button__text {
+  display: flex;
+  align-items: center;
+  align-self: center;
+  justify-content: center;
+}
+
+/*
+  Topology context menu items render `<Icon /> Label` as plain children, so the icon lands inline in
+  `__item-text` instead of in a dedicated icon slot. Restore the baseline offset the PatternFly icons
+  carried; a flex layout is avoided to keep the text ellipsis and the existing spacing untouched.
+*/
+.pf-topology-context-menu__c-dropdown__menu .pf-v6-c-menu__item-text > svg {
+  vertical-align: -0.125em;
+}
+/* stylelint-enable selector-class-pattern */

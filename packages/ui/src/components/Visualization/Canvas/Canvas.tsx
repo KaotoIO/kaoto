@@ -1,6 +1,6 @@
 import './Canvas.scss';
 
-import { CatalogIcon, ExpandIcon, SearchMinusIcon, SearchPlusIcon } from '@patternfly/react-icons';
+import { Catalog, FitToScreen, Network_2 as NetworkIcon, ZoomIn, ZoomOut } from '@carbon/icons-react';
 import {
   action,
   createTopologyControlButtons,
@@ -35,8 +35,6 @@ import { LocalStorageKeys } from '../../../models';
 import { CanvasLayoutDirection } from '../../../models/settings/settings.model';
 import { SettingsContext } from '../../../providers/settings.provider';
 import { getInitialLayout } from '../../../utils/get-initial-layout';
-import { HorizontalLayoutIcon } from '../../Icons/HorizontalLayout';
-import { VerticalLayoutIcon } from '../../Icons/VerticalLayout';
 import useDeleteHotkey from '../Custom/hooks/delete-hotkey.hook';
 import { CanvasOverlayContext, CanvasOverlaySource } from '../Overlay/use-canvas-overlays';
 import { applyCollapseState } from './apply-collapse-state';
@@ -174,7 +172,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       customButtons.push(
         {
           id: 'topology-control-bar-h_layout-button',
-          icon: <HorizontalLayoutIcon />,
+          icon: <NetworkIcon />,
           tooltip: 'Layout nodes horizontally',
           callback: action(() => {
             localStorage.setItem(LocalStorageKeys.CanvasLayout, LayoutType.DagreHorizontal);
@@ -184,7 +182,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
         },
         {
           id: 'topology-control-bar-v_layout-button',
-          icon: <VerticalLayoutIcon />,
+          icon: <NetworkIcon className="canvas-layout-icon-vertical" />,
           tooltip: 'Layout nodes vertically',
           callback: action(() => {
             localStorage.setItem(LocalStorageKeys.CanvasLayout, LayoutType.DagreVertical);
@@ -198,7 +196,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     if (catalogModalContext) {
       customButtons.push({
         id: 'topology-control-bar-catalog-button',
-        icon: <CatalogIcon />,
+        icon: <Catalog />,
         tooltip: 'Open Catalog',
         callback: action(async () => {
           await catalogModalContext.getNewComponent();
@@ -209,15 +207,15 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     return createTopologyControlButtons({
       ...defaultControlButtonsOptions,
       fitToScreen: false,
-      zoomInIcon: <SearchPlusIcon />,
+      zoomInIcon: <ZoomIn />,
       zoomInCallback: action(() => {
         controller.getGraph().scaleBy(4 / 3);
       }),
-      zoomOutIcon: <SearchMinusIcon />,
+      zoomOutIcon: <ZoomOut />,
       zoomOutCallback: action(() => {
         controller.getGraph().scaleBy(3 / 4);
       }),
-      resetViewIcon: <ExpandIcon />,
+      resetViewIcon: <FitToScreen />,
       resetViewCallback: action(() => {
         controller.getGraph().reset();
         controller.getGraph().layout();

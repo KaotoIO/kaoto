@@ -24,10 +24,18 @@ exports[`ItemMoveStep > should render Move Next ContextMenuItem 1`] = `
           class="pf-v6-c-menu__item-text"
         >
           <svg
-            data-testid="angle-double-down-icon"
-            role="img"
+            aria-hidden="true"
+            fill="currentColor"
+            focusable="false"
+            height="16"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 32 32"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
           >
-            <path />
+            <path
+              d="M24 12 16 22 8 12z"
+            />
           </svg>
            Move Next
         </span>

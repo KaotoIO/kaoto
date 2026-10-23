@@ -1,4 +1,4 @@
-import { BlueprintIcon, CodeBranchIcon, PlusIcon } from '@patternfly/react-icons';
+import { Add, Branch, Replicate } from '@carbon/icons-react';
 import { ContextMenuSeparator, ElementModel, GraphElement } from '@patternfly/react-topology';
 import { forwardRef, ReactElement } from 'react';
 
@@ -56,7 +56,7 @@ export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode
 
   items.push(
     <ItemDuplicateStep key="context-menu-item-duplicate" data-testid="context-menu-item-duplicate" vizNode={vizNode}>
-      <BlueprintIcon /> Duplicate
+      <Replicate /> Duplicate
     </ItemDuplicateStep>,
   );
 
@@ -93,7 +93,7 @@ export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode
         mode={AddStepMode.InsertChildStep}
         vizNode={vizNode}
       >
-        <PlusIcon /> Add step
+        <Add /> Add step
       </ItemInsertStep>,
     );
   }
@@ -105,7 +105,7 @@ export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode
         mode={AddStepMode.InsertSpecialChildStep}
         vizNode={vizNode}
       >
-        <CodeBranchIcon /> Add branch
+        <Branch /> Add branch
       </ItemInsertStep>,
     );
   }

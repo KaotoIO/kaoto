@@ -1,5 +1,6 @@
 import './TopBar.scss';
 
+import { FireFill, Launch, LogoGithub, Menu, OverflowMenuVertical } from '@carbon/icons-react';
 import {
   Button,
   Divider,
@@ -17,8 +18,6 @@ import {
   MenuToggleElement,
   ToolbarItem,
 } from '@patternfly/react-core';
-import { EllipsisVIcon, ExternalLinkAltIcon, FireIcon, GithubIcon } from '@patternfly/react-icons';
-import { BarsIcon } from '@patternfly/react-icons/dist/js/icons/bars-icon';
 import React, { FunctionComponent, useCallback } from 'react';
 import { Link } from 'react-router';
 
@@ -43,7 +42,7 @@ const TopBarMenuToggle: FunctionComponent<{
   isOpen: boolean;
 }> = ({ toggleRef, onClick, isOpen }) => (
   <MenuToggle ref={toggleRef} onClick={onClick} variant="plain" isExpanded={isOpen}>
-    <EllipsisVIcon />
+    <OverflowMenuVertical />
   </MenuToggle>
 );
 
@@ -77,7 +76,7 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
       <Masthead id="stack-inline-masthead" display={displayObject}>
         <MastheadMain>
           <MastheadToggle>
-            <Button icon={<BarsIcon />} variant="plain" onClick={props.navToggle} aria-label="Global navigation" />
+            <Button icon={<Menu />} variant="plain" onClick={props.navToggle} aria-label="Global navigation" />
           </MastheadToggle>
           <MastheadBrand data-codemods>
             <MastheadLogo data-codemods component={logoLink} className="masthead-logo">
@@ -100,7 +99,7 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
               <a href="https://kaoto.io/workshop/" target="_blank" rel="noopener noreferrer">
                 <DropdownItem key="tutorial">
                   <Icon isInline>
-                    <ExternalLinkAltIcon />
+                    <Launch />
                   </Icon>
                   &nbsp;<span className="pf-u-mr-lg">Tutorials</span>
                 </DropdownItem>
@@ -108,7 +107,7 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
               <a href="https://kaoto.io/docs/" target="_blank" rel="noopener noreferrer">
                 <DropdownItem key="help">
                   <Icon isInline>
-                    <ExternalLinkAltIcon />
+                    <Launch />
                   </Icon>
                   &nbsp;<span className="pf-u-mr-lg">Help</span>
                 </DropdownItem>
@@ -116,7 +115,7 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
               <a href="https://github.com/KaotoIO/kaoto-examples" target="_blank" rel="noopener noreferrer">
                 <DropdownItem key="feedback">
                   <Icon isInline>
-                    <GithubIcon />
+                    <LogoGithub />
                   </Icon>
                   &nbsp;<span className="pf-u-mr-lg">Examples</span>
                 </DropdownItem>
@@ -124,7 +123,7 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
               <a href="https://github.com/KaotoIO/kaoto/issues/new/choose" target="_blank" rel="noopener noreferrer">
                 <DropdownItem key="feedback">
                   <Icon isInline>
-                    <GithubIcon />
+                    <LogoGithub />
                   </Icon>
                   &nbsp;<span className="pf-u-mr-lg">Feedback</span>
                 </DropdownItem>
@@ -146,7 +145,7 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
               <a href="https://hawt.io/docs/get-started.html" target="_blank" rel="noopener noreferrer">
                 <DropdownItem key="hawtio">
                   <Icon isInline>
-                    <FireIcon />
+                    <FireFill />
                   </Icon>
                   &nbsp;<span className="pf-u-mr-lg">Hawtio</span>
                 </DropdownItem>

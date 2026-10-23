@@ -1,7 +1,7 @@
 import './EntitiesMenu.scss';
 
+import { List } from '@carbon/icons-react';
 import { Badge, Icon, MenuToggle, MenuToggleAction, MenuToggleElement, Select } from '@patternfly/react-core';
-import { ListIcon } from '@patternfly/react-icons';
 import { FunctionComponent, Ref, useState } from 'react';
 
 import { DocumentationEntity } from '../../../../models/documentation';
@@ -50,7 +50,7 @@ export const EntitiesMenu: FunctionComponent<IEntitiesMenu> = ({ documentationEn
           onClick={onToggleClick}
         >
           <Icon isInline>
-            <ListIcon />
+            <List />
           </Icon>
           <span title="Entities" data-testid="entities-list-id" className="pf-v6-u-m-sm">
             Entities

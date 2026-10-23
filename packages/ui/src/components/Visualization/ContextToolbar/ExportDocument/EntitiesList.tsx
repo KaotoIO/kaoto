@@ -1,7 +1,7 @@
 import './EntitiesList.scss';
 
+import { View, ViewOff } from '@carbon/icons-react';
 import { Divider, Icon, MenuItemAction, SelectGroup, SelectList, SelectOption } from '@patternfly/react-core';
-import { EyeIcon, EyeSlashIcon } from '@patternfly/react-icons';
 import { FunctionComponent } from 'react';
 
 import { DocumentationEntity } from '../../../../models/documentation';
@@ -39,11 +39,11 @@ const EntityOption: FunctionComponent<IEntityOption> = ({
           icon={
             isVisible ? (
               <Icon isInline>
-                <EyeIcon title={`Hide ${entityLabel}`} data-testid={`toggle-btn-${entityLabel}-hide`} />
+                <View title={`Hide ${entityLabel}`} data-testid={`toggle-btn-${entityLabel}-hide`} />
               </Icon>
             ) : (
               <Icon isInline>
-                <EyeSlashIcon title={`Show ${entityLabel}`} data-testid={`toggle-btn-${entityLabel}-show`} />
+                <ViewOff title={`Show ${entityLabel}`} data-testid={`toggle-btn-${entityLabel}-show`} />
               </Icon>
             )
           }
