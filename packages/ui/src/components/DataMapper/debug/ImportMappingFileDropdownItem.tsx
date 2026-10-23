@@ -1,5 +1,5 @@
+import { DocumentImport } from '@carbon/icons-react';
 import { DropdownItem } from '@patternfly/react-core';
-import { ImportIcon } from '@patternfly/react-icons';
 import { ChangeEvent, createRef, FunctionComponent, useCallback } from 'react';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
@@ -57,7 +57,7 @@ export const ImportMappingFileDropdownItem: FunctionComponent<ImportMappingFileD
 
   return (
     <>
-      <DropdownItem icon={<ImportIcon />} onClick={onClick} data-testid="dm-debug-import-mappings-button">
+      <DropdownItem icon={<DocumentImport />} onClick={onClick} data-testid="dm-debug-import-mappings-button">
         Import mappings (.xsl)
       </DropdownItem>
       <input

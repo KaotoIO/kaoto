@@ -1,3 +1,4 @@
+import { DocumentImport, TrashCan } from '@carbon/icons-react';
 import {
   Button,
   HelperText,
@@ -12,7 +13,6 @@ import {
   Stack,
   StackItem,
 } from '@patternfly/react-core';
-import { FileImportIcon, TrashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
@@ -233,7 +233,7 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
                 <Button
                   data-testid="attach-schema-modal-btn-file"
                   icon={
-                    isUploadingSchema ? <Spinner size="sm" aria-label="Uploading schema file(s)" /> : <FileImportIcon />
+                    isUploadingSchema ? <Spinner size="sm" aria-label="Uploading schema file(s)" /> : <DocumentImport />
                   }
                   variant="secondary"
                   onClick={onFileUpload}
@@ -246,7 +246,7 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
                 <InputGroupItem>
                   <Button
                     variant="link"
-                    icon={<TrashIcon />}
+                    icon={<TrashCan />}
                     data-testid="attach-schema-remove-all-btn"
                     onClick={onRemoveAllFiles}
                   >

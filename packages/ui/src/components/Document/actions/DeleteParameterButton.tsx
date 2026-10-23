@@ -1,4 +1,4 @@
-import { TrashIcon } from '@patternfly/react-icons';
+import { TrashCan } from '@carbon/icons-react';
 import { FunctionComponent, useCallback } from 'react';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
@@ -25,7 +25,7 @@ export const DeleteParameterButton: FunctionComponent<DeleteParameterProps> = ({
 
   return (
     <ConfirmActionButton
-      icon={<TrashIcon />}
+      icon={<TrashCan />}
       title="Delete parameter"
       triggerTestId={`delete-parameter-${parameterName}-button`}
       modalTestId="delete-parameter-modal"

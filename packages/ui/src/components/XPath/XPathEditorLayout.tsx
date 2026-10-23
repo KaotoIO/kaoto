@@ -1,5 +1,6 @@
 import './XPathEditorLayout.scss';
 
+import { ChevronDown, ChevronRight } from '@carbon/icons-react';
 import {
   Button,
   Grid,
@@ -14,7 +15,6 @@ import {
   Tabs,
   TabTitleText,
 } from '@patternfly/react-core';
-import { AngleDownIcon, AngleRightIcon } from '@patternfly/react-icons';
 import { FunctionComponent, MouseEvent, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { EditorNodeData, FunctionNodeData, IExpressionHolder, MappingItem } from '../../models/datamapper';
@@ -148,7 +148,7 @@ export const XPathEditorLayout: FunctionComponent<XPathEditorLayoutProps> = ({
                                 toggleGroup(value);
                               }}
                               className="xpath-editor__tab__functions-list__group-toggle"
-                              icon={isExpanded ? <AngleDownIcon /> : <AngleRightIcon />}
+                              icon={isExpanded ? <ChevronDown /> : <ChevronRight />}
                               data-testid={`function-group-toggle-${value}`}
                             >
                               {value}

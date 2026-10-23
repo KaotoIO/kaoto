@@ -1,6 +1,6 @@
+import { AddAlt } from '@carbon/icons-react';
 import { Button } from '@patternfly/react-core';
 import { DragDropSort, DragDropSortDragEndEvent, DraggableObject } from '@patternfly/react-drag-drop';
-import { PlusCircleIcon } from '@patternfly/react-icons';
 import { FunctionComponent } from 'react';
 
 import { ForEachGroupItem, ForEachItem, SortItem } from '../../../../../models/datamapper/mapping';
@@ -52,7 +52,7 @@ export const SortKeySection: FunctionComponent<SortKeySectionProps> = ({
           <DragDropSort items={draggableItems} onDrag={onDrag} onDrop={onDrop} variant="default" />
         </div>
       )}
-      <Button variant="link" icon={<PlusCircleIcon />} onClick={onAdd} data-testid="sort-add-key">
+      <Button variant="link" icon={<AddAlt />} onClick={onAdd} data-testid="sort-add-key">
         Add sort key
       </Button>
     </>

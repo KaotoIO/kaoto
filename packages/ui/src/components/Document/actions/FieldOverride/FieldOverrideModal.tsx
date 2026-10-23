@@ -1,3 +1,4 @@
+import { DocumentImport, Tools } from '@carbon/icons-react';
 import {
   Button,
   Form,
@@ -15,7 +16,6 @@ import {
   Split,
   SplitItem,
 } from '@patternfly/react-core';
-import { FileImportIcon, WrenchIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
@@ -196,7 +196,7 @@ export const FieldOverrideModal: FunctionComponent<FieldOverrideModalProps> = ({
   const modalTitle = (
     <>
       <Icon size="md" status="warning" isInline>
-        <WrenchIcon />
+        <Tools />
       </Icon>{' '}
       Field Override: {fieldName}
     </>
@@ -271,7 +271,7 @@ export const FieldOverrideModal: FunctionComponent<FieldOverrideModalProps> = ({
             {/* Removal of individual schema files from this modal is intentionally not supported — files are managed via the document-level attach/detach flow */}
             <SchemaFileList existingFiles={existingFiles} pendingUploads={[]} onRemove={() => {}} />
             <Button
-              icon={isUploadingSchema ? <Spinner size="sm" aria-label="Uploading schema files" /> : <FileImportIcon />}
+              icon={isUploadingSchema ? <Spinner size="sm" aria-label="Uploading schema files" /> : <DocumentImport />}
               onClick={handleSchemaUpload}
               isDisabled={isUploadingSchema}
               aria-label="Upload schema file"

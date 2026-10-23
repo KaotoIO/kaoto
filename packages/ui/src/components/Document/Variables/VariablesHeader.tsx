@@ -1,5 +1,5 @@
+import { Add, View, ViewOff } from '@carbon/icons-react';
 import { ActionList, ActionListItem, Button, Divider, Icon, Label } from '@patternfly/react-core';
-import { EyeIcon, EyeSlashIcon, PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, isValidElement } from 'react';
 
 import { VARIABLES_SECTION_ANCHOR } from '../../../models/datamapper/connection-port';
@@ -35,7 +35,7 @@ export const VariablesHeader: FunctionComponent<VariablesHeaderProps> = ({
         <>
           <ActionListItem>
             <Button
-              icon={<PlusIcon />}
+              icon={<Add />}
               variant="plain"
               title="Add global variable"
               aria-label="Add global variable"
@@ -56,7 +56,7 @@ export const VariablesHeader: FunctionComponent<VariablesHeaderProps> = ({
                 e.stopPropagation();
                 onToggleVariables();
               }}
-              icon={<Icon isInline>{showVariables ? <EyeIcon /> : <EyeSlashIcon />}</Icon>}
+              icon={<Icon isInline>{showVariables ? <View /> : <ViewOff />}</Icon>}
             />
           </ActionListItem>
           <Divider orientation={{ default: 'vertical' }} />

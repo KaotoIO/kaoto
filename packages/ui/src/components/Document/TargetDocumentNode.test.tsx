@@ -143,8 +143,7 @@ describe('TargetDocumentNode', () => {
       wrapper,
     });
 
-    const icons = screen.getAllByRole('img', { hidden: true });
-    expect(icons.length).toBeGreaterThan(0);
+    expect(screen.getByTestId('collection-field-icon')).toBeInTheDocument();
   });
 
   it('should render an attribute field with @ icon', () => {
@@ -171,8 +170,7 @@ describe('TargetDocumentNode', () => {
       wrapper,
     });
 
-    const icons = screen.getAllByRole('img', { hidden: true });
-    expect(icons.length).toBeGreaterThan(0);
+    expect(screen.getByTestId('attribute-field-icon')).toBeInTheDocument();
   });
 
   it('should render a choice field with choice icon', () => {

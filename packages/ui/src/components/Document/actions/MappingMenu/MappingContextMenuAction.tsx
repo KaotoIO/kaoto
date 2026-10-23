@@ -1,3 +1,4 @@
+import { AddAlt, OverflowMenuVertical } from '@carbon/icons-react';
 import {
   ActionListItem,
   Menu,
@@ -7,7 +8,6 @@ import {
   MenuList,
   MenuToggle,
 } from '@patternfly/react-core';
-import { AddCircleOIcon, EllipsisVIcon } from '@patternfly/react-icons';
 import { Fragment, FunctionComponent, MouseEvent, useCallback, useMemo, useRef } from 'react';
 
 import { MappingItem } from '../../../../models/datamapper/mapping';
@@ -148,7 +148,7 @@ export const MappingContextMenuAction: FunctionComponent<MappingContextMenuProps
           menuRef={menuRef}
           toggle={
             <MenuToggle
-              icon={dropdownLabel ? <AddCircleOIcon /> : <EllipsisVIcon />}
+              icon={dropdownLabel ? <AddAlt /> : <OverflowMenuVertical />}
               ref={toggleRef}
               onClick={onToggleClick}
               variant={dropdownLabel ? 'secondary' : 'plain'}

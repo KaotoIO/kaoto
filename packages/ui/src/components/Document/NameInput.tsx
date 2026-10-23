@@ -1,6 +1,6 @@
 import './NameInput.scss';
 
-import { CheckCircleIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
+import { CheckmarkFilled, WarningFilled } from '@carbon/icons-react';
 import { forwardRef, KeyboardEventHandler } from 'react';
 
 import { NameValidationStatus } from '../../models/datamapper/visualization';
@@ -59,12 +59,12 @@ export const NameInput = forwardRef<HTMLInputElement, NameInputProps>(
         />
         {validated === NameValidationStatus.SUCCESS && (
           <div className="name-input__icon name-input__icon--success">
-            <CheckCircleIcon />
+            <CheckmarkFilled />
           </div>
         )}
         {validated === NameValidationStatus.ERROR && (
           <div className="name-input__icon name-input__icon--error">
-            <ExclamationCircleIcon />
+            <WarningFilled />
           </div>
         )}
       </div>

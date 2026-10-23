@@ -1,5 +1,6 @@
 import './SchemaFileList.scss';
 
+import { TrashCan } from '@carbon/icons-react';
 import {
   Button,
   DataList,
@@ -9,7 +10,6 @@ import {
   DataListItemCells,
   DataListItemRow,
 } from '@patternfly/react-core';
-import { TrashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, memo } from 'react';
 
 import { getFileName } from '../utils';
@@ -79,7 +79,7 @@ export const SchemaFileList: FunctionComponent<SchemaFileListProps> = memo(
                     onClick={() => {
                       onRemove(filePath);
                     }}
-                    icon={<TrashIcon />}
+                    icon={<TrashCan />}
                   />
                 </DataListAction>
               </DataListItemRow>

@@ -1,5 +1,5 @@
+import { Undo } from '@carbon/icons-react';
 import { DropdownItem } from '@patternfly/react-core';
-import { UndoIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback } from 'react';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
@@ -17,7 +17,7 @@ export const ResetMappingsDropdownItem: FunctionComponent<ResetMappingsDropdownI
   }, [onComplete, resetMappingTree]);
 
   return (
-    <DropdownItem icon={<UndoIcon />} onClick={onClick} data-testid="dm-debug-reset-mappings-button">
+    <DropdownItem icon={<Undo />} onClick={onClick} data-testid="dm-debug-reset-mappings-button">
       Reset Mappings
     </DropdownItem>
   );

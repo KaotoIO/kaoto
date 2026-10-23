@@ -13,8 +13,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+import { Export } from '@carbon/icons-react';
 import { AlertVariant } from '@patternfly/react-core';
-import { ExportIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback } from 'react';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
@@ -51,7 +51,7 @@ export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({
 
   return (
     <ConfirmActionButton
-      icon={<ExportIcon />}
+      icon={<Export />}
       title="Detach schema"
       triggerTestId={`detach-schema-${documentType}-${documentId}-button`}
       modalTestId="detach-schema-modal"

@@ -1,11 +1,11 @@
-import { TrashIcon } from '@patternfly/react-icons';
+import { TrashCan } from '@carbon/icons-react';
 import { fireEvent, render, screen } from '@testing-library/react';
 
 import { ConfirmActionButton } from './ConfirmActionButton';
 
 describe('ConfirmActionButton', () => {
   const defaultProps = {
-    icon: <TrashIcon />,
+    icon: <TrashCan />,
     title: 'Delete item',
     triggerTestId: 'delete-item-button',
     modalTestId: 'delete-item-modal',

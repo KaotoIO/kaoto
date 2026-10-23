@@ -1,8 +1,8 @@
 import './BaseDocument.scss';
 import './Parameters.scss';
 
+import { Add, ChevronDown, ChevronRight, View, ViewOff } from '@carbon/icons-react';
 import { ActionList, ActionListItem, Button, Icon, Label } from '@patternfly/react-core';
-import { AngleDownIcon, AngleRightIcon, EyeIcon, EyeSlashIcon, PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 
@@ -67,7 +67,7 @@ export const ParametersHeader: FunctionComponent<ParametersHeaderProps> = ({
         <>
           <ActionListItem>
             <Button
-              icon={<PlusIcon />}
+              icon={<Add />}
               variant="plain"
               title="Add parameter"
               aria-label="Add parameter"
@@ -88,7 +88,7 @@ export const ParametersHeader: FunctionComponent<ParametersHeaderProps> = ({
                 e.stopPropagation();
                 onToggleParameters();
               }}
-              icon={<Icon isInline>{showParameters ? <EyeIcon /> : <EyeSlashIcon />}</Icon>}
+              icon={<Icon isInline>{showParameters ? <View /> : <ViewOff />}</Icon>}
             />
           </ActionListItem>
         </>
@@ -203,7 +203,7 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
           <div className="parameter-panel__summary">
             {hasSchema && (
               <Icon isInline className="parameter-panel__chevron">
-                {isExpanded ? <AngleDownIcon /> : <AngleRightIcon />}
+                {isExpanded ? <ChevronDown /> : <ChevronRight />}
               </Icon>
             )}
             <DocumentHeader

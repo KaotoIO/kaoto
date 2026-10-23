@@ -1,5 +1,5 @@
+import { Debug } from '@carbon/icons-react';
 import { ToggleGroup, ToggleGroupItem, ToolbarItem } from '@patternfly/react-core';
-import { BugIcon } from '@patternfly/react-icons';
 import { FunctionComponent } from 'react';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
@@ -11,7 +11,7 @@ export const ToggleDebugToolbarItem: FunctionComponent = () => {
     <ToolbarItem>
       <ToggleGroup>
         <ToggleGroupItem
-          icon={<BugIcon />}
+          icon={<Debug />}
           aria-label="Enable debug mode"
           buttonId="enable-debug-mode"
           data-testid="enable-debug-mode-btn"

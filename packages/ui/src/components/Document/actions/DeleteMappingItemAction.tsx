@@ -1,5 +1,5 @@
+import { TrashCan } from '@carbon/icons-react';
 import { ActionListItem } from '@patternfly/react-core';
-import { TrashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback } from 'react';
 
 import { InstructionItem } from '../../../models/datamapper/mapping';
@@ -37,7 +37,7 @@ export const DeleteMappingItemAction: FunctionComponent<DeleteItemProps> = ({ no
   return (
     <ActionListItem key="delete-item">
       <ConfirmActionButton
-        icon={<TrashIcon />}
+        icon={<TrashCan />}
         title={title}
         triggerTestId="delete-mapping-btn"
         modalTestId="delete-mapping-modal"
