@@ -1,13 +1,13 @@
 import {
-  AngleDoubleDownIcon,
-  AngleDoubleLeftIcon,
-  AngleDoubleRightIcon,
-  AngleDoubleUpIcon,
-  ArrowDownIcon,
-  ArrowLeftIcon,
-  ArrowRightIcon,
-  ArrowUpIcon,
-} from '@patternfly/react-icons';
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  ArrowUp,
+  CaretDown,
+  CaretLeft,
+  CaretRight,
+  CaretUp,
+} from '@carbon/icons-react';
 import { ReactElement } from 'react';
 
 import { SPECIAL_CHILD_PROCESSORS } from '../../../../models/special-processors.constants';
@@ -48,10 +48,10 @@ export function getMoveIcons(layout: LayoutType | undefined, vizNode?: IVisualiz
   const useHorizontalIcons = isSpecialChild ? isVerticalLayout : !isVerticalLayout;
 
   return {
-    prepend: useHorizontalIcons ? <ArrowLeftIcon /> : <ArrowUpIcon />,
-    append: useHorizontalIcons ? <ArrowRightIcon /> : <ArrowDownIcon />,
-    moveBefore: useHorizontalIcons ? <AngleDoubleLeftIcon /> : <AngleDoubleUpIcon />,
-    moveNext: useHorizontalIcons ? <AngleDoubleRightIcon /> : <AngleDoubleDownIcon />,
+    prepend: useHorizontalIcons ? <ArrowLeft /> : <ArrowUp />,
+    append: useHorizontalIcons ? <ArrowRight /> : <ArrowDown />,
+    moveBefore: useHorizontalIcons ? <CaretLeft /> : <CaretUp />,
+    moveNext: useHorizontalIcons ? <CaretRight /> : <CaretDown />,
   };
 }
 

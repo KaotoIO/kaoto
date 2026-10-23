@@ -1,5 +1,5 @@
+import { Add, View, ViewOff } from '@carbon/icons-react';
 import { Divider } from '@patternfly/react-core';
-import { EyeIcon, EyeSlashIcon, PlusIcon } from '@patternfly/react-icons';
 import { ContextSubMenuItem, ElementContext, GraphComponent, withContextMenu } from '@patternfly/react-topology';
 import { createContext, FunctionComponent, PropsWithChildren, ReactElement, useContext, useMemo } from 'react';
 
@@ -20,11 +20,11 @@ export const GraphContextMenuFn = ({
 }: GraphContextMenuOptions): ReactElement<PropsWithChildren<IDataTestID>>[] => {
   const items: ReactElement<PropsWithChildren<IDataTestID>>[] = [
     <ShowOrHideAllFlows key="showAll" data-testid="context-menu-item-show-all" mode="showAll">
-      <EyeIcon />
+      <View />
       <span className="pf-v6-u-m-sm">Show all</span>
     </ShowOrHideAllFlows>,
     <ShowOrHideAllFlows key="hideAll" data-testid="context-menu-item-hide-all" mode="hideAll">
-      <EyeSlashIcon />
+      <ViewOff />
       <span className="pf-v6-u-m-sm">Hide all</span>
     </ShowOrHideAllFlows>,
     <ItemPasteEntity key="paste-entity" data-testid="context-menu-item-paste" />,
@@ -40,7 +40,7 @@ export const GraphContextMenuFn = ({
         data-testid="context-menu-item-new-entity"
         label={
           <>
-            <PlusIcon />
+            <Add />
             <span className="pf-v6-u-m-sm">New</span>
           </>
         }

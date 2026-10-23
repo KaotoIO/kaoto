@@ -1,4 +1,4 @@
-import { EyeSlashIcon } from '@patternfly/react-icons';
+import { ViewOff } from '@carbon/icons-react';
 import { ContextMenuItem } from '@patternfly/react-topology';
 import { FunctionComponent, useContext } from 'react';
 
@@ -26,7 +26,7 @@ export const ItemHideOtherFlows: FunctionComponent<ItemHideOtherFlowsProps> = (p
 
   return (
     <ContextMenuItem onClick={onClick} data-testid={props['data-testid']}>
-      <EyeSlashIcon /> Hide rest
+      <ViewOff /> Hide rest
     </ContextMenuItem>
   );
 };

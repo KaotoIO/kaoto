@@ -1,4 +1,4 @@
-import { BarsIcon, GripHorizontalIcon, UnknownIcon } from '@patternfly/react-icons';
+import { Grid, Menu, Unknown } from '@carbon/icons-react';
 import * as React from 'react';
 
 import { CatalogLayout } from './Catalog.models';
@@ -6,11 +6,11 @@ import { CatalogLayout } from './Catalog.models';
 const getCatalogLayoutIcon = (layout: CatalogLayout): React.ReactNode => {
   switch (layout) {
     case CatalogLayout.Gallery:
-      return <GripHorizontalIcon />;
+      return <Grid />;
     case CatalogLayout.List:
-      return <BarsIcon />;
+      return <Menu />;
     default:
-      return <UnknownIcon />;
+      return <Unknown />;
   }
 };
 

@@ -1,9 +1,9 @@
 import './CustomGroupExpanded.scss';
 
+import { Error as ErrorIcon, WarningFilled } from '@carbon/icons-react';
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 import { Icon } from '@patternfly/react-core';
-import { BanIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
 import {
   AnchorEnd,
   DragEvent,
@@ -299,7 +299,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
 
                   {isDisabled && !doesHaveWarnings && (
                     <Icon className="custom-group__disabled-icon" title="Step disabled">
-                      <BanIcon />
+                      <ErrorIcon />
                     </Icon>
                   )}
                 </div>
@@ -342,7 +342,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
             >
               <FloatingCircle>
                 <Icon status="danger" className="custom-group__warning-icon" title={validationText}>
-                  <ExclamationCircleIcon />
+                  <WarningFilled />
                 </Icon>
               </FloatingCircle>
             </foreignObject>

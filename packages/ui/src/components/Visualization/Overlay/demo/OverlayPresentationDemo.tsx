@@ -1,7 +1,7 @@
 import '../../Custom/Node/CustomNode.scss';
 import './OverlayPresentationDemo.scss';
 
-import { ArrowRightIcon, CodeBranchIcon } from '@patternfly/react-icons';
+import { ArrowRight, Branch } from '@carbon/icons-react';
 import { FunctionComponent, ReactNode } from 'react';
 
 import amqpIcon from '../../../../assets/components/amqp.svg';
@@ -98,7 +98,7 @@ const DemoNode: FunctionComponent<NodeProps> = ({
           vizNode={node}
           isCollapsed={false}
           childCount={0}
-          ProcessorIcon={consumer ? CodeBranchIcon : ArrowRightIcon}
+          ProcessorIcon={consumer ? Branch : ArrowRight}
           processorDescription="Existing processor badge"
           isDisabled={!!disabled}
         />

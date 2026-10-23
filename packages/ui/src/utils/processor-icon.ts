@@ -1,5 +1,5 @@
+import { ArrowRight, DataShare, Delay, Flash } from '@carbon/icons-react';
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
-import { ArrowRightIcon, BoltIcon, DataSourceIcon, SpinnerIcon } from '@patternfly/react-icons';
 import { ElementType } from 'react';
 
 import { PROCESSORS_WITH_ICONS } from '../models/special-processors.constants';
@@ -9,10 +9,10 @@ import { PROCESSORS_WITH_ICONS } from '../models/special-processors.constants';
  * These icons are used as overlays in the visualization to indicate processor type.
  */
 const PROCESSOR_ICON_MAP: Record<(typeof PROCESSORS_WITH_ICONS)[number], ElementType> = {
-  from: DataSourceIcon,
-  to: ArrowRightIcon,
-  toD: BoltIcon,
-  poll: SpinnerIcon,
+  from: DataShare,
+  to: ArrowRight,
+  toD: Flash,
+  poll: Delay,
 };
 
 /**

@@ -1,7 +1,7 @@
 import './NewEntity.scss';
 
+import { Add } from '@carbon/icons-react';
 import { Menu, MenuContainer, MenuContent, MenuItem, MenuList, MenuToggle } from '@patternfly/react-core';
-import { PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, ReactElement, useCallback, useRef, useState } from 'react';
 
 import { useCanvasEntities } from '../../../../hooks/useCanvasEntities';
@@ -89,9 +89,9 @@ export const NewEntity: FunctionComponent = () => {
             setIsOpen(!isOpen);
           }}
           isExpanded={isOpen}
+          icon={<Add />}
         >
-          <PlusIcon />
-          <span className="pf-v6-u-m-sm">New</span>
+          New
         </MenuToggle>
       }
       toggleRef={toggleRef}

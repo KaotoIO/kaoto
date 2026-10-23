@@ -1,3 +1,4 @@
+import { WarningFilled } from '@carbon/icons-react';
 import {
   Bullseye,
   Button,
@@ -8,7 +9,6 @@ import {
   EmptyStateVariant,
   ExpandableSection,
 } from '@patternfly/react-core';
-import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import { FunctionComponent, PropsWithChildren, useContext } from 'react';
 
 import { useReloadContext } from '../../hooks/useReloadContext/useReloadContext';
@@ -32,7 +32,7 @@ export const LoadDefaultCatalog: FunctionComponent<PropsWithChildren<ILoadDefaul
     <Bullseye>
       <EmptyState
         headingLevel="h4"
-        icon={ExclamationCircleIcon}
+        icon={WarningFilled}
         status="danger"
         titleText="The catalog couldn't be loaded"
         variant={EmptyStateVariant.lg}

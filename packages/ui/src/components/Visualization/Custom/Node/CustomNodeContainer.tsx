@@ -1,6 +1,5 @@
-import { Layers } from '@carbon/icons-react';
+import { Error as ErrorIcon, Layers } from '@carbon/icons-react';
 import { Icon } from '@patternfly/react-core';
-import { BanIcon } from '@patternfly/react-icons';
 import clsx from 'clsx';
 import { ElementType, FunctionComponent, Ref } from 'react';
 
@@ -85,7 +84,7 @@ export const CustomNodeContainer: FunctionComponent<CustomNodeContainerProps> = 
         {isDisabled && (
           <FloatingCircle className="step-icon step-icon__disabled">
             <Icon status="danger" size="lg">
-              <BanIcon />
+              <ErrorIcon />
             </Icon>
           </FloatingCircle>
         )}

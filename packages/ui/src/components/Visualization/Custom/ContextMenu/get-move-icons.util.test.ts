@@ -1,13 +1,13 @@
 import {
-  AngleDoubleDownIcon,
-  AngleDoubleLeftIcon,
-  AngleDoubleRightIcon,
-  AngleDoubleUpIcon,
-  ArrowDownIcon,
-  ArrowLeftIcon,
-  ArrowRightIcon,
-  ArrowUpIcon,
-} from '@patternfly/react-icons';
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  ArrowUp,
+  CaretDown,
+  CaretLeft,
+  CaretRight,
+  CaretUp,
+} from '@carbon/icons-react';
 
 import { CatalogKind } from '../../../../models';
 import { IVisualizationNode, IVisualizationNodeData } from '../../../../models/visualization/base-visual-entity';
@@ -35,10 +35,10 @@ describe('getMoveIcons', () => {
 
       const icons = getMoveIcons(LayoutType.DagreVertical, vizNode);
 
-      expect(icons.prepend.type).toBe(ArrowUpIcon);
-      expect(icons.append.type).toBe(ArrowDownIcon);
-      expect(icons.moveBefore.type).toBe(AngleDoubleUpIcon);
-      expect(icons.moveNext.type).toBe(AngleDoubleDownIcon);
+      expect(icons.prepend.type).toBe(ArrowUp);
+      expect(icons.append.type).toBe(ArrowDown);
+      expect(icons.moveBefore.type).toBe(CaretUp);
+      expect(icons.moveNext.type).toBe(CaretDown);
     });
 
     it('should return horizontal icons for regular steps in horizontal layout', () => {
@@ -46,10 +46,10 @@ describe('getMoveIcons', () => {
 
       const icons = getMoveIcons(LayoutType.DagreHorizontal, vizNode);
 
-      expect(icons.prepend.type).toBe(ArrowLeftIcon);
-      expect(icons.append.type).toBe(ArrowRightIcon);
-      expect(icons.moveBefore.type).toBe(AngleDoubleLeftIcon);
-      expect(icons.moveNext.type).toBe(AngleDoubleRightIcon);
+      expect(icons.prepend.type).toBe(ArrowLeft);
+      expect(icons.append.type).toBe(ArrowRight);
+      expect(icons.moveBefore.type).toBe(CaretLeft);
+      expect(icons.moveNext.type).toBe(CaretRight);
     });
 
     it('should return horizontal icons for regular steps when layout is undefined', () => {
@@ -57,10 +57,10 @@ describe('getMoveIcons', () => {
 
       const icons = getMoveIcons(undefined, vizNode);
 
-      expect(icons.prepend.type).toBe(ArrowLeftIcon);
-      expect(icons.append.type).toBe(ArrowRightIcon);
-      expect(icons.moveBefore.type).toBe(AngleDoubleLeftIcon);
-      expect(icons.moveNext.type).toBe(AngleDoubleRightIcon);
+      expect(icons.prepend.type).toBe(ArrowLeft);
+      expect(icons.append.type).toBe(ArrowRight);
+      expect(icons.moveBefore.type).toBe(CaretLeft);
+      expect(icons.moveNext.type).toBe(CaretRight);
     });
   });
 
@@ -72,10 +72,10 @@ describe('getMoveIcons', () => {
 
         const icons = getMoveIcons(LayoutType.DagreVertical, vizNode);
 
-        expect(icons.prepend.type).toBe(ArrowLeftIcon);
-        expect(icons.append.type).toBe(ArrowRightIcon);
-        expect(icons.moveBefore.type).toBe(AngleDoubleLeftIcon);
-        expect(icons.moveNext.type).toBe(AngleDoubleRightIcon);
+        expect(icons.prepend.type).toBe(ArrowLeft);
+        expect(icons.append.type).toBe(ArrowRight);
+        expect(icons.moveBefore.type).toBe(CaretLeft);
+        expect(icons.moveNext.type).toBe(CaretRight);
       },
     );
 
@@ -84,10 +84,10 @@ describe('getMoveIcons', () => {
 
       const icons = getMoveIcons(LayoutType.DagreHorizontal, vizNode);
 
-      expect(icons.prepend.type).toBe(ArrowUpIcon);
-      expect(icons.append.type).toBe(ArrowDownIcon);
-      expect(icons.moveBefore.type).toBe(AngleDoubleUpIcon);
-      expect(icons.moveNext.type).toBe(AngleDoubleDownIcon);
+      expect(icons.prepend.type).toBe(ArrowUp);
+      expect(icons.append.type).toBe(ArrowDown);
+      expect(icons.moveBefore.type).toBe(CaretUp);
+      expect(icons.moveNext.type).toBe(CaretDown);
     });
   });
 
@@ -98,20 +98,20 @@ describe('getMoveIcons', () => {
       const icons = getMoveIcons(undefined, vizNode);
 
       // Default to horizontal when no layout info available
-      expect(icons.prepend.type).toBe(ArrowLeftIcon);
-      expect(icons.append.type).toBe(ArrowRightIcon);
-      expect(icons.moveBefore.type).toBe(AngleDoubleLeftIcon);
-      expect(icons.moveNext.type).toBe(AngleDoubleRightIcon);
+      expect(icons.prepend.type).toBe(ArrowLeft);
+      expect(icons.append.type).toBe(ArrowRight);
+      expect(icons.moveBefore.type).toBe(CaretLeft);
+      expect(icons.moveNext.type).toBe(CaretRight);
     });
 
     it('should return vertical icons when vizNode is undefined', () => {
       const icons = getMoveIcons(LayoutType.DagreVertical);
 
       // Without vizNode, treat as regular step and follow layout
-      expect(icons.prepend.type).toBe(ArrowUpIcon);
-      expect(icons.append.type).toBe(ArrowDownIcon);
-      expect(icons.moveBefore.type).toBe(AngleDoubleUpIcon);
-      expect(icons.moveNext.type).toBe(AngleDoubleDownIcon);
+      expect(icons.prepend.type).toBe(ArrowUp);
+      expect(icons.append.type).toBe(ArrowDown);
+      expect(icons.moveBefore.type).toBe(CaretUp);
+      expect(icons.moveNext.type).toBe(CaretDown);
     });
 
     it('should handle vizNode without processorName', () => {
@@ -129,10 +129,10 @@ describe('getMoveIcons', () => {
       const icons = getMoveIcons(LayoutType.DagreVertical, vizNode);
 
       // Without processorName, treat as regular step
-      expect(icons.prepend.type).toBe(ArrowUpIcon);
-      expect(icons.append.type).toBe(ArrowDownIcon);
-      expect(icons.moveBefore.type).toBe(AngleDoubleUpIcon);
-      expect(icons.moveNext.type).toBe(AngleDoubleDownIcon);
+      expect(icons.prepend.type).toBe(ArrowUp);
+      expect(icons.append.type).toBe(ArrowDown);
+      expect(icons.moveBefore.type).toBe(CaretUp);
+      expect(icons.moveNext.type).toBe(CaretDown);
     });
   });
 
@@ -157,10 +157,10 @@ describe('getMoveIcons', () => {
 
         const icons = getMoveIcons(LayoutType.DagreVertical, vizNode);
 
-        expect(icons.prepend.type).toBe(ArrowLeftIcon);
-        expect(icons.append.type).toBe(ArrowRightIcon);
-        expect(icons.moveBefore.type).toBe(AngleDoubleLeftIcon);
-        expect(icons.moveNext.type).toBe(AngleDoubleRightIcon);
+        expect(icons.prepend.type).toBe(ArrowLeft);
+        expect(icons.append.type).toBe(ArrowRight);
+        expect(icons.moveBefore.type).toBe(CaretLeft);
+        expect(icons.moveNext.type).toBe(CaretRight);
       });
     });
   });

@@ -1,9 +1,8 @@
 import '../styles/carbon-overrides.scss';
 import './KaotoEditor.scss';
 
-import { Http } from '@carbon/icons-react';
+import { Code, Help, Http, WarningFilled } from '@carbon/icons-react';
 import { Icon, Tab, Tabs, TabsProps, TabTitleIcon, TabTitleText } from '@patternfly/react-core';
-import { CodeIcon, ExclamationCircleIcon, QuestionIcon } from '@patternfly/react-icons';
 import clsx from 'clsx';
 import { useContext, useMemo } from 'react';
 import { Link, Outlet, useLocation } from 'react-router';
@@ -160,7 +159,7 @@ export const KaotoEditor = () => {
               title={
                 <>
                   <TabTitleIcon>
-                    <CodeIcon />
+                    <Code />
                   </TabTitleIcon>
                   <TabTitleText>Metadata</TabTitleText>
                 </>
@@ -178,7 +177,7 @@ export const KaotoEditor = () => {
               title={
                 <>
                   <TabTitleIcon>
-                    <ExclamationCircleIcon />
+                    <WarningFilled />
                   </TabTitleIcon>
                   <TabTitleText>Error Handler</TabTitleText>
                 </>
@@ -216,7 +215,7 @@ export const KaotoEditor = () => {
               title={
                 <>
                   <TabTitleIcon>
-                    <QuestionIcon />
+                    <Help />
                   </TabTitleIcon>
                   <TabTitleText>About</TabTitleText>
                 </>

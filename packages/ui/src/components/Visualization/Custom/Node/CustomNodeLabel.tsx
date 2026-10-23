@@ -1,5 +1,5 @@
+import { WarningFilled } from '@carbon/icons-react';
 import { Icon } from '@patternfly/react-core';
-import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import clsx from 'clsx';
 import { FunctionComponent } from 'react';
 
@@ -47,7 +47,7 @@ export const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
           role="img"
           data-warning={doesHaveWarnings}
         >
-          <ExclamationCircleIcon />
+          <WarningFilled />
         </Icon>
       )}
       <span title={label}>{label}</span>

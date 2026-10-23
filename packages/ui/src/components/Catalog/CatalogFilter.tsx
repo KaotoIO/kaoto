@@ -1,5 +1,6 @@
 import './CatalogFilter.scss';
 
+import { Misuse } from '@carbon/icons-react';
 import {
   Badge,
   capitalize,
@@ -11,7 +12,6 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from '@patternfly/react-core';
-import { TimesCircleIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useEffect, useRef } from 'react';
 
 import { CatalogLayout } from './Catalog.models';
@@ -144,7 +144,7 @@ export const CatalogFilter: FunctionComponent<CatalogFilterProps> = (props) => {
             color="grey"
             variant="filled"
             onClick={handleClearFilterTags}
-            icon={<TimesCircleIcon />}
+            icon={<Misuse />}
           >
             <b>Clear</b>
           </Label>
