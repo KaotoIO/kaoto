@@ -12,3 +12,9 @@
   display: flex;
   align-items: center;
 }
+
+/* stylelint-disable selector-class-pattern -- BEM class names from @kaoto/forms */
+.custom-table-tab .kaoto-field-wrapper__label-container {
+  display: none;
+}
+/* stylelint-enable selector-class-pattern */
