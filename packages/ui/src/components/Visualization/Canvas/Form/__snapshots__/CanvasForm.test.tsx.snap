@@ -51,10 +51,18 @@ exports[`CanvasForm > should render 1`] = `
                 class="pf-v6-c-button__icon"
               >
                 <svg
-                  data-testid="times-icon"
-                  role="img"
+                  aria-hidden="true"
+                  fill="currentColor"
+                  focusable="false"
+                  height="16"
+                  preserveAspectRatio="xMidYMid meet"
+                  viewBox="0 0 32 32"
+                  width="16"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <path />
+                  <path
+                    d="M17.4141 16 24 9.4141 22.5859 8 16 14.5859 9.4143 8 8 9.4141 14.5859 16 8 22.5859 9.4143 24 16 17.4141 22.5859 24 24 22.5859 17.4141 16z"
+                  />
                 </svg>
               </span>
             </button>
@@ -298,10 +306,18 @@ exports[`CanvasForm > should render nothing if no schema and no definition is av
                 class="pf-v6-c-button__icon"
               >
                 <svg
-                  data-testid="times-icon"
-                  role="img"
+                  aria-hidden="true"
+                  fill="currentColor"
+                  focusable="false"
+                  height="16"
+                  preserveAspectRatio="xMidYMid meet"
+                  viewBox="0 0 32 32"
+                  width="16"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <path />
+                  <path
+                    d="M17.4141 16 24 9.4141 22.5859 8 16 14.5859 9.4143 8 8 9.4141 14.5859 16 8 22.5859 9.4143 24 16 17.4141 22.5859 24 24 22.5859 17.4141 16z"
+                  />
                 </svg>
               </span>
             </button>
@@ -556,10 +572,18 @@ exports[`CanvasForm > should render nothing if no schema is available 1`] = `
                 class="pf-v6-c-button__icon"
               >
                 <svg
-                  data-testid="times-icon"
-                  role="img"
+                  aria-hidden="true"
+                  fill="currentColor"
+                  focusable="false"
+                  height="16"
+                  preserveAspectRatio="xMidYMid meet"
+                  viewBox="0 0 32 32"
+                  width="16"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <path />
+                  <path
+                    d="M17.4141 16 24 9.4141 22.5859 8 16 14.5859 9.4143 8 8 9.4141 14.5859 16 8 22.5859 9.4143 24 16 17.4141 22.5859 24 24 22.5859 17.4141 16z"
+                  />
                 </svg>
               </span>
             </button>

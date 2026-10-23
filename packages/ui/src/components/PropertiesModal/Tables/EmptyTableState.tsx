@@ -1,5 +1,5 @@
+import { Search } from '@carbon/icons-react';
 import { Bullseye, EmptyState, EmptyStateVariant } from '@patternfly/react-core';
-import { SearchIcon } from '@patternfly/react-icons';
 import { FunctionComponent } from 'react';
 
 interface IEmptyTableStateProps {
@@ -12,7 +12,7 @@ export const EmptyTableState: FunctionComponent<IEmptyTableStateProps> = (props)
       <EmptyState
         data-testid="empty-state"
         headingLevel="h2"
-        icon={SearchIcon}
+        icon={Search}
         titleText={'No properties found for ' + props.name}
         variant={EmptyStateVariant.sm}
       />

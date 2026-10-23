@@ -1,4 +1,4 @@
-import { TrashIcon } from '@patternfly/react-icons';
+import { TrashCan } from '@carbon/icons-react';
 import { ContextMenuItem } from '@patternfly/react-topology';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
@@ -15,7 +15,7 @@ export const ItemDeleteStep: FunctionComponent<ItemDeleteStepProps> = (props) =>
 
   return (
     <ContextMenuItem onClick={onDeleteStep} data-testid={props['data-testid']}>
-      <TrashIcon /> Delete
+      <TrashCan /> Delete
     </ContextMenuItem>
   );
 };

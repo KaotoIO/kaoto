@@ -1,8 +1,7 @@
 import './ErrorPage.scss';
 
+import { ArrowLeft, WarningFilled } from '@carbon/icons-react';
 import { Bullseye, Button, EmptyState, EmptyStateBody, EmptyStateVariant, Icon } from '@patternfly/react-core';
-import { ArrowLeftIcon } from '@patternfly/react-icons/dist/esm/icons/arrow-left-icon';
-import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { FunctionComponent } from 'react';
 import { useRouteError } from 'react-router';
 
@@ -11,7 +10,7 @@ import { Links } from '../router/links.models';
 
 const ErrorIcon: FunctionComponent = () => (
   <Icon className="error__icon" status="danger" size="xl">
-    <ExclamationCircleIcon />
+    <WarningFilled />
   </Icon>
 );
 
@@ -28,7 +27,7 @@ export const ErrorPage: FunctionComponent = () => {
           <p className="pf-u-font-family-monospace"> {error.statusText || error.message}</p>
           <br />
 
-          <Button variant="primary" component={backLink} icon={<ArrowLeftIcon />}>
+          <Button variant="primary" component={backLink} icon={<ArrowLeft />}>
             Return home
           </Button>
         </EmptyStateBody>

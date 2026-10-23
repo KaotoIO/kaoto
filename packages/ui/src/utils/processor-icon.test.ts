@@ -1,14 +1,14 @@
+import { ArrowRight, DataShare, Delay, Flash } from '@carbon/icons-react';
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
-import { ArrowRightIcon, BoltIcon, DataSourceIcon, SpinnerIcon } from '@patternfly/react-icons';
 
 import { getProcessorIcon } from './processor-icon';
 
 describe('getProcessorIcon', () => {
   const TEST_CASES = [
-    ['from', DataSourceIcon],
-    ['to', ArrowRightIcon],
-    ['toD', BoltIcon],
-    ['poll', SpinnerIcon],
+    ['from', DataShare],
+    ['to', ArrowRight],
+    ['toD', Flash],
+    ['poll', Delay],
   ] as const;
 
   it.each(TEST_CASES)('returns correct icon for processorName="%s"', (name, icon) => {

@@ -1,5 +1,5 @@
+import { CheckmarkFilled } from '@carbon/icons-react';
 import { Button, List, ListItem, Radio, SearchInput } from '@patternfly/react-core';
-import { CheckCircleIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ApicurioArtifact, ApicurioArtifactSearchResult, SchemaLoadedResult } from '../RestDslImportTypes';
@@ -163,7 +163,7 @@ export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> 
       </div>
       {isLoaded && (
         <span className="rest-dsl-import-success">
-          <CheckCircleIcon /> Loaded
+          <CheckmarkFilled /> Loaded
         </span>
       )}
     </div>

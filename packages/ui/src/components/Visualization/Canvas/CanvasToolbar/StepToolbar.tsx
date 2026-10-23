@@ -1,18 +1,18 @@
 import './StepToolbar.scss';
 
-import { SendAlt } from '@carbon/icons-react';
-import { Button } from '@patternfly/react-core';
 import {
-  BanIcon,
-  BlueprintIcon,
-  CheckIcon,
-  CodeBranchIcon,
-  CompressArrowsAltIcon,
-  ExpandArrowsAltIcon,
-  PowerOffIcon,
-  SyncAltIcon,
-  TrashIcon,
-} from '@patternfly/react-icons';
+  Branch,
+  Checkmark,
+  Error as ErrorIcon,
+  Maximize,
+  Minimize,
+  Power,
+  Renew,
+  Replicate,
+  SendAlt,
+  TrashCan,
+} from '@carbon/icons-react';
+import { Button } from '@patternfly/react-core';
 import clsx from 'clsx';
 import { FunctionComponent, Ref, useContext, useMemo } from 'react';
 
@@ -89,7 +89,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
 
         {canDuplicate && (
           <Button
-            icon={<BlueprintIcon />}
+            icon={<Replicate />}
             className="step-toolbar__button"
             data-testid={`${label}|step-toolbar-button-duplicate`}
             variant="control"
@@ -131,7 +131,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
 
         {canHaveSpecialChildren && (
           <Button
-            icon={<CodeBranchIcon />}
+            icon={<Branch />}
             className="step-toolbar__button"
             data-testid={`${label}|step-toolbar-button-add-special`}
             variant="control"
@@ -145,6 +145,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
 
         {canBeDisabled && (
           <Button
+            icon={isDisabled ? <Checkmark /> : <ErrorIcon />}
             className="step-toolbar__button"
             data-testid={`${label}|step-toolbar-button-disable`}
             variant="control"
@@ -153,14 +154,12 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
               event.stopPropagation();
               onToggleDisableNode();
             }}
-          >
-            {isDisabled ? <CheckIcon /> : <BanIcon />}
-          </Button>
+          />
         )}
 
         {areMultipleStepsDisabled && (
           <Button
-            icon={<PowerOffIcon />}
+            icon={<Power />}
             className="step-toolbar__button"
             data-testid={`${label}|step-toolbar-button-enable-all`}
             variant="control"
@@ -174,7 +173,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
 
         {canReplaceStep && (
           <Button
-            icon={<SyncAltIcon />}
+            icon={<Renew />}
             className="step-toolbar__button"
             data-testid={`${label}|step-toolbar-button-replace`}
             variant="control"
@@ -188,6 +187,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
 
         {onCollapseToggle && (
           <Button
+            icon={isCollapsed ? <Maximize /> : <Minimize />}
             className="step-toolbar__button"
             data-testid={`${label}|step-toolbar-button-collapse`}
             variant="control"
@@ -196,14 +196,12 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
               event.stopPropagation();
               onCollapseToggle();
             }}
-          >
-            {isCollapsed ? <ExpandArrowsAltIcon /> : <CompressArrowsAltIcon />}
-          </Button>
+          />
         )}
 
         {canRemoveStep && (
           <Button
-            icon={<TrashIcon />}
+            icon={<TrashCan />}
             className="step-toolbar__button"
             data-testid={`${label}|step-toolbar-button-delete`}
             variant="stateful"
@@ -218,7 +216,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
 
         {canRemoveFlow && (
           <Button
-            icon={<TrashIcon />}
+            icon={<TrashCan />}
             className="step-toolbar__button"
             data-testid={`${label}|step-toolbar-button-delete-group`}
             variant="stateful"

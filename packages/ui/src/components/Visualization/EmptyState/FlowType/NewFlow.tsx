@@ -1,4 +1,4 @@
-import { PlusIcon } from '@patternfly/react-icons';
+import { Add } from '@carbon/icons-react';
 import { FunctionComponent, PropsWithChildren, useCallback, useContext, useState } from 'react';
 
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
@@ -48,7 +48,7 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
               : `The ${currentFlowType.name} type does not support multiple routes`
           }
         >
-          <PlusIcon />
+          <Add />
           <span className="pf-v6-u-m-sm">New</span>
         </div>
       </FlowTypeSelector>

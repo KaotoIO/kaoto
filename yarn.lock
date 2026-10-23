@@ -3712,7 +3712,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kaoto/kaoto@workspace:packages/ui"
   dependencies:
-    "@carbon/icons-react": "npm:^11.67.0"
+    "@carbon/icons-react": "npm:^11.89.0"
     "@carbon/react": "npm:^1.117.0"
     "@dnd-kit/core": "npm:^6.1.0"
     "@dnd-kit/modifiers": "npm:^9.0.0"

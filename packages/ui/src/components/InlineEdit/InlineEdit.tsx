@@ -1,5 +1,6 @@
 import './InlineEdit.scss';
 
+import { Checkmark, Close, Edit, WarningFilled } from '@carbon/icons-react';
 import {
   Button,
   FormGroup,
@@ -10,7 +11,6 @@ import {
   InputGroupItem,
   TextInput,
 } from '@patternfly/react-core';
-import { CheckIcon, ExclamationCircleIcon, PencilAltIcon, TimesIcon } from '@patternfly/react-icons';
 import {
   FunctionComponent,
   KeyboardEvent,
@@ -146,7 +146,7 @@ export const InlineEdit: FunctionComponent<IInlineEdit> = (props) => {
             variant="plain"
             data-testid={props['data-testid'] + '--edit'}
             onClick={onEdit}
-            icon={<PencilAltIcon />}
+            icon={<Edit />}
           />
         </>
       ) : (
@@ -170,7 +170,7 @@ export const InlineEdit: FunctionComponent<IInlineEdit> = (props) => {
                   <HelperText>
                     <HelperTextItem
                       variant={validationResult.status}
-                      {...(validationResult.status === ValidationStatus.Error && { icon: <ExclamationCircleIcon /> })}
+                      {...(validationResult.status === ValidationStatus.Error && { icon: <WarningFilled /> })}
                     >
                       {validationResult.errMessages[0]}
                     </HelperTextItem>
@@ -180,7 +180,7 @@ export const InlineEdit: FunctionComponent<IInlineEdit> = (props) => {
 
               <InputGroupItem>
                 <Button
-                  icon={<CheckIcon />}
+                  icon={<Checkmark />}
                   variant="plain"
                   aria-label="save button for editing value"
                   onClick={onSave}
@@ -192,7 +192,7 @@ export const InlineEdit: FunctionComponent<IInlineEdit> = (props) => {
 
               <InputGroupItem>
                 <Button
-                  icon={<TimesIcon />}
+                  icon={<Close />}
                   variant="plain"
                   aria-label="close button for editing value"
                   data-testid={props['data-testid'] + '--cancel'}
