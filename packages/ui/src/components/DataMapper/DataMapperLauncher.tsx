@@ -15,10 +15,10 @@
 */
 import './DataMapperLauncher.scss';
 
+import { Help, Tools } from '@carbon/icons-react';
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 import { Alert, Button, Checkbox, FormGroup, HelperText, HelperTextItem, Popover } from '@patternfly/react-core';
-import { HelpIcon, WrenchIcon } from '@patternfly/react-icons';
 import { type FormEvent, FunctionComponent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -242,7 +242,7 @@ const DataMapperLauncherContent: FunctionComponent<{ vizNode?: IVisualizationNod
               triggerAction="hover"
               withFocusTrap={false}
             >
-              <Button variant="plain" aria-label="More info" icon={<HelpIcon />} />
+              <Button variant="plain" aria-label="More info" icon={<Help />} />
             </Popover>
           }
         >
@@ -287,7 +287,7 @@ const DataMapperLauncherContent: FunctionComponent<{ vizNode?: IVisualizationNod
         title="Click to launch the Kaoto DataMapper editor"
         aria-label="Launch the Kaoto DataMapper editor"
         onClick={onClick}
-        icon={<WrenchIcon />}
+        icon={<Tools />}
         isDisabled={isSavingFile || isEditingFilename}
       >
         Configure

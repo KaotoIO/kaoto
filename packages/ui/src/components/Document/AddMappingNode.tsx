@@ -1,7 +1,7 @@
 import './AddMappingNode.scss';
 
+import { Add, AddAlt, Layers } from '@carbon/icons-react';
 import { ActionList, ActionListGroup, ActionListItem, Button, Icon } from '@patternfly/react-core';
-import { LayerGroupIcon, PlusCircleIcon, PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback } from 'react';
 
 import { useDataMapper } from '../../hooks/useDataMapper';
@@ -36,7 +36,7 @@ export const AddMappingNode: FunctionComponent<{ nodeData: AddMappingNodeData; r
         title={
           <>
             <Icon className="node__spacer">
-              <PlusIcon className="node__add__mapping__icon" />
+              <Add className="node__add__mapping__icon" />
             </Icon>
             <NodeTitle
               className="node__spacer node__add__mapping__text"
@@ -45,7 +45,7 @@ export const AddMappingNode: FunctionComponent<{ nodeData: AddMappingNodeData; r
               rank={rank}
             />
             <Icon className="node__spacer">
-              <LayerGroupIcon className="node__add__mapping__icon" />
+              <Layers className="node__add__mapping__icon" />
             </Icon>
           </>
         }
@@ -54,7 +54,7 @@ export const AddMappingNode: FunctionComponent<{ nodeData: AddMappingNodeData; r
         <ActionList>
           <ActionListGroup className="node__add__mapping__actions">
             <ActionListItem>
-              <Button icon={<PlusCircleIcon />} variant="tertiary" onClick={handleAddMapping}>
+              <Button icon={<AddAlt />} variant="tertiary" onClick={handleAddMapping}>
                 Add Mapping
               </Button>
             </ActionListItem>

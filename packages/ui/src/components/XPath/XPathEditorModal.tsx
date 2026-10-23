@@ -1,5 +1,6 @@
 import './XPathEditorModal.scss';
 
+import { HelpFilled, WarningFilled } from '@carbon/icons-react';
 import {
   Button,
   ButtonVariant,
@@ -11,8 +12,6 @@ import {
   ModalVariant,
   Popover,
 } from '@patternfly/react-core';
-import { QuestionCircleIcon } from '@patternfly/react-icons';
-import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { FunctionComponent, useCallback, useMemo, useRef } from 'react';
 
 import { IExpressionHolder, MappingItem } from '../../models/datamapper';
@@ -73,7 +72,7 @@ export const XPathEditorModal: FunctionComponent<XPathEditorModalProps> = ({
               data-testid="xpath-editor-error-btn"
               variant={ButtonVariant.link}
               isDanger
-              icon={<ExclamationCircleIcon />}
+              icon={<WarningFilled />}
             />
           </Popover>
         )}
@@ -87,7 +86,7 @@ export const XPathEditorModal: FunctionComponent<XPathEditorModalProps> = ({
             </p>
           }
         >
-          <Button data-testid="xpath-editor-hint" variant={ButtonVariant.link} icon={<QuestionCircleIcon />} />
+          <Button data-testid="xpath-editor-hint" variant={ButtonVariant.link} icon={<HelpFilled />} />
         </Popover>
       </section>
     ),

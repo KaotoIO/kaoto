@@ -1,4 +1,4 @@
-import { FunctionMath, Help, SettingsAdjust, SortAscending, SortDescending } from '@carbon/icons-react';
+import { FunctionMath, Help, SettingsAdjust, SortAscending, SortDescending, TrashCan } from '@carbon/icons-react';
 import { Toggletip, ToggletipButton, ToggletipContent } from '@carbon/react';
 import {
   Button,
@@ -10,7 +10,6 @@ import {
   SelectOption,
   TextInput,
 } from '@patternfly/react-core';
-import { TrashIcon } from '@patternfly/react-icons';
 import clsx from 'clsx';
 import { FunctionComponent, Ref, useCallback, useMemo, useRef, useState } from 'react';
 
@@ -188,7 +187,7 @@ export const SortKey: FunctionComponent<SortKeyProps> = ({ index, sortItem, mapp
           onClick={() => {
             onRemove(index);
           }}
-          icon={<TrashIcon />}
+          icon={<TrashCan />}
         />
         {isXpathEditorOpen && xpathProxyRef.current && (
           <XPathEditorModal

@@ -1,7 +1,7 @@
 import './SourceTargetView.scss';
 
+import { ZoomIn, ZoomOut } from '@carbon/icons-react';
 import { Button, Split, SplitItem } from '@patternfly/react-core';
-import { SearchMinusIcon, SearchPlusIcon } from '@patternfly/react-icons';
 import { CSSProperties, FunctionComponent, useCallback, useMemo, useRef, useState } from 'react';
 
 import { useDataMapper } from '../../hooks/useDataMapper';
@@ -44,7 +44,7 @@ export const SourceTargetView: FunctionComponent<SourceTargetViewProps> = ({
       <Button
         key="zoom-in"
         variant="plain"
-        icon={<SearchPlusIcon />}
+        icon={<ZoomIn />}
         onClick={(e) => {
           e.stopPropagation();
           handleZoomIn();
@@ -55,7 +55,7 @@ export const SourceTargetView: FunctionComponent<SourceTargetViewProps> = ({
       <Button
         key="zoom-out"
         variant="plain"
-        icon={<SearchMinusIcon />}
+        icon={<ZoomOut />}
         onClick={(e) => {
           e.stopPropagation();
           handleZoomOut();

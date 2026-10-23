@@ -1,5 +1,5 @@
+import { WarningAlt } from '@carbon/icons-react';
 import { CodeBlock, CodeBlockCode, Label, Popover } from '@patternfly/react-core';
-import { WarningTriangleIcon } from '@patternfly/react-icons';
 import { FunctionComponent, ReactNode } from 'react';
 
 import { MappingNodeData } from '../../../models/datamapper/visualization';
@@ -17,7 +17,7 @@ export const MappingItemNodeTitle: FunctionComponent<MappingItemNodeTitleProps> 
     NodeTitleUtil.getMappingItemLabelInfo(nodeData.mapping);
 
   const color = isWarning ? 'yellow' : undefined;
-  const icon = isWarning ? <WarningTriangleIcon /> : undefined;
+  const icon = isWarning ? <WarningAlt /> : undefined;
 
   let popoverBody: ReactNode;
   if (xmlSnippet) {
@@ -51,7 +51,7 @@ export const MappingItemNodeTitle: FunctionComponent<MappingItemNodeTitleProps> 
     <Popover
       triggerAction="click"
       minWidth="20rem"
-      headerIcon={isWarning ? <WarningTriangleIcon color="yellow" /> : undefined}
+      headerIcon={isWarning ? <WarningAlt color="yellow" /> : undefined}
       headerContent={popoverHeader}
       bodyContent={popoverBody}
       aria-label={popoverHeader}

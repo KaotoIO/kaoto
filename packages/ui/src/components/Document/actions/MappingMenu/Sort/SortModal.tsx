@@ -1,7 +1,7 @@
 import './SortModal.scss';
 
+import { Layers } from '@carbon/icons-react';
 import { Button, Form, ModalBody, ModalFooter, ModalHeader, ModalVariant, Title } from '@patternfly/react-core';
-import { LayerGroupIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback } from 'react';
 
 import { ForEachGroupItem, ForEachItem, SortItem } from '../../../../../models/datamapper/mapping';
@@ -37,7 +37,7 @@ export const SortModal: FunctionComponent<SortModalProps> = ({ isOpen, onClose, 
       data-testid="sort-modal"
       aria-label="Sort Configuration Modal"
     >
-      <ModalHeader title="Configure Sort" titleIconVariant={LayerGroupIcon} description={description} />
+      <ModalHeader title="Configure Sort" titleIconVariant={Layers} description={description} />
       <ModalBody>
         <Form>
           <Title headingLevel="h4">Sort keys</Title>

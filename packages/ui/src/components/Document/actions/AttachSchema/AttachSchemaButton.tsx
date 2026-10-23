@@ -1,5 +1,5 @@
+import { DocumentImport } from '@carbon/icons-react';
 import { Button } from '@patternfly/react-core';
-import { ImportIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useMemo, useState } from 'react';
 
 import { DocumentType } from '../../../../models/datamapper';
@@ -60,7 +60,7 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
   return (
     <>
       <Button
-        icon={<ImportIcon />}
+        icon={<DocumentImport />}
         variant="plain"
         title={`${actionName} schema`}
         aria-label={`${actionName} schema`}

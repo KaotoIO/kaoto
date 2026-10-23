@@ -4,9 +4,6 @@ import userEvent from '@testing-library/user-event';
 import { ValidationResult, ValidationStatus } from '../../models';
 import { XsltDocumentRenameInput } from './XsltDocumentRenameInput';
 
-// Note: Using global PatternFly icons mock from vitest-mocks-setup.ts
-// No need for local mock here
-
 describe('XsltDocumentRenameInput', () => {
   const defaultProps = {
     value: 'Initial Document Name',

@@ -1,5 +1,6 @@
 import './TypeaheadInput.scss';
 
+import { Close } from '@carbon/icons-react';
 import {
   Button,
   MenuToggle,
@@ -11,7 +12,6 @@ import {
   TextInputGroupMain,
   TextInputGroupUtilities,
 } from '@patternfly/react-core';
-import { TimesIcon } from '@patternfly/react-icons';
 import { FunctionComponent, Ref, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 export interface TypeaheadInputOption {
@@ -119,7 +119,7 @@ export const TypeaheadInput: FunctionComponent<TypeaheadInputProps> = ({
           />
           {inputValue && (
             <TextInputGroupUtilities>
-              <Button variant="plain" onClick={handleClear} aria-label="Clear expression" icon={<TimesIcon />} />
+              <Button variant="plain" onClick={handleClear} aria-label="Clear expression" icon={<Close />} />
             </TextInputGroupUtilities>
           )}
         </TextInputGroup>

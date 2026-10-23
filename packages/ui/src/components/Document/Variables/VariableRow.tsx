@@ -1,7 +1,7 @@
 import './Variables.scss';
 
+import { TrashCan } from '@carbon/icons-react';
 import { Label } from '@patternfly/react-core';
-import { TrashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, KeyboardEvent, MouseEvent, useCallback } from 'react';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
@@ -139,7 +139,7 @@ export const VariableRow: FunctionComponent<VariableRowProps> = ({
   const actions = !isReadOnly && (
     <span className="variable-row-actions">
       <ConfirmActionButton
-        icon={<TrashIcon />}
+        icon={<TrashCan />}
         title={`Delete variable $${variable.name}`}
         triggerTestId={`delete-variable-${variable.name}-button`}
         modalTestId={`delete-variable-${variable.name}-modal`}
