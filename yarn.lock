@@ -3598,7 +3598,6 @@ __metadata:
     "@kaoto/kaoto": "workspace:*"
     "@patternfly/patternfly": "npm:^6.6.1"
     "@patternfly/react-core": "npm:6.6.1"
-    "@patternfly/react-icons": "npm:^6.6.1"
     "@storybook/addon-docs": "npm:^10.6.1"
     "@storybook/addon-links": "npm:^10.6.1"
     "@storybook/react": "npm:^10.6.1"

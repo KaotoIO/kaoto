@@ -1,8 +1,7 @@
 import './BaseNode.scss';
 
-import { At, ChevronDown, ChevronRight, Choices, DocumentComment, Draggable } from '@carbon/icons-react';
+import { At, ChevronDown, ChevronRight, Choices, DocumentComment, Draggable, Layers } from '@carbon/icons-react';
 import { Button, Icon, Label, Tooltip } from '@patternfly/react-core';
-import { LayerGroupIcon } from '@patternfly/react-icons';
 import { FunctionComponent, MouseEventHandler, PropsWithChildren, ReactNode, useCallback, useState } from 'react';
 
 import { IDataTestID } from '../../../models';
@@ -130,7 +129,7 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
       {title}
       {isCollectionField && (
         <Icon className="node__spacer" data-testid="collection-field-icon">
-          <LayerGroupIcon />
+          <Layers />
         </Icon>
       )}
       {isChoiceField && !isSelectedChoice && (

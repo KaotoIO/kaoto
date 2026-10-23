@@ -1,5 +1,4 @@
-import { Choices } from '@carbon/icons-react';
-import { CheckIcon } from '@patternfly/react-icons';
+import { Checkmark, Choices } from '@carbon/icons-react';
 import { useMemo, useState } from 'react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
@@ -119,7 +118,7 @@ export function useAbstractFieldSubstitutionMenu(nodeData: NodeData): MenuContri
     changeSubstituteAction,
     onSelectSubstitution: handleSelectSubstitution,
     onOpenSubstitutionModal: handleOpenSubstitutionModal,
-    selectedIcon: <CheckIcon />,
+    selectedIcon: <Checkmark />,
     unselectedIcon: <Choices />,
   });
 

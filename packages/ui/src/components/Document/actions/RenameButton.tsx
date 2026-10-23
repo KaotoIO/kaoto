@@ -1,5 +1,5 @@
+import { Edit } from '@carbon/icons-react';
 import { Button } from '@patternfly/react-core';
-import { PencilAltIcon } from '@patternfly/react-icons';
 import { FunctionComponent } from 'react';
 
 type RenameButtonProps = {
@@ -13,7 +13,7 @@ type RenameButtonProps = {
 export const RenameButton: FunctionComponent<RenameButtonProps> = ({ itemName, label, onRenameClick }) => {
   return (
     <Button
-      icon={<PencilAltIcon />}
+      icon={<Edit />}
       variant="plain"
       title={`Rename ${label}`}
       aria-label={`Rename ${label}`}

@@ -1,5 +1,5 @@
-import { ActionList, ActionListItem, Button, Icon, Label } from '@patternfly/react-core';
-import { EyeIcon, EyeSlashIcon, PlusIcon } from '@patternfly/react-icons';
+import { Add, View, ViewOff } from '@carbon/icons-react';
+import { ActionList, ActionListItem, Button, Label } from '@patternfly/react-core';
 import { FunctionComponent } from 'react';
 
 import { PARAMETERS_SECTION_ANCHOR } from '../../../models/datamapper/connection-port';
@@ -37,7 +37,7 @@ export const ParametersHeader: FunctionComponent<ParametersHeaderProps> = ({
         <>
           <ActionListItem>
             <Button
-              icon={<PlusIcon />}
+              icon={<Add />}
               variant="plain"
               title="Add parameter"
               aria-label="Add parameter"
@@ -58,7 +58,7 @@ export const ParametersHeader: FunctionComponent<ParametersHeaderProps> = ({
                 e.stopPropagation();
                 onToggleParameters();
               }}
-              icon={<Icon isInline>{showParameters ? <EyeIcon /> : <EyeSlashIcon />}</Icon>}
+              icon={showParameters ? <View /> : <ViewOff />}
             />
           </ActionListItem>
         </>

@@ -1,3 +1,4 @@
+import { HelpFilled } from '@carbon/icons-react';
 import {
   Button,
   FormGroup,
@@ -7,7 +8,6 @@ import {
   Popover,
   TextInput,
 } from '@patternfly/react-core';
-import { HelpIcon } from '@patternfly/react-icons';
 import { type FormEvent, FunctionComponent, useCallback } from 'react';
 
 import { DataMapperStepService } from '../../services/datamapper-step.service';
@@ -49,7 +49,7 @@ export const OutputVariableField: FunctionComponent<OutputVariableFieldProps> = 
           triggerAction="hover"
           withFocusTrap={false}
         >
-          <Button variant="plain" aria-label="More info" icon={<HelpIcon />} />
+          <Button variant="plain" aria-label="More info" icon={<HelpFilled />} />
         </Popover>
       }
     >

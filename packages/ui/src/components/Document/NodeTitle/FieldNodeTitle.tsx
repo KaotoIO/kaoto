@@ -1,6 +1,5 @@
-import { NullSign } from '@carbon/icons-react';
+import { Checkmark, NullSign } from '@carbon/icons-react';
 import { Label } from '@patternfly/react-core';
-import { CheckIcon } from '@patternfly/react-icons';
 import clsx from 'clsx';
 import { FunctionComponent } from 'react';
 
@@ -34,7 +33,7 @@ export const FieldNodeTitle: FunctionComponent<FieldNodeTitleProps> = ({ classNa
       {inlineCopyOf && <Label data-testid="field-copy-of-label">{inlineCopyOf.name}</Label>}
       {isChoiceWrapper && <Label>choice</Label>}
       {isSelectedChoiceWrapper && (
-        <Label color="green" icon={<CheckIcon />}>
+        <Label color="green" icon={<Checkmark />}>
           choice
         </Label>
       )}

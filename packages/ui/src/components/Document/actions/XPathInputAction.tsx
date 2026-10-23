@@ -1,5 +1,6 @@
 import './XPathInputAction.scss';
 
+import { WarningAlt, WarningFilled } from '@carbon/icons-react';
 import {
   ActionListItem,
   Button,
@@ -12,7 +13,6 @@ import {
   Popover,
   TextInput,
 } from '@patternfly/react-core';
-import { ExclamationCircleIcon, ExclamationTriangleIcon } from '@patternfly/react-icons';
 import { FormEvent, FunctionComponent, MouseEvent, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { IExpressionHolder } from '../../../models/datamapper/mapping';
@@ -99,11 +99,11 @@ export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ nodeData,
                   icon={
                     validationResult.hasErrors() ? (
                       <Icon status="danger">
-                        <ExclamationCircleIcon />
+                        <WarningFilled />
                       </Icon>
                     ) : (
                       <Icon status="warning">
-                        <ExclamationTriangleIcon />
+                        <WarningAlt />
                       </Icon>
                     )
                   }

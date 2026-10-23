@@ -1,5 +1,5 @@
+import { ArrowsHorizontal, Tools } from '@carbon/icons-react';
 import { Icon } from '@patternfly/react-core';
-import { ExchangeAltIcon, WrenchIcon } from '@patternfly/react-icons';
 import { FunctionComponent } from 'react';
 
 import { IField } from '../../../../models/datamapper/document';
@@ -29,7 +29,7 @@ export const OverrideIndicator: FunctionComponent<OverrideIndicatorProps> = ({ f
       isInline
       title={title}
     >
-      {isSubstitution ? <ExchangeAltIcon /> : <WrenchIcon />}
+      {isSubstitution ? <ArrowsHorizontal /> : <Tools />}
     </Icon>
   );
 };

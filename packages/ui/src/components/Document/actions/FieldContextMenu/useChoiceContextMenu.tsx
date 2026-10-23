@@ -1,5 +1,4 @@
-import { Choices } from '@carbon/icons-react';
-import { CheckIcon } from '@patternfly/react-icons';
+import { Checkmark, Choices } from '@carbon/icons-react';
 import { useMemo, useState } from 'react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
@@ -142,7 +141,7 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
     changeMemberAction,
     onSelectChoiceMember: handleSelectChoiceMember,
     onOpenChoiceModal: handleOpenChoiceModal,
-    selectedIcon: <CheckIcon />,
+    selectedIcon: <Checkmark />,
     unselectedIcon: <Choices />,
   });
 

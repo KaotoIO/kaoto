@@ -1,7 +1,7 @@
 import './NameInputPlaceholder.scss';
 
+import { Checkmark, Close } from '@carbon/icons-react';
 import { ActionList, ActionListGroup, ActionListItem, Button, Label } from '@patternfly/react-core';
-import { CheckIcon, TimesIcon } from '@patternfly/react-icons';
 import { FunctionComponent, KeyboardEvent, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { NameValidation, NameValidationStatus } from '../../models/datamapper/visualization';
@@ -100,7 +100,7 @@ export const NameInputPlaceholder: FunctionComponent<NameInputPlaceholderProps> 
         <ActionListGroup>
           <ActionListItem>
             <Button
-              icon={<CheckIcon />}
+              icon={<Checkmark />}
               onClick={handleSubmit}
               variant="link"
               isDisabled={!isValid}
@@ -111,7 +111,7 @@ export const NameInputPlaceholder: FunctionComponent<NameInputPlaceholderProps> 
           </ActionListItem>
           <ActionListItem>
             <Button
-              icon={<TimesIcon />}
+              icon={<Close />}
               onClick={onCancel}
               variant="plain"
               id={`${testIdPrefix}-cancel-btn`}

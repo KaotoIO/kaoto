@@ -1,5 +1,6 @@
 import './AttachSchema.scss';
 
+import { CheckmarkFilled, TrashCan, WarningAlt, WarningFilled } from '@carbon/icons-react';
 import {
   Badge,
   Button,
@@ -15,7 +16,6 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from '@patternfly/react-core';
-import { CheckCircleIcon, ExclamationCircleIcon, ExclamationTriangleIcon, TrashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useMemo, useState } from 'react';
 
 import { getFileName } from '../utils';
@@ -37,9 +37,9 @@ type SchemaFileDataListProps = {
 };
 
 const STATUS_ICONS = {
-  success: <CheckCircleIcon color="var(--pf-t--global--icon--color--status--success--default)" />,
-  warning: <ExclamationTriangleIcon color="var(--pf-t--global--icon--color--status--warning--default)" />,
-  error: <ExclamationCircleIcon color="var(--pf-t--global--icon--color--status--danger--default)" />,
+  success: <CheckmarkFilled color="var(--pf-t--global--icon--color--status--success--default)" />,
+  warning: <WarningAlt color="var(--pf-t--global--icon--color--status--warning--default)" />,
+  error: <WarningFilled color="var(--pf-t--global--icon--color--status--danger--default)" />,
 };
 
 const FILTER_OPTIONS: { status: SchemaFileItem['status']; label: string }[] = [
@@ -171,7 +171,7 @@ export const SchemaFileDataList: FunctionComponent<SchemaFileDataListProps> = ({
                       onClick={() => {
                         onRemoveFile(item.filePath!);
                       }}
-                      icon={<TrashIcon />}
+                      icon={<TrashCan />}
                     />
                   </DataListAction>
                 )}

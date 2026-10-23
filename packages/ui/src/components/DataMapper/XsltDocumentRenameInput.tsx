@@ -1,5 +1,6 @@
 import './XsltDocumentRenameInput.scss';
 
+import { Checkmark, Close, Edit, WarningFilled } from '@carbon/icons-react';
 import {
   Button,
   Form,
@@ -10,7 +11,6 @@ import {
   InputGroupItem,
   TextInput,
 } from '@patternfly/react-core';
-import { CheckIcon, ExclamationCircleIcon, PencilAltIcon, TimesIcon } from '@patternfly/react-icons';
 import { FunctionComponent, KeyboardEventHandler, MouseEventHandler, useCallback, useEffect, useState } from 'react';
 
 import { IDataTestID, ValidationResult, ValidationStatus } from '../../models';
@@ -215,7 +215,7 @@ export const XsltDocumentRenameInput: FunctionComponent<IXsltDocumentRenameInput
               <InputGroupItem>
                 <div className="xslt-document-rename-action-buttons">
                   <Button
-                    icon={<CheckIcon />}
+                    icon={<Checkmark />}
                     variant="plain"
                     aria-label="Save value"
                     onClick={onSave}
@@ -223,7 +223,7 @@ export const XsltDocumentRenameInput: FunctionComponent<IXsltDocumentRenameInput
                     isDisabled={isInvalid || isSaving || isValidating}
                   />
                   <Button
-                    icon={<TimesIcon />}
+                    icon={<Close />}
                     variant="plain"
                     aria-label="Cancel editing"
                     data-testid={props['data-testid'] + '--cancel'}
@@ -235,7 +235,7 @@ export const XsltDocumentRenameInput: FunctionComponent<IXsltDocumentRenameInput
             </InputGroup>
             {isInvalid && validationResult.errMessages.length > 0 && (
               <HelperText>
-                <HelperTextItem variant="error" icon={<ExclamationCircleIcon />}>
+                <HelperTextItem variant="error" icon={<WarningFilled />}>
                   {validationResult.errMessages[0]}
                 </HelperTextItem>
               </HelperText>
@@ -252,7 +252,7 @@ export const XsltDocumentRenameInput: FunctionComponent<IXsltDocumentRenameInput
             variant="plain"
             data-testid={props['data-testid'] + '--edit'}
             onClick={onEdit}
-            icon={<PencilAltIcon />}
+            icon={<Edit />}
           />
         </div>
       )}
