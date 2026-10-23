@@ -11,12 +11,15 @@ export class CitrusTestReportService {
    */
   static findResult(path: string, actions: TestActionResult[]): TestActionResult | undefined {
     for (const action of actions) {
-      if (this.toModelPath(action.path) === path) {
+      if (this.matchPath(action.path, path)) {
         return action;
       }
 
       if (action.actions) {
-        return this.findResult(path, action.actions);
+        const found = this.findResult(path, action.actions);
+        if (found !== undefined) {
+          return found;
+        }
       }
 
       for (const iteration of action.iterations || []) {
@@ -43,7 +46,7 @@ export class CitrusTestReportService {
     }
 
     for (const action of actions) {
-      if (action.error && this.toModelPath(action.path) === path) {
+      if (action.error && this.matchPath(action.path, path)) {
         return action.error;
       }
 
@@ -67,11 +70,47 @@ export class CitrusTestReportService {
     return undefined;
   }
 
-  static toModelPath(path: string) {
-    return path
-      .replace(/-([a-z])/g, function (v) {
-        return v.substring(1).toUpperCase();
-      })
-      .replace(/:/g, '-');
+  /**
+   * Convert a report path to the model path format used by the UI.
+   * Replaces colons with dashes to match the UI's action naming convention
+   * (e.g. "http:send-request" → "http-send-request").
+   */
+  static toModelPath(path: string): string {
+    return path.replace(/:/g, '-');
+  }
+
+  /**
+   * Match a report action path against a UI model path.
+   * First tries an exact match after converting the report path. If that fails,
+   * falls back to comparing by sorted name segments — this works around a Citrus
+   * bug where multi-level action groups produce paths with segments in the wrong
+   * order (e.g. "camel:run-infra" instead of "camel:infra:run").
+   */
+  private static matchPath(reportPath: string, uiPath: string): boolean {
+    if (this.toModelPath(reportPath) === uiPath) {
+      return true;
+    }
+
+    const reportSegments = reportPath.split('.');
+    const uiSegments = uiPath.split('.');
+    if (reportSegments.length !== uiSegments.length) {
+      return false;
+    }
+
+    for (let i = 0; i < reportSegments.length; i++) {
+      if (/^\d+$/.test(reportSegments[i]) || reportSegments[i] === 'actions' || reportSegments[i] === 'iterations') {
+        if (reportSegments[i] !== uiSegments[i]) {
+          return false;
+        }
+      } else {
+        const reportParts = reportSegments[i].split(/[:-]/).sort();
+        const uiParts = uiSegments[i].split(/[:-]/).sort();
+        if (reportParts.join(',') !== uiParts.join(',')) {
+          return false;
+        }
+      }
+    }
+
+    return true;
   }
 }
