@@ -1,0 +1,22 @@
+.kaoto-form-container {
+  box-sizing: border-box;
+}
+
+.kaoto-form {
+  padding: 0.5rem 0;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  /* stylelint-disable-next-line selector-class-pattern */
+  .cds--stack-vertical.cds--stack-scale-5 {
+    margin-block-end: var(--cds-spacing-05);
+  }
+
+  &__empty {
+    display: block;
+  }
+
+  &:has(*) + &__empty {
+    display: none;
+  }
+}
