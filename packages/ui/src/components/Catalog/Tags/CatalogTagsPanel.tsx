@@ -1,6 +1,7 @@
-import { Label, LabelGroup } from '@patternfly/react-core';
+import { LabelGroup } from '@patternfly/react-core';
 import { FunctionComponent } from 'react';
 
+import { CatalogClickableLabel } from './CatalogClickableLabel';
 import { getTagColor } from './tag-color-resolver';
 
 interface ICatalogTagsPanelProps {
@@ -12,30 +13,20 @@ export const CatalogTagsPanel: FunctionComponent<ICatalogTagsPanelProps> = (prop
   return (
     <LabelGroup isCompact aria-label="data-list-item-tags">
       {props.tags.map((tag) => (
-        <Label
-          isCompact
-          isClickable
+        <CatalogClickableLabel
           key={tag}
           color={getTagColor(tag)}
-          render={({ className, content }) => (
-            <button
-              type="button"
-              className={className}
-              data-testid={'tag-' + tag}
-              onMouseDown={(ev) => {
-                ev.preventDefault();
-              }}
-              onClick={(ev) => {
-                ev.stopPropagation(); // ignore root click, e.g. click on tile
-                props.onTagClick(ev, tag);
-              }}
-            >
-              {content}
-            </button>
-          )}
+          data-testid={'tag-' + tag}
+          onMouseDown={(ev) => {
+            ev.preventDefault();
+          }}
+          onClick={(ev) => {
+            ev.stopPropagation(); // ignore root click, e.g. click on tile
+            props.onTagClick(ev, tag);
+          }}
         >
           {tag}
-        </Label>
+        </CatalogClickableLabel>
       ))}
     </LabelGroup>
   );
