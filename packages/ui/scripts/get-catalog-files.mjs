@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
+
 import { normalizePath } from 'vite';
 
 const require = createRequire(import.meta.url);

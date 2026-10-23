@@ -2,13 +2,40 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Run Extension (Vite dev server)",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": ["--disable-extensions", "--extensionDevelopmentPath=${workspaceFolder}/packages/kaoto-vscode"],
+      "outFiles": ["${workspaceFolder}/packages/kaoto-vscode/dist/**/*.js"],
+      "sourceMapPathOverrides": {
+        "webpack://KaotoEditor/./src/*": "${workspaceFolder}/packages/kaoto-vscode/src/*"
+      },
+      "debugWebviews": true,
+      "rendererDebugOptions": {
+        "webRoot": "${workspaceFolder}/packages/ui",
+        "sourceMaps": true,
+        "resolveSourceMapLocations": null
+      },
+      "preLaunchTask": "watch:vscode-kaoto",
+      "postDebugTask": "stop: @kaoto/kaoto vite dev server",
+      "env": {
+        "VSCODE_REDHAT_TELEMETRY_DEBUG": "true",
+        "KAOTO_DEV_URL": "http://127.0.0.1:5173"
+      }
+    },
+    {
       "name": "Run Extension",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
       "args": ["--disable-extensions", "--extensionDevelopmentPath=${workspaceFolder}/packages/kaoto-vscode"],
       "outFiles": ["${workspaceFolder}/packages/kaoto-vscode/dist/**/*.js"],
-      "preLaunchTask": "build: vscode-kaoto build:dev",
+      "sourceMapPathOverrides": {
+        "webpack://KaotoEditor/./src/*": "${workspaceFolder}/packages/kaoto-vscode/src/*"
+      },
+      "debugWebviews": true,
+      "preLaunchTask": "build:webview then watch",
       "env": {
         "VSCODE_REDHAT_TELEMETRY_DEBUG": "true"
       }
@@ -20,7 +47,11 @@
       "runtimeExecutable": "${execPath}",
       "args": ["--disable-extensions", "--extensionDevelopmentPath=${workspaceFolder}/packages/kaoto-vscode", "--extensionDevelopmentKind=web"],
       "outFiles": ["${workspaceFolder}/packages/kaoto-vscode/dist/**/*.js"],
-      "preLaunchTask": "build: vscode-kaoto build:dev",
+      "sourceMapPathOverrides": {
+        "webpack://KaotoEditor/./src/*": "${workspaceFolder}/packages/kaoto-vscode/src/*"
+      },
+      "debugWebviews": true,
+      "preLaunchTask": "build:webview then watch",
       "env": {
         "VSCODE_REDHAT_TELEMETRY_DEBUG": "true"
       }

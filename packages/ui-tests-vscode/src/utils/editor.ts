@@ -61,7 +61,7 @@ export async function openAndSwitchToKaotoFrame(
  *    rects, so geometry cannot tell them apart.
  *
  * Both failures otherwise surface much later as a `NoSuchElementError` naming a valid
- * Kaoto selector. Checking for `#envelope-app` -- the Kaoto webview root, absent from the
+ * Kaoto selector. Checking for `#kaoto-editor` -- the Kaoto webview root, absent from the
  * workbench DOM and from every other webview -- turns them into an immediate, honest error.
  *
  * @param driver The WebDriver instance.
@@ -112,8 +112,8 @@ export async function switchToKaotoFrame(
  * still in the workbench document or inside some other extension's webview.
  */
 async function isInsideKaotoWebview(driver: WebDriver): Promise<boolean> {
-	const envelope = await driver.findElements(By.css(kaotoLocators.KaotoEditor.envelopeApp));
-	return envelope.length > 0;
+	const editorRoot = await driver.findElements(By.css(kaotoLocators.KaotoEditor.root));
+	return editorRoot.length > 0;
 }
 
 /**
@@ -122,11 +122,11 @@ async function isInsideKaotoWebview(driver: WebDriver): Promise<boolean> {
  *
  * Only acts when the active tab is not already the expected one, so a suite that is behaving
  * normally pays nothing and VS Code is not fought for focus once per second. Focusing is best
- * effort: this runs inside a retry loop, and `#envelope-app` is what ultimately decides
+ * effort: this runs inside a retry loop, and `#kaoto-editor` is what ultimately decides
  * success, so a transient failure here is worth another attempt rather than an exception.
  *
  * Callers that do not know which tab to expect skip this entirely and rely on the
- * `#envelope-app` verification alone.
+ * `#kaoto-editor` verification alone.
  */
 async function ensureKaotoEditorIsActive(expectedTitle?: string): Promise<void> {
 	if (expectedTitle === undefined) {
