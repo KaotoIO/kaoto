@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "module": "esnext",
+    "target": "es2020",
+    "esModuleInterop": true,
+    "moduleResolution": "bundler"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "src/__mocks__", "src/stubs", "**/*.test.*"]
+}
