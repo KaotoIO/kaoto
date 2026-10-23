@@ -269,8 +269,9 @@ describe('MappingActionService', () => {
         );
         const valueSelectorAction = menuItems.find((item) => item.key === MappingActionKind.ValueSelector);
         expect(valueSelectorAction!.isDisabled!(updatedShipOrderChildren[0] as TargetNodeData)).toBe(true);
+        // OrderId is a leaf field — copy-of should be disabled for it
         const copyOfAction = menuItems.find((item) => item.key === MappingActionKind.CopyOfSelector);
-        expect(copyOfAction!.isDisabled).toBeUndefined();
+        expect(copyOfAction!.isDisabled!(updatedShipOrderChildren[0] as TargetNodeData)).toBe(true);
       });
 
       it('should NOT disable ValueSelector when only copy-of exists', () => {
@@ -287,6 +288,47 @@ describe('MappingActionService', () => {
         );
         const valueSelectorAction = menuItems.find((item) => item.key === MappingActionKind.ValueSelector);
         expect(valueSelectorAction!.isDisabled!(updatedShipOrderChildren[0] as TargetNodeData)).toBe(false);
+      });
+
+      it('should not disable CopyOfSelector for a container field', () => {
+        const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        // ShipTo is a container field (index 2: OrderId attr, OrderPerson, ShipTo, ...)
+        const shipToNode = shipOrderChildren.find((c) => c.title === 'ShipTo') as TargetNodeData;
+        expect(shipToNode).toBeDefined();
+        const menuItems = MappingActionRegistryService.getMappingContextMenuItems(shipToNode);
+        const copyOfAction = menuItems.find((item) => item.key === MappingActionKind.CopyOfSelector);
+        expect(copyOfAction).toBeDefined();
+        expect(copyOfAction!.isDisabled!(shipToNode)).toBe(false);
+      });
+
+      it('should disable CopyOfSelector for a leaf field (no children)', () => {
+        const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        // OrderPerson is a leaf string field
+        const orderPersonNode = shipOrderChildren.find((c) => c.title === 'OrderPerson') as TargetNodeData;
+        expect(orderPersonNode).toBeDefined();
+        const menuItems = MappingActionRegistryService.getMappingContextMenuItems(orderPersonNode);
+        const copyOfAction = menuItems.find((item) => item.key === MappingActionKind.CopyOfSelector);
+        expect(copyOfAction).toBeDefined();
+        expect(copyOfAction!.isDisabled!(orderPersonNode)).toBe(true);
+      });
+
+      it('should hide CopyOfSelector for a JSON target document', () => {
+        const jsonTargetDoc = TestUtil.createJSONTargetOrderDoc();
+        const jsonTree = new MappingTree(
+          jsonTargetDoc.documentType,
+          jsonTargetDoc.documentId,
+          DocumentDefinitionType.JSON_SCHEMA,
+        );
+        const jsonTargetDocNode = new TargetDocumentNodeData(jsonTargetDoc, jsonTree);
+        const jsonDocChildren = VisualizationService.generateStructuredDocumentChildren(jsonTargetDocNode);
+        const jsonShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(jsonDocChildren[0]);
+        const menuItems = MappingActionRegistryService.getMappingContextMenuItems(
+          jsonShipOrderChildren[0] as TargetNodeData,
+        );
+        const copyOfAction = menuItems.find((item) => item.key === MappingActionKind.CopyOfSelector);
+        expect(copyOfAction).toBeUndefined();
       });
     });
 

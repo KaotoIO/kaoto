@@ -1,3 +1,4 @@
+import { DocumentDefinitionType } from '../../models/datamapper/document';
 import {
   ChooseItem,
   FieldItem,
@@ -157,6 +158,7 @@ export class MappingActionRegistryService {
       isAllowed: (n) => {
         if (n instanceof AddMappingNodeData) return false;
         if (MappingActionRegistryService.isUnselectedWrapperField(n)) return false;
+        if (n.mappingTree?.documentDefinitionType === DocumentDefinitionType.JSON_SCHEMA) return false;
         if (!VisualizationUtilService.isMappingNode(n)) return true;
         return !MappingActionRegistryService.mappingIsOneOf(
           ValueSelector,
@@ -166,6 +168,7 @@ export class MappingActionRegistryService {
           UnknownMappingItem,
         )(n);
       },
+      isDisabled: (n) => VisualizationUtilService.isFieldNode(n) && !DocumentService.hasChildren(n.field),
     },
     {
       key: MappingActionKind.When,
