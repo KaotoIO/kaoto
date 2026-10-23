@@ -22,10 +22,27 @@ exports[`ItemDeleteGroup > should render delete ContextMenuItem 1`] = `
           class="pf-v6-c-menu__item-text"
         >
           <svg
-            data-testid="trash-icon"
-            role="img"
+            aria-hidden="true"
+            fill="currentColor"
+            focusable="false"
+            height="16"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 32 32"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
           >
-            <path />
+            <path
+              d="M12 12H14V24H12z"
+            />
+            <path
+              d="M18 12H20V24H18z"
+            />
+            <path
+              d="M4,6V8H6V28a2,2,0,0,0,2,2H24a2,2,0,0,0,2-2V8h2V6ZM8,28V8H24V28Z"
+            />
+            <path
+              d="M12 2H20V4H12z"
+            />
           </svg>
            Delete
         </span>

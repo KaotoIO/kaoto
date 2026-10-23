@@ -1,4 +1,4 @@
-import { AngleDoubleDownIcon, AngleDoubleUpIcon } from '@patternfly/react-icons';
+import { CaretDown, CaretUp } from '@carbon/icons-react';
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { fireEvent, render, waitFor } from '@testing-library/react';
 import { cloneDeep } from 'lodash';
@@ -39,7 +39,7 @@ describe('ItemMoveStep', () => {
   it('should render Move Next ContextMenuItem', () => {
     const { container } = render(
       <ItemMoveStep vizNode={vizNode} mode={AddStepMode.AppendStep}>
-        <AngleDoubleDownIcon /> Move Next
+        <CaretDown /> Move Next
       </ItemMoveStep>,
       { wrapper },
     );
@@ -50,7 +50,7 @@ describe('ItemMoveStep', () => {
   it('should not render Move Before ContextMenuItem', () => {
     const { container } = render(
       <ItemMoveStep vizNode={lastVizNode} mode={AddStepMode.AppendStep}>
-        <AngleDoubleUpIcon /> Move Before
+        <CaretUp /> Move Before
       </ItemMoveStep>,
       { wrapper },
     );
@@ -61,7 +61,7 @@ describe('ItemMoveStep', () => {
   it('should call onMoveStep when the context menu item is clicked', async () => {
     const wrapperResult = render(
       <ItemMoveStep vizNode={vizNode} mode={AddStepMode.AppendStep}>
-        <AngleDoubleDownIcon /> Move Next
+        <CaretDown /> Move Next
       </ItemMoveStep>,
       { wrapper },
     );

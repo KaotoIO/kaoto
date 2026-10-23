@@ -1,5 +1,5 @@
+import { CheckmarkFilled } from '@carbon/icons-react';
 import { DropEvent, FileUpload, FormHelperText, HelperText, HelperTextItem } from '@patternfly/react-core';
-import { CheckCircleIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useRef, useState } from 'react';
 
 import { SchemaLoadedResult } from '../RestDslImportTypes';
@@ -102,7 +102,7 @@ export const FileImportSource: FunctionComponent<FileImportSourceProps> = ({ onS
       {isLoaded && (
         <FormHelperText>
           <HelperText>
-            <HelperTextItem variant="success" icon={<CheckCircleIcon />}>
+            <HelperTextItem variant="success" icon={<CheckmarkFilled />}>
               Schema loaded successfully
             </HelperTextItem>
           </HelperText>

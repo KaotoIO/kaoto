@@ -103,12 +103,11 @@ describe('ItemPasteEntity', () => {
     expect(screen.getByTestId('custom-test-id')).toBeInTheDocument();
   });
 
-  it('renders with icon testid from mock', async () => {
+  it('renders the paste icon', async () => {
     const { container } = await renderWithClipboard(<ItemPasteEntity />, routeContent);
 
     expect(screen.getByText('Paste')).toBeInTheDocument();
-    // Icon mock always provides a testid for the icon itself
-    expect(container.querySelector('[data-testid="paste-icon"]')).toBeInTheDocument();
+    expect(container.querySelector('svg')).toBeInTheDocument();
   });
 
   it('maintains correct structure with icon and text', async () => {

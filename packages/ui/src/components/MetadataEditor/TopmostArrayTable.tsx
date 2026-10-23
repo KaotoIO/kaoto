@@ -1,7 +1,7 @@
 import './MetadataEditor.scss';
 
+import { AddAlt, TrashCan } from '@carbon/icons-react';
 import { Button, EmptyState, EmptyStateBody, Truncate } from '@patternfly/react-core';
-import { PlusCircleIcon, TrashIcon } from '@patternfly/react-icons';
 import {
   InnerScrollContainer,
   OuterScrollContainer,
@@ -61,7 +61,7 @@ export const TopmostArrayTable = (props: TopmostArrayTableProps) => {
                 <Button
                   title={`Add new ${props.name}`}
                   data-testid={'metadata-add-' + props.name + '-btn'}
-                  icon={<PlusCircleIcon />}
+                  icon={<AddAlt />}
                   variant="link"
                   onClick={() => {
                     handleAddNew();
@@ -78,7 +78,7 @@ export const TopmostArrayTable = (props: TopmostArrayTableProps) => {
                     <EmptyStateBody>No {props.name}</EmptyStateBody>
                     <Button
                       data-testid={'metadata-add-' + props.name + '-btn'}
-                      icon={<PlusCircleIcon />}
+                      icon={<AddAlt />}
                       variant="link"
                       onClick={() => {
                         handleAddNew();
@@ -109,7 +109,7 @@ export const TopmostArrayTable = (props: TopmostArrayTableProps) => {
                     <Button
                       title={`Delete ${props.name}`}
                       data-testid={'metadata-delete-' + index + '-btn'}
-                      icon={<TrashIcon />}
+                      icon={<TrashCan />}
                       variant="link"
                       onClick={() => {
                         handleTrashClick(index);

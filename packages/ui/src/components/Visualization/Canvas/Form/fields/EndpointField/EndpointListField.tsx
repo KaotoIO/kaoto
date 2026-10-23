@@ -1,6 +1,6 @@
+import { AddAlt, Edit, TrashCan } from '@carbon/icons-react';
 import { FieldProps, FieldWrapper, useFieldValue } from '@kaoto/forms';
 import { Button } from '@patternfly/react-core';
-import { EditIcon, PlusCircleIcon, TrashIcon } from '@patternfly/react-icons';
 import { Table, TableVariant, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
 
@@ -127,7 +127,7 @@ export const EndpointListField: FunctionComponent<FieldProps> = ({ propName, req
                   <Button
                     title={`Edit ${item.name}`}
                     data-testid={'endpoint-edit-' + index + '-btn'}
-                    icon={<EditIcon />}
+                    icon={<Edit />}
                     variant="link"
                     onClick={() => {
                       handleEdit(index);
@@ -136,7 +136,7 @@ export const EndpointListField: FunctionComponent<FieldProps> = ({ propName, req
                   <Button
                     title={`Delete ${item.name}`}
                     data-testid={'endpoint-delete-' + index + '-btn'}
-                    icon={<TrashIcon />}
+                    icon={<TrashCan />}
                     variant="link"
                     onClick={() => handleDelete(index)}
                   />
@@ -146,13 +146,7 @@ export const EndpointListField: FunctionComponent<FieldProps> = ({ propName, req
           </Tbody>
         </Table>
 
-        <Button
-          icon={<PlusCircleIcon />}
-          key="create"
-          variant="link"
-          onClick={handleAdd}
-          data-testid="create-new-endpoint-btn"
-        >
+        <Button icon={<AddAlt />} key="create" variant="link" onClick={handleAdd} data-testid="create-new-endpoint-btn">
           Add
         </Button>
       </FieldWrapper>

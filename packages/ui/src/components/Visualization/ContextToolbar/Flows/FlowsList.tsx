@@ -1,8 +1,8 @@
 import './FlowsList.scss';
 
+import { TrashCan, View, ViewOff } from '@carbon/icons-react';
 import { camelCaseToSpaces } from '@kaoto/forms';
 import { Button, Icon, SearchInput } from '@patternfly/react-core';
-import { EyeIcon, EyeSlashIcon, TrashIcon } from '@patternfly/react-icons';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { useVisualizationController } from '@patternfly/react-topology';
 import { FunctionComponent, MouseEvent, useCallback, useContext, useMemo, useState } from 'react';
@@ -120,9 +120,9 @@ export const FlowsList: FunctionComponent<IFlowsList> = ({ onClose }) => {
                 icon={
                   <Icon isInline>
                     {areFlowsVisible() ? (
-                      <EyeIcon data-testid="toggle-btn-hide-all" />
+                      <View data-testid="toggle-btn-hide-all" />
                     ) : (
-                      <EyeSlashIcon data-testid="toggle-btn-show-all" />
+                      <ViewOff data-testid="toggle-btn-show-all" />
                     )}
                   </Icon>
                 }
@@ -133,7 +133,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = ({ onClose }) => {
               <Button
                 title="Delete all flows"
                 data-testid="delete-filtered-btn"
-                icon={<TrashIcon />}
+                icon={<TrashCan />}
                 variant="plain"
                 onClick={onDeleteAll}
                 isDisabled={filteredIds.length === 0}
@@ -171,11 +171,11 @@ export const FlowsList: FunctionComponent<IFlowsList> = ({ onClose }) => {
                     icon={
                       visibleFlows[flow.id] ? (
                         <Icon isInline>
-                          <EyeIcon title={`Hide ${flow.id}`} data-testid={`toggle-btn-${flow.id}-visible`} />
+                          <View title={`Hide ${flow.id}`} data-testid={`toggle-btn-${flow.id}-visible`} />
                         </Icon>
                       ) : (
                         <Icon isInline>
-                          <EyeSlashIcon title={`Show ${flow.id}`} data-testid={`toggle-btn-${flow.id}-hidden`} />
+                          <ViewOff title={`Show ${flow.id}`} data-testid={`toggle-btn-${flow.id}-hidden`} />
                         </Icon>
                       )
                     }
@@ -199,7 +199,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = ({ onClose }) => {
                   <Button
                     title={`Delete ${flow.id}`}
                     data-testid={`delete-btn-${flow.id}`}
-                    icon={<TrashIcon />}
+                    icon={<TrashCan />}
                     variant="plain"
                     onClick={async (_event) => {
                       //close the dropdown if it is open to not to interfere with the delete modal

@@ -1,3 +1,4 @@
+import { ArrowLeft, ViewOff } from '@carbon/icons-react';
 import {
   Bullseye,
   Button,
@@ -6,7 +7,6 @@ import {
   EmptyStateBody,
   EmptyStateFooter,
 } from '@patternfly/react-core';
-import { ArrowLeftIcon, EyeSlashIcon } from '@patternfly/react-icons';
 
 import { useComponentLink } from '../../../hooks/ComponentLink';
 import { Links } from '../../../router/links.models';
@@ -16,7 +16,7 @@ export const ReturnToSourceCodeFallback = () => {
 
   return (
     <Bullseye>
-      <EmptyState headingLevel="h4" icon={EyeSlashIcon} titleText="The provided source code cannot be shown">
+      <EmptyState headingLevel="h4" icon={ViewOff} titleText="The provided source code cannot be shown">
         <EmptyStateBody>
           <p>It might be that the source code is not available, or that the source code is not valid.</p>
           <br />
@@ -24,7 +24,7 @@ export const ReturnToSourceCodeFallback = () => {
         </EmptyStateBody>
         <EmptyStateFooter>
           <EmptyStateActions>
-            <Button variant="primary" component={backLink} icon={<ArrowLeftIcon />}>
+            <Button variant="primary" component={backLink} icon={<ArrowLeft />}>
               Go to the source code
             </Button>
           </EmptyStateActions>

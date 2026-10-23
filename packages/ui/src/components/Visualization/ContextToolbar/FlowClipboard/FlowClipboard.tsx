@@ -1,7 +1,7 @@
 import './FlowClipboard.scss';
 
+import { Copy } from '@carbon/icons-react';
 import { Button, Icon } from '@patternfly/react-core';
-import { CopyIcon } from '@patternfly/react-icons';
 import { useState } from 'react';
 
 import { useSourceCodeStore } from '../../../../store';
@@ -29,7 +29,7 @@ export const FlowClipboard = () => {
       className="flow-clipboard-control"
       icon={
         <Icon status={status}>
-          <CopyIcon />
+          <Copy />
         </Icon>
       }
       title={tooltipText}

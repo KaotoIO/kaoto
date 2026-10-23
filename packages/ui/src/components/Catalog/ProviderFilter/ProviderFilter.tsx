@@ -1,7 +1,7 @@
 import './ProviderFilter.scss';
 
+import { Filter } from '@carbon/icons-react';
 import { Badge, Menu, MenuContent, MenuItem, MenuList, MenuToggle, Popper } from '@patternfly/react-core';
-import { FilterIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useRef, useState } from 'react';
 
 interface ProviderFilterProps {
@@ -40,7 +40,7 @@ export const ProviderFilter: FunctionComponent<ProviderFilterProps> = ({
         setIsOpen(!isOpen);
       }}
       isExpanded={isOpen}
-      icon={<FilterIcon />}
+      icon={<Filter />}
       {...(selectedProviders.length > 0 && { badge: <Badge isRead>{selectedProviders.length}</Badge> })}
     >
       Provided by

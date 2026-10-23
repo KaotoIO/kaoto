@@ -1,6 +1,6 @@
 import './EndpointPropertiesField.scss';
 
-import { SettingsAdjust, TableSplit } from '@carbon/icons-react';
+import { SettingsAdjust, TableSplit, TrashCan } from '@carbon/icons-react';
 import {
   ArrayFieldWrapper,
   FieldProps,
@@ -10,7 +10,6 @@ import {
   useFieldValue,
 } from '@kaoto/forms';
 import { Badge, Button, ToggleGroup, ToggleGroupItem } from '@patternfly/react-core';
-import { TrashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
 
 import { MultiValuePropertyEditor } from './MultiValuePropertyEditor';
@@ -77,7 +76,7 @@ export const EndpointPropertiesField: FunctionComponent<FieldProps> = ({ propNam
                 <>
                   <Badge title={`${propsCount} properties`}>{propsCount}</Badge>
                   <Button variant="plain" aria-label="Remove" onClick={onRemove} data-testid={`${propName}__remove`}>
-                    <TrashIcon />
+                    <TrashCan />
                   </Button>
                 </>
               }

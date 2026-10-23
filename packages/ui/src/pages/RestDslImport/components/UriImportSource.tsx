@@ -1,5 +1,5 @@
+import { CheckmarkFilled } from '@carbon/icons-react';
 import { Button, FormHelperText, HelperText, HelperTextItem, TextInput } from '@patternfly/react-core';
-import { CheckCircleIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useState } from 'react';
 
 import { SchemaLoadedResult } from '../RestDslImportTypes';
@@ -68,7 +68,7 @@ export const UriImportSource: FunctionComponent<UriImportSourceProps> = ({ onSch
       </div>
       {isLoaded && (
         <span className="rest-dsl-import-success rest-dsl-import-success-block">
-          <CheckCircleIcon /> Loaded
+          <CheckmarkFilled /> Loaded
         </span>
       )}
       {error && (
