@@ -253,6 +253,23 @@ describe('CitrusTestResource', () => {
       expect(yamlOutput).toContain('actions:');
     });
 
+    it('should preserve top-level property ordering', async () => {
+      const testWithAllProps: Test = {
+        actions: [{ echo: { message: 'hi' } }],
+        finally: [{ print: { message: 'done' } }],
+        name: 'ordering-test',
+        endpoints: [{ direct: { name: 'myEndpoint' } }],
+        variables: [{ name: 'v1', value: 'val1' }],
+        description: 'A test for ordering',
+      };
+      const resource = new CitrusTestResource(testWithAllProps);
+      await resource.initialize();
+
+      const yaml = await resource.toSourceCode();
+      const keys = [...yaml.matchAll(/^(\w+):/gm)].map((m) => m[1]);
+      expect(keys).toEqual(['name', 'description', 'variables', 'endpoints', 'actions', 'finally']);
+    });
+
     describe('with Citrus catalog loaded', () => {
       beforeAll(() => {
         setupCitrusDynamicCatalogRegistry(citrusCatalogsMap);
