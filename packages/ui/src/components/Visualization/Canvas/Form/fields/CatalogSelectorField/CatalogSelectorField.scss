@@ -1,11 +1,25 @@
-.cat-select-field {
-  .dropdown-title {
-    flex-direction: row;
-    gap: 6px;
-    font-weight: bold;
-  }
+.catalog-selector-group-header {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cds-spacing-03);
+  font-weight: 600;
 }
 
-.runtime-selector.pf-v6-u-m-sm {
-  margin-left: 6px;
+// Carbon forces `text-disabled` on all descendants of disabled menu items; the group titles
+// are disabled only to make them non-selectable, so restore a readable color.
+/* stylelint-disable-next-line selector-class-pattern */
+.cds--list-box__menu-item[disabled] .catalog-selector-group-header {
+  color: var(--cds-text-primary);
+  cursor: default;
+}
+
+.catalog-selector-item {
+  display: block;
+  padding-inline-start: var(--cds-spacing-06);
+}
+
+.catalog-selector-selected {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cds-spacing-03);
 }

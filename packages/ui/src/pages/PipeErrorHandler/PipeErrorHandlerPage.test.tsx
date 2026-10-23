@@ -27,11 +27,11 @@ describe('PipeErrorHandlerPage', () => {
     setupDynamicCatalogRegistry(catalogsMap);
   });
 
-  it('renders "Not applicable" when the resource type is not supported', () => {
+  it('renders "Not applicable" when the resource type is not supported', async () => {
     const { container } = render(<PipeErrorHandlerPage />);
 
     expect(container).toMatchSnapshot();
-    expect(screen.getByText('Not applicable')).toBeInTheDocument();
+    expect(await screen.findByText('Not applicable')).toBeInTheDocument();
   });
 
   it('renders the KaotoForm when the resource type is supported', async () => {
@@ -50,9 +50,9 @@ describe('PipeErrorHandlerPage', () => {
     });
 
     expect(container!).toMatchSnapshot();
-    expect(screen.getByRole('button', { name: 'No Pipe ErrorHandler' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Log Pipe ErrorHandler' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Sink Pipe ErrorHandler' })).toBeInTheDocument();
+    expect(await screen.findByRole('tab', { name: 'No Pipe ErrorHandler' })).toBeInTheDocument();
+    expect(await screen.findByRole('tab', { name: 'Log Pipe ErrorHandler' })).toBeInTheDocument();
+    expect(await screen.findByRole('tab', { name: 'Sink Pipe ErrorHandler' })).toBeInTheDocument();
   });
 
   it('calls updateSourceCodeFromEntities when the model changes', async () => {
@@ -69,7 +69,7 @@ describe('PipeErrorHandlerPage', () => {
       expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
     });
 
-    const addButton = screen.getByRole('button', { name: 'Add a new property' });
+    const addButton = await screen.findByRole('button', { name: 'Add a new property' });
     fireEvent.click(addButton);
 
     expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();

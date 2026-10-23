@@ -1,4 +1,6 @@
 // @ts-check
+import { fileURLToPath } from 'node:url';
+
 import react from '@vitejs/plugin-react';
 import { defaultClientConditions, defineConfig } from 'vite';
 
@@ -37,6 +39,11 @@ export default defineConfig({
       {
         find: /^~/,
         replacement: '',
+      },
+      // For linking forms
+      {
+        find: '@kaoto/forms',
+        replacement: fileURLToPath(new URL('../forms/src/index.ts', import.meta.url)),
       },
     ],
   },

@@ -1,0 +1,23 @@
+.no-field-found {
+  &.cds--actionable-notification--low-contrast.cds--actionable-notification--info {
+    background-color: var(--cds-field);
+  }
+
+  .cds--actionable-notification__text-wrapper {
+    flex-direction: column;
+  }
+
+  .cds--actionable-notification__subtitle {
+    padding-top: 0.25rem;
+  }
+
+  .cds--actionable-notification__button-wrapper {
+    align-self: flex-end;
+    margin-left: 2.1rem;
+  }
+
+  &.cds--actionable-notification--hide-close-button .cds--actionable-notification__action-button.cds--btn--ghost {
+    margin-inline-start: 1.1rem;
+    border: 1px solid currentColor;
+  }
+}

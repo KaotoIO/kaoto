@@ -1,6 +1,6 @@
 import { CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
 import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 
 import { KaotoSchemaDefinition } from '../../../../../../models';
 import { RuntimeContext } from '../../../../../../providers/runtime.provider';
@@ -68,6 +68,14 @@ describe('CatalogSelectorField', () => {
     );
   };
 
+  const openDropdown = (propName: string) => {
+    fireEvent.click(within(screen.getByTestId(`${propName}-catalog-selector-toggle`)).getByRole('combobox'));
+  };
+
+  /** Group titles are rendered as disabled options so they are visible but not selectable. */
+  const getGroupTitle = (name: string) =>
+    screen.queryAllByRole('option').find((option) => option.textContent.trim() === name) ?? null;
+
   describe('RuntimeCatalogNameField', () => {
     describe('Rendering', () => {
       it('should render loading state when catalog library is not available', () => {
@@ -84,9 +92,7 @@ describe('CatalogSelectorField', () => {
       it('should render with default catalog value', () => {
         renderWithProviders(<RuntimeCatalogNameField propName="runtimeCatalogName" />);
 
-        const toggle = screen.getByTestId('runtimeCatalogName-catalog-selector-toggle');
-        expect(toggle).toBeInTheDocument();
-        expect(toggle).toHaveTextContent('Camel Main 4.14.5');
+        expect(screen.getByTestId('runtimeCatalogName-catalog-selector-toggle')).toHaveTextContent('Camel Main 4.14.5');
       });
 
       it('should render with stored value from model', () => {
@@ -94,8 +100,8 @@ describe('CatalogSelectorField', () => {
           runtimeCatalogName: 'Camel Quarkus 3.8.0',
         });
 
-        const toggle = screen.getByTestId('runtimeCatalogName-catalog-selector-toggle');
-        expect(toggle).toHaveTextContent('Camel Quarkus 3.8.0');
+        const select = screen.getByTestId('runtimeCatalogName-catalog-selector-toggle');
+        expect(select).toHaveTextContent('Camel Quarkus 3.8.0');
       });
 
       it('should render schema title and description', () => {
@@ -104,144 +110,53 @@ describe('CatalogSelectorField', () => {
         expect(container.querySelector('label')).toHaveTextContent('Catalog Name');
       });
 
-      it('should filter to only show integration runtimes', async () => {
+      it('should filter to only show integration runtimes', () => {
         renderWithProviders(<RuntimeCatalogNameField propName="runtimeCatalogName" />);
+        openDropdown('runtimeCatalogName');
 
-        const toggle = screen.getByTestId('runtimeCatalogName-catalog-selector-toggle');
-        // eslint-disable-next-line testing-library/no-unnecessary-act
-        await act(async () => {
-          fireEvent.click(toggle);
+        // Should show Main, Quarkus, Spring Boot group titles, which are not selectable
+        ['Main', 'Quarkus', 'Spring Boot'].forEach((runtime) => {
+          expect(getGroupTitle(runtime)).toHaveAttribute('aria-disabled', 'true');
         });
 
-        // Should show Main, Quarkus, Spring Boot
-        expect(screen.getByText('Main')).toBeInTheDocument();
-        expect(screen.getByText('Quarkus')).toBeInTheDocument();
-        expect(screen.getByText('Spring Boot')).toBeInTheDocument();
-
         // Should NOT show Citrus (testing runtime)
-        expect(screen.queryByText('Citrus')).not.toBeInTheDocument();
+        expect(getGroupTitle('Citrus')).not.toBeInTheDocument();
       });
     });
 
-    describe('Menu Interactions', () => {
-      it('should open menu when clicking toggle', async () => {
+    describe('Select Interactions', () => {
+      it('should display all catalog options in the select', () => {
         renderWithProviders(<RuntimeCatalogNameField propName="runtimeCatalogName" />);
+        openDropdown('runtimeCatalogName');
 
-        const toggle = screen.getByTestId('runtimeCatalogName-catalog-selector-toggle');
-        fireEvent.click(toggle);
-
-        await waitFor(() => {
-          expect(screen.getByText('Camel Quarkus 3.8.0')).toBeInTheDocument();
-        });
-        expect(screen.getByText('Camel Spring Boot 4.10.0')).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'Camel Main 4.14.5' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'Camel Quarkus 3.8.0' })).toBeInTheDocument();
+        expect(screen.getByRole('option', { name: 'Camel Spring Boot 4.10.0' })).toBeInTheDocument();
       });
 
-      it('should close menu when clicking toggle again', async () => {
-        renderWithProviders(<RuntimeCatalogNameField propName="runtimeCatalogName" />);
-
-        const toggle = screen.getByTestId('runtimeCatalogName-catalog-selector-toggle');
-
-        // Open menu
-        fireEvent.click(toggle);
-        await waitFor(() => {
-          expect(screen.getByText('Camel Quarkus 3.8.0')).toBeInTheDocument();
-        });
-
-        // Close menu
-        fireEvent.click(toggle);
-        await waitFor(() => {
-          expect(screen.queryByText('Camel Quarkus 3.8.0')).not.toBeInTheDocument();
-        });
-      });
-
-      it('should select catalog when clicking menu item', async () => {
+      it('should select catalog when changing value', () => {
         const onPropertyChange = vi.fn();
         renderWithProviders(<RuntimeCatalogNameField propName="runtimeCatalogName" />, {}, onPropertyChange);
 
-        const toggle = screen.getByTestId('runtimeCatalogName-catalog-selector-toggle');
-        // eslint-disable-next-line testing-library/no-unnecessary-act
-        await act(async () => {
-          fireEvent.click(toggle);
-        });
-
-        const quarkusOption = screen.getByText('Camel Quarkus 3.8.0');
-        fireEvent.click(quarkusOption);
+        openDropdown('runtimeCatalogName');
+        fireEvent.click(screen.getByRole('option', { name: 'Camel Quarkus 3.8.0' }));
 
         expect(onPropertyChange).toHaveBeenCalledWith('runtimeCatalogName', 'Camel Quarkus 3.8.0');
       });
 
-      it('should close menu after selecting an item', async () => {
-        renderWithProviders(<RuntimeCatalogNameField propName="runtimeCatalogName" />);
+      it('should not select a catalog when clicking a runtime group title', () => {
+        const onPropertyChange = vi.fn();
+        renderWithProviders(<RuntimeCatalogNameField propName="runtimeCatalogName" />, {}, onPropertyChange);
 
-        const toggle = screen.getByTestId('runtimeCatalogName-catalog-selector-toggle');
-        fireEvent.click(toggle);
+        openDropdown('runtimeCatalogName');
+        fireEvent.click(getGroupTitle('Quarkus')!);
 
-        const quarkusOption = screen.getByText('Camel Quarkus 3.8.0');
-        fireEvent.click(quarkusOption);
-
-        await waitFor(() => {
-          expect(screen.queryByRole('menu')).not.toBeInTheDocument();
-        });
-      });
-
-      it('should mark selected catalog in menu', async () => {
-        renderWithProviders(<RuntimeCatalogNameField propName="runtimeCatalogName" />, {
-          runtimeCatalogName: 'Camel Quarkus 3.8.0',
-        });
-
-        const toggle = screen.getByTestId('runtimeCatalogName-catalog-selector-toggle');
-        fireEvent.click(toggle);
-
-        await waitFor(() => {
-          const menuItems = screen.getAllByRole('menuitem');
-          expect(menuItems.length).toBeGreaterThan(0);
-        });
-
-        const menuItems = screen.getAllByRole('menuitem');
-        const quarkusOption = menuItems.find((item) => item.textContent === 'Camel Quarkus 3.8.0');
-        expect(quarkusOption).toBeDefined();
-        expect(quarkusOption).toHaveClass('pf-m-selected');
-
-        // Verify CheckIcon is present for selected item
-        const selectIcon = quarkusOption?.querySelector('.pf-v6-c-menu__item-select-icon svg');
-        expect(selectIcon).toBeInTheDocument();
-      });
-    });
-
-    describe('Runtime Grouping', () => {
-      it('should group catalogs by runtime', async () => {
-        renderWithProviders(<RuntimeCatalogNameField propName="runtimeCatalogName" />);
-
-        const toggle = screen.getByTestId('runtimeCatalogName-catalog-selector-toggle');
-        // eslint-disable-next-line testing-library/no-unnecessary-act
-        await act(async () => {
-          fireEvent.click(toggle);
-        });
-
-        // Check that runtime headers are present
-        expect(screen.getByText('Main')).toBeInTheDocument();
-        expect(screen.getByText('Quarkus')).toBeInTheDocument();
-        expect(screen.getByText('Spring Boot')).toBeInTheDocument();
-      });
-
-      it('should display catalogs under their runtime group', async () => {
-        renderWithProviders(<RuntimeCatalogNameField propName="runtimeCatalogName" />);
-
-        const toggle = screen.getByTestId('runtimeCatalogName-catalog-selector-toggle');
-        // eslint-disable-next-line testing-library/no-unnecessary-act
-        await act(async () => {
-          fireEvent.click(toggle);
-        });
-
-        // Verify catalog items are present
-        expect(screen.getAllByText('Camel Main 4.14.5').length).toBeGreaterThan(0);
-        expect(screen.getByText('Camel Quarkus 3.8.0')).toBeInTheDocument();
-        expect(screen.getByText('Camel Spring Boot 4.10.0')).toBeInTheDocument();
+        expect(onPropertyChange).not.toHaveBeenCalled();
       });
     });
 
     describe('Edge Cases', () => {
-      it('should handle empty catalog library', async () => {
+      it('should handle empty catalog library', () => {
         const emptyCatalogLibrary: CatalogLibrary = {
           definitions: [],
           version: 0,
@@ -257,18 +172,14 @@ describe('CatalogSelectorField', () => {
           createRuntimeContext(emptyCatalogLibrary),
         );
 
-        const toggle = screen.getByTestId('runtimeCatalogName-catalog-selector-toggle');
-        // eslint-disable-next-line testing-library/no-unnecessary-act
-        await act(async () => {
-          fireEvent.click(toggle);
-        });
+        openDropdown('runtimeCatalogName');
 
-        // Menu should be empty
-        expect(screen.queryByText('Main')).not.toBeInTheDocument();
-        expect(screen.queryByText('Quarkus')).not.toBeInTheDocument();
+        // Dropdown should have no group titles
+        expect(getGroupTitle('Main')).not.toBeInTheDocument();
+        expect(getGroupTitle('Quarkus')).not.toBeInTheDocument();
       });
 
-      it('should handle catalog library with no matching runtimes', async () => {
+      it('should handle catalog library with no matching runtimes', () => {
         const nonMatchingCatalogLibrary: CatalogLibrary = {
           definitions: [
             {
@@ -291,31 +202,11 @@ describe('CatalogSelectorField', () => {
           createRuntimeContext(nonMatchingCatalogLibrary),
         );
 
-        const toggle = screen.getByTestId('runtimeCatalogName-catalog-selector-toggle');
-        // eslint-disable-next-line testing-library/no-unnecessary-act
-        await act(async () => {
-          fireEvent.click(toggle);
-        });
+        openDropdown('runtimeCatalogName');
 
         // Should not show the non-matching runtime
-        expect(screen.queryByText('Other')).not.toBeInTheDocument();
-      });
-
-      it('should not call onChange when selecting invalid catalog', async () => {
-        const onPropertyChange = vi.fn();
-        renderWithProviders(<RuntimeCatalogNameField propName="runtimeCatalogName" />, {}, onPropertyChange);
-
-        const toggle = screen.getByTestId('runtimeCatalogName-catalog-selector-toggle');
-        fireEvent.click(toggle);
-
-        await waitFor(() => {
-          expect(screen.getByText('Camel Quarkus 3.8.0')).toBeInTheDocument();
-        });
-
-        // Click on the toggle again to close without selecting
-        fireEvent.click(toggle);
-
-        expect(onPropertyChange).not.toHaveBeenCalled();
+        expect(getGroupTitle('Other')).not.toBeInTheDocument();
+        expect(getGroupTitle('Main')).not.toBeInTheDocument();
       });
     });
   });
@@ -336,9 +227,7 @@ describe('CatalogSelectorField', () => {
       it('should render with default catalog value', () => {
         renderWithProviders(<TestingCatalogNameField propName="testingCatalogName" />);
 
-        const toggle = screen.getByTestId('testingCatalogName-catalog-selector-toggle');
-        expect(toggle).toBeInTheDocument();
-        expect(toggle).toHaveTextContent('Citrus 4.10.1');
+        expect(screen.getByTestId('testingCatalogName-catalog-selector-toggle')).toHaveTextContent('Citrus 4.10.1');
       });
 
       it('should render with stored value from model', () => {
@@ -346,110 +235,62 @@ describe('CatalogSelectorField', () => {
           testingCatalogName: 'Citrus 4.10.1',
         });
 
-        const toggle = screen.getByTestId('testingCatalogName-catalog-selector-toggle');
-        expect(toggle).toHaveTextContent('Citrus 4.10.1');
+        const select = screen.getByTestId('testingCatalogName-catalog-selector-toggle');
+        expect(select).toHaveTextContent('Citrus 4.10.1');
       });
 
-      it('should filter to only show testing runtimes', async () => {
+      it('should filter to only show testing runtimes', () => {
         renderWithProviders(<TestingCatalogNameField propName="testingCatalogName" />);
+        openDropdown('testingCatalogName');
 
-        const toggle = screen.getByTestId('testingCatalogName-catalog-selector-toggle');
-        // eslint-disable-next-line testing-library/no-unnecessary-act
-        await act(async () => {
-          fireEvent.click(toggle);
-        });
-
-        // Should show Citrus
-        expect(screen.getByText('Citrus')).toBeInTheDocument();
+        // Should show the Citrus group title, which is not selectable
+        expect(getGroupTitle('Citrus')).toHaveAttribute('aria-disabled', 'true');
 
         // Should NOT show integration runtimes
-        expect(screen.queryByText('Main')).not.toBeInTheDocument();
-        expect(screen.queryByText('Quarkus')).not.toBeInTheDocument();
-        expect(screen.queryByText('Spring Boot')).not.toBeInTheDocument();
+        expect(getGroupTitle('Main')).not.toBeInTheDocument();
+        expect(getGroupTitle('Quarkus')).not.toBeInTheDocument();
+        expect(getGroupTitle('Spring Boot')).not.toBeInTheDocument();
       });
     });
 
-    describe('Menu Interactions', () => {
-      it('should open menu when clicking toggle', async () => {
+    describe('Select Interactions', () => {
+      it('should display all catalog options in the select', () => {
         renderWithProviders(<TestingCatalogNameField propName="testingCatalogName" />);
+        openDropdown('testingCatalogName');
 
-        const toggle = screen.getByTestId('testingCatalogName-catalog-selector-toggle');
-        fireEvent.click(toggle);
-
-        await waitFor(() => {
-          expect(screen.getAllByText('Citrus 4.10.1').length).toBeGreaterThan(0);
-        });
+        expect(screen.getByRole('option', { name: 'Citrus 4.10.1' })).toBeInTheDocument();
       });
 
-      it('should select catalog when clicking menu item', async () => {
+      it('should select catalog when changing value', () => {
         const onPropertyChange = vi.fn();
-        renderWithProviders(<TestingCatalogNameField propName="testingCatalogName" />, {}, onPropertyChange);
+        const twoCitrusLibrary = {
+          ...mockCatalogLibrary,
+          definitions: [
+            ...mockCatalogLibrary.definitions,
+            {
+              name: 'Citrus 4.9.0',
+              version: '4.9.0',
+              runtime: 'Citrus',
+              catalogs: {},
+            } as unknown as CatalogLibraryEntry,
+          ],
+        };
+        renderWithProviders(
+          <TestingCatalogNameField propName="testingCatalogName" />,
+          {},
+          onPropertyChange,
+          createRuntimeContext(twoCitrusLibrary),
+        );
 
-        const toggle = screen.getByTestId('testingCatalogName-catalog-selector-toggle');
-        // eslint-disable-next-line testing-library/no-unnecessary-act
-        await act(async () => {
-          fireEvent.click(toggle);
-        });
+        openDropdown('testingCatalogName');
+        fireEvent.click(screen.getByRole('option', { name: 'Citrus 4.9.0' }));
 
-        const [citrusOption] = screen.getAllByRole('menuitem', { name: 'Citrus 4.10.1' });
-        fireEvent.click(citrusOption);
-
-        expect(onPropertyChange).toHaveBeenCalledWith('testingCatalogName', 'Citrus 4.10.1');
-      });
-
-      it('should mark selected catalog in menu', async () => {
-        renderWithProviders(<TestingCatalogNameField propName="testingCatalogName" />, {
-          testingCatalogName: 'Citrus 4.10.1',
-        });
-
-        const toggle = screen.getByTestId('testingCatalogName-catalog-selector-toggle');
-        fireEvent.click(toggle);
-
-        await waitFor(() => {
-          expect(screen.getAllByText('Citrus 4.10.1').length).toBeGreaterThan(0);
-        });
-
-        const menuItems = screen.getAllByRole('menuitem');
-        const citrusOption = menuItems.find((item) => item.textContent === 'Citrus 4.10.1');
-        expect(citrusOption).toBeDefined();
-        expect(citrusOption).toHaveClass('pf-m-selected');
-
-        // Verify CheckIcon is present for selected item
-        const selectIcon = citrusOption?.querySelector('.pf-v6-c-menu__item-select-icon svg');
-        expect(selectIcon).toBeInTheDocument();
-      });
-    });
-
-    describe('Runtime Grouping', () => {
-      it('should group catalogs by runtime', async () => {
-        renderWithProviders(<TestingCatalogNameField propName="testingCatalogName" />);
-
-        const toggle = screen.getByTestId('testingCatalogName-catalog-selector-toggle');
-        // eslint-disable-next-line testing-library/no-unnecessary-act
-        await act(async () => {
-          fireEvent.click(toggle);
-        });
-
-        // Check that Citrus runtime header is present
-        expect(screen.getByText('Citrus')).toBeInTheDocument();
-      });
-
-      it('should display catalogs under their runtime group', async () => {
-        renderWithProviders(<TestingCatalogNameField propName="testingCatalogName" />);
-
-        const toggle = screen.getByTestId('testingCatalogName-catalog-selector-toggle');
-        // eslint-disable-next-line testing-library/no-unnecessary-act
-        await act(async () => {
-          fireEvent.click(toggle);
-        });
-
-        // Verify catalog item is present
-        expect(screen.getAllByText('Citrus 4.10.1').length).toBeGreaterThan(0);
+        expect(onPropertyChange).toHaveBeenCalledWith('testingCatalogName', 'Citrus 4.9.0');
       });
     });
 
     describe('Edge Cases', () => {
-      it('should handle empty catalog library', async () => {
+      it('should handle empty catalog library', () => {
         const emptyCatalogLibrary: CatalogLibrary = {
           definitions: [],
           version: 0,
@@ -465,17 +306,13 @@ describe('CatalogSelectorField', () => {
           createRuntimeContext(emptyCatalogLibrary),
         );
 
-        const toggle = screen.getByTestId('testingCatalogName-catalog-selector-toggle');
-        // eslint-disable-next-line testing-library/no-unnecessary-act
-        await act(async () => {
-          fireEvent.click(toggle);
-        });
+        openDropdown('testingCatalogName');
 
-        // Menu should be empty
-        expect(screen.queryByText('Citrus')).not.toBeInTheDocument();
+        // Dropdown should have no group titles
+        expect(getGroupTitle('Citrus')).not.toBeInTheDocument();
       });
 
-      it('should handle catalog library with no matching runtimes', async () => {
+      it('should handle catalog library with no matching runtimes', () => {
         const nonMatchingCatalogLibrary: CatalogLibrary = {
           definitions: [
             {
@@ -498,20 +335,16 @@ describe('CatalogSelectorField', () => {
           createRuntimeContext(nonMatchingCatalogLibrary),
         );
 
-        const toggle = screen.getByTestId('testingCatalogName-catalog-selector-toggle');
-        // eslint-disable-next-line testing-library/no-unnecessary-act
-        await act(async () => {
-          fireEvent.click(toggle);
-        });
+        openDropdown('testingCatalogName');
 
         // Should not show the non-matching runtime
-        expect(screen.queryByText('Main')).not.toBeInTheDocument();
+        expect(getGroupTitle('Main')).not.toBeInTheDocument();
       });
     });
   });
 
   describe('Multiple Catalogs per Runtime', () => {
-    it('should display multiple catalogs for the same runtime', async () => {
+    it('should display multiple catalogs for the same runtime', () => {
       const multiCatalogLibrary: CatalogLibrary = {
         definitions: [
           {
@@ -546,16 +379,13 @@ describe('CatalogSelectorField', () => {
         createRuntimeContext(multiCatalogLibrary),
       );
 
-      const toggle = screen.getByTestId('runtimeCatalogName-catalog-selector-toggle');
-      // eslint-disable-next-line testing-library/no-unnecessary-act
-      await act(async () => {
-        fireEvent.click(toggle);
-      });
+      openDropdown('runtimeCatalogName');
 
-      // All three versions should be displayed under Main runtime
-      expect(screen.getAllByText('Camel Main 4.14.5').length).toBeGreaterThan(0);
-      expect(screen.getByText('Camel Main 4.13.0')).toBeInTheDocument();
-      expect(screen.getByText('Camel Main 4.12.0')).toBeInTheDocument();
+      // All three versions should be displayed under Main runtime group
+      expect(getGroupTitle('Main')).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'Camel Main 4.14.5' })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'Camel Main 4.13.0' })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'Camel Main 4.12.0' })).toBeInTheDocument();
     });
   });
 });
