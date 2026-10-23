@@ -56,5 +56,6 @@ export interface ComponentsCatalog {
   [CatalogKind.TestEndpoint]?: Record<string, ICitrusComponentDefinition>;
   [CatalogKind.TestFunction]?: Record<string, ICitrusComponentDefinition>;
   [CatalogKind.TestValidationMatcher]?: Record<string, ICitrusComponentDefinition>;
+  [CatalogKind.TestInfraService]?: Record<string, ICitrusComponentDefinition>;
   [CatalogKind.Function]?: Record<string, Record<string, KaotoFunction<KaotoFunctionArgument>>>;
 }

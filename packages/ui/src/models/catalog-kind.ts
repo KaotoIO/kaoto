@@ -38,4 +38,7 @@ export const enum CatalogKind {
 
   /** Citrus test validation matcher catalog, f.i. @isNumber()@, @isEmpty()@, @matches()@ */
   TestValidationMatcher = 'testValidationMatcher',
+
+  /** Citrus test infra service catalog, f.i. kafka, postgres, redis */
+  TestInfraService = 'testInfraService',
 }

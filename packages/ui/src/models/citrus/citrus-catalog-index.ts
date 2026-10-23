@@ -32,5 +32,6 @@ export interface CitrusCatalogIndex extends Omit<CatalogDefinition, 'catalogs'> 
     endpoints: CatalogDefinitionEntry;
     functions: CatalogDefinitionEntry;
     validationMatcher: CatalogDefinitionEntry;
+    infraServices?: CatalogDefinitionEntry;
   };
 }

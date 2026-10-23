@@ -15,6 +15,7 @@ import {
   CitrusTestContainersProvider,
   CitrusTestEndpointsProvider,
   CitrusTestFunctionsProvider,
+  CitrusTestInfraServicesProvider,
   CitrusTestValidationMatcherProvider,
 } from '../providers/citrus-components.provider';
 
@@ -44,6 +45,12 @@ export async function fetchCitrusCatalog(options: {
   const validationMatcherFiles = CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.TestValidationMatcher]>(
     `${relativeBasePath}/${catalogIndex.catalogs.validationMatcher.file}`,
   );
+  /** Citrus test infra services (optional – older catalogs may not include this entry) */
+  const infraServicesFiles = catalogIndex.catalogs.infraServices
+    ? CatalogSchemaLoader.fetchFile<ComponentsCatalog[CatalogKind.TestInfraService]>(
+        `${relativeBasePath}/${catalogIndex.catalogs.infraServices.file}`,
+      )
+    : undefined;
   /** Citrus root test schema (citrus-yaml), served through the catalog like other entities */
   const testRootSchemaFile = CatalogSchemaLoader.fetchFile<ICamelProcessorDefinition['propertiesSchema']>(
     `${relativeBasePath}/${catalogIndex.schemas[CITRUS_YAML_SCHEMA_KEY].file}`,
@@ -58,6 +65,7 @@ export async function fetchCitrusCatalog(options: {
       validationMatcherFiles,
       testRootSchemaFile,
     ]);
+  const testInfraServices = infraServicesFiles ? await infraServicesFiles : undefined;
 
   /**
    * Expose the root test schema as a catalog entity (mirroring Kamelet's `KameletConfiguration`)
@@ -93,4 +101,10 @@ export async function fetchCitrusCatalog(options: {
     CatalogKind.TestValidationMatcher,
     new DynamicCatalog(new CitrusTestValidationMatcherProvider(testValidationMatcher.body)),
   );
+  if (testInfraServices) {
+    DynamicCatalogRegistry.get().setCatalog(
+      CatalogKind.TestInfraService,
+      new DynamicCatalog(new CitrusTestInfraServicesProvider(testInfraServices.body)),
+    );
+  }
 }
