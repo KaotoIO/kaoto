@@ -97,8 +97,8 @@ describe('useEnableAllSteps', () => {
   it('should call getVisualizationNodesFromGraph with correct parameters', () => {
     const enabledNode = createStepNode('enabled', { disabled: false });
     const disabledNode = createStepNode('disabled', { disabled: true });
-    vi.spyOn(enabledNode, 'updateModel').mockImplementation(() => {});
-    vi.spyOn(disabledNode, 'updateModel').mockImplementation(() => {});
+    vi.spyOn(enabledNode, 'updateModel').mockImplementation(() => false);
+    vi.spyOn(disabledNode, 'updateModel').mockImplementation(() => false);
     setGraphNodes([enabledNode, disabledNode]);
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
@@ -115,11 +115,11 @@ describe('useEnableAllSteps', () => {
   it('should enable all disabled steps when onEnableAllSteps is called', () => {
     const mockDefinition1 = { disabled: true, id: 'step1' };
     const disabledNode1 = createStepNode('disabled-step-1', mockDefinition1);
-    vi.spyOn(disabledNode1, 'updateModel').mockImplementation(() => {});
+    vi.spyOn(disabledNode1, 'updateModel').mockImplementation(() => false);
 
     const mockDefinition2 = { disabled: true, id: 'step2' };
     const disabledNode2 = createStepNode('disabled-step-2', mockDefinition2);
-    vi.spyOn(disabledNode2, 'updateModel').mockImplementation(() => {});
+    vi.spyOn(disabledNode2, 'updateModel').mockImplementation(() => false);
 
     setGraphNodes([disabledNode1, disabledNode2]);
 
@@ -138,7 +138,7 @@ describe('useEnableAllSteps', () => {
 
   it('should handle nodes with empty definition objects', () => {
     const disabledNode = createStepNode('disabled-step', { disabled: true });
-    vi.spyOn(disabledNode, 'updateModel').mockImplementation(() => {});
+    vi.spyOn(disabledNode, 'updateModel').mockImplementation(() => false);
     setGraphNodes([disabledNode]);
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
@@ -158,7 +158,7 @@ describe('useEnableAllSteps', () => {
 
   it('should handle nodes with undefined definition', () => {
     const disabledNode = createStepNode('disabled-step', { disabled: true });
-    vi.spyOn(disabledNode, 'updateModel').mockImplementation(() => {});
+    vi.spyOn(disabledNode, 'updateModel').mockImplementation(() => false);
     setGraphNodes([disabledNode]);
 
     const { result } = renderHook(() => useEnableAllSteps(), { wrapper });
@@ -198,7 +198,7 @@ describe('useEnableAllSteps', () => {
     const { result, rerender } = renderHook(() => useEnableAllSteps(), { wrapper });
     expect(result.current.areMultipleStepsDisabled).toBe(false);
     const current = [createStepNode('new-a', { disabled: true }), createStepNode('new-b', { disabled: true })];
-    current.forEach((node) => vi.spyOn(node, 'updateModel').mockImplementation(() => {}));
+    current.forEach((node) => vi.spyOn(node, 'updateModel').mockImplementation(() => false));
     setGraphNodes(current);
     rerender();
     expect(result.current.areMultipleStepsDisabled).toBe(true);
