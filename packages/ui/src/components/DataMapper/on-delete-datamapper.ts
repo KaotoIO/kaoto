@@ -14,9 +14,11 @@
     limitations under the License.
 */
 import { IVisualizationNode } from '../../models';
+import { IDataMapperMetadata } from '../../models/datamapper/metadata';
 import { IMetadataApi } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { DataMapperStepService } from '../../services/datamapper-step.service';
+import { DataMapperValidationStepService } from '../../services/datamapper-validation-step.service';
 
 export const ACTION_ID_DELETE_STEP_AND_FILE = 'del-step-and-file';
 export const ACTION_ID_DELETE_STEP_ONLY = 'del-step-only';
@@ -28,6 +30,10 @@ export const onDeleteDataMapper = async (
 ) => {
   const metadataId = DataMapperStepService.getDataMapperMetadataId(vizNode);
   if (modalAnswer === ACTION_ID_DELETE_STEP_AND_FILE) {
+    const metadata = await api.getMetadata<IDataMapperMetadata>(metadataId);
+    if (metadata?.xsltPath) {
+      await DataMapperValidationStepService.cleanupWrapper(api, metadata.xsltPath);
+    }
     await DataMapperMetadataService.deleteXsltFile(api, metadataId);
   }
   await DataMapperMetadataService.deleteMetadata(api, metadataId);

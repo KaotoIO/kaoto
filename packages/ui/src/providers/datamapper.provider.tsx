@@ -86,6 +86,8 @@ export interface IDataMapperContext {
 
   dataMapperSettings: IDataMapperSettings;
   updateDataMapperSettings(settings: Partial<IDataMapperSettings>): void;
+  isOutputValidationEnabled: boolean;
+  setOutputValidationEnabled: (enabled: boolean) => void;
 }
 
 export const DataMapperContext = createContext<IDataMapperContext | null>(null);
@@ -100,6 +102,8 @@ type DataMapperProviderProps = PropsWithChildren & {
   onUpdateNamespaceMap?: (namespaceMap: Record<string, string>) => void;
   initialStepSettings?: Partial<IStepSettings>;
   onUpdateStepSettings?: (settings: IStepSettings) => void;
+  isOutputValidationEnabled?: boolean;
+  onSetOutputValidationEnabled?: (enabled: boolean) => void;
 };
 
 const INITIAL_NAMESPACE_MAP = { xs: NS_XML_SCHEMA, fn: NS_XPATH_FUNCTIONS, xsl: NS_XSL };
@@ -164,6 +168,8 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   onUpdateNamespaceMap,
   initialStepSettings,
   onUpdateStepSettings,
+  isOutputValidationEnabled: isOutputValidationEnabledProp,
+  onSetOutputValidationEnabled,
   children,
 }) => {
   const [initialState] = useState(() => createInitialState(documentInitializationModel, initialXsltFile));
@@ -196,6 +202,13 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       applyDataMapperSettings(next);
     },
     [applyDataMapperSettings, onUpdateStepSettings],
+  );
+
+  const setOutputValidationEnabled = useCallback(
+    (enabled: boolean) => {
+      onSetOutputValidationEnabled?.(enabled);
+    },
+    [onSetOutputValidationEnabled],
   );
 
   const [sourceParameterMap, setSourceParameterMap] = useState(initialState.sourceParameterMap);
@@ -449,6 +462,8 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       setDebug,
       dataMapperSettings,
       updateDataMapperSettings,
+      isOutputValidationEnabled: isOutputValidationEnabledProp ?? false,
+      setOutputValidationEnabled,
     };
   }, [
     isLoading,
@@ -471,6 +486,8 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     debug,
     dataMapperSettings,
     updateDataMapperSettings,
+    isOutputValidationEnabledProp,
+    setOutputValidationEnabled,
   ]);
 
   return (

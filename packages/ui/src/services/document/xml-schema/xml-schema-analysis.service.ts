@@ -1,19 +1,19 @@
 import { ReportMessage, SchemaAnalysisReport } from '../../../models/datamapper/schema';
 import { PathUtil } from '../../path-util';
 
-interface SchemaDirective {
+export interface SchemaDirective {
   type: 'include' | 'import';
   schemaLocation: string;
   namespace: string | null;
 }
 
-interface SchemaFileInfo {
+export interface SchemaFileInfo {
   filePath: string;
   targetNamespace: string | null;
   directives: SchemaDirective[];
 }
 
-interface DependencyEdge {
+export interface DependencyEdge {
   from: string;
   to: string;
   directive: SchemaDirective;

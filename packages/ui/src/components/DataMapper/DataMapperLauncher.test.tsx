@@ -119,10 +119,10 @@ describe('DataMapperLauncher', () => {
     isValidationEnabledSpy = vi.spyOn(DataMapperValidationStepService, 'isValidationEnabled').mockReturnValue(false);
     addValidationStepSpy = vi
       .spyOn(DataMapperValidationStepService, 'addValidationStep')
-      .mockImplementation(() => undefined);
+      .mockImplementation(() => Promise.resolve());
     removeValidationStepSpy = vi
       .spyOn(DataMapperValidationStepService, 'removeValidationStep')
-      .mockImplementation(() => undefined);
+      .mockImplementation(() => Promise.resolve());
     const originalConsoleError = console.error;
     // Suppress act() warnings for async useEffect in component
     vi.spyOn(console, 'error').mockImplementation((message) => {
@@ -691,8 +691,8 @@ describe('DataMapperLauncher', () => {
       });
     });
 
-    // Output validation UI: skipped until feature is complete
-    describe.skip('Validate Output toggle', () => {
+    // Output validation UI: enabled
+    describe('Validate Output toggle', () => {
       beforeEach(() => {
         // Default: file exists, XML target, validation disabled
         mockMetadataContext.isResourceExist = vi.fn().mockResolvedValue(true);

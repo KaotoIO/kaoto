@@ -51,6 +51,8 @@ export const createDataMapperContext = (overrides: Partial<IDataMapperContext> =
     setDebug: vi.fn(),
     dataMapperSettings: DEFAULT_DATAMAPPER_SETTINGS,
     updateDataMapperSettings: vi.fn(),
+    isOutputValidationEnabled: false,
+    setOutputValidationEnabled: vi.fn(),
     ...overrides,
   };
 };

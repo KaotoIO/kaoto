@@ -30,7 +30,10 @@ import { MetadataContext } from '../../providers/metadata.provider';
 import { Links } from '../../router/links.models';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { DataMapperStepService } from '../../services/datamapper-step.service';
-import { DataMapperValidationStepService } from '../../services/datamapper-validation-step.service';
+import {
+  DataMapperValidationStepService,
+  loadDefinitionFiles,
+} from '../../services/datamapper-validation-step.service';
 import { isXSLTComponent } from '../../utils';
 import type { XsltComponentDef } from '../../utils/is-xslt-component';
 import { OutputVariableField } from './OutputVariableField';
@@ -60,7 +63,7 @@ const DataMapperLauncherContent: FunctionComponent<{ vizNode?: IVisualizationNod
   const [isValidationTogglePending, setIsValidationTogglePending] = useState<boolean>(false);
   const [isTargetPrimitive, setIsTargetPrimitive] = useState<boolean>(true);
   // Output validation UI: set to true when feature is complete
-  const showOutputValidation = false as boolean;
+  const showOutputValidation = true;
   // useState lazy initializer: getOutputVariable is called once at mount, not on every render.
   const [outputVariableName, setOutputVariableName] = useState<string>(
     () => (vizNode ? DataMapperStepService.getOutputVariable(vizNode) : undefined) ?? '',
@@ -161,7 +164,10 @@ const DataMapperLauncherContent: FunctionComponent<{ vizNode?: IVisualizationNod
         await metadata.saveResourceContent(newPath, content);
         await DataMapperMetadataService.updateXsltPath(metadata, metadataId, meta, newPath);
         DataMapperStepService.updateXsltFileName(vizNode, newPath, entitiesContext);
+        await DataMapperValidationStepService.duplicateWrapper(metadata, oldPath, newPath, vizNode.data.definition);
+        entitiesContext.updateSourceCodeFromEntities();
         await metadata.deleteResource(oldPath);
+        await DataMapperValidationStepService.cleanupWrapper(metadata, oldPath);
         setCurrentFileName(newPath);
         setXsltFileExists(true);
       } finally {
@@ -173,24 +179,48 @@ const DataMapperLauncherContent: FunctionComponent<{ vizNode?: IVisualizationNod
 
   const handleValidationToggle = useCallback(
     (_event: FormEvent<HTMLInputElement>, checked: boolean) => {
-      if (!vizNode || !entitiesContext) return;
+      if (!vizNode || !entitiesContext || !metadata) return;
+      setIsValidationTogglePending(true);
       if (checked) {
-        setIsValidationTogglePending(true);
         const metadataId = DataMapperStepService.getDataMapperMetadataId(vizNode);
         void metadata
-          ?.getMetadata<IDataMapperMetadata>(metadataId)
-          .then((meta) => {
+          .getMetadata<IDataMapperMetadata>(metadataId)
+          .then(async (meta) => {
             if (meta?.targetBody) {
-              DataMapperValidationStepService.addValidationStep(vizNode, meta.targetBody, entitiesContext);
+              const filePaths = meta.targetBody.filePath || [];
+              const definitionFiles = await loadDefinitionFiles(metadata, filePaths);
+              await DataMapperValidationStepService.addValidationStep(
+                vizNode,
+                meta.targetBody,
+                entitiesContext,
+                metadata,
+                meta.xsltPath,
+                definitionFiles,
+              );
             }
             setIsValidationEnabled(DataMapperValidationStepService.isValidationEnabled(vizNode));
+          })
+          .catch((err) => {
+            console.log('[DataMapperLauncher] Failed to enable validation:', err);
           })
           .finally(() => {
             setIsValidationTogglePending(false);
           });
       } else {
-        DataMapperValidationStepService.removeValidationStep(vizNode, entitiesContext);
-        setIsValidationEnabled(DataMapperValidationStepService.isValidationEnabled(vizNode));
+        const metadataId = DataMapperStepService.getDataMapperMetadataId(vizNode);
+        void metadata
+          .getMetadata<IDataMapperMetadata>(metadataId)
+          .then(async (meta) => {
+            const xsltPath = meta?.xsltPath || '';
+            await DataMapperValidationStepService.removeValidationStep(vizNode, entitiesContext, metadata, xsltPath);
+            setIsValidationEnabled(DataMapperValidationStepService.isValidationEnabled(vizNode));
+          })
+          .catch((err) => {
+            console.log('[DataMapperLauncher] Failed to disable validation:', err);
+          })
+          .finally(() => {
+            setIsValidationTogglePending(false);
+          });
       }
     },
     [vizNode, entitiesContext, metadata],

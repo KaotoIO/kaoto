@@ -4,7 +4,7 @@ import { getCamelRandomId } from '../camel-utils/camel-random-id';
 import { IVisualizationNode } from '../models';
 import { DocumentDefinitionType } from '../models/datamapper/document';
 import { IDocumentMetadata } from '../models/datamapper/metadata';
-import { EntitiesContextResult } from '../providers';
+import { EntitiesContextResult, IMetadataApi } from '../providers';
 import {
   isJsonValidatorComponent,
   isValidatorComponent,
@@ -13,6 +13,12 @@ import {
   VALIDATOR_COMPONENT_NAME,
 } from '../utils';
 import type { ValidatorComponentDef } from '../utils/is-validator-component';
+import { XmlSchemaWrapperGeneratorService } from './document/xml-schema/xml-schema-wrapper-generator.service';
+
+export async function loadDefinitionFiles(api: IMetadataApi, filePaths: string[]): Promise<Record<string, string>> {
+  const entries = await Promise.all(filePaths.map(async (p) => [p, (await api.getResourceContent(p)) ?? ''] as const));
+  return Object.fromEntries(entries.filter(([, c]) => c !== ''));
+}
 
 /**
  * Service for managing the validation step within a DataMapper step group.
@@ -27,11 +33,6 @@ import type { ValidatorComponentDef } from '../utils/is-validator-component';
  *       - to:
  *           uri: validator:ShipOrder.xsd
  * ```
- *
- * This service handles:
- * - Adding/removing the validation step (validator or json-validator)
- * - Updating the validation resource URI when the target schema changes
- * - Detecting whether validation is currently enabled
  */
 export class DataMapperValidationStepService {
   /**
@@ -62,12 +63,18 @@ export class DataMapperValidationStepService {
    * @param vizNode The visualization node representing the DataMapper step
    * @param targetMetadata The metadata for the target document schema
    * @param entitiesContext The entities context for updating source code
+   * @param api The metadata API
+   * @param xsltPath The path to the XSLT file
+   * @param definitionFiles The record of schema files
    */
-  static addValidationStep(
+  static async addValidationStep(
     vizNode: IVisualizationNode,
     targetMetadata: IDocumentMetadata,
     entitiesContext: EntitiesContextResult,
-  ): void {
+    api: IMetadataApi,
+    xsltPath: string,
+    definitionFiles: Record<string, string>,
+  ): Promise<void> {
     let componentName: string;
     let idPrefix: string;
 
@@ -84,11 +91,18 @@ export class DataMapperValidationStepService {
         return;
     }
 
-    const resourceUri = targetMetadata.filePath?.[0];
+    // Await all I/O first
+    const resourceUri = await DataMapperValidationStepService.resolveResourceUri(
+      targetMetadata,
+      api,
+      xsltPath,
+      definitionFiles,
+    );
     if (!resourceUri) {
       return;
     }
 
+    // Synchronous model section begins
     if (DataMapperValidationStepService.getValidationStep(vizNode)) {
       return;
     }
@@ -111,17 +125,25 @@ export class DataMapperValidationStepService {
    * Does nothing if no validator step exists.
    * @param vizNode The visualization node representing the DataMapper step
    * @param entitiesContext The entities context for updating source code
+   * @param api The metadata API
+   * @param xsltPath The path to the XSLT file
    */
-  static removeValidationStep(vizNode: IVisualizationNode, entitiesContext: EntitiesContextResult): void {
+  static async removeValidationStep(
+    vizNode: IVisualizationNode,
+    entitiesContext: EntitiesContextResult,
+    api: IMetadataApi,
+    xsltPath: string,
+  ): Promise<void> {
     const model = vizNode.data?.definition as Record<string, unknown>;
     const steps = model.steps as ProcessorDefinition[];
     const index = steps?.findIndex((s) => isValidatorComponent(s) || isJsonValidatorComponent(s));
-    if (index === undefined || index < 0) {
-      return;
+    if (index !== undefined && index >= 0) {
+      steps.splice(index, 1);
+      vizNode.updateModel(model);
+      entitiesContext.updateSourceCodeFromEntities();
     }
-    steps.splice(index, 1);
-    vizNode.updateModel(model);
-    entitiesContext.updateSourceCodeFromEntities();
+    // Clean up after structural update
+    await DataMapperValidationStepService.cleanupWrapper(api, xsltPath);
   }
 
   /**
@@ -132,24 +154,36 @@ export class DataMapperValidationStepService {
    * @param vizNode The visualization node representing the DataMapper step
    * @param targetMetadata The metadata for the updated target document schema
    * @param entitiesContext The entities context for updating source code
+   * @param api The metadata API
+   * @param xsltPath The path to the XSLT file
+   * @param definitionFiles The record of schema files
    */
-  static updateValidationStep(
+  static async updateValidationStep(
     vizNode: IVisualizationNode,
     targetMetadata: IDocumentMetadata,
     entitiesContext: EntitiesContextResult,
-  ): void {
+    api: IMetadataApi,
+    xsltPath: string,
+    definitionFiles: Record<string, string>,
+  ): Promise<void> {
     const existingStep = DataMapperValidationStepService.getValidationStep(vizNode);
     if (!existingStep) {
       return;
     }
 
     if (targetMetadata.type === DocumentDefinitionType.Primitive) {
-      DataMapperValidationStepService.removeValidationStep(vizNode, entitiesContext);
+      await DataMapperValidationStepService.removeValidationStep(vizNode, entitiesContext, api, xsltPath);
       return;
     }
 
-    const resourceUri = targetMetadata.filePath?.[0];
-    if (!resourceUri) {
+    // Await all I/O first
+    const computedUri = await DataMapperValidationStepService.resolveResourceUri(
+      targetMetadata,
+      api,
+      xsltPath,
+      definitionFiles,
+    );
+    if (!computedUri) {
       return;
     }
 
@@ -165,8 +199,17 @@ export class DataMapperValidationStepService {
         return;
     }
 
+    const currentUri = existingStep.to.uri;
+    const currentResource = currentUri.substring(currentUri.indexOf(':') + 1);
+
+    // Skip if nothing changed
+    if (currentUri === `${componentName}:${computedUri}`) {
+      return;
+    }
+
+    // Synchronous model section begins
     const model = vizNode.data?.definition;
-    const currentComponent = existingStep.to.uri.split(':')[0];
+    const currentComponent = currentUri.split(':')[0];
     if (currentComponent !== componentName) {
       existingStep.to.id = getCamelRandomId(
         componentName === JSON_VALIDATOR_COMPONENT_NAME
@@ -174,8 +217,109 @@ export class DataMapperValidationStepService {
           : 'kaoto-datamapper-validator',
       );
     }
-    existingStep.to.uri = `${componentName}:${resourceUri}`;
+    existingStep.to.uri = `${componentName}:${computedUri}`;
     vizNode.updateModel(model);
     entitiesContext.updateSourceCodeFromEntities();
+
+    // Clean up wrapper if we transition away from it
+    const wrapperPath = XmlSchemaWrapperGeneratorService.getWrapperPath(xsltPath);
+    if (currentResource === wrapperPath && computedUri !== wrapperPath) {
+      await DataMapperValidationStepService.cleanupWrapper(api, xsltPath);
+    }
+  }
+
+  static async cleanupWrapper(api: IMetadataApi | undefined, xsltPath: string | undefined): Promise<void> {
+    if (!api || !xsltPath) {
+      return;
+    }
+    try {
+      const wrapperPath = XmlSchemaWrapperGeneratorService.getWrapperPath(xsltPath);
+      const content = await api.getResourceContent(wrapperPath);
+      if (content && XmlSchemaWrapperGeneratorService.isGeneratedWrapper(content)) {
+        await api.deleteResource(wrapperPath);
+      }
+    } catch (err) {
+      console.log('[DataMapperValidationStepService] Failed to clean up wrapper:', err);
+    }
+  }
+
+  static async duplicateWrapper(
+    api: IMetadataApi | undefined,
+    originalXsltPath: string,
+    newXsltPath: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    stepDef: any,
+  ): Promise<void> {
+    const originalWrapper = XmlSchemaWrapperGeneratorService.getWrapperPath(originalXsltPath);
+    const newWrapper = XmlSchemaWrapperGeneratorService.getWrapperPath(newXsltPath);
+
+    const steps = stepDef.steps as ProcessorDefinition[] | undefined;
+    const validatorStep = steps?.find(
+      (s): s is ValidatorComponentDef => isValidatorComponent(s) || isJsonValidatorComponent(s),
+    );
+
+    if (!api) return;
+
+    try {
+      const originalExists = await api.isResourceExist(originalWrapper);
+      if (originalExists) {
+        const content = await api.getResourceContent(originalWrapper);
+        if (content && XmlSchemaWrapperGeneratorService.isGeneratedWrapper(content)) {
+          await api.saveResourceContent(newWrapper, content);
+          if (validatorStep) {
+            const currentUri = validatorStep.to.uri;
+            const componentName = currentUri.split(':')[0];
+            const resourceUri = currentUri.substring(componentName.length + 1);
+            if (resourceUri === originalWrapper) {
+              validatorStep.to.uri = `${componentName}:${newWrapper}`;
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.log('[DataMapperValidationStepService] Failed to duplicate wrapper file:', err);
+    }
+  }
+
+  private static async resolveResourceUri(
+    targetMetadata: IDocumentMetadata,
+    api: IMetadataApi,
+    xsltPath: string,
+    definitionFiles: Record<string, string>,
+  ): Promise<string> {
+    const defaultUri = targetMetadata.filePath?.[0] || '';
+    if (!defaultUri) return '';
+
+    if (!xsltPath) return defaultUri;
+
+    if (
+      targetMetadata.type !== DocumentDefinitionType.XML_SCHEMA ||
+      !targetMetadata.filePath ||
+      targetMetadata.filePath.length <= 1
+    ) {
+      return defaultUri;
+    }
+
+    const wrapperPath = XmlSchemaWrapperGeneratorService.getWrapperPath(xsltPath);
+    const wrapResult = XmlSchemaWrapperGeneratorService.computeValidationUri(
+      {
+        filePaths: targetMetadata.filePath,
+        definitionFiles,
+        rootElement: targetMetadata.rootElementChoice,
+      },
+      wrapperPath,
+    );
+
+    if (wrapResult.kind === 'wrapper') {
+      try {
+        await api.saveResourceContent(wrapResult.uri, wrapResult.xsd);
+        return wrapResult.uri;
+      } catch (err) {
+        console.log('[DataMapperValidationStepService] Failed to save wrapper file, using default:', err);
+      }
+      return defaultUri;
+    }
+
+    return wrapResult.uri;
   }
 }

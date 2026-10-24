@@ -5,6 +5,7 @@ import { IDataMapperMetadata } from '../../models/datamapper/metadata';
 import { IClipboardContent } from '../../models/visualization/clipboard';
 import { IMetadataApi } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
+import { DataMapperValidationStepService } from '../../services/datamapper-validation-step.service';
 import { isDataMapperNode } from '../../utils/is-datamapper';
 import { clearXsltUri, setXsltUri } from './datamapper-utils';
 
@@ -97,6 +98,7 @@ const generateDataMapperMetadata = async (
   const updatedNode = updatedNodes.get(newId);
   if (updatedNode) {
     setXsltUri(updatedNode, newXsltPath);
+    await DataMapperValidationStepService.duplicateWrapper(api, originalMetadata.xsltPath, newXsltPath, updatedNode);
   }
 };
 
