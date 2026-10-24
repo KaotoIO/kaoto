@@ -139,24 +139,24 @@ export class VSCodeKaotoEditorChannelApi extends DefaultVsCodeKieEditorChannelAp
 	 * If none found, undefined is returned
 	 */
 	async getMetadata<T>(key: string): Promise<T | undefined> {
-		const kaotoMetadatafile: vscode.Uri | undefined = await this.findExistingKaotoMetadataFile(this.currentEditedDocument.uri);
-		if (kaotoMetadatafile !== undefined) {
-			try {
+		try {
+			const kaotoMetadatafile: vscode.Uri | undefined = await this.findExistingKaotoMetadataFile(this.currentEditedDocument.uri);
+			if (kaotoMetadatafile !== undefined) {
 				const kaotoMetadataFileContent = new TextDecoder().decode(await vscode.workspace.fs.readFile(kaotoMetadatafile));
 				const result = JSON.parse(kaotoMetadataFileContent)[key]; // in case the key i snot present, should we look to other potential .kaoto files that could contain the information?
 				return this.normalizeMetadataFilePaths(result) as T;
-			} catch (ex) {
-				KaotoOutputChannel.logError(`Error when trying to get Metadata for key: ${key}`, ex);
-				// Should we look to other potential .kaoto files and ignore one which is invalid?
-				return undefined; // or should we throw a specific exception?
 			}
+		} catch (ex) {
+			KaotoOutputChannel.logError(`Error when trying to get Metadata for key: ${key}`, ex);
+			// Should we look to other potential .kaoto files and ignore one which is invalid?
+			return undefined; // or should we throw a specific exception?
 		}
 		return undefined;
 	}
 
 	/**
 	 * Store metadata in the nearest .kaoto file found.
-	 * If none found, create the file at workspace root if available, otherwise to the side of the Camel route
+	 * If none found, create the file at the workspace root. Fails when the Camel route is not in a workspace folder.
 	 */
 	async setMetadata<T>(key: string, value: T | undefined): Promise<void> {
 		let kaotoMetadatafile: vscode.Uri | undefined = await this.findExistingKaotoMetadataFile(this.currentEditedDocument.uri);
@@ -207,8 +207,9 @@ export class VSCodeKaotoEditorChannelApi extends DefaultVsCodeKieEditorChannelAp
 			// TODO: this is an ugly workaround that could lead to path clashes. 2 different APIs must be provided to retrieve content, one relative to classpath and the other relative to .kaoto metadata file
 			const errorMessage = `Cannot retrieve content of ${relativePath} relatively to the classpath root ${classpathRoot}. Will attempt to use the relative path to .kaoto metadata file.`;
 			KaotoOutputChannel.logError(errorMessage, ex);
-			let kaotoMetadataFile = await this.findExistingKaotoMetadataFile(this.currentEditedDocument.uri);
+			let kaotoMetadataFile: vscode.Uri | undefined;
 			try {
+				kaotoMetadataFile = await this.findExistingKaotoMetadataFile(this.currentEditedDocument.uri);
 				if (kaotoMetadataFile !== undefined) {
 					const targetFile = path.resolve(path.dirname(kaotoMetadataFile.fsPath), relativePath);
 					return new TextDecoder().decode(await vscode.workspace.fs.readFile(vscode.Uri.file(targetFile)));
@@ -216,7 +217,7 @@ export class VSCodeKaotoEditorChannelApi extends DefaultVsCodeKieEditorChannelAp
 			} catch (error_) {
 				const errorMessage = `Cannot retrieve content of ${relativePath} relatively to the classpath root ${classpathRoot} neither the .kaoto metadata file ${kaotoMetadataFile}`;
 				vscode.window.showErrorMessage(errorMessage);
-				KaotoOutputChannel.logError(errorMessage, ex);
+				KaotoOutputChannel.logError(errorMessage, error_);
 				return undefined;
 			}
 		}
@@ -319,28 +320,48 @@ export class VSCodeKaotoEditorChannelApi extends DefaultVsCodeKieEditorChannelAp
 		}
 	}
 
+	/**
+	 * Look for a .kaoto file from the folder of the given file up to the workspace folder (included).
+	 * The lookup never goes above the workspace folder, so a .kaoto file located elsewhere (e.g. in the user home directory) is ignored.
+	 * When the file is not in a workspace folder, nothing is looked up.
+	 */
 	private async findExistingKaotoMetadataFile(fileUri: vscode.Uri): Promise<vscode.Uri | undefined> {
-		const parentFolder = path.dirname(fileUri.fsPath);
-		if (parentFolder === fileUri.fsPath || parentFolder === '' || parentFolder === undefined) {
+		const workspaceFolder = vscode.workspace.getWorkspaceFolder(fileUri)?.uri.toString();
+		if (workspaceFolder === undefined) {
 			return undefined;
 		}
-		try {
-			const kaotoMetadataFileCandidate = vscode.Uri.file(path.join(parentFolder, '.kaoto'));
-			await vscode.workspace.fs.stat(kaotoMetadataFileCandidate);
-			return kaotoMetadataFileCandidate;
-		} catch {
-			return this.findExistingKaotoMetadataFile(vscode.Uri.file(parentFolder));
+		// Let VS Code decide containment: comparing paths breaks on case-insensitive file systems and on Windows drive letters.
+		const isInWorkspaceFolder = (uri: vscode.Uri) => vscode.workspace.getWorkspaceFolder(uri)?.uri.toString() === workspaceFolder;
+
+		let folder = vscode.Uri.joinPath(fileUri, '..');
+		while (isInWorkspaceFolder(folder)) {
+			const kaotoMetadataFileCandidate = vscode.Uri.joinPath(folder, '.kaoto');
+			try {
+				await vscode.workspace.fs.stat(kaotoMetadataFileCandidate);
+				return kaotoMetadataFileCandidate;
+			} catch (ex) {
+				// Only a missing file lets the lookup continue upwards. Any other error must not make a farther .kaoto file win.
+				if (!(ex instanceof vscode.FileSystemError && ex.code === 'FileNotFound')) {
+					throw ex;
+				}
+			}
+
+			const parentFolder = vscode.Uri.joinPath(folder, '..');
+			if (parentFolder.path === folder.path) {
+				break; // reached the root of the file system
+			}
+			folder = parentFolder;
 		}
+
+		return undefined;
 	}
 
 	private async findKaotoMetadataToCreate(): Promise<vscode.Uri> {
 		const workspaceFolder = vscode.workspace.getWorkspaceFolder(this.currentEditedDocument.uri);
-		if (workspaceFolder !== undefined) {
-			return vscode.Uri.file(path.join(workspaceFolder?.uri.fsPath, '.kaoto'));
-		} else {
-			const parentFolder = path.basename(path.dirname(this.currentEditedDocument.uri.fsPath));
-			return vscode.Uri.file(path.join(parentFolder, '.kaoto'));
+		if (workspaceFolder === undefined) {
+			throw new Error(`Cannot store Kaoto metadata: ${this.currentEditedDocument.uri.fsPath} is not in a workspace folder.`);
 		}
+		return vscode.Uri.joinPath(workspaceFolder.uri, '.kaoto');
 	}
 
 	/**
