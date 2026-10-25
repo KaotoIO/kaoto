@@ -5,11 +5,12 @@ import {
   CatalogLoaderProvider,
   CatalogSchemaLoader,
   createVisualizationNode,
+  inMemorySourceCodeAdapter,
   IVisualizationNode,
   KaotoResourceProvider,
   RuntimeProvider,
   SchemasLoaderProvider,
-  SourceCodeSync,
+  SourceCodeProvider,
   VisibleFlowsProvider,
 } from '@kaoto/kaoto/testing';
 import { Meta, StoryFn, StoryObj } from '@storybook/react';
@@ -22,7 +23,7 @@ export default {
   component: CanvasFormBody,
   decorators: [
     (Story: StoryFn) => (
-      <SourceCodeSync initialSourceCode={storybookCamelRoute}>
+      <SourceCodeProvider adapter={inMemorySourceCodeAdapter(storybookCamelRoute)}>
         <KaotoResourceProvider>
           <RuntimeProvider
             catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
@@ -47,7 +48,7 @@ export default {
             </SchemasLoaderProvider>
           </RuntimeProvider>
         </KaotoResourceProvider>
-      </SourceCodeSync>
+      </SourceCodeProvider>
     ),
   ],
 } as Meta<typeof CanvasFormBody>;

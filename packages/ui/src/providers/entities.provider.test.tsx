@@ -14,7 +14,7 @@ import { camelRouteYaml_1_1_original, camelRouteYaml_1_1_updated } from '../stub
 import { EventNotifier } from '../utils';
 import { EntitiesContext, EntitiesProvider } from './entities.provider';
 import { KaotoResourceContext, KaotoResourceProvider } from './kaoto-resource.provider';
-import { SourceCodeSync } from './source-code-sync';
+import { inMemorySourceCodeAdapter, SourceCodeProvider } from './source-code.provider';
 
 /**
  * A controllable deferred promise: lets a test decide *when* (and whether) an
@@ -60,17 +60,17 @@ const buildMockResourceWrapper =
 
 /**
  * Compose the real provider chain. Source code enters through the single ingress
- * (SourceCodeSync emits `code:updated` on mount), KaotoResourceProvider builds the
+ * (SourceCodeProvider emits `code:updated` on mount), KaotoResourceProvider builds the
  * resource, and EntitiesProvider derives the entities from it.
  */
 const buildWrapper =
   (initialSourceCode?: string, fileExtension?: string) =>
   ({ children }: PropsWithChildren) => (
-    <SourceCodeSync initialSourceCode={initialSourceCode}>
+    <SourceCodeProvider adapter={inMemorySourceCodeAdapter(initialSourceCode)}>
       <KaotoResourceProvider fileExtension={fileExtension}>
         <EntitiesProvider>{children}</EntitiesProvider>
       </KaotoResourceProvider>
-    </SourceCodeSync>
+    </SourceCodeProvider>
   );
 
 describe('EntitiesProvider', () => {

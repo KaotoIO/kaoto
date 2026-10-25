@@ -66,6 +66,33 @@ describe('KaotoEditor', () => {
     editorBridge.dispose();
   });
 
+  it('asks the host for the document and renders past the loading state once it arrives', async () => {
+    const { host, editor } = createMemoryTransports();
+    const hostBus = createEventBus({ role: 'host', onError: vi.fn() });
+    const editorBus = createEventBus({ role: 'editor', onError: vi.fn() });
+    const hostBridge = createPostMessageBridge({ bus: hostBus, transport: host });
+    const editorBridge = createPostMessageBridge({ bus: editorBus, transport: editor });
+    await Promise.all([hostBridge.connect(), editorBridge.connect()]);
+    // The host only sends the document after `editor:ready`
+    hostBus.on('editor:ready', () => {
+      void hostBus.request('host:document:setContent', {
+        reason: 'init',
+        fileUri: 'file:///route.camel.yaml',
+        content: '- route: {}',
+        readonly: false,
+      });
+    });
+
+    render(<KaotoEditor bus={editorBus} initialSettings={defaultSettings} init={defaultInit} />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('loading-kaoto-resource')).not.toBeInTheDocument();
+    });
+
+    hostBridge.dispose();
+    editorBridge.dispose();
+  });
+
   it('suspends the document and offers Retry when the host connection is lost', async () => {
     const { host, editor } = createMemoryTransports();
     const hostBus = createEventBus({ role: 'host', onError: vi.fn() });
