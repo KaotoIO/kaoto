@@ -81,6 +81,7 @@ describe('DataMapper sync — onUpdateDocument validation step synchronization',
     getSuggestions: () => Promise.resolve([]),
     shouldSaveSchema: false,
     onStepUpdated: () => Promise.resolve(),
+    getTestReport: () => Promise.resolve(undefined),
   } as IMetadataApi;
 
   beforeEach(() => {
