@@ -102,7 +102,14 @@ export const EntitiesProvider: FunctionComponent<PropsWithChildren> = ({ childre
       updateSourceCodeFromEntities,
       refreshVisualEntities,
     }),
-    [entities, visualEntities, kaotoResource, updateEntitiesFromCamelResource, updateSourceCodeFromEntities, refreshVisualEntities],
+    [
+      entities,
+      visualEntities,
+      kaotoResource,
+      updateEntitiesFromCamelResource,
+      updateSourceCodeFromEntities,
+      refreshVisualEntities,
+    ],
   );
 
   return <EntitiesContext.Provider value={value}>{children}</EntitiesContext.Provider>;

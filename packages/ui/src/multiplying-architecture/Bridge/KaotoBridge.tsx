@@ -93,7 +93,9 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>>
   /** Load test reports for Citrus test entities */
   const entitiesContext = useContext(EntitiesContext);
   const entitiesContextRef = useRef(entitiesContext);
-  entitiesContextRef.current = entitiesContext;
+  useEffect(() => {
+    entitiesContextRef.current = entitiesContext;
+  });
 
   const loadTestReports = useCallback(() => {
     const ctx = entitiesContextRef.current;
@@ -137,7 +139,9 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>>
       }
     };
     window.addEventListener('message', handler);
-    return () => window.removeEventListener('message', handler);
+    return () => {
+      window.removeEventListener('message', handler);
+    };
   }, [loadTestReports]);
 
   return (
