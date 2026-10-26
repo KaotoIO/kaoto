@@ -775,6 +775,7 @@ describe('BeanField', () => {
             currentSchemaType: resource.getType(),
             updateEntitiesFromCamelResource: vi.fn(),
             updateSourceCodeFromEntities: vi.fn(),
+            refreshVisualEntities: vi.fn(),
           }),
           [resource],
         );

@@ -36,6 +36,7 @@ import { CamelTask } from '../../tasks/CamelTask';
 import { confirmFileDeleteDialog } from '../../utils/Modals';
 import { KaotoOutputChannel } from '../KaotoOutputChannel';
 import { sendCommandTrackingEvent } from './TrackingEvent';
+import { TestReportEvents } from '../../services/TestReportEvents';
 import { IRegistrar } from './IRegistrar';
 
 export class TestsRegistrar implements IRegistrar {
@@ -138,9 +139,11 @@ export class TestsRegistrar implements IRegistrar {
 			}
 		} catch {
 			for (const testPath of testFilePaths) {
-				this.testsProvider.setTestResult(testPath, 'failure');
+				const testResult = await this.testsProvider.readTestResult(testPath);
+				this.testsProvider.setTestResult(testPath, testResult ?? 'failure');
 			}
 		} finally {
+			TestReportEvents.instance.fireTestReportReady(testFilePaths);
 			for (const testPath of testFilePaths) {
 				this.testsProvider.setTestRunning(testPath, false);
 			}
