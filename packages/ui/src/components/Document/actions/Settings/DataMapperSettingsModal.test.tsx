@@ -243,8 +243,8 @@ describe('DataMapperSettingsModal', () => {
     });
   });
 
-  // Output validation UI: disabled
-  describe.skip('Output Validation', () => {
+  // Output validation UI: enabled
+  describe('Output Validation', () => {
     it('should show Validate output checkbox when target is XML', async () => {
       const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA);
       render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });

@@ -773,8 +773,8 @@ describe('DataMapperLauncher', () => {
       });
     });
 
-    // Output validation UI: disabled
-    describe.skip('Validate Output toggle', () => {
+    // Output validation UI: enabled
+    describe('Validate Output toggle', () => {
       beforeEach(() => {
         // Default: file exists, XML target, validation disabled
         mockMetadataContext.isResourceExist = vi.fn().mockResolvedValue(true);
