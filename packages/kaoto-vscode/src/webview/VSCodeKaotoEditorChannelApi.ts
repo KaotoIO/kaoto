@@ -339,7 +339,11 @@ export class VSCodeKaotoEditorChannelApi extends DefaultVsCodeKieEditorChannelAp
 
 			const resultUri = vscode.Uri.file(resultFilePath);
 			const resultContent = await vscode.workspace.fs.readFile(resultUri);
-			return JSON.parse(new TextDecoder('utf-8').decode(resultContent)) as TestReportEntry;
+			const report = JSON.parse(new TextDecoder('utf-8').decode(resultContent)) as Partial<TestReportEntry> | null;
+			if (!report || typeof report.result !== 'object' || report.result === null) {
+				return undefined;
+			}
+			return { ...report, actions: Array.isArray(report.actions) ? report.actions : [] } as TestReportEntry;
 		} catch (error) {
 			KaotoOutputChannel.logWarning(`Could not read test report for current document: ${error}`);
 			return undefined;

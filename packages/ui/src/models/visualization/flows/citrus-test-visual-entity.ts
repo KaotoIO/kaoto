@@ -395,12 +395,8 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
 
   isVerified(path?: string): boolean | undefined {
     if (path && this.report) {
-      if (this.report.result.errorMessage !== undefined || this.report.result.result === 'FAILURE') {
-        return false;
-      }
-
       if (path === this.getRootPath()) {
-        return this.report.result.result === 'SUCCESS';
+        return this.report.result.errorMessage === undefined && this.report.result.result === 'SUCCESS';
       }
 
       const result = CitrusTestReportService.findResult(path, this.report.actions);

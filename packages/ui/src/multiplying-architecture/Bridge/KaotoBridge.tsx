@@ -133,13 +133,14 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>>
 
   /** Re-fetch test reports when the extension signals a test run completed */
   useEffect(() => {
+    const expectedOrigin = window.location.origin;
     const handler = (event: MessageEvent) => {
-      if (event.source && event.source !== window) return; // NOSONAR
+      if (event.origin && event.origin !== expectedOrigin) return;
       if (event.data?.type === 'kaoto__testReportReady') {
         loadTestReports();
       }
     };
-    window.addEventListener('message', handler);
+    window.addEventListener('message', handler); // NOSONAR — origin verified in handler
     return () => {
       window.removeEventListener('message', handler);
     };
