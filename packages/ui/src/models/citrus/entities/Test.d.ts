@@ -18,6 +18,13 @@ export interface Test {
         charset?: string;
       }
     }[];
+    configuration?: {
+      beans?: {
+        name: string;
+        type: string;
+        properties?: Record<string, string>;
+      }[];
+    };
     actions: TestActions[];
     finally?: TestActions[];
 }

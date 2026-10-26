@@ -202,7 +202,7 @@ export class CitrusTestResource implements KaotoResource {
     'name',
     'description',
     'variables',
-    'beans',
+    'configuration',
     'endpoints',
     'actions',
     'finally',
