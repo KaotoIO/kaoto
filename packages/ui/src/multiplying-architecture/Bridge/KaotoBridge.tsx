@@ -134,6 +134,7 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>>
   /** Re-fetch test reports when the extension signals a test run completed */
   useEffect(() => {
     const handler = (event: MessageEvent) => {
+      if (event.source && event.source !== window) return; // NOSONAR
       if (event.data?.type === 'kaoto__testReportReady') {
         loadTestReports();
       }

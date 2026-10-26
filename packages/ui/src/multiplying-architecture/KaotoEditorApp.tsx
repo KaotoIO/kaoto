@@ -171,7 +171,7 @@ export class KaotoEditorApp implements Editor {
     return this.envelopeContext.channelApi.requests.onStepUpdated(action, stepType, stepName);
   }
 
-  async getTestReport(name: string): Promise<TestReportEntry | undefined> {
+  getTestReport(name: string): Promise<TestReportEntry | undefined> {
     return this.envelopeContext.channelApi.requests.getTestReport(name);
   }
 

@@ -133,15 +133,11 @@ export class TestsRegistrar implements IRegistrar {
 			const runTask = await createTask();
 			await runTask.executeAndWaitWithProgress(progressMessage);
 
-			for (const testPath of testFilePaths) {
-				const testResult = await this.testsProvider.readTestResult(testPath);
-				this.testsProvider.setTestResult(testPath, testResult);
-			}
+			const results = await Promise.all(testFilePaths.map((p) => this.testsProvider.readTestResult(p)));
+			results.forEach((testResult, i) => this.testsProvider.setTestResult(testFilePaths[i], testResult));
 		} catch {
-			for (const testPath of testFilePaths) {
-				const testResult = await this.testsProvider.readTestResult(testPath);
-				this.testsProvider.setTestResult(testPath, testResult ?? 'failure');
-			}
+			const results = await Promise.all(testFilePaths.map((p) => this.testsProvider.readTestResult(p)));
+			results.forEach((testResult, i) => this.testsProvider.setTestResult(testFilePaths[i], testResult ?? 'failure'));
 		} finally {
 			TestReportEvents.instance.fireTestReportReady(testFilePaths);
 			for (const testPath of testFilePaths) {
