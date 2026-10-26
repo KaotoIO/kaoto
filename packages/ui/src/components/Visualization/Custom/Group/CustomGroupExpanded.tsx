@@ -107,7 +107,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
 
     const [isErrorModalOpen, setIsErrorModalOpen] = useState<boolean>(false);
     const showError: MouseEventHandler<HTMLDivElement> = useCallback(
-      async (event) => {
+      (event) => {
         event.stopPropagation();
         setIsErrorModalOpen(true);
       },
