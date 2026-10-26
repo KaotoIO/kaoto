@@ -131,11 +131,15 @@ jobs:
 
       - name: '📋 Generate changelog'
         id: changelog
-        if: ${{ !inputs.snapshot }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SNAPSHOT: ${{ inputs.snapshot }}
+          RELEASE_TAG: ${{ needs.setup.outputs.release_tag }}
         run: |
           body=$(node .github/scripts/generate-changelog.mjs)
+          if [ "$SNAPSHOT" = "true" ]; then
+            body="Snapshot pre-release for Kaoto ${RELEASE_TAG}."$'\n\n'"${body}"
+          fi
           {
             echo 'changelog_body<<EOF'
             echo "$body"
@@ -163,5 +167,5 @@ jobs:
           prerelease: ${{ inputs.snapshot }}
           allowUpdates: true
           artifactErrorsFailBuild: true
-          body: ${{ inputs.snapshot && format('Snapshot pre-release for Kaoto {0}.', needs.setup.outputs.release_tag) || steps.changelog.outputs.changelog_body }}
+          body: ${{ steps.changelog.outputs.changelog_body }}
           artifacts: release-artifacts/*
