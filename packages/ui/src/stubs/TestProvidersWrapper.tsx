@@ -59,6 +59,7 @@ export const TestProvidersWrapper = async (
           currentSchemaType,
           updateEntitiesFromCamelResource: updateEntitiesFromCamelResourceSpy,
           updateSourceCodeFromEntities: updateSourceCodeFromEntitiesSpy,
+          refreshVisualEntities: vi.fn(),
         }
       : props.entitiesContextValue;
 

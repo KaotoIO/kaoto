@@ -15,6 +15,7 @@ const mockEntitiesContext = {
   currentSchemaType: camelResource.getType(),
   updateSourceCodeFromEntities: vi.fn(),
   updateEntitiesFromCamelResource: vi.fn(),
+  refreshVisualEntities: vi.fn(),
 };
 
 describe('PipeErrorHandlerPage', () => {

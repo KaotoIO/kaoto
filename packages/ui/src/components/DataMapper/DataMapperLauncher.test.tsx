@@ -68,6 +68,7 @@ describe('DataMapperLauncher', () => {
     updateSourceCodeFromEntities: vi.fn(),
     updateEntitiesFromSource: vi.fn(),
     updateEntitiesFromCamelResource: vi.fn(),
+    refreshVisualEntities: vi.fn(),
     setCurrentEntity: vi.fn(),
   };
 
