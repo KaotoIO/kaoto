@@ -7,7 +7,7 @@ exports[`Tile > renders correctly 1`] = `
   data-ouia-component-type="PF6/Card"
   data-ouia-safe="true"
   data-testid="tile-tile-name"
-  id="tile-name"
+  id="tile-name-component"
   role="button"
 >
   <div
@@ -21,7 +21,7 @@ exports[`Tile > renders correctly 1`] = `
         class="pf-v6-c-card__selectable-actions"
       >
         <button
-          aria-labelledby="Selectable tile-name"
+          aria-labelledby="tile-name-component-title"
           class="pf-v6-c-card__clickable-action"
           type="button"
         />
@@ -92,7 +92,7 @@ exports[`Tile > renders correctly 1`] = `
       >
         <div
           class="pf-v6-c-card__title-text tile__title"
-          id="tile-name-title"
+          id="tile-name-component-title"
         >
           <span>
             tile-title

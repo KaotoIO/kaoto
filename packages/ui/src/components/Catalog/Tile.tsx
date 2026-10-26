@@ -1,10 +1,11 @@
 import './Tile.scss';
 
-import { Card, CardBody, CardFooter, CardHeader, CardTitle, LabelGroup } from '@patternfly/react-core';
-import { FunctionComponent, PropsWithChildren, useCallback } from 'react';
+import { Card, CardBody, CardFooter, CardHeader, CardTitle } from '@patternfly/react-core';
+import { FunctionComponent, memo, useCallback } from 'react';
 
-import { ITile } from './Catalog.models';
+import { getTileKey, ITile } from './Catalog.models';
 import { CatalogTag, CatalogTagsPanel } from './Tags';
+import { TileHeaderTags, TileIcon, TileProvider } from './TileParts';
 
 interface TileProps {
   tile: ITile;
@@ -12,57 +13,39 @@ interface TileProps {
   onTagClick: (_event: unknown, value: string) => void;
 }
 
-export const Tile: FunctionComponent<PropsWithChildren<TileProps>> = (props) => {
+export const Tile: FunctionComponent<TileProps> = memo(({ tile, onClick, onTagClick }) => {
+  const tileKey = getTileKey(tile);
   const onTileClick = useCallback(() => {
-    props.onClick(props.tile);
-  }, [props]);
+    onClick(tile);
+  }, [onClick, tile]);
 
   return (
-    <Card
-      className="tile"
-      data-testid={'tile-' + props.tile.name}
-      isClickable
-      isCompact
-      role="button"
-      key={props.tile.name}
-      id={props.tile.name}
-    >
+    <Card className="tile" data-testid={'tile-' + tile.name} isClickable isCompact role="button" id={tileKey}>
       <CardHeader
-        selectableActions={{ variant: 'single', selectableActionAriaLabelledby: `Selectable ${props.tile.name}` }}
-        data-testid={'tile-header-' + props.tile.name}
+        selectableActions={{ variant: 'single', selectableActionAriaLabelledby: `${tileKey}-title` }}
+        data-testid={'tile-header-' + tile.name}
         onClick={onTileClick}
       >
         <div className="tile__header">
-          {props.tile.iconUrl && (
-            <img src={props.tile.iconUrl} className="tile__icon" alt={`${props.tile.type} icon`} />
-          )}
-          <LabelGroup isCompact aria-label="tile-headers-tags">
-            {props.tile.headerTags?.map((tag, index) => (
-              <CatalogTag key={`${props.tile.name}-${tag}-${index}`} tag={tag} />
-            ))}
-          </LabelGroup>
+          <TileIcon tile={tile} className="tile__icon" />
+          <TileHeaderTags tile={tile} aria-label="tile-headers-tags" />
         </div>
 
         <CardTitle className="tile__title">
-          <span>{props.tile.title}</span>
-          <span className="tile__name">({props.tile.name})</span>
-          {props.tile.version && (
-            <CatalogTag key={`${props.tile.version}`} tag={props.tile.version} variant="outline" />
-          )}
+          <span>{tile.title}</span>
+          <span className="tile__name">({tile.name})</span>
+          {tile.version && <CatalogTag tag={tile.version} variant="outline" />}
         </CardTitle>
       </CardHeader>
 
-      <CardBody className="tile__body">{props.tile.description}</CardBody>
+      <CardBody className="tile__body">{tile.description}</CardBody>
 
       <CardFooter>
-        <CatalogTagsPanel tags={props.tile.tags} onTagClick={props.onTagClick} />
+        <CatalogTagsPanel tags={tile.tags} onTagClick={onTagClick} />
       </CardFooter>
 
-      {props.tile.provider && (
-        <p className="tile__provider" data-provider={props.tile.provider}>
-          Provided by {props.tile.provider}
-        </p>
-      )}
+      {tile.provider && <TileProvider provider={tile.provider} prefix="Provided by " />}
     </Card>
   );
-};
+});
+Tile.displayName = 'Tile';

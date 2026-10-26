@@ -2,8 +2,10 @@
 
 exports[`DataListItem > renders correctly 1`] = `
 <li
-  class="pf-v6-c-data-list__item catalog-data-list-item"
+  class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+  data-testid="tile-tile-name"
   id="tile-name-component"
+  tabindex="0"
 >
   <div
     class="pf-v6-c-data-list__item-row"
@@ -31,7 +33,7 @@ exports[`DataListItem > renders correctly 1`] = `
               />
               <span
                 class="catalog-data-list-item__title-div-left__title"
-                id="clickable-action-item1"
+                id="tile-name-component-title"
               >
                 tile-title
               </span>
@@ -178,7 +180,7 @@ exports[`DataListItem > renders correctly 1`] = `
             style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
           >
             <span
-              class="catalog-data-list-item__provider"
+              class="catalog-tile-provider catalog-data-list-item__provider"
             />
           </div>
         </div>

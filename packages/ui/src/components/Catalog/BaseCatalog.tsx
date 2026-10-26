@@ -3,7 +3,7 @@ import './BaseCatalog.scss';
 import { DataList, Gallery, Pagination } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 
-import { CatalogLayout, ITile } from './Catalog.models';
+import { CatalogLayout, getTileKey, ITile } from './Catalog.models';
 import { CatalogDataListItem } from './DataListItem';
 import { Tile } from './Tile';
 
@@ -15,6 +15,7 @@ interface BaseCatalogProps {
 }
 
 export const BaseCatalog: FunctionComponent<BaseCatalogProps> = (props) => {
+  const { onTileClick: onTileClickProp } = props;
   const catalogBodyRef = useRef<HTMLDivElement>(null);
   const itemCount = props.tiles?.length;
   const [page, setPage] = useState(1);
@@ -22,9 +23,9 @@ export const BaseCatalog: FunctionComponent<BaseCatalogProps> = (props) => {
 
   const onTileClick = useCallback(
     (tile: ITile) => {
-      props.onTileClick?.(tile);
+      onTileClickProp?.(tile);
     },
-    [props],
+    [onTileClickProp],
   );
 
   // Clamp during rendering so filtering never commits an empty, out-of-range page.
@@ -35,14 +36,6 @@ export const BaseCatalog: FunctionComponent<BaseCatalogProps> = (props) => {
   useEffect(() => {
     catalogBodyRef.current!.scrollTop = 0;
   }, [props.tiles]);
-
-  const onSelectDataListItem = useCallback(
-    (_event: React.MouseEvent | React.KeyboardEvent, id: string) => {
-      const tile = props.tiles.find((tile) => tile.name + '-' + tile.type === id);
-      onTileClick(tile!);
-    },
-    [onTileClick, props.tiles],
-  );
 
   const onSetPage = (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPage: number) => {
     setPage(newPage);
@@ -72,16 +65,21 @@ export const BaseCatalog: FunctionComponent<BaseCatalogProps> = (props) => {
       />
       <div id="catalog-list" className="catalog-list" ref={catalogBodyRef}>
         {props.catalogLayout == CatalogLayout.List && (
-          <DataList aria-label="Catalog list" onSelectDataListItem={onSelectDataListItem} isCompact>
+          <DataList aria-label="Catalog list" isCompact>
             {paginatedCards.map((tile) => (
-              <CatalogDataListItem key={`${tile.name}-${tile.type}`} tile={tile} onTagClick={props.onTagClick} />
+              <CatalogDataListItem
+                key={getTileKey(tile)}
+                tile={tile}
+                onClick={onTileClick}
+                onTagClick={props.onTagClick}
+              />
             ))}
           </DataList>
         )}
         {props.catalogLayout == CatalogLayout.Gallery && (
           <Gallery hasGutter>
             {paginatedCards.map((tile) => (
-              <Tile key={`${tile.name}-${tile.type}`} tile={tile} onClick={onTileClick} onTagClick={props.onTagClick} />
+              <Tile key={getTileKey(tile)} tile={tile} onClick={onTileClick} onTagClick={props.onTagClick} />
             ))}
           </Gallery>
         )}
