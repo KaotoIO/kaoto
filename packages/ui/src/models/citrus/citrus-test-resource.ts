@@ -198,7 +198,15 @@ export class CitrusTestResource implements KaotoResource {
    * serialising, ensuring that action group properties are placed at the
    * correct level in the output YAML.
    */
-  static readonly TOP_LEVEL_PROPERTY_ORDER = ['name', 'description', 'variables', 'beans', 'endpoints', 'actions', 'finally'];
+  static readonly TOP_LEVEL_PROPERTY_ORDER = [
+    'name',
+    'description',
+    'variables',
+    'beans',
+    'endpoints',
+    'actions',
+    'finally',
+  ];
 
   async toSourceCode(): Promise<string> {
     const entity = this.getVisualEntities()[0];
@@ -212,14 +220,14 @@ export class CitrusTestResource implements KaotoResource {
   private static orderProperties(obj: unknown): unknown {
     if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return obj;
     const record = obj as Record<string, unknown>;
-    const ordered: Record<string, unknown> = {};
+    const ordered = Object.create(null) as Record<string, unknown>;
     for (const key of CitrusTestResource.TOP_LEVEL_PROPERTY_ORDER) {
-      if (key in record) {
+      if (Object.prototype.hasOwnProperty.call(record, key)) {
         ordered[key] = record[key];
       }
     }
     for (const key of Object.keys(record)) {
-      if (!(key in ordered)) {
+      if (!Object.prototype.hasOwnProperty.call(ordered, key)) {
         ordered[key] = record[key];
       }
     }
