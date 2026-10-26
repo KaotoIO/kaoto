@@ -258,7 +258,7 @@ describe('CitrusTestResource', () => {
         actions: [{ echo: { message: 'hi' } }],
         finally: [{ print: { message: 'done' } }],
         name: 'ordering-test',
-        beans: [{ name: 'myBean', type: 'com.example.MyBean' }],
+        configuration: { beans: [{ name: 'myBean', type: 'com.example.MyBean' }] },
         endpoints: [{ direct: { name: 'myEndpoint' } }],
         variables: [{ name: 'v1', value: 'val1' }],
         description: 'A test for ordering',
@@ -268,7 +268,7 @@ describe('CitrusTestResource', () => {
 
       const yaml = await resource.toSourceCode();
       const keys = [...yaml.matchAll(/^(\w+):/gm)].map((m) => m[1]);
-      expect(keys).toEqual(['name', 'description', 'variables', 'beans', 'endpoints', 'actions', 'finally']);
+      expect(keys).toEqual(['name', 'description', 'variables', 'configuration', 'endpoints', 'actions', 'finally']);
     });
 
     describe('with Citrus catalog loaded', () => {
