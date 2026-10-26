@@ -2,7 +2,7 @@ import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { ChannelType, StateControlCommand } from '@kie-tools-core/editor/dist/api';
 import { Notification } from '@kie-tools-core/notifications/dist/api';
 import { VisualizationProvider } from '@patternfly/react-topology';
-import { FunctionComponent, PropsWithChildren, useContext, useEffect, useMemo } from 'react';
+import { FunctionComponent, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 
 import { NodeInteractionAddonProvider } from '../../components/registers/interactions/node-interaction-addon.provider';
 import { RegisterComponents } from '../../components/registers/RegisterComponents';
@@ -92,10 +92,14 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>>
 
   /** Load test reports for Citrus test entities */
   const entitiesContext = useContext(EntitiesContext);
-  useEffect(() => {
-    if (!entitiesContext?.visualEntities || !getTestReport) return;
+  const entitiesContextRef = useRef(entitiesContext);
+  entitiesContextRef.current = entitiesContext;
 
-    const citrusEntities = entitiesContext.visualEntities.filter(
+  const loadTestReports = useCallback(() => {
+    const ctx = entitiesContextRef.current;
+    if (!ctx?.visualEntities || !getTestReport) return;
+
+    const citrusEntities = ctx.visualEntities.filter(
       (e): e is CitrusTestVisualEntity => e instanceof CitrusTestVisualEntity,
     );
     if (citrusEntities.length === 0) return;
@@ -103,16 +107,38 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>>
     let cancelled = false;
     for (const entity of citrusEntities) {
       void getTestReport(entity.id).then((report) => {
-        if (!cancelled && report) {
+        if (cancelled) return;
+        if (report) {
           entity.applyTestReport(report);
+        } else {
+          entity.clearTestReport();
         }
+        ctx.refreshVisualEntities();
       });
     }
 
     return () => {
       cancelled = true;
     };
-  }, [entitiesContext?.visualEntities, getTestReport]);
+  }, [getTestReport]);
+
+  const hasEntities = (entitiesContext?.visualEntities?.length ?? 0) > 0;
+  useEffect(() => {
+    if (hasEntities) {
+      return loadTestReports();
+    }
+  }, [hasEntities, loadTestReports]);
+
+  /** Re-fetch test reports when the extension signals a test run completed */
+  useEffect(() => {
+    const handler = (event: MessageEvent) => {
+      if (event.data?.type === 'kaoto__testReportReady') {
+        loadTestReports();
+      }
+    };
+    window.addEventListener('message', handler);
+    return () => window.removeEventListener('message', handler);
+  }, [loadTestReports]);
 
   return (
     <CatalogTilesProvider>

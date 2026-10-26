@@ -79,6 +79,7 @@ describe.skip('DataMapper sync — onUpdateDocument validation step synchronizat
     getSuggestions: () => Promise.resolve([]),
     shouldSaveSchema: false,
     onStepUpdated: () => Promise.resolve(),
+    getTestReport: () => Promise.resolve(undefined),
   } as IMetadataApi;
 
   beforeEach(() => {

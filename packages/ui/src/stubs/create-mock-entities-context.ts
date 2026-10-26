@@ -10,5 +10,6 @@ export const createMockEntitiesContext = async (camelResource: CamelRouteResourc
     currentSchemaType: camelResource.getType(),
     updateSourceCodeFromEntities: vi.fn(),
     updateEntitiesFromCamelResource: vi.fn(),
+    refreshVisualEntities: vi.fn(),
   };
 };

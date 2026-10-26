@@ -39,6 +39,7 @@ import {
 } from '../constants';
 import { RuntimeType } from '../executors/types/ExecutorTypes';
 import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
+import { TestReportEvents } from '../services/TestReportEvents';
 import { findClasspathRoot } from '../utils/ClasspathRootFinder';
 import { resolvePaths } from '../utils/Path';
 import { readKameletsFromDirectory } from '../services/KameletFileReader';
@@ -64,9 +65,16 @@ export class VSCodeKaotoEditorChannelApi extends DefaultVsCodeKieEditorChannelAp
 		super(editor, resourceContentService, workspaceApi, backendProxy, notificationsApi, javaCodeCompletionApi, viewType, i18n);
 		this.currentEditedDocument = editor.document.document;
 
+		const testReportSubscription = TestReportEvents.instance.onTestReportReady((filePaths) => {
+			if (filePaths.includes(this.currentEditedDocument.uri.fsPath)) {
+				editor.panel.webview.postMessage({ type: 'kaoto__testReportReady' });
+			}
+		});
+
 		// Dispose watcher when the webview/editor is closed
 		editor.setupPanelOnDidDispose();
 		editor.panel.onDidDispose(() => {
+			testReportSubscription.dispose();
 			StepsOnSaveManager.instance.disposeFor(this.currentEditedDocument.uri);
 		});
 	}

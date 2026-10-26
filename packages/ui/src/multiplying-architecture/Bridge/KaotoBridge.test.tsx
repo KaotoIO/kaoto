@@ -75,6 +75,7 @@ describe('KaotoBridge', () => {
       camelResource: {} as EntitiesContextResult['camelResource'],
       updateSourceCodeFromEntities: vi.fn(),
       updateEntitiesFromCamelResource: vi.fn(),
+      refreshVisualEntities: vi.fn(),
     });
 
     it('should call applyTestReport when getTestReport resolves with a report', async () => {
@@ -110,9 +111,10 @@ describe('KaotoBridge', () => {
       expect(mockGetTestReport).not.toHaveBeenCalled();
     });
 
-    it('should not call applyTestReport when getTestReport returns undefined', async () => {
+    it('should call clearTestReport when getTestReport returns undefined', async () => {
       const entity = new CitrusTestVisualEntity({ name: 'test-1', actions: [] });
       const applyTestReportSpy = vi.spyOn(entity, 'applyTestReport');
+      const clearTestReportSpy = vi.spyOn(entity, 'clearTestReport');
       const mockGetTestReport = vi.fn().mockResolvedValue(undefined);
 
       render(
@@ -125,9 +127,37 @@ describe('KaotoBridge', () => {
 
       await waitFor(() => {
         expect(mockGetTestReport).toHaveBeenCalledWith('test-1');
+        expect(clearTestReportSpy).toHaveBeenCalled();
       });
 
       expect(applyTestReportSpy).not.toHaveBeenCalled();
+    });
+
+    it('should re-fetch test reports when kaoto__testReportReady message is received', async () => {
+      const entity = new CitrusTestVisualEntity({ name: 'test-1', actions: [] });
+      const mockGetTestReport = vi.fn().mockResolvedValue(undefined);
+
+      render(
+        <EntitiesContext.Provider value={createEntitiesContext([entity])}>
+          <KaotoBridge {...defaultProps} getTestReport={mockGetTestReport}>
+            <div>Test Child</div>
+          </KaotoBridge>
+        </EntitiesContext.Provider>,
+      );
+
+      await waitFor(() => {
+        expect(mockGetTestReport).toHaveBeenCalledTimes(1);
+      });
+
+      mockGetTestReport.mockResolvedValue(mockReport);
+      const applyTestReportSpy = vi.spyOn(entity, 'applyTestReport');
+
+      window.dispatchEvent(new MessageEvent('message', { data: { type: 'kaoto__testReportReady' } }));
+
+      await waitFor(() => {
+        expect(mockGetTestReport).toHaveBeenCalledTimes(2);
+        expect(applyTestReportSpy).toHaveBeenCalledWith(mockReport);
+      });
     });
   });
 });
