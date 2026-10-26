@@ -112,13 +112,27 @@ suite('VSCodeKaotoEditorChannelApi .kaoto metadata file lookup', () => {
 			expect(found?.fsPath).to.equal(vscode.Uri.file(path.join(nested, '.kaoto')).fsPath);
 		});
 
-		test('outside of any workspace, does not look up any .kaoto file', async () => {
+		test('outside of any workspace, finds the .kaoto file next to the route', async () => {
 			fs.writeFileSync(path.join(outsideRoot, '.kaoto'), '{}');
 			const route = vscode.Uri.file(path.join(outsideRoot, 'a.camel.yaml'));
 
 			const found = await createApi(route).findExistingKaotoMetadataFile(route);
 
-			expect(found).to.be.undefined;
+			expect(found?.fsPath).to.equal(vscode.Uri.file(path.join(outsideRoot, '.kaoto')).fsPath);
+		});
+
+		test('outside of any workspace, does not look above the folder of the route', async () => {
+			const outsideParentKaoto = path.join(path.dirname(outsideRoot), '.kaoto');
+			fs.writeFileSync(outsideParentKaoto, '{"leaked":"from-another-project"}');
+			const route = vscode.Uri.file(path.join(outsideRoot, 'a.camel.yaml'));
+
+			try {
+				const found = await createApi(route).findExistingKaotoMetadataFile(route);
+
+				expect(found).to.be.undefined;
+			} finally {
+				fs.rmSync(outsideParentKaoto, { force: true });
+			}
 		});
 	});
 
@@ -131,17 +145,12 @@ suite('VSCodeKaotoEditorChannelApi .kaoto metadata file lookup', () => {
 			expect(toCreate.fsPath).to.equal(vscode.Uri.file(workspaceKaoto).fsPath);
 		});
 
-		test('outside of any workspace, fails instead of creating a .kaoto file', async () => {
+		test('outside of any workspace, creates the .kaoto file next to the route', async () => {
 			const route = vscode.Uri.file(path.join(outsideRoot, 'a.camel.yaml'));
 
-			let error: unknown;
-			try {
-				await createApi(route).findKaotoMetadataToCreate();
-			} catch (ex) {
-				error = ex;
-			}
+			const toCreate = await createApi(route).findKaotoMetadataToCreate();
 
-			expect(error).to.be.instanceOf(Error);
+			expect(toCreate.fsPath).to.equal(vscode.Uri.file(path.join(outsideRoot, '.kaoto')).fsPath);
 		});
 	});
 
