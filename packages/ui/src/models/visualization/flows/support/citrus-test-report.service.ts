@@ -10,29 +10,7 @@ export class CitrusTestReportService {
    * Finds the first test action result that matches the given action path.
    */
   static findResult(path: string, actions: TestActionResult[]): TestActionResult | undefined {
-    for (const action of actions) {
-      if (this.matchPath(action.path, path)) {
-        return action;
-      }
-
-      if (action.actions) {
-        const found = this.findResult(path, action.actions);
-        if (found !== undefined) {
-          return found;
-        }
-      }
-
-      for (const iteration of action.iterations || []) {
-        if (iteration.actions) {
-          const found = this.findResult(path, iteration.actions);
-          if (found !== undefined) {
-            return found;
-          }
-        }
-      }
-    }
-
-    return undefined;
+    return this.traverseActions(actions, (action) => (this.matchPath(action.path, path) ? action : undefined));
   }
 
   /**
@@ -45,29 +23,9 @@ export class CitrusTestReportService {
       return undefined;
     }
 
-    for (const action of actions) {
-      if (action.error && this.matchPath(action.path, path)) {
-        return action.error;
-      }
-
-      if (action.actions) {
-        const errorMsg = this.findError(path, action.actions);
-        if (errorMsg) {
-          return errorMsg;
-        }
-      }
-
-      for (const iteration of action.iterations || []) {
-        if (iteration.actions) {
-          const iterationError = this.findError(path, iteration.actions);
-          if (iterationError) {
-            return iterationError;
-          }
-        }
-      }
-    }
-
-    return undefined;
+    return this.traverseActions(actions, (action) =>
+      action.error && this.matchPath(action.path, path) ? action.error : undefined,
+    );
   }
 
   /**
@@ -103,8 +61,8 @@ export class CitrusTestReportService {
           return false;
         }
       } else {
-        const reportParts = reportSegments[i].split(/[:-]/).sort();
-        const uiParts = uiSegments[i].split(/[:-]/).sort();
+        const reportParts = reportSegments[i].split(/[:-]/).sort((a, b) => a.localeCompare(b));
+        const uiParts = uiSegments[i].split(/[:-]/).sort((a, b) => a.localeCompare(b));
         if (reportParts.join(',') !== uiParts.join(',')) {
           return false;
         }
@@ -112,5 +70,37 @@ export class CitrusTestReportService {
     }
 
     return true;
+  }
+
+  private static traverseActions<T>(
+    actions: TestActionResult[],
+    matcher: (action: TestActionResult) => T | undefined,
+  ): T | undefined {
+    for (const action of actions) {
+      const result = matcher(action);
+      if (result !== undefined) return result;
+
+      const childResult = this.searchChildren(action, matcher);
+      if (childResult !== undefined) return childResult;
+    }
+    return undefined;
+  }
+
+  private static searchChildren<T>(
+    action: TestActionResult,
+    matcher: (action: TestActionResult) => T | undefined,
+  ): T | undefined {
+    if (action.actions) {
+      const found = this.traverseActions(action.actions, matcher);
+      if (found !== undefined) return found;
+    }
+
+    for (const iteration of action.iterations ?? []) {
+      if (iteration.actions) {
+        const found = this.traverseActions(iteration.actions, matcher);
+        if (found !== undefined) return found;
+      }
+    }
+    return undefined;
   }
 }

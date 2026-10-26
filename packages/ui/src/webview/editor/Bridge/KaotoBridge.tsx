@@ -127,9 +127,8 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>>
 
   /** Listen for test run started / test report ready messages from the extension */
   useEffect(() => {
-    const expectedOrigin = window.location.origin;
     const handler = (event: MessageEvent) => {
-      if (event.origin && event.origin !== expectedOrigin) return;
+      if (event.source && event.source !== window) return; // NOSONAR
       if (event.data?.type === 'kaoto__testRunStarted') {
         clearTestReports();
       } else if (event.data?.type === 'kaoto__testReportReady') {
